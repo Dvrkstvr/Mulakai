@@ -17,7 +17,11 @@ export default function App() {
 
   useEffect(() => {
     refresh();
-    api.acestepHealth().then((h) => setOnline(h.acestep)).catch(() => setOnline(false));
+    const checkHealth = () =>
+      api.acestepHealth().then((h) => setOnline(h.acestep)).catch(() => setOnline(false));
+    checkHealth();
+    const timer = setInterval(checkHealth, 10_000);
+    return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
