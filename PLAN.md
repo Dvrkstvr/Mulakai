@@ -148,13 +148,13 @@ button), `GET /v1/models`, `GET /health`.
 
 **Task-type mapping** (the editing model maps 1:1 onto the API):
 
-| Feature | task_type | Key params |
-|---|---|---|
-| Generate | `text2music` | prompt, lyrics, bpm/key/duration, thinking |
-| Repaint region | `repaint` | src_audio, repainting_start/end, repaint_mode, repaint_strength (= VARIANCE slider), crossfade params |
-| Add layer | `lego` | src_audio (current mix), track name (vocals/drums/bass/guitar/keyboard/strings/synth/…), caption, repainting_start/end |
-| Stem separation | `extract` | src_audio + track to isolate — native, no Demucs needed |
-| Complete (future) | `complete` | partial track + instruments to add |
+| Feature           | task_type    | Key params                                                                                                             |
+| ----------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| Generate          | `text2music` | prompt, lyrics, bpm/key/duration, thinking                                                                             |
+| Repaint region    | `repaint`    | src_audio, repainting_start/end, repaint_mode, repaint_strength (= VARIANCE slider), crossfade params                  |
+| Add layer         | `lego`       | src_audio (current mix), track name (vocals/drums/bass/guitar/keyboard/strings/synth/…), caption, repainting_start/end |
+| Stem separation   | `extract`    | src_audio + track to isolate — native, use Demucs as alternative option                                                |
+| Complete (future) | `complete`   | partial track + instruments to add                                                                                     |
 
 **Model constraint**: turbo model supports only text2music/repaint/cover;
 `lego`/`extract`/`complete` require the base model (32–64 steps, slower).
