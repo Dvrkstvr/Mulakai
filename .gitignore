@@ -11,3 +11,6 @@ openspec/changes/
 
 # logs
 *.log
+
+# editor/vault configs
+.obsidian/
