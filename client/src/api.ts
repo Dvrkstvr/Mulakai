@@ -49,12 +49,15 @@ export const api = {
   listSongs: (q = ''): Promise<Song[]> =>
     fetch(`/api/songs?q=${encodeURIComponent(q)}`).then((r) => json<Song[]>(r)),
 
-  generate: (params: { title: string; prompt: string; lyrics?: string }): Promise<{ jobId: string }> =>
+  generate: (params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>): Promise<{ jobId: string }> =>
     fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
     }).then((r) => json<{ jobId: string }>(r)),
+
+  listModels: (): Promise<{ models: string[]; lmModels: string[] }> =>
+    fetch('/api/generate/models').then((r) => json<{ models: string[]; lmModels: string[] }>(r)),
 
   jobStatus: (jobId: string): Promise<{ status: 'running' | 'done' | 'failed'; songId?: string; error?: string }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),
@@ -74,7 +77,7 @@ export const api = {
 
   repaint: (
     layerId: string,
-    params: { prompt: string; start: number; end: number; repaint_strength?: number; seed?: number },
+    params: { prompt: string; start: number; end: number } & Record<string, unknown>,
   ): Promise<{ jobId: string }> =>
     fetch(`/api/layers/${layerId}/repaint`, {
       method: 'POST',

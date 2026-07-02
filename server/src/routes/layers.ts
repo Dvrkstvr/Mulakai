@@ -26,7 +26,8 @@ layersRouter.patch('/:id', (req, res) => {
 
 /** Repaint a region of this layer's active version -> new version. */
 layersRouter.post('/:id/repaint', async (req, res) => {
-  const { prompt = '', start = 0, end = -1, repaint_strength, repaint_mode, seed } = req.body ?? {};
+  const { prompt = '', start = 0, end = -1, repaint_strength, repaint_mode,
+    inference_steps, guidance_scale, use_random_seed, seed } = req.body ?? {};
   try {
     const job = await startRepaint(req.params.id, {
       prompt,
@@ -34,7 +35,10 @@ layersRouter.post('/:id/repaint', async (req, res) => {
       repainting_end: Number(end),
       ...(repaint_strength !== undefined ? { repaint_strength: Number(repaint_strength) } : {}),
       ...(repaint_mode ? { repaint_mode } : {}),
-      ...(seed !== undefined ? { seed: Number(seed), use_random_seed: false } : {}),
+      ...(inference_steps !== undefined ? { inference_steps: Number(inference_steps) } : {}),
+      ...(guidance_scale !== undefined ? { guidance_scale: Number(guidance_scale) } : {}),
+      ...(use_random_seed === false ? { use_random_seed: false } : {}),
+      ...(seed !== undefined && use_random_seed === false ? { seed: Number(seed) } : {}),
     });
     res.status(202).json({ jobId: job.id });
   } catch (err) {

@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, type SongDetail } from './api';
 import { Waveform, type Region } from './Waveform';
+import { SettingsPanel } from './SettingsPanel';
+import { useSettings, repaintParams } from './settings';
+import { motion, AnimatePresence } from 'framer-motion';
+import { AIGeneratingBackground } from './AIGeneratingBackground';
 
 interface Props {
   songId: string;
@@ -10,10 +14,10 @@ interface Props {
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 export function Editor({ songId, onBack }: Props) {
+  const repaintSettings = useSettings((s) => s.repaint);
   const [song, setSong] = useState<SongDetail | null>(null);
   const [selection, setSelection] = useState<Region | null>(null);
   const [prompt, setPrompt] = useState('');
-  const [strength, setStrength] = useState(0.5);
   const [job, setJob] = useState<'idle' | 'running'>('idle');
   const [error, setError] = useState('');
   const [playhead, setPlayhead] = useState(0);
@@ -35,7 +39,7 @@ export function Editor({ songId, onBack }: Props) {
         prompt,
         start: selection.start,
         end: selection.end,
-        repaint_strength: strength,
+        ...repaintParams(repaintSettings),
       });
       for (;;) {
         await new Promise((r) => setTimeout(r, 2000));
@@ -70,8 +74,12 @@ export function Editor({ songId, onBack }: Props) {
         </span>
       </header>
 
+      <div className="with-panel">
+        <SettingsPanel mode="repaint" />
+        <div className="editor-main">
+      <AnimatePresence>
       {activeVersion && (
-        <section className="canvas">
+        <motion.section key="canvas" className="canvas" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
           <Waveform
             audioUrl={`/audio/${activeVersion.audio_file}`}
             duration={duration}
@@ -93,42 +101,64 @@ export function Editor({ songId, onBack }: Props) {
             onTimeUpdate={(e) => setPlayhead(e.currentTarget.currentTime)}
             style={{ width: '100%', marginTop: 8 }}
           />
-        </section>
+        </motion.section>
       )}
+      </AnimatePresence>
 
-      <section className="repaint">
-        <div className="scope-chip">
+      <motion.section className="repaint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }}>
+        <motion.div className="scope-chip" layout>
           {selection ? `${fmt(selection.start)}–${fmt(selection.end)} · BASE` : 'NO SELECTION'}
-        </div>
+        </motion.div>
         <input
           placeholder="Describe what should change in the selected region"
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
         />
-        <label className="slider">
-          VARIANCE {Math.round(strength * 100)}
-          <input type="range" min="0" max="1" step="0.05" value={strength}
-            onChange={(e) => setStrength(Number(e.target.value))} />
-        </label>
-        <button className="acid" disabled={!selection || job === 'running'} onClick={repaint}>
-          {job === 'running' ? 'REPAINTING…' : 'REPAINT REGION'}
-        </button>
-      </section>
+        <motion.button
+          className="acid"
+          animate={job === 'running' ? {
+            skewX: 0,
+            backgroundColor: 'transparent',
+            color: '#D4FF00'
+          } : {
+            skewX: -10,
+            backgroundColor: '#D4FF00',
+            color: '#1C1D21'
+          }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          style={{ position: 'relative', overflow: 'hidden' }}
+          disabled={!selection || job === 'running'}
+          onClick={repaint}
+        >
+          {job === 'running' ? (
+            <>
+              <AIGeneratingBackground />
+              <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                REPAINTING…
+              </span>
+            </>
+          ) : 'REPAINT REGION'}
+        </motion.button>
+      </motion.section>
       {error && <div className="error">{error} <button onClick={repaint}>RETRY</button></div>}
+      <AnimatePresence>
       {baseLayer && baseLayer.versions.length > 0 && (
-        <section className="versions">
+        <motion.section className="versions" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}>
           <div className="section-label">HISTORY</div>
           {baseLayer.versions.map((v) => (
-            <div key={v.id} className={v.active ? 'version current' : 'version'}>
+            <motion.div layout key={v.id} className={v.active ? 'version current' : 'version'}>
               <span>{v.label || 'version'}</span>
               <span className="meta">{new Date(v.created_at + 'Z').toLocaleString()}</span>
               {v.active
                 ? <span className="badge">CURRENT</span>
                 : <button onClick={() => revert(v.id)}>REVERT</button>}
-            </div>
+            </motion.div>
           ))}
-        </section>
+        </motion.section>
       )}
+      </AnimatePresence>
+        </div>
+      </div>
     </div>
   );
 }

@@ -73,5 +73,6 @@ timeout /t 3 /nobreak >nul
 start http://localhost:5173
 
 echo.
-echo Press any key to close this window (services will keep running)
-pause >nul
+echo All services are running.
+echo this launcher will close now :)
+timeout /t 3 /nobreak >nul

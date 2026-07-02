@@ -118,26 +118,39 @@ stacked modals.
    list (title · lilac version badge · mini waveform · duration · heart ·
    dislike), rust trash strip docked at the bottom (count + 7-day expiry
    note). Global error toasts (rust) appear in the header row.
-2. **Create** — focused takeover: SIMPLE / CUSTOM / FROM AUDIO parallelogram
-   tabs, description field, style tag chips (acid-outlined parallelograms),
-   AI-enhance toggle, lyrics editor (mono) with instrumental toggle,
-   parameter cells (duration/BPM/key/variations), one acid GENERATE bar.
+2. **Create** — focused takeover with a **left settings panel** (see below)
+   beside the create form: title, description field, style tag chips
+   (acid-outlined parallelograms), lyrics editor (mono) with instrumental
+   toggle, one acid GENERATE bar.
 3. **Editor** (the heart) — layout:
-   - Left rail (~150px): version history tree (lilac), indented branches,
-     A/B + Fork buttons. Permanent, not collapsible-by-default.
-   - Header: acid play hexagon, bold title, time/bpm/key metadata, EXPORT
-     (neutral parallelogram).
-   - Selection toolbar: appears centered above the canvas when a region is
-     selected — REPAINT / + LAYER / VOCALS / TRIM segments, acid-outlined,
-     active segment acid-filled.
-   - Canvas: large composite waveform, drag-select regions (sky).
+   - Header (full width): back-to-library, bold title, time/bpm/key metadata,
+     EXPORT (neutral parallelogram).
+   - Left settings panel (~210px, see below): repaint parameters. Permanent.
+   - Version history (lilac) with REVERT on inactive versions; branches
+     A/B + Fork are future work.
+   - Canvas: large composite waveform, drag-select regions (sky), playhead.
    - Section strip: parallelogram segments (Intro/Verse/…), click = select
-     that section; active = sky.
+     that section; active = sky. (future work)
    - Layer lanes: one thin waveform lane per layer, right-aligned uppercase
-     name, volume + solo icons; muted lane's icon in rust-text.
-   - Prompt bar (bottom): sky scope chip mirroring current selection
-     (SECTION · LAYER), free-text instruction, acid send hexagon.
-     Disabled (with lock note) while an action sheet is open.
+     name, volume + solo icons; muted lane's icon in rust-text. (future work)
+   - Prompt bar: sky scope chip mirroring current selection, free-text
+     instruction, acid REPAINT REGION action.
+
+### Left settings panel (Create + Editor)
+
+A **persistent left panel** (~210px, carbon-panel surface, 1px border) holds
+generation/repaint parameters — it does NOT slide in per-action. This
+replaces the earlier right side-sheet concept so power controls are always
+visible without a selection.
+
+- **Generate mode**: MODEL select (hidden if the backend lists none),
+  THINKING MODE + AI ENHANCE toggles, STEPS + GUIDANCE sliders, RANDOM SEED
+  toggle with a seed field when off.
+- **Repaint mode**: MODE segmented control (conservative/balanced/aggressive),
+  VARIANCE + STEPS + GUIDANCE sliders, RANDOM SEED toggle + seed field.
+- Controls: acid-accented range sliders, acid-when-on toggles (parallelogram
+  knob), acid-filled active segment in the segmented control. Slider readouts
+  in acid. Settings persist across sessions (localStorage).
 
 ### Interaction rhythm
 
@@ -145,11 +158,9 @@ The whole app is a two-step loop: **target** (sky) → **commit** (acid).
 Select where, then say what. Every commit produces a new version (lilac) and
 never destroys the old one.
 
-- Quick path: select region → type in prompt bar → send.
-- Control path: select region → toolbar action → right side sheet (~220px)
-  slides in with full parameters (prompt, region lyrics, variance/steps/
-  guidance sliders, seed lock) → acid commit button naming the outcome
-  ("REPAINT REGION", footer: "Non-destructive — v2 stays in history").
+- Quick path: select region → type in prompt bar → REPAINT REGION.
+- Control path: adjust the always-visible left settings panel (mode, variance,
+  steps, guidance, seed) before committing — no per-action sheet.
 - Empty selection = whole song scope.
 - Actions always state the version they will create before commit.
 
