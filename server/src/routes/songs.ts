@@ -26,6 +26,22 @@ songsRouter.get('/trash', (_req, res) => {
   res.json(db.prepare(`SELECT * FROM songs WHERE trashed_at IS NOT NULL ORDER BY trashed_at`).all());
 });
 
+/** Full editor payload: song + layers + all versions per layer. */
+songsRouter.get('/:id', (req, res) => {
+  const song = db.prepare(`SELECT * FROM songs WHERE id = ?`).get(req.params.id);
+  if (!song) return res.status(404).json({ error: 'unknown song' });
+  const layers = db
+    .prepare(`SELECT * FROM layers WHERE song_id = ? ORDER BY position`)
+    .all(req.params.id) as Array<Record<string, unknown>>;
+  for (const layer of layers) {
+    layer.versions = db
+      .prepare(`SELECT id, audio_file, label, seed, active, created_at FROM versions
+                WHERE layer_id = ? ORDER BY created_at DESC`)
+      .all(layer.id as string);
+  }
+  res.json({ ...song, layers });
+});
+
 songsRouter.patch('/:id/favorite', (req, res) => {
   const fav = req.body?.favorite ? 1 : 0;
   db.prepare(`UPDATE songs SET favorite = ? WHERE id = ?`).run(fav, req.params.id);

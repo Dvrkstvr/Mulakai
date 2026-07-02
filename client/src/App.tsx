@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, type Song } from './api';
+import { Editor } from './Editor';
 
 export default function App() {
+  const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [query, setQuery] = useState('');
   const [online, setOnline] = useState<boolean | null>(null);
@@ -46,6 +48,14 @@ export default function App() {
     }
   };
 
+  if (openSongId) {
+    return (
+      <div className="app">
+        <Editor songId={openSongId} onBack={() => { setOpenSongId(null); refresh(); }} />
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <header>
@@ -74,8 +84,9 @@ export default function App() {
         {songs.map((s) => (
           <div key={s.id} className="row">
             <button onClick={() => { setPlaying(s); setTimeout(() => audioRef.current?.play(), 0); }}>▶</button>
-            <span className="song-title">{s.title}</span>
+            <span className="song-title link" onClick={() => setOpenSongId(s.id)}>{s.title}</span>
             <span className="meta">{s.caption}</span>
+            <button onClick={() => setOpenSongId(s.id)}>EDIT</button>
             <button className={s.favorite ? 'fav on' : 'fav'} onClick={() => api.setFavorite(s.id, !s.favorite).then(() => refresh())}>♥</button>
             <button onClick={() => api.trash(s.id).then(() => refresh())}>✕</button>
           </div>
