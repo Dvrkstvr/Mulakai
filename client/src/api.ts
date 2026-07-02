@@ -72,7 +72,7 @@ export const api = {
   listModels: (): Promise<ModelInventory> =>
     fetch('/api/generate/models').then((r) => json<ModelInventory>(r)),
 
-  jobStatus: (jobId: string): Promise<{ status: 'running' | 'done' | 'failed'; songId?: string; error?: string }> =>
+  jobStatus: (jobId: string): Promise<{ status: 'loading' | 'running' | 'done' | 'failed'; songId?: string; error?: string }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),
 
   acestepHealth: (): Promise<{ acestep: boolean }> =>

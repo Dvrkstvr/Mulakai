@@ -4,12 +4,12 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { releaseTask, queryResult, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
+import { releaseTask, queryResult, downloadAudio, initModel, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 
 export interface Job {
   id: string;
   taskId: string;
-  status: 'running' | 'done' | 'failed';
+  status: 'loading' | 'running' | 'done' | 'failed';
   error?: string;
   songId?: string;
   createdAt: number;
@@ -21,13 +21,41 @@ export function getJob(id: string): Job | undefined {
   return jobs.get(id);
 }
 
+/**
+ * Load the requested model into slot 1 if a specific one was chosen.
+ * AUTO (no model / no LM selected) skips init and lets ACE-Step lazy-load its
+ * own defaults.
+ */
+async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void> {
+  const lmSelected = !!params.lm_model_path;
+  const needLlm = !!params.thinking || !!params.use_format || lmSelected;
+  if (params.model || lmSelected) {
+    await initModel({ model: params.model, lmModel: params.lm_model_path, initLlm: needLlm });
+  }
+}
+
 /** Submit a text2music generation and persist the result as a new song with a base layer. */
-export async function startGeneration(params: ReleaseTaskParams, title: string): Promise<Job> {
-  const { task_id } = await releaseTask({ audio_format: 'mp3', ...params, task_type: 'text2music' });
-  const job: Job = { id: crypto.randomUUID(), taskId: task_id, status: 'running', createdAt: Date.now() };
+export function startGeneration(params: ReleaseTaskParams, title: string): Job {
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
   jobs.set(job.id, job);
-  void poll(job, (result) => persistSong(result.file, params, result, title));
+  void run(job, async () => {
+    await ensureModelLoaded(params);
+    job.status = 'running';
+    const { task_id } = await releaseTask({ audio_format: 'mp3', ...params, task_type: 'text2music' });
+    job.taskId = task_id;
+    await poll(job, (result) => persistSong(result.file, params, result, title));
+  });
   return job;
+}
+
+/** Wrap an async job body so any thrown error marks the job failed. */
+async function run(job: Job, body: () => Promise<void>): Promise<void> {
+  try {
+    await body();
+  } catch (err) {
+    job.status = 'failed';
+    job.error = err instanceof Error ? err.message : String(err);
+  }
 }
 
 /** Repaint a region of a layer's active version; result becomes the layer's new active version. */

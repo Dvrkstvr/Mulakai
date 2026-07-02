@@ -3,12 +3,14 @@ import { api } from './api';
 import { useSettings } from './settings';
 import { motion, AnimatePresence } from 'framer-motion';
 
-function Slider({ label, value, min, max, step, onChange }: {
-  label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void;
+function Slider({ label, value, min, max, step, onChange, autoAtZero }: {
+  label: string; value: number; min: number; max: number; step: number;
+  onChange: (v: number) => void; autoAtZero?: boolean;
 }) {
+  const readout = autoAtZero && value === 0 ? 'AUTO' : value;
   return (
     <div className="setting">
-      <div className="setting-head"><span>{label}</span><span className="val">{value}</span></div>
+      <div className="setting-head"><span>{label}</span><span className="val">{readout}</span></div>
       <input type="range" min={min} max={max} step={step} value={value}
         onChange={(e) => onChange(Number(e.target.value))} />
     </div>
@@ -101,22 +103,15 @@ export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
   useEffect(() => {
     if (mode !== 'generate') return;
     api.listModels().then((data) => {
-      const ditNames = data.models.map((m) => m.name);
-      setModels(ditNames);
+      setModels(data.models.map((m) => m.name));
       setLmModels(data.lmModels);
-      // Ensure the dropdowns always show a real downloaded model.
-      if (ditNames.length && !ditNames.includes(gen.model)) {
-        setGen({ model: data.defaultModel ?? ditNames[0] });
-      }
-      if (data.lmModels.length && !data.lmModels.includes(gen.lmModel)) {
-        setGen({ lmModel: data.lmModels[0] });
-      }
     }).catch(() => {
       setModels([]);
       setLmModels([]);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
+
+  const AUTO = { label: 'AUTO', value: '' };
 
   return (
     <motion.aside layout className="settings-panel" transition={{ duration: 0.2 }}>
@@ -124,23 +119,23 @@ export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
 
       {mode === 'generate' ? (
         <>
-          <CustomSelect 
-            label="DIT MODEL" 
-            value={gen.model} 
+          <CustomSelect
+            label="DIT MODEL"
+            value={gen.model}
             onChange={(v) => setGen({ model: v })}
-            options={models.map(m => ({label: m, value: m}))}
+            options={[AUTO, ...models.map(m => ({label: m, value: m}))]}
           />
           <CustomSelect
             label="LM MODEL"
             value={gen.lmModel}
             onChange={(v) => setGen({ lmModel: v })}
-            options={lmModels.map(m => ({label: m, value: m}))}
+            options={[AUTO, ...lmModels.map(m => ({label: m, value: m}))]}
           />
           <Toggle label="THINKING MODE" checked={gen.thinking} onChange={(v) => setGen({ thinking: v })} />
           <Toggle label="AI ENHANCE" checked={gen.useFormat} onChange={(v) => setGen({ useFormat: v })} />
-          <Slider label="STEPS" value={gen.inferenceSteps} min={1} max={64} step={1}
+          <Slider label="STEPS" value={gen.inferenceSteps} min={0} max={64} step={1} autoAtZero
             onChange={(v) => setGen({ inferenceSteps: v })} />
-          <Slider label="GUIDANCE" value={gen.guidanceScale} min={1} max={15} step={0.5}
+          <Slider label="GUIDANCE" value={gen.guidanceScale} min={0} max={15} step={0.5} autoAtZero
             onChange={(v) => setGen({ guidanceScale: v })} />
           <Seed random={gen.randomSeed} seed={gen.seed}
             onRandom={(v) => setGen({ randomSeed: v })} onSeed={(v) => setGen({ seed: v })} />
@@ -158,9 +153,9 @@ export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
           </div>
           <Slider label="VARIANCE" value={Math.round(repaint.repaintStrength * 100)} min={0} max={100} step={5}
             onChange={(v) => setRepaint({ repaintStrength: v / 100 })} />
-          <Slider label="STEPS" value={repaint.inferenceSteps} min={1} max={64} step={1}
+          <Slider label="STEPS" value={repaint.inferenceSteps} min={0} max={64} step={1} autoAtZero
             onChange={(v) => setRepaint({ inferenceSteps: v })} />
-          <Slider label="GUIDANCE" value={repaint.guidanceScale} min={1} max={15} step={0.5}
+          <Slider label="GUIDANCE" value={repaint.guidanceScale} min={0} max={15} step={0.5} autoAtZero
             onChange={(v) => setRepaint({ guidanceScale: v })} />
           <Seed random={repaint.randomSeed} seed={repaint.seed}
             onRandom={(v) => setRepaint({ randomSeed: v })} onSeed={(v) => setRepaint({ seed: v })} />

@@ -32,20 +32,20 @@ export const useSettings = create<SettingsState>()(
   persist(
     (set) => ({
       gen: {
-        model: '',
-        lmModel: '',
+        model: '', // '' = AUTO (model's own default)
+        lmModel: '', // '' = AUTO
         thinking: false,
         useFormat: false,
-        inferenceSteps: 8,
-        guidanceScale: 7,
+        inferenceSteps: 0, // 0 = AUTO
+        guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
       },
       repaint: {
         repaintMode: 'balanced',
         repaintStrength: 0.5,
-        inferenceSteps: 8,
-        guidanceScale: 7,
+        inferenceSteps: 0, // 0 = AUTO
+        guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
       },
@@ -56,27 +56,27 @@ export const useSettings = create<SettingsState>()(
   ),
 );
 
-/** Map generation settings to ACE-Step request params. */
+/** Map generation settings to ACE-Step request params. Empty/zero fields = AUTO (omitted). */
 export function genParams(g: GenSettings) {
   return {
     ...(g.model ? { model: g.model } : {}),
     ...(g.lmModel ? { lm_model_path: g.lmModel } : {}),
     thinking: g.thinking,
     use_format: g.useFormat,
-    inference_steps: g.inferenceSteps,
-    guidance_scale: g.guidanceScale,
+    ...(g.inferenceSteps > 0 ? { inference_steps: g.inferenceSteps } : {}),
+    ...(g.guidanceScale > 0 ? { guidance_scale: g.guidanceScale } : {}),
     use_random_seed: g.randomSeed,
     ...(g.randomSeed ? {} : { seed: g.seed }),
   };
 }
 
-/** Map repaint settings to ACE-Step request params (region added by caller). */
+/** Map repaint settings to ACE-Step request params (region added by caller). Zero steps/guidance = AUTO. */
 export function repaintParams(r: RepaintSettings) {
   return {
     repaint_mode: r.repaintMode,
     repaint_strength: r.repaintStrength,
-    inference_steps: r.inferenceSteps,
-    guidance_scale: r.guidanceScale,
+    ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
+    ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
     use_random_seed: r.randomSeed,
     ...(r.randomSeed ? {} : { seed: r.seed }),
   };
