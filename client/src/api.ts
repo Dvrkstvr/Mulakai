@@ -11,6 +11,32 @@ export interface Song {
   created_at: string;
 }
 
+export interface Version {
+  id: string;
+  audio_file: string;
+  label: string;
+  seed: string;
+  active: 0 | 1;
+  created_at: string;
+}
+
+export interface Layer {
+  id: string;
+  name: string;
+  kind: string;
+  position: number;
+  region_start: number;
+  region_end: number | null;
+  volume: number;
+  muted: 0 | 1;
+  solo: 0 | 1;
+  versions: Version[];
+}
+
+export interface SongDetail extends Song {
+  layers: Layer[];
+}
+
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -42,6 +68,22 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ favorite }),
     }).then(() => undefined),
+
+  songDetail: (id: string): Promise<SongDetail> =>
+    fetch(`/api/songs/${id}`).then((r) => json<SongDetail>(r)),
+
+  repaint: (
+    layerId: string,
+    params: { prompt: string; start: number; end: number; repaint_strength?: number; seed?: number },
+  ): Promise<{ jobId: string }> =>
+    fetch(`/api/layers/${layerId}/repaint`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    }).then((r) => json<{ jobId: string }>(r)),
+
+  activateVersion: (versionId: string): Promise<void> =>
+    fetch(`/api/layers/versions/${versionId}/activate`, { method: 'PATCH' }).then(() => undefined),
 
   trash: (id: string): Promise<void> =>
     fetch(`/api/songs/${id}/trash`, {

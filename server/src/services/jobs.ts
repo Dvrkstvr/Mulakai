@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { releaseTask, queryResult, downloadAudio, type ReleaseTaskParams } from './acestep.js';
+import { releaseTask, queryResult, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 
 export interface Job {
   id: string;
@@ -26,11 +26,41 @@ export async function startGeneration(params: ReleaseTaskParams, title: string):
   const { task_id } = await releaseTask({ audio_format: 'mp3', ...params, task_type: 'text2music' });
   const job: Job = { id: crypto.randomUUID(), taskId: task_id, status: 'running', createdAt: Date.now() };
   jobs.set(job.id, job);
-  void poll(job, params, title);
+  void poll(job, (result) => persistSong(result.file, params, result, title));
   return job;
 }
 
-async function poll(job: Job, params: ReleaseTaskParams, title: string): Promise<void> {
+/** Repaint a region of a layer's active version; result becomes the layer's new active version. */
+export async function startRepaint(layerId: string, params: ReleaseTaskParams): Promise<Job> {
+  const row = db
+    .prepare(
+      `SELECT v.audio_file, l.song_id FROM versions v
+       JOIN layers l ON v.layer_id = l.id
+       WHERE l.id = ? AND v.active = 1`,
+    )
+    .get(layerId) as { audio_file: string; song_id: string } | undefined;
+  if (!row) throw new Error('unknown layer');
+
+  const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
+  const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'repaint' };
+  const { task_id } = await releaseTask(fullParams, { data: srcAudio, filename: row.audio_file });
+
+  const job: Job = {
+    id: crypto.randomUUID(), taskId: task_id, status: 'running',
+    songId: row.song_id, createdAt: Date.now(),
+  };
+  jobs.set(job.id, job);
+  const label = `repaint ${fmtTime(params.repainting_start ?? 0)}–${
+    params.repainting_end && params.repainting_end > 0 ? fmtTime(params.repainting_end) : 'end'}`;
+  void poll(job, (result) => persistVersion(layerId, result.file, fullParams, result, label));
+  return job;
+}
+
+function fmtTime(sec: number): string {
+  return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
+}
+
+async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<string>): Promise<void> {
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
     try {
@@ -47,7 +77,7 @@ async function poll(job: Job, params: ReleaseTaskParams, title: string): Promise
         job.error = 'no audio in result';
         return;
       }
-      job.songId = await persistSong(result.file, params, result, title);
+      job.songId = await onSuccess(result);
       job.status = 'done';
       return;
     } catch (err) {
@@ -56,6 +86,29 @@ async function poll(job: Job, params: ReleaseTaskParams, title: string): Promise
       return;
     }
   }
+}
+
+/** Store a repaint result as the layer's new active version. Returns the song id. */
+async function persistVersion(
+  layerId: string,
+  fileUrl: string,
+  params: ReleaseTaskParams,
+  result: TaskResult,
+  label: string,
+): Promise<string> {
+  const audio = await downloadAudio(fileUrl);
+  const versionId = crypto.randomUUID();
+  const filename = `${versionId}.mp3`;
+  await fs.writeFile(path.join(config.audioDir, filename), audio);
+
+  db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(layerId);
+  db.prepare(
+    `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed)
+     VALUES (?, ?, ?, ?, ?, ?)`,
+  ).run(versionId, layerId, filename, label, JSON.stringify(params), result.seed_value);
+
+  const row = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(layerId) as { song_id: string };
+  return row.song_id;
 }
 
 async function persistSong(

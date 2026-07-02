@@ -1,6 +1,7 @@
 import express from 'express';
 import { config } from './config.js';
 import { songsRouter } from './routes/songs.js';
+import { layersRouter } from './routes/layers.js';
 import { generateRouter } from './routes/generate.js';
 import { sweepTrash } from './services/trashSweep.js';
 
@@ -8,6 +9,7 @@ const app = express();
 app.use(express.json({ limit: '2mb' }));
 
 app.use('/api/songs', songsRouter);
+app.use('/api/layers', layersRouter);
 app.use('/api/generate', generateRouter);
 app.use('/audio', express.static(config.audioDir));
 

@@ -5,8 +5,7 @@ dist/
 .DS_Store
 
 # runtime data
-server/data/*.db
-server/data/audio/
+server/data/
 openspec/changes/
 
 # logs
