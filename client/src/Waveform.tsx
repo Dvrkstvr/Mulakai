@@ -12,6 +12,7 @@ interface Props {
   onSelect: (region: Region | null) => void;
   playhead?: number;
   height?: number;
+  isFadingOut?: boolean;
 }
 
 const COLORS = { idle: '#55565F', sel: '#30BCED', selBg: '#153543', playhead: '#30BCED' };
@@ -38,16 +39,39 @@ async function loadPeaks(url: string, buckets: number): Promise<number[]> {
 }
 
 /** Sharp-bar waveform with drag-to-select region (sky) per DESIGN.md. */
-export function Waveform({ audioUrl, duration, selection, onSelect, playhead, height = 96 }: Props) {
+export function Waveform({ audioUrl, duration, selection, onSelect, playhead, height = 96, isFadingOut }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [peaks, setPeaks] = useState<number[]>([]);
+  const [animProgress, setAnimProgress] = useState(1);
   const dragStart = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
+    setPeaks([]);
+    setAnimProgress(0);
     loadPeaks(audioUrl, 400).then((p) => { if (!cancelled) setPeaks(p); }).catch(() => {});
     return () => { cancelled = true; };
   }, [audioUrl]);
+
+  useEffect(() => {
+    if (peaks.length === 0) return;
+    let frameId: number;
+    let start = performance.now();
+    const durationMs = 600;
+    const tick = (now: number) => {
+      if (isFadingOut) {
+        const p = Math.max(0, 1 - (now - start) / durationMs);
+        setAnimProgress(p);
+        if (p > 0) frameId = requestAnimationFrame(tick);
+      } else {
+        const p = Math.min(1, (now - start) / durationMs);
+        setAnimProgress(p);
+        if (p < 1) frameId = requestAnimationFrame(tick);
+      }
+    };
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, [peaks, isFadingOut]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -67,22 +91,34 @@ export function Waveform({ audioUrl, duration, selection, onSelect, playhead, he
       g.fillRect(selX[0], 0, selX[1] - selX[0], height);
     }
     const barW = w / peaks.length;
+    const fadeWidth = 0.2;
     peaks.forEach((p, i) => {
+      const barProgress = i / peaks.length;
+      let opacity = 1;
+      if (animProgress < 1) {
+         opacity = Math.max(0, Math.min(1, (animProgress * (1 + fadeWidth) - barProgress) / fadeWidth));
+      }
+      if (opacity <= 0) return;
+
       const x = i * barW;
       const h = Math.max(2, p * height * 0.9);
+      g.globalAlpha = opacity;
       g.fillStyle = selX && x >= selX[0] && x <= selX[1] ? COLORS.sel : COLORS.idle;
       g.fillRect(x + barW * 0.2, (height - h) / 2, barW * 0.6, h);
     });
+    g.globalAlpha = 1.0;
     if (selX) {
       g.fillStyle = COLORS.sel;
       g.fillRect(selX[0], 0, 1, height);
       g.fillRect(selX[1], 0, 1, height);
     }
     if (playhead !== undefined && duration > 0) {
+      g.globalAlpha = animProgress;
       g.fillStyle = COLORS.playhead;
       g.fillRect((playhead / duration) * w, 0, 1.5, height);
+      g.globalAlpha = 1.0;
     }
-  }, [peaks, selection, playhead, duration, height]);
+  }, [peaks, selection, playhead, duration, height, animProgress]);
 
   const toSeconds = (e: React.MouseEvent) => {
     const rect = canvasRef.current!.getBoundingClientRect();

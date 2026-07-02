@@ -10,6 +10,7 @@ export interface ReleaseTaskParams {
   sample_query?: string;
   use_format?: boolean;
   model?: string;
+  lm_model_path?: string;
   bpm?: number;
   key_scale?: string;
   time_signature?: string;
@@ -95,6 +96,53 @@ export async function downloadAudio(fileUrl: string): Promise<Buffer> {
   const res = await fetch(`${config.acestepUrl}${fileUrl}`, { headers });
   if (!res.ok) throw new Error(`ACE-Step audio download -> HTTP ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
+}
+
+export interface ModelInfo {
+  name: string;
+  supportedTaskTypes: TaskType[];
+}
+
+export interface ModelInventory {
+  models: ModelInfo[]; // DiT models
+  lmModels: string[]; // 5Hz LM models
+  defaultModel: string | null;
+}
+
+/**
+ * List all downloaded models from ACE-Step's checkpoint inventory.
+ *
+ * Uses `/v1/model_inventory`, not `/v1/models`: the OpenRouter adapter shadows
+ * `/v1/models` with an OpenAI-style (and empty) response, so the native
+ * checkpoint scan is only reachable via the inventory endpoint. No fallbacks —
+ * an unreachable server yields an empty inventory.
+ */
+export async function listModels(): Promise<ModelInventory> {
+  const empty: ModelInventory = { models: [], lmModels: [], defaultModel: null };
+  try {
+    const headers: Record<string, string> = {};
+    if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
+    const res = await fetch(`${config.acestepUrl}/v1/model_inventory`, { headers });
+    if (!res.ok) return empty;
+    const json = (await res.json()) as {
+      data?: {
+        models?: Array<{ name: string; supported_task_types?: string[] }>;
+        lm_models?: Array<{ name: string }>;
+        default_model?: string | null;
+      };
+    };
+    const data = json.data;
+    if (!data) return empty;
+    return {
+      models: (data.models ?? [])
+        .filter((m) => m.name)
+        .map((m) => ({ name: m.name, supportedTaskTypes: (m.supported_task_types ?? []) as TaskType[] })),
+      lmModels: (data.lm_models ?? []).map((m) => m.name).filter(Boolean),
+      defaultModel: data.default_model ?? null,
+    };
+  } catch {
+    return empty;
+  }
 }
 
 export async function health(): Promise<boolean> {
