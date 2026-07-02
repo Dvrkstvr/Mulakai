@@ -38,7 +38,7 @@ function Seed({ random, seed, onRandom, onSeed }: {
 
 function CustomSelect({ label, value, options, onChange }: { label: string, value: string, options: { label: string, value: string }[], onChange: (v: string) => void }) {
   const [isOpen, setIsOpen] = useState(false);
-  const currentLabel = options.find(o => o.value === value)?.label || 'Default';
+  const currentLabel = options.find(o => o.value === value)?.label || '—';
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -99,15 +99,23 @@ export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
   const [lmModels, setLmModels] = useState<string[]>([]);
 
   useEffect(() => {
-    if (mode === 'generate') {
-      api.listModels().then((data) => {
-        setModels(data.models);
-        setLmModels(data.lmModels);
-      }).catch(() => {
-        setModels([]);
-        setLmModels([]);
-      });
-    }
+    if (mode !== 'generate') return;
+    api.listModels().then((data) => {
+      const ditNames = data.models.map((m) => m.name);
+      setModels(ditNames);
+      setLmModels(data.lmModels);
+      // Ensure the dropdowns always show a real downloaded model.
+      if (ditNames.length && !ditNames.includes(gen.model)) {
+        setGen({ model: data.defaultModel ?? ditNames[0] });
+      }
+      if (data.lmModels.length && !data.lmModels.includes(gen.lmModel)) {
+        setGen({ lmModel: data.lmModels[0] });
+      }
+    }).catch(() => {
+      setModels([]);
+      setLmModels([]);
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mode]);
 
   return (
@@ -120,13 +128,13 @@ export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
             label="DIT MODEL" 
             value={gen.model} 
             onChange={(v) => setGen({ model: v })}
-            options={[{label: 'Default', value: ''}, ...models.map(m => ({label: m, value: m}))]} 
+            options={models.map(m => ({label: m, value: m}))}
           />
-          <CustomSelect 
-            label="LM MODEL" 
-            value={gen.lmModel} 
+          <CustomSelect
+            label="LM MODEL"
+            value={gen.lmModel}
             onChange={(v) => setGen({ lmModel: v })}
-            options={[{label: 'Default', value: ''}, ...lmModels.map(m => ({label: m, value: m}))]} 
+            options={lmModels.map(m => ({label: m, value: m}))}
           />
           <Toggle label="THINKING MODE" checked={gen.thinking} onChange={(v) => setGen({ thinking: v })} />
           <Toggle label="AI ENHANCE" checked={gen.useFormat} onChange={(v) => setGen({ useFormat: v })} />

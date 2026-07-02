@@ -11,6 +11,19 @@ export interface Song {
   created_at: string;
 }
 
+export type TaskType = 'text2music' | 'repaint' | 'cover' | 'cover-nofsq' | 'lego' | 'extract' | 'complete';
+
+export interface ModelInfo {
+  name: string;
+  supportedTaskTypes: TaskType[];
+}
+
+export interface ModelInventory {
+  models: ModelInfo[]; // DiT models
+  lmModels: string[]; // 5Hz LM models
+  defaultModel: string | null;
+}
+
 export interface Version {
   id: string;
   audio_file: string;
@@ -56,8 +69,8 @@ export const api = {
       body: JSON.stringify(params),
     }).then((r) => json<{ jobId: string }>(r)),
 
-  listModels: (): Promise<{ models: string[]; lmModels: string[] }> =>
-    fetch('/api/generate/models').then((r) => json<{ models: string[]; lmModels: string[] }>(r)),
+  listModels: (): Promise<ModelInventory> =>
+    fetch('/api/generate/models').then((r) => json<ModelInventory>(r)),
 
   jobStatus: (jobId: string): Promise<{ status: 'running' | 'done' | 'failed'; songId?: string; error?: string }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),

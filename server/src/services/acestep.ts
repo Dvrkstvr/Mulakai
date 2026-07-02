@@ -98,42 +98,50 @@ export async function downloadAudio(fileUrl: string): Promise<Buffer> {
   return Buffer.from(await res.arrayBuffer());
 }
 
-/** List model ids. Handles both OpenAI-style and standard envelope. */
-export async function listModels(): Promise<{ models: string[]; lmModels: string[] }> {
+export interface ModelInfo {
+  name: string;
+  supportedTaskTypes: TaskType[];
+}
+
+export interface ModelInventory {
+  models: ModelInfo[]; // DiT models
+  lmModels: string[]; // 5Hz LM models
+  defaultModel: string | null;
+}
+
+/**
+ * List all downloaded models from ACE-Step's checkpoint inventory.
+ *
+ * Uses `/v1/model_inventory`, not `/v1/models`: the OpenRouter adapter shadows
+ * `/v1/models` with an OpenAI-style (and empty) response, so the native
+ * checkpoint scan is only reachable via the inventory endpoint. No fallbacks —
+ * an unreachable server yields an empty inventory.
+ */
+export async function listModels(): Promise<ModelInventory> {
+  const empty: ModelInventory = { models: [], lmModels: [], defaultModel: null };
   try {
     const headers: Record<string, string> = {};
     if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
-    const res = await fetch(`${config.acestepUrl}/v1/models`, { headers });
-    if (!res.ok) return { models: [], lmModels: [] };
-    const json = (await res.json()) as any;
-    
-    let models: string[] = [];
-    let lmModels: string[] = [];
-    
-    if (Array.isArray(json.data)) {
-      models = json.data.map((m: any) => (typeof m === 'string' ? m : (m.id ?? m.name ?? ''))).filter(Boolean);
-      if (Array.isArray(json.lm_models)) {
-        lmModels = json.lm_models.map((m: any) => (typeof m === 'string' ? m : (m.name ?? m.id ?? ''))).filter(Boolean);
-      } else if (json.data && Array.isArray((json.data as any).lm_models)) {
-        lmModels = (json.data as any).lm_models.map((m: any) => (typeof m === 'string' ? m : (m.name ?? m.id ?? ''))).filter(Boolean);
-      }
-    } else if (json.data) {
-      if (Array.isArray(json.data.models)) {
-        models = json.data.models.map((m: any) => (typeof m === 'string' ? m : (m.name ?? m.id ?? ''))).filter(Boolean);
-      }
-      if (Array.isArray(json.data.lm_models)) {
-        lmModels = json.data.lm_models.map((m: any) => (typeof m === 'string' ? m : (m.name ?? m.id ?? ''))).filter(Boolean);
-      }
-    }
-    
-    // Fallback if we still don't have lmModels but we know some exist
-    if (lmModels.length === 0) {
-      lmModels = ['acestep-5Hz-lm-0.6B', 'acestep-5Hz-lm-1.7B']; // Common fallbacks
-    }
-    
-    return { models, lmModels };
+    const res = await fetch(`${config.acestepUrl}/v1/model_inventory`, { headers });
+    if (!res.ok) return empty;
+    const json = (await res.json()) as {
+      data?: {
+        models?: Array<{ name: string; supported_task_types?: string[] }>;
+        lm_models?: Array<{ name: string }>;
+        default_model?: string | null;
+      };
+    };
+    const data = json.data;
+    if (!data) return empty;
+    return {
+      models: (data.models ?? [])
+        .filter((m) => m.name)
+        .map((m) => ({ name: m.name, supportedTaskTypes: (m.supported_task_types ?? []) as TaskType[] })),
+      lmModels: (data.lm_models ?? []).map((m) => m.name).filter(Boolean),
+      defaultModel: data.default_model ?? null,
+    };
   } catch {
-    return { models: [], lmModels: [] };
+    return empty;
   }
 }
 
