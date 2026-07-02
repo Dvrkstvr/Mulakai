@@ -16,6 +16,7 @@ export default function App() {
   const [prompt, setPrompt] = useState('');
   const [lyrics, setLyrics] = useState('');
   const [job, setJob] = useState<'idle' | 'running' | 'failed'>('idle');
+  const [stage, setStage] = useState<'loading' | 'running'>('running');
   const [error, setError] = useState('');
   const [playing, setPlaying] = useState<Song | null>(null);
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -35,11 +36,13 @@ export default function App() {
   const generate = async () => {
     setError('');
     setJob('running');
+    setStage('loading');
     try {
       const { jobId } = await api.generate({ title: title || 'Untitled', prompt, lyrics, ...genParams(gen) });
       for (;;) {
         await new Promise((r) => setTimeout(r, 2000));
         const s = await api.jobStatus(jobId);
+        if (s.status === 'loading' || s.status === 'running') setStage(s.status);
         if (s.status === 'done') {
           setJob('idle');
           refresh();
@@ -100,7 +103,7 @@ export default function App() {
               <>
                 <AIGeneratingBackground />
                 <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                  GENERATING…
+                  {stage === 'loading' ? 'LOADING MODEL…' : 'GENERATING…'}
                 </span>
               </>
             ) : 'GENERATE'}

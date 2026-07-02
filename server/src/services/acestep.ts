@@ -78,6 +78,20 @@ export async function releaseTask(
   return call('/release_task', undefined, { method: 'POST', body: form });
 }
 
+/**
+ * Load/switch the DiT and/or LM model in slot 1 before generating.
+ *
+ * `release_task`'s `model` param only routes among already-loaded slots and
+ * silently falls back to the primary otherwise — so a selected model must be
+ * initialized here first. Slow (loads into VRAM); call off the request path.
+ */
+export async function initModel(opts: { model?: string; lmModel?: string; initLlm?: boolean }): Promise<void> {
+  const body: Record<string, unknown> = { slot: 1, init_llm: !!opts.initLlm };
+  if (opts.model) body.model = opts.model;
+  if (opts.lmModel) body.lm_model_path = opts.lmModel;
+  await call('/v1/init', body);
+}
+
 export async function queryResult(taskIds: string[]): Promise<Array<{ task_id: string; status: 0 | 1 | 2; result: TaskResult[] }>> {
   const rows = await call<Array<{ task_id: string; status: 0 | 1 | 2; result: string }>>(
     '/query_result',
