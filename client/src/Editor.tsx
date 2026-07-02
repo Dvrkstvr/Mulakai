@@ -21,6 +21,7 @@ export function Editor({ songId, onBack }: Props) {
   const [job, setJob] = useState<'idle' | 'running'>('idle');
   const [error, setError] = useState('');
   const [playhead, setPlayhead] = useState(0);
+  const [isReverting, setIsReverting] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
@@ -58,8 +59,11 @@ export function Editor({ songId, onBack }: Props) {
   };
 
   const revert = async (versionId: string) => {
+    setIsReverting(true);
+    await new Promise(r => setTimeout(r, 600)); // wait for fade out
     await api.activateVersion(versionId);
     await reload();
+    setIsReverting(false);
   };
 
   if (!song) return <div className="empty">Loading…</div>;
@@ -86,6 +90,7 @@ export function Editor({ songId, onBack }: Props) {
             selection={selection}
             onSelect={setSelection}
             playhead={playhead}
+            isFadingOut={isReverting}
           />
           <div className="canvas-meta">
             <span>0:00</span>
@@ -121,7 +126,7 @@ export function Editor({ songId, onBack }: Props) {
             backgroundColor: 'transparent',
             color: '#D4FF00'
           } : {
-            skewX: -10,
+            skewX: selection ? -10 : 0,
             backgroundColor: '#D4FF00',
             color: '#1C1D21'
           }}

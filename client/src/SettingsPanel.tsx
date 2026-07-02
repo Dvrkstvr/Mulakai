@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { api } from './api';
 import { useSettings } from './settings';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 function Slider({ label, value, min, max, step, onChange }: {
   label: string; value: number; min: number; max: number; step: number; onChange: (v: number) => void;
@@ -36,6 +36,63 @@ function Seed({ random, seed, onRandom, onSeed }: {
   );
 }
 
+function CustomSelect({ label, value, options, onChange }: { label: string, value: string, options: { label: string, value: string }[], onChange: (v: string) => void }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const currentLabel = options.find(o => o.value === value)?.label || 'Default';
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="setting" ref={containerRef}>
+      <div className="setting-head"><span>{label}</span></div>
+      <div style={{ position: 'relative' }}>
+        <motion.button
+          className={`custom-select-button ${isOpen ? 'open' : ''}`}
+          onClick={() => setIsOpen(!isOpen)}
+          animate={{ skewX: isOpen ? -10 : 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          <span>{currentLabel}</span>
+          <svg fill="currentColor" height="14" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>
+        </motion.button>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.div
+              className="custom-select-dropdown"
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.15 }}
+            >
+              {options.map((opt, i) => (
+                <motion.div
+                  key={opt.value}
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.03, duration: 0.15 }}
+                  className="custom-select-option"
+                  onClick={() => { onChange(opt.value); setIsOpen(false); }}
+                >
+                  {opt.label}
+                </motion.div>
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
 export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
   const { gen, repaint, setGen, setRepaint } = useSettings();
   const [models, setModels] = useState<string[]>([]);
@@ -59,20 +116,18 @@ export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
 
       {mode === 'generate' ? (
         <>
-          <div className="setting">
-            <div className="setting-head"><span>DIT MODEL</span></div>
-            <select value={gen.model} onChange={(e) => setGen({ model: e.target.value })}>
-              <option value="">Default</option>
-              {models.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
-          </div>
-          <div className="setting">
-            <div className="setting-head"><span>LM MODEL</span></div>
-            <select value={gen.lmModel} onChange={(e) => setGen({ lmModel: e.target.value })}>
-              <option value="">Default</option>
-              {lmModels.map((m) => <option key={m} value={m}>{m}</option>)}
-            </select>
-          </div>
+          <CustomSelect 
+            label="DIT MODEL" 
+            value={gen.model} 
+            onChange={(v) => setGen({ model: v })}
+            options={[{label: 'Default', value: ''}, ...models.map(m => ({label: m, value: m}))]} 
+          />
+          <CustomSelect 
+            label="LM MODEL" 
+            value={gen.lmModel} 
+            onChange={(v) => setGen({ lmModel: v })}
+            options={[{label: 'Default', value: ''}, ...lmModels.map(m => ({label: m, value: m}))]} 
+          />
           <Toggle label="THINKING MODE" checked={gen.thinking} onChange={(v) => setGen({ thinking: v })} />
           <Toggle label="AI ENHANCE" checked={gen.useFormat} onChange={(v) => setGen({ useFormat: v })} />
           <Slider label="STEPS" value={gen.inferenceSteps} min={1} max={64} step={1}

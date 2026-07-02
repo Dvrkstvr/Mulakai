@@ -91,27 +91,69 @@ footer audio { flex: 1; }
 .setting-head { display: flex; justify-content: space-between; font-weight: 700; font-size: 10px; letter-spacing: 1px; color: var(--text-mid); }
 .setting-head .val { color: var(--acid); }
 .setting input[type="range"] { accent-color: var(--acid); width: 100%; }
-.setting select, .seed { background: var(--carbon); border: 1px solid var(--line-hi); color: var(--text-hi); padding: 6px 8px; font: inherit; }
-.setting select {
-  appearance: none;
-  background: var(--carbon) url("data:image/svg+xml;utf8,<svg fill='%23ECECEC' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>") no-repeat right 4px center;
-  padding-right: 24px;
+.seed { background: var(--carbon); border: 1px solid var(--line-hi); color: var(--text-hi); padding: 6px 8px; font: inherit; }
+.seed:focus {
+  outline: none;
+  border-color: var(--acid);
+}
+
+.custom-select-button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--carbon);
+  border: 1px solid var(--line-hi);
+  color: var(--text-hi);
+  padding: 6px 8px;
+  font: inherit;
   font-weight: 700;
   font-size: 10px;
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
+  transition: border-color 0.2s ease, color 0.2s ease;
 }
-.setting select:focus, .seed:focus {
+.custom-select-button:focus, .custom-select-button.open {
   outline: none;
   border-color: var(--acid);
+  color: var(--acid);
 }
-.toggle { display: flex; align-items: center; justify-content: space-between; background: var(--carbon); border: 1px solid var(--line-hi); padding: 7px 10px; font-weight: 700; font-size: 10px; letter-spacing: 1px; color: var(--text-mid); }
-.toggle .dot { width: 22px; height: 11px; border: 1px solid var(--line-hi); position: relative; }
-.toggle .dot::after { content: ''; position: absolute; left: 1px; top: 1px; width: 8px; height: 7px; background: var(--text-low); }
+.custom-select-button.open {
+  border-bottom: 1px dashed rgba(212, 255, 0, 0.4);
+}
+.custom-select-dropdown {
+  position: absolute;
+  top: 100%;
+  left: -3px;
+  width: calc(100% + 1px);
+  z-index: 10;
+  background: var(--carbon);
+  border: 1px solid var(--acid);
+  border-top: none;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.custom-select-option {
+  padding: 6px 8px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  color: var(--text-hi);
+  transition: background-color 0.1s ease, color 0.1s ease;
+}
+.custom-select-option:hover {
+  background: var(--acid);
+  color: var(--carbon);
+}
+.toggle { display: flex; align-items: center; justify-content: space-between; background: var(--carbon); border: 1px solid var(--line-hi); padding: 7px 10px; font-weight: 700; font-size: 10px; letter-spacing: 1px; color: var(--text-mid); transition: color 0.2s ease, border-color 0.2s ease; }
+.toggle .dot { width: 22px; height: 11px; border: 1px solid var(--line-hi); position: relative; transition: border-color 0.2s ease; }
+.toggle .dot::after { content: ''; position: absolute; left: 1px; top: 1px; width: 8px; height: 7px; background: var(--text-mid); transition: transform 0.2s ease, background-color 0.2s ease; }
 .toggle.on { color: var(--acid); border-color: var(--acid); }
 .toggle.on .dot { border-color: var(--acid); }
-.toggle.on .dot::after { left: auto; right: 1px; background: var(--acid); }
+.toggle.on .dot::after { transform: translateX(10px); background: var(--acid); }
 .seg { display: flex; }
 .seg button { flex: 1; border: 1px solid var(--line-hi); border-left-width: 0; font-size: 9px; letter-spacing: 1px; padding: 6px 0; }
 .seg button:first-child { border-left-width: 1px; }
