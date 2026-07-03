@@ -9,7 +9,6 @@ interface Props {
 /** Standalone scrub strip for placing the playhead — decoupled from the waveform's selection-drag surface. */
 export function Timeline({ duration, playhead, onSeek }: Props) {
   const trackRef = useRef<HTMLDivElement>(null);
-  const dragging = useRef(false);
 
   const toSeconds = (clientX: number) => {
     const rect = trackRef.current!.getBoundingClientRect();
@@ -25,25 +24,37 @@ export function Timeline({ duration, playhead, onSeek }: Props) {
   const ticks: number[] = [];
   if (duration > 0) {
     for (let t = interval; t < duration - interval * 0.4; t += interval) ticks.push(t);
+    ticks.push(duration);
   }
 
+  // Drag listeners live on `window` (not the track element) for the duration of the
+  // drag, so a fast flick that carries the cursor off the thin track strip — or even
+  // outside the browser viewport — still keeps scrubbing instead of dropping the drag.
+  const startDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    onSeek(toSeconds(e.clientX));
+    const onMove = (ev: MouseEvent) => onSeek(toSeconds(ev.clientX));
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  const playheadPct = duration > 0 ? Math.min(100, Math.max(0, (playhead / duration) * 100)) : 0;
+
   return (
-    <div className="timeline">
-      <div className="timeline-time">
-        <span>{fmt(playhead)}</span>
-        <span>{fmt(duration)}</span>
-      </div>
+    // onMouseDown sits on the whole strip (not just the thin track) so the padding
+    // around it is grabbable too — a bigger, more forgiving scrub target.
+    <div className="timeline" onMouseDown={startDrag}>
       {/* Baseline + ruler ticks only — the moving thumb is drawn once by the shared
           .stack-playhead overlay in LayerStack.tsx so it reads as one continuous line
           through every lane. */}
-      <div
-        ref={trackRef}
-        className="timeline-track"
-        onMouseDown={(e) => { dragging.current = true; onSeek(toSeconds(e.clientX)); }}
-        onMouseMove={(e) => { if (dragging.current) onSeek(toSeconds(e.clientX)); }}
-        onMouseUp={() => { dragging.current = false; }}
-        onMouseLeave={() => { dragging.current = false; }}
-      >
+      <div ref={trackRef} className="timeline-track">
+        {duration > 0 && (
+          <div className="timeline-current-time" style={{ left: `${playheadPct}%` }}>{fmt(playhead)}</div>
+        )}
         {ticks.map((t) => (
           <div key={t} className="timeline-tick" style={{ left: `${(t / duration) * 100}%` }}>
             <span>{fmt(t)}</span>

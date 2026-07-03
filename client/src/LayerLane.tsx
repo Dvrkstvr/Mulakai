@@ -8,6 +8,8 @@ export const LANE_HEIGHT = 60;
 
 interface Props {
   layer: Layer;
+  /** Full sibling list — needed to enforce solo exclusivity across the stack. */
+  layers: Layer[];
   focused: boolean;
   duration: number;
   selection: Region | null;
@@ -28,13 +30,32 @@ interface Props {
  * per-lane playhead is drawn — a single shared overlay line spans all lanes
  * (see LayerStack.tsx).
  */
-export function LayerLane({ layer, focused, duration, selection, onSelect, onFocus, onChanged, onSeek, processing }: Props) {
+export function LayerLane({ layer, layers, focused, duration, selection, onSelect, onFocus, onChanged, onSeek, processing }: Props) {
   const [name, setName] = useState(layer.name);
   const [editingName, setEditingName] = useState(false);
   const activeVersion = layer.versions.find((v) => v.active);
 
   const patch = async (body: { name?: string; volume?: number; muted?: boolean; solo?: boolean }) => {
     await api.updateLayer(layer.id, body);
+    await onChanged();
+  };
+
+  /**
+   * Plain click: exclusive solo — this layer becomes the only one soloed
+   * (clicking the already-sole-soloed layer un-solos it, so it's a toggle
+   * rather than a one-way ratchet). Shift-click: additive — only this
+   * layer's solo flips, siblings are untouched, per standard DAW convention.
+   */
+  const handleSolo = async (e: React.MouseEvent) => {
+    if (e.shiftKey) {
+      await patch({ solo: !layer.solo });
+      return;
+    }
+    const onlyThisSoloed = layers.every((l) => Boolean(l.solo) === (l.id === layer.id));
+    const updates = layers
+      .filter((l) => Boolean(l.solo) !== (onlyThisSoloed ? false : l.id === layer.id))
+      .map((l) => api.updateLayer(l.id, { solo: onlyThisSoloed ? false : l.id === layer.id }));
+    if (updates.length) await Promise.all(updates);
     await onChanged();
   };
 
@@ -75,7 +96,7 @@ export function LayerLane({ layer, focused, duration, selection, onSelect, onFoc
           </button>
           <button
             className={`toggle layer-toggle${layer.solo ? ' on' : ''}`}
-            onClick={() => patch({ solo: !layer.solo })}
+            onClick={handleSolo}
           >
             <span>SOLO</span>
           </button>

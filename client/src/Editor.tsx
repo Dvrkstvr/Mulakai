@@ -35,6 +35,35 @@ export function Editor({ songId, onBack }: Props) {
   const engine = usePlaybackEngine(song?.layers ?? []);
   const playhead = engine.currentTime;
 
+  // Space toggles play/pause; a second press within the window stops
+  // instead (seeks to 0) — checked via ref so this only subscribes once
+  // and isn't torn down/re-added on every playhead-driven re-render.
+  const engineRef = useRef(engine);
+  engineRef.current = engine;
+  const spaceTimerRef = useRef<number | null>(null);
+  useEffect(() => {
+    const DOUBLE_PRESS_MS = 300;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.code !== 'Space') return;
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+      e.preventDefault();
+      if (spaceTimerRef.current !== null) {
+        window.clearTimeout(spaceTimerRef.current);
+        spaceTimerRef.current = null;
+        engineRef.current.stop();
+        return;
+      }
+      spaceTimerRef.current = window.setTimeout(() => {
+        spaceTimerRef.current = null;
+        const live = engineRef.current;
+        if (live.isPlaying) live.pause(); else void live.play();
+      }, DOUBLE_PRESS_MS);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
+
   // Default focus to the base layer once the song loads; keep focus if the layer still exists.
   useEffect(() => {
     if (!song) return;
@@ -95,7 +124,7 @@ export function Editor({ songId, onBack }: Props) {
       <div className="with-panel editor-layout">
         <SettingsPanel mode="repaint" />
         <div className="editor-main">
-      <div className="editor-title-row">
+      <div className="title-row">
         <span className="song-title">{song.title}</span>
         <span className="meta">
           {duration ? fmt(duration) : ''}{song.bpm ? ` · ${song.bpm} bpm` : ''}{song.key_scale ? ` · ${song.key_scale}` : ''}
@@ -130,6 +159,7 @@ export function Editor({ songId, onBack }: Props) {
 
       <RepaintBar
         layerName={focusedLayer?.name ?? 'base'}
+        nextVersion={(focusedLayer?.versions.length ?? 0) + 1}
         selection={selection}
         prompt={prompt}
         onPromptChange={setPrompt}
@@ -149,7 +179,7 @@ export function Editor({ songId, onBack }: Props) {
                   onRevert={revert}
                   onChanged={reload}
                 />
-                <button className="rail-export-btn" onClick={() => setRailMode('export')}>EXPORT</button>
+                <button className="rail-export-btn" onClick={() => setRailMode('export')}><span>EXPORT</span></button>
               </>
             ) : (
               <ExportPanel song={song} onBack={() => setRailMode('history')} />

@@ -40,6 +40,7 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
             <LayerLane
               key={layer.id}
               layer={layer}
+              layers={layers}
               focused={layer.id === focusedLayerId}
               duration={duration}
               selection={layer.id === focusedLayerId ? selection : null}
