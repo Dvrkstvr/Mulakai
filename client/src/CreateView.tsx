@@ -9,6 +9,7 @@ import { useSettings, genParams } from './settings';
 import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { useHeaderSlot } from './HeaderSlot';
+import { ScrollArea } from './ScrollArea';
 
 type GenType = 'prompt' | 'audio';
 type Source = 'upload' | 'library';
@@ -102,10 +103,10 @@ export function CreateView({ songs, initialPrompt, onBack, onCreated }: Props) {
   const showRail = refining || !!refinePreview || !!refineError;
 
   return (
-    <div>
+    <div className="create-shell">
       <div className={showRail ? 'with-panel create-layout with-rail' : 'with-panel create-layout'}>
         <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} />
-        <div className="create-content">
+        <ScrollArea className="create-content">
           <div className="title-row">
             <span className="song-title">New song</span>
             <span className="meta">
@@ -231,7 +232,7 @@ export function CreateView({ songs, initialPrompt, onBack, onCreated }: Props) {
             <div className="hint">Cover generation from an uploaded or library source isn't wired to the backend yet — scoped as a follow-up.</div>
           )}
           {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
-        </div>
+        </ScrollArea>
         {showRail && (
           <RefineRail
             refining={refining}

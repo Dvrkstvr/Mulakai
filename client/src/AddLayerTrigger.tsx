@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, type Layer } from './api';
 import { useSettings, addLayerParams } from './settings';
-import { CustomSelect } from './CustomSelect';
 import { activeLayers } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
@@ -20,7 +19,7 @@ interface Props {
  * disabled explanation otherwise.
  */
 export function AddLayerTrigger({ songId, layers, onDone }: Props) {
-  const { addLayer, setAddLayer } = useSettings();
+  const { addLayer, setAddLayer, repaint } = useSettings();
   const [legoModels, setLegoModels] = useState<string[] | null>(null);
   const [prompt, setPrompt] = useState('');
   const [job, setJob] = useState<'idle' | 'running'>('idle');
@@ -28,13 +27,17 @@ export function AddLayerTrigger({ songId, layers, onDone }: Props) {
 
   useEffect(() => {
     api.listModels()
-      .then((data) => setLegoModels(data.models.filter((m) => m.supportedTaskTypes.includes('lego')).map((m) => m.name)))
+      .then((data) => {
+        const names = data.models.filter((m) => m.supportedTaskTypes.includes('lego')).map((m) => m.name);
+        setLegoModels(names);
+        if (names.length > 0 && !addLayer.model) setAddLayer({ model: names[0] });
+      })
       .catch(() => setLegoModels([]));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const gated = legoModels !== null && legoModels.length === 0;
-  const modelChosen = !!addLayer.model;
-  const canSubmit = !gated && modelChosen && prompt.trim().length > 0 && job === 'idle';
+  const canSubmit = !gated && prompt.trim().length > 0 && job === 'idle';
 
   const submit = async () => {
     if (!canSubmit) return;
@@ -59,7 +62,7 @@ export function AddLayerTrigger({ songId, layers, onDone }: Props) {
       const { jobId } = await api.addLayer(songId, mixAudio, {
         prompt,
         layerName,
-        ...addLayerParams(addLayer),
+        ...addLayerParams(addLayer, repaint),
       });
       for (;;) {
         await new Promise((r) => setTimeout(r, 2000));
@@ -97,12 +100,11 @@ export function AddLayerTrigger({ songId, layers, onDone }: Props) {
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
             />
-            <CustomSelect
-              label="DIT MODEL"
-              value={addLayer.model}
-              onChange={(v) => setAddLayer({ model: v })}
-              options={legoModels.map((m) => ({ label: m, value: m }))}
-            />
+            <span className="meta">
+              STEPS {repaint.inferenceSteps > 0 ? repaint.inferenceSteps : 'AUTO'}
+              {' · '}
+              GUIDANCE {repaint.guidanceScale > 0 ? repaint.guidanceScale : 'AUTO'}
+            </span>
             <button
               className="acid"
               disabled={!canSubmit}
@@ -110,7 +112,6 @@ export function AddLayerTrigger({ songId, layers, onDone }: Props) {
             >
               {job === 'running' ? 'GENERATING…' : 'GENERATE'}
             </button>
-            <span className="hint">uses the BASE model — slower, ~32+ steps</span>
           </>
         )}
         {error && <div className="error">{error} <button onClick={submit}>RETRY</button></div>}

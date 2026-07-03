@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { PlayerWaveform } from './PlayerWaveform';
+import { VolumeSlider } from './VolumeSlider';
 import type { PlaybackApi } from './mix/playerApi';
 
 interface Props {
@@ -48,10 +49,9 @@ export function Player({ engine, downloadSrc, title, downloadName, showProgress 
             <path d="M1 6h3l4-3v10l-4-3H1z" />
             <path d="M11 5.5c1 1 1 4 0 5M13 4c2 2 2 6 0 8" stroke="currentColor" strokeWidth="1.3" fill="none" />
           </svg>
-          <input
-            type="range" min={0} max={1} step={0.01} value={volume}
-            onChange={(e) => {
-              const v = Number(e.target.value);
+          <VolumeSlider
+            value={volume}
+            onChange={(v) => {
               setVolume(v);
               engine.setVolume(v);
             }}

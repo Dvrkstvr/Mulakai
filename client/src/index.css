@@ -28,8 +28,20 @@
   border-radius: 0;
 }
 
+/* Page-level scrolling is disabled everywhere — the document itself never
+   grows a scrollbar. Individual components (the layer stack, version rail,
+   dropdowns, ...) opt in to their own confined scroll region instead; see
+   .app-body and .stack-scrub below and docs/design/DESIGN.md's Editor
+   layout note ("extra height fits more lanes before the stack scrolls"). */
+html,
+body,
+#root {
+  height: 100%;
+}
+
 body {
   margin: 0;
+  overflow: hidden;
   background: var(--carbon);
   color: var(--text-hi);
   font-family: system-ui, sans-serif;
@@ -39,8 +51,142 @@ body {
 .app {
   max-width: 1140px;
   margin: 0 auto;
-  padding: 16px;
+  height: 100%;
+  padding: 16px 16px 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* The one page-level scroll fallback: fills the space below the header, and
+   scrolls only if a view's content doesn't fit — Library's card grid and
+   Create's form rely on this. The Editor view instead fills this box exactly
+   (.view-fill) and scrolls internally via .stack-scrub, so this container
+   stays still while the layer stack scrolls. */
+.app-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
   padding-bottom: 76px;
+}
+
+.view-fill {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-shell,
+.create-shell {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ScrollArea (ScrollArea.tsx): scrollbar hidden on the viewport, a bouncing
+   chevron at whichever edge(s) still have content past them substitutes for
+   it — keeps the DAW-tool aesthetic free of a native scrollbar while still
+   signalling "there's more here" per DESIGN.md's minimal-chrome rules. */
+.scroll-area {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.scroll-area-viewport {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.scroll-area-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+.scroll-hint {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.scroll-hint-up {
+  top: 4px;
+  border-bottom: 7px solid var(--text-mid);
+  animation: scroll-hint-bounce-up 1.2s ease-in-out infinite;
+}
+
+.scroll-hint-down {
+  bottom: 4px;
+  border-top: 7px solid var(--text-mid);
+  animation: scroll-hint-bounce-down 1.2s ease-in-out infinite;
+}
+
+@keyframes scroll-hint-bounce-up {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -4px); }
+}
+
+@keyframes scroll-hint-bounce-down {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, 4px); }
+}
+
+/* Thin, on-brand scrollbar for every confined scroll region — carbon track,
+   line-hi thumb, no radius (matches the global `* { border-radius: 0 }`
+   rule, which browsers don't apply to scrollbar pseudo-elements). */
+.app-body,
+.stack-scrub,
+.versions,
+.song-picker-list,
+.custom-select-dropdown {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-hi) var(--panel);
+}
+
+.app-body::-webkit-scrollbar,
+.stack-scrub::-webkit-scrollbar,
+.versions::-webkit-scrollbar,
+.song-picker-list::-webkit-scrollbar,
+.custom-select-dropdown::-webkit-scrollbar {
+  width: 8px;
+}
+
+.app-body::-webkit-scrollbar-track,
+.stack-scrub::-webkit-scrollbar-track,
+.versions::-webkit-scrollbar-track,
+.song-picker-list::-webkit-scrollbar-track,
+.custom-select-dropdown::-webkit-scrollbar-track {
+  background: var(--panel);
+}
+
+.app-body::-webkit-scrollbar-thumb,
+.stack-scrub::-webkit-scrollbar-thumb,
+.versions::-webkit-scrollbar-thumb,
+.song-picker-list::-webkit-scrollbar-thumb,
+.custom-select-dropdown::-webkit-scrollbar-thumb {
+  background: var(--line-hi);
+  border: 1px solid var(--panel);
+  border-radius: 0;
+}
+
+.app-body::-webkit-scrollbar-thumb:hover,
+.stack-scrub::-webkit-scrollbar-thumb:hover,
+.versions::-webkit-scrollbar-thumb:hover,
+.song-picker-list::-webkit-scrollbar-thumb:hover,
+.custom-select-dropdown::-webkit-scrollbar-thumb:hover {
+  background: var(--text-mid);
 }
 
 /* Editor + Create takeover screens: no reading-width cap. Extra width on
@@ -417,42 +563,6 @@ footer .player {
   fill: currentColor;
 }
 
-.player-volume input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 64px;
-  height: 14px;
-  background: transparent;
-  cursor: pointer;
-}
-
-.player-volume input[type="range"]::-webkit-slider-runnable-track {
-  height: 2px;
-  background: var(--line-hi);
-}
-
-.player-volume input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 9px;
-  height: 9px;
-  margin-top: -3.5px;
-  background: var(--text-hi);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-}
-
-.player-volume input[type="range"]::-moz-range-track {
-  height: 2px;
-  background: var(--line-hi);
-}
-
-.player-volume input[type="range"]::-moz-range-thumb {
-  width: 9px;
-  height: 9px;
-  border: none;
-  background: var(--text-hi);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
-}
-
 .player-btn.download {
   background: transparent;
   border: 1px solid var(--line-hi);
@@ -517,8 +627,13 @@ footer .player {
   letter-spacing: 0.5px;
 }
 
-/* shared scrub timeline, docked to the top of the lane stack */
+/* shared scrub timeline, docked to the top of the lane stack — sticky so it
+   stays pinned while .stack-scrub's lanes scroll underneath it. */
 .timeline {
+  position: sticky;
+  top: 0;
+  z-index: 4;
+  background: var(--panel);
   padding: 6px 10px 4px;
   border-bottom: 1px solid var(--line);
   cursor: pointer;
@@ -842,12 +957,23 @@ footer .player {
 /* layer stack: DAW-style lanes, sky = focused/selected per DESIGN.md (not lilac/acid) */
 .layer-stack {
   margin-top: 14px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* Wraps the shared Timeline scrub + the lane grid in one bordered surface so
-   .stack-playhead can span both as a single continuous line. */
+   .stack-playhead can span both as a single continuous line. This is the
+   confined scroll region per DESIGN.md's Editor layout note ("extra height
+   fits more lanes before the stack scrolls") — .stack-playhead stays
+   correctly aligned with scrolled content since it's absolutely positioned
+   against this same scrolling container, not a static ancestor. */
 .stack-scrub {
   position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   border: 1px solid var(--line);
   background: var(--panel);
 }
@@ -1036,13 +1162,22 @@ footer .player {
 }
 
 /* Editor adds a fixed-width right rail (version history) alongside the fixed
-   left settings panel; only the center column is fluid. */
+   left settings panel; only the center column is fluid. It's also the one
+   view that fills .app-body's full height and stretches its columns
+   (instead of top-aligning) so .editor-main can hand its own extra height
+   down to .layer-stack/.stack-scrub rather than the page scrolling. */
 .with-panel.editor-layout {
   grid-template-columns: 210px 1fr 300px;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
 }
 
 .editor-main {
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* Create takeover: fixed left settings panel + a width-capped content
@@ -1050,6 +1185,9 @@ footer .player {
    usable by being 3x wider, so extra viewport width is left as margin. */
 .with-panel.create-layout {
   grid-template-columns: 210px 1fr;
+  flex: 1;
+  min-height: 0;
+  align-items: stretch;
 }
 
 /* Refine preview claims the same right-rail column Editor uses for version
@@ -1554,6 +1692,16 @@ footer .player {
   gap: 6px;
 }
 
+/* GUIDANCE on a Turbo model (ignores CFG entirely) — dimmed, not just disabled,
+   so it visibly reads as "inert here" rather than "temporarily locked". */
+.setting-disabled {
+  opacity: 0.4;
+}
+
+.setting-disabled .pgram-input {
+  cursor: default;
+}
+
 .setting-head {
   display: flex;
   justify-content: space-between;
@@ -1565,6 +1713,63 @@ footer .player {
 
 .setting-head .val {
   color: var(--acid);
+}
+
+/* "?" hover/focus popup — CSS-only, no JS state (:hover/:focus-within), used
+   next to slider/select labels to explain what a setting or model does. */
+.info-tooltip {
+  position: relative;
+  display: inline-block;
+  margin-left: 6px;
+}
+
+.info-tooltip-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 13px;
+  height: 13px;
+  border: 1px solid var(--text-low);
+  color: var(--text-low);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: help;
+}
+
+.info-tooltip:hover .info-tooltip-mark,
+.info-tooltip:focus-within .info-tooltip-mark,
+.info-tooltip:focus .info-tooltip-mark {
+  border-color: var(--text-hi);
+  color: var(--text-hi);
+}
+
+.info-tooltip-text {
+  position: absolute;
+  left: 0;
+  top: 100%;
+  margin-top: 6px;
+  width: 220px;
+  background: var(--carbon-raised);
+  border: 1px solid var(--line-hi);
+  padding: 8px 10px;
+  color: var(--text-hi);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s ease;
+  z-index: 20;
+}
+
+.info-tooltip:hover .info-tooltip-text,
+.info-tooltip:focus-within .info-tooltip-text,
+.info-tooltip:focus .info-tooltip-text {
+  opacity: 1;
 }
 
 /* Parallelogram DAW-fader slider (Slider.tsx) — three plain divs, not a
@@ -1744,6 +1949,28 @@ footer .player {
 .custom-select-option:hover {
   background: var(--acid);
   color: var(--carbon);
+}
+
+/* per-option "what is this best for" flyout — portal-rendered to document.body
+   and positioned via CustomSelect's `hover` state (fixed, not absolute) so it
+   can never inflate the scrollable dropdown's content box (an in-flow
+   absolutely-positioned version of this previously forced scrollbars onto the
+   dropdown even while invisible, since overflow is computed from the ancestor
+   scroll container regardless of opacity/pointer-events). */
+.option-description {
+  position: fixed;
+  width: 220px;
+  background: var(--carbon-raised);
+  border: 1px solid var(--line-hi);
+  padding: 8px 10px;
+  color: var(--text-hi);
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: normal;
+  text-transform: none;
+  line-height: 1.4;
+  pointer-events: none;
+  z-index: 50;
 }
 
 .toggle {

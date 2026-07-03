@@ -121,7 +121,7 @@ export function Editor({ songId, onBack }: Props) {
   if (!song) return <div className="empty">Loading…</div>;
 
   return (
-    <div>
+    <div className="editor-shell">
       <div className="with-panel editor-layout">
         <SettingsPanel mode="repaint" />
         <div className="editor-main">

@@ -43,11 +43,11 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // library player stops (not pauses) when the editor opens, per PLAN.md's Custom Player Controls section
+  // library player stops (not pauses) when the editor or create view opens, per PLAN.md's Custom Player Controls section
   useEffect(() => {
-    if (openSongId) footerEngine.stop();
+    if (openSongId || view === 'create') footerEngine.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [openSongId]);
+  }, [openSongId, view]);
 
   const play = (s: Song) => setPlaying(s);
 
@@ -66,14 +66,15 @@ export default function App() {
     <div className={openSongId || view === 'create' ? 'app app-editor' : 'app'}>
       <HeaderSlotContext.Provider value={setHeaderSlot}>
       <Header online={online} left={headerLeft} right={headerRight} />
+      <div className="app-body">
       <AnimatePresence mode="wait">
         {openSongId ? (
-          <motion.div key="editor" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
+          <motion.div className="view-fill" key="editor" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
             <MaterializeSweep />
             <Editor songId={openSongId} onBack={() => { setOpenSongId(null); refresh(); }} />
           </motion.div>
         ) : view === 'create' ? (
-          <motion.div key="create" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
+          <motion.div className="view-fill" key="create" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
             <MaterializeSweep />
             <CreateView
               songs={songs}
@@ -121,6 +122,7 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
+      </div>
 
       {/* docked to the bottom of the app; slides down (not unmount) while the editor/create screen is
           open so it reappears stopped, not restarted, on return — audio itself is actually stopped by

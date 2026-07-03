@@ -24,8 +24,8 @@ export interface RepaintSettings {
 
 export interface AddLayerSettings {
   model: string; // '' = server default. Must be lego-capable (Base model) — client filters options.
-  inferenceSteps: number; // 0 = AUTO; Base model recommends 32-64, much slower than Turbo repaint.
-  guidanceScale: number;
+  // Steps/guidance are shared with RepaintSettings (see repaintParams) rather than
+  // duplicated here — Add Layer is another ACE-Step conditioning op on the same song.
   randomSeed: boolean;
   seed: number;
 }
@@ -62,8 +62,6 @@ export const useSettings = create<SettingsState>()(
       },
       addLayer: {
         model: '', // '' = AUTO — but AUTO isn't guaranteed lego-capable; UI requires an explicit pick.
-        inferenceSteps: 0, // 0 = AUTO
-        guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
       },
@@ -112,12 +110,16 @@ export function repaintParams(r: RepaintSettings) {
   };
 }
 
-/** Map Add Layer settings to ACE-Step request params. `model` is required (lego needs a Base model). */
-export function addLayerParams(a: AddLayerSettings) {
+/**
+ * Map Add Layer settings to ACE-Step request params. `model` is required (lego
+ * needs a Base model). Steps/guidance come from RepaintSettings — Add Layer has
+ * no dedicated controls for these, so it shares whatever the user set for repaint.
+ */
+export function addLayerParams(a: AddLayerSettings, r: RepaintSettings) {
   return {
     ...(a.model ? { model: a.model } : {}),
-    ...(a.inferenceSteps > 0 ? { inference_steps: a.inferenceSteps } : {}),
-    ...(a.guidanceScale > 0 ? { guidance_scale: a.guidanceScale } : {}),
+    ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
+    ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
     use_random_seed: a.randomSeed,
     ...(a.randomSeed ? {} : { seed: a.seed }),
   };
