@@ -7,6 +7,8 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 
 interface Props {
   layerName: string;
+  /** The version number this repaint will create, e.g. 4 for "BASE v4" — states the consequence inline per AGENTS.md. */
+  nextVersion: number;
   selection: Region | null;
   prompt: string;
   onPromptChange: (prompt: string) => void;
@@ -16,7 +18,7 @@ interface Props {
 }
 
 /** Scope chip + prompt input + REPAINT REGION commit, re-targetable to whichever layer is focused. */
-export function RepaintBar({ layerName, selection, prompt, onPromptChange, job, onRepaint, error }: Props) {
+export function RepaintBar({ layerName, nextVersion, selection, prompt, onPromptChange, job, onRepaint, error }: Props) {
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const regionTooShort = !!selection && regionSeconds < REPAINT_MIN_SECONDS;
   const regionTooLong = !!selection && regionSeconds > REPAINT_MAX_SECONDS;
@@ -62,6 +64,9 @@ export function RepaintBar({ layerName, selection, prompt, onPromptChange, job, 
           ) : 'REPAINT REGION'}
         </motion.button>
       </motion.section>
+      {regionValid && (
+        <div className="hint">will save as {layerName.toUpperCase()} v{nextVersion}</div>
+      )}
       {error && <div className="error">{error} <button onClick={onRepaint}>RETRY</button></div>}
     </>
   );

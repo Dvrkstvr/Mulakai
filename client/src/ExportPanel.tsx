@@ -11,7 +11,7 @@ export function ExportPanel({ song, onBack }: Props) {
     <div className="export-panel">
       <div className="export-head">
         <span className="section-label" style={{ margin: 0 }}>EXPORT</span>
-        <button className="link-btn" onClick={onBack}>← HISTORY</button>
+        <button className="link-btn" onClick={onBack}><span>← HISTORY</span></button>
       </div>
       <div className="hint">download each layer's active version as a separate stem</div>
       {song.layers.map((layer) => {

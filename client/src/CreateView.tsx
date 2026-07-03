@@ -54,21 +54,19 @@ export function CreateView({ songs, initialPrompt, onBack, onCreated }: Props) {
   const onBackRef = useRef(onBack);
   onBackRef.current = onBack;
   const headerLeft = useMemo(() => <button onClick={() => onBackRef.current()}>&#8592; LIBRARY</button>, []);
-  const headerRight = useMemo(() => (
-    <>
-      <span className="song-title" style={{ fontSize: 16, letterSpacing: 1 }}>New song</span>
-      <span className="meta">
-        {genType === 'prompt' ? 'will appear in your library once generated' : 'will generate a new song using this audio as reference'}
-      </span>
-    </>
-  ), [genType]);
-  useHeaderSlot(headerLeft, headerRight);
+  useHeaderSlot(headerLeft, null);
 
   return (
     <div>
       <div className="with-panel create-layout">
         <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} />
         <div className="create-content">
+          <div className="title-row">
+            <span className="song-title">New song</span>
+            <span className="meta">
+              {genType === 'prompt' ? 'will appear in your library once generated' : 'will generate a new song using this audio as reference'}
+            </span>
+          </div>
           <div className="section-label">GENERATION TYPE</div>
           <div className="type-tabs">
             <button className={genType === 'prompt' ? 'tab active' : 'tab'} onClick={() => setGenType('prompt')}><span>PROMPT</span></button>

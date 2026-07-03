@@ -110,7 +110,7 @@ export default function App() {
                     <span className="meta">{s.caption}</span>
                   </div>
                   <div className="row-actions">
-                    <button onClick={() => setOpenSongId(s.id)}>EDIT</button>
+                    <button className="edit-btn" onClick={() => setOpenSongId(s.id)}><span>EDIT</span></button>
                     <button className={s.favorite ? 'fav on' : 'fav'} onClick={() => api.setFavorite(s.id, !s.favorite).then(() => refresh())}>♥</button>
                     <button onClick={() => api.trash(s.id).then(() => refresh())}>✕</button>
                   </div>

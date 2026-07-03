@@ -153,13 +153,15 @@ stacked modals.
      themselves never stretch. Favorites card row pinned top and rust trash
      strip docked bottom are future work, same anatomy as list cards.
      Global error toasts (rust) appear in the header row.
-2. **Create** — its own takeover screen (`← LIBRARY` header, consequence
-   line e.g. "will appear in your library once generated"), reached from
-   Library's create bar. Layout: fixed-width **left settings panel** (same
-   idiom as Editor's) + a **centered content column** (~800px, not
-   full-bleed — a prompt/lyrics editor doesn't get more usable by being
-   3x wider, so extra viewport width is left as margin here, unlike
-   Editor's waveform).
+2. **Create** — its own takeover screen, reached from Library's create bar.
+   Header stays back/brand/status only (same as Editor's — the header is a
+   single persistent element and doesn't carry per-screen content); a
+   `.title-row` at the top of the content column holds "New song" + the
+   consequence line (e.g. "will appear in your library once generated").
+   Layout: fixed-width **left settings panel** (same idiom as Editor's) + a
+   **centered content column** (~800px, not full-bleed — a prompt/lyrics
+   editor doesn't get more usable by being 3x wider, so extra viewport width
+   is left as margin here, unlike Editor's waveform).
    - **GENERATION TYPE** choice (acid-filled-parallelogram tabs, same idiom
      as style-tag chips): **PROMPT** or **AUDIO**.
      - *Prompt*: title, description field, lyrics editor (mono) with

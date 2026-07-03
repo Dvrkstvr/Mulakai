@@ -116,7 +116,7 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
       </AnimatePresence>
       {hasHidden && (
         <button className="show-more" onClick={() => setShowAll((s) => !s)}>
-          {showAll ? 'SHOW FEWER' : `SHOW ${versions.length - collapsedIds.size} MORE`}
+          <span>{showAll ? 'SHOW FEWER' : `SHOW ${versions.length - collapsedIds.size} MORE`}</span>
         </button>
       )}
       {error && <div className="error">{error}</div>}

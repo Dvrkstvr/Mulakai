@@ -2,13 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface Props {
-  label: string;
+  /** Omit for a compact inline control with no label row (e.g. Library's SORT). */
+  label?: string;
   value: string;
   options: { label: string; value: string }[];
   onChange: (v: string) => void;
 }
 
-/** Skewed-parallelogram dropdown per docs/design/DESIGN.md's choice-shape grammar. */
+/**
+ * Skewed-parallelogram dropdown per docs/design/DESIGN.md's choice-shape
+ * grammar — skewed at rest like every other choice control (chip/tab/toggle),
+ * not just while open.
+ */
 export function CustomSelect({ label, value, options, onChange }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const currentLabel = options.find((o) => o.value === value)?.label || '—';
@@ -25,18 +30,16 @@ export function CustomSelect({ label, value, options, onChange }: Props) {
   }, []);
 
   return (
-    <div className="setting" ref={containerRef}>
-      <div className="setting-head"><span>{label}</span></div>
+    <div className={label ? 'setting' : 'custom-select compact'} ref={containerRef}>
+      {label && <div className="setting-head"><span>{label}</span></div>}
       <div style={{ position: 'relative' }}>
-        <motion.button
+        <button
           className={`custom-select-button ${isOpen ? 'open' : ''}`}
           onClick={() => setIsOpen(!isOpen)}
-          animate={{ skewX: isOpen ? -10 : 0 }}
-          transition={{ duration: 0.2 }}
         >
           <span>{currentLabel}</span>
           <svg fill="currentColor" height="14" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>
-        </motion.button>
+        </button>
         <AnimatePresence>
           {isOpen && (
             <motion.div

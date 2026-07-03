@@ -1,5 +1,13 @@
+import { CustomSelect } from './CustomSelect';
+
 export type LibrarySort = 'newest' | 'oldest' | 'title';
 export type LibraryFilter = 'all' | 'favorites';
+
+const SORT_OPTIONS = [
+  { label: 'SORT: NEWEST', value: 'newest' },
+  { label: 'SORT: OLDEST', value: 'oldest' },
+  { label: 'SORT: TITLE A–Z', value: 'title' },
+];
 
 interface Props {
   query: string;
@@ -19,11 +27,7 @@ export function LibraryToolbar({ query, onQuery, sort, onSort, filter, onFilter 
         value={query}
         onChange={(e) => onQuery(e.target.value)}
       />
-      <select value={sort} onChange={(e) => onSort(e.target.value as LibrarySort)}>
-        <option value="newest">SORT: NEWEST</option>
-        <option value="oldest">SORT: OLDEST</option>
-        <option value="title">SORT: TITLE A&#8211;Z</option>
-      </select>
+      <CustomSelect value={sort} onChange={(v) => onSort(v as LibrarySort)} options={SORT_OPTIONS} />
       <button className={filter === 'all' ? 'chip active' : 'chip'} onClick={() => onFilter('all')}>
         <span>ALL</span>
       </button>

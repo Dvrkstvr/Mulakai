@@ -106,11 +106,11 @@ export function AddLayerTrigger({ songId, layers, onDone }: Props) {
             <button
               className="acid"
               disabled={!canSubmit}
-              title="uses the BASE model — slower, ~32+ steps"
               onClick={submit}
             >
               {job === 'running' ? 'GENERATING…' : 'GENERATE'}
             </button>
+            <span className="hint">uses the BASE model — slower, ~32+ steps</span>
           </>
         )}
         {error && <div className="error">{error} <button onClick={submit}>RETRY</button></div>}
