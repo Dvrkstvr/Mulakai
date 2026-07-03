@@ -82,6 +82,12 @@ export function genParams(g: GenSettings) {
     ...(g.lmModel ? { lm_model_path: g.lmModel } : {}),
     thinking: g.thinking,
     use_format: g.useFormat,
+    // Metadata auto-completion (bpm/key/time signature/duration) and caption/language
+    // CoT rewriting are both LM-driven — gate them on AI ENHANCE so AUTO fields only
+    // get enhanced when the user has actually opted into LM enhancement (the API
+    // defaults these to `true` unconditionally, which would enhance silently).
+    use_cot_caption: g.useFormat,
+    use_cot_language: g.useFormat,
     ...(g.inferenceSteps > 0 ? { inference_steps: g.inferenceSteps } : {}),
     ...(g.guidanceScale > 0 ? { guidance_scale: g.guidanceScale } : {}),
     use_random_seed: g.randomSeed,

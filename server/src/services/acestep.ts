@@ -9,6 +9,8 @@ export interface ReleaseTaskParams {
   thinking?: boolean;
   sample_query?: string;
   use_format?: boolean;
+  use_cot_caption?: boolean;
+  use_cot_language?: boolean;
   model?: string;
   lm_model_path?: string;
   bpm?: number;
@@ -27,6 +29,49 @@ export interface ReleaseTaskParams {
   repainting_end?: number;
   audio_cover_strength?: number;
   audio_format?: string;
+}
+
+export interface FormatInputParams {
+  prompt?: string;
+  lyrics?: string;
+  temperature?: number;
+  bpm?: number;
+  key_scale?: string;
+  time_signature?: string;
+  vocal_language?: string;
+  audio_duration?: number;
+}
+
+export interface FormatInputResult {
+  caption: string;
+  lyrics: string;
+  bpm?: number;
+  key_scale?: string;
+  time_signature?: string;
+  duration?: number;
+  vocal_language?: string;
+}
+
+/**
+ * Calls ACE-Step's `/format_input` — refines caption/lyrics via LM and returns
+ * enhanced text plus any metadata the LM infers. Manually-set metadata is
+ * passed as `param_obj` context only (the API's own metadata field names —
+ * `key`/`language`/`duration` — differ from `release_task`'s `key_scale`/
+ * `vocal_language`/`audio_duration`, so it's remapped here).
+ */
+export async function formatInput(params: FormatInputParams): Promise<FormatInputResult> {
+  const paramObj: Record<string, unknown> = {};
+  if (params.audio_duration) paramObj.duration = params.audio_duration;
+  if (params.bpm) paramObj.bpm = params.bpm;
+  if (params.key_scale) paramObj.key = params.key_scale;
+  if (params.time_signature) paramObj.time_signature = params.time_signature;
+  if (params.vocal_language) paramObj.language = params.vocal_language;
+  return call('/format_input', {
+    prompt: params.prompt ?? '',
+    lyrics: params.lyrics ?? '',
+    temperature: params.temperature ?? 0.85,
+    param_obj: JSON.stringify(paramObj),
+  });
 }
 
 export interface TaskResult {

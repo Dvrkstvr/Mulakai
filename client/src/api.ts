@@ -64,6 +64,16 @@ export interface StemResult {
   claimed?: 'replaced' | 'added';
 }
 
+export interface RefineResult {
+  caption: string;
+  lyrics: string;
+  bpm?: number;
+  key_scale?: string;
+  time_signature?: string;
+  duration?: number;
+  vocal_language?: string;
+}
+
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -85,6 +95,13 @@ export const api = {
 
   listModels: (): Promise<ModelInventory> =>
     fetch('/api/generate/models').then((r) => json<ModelInventory>(r)),
+
+  refineInput: (params: { prompt: string; lyrics: string } & Record<string, unknown>): Promise<RefineResult> =>
+    fetch('/api/generate/format', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    }).then((r) => json<RefineResult>(r)),
 
   jobStatus: (jobId: string): Promise<{ status: 'loading' | 'running' | 'done' | 'failed'; songId?: string; error?: string }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),

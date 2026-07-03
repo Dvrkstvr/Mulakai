@@ -1052,6 +1052,12 @@ footer .player {
   grid-template-columns: 210px 1fr;
 }
 
+/* Refine preview claims the same right-rail column Editor uses for version
+   history — only reserved when a refine is in flight, previewed, or errored. */
+.with-panel.create-layout.with-rail {
+  grid-template-columns: 210px 1fr 300px;
+}
+
 .create-content {
   max-width: 800px;
   display: flex;
@@ -1147,17 +1153,141 @@ footer .player {
   font-size: 10px;
 }
 
+.field-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Same AI-state exception as .toggle-ai (docs/design/DESIGN.md#Motion) — a
+   field carries the same shimmer badge whether AI ENHANCE reaches it via a
+   toggle or by being left on AUTO. */
+.ai-badge {
+  color: var(--carbon);
+  font-weight: 700;
+  font-size: 9px;
+  letter-spacing: 1px;
+  padding: 2px 6px;
+  transform: skewX(-10deg);
+  background: linear-gradient(90deg, var(--acid), var(--sky), var(--lilac), var(--acid));
+  background-size: 300% 100%;
+  animation: ai-shimmer 3s linear infinite;
+}
+
+.song-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 16px;
+}
+
+.refine-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.refine-btn {
+  background: transparent;
+  border: 1px solid var(--sky);
+  color: var(--sky);
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.refine-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Same AI-in-progress exception as .toggle-ai/.ai-badge — shimmer only while the LM call is in flight. */
+.refine-btn.loading {
+  color: var(--carbon);
+  border-color: transparent;
+  background: linear-gradient(90deg, var(--acid), var(--sky), var(--lilac), var(--acid));
+  background-size: 300% 100%;
+  animation: ai-shimmer 3s linear infinite;
+}
+
 .hint {
   color: var(--text-mid);
   font-size: 10px;
 }
 
-/* version history rail (right, editor only) */
+/* right rail — version history in Editor, refine preview in Create */
 .rail {
   position: sticky;
   top: 14px;
   display: flex;
   flex-direction: column;
+}
+
+.refine-rail-panel {
+  border: 1px solid var(--line-hi);
+  background: var(--panel);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rail-close {
+  background: transparent;
+  border: none;
+  color: var(--text-mid);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.rail-close:hover {
+  color: var(--text-hi);
+}
+
+.refine-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.refine-field:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.refine-field p,
+.refine-field pre {
+  margin: 0;
+  font-size: 12px;
+  color: var(--text-hi);
+  white-space: pre-wrap;
+  font-family: inherit;
+}
+
+.refine-accept {
+  align-self: flex-start;
+  background: transparent;
+  border: 1px solid var(--acid);
+  color: var(--acid);
+  padding: 4px 10px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  cursor: pointer;
+}
+
+.refine-accept:disabled {
+  border-color: var(--line-hi);
+  color: var(--text-low);
+  cursor: default;
 }
 
 .versions {
