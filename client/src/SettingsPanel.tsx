@@ -1,25 +1,31 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from './api';
 import { useSettings } from './settings';
-import { motion, AnimatePresence } from 'framer-motion';
+import { CustomSelect } from './CustomSelect';
+import { Slider } from './Slider';
+import { motion } from 'framer-motion';
 
-function Slider({ label, value, min, max, step, onChange, autoAtZero }: {
-  label: string; value: number; min: number; max: number; step: number;
-  onChange: (v: number) => void; autoAtZero?: boolean;
-}) {
-  const readout = autoAtZero && value === 0 ? 'AUTO' : value;
+/** Risk scale for repaint VARIANCE (audio_cover_strength inverse) — see docs/design/DESIGN.md#Color-tokens. */
+const VARIANCE_BANDS = [
+  { max: 33, color: 'var(--sky)', label: 'SUBTLE', text: 'stays close to the original, small tweaks only' },
+  { max: 66, color: 'var(--acid)', label: 'BALANCED', text: 'noticeable change, source still recognizable' },
+  { max: 100, color: 'var(--rust)', label: 'BOLD', text: 'high freedom, may diverge far from the source to follow the prompt' },
+];
+
+function VarianceSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+  const band = VARIANCE_BANDS.find((b) => value <= b.max) ?? VARIANCE_BANDS[VARIANCE_BANDS.length - 1];
   return (
-    <div className="setting">
-      <div className="setting-head"><span>{label}</span><span className="val">{readout}</span></div>
-      <input type="range" min={min} max={max} step={step} value={value}
-        onChange={(e) => onChange(Number(e.target.value))} />
+    <div className="variance-slider">
+      <Slider label="VARIANCE" value={value} min={0} max={100} step={5} color={band.color} onChange={onChange} />
+      <div className="variance-note" style={{ color: band.color }}>{band.label} — {band.text}</div>
     </div>
   );
 }
 
-function Toggle({ label, checked, onChange }: { label: string; checked: boolean; onChange: (v: boolean) => void }) {
+function Toggle({ label, checked, onChange, ai }: { label: string; checked: boolean; onChange: (v: boolean) => void; ai?: boolean }) {
+  const cls = ['toggle', checked && 'on', checked && ai && 'toggle-ai'].filter(Boolean).join(' ');
   return (
-    <button className={checked ? 'toggle on' : 'toggle'} onClick={() => onChange(!checked)}>
+    <button className={cls} onClick={() => onChange(!checked)}>
       <span>{label}</span><span className="dot" />
     </button>
   );
@@ -38,70 +44,12 @@ function Seed({ random, seed, onRandom, onSeed }: {
   );
 }
 
-function CustomSelect({ label, value, options, onChange }: { label: string, value: string, options: { label: string, value: string }[], onChange: (v: string) => void }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const currentLabel = options.find(o => o.value === value)?.label || '—';
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
-    }
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div className="setting" ref={containerRef}>
-      <div className="setting-head"><span>{label}</span></div>
-      <div style={{ position: 'relative' }}>
-        <motion.button
-          className={`custom-select-button ${isOpen ? 'open' : ''}`}
-          onClick={() => setIsOpen(!isOpen)}
-          animate={{ skewX: isOpen ? -10 : 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          <span>{currentLabel}</span>
-          <svg fill="currentColor" height="14" viewBox="0 0 24 24" width="14" xmlns="http://www.w3.org/2000/svg"><path d="M7 10l5 5 5-5z"/></svg>
-        </motion.button>
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              className="custom-select-dropdown"
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.15 }}
-            >
-              {options.map((opt, i) => (
-                <motion.div
-                  key={opt.value}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.03, duration: 0.15 }}
-                  className="custom-select-option"
-                  onClick={() => { onChange(opt.value); setIsOpen(false); }}
-                >
-                  {opt.label}
-                </motion.div>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
-  );
-}
-
-export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
+export function SettingsPanel({ mode, hideLmControls }: { mode: 'generate' | 'repaint'; hideLmControls?: boolean }) {
   const { gen, repaint, setGen, setRepaint } = useSettings();
   const [models, setModels] = useState<string[]>([]);
   const [lmModels, setLmModels] = useState<string[]>([]);
 
   useEffect(() => {
-    if (mode !== 'generate') return;
     api.listModels().then((data) => {
       setModels(data.models.map((m) => m.name));
       setLmModels(data.lmModels);
@@ -109,7 +57,7 @@ export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
       setModels([]);
       setLmModels([]);
     });
-  }, [mode]);
+  }, []);
 
   const AUTO = { label: 'AUTO', value: '' };
 
@@ -125,37 +73,42 @@ export function SettingsPanel({ mode }: { mode: 'generate' | 'repaint' }) {
             onChange={(v) => setGen({ model: v })}
             options={[AUTO, ...models.map(m => ({label: m, value: m}))]}
           />
-          <CustomSelect
-            label="LM MODEL"
-            value={gen.lmModel}
-            onChange={(v) => setGen({ lmModel: v })}
-            options={[AUTO, ...lmModels.map(m => ({label: m, value: m}))]}
-          />
-          <Toggle label="THINKING MODE" checked={gen.thinking} onChange={(v) => setGen({ thinking: v })} />
-          <Toggle label="AI ENHANCE" checked={gen.useFormat} onChange={(v) => setGen({ useFormat: v })} />
-          <Slider label="STEPS" value={gen.inferenceSteps} min={0} max={64} step={1} autoAtZero
+          {!hideLmControls && (
+            <>
+              <CustomSelect
+                label="LM MODEL"
+                value={gen.lmModel}
+                onChange={(v) => setGen({ lmModel: v })}
+                options={[AUTO, ...lmModels.map(m => ({label: m, value: m}))]}
+              />
+              <Toggle label="THINKING MODE" checked={gen.thinking} onChange={(v) => setGen({ thinking: v })} ai />
+              <Toggle label="AI ENHANCE" checked={gen.useFormat} onChange={(v) => setGen({ useFormat: v })} ai />
+            </>
+          )}
+          <Slider label="STEPS" value={gen.inferenceSteps} min={0} max={64} step={1}
+            readout={gen.inferenceSteps === 0 ? 'AUTO' : undefined}
             onChange={(v) => setGen({ inferenceSteps: v })} />
-          <Slider label="GUIDANCE" value={gen.guidanceScale} min={0} max={15} step={0.5} autoAtZero
+          <Slider label="GUIDANCE" value={gen.guidanceScale} min={0} max={15} step={0.5}
+            readout={gen.guidanceScale === 0 ? 'AUTO' : undefined}
             onChange={(v) => setGen({ guidanceScale: v })} />
           <Seed random={gen.randomSeed} seed={gen.seed}
             onRandom={(v) => setGen({ randomSeed: v })} onSeed={(v) => setGen({ seed: v })} />
         </>
       ) : (
         <>
-          <div className="setting">
-            <div className="setting-head"><span>MODE</span></div>
-            <div className="seg">
-              {(['conservative', 'balanced', 'aggressive'] as const).map((m) => (
-                <button key={m} className={repaint.repaintMode === m ? 'on' : ''}
-                  onClick={() => setRepaint({ repaintMode: m })}>{m.slice(0, 4).toUpperCase()}</button>
-              ))}
-            </div>
-          </div>
-          <Slider label="VARIANCE" value={Math.round(repaint.repaintStrength * 100)} min={0} max={100} step={5}
+          <CustomSelect
+            label="DIT MODEL"
+            value={repaint.model}
+            onChange={(v) => setRepaint({ model: v })}
+            options={[AUTO, ...models.map(m => ({label: m, value: m}))]}
+          />
+          <VarianceSlider value={Math.round(repaint.repaintStrength * 100)}
             onChange={(v) => setRepaint({ repaintStrength: v / 100 })} />
-          <Slider label="STEPS" value={repaint.inferenceSteps} min={0} max={64} step={1} autoAtZero
+          <Slider label="STEPS" value={repaint.inferenceSteps} min={0} max={64} step={1}
+            readout={repaint.inferenceSteps === 0 ? 'AUTO' : undefined}
             onChange={(v) => setRepaint({ inferenceSteps: v })} />
-          <Slider label="GUIDANCE" value={repaint.guidanceScale} min={0} max={15} step={0.5} autoAtZero
+          <Slider label="GUIDANCE" value={repaint.guidanceScale} min={0} max={15} step={0.5}
+            readout={repaint.guidanceScale === 0 ? 'AUTO' : undefined}
             onChange={(v) => setRepaint({ guidanceScale: v })} />
           <Seed random={repaint.randomSeed} seed={repaint.seed}
             onRandom={(v) => setRepaint({ randomSeed: v })} onSeed={(v) => setRepaint({ seed: v })} />

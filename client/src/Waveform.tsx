@@ -1,4 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
+import { hitTestRegion, applyDrag, type DragMode } from './regionDrag';
+import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
+import { loadPeaks } from './waveformPeaks';
 
 export interface Region {
   start: number; // seconds
@@ -13,37 +16,28 @@ interface Props {
   playhead?: number;
   height?: number;
   isFadingOut?: boolean;
+  onSeek?: (seconds: number) => void;
+  /** When false: no drag-to-select, no double-click-seek — double-click instead calls onFocus (non-focused lane). Defaults true. */
+  interactive?: boolean;
+  /** Click/double-click target used in place of seeking when `interactive` is false. */
+  onFocus?: () => void;
 }
 
 const COLORS = { idle: '#55565F', sel: '#30BCED', selBg: '#153543', playhead: '#30BCED' };
-
-async function loadPeaks(url: string, buckets: number): Promise<number[]> {
-  const ctx = new AudioContext();
-  try {
-    const buf = await ctx.decodeAudioData(await (await fetch(url)).arrayBuffer());
-    const data = buf.getChannelData(0);
-    const per = Math.floor(data.length / buckets);
-    const peaks: number[] = [];
-    for (let i = 0; i < buckets; i++) {
-      let max = 0;
-      for (let j = i * per; j < (i + 1) * per; j += 32) {
-        const v = Math.abs(data[j]);
-        if (v > max) max = v;
-      }
-      peaks.push(max);
-    }
-    return peaks;
-  } finally {
-    void ctx.close();
-  }
-}
+const EDGE_TOLERANCE_PX = 8;
+const CURSOR: Record<DragMode, string> = { create: 'crosshair', move: 'move', 'resize-start': 'ew-resize', 'resize-end': 'ew-resize' };
 
 /** Sharp-bar waveform with drag-to-select region (sky) per DESIGN.md. */
-export function Waveform({ audioUrl, duration, selection, onSelect, playhead, height = 96, isFadingOut }: Props) {
+export function Waveform({ audioUrl, duration, selection, onSelect, playhead, height = 96, isFadingOut, onSeek, interactive = true, onFocus }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [peaks, setPeaks] = useState<number[]>([]);
   const [animProgress, setAnimProgress] = useState(1);
-  const dragStart = useRef<number | null>(null);
+  const [selRevealProgress, setSelRevealProgress] = useState(1);
+  const [hoverMode, setHoverMode] = useState<DragMode>('create');
+  const dragMode = useRef<DragMode | null>(null);
+  const dragStartSeconds = useRef(0);
+  const dragOrigin = useRef<Region | null>(null);
+  const prevSelection = useRef<Region | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,6 +67,29 @@ export function Waveform({ audioUrl, duration, selection, onSelect, playhead, he
     return () => cancelAnimationFrame(frameId);
   }, [peaks, isFadingOut]);
 
+  // Selection wash "expands from center" when a region is set programmatically (e.g. double-click
+  // a version's region in VersionHistory) rather than snapping in — live drag-to-select already
+  // grows continuously with the mouse, so it's excluded via dragMode.current.
+  useEffect(() => {
+    const isNewProgrammaticSelection = selection && selection !== prevSelection.current && dragMode.current === null;
+    prevSelection.current = selection;
+    if (!isNewProgrammaticSelection) {
+      setSelRevealProgress(1);
+      return;
+    }
+    setSelRevealProgress(0);
+    let frameId: number;
+    const start = performance.now();
+    const durationMs = 220;
+    const tick = (now: number) => {
+      const p = Math.min(1, (now - start) / durationMs);
+      setSelRevealProgress(p);
+      if (p < 1) frameId = requestAnimationFrame(tick);
+    };
+    frameId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frameId);
+  }, [selection]);
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas || peaks.length === 0) return;
@@ -87,8 +104,10 @@ export function Waveform({ audioUrl, duration, selection, onSelect, playhead, he
       ? [(selection.start / duration) * w, (selection.end / duration) * w]
       : null;
     if (selX) {
+      const mid = (selX[0] + selX[1]) / 2;
+      const halfWidth = ((selX[1] - selX[0]) / 2) * selRevealProgress;
       g.fillStyle = COLORS.selBg;
-      g.fillRect(selX[0], 0, selX[1] - selX[0], height);
+      g.fillRect(mid - halfWidth, 0, halfWidth * 2, height);
     }
     const barW = w / peaks.length;
     const fadeWidth = 0.2;
@@ -118,7 +137,7 @@ export function Waveform({ audioUrl, duration, selection, onSelect, playhead, he
       g.fillRect((playhead / duration) * w, 0, 1.5, height);
       g.globalAlpha = 1.0;
     }
-  }, [peaks, selection, playhead, duration, height, animProgress]);
+  }, [peaks, selection, playhead, duration, height, animProgress, selRevealProgress]);
 
   const toSeconds = (e: React.MouseEvent) => {
     const rect = canvasRef.current!.getBoundingClientRect();
@@ -126,24 +145,51 @@ export function Waveform({ audioUrl, duration, selection, onSelect, playhead, he
     return frac * duration;
   };
 
+  const edgeToleranceSeconds = () => {
+    const rect = canvasRef.current?.getBoundingClientRect();
+    return rect && duration > 0 ? (EDGE_TOLERANCE_PX / rect.width) * duration : 0;
+  };
+
+  if (!interactive) {
+    return (
+      <canvas
+        ref={canvasRef}
+        style={{ width: '100%', height, cursor: 'pointer', display: 'block' }}
+        onClick={onFocus}
+        onDoubleClick={onFocus}
+      />
+    );
+  }
+
   return (
     <canvas
       ref={canvasRef}
-      style={{ width: '100%', height, cursor: 'crosshair', display: 'block' }}
-      onMouseDown={(e) => { dragStart.current = toSeconds(e); onSelect(null); }}
+      style={{ width: '100%', height, cursor: CURSOR[hoverMode], display: 'block' }}
+      onMouseDown={(e) => {
+        const secs = toSeconds(e);
+        const mode = hitTestRegion(secs, selection, edgeToleranceSeconds());
+        dragMode.current = mode;
+        dragStartSeconds.current = secs;
+        dragOrigin.current = selection;
+        if (mode === 'create') onSelect(null);
+      }}
       onMouseMove={(e) => {
-        if (dragStart.current === null) return;
-        const now = toSeconds(e);
-        onSelect({ start: Math.min(dragStart.current, now), end: Math.max(dragStart.current, now) });
+        const secs = toSeconds(e);
+        if (dragMode.current === null) {
+          setHoverMode(hitTestRegion(secs, selection, edgeToleranceSeconds()));
+          return;
+        }
+        onSelect(applyDrag(dragMode.current, dragOrigin.current, dragStartSeconds.current, secs, duration, REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS));
       }}
       onMouseUp={(e) => {
-        if (dragStart.current !== null) {
-          const now = toSeconds(e);
-          if (Math.abs(now - dragStart.current) < 0.2) onSelect(null); // click = clear
+        if (dragMode.current === 'create') {
+          const secs = toSeconds(e);
+          if (Math.abs(secs - dragStartSeconds.current) < 0.2) onSelect(null); // click = clear
         }
-        dragStart.current = null;
+        dragMode.current = null;
       }}
-      onMouseLeave={() => { dragStart.current = null; }}
+      onMouseLeave={() => { dragMode.current = null; }}
+      onDoubleClick={(e) => onSeek?.(toSeconds(e))}
     />
   );
 }

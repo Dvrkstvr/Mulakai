@@ -1,10 +1,16 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, type SongDetail } from './api';
-import { Waveform, type Region } from './Waveform';
+import type { Region } from './Waveform';
+import { Player } from './Player';
+import { VersionHistory } from './VersionHistory';
+import { ExportPanel } from './ExportPanel';
+import { LayerStack } from './LayerStack';
+import { RepaintBar } from './RepaintBar';
 import { SettingsPanel } from './SettingsPanel';
 import { useSettings, repaintParams } from './settings';
-import { motion, AnimatePresence } from 'framer-motion';
-import { AIGeneratingBackground } from './AIGeneratingBackground';
+import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
+import { usePlaybackEngine } from './mix/usePlaybackEngine';
+import { useHeaderSlot } from './HeaderSlot';
 
 interface Props {
   songId: string;
@@ -16,27 +22,39 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 export function Editor({ songId, onBack }: Props) {
   const repaintSettings = useSettings((s) => s.repaint);
   const [song, setSong] = useState<SongDetail | null>(null);
+  const [focusedLayerId, setFocusedLayerId] = useState<string | null>(null);
   const [selection, setSelection] = useState<Region | null>(null);
   const [prompt, setPrompt] = useState('');
   const [job, setJob] = useState<'idle' | 'running'>('idle');
   const [error, setError] = useState('');
-  const [playhead, setPlayhead] = useState(0);
-  const [isReverting, setIsReverting] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
+  const [railMode, setRailMode] = useState<'history' | 'export'>('history');
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);
 
-  const baseLayer = song?.layers.find((l) => l.kind === 'base');
-  const activeVersion = baseLayer?.versions.find((v) => v.active);
+  const engine = usePlaybackEngine(song?.layers ?? []);
+  const playhead = engine.currentTime;
+
+  // Default focus to the base layer once the song loads; keep focus if the layer still exists.
+  useEffect(() => {
+    if (!song) return;
+    if (focusedLayerId && song.layers.some((l) => l.id === focusedLayerId)) return;
+    setFocusedLayerId(song.layers.find((l) => l.kind === 'base')?.id ?? song.layers[0]?.id ?? null);
+  }, [song, focusedLayerId]);
+
+  const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
+  const activeVersion = focusedLayer?.versions.find((v) => v.active);
   const duration = song?.duration ?? 0;
 
+  const regionSeconds = selection ? selection.end - selection.start : 0;
+  const regionValid = !!selection && regionSeconds >= REPAINT_MIN_SECONDS && regionSeconds <= REPAINT_MAX_SECONDS;
+
   const repaint = async () => {
-    if (!baseLayer || !selection) return;
+    if (!focusedLayer || !regionValid || !selection) return;
     setError('');
     setJob('running');
     try {
-      const { jobId } = await api.repaint(baseLayer.id, {
+      const { jobId } = await api.repaint(focusedLayer.id, {
         prompt,
         start: selection.start,
         end: selection.end,
@@ -59,110 +77,85 @@ export function Editor({ songId, onBack }: Props) {
   };
 
   const revert = async (versionId: string) => {
-    setIsReverting(true);
-    await new Promise(r => setTimeout(r, 600)); // wait for fade out
     await api.activateVersion(versionId);
     await reload();
-    setIsReverting(false);
   };
+
+  const seek = (seconds: number) => engine.seek(seconds);
+
+  const onBackRef = useRef(onBack);
+  onBackRef.current = onBack;
+  const headerLeft = useMemo(() => <button onClick={() => onBackRef.current()}>← LIBRARY</button>, []);
+  useHeaderSlot(headerLeft, null);
 
   if (!song) return <div className="empty">Loading…</div>;
 
   return (
     <div>
-      <header>
-        <button onClick={onBack}>← LIBRARY</button>
-        <span className="song-title" style={{ fontSize: 16, letterSpacing: 1 }}>{song.title}</span>
-        <span className="meta">
-          {duration ? fmt(duration) : ''}{song.bpm ? ` · ${song.bpm} bpm` : ''}{song.key_scale ? ` · ${song.key_scale}` : ''}
-        </span>
-      </header>
-
-      <div className="with-panel">
+      <div className="with-panel editor-layout">
         <SettingsPanel mode="repaint" />
         <div className="editor-main">
-      <AnimatePresence>
-      {activeVersion && (
-        <motion.section key="canvas" className="canvas" initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.2 }}>
-          <Waveform
-            audioUrl={`/audio/${activeVersion.audio_file}`}
-            duration={duration}
-            selection={selection}
-            onSelect={setSelection}
-            playhead={playhead}
-            isFadingOut={isReverting}
-          />
-          <div className="canvas-meta">
-            <span>0:00</span>
-            <span className="scope">
-              {selection ? `selection ${fmt(selection.start)} – ${fmt(selection.end)}` : 'drag to select a region'}
-            </span>
-            <span>{fmt(duration)}</span>
-          </div>
-          <audio
-            ref={audioRef}
-            controls
-            src={`/audio/${activeVersion.audio_file}`}
-            onTimeUpdate={(e) => setPlayhead(e.currentTarget.currentTime)}
-            style={{ width: '100%', marginTop: 8 }}
-          />
-        </motion.section>
-      )}
-      </AnimatePresence>
+      <div className="editor-title-row">
+        <span className="song-title">{song.title}</span>
+        <span className="meta">
+          {duration ? fmt(duration) : ''}{song.bpm ? ` · ${song.bpm} bpm` : ''}{song.key_scale ? ` · ${song.key_scale}` : ''}
+          {` · ${song.layers.length} layer${song.layers.length === 1 ? '' : 's'}`}
+        </span>
+      </div>
 
-      <motion.section className="repaint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, delay: 0.1 }}>
-        <motion.div className="scope-chip" layout>
-          {selection ? `${fmt(selection.start)}–${fmt(selection.end)} · BASE` : 'NO SELECTION'}
-        </motion.div>
-        <input
-          placeholder="Describe what should change in the selected region"
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <motion.button
-          className="acid"
-          animate={job === 'running' ? {
-            skewX: 0,
-            backgroundColor: 'transparent',
-            color: '#D4FF00'
-          } : {
-            skewX: selection ? -10 : 0,
-            backgroundColor: '#D4FF00',
-            color: '#1C1D21'
-          }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          style={{ position: 'relative', overflow: 'hidden' }}
-          disabled={!selection || job === 'running'}
-          onClick={repaint}
-        >
-          {job === 'running' ? (
-            <>
-              <AIGeneratingBackground />
-              <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                REPAINTING…
-              </span>
-            </>
-          ) : 'REPAINT REGION'}
-        </motion.button>
-      </motion.section>
-      {error && <div className="error">{error} <button onClick={repaint}>RETRY</button></div>}
-      <AnimatePresence>
-      {baseLayer && baseLayer.versions.length > 0 && (
-        <motion.section className="versions" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={{ duration: 0.2 }}>
-          <div className="section-label">HISTORY</div>
-          {baseLayer.versions.map((v) => (
-            <motion.div layout key={v.id} className={v.active ? 'version current' : 'version'}>
-              <span>{v.label || 'version'}</span>
-              <span className="meta">{new Date(v.created_at + 'Z').toLocaleString()}</span>
-              {v.active
-                ? <span className="badge">CURRENT</span>
-                : <button onClick={() => revert(v.id)}>REVERT</button>}
-            </motion.div>
-          ))}
-        </motion.section>
-      )}
-      </AnimatePresence>
+      <LayerStack
+        songId={songId}
+        layers={song.layers}
+        focusedLayerId={focusedLayerId}
+        onFocus={setFocusedLayerId}
+        onChanged={reload}
+        duration={duration}
+        playhead={playhead}
+        selection={selection}
+        onSelect={setSelection}
+        onSeek={seek}
+        processing={job === 'running'}
+      />
+
+      {activeVersion && (
+        <div className="canvas" style={{ marginTop: 12 }}>
+          <Player
+            engine={engine}
+            downloadSrc={`/audio/${activeVersion.audio_file}`}
+            downloadName={`${song.title}.wav`}
+            minimal
+          />
         </div>
+      )}
+
+      <RepaintBar
+        layerName={focusedLayer?.name ?? 'base'}
+        selection={selection}
+        prompt={prompt}
+        onPromptChange={setPrompt}
+        job={job}
+        onRepaint={repaint}
+        error={error}
+      />
+        </div>
+        {focusedLayer && (
+          <div className="rail">
+            {railMode === 'history' ? (
+              <>
+                <VersionHistory
+                  versions={focusedLayer.versions}
+                  onSelectRegion={setSelection}
+                  onLoadPrompt={setPrompt}
+                  onRevert={revert}
+                  onChanged={reload}
+                />
+                <button className="rail-export-btn" onClick={() => setRailMode('export')}>EXPORT</button>
+              </>
+            ) : (
+              <ExportPanel song={song} onBack={() => setRailMode('history')} />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

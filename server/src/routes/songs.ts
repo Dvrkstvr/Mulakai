@@ -34,10 +34,22 @@ songsRouter.get('/:id', (req, res) => {
     .prepare(`SELECT * FROM layers WHERE song_id = ? ORDER BY position`)
     .all(req.params.id) as Array<Record<string, unknown>>;
   for (const layer of layers) {
-    layer.versions = db
-      .prepare(`SELECT id, audio_file, label, seed, active, created_at FROM versions
+    const versions = db
+      .prepare(`SELECT id, audio_file, label, params_json, seed, active, created_at FROM versions
                 WHERE layer_id = ? ORDER BY created_at DESC`)
-      .all(layer.id as string);
+      .all(layer.id as string) as Array<Record<string, unknown>>;
+    layer.versions = versions.map(({ params_json, ...rest }) => {
+      const params = JSON.parse(params_json as string) as {
+        prompt?: string; task_type?: string; repainting_start?: number; repainting_end?: number;
+      };
+      return {
+        ...rest,
+        prompt: params.prompt ?? '',
+        task_type: params.task_type ?? 'text2music',
+        region_start: params.repainting_start ?? null,
+        region_end: params.repainting_end ?? null,
+      };
+    });
   }
   res.json({ ...song, layers });
 });

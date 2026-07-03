@@ -1,0 +1,111 @@
+/** Layer/version mutation orchestration: repaint an existing layer, or regenerate a past version as an alternate. */
+import crypto from 'node:crypto';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import { config } from '../config.js';
+import { db } from '../db/index.js';
+import { releaseTask, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
+import { type Job, registerJob, poll, ensureModelLoaded } from './jobs.js';
+
+function fmtTime(sec: number): string {
+  return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
+}
+
+function repaintLabel(prefix: string, params: ReleaseTaskParams): string {
+  return `${prefix} ${fmtTime(params.repainting_start ?? 0)}–${
+    params.repainting_end && params.repainting_end > 0 ? fmtTime(params.repainting_end) : 'end'}`;
+}
+
+/** Repaint a region of a layer's active version; result becomes the layer's new active version. */
+export async function startRepaint(layerId: string, params: ReleaseTaskParams): Promise<Job> {
+  const row = db
+    .prepare(
+      `SELECT v.audio_file, l.song_id FROM versions v
+       JOIN layers l ON v.layer_id = l.id
+       WHERE l.id = ? AND v.active = 1`,
+    )
+    .get(layerId) as { audio_file: string; song_id: string } | undefined;
+  if (!row) throw new Error('unknown layer');
+
+  const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
+  const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'repaint' };
+  await ensureModelLoaded(fullParams);
+  const { task_id } = await releaseTask(fullParams, { data: srcAudio, filename: row.audio_file });
+
+  const job: Job = {
+    id: crypto.randomUUID(), taskId: task_id, status: 'running',
+    songId: row.song_id, createdAt: Date.now(),
+  };
+  registerJob(job);
+  void poll(job, (result) => persistVersion(layerId, result.file, fullParams, result, repaintLabel('repaint', params)));
+  return job;
+}
+
+/**
+ * Regenerate a past version as an alternate take: replays its stored prompt/
+ * region/model with a fresh random seed (an "alternate" implies variation,
+ * not exact reproduction). Repaint entries source audio from the layer's
+ * *current* active version, not a reconstructed historical state — simplest
+ * option, consistent with how repaint already works. text2music entries (the
+ * base layer's first generation) replay with no source audio. Result is
+ * appended to history but does not become active (see PLAN.md).
+ */
+export async function startRegenerate(versionId: string): Promise<Job> {
+  const version = db
+    .prepare(`SELECT layer_id, params_json, label FROM versions WHERE id = ?`)
+    .get(versionId) as { layer_id: string; params_json: string; label: string } | undefined;
+  if (!version) throw new Error('unknown version');
+
+  const stored = JSON.parse(version.params_json) as ReleaseTaskParams;
+  const taskType = stored.task_type ?? 'text2music';
+  const { seed: _seed, ...rest } = stored;
+  const freshParams: ReleaseTaskParams = { ...rest, use_random_seed: true };
+
+  const layerRow = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(version.layer_id) as { song_id: string };
+
+  let srcAudio: { data: Buffer; filename: string } | undefined;
+  if (taskType === 'repaint') {
+    const active = db
+      .prepare(`SELECT audio_file FROM versions WHERE layer_id = ? AND active = 1`)
+      .get(version.layer_id) as { audio_file: string } | undefined;
+    if (!active) throw new Error('unknown version');
+    srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
+  }
+
+  const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
+  await ensureModelLoaded(fullParams);
+  const { task_id } = await releaseTask(fullParams, srcAudio);
+
+  const job: Job = {
+    id: crypto.randomUUID(), taskId: task_id, status: 'running',
+    songId: layerRow.song_id, createdAt: Date.now(),
+  };
+  registerJob(job);
+  const label = taskType === 'repaint' ? repaintLabel('alt', freshParams) : `alt: ${version.label || 'generation'}`;
+  void poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false));
+  return job;
+}
+
+/** Store a repaint/regenerate result as a version. `activate` (default true) makes it the layer's current version. */
+async function persistVersion(
+  layerId: string,
+  fileUrl: string,
+  params: ReleaseTaskParams,
+  result: TaskResult,
+  label: string,
+  activate = true,
+): Promise<string> {
+  const audio = await downloadAudio(fileUrl);
+  const versionId = crypto.randomUUID();
+  const filename = `${versionId}.mp3`;
+  await fs.writeFile(path.join(config.audioDir, filename), audio);
+
+  if (activate) db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(layerId);
+  db.prepare(
+    `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, active)
+     VALUES (?, ?, ?, ?, ?, ?, ?)`,
+  ).run(versionId, layerId, filename, label, JSON.stringify(params), result.seed_value, activate ? 1 : 0);
+
+  const row = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(layerId) as { song_id: string };
+  return row.song_id;
+}

@@ -9,7 +9,7 @@ export function AIGeneratingBackground() {
         style={{
           position: 'absolute',
           top: '-150%', left: '-50%', width: '200%', height: '400%', // Large enough to cover a wide button when rotating
-          background: 'conic-gradient(from 0deg, #D4FF00, #1C1D21, #7B4B94, #1C1D21, #D4FF00)',
+          background: 'conic-gradient(from 0deg, #D4FF00, #1C1D21, #30BCED, #1C1D21, #7B4B94, #1C1D21, #D4FF00)',
           opacity: 0.8,
         }}
       />

@@ -317,20 +317,20 @@ Each generation is determined by three types of factors: **input control**, **in
 
 This is the part where you communicate "creative intent" with the model—what kind of music you want to generate.
 
-| Category | Parameter | Function |
-|----------|-----------|----------|
-| **Task Type** | `task_type` | Determines generation mode: text2music, cover, repaint, lego, extract, complete |
-| **Text Input** | `caption` | Description of overall music elements: style, instruments, emotion, atmosphere, timbre, vocal gender, progression, etc. |
-| | `lyrics` | Temporal element description: lyric content, music structure evolution, vocal changes, vocal/instrument performance style, start/end style, articulation, etc. (use `[Instrumental]` for instrumental music) |
-| **Music Metadata** | `bpm` | Tempo (30–300) |
-| | `keyscale` | Key (e.g., C Major, Am) |
-| | `timesignature` | Time signature (4/4, 3/4, 6/8) |
-| | `vocal_language` | Vocal language |
-| | `duration` | Target duration (seconds) |
-| **Audio Reference** | `reference_audio` | Global reference for timbre or style (for cover, style transfer) |
-| | `src_audio` | Source audio for non-text2music tasks (text2music defaults to silence, no input needed) |
-| | `audio_codes` | Semantic codes input to model in Cover mode (advanced: reuse codes for variants, convert songs to codes for extension, combine like DJ mixing) |
-| **Interval Control** | `repainting_start/end` | Time interval for operations (repaint redraw area / lego new track area) |
+| Category             | Parameter              | Function                                                                                                                                                                                                     |
+| -------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Task Type**        | `task_type`            | Determines generation mode: text2music, cover, repaint, lego, extract, complete                                                                                                                              |
+| **Text Input**       | `caption`              | Description of overall music elements: style, instruments, emotion, atmosphere, timbre, vocal gender, progression, etc.                                                                                      |
+|                      | `lyrics`               | Temporal element description: lyric content, music structure evolution, vocal changes, vocal/instrument performance style, start/end style, articulation, etc. (use `[Instrumental]` for instrumental music) |
+| **Music Metadata**   | `bpm`                  | Tempo (30–300)                                                                                                                                                                                               |
+|                      | `keyscale`             | Key (e.g., C Major, Am)                                                                                                                                                                                      |
+|                      | `timesignature`        | Time signature (4/4, 3/4, 6/8)                                                                                                                                                                               |
+|                      | `vocal_language`       | Vocal language                                                                                                                                                                                               |
+|                      | `duration`             | Target duration (seconds)                                                                                                                                                                                    |
+| **Audio Reference**  | `reference_audio`      | Global reference for timbre or style (for cover, style transfer)                                                                                                                                             |
+|                      | `src_audio`            | Source audio for non-text2music tasks (text2music defaults to silence, no input needed)                                                                                                                      |
+|                      | `audio_codes`          | Semantic codes input to model in Cover mode (advanced: reuse codes for variants, convert songs to codes for extension, combine like DJ mixing)                                                               |
+| **Interval Control** | `repainting_start/end` | Time interval for operations (repaint redraw area / lego new track area)                                                                                                                                     |
 
 ---
 

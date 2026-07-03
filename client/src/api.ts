@@ -31,6 +31,10 @@ export interface Version {
   seed: string;
   active: 0 | 1;
   created_at: string;
+  prompt: string;
+  task_type: string;
+  region_start: number | null;
+  region_end: number | null;
 }
 
 export interface Layer {
@@ -100,6 +104,37 @@ export const api = {
 
   activateVersion: (versionId: string): Promise<void> =>
     fetch(`/api/layers/versions/${versionId}/activate`, { method: 'PATCH' }).then(() => undefined),
+
+  deleteVersion: (versionId: string): Promise<void> =>
+    fetch(`/api/layers/versions/${versionId}`, { method: 'DELETE' }).then((r) => json(r)),
+
+  regenerateVersion: (versionId: string): Promise<{ jobId: string }> =>
+    fetch(`/api/layers/versions/${versionId}/regenerate`, { method: 'POST' }).then((r) => json<{ jobId: string }>(r)),
+
+  addLayer: (
+    songId: string,
+    mixAudio: Blob,
+    params: { prompt: string; layerName: string } & Record<string, unknown>,
+  ): Promise<{ jobId: string }> => {
+    const form = new FormData();
+    form.append('mix_audio', mixAudio, 'mix.wav');
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null) form.append(k, String(v));
+    }
+    // No explicit Content-Type: the browser sets the multipart boundary itself.
+    return fetch(`/api/songs/${songId}/layers`, { method: 'POST', body: form })
+      .then((r) => json<{ jobId: string }>(r));
+  },
+
+  updateLayer: (
+    layerId: string,
+    patch: { name?: string; volume?: number; muted?: boolean; solo?: boolean },
+  ): Promise<void> =>
+    fetch(`/api/layers/${layerId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    }).then((r) => json(r)),
 
   trash: (id: string): Promise<void> =>
     fetch(`/api/songs/${id}/trash`, {

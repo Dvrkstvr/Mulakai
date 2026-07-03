@@ -52,7 +52,11 @@ view region; sibling actions in the same group use acid outline + acid text.
 | `sky-tint`   | `#153543` | Selection region background wash on waveforms |
 
 Rule: selection must read as one continuous color everywhere it is echoed —
-waveform region, section strip, scope chip in the prompt bar.
+waveform region, section strip, scope chip in the prompt bar. The layer
+stack's focused row is the same concept applied to "which layer" instead of
+"which time range" — it uses sky (left-border accent + `sky-tint`
+background), not lilac, because focus is scope/targeting, not a version/
+history marker.
 
 ### Lilac — "what did the AI make before?" (versions / history / AI markers)
 
@@ -89,9 +93,26 @@ waveform region, section strip, scope chip in the prompt bar.
 - **Hexagon**: the shape of *transport/commit* — play buttons and the
   prompt-send button only. Always acid-filled.
   `clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%)`
-- **Diamond**: slider thumbs.
+- **Diamond**: scrub/volume thumbs — the shared stack-scrub timeline
+  playhead, and the Player/layer-lane volume sliders.
   `clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%)` on a 10px square,
   riding a 2px track (`carbon-line-hi` track, semantic color for filled part).
+- **Parallelogram fader** (`Slider.tsx`, used for STEPS/GUIDANCE/VARIANCE in
+  the settings panels): not a reskinned native thumb — three plain divs
+  (`.pgram-track`/`.pgram-fill`/`.pgram-handle`) layered under a fully
+  transparent native `<input type="range">` (kept for real drag/keyboard/
+  touch/a11y; the divs are purely decorative). Track and fill are `1px
+  dashed`/solid parallelograms sharing `transform: skewX(-10deg)`; the
+  handle is a second, wider (~18px) and shorter parallelogram with the same
+  skew, notched flush against the fill's edge. All three layers must share
+  the same skew angle *and* the same vertical center — skewX's shift is a
+  function of distance from an element's own center, so two independently-
+  skewed pieces only mesh with no gap if their centers line up (same
+  mechanism as the "Connected button groups" recipe below). The fill/handle
+  boundary is computed as `calc(pct * (100% - handle-width))`, reserving the
+  handle's own width as travel margin so it can never clip past either end
+  of the track — a plain `left: pct%` will let a fixed-width handle overflow
+  at 0%/100%.
 - **Section strip**: horizontal row of clip-path parallelograms, 3px gaps,
   flex-weighted by section length; active section = sky fill.
 - **Waveform**: sharp vertical bars (no rounded caps), `wave-idle` at rest,
@@ -114,43 +135,178 @@ waveform region, section strip, scope chip in the prompt bar.
 Single-page app with exactly three top-level states. No nested pages, no
 stacked modals.
 
-1. **Library** (home) — search bar, favorites card row pinned top, flat song
-   list (title · lilac version badge · mini waveform · duration · heart ·
-   dislike), rust trash strip docked at the bottom (count + 7-day expiry
-   note). Global error toasts (rust) appear in the header row.
-2. **Create** — focused takeover with a **left settings panel** (see below)
-   beside the create form: title, description field, style tag chips
-   (acid-outlined parallelograms), lyrics editor (mono) with instrumental
-   toggle, one acid GENERATE bar.
-3. **Editor** (the heart) — layout:
-   - Header (full width): back-to-library, bold title, time/bpm/key metadata,
-     EXPORT (neutral parallelogram).
-   - Left settings panel (~210px, see below): repaint parameters. Permanent.
-   - Version history (lilac) with REVERT on inactive versions; branches
-     A/B + Fork are future work.
-   - Canvas: large composite waveform, drag-select regions (sky), playhead.
+1. **Library** (home) — no side panel; the full width is browsing surface.
+   - Header: brand + ACE-Step status only. No search, no form — kept clean
+     since neither acts on the header itself.
+   - **Create bar**: one slim row below the header — a single "what do you
+     want to make?" prompt input + acid CREATE button (parallelogram) that
+     navigates to the Create takeover (see below). This replaces the old
+     inline create form that used to live in Library.
+   - **Browse toolbar**: search input, SORT select (newest/oldest/title/
+     favorites), and filter chips (ALL/FAVORITES — acid-outlined
+     parallelograms, active = acid-filled) — grouped together directly above
+     the list, not in the header, since they act on the list.
+   - Flat song list (title · lilac version badge · mini waveform · duration ·
+     heart · dislike), rendered as a **fluid multi-column grid** (fixed
+     ~410px card width, `auto-fill` column count) rather than one full-bleed
+     column — wider screens show more of the library at once, cards
+     themselves never stretch. Favorites card row pinned top and rust trash
+     strip docked bottom are future work, same anatomy as list cards.
+     Global error toasts (rust) appear in the header row.
+2. **Create** — its own takeover screen (`← LIBRARY` header, consequence
+   line e.g. "will appear in your library once generated"), reached from
+   Library's create bar. Layout: fixed-width **left settings panel** (same
+   idiom as Editor's) + a **centered content column** (~800px, not
+   full-bleed — a prompt/lyrics editor doesn't get more usable by being
+   3x wider, so extra viewport width is left as margin here, unlike
+   Editor's waveform).
+   - **GENERATION TYPE** choice (acid-filled-parallelogram tabs, same idiom
+     as style-tag chips): **PROMPT** or **AUDIO**.
+     - *Prompt*: title, description field, lyrics editor (mono) with
+       instrumental toggle, one acid GENERATE bar. A lilac helper line under
+       the description notes that the LM model derives the generation
+       parameters (bpm/key/structure) from the prompt — lilac because it's
+       describing AI-derived behavior, not a live selection. LM MODEL stays
+       enabled in the settings panel.
+     - *Audio*: a **SOURCE** sub-choice (UPLOAD / FROM LIBRARY, same tab
+       idiom). FROM LIBRARY shows a searchable mini song-picker; the
+       selected song uses **sky** (selection/scope — same concept as
+       focusing a layer in the Editor), not lilac. Below the source picker:
+       a description field for the requested change, then GENERATE. DIT
+       MODEL stays enabled in the settings panel; LM MODEL is disabled
+       (`n/a`) since `cover` skips the LM planner, same as Editor's repaint
+       mode (`API.md` §4.2).
+3. **Editor** (the heart) — layout: a fixed-width **left settings panel** and
+     fixed-width **right version-history rail** flank a fluid center column
+     (timeline, layer stack, transport, prompt bar). The center column is the
+     only element that grows or shrinks with the viewport — the app has no
+     `max-width` cap on this screen (unlike Library's centered list). Extra
+     width on wider screens is never wasted whitespace: it becomes more
+     visible timeline per lane (denser, more legible waveform) and the
+     version rail gets a little more room per card (params, not just a
+     name), while the side panels stay put — control/version cards have a
+     natural comfortable size and gain nothing from stretching. Extra
+     *height* (e.g. a taller landscape screen) simply fits more lanes before
+     the stack scrolls; no separate layout branch needed.
+   - Header (full width, persistent across all three screens): back-to-
+     library, brand wordmark, ACE-STEP status pill only. Song title, time/
+     bpm/key metadata, and EXPORT live in the center column and right rail
+     respectively (see below) — the header stays free of anything scoped to
+     "this song," so it doesn't need to re-render per-song content.
+   - Left settings panel (~210–240px, see below): repaint parameters.
+     Permanent, fixed width.
+   - **Title row**: song title (bold, 16px) + time/bpm/key/layer-count
+     metadata, directly above the shared scrub timeline — the one place this
+     information lives now that the header doesn't carry it.
+   - **Layer stack (`LayerStack.tsx` + `LayerLane.tsx`)**: a DAW-style
+     multi-lane waveform view, the editor's primary waveform surface.
+     `Timeline.tsx` (the shared scrub strip) and the lane grid share one
+     bordered surface (`.stack-scrub`) so a single playhead line can run
+     through both — see below. Implemented as one CSS Flexbox column
+     (`.lane-grid`): each lane stacks a control bar above its own waveform,
+     both spanning the same x-axis (no left-column offset), so the shared
+     playhead's `left` is a plain percentage of the stack's width:
+     - Each layer gets one **lane**: a control bar (inline-editable
+       uppercase name, volume slider, MUTE/SOLO toggles — muted reads
+       rust-text/rust-border) directly above its waveform.
+     - **Every lane renders its full waveform, focused or not** — the stack
+       is deliberately a dense wall of tooling rather than collapsing
+       unfocused layers to a one-line summary. Only the **focused** lane is
+       interactive (drag-to-select a region, double-click-seek); other
+       lanes render the same `Waveform.tsx` component in its non-interactive
+       mode (idle-grey bars only, no selection wash, click/double-click
+       focuses instead of seeking or selecting).
+     - Focus uses the sky idiom: left-border accent + sky-tint background on
+       both the control bar and waveform of the focused lane (same concept
+       as `.version.current`'s lilac accent, but sky — see the Sky section
+       below). Focusing re-targets the shared transport, prompt-bar, and
+       version-history to that layer.
+     - The timeline itself (`Timeline.tsx`) is a ruler, not just start/end
+       labels: ticks + `mm:ss` labels at a "nice" interval (5/10/15/30/60…
+       seconds, auto-picked so ~5–10 ticks span any song length) run along
+       the scrub track, in addition to the live playhead/duration readout
+       above it.
+     - **One continuous playhead line** (`.stack-playhead`) spans from the
+       scrub timeline's baseline through every lane below it, with a diamond
+       thumb marking the top — it reads as a single scrub control for the
+       whole stack, not a separate timeline thumb plus a disconnected
+       per-lane line. Note: this reflects a single `playhead` time value
+       from whichever layer's audio is currently loaded — it is a visual
+       "these lanes play together" cue, not yet real synchronized
+       multi-layer audio playback (that engine is future work).
+     - Lane height ~56–64px. Lane dividers are a single `border-bottom` per
+       element (never a top border stacked against a neighbor's bottom
+       border) so boundaries stay one crisp hairline, not a doubled/thick
+       line — the outer box edge comes from `.stack-scrub`'s own border.
+     - A trailing **"+ ADD LAYER" row** stays compact (icon + label only)
+       until hovered or focused (`:hover`, `:focus-within`), at which point
+       it expands in place to the full form (prompt, DIT MODEL, submit) —
+       keeps the stack from defaulting to an always-open form.
+   - **Shared transport**: `Player.tsx` sits below the lane stack in its
+     **minimal** mode — play/pause hexagon + stop only, no time/volume/
+     download — driving/reflecting whichever layer is focused. Time already
+     lives in the stack-scrub timeline above, and per-layer downloads live
+     in the Export rail view (see below), so the transport itself stays
+     down to the two controls that are genuinely transport, not duplicated
+     elsewhere. The Library footer player keeps the full control set (time,
+     volume, download) — `minimal` is Editor-only.
    - Section strip: parallelogram segments (Intro/Verse/…), click = select
      that section; active = sky. (future work)
-   - Layer lanes: one thin waveform lane per layer, right-aligned uppercase
-     name, volume + solo icons; muted lane's icon in rust-text. (future work)
    - Prompt bar: sky scope chip mirroring current selection, free-text
      instruction, acid REPAINT REGION action.
+   - **Right rail** (~260–320px, carbon-panel surface, 1px border): persistent,
+     not stacked under the prompt bar. Putting it here (instead of at the
+     bottom of the vertical flow) keeps it on screen while repainting even on
+     shorter (1080p) displays, where vertical space is the tighter resource.
+     Two views share the slot, toggled in place (no navigation):
+     - **History** (default, lilac accents): current version gets a
+       lilac-tint card + lilac border; every entry gets SEL (set that
+       version's region as the current selection), ALT (regenerate as an
+       untracked alternate), and X (two-step rust delete-confirm); inactive
+       versions additionally get REVERT, which also selects that version's
+       region (reverting to a version implies you're about to work on it
+       again, so there's no reason to make that a second click). Each
+       entry's actions render as one connected button group (see "Connected
+       button groups" under Side panels). Branches A/B + Fork are future
+       work.
+     - **Export**: reached via an EXPORT button docked under the history
+       list; swaps the rail to a per-layer stem list (name + DOWNLOAD),
+       with a "← HISTORY" link back. A composited master-mix export is still
+       an open question (see `PLAN.md`'s Export phase note) — stems are the
+       current answer, not a placeholder for it.
 
-### Left settings panel (Create + Editor)
+### Side panels (Create + Editor)
 
-A **persistent left panel** (~210px, carbon-panel surface, 1px border) holds
-generation/repaint parameters — it does NOT slide in per-action. This
-replaces the earlier right side-sheet concept so power controls are always
-visible without a selection.
+**Persistent left settings panel** (~210–240px, carbon-panel surface, 1px
+border) holds generation/repaint parameters — it does NOT slide in
+per-action, so power controls are always visible without a selection. The
+**Editor** additionally has the persistent right version-history rail
+described above; **Create** has no right panel. Neither side panel scales
+with viewport width — see the Editor layout note above.
 
-- **Generate mode**: MODEL select (hidden if the backend lists none),
-  THINKING MODE + AI ENHANCE toggles, STEPS + GUIDANCE sliders, RANDOM SEED
-  toggle with a seed field when off.
-- **Repaint mode**: MODE segmented control (conservative/balanced/aggressive),
-  VARIANCE + STEPS + GUIDANCE sliders, RANDOM SEED toggle + seed field.
-- Controls: acid-accented range sliders, acid-when-on toggles (parallelogram
-  knob), acid-filled active segment in the segmented control. Slider readouts
-  in acid. Settings persist across sessions (localStorage).
+- **Generate mode** (Create screen, both generation types): DIT MODEL select
+  (hidden if the backend lists none), STEPS + GUIDANCE sliders, RANDOM SEED
+  toggle with a seed field when off. LM MODEL select + THINKING MODE +
+  AI ENHANCE toggles are **Prompt-type only** — disabled/hidden for Audio,
+  since `cover` skips the LM planner the same way repaint does.
+- **Repaint mode**: DIT MODEL select, VARIANCE slider (the same
+  `Slider.tsx` parallelogram fader as STEPS/GUIDANCE, passing a `color`
+  prop that swaps the fill/handle live to sky/acid/rust depending on which
+  third of the 0–100 range the value sits in, plus a dynamic label/note
+  reading SUBTLE, BALANCED, or BOLD), STEPS + GUIDANCE sliders, RANDOM SEED
+  toggle + seed field. No LM MODEL or MODE segmented control here: ACE-Step
+  skips the LM planner for repaint entirely (docs/ace-step-1.5/API.md#4.2),
+  and the mode presets were replaced by the self-explanatory VARIANCE scale.
+- Controls: `Slider.tsx` parallelogram faders (see "Parallelogram fader"
+  under Shape grammar) for STEPS/GUIDANCE/VARIANCE, acid-when-on toggles
+  (parallelogram knob). Slider readouts in acid, except VARIANCE whose
+  readout and note follow its own risk-scale color. Settings persist across
+  sessions (localStorage).
+- **Connected button groups**: where multiple actions act on the same
+  target (a lane's MUTE/SOLO, a version's REVERT/SEL/ALT/X), the buttons
+  share one skewed row — `transform: skewX(-10deg)` per button (label
+  counter-skewed) with `margin-left: -1px` so adjacent borders merge into a
+  single shared hairline — rather than reading as separate loose buttons.
 
 ### Interaction rhythm
 
@@ -163,6 +319,67 @@ never destroys the old one.
   steps, guidance, seed) before committing — no per-action sheet.
 - Empty selection = whole song scope.
 - Actions always state the version they will create before commit.
+
+## Motion
+
+The app is otherwise static chrome — motion is reserved for moments that
+mean something: a view changed, a selection formed, a commit fired, the AI
+is working. Default feel: **snappy and purposeful**, not playful — 150–300ms,
+`easeOut`, no spring/bounce/elastic. The one deliberate exception is AI-in-
+progress states (see "AI states" below), which are allowed to feel alive.
+
+### Persistent header
+
+The header (brand + ACE-Step status) is a single persistent element, not
+re-mounted per view — it never fades with the rest of the screen. The
+`MULAKAI` wordmark uses a shared `layoutId` so it glides (not cuts) between
+its Library position (left, standalone) and its Editor/Create position
+(left, beside the back button/title), while the ACE-Step status pill stays
+in place at the right. Only the content *below* the header crossfades on
+view change.
+
+### View transitions
+
+- **Library ↔ Create/Editor**: content fades + slides horizontally (already
+  implemented) while the header persists per above.
+- **Entering Create or Editor specifically** (not Library — it's the neutral
+  home screen): content gets one extra "materialize" beat on entry only,
+  never on exit — a thin sky/acid scanline sweeps once across the screen as
+  the content fades/staggers in center-out, ~200–300ms. This marks these two
+  as the "working" screens, distinct from Library's plain browsing surface.
+- **Version rail entries**: new version cards slide in from the top with a
+  brief lilac glow (not a plain slide) — lilac already means "the AI made
+  this," so its arrival should read as an event.
+- **Section-strip / selection**: the sky-tint wash expands from the drag
+  point on region select rather than snapping in; the section-strip's active
+  sky fill slides between segments on change rather than swapping instantly.
+- **Playhead**: linear CSS transition between updates instead of a per-frame
+  snap, so playback reads as continuous motion.
+- **Toasts**: rust warning/error toasts slide in as a skewed parallelogram
+  (matching the shape grammar), not a plain fade.
+- **Status blips**: the ACE-Step health dot pulses once when it flips
+  online/offline, so the state change isn't silent.
+- **Commit actions**: GENERATE / REPAINT REGION give a brief acid glow/scale
+  flash at the moment of commit, echoing "this just started something."
+
+### AI states — the one exception to "one hue, one job"
+
+Moments where the AI is actively working (generating, repainting, LM
+"thinking") are allowed to blend lilac/sky/acid together in a shimmering
+gradient sweep — this is a scoped, deliberate exception to the single-hue
+rule above, not a loosening of it. It applies **only** to:
+
+- the GENERATE / REPAINT REGION button and the waveform region it targets,
+  while a job is in flight (shimmering lilac↔sky↔acid gradient sweep in
+  place of a flat spinner);
+- the "processing" placeholder shown over a waveform/lane awaiting AI
+  output;
+- the `AI ENHANCE` and `THINKING MODE` toggles, while active.
+
+Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
+keeps the strict one-hue-per-job rule — if a future feature wants to reuse
+this shimmer outside these three cases, that's a scope question, not a
+default.
 
 ## Copy rules
 

@@ -25,8 +25,7 @@ export interface ReleaseTaskParams {
   instruction?: string;
   repainting_start?: number;
   repainting_end?: number;
-  repaint_mode?: 'conservative' | 'balanced' | 'aggressive';
-  repaint_strength?: number;
+  audio_cover_strength?: number;
   audio_format?: string;
 }
 

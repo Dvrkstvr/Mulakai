@@ -13,9 +13,18 @@ export interface GenSettings {
 }
 
 export interface RepaintSettings {
-  repaintMode: 'conservative' | 'balanced' | 'aggressive';
-  repaintStrength: number; // VARIANCE
+  model: string; // '' = server default. No LM model here: ACE-Step skips the
+  // LM planner entirely for repaint (docs/ace-step-1.5/API.md#4.2).
+  repaintStrength: number; // VARIANCE 0-1; inverse of audio_cover_strength
   inferenceSteps: number;
+  guidanceScale: number;
+  randomSeed: boolean;
+  seed: number;
+}
+
+export interface AddLayerSettings {
+  model: string; // '' = server default. Must be lego-capable (Base model) — client filters options.
+  inferenceSteps: number; // 0 = AUTO; Base model recommends 32-64, much slower than Turbo repaint.
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;
@@ -24,8 +33,10 @@ export interface RepaintSettings {
 interface SettingsState {
   gen: GenSettings;
   repaint: RepaintSettings;
+  addLayer: AddLayerSettings;
   setGen: (patch: Partial<GenSettings>) => void;
   setRepaint: (patch: Partial<RepaintSettings>) => void;
+  setAddLayer: (patch: Partial<AddLayerSettings>) => void;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -42,8 +53,15 @@ export const useSettings = create<SettingsState>()(
         seed: 0,
       },
       repaint: {
-        repaintMode: 'balanced',
+        model: '', // '' = AUTO (model's own default)
         repaintStrength: 0.5,
+        inferenceSteps: 0, // 0 = AUTO
+        guidanceScale: 0, // 0 = AUTO
+        randomSeed: true,
+        seed: 0,
+      },
+      addLayer: {
+        model: '', // '' = AUTO — but AUTO isn't guaranteed lego-capable; UI requires an explicit pick.
         inferenceSteps: 0, // 0 = AUTO
         guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
@@ -51,6 +69,7 @@ export const useSettings = create<SettingsState>()(
       },
       setGen: (patch) => set((s) => ({ gen: { ...s.gen, ...patch } })),
       setRepaint: (patch) => set((s) => ({ repaint: { ...s.repaint, ...patch } })),
+      setAddLayer: (patch) => set((s) => ({ addLayer: { ...s.addLayer, ...patch } })),
     }),
     { name: 'mulakai-settings' },
   ),
@@ -70,14 +89,30 @@ export function genParams(g: GenSettings) {
   };
 }
 
-/** Map repaint settings to ACE-Step request params (region added by caller). Zero steps/guidance = AUTO. */
+/**
+ * Map repaint settings to ACE-Step request params (region added by caller).
+ * `audio_cover_strength` (docs/ace-step-1.5/API.md#4.2) is the real knob:
+ * higher = closer to source, lower = more freedom. VARIANCE is its inverse
+ * so the slider reads "amount of change" the way the UI presents it.
+ */
 export function repaintParams(r: RepaintSettings) {
   return {
-    repaint_mode: r.repaintMode,
-    repaint_strength: r.repaintStrength,
+    ...(r.model ? { model: r.model } : {}),
+    audio_cover_strength: 1 - r.repaintStrength,
     ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
     ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
     use_random_seed: r.randomSeed,
     ...(r.randomSeed ? {} : { seed: r.seed }),
+  };
+}
+
+/** Map Add Layer settings to ACE-Step request params. `model` is required (lego needs a Base model). */
+export function addLayerParams(a: AddLayerSettings) {
+  return {
+    ...(a.model ? { model: a.model } : {}),
+    ...(a.inferenceSteps > 0 ? { inference_steps: a.inferenceSteps } : {}),
+    ...(a.guidanceScale > 0 ? { guidance_scale: a.guidanceScale } : {}),
+    use_random_seed: a.randomSeed,
+    ...(a.randomSeed ? {} : { seed: a.seed }),
   };
 }

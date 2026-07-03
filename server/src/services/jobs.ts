@@ -1,4 +1,9 @@
-/** In-memory job orchestrator: release_task -> poll -> download -> persist song/layer/version. */
+/**
+ * Job orchestrator: release_task -> poll -> download -> persist.
+ * Song-creation (text2music) lives here. Layer/version mutation paths
+ * (repaint, regenerate) live in repaintJobs.ts and share the primitives
+ * exported below.
+ */
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -21,16 +26,24 @@ export function getJob(id: string): Job | undefined {
   return jobs.get(id);
 }
 
+/** Register a job created elsewhere (e.g. repaintJobs.ts) so getJob() can find it. */
+export function registerJob(job: Job): void {
+  jobs.set(job.id, job);
+}
+
 /**
  * Load the requested model into slot 1 if a specific one was chosen.
  * AUTO (no model / no LM selected) skips init and lets ACE-Step lazy-load its
- * own defaults.
+ * own defaults. The 5Hz LM is silently skipped by ACE-Step for repaint/cover/
+ * extract task types (docs/ace-step-1.5/API.md#4.2), so an LM selection is
+ * ignored here for those task types rather than wastefully loaded.
  */
-async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void> {
-  const lmSelected = !!params.lm_model_path;
-  const needLlm = !!params.thinking || !!params.use_format || lmSelected;
+export async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void> {
+  const lmIgnored = params.task_type === 'repaint' || params.task_type === 'cover' || params.task_type === 'extract';
+  const lmSelected = !lmIgnored && !!params.lm_model_path;
+  const needLlm = !lmIgnored && (!!params.thinking || !!params.use_format || lmSelected);
   if (params.model || lmSelected) {
-    await initModel({ model: params.model, lmModel: params.lm_model_path, initLlm: needLlm });
+    await initModel({ model: params.model, lmModel: lmSelected ? params.lm_model_path : undefined, initLlm: needLlm });
   }
 }
 
@@ -58,37 +71,7 @@ async function run(job: Job, body: () => Promise<void>): Promise<void> {
   }
 }
 
-/** Repaint a region of a layer's active version; result becomes the layer's new active version. */
-export async function startRepaint(layerId: string, params: ReleaseTaskParams): Promise<Job> {
-  const row = db
-    .prepare(
-      `SELECT v.audio_file, l.song_id FROM versions v
-       JOIN layers l ON v.layer_id = l.id
-       WHERE l.id = ? AND v.active = 1`,
-    )
-    .get(layerId) as { audio_file: string; song_id: string } | undefined;
-  if (!row) throw new Error('unknown layer');
-
-  const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
-  const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'repaint' };
-  const { task_id } = await releaseTask(fullParams, { data: srcAudio, filename: row.audio_file });
-
-  const job: Job = {
-    id: crypto.randomUUID(), taskId: task_id, status: 'running',
-    songId: row.song_id, createdAt: Date.now(),
-  };
-  jobs.set(job.id, job);
-  const label = `repaint ${fmtTime(params.repainting_start ?? 0)}–${
-    params.repainting_end && params.repainting_end > 0 ? fmtTime(params.repainting_end) : 'end'}`;
-  void poll(job, (result) => persistVersion(layerId, result.file, fullParams, result, label));
-  return job;
-}
-
-function fmtTime(sec: number): string {
-  return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
-}
-
-async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<string>): Promise<void> {
+export async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<string>): Promise<void> {
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
     try {
@@ -114,29 +97,6 @@ async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<string>
       return;
     }
   }
-}
-
-/** Store a repaint result as the layer's new active version. Returns the song id. */
-async function persistVersion(
-  layerId: string,
-  fileUrl: string,
-  params: ReleaseTaskParams,
-  result: TaskResult,
-  label: string,
-): Promise<string> {
-  const audio = await downloadAudio(fileUrl);
-  const versionId = crypto.randomUUID();
-  const filename = `${versionId}.mp3`;
-  await fs.writeFile(path.join(config.audioDir, filename), audio);
-
-  db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(layerId);
-  db.prepare(
-    `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-  ).run(versionId, layerId, filename, label, JSON.stringify(params), result.seed_value);
-
-  const row = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(layerId) as { song_id: string };
-  return row.song_id;
 }
 
 async function persistSong(
