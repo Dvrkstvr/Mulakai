@@ -4,6 +4,7 @@ import type { Region } from './Waveform';
 import { AddLayerTrigger } from './AddLayerTrigger';
 import { LayerLane } from './LayerLane';
 import { Timeline } from './Timeline';
+import { ScrollArea } from './ScrollArea';
 
 interface Props {
   songId: string;
@@ -34,32 +35,34 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
   return (
     <div className="layer-stack">
       <div className="section-label">LAYERS</div>
-      <div className="stack-scrub">
-        <Timeline duration={duration} playhead={playhead} onSeek={onSeek} />
-        <div className="lane-grid">
-          {layers.map((layer) => (
-            <LayerLane
-              key={layer.id}
-              layer={layer}
-              layers={layers}
-              focused={layer.id === focusedLayerId}
-              duration={duration}
-              selection={layer.id === focusedLayerId ? selection : null}
-              onSelect={onSelect}
-              onFocus={() => onFocus(layer.id)}
-              onChanged={onChanged}
-              onSeek={onSeek}
-              processing={processing}
-              onSplit={() => onSplit(layer.id)}
-            />
-          ))}
+      <ScrollArea className="stack-scrub">
+        <div className="stack-scrub-inner">
+          <Timeline duration={duration} playhead={playhead} onSeek={onSeek} />
+          <div className="lane-grid">
+            {layers.map((layer) => (
+              <LayerLane
+                key={layer.id}
+                layer={layer}
+                layers={layers}
+                focused={layer.id === focusedLayerId}
+                duration={duration}
+                selection={layer.id === focusedLayerId ? selection : null}
+                onSelect={onSelect}
+                onFocus={() => onFocus(layer.id)}
+                onChanged={onChanged}
+                onSeek={onSeek}
+                processing={processing}
+                onSplit={() => onSplit(layer.id)}
+              />
+            ))}
+          </div>
+          {/* Absolutely positioned against .stack-scrub-inner, spanning from the
+              timeline through the last lane so it reads as one continuous playhead. */}
+          {duration > 0 && (
+            <div className="stack-playhead" style={{ '--playhead-pct': playheadPct } as CSSProperties} />
+          )}
         </div>
-        {/* Absolutely positioned against .stack-scrub, spanning from the timeline
-            through the last lane so it reads as one continuous playhead. */}
-        {duration > 0 && (
-          <div className="stack-playhead" style={{ '--playhead-pct': playheadPct } as CSSProperties} />
-        )}
-      </div>
+      </ScrollArea>
       <AddLayerTrigger songId={songId} layers={layers} onDone={onChanged} />
     </div>
   );

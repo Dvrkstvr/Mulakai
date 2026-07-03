@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { api, type Version } from './api';
 import type { Region } from './Waveform';
 import { motion, AnimatePresence } from 'framer-motion';
+import { ScrollArea } from './ScrollArea';
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const VISIBLE_COUNT = 4;
@@ -65,6 +66,7 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
   return (
     <div className="versions">
       <div className="section-label">HISTORY</div>
+      <ScrollArea className="versions-list">
       <AnimatePresence initial={false}>
       {visible.map((v) => {
         const hasRegion = v.region_start !== null && v.region_end !== null;
@@ -120,6 +122,7 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
         </button>
       )}
       {error && <div className="error">{error}</div>}
+      </ScrollArea>
     </div>
   );
 }

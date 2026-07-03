@@ -143,12 +143,12 @@ body {
   50% { transform: translate(-50%, 4px); }
 }
 
-/* Thin, on-brand scrollbar for every confined scroll region — carbon track,
-   line-hi thumb, no radius (matches the global `* { border-radius: 0 }`
-   rule, which browsers don't apply to scrollbar pseudo-elements). */
+/* Thin, on-brand scrollbar for confined scroll regions that haven't moved to
+   the ScrollArea (bouncy-arrow) treatment yet — carbon track, line-hi thumb,
+   no radius (matches the global `* { border-radius: 0 }` rule, which
+   browsers don't apply to scrollbar pseudo-elements). .stack-scrub and
+   .versions use ScrollArea instead (see LayerStack.tsx/VersionHistory.tsx). */
 .app-body,
-.stack-scrub,
-.versions,
 .song-picker-list,
 .custom-select-dropdown {
   scrollbar-width: thin;
@@ -156,24 +156,18 @@ body {
 }
 
 .app-body::-webkit-scrollbar,
-.stack-scrub::-webkit-scrollbar,
-.versions::-webkit-scrollbar,
 .song-picker-list::-webkit-scrollbar,
 .custom-select-dropdown::-webkit-scrollbar {
   width: 8px;
 }
 
 .app-body::-webkit-scrollbar-track,
-.stack-scrub::-webkit-scrollbar-track,
-.versions::-webkit-scrollbar-track,
 .song-picker-list::-webkit-scrollbar-track,
 .custom-select-dropdown::-webkit-scrollbar-track {
   background: var(--panel);
 }
 
 .app-body::-webkit-scrollbar-thumb,
-.stack-scrub::-webkit-scrollbar-thumb,
-.versions::-webkit-scrollbar-thumb,
 .song-picker-list::-webkit-scrollbar-thumb,
 .custom-select-dropdown::-webkit-scrollbar-thumb {
   background: var(--line-hi);
@@ -182,8 +176,6 @@ body {
 }
 
 .app-body::-webkit-scrollbar-thumb:hover,
-.stack-scrub::-webkit-scrollbar-thumb:hover,
-.versions::-webkit-scrollbar-thumb:hover,
 .song-picker-list::-webkit-scrollbar-thumb:hover,
 .custom-select-dropdown::-webkit-scrollbar-thumb:hover {
   background: var(--text-mid);
@@ -963,19 +955,23 @@ footer .player {
   flex-direction: column;
 }
 
-/* Wraps the shared Timeline scrub + the lane grid in one bordered surface so
-   .stack-playhead can span both as a single continuous line. This is the
-   confined scroll region per DESIGN.md's Editor layout note ("extra height
-   fits more lanes before the stack scrolls") — .stack-playhead stays
-   correctly aligned with scrolled content since it's absolutely positioned
-   against this same scrolling container, not a static ancestor. */
+/* .stack-scrub is passed as ScrollArea's className (LayerStack.tsx), landing
+   on the fixed-size `.scroll-area-viewport` — border/background frame the
+   visible viewport while its content scrolls inside, per DESIGN.md's Editor
+   layout note ("extra height fits more lanes before the stack scrolls").
+   .stack-scrub-inner (not the viewport) is .stack-playhead's containing
+   block: it has no fixed height of its own (grows to the full lane-grid
+   content), so top/bottom on the playhead resolve against the *entire*
+   scrollable content instead of just the visible slice — otherwise the
+   playhead's box would be clipped to the viewport's own height and stop
+   covering lanes revealed by scrolling. */
 .stack-scrub {
-  position: relative;
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
   border: 1px solid var(--line);
   background: var(--panel);
+}
+
+.stack-scrub-inner {
+  position: relative;
 }
 
 /* Single column now that each lane's control bar sits above its waveform
@@ -1360,6 +1356,7 @@ footer .player {
 .rail {
   position: sticky;
   top: 14px;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
@@ -1428,15 +1425,24 @@ footer .player {
   cursor: default;
 }
 
+/* Panel chrome only — VersionHistory.tsx wraps the actual list in a
+   ScrollArea (className="versions-list") so HISTORY's label stays put while
+   only the entries scroll, hidden-scrollbar + bouncy-arrow like .stack-scrub. */
 .versions {
   border: 1px solid var(--line);
   background: var(--panel);
   padding: 10px;
   display: flex;
   flex-direction: column;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+}
+
+.versions-list {
+  display: flex;
+  flex-direction: column;
   gap: 4px;
-  max-height: calc(100vh - 28px);
-  overflow-y: auto;
 }
 
 .rail-export-btn {
