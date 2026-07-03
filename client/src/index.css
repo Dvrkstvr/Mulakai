@@ -1,19 +1,32 @@
-/* Carbon base per docs/design/DESIGN.md — scaffold-minimal, full system in Phase 4+ */
+/* Carbon base per docs/design/DESIGN.md's full color-token table. */
 :root {
   --carbon: #1C1D21;
   --panel: #202127;
+  --carbon-raised: #26272D;
   --line: #33343B;
   --line-hi: #4E4F58;
+  --wave-idle: #55565F;
   --text-hi: #ECECEC;
   --text-mid: #9A9AA3;
+  --text-low: #6E6E78;
+  --text-ghost: #55555C;
   --acid: #D4FF00;
+  --on-acid: #1C1D21;
   --sky: #30BCED;
+  --on-sky: #0C2530;
+  --sky-tint: #153543;
   --lilac: #7B4B94;
+  --lilac-text: #A97FC1;
+  --lilac-tint: #2A2133;
   --rust: #CC3F0C;
   --rust-text: #E8703F;
+  --on-rust: #2A0D02;
 }
 
-* { box-sizing: border-box; border-radius: 0; }
+* {
+  box-sizing: border-box;
+  border-radius: 0;
+}
 
 body {
   margin: 0;
@@ -23,37 +36,101 @@ body {
   font-size: 13px;
 }
 
-.app { max-width: 1140px; margin: 0 auto; padding: 16px; padding-bottom: 76px; }
+.app {
+  max-width: 1140px;
+  margin: 0 auto;
+  padding: 16px;
+  padding-bottom: 76px;
+}
+
 /* Editor + Create takeover screens: no reading-width cap. Extra width on
    wide/landscape screens goes to the fluid center column, not to
    letterboxing — see docs/design/DESIGN.md's Editor layout note. */
-.app-editor { max-width: none; }
-
-header { display: flex; align-items: center; gap: 14px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-.logo { font-weight: 700; font-size: 17px; letter-spacing: 3px; transform: skewX(-10deg); }
-.header-slot { display: flex; align-items: center; gap: 14px; }
-.health { margin-left: auto; font-weight: 700; font-size: 10px; letter-spacing: 1px; transition: color 0.2s ease; }
-.health.ok { color: var(--acid); animation: health-blip 0.5s ease-out; }
-.health.down { color: var(--rust-text); animation: health-blip 0.5s ease-out; }
-@keyframes health-blip {
-  0% { opacity: 0.2; transform: scale(0.85); }
-  50% { opacity: 1; transform: scale(1.15); }
-  100% { opacity: 1; transform: scale(1); }
+.app-editor {
+  max-width: none;
 }
 
-input, textarea {
+header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: 3px;
+  transform: skewX(-10deg);
+}
+
+.header-slot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.health {
+  margin-left: auto;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transition: color 0.2s ease;
+}
+
+.health.ok {
+  color: var(--acid);
+  animation: health-blip 0.5s ease-out;
+}
+
+.health.down {
+  color: var(--rust-text);
+  animation: health-blip 0.5s ease-out;
+}
+
+@keyframes health-blip {
+  0% {
+    opacity: 0.2;
+    transform: scale(0.85);
+  }
+
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+input,
+textarea {
   background: var(--panel);
   border: 1px solid var(--line-hi);
   color: var(--text-hi);
   padding: 8px 10px;
   font: inherit;
 }
-textarea { min-height: 70px; font-family: monospace; }
+
+textarea {
+  min-height: 70px;
+  font-family: monospace;
+}
 
 select {
-  background: var(--panel); border: 1px solid var(--line-hi); color: var(--text-hi);
-  padding: 6px 8px; font: inherit; font-weight: 700; font-size: 10px; letter-spacing: 1px;
-  text-transform: uppercase; cursor: pointer;
+  background: var(--panel);
+  border: 1px solid var(--line-hi);
+  color: var(--text-hi);
+  padding: 6px 8px;
+  font: inherit;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
 }
 
 button {
@@ -65,131 +142,636 @@ button {
   letter-spacing: 1px;
   cursor: pointer;
 }
-button.acid { background: var(--acid); color: var(--carbon); border-color: var(--acid); transform: skewX(-10deg); }
-button.acid:disabled { opacity: 0.5; cursor: default; }
+
+button.acid {
+  background: var(--acid);
+  color: var(--carbon);
+  border-color: var(--acid);
+  transform: skewX(-10deg);
+}
+
+button.acid:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
 
 /* slim create bar (Library) */
-.create-bar { display: flex; gap: 10px; padding: 14px 0; }
-.create-bar input { flex: 1; }
-.create-bar button.acid { transform: skewX(-10deg); }
+.create-bar {
+  display: flex;
+  gap: 10px;
+  padding: 14px 0;
+}
+
+.create-bar input {
+  flex: 1;
+}
+
+.create-bar button.acid {
+  transform: skewX(-10deg);
+}
 
 /* browse toolbar (Library) — search/sort/filter live with the list, not the header */
-.library-toolbar { display: flex; align-items: center; gap: 10px; padding-bottom: 12px; border-bottom: 1px solid var(--line); }
-.library-toolbar input { width: 260px; }
-.chip { background: transparent; border: 1px solid var(--acid); color: var(--acid); padding: 6px 14px; font-weight: 700; font-size: 10px; letter-spacing: 1px; transform: skewX(-10deg); cursor: pointer; }
-.chip span { display: inline-block; transform: skewX(10deg); }
-.chip.active { background: var(--acid); color: var(--carbon); }
+.library-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.library-toolbar input {
+  width: 260px;
+}
+
+.chip {
+  background: transparent;
+  border: 1px solid var(--acid);
+  color: var(--acid);
+  padding: 6px 14px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  cursor: pointer;
+}
+
+.chip span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.chip.active {
+  background: var(--acid);
+  color: var(--carbon);
+}
 
 /* library: fluid multi-column card grid, cards never stretch past a comfortable width */
-.library { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 12px; margin-top: 14px; }
-.library .row { display: flex; align-items: flex-start; gap: 10px; padding: 10px; border: 1px solid var(--line); background: var(--panel); }
-.library .row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.library .row-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.song-title { font-weight: 700; }
-.meta { color: var(--text-mid); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.library .row-main .meta { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
-.fav.on { color: var(--acid); border-color: var(--acid); }
-.empty { color: var(--text-mid); padding: 24px 0; }
+.library {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.library .row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
+.library .row-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.library .row-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.song-title {
+  font-weight: 700;
+}
+
+.meta {
+  color: var(--text-mid);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.library .row-main .meta {
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.fav.on {
+  color: var(--acid);
+  border-color: var(--acid);
+}
+
+.edit-btn {
+  transform: skewX(-10deg);
+}
+
+.edit-btn span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.empty {
+  color: var(--text-mid);
+  padding: 24px 0;
+}
 
 .error {
-  border: 1px solid var(--rust); color: var(--rust-text); padding: 8px 10px; display: flex; gap: 10px; align-items: center;
+  border: 1px solid var(--rust);
+  color: var(--rust-text);
+  padding: 8px 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
   animation: toast-in 0.25s ease-out;
 }
+
+.error button {
+  transform: skewX(-10deg);
+}
+
 @keyframes toast-in {
-  0% { opacity: 0; transform: translateX(-16px) skewX(-8deg); }
-  100% { opacity: 1; transform: translateX(0) skewX(0deg); }
+  0% {
+    opacity: 0;
+    transform: translateX(-16px) skewX(-8deg);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0) skewX(0deg);
+  }
 }
 
 footer {
-  position: fixed; left: 0; right: 0; bottom: 0; margin: 0 auto; width: 100%; max-width: 1140px;
-  display: flex; align-items: center; gap: 14px; padding: 10px 16px; background: var(--carbon);
-  border-top: 1px solid var(--line); z-index: 20;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1140px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 16px;
+  background: var(--carbon);
+  border-top: 1px solid var(--line);
+  z-index: 20;
 }
-footer .player { flex: 1; }
+
+footer .player {
+  flex: 1;
+}
 
 /* custom transport per DESIGN.md: hexagon play, square stop, sky scrub, neutral volume/download */
-.player { display: flex; align-items: center; gap: 10px; }
-.player audio { display: none; }
-.player-btn { display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; cursor: pointer; text-decoration: none; }
+.player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.player audio {
+  display: none;
+}
+
+.player-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
 .player-btn.play {
-  width: 36px; height: 36px; background: var(--acid); border: none;
+  width: 36px;
+  height: 36px;
+  background: var(--acid);
+  border: none;
   clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
 }
-.player-btn.play svg { width: 14px; height: 14px; fill: var(--carbon); }
+
+.player-btn.play svg {
+  width: 14px;
+  height: 14px;
+  fill: var(--carbon);
+}
+
 .player-btn.stop {
-  width: 30px; height: 30px; background: transparent; border: 1px solid var(--line-hi); color: var(--text-mid);
+  width: 30px;
+  height: 30px;
+  background: transparent;
+  border: 1px solid var(--line-hi);
+  color: var(--text-mid);
   transition: border-color 0.15s ease, color 0.15s ease;
 }
-.player-btn.stop:hover { border-color: var(--text-hi); color: var(--text-hi); }
-.player-btn.stop svg { width: 10px; height: 10px; fill: currentColor; }
-.player-title { font-weight: 700; font-size: 12px; max-width: 140px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.player-time { font-weight: 700; font-size: 11px; letter-spacing: 0.5px; color: var(--text-mid); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.player-waveform-wrap { flex: 1; min-width: 80px; }
-.player-volume { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.vol-icon { width: 14px; height: 14px; color: var(--text-mid); flex-shrink: 0; }
-.vol-icon path:first-child { fill: currentColor; }
+
+.player-btn.stop:hover {
+  border-color: var(--text-hi);
+  color: var(--text-hi);
+}
+
+.player-btn.stop svg {
+  width: 10px;
+  height: 10px;
+  fill: currentColor;
+}
+
+.player-title {
+  font-weight: 700;
+  font-size: 12px;
+  max-width: 140px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.player-time {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  color: var(--text-mid);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.player-waveform-wrap {
+  flex: 1;
+  min-width: 80px;
+}
+
+.player-volume {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.vol-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--text-mid);
+  flex-shrink: 0;
+}
+
+.vol-icon path:first-child {
+  fill: currentColor;
+}
+
 .player-volume input[type="range"] {
-  -webkit-appearance: none; appearance: none; width: 64px; height: 14px; background: transparent; cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  width: 64px;
+  height: 14px;
+  background: transparent;
+  cursor: pointer;
 }
-.player-volume input[type="range"]::-webkit-slider-runnable-track { height: 2px; background: var(--line-hi); }
+
+.player-volume input[type="range"]::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--line-hi);
+}
+
 .player-volume input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 9px; height: 9px; margin-top: -3.5px; background: var(--text-hi);
+  -webkit-appearance: none;
+  width: 9px;
+  height: 9px;
+  margin-top: -3.5px;
+  background: var(--text-hi);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
-.player-volume input[type="range"]::-moz-range-track { height: 2px; background: var(--line-hi); }
+
+.player-volume input[type="range"]::-moz-range-track {
+  height: 2px;
+  background: var(--line-hi);
+}
+
 .player-volume input[type="range"]::-moz-range-thumb {
-  width: 9px; height: 9px; border: none; background: var(--text-hi);
+  width: 9px;
+  height: 9px;
+  border: none;
+  background: var(--text-hi);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
+
 .player-btn.download {
-  background: transparent; border: 1px solid var(--line-hi); color: var(--text-hi); padding: 6px 12px 6px 10px;
-  font-weight: 700; font-size: 10px; letter-spacing: 1px; transform: skewX(-10deg); gap: 6px;
+  background: transparent;
+  border: 1px solid var(--line-hi);
+  color: var(--text-hi);
+  padding: 6px 12px 6px 10px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  gap: 6px;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
-.player-btn.download:hover { border-color: var(--acid); color: var(--acid); }
-.player-btn.download span { display: inline-block; transform: skewX(10deg); }
-.player-btn.download svg { width: 11px; height: 11px; transform: skewX(10deg); stroke: currentColor; stroke-width: 1.2; fill: none; }
+
+.player-btn.download:hover {
+  border-color: var(--acid);
+  color: var(--acid);
+}
+
+.player-btn.download span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.player-btn.download svg {
+  width: 11px;
+  height: 11px;
+  transform: skewX(10deg);
+  stroke: currentColor;
+  stroke-width: 1.2;
+  fill: none;
+}
 
 /* editor */
-.link { cursor: pointer; }
-.link:hover { color: var(--sky); }
-.canvas { border: 1px solid var(--line); background: var(--panel); padding: 8px; margin-top: 14px; }
-.canvas .player { margin-top: 8px; }
+.link {
+  cursor: pointer;
+}
 
-.editor-title-row { display: flex; align-items: baseline; gap: 10px; padding: 2px 2px 10px; }
-.editor-title-row .song-title { font-size: 16px; letter-spacing: 0.5px; }
+.link:hover {
+  color: var(--sky);
+}
+
+.canvas {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 8px;
+  margin-top: 14px;
+}
+
+.canvas .player {
+  margin-top: 8px;
+}
+
+.title-row {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 2px 2px 10px;
+}
+
+.title-row .song-title {
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
 
 /* shared scrub timeline, docked to the top of the lane stack */
-.timeline { padding: 6px 10px 4px; border-bottom: 1px solid var(--line); }
-.timeline-time { display: flex; justify-content: space-between; color: var(--text-mid); font-size: 10px; font-weight: 700; letter-spacing: 0.5px; font-variant-numeric: tabular-nums; margin-bottom: 4px; }
-.timeline-track { position: relative; height: 20px; cursor: pointer; }
-.timeline-track::before { content: ''; position: absolute; left: 0; right: 0; top: 3px; height: 2px; background: var(--line-hi); }
-.timeline-tick { position: absolute; top: 6px; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; pointer-events: none; }
-.timeline-tick::before { content: ''; width: 1px; height: 5px; background: var(--line-hi); }
-.timeline-tick span { margin-top: 2px; font-size: 9px; color: var(--text-low); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.repaint { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line-hi); background: var(--panel); padding: 8px 10px; margin-top: 12px; }
-.repaint input[type="text"], .repaint input:not([type]) { flex: 1; }
-.scope-chip { background: var(--sky); color: #0C2530; font-weight: 700; font-size: 10px; letter-spacing: 1px; padding: 4px 10px; transform: skewX(-10deg); white-space: nowrap; }
-.scope-chip.warn { background: var(--rust); color: #2A0D02; }
-.slider { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 10px; letter-spacing: 1px; color: var(--text-mid); white-space: nowrap; }
-.slider input { accent-color: var(--acid); width: 90px; }
-.section-label { font-weight: 700; font-size: 11px; letter-spacing: 2px; color: #A97FC1; margin: 14px 0 6px; }
-.version { display: flex; align-items: center; gap: 12px; padding: 7px 0; border-bottom: 1px solid var(--line); }
-.version.current { border-left: 2px solid var(--lilac); padding-left: 8px; background: #2A2133; }
-@keyframes version-glow {
-  0% { box-shadow: 0 0 0 0 rgba(123, 75, 148, 0.9); }
-  60% { box-shadow: 0 0 14px 2px rgba(123, 75, 148, 0.55); }
-  100% { box-shadow: 0 0 0 0 rgba(123, 75, 148, 0); }
+.timeline {
+  padding: 6px 10px 4px;
+  border-bottom: 1px solid var(--line);
 }
-.version-enter { animation: version-glow 0.6s ease-out; }
-.version .meta { flex: 1; }
-.version-time { font-weight: 700; font-size: 10px; letter-spacing: 0.5px; color: var(--text-mid); white-space: nowrap; }
-.version-time.clickable, .version .meta.clickable { cursor: pointer; }
-.version-time.clickable:hover { color: var(--sky); text-decoration: underline; }
-.version .meta.clickable:hover { color: var(--text-hi); text-decoration: underline; }
-.version-actions { display: flex; align-items: center; gap: 8px; }
-.version-actions button.delete { color: var(--rust-text); border-color: var(--rust); }
-.version-actions button.confirm-delete { background: var(--rust); color: #2A0D02; border-color: var(--rust); }
+
+.timeline-time {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-mid);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
+  margin-bottom: 4px;
+}
+
+.timeline-track {
+  position: relative;
+  height: 20px;
+  cursor: pointer;
+}
+
+.timeline-track::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 3px;
+  height: 2px;
+  background: var(--line-hi);
+}
+
+.timeline-tick {
+  position: absolute;
+  top: 6px;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: none;
+}
+
+.timeline-tick::before {
+  content: '';
+  width: 1px;
+  height: 5px;
+  background: var(--line-hi);
+}
+
+.timeline-tick span {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--text-low);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.repaint {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--line-hi);
+  background: var(--panel);
+  padding: 8px 10px;
+  margin-top: 12px;
+}
+
+.repaint input[type="text"],
+.repaint input:not([type]) {
+  flex: 1;
+}
+
+.repaint+.hint {
+  display: block;
+  margin-top: 6px;
+}
+
+.scope-chip {
+  background: var(--sky);
+  color: var(--on-sky);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 4px 10px;
+  transform: skewX(-10deg);
+  white-space: nowrap;
+}
+
+.scope-chip.warn {
+  background: var(--rust);
+  color: var(--on-rust);
+}
+
+/* Slim lane-control volume slider (VolumeSlider.tsx): track/fill/guides are
+   siblings sharing one skewX transform (not nested), same technique
+   .pgram-slider uses so their edges line up. --pct is a unitless 0–1
+   fraction set inline by the component. The dark track is the "empty" base
+   (matches the lane background); grey fill grows over it to show level;
+   grey quarter-guide lines sit in their own layer above the fill so they
+   stay visible even when the fill is at 0. */
+.vol-slider {
+  position: relative;
+  display: inline-block;
+  width: 90px;
+  height: 10px;
+}
+
+.vol-slider-input {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
+.vol-slider-track {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: var(--panel);
+  border: 1px solid var(--line-hi);
+  transform: skewX(-10deg);
+}
+
+.vol-slider-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  width: calc(var(--pct, 0) * 100%);
+  background: var(--line-hi);
+  transform: skewX(-10deg);
+}
+
+.vol-slider-guides {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  transform: skewX(-10deg);
+  pointer-events: none;
+}
+
+/* #6E707F = --panel + --line-hi (channel-wise). With mix-blend-mode:
+   difference this makes each divider self-adjust to whatever's behind it:
+   over the dark (empty) track it resolves to exactly --line-hi (grey, same
+   as before); over the grey fill it resolves to exactly --panel (dark, same
+   as the lane background) — one color covers both cases instead of
+   duplicating the divider per layer. */
+.vol-slider-guide {
+  flex: 1;
+  border-right: 1px solid #6E707F;
+  mix-blend-mode: difference;
+}
+
+.vol-slider-guide:last-child {
+  border-right: none;
+}
+
+.vol-slider-input:focus-visible~.vol-slider-track {
+  outline: 1px solid var(--acid);
+  outline-offset: 1px;
+}
+
+.section-label {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--lilac-text);
+  margin: 14px 0 6px;
+}
+
+.version {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.version.current {
+  border-left: 2px solid var(--lilac);
+  padding-left: 8px;
+  background: var(--lilac-tint);
+}
+
+@keyframes version-glow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(123, 75, 148, 0.9);
+  }
+
+  60% {
+    box-shadow: 0 0 14px 2px rgba(123, 75, 148, 0.55);
+  }
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(123, 75, 148, 0);
+  }
+}
+
+.version-enter {
+  animation: version-glow 0.6s ease-out;
+}
+
+.version .meta {
+  flex: 1;
+}
+
+.version-time {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+
+.version-time.clickable,
+.version .meta.clickable {
+  cursor: pointer;
+}
+
+.version-time.clickable:hover {
+  color: var(--sky);
+  text-decoration: underline;
+}
+
+.version .meta.clickable:hover {
+  color: var(--text-hi);
+  text-decoration: underline;
+}
+
+.version-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-actions button.delete {
+  color: var(--rust-text);
+  border-color: var(--rust);
+}
+
+.version-actions button.confirm-delete {
+  background: var(--rust);
+  color: var(--on-rust);
+  border-color: var(--rust);
+}
 
 /* Connected parallelogram button group (MUTE/SOLO, SEL/ALT/X) — each button
    keeps the standard skew recipe, but sits flush against its neighbor
@@ -202,29 +784,69 @@ footer .player { flex: 1; }
    and non-uniformly scales the label text (reads as italic). A min-width
    transition on delete/confirm-delete gets the same grow/shrink feel
    without touching `transform` at all. */
-.btn-row { display: flex; }
-.btn-row button, .btn-row .current {
-  transform: skewX(-10deg); padding: 5px 10px; margin-left: -1px; position: relative;
-  display: inline-flex; align-items: center; justify-content: center;
+.btn-row {
+  display: flex;
 }
-.btn-row button:hover, .btn-row button:focus-visible { z-index: 1; }
-.btn-row button:first-child, .btn-row .current:first-child { margin-left: 0; }
-.btn-row button span, .btn-row .current span { display: inline-block; transform: skewX(10deg); }
+
+.btn-row button,
 .btn-row .current {
-  border: 1px solid var(--lilac); background: var(--lilac); color: #000;
-  font-weight: 700; font-size: 10px; letter-spacing: 1px;
+  transform: skewX(-10deg);
+  padding: 5px 10px;
+  margin-left: -1px;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.btn-row button.delete, .btn-row button.confirm-delete {
+
+.btn-row button:hover,
+.btn-row button:focus-visible {
+  z-index: 1;
+}
+
+.btn-row button:first-child,
+.btn-row .current:first-child {
+  margin-left: 0;
+}
+
+.btn-row button span,
+.btn-row .current span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.btn-row .current {
+  border: 1px solid var(--lilac);
+  background: var(--lilac);
+  color: #000;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.btn-row button.delete,
+.btn-row button.confirm-delete {
   min-width: 24px;
   transition: min-width 0.2s ease-out, background-color 0.2s ease-out, color 0.2s ease-out, border-color 0.2s ease-out;
 }
-.btn-row button.confirm-delete { min-width: 74px; }
+
+.btn-row button.confirm-delete {
+  min-width: 74px;
+}
 
 /* layer stack: DAW-style lanes, sky = focused/selected per DESIGN.md (not lilac/acid) */
-.layer-stack { margin-top: 14px; }
+.layer-stack {
+  margin-top: 14px;
+}
+
 /* Wraps the shared Timeline scrub + the lane grid in one bordered surface so
    .stack-playhead can span both as a single continuous line. */
-.stack-scrub { position: relative; border: 1px solid var(--line); background: var(--panel); }
+.stack-scrub {
+  position: relative;
+  border: 1px solid var(--line);
+  background: var(--panel);
+}
+
 /* Single column now that each lane's control bar sits above its waveform
    instead of beside it — every lane shares the same x-axis, so the shared
    playhead line's `left` is a plain % of the grid width (see .stack-playhead). */
@@ -233,27 +855,52 @@ footer .player { flex: 1; }
   display: flex;
   flex-direction: column;
 }
-.layer-lane { display: flex; flex-direction: column; }
+
+.layer-lane {
+  display: flex;
+  flex-direction: column;
+}
+
 /* Dividers are a single border-bottom per element (never top+bottom on
    adjacent elements at once) so lane boundaries stay a crisp 1px hairline —
    the outer box edge comes from .stack-scrub's own border, not per-lane
    left/right/top borders. */
 .lane-controls {
-  position: relative; z-index: 3;
-  display: flex; align-items: center; gap: 10px; padding: 5px 10px;
-  border-bottom: 1px solid var(--line); border-left: 2px solid transparent;
-  background: var(--panel); cursor: pointer;
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0px 10px;
+  border-bottom: 1px solid var(--line);
+  border-left: 2px solid transparent;
+  background: var(--panel);
+  cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
+
 .lane-waveform {
   position: relative;
   border-bottom: 1px solid var(--line);
-  background: var(--panel); display: flex; align-items: center; overflow: hidden;
+  background: var(--panel);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 }
-.layer-lane:last-of-type .lane-waveform { border-bottom: none; }
-.layer-lane.focused .lane-controls { border-left-color: var(--sky); background: #153543; }
-.layer-lane.focused .lane-waveform { background: #153543; }
+
+.layer-lane:last-of-type .lane-waveform {
+  border-bottom: none;
+}
+
+.layer-lane.focused .lane-controls {
+  background: var(--sky-tint);
+}
+
+.layer-lane.focused .lane-waveform {
+  background: var(--sky-tint);
+}
+
 /* Absolutely positioned against .stack-scrub (not a flex item) so its height
    spans from the timeline through the last lane as one continuous line;
    `left` is a plain % of the shared surface's own width. The control bars
@@ -261,106 +908,414 @@ footer .player { flex: 1; }
    trying to skip over control-bar rows. A diamond thumb marks the top, at
    the timeline track. */
 .stack-playhead {
-  position: absolute; top: 28px; bottom: 0;
+  position: absolute;
+  top: 28px;
+  bottom: 0;
   left: calc(100% * var(--playhead-pct, 0) / 100);
-  width: 1.5px; background: var(--sky);
-  pointer-events: none; z-index: 2;
+  width: 1.5px;
+  background: var(--sky);
+  pointer-events: none;
+  z-index: 2;
   transition: left 0.1s linear;
 }
+
 .stack-playhead::before {
-  content: ''; position: absolute; top: -4px; left: 50%; width: 9px; height: 9px;
-  margin-left: -4.5px; background: var(--sky);
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  background: var(--sky);
   clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
 
-.layer-name { font-weight: 700; font-size: 11px; letter-spacing: 1px; min-width: 90px; cursor: text; }
-.layer-name-input { min-width: 90px; padding: 4px 6px; font-size: 11px; }
-.layer-toggle { padding: 4px 8px; font-size: 9px; }
-.layer-toggle.rust.on { color: var(--rust-text); border-color: var(--rust); }
+.layer-name {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  min-width: 90px;
+  cursor: text;
+}
+
+.layer-name-input {
+  min-width: 90px;
+  padding: 4px 6px;
+  font-size: 11px;
+}
+
+.layer-toggle {
+  padding: 4px 8px;
+  font-size: 10px;
+}
+
+.layer-toggle.rust.on {
+  color: var(--rust-text);
+  border-color: var(--rust);
+}
 
 /* + ADD LAYER: a compact row that only reveals its form on hover/focus, so the
    lane stack stays a dense wall of tooling rather than an always-open form. */
 .layer-add-row {
-  background: transparent; border: 1px dashed var(--line-hi); padding: 7px 10px; margin-top: 4px;
+  background: transparent;
+  border: 1px dashed var(--line-hi);
+  padding: 7px 10px;
+  margin-top: 4px;
   transition: border-color 0.2s ease, background-color 0.2s ease;
 }
-.layer-add-row:hover, .layer-add-row:focus-within { border-color: var(--acid); background: var(--panel); }
-.layer-add-compact { display: flex; align-items: center; gap: 8px; color: var(--text-mid); font-weight: 700; font-size: 10px; letter-spacing: 1px; }
-.layer-add-compact .plus { color: var(--acid); }
-.layer-add-compact .hint { margin-left: auto; color: var(--text-ghost, #55555C); font-weight: 400; text-transform: none; letter-spacing: 0; }
-.layer-add-row:hover .layer-add-compact, .layer-add-row:focus-within .layer-add-compact { color: var(--acid); }
+
+.layer-add-row:hover,
+.layer-add-row:focus-within {
+  border-color: var(--acid);
+  background: var(--panel);
+}
+
+.layer-add-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-mid);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.layer-add-compact .plus {
+  color: var(--acid);
+}
+
+.layer-add-compact .hint {
+  margin-left: auto;
+  color: var(--text-ghost);
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.layer-add-row:hover .layer-add-compact,
+.layer-add-row:focus-within .layer-add-compact {
+  color: var(--acid);
+}
+
 .layer-add-expand {
-  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  max-height: 0; opacity: 0; overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
   transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
 }
-.layer-add-row:hover .layer-add-expand, .layer-add-row:focus-within .layer-add-expand {
-  max-height: 120px; opacity: 1; margin-top: 8px;
+
+.layer-add-row:hover .layer-add-expand,
+.layer-add-row:focus-within .layer-add-expand {
+  max-height: 120px;
+  opacity: 1;
+  margin-top: 8px;
 }
-.layer-add-expand input { flex: 1; min-width: 180px; }
+
+.layer-add-expand input {
+  flex: 1;
+  min-width: 180px;
+}
 
 /* settings panel (left) */
-.with-panel { display: grid; grid-template-columns: 210px 1fr; gap: 16px; margin-top: 14px; align-items: start; }
+.with-panel {
+  display: grid;
+  grid-template-columns: 210px 1fr;
+  gap: 16px;
+  margin-top: 14px;
+  align-items: start;
+}
+
 /* Editor adds a fixed-width right rail (version history) alongside the fixed
    left settings panel; only the center column is fluid. */
-.with-panel.editor-layout { grid-template-columns: 210px 1fr 300px; }
-.editor-main { min-width: 0; }
+.with-panel.editor-layout {
+  grid-template-columns: 210px 1fr 300px;
+}
+
+.editor-main {
+  min-width: 0;
+}
 
 /* Create takeover: fixed left settings panel + a width-capped content
    column. Unlike Editor's waveform, a prompt/lyrics editor doesn't get more
    usable by being 3x wider, so extra viewport width is left as margin. */
-.with-panel.create-layout { grid-template-columns: 210px 1fr; }
-.create-content { max-width: 800px; display: flex; flex-direction: column; gap: 10px; }
-.create-content textarea { min-height: 90px; }
-.type-tabs { display: flex; gap: 8px; margin-bottom: 4px; }
-.tab { background: transparent; border: 1px solid var(--line-hi); color: var(--text-mid); padding: 8px 16px; font-weight: 700; font-size: 11px; letter-spacing: 1px; transform: skewX(-10deg); cursor: pointer; }
-.tab span { display: inline-block; transform: skewX(10deg); }
-.tab.active { background: var(--acid); border-color: var(--acid); color: var(--carbon); }
-.dropzone { display: flex; align-items: center; justify-content: center; border: 1px dashed var(--line-hi); color: var(--text-mid); padding: 24px; cursor: pointer; font-size: 11px; text-align: center; }
-.dropzone:hover { border-color: var(--acid); color: var(--acid); }
-.song-picker { display: flex; flex-direction: column; gap: 6px; }
-.song-picker-list { display: flex; flex-direction: column; gap: 4px; max-height: 160px; overflow-y: auto; }
-.song-pick { border: 1px solid var(--line); background: var(--panel); padding: 8px 10px; font-size: 11px; cursor: pointer; }
-.song-pick.current { border-color: var(--sky); background: #153543; color: var(--text-hi); }
-.lm-note { color: var(--lilac-text, #A97FC1); font-size: 10px; }
-.hint { color: var(--text-mid); font-size: 10px; }
+.with-panel.create-layout {
+  grid-template-columns: 210px 1fr;
+}
+
+.create-content {
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.create-content textarea {
+  min-height: 90px;
+}
+
+.type-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.tab {
+  background: transparent;
+  border: 1px solid var(--line-hi);
+  color: var(--text-mid);
+  padding: 8px 16px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  cursor: pointer;
+}
+
+.tab span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.tab.active {
+  background: var(--acid);
+  border-color: var(--acid);
+  color: var(--carbon);
+}
+
+.dropzone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed var(--line-hi);
+  color: var(--text-mid);
+  padding: 24px;
+  cursor: pointer;
+  font-size: 11px;
+  text-align: center;
+}
+
+.dropzone:hover {
+  border-color: var(--acid);
+  color: var(--acid);
+}
+
+.song-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.song-picker-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.song-pick {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 8px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.song-pick.current {
+  border-color: var(--sky);
+  background: var(--sky-tint);
+  color: var(--text-hi);
+}
+
+.lm-note {
+  color: var(--lilac-text);
+  font-size: 10px;
+}
+
+.hint {
+  color: var(--text-mid);
+  font-size: 10px;
+}
 
 /* version history rail (right, editor only) */
-.rail { position: sticky; top: 14px; display: flex; flex-direction: column; }
-.versions {
-  border: 1px solid var(--line); background: var(--panel); padding: 10px;
-  display: flex; flex-direction: column; gap: 4px;
-  max-height: calc(100vh - 28px); overflow-y: auto;
+.rail {
+  position: sticky;
+  top: 14px;
+  display: flex;
+  flex-direction: column;
 }
-.rail-export-btn { width: 100%; margin-top: 10px; }
+
+.versions {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: calc(100vh - 28px);
+  overflow-y: auto;
+}
+
+.rail-export-btn {
+  width: 100%;
+  margin-top: 10px;
+  transform: skewX(-10deg);
+}
+
+.rail-export-btn span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
 
 /* export view — swaps into the rail in place of history */
-.export-panel { border: 1px solid var(--line); background: var(--panel); padding: 10px; display: flex; flex-direction: column; gap: 8px; }
-.export-head { display: flex; align-items: center; justify-content: space-between; }
-.link-btn { background: transparent; border: none; padding: 0; color: var(--text-mid); font-weight: 700; font-size: 10px; letter-spacing: 1px; cursor: pointer; }
-.link-btn:hover { color: var(--sky); }
+.export-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.export-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.link-btn {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--text-mid);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transform: skewX(-10deg);
+}
+
+.link-btn span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.link-btn:hover {
+  color: var(--sky);
+}
+
 .export-stem {
-  display: flex; align-items: center; justify-content: space-between; border: 1px solid var(--line-hi);
-  padding: 8px 10px; color: var(--text-hi); text-decoration: none; font-weight: 700; font-size: 10px; letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid var(--line-hi);
+  padding: 8px 10px;
+  color: var(--text-hi);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
   transition: border-color 0.15s ease, color 0.15s ease;
+  transform: skewX(-10deg);
 }
-.export-stem:hover { border-color: var(--acid); color: var(--acid); }
-.export-stem-dl { color: var(--text-mid); }
-.export-stem:hover .export-stem-dl { color: var(--acid); }
-.versions .version { flex-direction: column; align-items: stretch; gap: 4px; }
-.versions .version-time { white-space: normal; }
-.versions .meta { font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.versions .version-actions { flex-wrap: wrap; }
+
+.export-stem span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.export-stem:hover {
+  border-color: var(--acid);
+  color: var(--acid);
+}
+
+.export-stem-dl {
+  color: var(--text-mid);
+}
+
+.export-stem:hover .export-stem-dl {
+  color: var(--acid);
+}
+
+.versions .version {
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+}
+
+.versions .version-time {
+  white-space: normal;
+}
+
+.versions .meta {
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.versions .version-actions {
+  flex-wrap: wrap;
+}
+
 .versions .show-more {
-  background: transparent; border: 1px dashed var(--line-hi); color: var(--text-mid);
-  padding: 6px 10px; font-weight: 700; font-size: 10px; letter-spacing: 1px; margin-top: 4px;
+  background: transparent;
+  border: 1px dashed var(--line-hi);
+  color: var(--text-mid);
+  padding: 6px 10px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-top: 4px;
+  transform: skewX(-10deg);
 }
-.versions .show-more:hover { color: var(--acid); border-color: var(--acid); }
-.settings-panel { border: 1px solid var(--line); background: var(--panel); padding: 12px; display: flex; flex-direction: column; gap: 12px; }
-.settings-panel .section-label { margin: 0 0 2px; }
-.setting { display: flex; flex-direction: column; gap: 6px; }
-.setting-head { display: flex; justify-content: space-between; font-weight: 700; font-size: 10px; letter-spacing: 1px; color: var(--text-mid); }
-.setting-head .val { color: var(--acid); }
+
+.versions .show-more span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.versions .show-more:hover {
+  color: var(--acid);
+  border-color: var(--acid);
+}
+
+.settings-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.settings-panel .section-label {
+  margin: 0 0 2px;
+}
+
+.setting {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.setting-head {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-mid);
+}
+
+.setting-head .val {
+  color: var(--acid);
+}
 
 /* Parallelogram DAW-fader slider (Slider.tsx) — three plain divs, not a
    reskinned native thumb: .pgram-track is a dashed-outline parallelogram
@@ -384,33 +1339,86 @@ footer .player { flex: 1; }
    vertically centered in this same 20px band, so a shared boundary shears
    by the identical amount for both sides — this is the same technique
    `.btn-row` already relies on to mesh its buttons with no gap. */
-.pgram-slider { position: relative; height: 20px; --handle-w: 18px; }
-.pgram-input {
-  position: absolute; inset: 0; z-index: 3; margin: 0; width: 100%; height: 100%;
-  opacity: 0; cursor: pointer; -webkit-appearance: none; appearance: none; background: transparent;
+.pgram-slider {
+  position: relative;
+  height: 20px;
+  --handle-w: 18px;
 }
+
+.pgram-input {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+}
+
 .pgram-track {
-  position: absolute; z-index: 0; left: 0; right: 0; top: 5px; bottom: 5px;
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  top: 5px;
+  bottom: 5px;
   transform: skewX(-10deg);
   border: 1px dashed var(--line-hi);
 }
+
 .pgram-fill {
-  position: absolute; z-index: 1; left: 0; top: 5px; bottom: 5px;
+  position: absolute;
+  z-index: 1;
+  left: 0;
+  top: 5px;
+  bottom: 5px;
   width: calc(var(--pct, 0) * (100% - var(--handle-w)));
   transform: skewX(-10deg);
   background: var(--fill, var(--acid));
 }
+
 .pgram-handle {
-  position: absolute; z-index: 2; top: 3px; bottom: 3px;
+  position: absolute;
+  z-index: 2;
+  top: 3px;
+  bottom: 3px;
   left: calc(var(--pct, 0) * (100% - var(--handle-w)));
   width: var(--handle-w);
   transform: skewX(-10deg);
-  background: var(--fill, var(--acid)); border: 1px solid var(--carbon, #1C1D21);
+  background: var(--fill, var(--acid));
+  border: 1px solid var(--carbon);
 }
-.pgram-input:focus-visible ~ .pgram-track { border-color: var(--fill, var(--acid)); border-style: solid; }
-.variance-slider { display: flex; flex-direction: column; gap: 6px; }
-.variance-note { font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; }
-.seed { background: var(--carbon); border: 1px solid var(--line-hi); color: var(--text-hi); padding: 6px 8px; font: inherit; }
+
+.pgram-input:focus-visible~.pgram-track {
+  border-color: var(--fill, var(--acid));
+  border-style: solid;
+}
+
+.variance-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.variance-note {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.seed {
+  background: var(--carbon);
+  border: 1px solid var(--line-hi);
+  color: var(--text-hi);
+  padding: 6px 8px;
+  font: inherit;
+}
+
 .seed:focus {
   outline: none;
   border-color: var(--acid);
@@ -432,15 +1440,33 @@ footer .player { flex: 1; }
   text-transform: uppercase;
   cursor: pointer;
   transition: border-color 0.2s ease, color 0.2s ease;
+  transform: skewX(-10deg);
 }
-.custom-select-button:focus, .custom-select-button.open {
+
+.custom-select-button span,
+.custom-select-button svg {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.custom-select-button:focus,
+.custom-select-button.open {
   outline: none;
   border-color: var(--acid);
   color: var(--acid);
 }
+
 .custom-select-button.open {
   border-bottom: 1px dashed rgba(212, 255, 0, 0.4);
 }
+
+/* Compact, no vertical label row — used inline (e.g. Library's SORT control)
+   instead of the settings-panel's stacked label-above-control layout. */
+.custom-select.compact {
+  display: inline-block;
+  min-width: 160px;
+}
+
 .custom-select-dropdown {
   position: absolute;
   top: 100%;
@@ -453,6 +1479,7 @@ footer .player { flex: 1; }
   max-height: 200px;
   overflow-y: auto;
 }
+
 .custom-select-option {
   padding: 6px 8px;
   font-weight: 700;
@@ -463,16 +1490,65 @@ footer .player { flex: 1; }
   color: var(--text-hi);
   transition: background-color 0.1s ease, color 0.1s ease;
 }
+
 .custom-select-option:hover {
   background: var(--acid);
   color: var(--carbon);
 }
-.toggle { display: flex; align-items: center; justify-content: space-between; background: var(--carbon); border: 1px solid var(--line-hi); padding: 7px 10px; font-weight: 700; font-size: 10px; letter-spacing: 1px; color: var(--text-mid); transition: color 0.2s ease, border-color 0.2s ease; }
-.toggle .dot { width: 22px; height: 11px; border: 1px solid var(--line-hi); position: relative; transition: border-color 0.2s ease; }
-.toggle .dot::after { content: ''; position: absolute; left: 1px; top: 1px; width: 8px; height: 7px; background: var(--text-mid); transition: transform 0.2s ease, background-color 0.2s ease; }
-.toggle.on { color: var(--acid); border-color: var(--acid); }
-.toggle.on .dot { border-color: var(--acid); }
-.toggle.on .dot::after { transform: translateX(10px); background: var(--acid); }
+
+.toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--carbon);
+  border: 1px solid var(--line-hi);
+  padding: 7px 10px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-mid);
+  transition: color 0.2s ease, border-color 0.2s ease;
+  transform: skewX(-10deg);
+}
+
+.toggle span,
+.toggle .dot {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.toggle .dot {
+  width: 22px;
+  height: 11px;
+  border: 1px solid var(--line-hi);
+  position: relative;
+  transition: border-color 0.2s ease;
+}
+
+.toggle .dot::after {
+  content: '';
+  position: absolute;
+  left: 1px;
+  top: 1px;
+  width: 8px;
+  height: 7px;
+  background: var(--text-mid);
+  transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.toggle.on {
+  color: var(--acid);
+  border-color: var(--acid);
+}
+
+.toggle.on .dot {
+  border-color: var(--acid);
+}
+
+.toggle.on .dot::after {
+  transform: translateX(10px);
+  background: var(--acid);
+}
 
 /* AI-state exception to one-hue-per-job (THINKING MODE / AI ENHANCE only) — see docs/design/DESIGN.md#Motion. */
 .toggle.on.toggle-ai {
@@ -482,9 +1558,21 @@ footer .player { flex: 1; }
   background-size: 300% 100%;
   animation: ai-shimmer 3s linear infinite;
 }
-.toggle.on.toggle-ai .dot { border-color: var(--carbon); }
-.toggle.on.toggle-ai .dot::after { background: var(--carbon); }
+
+.toggle.on.toggle-ai .dot {
+  border-color: var(--carbon);
+}
+
+.toggle.on.toggle-ai .dot::after {
+  background: var(--carbon);
+}
+
 @keyframes ai-shimmer {
-  0% { background-position: 0% 50%; }
-  100% { background-position: 300% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: 300% 50%;
+  }
 }

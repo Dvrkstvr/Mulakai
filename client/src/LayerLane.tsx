@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { api, type Layer } from './api';
 import { Waveform, type Region } from './Waveform';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
+import { VolumeSlider } from './VolumeSlider';
 
 export const LANE_HEIGHT = 60;
 
@@ -62,11 +63,8 @@ export function LayerLane({ layer, focused, duration, selection, onSelect, onFoc
             {layer.name.toUpperCase()}
           </span>
         )}
-        <span className="slider" onClick={(e) => e.stopPropagation()}>
-          <input
-            type="range" min={0} max={1} step={0.01} value={layer.volume}
-            onChange={(e) => patch({ volume: Number(e.target.value) })}
-          />
+        <span onClick={(e) => e.stopPropagation()}>
+          <VolumeSlider value={layer.volume} onChange={(v) => patch({ volume: v })} />
         </span>
         <span className="btn-row" onClick={(e) => e.stopPropagation()}>
           <button
