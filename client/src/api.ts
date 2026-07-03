@@ -54,6 +54,16 @@ export interface SongDetail extends Song {
   layers: Layer[];
 }
 
+export type StemKind = 'vocals' | 'drums' | 'bass' | 'other';
+
+export interface StemResult {
+  kind: StemKind;
+  status: 'running' | 'done' | 'failed';
+  audioFile?: string;
+  error?: string;
+  claimed?: 'replaced' | 'added';
+}
+
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -136,10 +146,35 @@ export const api = {
       body: JSON.stringify(patch),
     }).then((r) => json(r)),
 
+  deleteLayer: (layerId: string): Promise<void> =>
+    fetch(`/api/layers/${layerId}`, { method: 'DELETE' }).then((r) => json(r)),
+
   trash: (id: string): Promise<void> =>
     fetch(`/api/songs/${id}/trash`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({}),
     }).then(() => undefined),
+
+  startSplit: (layerId: string, model: 'acestep' | 'demucs'): Promise<{ jobId: string }> =>
+    fetch(`/api/layers/${layerId}/split`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model }),
+    }).then((r) => json<{ jobId: string }>(r)),
+
+  splitStatus: (jobId: string): Promise<{ status: 'running' | 'done'; stems: StemResult[] }> =>
+    fetch(`/api/split/${jobId}`).then((r) => json(r)),
+
+  splitHealth: (): Promise<{ acestep: boolean; demucs: boolean }> =>
+    fetch('/api/split/health').then((r) => json(r)),
+
+  claimStem: (jobId: string, kind: StemKind, action: 'replace' | 'add-layer'): Promise<{ songId: string }> =>
+    fetch(`/api/split/${jobId}/stems/${kind}/${action}`, { method: 'POST' }).then((r) => json(r)),
+
+  reextractStem: (jobId: string, kind: StemKind): Promise<StemResult> =>
+    fetch(`/api/split/${jobId}/stems/${kind}/reextract`, { method: 'POST' }).then((r) => json(r)),
+
+  cancelSplit: (jobId: string): Promise<void> =>
+    fetch(`/api/split/${jobId}/cancel`, { method: 'POST' }).then(() => undefined),
 };

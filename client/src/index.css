@@ -1092,6 +1092,11 @@ footer .player {
   color: var(--carbon);
 }
 
+.tab:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
 .dropzone {
   display: flex;
   align-items: center;
@@ -1245,6 +1250,116 @@ footer .player {
 
 .export-stem:hover .export-stem-dl {
   color: var(--acid);
+}
+
+/* split view — swaps into the rail in place of history, same idiom as .export-panel */
+.split-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stem-row {
+  border: 1px solid var(--line);
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.stem-row-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.stem-name {
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Transport shape per DESIGN.md — hexagon, acid-filled — reused here for stem preview playback. */
+.stem-play {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: none;
+  background: var(--acid);
+  clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
+  cursor: pointer;
+  position: relative;
+}
+
+.stem-play::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+  border-left: 6px solid var(--carbon);
+  transform: translate(-40%, -50%);
+}
+
+.stem-play.playing::after {
+  border: none;
+  width: 8px;
+  height: 8px;
+  background: var(--carbon);
+  transform: translate(-50%, -50%);
+}
+
+.stem-play:disabled {
+  background: var(--line-hi);
+  cursor: default;
+}
+
+.stem-play:disabled::after {
+  border-left-color: var(--text-low);
+}
+
+/* Pushes SPLIT (and the delete button right after it) all the way to the
+   lane's right edge — auto margin absorbs the flex row's remaining space,
+   rather than the two trailing behind MUTE/SOLO with unused width past them. */
+.split-btn {
+  margin-left: auto;
+}
+
+.lane-delete-btn {
+  margin-left: 10px;
+  transform: skewX(-10deg);
+  padding: 5px 10px;
+  min-width: 24px;
+  color: var(--rust-text);
+  border: 1px solid var(--rust);
+  background: transparent;
+  cursor: pointer;
+  transition: min-width 0.2s ease-out, background-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+.lane-delete-btn span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.lane-delete-btn.confirm-delete {
+  min-width: 74px;
+  background: var(--rust);
+  color: var(--on-rust);
+}
+
+.lane-delete-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+  border-color: var(--line-hi);
+  color: var(--text-low);
 }
 
 .versions .version {

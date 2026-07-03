@@ -7,6 +7,8 @@ export const config = {
   port: Number(process.env.PORT ?? 3001),
   acestepUrl: process.env.ACESTEP_API_URL ?? 'http://127.0.0.1:8001',
   acestepApiKey: process.env.ACESTEP_API_KEY ?? '',
+  /** Empty = Demucs backend disabled (no separate stem-split microservice configured). */
+  demucsUrl: process.env.DEMUCS_API_URL ?? '',
   dataDir: process.env.DATA_DIR ?? path.resolve(__dirname, '../data'),
   get dbPath() {
     return path.join(this.dataDir, 'mulakai.db');

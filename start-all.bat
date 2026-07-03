@@ -40,19 +40,36 @@ if exist "%ACESTEP_PATH%\python_embeded\python.exe" (
     set API_COMMAND=uv run acestep-api --port 8001
 )
 
+REM Demucs (stem separation) is optional — detect it before starting the
+REM Mulakai server so DEMUCS_API_URL is in the environment it inherits.
+set "DEMUCS_READY="
+if exist "%~dp0demucs-server\venv\Scripts\activate.bat" (
+    set "DEMUCS_READY=1"
+    set "DEMUCS_API_URL=http://127.0.0.1:8002"
+)
+
 echo.
-echo [1/3] Starting ACE-Step API server...
+echo [1/4] Starting ACE-Step API server...
 start "ACE-Step API" cmd /k "cd /d "%ACESTEP_PATH%" && %API_COMMAND%"
 
 echo Waiting for API to initialize...
 timeout /t 5 /nobreak >nul
 
-echo [2/3] Starting Mulakai server...
+echo [2/4] Starting Mulakai server...
 start "Mulakai Server" cmd /k "cd /d "%~dp0server" && npm run dev"
 
 timeout /t 3 /nobreak >nul
 
-echo [3/3] Starting Mulakai client...
+echo [3/4] Starting Demucs stem-separation service...
+if defined DEMUCS_READY (
+    start "Demucs Server" cmd /k "cd /d "%~dp0demucs-server" && venv\Scripts\activate && uvicorn main:app --port 8002"
+) else (
+    echo   Skipped - demucs-server\venv not found. See demucs-server\README.md to set it up.
+)
+
+timeout /t 2 /nobreak >nul
+
+echo [4/4] Starting Mulakai client...
 start "Mulakai Client" cmd /k "cd /d "%~dp0client" && npm run dev"
 
 timeout /t 2 /nobreak >nul
@@ -65,6 +82,7 @@ echo.
 echo   ACE-Step API: http://localhost:8001
 echo   Server:       http://localhost:3001
 echo   Client:       http://localhost:5173
+if defined DEMUCS_READY echo   Demucs:       http://localhost:8002
 echo.
 echo   Close the terminal windows to stop all services.
 echo.

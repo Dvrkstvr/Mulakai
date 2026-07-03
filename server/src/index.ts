@@ -5,6 +5,7 @@ import { songLayersRouter } from './routes/songLayers.js';
 import { layersRouter } from './routes/layers.js';
 import { versionsRouter } from './routes/versions.js';
 import { generateRouter } from './routes/generate.js';
+import { splitRouter } from './routes/split.js';
 import { sweepTrash } from './services/trashSweep.js';
 
 const app = express();
@@ -15,6 +16,7 @@ app.use('/api/songs', songLayersRouter);
 app.use('/api/layers', layersRouter);
 app.use('/api/layers', versionsRouter);
 app.use('/api/generate', generateRouter);
+app.use('/api/split', splitRouter);
 app.use('/audio', express.static(config.audioDir));
 
 sweepTrash();

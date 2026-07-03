@@ -19,6 +19,7 @@ interface Props {
   onSeek: (seconds: number) => void;
   /** True while a repaint job targeting this (focused) lane is in flight — shows the AI shimmer overlay. */
   processing?: boolean;
+  onSplit: () => void;
 }
 
 /**
@@ -30,14 +31,29 @@ interface Props {
  * per-lane playhead is drawn — a single shared overlay line spans all lanes
  * (see LayerStack.tsx).
  */
-export function LayerLane({ layer, layers, focused, duration, selection, onSelect, onFocus, onChanged, onSeek, processing }: Props) {
+export function LayerLane({ layer, layers, focused, duration, selection, onSelect, onFocus, onChanged, onSeek, processing, onSplit }: Props) {
   const [name, setName] = useState(layer.name);
   const [editingName, setEditingName] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [error, setError] = useState('');
   const activeVersion = layer.versions.find((v) => v.active);
+  const isBase = layer.kind === 'base';
 
   const patch = async (body: { name?: string; volume?: number; muted?: boolean; solo?: boolean }) => {
     await api.updateLayer(layer.id, body);
     await onChanged();
+  };
+
+  const del = async () => {
+    if (!confirmDelete) { setConfirmDelete(true); return; }
+    setConfirmDelete(false);
+    setError('');
+    try {
+      await api.deleteLayer(layer.id);
+      await onChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
   };
 
   /**
@@ -101,7 +117,20 @@ export function LayerLane({ layer, layers, focused, duration, selection, onSelec
             <span>SOLO</span>
           </button>
         </span>
+        <button className="tab split-btn" onClick={(e) => { e.stopPropagation(); onSplit(); }} title="split into stems">
+          <span>SPLIT</span>
+        </button>
+        <button
+          className={`lane-delete-btn ${confirmDelete ? 'confirm-delete' : 'delete'}`}
+          disabled={isBase}
+          onClick={(e) => { e.stopPropagation(); del(); }}
+          onBlur={() => setConfirmDelete(false)}
+          title={isBase ? "the base layer can't be deleted" : confirmDelete ? 'confirm delete' : 'delete this layer'}
+        >
+          <span>{confirmDelete ? 'CONFIRM?' : 'X'}</span>
+        </button>
       </div>
+      {error && <div className="error">{error}</div>}
       <div className="lane-waveform">
         {activeVersion && (
           <Waveform

@@ -4,6 +4,7 @@ import type { Region } from './Waveform';
 import { Player } from './Player';
 import { VersionHistory } from './VersionHistory';
 import { ExportPanel } from './ExportPanel';
+import { SplitPanel } from './SplitPanel';
 import { LayerStack } from './LayerStack';
 import { RepaintBar } from './RepaintBar';
 import { SettingsPanel } from './SettingsPanel';
@@ -27,7 +28,7 @@ export function Editor({ songId, onBack }: Props) {
   const [prompt, setPrompt] = useState('');
   const [job, setJob] = useState<'idle' | 'running'>('idle');
   const [error, setError] = useState('');
-  const [railMode, setRailMode] = useState<'history' | 'export'>('history');
+  const [railMode, setRailMode] = useState<'history' | 'export' | 'split'>('history');
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);
@@ -144,6 +145,7 @@ export function Editor({ songId, onBack }: Props) {
         onSelect={setSelection}
         onSeek={seek}
         processing={job === 'running'}
+        onSplit={(layerId) => { setFocusedLayerId(layerId); setRailMode('split'); }}
       />
 
       {activeVersion && (
@@ -181,8 +183,14 @@ export function Editor({ songId, onBack }: Props) {
                 />
                 <button className="rail-export-btn" onClick={() => setRailMode('export')}><span>EXPORT</span></button>
               </>
-            ) : (
+            ) : railMode === 'export' ? (
               <ExportPanel song={song} onBack={() => setRailMode('history')} />
+            ) : (
+              <SplitPanel
+                layer={focusedLayer}
+                onChanged={reload}
+                onBack={() => setRailMode('history')}
+              />
             )}
           </div>
         )}

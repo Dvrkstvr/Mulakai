@@ -17,6 +17,7 @@ interface Props {
   onSelect: (region: Region | null) => void;
   onSeek: (seconds: number) => void;
   processing?: boolean;
+  onSplit: (layerId: string) => void;
 }
 
 /**
@@ -27,7 +28,7 @@ interface Props {
  * stacked vertically. A single playhead line spans from the timeline through
  * every lane, since both share the same x-axis (no left column offset).
  */
-export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing }: Props) {
+export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit }: Props) {
   const playheadPct = duration > 0 ? Math.min(100, Math.max(0, (playhead / duration) * 100)) : 0;
 
   return (
@@ -49,6 +50,7 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
               onChanged={onChanged}
               onSeek={onSeek}
               processing={processing}
+              onSplit={() => onSplit(layer.id)}
             />
           ))}
         </div>

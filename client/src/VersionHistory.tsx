@@ -69,7 +69,7 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
       {visible.map((v) => {
         const hasRegion = v.region_start !== null && v.region_end !== null;
         return (
-          <motion.div key={v.id} layout
+          <motion.div key={v.id} layout="position"
             initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className={v.active ? 'version current version-enter' : 'version version-enter'}>
