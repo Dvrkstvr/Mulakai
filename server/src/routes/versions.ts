@@ -3,7 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { startRegenerate } from '../services/repaintJobs.js';
+import { startRegenerate, startSimilarTake } from '../services/repaintJobs.js';
 
 export const versionsRouter = Router();
 
@@ -52,6 +52,17 @@ versionsRouter.post('/versions/:versionId/regenerate', async (req, res) => {
     res.status(202).json({ jobId: job.id });
   } catch (err) {
     const msg = err instanceof Error ? err.message : 'regenerate failed';
+    res.status(msg === 'unknown version' ? 404 : 502).json({ error: msg });
+  }
+});
+
+/** Generate a variance-anchored similar take of a past version — appended to history, not activated. */
+versionsRouter.post('/versions/:versionId/retake', async (req, res) => {
+  try {
+    const job = await startSimilarTake(req.params.versionId);
+    res.status(202).json({ jobId: job.id });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'retake failed';
     res.status(msg === 'unknown version' ? 404 : 502).json({ error: msg });
   }
 });
