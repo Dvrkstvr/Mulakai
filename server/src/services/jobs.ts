@@ -9,7 +9,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { releaseTask, queryResult, downloadAudio, initModel, type ReleaseTaskParams, type TaskResult } from './acestep.js';
+import {
+  releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl,
+  type ReleaseTaskParams, type TaskResult,
+} from './acestep.js';
 
 export interface Job {
   id: string;
@@ -99,13 +102,44 @@ export async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<
   }
 }
 
+/**
+ * Best-effort lyric alignment, fetched at generation time while ACE-Step's
+ * artifact sidecar still exists (it lives in ACE-Step's temp dir and is cleaned
+ * up later, so it can't be fetched lazily from the editor). Returns a JSON
+ * string for the `versions.lyric_timestamps` column, or null when unavailable —
+ * a missing sidecar (404), instrumental track, or any error is non-fatal and
+ * must never fail the surrounding generation.
+ */
+export async function fetchLyricTimestampsJson(
+  result: TaskResult,
+  params: ReleaseTaskParams,
+): Promise<string | null> {
+  const audioPath = rawPathFromAudioUrl(result.file);
+  const duration = result.metas.duration ?? params.audio_duration;
+  if (!audioPath || !duration || duration <= 0) return null;
+  try {
+    const aligned = await lyricTimestamp({
+      audioPath,
+      duration,
+      vocalLanguage: params.vocal_language,
+      inferenceSteps: params.inference_steps,
+      model: params.model,
+    });
+    if (!aligned.success || aligned.sentence_timestamps.length === 0) return null;
+    return JSON.stringify(aligned.sentence_timestamps);
+  } catch {
+    return null; // 404 (no sidecar) or transport error — no timestamps, not a failure.
+  }
+}
+
 async function persistSong(
   fileUrl: string,
   params: ReleaseTaskParams,
-  result: { metas: { bpm?: number; duration?: number; keyscale?: string; timesignature?: string }; seed_value: string; prompt: string; lyrics: string },
+  result: TaskResult,
   title: string,
 ): Promise<string> {
   const audio = await downloadAudio(fileUrl);
+  const lyricTimestamps = await fetchLyricTimestampsJson(result, params);
   const songId = crypto.randomUUID();
   const layerId = crypto.randomUUID();
   const versionId = crypto.randomUUID();
@@ -124,9 +158,9 @@ async function persistSong(
     `INSERT INTO layers (id, song_id, name, kind, position) VALUES (?, ?, 'Base', 'base', 0)`,
   ).run(layerId, songId);
   db.prepare(
-    `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed)
-     VALUES (?, ?, ?, 'first generation', ?, ?)`,
-  ).run(versionId, layerId, filename, JSON.stringify(params), result.seed_value);
+    `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, lyric_timestamps)
+     VALUES (?, ?, ?, 'first generation', ?, ?, ?)`,
+  ).run(versionId, layerId, filename, JSON.stringify(params), result.seed_value, lyricTimestamps);
 
   return songId;
 }
