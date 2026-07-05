@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS versions (
   params_json TEXT NOT NULL DEFAULT '{}',     -- full generation request for reproducibility
   seed        TEXT NOT NULL DEFAULT '',
   active      INTEGER NOT NULL DEFAULT 1,     -- exactly one active version per layer
+  lyric_timestamps TEXT,                       -- JSON: aligned lyric line timestamps, or null if unavailable
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 

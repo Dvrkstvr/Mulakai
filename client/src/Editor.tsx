@@ -6,6 +6,8 @@ import { VersionHistory } from './VersionHistory';
 import { ExportPanel } from './ExportPanel';
 import { SplitPanel } from './SplitPanel';
 import { LayerStack } from './LayerStack';
+import { SectionStrip } from './SectionStrip';
+import { groupSections } from './lyricSections';
 import { RepaintBar } from './RepaintBar';
 import { SettingsPanel } from './SettingsPanel';
 import { useSettings, repaintParams } from './settings';
@@ -76,6 +78,14 @@ export function Editor({ songId, onBack }: Props) {
   const activeVersion = focusedLayer?.versions.find((v) => v.active);
   const duration = song?.duration ?? 0;
 
+  // Section structure comes from the base layer's active render (the whole song),
+  // not the focused layer — a focused stem shares the song's section timeline.
+  const baseActive = song?.layers.find((l) => l.kind === 'base')?.versions.find((v) => v.active);
+  const sections = useMemo(
+    () => groupSections(baseActive?.lyricTimestamps, duration),
+    [baseActive, duration],
+  );
+
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const regionValid = !!selection && regionSeconds >= REPAINT_MIN_SECONDS && regionSeconds <= REPAINT_MAX_SECONDS;
 
@@ -143,6 +153,8 @@ export function Editor({ songId, onBack }: Props) {
         onRepaint={repaint}
         error={error}
       />
+
+      <SectionStrip sections={sections} selection={selection} onSelect={setSelection} />
 
       <LayerStack
         songId={songId}

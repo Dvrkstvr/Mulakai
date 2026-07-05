@@ -35,10 +35,10 @@ songsRouter.get('/:id', (req, res) => {
     .all(req.params.id) as Array<Record<string, unknown>>;
   for (const layer of layers) {
     const versions = db
-      .prepare(`SELECT id, audio_file, label, params_json, seed, active, created_at FROM versions
+      .prepare(`SELECT id, audio_file, label, params_json, seed, active, lyric_timestamps, created_at FROM versions
                 WHERE layer_id = ? ORDER BY created_at DESC`)
       .all(layer.id as string) as Array<Record<string, unknown>>;
-    layer.versions = versions.map(({ params_json, ...rest }) => {
+    layer.versions = versions.map(({ params_json, lyric_timestamps, ...rest }) => {
       const params = JSON.parse(params_json as string) as {
         prompt?: string; task_type?: string; repainting_start?: number; repainting_end?: number;
       };
@@ -48,6 +48,7 @@ songsRouter.get('/:id', (req, res) => {
         task_type: params.task_type ?? 'text2music',
         region_start: params.repainting_start ?? null,
         region_end: params.repainting_end ?? null,
+        lyricTimestamps: lyric_timestamps ? JSON.parse(lyric_timestamps as string) : null,
       };
     });
   }

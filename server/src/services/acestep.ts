@@ -174,6 +174,21 @@ export interface TaskResult {
   dit_model?: string;
 }
 
+/** One aligned lyric line: seconds-scaled start/end plus its (possibly bracket-tagged) text. */
+export interface SentenceTimestamp {
+  start: number;
+  end: number;
+  text: string;
+  confidence?: number;
+}
+
+export interface LyricTimestampResult {
+  lrc_text: string;
+  sentence_timestamps: SentenceTimestamp[];
+  success: boolean;
+  error: string | null;
+}
+
 interface Envelope<T> {
   data: T;
   code: number;
@@ -235,6 +250,43 @@ export async function queryResult(taskIds: string[]): Promise<Array<{ task_id: s
     ...r,
     result: r.result ? (JSON.parse(r.result) as TaskResult[]) : [],
   }));
+}
+
+/**
+ * Recover the raw filesystem path ACE-Step embedded in a `/v1/audio?path=...`
+ * result URL. `/lyric_timestamp` (and the artifact sidecar it reads) key off
+ * that raw path, not the download URL — `query_result` only ever exposes the
+ * URL form, so we decode it back here. Returns null if the shape is unexpected.
+ */
+export function rawPathFromAudioUrl(fileUrl: string): string | null {
+  const marker = 'path=';
+  const idx = fileUrl.indexOf(marker);
+  if (idx === -1) return null;
+  const encoded = fileUrl.slice(idx + marker.length).split('&')[0];
+  const decoded = decodeURIComponent(encoded);
+  return decoded || null;
+}
+
+/**
+ * Request section/line timestamps for a previously generated sample. Depends on
+ * the artifact sidecar ACE-Step writes next to the audio at generation time;
+ * throws `HTTP 404` when that sidecar is absent (instrumental, save-memory mode,
+ * or expired), which callers treat as "no timestamps" rather than a failure.
+ */
+export async function lyricTimestamp(params: {
+  audioPath: string;
+  duration: number;
+  vocalLanguage?: string;
+  inferenceSteps?: number;
+  model?: string;
+}): Promise<LyricTimestampResult> {
+  return call('/lyric_timestamp', {
+    audio_path: params.audioPath,
+    duration: params.duration,
+    vocal_language: params.vocalLanguage ?? 'en',
+    inference_steps: params.inferenceSteps ?? 8,
+    ...(params.model ? { model: params.model } : {}),
+  });
 }
 
 /** Download a generated audio file (result.file is a /v1/audio?path=... url). */

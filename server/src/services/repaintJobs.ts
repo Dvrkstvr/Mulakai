@@ -5,7 +5,7 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
-import { type Job, registerJob, poll, ensureModelLoaded } from './jobs.js';
+import { type Job, registerJob, poll, ensureModelLoaded, fetchLyricTimestampsJson } from './jobs.js';
 
 function fmtTime(sec: number): string {
   return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
@@ -149,15 +149,16 @@ async function persistVersion(
   activate = true,
 ): Promise<string> {
   const audio = await downloadAudio(fileUrl);
+  const lyricTimestamps = await fetchLyricTimestampsJson(result, params);
   const versionId = crypto.randomUUID();
   const filename = `${versionId}.mp3`;
   await fs.writeFile(path.join(config.audioDir, filename), audio);
 
   if (activate) db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(layerId);
   db.prepare(
-    `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, active)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-  ).run(versionId, layerId, filename, label, JSON.stringify(params), result.seed_value, activate ? 1 : 0);
+    `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, active, lyric_timestamps)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+  ).run(versionId, layerId, filename, label, JSON.stringify(params), result.seed_value, activate ? 1 : 0, lyricTimestamps);
 
   const row = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(layerId) as { song_id: string };
   return row.song_id;
