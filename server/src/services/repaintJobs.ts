@@ -30,7 +30,7 @@ export async function startRepaint(layerId: string, params: ReleaseTaskParams): 
   const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
   const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'repaint' };
   await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, { data: srcAudio, filename: row.audio_file });
+  const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: row.audio_file } });
 
   const job: Job = {
     id: crypto.randomUUID(), taskId: task_id, status: 'running',
@@ -74,7 +74,7 @@ export async function startRegenerate(versionId: string): Promise<Job> {
 
   const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
   await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, srcAudio);
+  const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
 
   const job: Job = {
     id: crypto.randomUUID(), taskId: task_id, status: 'running',
@@ -127,7 +127,7 @@ export async function startSimilarTake(versionId: string): Promise<Job> {
 
   const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
   await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, srcAudio);
+  const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
 
   const job: Job = {
     id: crypto.randomUUID(), taskId: task_id, status: 'running',

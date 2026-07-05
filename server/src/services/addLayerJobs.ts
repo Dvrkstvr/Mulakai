@@ -5,7 +5,8 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
-import { type Job, registerJob, poll, ensureModelLoaded } from './jobs.js';
+import { type Job, type VoiceOptions, registerJob, poll, ensureModelLoaded } from './jobs.js';
+import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
 
 /**
  * Add a new layer to a song via `lego`, conditioned on a pre-mixed bounce of
@@ -14,7 +15,14 @@ import { type Job, registerJob, poll, ensureModelLoaded } from './jobs.js';
  * audio off disk for this, since with multiple layers the "current mix" is
  * a client-side render, not any single layer's file.
  */
-export async function startAddLayer(songId: string, prompt: string, layerName: string, mixAudio: Buffer, params: ReleaseTaskParams): Promise<Job> {
+export async function startAddLayer(
+  songId: string,
+  prompt: string,
+  layerName: string,
+  mixAudio: Buffer,
+  params: ReleaseTaskParams,
+  voice?: VoiceOptions,
+): Promise<Job> {
   const song = db.prepare(`SELECT id FROM songs WHERE id = ?`).get(songId) as { id: string } | undefined;
   if (!song) throw new Error('unknown song');
 
@@ -26,8 +34,15 @@ export async function startAddLayer(songId: string, prompt: string, layerName: s
     repainting_start: 0,
     repainting_end: -1,
   };
+  const ref = voice?.voiceId
+    ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
+    : undefined;
+  if (ref) applyVoiceInfluence(fullParams, ref);
   await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, { data: mixAudio, filename: 'mix.wav' });
+  const { task_id } = await releaseTask(fullParams, {
+    srcAudio: { data: mixAudio, filename: 'mix.wav' },
+    ...(ref ? { referenceAudio: ref.referenceAudio } : {}),
+  });
 
   const job: Job = {
     id: crypto.randomUUID(), taskId: task_id, status: 'running',
