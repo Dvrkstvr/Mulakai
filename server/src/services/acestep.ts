@@ -74,6 +74,92 @@ export async function formatInput(params: FormatInputParams): Promise<FormatInpu
   });
 }
 
+export interface SampleResult {
+  caption: string;
+  lyrics: string;
+  bpm?: number;
+  key_scale?: string;
+  time_signature?: string;
+  duration?: number;
+  vocal_language?: string;
+}
+
+/**
+ * Calls ACE-Step's `/create_random_sample` — a random pre-loaded example for form filling.
+ * docs/en/API.md #7 documents a single unified shape, but the live server returns two very
+ * different payloads depending on `sample_type` (verified against the running instance and
+ * `examples/simple_mode|text2music/*.json`, not just the docs):
+ *   - `simple_mode`:  { description, instrumental, vocal_language } — a one-line idea only,
+ *     no lyrics/bpm/key/duration.
+ *   - `custom_mode`:  { caption, lyrics, bpm, duration, keyscale, language, timesignature } —
+ *     a full form fill, with `keyscale`/`timesignature`/`language` (no underscore, different
+ *     names) instead of `key_scale`/`time_signature`/`vocal_language`.
+ * Both are normalized to `SampleResult` here so callers see one consistent shape.
+ */
+export async function createRandomSample(sampleType: 'simple_mode' | 'custom_mode'): Promise<SampleResult> {
+  const raw = await call<{
+    description?: string;
+    instrumental?: boolean;
+    vocal_language?: string;
+    caption?: string;
+    lyrics?: string;
+    bpm?: number;
+    duration?: number;
+    keyscale?: string;
+    language?: string;
+    timesignature?: string;
+  }>('/create_random_sample', { sample_type: sampleType });
+
+  if (sampleType === 'simple_mode') {
+    return { caption: raw.description ?? '', lyrics: '', vocal_language: raw.vocal_language };
+  }
+  return {
+    caption: raw.caption ?? '',
+    lyrics: raw.lyrics ?? '',
+    bpm: raw.bpm,
+    key_scale: raw.keyscale,
+    time_signature: raw.timesignature,
+    duration: raw.duration,
+    vocal_language: raw.language,
+  };
+}
+
+/**
+ * Calls ACE-Step's `/v1/create_sample` — LM-generated caption/lyrics/metadata from a free-form
+ * query. Its response uses `keyscale`/`timesignature` (no underscore), unlike every other
+ * endpoint's `key_scale`/`time_signature` — remapped here so callers see one consistent shape.
+ */
+export async function createSampleFromQuery(params: {
+  query: string;
+  instrumental?: boolean;
+  vocalLanguage?: string;
+  temperature?: number;
+}): Promise<SampleResult> {
+  const raw = await call<{
+    caption: string;
+    lyrics: string;
+    bpm?: number;
+    keyscale?: string;
+    timesignature?: string;
+    duration?: number;
+    vocal_language?: string;
+  }>('/v1/create_sample', {
+    query: params.query,
+    instrumental: params.instrumental,
+    vocal_language: params.vocalLanguage,
+    temperature: params.temperature,
+  });
+  return {
+    caption: raw.caption,
+    lyrics: raw.lyrics,
+    bpm: raw.bpm,
+    key_scale: raw.keyscale,
+    time_signature: raw.timesignature,
+    duration: raw.duration,
+    vocal_language: raw.vocal_language,
+  };
+}
+
 export interface TaskResult {
   file: string; // /v1/audio?path=... url
   status: 0 | 1 | 2;
