@@ -84,6 +84,17 @@ export interface RefineResult {
   vocal_language?: string;
 }
 
+export interface Voice {
+  id: string;
+  name: string;
+  audio_file: string;
+  duration: number | null;
+  tags: string;
+  default_audio_influence: number;
+  default_style_influence: number;
+  created_at: string;
+}
+
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
@@ -221,4 +232,33 @@ export const api = {
 
   cancelSplit: (jobId: string): Promise<void> =>
     fetch(`/api/split/${jobId}/cancel`, { method: 'POST' }).then(() => undefined),
+
+  listVoices: (): Promise<Voice[]> => fetch('/api/voices').then((r) => json<Voice[]>(r)),
+
+  uploadVoice: (
+    name: string,
+    audio: Blob,
+    meta: { duration?: number; tags?: string } & Record<string, unknown> = {},
+  ): Promise<Voice> => {
+    const form = new FormData();
+    form.append('name', name);
+    form.append('audio', audio, 'voice.mp3');
+    for (const [k, v] of Object.entries(meta)) {
+      if (v !== undefined && v !== null) form.append(k, String(v));
+    }
+    return fetch('/api/voices', { method: 'POST', body: form }).then((r) => json<Voice>(r));
+  },
+
+  updateVoice: (
+    id: string,
+    patch: { name?: string; tags?: string; default_audio_influence?: number; default_style_influence?: number },
+  ): Promise<Voice> =>
+    fetch(`/api/voices/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(patch),
+    }).then((r) => json<Voice>(r)),
+
+  deleteVoice: (id: string): Promise<void> =>
+    fetch(`/api/voices/${id}`, { method: 'DELETE' }).then((r) => json(r)),
 };

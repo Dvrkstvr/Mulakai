@@ -213,17 +213,25 @@ async function call<T>(endpoint: string, body?: unknown, init?: RequestInit): Pr
   return json.data;
 }
 
-/** Submit a generation job. For repaint/lego, pass srcAudio to upload the source file. */
+/**
+ * Submit a generation job. `srcAudio` uploads the source file for
+ * repaint/cover/lego; `referenceAudio` uploads a saved voice clip for
+ * reference-audio style-transfer conditioning (distinct ACE-Step fields,
+ * both may be present at once).
+ */
 export async function releaseTask(
   params: ReleaseTaskParams,
-  srcAudio?: { data: Buffer; filename: string },
+  files?: { srcAudio?: { data: Buffer; filename: string }; referenceAudio?: { data: Buffer; filename: string } },
 ): Promise<{ task_id: string }> {
-  if (!srcAudio) return call('/release_task', params);
+  if (!files?.srcAudio && !files?.referenceAudio) return call('/release_task', params);
   const form = new FormData();
   for (const [k, v] of Object.entries(params)) {
     if (v !== undefined && v !== null) form.append(k, String(v));
   }
-  form.append('src_audio', new Blob([new Uint8Array(srcAudio.data)]), srcAudio.filename);
+  if (files.srcAudio) form.append('src_audio', new Blob([new Uint8Array(files.srcAudio.data)]), files.srcAudio.filename);
+  if (files.referenceAudio) {
+    form.append('reference_audio', new Blob([new Uint8Array(files.referenceAudio.data)]), files.referenceAudio.filename);
+  }
   return call('/release_task', undefined, { method: 'POST', body: form });
 }
 

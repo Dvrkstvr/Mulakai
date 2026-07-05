@@ -25,9 +25,13 @@ function pickParams(body: Record<string, unknown>): ReleaseTaskParams {
 }
 
 generateRouter.post('/', async (req, res) => {
-  const { title = 'Untitled' } = req.body ?? {};
+  const { title = 'Untitled', voiceId, audio_influence, style_influence } = req.body ?? {};
   try {
-    const job = await startGeneration(pickParams(req.body ?? {}), title);
+    const job = await startGeneration(pickParams(req.body ?? {}), title, {
+      voiceId: voiceId ? String(voiceId) : undefined,
+      audioInfluence: audio_influence !== undefined ? Number(audio_influence) : undefined,
+      styleInfluence: style_influence !== undefined ? Number(style_influence) : undefined,
+    });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });

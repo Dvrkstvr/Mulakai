@@ -99,7 +99,7 @@ async function runAcestepStem(job: SplitJob, kind: StemKind, src: SourceAudio): 
       use_random_seed: true,
     };
     await ensureModelLoaded(params);
-    const { task_id } = await releaseTask(params, src);
+    const { task_id } = await releaseTask(params, { srcAudio: src });
     await pollStem(job.id, stem, task_id);
   } catch (err) {
     if (!jobs.has(job.id)) return; // cancelled

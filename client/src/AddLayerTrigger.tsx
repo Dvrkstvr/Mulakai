@@ -4,6 +4,8 @@ import { useSettings, addLayerParams } from './settings';
 import { activeLayers } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
+import { VoicePicker } from './VoicePicker';
+import { useVoiceStore, voiceParams } from './voiceStore';
 
 interface Props {
   songId: string;
@@ -22,6 +24,7 @@ interface Props {
  */
 export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: Props) {
   const { addLayer, setAddLayer, repaint } = useSettings();
+  const voice = useVoiceStore();
   const [legoModels, setLegoModels] = useState<string[] | null>(null);
   const [prompt, setPrompt] = useState('');
   const [job, setJob] = useState<'idle' | 'running'>('idle');
@@ -67,6 +70,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
         prompt,
         layerName,
         ...addLayerParams(addLayer, repaint),
+        ...voiceParams(voice),
       });
       for (;;) {
         await new Promise((r) => setTimeout(r, 2000));
@@ -105,6 +109,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
               disabled={job === 'running'}
               onChange={(e) => setPrompt(e.target.value)}
             />
+            <VoicePicker />
             <span className="meta">
               STEPS {repaint.inferenceSteps > 0 ? repaint.inferenceSteps : 'AUTO'}
               {' · '}
