@@ -135,7 +135,9 @@ history marker.
 Single-page app with exactly three top-level states. No nested pages, no
 stacked modals.
 
-1. **Library** (home) — no side panel; the full width is browsing surface.
+1. **Library** (home) — full width is browsing surface; a right-hand detail
+   rail opens only once a song is selected (see below), it does not reserve
+   space up front.
    - Header: brand + ACE-Step status only. No search, no form — kept clean
      since neither acts on the header itself.
    - **Create bar**: one slim row below the header — a single "what do you
@@ -153,6 +155,21 @@ stacked modals.
      themselves never stretch. Favorites card row pinned top and rust trash
      strip docked bottom are future work, same anatomy as list cards.
      Global error toasts (rust) appear in the header row.
+   - **Song detail rail**: clicking a card's title (not `EDIT`) selects that
+     song — sky border + `sky-tint` background on the card, same idiom as
+     the Editor's focused layer — and opens a persistent right-hand rail
+     (carbon-panel surface, 1px border, ~300px, same anatomy as Editor's
+     version rail / Create's refine rail). `EDIT` still opens the full
+     Editor directly and is unaffected by selection. The card grid's
+     `auto-fill` columns reflow narrower automatically once the rail claims
+     width — no separate narrow-layout rule needed, same trick as Create's
+     `with-rail` column. The rail shows the song's caption, a METADATA block
+     (BPM/KEY-SCALE/TIME SIGNATURE/DURATION, same labels as Create's SONG
+     DETAILS), and LYRICS, plus two quick actions: **REUSE PROMPT** (acid-
+     filled, the one primary commit action) opens Create prefilled with this
+     song's prompt/lyrics/metadata; **CREATE COVER FROM AUDIO** (acid-
+     outline, sibling per the one-filled-acid-CTA rule) opens Create's Audio
+     → From Library path with this song preselected.
 2. **Create** — its own takeover screen, reached from Library's create bar.
    Header stays back/brand/status only (same as Editor's — the header is a
    single persistent element and doesn't carry per-screen content); a
@@ -182,14 +199,18 @@ stacked modals.
      fixed-width **right version-history rail** flank a fluid center column
      (timeline, layer stack, transport, prompt bar). The center column is the
      only element that grows or shrinks with the viewport — the app has no
-     `max-width` cap on this screen (unlike Library's centered list). Extra
+     `max-width` cap on any screen, Library included (its card grid's
+     `auto-fill` columns are what absorb the extra width instead). Extra
      width on wider screens is never wasted whitespace: it becomes more
      visible timeline per lane (denser, more legible waveform) and the
      version rail gets a little more room per card (params, not just a
      name), while the side panels stay put — control/version cards have a
-     natural comfortable size and gain nothing from stretching. Extra
-     *height* (e.g. a taller landscape screen) simply fits more lanes before
-     the stack scrolls; no separate layout branch needed.
+     natural comfortable size and gain nothing from stretching. None of the
+     three columns stretch to fill the viewport's *height* either — each
+     sizes to its own content (settings controls, title/repaint bar/layer
+     list, version history), so a short layer list or history list never
+     leaves a dead gap under a tall bordered card. The layer list caps at
+     `55vh` and scrolls internally past that instead of growing the page.
    - Header (full width, persistent across all three screens): back-to-
      library, brand wordmark, ACE-STEP status pill only. Song title, time/
      bpm/key metadata, and EXPORT live in the center column and right rail

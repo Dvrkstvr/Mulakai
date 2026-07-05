@@ -114,10 +114,13 @@ export async function fetchLyricTimestampsJson(
   result: TaskResult,
   params: ReleaseTaskParams,
 ): Promise<string | null> {
-  const audioPath = rawPathFromAudioUrl(result.file);
-  const duration = result.metas.duration ?? params.audio_duration;
-  if (!audioPath || !duration || duration <= 0) return null;
+  // Everything is inside the try: this is best-effort and must never throw into
+  // the surrounding generation — a 404 (no sidecar), instrumental track, or any
+  // other error just means "no timestamps".
   try {
+    const audioPath = rawPathFromAudioUrl(result.file);
+    const duration = result.metas.duration ?? params.audio_duration;
+    if (!audioPath || !duration || duration <= 0) return null;
     const aligned = await lyricTimestamp({
       audioPath,
       duration,
@@ -128,7 +131,7 @@ export async function fetchLyricTimestampsJson(
     if (!aligned.success || aligned.sentence_timestamps.length === 0) return null;
     return JSON.stringify(aligned.sentence_timestamps);
   } catch {
-    return null; // 404 (no sidecar) or transport error — no timestamps, not a failure.
+    return null;
   }
 }
 

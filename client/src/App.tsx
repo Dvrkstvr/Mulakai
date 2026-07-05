@@ -4,19 +4,23 @@ import { Editor } from './Editor';
 import { Player } from './Player';
 import { CreateBar } from './CreateBar';
 import { CreateView } from './CreateView';
+import { SongDetailRail } from './SongDetailRail';
+import { promptDraft, reusePromptDraft, createCoverDraft, type CreateDraft } from './createDraft';
 import { LibraryToolbar, type LibraryFilter, type LibrarySort } from './LibraryToolbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSingleAudioPlayback } from './useSingleAudioPlayback';
 import { Header } from './Header';
 import { HeaderSlotContext } from './HeaderSlot';
 import { MaterializeSweep } from './MaterializeSweep';
+import { ScrollArea } from './ScrollArea';
 
 type View = 'library' | 'create';
 
 export default function App() {
   const [view, setView] = useState<View>('library');
-  const [createDraft, setCreateDraft] = useState('');
+  const [createDraft, setCreateDraft] = useState<CreateDraft>({});
   const [openSongId, setOpenSongId] = useState<string | null>(null);
+  const [detailSongId, setDetailSongId] = useState<string | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<LibrarySort>('newest');
@@ -49,7 +53,19 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openSongId, view]);
 
-  const play = (s: Song) => setPlaying(s);
+  // Quick-preview from the library: re-clicking the row that's already loaded toggles
+  // play/pause on the existing footer engine instead of restarting it from a new src.
+  const togglePlay = (s: Song) => {
+    if (playing?.id === s.id) {
+      if (footerEngine.isPlaying) footerEngine.pause(); else footerEngine.play();
+    } else {
+      setPlaying(s);
+    }
+  };
+
+  const openEditor = (id: string) => { setDetailSongId(null); setOpenSongId(id); };
+  const reusePrompt = (s: Song) => { setCreateDraft(reusePromptDraft(s)); setDetailSongId(null); setView('create'); };
+  const createCover = (s: Song) => { setCreateDraft(createCoverDraft(s)); setDetailSongId(null); setView('create'); };
 
   const visibleSongs = useMemo(() => {
     let list = filter === 'favorites' ? songs.filter((s) => s.favorite) : songs;
@@ -78,14 +94,14 @@ export default function App() {
             <MaterializeSweep />
             <CreateView
               songs={songs}
-              initialPrompt={createDraft}
+              initialDraft={createDraft}
               onBack={() => setView('library')}
               onCreated={() => { refresh(); setView('library'); }}
             />
           </motion.div>
         ) : (
-          <motion.div key="library" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
-            <CreateBar onCreate={(draftPrompt) => { setCreateDraft(draftPrompt); setView('create'); }} />
+          <motion.div className="view-fill" key="library" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
+            <CreateBar onCreate={(draftPrompt) => { setCreateDraft(promptDraft(draftPrompt)); setView('create'); }} />
 
             <LibraryToolbar
               query={query}
@@ -96,29 +112,44 @@ export default function App() {
               onFilter={setFilter}
             />
 
-            <section className="library">
-              {visibleSongs.map((s, i) => (
-                <motion.div
-                  key={s.id}
-                  className="row"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.15, delay: Math.min(i * 0.05, 0.5) }}
-                >
-                  <button onClick={() => play(s)}>▶</button>
-                  <div className="row-main">
-                    <span className="song-title link" onClick={() => setOpenSongId(s.id)}>{s.title}</span>
-                    <span className="meta">{s.caption}</span>
-                  </div>
-                  <div className="row-actions">
-                    <button className="edit-btn" onClick={() => setOpenSongId(s.id)}><span>EDIT</span></button>
-                    <button className={s.favorite ? 'fav on' : 'fav'} onClick={() => api.setFavorite(s.id, !s.favorite).then(() => refresh())}>♥</button>
-                    <button onClick={() => api.trash(s.id).then(() => refresh())}>✕</button>
-                  </div>
-                </motion.div>
-              ))}
-              {visibleSongs.length === 0 && <div className="empty">No songs yet — generate your first one above.</div>}
-            </section>
+            <ScrollArea className="library-layout">
+              <section className="library">
+                {visibleSongs.map((s, i) => (
+                  <motion.div
+                    key={s.id}
+                    className={s.id === detailSongId ? 'row selected' : 'row'}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.15, delay: Math.min(i * 0.05, 0.5) }}
+                  >
+                    <button onClick={() => togglePlay(s)} aria-label={playing?.id === s.id && footerEngine.isPlaying ? 'Pause' : 'Play'}>
+                      {playing?.id === s.id && footerEngine.isPlaying ? '⏸' : '▶'}
+                    </button>
+                    <div className="row-main">
+                      <span className="song-title link" onClick={() => setDetailSongId(s.id)}>{s.title}</span>
+                      <span className="meta">{s.caption}</span>
+                    </div>
+                    <div className="row-actions">
+                      <button className="edit-btn" onClick={() => openEditor(s.id)}><span>EDIT</span></button>
+                      <button className={s.favorite ? 'fav on' : 'fav'} onClick={() => api.setFavorite(s.id, !s.favorite).then(() => refresh())}>♥</button>
+                      <button onClick={() => api.trash(s.id).then(() => refresh())}>✕</button>
+                    </div>
+                  </motion.div>
+                ))}
+                {visibleSongs.length === 0 && <div className="empty">No songs yet — generate your first one above.</div>}
+              </section>
+              {detailSongId && (() => {
+                const detailSong = songs.find((s) => s.id === detailSongId);
+                return detailSong ? (
+                  <SongDetailRail
+                    song={detailSong}
+                    onClose={() => setDetailSongId(null)}
+                    onReusePrompt={reusePrompt}
+                    onCreateCover={createCover}
+                  />
+                ) : null;
+              })()}
+            </ScrollArea>
           </motion.div>
         )}
       </AnimatePresence>

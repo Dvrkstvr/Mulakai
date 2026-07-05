@@ -9,6 +9,8 @@ interface Props {
   songId: string;
   layers: Layer[];
   onDone: () => Promise<void>;
+  /** Notifies LayerStack so it can show a matching ghost lane while the job is in flight. */
+  onGeneratingChange?: (generating: boolean) => void;
 }
 
 /**
@@ -18,7 +20,7 @@ interface Props {
  * 'lego' (Base model only, per docs/ace-step-1.5/API.md#4.2); shows a
  * disabled explanation otherwise.
  */
-export function AddLayerTrigger({ songId, layers, onDone }: Props) {
+export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: Props) {
   const { addLayer, setAddLayer, repaint } = useSettings();
   const [legoModels, setLegoModels] = useState<string[] | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -35,6 +37,8 @@ export function AddLayerTrigger({ songId, layers, onDone }: Props) {
       .catch(() => setLegoModels([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => { onGeneratingChange?.(job === 'running'); }, [job, onGeneratingChange]);
 
   const gated = legoModels !== null && legoModels.length === 0;
   const canSubmit = !gated && prompt.trim().length > 0 && job === 'idle';
@@ -80,11 +84,11 @@ export function AddLayerTrigger({ songId, layers, onDone }: Props) {
   };
 
   return (
-    <section className="layer-add-row">
+    <section className={job === 'running' ? 'layer-add-row generating' : 'layer-add-row'}>
       <div className="layer-add-compact">
         <span className="plus">+</span>
         <span>ADD LAYER</span>
-        <span className="hint">hover to expand</span>
+        <span className="hint">{job === 'running' ? 'generating…' : 'hover to expand'}</span>
       </div>
       <div className="layer-add-expand">
         {legoModels === null ? (
@@ -98,6 +102,7 @@ export function AddLayerTrigger({ songId, layers, onDone }: Props) {
             <input
               placeholder="Describe what to add (e.g. punchy drums and a walking bassline)"
               value={prompt}
+              disabled={job === 'running'}
               onChange={(e) => setPrompt(e.target.value)}
             />
             <span className="meta">

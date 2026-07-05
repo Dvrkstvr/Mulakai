@@ -143,6 +143,17 @@ export function Editor({ songId, onBack }: Props) {
         </span>
       </div>
 
+      <RepaintBar
+        layerName={focusedLayer?.name ?? 'base'}
+        nextVersion={(focusedLayer?.versions.length ?? 0) + 1}
+        selection={selection}
+        prompt={prompt}
+        onPromptChange={setPrompt}
+        job={job}
+        onRepaint={repaint}
+        error={error}
+      />
+
       <SectionStrip sections={sections} selection={selection} onSelect={setSelection} />
 
       <LayerStack
@@ -170,17 +181,6 @@ export function Editor({ songId, onBack }: Props) {
           />
         </div>
       )}
-
-      <RepaintBar
-        layerName={focusedLayer?.name ?? 'base'}
-        nextVersion={(focusedLayer?.versions.length ?? 0) + 1}
-        selection={selection}
-        prompt={prompt}
-        onPromptChange={setPrompt}
-        job={job}
-        onRepaint={repaint}
-        error={error}
-      />
         </div>
         {focusedLayer && (
           <div className="rail">

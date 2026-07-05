@@ -86,6 +86,59 @@ export async function startRegenerate(versionId: string): Promise<Job> {
   return job;
 }
 
+/**
+ * "Similar take" variance: subtle by default, per ACE-Step's own slider guidance
+ * (0=baseline; 0.05-0.15 subtle; 0.5+ strong) — a fixed default for v1, no UI control yet.
+ */
+const DEFAULT_RETAKE_VARIANCE = 0.1;
+
+/**
+ * Generate a variance-preserving variation of a past version: anchors on its stored
+ * seed via retake_seed/retake_variance instead of an independent random regenerate.
+ * Same source-audio and label conventions as startRegenerate; appended to history,
+ * not activated.
+ */
+export async function startSimilarTake(versionId: string): Promise<Job> {
+  const version = db
+    .prepare(`SELECT layer_id, params_json, label, seed FROM versions WHERE id = ?`)
+    .get(versionId) as { layer_id: string; params_json: string; label: string; seed: string } | undefined;
+  if (!version) throw new Error('unknown version');
+
+  const stored = JSON.parse(version.params_json) as ReleaseTaskParams;
+  const taskType = stored.task_type ?? 'text2music';
+  const { seed: _seed, ...rest } = stored;
+  const freshParams: ReleaseTaskParams = {
+    ...rest,
+    use_random_seed: true,
+    retake_seed: version.seed,
+    retake_variance: DEFAULT_RETAKE_VARIANCE,
+  };
+
+  const layerRow = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(version.layer_id) as { song_id: string };
+
+  let srcAudio: { data: Buffer; filename: string } | undefined;
+  if (taskType === 'repaint') {
+    const active = db
+      .prepare(`SELECT audio_file FROM versions WHERE layer_id = ? AND active = 1`)
+      .get(version.layer_id) as { audio_file: string } | undefined;
+    if (!active) throw new Error('unknown version');
+    srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
+  }
+
+  const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
+  await ensureModelLoaded(fullParams);
+  const { task_id } = await releaseTask(fullParams, srcAudio);
+
+  const job: Job = {
+    id: crypto.randomUUID(), taskId: task_id, status: 'running',
+    songId: layerRow.song_id, createdAt: Date.now(),
+  };
+  registerJob(job);
+  const label = taskType === 'repaint' ? repaintLabel('similar', freshParams) : `similar: ${version.label || 'generation'}`;
+  void poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false));
+  return job;
+}
+
 /** Store a repaint/regenerate result as a version. `activate` (default true) makes it the layer's current version. */
 async function persistVersion(
   layerId: string,

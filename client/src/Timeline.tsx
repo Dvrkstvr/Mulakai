@@ -60,6 +60,12 @@ export function Timeline({ duration, playhead, onSeek }: Props) {
             <span>{fmt(t)}</span>
           </div>
         ))}
+        {/* Diamond thumb lives on the sticky timeline itself (not the cross-lane
+            .stack-playhead overlay) so it always renders in front of the timeline's
+            own opaque background instead of getting hidden behind it. */}
+        {duration > 0 && (
+          <div className="timeline-playhead-diamond" style={{ left: `${playheadPct}%` }} />
+        )}
       </div>
     </div>
   );
