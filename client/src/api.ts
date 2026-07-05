@@ -24,6 +24,14 @@ export interface ModelInventory {
   defaultModel: string | null;
 }
 
+/** One aligned lyric line for this render: seconds-scaled start/end plus its (possibly bracket-tagged) text. */
+export interface LyricLine {
+  start: number;
+  end: number;
+  text: string;
+  confidence?: number;
+}
+
 export interface Version {
   id: string;
   audio_file: string;
@@ -35,6 +43,7 @@ export interface Version {
   task_type: string;
   region_start: number | null;
   region_end: number | null;
+  lyricTimestamps: LyricLine[] | null;
 }
 
 export interface Layer {
