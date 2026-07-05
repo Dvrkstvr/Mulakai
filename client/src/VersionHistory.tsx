@@ -18,7 +18,7 @@ interface Props {
 /** Per-layer version list: revert, delete (2-step confirm), regenerate as an untracked alternate. */
 export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRevert, onChanged }: Props) {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [busy, setBusy] = useState<string | null>(null);
+  const [busy, setBusy] = useState<{ id: string; action: 'alt' | 'similar' } | null>(null);
   const [error, setError] = useState('');
   const [showAll, setShowAll] = useState(false);
 
@@ -35,7 +35,7 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
   };
 
   const regenerate = async (id: string) => {
-    setBusy(id);
+    setBusy({ id, action: 'alt' });
     setError('');
     try {
       const { jobId } = await api.regenerateVersion(id);
@@ -44,6 +44,25 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
         const s = await api.jobStatus(jobId);
         if (s.status === 'done') break;
         if (s.status === 'failed') throw new Error(s.error ?? 'regenerate failed');
+      }
+      await onChanged();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const retake = async (id: string) => {
+    setBusy({ id, action: 'similar' });
+    setError('');
+    try {
+      const { jobId } = await api.retakeVersion(id);
+      for (;;) {
+        await new Promise((r) => setTimeout(r, 2000));
+        const s = await api.jobStatus(jobId);
+        if (s.status === 'done') break;
+        if (s.status === 'failed') throw new Error(s.error ?? 'similar take failed');
       }
       await onChanged();
     } catch (err) {
@@ -99,8 +118,12 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
                     <span>SEL</span>
                   </button>
                 )}
-                <button onClick={() => regenerate(v.id)} disabled={busy === v.id} title="regenerate as an alternate version">
-                  <span>{busy === v.id ? '…' : 'ALT'}</span>
+                <button onClick={() => regenerate(v.id)} disabled={busy?.id === v.id} title="regenerate as an alternate version">
+                  <span>{busy?.id === v.id && busy.action === 'alt' ? '…' : 'ALT'}</span>
+                </button>
+                <button onClick={() => retake(v.id)} disabled={busy?.id === v.id}
+                  title="generate a similar take from this version's seed, appended to history">
+                  <span>{busy?.id === v.id && busy.action === 'similar' ? '…' : 'SIMILAR'}</span>
                 </button>
                 <button
                   className={confirmDelete === v.id ? 'confirm-delete' : 'delete'}

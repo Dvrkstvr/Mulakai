@@ -152,6 +152,9 @@ export const api = {
   regenerateVersion: (versionId: string): Promise<{ jobId: string }> =>
     fetch(`/api/layers/versions/${versionId}/regenerate`, { method: 'POST' }).then((r) => json<{ jobId: string }>(r)),
 
+  retakeVersion: (versionId: string): Promise<{ jobId: string }> =>
+    fetch(`/api/layers/versions/${versionId}/retake`, { method: 'POST' }).then((r) => json<{ jobId: string }>(r)),
+
   addLayer: (
     songId: string,
     mixAudio: Blob,

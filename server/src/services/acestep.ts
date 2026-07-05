@@ -29,6 +29,10 @@ export interface ReleaseTaskParams {
   repainting_end?: number;
   audio_cover_strength?: number;
   audio_format?: string;
+  /** Anchor seed for variance-preserving noise mixing; only consumed when retake_variance > 0. */
+  retake_seed?: string;
+  /** 0 = no-op (default); 0.05-0.15 subtle variation; 0.5+ strong departure. */
+  retake_variance?: number;
 }
 
 export interface FormatInputParams {
