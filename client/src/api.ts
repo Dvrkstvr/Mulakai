@@ -103,6 +103,20 @@ export const api = {
       body: JSON.stringify(params),
     }).then((r) => json<RefineResult>(r)),
 
+  randomSample: (sampleType: 'simple_mode' | 'custom_mode' = 'custom_mode'): Promise<RefineResult> =>
+    fetch('/api/generate/random-sample', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sample_type: sampleType }),
+    }).then((r) => json<RefineResult>(r)),
+
+  sampleFromQuery: (query: string): Promise<RefineResult> =>
+    fetch('/api/generate/sample-from-query', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query }),
+    }).then((r) => json<RefineResult>(r)),
+
   jobStatus: (jobId: string): Promise<{ status: 'loading' | 'running' | 'done' | 'failed'; songId?: string; error?: string }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),
 
