@@ -48,6 +48,13 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
   const [refining, setRefining] = useState(false);
   const [refinePreview, setRefinePreview] = useState<RefineResult | null>(null);
   const [refineError, setRefineError] = useState('');
+  const [luckyLoading, setLuckyLoading] = useState(false);
+  const [luckyConfirm, setLuckyConfirm] = useState(false);
+  const [luckyError, setLuckyError] = useState('');
+  const [queryText, setQueryText] = useState('');
+  const [queryLoading, setQueryLoading] = useState(false);
+  const [queryConfirm, setQueryConfirm] = useState(false);
+  const [queryError, setQueryError] = useState('');
 
   const metaParams = () => ({
     ...(bpm > 0 ? { bpm } : {}),
@@ -91,6 +98,47 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
   const closeRefine = () => {
     setRefinePreview(null);
     setRefineError('');
+  };
+
+  const hasDraftContent = !!(prompt || lyrics || bpm || keyScale || timeSignature || vocalLanguage || duration);
+
+  const applySample = (r: RefineResult) => {
+    setPrompt(r.caption);
+    setLyrics(r.lyrics);
+    if (r.bpm) setBpm(r.bpm);
+    if (r.key_scale) setKeyScale(r.key_scale);
+    if (r.time_signature) setTimeSignature(r.time_signature);
+    if (r.vocal_language) setVocalLanguage(r.vocal_language);
+    if (r.duration) setDuration(r.duration);
+  };
+
+  const feelingLucky = async () => {
+    if (hasDraftContent && !luckyConfirm) { setLuckyConfirm(true); return; }
+    setLuckyConfirm(false);
+    setLuckyError('');
+    setLuckyLoading(true);
+    try {
+      applySample(await api.randomSample());
+    } catch (err) {
+      setLuckyError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLuckyLoading(false);
+    }
+  };
+
+  const runQuery = async () => {
+    if (!queryText) return;
+    if (hasDraftContent && !queryConfirm) { setQueryConfirm(true); return; }
+    setQueryConfirm(false);
+    setQueryError('');
+    setQueryLoading(true);
+    try {
+      applySample(await api.sampleFromQuery(queryText));
+    } catch (err) {
+      setQueryError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setQueryLoading(false);
+    }
   };
 
   const visibleLibrary = songs.filter((s) => s.title.toLowerCase().includes(librarySearch.toLowerCase()));
@@ -155,6 +203,28 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
           )}
 
           {genType === 'prompt' && (
+            <>
+              <div className="section-label">QUICK START</div>
+              <div className="query-row">
+                <input
+                  placeholder="Describe your song — e.g. sad indie rock ballad with reverb"
+                  value={queryText}
+                  onChange={(e) => { setQueryText(e.target.value); setQueryConfirm(false); }}
+                />
+                <button
+                  className={queryLoading ? 'lucky-btn loading' : 'lucky-btn'}
+                  disabled={!queryText || queryLoading}
+                  onClick={runQuery}
+                >
+                  {queryLoading ? 'GENERATING…' : queryConfirm ? 'OVERWRITE? CONFIRM' : 'GENERATE DETAILS'}
+                </button>
+              </div>
+              {queryConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}
+              {queryError && <div className="error">{queryError} <button onClick={runQuery}>RETRY</button></div>}
+            </>
+          )}
+
+          {genType === 'prompt' && (
             <div className="field-label-row">
               <span className="section-label">PROMPT</span>
               {gen.useFormat && <AiEnhanceBadge />}
@@ -208,27 +278,40 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
             </>
           )}
 
-          <motion.button
-            className="acid"
-            animate={job === 'running' ? {
-              skewX: 0, backgroundColor: 'transparent', color: '#D4FF00',
-            } : {
-              skewX: -10, backgroundColor: '#D4FF00', color: '#1C1D21',
-            }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            style={{ position: 'relative', overflow: 'hidden' }}
-            disabled={genType === 'audio' || job === 'running' || !prompt}
-            onClick={generate}
-          >
-            {job === 'running' ? (
-              <>
-                <AIGeneratingBackground />
-                <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                  {stage === 'loading' ? 'LOADING MODEL…' : 'GENERATING…'}
-                </span>
-              </>
-            ) : genType === 'audio' ? 'AUDIO GENERATION — COMING SOON' : 'GENERATE'}
-          </motion.button>
+          <div className="generate-row">
+            {genType === 'prompt' && (
+              <button
+                className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'}
+                disabled={luckyLoading || job === 'running'}
+                onClick={feelingLucky}
+              >
+                {luckyLoading ? 'ROLLING…' : luckyConfirm ? 'OVERWRITE? CONFIRM' : 'FEELING LUCKY'}
+              </button>
+            )}
+            <motion.button
+              className="acid"
+              animate={job === 'running' ? {
+                skewX: 0, backgroundColor: 'transparent', color: '#D4FF00',
+              } : {
+                skewX: -10, backgroundColor: '#D4FF00', color: '#1C1D21',
+              }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              style={{ position: 'relative', overflow: 'hidden' }}
+              disabled={genType === 'audio' || job === 'running' || !prompt}
+              onClick={generate}
+            >
+              {job === 'running' ? (
+                <>
+                  <AIGeneratingBackground />
+                  <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                    {stage === 'loading' ? 'LOADING MODEL…' : 'GENERATING…'}
+                  </span>
+                </>
+              ) : genType === 'audio' ? 'AUDIO GENERATION — COMING SOON' : 'GENERATE'}
+            </motion.button>
+          </div>
+          {luckyConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}
+          {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
           {genType === 'audio' && (
             <div className="hint">Cover generation from an uploaded or library source isn't wired to the backend yet — scoped as a follow-up.</div>
           )}

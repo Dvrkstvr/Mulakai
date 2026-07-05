@@ -1450,6 +1450,54 @@ footer .player {
   font-size: 10px;
 }
 
+.query-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.query-row input {
+  flex: 1;
+}
+
+.generate-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
+.generate-row .acid {
+  flex: 1;
+}
+
+/* AI-assisted random/query actions — lilac per docs/design/DESIGN.md's
+   versions/history/AI-marker semantic (shared with .ai-badge's shimmer). */
+.lucky-btn {
+  background: transparent;
+  border: 1px solid var(--lilac-text);
+  color: var(--lilac-text);
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.lucky-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.lucky-btn.loading {
+  color: var(--carbon);
+  border-color: transparent;
+  background: linear-gradient(90deg, var(--acid), var(--sky), var(--lilac), var(--acid));
+  background-size: 300% 100%;
+  animation: ai-shimmer 3s linear infinite;
+}
+
 /* right rail — version history in Editor, refine preview in Create */
 .rail {
   position: sticky;

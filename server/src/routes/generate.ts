@@ -1,6 +1,13 @@
 import { Router } from 'express';
 import { startGeneration, getJob } from '../services/jobs.js';
-import { health, listModels, formatInput, type ReleaseTaskParams } from '../services/acestep.js';
+import {
+  health,
+  listModels,
+  formatInput,
+  createRandomSample,
+  createSampleFromQuery,
+  type ReleaseTaskParams,
+} from '../services/acestep.js';
 
 export const generateRouter = Router();
 
@@ -30,6 +37,27 @@ generateRouter.post('/', async (req, res) => {
 generateRouter.post('/format', async (req, res) => {
   try {
     res.json(await formatInput(req.body ?? {}));
+  } catch (err) {
+    res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
+  }
+});
+
+generateRouter.post('/random-sample', async (req, res) => {
+  const sampleType = req.body?.sample_type === 'custom_mode' ? 'custom_mode' : 'simple_mode';
+  try {
+    res.json(await createRandomSample(sampleType));
+  } catch (err) {
+    res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
+  }
+});
+
+generateRouter.post('/sample-from-query', async (req, res) => {
+  const query = req.body?.query;
+  if (typeof query !== 'string' || !query.trim()) {
+    return res.status(400).json({ error: 'query is required' });
+  }
+  try {
+    res.json(await createSampleFromQuery({ query, vocalLanguage: req.body?.vocal_language }));
   } catch (err) {
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
   }
