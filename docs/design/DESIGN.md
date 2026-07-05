@@ -252,8 +252,9 @@ stacked modals.
      down to the two controls that are genuinely transport, not duplicated
      elsewhere. The Library footer player keeps the full control set (time,
      volume, download) — `minimal` is Editor-only.
-   - Section strip: parallelogram segments (Intro/Verse/…), click = select
-     that section; active = sky. (future work)
+   - Section strip: parallelogram segments (Intro/Verse/…) derived from
+     lyric-aligned timestamps, flex-weighted by section length; click = select
+     that section as the region; active (selected) = sky.
    - Prompt bar: sky scope chip mirroring current selection, free-text
      instruction, acid REPAINT REGION action.
    - **Right rail** (~260–320px, carbon-panel surface, 1px border): persistent,
