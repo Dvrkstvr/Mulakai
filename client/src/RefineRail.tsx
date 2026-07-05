@@ -1,5 +1,6 @@
 import type { RefineResult } from './api';
 import { KNOWN_TIME_SIGNATURES, KNOWN_VOCAL_LANGUAGES, timeSignatureLabel, vocalLanguageLabel } from './songMeta';
+import { ScrollArea } from './ScrollArea';
 
 interface SongFields {
   prompt: string;
@@ -55,6 +56,7 @@ export function RefineRail({ refining, preview, error, current, onRefine, onClos
           <button className="rail-close" onClick={onClose}>&times;</button>
         </div>
 
+        <ScrollArea className="refine-rail-body">
         {refining && <div className="lm-note">Refining prompt &amp; lyrics with the LM…</div>}
         {error && <div className="error">{error} <button onClick={onRefine}>RETRY</button></div>}
 
@@ -113,6 +115,7 @@ export function RefineRail({ refining, preview, error, current, onRefine, onClos
             )}
           </>
         )}
+        </ScrollArea>
       </div>
     </aside>
   );

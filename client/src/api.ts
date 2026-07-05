@@ -5,6 +5,7 @@ export interface Song {
   lyrics: string;
   bpm: number | null;
   key_scale: string;
+  time_signature: string;
   duration: number | null;
   favorite: 0 | 1;
   audio_file: string | null;

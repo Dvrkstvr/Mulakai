@@ -10,9 +10,7 @@ import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { useHeaderSlot } from './HeaderSlot';
 import { ScrollArea } from './ScrollArea';
-
-type GenType = 'prompt' | 'audio';
-type Source = 'upload' | 'library';
+import type { CreateDraft } from './createDraft';
 
 /** Small pill mirroring SettingsPanel's `.toggle-ai` shimmer, so a field visibly
  * carries the same AI ENHANCE treatment whether it's a toggle or a plain field. */
@@ -22,26 +20,28 @@ function AiEnhanceBadge() {
 
 interface Props {
   songs: Song[];
-  initialPrompt: string;
+  initialDraft: CreateDraft;
   onBack: () => void;
   onCreated: () => void;
 }
 
-/** Dedicated Create takeover — reached from the Library create bar, per docs/design/DESIGN.md. */
-export function CreateView({ songs, initialPrompt, onBack, onCreated }: Props) {
+/** Dedicated Create takeover — reached from the Library create bar or the Library
+ * detail rail's REUSE PROMPT / CREATE COVER FROM AUDIO actions (`initialDraft`),
+ * per docs/design/DESIGN.md. */
+export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
   const gen = useSettings((s) => s.gen);
-  const [genType, setGenType] = useState<GenType>('prompt');
-  const [source, setSource] = useState<Source>('upload');
+  const [genType, setGenType] = useState(initialDraft.genType ?? 'prompt');
+  const [source, setSource] = useState(initialDraft.source ?? 'upload');
   const [librarySearch, setLibrarySearch] = useState('');
-  const [selectedSongId, setSelectedSongId] = useState<string | null>(null);
+  const [selectedSongId, setSelectedSongId] = useState<string | null>(initialDraft.selectedSongId ?? null);
   const [title, setTitle] = useState('');
-  const [prompt, setPrompt] = useState(initialPrompt);
-  const [lyrics, setLyrics] = useState('');
-  const [bpm, setBpm] = useState(0); // 0 = AUTO
-  const [keyScale, setKeyScale] = useState(''); // '' = AUTO
-  const [timeSignature, setTimeSignature] = useState(''); // '' = AUTO
+  const [prompt, setPrompt] = useState(initialDraft.prompt ?? '');
+  const [lyrics, setLyrics] = useState(initialDraft.lyrics ?? '');
+  const [bpm, setBpm] = useState(initialDraft.bpm ?? 0); // 0 = AUTO
+  const [keyScale, setKeyScale] = useState(initialDraft.keyScale ?? ''); // '' = AUTO
+  const [timeSignature, setTimeSignature] = useState(initialDraft.timeSignature ?? ''); // '' = AUTO
   const [vocalLanguage, setVocalLanguage] = useState(''); // '' = AUTO
-  const [duration, setDuration] = useState(0); // 0 = AUTO (seconds)
+  const [duration, setDuration] = useState(initialDraft.duration ?? 0); // 0 = AUTO (seconds)
   const [job, setJob] = useState<'idle' | 'running' | 'failed'>('idle');
   const [stage, setStage] = useState<'loading' | 'running'>('running');
   const [error, setError] = useState('');
@@ -106,6 +106,7 @@ export function CreateView({ songs, initialPrompt, onBack, onCreated }: Props) {
     <div className="create-shell">
       <div className={showRail ? 'with-panel create-layout with-rail' : 'with-panel create-layout'}>
         <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} />
+        <div className="create-panel">
         <ScrollArea className="create-content">
           <div className="title-row">
             <span className="song-title">New song</span>
@@ -233,6 +234,7 @@ export function CreateView({ songs, initialPrompt, onBack, onCreated }: Props) {
           )}
           {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
         </ScrollArea>
+        </div>
         {showRail && (
           <RefineRail
             refining={refining}

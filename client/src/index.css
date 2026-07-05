@@ -48,9 +48,10 @@ body {
   font-size: 13px;
 }
 
+/* Full width everywhere — Library's card grid and detail rail, like Editor's
+   timeline/version rail, use extra viewport width instead of letterboxing;
+   see docs/design/DESIGN.md's Editor layout note. */
 .app {
-  max-width: 1140px;
-  margin: 0 auto;
   height: 100%;
   padding: 16px 16px 0;
   display: flex;
@@ -58,18 +59,25 @@ body {
   overflow: hidden;
 }
 
-/* The one page-level scroll fallback: fills the space below the header, and
-   scrolls only if a view's content doesn't fit — Library's card grid and
-   Create's form rely on this. The Editor view instead fills this box exactly
-   (.view-fill) and scrolls internally via .stack-scrub, so this container
-   stays still while the layer stack scrolls. */
+/* Fills the space below the header for all three screens; never scrolls
+   itself — each view fills this box exactly (.view-fill) and scrolls
+   internally instead (Library's ScrollArea-wrapped card grid, Create's
+   ScrollArea-wrapped form, the Editor's .stack-scrub), so this container
+   always stays still. */
 .app-body {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: hidden;
   padding-bottom: 76px;
+}
+
+/* Editor/Create hide the docked Player footer (it slides to y:100%), so
+   the space reserved for it in .app-body would otherwise sit dead below
+   the settings/rail panels. */
+.app-editor .app-body {
+  padding-bottom: 0;
 }
 
 .view-fill {
@@ -104,6 +112,15 @@ body {
   min-height: 0;
   overflow-y: auto;
   scrollbar-width: none;
+}
+
+/* A ScrollArea's job is to scroll, never to squeeze its content — without
+   this, a child whose own overflow isn't `visible` (e.g. the GENERATE
+   button's overflow:hidden, used to clip its AI-generating shimmer) drops
+   to automatic min-height 0 and absorbs the entire deficit, collapsing to
+   a sliver, instead of the viewport just scrolling the extra pixels. */
+.scroll-area-viewport > * {
+  flex-shrink: 0;
 }
 
 .scroll-area-viewport::-webkit-scrollbar {
@@ -148,44 +165,36 @@ body {
    no radius (matches the global `* { border-radius: 0 }` rule, which
    browsers don't apply to scrollbar pseudo-elements). .stack-scrub and
    .versions use ScrollArea instead (see LayerStack.tsx/VersionHistory.tsx). */
-.app-body,
 .song-picker-list,
-.custom-select-dropdown {
+.custom-select-dropdown,
+.detail-lyrics pre {
   scrollbar-width: thin;
   scrollbar-color: var(--line-hi) var(--panel);
 }
 
-.app-body::-webkit-scrollbar,
 .song-picker-list::-webkit-scrollbar,
-.custom-select-dropdown::-webkit-scrollbar {
+.custom-select-dropdown::-webkit-scrollbar,
+.detail-lyrics pre::-webkit-scrollbar {
   width: 8px;
 }
 
-.app-body::-webkit-scrollbar-track,
 .song-picker-list::-webkit-scrollbar-track,
-.custom-select-dropdown::-webkit-scrollbar-track {
+.custom-select-dropdown::-webkit-scrollbar-track,
+.detail-lyrics pre::-webkit-scrollbar-track {
   background: var(--panel);
 }
 
-.app-body::-webkit-scrollbar-thumb,
 .song-picker-list::-webkit-scrollbar-thumb,
-.custom-select-dropdown::-webkit-scrollbar-thumb {
+.custom-select-dropdown::-webkit-scrollbar-thumb,
+.detail-lyrics pre::-webkit-scrollbar-thumb {
   background: var(--line-hi);
   border: 1px solid var(--panel);
   border-radius: 0;
 }
 
-.app-body::-webkit-scrollbar-thumb:hover,
 .song-picker-list::-webkit-scrollbar-thumb:hover,
 .custom-select-dropdown::-webkit-scrollbar-thumb:hover {
   background: var(--text-mid);
-}
-
-/* Editor + Create takeover screens: no reading-width cap. Extra width on
-   wide/landscape screens goes to the fluid center column, not to
-   letterboxing — see docs/design/DESIGN.md's Editor layout note. */
-.app-editor {
-  max-width: none;
 }
 
 header {
@@ -249,8 +258,9 @@ textarea {
   background: var(--panel);
   border: 1px solid var(--line-hi);
   color: var(--text-hi);
-  padding: 8px 10px;
+  padding: 10px 12px;
   font: inherit;
+  font-size: 14px;
 }
 
 textarea {
@@ -262,10 +272,10 @@ select {
   background: var(--panel);
   border: 1px solid var(--line-hi);
   color: var(--text-hi);
-  padding: 6px 8px;
+  padding: 8px 10px;
   font: inherit;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
@@ -291,6 +301,16 @@ button.acid {
 button.acid:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+/* sibling to a filled acid CTA in the same group — DESIGN.md's "at most one
+   filled acid CTA per region" rule (e.g. SongDetailRail's REUSE PROMPT vs
+   CREATE COVER FROM AUDIO). */
+button.acid-outline {
+  background: transparent;
+  color: var(--acid);
+  border-color: var(--acid);
+  transform: skewX(-10deg);
 }
 
 /* slim create bar (Library) */
@@ -343,8 +363,19 @@ button.acid:disabled {
   color: var(--carbon);
 }
 
+/* Wraps the card grid + the detail rail (SongDetailRail.tsx). The grid's own
+   auto-fill columns already reflow narrower when the rail claims width here —
+   no separate narrow-layout rule needed, same trick as Create's with-rail. */
+.library-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
 /* library: fluid multi-column card grid, cards never stretch past a comfortable width */
 .library {
+  flex: 1;
+  min-width: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
   gap: 12px;
@@ -358,6 +389,12 @@ button.acid:disabled {
   padding: 10px;
   border: 1px solid var(--line);
   background: var(--panel);
+}
+
+/* sky = selection/scope per DESIGN.md, same idiom as the Editor's focused layer */
+.library .row.selected {
+  border-color: var(--sky);
+  background: var(--sky-tint);
 }
 
 .library .row-main {
@@ -443,13 +480,11 @@ footer {
   left: 0;
   right: 0;
   bottom: 0;
-  margin: 0 auto;
   width: 100%;
-  max-width: 1140px;
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 10px 16px;
+  gap: 16px;
+  padding: 16px 20px;
   background: var(--carbon);
   border-top: 1px solid var(--line);
   z-index: 20;
@@ -463,7 +498,7 @@ footer .player {
 .player {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
 }
 
 .player audio {
@@ -481,22 +516,22 @@ footer .player {
 }
 
 .player-btn.play {
-  width: 36px;
-  height: 36px;
+  width: 46px;
+  height: 46px;
   background: var(--acid);
   border: none;
   clip-path: polygon(25% 0, 75% 0, 100% 50%, 75% 100%, 25% 100%, 0 50%);
 }
 
 .player-btn.play svg {
-  width: 14px;
-  height: 14px;
+  width: 18px;
+  height: 18px;
   fill: var(--carbon);
 }
 
 .player-btn.stop {
-  width: 30px;
-  height: 30px;
+  width: 38px;
+  height: 38px;
   background: transparent;
   border: 1px solid var(--line-hi);
   color: var(--text-mid);
@@ -509,15 +544,15 @@ footer .player {
 }
 
 .player-btn.stop svg {
-  width: 10px;
-  height: 10px;
+  width: 13px;
+  height: 13px;
   fill: currentColor;
 }
 
 .player-title {
   font-weight: 700;
-  font-size: 12px;
-  max-width: 140px;
+  font-size: 14px;
+  max-width: 160px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -525,7 +560,7 @@ footer .player {
 
 .player-time {
   font-weight: 700;
-  font-size: 11px;
+  font-size: 13px;
   letter-spacing: 0.5px;
   color: var(--text-mid);
   white-space: nowrap;
@@ -540,13 +575,20 @@ footer .player {
 .player-volume {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   flex-shrink: 0;
 }
 
-.vol-icon {
-  width: 14px;
+/* larger than the base .vol-slider (shared with the Editor's compact lane
+   controls, which stay small) — the docked footer player has room to spare. */
+.player-volume .vol-slider {
+  width: 110px;
   height: 14px;
+}
+
+.vol-icon {
+  width: 18px;
+  height: 18px;
   color: var(--text-mid);
   flex-shrink: 0;
 }
@@ -559,12 +601,12 @@ footer .player {
   background: transparent;
   border: 1px solid var(--line-hi);
   color: var(--text-hi);
-  padding: 6px 12px 6px 10px;
+  padding: 9px 16px 9px 13px;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   transform: skewX(-10deg);
-  gap: 6px;
+  gap: 7px;
   transition: border-color 0.15s ease, color 0.15s ease;
 }
 
@@ -579,8 +621,8 @@ footer .player {
 }
 
 .player-btn.download svg {
-  width: 11px;
-  height: 11px;
+  width: 13px;
+  height: 13px;
   transform: skewX(10deg);
   stroke: currentColor;
   stroke-width: 1.2;
@@ -620,13 +662,17 @@ footer .player {
 }
 
 /* shared scrub timeline, docked to the top of the lane stack — sticky so it
-   stays pinned while .stack-scrub's lanes scroll underneath it. */
+   stays pinned while .stack-scrub's lanes scroll underneath it. Extra top
+   padding (vs. the 4px bottom) reserves room for .timeline-current-time,
+   which sits above the track baseline — too little room here clips the
+   label against the ScrollArea viewport's own overflow above the sticky
+   element. */
 .timeline {
   position: sticky;
   top: 0;
   z-index: 4;
   background: var(--panel);
-  padding: 6px 10px 4px;
+  padding: 16px 10px 4px;
   border-bottom: 1px solid var(--line);
   cursor: pointer;
 }
@@ -648,6 +694,7 @@ footer .player {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
   pointer-events: none;
+  z-index: 1;
 }
 
 .timeline-track::before {
@@ -658,6 +705,20 @@ footer .player {
   top: 3px;
   height: 2px;
   background: var(--line-hi);
+}
+
+/* Diamond thumb, drawn on the timeline's own baseline — a child of the sticky
+   .timeline, so unlike the old .stack-playhead::before approach it can never
+   render behind the timeline's opaque background. */
+.timeline-playhead-diamond {
+  position: absolute;
+  top: -0.5px;
+  width: 9px;
+  height: 9px;
+  margin-left: -4.5px;
+  background: var(--sky);
+  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  pointer-events: none;
 }
 
 .timeline-tick {
@@ -709,9 +770,9 @@ footer .player {
   background: var(--sky);
   color: var(--on-sky);
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
-  padding: 4px 10px;
+  padding: 6px 12px;
   transform: skewX(-10deg);
   white-space: nowrap;
 }
@@ -946,13 +1007,22 @@ footer .player {
   min-width: 74px;
 }
 
-/* layer stack: DAW-style lanes, sky = focused/selected per DESIGN.md (not lilac/acid) */
+/* layer stack: DAW-style lanes, sky = focused/selected per DESIGN.md (not lilac/acid).
+   Sized to its own content by default (however many lanes there are) rather
+   than stretching to fill the editor — see .editor-main's align-self. */
 .layer-stack {
   margin-top: 14px;
-  flex: 1;
+  flex: 0 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
+}
+
+/* Caps how tall the lane list can grow before it scrolls internally instead
+   of pushing the rest of the page taller — a handful of lanes fit at their
+   natural height (no scroll, no dead space), a long stack scrolls past this. */
+.layer-stack .scroll-area {
+  max-height: 55vh;
 }
 
 /* .stack-scrub is passed as ScrollArea's className (LayerStack.tsx), landing
@@ -1028,15 +1098,24 @@ footer .player {
   background: var(--sky-tint);
 }
 
+/* Ghost lane (LayerStack.tsx) standing in for a layer that doesn't exist yet
+   — not clickable, so no pointer cursor. */
+.layer-lane-ghost .lane-controls {
+  cursor: default;
+}
+
 /* Absolutely positioned against .stack-scrub (not a flex item) so its height
    spans from the timeline through the last lane as one continuous line;
    `left` is a plain % of the shared surface's own width. The control bars
    paint over it (opaque background + higher z-index) rather than the line
-   trying to skip over control-bar rows. A diamond thumb marks the top, at
-   the timeline track. */
+   trying to skip over control-bar rows. Starts at the timeline's own height
+   (40px) since the diamond thumb marking that spot now lives on the sticky
+   .timeline itself (.timeline-playhead-diamond in Timeline.tsx) — drawing it
+   here instead used to hide it behind the timeline's higher z-index/opaque
+   background. */
 .stack-playhead {
   position: absolute;
-  top: 11px;
+  top: 40px;
   bottom: 0;
   left: calc(100% * var(--playhead-pct, 0) / 100);
   width: 1.5px;
@@ -1044,18 +1123,6 @@ footer .player {
   pointer-events: none;
   z-index: 2;
   transition: left 0.1s linear;
-}
-
-.stack-playhead::before {
-  content: '';
-  position: absolute;
-  top: -4px;
-  left: 50%;
-  width: 9px;
-  height: 9px;
-  margin-left: -4.5px;
-  background: var(--sky);
-  clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
 }
 
 .layer-name {
@@ -1096,6 +1163,21 @@ footer .player {
 .layer-add-row:focus-within {
   border-color: var(--acid);
   background: var(--panel);
+}
+
+/* Blocked/greyed while a job is in flight — the new lane's own progress
+   (the ghost lane in LayerStack.tsx) is the thing to watch, not this row. */
+.layer-add-row.generating {
+  border-color: var(--line);
+  background: var(--panel);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.layer-add-row.generating .layer-add-expand {
+  max-height: 120px;
+  opacity: 1;
+  margin-top: 8px;
 }
 
 .layer-add-compact {
@@ -1158,15 +1240,15 @@ footer .player {
 }
 
 /* Editor adds a fixed-width right rail (version history) alongside the fixed
-   left settings panel; only the center column is fluid. It's also the one
-   view that fills .app-body's full height and stretches its columns
-   (instead of top-aligning) so .editor-main can hand its own extra height
-   down to .layer-stack/.stack-scrub rather than the page scrolling. */
+   left settings panel; only the center column is fluid. None of the three
+   columns stretch to fill the available height — each sizes to its own
+   content (settings controls, title/repaint/layer-list, version history),
+   so a short layer list or a short history list doesn't leave a dead gap
+   under a tall bordered card. */
 .with-panel.editor-layout {
   grid-template-columns: 210px 1fr 300px;
   flex: 1;
   min-height: 0;
-  align-items: stretch;
 }
 
 .editor-main {
@@ -1192,8 +1274,24 @@ footer .player {
   grid-template-columns: 210px 1fr 300px;
 }
 
+/* Gives the center column the same carbon-panel card treatment as the
+   settings panel and refine rail, so the stretched-to-full-height column
+   reads as an intentional bordered surface instead of leaving a blank void
+   below a short form. */
+.create-panel {
+  border: 1px solid var(--line-hi);
+  background: var(--panel);
+  padding: 12px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .create-content {
   max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1365,6 +1463,14 @@ footer .player {
   border: 1px solid var(--line-hi);
   background: var(--panel);
   padding: 12px;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.refine-rail-body {
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -1404,6 +1510,54 @@ footer .player {
   color: var(--text-hi);
   white-space: pre-wrap;
   font-family: inherit;
+}
+
+/* Library's detail rail (SongDetailRail.tsx) — same carbon-panel card as
+   .refine-rail-panel, fixed width since it lives in a flex row (.library-layout)
+   rather than a grid column. */
+.song-detail-rail {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.song-detail-panel {
+  border: 1px solid var(--line-hi);
+  background: var(--panel);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.song-detail-panel .song-title {
+  font-size: 14px;
+}
+
+.detail-meta-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 3px 0;
+}
+
+.detail-lyrics pre {
+  margin: 4px 0 0;
+  font-size: 12px;
+  color: var(--text-hi);
+  white-space: pre-wrap;
+  font-family: inherit;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.detail-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detail-actions button {
+  width: 100%;
 }
 
 .refine-accept {
@@ -1802,8 +1956,8 @@ footer .player {
    `.btn-row` already relies on to mesh its buttons with no gap. */
 .pgram-slider {
   position: relative;
-  height: 20px;
-  --handle-w: 18px;
+  height: 26px;
+  --handle-w: 22px;
 }
 
 .pgram-input {
@@ -1825,8 +1979,8 @@ footer .player {
   z-index: 0;
   left: 0;
   right: 0;
-  top: 5px;
-  bottom: 5px;
+  top: 7px;
+  bottom: 7px;
   transform: skewX(-10deg);
   border: 1px dashed var(--line-hi);
 }
@@ -1835,8 +1989,8 @@ footer .player {
   position: absolute;
   z-index: 1;
   left: 0;
-  top: 5px;
-  bottom: 5px;
+  top: 7px;
+  bottom: 7px;
   width: calc(var(--pct, 0) * (100% - var(--handle-w)));
   transform: skewX(-10deg);
   background: var(--fill, var(--acid));
@@ -1845,8 +1999,8 @@ footer .player {
 .pgram-handle {
   position: absolute;
   z-index: 2;
-  top: 3px;
-  bottom: 3px;
+  top: 4px;
+  bottom: 4px;
   left: calc(var(--pct, 0) * (100% - var(--handle-w)));
   width: var(--handle-w);
   transform: skewX(-10deg);
@@ -1893,10 +2047,10 @@ footer .player {
   background: var(--carbon);
   border: 1px solid var(--line-hi);
   color: var(--text-hi);
-  padding: 6px 8px;
+  padding: 8px 10px;
   font: inherit;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
@@ -1942,9 +2096,9 @@ footer .player {
 }
 
 .custom-select-option {
-  padding: 6px 8px;
+  padding: 8px 10px;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   text-transform: uppercase;
   cursor: pointer;
@@ -1985,9 +2139,9 @@ footer .player {
   justify-content: space-between;
   background: var(--carbon);
   border: 1px solid var(--line-hi);
-  padding: 7px 10px;
+  padding: 9px 12px;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 11px;
   letter-spacing: 1px;
   color: var(--text-mid);
   transition: color 0.2s ease, border-color 0.2s ease;
@@ -2001,8 +2155,8 @@ footer .player {
 }
 
 .toggle .dot {
-  width: 22px;
-  height: 11px;
+  width: 26px;
+  height: 13px;
   border: 1px solid var(--line-hi);
   position: relative;
   transition: border-color 0.2s ease;
@@ -2013,8 +2167,8 @@ footer .player {
   position: absolute;
   left: 1px;
   top: 1px;
-  width: 8px;
-  height: 7px;
+  width: 9px;
+  height: 9px;
   background: var(--text-mid);
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
@@ -2029,7 +2183,7 @@ footer .player {
 }
 
 .toggle.on .dot::after {
-  transform: translateX(10px);
+  transform: translateX(12px);
   background: var(--acid);
 }
 

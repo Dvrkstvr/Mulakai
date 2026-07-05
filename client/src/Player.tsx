@@ -40,7 +40,7 @@ export function Player({ engine, downloadSrc, title, downloadName, showProgress 
       {!minimal && <span className="player-time">{fmt(currentTime)} / {fmt(duration)}</span>}
       {!minimal && showProgress && (
         <div className="player-waveform-wrap">
-          <PlayerWaveform audioUrl={downloadSrc} duration={duration} playhead={currentTime} onSeek={engine.seek} />
+          <PlayerWaveform audioUrl={downloadSrc} duration={duration} playhead={currentTime} onSeek={engine.seek} height={36} />
         </div>
       )}
       {!minimal && (

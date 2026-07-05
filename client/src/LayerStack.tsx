@@ -1,10 +1,12 @@
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { Layer } from './api';
 import type { Region } from './Waveform';
 import { AddLayerTrigger } from './AddLayerTrigger';
-import { LayerLane } from './LayerLane';
+import { LayerLane, LANE_HEIGHT } from './LayerLane';
 import { Timeline } from './Timeline';
 import { ScrollArea } from './ScrollArea';
+import { AIGeneratingBackground } from './AIGeneratingBackground';
 
 interface Props {
   songId: string;
@@ -31,6 +33,7 @@ interface Props {
  */
 export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit }: Props) {
   const playheadPct = duration > 0 ? Math.min(100, Math.max(0, (playhead / duration) * 100)) : 0;
+  const [addingLayer, setAddingLayer] = useState(false);
 
   return (
     <div className="layer-stack">
@@ -55,6 +58,28 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
                 onSplit={() => onSplit(layer.id)}
               />
             ))}
+            {/* Ghost lane — appears the instant ADD LAYER is submitted, before the
+                real layer exists server-side, so the "something is happening"
+                feedback is immediate rather than waiting on the job to resolve. */}
+            <AnimatePresence>
+              {addingLayer && (
+                <motion.div
+                  className="layer-lane layer-lane-ghost"
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3, ease: 'easeOut' }}
+                >
+                  <div className="lane-controls">
+                    <span className="layer-name">NEW LAYER</span>
+                    <span className="meta">generating…</span>
+                  </div>
+                  <div className="lane-waveform" style={{ height: LANE_HEIGHT }}>
+                    <AIGeneratingBackground />
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
           {/* Absolutely positioned against .stack-scrub-inner, spanning from the
               timeline through the last lane so it reads as one continuous playhead. */}
@@ -63,7 +88,7 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
           )}
         </div>
       </ScrollArea>
-      <AddLayerTrigger songId={songId} layers={layers} onDone={onChanged} />
+      <AddLayerTrigger songId={songId} layers={layers} onDone={onChanged} onGeneratingChange={setAddingLayer} />
     </div>
   );
 }
