@@ -6,6 +6,8 @@ import { Slider } from './Slider';
 import { RefineRail } from './RefineRail';
 import { TIME_SIGNATURES, VOCAL_LANGUAGES } from './songMeta';
 import { useSettings, genParams } from './settings';
+import { VoicePicker } from './VoicePicker';
+import { useVoiceStore, voiceParams } from './voiceStore';
 import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { useHeaderSlot } from './HeaderSlot';
@@ -30,6 +32,7 @@ interface Props {
  * per docs/design/DESIGN.md. */
 export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
   const gen = useSettings((s) => s.gen);
+  const voice = useVoiceStore();
   const [genType, setGenType] = useState(initialDraft.genType ?? 'prompt');
   const [source, setSource] = useState(initialDraft.source ?? 'upload');
   const [librarySearch, setLibrarySearch] = useState('');
@@ -69,7 +72,7 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
     setJob('running');
     setStage('loading');
     try {
-      const { jobId } = await api.generate({ title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(gen) });
+      const { jobId } = await api.generate({ title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(gen), ...voiceParams(voice) });
       for (;;) {
         await new Promise((r) => setTimeout(r, 2000));
         const s = await api.jobStatus(jobId);
@@ -275,6 +278,9 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
                 <CustomSelect label="TIME SIGNATURE" value={timeSignature} onChange={setTimeSignature} options={TIME_SIGNATURES} />
                 <CustomSelect label="VOCAL LANGUAGE" value={vocalLanguage} onChange={setVocalLanguage} options={VOCAL_LANGUAGES} />
               </div>
+
+              <div className="section-label">VOICE</div>
+              <VoicePicker />
             </>
           )}
 

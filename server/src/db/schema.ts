@@ -40,6 +40,17 @@ CREATE TABLE IF NOT EXISTS versions (
   created_at  TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS voices (
+  id                      TEXT PRIMARY KEY,
+  name                    TEXT NOT NULL,
+  audio_file              TEXT NOT NULL,             -- filename inside audioDir
+  duration                REAL,
+  tags                    TEXT NOT NULL DEFAULT '',  -- comma-separated
+  default_audio_influence REAL NOT NULL DEFAULT 0.5, -- 0.0-1.0, maps to audio_cover_strength
+  default_style_influence REAL NOT NULL DEFAULT 0.5, -- 0.0-1.0, scales guidance_scale
+  created_at              TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE INDEX IF NOT EXISTS idx_layers_song ON layers(song_id);
 CREATE INDEX IF NOT EXISTS idx_versions_layer ON versions(layer_id);
 `;

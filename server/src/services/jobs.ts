@@ -13,6 +13,7 @@ import {
   releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl,
   type ReleaseTaskParams, type TaskResult,
 } from './acestep.js';
+import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
 
 export interface Job {
   id: string;
@@ -50,16 +51,27 @@ export async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void
   }
 }
 
+export interface VoiceOptions {
+  voiceId?: string;
+  audioInfluence?: number;
+  styleInfluence?: number;
+}
+
 /** Submit a text2music generation and persist the result as a new song with a base layer. */
-export function startGeneration(params: ReleaseTaskParams, title: string): Job {
+export function startGeneration(params: ReleaseTaskParams, title: string, voice?: VoiceOptions): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
   jobs.set(job.id, job);
   void run(job, async () => {
     await ensureModelLoaded(params);
     job.status = 'running';
-    const { task_id } = await releaseTask({ audio_format: 'mp3', ...params, task_type: 'text2music' });
+    const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'text2music' };
+    const ref = voice?.voiceId
+      ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
+      : undefined;
+    if (ref) applyVoiceInfluence(fullParams, ref);
+    const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
     job.taskId = task_id;
-    await poll(job, (result) => persistSong(result.file, params, result, title));
+    await poll(job, (result) => persistSong(result.file, fullParams, result, title));
   });
   return job;
 }

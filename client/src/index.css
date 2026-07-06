@@ -1552,6 +1552,93 @@ footer .player {
   animation: ai-shimmer 3s linear infinite;
 }
 
+/* Voice library picker — sky scope idiom (same concept as the focused-lane
+   accent in the Editor): "which voice conditions this generation" is a
+   selection, not a commit, so it never touches acid or lilac. */
+.voice-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-left: 2px solid var(--sky);
+  background: var(--sky-tint);
+  padding: 10px 12px;
+}
+
+.voice-picker-head {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.voice-picker-head > .setting {
+  flex: 1;
+}
+
+.voice-manage-btn {
+  background: transparent;
+  border: 1px solid var(--sky);
+  color: var(--sky);
+  padding: 8px 12px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.voice-manage-btn span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.voice-upload-form {
+  border: 1px solid var(--line-hi);
+  background: var(--panel);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.voice-upload-form .dropzone {
+  padding: 14px;
+}
+
+.voice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.voice-list-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+}
+
+.voice-list-row button {
+  background: transparent;
+  border: 1px solid var(--rust);
+  color: var(--rust-text);
+  padding: 3px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  transform: skewX(-10deg);
+  cursor: pointer;
+}
+
+.voice-list-row button span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
 /* right rail — version history in Editor, refine preview in Create */
 .rail {
   position: sticky;

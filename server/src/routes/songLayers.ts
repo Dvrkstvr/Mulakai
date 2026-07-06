@@ -13,7 +13,8 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100
 /** Add a new layer to a song via the `lego` task, conditioned on the client-bounced mix of currently audible layers. */
 songLayersRouter.post('/:id/layers', upload.single('mix_audio'), async (req, res) => {
   const { prompt = '', layerName = '', inference_steps, guidance_scale,
-    use_random_seed, seed, model, lm_model_path, thinking, use_format } = req.body ?? {};
+    use_random_seed, seed, model, lm_model_path, thinking, use_format,
+    voiceId, audio_influence, style_influence } = req.body ?? {};
   const promptStr = String(prompt);
   const layerNameStr = String(layerName);
   if (!promptStr.trim()) return res.status(400).json({ error: 'prompt is required' });
@@ -28,6 +29,10 @@ songLayersRouter.post('/:id/layers', upload.single('mix_audio'), async (req, res
       ...(guidance_scale !== undefined ? { guidance_scale: Number(guidance_scale) } : {}),
       ...(use_random_seed === false ? { use_random_seed: false } : {}),
       ...(seed !== undefined && use_random_seed === false ? { seed: Number(seed) } : {}),
+    }, {
+      voiceId: voiceId ? String(voiceId) : undefined,
+      audioInfluence: audio_influence !== undefined ? Number(audio_influence) : undefined,
+      styleInfluence: style_influence !== undefined ? Number(style_influence) : undefined,
     });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
