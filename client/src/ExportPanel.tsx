@@ -18,8 +18,9 @@ export function ExportPanel({ song, onBack }: Props) {
       {song.layers.map((layer) => {
         const active = layer.versions.find((v) => v.active);
         if (!active) return null;
+        const ext = active.audio_file.slice(active.audio_file.lastIndexOf('.') + 1) || 'wav';
         return (
-          <a key={layer.id} className="export-stem" href={`/audio/${active.audio_file}`} download={`${song.title} - ${layer.name}.wav`}>
+          <a key={layer.id} className="export-stem" href={`/audio/${active.audio_file}`} download={`${song.title} - ${layer.name}.${ext}`}>
             <span>{layer.name.toUpperCase()}</span>
             <span className="export-stem-dl">DOWNLOAD</span>
           </a>

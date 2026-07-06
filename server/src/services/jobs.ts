@@ -10,7 +10,7 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import {
-  releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl,
+  releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl, audioFileExt,
   type ReleaseTaskParams, type TaskResult,
 } from './acestep.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
@@ -68,7 +68,7 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
   void run(job, async () => {
     await ensureModelLoaded(params);
     job.status = 'running';
-    const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'text2music' };
+    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'text2music' };
     const ref = voice?.voiceId
       ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
       : undefined;
@@ -170,7 +170,7 @@ async function persistSong(
   const songId = crypto.randomUUID();
   const layerId = crypto.randomUUID();
   const versionId = crypto.randomUUID();
-  const filename = `${versionId}.mp3`;
+  const filename = `${versionId}.${audioFileExt(params.audio_format)}`;
   await fs.writeFile(path.join(config.audioDir, filename), audio);
 
   db.prepare(

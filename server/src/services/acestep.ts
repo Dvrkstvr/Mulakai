@@ -35,6 +35,12 @@ export interface ReleaseTaskParams {
   retake_variance?: number;
 }
 
+/** File extension for a stored/downloaded audio_format value — 'wav32' is still a .wav container. */
+export function audioFileExt(audioFormat: string | undefined): string {
+  const format = audioFormat ?? 'wav';
+  return format === 'wav32' ? 'wav' : format;
+}
+
 export interface FormatInputParams {
   prompt?: string;
   lyrics?: string;

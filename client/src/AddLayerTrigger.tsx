@@ -6,6 +6,8 @@ import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { VoicePicker } from './VoicePicker';
 import { useVoiceStore, voiceParams } from './voiceStore';
+import { useGenerationStore } from './generationStore';
+import { fmtElapsed, useElapsedMs } from './genProgress';
 
 interface Props {
   songId: string;
@@ -28,7 +30,12 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
   const [legoModels, setLegoModels] = useState<string[] | null>(null);
   const [prompt, setPrompt] = useState('');
   const [job, setJob] = useState<'idle' | 'running'>('idle');
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const genJob = useGenerationStore((s) => s.job);
+  const otherLock = useGenerationStore((s) => s.otherLock);
+  const busyElsewhere = (!!genJob || !!otherLock) && job !== 'running';
+  const elapsedMs = useElapsedMs(job === 'running', startedAt);
 
   useEffect(() => {
     api.listModels()
@@ -44,12 +51,13 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
   useEffect(() => { onGeneratingChange?.(job === 'running'); }, [job, onGeneratingChange]);
 
   const gated = legoModels !== null && legoModels.length === 0;
-  const canSubmit = !gated && prompt.trim().length > 0 && job === 'idle';
+  const canSubmit = !gated && prompt.trim().length > 0 && job === 'idle' && !busyElsewhere;
 
   const submit = async () => {
     if (!canSubmit) return;
     setError('');
     setJob('running');
+    setStartedAt(Date.now());
     try {
       const audible = activeLayers(layers)
         .map((l) => l.versions.find((v) => v.active))
@@ -92,7 +100,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
       <div className="layer-add-compact">
         <span className="plus">+</span>
         <span>ADD LAYER</span>
-        <span className="hint">{job === 'running' ? 'generating…' : 'hover to expand'}</span>
+        <span className="hint">{job === 'running' ? `generating… ${fmtElapsed(elapsedMs)}` : 'hover to expand'}</span>
       </div>
       <div className="layer-add-expand">
         {legoModels === null ? (
@@ -120,8 +128,9 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
               disabled={!canSubmit}
               onClick={submit}
             >
-              {job === 'running' ? 'GENERATING…' : 'GENERATE'}
+              {job === 'running' ? `GENERATING… ${fmtElapsed(elapsedMs)}` : busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE'}
             </button>
+            {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
           </>
         )}
         {error && <div className="error">{error} <button onClick={submit}>RETRY</button></div>}

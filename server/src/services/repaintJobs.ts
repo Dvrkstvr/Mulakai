@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { releaseTask, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
+import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 import { type Job, registerJob, poll, ensureModelLoaded, fetchLyricTimestampsJson } from './jobs.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 
@@ -32,7 +32,7 @@ export async function startRepaint(layerId: string, params: ReleaseTaskParams): 
   acquireGenLock({ kind: 'repaint', jobId, songId: row.song_id });
   try {
     const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
-    const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'repaint' };
+    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'repaint' };
     await ensureModelLoaded(fullParams);
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: row.audio_file } });
 
@@ -84,7 +84,7 @@ export async function startRegenerate(versionId: string): Promise<Job> {
       srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
     }
 
-    const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
+    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType };
     await ensureModelLoaded(fullParams);
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
 
@@ -145,7 +145,7 @@ export async function startSimilarTake(versionId: string): Promise<Job> {
       srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
     }
 
-    const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
+    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType };
     await ensureModelLoaded(fullParams);
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
 
@@ -176,7 +176,7 @@ async function persistVersion(
   const audio = await downloadAudio(fileUrl);
   const lyricTimestamps = await fetchLyricTimestampsJson(result, params);
   const versionId = crypto.randomUUID();
-  const filename = `${versionId}.mp3`;
+  const filename = `${versionId}.${audioFileExt(params.audio_format)}`;
   await fs.writeFile(path.join(config.audioDir, filename), audio);
 
   if (activate) db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(layerId);

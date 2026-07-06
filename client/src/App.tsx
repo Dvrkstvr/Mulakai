@@ -56,7 +56,11 @@ export default function App() {
       api.acestepHealth().then((h) => setOnline(h.acestep)).catch(() => setOnline(false));
     checkHealth();
     const timer = setInterval(checkHealth, 10_000);
-    return () => clearInterval(timer);
+    // Keeps generationStore's otherLock live so the editor's repaint/remaster/split/add-layer
+    // triggers can proactively disable themselves while a generation is running anywhere,
+    // not just fail with a 409 after the fact.
+    const lockTimer = setInterval(() => useGenerationStore.getState().refreshLock(), 3000);
+    return () => { clearInterval(timer); clearInterval(lockTimer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

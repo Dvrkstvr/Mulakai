@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, type Layer, type StemKind, type StemResult } from './api';
+import { useGenerationStore } from './generationStore';
+import { fmtElapsed, useElapsedMs } from './genProgress';
 
 interface Props {
   layer: Layer;
@@ -24,11 +26,19 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [job, setJob] = useState<'idle' | 'running'>('idle');
   const [jobId, setJobId] = useState<string | null>(null);
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const [stems, setStems] = useState<StemResult[] | null>(null);
   const [error, setError] = useState('');
   const [playing, setPlaying] = useState<StemKind | null>(null);
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const genJob = useGenerationStore((s) => s.job);
+  const otherLock = useGenerationStore((s) => s.otherLock);
+  // Extraction is "running" (all 4 stems in flight) any time the job exists and at least one
+  // stem hasn't settled yet — used below to keep the shared elapsed timer ticking that long.
+  const extracting = !!stems?.some((s) => s.status === 'running');
+  const busyElsewhere = (!!genJob || !!otherLock) && !extracting;
+  const elapsedMs = useElapsedMs(extracting, startedAt);
 
   useEffect(() => {
     api.splitHealth().then(setHealth).catch(() => setHealth({ acestep: false, demucs: false }));
@@ -58,12 +68,13 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
     return () => audio?.pause();
   }, []);
 
-  const canSubmit = !!model && !!health?.[model] && job === 'idle';
+  const canSubmit = !!model && !!health?.[model] && job === 'idle' && !busyElsewhere;
 
   const generate = async () => {
     if (!canSubmit || !model) return;
     setError('');
     setJob('running');
+    setStartedAt(Date.now());
     try {
       const { jobId: id } = await api.startSplit(layer.id, model);
       setJobId(id);
@@ -114,9 +125,10 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
   };
 
   const reextract = async (kind: StemKind) => {
-    if (!jobId) return;
+    if (!jobId || busyElsewhere) return;
     setBusyKind(kind);
     setError('');
+    setStartedAt(Date.now());
     try {
       const stem = await api.reextractStem(jobId, kind);
       setStems((cur) => cur?.map((s) => (s.kind === kind ? stem : s)) ?? cur);
@@ -162,17 +174,19 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
             </div>
           )}
           <button className="acid" disabled={!canSubmit} onClick={generate}>
-            {job === 'running' ? 'STARTING…' : 'GENERATE STEMS'}
+            {job === 'running' ? 'STARTING…' : busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE STEMS'}
           </button>
+          {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
         </>
       ) : (
         <>
           <button className="link-btn" style={{ color: 'var(--rust-text)' }} onClick={cancel}><span>CANCEL SPLIT</span></button>
+          {extracting && <div className="hint">{fmtElapsed(elapsedMs)} elapsed</div>}
           {stems.map((stem) => {
             const locked = !!stem.claimed;
             const busy = busyKind === stem.kind;
             const ready = stem.status === 'done' && !locked && !busy;
-            const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy;
+            const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy && !busyElsewhere;
             return (
               <div key={stem.kind} className="stem-row">
                 <div className="stem-row-head">

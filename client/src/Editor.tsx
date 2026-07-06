@@ -16,6 +16,7 @@ import { useSettings, repaintParams } from './settings';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useHeaderSlot } from './HeaderSlot';
+import { useGenerationStore } from './generationStore';
 
 interface Props {
   songId: string;
@@ -32,8 +33,14 @@ export function Editor({ songId, onBack }: Props) {
   const [prompt, setPrompt] = useState('');
   const [lyricsDraft, setLyricsDraft] = useState('');
   const [job, setJob] = useState<'idle' | 'running'>('idle');
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const [error, setError] = useState('');
   const [railMode, setRailMode] = useState<'history' | 'export' | 'split'>('history');
+  const genJob = useGenerationStore((s) => s.job);
+  const otherLock = useGenerationStore((s) => s.otherLock);
+  // A song generating in the Library, or another editor action already running, both hold the
+  // same global lock (see server genLock.ts) — either one blocks repaint here too.
+  const busyElsewhere = (!!genJob || !!otherLock) && job !== 'running';
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);
@@ -115,9 +122,10 @@ export function Editor({ songId, onBack }: Props) {
   const regionValid = !!selection && regionSeconds >= REPAINT_MIN_SECONDS && regionSeconds <= REPAINT_MAX_SECONDS;
 
   const repaint = async () => {
-    if (!focusedLayer || !regionValid || !selection) return;
+    if (!focusedLayer || !regionValid || !selection || busyElsewhere) return;
     setError('');
     setJob('running');
+    setStartedAt(Date.now());
     try {
       const { jobId } = await api.repaint(focusedLayer.id, {
         prompt,
@@ -185,6 +193,8 @@ export function Editor({ songId, onBack }: Props) {
         prompt={prompt}
         onPromptChange={setPrompt}
         job={job}
+        startedAt={startedAt}
+        busyElsewhere={busyElsewhere}
         onRepaint={repaint}
         error={error}
       />
