@@ -3,14 +3,12 @@ import { api, type Layer, type Version } from './api';
 import { activeLayers } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
+import { useSettings } from './settings';
 
 interface Props {
   songId: string;
   layers: Layer[];
 }
-
-/** modelInfo.ts's documented ceiling for non-Turbo models — mirrored here for the badge only; the server pins the same value. */
-const REMASTER_STEPS = 100;
 
 /**
  * One-click ACE-Step `cover` pass over the currently audible mix (same
@@ -22,6 +20,7 @@ const REMASTER_STEPS = 100;
  * exists long enough to download.
  */
 export function RemasterAction({ songId, layers }: Props) {
+  const exportSettings = useSettings((s) => s.exportSettings);
   const [coverModels, setCoverModels] = useState<string[] | null>(null);
   const [model, setModel] = useState('');
   const [job, setJob] = useState<'idle' | 'running' | 'done' | 'failed'>('idle');
@@ -58,8 +57,11 @@ export function RemasterAction({ songId, layers }: Props) {
       await mixCtx.close();
       const mixAudio = encodeWav(mixed);
 
-      const { jobId } = await api.remaster(songId, mixAudio, model);
-      for (;;) {
+      const { jobId } = await api.remaster(songId, mixAudio, model, {
+        audioFormat: exportSettings.audioFormat,
+        steps: exportSettings.steps,
+      });
+      for (; ;) {
         await new Promise((r) => setTimeout(r, 2000));
         const s = await api.jobStatus(jobId);
         if (s.status === 'done') break;
@@ -91,9 +93,11 @@ export function RemasterAction({ songId, layers }: Props) {
         <>
           <div className="remaster-badges">
             <span className="remaster-badge">{model.toUpperCase()}</span>
-            <span className="remaster-badge">{REMASTER_STEPS} STEPS</span>
+            <span className="remaster-badge">{exportSettings.steps} STEPS</span>
+            <span className="remaster-badge">{exportSettings.audioFormat.toUpperCase()}</span>
             <span className="remaster-badge">CLOSEST TO SOURCE</span>
           </div>
+          <div className="hint">uses Settings &gt; Playback &amp; Export defaults for format/steps</div>
           {job === 'done' ? (
             <span className="meta">remaster downloaded — run it again for another pass</span>
           ) : (

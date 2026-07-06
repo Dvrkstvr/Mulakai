@@ -28,7 +28,7 @@ export function stepsMax(name: string): number {
   const n = name.toLowerCase();
   if (!name) return 64;
   if (n.includes('turbo')) return 20;
-  return 100;
+  return 200;
 }
 
 /**

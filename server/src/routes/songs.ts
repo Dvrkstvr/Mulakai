@@ -1,5 +1,9 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
 import { Router } from 'express';
+import { config } from '../config.js';
 import { db } from '../db/index.js';
+import { emptyTrashNow } from '../services/trashSweep.js';
 
 export const songsRouter = Router();
 
@@ -24,6 +28,27 @@ songsRouter.get('/', (req, res) => {
 
 songsRouter.get('/trash', (_req, res) => {
   res.json(db.prepare(`SELECT * FROM songs WHERE trashed_at IS NOT NULL ORDER BY trashed_at`).all());
+});
+
+/** Settings > Library Maintenance's "EMPTY TRASH NOW" — bypasses the 7-day sweep. */
+songsRouter.delete('/trash', (_req, res) => {
+  emptyTrashNow();
+  res.json({ ok: true });
+});
+
+/** Library Maintenance stats for the Settings screen: disk usage + song/trash counts. */
+songsRouter.get('/stats', async (_req, res) => {
+  const { songCount } = db.prepare(`SELECT COUNT(*) AS songCount FROM songs WHERE trashed_at IS NULL`).get() as { songCount: number };
+  const { trashCount } = db.prepare(`SELECT COUNT(*) AS trashCount FROM songs WHERE trashed_at IS NOT NULL`).get() as { trashCount: number };
+  let storageBytes = 0;
+  try {
+    const files = await fs.readdir(config.audioDir);
+    const sizes = await Promise.all(files.map((f) => fs.stat(path.join(config.audioDir, f)).then((s) => s.size).catch(() => 0)));
+    storageBytes = sizes.reduce((a, b) => a + b, 0);
+  } catch {
+    storageBytes = 0;
+  }
+  res.json({ storageBytes, songCount, trashCount });
 });
 
 /** Full editor payload: song + layers + all versions per layer. */

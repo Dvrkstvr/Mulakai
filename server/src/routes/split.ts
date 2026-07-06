@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { config } from '../config.js';
 import { listModels } from '../services/acestep.js';
 import { getSplitJob, claimStem, reextractStem, cancelSplit, type StemKind } from '../services/stemSplit.js';
+import { GenLockError } from '../services/genLock.js';
 
 export const splitRouter = Router();
 
@@ -56,6 +57,7 @@ splitRouter.post('/:jobId/stems/:kind/reextract', (req, res) => {
   try {
     res.json(reextractStem(req.params.jobId, req.params.kind));
   } catch (err) {
+    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     res.status(400).json({ error: err instanceof Error ? err.message : 're-extract failed' });
   }
 });

@@ -14,6 +14,7 @@ import {
   type ReleaseTaskParams, type TaskResult,
 } from './acestep.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
+import { acquireGenLock, releaseGenLock, getGenLock, type GenLockInfo } from './genLock.js';
 
 export interface Job {
   id: string;
@@ -62,6 +63,7 @@ export interface VoiceOptions {
 /** Submit a text2music generation and persist the result as a new song with a base layer. */
 export function startGeneration(params: ReleaseTaskParams, title: string, voice?: VoiceOptions): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
+  acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt });
   jobs.set(job.id, job);
   void run(job, async () => {
     await ensureModelLoaded(params);
@@ -74,8 +76,16 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
     const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
     job.taskId = task_id;
     await poll(job, (result) => persistSong(result.file, fullParams, result, title));
-  });
+  }).finally(() => releaseGenLock(job.id));
   return job;
+}
+
+/** The currently locked generation, if any, joined with its job record (kind `generate` only — other
+ * kinds' jobs live in their own registries, e.g. stemSplit.ts's SplitJob map). Used to rehydrate the
+ * client's library "generating" card across a page refresh. */
+export function getActiveGeneration(): { lock: GenLockInfo | null; job?: Job } {
+  const lock = getGenLock();
+  return { lock, job: lock ? getJob(lock.jobId) : undefined };
 }
 
 /** Wrap an async job body so any thrown error marks the job failed. */

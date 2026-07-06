@@ -330,6 +330,32 @@ requiring its own justification against a screen-count rule.
        with a "← HISTORY" link back. A composited master-mix export is still
        an open question (see `PLAN.md`'s Export phase note) — stems are the
        current answer, not a placeholder for it.
+4. **Settings** — a 4th peer screen (locked 2026-07-06), reached via a
+   SETTINGS chip in Library's toolbar row (alongside ALL/FAVORITES, not the
+   header — it acts on app-level config, not "this song"). Calm, table-like
+   layout: a single centered column (~640px, same `.create-content`-style
+   card idiom) of stacked `.settings-card` sections, each a carbon-panel
+   card with a `.section-label` heading — no side panels, no waveform, no
+   acid/sky/lilac scope-vs-commit rhythm (nothing here is a generative
+   action). Sections, top to bottom:
+   - **Models**: DIT/LM model inventory (from `/v1/models`) with a SET
+     DEFAULT action per model — literally the same `gen.model`/`gen.lmModel`
+     Create's settings panel already persists, surfaced here so it's
+     reachable without opening Create. Read/select only — ACE-Step's API
+     has no download/update-model endpoint, so this is not a model manager.
+   - **Playback & Export**: default volume-on-load, default Remaster/export
+     audio format, default Remaster diffusion steps (1–200, ACE-Step's
+     documented Base-model ceiling — not a bitrate/sample-rate control,
+     since ACE-Step exposes neither).
+   - **Voices**: the voice-library upload/rename/delete surface, relocated
+     here from Create's `VoicePicker` (which is select-only now, with a
+     MANAGE VOICES link that navigates here instead of expanding inline).
+   - **Library Maintenance**: storage-used/song-count/trash-count stats,
+     the trashed-song list with RESTORE per row, and an EMPTY TRASH NOW
+     action (two-step confirm, rust) that bypasses the normal 7-day sweep.
+   - **Forge (experimental)**: a toggle that reveals FORGE's header icon
+     (see FORGE_PLAN.md) — off by default per `AGENTS.md`'s "unfinished/WIP
+     UI must not be exposed as usable" rule.
 
 ### Side panels (Create + Editor)
 

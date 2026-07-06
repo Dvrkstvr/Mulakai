@@ -68,6 +68,18 @@ describe('startRemaster', () => {
     expect(params.guidance_scale).toBeUndefined();
   });
 
+  it('honors a custom steps/audioFormat override, capped at 200 steps', async () => {
+    releaseTask.mockClear();
+    const songId = seedSong();
+
+    const job = await startRemaster(songId, Buffer.from('mix'), 'acestep-v15-xl-sft', { audioFormat: 'flac', steps: 999 });
+    await waitForDone(job.id);
+
+    const [params] = releaseTask.mock.calls[0] as [Record<string, unknown>];
+    expect(params.audio_format).toBe('flac');
+    expect(params.inference_steps).toBe(200);
+  });
+
   it('never writes a layer or version row for the result', async () => {
     const songId = seedSong();
     const before = db.prepare(`SELECT COUNT(*) as c FROM versions`).get() as { c: number };

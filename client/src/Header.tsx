@@ -5,10 +5,13 @@ interface Props {
   online: boolean | null;
   left: ReactNode;
   right: ReactNode;
+  /** FORGE is feature-gated (Settings > Forge) — its header icon only renders when enabled, per FORGE_PLAN.md. */
+  forgeEnabled?: boolean;
+  onForge?: () => void;
 }
 
 /** Persistent app header — logo glides via a shared layoutId as the back-button/title slots mount around it on view change. */
-export function Header({ online, left, right }: Props) {
+export function Header({ online, left, right, forgeEnabled, onForge }: Props) {
   return (
     <motion.header layout transition={{ duration: 0.25, ease: 'easeOut' }}>
       <AnimatePresence mode="popLayout">
@@ -30,6 +33,9 @@ export function Header({ online, left, right }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
+      {forgeEnabled && (
+        <button className="forge-icon" onClick={onForge} aria-label="Forge" title="Forge (experimental)">F</button>
+      )}
       <span className={`health ${online ? 'ok' : 'down'}`}>
         ACE-STEP {online === null ? '…' : online ? 'ONLINE' : 'OFFLINE'}
       </span>

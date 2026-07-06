@@ -13,6 +13,7 @@ import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, queryResult, downloadAudio, type ReleaseTaskParams } from './acestep.js';
 import { ensureModelLoaded } from './jobs.js';
+import { acquireGenLock, releaseGenLock } from './genLock.js';
 
 export type StemKind = 'vocals' | 'drums' | 'bass' | 'other';
 export type SplitModel = 'acestep' | 'demucs';
@@ -70,8 +71,10 @@ async function loadSourceAudio(layerId: string): Promise<SourceAudio & { songId:
 /** Start a split job: reads the layer's active audio and fans out both backends' extraction paths. */
 export async function startSplit(layerId: string, model: SplitModel): Promise<SplitJob> {
   const src = await loadSourceAudio(layerId);
+  const jobId = crypto.randomUUID();
+  acquireGenLock({ kind: 'split', jobId, songId: src.songId });
   const job: SplitJob = {
-    id: crypto.randomUUID(),
+    id: jobId,
     layerId,
     songId: src.songId,
     model,
@@ -80,11 +83,13 @@ export async function startSplit(layerId: string, model: SplitModel): Promise<Sp
   };
   jobs.set(job.id, job);
 
-  if (model === 'acestep') {
-    for (const kind of STEM_KINDS) void runAcestepStem(job, kind, src);
-  } else {
-    void runDemucs(job, src);
-  }
+  // Held until every stem call settles (all 4 for ACE-Step, the single batched call for Demucs) —
+  // reextractStem acquires its own lock for any stem re-run after this point.
+  const settled = model === 'acestep'
+    ? Promise.all(STEM_KINDS.map((kind) => runAcestepStem(job, kind, src)))
+    : runDemucs(job, src);
+  void settled.finally(() => releaseGenLock(jobId));
+
   return job;
 }
 
@@ -193,6 +198,8 @@ export function reextractStem(jobId: string, kind: StemKind): StemResult {
   const stem = job.stems.find((s) => s.kind === kind);
   if (!stem) throw new Error('unknown stem');
   if (stem.claimed) throw new Error('stem already claimed');
+  const lockId = crypto.randomUUID();
+  acquireGenLock({ kind: 'split', jobId: lockId, songId: job.songId });
   stem.status = 'running';
   stem.error = undefined;
   void loadSourceAudio(job.layerId)
@@ -200,7 +207,8 @@ export function reextractStem(jobId: string, kind: StemKind): StemResult {
     .catch((err) => {
       stem.status = 'failed';
       stem.error = err instanceof Error ? err.message : String(err);
-    });
+    })
+    .finally(() => releaseGenLock(lockId));
   return stem;
 }
 

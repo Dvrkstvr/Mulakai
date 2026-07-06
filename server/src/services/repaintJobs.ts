@@ -6,6 +6,7 @@ import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 import { type Job, registerJob, poll, ensureModelLoaded, fetchLyricTimestampsJson } from './jobs.js';
+import { acquireGenLock, releaseGenLock } from './genLock.js';
 
 function fmtTime(sec: number): string {
   return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
@@ -27,18 +28,26 @@ export async function startRepaint(layerId: string, params: ReleaseTaskParams): 
     .get(layerId) as { audio_file: string; song_id: string } | undefined;
   if (!row) throw new Error('unknown layer');
 
-  const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
-  const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'repaint' };
-  await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: row.audio_file } });
+  const jobId = crypto.randomUUID();
+  acquireGenLock({ kind: 'repaint', jobId, songId: row.song_id });
+  try {
+    const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
+    const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...params, task_type: 'repaint' };
+    await ensureModelLoaded(fullParams);
+    const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: row.audio_file } });
 
-  const job: Job = {
-    id: crypto.randomUUID(), taskId: task_id, status: 'running',
-    songId: row.song_id, createdAt: Date.now(),
-  };
-  registerJob(job);
-  void poll(job, (result) => persistVersion(layerId, result.file, fullParams, result, repaintLabel('repaint', params)));
-  return job;
+    const job: Job = {
+      id: jobId, taskId: task_id, status: 'running',
+      songId: row.song_id, createdAt: Date.now(),
+    };
+    registerJob(job);
+    void poll(job, (result) => persistVersion(layerId, result.file, fullParams, result, repaintLabel('repaint', params)))
+      .finally(() => releaseGenLock(jobId));
+    return job;
+  } catch (err) {
+    releaseGenLock(jobId);
+    throw err;
+  }
 }
 
 /**
@@ -63,27 +72,35 @@ export async function startRegenerate(versionId: string): Promise<Job> {
 
   const layerRow = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(version.layer_id) as { song_id: string };
 
-  let srcAudio: { data: Buffer; filename: string } | undefined;
-  if (taskType === 'repaint') {
-    const active = db
-      .prepare(`SELECT audio_file FROM versions WHERE layer_id = ? AND active = 1`)
-      .get(version.layer_id) as { audio_file: string } | undefined;
-    if (!active) throw new Error('unknown version');
-    srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
+  const jobId = crypto.randomUUID();
+  acquireGenLock({ kind: 'regenerate', jobId, songId: layerRow.song_id });
+  try {
+    let srcAudio: { data: Buffer; filename: string } | undefined;
+    if (taskType === 'repaint') {
+      const active = db
+        .prepare(`SELECT audio_file FROM versions WHERE layer_id = ? AND active = 1`)
+        .get(version.layer_id) as { audio_file: string } | undefined;
+      if (!active) throw new Error('unknown version');
+      srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
+    }
+
+    const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
+    await ensureModelLoaded(fullParams);
+    const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
+
+    const job: Job = {
+      id: jobId, taskId: task_id, status: 'running',
+      songId: layerRow.song_id, createdAt: Date.now(),
+    };
+    registerJob(job);
+    const label = taskType === 'repaint' ? repaintLabel('alt', freshParams) : `alt: ${version.label || 'generation'}`;
+    void poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false))
+      .finally(() => releaseGenLock(jobId));
+    return job;
+  } catch (err) {
+    releaseGenLock(jobId);
+    throw err;
   }
-
-  const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
-  await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
-
-  const job: Job = {
-    id: crypto.randomUUID(), taskId: task_id, status: 'running',
-    songId: layerRow.song_id, createdAt: Date.now(),
-  };
-  registerJob(job);
-  const label = taskType === 'repaint' ? repaintLabel('alt', freshParams) : `alt: ${version.label || 'generation'}`;
-  void poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false));
-  return job;
 }
 
 /**
@@ -116,27 +133,35 @@ export async function startSimilarTake(versionId: string): Promise<Job> {
 
   const layerRow = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(version.layer_id) as { song_id: string };
 
-  let srcAudio: { data: Buffer; filename: string } | undefined;
-  if (taskType === 'repaint') {
-    const active = db
-      .prepare(`SELECT audio_file FROM versions WHERE layer_id = ? AND active = 1`)
-      .get(version.layer_id) as { audio_file: string } | undefined;
-    if (!active) throw new Error('unknown version');
-    srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
+  const jobId = crypto.randomUUID();
+  acquireGenLock({ kind: 'retake', jobId, songId: layerRow.song_id });
+  try {
+    let srcAudio: { data: Buffer; filename: string } | undefined;
+    if (taskType === 'repaint') {
+      const active = db
+        .prepare(`SELECT audio_file FROM versions WHERE layer_id = ? AND active = 1`)
+        .get(version.layer_id) as { audio_file: string } | undefined;
+      if (!active) throw new Error('unknown version');
+      srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
+    }
+
+    const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
+    await ensureModelLoaded(fullParams);
+    const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
+
+    const job: Job = {
+      id: jobId, taskId: task_id, status: 'running',
+      songId: layerRow.song_id, createdAt: Date.now(),
+    };
+    registerJob(job);
+    const label = taskType === 'repaint' ? repaintLabel('similar', freshParams) : `similar: ${version.label || 'generation'}`;
+    void poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false))
+      .finally(() => releaseGenLock(jobId));
+    return job;
+  } catch (err) {
+    releaseGenLock(jobId);
+    throw err;
   }
-
-  const fullParams: ReleaseTaskParams = { audio_format: 'mp3', ...freshParams, task_type: taskType };
-  await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
-
-  const job: Job = {
-    id: crypto.randomUUID(), taskId: task_id, status: 'running',
-    songId: layerRow.song_id, createdAt: Date.now(),
-  };
-  registerJob(job);
-  const label = taskType === 'repaint' ? repaintLabel('similar', freshParams) : `similar: ${version.label || 'generation'}`;
-  void poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false));
-  return job;
 }
 
 /** Store a repaint/regenerate result as a version. `activate` (default true) makes it the layer's current version. */

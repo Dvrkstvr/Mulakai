@@ -16,10 +16,13 @@ interface Props {
   onSort: (v: LibrarySort) => void;
   filter: LibraryFilter;
   onFilter: (v: LibraryFilter) => void;
+  onSettings: () => void;
 }
 
-/** Search + sort + filter, grouped with the list they act on — not in the header. */
-export function LibraryToolbar({ query, onQuery, sort, onSort, filter, onFilter }: Props) {
+/** Search + sort + filter, grouped with the list they act on — not in the header.
+ * SETTINGS is the one nav-style action here (per PLAN.md's 4th peer screen), kept
+ * at the trailing edge so it reads as "leaves the list" rather than acting on it. */
+export function LibraryToolbar({ query, onQuery, sort, onSort, filter, onFilter, onSettings }: Props) {
   return (
     <div className="library-toolbar">
       <input
@@ -33,6 +36,9 @@ export function LibraryToolbar({ query, onQuery, sort, onSort, filter, onFilter 
       </button>
       <button className={filter === 'favorites' ? 'chip active' : 'chip'} onClick={() => onFilter('favorites')}>
         <span>FAVORITES</span>
+      </button>
+      <button className="chip" onClick={onSettings} aria-label="Settings">
+        <span>SETTINGS</span>
       </button>
     </div>
   );

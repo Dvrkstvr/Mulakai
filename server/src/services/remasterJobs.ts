@@ -12,9 +12,12 @@ import path from 'node:path';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams } from './acestep.js';
 import { type Job, registerJob, poll, ensureModelLoaded } from './jobs.js';
+import { acquireGenLock, releaseGenLock } from './genLock.js';
 
-/** modelInfo.ts's documented ceiling for non-Turbo models (Turbo doesn't meaningfully support `cover` and is excluded by the model gate anyway). */
-const REMASTER_STEPS = 100;
+/** Default steps if the caller doesn't pass one — matches modelInfo.ts's prior fixed value. */
+const DEFAULT_REMASTER_STEPS = 100;
+/** ACE-Step's documented Base-model ceiling (docs/ace-step-1.5/API.md#4.2) — not the requested 256. */
+const MAX_REMASTER_STEPS = 200;
 
 interface SongMeta {
   caption: string;
@@ -24,45 +27,62 @@ interface SongMeta {
   time_signature: string;
 }
 
+export interface RemasterOptions {
+  audioFormat?: string;
+  steps?: number;
+}
+
 /**
  * Cover the client-bounced current mix at max quality. `audio_cover_strength`
  * and `guidance_scale` are deliberately left unset so ACE-Step's own defaults
  * apply (1.0 = closest to source; server-default CFG) — see PLAN.md's Export
- * & Remaster design for why those aren't overridden here.
+ * & Remaster design for why those aren't overridden here. `audioFormat`/`steps`
+ * come from the client's Settings > Playback & Export defaults.
  */
-export async function startRemaster(songId: string, mixAudio: Buffer, model: string): Promise<Job> {
+export async function startRemaster(songId: string, mixAudio: Buffer, model: string, opts: RemasterOptions = {}): Promise<Job> {
   const song = db
     .prepare(`SELECT caption, lyrics, bpm, key_scale, time_signature FROM songs WHERE id = ?`)
     .get(songId) as SongMeta | undefined;
   if (!song) throw new Error('unknown song');
 
-  const fullParams: ReleaseTaskParams = {
-    audio_format: 'wav',
-    task_type: 'cover',
-    model,
-    inference_steps: REMASTER_STEPS,
-    prompt: song.caption,
-    lyrics: song.lyrics,
-    ...(song.bpm ? { bpm: song.bpm } : {}),
-    ...(song.key_scale ? { key_scale: song.key_scale } : {}),
-    ...(song.time_signature ? { time_signature: song.time_signature } : {}),
-  };
-  await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, { srcAudio: { data: mixAudio, filename: 'mix.wav' } });
+  const audioFormat = opts.audioFormat ?? 'wav';
+  const steps = Math.min(opts.steps ?? DEFAULT_REMASTER_STEPS, MAX_REMASTER_STEPS);
 
-  const job: Job = { id: crypto.randomUUID(), taskId: task_id, status: 'running', songId, createdAt: Date.now() };
-  registerJob(job);
-  void poll(job, async (result) => {
-    job.resultPath = await downloadToScratch(result.file);
-    return songId;
-  });
-  return job;
+  const jobId = crypto.randomUUID();
+  acquireGenLock({ kind: 'remaster', jobId, songId });
+  try {
+    const fullParams: ReleaseTaskParams = {
+      audio_format: audioFormat,
+      task_type: 'cover',
+      model,
+      inference_steps: steps,
+      prompt: song.caption,
+      lyrics: song.lyrics,
+      ...(song.bpm ? { bpm: song.bpm } : {}),
+      ...(song.key_scale ? { key_scale: song.key_scale } : {}),
+      ...(song.time_signature ? { time_signature: song.time_signature } : {}),
+    };
+    await ensureModelLoaded(fullParams);
+    const { task_id } = await releaseTask(fullParams, { srcAudio: { data: mixAudio, filename: 'mix.wav' } });
+
+    const job: Job = { id: jobId, taskId: task_id, status: 'running', songId, createdAt: Date.now() };
+    registerJob(job);
+    void poll(job, async (result) => {
+      job.resultPath = await downloadToScratch(result.file, audioFormat);
+      return songId;
+    }).finally(() => releaseGenLock(jobId));
+    return job;
+  } catch (err) {
+    releaseGenLock(jobId);
+    throw err;
+  }
 }
 
 /** Download the cover result to the OS temp dir, not `config.audioDir` — this file is never part of the library. */
-async function downloadToScratch(fileUrl: string): Promise<string> {
+async function downloadToScratch(fileUrl: string, audioFormat: string): Promise<string> {
   const audio = await downloadAudio(fileUrl);
-  const filePath = path.join(os.tmpdir(), `mulakai-remaster-${crypto.randomUUID()}.wav`);
+  const ext = audioFormat === 'wav32' ? 'wav' : audioFormat;
+  const filePath = path.join(os.tmpdir(), `mulakai-remaster-${crypto.randomUUID()}.${ext}`);
   await fs.writeFile(filePath, audio);
   return filePath;
 }

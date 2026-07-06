@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PlayerWaveform } from './PlayerWaveform';
 import { VolumeSlider } from './VolumeSlider';
 import type { PlaybackApi } from './mix/playerApi';
+import { useSettings } from './settings';
 
 interface Props {
   engine: PlaybackApi;
@@ -19,8 +20,16 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 
 /** Custom transport per docs/design/DESIGN.md — hexagon play, square stop, sky scrub, neutral volume/download. Driven by a shared PlaybackEngine, not a native <audio> element. */
 export function Player({ engine, downloadSrc, title, downloadName, showProgress = true, minimal = false }: Props) {
-  const [volume, setVolume] = useState(1);
+  const defaultVolume = useSettings((s) => s.exportSettings.volume);
+  const [volume, setVolume] = useState(defaultVolume);
   const { isPlaying, currentTime, duration } = engine;
+
+  // Applies Settings > Playback & Export's default volume once this player's engine is
+  // ready — a fresh <audio>/PlaybackEngine otherwise starts at its own 1.0 default.
+  useEffect(() => {
+    engine.setVolume(defaultVolume);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const togglePlay = () => (isPlaying ? engine.pause() : engine.play());
 
