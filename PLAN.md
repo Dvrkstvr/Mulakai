@@ -733,16 +733,21 @@ predates this and is superseded by it, same as FORGE already was.
   `FORGE_PLAN.md`'s existing "feature-gated, hidden by default" decision —
   the screen behind it is a stub (`ForgeStub.tsx`) until release 1.0.
 
-## Output File Metadata (added 2026-07-06)
+## Output File Metadata (added 2026-07-06, revised same day)
 
-Every generated audio file gets real embedded tags (title/BPM/key from the
-song, Artist/Encoder/Album/Genre/cover art from Settings' defaults, plus a
-per-song Comment editable in the Library's song detail rail) via
+Every generated audio file gets real embedded tags via
 `server/src/services/fileTags.ts`, using `node-taglib-sharp` — the only
 lightweight option that supports choosing the ID3v2 tag *version* (2.3 vs
 2.4); `node-id3`/`browser-id3-writer` both hardcode v2.3 and were rejected
 for that reason (verified empirically against their installed source, not
 their docs). No loudness normalization — tags only, by explicit decision.
+
+**Split between global defaults and per-song fields** (revised 2026-07-06):
+Artist/Encoder + the ID3 version choice are global (Settings > Output File
+Metadata). Title/BPM/key come from the song's own generation metadata.
+Genre/Album/cover-art/Comment are **per-song** — they don't make sense as a
+single global default — and live in `SongDetailRail.tsx` (Library's song
+detail rail), grouped directly under the CREATE COVER FROM AUDIO button.
 
 **A real constraint worth knowing**: `node-taglib-sharp` can only embed an
 ID3v2 tag in a WAV/RIFF container using the v2.4 footer feature — asking for
@@ -754,20 +759,22 @@ error and **falls back to v2.4 for that one file** rather than leaving it
 untagged, logging a one-line note when it does. MP3 correctly honors
 whichever version is configured.
 
-- `server/src/db/schema.ts` — new single-row `output_metadata` table
-  (artist/encoder/album/genre/cover_art_file/id3_version); `songs.comment`
-  added via `db/index.ts`'s `ensureColumn` migration helper.
-- `server/src/services/outputMetadata.ts` — CRUD for the settings row +
-  cover-art file storage (reuses `config.audioDir`, reserved `_cover-art.*`
-  filename so it never collides with UUID-named song audio).
-- `server/src/services/fileTags.ts` — `tagOutputFile()` (single file) +
-  `retagSong()` (re-stamps every layer's active version when a song-level
-  field like title/comment changes later).
+- `server/src/db/schema.ts` — single-row `output_metadata` table (now just
+  artist/encoder/id3_version); `songs.comment`/`genre`/`album`/
+  `cover_art_file` added via `db/index.ts`'s `ensureColumn` migration helper.
+- `server/src/services/outputMetadata.ts` — CRUD for the global settings row.
+- `server/src/services/fileTags.ts` — `tagOutputFile()` (single file, genre/
+  album/cover art passed in per-call from the song row) + `retagSong()`
+  (re-stamps every layer's active version when a song-level field changes).
 - Wired into every job that writes a persisted audio file: `jobs.ts`
   (`persistSong`), `repaintJobs.ts` (`persistVersion`), `addLayerJobs.ts`
-  (`persistNewLayer`), and `remasterJobs.ts` (its scratch-file export).
-- `server/src/routes/outputMetadata.ts` — `GET/PATCH /api/output-metadata`,
-  `POST/DELETE .../cover-art`; `songs.ts` gained `PATCH /:id/comment`.
-- Client: `OutputMetadataSection.tsx` (Settings, at the very bottom, per
-  request) for the defaults; `SongDetailRail.tsx` gained an editable COMMENT
-  field.
+  (`persistNewLayer`), and `remasterJobs.ts` (its scratch-file export) — each
+  now also selects `genre`/`album`/`cover_art_file` off the song row.
+- `server/src/routes/outputMetadata.ts` — `GET/PATCH /api/output-metadata`
+  (artist/encoder/id3Version only). `songs.ts` gained `PATCH /:id/metadata`
+  (genre/album/comment, partial) and `POST/DELETE /:id/cover-art` (per-song,
+  stored as `${songId}-cover.<ext>` in `config.audioDir`).
+- Client: `OutputMetadataSection.tsx` (Settings) trimmed to Artist/Encoder/
+  ID3 version. `SongDetailRail.tsx` gained COMMENT (under METADATA) and a new
+  "OUTPUT FILE TAGS" block (GENRE/ALBUM/COVER ART) placed directly under the
+  REUSE PROMPT / CREATE COVER FROM AUDIO actions, per request.

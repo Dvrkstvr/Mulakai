@@ -77,9 +77,14 @@ async function persistNewLayer(
   const filename = `${versionId}.${audioFileExt(params.audio_format)}`;
   await fs.writeFile(path.join(config.audioDir, filename), audio);
 
-  const song = db.prepare(`SELECT title, bpm, key_scale FROM songs WHERE id = ?`).get(songId) as
-    { title: string; bpm: number | null; key_scale: string } | undefined;
-  if (song) await tagOutputFile(path.join(config.audioDir, filename), { title: song.title, bpm: song.bpm, keyScale: song.key_scale });
+  const song = db.prepare(`SELECT title, bpm, key_scale, genre, album, cover_art_file FROM songs WHERE id = ?`).get(songId) as
+    { title: string; bpm: number | null; key_scale: string; genre: string; album: string; cover_art_file: string | null } | undefined;
+  if (song) {
+    await tagOutputFile(path.join(config.audioDir, filename), {
+      title: song.title, bpm: song.bpm, keyScale: song.key_scale,
+      genre: song.genre, album: song.album, coverArtFile: song.cover_art_file,
+    });
+  }
 
   const { maxPos } = db
     .prepare(`SELECT COALESCE(MAX(position), -1) as maxPos FROM layers WHERE song_id = ?`)

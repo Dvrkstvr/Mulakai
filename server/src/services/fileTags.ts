@@ -1,8 +1,8 @@
 /**
- * Stamps output-file metadata (artist/album/genre/encoder/cover art from Settings, plus
- * per-song title/bpm/key/comment) onto a generated audio file, and re-stamps it when a
- * song's fields change later (e.g. its comment). Uses node-taglib-sharp rather than an
- * ID3-only library since it's the only lightweight option that supports choosing the
+ * Stamps output-file metadata (artist/encoder from Settings' global defaults; title/bpm/
+ * key/comment/genre/album/cover art from the song itself) onto a generated audio file,
+ * and re-stamps it when a song's fields change later. Uses node-taglib-sharp rather than
+ * an ID3-only library since it's the only lightweight option that supports choosing the
  * ID3v2 tag version (2.3 vs 2.4) — node-id3/browser-id3-writer both hardcode v2.3.
  * No loudness normalization or other audio processing happens here — tags only.
  */
@@ -17,6 +17,10 @@ export interface SongTagFields {
   bpm?: number | null;
   keyScale?: string;
   comment?: string;
+  genre?: string;
+  album?: string;
+  /** Filename inside config.audioDir, or null/undefined for none. */
+  coverArtFile?: string | null;
 }
 
 /**
@@ -36,15 +40,15 @@ function writeTagsAtVersion(filePath: string, fields: SongTagFields, meta: Retur
   try {
     file.tag.title = fields.title;
     if (meta.artist) file.tag.performers = [meta.artist];
-    if (meta.album) file.tag.album = meta.album;
-    if (meta.genre) file.tag.genres = [meta.genre];
+    if (fields.album) file.tag.album = fields.album;
+    if (fields.genre) file.tag.genres = [fields.genre];
     if (fields.comment) file.tag.comment = fields.comment;
     if (fields.bpm) file.tag.beatsPerMinute = fields.bpm;
     if (fields.keyScale) file.tag.initialKey = fields.keyScale;
 
-    if (meta.coverArtFile) {
+    if (fields.coverArtFile) {
       try {
-        file.tag.pictures = [Picture.fromPath(path.join(config.audioDir, meta.coverArtFile))];
+        file.tag.pictures = [Picture.fromPath(path.join(config.audioDir, fields.coverArtFile))];
       } catch { /* cover art missing on disk — tag without it */ }
     }
 
@@ -89,19 +93,29 @@ interface SongRow {
   bpm: number | null;
   key_scale: string;
   comment: string;
+  genre: string;
+  album: string;
+  cover_art_file: string | null;
+}
+
+function toTagFields(song: SongRow): SongTagFields {
+  return {
+    title: song.title, bpm: song.bpm, keyScale: song.key_scale, comment: song.comment,
+    genre: song.genre, album: song.album, coverArtFile: song.cover_art_file,
+  };
 }
 
 /** Re-tags every layer's currently active version file for a song — used when a
- * song-level field (comment) changes after its files already exist. */
+ * song-level field (comment, genre, album, cover art) changes after its files already exist. */
 export async function retagSong(songId: string): Promise<void> {
-  const song = db.prepare(`SELECT title, bpm, key_scale, comment FROM songs WHERE id = ?`).get(songId) as SongRow | undefined;
+  const song = db
+    .prepare(`SELECT title, bpm, key_scale, comment, genre, album, cover_art_file FROM songs WHERE id = ?`)
+    .get(songId) as SongRow | undefined;
   if (!song) return;
   const versions = db
     .prepare(`SELECT v.audio_file FROM versions v JOIN layers l ON v.layer_id = l.id WHERE l.song_id = ? AND v.active = 1`)
     .all(songId) as Array<{ audio_file: string }>;
   for (const { audio_file } of versions) {
-    await tagOutputFile(path.join(config.audioDir, audio_file), {
-      title: song.title, bpm: song.bpm, keyScale: song.key_scale, comment: song.comment,
-    });
+    await tagOutputFile(path.join(config.audioDir, audio_file), toTagFields(song));
   }
 }

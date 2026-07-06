@@ -21,7 +21,7 @@ vi.mock('node-taglib-sharp', () => ({
 }));
 
 const { db } = await import('../db/index.js');
-const { getOutputMetadata, updateOutputMetadata, setCoverArt } = await import('./outputMetadata.js');
+const { updateOutputMetadata } = await import('./outputMetadata.js');
 const { tagOutputFile, retagSong } = await import('./fileTags.js');
 
 beforeEach(() => {
@@ -30,13 +30,15 @@ beforeEach(() => {
   fakeFile.save.mockClear();
   fakeFile.dispose.mockClear();
   for (const k of Object.keys(fakeTag)) delete fakeTag[k];
-  updateOutputMetadata({ artist: '', encoder: 'Mulakai + ACE-Step 1.5', album: '', genre: '', id3Version: '4' });
+  updateOutputMetadata({ artist: '', encoder: 'Mulakai + ACE-Step 1.5', id3Version: '4' });
 });
 
 describe('tagOutputFile', () => {
-  it('sets title/bpm/key/comment plus the configured artist/album/genre defaults', async () => {
-    updateOutputMetadata({ artist: 'Copper Sky', album: 'Demos', genre: 'synthwave' });
-    await tagOutputFile('/tmp/song.mp3', { title: 'Midnight Static', bpm: 128, keyScale: 'A minor', comment: 'v3 take' });
+  it('sets title/bpm/key/comment/genre/album from the per-song fields, artist from the global default', async () => {
+    updateOutputMetadata({ artist: 'Copper Sky' });
+    await tagOutputFile('/tmp/song.mp3', {
+      title: 'Midnight Static', bpm: 128, keyScale: 'A minor', comment: 'v3 take', genre: 'synthwave', album: 'Demos',
+    });
 
     expect(fakeTag.title).toBe('Midnight Static');
     expect(fakeTag.performers).toEqual(['Copper Sky']);
@@ -62,9 +64,8 @@ describe('tagOutputFile', () => {
     expect(idSettings.forceDefaultVersion).toBe(true);
   });
 
-  it('embeds the default cover art when one is configured', async () => {
-    await setCoverArt(Buffer.from('png-bytes'), '.png');
-    await tagOutputFile('/tmp/song.mp3', { title: 'x' });
+  it('embeds a per-song cover art file when provided', async () => {
+    await tagOutputFile('/tmp/song.mp3', { title: 'x', coverArtFile: 'some-song-cover.png' });
     expect(fakeTag.pictures).toBeTruthy();
   });
 
@@ -75,11 +76,12 @@ describe('tagOutputFile', () => {
 });
 
 describe('retagSong', () => {
-  it('re-tags every active version file across all of a song\'s layers', async () => {
+  it("re-tags every active version file across all of a song's layers, including genre/album/cover art", async () => {
     const songId = crypto.randomUUID();
     const layerId = crypto.randomUUID();
     db.prepare(
-      `INSERT INTO songs (id, title, caption, bpm, key_scale, comment) VALUES (?, 'Renamed Title', '', 120, 'C major', 'new comment')`,
+      `INSERT INTO songs (id, title, caption, bpm, key_scale, comment, genre, album, cover_art_file)
+       VALUES (?, 'Renamed Title', '', 120, 'C major', 'new comment', 'ambient', 'Demos', 'cover.png')`,
     ).run(songId);
     db.prepare(`INSERT INTO layers (id, song_id, name, kind, position) VALUES (?, ?, 'Base', 'base', 0)`).run(layerId, songId);
     db.prepare(
@@ -90,6 +92,9 @@ describe('retagSong', () => {
 
     expect(fakeTag.title).toBe('Renamed Title');
     expect(fakeTag.comment).toBe('new comment');
+    expect(fakeTag.genres).toEqual(['ambient']);
+    expect(fakeTag.album).toBe('Demos');
+    expect(fakeTag.pictures).toBeTruthy();
   });
 
   it('is a no-op for an unknown song', async () => {

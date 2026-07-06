@@ -1,12 +1,15 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Router } from 'express';
+import multer from 'multer';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { emptyTrashNow } from '../services/trashSweep.js';
 import { retagSong } from '../services/fileTags.js';
 
 export const songsRouter = Router();
+
+const coverArtUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 /** List songs: favorites first, trashed excluded. ?q= searches title/caption/lyrics. */
 songsRouter.get('/', (req, res) => {
@@ -85,15 +88,50 @@ songsRouter.patch('/:id/title', async (req, res) => {
   const title = String(req.body?.title ?? '').trim();
   if (!title) return res.status(400).json({ error: 'title required' });
   db.prepare(`UPDATE songs SET title = ? WHERE id = ?`).run(title, req.params.id);
-  await retagSong(req.params.id);
+  await retagSong(String(req.params.id));
   res.json({ ok: true });
 });
 
-/** Editable from the Library's song detail rail — feeds the COMM/comment output-file tag. */
-songsRouter.patch('/:id/comment', async (req, res) => {
-  const comment = String(req.body?.comment ?? '');
-  db.prepare(`UPDATE songs SET comment = ? WHERE id = ?`).run(comment, req.params.id);
-  await retagSong(req.params.id);
+/** Editable from the Library's song detail rail — feeds the COMM/TCON/TALB output-file tags. */
+songsRouter.patch('/:id/metadata', async (req, res) => {
+  const { genre, album, comment } = req.body ?? {};
+  db.prepare(
+    `UPDATE songs SET
+       genre   = COALESCE(?, genre),
+       album   = COALESCE(?, album),
+       comment = COALESCE(?, comment)
+     WHERE id = ?`,
+  ).run(
+    typeof genre === 'string' ? genre : null,
+    typeof album === 'string' ? album : null,
+    typeof comment === 'string' ? comment : null,
+    req.params.id,
+  );
+  await retagSong(String(req.params.id));
+  res.json({ ok: true });
+});
+
+/** Per-song cover art (APIC frame) — replaces any existing one for this song. */
+songsRouter.post('/:id/cover-art', coverArtUpload.single('image'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'image is required' });
+  const song = db.prepare(`SELECT cover_art_file FROM songs WHERE id = ?`).get(req.params.id) as { cover_art_file: string | null } | undefined;
+  if (!song) return res.status(404).json({ error: 'unknown song' });
+  if (song.cover_art_file) await fs.unlink(path.join(config.audioDir, song.cover_art_file)).catch(() => {});
+
+  const ext = path.extname(req.file.originalname) || '.png';
+  const filename = `${req.params.id}-cover${ext}`;
+  await fs.writeFile(path.join(config.audioDir, filename), req.file.buffer);
+  db.prepare(`UPDATE songs SET cover_art_file = ? WHERE id = ?`).run(filename, req.params.id);
+  await retagSong(String(req.params.id));
+  res.json({ coverArtFile: filename });
+});
+
+songsRouter.delete('/:id/cover-art', async (req, res) => {
+  const song = db.prepare(`SELECT cover_art_file FROM songs WHERE id = ?`).get(req.params.id) as { cover_art_file: string | null } | undefined;
+  if (!song) return res.status(404).json({ error: 'unknown song' });
+  if (song.cover_art_file) await fs.unlink(path.join(config.audioDir, song.cover_art_file)).catch(() => {});
+  db.prepare(`UPDATE songs SET cover_art_file = NULL WHERE id = ?`).run(req.params.id);
+  await retagSong(String(req.params.id));
   res.json({ ok: true });
 });
 

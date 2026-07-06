@@ -12,14 +12,14 @@ export interface Song {
   trashed_at: string | null;
   created_at: string;
   comment: string;
+  genre: string;
+  album: string;
+  cover_art_file: string | null;
 }
 
 export interface OutputMetadata {
   artist: string;
   encoder: string;
-  album: string;
-  genre: string;
-  coverArtUrl: string | null;
   id3Version: '3' | '4';
 }
 
@@ -322,31 +322,31 @@ export const api = {
   deleteVoice: (id: string): Promise<void> =>
     fetch(`/api/voices/${id}`, { method: 'DELETE' }).then((r) => json(r)),
 
-  updateSongComment: (id: string, comment: string): Promise<void> =>
-    fetch(`/api/songs/${id}/comment`, {
+  updateSongMetadata: (id: string, patch: { genre?: string; album?: string; comment?: string }): Promise<void> =>
+    fetch(`/api/songs/${id}/metadata`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ comment }),
+      body: JSON.stringify(patch),
     }).then(() => undefined),
+
+  uploadSongCoverArt: (id: string, image: Blob): Promise<{ coverArtFile: string }> => {
+    const form = new FormData();
+    form.append('image', image, 'cover.png');
+    return fetch(`/api/songs/${id}/cover-art`, { method: 'POST', body: form }).then((r) => json(r));
+  },
+
+  deleteSongCoverArt: (id: string): Promise<void> =>
+    fetch(`/api/songs/${id}/cover-art`, { method: 'DELETE' }).then(() => undefined),
 
   getOutputMetadata: (): Promise<OutputMetadata> =>
     fetch('/api/output-metadata').then((r) => json<OutputMetadata>(r)),
 
   updateOutputMetadata: (
-    patch: Partial<Pick<OutputMetadata, 'artist' | 'encoder' | 'album' | 'genre' | 'id3Version'>>,
+    patch: Partial<Pick<OutputMetadata, 'artist' | 'encoder' | 'id3Version'>>,
   ): Promise<OutputMetadata> =>
     fetch('/api/output-metadata', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(patch),
     }).then((r) => json<OutputMetadata>(r)),
-
-  uploadCoverArt: (image: Blob): Promise<OutputMetadata> => {
-    const form = new FormData();
-    form.append('image', image, 'cover.png');
-    return fetch('/api/output-metadata/cover-art', { method: 'POST', body: form }).then((r) => json<OutputMetadata>(r));
-  },
-
-  deleteCoverArt: (): Promise<OutputMetadata> =>
-    fetch('/api/output-metadata/cover-art', { method: 'DELETE' }).then((r) => json<OutputMetadata>(r)),
 };

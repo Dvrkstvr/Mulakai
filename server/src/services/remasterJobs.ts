@@ -28,6 +28,9 @@ interface SongMeta {
   key_scale: string;
   time_signature: string;
   comment: string;
+  genre: string;
+  album: string;
+  cover_art_file: string | null;
 }
 
 export interface RemasterOptions {
@@ -44,7 +47,7 @@ export interface RemasterOptions {
  */
 export async function startRemaster(songId: string, mixAudio: Buffer, model: string, opts: RemasterOptions = {}): Promise<Job> {
   const song = db
-    .prepare(`SELECT title, caption, lyrics, bpm, key_scale, time_signature, comment FROM songs WHERE id = ?`)
+    .prepare(`SELECT title, caption, lyrics, bpm, key_scale, time_signature, comment, genre, album, cover_art_file FROM songs WHERE id = ?`)
     .get(songId) as SongMeta | undefined;
   if (!song) throw new Error('unknown song');
 
@@ -74,6 +77,7 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
       job.resultPath = await downloadToScratch(result.file, audioFormat);
       await tagOutputFile(job.resultPath, {
         title: song.title, bpm: song.bpm, keyScale: song.key_scale, comment: song.comment,
+        genre: song.genre, album: song.album, coverArtFile: song.cover_art_file,
       });
       return songId;
     }).finally(() => releaseGenLock(jobId));

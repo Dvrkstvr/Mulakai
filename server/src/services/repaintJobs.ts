@@ -181,9 +181,14 @@ async function persistVersion(
   await fs.writeFile(path.join(config.audioDir, filename), audio);
 
   const row = db.prepare(`SELECT song_id, kind FROM layers WHERE id = ?`).get(layerId) as { song_id: string; kind: string };
-  const song = db.prepare(`SELECT title, bpm, key_scale FROM songs WHERE id = ?`).get(row.song_id) as
-    { title: string; bpm: number | null; key_scale: string } | undefined;
-  if (song) await tagOutputFile(path.join(config.audioDir, filename), { title: song.title, bpm: song.bpm, keyScale: song.key_scale });
+  const song = db.prepare(`SELECT title, bpm, key_scale, genre, album, cover_art_file FROM songs WHERE id = ?`).get(row.song_id) as
+    { title: string; bpm: number | null; key_scale: string; genre: string; album: string; cover_art_file: string | null } | undefined;
+  if (song) {
+    await tagOutputFile(path.join(config.audioDir, filename), {
+      title: song.title, bpm: song.bpm, keyScale: song.key_scale,
+      genre: song.genre, album: song.album, coverArtFile: song.cover_art_file,
+    });
+  }
 
   if (activate) db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(layerId);
   db.prepare(

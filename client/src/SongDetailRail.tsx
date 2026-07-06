@@ -23,15 +23,22 @@ function MetaRow({ label, value }: { label: string; value: string }) {
 
 /** Library's right-hand rail: metadata + quick actions for a selected song, same
  * carbon-panel idiom as Editor's version rail / Create's refine rail. Opens on a
- * row/title click (not EDIT, which still opens the full Editor). */
+ * row/title click (not EDIT, which still opens the full Editor).
+ * Genre/album/cover art/comment are per-song output-file tag fields (Artist/Encoder/ID3
+ * version stay as global defaults in Settings > Output File Metadata). */
 export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, onRenamed }: Props) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
   const [comment, setComment] = useState(song.comment);
+  const [genre, setGenre] = useState(song.genre);
+  const [album, setAlbum] = useState(song.album);
+  const [coverUploading, setCoverUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setTitle(song.title), [song.title]);
   useEffect(() => setComment(song.comment), [song.comment]);
+  useEffect(() => setGenre(song.genre), [song.genre]);
+  useEffect(() => setAlbum(song.album), [song.album]);
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
@@ -48,7 +55,32 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
 
   const commitComment = () => {
     if (comment === song.comment) return;
-    api.updateSongComment(song.id, comment).then(onRenamed);
+    api.updateSongMetadata(song.id, { comment }).then(onRenamed);
+  };
+
+  const commitGenre = () => {
+    if (genre === song.genre) return;
+    api.updateSongMetadata(song.id, { genre }).then(onRenamed);
+  };
+
+  const commitAlbum = () => {
+    if (album === song.album) return;
+    api.updateSongMetadata(song.id, { album }).then(onRenamed);
+  };
+
+  const uploadCoverArt = async (file: File) => {
+    setCoverUploading(true);
+    try {
+      await api.uploadSongCoverArt(song.id, file);
+      onRenamed();
+    } finally {
+      setCoverUploading(false);
+    }
+  };
+
+  const removeCoverArt = async () => {
+    await api.deleteSongCoverArt(song.id);
+    onRenamed();
   };
 
   return (
@@ -105,6 +137,38 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
         <div className="detail-actions">
           <button className="acid" onClick={() => onReusePrompt(song)}>REUSE PROMPT</button>
           <button className="acid-outline" onClick={() => onCreateCover(song)}>CREATE COVER FROM AUDIO</button>
+        </div>
+
+        <div className="detail-meta">
+          <div className="section-header">OUTPUT FILE TAGS</div>
+          <div className="setting">
+            <div className="setting-head"><span>GENRE</span></div>
+            <input value={genre} onChange={(e) => setGenre(e.target.value)} onBlur={commitGenre} placeholder="AUTO — left blank" />
+          </div>
+          <div className="setting">
+            <div className="setting-head"><span>ALBUM</span></div>
+            <input value={album} onChange={(e) => setAlbum(e.target.value)} onBlur={commitAlbum} placeholder="AUTO — left blank" />
+          </div>
+          <div className="setting">
+            <div className="setting-head"><span>COVER ART</span></div>
+            {song.cover_art_file ? (
+              <div className="voice-list-row">
+                <img src={`/audio/${song.cover_art_file}`} alt="Cover art" style={{ width: 40, height: 40, objectFit: 'cover' }} />
+                <button onClick={removeCoverArt}><span>REMOVE</span></button>
+              </div>
+            ) : (
+              <label className="dropzone">
+                <input
+                  type="file"
+                  accept="image/*"
+                  style={{ display: 'none' }}
+                  disabled={coverUploading}
+                  onChange={(e) => e.target.files?.[0] && uploadCoverArt(e.target.files[0])}
+                />
+                {coverUploading ? 'uploading…' : 'click to upload cover art'}
+              </label>
+            )}
+          </div>
         </div>
       </div>
     </aside>
