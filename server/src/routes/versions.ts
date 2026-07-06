@@ -7,14 +7,32 @@ import { startRegenerate, startSimilarTake } from '../services/repaintJobs.js';
 
 export const versionsRouter = Router();
 
-/** Make an older version the active one (revert). */
+/**
+ * Make an older version the active one (revert). For the base layer, also
+ * restores the song's canonical lyrics to whatever this version was rendered
+ * with (stored in its params_json since generation/repaint always send it) —
+ * audio and lyrics move together on revert, mirroring how repaint updates
+ * both together (see repaintJobs.ts's persistVersion).
+ */
 versionsRouter.patch('/versions/:versionId/activate', (req, res) => {
   const version = db
-    .prepare(`SELECT id, layer_id FROM versions WHERE id = ?`)
-    .get(req.params.versionId) as { id: string; layer_id: string } | undefined;
+    .prepare(
+      `SELECT v.id, v.layer_id, v.params_json, l.kind, l.song_id FROM versions v
+       JOIN layers l ON v.layer_id = l.id
+       WHERE v.id = ?`,
+    )
+    .get(req.params.versionId) as
+    { id: string; layer_id: string; params_json: string; kind: string; song_id: string } | undefined;
   if (!version) return res.status(404).json({ error: 'unknown version' });
   db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(version.layer_id);
   db.prepare(`UPDATE versions SET active = 1 WHERE id = ?`).run(version.id);
+
+  if (version.kind === 'base') {
+    const params = JSON.parse(version.params_json) as { lyrics?: string };
+    if (typeof params.lyrics === 'string' && params.lyrics.trim()) {
+      db.prepare(`UPDATE songs SET lyrics = ? WHERE id = ?`).run(params.lyrics, version.song_id);
+    }
+  }
   res.json({ ok: true });
 });
 

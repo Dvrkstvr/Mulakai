@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { groupSections } from './lyricSections';
+import { groupSections, findActiveSectionIndex } from './lyricSections';
 import type { LyricLine } from './api';
 
 const line = (start: number, end: number, text: string): LyricLine => ({ start, end, text });
@@ -60,5 +60,28 @@ describe('groupSections', () => {
       { label: 'Verse', start: 0, end: 7 },
       { label: 'Chorus', start: 7, end: 15 },
     ]);
+  });
+});
+
+describe('findActiveSectionIndex', () => {
+  const sections = [
+    { label: 'Verse', start: 0, end: 11 },
+    { label: 'Chorus', start: 11, end: 30 },
+  ];
+
+  it('returns -1 for a null selection', () => {
+    expect(findActiveSectionIndex(sections, null)).toBe(-1);
+  });
+
+  it('returns the matching index for an exact span', () => {
+    expect(findActiveSectionIndex(sections, { start: 11, end: 30 })).toBe(1);
+  });
+
+  it('tolerates tiny floating-point drift', () => {
+    expect(findActiveSectionIndex(sections, { start: 11.02, end: 29.98 })).toBe(1);
+  });
+
+  it('returns -1 for a manually adjusted/partial region', () => {
+    expect(findActiveSectionIndex(sections, { start: 12, end: 25 })).toBe(-1);
   });
 });

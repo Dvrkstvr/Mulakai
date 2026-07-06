@@ -216,6 +216,19 @@ stacked modals.
      bpm/key metadata, and EXPORT live in the center column and right rail
      respectively (see below) — the header stays free of anything scoped to
      "this song," so it doesn't need to re-render per-song content.
+   - Left column (~210–240px, permanent, fixed width): a **lyrics panel**
+     stacked above the repaint settings panel (see below). Read-only by
+     default (plain text, tag lines in the structure typography voice);
+     unlocks into an editable textarea only while the current selection is
+     exactly one whole section (see Section strip below) on the base layer —
+     editing at any finer/coarser granularity isn't meaningful, since repaint
+     only re-renders the selected region regardless of what surrounding text
+     says. Selecting a section always highlights (locked) or native-selects
+     (unlocked) its matching lyrics block, so the two stay visually in sync.
+     Edited lyrics are sent as repaint conditioning and become the song's
+     canonical lyrics on success; reverting to an older version restores that
+     version's own lyrics alongside its audio (same "current" idiom as audio
+     history — see Lilac below).
    - Left settings panel (~210–240px, see below): repaint parameters.
      Permanent, fixed width.
    - **Title row**: song title (bold, 16px) + time/bpm/key/layer-count
@@ -275,7 +288,8 @@ stacked modals.
      volume, download) — `minimal` is Editor-only.
    - Section strip: parallelogram segments (Intro/Verse/…) derived from
      lyric-aligned timestamps, flex-weighted by section length; click = select
-     that section as the region; active (selected) = sky.
+     that section as the region; active (selected) = sky. Double-click also
+     moves the playhead to the section's start, for quick preview.
    - Prompt bar: sky scope chip mirroring current selection, free-text
      instruction, acid REPAINT REGION action.
    - **Right rail** (~260–320px, carbon-panel surface, 1px border): persistent,
