@@ -86,7 +86,10 @@ UI + orchestration around the existing API surface.
 
 Full spec in `docs/design/DESIGN.md` — read it before any UI work. Summary:
 
-- **Desktop-only** SPA with exactly three screens: Library, Create, Editor.
+- **Desktop-only** SPA with a flat, enumerable set of top-level views, each a
+  full takeover reached from one nav entry point. Library, Create, and Editor
+  are the three core views (the creative loop); the set is allowed to grow
+  as the app grows — see `docs/design/DESIGN.md`'s "App model" section.
 - **Interaction rhythm**: target (select region/section — sky blue) → commit
   (generate/repaint — acid). Quick path via a scope-aware prompt bar; control
   path via a side sheet with full generation parameters.
@@ -554,6 +557,116 @@ same day), discussed and decided 2026-07-02:
    downloading the focused layer's individual stem (unchanged) — the new
    engine is for in-app preview, not a rendered composite file (Phase 9
    Export is still an open question, see the Add Layer design above).
+
+## Export & Remaster — Phase 9 Design (planned 2026-07-06)
+
+Resolves the "Phase 9 Export is still an open question" note above. Two
+distinct actions in the Editor's EXPORT rail (`ExportPanel.tsx`), discussed
+and decided 2026-07-06:
+
+1. **Stem export** (already built) — download each layer's active version
+   as-is. No composite render, per the note already flagged under the Add
+   Layer design.
+2. **Remaster** (new) — a one-click ACE-Step `cover` pass over the current
+   mix, aimed at the highest-quality single-file result ACE-Step can produce
+   for the song. Ephemeral by design: never saved into any layer's version
+   history, never added to the library — it exists only long enough to be
+   downloaded once, then the server discards it.
+
+### Decisions
+
+1. **`cover`, not `lego`.** Re-verified against `docs/ace-step-1.5/API.md`
+   2026-07-06: `cover` is exactly "regenerate this source audio, staying
+   close to it," which is what a remaster is. Also confirmed API.md states
+   the LM is **auto-skipped for `cover`** regardless of `thinking`/
+   `lm_model_path` — so no LM model selector is exposed for this action; the
+   original idea of pairing Remaster with the 4B LM model doesn't apply
+   (`ensureModelLoaded` in `jobs.ts` already encodes this exact skip-list for
+   `repaint`/`cover`/`extract`, so no server-side change is needed there).
+2. **Fixed settings, no dial-turning.** Per "only exists as a finished
+   product," Remaster is a single button, not a settings form:
+   - `model`: gated to `cover`-capable models (same pattern as Add Layer's
+     `lego` gate), defaulting to `xl-sft` when present — `modelInfo.ts`
+     already describes it as "highest quality, tunable CFG."
+   - `inference_steps`: 100 — `modelInfo.ts#stepsMax`'s own documented
+     ceiling for non-Turbo models (Turbo isn't reachable here; it doesn't
+     meaningfully support `cover`, and the model gate excludes it anyway).
+   - `audio_cover_strength`: left at ACE-Step's default, `1.0` — API.md
+     defines this as "cover strength," lower values trend toward style
+     transfer, so `1.0` already means "closest to source."
+   - `guidance_scale`: left unset (server default) — only steps and
+     closeness-to-source were asked for; `guidanceEffective()` confirms CFG
+     matters for `xl-sft`, so ACE-Step's own default applies rather than a
+     guessed number.
+   - `prompt`/`lyrics`/`bpm`/`key_scale`/`time_signature`: forwarded
+     server-side from the song's own stored metadata (already columns on
+     `songs`) — there is no prompt box for Remaster, so the server fills
+     these itself.
+3. **Mix source: the current audible mix.** Same `activeLayers()` selection
+   Add Layer already uses (respects mute/solo) via the existing
+   `mix/activeLayers.ts` + `mix/decodeLayers.ts` + `mix/bounceMix.ts` +
+   `encodeWav` pipeline — no new client-side mixing code. Flagging one
+   assumption worth confirming: if "all layers/stems" was meant literally
+   (ignore mute/solo), swap `activeLayers(layers)` for `layers` at the one
+   call site below.
+4. **No persistence, no retention policy to design.** The rendered file goes
+   to a scratch location, streams once via a download route, and is deleted
+   right after (or on error) — no version row, no layer, no library entry,
+   so (unlike the existing "Version storage growth" open question) there's
+   nothing to defer a cleanup decision on.
+
+### Feature gating
+
+Same pattern as `AddLayerTrigger.tsx`'s `legoModels` check: fetch
+`/api/generate/models`, filter to `m.supportedTaskTypes.includes('cover')`,
+disable Remaster with an explanatory line if none are downloaded.
+Default-select `xl-sft` from that filtered list if present, else the first
+cover-capable model.
+
+### Architecture
+
+- `server/src/services/remasterJobs.ts` (new) — mirrors `addLayerJobs.ts`
+  almost exactly: `startRemaster(songId, mixAudio)` reads the song's row for
+  prompt/lyrics/bpm/key_scale/time_signature, builds
+  `{ task_type: 'cover', inference_steps: 100, model, ...songMeta }`, calls
+  `ensureModelLoaded` + `releaseTask` with the uploaded mix as `src_audio`,
+  then on success writes the result to a scratch file (not
+  `config.audioDir`) and records its path on the job. This is the one job
+  type that never calls `persistVersion`/`persistSong`/`persistNewLayer`.
+- `jobs.ts` — add one optional field to `Job`, `resultPath?: string`, set by
+  `remasterJobs.ts`'s success callback and ignored by every other job type.
+  Reuses the existing shared `jobs` Map / `getJob` / `registerJob` / `poll`
+  primitives as-is — `GET /api/generate/:jobId` already works unmodified
+  for polling a remaster job.
+- `server/src/routes/remaster.ts` (new) — `POST /api/songs/:id/remaster`
+  (multipart, `mix_audio` field, same multer memory-storage setup as
+  `songLayers.ts`) starts the job; `GET
+  /api/songs/:id/remaster/:jobId/download` streams `job.resultPath` with
+  `Content-Disposition: attachment`, then deletes the file (404s if the job
+  isn't done yet, or was already downloaded).
+- `server/src/index.ts` — mount the new router.
+- `client/src/RemasterAction.tsx` (new, small) — gating check, the same
+  bounce sequence `AddLayerTrigger.tsx` already runs, submit + poll loop
+  (same shape as its `submit()`), and on `done` triggers the browser
+  download instead of calling `onDone()`/refetching the song.
+- `client/src/ExportPanel.tsx` — gains a Remaster section below the stem
+  list, rendering `<RemasterAction songId={song.id} layers={song.layers} />`;
+  states the consequence inline before commit per `AGENTS.md` (e.g. "renders
+  a full remaster with XL-SFT at 100 steps — can take several minutes").
+- `client/src/api.ts` — `remaster(songId, mixAudio)` (multipart POST,
+  mirrors `addLayer()`), reuses the existing `jobStatus()` untouched.
+
+### File-level plan
+
+- `server/src/services/remasterJobs.ts` — new.
+- `server/src/services/jobs.ts` — add `resultPath?: string` to `Job`.
+- `server/src/routes/remaster.ts` — new.
+- `server/src/index.ts` — mount `remasterRouter`.
+- `client/src/RemasterAction.tsx` — new.
+- `client/src/ExportPanel.tsx` — render `RemasterAction`.
+- `client/src/api.ts` — `remaster()`.
+- `client/src/index.css` — a few new rules for the Remaster section, reusing
+  `.export-panel`/`.hint`/`button.acid` tokens — no new colors.
 
 ## Workflow (adapted from ACE-Step-DAW's AGENTS.md/CLAUDE.md + ACE-Step-1.5's AGENTS.md)
 

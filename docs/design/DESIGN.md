@@ -130,10 +130,28 @@ history marker.
 - Lyrics/structure tags render in monospace.
 - Minimum font size 10px (dense desktop UI); prefer 11px+.
 
-## App model — three screens, one page
+## App model — a flat set of top-level views, one page
 
-Single-page app with exactly three top-level states. No nested pages, no
-stacked modals.
+Single-page app. Top-level state is a flat, enumerable set of full-takeover
+views — no nested pages, no stacked modals. The set is allowed to grow as the
+app grows (Mulakai is built iteratively); adding a view is a normal addition
+to the pattern below, not an exception to a fixed count. Each view:
+
+- is reached from exactly one nav entry point (a header icon, a card action,
+  a bar button — never a modal stack),
+- owns the full content area below the persistent header,
+- shares the header (brand/status/back) and the core shape grammar (zero
+  radius, parallelograms/hexagons, five-hue semantics) by default.
+
+A view may opt out of the shared shape grammar only when it is a deliberate,
+documented exception (see FORGE below) — not a default escape hatch. That
+exception still needs its own short design doc plus a one-line pointer added
+here, per `AGENTS.md`'s "UI PRs that deviate from DESIGN.md" rule.
+
+Library, Create, and Editor are the three core views (the creative loop this
+app exists for). Anything added alongside them (e.g. FORGE, see
+`FORGE_PLAN.md`) is a peer view under the same pattern, not a special case
+requiring its own justification against a screen-count rule.
 
 1. **Library** (home) — full width is browsing surface; a right-hand detail
    rail opens only once a song is selected (see below), it does not reserve

@@ -85,6 +85,7 @@ body {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  padding: 6px;
 }
 
 .editor-shell,
@@ -119,7 +120,7 @@ body {
    button's overflow:hidden, used to clip its AI-generating shimmer) drops
    to automatic min-height 0 and absorbs the entire deficit, collapsing to
    a sliver, instead of the viewport just scrolling the extra pixels. */
-.scroll-area-viewport > * {
+.scroll-area-viewport>* {
   flex-shrink: 0;
 }
 
@@ -151,13 +152,27 @@ body {
 }
 
 @keyframes scroll-hint-bounce-up {
-  0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, -4px); }
+
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+
+  50% {
+    transform: translate(-50%, -4px);
+  }
 }
 
 @keyframes scroll-hint-bounce-down {
-  0%, 100% { transform: translate(-50%, 0); }
-  50% { transform: translate(-50%, 4px); }
+
+  0%,
+  100% {
+    transform: translate(-50%, 0);
+  }
+
+  50% {
+    transform: translate(-50%, 4px);
+  }
 }
 
 /* Thin, on-brand scrollbar for confined scroll regions that haven't moved to
@@ -1335,7 +1350,7 @@ footer .player {
 .create-panel {
   border: 1px solid var(--line-hi);
   background: var(--panel);
-  padding: 12px;
+  margin-bottom: 12px;
   flex: 1;
   min-height: 0;
   display: flex;
@@ -1343,9 +1358,10 @@ footer .player {
 }
 
 .create-content {
-  max-width: 800px;
+  max-width: 90%;
   width: 100%;
   margin: 0 auto;
+  padding: 0px 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1462,8 +1478,8 @@ footer .player {
 
 .song-details-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px 16px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 4px 16px;
 }
 
 .refine-row {
@@ -1570,7 +1586,7 @@ footer .player {
   gap: 10px;
 }
 
-.voice-picker-head > .setting {
+.voice-picker-head>.setting {
   flex: 1;
 }
 
@@ -1872,6 +1888,31 @@ footer .player {
   color: var(--text-mid);
 }
 
+.remaster-block {
+  border-top: 1px solid var(--line);
+  margin-top: 4px;
+  padding-top: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.remaster-badges {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.remaster-badge {
+  color: var(--lilac-text);
+  background: var(--lilac-tint);
+  border: 1px solid var(--lilac);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 3px 6px;
+}
+
 .export-stem:hover .export-stem-dl {
   color: var(--acid);
 }
@@ -1989,6 +2030,7 @@ footer .player {
 .versions .version {
   flex-direction: column;
   align-items: stretch;
+  padding-left: 8px;
   gap: 4px;
 }
 
@@ -2033,6 +2075,7 @@ footer .player {
   border: 1px solid var(--line);
   background: var(--panel);
   padding: 12px;
+  margin-bottom: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;

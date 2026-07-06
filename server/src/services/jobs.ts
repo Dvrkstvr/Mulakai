@@ -22,6 +22,8 @@ export interface Job {
   error?: string;
   songId?: string;
   createdAt: number;
+  /** Set by remasterJobs.ts on success; a scratch file path streamed once by remaster.ts's download route, then cleared. No other job type uses this. */
+  resultPath?: string;
 }
 
 const jobs = new Map<string, Job>();

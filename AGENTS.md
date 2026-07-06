@@ -17,7 +17,11 @@ version history. It is explicitly **not**:
   following, playlists) or its video generator.
 
 Before adding a feature, check `PLAN.md`'s phase list — if it's not there,
-raise it as a scope question rather than building it.
+raise it as a scope question rather than building it. This applies to what
+the app *does* (arrangement, sync, accounts, plugins, etc.) — it is not a cap
+on the number of top-level views. New top-level views (a 4th, 5th, ...) are
+fine and expected as the app grows iteratively; see `docs/design/DESIGN.md`'s
+"App model" section for the pattern each new view should follow.
 
 ## Design System (mandatory for all UI work)
 
