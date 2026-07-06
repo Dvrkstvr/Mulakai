@@ -434,8 +434,6 @@ button.acid-outline {
 .meta {
   color: var(--text-mid);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
 .library .row-main .meta {
@@ -922,12 +920,19 @@ footer .player {
   outline-offset: 1px;
 }
 
+.section-header {
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--lilac-text);
+  margin-bottom: 4px;
+}
+
 .section-label {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 11px;
   letter-spacing: 2px;
   color: var(--lilac-text);
-  margin: 14px 0 6px;
 }
 
 .version {
@@ -1750,6 +1755,7 @@ footer .player {
   justify-content: space-between;
   font-size: 12px;
   padding: 3px 0;
+  border-bottom: 1px solid var(--line);
 }
 
 .detail-lyrics pre {

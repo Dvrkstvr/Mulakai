@@ -48,7 +48,7 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
     <aside className="rail song-detail-rail">
       <div className="song-detail-panel">
         <div className="field-label-row">
-          <span className="section-label">SONG DETAIL</span>
+          <span className="section-header">SONG DETAIL</span>
           <button className="rail-close" onClick={onClose}>&times;</button>
         </div>
 
@@ -70,7 +70,7 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
         <p className="meta">{song.caption}</p>
 
         <div className="detail-meta">
-          <div className="section-label">METADATA</div>
+          <div className="section-header">METADATA</div>
           <MetaRow label="BPM" value={song.bpm ? String(song.bpm) : 'AUTO'} />
           <MetaRow label="KEY / SCALE" value={song.key_scale || 'AUTO'} />
           <MetaRow label="TIME SIGNATURE" value={song.time_signature ? timeSignatureLabel(song.time_signature) : 'AUTO'} />
@@ -79,7 +79,7 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
 
         {song.lyrics && (
           <div className="detail-lyrics">
-            <div className="section-label">LYRICS</div>
+            <div className="section-header">LYRICS</div>
             <pre>{song.lyrics}</pre>
           </div>
         )}
