@@ -356,6 +356,13 @@ requiring its own justification against a screen-count rule.
    - **Forge (experimental)**: a toggle that reveals FORGE's header icon
      (see FORGE_PLAN.md) — off by default per `AGENTS.md`'s "unfinished/WIP
      UI must not be exposed as usable" rule.
+   - **Output file metadata** (added 2026-07-06, at the very bottom): default
+     Artist/Encoder/Album/Genre/cover-art stamped onto every generated file's
+     tags, plus an ID3 version choice (v2.3/v2.4). Title/BPM/key come from
+     the song itself; a song's Comment tag is edited per-song instead, from
+     `SongDetailRail`'s new COMMENT field (Library's song detail rail), not
+     here — it's the one field that varies per song rather than being a
+     global default.
 
 ### Side panels (Create + Editor)
 

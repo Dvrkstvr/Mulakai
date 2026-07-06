@@ -1,44 +1,43 @@
 import { useEffect, useRef, useState } from 'react';
-import { api, type Layer, type StemKind, type StemResult } from './api';
+import { api, type Layer, type StemKind } from './api';
 import { useGenerationStore } from './generationStore';
+import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
+import { SplitStemRow } from './SplitStemRow';
 
 interface Props {
+  songId: string;
   layer: Layer;
   onChanged: () => Promise<void>;
   onBack: () => void;
 }
 
-const STEM_LABELS: Record<StemKind, string> = {
-  vocals: 'Vocals',
-  drums: 'Drums',
-  bass: 'Bass',
-  other: 'Other',
-};
-
 /**
  * Right-rail split view — pick a backend, extract stems, then per-stem
  * preview/replace/add-layer/re-extract. Swaps into the rail in place of
- * history (see ExportPanel.tsx for the sibling view this mirrors).
+ * history (see ExportPanel.tsx for the sibling view this mirrors). The
+ * extraction session itself lives in editorJobStore.ts, not local state, so
+ * navigating to the Library and back (or to a different layer and back)
+ * reconnects to the same stems instead of losing them.
  */
-export function SplitPanel({ layer, onChanged, onBack }: Props) {
+export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const [health, setHealth] = useState<{ acestep: boolean; demucs: boolean } | null>(null);
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
-  const [job, setJob] = useState<'idle' | 'running'>('idle');
-  const [jobId, setJobId] = useState<string | null>(null);
-  const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [stems, setStems] = useState<StemResult[] | null>(null);
   const [error, setError] = useState('');
   const [playing, setPlaying] = useState<StemKind | null>(null);
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const genJob = useGenerationStore((s) => s.job);
   const otherLock = useGenerationStore((s) => s.otherLock);
-  // Extraction is "running" (all 4 stems in flight) any time the job exists and at least one
-  // stem hasn't settled yet — used below to keep the shared elapsed timer ticking that long.
-  const extracting = !!stems?.some((s) => s.status === 'running');
-  const busyElsewhere = (!!genJob || !!otherLock) && !extracting;
-  const elapsedMs = useElapsedMs(extracting, startedAt);
+  const editorJob = useEditorJobStore((s) => s.editorJob);
+  const startSplit = useEditorJobStore((s) => s.startSplit);
+  const cancelSplitJob = useEditorJobStore((s) => s.cancelSplit);
+  const patchSplitStem = useEditorJobStore((s) => s.patchSplitStem);
+  const mine = myEditorJob(editorJob, 'split', { layerId: layer.id });
+  const stems = mine?.stems ?? null;
+  const extracting = mine?.stage === 'running';
+  const busyElsewhere = !mine && (!!genJob || !!editorJob || !!otherLock);
+  const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
 
   useEffect(() => {
     api.splitHealth().then(setHealth).catch(() => setHealth({ acestep: false, demucs: false }));
@@ -50,50 +49,24 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
     else if (health.demucs) setModel('demucs');
   }, [health, model]);
 
-  // Poll continuously while a job is active — re-extract can restart a
-  // single stem's `running` state at any point, not just right after GENERATE STEMS.
-  useEffect(() => {
-    if (!jobId) return;
-    let cancelled = false;
-    const poll = () => {
-      api.splitStatus(jobId).then((s) => { if (!cancelled) setStems(s.stems); }).catch(() => {});
-    };
-    poll();
-    const id = window.setInterval(poll, 2000);
-    return () => { cancelled = true; window.clearInterval(id); };
-  }, [jobId]);
-
   useEffect(() => {
     const audio = audioRef.current;
     return () => audio?.pause();
   }, []);
 
-  const canSubmit = !!model && !!health?.[model] && job === 'idle' && !busyElsewhere;
+  const canSubmit = !!model && !!health?.[model] && !mine && !busyElsewhere;
 
   const generate = async () => {
     if (!canSubmit || !model) return;
     setError('');
-    setJob('running');
-    setStartedAt(Date.now());
-    try {
-      const { jobId: id } = await api.startSplit(layer.id, model);
-      setJobId(id);
-      setStems((['vocals', 'drums', 'bass', 'other'] as StemKind[]).map((kind) => ({ kind, status: 'running' })));
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setJob('idle');
-    }
+    await startSplit(layer.id, songId, model);
   };
 
   const cancel = async () => {
-    const id = jobId;
     audioRef.current?.pause();
     setPlaying(null);
-    setJobId(null);
-    setStems(null);
     setError('');
-    if (id) await api.cancelSplit(id).catch(() => {});
+    await cancelSplitJob();
   };
 
   const togglePreview = (kind: StemKind, audioFile?: string) => {
@@ -110,13 +83,15 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
   };
 
   const claim = async (kind: StemKind, action: 'replace' | 'add-layer') => {
-    if (!jobId) return;
+    if (!mine) return;
+    const current = mine.stems.find((s) => s.kind === kind);
+    if (!current) return;
     setBusyKind(kind);
     setError('');
     try {
-      await api.claimStem(jobId, kind, action);
+      await api.claimStem(mine.splitJobId, kind, action);
       await onChanged();
-      setStems((cur) => cur?.map((s) => (s.kind === kind ? { ...s, claimed: action === 'replace' ? 'replaced' : 'added' } : s)) ?? cur);
+      patchSplitStem({ ...current, claimed: action === 'replace' ? 'replaced' : 'added' });
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -125,13 +100,12 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
   };
 
   const reextract = async (kind: StemKind) => {
-    if (!jobId || busyElsewhere) return;
+    if (!mine || busyElsewhere) return;
     setBusyKind(kind);
     setError('');
-    setStartedAt(Date.now());
     try {
-      const stem = await api.reextractStem(jobId, kind);
-      setStems((cur) => cur?.map((s) => (s.kind === kind ? stem : s)) ?? cur);
+      const stem = await api.reextractStem(mine.splitJobId, kind);
+      patchSplitStem(stem);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -174,7 +148,7 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
             </div>
           )}
           <button className="acid" disabled={!canSubmit} onClick={generate}>
-            {job === 'running' ? 'STARTING…' : busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE STEMS'}
+            {busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE STEMS'}
           </button>
           {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
         </>
@@ -182,39 +156,20 @@ export function SplitPanel({ layer, onChanged, onBack }: Props) {
         <>
           <button className="link-btn" style={{ color: 'var(--rust-text)' }} onClick={cancel}><span>CANCEL SPLIT</span></button>
           {extracting && <div className="hint">{fmtElapsed(elapsedMs)} elapsed</div>}
-          {stems.map((stem) => {
-            const locked = !!stem.claimed;
-            const busy = busyKind === stem.kind;
-            const ready = stem.status === 'done' && !locked && !busy;
-            const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy && !busyElsewhere;
-            return (
-              <div key={stem.kind} className="stem-row">
-                <div className="stem-row-head">
-                  <button
-                    className={`stem-play${playing === stem.kind ? ' playing' : ''}`}
-                    disabled={stem.status !== 'done' || locked}
-                    onClick={() => togglePreview(stem.kind, stem.audioFile)}
-                    aria-label={playing === stem.kind ? 'pause preview' : 'play preview'}
-                  />
-                  <span className="stem-name">{STEM_LABELS[stem.kind]}</span>
-                </div>
-                {locked ? (
-                  <div className="hint">{stem.claimed === 'replaced' ? `replaced ${layer.name}` : 'added as new layer'}</div>
-                ) : stem.status === 'running' ? (
-                  <div className="hint">extracting…</div>
-                ) : stem.status === 'failed' ? (
-                  <div className="error">{stem.error ?? 'extraction failed'}</div>
-                ) : (
-                  <div className="hint">replace will save as v{nextVersion} · add will create a new layer</div>
-                )}
-                <span className="btn-row">
-                  <button disabled={!ready} onClick={() => claim(stem.kind, 'replace')}><span>REPLACE</span></button>
-                  <button disabled={!ready} onClick={() => claim(stem.kind, 'add-layer')}><span>ADD LAYER</span></button>
-                  <button disabled={!reextractable} onClick={() => reextract(stem.kind)}><span>{busy ? '…' : 'RE-EXTRACT'}</span></button>
-                </span>
-              </div>
-            );
-          })}
+          {stems.map((stem) => (
+            <SplitStemRow
+              key={stem.kind}
+              stem={stem}
+              layerName={layer.name}
+              nextVersion={nextVersion}
+              busy={busyKind === stem.kind}
+              playing={playing === stem.kind}
+              reextractBlocked={busyElsewhere}
+              onTogglePreview={() => togglePreview(stem.kind, stem.audioFile)}
+              onClaim={(action) => claim(stem.kind, action)}
+              onReextract={() => reextract(stem.kind)}
+            />
+          ))}
         </>
       )}
       {error && <div className="error">{error}</div>}

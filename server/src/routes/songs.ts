@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { emptyTrashNow } from '../services/trashSweep.js';
+import { retagSong } from '../services/fileTags.js';
 
 export const songsRouter = Router();
 
@@ -80,10 +81,19 @@ songsRouter.get('/:id', (req, res) => {
   res.json({ ...song, layers });
 });
 
-songsRouter.patch('/:id/title', (req, res) => {
+songsRouter.patch('/:id/title', async (req, res) => {
   const title = String(req.body?.title ?? '').trim();
   if (!title) return res.status(400).json({ error: 'title required' });
   db.prepare(`UPDATE songs SET title = ? WHERE id = ?`).run(title, req.params.id);
+  await retagSong(req.params.id);
+  res.json({ ok: true });
+});
+
+/** Editable from the Library's song detail rail — feeds the COMM/comment output-file tag. */
+songsRouter.patch('/:id/comment', async (req, res) => {
+  const comment = String(req.body?.comment ?? '');
+  db.prepare(`UPDATE songs SET comment = ? WHERE id = ?`).run(comment, req.params.id);
+  await retagSong(req.params.id);
   res.json({ ok: true });
 });
 

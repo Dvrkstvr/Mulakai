@@ -18,3 +18,4 @@ function ensureColumn(table: string, column: string, ddl: string): void {
 }
 
 ensureColumn('versions', 'lyric_timestamps', 'lyric_timestamps TEXT');
+ensureColumn('songs', 'comment', "comment TEXT NOT NULL DEFAULT ''");

@@ -27,9 +27,11 @@ function MetaRow({ label, value }: { label: string; value: string }) {
 export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, onRenamed }: Props) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
+  const [comment, setComment] = useState(song.comment);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setTitle(song.title), [song.title]);
+  useEffect(() => setComment(song.comment), [song.comment]);
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
@@ -42,6 +44,11 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
       return;
     }
     api.renameSong(song.id, trimmed).then(onRenamed);
+  };
+
+  const commitComment = () => {
+    if (comment === song.comment) return;
+    api.updateSongComment(song.id, comment).then(onRenamed);
   };
 
   return (
@@ -75,6 +82,17 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
           <MetaRow label="KEY / SCALE" value={song.key_scale || 'AUTO'} />
           <MetaRow label="TIME SIGNATURE" value={song.time_signature ? timeSignatureLabel(song.time_signature) : 'AUTO'} />
           <MetaRow label="DURATION" value={song.duration ? fmtDuration(song.duration) : 'AUTO'} />
+        </div>
+
+        <div className="detail-meta">
+          <div className="section-header">COMMENT</div>
+          <textarea
+            className="detail-comment"
+            placeholder="Notes embedded in the file's comment tag"
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            onBlur={commitComment}
+          />
         </div>
 
         {song.lyrics && (

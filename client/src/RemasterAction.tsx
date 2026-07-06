@@ -5,6 +5,7 @@ import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useSettings } from './settings';
 import { useGenerationStore } from './generationStore';
+import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 
 interface Props {
@@ -19,19 +20,25 @@ interface Props {
  * gated to `cover`-capable options (defaulting to xl-sft), steps are fixed,
  * and cover strength/CFG stay at ACE-Step's own defaults (closest to source,
  * auto guidance). The result is never saved to the song's history; it only
- * exists long enough to download.
+ * exists long enough to download — editorJobStore.ts fires that download
+ * itself once the job settles, even if this component isn't mounted anymore.
  */
 export function RemasterAction({ songId, layers }: Props) {
   const exportSettings = useSettings((s) => s.exportSettings);
   const [coverModels, setCoverModels] = useState<string[] | null>(null);
   const [model, setModel] = useState('');
-  const [job, setJob] = useState<'idle' | 'running' | 'done' | 'failed'>('idle');
-  const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [error, setError] = useState('');
+  const [mixError, setMixError] = useState('');
+  const [justFinished, setJustFinished] = useState(false);
   const genJob = useGenerationStore((s) => s.job);
   const otherLock = useGenerationStore((s) => s.otherLock);
-  const busyElsewhere = (!!genJob || !!otherLock) && job !== 'running';
-  const elapsedMs = useElapsedMs(job === 'running', startedAt);
+  const editorJob = useEditorJobStore((s) => s.editorJob);
+  const startRemaster = useEditorJobStore((s) => s.startRemaster);
+  const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
+  const mine = myEditorJob(editorJob, 'remaster', { songId });
+  const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
+  const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'remaster failed') : '');
+  const busyElsewhere = !mine && (!!genJob || !!editorJob || !!otherLock);
+  const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {
     api.listModels()
@@ -43,13 +50,19 @@ export function RemasterAction({ songId, layers }: Props) {
       .catch(() => setCoverModels([]));
   }, []);
 
+  // "downloaded" sticks around after the store clears the job itself (editorJobStore.ts's
+  // DONE_LINGER_MS is brief) — this component's own memory of "we just finished" persists
+  // until the next REMASTER SONG click.
+  useEffect(() => {
+    if (mine?.stage === 'done') setJustFinished(true);
+  }, [mine?.stage]);
+
   const gated = coverModels !== null && coverModels.length === 0;
 
   const submit = async () => {
     if (gated || job === 'running' || busyElsewhere) return;
-    setError('');
-    setJob('running');
-    setStartedAt(Date.now());
+    setMixError('');
+    setJustFinished(false);
     try {
       const audible = activeLayers(layers)
         .map((l) => ({ layer: l, version: l.versions.find((v) => v.active) }))
@@ -65,23 +78,13 @@ export function RemasterAction({ songId, layers }: Props) {
       await mixCtx.close();
       const mixAudio = encodeWav(mixed);
 
-      const { jobId } = await api.remaster(songId, mixAudio, model, {
+      if (mine?.stage === 'failed') dismissEditorJob();
+      void startRemaster(songId, mixAudio, model, {
         audioFormat: exportSettings.audioFormat,
         steps: exportSettings.steps,
       });
-      for (; ;) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const s = await api.jobStatus(jobId);
-        if (s.status === 'done') break;
-        if (s.status === 'failed') throw new Error(s.error ?? 'remaster failed');
-      }
-      const a = document.createElement('a');
-      a.href = api.remasterDownloadUrl(songId, jobId);
-      a.click();
-      setJob('done');
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-      setJob('failed');
+      setMixError(err instanceof Error ? err.message : String(err));
     }
   };
 
@@ -106,7 +109,7 @@ export function RemasterAction({ songId, layers }: Props) {
             <span className="remaster-badge">CLOSEST TO SOURCE</span>
           </div>
           <div className="hint">uses Settings &gt; Playback &amp; Export defaults for format/steps</div>
-          {job === 'done' ? (
+          {justFinished && job === 'idle' ? (
             <span className="meta">remaster downloaded — run it again for another pass</span>
           ) : (
             <>

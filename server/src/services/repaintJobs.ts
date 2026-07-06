@@ -7,6 +7,7 @@ import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 import { type Job, registerJob, poll, ensureModelLoaded, fetchLyricTimestampsJson } from './jobs.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { tagOutputFile } from './fileTags.js';
 
 function fmtTime(sec: number): string {
   return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
@@ -179,13 +180,16 @@ async function persistVersion(
   const filename = `${versionId}.${audioFileExt(params.audio_format)}`;
   await fs.writeFile(path.join(config.audioDir, filename), audio);
 
+  const row = db.prepare(`SELECT song_id, kind FROM layers WHERE id = ?`).get(layerId) as { song_id: string; kind: string };
+  const song = db.prepare(`SELECT title, bpm, key_scale FROM songs WHERE id = ?`).get(row.song_id) as
+    { title: string; bpm: number | null; key_scale: string } | undefined;
+  if (song) await tagOutputFile(path.join(config.audioDir, filename), { title: song.title, bpm: song.bpm, keyScale: song.key_scale });
+
   if (activate) db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(layerId);
   db.prepare(
     `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, active, lyric_timestamps)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(versionId, layerId, filename, label, JSON.stringify(params), result.seed_value, activate ? 1 : 0, lyricTimestamps);
-
-  const row = db.prepare(`SELECT song_id, kind FROM layers WHERE id = ?`).get(layerId) as { song_id: string; kind: string };
 
   // A repaint that edited lyrics for the base layer becomes the song's canonical
   // lyrics going forward (search, section-strip alignment, future repaints) —

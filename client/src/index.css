@@ -511,6 +511,24 @@ button.acid-outline {
   color: var(--rust-text);
 }
 
+/* Inline pill on a Library row while one of its layers has a repaint/split/remaster/add-layer/
+   regenerate/retake in flight elsewhere — see LibraryJobBadge.tsx. */
+.library-job-badge {
+  align-self: flex-start;
+  margin-top: 2px;
+  font: 700 10px sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--acid);
+  border: 1px solid var(--acid);
+  padding: 2px 8px;
+}
+
+.library-job-badge.failed {
+  color: var(--rust-text);
+  border-color: var(--rust);
+}
+
 .error {
   border: 1px solid var(--rust);
   color: var(--rust-text);
@@ -1815,6 +1833,14 @@ footer .player {
   font-family: inherit;
   max-height: 140px;
   overflow-y: auto;
+}
+
+.detail-comment {
+  margin-top: 4px;
+  width: 100%;
+  min-height: 44px;
+  font-family: inherit;
+  font-size: 12px;
 }
 
 .detail-actions {

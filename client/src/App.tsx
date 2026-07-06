@@ -19,6 +19,8 @@ import { ForgeStub } from './ForgeStub';
 import { useSettings } from './settings';
 import { useGenerationStore } from './generationStore';
 import { GeneratingCard } from './GeneratingCard';
+import { useEditorJobStore } from './editorJobStore';
+import { LibraryJobBadge } from './LibraryJobBadge';
 
 type View = 'library' | 'create' | 'settings' | 'forge';
 
@@ -46,6 +48,7 @@ export default function App() {
   const genJob = useGenerationStore((s) => s.job);
   const dismissGenJob = useGenerationStore((s) => s.dismiss);
   const hydrateGenJob = useGenerationStore((s) => s.hydrate);
+  const editorJob = useEditorJobStore((s) => s.editorJob);
 
   const refresh = (q = query) => api.listSongs(q).then(setSongs).catch(() => {});
 
@@ -175,6 +178,7 @@ export default function App() {
                     <div className="row-main">
                       <span className="song-title link" onClick={() => setDetailSongId(s.id)}>{s.title}</span>
                       <span className="meta">{s.caption}</span>
+                      {editorJob?.songId === s.id && <LibraryJobBadge job={editorJob} />}
                     </div>
                     <div className="row-actions">
                       <button className="edit-btn" onClick={() => openEditor(s.id)}><span>EDIT</span></button>

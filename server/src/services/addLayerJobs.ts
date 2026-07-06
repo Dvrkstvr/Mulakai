@@ -8,6 +8,7 @@ import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type 
 import { type Job, type VoiceOptions, registerJob, poll, ensureModelLoaded } from './jobs.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { tagOutputFile } from './fileTags.js';
 
 /**
  * Add a new layer to a song via `lego`, conditioned on a pre-mixed bounce of
@@ -75,6 +76,10 @@ async function persistNewLayer(
   const versionId = crypto.randomUUID();
   const filename = `${versionId}.${audioFileExt(params.audio_format)}`;
   await fs.writeFile(path.join(config.audioDir, filename), audio);
+
+  const song = db.prepare(`SELECT title, bpm, key_scale FROM songs WHERE id = ?`).get(songId) as
+    { title: string; bpm: number | null; key_scale: string } | undefined;
+  if (song) await tagOutputFile(path.join(config.audioDir, filename), { title: song.title, bpm: song.bpm, keyScale: song.key_scale });
 
   const { maxPos } = db
     .prepare(`SELECT COALESCE(MAX(position), -1) as maxPos FROM layers WHERE song_id = ?`)

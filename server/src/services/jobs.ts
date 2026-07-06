@@ -14,6 +14,7 @@ import {
   type ReleaseTaskParams, type TaskResult,
 } from './acestep.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
+import { tagOutputFile } from './fileTags.js';
 import { acquireGenLock, releaseGenLock, getGenLock, type GenLockInfo } from './genLock.js';
 
 export interface Job {
@@ -172,6 +173,9 @@ async function persistSong(
   const versionId = crypto.randomUUID();
   const filename = `${versionId}.${audioFileExt(params.audio_format)}`;
   await fs.writeFile(path.join(config.audioDir, filename), audio);
+  await tagOutputFile(path.join(config.audioDir, filename), {
+    title, bpm: result.metas.bpm ?? null, keyScale: result.metas.keyscale ?? '',
+  });
 
   db.prepare(
     `INSERT INTO songs (id, title, caption, lyrics, bpm, key_scale, time_signature, duration)

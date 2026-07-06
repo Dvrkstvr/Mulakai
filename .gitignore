@@ -4,6 +4,7 @@ dist/
 .env
 .DS_Store
 __pycache__/
+*.tsbuildinfo
 
 # runtime data
 server/data/

@@ -51,6 +51,17 @@ CREATE TABLE IF NOT EXISTS voices (
   created_at              TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+CREATE TABLE IF NOT EXISTS output_metadata (
+  id             INTEGER PRIMARY KEY CHECK (id = 1), -- single settings row, no per-user config
+  artist         TEXT NOT NULL DEFAULT '',
+  encoder        TEXT NOT NULL DEFAULT 'Mulakai + ACE-Step 1.5',
+  album          TEXT NOT NULL DEFAULT '',
+  genre          TEXT NOT NULL DEFAULT '',
+  cover_art_file TEXT,                                -- filename inside audioDir, or null
+  id3_version    TEXT NOT NULL DEFAULT '4'            -- '3' or '4'
+);
+INSERT OR IGNORE INTO output_metadata (id) VALUES (1);
+
 CREATE INDEX IF NOT EXISTS idx_layers_song ON layers(song_id);
 CREATE INDEX IF NOT EXISTS idx_versions_layer ON versions(layer_id);
 `;

@@ -17,6 +17,7 @@ import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useHeaderSlot } from './HeaderSlot';
 import { useGenerationStore } from './generationStore';
+import { useEditorJobStore, myEditorJob } from './editorJobStore';
 
 interface Props {
   songId: string;
@@ -32,15 +33,21 @@ export function Editor({ songId, onBack }: Props) {
   const [selection, setSelection] = useState<Region | null>(null);
   const [prompt, setPrompt] = useState('');
   const [lyricsDraft, setLyricsDraft] = useState('');
-  const [job, setJob] = useState<'idle' | 'running'>('idle');
-  const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [error, setError] = useState('');
   const [railMode, setRailMode] = useState<'history' | 'export' | 'split'>('history');
   const genJob = useGenerationStore((s) => s.job);
   const otherLock = useGenerationStore((s) => s.otherLock);
-  // A song generating in the Library, or another editor action already running, both hold the
-  // same global lock (see server genLock.ts) — either one blocks repaint here too.
-  const busyElsewhere = (!!genJob || !!otherLock) && job !== 'running';
+  const editorJob = useEditorJobStore((s) => s.editorJob);
+  const startRepaint = useEditorJobStore((s) => s.startRepaint);
+  const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
+  // The repaint job belonging to *this* layer, if any — survives navigating away and back
+  // (editorJobStore.ts lives outside React, so it isn't reset when Editor unmounts).
+  const myRepaint = myEditorJob(editorJob, 'repaint', { layerId: focusedLayerId ?? undefined });
+  const job: 'idle' | 'running' = myRepaint?.stage === 'running' ? 'running' : 'idle';
+  const startedAt = myRepaint?.startedAt ?? null;
+  const error = myRepaint?.stage === 'failed' ? (myRepaint.error ?? 'repaint failed') : '';
+  // A song generating in the Library, or a *different* editor action already running,
+  // both hold the same global lock (see server genLock.ts) — either one blocks repaint here too.
+  const busyElsewhere = !myRepaint && (!!genJob || !!editorJob || !!otherLock);
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);
@@ -93,6 +100,17 @@ export function Editor({ songId, onBack }: Props) {
     setFocusedLayerId(song.layers.find((l) => l.kind === 'base')?.id ?? song.layers[0]?.id ?? null);
   }, [song, focusedLayerId]);
 
+  // If this song already has a remaster or split running (e.g. the user left mid-job and came
+  // back), jump straight to the rail that shows it instead of defaulting to History — otherwise
+  // the job is invisibly still running behind a rail the user isn't looking at. Runs once per
+  // song load, not on every editorJob tick, so manually switching rails afterward still sticks.
+  useEffect(() => {
+    if (!song || editorJob?.songId !== song.id) return;
+    if (editorJob.kind === 'remaster') setRailMode('export');
+    else if (editorJob.kind === 'split') { setRailMode('split'); setFocusedLayerId(editorJob.layerId); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [song?.id]);
+
   const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
   const activeVersion = focusedLayer?.versions.find((v) => v.active);
   const duration = song?.duration ?? 0;
@@ -121,34 +139,28 @@ export function Editor({ songId, onBack }: Props) {
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const regionValid = !!selection && regionSeconds >= REPAINT_MIN_SECONDS && regionSeconds <= REPAINT_MAX_SECONDS;
 
-  const repaint = async () => {
+  const repaint = () => {
     if (!focusedLayer || !regionValid || !selection || busyElsewhere) return;
-    setError('');
-    setJob('running');
-    setStartedAt(Date.now());
-    try {
-      const { jobId } = await api.repaint(focusedLayer.id, {
-        prompt,
-        start: selection.start,
-        end: selection.end,
-        ...(lyricsUnlocked ? { lyrics: lyricsDraft } : {}),
-        ...repaintParams(repaintSettings),
-      });
-      for (;;) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const s = await api.jobStatus(jobId);
-        if (s.status === 'done') break;
-        if (s.status === 'failed') throw new Error(s.error ?? 'repaint failed');
-      }
+    if (myRepaint?.stage === 'failed') dismissEditorJob(); // clear the failed attempt before resubmitting
+    void startRepaint(focusedLayer.id, songId, {
+      prompt,
+      start: selection.start,
+      end: selection.end,
+      ...(lyricsUnlocked ? { lyrics: lyricsDraft } : {}),
+      ...repaintParams(repaintSettings),
+    });
+  };
+
+  // Runs once when *our* repaint finishes — the job itself may have completed while this
+  // Editor was unmounted (e.g. user navigated to the Library and back to this song).
+  useEffect(() => {
+    if (myRepaint?.stage === 'done') {
       setSelection(null);
       setPrompt('');
-      await reload();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setJob('idle');
+      void reload();
     }
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myRepaint?.stage]);
 
   const revert = async (versionId: string) => {
     await api.activateVersion(versionId);
@@ -232,6 +244,8 @@ export function Editor({ songId, onBack }: Props) {
             {railMode === 'history' ? (
               <>
                 <VersionHistory
+                  songId={songId}
+                  layerId={focusedLayer.id}
                   versions={focusedLayer.versions}
                   onSelectRegion={setSelection}
                   onLoadPrompt={setPrompt}
@@ -244,6 +258,7 @@ export function Editor({ songId, onBack }: Props) {
               <ExportPanel song={song} onBack={() => setRailMode('history')} />
             ) : (
               <SplitPanel
+                songId={songId}
                 layer={focusedLayer}
                 onChanged={reload}
                 onBack={() => setRailMode('history')}
