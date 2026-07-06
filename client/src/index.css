@@ -432,7 +432,7 @@ button.acid-outline {
 }
 
 .meta {
-  color: var(--text-mid);
+  color: var(--text-high);
   overflow: hidden;
 }
 
@@ -2514,6 +2514,8 @@ footer .player {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
+  overflow: hidden;
   background: var(--carbon);
   border: 1px solid var(--line-hi);
   padding: 9px 12px;
@@ -2528,7 +2530,16 @@ footer .player {
 .toggle span,
 .toggle .dot {
   display: inline-block;
+  position: relative;
+  z-index: 1;
   transform: skewX(10deg);
+}
+
+/* Fills the same skewed parallelogram box as the toggle itself — see .toggle-ai below. */
+.toggle-shader {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .toggle .dot {
@@ -2564,13 +2575,11 @@ footer .player {
   background: var(--acid);
 }
 
-/* AI-state exception to one-hue-per-job (THINKING MODE / AI ENHANCE only) — see docs/design/DESIGN.md#Motion. */
+/* AI-state exception to one-hue-per-job (THINKING MODE / AI ENHANCE only) — see docs/design/DESIGN.md#Motion.
+   Shimmer is now the shadertoy DdcfzH canvas (see .toggle-shader/ShaderCanvas.tsx) instead of a CSS gradient. */
 .toggle.on.toggle-ai {
-  color: var(--carbon);
+  color: var(--text-hi);
   border-color: transparent;
-  background: linear-gradient(90deg, var(--acid), var(--sky), var(--lilac), var(--acid));
-  background-size: 300% 100%;
-  animation: ai-shimmer 3s linear infinite;
 }
 
 .toggle.on.toggle-ai .dot {
