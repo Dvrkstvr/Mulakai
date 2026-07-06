@@ -146,6 +146,7 @@ export default function App() {
                     onClose={() => setDetailSongId(null)}
                     onReusePrompt={reusePrompt}
                     onCreateCover={createCover}
+                    onRenamed={() => refresh()}
                   />
                 ) : null;
               })()}

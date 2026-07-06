@@ -1,4 +1,5 @@
-import type { Song } from './api';
+import { useEffect, useRef, useState } from 'react';
+import { api, type Song } from './api';
 import { timeSignatureLabel } from './songMeta';
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
   onClose: () => void;
   onReusePrompt: (song: Song) => void;
   onCreateCover: (song: Song) => void;
+  onRenamed: () => void;
 }
 
 const fmtDuration = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -22,7 +24,26 @@ function MetaRow({ label, value }: { label: string; value: string }) {
 /** Library's right-hand rail: metadata + quick actions for a selected song, same
  * carbon-panel idiom as Editor's version rail / Create's refine rail. Opens on a
  * row/title click (not EDIT, which still opens the full Editor). */
-export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover }: Props) {
+export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, onRenamed }: Props) {
+  const [editing, setEditing] = useState(false);
+  const [title, setTitle] = useState(song.title);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => setTitle(song.title), [song.title]);
+  useEffect(() => {
+    if (editing) inputRef.current?.select();
+  }, [editing]);
+
+  const commitRename = () => {
+    setEditing(false);
+    const trimmed = title.trim();
+    if (!trimmed || trimmed === song.title) {
+      setTitle(song.title);
+      return;
+    }
+    api.renameSong(song.id, trimmed).then(onRenamed);
+  };
+
   return (
     <aside className="rail song-detail-rail">
       <div className="song-detail-panel">
@@ -31,7 +52,21 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover }: 
           <button className="rail-close" onClick={onClose}>&times;</button>
         </div>
 
-        <div className="song-title">{song.title}</div>
+        {editing ? (
+          <input
+            ref={inputRef}
+            className="song-title-input"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            onBlur={commitRename}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') commitRename();
+              if (e.key === 'Escape') { setTitle(song.title); setEditing(false); }
+            }}
+          />
+        ) : (
+          <div className="song-title" onDoubleClick={() => setEditing(true)}>{song.title}</div>
+        )}
         <p className="meta">{song.caption}</p>
 
         <div className="detail-meta">

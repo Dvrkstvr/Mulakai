@@ -1711,6 +1711,13 @@ footer .player {
 
 .song-detail-panel .song-title {
   font-size: 14px;
+  cursor: text;
+}
+
+.song-title-input {
+  font-size: 14px;
+  padding: 4px 6px;
+  width: 100%;
 }
 
 .detail-meta-row {

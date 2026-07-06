@@ -55,6 +55,13 @@ songsRouter.get('/:id', (req, res) => {
   res.json({ ...song, layers });
 });
 
+songsRouter.patch('/:id/title', (req, res) => {
+  const title = String(req.body?.title ?? '').trim();
+  if (!title) return res.status(400).json({ error: 'title required' });
+  db.prepare(`UPDATE songs SET title = ? WHERE id = ?`).run(title, req.params.id);
+  res.json({ ok: true });
+});
+
 songsRouter.patch('/:id/favorite', (req, res) => {
   const fav = req.body?.favorite ? 1 : 0;
   db.prepare(`UPDATE songs SET favorite = ? WHERE id = ?`).run(fav, req.params.id);

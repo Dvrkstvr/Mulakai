@@ -151,6 +151,13 @@ export const api = {
       body: JSON.stringify({ favorite }),
     }).then(() => undefined),
 
+  renameSong: (id: string, title: string): Promise<void> =>
+    fetch(`/api/songs/${id}/title`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title }),
+    }).then(() => undefined),
+
   songDetail: (id: string): Promise<SongDetail> =>
     fetch(`/api/songs/${id}`).then((r) => json<SongDetail>(r)),
 
