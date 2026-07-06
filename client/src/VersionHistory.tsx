@@ -1,13 +1,18 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api, type Version } from './api';
 import type { Region } from './Waveform';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ScrollArea } from './ScrollArea';
+import { useGenerationStore } from './generationStore';
+import { useEditorJobStore } from './editorJobStore';
+import { fmtElapsed, useElapsedMs } from './genProgress';
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const VISIBLE_COUNT = 4;
 
 interface Props {
+  songId: string;
+  layerId: string;
   versions: Version[];
   onSelectRegion: (region: Region) => void;
   onLoadPrompt: (prompt: string) => void;
@@ -16,11 +21,30 @@ interface Props {
 }
 
 /** Per-layer version list: revert, delete (2-step confirm), regenerate as an untracked alternate. */
-export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRevert, onChanged }: Props) {
+export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLoadPrompt, onRevert, onChanged }: Props) {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
-  const [busy, setBusy] = useState<{ id: string; action: 'alt' | 'similar' } | null>(null);
-  const [error, setError] = useState('');
   const [showAll, setShowAll] = useState(false);
+  const [error, setError] = useState('');
+  const genJob = useGenerationStore((s) => s.job);
+  const otherLock = useGenerationStore((s) => s.otherLock);
+  const editorJob = useEditorJobStore((s) => s.editorJob);
+  const startRegenerate = useEditorJobStore((s) => s.startRegenerate);
+  const startRetake = useEditorJobStore((s) => s.startRetake);
+  const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
+
+  // At most one of these can be running for this layer at a time (the global genLock), so a
+  // single slot covers both ALT and SIMILAR across every version row.
+  const mine = (editorJob?.kind === 'regenerate' || editorJob?.kind === 'retake') && editorJob.layerId === layerId ? editorJob : null;
+  const elapsedMs = useElapsedMs(mine?.stage === 'running', mine?.startedAt ?? null);
+  const busyOtherKind = !!editorJob && !mine;
+  const busy = !!genJob || !!otherLock || busyOtherKind || mine?.stage === 'running';
+
+  // Runs once when *our* regenerate/retake finishes, even if it settled while this Editor/layer
+  // wasn't focused — reload picks up the newly appended history row.
+  useEffect(() => {
+    if (mine?.stage === 'done') void onChanged();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mine?.stage]);
 
   const del = async (id: string) => {
     if (confirmDelete !== id) { setConfirmDelete(id); return; }
@@ -34,42 +58,18 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
     }
   };
 
-  const regenerate = async (id: string) => {
-    setBusy({ id, action: 'alt' });
-    setError('');
-    try {
-      const { jobId } = await api.regenerateVersion(id);
-      for (;;) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const s = await api.jobStatus(jobId);
-        if (s.status === 'done') break;
-        if (s.status === 'failed') throw new Error(s.error ?? 'regenerate failed');
-      }
-      await onChanged();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(null);
-    }
+  const regenerate = (id: string) => {
+    if (busyOtherKind || !!genJob || !!otherLock) return;
+    if (mine?.stage === 'running') return;
+    if (mine?.stage === 'failed') dismissEditorJob();
+    void startRegenerate(layerId, songId, id);
   };
 
-  const retake = async (id: string) => {
-    setBusy({ id, action: 'similar' });
-    setError('');
-    try {
-      const { jobId } = await api.retakeVersion(id);
-      for (;;) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const s = await api.jobStatus(jobId);
-        if (s.status === 'done') break;
-        if (s.status === 'failed') throw new Error(s.error ?? 'similar take failed');
-      }
-      await onChanged();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(null);
-    }
+  const retake = (id: string) => {
+    if (busyOtherKind || !!genJob || !!otherLock) return;
+    if (mine?.stage === 'running') return;
+    if (mine?.stage === 'failed') dismissEditorJob();
+    void startRetake(layerId, songId, id);
   };
 
   if (versions.length === 0) return null;
@@ -118,12 +118,13 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
                     <span>SEL</span>
                   </button>
                 )}
-                <button onClick={() => regenerate(v.id)} disabled={busy?.id === v.id} title="regenerate as an alternate version">
-                  <span>{busy?.id === v.id && busy.action === 'alt' ? '…' : 'ALT'}</span>
+                <button onClick={() => regenerate(v.id)} disabled={busy}
+                  title={busyOtherKind ? 'a generation is already running elsewhere' : 'regenerate as an alternate version'}>
+                  <span>{mine?.versionId === v.id && mine.kind === 'regenerate' && mine.stage === 'running' ? `ALT… ${fmtElapsed(elapsedMs)}` : 'ALT'}</span>
                 </button>
-                <button onClick={() => retake(v.id)} disabled={busy?.id === v.id}
-                  title="generate a similar take from this version's seed, appended to history">
-                  <span>{busy?.id === v.id && busy.action === 'similar' ? '…' : 'SIMILAR'}</span>
+                <button onClick={() => retake(v.id)} disabled={busy}
+                  title={busyOtherKind ? 'a generation is already running elsewhere' : "generate a similar take from this version's seed, appended to history"}>
+                  <span>{mine?.versionId === v.id && mine.kind === 'retake' && mine.stage === 'running' ? `SIMILAR… ${fmtElapsed(elapsedMs)}` : 'SIMILAR'}</span>
                 </button>
                 <button
                   className={confirmDelete === v.id ? 'confirm-delete' : 'delete'}
@@ -145,6 +146,7 @@ export function VersionHistory({ versions, onSelectRegion, onLoadPrompt, onRever
         </button>
       )}
       {error && <div className="error">{error}</div>}
+      {mine?.stage === 'failed' && <div className="error">{mine.error ?? 'generation failed'}</div>}
       </ScrollArea>
     </div>
   );

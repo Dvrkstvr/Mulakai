@@ -1,5 +1,17 @@
 import { useEffect, useState } from 'react';
 
+/** Every non-song-generation job kind tracked by editorJobStore.ts. */
+export type EditorJobKind = 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster';
+
+export const EDITOR_STAGE_LABEL: Record<EditorJobKind, string> = {
+  repaint: 'REPAINTING',
+  regenerate: 'REGENERATING',
+  retake: 'GENERATING SIMILAR TAKE',
+  addLayer: 'ADDING LAYER',
+  split: 'EXTRACTING STEMS',
+  remaster: 'REMASTERING',
+};
+
 /** Shared "0:34"-style elapsed-time formatting for every in-progress generation
  * indicator (library GeneratingCard, and the editor's repaint/remaster/split/add-layer). */
 export function fmtElapsed(ms: number): string {

@@ -13,6 +13,7 @@ import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams } from './acestep.js';
 import { type Job, registerJob, poll, ensureModelLoaded } from './jobs.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { tagOutputFile } from './fileTags.js';
 
 /** Default steps if the caller doesn't pass one — matches modelInfo.ts's prior fixed value. */
 const DEFAULT_REMASTER_STEPS = 100;
@@ -20,11 +21,13 @@ const DEFAULT_REMASTER_STEPS = 100;
 const MAX_REMASTER_STEPS = 200;
 
 interface SongMeta {
+  title: string;
   caption: string;
   lyrics: string;
   bpm: number | null;
   key_scale: string;
   time_signature: string;
+  comment: string;
 }
 
 export interface RemasterOptions {
@@ -41,7 +44,7 @@ export interface RemasterOptions {
  */
 export async function startRemaster(songId: string, mixAudio: Buffer, model: string, opts: RemasterOptions = {}): Promise<Job> {
   const song = db
-    .prepare(`SELECT caption, lyrics, bpm, key_scale, time_signature FROM songs WHERE id = ?`)
+    .prepare(`SELECT title, caption, lyrics, bpm, key_scale, time_signature, comment FROM songs WHERE id = ?`)
     .get(songId) as SongMeta | undefined;
   if (!song) throw new Error('unknown song');
 
@@ -69,6 +72,9 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
     registerJob(job);
     void poll(job, async (result) => {
       job.resultPath = await downloadToScratch(result.file, audioFormat);
+      await tagOutputFile(job.resultPath, {
+        title: song.title, bpm: song.bpm, keyScale: song.key_scale, comment: song.comment,
+      });
       return songId;
     }).finally(() => releaseGenLock(jobId));
     return job;

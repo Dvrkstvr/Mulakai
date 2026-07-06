@@ -732,3 +732,42 @@ predates this and is superseded by it, same as FORGE already was.
 - **Forge (experimental)**: a toggle revealing FORGE's header icon per
   `FORGE_PLAN.md`'s existing "feature-gated, hidden by default" decision —
   the screen behind it is a stub (`ForgeStub.tsx`) until release 1.0.
+
+## Output File Metadata (added 2026-07-06)
+
+Every generated audio file gets real embedded tags (title/BPM/key from the
+song, Artist/Encoder/Album/Genre/cover art from Settings' defaults, plus a
+per-song Comment editable in the Library's song detail rail) via
+`server/src/services/fileTags.ts`, using `node-taglib-sharp` — the only
+lightweight option that supports choosing the ID3v2 tag *version* (2.3 vs
+2.4); `node-id3`/`browser-id3-writer` both hardcode v2.3 and were rejected
+for that reason (verified empirically against their installed source, not
+their docs). No loudness normalization — tags only, by explicit decision.
+
+**A real constraint worth knowing**: `node-taglib-sharp` can only embed an
+ID3v2 tag in a WAV/RIFF container using the v2.4 footer feature — asking for
+v2.3 on a `.wav` throws (undocumented, found by testing against a real
+generated file). Since most persisted files default to `.wav`
+(`audio_format: 'wav'` almost everywhere except the base song and
+user-selected Remaster formats), `tagOutputFile()` catches this specific
+error and **falls back to v2.4 for that one file** rather than leaving it
+untagged, logging a one-line note when it does. MP3 correctly honors
+whichever version is configured.
+
+- `server/src/db/schema.ts` — new single-row `output_metadata` table
+  (artist/encoder/album/genre/cover_art_file/id3_version); `songs.comment`
+  added via `db/index.ts`'s `ensureColumn` migration helper.
+- `server/src/services/outputMetadata.ts` — CRUD for the settings row +
+  cover-art file storage (reuses `config.audioDir`, reserved `_cover-art.*`
+  filename so it never collides with UUID-named song audio).
+- `server/src/services/fileTags.ts` — `tagOutputFile()` (single file) +
+  `retagSong()` (re-stamps every layer's active version when a song-level
+  field like title/comment changes later).
+- Wired into every job that writes a persisted audio file: `jobs.ts`
+  (`persistSong`), `repaintJobs.ts` (`persistVersion`), `addLayerJobs.ts`
+  (`persistNewLayer`), and `remasterJobs.ts` (its scratch-file export).
+- `server/src/routes/outputMetadata.ts` — `GET/PATCH /api/output-metadata`,
+  `POST/DELETE .../cover-art`; `songs.ts` gained `PATCH /:id/comment`.
+- Client: `OutputMetadataSection.tsx` (Settings, at the very bottom, per
+  request) for the defaults; `SongDetailRail.tsx` gained an editable COMMENT
+  field.

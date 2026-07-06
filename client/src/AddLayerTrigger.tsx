@@ -7,6 +7,7 @@ import { bounceMix, encodeWav } from './mix/bounceMix';
 import { VoicePicker } from './VoicePicker';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
+import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 
 interface Props {
@@ -29,13 +30,18 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
   const voice = useVoiceStore();
   const [legoModels, setLegoModels] = useState<string[] | null>(null);
   const [prompt, setPrompt] = useState('');
-  const [job, setJob] = useState<'idle' | 'running'>('idle');
-  const [startedAt, setStartedAt] = useState<number | null>(null);
-  const [error, setError] = useState('');
+  const [mixError, setMixError] = useState('');
   const genJob = useGenerationStore((s) => s.job);
   const otherLock = useGenerationStore((s) => s.otherLock);
-  const busyElsewhere = (!!genJob || !!otherLock) && job !== 'running';
-  const elapsedMs = useElapsedMs(job === 'running', startedAt);
+  const editorJob = useEditorJobStore((s) => s.editorJob);
+  const startAddLayer = useEditorJobStore((s) => s.startAddLayer);
+  const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
+  // Add Layer isn't tied to any one existing layer, so "mine" is just "an addLayer job for this song".
+  const mine = myEditorJob(editorJob, 'addLayer', { songId });
+  const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
+  const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'add layer failed') : '');
+  const busyElsewhere = !mine && (!!genJob || !!editorJob || !!otherLock);
+  const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {
     api.listModels()
@@ -50,14 +56,19 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
 
   useEffect(() => { onGeneratingChange?.(job === 'running'); }, [job, onGeneratingChange]);
 
+  // Runs once when *our* add-layer finishes, even if it settled while this row wasn't mounted
+  // (e.g. the user navigated to the Library and back mid-generation).
+  useEffect(() => {
+    if (mine?.stage === 'done') { setPrompt(''); void onDone(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mine?.stage]);
+
   const gated = legoModels !== null && legoModels.length === 0;
   const canSubmit = !gated && prompt.trim().length > 0 && job === 'idle' && !busyElsewhere;
 
   const submit = async () => {
     if (!canSubmit) return;
-    setError('');
-    setJob('running');
-    setStartedAt(Date.now());
+    setMixError('');
     try {
       const audible = activeLayers(layers)
         .map((l) => l.versions.find((v) => v.active))
@@ -72,26 +83,17 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
       const mixed = await bounceMix(decoded);
       await mixCtx.close();
       const mixAudio = encodeWav(mixed);
-
       const layerName = prompt.trim().split(/\s+/).slice(0, 4).join(' ');
-      const { jobId } = await api.addLayer(songId, mixAudio, {
+
+      if (mine?.stage === 'failed') dismissEditorJob();
+      void startAddLayer(songId, mixAudio, {
         prompt,
         layerName,
         ...addLayerParams(addLayer, repaint),
         ...voiceParams(voice),
       });
-      for (;;) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const s = await api.jobStatus(jobId);
-        if (s.status === 'done') break;
-        if (s.status === 'failed') throw new Error(s.error ?? 'add layer failed');
-      }
-      setPrompt('');
-      await onDone();
     } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setJob('idle');
+      setMixError(err instanceof Error ? err.message : String(err));
     }
   };
 
