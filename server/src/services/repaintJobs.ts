@@ -160,6 +160,17 @@ async function persistVersion(
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(versionId, layerId, filename, label, JSON.stringify(params), result.seed_value, activate ? 1 : 0, lyricTimestamps);
 
-  const row = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(layerId) as { song_id: string };
+  const row = db.prepare(`SELECT song_id, kind FROM layers WHERE id = ?`).get(layerId) as { song_id: string; kind: string };
+
+  // A repaint that edited lyrics for the base layer becomes the song's canonical
+  // lyrics going forward (search, section-strip alignment, future repaints) —
+  // only when this version actually becomes active; regenerate/similar-take
+  // append history without activating and shouldn't touch canonical lyrics.
+  // Each version's own params_json still retains the lyrics it was rendered
+  // with, so reverting to an older version (see versions.ts) restores it too.
+  if (activate && row.kind === 'base' && typeof params.lyrics === 'string' && params.lyrics.trim()) {
+    db.prepare(`UPDATE songs SET lyrics = ? WHERE id = ?`).run(params.lyrics, row.song_id);
+  }
+
   return row.song_id;
 }

@@ -27,7 +27,7 @@ vi.mock('./jobs.js', async () => {
 const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
 const { getJob } = await import('./jobs.js');
-const { startRegenerate, startSimilarTake } = await import('./repaintJobs.js');
+const { startRegenerate, startSimilarTake, startRepaint } = await import('./repaintJobs.js');
 
 function seedVersion(seed = 'original-seed-123'): { layerId: string; versionId: string } {
   const songId = crypto.randomUUID();
@@ -95,5 +95,48 @@ describe('startRegenerate (baseline, for comparison)', () => {
     const [params] = releaseTask.mock.calls[0] as [Record<string, unknown>];
     expect(params.retake_seed).toBeUndefined();
     expect(params.retake_variance).toBeUndefined();
+  });
+});
+
+describe('startRepaint lyrics persistence', () => {
+  function songLyricsFor(layerId: string): string {
+    const { song_id: songId } = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(layerId) as { song_id: string };
+    return (db.prepare(`SELECT lyrics FROM songs WHERE id = ?`).get(songId) as { lyrics: string }).lyrics;
+  }
+
+  it('updates songs.lyrics on a successful base-layer repaint that included an edited lyrics override', async () => {
+    releaseTask.mockClear();
+    const { layerId } = seedVersion();
+
+    const job = await startRepaint(layerId, {
+      prompt: 'a song', repainting_start: 0, repainting_end: 10, lyrics: '[Verse]\nnew edited words',
+    });
+    await waitForDone(job.id);
+
+    expect(songLyricsFor(layerId)).toBe('[Verse]\nnew edited words');
+  });
+
+  it('does not touch songs.lyrics when no lyrics override is sent', async () => {
+    releaseTask.mockClear();
+    const { layerId } = seedVersion();
+    const { song_id: songId } = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(layerId) as { song_id: string };
+    db.prepare(`UPDATE songs SET lyrics = ? WHERE id = ?`).run('original lyrics', songId);
+
+    const job = await startRepaint(layerId, { prompt: 'a song', repainting_start: 0, repainting_end: 10 });
+    await waitForDone(job.id);
+
+    expect(songLyricsFor(layerId)).toBe('original lyrics');
+  });
+
+  it('ignores a blank/whitespace-only lyrics override', async () => {
+    releaseTask.mockClear();
+    const { layerId } = seedVersion();
+    const { song_id: songId } = db.prepare(`SELECT song_id FROM layers WHERE id = ?`).get(layerId) as { song_id: string };
+    db.prepare(`UPDATE songs SET lyrics = ? WHERE id = ?`).run('original lyrics', songId);
+
+    const job = await startRepaint(layerId, { prompt: 'a song', repainting_start: 0, repainting_end: 10, lyrics: '   ' });
+    await waitForDone(job.id);
+
+    expect(songLyricsFor(layerId)).toBe('original lyrics');
   });
 });
