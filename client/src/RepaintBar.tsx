@@ -30,8 +30,8 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
         <motion.div className={`scope-chip${regionTooShort || regionTooLong ? ' warn' : ''}`} layout>
           {!selection ? 'NO SELECTION'
             : regionTooShort ? `${fmt(selection.start)}–${fmt(selection.end)} · MIN ${REPAINT_MIN_SECONDS}s`
-            : regionTooLong ? `${fmt(selection.start)}–${fmt(selection.end)} · MAX ${REPAINT_MAX_SECONDS}s`
-            : `${fmt(selection.start)}–${fmt(selection.end)} · ${layerName.toUpperCase()}`}
+              : regionTooLong ? `${fmt(selection.start)}–${fmt(selection.end)} · MAX ${REPAINT_MAX_SECONDS}s`
+                : `${fmt(selection.start)}–${fmt(selection.end)} · ${layerName.toUpperCase()}`}
         </motion.div>
         <input
           placeholder="Describe what should change in the selected region"
@@ -64,9 +64,6 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
           ) : 'REPAINT REGION'}
         </motion.button>
       </motion.section>
-      {regionValid && (
-        <div className="hint">will save as {layerName.toUpperCase()} v{nextVersion}</div>
-      )}
       {error && <div className="error">{error} <button onClick={onRepaint}>RETRY</button></div>}
     </>
   );
