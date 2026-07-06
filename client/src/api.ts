@@ -198,6 +198,17 @@ export const api = {
       .then((r) => json<{ jobId: string }>(r));
   },
 
+  remaster: (songId: string, mixAudio: Blob, model: string): Promise<{ jobId: string }> => {
+    const form = new FormData();
+    form.append('mix_audio', mixAudio, 'mix.wav');
+    form.append('model', model);
+    return fetch(`/api/songs/${songId}/remaster`, { method: 'POST', body: form })
+      .then((r) => json<{ jobId: string }>(r));
+  },
+
+  remasterDownloadUrl: (songId: string, jobId: string): string =>
+    `/api/songs/${songId}/remaster/${jobId}/download`,
+
   updateLayer: (
     layerId: string,
     patch: { name?: string; volume?: number; muted?: boolean; solo?: boolean },

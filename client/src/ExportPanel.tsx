@@ -1,11 +1,12 @@
 import type { SongDetail } from './api';
+import { RemasterAction } from './RemasterAction';
 
 interface Props {
   song: SongDetail;
   onBack: () => void;
 }
 
-/** Right-rail export view — per-layer stem download. Composite mixdown export is still an open question (see PLAN.md's Export note). */
+/** Right-rail export view — per-layer stem download, plus the Remaster action (see PLAN.md's Export & Remaster design). */
 export function ExportPanel({ song, onBack }: Props) {
   return (
     <div className="export-panel">
@@ -24,6 +25,7 @@ export function ExportPanel({ song, onBack }: Props) {
           </a>
         );
       })}
+      <RemasterAction songId={song.id} layers={song.layers} />
     </div>
   );
 }
