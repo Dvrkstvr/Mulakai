@@ -1303,6 +1303,15 @@ footer .player {
   min-height: 0;
 }
 
+/* Left column stacks the lyrics panel above repaint settings; each card sizes
+   to its own content, matching editor-layout's "no forced stretch" rule. */
+.left-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
 /* Create takeover: fixed left settings panel + a width-capped content
    column. Unlike Editor's waveform, a prompt/lyrics editor doesn't get more
    usable by being 3x wider, so extra viewport width is left as margin. */
@@ -2090,6 +2099,63 @@ footer .player {
 .info-tooltip:focus .info-tooltip-mark {
   border-color: var(--text-hi);
   color: var(--text-hi);
+}
+
+/* Lyrics panel: read-only by default; a textarea only while a whole section
+   is selected on the base layer (Editor.tsx's `lyricsUnlocked`). Sky marks
+   the block matching the current section-strip selection, same hue as the
+   waveform selection wash it's echoing (DESIGN.md "selection must read as
+   one continuous color everywhere it is echoed"). */
+.lyrics-panel {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lyrics-readonly {
+  max-height: 340px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-hi);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-hi) var(--panel);
+}
+
+.lyrics-block {
+  padding: 4px 6px;
+  border-left: 2px solid transparent;
+}
+
+.lyrics-block.active {
+  border-left-color: var(--sky);
+  background: var(--sky-tint);
+}
+
+.lyrics-tag {
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  font-size: 10px;
+}
+
+.lyrics-textarea {
+  min-height: 340px;
+  max-height: 340px;
+  resize: none;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.lyrics-hint {
+  font-size: 10px;
+  color: var(--text-low);
+  letter-spacing: 0.5px;
 }
 
 .info-tooltip-text {

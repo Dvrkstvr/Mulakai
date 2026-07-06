@@ -49,3 +49,19 @@ export function groupSections(lines: LyricLine[] | null | undefined, duration: n
   // Drop any zero/negative-width spans left by coincident tag times.
   return sections.filter((s) => s.end > s.start);
 }
+
+/**
+ * Index of the section whose span exactly matches `selection` (epsilon-compared),
+ * or -1 if the current selection isn't a whole section (e.g. a manually dragged
+ * or fine-tuned region). Shared by SectionStrip (active-segment styling) and the
+ * lyrics panel (which block to highlight/unlock).
+ */
+export function findActiveSectionIndex(
+  sections: Section[],
+  selection: { start: number; end: number } | null,
+): number {
+  if (!selection) return -1;
+  return sections.findIndex(
+    (s) => Math.abs(selection.start - s.start) < 0.05 && Math.abs(selection.end - s.end) < 0.05,
+  );
+}

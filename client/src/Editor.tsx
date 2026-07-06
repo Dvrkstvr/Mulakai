@@ -7,7 +7,9 @@ import { ExportPanel } from './ExportPanel';
 import { SplitPanel } from './SplitPanel';
 import { LayerStack } from './LayerStack';
 import { SectionStrip } from './SectionStrip';
-import { groupSections } from './lyricSections';
+import { groupSections, findActiveSectionIndex } from './lyricSections';
+import { splitLyricsBlocks, matchSectionBlocks } from './lyricsBlocks';
+import { LyricsPanel } from './LyricsPanel';
 import { RepaintBar } from './RepaintBar';
 import { SettingsPanel } from './SettingsPanel';
 import { useSettings, repaintParams } from './settings';
@@ -28,12 +30,22 @@ export function Editor({ songId, onBack }: Props) {
   const [focusedLayerId, setFocusedLayerId] = useState<string | null>(null);
   const [selection, setSelection] = useState<Region | null>(null);
   const [prompt, setPrompt] = useState('');
+  const [lyricsDraft, setLyricsDraft] = useState('');
   const [job, setJob] = useState<'idle' | 'running'>('idle');
   const [error, setError] = useState('');
   const [railMode, setRailMode] = useState<'history' | 'export' | 'split'>('history');
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);
+
+  // Re-sync the editable lyrics draft only when the *canonical* text actually
+  // changes (new song, or this song's lyrics were updated by a repaint/revert)
+  // — not on every reload() (layer mutes, added layers, etc. would otherwise
+  // wipe an in-progress edit that hasn't been repainted yet).
+  useEffect(() => {
+    setLyricsDraft(song?.lyrics ?? '');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [song?.id, song?.lyrics]);
 
   const engine = usePlaybackEngine(song?.layers ?? []);
   const playhead = engine.currentTime;
@@ -85,6 +97,19 @@ export function Editor({ songId, onBack }: Props) {
     () => groupSections(baseActive?.lyricTimestamps, duration),
     [baseActive, duration],
   );
+  const activeSectionIndex = useMemo(() => findActiveSectionIndex(sections, selection), [sections, selection]);
+
+  // Parsed from the live draft (not the stored song.lyrics) so block char-offsets
+  // stay correct as the user edits — re-splitting on every keystroke is cheap at
+  // lyric-text length, and it means highlighting a later block after editing an
+  // earlier one doesn't drift out of sync with the shifted text.
+  const lyricsBlocks = useMemo(() => splitLyricsBlocks(lyricsDraft), [lyricsDraft]);
+  const matchedBlocks = useMemo(() => matchSectionBlocks(sections, lyricsBlocks), [sections, lyricsBlocks]);
+  const activeLyricsBlock = activeSectionIndex !== -1 ? matchedBlocks[activeSectionIndex] : null;
+  // Lyrics live on the song, not the layer — editing only makes sense (and
+  // only gets sent as repaint conditioning) while repainting the base layer.
+  const canEditLyrics = focusedLayer?.kind === 'base';
+  const lyricsUnlocked = canEditLyrics && activeSectionIndex !== -1;
 
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const regionValid = !!selection && regionSeconds >= REPAINT_MIN_SECONDS && regionSeconds <= REPAINT_MAX_SECONDS;
@@ -98,6 +123,7 @@ export function Editor({ songId, onBack }: Props) {
         prompt,
         start: selection.start,
         end: selection.end,
+        ...(lyricsUnlocked ? { lyrics: lyricsDraft } : {}),
         ...repaintParams(repaintSettings),
       });
       for (;;) {
@@ -133,7 +159,16 @@ export function Editor({ songId, onBack }: Props) {
   return (
     <div className="editor-shell">
       <div className="with-panel editor-layout">
-        <SettingsPanel mode="repaint" />
+        <div className="left-rail">
+          <LyricsPanel
+            blocks={lyricsBlocks}
+            draft={lyricsDraft}
+            onDraftChange={setLyricsDraft}
+            activeBlock={activeLyricsBlock}
+            unlocked={lyricsUnlocked}
+          />
+          <SettingsPanel mode="repaint" />
+        </div>
         <div className="editor-main">
       <div className="title-row">
         <span className="song-title">{song.title}</span>
@@ -154,7 +189,7 @@ export function Editor({ songId, onBack }: Props) {
         error={error}
       />
 
-      <SectionStrip sections={sections} selection={selection} onSelect={setSelection} />
+      <SectionStrip sections={sections} activeIndex={activeSectionIndex} onSelect={setSelection} onSeek={seek} />
 
       <LayerStack
         songId={songId}
