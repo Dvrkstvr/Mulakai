@@ -1,5 +1,6 @@
 import { Router } from 'express';
-import { startGeneration, getJob } from '../services/jobs.js';
+import { startGeneration, getJob, getActiveGeneration } from '../services/jobs.js';
+import { GenLockError } from '../services/genLock.js';
 import {
   health,
   listModels,
@@ -34,6 +35,7 @@ generateRouter.post('/', async (req, res) => {
     });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
+    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
   }
 });
@@ -73,6 +75,26 @@ generateRouter.get('/health', async (_req, res) => {
 
 generateRouter.get('/models', async (_req, res) => {
   res.json(await listModels());
+});
+
+/** The currently locked generation (any kind), for the client to rehydrate its
+ * "generating" library card across a page refresh. Placed before `/:jobId` so
+ * it isn't shadowed by that param route. */
+generateRouter.get('/active', (_req, res) => {
+  const { lock, job } = getActiveGeneration();
+  if (!lock) return res.json({ active: null });
+  res.json({
+    active: {
+      kind: lock.kind,
+      jobId: lock.jobId,
+      songId: lock.songId,
+      title: lock.title,
+      caption: lock.caption,
+      startedAt: lock.startedAt,
+      status: job?.status ?? 'running',
+      error: job?.error,
+    },
+  });
 });
 
 generateRouter.get('/:jobId', (req, res) => {

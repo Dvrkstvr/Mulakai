@@ -13,6 +13,7 @@ import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { useHeaderSlot } from './HeaderSlot';
 import { ScrollArea } from './ScrollArea';
 import type { CreateDraft } from './createDraft';
+import { useGenerationStore } from './generationStore';
 
 /** Small pill mirroring SettingsPanel's `.toggle-ai` shimmer, so a field visibly
  * carries the same AI ENHANCE treatment whether it's a toggle or a plain field. */
@@ -24,13 +25,15 @@ interface Props {
   songs: Song[];
   initialDraft: CreateDraft;
   onBack: () => void;
-  onCreated: () => void;
 }
 
 /** Dedicated Create takeover — reached from the Library create bar or the Library
  * detail rail's REUSE PROMPT / CREATE COVER FROM AUDIO actions (`initialDraft`),
- * per docs/design/DESIGN.md. */
-export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
+ * per docs/design/DESIGN.md. Submitting a generation hands it off to
+ * generationStore.ts and returns to the library immediately (see generate()
+ * below) — the library's GeneratingCard tracks it to completion from there,
+ * so only one generation can ever be in flight globally. */
+export function CreateView({ songs, initialDraft, onBack }: Props) {
   const gen = useSettings((s) => s.gen);
   const voice = useVoiceStore();
   const [genType, setGenType] = useState(initialDraft.genType ?? 'prompt');
@@ -45,9 +48,12 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
   const [timeSignature, setTimeSignature] = useState(initialDraft.timeSignature ?? ''); // '' = AUTO
   const [vocalLanguage, setVocalLanguage] = useState(''); // '' = AUTO
   const [duration, setDuration] = useState(initialDraft.duration ?? 0); // 0 = AUTO (seconds)
-  const [job, setJob] = useState<'idle' | 'running' | 'failed'>('idle');
-  const [stage, setStage] = useState<'loading' | 'running'>('running');
+  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const genJob = useGenerationStore((s) => s.job);
+  const startGeneration = useGenerationStore((s) => s.start);
+  const dismissGeneration = useGenerationStore((s) => s.dismiss);
+  const generationBusy = submitting || !!genJob;
   const [refining, setRefining] = useState(false);
   const [refinePreview, setRefinePreview] = useState<RefineResult | null>(null);
   const [refineError, setRefineError] = useState('');
@@ -69,20 +75,22 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
 
   const generate = async () => {
     setError('');
-    setJob('running');
-    setStage('loading');
+    setSubmitting(true);
+    const draft: CreateDraft = { genType, source, selectedSongId: selectedSongId ?? undefined, prompt, lyrics, bpm, keyScale, timeSignature, duration };
     try {
-      const { jobId } = await api.generate({ title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(gen), ...voiceParams(voice) });
-      for (; ;) {
-        await new Promise((r) => setTimeout(r, 2000));
-        const s = await api.jobStatus(jobId);
-        if (s.status === 'loading' || s.status === 'running') setStage(s.status);
-        if (s.status === 'done') { setJob('idle'); onCreated(); return; }
-        if (s.status === 'failed') throw new Error(s.error ?? 'generation failed');
+      await startGeneration(
+        { title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(gen), ...voiceParams(voice) },
+        draft,
+      );
+      const failure = useGenerationStore.getState().job;
+      if (failure?.stage === 'failed') {
+        setError(failure.error ?? 'generation failed');
+        dismissGeneration();
+        return;
       }
-    } catch (err) {
-      setJob('failed');
-      setError(err instanceof Error ? err.message : String(err));
+      onBack(); // hands off to the library's GeneratingCard — see generationStore.ts
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -282,7 +290,7 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
               {genType === 'prompt' && (
                 <button
                   className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'}
-                  disabled={luckyLoading || job === 'running'}
+                  disabled={luckyLoading || generationBusy}
                   onClick={feelingLucky}
                 >
                   {luckyLoading ? 'ROLLING…' : luckyConfirm ? 'OVERWRITE? CONFIRM' : 'FEELING LUCKY'}
@@ -290,24 +298,24 @@ export function CreateView({ songs, initialDraft, onBack, onCreated }: Props) {
               )}
               <motion.button
                 className="acid"
-                animate={job === 'running' ? {
+                animate={submitting ? {
                   skewX: 0, backgroundColor: 'transparent', color: '#D4FF00',
                 } : {
                   skewX: -10, backgroundColor: '#D4FF00', color: '#1C1D21',
                 }}
                 transition={{ duration: 0.3, ease: 'easeOut' }}
                 style={{ position: 'relative', overflow: 'hidden' }}
-                disabled={genType === 'audio' || job === 'running' || !prompt}
+                disabled={genType === 'audio' || generationBusy || !prompt}
                 onClick={generate}
               >
-                {job === 'running' ? (
+                {submitting ? (
                   <>
                     <AIGeneratingBackground />
                     <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                      {stage === 'loading' ? 'LOADING MODEL…' : 'GENERATING…'}
+                      STARTING…
                     </span>
                   </>
-                ) : genType === 'audio' ? 'AUDIO GENERATION — COMING SOON' : 'GENERATE'}
+                ) : genJob ? 'A GENERATION IS ALREADY RUNNING' : genType === 'audio' ? 'AUDIO GENERATION — COMING SOON' : 'GENERATE'}
               </motion.button>
             </div>
             {luckyConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}

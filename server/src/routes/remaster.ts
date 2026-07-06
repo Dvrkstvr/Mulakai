@@ -1,8 +1,10 @@
 import fsp from 'node:fs/promises';
+import path from 'node:path';
 import { Router } from 'express';
 import multer from 'multer';
 import { getJob } from '../services/jobs.js';
 import { startRemaster } from '../services/remasterJobs.js';
+import { GenLockError } from '../services/genLock.js';
 
 export const remasterRouter = Router();
 
@@ -15,10 +17,13 @@ remasterRouter.post('/:id/remaster', upload.single('mix_audio'), async (req, res
   const model = String(req.body?.model ?? '').trim();
   if (!model) return res.status(400).json({ error: 'model is required' });
   if (!req.file) return res.status(400).json({ error: 'mix_audio is required' });
+  const audioFormat = req.body?.audio_format ? String(req.body.audio_format) : undefined;
+  const steps = req.body?.steps ? Number(req.body.steps) : undefined;
   try {
-    const job = await startRemaster(String(req.params.id), req.file.buffer, model);
+    const job = await startRemaster(String(req.params.id), req.file.buffer, model, { audioFormat, steps });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
+    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'remaster failed';
     res.status(msg === 'unknown song' ? 404 : 502).json({ error: msg });
   }
@@ -30,7 +35,7 @@ remasterRouter.get('/:id/remaster/:jobId/download', async (req, res) => {
   if (!job || job.status !== 'done' || !job.resultPath) return res.status(404).json({ error: 'remaster not ready' });
   const filePath = job.resultPath;
   job.resultPath = undefined;
-  res.download(filePath, 'remaster.wav', async () => {
+  res.download(filePath, `remaster${path.extname(filePath)}`, async () => {
     await fsp.unlink(filePath).catch(() => undefined);
   });
 });

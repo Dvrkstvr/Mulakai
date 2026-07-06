@@ -7,6 +7,7 @@ import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 import { type Job, type VoiceOptions, registerJob, poll, ensureModelLoaded } from './jobs.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
+import { acquireGenLock, releaseGenLock } from './genLock.js';
 
 /**
  * Add a new layer to a song via `lego`, conditioned on a pre-mixed bounce of
@@ -26,31 +27,39 @@ export async function startAddLayer(
   const song = db.prepare(`SELECT id FROM songs WHERE id = ?`).get(songId) as { id: string } | undefined;
   if (!song) throw new Error('unknown song');
 
-  const fullParams: ReleaseTaskParams = {
-    audio_format: 'mp3',
-    ...params,
-    task_type: 'lego',
-    prompt,
-    repainting_start: 0,
-    repainting_end: -1,
-  };
-  const ref = voice?.voiceId
-    ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
-    : undefined;
-  if (ref) applyVoiceInfluence(fullParams, ref);
-  await ensureModelLoaded(fullParams);
-  const { task_id } = await releaseTask(fullParams, {
-    srcAudio: { data: mixAudio, filename: 'mix.wav' },
-    ...(ref ? { referenceAudio: ref.referenceAudio } : {}),
-  });
+  const jobId = crypto.randomUUID();
+  acquireGenLock({ kind: 'addLayer', jobId, songId });
+  try {
+    const fullParams: ReleaseTaskParams = {
+      audio_format: 'mp3',
+      ...params,
+      task_type: 'lego',
+      prompt,
+      repainting_start: 0,
+      repainting_end: -1,
+    };
+    const ref = voice?.voiceId
+      ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
+      : undefined;
+    if (ref) applyVoiceInfluence(fullParams, ref);
+    await ensureModelLoaded(fullParams);
+    const { task_id } = await releaseTask(fullParams, {
+      srcAudio: { data: mixAudio, filename: 'mix.wav' },
+      ...(ref ? { referenceAudio: ref.referenceAudio } : {}),
+    });
 
-  const job: Job = {
-    id: crypto.randomUUID(), taskId: task_id, status: 'running',
-    songId, createdAt: Date.now(),
-  };
-  registerJob(job);
-  void poll(job, (result) => persistNewLayer(songId, layerName, result.file, fullParams, result));
-  return job;
+    const job: Job = {
+      id: jobId, taskId: task_id, status: 'running',
+      songId, createdAt: Date.now(),
+    };
+    registerJob(job);
+    void poll(job, (result) => persistNewLayer(songId, layerName, result.file, fullParams, result))
+      .finally(() => releaseGenLock(jobId));
+    return job;
+  } catch (err) {
+    releaseGenLock(jobId);
+    throw err;
+  }
 }
 
 /** Store a lego result as a brand new layer + its first (active) version. */

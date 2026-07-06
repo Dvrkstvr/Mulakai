@@ -6,13 +6,8 @@ import { db } from '../db/index.js';
 
 const TRASH_TTL_DAYS = 7;
 
-export function sweepTrash(): void {
-  const cutoff = new Date(Date.now() - TRASH_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
-  const expired = db
-    .prepare(`SELECT id FROM songs WHERE trashed_at IS NOT NULL AND trashed_at < ?`)
-    .all(cutoff) as Array<{ id: string }>;
-
-  for (const { id } of expired) {
+function deleteSongsPermanently(ids: string[]): void {
+  for (const id of ids) {
     const files = db
       .prepare(
         `SELECT v.audio_file FROM versions v JOIN layers l ON v.layer_id = l.id WHERE l.song_id = ?`,
@@ -23,4 +18,19 @@ export function sweepTrash(): void {
       void fs.rm(path.join(config.audioDir, audio_file), { force: true });
     }
   }
+}
+
+export function sweepTrash(): void {
+  const cutoff = new Date(Date.now() - TRASH_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
+  const expired = db
+    .prepare(`SELECT id FROM songs WHERE trashed_at IS NOT NULL AND trashed_at < ?`)
+    .all(cutoff) as Array<{ id: string }>;
+  deleteSongsPermanently(expired.map((r) => r.id));
+}
+
+/** Settings > Library Maintenance's "EMPTY TRASH NOW" — deletes every currently trashed
+ * song immediately, regardless of the 7-day TTL. */
+export function emptyTrashNow(): void {
+  const trashed = db.prepare(`SELECT id FROM songs WHERE trashed_at IS NOT NULL`).all() as Array<{ id: string }>;
+  deleteSongsPermanently(trashed.map((r) => r.id));
 }

@@ -16,8 +16,10 @@ function readDuration(file: File): Promise<number | undefined> {
   });
 }
 
-/** Manage-voices surface: upload a new clip, rename or delete existing ones. */
-export function VoiceUploadForm({ onClose }: { onClose: () => void }) {
+/** Manage-voices surface: upload a new clip, rename or delete existing ones.
+ * `onClose` is only passed when embedded inline (legacy callers); Settings > Voices
+ * renders this standalone with no close affordance. */
+export function VoiceUploadForm({ onClose }: { onClose?: () => void }) {
   const { voices, fetchVoices } = useVoiceStore();
   const [name, setName] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -68,7 +70,7 @@ export function VoiceUploadForm({ onClose }: { onClose: () => void }) {
         ))}
         {voices.length === 0 && <div className="empty">No saved voices yet.</div>}
       </div>
-      <button className="voice-manage-btn" onClick={onClose}><span>DONE</span></button>
+      {onClose && <button className="voice-manage-btn" onClick={onClose}><span>DONE</span></button>}
     </div>
   );
 }

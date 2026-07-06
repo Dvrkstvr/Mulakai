@@ -30,13 +30,30 @@ export interface AddLayerSettings {
   seed: number;
 }
 
+/** ACE-Step's documented output formats (docs/ace-step-1.5/API.md#4.2) — no bitrate/sample-rate
+ * knob exists server-side, so those aren't modeled here (see Settings' Export section). */
+export type AudioFormat = 'wav' | 'wav32' | 'flac' | 'mp3' | 'opus' | 'aac';
+
+export interface ExportSettings {
+  audioFormat: AudioFormat;
+  /** Remaster diffusion steps, 1-200 (ACE-Step's documented Base-model ceiling). */
+  steps: number;
+  /** Default playback volume (0-1) applied once when a Player first mounts. */
+  volume: number;
+}
+
 interface SettingsState {
   gen: GenSettings;
   repaint: RepaintSettings;
   addLayer: AddLayerSettings;
+  exportSettings: ExportSettings;
+  /** Reveals FORGE's header icon (docs FORGE_PLAN.md) — the screen behind it is a stub until release 1.0. */
+  forgeEnabled: boolean;
   setGen: (patch: Partial<GenSettings>) => void;
   setRepaint: (patch: Partial<RepaintSettings>) => void;
   setAddLayer: (patch: Partial<AddLayerSettings>) => void;
+  setExportSettings: (patch: Partial<ExportSettings>) => void;
+  setForgeEnabled: (v: boolean) => void;
 }
 
 export const useSettings = create<SettingsState>()(
@@ -65,9 +82,17 @@ export const useSettings = create<SettingsState>()(
         randomSeed: true,
         seed: 0,
       },
+      exportSettings: {
+        audioFormat: 'wav',
+        steps: 100,
+        volume: 1,
+      },
+      forgeEnabled: false,
       setGen: (patch) => set((s) => ({ gen: { ...s.gen, ...patch } })),
       setRepaint: (patch) => set((s) => ({ repaint: { ...s.repaint, ...patch } })),
       setAddLayer: (patch) => set((s) => ({ addLayer: { ...s.addLayer, ...patch } })),
+      setExportSettings: (patch) => set((s) => ({ exportSettings: { ...s.exportSettings, ...patch } })),
+      setForgeEnabled: (v) => set({ forgeEnabled: v }),
     }),
     { name: 'mulakai-settings' },
   ),

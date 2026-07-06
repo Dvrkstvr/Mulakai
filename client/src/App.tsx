@@ -11,10 +11,16 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSingleAudioPlayback } from './useSingleAudioPlayback';
 import { Header } from './Header';
 import { HeaderSlotContext } from './HeaderSlot';
+import { NavigationContext } from './Navigation';
 import { MaterializeSweep } from './MaterializeSweep';
 import { ScrollArea } from './ScrollArea';
+import { SettingsView } from './SettingsView';
+import { ForgeStub } from './ForgeStub';
+import { useSettings } from './settings';
+import { useGenerationStore } from './generationStore';
+import { GeneratingCard } from './GeneratingCard';
 
-type View = 'library' | 'create';
+type View = 'library' | 'create' | 'settings' | 'forge';
 
 export default function App() {
   const [view, setView] = useState<View>('library');
@@ -34,11 +40,18 @@ export default function App() {
     setHeaderRight(right);
   }, []);
   const footerEngine = useSingleAudioPlayback(playing?.audio_file ? `/audio/${playing.audio_file}` : '', true);
+  const forgeEnabled = useSettings((s) => s.forgeEnabled);
+  const navValue = useMemo(() => ({ goToSettings: () => setView('settings') }), []);
+  const isTakeover = view === 'create' || view === 'settings' || view === 'forge';
+  const genJob = useGenerationStore((s) => s.job);
+  const dismissGenJob = useGenerationStore((s) => s.dismiss);
+  const hydrateGenJob = useGenerationStore((s) => s.hydrate);
 
   const refresh = (q = query) => api.listSongs(q).then(setSongs).catch(() => {});
 
   useEffect(() => {
     refresh();
+    hydrateGenJob();
     const checkHealth = () =>
       api.acestepHealth().then((h) => setOnline(h.acestep)).catch(() => setOnline(false));
     checkHealth();
@@ -47,9 +60,24 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // library player stops (not pauses) when the editor or create view opens, per PLAN.md's Custom Player Controls section
+  // The generating card's own store clears `job` a moment after it flips to 'done' (see
+  // generationStore.ts's DONE_LINGER_MS) — refresh the library right as that happens so
+  // the real song row is already in `songs` by the time the placeholder unmounts.
   useEffect(() => {
-    if (openSongId || view === 'create') footerEngine.stop();
+    if (genJob?.stage === 'done') refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [genJob?.stage]);
+
+  const retryGeneration = () => {
+    if (!genJob) return;
+    setCreateDraft(genJob.draft);
+    dismissGenJob();
+    setView('create');
+  };
+
+  // library player stops (not pauses) when the editor or any takeover screen opens, per PLAN.md's Custom Player Controls section
+  useEffect(() => {
+    if (openSongId || isTakeover) footerEngine.stop();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openSongId, view]);
 
@@ -79,9 +107,10 @@ export default function App() {
   }, [songs, sort, filter]);
 
   return (
-    <div className={openSongId || view === 'create' ? 'app app-editor' : 'app'}>
+    <div className={openSongId || isTakeover ? 'app app-editor' : 'app'}>
+      <NavigationContext.Provider value={navValue}>
       <HeaderSlotContext.Provider value={setHeaderSlot}>
-      <Header online={online} left={headerLeft} right={headerRight} />
+      <Header online={online} left={headerLeft} right={headerRight} forgeEnabled={forgeEnabled} onForge={() => setView('forge')} />
       <div className="app-body">
       <AnimatePresence mode="wait">
         {openSongId ? (
@@ -96,12 +125,24 @@ export default function App() {
               songs={songs}
               initialDraft={createDraft}
               onBack={() => setView('library')}
-              onCreated={() => { refresh(); setView('library'); }}
             />
+          </motion.div>
+        ) : view === 'settings' ? (
+          <motion.div className="view-fill" key="settings" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
+            <MaterializeSweep />
+            <SettingsView online={online} onBack={() => setView('library')} />
+          </motion.div>
+        ) : view === 'forge' ? (
+          <motion.div className="view-fill" key="forge" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
+            <MaterializeSweep />
+            <ForgeStub onBack={() => setView('library')} />
           </motion.div>
         ) : (
           <motion.div className="view-fill" key="library" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
-            <CreateBar onCreate={(draftPrompt) => { setCreateDraft(promptDraft(draftPrompt)); setView('create'); }} />
+            <CreateBar
+              onCreate={(draftPrompt) => { setCreateDraft(promptDraft(draftPrompt)); setView('create'); }}
+              busy={!!genJob && genJob.stage !== 'failed'}
+            />
 
             <LibraryToolbar
               query={query}
@@ -110,10 +151,12 @@ export default function App() {
               onSort={setSort}
               filter={filter}
               onFilter={setFilter}
+              onSettings={() => setView('settings')}
             />
 
             <ScrollArea className="library-layout">
               <section className="library">
+                {genJob && <GeneratingCard job={genJob} onRetry={retryGeneration} />}
                 {visibleSongs.map((s, i) => (
                   <motion.div
                     key={s.id}
@@ -136,7 +179,7 @@ export default function App() {
                     </div>
                   </motion.div>
                 ))}
-                {visibleSongs.length === 0 && <div className="empty">No songs yet — generate your first one above.</div>}
+                {visibleSongs.length === 0 && !genJob && <div className="empty">No songs yet — generate your first one above.</div>}
               </section>
               {detailSongId && (() => {
                 const detailSong = songs.find((s) => s.id === detailSongId);
@@ -164,7 +207,7 @@ export default function App() {
           <motion.footer
             key="footer"
             initial={{ y: '100%' }}
-            animate={{ y: openSongId || view === 'create' ? '100%' : 0 }}
+            animate={{ y: openSongId || isTakeover ? '100%' : 0 }}
             exit={{ y: '100%' }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
           >
@@ -178,6 +221,7 @@ export default function App() {
         )}
       </AnimatePresence>
       </HeaderSlotContext.Provider>
+      </NavigationContext.Provider>
     </div>
   );
 }

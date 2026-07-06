@@ -64,6 +64,9 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
           ) : 'REPAINT REGION'}
         </motion.button>
       </motion.section>
+      {regionValid && job !== 'running' && (
+        <div className="hint">will save as {layerName.toUpperCase()} v{nextVersion}</div>
+      )}
       {error && <div className="error">{error} <button onClick={onRepaint}>RETRY</button></div>}
     </>
   );

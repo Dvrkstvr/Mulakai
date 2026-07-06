@@ -702,3 +702,33 @@ cover-capable model.
 - **Version storage growth**: each repaint/layer-add stores a new audio file;
   decide a retention/cleanup policy once real usage patterns are visible —
   don't over-engineer this before Phase 8.
+
+## Settings Screen (planned + implemented 2026-07-06)
+
+Added a 4th peer screen (see `docs/design/DESIGN.md`'s App model, "4. Settings")
+per a scope discussion — `PLAN.md`'s locked "exactly three screens" line
+predates this and is superseded by it, same as FORGE already was.
+
+- **Models**: default DIT/LM model pickers (the same `gen.model`/`gen.lmModel`
+  Create's settings panel persists), plus the model/LM inventory with
+  per-model descriptions. Read/select only — ACE-Step's native API has no
+  download/update-model endpoint (verified against `docs/ace-step-1.5/API.md`).
+- **Playback & Export**: default volume-on-load; default Remaster export
+  audio format (`flac`/`mp3`/`opus`/`aac`/`wav`/`wav32`, ACE-Step's real
+  `audio_format` param) and diffusion steps (1–200, ACE-Step's documented
+  Base-model ceiling — the requested 256 exceeds it and isn't supported).
+  Sample rate (fixed 48kHz by the model) and bitrate aren't exposed by
+  ACE-Step's API, so neither is modeled — would require local transcoding,
+  explicitly deferred.
+- **Voices**: voice-library upload/rename/delete relocated here from
+  Create's `VoicePicker`, which is select-only now (its MANAGE VOICES
+  button navigates to Settings via a new `NavigationContext` instead of
+  expanding an inline form).
+- **Library Maintenance**: storage-used/song-count/trash-count stats (new
+  `GET /api/songs/stats`), the trashed-song list with RESTORE (reuses the
+  existing `PATCH /:id/trash` restore flag), and EMPTY TRASH NOW (new
+  `DELETE /api/songs/trash`, bypasses the 7-day sweep — `trashSweep.ts`'s
+  `emptyTrashNow()`).
+- **Forge (experimental)**: a toggle revealing FORGE's header icon per
+  `FORGE_PLAN.md`'s existing "feature-gated, hidden by default" decision —
+  the screen behind it is a stub (`ForgeStub.tsx`) until release 1.0.

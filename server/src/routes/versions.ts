@@ -4,6 +4,7 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { startRegenerate, startSimilarTake } from '../services/repaintJobs.js';
+import { GenLockError } from '../services/genLock.js';
 
 export const versionsRouter = Router();
 
@@ -69,6 +70,7 @@ versionsRouter.post('/versions/:versionId/regenerate', async (req, res) => {
     const job = await startRegenerate(req.params.versionId);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
+    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'regenerate failed';
     res.status(msg === 'unknown version' ? 404 : 502).json({ error: msg });
   }
@@ -80,6 +82,7 @@ versionsRouter.post('/versions/:versionId/retake', async (req, res) => {
     const job = await startSimilarTake(req.params.versionId);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
+    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'retake failed';
     res.status(msg === 'unknown version' ? 404 : 502).json({ error: msg });
   }

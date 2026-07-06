@@ -9,6 +9,7 @@ export interface Song {
   duration: number | null;
   favorite: 0 | 1;
   audio_file: string | null;
+  trashed_at: string | null;
   created_at: string;
 }
 
@@ -84,6 +85,18 @@ export interface RefineResult {
   vocal_language?: string;
 }
 
+/** Mirrors server/src/services/genLock.ts's GenLockInfo, joined with the underlying job's status. */
+export interface ActiveGeneration {
+  kind: 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster';
+  jobId: string;
+  songId?: string;
+  title?: string;
+  caption?: string;
+  startedAt: number;
+  status: 'loading' | 'running' | 'done' | 'failed';
+  error?: string;
+}
+
 export interface Voice {
   id: string;
   name: string;
@@ -140,6 +153,11 @@ export const api = {
 
   jobStatus: (jobId: string): Promise<{ status: 'loading' | 'running' | 'done' | 'failed'; songId?: string; error?: string }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),
+
+  /** The server-wide generation lock, if any — used to rehydrate the library's
+   * "generating" card after a page refresh mid-generation. */
+  activeGeneration: (): Promise<{ active: ActiveGeneration | null }> =>
+    fetch('/api/generate/active').then((r) => json(r)),
 
   acestepHealth: (): Promise<{ acestep: boolean }> =>
     fetch('/api/generate/health').then((r) => json(r)),
@@ -198,10 +216,17 @@ export const api = {
       .then((r) => json<{ jobId: string }>(r));
   },
 
-  remaster: (songId: string, mixAudio: Blob, model: string): Promise<{ jobId: string }> => {
+  remaster: (
+    songId: string,
+    mixAudio: Blob,
+    model: string,
+    opts: { audioFormat: string; steps: number },
+  ): Promise<{ jobId: string }> => {
     const form = new FormData();
     form.append('mix_audio', mixAudio, 'mix.wav');
     form.append('model', model);
+    form.append('audio_format', opts.audioFormat);
+    form.append('steps', String(opts.steps));
     return fetch(`/api/songs/${songId}/remaster`, { method: 'POST', body: form })
       .then((r) => json<{ jobId: string }>(r));
   },
@@ -222,12 +247,19 @@ export const api = {
   deleteLayer: (layerId: string): Promise<void> =>
     fetch(`/api/layers/${layerId}`, { method: 'DELETE' }).then((r) => json(r)),
 
-  trash: (id: string): Promise<void> =>
+  trash: (id: string, restore = false): Promise<void> =>
     fetch(`/api/songs/${id}/trash`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({}),
+      body: JSON.stringify({ restore }),
     }).then(() => undefined),
+
+  listTrash: (): Promise<Song[]> => fetch('/api/songs/trash').then((r) => json<Song[]>(r)),
+
+  emptyTrash: (): Promise<void> => fetch('/api/songs/trash', { method: 'DELETE' }).then(() => undefined),
+
+  libraryStats: (): Promise<{ storageBytes: number; songCount: number; trashCount: number }> =>
+    fetch('/api/songs/stats').then((r) => json(r)),
 
   startSplit: (layerId: string, model: 'acestep' | 'demucs'): Promise<{ jobId: string }> =>
     fetch(`/api/layers/${layerId}/split`, {
