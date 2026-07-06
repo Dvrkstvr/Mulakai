@@ -19,12 +19,15 @@ Library/Create/Editor.
 
 ## Decisions locked in (from discussion, 2026-07-04)
 
-- **Separation mechanism**: a 4th in-app mode, not a separate mini-app.
-  Same repo/build, its own route/view, launched from a small icon in the
-  header (next to the ACE-Step status pill) — not a peer of the Library/
-  Create/Editor nav. Shares `api.ts`-style client code and the existing
-  job-polling pattern (`server/src/services/jobs.ts`'s ~2s poll loop already
-  used for generation) rather than inventing new plumbing.
+- **Separation mechanism**: a 4th top-level view, not a separate mini-app —
+  same repo/build, following the general view pattern in `docs/design/
+  DESIGN.md`'s "App model" section (own nav entry point, owns the content
+  area, shares the header). Its entry point is a small icon in the header
+  (next to the ACE-Step status pill) rather than a Library/Create/Editor-
+  style nav item, since it's a secondary/opt-in mode, not part of the
+  creative loop those three form. Shares `api.ts`-style client code and the
+  existing job-polling pattern (`server/src/services/jobs.ts`'s ~2s poll
+  loop already used for generation) rather than inventing new plumbing.
 - **Feature-gated, hidden by default** — per `AGENTS.md`'s "unfinished/WIP
   UI must not be exposed as usable by default" rule. A settings toggle or
   env flag reveals the header entry point; it does not show up for a casual
