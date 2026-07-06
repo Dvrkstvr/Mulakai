@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { releaseTask, downloadAudio, type ReleaseTaskParams, type TaskResult } from './acestep.js';
+import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 import { type Job, type VoiceOptions, registerJob, poll, ensureModelLoaded } from './jobs.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
@@ -31,7 +31,7 @@ export async function startAddLayer(
   acquireGenLock({ kind: 'addLayer', jobId, songId });
   try {
     const fullParams: ReleaseTaskParams = {
-      audio_format: 'mp3',
+      audio_format: 'wav',
       ...params,
       task_type: 'lego',
       prompt,
@@ -73,7 +73,7 @@ async function persistNewLayer(
   const audio = await downloadAudio(fileUrl);
   const layerId = crypto.randomUUID();
   const versionId = crypto.randomUUID();
-  const filename = `${versionId}.mp3`;
+  const filename = `${versionId}.${audioFileExt(params.audio_format)}`;
   await fs.writeFile(path.join(config.audioDir, filename), audio);
 
   const { maxPos } = db

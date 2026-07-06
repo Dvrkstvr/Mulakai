@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
+import { fmtElapsed, useElapsedMs } from './genProgress';
 import type { Region } from './Waveform';
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -13,16 +14,21 @@ interface Props {
   prompt: string;
   onPromptChange: (prompt: string) => void;
   job: 'idle' | 'running';
+  startedAt: number | null;
+  /** True while a *different* generation (song gen, another layer's repaint, remaster, split…)
+   * is running anywhere — disables this trigger proactively instead of just failing with a 409. */
+  busyElsewhere: boolean;
   onRepaint: () => void;
   error: string;
 }
 
 /** Scope chip + prompt input + REPAINT REGION commit, re-targetable to whichever layer is focused. */
-export function RepaintBar({ layerName, nextVersion, selection, prompt, onPromptChange, job, onRepaint, error }: Props) {
+export function RepaintBar({ layerName, nextVersion, selection, prompt, onPromptChange, job, startedAt, busyElsewhere, onRepaint, error }: Props) {
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const regionTooShort = !!selection && regionSeconds < REPAINT_MIN_SECONDS;
   const regionTooLong = !!selection && regionSeconds > REPAINT_MAX_SECONDS;
   const regionValid = !!selection && !regionTooShort && !regionTooLong;
+  const elapsedMs = useElapsedMs(job === 'running', startedAt);
 
   return (
     <>
@@ -51,21 +57,24 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
           }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
           style={{ position: 'relative', overflow: 'hidden' }}
-          disabled={!regionValid || job === 'running'}
+          disabled={!regionValid || job === 'running' || busyElsewhere}
           onClick={onRepaint}
         >
           {job === 'running' ? (
             <>
               <AIGeneratingBackground />
               <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                REPAINTING…
+                REPAINTING… {fmtElapsed(elapsedMs)}
               </span>
             </>
-          ) : 'REPAINT REGION'}
+          ) : busyElsewhere ? 'BUSY ELSEWHERE' : 'REPAINT REGION'}
         </motion.button>
       </motion.section>
-      {regionValid && job !== 'running' && (
+      {regionValid && job !== 'running' && !busyElsewhere && (
         <div className="hint">will save as {layerName.toUpperCase()} v{nextVersion}</div>
+      )}
+      {busyElsewhere && job !== 'running' && (
+        <div className="hint">a generation is already running elsewhere — try again once it finishes</div>
       )}
       {error && <div className="error">{error} <button onClick={onRepaint}>RETRY</button></div>}
     </>

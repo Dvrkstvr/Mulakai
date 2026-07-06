@@ -4,6 +4,8 @@ import { activeLayers } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useSettings } from './settings';
+import { useGenerationStore } from './generationStore';
+import { fmtElapsed, useElapsedMs } from './genProgress';
 
 interface Props {
   songId: string;
@@ -24,7 +26,12 @@ export function RemasterAction({ songId, layers }: Props) {
   const [coverModels, setCoverModels] = useState<string[] | null>(null);
   const [model, setModel] = useState('');
   const [job, setJob] = useState<'idle' | 'running' | 'done' | 'failed'>('idle');
+  const [startedAt, setStartedAt] = useState<number | null>(null);
   const [error, setError] = useState('');
+  const genJob = useGenerationStore((s) => s.job);
+  const otherLock = useGenerationStore((s) => s.otherLock);
+  const busyElsewhere = (!!genJob || !!otherLock) && job !== 'running';
+  const elapsedMs = useElapsedMs(job === 'running', startedAt);
 
   useEffect(() => {
     api.listModels()
@@ -39,9 +46,10 @@ export function RemasterAction({ songId, layers }: Props) {
   const gated = coverModels !== null && coverModels.length === 0;
 
   const submit = async () => {
-    if (gated || job === 'running') return;
+    if (gated || job === 'running' || busyElsewhere) return;
     setError('');
     setJob('running');
+    setStartedAt(Date.now());
     try {
       const audible = activeLayers(layers)
         .map((l) => ({ layer: l, version: l.versions.find((v) => v.active) }))
@@ -103,9 +111,10 @@ export function RemasterAction({ songId, layers }: Props) {
           ) : (
             <>
               <div className="hint">renders the full mix at max quality — can take several minutes</div>
-              <button className="acid" disabled={job === 'running'} onClick={submit}>
-                {job === 'running' ? 'RENDERING…' : 'REMASTER SONG'}
+              <button className="acid" disabled={job === 'running' || busyElsewhere} onClick={submit}>
+                {job === 'running' ? `RENDERING… ${fmtElapsed(elapsedMs)}` : busyElsewhere ? 'BUSY ELSEWHERE' : 'REMASTER SONG'}
               </button>
+              {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
             </>
           )}
         </>

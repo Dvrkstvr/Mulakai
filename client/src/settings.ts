@@ -101,6 +101,7 @@ export const useSettings = create<SettingsState>()(
 /** Map generation settings to ACE-Step request params. Empty/zero fields = AUTO (omitted). */
 export function genParams(g: GenSettings) {
   return {
+    audio_format: useSettings.getState().exportSettings.audioFormat,
     ...(g.model ? { model: g.model } : {}),
     ...(g.lmModel ? { lm_model_path: g.lmModel } : {}),
     thinking: g.thinking,
@@ -126,6 +127,7 @@ export function genParams(g: GenSettings) {
  */
 export function repaintParams(r: RepaintSettings) {
   return {
+    audio_format: useSettings.getState().exportSettings.audioFormat,
     ...(r.model ? { model: r.model } : {}),
     audio_cover_strength: 1 - r.repaintStrength,
     ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
@@ -142,6 +144,7 @@ export function repaintParams(r: RepaintSettings) {
  */
 export function addLayerParams(a: AddLayerSettings, r: RepaintSettings) {
   return {
+    audio_format: useSettings.getState().exportSettings.audioFormat,
     ...(a.model ? { model: a.model } : {}),
     ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
     ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),

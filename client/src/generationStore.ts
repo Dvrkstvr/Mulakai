@@ -15,8 +15,17 @@ export interface GenerationJob {
   draft: CreateDraft;
 }
 
+/** A generation lock held by something other than a song-generation job (repaint,
+ * regenerate, retake, add layer, split, remaster) — tracked only enough to let other
+ * screens proactively disable their own triggers instead of firing and getting a 409. */
+export interface OtherLock {
+  kind: string;
+  songId?: string;
+}
+
 interface GenerationState {
   job: GenerationJob | null;
+  otherLock: OtherLock | null;
   /** Kicks off a song generation, then polls it to completion independent of whatever
    * view is mounted — CreateView calls this and navigates away immediately afterward. */
   start: (params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>, draft: CreateDraft) => Promise<void>;
@@ -25,6 +34,9 @@ interface GenerationState {
   /** Rehydrates from the server's generation lock — call once on app mount, in case a
    * generation was already in flight before a page refresh. */
   hydrate: () => Promise<void>;
+  /** Polls the server's generation lock so `otherLock` stays live — see App.tsx's interval.
+   * A no-op while a song-generation `job` is already tracked in detail. */
+  refreshLock: () => Promise<void>;
 }
 
 const POLL_MS = 2000;
@@ -60,6 +72,7 @@ async function pollJob(jobId: string, set: (fn: (s: GenerationState) => Partial<
 
 export const useGenerationStore = create<GenerationState>((set, get) => ({
   job: null,
+  otherLock: null,
 
   start: async (params, draft) => {
     if (get().job) return; // one generation at a time, globally — see genLock.ts server-side
@@ -100,6 +113,36 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
       if (active.status === 'loading' || active.status === 'running') void pollJob(active.jobId, set);
     } catch {
       // ACE-Step/server unreachable at startup — health check elsewhere already surfaces this
+    }
+  },
+
+  refreshLock: async () => {
+    if (get().job) {
+      if (get().otherLock) set({ otherLock: null }); // our own job holds the lock — nothing "other" to report
+      return;
+    }
+    try {
+      const { active } = await api.activeGeneration();
+      if (!active) {
+        if (get().otherLock) set({ otherLock: null });
+        return;
+      }
+      if (active.kind === 'generate') {
+        // A song generation started elsewhere (e.g. another tab) — adopt it as our own job
+        // so the library card and CreateBar pick it up, same as hydrate() does on mount.
+        set({
+          otherLock: null,
+          job: {
+            jobId: active.jobId, title: active.title ?? 'Untitled', caption: active.caption ?? '',
+            stage: active.status, error: active.error, startedAt: active.startedAt, draft: { prompt: active.caption },
+          },
+        });
+        if (active.status === 'loading' || active.status === 'running') void pollJob(active.jobId, set);
+        return;
+      }
+      set({ otherLock: { kind: active.kind, songId: active.songId } });
+    } catch {
+      // transient — leave otherLock as-is rather than flicker it off on a network hiccup
     }
   },
 }));

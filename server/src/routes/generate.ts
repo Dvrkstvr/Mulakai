@@ -16,7 +16,7 @@ const GEN_FIELDS: (keyof ReleaseTaskParams)[] = [
   'prompt', 'lyrics', 'model', 'lm_model_path', 'thinking', 'use_format', 'use_cot_caption',
   'use_cot_language', 'bpm', 'key_scale',
   'time_signature', 'vocal_language', 'audio_duration', 'inference_steps',
-  'guidance_scale', 'use_random_seed', 'seed',
+  'guidance_scale', 'use_random_seed', 'seed', 'audio_format',
 ];
 
 function pickParams(body: Record<string, unknown>): ReleaseTaskParams {

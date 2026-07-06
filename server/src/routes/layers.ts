@@ -50,7 +50,7 @@ const REPAINT_MAX_SECONDS = 90;
 /** Repaint a region of this layer's active version -> new version. */
 layersRouter.post('/:id/repaint', async (req, res) => {
   const { prompt = '', start = 0, end = -1, audio_cover_strength,
-    inference_steps, guidance_scale, use_random_seed, seed, model, lyrics } = req.body ?? {};
+    inference_steps, guidance_scale, use_random_seed, seed, model, lyrics, audio_format } = req.body ?? {};
   const regionStart = Number(start);
   const regionEnd = Number(end);
   if (regionEnd > 0) {
@@ -65,6 +65,7 @@ layersRouter.post('/:id/repaint', async (req, res) => {
       repainting_start: regionStart,
       repainting_end: regionEnd,
       ...(model ? { model } : {}),
+      ...(audio_format ? { audio_format: String(audio_format) } : {}),
       ...(typeof lyrics === 'string' && lyrics.trim() ? { lyrics } : {}),
       ...(audio_cover_strength !== undefined ? { audio_cover_strength: Number(audio_cover_strength) } : {}),
       ...(inference_steps !== undefined ? { inference_steps: Number(inference_steps) } : {}),

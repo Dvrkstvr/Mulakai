@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import type { GenerationJob } from './generationStore';
+import { fmtElapsed, useElapsedMs } from './genProgress';
 
 const STAGE_LABEL: Record<GenerationJob['stage'], string> = {
   loading: 'LOADING MODEL',
@@ -9,11 +9,6 @@ const STAGE_LABEL: Record<GenerationJob['stage'], string> = {
   done: 'DONE',
   failed: 'FAILED',
 };
-
-function fmtElapsed(ms: number): string {
-  const s = Math.floor(ms / 1000);
-  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
-}
 
 interface Props {
   job: GenerationJob;
@@ -25,15 +20,9 @@ interface Props {
  * semantics, then shrinks to a normal row's footprint once done (see App.tsx, which
  * unmounts it shortly after the real song row appears from the library refresh). */
 export function GeneratingCard({ job, onRetry }: Props) {
-  const [now, setNow] = useState(Date.now());
   const failed = job.stage === 'failed';
   const shrunk = job.stage === 'done';
-
-  useEffect(() => {
-    if (shrunk) return;
-    const t = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(t);
-  }, [shrunk]);
+  const elapsedMs = useElapsedMs(!shrunk, job.startedAt);
 
   return (
     <motion.div
@@ -53,7 +42,7 @@ export function GeneratingCard({ job, onRetry }: Props) {
         {!shrunk && (
           <div className="generating-status">
             <span className={failed ? 'stage-label failed' : 'stage-label'}>{STAGE_LABEL[job.stage]}</span>
-            {!failed && <span className="meta">{fmtElapsed(now - job.startedAt)} elapsed</span>}
+            {!failed && <span className="meta">{fmtElapsed(elapsedMs)} elapsed</span>}
           </div>
         )}
       </div>

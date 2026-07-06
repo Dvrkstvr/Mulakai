@@ -18,6 +18,7 @@ vi.mock('./acestep.js', () => ({
     },
   ]),
   downloadAudio: vi.fn(async () => Buffer.from('fake-audio-bytes')),
+  audioFileExt: (format?: string) => (format === 'wav32' ? 'wav' : (format ?? 'wav')),
 }));
 vi.mock('./jobs.js', async () => {
   const actual = await vi.importActual<typeof import('./jobs.js')>('./jobs.js');
