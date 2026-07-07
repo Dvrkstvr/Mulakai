@@ -4,10 +4,15 @@ import { api, type Voice } from './api';
 interface VoiceState {
   voices: Voice[];
   selectedVoiceId: string | null;
+  /** An ad-hoc uploaded reference clip — mutually exclusive with selectedVoiceId (see
+   * ReferenceAudioPicker.tsx; AddLayerTrigger.tsx's VoicePicker never sets this, since it has
+   * no upload UI, so Add Layer is unaffected by this field's existence). */
+  uploadedRefFile: File | null;
   audioInfluence: number; // 0-1
   styleInfluence: number; // 0-1
   fetchVoices: () => Promise<void>;
   selectVoice: (id: string | null) => void;
+  setUploadedRefFile: (f: File | null) => void;
   setAudioInfluence: (v: number) => void;
   setStyleInfluence: (v: number) => void;
 }
@@ -16,6 +21,7 @@ interface VoiceState {
 export const useVoiceStore = create<VoiceState>()((set, get) => ({
   voices: [],
   selectedVoiceId: null,
+  uploadedRefFile: null,
   audioInfluence: 0.5,
   styleInfluence: 0.5,
   fetchVoices: async () => {
@@ -26,9 +32,11 @@ export const useVoiceStore = create<VoiceState>()((set, get) => ({
     const voice = id ? get().voices.find((v) => v.id === id) : undefined;
     set({
       selectedVoiceId: id,
+      uploadedRefFile: id ? null : get().uploadedRefFile,
       ...(voice ? { audioInfluence: voice.default_audio_influence, styleInfluence: voice.default_style_influence } : {}),
     });
   },
+  setUploadedRefFile: (f) => set({ uploadedRefFile: f, ...(f ? { selectedVoiceId: null } : {}) }),
   setAudioInfluence: (v) => set({ audioInfluence: v }),
   setStyleInfluence: (v) => set({ styleInfluence: v }),
 }));

@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { api } from './api';
+import { api, type StemKind } from './api';
 import type { CreateDraft } from './createDraft';
 
 export type GenStage = 'loading' | 'running' | 'done' | 'failed';
@@ -28,7 +28,28 @@ interface GenerationState {
   otherLock: OtherLock | null;
   /** Kicks off a song generation, then polls it to completion independent of whatever
    * view is mounted — CreateView calls this and navigates away immediately afterward. */
-  start: (params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>, draft: CreateDraft) => Promise<void>;
+  start: (
+    params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>,
+    draft: CreateDraft,
+    referenceAudio?: Blob,
+  ) => Promise<void>;
+  /** Same as `start`, but conditioned on a source audio file — CreateView's AUDIO tab (create
+   * cover from audio). Persists as a new song exactly like `start`, just via a different endpoint. */
+  startFromAudio: (
+    params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>,
+    srcAudio: Blob,
+    draft: CreateDraft,
+    referenceAudio?: Blob,
+  ) => Promise<void>;
+  /** Same shape again, for CreateView's COMPLETE tab — a `complete` generation that builds a
+   * whole accompaniment around a single bare source track, with an optional reference audio
+   * file for style/timbre. Persists as a new song exactly like `start`/`startFromAudio`. */
+  startComplete: (
+    params: { title: string; prompt?: string } & Record<string, unknown>,
+    source: { file: Blob } | { scratchJobId: string; scratchStemKind: StemKind },
+    draft: CreateDraft,
+    referenceAudio?: Blob,
+  ) => Promise<void>;
   /** Clears a failed job (called right before navigating back to Create for a retry). */
   dismiss: () => void;
   /** Rehydrates from the server's generation lock — call once on app mount, in case a
@@ -74,7 +95,7 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
   job: null,
   otherLock: null,
 
-  start: async (params, draft) => {
+  start: async (params, draft, referenceAudio) => {
     if (get().job) return; // one generation at a time, globally — see genLock.ts server-side
     const { title, prompt, lyrics } = params;
     const provisional: GenerationJob = {
@@ -82,7 +103,43 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
     };
     set({ job: provisional });
     try {
-      const { jobId } = await api.generate(params);
+      const { jobId } = await api.generate(params, referenceAudio);
+      set((state) => (state.job === provisional ? { job: { ...provisional, jobId } } : {}));
+      void pollJob(jobId, set);
+    } catch (err) {
+      set((state) => (state.job === provisional
+        ? { job: { ...provisional, stage: 'failed', error: err instanceof Error ? err.message : String(err) } }
+        : {}));
+    }
+  },
+
+  startFromAudio: async (params, srcAudio, draft, referenceAudio) => {
+    if (get().job) return; // one generation at a time, globally — see genLock.ts server-side
+    const { title, prompt, lyrics } = params;
+    const provisional: GenerationJob = {
+      jobId: '', title, caption: prompt || lyrics || '', stage: 'loading', startedAt: Date.now(), draft,
+    };
+    set({ job: provisional });
+    try {
+      const { jobId } = await api.generateFromAudio(srcAudio, params, referenceAudio);
+      set((state) => (state.job === provisional ? { job: { ...provisional, jobId } } : {}));
+      void pollJob(jobId, set);
+    } catch (err) {
+      set((state) => (state.job === provisional
+        ? { job: { ...provisional, stage: 'failed', error: err instanceof Error ? err.message : String(err) } }
+        : {}));
+    }
+  },
+
+  startComplete: async (params, source, draft, referenceAudio) => {
+    if (get().job) return; // one generation at a time, globally — see genLock.ts server-side
+    const { title, prompt } = params;
+    const provisional: GenerationJob = {
+      jobId: '', title, caption: prompt ?? '', stage: 'loading', startedAt: Date.now(), draft,
+    };
+    set({ job: provisional });
+    try {
+      const { jobId } = await api.generateComplete(source, params, referenceAudio);
       set((state) => (state.job === provisional ? { job: { ...provisional, jobId } } : {}));
       void pollJob(jobId, set);
     } catch (err) {

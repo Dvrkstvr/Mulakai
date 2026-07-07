@@ -130,15 +130,44 @@ export const api = {
   listSongs: (q = ''): Promise<Song[]> =>
     fetch(`/api/songs?q=${encodeURIComponent(q)}`).then((r) => json<Song[]>(r)),
 
-  generate: (params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>): Promise<{ jobId: string }> =>
-    fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    }).then((r) => json<{ jobId: string }>(r)),
+  /** Plain JSON unless an ad-hoc reference-audio file is attached (see ReferenceAudioPicker.tsx),
+   * in which case it switches to multipart — the server's `/` route accepts both. */
+  generate: (
+    params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>,
+    referenceAudio?: Blob,
+  ): Promise<{ jobId: string }> => {
+    if (!referenceAudio) {
+      return fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params),
+      }).then((r) => json<{ jobId: string }>(r));
+    }
+    const form = new FormData();
+    form.append('reference_audio', referenceAudio, 'reference.wav');
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null) form.append(k, String(v));
+    }
+    return fetch('/api/generate', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
+  },
 
   listModels: (): Promise<ModelInventory> =>
     fetch('/api/generate/models').then((r) => json<ModelInventory>(r)),
+
+  generateFromAudio: (
+    srcAudio: Blob,
+    params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>,
+    referenceAudio?: Blob,
+  ): Promise<{ jobId: string }> => {
+    const form = new FormData();
+    form.append('src_audio', srcAudio, 'source.wav');
+    if (referenceAudio) form.append('reference_audio', referenceAudio, 'reference.wav');
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null) form.append(k, String(v));
+    }
+    return fetch('/api/generate/from-audio', { method: 'POST', body: form })
+      .then((r) => json<{ jobId: string }>(r));
+  },
 
   refineInput: (params: { prompt: string; lyrics: string } & Record<string, unknown>): Promise<RefineResult> =>
     fetch('/api/generate/format', {
@@ -292,6 +321,46 @@ export const api = {
 
   cancelSplit: (jobId: string): Promise<void> =>
     fetch(`/api/split/${jobId}/cancel`, { method: 'POST' }).then(() => undefined),
+
+  /** Standalone stem split: upload any audio file, no song/library entry created — usable on
+   * its own (download the stems) or to pick a source track for Complete generation. */
+  splitScratch: (file: Blob, model: 'acestep' | 'demucs'): Promise<{ jobId: string }> => {
+    const form = new FormData();
+    form.append('audio', file, 'source.wav');
+    form.append('model', model);
+    return fetch('/api/split/scratch', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
+  },
+
+  scratchSplitStatus: (jobId: string): Promise<{ status: 'running' | 'done'; stems: StemResult[] }> =>
+    fetch(`/api/split/scratch/${jobId}`).then((r) => json(r)),
+
+  scratchStemDownloadUrl: (jobId: string, kind: StemKind): string =>
+    `/api/split/scratch/${jobId}/${kind}/download`,
+
+  discardScratchSplit: (jobId: string): Promise<void> =>
+    fetch(`/api/split/scratch/${jobId}/discard`, { method: 'POST' }).then(() => undefined),
+
+  /** "Complete": generate a full accompaniment around a single bare source track. Source is
+   * either a direct upload/library-bounced file, or a reference into an already-run scratch
+   * split job's stem (avoids re-downloading+re-uploading a stem produced server-side). */
+  generateComplete: (
+    source: { file: Blob } | { scratchJobId: string; scratchStemKind: StemKind },
+    params: { title: string; prompt?: string } & Record<string, unknown>,
+    referenceAudio?: Blob,
+  ): Promise<{ jobId: string }> => {
+    const form = new FormData();
+    if ('file' in source) {
+      form.append('src_audio', source.file, 'source.wav');
+    } else {
+      form.append('scratch_job_id', source.scratchJobId);
+      form.append('scratch_stem_kind', source.scratchStemKind);
+    }
+    if (referenceAudio) form.append('reference_audio', referenceAudio, 'reference.wav');
+    for (const [k, v] of Object.entries(params)) {
+      if (v !== undefined && v !== null) form.append(k, String(v));
+    }
+    return fetch('/api/generate/complete', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
+  },
 
   listVoices: (): Promise<Voice[]> => fetch('/api/voices').then((r) => json<Voice[]>(r)),
 

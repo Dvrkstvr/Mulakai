@@ -1,6 +1,6 @@
 import type { Song } from './api';
 
-export type GenType = 'prompt' | 'audio';
+export type GenType = 'prompt' | 'audio' | 'complete';
 export type Source = 'upload' | 'library';
 
 /** Prefill for the Create screen — built either from a plain typed prompt

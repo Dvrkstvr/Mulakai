@@ -206,29 +206,29 @@ User-provided values always win; LM only fills the fields that are empty/missing
 
 **Advanced DiT Parameters**:
 
-| Parameter Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `shift` | float | `3.0` | Timestep shift factor (range 1.0-5.0). Only effective for base models, not turbo models. |
-| `infer_method` | string | `"ode"` | Diffusion inference method: `"ode"` (Euler, faster) or `"sde"` (stochastic). |
-| `timesteps` | string | null | Custom timesteps as comma-separated values (e.g., `"0.97,0.76,0.615,0.5,0.395,0.28,0.18,0.085,0"`). Overrides `inference_steps` and `shift`. |
-| `use_adg` | bool | `false` | Use Adaptive Dual Guidance (base model only) |
-| `cfg_interval_start` | float | `0.0` | CFG application start ratio (0.0-1.0) |
-| `cfg_interval_end` | float | `1.0` | CFG application end ratio (0.0-1.0) |
+| Parameter Name       | Type   | Default | Description                                                                                                                                  |
+| :------------------- | :----- | :------ | :------------------------------------------------------------------------------------------------------------------------------------------- |
+| `shift`              | float  | `3.0`   | Timestep shift factor (range 1.0-5.0). Only effective for base models, not turbo models.                                                     |
+| `infer_method`       | string | `"ode"` | Diffusion inference method: `"ode"` (Euler, faster) or `"sde"` (stochastic).                                                                 |
+| `timesteps`          | string | null    | Custom timesteps as comma-separated values (e.g., `"0.97,0.76,0.615,0.5,0.395,0.28,0.18,0.085,0"`). Overrides `inference_steps` and `shift`. |
+| `use_adg`            | bool   | `false` | Use Adaptive Dual Guidance (base model only)                                                                                                 |
+| `cfg_interval_start` | float  | `0.0`   | CFG application start ratio (0.0-1.0)                                                                                                        |
+| `cfg_interval_end`   | float  | `1.0`   | CFG application end ratio (0.0-1.0)                                                                                                          |
 
 **5Hz LM Parameters (Optional, server-side)**:
 
 These parameters control 5Hz LM sampling, used for metadata auto-completion and (when `thinking=true`) codes generation.
 
-| Parameter Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `lm_model_path` | string | null | 5Hz LM checkpoint dir name (e.g. `acestep-5Hz-lm-0.6B`) |
-| `lm_backend` | string | `"vllm"` | `vllm` or `pt` |
-| `lm_temperature` | float | `0.85` | Sampling temperature |
-| `lm_cfg_scale` | float | `2.5` | CFG scale (>1 enables CFG) |
-| `lm_negative_prompt` | string | `"NO USER INPUT"` | Negative prompt used by CFG |
-| `lm_top_k` | int | null | Top-k (0/null disables) |
-| `lm_top_p` | float | `0.9` | Top-p (>=1 will be treated as disabled) |
-| `lm_repetition_penalty` | float | `1.0` | Repetition penalty |
+| Parameter Name          | Type   | Default           | Description                                             |
+| :---------------------- | :----- | :---------------- | :------------------------------------------------------ |
+| `lm_model_path`         | string | null              | 5Hz LM checkpoint dir name (e.g. `acestep-5Hz-lm-0.6B`) |
+| `lm_backend`            | string | `"vllm"`          | `vllm` or `pt`                                          |
+| `lm_temperature`        | float  | `0.85`            | Sampling temperature                                    |
+| `lm_cfg_scale`          | float  | `2.5`             | CFG scale (>1 enables CFG)                              |
+| `lm_negative_prompt`    | string | `"NO USER INPUT"` | Negative prompt used by CFG                             |
+| `lm_top_k`              | int    | null              | Top-k (0/null disables)                                 |
+| `lm_top_p`              | float  | `0.9`             | Top-p (>=1 will be treated as disabled)                 |
+| `lm_repetition_penalty` | float  | `1.0`             | Repetition penalty                                      |
 
 **LM CoT (Chain-of-Thought) Parameters**:
 
@@ -242,15 +242,15 @@ These parameters control 5Hz LM sampling, used for metadata auto-completion and 
 
 **Edit/Reference Audio Parameters** (requires absolute path on server):
 
-| Parameter Name | Type | Default | Description |
-| :--- | :--- | :--- | :--- |
-| `reference_audio_path` | string | null | Reference audio path (Style Transfer) |
-| `src_audio_path` | string | null | Source audio path (Repainting/Cover) |
-| `task_type` | string | `"text2music"` | Task type: `text2music`, `cover`, `repaint`, `lego`, `extract`, `complete` |
-| `instruction` | string | auto | Edit instruction (auto-generated based on task_type if not provided) |
-| `repainting_start` | float | `0.0` | Repainting start time (seconds) |
-| `repainting_end` | float | null | Repainting end time (seconds), -1 for end of audio |
-| `audio_cover_strength` | float | `1.0` | Cover strength (0.0-1.0). Lower values (0.2) for style transfer. |
+| Parameter Name         | Type   | Default        | Description                                                                |
+| :--------------------- | :----- | :------------- | :------------------------------------------------------------------------- |
+| `reference_audio_path` | string | null           | Reference audio path (Style Transfer)                                      |
+| `src_audio_path`       | string | null           | Source audio path (Repainting/Cover)                                       |
+| `task_type`            | string | `"text2music"` | Task type: `text2music`, `cover`, `repaint`, `lego`, `extract`, `complete` |
+| `instruction`          | string | auto           | Edit instruction (auto-generated based on task_type if not provided)       |
+| `repainting_start`     | float  | `0.0`          | Repainting start time (seconds)                                            |
+| `repainting_end`       | float  | null           | Repainting end time (seconds), -1 for end of audio                         |
+| `audio_cover_strength` | float  | `1.0`          | Cover strength (0.0-1.0). Lower values (0.2) for style transfer.           |
 
 #### Method B: File Upload (multipart/form-data)
 

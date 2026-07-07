@@ -1,10 +1,16 @@
 import { Router } from 'express';
+import multer from 'multer';
 import { config } from '../config.js';
 import { listModels } from '../services/acestep.js';
-import { getSplitJob, claimStem, reextractStem, cancelSplit, type StemKind } from '../services/stemSplit.js';
+import { getSplitJob, claimStem, reextractStem, cancelSplit, type StemKind, type SplitModel } from '../services/stemSplit.js';
+import { startScratchSplit, getScratchSplitJob, discardScratchSplit, scratchStemPath } from '../services/scratchSplitJobs.js';
 import { GenLockError } from '../services/genLock.js';
 
 export const splitRouter = Router();
+
+// Memory storage: the uploaded file is forwarded to ACE-Step/Demucs, never written to our
+// own disk directly — same setup as generate.ts's /from-audio upload.
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
 
 const STEM_KINDS: StemKind[] = ['vocals', 'drums', 'bass', 'other'];
 
@@ -25,6 +31,42 @@ splitRouter.get('/health', async (_req, res) => {
     }
   }
   res.json({ acestep, demucs });
+});
+
+/** Standalone stem split: upload any audio file, get stems back with no song/library entry
+ * created — usable on its own (download the stems) or as a source-picker step for Complete
+ * generation. Placed before the generic `/:jobId` route below so `/scratch` isn't shadowed. */
+splitRouter.post('/scratch', upload.single('audio'), async (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'audio is required' });
+  const model: SplitModel = req.body?.model === 'demucs' ? 'demucs' : 'acestep';
+  try {
+    const job = await startScratchSplit({ data: req.file.buffer, filename: req.file.originalname || 'source.wav' }, model);
+    res.status(202).json({ jobId: job.id });
+  } catch (err) {
+    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
+  }
+});
+
+splitRouter.get('/scratch/:jobId', (req, res) => {
+  const job = getScratchSplitJob(req.params.jobId);
+  if (!job) return res.status(404).json({ error: 'unknown split job' });
+  const status = job.stems.every((s) => s.status !== 'running') ? 'done' : 'running';
+  res.json({ status, stems: job.stems.map((s) => ({ kind: s.kind, status: s.status, error: s.error })) });
+});
+
+splitRouter.get('/scratch/:jobId/:kind/download', (req, res) => {
+  const job = getScratchSplitJob(req.params.jobId);
+  if (!job) return res.status(404).json({ error: 'unknown split job' });
+  if (!isStemKind(req.params.kind)) return res.status(400).json({ error: 'unknown stem kind' });
+  const filePath = scratchStemPath(job, req.params.kind);
+  if (!filePath) return res.status(404).json({ error: 'stem not ready' });
+  res.download(filePath, `${req.params.kind}.mp3`);
+});
+
+splitRouter.post('/scratch/:jobId/discard', async (req, res) => {
+  await discardScratchSplit(req.params.jobId);
+  res.json({ ok: true });
 });
 
 splitRouter.get('/:jobId', (req, res) => {

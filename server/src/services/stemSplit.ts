@@ -26,6 +26,13 @@ export interface StemResult {
   claimed?: 'replaced' | 'added';
 }
 
+/** Minimal shape `runAcestepStem`/`runDemucs`/`pollStem` need — satisfied by both `SplitJob`
+ * (this file) and `ScratchSplitJob` (scratchSplitJobs.ts), which has no layer/song to belong to. */
+export interface StemJobLike {
+  id: string;
+  stems: StemResult[];
+}
+
 export interface SplitJob {
   id: string;
   layerId: string;
@@ -50,7 +57,7 @@ export function getSplitJob(id: string): SplitJob | undefined {
   return jobs.get(id);
 }
 
-interface SourceAudio {
+export interface SourceAudio {
   data: Buffer;
   filename: string;
 }
@@ -85,15 +92,22 @@ export async function startSplit(layerId: string, model: SplitModel): Promise<Sp
 
   // Held until every stem call settles (all 4 for ACE-Step, the single batched call for Demucs) —
   // reextractStem acquires its own lock for any stem re-run after this point.
+  const isActive = () => jobs.has(jobId);
   const settled = model === 'acestep'
-    ? Promise.all(STEM_KINDS.map((kind) => runAcestepStem(job, kind, src)))
-    : runDemucs(job, src);
+    ? Promise.all(STEM_KINDS.map((kind) => runAcestepStem(job, kind, src, config.audioDir, isActive)))
+    : runDemucs(job, src, config.audioDir, isActive);
   void settled.finally(() => releaseGenLock(jobId));
 
   return job;
 }
 
-async function runAcestepStem(job: SplitJob, kind: StemKind, src: SourceAudio): Promise<void> {
+/** Run one ACE-Step `extract` call for a single stem, writing its result into `outDir`.
+ * `isActive` reports whether the owning job was cancelled/discarded — shared between the
+ * layer-based split above and scratchSplitJobs.ts's upload-based variant, each with their own
+ * job registry, so cancellation checks can't be a hardcoded module-private lookup here. */
+export async function runAcestepStem(
+  job: StemJobLike, kind: StemKind, src: SourceAudio, outDir: string, isActive: () => boolean,
+): Promise<void> {
   const stem = job.stems.find((s) => s.kind === kind);
   if (!stem) return;
   try {
@@ -105,18 +119,18 @@ async function runAcestepStem(job: SplitJob, kind: StemKind, src: SourceAudio): 
     };
     await ensureModelLoaded(params);
     const { task_id } = await releaseTask(params, { srcAudio: src });
-    await pollStem(job.id, stem, task_id);
+    await pollStem(job.id, stem, task_id, outDir, isActive);
   } catch (err) {
-    if (!jobs.has(job.id)) return; // cancelled
+    if (!isActive()) return; // cancelled
     stem.status = 'failed';
     stem.error = err instanceof Error ? err.message : String(err);
   }
 }
 
-async function pollStem(jobId: string, stem: StemResult, taskId: string): Promise<void> {
+async function pollStem(jobId: string, stem: StemResult, taskId: string, outDir: string, isActive: () => boolean): Promise<void> {
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
-    if (!jobs.has(jobId)) return; // cancelled while waiting
+    if (!isActive()) return; // cancelled while waiting
     const [row] = await queryResult([taskId]);
     if (!row || row.status === 0) continue;
     if (row.status === 2) {
@@ -132,8 +146,8 @@ async function pollStem(jobId: string, stem: StemResult, taskId: string): Promis
     }
     const audio = await downloadAudio(result.file);
     const filename = `${jobId}-${stem.kind}.mp3`;
-    await fs.writeFile(path.join(config.audioDir, filename), audio);
-    if (!jobs.has(jobId)) return; // cancelled while downloading
+    await fs.writeFile(path.join(outDir, filename), audio);
+    if (!isActive()) return; // cancelled while downloading
     stem.audioFile = filename;
     stem.status = 'done';
     return;
@@ -145,7 +159,7 @@ async function pollStem(jobId: string, stem: StemResult, taskId: string): Promis
  * `{ stems: { vocals, drums, bass, other } }` of downloadable URLs. One
  * deterministic pass — all 4 stems settle together, no partial progress.
  */
-async function runDemucs(job: SplitJob, src: SourceAudio): Promise<void> {
+export async function runDemucs(job: StemJobLike, src: SourceAudio, outDir: string, isActive: () => boolean): Promise<void> {
   try {
     if (!config.demucsUrl) throw new Error('Demucs is not configured (DEMUCS_API_URL unset)');
     const form = new FormData();
@@ -153,7 +167,7 @@ async function runDemucs(job: SplitJob, src: SourceAudio): Promise<void> {
     const res = await fetch(`${config.demucsUrl}/split`, { method: 'POST', body: form });
     if (!res.ok) throw new Error(`Demucs split -> HTTP ${res.status}`);
     const json = (await res.json()) as { stems: Record<StemKind, string> };
-    if (!jobs.has(job.id)) return;
+    if (!isActive()) return;
     await Promise.all(
       STEM_KINDS.map(async (kind) => {
         const stem = job.stems.find((s) => s.kind === kind);
@@ -166,8 +180,8 @@ async function runDemucs(job: SplitJob, src: SourceAudio): Promise<void> {
           const audio = Buffer.from(await audioRes.arrayBuffer());
           // demucs-server encodes stems as mp3 (see its main.py) — same extension as ACE-Step's output.
           const filename = `${job.id}-${kind}.mp3`;
-          await fs.writeFile(path.join(config.audioDir, filename), audio);
-          if (!jobs.has(job.id)) return;
+          await fs.writeFile(path.join(outDir, filename), audio);
+          if (!isActive()) return;
           stem.audioFile = filename;
           stem.status = 'done';
         } catch (err) {
@@ -177,7 +191,7 @@ async function runDemucs(job: SplitJob, src: SourceAudio): Promise<void> {
       }),
     );
   } catch (err) {
-    if (!jobs.has(job.id)) return;
+    if (!isActive()) return;
     const msg = err instanceof Error ? err.message : String(err);
     for (const stem of job.stems) {
       stem.status = 'failed';
@@ -202,8 +216,9 @@ export function reextractStem(jobId: string, kind: StemKind): StemResult {
   acquireGenLock({ kind: 'split', jobId: lockId, songId: job.songId });
   stem.status = 'running';
   stem.error = undefined;
+  const isActive = () => jobs.has(job.id);
   void loadSourceAudio(job.layerId)
-    .then((src) => (job.model === 'acestep' ? runAcestepStem(job, kind, src) : runDemucs(job, src)))
+    .then((src) => (job.model === 'acestep' ? runAcestepStem(job, kind, src, config.audioDir, isActive) : runDemucs(job, src, config.audioDir, isActive)))
     .catch((err) => {
       stem.status = 'failed';
       stem.error = err instanceof Error ? err.message : String(err);

@@ -5,7 +5,10 @@ import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
 import { ditModelDescription, lmModelDescription, stepsMax, guidanceEffective } from './modelInfo';
 import { motion } from 'framer-motion';
-import { ShaderCanvas } from './ShaderCanvas';
+import { Toggle } from './Toggle';
+import { AdvancedGenSettings } from './AdvancedGenSettings';
+import { ScrollArea } from './ScrollArea';
+import { ReferenceAudioPicker } from './ReferenceAudioPicker';
 
 const STEPS_INFO = 'Diffusion steps — more steps means finer detail but slower generation. Turbo models: 1–20 (8 recommended). Base/SFT models: 32–100 recommended. AUTO uses the model\'s own default.';
 const GUIDANCE_INFO = 'Prompt adherence strength (CFG) — higher follows the prompt more strictly, but can overfit or sound artificial. Only affects Base/SFT models; Turbo ignores it. AUTO uses the model\'s own default.';
@@ -17,27 +20,13 @@ const VARIANCE_BANDS = [
   { max: 100, color: 'var(--rust)', label: 'BOLD', text: 'high freedom, may diverge far from the source to follow the prompt' },
 ];
 
-function VarianceSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
+export function VarianceSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   const band = VARIANCE_BANDS.find((b) => value <= b.max) ?? VARIANCE_BANDS[VARIANCE_BANDS.length - 1];
   return (
     <div className="variance-slider">
       <Slider label="VARIANCE" value={value} min={0} max={100} step={5} color={band.color} onChange={onChange} />
       <div className="variance-note" style={{ color: band.color }}>{band.label} — {band.text}</div>
     </div>
-  );
-}
-
-function Toggle({ label, checked, onChange, ai }: { label: string; checked: boolean; onChange: (v: boolean) => void; ai?: boolean }) {
-  const cls = ['toggle', checked && 'on', checked && ai && 'toggle-ai'].filter(Boolean).join(' ');
-  return (
-    <button className={cls} onClick={() => onChange(!checked)}>
-      {checked && ai && (
-        <div className="toggle-shader">
-          <ShaderCanvas />
-        </div>
-      )}
-      <span>{label}</span><span className="dot" />
-    </button>
   );
 }
 
@@ -54,7 +43,14 @@ function Seed({ random, seed, onRandom, onSeed }: {
   );
 }
 
-export function SettingsPanel({ mode, hideLmControls }: { mode: 'generate' | 'repaint'; hideLmControls?: boolean }) {
+export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType }: {
+  mode: 'generate' | 'repaint';
+  hideLmControls?: boolean;
+  /** Only meaningful for mode 'generate' — renders the shared ReferenceAudioPicker so its choice
+   * persists across the PROMPT/AUDIO/ARRANGE tab switch. Omit to hide it (e.g. Editor screens
+   * that reuse mode 'generate' contexts without a reference-audio concept). */
+  referenceAudioTaskType?: 'text2music' | 'cover' | 'complete';
+}) {
   const { gen, repaint, setGen, setRepaint } = useSettings();
   const [models, setModels] = useState<string[]>([]);
   const [lmModels, setLmModels] = useState<string[]>([]);
@@ -75,6 +71,7 @@ export function SettingsPanel({ mode, hideLmControls }: { mode: 'generate' | 're
     <motion.aside layout className="settings-panel" transition={{ duration: 0.2 }}>
       <motion.div layout="position" className="section-label">{mode === 'generate' ? 'GENERATION' : 'REPAINT'} SETTINGS</motion.div>
 
+      <ScrollArea className="settings-panel-scroll">
       {mode === 'generate' ? (
         <>
           <CustomSelect
@@ -104,6 +101,8 @@ export function SettingsPanel({ mode, hideLmControls }: { mode: 'generate' | 're
             onChange={(v) => setGen({ guidanceScale: v })} />
           <Seed random={gen.randomSeed} seed={gen.seed}
             onRandom={(v) => setGen({ randomSeed: v })} onSeed={(v) => setGen({ seed: v })} />
+          <AdvancedGenSettings gen={gen} setGen={setGen} hideLmControls={hideLmControls} />
+          {referenceAudioTaskType && <ReferenceAudioPicker taskType={referenceAudioTaskType} />}
         </>
       ) : (
         <>
@@ -126,6 +125,7 @@ export function SettingsPanel({ mode, hideLmControls }: { mode: 'generate' | 're
             onRandom={(v) => setRepaint({ randomSeed: v })} onSeed={(v) => setRepaint({ seed: v })} />
         </>
       )}
+      </ScrollArea>
     </motion.aside>
   );
 }

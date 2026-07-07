@@ -6,7 +6,6 @@ import { Slider } from './Slider';
 import { RefineRail } from './RefineRail';
 import { TIME_SIGNATURES, VOCAL_LANGUAGES } from './songMeta';
 import { useSettings, genParams } from './settings';
-import { VoicePicker } from './VoicePicker';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
@@ -14,6 +13,8 @@ import { useHeaderSlot } from './HeaderSlot';
 import { ScrollArea } from './ScrollArea';
 import type { CreateDraft } from './createDraft';
 import { useGenerationStore } from './generationStore';
+import { CreateAudioTab } from './CreateAudioTab';
+import { CreateArrangeTab } from './CreateArrangeTab';
 
 /** Small pill mirroring SettingsPanel's `.toggle-ai` shimmer, so a field visibly
  * carries the same AI ENHANCE treatment whether it's a toggle or a plain field. */
@@ -30,16 +31,16 @@ interface Props {
 /** Dedicated Create takeover — reached from the Library create bar or the Library
  * detail rail's REUSE PROMPT / CREATE COVER FROM AUDIO actions (`initialDraft`),
  * per docs/design/DESIGN.md. Submitting a generation hands it off to
- * generationStore.ts and returns to the library immediately (see generate()
- * below) — the library's GeneratingCard tracks it to completion from there,
- * so only one generation can ever be in flight globally. */
+ * generationStore.ts and returns to the library immediately — the library's
+ * GeneratingCard tracks it to completion from there, so only one generation can
+ * ever be in flight globally. Owns the PROMPT (text2music) tab directly; the
+ * AUDIO (cover) and ARRANGE (complete) tabs are self-contained components —
+ * CreateAudioTab.tsx / CreateArrangeTab.tsx — since each has its own source/
+ * model state that shouldn't leak into the others. */
 export function CreateView({ songs, initialDraft, onBack }: Props) {
   const gen = useSettings((s) => s.gen);
   const voice = useVoiceStore();
   const [genType, setGenType] = useState(initialDraft.genType ?? 'prompt');
-  const [source, setSource] = useState(initialDraft.source ?? 'upload');
-  const [librarySearch, setLibrarySearch] = useState('');
-  const [selectedSongId, setSelectedSongId] = useState<string | null>(initialDraft.selectedSongId ?? null);
   const [title, setTitle] = useState('');
   const [prompt, setPrompt] = useState(initialDraft.prompt ?? '');
   const [lyrics, setLyrics] = useState(initialDraft.lyrics ?? '');
@@ -76,11 +77,12 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
   const generate = async () => {
     setError('');
     setSubmitting(true);
-    const draft: CreateDraft = { genType, source, selectedSongId: selectedSongId ?? undefined, prompt, lyrics, bpm, keyScale, timeSignature, duration };
+    const draft: CreateDraft = { genType, prompt, lyrics, bpm, keyScale, timeSignature, duration };
     try {
       await startGeneration(
         { title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(gen), ...voiceParams(voice) },
         draft,
+        voice.uploadedRefFile ?? undefined,
       );
       const failure = useGenerationStore.getState().job;
       if (failure?.stage === 'failed') {
@@ -152,60 +154,31 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
     }
   };
 
-  const visibleLibrary = songs.filter((s) => s.title.toLowerCase().includes(librarySearch.toLowerCase()));
-
   const onBackRef = useRef(onBack);
   onBackRef.current = onBack;
   const headerLeft = useMemo(() => <button onClick={() => onBackRef.current()}>&#8592; LIBRARY</button>, []);
   useHeaderSlot(headerLeft, null);
 
   const showRail = refining || !!refinePreview || !!refineError;
+  const referenceAudioTaskType = genType === 'audio' ? 'cover' : genType === 'complete' ? 'complete' : 'text2music';
 
   return (
     <div className="create-shell">
       <div className={showRail ? 'with-panel create-layout with-rail' : 'with-panel create-layout'}>
-        <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} />
+        <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} referenceAudioTaskType={referenceAudioTaskType} />
         <div className="create-panel">
           <ScrollArea className="create-content">
             <div className="section-label">GENERATION TYPE</div>
             <div className="type-tabs">
               <button className={genType === 'prompt' ? 'tab active' : 'tab'} onClick={() => setGenType('prompt')}><span>PROMPT</span></button>
-              <button className={genType === 'audio' ? 'tab active' : 'tab'} onClick={() => setGenType('audio')}><span>AUDIO</span></button>
+              <button className={genType === 'audio' ? 'tab active' : 'tab'} onClick={() => setGenType('audio')}><span>COVER</span></button>
+              <button className={genType === 'complete' ? 'tab active' : 'tab'} onClick={() => setGenType('complete')}><span>ARRANGE</span></button>
             </div>
 
             <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
 
-            {genType === 'audio' && (
-              <>
-                <div className="section-label">SOURCE</div>
-                <div className="type-tabs">
-                  <button className={source === 'upload' ? 'tab active' : 'tab'} onClick={() => setSource('upload')}><span>UPLOAD</span></button>
-                  <button className={source === 'library' ? 'tab active' : 'tab'} onClick={() => setSource('library')}><span>FROM LIBRARY</span></button>
-                </div>
-                {source === 'upload' ? (
-                  <label className="dropzone">
-                    <input type="file" accept="audio/*" style={{ display: 'none' }} />
-                    drag audio file here or click to browse
-                  </label>
-                ) : (
-                  <div className="song-picker">
-                    <input placeholder="Search your library…" value={librarySearch} onChange={(e) => setLibrarySearch(e.target.value)} />
-                    <div className="song-picker-list">
-                      {visibleLibrary.map((s) => (
-                        <div
-                          key={s.id}
-                          className={s.id === selectedSongId ? 'song-pick current' : 'song-pick'}
-                          onClick={() => setSelectedSongId(s.id)}
-                        >
-                          {s.title}
-                        </div>
-                      ))}
-                      {visibleLibrary.length === 0 && <div className="empty">No songs match.</div>}
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
+            {genType === 'audio' && <CreateAudioTab songs={songs} title={title} initialDraft={initialDraft} onBack={onBack} />}
+            {genType === 'complete' && <CreateArrangeTab title={title} onBack={onBack} />}
 
             {genType === 'prompt' && (
               <>
@@ -226,30 +199,18 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
                 </div>
                 {queryConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}
                 {queryError && <div className="error">{queryError} <button onClick={runQuery}>RETRY</button></div>}
-              </>
-            )}
 
-            {genType === 'prompt' && (
-              <div className="field-label-row">
-                <span className="section-label">PROMPT</span>
-                {gen.useFormat && <AiEnhanceBadge />}
-              </div>
-            )}
-            <input
-              placeholder={genType === 'audio' ? 'Describe the change — style, mood, instruments' : 'Describe it — style, mood, instruments'}
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
-            {genType === 'prompt' && (
-              <div className="lm-note">
-                {gen.useFormat
-                  ? 'AI ENHANCE is on — prompt, lyrics, and any AUTO song details below are refined and filled in by the LM.'
-                  : 'AI ENHANCE is off — AUTO song details below are left for the model to decide, with no LM enhancement.'}
-              </div>
-            )}
+                <div className="field-label-row">
+                  <span className="section-label">PROMPT</span>
+                  {gen.useFormat && <AiEnhanceBadge />}
+                </div>
+                <input placeholder="Describe it — style, mood, instruments" value={prompt} onChange={(e) => setPrompt(e.target.value)} />
+                <div className="lm-note">
+                  {gen.useFormat
+                    ? 'AI ENHANCE is on — prompt, lyrics, and any AUTO song details below are refined and filled in by the LM.'
+                    : 'AI ENHANCE is off — AUTO song details below are left for the model to decide, with no LM enhancement.'}
+                </div>
 
-            {genType === 'prompt' && (
-              <>
                 <div className="field-label-row">
                   <span className="section-label">LYRICS</span>
                   {gen.useFormat && <AiEnhanceBadge />}
@@ -281,49 +242,41 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
                   <CustomSelect label="VOCAL LANGUAGE" value={vocalLanguage} onChange={setVocalLanguage} options={VOCAL_LANGUAGES} />
                 </div>
 
-                <div className="section-label">VOICE</div>
-                <VoicePicker />
+                <div className="generate-row">
+                  <button
+                    className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'}
+                    disabled={luckyLoading || generationBusy}
+                    onClick={feelingLucky}
+                  >
+                    {luckyLoading ? 'ROLLING…' : luckyConfirm ? 'OVERWRITE? CONFIRM' : 'FEELING LUCKY'}
+                  </button>
+                  <motion.button
+                    className="acid"
+                    animate={submitting ? {
+                      skewX: 0, backgroundColor: 'transparent', color: '#D4FF00',
+                    } : {
+                      skewX: -10, backgroundColor: '#D4FF00', color: '#1C1D21',
+                    }}
+                    transition={{ duration: 0.3, ease: 'easeOut' }}
+                    style={{ position: 'relative', overflow: 'hidden' }}
+                    disabled={generationBusy || !prompt}
+                    onClick={generate}
+                  >
+                    {submitting ? (
+                      <>
+                        <AIGeneratingBackground />
+                        <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+                          STARTING…
+                        </span>
+                      </>
+                    ) : genJob ? 'A GENERATION IS ALREADY RUNNING' : 'GENERATE'}
+                  </motion.button>
+                </div>
+                {luckyConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}
+                {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
+                {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
               </>
             )}
-
-            <div className="generate-row">
-              {genType === 'prompt' && (
-                <button
-                  className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'}
-                  disabled={luckyLoading || generationBusy}
-                  onClick={feelingLucky}
-                >
-                  {luckyLoading ? 'ROLLING…' : luckyConfirm ? 'OVERWRITE? CONFIRM' : 'FEELING LUCKY'}
-                </button>
-              )}
-              <motion.button
-                className="acid"
-                animate={submitting ? {
-                  skewX: 0, backgroundColor: 'transparent', color: '#D4FF00',
-                } : {
-                  skewX: -10, backgroundColor: '#D4FF00', color: '#1C1D21',
-                }}
-                transition={{ duration: 0.3, ease: 'easeOut' }}
-                style={{ position: 'relative', overflow: 'hidden' }}
-                disabled={genType === 'audio' || generationBusy || !prompt}
-                onClick={generate}
-              >
-                {submitting ? (
-                  <>
-                    <AIGeneratingBackground />
-                    <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
-                      STARTING…
-                    </span>
-                  </>
-                ) : genJob ? 'A GENERATION IS ALREADY RUNNING' : genType === 'audio' ? 'AUDIO GENERATION — COMING SOON' : 'GENERATE'}
-              </motion.button>
-            </div>
-            {luckyConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}
-            {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
-            {genType === 'audio' && (
-              <div className="hint">Cover generation from an uploaded or library source isn't wired to the backend yet — scoped as a follow-up.</div>
-            )}
-            {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
           </ScrollArea>
         </div>
         {showRail && (

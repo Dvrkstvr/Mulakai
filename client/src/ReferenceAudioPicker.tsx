@@ -1,0 +1,79 @@
+import { useEffect, useState } from 'react';
+import { CustomSelect } from './CustomSelect';
+import { Slider } from './Slider';
+import { useVoiceStore } from './voiceStore';
+
+interface Props {
+  /** Cover generation has its own VARIANCE-driven audio_cover_strength (see CreateAudioTab.tsx) —
+   * the influence sliders here don't apply there, so the hint text is adjusted rather than
+   * implying a control that has no effect. */
+  taskType: 'text2music' | 'cover' | 'complete';
+}
+
+type RefMode = 'none' | 'voice' | 'upload';
+
+/**
+ * Shared reference-audio control for all three Create tabs (PROMPT/AUDIO/ARRANGE), rendered
+ * from the Generation Settings sidebar so the choice persists across tab switches. Either a
+ * saved voice profile or an ad-hoc uploaded clip — never both, since ACE-Step only accepts one
+ * `reference_audio` per request; voiceStore.ts enforces that mutual exclusion at the store
+ * level (shared with Add Layer's VoicePicker, which never sets uploadedRefFile itself).
+ */
+export function ReferenceAudioPicker({ taskType }: Props) {
+  const {
+    voices, selectedVoiceId, uploadedRefFile, audioInfluence, styleInfluence,
+    fetchVoices, selectVoice, setUploadedRefFile, setAudioInfluence, setStyleInfluence,
+  } = useVoiceStore();
+  const [mode, setMode] = useState<RefMode>('none');
+
+  useEffect(() => {
+    fetchVoices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const selected = voices.find((v) => v.id === selectedVoiceId);
+  const options = [{ label: 'NONE', value: '' }, ...voices.map((v) => ({ label: v.name, value: v.id }))];
+
+  const chooseMode = (m: RefMode) => {
+    setMode(m);
+    if (m !== 'voice') selectVoice(null);
+    if (m !== 'upload') setUploadedRefFile(null);
+  };
+
+  return (
+    <div className="voice-picker">
+      <div className="section-label">REFERENCE AUDIO</div>
+      <div className="type-tabs">
+        <button className={mode === 'none' ? 'tab active' : 'tab'} onClick={() => chooseMode('none')}><span>NONE</span></button>
+        <button className={mode === 'voice' ? 'tab active' : 'tab'} onClick={() => chooseMode('voice')}><span>VOICE</span></button>
+        <button className={mode === 'upload' ? 'tab active' : 'tab'} onClick={() => chooseMode('upload')}><span>UPLOAD</span></button>
+      </div>
+      {mode === 'voice' && (
+        <>
+          <CustomSelect label="VOICE" value={selectedVoiceId ?? ''} onChange={(v) => selectVoice(v || null)} options={options} />
+          <div className="hint">manage saved voices in Settings &gt; Voices</div>
+        </>
+      )}
+      {mode === 'upload' && (
+        <label className="dropzone">
+          <input type="file" accept="audio/*" style={{ display: 'none' }} onChange={(e) => setUploadedRefFile(e.target.files?.[0] ?? null)} />
+          {uploadedRefFile ? uploadedRefFile.name : 'a clip to steer timbre/mixing style'}
+        </label>
+      )}
+      {(selected || uploadedRefFile) && (
+        <>
+          <Slider label="AUDIO INFLUENCE" value={Math.round(audioInfluence * 100)} min={0} max={100} step={5}
+            color="var(--sky)" onChange={(v) => setAudioInfluence(v / 100)} />
+          <Slider label="STYLE INFLUENCE" value={Math.round(styleInfluence * 100)} min={0} max={100} step={5}
+            color="var(--sky)" onChange={(v) => setStyleInfluence(v / 100)} />
+          <div className="hint">
+            {selected ? `will condition on voice "${selected.name}"` : 'will condition on the uploaded reference clip'}
+            {taskType === 'cover'
+              ? ' — the sliders above don\'t apply here; VARIANCE controls closeness to the source track instead'
+              : ` — audio ${Math.round(audioInfluence * 100)}% / style ${Math.round(styleInfluence * 100)}%`}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}

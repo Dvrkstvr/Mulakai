@@ -59,6 +59,9 @@ export interface VoiceOptions {
   voiceId?: string;
   audioInfluence?: number;
   styleInfluence?: number;
+  /** An ad-hoc uploaded reference clip, used in place of a saved voice profile — same
+   * audio_influence/style_influence remapping applies either way (see applyVoiceInfluence). */
+  referenceAudioFile?: { data: Buffer; filename: string };
 }
 
 /** Submit a text2music generation and persist the result as a new song with a base layer. */
@@ -72,7 +75,9 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'text2music' };
     const ref = voice?.voiceId
       ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
-      : undefined;
+      : voice?.referenceAudioFile
+        ? { referenceAudio: voice.referenceAudioFile, audioInfluence: voice.audioInfluence ?? 0.5, styleInfluence: voice.styleInfluence ?? 0.5 }
+        : undefined;
     if (ref) applyVoiceInfluence(fullParams, ref);
     const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
     job.taskId = task_id;
@@ -89,8 +94,8 @@ export function getActiveGeneration(): { lock: GenLockInfo | null; job?: Job } {
   return { lock, job: lock ? getJob(lock.jobId) : undefined };
 }
 
-/** Wrap an async job body so any thrown error marks the job failed. */
-async function run(job: Job, body: () => Promise<void>): Promise<void> {
+/** Wrap an async job body so any thrown error marks the job failed. Exported for coverGenJobs.ts's cover-from-audio flow. */
+export async function run(job: Job, body: () => Promise<void>): Promise<void> {
   try {
     await body();
   } catch (err) {
@@ -160,7 +165,8 @@ export async function fetchLyricTimestampsJson(
   }
 }
 
-async function persistSong(
+/** Persist a task result as a brand-new song with a single base layer/version. Exported for coverGenJobs.ts. */
+export async function persistSong(
   fileUrl: string,
   params: ReleaseTaskParams,
   result: TaskResult,

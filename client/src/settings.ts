@@ -10,6 +10,18 @@ export interface GenSettings {
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;
+  shift: number; // 0 = AUTO
+  inferMethod: '' | 'ode' | 'sde'; // '' = AUTO
+  timesteps: string; // '' = unset; overrides inferenceSteps and shift when set
+  useAdg: boolean;
+  cfgIntervalStart: number;
+  cfgIntervalEnd: number;
+  lmTemperature: number;
+  lmCfgScale: number;
+  lmNegativePrompt: string; // '' = server default ("NO USER INPUT")
+  lmTopK: number; // 0 = disabled
+  lmTopP: number;
+  lmRepetitionPenalty: number;
 }
 
 export interface RepaintSettings {
@@ -42,7 +54,7 @@ export interface ExportSettings {
   volume: number;
 }
 
-interface SettingsState {
+export interface SettingsState {
   gen: GenSettings;
   repaint: RepaintSettings;
   addLayer: AddLayerSettings;
@@ -54,6 +66,25 @@ interface SettingsState {
   setAddLayer: (patch: Partial<AddLayerSettings>) => void;
   setExportSettings: (patch: Partial<ExportSettings>) => void;
   setForgeEnabled: (v: boolean) => void;
+}
+
+/**
+ * Deep-merges a persisted (possibly stale) localStorage blob with the fresh default state.
+ * Zustand persist's default merge is shallow at the top level, so a blob saved before a field
+ * was added to `gen`/etc. (e.g. cfgIntervalStart/lmNegativePrompt) would wholesale replace that
+ * slice and leave the new field undefined — genParams() then crashes calling .trim() on it.
+ * Exported standalone so this can be unit-tested without simulating localStorage/persist wiring.
+ */
+export function mergeSettings(current: SettingsState, persisted: unknown): SettingsState {
+  const p = (persisted ?? {}) as Partial<SettingsState>;
+  return {
+    ...current,
+    ...p,
+    gen: { ...current.gen, ...p.gen },
+    repaint: { ...current.repaint, ...p.repaint },
+    addLayer: { ...current.addLayer, ...p.addLayer },
+    exportSettings: { ...current.exportSettings, ...p.exportSettings },
+  };
 }
 
 export const useSettings = create<SettingsState>()(
@@ -68,6 +99,18 @@ export const useSettings = create<SettingsState>()(
         guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
+        shift: 0, // 0 = AUTO
+        inferMethod: '',
+        timesteps: '',
+        useAdg: false,
+        cfgIntervalStart: 0,
+        cfgIntervalEnd: 1,
+        lmTemperature: 0.85,
+        lmCfgScale: 2.5,
+        lmNegativePrompt: '',
+        lmTopK: 0,
+        lmTopP: 0.9,
+        lmRepetitionPenalty: 1,
       },
       repaint: {
         model: '', // '' = AUTO (model's own default)
@@ -94,7 +137,10 @@ export const useSettings = create<SettingsState>()(
       setExportSettings: (patch) => set((s) => ({ exportSettings: { ...s.exportSettings, ...patch } })),
       setForgeEnabled: (v) => set({ forgeEnabled: v }),
     }),
-    { name: 'mulakai-settings' },
+    {
+      name: 'mulakai-settings',
+      merge: (persisted, current) => mergeSettings(current, persisted),
+    },
   ),
 );
 
@@ -116,6 +162,18 @@ export function genParams(g: GenSettings) {
     ...(g.guidanceScale > 0 ? { guidance_scale: g.guidanceScale } : {}),
     use_random_seed: g.randomSeed,
     ...(g.randomSeed ? {} : { seed: g.seed }),
+    ...(g.shift > 0 ? { shift: g.shift } : {}),
+    ...(g.inferMethod ? { infer_method: g.inferMethod } : {}),
+    ...(g.timesteps.trim() ? { timesteps: g.timesteps.trim() } : {}),
+    use_adg: g.useAdg,
+    cfg_interval_start: g.cfgIntervalStart,
+    cfg_interval_end: g.cfgIntervalEnd,
+    lm_temperature: g.lmTemperature,
+    lm_cfg_scale: g.lmCfgScale,
+    ...(g.lmNegativePrompt.trim() ? { lm_negative_prompt: g.lmNegativePrompt.trim() } : {}),
+    ...(g.lmTopK > 0 ? { lm_top_k: g.lmTopK } : {}),
+    lm_top_p: g.lmTopP,
+    lm_repetition_penalty: g.lmRepetitionPenalty,
   };
 }
 

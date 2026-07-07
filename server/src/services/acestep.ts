@@ -33,6 +33,23 @@ export interface ReleaseTaskParams {
   retake_seed?: string;
   /** 0 = no-op (default); 0.05-0.15 subtle variation; 0.5+ strong departure. */
   retake_variance?: number;
+  /** Timestep shift factor, 1.0-5.0. Only effective for base models, not turbo. */
+  shift?: number;
+  infer_method?: 'ode' | 'sde';
+  /** Comma-separated custom timesteps; overrides inference_steps and shift when set. */
+  timesteps?: string;
+  /** Adaptive Dual Guidance — base model only. */
+  use_adg?: boolean;
+  cfg_interval_start?: number;
+  cfg_interval_end?: number;
+  lm_temperature?: number;
+  lm_cfg_scale?: number;
+  lm_negative_prompt?: string;
+  /** 0/undefined disables. */
+  lm_top_k?: number;
+  /** >=1 is treated as disabled. */
+  lm_top_p?: number;
+  lm_repetition_penalty?: number;
 }
 
 /** File extension for a stored/downloaded audio_format value — 'wav32' is still a .wav container. */
