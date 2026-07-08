@@ -7,6 +7,7 @@ import { VoiceManagementSection } from './VoiceManagementSection';
 import { LibraryMaintenanceSection } from './LibraryMaintenanceSection';
 import { ForgeSection } from './ForgeSection';
 import { OutputMetadataSection } from './OutputMetadataSection';
+import { LyricTagGuideSection } from './LyricTagGuideSection';
 import { LyricTagsSection } from './LyricTagsSection';
 
 interface Props {
@@ -31,6 +32,7 @@ export function SettingsView({ online, onBack }: Props) {
         <LibraryMaintenanceSection />
         <ForgeSection />
         <OutputMetadataSection />
+        <LyricTagGuideSection />
         <LyricTagsSection />
       </ScrollArea>
     </div>

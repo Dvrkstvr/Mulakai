@@ -21,12 +21,8 @@ import { ThinkingWipe } from './ThinkingWipe';
 import { typewrite } from './typewriter';
 import { useResizableWidth } from './useResizableWidth';
 import { ResizeHandle } from './ResizeHandle';
-
-/** Small pill mirroring SettingsPanel's `.toggle-ai` shimmer, so a field visibly
- * carries the same AI ENHANCE treatment whether it's a toggle or a plain field. */
-function AiEnhanceBadge() {
-  return <span className="ai-badge">AI ENHANCE</span>;
-}
+import { AiEnhanceBadge } from './Toggle';
+import { LyricTagGuidePopover } from './LyricTagGuidePopover';
 
 interface Props {
   songs: Song[];
@@ -67,6 +63,11 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
   const [luckyLoading, setLuckyLoading] = useState(false);
   const [luckyConfirm, setLuckyConfirm] = useState(false);
   const [luckyError, setLuckyError] = useState('');
+  /** True once prompt/lyrics came from the LM (feeling lucky, refine accept, or the
+   * Quick Start reveal) — AI ENHANCE re-formatting already-formatted text is what
+   * produced ACE-Step's LM decoding-artifact garbage, so generate() suppresses
+   * use_format for this draft until the user edits prompt/lyrics by hand again. */
+  const [formatted, setFormatted] = useState(false);
 
   const [pendingResult, setPendingResult] = useState<RefineResult | null>(null);
   const { phase: thinkPhase, error: thinkError, retry: retryThink, finish: finishThink } =
@@ -79,6 +80,7 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
     if (pendingResult.time_signature) setTimeSignature(pendingResult.time_signature);
     if (pendingResult.vocal_language) setVocalLanguage(pendingResult.vocal_language);
     if (pendingResult.duration) setDuration(pendingResult.duration);
+    setFormatted(true);
     const stopPrompt = typewrite(pendingResult.caption, setPrompt, 700);
     const stopLyrics = typewrite(pendingResult.lyrics, setLyrics, 900);
     return () => { stopPrompt(); stopLyrics(); };
@@ -97,9 +99,14 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
     setError('');
     setSubmitting(true);
     const draft: CreateDraft = { genType, prompt, lyrics, bpm, keyScale, timeSignature, duration };
+    // AI ENHANCE re-formats whatever prompt/lyrics it's given — fine for hand-typed
+    // text, but re-running it on text the LM already produced is what garbled the
+    // sung output (see jobs.ts persistSong). Suppress it for this one generation
+    // rather than flipping the persisted setting, so it's back next time you type.
+    const effectiveGen = formatted ? { ...gen, useFormat: false } : gen;
     try {
       await startGeneration(
-        { title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(gen), ...voiceParams(voice) },
+        { title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(effectiveGen), ...voiceParams(voice) },
         draft,
         voice.uploadedRefFile ?? undefined,
       );
@@ -135,6 +142,7 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
   const hasDraftContent = !!(prompt || lyrics || bpm || keyScale || timeSignature || vocalLanguage || duration);
 
   const applySample = (r: RefineResult) => {
+    setFormatted(true);
     setPrompt(r.caption);
     setLyrics(r.lyrics);
     if (r.bpm) setBpm(r.bpm);
@@ -196,29 +204,34 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
                 <div className="thinking-host">
                   <div className="field-label-row">
                     <span className="section-label">PROMPT</span>
-                    {gen.useFormat && <AiEnhanceBadge />}
+                    {gen.useFormat && !formatted && <AiEnhanceBadge />}
                   </div>
                   <AutoTextarea
                     placeholder="Describe it — style, mood, instruments"
                     value={prompt}
-                    onChange={setPrompt}
+                    onChange={(v) => { setPrompt(v); setFormatted(false); }}
                     disabled={thinkPhase !== 'idle'}
                   />
                   <div className="lm-note">
-                    {gen.useFormat
-                      ? 'AI ENHANCE is on — prompt, lyrics, and any AUTO song details below are refined and filled in by the LM.'
-                      : 'AI ENHANCE is off — AUTO song details below are left for the model to decide, with no LM enhancement.'}
+                    {!gen.useFormat
+                      ? 'AI ENHANCE is off — AUTO song details below are left for the model to decide, with no LM enhancement.'
+                      : formatted
+                        ? 'AI ENHANCE is on, but this draft is already LM-formatted — it will generate as-is, unformatted, to avoid re-enhancing it.'
+                        : 'AI ENHANCE is on — prompt, lyrics, and any AUTO song details below are refined and filled in by the LM.'}
                   </div>
 
                   <div className="field-label-row">
                     <span className="section-label">LYRICS</span>
-                    {gen.useFormat && <AiEnhanceBadge />}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      {gen.useFormat && !formatted && <AiEnhanceBadge />}
+                      <LyricTagGuidePopover />
+                    </div>
                   </div>
                   <AutoTextarea
                     className="lyrics-input"
                     placeholder="[verse]&#10;Lyrics (optional)"
                     value={lyrics}
-                    onChange={setLyrics}
+                    onChange={(v) => { setLyrics(v); setFormatted(false); }}
                     disabled={thinkPhase !== 'idle'}
                   />
                   <ThinkingWipe phase={thinkPhase} onSwept={finishThink} />
@@ -228,7 +241,7 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
                 <div className="refine-row">
                   <button
                     className={refining ? 'refine-btn loading' : 'refine-btn'}
-                    disabled={!prompt || refining}
+                    disabled={!prompt || refining || thinkPhase !== 'idle'}
                     onClick={refine}
                   >
                     {refining ? 'REFINING…' : 'REFINE INPUT'}
@@ -267,7 +280,7 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
                     }}
                     transition={{ duration: 0.3, ease: 'easeOut' }}
                     style={{ position: 'relative', overflow: 'hidden' }}
-                    disabled={generationBusy || !prompt}
+                    disabled={generationBusy || !prompt || thinkPhase !== 'idle'}
                     onClick={generate}
                   >
                     {submitting ? (
@@ -298,8 +311,8 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
               onRefine={refine}
               onClose={closeRefine}
               onAccept={{
-                prompt: setPrompt,
-                lyrics: setLyrics,
+                prompt: (v) => { setPrompt(v); setFormatted(true); },
+                lyrics: (v) => { setLyrics(v); setFormatted(true); },
                 bpm: setBpm,
                 keyScale: setKeyScale,
                 timeSignature: setTimeSignature,

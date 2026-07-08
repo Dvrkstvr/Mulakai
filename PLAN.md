@@ -105,7 +105,7 @@ Full spec in `docs/design/DESIGN.md` — read it before any UI work. Summary:
 ```
 Mulakai/
 ├── AGENTS.md / CLAUDE.md      # workflow rules (see below)
-├── openspec/                  # specs + change proposals (OpenSpec-driven)
+├── PLAN.md                    # spec log — grand goal + dated phase decisions
 ├── client/                    # React + TS + Vite frontend
 │   ├── components/            # Library (flat list, favorites, trash),
 │   │                          #   Player, Create panel, SongEditor
@@ -176,8 +176,7 @@ the composite mix client-side and uploads it as src_audio.
    the native FastAPI endpoints (release_task / query_result / v1/audio /
    format_input / health) plus the polling job orchestrator. Get a bare
    "generate → play → save to library" loop working end-to-end against a
-   local ACE-Step-1.5 instance. Set up OpenSpec, test tooling (Vitest +
-   Playwright).
+   local ACE-Step-1.5 instance. Set up test tooling (Vitest + Playwright).
 2. **Library** — flat list, search, favorites-pinned-to-top, dislike →
    trash, 7-day trash sweep (scheduled job).
 3. **Song data model** — songs/layers/versions tables + API routes; a fresh
@@ -206,14 +205,14 @@ the composite mix client-side and uploads it as src_audio.
     for the golden path (generate → repaint a region → add a layer → revert
     a version → export), manual browser verification per workflow rules.
 
-Each phase = one OpenSpec change + PR, following the workflow below.
+Each phase = one dated section below (decisions + file-level plan) + PR,
+following the workflow below.
 
 ## Repaint Editor UX Upgrade (planned 2026-07-02)
 
 Six requested changes to the Editor's waveform + history, discussed and
-decided 2026-07-02. Not yet implemented — goes through `/opsx:propose` before
-code per the Spec-Driven Development rule (touches 6+ files). Captured here
-so the proposal can be written straight from this section.
+decided 2026-07-02, implemented per the Spec-Driven Development rule (touches
+6+ files) as this dated section.
 
 **The underlying data already exists**: `versions.params_json` (schema.ts)
 already stores the full generation request — prompt, region, model, seed —
@@ -315,8 +314,8 @@ positioning while editing a region.
 ## Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02)
 
 Discussed and decided 2026-07-02. Not yet implemented — this is the largest
-phase so far and should get an `/opsx:propose` proposal (or be split across
-several PRs) rather than landing as one sweep; touches 10+ files across a
+phase so far and should be split across several PRs rather than landing as
+one sweep; touches 10+ files across a
 new client-side audio mixing engine, a new server orchestration path, and a
 layer-stack UI that doesn't exist yet.
 
@@ -670,9 +669,9 @@ cover-capable model.
 
 ## Workflow (adapted from ACE-Step-DAW's AGENTS.md/CLAUDE.md + ACE-Step-1.5's AGENTS.md)
 
-- **Spec before code**: non-trivial features get an OpenSpec proposal
-  (`openspec/changes/`) with Given/When/Then scenarios before implementation;
-  archived into `openspec/specs/` on completion.
+- **Spec before code**: non-trivial features (3+ files) get a dated section
+  written into this file — decisions, file-level plan, open questions —
+  before implementation, the same way every phase above is documented.
 - **Module size discipline** (hard-learned from the DAW's 10K-line
   `projectStore.ts`): target `<=150` LOC per module, hard cap `200`. Split by
   responsibility before merging; if a module must exceed the cap, justify it
@@ -711,7 +710,9 @@ cover-capable model.
   vocal isolation (e.g. Demucs, already referenced for `extract`) run first
   for accuracy on a full mix. Runs as a Python subprocess akin to the
   ACE-Step integration, not in the Node/Express server. Not yet scoped —
-  needs an `/opsx:propose` before implementation.
+  needs a dated design section here before implementation. (Separate from —
+  and not resolved by — the lyric *tag* vocabulary probe below, which is
+  about `[Chorus]`/`[soft voice]`-style annotation tags, not word timing.)
 
 ## Settings Screen (planned + implemented 2026-07-06)
 
@@ -788,3 +789,76 @@ whichever version is configured.
   ID3 version. `SongDetailRail.tsx` gained COMMENT (under METADATA) and a new
   "OUTPUT FILE TAGS" block (GENRE/ALBUM/COVER ART) placed directly under the
   REUSE PROMPT / CREATE COVER FROM AUDIO actions, per request.
+
+## Create AUDIO/ARRANGE Flows — `cover` and `complete` (implemented 2026-07-07)
+
+Two new Create tabs alongside the original text2music flow, both persisting a
+brand-new library song (unlike Remaster's ephemeral scratch-only `cover`
+pass) via the same `persistSong()` path and `generate` genLock kind as a
+plain generation, so the rest of the app (library `GeneratingCard`,
+cross-tab hydration) treats them identically to any other in-flight
+generation.
+
+- **AUDIO tab** (`client/src/CreateAudioTab.tsx`) — "create cover from
+  audio": a `cover` generation conditioned on an uploaded file or a
+  client-bounced mix of an existing library song. Same VARIANCE slider
+  convention as Repaint (`audio_cover_strength = 1 - variance`). Gated to
+  `cover`-capable models via `useModelsForTask('cover')`, defaulting to an
+  `xl-sft` model when present.
+- **ARRANGE tab** (`client/src/CreateArrangeTab.tsx`) — ACE-Step's `complete`
+  task: build a whole accompaniment around a single bare track (e.g. a
+  cappella vocals), as opposed to `cover` (regenerate a full mix, structure
+  preserved) or `lego`/Add Layer (add one part onto an existing multi-layer
+  mix). Base-model only; unlike `cover`/`repaint`/`extract`, the 5Hz LM is
+  **not** skipped for `complete` (`docs/ace-step-1.5/API.md#4.2`), so
+  thinking/AI-enhance are meaningful controls here, same as Add Layer.
+  Resolves the "Complete (future)" row in the ACE-Step Integration table
+  above — it's implemented, not future anymore.
+
+### Architecture
+
+- `server/src/services/coverGenJobs.ts` — `startCoverGeneration()`, mirrors
+  `remasterJobs.ts`'s job shape but calls `persistSong()` instead of writing
+  to a scratch path.
+- `server/src/services/completeGenJobs.ts` — `startCompleteGeneration()`,
+  same shape, `task_type: 'complete'`.
+- `server/src/routes/generate.ts` — new multipart endpoints wiring both
+  services in; `pickMultipartParams()` shared with the existing generate
+  route.
+- Client: `client/src/api.ts` gained the corresponding calls; both tabs live
+  under `CreateView.tsx` alongside the original generate tab (see
+  `CreateBar.tsx` for the tab switcher).
+
+## Lyric Tag Vocabulary Probe (implemented 2026-07-08)
+
+ACE-Step's LM emits free-form `[...]` annotation tags in generated lyrics
+(structure tags like `[Verse 2]`, performance tags like `[soft voice]`) with
+**no fixed schema anywhere** — the LM can emit any bracket text. Rather than
+hardcoding a guessed tag list, `server/src/services/lyricTagProbe.ts`
+discovers the real vocabulary empirically: it repeatedly samples ACE-Step
+(seed queries from `lyricTagSeedQueries.ts`, varied temperature, one in
+every 4 samples pulled from ACE-Step's own bundled examples instead of a
+fresh LM call) and mines the returned lyrics for bracket tags via regex,
+classifying each as `section` (its line is otherwise empty, e.g. `[Chorus]`
+alone) or `inline` (e.g. `[soft voice]` mid-line).
+
+- **Additive, crash-safe persistence**: results merge into
+  `data/lyricTags.json` after every single sample (`recordSample()`) —
+  counts only grow, tags are only added, nothing is ever overwritten or
+  wiped by a later run. An indefinite probe run can be stopped or crash
+  without losing prior progress.
+- **Runs indefinitely until stopped**: `runProbe()` loops until
+  `stopProbe()` is called or `MAX_CONSECUTIVE_FAILURES` (10) consecutive
+  ACE-Step failures trip an auto-stop, so a probe left running doesn't
+  hammer a downed ACE-Step server forever unattended.
+- **Routes** (`server/src/routes/lyricTags.ts`): `GET /` (stored tags sorted
+  by count), `GET /status` (probe running/completed/lastError), `POST
+  /probe` (fire-and-forget start, 409 if already running — client polls
+  `/status`), `POST /probe/stop`.
+- **Client**: `client/src/LyricTagsSection.tsx`, mounted in
+  `SettingsView.tsx`, polls `/status` every 3s while a probe is running and
+  shows the discovered tag list sorted by frequency.
+- This is a **separate concern** from the still-unscoped lyric-*timestamp*
+  alignment to-do under "Open Questions" above — tag vocabulary discovery
+  (what annotations exist) vs. word/line timing (when they occur in audio).
+  Neither depends on the other.

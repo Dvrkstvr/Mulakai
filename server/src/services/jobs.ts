@@ -218,11 +218,14 @@ export async function persistSong(
     title, bpm: result.metas.bpm ?? null, keyScale: result.metas.keyscale ?? '',
   });
 
+  // Prefer the lyrics the user approved in Create over TaskResult's echoed `lyrics` —
+  // ACE-Step's echo can come back with decoding artifacts, and every other write path
+  // (repaintJobs.ts, versions.ts) already treats params.lyrics as the source of truth.
   db.prepare(
     `INSERT INTO songs (id, title, caption, lyrics, bpm, key_scale, time_signature, duration)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
-    songId, title, result.prompt, result.lyrics,
+    songId, title, result.prompt, params.lyrics || result.lyrics,
     result.metas.bpm ?? null, result.metas.keyscale ?? '',
     result.metas.timesignature ?? '', result.metas.duration ?? null,
   );

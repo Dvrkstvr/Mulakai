@@ -98,7 +98,7 @@ export default function App() {
     }
   };
 
-  const openEditor = (id: string) => { console.log('DEBUG openEditor', id); setDetailSongId(null); setOpenSongId(id); };
+  const openEditor = (id: string) => { setDetailSongId(null); setOpenSongId(id); };
   const reusePrompt = (s: Song) => { setCreateDraft(reusePromptDraft(s)); setDetailSongId(null); setView('create'); };
   const createCover = (s: Song) => { setCreateDraft(createCoverDraft(s)); setDetailSongId(null); setView('create'); };
 
