@@ -50,19 +50,11 @@ its own commit) or be rejected.
 
 ## Spec-Driven Development
 
-Non-trivial features (anything touching 3+ files) get an OpenSpec proposal
-before code:
-
-```bash
-/opsx:propose "feature-name"   # Create proposal + specs + design + tasks
-/opsx:explore                  # Browse existing specs
-/opsx:apply                    # Implement tasks from a change
-/opsx:archive                  # Archive completed change into specs/
-```
-
-- Specs live in `openspec/specs/` (tracked in git).
-- Proposals live in `openspec/changes/` (working directory).
-- Use Given/When/Then scenarios and RFC 2119 keywords (MUST/SHALL).
+Non-trivial features (anything touching 3+ files) get their design decided
+in writing before code: add a dated section to `PLAN.md` — decisions made,
+file-level plan, any open questions — the same way existing phases (Add
+Layer, Remaster, Settings Screen, etc.) are documented there. `PLAN.md` is
+the spec log; there is no separate proposal tool or `openspec/` directory.
 
 ## Git Workflow
 

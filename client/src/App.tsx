@@ -118,7 +118,7 @@ export default function App() {
     }
   };
 
-  const openEditor = (id: string) => { console.log('DEBUG openEditor', id); setDetailSongId(null); setOpenSongId(id); };
+  const openEditor = (id: string) => { setDetailSongId(null); setOpenSongId(id); };
   /** The folder a song already lives in, carried forward as the new draft's destination —
    * not the library's current browsing scope, since REUSE PROMPT/CREATE COVER act on a
    * specific song regardless of which folder view it was clicked from. */

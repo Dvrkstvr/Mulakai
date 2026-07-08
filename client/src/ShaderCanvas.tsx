@@ -7,7 +7,7 @@ void main() {
 }`;
 
 /** Recolored port of https://www.shadertoy.com/view/DdcfzH — its stock amber/blue/pink/
- * purple palette is swapped for the app's locked acid/sky/lilac/carbon hues so the "AI in
+ * purple palette is swapped for the app's locked acid/sky/lilac/amber hues so the "AI in
  * progress" motion exception (docs/design/DESIGN.md#Motion) doesn't introduce new colors. */
 const FRAG_SRC = `#version 300 es
 precision mediump float;
@@ -60,10 +60,10 @@ void main() {
   vec3 acid = vec3(0.831, 1.0, 0.0);
   vec3 sky = vec3(0.188, 0.737, 0.929);
   vec3 lilac = vec3(0.482, 0.294, 0.580);
-  vec3 carbon = vec3(0.110, 0.114, 0.129);
+  vec3 amber = vec3(0.233, 0.160, 0.75);
 
   vec3 layer1 = mix(lilac, sky, smoothstep(-0.3, 0.2, (tuv * rot(radians(-5.0))).x));
-  vec3 layer2 = mix(carbon, acid, smoothstep(-0.3, 0.2, (tuv * rot(radians(-5.0))).x));
+  vec3 layer2 = mix(amber, acid, smoothstep(-0.3, 0.2, (tuv * rot(radians(-5.0))).x));
   vec3 color = mix(layer1, layer2, smoothstep(0.5, -0.3, tuv.y));
 
   color -= grain(uv) * 0.1;

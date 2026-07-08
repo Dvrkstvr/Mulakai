@@ -21,6 +21,12 @@
   --rust: #CC3F0C;
   --rust-text: #E8703F;
   --on-rust: #2A0D02;
+
+  /* Shared interaction timing — snappy/purposeful per DESIGN.md#Motion.
+     easeOut-style curve, no overshoot; used by every hover/press/focus
+     transition added in the "Interactive feedback" section at end of file. */
+  --ease: cubic-bezier(0.2, 0.72, 0.2, 1);
+  --dur: 150ms;
 }
 
 * {
@@ -596,10 +602,15 @@ button.acid-outline {
 
 .song-title {
   font-weight: 700;
+  font-size: 14px;
 }
 
+/* Secondary content — recedes behind the title. Was `var(--text-high)`, an
+   undefined token that silently fell back to inherited full-white, so the
+   caption competed with the title for attention (DESIGN.md: metadata is
+   text-mid). */
 .meta {
-  color: var(--text-high);
+  color: var(--text-mid);
   overflow: hidden;
 }
 
@@ -608,6 +619,8 @@ button.acid-outline {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .fav.on {
@@ -654,8 +667,10 @@ button.acid-outline {
 }
 
 .generating-body {
+  /* No z-index here: it would create its own stacking context and cut off
+     mix-blend-mode on the text below from the shader canvas behind it. Plain
+     DOM order already paints this after the canvas's position:absolute/z-index:0. */
   position: relative;
-  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -676,6 +691,16 @@ button.acid-outline {
 
 .stage-label.failed {
   color: var(--rust-text);
+}
+
+/* While the shader background is live behind the card (not shrunk/failed), text
+   can't use a fixed color and stay legible against animated shader colors — mix-blend
+   difference against white recomputes contrast per-pixel every frame instead. */
+.row.generating:not(.shrunk):not(.failed) .song-title,
+.row.generating:not(.shrunk):not(.failed) .meta,
+.row.generating:not(.shrunk):not(.failed) .stage-label {
+  color: #fff;
+  mix-blend-mode: exclusion;
 }
 
 /* Inline pill on a Library row while one of its layers has a repaint/split/remaster/add-layer/
@@ -1814,17 +1839,36 @@ footer .player {
 
 /* Same AI-state exception as .toggle-ai (docs/design/DESIGN.md#Motion) — a
    field carries the same shimmer badge whether AI ENHANCE reaches it via a
-   toggle or by being left on AUTO. */
+   toggle or by being left on AUTO. Small element: shader border ring, not a
+   full fill — see .toggle-shader-mask for the same treatment on Toggle. */
 .ai-badge {
-  color: var(--carbon);
+  position: relative;
+  overflow: hidden;
+  display: inline-block;
+  color: var(--text-hi);
   font-weight: 700;
   font-size: 9px;
   letter-spacing: 1px;
-  padding: 2px 6px;
+  padding: 4px 8px;
   transform: skewX(-10deg);
-  background: linear-gradient(90deg, var(--acid), var(--sky), var(--lilac), var(--acid));
-  background-size: 300% 100%;
-  animation: ai-shimmer 3s linear infinite;
+}
+
+.ai-badge-shader {
+  position: absolute;
+  inset: 0;
+}
+
+.ai-badge-mask {
+  position: absolute;
+  inset: 2px;
+  background: var(--carbon);
+}
+
+.ai-badge-label {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  transform: skewX(10deg);
 }
 
 .song-details-grid {
@@ -2609,11 +2653,12 @@ footer .player {
   letter-spacing: 0.5px;
 }
 
+/* position: fixed + portal-rendered to document.body (see InfoTooltip.tsx) — an
+   in-flow absolute version was clipped by the settings panel's ScrollArea and by
+   Toggle's overflow:hidden shader mask, the same problem .option-description
+   below already solved for CustomSelect's flyout. */
 .info-tooltip-text {
-  position: absolute;
-  left: 0;
-  top: 100%;
-  margin-top: 6px;
+  position: fixed;
   width: 220px;
   background: var(--carbon-raised);
   border: 1px solid var(--line-hi);
@@ -2624,16 +2669,8 @@ footer .player {
   letter-spacing: normal;
   text-transform: none;
   line-height: 1.4;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity 0.1s ease;
-  z-index: 20;
-}
-
-.info-tooltip:hover .info-tooltip-text,
-.info-tooltip:focus-within .info-tooltip-text,
-.info-tooltip:focus .info-tooltip-text {
-  opacity: 1;
+  z-index: 50;
 }
 
 /* Parallelogram DAW-fader slider (Slider.tsx) — three plain divs, not a
@@ -2837,6 +2874,66 @@ footer .player {
   z-index: 50;
 }
 
+/* Neutral (not acid/sky/lilac/rust) since opening a reference panel is neither a commit nor
+   a scope/selection action — see docs/design/DESIGN.md's one-semantic-job-per-hue rule. */
+.tag-guide-btn {
+  background: transparent;
+  border: 1px solid var(--line-hi);
+  color: var(--text-mid);
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tag-guide-btn span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.tag-guide-btn:hover {
+  border-color: var(--text-hi);
+  color: var(--text-hi);
+}
+
+/* Portal-rendered to document.body (same reasoning as .option-description above) so it can
+   grow taller than the LYRICS field's scroll container without being clipped or forcing
+   scrollbars onto it. */
+.tag-guide-panel {
+  position: fixed;
+  width: 460px;
+  max-height: 70vh;
+  overflow-y: auto;
+  background: var(--carbon);
+  border: 1px solid var(--line-hi);
+  padding: 14px;
+  z-index: 50;
+}
+
+.tag-guide-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.tag-guide-close {
+  background: transparent;
+  border: none;
+  color: var(--text-mid);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0 4px;
+}
+
+.tag-guide-close:hover {
+  color: var(--text-hi);
+}
+
 .toggle {
   display: flex;
   align-items: center;
@@ -2854,7 +2951,9 @@ footer .player {
   transform: skewX(-10deg);
 }
 
-.toggle span,
+/* Direct-child selector (not descendant) so this doesn't also skew the nested
+   InfoTooltip's spans (mark + popup) into parallelograms. */
+.toggle > span,
 .toggle .dot {
   display: inline-block;
   position: relative;
@@ -2867,6 +2966,15 @@ footer .player {
   position: absolute;
   inset: 0;
   z-index: 0;
+}
+
+/* Insets over .toggle-shader's canvas so only a ring of the animated shader shows around
+   the edge — small elements get a border, not a full fill (docs/design/DESIGN.md#Motion).
+   No z-index needed: later in DOM than the canvas, same stacking context, paints on top. */
+.toggle-shader-mask {
+  position: absolute;
+  inset: 3px;
+  background: var(--carbon);
 }
 
 .toggle .dot {
@@ -3026,4 +3134,117 @@ footer .player {
   font-weight: 700;
   cursor: pointer;
   margin-left: 10px;
+}
+
+/* ============================================================
+   Interactive feedback  (see DESIGN.md#Motion → "Interactive feedback")
+   Snappy, purposeful micro-states for the shared controls that were
+   previously static: hover, press, and a keyboard focus ring. All of it
+   is transform-free (colour / border / box-shadow / filter / outline)
+   so it never disturbs a statically-skewed CTA or fights framer-motion's
+   own transform on the GENERATE / REPAINT buttons. 150ms easeOut, no
+   spring/bounce, zero radius — consistent with the locked design language.
+   ============================================================ */
+
+button,
+select,
+.chip {
+  transition:
+    background var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    filter var(--dur) var(--ease);
+}
+
+/* Plain outlined buttons brighten their hairline + text on hover. */
+button:not(.acid):not(.acid-outline):not(:disabled):hover {
+  border-color: var(--line-hi);
+  color: var(--text-hi);
+}
+
+/* Any control dips slightly when pressed — one uniform, transform-free
+   "press" cue that is safe on skewed and framer-driven buttons alike. */
+button:not(:disabled):active,
+.chip:active {
+  filter: brightness(0.9);
+}
+
+/* Keyboard-first (DESIGN.md): a sky focus ring — "what am I pointing at?" —
+   on every real control. Range sliders paint their own focus-visible
+   treatment, so they opt out here. */
+button:focus-visible,
+select:focus-visible,
+input:not([type="range"]):focus-visible,
+textarea:focus-visible {
+  outline: 1px solid var(--sky);
+  outline-offset: 2px;
+}
+
+/* A focused text field takes a sky border — a field you're typing in is the
+   current scope/target. Previously focus was invisible on inputs. */
+input:not([type="range"]):focus,
+textarea:focus {
+  border-color: var(--sky);
+}
+
+/* Acid CTAs bloom softly on hover — telegraphs "this starts/commits
+   something" before the click. box-shadow only, so framer keeps transform. */
+button.acid:not(:disabled):hover,
+.chip.active:hover {
+  box-shadow: 0 0 16px -3px rgba(212, 255, 0, 0.55);
+}
+
+button.acid-outline:not(:disabled):hover {
+  box-shadow: 0 0 16px -4px rgba(212, 255, 0, 0.38);
+}
+
+/* Inactive filter chips fill faintly on hover so they read as pressable. */
+.chip:not(.active):hover {
+  background: rgba(212, 255, 0, 0.08);
+}
+
+/* Library cards lift on hover — a scannable "this is focusable" cue across
+   the grid. Uses box-shadow (not transform) so it coexists with the row's
+   framer entrance animation; selected (sky) and generating cards keep their
+   own state. */
+.library .row {
+  transition:
+    border-color var(--dur) var(--ease),
+    background var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.library .row:not(.selected):not(.generating):hover {
+  border-color: var(--line-hi);
+  box-shadow: 0 6px 20px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* The card's play glyph lights acid on hover — play is a start action. */
+.library .row>button:first-child:hover {
+  color: var(--acid);
+  border-color: var(--acid);
+}
+
+/* The card's trash glyph warns rust on hover — destructive. */
+.library .row-actions>button:last-child:hover {
+  color: var(--rust-text);
+  border-color: var(--rust);
+}
+
+/* An unfilled favourite heart hints acid on hover (filled = already acid). */
+.fav:not(.on):hover {
+  color: var(--acid);
+  border-color: var(--acid);
+}
+
+/* Honour reduced-motion: drop the hover bloom/lift transitions entirely. */
+@media (prefers-reduced-motion: reduce) {
+
+  button,
+  select,
+  .chip,
+  .library .row {
+    transition: none;
+  }
 }

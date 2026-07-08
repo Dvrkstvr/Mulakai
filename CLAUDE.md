@@ -56,19 +56,13 @@ zero radius), typography, and the three-screen app model live there.
   audio2audio conditioning)
 - `server/routes/`, `server/db/` — Express API + SQLite schema (songs,
   layers, versions — no users/profiles/playlists tables)
-- `openspec/` — specs (`specs/`) and change proposals (`changes/`)
 
-## OpenSpec Workflow
+## Spec-Driven Development
 
-```bash
-/opsx:propose "feature-name"
-/opsx:explore
-/opsx:apply
-/opsx:archive
-```
-
-Use before implementing any feature touching 3+ files. See `AGENTS.md` for
-the module-size and testing rules that apply to every change.
+`PLAN.md` is the spec log — non-trivial features (3+ files) get a dated
+section there (decisions, file-level plan, open questions) before code, the
+same way existing phases are documented. See `AGENTS.md` for the
+module-size and testing rules that apply to every change.
 
 ## Reference Projects (do not modify)
 

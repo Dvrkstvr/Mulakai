@@ -451,29 +451,81 @@ view change.
 - **Commit actions**: GENERATE / REPAINT REGION give a brief acid glow/scale
   flash at the moment of commit, echoing "this just started something."
 
+### Interactive feedback
+
+Steady-state controls are static, but *interaction* with them isn't silent —
+every shared control answers a hover, a press, and a keyboard focus, so the UI
+reads as responsive without becoming busy. One consistent recipe (see the
+"Interactive feedback" block at the end of `index.css`), all transform-free so
+it never disturbs a skewed CTA or framer-motion's own transform:
+
+- **Hover**: plain outlined buttons brighten their hairline + text
+  (`carbon-line-hi`); acid CTAs get a soft acid bloom (`box-shadow`)
+  telegraphing "this commits something"; a card in the Library grid lifts on a
+  low shadow; contextual glyphs preview their meaning (play → acid, trash →
+  rust, empty heart → acid).
+- **Press** (`:active`): a uniform `filter: brightness(0.9)` dip — one cue that
+  is safe on skewed and framer-driven buttons alike (no scale/translate that
+  would drop a skew).
+- **Focus** (`:focus-visible`): a 1px **sky** ring (`outline`, 2px offset) on
+  every real control, and a sky border on a focused text field — "what am I
+  pointing at?" applied to keyboard navigation, per the keyboard-first rule.
+
+Timing is the shared `--ease`/`--dur` tokens (150ms, easeOut, no bounce).
+Range sliders opt out of the focus ring (they paint their own), and everything
+here collapses under `prefers-reduced-motion: reduce`.
+
 ### AI states — the one exception to "one hue, one job"
 
 Moments where the AI is actively working (generating, repainting, LM
-"thinking") are allowed to blend lilac/sky/acid together in a shimmering
-gradient sweep — this is a scoped, deliberate exception to the single-hue
-rule above, not a loosening of it. It applies **only** to:
+"thinking") are allowed to blend lilac/sky/acid together — this is a scoped,
+deliberate exception to the single-hue rule above, not a loosening of it.
 
-- the GENERATE / REPAINT REGION button and the waveform region it targets,
-  while a job is in flight (shimmering lilac↔sky↔acid gradient sweep in
-  place of a flat spinner);
-- the "processing" placeholder shown over a waveform/lane awaiting AI
-  output;
-- the `AI ENHANCE` and `THINKING MODE` toggles, while active;
-- Create's Quick Start reveal: the library create bar's typed idea is
-  expanded into a full draft by the LM on the Create screen — the
-  PROMPT/LYRICS block shimmers solid while the LM works, then wipes away
-  left-to-right in one sweep as the result types in underneath
-  (`ThinkingWipe.tsx` / `useThinkingQuery.ts`).
+**Implementation**: a recolored WebGL2 shader
+(`ShaderCanvas.tsx`, ported from [shadertoy.com/view/DdcfzH](https://www.shadertoy.com/view/DdcfzH),
+its stock palette swapped for acid/sky/lilac/carbon) replaces what used to be
+a CSS gradient sweep — a slow rotating noise-warped blend of the four hues,
+animated per-frame, `prefers-reduced-motion`-aware (freezes to a static
+frame). `AIGeneratingBackground.tsx` wraps it as an absolutely-positioned
+fill for a parent with `position: relative`; call sites mount it only while
+`active` (a job's `loading`/`running` stage, a toggle's `checked` state).
+
+**Size rule — background fill vs. thick border**: the shader reads as
+texture, not as legible surface for text sitting on top of it. Apply it
+differently depending on how much of the element it would cover:
+
+- **Bigger elements** (a card, a full-width button, a waveform/lane
+  region) — the shader fills the **entire background**, with foreground
+  content (labels, timers) layered above it at `z-index: 1`. Example:
+  `GeneratingCard.tsx`'s pinned library row — `AIGeneratingBackground` fills
+  the whole card while `STAGE_LABEL`/elapsed-time text sits on top. Also
+  used this way by `RepaintBar.tsx`'s REPAINT REGION button while running,
+  `LayerLane.tsx`'s focused-lane "processing" overlay, and
+  `ThinkingWipe.tsx`'s full-block Quick Start reveal.
+- **Smaller elements** (a toggle, a chip, a badge) — full-fill would drown
+  the label in motion at that size, so the shader renders as a **thick
+  border** instead: the shader canvas fills the element's box, but the
+  interior is inset with `carbon` so only a ring of the animated shader
+  shows around the edge, label unobstructed. `Toggle.tsx`'s
+  `.toggle-shader-mask` (3px inset over the canvas) and `.ai-badge`'s
+  `.ai-badge-mask` (2px inset, shared via `AiEnhanceBadge` in `Toggle.tsx`
+  so Create's field badge and the settings-panel toggle stay visually
+  identical) both use this pattern — mask element painted after the canvas
+  in DOM order (no `z-index` needed within the same stacking context), with
+  the label/dot bumped above both via their own `z-index`.
+
+Applies **only** to: the GENERATE / REPAINT REGION button and the waveform
+region it targets while a job is in flight; the "processing" placeholder
+over a waveform/lane awaiting AI output; the `AI ENHANCE` and `THINKING
+MODE` toggles while active; Create's Quick Start reveal (the library create
+bar's typed idea expanded into a full draft — the PROMPT/LYRICS block
+shimmers solid while the LM works, then wipes away left-to-right in one
+sweep as the result types in underneath, `ThinkingWipe.tsx` /
+`useThinkingQuery.ts`).
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
 keeps the strict one-hue-per-job rule — if a future feature wants to reuse
-this shimmer outside these four cases, that's a scope question, not a
-default.
+this shimmer outside these cases, that's a scope question, not a default.
 
 ## Copy rules
 
