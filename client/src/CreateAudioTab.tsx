@@ -11,6 +11,7 @@ import { useModelsForTask } from './useModelsForTask';
 import { activeLayers } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
+import { AutoTextarea } from './AutoTextarea';
 
 interface Props {
   songs: Song[];
@@ -136,10 +137,10 @@ export function CreateAudioTab({ songs, title, initialDraft, onBack }: Props) {
       )}
       <VarianceSlider value={Math.round(variance * 100)} onChange={(v) => setVariance(v / 100)} />
 
-      <input
+      <AutoTextarea
         placeholder="Optional — describe the change (style, mood, instruments). Leave blank to follow the source as-is."
         value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
+        onChange={setPrompt}
       />
 
       <div className="generate-row">

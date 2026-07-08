@@ -40,6 +40,37 @@ export function registerJob(job: Job): void {
 }
 
 /**
+ * Whether `job` was aborted since the caller last checked. A plain `job.status === 'failed'`
+ * read works at runtime (another tick's abortJob call mutates the same object across an
+ * `await`), but TS's control-flow narrowing doesn't know that and flags it as an impossible
+ * comparison once a literal like `job.status = 'running'` appears earlier in the function —
+ * routing the read through this helper sidesteps that narrowing.
+ */
+export function wasAborted(job: Job): boolean {
+  return job.status === 'failed';
+}
+
+/**
+ * Dev-facing abort: marks a job failed so `poll()` stops on its next tick and
+ * releases the generation lock immediately, so the UI unblocks right away. Also
+ * catches a job still in its pre-registration `run()` body (see repaintJobs.ts
+ * etc.'s `wasAborted()` checks after each await) — every job-start function
+ * registers its Job synchronously before its first await specifically so this
+ * has something to mark right away, not just once polling begins.
+ * The underlying ACE-Step task keeps running server-side (no cancel primitive
+ * exists there, same caveat as stemSplit.ts's cancelSplit) — its eventual
+ * result is simply ignored since `poll()` has already returned.
+ */
+export function abortJob(jobId: string): boolean {
+  const job = jobs.get(jobId);
+  releaseGenLock(jobId);
+  if (!job || job.status === 'done' || job.status === 'failed') return false;
+  job.status = 'failed';
+  job.error = 'Aborted';
+  return true;
+}
+
+/**
  * Load the requested model into slot 1 if a specific one was chosen.
  * AUTO (no model / no LM selected) skips init and lets ACE-Step lazy-load its
  * own defaults. The 5Hz LM is silently skipped by ACE-Step for repaint/cover/
@@ -71,6 +102,7 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
   jobs.set(job.id, job);
   void run(job, async () => {
     await ensureModelLoaded(params);
+    if (wasAborted(job)) return; // aborted while the model was loading (see abortJob)
     job.status = 'running';
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'text2music' };
     const ref = voice?.voiceId
@@ -79,7 +111,9 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
         ? { referenceAudio: voice.referenceAudioFile, audioInfluence: voice.audioInfluence ?? 0.5, styleInfluence: voice.styleInfluence ?? 0.5 }
         : undefined;
     if (ref) applyVoiceInfluence(fullParams, ref);
+    if (wasAborted(job)) return; // aborted while resolving the voice reference
     const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
+    if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
     job.taskId = task_id;
     await poll(job, (result) => persistSong(result.file, fullParams, result, title));
   }).finally(() => releaseGenLock(job.id));
@@ -107,6 +141,7 @@ export async function run(job: Job, body: () => Promise<void>): Promise<void> {
 export async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<string>): Promise<void> {
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
+    if (job.status !== 'running') return; // aborted externally (see abortJob)
     try {
       const [row] = await queryResult([job.taskId]);
       if (!row || row.status === 0) continue;

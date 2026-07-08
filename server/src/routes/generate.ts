@@ -1,12 +1,13 @@
 import fs from 'node:fs/promises';
 import { Router } from 'express';
 import multer from 'multer';
-import { startGeneration, getJob, getActiveGeneration } from '../services/jobs.js';
+import { startGeneration, getJob, getActiveGeneration, abortJob } from '../services/jobs.js';
 import { startCoverGeneration } from '../services/coverGenJobs.js';
 import { startCompleteGeneration, type CompleteSource } from '../services/completeGenJobs.js';
-import { getScratchSplitJob, scratchStemPath } from '../services/scratchSplitJobs.js';
+import { getScratchSplitJob, scratchStemPath, discardScratchSplit } from '../services/scratchSplitJobs.js';
+import { cancelSplit } from '../services/stemSplit.js';
 import { resolveReferenceAudioFile } from '../services/referenceAudioResolve.js';
-import { GenLockError } from '../services/genLock.js';
+import { GenLockError, releaseGenLock } from '../services/genLock.js';
 import {
   health,
   listModels,
@@ -193,6 +194,25 @@ generateRouter.get('/active', (_req, res) => {
       error: job?.error,
     },
   });
+});
+
+/**
+ * Dev convenience: forcibly stop whatever's holding the generation lock (any kind,
+ * including a Demucs/ACE-Step split) so local development isn't blocked waiting out a
+ * long-running job. Best-effort — see jobs.ts's abortJob and stemSplit.ts's cancelSplit
+ * for why in-flight backend calls can't actually be killed, only ignored.
+ */
+generateRouter.post('/active/abort', (_req, res) => {
+  const { lock } = getActiveGeneration();
+  if (!lock) return res.json({ ok: true, aborted: false });
+  if (lock.kind === 'split') {
+    cancelSplit(lock.jobId);
+    void discardScratchSplit(lock.jobId).catch(() => {});
+  } else {
+    abortJob(lock.jobId);
+  }
+  releaseGenLock(lock.jobId);
+  res.json({ ok: true, aborted: true });
 });
 
 generateRouter.get('/:jobId', (req, res) => {

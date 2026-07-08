@@ -11,7 +11,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams } from './acestep.js';
-import { type Job, registerJob, poll, ensureModelLoaded } from './jobs.js';
+import { type Job, registerJob, poll, ensureModelLoaded, wasAborted } from './jobs.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 import { tagOutputFile } from './fileTags.js';
 
@@ -56,6 +56,8 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
 
   const jobId = crypto.randomUUID();
   acquireGenLock({ kind: 'remaster', jobId, songId });
+  const job: Job = { id: jobId, taskId: '', status: 'loading', songId, createdAt: Date.now() };
+  registerJob(job);
   try {
     const fullParams: ReleaseTaskParams = {
       audio_format: audioFormat,
@@ -69,10 +71,12 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
       ...(song.time_signature ? { time_signature: song.time_signature } : {}),
     };
     await ensureModelLoaded(fullParams);
+    if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: mixAudio, filename: 'mix.wav' } });
+    if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
 
-    const job: Job = { id: jobId, taskId: task_id, status: 'running', songId, createdAt: Date.now() };
-    registerJob(job);
+    job.taskId = task_id;
+    job.status = 'running';
     void poll(job, async (result) => {
       job.resultPath = await downloadToScratch(result.file, audioFormat);
       await tagOutputFile(job.resultPath, {
@@ -83,6 +87,8 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
     }).finally(() => releaseGenLock(jobId));
     return job;
   } catch (err) {
+    job.status = 'failed';
+    job.error = err instanceof Error ? err.message : String(err);
     releaseGenLock(jobId);
     throw err;
   }

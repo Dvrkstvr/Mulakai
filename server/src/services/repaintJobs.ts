@@ -5,7 +5,7 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type TaskResult } from './acestep.js';
-import { type Job, registerJob, poll, ensureModelLoaded, fetchLyricTimestampsJson } from './jobs.js';
+import { type Job, registerJob, poll, ensureModelLoaded, fetchLyricTimestampsJson, wasAborted } from './jobs.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 import { tagOutputFile } from './fileTags.js';
 
@@ -31,21 +31,27 @@ export async function startRepaint(layerId: string, params: ReleaseTaskParams): 
 
   const jobId = crypto.randomUUID();
   acquireGenLock({ kind: 'repaint', jobId, songId: row.song_id });
+  // Registered before any await so a header ABORT fired during model-load/submission has
+  // something to mark (see jobs.ts's abortJob) instead of silently no-oping — the old
+  // register-after-submit shape left that whole window unabortable.
+  const job: Job = { id: jobId, taskId: '', status: 'loading', songId: row.song_id, createdAt: Date.now() };
+  registerJob(job);
   try {
     const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'repaint' };
     await ensureModelLoaded(fullParams);
+    if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: row.audio_file } });
+    if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
 
-    const job: Job = {
-      id: jobId, taskId: task_id, status: 'running',
-      songId: row.song_id, createdAt: Date.now(),
-    };
-    registerJob(job);
+    job.taskId = task_id;
+    job.status = 'running';
     void poll(job, (result) => persistVersion(layerId, result.file, fullParams, result, repaintLabel('repaint', params)))
       .finally(() => releaseGenLock(jobId));
     return job;
   } catch (err) {
+    job.status = 'failed';
+    job.error = err instanceof Error ? err.message : String(err);
     releaseGenLock(jobId);
     throw err;
   }
@@ -75,6 +81,8 @@ export async function startRegenerate(versionId: string): Promise<Job> {
 
   const jobId = crypto.randomUUID();
   acquireGenLock({ kind: 'regenerate', jobId, songId: layerRow.song_id });
+  const job: Job = { id: jobId, taskId: '', status: 'loading', songId: layerRow.song_id, createdAt: Date.now() };
+  registerJob(job);
   try {
     let srcAudio: { data: Buffer; filename: string } | undefined;
     if (taskType === 'repaint') {
@@ -87,18 +95,19 @@ export async function startRegenerate(versionId: string): Promise<Job> {
 
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType };
     await ensureModelLoaded(fullParams);
+    if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
+    if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
 
-    const job: Job = {
-      id: jobId, taskId: task_id, status: 'running',
-      songId: layerRow.song_id, createdAt: Date.now(),
-    };
-    registerJob(job);
+    job.taskId = task_id;
+    job.status = 'running';
     const label = taskType === 'repaint' ? repaintLabel('alt', freshParams) : `alt: ${version.label || 'generation'}`;
     void poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false))
       .finally(() => releaseGenLock(jobId));
     return job;
   } catch (err) {
+    job.status = 'failed';
+    job.error = err instanceof Error ? err.message : String(err);
     releaseGenLock(jobId);
     throw err;
   }
@@ -136,6 +145,8 @@ export async function startSimilarTake(versionId: string): Promise<Job> {
 
   const jobId = crypto.randomUUID();
   acquireGenLock({ kind: 'retake', jobId, songId: layerRow.song_id });
+  const job: Job = { id: jobId, taskId: '', status: 'loading', songId: layerRow.song_id, createdAt: Date.now() };
+  registerJob(job);
   try {
     let srcAudio: { data: Buffer; filename: string } | undefined;
     if (taskType === 'repaint') {
@@ -148,18 +159,19 @@ export async function startSimilarTake(versionId: string): Promise<Job> {
 
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType };
     await ensureModelLoaded(fullParams);
+    if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
+    if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
 
-    const job: Job = {
-      id: jobId, taskId: task_id, status: 'running',
-      songId: layerRow.song_id, createdAt: Date.now(),
-    };
-    registerJob(job);
+    job.taskId = task_id;
+    job.status = 'running';
     const label = taskType === 'repaint' ? repaintLabel('similar', freshParams) : `similar: ${version.label || 'generation'}`;
     void poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false))
       .finally(() => releaseGenLock(jobId));
     return job;
   } catch (err) {
+    job.status = 'failed';
+    job.error = err instanceof Error ? err.message : String(err);
     releaseGenLock(jobId);
     throw err;
   }

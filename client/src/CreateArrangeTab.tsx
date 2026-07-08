@@ -9,6 +9,7 @@ import { useGenerationStore } from './generationStore';
 import { useVoiceStore } from './voiceStore';
 import { useModelsForTask } from './useModelsForTask';
 import { useSettings, genParams } from './settings';
+import { AutoTextarea } from './AutoTextarea';
 
 interface Props {
   title: string;
@@ -124,10 +125,10 @@ export function CreateArrangeTab({ title, onBack }: Props) {
       )}
 
       <div className="query-row">
-        <input
+        <AutoTextarea
           placeholder="Optional — describe the accompaniment (style, mood, instruments)"
           value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
+          onChange={setPrompt}
         />
         <button className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'} disabled={luckyLoading || busy} onClick={feelingLucky}>
           {luckyLoading ? 'ROLLING…' : 'FEELING LUCKY'}

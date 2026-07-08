@@ -17,6 +17,19 @@ export interface Song {
   cover_art_file: string | null;
 }
 
+export interface LyricTag {
+  tag: string;
+  kind: 'section' | 'inline';
+  count: number;
+}
+
+export interface LyricTagProbeStatus {
+  running: boolean;
+  completed: number;
+  lastRunAt: string | null;
+  lastError: string | null;
+}
+
 export interface OutputMetadata {
   artist: string;
   encoder: string;
@@ -118,10 +131,21 @@ export interface Voice {
   created_at: string;
 }
 
+/** Thrown by `json()` for a non-OK response, carrying the HTTP status so callers can tell
+ * "this job/lock is gone" (404 — e.g. aborted from the header's status pill, see
+ * editorJobStore.ts's startSplit poll) apart from a transient network/server error. */
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.status = status;
+  }
+}
+
 async function json<T>(res: Response): Promise<T> {
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`);
+    throw new ApiError((body as { error?: string }).error ?? `HTTP ${res.status}`, res.status);
   }
   return res.json() as Promise<T>;
 }
@@ -197,6 +221,11 @@ export const api = {
    * "generating" card after a page refresh mid-generation. */
   activeGeneration: (): Promise<{ active: ActiveGeneration | null }> =>
     fetch('/api/generate/active').then((r) => json(r)),
+
+  /** Dev convenience: force-stop whatever currently holds the generation lock
+   * (any kind, including a Demucs/ACE-Step split) — see Header's status pill. */
+  abortActive: (): Promise<{ ok: boolean; aborted: boolean }> =>
+    fetch('/api/generate/active/abort', { method: 'POST' }).then((r) => json(r)),
 
   acestepHealth: (): Promise<{ acestep: boolean }> =>
     fetch('/api/generate/health').then((r) => json(r)),
@@ -406,6 +435,18 @@ export const api = {
 
   deleteSongCoverArt: (id: string): Promise<void> =>
     fetch(`/api/songs/${id}/cover-art`, { method: 'DELETE' }).then(() => undefined),
+
+  listLyricTags: (): Promise<LyricTag[]> =>
+    fetch('/api/lyric-tags').then((r) => json<{ tags: LyricTag[] }>(r)).then((d) => d.tags),
+
+  getLyricTagProbeStatus: (): Promise<LyricTagProbeStatus> =>
+    fetch('/api/lyric-tags/status').then((r) => json<LyricTagProbeStatus>(r)),
+
+  probeLyricTags: (): Promise<{ status: string }> =>
+    fetch('/api/lyric-tags/probe', { method: 'POST' }).then((r) => json<{ status: string }>(r)),
+
+  stopLyricTagProbe: (): Promise<{ status: string }> =>
+    fetch('/api/lyric-tags/probe/stop', { method: 'POST' }).then((r) => json<{ status: string }>(r)),
 
   getOutputMetadata: (): Promise<OutputMetadata> =>
     fetch('/api/output-metadata').then((r) => json<OutputMetadata>(r)),

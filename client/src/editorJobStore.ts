@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { api, type StemResult } from './api';
+import { api, ApiError, type StemResult } from './api';
 
 export type Stage = 'running' | 'done' | 'failed';
 
@@ -161,7 +161,14 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
       let result: Awaited<ReturnType<typeof api.splitStatus>>;
       try {
         result = await api.splitStatus(splitJobId);
-      } catch {
+      } catch (err) {
+        // 404 = the job was force-stopped elsewhere (header's ABORT pill, or another
+        // tab) — stemSplit.ts's cancelSplit deletes it outright, so unlike other job
+        // kinds there's no "aborted" status to poll for. Any other error is transient.
+        if (err instanceof ApiError && err.status === 404) {
+          set((s) => (s.editorJob?.kind === 'split' && s.editorJob.splitJobId === splitJobId ? { editorJob: null } : {}));
+          return;
+        }
         continue;
       }
       set((s) => (s.editorJob?.kind === 'split' && s.editorJob.splitJobId === splitJobId

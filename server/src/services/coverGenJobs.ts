@@ -9,7 +9,7 @@
  */
 import crypto from 'node:crypto';
 import { releaseTask, type ReleaseTaskParams } from './acestep.js';
-import { type Job, run, registerJob, persistSong, poll, ensureModelLoaded } from './jobs.js';
+import { type Job, run, registerJob, persistSong, poll, ensureModelLoaded, wasAborted } from './jobs.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 
 export function startCoverGeneration(
@@ -24,8 +24,10 @@ export function startCoverGeneration(
   void run(job, async () => {
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'cover' };
     await ensureModelLoaded(fullParams);
+    if (wasAborted(job)) return; // aborted while the model was loading (see abortJob)
     job.status = 'running';
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: 'source.wav' }, referenceAudio });
+    if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
     job.taskId = task_id;
     await poll(job, (result) => persistSong(result.file, fullParams, result, title));
   }).finally(() => releaseGenLock(job.id));

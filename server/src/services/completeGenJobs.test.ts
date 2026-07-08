@@ -25,7 +25,7 @@ vi.mock('./jobs.js', async () => {
 });
 
 const { db } = await import('../db/index.js');
-const { getJob } = await import('./jobs.js');
+const { getJob, abortJob } = await import('./jobs.js');
 const { startCompleteGeneration } = await import('./completeGenJobs.js');
 
 async function waitForDone(jobId: string) {
@@ -84,5 +84,27 @@ describe('startCompleteGeneration', () => {
     const after = db.prepare(`SELECT COUNT(*) as c FROM songs`).get() as { c: number };
     expect(after.c).toBe(before.c + 1);
     expect(getJob(job.id)?.songId).toBeTruthy();
+  });
+
+  it('does not persist a song if aborted while ACE-Step was still accepting the submission', async () => {
+    releaseTask.mockClear();
+    const before = db.prepare(`SELECT COUNT(*) as c FROM songs`).get() as { c: number };
+    let job: ReturnType<typeof startCompleteGeneration>;
+    releaseTask.mockImplementationOnce(async () => {
+      abortJob(job.id);
+      return { task_id: 'task-1' };
+    });
+
+    job = startCompleteGeneration(
+      { data: Buffer.from('vocals'), filename: 'vocals.wav' },
+      'My Complete',
+      { prompt: 'add a full band', model: 'acestep-v15-xl-base' },
+    );
+
+    await vi.waitFor(() => expect(getJob(job.id)?.status).toBe('failed'));
+    expect(getJob(job.id)?.error).toBe('Aborted');
+    await new Promise((r) => setTimeout(r, 30));
+    const after = db.prepare(`SELECT COUNT(*) as c FROM songs`).get() as { c: number };
+    expect(after.c).toBe(before.c);
   });
 });

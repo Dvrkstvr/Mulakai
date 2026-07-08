@@ -20,9 +20,10 @@ vi.mock('./acestep.js', () => ({
   audioFileExt: vi.fn(() => 'wav'),
 }));
 
+const { db } = await import('../db/index.js');
 const { getJob } = await import('./jobs.js');
 const jobsModule = await import('./jobs.js');
-const { startGeneration } = jobsModule;
+const { startGeneration, abortJob } = jobsModule;
 
 async function waitForDone(jobId: string) {
   await vi.waitFor(() => {
@@ -55,5 +56,60 @@ describe('startGeneration with an ad-hoc reference-audio upload', () => {
 
     const [, opts] = releaseTask.mock.calls[0] as [Record<string, unknown>, { referenceAudio?: unknown } | undefined];
     expect(opts?.referenceAudio).toBeUndefined();
+  });
+});
+
+describe('startGeneration abort race (the exact bug: create-view GENERATE, then header ABORT)', () => {
+  it('does not persist a song if aborted while ACE-Step was still accepting the submission', async () => {
+    releaseTask.mockClear();
+    let job: ReturnType<typeof startGeneration>;
+    // Simulates the header's ABORT firing mid-submission: startGeneration registers the Job
+    // synchronously (before any await), so by the time releaseTask is invoked, abortJob can
+    // find and mark it — this used to be a silent no-op for repaint/addLayer/remaster (fixed
+    // alongside this), but startGeneration itself always registered early; this test locks
+    // in that the wasAborted() checks actually stop the flow before persistSong runs.
+    releaseTask.mockImplementationOnce(async () => {
+      abortJob(job.id);
+      return { task_id: 'task-1' };
+    });
+
+    job = startGeneration({ prompt: 'a driving synthwave track' }, 'Abort Race Song');
+
+    await vi.waitFor(() => {
+      expect(getJob(job.id)?.status).toBe('failed');
+    });
+    expect(getJob(job.id)?.error).toBe('Aborted');
+
+    // give any errant poll()/persistSong a moment to run — there should be none
+    await new Promise((r) => setTimeout(r, 30));
+    const row = db.prepare(`SELECT COUNT(*) as c FROM songs WHERE title = ?`).get('Abort Race Song') as { c: number };
+    expect(row.c).toBe(0);
+  });
+});
+
+describe('abortJob', () => {
+  it('marks a running job failed and releases the gen lock so the header can force-unblock it', async () => {
+    const { registerJob, abortJob, getJob } = jobsModule;
+    const { acquireGenLock, getGenLock } = await import('./genLock.js');
+    acquireGenLock({ kind: 'generate', jobId: 'abort-1' });
+    registerJob({ id: 'abort-1', taskId: 't', status: 'running', createdAt: Date.now() });
+
+    expect(abortJob('abort-1')).toBe(true);
+
+    expect(getJob('abort-1')?.status).toBe('failed');
+    expect(getJob('abort-1')?.error).toBe('Aborted');
+    expect(getGenLock()).toBeNull();
+  });
+
+  it('is a no-op for an unknown job id', () => {
+    expect(jobsModule.abortJob('does-not-exist')).toBe(false);
+  });
+
+  it('does not resurface a result for a job that already finished', async () => {
+    const { registerJob, abortJob, getJob } = jobsModule;
+    registerJob({ id: 'abort-2', taskId: 't', status: 'done', songId: 's1', createdAt: Date.now() });
+
+    expect(abortJob('abort-2')).toBe(false);
+    expect(getJob('abort-2')?.status).toBe('done');
   });
 });

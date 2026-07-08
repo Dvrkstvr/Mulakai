@@ -702,6 +702,16 @@ cover-capable model.
 - **Version storage growth**: each repaint/layer-add stores a new audio file;
   decide a retention/cleanup policy once real usage patterns are visible —
   don't over-engineer this before Phase 8.
+- **To-do: lyric-timestamp alignment for region selection** (raised
+  2026-07-08) — use `stable-ts` (a Whisper wrapper with more reliable
+  word-level timestamps than vanilla `openai-whisper`) to transcribe a
+  song's vocal layer and get per-word/line timestamps, then surface them in
+  the waveform/region-select UI so a lyric line can be clicked to snap the
+  selection to its actual timing instead of manual dragging. Likely needs
+  vocal isolation (e.g. Demucs, already referenced for `extract`) run first
+  for accuracy on a full mix. Runs as a Python subprocess akin to the
+  ACE-Step integration, not in the Node/Express server. Not yet scoped —
+  needs an `/opsx:propose` before implementation.
 
 ## Settings Screen (planned + implemented 2026-07-06)
 

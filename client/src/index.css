@@ -233,12 +233,53 @@ header {
   gap: 14px;
 }
 
-.health {
+.header-status {
   margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.health {
   font-weight: 700;
   font-size: 10px;
   letter-spacing: 1px;
   transition: color 0.2s ease;
+}
+
+.job-status-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.job-status-label {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--rust-text);
+}
+
+.job-abort-btn {
+  transform: skewX(-10deg);
+  border: 1px solid var(--rust);
+  background: var(--rust-tint);
+  color: var(--rust-text);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.job-abort-btn:hover:not(:disabled) {
+  background: var(--rust);
+  color: var(--carbon);
+}
+
+.job-abort-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
 }
 
 .health.ok {
@@ -270,6 +311,7 @@ header {
 
 input,
 textarea {
+  width: 100%;
   background: var(--panel);
   border: 1px solid var(--line-hi);
   color: var(--text-hi);
@@ -281,6 +323,18 @@ textarea {
 textarea {
   min-height: 70px;
   font-family: monospace;
+}
+
+/* AutoTextarea.tsx: grows with its content instead of scrolling internally —
+   overrides the monospace/fixed-height textarea defaults above and the
+   .create-content min-height below so height tracks scrollHeight exactly. */
+textarea.autosize {
+  min-height: unset;
+  height: auto;
+  font-family: inherit;
+  line-height: 1.4;
+  resize: none;
+  overflow: hidden;
 }
 
 select {
@@ -1410,9 +1464,59 @@ footer .player {
 }
 
 /* Refine preview claims the same right-rail column Editor uses for version
-   history — only reserved when a refine is in flight, previewed, or errored. */
+   history — only reserved when a refine is in flight, previewed, or errored.
+   Both column widths are overridden inline by CreateView.tsx's drag-to-resize
+   (useResizableWidth.ts) once the user drags a handle — these are just the
+   pre-drag/first-paint defaults. */
 .with-panel.create-layout.with-rail {
   grid-template-columns: 210px 1fr 300px;
+}
+
+/* Wraps a resizable side column so a ResizeHandle can anchor to its
+   center-facing edge (useResizableWidth.ts / ResizeHandle.tsx) — used by both
+   Create's settings/refine columns and Editor's left/version-history rails. */
+.resizable-col {
+  position: relative;
+  min-width: 0;
+}
+
+/* Create's columns stretch to the row's full height (.create-layout's
+   align-items:stretch) — the wrapper takes over that job from the component
+   it now wraps. Editor's columns intentionally size to their own content
+   instead (.editor-layout has no align-items:stretch), so this only applies
+   here. */
+.create-layout .resizable-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.create-layout .resizable-col>.settings-panel,
+.create-layout .resizable-col>.rail {
+  flex: 1;
+  min-height: 0;
+}
+
+.resize-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 7px;
+  cursor: col-resize;
+  z-index: 2;
+}
+
+.resize-handle-right {
+  right: -4px;
+}
+
+.resize-handle-left {
+  left: -4px;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background: var(--line-hi);
 }
 
 /* Gives the center column the same carbon-panel card treatment as the
@@ -1432,8 +1536,8 @@ footer .player {
 .create-content {
   max-width: 90%;
   width: 100%;
-  margin: 0 auto;
-  padding: 0px 12px;
+  margin: 12px auto;
+  padding: 0px 6px;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -1441,6 +1545,40 @@ footer .player {
 
 .create-content textarea {
   min-height: 90px;
+}
+
+.create-content textarea.autosize {
+  min-height: unset;
+}
+
+.create-content textarea.autosize.lyrics-input {
+  font-family: monospace;
+}
+
+/* Quick Start "AI thinking" reveal — ThinkingWipe.tsx, driven by useThinkingQuery.ts.
+   Sits over the PROMPT/LYRICS block (.thinking-host) while the LM expands a library-bar
+   query, then wipes away left-to-right in sync with the typewriter fill underneath. */
+.thinking-host {
+  position: relative;
+}
+
+.thinking-wipe {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.thinking-wipe-label {
+  position: relative;
+  z-index: 1;
+  color: var(--carbon);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 1px;
 }
 
 .type-tabs {
@@ -1598,7 +1736,8 @@ footer .player {
   gap: 10px;
 }
 
-.query-row input {
+.query-row input,
+.query-row textarea {
   flex: 1;
 }
 
@@ -2069,6 +2208,10 @@ footer .player {
 
 .stem-play:disabled::after {
   border-left-color: var(--text-low);
+}
+
+.stem-waveform-wrap {
+  width: 100%;
 }
 
 /* Pushes SPLIT (and the delete button right after it) all the way to the

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type TaskResult } from './acestep.js';
-import { type Job, type VoiceOptions, registerJob, poll, ensureModelLoaded } from './jobs.js';
+import { type Job, type VoiceOptions, registerJob, poll, ensureModelLoaded, wasAborted } from './jobs.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 import { tagOutputFile } from './fileTags.js';
@@ -30,6 +30,8 @@ export async function startAddLayer(
 
   const jobId = crypto.randomUUID();
   acquireGenLock({ kind: 'addLayer', jobId, songId });
+  const job: Job = { id: jobId, taskId: '', status: 'loading', songId, createdAt: Date.now() };
+  registerJob(job);
   try {
     const fullParams: ReleaseTaskParams = {
       audio_format: 'wav',
@@ -44,20 +46,21 @@ export async function startAddLayer(
       : undefined;
     if (ref) applyVoiceInfluence(fullParams, ref);
     await ensureModelLoaded(fullParams);
+    if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, {
       srcAudio: { data: mixAudio, filename: 'mix.wav' },
       ...(ref ? { referenceAudio: ref.referenceAudio } : {}),
     });
+    if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
 
-    const job: Job = {
-      id: jobId, taskId: task_id, status: 'running',
-      songId, createdAt: Date.now(),
-    };
-    registerJob(job);
+    job.taskId = task_id;
+    job.status = 'running';
     void poll(job, (result) => persistNewLayer(songId, layerName, result.file, fullParams, result))
       .finally(() => releaseGenLock(jobId));
     return job;
   } catch (err) {
+    job.status = 'failed';
+    job.error = err instanceof Error ? err.message : String(err);
     releaseGenLock(jobId);
     throw err;
   }

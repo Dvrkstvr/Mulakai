@@ -9,6 +9,7 @@ import { generateRouter } from './routes/generate.js';
 import { splitRouter } from './routes/split.js';
 import { voicesRouter } from './routes/voices.js';
 import { outputMetadataRouter } from './routes/outputMetadata.js';
+import { lyricTagsRouter } from './routes/lyricTags.js';
 import { sweepTrash } from './services/trashSweep.js';
 
 const app = express();
@@ -23,6 +24,7 @@ app.use('/api/generate', generateRouter);
 app.use('/api/split', splitRouter);
 app.use('/api/voices', voicesRouter);
 app.use('/api/output-metadata', outputMetadataRouter);
+app.use('/api/lyric-tags', lyricTagsRouter);
 app.use('/audio', express.static(config.audioDir));
 
 sweepTrash();

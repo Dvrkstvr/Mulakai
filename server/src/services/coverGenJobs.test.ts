@@ -25,7 +25,7 @@ vi.mock('./jobs.js', async () => {
 });
 
 const { db } = await import('../db/index.js');
-const { getJob } = await import('./jobs.js');
+const { getJob, abortJob } = await import('./jobs.js');
 const { startCoverGeneration } = await import('./coverGenJobs.js');
 
 async function waitForDone(jobId: string) {
@@ -59,5 +59,23 @@ describe('startCoverGeneration', () => {
     const after = db.prepare(`SELECT COUNT(*) as c FROM songs`).get() as { c: number };
     expect(after.c).toBe(before.c + 1);
     expect(getJob(job.id)?.songId).toBeTruthy();
+  });
+
+  it('does not persist a song if aborted while ACE-Step was still accepting the submission', async () => {
+    releaseTask.mockClear();
+    const before = db.prepare(`SELECT COUNT(*) as c FROM songs`).get() as { c: number };
+    let job: ReturnType<typeof startCoverGeneration>;
+    releaseTask.mockImplementationOnce(async () => {
+      abortJob(job.id);
+      return { task_id: 'task-1' };
+    });
+
+    job = startCoverGeneration(Buffer.from('source'), 'My Cover', { prompt: 'a driving synthwave track', model: 'acestep-v15-xl-sft' });
+
+    await vi.waitFor(() => expect(getJob(job.id)?.status).toBe('failed'));
+    expect(getJob(job.id)?.error).toBe('Aborted');
+    await new Promise((r) => setTimeout(r, 30));
+    const after = db.prepare(`SELECT COUNT(*) as c FROM songs`).get() as { c: number };
+    expect(after.c).toBe(before.c);
   });
 });

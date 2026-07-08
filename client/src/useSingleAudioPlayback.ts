@@ -9,12 +9,17 @@ import type { PlaybackApi } from './mix/playerApi';
  */
 export function useSingleAudioPlayback(src: string, autoPlay?: boolean): PlaybackApi {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Survives the `src` effect below re-running (new song selected): each fresh <audio>
+  // element otherwise starts at its own 1.0 default, silently overriding whatever the
+  // volume slider was last set to.
+  const volumeRef = useRef(1);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
     const a = new Audio(src);
+    a.volume = volumeRef.current;
     audioRef.current = a;
     const onPlay = () => setIsPlaying(true);
     const onPause = () => setIsPlaying(false);
@@ -48,6 +53,9 @@ export function useSingleAudioPlayback(src: string, autoPlay?: boolean): Playbac
     pause: () => audioRef.current?.pause(),
     stop: () => { const a = audioRef.current; if (a) { a.pause(); a.currentTime = 0; } setCurrentTime(0); },
     seek: (s: number) => { const a = audioRef.current; if (a) a.currentTime = s; setCurrentTime(s); },
-    setVolume: (v: number) => { if (audioRef.current) audioRef.current.volume = v; },
+    setVolume: (v: number) => {
+      volumeRef.current = v;
+      if (audioRef.current) audioRef.current.volume = v;
+    },
   };
 }

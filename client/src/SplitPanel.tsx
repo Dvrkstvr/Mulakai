@@ -26,7 +26,10 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const [error, setError] = useState('');
   const [playing, setPlaying] = useState<StemKind | null>(null);
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const pendingSeekRef = useRef<number | null>(null);
   const genJob = useGenerationStore((s) => s.job);
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
@@ -51,7 +54,22 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
 
   useEffect(() => {
     const audio = audioRef.current;
-    return () => audio?.pause();
+    if (!audio) return;
+    const onTime = () => setCurrentTime(audio.currentTime);
+    const onMeta = () => {
+      setDuration(audio.duration);
+      if (pendingSeekRef.current != null) {
+        audio.currentTime = pendingSeekRef.current;
+        pendingSeekRef.current = null;
+      }
+    };
+    audio.addEventListener('timeupdate', onTime);
+    audio.addEventListener('loadedmetadata', onMeta);
+    return () => {
+      audio.pause();
+      audio.removeEventListener('timeupdate', onTime);
+      audio.removeEventListener('loadedmetadata', onMeta);
+    };
   }, []);
 
   const canSubmit = !!model && !!health?.[model] && !mine && !busyElsewhere;
@@ -77,6 +95,19 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
       setPlaying(null);
       return;
     }
+    audio.src = `/audio/${audioFile}`;
+    void audio.play();
+    setPlaying(kind);
+  };
+
+  const seekPreview = (kind: StemKind, audioFile: string | undefined, seconds: number) => {
+    const audio = audioRef.current;
+    if (!audio || !audioFile) return;
+    if (playing === kind && audio.readyState >= 1) {
+      audio.currentTime = seconds;
+      return;
+    }
+    pendingSeekRef.current = seconds;
     audio.src = `/audio/${audioFile}`;
     void audio.play();
     setPlaying(kind);
@@ -164,8 +195,11 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
               nextVersion={nextVersion}
               busy={busyKind === stem.kind}
               playing={playing === stem.kind}
+              currentTime={playing === stem.kind ? currentTime : 0}
+              duration={duration}
               reextractBlocked={busyElsewhere}
               onTogglePreview={() => togglePreview(stem.kind, stem.audioFile)}
+              onSeek={(seconds) => seekPreview(stem.kind, stem.audioFile, seconds)}
               onClaim={(action) => claim(stem.kind, action)}
               onReextract={() => reextract(stem.kind)}
             />
@@ -173,7 +207,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
         </>
       )}
       {error && <div className="error">{error}</div>}
-      <audio ref={audioRef} onEnded={() => setPlaying(null)} />
+      <audio ref={audioRef} onEnded={() => { setPlaying(null); setCurrentTime(0); }} />
     </div>
   );
 }

@@ -18,6 +18,8 @@ import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useHeaderSlot } from './HeaderSlot';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
+import { useResizableWidth } from './useResizableWidth';
+import { ResizeHandle } from './ResizeHandle';
 
 interface Props {
   songId: string;
@@ -174,20 +176,27 @@ export function Editor({ songId, onBack }: Props) {
   const headerLeft = useMemo(() => <button onClick={() => onBackRef.current()}>← LIBRARY</button>, []);
   useHeaderSlot(headerLeft, null);
 
+  const leftWidth = useResizableWidth({ storageKey: 'mulakai:editorLeftWidth', default: 210, min: 180, max: 420, growsToward: 'right' });
+  const railWidth = useResizableWidth({ storageKey: 'mulakai:editorRailWidth', default: 300, min: 240, max: 520, growsToward: 'left' });
+  const gridTemplateColumns = `${leftWidth.width}px 1fr ${railWidth.width}px`;
+
   if (!song) return <div className="empty">Loading…</div>;
 
   return (
     <div className="editor-shell">
-      <div className="with-panel editor-layout">
-        <div className="left-rail">
-          <LyricsPanel
-            blocks={lyricsBlocks}
-            draft={lyricsDraft}
-            onDraftChange={setLyricsDraft}
-            activeBlock={activeLyricsBlock}
-            unlocked={lyricsUnlocked}
-          />
-          <SettingsPanel mode="repaint" />
+      <div className="with-panel editor-layout" style={{ gridTemplateColumns }}>
+        <div className="resizable-col">
+          <div className="left-rail">
+            <LyricsPanel
+              blocks={lyricsBlocks}
+              draft={lyricsDraft}
+              onDraftChange={setLyricsDraft}
+              activeBlock={activeLyricsBlock}
+              unlocked={lyricsUnlocked}
+            />
+            <SettingsPanel mode="repaint" />
+          </div>
+          <ResizeHandle side="right" onPointerDown={leftWidth.onPointerDown} />
         </div>
         <div className="editor-main">
       <div className="title-row">
@@ -240,30 +249,33 @@ export function Editor({ songId, onBack }: Props) {
       )}
         </div>
         {focusedLayer && (
-          <div className="rail">
-            {railMode === 'history' ? (
-              <>
-                <VersionHistory
+          <div className="resizable-col">
+            <ResizeHandle side="left" onPointerDown={railWidth.onPointerDown} />
+            <div className="rail">
+              {railMode === 'history' ? (
+                <>
+                  <VersionHistory
+                    songId={songId}
+                    layerId={focusedLayer.id}
+                    versions={focusedLayer.versions}
+                    onSelectRegion={setSelection}
+                    onLoadPrompt={setPrompt}
+                    onRevert={revert}
+                    onChanged={reload}
+                  />
+                  <button className="rail-export-btn" onClick={() => setRailMode('export')}><span>EXPORT</span></button>
+                </>
+              ) : railMode === 'export' ? (
+                <ExportPanel song={song} onBack={() => setRailMode('history')} />
+              ) : (
+                <SplitPanel
                   songId={songId}
-                  layerId={focusedLayer.id}
-                  versions={focusedLayer.versions}
-                  onSelectRegion={setSelection}
-                  onLoadPrompt={setPrompt}
-                  onRevert={revert}
+                  layer={focusedLayer}
                   onChanged={reload}
+                  onBack={() => setRailMode('history')}
                 />
-                <button className="rail-export-btn" onClick={() => setRailMode('export')}><span>EXPORT</span></button>
-              </>
-            ) : railMode === 'export' ? (
-              <ExportPanel song={song} onBack={() => setRailMode('history')} />
-            ) : (
-              <SplitPanel
-                songId={songId}
-                layer={focusedLayer}
-                onChanged={reload}
-                onBack={() => setRailMode('history')}
-              />
-            )}
+              )}
+            </div>
           </div>
         )}
       </div>

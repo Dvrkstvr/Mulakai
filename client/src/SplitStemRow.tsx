@@ -1,4 +1,5 @@
 import type { StemKind, StemResult } from './api';
+import { PlayerWaveform } from './PlayerWaveform';
 
 const STEM_LABELS: Record<StemKind, string> = {
   vocals: 'Vocals',
@@ -13,14 +14,17 @@ interface Props {
   nextVersion: number;
   busy: boolean;
   playing: boolean;
+  currentTime: number;
+  duration: number;
   reextractBlocked: boolean;
   onTogglePreview: () => void;
+  onSeek: (seconds: number) => void;
   onClaim: (action: 'replace' | 'add-layer') => void;
   onReextract: () => void;
 }
 
 /** One stem's row in SplitPanel — preview, status, and REPLACE/ADD LAYER/RE-EXTRACT. */
-export function SplitStemRow({ stem, layerName, nextVersion, busy, playing, reextractBlocked, onTogglePreview, onClaim, onReextract }: Props) {
+export function SplitStemRow({ stem, layerName, nextVersion, busy, playing, currentTime, duration, reextractBlocked, onTogglePreview, onSeek, onClaim, onReextract }: Props) {
   const locked = !!stem.claimed;
   const ready = stem.status === 'done' && !locked && !busy;
   const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy && !reextractBlocked;
@@ -36,6 +40,11 @@ export function SplitStemRow({ stem, layerName, nextVersion, busy, playing, reex
         />
         <span className="stem-name">{STEM_LABELS[stem.kind]}</span>
       </div>
+      {stem.status === 'done' && !locked && stem.audioFile && (
+        <div className="stem-waveform-wrap">
+          <PlayerWaveform audioUrl={`/audio/${stem.audioFile}`} duration={duration} playhead={currentTime} onSeek={onSeek} height={28} />
+        </div>
+      )}
       {locked ? (
         <div className="hint">{stem.claimed === 'replaced' ? `replaced ${layerName}` : 'added as new layer'}</div>
       ) : stem.status === 'running' ? (

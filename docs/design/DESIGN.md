@@ -463,11 +463,16 @@ rule above, not a loosening of it. It applies **only** to:
   place of a flat spinner);
 - the "processing" placeholder shown over a waveform/lane awaiting AI
   output;
-- the `AI ENHANCE` and `THINKING MODE` toggles, while active.
+- the `AI ENHANCE` and `THINKING MODE` toggles, while active;
+- Create's Quick Start reveal: the library create bar's typed idea is
+  expanded into a full draft by the LM on the Create screen — the
+  PROMPT/LYRICS block shimmers solid while the LM works, then wipes away
+  left-to-right in one sweep as the result types in underneath
+  (`ThinkingWipe.tsx` / `useThinkingQuery.ts`).
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
 keeps the strict one-hue-per-job rule — if a future feature wants to reuse
-this shimmer outside these three cases, that's a scope question, not a
+this shimmer outside these four cases, that's a scope question, not a
 default.
 
 ## Copy rules

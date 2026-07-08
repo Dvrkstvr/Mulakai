@@ -27,7 +27,7 @@ vi.mock('./jobs.js', async () => {
 
 const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
-const { getJob } = await import('./jobs.js');
+const { getJob, getActiveGeneration, abortJob } = await import('./jobs.js');
 const { startRegenerate, startSimilarTake, startRepaint } = await import('./repaintJobs.js');
 
 function seedVersion(seed = 'original-seed-123'): { layerId: string; versionId: string } {
@@ -139,5 +139,31 @@ describe('startRepaint lyrics persistence', () => {
     await waitForDone(job.id);
 
     expect(songLyricsFor(layerId)).toBe('original lyrics');
+  });
+});
+
+describe('startRepaint abort race', () => {
+  it('does not poll or persist a version if aborted while ACE-Step was still accepting the submission', async () => {
+    releaseTask.mockClear();
+    const { layerId } = seedVersion();
+    const before = db.prepare(`SELECT COUNT(*) as c FROM versions WHERE layer_id = ?`).get(layerId) as { c: number };
+
+    // Simulates the header's ABORT firing mid-submission: the job is already registered
+    // (see repaintJobs.ts registering before any await) by the time releaseTask is called,
+    // so abortJob can find and mark it — this is the exact window that used to be a silent no-op.
+    releaseTask.mockImplementationOnce(async () => {
+      const { lock } = getActiveGeneration();
+      if (lock) abortJob(lock.jobId);
+      return { task_id: 'task-1' };
+    });
+
+    const job = await startRepaint(layerId, { prompt: 'a song', repainting_start: 0, repainting_end: 10 });
+
+    expect(job.status).toBe('failed');
+    expect(job.error).toBe('Aborted');
+    // give any errant poll() a moment to run — there should be none
+    await new Promise((r) => setTimeout(r, 30));
+    const after = db.prepare(`SELECT COUNT(*) as c FROM versions WHERE layer_id = ?`).get(layerId) as { c: number };
+    expect(after.c).toBe(before.c);
   });
 });

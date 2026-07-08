@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { api, type Song, type RefineResult } from './api';
 import { SettingsPanel } from './SettingsPanel';
 import { CustomSelect } from './CustomSelect';
@@ -15,6 +15,12 @@ import type { CreateDraft } from './createDraft';
 import { useGenerationStore } from './generationStore';
 import { CreateAudioTab } from './CreateAudioTab';
 import { CreateArrangeTab } from './CreateArrangeTab';
+import { AutoTextarea } from './AutoTextarea';
+import { useThinkingQuery } from './useThinkingQuery';
+import { ThinkingWipe } from './ThinkingWipe';
+import { typewrite } from './typewriter';
+import { useResizableWidth } from './useResizableWidth';
+import { ResizeHandle } from './ResizeHandle';
 
 /** Small pill mirroring SettingsPanel's `.toggle-ai` shimmer, so a field visibly
  * carries the same AI ENHANCE treatment whether it's a toggle or a plain field. */
@@ -61,10 +67,23 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
   const [luckyLoading, setLuckyLoading] = useState(false);
   const [luckyConfirm, setLuckyConfirm] = useState(false);
   const [luckyError, setLuckyError] = useState('');
-  const [queryText, setQueryText] = useState('');
-  const [queryLoading, setQueryLoading] = useState(false);
-  const [queryConfirm, setQueryConfirm] = useState(false);
-  const [queryError, setQueryError] = useState('');
+
+  const [pendingResult, setPendingResult] = useState<RefineResult | null>(null);
+  const { phase: thinkPhase, error: thinkError, retry: retryThink, finish: finishThink } =
+    useThinkingQuery(initialDraft.pendingQuery, setPendingResult);
+
+  useEffect(() => {
+    if (thinkPhase !== 'revealing' || !pendingResult) return;
+    if (pendingResult.bpm) setBpm(pendingResult.bpm);
+    if (pendingResult.key_scale) setKeyScale(pendingResult.key_scale);
+    if (pendingResult.time_signature) setTimeSignature(pendingResult.time_signature);
+    if (pendingResult.vocal_language) setVocalLanguage(pendingResult.vocal_language);
+    if (pendingResult.duration) setDuration(pendingResult.duration);
+    const stopPrompt = typewrite(pendingResult.caption, setPrompt, 700);
+    const stopLyrics = typewrite(pendingResult.lyrics, setLyrics, 900);
+    return () => { stopPrompt(); stopLyrics(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [thinkPhase, pendingResult]);
 
   const metaParams = () => ({
     ...(bpm > 0 ? { bpm } : {}),
@@ -139,21 +158,6 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
     }
   };
 
-  const runQuery = async () => {
-    if (!queryText) return;
-    if (hasDraftContent && !queryConfirm) { setQueryConfirm(true); return; }
-    setQueryConfirm(false);
-    setQueryError('');
-    setQueryLoading(true);
-    try {
-      applySample(await api.sampleFromQuery(queryText));
-    } catch (err) {
-      setQueryError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setQueryLoading(false);
-    }
-  };
-
   const onBackRef = useRef(onBack);
   onBackRef.current = onBack;
   const headerLeft = useMemo(() => <button onClick={() => onBackRef.current()}>&#8592; LIBRARY</button>, []);
@@ -162,10 +166,17 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
   const showRail = refining || !!refinePreview || !!refineError;
   const referenceAudioTaskType = genType === 'audio' ? 'cover' : genType === 'complete' ? 'complete' : 'text2music';
 
+  const settingsWidth = useResizableWidth({ storageKey: 'mulakai:createSettingsWidth', default: 210, min: 180, max: 420, growsToward: 'right' });
+  const railWidth = useResizableWidth({ storageKey: 'mulakai:createRailWidth', default: 300, min: 240, max: 520, growsToward: 'left' });
+  const gridTemplateColumns = `${settingsWidth.width}px 1fr${showRail ? ` ${railWidth.width}px` : ''}`;
+
   return (
     <div className="create-shell">
-      <div className={showRail ? 'with-panel create-layout with-rail' : 'with-panel create-layout'}>
-        <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} referenceAudioTaskType={referenceAudioTaskType} />
+      <div className={showRail ? 'with-panel create-layout with-rail' : 'with-panel create-layout'} style={{ gridTemplateColumns }}>
+        <div className="resizable-col">
+          <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} referenceAudioTaskType={referenceAudioTaskType} />
+          <ResizeHandle side="right" onPointerDown={settingsWidth.onPointerDown} />
+        </div>
         <div className="create-panel">
           <ScrollArea className="create-content">
             <div className="section-label">GENERATION TYPE</div>
@@ -175,47 +186,44 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
               <button className={genType === 'complete' ? 'tab active' : 'tab'} onClick={() => setGenType('complete')}><span>ARRANGE</span></button>
             </div>
 
-            <input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
+            <AutoTextarea placeholder="Title" value={title} onChange={setTitle} />
 
             {genType === 'audio' && <CreateAudioTab songs={songs} title={title} initialDraft={initialDraft} onBack={onBack} />}
             {genType === 'complete' && <CreateArrangeTab title={title} onBack={onBack} />}
 
             {genType === 'prompt' && (
               <>
-                <div className="section-label">QUICK START</div>
-                <div className="query-row">
-                  <input
-                    placeholder="Describe your song — e.g. sad indie rock ballad with reverb"
-                    value={queryText}
-                    onChange={(e) => { setQueryText(e.target.value); setQueryConfirm(false); }}
+                <div className="thinking-host">
+                  <div className="field-label-row">
+                    <span className="section-label">PROMPT</span>
+                    {gen.useFormat && <AiEnhanceBadge />}
+                  </div>
+                  <AutoTextarea
+                    placeholder="Describe it — style, mood, instruments"
+                    value={prompt}
+                    onChange={setPrompt}
+                    disabled={thinkPhase !== 'idle'}
                   />
-                  <button
-                    className={queryLoading ? 'lucky-btn loading' : 'lucky-btn'}
-                    disabled={!queryText || queryLoading}
-                    onClick={runQuery}
-                  >
-                    {queryLoading ? 'GENERATING…' : queryConfirm ? 'OVERWRITE? CONFIRM' : 'GENERATE DETAILS'}
-                  </button>
-                </div>
-                {queryConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}
-                {queryError && <div className="error">{queryError} <button onClick={runQuery}>RETRY</button></div>}
+                  <div className="lm-note">
+                    {gen.useFormat
+                      ? 'AI ENHANCE is on — prompt, lyrics, and any AUTO song details below are refined and filled in by the LM.'
+                      : 'AI ENHANCE is off — AUTO song details below are left for the model to decide, with no LM enhancement.'}
+                  </div>
 
-                <div className="field-label-row">
-                  <span className="section-label">PROMPT</span>
-                  {gen.useFormat && <AiEnhanceBadge />}
+                  <div className="field-label-row">
+                    <span className="section-label">LYRICS</span>
+                    {gen.useFormat && <AiEnhanceBadge />}
+                  </div>
+                  <AutoTextarea
+                    className="lyrics-input"
+                    placeholder="[verse]&#10;Lyrics (optional)"
+                    value={lyrics}
+                    onChange={setLyrics}
+                    disabled={thinkPhase !== 'idle'}
+                  />
+                  <ThinkingWipe phase={thinkPhase} onSwept={finishThink} />
                 </div>
-                <input placeholder="Describe it — style, mood, instruments" value={prompt} onChange={(e) => setPrompt(e.target.value)} />
-                <div className="lm-note">
-                  {gen.useFormat
-                    ? 'AI ENHANCE is on — prompt, lyrics, and any AUTO song details below are refined and filled in by the LM.'
-                    : 'AI ENHANCE is off — AUTO song details below are left for the model to decide, with no LM enhancement.'}
-                </div>
-
-                <div className="field-label-row">
-                  <span className="section-label">LYRICS</span>
-                  {gen.useFormat && <AiEnhanceBadge />}
-                </div>
-                <textarea placeholder="[verse]&#10;Lyrics (optional)" value={lyrics} onChange={(e) => setLyrics(e.target.value)} />
+                {thinkError && <div className="error">{thinkError} <button onClick={retryThink}>RETRY</button></div>}
 
                 <div className="refine-row">
                   <button
@@ -280,23 +288,26 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
           </ScrollArea>
         </div>
         {showRail && (
-          <RefineRail
-            refining={refining}
-            preview={refinePreview}
-            error={refineError}
-            current={{ prompt, lyrics, bpm, keyScale, timeSignature, vocalLanguage, duration }}
-            onRefine={refine}
-            onClose={closeRefine}
-            onAccept={{
-              prompt: setPrompt,
-              lyrics: setLyrics,
-              bpm: setBpm,
-              keyScale: setKeyScale,
-              timeSignature: setTimeSignature,
-              vocalLanguage: setVocalLanguage,
-              duration: setDuration,
-            }}
-          />
+          <div className="resizable-col">
+            <ResizeHandle side="left" onPointerDown={railWidth.onPointerDown} />
+            <RefineRail
+              refining={refining}
+              preview={refinePreview}
+              error={refineError}
+              current={{ prompt, lyrics, bpm, keyScale, timeSignature, vocalLanguage, duration }}
+              onRefine={refine}
+              onClose={closeRefine}
+              onAccept={{
+                prompt: setPrompt,
+                lyrics: setLyrics,
+                bpm: setBpm,
+                keyScale: setKeyScale,
+                timeSignature: setTimeSignature,
+                vocalLanguage: setVocalLanguage,
+                duration: setDuration,
+              }}
+            />
+          </div>
         )}
       </div>
     </div>

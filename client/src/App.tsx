@@ -5,7 +5,7 @@ import { Player } from './Player';
 import { CreateBar } from './CreateBar';
 import { CreateView } from './CreateView';
 import { SongDetailRail } from './SongDetailRail';
-import { promptDraft, reusePromptDraft, createCoverDraft, type CreateDraft } from './createDraft';
+import { reusePromptDraft, createCoverDraft, type CreateDraft } from './createDraft';
 import { LibraryToolbar, type LibraryFilter, type LibrarySort } from './LibraryToolbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSingleAudioPlayback } from './useSingleAudioPlayback';
@@ -98,7 +98,7 @@ export default function App() {
     }
   };
 
-  const openEditor = (id: string) => { setDetailSongId(null); setOpenSongId(id); };
+  const openEditor = (id: string) => { console.log('DEBUG openEditor', id); setDetailSongId(null); setOpenSongId(id); };
   const reusePrompt = (s: Song) => { setCreateDraft(reusePromptDraft(s)); setDetailSongId(null); setView('create'); };
   const createCover = (s: Song) => { setCreateDraft(createCoverDraft(s)); setDetailSongId(null); setView('create'); };
 
@@ -147,7 +147,7 @@ export default function App() {
         ) : (
           <motion.div className="view-fill" key="library" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
             <CreateBar
-              onCreate={(draftPrompt) => { setCreateDraft(promptDraft(draftPrompt)); setView('create'); }}
+              onCreate={(draft) => { setCreateDraft(draft); setView('create'); }}
               busy={!!genJob && genJob.stage !== 'failed'}
             />
 

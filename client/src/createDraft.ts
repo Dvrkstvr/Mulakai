@@ -16,9 +16,11 @@ export interface CreateDraft {
   keyScale?: string;
   timeSignature?: string;
   duration?: number;
+  /** A short idea typed into the library's create bar, not yet expanded by the LM —
+   * CreateView runs the expansion itself and plays the "AI thinking" reveal
+   * (useThinkingQuery.ts / ThinkingWipe.tsx) instead of blocking the library. */
+  pendingQuery?: string;
 }
-
-export const promptDraft = (prompt: string): CreateDraft => ({ prompt });
 
 export const reusePromptDraft = (song: Song): CreateDraft => ({
   genType: 'prompt',

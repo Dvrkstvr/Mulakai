@@ -25,7 +25,7 @@ vi.mock('./jobs.js', async () => {
 });
 
 const { db } = await import('../db/index.js');
-const { getJob } = await import('./jobs.js');
+const { getJob, getActiveGeneration, abortJob } = await import('./jobs.js');
 const { startRemaster } = await import('./remasterJobs.js');
 
 function seedSong(): string {
@@ -100,5 +100,22 @@ describe('startRemaster', () => {
     const done = getJob(job.id);
     expect(done?.resultPath).toBeTruthy();
     expect(fs.existsSync(done!.resultPath!)).toBe(true);
+  });
+
+  it('does not produce a resultPath if aborted while ACE-Step was still accepting the submission', async () => {
+    releaseTask.mockClear();
+    const songId = seedSong();
+    releaseTask.mockImplementationOnce(async () => {
+      const { lock } = getActiveGeneration();
+      if (lock) abortJob(lock.jobId);
+      return { task_id: 'task-1' };
+    });
+
+    const job = await startRemaster(songId, Buffer.from('mix'), 'acestep-v15-xl-sft');
+
+    expect(job.status).toBe('failed');
+    expect(job.error).toBe('Aborted');
+    await new Promise((r) => setTimeout(r, 30));
+    expect(getJob(job.id)?.resultPath).toBeUndefined();
   });
 });
