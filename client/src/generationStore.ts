@@ -13,6 +13,8 @@ export interface GenerationJob {
   startedAt: number;
   /** Prefills the Create screen if the user hits RETRY. */
   draft: CreateDraft;
+  /** Set once the job finishes — the new song's id, so the caller can load it into the player. */
+  songId?: string;
 }
 
 /** A generation lock held by something other than a song-generation job (repaint,
@@ -80,7 +82,7 @@ async function pollJob(jobId: string, set: (fn: (s: GenerationState) => Partial<
       continue;
     }
     if (s.status === 'done') {
-      set((state) => (state.job?.jobId === jobId ? { job: { ...state.job, stage: 'done' } } : {}));
+      set((state) => (state.job?.jobId === jobId ? { job: { ...state.job, stage: 'done', songId: s.songId } } : {}));
       setTimeout(() => {
         set((state) => (state.job?.jobId === jobId ? { job: null } : {}));
       }, DONE_LINGER_MS);

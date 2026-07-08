@@ -69,9 +69,16 @@ export default function App() {
 
   // The generating card's own store clears `job` a moment after it flips to 'done' (see
   // generationStore.ts's DONE_LINGER_MS) — refresh the library right as that happens so
-  // the real song row is already in `songs` by the time the placeholder unmounts.
+  // the real song row is already in `songs` by the time the placeholder unmounts, then load
+  // the freshly generated song into the footer player so it's ready to hit play immediately.
   useEffect(() => {
-    if (genJob?.stage === 'done') refresh();
+    if (genJob?.stage !== 'done' || !genJob.songId) return;
+    const newSongId = genJob.songId;
+    api.listSongs(query).then((list) => {
+      setSongs(list);
+      const newSong = list.find((s) => s.id === newSongId);
+      if (newSong) setPlaying(newSong);
+    }).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genJob?.stage]);
 
