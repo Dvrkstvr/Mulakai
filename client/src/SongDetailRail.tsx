@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState } from 'react';
-import { api, type Song } from './api';
+import { api, type Folder, type Song } from './api';
 import { timeSignatureLabel } from './songMeta';
+import { CustomSelect } from './CustomSelect';
 
 interface Props {
   song: Song;
+  folders: Folder[];
   onClose: () => void;
   onReusePrompt: (song: Song) => void;
   onCreateCover: (song: Song) => void;
   onRenamed: () => void;
 }
+
+const UNFILED = '';
 
 const fmtDuration = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -26,7 +30,7 @@ function MetaRow({ label, value }: { label: string; value: string }) {
  * row/title click (not EDIT, which still opens the full Editor).
  * Genre/album/cover art/comment are per-song output-file tag fields (Artist/Encoder/ID3
  * version stay as global defaults in Settings > Output File Metadata). */
-export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, onRenamed }: Props) {
+export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreateCover, onRenamed }: Props) {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
   const [comment, setComment] = useState(song.comment);
@@ -83,6 +87,11 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
     onRenamed();
   };
 
+  const folderOptions = [{ label: 'UNFILED', value: UNFILED }, ...folders.map((f) => ({ label: f.name.toUpperCase(), value: f.id }))];
+  const moveFolder = (folderId: string) => {
+    api.moveSongToFolder(song.id, folderId || null).then(onRenamed);
+  };
+
   return (
     <aside className="rail song-detail-rail">
       <div className="song-detail-panel">
@@ -107,6 +116,8 @@ export function SongDetailRail({ song, onClose, onReusePrompt, onCreateCover, on
           <div className="song-title" onDoubleClick={() => setEditing(true)}>{song.title}</div>
         )}
         <p className="meta">{song.caption}</p>
+
+        <CustomSelect label="FOLDER" value={song.folder_id ?? UNFILED} onChange={moveFolder} options={folderOptions} />
 
         <div className="detail-meta">
           <div className="section-header">METADATA</div>

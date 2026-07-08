@@ -11,10 +11,15 @@ export const songsRouter = Router();
 
 const coverArtUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
-/** List songs: favorites first, trashed excluded. ?q= searches title/caption/lyrics. */
+/** List songs: favorites first, trashed excluded. ?q= searches title/caption/lyrics.
+ * ?folder= scopes to one folder id, or the literal `unfiled` for songs with no folder;
+ * omitted entirely shows all songs regardless of folder. */
 songsRouter.get('/', (req, res) => {
   const q = String(req.query.q ?? '').trim();
   const like = `%${q}%`;
+  const folder = req.query.folder !== undefined ? String(req.query.folder) : null;
+  const folderClause = folder === null ? '1 = 1' : folder === 'unfiled' ? 's.folder_id IS NULL' : 's.folder_id = ?';
+  const folderParams = folder === null || folder === 'unfiled' ? [] : [folder];
   const rows = db
     .prepare(
       `SELECT s.*, (SELECT v.audio_file FROM versions v
@@ -24,9 +29,10 @@ songsRouter.get('/', (req, res) => {
        FROM songs s
        WHERE s.trashed_at IS NULL
          AND (? = '' OR s.title LIKE ? OR s.caption LIKE ? OR s.lyrics LIKE ?)
+         AND ${folderClause}
        ORDER BY s.favorite DESC, s.created_at DESC`,
     )
-    .all(q, like, like, like);
+    .all(q, like, like, like, ...folderParams);
   res.json(rows);
 });
 
@@ -132,6 +138,13 @@ songsRouter.delete('/:id/cover-art', async (req, res) => {
   if (song.cover_art_file) await fs.unlink(path.join(config.audioDir, song.cover_art_file)).catch(() => {});
   db.prepare(`UPDATE songs SET cover_art_file = NULL WHERE id = ?`).run(req.params.id);
   await retagSong(String(req.params.id));
+  res.json({ ok: true });
+});
+
+/** Files/refiles a song — `folder_id: null` (or omitted) moves it back to Unfiled. */
+songsRouter.patch('/:id/folder', (req, res) => {
+  const folderId = req.body?.folder_id ? String(req.body.folder_id) : null;
+  db.prepare(`UPDATE songs SET folder_id = ? WHERE id = ?`).run(folderId, req.params.id);
   res.json({ ok: true });
 });
 

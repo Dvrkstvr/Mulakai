@@ -13,6 +13,7 @@ import { AutoTextarea } from './AutoTextarea';
 
 interface Props {
   title: string;
+  folderId?: string;
   onBack: () => void;
 }
 
@@ -24,7 +25,7 @@ type ArrangeSource = 'upload' | 'split';
  * already-multi-layer song). Unlike AUDIO, the 5Hz LM is NOT skipped for `complete`
  * (docs/ace-step-1.5/API.md#4.2), so THINKING MODE / AI ENHANCE in the sidebar are live here —
  * see CreateView.tsx's `hideLmControls` check, which only targets the AUDIO tab. */
-export function CreateArrangeTab({ title, onBack }: Props) {
+export function CreateArrangeTab({ title, folderId, onBack }: Props) {
   const gen = useSettings((s) => s.gen);
   const [source, setSource] = useState<ArrangeSource>('upload');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
@@ -76,6 +77,7 @@ export function CreateArrangeTab({ title, onBack }: Props) {
         {
           title: title || 'Untitled', prompt, model, ...genParams(gen),
           ...(voice.selectedVoiceId ? { voice_id: voice.selectedVoiceId } : {}),
+          ...(folderId ? { folder_id: folderId } : {}),
         },
         src,
         draft,

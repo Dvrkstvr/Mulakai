@@ -16,6 +16,7 @@ import { AutoTextarea } from './AutoTextarea';
 interface Props {
   songs: Song[];
   title: string;
+  folderId?: string;
   initialDraft: CreateDraft;
   onBack: () => void;
 }
@@ -23,7 +24,7 @@ interface Props {
 /** AUDIO tab: "create cover from audio" — a `cover` generation conditioned on an uploaded
  * file or a client-bounced mix of an existing library song, persisted as a brand-new song.
  * Owns all of its own source/model/variance state, isolated from the PROMPT tab. */
-export function CreateAudioTab({ songs, title, initialDraft, onBack }: Props) {
+export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }: Props) {
   const [source, setSource] = useState<Source>(initialDraft.source ?? 'upload');
   const [librarySearch, setLibrarySearch] = useState('');
   const [selectedSongId, setSelectedSongId] = useState<string | null>(initialDraft.selectedSongId ?? null);
@@ -84,6 +85,7 @@ export function CreateAudioTab({ songs, title, initialDraft, onBack }: Props) {
         {
           title: title || 'Untitled', prompt, model, audio_cover_strength: 1 - variance,
           ...(voice.selectedVoiceId ? { voice_id: voice.selectedVoiceId } : {}),
+          ...(folderId ? { folder_id: folderId } : {}),
         },
         srcAudio,
         draft,

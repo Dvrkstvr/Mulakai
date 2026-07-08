@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { api, type Song } from './api';
+import { api, type Song, type Folder, type FolderScope } from './api';
+import { FolderRail } from './FolderRail';
 import { Editor } from './Editor';
 import { Player } from './Player';
 import { CreateBar } from './CreateBar';
@@ -33,6 +34,11 @@ export default function App() {
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<LibrarySort>('newest');
   const [filter, setFilter] = useState<LibraryFilter>('all');
+  const [folders, setFolders] = useState<Folder[]>([]);
+  const [folderScope, setFolderScope] = useState<FolderScope>(null);
+  const [totalSongCount, setTotalSongCount] = useState(0);
+  const activeFolder = folders.find((f) => f.id === folderScope) ?? null;
+  const unfiledCount = Math.max(0, totalSongCount - folders.reduce((sum, f) => sum + f.song_count, 0));
   const [online, setOnline] = useState<boolean | null>(null);
   const [playing, setPlaying] = useState<Song | null>(null);
   const [headerLeft, setHeaderLeft] = useState<ReactNode>(null);
@@ -50,10 +56,15 @@ export default function App() {
   const hydrateGenJob = useGenerationStore((s) => s.hydrate);
   const editorJob = useEditorJobStore((s) => s.editorJob);
 
-  const refresh = (q = query) => api.listSongs(q).then(setSongs).catch(() => {});
+  const refresh = (q = query, scope = folderScope) => api.listSongs(q, scope).then(setSongs).catch(() => {});
+  const refreshFolders = () => {
+    api.listFolders().then(setFolders).catch(() => {});
+    api.libraryStats().then((s) => setTotalSongCount(s.songCount)).catch(() => {});
+  };
 
   useEffect(() => {
     refresh();
+    refreshFolders();
     hydrateGenJob();
     const checkHealth = () =>
       api.acestepHealth().then((h) => setOnline(h.acestep)).catch(() => setOnline(false));
@@ -67,6 +78,13 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Re-fetch the song list whenever the folder scope changes — sort/filter stay local
+  // (client-side, see visibleSongs below) but folder scoping is a server-side query param.
+  useEffect(() => {
+    refresh(query, folderScope);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folderScope]);
+
   // The generating card's own store clears `job` a moment after it flips to 'done' (see
   // generationStore.ts's DONE_LINGER_MS) — refresh the library right as that happens so
   // the real song row is already in `songs` by the time the placeholder unmounts, then load
@@ -74,13 +92,16 @@ export default function App() {
   useEffect(() => {
     if (genJob?.stage !== 'done' || !genJob.songId) return;
     const newSongId = genJob.songId;
-    api.listSongs(query).then((list) => {
+    refreshFolders();
+    api.listSongs(query, folderScope).then((list) => {
       setSongs(list);
       const newSong = list.find((s) => s.id === newSongId);
       if (newSong) setPlaying(newSong);
     }).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genJob?.stage]);
+
+  const createFolder = (name: string) => api.createFolder(name).then(refreshFolders);
 
   const retryGeneration = () => {
     if (!genJob) return;
@@ -106,8 +127,22 @@ export default function App() {
   };
 
   const openEditor = (id: string) => { setDetailSongId(null); setOpenSongId(id); };
-  const reusePrompt = (s: Song) => { setCreateDraft(reusePromptDraft(s)); setDetailSongId(null); setView('create'); };
-  const createCover = (s: Song) => { setCreateDraft(createCoverDraft(s)); setDetailSongId(null); setView('create'); };
+  /** The folder a song already lives in, carried forward as the new draft's destination —
+   * not the library's current browsing scope, since REUSE PROMPT/CREATE COVER act on a
+   * specific song regardless of which folder view it was clicked from. */
+  const songFolder = (s: Song) => folders.find((f) => f.id === s.folder_id);
+  const reusePrompt = (s: Song) => {
+    const folder = songFolder(s);
+    setCreateDraft({ ...reusePromptDraft(s), ...(folder ? { folderId: folder.id, folderName: folder.name } : {}) });
+    setDetailSongId(null);
+    setView('create');
+  };
+  const createCover = (s: Song) => {
+    const folder = songFolder(s);
+    setCreateDraft({ ...createCoverDraft(s), ...(folder ? { folderId: folder.id, folderName: folder.name } : {}) });
+    setDetailSongId(null);
+    setView('create');
+  };
 
   const visibleSongs = useMemo(() => {
     let list = filter === 'favorites' ? songs.filter((s) => s.favorite) : songs;
@@ -154,7 +189,10 @@ export default function App() {
         ) : (
           <motion.div className="view-fill" key="library" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
             <CreateBar
-              onCreate={(draft) => { setCreateDraft(draft); setView('create'); }}
+              onCreate={(draft) => {
+                setCreateDraft(activeFolder ? { ...draft, folderId: activeFolder.id, folderName: activeFolder.name } : draft);
+                setView('create');
+              }}
               busy={!!genJob && genJob.stage !== 'failed'}
             />
 
@@ -169,6 +207,21 @@ export default function App() {
             />
 
             <ScrollArea className="library-layout">
+              <FolderRail
+                folders={folders}
+                scope={folderScope}
+                onScope={setFolderScope}
+                allCount={totalSongCount}
+                unfiledCount={unfiledCount}
+                onCreateFolder={createFolder}
+              />
+              <div className="library-main">
+              {(activeFolder || folderScope === 'unfiled') && (
+                <div className="scope-crumb">
+                  <span className="name">{activeFolder ? activeFolder.name : 'Unfiled'}</span>
+                  <span className="count">{visibleSongs.length} song{visibleSongs.length === 1 ? '' : 's'}</span>
+                </div>
+              )}
               <section className="library">
                 {genJob && <GeneratingCard job={genJob} onRetry={retryGeneration} />}
                 {visibleSongs.map((s, i) => (
@@ -190,21 +243,23 @@ export default function App() {
                     <div className="row-actions">
                       <button className="edit-btn" onClick={() => openEditor(s.id)}><span>EDIT</span></button>
                       <button className={s.favorite ? 'fav on' : 'fav'} onClick={() => api.setFavorite(s.id, !s.favorite).then(() => refresh())}>♥</button>
-                      <button onClick={() => api.trash(s.id).then(() => refresh())}>✕</button>
+                      <button onClick={() => api.trash(s.id).then(() => { refresh(); refreshFolders(); })}>✕</button>
                     </div>
                   </motion.div>
                 ))}
                 {visibleSongs.length === 0 && !genJob && <div className="empty">No songs yet — generate your first one above.</div>}
               </section>
+              </div>
               {detailSongId && (() => {
                 const detailSong = songs.find((s) => s.id === detailSongId);
                 return detailSong ? (
                   <SongDetailRail
                     song={detailSong}
+                    folders={folders}
                     onClose={() => setDetailSongId(null)}
                     onReusePrompt={reusePrompt}
                     onCreateCover={createCover}
-                    onRenamed={() => refresh()}
+                    onRenamed={() => { refresh(); refreshFolders(); }}
                   />
                 ) : null;
               })()}

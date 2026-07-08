@@ -20,6 +20,12 @@ export interface CreateDraft {
    * CreateView runs the expansion itself and plays the "AI thinking" reveal
    * (useThinkingQuery.ts / ThinkingWipe.tsx) instead of blocking the library. */
   pendingQuery?: string;
+  /** Carried over from whichever folder was active in the Library when Create was opened —
+   * the new song is filed there on generation, and its name informs the Title default
+   * (see CreateView.tsx's next-title fetch). Absent when Create was opened from
+   * All Songs/Unfiled, or the reuse/cover actions on a song with no folder. */
+  folderId?: string;
+  folderName?: string;
 }
 
 export const reusePromptDraft = (song: Song): CreateDraft => ({

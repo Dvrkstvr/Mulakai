@@ -22,3 +22,5 @@ ensureColumn('songs', 'comment', "comment TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'genre', "genre TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'album', "album TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'cover_art_file', 'cover_art_file TEXT');
+ensureColumn('songs', 'folder_id', 'folder_id TEXT REFERENCES folders(id) ON DELETE SET NULL');
+db.exec(`CREATE INDEX IF NOT EXISTS idx_songs_folder ON songs(folder_id)`);

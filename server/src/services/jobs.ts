@@ -96,7 +96,7 @@ export interface VoiceOptions {
 }
 
 /** Submit a text2music generation and persist the result as a new song with a base layer. */
-export function startGeneration(params: ReleaseTaskParams, title: string, voice?: VoiceOptions): Job {
+export function startGeneration(params: ReleaseTaskParams, title: string, voice?: VoiceOptions, folderId?: string | null): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
   acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt });
   jobs.set(job.id, job);
@@ -115,7 +115,7 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
     const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
     if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
     job.taskId = task_id;
-    await poll(job, (result) => persistSong(result.file, fullParams, result, title));
+    await poll(job, (result) => persistSong(result.file, fullParams, result, title, folderId));
   }).finally(() => releaseGenLock(job.id));
   return job;
 }
@@ -210,6 +210,7 @@ export async function persistSong(
   params: ReleaseTaskParams,
   result: TaskResult,
   title: string,
+  folderId?: string | null,
 ): Promise<string> {
   const audio = await downloadAudio(fileUrl);
   const lyricTimestamps = await fetchLyricTimestampsJson(result, params);
@@ -226,12 +227,13 @@ export async function persistSong(
   // ACE-Step's echo can come back with decoding artifacts, and every other write path
   // (repaintJobs.ts, versions.ts) already treats params.lyrics as the source of truth.
   db.prepare(
-    `INSERT INTO songs (id, title, caption, lyrics, bpm, key_scale, time_signature, duration)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO songs (id, title, caption, lyrics, bpm, key_scale, time_signature, duration, folder_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     songId, title, result.prompt, params.lyrics || result.lyrics,
     result.metas.bpm ?? null, result.metas.keyscale ?? '',
     result.metas.timesignature ?? '', result.metas.duration ?? null,
+    folderId ?? null,
   );
   db.prepare(
     `INSERT INTO layers (id, song_id, name, kind, position) VALUES (?, ?, 'Base', 'base', 0)`,
