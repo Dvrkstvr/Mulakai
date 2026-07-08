@@ -90,4 +90,9 @@ describe('fetchLyricTimestampsJson', () => {
     expect(await fetchLyricTimestampsJson(result({ metas: {} }), {})).toBeNull();
     expect(stub.lastArg).toBeUndefined();
   });
+
+  it('skips the request when ACE-Step reports duration as "N/A" (repaint results)', async () => {
+    expect(await fetchLyricTimestampsJson(result({ metas: { duration: 'N/A' as unknown as number } }), params)).toBeNull();
+    expect(stub.lastArg).toBeUndefined();
+  });
 });

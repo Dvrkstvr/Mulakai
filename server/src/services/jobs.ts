@@ -184,8 +184,12 @@ export async function fetchLyricTimestampsJson(
   // other error just means "no timestamps".
   try {
     const audioPath = rawPathFromAudioUrl(result.file);
-    const duration = result.metas.duration ?? params.audio_duration;
-    if (!audioPath || !duration || duration <= 0) return null;
+    // ACE-Step's metas.duration is typed as number but comes back as the literal
+    // string "N/A" for repaint/regenerate results where it isn't computed — Number()
+    // that case is NaN, which the isFinite check below rejects instead of forwarding
+    // an unparseable value that ACE-Step's /lyric_timestamp rejects with a 422.
+    const duration = Number(result.metas.duration ?? params.audio_duration);
+    if (!audioPath || !Number.isFinite(duration) || duration <= 0) return null;
     const aligned = await lyricTimestamp({
       audioPath,
       duration,
