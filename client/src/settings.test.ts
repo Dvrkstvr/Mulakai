@@ -1,7 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { genParams, useSettings, mergeSettings, type GenSettings } from './settings';
+import { genParams, repaintParams, addLayerParams, useSettings, mergeSettings, type GenSettings } from './settings';
 
 const baseGen = (): GenSettings => useSettings.getState().gen;
+const baseRepaint = () => useSettings.getState().repaint;
+const baseAddLayer = () => useSettings.getState().addLayer;
 
 describe('genParams', () => {
   it('omits AUTO/unset advanced fields by default', () => {
@@ -40,6 +42,29 @@ describe('genParams', () => {
     expect(p.cfg_interval_end).toBe(0.9);
     expect(p.lm_negative_prompt).toBe('quiet');
     expect(p.lm_top_k).toBe(40);
+  });
+});
+
+describe('shared advanced settings (repaint + add layer)', () => {
+  it('repaintParams emits the DiT advanced knobs but no LM knobs', () => {
+    const p = repaintParams({ ...baseRepaint(), useAdg: true, cfgIntervalStart: 0.2, shift: 2 });
+    expect(p.use_adg).toBe(true);
+    expect(p.cfg_interval_start).toBe(0.2);
+    expect(p.shift).toBe(2);
+    expect(p).not.toHaveProperty('lm_temperature');
+    expect(p).not.toHaveProperty('lm_cfg_scale');
+  });
+
+  it('addLayerParams takes steps/seed from the shared repaint slice and emits DiT + LM knobs', () => {
+    const r = { ...baseRepaint(), inferenceSteps: 40, randomSeed: false, seed: 7, useAdg: true, lmTopK: 30 };
+    const p = addLayerParams({ ...baseAddLayer(), model: 'acestep-v15-xl-base' }, r);
+    expect(p.model).toBe('acestep-v15-xl-base');
+    expect(p.inference_steps).toBe(40);
+    expect(p.use_random_seed).toBe(false);
+    expect(p.seed).toBe(7);
+    expect(p.use_adg).toBe(true);       // DiT advanced shared from repaint
+    expect(p.lm_temperature).toBe(0.85); // LM knobs emitted (lego runs the LM)
+    expect(p.lm_top_k).toBe(30);
   });
 });
 

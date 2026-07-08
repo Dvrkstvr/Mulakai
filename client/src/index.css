@@ -1591,6 +1591,39 @@ footer .player {
   min-width: 0;
 }
 
+/* Editor's grid intentionally sizes columns to content (no align-items:stretch),
+   which left the settings panel's own ScrollArea with no bounded parent to scroll
+   within — a tall list (Add Layer: lyrics + ADVANCED + LM knobs) then overflowed
+   the non-scrolling page and the lower settings were unreachable. Bind the left
+   rail to the row height so the settings panel flexes and its ScrollArea scrolls,
+   exactly as Create gets for free from .create-layout's align-items:stretch. The
+   voice block and lyrics panel above stay content-sized; only the settings slot
+   flexes. */
+.editor-layout .resizable-col:has(> .left-rail) {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.editor-layout .left-rail {
+  flex: 1;
+  min-height: 0;
+}
+
+.editor-layout .rail-settings-slot {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.editor-layout .rail-settings-slot > .settings-panel {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 0;
+}
+
 /* Create takeover: fixed left settings panel + a width-capped content
    column. Unlike Editor's waveform, a prompt/lyrics editor doesn't get more
    usable by being 3x wider, so extra viewport width is left as margin. */
@@ -2564,6 +2597,23 @@ footer .player {
 
 .setting-head .val {
   color: var(--acid);
+}
+
+/* Inline text button (e.g. "USE SONG LYRICS" prefill) — neutral, not a
+   semantic-colored action per docs/design/DESIGN.md's one-job-per-hue rule. */
+.linkish {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-mid);
+  font: inherit;
+  letter-spacing: 0.06em;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.linkish:hover:not(:disabled) {
+  color: var(--text-hi);
 }
 
 /* "?" hover/focus popup — CSS-only, no JS state (:hover/:focus-within), used

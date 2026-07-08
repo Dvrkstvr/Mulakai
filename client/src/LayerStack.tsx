@@ -21,6 +21,7 @@ interface Props {
   onSeek: (seconds: number) => void;
   processing?: boolean;
   onSplit: (layerId: string) => void;
+  onAddLayerExpandedChange?: (expanded: boolean) => void;
 }
 
 /**
@@ -31,7 +32,7 @@ interface Props {
  * stacked vertically. A single playhead line spans from the timeline through
  * every lane, since both share the same x-axis (no left column offset).
  */
-export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit }: Props) {
+export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit, onAddLayerExpandedChange }: Props) {
   const playheadPct = duration > 0 ? Math.min(100, Math.max(0, (playhead / duration) * 100)) : 0;
   const [addingLayer, setAddingLayer] = useState(false);
 
@@ -88,7 +89,13 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
           )}
         </div>
       </ScrollArea>
-      <AddLayerTrigger songId={songId} layers={layers} onDone={onChanged} onGeneratingChange={setAddingLayer} />
+      <AddLayerTrigger
+        songId={songId}
+        layers={layers}
+        onDone={onChanged}
+        onGeneratingChange={setAddingLayer}
+        onExpandedChange={onAddLayerExpandedChange}
+      />
     </div>
   );
 }

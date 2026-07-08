@@ -24,22 +24,42 @@ export interface GenSettings {
   lmRepetitionPenalty: number;
 }
 
-export interface RepaintSettings {
-  model: string; // '' = server default. No LM model here: ACE-Step skips the
-  // LM planner entirely for repaint (docs/ace-step-1.5/API.md#4.2).
+/** The advanced DiT/LM knobs edited by AdvancedGenSettings. Shared by GenSettings
+ * (structurally — it already carries every field) and RepaintSettings, so one
+ * panel can drive both Repaint and Add Layer (universal settings). */
+export interface AdvancedSettings {
+  shift: number; // 0 = AUTO
+  inferMethod: '' | 'ode' | 'sde'; // '' = AUTO
+  timesteps: string; // '' = unset; overrides inferenceSteps and shift when set
+  useAdg: boolean;
+  cfgIntervalStart: number;
+  cfgIntervalEnd: number;
+  lmTemperature: number;
+  lmCfgScale: number;
+  lmNegativePrompt: string; // '' = server default ("NO USER INPUT")
+  lmTopK: number; // 0 = disabled
+  lmTopP: number;
+  lmRepetitionPenalty: number;
+}
+
+export interface RepaintSettings extends AdvancedSettings {
+  model: string; // '' = server default.
   repaintStrength: number; // VARIANCE 0-1; inverse of audio_cover_strength
   inferenceSteps: number;
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;
+  // NB: the advanced DiT knobs (shift/adg/cfg-interval) are Base-model only and
+  // the LM knobs only apply to Add Layer (repaint skips the LM,
+  // docs/ace-step-1.5/API.md#4.2) — repaintParams therefore emits only the DiT
+  // subset, addLayerParams emits both. The values live here once, shared.
 }
 
 export interface AddLayerSettings {
   model: string; // '' = server default. Must be lego-capable (Base model) — client filters options.
-  // Steps/guidance are shared with RepaintSettings (see repaintParams) rather than
-  // duplicated here — Add Layer is another ACE-Step conditioning op on the same song.
-  randomSeed: boolean;
-  seed: number;
+  // Steps/guidance/seed and all advanced knobs are shared with RepaintSettings
+  // (see addLayerParams) rather than duplicated — Add Layer is another ACE-Step
+  // conditioning op on the same song. Only `model` is Add-Layer-specific.
 }
 
 /** ACE-Step's documented output formats (docs/ace-step-1.5/API.md#4.2) — no bitrate/sample-rate
@@ -119,11 +139,21 @@ export const useSettings = create<SettingsState>()(
         guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
+        shift: 0, // 0 = AUTO
+        inferMethod: '',
+        timesteps: '',
+        useAdg: false,
+        cfgIntervalStart: 0,
+        cfgIntervalEnd: 1,
+        lmTemperature: 0.85,
+        lmCfgScale: 2.5,
+        lmNegativePrompt: '',
+        lmTopK: 0,
+        lmTopP: 0.9,
+        lmRepetitionPenalty: 1,
       },
       addLayer: {
         model: '', // '' = AUTO — but AUTO isn't guaranteed lego-capable; UI requires an explicit pick.
-        randomSeed: true,
-        seed: 0,
       },
       exportSettings: {
         audioFormat: 'wav',
@@ -177,11 +207,37 @@ export function genParams(g: GenSettings) {
   };
 }
 
+/** Advanced DiT knobs (Base-model only). Shared by repaint and Add Layer. */
+function ditAdvancedParams(s: AdvancedSettings) {
+  return {
+    ...(s.shift > 0 ? { shift: s.shift } : {}),
+    ...(s.inferMethod ? { infer_method: s.inferMethod } : {}),
+    ...(s.timesteps.trim() ? { timesteps: s.timesteps.trim() } : {}),
+    use_adg: s.useAdg,
+    cfg_interval_start: s.cfgIntervalStart,
+    cfg_interval_end: s.cfgIntervalEnd,
+  };
+}
+
+/** 5Hz LM sampling knobs — only meaningful where the LM runs (text2music, lego,
+ * complete), so repaint deliberately does not emit these. */
+function lmAdvancedParams(s: AdvancedSettings) {
+  return {
+    lm_temperature: s.lmTemperature,
+    lm_cfg_scale: s.lmCfgScale,
+    ...(s.lmNegativePrompt.trim() ? { lm_negative_prompt: s.lmNegativePrompt.trim() } : {}),
+    ...(s.lmTopK > 0 ? { lm_top_k: s.lmTopK } : {}),
+    lm_top_p: s.lmTopP,
+    lm_repetition_penalty: s.lmRepetitionPenalty,
+  };
+}
+
 /**
  * Map repaint settings to ACE-Step request params (region added by caller).
  * `audio_cover_strength` (docs/ace-step-1.5/API.md#4.2) is the real knob:
  * higher = closer to source, lower = more freedom. VARIANCE is its inverse
- * so the slider reads "amount of change" the way the UI presents it.
+ * so the slider reads "amount of change" the way the UI presents it. Emits the
+ * DiT advanced knobs but not the LM ones (repaint skips the LM).
  */
 export function repaintParams(r: RepaintSettings) {
   return {
@@ -192,13 +248,15 @@ export function repaintParams(r: RepaintSettings) {
     ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
     use_random_seed: r.randomSeed,
     ...(r.randomSeed ? {} : { seed: r.seed }),
+    ...ditAdvancedParams(r),
   };
 }
 
 /**
- * Map Add Layer settings to ACE-Step request params. `model` is required (lego
- * needs a Base model). Steps/guidance come from RepaintSettings — Add Layer has
- * no dedicated controls for these, so it shares whatever the user set for repaint.
+ * Map Add Layer settings to ACE-Step request params. `model` is Add-Layer-specific
+ * (lego needs a Base model); steps/guidance/seed and all advanced knobs are shared
+ * with repaint — the same left-rail panel edits both. `lego` runs the LM, so unlike
+ * repaint this also emits the LM knobs.
  */
 export function addLayerParams(a: AddLayerSettings, r: RepaintSettings) {
   return {
@@ -206,7 +264,9 @@ export function addLayerParams(a: AddLayerSettings, r: RepaintSettings) {
     ...(a.model ? { model: a.model } : {}),
     ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
     ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
-    use_random_seed: a.randomSeed,
-    ...(a.randomSeed ? {} : { seed: a.seed }),
+    use_random_seed: r.randomSeed,
+    ...(r.randomSeed ? {} : { seed: r.seed }),
+    ...ditAdvancedParams(r),
+    ...lmAdvancedParams(r),
   };
 }

@@ -12,6 +12,9 @@ interface Props {
 
 type RefMode = 'none' | 'voice' | 'upload';
 
+const AUDIO_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s actual sound (timbre, vocal tone, mixing) — higher pulls the result closer to the reference audio itself.';
+const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s genre/style character — higher pulls the result toward the reference\'s overall style rather than just your prompt.';
+
 /**
  * Shared reference-audio control for all three Create tabs (PROMPT/AUDIO/ARRANGE), rendered
  * from the Generation Settings sidebar so the choice persists across tab switches. Either a
@@ -63,9 +66,9 @@ export function ReferenceAudioPicker({ taskType }: Props) {
       {(selected || uploadedRefFile) && (
         <>
           <Slider label="AUDIO INFLUENCE" value={Math.round(audioInfluence * 100)} min={0} max={100} step={5}
-            color="var(--sky)" onChange={(v) => setAudioInfluence(v / 100)} />
+            color="var(--sky)" info={AUDIO_INFLUENCE_INFO} onChange={(v) => setAudioInfluence(v / 100)} />
           <Slider label="STYLE INFLUENCE" value={Math.round(styleInfluence * 100)} min={0} max={100} step={5}
-            color="var(--sky)" onChange={(v) => setStyleInfluence(v / 100)} />
+            color="var(--sky)" info={STYLE_INFLUENCE_INFO} onChange={(v) => setStyleInfluence(v / 100)} />
           <div className="hint">
             {selected ? `will condition on voice "${selected.name}"` : 'will condition on the uploaded reference clip'}
             {taskType === 'cover'

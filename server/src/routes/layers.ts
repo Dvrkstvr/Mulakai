@@ -50,7 +50,8 @@ const REPAINT_MAX_SECONDS = 90;
 /** Repaint a region of this layer's active version -> new version. */
 layersRouter.post('/:id/repaint', async (req, res) => {
   const { prompt = '', start = 0, end = -1, audio_cover_strength,
-    inference_steps, guidance_scale, use_random_seed, seed, model, lyrics, audio_format } = req.body ?? {};
+    inference_steps, guidance_scale, use_random_seed, seed, model, lyrics, audio_format,
+    shift, infer_method, timesteps, use_adg, cfg_interval_start, cfg_interval_end } = req.body ?? {};
   const regionStart = Number(start);
   const regionEnd = Number(end);
   if (regionEnd > 0) {
@@ -72,6 +73,12 @@ layersRouter.post('/:id/repaint', async (req, res) => {
       ...(guidance_scale !== undefined ? { guidance_scale: Number(guidance_scale) } : {}),
       ...(use_random_seed === false ? { use_random_seed: false } : {}),
       ...(seed !== undefined && use_random_seed === false ? { seed: Number(seed) } : {}),
+      ...(shift !== undefined ? { shift: Number(shift) } : {}),
+      ...(infer_method ? { infer_method: infer_method as 'ode' | 'sde' } : {}),
+      ...(typeof timesteps === 'string' && timesteps.trim() ? { timesteps } : {}),
+      ...(use_adg !== undefined ? { use_adg: Boolean(use_adg) } : {}),
+      ...(cfg_interval_start !== undefined ? { cfg_interval_start: Number(cfg_interval_start) } : {}),
+      ...(cfg_interval_end !== undefined ? { cfg_interval_end: Number(cfg_interval_end) } : {}),
     });
     res.status(202).json({ jobId: job.id });
   } catch (err) {

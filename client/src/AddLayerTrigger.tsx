@@ -1,10 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api, type Layer } from './api';
+import { useAddLayerDraft } from './addLayerStore';
 import { useSettings, addLayerParams } from './settings';
 import { activeLayers } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
-import { VoicePicker } from './VoicePicker';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
@@ -16,6 +16,9 @@ interface Props {
   onDone: () => Promise<void>;
   /** Notifies LayerStack so it can show a matching ghost lane while the job is in flight. */
   onGeneratingChange?: (generating: boolean) => void;
+  /** Mirrors the row's CSS hover/focus-within expand state so Editor can show the voice
+   * picker in the left rail (see VoicePicker usage) instead of squeezed into this row. */
+  onExpandedChange?: (expanded: boolean) => void;
 }
 
 /**
@@ -25,12 +28,15 @@ interface Props {
  * 'lego' (Base model only, per docs/ace-step-1.5/API.md#4.2); shows a
  * disabled explanation otherwise.
  */
-export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: Props) {
+export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, onExpandedChange }: Props) {
   const { addLayer, setAddLayer, repaint } = useSettings();
   const voice = useVoiceStore();
+  const resetDraft = useAddLayerDraft((s) => s.reset);
   const [legoModels, setLegoModels] = useState<string[] | null>(null);
   const [prompt, setPrompt] = useState('');
   const [mixError, setMixError] = useState('');
+  const [expanded, setExpanded] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   const genJob = useGenerationStore((s) => s.job);
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
@@ -56,10 +62,16 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
 
   useEffect(() => { onGeneratingChange?.(job === 'running'); }, [job, onGeneratingChange]);
 
+  // Mirrors .layer-add-row:hover/:focus-within in index.css, which is what actually
+  // reveals this row's form — kept in sync purely so Editor knows when to show the
+  // voice picker in the left rail.
+  useEffect(() => { onExpandedChange?.(expanded || job === 'running'); }, [expanded, job, onExpandedChange]);
+  useEffect(() => () => onExpandedChange?.(false), [onExpandedChange]);
+
   // Runs once when *our* add-layer finishes, even if it settled while this row wasn't mounted
   // (e.g. the user navigated to the Library and back mid-generation).
   useEffect(() => {
-    if (mine?.stage === 'done') { setPrompt(''); void onDone(); }
+    if (mine?.stage === 'done') { setPrompt(''); resetDraft(); void onDone(); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mine?.stage]);
 
@@ -86,9 +98,11 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
       const layerName = prompt.trim().split(/\s+/).slice(0, 4).join(' ');
 
       if (mine?.stage === 'failed') dismissEditorJob();
+      const lyrics = useAddLayerDraft.getState().lyrics.trim();
       void startAddLayer(songId, mixAudio, {
         prompt,
         layerName,
+        ...(lyrics ? { lyrics } : {}),
         ...addLayerParams(addLayer, repaint),
         ...voiceParams(voice),
       });
@@ -98,7 +112,14 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
   };
 
   return (
-    <section className={job === 'running' ? 'layer-add-row generating' : 'layer-add-row'}>
+    <section
+      ref={sectionRef}
+      className={job === 'running' ? 'layer-add-row generating' : 'layer-add-row'}
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+      onFocus={() => setExpanded(true)}
+      onBlur={(e) => { if (!sectionRef.current?.contains(e.relatedTarget as Node | null)) setExpanded(false); }}
+    >
       <div className="layer-add-compact">
         <span className="plus">+</span>
         <span>ADD LAYER</span>
@@ -119,7 +140,6 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange }: 
               disabled={job === 'running'}
               onChange={(e) => setPrompt(e.target.value)}
             />
-            <VoicePicker />
             <span className="meta">
               STEPS {repaint.inferenceSteps > 0 ? repaint.inferenceSteps : 'AUTO'}
               {' · '}

@@ -67,6 +67,17 @@ describe('startAddLayer', () => {
     expect(layer?.name).toBe('Strings');
   });
 
+  it('forwards optional lyrics into the lego task', async () => {
+    releaseTask.mockClear();
+    const songId = seedSong();
+
+    const job = await startAddLayer(songId, 'gospel choir', 'Choir', Buffer.from('mix'), { lyrics: 'hallelujah' });
+    await waitForDone(job.id);
+
+    const [params] = releaseTask.mock.calls[0] as [Record<string, unknown>];
+    expect(params.lyrics).toBe('hallelujah');
+  });
+
   it('does not persist a layer if aborted while ACE-Step was still accepting the submission', async () => {
     releaseTask.mockClear();
     const songId = seedSong();

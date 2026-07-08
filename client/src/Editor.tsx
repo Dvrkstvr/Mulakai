@@ -12,6 +12,7 @@ import { splitLyricsBlocks, matchSectionBlocks } from './lyricsBlocks';
 import { LyricsPanel } from './LyricsPanel';
 import { RepaintBar } from './RepaintBar';
 import { SettingsPanel } from './SettingsPanel';
+import { VoicePicker } from './VoicePicker';
 import { useSettings, repaintParams } from './settings';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
@@ -36,6 +37,16 @@ export function Editor({ songId, onBack }: Props) {
   const [prompt, setPrompt] = useState('');
   const [lyricsDraft, setLyricsDraft] = useState('');
   const [railMode, setRailMode] = useState<'history' | 'export' | 'split'>('history');
+  const [addingLayerExpanded, setAddingLayerExpanded] = useState(false);
+  // Debounced so moving the cursor from the trigger row across the gap to the rail
+  // (to reach the voice picker it just revealed) doesn't collapse it mid-transit.
+  const collapseTimer = useRef<number | null>(null);
+  const requestAddingLayerExpanded = useCallback((next: boolean) => {
+    if (collapseTimer.current !== null) { window.clearTimeout(collapseTimer.current); collapseTimer.current = null; }
+    if (next) setAddingLayerExpanded(true);
+    else collapseTimer.current = window.setTimeout(() => setAddingLayerExpanded(false), 500);
+  }, []);
+  useEffect(() => () => { if (collapseTimer.current !== null) window.clearTimeout(collapseTimer.current); }, []);
   const genJob = useGenerationStore((s) => s.job);
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
@@ -187,6 +198,12 @@ export function Editor({ songId, onBack }: Props) {
       <div className="with-panel editor-layout" style={{ gridTemplateColumns }}>
         <div className="resizable-col">
           <div className="left-rail">
+            {addingLayerExpanded && (
+              <div onMouseEnter={() => requestAddingLayerExpanded(true)} onMouseLeave={() => requestAddingLayerExpanded(false)}>
+                <div className="section-label">ADD LAYER VOICE</div>
+                <VoicePicker />
+              </div>
+            )}
             <LyricsPanel
               blocks={lyricsBlocks}
               draft={lyricsDraft}
@@ -194,7 +211,18 @@ export function Editor({ songId, onBack }: Props) {
               activeBlock={activeLyricsBlock}
               unlocked={lyricsUnlocked}
             />
-            <SettingsPanel mode="repaint" />
+            {/* While Add Layer is active this panel hosts its lyrics editor, so hovering/
+                focusing it must keep the Add Layer context alive (same debounced keep-alive
+                as the voice block above). Guarded on addingLayerExpanded so plain Repaint use
+                never flips the panel into Add Layer mode. */}
+            <div
+              className="rail-settings-slot"
+              onMouseEnter={() => { if (addingLayerExpanded) requestAddingLayerExpanded(true); }}
+              onMouseLeave={() => { if (addingLayerExpanded) requestAddingLayerExpanded(false); }}
+              onFocus={() => { if (addingLayerExpanded) requestAddingLayerExpanded(true); }}
+            >
+              <SettingsPanel mode="repaint" addLayerActive={addingLayerExpanded} songLyrics={song.lyrics} />
+            </div>
           </div>
           <ResizeHandle side="right" onPointerDown={leftWidth.onPointerDown} />
         </div>
@@ -235,6 +263,7 @@ export function Editor({ songId, onBack }: Props) {
         onSeek={seek}
         processing={job === 'running'}
         onSplit={(layerId) => { setFocusedLayerId(layerId); setRailMode('split'); }}
+        onAddLayerExpandedChange={requestAddingLayerExpanded}
       />
 
       {activeVersion && (

@@ -862,3 +862,83 @@ alone) or `inline` (e.g. `[soft voice]` mid-line).
   alignment to-do under "Open Questions" above — tag vocabulary discovery
   (what annotations exist) vs. word/line timing (when they occur in audio).
   Neither depends on the other.
+
+## Add Layer Lyrics (implemented 2026-07-08)
+
+Add Layer (`lego`) now accepts optional **lyrics** so a generated layer can
+sing specific words, either the song's existing lyrics or newly typed ones.
+The 5Hz LM is **not** skipped for `lego` (`docs/ace-step-1.5/API.md#4.2`), so
+`lyrics` genuinely conditions the layer (same as text2music/complete), unlike
+repaint/cover where it would be ignored.
+
+### Decisions
+- Lyrics are **per-invocation** UI state in `AddLayerTrigger`, not persisted
+  `AddLayerSettings` — they belong to one generation, like `prompt`, not to a
+  saved default.
+- Optional: an empty lyrics box sends no `lyrics` field (instrumental layer,
+  prior behaviour unchanged).
+- Prefill: a "USE SONG LYRICS" affordance copies the current `song.lyrics`
+  into the box when the song has any; the user can then edit or replace them.
+  `song.lyrics` is threaded Editor → LayerStack → AddLayerTrigger.
+
+### File-level plan
+- `client/src/AddLayerTrigger.tsx` — `songLyrics?` prop, `lyrics` state,
+  `AutoTextarea` field + prefill button, `lyrics` added to the params passed
+  to `startAddLayer`; cleared on done alongside `prompt`.
+- `client/src/LayerStack.tsx`, `client/src/Editor.tsx` — pass `songLyrics`.
+- `server/src/routes/songLayers.ts` — parse `lyrics` from the multipart body
+  and forward it in the `ReleaseTaskParams`.
+- `server/src/services/addLayerJobs.ts` — no change: `lyrics` rides through
+  the spread `...params` into `fullParams` (`ReleaseTaskParams.lyrics`).
+- `client/src/api.ts` — no change: `addLayer` already forwards arbitrary
+  params as form fields.
+
+### Model restriction (confirmed, no code change)
+`lego`/`extract`/`complete` model choice is already restricted to Base models
+via `useModelsForTask(task)` → the backend's `supported_task_types`
+(`AddLayerTrigger`'s `legoModels`, `split`'s extract check,
+`CreateArrangeTab`'s `complete`). `text2music`/`repaint` intentionally list
+all models. A client-side name-match guard was considered and rejected as
+redundant/fragile — `supported_task_types` is authoritative.
+
+## Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)
+
+Repaint and Add Layer now share ONE advanced-settings surface in the Editor
+left-rail `SettingsPanel` (decision: shared live values, not per-action
+copies). The Add Layer footer row reverts to compact (prompt + GENERATE);
+its **lyrics** editor and all advanced knobs move into the rail panel, which
+is a `ScrollArea` — this also fixes the bug where a grown lyrics box pushed
+GENERATE below the non-scrolling `.app-body` and out of reach.
+
+### Decisions
+- **Shared values**: steps, guidance, seed, and the advanced DiT/LM knobs
+  live on `RepaintSettings` and drive both actions. Add Layer keeps only its
+  own `lyrics` (per-invocation) and `model` (must be Base) as action-specific.
+- **LM controls show only when Add Layer is the active context**
+  (`addingLayerExpanded`). Repaint skips the 5Hz LM
+  (`docs/ace-step-1.5/API.md#4.2`), so its LM knobs are no-ops and stay
+  hidden; `AdvancedGenSettings`' existing `hideLmControls` flag drives this.
+- **Model gating** (`baseOnly`/`guidanceEffective`) uses the *active* action's
+  model: Add Layer's Base model when it's active, else `repaint.model`. Passed
+  to `AdvancedGenSettings` as an explicit `gatingModel` prop.
+
+### File-level plan
+- `client/src/settings.ts` — `AdvancedSettings` subset interface;
+  `RepaintSettings` gains the 12 advanced fields + defaults;
+  `ditAdvancedParams`/`lmAdvancedParams` helpers; `repaintParams` emits DiT
+  advanced; `addLayerParams` emits DiT + LM and takes steps/guidance/seed from
+  the shared repaint slice (model still from `addLayer`).
+- `client/src/AdvancedGenSettings.tsx` — props generalised to
+  `adv`/`setAdv`/`gatingModel` so both `gen` and `repaint` drive it.
+- `client/src/SettingsPanel.tsx` — repaint branch renders the shared advanced
+  panel; when `addLayerActive`, shows the Add Layer lyrics editor (draft store
+  + "USE SONG LYRICS" prefill) and LM controls, hides repaint-only VARIANCE /
+  DIT MODEL, relabels to ADD LAYER SETTINGS.
+- `client/src/addLayerStore.ts` (new) — tiny `useAddLayerDraft` store holding
+  the lyrics draft, so the footer's submit and the rail's editor share it.
+- `client/src/AddLayerTrigger.tsx` — footer reverts to compact; reads lyrics
+  from the draft store, resets it on done.
+- `client/src/Editor.tsx` — passes `addLayerActive` + `songLyrics` to the
+  repaint `SettingsPanel`; drops the footer lyrics prop threading.
+- `server/src/routes/layers.ts` (repaint) + `server/src/routes/songLayers.ts`
+  (add layer) — forward the advanced DiT (both) and LM (add layer) params.

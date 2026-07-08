@@ -4,7 +4,7 @@ import { Slider } from './Slider';
 import { Toggle } from './Toggle';
 import { InfoTooltip } from './InfoTooltip';
 import { guidanceEffective } from './modelInfo';
-import type { GenSettings } from './settings';
+import type { AdvancedSettings } from './settings';
 
 const INFER_METHOD_OPTIONS = [
   { label: 'AUTO', value: '', description: "Uses the model's own default inference method." },
@@ -27,14 +27,17 @@ const LM_REPETITION_PENALTY_INFO = 'Penalizes the LM planner for reusing tokens 
  * default since most generations never need them (docs/ace-step-1.5/API.md#4.2, #4.3).
  */
 export function AdvancedGenSettings({
-  gen, setGen, hideLmControls,
+  adv, setAdv, gatingModel, hideLmControls,
 }: {
-  gen: GenSettings;
-  setGen: (patch: Partial<GenSettings>) => void;
+  adv: AdvancedSettings;
+  setAdv: (patch: Partial<AdvancedSettings>) => void;
+  /** DiT model that decides whether shift/ADG/CFG-interval have any effect —
+   * the *active* action's model (repaint's, or Add Layer's Base model). */
+  gatingModel: string;
   hideLmControls?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const baseOnly = !guidanceEffective(gen.model); // true for Turbo — shift/ADG/CFG-interval are no-ops there
+  const baseOnly = !guidanceEffective(gatingModel); // true for Turbo — shift/ADG/CFG-interval are no-ops there
 
   return (
     <div className="advanced-gen-settings">
@@ -44,39 +47,39 @@ export function AdvancedGenSettings({
       </button>
       {open && (
         <>
-          <Slider label="SHIFT" value={gen.shift} min={0} max={5} step={0.1}
-            readout={baseOnly ? 'N/A' : gen.shift === 0 ? 'AUTO' : undefined} disabled={baseOnly}
-            info="Timestep shift factor (1.0-5.0). Only effective for base models, not turbo." onChange={(v) => setGen({ shift: v })} />
-          <CustomSelect label="INFER METHOD" value={gen.inferMethod}
-            onChange={(v) => setGen({ inferMethod: v as GenSettings['inferMethod'] })} options={INFER_METHOD_OPTIONS} />
+          <Slider label="SHIFT" value={adv.shift} min={0} max={5} step={0.1}
+            readout={baseOnly ? 'N/A' : adv.shift === 0 ? 'AUTO' : undefined} disabled={baseOnly}
+            info="Timestep shift factor (1.0-5.0). Only effective for base models, not turbo." onChange={(v) => setAdv({ shift: v })} />
+          <CustomSelect label="INFER METHOD" value={adv.inferMethod}
+            onChange={(v) => setAdv({ inferMethod: v as AdvancedSettings['inferMethod'] })} options={INFER_METHOD_OPTIONS} />
           <div className="setting">
             <div className="setting-head"><span>TIMESTEPS<InfoTooltip text={TIMESTEPS_INFO} /></span></div>
-            <input placeholder="unset — e.g. 0.97,0.76,0.615,...&#10;overrides STEPS and SHIFT" value={gen.timesteps}
-              onChange={(e) => setGen({ timesteps: e.target.value })} />
+            <input placeholder="unset — e.g. 0.97,0.76,0.615,...&#10;overrides STEPS and SHIFT" value={adv.timesteps}
+              onChange={(e) => setAdv({ timesteps: e.target.value })} />
           </div>
-          <Toggle label="ADAPTIVE DUAL GUIDANCE" checked={gen.useAdg} disabled={baseOnly} info={ADG_INFO}
-            onChange={(v) => setGen({ useAdg: v })} />
-          <Slider label="CFG INTERVAL START" value={gen.cfgIntervalStart} min={0} max={1} step={0.05}
-            disabled={baseOnly} info={CFG_START_INFO} onChange={(v) => setGen({ cfgIntervalStart: v })} />
-          <Slider label="CFG INTERVAL END" value={gen.cfgIntervalEnd} min={0} max={1} step={0.05}
-            disabled={baseOnly} info={CFG_END_INFO} onChange={(v) => setGen({ cfgIntervalEnd: v })} />
+          <Toggle label="ADAPTIVE DUAL GUIDANCE" checked={adv.useAdg} disabled={baseOnly} info={ADG_INFO}
+            onChange={(v) => setAdv({ useAdg: v })} />
+          <Slider label="CFG INTERVAL START" value={adv.cfgIntervalStart} min={0} max={1} step={0.05}
+            disabled={baseOnly} info={CFG_START_INFO} onChange={(v) => setAdv({ cfgIntervalStart: v })} />
+          <Slider label="CFG INTERVAL END" value={adv.cfgIntervalEnd} min={0} max={1} step={0.05}
+            disabled={baseOnly} info={CFG_END_INFO} onChange={(v) => setAdv({ cfgIntervalEnd: v })} />
           {!hideLmControls && (
             <>
-              <Slider label="LM TEMPERATURE" value={gen.lmTemperature} min={0} max={2} step={0.05}
-                info={LM_TEMPERATURE_INFO} onChange={(v) => setGen({ lmTemperature: v })} />
-              <Slider label="LM CFG SCALE" value={gen.lmCfgScale} min={1} max={10} step={0.1}
-                info="CFG scale for the LM planner — values above 1 enable CFG." onChange={(v) => setGen({ lmCfgScale: v })} />
+              <Slider label="LM TEMPERATURE" value={adv.lmTemperature} min={0} max={2} step={0.05}
+                info={LM_TEMPERATURE_INFO} onChange={(v) => setAdv({ lmTemperature: v })} />
+              <Slider label="LM CFG SCALE" value={adv.lmCfgScale} min={1} max={10} step={0.1}
+                info="CFG scale for the LM planner — values above 1 enable CFG." onChange={(v) => setAdv({ lmCfgScale: v })} />
               <div className="setting">
                 <div className="setting-head"><span>LM NEGATIVE PROMPT<InfoTooltip text={LM_NEGATIVE_PROMPT_INFO} /></span></div>
-                <input placeholder='AUTO ("NO USER INPUT")' value={gen.lmNegativePrompt}
-                  onChange={(e) => setGen({ lmNegativePrompt: e.target.value })} />
+                <input placeholder='AUTO ("NO USER INPUT")' value={adv.lmNegativePrompt}
+                  onChange={(e) => setAdv({ lmNegativePrompt: e.target.value })} />
               </div>
-              <Slider label="LM TOP K" value={gen.lmTopK} min={0} max={100} step={1}
-                readout={gen.lmTopK === 0 ? 'DISABLED' : undefined} info={LM_TOP_K_INFO} onChange={(v) => setGen({ lmTopK: v })} />
-              <Slider label="LM TOP P" value={gen.lmTopP} min={0} max={1} step={0.05}
-                readout={gen.lmTopP >= 1 ? 'DISABLED' : undefined} info={LM_TOP_P_INFO} onChange={(v) => setGen({ lmTopP: v })} />
-              <Slider label="LM REPETITION PENALTY" value={gen.lmRepetitionPenalty} min={1} max={2} step={0.05}
-                info={LM_REPETITION_PENALTY_INFO} onChange={(v) => setGen({ lmRepetitionPenalty: v })} />
+              <Slider label="LM TOP K" value={adv.lmTopK} min={0} max={100} step={1}
+                readout={adv.lmTopK === 0 ? 'DISABLED' : undefined} info={LM_TOP_K_INFO} onChange={(v) => setAdv({ lmTopK: v })} />
+              <Slider label="LM TOP P" value={adv.lmTopP} min={0} max={1} step={0.05}
+                readout={adv.lmTopP >= 1 ? 'DISABLED' : undefined} info={LM_TOP_P_INFO} onChange={(v) => setAdv({ lmTopP: v })} />
+              <Slider label="LM REPETITION PENALTY" value={adv.lmRepetitionPenalty} min={1} max={2} step={0.05}
+                info={LM_REPETITION_PENALTY_INFO} onChange={(v) => setAdv({ lmRepetitionPenalty: v })} />
             </>
           )}
         </>
