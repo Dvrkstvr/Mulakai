@@ -48,6 +48,8 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
   const voice = useVoiceStore();
   const [genType, setGenType] = useState(initialDraft.genType ?? 'prompt');
   const [title, setTitle] = useState('');
+  const folderId = initialDraft.folderId;
+  const folderName = initialDraft.folderName;
   const [prompt, setPrompt] = useState(initialDraft.prompt ?? '');
   const [lyrics, setLyrics] = useState(initialDraft.lyrics ?? '');
   const [bpm, setBpm] = useState(initialDraft.bpm ?? 0); // 0 = AUTO
@@ -71,6 +73,16 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
   const [pendingResult, setPendingResult] = useState<RefineResult | null>(null);
   const { phase: thinkPhase, error: thinkError, retry: retryThink, finish: finishThink } =
     useThinkingQuery(initialDraft.pendingQuery, setPendingResult);
+
+  // Prefills Title with "<Folder Name>" (or "<Folder Name> <n>" past the highest number
+  // already used there) when Create was opened from/for a specific folder — still a plain
+  // editable value, not a locked default. Skipped if the field already has content (e.g. a
+  // RETRY draft) so it never clobbers something the user or a retry already put there.
+  useEffect(() => {
+    if (!folderId || title) return;
+    api.nextFolderTitle(folderId).then((r) => setTitle(r.title)).catch(() => {});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folderId]);
 
   useEffect(() => {
     if (thinkPhase !== 'revealing' || !pendingResult) return;
@@ -96,10 +108,16 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
   const generate = async () => {
     setError('');
     setSubmitting(true);
-    const draft: CreateDraft = { genType, prompt, lyrics, bpm, keyScale, timeSignature, duration };
+    const draft: CreateDraft = {
+      genType, prompt, lyrics, bpm, keyScale, timeSignature, duration,
+      ...(folderId ? { folderId, folderName } : {}),
+    };
     try {
       await startGeneration(
-        { title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(gen), ...voiceParams(voice) },
+        {
+          title: title || 'Untitled', prompt, lyrics, ...metaParams(), ...genParams(gen), ...voiceParams(voice),
+          ...(folderId ? { folder_id: folderId } : {}),
+        },
         draft,
         voice.uploadedRefFile ?? undefined,
       );
@@ -186,10 +204,17 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
               <button className={genType === 'complete' ? 'tab active' : 'tab'} onClick={() => setGenType('complete')}><span>ARRANGE</span></button>
             </div>
 
+            {folderName && (
+              <div className="folder-dest">
+                <span className="section-label">Save To</span>
+                <span className="dest-chip"><span className="lbl">&#9656; {folderName}</span></span>
+              </div>
+            )}
+
             <AutoTextarea placeholder="Title" value={title} onChange={setTitle} />
 
-            {genType === 'audio' && <CreateAudioTab songs={songs} title={title} initialDraft={initialDraft} onBack={onBack} />}
-            {genType === 'complete' && <CreateArrangeTab title={title} onBack={onBack} />}
+            {genType === 'audio' && <CreateAudioTab songs={songs} title={title} folderId={folderId} initialDraft={initialDraft} onBack={onBack} />}
+            {genType === 'complete' && <CreateArrangeTab title={title} folderId={folderId} onBack={onBack} />}
 
             {genType === 'prompt' && (
               <>

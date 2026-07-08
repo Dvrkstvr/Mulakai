@@ -23,6 +23,7 @@ export function startCompleteGeneration(
   title: string,
   params: ReleaseTaskParams,
   referenceAudio?: CompleteSource,
+  folderId?: string | null,
 ): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
   acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt });
@@ -35,7 +36,7 @@ export function startCompleteGeneration(
     const { task_id } = await releaseTask(fullParams, { srcAudio, referenceAudio });
     if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
     job.taskId = task_id;
-    await poll(job, (result) => persistSong(result.file, fullParams, result, title));
+    await poll(job, (result) => persistSong(result.file, fullParams, result, title, folderId));
   }).finally(() => releaseGenLock(job.id));
   return job;
 }

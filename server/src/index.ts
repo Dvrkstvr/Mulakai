@@ -1,6 +1,7 @@
 import express from 'express';
 import { config } from './config.js';
 import { songsRouter } from './routes/songs.js';
+import { foldersRouter } from './routes/folders.js';
 import { songLayersRouter } from './routes/songLayers.js';
 import { remasterRouter } from './routes/remaster.js';
 import { layersRouter } from './routes/layers.js';
@@ -16,6 +17,7 @@ const app = express();
 app.use(express.json({ limit: '2mb' }));
 
 app.use('/api/songs', songsRouter);
+app.use('/api/folders', foldersRouter);
 app.use('/api/songs', songLayersRouter);
 app.use('/api/songs', remasterRouter);
 app.use('/api/layers', layersRouter);

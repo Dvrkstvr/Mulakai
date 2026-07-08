@@ -15,7 +15,20 @@ export interface Song {
   genre: string;
   album: string;
   cover_art_file: string | null;
+  folder_id: string | null;
 }
+
+export interface Folder {
+  id: string;
+  name: string;
+  position: number;
+  created_at: string;
+  song_count: number;
+}
+
+/** The Library's folder scope — a real folder id, `'unfiled'` (no folder), or `null` for
+ * All Songs (no filter at all). Passed straight through to `api.listSongs`'s folder param. */
+export type FolderScope = string | 'unfiled' | null;
 
 export interface LyricTag {
   tag: string;
@@ -151,8 +164,38 @@ async function json<T>(res: Response): Promise<T> {
 }
 
 export const api = {
-  listSongs: (q = ''): Promise<Song[]> =>
-    fetch(`/api/songs?q=${encodeURIComponent(q)}`).then((r) => json<Song[]>(r)),
+  listSongs: (q = '', folder?: FolderScope): Promise<Song[]> =>
+    fetch(`/api/songs?q=${encodeURIComponent(q)}${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`)
+      .then((r) => json<Song[]>(r)),
+
+  listFolders: (): Promise<Folder[]> => fetch('/api/folders').then((r) => json<Folder[]>(r)),
+
+  createFolder: (name: string): Promise<Folder> =>
+    fetch('/api/folders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    }).then((r) => json<Folder>(r)),
+
+  renameFolder: (id: string, name: string): Promise<void> =>
+    fetch(`/api/folders/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name }),
+    }).then(() => undefined),
+
+  deleteFolder: (id: string): Promise<void> =>
+    fetch(`/api/folders/${id}`, { method: 'DELETE' }).then(() => undefined),
+
+  nextFolderTitle: (id: string): Promise<{ title: string }> =>
+    fetch(`/api/folders/${id}/next-title`).then((r) => json<{ title: string }>(r)),
+
+  moveSongToFolder: (songId: string, folderId: string | null): Promise<void> =>
+    fetch(`/api/songs/${songId}/folder`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ folder_id: folderId }),
+    }).then(() => undefined),
 
   /** Plain JSON unless an ad-hoc reference-audio file is attached (see ReferenceAudioPicker.tsx),
    * in which case it switches to multipart — the server's `/` route accepts both. */

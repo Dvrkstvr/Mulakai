@@ -441,6 +441,119 @@ button.acid-outline {
   align-items: flex-start;
 }
 
+/* Persistent left rail (FolderRail.tsx) — same fixed-width idiom as the Editor's settings
+   panel. Selecting a folder uses sky (selection/scope), same concept as focusing a layer. */
+.folder-rail {
+  flex-shrink: 0;
+  width: 208px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.folder-rail .section-label {
+  padding: 0 4px 8px;
+}
+
+.folder-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-left: 2px solid transparent;
+  cursor: pointer;
+  color: var(--text-mid);
+}
+
+.folder-item:hover {
+  color: var(--text-hi);
+}
+
+.folder-item .fname {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.folder-item .fcount {
+  font-variant-numeric: tabular-nums;
+  font-size: 10px;
+  color: var(--text-low);
+  flex-shrink: 0;
+}
+
+.folder-item.selected {
+  border-left-color: var(--sky);
+  background: var(--sky-tint);
+  color: var(--text-hi);
+}
+
+.folder-item.selected .fcount {
+  color: var(--sky);
+}
+
+.folder-item.pinned {
+  color: var(--text-hi);
+}
+
+.folder-divider {
+  height: 1px;
+  background: var(--line);
+  margin: 8px 2px;
+}
+
+.new-folder-row {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  color: var(--text-mid);
+  border: 1px dashed var(--line-hi);
+  cursor: pointer;
+}
+
+.new-folder-row:hover {
+  color: var(--acid);
+  border-color: var(--acid);
+}
+
+.new-folder-row .plus {
+  font-weight: 700;
+}
+
+.new-folder-input {
+  margin-top: 6px;
+  width: 100%;
+}
+
+.library-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.scope-crumb {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 2px 0 -2px;
+}
+
+.scope-crumb .name {
+  color: var(--sky);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.scope-crumb .count {
+  color: var(--text-low);
+  font-size: 11px;
+}
+
 /* library: fluid multi-column card grid, cards never stretch past a comfortable width */
 .library {
   flex: 1;
@@ -1585,6 +1698,34 @@ footer .player {
   display: flex;
   gap: 8px;
   margin-bottom: 4px;
+}
+
+/* Destination indicator above Create's Title field — sky, same "scope" meaning as the
+   Library folder rail's selected entry, not a new color. */
+.folder-dest {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.dest-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--sky-tint);
+  border: 1px solid var(--sky);
+  color: var(--sky);
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  transform: skewX(-10deg);
+}
+
+.dest-chip .lbl {
+  display: inline-block;
+  transform: skewX(10deg);
 }
 
 .tab {

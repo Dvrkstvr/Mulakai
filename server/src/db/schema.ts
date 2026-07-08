@@ -1,5 +1,12 @@
 /** SQLite schema: songs -> layers -> versions. No users/social tables. */
 export const SCHEMA = `
+CREATE TABLE IF NOT EXISTS folders (
+  id         TEXT PRIMARY KEY,
+  name       TEXT NOT NULL,
+  position   INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
 CREATE TABLE IF NOT EXISTS songs (
   id             TEXT PRIMARY KEY,
   title          TEXT NOT NULL,
@@ -10,6 +17,7 @@ CREATE TABLE IF NOT EXISTS songs (
   time_signature TEXT NOT NULL DEFAULT '',
   duration       REAL,
   favorite       INTEGER NOT NULL DEFAULT 0,
+  folder_id      TEXT REFERENCES folders(id) ON DELETE SET NULL,
   trashed_at     TEXT,
   created_at     TEXT NOT NULL DEFAULT (datetime('now'))
 );

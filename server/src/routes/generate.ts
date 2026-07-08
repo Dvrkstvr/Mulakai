@@ -58,7 +58,7 @@ function pickMultipartParams(body: Record<string, unknown>): ReleaseTaskParams {
  * since express.json() already parsed `req.body` before this middleware runs. */
 generateRouter.post('/', upload.fields([{ name: 'reference_audio', maxCount: 1 }]), async (req, res) => {
   const body = req.body ?? {};
-  const { title = 'Untitled', voiceId, audio_influence, style_influence } = body;
+  const { title = 'Untitled', voiceId, audio_influence, style_influence, folder_id } = body;
   const isMultipart = req.files !== undefined;
   const refFile = (req.files as Record<string, Express.Multer.File[] | undefined> | undefined)?.reference_audio?.[0];
   try {
@@ -67,7 +67,7 @@ generateRouter.post('/', upload.fields([{ name: 'reference_audio', maxCount: 1 }
       audioInfluence: audio_influence !== undefined ? Number(audio_influence) : undefined,
       styleInfluence: style_influence !== undefined ? Number(style_influence) : undefined,
       referenceAudioFile: refFile ? { data: refFile.buffer, filename: refFile.originalname || 'reference.wav' } : undefined,
-    });
+    }, folder_id ? String(folder_id) : undefined);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
     if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
@@ -82,7 +82,7 @@ generateRouter.post(
   '/from-audio',
   upload.fields([{ name: 'src_audio', maxCount: 1 }, { name: 'reference_audio', maxCount: 1 }]),
   async (req, res) => {
-    const { title = 'Untitled', voice_id } = req.body ?? {};
+    const { title = 'Untitled', voice_id, folder_id } = req.body ?? {};
     const files = (req.files ?? {}) as Record<string, Express.Multer.File[] | undefined>;
     const srcFile = files.src_audio?.[0];
     if (!srcFile) return res.status(400).json({ error: 'src_audio is required' });
@@ -92,7 +92,10 @@ generateRouter.post(
         refFile ? { data: refFile.buffer, filename: refFile.originalname || 'reference.wav' } : undefined,
         voice_id ? String(voice_id) : undefined,
       );
-      const job = startCoverGeneration(srcFile.buffer, String(title), pickMultipartParams(req.body ?? {}), referenceAudio);
+      const job = startCoverGeneration(
+        srcFile.buffer, String(title), pickMultipartParams(req.body ?? {}), referenceAudio,
+        folder_id ? String(folder_id) : undefined,
+      );
       res.status(202).json({ jobId: job.id });
     } catch (err) {
       if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
@@ -109,7 +112,7 @@ generateRouter.post(
   '/complete',
   upload.fields([{ name: 'src_audio', maxCount: 1 }, { name: 'reference_audio', maxCount: 1 }]),
   async (req, res) => {
-    const { title = 'Untitled', scratch_job_id, scratch_stem_kind, voice_id } = req.body ?? {};
+    const { title = 'Untitled', scratch_job_id, scratch_stem_kind, voice_id, folder_id } = req.body ?? {};
     const files = (req.files ?? {}) as Record<string, Express.Multer.File[] | undefined>;
     const uploadedSrc = files.src_audio?.[0];
     const refFile = files.reference_audio?.[0];
@@ -130,7 +133,10 @@ generateRouter.post(
         refFile ? { data: refFile.buffer, filename: refFile.originalname || 'reference.wav' } : undefined,
         voice_id ? String(voice_id) : undefined,
       );
-      const job = startCompleteGeneration(src, String(title), pickMultipartParams(req.body ?? {}), referenceAudio);
+      const job = startCompleteGeneration(
+        src, String(title), pickMultipartParams(req.body ?? {}), referenceAudio,
+        folder_id ? String(folder_id) : undefined,
+      );
       res.status(202).json({ jobId: job.id });
     } catch (err) {
       if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
