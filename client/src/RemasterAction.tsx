@@ -6,7 +6,7 @@ import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useSettings } from './settings';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
-import { fmtElapsed, useElapsedMs } from './genProgress';
+import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 
 interface Props {
   songId: string;
@@ -114,8 +114,10 @@ export function RemasterAction({ songId, layers }: Props) {
           ) : (
             <>
               <div className="hint">renders the full mix at max quality — can take several minutes</div>
-              <button className="acid" disabled={job === 'running' || busyElsewhere} onClick={submit}>
-                {job === 'running' ? `RENDERING… ${fmtElapsed(elapsedMs)}` : busyElsewhere ? 'BUSY ELSEWHERE' : 'REMASTER SONG'}
+              <button className="acid" disabled={job === 'running' || busyElsewhere} onClick={submit} title={job === 'running' ? mine?.progressText : undefined}>
+                {job === 'running'
+                  ? `RENDERING… ${fmtElapsed(elapsedMs)}${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`
+                  : busyElsewhere ? 'BUSY ELSEWHERE' : 'REMASTER SONG'}
               </button>
               {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
             </>

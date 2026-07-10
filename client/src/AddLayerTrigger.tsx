@@ -8,7 +8,7 @@ import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
-import { fmtElapsed, useElapsedMs } from './genProgress';
+import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { CustomSelect } from './CustomSelect';
 import { TRACK_NAMES } from './trackNames';
 
@@ -127,7 +127,11 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
       <div className="layer-add-compact">
         <span className="plus">+</span>
         <span>ADD LAYER</span>
-        <span className="hint">{job === 'running' ? `generating… ${fmtElapsed(elapsedMs)}` : 'hover to expand'}</span>
+        <span className="hint">
+          {job === 'running'
+            ? `generating… ${fmtElapsed(elapsedMs)}${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}`
+            : 'hover to expand'}
+        </span>
       </div>
       <div className="layer-add-expand">
         {legoModels === null ? (
@@ -154,8 +158,11 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
               className="acid"
               disabled={!canSubmit}
               onClick={submit}
+              title={job === 'running' ? mine?.progressText : undefined}
             >
-              {job === 'running' ? `GENERATING… ${fmtElapsed(elapsedMs)}` : busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE'}
+              {job === 'running'
+                ? `GENERATING… ${fmtElapsed(elapsedMs)}${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`
+                : busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE'}
             </button>
             {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
           </>

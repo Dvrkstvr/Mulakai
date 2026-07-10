@@ -713,6 +713,15 @@ cover-capable model.
   needs a dated design section here before implementation. (Separate from —
   and not resolved by — the lyric *tag* vocabulary probe below, which is
   about `[Chorus]`/`[soft voice]`-style annotation tags, not word timing.)
+- **To-do: expose `get_lyric_score` as a new REST endpoint** (raised
+  2026-07-10, integration audit) — ACE-Step 1.5's quality-scoring mixin
+  (LM/DiT/PMI/Reward scores) is Python-internal only today, no REST route.
+  Same precedent as the already-added `/lyric_timestamp` and
+  `/v1/analyze_audio` endpoints on this project's "mulakai" ACE-Step-1.5
+  fork branch: wrap the scoring mixin in a new route there. Would enable
+  real best-of-N auto-selection once combined with a batch-size feature
+  (see the 2026-07-10 batch-size/progress/track-picker work). Deferred, not
+  yet scoped.
 
 ## Settings Screen (planned + implemented 2026-07-06)
 
@@ -1086,3 +1095,92 @@ File-level plan:
   keyScale/duration state, `SongAnalysisFields`, `useAnalyzeAndApply` wired
   to each tab's own source variants (upload+library / upload+scratch-stem),
   forwarded into `startFromAudio`/`startComplete`'s params.
+
+## Add Layer: Forced batch_size 1 + Track-Type Picker (implemented 2026-07-10)
+
+Add Layer always defaulted to ACE-Step's own `batch_size` of 2 (server-side,
+whenever the field is omitted), but the client only ever kept one of the two
+generated takes — every call was silently paying for a discarded generation.
+Also wires up `lego`'s `track_name` field (fixed 12-item vocabulary), never
+used before this.
+
+Decisions:
+- `addLayerJobs.ts`'s `fullParams` now sets `batch_size: 1` last, so nothing
+  in `...params` can override it. No UI, no client change — Add Layer never
+  emitted `batch_size` before, so there's nothing to guard against.
+- New TRACK TYPE picker in `AddLayerTrigger.tsx`'s expanded form (ACE-Step's
+  fixed vocabulary: woodwinds/brass/fx/synth/strings/percussion/keyboard/
+  guitar/bass/drums/backing_vocals/vocals, + AUTO), sent as `track_name`
+  alongside the existing free-text `prompt` — independent channels
+  server-side (`track_name` only templates ACE-Step's own `instruction`
+  string, verified in `job_generation_setup.py`'s `_resolve_instruction()`).
+  Corrects the "ACE-Step Integration" table's `lego` row above and the
+  "Add Layer (lego)" design's 2026-07-02 "no track name param" note — both
+  accurate against the docs vendored at the time, stale against the current
+  fork source.
+- Local component state (`trackName`), not `addLayerStore.ts`'s shared
+  draft — that store exists specifically because `lyrics` needs to be
+  visible from both the compact footer and the rail's advanced panel; track
+  type has no such dual-surface need.
+
+File-level plan:
+- `server/src/services/addLayerJobs.ts` — `batch_size: 1` in `fullParams`.
+- `client/src/trackNames.ts` (new) — the 12-item vocabulary + AUTO, shaped
+  for `CustomSelect`.
+- `client/src/AddLayerTrigger.tsx` — `trackName` state, `CustomSelect`,
+  `track_name` added to submit params, reset alongside `prompt` on done.
+- `server/src/routes/songLayers.ts` — forwards `track_name` when present.
+- `server/src/services/acestep.ts` — `ReleaseTaskParams.track_name?: string`.
+- A layout bug found during manual verification: `.layer-add-row`'s
+  hover-expand `overflow: hidden` (for the height-reveal animation) was
+  clipping the new `CustomSelect`'s non-portal option list — fixed by
+  switching that state to `overflow: visible`.
+
+## Real Per-Job Progress (implemented 2026-07-10)
+
+`/v1/stats` only returns server-wide aggregate stats (job counts, queue
+size, avg job seconds) — no per-job progress, so it's the wrong endpoint for
+a progress bar. But `/query_result`, which Mulakai's server already polls
+every ~2s via the shared `poll()`, already returns real per-job data for a
+running job: `progress` (0.0–1.0, fed from an actual diffusion-loop
+callback, throttled to updates every ~0.5s or 1% change) and `stage`
+(free-text, defaults `"running"`) inside its result array, plus a top-level
+`progress_text` (last log line). Mulakai discarded all of it.
+
+Decisions:
+- New fields threaded end-to-end as `progress?: number`, `progressStage?:
+  string`, `progressText?: string` — deliberately not named `stage`
+  anywhere in Mulakai's own types, since `Job`/`EditorJob`/`GenerationJob`
+  already use `stage: 'running'|'done'|'failed'` for Mulakai's own job
+  lifecycle; reusing the name would collide two unrelated meanings.
+  `acestep.ts`'s `TaskResult` (the raw wire-shape type) is the one place
+  `stage?: string` is used as a direct ACE-Step pass-through.
+- `AIGeneratingBackground` (a bare `ShaderCanvas` in an absolutely-
+  positioned div) gains an optional `progress` prop: an absolutely-
+  positioned carbon-tinted veil (~70% opacity) covers the unprogressed
+  portion, reusing the existing "AI is working" visual language instead of
+  a new shape/hue. `undefined` progress falls back to today's look
+  unchanged, so every existing call site stays backward-compatible.
+- Text-only sites gain a `NN%` readout plus ACE-Step's own `stage` text when
+  it's more informative than a generic/empty value — new `fmtProgress`/
+  `stageDetail` helpers in `genProgress.ts`.
+- `stemSplit.ts`'s split-job polling is a separate code path from the
+  shared `poll()` and is intentionally not touched — a clean follow-up.
+
+File-level plan:
+- `server/src/services/acestep.ts` — `TaskResult.progress?`/`.stage?`;
+  `queryResult()`'s row type gains `progress_text?`.
+- `server/src/services/jobs.ts` — `Job` gains the three fields; `poll()`'s
+  `status === 0` branch reads them onto the job each tick instead of a bare
+  `continue`.
+- `server/src/routes/generate.ts` — `GET /:jobId` returns the three fields.
+- `client/src/api.ts` — `jobStatus()`'s return type gains them.
+- `client/src/generationStore.ts` / `editorJobStore.ts` — job types gain
+  the fields; both polling loops' running branch now `set()`s them each
+  tick (`editorJobStore.ts`'s previously just `continue`d while running).
+- `client/src/genProgress.ts` — `fmtProgress`, `stageDetail`.
+- `client/src/AIGeneratingBackground.tsx` — optional `progress` prop + veil.
+- `client/src/GeneratingCard.tsx`, `LibraryJobBadge.tsx`, `VersionHistory.tsx`,
+  `RemasterAction.tsx`, `RepaintBar.tsx`, `AddLayerTrigger.tsx` — pass
+  `progress` where `AIGeneratingBackground` is already used; append `%`/
+  stage to status text.

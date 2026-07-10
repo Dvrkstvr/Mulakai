@@ -31,3 +31,18 @@ export function useElapsedMs(active: boolean, startedAt: number | null): number 
   }, [active]);
   return active && startedAt ? now - startedAt : 0;
 }
+
+/** "42%"-style readout of ACE-Step's 0.0-1.0 progress fraction, or null when unknown. */
+export function fmtProgress(p?: number): string | null {
+  if (p === undefined || !Number.isFinite(p)) return null;
+  return `${Math.round(Math.max(0, Math.min(1, p)) * 100)}%`;
+}
+
+/** ACE-Step's free-text `stage` is only worth surfacing when it says something beyond
+ * "a job is running" — filters out empty/whitespace and the generic default the API sends
+ * when no more specific stage label was set ("running", case-insensitive). */
+export function stageDetail(stage?: string): string | null {
+  const trimmed = stage?.trim();
+  if (!trimmed || trimmed.toLowerCase() === 'running') return null;
+  return trimmed;
+}

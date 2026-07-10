@@ -511,6 +511,16 @@ frame). `AIGeneratingBackground.tsx` wraps it as an absolutely-positioned
 fill for a parent with `position: relative`; call sites mount it only while
 `active` (a job's `loading`/`running` stage, a toggle's `checked` state).
 
+**Progress veil**: `AIGeneratingBackground` takes an optional `progress`
+(0-1). When a call site has real per-job progress (ACE-Step's `/query_result`
+now surfaces this — see PLAN.md's "Real per-job progress" workstream), it
+covers the shader from `progress*100%` to the right edge with a `carbon`,
+~70%-opaque veil, so the unveiled left portion reads as "how far along this
+is" — still texture, not a literal progress bar. Omitting `progress` (the
+default) renders the plain full shader, unchanged from before; several call
+sites (e.g. Create's brief pre-jobId "STARTING…" state) still do this since
+no progress fraction exists yet at that point.
+
 **Size rule — background fill vs. thick border**: the shader reads as
 texture, not as legible surface for text sitting on top of it. Apply it
 differently depending on how much of the element it would cover:

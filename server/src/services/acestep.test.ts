@@ -49,6 +49,25 @@ describe('createRandomSample', () => {
   });
 });
 
+describe('queryResult', () => {
+  it('passes through progress_text and each result row\'s progress/stage fields', async () => {
+    mockFetchOnce([
+      {
+        task_id: 'task-1',
+        status: 0,
+        result: JSON.stringify([{ file: '', status: 0, prompt: '', lyrics: '', metas: {}, seed_value: '', progress: 0.37, stage: 'sampling' }]),
+        progress_text: 'step 18/50',
+      },
+    ]);
+    const { queryResult } = await import('./acestep.js');
+
+    const [row] = await queryResult(['task-1']);
+
+    expect(row.progress_text).toBe('step 18/50');
+    expect(row.result[0]).toMatchObject({ progress: 0.37, stage: 'sampling' });
+  });
+});
+
 describe('call() non-2xx error handling', () => {
   it('surfaces a FastAPI HTTPException {"detail": ...} body instead of a bare HTTP status', async () => {
     vi.stubGlobal(

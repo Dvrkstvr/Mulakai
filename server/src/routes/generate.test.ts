@@ -29,7 +29,12 @@ vi.mock('../services/acestep.js', () => ({
   listModels: vi.fn(async () => ({ models: [], lmModels: [], defaultModel: null })),
   formatInput: vi.fn(async () => ({ caption: '', lyrics: '' })),
 }));
-vi.mock('../services/jobs.js', () => ({ startGeneration: vi.fn(async () => ({ id: 'gen-job-1' })), getJob: vi.fn() }));
+vi.mock('../services/jobs.js', () => ({
+  startGeneration: vi.fn(async () => ({ id: 'gen-job-1' })),
+  getJob: vi.fn(),
+  getActiveGeneration: vi.fn(() => ({ lock: null })),
+  abortJob: vi.fn(),
+}));
 vi.mock('../services/coverGenJobs.js', () => ({ startCoverGeneration: vi.fn(() => ({ id: 'cover-job-1' })) }));
 vi.mock('../services/completeGenJobs.js', () => ({ startCompleteGeneration: vi.fn(() => ({ id: 'complete-job-1' })) }));
 vi.mock('../services/scratchSplitJobs.js', () => ({
@@ -242,6 +247,25 @@ describe('POST /complete', () => {
 
     const res = await fetch(`${baseUrl}/complete`, { method: 'POST', body: form });
     expect(res.status).toBe(400);
+  });
+});
+
+describe('GET /:jobId', () => {
+  it('includes progress/progressStage/progressText alongside status/songId/error', async () => {
+    vi.mocked(jobs.getJob).mockReturnValueOnce({
+      id: 'job-progress-1', taskId: 't', status: 'running', createdAt: Date.now(),
+      progress: 0.42, progressStage: 'sampling', progressText: 'step 12/50',
+    });
+    const res = await fetch(`${baseUrl}/job-progress-1`);
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body).toMatchObject({ status: 'running', progress: 0.42, progressStage: 'sampling', progressText: 'step 12/50' });
+  });
+
+  it('returns 404 for an unknown job', async () => {
+    vi.mocked(jobs.getJob).mockReturnValueOnce(undefined);
+    const res = await fetch(`${baseUrl}/unknown-job`);
+    expect(res.status).toBe(404);
   });
 });
 

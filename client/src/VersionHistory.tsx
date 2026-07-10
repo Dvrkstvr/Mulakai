@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ScrollArea } from './ScrollArea';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore } from './editorJobStore';
-import { fmtElapsed, useElapsedMs } from './genProgress';
+import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const VISIBLE_COUNT = 4;
@@ -36,6 +36,7 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
   // single slot covers both ALT and SIMILAR across every version row.
   const mine = (editorJob?.kind === 'regenerate' || editorJob?.kind === 'retake') && editorJob.layerId === layerId ? editorJob : null;
   const elapsedMs = useElapsedMs(mine?.stage === 'running', mine?.startedAt ?? null);
+  const progressSuffix = `${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`;
   const busyOtherKind = !!editorJob && !mine;
   const busy = !!genJob || !!otherLock || busyOtherKind || mine?.stage === 'running';
 
@@ -120,11 +121,11 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
                 )}
                 <button onClick={() => regenerate(v.id)} disabled={busy}
                   title={busyOtherKind ? 'a generation is already running elsewhere' : 'regenerate as an alternate version'}>
-                  <span>{mine?.versionId === v.id && mine.kind === 'regenerate' && mine.stage === 'running' ? `ALT… ${fmtElapsed(elapsedMs)}` : 'ALT'}</span>
+                  <span>{mine?.versionId === v.id && mine.kind === 'regenerate' && mine.stage === 'running' ? `ALT… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'ALT'}</span>
                 </button>
                 <button onClick={() => retake(v.id)} disabled={busy}
                   title={busyOtherKind ? 'a generation is already running elsewhere' : "generate a similar take from this version's seed, appended to history"}>
-                  <span>{mine?.versionId === v.id && mine.kind === 'retake' && mine.stage === 'running' ? `SIMILAR… ${fmtElapsed(elapsedMs)}` : 'SIMILAR'}</span>
+                  <span>{mine?.versionId === v.id && mine.kind === 'retake' && mine.stage === 'running' ? `SIMILAR… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'SIMILAR'}</span>
                 </button>
                 <button
                   className={confirmDelete === v.id ? 'confirm-delete' : 'delete'}

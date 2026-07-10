@@ -262,7 +262,10 @@ export const api = {
       body: JSON.stringify({ query }),
     }).then((r) => json<RefineResult>(r)),
 
-  jobStatus: (jobId: string): Promise<{ status: 'loading' | 'running' | 'done' | 'failed'; songId?: string; error?: string }> =>
+  jobStatus: (jobId: string): Promise<{
+    status: 'loading' | 'running' | 'done' | 'failed'; songId?: string; error?: string;
+    progress?: number; progressStage?: string; progressText?: string;
+  }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),
 
   /** The server-wide generation lock, if any — used to rehydrate the library's

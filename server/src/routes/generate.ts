@@ -262,5 +262,8 @@ generateRouter.post('/active/abort', (_req, res) => {
 generateRouter.get('/:jobId', (req, res) => {
   const job = getJob(req.params.jobId);
   if (!job) return res.status(404).json({ error: 'unknown job' });
-  res.json({ status: job.status, songId: job.songId, error: job.error });
+  res.json({
+    status: job.status, songId: job.songId, error: job.error,
+    progress: job.progress, progressStage: job.progressStage, progressText: job.progressText,
+  });
 });

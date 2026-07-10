@@ -7,15 +7,17 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-test-'));
 process.env.POLL_INTERVAL_MS = '5';
 
 const releaseTask = vi.fn(async () => ({ task_id: 'task-1' }));
+const defaultQueryResult = async () => [
+  {
+    task_id: 'task-1',
+    status: 1 as const,
+    result: [{ file: '/v1/audio?path=x', status: 1 as const, prompt: '', lyrics: '', metas: {}, seed_value: '' }],
+  },
+];
+const queryResult = vi.fn(defaultQueryResult);
 vi.mock('./acestep.js', () => ({
   releaseTask: (...args: unknown[]) => releaseTask(...args),
-  queryResult: vi.fn(async () => [
-    {
-      task_id: 'task-1',
-      status: 1 as const,
-      result: [{ file: '/v1/audio?path=x', status: 1 as const, prompt: '', lyrics: '', metas: {}, seed_value: '' }],
-    },
-  ]),
+  queryResult: (...args: unknown[]) => queryResult(...args),
   downloadAudio: vi.fn(async () => Buffer.from('fake-audio-bytes')),
   audioFileExt: vi.fn(() => 'wav'),
 }));
@@ -109,6 +111,33 @@ describe('startGeneration abort race (the exact bug: create-view GENERATE, then 
     await new Promise((r) => setTimeout(r, 30));
     const row = db.prepare(`SELECT COUNT(*) as c FROM songs WHERE title = ?`).get('Abort Race Song') as { c: number };
     expect(row.c).toBe(0);
+  });
+});
+
+describe('poll() progress passthrough', () => {
+  it('copies progress/stage/progress_text onto the job while still running, then clears the way for the done result', async () => {
+    releaseTask.mockClear();
+    queryResult.mockReset();
+    queryResult
+      .mockImplementationOnce(async () => [
+        { task_id: 'task-1', status: 0 as const, result: [{ file: '', status: 0 as const, prompt: '', lyrics: '', metas: {}, seed_value: '', progress: 0.42, stage: 'sampling' }], progress_text: 'step 12/50' },
+      ])
+      .mockImplementation(async () => [
+        { task_id: 'task-1', status: 1 as const, result: [{ file: '/v1/audio?path=x', status: 1 as const, prompt: '', lyrics: '', metas: {}, seed_value: '' }] },
+      ]);
+
+    const job = startGeneration({ prompt: 'a driving synthwave track' }, 'Progress Song');
+
+    await vi.waitFor(() => {
+      expect(getJob(job.id)?.progress).toBe(0.42);
+    });
+    expect(getJob(job.id)?.progressStage).toBe('sampling');
+    expect(getJob(job.id)?.progressText).toBe('step 12/50');
+
+    await waitForDone(job.id);
+    // queryResult mock is shared across this file's tests — restore the steady default.
+    queryResult.mockReset();
+    queryResult.mockImplementation(defaultQueryResult);
   });
 });
 
