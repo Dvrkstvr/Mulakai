@@ -68,6 +68,61 @@ describe('queryResult', () => {
   });
 });
 
+describe('call() non-2xx error handling', () => {
+  it('surfaces a FastAPI HTTPException {"detail": ...} body instead of a bare HTTP status', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(JSON.stringify({ detail: 'LLM not initialized... set ACESTEP_INIT_LLM=true' }), { status: 503 })),
+    );
+    const { createRandomSample } = await import('./acestep.js');
+
+    await expect(createRandomSample('simple_mode')).rejects.toThrow(/LLM not initialized/);
+  });
+
+  it('prefers an {"error": ...} body over "detail" when both happen to be present', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(JSON.stringify({ error: 'DiT model not initialized', detail: 'ignored' }), { status: 503 })),
+    );
+    const { createRandomSample } = await import('./acestep.js');
+
+    await expect(createRandomSample('simple_mode')).rejects.toThrow(/DiT model not initialized/);
+  });
+
+  it('falls back to a bare HTTP status when the non-2xx body is not JSON', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response('not json', { status: 500 })),
+    );
+    const { createRandomSample } = await import('./acestep.js');
+
+    await expect(createRandomSample('simple_mode')).rejects.toThrow(/HTTP 500/);
+  });
+});
+
+describe('analyzeAudio', () => {
+  it('posts multipart form-data with field name "audio" and returns the format-input-shaped result', async () => {
+    let capturedBody: FormData | undefined;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url: string, init?: RequestInit) => {
+        capturedBody = init?.body as FormData;
+        return new Response(
+          JSON.stringify({ data: { caption: 'a driving synthwave track', lyrics: '' }, code: 200, error: null }),
+          { status: 200 },
+        );
+      }),
+    );
+    const { analyzeAudio } = await import('./acestep.js');
+
+    const result = await analyzeAudio({ data: Buffer.from('fake-audio-bytes'), filename: 'source.wav' });
+
+    expect(result).toEqual({ caption: 'a driving synthwave track', lyrics: '' });
+    expect(capturedBody).toBeInstanceOf(FormData);
+    expect(capturedBody?.get('audio')).toBeTruthy();
+  });
+});
+
 describe('createSampleFromQuery', () => {
   it('sends query/instrumental/vocal_language/temperature and remaps keyscale/timesignature', async () => {
     mockFetchOnce({

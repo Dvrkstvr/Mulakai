@@ -713,6 +713,15 @@ cover-capable model.
   needs a dated design section here before implementation. (Separate from —
   and not resolved by — the lyric *tag* vocabulary probe below, which is
   about `[Chorus]`/`[soft voice]`-style annotation tags, not word timing.)
+- **To-do: expose `get_lyric_score` as a new REST endpoint** (raised
+  2026-07-10, integration audit) — ACE-Step 1.5's quality-scoring mixin
+  (LM/DiT/PMI/Reward scores) is Python-internal only today, no REST route.
+  Same precedent as the already-added `/lyric_timestamp` and
+  `/v1/analyze_audio` endpoints on this project's "mulakai" ACE-Step-1.5
+  fork branch: wrap the scoring mixin in a new route there. Would enable
+  real best-of-N auto-selection once combined with a batch-size feature
+  (see the 2026-07-10 batch-size/progress/track-picker work). Deferred, not
+  yet scoped.
 
 ## Settings Screen (planned + implemented 2026-07-06)
 
@@ -973,34 +982,6 @@ File-level plan:
 - `client/src/api.ts` — three new `Song` fields.
 - `client/src/SongDetailRail.tsx` — a REFERENCE AUDIO metadata row when present.
 
-## Repaint Boundary Crossfade (planned + implemented 2026-07-10)
-
-ACE-Step's `/release_task` accepts `repaint_wav_crossfade_sec` on `repaint`
-tasks — a waveform-level splice crossfade at the repaint region boundary
-(0 = hard cut, the only behavior Mulakai has ever sent). This exposes it.
-`repaint_latent_crossfade_frames` (ACE-Step's own default is fine) stays
-out of scope.
-
-Decisions:
-- A small numeric stepper next to `RepaintBar.tsx`'s `scope-chip`, not a new
-  drag handle on `Waveform.tsx` — that canvas already shares a tight
-  pixel-tolerance hit-test zone across 4 drag modes at each region edge, and
-  a 5th interactive handle there would compete for the same few pixels.
-- Client-side clamp to `[0, min(5, regionSeconds) / 2]`; disabled with no
-  valid selection. `RepaintBar` reads/writes `useSettings().repaint`
-  directly (the `AddLayerTrigger.tsx` precedent for a leaf component owning
-  one settings field) rather than threading another prop down from Editor.
-- Default `0` matches ACE-Step's own default, so `repaintParams()` emits it
-  unconditionally instead of the conditional-omit AUTO pattern used
-  elsewhere in `settings.ts`.
-
-File-level plan:
-- `server/src/services/acestep.ts` — `repaint_wav_crossfade_sec?: number` on `ReleaseTaskParams`.
-- `server/src/routes/layers.ts` — forward it in the repaint route's optional-field block.
-- `client/src/settings.ts` — `RepaintSettings.crossfadeSec` (default `0`), emitted by `repaintParams()`.
-- `client/src/RepaintBar.tsx` — CROSSFADE stepper beside the scope chip.
-- `client/src/index.css` — `.crossfade-setting`/`.crossfade-input` (carbon/hairline, matches `.seed`).
-
 ## TAKES (batch_size) Slider — PROMPT tab (planned + implemented 2026-07-10)
 
 ACE-Step's `/release_task` accepts an optional `batch_size` (server defaults
@@ -1031,3 +1012,175 @@ File-level plan:
 - `server/src/routes/generate.ts` — `batch_size` added to `GEN_FIELDS` and
   `NUMERIC_FIELDS`. `ReleaseTaskParams.batch_size` already existed in
   `acestep.ts`, no change needed there.
+
+## Repaint Boundary Crossfade (planned + implemented 2026-07-10)
+
+ACE-Step's `/release_task` accepts `repaint_wav_crossfade_sec` on `repaint`
+tasks — a waveform-level splice crossfade at the repaint region boundary
+(0 = hard cut, the only behavior Mulakai has ever sent). This exposes it.
+`repaint_latent_crossfade_frames` (ACE-Step's own default is fine) stays
+out of scope.
+
+Decisions:
+- A small numeric stepper next to `RepaintBar.tsx`'s `scope-chip`, not a new
+  drag handle on `Waveform.tsx` — that canvas already shares a tight
+  pixel-tolerance hit-test zone across 4 drag modes at each region edge, and
+  a 5th interactive handle there would compete for the same few pixels.
+- Client-side clamp to `[0, min(5, regionSeconds) / 2]`; disabled with no
+  valid selection. `RepaintBar` reads/writes `useSettings().repaint`
+  directly (the `AddLayerTrigger.tsx` precedent for a leaf component owning
+  one settings field) rather than threading another prop down from Editor.
+- Default `0` matches ACE-Step's own default, so `repaintParams()` emits it
+  unconditionally instead of the conditional-omit AUTO pattern used
+  elsewhere in `settings.ts`.
+
+File-level plan:
+- `server/src/services/acestep.ts` — `repaint_wav_crossfade_sec?: number` on `ReleaseTaskParams`.
+- `server/src/routes/layers.ts` — forward it in the repaint route's optional-field block.
+- `client/src/settings.ts` — `RepaintSettings.crossfadeSec` (default `0`), emitted by `repaintParams()`.
+- `client/src/RepaintBar.tsx` — CROSSFADE stepper beside the scope chip.
+- `client/src/index.css` — `.crossfade-setting`/`.crossfade-input` (carbon/hairline, matches `.seed`).
+
+## `/v1/analyze_audio` Wiring (planned + implemented 2026-07-10)
+
+ACE-Step's `/v1/analyze_audio` ("describe this audio for me") was never called
+from anywhere in Mulakai. Wires it into the AUDIO (cover) and ARRANGE
+(complete) Create tabs: when a source is picked and the prompt is still
+empty, it auto-fills caption→prompt, lyrics, bpm, key/scale, and duration.
+
+Decisions:
+- Multipart field name is `audio` (verified against `analyze_audio_route.py`
+  — the route checks `form.get("audio") or form.get("src_audio")`). The
+  route's `src_audio_path` shortcut (a filesystem path shared with the
+  ACE-Step process) isn't usable across `ACESTEP_API_URL`, so Mulakai always
+  uploads bytes.
+- Real bug fixed along the way: some `/v1/analyze_audio` failure modes (DiT
+  not initialized, LLM not initialized/failed) are raised as genuine FastAPI
+  `HTTPException`s — a real non-2xx HTTP status with a bare `{"detail": ...}`
+  body, not ACE-Step's usual `{data,code,error}` envelope. `acestep.ts`'s
+  `call()` previously discarded that body on `!res.ok`, throwing a bare
+  `HTTP {status}`. Now parses the body (best-effort) and uses
+  `error ?? detail ?? "HTTP {status}"`. Verified live against a running
+  ACE-Step instance with no model loaded — the fixed `call()` correctly
+  surfaced `"DiT model not initialized"` instead of `"HTTP 503"`.
+- New `useAnalyzeSourceAudio.ts` hook: fires once per distinct source
+  selection (tracked by a ref key, not by effect dependency identity, since
+  callers construct a fresh source-descriptor object each render) and only
+  while `prompt.trim() === ''` at fire time — never overwrites a hand-typed
+  prompt. A second export, `useAnalyzeAndApply`, wraps it with the "fill only
+  still-empty/AUTO fields" application step both tabs need, so neither tab
+  duplicates that logic.
+- New `SongAnalysisFields.tsx` bundles the LYRICS textarea + `SongDetailsFields`
+  SONG DETAILS grid + analyzing/error state — identical block needed by both
+  tabs, so it's shared rather than duplicated (keeps both tab files under the
+  150-200 LOC module cap after the analyze-audio state/wiring additions).
+- Field scope: only caption/lyrics/bpm/key/duration get UI here — the
+  endpoint also returns `time_signature`/`vocal_language`, deliberately left
+  out to keep the footprint small (matches the audit's original scoping).
+
+File-level plan:
+- `server/src/services/acestep.ts` — `call()` error-body-parsing fix; new
+  `analyzeAudio()` (multipart, reuses `FormatInputResult`).
+- `server/src/routes/generate.ts` — `POST /analyze-audio`, same dual-source
+  (`src_audio` upload or `scratch_job_id`/`scratch_stem_kind`) resolution
+  `/complete` already does.
+- `client/src/api.ts` — `analyzeSourceAudio()`, same dual-source param shape
+  as `generateComplete()`; reuses `RefineResult` (identical shape to the
+  route's response, no new type).
+- `client/src/useAnalyzeSourceAudio.ts` (new) — trigger hook + apply-result
+  hook, described above.
+- `client/src/SongAnalysisFields.tsx` (new) — shared LYRICS + SONG DETAILS
+  block, described above.
+- `client/src/CreateAudioTab.tsx` / `CreateArrangeTab.tsx` — lyrics/bpm/
+  keyScale/duration state, `SongAnalysisFields`, `useAnalyzeAndApply` wired
+  to each tab's own source variants (upload+library / upload+scratch-stem),
+  forwarded into `startFromAudio`/`startComplete`'s params.
+
+## Add Layer: Forced batch_size 1 + Track-Type Picker (implemented 2026-07-10)
+
+Add Layer always defaulted to ACE-Step's own `batch_size` of 2 (server-side,
+whenever the field is omitted), but the client only ever kept one of the two
+generated takes — every call was silently paying for a discarded generation.
+Also wires up `lego`'s `track_name` field (fixed 12-item vocabulary), never
+used before this.
+
+Decisions:
+- `addLayerJobs.ts`'s `fullParams` now sets `batch_size: 1` last, so nothing
+  in `...params` can override it. No UI, no client change — Add Layer never
+  emitted `batch_size` before, so there's nothing to guard against.
+- New TRACK TYPE picker in `AddLayerTrigger.tsx`'s expanded form (ACE-Step's
+  fixed vocabulary: woodwinds/brass/fx/synth/strings/percussion/keyboard/
+  guitar/bass/drums/backing_vocals/vocals, + AUTO), sent as `track_name`
+  alongside the existing free-text `prompt` — independent channels
+  server-side (`track_name` only templates ACE-Step's own `instruction`
+  string, verified in `job_generation_setup.py`'s `_resolve_instruction()`).
+  Corrects the "ACE-Step Integration" table's `lego` row above and the
+  "Add Layer (lego)" design's 2026-07-02 "no track name param" note — both
+  accurate against the docs vendored at the time, stale against the current
+  fork source.
+- Local component state (`trackName`), not `addLayerStore.ts`'s shared
+  draft — that store exists specifically because `lyrics` needs to be
+  visible from both the compact footer and the rail's advanced panel; track
+  type has no such dual-surface need.
+
+File-level plan:
+- `server/src/services/addLayerJobs.ts` — `batch_size: 1` in `fullParams`.
+- `client/src/trackNames.ts` (new) — the 12-item vocabulary + AUTO, shaped
+  for `CustomSelect`.
+- `client/src/AddLayerTrigger.tsx` — `trackName` state, `CustomSelect`,
+  `track_name` added to submit params, reset alongside `prompt` on done.
+- `server/src/routes/songLayers.ts` — forwards `track_name` when present.
+- `server/src/services/acestep.ts` — `ReleaseTaskParams.track_name?: string`.
+- A layout bug found during manual verification: `.layer-add-row`'s
+  hover-expand `overflow: hidden` (for the height-reveal animation) was
+  clipping the new `CustomSelect`'s non-portal option list — fixed by
+  switching that state to `overflow: visible`.
+
+## Real Per-Job Progress (implemented 2026-07-10)
+
+`/v1/stats` only returns server-wide aggregate stats (job counts, queue
+size, avg job seconds) — no per-job progress, so it's the wrong endpoint for
+a progress bar. But `/query_result`, which Mulakai's server already polls
+every ~2s via the shared `poll()`, already returns real per-job data for a
+running job: `progress` (0.0–1.0, fed from an actual diffusion-loop
+callback, throttled to updates every ~0.5s or 1% change) and `stage`
+(free-text, defaults `"running"`) inside its result array, plus a top-level
+`progress_text` (last log line). Mulakai discarded all of it.
+
+Decisions:
+- New fields threaded end-to-end as `progress?: number`, `progressStage?:
+  string`, `progressText?: string` — deliberately not named `stage`
+  anywhere in Mulakai's own types, since `Job`/`EditorJob`/`GenerationJob`
+  already use `stage: 'running'|'done'|'failed'` for Mulakai's own job
+  lifecycle; reusing the name would collide two unrelated meanings.
+  `acestep.ts`'s `TaskResult` (the raw wire-shape type) is the one place
+  `stage?: string` is used as a direct ACE-Step pass-through.
+- `AIGeneratingBackground` (a bare `ShaderCanvas` in an absolutely-
+  positioned div) gains an optional `progress` prop: an absolutely-
+  positioned carbon-tinted veil (~70% opacity) covers the unprogressed
+  portion, reusing the existing "AI is working" visual language instead of
+  a new shape/hue. `undefined` progress falls back to today's look
+  unchanged, so every existing call site stays backward-compatible.
+- Text-only sites gain a `NN%` readout plus ACE-Step's own `stage` text when
+  it's more informative than a generic/empty value — new `fmtProgress`/
+  `stageDetail` helpers in `genProgress.ts`.
+- `stemSplit.ts`'s split-job polling is a separate code path from the
+  shared `poll()` and is intentionally not touched — a clean follow-up.
+
+File-level plan:
+- `server/src/services/acestep.ts` — `TaskResult.progress?`/`.stage?`;
+  `queryResult()`'s row type gains `progress_text?`.
+- `server/src/services/jobs.ts` — `Job` gains the three fields; `poll()`'s
+  `status === 0` branch reads them onto the job each tick instead of a bare
+  `continue`.
+- `server/src/routes/generate.ts` — `GET /:jobId` returns the three fields.
+- `client/src/api.ts` — `jobStatus()`'s return type gains them.
+- `client/src/generationStore.ts` / `editorJobStore.ts` — job types gain
+  the fields; both polling loops' running branch now `set()`s them each
+  tick (`editorJobStore.ts`'s previously just `continue`d while running).
+- `client/src/genProgress.ts` — `fmtProgress`, `stageDetail`.
+- `client/src/AIGeneratingBackground.tsx` — optional `progress` prop + veil.
+- `client/src/GeneratingCard.tsx`, `LibraryJobBadge.tsx`, `VersionHistory.tsx`,
+  `RemasterAction.tsx`, `RepaintBar.tsx`, `AddLayerTrigger.tsx` — pass
+  `progress` where `AIGeneratingBackground` is already used; append `%`/
+  stage to status text.
