@@ -1547,6 +1547,10 @@ footer .player {
   max-height: 120px;
   opacity: 1;
   margin-top: 8px;
+  /* TRACK TYPE's CustomSelect dropdown is an absolutely-positioned, non-portal
+     child (see CustomSelect.tsx) — it must be allowed to escape this row's
+     bounding box once expanded, or its option list gets clipped. */
+  overflow: visible;
 }
 
 .layer-add-expand input {

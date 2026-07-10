@@ -78,6 +78,28 @@ describe('startAddLayer', () => {
     expect(params.lyrics).toBe('hallelujah');
   });
 
+  it('forwards optional track_name into the lego task', async () => {
+    releaseTask.mockClear();
+    const songId = seedSong();
+
+    const job = await startAddLayer(songId, 'add drums', 'Drums', Buffer.from('mix'), { track_name: 'drums' });
+    await waitForDone(job.id);
+
+    const [params] = releaseTask.mock.calls[0] as [Record<string, unknown>];
+    expect(params.track_name).toBe('drums');
+  });
+
+  it('always forces batch_size to 1, even if the caller tries to override it', async () => {
+    releaseTask.mockClear();
+    const songId = seedSong();
+
+    const job = await startAddLayer(songId, 'add strings', 'Strings', Buffer.from('mix'), { batch_size: 4 });
+    await waitForDone(job.id);
+
+    const [params] = releaseTask.mock.calls[0] as [Record<string, unknown>];
+    expect(params.batch_size).toBe(1);
+  });
+
   it('does not persist a layer if aborted while ACE-Step was still accepting the submission', async () => {
     releaseTask.mockClear();
     const songId = seedSong();
