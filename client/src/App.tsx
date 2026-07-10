@@ -35,7 +35,7 @@ export default function App() {
   const [sort, setSort] = useState<LibrarySort>('newest');
   const [filter, setFilter] = useState<LibraryFilter>('all');
   const [folders, setFolders] = useState<Folder[]>([]);
-  const [folderScope, setFolderScope] = useState<FolderScope>(null);
+  const [folderScope, setFolderScope] = useState<FolderScope>(() => localStorage.getItem('folderScope') ?? null);
   const [totalSongCount, setTotalSongCount] = useState(0);
   const activeFolder = folders.find((f) => f.id === folderScope) ?? null;
   const unfiledCount = Math.max(0, totalSongCount - folders.reduce((sum, f) => sum + f.song_count, 0));
@@ -82,8 +82,19 @@ export default function App() {
   // (client-side, see visibleSongs below) but folder scoping is a server-side query param.
   useEffect(() => {
     refresh(query, folderScope);
+    if (folderScope) localStorage.setItem('folderScope', folderScope);
+    else localStorage.removeItem('folderScope');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderScope]);
+
+  // A folder id restored from localStorage may no longer exist (deleted elsewhere) —
+  // once folders load, fall back to "All Songs" rather than silently showing nothing.
+  useEffect(() => {
+    if (folderScope && folderScope !== 'unfiled' && folders.length > 0 && !folders.some((f) => f.id === folderScope)) {
+      setFolderScope(null);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [folders]);
 
   // The generating card's own store clears `job` a moment after it flips to 'done' (see
   // generationStore.ts's DONE_LINGER_MS) — refresh the library right as that happens so
