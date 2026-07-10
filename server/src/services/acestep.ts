@@ -200,6 +200,10 @@ export interface TaskResult {
   metas: { bpm?: number; duration?: number; keyscale?: string; timesignature?: string };
   seed_value: string;
   dit_model?: string;
+  /** 0.0-1.0, fed from ACE-Step's diffusion-loop callback; only meaningful while status is still running. */
+  progress?: number;
+  /** Free-text label from ACE-Step (e.g. "running"); raw wire field, not Mulakai's own Job.status lifecycle. */
+  stage?: string;
 }
 
 /** One aligned lyric line: seconds-scaled start/end plus its (possibly bracket-tagged) text. */
@@ -277,8 +281,10 @@ export async function initModel(opts: { model?: string; lmModel?: string; initLl
   await call('/v1/init', body);
 }
 
-export async function queryResult(taskIds: string[]): Promise<Array<{ task_id: string; status: 0 | 1 | 2; result: TaskResult[] }>> {
-  const rows = await call<Array<{ task_id: string; status: 0 | 1 | 2; result: string }>>(
+export async function queryResult(
+  taskIds: string[],
+): Promise<Array<{ task_id: string; status: 0 | 1 | 2; result: TaskResult[]; progress_text?: string }>> {
+  const rows = await call<Array<{ task_id: string; status: 0 | 1 | 2; result: string; progress_text?: string }>>(
     '/query_result',
     { task_id_list: taskIds },
   );

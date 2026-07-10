@@ -26,6 +26,10 @@ export interface Job {
   createdAt: number;
   /** Set by remasterJobs.ts on success; a scratch file path streamed once by remaster.ts's download route, then cleared. No other job type uses this. */
   resultPath?: string;
+  /** Live progress from ACE-Step's /query_result while status is 'running' — see poll(). */
+  progress?: number;
+  progressStage?: string;
+  progressText?: string;
 }
 
 const jobs = new Map<string, Job>();
@@ -155,7 +159,13 @@ export async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<
     if (job.status !== 'running') return; // aborted externally (see abortJob)
     try {
       const [row] = await queryResult([job.taskId]);
-      if (!row || row.status === 0) continue;
+      if (!row) continue;
+      if (row.status === 0) {
+        job.progress = row.result?.[0]?.progress;
+        job.progressStage = row.result?.[0]?.stage;
+        job.progressText = row.progress_text;
+        continue;
+      }
       if (row.status === 2) {
         job.status = 'failed';
         job.error = 'generation failed';

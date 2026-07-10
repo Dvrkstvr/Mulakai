@@ -243,6 +243,9 @@ export function Editor({ songId, onBack }: Props) {
         onPromptChange={setPrompt}
         job={job}
         startedAt={startedAt}
+        progress={myRepaint?.progress}
+        progressStage={myRepaint?.progressStage}
+        progressText={myRepaint?.progressText}
         busyElsewhere={busyElsewhere}
         onRepaint={repaint}
         error={error}

@@ -15,6 +15,10 @@ export interface GenerationJob {
   draft: CreateDraft;
   /** Set once the job finishes — the new song's id, so the caller can load it into the player. */
   songId?: string;
+  /** Live progress from ACE-Step's /query_result, refreshed each poll tick while running. */
+  progress?: number;
+  progressStage?: string;
+  progressText?: string;
 }
 
 /** A generation lock held by something other than a song-generation job (repaint,
@@ -78,7 +82,9 @@ async function pollJob(jobId: string, set: (fn: (s: GenerationState) => Partial<
       continue; // transient network hiccup — keep polling rather than surfacing a false failure
     }
     if (s.status === 'loading' || s.status === 'running') {
-      set((state) => (state.job?.jobId === jobId ? { job: { ...state.job, stage: s.status as GenStage } } : {}));
+      set((state) => (state.job?.jobId === jobId
+        ? { job: { ...state.job, stage: s.status as GenStage, progress: s.progress, progressStage: s.progressStage, progressText: s.progressText } }
+        : {}));
       continue;
     }
     if (s.status === 'done') {

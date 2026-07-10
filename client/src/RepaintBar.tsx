@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
-import { fmtElapsed, useElapsedMs } from './genProgress';
+import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { useSettings } from './settings';
 import type { Region } from './Waveform';
 
@@ -19,6 +19,10 @@ interface Props {
   onPromptChange: (prompt: string) => void;
   job: 'idle' | 'running';
   startedAt: number | null;
+  /** Live progress from ACE-Step's /query_result, threaded from Editor.tsx's myRepaint job. */
+  progress?: number;
+  progressStage?: string;
+  progressText?: string;
   /** True while a *different* generation (song gen, another layer's repaint, remaster, split…)
    * is running anywhere — disables this trigger proactively instead of just failing with a 409. */
   busyElsewhere: boolean;
@@ -27,7 +31,7 @@ interface Props {
 }
 
 /** Scope chip + prompt input + REPAINT REGION commit, re-targetable to whichever layer is focused. */
-export function RepaintBar({ layerName, nextVersion, selection, prompt, onPromptChange, job, startedAt, busyElsewhere, onRepaint, error }: Props) {
+export function RepaintBar({ layerName, nextVersion, selection, prompt, onPromptChange, job, startedAt, progress, progressStage, progressText, busyElsewhere, onRepaint, error }: Props) {
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const regionTooShort = !!selection && regionSeconds < REPAINT_MIN_SECONDS;
   const regionTooLong = !!selection && regionSeconds > REPAINT_MAX_SECONDS;
@@ -83,9 +87,14 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
         >
           {job === 'running' ? (
             <>
-              <AIGeneratingBackground />
-              <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+              <AIGeneratingBackground progress={progress} />
+              <span
+                style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}
+                title={progressText}
+              >
                 REPAINTING… {fmtElapsed(elapsedMs)}
+                {fmtProgress(progress) && ` · ${fmtProgress(progress)}`}
+                {stageDetail(progressStage) && ` · ${stageDetail(progressStage)}`}
               </span>
             </>
           ) : busyElsewhere ? 'BUSY ELSEWHERE' : 'REPAINT REGION'}

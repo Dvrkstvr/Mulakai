@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import type { GenerationJob } from './generationStore';
-import { fmtElapsed, useElapsedMs } from './genProgress';
+import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 
 const STAGE_LABEL: Record<GenerationJob['stage'], string> = {
   loading: 'LOADING MODEL',
@@ -33,7 +33,7 @@ export function GeneratingCard({ job, onRetry }: Props) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {!shrunk && !failed && <AIGeneratingBackground />}
+      {!shrunk && !failed && <AIGeneratingBackground progress={job.progress} />}
       <div className="generating-body">
         <div className="row-main">
           <span className="song-title">{job.title}</span>
@@ -42,7 +42,13 @@ export function GeneratingCard({ job, onRetry }: Props) {
         {!shrunk && (
           <div className="generating-status">
             <span className={failed ? 'stage-label failed' : 'stage-label'}>{STAGE_LABEL[job.stage]}</span>
-            {!failed && <span className="meta">{fmtElapsed(elapsedMs)} elapsed</span>}
+            {!failed && (
+              <span className="meta" title={job.progressText}>
+                {fmtElapsed(elapsedMs)} elapsed
+                {fmtProgress(job.progress) && ` · ${fmtProgress(job.progress)}`}
+                {stageDetail(job.progressStage) && ` · ${stageDetail(job.progressStage)}`}
+              </span>
+            )}
           </div>
         )}
       </div>

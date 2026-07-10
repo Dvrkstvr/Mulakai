@@ -9,6 +9,9 @@ interface JobBase {
   startedAt: number;
   stage: Stage;
   error?: string;
+  progress?: number; // live progress from ACE-Step's /query_result, refreshed each poll tick
+  progressStage?: string;
+  progressText?: string;
 }
 
 export interface RepaintJob extends JobBase { kind: 'repaint'; layerId: string }
@@ -91,7 +94,10 @@ async function runSingleJob(
     } catch {
       continue;
     }
-    if (status.status === 'loading' || status.status === 'running') continue;
+    if (status.status === 'loading' || status.status === 'running') {
+      set((s) => (s.editorJob?.jobId === jobId ? { editorJob: { ...s.editorJob, progress: status.progress, progressStage: status.progressStage, progressText: status.progressText } } : {}));
+      continue;
+    }
     if (status.status === 'done') {
       const doneJob = { ...job, stage: 'done' as const };
       set((s) => (s.editorJob?.jobId === jobId ? { editorJob: doneJob } : {}));
