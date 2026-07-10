@@ -31,6 +31,8 @@ export interface ReleaseTaskParams {
   repainting_start?: number;
   repainting_end?: number;
   audio_cover_strength?: number;
+  /** Waveform-level splice crossfade at the repaint region boundary, in seconds. 0 = hard cut (default). */
+  repaint_wav_crossfade_sec?: number;
   audio_format?: string;
   /** Anchor seed for variance-preserving noise mixing; only consumed when retake_variance > 0. */
   retake_seed?: string;

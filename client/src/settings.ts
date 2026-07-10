@@ -10,6 +10,7 @@ export interface GenSettings {
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;
+  batchSize: number; // 0 = AUTO (ACE-Step defaults to 2 server-side when omitted)
   shift: number; // 0 = AUTO
   inferMethod: '' | 'ode' | 'sde'; // '' = AUTO
   timesteps: string; // '' = unset; overrides inferenceSteps and shift when set
@@ -49,6 +50,8 @@ export interface RepaintSettings extends AdvancedSettings {
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;
+  /** Waveform-level splice crossfade at the repaint region boundary, seconds. 0 = hard cut (ACE-Step's own default). */
+  crossfadeSec: number;
   // NB: the advanced DiT knobs (shift/adg/cfg-interval) are Base-model only and
   // the LM knobs only apply to Add Layer (repaint skips the LM,
   // docs/ace-step-1.5/API.md#4.2) — repaintParams therefore emits only the DiT
@@ -119,6 +122,7 @@ export const useSettings = create<SettingsState>()(
         guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
+        batchSize: 0, // 0 = AUTO
         shift: 0, // 0 = AUTO
         inferMethod: '',
         timesteps: '',
@@ -139,6 +143,7 @@ export const useSettings = create<SettingsState>()(
         guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
+        crossfadeSec: 0, // 0 = hard cut (ACE-Step's own default)
         shift: 0, // 0 = AUTO
         inferMethod: '',
         timesteps: '',
@@ -192,6 +197,7 @@ export function genParams(g: GenSettings) {
     ...(g.guidanceScale > 0 ? { guidance_scale: g.guidanceScale } : {}),
     use_random_seed: g.randomSeed,
     ...(g.randomSeed ? {} : { seed: g.seed }),
+    ...(g.batchSize > 0 ? { batch_size: g.batchSize } : {}),
     ...(g.shift > 0 ? { shift: g.shift } : {}),
     ...(g.inferMethod ? { infer_method: g.inferMethod } : {}),
     ...(g.timesteps.trim() ? { timesteps: g.timesteps.trim() } : {}),
@@ -248,6 +254,7 @@ export function repaintParams(r: RepaintSettings) {
     ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
     use_random_seed: r.randomSeed,
     ...(r.randomSeed ? {} : { seed: r.seed }),
+    repaint_wav_crossfade_sec: r.crossfadeSec,
     ...ditAdvancedParams(r),
   };
 }

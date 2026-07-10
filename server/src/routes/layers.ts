@@ -51,7 +51,8 @@ const REPAINT_MAX_SECONDS = 90;
 layersRouter.post('/:id/repaint', async (req, res) => {
   const { prompt = '', start = 0, end = -1, audio_cover_strength,
     inference_steps, guidance_scale, use_random_seed, seed, model, lyrics, audio_format,
-    shift, infer_method, timesteps, use_adg, cfg_interval_start, cfg_interval_end } = req.body ?? {};
+    shift, infer_method, timesteps, use_adg, cfg_interval_start, cfg_interval_end,
+    repaint_wav_crossfade_sec } = req.body ?? {};
   const regionStart = Number(start);
   const regionEnd = Number(end);
   if (regionEnd > 0) {
@@ -79,6 +80,7 @@ layersRouter.post('/:id/repaint', async (req, res) => {
       ...(use_adg !== undefined ? { use_adg: Boolean(use_adg) } : {}),
       ...(cfg_interval_start !== undefined ? { cfg_interval_start: Number(cfg_interval_start) } : {}),
       ...(cfg_interval_end !== undefined ? { cfg_interval_end: Number(cfg_interval_end) } : {}),
+      ...(repaint_wav_crossfade_sec !== undefined ? { repaint_wav_crossfade_sec: Number(repaint_wav_crossfade_sec) } : {}),
     });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
