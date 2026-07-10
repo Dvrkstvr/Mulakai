@@ -9,6 +9,8 @@ import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
+import { CustomSelect } from './CustomSelect';
+import { TRACK_NAMES } from './trackNames';
 
 interface Props {
   songId: string;
@@ -34,6 +36,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   const resetDraft = useAddLayerDraft((s) => s.reset);
   const [legoModels, setLegoModels] = useState<string[] | null>(null);
   const [prompt, setPrompt] = useState('');
+  const [trackName, setTrackName] = useState('');
   const [mixError, setMixError] = useState('');
   const [expanded, setExpanded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
@@ -71,7 +74,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   // Runs once when *our* add-layer finishes, even if it settled while this row wasn't mounted
   // (e.g. the user navigated to the Library and back mid-generation).
   useEffect(() => {
-    if (mine?.stage === 'done') { setPrompt(''); resetDraft(); void onDone(); }
+    if (mine?.stage === 'done') { setPrompt(''); setTrackName(''); resetDraft(); void onDone(); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mine?.stage]);
 
@@ -103,6 +106,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
         prompt,
         layerName,
         ...(lyrics ? { lyrics } : {}),
+        ...(trackName ? { track_name: trackName } : {}),
         ...addLayerParams(addLayer, repaint),
         ...voiceParams(voice),
       });
@@ -140,6 +144,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
               disabled={job === 'running'}
               onChange={(e) => setPrompt(e.target.value)}
             />
+            <CustomSelect label="TRACK TYPE" value={trackName} onChange={setTrackName} options={TRACK_NAMES} />
             <span className="meta">
               STEPS {repaint.inferenceSteps > 0 ? repaint.inferenceSteps : 'AUTO'}
               {' · '}

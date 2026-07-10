@@ -25,6 +25,9 @@ export interface ReleaseTaskParams {
   batch_size?: number;
   task_type?: TaskType;
   instruction?: string;
+  /** lego/extract/complete only — templates ACE-Step's own instruction string server-side
+   * (acestep/constants.py's TRACK_NAMES); independent of the free-text prompt field. */
+  track_name?: string;
   repainting_start?: number;
   repainting_end?: number;
   audio_cover_strength?: number;

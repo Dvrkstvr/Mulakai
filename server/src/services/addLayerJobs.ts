@@ -40,6 +40,9 @@ export async function startAddLayer(
       prompt,
       repainting_start: 0,
       repainting_end: -1,
+      // ACE-Step defaults batch_size to 2 server-side when omitted, but poll() only
+      // ever keeps one result — force 1 so Add Layer doesn't pay for a discarded take.
+      batch_size: 1,
     };
     const ref = voice?.voiceId
       ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
