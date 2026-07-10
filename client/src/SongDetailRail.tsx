@@ -16,6 +16,13 @@ const UNFILED = '';
 
 const fmtDuration = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
+/** "<name>" plus influence percentages when present (text2music); label alone for cover/complete. */
+const referenceAudioValue = (song: Song): string => {
+  const label = song.reference_audio_label ?? '';
+  if (song.reference_audio_influence == null) return label;
+  return `${label} — audio ${Math.round(song.reference_audio_influence * 100)}% / style ${Math.round((song.reference_style_influence ?? 0) * 100)}%`;
+};
+
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="detail-meta-row">
@@ -125,6 +132,9 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
           <MetaRow label="KEY / SCALE" value={song.key_scale || 'AUTO'} />
           <MetaRow label="TIME SIGNATURE" value={song.time_signature ? timeSignatureLabel(song.time_signature) : 'AUTO'} />
           <MetaRow label="DURATION" value={song.duration ? fmtDuration(song.duration) : 'AUTO'} />
+          {song.reference_audio_label && (
+            <MetaRow label="REFERENCE AUDIO" value={referenceAudioValue(song)} />
+          )}
         </div>
 
         <div className="detail-meta">

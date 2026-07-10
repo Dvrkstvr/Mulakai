@@ -57,6 +57,31 @@ describe('startGeneration with an ad-hoc reference-audio upload', () => {
     const [, opts] = releaseTask.mock.calls[0] as [Record<string, unknown>, { referenceAudio?: unknown } | undefined];
     expect(opts?.referenceAudio).toBeUndefined();
   });
+
+  it('persists the reference-audio label + influences onto the song for the library rail', async () => {
+    const job = startGeneration({ prompt: 'a driving synthwave track' }, 'Ref Meta Song', {
+      referenceAudioFile: { data: Buffer.from('ref-bytes'), filename: 'my-clip.wav' },
+      audioInfluence: 0.8,
+      styleInfluence: 0.3,
+    });
+    await waitForDone(job.id);
+
+    const row = db.prepare(
+      `SELECT reference_audio_label AS label, reference_audio_influence AS a, reference_style_influence AS s
+         FROM songs WHERE title = ?`,
+    ).get('Ref Meta Song') as { label: string; a: number; s: number };
+    expect(row).toMatchObject({ label: 'my-clip.wav', a: 0.8, s: 0.3 });
+  });
+
+  it('leaves the reference-audio columns null when no reference was used', async () => {
+    const job = startGeneration({ prompt: 'a driving synthwave track' }, 'No Ref Song');
+    await waitForDone(job.id);
+
+    const row = db.prepare(
+      `SELECT reference_audio_label AS label FROM songs WHERE title = ?`,
+    ).get('No Ref Song') as { label: string | null };
+    expect(row.label).toBeNull();
+  });
 });
 
 describe('startGeneration abort race (the exact bug: create-view GENERATE, then header ABORT)', () => {

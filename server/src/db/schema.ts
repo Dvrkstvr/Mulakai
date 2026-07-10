@@ -18,6 +18,9 @@ CREATE TABLE IF NOT EXISTS songs (
   duration       REAL,
   favorite       INTEGER NOT NULL DEFAULT 0,
   folder_id      TEXT REFERENCES folders(id) ON DELETE SET NULL,
+  reference_audio_label     TEXT,               -- voice name / uploaded clip filename used to condition the generation, or null
+  reference_audio_influence REAL,               -- 0.0-1.0, only for text2music (cover/complete leave null)
+  reference_style_influence REAL,               -- 0.0-1.0, only for text2music
   trashed_at     TEXT,
   created_at     TEXT NOT NULL DEFAULT (datetime('now'))
 );

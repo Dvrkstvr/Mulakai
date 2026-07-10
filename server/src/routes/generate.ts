@@ -7,6 +7,8 @@ import { startCompleteGeneration, type CompleteSource } from '../services/comple
 import { getScratchSplitJob, scratchStemPath, discardScratchSplit } from '../services/scratchSplitJobs.js';
 import { cancelSplit } from '../services/stemSplit.js';
 import { resolveReferenceAudioFile } from '../services/referenceAudioResolve.js';
+import { getVoiceName } from '../services/voiceConditioning.js';
+import type { ReferenceAudioMeta } from '../services/jobs.js';
 import { GenLockError, releaseGenLock } from '../services/genLock.js';
 import {
   health,
@@ -38,6 +40,13 @@ const NUMERIC_FIELDS = new Set([
   'shift', 'cfg_interval_start', 'cfg_interval_end',
   'lm_temperature', 'lm_cfg_scale', 'lm_top_k', 'lm_top_p', 'lm_repetition_penalty',
 ]);
+
+/** Label-only reference-audio meta for cover/complete (influences don't apply there — see
+ * referenceAudioResolve.ts). Null when no reference was used. */
+function labelOnlyReferenceMeta(refFile?: Express.Multer.File, voiceId?: string): ReferenceAudioMeta | null {
+  const label = refFile ? (refFile.originalname || 'reference.wav') : voiceId ? getVoiceName(voiceId) : null;
+  return label ? { label, audioInfluence: null, styleInfluence: null } : null;
+}
 
 function pickParams(body: Record<string, unknown>): ReleaseTaskParams {
   const out: Record<string, unknown> = {};
@@ -95,6 +104,7 @@ generateRouter.post(
       const job = startCoverGeneration(
         srcFile.buffer, String(title), pickMultipartParams(req.body ?? {}), referenceAudio,
         folder_id ? String(folder_id) : undefined,
+        labelOnlyReferenceMeta(refFile, voice_id ? String(voice_id) : undefined),
       );
       res.status(202).json({ jobId: job.id });
     } catch (err) {
@@ -136,6 +146,7 @@ generateRouter.post(
       const job = startCompleteGeneration(
         src, String(title), pickMultipartParams(req.body ?? {}), referenceAudio,
         folder_id ? String(folder_id) : undefined,
+        labelOnlyReferenceMeta(refFile, voice_id ? String(voice_id) : undefined),
       );
       res.status(202).json({ jobId: job.id });
     } catch (err) {

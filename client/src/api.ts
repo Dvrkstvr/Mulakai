@@ -16,6 +16,11 @@ export interface Song {
   album: string;
   cover_art_file: string | null;
   folder_id: string | null;
+  /** The reference audio that conditioned the generation, if any (voice name or clip filename).
+   * Influences are populated for text2music only — cover/complete leave them null. */
+  reference_audio_label: string | null;
+  reference_audio_influence: number | null;
+  reference_style_influence: number | null;
 }
 
 export interface Folder {

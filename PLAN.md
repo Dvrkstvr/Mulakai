@@ -942,3 +942,33 @@ GENERATE below the non-scrolling `.app-body` and out of reach.
   repaint `SettingsPanel`; drops the footer lyrics prop threading.
 - `server/src/routes/layers.ts` (repaint) + `server/src/routes/songLayers.ts`
   (add layer) — forward the advanced DiT (both) and LM (add layer) params.
+
+## Reference Audio in Song Meta (planned + implemented 2026-07-09)
+
+The Create sidebar's `ReferenceAudioPicker` already lets a generation be
+conditioned on a saved voice profile or an ad-hoc uploaded clip, but which
+reference (if any) was used is dropped once the song persists — the Library
+detail rail can't show it. This records it on the song.
+
+Decisions:
+- Store three nullable flat columns on `songs` (consistent with the existing
+  flat bpm/key_scale style, no JSON blob): `reference_audio_label` (voice name
+  or uploaded clip filename), `reference_audio_influence`, `reference_style_influence`.
+- Influences are only meaningful for text2music (PROMPT tab), which remaps them
+  into `audio_cover_strength`/`guidance_scale`. Cover/complete treat a reference
+  as raw bytes (VARIANCE drives cover; complete has no mapping — see
+  referenceAudioResolve.ts), so those paths store the label only, influences null.
+- No move of the picker itself — it stays in the Create settings sidebar.
+
+File-level plan:
+- `server/src/db/schema.ts` + `db/index.ts` — three additive columns.
+- `server/src/services/voiceConditioning.ts` — `loadVoiceReference` returns the
+  voice `name`; add `getVoiceName(id)` for the label-only cover/complete paths.
+- `server/src/services/jobs.ts` — `ReferenceAudioMeta` type; `persistSong` gains
+  an optional `referenceMeta` and writes the three columns; `startGeneration`
+  builds it from the voice options.
+- `server/src/services/coverGenJobs.ts` / `completeGenJobs.ts` — accept + forward
+  a label-only `referenceMeta`.
+- `server/src/routes/generate.ts` — compute the label for cover/complete.
+- `client/src/api.ts` — three new `Song` fields.
+- `client/src/SongDetailRail.tsx` — a REFERENCE AUDIO metadata row when present.

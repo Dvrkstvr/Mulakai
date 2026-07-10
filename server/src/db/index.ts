@@ -23,4 +23,7 @@ ensureColumn('songs', 'genre', "genre TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'album', "album TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'cover_art_file', 'cover_art_file TEXT');
 ensureColumn('songs', 'folder_id', 'folder_id TEXT REFERENCES folders(id) ON DELETE SET NULL');
+ensureColumn('songs', 'reference_audio_label', 'reference_audio_label TEXT');
+ensureColumn('songs', 'reference_audio_influence', 'reference_audio_influence REAL');
+ensureColumn('songs', 'reference_style_influence', 'reference_style_influence REAL');
 db.exec(`CREATE INDEX IF NOT EXISTS idx_songs_folder ON songs(folder_id)`);

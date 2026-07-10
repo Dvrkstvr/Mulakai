@@ -86,6 +86,14 @@ export async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void
   }
 }
 
+/** What reference audio (if any) conditioned a generation, persisted onto the song for the
+ * Library detail rail. Influences are null for cover/complete, which don't remap them. */
+export interface ReferenceAudioMeta {
+  label: string;
+  audioInfluence: number | null;
+  styleInfluence: number | null;
+}
+
 export interface VoiceOptions {
   voiceId?: string;
   audioInfluence?: number;
@@ -108,14 +116,17 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
     const ref = voice?.voiceId
       ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
       : voice?.referenceAudioFile
-        ? { referenceAudio: voice.referenceAudioFile, audioInfluence: voice.audioInfluence ?? 0.5, styleInfluence: voice.styleInfluence ?? 0.5 }
+        ? { name: voice.referenceAudioFile.filename, referenceAudio: voice.referenceAudioFile, audioInfluence: voice.audioInfluence ?? 0.5, styleInfluence: voice.styleInfluence ?? 0.5 }
         : undefined;
     if (ref) applyVoiceInfluence(fullParams, ref);
+    const referenceMeta: ReferenceAudioMeta | null = ref
+      ? { label: ref.name, audioInfluence: ref.audioInfluence, styleInfluence: ref.styleInfluence }
+      : null;
     if (wasAborted(job)) return; // aborted while resolving the voice reference
     const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
     if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
     job.taskId = task_id;
-    await poll(job, (result) => persistSong(result.file, fullParams, result, title, folderId));
+    await poll(job, (result) => persistSong(result.file, fullParams, result, title, folderId, referenceMeta));
   }).finally(() => releaseGenLock(job.id));
   return job;
 }
@@ -211,6 +222,7 @@ export async function persistSong(
   result: TaskResult,
   title: string,
   folderId?: string | null,
+  referenceMeta?: ReferenceAudioMeta | null,
 ): Promise<string> {
   const audio = await downloadAudio(fileUrl);
   const lyricTimestamps = await fetchLyricTimestampsJson(result, params);
@@ -227,13 +239,15 @@ export async function persistSong(
   // ACE-Step's echo can come back with decoding artifacts, and every other write path
   // (repaintJobs.ts, versions.ts) already treats params.lyrics as the source of truth.
   db.prepare(
-    `INSERT INTO songs (id, title, caption, lyrics, bpm, key_scale, time_signature, duration, folder_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO songs (id, title, caption, lyrics, bpm, key_scale, time_signature, duration, folder_id,
+                        reference_audio_label, reference_audio_influence, reference_style_influence)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     songId, title, result.prompt, params.lyrics || result.lyrics,
     result.metas.bpm ?? null, result.metas.keyscale ?? '',
     result.metas.timesignature ?? '', result.metas.duration ?? null,
     folderId ?? null,
+    referenceMeta?.label ?? null, referenceMeta?.audioInfluence ?? null, referenceMeta?.styleInfluence ?? null,
   );
   db.prepare(
     `INSERT INTO layers (id, song_id, name, kind, position) VALUES (?, ?, 'Base', 'base', 0)`,
