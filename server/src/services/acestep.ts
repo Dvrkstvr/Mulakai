@@ -192,6 +192,19 @@ export async function createSampleFromQuery(params: {
   };
 }
 
+/**
+ * Calls ACE-Step's `/v1/analyze_audio` — "describe this audio for me": LM-generated
+ * caption/lyrics plus any metadata it infers (bpm/key/duration/etc), mirroring what
+ * `formatInput` does for text-only input. Multipart field name is `audio` (the route
+ * also accepts a `src_audio_path` shortcut for files already on the ACE-Step host's
+ * filesystem, but that doesn't apply across `ACESTEP_API_URL` — always upload bytes).
+ */
+export async function analyzeAudio(file: { data: Buffer; filename: string }): Promise<FormatInputResult> {
+  const form = new FormData();
+  form.append('audio', new Blob([new Uint8Array(file.data)]), file.filename);
+  return call('/v1/analyze_audio', undefined, { method: 'POST', body: form });
+}
+
 export interface TaskResult {
   file: string; // /v1/audio?path=... url
   status: 0 | 1 | 2;
@@ -235,7 +248,14 @@ async function call<T>(endpoint: string, body?: unknown, init?: RequestInit): Pr
       : { headers };
   }
   const res = await fetch(`${config.acestepUrl}${endpoint}`, opts);
-  if (!res.ok) throw new Error(`ACE-Step ${endpoint} -> HTTP ${res.status}`);
+  if (!res.ok) {
+    // Most ACE-Step failures come back as HTTP 200 with a {data,code,error} envelope (handled
+    // below), but some routes (e.g. analyze_audio's "DiT/LLM not initialized") raise a real
+    // FastAPI HTTPException — a genuine non-2xx status with a bare {"detail": "..."} body, no
+    // envelope at all. Surface that detail instead of a bare "HTTP 503".
+    const errBody = await res.json().catch(() => null) as { error?: string; detail?: string } | null;
+    throw new Error(`ACE-Step ${endpoint} -> ${errBody?.error ?? errBody?.detail ?? `HTTP ${res.status}`}`);
+  }
   const json = (await res.json()) as Envelope<T>;
   if (json.code !== 200) throw new Error(`ACE-Step ${endpoint} -> ${json.error ?? `code ${json.code}`}`);
   return json.data;

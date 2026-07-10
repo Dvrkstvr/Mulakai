@@ -198,7 +198,8 @@ requiring its own justification against a screen-count rule.
    editor doesn't get more usable by being 3x wider, so extra viewport width
    is left as margin here, unlike Editor's waveform).
    - **GENERATION TYPE** choice (acid-filled-parallelogram tabs, same idiom
-     as style-tag chips): **PROMPT** or **AUDIO**.
+     as style-tag chips): **PROMPT**, **AUDIO** (cover), or **ARRANGE**
+     (complete).
      - *Prompt*: title, description field, lyrics editor (mono) with
        instrumental toggle, one acid GENERATE bar. A lilac helper line under
        the description notes that the LM model derives the generation
@@ -209,10 +210,26 @@ requiring its own justification against a screen-count rule.
        idiom). FROM LIBRARY shows a searchable mini song-picker; the
        selected song uses **sky** (selection/scope — same concept as
        focusing a layer in the Editor), not lilac. Below the source picker:
-       a description field for the requested change, then GENERATE. DIT
-       MODEL stays enabled in the settings panel; LM MODEL is disabled
-       (`n/a`) since `cover` skips the LM planner, same as Editor's repaint
-       mode (`API.md` §4.2).
+       a description field for the requested change, then a LYRICS + SONG
+       DETAILS block (see below), then GENERATE COVER. DIT MODEL stays
+       enabled in the settings panel; LM MODEL is disabled (`n/a`) since
+       `cover` skips the LM planner, same as Editor's repaint mode
+       (`API.md` §4.2).
+     - *Arrange*: same shape as Audio but for `complete` — a **SOURCE**
+       sub-choice (UPLOAD SINGLE TRACK / SPLIT A SONG, the latter reusing
+       `ScratchSplitPicker`'s stem picker), a description field, LYRICS +
+       SONG DETAILS, then ARRANGE. Unlike Audio, `complete` doesn't skip the
+       LM planner, so THINKING MODE/AI ENHANCE stay live in the settings
+       panel here.
+     - **LYRICS + SONG DETAILS** (Audio/Arrange only — Prompt already has its
+       own copy of both, further up): once a source is picked and the
+       description field is still empty, ACE-Step's `/v1/analyze_audio`
+       ("describe this audio for me") runs automatically and fills in
+       caption→description, lyrics, and any of BPM/DURATION/KEY-SCALE it
+       infers — a small "analyzing source audio…" line appears while it
+       runs. It never overwrites text the user already typed; all fields
+       stay plain editable inputs afterward, same BPM/DURATION/KEY-SCALE
+       trio as Prompt's SONG DETAILS.
 3. **Editor** (the heart) — layout: a fixed-width **left settings panel** and
      fixed-width **right version-history rail** flank a fluid center column
      (timeline, layer stack, transport, prompt bar). The center column is the

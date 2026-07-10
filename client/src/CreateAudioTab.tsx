@@ -12,6 +12,8 @@ import { activeLayers } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { AutoTextarea } from './AutoTextarea';
+import { SongAnalysisFields } from './SongAnalysisFields';
+import { useAnalyzeAndApply, type AnalyzeSource } from './useAnalyzeSourceAudio';
 
 interface Props {
   songs: Song[];
@@ -30,6 +32,10 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
   const [selectedSongId, setSelectedSongId] = useState<string | null>(initialDraft.selectedSongId ?? null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState(initialDraft.prompt ?? '');
+  const [lyrics, setLyrics] = useState('');
+  const [bpm, setBpm] = useState(0); // 0 = AUTO
+  const [keyScale, setKeyScale] = useState(''); // '' = AUTO
+  const [duration, setDuration] = useState(0); // 0 = AUTO (seconds)
   const [model, setModel] = useState('');
   // VARIANCE 0-1, inverse of audio_cover_strength — same convention as repaint's slider
   // (settings.ts's repaintStrength): higher VARIANCE = more freedom from the source.
@@ -75,15 +81,30 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
     return encodeWav(mixed);
   };
 
+  // Keyed on the raw upload's identity or the picked library song id — a source resolves lazily
+  // (the library branch bounces a full mix down client-side) so it's only paid for on actual fire.
+  const analyzeSource: AnalyzeSource = source === 'upload'
+    ? (uploadFile ? { kind: 'file', key: `upload:${uploadFile.name}:${uploadFile.size}:${uploadFile.lastModified}`, resolve: async () => uploadFile } : null)
+    : (selectedSongId ? { kind: 'file', key: `library:${selectedSongId}`, resolve: resolveSrcAudio } : null);
+  const analysis = useAnalyzeAndApply(analyzeSource, prompt, lyrics, {
+    setPrompt, setLyrics, setBpm, setKeyScale, setDuration,
+  });
+
   const generate = async () => {
     setError('');
     setSubmitting(true);
-    const draft: CreateDraft = { genType: 'audio', source, selectedSongId: selectedSongId ?? undefined, prompt };
+    const draft: CreateDraft = {
+      genType: 'audio', source, selectedSongId: selectedSongId ?? undefined, prompt,
+      lyrics, bpm, keyScale, duration,
+    };
     try {
       const srcAudio = await resolveSrcAudio();
       await startFromAudio(
         {
-          title: title || 'Untitled', prompt, model, audio_cover_strength: 1 - variance,
+          title: title || 'Untitled', prompt, lyrics, model, audio_cover_strength: 1 - variance,
+          ...(bpm > 0 ? { bpm } : {}),
+          ...(keyScale ? { key_scale: keyScale } : {}),
+          ...(duration > 0 ? { audio_duration: duration } : {}),
           ...(voice.selectedVoiceId ? { voice_id: voice.selectedVoiceId } : {}),
           ...(folderId ? { folder_id: folderId } : {}),
         },
@@ -143,6 +164,13 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
         placeholder="Optional — describe the change (style, mood, instruments). Leave blank to follow the source as-is."
         value={prompt}
         onChange={setPrompt}
+      />
+      <SongAnalysisFields
+        analyzing={analysis.analyzing} error={analysis.error}
+        lyrics={lyrics} onLyricsChange={setLyrics}
+        bpm={bpm} onBpmChange={setBpm}
+        duration={duration} onDurationChange={setDuration}
+        keyScale={keyScale} onKeyScaleChange={setKeyScale}
       />
 
       <div className="generate-row">

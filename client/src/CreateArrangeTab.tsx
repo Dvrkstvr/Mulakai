@@ -10,6 +10,8 @@ import { useVoiceStore } from './voiceStore';
 import { useModelsForTask } from './useModelsForTask';
 import { useSettings, genParams } from './settings';
 import { AutoTextarea } from './AutoTextarea';
+import { SongAnalysisFields } from './SongAnalysisFields';
+import { useAnalyzeAndApply, type AnalyzeSource } from './useAnalyzeSourceAudio';
 
 interface Props {
   title: string;
@@ -31,6 +33,10 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [scratchSource, setScratchSource] = useState<{ jobId: string; kind: StemKind } | null>(null);
   const [prompt, setPrompt] = useState('');
+  const [lyrics, setLyrics] = useState('');
+  const [bpm, setBpm] = useState(0); // 0 = AUTO
+  const [keyScale, setKeyScale] = useState(''); // '' = AUTO
+  const [duration, setDuration] = useState(0); // 0 = AUTO (seconds)
   const [model, setModel] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -51,6 +57,13 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
   const sourceReady = source === 'upload' ? !!uploadFile : !!scratchSource;
   const ready = sourceReady && !!model && (arrangeModels?.length ?? 0) > 0;
 
+  const analyzeSource: AnalyzeSource = source === 'upload'
+    ? (uploadFile ? { kind: 'file', key: `upload:${uploadFile.name}:${uploadFile.size}:${uploadFile.lastModified}`, resolve: async () => uploadFile } : null)
+    : (scratchSource ? { kind: 'scratch', jobId: scratchSource.jobId, stemKind: scratchSource.kind } : null);
+  const analysis = useAnalyzeAndApply(analyzeSource, prompt, lyrics, {
+    setPrompt, setLyrics, setBpm, setKeyScale, setDuration,
+  });
+
   const feelingLucky = async () => {
     setLuckyError('');
     setLuckyLoading(true);
@@ -67,7 +80,7 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
   const generate = async () => {
     setError('');
     setSubmitting(true);
-    const draft: CreateDraft = { genType: 'complete', prompt };
+    const draft: CreateDraft = { genType: 'complete', prompt, lyrics, bpm, keyScale, duration };
     try {
       const src = source === 'upload'
         ? (uploadFile ? { file: uploadFile } : null)
@@ -75,7 +88,10 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
       if (!src) throw new Error(source === 'upload' ? 'choose an audio file to upload' : 'split a song and pick a stem to use as the source');
       await startComplete(
         {
-          title: title || 'Untitled', prompt, model, ...genParams(gen),
+          title: title || 'Untitled', prompt, lyrics, model, ...genParams(gen),
+          ...(bpm > 0 ? { bpm } : {}),
+          ...(keyScale ? { key_scale: keyScale } : {}),
+          ...(duration > 0 ? { audio_duration: duration } : {}),
           ...(voice.selectedVoiceId ? { voice_id: voice.selectedVoiceId } : {}),
           ...(folderId ? { folder_id: folderId } : {}),
         },
@@ -137,6 +153,14 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
         </button>
       </div>
       {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
+
+      <SongAnalysisFields
+        analyzing={analysis.analyzing} error={analysis.error}
+        lyrics={lyrics} onLyricsChange={setLyrics}
+        bpm={bpm} onBpmChange={setBpm}
+        duration={duration} onDurationChange={setDuration}
+        keyScale={keyScale} onKeyScaleChange={setKeyScale}
+      />
 
       <div className="generate-row">
         <motion.button
