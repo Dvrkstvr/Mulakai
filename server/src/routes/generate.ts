@@ -29,14 +29,14 @@ const GEN_FIELDS: (keyof ReleaseTaskParams)[] = [
   'prompt', 'lyrics', 'model', 'lm_model_path', 'thinking', 'use_format', 'use_cot_caption',
   'use_cot_language', 'bpm', 'key_scale',
   'time_signature', 'vocal_language', 'audio_duration', 'inference_steps',
-  'guidance_scale', 'use_random_seed', 'seed', 'audio_format',
+  'guidance_scale', 'use_random_seed', 'seed', 'batch_size', 'audio_format',
   'shift', 'infer_method', 'timesteps', 'use_adg', 'cfg_interval_start', 'cfg_interval_end',
   'lm_temperature', 'lm_cfg_scale', 'lm_negative_prompt', 'lm_top_k', 'lm_top_p', 'lm_repetition_penalty',
 ];
 
 /** Fields that arrive as strings over multipart form-data and need coercing back to their real type. */
 const NUMERIC_FIELDS = new Set([
-  'bpm', 'audio_duration', 'inference_steps', 'guidance_scale', 'seed',
+  'bpm', 'audio_duration', 'inference_steps', 'guidance_scale', 'seed', 'batch_size',
   'shift', 'cfg_interval_start', 'cfg_interval_end',
   'lm_temperature', 'lm_cfg_scale', 'lm_top_k', 'lm_top_p', 'lm_repetition_penalty',
 ]);

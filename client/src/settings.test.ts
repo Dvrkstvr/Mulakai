@@ -13,6 +13,7 @@ describe('genParams', () => {
     expect(p).not.toHaveProperty('timesteps');
     expect(p).not.toHaveProperty('lm_negative_prompt');
     expect(p).not.toHaveProperty('lm_top_k');
+    expect(p).not.toHaveProperty('batch_size');
     expect(p.use_adg).toBe(false);
     expect(p.cfg_interval_start).toBe(0);
     expect(p.cfg_interval_end).toBe(1);
@@ -42,6 +43,11 @@ describe('genParams', () => {
     expect(p.cfg_interval_end).toBe(0.9);
     expect(p.lm_negative_prompt).toBe('quiet');
     expect(p.lm_top_k).toBe(40);
+  });
+
+  it('includes batch_size only when TAKES is raised above AUTO (0)', () => {
+    expect(genParams({ ...baseGen(), batchSize: 0 })).not.toHaveProperty('batch_size');
+    expect(genParams({ ...baseGen(), batchSize: 3 }).batch_size).toBe(3);
   });
 });
 

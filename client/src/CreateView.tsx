@@ -3,6 +3,7 @@ import { api, type Song, type RefineResult } from './api';
 import { SettingsPanel } from './SettingsPanel';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
+import { SongDetailsFields } from './SongDetailsFields';
 import { RefineRail } from './RefineRail';
 import { TIME_SIGNATURES, VOCAL_LANGUAGES } from './songMeta';
 import { useSettings, genParams } from './settings';
@@ -276,16 +277,17 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
 
                 <div className="section-label">SONG DETAILS</div>
                 <div className="song-details-grid">
-                  <Slider label="BPM" value={bpm} min={0} max={300} step={1}
-                    readout={bpm === 0 ? 'AUTO' : undefined} onChange={setBpm} />
-                  <Slider label="DURATION" value={duration} min={0} max={600} step={5}
-                    readout={duration === 0 ? 'AUTO' : `${duration}s`} onChange={setDuration} />
-                  <div className="setting">
-                    <div className="setting-head"><span>KEY / SCALE</span></div>
-                    <input placeholder="AUTO (e.g. C Major, Am)" value={keyScale} onChange={(e) => setKeyScale(e.target.value)} />
-                  </div>
+                  <SongDetailsFields
+                    bpm={bpm} onBpmChange={setBpm}
+                    duration={duration} onDurationChange={setDuration}
+                    keyScale={keyScale} onKeyScaleChange={setKeyScale}
+                  />
                   <CustomSelect label="TIME SIGNATURE" value={timeSignature} onChange={setTimeSignature} options={TIME_SIGNATURES} />
                   <CustomSelect label="VOCAL LANGUAGE" value={vocalLanguage} onChange={setVocalLanguage} options={VOCAL_LANGUAGES} />
+                  <Slider label="TAKES" value={gen.batchSize} min={0} max={4} step={1}
+                    readout={gen.batchSize === 0 ? 'AUTO (2)' : undefined}
+                    onChange={(v) => useSettings.getState().setGen({ batchSize: v })}
+                    info="Generates N candidates per request. Only one is currently kept — the rest are discarded." />
                 </div>
 
                 <div className="generate-row">

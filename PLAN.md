@@ -972,3 +972,34 @@ File-level plan:
 - `server/src/routes/generate.ts` — compute the label for cover/complete.
 - `client/src/api.ts` — three new `Song` fields.
 - `client/src/SongDetailRail.tsx` — a REFERENCE AUDIO metadata row when present.
+
+## TAKES (batch_size) Slider — PROMPT tab (planned + implemented 2026-07-10)
+
+ACE-Step's `/release_task` accepts an optional `batch_size` (server defaults
+to 2 when omitted); Mulakai never sent it. Adds a user-facing slider for it,
+PROMPT tab only (AUDIO/ARRANGE are separate components, out of scope).
+
+Decisions:
+- Lives in `CreateView.tsx`'s existing `song-details-grid` (3-column, 5
+  items today — a 6th fills the one empty cell, no CSS change needed).
+- Label "TAKES", range 0-4 step 1. 0 = AUTO, readout `"AUTO (2)"` since the
+  server default is known — surfaced rather than hidden behind a bare AUTO.
+- `Slider`'s `info` tooltip discloses that job polling only keeps ONE of the
+  N results today (no multi-candidate picker yet), so raising TAKES above
+  AUTO costs render time without a way to see/pick the extras.
+- Extracted the BPM/DURATION/KEY-SCALE trio out of `CreateView.tsx` into a
+  new `SongDetailsFields.tsx` so a separate, already-scoped workstream can
+  reuse them elsewhere without re-touching `CreateView.tsx`. TIME SIGNATURE/
+  VOCAL LANGUAGE stay inline — they're PROMPT-tab-specific.
+
+File-level plan:
+- `client/src/settings.ts` — `GenSettings.batchSize` (0 = AUTO); `genParams()`
+  emits `batch_size` only when > 0, following the existing AUTO-omission
+  pattern (inferenceSteps/guidanceScale).
+- `client/src/SongDetailsFields.tsx` (new) — BPM/DURATION/KEY-SCALE trio,
+  props-driven, no owned state.
+- `client/src/CreateView.tsx` — swaps the inline trio for
+  `<SongDetailsFields>`; adds the TAKES `Slider` to the same grid.
+- `server/src/routes/generate.ts` — `batch_size` added to `GEN_FIELDS` and
+  `NUMERIC_FIELDS`. `ReleaseTaskParams.batch_size` already existed in
+  `acestep.ts`, no change needed there.

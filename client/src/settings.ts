@@ -10,6 +10,7 @@ export interface GenSettings {
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;
+  batchSize: number; // 0 = AUTO (ACE-Step defaults to 2 server-side when omitted)
   shift: number; // 0 = AUTO
   inferMethod: '' | 'ode' | 'sde'; // '' = AUTO
   timesteps: string; // '' = unset; overrides inferenceSteps and shift when set
@@ -119,6 +120,7 @@ export const useSettings = create<SettingsState>()(
         guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
+        batchSize: 0, // 0 = AUTO
         shift: 0, // 0 = AUTO
         inferMethod: '',
         timesteps: '',
@@ -192,6 +194,7 @@ export function genParams(g: GenSettings) {
     ...(g.guidanceScale > 0 ? { guidance_scale: g.guidanceScale } : {}),
     use_random_seed: g.randomSeed,
     ...(g.randomSeed ? {} : { seed: g.seed }),
+    ...(g.batchSize > 0 ? { batch_size: g.batchSize } : {}),
     ...(g.shift > 0 ? { shift: g.shift } : {}),
     ...(g.inferMethod ? { infer_method: g.inferMethod } : {}),
     ...(g.timesteps.trim() ? { timesteps: g.timesteps.trim() } : {}),
