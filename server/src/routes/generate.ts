@@ -16,6 +16,7 @@ import {
   formatInput,
   createRandomSample,
   createSampleFromQuery,
+  analyzeAudio,
   type ReleaseTaskParams,
 } from '../services/acestep.js';
 
@@ -29,14 +30,14 @@ const GEN_FIELDS: (keyof ReleaseTaskParams)[] = [
   'prompt', 'lyrics', 'model', 'lm_model_path', 'thinking', 'use_format', 'use_cot_caption',
   'use_cot_language', 'bpm', 'key_scale',
   'time_signature', 'vocal_language', 'audio_duration', 'inference_steps',
-  'guidance_scale', 'use_random_seed', 'seed', 'audio_format',
+  'guidance_scale', 'use_random_seed', 'seed', 'batch_size', 'audio_format',
   'shift', 'infer_method', 'timesteps', 'use_adg', 'cfg_interval_start', 'cfg_interval_end',
   'lm_temperature', 'lm_cfg_scale', 'lm_negative_prompt', 'lm_top_k', 'lm_top_p', 'lm_repetition_penalty',
 ];
 
 /** Fields that arrive as strings over multipart form-data and need coercing back to their real type. */
 const NUMERIC_FIELDS = new Set([
-  'bpm', 'audio_duration', 'inference_steps', 'guidance_scale', 'seed',
+  'bpm', 'audio_duration', 'inference_steps', 'guidance_scale', 'seed', 'batch_size',
   'shift', 'cfg_interval_start', 'cfg_interval_end',
   'lm_temperature', 'lm_cfg_scale', 'lm_top_k', 'lm_top_p', 'lm_repetition_penalty',
 ]);
@@ -155,6 +156,32 @@ generateRouter.post(
     }
   },
 );
+
+/** "Describe this audio for me" — analyzes an uploaded source track (or a scratch stem,
+ * same dual-source resolution `/complete` uses above) via ACE-Step's `/v1/analyze_audio`
+ * and returns its caption/lyrics/metadata guess for the client to prefill Create fields. */
+generateRouter.post('/analyze-audio', upload.fields([{ name: 'src_audio', maxCount: 1 }]), async (req, res) => {
+  const { scratch_job_id, scratch_stem_kind } = req.body ?? {};
+  const files = (req.files ?? {}) as Record<string, Express.Multer.File[] | undefined>;
+  const uploadedSrc = files.src_audio?.[0];
+
+  try {
+    let file: { data: Buffer; filename: string } | undefined;
+    if (uploadedSrc) {
+      file = { data: uploadedSrc.buffer, filename: uploadedSrc.originalname || 'source.wav' };
+    } else if (scratch_job_id && scratch_stem_kind) {
+      const job = getScratchSplitJob(String(scratch_job_id));
+      const filePath = job && scratchStemPath(job, String(scratch_stem_kind));
+      if (!filePath) return res.status(400).json({ error: 'unknown or not-ready scratch stem' });
+      file = { data: await fs.readFile(filePath), filename: `${scratch_stem_kind}.mp3` };
+    }
+    if (!file) return res.status(400).json({ error: 'src_audio or scratch_job_id/scratch_stem_kind is required' });
+
+    res.json(await analyzeAudio(file));
+  } catch (err) {
+    res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
+  }
+});
 
 generateRouter.post('/format', async (req, res) => {
   try {

@@ -2,7 +2,11 @@ import { motion } from 'framer-motion';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { fmtElapsed, useElapsedMs } from './genProgress';
+import { useSettings } from './settings';
 import type { Region } from './Waveform';
+
+/** Crossfade cap, seconds — half of whichever is smaller: a flat ceiling or the region itself. */
+const CROSSFADE_CAP_SECONDS = 5;
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -29,6 +33,9 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
   const regionTooLong = !!selection && regionSeconds > REPAINT_MAX_SECONDS;
   const regionValid = !!selection && !regionTooShort && !regionTooLong;
   const elapsedMs = useElapsedMs(job === 'running', startedAt);
+  const crossfadeSec = useSettings((s) => s.repaint.crossfadeSec);
+  const setRepaint = useSettings((s) => s.setRepaint);
+  const maxCrossfade = regionValid ? Math.min(CROSSFADE_CAP_SECONDS, regionSeconds) / 2 : 0;
 
   return (
     <>
@@ -39,6 +46,20 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
               : regionTooLong ? `${fmt(selection.start)}–${fmt(selection.end)} · MAX ${REPAINT_MAX_SECONDS}s`
                 : `${fmt(selection.start)}–${fmt(selection.end)} · ${layerName.toUpperCase()}`}
         </motion.div>
+        <div className="crossfade-setting">
+          <span className="crossfade-label">CROSSFADE</span>
+          <input
+            type="number"
+            className="crossfade-input"
+            min={0}
+            max={maxCrossfade}
+            step={0.1}
+            disabled={!regionValid}
+            value={crossfadeSec}
+            onChange={(e) => setRepaint({ crossfadeSec: Math.min(maxCrossfade, Math.max(0, Number(e.target.value) || 0)) })}
+          />
+          <span className="crossfade-unit">s</span>
+        </div>
         <input
           placeholder="Describe what should change in the selected region"
           value={prompt}

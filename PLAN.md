@@ -972,3 +972,117 @@ File-level plan:
 - `server/src/routes/generate.ts` — compute the label for cover/complete.
 - `client/src/api.ts` — three new `Song` fields.
 - `client/src/SongDetailRail.tsx` — a REFERENCE AUDIO metadata row when present.
+
+## TAKES (batch_size) Slider — PROMPT tab (planned + implemented 2026-07-10)
+
+ACE-Step's `/release_task` accepts an optional `batch_size` (server defaults
+to 2 when omitted); Mulakai never sent it. Adds a user-facing slider for it,
+PROMPT tab only (AUDIO/ARRANGE are separate components, out of scope).
+
+Decisions:
+- Lives in `CreateView.tsx`'s existing `song-details-grid` (3-column, 5
+  items today — a 6th fills the one empty cell, no CSS change needed).
+- Label "TAKES", range 0-4 step 1. 0 = AUTO, readout `"AUTO (2)"` since the
+  server default is known — surfaced rather than hidden behind a bare AUTO.
+- `Slider`'s `info` tooltip discloses that job polling only keeps ONE of the
+  N results today (no multi-candidate picker yet), so raising TAKES above
+  AUTO costs render time without a way to see/pick the extras.
+- Extracted the BPM/DURATION/KEY-SCALE trio out of `CreateView.tsx` into a
+  new `SongDetailsFields.tsx` so a separate, already-scoped workstream can
+  reuse them elsewhere without re-touching `CreateView.tsx`. TIME SIGNATURE/
+  VOCAL LANGUAGE stay inline — they're PROMPT-tab-specific.
+
+File-level plan:
+- `client/src/settings.ts` — `GenSettings.batchSize` (0 = AUTO); `genParams()`
+  emits `batch_size` only when > 0, following the existing AUTO-omission
+  pattern (inferenceSteps/guidanceScale).
+- `client/src/SongDetailsFields.tsx` (new) — BPM/DURATION/KEY-SCALE trio,
+  props-driven, no owned state.
+- `client/src/CreateView.tsx` — swaps the inline trio for
+  `<SongDetailsFields>`; adds the TAKES `Slider` to the same grid.
+- `server/src/routes/generate.ts` — `batch_size` added to `GEN_FIELDS` and
+  `NUMERIC_FIELDS`. `ReleaseTaskParams.batch_size` already existed in
+  `acestep.ts`, no change needed there.
+
+## Repaint Boundary Crossfade (planned + implemented 2026-07-10)
+
+ACE-Step's `/release_task` accepts `repaint_wav_crossfade_sec` on `repaint`
+tasks — a waveform-level splice crossfade at the repaint region boundary
+(0 = hard cut, the only behavior Mulakai has ever sent). This exposes it.
+`repaint_latent_crossfade_frames` (ACE-Step's own default is fine) stays
+out of scope.
+
+Decisions:
+- A small numeric stepper next to `RepaintBar.tsx`'s `scope-chip`, not a new
+  drag handle on `Waveform.tsx` — that canvas already shares a tight
+  pixel-tolerance hit-test zone across 4 drag modes at each region edge, and
+  a 5th interactive handle there would compete for the same few pixels.
+- Client-side clamp to `[0, min(5, regionSeconds) / 2]`; disabled with no
+  valid selection. `RepaintBar` reads/writes `useSettings().repaint`
+  directly (the `AddLayerTrigger.tsx` precedent for a leaf component owning
+  one settings field) rather than threading another prop down from Editor.
+- Default `0` matches ACE-Step's own default, so `repaintParams()` emits it
+  unconditionally instead of the conditional-omit AUTO pattern used
+  elsewhere in `settings.ts`.
+
+File-level plan:
+- `server/src/services/acestep.ts` — `repaint_wav_crossfade_sec?: number` on `ReleaseTaskParams`.
+- `server/src/routes/layers.ts` — forward it in the repaint route's optional-field block.
+- `client/src/settings.ts` — `RepaintSettings.crossfadeSec` (default `0`), emitted by `repaintParams()`.
+- `client/src/RepaintBar.tsx` — CROSSFADE stepper beside the scope chip.
+- `client/src/index.css` — `.crossfade-setting`/`.crossfade-input` (carbon/hairline, matches `.seed`).
+
+## `/v1/analyze_audio` Wiring (planned + implemented 2026-07-10)
+
+ACE-Step's `/v1/analyze_audio` ("describe this audio for me") was never called
+from anywhere in Mulakai. Wires it into the AUDIO (cover) and ARRANGE
+(complete) Create tabs: when a source is picked and the prompt is still
+empty, it auto-fills caption→prompt, lyrics, bpm, key/scale, and duration.
+
+Decisions:
+- Multipart field name is `audio` (verified against `analyze_audio_route.py`
+  — the route checks `form.get("audio") or form.get("src_audio")`). The
+  route's `src_audio_path` shortcut (a filesystem path shared with the
+  ACE-Step process) isn't usable across `ACESTEP_API_URL`, so Mulakai always
+  uploads bytes.
+- Real bug fixed along the way: some `/v1/analyze_audio` failure modes (DiT
+  not initialized, LLM not initialized/failed) are raised as genuine FastAPI
+  `HTTPException`s — a real non-2xx HTTP status with a bare `{"detail": ...}`
+  body, not ACE-Step's usual `{data,code,error}` envelope. `acestep.ts`'s
+  `call()` previously discarded that body on `!res.ok`, throwing a bare
+  `HTTP {status}`. Now parses the body (best-effort) and uses
+  `error ?? detail ?? "HTTP {status}"`. Verified live against a running
+  ACE-Step instance with no model loaded — the fixed `call()` correctly
+  surfaced `"DiT model not initialized"` instead of `"HTTP 503"`.
+- New `useAnalyzeSourceAudio.ts` hook: fires once per distinct source
+  selection (tracked by a ref key, not by effect dependency identity, since
+  callers construct a fresh source-descriptor object each render) and only
+  while `prompt.trim() === ''` at fire time — never overwrites a hand-typed
+  prompt. A second export, `useAnalyzeAndApply`, wraps it with the "fill only
+  still-empty/AUTO fields" application step both tabs need, so neither tab
+  duplicates that logic.
+- New `SongAnalysisFields.tsx` bundles the LYRICS textarea + `SongDetailsFields`
+  SONG DETAILS grid + analyzing/error state — identical block needed by both
+  tabs, so it's shared rather than duplicated (keeps both tab files under the
+  150-200 LOC module cap after the analyze-audio state/wiring additions).
+- Field scope: only caption/lyrics/bpm/key/duration get UI here — the
+  endpoint also returns `time_signature`/`vocal_language`, deliberately left
+  out to keep the footprint small (matches the audit's original scoping).
+
+File-level plan:
+- `server/src/services/acestep.ts` — `call()` error-body-parsing fix; new
+  `analyzeAudio()` (multipart, reuses `FormatInputResult`).
+- `server/src/routes/generate.ts` — `POST /analyze-audio`, same dual-source
+  (`src_audio` upload or `scratch_job_id`/`scratch_stem_kind`) resolution
+  `/complete` already does.
+- `client/src/api.ts` — `analyzeSourceAudio()`, same dual-source param shape
+  as `generateComplete()`; reuses `RefineResult` (identical shape to the
+  route's response, no new type).
+- `client/src/useAnalyzeSourceAudio.ts` (new) — trigger hook + apply-result
+  hook, described above.
+- `client/src/SongAnalysisFields.tsx` (new) — shared LYRICS + SONG DETAILS
+  block, described above.
+- `client/src/CreateAudioTab.tsx` / `CreateArrangeTab.tsx` — lyrics/bpm/
+  keyScale/duration state, `SongAnalysisFields`, `useAnalyzeAndApply` wired
+  to each tab's own source variants (upload+library / upload+scratch-stem),
+  forwarded into `startFromAudio`/`startComplete`'s params.

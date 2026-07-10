@@ -13,6 +13,7 @@ describe('genParams', () => {
     expect(p).not.toHaveProperty('timesteps');
     expect(p).not.toHaveProperty('lm_negative_prompt');
     expect(p).not.toHaveProperty('lm_top_k');
+    expect(p).not.toHaveProperty('batch_size');
     expect(p.use_adg).toBe(false);
     expect(p.cfg_interval_start).toBe(0);
     expect(p.cfg_interval_end).toBe(1);
@@ -43,6 +44,11 @@ describe('genParams', () => {
     expect(p.lm_negative_prompt).toBe('quiet');
     expect(p.lm_top_k).toBe(40);
   });
+
+  it('includes batch_size only when TAKES is raised above AUTO (0)', () => {
+    expect(genParams({ ...baseGen(), batchSize: 0 })).not.toHaveProperty('batch_size');
+    expect(genParams({ ...baseGen(), batchSize: 3 }).batch_size).toBe(3);
+  });
 });
 
 describe('shared advanced settings (repaint + add layer)', () => {
@@ -53,6 +59,11 @@ describe('shared advanced settings (repaint + add layer)', () => {
     expect(p.shift).toBe(2);
     expect(p).not.toHaveProperty('lm_temperature');
     expect(p).not.toHaveProperty('lm_cfg_scale');
+  });
+
+  it('repaintParams emits repaint_wav_crossfade_sec unconditionally, including the 0 default', () => {
+    expect(repaintParams(baseRepaint()).repaint_wav_crossfade_sec).toBe(0);
+    expect(repaintParams({ ...baseRepaint(), crossfadeSec: 1.5 }).repaint_wav_crossfade_sec).toBe(1.5);
   });
 
   it('addLayerParams takes steps/seed from the shared repaint slice and emits DiT + LM knobs', () => {
