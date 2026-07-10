@@ -972,3 +972,31 @@ File-level plan:
 - `server/src/routes/generate.ts` — compute the label for cover/complete.
 - `client/src/api.ts` — three new `Song` fields.
 - `client/src/SongDetailRail.tsx` — a REFERENCE AUDIO metadata row when present.
+
+## Repaint Boundary Crossfade (planned + implemented 2026-07-10)
+
+ACE-Step's `/release_task` accepts `repaint_wav_crossfade_sec` on `repaint`
+tasks — a waveform-level splice crossfade at the repaint region boundary
+(0 = hard cut, the only behavior Mulakai has ever sent). This exposes it.
+`repaint_latent_crossfade_frames` (ACE-Step's own default is fine) stays
+out of scope.
+
+Decisions:
+- A small numeric stepper next to `RepaintBar.tsx`'s `scope-chip`, not a new
+  drag handle on `Waveform.tsx` — that canvas already shares a tight
+  pixel-tolerance hit-test zone across 4 drag modes at each region edge, and
+  a 5th interactive handle there would compete for the same few pixels.
+- Client-side clamp to `[0, min(5, regionSeconds) / 2]`; disabled with no
+  valid selection. `RepaintBar` reads/writes `useSettings().repaint`
+  directly (the `AddLayerTrigger.tsx` precedent for a leaf component owning
+  one settings field) rather than threading another prop down from Editor.
+- Default `0` matches ACE-Step's own default, so `repaintParams()` emits it
+  unconditionally instead of the conditional-omit AUTO pattern used
+  elsewhere in `settings.ts`.
+
+File-level plan:
+- `server/src/services/acestep.ts` — `repaint_wav_crossfade_sec?: number` on `ReleaseTaskParams`.
+- `server/src/routes/layers.ts` — forward it in the repaint route's optional-field block.
+- `client/src/settings.ts` — `RepaintSettings.crossfadeSec` (default `0`), emitted by `repaintParams()`.
+- `client/src/RepaintBar.tsx` — CROSSFADE stepper beside the scope chip.
+- `client/src/index.css` — `.crossfade-setting`/`.crossfade-input` (carbon/hairline, matches `.seed`).

@@ -1099,6 +1099,47 @@ footer .player {
   color: var(--on-rust);
 }
 
+/* Repaint boundary crossfade — compact stepper next to the scope chip, not a
+   full vertical .setting block (this bar is a horizontal flex row). */
+.crossfade-setting {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.crossfade-label {
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-mid);
+  white-space: nowrap;
+}
+
+.crossfade-input {
+  width: 52px;
+  flex: none;
+  background: var(--carbon);
+  border: 1px solid var(--line-hi);
+  color: var(--text-hi);
+  padding: 6px 8px;
+  font: inherit;
+}
+
+.crossfade-input:focus {
+  outline: none;
+  border-color: var(--acid);
+}
+
+.crossfade-input:disabled {
+  opacity: 0.4;
+}
+
+.crossfade-unit {
+  font-size: 11px;
+  color: var(--text-mid);
+}
+
 /* Slim lane-control volume slider (VolumeSlider.tsx): track/fill/guides are
    siblings sharing one skewX transform (not nested), same technique
    .pgram-slider uses so their edges line up. --pct is a unitless 0–1
