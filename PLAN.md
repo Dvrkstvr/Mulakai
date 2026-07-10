@@ -972,3 +972,79 @@ File-level plan:
 - `server/src/routes/generate.ts` — compute the label for cover/complete.
 - `client/src/api.ts` — three new `Song` fields.
 - `client/src/SongDetailRail.tsx` — a REFERENCE AUDIO metadata row when present.
+
+## Progress, Crossfade, Takes, Analyze-Audio, Track Picker (planned 2026-07-10)
+
+Six features from the ACE-Step 1.5 integration audit (same date), decided
+2026-07-10. Full per-workstream decisions + file-level plans live in this
+session's plan file; summarized here per the Spec-Driven Development rule.
+All six are additive — no schema changes; new params ride through the
+existing generic `ReleaseTaskParams` → `params_json` pass-through the same
+way every prior advanced knob already does.
+
+**Key backend finding** (verified against the vendored ACE-Step-1.5 Python
+source, not just docs): `/v1/stats` only returns server-wide aggregate stats
+(job counts, queue size, avg job seconds) — no per-job progress. But
+`/query_result`, which Mulakai's server already polls every ~2s, already
+returns real per-job `progress` (0.0–1.0, fed from an actual diffusion-loop
+callback) and `stage` (free-text) for a running job — Mulakai currently
+discards both. The progress bar below is built on those existing fields,
+not `/v1/stats`.
+
+**Side-finding, out of scope here**: ACE-Step defaults `batch_size` to 2
+whenever a request omits it, and Mulakai's shared `poll()` already discards
+the second result — every job type that never sends `batch_size` (repaint,
+regenerate, retake, cover, complete, remaster) is paying ~2x compute today.
+Workstream 4 fixes this for Add Layer only, per explicit decision; the other
+call sites are a follow-up, not bundled in.
+
+1. **Real per-job progress** — thread `progress`/`stage`/`progress_text`
+   from `/query_result` through `acestep.ts` → `jobs.ts`'s shared `poll()` →
+   `GET /:jobId` → `generationStore.ts`/`editorJobStore.ts` → a new optional
+   `progress` prop on `AIGeneratingBackground` (a veil over its existing
+   `ShaderCanvas`) plus `%`/stage text everywhere elapsed time is shown
+   today (`RepaintBar.tsx`, `AddLayerTrigger.tsx`, `GeneratingCard.tsx`,
+   `LibraryJobBadge.tsx`, `VersionHistory.tsx`, `RemasterAction.tsx`).
+   `stemSplit.ts`'s separate polling path is not touched.
+2. **Repaint crossfade** — expose `repaint_wav_crossfade_sec` (default 0 =
+   today's hard cut) as a numeric stepper next to `RepaintBar.tsx`'s
+   existing scope chip, not a new waveform drag-handle (rejected: would
+   compete with `Waveform.tsx`'s existing 4 drag modes for the same edge
+   pixels). New `RepaintSettings.crossfadeSec` field.
+3. **TAKES slider** — `GenSettings.batchSize` (0 = AUTO), added to
+   `CreateView.tsx`'s SONG DETAILS grid (confirmed placement — DESIGN.md
+   says Create has no right panel), PROMPT tab only. `Slider.tsx`'s `info`
+   tooltip discloses that Mulakai currently keeps only one of N results.
+   `SongDetailsFields.tsx` (new) extracts the BPM/DURATION/KEY-SCALE trio
+   out of `CreateView.tsx` so workstream 5 can reuse it.
+4. **Add Layer forced to `batch_size: 1`** — one hardcoded field in
+   `addLayerJobs.ts`, no UI, fixes the same 2x-compute waste for this one
+   call site.
+5. **`/v1/analyze_audio` wiring** — auto-fills caption/lyrics/bpm/key/
+   duration when source audio is supplied with no prompt, on both
+   `CreateAudioTab.tsx` (cover) and `CreateArrangeTab.tsx` (complete,
+   including its scratch-stem source). Fixes a real bug found along the way:
+   `acestep.ts`'s `call()` discards the `{"detail": ...}` body FastAPI sends
+   on non-2xx `HTTPException`s (e.g. "LLM not initialized"), surfacing only
+   a bare `HTTP 503` — now reads `error ?? detail`. New shared
+   `useAnalyzeSourceAudio.ts` hook. Depends on workstream 3's
+   `SongDetailsFields.tsx`.
+6. **Add Layer track-type picker** — new `trackNames.ts` (ACE-Step's fixed
+   12-item vocabulary: woodwinds/brass/fx/synth/strings/percussion/
+   keyboard/guitar/bass/drums/backing_vocals/vocals) as a `CustomSelect` in
+   `AddLayerTrigger.tsx`, sent as `track_name` alongside the existing
+   free-text `prompt` — verified independent channels server-side
+   (`track_name` only templates ACE-Step's own `instruction` string).
+   Corrects PLAN.md's 2026-07-02 "no track name param" note above, which
+   was accurate for the docs at the time but is stale against the current
+   fork source.
+
+**Rejected**: loading a second ACE-Step model into slot 2 for faster
+Turbo/Base switching — explicit user call, "time is not much of a problem
+yet."
+
+**Execution**: dispatched as parallel worktree-isolated agents in two waves
+(wave 1: workstreams 4+6, 2, 3 — no code dependencies between them; wave 2:
+workstream 1, workstream 5 — the latter depends on wave 1's
+`SongDetailsFields.tsx`), one branch/PR per workstream per the Git Workflow
+rule below, reviewed and merged individually rather than auto-merged.
