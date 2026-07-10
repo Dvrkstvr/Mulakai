@@ -386,6 +386,10 @@ with viewport width — see the Editor layout note above.
   toggle + seed field. No LM MODEL or MODE segmented control here: ACE-Step
   skips the LM planner for repaint entirely (docs/ace-step-1.5/API.md#4.2),
   and the mode presets were replaced by the self-explanatory VARIANCE scale.
+  The prompt bar (`RepaintBar.tsx`) additionally has a CROSSFADE stepper next
+  to its scope chip — seconds of waveform-level splice crossfade at the
+  region boundary (0 = hard cut), clamped to half the selected region,
+  reusing the same plain numeric-input styling as KEY/SCALE/TIMESTEPS.
 - Controls: `Slider.tsx` parallelogram faders (see "Parallelogram fader"
   under Shape grammar) for STEPS/GUIDANCE/VARIANCE, acid-when-on toggles
   (parallelogram knob). Slider readouts in acid, except VARIANCE whose

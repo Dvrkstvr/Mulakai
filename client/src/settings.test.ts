@@ -61,6 +61,11 @@ describe('shared advanced settings (repaint + add layer)', () => {
     expect(p).not.toHaveProperty('lm_cfg_scale');
   });
 
+  it('repaintParams emits repaint_wav_crossfade_sec unconditionally, including the 0 default', () => {
+    expect(repaintParams(baseRepaint()).repaint_wav_crossfade_sec).toBe(0);
+    expect(repaintParams({ ...baseRepaint(), crossfadeSec: 1.5 }).repaint_wav_crossfade_sec).toBe(1.5);
+  });
+
   it('addLayerParams takes steps/seed from the shared repaint slice and emits DiT + LM knobs', () => {
     const r = { ...baseRepaint(), inferenceSteps: 40, randomSeed: false, seed: 7, useAdg: true, lmTopK: 30 };
     const p = addLayerParams({ ...baseAddLayer(), model: 'acestep-v15-xl-base' }, r);

@@ -50,6 +50,8 @@ export interface RepaintSettings extends AdvancedSettings {
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;
+  /** Waveform-level splice crossfade at the repaint region boundary, seconds. 0 = hard cut (ACE-Step's own default). */
+  crossfadeSec: number;
   // NB: the advanced DiT knobs (shift/adg/cfg-interval) are Base-model only and
   // the LM knobs only apply to Add Layer (repaint skips the LM,
   // docs/ace-step-1.5/API.md#4.2) — repaintParams therefore emits only the DiT
@@ -141,6 +143,7 @@ export const useSettings = create<SettingsState>()(
         guidanceScale: 0, // 0 = AUTO
         randomSeed: true,
         seed: 0,
+        crossfadeSec: 0, // 0 = hard cut (ACE-Step's own default)
         shift: 0, // 0 = AUTO
         inferMethod: '',
         timesteps: '',
@@ -251,6 +254,7 @@ export function repaintParams(r: RepaintSettings) {
     ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
     use_random_seed: r.randomSeed,
     ...(r.randomSeed ? {} : { seed: r.seed }),
+    repaint_wav_crossfade_sec: r.crossfadeSec,
     ...ditAdvancedParams(r),
   };
 }
