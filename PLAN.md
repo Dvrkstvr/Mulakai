@@ -1184,3 +1184,61 @@ File-level plan:
   `RemasterAction.tsx`, `RepaintBar.tsx`, `AddLayerTrigger.tsx` — pass
   `progress` where `AIGeneratingBackground` is already used; append `%`/
   stage to status text.
+
+## Manual "Analyze Audio" Trigger (planned + implemented 2026-07-11)
+
+`/v1/analyze_audio` Wiring (above) auto-fired on source selection while the
+prompt was empty. In practice this cold-starts badly: unlike generation,
+`/v1/analyze_audio` does not reliably lazy-load its own models — observed
+503 "not initialized" on a fresh ACE-Step process with no loading logs at
+all, immediate failure. Auto-fire-once-per-source plus a permanently-marked
+"already fired" ref meant a cold-start failure had no recovery path short of
+picking a different file or reloading the app (a `retry()` escape hatch was
+added same-day as a stopgap, superseded here).
+
+Decisions:
+- Replace auto-fire with an explicit "ANALYZE AUDIO" button — no more
+  prompt-empty gating or fired-source dedup logic; the user decides when to
+  spend the analysis call.
+- Before calling `/v1/analyze_audio`, explicitly load the currently-selected
+  model via the existing `initModel()` (`/v1/init`, `initLlm: true`) — same
+  primitive `ensureModelLoaded()` uses before generation jobs. Analysis needs
+  both DiT (audio→codes) and the LM (codes→caption/metadata), so `initLlm`
+  is unconditional here, unlike `ensureModelLoaded`'s conditional. Since both
+  Create tabs already auto-select a default model into `model` state on
+  mount, this is populated by the time the button is clickable — the button
+  reads as one click that "just handles it" regardless of cold/warm model
+  state, matching the user's ask.
+- New shared `AnalyzeAudioButton.tsx`: renders `AIGeneratingBackground` (the
+  same shader veil the main GENERATE button already uses) while analyzing,
+  so a slow cold model load reads as "working" rather than a hung click.
+  Kept as its own component (not inlined) to hold both `CreateAudioTab.tsx`/
+  `CreateArrangeTab.tsx` under the 150-200 LOC module cap.
+- `useAnalyzeSourceAudio` rewritten from an auto-firing effect keyed on
+  source identity to a plain imperative `analyze(source, model)` callback
+  with a request-token ref (guards against a stale in-flight response
+  clobbering state if the source changes mid-request). `sourceKey`/
+  `shouldAnalyze` and the `retry()` stopgap are gone — nothing left to dedupe
+  once firing is a deliberate click. New `canAnalyze(source, model, busy)`
+  pure helper (source present, model present, not mid-analysis/mid-generate)
+  drives the button's `disabled` state; unit-tested in place of the removed
+  `shouldAnalyze` tests.
+- `useAnalyzeAndApply`'s "only fill still-empty fields" apply step is
+  unchanged — still correct for a manual trigger (won't clobber a hand-typed
+  prompt if the user analyzes after typing something).
+
+File-level plan:
+- `server/src/services/acestep.ts` — `analyzeAudio()` gains an optional
+  `model` param; calls `initModel({ model, initLlm: true })` before hitting
+  `/v1/analyze_audio` when a model is given.
+- `server/src/routes/generate.ts` — `POST /analyze-audio` reads `model` from
+  the multipart body, forwards to `analyzeAudio()`.
+- `client/src/api.ts` — `analyzeSourceAudio()` gains a `model: string` param,
+  appended to the form.
+- `client/src/useAnalyzeSourceAudio.ts` — rewritten as described above.
+- `client/src/useAnalyzeSourceAudio.test.ts` — `sourceKey`/`shouldAnalyze`
+  tests replaced with `canAnalyze` tests.
+- `client/src/AnalyzeAudioButton.tsx` (new) — shared button + progress veil.
+- `client/src/CreateAudioTab.tsx` / `CreateArrangeTab.tsx` — drop the
+  auto-fire effect wiring, render `AnalyzeAudioButton` above
+  `SongAnalysisFields`, pass `model` into `analyze()`.

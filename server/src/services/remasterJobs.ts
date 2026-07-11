@@ -69,6 +69,9 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
       ...(song.bpm ? { bpm: song.bpm } : {}),
       ...(song.key_scale ? { key_scale: song.key_scale } : {}),
       ...(song.time_signature ? { time_signature: song.time_signature } : {}),
+      // ACE-Step defaults batch_size to 2 server-side when omitted, but poll() only
+      // ever keeps one result — force 1. Only the PROMPT tab's TAKES slider picks batch_size.
+      batch_size: 1,
     };
     await ensureModelLoaded(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading

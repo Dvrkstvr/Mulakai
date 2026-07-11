@@ -38,7 +38,9 @@ export async function startRepaint(layerId: string, params: ReleaseTaskParams): 
   registerJob(job);
   try {
     const srcAudio = await fs.readFile(path.join(config.audioDir, row.audio_file));
-    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'repaint' };
+    // Force batch_size 1 (see addLayerJobs.ts) — poll() only ever keeps one result,
+    // and only the PROMPT tab's TAKES slider should decide batch_size.
+    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'repaint', batch_size: 1 };
     await ensureModelLoaded(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: row.audio_file } });
@@ -93,7 +95,9 @@ export async function startRegenerate(versionId: string): Promise<Job> {
       srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
     }
 
-    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType };
+    // Force batch_size 1 (see addLayerJobs.ts) — poll() only ever keeps one result,
+    // and only the PROMPT tab's TAKES slider should decide batch_size.
+    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType, batch_size: 1 };
     await ensureModelLoaded(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
@@ -157,7 +161,9 @@ export async function startSimilarTake(versionId: string): Promise<Job> {
       srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
     }
 
-    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType };
+    // Force batch_size 1 (see addLayerJobs.ts) — poll() only ever keeps one result,
+    // and only the PROMPT tab's TAKES slider should decide batch_size.
+    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType, batch_size: 1 };
     await ensureModelLoaded(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);

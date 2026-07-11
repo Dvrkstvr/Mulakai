@@ -101,14 +101,20 @@ describe('call() non-2xx error handling', () => {
 });
 
 describe('analyzeAudio', () => {
-  it('posts multipart form-data with field name "audio" and returns the format-input-shaped result', async () => {
+  it('posts multipart form-data with field name "audio" and remaps keyscale/timesignature/language', async () => {
     let capturedBody: FormData | undefined;
     vi.stubGlobal(
       'fetch',
       vi.fn(async (_url: string, init?: RequestInit) => {
         capturedBody = init?.body as FormData;
         return new Response(
-          JSON.stringify({ data: { caption: 'a driving synthwave track', lyrics: '' }, code: 200, error: null }),
+          JSON.stringify({
+            data: {
+              caption: 'a driving synthwave track', bpm: 143, keyscale: 'D minor',
+              duration: 77, timesignature: '4', language: 'unknown',
+            },
+            code: 200, error: null,
+          }),
           { status: 200 },
         );
       }),
@@ -117,9 +123,50 @@ describe('analyzeAudio', () => {
 
     const result = await analyzeAudio({ data: Buffer.from('fake-audio-bytes'), filename: 'source.wav' });
 
-    expect(result).toEqual({ caption: 'a driving synthwave track', lyrics: '' });
+    expect(result).toEqual({
+      caption: 'a driving synthwave track', lyrics: '', bpm: 143, key_scale: 'D minor',
+      time_signature: '4', duration: 77, vocal_language: 'unknown',
+    });
     expect(capturedBody).toBeInstanceOf(FormData);
     expect(capturedBody?.get('audio')).toBeTruthy();
+  });
+
+  it('loads the given model + LM via /v1/init before calling /v1/analyze_audio', async () => {
+    const calledUrls: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        calledUrls.push(url);
+        if (url.endsWith('/v1/init')) {
+          return new Response(JSON.stringify({ data: {}, code: 200, error: null }), { status: 200 });
+        }
+        return new Response(
+          JSON.stringify({ data: { caption: 'a track' }, code: 200, error: null }),
+          { status: 200 },
+        );
+      }),
+    );
+    const { analyzeAudio } = await import('./acestep.js');
+
+    await analyzeAudio({ data: Buffer.from('fake-audio-bytes'), filename: 'source.wav' }, 'acestep-xl-sft');
+
+    expect(calledUrls).toEqual(['http://acestep.test/v1/init', 'http://acestep.test/v1/analyze_audio']);
+  });
+
+  it('skips /v1/init when no model is given', async () => {
+    const calledUrls: string[] = [];
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        calledUrls.push(url);
+        return new Response(JSON.stringify({ data: { caption: 'a track' }, code: 200, error: null }), { status: 200 });
+      }),
+    );
+    const { analyzeAudio } = await import('./acestep.js');
+
+    await analyzeAudio({ data: Buffer.from('fake-audio-bytes'), filename: 'source.wav' });
+
+    expect(calledUrls).toEqual(['http://acestep.test/v1/analyze_audio']);
   });
 });
 

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, ApiError, type StemKind, type StemResult } from './api';
 import { PlayerWaveform } from './PlayerWaveform';
+import { Dropzone } from './Dropzone';
 
 interface Props {
   /** Fired when the user picks a ready stem to use as a generation source — the split job/
@@ -149,10 +150,9 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
     <div className="split-panel">
       {!stems ? (
         <>
-          <label className="dropzone">
-            <input type="file" accept="audio/*" style={{ display: 'none' }} onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
+          <Dropzone accept="audio/*" onFile={setFile}>
             {file ? file.name : 'drag a full song here or click to browse'}
-          </label>
+          </Dropzone>
           {health === null ? (
             <span className="meta">checking available backends…</span>
           ) : (

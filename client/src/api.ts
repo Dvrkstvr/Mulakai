@@ -445,7 +445,10 @@ export const api = {
   /** "Describe this audio for me" — ACE-Step's `/v1/analyze_audio`, same dual-source shape
    * as `generateComplete`'s source param (a direct upload, or a reference into an already-run
    * scratch split job's stem). Returns the same caption/lyrics/metadata shape as `refineInput`. */
-  analyzeSourceAudio: (source: { file: Blob } | { scratchJobId: string; scratchStemKind: StemKind }): Promise<RefineResult> => {
+  analyzeSourceAudio: (
+    source: { file: Blob } | { scratchJobId: string; scratchStemKind: StemKind },
+    model: string,
+  ): Promise<RefineResult> => {
     const form = new FormData();
     if ('file' in source) {
       form.append('src_audio', source.file, 'source.wav');
@@ -453,6 +456,7 @@ export const api = {
       form.append('scratch_job_id', source.scratchJobId);
       form.append('scratch_stem_kind', source.scratchStemKind);
     }
+    form.append('model', model);
     return fetch('/api/generate/analyze-audio', { method: 'POST', body: form }).then((r) => json<RefineResult>(r));
   },
 

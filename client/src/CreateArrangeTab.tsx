@@ -1,9 +1,8 @@
 import { useEffect, useState } from 'react';
 import { api, type StemKind } from './api';
 import { CustomSelect } from './CustomSelect';
-import { AIGeneratingBackground } from './AIGeneratingBackground';
+import { GenerateButton } from './GenerateButton';
 import { ScratchSplitPicker } from './ScratchSplitPicker';
-import { motion } from 'framer-motion';
 import type { CreateDraft } from './createDraft';
 import { useGenerationStore } from './generationStore';
 import { useVoiceStore } from './voiceStore';
@@ -11,7 +10,9 @@ import { useModelsForTask } from './useModelsForTask';
 import { useSettings, genParams } from './settings';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
-import { useAnalyzeAndApply, type AnalyzeSource } from './useAnalyzeSourceAudio';
+import { AnalyzeAudioButton } from './AnalyzeAudioButton';
+import { Dropzone } from './Dropzone';
+import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
 
 interface Props {
   title: string;
@@ -58,9 +59,9 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
   const ready = sourceReady && !!model && (arrangeModels?.length ?? 0) > 0;
 
   const analyzeSource: AnalyzeSource = source === 'upload'
-    ? (uploadFile ? { kind: 'file', key: `upload:${uploadFile.name}:${uploadFile.size}:${uploadFile.lastModified}`, resolve: async () => uploadFile } : null)
+    ? (uploadFile ? { kind: 'file', resolve: async () => uploadFile } : null)
     : (scratchSource ? { kind: 'scratch', jobId: scratchSource.jobId, stemKind: scratchSource.kind } : null);
-  const analysis = useAnalyzeAndApply(analyzeSource, prompt, lyrics, {
+  const analysis = useAnalyzeAndApply(prompt, lyrics, {
     setPrompt, setLyrics, setBpm, setKeyScale, setDuration,
   });
 
@@ -121,10 +122,9 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
         <button className={source === 'split' ? 'tab active' : 'tab'} onClick={() => setSource('split')}><span>SPLIT A SONG</span></button>
       </div>
       {source === 'upload' ? (
-        <label className="dropzone">
-          <input type="file" accept="audio/*" style={{ display: 'none' }} onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)} />
+        <Dropzone accept="audio/*" onFile={setUploadFile}>
           {uploadFile ? uploadFile.name : 'drag a single track here (e.g. a cappella vocals) or click to browse'}
-        </label>
+        </Dropzone>
       ) : (
         <>
           {scratchSource && (
@@ -154,6 +154,11 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
       </div>
       {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
 
+      <AnalyzeAudioButton
+        disabled={!canAnalyze(analyzeSource, model, busy || analysis.analyzing)}
+        analyzing={analysis.analyzing}
+        onClick={() => analysis.analyze(analyzeSource, model)}
+      />
       <SongAnalysisFields
         analyzing={analysis.analyzing} error={analysis.error}
         lyrics={lyrics} onLyricsChange={setLyrics}
@@ -162,23 +167,7 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
         keyScale={keyScale} onKeyScaleChange={setKeyScale}
       />
 
-      <div className="generate-row">
-        <motion.button
-          className="acid"
-          animate={submitting ? { skewX: 0, backgroundColor: 'transparent', color: '#D4FF00' } : { skewX: -10, backgroundColor: '#D4FF00', color: '#1C1D21' }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          style={{ position: 'relative', overflow: 'hidden' }}
-          disabled={busy || !ready}
-          onClick={generate}
-        >
-          {submitting ? (
-            <>
-              <AIGeneratingBackground />
-              <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>STARTING…</span>
-            </>
-          ) : genJob ? 'A GENERATION IS ALREADY RUNNING' : 'ARRANGE'}
-        </motion.button>
-      </div>
+      <GenerateButton submitting={submitting} blocked={!!genJob} label="ARRANGE" disabled={busy || !ready} onClick={generate} />
       <div className="hint">Builds a whole new accompaniment around the source track — uses the BASE model, slower than Turbo — can take several minutes.</div>
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
     </>

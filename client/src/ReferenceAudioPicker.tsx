@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
 import { useVoiceStore } from './voiceStore';
+import { Dropzone } from './Dropzone';
 
 interface Props {
   /** Cover generation has its own VARIANCE-driven audio_cover_strength (see CreateAudioTab.tsx) —
@@ -58,10 +59,9 @@ export function ReferenceAudioPicker({ taskType }: Props) {
         </>
       )}
       {mode === 'upload' && (
-        <label className="dropzone">
-          <input type="file" accept="audio/*" style={{ display: 'none' }} onChange={(e) => setUploadedRefFile(e.target.files?.[0] ?? null)} />
-          {uploadedRefFile ? uploadedRefFile.name : 'a clip to steer timbre/mixing style'}
-        </label>
+        <Dropzone accept="audio/*" onFile={setUploadedRefFile}>
+          {uploadedRefFile ? uploadedRefFile.name : 'drag a clip here or click to steer timbre/mixing style'}
+        </Dropzone>
       )}
       {(selected || uploadedRefFile) && (
         <>

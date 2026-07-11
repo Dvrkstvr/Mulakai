@@ -15,9 +15,11 @@ interface Props {
 }
 
 /** LYRICS + SONG DETAILS block for the AUDIO/ARRANGE Create tabs — identical shape in both,
- * so it's shared rather than duplicated. Sits below the source picker; auto-fills from
+ * so it's shared rather than duplicated. Sits below `AnalyzeAudioButton`; fills from
  * `useAnalyzeSourceAudio`'s result (see CreateAudioTab.tsx/CreateArrangeTab.tsx), but the
- * fields stay plain editable inputs the user can override before generating. */
+ * fields stay plain editable inputs the user can override before generating. A failed
+ * analysis just re-clicks the same button, so its error is shown here without its own
+ * retry control. */
 export function SongAnalysisFields({
   analyzing, error, lyrics, onLyricsChange, bpm, onBpmChange, duration, onDurationChange, keyScale, onKeyScaleChange,
 }: Props) {

@@ -30,7 +30,10 @@ export function startCompleteGeneration(
   acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt });
   registerJob(job);
   void run(job, async () => {
-    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'complete' };
+    // ACE-Step defaults batch_size to 2 server-side when omitted, but poll() only ever
+    // keeps one result — force 1 so complete generation doesn't pay for a discarded take.
+    // Only the PROMPT tab's TAKES slider (jobs.ts's startGeneration) picks batch_size.
+    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'complete', batch_size: 1 };
     await ensureModelLoaded(fullParams);
     if (wasAborted(job)) return; // aborted while the model was loading (see abortJob)
     job.status = 'running';

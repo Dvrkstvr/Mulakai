@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, type Folder, type Song } from './api';
 import { timeSignatureLabel } from './songMeta';
 import { CustomSelect } from './CustomSelect';
+import { Dropzone } from './Dropzone';
 
 interface Props {
   song: Song;
@@ -178,16 +179,9 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
                 <button onClick={removeCoverArt}><span>REMOVE</span></button>
               </div>
             ) : (
-              <label className="dropzone">
-                <input
-                  type="file"
-                  accept="image/*"
-                  style={{ display: 'none' }}
-                  disabled={coverUploading}
-                  onChange={(e) => e.target.files?.[0] && uploadCoverArt(e.target.files[0])}
-                />
-                {coverUploading ? 'uploading…' : 'click to upload cover art'}
-              </label>
+              <Dropzone accept="image/*" disabled={coverUploading} onFile={uploadCoverArt}>
+                {coverUploading ? 'uploading…' : 'drag an image here or click to upload cover art'}
+              </Dropzone>
             )}
           </div>
         </div>

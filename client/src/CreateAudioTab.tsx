@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, type Song } from './api';
 import { CustomSelect } from './CustomSelect';
 import { VarianceSlider } from './SettingsPanel';
-import { AIGeneratingBackground } from './AIGeneratingBackground';
-import { motion } from 'framer-motion';
+import { GenerateButton } from './GenerateButton';
 import type { CreateDraft, Source } from './createDraft';
 import { useGenerationStore } from './generationStore';
 import { useVoiceStore } from './voiceStore';
@@ -13,7 +12,9 @@ import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
-import { useAnalyzeAndApply, type AnalyzeSource } from './useAnalyzeSourceAudio';
+import { AnalyzeAudioButton } from './AnalyzeAudioButton';
+import { Dropzone } from './Dropzone';
+import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
 
 interface Props {
   songs: Song[];
@@ -81,12 +82,12 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
     return encodeWav(mixed);
   };
 
-  // Keyed on the raw upload's identity or the picked library song id — a source resolves lazily
-  // (the library branch bounces a full mix down client-side) so it's only paid for on actual fire.
+  // Resolves lazily (the library branch bounces a full mix down client-side) so it's only
+  // paid for when the user actually clicks ANALYZE AUDIO.
   const analyzeSource: AnalyzeSource = source === 'upload'
-    ? (uploadFile ? { kind: 'file', key: `upload:${uploadFile.name}:${uploadFile.size}:${uploadFile.lastModified}`, resolve: async () => uploadFile } : null)
-    : (selectedSongId ? { kind: 'file', key: `library:${selectedSongId}`, resolve: resolveSrcAudio } : null);
-  const analysis = useAnalyzeAndApply(analyzeSource, prompt, lyrics, {
+    ? (uploadFile ? { kind: 'file', resolve: async () => uploadFile } : null)
+    : (selectedSongId ? { kind: 'file', resolve: resolveSrcAudio } : null);
+  const analysis = useAnalyzeAndApply(prompt, lyrics, {
     setPrompt, setLyrics, setBpm, setKeyScale, setDuration,
   });
 
@@ -134,10 +135,9 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
         <button className={source === 'library' ? 'tab active' : 'tab'} onClick={() => setSource('library')}><span>FROM LIBRARY</span></button>
       </div>
       {source === 'upload' ? (
-        <label className="dropzone">
-          <input type="file" accept="audio/*" style={{ display: 'none' }} onChange={(e) => setUploadFile(e.target.files?.[0] ?? null)} />
+        <Dropzone accept="audio/*" onFile={setUploadFile}>
           {uploadFile ? uploadFile.name : 'drag audio file here or click to browse'}
-        </label>
+        </Dropzone>
       ) : (
         <div className="song-picker">
           <input placeholder="Search your library…" value={librarySearch} onChange={(e) => setLibrarySearch(e.target.value)} />
@@ -165,6 +165,11 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
         value={prompt}
         onChange={setPrompt}
       />
+      <AnalyzeAudioButton
+        disabled={!canAnalyze(analyzeSource, model, busy || analysis.analyzing)}
+        analyzing={analysis.analyzing}
+        onClick={() => analysis.analyze(analyzeSource, model)}
+      />
       <SongAnalysisFields
         analyzing={analysis.analyzing} error={analysis.error}
         lyrics={lyrics} onLyricsChange={setLyrics}
@@ -173,23 +178,7 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
         keyScale={keyScale} onKeyScaleChange={setKeyScale}
       />
 
-      <div className="generate-row">
-        <motion.button
-          className="acid"
-          animate={submitting ? { skewX: 0, backgroundColor: 'transparent', color: '#D4FF00' } : { skewX: -10, backgroundColor: '#D4FF00', color: '#1C1D21' }}
-          transition={{ duration: 0.3, ease: 'easeOut' }}
-          style={{ position: 'relative', overflow: 'hidden' }}
-          disabled={busy || !ready}
-          onClick={generate}
-        >
-          {submitting ? (
-            <>
-              <AIGeneratingBackground />
-              <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>STARTING…</span>
-            </>
-          ) : genJob ? 'A GENERATION IS ALREADY RUNNING' : 'GENERATE COVER'}
-        </motion.button>
-      </div>
+      <GenerateButton submitting={submitting} blocked={!!genJob} label="GENERATE COVER" disabled={busy || !ready} onClick={generate} />
       <div className="hint">Renders a new song conditioned on the chosen source track — can take several minutes.</div>
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
     </>

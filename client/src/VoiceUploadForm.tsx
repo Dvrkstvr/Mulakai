@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from './api';
 import { useVoiceStore } from './voiceStore';
+import { Dropzone } from './Dropzone';
 
 /** Reads a browser-side audio duration without a server-side probing dependency. */
 function readDuration(file: File): Promise<number | undefined> {
@@ -50,16 +51,9 @@ export function VoiceUploadForm({ onClose }: { onClose?: () => void }) {
     <div className="voice-upload-form">
       <div className="section-label">MANAGE VOICES</div>
       <input placeholder="Voice name" value={name} onChange={(e) => setName(e.target.value)} />
-      <label className="dropzone">
-        <input
-          type="file"
-          accept="audio/*"
-          style={{ display: 'none' }}
-          disabled={uploading}
-          onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])}
-        />
-        {uploading ? 'uploading…' : 'click to upload a short vocal clip'}
-      </label>
+      <Dropzone accept="audio/*" disabled={uploading} onFile={upload}>
+        {uploading ? 'uploading…' : 'drag a short vocal clip here or click to upload'}
+      </Dropzone>
       {error && <div className="error">{error}</div>}
       <div className="voice-list">
         {voices.map((v) => (

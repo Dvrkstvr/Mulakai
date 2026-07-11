@@ -198,11 +198,41 @@ export async function createSampleFromQuery(params: {
  * `formatInput` does for text-only input. Multipart field name is `audio` (the route
  * also accepts a `src_audio_path` shortcut for files already on the ACE-Step host's
  * filesystem, but that doesn't apply across `ACESTEP_API_URL` — always upload bytes).
+ *
+ * Unlike generation, this endpoint doesn't reliably lazy-load its own models — a cold
+ * ACE-Step process can 503 "not initialized" immediately with no load ever kicked off.
+ * When `model` is given (the caller's currently-selected model), explicitly loads it
+ * (+ the LM, which analysis always needs for the caption/metadata step) first.
  */
-export async function analyzeAudio(file: { data: Buffer; filename: string }): Promise<FormatInputResult> {
+export async function analyzeAudio(
+  file: { data: Buffer; filename: string },
+  model?: string,
+): Promise<FormatInputResult> {
+  if (model) await initModel({ model, initLlm: true });
   const form = new FormData();
   form.append('audio', new Blob([new Uint8Array(file.data)]), file.filename);
-  return call('/v1/analyze_audio', undefined, { method: 'POST', body: form });
+  // Like createRandomSample/createSampleFromQuery, the raw response uses keyscale/timesignature/
+  // language (no underscore, different names) instead of key_scale/time_signature/vocal_language —
+  // remapped here so callers see FormatInputResult's shape. Without this, key_scale/time_signature
+  // silently come back undefined even though ACE-Step returned them.
+  const raw = await call<{
+    caption: string;
+    lyrics?: string;
+    bpm?: number;
+    keyscale?: string;
+    timesignature?: string;
+    duration?: number;
+    language?: string;
+  }>('/v1/analyze_audio', undefined, { method: 'POST', body: form });
+  return {
+    caption: raw.caption,
+    lyrics: raw.lyrics ?? '',
+    bpm: raw.bpm,
+    key_scale: raw.keyscale,
+    time_signature: raw.timesignature,
+    duration: raw.duration,
+    vocal_language: raw.language,
+  };
 }
 
 export interface TaskResult {

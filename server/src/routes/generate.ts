@@ -161,7 +161,7 @@ generateRouter.post(
  * same dual-source resolution `/complete` uses above) via ACE-Step's `/v1/analyze_audio`
  * and returns its caption/lyrics/metadata guess for the client to prefill Create fields. */
 generateRouter.post('/analyze-audio', upload.fields([{ name: 'src_audio', maxCount: 1 }]), async (req, res) => {
-  const { scratch_job_id, scratch_stem_kind } = req.body ?? {};
+  const { scratch_job_id, scratch_stem_kind, model } = req.body ?? {};
   const files = (req.files ?? {}) as Record<string, Express.Multer.File[] | undefined>;
   const uploadedSrc = files.src_audio?.[0];
 
@@ -177,7 +177,7 @@ generateRouter.post('/analyze-audio', upload.fields([{ name: 'src_audio', maxCou
     }
     if (!file) return res.status(400).json({ error: 'src_audio or scratch_job_id/scratch_stem_kind is required' });
 
-    res.json(await analyzeAudio(file));
+    res.json(await analyzeAudio(file, model ? String(model) : undefined));
   } catch (err) {
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
   }

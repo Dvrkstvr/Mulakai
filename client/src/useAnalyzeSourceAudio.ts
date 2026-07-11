@@ -1,8 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, type RefineResult, type StemKind } from './api';
 
 export type AnalyzeSource =
-  | { kind: 'file'; key: string; resolve: () => Promise<Blob> }
+  | { kind: 'file'; resolve: () => Promise<Blob> }
   | { kind: 'scratch'; jobId: string; stemKind: StemKind }
   | null;
 
@@ -14,55 +14,47 @@ export interface AnalyzeState {
 
 const IDLE: AnalyzeState = { analyzing: false, error: '', result: null };
 
-/** Identity string for a source selection, used to dedupe: "one analyze call per
- * distinct source" regardless of how many times the surrounding component re-renders. */
-export function sourceKey(source: AnalyzeSource): string | null {
-  if (!source) return null;
-  return source.kind === 'file' ? `file:${source.key}` : `scratch:${source.jobId}:${source.stemKind}`;
+/** Whether the ANALYZE AUDIO button should be enabled: a source is picked, a model is
+ * selected (analysis loads it via `/v1/init` before analyzing — see `analyzeAudio` in
+ * server/src/services/acestep.ts), and nothing else is already busy. */
+export function canAnalyze(source: AnalyzeSource, model: string, busy: boolean): boolean {
+  return !!source && !!model && !busy;
 }
 
-/** Pure trigger decision: fire only for a source not already analyzed (`firedKey`), and
- * only while the prompt is still empty — never auto-overwrite something the user typed. */
-export function shouldAnalyze(source: AnalyzeSource, prompt: string, firedKey: string | null): boolean {
-  const key = sourceKey(source);
-  return key !== null && key !== firedKey && prompt.trim() === '';
-}
-
-/** Auto-fires ACE-Step's `/v1/analyze_audio` once per distinct source selection when the
- * prompt is empty. Shared by CreateAudioTab and CreateArrangeTab so both auto-fill
- * caption/lyrics/bpm/key/duration the same way. */
-export function useAnalyzeSourceAudio(source: AnalyzeSource, prompt: string): AnalyzeState {
+/** Manually-triggered "analyze this source audio" call — `analyze()` loads the given model
+ * (+ its LM) then runs ACE-Step's `/v1/analyze_audio`. Shared by CreateAudioTab and
+ * CreateArrangeTab via `AnalyzeAudioButton`. A request-token ref guards against a stale
+ * in-flight response clobbering state if the source/model changes mid-request. */
+export function useAnalyzeSourceAudio(): AnalyzeState & { analyze: (source: AnalyzeSource, model: string) => void } {
   const [state, setState] = useState<AnalyzeState>(IDLE);
-  const firedKeyRef = useRef<string | null>(null);
+  const tokenRef = useRef(0);
 
-  useEffect(() => {
-    if (!shouldAnalyze(source, prompt, firedKeyRef.current)) return;
-    firedKeyRef.current = sourceKey(source);
-    let cancelled = false;
+  const analyze = useCallback((source: AnalyzeSource, model: string) => {
+    if (!source) return;
+    const token = ++tokenRef.current;
     setState({ analyzing: true, error: '', result: null });
     (async () => {
       try {
-        const input = source!.kind === 'file'
-          ? { file: await source!.resolve() }
-          : { scratchJobId: source!.jobId, scratchStemKind: source!.stemKind };
-        const result = await api.analyzeSourceAudio(input);
-        if (!cancelled) setState({ analyzing: false, error: '', result });
+        const input = source.kind === 'file'
+          ? { file: await source.resolve() }
+          : { scratchJobId: source.jobId, scratchStemKind: source.stemKind };
+        const result = await api.analyzeSourceAudio(input, model);
+        if (tokenRef.current === token) setState({ analyzing: false, error: '', result });
       } catch (err) {
-        if (!cancelled) setState({ analyzing: false, error: err instanceof Error ? err.message : String(err), result: null });
+        if (tokenRef.current === token) {
+          setState({ analyzing: false, error: err instanceof Error ? err.message : String(err), result: null });
+        }
       }
     })();
-    return () => { cancelled = true; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [source, prompt]);
+  }, []);
 
-  return state;
+  return { ...state, analyze };
 }
 
 /** `useAnalyzeSourceAudio` plus the "apply the result to form state" step every caller needs —
  * only fills fields that are still empty/AUTO, so it never clobbers a hand-edited value that
  * happened to get set between analysis starting and finishing. */
 export function useAnalyzeAndApply(
-  source: AnalyzeSource,
   prompt: string,
   lyrics: string,
   setters: {
@@ -72,8 +64,8 @@ export function useAnalyzeAndApply(
     setKeyScale: (v: string) => void;
     setDuration: (v: number) => void;
   },
-): AnalyzeState {
-  const state = useAnalyzeSourceAudio(source, prompt);
+): AnalyzeState & { analyze: (source: AnalyzeSource, model: string) => void } {
+  const state = useAnalyzeSourceAudio();
   useEffect(() => {
     if (!state.result) return;
     const r = state.result;
