@@ -16,6 +16,7 @@ import { VoicePicker } from './VoicePicker';
 import { useSettings, repaintParams } from './settings';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
+import { useMainTransportGuard } from './previewPlayback';
 import { useHeaderSlot } from './HeaderSlot';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
@@ -75,6 +76,7 @@ export function Editor({ songId, onBack }: Props) {
   }, [song?.id, song?.lyrics]);
 
   const engine = usePlaybackEngine(song?.layers ?? []);
+  useMainTransportGuard(engine);
   const playhead = engine.currentTime;
 
   // Space toggles play/pause; a second press within the window stops
