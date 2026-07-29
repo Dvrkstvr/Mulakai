@@ -3,6 +3,8 @@ import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
 import { useVoiceStore } from './voiceStore';
 import { Dropzone } from './Dropzone';
+import { AudioPreviewPopover } from './AudioPreviewPopover';
+import { useObjectUrl } from './useObjectUrl';
 
 interface Props {
   /** Cover generation has its own VARIANCE-driven audio_cover_strength (see CreateAudioTab.tsx) —
@@ -37,6 +39,7 @@ export function ReferenceAudioPicker({ taskType }: Props) {
 
   const selected = voices.find((v) => v.id === selectedVoiceId);
   const options = [{ label: 'NONE', value: '' }, ...voices.map((v) => ({ label: v.name, value: v.id }))];
+  const uploadedRefUrl = useObjectUrl(uploadedRefFile);
 
   const chooseMode = (m: RefMode) => {
     setMode(m);
@@ -54,14 +57,31 @@ export function ReferenceAudioPicker({ taskType }: Props) {
       </div>
       {mode === 'voice' && (
         <>
-          <CustomSelect label="VOICE" value={selectedVoiceId ?? ''} onChange={(v) => selectVoice(v || null)} options={options} />
+          <div className="voice-picker-head">
+            <CustomSelect label="VOICE" value={selectedVoiceId ?? ''} onChange={(v) => selectVoice(v || null)} options={options} />
+            {selected && (
+              <AudioPreviewPopover
+                src={`/audio/${selected.audio_file}`}
+                label={selected.name}
+                duration={selected.duration ?? undefined}
+              />
+            )}
+          </div>
           <div className="hint">manage saved voices in Settings &gt; Voices</div>
         </>
       )}
       {mode === 'upload' && (
-        <Dropzone accept="audio/*" onFile={setUploadedRefFile}>
-          {uploadedRefFile ? uploadedRefFile.name : 'drag a clip here or click to steer timbre/mixing style'}
-        </Dropzone>
+        <>
+          <Dropzone accept="audio/*" onFile={setUploadedRefFile}>
+            {uploadedRefFile ? uploadedRefFile.name : 'drag a clip here or click to steer timbre/mixing style'}
+          </Dropzone>
+          {uploadedRefFile && uploadedRefUrl && (
+            <div className="upload-preview-row">
+              <AudioPreviewPopover src={uploadedRefUrl} label={uploadedRefFile.name} />
+              <span className="hint" style={{ margin: 0 }}>preview the dropped clip</span>
+            </div>
+          )}
+        </>
       )}
       {(selected || uploadedRefFile) && (
         <>

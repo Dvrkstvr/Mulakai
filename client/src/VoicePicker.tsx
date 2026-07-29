@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
+import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { useVoiceStore } from './voiceStore';
 
 const AUDIO_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s actual sound (timbre, vocal tone, mixing) — higher pulls the result closer to the reference audio itself.';
@@ -28,6 +29,13 @@ export function VoicePicker() {
     <div className="voice-picker">
       <div className="voice-picker-head">
         <CustomSelect label="VOICE" value={selectedVoiceId ?? ''} onChange={(v) => selectVoice(v || null)} options={options} />
+        {selected && (
+          <AudioPreviewPopover
+            src={`/audio/${selected.audio_file}`}
+            label={selected.name}
+            duration={selected.duration ?? undefined}
+          />
+        )}
       </div>
       {selected && (
         <>
