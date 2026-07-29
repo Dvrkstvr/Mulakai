@@ -3,6 +3,8 @@ import { api, type Folder, type Song } from './api';
 import { timeSignatureLabel } from './songMeta';
 import { CustomSelect } from './CustomSelect';
 import { Dropzone } from './Dropzone';
+import { AudioPreview } from './AudioPreview';
+import { useVoiceStore } from './voiceStore';
 
 interface Props {
   song: Song;
@@ -39,6 +41,18 @@ function MetaRow({ label, value }: { label: string; value: string }) {
  * Genre/album/cover art/comment are per-song output-file tag fields (Artist/Encoder/ID3
  * version stay as global defaults in Settings > Output File Metadata). */
 export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreateCover, onRenamed }: Props) {
+  // The voice that conditioned this generation, when the stored label still matches a
+  // saved voice — ad-hoc uploaded clips aren't persisted, so those stay label-only.
+  const voices = useVoiceStore((s) => s.voices);
+  const fetchVoices = useVoiceStore((s) => s.fetchVoices);
+  useEffect(() => {
+    if (song.reference_audio_label) void fetchVoices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [song.reference_audio_label]);
+  const referenceVoice = song.reference_audio_label
+    ? voices.find((v) => v.name === song.reference_audio_label) ?? null
+    : null;
+
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
   const [comment, setComment] = useState(song.comment);
@@ -134,7 +148,19 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
           <MetaRow label="TIME SIGNATURE" value={song.time_signature ? timeSignatureLabel(song.time_signature) : 'AUTO'} />
           <MetaRow label="DURATION" value={song.duration ? fmtDuration(song.duration) : 'AUTO'} />
           {song.reference_audio_label && (
-            <MetaRow label="REFERENCE AUDIO" value={referenceAudioValue(song)} />
+            <>
+              <MetaRow label="REFERENCE AUDIO" value={referenceAudioValue(song)} />
+              {referenceVoice && (
+                <div className="rail-preview">
+                  <AudioPreview
+                    src={`/audio/${referenceVoice.audio_file}`}
+                    label={referenceVoice.name}
+                    duration={referenceVoice.duration ?? undefined}
+                    height={26}
+                  />
+                </div>
+              )}
+            </>
           )}
         </div>
 
