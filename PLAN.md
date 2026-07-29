@@ -1282,12 +1282,16 @@ Decisions:
   row. Starting any preview pauses the previous one and the main transport
   (footer / editor engine); starting the main transport stops the preview
   and closes any popover. Previews are auditions, not a second mixer.
-- **Exception — Library cards bind to the footer engine, not the preview
-  singleton**: a card's inline module and the footer are two views of the
-  same `useSingleAudioPlayback` engine (playing a card loads it into the
-  footer, scrubbing either stays in sync). This keeps Library's existing
-  "row play drives footer" behavior and avoids two competing players on the
-  same screen.
+- **Exception — Library keeps the footer player as its only song-playback
+  surface** (revised 2026-07-30; the original plan gave every card an inline
+  module bound to the footer engine, built and then rolled back same-day):
+  cards keep the plain play glyph driving the footer — a second per-card
+  waveform of the same song the footer already scrubs is duplication, not
+  unification. The song detail rail likewise does **not** duplicate song
+  playback; instead it previews the song's **reference audio** (the voice
+  clip that conditioned the generation) through the shared preview slot,
+  when the stored label still resolves to a saved voice — ad-hoc uploaded
+  clips aren't persisted, so those stay label-only.
 - **Peaks cache**: `waveformPeaks.ts` gains a URL-keyed cache and one shared
   `AudioContext` (today: fresh context + full re-fetch/re-decode per call —
   unacceptable once every library card renders a waveform). Object URLs
@@ -1314,8 +1318,9 @@ Decisions:
   1. `feat/audio-preview-core` — `AudioPreview.tsx` + `previewPlayback.ts`
      + peaks cache; refactor `SplitPanel` / `ScratchSplitPicker` onto it
      (no visual change, deletes the duplication). DESIGN.md addendum here.
-  2. `feat/audio-preview-library` — song cards (replaces the bare ▶ glyph)
-     + song detail rail preview block.
+  2. `feat/audio-preview-library` — song detail rail: reference-audio
+     preview (revised 2026-07-30 — cards and footer unchanged, see the
+     Library exception above).
   3. `feat/audio-preview-create` — voice picker micro, reference-upload
      micro, COVER song-picker rows, filled-dropzone previews.
   4. `feat/audio-preview-editor-rail` — version history micro, export stem
@@ -1334,9 +1339,8 @@ File-level plan:
   unit test for cache hit/eviction.
 - `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx` — drop
   hand-rolled playback state; consume `AudioPreview`.
-- `client/src/App.tsx` — library cards: inline module bound to the footer
-  engine.
-- `client/src/SongDetailRail.tsx` — preview block above METADATA.
+- `client/src/SongDetailRail.tsx` — reference-audio preview under the
+  REFERENCE AUDIO metadata row (revised 2026-07-30).
 - `client/src/VoicePicker.tsx`, `client/src/ReferenceAudioPicker.tsx` —
   micro variant beside the select / under the filled dropzone.
 - `client/src/CreateAudioTab.tsx` — micro per song-picker row; inline in
