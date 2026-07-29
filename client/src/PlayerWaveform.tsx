@@ -5,7 +5,10 @@ interface Props {
   audioUrl: string;
   duration: number;
   playhead: number;
-  onSeek: (seconds: number) => void;
+  onSeek?: (seconds: number) => void;
+  /** Fraction-based seek (0–1) — usable before the audio's duration is known,
+      unlike `onSeek` which needs a `duration` to convert clicks to seconds. */
+  onSeekFraction?: (fraction: number) => void;
   height?: number;
   /** Skip drawing the internal playhead line — used when a caller (e.g. LayerLane's shared overlay) draws its own. */
   showPlayhead?: boolean;
@@ -16,7 +19,7 @@ interface Props {
 const COLORS = { idle: '#55565F', playhead: '#30BCED' };
 
 /** Compact bar waveform + sky playhead for the library mini-player — click to seek, no region selection. */
-export function PlayerWaveform({ audioUrl, duration, playhead, onSeek, height = 28, showPlayhead = true, onClickOverride }: Props) {
+export function PlayerWaveform({ audioUrl, duration, playhead, onSeek, onSeekFraction, height = 28, showPlayhead = true, onClickOverride }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [peaks, setPeaks] = useState<number[]>([]);
 
@@ -52,10 +55,11 @@ export function PlayerWaveform({ audioUrl, duration, playhead, onSeek, height = 
 
   const seekFromEvent = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (onClickOverride) { onClickOverride(); return; }
-    if (duration <= 0) return;
     const rect = canvasRef.current!.getBoundingClientRect();
     const frac = Math.min(1, Math.max(0, (e.clientX - rect.left) / rect.width));
-    onSeek(frac * duration);
+    if (onSeekFraction) { onSeekFraction(frac); return; }
+    if (duration <= 0) return;
+    onSeek?.(frac * duration);
   };
 
   return (

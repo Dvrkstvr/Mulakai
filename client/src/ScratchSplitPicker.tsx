@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, ApiError, type StemKind, type StemResult } from './api';
-import { PlayerWaveform } from './PlayerWaveform';
+import { AudioPreview } from './AudioPreview';
+import { previewPlayback } from './previewPlayback';
 import { Dropzone } from './Dropzone';
 
 interface Props {
@@ -15,7 +16,8 @@ const POLL_MS = 2000;
  * Standalone stem split: upload any song, run ACE-Step `extract` or Demucs, get back
  * downloadable stems — no song/library entry is ever created. Doubles as a source-picker
  * for Complete generation (CreateCompleteTab.tsx) via `onUseStem`, but is fully usable on
- * its own (split, download, done) per the "bonus" utility request.
+ * its own (split, download, done) per the "bonus" utility request. Stem playback goes
+ * through the shared previewPlayback slot via AudioPreview.
  */
 export function ScratchSplitPicker({ onUseStem }: Props) {
   const [health, setHealth] = useState<{ acestep: boolean; demucs: boolean } | null>(null);
@@ -25,12 +27,7 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
   const [stems, setStems] = useState<StemResult[] | null>(null);
   const [splitting, setSplitting] = useState(false);
   const [error, setError] = useState('');
-  const [playing, setPlaying] = useState<StemKind | null>(null);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
   const pollRef = useRef<number | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-  const pendingSeekRef = useRef<number | null>(null);
 
   useEffect(() => {
     api.splitHealth().then(setHealth).catch(() => setHealth({ acestep: false, demucs: false }));
@@ -44,26 +41,6 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
 
   useEffect(() => () => {
     if (pollRef.current) window.clearInterval(pollRef.current);
-  }, []);
-
-  useEffect(() => {
-    const audio = audioRef.current;
-    if (!audio) return;
-    const onTime = () => setCurrentTime(audio.currentTime);
-    const onMeta = () => {
-      setDuration(audio.duration);
-      if (pendingSeekRef.current != null) {
-        audio.currentTime = pendingSeekRef.current;
-        pendingSeekRef.current = null;
-      }
-    };
-    audio.addEventListener('timeupdate', onTime);
-    audio.addEventListener('loadedmetadata', onMeta);
-    return () => {
-      audio.pause();
-      audio.removeEventListener('timeupdate', onTime);
-      audio.removeEventListener('loadedmetadata', onMeta);
-    };
   }, []);
 
   const poll = (id: string) => {
@@ -108,40 +85,11 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
   const reset = () => {
     if (pollRef.current) window.clearInterval(pollRef.current);
     if (jobId) void api.discardScratchSplit(jobId);
-    audioRef.current?.pause();
-    setPlaying(null);
-    setCurrentTime(0);
-    setDuration(0);
+    previewPlayback.stop();
     setJobId(null);
     setStems(null);
     setFile(null);
     setSplitting(false);
-  };
-
-  const togglePreview = (kind: StemKind) => {
-    const audio = audioRef.current;
-    if (!audio || !jobId) return;
-    if (playing === kind) {
-      audio.pause();
-      setPlaying(null);
-      return;
-    }
-    audio.src = api.scratchStemDownloadUrl(jobId, kind);
-    void audio.play();
-    setPlaying(kind);
-  };
-
-  const seekPreview = (kind: StemKind, seconds: number) => {
-    const audio = audioRef.current;
-    if (!audio || !jobId) return;
-    if (playing === kind && audio.readyState >= 1) {
-      audio.currentTime = seconds;
-      return;
-    }
-    pendingSeekRef.current = seconds;
-    audio.src = api.scratchStemDownloadUrl(jobId, kind);
-    void audio.play();
-    setPlaying(kind);
   };
 
   const canSubmit = !!file && !!model && !!health?.[model] && !splitting;
@@ -185,12 +133,6 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
           {stems.map((stem) => (
             <div key={stem.kind} className="stem-row">
               <div className="stem-row-head">
-                <button
-                  className={`stem-play${playing === stem.kind ? ' playing' : ''}`}
-                  disabled={stem.status !== 'done'}
-                  onClick={() => togglePreview(stem.kind)}
-                  aria-label={playing === stem.kind ? 'pause preview' : 'play preview'}
-                />
                 <span className="stem-name">{stem.kind}</span>
                 {stem.status === 'running' && <span className="meta">extracting…</span>}
                 {stem.status === 'failed' && <span className="error">{stem.error ?? 'failed'}</span>}
@@ -204,15 +146,7 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
                 )}
               </div>
               {stem.status === 'done' && jobId && (
-                <div className="stem-waveform-wrap">
-                  <PlayerWaveform
-                    audioUrl={api.scratchStemDownloadUrl(jobId, stem.kind)}
-                    duration={duration}
-                    playhead={playing === stem.kind ? currentTime : 0}
-                    onSeek={(seconds) => seekPreview(stem.kind, seconds)}
-                    height={28}
-                  />
-                </div>
+                <AudioPreview src={api.scratchStemDownloadUrl(jobId, stem.kind)} label={stem.kind} />
               )}
             </div>
           ))}
@@ -220,7 +154,6 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
         </>
       )}
       {error && <div className="error">{error} <button onClick={split}>RETRY</button></div>}
-      <audio ref={audioRef} onEnded={() => { setPlaying(null); setCurrentTime(0); }} />
     </div>
   );
 }

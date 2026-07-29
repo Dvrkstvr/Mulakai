@@ -2464,8 +2464,38 @@ footer .player {
   text-transform: uppercase;
 }
 
-/* Transport shape per DESIGN.md — hexagon, acid-filled — reused here for stem preview playback. */
-.stem-play {
+/* ---- Audio preview module (DESIGN.md "Audio preview module") ----
+   Inline anatomy: acid play/pause hexagon + waveform + click-to-seek + time
+   readout. Shared by every previewable-audio row via AudioPreview.tsx. */
+
+.audio-preview {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  width: 100%;
+}
+
+.audio-preview-wave {
+  flex: 1;
+  min-width: 0;
+}
+
+.preview-time {
+  font-family: monospace;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-low);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.preview-time.playing {
+  color: var(--sky);
+}
+
+/* Transport shape per DESIGN.md — hexagon, acid-filled. */
+.preview-play {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
@@ -2476,7 +2506,7 @@ footer .player {
   position: relative;
 }
 
-.stem-play::after {
+.preview-play::after {
   content: '';
   position: absolute;
   top: 50%;
@@ -2489,7 +2519,7 @@ footer .player {
   transform: translate(-40%, -50%);
 }
 
-.stem-play.playing::after {
+.preview-play.playing::after {
   border: none;
   width: 8px;
   height: 8px;
@@ -2497,17 +2527,13 @@ footer .player {
   transform: translate(-50%, -50%);
 }
 
-.stem-play:disabled {
+.preview-play:disabled {
   background: var(--line-hi);
   cursor: default;
 }
 
-.stem-play:disabled::after {
+.preview-play:disabled::after {
   border-left-color: var(--text-low);
-}
-
-.stem-waveform-wrap {
-  width: 100%;
 }
 
 /* Pushes SPLIT (and the delete button right after it) all the way to the

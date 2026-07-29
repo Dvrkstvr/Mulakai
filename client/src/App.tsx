@@ -10,6 +10,7 @@ import { reusePromptDraft, createCoverDraft, type CreateDraft } from './createDr
 import { LibraryToolbar, type LibraryFilter, type LibrarySort } from './LibraryToolbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSingleAudioPlayback } from './useSingleAudioPlayback';
+import { useMainTransportGuard } from './previewPlayback';
 import { Header } from './Header';
 import { HeaderSlotContext } from './HeaderSlot';
 import { NavigationContext } from './Navigation';
@@ -48,6 +49,7 @@ export default function App() {
     setHeaderRight(right);
   }, []);
   const footerEngine = useSingleAudioPlayback(playing?.audio_file ? `/audio/${playing.audio_file}` : '', true);
+  useMainTransportGuard(footerEngine);
   const forgeEnabled = useSettings((s) => s.forgeEnabled);
   const navValue = useMemo(() => ({ goToSettings: () => setView('settings') }), []);
   const isTakeover = view === 'create' || view === 'settings' || view === 'forge';
