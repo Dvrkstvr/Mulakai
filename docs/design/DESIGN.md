@@ -211,12 +211,22 @@ requiring its own justification against a screen-count rule.
      `auto-fill` columns reflow narrower automatically once the rail claims
      width — no separate narrow-layout rule needed, same trick as Create's
      `with-rail` column. The rail shows the song's caption, a METADATA block
-     (BPM/KEY-SCALE/TIME SIGNATURE/DURATION, same labels as Create's SONG
-     DETAILS), and LYRICS, plus two quick actions: **REUSE PROMPT** (acid-
-     filled, the one primary commit action) opens Create prefilled with this
-     song's prompt/lyrics/metadata; **CREATE COVER FROM AUDIO** (acid-
-     outline, sibling per the one-filled-acid-CTA rule) opens Create's Audio
-     → From Library path with this song preselected.
+     (GENERATED WITH, then BPM/KEY-SCALE/TIME SIGNATURE/DURATION, same labels
+     as Create's SONG DETAILS), and LYRICS, plus two quick actions: **REUSE
+     PROMPT** (acid-filled, the one primary commit action) opens Create
+     prefilled with this song's prompt/lyrics/metadata, **on the generation
+     tab that made it** — a cover's prompt describes a change to a source
+     track, so replaying it in PROMPT (from-scratch) reads as nonsense.
+     GENERATED WITH names that tab (PROMPT/COVER/ARRANGE) so the action's
+     destination is visible before the click, and a consequence line under
+     the two actions states it in words. For COVER/ARRANGE origins the
+     source track can't come along (uploads aren't kept, library mixes are
+     bounced on demand), so the reopened tab states the gap inline and waits
+     for a source rather than looking ready to generate.
+     **CREATE COVER FROM AUDIO** (acid-outline, sibling per the
+     one-filled-acid-CTA rule) opens Create's Audio → From Library path with
+     this song preselected — it is the action that seeds a source, which is
+     why REUSE PROMPT never quietly does so.
 2. **Create** — its own takeover screen, reached from Library's create bar.
    Header stays back/brand/status only (same as Editor's — the header is a
    single persistent element and doesn't carry per-screen content); a
