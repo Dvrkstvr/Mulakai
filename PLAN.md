@@ -1490,6 +1490,11 @@ File-level plan:
   PROMPT consequence text names the target tab.
 - `client/src/useAnalyzeSourceAudio.ts` — treat carried prompt/lyrics as
   fillable.
+- `client/src/voiceStore.ts` — `missingReferenceLabel` +
+  `restoreReference()`; `selectVoice`/`setUploadedRefFile` clear the warning.
+- `client/src/ReferenceAudioPicker.tsx` — follow the store into voice/upload
+  mode; render the missing-reference warning.
+- `client/src/index.css` — `.warn-note` (rust hairline, no toast animation).
 - `docs/design/DESIGN.md` — the rail's REUSE PROMPT description (currently
   prompt-only, `DESIGN.md:215`) in PR 1; the draft-persistence rule in
   PR 2; CLEAR DRAFT's anatomy and confirm copy in PR 3.
@@ -1501,10 +1506,43 @@ File-level plan:
   Playwright step covering type-in-PROMPT → switch to COVER → text is
   still there.
 
+### Reference-audio carry (added 2026-07-30, ships with PR 1)
+
+Reuse restored the words but not the *voice*: a song generated with voice
+"Daniel" at audio 80% / style 30% came back with the reference control on
+NONE, so the one thing hardest to re-guess — the conditioning — was silently
+dropped. The song already records all of it (`reference_audio_label`,
+`reference_audio_influence`, `reference_style_influence`, added in the
+Reference Audio in Song Meta section above).
+
+- The draft carries `referenceLabel` + the two influences; `voiceStore.ts`
+  gains `restoreReference(label, audio, style)` which matches the label
+  against the saved voices **by name** — the label is all a song records —
+  selects it, then applies the song's influences. Order matters:
+  `selectVoice()` resets influences to that voice's defaults, so the song's
+  own values have to land after it, not before.
+- Influences are null for cover/complete origins (they never persisted
+  them, see the schema comment), in which case the matched voice keeps its
+  own defaults rather than being forced to 0.
+- **A label that matches nothing is stated, not swallowed**: the store keeps
+  `missingReferenceLabel` and `ReferenceAudioPicker` renders a rust
+  `.warn-note` naming it. The two causes are indistinguishable from what's
+  stored — a deleted voice and an ad-hoc uploaded clip (never saved) both
+  leave a bare label — so the copy covers both instead of guessing from the
+  filename. Cleared the moment the user picks any reference themselves.
+- `ReferenceAudioPicker`'s local `mode` now follows the store into
+  `voice`/`upload` when something is selected. This is also a latent bug fix
+  independent of reuse: the store is global and the picker is not, so
+  selecting a voice, leaving Create and coming back showed NONE over a
+  selection that `voiceParams()` would still have sent.
+- CREATE COVER FROM AUDIO deliberately does **not** restore a voice — it
+  means "make a cover of this audio", not "rebuild this song's recipe".
+
 Rollout — one problem per PR, in dependency order:
 1. `feat/reuse-origin-method` — server column + backfill, origin-aware
-   reuse mapping, rail origin line, retry-draft `genType`. Ships the actual
-   complaint on its own, no refactor attached.
+   reuse mapping, rail origin line, retry-draft `genType`, and the
+   reference-audio carry above. Ships the actual complaint on its own, no
+   refactor attached.
 2. `feat/create-draft-store` — lift shared state into the store, per-method
    slices, `CreatePromptTab` extraction, carried-over hint, the analyze
    interaction.
