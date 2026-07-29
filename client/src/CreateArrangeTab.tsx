@@ -12,6 +12,8 @@ import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
 import { Dropzone } from './Dropzone';
+import { AudioPreview } from './AudioPreview';
+import { useObjectUrl } from './useObjectUrl';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
 
 interface Props {
@@ -32,6 +34,7 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
   const gen = useSettings((s) => s.gen);
   const [source, setSource] = useState<ArrangeSource>('upload');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const uploadUrl = useObjectUrl(uploadFile);
   const [scratchSource, setScratchSource] = useState<{ jobId: string; kind: StemKind } | null>(null);
   const [prompt, setPrompt] = useState('');
   const [lyrics, setLyrics] = useState('');
@@ -122,9 +125,12 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
         <button className={source === 'split' ? 'tab active' : 'tab'} onClick={() => setSource('split')}><span>SPLIT A SONG</span></button>
       </div>
       {source === 'upload' ? (
-        <Dropzone accept="audio/*" onFile={setUploadFile}>
-          {uploadFile ? uploadFile.name : 'drag a single track here (e.g. a cappella vocals) or click to browse'}
-        </Dropzone>
+        <>
+          <Dropzone accept="audio/*" onFile={setUploadFile}>
+            {uploadFile ? uploadFile.name : 'drag a single track here (e.g. a cappella vocals) or click to browse'}
+          </Dropzone>
+          {uploadFile && uploadUrl && <AudioPreview src={uploadUrl} label={uploadFile.name} height={26} />}
+        </>
       ) : (
         <>
           {scratchSource && (

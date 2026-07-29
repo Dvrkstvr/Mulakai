@@ -1897,6 +1897,17 @@ footer .player {
   padding: 8px 10px;
   font-size: 11px;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.song-pick-title {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .song-pick.current {
@@ -2543,6 +2554,81 @@ footer .player {
 
 .preview-play:disabled::after {
   border-left-color: var(--text-low);
+}
+
+/* Micro variant — the hexagon alone; the waveform lives in .preview-popover. */
+.preview-play.micro {
+  width: 18px;
+  height: 18px;
+}
+
+.preview-play.micro::after {
+  border-top-width: 3.5px;
+  border-bottom-width: 3.5px;
+  border-left-width: 5px;
+}
+
+.preview-play.micro.playing::after {
+  width: 7px;
+  height: 7px;
+}
+
+/* Fixed-position (body portal) so scrolling rails and framer-transformed view
+   containers can't clip or re-anchor it — see AudioPreviewPopover.tsx. */
+.preview-popover {
+  position: fixed;
+  z-index: 200;
+  width: 240px;
+  background: var(--panel);
+  border: 1px solid var(--line-hi);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.preview-popover-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.preview-popover-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.preview-popover-close {
+  background: none;
+  border: none;
+  color: var(--text-low);
+  font-size: 11px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.preview-popover-close:hover {
+  color: var(--rust-text);
+}
+
+/* Micro preview beside a filled sidebar dropzone (ReferenceAudioPicker). */
+.upload-preview-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The micro hexagon rides the select's input row — pull it down flush with
+   the field's baseline rather than centering on the label+field pair. */
+.voice-picker-head .preview-play.micro {
+  margin-bottom: 7px;
 }
 
 /* Pushes SPLIT (and the delete button right after it) all the way to the

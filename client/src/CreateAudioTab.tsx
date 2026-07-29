@@ -14,6 +14,9 @@ import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
 import { Dropzone } from './Dropzone';
+import { AudioPreview } from './AudioPreview';
+import { AudioPreviewPopover } from './AudioPreviewPopover';
+import { useObjectUrl } from './useObjectUrl';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
 
 interface Props {
@@ -45,6 +48,7 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
   const [error, setError] = useState('');
 
   const coverModels = useModelsForTask('cover');
+  const uploadUrl = useObjectUrl(uploadFile);
   useEffect(() => {
     if (coverModels && !model) setModel(coverModels.find((n) => n.includes('xl-sft')) ?? coverModels[0] ?? '');
   }, [coverModels, model]);
@@ -135,16 +139,22 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
         <button className={source === 'library' ? 'tab active' : 'tab'} onClick={() => setSource('library')}><span>FROM LIBRARY</span></button>
       </div>
       {source === 'upload' ? (
-        <Dropzone accept="audio/*" onFile={setUploadFile}>
-          {uploadFile ? uploadFile.name : 'drag audio file here or click to browse'}
-        </Dropzone>
+        <>
+          <Dropzone accept="audio/*" onFile={setUploadFile}>
+            {uploadFile ? uploadFile.name : 'drag audio file here or click to browse'}
+          </Dropzone>
+          {uploadFile && uploadUrl && <AudioPreview src={uploadUrl} label={uploadFile.name} height={26} />}
+        </>
       ) : (
         <div className="song-picker">
           <input placeholder="Search your library…" value={librarySearch} onChange={(e) => setLibrarySearch(e.target.value)} />
           <div className="song-picker-list">
             {visibleLibrary.map((s) => (
               <div key={s.id} className={s.id === selectedSongId ? 'song-pick current' : 'song-pick'} onClick={() => setSelectedSongId(s.id)}>
-                {s.title}
+                {s.audio_file && (
+                  <AudioPreviewPopover src={`/audio/${s.audio_file}`} label={s.title} duration={s.duration ?? undefined} />
+                )}
+                <span className="song-pick-title">{s.title}</span>
               </div>
             ))}
             {visibleLibrary.length === 0 && <div className="empty">No songs match.</div>}
