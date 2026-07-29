@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { api } from './api';
 import { useVoiceStore } from './voiceStore';
 import { Dropzone } from './Dropzone';
+import { AudioPreview } from './AudioPreview';
+import { previewPlayback } from './previewPlayback';
 
 /** Reads a browser-side audio duration without a server-side probing dependency. */
 function readDuration(file: File): Promise<number | undefined> {
@@ -43,6 +45,9 @@ export function VoiceUploadForm({ onClose }: { onClose?: () => void }) {
   };
 
   const remove = async (id: string) => {
+    const voice = voices.find((v) => v.id === id);
+    // Its audio is about to 404 — don't leave a deleted clip as the live preview.
+    if (voice) previewPlayback.stopIfCurrent(`/audio/${voice.audio_file}`);
     await api.deleteVoice(id);
     await fetchVoices();
   };
@@ -58,7 +63,8 @@ export function VoiceUploadForm({ onClose }: { onClose?: () => void }) {
       <div className="voice-list">
         {voices.map((v) => (
           <div key={v.id} className="voice-list-row">
-            <span>{v.name}</span>
+            <span className="voice-list-name">{v.name}</span>
+            <AudioPreview src={`/audio/${v.audio_file}`} label={v.name} duration={v.duration ?? undefined} height={22} />
             <button onClick={() => remove(v.id)}><span>✕</span></button>
           </div>
         ))}

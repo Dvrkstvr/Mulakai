@@ -2143,7 +2143,9 @@ footer .player {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  max-height: 140px;
+  /* Taller than it was: rows now carry an inline preview, so this holds ~6
+     before scrolling instead of ~4 name-only rows. */
+  max-height: 220px;
   overflow-y: auto;
 }
 
@@ -2157,7 +2159,27 @@ footer .player {
   font-size: 11px;
 }
 
-.voice-list-row button {
+/* Fixed width so every row's waveform starts on the same left edge. Voice
+   names are user content, so 700 weight but sentence case (DESIGN.md's
+   list-title voice), not an uppercase structure label. */
+.voice-list-name {
+  flex: none;
+  width: 104px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.voice-list-row .audio-preview {
+  flex: 1;
+  min-width: 0;
+  width: auto;
+}
+
+/* Direct child only — the row now also contains .preview-play inside
+   .audio-preview, which must keep its acid hexagon, not the rust delete skin. */
+.voice-list-row>button {
   background: transparent;
   border: 1px solid var(--rust);
   color: var(--rust-text);
@@ -2168,7 +2190,7 @@ footer .player {
   cursor: pointer;
 }
 
-.voice-list-row button span {
+.voice-list-row>button span {
   display: inline-block;
   transform: skewX(10deg);
 }

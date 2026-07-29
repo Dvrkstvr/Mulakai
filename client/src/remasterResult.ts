@@ -34,7 +34,7 @@ export const useRemasterResult = create<RemasterResultState>((set, get) => ({
   clear: () => {
     const r = get().result;
     if (!r) return;
-    if (previewPlayback.getState().key === r.url) previewPlayback.stop();
+    previewPlayback.stopIfCurrent(r.url);
     evictPeaks(r.url);
     URL.revokeObjectURL(r.url);
     set({ result: null });
