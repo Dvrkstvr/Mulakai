@@ -2252,6 +2252,15 @@ footer .player {
   width: 100%;
 }
 
+/* Detail rail's audition block — canvas-sunk box above METADATA. Plays the
+   rail's own song through the shared preview slot, independent of whatever
+   the footer holds. */
+.rail-preview {
+  border: 1px solid var(--line);
+  background: var(--canvas);
+  padding: 10px;
+}
+
 .detail-meta-row {
   display: flex;
   justify-content: space-between;
@@ -3378,6 +3387,12 @@ button.acid-outline:not(:disabled):hover {
 .library .row>button:first-child:hover {
   color: var(--acid);
   border-color: var(--acid);
+}
+
+/* Preview hexagons bloom acid on hover — same "this starts something" cue
+   as the acid CTA bloom above. */
+.preview-play:not(:disabled):hover {
+  box-shadow: 0 0 12px -2px rgba(212, 255, 0, 0.55);
 }
 
 /* The card's trash glyph warns rust on hover — destructive. */

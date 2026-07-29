@@ -193,8 +193,10 @@ requiring its own justification against a screen-count rule.
      favorites), and filter chips (ALL/FAVORITES — acid-outlined
      parallelograms, active = acid-filled) — grouped together directly above
      the list, not in the header, since they act on the list.
-   - Flat song list (title · lilac version badge · mini waveform · duration ·
-     heart · dislike), rendered as a **fluid multi-column grid** (fixed
+   - Flat song list (title · lilac version badge · duration · heart ·
+     dislike — no per-card waveform: the footer player is the Library's one
+     song-playback surface, see the audio preview module's exclusivity
+     rules), rendered as a **fluid multi-column grid** (fixed
      ~410px card width, `auto-fill` column count) rather than one full-bleed
      column — wider screens show more of the library at once, cards
      themselves never stretch. Favorites card row pinned top and rust trash
