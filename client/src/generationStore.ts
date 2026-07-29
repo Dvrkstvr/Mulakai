@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { api, type StemKind } from './api';
-import type { CreateDraft } from './createDraft';
+import { taskToGenType, type CreateDraft } from './createDraft';
 
 export type GenStage = 'loading' | 'running' | 'done' | 'failed';
 
@@ -172,7 +172,10 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
           stage: active.status,
           error: active.error,
           startedAt: active.startedAt,
-          draft: { prompt: active.caption },
+          // A rehydrated job has no draft to recover (it was submitted before this page load),
+          // but the lock knows which task is running — enough for RETRY to reopen the tab that
+          // started it instead of always dropping into PROMPT.
+          draft: { genType: taskToGenType(active.task), prompt: active.caption },
         },
       });
       if (active.status === 'loading' || active.status === 'running') void pollJob(active.jobId, set);
@@ -199,7 +202,8 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
           otherLock: null,
           job: {
             jobId: active.jobId, title: active.title ?? 'Untitled', caption: active.caption ?? '',
-            stage: active.status, error: active.error, startedAt: active.startedAt, draft: { prompt: active.caption },
+            stage: active.status, error: active.error, startedAt: active.startedAt,
+            draft: { genType: taskToGenType(active.task), prompt: active.caption },
           },
         });
         if (active.status === 'loading' || active.status === 'running') void pollJob(active.jobId, set);

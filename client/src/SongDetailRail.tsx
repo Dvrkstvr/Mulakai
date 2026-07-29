@@ -5,6 +5,7 @@ import { CustomSelect } from './CustomSelect';
 import { AudioPreview } from './AudioPreview';
 import { SongOutputTags } from './SongOutputTags';
 import { useVoiceStore } from './voiceStore';
+import { taskToGenType, type GenType } from './createDraft';
 
 interface Props {
   song: Song;
@@ -25,6 +26,9 @@ const referenceAudioValue = (song: Song): string => {
   if (song.reference_audio_influence == null) return label;
   return `${label} — audio ${Math.round(song.reference_audio_influence * 100)}% / style ${Math.round((song.reference_style_influence ?? 0) * 100)}%`;
 };
+
+/** Which Create tab made this song, and therefore which one REUSE PROMPT reopens. */
+const ORIGIN_LABEL: Record<GenType, string> = { prompt: 'PROMPT', audio: 'COVER', complete: 'ARRANGE' };
 
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
@@ -53,6 +57,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
     ? voices.find((v) => v.name === song.reference_audio_label) ?? null
     : null;
 
+  const origin = taskToGenType(song.gen_task);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
   const [comment, setComment] = useState(song.comment);
@@ -113,6 +118,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
 
         <div className="detail-meta">
           <div className="section-header">METADATA</div>
+          <MetaRow label="GENERATED WITH" value={ORIGIN_LABEL[origin]} />
           <MetaRow label="BPM" value={song.bpm ? String(song.bpm) : 'AUTO'} />
           <MetaRow label="KEY / SCALE" value={song.key_scale || 'AUTO'} />
           <MetaRow label="TIME SIGNATURE" value={song.time_signature ? timeSignatureLabel(song.time_signature) : 'AUTO'} />
@@ -155,6 +161,11 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
         <div className="detail-actions">
           <button className="acid" onClick={() => onReusePrompt(song)}>REUSE PROMPT</button>
           <button className="acid-outline" onClick={() => onCreateCover(song)}>CREATE COVER FROM AUDIO</button>
+        </div>
+        <div className="hint">
+          {origin === 'prompt'
+            ? 'Opens Create’s PROMPT tab with this prompt, lyrics and song details.'
+            : `Opens Create’s ${ORIGIN_LABEL[origin]} tab — the tab this song was made with — with its prompt, lyrics and song details; you pick a new source track there.`}
         </div>
 
         <SongOutputTags song={song} onChanged={onRenamed} />

@@ -223,7 +223,7 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
             <AutoTextarea placeholder="Title" value={title} onChange={setTitle} />
 
             {genType === 'audio' && <CreateAudioTab songs={songs} title={title} folderId={folderId} initialDraft={initialDraft} onBack={onBack} />}
-            {genType === 'complete' && <CreateArrangeTab title={title} folderId={folderId} onBack={onBack} />}
+            {genType === 'complete' && <CreateArrangeTab title={title} folderId={folderId} initialDraft={initialDraft} onBack={onBack} />}
 
             {genType === 'prompt' && (
               <>

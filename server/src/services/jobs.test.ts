@@ -84,6 +84,14 @@ describe('startGeneration with an ad-hoc reference-audio upload', () => {
     ).get('No Ref Song') as { label: string | null };
     expect(row.label).toBeNull();
   });
+
+  it('records the generating task on the song so REUSE PROMPT can reopen the right tab', async () => {
+    const job = startGeneration({ prompt: 'a driving synthwave track' }, 'Task Song');
+    await waitForDone(job.id);
+
+    const row = db.prepare(`SELECT gen_task FROM songs WHERE title = ?`).get('Task Song') as { gen_task: string };
+    expect(row.gen_task).toBe('text2music');
+  });
 });
 
 describe('startGeneration abort race (the exact bug: create-view GENERATE, then header ABORT)', () => {

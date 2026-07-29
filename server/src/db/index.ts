@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import { config } from '../config.js';
 import { SCHEMA } from './schema.js';
+import { backfillGenTask } from './backfillGenTask.js';
 
 fs.mkdirSync(config.dataDir, { recursive: true });
 fs.mkdirSync(config.audioDir, { recursive: true });
@@ -26,4 +27,6 @@ ensureColumn('songs', 'folder_id', 'folder_id TEXT REFERENCES folders(id) ON DEL
 ensureColumn('songs', 'reference_audio_label', 'reference_audio_label TEXT');
 ensureColumn('songs', 'reference_audio_influence', 'reference_audio_influence REAL');
 ensureColumn('songs', 'reference_style_influence', 'reference_style_influence REAL');
+ensureColumn('songs', 'gen_task', 'gen_task TEXT');
 db.exec(`CREATE INDEX IF NOT EXISTS idx_songs_folder ON songs(folder_id)`);
+backfillGenTask(db);

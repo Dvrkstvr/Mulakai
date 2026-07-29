@@ -233,6 +233,7 @@ generateRouter.get('/active', (_req, res) => {
       songId: lock.songId,
       title: lock.title,
       caption: lock.caption,
+      task: lock.task,
       startedAt: lock.startedAt,
       status: job?.status ?? 'running',
       error: job?.error,
