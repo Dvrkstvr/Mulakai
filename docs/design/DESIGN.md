@@ -119,6 +119,33 @@ history marker.
   `sky` inside a selection over a `sky-tint` wash, 0.4px sky edge lines at
   selection boundaries.
 
+## Audio preview module (added 2026-07-29)
+
+One rule: **if the UI shows an audio file, it is previewable in place.**
+Songs, voice clips, uploaded references, stems, versions, remaster results —
+all use the same module (`AudioPreview.tsx`), in one of three densities:
+
+- **Inline** (default — any host row with ≥240px free width): 20px acid
+  play/pause hexagon + `PlayerWaveform` (h22–30 per surface) + mono
+  `m:ss / m:ss` readout. Waveform click = seek (works before metadata via
+  fraction-based seek). No volume, no stop.
+- **Micro** (rows narrower than the threshold): the 18px hexagon alone;
+  clicking opens a fixed 240px anchored popover (name · waveform h30 · time
+  · ✕) and starts playback immediately. ✕ or outside click closes it and
+  stops playback. One popover open at a time. (Lands with its first
+  consumer — Create's voice picker.)
+- **Full**: the Library footer `Player` (adds volume + DOWNLOAD) — the
+  parent form the smaller sizes derive from, not a special case.
+
+Color contract: play is always an **acid** hexagon (commit: "start sound");
+playhead/played-position is always **sky**; idle bars `wave-idle`. A version
+row keeps its lilac identity — only the play control is acid.
+
+Exclusivity: all previews share one playback slot (`previewPlayback.ts`) —
+starting any preview stops the previous one and pauses the main transport
+(footer/editor engine); starting the main transport stops the preview and
+closes any popover. Previews are auditions, not a second mixer.
+
 ## Typography
 
 - **Two voices only**:
