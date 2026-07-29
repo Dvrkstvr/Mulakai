@@ -1304,11 +1304,13 @@ Decisions:
 - **Version history**: each row's micro preview plays that version's own
   `audio_file`, seeked to its region start — A/B two takes from the
   popovers with zero state change. SEL/REVERT semantics untouched.
-- **Remaster stops auto-downloading**: the finished render is held as an
-  object URL, shown as an inline preview with explicit DOWNLOAD (acid) and
-  RUN AGAIN actions. Consequence line: "not saved to history — download or
-  discard". The held URL is revoked on the next run or on leaving the
-  Editor.
+- **Remaster stops auto-downloading**: the server streams the finished
+  render exactly once then deletes it (routes/remaster.ts), so the client
+  fetches it into a blob the moment the job settles and holds it as an
+  object URL — shown as an inline preview with explicit DOWNLOAD (acid
+  anchor to the same URL) and RUN AGAIN actions. Consequence line: "not
+  saved to history — download it or run again to discard". The held URL
+  (and its cached peaks) is revoked when the next run starts.
 - `docs/design/DESIGN.md` addendum ships in the same PR as the component
   (per AGENTS.md): module anatomy, the three sizes, the ≥240px
   inline-vs-popover threshold, and the one-preview-at-a-time rule join the
