@@ -1,16 +1,16 @@
-# Graph Report - Mulakai  (2026-07-30)
+# Graph Report - Mulakai  (2026-07-09)
 
 ## Corpus Check
-- 187 files · ~112,499 words
+- 170 files · ~94,526 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1164 nodes · 2347 edges · 143 communities (70 shown, 73 thin omitted)
-- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.76)
+- 1042 nodes · 2064 edges · 130 communities (58 shown, 72 thin omitted)
+- Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.79)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `dbac8084`
+- Built from commit: `a72a3d83`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -58,7 +58,6 @@
 - Output File Metadata (Plan)
 - Git Workflow Rules
 - Red Lines (Never Do)
-- SettingsPanel.tsx
 - Claude Commands
 - Favicon Brand Icon
 - Format-Input API Endpoint
@@ -66,11 +65,9 @@
 - FORGE — LoRA/LoKr Training & Dataset Studio (planning doc, not yet implemented)
 - 4. Create Generation Task
 - lyricSections.ts
-- CreateView.tsx
 - demucs-server
 - 13. Environment Variables
 - Mulakai — UX & Visual Polish Notes
-- FakeAudio
 - lyricTags.ts
 - 5. Batch Query Task Results
 - 6. Format Input
@@ -137,73 +134,63 @@
 - Song entity
 - Task-Type Mapping Table
 - Version entity
-- Waveform.tsx
-- settings.ts
-- Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02)
-- Repaint Editor UX Upgrade (planned 2026-07-02)
-- Export & Remaster — Phase 9 Design (planned 2026-07-06)
-- Add Layer Lyrics (implemented 2026-07-08)
-- Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)
-- Create AUDIO/ARRANGE Flows — `cover` and `complete` (implemented 2026-07-07)
-- api.ts
-- usePlaybackEngine.ts
 
 ## God Nodes (most connected - your core abstractions)
-1. `api` - 31 edges
-2. `Mulakai — Project Plan` - 30 edges
-3. `useSettings` - 26 edges
-4. `releaseGenLock()` - 23 edges
+1. `api` - 29 edges
+2. `useSettings` - 24 edges
+3. `releaseGenLock()` - 23 edges
+4. `Mulakai — Project Plan` - 23 edges
 5. `acquireGenLock()` - 21 edges
 6. `useGenerationStore` - 19 edges
-7. `useVoiceStore` - 19 edges
-8. `AddLayerTrigger()` - 18 edges
-9. `compilerOptions` - 18 edges
-10. `releaseTask()` - 18 edges
+7. `compilerOptions` - 18 edges
+8. `releaseTask()` - 18 edges
+9. `ACE-Step API Client Documentation` - 18 edges
+10. `useVoiceStore` - 17 edges
 
 ## Surprising Connections (you probably didn't know these)
-- `useAnalyzeSourceAudio()` --indirect_call--> `result()`  [INFERRED]
-  client/src/useAnalyzeSourceAudio.ts → server/src/services/lyricTimestamps.test.ts
-- `TagGuide` --references--> `LyricTag`  [EXTRACTED]
-  client/src/lyricTagGuide.ts → client/src/api.ts
 - `Props` --references--> `Layer`  [EXTRACTED]
   client/src/AddLayerTrigger.tsx → client/src/api.ts
-- `AddLayerTrigger()` --calls--> `useAddLayerDraft`  [EXTRACTED]
-  client/src/AddLayerTrigger.tsx → client/src/addLayerStore.ts
-- `AddLayerTrigger()` --calls--> `myEditorJob()`  [EXTRACTED]
-  client/src/AddLayerTrigger.tsx → client/src/editorJobStore.ts
+- `AddLayerTrigger()` --calls--> `addLayerParams()`  [EXTRACTED]
+  client/src/AddLayerTrigger.tsx → client/src/settings.ts
+- `App()` --calls--> `useEditorJobStore`  [EXTRACTED]
+  client/src/App.tsx → client/src/editorJobStore.ts
+- `App()` --calls--> `useGenerationStore`  [EXTRACTED]
+  client/src/App.tsx → client/src/generationStore.ts
+- `App()` --calls--> `useSettings`  [EXTRACTED]
+  client/src/App.tsx → client/src/settings.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (143 total, 73 thin omitted)
+## Communities (130 total, 72 thin omitted)
 
 ### Community 0 - "Backend Generation & Job Services"
-Cohesion: 0.08
-Nodes (34): GEN_FIELDS, labelOnlyReferenceMeta(), NUMERIC_FIELDS, pickMultipartParams(), pickParams(), upload, analyzeAudio(), call() (+26 more)
+Cohesion: 0.14
+Nodes (16): call(), Envelope, formatInput(), FormatInputParams, FormatInputResult, initModel(), lyricTimestamp(), LyricTimestampResult (+8 more)
 
 ### Community 1 - "Editor UI Components"
-Cohesion: 0.16
-Nodes (13): LyricLine, LyricsBlock, matchSectionBlocks(), splitLyricsBlocks(), findActiveSectionIndex(), groupSections(), Section, tagLabel() (+5 more)
+Cohesion: 0.05
+Nodes (86): AddLayerDraft, useAddLayerDraft, AddLayerTrigger(), Props, AIGeneratingBackground(), api, Layer, ModelInfo (+78 more)
 
 ### Community 2 - "App Shell & Library UI"
 Cohesion: 0.06
-Nodes (45): ActiveGeneration, Folder, FolderScope, OutputMetadata, Song, ApiStatusState, useApiStatusStore, App() (+37 more)
+Nodes (43): ActiveGeneration, Folder, FolderScope, Song, ApiStatusState, useApiStatusStore, App(), View (+35 more)
 
 ### Community 3 - "Project Docs & Design Concepts"
 Cohesion: 0.20
 Nodes (9): AGENTS.md — Mulakai Development Rules, Code Style, Design System (mandatory for all UI work), Git Workflow, Module Size Policy, Red Lines, Scope Discipline, Spec-Driven Development (+1 more)
 
 ### Community 4 - "Core Song/Layer/Version API"
-Cohesion: 0.14
-Nodes (19): config, __dirname, db, app, foldersRouter, generateRouter, layersRouter, remasterRouter (+11 more)
+Cohesion: 0.18
+Nodes (14): config, __dirname, db, app, foldersRouter, layersRouter, coverArtUpload, songsRouter (+6 more)
 
 ### Community 5 - "Lyrics & Export Panel"
-Cohesion: 0.05
-Nodes (39): 1. Reference Audio: Global Acoustic Feature Control, 2. Source Audio: Semantic Structure Control, 3. Source Audio Context-Based Control: Local Completion and Modification, 4. Base Model Advanced Audio Control Tasks, About Audio Control: Controlling Sound with Sound, About Caption: The Most Important Input, About Lyrics: The Temporal Script, About Music Metadata: Optional Fine Control (+31 more)
+Cohesion: 0.16
+Nodes (13): LyricLine, LyricsBlock, matchSectionBlocks(), splitLyricsBlocks(), findActiveSectionIndex(), groupSections(), Section, tagLabel() (+5 more)
 
 ### Community 6 - "API Client & Create Flow"
-Cohesion: 0.24
-Nodes (13): buildTagGuide(), clean(), Cluster, clusterByKeyword(), clusterByPrefix(), clusterBySuffix(), finalizeClusters(), INSTRUMENT_BUCKETS (+5 more)
+Cohesion: 0.09
+Nodes (28): LyricTag, LyricTagProbeStatus, OutputMetadata, ForgeSection(), daysLeft(), fmtBytes(), LibraryMaintenanceSection(), buildTagGuide() (+20 more)
 
 ### Community 7 - "Server Package Config"
 Cohesion: 0.07
@@ -215,23 +202,23 @@ Nodes (24): dependencies, framer-motion, react, react-dom, zustand, devDependenc
 
 ### Community 9 - "Voice Picker & Management"
 Cohesion: 0.08
-Nodes (31): RefineResult, CreateView(), LyricTagGuidePopover(), Props, RefineRail(), SongFields, Props, ResizeHandle() (+23 more)
+Nodes (37): AdvancedGenSettings(), INFER_METHOD_OPTIONS, CustomSelect(), Props, InfoTooltip(), ditModelDescription(), guidanceEffective(), lmModelDescription() (+29 more)
 
 ### Community 10 - "Playback Mix Engine"
-Cohesion: 0.12
-Nodes (27): STEM_KINDS, upload, queryResult(), discardScratchSplit(), getScratchSplitJob(), jobs, ScratchSplitJob, scratchStemPath() (+19 more)
+Cohesion: 0.11
+Nodes (29): splitRouter, STEM_KINDS, upload, queryResult(), discardScratchSplit(), getScratchSplitJob(), jobs, ScratchSplitJob (+21 more)
 
 ### Community 11 - "Client TSConfig (app)"
 Cohesion: 0.10
 Nodes (19): compilerOptions, allowArbitraryExtensions, allowImportingTsExtensions, erasableSyntaxOnly, jsx, lib, module, moduleDetection (+11 more)
 
 ### Community 12 - "Advanced Generation Settings"
-Cohesion: 0.22
-Nodes (36): audioFileExt(), downloadAudio(), rawPathFromAudioUrl(), releaseTask(), ReleaseTaskParams, persistNewLayer(), startAddLayer(), startCompleteGeneration() (+28 more)
+Cohesion: 0.24
+Nodes (34): audioFileExt(), downloadAudio(), rawPathFromAudioUrl(), releaseTask(), ReleaseTaskParams, persistNewLayer(), startAddLayer(), startCompleteGeneration() (+26 more)
 
 ### Community 13 - "AI Thinking & Create View"
-Cohesion: 0.16
-Nodes (17): main(), lyricTagsRouter, extractTags(), FreshTagEntry, getProbeState(), getStoredTags(), loadStore(), LyricTagRecord (+9 more)
+Cohesion: 0.15
+Nodes (20): main(), lyricTagsRouter, createRandomSample(), createSampleFromQuery(), extractTags(), FreshTagEntry, getProbeState(), getStoredTags() (+12 more)
 
 ### Community 14 - "Song Detail & Refine Rail"
 Cohesion: 0.10
@@ -254,8 +241,8 @@ Cohesion: 0.48
 Nodes (7): Bluesky Icon (butterfly logo, social link), Discord Icon (game controller/mask logo, social link), Documentation Icon (book with folded corner, docs link), GitHub Icon (Octocat cat logo, source-code link), Social Icon (person silhouette with star badge, community link), icons.svg Sprite Sheet, X (Twitter) Icon (stylized X logo, social link)
 
 ### Community 20 - "Core Domain Entities (Plan)"
-Cohesion: 0.08
-Nodes (24): ACE-Step Integration (verified against docs/en/API.md + INFERENCE.md, 2026-07-02), Add Layer: Forced batch_size 1 + Track-Type Picker (implemented 2026-07-10), Architecture, Custom Player Controls (planned 2026-07-02, then implemented), Decisions Locked In, Grand Goal, Layer Stack Polish + Live Multi-Layer Playback (planned 2026-07-02), Lyric Tag Vocabulary Probe (implemented 2026-07-08) (+16 more)
+Cohesion: 0.04
+Nodes (46): 1. History row: prompt instead of timestamp, 2. Draggable/resizable waveform selection, 3. Standalone playhead timeline, 4. Delete a history entry, 5. Regenerate a history entry as an alternate, ACE-Step Integration (verified against docs/en/API.md + INFERENCE.md, 2026-07-02), Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02), Add Layer Lyrics (implemented 2026-07-08) (+38 more)
 
 ### Community 21 - "Tech Stack & Structure Docs"
 Cohesion: 0.22
@@ -274,24 +261,20 @@ Cohesion: 0.33
 Nodes (5): createFromPath, fakeFile, fakeId3Tag, fakeTag, idSettings
 
 ### Community 25 - "Player & Mix Polish (Plan)"
-Cohesion: 0.09
-Nodes (21): Acid — "what makes something happen?" (commit actions), AI states — the one exception to "one hue, one job", App model — a flat set of top-level views, one page, Audio preview module (added 2026-07-29), Carbon — "the world" (structure), Color tokens, Copy rules, Design language in one sentence (+13 more)
+Cohesion: 0.10
+Nodes (20): Acid — "what makes something happen?" (commit actions), AI states — the one exception to "one hue, one job", App model — a flat set of top-level views, one page, Carbon — "the world" (structure), Color tokens, Copy rules, Design language in one sentence, Interaction rhythm (+12 more)
 
 ### Community 39 - "Human-Centered Design Philosophy"
 Cohesion: 0.05
 Nodes (39): 1. Reference Audio: Global Acoustic Feature Control, 2. Source Audio: Semantic Structure Control, 3. Source Audio Context-Based Control: Local Completion and Modification, 4. Base Model Advanced Audio Control Tasks, About Audio Control: Controlling Sound with Sound, About Caption: The Most Important Input, About Lyrics: The Temporal Script, About Music Metadata: Optional Fine Control (+31 more)
 
 ### Community 47 - "Git Workflow Rules"
-Cohesion: 0.17
-Nodes (16): ApiError, StemResult, AddLayerJob, EditorJob, EditorJobState, errMsg(), JobBase, RegenerateJob (+8 more)
+Cohesion: 0.08
+Nodes (33): ApiError, StemKind, StemResult, AddLayerJob, EditorJob, EditorJobState, errMsg(), JobBase (+25 more)
 
 ### Community 48 - "Red Lines (Never Do)"
-Cohesion: 0.07
-Nodes (46): AnalyzeAudioButton(), Props, StemKind, TaskType, Voice, AudioPreview(), fmtTime(), Props (+38 more)
-
-### Community 49 - "SettingsPanel.tsx"
-Cohesion: 0.25
-Nodes (13): Version, Editor(), fmt(), Props, myEditorJob(), useEditorJobStore, GenStage, OtherLock (+5 more)
+Cohesion: 0.12
+Nodes (20): GEN_FIELDS, generateRouter, labelOnlyReferenceMeta(), NUMERIC_FIELDS, pickMultipartParams(), pickParams(), upload, health() (+12 more)
 
 ### Community 50 - "Claude Commands"
 Cohesion: 0.20
@@ -306,12 +289,8 @@ Cohesion: 0.25
 Nodes (8): 4.1 API Definition, 4.2 Request Parameters, 4.3 Response Example, 4.4 Usage Examples (cURL), 4. Create Generation Task, Method A: JSON Request (application/json), Method B: File Upload (multipart/form-data), Parameter Naming Convention
 
 ### Community 60 - "lyricSections.ts"
-Cohesion: 0.28
-Nodes (15): GeneratingCard(), Props, STAGE_LABEL, GenerationJob, EDITOR_STAGE_LABEL, EditorJobKind, fmtElapsed(), fmtProgress() (+7 more)
-
-### Community 61 - "CreateView.tsx"
-Cohesion: 0.12
-Nodes (20): AIGeneratingBackground(), AIGeneratingBackgroundProps, useWaveVeil(), LayerLane(), Props, LayerStack(), Props, applyDrag() (+12 more)
+Cohesion: 0.21
+Nodes (13): RefineResult, Props, RefineRail(), SongFields, Props, ScrollArea(), AUTO_OPTION, KNOWN_TIME_SIGNATURES (+5 more)
 
 ### Community 62 - "demucs-server"
 Cohesion: 0.33
@@ -324,10 +303,6 @@ Nodes (6): 13. Environment Variables, Cache Configuration, LM Configuration, Mod
 ### Community 64 - "Mulakai — UX & Visual Polish Notes"
 Cohesion: 0.33
 Nodes (5): Mulakai — UX & Visual Polish Notes, Proposed next passes (not yet done), The core loop today, Visual polish applied this pass (`index.css`), Workflow observations → improvements
-
-### Community 65 - "FakeAudio"
-Cohesion: 0.21
-Nodes (5): createPreviewPlayback(), PreviewAudioElement, FakeAudio, make(), useMainTransportGuard()
 
 ### Community 66 - "lyricTags.ts"
 Cohesion: 0.40
@@ -350,8 +325,8 @@ Cohesion: 0.40
 Nodes (5): 9.1 API Definition, 9.2 Request Parameters, 9.3 Response Example, 9.4 Usage Examples, 9. Initialize or Switch Models
 
 ### Community 71 - "genLock.ts"
-Cohesion: 0.20
-Nodes (9): upload, songLayersRouter, upload, GenKind, GenLockError, GenLockInfo, getGenLock(), getActiveGeneration() (+1 more)
+Cohesion: 0.21
+Nodes (8): remasterRouter, upload, songLayersRouter, upload, GenKind, GenLockError, GenLockInfo, getGenLock()
 
 ### Community 72 - "React + TypeScript + Vite"
 Cohesion: 0.50
@@ -377,61 +352,25 @@ Nodes (3): 1. Authentication, Authentication Methods, Configuring API Key
 Cohesion: 0.67
 Nodes (3): LoKr Training, LoRA Training, Training API
 
-### Community 133 - "Waveform.tsx"
-Cohesion: 0.13
-Nodes (12): PlaybackApi, fmt(), Player(), Props, COLORS, PlayerWaveform(), Props, Props (+4 more)
-
-### Community 134 - "settings.ts"
-Cohesion: 0.07
-Nodes (42): AddLayerDraft, useAddLayerDraft, AdvancedGenSettings(), INFER_METHOD_OPTIONS, ModelInventory, CustomSelect(), Props, ForgeSection() (+34 more)
-
-### Community 135 - "Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02)"
-Cohesion: 0.25
-Nodes (8): Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02), Architecture: client-side mixing, Architecture: layer stack UI, Architecture: server, Decisions, Feature gating (per the existing ACE-Step Integration table, now enforced), File-level plan, Settings
-
-### Community 136 - "Repaint Editor UX Upgrade (planned 2026-07-02)"
-Cohesion: 0.29
-Nodes (7): 1. History row: prompt instead of timestamp, 2. Draggable/resizable waveform selection, 3. Standalone playhead timeline, 4. Delete a history entry, 5. Regenerate a history entry as an alternate, File-level plan, Repaint Editor UX Upgrade (planned 2026-07-02)
-
-### Community 137 - "Export & Remaster — Phase 9 Design (planned 2026-07-06)"
-Cohesion: 0.40
-Nodes (5): Architecture, Decisions, Export & Remaster — Phase 9 Design (planned 2026-07-06), Feature gating, File-level plan
-
-### Community 139 - "Add Layer Lyrics (implemented 2026-07-08)"
-Cohesion: 0.50
-Nodes (4): Add Layer Lyrics (implemented 2026-07-08), Decisions, File-level plan, Model restriction (confirmed, no code change)
-
-### Community 140 - "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)"
-Cohesion: 0.67
-Nodes (3): Decisions, File-level plan, Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)
-
-### Community 143 - "api.ts"
-Cohesion: 0.18
-Nodes (10): api, LyricTag, LyricTagProbeStatus, ModelInfo, SongDetail, ExportPanel(), Props, LyricTagGuideContent() (+2 more)
-
-### Community 146 - "usePlaybackEngine.ts"
-Cohesion: 0.21
-Nodes (14): AddLayerTrigger(), Props, Layer, activeLayers(), bounceMix(), encodeWav(), DecodedLayer, decodeLayers() (+6 more)
-
 ## Knowledge Gaps
-- **495 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+490 more)
+- **442 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+437 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **73 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **72 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `reextractStem()` connect `Playback Mix Engine` to `FakeAudio`, `Advanced Generation Settings`?**
-  _High betweenness centrality (0.076) - this node is a cross-community bridge._
-- **Why does `CreateArrangeTab()` connect `Red Lines (Never Do)` to `FakeAudio`, `SettingsPanel.tsx`, `settings.ts`, `Voice Picker & Management`?**
-  _High betweenness centrality (0.075) - this node is a cross-community bridge._
-- **Why does `useAnalyzeSourceAudio()` connect `Red Lines (Never Do)` to `Advanced Generation Settings`?**
-  _High betweenness centrality (0.059) - this node is a cross-community bridge._
+- **Why does `PlaybackEngine` connect `Settings Store` to `Editor UI Components`?**
+  _High betweenness centrality (0.011) - this node is a cross-community bridge._
+- **Why does `api` connect `Editor UI Components` to `Voice Picker & Management`, `App Shell & Library UI`, `API Client & Create Flow`, `Git Workflow Rules`?**
+  _High betweenness centrality (0.007) - this node is a cross-community bridge._
+- **Why does `useSettings` connect `Editor UI Components` to `Voice Picker & Management`, `App Shell & Library UI`, `API Client & Create Flow`?**
+  _High betweenness centrality (0.006) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
-  _498 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _445 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Backend Generation & Job Services` be split into smaller, more focused modules?**
-  _Cohesion score 0.07539118065433854 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.13725490196078433 - nodes in this community are weakly interconnected._
+- **Should `Editor UI Components` be split into smaller, more focused modules?**
+  _Cohesion score 0.050666666666666665 - nodes in this community are weakly interconnected._
 - **Should `App Shell & Library UI` be split into smaller, more focused modules?**
-  _Cohesion score 0.05628415300546448 - nodes in this community are weakly interconnected._
-- **Should `Core Song/Layer/Version API` be split into smaller, more focused modules?**
-  _Cohesion score 0.13709677419354838 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05901639344262295 - nodes in this community are weakly interconnected._

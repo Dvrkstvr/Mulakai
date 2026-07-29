@@ -1150,7 +1150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_librarymaintenancesection",
-      "community": 2,
+      "community": 134,
       "norm_label": "librarymaintenancesection.tsx"
     },
     {
@@ -1160,7 +1160,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "client_src_librarymaintenancesection_fmtbytes",
-      "community": 2,
+      "community": 134,
       "norm_label": "fmtbytes()"
     },
     {
@@ -1170,7 +1170,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "client_src_librarymaintenancesection_daysleft",
-      "community": 2,
+      "community": 134,
       "norm_label": "daysleft()"
     },
     {
@@ -1180,7 +1180,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "client_src_librarymaintenancesection_librarymaintenancesection",
-      "community": 2,
+      "community": 134,
       "norm_label": "librarymaintenancesection()"
     },
     {
@@ -1310,7 +1310,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "client_src_lyrictagguidesection_lyrictagguidesection",
-      "community": 2,
+      "community": 134,
       "norm_label": "lyrictagguidesection()"
     },
     {
@@ -1330,7 +1330,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "client_src_lyrictagssection_lyrictagssection",
-      "community": 2,
+      "community": 134,
       "norm_label": "lyrictagssection()"
     },
     {
@@ -1460,7 +1460,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_outputmetadatasection",
-      "community": 2,
+      "community": 134,
       "norm_label": "outputmetadatasection.tsx"
     },
     {
@@ -1470,7 +1470,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "client_src_outputmetadatasection_empty",
-      "community": 2,
+      "community": 134,
       "norm_label": "empty"
     },
     {
@@ -1480,7 +1480,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "client_src_outputmetadatasection_outputmetadatasection",
-      "community": 2,
+      "community": 134,
       "norm_label": "outputmetadatasection()"
     },
     {
@@ -1940,7 +1940,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_settingsview",
-      "community": 2,
+      "community": 134,
       "norm_label": "settingsview.tsx"
     },
     {
@@ -1950,7 +1950,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "client_src_settingsview_props",
-      "community": 2,
+      "community": 134,
       "norm_label": "props"
     },
     {
@@ -2070,7 +2070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_songdetailrail",
-      "community": 48,
+      "community": 2,
       "norm_label": "songdetailrail.tsx"
     },
     {
@@ -2090,7 +2090,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "client_src_songdetailrail_fmtduration",
-      "community": 48,
+      "community": 2,
       "norm_label": "fmtduration()"
     },
     {
@@ -2100,7 +2100,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "client_src_songdetailrail_referenceaudiovalue",
-      "community": 48,
+      "community": 2,
       "norm_label": "referenceaudiovalue()"
     },
     {
@@ -2110,7 +2110,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "client_src_songdetailrail_metarow",
-      "community": 48,
+      "community": 2,
       "norm_label": "metarow()"
     },
     {
@@ -2120,7 +2120,7 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "client_src_songdetailrail_songdetailrail",
-      "community": 48,
+      "community": 2,
       "norm_label": "songdetailrail()"
     },
     {
@@ -2360,7 +2360,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_voicemanagementsection",
-      "community": 48,
+      "community": 134,
       "norm_label": "voicemanagementsection.tsx"
     },
     {
@@ -2370,7 +2370,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "client_src_voicemanagementsection_voicemanagementsection",
-      "community": 48,
+      "community": 134,
       "norm_label": "voicemanagementsection()"
     },
     {
@@ -2390,7 +2390,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "client_src_voicepicker_voicepicker",
-      "community": 48,
+      "community": 134,
       "norm_label": "voicepicker()"
     },
     {
@@ -2400,27 +2400,27 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_voiceuploadform",
-      "community": 48,
+      "community": 134,
       "norm_label": "voiceuploadform.tsx"
     },
     {
       "label": "readDuration()",
       "file_type": "code",
       "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L9",
+      "source_location": "L7",
       "_origin": "ast",
       "id": "client_src_voiceuploadform_readduration",
-      "community": 48,
+      "community": 134,
       "norm_label": "readduration()"
     },
     {
       "label": "VoiceUploadForm()",
       "file_type": "code",
       "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L25",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "client_src_voiceuploadform_voiceuploadform",
-      "community": 48,
+      "community": 134,
       "norm_label": "voiceuploadform()"
     },
     {
@@ -2620,7 +2620,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "client_src_api_outputmetadata",
-      "community": 2,
+      "community": 134,
       "norm_label": "outputmetadata"
     },
     {
@@ -2740,7 +2740,7 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "client_src_api_voice",
-      "community": 48,
+      "community": 134,
       "norm_label": "voice"
     },
     {
@@ -3870,7 +3870,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_previewplayback_test",
-      "community": 65,
+      "community": 48,
       "norm_label": "previewplayback.test.ts"
     },
     {
@@ -3880,7 +3880,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "client_src_previewplayback_test_fakeaudio",
-      "community": 65,
+      "community": 48,
       "norm_label": "fakeaudio"
     },
     {
@@ -3890,7 +3890,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "client_src_previewplayback_test_fakeaudio_src",
-      "community": 65,
+      "community": 48,
       "norm_label": ".src()"
     },
     {
@@ -3900,7 +3900,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "client_src_previewplayback_test_fakeaudio_addeventlistener",
-      "community": 65,
+      "community": 48,
       "norm_label": ".addeventlistener()"
     },
     {
@@ -3910,7 +3910,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "client_src_previewplayback_test_fakeaudio_emit",
-      "community": 65,
+      "community": 48,
       "norm_label": ".emit()"
     },
     {
@@ -3920,7 +3920,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "client_src_previewplayback_test_fakeaudio_play",
-      "community": 65,
+      "community": 48,
       "norm_label": ".play()"
     },
     {
@@ -3930,7 +3930,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "client_src_previewplayback_test_fakeaudio_pause",
-      "community": 65,
+      "community": 48,
       "norm_label": ".pause()"
     },
     {
@@ -3940,7 +3940,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "client_src_previewplayback_test_fakeaudio_loadmetadata",
-      "community": 65,
+      "community": 48,
       "norm_label": ".loadmetadata()"
     },
     {
@@ -3950,7 +3950,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "client_src_previewplayback_test_make",
-      "community": 65,
+      "community": 48,
       "norm_label": "make()"
     },
     {
@@ -3980,7 +3980,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "client_src_previewplayback_previewaudioelement",
-      "community": 65,
+      "community": 48,
       "norm_label": "previewaudioelement"
     },
     {
@@ -3990,7 +3990,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "client_src_previewplayback_previewaudioelement_play",
-      "community": 65,
+      "community": 48,
       "norm_label": ".play()"
     },
     {
@@ -4000,7 +4000,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "client_src_previewplayback_previewaudioelement_pause",
-      "community": 65,
+      "community": 48,
       "norm_label": ".pause()"
     },
     {
@@ -4010,7 +4010,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "client_src_previewplayback_previewaudioelement_addeventlistener",
-      "community": 65,
+      "community": 48,
       "norm_label": ".addeventlistener()"
     },
     {
@@ -4020,14 +4020,14 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "client_src_previewplayback_createpreviewplayback",
-      "community": 65,
+      "community": 48,
       "norm_label": "createpreviewplayback()"
     },
     {
       "label": "PreviewPlayback",
       "file_type": "code",
       "source_file": "client/src/previewPlayback.ts",
-      "source_location": "L153",
+      "source_location": "L148",
       "_origin": "ast",
       "id": "client_src_previewplayback_previewplayback",
       "community": 48,
@@ -4037,7 +4037,7 @@
       "label": "usePreviewState()",
       "file_type": "code",
       "source_file": "client/src/previewPlayback.ts",
-      "source_location": "L157",
+      "source_location": "L152",
       "_origin": "ast",
       "id": "client_src_previewplayback_usepreviewstate",
       "community": 48,
@@ -4047,10 +4047,10 @@
       "label": "useMainTransportGuard()",
       "file_type": "code",
       "source_file": "client/src/previewPlayback.ts",
-      "source_location": "L165",
+      "source_location": "L160",
       "_origin": "ast",
       "id": "client_src_previewplayback_usemaintransportguard",
-      "community": 65,
+      "community": 48,
       "norm_label": "usemaintransportguard()"
     },
     {
@@ -4700,7 +4700,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_voicestore",
-      "community": 48,
+      "community": 134,
       "norm_label": "voicestore.ts"
     },
     {
@@ -4710,7 +4710,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "client_src_voicestore_voicestate",
-      "community": 48,
+      "community": 134,
       "norm_label": "voicestate"
     },
     {
@@ -4720,7 +4720,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "client_src_voicestore_usevoicestore",
-      "community": 48,
+      "community": 134,
       "norm_label": "usevoicestore"
     },
     {
@@ -8914,14 +8914,14 @@
       "norm_label": "manual \"analyze audio\" trigger (planned + implemented 2026-07-11)"
     },
     {
-      "label": "Unified Audio Preview (planned 2026-07-29, implemented 2026-07-30)",
+      "label": "Unified Audio Preview (planned 2026-07-29)",
       "file_type": "document",
       "source_file": "PLAN.md",
       "source_location": "L1246",
       "_origin": "ast",
-      "id": "plan_unified_audio_preview_planned_2026_07_29_implemented_2026_07_30",
+      "id": "plan_unified_audio_preview_planned_2026_07_29",
       "community": 20,
-      "norm_label": "unified audio preview (planned 2026-07-29, implemented 2026-07-30)"
+      "norm_label": "unified audio preview (planned 2026-07-29)"
     },
     {
       "label": "README.md",
@@ -14082,17 +14082,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "client_src_voiceuploadform",
-      "target": "client_src_audiopreview",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -14199,17 +14188,6 @@
       "source_location": "L2",
       "weight": 1.0,
       "source": "client_src_splitstemrow",
-      "target": "client_src_audiopreview_audiopreview",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "client_src_voiceuploadform",
       "target": "client_src_audiopreview_audiopreview",
       "confidence_score": 1.0
     },
@@ -22305,28 +22283,6 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "client_src_voiceuploadform",
-      "target": "client_src_previewplayback",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "client_src_voiceuploadform",
-      "target": "client_src_previewplayback_previewplayback",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "client/src/VoiceUploadForm.tsx",
       "source_location": "L3",
       "weight": 1.0,
       "source": "client_src_voiceuploadform",
@@ -22348,7 +22304,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L9",
+      "source_location": "L7",
       "weight": 1.0,
       "source": "client_src_voiceuploadform",
       "target": "client_src_voiceuploadform_readduration",
@@ -22358,7 +22314,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L25",
+      "source_location": "L23",
       "weight": 1.0,
       "source": "client_src_voiceuploadform",
       "target": "client_src_voiceuploadform_voiceuploadform",
@@ -22369,7 +22325,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L36",
+      "source_location": "L34",
       "weight": 1.0,
       "source": "client_src_voiceuploadform_voiceuploadform",
       "target": "client_src_voiceuploadform_readduration",
@@ -22381,7 +22337,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.8,
       "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L37",
+      "source_location": "L35",
       "weight": 1.0,
       "source": "client_src_voiceuploadform_voiceuploadform",
       "target": "client_src_mix_playbackengine_playbackengine_duration"
@@ -22392,7 +22348,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "client/src/VoiceUploadForm.tsx",
-      "source_location": "L26",
+      "source_location": "L24",
       "weight": 1.0,
       "source": "client_src_voiceuploadform_voiceuploadform",
       "target": "client_src_voicestore_usevoicestore"
@@ -25154,7 +25110,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "client/src/previewPlayback.ts",
-      "source_location": "L155",
+      "source_location": "L150",
       "weight": 1.0,
       "source": "client_src_previewplayback",
       "target": "client_src_previewplayback_previewplayback",
@@ -25174,7 +25130,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "client/src/previewPlayback.ts",
-      "source_location": "L165",
+      "source_location": "L160",
       "weight": 1.0,
       "source": "client_src_previewplayback",
       "target": "client_src_previewplayback_usemaintransportguard",
@@ -25184,7 +25140,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "client/src/previewPlayback.ts",
-      "source_location": "L157",
+      "source_location": "L152",
       "weight": 1.0,
       "source": "client_src_previewplayback",
       "target": "client_src_previewplayback_usepreviewstate",
@@ -25258,7 +25214,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "client/src/previewPlayback.ts",
-      "source_location": "L168",
+      "source_location": "L163",
       "weight": 1.0,
       "source": "client_src_previewplayback_usemaintransportguard",
       "target": "client_src_previewplayback_previewaudioelement_pause",
@@ -34435,7 +34391,7 @@
       "source_location": "L1246",
       "weight": 1.0,
       "source": "plan_mulakai_project_plan",
-      "target": "plan_unified_audio_preview_planned_2026_07_29_implemented_2026_07_30",
+      "target": "plan_unified_audio_preview_planned_2026_07_29",
       "confidence_score": 1.0
     },
     {
@@ -36760,5 +36716,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "dbac8084c991771bb79b6307db00f85d92e111dc"
+  "built_at_commit": "897753262c6dd7647d0933d6b19f1357e9d1ec56"
 }
