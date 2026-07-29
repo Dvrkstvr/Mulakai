@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { api, ApiError, type StemResult } from './api';
+import { useRemasterResult } from './remasterResult';
 
 export type Stage = 'running' | 'done' | 'failed';
 
@@ -57,13 +58,11 @@ interface EditorJobState {
 const POLL_MS = 2000;
 const DONE_LINGER_MS = 1500;
 
-function errMsg(err: unknown): string {
-  return err instanceof Error ? err.message : String(err);
-}
+const errMsg = (err: unknown): string => (err instanceof Error ? err.message : String(err));
 
-/** Shared shape for the five single-`jobId` kinds (everything but split, which tracks
- * 4 stems instead of one status). `submit` starts the ACE-Step job; `onDone` runs once,
- * right as the job settles successfully (remaster uses it to trigger its download). */
+/** Shared shape for the five single-`jobId` kinds (split tracks 4 stems instead). `submit`
+ * starts the ACE-Step job; `onDone` runs once, right as the job settles successfully
+ * (remaster uses it to capture its one-shot result — see remasterResult.ts). */
 type Setter = (partial: Partial<EditorJobState> | ((s: EditorJobState) => Partial<EditorJobState>)) => void;
 
 async function runSingleJob(
@@ -134,16 +133,18 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
     () => api.addLayer(songId, mixAudio, params),
   ),
 
-  startRemaster: (songId, mixAudio, model, opts) => runSingleJob(
-    set, get, { kind: 'remaster', jobId: '', songId, startedAt: Date.now(), stage: 'running' },
-    () => api.remaster(songId, mixAudio, model, opts),
-    (job) => {
-      if (job.kind !== 'remaster') return;
-      const a = document.createElement('a');
-      a.href = api.remasterDownloadUrl(songId, job.jobId);
-      a.click();
-    },
-  ),
+  startRemaster: (songId, mixAudio, model, opts) => {
+    useRemasterResult.getState().clear(); // a new run discards the held result
+    return runSingleJob(
+      set, get, { kind: 'remaster', jobId: '', songId, startedAt: Date.now(), stage: 'running' },
+      () => api.remaster(songId, mixAudio, model, opts),
+      (job) => void useRemasterResult.getState()
+        .capture(songId, job.jobId, `remaster.${opts.audioFormat}`)
+        .catch((err) => set((s) => (s.editorJob?.jobId === job.jobId
+          ? { editorJob: { ...job, stage: 'failed', error: `remaster finished but couldn't be fetched — ${errMsg(err)}` } }
+          : {}))),
+    );
+  },
 
   startSplit: async (layerId, songId, model) => {
     if (get().editorJob) return;

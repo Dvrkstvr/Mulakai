@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, type Version } from './api';
 import type { Region } from './Waveform';
 import { motion, AnimatePresence } from 'framer-motion';
+import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { ScrollArea } from './ScrollArea';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore } from './editorJobStore';
@@ -95,14 +96,21 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
             initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             className={v.active ? 'version current version-enter' : 'version version-enter'}>
-            {hasRegion ? (
-              <span className="version-time clickable" title="double-click to select this region"
-                onDoubleClick={() => onSelectRegion({ start: v.region_start as number, end: v.region_end as number })}>
-                {fmt(v.region_start as number)}–{fmt(v.region_end as number)}
-              </span>
-            ) : (
-              <span className="version-time">{v.label || 'base'}</span>
-            )}
+            <div className="version-head">
+              <AudioPreviewPopover
+                src={`/audio/${v.audio_file}`}
+                label={v.prompt || v.label || 'version'}
+                startAtSeconds={hasRegion ? (v.region_start as number) : undefined}
+              />
+              {hasRegion ? (
+                <span className="version-time clickable" title="double-click to select this region"
+                  onDoubleClick={() => onSelectRegion({ start: v.region_start as number, end: v.region_end as number })}>
+                  {fmt(v.region_start as number)}–{fmt(v.region_end as number)}
+                </span>
+              ) : (
+                <span className="version-time">{v.label || 'base'}</span>
+              )}
+            </div>
             <span className={v.prompt ? 'meta clickable' : 'meta'} title={v.prompt ? 'double-click to load into prompt' : undefined}
               onDoubleClick={() => v.prompt && onLoadPrompt(v.prompt)}>
               {v.prompt || v.label || 'version'}
