@@ -1242,3 +1242,119 @@ File-level plan:
 - `client/src/CreateAudioTab.tsx` / `CreateArrangeTab.tsx` — drop the
   auto-fire effect wiring, render `AnalyzeAudioButton` above
   `SongAnalysisFields`, pass `model` into `analyze()`.
+
+## Unified Audio Preview (planned 2026-07-29)
+
+Approved mockup: claude.ai/code/artifact/6dc62f30-d2e7-44b0-ae83-b90bdb85be05
+(all four views rendered with the pattern applied; live popover demos).
+
+One rule: **if the UI shows an audio file, you can hear it in place** —
+play/pause, waveform, click-to-seek scrubber. An audit (2026-07-29) found 6
+surfaces with playback UI (footer player, layer lanes, editor transport, the
+two stem lists — the latter two as near-verbatim hand-rolled duplicates in
+`SplitPanel.tsx` / `ScratchSplitPicker.tsx`) and ~10 surfaces with playable
+audio and no preview at all: voice picker, reference-audio upload, COVER
+tab's library song picker, filled dropzones, version history (today you must
+SEL — a state change — to hear a take), export stems, and the remaster
+result (auto-downloads without ever being auditioned).
+
+Decisions:
+- One shared `AudioPreview.tsx` component, extracted from the
+  `.stem-play` + `PlayerWaveform` + shared-`<audio>` trio that `SplitPanel`
+  and `ScratchSplitPicker` already duplicate — extract, don't invent. Two
+  densities plus the existing full form:
+  - **Inline** (any host row with ≥240px free width): 22px acid play/pause
+    hexagon + `PlayerWaveform` (h22–30, per-surface) + mono `m:ss / m:ss`
+    readout; waveform click = seek.
+  - **Micro** (narrower rows): 18px acid hexagon only; click opens a fixed
+    240px anchored popover (name · waveform h30 · time · ✕) and starts
+    playback immediately. Closes on ✕ or outside click, which also stops it.
+    One popover open at a time.
+  - **Full** = the existing footer `Player` (volume, download) — unchanged;
+    it is the parent form the smaller sizes derive from, not a special case.
+- Color contract (unchanged semantics, now enforced everywhere): play is
+  always an acid hexagon (commit: "start sound"); played portion + playhead
+  are always sky; idle bars `wave-idle`. Lilac keeps marking versions; the
+  play control inside a version row stays acid.
+- **One preview at a time, app-wide**: a small preview singleton
+  (`previewPlayback.ts`, one shared `Audio` element behind the existing
+  `PlaybackApi` shape, keyed by "what's playing") — never one `Audio` per
+  row. Starting any preview pauses the previous one and the main transport
+  (footer / editor engine); starting the main transport stops the preview
+  and closes any popover. Previews are auditions, not a second mixer.
+- **Exception — Library cards bind to the footer engine, not the preview
+  singleton**: a card's inline module and the footer are two views of the
+  same `useSingleAudioPlayback` engine (playing a card loads it into the
+  footer, scrubbing either stays in sync). This keeps Library's existing
+  "row play drives footer" behavior and avoids two competing players on the
+  same screen.
+- **Peaks cache**: `waveformPeaks.ts` gains a URL-keyed cache and one shared
+  `AudioContext` (today: fresh context + full re-fetch/re-decode per call —
+  unacceptable once every library card renders a waveform). Object URLs
+  (blob previews) are cacheable too; cache entries evicted when their
+  object URL is revoked.
+- **Pre-upload files preview via `URL.createObjectURL`** (revoked on
+  replace/unmount): sidebar reference upload, filled COVER/ARRANGE
+  dropzones, voice upload. `Dropzone.tsx` itself stays generic (it never
+  touches file content); the filled-state preview renders in the callers.
+- **Version history**: each row's micro preview plays that version's own
+  `audio_file`, seeked to its region start — A/B two takes from the
+  popovers with zero state change. SEL/REVERT semantics untouched.
+- **Remaster stops auto-downloading**: the finished render is held as an
+  object URL, shown as an inline preview with explicit DOWNLOAD (acid) and
+  RUN AGAIN actions. Consequence line: "not saved to history — download or
+  discard". The held URL is revoked on the next run or on leaving the
+  Editor.
+- `docs/design/DESIGN.md` addendum ships in the same PR as the component
+  (per AGENTS.md): module anatomy, the three sizes, the ≥240px
+  inline-vs-popover threshold, and the one-preview-at-a-time rule join the
+  shape grammar section.
+- Rollout is **one PR per problem**, in dependency order — each is
+  independently shippable and visually inert until its surfaces adopt it:
+  1. `feat/audio-preview-core` — `AudioPreview.tsx` + `previewPlayback.ts`
+     + peaks cache; refactor `SplitPanel` / `ScratchSplitPicker` onto it
+     (no visual change, deletes the duplication). DESIGN.md addendum here.
+  2. `feat/audio-preview-library` — song cards (replaces the bare ▶ glyph)
+     + song detail rail preview block.
+  3. `feat/audio-preview-create` — voice picker micro, reference-upload
+     micro, COVER song-picker rows, filled-dropzone previews.
+  4. `feat/audio-preview-editor-rail` — version history micro, export stem
+     inline, remaster audition.
+  5. `feat/audio-preview-settings` — voices list inline.
+
+File-level plan:
+- `client/src/AudioPreview.tsx` (new) — inline variant in PR 1; the micro
+  variant + popover land with their first consumer (PR 3, per the
+  no-unused-WIP-UI rule), split into `AudioPreviewPopover.tsx` if the
+  module cap demands it.
+- `client/src/previewPlayback.ts` (new) — shared preview engine singleton +
+  "pause main transport" wiring; unit-tested (exclusivity, stop-on-close,
+  main-transport handoff).
+- `client/src/waveformPeaks.ts` — URL-keyed cache + shared `AudioContext`;
+  unit test for cache hit/eviction.
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx` — drop
+  hand-rolled playback state; consume `AudioPreview`.
+- `client/src/App.tsx` — library cards: inline module bound to the footer
+  engine.
+- `client/src/SongDetailRail.tsx` — preview block above METADATA.
+- `client/src/VoicePicker.tsx`, `client/src/ReferenceAudioPicker.tsx` —
+  micro variant beside the select / under the filled dropzone.
+- `client/src/CreateAudioTab.tsx` — micro per song-picker row; inline in
+  the filled dropzone.
+- `client/src/CreateArrangeTab.tsx` — inline in the filled upload dropzone.
+- `client/src/VersionHistory.tsx` — micro per version row.
+- `client/src/ExportPanel.tsx` — inline per stem row (keeps DOWNLOAD).
+- `client/src/RemasterAction.tsx` + `client/src/editorJobStore.ts` — hold
+  result as object URL instead of firing the download; audition + explicit
+  DOWNLOAD / RUN AGAIN.
+- `client/src/VoiceUploadForm.tsx` — inline module per voice row.
+- `docs/design/DESIGN.md` — AudioPreview addendum (PR 1).
+
+Open questions:
+- Version preview scope: seek-to-region-start of the full file (planned) vs
+  a region-bounded clip that stops at the region end — decide in PR 4 after
+  trying it; region-bounded needs a stop-at-time hook the engine doesn't
+  have yet.
+- Remaster renders can be multi-minute WAVs held in memory as a blob —
+  acceptable for one held result at a time, but revisit if RUN AGAIN
+  accumulates takes.
