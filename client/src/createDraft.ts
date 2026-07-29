@@ -31,6 +31,13 @@ export interface CreateDraft {
    * aren't kept, library bounces are ephemeral), so the tab opens source-less and says
    * so inline rather than pretending the draft is ready to generate. */
   reusedFrom?: string;
+  /** Reference-audio conditioning to re-apply — the voice name / clip filename the song
+   * recorded, plus the influences it was rendered at. The influences are absent for
+   * cover/complete origins, which never persisted them (see the songs schema), leaving the
+   * matched voice's own defaults in place. Resolved by voiceStore's restoreReference. */
+  referenceLabel?: string;
+  audioInfluence?: number;
+  styleInfluence?: number;
 }
 
 /** The ACE-Step task a song was made with (`songs.gen_task`, or the generation lock's
@@ -55,6 +62,9 @@ export const reusePromptDraft = (song: Song): CreateDraft => {
     ...(song.time_signature ? { timeSignature: song.time_signature } : {}),
     ...(song.duration ? { duration: song.duration } : {}),
     ...(genType === 'prompt' ? {} : { reusedFrom: song.title }),
+    ...(song.reference_audio_label ? { referenceLabel: song.reference_audio_label } : {}),
+    ...(song.reference_audio_influence != null ? { audioInfluence: song.reference_audio_influence } : {}),
+    ...(song.reference_style_influence != null ? { styleInfluence: song.reference_style_influence } : {}),
   };
 };
 

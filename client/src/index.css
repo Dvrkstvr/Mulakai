@@ -2005,6 +2005,18 @@ footer .player {
   font-size: 10px;
 }
 
+/* Standing warning inside a panel — same rust hue as .error (DESIGN.md's one job for the
+   colour) but no toast animation: it describes a state the user still has to resolve, not
+   an action that just failed. */
+.warn-note {
+  border-left: 1px solid var(--rust);
+  color: var(--rust-text);
+  padding: 5px 8px;
+  margin-top: 6px;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
 .query-row {
   display: flex;
   align-items: center;

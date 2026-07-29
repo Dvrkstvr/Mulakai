@@ -73,6 +73,33 @@ describe('reusePromptDraft', () => {
     expect(reusePromptDraft(song()).reusedFrom).toBeUndefined();
   });
 
+  it('carries the reference audio that conditioned the song, with its influences', () => {
+    const draft = reusePromptDraft(song({
+      reference_audio_label: 'Daniel',
+      reference_audio_influence: 0.8,
+      reference_style_influence: 0.3,
+    }));
+    expect(draft).toMatchObject({ referenceLabel: 'Daniel', audioInfluence: 0.8, styleInfluence: 0.3 });
+  });
+
+  it('carries a cover/arrange origin\'s label without influences it never stored', () => {
+    const draft = reusePromptDraft(song({
+      gen_task: 'cover',
+      reference_audio_label: 'Daniel',
+      reference_audio_influence: null,
+      reference_style_influence: null,
+    }));
+    expect(draft.referenceLabel).toBe('Daniel');
+    expect(draft).not.toHaveProperty('audioInfluence');
+    expect(draft).not.toHaveProperty('styleInfluence');
+  });
+
+  it('omits the reference fields entirely for an unconditioned song', () => {
+    const draft = reusePromptDraft(song());
+    expect(draft).not.toHaveProperty('referenceLabel');
+    expect(draft).not.toHaveProperty('audioInfluence');
+  });
+
   it('omits AUTO song details rather than carrying zeroes', () => {
     const draft = reusePromptDraft(song({ bpm: null, key_scale: '', time_signature: '', duration: null }));
     expect(draft).not.toHaveProperty('bpm');

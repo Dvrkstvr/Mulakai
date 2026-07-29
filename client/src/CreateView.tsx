@@ -86,6 +86,16 @@ export function CreateView({ songs, initialDraft, onBack }: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderId]);
 
+  // Re-apply a reused song's reference audio (voice + the influences it was rendered at).
+  // Keyed on the draft's own values so a fresh draft re-runs it — including the no-reference
+  // case, which clears any stale "voice missing" warning.
+  useEffect(() => {
+    void useVoiceStore.getState().restoreReference(
+      initialDraft.referenceLabel, initialDraft.audioInfluence, initialDraft.styleInfluence,
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialDraft.referenceLabel, initialDraft.audioInfluence, initialDraft.styleInfluence]);
+
   useEffect(() => {
     if (thinkPhase !== 'revealing' || !pendingResult) return;
     if (pendingResult.bpm) setBpm(pendingResult.bpm);
