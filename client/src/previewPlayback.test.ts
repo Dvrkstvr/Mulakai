@@ -132,6 +132,16 @@ describe('previewPlayback', () => {
     expect(engine.getState()).toMatchObject({ key: null, playing: false, currentTime: 0 });
   });
 
+  it('stopIfCurrent stops only the matching key', () => {
+    const { audio, engine } = make();
+    engine.toggle('a', 'url-a');
+    engine.stopIfCurrent('b'); // a different item was deleted — leave 'a' alone
+    expect(engine.getState()).toMatchObject({ key: 'a', playing: true });
+    engine.stopIfCurrent('a');
+    expect(audio.paused).toBe(true);
+    expect(engine.getState()).toMatchObject({ key: null, playing: false });
+  });
+
   it('unregistered main transports stop receiving pause calls', () => {
     const { engine } = make();
     const pauseMain = vi.fn();

@@ -131,6 +131,11 @@ export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
       pendingSeconds = null;
       set({ key: null, playing: false, currentTime: 0, duration: 0 });
     },
+    /** Stop only if `key` is the live preview — for when its audio is about to
+     * disappear (deleted voice, revoked object URL, unmounted popover). */
+    stopIfCurrent(key: string) {
+      if (state.key === key) this.stop();
+    },
     /** A main transport (footer/editor engine) registers its pause; previews call it on start. */
     registerMainTransport(pause: () => void) {
       mainTransports.add(pause);

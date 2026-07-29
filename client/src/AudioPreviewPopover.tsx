@@ -36,7 +36,7 @@ export function AudioPreviewPopover({ src, label, duration, previewKey = src, st
   const playing = owned && state.playing;
 
   const close = () => {
-    if (previewPlayback.getState().key === previewKey) previewPlayback.stop();
+    previewPlayback.stopIfCurrent(previewKey);
     setPos(null);
   };
 
@@ -74,7 +74,7 @@ export function AudioPreviewPopover({ src, label, duration, previewKey = src, st
 
   // Leaving the screen with the popover open must not leave audio running.
   useEffect(() => () => {
-    if (previewPlayback.getState().key === previewKey) previewPlayback.stop();
+    previewPlayback.stopIfCurrent(previewKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

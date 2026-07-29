@@ -1243,10 +1243,12 @@ File-level plan:
   auto-fire effect wiring, render `AnalyzeAudioButton` above
   `SongAnalysisFields`, pass `model` into `analyze()`.
 
-## Unified Audio Preview (planned 2026-07-29)
+## Unified Audio Preview (planned 2026-07-29, implemented 2026-07-30)
 
 Approved mockup: claude.ai/code/artifact/6dc62f30-d2e7-44b0-ae83-b90bdb85be05
 (all four views rendered with the pattern applied; live popover demos).
+All five rollout PRs below are built; the Library step was rescoped mid-
+flight (see the Library exception).
 
 One rule: **if the UI shows an audio file, you can hear it in place** —
 play/pause, waveform, click-to-seek scrubber. An audit (2026-07-29) found 6
