@@ -6,7 +6,8 @@ import { Player } from './Player';
 import { CreateBar } from './CreateBar';
 import { CreateView } from './CreateView';
 import { SongDetailRail } from './SongDetailRail';
-import { reusePromptDraft, createCoverDraft, type CreateDraft } from './createDraft';
+import { reusePromptDraft, createCoverDraft, draftHasIntent, type CreateDraft } from './createDraft';
+import { useCreateDraftStore } from './createDraftStore';
 import { LibraryToolbar, type LibraryFilter, type LibrarySort } from './LibraryToolbar';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSingleAudioPlayback } from './useSingleAudioPlayback';
@@ -28,7 +29,6 @@ type View = 'library' | 'create' | 'settings' | 'forge';
 
 export default function App() {
   const [view, setView] = useState<View>('library');
-  const [createDraft, setCreateDraft] = useState<CreateDraft>({});
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [detailSongId, setDetailSongId] = useState<string | null>(null);
   const [songs, setSongs] = useState<Song[]>([]);
@@ -116,11 +116,20 @@ export default function App() {
 
   const createFolder = (name: string) => api.createFolder(name).then(refreshFolders);
 
+  /** Every route into Create goes through here. A draft that actually asks for something
+   * (a create-bar query, REUSE PROMPT, CREATE COVER FROM AUDIO, RETRY) replaces whatever was
+   * in Create; CREATE on an empty box means "take me back", so it keeps the draft in progress
+   * and only re-points its destination at the folder now in scope. */
+  const openCreate = (draft: CreateDraft) => {
+    const store = useCreateDraftStore.getState();
+    if (draftHasIntent(draft)) store.load(draft); else store.resume(draft.folderId, draft.folderName);
+    setView('create');
+  };
+
   const retryGeneration = () => {
     if (!genJob) return;
-    setCreateDraft(genJob.draft);
     dismissGenJob();
-    setView('create');
+    openCreate(genJob.draft);
   };
 
   // library player stops (not pauses) when the editor or any takeover screen opens, per PLAN.md's Custom Player Controls section
@@ -146,15 +155,13 @@ export default function App() {
   const songFolder = (s: Song) => folders.find((f) => f.id === s.folder_id);
   const reusePrompt = (s: Song) => {
     const folder = songFolder(s);
-    setCreateDraft({ ...reusePromptDraft(s), ...(folder ? { folderId: folder.id, folderName: folder.name } : {}) });
     setDetailSongId(null);
-    setView('create');
+    openCreate({ ...reusePromptDraft(s), ...(folder ? { folderId: folder.id, folderName: folder.name } : {}) });
   };
   const createCover = (s: Song) => {
     const folder = songFolder(s);
-    setCreateDraft({ ...createCoverDraft(s), ...(folder ? { folderId: folder.id, folderName: folder.name } : {}) });
     setDetailSongId(null);
-    setView('create');
+    openCreate({ ...createCoverDraft(s), ...(folder ? { folderId: folder.id, folderName: folder.name } : {}) });
   };
 
   const visibleSongs = useMemo(() => {
@@ -183,11 +190,7 @@ export default function App() {
         ) : view === 'create' ? (
           <motion.div className="view-fill" key="create" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
             <MaterializeSweep />
-            <CreateView
-              songs={songs}
-              initialDraft={createDraft}
-              onBack={() => setView('library')}
-            />
+            <CreateView songs={songs} onBack={() => setView('library')} />
           </motion.div>
         ) : view === 'settings' ? (
           <motion.div className="view-fill" key="settings" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -202,10 +205,7 @@ export default function App() {
         ) : (
           <motion.div className="view-fill" key="library" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
             <CreateBar
-              onCreate={(draft) => {
-                setCreateDraft(activeFolder ? { ...draft, folderId: activeFolder.id, folderName: activeFolder.name } : draft);
-                setView('create');
-              }}
+              onCreate={(draft) => openCreate(activeFolder ? { ...draft, folderId: activeFolder.id, folderName: activeFolder.name } : draft)}
               busy={!!genJob && genJob.stage !== 'failed'}
             />
 
