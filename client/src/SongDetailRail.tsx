@@ -2,8 +2,8 @@ import { useEffect, useRef, useState } from 'react';
 import { api, type Folder, type Song } from './api';
 import { timeSignatureLabel } from './songMeta';
 import { CustomSelect } from './CustomSelect';
-import { Dropzone } from './Dropzone';
 import { AudioPreview } from './AudioPreview';
+import { SongOutputTags } from './SongOutputTags';
 import { useVoiceStore } from './voiceStore';
 
 interface Props {
@@ -56,15 +56,10 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
   const [comment, setComment] = useState(song.comment);
-  const [genre, setGenre] = useState(song.genre);
-  const [album, setAlbum] = useState(song.album);
-  const [coverUploading, setCoverUploading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setTitle(song.title), [song.title]);
   useEffect(() => setComment(song.comment), [song.comment]);
-  useEffect(() => setGenre(song.genre), [song.genre]);
-  useEffect(() => setAlbum(song.album), [song.album]);
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
@@ -82,31 +77,6 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
   const commitComment = () => {
     if (comment === song.comment) return;
     api.updateSongMetadata(song.id, { comment }).then(onRenamed);
-  };
-
-  const commitGenre = () => {
-    if (genre === song.genre) return;
-    api.updateSongMetadata(song.id, { genre }).then(onRenamed);
-  };
-
-  const commitAlbum = () => {
-    if (album === song.album) return;
-    api.updateSongMetadata(song.id, { album }).then(onRenamed);
-  };
-
-  const uploadCoverArt = async (file: File) => {
-    setCoverUploading(true);
-    try {
-      await api.uploadSongCoverArt(song.id, file);
-      onRenamed();
-    } finally {
-      setCoverUploading(false);
-    }
-  };
-
-  const removeCoverArt = async () => {
-    await api.deleteSongCoverArt(song.id);
-    onRenamed();
   };
 
   const folderOptions = [{ label: 'UNFILED', value: UNFILED }, ...folders.map((f) => ({ label: f.name.toUpperCase(), value: f.id }))];
@@ -187,30 +157,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
           <button className="acid-outline" onClick={() => onCreateCover(song)}>CREATE COVER FROM AUDIO</button>
         </div>
 
-        <div className="detail-meta">
-          <div className="section-header">OUTPUT FILE TAGS</div>
-          <div className="setting">
-            <div className="setting-head"><span>GENRE</span></div>
-            <input value={genre} onChange={(e) => setGenre(e.target.value)} onBlur={commitGenre} placeholder="AUTO — left blank" />
-          </div>
-          <div className="setting">
-            <div className="setting-head"><span>ALBUM</span></div>
-            <input value={album} onChange={(e) => setAlbum(e.target.value)} onBlur={commitAlbum} placeholder="AUTO — left blank" />
-          </div>
-          <div className="setting">
-            <div className="setting-head"><span>COVER ART</span></div>
-            {song.cover_art_file ? (
-              <div className="voice-list-row">
-                <img src={`/audio/${song.cover_art_file}`} alt="Cover art" style={{ width: 40, height: 40, objectFit: 'cover' }} />
-                <button onClick={removeCoverArt}><span>REMOVE</span></button>
-              </div>
-            ) : (
-              <Dropzone accept="image/*" disabled={coverUploading} onFile={uploadCoverArt}>
-                {coverUploading ? 'uploading…' : 'drag an image here or click to upload cover art'}
-              </Dropzone>
-            )}
-          </div>
-        </div>
+        <SongOutputTags song={song} onChanged={onRenamed} />
       </div>
     </aside>
   );
