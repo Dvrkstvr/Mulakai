@@ -102,6 +102,28 @@ describe('previewPlayback', () => {
     expect(audio.src).toBe('url-a'); // not reloaded
   });
 
+  it('playFrom before metadata applies the absolute seek once metadata arrives, clamped', () => {
+    const { audio, engine } = make();
+    engine.playFrom('a', 'url-a', 57);
+    expect(audio.paused).toBe(false);
+    audio.loadMetadata(200);
+    expect(audio.currentTime).toBe(57);
+    engine.playFrom('b', 'url-b', 500);
+    audio.loadMetadata(100);
+    expect(audio.currentTime).toBe(100); // clamped to duration
+  });
+
+  it('playFrom on the current loaded key seeks in place and resumes if paused', () => {
+    const { audio, engine } = make();
+    engine.toggle('a', 'url-a');
+    audio.loadMetadata(100);
+    engine.toggle('a', 'url-a'); // pause
+    engine.playFrom('a', 'url-a', 30);
+    expect(audio.currentTime).toBe(30);
+    expect(audio.paused).toBe(false);
+    expect(audio.src).toBe('url-a'); // not reloaded
+  });
+
   it('mainTransportStarted stops the preview entirely', () => {
     const { audio, engine } = make();
     engine.toggle('a', 'url-a');

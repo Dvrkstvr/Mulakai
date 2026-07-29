@@ -11,6 +11,8 @@ interface Props {
   duration?: number;
   /** Exclusivity identity in the shared preview slot — defaults to `src`. */
   previewKey?: string;
+  /** Open playback from this absolute time (e.g. a version's region start) instead of 0. */
+  startAtSeconds?: number;
   disabled?: boolean;
 }
 
@@ -25,7 +27,7 @@ const GAP = 6;
  * Rendered into a body portal with `position: fixed` so scrolling rails and
  * framer-transformed view containers can't clip or mis-anchor it.
  */
-export function AudioPreviewPopover({ src, label, duration, previewKey = src, disabled }: Props) {
+export function AudioPreviewPopover({ src, label, duration, previewKey = src, startAtSeconds, disabled }: Props) {
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const popRef = useRef<HTMLDivElement>(null);
@@ -87,7 +89,8 @@ export function AudioPreviewPopover({ src, label, duration, previewKey = src, di
       left: Math.max(GAP, Math.min(r.left, window.innerWidth - WIDTH - GAP)),
       top: r.bottom + GAP,
     });
-    previewPlayback.toggle(previewKey, src);
+    if (startAtSeconds != null) previewPlayback.playFrom(previewKey, src, startAtSeconds);
+    else previewPlayback.toggle(previewKey, src);
   };
 
   return (

@@ -4,8 +4,10 @@ import { activeLayers } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useSettings } from './settings';
+import { AudioPreview } from './AudioPreview';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
+import { useRemasterResult } from './remasterResult';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 
 interface Props {
@@ -28,12 +30,13 @@ export function RemasterAction({ songId, layers }: Props) {
   const [coverModels, setCoverModels] = useState<string[] | null>(null);
   const [model, setModel] = useState('');
   const [mixError, setMixError] = useState('');
-  const [justFinished, setJustFinished] = useState(false);
   const genJob = useGenerationStore((s) => s.job);
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
+  const remasterResult = useRemasterResult((s) => s.result);
   const startRemaster = useEditorJobStore((s) => s.startRemaster);
   const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
+  const result = remasterResult?.songId === songId ? remasterResult : null;
   const mine = myEditorJob(editorJob, 'remaster', { songId });
   const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
   const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'remaster failed') : '');
@@ -50,19 +53,11 @@ export function RemasterAction({ songId, layers }: Props) {
       .catch(() => setCoverModels([]));
   }, []);
 
-  // "downloaded" sticks around after the store clears the job itself (editorJobStore.ts's
-  // DONE_LINGER_MS is brief) — this component's own memory of "we just finished" persists
-  // until the next REMASTER SONG click.
-  useEffect(() => {
-    if (mine?.stage === 'done') setJustFinished(true);
-  }, [mine?.stage]);
-
   const gated = coverModels !== null && coverModels.length === 0;
 
   const submit = async () => {
     if (gated || job === 'running' || busyElsewhere) return;
     setMixError('');
-    setJustFinished(false);
     try {
       const audible = activeLayers(layers)
         .map((l) => ({ layer: l, version: l.versions.find((v) => v.active) }))
@@ -92,7 +87,7 @@ export function RemasterAction({ songId, layers }: Props) {
     <div className="remaster-block">
       <span className="section-label" style={{ margin: 0 }}>REMASTER</span>
       <div className="hint">
-        one-shot ACE-Step cover of the current mix, aimed at max quality — not saved to history, downloads when done
+        one-shot ACE-Step cover of the current mix, aimed at max quality — not saved to history
       </div>
       {coverModels === null ? (
         <span className="meta">checking available models…</span>
@@ -109,8 +104,15 @@ export function RemasterAction({ songId, layers }: Props) {
             <span className="remaster-badge">CLOSEST TO SOURCE</span>
           </div>
           <div className="hint">uses Settings &gt; Playback &amp; Export defaults for format/steps</div>
-          {justFinished && job === 'idle' ? (
-            <span className="meta">remaster downloaded — run it again for another pass</span>
+          {result && job === 'idle' ? (
+            <>
+              <AudioPreview src={result.url} label="remaster result" height={24} />
+              <div className="remaster-actions">
+                <a className="acid" href={result.url} download={result.filename}><span>DOWNLOAD</span></a>
+                <button className="acid-outline" disabled={busyElsewhere} onClick={submit}>RUN AGAIN</button>
+              </div>
+              <div className="hint">not saved to history — download it or run again to discard</div>
+            </>
           ) : (
             <>
               <div className="hint">renders the full mix at max quality — can take several minutes</div>

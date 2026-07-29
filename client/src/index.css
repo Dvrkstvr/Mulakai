@@ -2395,33 +2395,10 @@ footer .player {
   color: var(--sky);
 }
 
-.export-stem {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  border: 1px solid var(--line-hi);
-  padding: 8px 10px;
-  color: var(--text-hi);
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-  transition: border-color 0.15s ease, color 0.15s ease;
-  transform: skewX(-10deg);
-}
-
-.export-stem span {
-  display: inline-block;
-  transform: skewX(10deg);
-}
-
-.export-stem:hover {
-  border-color: var(--acid);
-  color: var(--acid);
-}
-
-.export-stem-dl {
-  color: var(--text-mid);
+/* Export rail stems reuse .stem-row (the Split rail's anatomy) — name +
+   DOWNLOAD head row over the inline preview module. */
+.stem-dl {
+  margin-left: auto;
 }
 
 .remaster-block {
@@ -2431,6 +2408,31 @@ footer .player {
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+/* Held remaster result: DOWNLOAD is the filled acid commit (an anchor — it
+   saves a file); RUN AGAIN is its acid-outline sibling per the one-filled-CTA
+   rule. */
+.remaster-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.remaster-actions a.acid {
+  background: var(--acid);
+  color: var(--carbon);
+  border: 1px solid var(--acid);
+  transform: skewX(-10deg);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+  padding: 6px 14px;
+}
+
+.remaster-actions a.acid>span {
+  display: inline-block;
+  transform: skewX(10deg);
 }
 
 .remaster-badges {
@@ -2447,10 +2449,6 @@ footer .player {
   font-weight: 700;
   letter-spacing: 0.5px;
   padding: 3px 6px;
-}
-
-.export-stem:hover .export-stem-dl {
-  color: var(--acid);
 }
 
 /* split view — swaps into the rail in place of history, same idiom as .export-panel */
@@ -2677,6 +2675,13 @@ footer .player {
 
 .versions .version-time {
   white-space: normal;
+}
+
+/* Micro preview + timecode share the version row's first line. */
+.version-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .versions .meta {

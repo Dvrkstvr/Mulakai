@@ -29,9 +29,11 @@ export interface PreviewAudioElement {
 export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
   let audio: PreviewAudioElement | null = null;
   let state: PreviewSnapshot = { key: null, playing: false, currentTime: 0, duration: 0 };
-  // Seek requested before the element has metadata — applied on loadedmetadata,
-  // stored as a fraction since the duration isn't known yet.
+  // Seek requested before the element has metadata — applied on loadedmetadata.
+  // A waveform click stores a fraction (duration unknown yet); playFrom stores
+  // absolute seconds (e.g. a version's region start).
   let pendingFrac: number | null = null;
+  let pendingSeconds: number | null = null;
   const listeners = new Set<() => void>();
   const mainTransports = new Set<() => void>();
 
@@ -50,18 +52,22 @@ export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
     a.addEventListener('loadedmetadata', () => {
       if (pendingFrac != null && a.duration > 0) {
         a.currentTime = pendingFrac * a.duration;
-        pendingFrac = null;
+      } else if (pendingSeconds != null && a.duration > 0) {
+        a.currentTime = Math.min(pendingSeconds, a.duration);
       }
+      pendingFrac = null;
+      pendingSeconds = null;
       set({ duration: a.duration, currentTime: a.currentTime });
     });
     audio = a;
     return a;
   };
 
-  const start = (key: string, src: string, frac: number | null) => {
+  const start = (key: string, src: string, seek: { frac?: number; seconds?: number } | null) => {
     const a = ensureAudio();
     mainTransports.forEach((pause) => pause());
-    pendingFrac = frac;
+    pendingFrac = seek?.frac ?? null;
+    pendingSeconds = seek?.seconds ?? null;
     a.src = src;
     set({ key, playing: false, currentTime: 0, duration: 0 });
     void a.play();
@@ -100,7 +106,21 @@ export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
         }
         return;
       }
-      start(key, src, frac);
+      start(key, src, { frac });
+    },
+    /** Start (or seek) playback at an absolute time — e.g. a version's region start. */
+    playFrom(key: string, src: string, seconds: number) {
+      const a = ensureAudio();
+      if (state.key === key && a.readyState >= 1 && a.duration > 0) {
+        a.currentTime = Math.min(seconds, a.duration);
+        set({ currentTime: a.currentTime });
+        if (!state.playing) {
+          mainTransports.forEach((pause) => pause());
+          void a.play();
+        }
+        return;
+      }
+      start(key, src, { seconds });
     },
     stop() {
       if (audio) {
@@ -108,6 +128,7 @@ export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
         audio.currentTime = 0;
       }
       pendingFrac = null;
+      pendingSeconds = null;
       set({ key: null, playing: false, currentTime: 0, duration: 0 });
     },
     /** A main transport (footer/editor engine) registers its pause; previews call it on start. */
