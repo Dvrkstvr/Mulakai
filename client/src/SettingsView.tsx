@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react';
 import { useHeaderSlot } from './HeaderSlot';
 import { ScrollArea } from './ScrollArea';
 import { ModelsSection } from './ModelsSection';
+import { AdaptersSection } from './AdaptersSection';
 import { PlaybackExportSection } from './PlaybackExportSection';
 import { VoiceManagementSection } from './VoiceManagementSection';
 import { LibraryMaintenanceSection } from './LibraryMaintenanceSection';
@@ -27,6 +28,7 @@ export function SettingsView({ online, onBack }: Props) {
     <div className="settings-shell">
       <ScrollArea className="settings-content">
         <ModelsSection online={online} />
+        <AdaptersSection />
         <PlaybackExportSection />
         <VoiceManagementSection />
         <LibraryMaintenanceSection />

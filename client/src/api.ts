@@ -67,6 +67,22 @@ export interface ModelInfo {
   supportedTaskTypes: TaskType[];
 }
 
+/** A LoRA/LoKr adapter ACE-Step can load. `path` is on the ACE-Step host, not this browser's
+ * machine — there is no upload here, and no endpoint to browse for one. */
+export interface Adapter {
+  id: string;
+  name: string;
+  path: string;
+  kind: string;
+  scale: number;
+  createdAt: string;
+}
+
+export interface AdapterList {
+  adapters: Adapter[];
+  activeId: string | null;
+}
+
 export interface ModelInventory {
   models: ModelInfo[]; // DiT models
   lmModels: string[]; // 5Hz LM models
@@ -246,6 +262,36 @@ export const api = {
 
   listModels: (): Promise<ModelInventory> =>
     fetch('/api/generate/models').then((r) => json<ModelInventory>(r)),
+
+  listAdapters: (): Promise<AdapterList> => fetch('/api/adapters').then((r) => json<AdapterList>(r)),
+
+  /** Rejects (400) when ACE-Step can't load the path — registration validates by loading it. */
+  registerAdapter: (name: string, path: string): Promise<Adapter> =>
+    fetch('/api/adapters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, path }),
+    }).then((r) => json<Adapter>(r)),
+
+  /** null = run on the base model. `warning` means the choice was recorded but ACE-Step
+   * hasn't applied it yet (usually: no model loaded) — the next generation applies it. */
+  setActiveAdapter: (id: string | null): Promise<{ activeId: string | null; warning?: string }> =>
+    fetch('/api/adapters/active', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    }).then((r) => json<{ activeId: string | null; warning?: string }>(r)),
+
+  setAdapterScale: (id: string, scale: number): Promise<Adapter & { warning?: string }> =>
+    fetch(`/api/adapters/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scale }),
+    }).then((r) => json<Adapter & { warning?: string }>(r)),
+
+  deleteAdapter: (id: string): Promise<{ activeId: string | null; warning?: string }> =>
+    fetch(`/api/adapters/${id}`, { method: 'DELETE' })
+      .then((r) => json<{ activeId: string | null; warning?: string }>(r)),
 
   generateFromAudio: (
     srcAudio: Blob,
