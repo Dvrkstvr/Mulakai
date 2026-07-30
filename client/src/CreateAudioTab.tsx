@@ -21,6 +21,7 @@ import { useObjectUrl } from './useObjectUrl';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
 import { ReusedSourceNote } from './ReusedSourceNote';
 import { CarriedPromptNote } from './CarriedPromptNote';
+import { MoveToEditorAction } from './MoveToEditorAction';
 
 /** AUDIO tab: "create cover from audio" — a `cover` generation conditioned on an uploaded
  * file or a client-bounced mix of an existing library song, persisted as a brand-new song.
@@ -188,6 +189,9 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
       <GenerateButton submitting={submitting} blocked={!!genJob} label="GENERATE COVER" disabled={busy || !ready} onClick={generate} />
       <div className="hint">Renders a new song conditioned on the chosen source track — can take several minutes.</div>
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
+      {/* Upload only: a library song is already editable from its row's EDIT button, and this
+          tab bounces one flat as a source, so offering it here would be ambiguous (PLAN.md). */}
+      {source === 'upload' && uploadFile && <MoveToEditorAction file={uploadFile} />}
     </>
   );
 }

@@ -2072,6 +2072,21 @@ footer .player {
   flex: 1;
 }
 
+/* Create > AUDIO's non-generative sibling action (import the upload as a song). Separated
+   by a hairline so it reads as "or, instead of generating" rather than a second GENERATE. */
+.move-to-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--carbon-line);
+}
+
+.move-to-editor button.acid-outline {
+  align-self: stretch;
+}
+
 /* AI-assisted random/query actions — lilac per docs/design/DESIGN.md's
    versions/history/AI-marker semantic (shared with .ai-badge's shimmer). */
 .lucky-btn {

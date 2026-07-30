@@ -1,16 +1,16 @@
 # Graph Report - Mulakai  (2026-07-30)
 
 ## Corpus Check
-- 187 files · ~112,362 words
+- 187 files · ~112,499 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1164 nodes · 2343 edges · 142 communities (69 shown, 73 thin omitted)
+- 1164 nodes · 2347 edges · 143 communities (70 shown, 73 thin omitted)
 - Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 17 edges (avg confidence: 0.76)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `89775326`
+- Built from commit: `dbac8084`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -70,6 +70,7 @@
 - demucs-server
 - 13. Environment Variables
 - Mulakai — UX & Visual Polish Notes
+- FakeAudio
 - lyricTags.ts
 - 5. Batch Query Task Results
 - 6. Format Input
@@ -174,7 +175,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (142 total, 73 thin omitted)
+## Communities (143 total, 73 thin omitted)
 
 ### Community 0 - "Backend Generation & Job Services"
 Cohesion: 0.08
@@ -185,8 +186,8 @@ Cohesion: 0.16
 Nodes (13): LyricLine, LyricsBlock, matchSectionBlocks(), splitLyricsBlocks(), findActiveSectionIndex(), groupSections(), Section, tagLabel() (+5 more)
 
 ### Community 2 - "App Shell & Library UI"
-Cohesion: 0.07
-Nodes (39): ActiveGeneration, Folder, FolderScope, Song, ApiStatusState, useApiStatusStore, App(), View (+31 more)
+Cohesion: 0.06
+Nodes (45): ActiveGeneration, Folder, FolderScope, OutputMetadata, Song, ApiStatusState, useApiStatusStore, App() (+37 more)
 
 ### Community 3 - "Project Docs & Design Concepts"
 Cohesion: 0.20
@@ -285,8 +286,8 @@ Cohesion: 0.17
 Nodes (16): ApiError, StemResult, AddLayerJob, EditorJob, EditorJobState, errMsg(), JobBase, RegenerateJob (+8 more)
 
 ### Community 48 - "Red Lines (Never Do)"
-Cohesion: 0.06
-Nodes (41): AnalyzeAudioButton(), Props, StemKind, TaskType, AudioPreview(), fmtTime(), Props, AudioPreviewPopover() (+33 more)
+Cohesion: 0.07
+Nodes (46): AnalyzeAudioButton(), Props, StemKind, TaskType, Voice, AudioPreview(), fmtTime(), Props (+38 more)
 
 ### Community 49 - "SettingsPanel.tsx"
 Cohesion: 0.25
@@ -323,6 +324,10 @@ Nodes (6): 13. Environment Variables, Cache Configuration, LM Configuration, Mod
 ### Community 64 - "Mulakai — UX & Visual Polish Notes"
 Cohesion: 0.33
 Nodes (5): Mulakai — UX & Visual Polish Notes, Proposed next passes (not yet done), The core loop today, Visual polish applied this pass (`index.css`), Workflow observations → improvements
+
+### Community 65 - "FakeAudio"
+Cohesion: 0.21
+Nodes (5): createPreviewPlayback(), PreviewAudioElement, FakeAudio, make(), useMainTransportGuard()
 
 ### Community 66 - "lyricTags.ts"
 Cohesion: 0.40
@@ -377,8 +382,8 @@ Cohesion: 0.13
 Nodes (12): PlaybackApi, fmt(), Player(), Props, COLORS, PlayerWaveform(), Props, Props (+4 more)
 
 ### Community 134 - "settings.ts"
-Cohesion: 0.05
-Nodes (58): AddLayerDraft, useAddLayerDraft, AdvancedGenSettings(), INFER_METHOD_OPTIONS, ModelInventory, OutputMetadata, Voice, CustomSelect() (+50 more)
+Cohesion: 0.07
+Nodes (42): AddLayerDraft, useAddLayerDraft, AdvancedGenSettings(), INFER_METHOD_OPTIONS, ModelInventory, CustomSelect(), Props, ForgeSection() (+34 more)
 
 ### Community 135 - "Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02)"
 Cohesion: 0.25
@@ -416,9 +421,9 @@ Nodes (14): AddLayerTrigger(), Props, Layer, activeLayers(), bounceMix(), encode
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `reextractStem()` connect `Playback Mix Engine` to `Red Lines (Never Do)`, `Advanced Generation Settings`?**
+- **Why does `reextractStem()` connect `Playback Mix Engine` to `FakeAudio`, `Advanced Generation Settings`?**
   _High betweenness centrality (0.076) - this node is a cross-community bridge._
-- **Why does `CreateArrangeTab()` connect `Red Lines (Never Do)` to `SettingsPanel.tsx`, `settings.ts`, `Voice Picker & Management`?**
+- **Why does `CreateArrangeTab()` connect `Red Lines (Never Do)` to `FakeAudio`, `SettingsPanel.tsx`, `settings.ts`, `Voice Picker & Management`?**
   _High betweenness centrality (0.075) - this node is a cross-community bridge._
 - **Why does `useAnalyzeSourceAudio()` connect `Red Lines (Never Do)` to `Advanced Generation Settings`?**
   _High betweenness centrality (0.059) - this node is a cross-community bridge._
@@ -427,6 +432,6 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `Backend Generation & Job Services` be split into smaller, more focused modules?**
   _Cohesion score 0.07539118065433854 - nodes in this community are weakly interconnected._
 - **Should `App Shell & Library UI` be split into smaller, more focused modules?**
-  _Cohesion score 0.06568832983927324 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.05628415300546448 - nodes in this community are weakly interconnected._
 - **Should `Core Song/Layer/Version API` be split into smaller, more focused modules?**
   _Cohesion score 0.13709677419354838 - nodes in this community are weakly interconnected._

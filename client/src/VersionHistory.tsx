@@ -91,6 +91,11 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
       <AnimatePresence initial={false}>
       {visible.map((v) => {
         const hasRegion = v.region_start !== null && v.region_end !== null;
+        // An imported file has no generation behind it, so there is nothing for ALT/SIMILAR
+        // to replay — both rebuild a request from the version's stored params, which for an
+        // import would submit an effectively empty text2music. The server refuses it too
+        // (repaintJobs.ts's NOT_REPLAYABLE); this keeps a dead button off the row.
+        const replayable = v.task_type !== 'import';
         return (
           <motion.div key={v.id} layout="position"
             initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
@@ -127,14 +132,18 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
                     <span>SEL</span>
                   </button>
                 )}
-                <button onClick={() => regenerate(v.id)} disabled={busy}
-                  title={busyOtherKind ? 'a generation is already running elsewhere' : 'regenerate as an alternate version'}>
-                  <span>{mine?.versionId === v.id && mine.kind === 'regenerate' && mine.stage === 'running' ? `ALT… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'ALT'}</span>
-                </button>
-                <button onClick={() => retake(v.id)} disabled={busy}
-                  title={busyOtherKind ? 'a generation is already running elsewhere' : "generate a similar take from this version's seed, appended to history"}>
-                  <span>{mine?.versionId === v.id && mine.kind === 'retake' && mine.stage === 'running' ? `SIMILAR… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'SIMILAR'}</span>
-                </button>
+                {replayable && (
+                  <>
+                    <button onClick={() => regenerate(v.id)} disabled={busy}
+                      title={busyOtherKind ? 'a generation is already running elsewhere' : 'regenerate as an alternate version'}>
+                      <span>{mine?.versionId === v.id && mine.kind === 'regenerate' && mine.stage === 'running' ? `ALT… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'ALT'}</span>
+                    </button>
+                    <button onClick={() => retake(v.id)} disabled={busy}
+                      title={busyOtherKind ? 'a generation is already running elsewhere' : "generate a similar take from this version's seed, appended to history"}>
+                      <span>{mine?.versionId === v.id && mine.kind === 'retake' && mine.stage === 'running' ? `SIMILAR… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'SIMILAR'}</span>
+                    </button>
+                  </>
+                )}
                 <button
                   className={confirmDelete === v.id ? 'confirm-delete' : 'delete'}
                   disabled={versions.length <= 1}

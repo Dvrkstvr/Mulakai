@@ -180,6 +180,18 @@ export const api = {
     fetch(`/api/songs?q=${encodeURIComponent(q)}${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`)
       .then((r) => json<Song[]>(r)),
 
+  /** Adds an existing audio file to the library as a song, with no generation involved —
+   * the file itself becomes the base layer's first version, so it can be repainted and
+   * layered like a generated song. `fields` comes from songImport.ts's importFields; the
+   * File's own name carries the extension (the server allowlists it) and is the title
+   * fallback, so it is deliberately not overridden here. */
+  importSong: (audio: File, fields: Record<string, string> = {}): Promise<Song> => {
+    const form = new FormData();
+    form.append('audio', audio);
+    for (const [k, v] of Object.entries(fields)) form.append(k, v);
+    return fetch('/api/songs/import', { method: 'POST', body: form }).then((r) => json<Song>(r));
+  },
+
   listFolders: (): Promise<Folder[]> => fetch('/api/folders').then((r) => json<Folder[]>(r)),
 
   createFolder: (name: string): Promise<Folder> =>
