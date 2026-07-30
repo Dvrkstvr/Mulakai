@@ -144,5 +144,7 @@
   "142": "backfillGenTask.test.ts",
   "143": "api.ts",
   "144": "songImport.test.ts",
-  "145": "Create Draft Persistence + Origin-Aware Reuse (planned 2026-07-30)"
+  "145": "Create Draft Persistence + Origin-Aware Reuse (planned 2026-07-30)",
+  "146": "FakeAudio",
+  "147": "waveformPeaks.ts"
 }
