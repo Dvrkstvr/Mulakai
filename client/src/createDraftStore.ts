@@ -11,6 +11,9 @@ export type ArrangeSource = 'upload' | 'split';
 interface SharedIntent {
   genType: GenType;
   title: string;
+  /** True while `title` holds the folder-name suggestion CreateView offers rather than
+   * something typed — so a suggestion alone doesn't count as a draft worth clearing. */
+  titleSuggested: boolean;
   prompt: string;
   lyrics: string;
   bpm: number;            // 0 = AUTO
@@ -60,7 +63,7 @@ interface ArrangeMethod {
 }
 
 const INTENT: SharedIntent = {
-  genType: 'prompt', title: '', prompt: '', lyrics: '', bpm: 0, keyScale: '', timeSignature: '',
+  genType: 'prompt', title: '', titleSuggested: false, prompt: '', lyrics: '', bpm: 0, keyScale: '', timeSignature: '',
   vocalLanguage: '', duration: 0, formatted: false, intentOrigin: 'prompt',
   folderId: undefined, folderName: undefined, pendingQuery: undefined, reusedFrom: undefined,
   referenceLabel: undefined, referenceAudioInfluence: undefined, referenceStyleInfluence: undefined,
@@ -86,7 +89,23 @@ interface CreateDraftState extends SharedIntent {
   /** Called once the thinking reveal has landed, so remounting the PROMPT tab (a tab switch,
    * or leaving and re-entering Create) doesn't fire the same LM expansion again. */
   clearPendingQuery: () => void;
+  /** Empty the draft — every shared field and both method slices — while keeping the
+   * destination folder, which is navigation context rather than something that was typed.
+   * The reference audio is cleared alongside this by the caller (voiceStore's
+   * clearReference), since it lives in its own store but is part of the same draft. */
+  clear: () => void;
+  /** Bumped by `load` and `clear`. CreateView's folder-title prefill watches it, because both
+   * blank the title without touching `folderId` — the only other dep it could key on. */
+  revision: number;
 }
+
+/** Whether CLEAR DRAFT has anything to remove. The destination folder doesn't count (it isn't
+ * typed), and neither do each tab's model/variance, which auto-populate on mount and would
+ * otherwise make a draft never look empty. */
+export const isDraftEmpty = (s: CreateDraftState): boolean =>
+  (!s.title || s.titleSuggested) && !s.prompt && !s.lyrics && !s.bpm && !s.keyScale && !s.timeSignature
+  && !s.vocalLanguage && !s.duration && !s.audio.selectedSongId && !s.audio.uploadFile
+  && !s.arrange.uploadFile && !s.arrange.scratchSource;
 
 /** In-memory only, deliberately: `uploadFile` is a `File` and can't be serialized, and a
  * week-old draft resurrecting itself on a fresh load is worse than retyping a prompt. */
@@ -94,6 +113,7 @@ export const useCreateDraftStore = create<CreateDraftState>()((set, get) => ({
   ...INTENT,
   audio: AUDIO,
   arrange: ARRANGE,
+  revision: 0,
 
   patch: (p) => set('prompt' in p || 'lyrics' in p ? { ...p, intentOrigin: get().genType } : p),
   patchAudio: (p) => set({ audio: { ...get().audio, ...p } }),
@@ -118,8 +138,20 @@ export const useCreateDraftStore = create<CreateDraftState>()((set, get) => ({
     referenceStyleInfluence: d.styleInfluence,
     audio: { ...AUDIO, source: d.source ?? AUDIO.source, selectedSongId: d.selectedSongId ?? null },
     arrange: ARRANGE,
+    revision: get().revision + 1,
   }),
 
   resume: (folderId, folderName) => set({ folderId, folderName }),
   clearPendingQuery: () => set({ pendingQuery: undefined }),
+
+  clear: () => set({
+    ...INTENT,
+    genType: get().genType, // stay on the tab you're looking at — clearing isn't navigation
+    intentOrigin: get().genType,
+    folderId: get().folderId,
+    folderName: get().folderName,
+    audio: AUDIO,
+    arrange: ARRANGE,
+    revision: get().revision + 1,
+  }),
 }));

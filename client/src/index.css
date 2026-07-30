@@ -2005,6 +2005,40 @@ footer .player {
   font-size: 10px;
 }
 
+/* Create's CLEAR DRAFT, right-aligned on the GENERATION TYPE row so all three tabs reach it.
+   Quiet until armed: a two-step confirm turns rust only for the second press, matching the
+   Library's delete confirms — rust marks the moment something is about to be destroyed, not a
+   button that merely could. */
+.clear-draft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.clear-draft-btn {
+  border-color: var(--line);
+  color: var(--text-mid);
+  padding: 3px 10px;
+  font-size: 10px;
+  transform: skewX(-10deg);
+}
+
+.clear-draft-btn:hover:not(:disabled) {
+  border-color: var(--line-hi);
+  color: var(--text-hi);
+}
+
+.clear-draft-btn.armed {
+  border-color: var(--rust);
+  color: var(--rust-text);
+}
+
+.clear-draft-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
 /* Standing warning inside a panel — same rust hue as .error (DESIGN.md's one job for the
    colour) but no toast animation: it describes a state the user still has to resolve, not
    an action that just failed. */
