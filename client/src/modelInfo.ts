@@ -17,6 +17,45 @@ export function ditModelDescription(name: string): string {
   return 'Custom or fine-tuned DiT model.';
 }
 
+export type ModelFamily = 'turbo' | 'sft' | 'other' | 'unknown';
+
+/** Whether `token` appears in `name` as a delimiter-bounded segment rather than a
+ * bare substring. Model names are hyphen/slash/dot separated (`acestep-v15-xl-sft`,
+ * `models/acestep-v15-turbo-shift1`), so a substring test would read a custom LoRA
+ * named e.g. `turbocharged-rock` as a distilled Turbo checkpoint. */
+function hasToken(name: string, token: string): boolean {
+  return new RegExp(`(^|[\\\\/._-])${token}($|[\\\\/._-])`).test(name);
+}
+
+/**
+ * Classify a DiT model name into the family that drives every steps/guidance
+ * decision below, so the three helpers here can't drift apart. Turbo is tested
+ * before SFT, so a hypothetical `turbo-sft` reads as distilled. '' is AUTO —
+ * the model ACE-Step will actually load isn't known client-side.
+ */
+export function modelFamily(name: string): ModelFamily {
+  if (!name) return 'unknown';
+  const n = name.toLowerCase();
+  if (hasToken(n, 'turbo')) return 'turbo';
+  if (hasToken(n, 'sft')) return 'sft';
+  return 'other';
+}
+
+/** Steps each family actually wants, mirroring server/src/services/inferenceSteps.ts —
+ * see PLAN.md "STEPS AUTO Resolves Per Model". Display only; the server's copy is
+ * authoritative and is what the request is built from. */
+const AUTO_STEPS: Record<Exclude<ModelFamily, 'unknown'>, number> = { turbo: 8, sft: 50, other: 32 };
+
+/**
+ * What STEPS AUTO will resolve to for `name`, or null under AUTO model — where
+ * the client genuinely can't know, because only the server can ask ACE-Step's
+ * inventory which checkpoint its default points at.
+ */
+export function autoSteps(name: string): number | null {
+  const family = modelFamily(name);
+  return family === 'unknown' ? null : AUTO_STEPS[family];
+}
+
 /**
  * Practical STEPS slider ceiling per DiT model family (docs/ace-step-1.5/API.md#4.2,
  * GUIDE.md's Inference Hyperparameters table). Turbo is distilled for ~8 steps —
@@ -25,10 +64,9 @@ export function ditModelDescription(name: string): string {
  * isn't known client-side.
  */
 export function stepsMax(name: string): number {
-  const n = name.toLowerCase();
-  if (!name) return 64;
-  if (n.includes('turbo')) return 20;
-  return 200;
+  const family = modelFamily(name);
+  if (family === 'unknown') return 64;
+  return family === 'turbo' ? 20 : 200;
 }
 
 /**
@@ -38,7 +76,7 @@ export function stepsMax(name: string): number {
  * AUTO (unset) reads as effective since the resolved model isn't known yet.
  */
 export function guidanceEffective(name: string): boolean {
-  return !name.toLowerCase().includes('turbo');
+  return modelFamily(name) !== 'turbo';
 }
 
 export function lmModelDescription(name: string): string {

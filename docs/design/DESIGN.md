@@ -432,6 +432,19 @@ requiring its own justification against a screen-count rule.
      Create's settings panel already persists, surfaced here so it's
      reachable without opening Create. Read/select only — ACE-Step's API
      has no download/update-model endpoint, so this is not a model manager.
+   - **Adapters** (added 2026-07-31): registered LoRA/LoKr adapters with a
+     SELECT action per row and a NONE row at the top, plus a STRENGTH slider
+     for whichever is active. Deliberately the same row + `mk-badge`
+     (ACTIVE) idiom as Models directly above it — both answer "pick one of
+     these, it applies next time you generate" — with the delete arming into
+     a rust two-step confirm like the rest of the app. One selection is
+     app-wide, not per-flow, because ACE-Step's adapter state is global
+     (`/release_task` takes no adapter parameter), and the card states that
+     reach inline: "…applies to every generation, repaint, layer and
+     remaster until you select NONE". A recorded-but-not-yet-applied
+     selection shows a `.warn-note`, since claiming an adapter that isn't
+     loaded would be a lie. Training is out of scope here — see
+     `FORGE_PLAN.md`.
    - **Playback & Export**: default volume-on-load, default Remaster/export
      audio format, default Remaster diffusion steps (1–200, ACE-Step's
      documented Base-model ceiling — not a bitrate/sample-rate control,

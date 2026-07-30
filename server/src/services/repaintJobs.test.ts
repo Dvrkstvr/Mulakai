@@ -19,6 +19,9 @@ vi.mock('./acestep.js', () => ({
   ]),
   downloadAudio: vi.fn(async () => Buffer.from('fake-audio-bytes')),
   audioFileExt: (format?: string) => (format === 'wav32' ? 'wav' : (format ?? 'wav')),
+  // resolveInferenceSteps() consults the inventory to fill STEPS AUTO; an empty one
+  // keeps ACE-Step's own legacy default, so these tests' params are unaffected.
+  listModels: vi.fn(async () => ({ models: [], lmModels: [], defaultModel: null })),
 }));
 vi.mock('./jobs.js', async () => {
   const actual = await vi.importActual<typeof import('./jobs.js')>('./jobs.js');

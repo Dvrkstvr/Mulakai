@@ -8,6 +8,18 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-test-'));
 process.env.POLL_INTERVAL_MS = '5';
 
 const releaseTask = vi.fn(async () => ({ task_id: 'task-1' }));
+// Encoding is not what these tests are about — they feed synthetic bytes that a
+// real ffmpeg would reject. transcodeBuffer's job here is just "the master ends
+// up at outPath"; the arg/format rules are asserted in transcode.test.ts.
+vi.mock('./transcode.js', () => ({
+  transcodeBuffer: async (master: Buffer, outPath: string) => {
+    const { writeFile } = await import('node:fs/promises');
+    await writeFile(outPath, master);
+  },
+  transcodeFile: async () => {},
+  probeFfmpeg: async () => true,
+}));
+
 vi.mock('./acestep.js', () => ({
   releaseTask: (...args: unknown[]) => releaseTask(...args),
   queryResult: vi.fn(async () => [
@@ -18,6 +30,9 @@ vi.mock('./acestep.js', () => ({
     },
   ]),
   downloadAudio: vi.fn(async () => Buffer.from('fake-audio-bytes')),
+  // resolveInferenceSteps() consults the inventory to fill STEPS AUTO; an empty one
+  // keeps ACE-Step's own legacy default, so these tests' params are unaffected.
+  listModels: vi.fn(async () => ({ models: [], lmModels: [], defaultModel: null })),
 }));
 vi.mock('./jobs.js', async () => {
   const actual = await vi.importActual<typeof import('./jobs.js')>('./jobs.js');
@@ -68,16 +83,29 @@ describe('startRemaster', () => {
     expect(params.guidance_scale).toBeUndefined();
   });
 
-  it('honors a custom steps/audioFormat override, capped at 200 steps', async () => {
+  it('caps steps at 200 and always renders the lossless master', async () => {
     releaseTask.mockClear();
     const songId = seedSong();
 
-    const job = await startRemaster(songId, Buffer.from('mix'), 'acestep-v15-xl-sft', { audioFormat: 'flac', steps: 999 });
+    const job = await startRemaster(songId, Buffer.from('mix'), 'acestep-v15-xl-sft', {
+      output: { format: 'flac', bitDepth: 24, sampleRate: 48000, mp3Bitrate: 320 }, steps: 999,
+    });
     await waitForDone(job.id);
 
     const [params] = releaseTask.mock.calls[0] as [Record<string, unknown>];
-    expect(params.audio_format).toBe('flac');
+    // The chosen container is applied by transcode.ts on the way to disk, never
+    // asked of ACE-Step — so the wire format is the master regardless.
+    expect(params.audio_format).toBe('wav32');
     expect(params.inference_steps).toBe(200);
+  });
+
+  it('names the scratch result after the chosen container, not the master', async () => {
+    const songId = seedSong();
+    const job = await startRemaster(songId, Buffer.from('mix'), 'acestep-v15-xl-sft', {
+      output: { format: 'mp3', bitDepth: 24, sampleRate: 44100, mp3Bitrate: 320 }, steps: 10,
+    });
+    await waitForDone(job.id);
+    expect(job.resultPath?.endsWith('.mp3')).toBe(true);
   });
 
   it('never writes a layer or version row for the result', async () => {

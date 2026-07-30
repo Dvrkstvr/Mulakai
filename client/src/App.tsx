@@ -51,7 +51,14 @@ export default function App() {
   const footerEngine = useSingleAudioPlayback(playing?.audio_file ? `/audio/${playing.audio_file}` : '', true);
   useMainTransportGuard(footerEngine);
   const forgeEnabled = useSettings((s) => s.forgeEnabled);
-  const navValue = useMemo(() => ({ goToSettings: () => setView('settings') }), []);
+  /** Also leaves whichever takeover view is up, so Create's MOVE TO EDITOR lands directly on
+   * the song it imported rather than behind the Create screen. A no-op from library rows. */
+  const openEditor = useCallback((id: string) => {
+    setDetailSongId(null);
+    setView('library');
+    setOpenSongId(id);
+  }, []);
+  const navValue = useMemo(() => ({ goToSettings: () => setView('settings'), openEditor }), [openEditor]);
   const isTakeover = view === 'create' || view === 'settings' || view === 'forge';
   const genJob = useGenerationStore((s) => s.job);
   const dismissGenJob = useGenerationStore((s) => s.dismiss);
@@ -148,7 +155,6 @@ export default function App() {
     }
   };
 
-  const openEditor = (id: string) => { setDetailSongId(null); setOpenSongId(id); };
   /** The folder a song already lives in, carried forward as the new draft's destination —
    * not the library's current browsing scope, since REUSE PROMPT/CREATE COVER act on a
    * specific song regardless of which folder view it was clicked from. */
@@ -185,7 +191,9 @@ export default function App() {
         {openSongId ? (
           <motion.div className="view-fill" key="editor" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
             <MaterializeSweep />
-            <Editor songId={openSongId} onBack={() => { setOpenSongId(null); refresh(); }} />
+            {/* refreshFolders too: an import lands here directly, so leaving the editor is
+                the first moment the destination folder's song count can be re-read. */}
+            <Editor songId={openSongId} onBack={() => { setOpenSongId(null); refresh(); refreshFolders(); }} />
           </motion.div>
         ) : view === 'create' ? (
           <motion.div className="view-fill" key="create" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>

@@ -6,6 +6,7 @@ import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 import { type Job, type VoiceOptions, registerJob, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { resolveInferenceSteps } from './inferenceSteps.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 import { tagOutputFile } from './fileTags.js';
@@ -49,6 +50,7 @@ export async function startAddLayer(
       : undefined;
     if (ref) applyVoiceInfluence(fullParams, ref);
     await ensureModelLoaded(fullParams);
+    await resolveInferenceSteps(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, {
       srcAudio: { data: mixAudio, filename: 'mix.wav' },

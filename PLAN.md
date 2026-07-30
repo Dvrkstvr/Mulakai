@@ -1570,3 +1570,648 @@ Open questions:
 - Draft survival across a full reload is out of scope above. Revisit only
   if accidental reloads actually cost work; it needs a re-pick affordance
   for the `File`, not just serialization.
+
+## Import a Song (planned 2026-07-30)
+
+You can bring an audio file *into a generation* today (Create › AUDIO ›
+UPLOAD conditions a `cover` on it, `CreateAudioTab.tsx:137`), but there is no
+way to bring one in **as a song** — to repaint its chorus or lay a new guitar
+over it without ACE-Step first re-rendering the whole thing. The editing
+model this project exists for (see "The Editing Model") applies just as well
+to a track you already have as to one generated here.
+
+Nothing in the editor blocks it: repaint reads the layer's *active version
+file off disk* and uses the params the client sends (`repaintJobs.ts:22`);
+Add Layer conditions on the same file. Neither consults generation history.
+The only missing piece is a way for a `songs` row to be born without a task
+result — today `persistSong()` (`jobs.ts:229`) is the sole creation path and
+it starts from `downloadAudio(result.file)`.
+
+### Decisions
+
+- **Import is a Library action, not a Create action.** The library is the set
+  of editable songs and the Editor is always scoped to one of them
+  (`Editor songId=…`). An imported file becomes a normal song row and is then
+  indistinguishable from a generated one — favorites, folders, trash, export
+  and version history all work with no special cases.
+- **No "empty song" state in the Editor.** Rejected: the Editor is song-id
+  scoped end to end (layers/versions fetched by song id, `editorJobStore`
+  keys jobs on `songId`, repaint/add-layer take layer ids), so a null song
+  means threading a nullable id through all of it plus an implicit
+  "save before you can do anything" mode — to defer a row insert that is
+  instant and reversible via trash. Import-then-open is the same UX without
+  the state machine.
+- **No "TO EDITOR" for a library-picked song** in the AUDIO tab. Every
+  library row already has EDIT, so it is a Library → Create → pick → Library
+  round trip to reach a screen one click away. It is also ambiguous, because
+  that tab does not use the library song as-is — it bounces the layer stack
+  flat (`CreateAudioTab.tsx:59`) — so the button would either open the
+  existing multi-layer song (making the bounce pointless) or silently create
+  a flattened duplicate. The real feature hiding in there is *"flatten this
+  song into a new single-layer song"*, which belongs in the song detail rail
+  next to REUSE PROMPT / CREATE COVER, and is not part of this section.
+- **Destination = whatever the button says.** Three entry points, one
+  endpoint:
+  | Entry point | Where | Lands in |
+  | --- | --- | --- |
+  | Drop audio on the library list | Library (primary; bulk-capable) | Library, new row(s) |
+  | `IMPORT` button | Create bar, beside FEELING LUCKY / CREATE — that row is how songs come into being | Library, new row |
+  | `MOVE TO EDITOR` | Create › AUDIO › UPLOAD, under the dropzone | Editor, directly |
+- **The Create-tab path is the metadata-rich one.** ANALYZE AUDIO already
+  fills prompt/lyrics/bpm/key/duration in that tab
+  (`useAnalyzeSourceAudio.ts`), and repaint on a song with an empty prompt is
+  measurably weaker — so MOVE TO EDITOR carries whatever the draft holds. A
+  bare library drop has none of that, and analysis exists *only* in the
+  Create tabs today, so the library drop renders a **pending import card in
+  the list** (shaped like `GeneratingCard`, no modal — DESIGN.md forbids
+  stacked modals): title field, ANALYZE toggle defaulting on, acid IMPORT,
+  consequence line stating what will be created.
+- **The file is stored as uploaded, not converted to WAV.** Client-side
+  decode already handles any container the browser can read (`decodeLayers`
+  → `decodeAudioData`, used for waveform and mix), export bounces through
+  `encodeWav` regardless of source format, and the cover flow already hands
+  ACE-Step arbitrary containers (`coverGenJobs.ts:34` labels an mp3 buffer
+  `source.wav` and works). Converting a 4-minute mp3 into a ~40MB WAV in the
+  browser buys uniformity we do not need yet. Revisit only if repaint on a
+  non-WAV import misbehaves — see Open Questions.
+- **Extension allowlist, not free-form.** `/audio` is `express.static`
+  (`index.ts`), and the stored filename is `${versionId}${ext}` with `ext`
+  taken from the upload — so an `.html`/`.svg` upload would be served from
+  the app's own origin. Only `.wav .mp3 .flac .ogg .m4a .aac .opus` are
+  accepted; anything else is a 400.
+- **`gen_task: 'import'`**, and the base version's `params_json` is
+  `{"task_type":"import"}` rather than `{}`. This is the honest value (the
+  column records how the song came to exist) and it is what the existing
+  machinery reads: `routes/songs.ts:83` already surfaces
+  `params.task_type` per version, and `backfillGenTask` lifts the same key,
+  so no new plumbing is needed to tell an import apart downstream.
+- **ALT / SIMILAR must not offer to replay an import.** Both rebuild a
+  request from the version's stored `params_json` (`repaintJobs.ts:71`,
+  `:132`) and the buttons are currently unconditional
+  (`VersionHistory.tsx:130`) — on an imported version that would submit an
+  empty `text2music` and return unrelated audio. Guarded in two places:
+  hidden client-side for `task_type === 'import'`, and refused server-side in
+  `startRegenerate`/`startSimilarTake`, since a 400 is a better failure than
+  minutes of GPU time spent on nonsense.
+- **No genLock.** Import generates nothing, so it must not contend with (or
+  be blocked by) a running generation.
+- **Duration is client-supplied.** There is no server-side audio probing
+  anywhere in this codebase (see `routes/voices.ts:17`); the client reads it
+  from an `HTMLAudioElement` exactly as `VoiceUploadForm.tsx:8` does.
+
+### File-level plan
+
+PR 1 — endpoint (this PR):
+- `server/src/routes/songImport.ts` (new) — `POST /api/songs/import`,
+  multipart via multer memory storage at the 100MB limit `generate.ts:27`
+  already uses for source audio. Its own module rather than an addition to
+  `routes/songs.ts` (166 LOC, cap 200); mounted on `/api/songs` alongside
+  `songLayersRouter`/`remasterRouter`, matching how that path is already
+  composed from several routers.
+- `server/src/routes/songImport.test.ts` (new) — round trip, extension
+  rejection, title fallback from filename, optional-field handling.
+- `server/src/services/repaintJobs.ts` — refuse `task_type: 'import'` in
+  `startRegenerate` and `startSimilarTake`.
+- `server/src/index.ts` — mount the router.
+
+PR 2 — Create › AUDIO `MOVE TO EDITOR` (carries the draft; `openEditor`
+added to the existing `NavigationContext`, which already carries
+`goToSettings`), plus the `VersionHistory` ALT/SIMILAR guard.
+
+PR 3 — Library drop target + `IMPORT` in the create bar + the pending import
+card.
+
+### Open questions
+
+- Does ACE-Step's repaint accept a non-WAV `srcAudio` in practice? The cover
+  path suggests it sniffs content rather than trusting the filename, but it
+  has only ever been fed WAV *by us* for repaint. Verify by importing an mp3
+  and repainting a region; if it fails, convert on import (a one-line
+  `encodeWav` addition client-side, already imported in that tab).
+- Should an imported song's base version be labelled with the original
+  filename instead of a flat `imported`? Deferred until there is a second
+  import path (re-import over an existing song) where the distinction earns
+  its keep.
+
+## Adapter Loading (LoRA/LoKr) at Inference (planned 2026-07-31)
+
+Surveyed from `ace-step/awesome-ace-step` 2026-07-31. The ecosystem now trains
+adapters outside this project — Side-Step (standalone LoRA/DoRA/LoKR/LoHA/OFT
+trainer, 8GB VRAM floor), the sdbds Windows fork (LoKR), ACE-Step's own
+`/v1/training/*` — and publishes them on HuggingFace. Mulakai can **load** one
+today and never does: `lora` appears only in `ForgeSection.tsx`'s copy and a
+`modelInfo.ts` comment.
+
+This is not FORGE. `FORGE_PLAN.md` defers the *dataset + training studio* until
+release 1.0 and its motivating case is "the base model can't produce good acid
+tracks" — loading an externally-trained adapter fixes that case at a fraction
+of the cost, and does not commit us to building the studio. It ships in
+Settings › Models, not behind `forgeEnabled`.
+
+### Verified against ACE-Step source, 2026-07-31
+
+These routes are **not in `docs/ace-step-1.5/API.md`** — that file documents
+only the training API (`/v1/training/start`, `/start_lokr`). The lifecycle
+routes exist in source, confirming `FORGE_PLAN.md:63`'s list
+(`S:\AI Gen\ACE-Step-1.5\acestep\api\http\lora_routes.py`):
+
+| Route | Body | Notes |
+| --- | --- | --- |
+| `POST /v1/lora/load` | `{lora_path, adapter_name?}` | `adapter_name` selects multi-adapter mode (`:66-70`) |
+| `POST /v1/lora/unload` | — | restores the base model |
+| `POST /v1/lora/toggle` | `{use_lora}` | 400s if nothing is loaded (`controls.py:36`) |
+| `POST /v1/lora/scale` | `{scale: 0.0-1.0, adapter_name?}` | |
+| `GET /v1/lora/status` | — | `{lora_loaded, use_lora, lora_scale, adapter_type, scales, active_adapter, adapters, ...}` |
+
+Adapter formats (`handler/lora/lifecycle.py:17-58`): a **LoRA** is a PEFT
+directory containing `adapter_config.json`; a **LoKr** is a `.safetensors` file
+(named `lokr_weights.safetensors`, or any safetensors carrying `lokr_config`
+metadata), or a directory containing one.
+
+Five constraints fall out of the source, and they drive every decision below:
+
+1. **It is global server state, not a request parameter.** `/release_task` has
+   no adapter field (grep of `API.md` §4.2 finds none). A loaded adapter
+   therefore colours *every* subsequent job — generate, repaint, lego, cover,
+   remaster — until changed.
+2. **It requires an initialized handler.** `_require_initialized_handler`
+   (`lora_routes.py:36`) 500s with "Model not initialized", so adapter calls
+   must follow `ensureModelLoaded` (`jobs.ts:84`), never precede it.
+3. **Re-initializing the model drops the adapter.** `/v1/init` calls
+   `handler.initialize_service()` unconditionally
+   (`model_init_service.py:112`) and the adapter is attached to
+   `model.decoder` (`controls.py:39-60`). Since `ensureModelLoaded` fires
+   `/v1/init` before every job that names a model, the adapter has to be
+   re-applied after init **every time** — not once at selection.
+4. **Slot 1 only.** The LoRA routes act on `app.state.handler`
+   (`lora_routes.py:39`) = slot 1, while job routing can pick handler2/handler3
+   by model name (`job_model_selection.py:29-48`). Mulakai only ever inits slot
+   1 (`acestep.ts:328`, `{slot: 1}`), so the default single-slot deployment is
+   correct — but against an ACE-Step started with `ACESTEP_CONFIG_PATH2/3`, a
+   job whose model matches another slot runs *without* the adapter, silently.
+   Stated, not solved (see Open questions).
+5. **There is no discovery endpoint.** `lora_path` is a path on the ACE-Step
+   host's filesystem and nothing lists what is available. Mulakai keeps its own
+   registry.
+
+### Decisions
+
+1. **One active adapter, app-wide — not a per-flow setting.** The server's
+   model is global (constraint 1), so exposing per-flow adapter pickers in
+   Create/Repaint/Add Layer would be a lie the backend can't honour. A single
+   selection lives in Settings › Models with a strength slider, and every
+   commit surface *states* it rather than re-choosing it.
+2. **Registration validates by loading, not by stat.** `ACESTEP_API_URL` may
+   point at another host, so the Node server cannot assume it can see
+   `lora_path` on disk. Registering an adapter therefore calls
+   `/v1/lora/load` immediately: a 400 (bad path / not an adapter) rejects the
+   entry with ACE-Step's own message; success stores it. This also means
+   registration requires an initialized model — the form says so.
+3. **Reconciliation lives inside `ensureModelLoaded`.** After init, read
+   `GET /v1/lora/status` and drive the server to the desired state
+   (load → scale → toggle, or unload when NONE is selected). Idempotent, and
+   it is the only place that reliably runs after the init that would have
+   dropped the adapter (constraint 3). Cost when nothing changed: one GET per
+   job.
+4. **Every commit action states the active adapter inline**, per `AGENTS.md` —
+   e.g. "with ADAPTER acid-house @ 0.80" on GENERATE / REPAINT / ADD LAYER /
+   REMASTER. One shared component, the same way `CarriedPromptNote.tsx`
+   centralizes its one line. Neutral styling: an adapter is neither a commit,
+   a selection, a version, nor an error, so it borrows no hue.
+5. **The take records what made it.** `persistSong`/`persistVersion` stamp
+   `{adapter, adapter_scale}` into the version's `params_json` so a result
+   stays explicable — same precedent as `reference_audio_label` on `songs`.
+   Stamped at persist time, **not** added to `fullParams`, which would send
+   unknown fields to `/release_task`. No new column: nothing in the library
+   list needs it.
+6. **Single adapter at a time.** The API supports multi-adapter mode via
+   `adapter_name`, but stacking adapters is a mixing problem (per-adapter
+   scales, ordering) with no UI budget here. `load` is called without
+   `adapter_name`, taking the `handler.load_lora` path (`lora_routes.py:70`).
+
+### File-level plan
+
+- `server/src/db/schema.ts` — `adapters` table: `id`, `name`, `path`,
+  `kind` (`lora` | `lokr`, from ACE-Step's reported `adapter_type`), `scale`
+  (default 1.0), `created_at`. Plus the single active selection — a
+  `settings`-style single-row store or a nullable `active` flag; pick at
+  implementation time, whichever matches `output_metadata`'s existing
+  single-row precedent.
+- `server/src/services/acestep.ts` — `loadLora` / `unloadLora` / `setLoraScale`
+  / `toggleLora` / `loraStatus`. Note the two error shapes: `/load` and
+  `/unload` raise real `HTTPException`s (`lora_routes.py:77,92`) while
+  `/toggle` and `/scale` return a `code=400` envelope (`:107,128`) — `call()`
+  already handles both (see its comment at `acestep.ts:285-292`), so no new
+  error plumbing, but the tests should cover each shape.
+- `server/src/services/adapters.ts` (new) — registry CRUD + `reconcileAdapter()`.
+- `server/src/services/jobs.ts` — `ensureModelLoaded` calls `reconcileAdapter()`
+  after `initModel`; `persistSong`/`persistVersion` stamp the adapter fields.
+- `server/src/routes/adapters.ts` (new) — `GET/POST/DELETE /api/adapters`,
+  `PATCH /api/adapters/active` (`{id | null, scale}`).
+- `client/src/api.ts` — the four calls + the `Adapter` type.
+- `client/src/AdaptersSection.tsx` (new) — Settings card: registered adapters,
+  ADD (path + name), SELECT/NONE, strength slider, DELETE with the standard
+  two-step confirm. Rendered by `SettingsView.tsx` under Models.
+  `ModelsSection.tsx` (78 LOC) stays as-is — this is its own concern.
+- `client/src/ActiveAdapterNote.tsx` (new, small) — the inline consequence
+  line, rendered by `PromptGenerateRow.tsx`, `RepaintBar.tsx`,
+  `AddLayerTrigger.tsx`, `RemasterAction.tsx`.
+- `docs/design/DESIGN.md` — the settings card and the adapter note (no new
+  tokens; ships in the same PR as the UI per `AGENTS.md`).
+- `FORGE_PLAN.md` — a pointer noting adapter *loading* is covered here, so
+  FORGE's scope narrows to dataset + training.
+- Tests: `adapters.test.ts` (registration rejects on a 400 from load; delete
+  clears the active selection), reconcile logic (no-op when status already
+  matches; re-applies after an init; unloads on NONE), and a `jobs.test.ts`
+  case asserting reconcile runs *after* `initModel`, not before.
+
+### Rollout
+
+1. `feat/adapter-registry` — schema, ACE-Step client calls, registry service,
+   routes, reconcile-in-`ensureModelLoaded`.
+2. `feat/adapter-settings-ui` — the Settings card.
+3. `feat/adapter-consequence-note` — the inline note across the four commit
+   surfaces + the `params_json` stamp.
+
+### Open questions
+
+- **Cross-model compatibility is unverified.** Nothing states whether an
+  adapter trained against `base` loads cleanly onto `sft`/`turbo`/`xl-*`.
+  ACE-Step reports failure through `/v1/lora/load`, so the failure mode is at
+  least visible — but if it turns out to be per-model, the registry needs a
+  `trained_for` field and the picker needs gating (same shape as
+  `useModelsForTask`).
+- **Multi-slot deployments** (constraint 4) — detectable via `/v1/models`
+  reporting more than one initialized slot? Not investigated. Until then, the
+  Settings card should say the adapter applies to the primary model slot.
+- **LoKr scale 0 vs toggle off** are equivalent in the source (`_toggle_lokr`
+  sets the multiplier to 0.0, `controls.py:26-31`); PEFT LoRA disables adapter
+  layers instead. No user-visible difference expected — confirm once a LoKr
+  adapter is actually on hand.
+- Should a song's stamped adapter be *restorable* (REUSE PROMPT re-selecting
+  it, the way reference audio now is)? Consistent, but it mutates global
+  server state from a per-song action. Deferred until adapters are in daily use.
+
+## Style Tag Vocabulary for the Caption Field (planned 2026-07-31)
+
+The lyric side of the prompt got the full treatment — an empirical probe
+(`lyricTagProbe.ts`), a distilled guide (`lyricTagGuide.ts`), and a popover
+right on the LYRICS field (`CreatePromptTab.tsx:82`). The caption side, which
+is the single strongest lever on what comes out, is a bare textarea
+(`CreatePromptTab.tsx:63`) with a placeholder.
+
+Surveyed 2026-07-31 from `ace-step/awesome-ace-step`: the sdbds Windows fork
+ships 936 styles synced from Suno's explorer with search + random;
+scromfyUI-AceStep splits prompt authoring into 8 category dropdowns (style,
+mood, adjective, culture, genre, vocal, performer, instrument); the ambienceai
+prompting guide gives an ordering rule (genre/era → instruments → mood →
+tempo), a 3–7 tag target, known-bad pairings, and a ~2–3 words/second singing
+budget. **Verified: ACE-Step itself ships no style vocabulary** — there is no
+genre/style list anywhere under `acestep/`, only `examples/{simple_mode,
+text2music}/*.json`.
+
+### Decisions
+
+1. **Mine it, don't hardcode it** — the same principle already stated for lyric
+   tags above ("rather than hardcoding a guessed tag list, discover the real
+   vocabulary empirically"). The captions are *already flowing through the
+   exact calls the lyric probe makes*: `createSampleFromQuery` and
+   `createRandomSample` return `caption` alongside `lyrics`. Mining style tags
+   is a second miner over one sample stream, not a second probe run.
+2. **One probe loop, two miners.** Refactor `lyricTagProbe.ts`'s sample loop
+   into a shared iterator (seed queries, `RANDOM_SAMPLE_STRIDE`, the
+   consecutive-failure auto-stop) so one run feeds both stores. This halves
+   ACE-Step time versus two independent probes, and `lyricTagProbe.ts` is 187
+   LOC — at the 200 cap, so it cannot absorb this inline anyway.
+3. **Tokenization**: captions are comma-separated tag lists. Split on commas,
+   trim, lowercase, collapse whitespace; route pure-numeric and `N BPM` tokens
+   into their own bucket rather than the vocabulary. Counts merge additively
+   after every sample, crash-safe, exactly as `recordSample()` does today.
+4. **Categorization is a convenience, not a filter.** A small hand-written
+   keyword taxonomy assigns each mined token to a category (genre, era, mood,
+   instrument, vocal, production, culture); anything unmatched lands in an
+   `other` bucket that is still displayed. Deliberately **no "performer"
+   category** — scromfyUI has one and it invites prompting with real artists'
+   names.
+5. **Do not vendor the 936-tag list.** It is a scrape of a commercial
+   competitor's explorer page, and it describes *Suno's* vocabulary, not what
+   this model responds to. Useful at most as an offline coverage check against
+   what we mine — not as shipped data.
+6. **The picker inserts; the field stays free text.** Clicking a tag appends
+   `, tag` at the caret (or end); no chips model, no re-parse of the textarea.
+   The caption is prose the LM may rewrite — owning it as structured state
+   would fight `REFINE INPUT` and the thinking reveal.
+7. **PROMPT tab only for v1.** COVER's prompt means "describe the change from
+   the source" and ARRANGE's describes an accompaniment — a style vocabulary is
+   only partly right in both, and the shared `createDraftStore` prompt already
+   carries a `CarriedPromptNote` about exactly that semantic shift. Revisit
+   once the PROMPT-tab picker has been used.
+8. **Static guidance is labelled as such.** The ordering rule, the 3–7 count,
+   and the bad-pairings list are one blogger's rules of thumb, not measurements
+   — they live in a written guide card with attribution, visually separate from
+   the mined counts, the same way `LyricTagGuideContent` hedges its
+   language-code inference.
+9. **The lyric-density hint is the one active check**, and the highest-value
+   item here: `words(lyrics) / duration` against the 2–3 words/sec band, shown
+   inline under LYRICS when the lyrics can't fit the requested duration
+   ("~180 words for 90s — expect rushed delivery"). Both fields are already in
+   the draft store; it needs no probe, no model call, and no new data.
+
+### File-level plan
+
+- `server/src/services/probeSamples.ts` (new) — the shared sample loop lifted
+  out of `lyricTagProbe.ts` (seed queries, stride, failure auto-stop, stop
+  flag), yielding `{caption, lyrics}` per sample.
+- `server/src/services/lyricTagProbe.ts` — consumes the shared loop; keeps its
+  own store and mining regex. Should shrink, not grow.
+- `server/src/services/styleTagProbe.ts` (new) — the caption miner + its own
+  `data/styleTags.json` store, same additive-merge shape as `lyricTags.json`.
+- `server/src/routes/styleTags.ts` (new) — mirrors `lyricTags.ts` exactly
+  (`GET /`, `GET /status`, `POST /probe`, `POST /probe/stop`); one probe state
+  now covers both miners, so `/status` is shared — decide at implementation
+  whether the two routers read one state module or the style routes simply
+  proxy the lyric probe's status.
+- `server/src/index.ts` — mount the router.
+- `client/src/styleTagGuide.ts` (new) — the category taxonomy + clustering,
+  mirroring `lyricTagGuide.ts`'s shape.
+- `client/src/StyleTagPicker.tsx` (new) — portal popover anchored on the PROMPT
+  `field-label-row` (`CreatePromptTab.tsx:59-62`), reusing
+  `LyricTagGuidePopover.tsx`'s open/click-outside/portal pattern verbatim:
+  category tabs, search, click-to-append.
+- `client/src/StyleTagGuideContent.tsx` (new) — the static guidance card, split
+  out so both the popover and Settings render it (same split as
+  `LyricTagGuideContent`).
+- `client/src/StyleTagsSection.tsx` (new) — Settings list of mined tags by
+  frequency, beside `LyricTagsSection.tsx`.
+- `client/src/CreatePromptTab.tsx` — the picker trigger on the PROMPT label
+  row; the lyric-density hint under LYRICS.
+- `client/src/api.ts` — `listStyleTags()`.
+- `docs/design/DESIGN.md` — note that the popover anatomy is reused as-is; no
+  new shapes or tokens.
+- Tests: tokenizer (comma splitting, BPM/number bucket, case + whitespace
+  dedupe), additive merge across runs, categorization incl. the `other`
+  fallback, and the density calculator's boundaries.
+
+### Rollout
+
+1. `feat/probe-sample-loop` — extract the shared loop, add the style miner and
+   its store/routes, list mined tags in Settings. No Create-screen change.
+2. `feat/style-tag-picker` — the PROMPT-field popover.
+3. `feat/prompt-guidance` — the static guide card + the lyric-density hint.
+
+### Open questions
+
+- **Does a mined vocabulary reflect what the DiT responds to, or only what the
+  LM likes to write?** The captions come from the LM, so this measures the LM's
+  habits — a reasonable proxy (the LM writes the caption the DiT is
+  conditioned on in the enhanced path) but not the same claim. Only a listening
+  experiment settles it; the Settings copy should not overclaim.
+- Should tag counts be weighted by anything — a kept-vs-trashed signal, or the
+  `get_lyric_score` endpoint still listed as a to-do under Open Questions? Both
+  are speculative; plain frequency first.
+- Per-category display cap. The lyric guide clusters near-duplicates to stay
+  readable; captions will have a long tail of near-synonyms ("dreamy" /
+  "dreamlike"). Reuse `clusterByPrefix`, or cap at N per category and sort by
+  count — decide once there is real mined data to look at.
+
+## Output Format: Rate / Depth / Bitrate, Everywhere (planned + implemented 2026-07-31)
+
+Settings has one output knob today — `DEFAULT EXPORT FORMAT`, six values
+(`wav|wav32|flac|mp3|opus|aac`) mapped straight onto ACE-Step's `audio_format`
+(`settings.ts:70`, `PlaybackExportSection.tsx:5`). It is threaded into
+generation, repaint and Add Layer (`genParams`/`repaintParams`/
+`addLayerParams`) and **nowhere else**. Stem splitting ignores it outright:
+`stemSplit.ts:115` hardcodes `audio_format: 'mp3'`, `:148`/`:182` hardcode
+`${jobId}-${kind}.mp3` filenames, `split.ts:64` hardcodes the download name,
+and `demucs-server/main.py:56` passes `--mp3`. So the one path where fidelity
+matters most — stems that get re-fed to ACE-Step as conditioning — is the one
+path pinned to a lossy default.
+
+Sample rate and bit depth are not modeled at all. The existing comment
+(`PlaybackExportSection.tsx:15`) explains why: ACE-Step exposes neither, and
+generates at a fixed 48 kHz. That reasoning holds for *what we can ask
+ACE-Step for*; it does not hold for what we write to disk.
+
+### Decisions
+
+- **One lossless master, one transcode, at the boundary.** Every producer
+  emits the highest-fidelity thing it can, and a single `transcode()` applies
+  the user's settings once, where the file lands in `audioDir`. Never
+  lossy→lossy, never two encodes.
+  | Producer | Asked for | Then |
+  | --- | --- | --- |
+  | ACE-Step (generate/repaint/lego/extract) | always `audio_format: 'wav32'` | transcode after `downloadAudio` |
+  | Demucs / UVR service | WAV float (drop `--mp3`, `wav_type_set='FLOAT'`) | transcode after fetch |
+  The user's format therefore stops travelling on the ACE-Step wire —
+  `genParams` et al. pin `wav32` and the settings value is applied by us.
+- **Three formats, not six.** `AudioFormat` becomes `'wav' | 'flac' | 'mp3'`,
+  default **`flac`**. `wav32` was never a format — it is `wav` at 32-bit, and
+  becomes exactly that. `opus`/`aac` are dropped per this spec.
+- **Bit depth is format-dependent; clamp, do not cross-product.**
+  | Format | Depths offered | Default (= highest) |
+  | --- | --- | --- |
+  | `wav` | 16 / 24 / 32-float | **32** |
+  | `flac` | 16 / 24 | **24** |
+  | `mp3` | n/a — kbps instead | — |
+  FLAC has no 32-bit float encoding, so offering it would silently write 24.
+  Changing format re-clamps `bitDepth` to that format's maximum rather than
+  leaving an impossible pair selected.
+- **kbps applies to `mp3` only**, options 128/192/256/320, default **320**
+  (the format ceiling — the size delta over 256 is negligible at track
+  length, and stems get re-encoded downstream). The control is hidden for
+  `wav`/`flac` rather than shown disabled.
+- **48 kHz default, 44.1 kHz as a compatibility option — not a quality one.**
+  Resampling adds no information. 48k is ACE-Step's native rate, so the
+  default leaves generation output untouched; 44.1k exists for CD/distribution
+  targets and costs a non-integer 147/160 resample (use soxr, not the default
+  swresample). Note the inverse case: Demucs/htdemucs is **44.1 kHz-native**,
+  so its stems get resampled *up* to sit at the song's rate. That is a
+  container change, not new detail — but layers in one song must share a rate,
+  and the song's rate is the global setting.
+- **Applies to future runs only.** No retro-transcode of existing library
+  audio; the existing hint copy (`PlaybackExportSection.tsx:24`) already sets
+  this expectation and stays accurate.
+- **ffmpeg becomes an explicit server dependency.** It is already a de-facto
+  machine prerequisite (`demucs-server/README.md:17`; ACE-Step's setup
+  installs it), but `server/` has never shelled out to it. Probe once at
+  startup and fail loudly — silently writing the wrong format is worse than
+  refusing to start.
+- **Rejected: transcoding in the client.** `bounceMix.ts:26`'s hand-rolled
+  `encodeWav` is 16-bit-only and would have to grow depth/rate/MP3 encoding
+  (i.e. ship lamejs). The server already owns `audioDir` and every producer
+  path converges there. `encodeWav` stays as-is — it feeds *conditioning
+  uploads*, not user-facing output, and is out of scope here.
+
+### File-level plan
+
+- `client/src/settings.ts` — `AudioFormat` narrows to 3; `ExportSettings`
+  gains `sampleRate: 48000|44100`, `bitDepth: 16|24|32`, `mp3Bitrate`.
+  `genParams`/`repaintParams`/`addLayerParams` pin `audio_format: 'wav32'`.
+  `mergeSettings` migrates persisted blobs: `wav32 → {wav,32}`,
+  `opus|aac → flac`.
+- `client/src/formatCaps.ts` — NEW, shared with the server: depths per format,
+  `clampDepth(format, depth)`, extension per format. Small and pure.
+- `client/src/PlaybackExportSection.tsx` — format / sample-rate / bit-depth
+  selects, kbps select shown only for `mp3`. Re-clamps depth on format change.
+- `server/src/services/transcode.ts` — NEW. `transcode(inPath, outPath, opts)`
+  → ffmpeg args per format/rate/depth/bitrate + `probeFfmpeg()`.
+- `server/src/services/stemSplit.ts` — dynamic extension, transcode after
+  download, drop the `'mp3'` literal at `:115`.
+- `server/src/services/scratchSplitJobs.ts`, `server/src/routes/split.ts` —
+  dynamic extension in stem paths and download names.
+- `server/src/services/jobs.ts` — transcode in the `persistSong`/`downloadAudio`
+  path so generation output honours the setting too.
+- `demucs-server/main.py` — write WAV float instead of `--mp3`; the wrapper no
+  longer encodes.
+- Tests: `settings.test.ts` (migration + clamping), new `transcode.test.ts`
+  (arg construction — no ffmpeg needed), `stemSplit.test.ts` / `split.test.ts`
+  (extension propagation).
+
+### Open questions
+
+- **Does the format setting belong to the song or to the app?** As specced it
+  is global and applies at write time, so one song's layers can end up in
+  mixed formats if the user changes it mid-edit. Playback decodes either way,
+  and export re-bounces — but "stems at 44.1/FLAC under a 48k/WAV master" is
+  reachable. A per-song locked rate (set at creation, layers inherit) is the
+  stricter alternative; not worth the schema change until it bites.
+- **Where does the ffmpeg probe surface?** `split.ts:21`'s `/health` already
+  reports per-backend availability and the SPLIT UI disables tabs on it. A
+  missing ffmpeg is broader than SPLIT, so it likely wants a Settings-level
+  banner rather than a fourth health flag.
+- ~~**Is `wav` at 32-bit float actually wanted as the WAV default**~~ —
+  **decided: yes, 32-bit float.** WAV's depth options are 16/24/32 and the
+  default is the format's ceiling, consistent with every other control here.
+  Verified end to end: `pcm_f32le` on disk, FLAC's ceiling stays 24-bit
+  (`s32` + `bits_per_raw_sample=24`, which is how ffmpeg expresses 24-bit
+  FLAC), MP3 at 320 kbps.
+- **`bounceMix.ts`'s `encodeWav` is still 16-bit int.** Out of scope by the
+  decision above — it feeds *conditioning uploads*, not user-facing output, so
+  it never reaches transcode.ts. Worth revisiting if a round-tripped layer ever
+  sounds worse than the stem it came from.
+
+## STEPS AUTO Resolves Per Model (planned 2026-07-31)
+
+Our STEPS slider treats `0` as AUTO and *omits* `inference_steps` from the
+request (`settings.ts:196`, `:253`, `:272`). ACE-Step then falls back to a flat
+**8** — `release_task_request_builder.py:56` and `release_task_models.py:41`
+both hardcode it, with no regard for which DiT is loaded.
+
+Eight steps is right for Turbo, which is distilled for it. It is wrong for
+everything else, and our own UI says so: `modelInfo.ts:15` tells the user SFT
+wants 50 steps, `:16` says Base wants 32–100, and `stepsMax()` opens the slider
+to 200 for both. So **picking XL-SFT and leaving STEPS on AUTO silently
+generates at 8 steps** — undercooked, noisy output — while the panel copy
+implies the model's own sensible default is in play. AUTO currently means
+"whatever the API hardcodes", not "whatever this model wants".
+
+Upstream noticed the same gap: PR #1223 (open, unmerged) makes the API's
+`inference_steps` default model-aware, matching what the Gradio UI has always
+done. Upstream `main` has been frozen at `6d467e4` since 2026-06-26 with 26 PRs
+open and none merging, so waiting for it is not a plan — but we do not need to.
+We control the parameter we send, so this is fixable entirely on our side of
+`ACESTEP_API_URL`, with no fork patch.
+
+### Decisions
+
+- **Resolve on the server, not in `settings.ts`.** The client's param builders
+  are pure sync functions and cannot see which model ACE-Step actually loaded —
+  and under AUTO model (`model: ''`) the name is not known client-side at all.
+  The server already knows: it calls `ensureModelLoaded()` and can read
+  `listModels().defaultModel`. One resolver there also covers repaint, Add
+  Layer, cover, complete and extract for free.
+- **The mapping, keyed on model family** (matching PR #1223's table so we do
+  not diverge from upstream if it ever lands):
+  | Family | Steps | Why |
+  | --- | --- | --- |
+  | `turbo` | 8 | distilled for ~8; more burns time for nothing |
+  | `sft` | 50 | `modelInfo.ts:15` already tells the user this |
+  | any other explicit model | 32 | bottom of Base's 32–100 band |
+  | unresolvable | 8 | legacy behaviour, unchanged |
+  Precedence is turbo → sft → other, so a hypothetical `turbo-sft` reads as
+  turbo. Every value sits inside the matching `stepsMax()` ceiling, so the
+  slider and the resolver cannot disagree.
+- **Match on delimited tokens, not substrings.** `(^|[\/._-])turbo($|[\/._-])`,
+  per PR #1223 — a LoRA named `turbocharged-rock` must not read as Turbo and
+  silently drop to 8 steps. `modelInfo.ts`'s existing `stepsMax()` and
+  `guidanceEffective()` use bare `.includes('turbo')` and carry the same
+  false-positive; they get the same treatment in this change.
+- **Fill only when absent.** If the caller already sent `inference_steps`, it
+  wins untouched. This is what keeps remaster correct — `remasterJobs.ts:66`
+  always sets its own steps from `exportSettings.steps`.
+- **AUTO model resolves via the inventory.** When `model` is unset we look up
+  `listModels().defaultModel` and classify that name; a null/unreachable
+  inventory falls back to 8. This is strictly better than PR #1223, which gives
+  up and returns 8 whenever `model` is omitted — and it costs one GET to a
+  local server on a path that is about to spend minutes in diffusion.
+- **This deliberately makes AUTO/AUTO generations slower.** If ACE-Step's
+  default checkpoint is Base, AUTO goes from 8 steps to 32 — roughly 4x the
+  wall clock. That is the point: the current speed comes from producing
+  under-sampled audio. Users who want 8 steps on a Base model can still set it
+  explicitly.
+- **Surface what AUTO means.** The STEPS readout becomes `AUTO (50)` once a
+  model is explicitly picked, and stays bare `AUTO` under AUTO model where the
+  client genuinely cannot know. No new colors, shapes or controls — this is
+  readout copy inside the existing `Slider`, so `DESIGN.md` needs no update.
+- **Out of scope: `lyricTimestamp`'s own `inference_steps ?? 8`**
+  (`acestep.ts:379`). That is the alignment pass, a separate lightweight
+  inference where 8 is appropriate; it is not the generation step count and
+  should not be swept into this change.
+- **Rejected: patching the fork instead.** Porting PR #1223 into
+  `S:\AI Gen\ACE-Step-1.5` would fix it for every client of that server, but we
+  are the only client, it adds a carry-forward patch to a fork already 5 commits
+  ahead, and it cannot use `defaultModel` as cleanly as we can. Our side is
+  smaller and better-informed.
+
+### File-level plan
+
+- `client/src/modelInfo.ts` — add `modelFamily(name): 'turbo' | 'sft' | 'other'
+  | 'unknown'` with the delimited-token regex, and `autoSteps(name): number |
+  null` (null = unknown, i.e. AUTO model). Rewrite `stepsMax()` and
+  `guidanceEffective()` on top of `modelFamily()` so the three helpers cannot
+  drift apart.
+- `client/src/SettingsPanel.tsx` — STEPS readout at `:109` and `:149` becomes
+  `AUTO (n)` when `autoSteps(model)` is non-null. Repaint's slider is gated on
+  `gatingModel`, Add Layer's model lives in `addLayer.model` — feed each its own
+  model name, not `gen.model`.
+- `server/src/services/inferenceSteps.ts` — NEW, small and pure-ish:
+  `resolveInferenceSteps(params: ReleaseTaskParams): Promise<void>`. No-ops if
+  `params.inference_steps` is set; otherwise classifies `params.model`, falling
+  back to `listModels().defaultModel`, and assigns. Its own family classifier
+  (see open questions on sharing).
+- The 9 `releaseTask()` call sites — each is already immediately preceded by
+  `await ensureModelLoaded(...)` on the same params object, so this is one added
+  line per site: `stemSplit.ts:120`, `jobs.ts:116`, `completeGenJobs.ts:37`,
+  `addLayerJobs.ts:51`, `coverGenJobs.ts:31`, `remasterJobs.ts:76`,
+  `repaintJobs.ts:56`/`:114`/`:181`.
+  **Gotcha in `jobs.ts`:** it resolves against `params` at `:116` but builds
+  `fullParams` at `:119` and persists *that* (`persistSong`, `:133`). The spread
+  carries the mutation through, but the ordering must not be disturbed —
+  resolving after `fullParams` is built would record AUTO in
+  `versions.params_json` while the run used 50, and version history would lie.
+- Tests: new `server/src/services/inferenceSteps.test.ts` — token matching
+  (`turbocharged` is not turbo), family precedence, fill-only-when-absent,
+  `defaultModel` fallback, unreachable-inventory → 8. Extend
+  `client/src/modelInfo.test.ts` (new file) for `modelFamily`/`autoSteps` and
+  the rebuilt `stepsMax`/`guidanceEffective`.
+
+### Open questions
+
+- **Should the family classifier be shared rather than duplicated?** It lands
+  in both `modelInfo.ts` (for the readout) and `inferenceSteps.ts` (for the
+  authoritative resolve) — ~10 lines twice, and they must not drift. The
+  Output Format spec above proposes a client/server-shared `formatCaps.ts` for
+  the same reason; if that pattern gets built, this should move into it. Until
+  then the duplication is deliberate, and the server copy is authoritative.
+- **Should `ensureModelLoaded` absorb this** and be renamed (`prepareRequest`)?
+  Every one of the 9 sites pairs them, so two adjacent calls is a standing
+  invitation to add the next one and forget. Against: model loading and step
+  defaulting are unrelated responsibilities, and the rename churns 7 files.
+  Kept separate for now; revisit if a third pre-flight step appears.
+- **Is 32 right for Base, or should it be higher?** `modelInfo.ts:16` quotes
+  32–100 and PR #1223 picks the floor. The floor is the safe default for an
+  unattended AUTO, but Base at 32 is still visibly below what the model can do.
+  Leaving it at 32 until there is a listening comparison worth acting on.
+- **Does the `defaultModel` lookup want caching?** One GET per generation
+  against a local server is noise next to diffusion, and `listModels()` already
+  swallows errors. If the inventory ever moves off-box it wants a TTL cache.

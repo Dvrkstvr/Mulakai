@@ -1,3 +1,4 @@
+import path from 'node:path';
 import { Router } from 'express';
 import multer from 'multer';
 import { config } from '../config.js';
@@ -13,6 +14,18 @@ export const splitRouter = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
 
 const STEM_KINDS: StemKind[] = ['vocals', 'drums', 'bass', 'other'];
+
+/** The output block arrives as a JSON string on this multipart route (every other
+ * route gets it already parsed by express.json()). Malformed input falls through
+ * to parseOutputSettings' defaults rather than failing the split. */
+function parseOutputBody(raw: unknown): unknown {
+  if (typeof raw !== 'string') return raw;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return undefined;
+  }
+}
 
 function isStemKind(v: unknown): v is StemKind {
   return typeof v === 'string' && (STEM_KINDS as string[]).includes(v);
@@ -40,7 +53,9 @@ splitRouter.post('/scratch', upload.single('audio'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'audio is required' });
   const model: SplitModel = req.body?.model === 'demucs' ? 'demucs' : 'acestep';
   try {
-    const job = await startScratchSplit({ data: req.file.buffer, filename: req.file.originalname || 'source.wav' }, model);
+    const job = await startScratchSplit(
+      { data: req.file.buffer, filename: req.file.originalname || 'source.wav' }, model, parseOutputBody(req.body?.output),
+    );
     res.status(202).json({ jobId: job.id });
   } catch (err) {
     if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
@@ -61,7 +76,8 @@ splitRouter.get('/scratch/:jobId/:kind/download', (req, res) => {
   if (!isStemKind(req.params.kind)) return res.status(400).json({ error: 'unknown stem kind' });
   const filePath = scratchStemPath(job, req.params.kind);
   if (!filePath) return res.status(404).json({ error: 'stem not ready' });
-  res.download(filePath, `${req.params.kind}.mp3`);
+  // Extension follows the job's own output settings, not a fixed container.
+  res.download(filePath, `${req.params.kind}${path.extname(filePath)}`);
 });
 
 splitRouter.post('/scratch/:jobId/discard', async (req, res) => {

@@ -196,3 +196,88 @@ describe('createSampleFromQuery', () => {
     });
   });
 });
+
+describe('adapter lifecycle', () => {
+  /** Captures the request so the body/method/URL can be asserted, not just the result. */
+  function captureFetch(response: Response) {
+    const calls: Array<{ url: string; init: RequestInit | undefined }> = [];
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push({ url, init });
+      return response;
+    }));
+    return calls;
+  }
+
+  const envelope = (data: unknown, code = 200, error: string | null = null) =>
+    new Response(JSON.stringify({ data, code, error }), { status: 200 });
+
+  it('posts lora_path to /v1/lora/load', async () => {
+    const calls = captureFetch(envelope({ message: 'ok', lora_path: '/models/acid' }));
+    const { loadLora } = await import('./acestep.js');
+
+    await loadLora('/models/acid');
+
+    expect(calls[0].url).toBe('http://acestep.test/v1/lora/load');
+    expect(JSON.parse(calls[0].init?.body as string)).toEqual({ lora_path: '/models/acid' });
+  });
+
+  it('reads status with a GET and remaps ACE-Step\'s field names', async () => {
+    const calls = captureFetch(envelope({
+      lora_loaded: true, use_lora: true, lora_scale: 0.7, adapter_type: 'lokr',
+    }));
+    const { loraStatus } = await import('./acestep.js');
+
+    const status = await loraStatus();
+
+    expect(calls[0].init?.method).toBeUndefined(); // no method = GET
+    expect(status).toEqual({ loaded: true, active: true, scale: 0.7, adapterType: 'lokr' });
+  });
+
+  it('surfaces the code=400 envelope /toggle and /scale return instead of raising', async () => {
+    // These two routes answer HTTP 200 with an error envelope, unlike /load and /unload.
+    captureFetch(envelope(null, 400, 'No LoRA adapter loaded. Please load a LoRA first.'));
+    const { toggleLora } = await import('./acestep.js');
+
+    await expect(toggleLora(true)).rejects.toThrow('No LoRA adapter loaded');
+  });
+
+  it('surfaces the bare {detail} body /load raises as a real HTTPException', async () => {
+    captureFetch(new Response(JSON.stringify({ detail: 'Model not initialized' }), { status: 500 }));
+    const { loadLora } = await import('./acestep.js');
+
+    await expect(loadLora('/models/acid')).rejects.toThrow('Model not initialized');
+  });
+
+  it('bumps the model generation on init, so adapter state knows it was dropped', async () => {
+    captureFetch(envelope({ slot: 1, loaded_model: 'acestep-v15-base' }));
+    const { initModel, getModelGeneration } = await import('./acestep.js');
+    const before = getModelGeneration();
+
+    await initModel({ model: 'acestep-v15-base' });
+
+    expect(getModelGeneration()).toBe(before + 1);
+  });
+});
+
+describe('releaseTask', () => {
+  it('strips our own params (output, adapter) from the wire — ACE-Step has no such fields', async () => {
+    const calls: Array<{ url: string; init: RequestInit | undefined }> = [];
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push({ url, init });
+      return new Response(JSON.stringify({ data: { task_id: 't1' }, code: 200, error: null }), { status: 200 });
+    }));
+    const { releaseTask } = await import('./acestep.js');
+
+    await releaseTask({
+      task_type: 'text2music',
+      prompt: 'a driving synthwave track',
+      adapter: { name: 'Acid House', scale: 0.6 },
+      output: { format: 'wav' },
+    });
+
+    const body = JSON.parse(calls[0].init?.body as string);
+    expect(body.prompt).toBe('a driving synthwave track');
+    expect(body.adapter).toBeUndefined();
+    expect(body.output).toBeUndefined();
+  });
+});

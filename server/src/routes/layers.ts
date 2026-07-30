@@ -95,7 +95,7 @@ layersRouter.post('/:id/split', async (req, res) => {
   const model = req.body?.model as SplitModel;
   if (model !== 'acestep' && model !== 'demucs') return res.status(400).json({ error: 'model must be acestep or demucs' });
   try {
-    const job = await startSplit(req.params.id, model);
+    const job = await startSplit(req.params.id, model, req.body?.output);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
     if (err instanceof GenLockError) return res.status(409).json({ error: err.message });

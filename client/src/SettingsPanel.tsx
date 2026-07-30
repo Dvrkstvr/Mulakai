@@ -3,7 +3,7 @@ import { api } from './api';
 import { useSettings } from './settings';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
-import { ditModelDescription, lmModelDescription, stepsMax, guidanceEffective } from './modelInfo';
+import { ditModelDescription, lmModelDescription, stepsMax, guidanceEffective, autoSteps } from './modelInfo';
 import { motion } from 'framer-motion';
 import { Toggle } from './Toggle';
 import { AdvancedGenSettings } from './AdvancedGenSettings';
@@ -12,7 +12,15 @@ import { ReferenceAudioPicker } from './ReferenceAudioPicker';
 import { AutoTextarea } from './AutoTextarea';
 import { useAddLayerDraft } from './addLayerStore';
 
-const STEPS_INFO = 'Diffusion steps — more steps means finer detail but slower generation. Turbo models: 1–20 (8 recommended). Base/SFT models: 32–100 recommended. AUTO uses the model\'s own default.';
+const STEPS_INFO = 'Diffusion steps — more steps means finer detail but slower generation. Turbo models: 1–20 (8 recommended). Base/SFT models: 32–100 recommended. AUTO picks the count the selected model wants (Turbo 8, SFT 50, Base 32).';
+
+/** STEPS readout under AUTO. Shows the number AUTO will actually resolve to once a model is
+ * picked; stays bare 'AUTO' for AUTO model, where only the server can know which checkpoint
+ * ACE-Step will load (see server/src/services/inferenceSteps.ts). */
+function autoStepsLabel(model: string): string {
+  const steps = autoSteps(model);
+  return steps === null ? 'AUTO' : `AUTO (${steps})`;
+}
 const GUIDANCE_INFO = 'Prompt adherence strength (CFG) — higher follows the prompt more strictly, but can overfit or sound artificial. Only affects Base/SFT models; Turbo ignores it. AUTO uses the model\'s own default.';
 
 /** Risk scale for repaint VARIANCE (audio_cover_strength inverse) — see docs/design/DESIGN.md#Color-tokens. */
@@ -106,7 +114,7 @@ export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType, ad
             </>
           )}
           <Slider label="STEPS" value={gen.inferenceSteps} min={0} max={stepsMax(gen.model)} step={1}
-            readout={gen.inferenceSteps === 0 ? 'AUTO' : undefined} info={STEPS_INFO}
+            readout={gen.inferenceSteps === 0 ? autoStepsLabel(gen.model) : undefined} info={STEPS_INFO}
             onChange={(v) => setGen({ inferenceSteps: v })} />
           <Slider label="GUIDANCE" value={gen.guidanceScale} min={0} max={15} step={0.5}
             readout={!guidanceEffective(gen.model) ? 'N/A' : gen.guidanceScale === 0 ? 'AUTO' : undefined}
@@ -146,7 +154,7 @@ export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType, ad
             </>
           )}
           <Slider label="STEPS" value={repaint.inferenceSteps} min={0} max={stepsMax(gatingModel)} step={1}
-            readout={repaint.inferenceSteps === 0 ? 'AUTO' : undefined} info={STEPS_INFO}
+            readout={repaint.inferenceSteps === 0 ? autoStepsLabel(gatingModel) : undefined} info={STEPS_INFO}
             onChange={(v) => setRepaint({ inferenceSteps: v })} />
           <Slider label="GUIDANCE" value={repaint.guidanceScale} min={0} max={15} step={0.5}
             readout={!guidanceEffective(gatingModel) ? 'N/A' : repaint.guidanceScale === 0 ? 'AUTO' : undefined}

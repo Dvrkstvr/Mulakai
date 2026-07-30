@@ -1,4 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ReleaseTaskParams } from './acestep.js';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -15,12 +16,37 @@ const defaultQueryResult = async () => [
   },
 ];
 const queryResult = vi.fn(defaultQueryResult);
+// Encoding is not what these tests are about — they feed synthetic bytes that a
+// real ffmpeg would reject. transcodeBuffer's job here is just "the master ends
+// up at outPath"; the arg/format rules are asserted in transcode.test.ts.
+vi.mock('./transcode.js', () => ({
+  transcodeBuffer: async (master: Buffer, outPath: string) => {
+    const { writeFile } = await import('node:fs/promises');
+    await writeFile(outPath, master);
+  },
+  transcodeFile: async () => {},
+  probeFfmpeg: async () => true,
+}));
+
 vi.mock('./acestep.js', () => ({
   releaseTask: (...args: unknown[]) => releaseTask(...args),
   queryResult: (...args: unknown[]) => queryResult(...args),
   downloadAudio: vi.fn(async () => Buffer.from('fake-audio-bytes')),
   audioFileExt: vi.fn(() => 'wav'),
+  // resolveInferenceSteps() consults the inventory to fill STEPS AUTO; an empty one
+  // keeps ACE-Step's own legacy default, so these tests' params are unaffected.
+  listModels: vi.fn(async () => ({ models: [], lmModels: [], defaultModel: null })),
+  initModel: (...args: unknown[]) => initModel(...args),
 }));
+
+const initModel = vi.fn(async (..._args: unknown[]) => { callOrder.push('initModel'); });
+const reconcileAdapter = vi.fn(async (): Promise<{ name: string; scale: number } | null> => {
+  callOrder.push('reconcileAdapter');
+  return null;
+});
+const callOrder: string[] = [];
+
+vi.mock('./adapters.js', () => ({ reconcileAdapter: () => reconcileAdapter() }));
 
 const { db } = await import('../db/index.js');
 const { getJob } = await import('./jobs.js');
@@ -173,5 +199,53 @@ describe('abortJob', () => {
 
     expect(abortJob('abort-2')).toBe(false);
     expect(getJob('abort-2')?.status).toBe('done');
+  });
+});
+
+describe('ensureModelLoaded', () => {
+  beforeEach(() => {
+    callOrder.length = 0;
+    initModel.mockClear();
+    reconcileAdapter.mockClear();
+  });
+
+  it('reconciles the adapter selection after the init that drops it', async () => {
+    // /v1/init rebuilds the DiT and detaches any loaded adapter, so reconciling before it
+    // would apply the adapter to a model that is about to be thrown away.
+    await jobsModule.ensureModelLoaded({ task_type: 'text2music', model: 'acestep-v15-base' });
+
+    expect(callOrder).toEqual(['initModel', 'reconcileAdapter']);
+  });
+
+  it('still reconciles when no model was selected and no init runs', async () => {
+    await jobsModule.ensureModelLoaded({ task_type: 'text2music' });
+
+    expect(initModel).not.toHaveBeenCalled();
+    expect(reconcileAdapter).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails the job when the adapter cannot be applied, rather than silently using the base model', async () => {
+    reconcileAdapter.mockRejectedValueOnce(new Error('ACE-Step /v1/lora/load -> Failed to load LoRA'));
+
+    await expect(jobsModule.ensureModelLoaded({ task_type: 'text2music' })).rejects.toThrow('Failed to load LoRA');
+  });
+
+  it('stamps the applied adapter onto the params every persist path records', async () => {
+    // The stamp is the only way a finished take can say what coloured it — ACE-Step takes no
+    // adapter parameter, so nothing about the request itself would show it.
+    reconcileAdapter.mockResolvedValueOnce({ name: 'Acid House', scale: 0.6 });
+    const params: ReleaseTaskParams = { task_type: 'text2music' };
+
+    await jobsModule.ensureModelLoaded(params);
+
+    expect(params.adapter).toEqual({ name: 'Acid House', scale: 0.6 });
+  });
+
+  it('leaves params alone when no adapter is active, so existing takes keep their shape', async () => {
+    const params: ReleaseTaskParams = { task_type: 'text2music' };
+
+    await jobsModule.ensureModelLoaded(params);
+
+    expect('adapter' in params).toBe(false);
   });
 });

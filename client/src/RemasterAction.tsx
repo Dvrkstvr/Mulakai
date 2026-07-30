@@ -8,6 +8,7 @@ import { AudioPreview } from './AudioPreview';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { useRemasterResult } from './remasterResult';
+import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 
 interface Props {
@@ -116,6 +117,7 @@ export function RemasterAction({ songId, layers }: Props) {
           ) : (
             <>
               <div className="hint">renders the full mix at max quality — can take several minutes</div>
+              <ActiveAdapterNote />
               <button className="acid" disabled={job === 'running' || busyElsewhere} onClick={submit} title={job === 'running' ? mine?.progressText : undefined}>
                 {job === 'running'
                   ? `RENDERING… ${fmtElapsed(elapsedMs)}${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`

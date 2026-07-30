@@ -31,6 +31,39 @@ describe('api.randomSample', () => {
   });
 });
 
+describe('api.importSong', () => {
+  it('posts the file as multipart with the fields alongside it', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ id: 's1', title: 'My Track' }), { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const file = new File(['audio bytes'], 'My Track.mp3', { type: 'audio/mpeg' });
+    const song = await api.importSong(file, { title: 'My Track', duration: '212.5' });
+
+    expect(song.id).toBe('s1');
+    const [url, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit];
+    expect(url).toBe('/api/songs/import');
+    expect(init.method).toBe('POST');
+    const form = init.body as FormData;
+    expect(form.get('title')).toBe('My Track');
+    expect(form.get('duration')).toBe('212.5');
+    // The File's own name must survive: the server reads the extension off it (allowlisted)
+    // and uses it as the title fallback.
+    expect((form.get('audio') as File).name).toBe('My Track.mp3');
+    // No Content-Type header — the browser has to set the multipart boundary itself.
+    expect(init.headers).toBeUndefined();
+  });
+
+  it('sends just the file when there are no fields to carry', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ id: 's2' }), { status: 201 }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await api.importSong(new File(['x'], 'bare.wav'));
+
+    const form = (fetchMock.mock.calls[0] as unknown as [string, RequestInit])[1].body as FormData;
+    expect([...form.keys()]).toEqual(['audio']);
+  });
+});
+
 describe('api.sampleFromQuery', () => {
   it('posts the query and returns the parsed result', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({ caption: 'about rain', lyrics: '' }), { status: 200 }));

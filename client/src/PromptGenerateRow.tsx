@@ -6,6 +6,7 @@ import { useSettings, genParams } from './settings';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
 import { useCreateDraftStore } from './createDraftStore';
+import { ActiveAdapterNote } from './ActiveAdapterNote';
 import type { CreateDraft } from './createDraft';
 
 /** The PROMPT tab's two commit actions — FEELING LUCKY (overwrite the draft with an LM sample)
@@ -124,6 +125,7 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
           ) : genJob ? 'A GENERATION IS ALREADY RUNNING' : 'GENERATE'}
         </motion.button>
       </div>
+      <ActiveAdapterNote />
       {luckyConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}
       {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}

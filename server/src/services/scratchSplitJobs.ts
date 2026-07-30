@@ -14,6 +14,7 @@ import { acquireGenLock, releaseGenLock } from './genLock.js';
 import {
   runAcestepStem, runDemucs, type SourceAudio, type StemResult, type SplitModel,
 } from './stemSplit.js';
+import { parseOutputSettings, type OutputSettings } from './audioOutput.js';
 
 const STEM_KINDS: StemResult['kind'][] = ['vocals', 'drums', 'bass', 'other'];
 
@@ -21,6 +22,7 @@ export interface ScratchSplitJob {
   id: string;
   model: SplitModel;
   stems: StemResult[];
+  output: OutputSettings;
   outDir: string;
   createdAt: number;
 }
@@ -39,7 +41,7 @@ export function scratchStemPath(job: ScratchSplitJob, kind: string): string | un
 /** Start a scratch split job. Unlike the layer-based startSplit(), there's no song to lock
  * against — the genLock entry exists only so this counts toward the single-flight generation
  * limit ACE-Step's own queue expects. */
-export async function startScratchSplit(src: SourceAudio, model: SplitModel): Promise<ScratchSplitJob> {
+export async function startScratchSplit(src: SourceAudio, model: SplitModel, output?: unknown): Promise<ScratchSplitJob> {
   const jobId = crypto.randomUUID();
   const outDir = path.join(os.tmpdir(), `mulakai-split-${jobId}`);
   await fs.mkdir(outDir, { recursive: true });
@@ -48,6 +50,7 @@ export async function startScratchSplit(src: SourceAudio, model: SplitModel): Pr
     id: jobId,
     model,
     stems: STEM_KINDS.map((kind) => ({ kind, status: 'running' })),
+    output: parseOutputSettings(output),
     outDir,
     createdAt: Date.now(),
   };

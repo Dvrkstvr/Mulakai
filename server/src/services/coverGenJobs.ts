@@ -10,6 +10,7 @@
 import crypto from 'node:crypto';
 import { releaseTask, type ReleaseTaskParams } from './acestep.js';
 import { type Job, type ReferenceAudioMeta, run, registerJob, persistSong, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { resolveInferenceSteps } from './inferenceSteps.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 
 export function startCoverGeneration(
@@ -29,6 +30,7 @@ export function startCoverGeneration(
     // Only the PROMPT tab's TAKES slider (jobs.ts's startGeneration) picks batch_size.
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'cover', batch_size: 1 };
     await ensureModelLoaded(fullParams);
+    await resolveInferenceSteps(fullParams);
     if (wasAborted(job)) return; // aborted while the model was loading (see abortJob)
     job.status = 'running';
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: 'source.wav' }, referenceAudio });

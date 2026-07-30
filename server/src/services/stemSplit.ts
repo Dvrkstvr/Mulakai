@@ -12,7 +12,10 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, queryResult, downloadAudio, type ReleaseTaskParams } from './acestep.js';
+import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT, type OutputSettings } from './audioOutput.js';
+import { transcodeBuffer } from './transcode.js';
 import { ensureModelLoaded } from './jobs.js';
+import { resolveInferenceSteps } from './inferenceSteps.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 
 export type StemKind = 'vocals' | 'drums' | 'bass' | 'other';
@@ -31,6 +34,9 @@ export interface StemResult {
 export interface StemJobLike {
   id: string;
   stems: StemResult[];
+  /** Output format/rate/depth chosen when the job started — stems honour the
+   * same Settings block as generation output. */
+  output: OutputSettings;
 }
 
 export interface SplitJob {
@@ -39,6 +45,7 @@ export interface SplitJob {
   songId: string;
   model: SplitModel;
   stems: StemResult[];
+  output: OutputSettings;
   createdAt: number;
 }
 
@@ -76,7 +83,7 @@ async function loadSourceAudio(layerId: string): Promise<SourceAudio & { songId:
 }
 
 /** Start a split job: reads the layer's active audio and fans out both backends' extraction paths. */
-export async function startSplit(layerId: string, model: SplitModel): Promise<SplitJob> {
+export async function startSplit(layerId: string, model: SplitModel, output?: unknown): Promise<SplitJob> {
   const src = await loadSourceAudio(layerId);
   const jobId = crypto.randomUUID();
   acquireGenLock({ kind: 'split', jobId, songId: src.songId });
@@ -86,6 +93,7 @@ export async function startSplit(layerId: string, model: SplitModel): Promise<Sp
     songId: src.songId,
     model,
     stems: STEM_KINDS.map((kind) => ({ kind, status: 'running' })),
+    output: parseOutputSettings(output),
     createdAt: Date.now(),
   };
   jobs.set(job.id, job);
@@ -112,14 +120,15 @@ export async function runAcestepStem(
   if (!stem) return;
   try {
     const params: ReleaseTaskParams = {
-      audio_format: 'mp3',
+      audio_format: MASTER_AUDIO_FORMAT,
       task_type: 'extract',
       instruction: INSTRUCTIONS[kind],
       use_random_seed: true,
     };
     await ensureModelLoaded(params);
+    await resolveInferenceSteps(params);
     const { task_id } = await releaseTask(params, { srcAudio: src });
-    await pollStem(job.id, stem, task_id, outDir, isActive);
+    await pollStem(job.id, stem, task_id, outDir, isActive, job.output);
   } catch (err) {
     if (!isActive()) return; // cancelled
     stem.status = 'failed';
@@ -127,7 +136,9 @@ export async function runAcestepStem(
   }
 }
 
-async function pollStem(jobId: string, stem: StemResult, taskId: string, outDir: string, isActive: () => boolean): Promise<void> {
+async function pollStem(
+  jobId: string, stem: StemResult, taskId: string, outDir: string, isActive: () => boolean, out: OutputSettings,
+): Promise<void> {
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
     if (!isActive()) return; // cancelled while waiting
@@ -145,8 +156,8 @@ async function pollStem(jobId: string, stem: StemResult, taskId: string, outDir:
       return;
     }
     const audio = await downloadAudio(result.file);
-    const filename = `${jobId}-${stem.kind}.mp3`;
-    await fs.writeFile(path.join(outDir, filename), audio);
+    const filename = `${jobId}-${stem.kind}.${outputExt(out)}`;
+    await transcodeBuffer(audio, path.join(outDir, filename), out);
     if (!isActive()) return; // cancelled while downloading
     stem.audioFile = filename;
     stem.status = 'done';
@@ -177,10 +188,11 @@ export async function runDemucs(job: StemJobLike, src: SourceAudio, outDir: stri
           if (!url) throw new Error(`missing ${kind} stem in Demucs response`);
           const audioRes = await fetch(url);
           if (!audioRes.ok) throw new Error(`Demucs stem download -> HTTP ${audioRes.status}`);
-          const audio = Buffer.from(await audioRes.arrayBuffer());
-          // demucs-server encodes stems as mp3 (see its main.py) — same extension as ACE-Step's output.
-          const filename = `${job.id}-${kind}.mp3`;
-          await fs.writeFile(path.join(outDir, filename), audio);
+          const master = Buffer.from(await audioRes.arrayBuffer());
+          // demucs-server hands back a lossless float WAV master (see its main.py);
+          // the user's container/rate/depth is applied here, same as every other path.
+          const filename = `${job.id}-${kind}.${outputExt(job.output)}`;
+          await transcodeBuffer(master, path.join(outDir, filename), job.output);
           if (!isActive()) return;
           stem.audioFile = filename;
           stem.status = 'done';

@@ -1,3 +1,5 @@
+import { outputParams } from './settings';
+
 export interface Song {
   id: string;
   title: string;
@@ -63,6 +65,22 @@ export type TaskType = 'text2music' | 'repaint' | 'cover' | 'cover-nofsq' | 'leg
 export interface ModelInfo {
   name: string;
   supportedTaskTypes: TaskType[];
+}
+
+/** A LoRA/LoKr adapter ACE-Step can load. `path` is on the ACE-Step host, not this browser's
+ * machine — there is no upload here, and no endpoint to browse for one. */
+export interface Adapter {
+  id: string;
+  name: string;
+  path: string;
+  kind: string;
+  scale: number;
+  createdAt: string;
+}
+
+export interface AdapterList {
+  adapters: Adapter[];
+  activeId: string | null;
 }
 
 export interface ModelInventory {
@@ -180,6 +198,18 @@ export const api = {
     fetch(`/api/songs?q=${encodeURIComponent(q)}${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`)
       .then((r) => json<Song[]>(r)),
 
+  /** Adds an existing audio file to the library as a song, with no generation involved —
+   * the file itself becomes the base layer's first version, so it can be repainted and
+   * layered like a generated song. `fields` comes from songImport.ts's importFields; the
+   * File's own name carries the extension (the server allowlists it) and is the title
+   * fallback, so it is deliberately not overridden here. */
+  importSong: (audio: File, fields: Record<string, string> = {}): Promise<Song> => {
+    const form = new FormData();
+    form.append('audio', audio);
+    for (const [k, v] of Object.entries(fields)) form.append(k, v);
+    return fetch('/api/songs/import', { method: 'POST', body: form }).then((r) => json<Song>(r));
+  },
+
   listFolders: (): Promise<Folder[]> => fetch('/api/folders').then((r) => json<Folder[]>(r)),
 
   createFolder: (name: string): Promise<Folder> =>
@@ -232,6 +262,36 @@ export const api = {
 
   listModels: (): Promise<ModelInventory> =>
     fetch('/api/generate/models').then((r) => json<ModelInventory>(r)),
+
+  listAdapters: (): Promise<AdapterList> => fetch('/api/adapters').then((r) => json<AdapterList>(r)),
+
+  /** Rejects (400) when ACE-Step can't load the path — registration validates by loading it. */
+  registerAdapter: (name: string, path: string): Promise<Adapter> =>
+    fetch('/api/adapters', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, path }),
+    }).then((r) => json<Adapter>(r)),
+
+  /** null = run on the base model. `warning` means the choice was recorded but ACE-Step
+   * hasn't applied it yet (usually: no model loaded) — the next generation applies it. */
+  setActiveAdapter: (id: string | null): Promise<{ activeId: string | null; warning?: string }> =>
+    fetch('/api/adapters/active', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
+    }).then((r) => json<{ activeId: string | null; warning?: string }>(r)),
+
+  setAdapterScale: (id: string, scale: number): Promise<Adapter & { warning?: string }> =>
+    fetch(`/api/adapters/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ scale }),
+    }).then((r) => json<Adapter & { warning?: string }>(r)),
+
+  deleteAdapter: (id: string): Promise<{ activeId: string | null; warning?: string }> =>
+    fetch(`/api/adapters/${id}`, { method: 'DELETE' })
+      .then((r) => json<{ activeId: string | null; warning?: string }>(r)),
 
   generateFromAudio: (
     srcAudio: Blob,
@@ -351,7 +411,7 @@ export const api = {
     const form = new FormData();
     form.append('mix_audio', mixAudio, 'mix.wav');
     form.append('model', model);
-    form.append('audio_format', opts.audioFormat);
+    form.append('output', JSON.stringify(outputParams()));
     form.append('steps', String(opts.steps));
     return fetch(`/api/songs/${songId}/remaster`, { method: 'POST', body: form })
       .then((r) => json<{ jobId: string }>(r));
@@ -391,7 +451,8 @@ export const api = {
     fetch(`/api/layers/${layerId}/split`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model }),
+      // Stems honour the same output format/rate/depth as generation output.
+      body: JSON.stringify({ model, output: outputParams() }),
     }).then((r) => json<{ jobId: string }>(r)),
 
   splitStatus: (jobId: string): Promise<{ status: 'running' | 'done'; stems: StemResult[] }> =>
@@ -415,6 +476,8 @@ export const api = {
     const form = new FormData();
     form.append('audio', file, 'source.wav');
     form.append('model', model);
+    // multipart carries no JSON types — the server JSON.parses this field back.
+    form.append('output', JSON.stringify(outputParams()));
     return fetch('/api/split/scratch', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
   },
 

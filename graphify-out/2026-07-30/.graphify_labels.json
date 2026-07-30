@@ -64,6 +64,7 @@
   "62": "demucs-server",
   "63": "13. Environment Variables",
   "64": "Mulakai — UX & Visual Polish Notes",
+  "65": "FakeAudio",
   "66": "lyricTags.ts",
   "67": "5. Batch Query Task Results",
   "68": "6. Format Input",
@@ -136,9 +137,12 @@
   "135": "Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02)",
   "136": "Repaint Editor UX Upgrade (planned 2026-07-02)",
   "137": "Export & Remaster — Phase 9 Design (planned 2026-07-06)",
+  "138": "AIGeneratingBackground.tsx",
   "139": "Add Layer Lyrics (implemented 2026-07-08)",
   "140": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)",
   "141": "Create AUDIO/ARRANGE Flows — `cover` and `complete` (implemented 2026-07-07)",
+  "142": "backfillGenTask.test.ts",
   "143": "api.ts",
-  "146": "usePlaybackEngine.ts"
+  "144": "songImport.test.ts",
+  "145": "Create Draft Persistence + Origin-Aware Reuse (planned 2026-07-30)"
 }

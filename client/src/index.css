@@ -2072,6 +2072,21 @@ footer .player {
   flex: 1;
 }
 
+/* Create > AUDIO's non-generative sibling action (import the upload as a song). Separated
+   by a hairline so it reads as "or, instead of generating" rather than a second GENERATE. */
+.move-to-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--carbon-line);
+}
+
+.move-to-editor button.acid-outline {
+  align-self: stretch;
+}
+
 /* AI-assisted random/query actions — lilac per docs/design/DESIGN.md's
    versions/history/AI-marker semantic (shared with .ai-badge's shimmer). */
 .lucky-btn {
@@ -3575,4 +3590,26 @@ button.acid-outline:not(:disabled):hover {
   .library .row {
     transition: none;
   }
+}
+/* Settings > Adapters. Deliberately the same row/badge idiom as the Models card above
+   it — both are "pick one of these, it applies next time you generate". */
+.adapter-row-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Armed delete confirm: rust only once it is one press from destroying something. */
+.adapter-del.armed {
+  border-color: var(--rust);
+  color: var(--rust-text);
+}
+
+.adapter-add {
+  border: 1px solid var(--line-hi);
+  background: var(--panel);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }

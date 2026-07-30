@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { clampDepth, maxDepth, type AudioFormat, type SampleRate, type BitDepth, type Mp3Bitrate } from './formatCaps';
 
 export interface GenSettings {
   model: string; // '' = server default
@@ -65,16 +66,40 @@ export interface AddLayerSettings {
   // conditioning op on the same song. Only `model` is Add-Layer-specific.
 }
 
-/** ACE-Step's documented output formats (docs/ace-step-1.5/API.md#4.2) — no bitrate/sample-rate
- * knob exists server-side, so those aren't modeled here (see Settings' Export section). */
-export type AudioFormat = 'wav' | 'wav32' | 'flac' | 'mp3' | 'opus' | 'aac';
+export type { AudioFormat, SampleRate, BitDepth, Mp3Bitrate } from './formatCaps';
 
 export interface ExportSettings {
   audioFormat: AudioFormat;
+  /** Container sample rate. 48k is ACE-Step's native rate (so the default is a
+   * no-op there); 44.1k exists for CD/distribution targets and costs a resample. */
+  sampleRate: SampleRate;
+  /** Clamped to what `audioFormat` can hold — FLAC has no 32-bit float. */
+  bitDepth: BitDepth;
+  /** mp3 only; ignored by wav/flac. */
+  mp3Bitrate: Mp3Bitrate;
   /** Remaster diffusion steps, 1-200 (ACE-Step's documented Base-model ceiling). */
   steps: number;
   /** Default playback volume (0-1) applied once when a Player first mounts. */
   volume: number;
+}
+
+/**
+ * ACE-Step is always asked for its highest-fidelity container regardless of what
+ * the user picked; the chosen format/rate/depth is applied once server-side
+ * after download (services/transcode.ts). This keeps every producer on one
+ * lossless master and avoids a lossy generation feeding a lossy re-encode.
+ */
+const MASTER_AUDIO_FORMAT = 'wav32';
+
+/** The output block every audio-producing request carries, consumed by the
+ * server's parseOutputSettings(). */
+export function outputParams(e: ExportSettings = useSettings.getState().exportSettings) {
+  return {
+    format: e.audioFormat,
+    sampleRate: e.sampleRate,
+    bitDepth: clampDepth(e.audioFormat, e.bitDepth),
+    mp3Bitrate: e.mp3Bitrate,
+  };
 }
 
 export interface SettingsState {
@@ -106,8 +131,25 @@ export function mergeSettings(current: SettingsState, persisted: unknown): Setti
     gen: { ...current.gen, ...p.gen },
     repaint: { ...current.repaint, ...p.repaint },
     addLayer: { ...current.addLayer, ...p.addLayer },
-    exportSettings: { ...current.exportSettings, ...p.exportSettings },
+    exportSettings: migrateExportSettings({ ...current.exportSettings, ...p.exportSettings }),
   };
+}
+
+/**
+ * Bring a persisted export block onto the current three-format model. The old
+ * enum had six values: `wav32` was never a format (it is wav at 32-bit float,
+ * which is now expressible directly), and `opus`/`aac` were dropped — both
+ * collapse to the lossless default rather than silently downgrading someone to
+ * a lossy container they didn't pick. Also re-clamps depth, since a blob saved
+ * under `wav` at 32 must not survive a switch to `flac`.
+ */
+export function migrateExportSettings(e: ExportSettings): ExportSettings {
+  const legacy = e.audioFormat as string;
+  if (legacy === 'wav32') return { ...e, audioFormat: 'wav', bitDepth: 32 };
+  if (legacy === 'opus' || legacy === 'aac') {
+    return { ...e, audioFormat: 'flac', bitDepth: maxDepth('flac') as BitDepth };
+  }
+  return { ...e, bitDepth: clampDepth(e.audioFormat, e.bitDepth) };
 }
 
 export const useSettings = create<SettingsState>()(
@@ -161,7 +203,12 @@ export const useSettings = create<SettingsState>()(
         model: '', // '' = AUTO — but AUTO isn't guaranteed lego-capable; UI requires an explicit pick.
       },
       exportSettings: {
-        audioFormat: 'wav',
+        // Lossless by default, at each container's highest depth — FLAC is
+        // bit-identical to WAV, roughly half the size, and carries metadata.
+        audioFormat: 'flac',
+        sampleRate: 48000,
+        bitDepth: 24, // FLAC's ceiling; switching to WAV re-clamps up to 32-bit float
+        mp3Bitrate: 320,
         steps: 100,
         volume: 1,
       },
@@ -182,7 +229,8 @@ export const useSettings = create<SettingsState>()(
 /** Map generation settings to ACE-Step request params. Empty/zero fields = AUTO (omitted). */
 export function genParams(g: GenSettings) {
   return {
-    audio_format: useSettings.getState().exportSettings.audioFormat,
+    audio_format: MASTER_AUDIO_FORMAT,
+    output: outputParams(),
     ...(g.model ? { model: g.model } : {}),
     ...(g.lmModel ? { lm_model_path: g.lmModel } : {}),
     thinking: g.thinking,
@@ -247,7 +295,8 @@ function lmAdvancedParams(s: AdvancedSettings) {
  */
 export function repaintParams(r: RepaintSettings) {
   return {
-    audio_format: useSettings.getState().exportSettings.audioFormat,
+    audio_format: MASTER_AUDIO_FORMAT,
+    output: outputParams(),
     ...(r.model ? { model: r.model } : {}),
     audio_cover_strength: 1 - r.repaintStrength,
     ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
@@ -267,7 +316,8 @@ export function repaintParams(r: RepaintSettings) {
  */
 export function addLayerParams(a: AddLayerSettings, r: RepaintSettings) {
   return {
-    audio_format: useSettings.getState().exportSettings.audioFormat,
+    audio_format: MASTER_AUDIO_FORMAT,
+    output: outputParams(),
     ...(a.model ? { model: a.model } : {}),
     ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
     ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
