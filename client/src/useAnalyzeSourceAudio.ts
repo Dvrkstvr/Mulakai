@@ -21,6 +21,14 @@ export function canAnalyze(source: AnalyzeSource, model: string, busy: boolean):
   return !!source && !!model && !busy;
 }
 
+/** Whether an analysis result may write over a text field: it's empty, or it holds text carried
+ * in from another Create tab (createDraftStore's intentOrigin), where it described something
+ * else. Refusing to fill because a foreign prompt happens to be sitting there is the surprise
+ * this avoids; a prompt written in *this* tab is the user's and stays put. */
+export function fillable(value: string, carried?: boolean): boolean {
+  return !value || !!carried;
+}
+
 /** Manually-triggered "analyze this source audio" call — `analyze()` loads the given model
  * (+ its LM) then runs ACE-Step's `/v1/analyze_audio`. Shared by CreateAudioTab and
  * CreateArrangeTab via `AnalyzeAudioButton`. A request-token ref guards against a stale
@@ -53,7 +61,12 @@ export function useAnalyzeSourceAudio(): AnalyzeState & { analyze: (source: Anal
 
 /** `useAnalyzeSourceAudio` plus the "apply the result to form state" step every caller needs —
  * only fills fields that are still empty/AUTO, so it never clobbers a hand-edited value that
- * happened to get set between analysis starting and finishing. */
+ * happened to get set between analysis starting and finishing.
+ *
+ * `carried` marks prompt/lyrics that were written in a different Create tab and came along
+ * with the shared draft (createDraftStore's intentOrigin). Those count as fillable: text
+ * written for a from-scratch song means something else here, and refusing to fill because a
+ * foreign prompt happens to be sitting in the field is exactly the surprise to avoid. */
 export function useAnalyzeAndApply(
   prompt: string,
   lyrics: string,
@@ -64,13 +77,14 @@ export function useAnalyzeAndApply(
     setKeyScale: (v: string) => void;
     setDuration: (v: number) => void;
   },
+  opts?: { carried?: boolean },
 ): AnalyzeState & { analyze: (source: AnalyzeSource, model: string) => void } {
   const state = useAnalyzeSourceAudio();
   useEffect(() => {
     if (!state.result) return;
     const r = state.result;
-    if (!prompt) setters.setPrompt(r.caption);
-    if (!lyrics) setters.setLyrics(r.lyrics);
+    if (fillable(prompt, opts?.carried)) setters.setPrompt(r.caption);
+    if (fillable(lyrics, opts?.carried)) setters.setLyrics(r.lyrics);
     if (r.bpm) setters.setBpm(r.bpm);
     if (r.key_scale) setters.setKeyScale(r.key_scale);
     if (r.duration) setters.setDuration(r.duration);

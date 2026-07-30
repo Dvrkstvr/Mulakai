@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { taskToGenType, reusePromptDraft } from './createDraft';
+import { taskToGenType, reusePromptDraft, draftHasIntent } from './createDraft';
 import type { Song } from './api';
 
 const song = (over: Partial<Song> = {}): Song => ({
@@ -40,6 +40,21 @@ describe('taskToGenType', () => {
     expect(taskToGenType(null)).toBe('prompt');
     expect(taskToGenType(undefined)).toBe('prompt');
     expect(taskToGenType('repaint')).toBe('prompt');
+  });
+});
+
+describe('draftHasIntent', () => {
+  // Decides load (replace the draft) vs resume (keep it) — see App.tsx's openCreate.
+  it('is false for the create bar\'s CREATE on an empty box', () => {
+    expect(draftHasIntent({})).toBe(false);
+    expect(draftHasIntent({ folderId: 'f1', folderName: 'Development' })).toBe(false);
+  });
+
+  it('is true for anything that actually asks for something', () => {
+    expect(draftHasIntent({ pendingQuery: 'something dreamy' })).toBe(true);
+    expect(draftHasIntent({ genType: 'audio' })).toBe(true);
+    expect(draftHasIntent({ prompt: 'a techno track' })).toBe(true);
+    expect(draftHasIntent({ selectedSongId: 's1' })).toBe(true);
   });
 });
 

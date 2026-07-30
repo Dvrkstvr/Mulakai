@@ -245,7 +245,17 @@ requiring its own justification against a screen-count rule.
    is left as margin here, unlike Editor's waveform).
    - **GENERATION TYPE** choice (acid-filled-parallelogram tabs, same idiom
      as style-tag chips): **PROMPT**, **AUDIO** (cover), or **ARRANGE**
-     (complete).
+     (complete). The three are **renderings of one draft, not three separate
+     forms**: title, prompt, lyrics and SONG DETAILS are shared and survive a
+     tab switch, and each tab's own source/model/variance choices survive it
+     too, so nothing typed or picked is lost by looking at another tab. The
+     draft also survives leaving Create and coming back within a session; it
+     does not survive a reload. Because a prompt means a different thing per
+     tab (a whole song / a change to a source / an accompaniment), text
+     written in another tab is marked with a carried-over hint under the
+     field, which clears once it's edited here. There is deliberately **no
+     "copy this field to that tab" control** — that only exists when the
+     tabs hold separate state, and they don't.
      - *Prompt*: title, description field, lyrics editor (mono) with
        instrumental toggle, one acid GENERATE bar. A lilac helper line under
        the description notes that the LM model derives the generation

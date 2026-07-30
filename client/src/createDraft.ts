@@ -40,6 +40,15 @@ export interface CreateDraft {
   styleInfluence?: number;
 }
 
+/** Tab names as the UI spells them — the Create tabs and the rail's GENERATED WITH row. */
+export const GEN_TYPE_LABEL: Record<GenType, string> = { prompt: 'PROMPT', audio: 'COVER', complete: 'ARRANGE' };
+
+/** Whether a draft actually asks for something, as opposed to "just open Create" (the create
+ * bar's CREATE on an empty box). Only the former replaces a draft already in progress — see
+ * createDraftStore's load vs resume. */
+export const draftHasIntent = (d: CreateDraft): boolean =>
+  !!(d.genType || d.prompt || d.lyrics || d.pendingQuery || d.selectedSongId);
+
 /** The ACE-Step task a song was made with (`songs.gen_task`, or the generation lock's
  * `task`) -> the Create tab that produces it. Anything unrecognized — including the null
  * left on songs whose origin couldn't be backfilled — falls back to PROMPT, which is how
