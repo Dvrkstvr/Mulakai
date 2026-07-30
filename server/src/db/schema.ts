@@ -74,6 +74,28 @@ CREATE TABLE IF NOT EXISTS output_metadata (
 );
 INSERT OR IGNORE INTO output_metadata (id) VALUES (1);
 
+-- Externally-trained LoRA/LoKr adapters Mulakai can ask ACE-Step to load. ACE-Step has no
+-- endpoint listing what is available (only load/unload/toggle/scale/status), so the registry
+-- of known adapters lives here. The path column points at the ACE-Step HOST's filesystem,
+-- which may not be this machine.
+CREATE TABLE IF NOT EXISTS adapters (
+  id         TEXT PRIMARY KEY,
+  name       TEXT NOT NULL,
+  path       TEXT NOT NULL,
+  kind       TEXT NOT NULL DEFAULT 'lora',  -- lora | lokr, as reported by ACE-Step's adapter_type
+  scale      REAL NOT NULL DEFAULT 1,       -- 0.0-1.0 strength
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- Which adapter (if any) colours every generation. A single row rather than an active flag on
+-- adapters because ACE-Step itself holds one adapter at a time, and the FK's ON DELETE SET NULL
+-- clears the selection when its adapter is deleted without a second statement to keep in sync.
+CREATE TABLE IF NOT EXISTS adapter_state (
+  id                INTEGER PRIMARY KEY CHECK (id = 1),
+  active_adapter_id TEXT REFERENCES adapters(id) ON DELETE SET NULL
+);
+INSERT OR IGNORE INTO adapter_state (id) VALUES (1);
+
 CREATE INDEX IF NOT EXISTS idx_layers_song ON layers(song_id);
 CREATE INDEX IF NOT EXISTS idx_versions_layer ON versions(layer_id);
 `;

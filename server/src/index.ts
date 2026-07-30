@@ -12,6 +12,7 @@ import { splitRouter } from './routes/split.js';
 import { voicesRouter } from './routes/voices.js';
 import { outputMetadataRouter } from './routes/outputMetadata.js';
 import { lyricTagsRouter } from './routes/lyricTags.js';
+import { adaptersRouter } from './routes/adapters.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 
@@ -30,6 +31,7 @@ app.use('/api/split', splitRouter);
 app.use('/api/voices', voicesRouter);
 app.use('/api/output-metadata', outputMetadataRouter);
 app.use('/api/lyric-tags', lyricTagsRouter);
+app.use('/api/adapters', adaptersRouter);
 app.use('/audio', express.static(config.audioDir));
 
 sweepTrash();

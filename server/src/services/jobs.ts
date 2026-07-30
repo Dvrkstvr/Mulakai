@@ -13,6 +13,7 @@ import {
   releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl,
   type ReleaseTaskParams, type TaskResult,
 } from './acestep.js';
+import { reconcileAdapter } from './adapters.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
 import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT } from './audioOutput.js';
 import { transcodeBuffer } from './transcode.js';
@@ -91,6 +92,10 @@ export async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void
   if (params.model || lmSelected) {
     await initModel({ model: params.model, lmModel: lmSelected ? params.lm_model_path : undefined, initLlm: needLlm });
   }
+  // Strictly after init: adapters attach to the model, so an init above has just dropped
+  // whichever one was loaded (see adapters.ts). ACE-Step has no per-request adapter param,
+  // so this is the only place the selection can be honoured.
+  await reconcileAdapter();
 }
 
 /** What reference audio (if any) conditioned a generation, persisted onto the song for the

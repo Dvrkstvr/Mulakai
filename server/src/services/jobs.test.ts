@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -35,7 +35,14 @@ vi.mock('./acestep.js', () => ({
   // resolveInferenceSteps() consults the inventory to fill STEPS AUTO; an empty one
   // keeps ACE-Step's own legacy default, so these tests' params are unaffected.
   listModels: vi.fn(async () => ({ models: [], lmModels: [], defaultModel: null })),
+  initModel: (...args: unknown[]) => initModel(...args),
 }));
+
+const initModel = vi.fn(async (..._args: unknown[]) => { callOrder.push('initModel'); });
+const reconcileAdapter = vi.fn(async () => { callOrder.push('reconcileAdapter'); });
+const callOrder: string[] = [];
+
+vi.mock('./adapters.js', () => ({ reconcileAdapter: () => reconcileAdapter() }));
 
 const { db } = await import('../db/index.js');
 const { getJob } = await import('./jobs.js');
@@ -188,5 +195,34 @@ describe('abortJob', () => {
 
     expect(abortJob('abort-2')).toBe(false);
     expect(getJob('abort-2')?.status).toBe('done');
+  });
+});
+
+describe('ensureModelLoaded', () => {
+  beforeEach(() => {
+    callOrder.length = 0;
+    initModel.mockClear();
+    reconcileAdapter.mockClear();
+  });
+
+  it('reconciles the adapter selection after the init that drops it', async () => {
+    // /v1/init rebuilds the DiT and detaches any loaded adapter, so reconciling before it
+    // would apply the adapter to a model that is about to be thrown away.
+    await jobsModule.ensureModelLoaded({ task_type: 'text2music', model: 'acestep-v15-base' });
+
+    expect(callOrder).toEqual(['initModel', 'reconcileAdapter']);
+  });
+
+  it('still reconciles when no model was selected and no init runs', async () => {
+    await jobsModule.ensureModelLoaded({ task_type: 'text2music' });
+
+    expect(initModel).not.toHaveBeenCalled();
+    expect(reconcileAdapter).toHaveBeenCalledTimes(1);
+  });
+
+  it('fails the job when the adapter cannot be applied, rather than silently using the base model', async () => {
+    reconcileAdapter.mockRejectedValueOnce(new Error('ACE-Step /v1/lora/load -> Failed to load LoRA'));
+
+    await expect(jobsModule.ensureModelLoaded({ task_type: 'text2music' })).rejects.toThrow('Failed to load LoRA');
   });
 });
