@@ -1570,3 +1570,125 @@ Open questions:
 - Draft survival across a full reload is out of scope above. Revisit only
   if accidental reloads actually cost work; it needs a re-pick affordance
   for the `File`, not just serialization.
+
+## Import a Song (planned 2026-07-30)
+
+You can bring an audio file *into a generation* today (Create › AUDIO ›
+UPLOAD conditions a `cover` on it, `CreateAudioTab.tsx:137`), but there is no
+way to bring one in **as a song** — to repaint its chorus or lay a new guitar
+over it without ACE-Step first re-rendering the whole thing. The editing
+model this project exists for (see "The Editing Model") applies just as well
+to a track you already have as to one generated here.
+
+Nothing in the editor blocks it: repaint reads the layer's *active version
+file off disk* and uses the params the client sends (`repaintJobs.ts:22`);
+Add Layer conditions on the same file. Neither consults generation history.
+The only missing piece is a way for a `songs` row to be born without a task
+result — today `persistSong()` (`jobs.ts:229`) is the sole creation path and
+it starts from `downloadAudio(result.file)`.
+
+### Decisions
+
+- **Import is a Library action, not a Create action.** The library is the set
+  of editable songs and the Editor is always scoped to one of them
+  (`Editor songId=…`). An imported file becomes a normal song row and is then
+  indistinguishable from a generated one — favorites, folders, trash, export
+  and version history all work with no special cases.
+- **No "empty song" state in the Editor.** Rejected: the Editor is song-id
+  scoped end to end (layers/versions fetched by song id, `editorJobStore`
+  keys jobs on `songId`, repaint/add-layer take layer ids), so a null song
+  means threading a nullable id through all of it plus an implicit
+  "save before you can do anything" mode — to defer a row insert that is
+  instant and reversible via trash. Import-then-open is the same UX without
+  the state machine.
+- **No "TO EDITOR" for a library-picked song** in the AUDIO tab. Every
+  library row already has EDIT, so it is a Library → Create → pick → Library
+  round trip to reach a screen one click away. It is also ambiguous, because
+  that tab does not use the library song as-is — it bounces the layer stack
+  flat (`CreateAudioTab.tsx:59`) — so the button would either open the
+  existing multi-layer song (making the bounce pointless) or silently create
+  a flattened duplicate. The real feature hiding in there is *"flatten this
+  song into a new single-layer song"*, which belongs in the song detail rail
+  next to REUSE PROMPT / CREATE COVER, and is not part of this section.
+- **Destination = whatever the button says.** Three entry points, one
+  endpoint:
+  | Entry point | Where | Lands in |
+  | --- | --- | --- |
+  | Drop audio on the library list | Library (primary; bulk-capable) | Library, new row(s) |
+  | `IMPORT` button | Create bar, beside FEELING LUCKY / CREATE — that row is how songs come into being | Library, new row |
+  | `MOVE TO EDITOR` | Create › AUDIO › UPLOAD, under the dropzone | Editor, directly |
+- **The Create-tab path is the metadata-rich one.** ANALYZE AUDIO already
+  fills prompt/lyrics/bpm/key/duration in that tab
+  (`useAnalyzeSourceAudio.ts`), and repaint on a song with an empty prompt is
+  measurably weaker — so MOVE TO EDITOR carries whatever the draft holds. A
+  bare library drop has none of that, and analysis exists *only* in the
+  Create tabs today, so the library drop renders a **pending import card in
+  the list** (shaped like `GeneratingCard`, no modal — DESIGN.md forbids
+  stacked modals): title field, ANALYZE toggle defaulting on, acid IMPORT,
+  consequence line stating what will be created.
+- **The file is stored as uploaded, not converted to WAV.** Client-side
+  decode already handles any container the browser can read (`decodeLayers`
+  → `decodeAudioData`, used for waveform and mix), export bounces through
+  `encodeWav` regardless of source format, and the cover flow already hands
+  ACE-Step arbitrary containers (`coverGenJobs.ts:34` labels an mp3 buffer
+  `source.wav` and works). Converting a 4-minute mp3 into a ~40MB WAV in the
+  browser buys uniformity we do not need yet. Revisit only if repaint on a
+  non-WAV import misbehaves — see Open Questions.
+- **Extension allowlist, not free-form.** `/audio` is `express.static`
+  (`index.ts`), and the stored filename is `${versionId}${ext}` with `ext`
+  taken from the upload — so an `.html`/`.svg` upload would be served from
+  the app's own origin. Only `.wav .mp3 .flac .ogg .m4a .aac .opus` are
+  accepted; anything else is a 400.
+- **`gen_task: 'import'`**, and the base version's `params_json` is
+  `{"task_type":"import"}` rather than `{}`. This is the honest value (the
+  column records how the song came to exist) and it is what the existing
+  machinery reads: `routes/songs.ts:83` already surfaces
+  `params.task_type` per version, and `backfillGenTask` lifts the same key,
+  so no new plumbing is needed to tell an import apart downstream.
+- **ALT / SIMILAR must not offer to replay an import.** Both rebuild a
+  request from the version's stored `params_json` (`repaintJobs.ts:71`,
+  `:132`) and the buttons are currently unconditional
+  (`VersionHistory.tsx:130`) — on an imported version that would submit an
+  empty `text2music` and return unrelated audio. Guarded in two places:
+  hidden client-side for `task_type === 'import'`, and refused server-side in
+  `startRegenerate`/`startSimilarTake`, since a 400 is a better failure than
+  minutes of GPU time spent on nonsense.
+- **No genLock.** Import generates nothing, so it must not contend with (or
+  be blocked by) a running generation.
+- **Duration is client-supplied.** There is no server-side audio probing
+  anywhere in this codebase (see `routes/voices.ts:17`); the client reads it
+  from an `HTMLAudioElement` exactly as `VoiceUploadForm.tsx:8` does.
+
+### File-level plan
+
+PR 1 — endpoint (this PR):
+- `server/src/routes/songImport.ts` (new) — `POST /api/songs/import`,
+  multipart via multer memory storage at the 100MB limit `generate.ts:27`
+  already uses for source audio. Its own module rather than an addition to
+  `routes/songs.ts` (166 LOC, cap 200); mounted on `/api/songs` alongside
+  `songLayersRouter`/`remasterRouter`, matching how that path is already
+  composed from several routers.
+- `server/src/routes/songImport.test.ts` (new) — round trip, extension
+  rejection, title fallback from filename, optional-field handling.
+- `server/src/services/repaintJobs.ts` — refuse `task_type: 'import'` in
+  `startRegenerate` and `startSimilarTake`.
+- `server/src/index.ts` — mount the router.
+
+PR 2 — Create › AUDIO `MOVE TO EDITOR` (carries the draft; `openEditor`
+added to the existing `NavigationContext`, which already carries
+`goToSettings`), plus the `VersionHistory` ALT/SIMILAR guard.
+
+PR 3 — Library drop target + `IMPORT` in the create bar + the pending import
+card.
+
+### Open questions
+
+- Does ACE-Step's repaint accept a non-WAV `srcAudio` in practice? The cover
+  path suggests it sniffs content rather than trusting the filename, but it
+  has only ever been fed WAV *by us* for repaint. Verify by importing an mp3
+  and repainting a region; if it fails, convert on import (a one-line
+  `encodeWav` addition client-side, already imported in that tab).
+- Should an imported song's base version be labelled with the original
+  filename instead of a flat `imported`? Deferred until there is a second
+  import path (re-import over an existing song) where the distinction earns
+  its keep.
