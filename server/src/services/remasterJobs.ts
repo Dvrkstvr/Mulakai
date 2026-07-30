@@ -11,7 +11,10 @@ import os from 'node:os';
 import path from 'node:path';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams } from './acestep.js';
+import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT, type OutputSettings } from './audioOutput.js';
+import { transcodeBuffer } from './transcode.js';
 import { type Job, registerJob, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { resolveInferenceSteps } from './inferenceSteps.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 import { tagOutputFile } from './fileTags.js';
 
@@ -34,7 +37,7 @@ interface SongMeta {
 }
 
 export interface RemasterOptions {
-  audioFormat?: string;
+  output?: unknown;
   steps?: number;
 }
 
@@ -51,7 +54,7 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
     .get(songId) as SongMeta | undefined;
   if (!song) throw new Error('unknown song');
 
-  const audioFormat = opts.audioFormat ?? 'wav';
+  const out = parseOutputSettings(opts.output);
   const steps = Math.min(opts.steps ?? DEFAULT_REMASTER_STEPS, MAX_REMASTER_STEPS);
 
   const jobId = crypto.randomUUID();
@@ -60,7 +63,7 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
   registerJob(job);
   try {
     const fullParams: ReleaseTaskParams = {
-      audio_format: audioFormat,
+      audio_format: MASTER_AUDIO_FORMAT,
       task_type: 'cover',
       model,
       inference_steps: steps,
@@ -74,6 +77,7 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
       batch_size: 1,
     };
     await ensureModelLoaded(fullParams);
+    await resolveInferenceSteps(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: mixAudio, filename: 'mix.wav' } });
     if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
@@ -81,7 +85,7 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
     job.taskId = task_id;
     job.status = 'running';
     void poll(job, async (result) => {
-      job.resultPath = await downloadToScratch(result.file, audioFormat);
+      job.resultPath = await downloadToScratch(result.file, out);
       await tagOutputFile(job.resultPath, {
         title: song.title, bpm: song.bpm, keyScale: song.key_scale, comment: song.comment,
         genre: song.genre, album: song.album, coverArtFile: song.cover_art_file,
@@ -98,10 +102,10 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
 }
 
 /** Download the cover result to the OS temp dir, not `config.audioDir` — this file is never part of the library. */
-async function downloadToScratch(fileUrl: string, audioFormat: string): Promise<string> {
+async function downloadToScratch(fileUrl: string, out: OutputSettings): Promise<string> {
   const audio = await downloadAudio(fileUrl);
-  const ext = audioFormat === 'wav32' ? 'wav' : audioFormat;
+  const ext = outputExt(out);
   const filePath = path.join(os.tmpdir(), `mulakai-remaster-${crypto.randomUUID()}.${ext}`);
-  await fs.writeFile(filePath, audio);
+  await transcodeBuffer(audio, filePath, out);
   return filePath;
 }

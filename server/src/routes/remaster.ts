@@ -17,10 +17,16 @@ remasterRouter.post('/:id/remaster', upload.single('mix_audio'), async (req, res
   const model = String(req.body?.model ?? '').trim();
   if (!model) return res.status(400).json({ error: 'model is required' });
   if (!req.file) return res.status(400).json({ error: 'mix_audio is required' });
-  const audioFormat = req.body?.audio_format ? String(req.body.audio_format) : undefined;
+  // multipart: the output block arrives JSON-encoded (see api.ts remaster()).
+  let output: unknown;
+  try {
+    output = req.body?.output ? JSON.parse(String(req.body.output)) : undefined;
+  } catch {
+    output = undefined;
+  }
   const steps = req.body?.steps ? Number(req.body.steps) : undefined;
   try {
-    const job = await startRemaster(String(req.params.id), req.file.buffer, model, { audioFormat, steps });
+    const job = await startRemaster(String(req.params.id), req.file.buffer, model, { output, steps });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
     if (err instanceof GenLockError) return res.status(409).json({ error: err.message });

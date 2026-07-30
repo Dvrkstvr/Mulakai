@@ -3,7 +3,8 @@ Thin HTTP wrapper around Demucs (https://github.com/adefossez/demucs) so Mulakai
 Node server can reach it the same way it reaches ACE-Step: a separate process, a
 URL (DEMUCS_API_URL), no shared runtime. Speaks the contract stemSplit.ts already
 expects: POST /split -> {"stems": {vocals, drums, bass, other}} of absolute
-downloadable URLs; GET /health -> 200.
+downloadable URLs; GET /health -> 200. Stems are float32 WAV masters - the Node
+side transcodes to the user's chosen format (see transcode.ts).
 
 Uses demucs.separate.main() (the documented CLI-equivalent entry point) rather
 than demucs.api.Separator - the latter isn't in the latest PyPI release (4.0.1)
@@ -44,16 +45,21 @@ async def split(request: Request, audio: UploadFile = File(...)):
     src_path.write_bytes(await audio.read())
 
     # --filename "{stem}.{ext}" drops demucs' default {track}/ prefix, so
-    # output lands directly at job_dir/MODEL_NAME/{stem}.mp3 - deterministic,
-    # no need to know the source track's basename. --mp3 specifically (not the
-    # wav/flac default) because demucs encodes mp3 via lameenc directly, while
-    # wav/flac route through torchaudio -> torchcodec, which needs an ffmpeg
-    # shared-library ABI match that's brittle across platforms/versions.
+    # output lands directly at job_dir/MODEL_NAME/{stem}.wav - deterministic,
+    # no need to know the source track's basename.
+    #
+    # Float32 WAV, not mp3: this service now hands Mulakai a *lossless master*
+    # and the Node side applies the user's chosen container/rate/depth once
+    # (server/src/services/transcode.ts). Encoding mp3 here would make every
+    # non-mp3 export a lossy->lossless upconvert. --float32 also keeps the
+    # output on demucs' soundfile writer rather than torchaudio -> torchcodec,
+    # which needs an ffmpeg shared-library ABI match that's brittle across
+    # platforms/versions.
     demucs.separate.main([
         "-n", MODEL_NAME,
         "-o", str(job_dir),
         "--filename", "{stem}.{ext}",
-        "--mp3",
+        "--float32",
         str(src_path),
     ])
     src_path.unlink(missing_ok=True)
@@ -63,7 +69,7 @@ async def split(request: Request, audio: UploadFile = File(...)):
     urls = {}
     # Demucs' htdemucs stem names (drums/bass/other/vocals) match Mulakai's
     # StemKind set exactly - no renaming needed.
-    for stem_path in model_dir.glob("*.mp3"):
+    for stem_path in model_dir.glob("*.wav"):
         urls[stem_path.stem] = f"{base}/audio/{job_id}/{MODEL_NAME}/{stem_path.name}"
 
     return {"stems": urls}

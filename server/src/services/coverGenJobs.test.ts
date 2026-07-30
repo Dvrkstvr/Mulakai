@@ -7,6 +7,18 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-test-'));
 process.env.POLL_INTERVAL_MS = '5';
 
 const releaseTask = vi.fn(async () => ({ task_id: 'task-1' }));
+// Encoding is not what these tests are about — they feed synthetic bytes that a
+// real ffmpeg would reject. transcodeBuffer's job here is just "the master ends
+// up at outPath"; the arg/format rules are asserted in transcode.test.ts.
+vi.mock('./transcode.js', () => ({
+  transcodeBuffer: async (master: Buffer, outPath: string) => {
+    const { writeFile } = await import('node:fs/promises');
+    await writeFile(outPath, master);
+  },
+  transcodeFile: async () => {},
+  probeFfmpeg: async () => true,
+}));
+
 vi.mock('./acestep.js', () => ({
   releaseTask: (...args: unknown[]) => releaseTask(...args),
   queryResult: vi.fn(async () => [
@@ -18,6 +30,9 @@ vi.mock('./acestep.js', () => ({
   ]),
   downloadAudio: vi.fn(async () => Buffer.from('fake-audio-bytes')),
   audioFileExt: vi.fn(() => 'wav'),
+  // resolveInferenceSteps() consults the inventory to fill STEPS AUTO; an empty one
+  // keeps ACE-Step's own legacy default, so these tests' params are unaffected.
+  listModels: vi.fn(async () => ({ models: [], lmModels: [], defaultModel: null })),
 }));
 vi.mock('./jobs.js', async () => {
   const actual = await vi.importActual<typeof import('./jobs.js')>('./jobs.js');

@@ -1,3 +1,5 @@
+import { outputParams } from './settings';
+
 export interface Song {
   id: string;
   title: string;
@@ -363,7 +365,7 @@ export const api = {
     const form = new FormData();
     form.append('mix_audio', mixAudio, 'mix.wav');
     form.append('model', model);
-    form.append('audio_format', opts.audioFormat);
+    form.append('output', JSON.stringify(outputParams()));
     form.append('steps', String(opts.steps));
     return fetch(`/api/songs/${songId}/remaster`, { method: 'POST', body: form })
       .then((r) => json<{ jobId: string }>(r));
@@ -403,7 +405,8 @@ export const api = {
     fetch(`/api/layers/${layerId}/split`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ model }),
+      // Stems honour the same output format/rate/depth as generation output.
+      body: JSON.stringify({ model, output: outputParams() }),
     }).then((r) => json<{ jobId: string }>(r)),
 
   splitStatus: (jobId: string): Promise<{ status: 'running' | 'done'; stems: StemResult[] }> =>
@@ -427,6 +430,8 @@ export const api = {
     const form = new FormData();
     form.append('audio', file, 'source.wav');
     form.append('model', model);
+    // multipart carries no JSON types — the server JSON.parses this field back.
+    form.append('output', JSON.stringify(outputParams()));
     return fetch('/api/split/scratch', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
   },
 

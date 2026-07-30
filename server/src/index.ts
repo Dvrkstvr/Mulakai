@@ -12,6 +12,7 @@ import { splitRouter } from './routes/split.js';
 import { voicesRouter } from './routes/voices.js';
 import { outputMetadataRouter } from './routes/outputMetadata.js';
 import { lyricTagsRouter } from './routes/lyricTags.js';
+import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 
 const app = express();
@@ -34,6 +35,12 @@ app.use('/audio', express.static(config.audioDir));
 sweepTrash();
 setInterval(sweepTrash, 60 * 60 * 1000);
 
-app.listen(config.port, () => {
+app.listen(config.port, async () => {
   console.log(`Mulakai server on http://127.0.0.1:${config.port} (ACE-Step: ${config.acestepUrl})`);
+  // Every produced file goes through ffmpeg (services/transcode.ts). Say so at
+  // boot rather than failing mid-generation — it is already a prerequisite of
+  // demucs-server and ACE-Step's own setup.
+  if (!(await probeFfmpeg())) {
+    console.error('  ffmpeg NOT FOUND — generation and stem splits will fail. Install it, or set FFMPEG_PATH.');
+  }
 });

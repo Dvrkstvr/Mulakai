@@ -6,6 +6,7 @@ import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type TaskResult } from './acestep.js';
 import { type Job, registerJob, poll, ensureModelLoaded, fetchLyricTimestampsJson, wasAborted } from './jobs.js';
+import { resolveInferenceSteps } from './inferenceSteps.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 import { tagOutputFile } from './fileTags.js';
 
@@ -54,6 +55,7 @@ export async function startRepaint(layerId: string, params: ReleaseTaskParams): 
     // and only the PROMPT tab's TAKES slider should decide batch_size.
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'repaint', batch_size: 1 };
     await ensureModelLoaded(fullParams);
+    await resolveInferenceSteps(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: srcAudio, filename: row.audio_file } });
     if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
@@ -112,6 +114,7 @@ export async function startRegenerate(versionId: string): Promise<Job> {
     // and only the PROMPT tab's TAKES slider should decide batch_size.
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType, batch_size: 1 };
     await ensureModelLoaded(fullParams);
+    await resolveInferenceSteps(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
     if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
@@ -179,6 +182,7 @@ export async function startSimilarTake(versionId: string): Promise<Job> {
     // and only the PROMPT tab's TAKES slider should decide batch_size.
     const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...freshParams, task_type: taskType, batch_size: 1 };
     await ensureModelLoaded(fullParams);
+    await resolveInferenceSteps(fullParams);
     if (wasAborted(job)) return job; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
     if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission

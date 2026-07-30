@@ -1,9 +1,14 @@
 /** Typed client for the ACE-Step 1.5 native FastAPI server (docs/en/API.md). */
 import { config } from '../config.js';
+import type { OutputSettings } from './audioOutput.js';
 
 export type TaskType = 'text2music' | 'repaint' | 'cover' | 'lego' | 'extract' | 'complete';
 
 export interface ReleaseTaskParams {
+  /** The user's output format/rate/depth. Never sent to ACE-Step (stripped in
+   * releaseTask) — it travels here so every job path already carrying params
+   * can reach transcode.ts without a parallel plumbing channel. */
+  output?: OutputSettings;
   prompt?: string;
   lyrics?: string;
   thinking?: boolean;
@@ -305,9 +310,13 @@ export async function releaseTask(
   params: ReleaseTaskParams,
   files?: { srcAudio?: { data: Buffer; filename: string }; referenceAudio?: { data: Buffer; filename: string } },
 ): Promise<{ task_id: string }> {
-  if (!files?.srcAudio && !files?.referenceAudio) return call('/release_task', params);
+  // `output` is ours, not ACE-Step's — it rides on the params object so the
+  // existing route allowlists and job plumbing carry it, and is stripped here,
+  // at the single point where params actually go over the wire.
+  const { output: _output, ...wire } = params;
+  if (!files?.srcAudio && !files?.referenceAudio) return call('/release_task', wire);
   const form = new FormData();
-  for (const [k, v] of Object.entries(params)) {
+  for (const [k, v] of Object.entries(wire)) {
     if (v !== undefined && v !== null) form.append(k, String(v));
   }
   if (files.srcAudio) form.append('src_audio', new Blob([new Uint8Array(files.srcAudio.data)]), files.srcAudio.filename);

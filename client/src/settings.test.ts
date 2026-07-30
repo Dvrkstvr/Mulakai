@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { genParams, repaintParams, addLayerParams, useSettings, mergeSettings, type GenSettings } from './settings';
+import { genParams, repaintParams, addLayerParams, useSettings, mergeSettings, outputParams, type GenSettings } from './settings';
 
 const baseGen = (): GenSettings => useSettings.getState().gen;
 const baseRepaint = () => useSettings.getState().repaint;
@@ -99,5 +99,62 @@ describe('mergeSettings', () => {
   it('treats a null/undefined persisted blob (first run, no localStorage yet) as a no-op', () => {
     const merged = mergeSettings(useSettings.getState(), undefined);
     expect(merged.gen).toEqual(useSettings.getState().gen);
+  });
+});
+
+describe('export format migration', () => {
+  const base = useSettings.getState();
+
+  const merged = (persistedExport: Record<string, unknown>) =>
+    mergeSettings(base, { exportSettings: persistedExport }).exportSettings;
+
+  it('turns the legacy wav32 pseudo-format into wav at 32-bit float', () => {
+    const e = merged({ audioFormat: 'wav32' });
+    expect(e.audioFormat).toBe('wav');
+    expect(e.bitDepth).toBe(32);
+  });
+
+  it('moves dropped lossy formats to lossless, not to mp3', () => {
+    for (const legacy of ['opus', 'aac']) {
+      const e = merged({ audioFormat: legacy });
+      expect(e.audioFormat).toBe('flac');
+      expect(e.bitDepth).toBe(24);
+    }
+  });
+
+  it('re-clamps a depth the persisted container cannot hold', () => {
+    expect(merged({ audioFormat: 'flac', bitDepth: 32 }).bitDepth).toBe(24);
+  });
+
+  it('leaves a valid pair alone', () => {
+    const e = merged({ audioFormat: 'wav', bitDepth: 24 });
+    expect(e.audioFormat).toBe('wav');
+    expect(e.bitDepth).toBe(24);
+  });
+
+  it('defaults to lossless FLAC at its highest depth', () => {
+    expect(base.exportSettings.audioFormat).toBe('flac');
+    expect(base.exportSettings.bitDepth).toBe(24);
+    expect(base.exportSettings.sampleRate).toBe(48000);
+    expect(base.exportSettings.mp3Bitrate).toBe(320);
+  });
+});
+
+describe('outputParams', () => {
+  it('sends a clamped depth even if state drifted', () => {
+    expect(outputParams({ ...useSettings.getState().exportSettings, audioFormat: 'flac', bitDepth: 32 }).bitDepth).toBe(24);
+  });
+});
+
+describe('ACE-Step wire format', () => {
+  it('always asks for the lossless master regardless of the chosen format', () => {
+    useSettings.getState().setExportSettings({ audioFormat: 'mp3' });
+    expect(genParams(useSettings.getState().gen).audio_format).toBe('wav32');
+    expect(repaintParams(useSettings.getState().repaint).audio_format).toBe('wav32');
+  });
+
+  it('carries the user format in the output block instead', () => {
+    useSettings.getState().setExportSettings({ audioFormat: 'mp3', mp3Bitrate: 320 });
+    expect(genParams(useSettings.getState().gen).output).toMatchObject({ format: 'mp3', mp3Bitrate: 320 });
   });
 });

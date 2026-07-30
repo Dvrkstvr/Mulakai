@@ -10,9 +10,12 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import {
-  releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl, audioFileExt,
+  releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl,
   type ReleaseTaskParams, type TaskResult,
 } from './acestep.js';
+import { resolveInferenceSteps } from './inferenceSteps.js';
+import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT } from './audioOutput.js';
+import { transcodeBuffer } from './transcode.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
 import { tagOutputFile } from './fileTags.js';
 import { acquireGenLock, releaseGenLock, getGenLock, type GenLockInfo } from './genLock.js';
@@ -114,9 +117,13 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
   jobs.set(job.id, job);
   void run(job, async () => {
     await ensureModelLoaded(params);
+    // Resolve before fullParams is spread below — persistSong records fullParams into
+    // versions.params_json, and resolving after would log AUTO for a run that used 50.
+    await resolveInferenceSteps(params);
     if (wasAborted(job)) return; // aborted while the model was loading (see abortJob)
     job.status = 'running';
-    const fullParams: ReleaseTaskParams = { audio_format: 'wav', ...params, task_type: 'text2music' };
+    // Always render the lossless master; params.output decides what lands on disk.
+    const fullParams: ReleaseTaskParams = { ...params, audio_format: MASTER_AUDIO_FORMAT, task_type: 'text2music' };
     const ref = voice?.voiceId
       ? await loadVoiceReference(voice.voiceId, { audioInfluence: voice.audioInfluence, styleInfluence: voice.styleInfluence })
       : voice?.referenceAudioFile
@@ -239,8 +246,11 @@ export async function persistSong(
   const songId = crypto.randomUUID();
   const layerId = crypto.randomUUID();
   const versionId = crypto.randomUUID();
-  const filename = `${versionId}.${audioFileExt(params.audio_format)}`;
-  await fs.writeFile(path.join(config.audioDir, filename), audio);
+  // ACE-Step hands back a wav32 master; the user's format/rate/depth is applied
+  // here, once, on the way into audioDir (see transcode.ts).
+  const out = parseOutputSettings(params.output);
+  const filename = `${versionId}.${outputExt(out)}`;
+  await transcodeBuffer(audio, path.join(config.audioDir, filename), out);
   await tagOutputFile(path.join(config.audioDir, filename), {
     title, bpm: result.metas.bpm ?? null, keyScale: result.metas.keyscale ?? '',
   });
