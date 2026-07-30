@@ -1553,10 +1553,20 @@ Open questions:
   tweaked prompt"? Only reproducible for the from-library case (uploads
   aren't kept), so it needs source identity stored on the song. Deferred
   until the plain origin-aware reuse has been lived with.
-- Does CLEAR DRAFT also reset the left settings panel (model, advanced gen
-  settings)? Leaning no — those are persisted app preferences in
-  `useSettings`, not draft state — but it does mean "clear" doesn't clear
-  everything on screen. Decide in PR 3 with the button in hand.
+- ~~Does CLEAR DRAFT also reset the left settings panel?~~ **Decided
+  2026-07-30 (PR 3)**: no for the sidebar's generation settings — they're
+  persisted app preferences in `useSettings`, shared with the Editor's
+  repaint/add-layer flows, so clearing a draft must not silently change how
+  unrelated screens generate. **Yes** for the reference audio, which was not
+  in the original question: it lives in `voiceStore` (session state, not a
+  preference) and reuse now restores a voice into it, so leaving it selected
+  would keep conditioning generations from a draft the user just emptied.
+  Two consequences fell out while building it: `refMode` moved from
+  ReferenceAudioPicker's local state into `voiceStore` (a cleared selection
+  has to visibly reset the control, and the PR-1 follow-the-store effect goes
+  away with it), and the store gained `titleSuggested` so the folder-name
+  title CreateView offers after a clear doesn't count as a draft — otherwise
+  CLEAR DRAFT stays lit with nothing left to clear.
 - Draft survival across a full reload is out of scope above. Revisit only
   if accidental reloads actually cost work; it needs a re-pick affordance
   for the `File`, not just serialization.
