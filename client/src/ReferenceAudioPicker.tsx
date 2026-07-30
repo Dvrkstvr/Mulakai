@@ -27,7 +27,7 @@ const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference c
  */
 export function ReferenceAudioPicker({ taskType }: Props) {
   const {
-    voices, selectedVoiceId, uploadedRefFile, audioInfluence, styleInfluence,
+    voices, selectedVoiceId, uploadedRefFile, audioInfluence, styleInfluence, missingReferenceLabel,
     fetchVoices, selectVoice, setUploadedRefFile, setAudioInfluence, setStyleInfluence,
   } = useVoiceStore();
   const [mode, setMode] = useState<RefMode>('none');
@@ -36,6 +36,14 @@ export function ReferenceAudioPicker({ taskType }: Props) {
     fetchVoices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // The store outlives this control (it's global; the picker remounts with every Create visit,
+  // and REUSE PROMPT restores a voice from CreateView's effect — which runs after this child's).
+  // Follow it, so NONE is never shown over a selection that voiceParams() would still send.
+  useEffect(() => {
+    if (selectedVoiceId) setMode('voice');
+    else if (uploadedRefFile) setMode('upload');
+  }, [selectedVoiceId, uploadedRefFile]);
 
   const selected = voices.find((v) => v.id === selectedVoiceId);
   const options = [{ label: 'NONE', value: '' }, ...voices.map((v) => ({ label: v.name, value: v.id }))];
@@ -55,6 +63,12 @@ export function ReferenceAudioPicker({ taskType }: Props) {
         <button className={mode === 'voice' ? 'tab active' : 'tab'} onClick={() => chooseMode('voice')}><span>VOICE</span></button>
         <button className={mode === 'upload' ? 'tab active' : 'tab'} onClick={() => chooseMode('upload')}><span>UPLOAD</span></button>
       </div>
+      {missingReferenceLabel && (
+        <div className="warn-note">
+          Reused song was conditioned on &ldquo;{missingReferenceLabel}&rdquo; — not a saved voice
+          (a one-off clip, or removed since). Pick a reference to condition on.
+        </div>
+      )}
       {mode === 'voice' && (
         <>
           <div className="voice-picker-head">

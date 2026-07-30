@@ -211,12 +211,29 @@ requiring its own justification against a screen-count rule.
      `auto-fill` columns reflow narrower automatically once the rail claims
      width — no separate narrow-layout rule needed, same trick as Create's
      `with-rail` column. The rail shows the song's caption, a METADATA block
-     (BPM/KEY-SCALE/TIME SIGNATURE/DURATION, same labels as Create's SONG
-     DETAILS), and LYRICS, plus two quick actions: **REUSE PROMPT** (acid-
-     filled, the one primary commit action) opens Create prefilled with this
-     song's prompt/lyrics/metadata; **CREATE COVER FROM AUDIO** (acid-
-     outline, sibling per the one-filled-acid-CTA rule) opens Create's Audio
-     → From Library path with this song preselected.
+     (GENERATED WITH, then BPM/KEY-SCALE/TIME SIGNATURE/DURATION, same labels
+     as Create's SONG DETAILS), and LYRICS, plus two quick actions: **REUSE
+     PROMPT** (acid-filled, the one primary commit action) opens Create
+     prefilled with this song's prompt/lyrics/metadata, **on the generation
+     tab that made it** — a cover's prompt describes a change to a source
+     track, so replaying it in PROMPT (from-scratch) reads as nonsense.
+     GENERATED WITH names that tab (PROMPT/COVER/ARRANGE) so the action's
+     destination is visible before the click, and a consequence line under
+     the two actions states it in words. For COVER/ARRANGE origins the
+     source track can't come along (uploads aren't kept, library mixes are
+     bounced on demand), so the reopened tab states the gap inline and waits
+     for a source rather than looking ready to generate.
+     Reuse restores the song's **reference audio** too — the saved voice it
+     was conditioned on plus the audio/style influences it was rendered at —
+     since the conditioning is the part hardest to re-guess from the result.
+     A stored label that no longer resolves to a saved voice (deleted, or a
+     one-off uploaded clip that was never saved) is stated in a rust
+     `.warn-note` on the REFERENCE AUDIO control rather than quietly
+     generating unconditioned; it clears as soon as any reference is picked.
+     **CREATE COVER FROM AUDIO** (acid-outline, sibling per the
+     one-filled-acid-CTA rule) opens Create's Audio → From Library path with
+     this song preselected — it is the action that seeds a source, which is
+     why REUSE PROMPT never quietly does so, and it carries no voice either.
 2. **Create** — its own takeover screen, reached from Library's create bar.
    Header stays back/brand/status only (same as Editor's — the header is a
    single persistent element and doesn't carry per-screen content); a
@@ -495,7 +512,11 @@ view change.
 - **Playhead**: linear CSS transition between updates instead of a per-frame
   snap, so playback reads as continuous motion.
 - **Toasts**: rust warning/error toasts slide in as a skewed parallelogram
-  (matching the shape grammar), not a plain fade.
+  (matching the shape grammar), not a plain fade. A *standing* warning — one
+  describing a state the user still has to resolve, not an action that just
+  failed — uses `.warn-note` instead: same rust hue, 1px left hairline, no
+  entrance animation, since it wasn't triggered by the last click and
+  animating it would claim otherwise.
 - **Status blips**: the ACE-Step health dot pulses once when it flips
   online/offline, so the state change isn't silent.
 - **Commit actions**: GENERATE / REPAINT REGION give a brief acid glow/scale

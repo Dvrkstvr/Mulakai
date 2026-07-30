@@ -59,6 +59,9 @@ describe('startCoverGeneration', () => {
     const after = db.prepare(`SELECT COUNT(*) as c FROM songs`).get() as { c: number };
     expect(after.c).toBe(before.c + 1);
     expect(getJob(job.id)?.songId).toBeTruthy();
+    // Recorded so the Library's REUSE PROMPT reopens Create's COVER tab, not PROMPT.
+    const song = db.prepare(`SELECT gen_task FROM songs WHERE id = ?`).get(getJob(job.id)?.songId) as { gen_task: string };
+    expect(song.gen_task).toBe('cover');
   });
 
   it('does not persist a song if aborted while ACE-Step was still accepting the submission', async () => {

@@ -21,6 +21,10 @@ export interface Song {
   reference_audio_label: string | null;
   reference_audio_influence: number | null;
   reference_style_influence: number | null;
+  /** The ACE-Step task that created this song — `text2music` | `cover` | `complete`.
+   * Null for songs generated before the column existed whose base-version params
+   * didn't record one (see server/src/db/backfillGenTask.ts); treated as text2music. */
+  gen_task: string | null;
 }
 
 export interface Folder {
@@ -133,6 +137,9 @@ export interface ActiveGeneration {
   songId?: string;
   title?: string;
   caption?: string;
+  /** Only present for `generate` — which of the three song-creating tasks is running,
+   * so a retry after a page refresh reopens Create on the right tab. */
+  task?: string;
   startedAt: number;
   status: 'loading' | 'running' | 'done' | 'failed';
   error?: string;

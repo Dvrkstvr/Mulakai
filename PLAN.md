@@ -1366,3 +1366,197 @@ Open questions:
 - Remaster renders can be multi-minute WAVs held in memory as a blob —
   acceptable for one held result at a time, but revisit if RUN AGAIN
   accumulates takes.
+
+## Create Draft Persistence + Origin-Aware Reuse (planned 2026-07-30)
+
+Three complaints, one root cause: Create models a draft as **three unrelated
+forms** rather than one intent rendered three ways.
+
+- `reusePromptDraft` (`createDraft.ts:31`) hardcodes `genType: 'prompt'`, so
+  REUSE PROMPT on a cover- or arrange-origin song drops you into text2music
+  carrying `song.caption` — which for a cover meant "describe *the change*
+  from the source" and is close to meaningless standalone.
+- `prompt`/`lyrics`/`bpm`/`keyScale`/`duration` exist as **three independent
+  `useState` copies** (`CreateView.tsx:50`, `CreateAudioTab.tsx:38`,
+  `CreateArrangeTab.tsx:39`), and the tabs are conditionally rendered — so
+  switching tabs unmounts the old one and silently discards everything typed
+  into it, including a picked upload.
+- Retry loses the method the same way: `generationStore.ts`'s cross-refresh
+  hydration rebuilds `draft: { prompt: active.caption }` with no `genType`,
+  so retrying a failed cover after a page reload also lands in PROMPT.
+
+Decisions:
+- **The song records its origin task.** New `songs.gen_task` column, written
+  by `persistSong()` from `params.task_type` (which every caller already
+  sets — `coverGenJobs.ts:30`, `completeGenJobs.ts:36`, `jobs.ts:119`).
+  Backfilled once for existing DBs from the base layer's first version via
+  `json_extract(params_json, '$.task_type')` — the data is already there,
+  and `repaintJobs.ts:78` reads `task_type` back out of `params_json` the
+  same way today. A column rather than a correlated subquery in the list
+  query because the library list is the hot path, and `songs` already
+  denormalizes generation facts (`reference_audio_label` and friends) from
+  exactly this call site. `routes/songs.ts`'s `SELECT s.*` (list at :25,
+  detail at :66) picks it up with no query change.
+- **REUSE PROMPT lands on the origin tab**: `text2music` → PROMPT,
+  `cover` → COVER, `complete` → ARRANGE; NULL (pre-column songs whose
+  backfill found nothing) → PROMPT, same as today.
+  - The **source audio is not carried** — an upload is long gone and a
+    library bounce was never stored — so cover/arrange origins open with the
+    source slot empty and an inline consequence line saying so. It
+    deliberately does *not* silently preselect the song as its own source;
+    that is the sibling CREATE COVER FROM AUDIO action.
+  - The detail rail gains an origin line under METADATA, and REUSE PROMPT's
+    consequence text names the tab it will open, per DESIGN.md's
+    state-the-consequence-before-commit rule.
+- **One draft, three renderings.** Shared song intent moves into a single
+  `createDraftStore.ts`: `genType`, `title`, `prompt`, `lyrics`, `bpm`,
+  `keyScale`, `timeSignature`, `vocalLanguage`, `duration`, `formatted`,
+  `folderId`/`folderName`, `pendingQuery`, plus `intentOrigin` (below).
+  Method-specific state survives tab switches too, as per-method slices:
+  `audio: { source, selectedSongId, uploadFile, model, variance }`,
+  `arrange: { source, uploadFile, scratchSource, model }` — bouncing to
+  PROMPT and back must not make you re-pick a 40MB upload. Kept small with
+  one `patch(partial)` / `load(draft)` / `clear()` trio instead of a setter
+  per field, per the module-size policy.
+- **The store is the only source of truth.** `CreateView` loses its
+  `initialDraft` prop entirely; `App.tsx` calls `load()` at each navigation
+  site (`reusePrompt`, `createCover`, `CreateBar`'s `onCreate`,
+  `retryGeneration`). An explicit new intent therefore always overwrites a
+  resumed draft — no merge, no ambiguity about which prompt you're looking
+  at. `pendingQuery` is cleared once the thinking reveal finishes so a
+  remount can't re-run the expansion.
+- **In-memory only — no `localStorage`.** The draft survives Create →
+  Library → Create within a session (you clicked back to check a title);
+  it does not survive a reload. `uploadFile` is a `File` and isn't
+  serializable anyway, and a week-old draft resurrecting itself is worse
+  than retyping.
+- **No "move this field to that tab" affordance.** That control only needs
+  to exist because the state is siloed; sharing the fields removes the
+  need. If partial carry is ever wanted, reuse `RefineRail`'s existing
+  per-field accept idiom rather than inventing a second one.
+- **`intentOrigin` marks which tab last authored the shared intent**, and
+  does double duty:
+  - When `intentOrigin !== genType` and the prompt is non-empty, one `.hint`
+    line under the prompt names the semantic shift ("carried over from
+    PROMPT — in COVER this describes the change from the source"). Editing
+    the prompt in the current tab sets `intentOrigin` to it and the hint
+    goes away. Fields visibly keep their text, so nothing more than a hint
+    is warranted — no modal, no badge.
+  - `useAnalyzeAndApply` gates only `prompt`/`lyrics` on being empty
+    (`useAnalyzeSourceAudio.ts:72`) — carried-over text would otherwise
+    block ANALYZE AUDIO from filling them. Carried fields
+    (`intentOrigin !== genType`) count as fillable. `bpm`/`keyScale`/
+    `duration` already overwrite unconditionally and stay as they are.
+- **CLEAR DRAFT, not "clear prompt"** — one control scoped to the whole
+  draft, reusing FEELING LUCKY's two-step confirm (`CreateView.tsx:299`):
+  label → `CLEAR ALL? CONFIRM` plus a hint line naming what goes. It clears
+  the shared intent and every per-method slice, but **keeps the folder
+  destination** — that's navigation context shown in the Save To chip, not
+  something you typed — and re-triggers the folder-title prefill that
+  `CreateView.tsx:83`'s effect otherwise skips once `title` is non-empty.
+  Lives right-aligned on the GENERATION TYPE label row so all three tabs
+  can reach it (COVER/ARRANGE have no lucky/generate row to host it);
+  disabled when the draft is already empty or a generation is in flight.
+  Outline button — **not** rust, which stays reserved for
+  errors/warnings/trash.
+- **Split the PROMPT tab out while the state is being moved.**
+  `CreateView.tsx` is 355 LOC today, well over the 200 hard cap; lifting
+  state out plus extracting `CreatePromptTab.tsx` (prompt/lyrics/refine/
+  song-details/generate) leaves `CreateView` as the shell it claims to be —
+  tabs, title, layout, rail. This is the natural moment, not a drive-by.
+
+File-level plan:
+- `server/src/db/schema.ts` — `songs.gen_task TEXT` (comment: which
+  ACE-Step task created this song; NULL for pre-column rows).
+- `server/src/db/index.ts` — `ensureColumn('songs', 'gen_task', ...)` plus a
+  one-time backfill `UPDATE` reading the base layer's earliest version's
+  `params_json`.
+- `server/src/services/jobs.ts` — `persistSong()`'s songs `INSERT` gains
+  `gen_task` from `params.task_type`.
+- `client/src/api.ts` — `Song` gains `gen_task: string | null`.
+- `client/src/createDraft.ts` — `taskToGenType()` mapping;
+  `reusePromptDraft` uses it instead of the hardcoded `'prompt'`.
+- `client/src/createDraftStore.ts` (new) — Zustand store described above.
+- `client/src/CreateView.tsx` — drops the `initialDraft` prop and its
+  `useState` block, reads the store, hosts GENERATION TYPE + CLEAR DRAFT.
+- `client/src/CreatePromptTab.tsx` (new) — extracted PROMPT tab.
+- `client/src/CreateAudioTab.tsx` / `CreateArrangeTab.tsx` — drop the
+  duplicated shared fields, read/write their store slice.
+- `client/src/App.tsx` — `load()` at the four navigation sites; `CreateView`
+  loses `initialDraft`.
+- `client/src/generationStore.ts` — hydrated retry draft carries the job's
+  `genType` instead of prompt-only.
+- `client/src/SongDetailRail.tsx` — origin line under METADATA; REUSE
+  PROMPT consequence text names the target tab.
+- `client/src/useAnalyzeSourceAudio.ts` — treat carried prompt/lyrics as
+  fillable.
+- `client/src/voiceStore.ts` — `missingReferenceLabel` +
+  `restoreReference()`; `selectVoice`/`setUploadedRefFile` clear the warning.
+- `client/src/ReferenceAudioPicker.tsx` — follow the store into voice/upload
+  mode; render the missing-reference warning.
+- `client/src/index.css` — `.warn-note` (rust hairline, no toast animation).
+- `docs/design/DESIGN.md` — the rail's REUSE PROMPT description (currently
+  prompt-only, `DESIGN.md:215`) in PR 1; the draft-persistence rule in
+  PR 2; CLEAR DRAFT's anatomy and confirm copy in PR 3.
+- Tests: `createDraftStore.test.ts` (shared fields and per-method slices
+  survive a `genType` switch; `load()` overwrites; `clear()` keeps the
+  folder; `intentOrigin` transitions), `createDraft.test.ts`
+  (`gen_task` → `genType`, no source carried), a `persistSong` test
+  asserting `gen_task`, a backfill test over a pre-column row, and one
+  Playwright step covering type-in-PROMPT → switch to COVER → text is
+  still there.
+
+### Reference-audio carry (added 2026-07-30, ships with PR 1)
+
+Reuse restored the words but not the *voice*: a song generated with voice
+"Daniel" at audio 80% / style 30% came back with the reference control on
+NONE, so the one thing hardest to re-guess — the conditioning — was silently
+dropped. The song already records all of it (`reference_audio_label`,
+`reference_audio_influence`, `reference_style_influence`, added in the
+Reference Audio in Song Meta section above).
+
+- The draft carries `referenceLabel` + the two influences; `voiceStore.ts`
+  gains `restoreReference(label, audio, style)` which matches the label
+  against the saved voices **by name** — the label is all a song records —
+  selects it, then applies the song's influences. Order matters:
+  `selectVoice()` resets influences to that voice's defaults, so the song's
+  own values have to land after it, not before.
+- Influences are null for cover/complete origins (they never persisted
+  them, see the schema comment), in which case the matched voice keeps its
+  own defaults rather than being forced to 0.
+- **A label that matches nothing is stated, not swallowed**: the store keeps
+  `missingReferenceLabel` and `ReferenceAudioPicker` renders a rust
+  `.warn-note` naming it. The two causes are indistinguishable from what's
+  stored — a deleted voice and an ad-hoc uploaded clip (never saved) both
+  leave a bare label — so the copy covers both instead of guessing from the
+  filename. Cleared the moment the user picks any reference themselves.
+- `ReferenceAudioPicker`'s local `mode` now follows the store into
+  `voice`/`upload` when something is selected. This is also a latent bug fix
+  independent of reuse: the store is global and the picker is not, so
+  selecting a voice, leaving Create and coming back showed NONE over a
+  selection that `voiceParams()` would still have sent.
+- CREATE COVER FROM AUDIO deliberately does **not** restore a voice — it
+  means "make a cover of this audio", not "rebuild this song's recipe".
+
+Rollout — one problem per PR, in dependency order:
+1. `feat/reuse-origin-method` — server column + backfill, origin-aware
+   reuse mapping, rail origin line, retry-draft `genType`, and the
+   reference-audio carry above. Ships the actual complaint on its own, no
+   refactor attached.
+2. `feat/create-draft-store` — lift shared state into the store, per-method
+   slices, `CreatePromptTab` extraction, carried-over hint, the analyze
+   interaction.
+3. `feat/clear-draft` — the CLEAR DRAFT control.
+
+Open questions:
+- Should a cover-origin song also offer "re-cover the *same* source with a
+  tweaked prompt"? Only reproducible for the from-library case (uploads
+  aren't kept), so it needs source identity stored on the song. Deferred
+  until the plain origin-aware reuse has been lived with.
+- Does CLEAR DRAFT also reset the left settings panel (model, advanced gen
+  settings)? Leaning no — those are persisted app preferences in
+  `useSettings`, not draft state — but it does mean "clear" doesn't clear
+  everything on screen. Decide in PR 3 with the button in hand.
+- Draft survival across a full reload is out of scope above. Revisit only
+  if accidental reloads actually cost work; it needs a re-pick affordance
+  for the `File`, not just serialization.

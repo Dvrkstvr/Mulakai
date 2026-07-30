@@ -9,12 +9,19 @@
 
 export type GenKind = 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster';
 
+/** The three ACE-Step tasks that create a whole new song — all held under the single
+ * `generate` kind, so this is what tells them apart. Mirrors `songs.gen_task`. */
+export type GenTask = 'text2music' | 'cover' | 'complete';
+
 export interface GenLockInfo {
   kind: GenKind;
   jobId: string;
   songId?: string;
   title?: string;
   caption?: string;
+  /** Only set for `generate` — lets a client rehydrating mid-generation (or retrying a
+   * failed one after a refresh) reopen Create on the tab that started it. */
+  task?: GenTask;
   startedAt: number;
 }
 

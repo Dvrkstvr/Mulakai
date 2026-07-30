@@ -15,10 +15,12 @@ import { Dropzone } from './Dropzone';
 import { AudioPreview } from './AudioPreview';
 import { useObjectUrl } from './useObjectUrl';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
+import { ReusedSourceNote } from './ReusedSourceNote';
 
 interface Props {
   title: string;
   folderId?: string;
+  initialDraft: CreateDraft;
   onBack: () => void;
 }
 
@@ -30,17 +32,17 @@ type ArrangeSource = 'upload' | 'split';
  * already-multi-layer song). Unlike AUDIO, the 5Hz LM is NOT skipped for `complete`
  * (docs/ace-step-1.5/API.md#4.2), so THINKING MODE / AI ENHANCE in the sidebar are live here —
  * see CreateView.tsx's `hideLmControls` check, which only targets the AUDIO tab. */
-export function CreateArrangeTab({ title, folderId, onBack }: Props) {
+export function CreateArrangeTab({ title, folderId, initialDraft, onBack }: Props) {
   const gen = useSettings((s) => s.gen);
   const [source, setSource] = useState<ArrangeSource>('upload');
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const uploadUrl = useObjectUrl(uploadFile);
   const [scratchSource, setScratchSource] = useState<{ jobId: string; kind: StemKind } | null>(null);
-  const [prompt, setPrompt] = useState('');
-  const [lyrics, setLyrics] = useState('');
-  const [bpm, setBpm] = useState(0); // 0 = AUTO
-  const [keyScale, setKeyScale] = useState(''); // '' = AUTO
-  const [duration, setDuration] = useState(0); // 0 = AUTO (seconds)
+  const [prompt, setPrompt] = useState(initialDraft.prompt ?? '');
+  const [lyrics, setLyrics] = useState(initialDraft.lyrics ?? '');
+  const [bpm, setBpm] = useState(initialDraft.bpm ?? 0); // 0 = AUTO
+  const [keyScale, setKeyScale] = useState(initialDraft.keyScale ?? ''); // '' = AUTO
+  const [duration, setDuration] = useState(initialDraft.duration ?? 0); // 0 = AUTO (seconds)
   const [model, setModel] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -120,6 +122,7 @@ export function CreateArrangeTab({ title, folderId, onBack }: Props) {
   return (
     <>
       <div className="section-label">SOURCE</div>
+      <ReusedSourceNote title={initialDraft.reusedFrom} satisfied={sourceReady} />
       <div className="type-tabs">
         <button className={source === 'upload' ? 'tab active' : 'tab'} onClick={() => setSource('upload')}><span>UPLOAD SINGLE TRACK</span></button>
         <button className={source === 'split' ? 'tab active' : 'tab'} onClick={() => setSource('split')}><span>SPLIT A SONG</span></button>

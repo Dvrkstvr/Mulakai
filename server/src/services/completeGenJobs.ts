@@ -27,7 +27,7 @@ export function startCompleteGeneration(
   referenceMeta?: ReferenceAudioMeta | null,
 ): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
-  acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt });
+  acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt, task: 'complete' });
   registerJob(job);
   void run(job, async () => {
     // ACE-Step defaults batch_size to 2 server-side when omitted, but poll() only ever

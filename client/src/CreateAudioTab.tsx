@@ -18,6 +18,7 @@ import { AudioPreview } from './AudioPreview';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { useObjectUrl } from './useObjectUrl';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
+import { ReusedSourceNote } from './ReusedSourceNote';
 
 interface Props {
   songs: Song[];
@@ -36,10 +37,10 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
   const [selectedSongId, setSelectedSongId] = useState<string | null>(initialDraft.selectedSongId ?? null);
   const [uploadFile, setUploadFile] = useState<File | null>(null);
   const [prompt, setPrompt] = useState(initialDraft.prompt ?? '');
-  const [lyrics, setLyrics] = useState('');
-  const [bpm, setBpm] = useState(0); // 0 = AUTO
-  const [keyScale, setKeyScale] = useState(''); // '' = AUTO
-  const [duration, setDuration] = useState(0); // 0 = AUTO (seconds)
+  const [lyrics, setLyrics] = useState(initialDraft.lyrics ?? '');
+  const [bpm, setBpm] = useState(initialDraft.bpm ?? 0); // 0 = AUTO
+  const [keyScale, setKeyScale] = useState(initialDraft.keyScale ?? ''); // '' = AUTO
+  const [duration, setDuration] = useState(initialDraft.duration ?? 0); // 0 = AUTO (seconds)
   const [model, setModel] = useState('');
   // VARIANCE 0-1, inverse of audio_cover_strength — same convention as repaint's slider
   // (settings.ts's repaintStrength): higher VARIANCE = more freedom from the source.
@@ -134,6 +135,7 @@ export function CreateAudioTab({ songs, title, folderId, initialDraft, onBack }:
   return (
     <>
       <div className="section-label">SOURCE</div>
+      <ReusedSourceNote title={initialDraft.reusedFrom} satisfied={sourceReady} />
       <div className="type-tabs">
         <button className={source === 'upload' ? 'tab active' : 'tab'} onClick={() => setSource('upload')}><span>UPLOAD</span></button>
         <button className={source === 'library' ? 'tab active' : 'tab'} onClick={() => setSource('library')}><span>FROM LIBRARY</span></button>
