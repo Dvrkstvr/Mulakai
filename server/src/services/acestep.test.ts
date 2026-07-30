@@ -258,3 +258,26 @@ describe('adapter lifecycle', () => {
     expect(getModelGeneration()).toBe(before + 1);
   });
 });
+
+describe('releaseTask', () => {
+  it('strips our own params (output, adapter) from the wire — ACE-Step has no such fields', async () => {
+    const calls: Array<{ url: string; init: RequestInit | undefined }> = [];
+    vi.stubGlobal('fetch', vi.fn(async (url: string, init?: RequestInit) => {
+      calls.push({ url, init });
+      return new Response(JSON.stringify({ data: { task_id: 't1' }, code: 200, error: null }), { status: 200 });
+    }));
+    const { releaseTask } = await import('./acestep.js');
+
+    await releaseTask({
+      task_type: 'text2music',
+      prompt: 'a driving synthwave track',
+      adapter: { name: 'Acid House', scale: 0.6 },
+      output: { format: 'wav' },
+    });
+
+    const body = JSON.parse(calls[0].init?.body as string);
+    expect(body.prompt).toBe('a driving synthwave track');
+    expect(body.adapter).toBeUndefined();
+    expect(body.output).toBeUndefined();
+  });
+});

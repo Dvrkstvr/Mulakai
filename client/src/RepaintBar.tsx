@@ -3,6 +3,7 @@ import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { useSettings } from './settings';
+import { ActiveAdapterNote } from './ActiveAdapterNote';
 import type { Region } from './Waveform';
 
 /** Crossfade cap, seconds — half of whichever is smaller: a flat ceiling or the region itself. */
@@ -103,6 +104,7 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
       {regionValid && job !== 'running' && !busyElsewhere && (
         <div className="hint">will save as {layerName.toUpperCase()} v{nextVersion}</div>
       )}
+      <ActiveAdapterNote />
       {busyElsewhere && job !== 'running' && (
         <div className="hint">a generation is already running elsewhere — try again once it finishes</div>
       )}

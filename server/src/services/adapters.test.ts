@@ -158,6 +158,26 @@ describe('reconcileAdapter', () => {
     expect(loadLora).toHaveBeenCalledWith('/models/choir');
   });
 
+  it('returns what it applied, so the finished take can record it', async () => {
+    const adapter = await seed('Acid House', '/models/acid');
+    setAdapterScale(adapter.id, 0.6);
+    setActiveAdapter(adapter.id);
+
+    expect(await reconcileAdapter()).toEqual({ name: 'Acid House', scale: 0.6 });
+  });
+
+  it('returns the stamp on the idempotent path too, not just when it loaded something', async () => {
+    const adapter = await seed('Acid House', '/models/acid');
+    setActiveAdapter(adapter.id);
+    await reconcileAdapter();
+
+    expect(await reconcileAdapter()).toEqual({ name: 'Acid House', scale: 1 });
+  });
+
+  it('returns null when generations run on the base model', async () => {
+    expect(await reconcileAdapter()).toBeNull();
+  });
+
   it('retries on the next call when loading failed, rather than assuming it applied', async () => {
     const adapter = await seed('Acid House', '/models/acid');
     setActiveAdapter(adapter.id);

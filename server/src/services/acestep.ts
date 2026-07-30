@@ -9,6 +9,11 @@ export interface ReleaseTaskParams {
    * releaseTask) — it travels here so every job path already carrying params
    * can reach transcode.ts without a parallel plumbing channel. */
   output?: OutputSettings;
+  /** Which adapter was loaded when this ran. Also ours, not ACE-Step's (stripped in the same
+   * place as `output`): adapters are server state, not a request field, so the only way a
+   * finished take can say what coloured it is for ensureModelLoaded to stamp it here on the
+   * way past — every persist path already records these params into versions.params_json. */
+  adapter?: { name: string; scale: number };
   prompt?: string;
   lyrics?: string;
   thinking?: boolean;
@@ -310,10 +315,10 @@ export async function releaseTask(
   params: ReleaseTaskParams,
   files?: { srcAudio?: { data: Buffer; filename: string }; referenceAudio?: { data: Buffer; filename: string } },
 ): Promise<{ task_id: string }> {
-  // `output` is ours, not ACE-Step's — it rides on the params object so the
-  // existing route allowlists and job plumbing carry it, and is stripped here,
-  // at the single point where params actually go over the wire.
-  const { output: _output, ...wire } = params;
+  // `output` and `adapter` are ours, not ACE-Step's — they ride on the params
+  // object so the existing route allowlists and job plumbing carry them, and are
+  // stripped here, at the single point where params actually go over the wire.
+  const { output: _output, adapter: _adapter, ...wire } = params;
   if (!files?.srcAudio && !files?.referenceAudio) return call('/release_task', wire);
   const form = new FormData();
   for (const [k, v] of Object.entries(wire)) {

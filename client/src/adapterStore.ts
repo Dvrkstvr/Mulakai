@@ -5,10 +5,16 @@ interface AdapterState {
   adapters: Adapter[];
   /** null = generations run on the base model. */
   activeId: string | null;
+  /** Whether the list has been read at least once — distinguishes "no adapters" from "not asked yet",
+   * which ActiveAdapterNote needs to avoid re-requesting an empty list on every mount. */
+  loaded: boolean;
   /** "Recorded, but ACE-Step hasn't applied it yet" — most often no model is loaded. Surfaced
    * rather than swallowed, since the app would otherwise claim an adapter that isn't in play. */
   warning: string | null;
   fetchAdapters: () => Promise<void>;
+  /** Read the list once per session, deduping concurrent callers — several commit surfaces
+   * mount together in the Editor and would otherwise each fire the same request. */
+  ensureLoaded: () => Promise<void>;
   register: (name: string, path: string) => Promise<void>;
   select: (id: string | null) => Promise<void>;
   setScale: (id: string, scale: number) => Promise<void>;
@@ -17,14 +23,23 @@ interface AdapterState {
 
 /** Server-owned state (ACE-Step holds one adapter at a time), so this store is a cache of it
  * rather than a source of truth — every mutation re-reads the list instead of patching locally. */
+let inflight: Promise<void> | null = null;
+
 export const useAdapterStore = create<AdapterState>()((set, get) => ({
   adapters: [],
   activeId: null,
+  loaded: false,
   warning: null,
 
   fetchAdapters: async () => {
     const { adapters, activeId } = await api.listAdapters();
-    set({ adapters, activeId });
+    set({ adapters, activeId, loaded: true });
+  },
+
+  ensureLoaded: async () => {
+    if (get().loaded) return;
+    inflight ??= get().fetchAdapters().finally(() => { inflight = null; });
+    await inflight;
   },
 
   // Throws on rejection: registration validates by loading the path, so a failure is the

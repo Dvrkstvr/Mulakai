@@ -8,6 +8,7 @@ import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
+import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { CustomSelect } from './CustomSelect';
 import { TRACK_NAMES } from './trackNames';
@@ -165,6 +166,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
                 : busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE'}
             </button>
             {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
+            <ActiveAdapterNote />
           </>
         )}
         {error && <div className="error">{error} <button onClick={submit}>RETRY</button></div>}

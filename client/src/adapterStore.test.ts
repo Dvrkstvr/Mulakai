@@ -30,7 +30,7 @@ const adapter = (over: Partial<Adapter> = {}): Adapter => ({
 });
 
 beforeEach(() => {
-  useAdapterStore.setState({ adapters: [], activeId: null, warning: null });
+  useAdapterStore.setState({ adapters: [], activeId: null, warning: null, loaded: false });
   vi.clearAllMocks();
 });
 
@@ -126,5 +126,27 @@ describe('adapterConsequence', () => {
 
   it('says plainly when nothing is applied', () => {
     expect(adapterConsequence(null)).toContain('base model');
+  });
+});
+
+describe('ensureLoaded', () => {
+  it('reads the list once even when several commit surfaces ask at the same time', async () => {
+    // The Editor mounts the repaint, add-layer and remaster surfaces together.
+    listAdapters.mockResolvedValue({ adapters: [], activeId: null });
+    const { ensureLoaded } = useAdapterStore.getState();
+
+    await Promise.all([ensureLoaded(), ensureLoaded(), ensureLoaded()]);
+
+    expect(listAdapters).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not keep re-asking when the registry is legitimately empty', async () => {
+    listAdapters.mockResolvedValue({ adapters: [], activeId: null });
+    const { ensureLoaded } = useAdapterStore.getState();
+    await ensureLoaded();
+
+    await ensureLoaded();
+
+    expect(listAdapters).toHaveBeenCalledTimes(1);
   });
 });

@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ReleaseTaskParams } from './acestep.js';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -39,7 +40,10 @@ vi.mock('./acestep.js', () => ({
 }));
 
 const initModel = vi.fn(async (..._args: unknown[]) => { callOrder.push('initModel'); });
-const reconcileAdapter = vi.fn(async () => { callOrder.push('reconcileAdapter'); });
+const reconcileAdapter = vi.fn(async (): Promise<{ name: string; scale: number } | null> => {
+  callOrder.push('reconcileAdapter');
+  return null;
+});
 const callOrder: string[] = [];
 
 vi.mock('./adapters.js', () => ({ reconcileAdapter: () => reconcileAdapter() }));
@@ -224,5 +228,24 @@ describe('ensureModelLoaded', () => {
     reconcileAdapter.mockRejectedValueOnce(new Error('ACE-Step /v1/lora/load -> Failed to load LoRA'));
 
     await expect(jobsModule.ensureModelLoaded({ task_type: 'text2music' })).rejects.toThrow('Failed to load LoRA');
+  });
+
+  it('stamps the applied adapter onto the params every persist path records', async () => {
+    // The stamp is the only way a finished take can say what coloured it — ACE-Step takes no
+    // adapter parameter, so nothing about the request itself would show it.
+    reconcileAdapter.mockResolvedValueOnce({ name: 'Acid House', scale: 0.6 });
+    const params: ReleaseTaskParams = { task_type: 'text2music' };
+
+    await jobsModule.ensureModelLoaded(params);
+
+    expect(params.adapter).toEqual({ name: 'Acid House', scale: 0.6 });
+  });
+
+  it('leaves params alone when no adapter is active, so existing takes keep their shape', async () => {
+    const params: ReleaseTaskParams = { task_type: 'text2music' };
+
+    await jobsModule.ensureModelLoaded(params);
+
+    expect('adapter' in params).toBe(false);
   });
 });

@@ -96,6 +96,12 @@ export async function registerAdapter(name: string, adapterPath: string): Promis
 /** What this process last applied to slot 1's current model, or null if nothing is loaded. */
 let applied: { path: string; scale: number; generation: number } | null = null;
 
+/** Recorded onto a finished take so it stays explicable — see ReleaseTaskParams#adapter. */
+export interface AdapterStamp {
+  name: string;
+  scale: number;
+}
+
 /**
  * Drives ACE-Step to whatever adapter is selected. Idempotent, and safe to call before every
  * job — when nothing is selected and nothing was applied it makes no request at all.
@@ -109,7 +115,7 @@ let applied: { path: string; scale: number; generation: number } | null = null;
  * ACE-Step's error rather than quietly generating on the base model, and leaving `applied`
  * untouched means the next attempt retries.
  */
-export async function reconcileAdapter(): Promise<void> {
+export async function reconcileAdapter(): Promise<AdapterStamp | null> {
   const desired = getActiveAdapter();
   const generation = getModelGeneration();
 
@@ -118,20 +124,23 @@ export async function reconcileAdapter(): Promise<void> {
       await unloadLora();
       applied = null;
     }
-    return;
+    return null;
   }
+
+  const stamp = { name: desired.name, scale: desired.scale };
 
   if (applied && applied.path === desired.path && applied.generation === generation) {
     if (applied.scale !== desired.scale) {
       await setLoraScale(desired.scale);
       applied = { ...applied, scale: desired.scale };
     }
-    return;
+    return stamp;
   }
 
   await loadLora(desired.path);
   await setLoraScale(desired.scale);
   applied = { path: desired.path, scale: desired.scale, generation };
+  return stamp;
 }
 
 /** Test seam: `applied` is process state, so tests that simulate a fresh boot must clear it. */

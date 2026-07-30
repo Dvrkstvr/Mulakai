@@ -94,8 +94,10 @@ export async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void
   }
   // Strictly after init: adapters attach to the model, so an init above has just dropped
   // whichever one was loaded (see adapters.ts). ACE-Step has no per-request adapter param,
-  // so this is the only place the selection can be honoured.
-  await reconcileAdapter();
+  // so this is the only place the selection can be honoured — and, since `params` is the
+  // object every persist path records into versions.params_json, stamped.
+  const adapter = await reconcileAdapter();
+  if (adapter) params.adapter = adapter;
 }
 
 /** What reference audio (if any) conditioned a generation, persisted onto the song for the
