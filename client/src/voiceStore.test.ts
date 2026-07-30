@@ -19,6 +19,7 @@ const voice = (over: Partial<Voice> = {}): Voice => ({
 });
 
 const reset = () => useVoiceStore.setState({
+  refMode: 'none',
   voices: [], selectedVoiceId: null, uploadedRefFile: null,
   audioInfluence: 0.5, styleInfluence: 0.5, missingReferenceLabel: null,
 });
@@ -106,5 +107,68 @@ describe('picking a reference clears the warning', () => {
   it('even when the user explicitly picks NONE', () => {
     useVoiceStore.getState().selectVoice(null);
     expect(useVoiceStore.getState().missingReferenceLabel).toBeNull();
+  });
+});
+
+describe('clearReference', () => {
+  beforeEach(() => {
+    reset();
+    useVoiceStore.setState({ voices: [voice()] });
+  });
+
+  // Create's CLEAR DRAFT calls this: a voice left selected would keep conditioning the next
+  // generation on someone's voice from a draft the user just emptied.
+  it('drops the whole choice and returns the influences to their neutral default', async () => {
+    await useVoiceStore.getState().restoreReference('Daniel', 0.8, 0.3);
+    useVoiceStore.getState().clearReference();
+
+    expect(useVoiceStore.getState()).toMatchObject({
+      refMode: 'none', selectedVoiceId: null, uploadedRefFile: null,
+      audioInfluence: 0.5, styleInfluence: 0.5, missingReferenceLabel: null,
+    });
+  });
+
+  it('also drops an uploaded clip and a standing missing-voice warning', () => {
+    useVoiceStore.getState().setUploadedRefFile(new File(['x'], 'clip.wav'));
+    useVoiceStore.setState({ missingReferenceLabel: 'gone.wav' });
+
+    useVoiceStore.getState().clearReference();
+
+    expect(useVoiceStore.getState().uploadedRefFile).toBeNull();
+    expect(useVoiceStore.getState().missingReferenceLabel).toBeNull();
+    expect(useVoiceStore.getState().refMode).toBe('none');
+  });
+});
+
+describe('refMode follows the selection', () => {
+  beforeEach(() => {
+    reset();
+    useVoiceStore.setState({ voices: [voice()] });
+  });
+
+  // The picker remounts on every Create visit while the selection outlives it, so the mode has
+  // to live with the selection — otherwise NONE shows over a voice voiceParams() would send.
+  it('switches to voice/upload when one is chosen', async () => {
+    useVoiceStore.getState().selectVoice('v1');
+    expect(useVoiceStore.getState().refMode).toBe('voice');
+
+    useVoiceStore.getState().setUploadedRefFile(new File(['x'], 'clip.wav'));
+    expect(useVoiceStore.getState().refMode).toBe('upload');
+    expect(useVoiceStore.getState().selectedVoiceId).toBeNull();
+  });
+
+  it('is set by a restored reuse, not just by clicking', async () => {
+    await useVoiceStore.getState().restoreReference('Daniel', 0.8, 0.3);
+    expect(useVoiceStore.getState().refMode).toBe('voice');
+  });
+
+  it('drops the other branch when the mode is switched by hand', () => {
+    useVoiceStore.getState().selectVoice('v1');
+    useVoiceStore.getState().setRefMode('upload');
+    expect(useVoiceStore.getState().selectedVoiceId).toBeNull();
+
+    useVoiceStore.getState().setUploadedRefFile(new File(['x'], 'clip.wav'));
+    useVoiceStore.getState().setRefMode('none');
+    expect(useVoiceStore.getState().uploadedRefFile).toBeNull();
   });
 });

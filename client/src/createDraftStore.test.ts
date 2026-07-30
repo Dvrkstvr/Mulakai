@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { useCreateDraftStore } from './createDraftStore';
+import { useCreateDraftStore, isDraftEmpty } from './createDraftStore';
 
 const INITIAL = useCreateDraftStore.getState();
 const get = () => useCreateDraftStore.getState();
@@ -121,5 +121,87 @@ describe('clearPendingQuery', () => {
     get().load({ pendingQuery: 'something dreamy' });
     get().clearPendingQuery();
     expect(get().pendingQuery).toBeUndefined();
+  });
+});
+
+describe('clear', () => {
+  it('empties every shared field and both method slices', () => {
+    get().patch({ title: 'T', prompt: 'p', lyrics: 'l', bpm: 120, keyScale: 'A minor', timeSignature: '4/4', vocalLanguage: 'en', duration: 90, formatted: true });
+    get().patchAudio({ source: 'library', selectedSongId: 's1', uploadFile: new File(['x'], 'a.wav'), variance: 0.9 });
+    get().patchArrange({ source: 'split', scratchSource: { jobId: 'j1', kind: 'vocals' }, uploadFile: new File(['x'], 'b.wav') });
+
+    get().clear();
+
+    expect(isDraftEmpty(get())).toBe(true);
+    expect(get()).toMatchObject({ title: '', prompt: '', lyrics: '', bpm: 0, keyScale: '', timeSignature: '', vocalLanguage: '', duration: 0, formatted: false });
+    expect(get().audio).toMatchObject({ source: 'upload', selectedSongId: null, uploadFile: null, variance: 0.5 });
+    expect(get().arrange).toMatchObject({ source: 'upload', scratchSource: null, uploadFile: null });
+  });
+
+  it('keeps the destination folder — it came from the Library, not from anything typed', () => {
+    get().load({ genType: 'prompt', prompt: 'p', folderId: 'f1', folderName: 'Development' });
+    get().clear();
+    expect(get()).toMatchObject({ folderId: 'f1', folderName: 'Development' });
+  });
+
+  it('stays on the tab in view rather than jumping back to PROMPT', () => {
+    get().patch({ genType: 'complete', prompt: 'p' });
+    get().clear();
+    expect(get().genType).toBe('complete');
+    expect(get().intentOrigin).toBe('complete'); // nothing left to have been carried from elsewhere
+  });
+
+  it('drops a reused song\'s leftovers so the emptied draft claims nothing', () => {
+    get().load({ genType: 'audio', prompt: 'p', reusedFrom: 'Kopf Hoch', referenceLabel: 'Daniel', audioInfluence: 0.8 });
+    get().clear();
+    expect(get().reusedFrom).toBeUndefined();
+    expect(get().referenceLabel).toBeUndefined();
+    expect(get().referenceAudioInfluence).toBeUndefined();
+  });
+
+  it('bumps revision so the folder-title suggestion is offered again', () => {
+    get().load({ genType: 'prompt', prompt: 'p', folderId: 'f1' });
+    const before = get().revision;
+    get().clear();
+    expect(get().revision).toBe(before + 1);
+  });
+});
+
+describe('isDraftEmpty', () => {
+  it('is true for an untouched draft, and for one holding only a destination', () => {
+    expect(isDraftEmpty(get())).toBe(true);
+    get().resume('f1', 'Development');
+    expect(isDraftEmpty(get())).toBe(true);
+  });
+
+  // Clearing inside a folder re-offers the folder-name title, and a suggestion the user hasn't
+  // touched isn't a draft — otherwise CLEAR DRAFT stays lit with nothing left to clear.
+  it('ignores a title that is only the folder suggestion, but not one that was typed', () => {
+    get().patch({ title: 'Development 1', titleSuggested: true });
+    expect(isDraftEmpty(get())).toBe(true);
+
+    get().patch({ title: 'Development 1', titleSuggested: false });
+    expect(isDraftEmpty(get())).toBe(false);
+  });
+
+  // Both auto-populate (model on mount, variance at 0.5), so counting them would leave CLEAR
+  // DRAFT permanently enabled on a draft with nothing in it.
+  it('ignores each tab\'s auto-selected model and default variance', () => {
+    get().patchAudio({ model: 'acestep-v15-xl-sft', variance: 0.5 });
+    get().patchArrange({ model: 'acestep-v15-xl-base' });
+    expect(isDraftEmpty(get())).toBe(true);
+  });
+
+  it('is false once anything has actually been entered or picked', () => {
+    get().patch({ prompt: 'a techno track' });
+    expect(isDraftEmpty(get())).toBe(false);
+
+    get().clear();
+    get().patchAudio({ selectedSongId: 's1' });
+    expect(isDraftEmpty(get())).toBe(false);
+
+    get().clear();
+    get().patchArrange({ scratchSource: { jobId: 'j1', kind: 'drums' } });
+    expect(isDraftEmpty(get())).toBe(false);
   });
 });

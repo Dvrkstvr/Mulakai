@@ -256,6 +256,22 @@ requiring its own justification against a screen-count rule.
      field, which clears once it's edited here. There is deliberately **no
      "copy this field to that tab" control** — that only exists when the
      tabs hold separate state, and they don't.
+     **CLEAR DRAFT** sits right-aligned on the GENERATION TYPE label row, so
+     all three tabs reach it (COVER/ARRANGE have no commit row to host it).
+     One button for the whole draft rather than a per-field "clear prompt":
+     with the fields shared, clearing one would leave the rest of a
+     half-abandoned draft to hunt down. Quiet outline until armed — a
+     two-step confirm (`CLEAR ALL? CONFIRM` plus a line naming what goes)
+     that turns rust only on the second press, matching the Library's delete
+     confirms; rust marks the moment something is about to be destroyed, not
+     a button that merely could. It clears the shared fields, both tabs'
+     sources, and the reference audio (a voice left selected would keep
+     conditioning an emptied draft), but **not** the destination folder or
+     the sidebar's generation settings — the folder came from where you were
+     in the Library, and those settings are app preferences shared with the
+     Editor's repaint/add-layer flows. Hidden-by-disabled when there's
+     nothing to clear; a folder-name title suggestion doesn't count as
+     something to clear, since it's offered, not typed.
      - *Prompt*: title, description field, lyrics editor (mono) with
        instrumental toggle, one acid GENERATE bar. A lilac helper line under
        the description notes that the LM model derives the generation

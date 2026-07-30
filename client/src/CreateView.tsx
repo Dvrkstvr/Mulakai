@@ -6,6 +6,8 @@ import { useVoiceStore } from './voiceStore';
 import { useHeaderSlot } from './HeaderSlot';
 import { ScrollArea } from './ScrollArea';
 import { useCreateDraftStore } from './createDraftStore';
+import { useGenerationStore } from './generationStore';
+import { ClearDraftButton } from './ClearDraftButton';
 import { CreateAudioTab } from './CreateAudioTab';
 import { CreateArrangeTab } from './CreateArrangeTab';
 import { CreatePromptTab } from './CreatePromptTab';
@@ -27,6 +29,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
   const draft = useCreateDraftStore();
   const { genType, title, folderId, folderName } = draft;
   const patch = draft.patch;
+  const genJob = useGenerationStore((s) => s.job);
 
   const [refining, setRefining] = useState(false);
   const [refinePreview, setRefinePreview] = useState<RefineResult | null>(null);
@@ -35,12 +38,13 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
   // Prefills Title with "<Folder Name>" (or "<Folder Name> <n>" past the highest number
   // already used there) when Create was opened from/for a specific folder — still a plain
   // editable value, not a locked default. Skipped if the field already has content so it never
-  // clobbers something the user already put there.
+  // clobbers something the user already put there. Re-runs on `revision` so a freshly loaded or
+  // cleared draft gets a suggestion again, both of which blank the title without changing folder.
   useEffect(() => {
     if (!folderId || title) return;
-    api.nextFolderTitle(folderId).then((r) => patch({ title: r.title })).catch(() => {});
+    api.nextFolderTitle(folderId).then((r) => patch({ title: r.title, titleSuggested: true })).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [folderId]);
+  }, [folderId, draft.revision]);
 
   // Re-apply a reused song's reference audio (voice + the influences it was rendered at).
   // Keyed on the draft's own values so a fresh draft re-runs it — including the no-reference
@@ -97,7 +101,10 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
         </div>
         <div className="create-panel">
           <ScrollArea className="create-content">
-            <div className="section-label">GENERATION TYPE</div>
+            <div className="field-label-row">
+              <span className="section-label">GENERATION TYPE</span>
+              <ClearDraftButton disabled={!!genJob} />
+            </div>
             <div className="type-tabs">
               <button className={genType === 'prompt' ? 'tab active' : 'tab'} onClick={() => patch({ genType: 'prompt' })}><span>PROMPT</span></button>
               <button className={genType === 'audio' ? 'tab active' : 'tab'} onClick={() => patch({ genType: 'audio' })}><span>COVER</span></button>
@@ -111,7 +118,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
               </div>
             )}
 
-            <AutoTextarea placeholder="Title" value={title} onChange={(v) => patch({ title: v })} />
+            <AutoTextarea placeholder="Title" value={title} onChange={(v) => patch({ title: v, titleSuggested: false })} />
 
             {genType === 'prompt' && <CreatePromptTab refining={refining} onRefine={refine} onBack={onBack} />}
             {genType === 'audio' && <CreateAudioTab songs={songs} onBack={onBack} />}
