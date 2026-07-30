@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
 import { useVoiceStore } from './voiceStore';
@@ -13,8 +13,6 @@ interface Props {
   taskType: 'text2music' | 'cover' | 'complete';
 }
 
-type RefMode = 'none' | 'voice' | 'upload';
-
 const AUDIO_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s actual sound (timbre, vocal tone, mixing) — higher pulls the result closer to the reference audio itself.';
 const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s genre/style character — higher pulls the result toward the reference\'s overall style rather than just your prompt.';
 
@@ -27,41 +25,26 @@ const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference c
  */
 export function ReferenceAudioPicker({ taskType }: Props) {
   const {
-    voices, selectedVoiceId, uploadedRefFile, audioInfluence, styleInfluence, missingReferenceLabel,
-    fetchVoices, selectVoice, setUploadedRefFile, setAudioInfluence, setStyleInfluence,
+    voices, refMode, selectedVoiceId, uploadedRefFile, audioInfluence, styleInfluence, missingReferenceLabel,
+    fetchVoices, setRefMode, selectVoice, setUploadedRefFile, setAudioInfluence, setStyleInfluence,
   } = useVoiceStore();
-  const [mode, setMode] = useState<RefMode>('none');
 
   useEffect(() => {
     fetchVoices();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // The store outlives this control (it's global; the picker remounts with every Create visit,
-  // and REUSE PROMPT restores a voice from CreateView's effect — which runs after this child's).
-  // Follow it, so NONE is never shown over a selection that voiceParams() would still send.
-  useEffect(() => {
-    if (selectedVoiceId) setMode('voice');
-    else if (uploadedRefFile) setMode('upload');
-  }, [selectedVoiceId, uploadedRefFile]);
-
   const selected = voices.find((v) => v.id === selectedVoiceId);
   const options = [{ label: 'NONE', value: '' }, ...voices.map((v) => ({ label: v.name, value: v.id }))];
   const uploadedRefUrl = useObjectUrl(uploadedRefFile);
-
-  const chooseMode = (m: RefMode) => {
-    setMode(m);
-    if (m !== 'voice') selectVoice(null);
-    if (m !== 'upload') setUploadedRefFile(null);
-  };
 
   return (
     <div className="voice-picker">
       <div className="section-label">REFERENCE AUDIO</div>
       <div className="type-tabs">
-        <button className={mode === 'none' ? 'tab active' : 'tab'} onClick={() => chooseMode('none')}><span>NONE</span></button>
-        <button className={mode === 'voice' ? 'tab active' : 'tab'} onClick={() => chooseMode('voice')}><span>VOICE</span></button>
-        <button className={mode === 'upload' ? 'tab active' : 'tab'} onClick={() => chooseMode('upload')}><span>UPLOAD</span></button>
+        <button className={refMode === 'none' ? 'tab active' : 'tab'} onClick={() => setRefMode('none')}><span>NONE</span></button>
+        <button className={refMode === 'voice' ? 'tab active' : 'tab'} onClick={() => setRefMode('voice')}><span>VOICE</span></button>
+        <button className={refMode === 'upload' ? 'tab active' : 'tab'} onClick={() => setRefMode('upload')}><span>UPLOAD</span></button>
       </div>
       {missingReferenceLabel && (
         <div className="warn-note">
@@ -69,7 +52,7 @@ export function ReferenceAudioPicker({ taskType }: Props) {
           (a one-off clip, or removed since). Pick a reference to condition on.
         </div>
       )}
-      {mode === 'voice' && (
+      {refMode === 'voice' && (
         <>
           <div className="voice-picker-head">
             <CustomSelect label="VOICE" value={selectedVoiceId ?? ''} onChange={(v) => selectVoice(v || null)} options={options} />
@@ -84,7 +67,7 @@ export function ReferenceAudioPicker({ taskType }: Props) {
           <div className="hint">manage saved voices in Settings &gt; Voices</div>
         </>
       )}
-      {mode === 'upload' && (
+      {refMode === 'upload' && (
         <>
           <Dropzone accept="audio/*" onFile={setUploadedRefFile}>
             {uploadedRefFile ? uploadedRefFile.name : 'drag a clip here or click to steer timbre/mixing style'}
