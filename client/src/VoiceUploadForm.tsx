@@ -4,20 +4,7 @@ import { useVoiceStore } from './voiceStore';
 import { Dropzone } from './Dropzone';
 import { AudioPreview } from './AudioPreview';
 import { previewPlayback } from './previewPlayback';
-
-/** Reads a browser-side audio duration without a server-side probing dependency. */
-function readDuration(file: File): Promise<number | undefined> {
-  return new Promise((resolve) => {
-    const el = document.createElement('audio');
-    el.preload = 'metadata';
-    el.onloadedmetadata = () => {
-      URL.revokeObjectURL(el.src);
-      resolve(Number.isFinite(el.duration) ? el.duration : undefined);
-    };
-    el.onerror = () => resolve(undefined);
-    el.src = URL.createObjectURL(file);
-  });
-}
+import { readDuration } from './audioDuration';
 
 /** Manage-voices surface: upload a new clip, rename or delete existing ones.
  * `onClose` is only passed when embedded inline (legacy callers); Settings > Voices
