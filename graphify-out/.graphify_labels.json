@@ -166,5 +166,10 @@
   "164": "STEPS AUTO Resolves Per Model (planned 2026-07-31)",
   "165": "songLayers.test.ts",
   "166": "songs.test.ts",
-  "167": "trashSweep.test.ts"
+  "167": "trashSweep.test.ts",
+  "168": "adapterStore.test.ts",
+  "169": "waveformPeaks.ts",
+  "170": "api.multipart.test.ts",
+  "171": "ExportPanel.tsx",
+  "172": "acestepTimeout.test.ts"
 }

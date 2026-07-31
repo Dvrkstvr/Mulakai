@@ -163,5 +163,8 @@
   "161": "SectionStrip.tsx",
   "162": "Style Tag Vocabulary for the Caption Field (planned 2026-07-31)",
   "163": "Output Format: Rate / Depth / Bitrate, Everywhere (planned + implemented 2026-07-31)",
-  "164": "STEPS AUTO Resolves Per Model (planned 2026-07-31)"
+  "164": "STEPS AUTO Resolves Per Model (planned 2026-07-31)",
+  "165": "songLayers.test.ts",
+  "166": "songs.test.ts",
+  "167": "trashSweep.test.ts"
 }
