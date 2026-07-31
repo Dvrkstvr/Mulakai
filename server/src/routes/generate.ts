@@ -33,6 +33,7 @@ const GEN_FIELDS: (keyof ReleaseTaskParams)[] = [
   'guidance_scale', 'use_random_seed', 'seed', 'batch_size', 'audio_format',
   'shift', 'infer_method', 'timesteps', 'use_adg', 'cfg_interval_start', 'cfg_interval_end',
   'lm_temperature', 'lm_cfg_scale', 'lm_negative_prompt', 'lm_top_k', 'lm_top_p', 'lm_repetition_penalty',
+  'output',
 ];
 
 /** Fields that arrive as strings over multipart form-data and need coercing back to their real type. */
@@ -40,6 +41,11 @@ const NUMERIC_FIELDS = new Set([
   'bpm', 'audio_duration', 'inference_steps', 'guidance_scale', 'seed', 'batch_size',
   'shift', 'cfg_interval_start', 'cfg_interval_end',
   'lm_temperature', 'lm_cfg_scale', 'lm_top_k', 'lm_top_p', 'lm_repetition_penalty',
+]);
+
+// Boolean('false') is truthy, so multipart booleans need an explicit string compare.
+const BOOLEAN_FIELDS = new Set([
+  'thinking', 'use_format', 'use_cot_caption', 'use_cot_language', 'use_random_seed', 'use_adg',
 ]);
 
 /** Label-only reference-audio meta for cover/complete (influences don't apply there — see
@@ -59,6 +65,15 @@ function pickMultipartParams(body: Record<string, unknown>): ReleaseTaskParams {
   const picked = pickParams(body);
   const out = picked as Record<string, unknown>;
   for (const key of NUMERIC_FIELDS) if (out[key] !== undefined) out[key] = Number(out[key]);
+  for (const key of BOOLEAN_FIELDS) if (out[key] !== undefined) out[key] = out[key] === 'true' || out[key] === true;
+  // The client sends the `output` settings object JSON-encoded (api.ts appendParams).
+  if (typeof out.output === 'string') {
+    try {
+      out.output = JSON.parse(out.output);
+    } catch {
+      delete out.output; // parseOutputSettings would fall back to defaults anyway
+    }
+  }
   return out as ReleaseTaskParams;
 }
 

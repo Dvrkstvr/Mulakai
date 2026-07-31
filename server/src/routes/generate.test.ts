@@ -106,6 +106,42 @@ describe('POST /', () => {
     expect(params.bpm).toBe(120); // coerced from the multipart string '120'
     expect(voice?.referenceAudioFile?.data.toString()).toBe('ref-bytes');
   });
+
+  it('decodes multipart booleans and the JSON-encoded output block', async () => {
+    vi.mocked(jobs.startGeneration).mockClear();
+    const form = new FormData();
+    form.append('title', 'My Song');
+    form.append('prompt', 'p');
+    form.append('thinking', 'false');
+    form.append('use_format', 'false');
+    form.append('use_random_seed', 'false');
+    form.append('seed', '42');
+    form.append('output', JSON.stringify({ format: 'wav', sampleRate: 44100, bitDepth: 16, mp3Bitrate: 320 }));
+    form.append('reference_audio', new Blob([Buffer.from('ref-bytes')]), 'ref.wav');
+
+    const res = await fetch(`${baseUrl}/`, { method: 'POST', body: form });
+    expect(res.status).toBe(202);
+
+    const [params] = vi.mocked(jobs.startGeneration).mock.calls[0];
+    // Boolean('false') is truthy — these must come through as real false values.
+    expect(params.thinking).toBe(false);
+    expect(params.use_format).toBe(false);
+    expect(params.use_random_seed).toBe(false);
+    expect(params.seed).toBe(42);
+    expect(params.output).toEqual({ format: 'wav', sampleRate: 44100, bitDepth: 16, mp3Bitrate: 320 });
+  });
+
+  it('passes the output block through on the plain-JSON path', async () => {
+    vi.mocked(jobs.startGeneration).mockClear();
+    const res = await fetch(`${baseUrl}/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 't', prompt: 'p', output: { format: 'mp3', sampleRate: 48000, bitDepth: 24, mp3Bitrate: 192 } }),
+    });
+    expect(res.status).toBe(202);
+    const [params] = vi.mocked(jobs.startGeneration).mock.calls[0];
+    expect(params.output).toEqual({ format: 'mp3', sampleRate: 48000, bitDepth: 24, mp3Bitrate: 192 });
+  });
 });
 
 describe('POST /random-sample', () => {

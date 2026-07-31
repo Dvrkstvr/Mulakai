@@ -5,7 +5,11 @@ const jobStatus = vi.fn();
 vi.mock('./api', () => ({
   api: { repaint: (...args: unknown[]) => repaint(...args), jobStatus: (id: string) => jobStatus(id) },
   ApiError: class ApiError extends Error {
-    constructor(public status: number, message: string) { super(message); }
+    status: number;
+    constructor(status: number, message: string) {
+      super(message);
+      this.status = status;
+    }
   },
 }));
 
