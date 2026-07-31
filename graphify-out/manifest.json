@@ -299,11 +299,6 @@
     "ast_hash": "01945d6ee02d528834e60098269e813f",
     "semantic_hash": ""
   },
-  "client/src/api.ts": {
-    "mtime": 1785455554.3096976,
-    "ast_hash": "bf804427ae4cc96f766e67b1de197ba4",
-    "semantic_hash": ""
-  },
   "client/src/apiStatusStore.ts": {
     "mtime": 1783477407.126436,
     "ast_hash": "bf76a33478721cbf0461270a9eb27fb2",
@@ -480,8 +475,8 @@
     "semantic_hash": ""
   },
   "server/src/config.ts": {
-    "mtime": 1785456969.1958084,
-    "ast_hash": "7834c3e82ea7ac44ef0b57427bf8420a",
+    "mtime": 1785459504.4320636,
+    "ast_hash": "6adbae6ec9feb5346453670fac778d53",
     "semantic_hash": ""
   },
   "server/src/db/index.ts": {
@@ -500,13 +495,13 @@
     "semantic_hash": ""
   },
   "server/src/routes/generate.test.ts": {
-    "mtime": 1783717454.8808,
-    "ast_hash": "8c1fbf21dab2ca1417e3b3d98b967520",
+    "mtime": 1785459504.4376476,
+    "ast_hash": "c55dd3b214e2d74c1c48288eb006fc47",
     "semantic_hash": ""
   },
   "server/src/routes/generate.ts": {
-    "mtime": 1785369779.8982105,
-    "ast_hash": "348b2ebf6ccaaf0c3ff034191ceaf3cc",
+    "mtime": 1785459504.443768,
+    "ast_hash": "a4c3b12103bb5cbd1220a437077d34f2",
     "semantic_hash": ""
   },
   "server/src/routes/layers.ts": {
@@ -570,8 +565,8 @@
     "semantic_hash": ""
   },
   "server/src/services/acestep.ts": {
-    "mtime": 1785455554.3346615,
-    "ast_hash": "011d345ba339dcb93871fa8a5fc0aaf3",
+    "mtime": 1785459504.4507585,
+    "ast_hash": "74859a55cea63a068e283876e687fc7e",
     "semantic_hash": ""
   },
   "server/src/services/acestepReleaseTask.test.ts": {
@@ -625,13 +620,13 @@
     "semantic_hash": ""
   },
   "server/src/services/jobs.test.ts": {
-    "mtime": 1785455554.3385077,
-    "ast_hash": "4888fc0b4dd510efdcf45049cb1fd1f9",
+    "mtime": 1785459504.4628692,
+    "ast_hash": "714b7410fcdcf9d0618e575e62e442d9",
     "semantic_hash": ""
   },
   "server/src/services/jobs.ts": {
-    "mtime": 1785455554.3385077,
-    "ast_hash": "854b6a3880da1e740fc453e1d2f55e34",
+    "mtime": 1785459504.4693136,
+    "ast_hash": "b02f11919acbb429852a24f65d0e9e04",
     "semantic_hash": ""
   },
   "server/src/services/lyricTimestamps.test.ts": {
@@ -720,8 +715,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1783486866.6043403,
-    "ast_hash": "12e06d08afacb5fe6e964b6f9a49f265",
+    "mtime": 1785459504.4010491,
+    "ast_hash": "47e791f4ed751e01cfcc4464366f9fe0",
     "semantic_hash": ""
   },
   "FORGE_PLAN.md": {
@@ -855,8 +850,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1783495157.21433,
-    "ast_hash": "249409c1afae231464d5e20ed1fd2c8d",
+    "mtime": 1785459504.42566,
+    "ast_hash": "d173bb3141684b50f3e92bf8d36fe737",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1125,8 +1120,8 @@
     "semantic_hash": ""
   },
   "client/src/editorJobStore.test.ts": {
-    "mtime": 1785456969.1953106,
-    "ast_hash": "b1b2db8f5f947ea1ce6666671551df5b",
+    "mtime": 1785459504.4196603,
+    "ast_hash": "72e82e8262203f2c98bcdb528b7f68f8",
     "semantic_hash": ""
   },
   "server/src/routes/songLayers.test.ts": {
@@ -1142,6 +1137,51 @@
   "server/src/services/trashSweep.test.ts": {
     "mtime": 1785456969.1992083,
     "ast_hash": "b556d2d76b67a99f21a4bea86e29c404",
+    "semantic_hash": ""
+  },
+  "client/src/api.multipart.test.ts": {
+    "mtime": 1785459504.4083095,
+    "ast_hash": "c62e81d947bad9386093ba3e4196069a",
+    "semantic_hash": ""
+  },
+  "client/src/api/editor.ts": {
+    "mtime": 1785459512.2222953,
+    "ast_hash": "830ebccd4d597f23c6d97d365bf3033f",
+    "semantic_hash": ""
+  },
+  "client/src/api/generation.ts": {
+    "mtime": 1785459512.2231264,
+    "ast_hash": "1a7b7cc7fb326e49e9145aba22b5c21e",
+    "semantic_hash": ""
+  },
+  "client/src/api/http.ts": {
+    "mtime": 1785459512.2231264,
+    "ast_hash": "6419c4042adf867f9ff993b4f7709681",
+    "semantic_hash": ""
+  },
+  "client/src/api/index.ts": {
+    "mtime": 1785459512.2237668,
+    "ast_hash": "29a7617ecea4c94a16fecf45aa15fc46",
+    "semantic_hash": ""
+  },
+  "client/src/api/library.ts": {
+    "mtime": 1785459512.2237668,
+    "ast_hash": "5502d5ecfd98b61a43501653e67df18c",
+    "semantic_hash": ""
+  },
+  "client/src/api/management.ts": {
+    "mtime": 1785459512.2242703,
+    "ast_hash": "89827f5d39685d954a63aa85b301c87b",
+    "semantic_hash": ""
+  },
+  "client/src/api/types.ts": {
+    "mtime": 1785459512.2247758,
+    "ast_hash": "ed73213b7c2ca63bd40e6aaa2f632f2d",
+    "semantic_hash": ""
+  },
+  "server/src/services/acestepTimeout.test.ts": {
+    "mtime": 1785459504.4565656,
+    "ast_hash": "ab66552c2db32834182f79e26c7c409e",
     "semantic_hash": ""
   }
 }
