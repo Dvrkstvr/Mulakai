@@ -19,25 +19,32 @@ Rules:
 ## Tech Stack
 
 React + TypeScript + Vite (client) · Express + SQLite (server) · Zustand ·
-minimal Tone.js/Web Audio playback (layer versions summed to master — no
-synthesis/plugin layers) · ACE-Step 1.5 (external process, Gradio API) for
-generation, repaint, and layer conditioning.
+minimal Web Audio playback (layer versions summed to master — no
+synthesis/plugin layers, no Tone.js) · ACE-Step 1.5 (external process,
+Gradio API) for generation, repaint, and layer conditioning · optional
+Demucs microservice (`demucs-server/`, FastAPI) for stem splits.
 
 ## Commands
 
+There is no root package.json — run these inside `client/` or `server/`.
+
 ```bash
-# Frontend
+# Frontend (client/)
 npm run dev          # Vite dev server
 npm run build         # TypeScript check + Vite build
 npm test              # Vitest unit tests
-npm run test:e2e       # Playwright e2e
+npm run lint           # oxlint
 
 # Backend (server/)
-npm run dev            # Express dev server
+npm run dev            # Express dev server (tsx watch)
+npm test               # Vitest unit tests
 
 # ACE-Step 1.5 (separate process, see its own AGENTS.md)
 uv run acestep --port 8001 --enable-api --backend pt --server-name 127.0.0.1
 ```
+
+Playwright e2e is required by AGENTS.md but not yet set up — see
+docs/AUDIT.md's open items.
 
 ## Design System
 
@@ -47,15 +54,20 @@ zero radius), typography, and the three-screen app model live there.
 
 ## Project Structure
 
-- `client/components/` — React UI: Library (flat list, favorites, trash),
-  Player, Create panel, SongEditor (waveform, region select, layer stack,
-  version list)
-- `client/store/` — Zustand: `libraryStore`, `songEditorStore` (layers,
-  versions, region selection), `transportStore`
-- `client/services/` — ACE-Step API client (generate, repaint, layer/
-  audio2audio conditioning)
-- `server/routes/`, `server/db/` — Express API + SQLite schema (songs,
-  layers, versions — no users/profiles/playlists tables)
+- `client/src/` — flat, no subfolder layering: React components (Library,
+  Player, Create tabs, Editor with waveform/layer stack/version history),
+  Zustand stores (`generationStore`, `editorJobStore`, `createDraftStore`,
+  `addLayerStore`, `voiceStore`, `adapterStore`, `apiStatusStore`,
+  `settings`), and `api.ts` (the server API client). Audio playback lives
+  in `client/src/mix/` (`playbackEngine`, `bounceMix`, `decodeLayers`).
+- `server/src/routes/` — Express routers (songs, folders, layers, versions,
+  generate, split, voices, adapters, …)
+- `server/src/services/` — job orchestration (`jobs`, `repaintJobs`,
+  `addLayerJobs`, `stemSplit`), the ACE-Step HTTP client (`acestep`),
+  transcode/tagging, trash sweep
+- `server/src/db/` — SQLite schema + migrations (songs → layers → versions;
+  no users/profiles/playlists tables)
+- `demucs-server/` — optional FastAPI stem-split microservice (Python)
 
 ## Spec-Driven Development
 
