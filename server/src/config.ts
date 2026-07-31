@@ -21,4 +21,8 @@ export const config = {
   },
   /** How often the job orchestrator polls query_result (ms). */
   pollIntervalMs: Number(process.env.POLL_INTERVAL_MS ?? 2000),
+  /** Per-request ceiling on ACE-Step HTTP calls (ms). Without one, a hung socket
+   * (GPU wedge, dropped connection) stalls the poll loop forever and the global
+   * generation lock is never released. Audio downloads get 5x this. */
+  acestepTimeoutMs: Number(process.env.ACESTEP_TIMEOUT_MS ?? 60_000),
 };

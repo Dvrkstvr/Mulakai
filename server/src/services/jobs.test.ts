@@ -175,6 +175,43 @@ describe('poll() progress passthrough', () => {
   });
 });
 
+describe('poll() failure tolerance', () => {
+  it('survives two consecutive failed status polls and still completes', async () => {
+    queryResult
+      .mockRejectedValueOnce(new Error('ACE-Step query_result -> no response within 60s'))
+      .mockRejectedValueOnce(new Error('socket hang up'));
+
+    const job = startGeneration({ prompt: 'a driving synthwave track' }, 'Flaky Poll Song');
+    await waitForDone(job.id);
+  });
+
+  it('fails the job after three consecutive poll failures, releasing the gen lock', async () => {
+    queryResult
+      .mockRejectedValueOnce(new Error('ACE-Step query_result -> no response within 60s'))
+      .mockRejectedValueOnce(new Error('ACE-Step query_result -> no response within 60s'))
+      .mockRejectedValueOnce(new Error('ACE-Step query_result -> no response within 60s'));
+
+    const job = startGeneration({ prompt: 'a driving synthwave track' }, 'Wedged Poll Song');
+    await vi.waitFor(() => {
+      expect(getJob(job.id)?.status).toBe('failed');
+    });
+    expect(getJob(job.id)?.error).toMatch(/no response within/);
+    const { getGenLock } = await import('./genLock.js');
+    expect(getGenLock()).toBeNull(); // the whole point: a wedged backend must not hold the lock forever
+  });
+
+  it('does not retry a failed persist — onSuccess errors are final', async () => {
+    const downloadAudio = vi.mocked((await import('./acestep.js')).downloadAudio);
+    downloadAudio.mockRejectedValueOnce(new Error('disk full'));
+
+    const job = startGeneration({ prompt: 'a driving synthwave track' }, 'Persist Fail Song');
+    await vi.waitFor(() => {
+      expect(getJob(job.id)?.status).toBe('failed');
+    });
+    expect(getJob(job.id)?.error).toBe('disk full');
+  });
+});
+
 describe('abortJob', () => {
   it('marks a running job failed and releases the gen lock so the header can force-unblock it', async () => {
     const { registerJob, abortJob, getJob } = jobsModule;
