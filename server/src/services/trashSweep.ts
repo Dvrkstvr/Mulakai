@@ -12,10 +12,17 @@ function deleteSongsPermanently(ids: string[]): void {
       .prepare(
         `SELECT v.audio_file FROM versions v JOIN layers l ON v.layer_id = l.id WHERE l.song_id = ?`,
       )
-      .all(id) as Array<{ audio_file: string }>;
+      .all(id)
+      .map((r) => (r as { audio_file: string }).audio_file);
+    const song = db.prepare(`SELECT cover_art_file FROM songs WHERE id = ?`).get(id) as
+      | { cover_art_file: string | null }
+      | undefined;
+    if (song?.cover_art_file) files.push(song.cover_art_file);
     db.prepare(`DELETE FROM songs WHERE id = ?`).run(id); // cascades to layers/versions
-    for (const { audio_file } of files) {
-      void fs.rm(path.join(config.audioDir, audio_file), { force: true });
+    for (const file of files) {
+      // catch: `force` only swallows ENOENT — an in-use file (Windows EBUSY, e.g. still
+      // streaming to the player) would otherwise be an unhandled rejection.
+      void fs.rm(path.join(config.audioDir, file), { force: true }).catch(() => {});
     }
   }
 }

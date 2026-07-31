@@ -11,6 +11,11 @@ export const songLayersRouter = Router();
 // which multer bypasses anyway since it handles multipart bodies itself.
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
 
+// This route is multipart, so every body value arrives as a string: Boolean('false')
+// is truthy and `=== false` never matches. Compare the string forms explicitly.
+const bool = (v: unknown): boolean => v === true || v === 'true';
+const isFalse = (v: unknown): boolean => v === false || v === 'false';
+
 /** Add a new layer to a song via the `lego` task, conditioned on the client-bounced mix of currently audible layers. */
 songLayersRouter.post('/:id/layers', upload.single('mix_audio'), async (req, res) => {
   const { prompt = '', layerName = '', lyrics, track_name, inference_steps, guidance_scale,
@@ -28,19 +33,18 @@ songLayersRouter.post('/:id/layers', upload.single('mix_audio'), async (req, res
       ...(track_name ? { track_name: String(track_name) } : {}),
       ...(model ? { model: String(model) } : {}),
       ...(lm_model_path ? { lm_model_path: String(lm_model_path) } : {}),
-      ...(thinking !== undefined ? { thinking: Boolean(thinking) } : {}),
-      ...(use_format !== undefined ? { use_format: Boolean(use_format) } : {}),
+      ...(thinking !== undefined ? { thinking: bool(thinking) } : {}),
+      ...(use_format !== undefined ? { use_format: bool(use_format) } : {}),
       ...(audio_format ? { audio_format: String(audio_format) } : {}),
       ...(inference_steps !== undefined ? { inference_steps: Number(inference_steps) } : {}),
       ...(guidance_scale !== undefined ? { guidance_scale: Number(guidance_scale) } : {}),
-      ...(use_random_seed === false ? { use_random_seed: false } : {}),
-      ...(seed !== undefined && use_random_seed === false ? { seed: Number(seed) } : {}),
-      // Advanced DiT knobs (multipart → strings; use_adg needs an explicit 'true' compare,
-      // since Boolean('false') is truthy).
+      ...(isFalse(use_random_seed) ? { use_random_seed: false } : {}),
+      ...(seed !== undefined && isFalse(use_random_seed) ? { seed: Number(seed) } : {}),
+      // Advanced DiT knobs.
       ...(shift !== undefined ? { shift: Number(shift) } : {}),
       ...(infer_method ? { infer_method: String(infer_method) as 'ode' | 'sde' } : {}),
       ...(typeof timesteps === 'string' && timesteps.trim() ? { timesteps } : {}),
-      ...(use_adg !== undefined ? { use_adg: use_adg === 'true' || use_adg === true } : {}),
+      ...(use_adg !== undefined ? { use_adg: bool(use_adg) } : {}),
       ...(cfg_interval_start !== undefined ? { cfg_interval_start: Number(cfg_interval_start) } : {}),
       ...(cfg_interval_end !== undefined ? { cfg_interval_end: Number(cfg_interval_end) } : {}),
       // LM knobs (lego runs the 5Hz LM, unlike repaint).
