@@ -37,8 +37,8 @@ app.use('/audio', express.static(config.audioDir));
 sweepTrash();
 setInterval(sweepTrash, 60 * 60 * 1000);
 
-app.listen(config.port, async () => {
-  console.log(`Mulakai server on http://127.0.0.1:${config.port} (ACE-Step: ${config.acestepUrl})`);
+app.listen(config.port, config.host, async () => {
+  console.log(`Mulakai server on http://${config.host}:${config.port} (ACE-Step: ${config.acestepUrl})`);
   // Every produced file goes through ffmpeg (services/transcode.ts). Say so at
   // boot rather than failing mid-generation — it is already a prerequisite of
   // demucs-server and ACE-Step's own setup.

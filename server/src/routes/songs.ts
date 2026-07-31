@@ -11,6 +11,10 @@ export const songsRouter = Router();
 
 const coverArtUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
+// Cover art lands in the same express.static-served audioDir, so allowlist like the
+// audio uploads do (songImport.ts). No `.svg` — SVG can carry scripts.
+const IMAGE_EXTS = ['.png', '.jpg', '.jpeg', '.webp', '.gif'];
+
 /** List songs: favorites first, trashed excluded. ?q= searches title/caption/lyrics.
  * ?folder= scopes to one folder id, or the literal `unfiled` for songs with no folder;
  * omitted entirely shows all songs regardless of folder. */
@@ -120,11 +124,14 @@ songsRouter.patch('/:id/metadata', async (req, res) => {
 /** Per-song cover art (APIC frame) — replaces any existing one for this song. */
 songsRouter.post('/:id/cover-art', coverArtUpload.single('image'), async (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'image is required' });
+  const ext = path.extname(req.file.originalname).toLowerCase() || '.png';
+  if (!IMAGE_EXTS.includes(ext)) {
+    return res.status(400).json({ error: `unsupported image format "${ext}"` });
+  }
   const song = db.prepare(`SELECT cover_art_file FROM songs WHERE id = ?`).get(req.params.id) as { cover_art_file: string | null } | undefined;
   if (!song) return res.status(404).json({ error: 'unknown song' });
   if (song.cover_art_file) await fs.unlink(path.join(config.audioDir, song.cover_art_file)).catch(() => {});
 
-  const ext = path.extname(req.file.originalname) || '.png';
   const filename = `${req.params.id}-cover${ext}`;
   await fs.writeFile(path.join(config.audioDir, filename), req.file.buffer);
   db.prepare(`UPDATE songs SET cover_art_file = ? WHERE id = ?`).run(filename, req.params.id);

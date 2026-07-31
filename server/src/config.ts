@@ -5,6 +5,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export const config = {
   port: Number(process.env.PORT ?? 3001),
+  /** Bind address. Localhost-only by default — the API has no auth, so exposing it
+   * (HOST=0.0.0.0) hands the whole library and the GPU to anyone on the LAN. */
+  host: process.env.HOST ?? '127.0.0.1',
   acestepUrl: process.env.ACESTEP_API_URL ?? 'http://127.0.0.1:8001',
   acestepApiKey: process.env.ACESTEP_API_KEY ?? '',
   /** Empty = Demucs backend disabled (no separate stem-split microservice configured). */

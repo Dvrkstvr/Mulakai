@@ -75,6 +75,16 @@ describe('voices routes', () => {
     expect(updated.default_style_influence).toBe(0.5); // unchanged
   });
 
+  it('rejects an upload whose extension is not an allowlisted audio format', async () => {
+    const form = new FormData();
+    form.append('name', 'sneaky');
+    form.append('audio', new Blob(['<script>alert(1)</script>']), 'evil.html');
+    const res = await fetch(baseUrl, { method: 'POST', body: form });
+    expect(res.status).toBe(400);
+    const { error } = await res.json();
+    expect(error).toMatch(/unsupported audio format/);
+  });
+
   it('404s patching an unknown voice', async () => {
     const res = await fetch(`${baseUrl}/nope`, {
       method: 'PATCH',

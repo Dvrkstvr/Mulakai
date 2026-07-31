@@ -10,6 +10,11 @@ export const voicesRouter = Router();
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 30 * 1024 * 1024 } });
 
+// Stored files are served same-origin by express.static('/audio'), so the upload's
+// extension must be allowlisted — an `.html`/`.svg` name would become an executable
+// page on our origin. Same list and reasoning as songImport.ts.
+const ALLOWED_EXTS = ['.wav', '.mp3', '.flac', '.ogg', '.m4a', '.aac', '.opus'];
+
 voicesRouter.get('/', (_req, res) => {
   res.json(db.prepare(`SELECT * FROM voices ORDER BY created_at DESC`).all());
 });
@@ -21,8 +26,11 @@ voicesRouter.post('/', upload.single('audio'), async (req, res) => {
   if (!nameStr) return res.status(400).json({ error: 'name is required' });
   if (!req.file) return res.status(400).json({ error: 'audio is required' });
 
+  const ext = path.extname(req.file.originalname).toLowerCase() || '.mp3';
+  if (!ALLOWED_EXTS.includes(ext)) {
+    return res.status(400).json({ error: `unsupported audio format "${ext}"` });
+  }
   const id = crypto.randomUUID();
-  const ext = path.extname(req.file.originalname) || '.mp3';
   const filename = `${id}${ext}`;
   await fs.writeFile(path.join(config.audioDir, filename), req.file.buffer);
 
