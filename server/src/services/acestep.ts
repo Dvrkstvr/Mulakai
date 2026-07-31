@@ -280,6 +280,19 @@ interface Envelope<T> {
   error: string | null;
 }
 
+/** fetch with a hard deadline, converting the DOMException-flavored abort into a
+ * plain Error that names the endpoint — poll()/callers surface `error` as-is. */
+async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs: number, label: string): Promise<Response> {
+  try {
+    return await fetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
+  } catch (err) {
+    if (err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError')) {
+      throw new Error(`ACE-Step ${label} -> no response within ${Math.round(timeoutMs / 1000)}s`);
+    }
+    throw err;
+  }
+}
+
 async function call<T>(endpoint: string, body?: unknown, init?: RequestInit): Promise<T> {
   const headers: Record<string, string> = {};
   if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
@@ -291,7 +304,7 @@ async function call<T>(endpoint: string, body?: unknown, init?: RequestInit): Pr
       ? { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
       : { headers };
   }
-  const res = await fetch(`${config.acestepUrl}${endpoint}`, opts);
+  const res = await fetchWithTimeout(`${config.acestepUrl}${endpoint}`, opts, config.acestepTimeoutMs, endpoint);
   if (!res.ok) {
     // Most ACE-Step failures come back as HTTP 200 with a {data,code,error} envelope (handled
     // below), but some routes (e.g. analyze_audio's "DiT/LLM not initialized") raise a real
@@ -460,7 +473,8 @@ export async function lyricTimestamp(params: {
 export async function downloadAudio(fileUrl: string): Promise<Buffer> {
   const headers: Record<string, string> = {};
   if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
-  const res = await fetch(`${config.acestepUrl}${fileUrl}`, { headers });
+  // 5x the control-call budget: masters are large and may cross a network to a remote host.
+  const res = await fetchWithTimeout(`${config.acestepUrl}${fileUrl}`, { headers }, config.acestepTimeoutMs * 5, 'audio download');
   if (!res.ok) throw new Error(`ACE-Step audio download -> HTTP ${res.status}`);
   return Buffer.from(await res.arrayBuffer());
 }
@@ -489,7 +503,7 @@ export async function listModels(): Promise<ModelInventory> {
   try {
     const headers: Record<string, string> = {};
     if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
-    const res = await fetch(`${config.acestepUrl}/v1/model_inventory`, { headers });
+    const res = await fetch(`${config.acestepUrl}/v1/model_inventory`, { headers, signal: AbortSignal.timeout(config.acestepTimeoutMs) });
     if (!res.ok) return empty;
     const json = (await res.json()) as {
       data?: {
@@ -514,7 +528,8 @@ export async function listModels(): Promise<ModelInventory> {
 
 export async function health(): Promise<boolean> {
   try {
-    const res = await fetch(`${config.acestepUrl}/health`);
+    // Short leash: this backs the UI status pill, where a hung probe is as bad as a down one.
+    const res = await fetch(`${config.acestepUrl}/health`, { signal: AbortSignal.timeout(10_000) });
     return res.ok;
   } catch {
     return false;
