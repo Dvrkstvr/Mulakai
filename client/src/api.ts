@@ -193,6 +193,17 @@ async function json<T>(res: Response): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+/** Append params to a multipart form: objects (e.g. the `output` settings block) are
+ * JSON-encoded, scalars become strings. Mirrors what the JSON-body paths send and what
+ * the server's multipart routes decode (generate.ts pickMultipartParams, songLayers.ts) —
+ * a raw String(v) on an object would silently send "[object Object]". */
+function appendParams(form: FormData, params: Record<string, unknown>): void {
+  for (const [k, v] of Object.entries(params)) {
+    if (v === undefined || v === null) continue;
+    form.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v));
+  }
+}
+
 export const api = {
   listSongs: (q = '', folder?: FolderScope): Promise<Song[]> =>
     fetch(`/api/songs?q=${encodeURIComponent(q)}${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`)
@@ -254,9 +265,7 @@ export const api = {
     }
     const form = new FormData();
     form.append('reference_audio', referenceAudio, 'reference.wav');
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== undefined && v !== null) form.append(k, String(v));
-    }
+    appendParams(form, params);
     return fetch('/api/generate', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
   },
 
@@ -301,9 +310,7 @@ export const api = {
     const form = new FormData();
     form.append('src_audio', srcAudio, 'source.wav');
     if (referenceAudio) form.append('reference_audio', referenceAudio, 'reference.wav');
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== undefined && v !== null) form.append(k, String(v));
-    }
+    appendParams(form, params);
     return fetch('/api/generate/from-audio', { method: 'POST', body: form })
       .then((r) => json<{ jobId: string }>(r));
   },
@@ -394,9 +401,7 @@ export const api = {
   ): Promise<{ jobId: string }> => {
     const form = new FormData();
     form.append('mix_audio', mixAudio, 'mix.wav');
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== undefined && v !== null) form.append(k, String(v));
-    }
+    appendParams(form, params);
     // No explicit Content-Type: the browser sets the multipart boundary itself.
     return fetch(`/api/songs/${songId}/layers`, { method: 'POST', body: form })
       .then((r) => json<{ jobId: string }>(r));
@@ -506,9 +511,7 @@ export const api = {
       form.append('scratch_stem_kind', source.scratchStemKind);
     }
     if (referenceAudio) form.append('reference_audio', referenceAudio, 'reference.wav');
-    for (const [k, v] of Object.entries(params)) {
-      if (v !== undefined && v !== null) form.append(k, String(v));
-    }
+    appendParams(form, params);
     return fetch('/api/generate/complete', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
   },
 
@@ -540,9 +543,7 @@ export const api = {
     const form = new FormData();
     form.append('name', name);
     form.append('audio', audio, 'voice.mp3');
-    for (const [k, v] of Object.entries(meta)) {
-      if (v !== undefined && v !== null) form.append(k, String(v));
-    }
+    appendParams(form, meta);
     return fetch('/api/voices', { method: 'POST', body: form }).then((r) => json<Voice>(r));
   },
 
