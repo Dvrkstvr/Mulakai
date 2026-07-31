@@ -86,7 +86,7 @@ async function runSingleJob(
 
   for (;;) {
     await new Promise((r) => setTimeout(r, POLL_MS));
-    if (get().editorJob !== job) return; // superseded/cleared/cancelled between polls
+    if (get().editorJob?.jobId !== jobId) return; // superseded/cleared/cancelled between polls
     let status: Awaited<ReturnType<typeof api.jobStatus>>;
     try {
       status = await api.jobStatus(jobId);
