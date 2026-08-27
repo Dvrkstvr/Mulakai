@@ -9,8 +9,12 @@ Not a DAW and not a social music platform — one song open at a time, no
 accounts, no sharing, no timeline full of clips. The whole app is built around
 one loop: **generate → repaint → layer → version → export.**
 
-<!-- TODO: add a screenshot of the Editor here — the single most useful thing
-     this README could gain:  ![The layer editor](docs/images/editor.png) -->
+![The Mulakai editor: a region selected on the base layer's waveform, a repaint
+prompt typed against it, and the layer stack below](docs/images/editor.png)
+
+*The Editor: a 1:08–2:10 region selected on the base layer (sky), a repaint
+prompt describing the change, and the consequence stated before commit — "will
+save as BASE v2".*
 
 ## The editing model
 
