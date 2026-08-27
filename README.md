@@ -220,7 +220,15 @@ Don't expose it.
 
 [MIT](LICENSE).
 
-Mulakai reaches ACE-Step 1.5 and Demucs over HTTP as separate processes, so
-neither is redistributed here and their own licences apply to them. One
-dependency, `node-taglib-sharp` (audio file tagging), is LGPL-2.1-or-later and
-is pulled unmodified from npm rather than vendored.
+That covers Mulakai's own code, and it has one carve-out. `docs/ace-step-1.5/`
+holds three files of ACE-Step's own documentation, copied verbatim so the
+source can cite them by section. They belong to their authors — MIT,
+Copyright (c) 2026 ACEStep — and that licence, reproduced in
+`docs/ace-step-1.5/LICENSE`, governs them instead of this one. See
+[the folder's README](docs/ace-step-1.5/README.md) for where each came from.
+
+Neither ACE-Step 1.5 nor Demucs is redistributed here as *software*: Mulakai
+reaches both over HTTP as separate processes, so their own licences apply to
+them where they are installed. One dependency, `node-taglib-sharp` (audio file
+tagging), is LGPL-2.1-or-later and is pulled unmodified from npm rather than
+vendored.

@@ -17,3 +17,6 @@ demucs-server/venv/
 
 # editor/vault configs
 .obsidian/
+
+# machine-specific: absolute path to the local interpreter
+graphify-out/.graphify_python

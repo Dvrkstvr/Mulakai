@@ -1,6 +1,12 @@
 # ACE-Step API Client Documentation
 
-**Language / 语言 / 言語:** [English](API.md) | [中文](../zh/API.md) | [日本語](../ja/API.md)
+> **Upstream documentation, reproduced here verbatim — not part of Mulakai.**
+> Source: [`ace-step/ACE-Step-1.5`](https://github.com/ace-step/ACE-Step-1.5),
+> `.claude/skills/acestep-docs/api/API.md`.
+> Copyright (c) 2026 ACEStep, MIT licensed — the full licence
+> sits in [`LICENSE`](LICENSE) beside this file, and it governs this document
+> instead of Mulakai’s own. Vendored because the source cites specific
+> sections of it. It may lag upstream; do not edit it, re-copy it.
 
 ---
 

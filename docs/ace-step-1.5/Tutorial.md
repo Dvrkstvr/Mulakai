@@ -1,6 +1,12 @@
 # ACE-Step 1.5 Ultimate Guide (Must Read)
 
-**Language / 语言 / 言語:** [English](Tutorial.md) | [中文](../zh/Tutorial.md) | [日本語](../ja/Tutorial.md)
+> **Upstream documentation, reproduced here verbatim — not part of Mulakai.**
+> Source: [`ace-step/ACE-Step-1.5`](https://github.com/ace-step/ACE-Step-1.5),
+> `.claude/skills/acestep-docs/getting-started/Tutorial.md`.
+> Copyright (c) 2026 ACEStep, MIT licensed — the full licence
+> sits in [`LICENSE`](LICENSE) beside this file, and it governs this document
+> instead of Mulakai’s own. Vendored because the source cites specific
+> sections of it. It may lag upstream; do not edit it, re-copy it.
 
 ---
 
