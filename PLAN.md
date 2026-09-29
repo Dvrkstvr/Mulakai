@@ -2908,3 +2908,41 @@ diffusion (`conditioning_text.py`), never touching the reference timbre.
 - `server/src/services/{jobs,voiceConditioning}.test.ts` — updated/new cases.
 - `client/src/ReferenceAudioPicker.tsx` — hide AUDIO slider for text2music.
 - `client/src/SongDetailRail.tsx` — render recorded influences independently.
+
+## COVER and ARRANGE Reference Audio: No Influence Sliders (planned + implemented 2026-09-30)
+
+Follow-up to the text2music section above, which left ARRANGE (`complete`)
+out of scope. The Create view's REFERENCE AUDIO picker still showed AUDIO and
+STYLE INFLUENCE on ARRANGE, with a hint promising "audio X% / style Y%", but
+neither value is ever applied there: `CreateArrangeTab.tsx` doesn't send them,
+`generate.ts` records label-only reference meta (`labelOnlyReferenceMeta`),
+and `referenceAudioResolve.ts` treats a saved voice as raw bytes for
+cover/complete. Two dead controls. COVER had the same pair, shown with a
+"the sliders above don't apply here" disclaimer — dead controls with an
+apology attached.
+
+### Decisions
+
+- **Hide both sliders on ARRANGE.** Complete has no established mapping from
+  either influence to an ACE-Step param, so there's nothing to show; the hint
+  reads "— used as-is; ARRANGE has no influence controls" instead of
+  percentages.
+- **Hide both sliders on COVER too.** Cover's closeness to the source is
+  VARIANCE's job (its own `audio_cover_strength`); the hint now reads
+  "— used as-is; VARIANCE controls closeness to the source track".
+- **AUDIO INFLUENCE leaves the Create picker entirely.** With text2music
+  already style-only, no Create task shows it; the slider stays in Add
+  Layer's `VoicePicker`, where `lego` still applies it.
+- **No server change.** The server already ignores and nulls both influences
+  for cover/complete — the bug was the UI promising otherwise.
+- **Per-task rules move to a pure module** (`referenceInfluence.ts`) so
+  they're unit-testable without a DOM test harness, which the client
+  doesn't have.
+
+### File-level plan
+
+- `client/src/referenceInfluence.ts` — new: `showsStyleInfluence(taskType)`,
+  `influenceHint(taskType, style)`.
+- `client/src/referenceInfluence.test.ts` — new: per-task cases.
+- `client/src/ReferenceAudioPicker.tsx` — renders from the helpers; the
+  AUDIO INFLUENCE slider is removed.

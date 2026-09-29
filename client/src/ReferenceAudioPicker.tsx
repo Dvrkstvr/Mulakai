@@ -5,16 +5,13 @@ import { useVoiceStore } from './voiceStore';
 import { Dropzone } from './Dropzone';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { useObjectUrl } from './useObjectUrl';
+import { type ReferenceTaskType, influenceHint, showsStyleInfluence } from './referenceInfluence';
 
 interface Props {
-  /** Cover generation has its own VARIANCE-driven audio_cover_strength (see CreateAudioTab.tsx) —
-   * the influence sliders here don't apply there, so the hint text is adjusted rather than
-   * implying a control that has no effect. text2music gets STYLE only: ACE-Step resets
-   * audio_cover_strength to neutral for it (upstream #1305), so AUDIO would be a dead control. */
-  taskType: 'text2music' | 'cover' | 'complete';
+  /** Decides whether STYLE INFLUENCE is live and what the hint promises — see referenceInfluence.ts. */
+  taskType: ReferenceTaskType;
 }
 
-const AUDIO_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s actual sound (timbre, vocal tone, mixing) — higher pulls the result closer to the reference audio itself.';
 const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s genre/style character — higher pulls the result toward the reference\'s overall style rather than just your prompt.';
 
 /**
@@ -26,8 +23,8 @@ const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference c
  */
 export function ReferenceAudioPicker({ taskType }: Props) {
   const {
-    voices, refMode, selectedVoiceId, uploadedRefFile, audioInfluence, styleInfluence, missingReferenceLabel,
-    fetchVoices, setRefMode, selectVoice, setUploadedRefFile, setAudioInfluence, setStyleInfluence,
+    voices, refMode, selectedVoiceId, uploadedRefFile, styleInfluence, missingReferenceLabel,
+    fetchVoices, setRefMode, selectVoice, setUploadedRefFile, setStyleInfluence,
   } = useVoiceStore();
 
   useEffect(() => {
@@ -83,19 +80,13 @@ export function ReferenceAudioPicker({ taskType }: Props) {
       )}
       {(selected || uploadedRefFile) && (
         <>
-          {taskType !== 'text2music' && (
-            <Slider label="AUDIO INFLUENCE" value={Math.round(audioInfluence * 100)} min={0} max={100} step={5}
-              color="var(--sky)" info={AUDIO_INFLUENCE_INFO} onChange={(v) => setAudioInfluence(v / 100)} />
+          {showsStyleInfluence(taskType) && (
+            <Slider label="STYLE INFLUENCE" value={Math.round(styleInfluence * 100)} min={0} max={100} step={5}
+              color="var(--sky)" info={STYLE_INFLUENCE_INFO} onChange={(v) => setStyleInfluence(v / 100)} />
           )}
-          <Slider label="STYLE INFLUENCE" value={Math.round(styleInfluence * 100)} min={0} max={100} step={5}
-            color="var(--sky)" info={STYLE_INFLUENCE_INFO} onChange={(v) => setStyleInfluence(v / 100)} />
           <div className="hint">
             {selected ? `will condition on voice "${selected.name}"` : 'will condition on the uploaded reference clip'}
-            {taskType === 'cover'
-              ? ' — the sliders above don\'t apply here; VARIANCE controls closeness to the source track instead'
-              : taskType === 'text2music'
-                ? ` — style ${Math.round(styleInfluence * 100)}%`
-                : ` — audio ${Math.round(audioInfluence * 100)}% / style ${Math.round(styleInfluence * 100)}%`}
+            {influenceHint(taskType, styleInfluence)}
           </div>
         </>
       )}
