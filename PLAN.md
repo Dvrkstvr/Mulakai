@@ -2399,8 +2399,10 @@ most, the whole-song first take, without adding a second editing stack.
       - The README says so, and the Engines card shows a `.warn-note` while
         an extra engine is configured. Mulakai cannot read ACE-Step's
         startup env, so the note is a standing reminder, not a check.
-      - Whether idle offload actually hands the memory back (PyTorch's CUDA
-        cache can keep it reserved) is spike work; see Open questions.
+      - Idle offload does hand the memory back. The spike measured ~0.53 GB
+        held by an idle ACE-Step after a generation with the 4B LM, against
+        15 GB plus 2 GB spilled with offload off (see "HeartMuLa spike
+        results").
     - **Engine servers park their model in system RAM, not on disk.**
       System RAM is large (Windows reports 102 GB of shared GPU memory, which
       is half of RAM).
@@ -2409,7 +2411,7 @@ most, the whole-song first take, without adding a second editing stack.
       - After the job it moves them back to CPU and calls
         `torch.cuda.empty_cache()`.
       - Switching engines then costs a host → device copy, not a ~8–22 GB
-        read from disk.
+        read from disk. Measured for HeartMuLa: ~1 s per model each way.
       - *Rejected*: unloading to disk after each job. It is slower on every
         switch, for RAM this machine does not need to save.
     - **Windows driver trap.** When an allocation goes over budget, the
@@ -2459,8 +2461,8 @@ most, the whole-song first take, without adding a second editing stack.
 ### Engine 1: HeartMuLa
 
 Sources: `github.com/HeartMuLa/heartlib`, arXiv 2601.10547, and the
-HuggingFace org `HeartMuLa`. Researched 2026-09-30 and not yet run on this
-machine; see step 0 under Rollout.
+HuggingFace org `HeartMuLa`. Researched 2026-09-30, then run on this
+machine the same day; see "HeartMuLa spike results" below.
 
 - **Model**: a 3B Llama-3.2-style LM with a 300M local decoder, plus
   **HeartCodec** (12.5 Hz, 8 RVQ codebooks, flow-matching decoder), producing
@@ -2478,7 +2480,9 @@ machine; see step 0 under Rollout.
   continuation.
 - **Languages**: zh, en, ja, ko, es.
 - **Output**: one mixed 48 kHz stereo file, in whatever format the output
-  file extension names.
+  file extension names. The float peaks run above full scale (1.12–1.33 in
+  the spike), so the wrapper's FLAC should be float, or the audio limited
+  before any lossy encode.
 - **Runtime**:
   - Recommended: Python 3.10, torch 2.4–2.10, torchtune 0.4.0,
     transformers 4.57.0, ffmpeg.
@@ -2488,13 +2492,15 @@ machine; see step 0 under Rollout.
     about real time (issue #14), and a 12 GB 3060 working on Windows
     (issue #66). `--lazy_load` helps, as does splitting the LM and codec
     across GPUs.
-  - RTF ≈ 1.0 per the README.
-  - *At 16 GB* (see design point 10): it probably needs `--lazy_load`.
-    The 12 GB 3060 report used it, and the ~20 GB 3090 figure is without
-    it. The spike confirms the peak.
+  - RTF ≈ 1.0 per the README; the spike measured 1.04–1.09 on the 4080.
+  - *At 16 GB* (see design point 10): it **needs** `--lazy_load` or an
+    equivalent swap. With both models resident it silently spills and runs
+    ~25x slower. With one model on the GPU at a time it peaks at ~14 GB
+    total and runs at about real time.
 - **Windows support is unofficial**, with open issues #7, #66 and #93
-  (triton missing, `lazy_load` falling back to CPU). Try native Windows
-  first, and fall back to WSL2.
+  (triton missing, `lazy_load` falling back to CPU). Native Windows worked
+  in the spike, so WSL2 is not needed. `triton-windows` silences the triton
+  message, and #66's CPU fallback did not reproduce.
 - **Weights**: `HeartMuLa/HeartMuLa-oss-3B-happy-new-year` (~15.75 GB,
   recommended) + `HeartCodec-oss-20260123` (~6.64 GB) + `HeartMuLaGen`
   (tokenizer and config). That is ~22 GB on disk.
@@ -2528,8 +2534,87 @@ machine; see step 0 under Rollout.
 stay empty (see Open questions on filling them with `analyze_audio`).
 
 **Consequence line**: "HeartMuLa · max length only, no seed, no reference
-voice, no bpm/key control, no section strip · ~real time on a 3090 · later
+voice, no bpm/key control, no section strip · ~real time on an RTX 4080 · later
 edits use ACE-Step".
+
+#### HeartMuLa spike results (2026-09-30)
+
+**Verdict: go, with caveats.** HeartMuLa runs on native Windows at about
+real time without spilling, as long as its two models are never on the GPU
+together. The raw logs, harness scripts, exact commands and audio are in
+`S:\AI Gen\heartlib\spike\` (`RESULTS.md`, `COMMANDS.md`).
+
+- **Setup**: `S:\AI Gen\heartlib`, heartlib commit `a18c8cb`, native
+  Windows 11. Python 3.10.19 (uv venv), torch 2.6.0+cu126 (torchao 0.9.0
+  was built for 2.6), torchtune 0.4.0, transformers 4.57.0, and
+  `triton-windows` 3.2. The weights were 21 GB.
+- **Install blockers**: none.
+  - PyPI flags transformers 4.57.0 as yanked; it installs and works.
+  - MP3 output works through soundfile (libsndfile 1.2.2), so no ffmpeg
+    DLLs are needed.
+- **Driver policy**: the spike ran with the default Sysmem Fallback Policy.
+  It was not switched to "Prefer No Sysmem Fallback" as step 0 planned, and
+  that is how the silent spill below showed up.
+
+| Run | Audio | Wall time incl. load | RTF | Peak VRAM (nvidia-smi) | Spill (WDDM shared) |
+| --- | --- | --- | --- | --- | --- |
+| en, default (no lazy_load) | 120 s | ~57 min (estimated; stopped during decode) | ~28 | 16.0 GB, full; PyTorch peak 18.9 GB | **+4.1–4.4 GB, no error** |
+| en, lazy_load | 120 s (hit the cap) | 128 s | 1.07 | 13.96 GB | none |
+| es, lazy_load | 117 s (ended on its own) | 128 s | 1.09 | 13.95 GB | none |
+| en with performance tags, lazy_load | 185 s (ended on its own) | 193 s | 1.04 | 13.98 GB | none |
+
+- **Why the default spills**:
+  - Both models resident take 13.5 GB.
+  - On top of that, the LM's KV cache is preallocated for 8192 positions ×
+    batch 2 (the CFG pair), about 5 GB, whatever the song length.
+  - The LM slowed from 3.4 to 2.4 frames/s (real time is 12.5), and the
+    codec ran at 51–56 s per flow step instead of about 2 s.
+- **Stages under lazy_load**:
+  - LM load 3.6 s, with a warm OS file cache.
+  - LM ~70 ms per 80 ms frame, flat across the song. Peak 12.8 GB
+    allocated.
+  - Codec load ~3 s, then decode 16 s for 2 minutes or 24 s for 3 minutes.
+    Peak 9.95 GB allocated.
+  - `cfg_scale = 1.0` would halve the batch and the KV cache. It was not
+    measured.
+- **RAM parking** (`.to()` plus `empty_cache()`, 3 reps each):
+
+  | Model | Size | GPU → CPU | CPU → GPU |
+  | --- | --- | --- | --- |
+  | LM (bf16) | 7.34 GB | 1.1–1.3 s | 1.0–1.3 s |
+  | Codec (fp32) | 6.17 GB | 0.75–1.4 s | 0.6–0.8 s (2.6 s the first time) |
+
+  - Swapping LM for codec takes 1.7–2.0 s, against ~7 s for lazy_load's
+    reload from a warm disk cache.
+  - Parked, PyTorch holds 0 GB, but the process keeps a ~0.2–0.25 GB CUDA
+    context.
+  - Pinned memory gave no gain.
+- **Idle ACE-Step** (one 30 s text2music job with `thinking` on and the 4B
+  LM, then idle):
+
+  | ACE-Step setting | Idle VRAM held | Peak while generating | Spill |
+  | --- | --- | --- | --- |
+  | `ACESTEP_OFFLOAD_TO_CPU` / `_DIT_` / `_LM_` = true | ~0.53 GB | 9.2 GB total | none |
+  | all offload = false | 15.0 GB, plus 2.07 GB spilled while idle | 15.8 GB total | +8.2 GB; DiT 5x slower per step |
+
+  - Idle ACE-Step (0.53 GB) plus HeartMuLa's peak (~14 GB, desktop
+    included) is about 14.5 GB, so switching engines under `genLock` fits.
+    The two were not run side by side.
+  - Offload costs ACE-Step ~7.5 s per job.
+  - Note: the local ACE-Step `.env` sets `MAX_CUDA_VRAM=24`, so ACE-Step
+    treats this 16 GB card as 24 GB (tier6b).
+- **Requirements for `heartmula-server/`** that follow from these numbers:
+  1. Never keep both models on the GPU. Keep both in RAM and move one at a
+     time to the GPU: LM for the token loop, then codec for the decode.
+  2. Hold no lingering Python reference to the LM. In the spike, a wrapped
+     bound method kept the LM alive, so lazy_load's unload freed nothing and
+     the codec spilled. The same thing would break parking.
+  3. Park after every job (see Open questions).
+  4. AUTO's 240000 ms cap is right: the 120 s cap cut the first English
+     song short.
+- **Not yet checked by ear**: whether the Spanish vocals are Spanish, and
+  whether the ACE-Step performance tags (`[soft voice]`, `[guitar solo]`, …)
+  are sung aloud or ignored. They did not cause any error.
 
 ### Engine 2: YuE2
 
@@ -2791,6 +2876,10 @@ Tests (Vitest):
 
    Write the numbers into this section. If HeartMuLa doesn't fit, stop here;
    nothing else has been built.
+
+   **Done 2026-09-30: go, with caveats.** See "HeartMuLa spike results". All
+   items were covered on native Windows. The exception is the Sysmem Fallback
+   Policy, which stayed at the driver default.
 1. `feat/engine-framework` — the `songPersist` split as its own first
    `refactor:` commit, then the interface, registry, `engineClient`,
    `engineGenJobs`, routes, `songs.engine`, the ALT guard, and the
@@ -2814,12 +2903,19 @@ General:
   `empty_cache()`. Step 0 measures this. If the memory is not freed, the
   fallback is running only one of the two processes at a time, which would
   have to be documented and is clumsy.
+  - **Answered (2026-09-30): yes.** An idle ACE-Step holds ~0.53 GB with
+    offload on. Both processes can stay up, so the fallback is not needed.
 - **Engine-side swap policy.** Is moving to CPU after every job right, or
   should a model stay on the GPU for a short idle window (for example 2
   minutes) when several takes are generated in a row on the same engine?
   That is only safe if ACE-Step's offload is proven to free its memory.
   Every speed figure above comes from other GPUs; the spikes give the 4080
   numbers.
+  - **Answered for HeartMuLa (2026-09-30): park after every job.** An idle
+    window would save only 1–2 s per take, since a swap takes ~1 s per
+    model. It would also leave the 7.3 GB LM resident, and that plus
+    ACE-Step's 9.2 GB generation peak does not fit in 16 GB. Revisit for
+    YuE2 after its spike.
 - **Engine column vs params_json only.** The column is recommended (design
   point 8). The case against: params_json already records `engine`, and a
   column is one more migration for a value that only two readers use.
@@ -2841,6 +2937,9 @@ General:
   ACE-Step's vocabulary, including performance tags like `[soft voice]`.
   Does each engine ignore unknown tags, sing them, or fail? Should the tag
   guide popover filter by the descriptor's `sectionTags`?
+  - *HeartMuLa, partly answered (2026-09-30)*: performance tags do not fail
+    (`en_perftags_lazy.mp3` in the spike folder). Whether they are sung or
+    ignored still needs a listen.
 
 HeartMuLa:
 - **Caption → tags strategy.** The v1 normalisation is mechanical. Options:
@@ -2850,6 +2949,11 @@ HeartMuLa:
 - **HeartTranscriptor** as an extra lyrics-from-audio helper, for example
   for imports with no lyrics? It would be a second ASR path next to the
   stable-ts to-do. Not planned.
+- **Progress fraction after all?** The spike found the LM stage loops one
+  80 ms frame at a time, so the wrapper *could* report `frames / (cap / 80)`
+  plus a codec step. That is an upper-bound fraction, because the song can
+  end before the cap. v1 keeps "no progress fraction" unless this is picked
+  up in `feat/heartmula-server`.
 
 YuE2:
 - **Is WSL2 viable, and how fast is it?** Answered by its spike.
