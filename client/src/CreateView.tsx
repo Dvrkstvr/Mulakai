@@ -100,7 +100,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
     <div className="create-shell">
       <div className={showRail ? 'with-panel create-layout with-rail' : 'with-panel create-layout'} style={{ gridTemplateColumns }}>
         <div className="resizable-col">
-          <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} referenceAudioTaskType={referenceAudioTaskType} />
+          <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} hideThinking={genType === 'complete'} referenceAudioTaskType={referenceAudioTaskType} />
           <ResizeHandle side="right" onPointerDown={settingsWidth.onPointerDown} />
         </div>
         <div className="create-panel">
