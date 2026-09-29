@@ -2215,3 +2215,661 @@ We control the parameter we send, so this is fixable entirely on our side of
 - **Does the `defaultModel` lookup want caching?** One GET per generation
   against a local server is noise next to diffusion, and `listModels()` already
   swallows errors. If the inventory ever moves off-box it wants a TTL cache.
+
+## Multiple Song-Creation Engines (planned 2026-09-30)
+
+**This amends a locked decision.** "Grand Goal" says a song is generated
+*with ACE-Step 1.5*, and `AGENTS.md`'s Scope Discipline repeats that. The
+project owner changed this scope on 2026-09-30: a song's **first take** may
+come from another local model, called an *engine* here. Nothing else changes.
+
+- Every edit after the first take still runs on ACE-Step: repaint, Add Layer
+  (`lego`), complete, extract, remaster, and regenerate.
+- ACE-Step accepts any `src_audio`, so it edits an engine-made song the same
+  way it edits an imported one (see "Import a Song").
+- The earlier lines stay as written. This section supersedes them, the same
+  way "Settings Screen" superseded the three-screen line.
+
+Engine order:
+
+1. **HeartMuLa** first. Its code and weights are Apache-2.0, and it may run on
+   native Windows.
+2. **YuE2** next. It needs WSL2 on this machine.
+3. **MiniMax Music 3** is skipped. The reasons are recorded below.
+
+The goal is a second model family for the step where model choice matters
+most, the whole-song first take, without adding a second editing stack.
+
+### General engine design (decided once, shared by every engine)
+
+1. **Engines only create songs; ACE-Step does all editing.**
+   - An engine choice exists only for new-song text-to-song on
+     Create › PROMPT. The result becomes Base v1 of a new song.
+   - ACE-Step-only: AUDIO (cover), ARRANGE (complete), the whole Editor, and
+     the helpers (`format_input` / AI ENHANCE, `create_sample` / FEELING
+     LUCKY and Quick Start, `/v1/analyze_audio`, `/lyric_timestamp`).
+2. **Each extra engine is an optional, separate process.** This follows
+   `demucs-server/` + `config.demucsUrl` and the health-gated disabled option
+   in `SplitPanel.tsx` / `ScratchSplitPicker.tsx`.
+   - Each engine has its own env URL (`HEARTMULA_API_URL`, `YUE_API_URL`).
+     An empty URL disables that engine.
+   - Each engine has its own optional bearer key (`HEARTMULA_API_KEY`,
+     `YUE_API_KEY`).
+   - Each engine has its own wrapper directory (`heartmula-server/`,
+     `yue-server/`).
+   - **Each engine has its own Python environment.** The pins conflict:
+     HeartMuLa wants Python 3.10 with torchtune 0.4.0 and transformers
+     4.57.0, while YuE2 wants Python 3.12 with torch 2.10.0. Engine code is
+     installed into its own venv as a dependency and never vendored here.
+3. **One wire contract for every wrapper.** The contract is the job API
+   shape that YuE2-Turbo's `yue2-serve` already uses:
+   - `POST /v1/jobs` → 202 `{id}`
+   - `GET /v1/jobs/{id}` → `queued | running | succeeded | truncated | failed | cancelled`,
+     with an optional `progress` / `stage`
+   - `POST /v1/jobs/{id}/cancel`
+   - `GET /v1/jobs/{id}/audio` (lossless FLAC)
+   - an optional `GET /v1/jobs/{id}/score` (404 when the engine has none)
+   - `GET /health/ready`
+
+   Mulakai then needs one generic HTTP client (`engineClient.ts`, taking a
+   base URL and key) instead of one per engine. Adopting a real engine's
+   existing API also means YuE2-Turbo works with no wrapper at all.
+4. **Server-side engine interface.** Each extra engine is a small module in
+   `server/src/services/engines/` exporting:
+   ```ts
+   interface SongEngine {
+     id: EngineId;                          // 'heartmula' | 'yue2'
+     label: string;                         // 'HEARTMULA'
+     url: string; apiKey: string;           // from config; '' = disabled
+     capabilities: EngineCapabilities;      // static — see 6
+     toRequest(fields: CreateFields, jobId: string): Record<string, unknown>; // pure mapper
+     readMeta(result: { score?: string }): SongMeta; // bpm/key/timesig, if the engine returns any
+   }
+   ```
+   Health, submit, status, fetch-audio and cancel live in `engineClient.ts`,
+   the same for every engine.
+   - **ACE-Step is the built-in engine.** It contributes a capabilities
+     descriptor and its existing health check to the registry, so the client
+     sees one list. Its job flow stays in `jobs.ts`'s `startGeneration`.
+   - *Rejected*: routing ACE-Step through the shared interface. Its
+     generation path has several steps with no counterpart elsewhere: voice
+     conditioning, the adapter reconcile, `resolveInferenceSteps`, TAKES,
+     and lyric alignment. The interface would either lose those or grow to
+     fit one engine, and this section should not churn a working, tested
+     path.
+5. **One job module for all extra engines, not a branch inside `jobs.ts`.**
+   `jobs.ts` is already 300 LOC (the hard cap is 200), and its `poll()` is
+   wired to ACE-Step's `queryResult`. The new `engineGenJobs.ts` exports
+   `startEngineGeneration(engine, fields, title, folderId)`:
+   - It reuses `Job`, `registerJob`, `run`, `wasAborted` and the `generate`
+     genLock kind.
+   - It runs its own poll loop against `engineClient`, with the same 3-strike
+     rule for failed status requests.
+   - `abortJob` stays generic. The loop sees the aborted status on its next
+     tick and sends a best-effort `cancel`.
+6. **A capabilities descriptor per engine drives the UI.** It is static per
+   engine because it describes the model, not the deployment. It is served
+   with live health from `GET /api/engines`:
+   ```ts
+   interface EngineCapabilities {
+     duration: 'exact' | 'max' | 'none';    // ACE-Step exact; HeartMuLa a cap; YuE2 none
+     musicalMeta: 'params' | 'style-text' | 'none'; // how BPM/KEY/TIME SIGNATURE reach it
+     referenceAudio: boolean;               // voice / reference-audio picker
+     adapters: boolean;                     // LoRA/LoKr (ACE-Step only)
+     seed: boolean;                         // false = results are not reproducible
+     languages: string[] | 'any';
+     sectionTags: string[] | null;          // the engine's lyric section vocabulary, if it has a fixed one
+     lmTools: boolean;                      // LM MODEL / THINKING / AI ENHANCE apply to *this generation*
+     advanced: boolean;                     // ACE-Step's DiT knobs (STEPS, ADVANCED)
+     takes: boolean;                        // TAKES / batch_size
+     extraControls: ('cfg' | 'temperature' | 'topK' | 'cot')[];
+     consequence: string;                   // the DESIGN.md inline consequence line
+   }
+   ```
+   - The client disables each unsupported control **in place**, with an
+     `n/a` readout and a one-line reason taken from the descriptor. It does
+     not hide it. This is the same idiom as LM MODEL on the AUDIO tab.
+   - `consequence` is shown under GENERATE (see each engine below). This is
+     `AGENTS.md`'s "state the consequence before commit" rule, with the
+     wording owned by whoever knows the engine.
+7. **Split `persistSong` at the download.** Today `persistSong` does three
+   things: it downloads through ACE-Step's `downloadAudio`, calls
+   `fetchLyricTimestampsJson`, and then transcodes, tags and inserts rows.
+   - The third part moves into `insertGeneratedSong(audio, meta, params, lyricTimestamps, title, folderId, referenceMeta)`
+     in a new `songPersist.ts`.
+   - ACE-Step's `persistSong` becomes download → timestamps →
+     `insertGeneratedSong`.
+   - The engine path becomes `engineClient` audio → `engine.readMeta` →
+     `insertGeneratedSong`, with `lyricTimestamps = null`.
+   - This moves ~50 LOC out of `jobs.ts`.
+   - `transcodeBuffer` goes through ffmpeg, so it takes an engine's 48 kHz
+     FLAC as-is. The "lossless master → the user's format, once" rule still
+     holds.
+   - `songs.duration` normally comes from ACE-Step's `metas`, which engines
+     don't return. When no duration is supplied, it is read from the
+     transcoded file with `node-taglib-sharp`, which `fileTags.ts` already
+     depends on. There is still no separate server-side probing step.
+   - Null timestamps mean **an engine-made song has no section strip**.
+     Drag-to-select still works. Every non-ACE-Step consequence line says so.
+8. **Recording the engine.**
+   - `versions.params_json` holds the request actually sent, plus
+     `engine: '<id>'`, `task_type: 'text2music'`, and the Create fields that
+     didn't map. That keeps REUSE PROMPT and `backfillGenTask` working.
+   - `songs.gen_task` stays `'text2music'`. It answers "which Create tab", so
+     `taskToGenType`, `backfillGenTask` and `GenTask` in `genLock.ts` work
+     unchanged.
+   - **Recommended: a `songs.engine TEXT` column** (null means ACE-Step),
+     added with `ensureColumn` in `server/src/db/`. It needs no backfill,
+     since every existing song is ACE-Step. It is a column for the same
+     reason `gen_task` was lifted out of params_json: the Library detail rail
+     (GENERATED WITH → `PROMPT · HEARTMULA`) and REUSE PROMPT read song
+     rows, not versions. See Open questions for the case against.
+   - `GenLockInfo` gets an optional `engine`, so a rehydrated GeneratingCard
+     and a retry reopen with the right engine.
+   - *Rejected*: new `GenTask` values per engine. That would mix up "which
+     tab" with "which model", and every `taskToGenType` consumer would need
+     to learn each engine.
+9. **ALT / SIMILAR on an engine-made base version are refused, as they are
+   for an import.** `startRegenerate` and `startSimilarTake` rebuild an
+   ACE-Step request from `params_json`. Replaying a HeartMuLa or YuE2 base
+   version would quietly produce an ACE-Step song from a request shaped for
+   another model.
+   - `assertReplayable` refuses any `engine` other than ACE-Step.
+   - `VersionHistory` hides ALT and SIMILAR on that version.
+   - Versions that repaint (or any other Editor action) add to such a song
+     are ACE-Step versions and replay normally.
+10. **GPU: only one model in VRAM at a time. This is a requirement, not a
+    tuning option.**
+    - *Hardware*: the target machine is an RTX 4080 (Ada, compute capability
+      8.9) with **16 GB** VRAM on Windows 11. About 1.3 GB is in use at idle,
+      so roughly 14.5 GB is usable.
+    - *Why it's a requirement*: no engine fits next to a resident ACE-Step
+      in that space.
+    - *What already holds*: `genLock` allows one generation at a time across
+      all kinds, and an engine job holds it under `generate`. The lock does
+      nothing about *resident* weights, though, so both sides have to move
+      them out of VRAM:
+    - **ACE-Step runs with CPU offload whenever any extra engine is
+      configured.** Set `ACESTEP_OFFLOAD_TO_CPU=true`, documented as "Offload
+      models to CPU when idle" at `docs/ace-step-1.5/API.md:751`. The finer
+      `ACESTEP_OFFLOAD_DIT_TO_CPU` / `ACESTEP_LM_OFFLOAD_TO_CPU` flags
+      (`:752`, `:762`) are there if the umbrella flag isn't enough.
+      - This is ACE-Step *configuration*, not a modification, and Mulakai
+        cannot set it at runtime.
+      - The README says so, and the Engines card shows a `.warn-note` while
+        an extra engine is configured. Mulakai cannot read ACE-Step's
+        startup env, so the note is a standing reminder, not a check.
+      - Whether idle offload actually hands the memory back (PyTorch's CUDA
+        cache can keep it reserved) is spike work; see Open questions.
+    - **Engine servers park their model in system RAM, not on disk.**
+      System RAM is large (Windows reports 102 GB of shared GPU memory, which
+      is half of RAM).
+      - Each wrapper loads its weights once, to CPU.
+      - For a job, it moves them onto the GPU.
+      - After the job it moves them back to CPU and calls
+        `torch.cuda.empty_cache()`.
+      - Switching engines then costs a host → device copy, not a ~8–22 GB
+        read from disk.
+      - *Rejected*: unloading to disk after each job. It is slower on every
+        switch, for RAM this machine does not need to save.
+    - **Windows driver trap.** When an allocation goes over budget, the
+      NVIDIA driver on Windows spills into shared system memory instead of
+      raising out-of-memory. Breaking this rule therefore shows up as a
+      silent, severe slowdown, not an error. The READMEs recommend the user
+      set **NVIDIA Control Panel → CUDA – Sysmem Fallback Policy → Prefer No
+      Sysmem Fallback**, so a real OOM surfaces as a failed job. It is a
+      system setting, so Mulakai documents it and never automates it.
+11. **Client: the engine picker lives on the PROMPT tab only.**
+    - *Not on the Library create bar*: the bar only captures an idea, and
+      Quick Start's expansion runs on ACE-Step's LM whichever engine
+      generates.
+    - *The picker*: an ENGINE row at the top of the PROMPT tab, with one
+      parallelogram per engine. The selected engine is **sky**, because it
+      targets where the request goes. Acid stays with GENERATE.
+    - The row **only renders when at least one extra engine is
+      configured**, so a default install looks exactly as it does today.
+      An engine that is configured but unreachable shows as disabled, with
+      the reason inline.
+    - *Where the choice lives*: on the Create draft (`createDraftStore`),
+      defaulting to ACE-STEP. It survives a tab switch, CLEAR DRAFT resets
+      it, and REUSE PROMPT sets it from `songs.engine`.
+    - *Not a persisted app setting*: a sticky engine preference would
+      quietly send the next Quick Start to an engine with fewer controls.
+    - REFINE INPUT and FEELING LUCKY stay live for every engine. They are
+      draft tooling that runs on ACE-Step, and they need ACE-Step up either
+      way.
+    - Engine-only settings (`cot`, `temperature`, `topK`, and a `cfg` whose
+      range differs from ACE-Step's GUIDANCE) live in a small persisted
+      `engineSettings.ts`, keyed by engine. They do not go in `settings.ts`,
+      which is already 329 LOC.
+12. **Settings: a read-only Engines card.** It has one row per engine, each
+    READY, NOT CONFIGURED or UNREACHABLE. Each engine's license caveat is
+    stated here once, where one exists. The header status pill stays
+    ACE-Step-only.
+13. **Routes.** A new `routes/engines.ts` is added because `generate.ts` is
+    already 285 LOC.
+    - `GET /api/engines` returns `[{ id, label, capabilities, configured, ready }]`,
+      with ACE-Step included.
+    - `POST /api/engines/:id/generate` takes the same Create field names the
+      ACE-Step route takes, so the client builds the body from the same
+      draft. Each engine's `toRequest` does the renaming server-side.
+    - Polling reuses `GET /api/generate/:jobId`, because `registerJob` puts
+      engine jobs in the shared map.
+
+### Engine 1: HeartMuLa
+
+Sources: `github.com/HeartMuLa/heartlib`, arXiv 2601.10547, and the
+HuggingFace org `HeartMuLa`. Researched 2026-09-30 and not yet run on this
+machine; see step 0 under Rollout.
+
+- **Model**: a 3B Llama-3.2-style LM with a 300M local decoder, plus
+  **HeartCodec** (12.5 Hz, 8 RVQ codebooks, flow-matching decoder), producing
+  48 kHz stereo. The org also publishes **HeartTranscriptor**, a
+  Whisper-based lyrics ASR that outputs text only.
+- **Pipeline inputs** (`src/heartlib/pipelines/music_generation.py`):
+  | Input | Meaning |
+  | --- | --- |
+  | `lyrics` | section tags `[Intro] [Verse] [Prechorus] [Chorus] [Bridge] [Outro]` (the pipeline lowercases them) |
+  | `tags` | comma-separated, **no spaces**, e.g. `piano,happy,wedding`. Categories: genre, timbre, gender, mood, instrument, scene, region, topic |
+  | `max_audio_length_ms` | a **cap, not a target**: pipeline default 120000, CLI default 240000; the paper claims up to 6 minutes |
+  | temperature, top-k, cfg | sampling (per the HF Space's `app.py`) |
+- **Not supported**: no seed parameter; no bpm, key or time signature;
+  reference audio raises `NotImplementedError`; no stems, repaint or
+  continuation.
+- **Languages**: zh, en, ja, ko, es.
+- **Output**: one mixed 48 kHz stereo file, in whatever format the output
+  file extension names.
+- **Runtime**:
+  - Recommended: Python 3.10, torch 2.4–2.10, torchtune 0.4.0,
+    transformers 4.57.0, ffmpeg.
+  - The LM runs in bf16 and the codec in fp32 (bf16 degrades the codec's
+    quality).
+  - VRAM is not officially stated. Community reports: ~20 GB on a 3090 at
+    about real time (issue #14), and a 12 GB 3060 working on Windows
+    (issue #66). `--lazy_load` helps, as does splitting the LM and codec
+    across GPUs.
+  - RTF ≈ 1.0 per the README.
+  - *At 16 GB* (see design point 10): it probably needs `--lazy_load`.
+    The 12 GB 3060 report used it, and the ~20 GB 3090 figure is without
+    it. The spike confirms the peak.
+- **Windows support is unofficial**, with open issues #7, #66 and #93
+  (triton missing, `lazy_load` falling back to CPU). Try native Windows
+  first, and fall back to WSL2.
+- **Weights**: `HeartMuLa/HeartMuLa-oss-3B-happy-new-year` (~15.75 GB,
+  recommended) + `HeartCodec-oss-20260123` (~6.64 GB) + `HeartMuLaGen`
+  (tokenizer and config). That is ~22 GB on disk.
+- **Serving**: there is **no HTTP server**, only a Gradio Space demo.
+  → `heartmula-server/`, a thin FastAPI wrapper in the style of
+  `demucs-server/main.py` that speaks the shared contract (design point 3).
+  It runs one job at a time. The pipeline is a single call, so v1 reports
+  `running` with no progress fraction; DESIGN.md already allows the plain
+  shader without a progress veil. It has no `/score` route.
+- **License**: Apache-2.0 for both code and weights, so commercial use is
+  fine and the Settings card needs no caveat.
+- **Out of scope: MuLaCover**, the cover model. Its weights are CC BY-NC and
+  its outputs are non-commercial, and covers are ACE-Step's job here anyway
+  (design point 1).
+
+**Mapping** (`engines/heartmula.ts`):
+
+| Create field | HeartMuLa | Notes |
+| --- | --- | --- |
+| PROMPT (caption) | `tags` | v1: split on `,` / `;`, trim, lowercase, and join the words inside a tag with `-`, so `dreamy synth pop` → `dreamy-synth-pop`. The resulting tag string is shown read-only under PROMPT, so the user sees what is sent. A better caption → tag strategy is an open question. |
+| LYRICS | `lyrics` | as-is. The descriptor's `sectionTags` lists HeartMuLa's six section tags. |
+| DURATION | `max_audio_length_ms` | **a cap.** AUTO sends 240000 (the CLI default) so AUTO doesn't cut songs at the pipeline's 2 minutes. The readout says MAX. |
+| GUIDANCE | `cfg` | AUTO omits it |
+| TEMPERATURE / TOP-K (engine controls) | temperature, top-k | AUTO omits them |
+| RANDOM SEED / SEED | — | **no seed.** RANDOM SEED is shown locked on with "not reproducible", and `params_json` records `seed: null`. |
+| BPM / KEY-SCALE / TIME SIGNATURE | — | disabled. HeartMuLa's tag vocabulary has no tempo or key category, so these are not smuggled into `tags` either. |
+| VOCAL LANGUAGE | — | disabled; the lyrics' language decides. The descriptor lists zh / en / ja / ko / es. |
+| reference audio / voice, adapter, TAKES, model / LM / STEPS / ADVANCED | — | disabled |
+
+`readMeta` returns nothing, so `songs.bpm` / `key_scale` / `time_signature`
+stay empty (see Open questions on filling them with `analyze_audio`).
+
+**Consequence line**: "HeartMuLa · max length only, no seed, no reference
+voice, no bpm/key control, no section strip · ~real time on a 3090 · later
+edits use ACE-Step".
+
+### Engine 2: YuE2
+
+Sources: `github.com/multimodal-art-projection/YuE` (main),
+HuggingFace `m-a-p/YuE2-3B`, and `github.com/NoizAI/YuE2-Turbo`. Researched
+2026-09-30 and not yet run on this machine.
+
+- **Model**: one AR–NAR model of ~3.58B params. It works in three steps: an
+  ABC score plan → MERT2 semantic tokens at 25 Hz → flow-matched acoustic
+  latents. An Oobleck VAE decodes those to 48 kHz stereo. The staged Python
+  API is `plan()` → `generate_semantic()` → `synthesize()` → `decode()`.
+- **Request** (`src/yue2/protocol.py`, `SongRequest`):
+  | Field | Meaning |
+  | --- | --- |
+  | `style` (alias `tags`) | free-text style description |
+  | `lyrics` | section-tagged (`[Verse]`, `[Chorus]`); languages en, zh |
+  | `cot` | `'full'` \| `'melody'` \| `'off'` |
+  | `seed` | default **831001**, a fixed value |
+  | `abc` | a caller-supplied score (the "agentic editing" path) |
+  | `cfg_scale` | 0–20 |
+  | `id` | request id |
+- **Not in the request**: reference audio, bpm, key, time signature,
+  duration, negative prompt, edit interval. Tempo, key and meter can only be
+  set through the ABC or the style text. Length follows the plan. The
+  semantic `max_tokens` default is 9000, which is ~360 s at 25 Hz. That
+  figure is inferred, not documented.
+- **Output**: `audio.flac` (48 kHz, PCM_24, one stereo mix), plus
+  `score.abc`, `plan.json`, and `result.json` (a `truncated` flag and
+  timings). No stems. No lyric timestamps are documented.
+- **Runtime**: Linux only. Python 3.12, torch 2.10.0, an NVIDIA BF16 GPU.
+  - VRAM: 24 GB is the official figure; the measured peak is ~11–14 GiB.
+  - Speed: an RTX 4090 renders a 215 s song in 71 s.
+  - Weights: 7.26 GB plus a 0.53 GB VAE.
+  - `--quantization fp8` (compute capability ≥ 8.9) and `--offload-ar` exist
+    but are experimental.
+  - *At 16 GB*: the measured peak is 11–14 GiB, reaching **14.08 GiB at
+    maximum context**, which is borderline against ~14.5 GB usable. WSL2
+    shares the same 16 GB. The 4080 is compute capability 8.9, so
+    `--quantization fp8` for the AR stage is available, along with
+    `--offload-ar`. Both are the planned mitigations if the spike hits the
+    ceiling.
+- **Windows is unsupported.** Open issue #209: on Windows the acoustic stage
+  falls back to the MATH attention kernel, which is ~6x slower and uses
+  ~7 GB more VRAM. On this machine that means **WSL2**.
+- **Serving**: the official repo has **no HTTP server**, only a CLI
+  (`yue2 doctor|generate|batch`). YuE2-Turbo (Apache-2.0) ships `yue2-serve`
+  (FastAPI, bearer `YUE2_API_KEY`). Its job API is the one design point 3
+  adopts as the shared contract. Turbo requires Linux x86_64 and CUDA 12.8,
+  and is tuned for 32 GB cards.
+- **License**: the code is Apache-2.0. The weights are CC BY-NC 4.0 plus a
+  creator permission: individuals may use them and monetize the outputs, but
+  companies need a license.
+
+**Decisions specific to YuE2:**
+
+- **Serving (recommended): a thin `yue-server/` wrapper around the *official*
+  pipeline**, running in WSL2 and handling one job at a time. The staged API
+  gives real stage progress (plan / semantic / synthesize / decode) for the
+  progress veil. Cancel is a flag the wrapper checks between stages, since no
+  stage can be interrupted mid-run.
+  - *Alternative*: point `YUE_API_URL` straight at a `yue2-serve` instance.
+    Because the wrapper speaks the same contract, this is a deployment choice
+    and needs no code.
+  - *Why not Turbo first*: it forks the model code (a third-party
+    maintainer), it is tuned for 32 GB cards, and its CUDA 12.8 pin is one
+    more thing to get working inside WSL2.
+- **ABC score editing ("agentic editing") is out of scope.** It is
+  score-level editing, which this plan excludes along with MIDI editing. The
+  returned ABC is read once, for metadata. `abc` is never sent.
+- **Covers via SheetSage2 transcription are deferred.** They are an open
+  question and are not built.
+- **ABC → song metadata** (`readMeta`). It reads the first `Q:`, `K:` and
+  `M:` header lines of `score.abc`, stopping at the first body line, into
+  `songs.bpm` / `key_scale` / `time_signature`. The same values go into the
+  file tags.
+  - `Q:1/4=120`, `Q:120` and `Q:"Allegro" 1/4=132` all yield the trailing
+    number.
+  - `K:Am` → `A minor` and `K:F#min` → `F# minor`. `K:C` and `K:Cmaj` →
+    `C major`. Modal keys (`K:D dor`) are stored as written.
+  - `M:` maps onto `songMeta.ts`'s numerator encoding: `4/4` → `'4'`,
+    `M:C` → `'4'`, `M:C|` → `'2'`. An unknown meter is left empty rather
+    than invented.
+  - A missing or unparseable field is stored as null or empty.
+
+**Mapping** (`engines/yue2.ts`):
+
+| Create field | YuE2 | Notes |
+| --- | --- | --- |
+| PROMPT (caption) | `style` | |
+| BPM / KEY-SCALE / TIME SIGNATURE | appended to `style` | e.g. `…, 92 bpm, A minor, 6/8 time`, only for fields not left on AUTO. This is a text hint, not a guarantee; what gets stored comes from the ABC. |
+| LYRICS | `lyrics` | as-is |
+| GUIDANCE | `cfg_scale` | clamped to 0–20; AUTO omits it |
+| RANDOM SEED / SEED | `seed` | **always sent.** YuE's default is the fixed 831001, so omitting it would return the same song for the same prompt every time. With RANDOM SEED on, the server picks a seed and records it. |
+| COT (engine control) | `cot` | AUTO / FULL / MELODY / OFF; AUTO omits it |
+| DURATION, VOCAL LANGUAGE, reference audio / voice, adapter, TAKES, model / LM / STEPS / ADVANCED | — | disabled |
+| — | `id` | our job id, so both sides' logs can be matched |
+
+**Consequence line**: "YuE2 · no duration control, no reference voice, no
+section strip · ~70 s per song on a 4090 · later edits use ACE-Step".
+**Settings card license note**: "YuE2 weights: CC BY-NC 4.0 — individuals
+may use and monetize outputs; companies need a license from the authors."
+
+### Skipped: MiniMax Music 3
+
+Considered 2026-09-30 and not planned:
+
+- The download is ~57 GB.
+- It needs ~22 GB of VRAM even with CPU offload, which would not fit this
+  16 GB card at all.
+- It needs Linux, CUDA 13 and torch 2.11, a third incompatible stack.
+- No generation speed is documented.
+- The local weights have no reference-audio input.
+- The hosted API is closed to new users.
+- Its license requires showing the "MiniMax-Music3" name in any commercial
+  UI.
+
+Revisit only if two or more of these change.
+
+### File-level plan
+
+Shared (engine framework):
+- `server/src/config.ts` — add `heartmulaUrl` / `heartmulaApiKey` and
+  `yueUrl` / `yueApiKey`, next to `demucsUrl`.
+- `server/src/services/engines/types.ts` — new. `SongEngine`,
+  `EngineCapabilities`, `EngineId`, `CreateFields`, `SongMeta`.
+- `server/src/services/engines/registry.ts` — new. Lists the configured
+  engines, including ACE-Step's descriptor and health.
+- `server/src/services/engineClient.ts` — new, ≤150 LOC. `health`,
+  `submit`, `status`, `fetchAudio`, `fetchScore`, `cancel` against the shared
+  contract. Sends the bearer header only when a key is set, and uses
+  `acestep.ts`'s timeout pattern (the per-request ceiling, 5x for downloads).
+- `server/src/services/engineGenJobs.ts` — new.
+  `startEngineGeneration(engine, fields, title, folderId)`.
+- `server/src/services/songPersist.ts` — new. `insertGeneratedSong`,
+  extracted from `persistSong`.
+- `server/src/services/jobs.ts` — `persistSong` delegates to
+  `insertGeneratedSong`, so the file gets smaller.
+- `server/src/services/genLock.ts` — add `engine?: EngineId | 'acestep'` to
+  `GenLockInfo`.
+- `server/src/services/repaintJobs.ts` — `assertReplayable` refuses any
+  non-ACE-Step `engine`.
+- `server/src/routes/engines.ts` — new. `GET /api/engines` and
+  `POST /api/engines/:id/generate`.
+- `server/src/index.ts` — mount the router.
+- `server/src/db/schema.ts`, `server/src/db/index.ts` — add `songs.engine`
+  and its `ensureColumn`. `routes/songs.ts` already selects `s.*`, so the
+  field reaches the client with no route change.
+- `client/src/api/generation.ts` — `engines()`, `generateWithEngine()`.
+- `client/src/api/types.ts` — `Song.engine`, the lock's `engine`,
+  `EngineInfo`.
+- `client/src/createDraft.ts`, `createDraftStore.ts` — an `engine` draft
+  field; `reusePromptDraft` carries it.
+- `client/src/generationStore.ts` — `start()` routes to
+  `generateWithEngine()` for any engine other than ACE-Step.
+- `client/src/EngineChoice.tsx` — new. The ENGINE row: health gating, the
+  reason line, and render-only-if-configured.
+- `client/src/useEngineCaps.ts` — new. The selected engine's descriptor,
+  plus an `unsupported(field)` → reason helper that every gated control
+  reads.
+- `client/src/CreatePromptTab.tsx` — renders `EngineChoice`; gates DURATION
+  (MAX readout for `'max'`), BPM / KEY / TIME SIGNATURE, VOCAL LANGUAGE and
+  TAKES on the descriptor; shows HeartMuLa's tag preview.
+- `client/src/PromptGenerateRow.tsx` — shows the descriptor's consequence
+  line.
+- `client/src/EngineGenSettings.tsx` — new. Renders the descriptor's
+  `extraControls` (CFG / TEMPERATURE / TOP-K / COT), SEED or the locked
+  "not reproducible" note, and the `n/a` note.
+- `client/src/SettingsPanel.tsx` — in generate mode with a non-ACE-Step
+  engine, renders `EngineGenSettings` in place of the model / LM / steps /
+  advanced / reference block.
+- `client/src/engineSettings.ts` — new. A persisted zustand store keyed by
+  engine.
+- `client/src/ActiveAdapterNote.tsx` — "adapter not applied — <ENGINE>"
+  when `adapters` is false.
+- `client/src/VersionHistory.tsx` — the existing `replayable` check also
+  excludes non-ACE-Step base versions.
+- `client/src/SongDetailRail.tsx` — GENERATED WITH shows
+  `PROMPT · <ENGINE>`.
+- `client/src/GeneratingCard.tsx` — `stageDetail` learns YuE2's four stage
+  names.
+- `client/src/EnginesSection.tsx` — new, the Settings card.
+  `SettingsView.tsx` renders it.
+- `docs/design/DESIGN.md` — the ENGINE choice, the descriptor-driven `n/a`
+  gating, the Engines card, and the consequence lines, committed in the same
+  PR as the UI.
+- `README.md` — env table rows for the four new variables, the "run
+  ACE-Step with `ACESTEP_OFFLOAD_TO_CPU=true` when any engine is configured"
+  requirement, the Sysmem Fallback Policy recommendation, and pointers to
+  each wrapper's README.
+- `AGENTS.md` (Scope Discipline) and `CLAUDE.md` (Tech Stack) — amend
+  "generate with ACE-Step 1.5" to name the optional first-take engines, in
+  the framework PR.
+
+HeartMuLa:
+- `heartmula-server/main.py`, `requirements.txt`, `README.md` — new.
+  Covers the native-Windows setup (Python 3.10 venv, the pins above,
+  ~22 GB of weights, `--lazy_load`), the WSL2 fallback, the Sysmem Fallback
+  Policy recommendation, and the ACE-Step offload requirement. The server
+  parks the model on the CPU between jobs (design point 10) and writes
+  FLAC.
+- `server/src/services/engines/heartmula.ts` — new. Descriptor,
+  `toRequest` (caption → tags, duration → cap), and a no-op `readMeta`.
+
+YuE2:
+- `yue-server/main.py`, `requirements.txt`, `README.md` — new. Covers the
+  WSL2 setup (Python 3.12 venv, torch 2.10.0, `yue2 doctor`), the
+  staged-progress reporting, the cancel-between-stages flag, CPU parking
+  between jobs, the fp8 / `--offload-ar` flags, and reaching the server from
+  Windows at `http://127.0.0.1:<port>`.
+- `server/src/services/engines/yue2.ts` — new. Descriptor, `toRequest`, and
+  the ABC `readMeta`.
+
+Tests (Vitest):
+- `engineClient.test.ts` — mocked fetch.
+  - The bearer header is sent only when a key is set.
+  - Status mapping: queued / running → running; succeeded / truncated →
+    done (see Open questions); failed / cancelled → failed.
+  - Timeouts, and health is false when the server is unreachable or
+    returns non-200.
+- `engineGenJobs.test.ts` — uses a fake engine module.
+  - The happy path persists `engine`, `gen_task = 'text2music'`, null lyric
+    timestamps, and `readMeta`'s values.
+  - The duration falls back to the file.
+  - The genLock is held during the job and released after it.
+  - The 3-strike poll rule applies, and an abort sends cancel.
+- `engines/heartmula.test.ts` — caption → tags normalisation (commas,
+  semicolons, inner spaces, case, empties), AUTO duration → 240000, and
+  dropped fields.
+- `engines/yue2.test.ts`:
+  - The style suffix is built only from fields not left on AUTO.
+  - `seed` is always present and random when RANDOM SEED is on.
+  - `cfg_scale` is clamped.
+  - ABC cases: the three `Q:` forms, `K:` major / minor / sharp / modal,
+    `M:6/8` / `C` / `C|` / an unknown meter, missing headers, and a header
+    line after the body is ignored.
+- The existing `jobs.test.ts` persist cases pass unchanged. They are the
+  safety net for the `songPersist.ts` extraction.
+- `repaintJobs.test.ts` — ALT / SIMILAR are refused on an engine-made base
+  version.
+- `createDraft.test.ts` — `reusePromptDraft` carries `engine`.
+- Playwright (not set up yet; see `docs/AUDIT.md`): the golden path PROMPT +
+  HEARTMULA → library → open in Editor → repaint a region on ACE-Step → a
+  new version. It runs against a fake wrapper fixture that implements the
+  shared contract, so CI needs no GPU.
+
+### Rollout
+
+0. **HeartMuLa spike (manual, before any PR)** on the RTX 4080 16 GB,
+   with the Sysmem Fallback Policy set to "Prefer No Sysmem Fallback" so
+   an overrun fails loudly.
+   - Install heartlib on **native Windows** and try it both with and without
+     `--lazy_load`.
+   - Time one ~3-minute song and record its peak VRAM.
+   - Measure how much VRAM an idle ACE-Step still holds with
+     `ACESTEP_OFFLOAD_TO_CPU=true`.
+   - Time the CPU ↔ GPU weight swap in both directions.
+   - Try lyrics that use ACE-Step-style performance tags.
+   - If native Windows fails, repeat in WSL2.
+
+   Write the numbers into this section. If HeartMuLa doesn't fit, stop here;
+   nothing else has been built.
+1. `feat/engine-framework` — the `songPersist` split as its own first
+   `refactor:` commit, then the interface, registry, `engineClient`,
+   `engineGenJobs`, routes, `songs.engine`, the ALT guard, and the
+   `AGENTS.md` / `CLAUDE.md` amendment. No engine is configured yet, so
+   nothing changes for the user.
+2. `feat/heartmula-server` — the wrapper and its README.
+3. `feat/heartmula-engine` — the engine module, mapping, and tests.
+4. `feat/engine-picker-ui` — the Create picker, descriptor gating, the
+   Engines card, and `DESIGN.md` (its own commit).
+5. YuE2: a WSL2 spike like step 0 (also try empty lyrics, and note whether
+   `truncated` shows up at the default `max_tokens`), then `feat/yue-server`
+   and `feat/yue-engine`. There is no new UI work, because the descriptor
+   already covers it.
+
+### Open questions
+
+General:
+- **Does ACE-Step's idle offload actually free the VRAM?**
+  `ACESTEP_OFFLOAD_TO_CPU` moves the models, but PyTorch's caching allocator
+  may keep the blocks reserved, and ACE-Step isn't ours to patch with an
+  `empty_cache()`. Step 0 measures this. If the memory is not freed, the
+  fallback is running only one of the two processes at a time, which would
+  have to be documented and is clumsy.
+- **Engine-side swap policy.** Is moving to CPU after every job right, or
+  should a model stay on the GPU for a short idle window (for example 2
+  minutes) when several takes are generated in a row on the same engine?
+  That is only safe if ACE-Step's offload is proven to free its memory.
+  Every speed figure above comes from other GPUs; the spikes give the 4080
+  numbers.
+- **Engine column vs params_json only.** The column is recommended (design
+  point 8). The case against: params_json already records `engine`, and a
+  column is one more migration for a value that only two readers use.
+  Confirm before PR 1.
+- **Compare engines (future idea, not planned).** Generate one prompt on
+  several engines and keep each result as a Base-layer version of the same
+  song. It fits the version model, but it is a batch across engines, and
+  genLock would run the parts one after another.
+- **Section strip for engine-made songs.** There are no lyric timestamps.
+  The fork's `/lyric_timestamp` reads audio from ACE-Step's own filesystem.
+  Could it take an upload instead? If not, the stable-ts to-do under "Open
+  Questions For Later Phases" would cover it.
+- **Fill missing bpm / key with `/v1/analyze_audio`** after an engine
+  generation? It would populate the song's metadata (HeartMuLa returns
+  none), but it adds an ACE-Step call to every engine job and would state
+  guesses as facts.
+- **Lyric tag vocabulary per engine.** HeartMuLa has six section tags,
+  YuE2 uses `[Verse]` / `[Chorus]`, and Mulakai's tag guide and probe use
+  ACE-Step's vocabulary, including performance tags like `[soft voice]`.
+  Does each engine ignore unknown tags, sing them, or fail? Should the tag
+  guide popover filter by the descriptor's `sectionTags`?
+
+HeartMuLa:
+- **Caption → tags strategy.** The v1 normalisation is mechanical. Options:
+  a tag picker built on the "Style Tag Vocabulary for the Caption Field"
+  work, or an ACE-Step LM rewrite into HeartMuLa's eight categories.
+  Decide after hearing how v1 tags perform.
+- **HeartTranscriptor** as an extra lyrics-from-audio helper, for example
+  for imports with no lyrics? It would be a second ASR path next to the
+  stable-ts to-do. Not planned.
+
+YuE2:
+- **Is WSL2 viable, and how fast is it?** Answered by its spike.
+- **Wrapper vs Turbo.** Revisit after the spike. Switching is a deployment
+  change and needs no code.
+- **Persist `score.abc`?** Leaning yes: store it as a `${versionId}.abc`
+  sidecar. It is tiny, it cannot be recovered later, and anything
+  score-aware in the future needs it. Against: nothing reads it yet, and
+  ABC editing is out of scope.
+- **Covers via SheetSage2**: this needs its own dated section if it is ever
+  wanted.
+- **`truncated` results.** A plan longer than the semantic `max_tokens` gets
+  cut off. The v1 leaning is to keep the song, label its version
+  `first generation (truncated)`, and show a `.warn-note` in the rail.
+  The alternative is to fail the job.
+- **Should ALT on a YuE2 base version resubmit to YuE2** instead of being
+  refused (design point 9)? The same question applies to HeartMuLa, but
+  HeartMuLa has no seed, so a resubmit would only produce a new take.
+- **Instrumental (empty lyrics)**: is it supported? If not, GENERATE needs
+  a guard for YuE2.
+- **Languages other than en / zh**: hard-block them or only warn? VOCAL
+  LANGUAGE is disabled either way, but nothing stops the lyrics themselves
+  from being in another language.
