@@ -8,7 +8,7 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-test-'));
 
 const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
-const { loadVoiceReference, applyVoiceInfluence } = await import('./voiceConditioning.js');
+const { loadVoiceReference, applyVoiceInfluence, applyStyleInfluence } = await import('./voiceConditioning.js');
 
 function seedVoice(overrides: Partial<{ default_audio_influence: number; default_style_influence: number }> = {}) {
   const id = crypto.randomUUID();
@@ -39,6 +39,13 @@ describe('loadVoiceReference', () => {
 
   it('throws for an unknown voice id', async () => {
     await expect(loadVoiceReference('nope')).rejects.toThrow('unknown voice');
+  });
+});
+
+describe('applyStyleInfluence', () => {
+  it('scales guidance_scale without touching audio_cover_strength', () => {
+    const params = applyStyleInfluence({ guidance_scale: 7 }, 1);
+    expect(params).toEqual({ guidance_scale: 14 });
   });
 });
 

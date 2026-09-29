@@ -62,7 +62,7 @@ async function waitForDone(jobId: string) {
 }
 
 describe('startGeneration with an ad-hoc reference-audio upload', () => {
-  it('sends the uploaded file as reference_audio and remaps audio_influence/style_influence, same as a saved voice', async () => {
+  it('sends the uploaded file as reference_audio and remaps only style_influence, same as a saved voice', async () => {
     releaseTask.mockClear();
     const job = startGeneration({ prompt: 'a driving synthwave track' }, 'My Song', {
       referenceAudioFile: { data: Buffer.from('ref-bytes'), filename: 'ref.wav' },
@@ -74,7 +74,8 @@ describe('startGeneration with an ad-hoc reference-audio upload', () => {
     expect(releaseTask).toHaveBeenCalledTimes(1);
     const [params, opts] = releaseTask.mock.calls[0] as [Record<string, unknown>, { referenceAudio: { data: Buffer } }];
     expect(opts.referenceAudio.data.toString()).toBe('ref-bytes');
-    expect(params.audio_cover_strength).toBe(0.8); // applyVoiceInfluence's audio_influence -> audio_cover_strength mapping
+    // ACE-Step neutralizes audio_cover_strength for text2music (upstream #1305), so it isn't sent.
+    expect(params).not.toHaveProperty('audio_cover_strength');
   });
 
   it('works without any voice/reference option at all', async () => {
@@ -86,7 +87,7 @@ describe('startGeneration with an ad-hoc reference-audio upload', () => {
     expect(opts?.referenceAudio).toBeUndefined();
   });
 
-  it('persists the reference-audio label + influences onto the song for the library rail', async () => {
+  it('persists the reference-audio label + style influence (no audio influence) for the library rail', async () => {
     const job = startGeneration({ prompt: 'a driving synthwave track' }, 'Ref Meta Song', {
       referenceAudioFile: { data: Buffer.from('ref-bytes'), filename: 'my-clip.wav' },
       audioInfluence: 0.8,
@@ -97,8 +98,8 @@ describe('startGeneration with an ad-hoc reference-audio upload', () => {
     const row = db.prepare(
       `SELECT reference_audio_label AS label, reference_audio_influence AS a, reference_style_influence AS s
          FROM songs WHERE title = ?`,
-    ).get('Ref Meta Song') as { label: string; a: number; s: number };
-    expect(row).toMatchObject({ label: 'my-clip.wav', a: 0.8, s: 0.3 });
+    ).get('Ref Meta Song') as { label: string; a: number | null; s: number };
+    expect(row).toMatchObject({ label: 'my-clip.wav', a: null, s: 0.3 });
   });
 
   it('leaves the reference-audio columns null when no reference was used', async () => {

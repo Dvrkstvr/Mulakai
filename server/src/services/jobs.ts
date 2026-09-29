@@ -17,7 +17,7 @@ import { reconcileAdapter } from './adapters.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
 import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT } from './audioOutput.js';
 import { transcodeBuffer } from './transcode.js';
-import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
+import { loadVoiceReference, applyStyleInfluence } from './voiceConditioning.js';
 import { tagOutputFile } from './fileTags.js';
 import { acquireGenLock, releaseGenLock, getGenLock, type GenLockInfo } from './genLock.js';
 
@@ -101,7 +101,8 @@ export async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void
 }
 
 /** What reference audio (if any) conditioned a generation, persisted onto the song for the
- * Library detail rail. Influences are null for cover/complete, which don't remap them. */
+ * Library detail rail. Influences are null for cover/complete, which don't remap them, and
+ * audioInfluence is also null for text2music (see startGeneration). */
 export interface ReferenceAudioMeta {
   label: string;
   audioInfluence: number | null;
@@ -113,7 +114,7 @@ export interface VoiceOptions {
   audioInfluence?: number;
   styleInfluence?: number;
   /** An ad-hoc uploaded reference clip, used in place of a saved voice profile — same
-   * audio_influence/style_influence remapping applies either way (see applyVoiceInfluence). */
+   * style_influence remapping applies either way (see applyStyleInfluence). */
   referenceAudioFile?: { data: Buffer; filename: string };
 }
 
@@ -136,9 +137,11 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
       : voice?.referenceAudioFile
         ? { name: voice.referenceAudioFile.filename, referenceAudio: voice.referenceAudioFile, audioInfluence: voice.audioInfluence ?? 0.5, styleInfluence: voice.styleInfluence ?? 0.5 }
         : undefined;
-    if (ref) applyVoiceInfluence(fullParams, ref);
+    // Style only: ACE-Step resets audio_cover_strength to neutral for text2music (upstream
+    // #1305), so sending or recording an audio influence here would claim an effect it never had.
+    if (ref) applyStyleInfluence(fullParams, ref.styleInfluence);
     const referenceMeta: ReferenceAudioMeta | null = ref
-      ? { label: ref.name, audioInfluence: ref.audioInfluence, styleInfluence: ref.styleInfluence }
+      ? { label: ref.name, audioInfluence: null, styleInfluence: ref.styleInfluence }
       : null;
     if (wasAborted(job)) return; // aborted while resolving the voice reference
     const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
