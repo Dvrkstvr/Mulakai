@@ -48,18 +48,22 @@ export async function loadVoiceReference(
 }
 
 /**
- * Applies resolved influence values to a params object in place:
- * `audio_cover_strength` maps directly from audioInfluence (both 0-1), and
- * `guidance_scale` (if the request already set an explicit, non-AUTO value)
- * is scaled by styleInfluence/0.5 and clamped to ACE-Step's 0-20 range.
+ * Scales `guidance_scale` (if the request already set an explicit, non-AUTO value)
+ * by styleInfluence/0.5, clamped to ACE-Step's 0-20 range. On its own for text2music,
+ * where ACE-Step resets audio_cover_strength to neutral (upstream #1305).
  */
+export function applyStyleInfluence<T extends { guidance_scale?: number }>(params: T, styleInfluence: number): T {
+  if (params.guidance_scale !== undefined) {
+    params.guidance_scale = Math.max(0, Math.min(20, params.guidance_scale * (styleInfluence / 0.5)));
+  }
+  return params;
+}
+
+/** applyStyleInfluence plus `audio_cover_strength` mapped directly from audioInfluence (both 0-1). */
 export function applyVoiceInfluence<T extends { audio_cover_strength?: number; guidance_scale?: number }>(
   params: T,
   ref: { audioInfluence: number; styleInfluence: number },
 ): T {
   params.audio_cover_strength = ref.audioInfluence;
-  if (params.guidance_scale !== undefined) {
-    params.guidance_scale = Math.max(0, Math.min(20, params.guidance_scale * (ref.styleInfluence / 0.5)));
-  }
-  return params;
+  return applyStyleInfluence(params, ref.styleInfluence);
 }

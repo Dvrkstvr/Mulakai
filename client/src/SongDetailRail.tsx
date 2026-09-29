@@ -20,11 +20,15 @@ const UNFILED = '';
 
 const fmtDuration = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
-/** "<name>" plus influence percentages when present (text2music); label alone for cover/complete. */
+/** "<name>" plus whichever influence percentages were recorded: style only for text2music
+ * (ACE-Step neutralizes audio there), both for older songs, label alone for cover/complete. */
 const referenceAudioValue = (song: Song): string => {
   const label = song.reference_audio_label ?? '';
-  if (song.reference_audio_influence == null) return label;
-  return `${label} — audio ${Math.round(song.reference_audio_influence * 100)}% / style ${Math.round((song.reference_style_influence ?? 0) * 100)}%`;
+  const parts = [
+    song.reference_audio_influence != null ? `audio ${Math.round(song.reference_audio_influence * 100)}%` : null,
+    song.reference_style_influence != null ? `style ${Math.round(song.reference_style_influence * 100)}%` : null,
+  ].filter(Boolean);
+  return parts.length ? `${label} — ${parts.join(' / ')}` : label;
 };
 
 function MetaRow({ label, value }: { label: string; value: string }) {

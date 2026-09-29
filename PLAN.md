@@ -2873,3 +2873,38 @@ YuE2:
 - **Languages other than en / zh**: hard-block them or only warn? VOCAL
   LANGUAGE is disabled either way, but nothing stops the lyrics themselves
   from being in another language.
+
+## Text2music Reference Audio: Style Influence Only (planned + implemented 2026-09-30)
+
+Upstream `c86889f` (#1305) resets `audio_cover_strength`/`cover_noise_strength`
+to neutral (1.0/0.0) whenever the resolved task is `text2music`
+(`generate_music_request.py`, `_neutralize_cover_only_params`), to stop stale
+Remix state producing noise (#1271). Our PROMPT tab maps the reference-audio
+AUDIO INFLUENCE slider straight onto `audio_cover_strength`
+(`voiceConditioning.ts`), so for text2music that slider is now a guaranteed
+no-op. It was close to one before, too: in text2music the parameter only
+switches between two near-identical text conditionings partway through
+diffusion (`conditioning_text.py`), never touching the reference timbre.
+
+### Decisions
+
+- **Hide AUDIO INFLUENCE on PROMPT (text2music); keep STYLE.** Style still
+  scales an explicit `guidance_scale`. The picker's hint shows style only.
+- **Stop sending and recording it for text2music.** `startGeneration` applies
+  style only and persists `reference_audio_influence = null`; the Library rail
+  prints whichever influences were recorded, so older songs still show both.
+- **Add Layer (`lego`) is unchanged.** Upstream explicitly leaves the param
+  live for every non-text2music task.
+- **Out of scope: ARRANGE (`complete`).** Its picker still shows both sliders
+  and percentages although `referenceAudioResolve.ts` never remaps them — a
+  pre-existing gap, not caused by this upstream change; separate fix.
+
+### File-level plan
+
+- `server/src/services/voiceConditioning.ts` — extract `applyStyleInfluence`;
+  `applyVoiceInfluence` composes it.
+- `server/src/services/jobs.ts` — `startGeneration` uses style only, null audio
+  influence in the reference meta.
+- `server/src/services/{jobs,voiceConditioning}.test.ts` — updated/new cases.
+- `client/src/ReferenceAudioPicker.tsx` — hide AUDIO slider for text2music.
+- `client/src/SongDetailRail.tsx` — render recorded influences independently.
