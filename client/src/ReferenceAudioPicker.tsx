@@ -5,14 +5,13 @@ import { useVoiceStore } from './voiceStore';
 import { Dropzone } from './Dropzone';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { useObjectUrl } from './useObjectUrl';
-import { type ReferenceTaskType, influenceHint, influenceSliders } from './referenceInfluence';
+import { type ReferenceTaskType, influenceHint, showsStyleInfluence } from './referenceInfluence';
 
 interface Props {
-  /** Decides which influence sliders are live and what the hint promises — see referenceInfluence.ts. */
+  /** Decides whether STYLE INFLUENCE is live and what the hint promises — see referenceInfluence.ts. */
   taskType: ReferenceTaskType;
 }
 
-const AUDIO_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s actual sound (timbre, vocal tone, mixing) — higher pulls the result closer to the reference audio itself.';
 const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s genre/style character — higher pulls the result toward the reference\'s overall style rather than just your prompt.';
 
 /**
@@ -24,8 +23,8 @@ const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference c
  */
 export function ReferenceAudioPicker({ taskType }: Props) {
   const {
-    voices, refMode, selectedVoiceId, uploadedRefFile, audioInfluence, styleInfluence, missingReferenceLabel,
-    fetchVoices, setRefMode, selectVoice, setUploadedRefFile, setAudioInfluence, setStyleInfluence,
+    voices, refMode, selectedVoiceId, uploadedRefFile, styleInfluence, missingReferenceLabel,
+    fetchVoices, setRefMode, selectVoice, setUploadedRefFile, setStyleInfluence,
   } = useVoiceStore();
 
   useEffect(() => {
@@ -36,7 +35,6 @@ export function ReferenceAudioPicker({ taskType }: Props) {
   const selected = voices.find((v) => v.id === selectedVoiceId);
   const options = [{ label: 'NONE', value: '' }, ...voices.map((v) => ({ label: v.name, value: v.id }))];
   const uploadedRefUrl = useObjectUrl(uploadedRefFile);
-  const sliders = influenceSliders(taskType);
 
   return (
     <div className="voice-picker">
@@ -82,11 +80,7 @@ export function ReferenceAudioPicker({ taskType }: Props) {
       )}
       {(selected || uploadedRefFile) && (
         <>
-          {sliders.audio && (
-            <Slider label="AUDIO INFLUENCE" value={Math.round(audioInfluence * 100)} min={0} max={100} step={5}
-              color="var(--sky)" info={AUDIO_INFLUENCE_INFO} onChange={(v) => setAudioInfluence(v / 100)} />
-          )}
-          {sliders.style && (
+          {showsStyleInfluence(taskType) && (
             <Slider label="STYLE INFLUENCE" value={Math.round(styleInfluence * 100)} min={0} max={100} step={5}
               color="var(--sky)" info={STYLE_INFLUENCE_INFO} onChange={(v) => setStyleInfluence(v / 100)} />
           )}

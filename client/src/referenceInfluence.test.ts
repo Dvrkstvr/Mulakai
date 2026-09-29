@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
-import { influenceHint, influenceSliders } from './referenceInfluence';
+import { influenceHint, showsStyleInfluence } from './referenceInfluence';
 
-describe('influenceSliders', () => {
-  it('shows style only for text2music', () => {
-    expect(influenceSliders('text2music')).toEqual({ audio: false, style: true });
+describe('showsStyleInfluence', () => {
+  it('shows style for text2music', () => {
+    expect(showsStyleInfluence('text2music')).toBe(true);
   });
 
-  it('hides both sliders for complete (ARRANGE) — the server never applies them', () => {
-    expect(influenceSliders('complete')).toEqual({ audio: false, style: false });
+  it('hides it for cover (COVER) — VARIANCE drives it instead', () => {
+    expect(showsStyleInfluence('cover')).toBe(false);
   });
 
-  it('leaves cover unchanged', () => {
-    expect(influenceSliders('cover')).toEqual({ audio: true, style: true });
+  it('hides it for complete (ARRANGE) — the server never applies it', () => {
+    expect(showsStyleInfluence('complete')).toBe(false);
   });
 });
 
@@ -26,7 +26,9 @@ describe('influenceHint', () => {
     expect(hint).toContain('ARRANGE has no influence controls');
   });
 
-  it('points cover at VARIANCE', () => {
-    expect(influenceHint('cover', 0.35)).toContain('VARIANCE');
+  it('points cover at VARIANCE without referring to hidden sliders', () => {
+    const hint = influenceHint('cover', 0.35);
+    expect(hint).toContain('VARIANCE');
+    expect(hint).not.toMatch(/%|slider/);
   });
 });

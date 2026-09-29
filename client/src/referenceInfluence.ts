@@ -1,18 +1,14 @@
 /**
- * Which reference-audio influence sliders the server actually applies, per Create task. Kept
- * in step with the server: text2music applies style only (ACE-Step neutralizes
- * audio_cover_strength there, upstream #1305); cover and complete never remap either influence
- * (referenceAudioResolve.ts). Cover still shows both sliders with a disclaimer; complete hides
- * them outright so ARRANGE doesn't present dead controls.
+ * Which reference-audio influence the server actually applies, per Create task. Kept in step
+ * with the server: text2music applies style only (ACE-Step neutralizes audio_cover_strength
+ * there, upstream #1305); cover and complete never remap either influence
+ * (referenceAudioResolve.ts), so COVER and ARRANGE show no sliders rather than dead controls.
+ * AUDIO INFLUENCE therefore never appears on Create — it lives on in Add Layer's VoicePicker.
  */
 export type ReferenceTaskType = 'text2music' | 'cover' | 'complete';
 
-export function influenceSliders(taskType: ReferenceTaskType): { audio: boolean; style: boolean } {
-  switch (taskType) {
-    case 'text2music': return { audio: false, style: true };
-    case 'cover': return { audio: true, style: true };
-    case 'complete': return { audio: false, style: false };
-  }
+export function showsStyleInfluence(taskType: ReferenceTaskType): boolean {
+  return taskType === 'text2music';
 }
 
 const pct = (v: number) => `${Math.round(v * 100)}%`;
@@ -21,7 +17,7 @@ const pct = (v: number) => `${Math.round(v * 100)}%`;
 export function influenceHint(taskType: ReferenceTaskType, styleInfluence: number): string {
   switch (taskType) {
     case 'text2music': return ` — style ${pct(styleInfluence)}`;
-    case 'cover': return ' — the sliders above don\'t apply here; VARIANCE controls closeness to the source track instead';
+    case 'cover': return ' — used as-is; VARIANCE controls closeness to the source track';
     case 'complete': return ' — used as-is; ARRANGE has no influence controls';
   }
 }
