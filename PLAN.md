@@ -4306,6 +4306,81 @@ they supersede them:
   - **Stored score:** `covers/:songId/score` returned exactly the
     transcribed score.
 
+### Client cover decisions (2026-10-01, `feat/yue-cover-ui`)
+
+PR 3. Where these differ from points 1–4, 9–12 or the file-level plan,
+they supersede them:
+
+- **ENGINE on COVER.** `EngineChoice` takes its choices, value and
+  handler as props, so PROMPT and COVER share it.
+  - COVER offers ACE-STEP plus every extra engine whose `coverReady` is
+    true. The row renders only when one exists, or when the draft already
+    names one.
+  - The pick is `draft.audio.engine`, so PROMPT's engine is untouched.
+    ARRANGE stays ACE-Step-only.
+- **The score lives in the draft**: `draft.audio.yueScore`, which holds
+  the ABC, its source label, SheetSage2's facts (null for a file or a
+  reused score), and the transcription job id for the preview.
+  - The draft is in memory only, as it always has been, so this
+    supersedes point 9's "survives a reload". The score survives tab
+    switches and leaving Create, like the rest of the draft.
+  - Changing the source (the tab, the picked song or the upload) clears
+    it. CLEAR DRAFT clears it and resets the engine.
+- **The settings panel follows COVER's engine.** `useEngineCaps` resolves
+  COVER to `audio.engine`, so on YUE2 the panel shows YuE2's CFG and SEED.
+  COT is hidden there, with a hint, because a cover always uses `melody`
+  (point 5).
+- **TRANSCRIBE** is an acid-outline button: GENERATE COVER stays the one
+  filled CTA.
+  - While it runs it reads `TRANSCRIBING… n%`, from SheetSage2's windows.
+  - No shader: DESIGN.md keeps the AI shimmer to GENERATE / REPAINT.
+  - It is off while any job holds the lock, and needs a source.
+  - A new `transcribeStore.ts` runs it, because `generationStore.ts` is at
+    the cap. The result is applied only if the draft's source is still
+    the one that was transcribed.
+- **The review panel** (`YueScoreReview.tsx`):
+  - Tempo, key, meter, bars and length, from `abcFacts.ts`. Its header
+    parsing mirrors the server's `abcMeta.ts`.
+  - SheetSage2's vocal and instrument note counts.
+  - Its warnings, as a `.warn-note`.
+  - The piano preview through `AudioPreview`, from the proxy route.
+    Without one, a hint says why: a replaced or reused score has none,
+    and an expired one needs re-transcribing.
+  - The ABC in a collapsed, read-only block.
+  - **USE .ABC FILE** replaces the score and drops the preview. The server
+    checks the file at GENERATE, and its 422 message is shown.
+- **Lyrics fit the score's sections** (spike: 0.93 against 0.66 with the
+  source's own tags).
+  - When a score arrives and LYRICS is empty, it is filled: with the
+    score's section outline, or for a library source with that song's
+    words re-tagged in order onto the score's sung sections
+    (`coverLyrics.ts`).
+  - **FIT TO SCORE** re-tags whatever LYRICS holds now.
+  - Empty LYRICS makes an instrumental cover, and the consequence line
+    says the melody is then followed more loosely.
+- **Song details on COVER · YUE2.** There are no BPM, KEY, TIME SIGNATURE
+  or DURATION inputs: the score fixes them (point 5), and the review
+  facts stand in for them. VOCAL LANGUAGE stays, English or Chinese.
+- **GENERATE COVER** calls `startYueCover`, through the shared `launch`.
+  - The request carries title, prompt, lyrics, language, the seed pair,
+    CFG (no COT), output, folder, `abc` and `source`.
+  - Consequence lines follow point 11, with an instrumental variant.
+- **REUSE PROMPT on a `COVER · YUE2` song** opens COVER on YUE2.
+  - The draft carries `reuseScore` (the engine and song), and the panel
+    fetches the song's source score into `yueScore`.
+  - So it is ready to GENERATE with no source. TRANSCRIBE is still there
+    if a source is picked.
+  - The rail's consequence line says so.
+  - A retry of a failed cover, or a job adopted from the lock, reopens
+    COVER on its engine.
+- **Settings › Engines:**
+  - The YuE2 row gains `COVERS: READY / NOT SET UP` and "SheetSage2
+    weights: CC BY-NC 4.0."
+  - The card's hint names COVER too.
+  - The header pill shows the new lock kind as `TRANSCRIBE · RUNNING`.
+- **DESIGN.md is updated in its own commit.** It says COVER is always
+  ACE-Step, which is no longer true.
+
 ### Open questions
 
 - **Section alignment.** If YuE2 needs lyric section tags that match the
