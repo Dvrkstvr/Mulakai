@@ -3917,8 +3917,8 @@ decisions above, they supersede them:
 ### File-level plan
 
 **PR 0 — spike (`docs/yue2-cover-spike`, PLAN.md only).** Manual, in WSL,
-with the numbers written back here. *Done 2026-09-30, except the ACE-Step
-side check: see "Cover spike results" below.*
+with the numbers written back here. *Done 2026-09-30: see "Cover spike
+results" below.*
 
 - Install SheetSage2 per `docs/covers.md` in `~/sheetsage2`, including
   the Hugging Face login.
@@ -4114,10 +4114,38 @@ for the re-tagged run), so a fixed-tempo comparison is misleading here.
   is allowed, and its consequence line says the melody is followed more
   loosely.
 
+**ACE-Step side check: dropped for sung covers.** SheetSage2's piano
+rendering was used as the *source* of a Mulakai COVER (`acestep-v15-sft`)
+and ARRANGE (`acestep-v15-base`) job, with the folk style and the re-tagged
+lyrics. The results were scored the same way and saved to the library's
+"SheetSage spike" folder.
+
+| Run | F1 | Octave-folded | Sung notes |
+| --- | --- | --- | --- |
+| Ellies → COVER | 0.29 | 0.30 | 0 of 413 melody notes |
+| Ellies → ARRANGE | 0.10 | 0.12 | 114 |
+| eventide → COVER, lo-fi instrumental | 0.02 | 0.68 | 0 |
+
+- **COVER gives a restyled instrumental, not a song.** Nothing was sung,
+  despite the lyrics and "warm female vocal". About half of the melody
+  is in there, among many added notes.
+- **ARRANGE sings, but a new melody**, at chance level (0.10).
+- **COVER on an instrumental** keeps the melody's pitch classes about as
+  well as YuE2 did (0.68 octave-folded), though an octave away.
+
+So a transcription's piano rendering does not make ACE-Step sing the
+source's melody. The follow-up section is not written. Two caveats:
+- COVER ran at ACE-Step's default strength. VARIANCE never reaches
+  ACE-Step, because `/from-audio` drops `audio_cover_strength`. That bug
+  was found here and filed separately. An instrumental-only variant could
+  be retried once it is fixed.
+- The XL models spilled out of 16 GB at 55 s per step, about 47 minutes a
+  job, so the standard models were used. They took 4.5–6 minutes a job.
+
 **Not done.**
-- The ACE-Step side check. It needs ACE-Step running, and it adds its
-  results to the library.
-- A listening pass.
+- A listening pass. The files are in
+  `\\wsl$\Ubuntu-24.04\home\calvin\sheetsage-spike\gen\*\song\audio.flac`,
+  and the ACE-Step results are in the library.
 - ASR on the misfit lyrics.
 
 ### Open questions
