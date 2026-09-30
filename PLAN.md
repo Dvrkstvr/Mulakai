@@ -2412,6 +2412,7 @@ most, the whole-song first take, without adding a second editing stack.
         `torch.cuda.empty_cache()`.
       - Switching engines then costs a host → device copy, not a ~8–22 GB
         read from disk. Measured for HeartMuLa: ~1 s per model each way.
+        Measured for YuE2: ~1.2–1.5 s to park, ~0.8 s to bring back.
       - *Rejected*: unloading to disk after each job. It is slower on every
         switch, for RAM this machine does not need to save.
     - **Windows driver trap.** When an allocation goes over budget, the
@@ -2620,7 +2621,8 @@ together. The raw logs, harness scripts, exact commands and audio are in
 
 Sources: `github.com/multimodal-art-projection/YuE` (main),
 HuggingFace `m-a-p/YuE2-3B`, and `github.com/NoizAI/YuE2-Turbo`. Researched
-2026-09-30 and not yet run on this machine.
+2026-09-30, then run in WSL2 on this machine the same day; see "YuE2 spike
+results" below.
 
 - **Model**: one AR–NAR model of ~3.58B params. It works in three steps: an
   ABC score plan → MERT2 semantic tokens at 25 Hz → flow-matched acoustic
@@ -2646,19 +2648,20 @@ HuggingFace `m-a-p/YuE2-3B`, and `github.com/NoizAI/YuE2-Turbo`. Researched
   timings). No stems. No lyric timestamps are documented.
 - **Runtime**: Linux only. Python 3.12, torch 2.10.0, an NVIDIA BF16 GPU.
   - VRAM: 24 GB is the official figure; the measured peak is ~11–14 GiB.
-  - Speed: an RTX 4090 renders a 215 s song in 71 s.
+  - Speed: an RTX 4090 renders a 215 s song in 71 s. The spike measured
+    178 s of audio in 96 s on the 4080 (RTF 0.54).
   - Weights: 7.26 GB plus a 0.53 GB VAE.
   - `--quantization fp8` (compute capability ≥ 8.9) and `--offload-ar` exist
     but are experimental.
-  - *At 16 GB*: the measured peak is 11–14 GiB, reaching **14.08 GiB at
-    maximum context**, which is borderline against ~14.5 GB usable. WSL2
-    shares the same 16 GB. The 4080 is compute capability 8.9, so
-    `--quantization fp8` for the AR stage is available, along with
-    `--offload-ar`. Both are the planned mitigations if the spike hits the
-    ceiling.
+  - *At 16 GB*: it fits with the defaults. The spike's PyTorch peak was
+    8.1 GiB (8.8 GiB with `cot=off`), or 10.2–10.9 GB on the card with the
+    desktop included. Neither fp8 nor `--offload-ar` is needed, and fp8 is
+    4.6x slower (see "YuE2 spike results"). The card's 14.08 GiB at maximum
+    context was not reproduced; the longest song tried was ~3 minutes.
 - **Windows is unsupported.** Open issue #209: on Windows the acoustic stage
   falls back to the MATH attention kernel, which is ~6x slower and uses
-  ~7 GB more VRAM. On this machine that means **WSL2**.
+  ~7 GB more VRAM. On this machine that means **WSL2**, where the spike
+  confirmed the fast path (FlashAttention with CUDA graphs).
 - **Serving**: the official repo has **no HTTP server**, only a CLI
   (`yue2 doctor|generate|batch`). YuE2-Turbo (Apache-2.0) ships `yue2-serve`
   (FastAPI, bearer `YUE2_API_KEY`). Its job API is the one design point 3
@@ -2713,9 +2716,95 @@ HuggingFace `m-a-p/YuE2-3B`, and `github.com/NoizAI/YuE2-Turbo`. Researched
 | — | `id` | our job id, so both sides' logs can be matched |
 
 **Consequence line**: "YuE2 · no duration control, no reference voice, no
-section strip · ~70 s per song on a 4090 · later edits use ACE-Step".
+section strip · ~95 s per 3-minute song on an RTX 4080 · later edits use
+ACE-Step".
 **Settings card license note**: "YuE2 weights: CC BY-NC 4.0 — individuals
 may use and monetize outputs; companies need a license from the authors."
+
+#### YuE2 spike results (2026-09-30)
+
+**Verdict: go, with caveats.** The official pipeline runs in WSL2 on the
+4080 at about half real time, with the default settings, without spilling.
+The logs, harness scripts, exact commands and audio are in WSL at
+`~/yue2/` (`RESULTS.md`, `COMMANDS.md`), reachable from Windows at
+`\\wsl.localhost\Ubuntu-24.04\home\calvin\yue2\`.
+
+- **Setup**: WSL2 (NAT networking, no `.wslconfig`), Ubuntu 24.04.5 with
+  62 GB of RAM visible. YuE commit `18a07bb` (`yue2-infer` 0.1.6). Python
+  3.12.3 (uv venv), torch 2.10.0+cu128, transformers 4.57.6. The Windows
+  driver (596.21) provides CUDA inside WSL, and no Linux driver was
+  installed. `yue2 doctor` reported the dependencies ready and saw the 4080
+  as 15.99 GiB, compute capability 8.9. `--verify-hashes` downloaded the
+  weights in 221 s.
+- **Install blockers**: none in YuE2 itself. Getting WSL working took three
+  tries:
+  - Enabling Virtual Machine Platform needed a reboot.
+  - A distro installed before that reboot never registered.
+  - Ubuntu's first-run user setup then hung and locked up all of WSL,
+    including `wsl --shutdown`. The fix was stopping the WSL service and
+    creating the user as root (`wsl -u root`, `adduser`, `[user] default=`
+    in `/etc/wsl.conf`). `yue-server/README.md` should carry this.
+- **Driver policy**: the spike ran with the default Sysmem Fallback Policy,
+  and nothing spilled. YuE2 caps its own PyTorch allocations at the card's
+  total minus 2 GiB (`set_per_process_memory_fraction`, from `--budget`), so
+  on its own it would hit out-of-memory before spilling.
+
+One ~3-minute English request (`[Verse]` / `[Pre-Chorus]` / `[Chorus]` /
+`[Bridge]` / `[Outro]`, seed 20260930) was generated in every run. The card
+column includes ~1.17 GB for the Windows desktop.
+
+| Run | Audio | Wall time | RTF | PyTorch peak (alloc / reserved) | Card peak (nvidia-smi) | Spill (WDDM shared) | Truncated | AR path |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| default (bf16, `cot=full`) | 177.6 s | 95.7 s | 0.54 | 8.09 / 8.69 GiB | 10.2 GB | none | no | CUDA graphs, flash |
+| `--quantization fp8` | 189.8 s | 443.7 s | 2.34 | 7.89 / 9.75 GiB | 11.5 GB | none | no | eager, sdpa |
+| `--offload-ar` | 177.6 s | 94.5 s | 0.53 | 8.09 / 8.69 GiB | 10.2 GB | none | no | CUDA graphs, flash |
+| `cot=off` (two CFG branches) | 183.8 s | 82.5 s | 0.45 | 8.79 / 9.17 GiB | 10.9 GB | none | no | CUDA graphs, flash |
+
+- **Stages (default run)**:
+  - Pipeline start 3.9 s, of which 3.4 s is weight hashing, plus 2.8 s to
+    load the model.
+  - Score plan 17.9 s (1,673 tokens at 94 tokens/s).
+  - Semantic tokens 46.8 s (4,442 tokens at 95 tokens/s).
+  - Acoustic synthesis 20.9 s, VAE decode 7.2 s.
+- **fp8 is not worth it here.** It turns CUDA graphs off
+  (`graph_fallback_reason: fp8_not_graph_validated`), so the AR stages drop
+  from ~95 to ~16 tokens/s. It saves only 0.2 GiB at peak, and synthesis
+  reserves more, because the bf16 weights are restored for it. It also
+  changes the sampling, so the same seed gives a different song.
+- **`--offload-ar` changes nothing at this length.** The peak is in the
+  semantic AR stage, which offload-ar does not touch. Its output was
+  bit-identical to the default run's, so seeded runs are reproducible.
+- **Why the peak is flat**: the AR KV cache is preallocated for the prefix
+  plus `max_tokens` (9000), ~1.2 GiB for one branch and ~2.4 GiB for
+  `cot=off`'s two, whatever the song length. Only the acoustic stage grows
+  with length, and songs near the 360 s cap were not tried.
+- **RAM parking** (`.to()` plus `empty_cache()`, 3 reps):
+
+  | Model | Size | GPU → CPU | CPU → GPU |
+  | --- | --- | --- | --- |
+  | AR/NAR model + VAE decoder (bf16) | 6.67 + 0.25 GiB | 1.2–1.5 s (4.9 s the first time) | 0.78 s (0.30 s from pinned memory) |
+
+  - Parked, the card drops back to its idle baseline.
+  - The pipeline already moves the model to CPU before the VAE decode and
+    moves the VAE back after it, so after a job only the CUDA context
+    (~0.6 GB) stays on the card. The next job brings the model back in
+    ~0.8 s.
+- **Windows → WSL**: a server bound to `0.0.0.0` or `127.0.0.1` inside WSL
+  answers on Windows at `localhost` and `127.0.0.1`, and Node 22's `fetch`
+  works. `[::1]` does not, because NAT-mode forwarding is IPv4-only, so the
+  URL should be `http://127.0.0.1:<port>`. WSL does not start on its own,
+  so the wrapper has to be launched through `wsl.exe`, by the user or a
+  startup task.
+- **Requirements for `yue-server/`** that follow from these numbers:
+  1. Default flags: bf16, `torch` backend, default `--budget`, no fp8, no
+     `--offload-ar`.
+  2. Keep one pipeline alive between jobs, so hashing and loading happen
+     once, and call `torch.cuda.empty_cache()` after each job.
+  3. A job needs ~9 GiB of free VRAM, so ACE-Step must be idle and
+     offloaded (~0.5 GB) while it runs. That holds under `genLock`.
+- **Not yet checked**: listening to the songs, instrumental (empty lyrics),
+  songs near the 360 s cap, and YuE2-Turbo. The plain pipeline leaves
+  ~5 GiB free, but Turbo is a vLLM setup tuned for 32 GB cards.
 
 ### Skipped: MiniMax Music 3
 
@@ -2822,8 +2911,10 @@ YuE2:
 - `yue-server/main.py`, `requirements.txt`, `README.md` — new. Covers the
   WSL2 setup (Python 3.12 venv, torch 2.10.0, `yue2 doctor`), the
   staged-progress reporting, the cancel-between-stages flag, CPU parking
-  between jobs, the fp8 / `--offload-ar` flags, and reaching the server from
-  Windows at `http://127.0.0.1:<port>`.
+  between jobs, the fp8 / `--offload-ar` flags (off by default; the spike
+  found fp8 4.6x slower), reaching the server from Windows at
+  `http://127.0.0.1:<port>`, starting it through `wsl.exe`, and the WSL
+  first-run hang workaround.
 - `server/src/services/engines/yue2.ts` — new. Descriptor, `toRequest`, and
   the ABC `readMeta`.
 
@@ -2894,6 +2985,10 @@ Tests (Vitest):
    and `feat/yue-engine`. There is no new UI work, because the descriptor
    already covers it.
 
+   **Spike done 2026-09-30: go, with caveats.** See "YuE2 spike results".
+   `truncated` did not show up at the default `max_tokens` for ~3-minute
+   songs. Empty lyrics were not tried.
+
 ### Open questions
 
 General:
@@ -2916,6 +3011,10 @@ General:
     model. It would also leave the 7.3 GB LM resident, and that plus
     ACE-Step's 9.2 GB generation peak does not fit in 16 GB. Revisit for
     YuE2 after its spike.
+  - **Answered for YuE2 (2026-09-30): park after every job too.** Bringing
+    the model back takes ~0.8 s, and the pipeline already parks it during
+    the decode. A resident 6.9 GiB model plus ACE-Step's 9.2 GB peak would
+    not fit either.
 - **Engine column vs params_json only.** The column is recommended (design
   point 8). The case against: params_json already records `engine`, and a
   column is one more migration for a value that only two readers use.
@@ -2957,8 +3056,14 @@ HeartMuLa:
 
 YuE2:
 - **Is WSL2 viable, and how fast is it?** Answered by its spike.
+  - **Answered (2026-09-30): yes.** RTF 0.54 (~95 s for a 3-minute song),
+    10.2 GB peak on the card, no spill, and the fast attention path. See
+    "YuE2 spike results".
 - **Wrapper vs Turbo.** Revisit after the spike. Switching is a deployment
   change and needs no code.
+  - *Leaning wrapper (2026-09-30)*: the official pipeline already runs the
+    AR stages with CUDA graphs and FlashAttention at ~95 tokens/s on the
+    4080. Turbo was not tried.
 - **Persist `score.abc`?** Leaning yes: store it as a `${versionId}.abc`
   sidecar. It is tiny, it cannot be recovered later, and anything
   score-aware in the future needs it. Against: nothing reads it yet, and
@@ -2969,6 +3074,9 @@ YuE2:
   cut off. The v1 leaning is to keep the song, label its version
   `first generation (truncated)`, and show a `.warn-note` in the rail.
   The alternative is to fail the job.
+  - *Not seen in the spike (2026-09-30)*: none of the four ~3-minute runs
+    was truncated. A ~3-minute song used ~4,500 of the 9,000 semantic
+    tokens.
 - **Should ALT on a YuE2 base version resubmit to YuE2** instead of being
   refused (design point 9)? The same question applies to HeartMuLa, but
   HeartMuLa has no seed, so a resubmit would only produce a new take.
