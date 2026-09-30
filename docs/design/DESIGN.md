@@ -56,7 +56,8 @@ waveform region, section strip, scope chip in the prompt bar. The layer
 stack's focused row is the same concept applied to "which layer" instead of
 "which time range" — it uses sky (left-border accent + `sky-tint`
 background), not lilac, because focus is scope/targeting, not a version/
-history marker.
+history marker. Create's ENGINE choice is sky for the same reason: picking
+an engine targets where the request goes, while GENERATE (acid) commits it.
 
 ### Lilac — "what did the AI make before?" (versions / history / AI markers)
 
@@ -212,7 +213,8 @@ requiring its own justification against a screen-count rule.
      width — no separate narrow-layout rule needed, same trick as Create's
      `with-rail` column. The rail shows the song's caption, a METADATA block
      (GENERATED WITH, then BPM/KEY-SCALE/TIME SIGNATURE/DURATION, same labels
-     as Create's SONG DETAILS), and LYRICS, plus two quick actions: **REUSE
+     as Create's SONG DETAILS; GENERATED WITH names the engine too when an
+     extra engine made the first take — `PROMPT · YUE2`), and LYRICS, plus two quick actions: **REUSE
      PROMPT** (acid-filled, the one primary commit action) opens Create
      prefilled with this song's prompt/lyrics/metadata, **on the generation
      tab that made it** — a cover's prompt describes a change to a source
@@ -272,12 +274,42 @@ requiring its own justification against a screen-count rule.
      Editor's repaint/add-layer flows. Hidden-by-disabled when there's
      nothing to clear; a folder-name title suggestion doesn't count as
      something to clear, since it's offered, not typed.
-     - *Prompt*: title, description field, lyrics editor (mono) with
+     - *Prompt*: an optional **ENGINE** row first (added 2026-09-30, see
+       below), then title, description field, lyrics editor (mono) with
        instrumental toggle, one acid GENERATE bar. A lilac helper line under
        the description notes that the LM model derives the generation
        parameters (bpm/key/structure) from the prompt — lilac because it's
        describing AI-derived behavior, not a live selection. LM MODEL stays
        enabled in the settings panel.
+     - **ENGINE** (PROMPT only): which model makes the song's first take —
+       ACE-STEP, or an optional extra engine (YuE2, HeartMuLa) whose server
+       is configured. One sky parallelogram per engine, ACE-STEP first,
+       active = sky fill with `on-sky` text; the row **does not render at
+       all** until some extra engine is configured, so a default install
+       looks unchanged. An engine that is configured but unreachable is
+       disabled with its reason as a line under the row; if the *selected*
+       engine can't take a job, a `.warn-note` says so and GENERATE is off.
+       The choice is part of the draft (REUSE PROMPT restores it, CLEAR
+       DRAFT resets it), never a sticky preference. COVER and ARRANGE are
+       always ACE-Step, and every later edit is too.
+       - **Descriptor-driven N/A**: each engine publishes what it can take;
+         a control it can't stays **in place**, disabled, with an `N/A`
+         readout (the same idiom as GUIDANCE on a Turbo model) and one reason
+         line under SONG DETAILS (e.g. "DURATION — YUE2 sets the length from
+         the song it plans"). Controls are never hidden, so switching engines
+         doesn't reflow the form. A reinterpreted control keeps working and
+         says how (HeartMuLa's DURATION reads `MAX 120s`; YuE2's BPM/KEY/TIME
+         SIGNATURE are "sent as style text, a hint rather than a guarantee").
+       - The settings panel swaps ACE-Step's model/LM/steps/guidance/
+         advanced/reference block for the engine's own controls (CFG,
+         TEMPERATURE, TOP-K as `Slider.tsx` faders where 0 = AUTO; COT as a
+         select), the shared RANDOM SEED/SEED pair (or a locked "not
+         reproducible" SEED row for an engine without one), and one line
+         naming the ACE-Step settings that don't apply.
+       - GENERATE states the engine's consequence line underneath (e.g.
+         "YuE2 · no duration control, no reference voice, no section strip ·
+         ~95 s per 3-minute song on an RTX 4080 · later edits use
+         ACE-Step"), per the copy rule below.
      - *Audio*: a **SOURCE** sub-choice (UPLOAD / FROM LIBRARY, same tab
        idiom). FROM LIBRARY shows a searchable mini song-picker; the
        selected song uses **sky** (selection/scope — same concept as
@@ -432,6 +464,15 @@ requiring its own justification against a screen-count rule.
      Create's settings panel already persists, surfaced here so it's
      reachable without opening Create. Read/select only — ACE-Step's API
      has no download/update-model endpoint, so this is not a model manager.
+   - **Engines** (added 2026-09-30): read-only, one row per optional
+     first-take engine with its status (READY / NOT CONFIGURED /
+     UNREACHABLE, same `.health` pill as MODELS) and the env var that
+     enables it — engines are configured on the server, so this card
+     reports and points rather than edits. An engine's license caveat is
+     stated here once (YuE2's CC BY-NC 4.0). While any engine is configured,
+     a `.warn-note` reminds you to run ACE-Step with
+     `ACESTEP_OFFLOAD_TO_CPU=true` — a standing reminder, since Mulakai can't
+     read ACE-Step's startup settings.
    - **Adapters** (added 2026-07-31): registered LoRA/LoKr adapters with a
      SELECT action per row and a NONE row at the top, plus a STRENGTH slider
      for whichever is active. Deliberately the same row + `mk-badge`
@@ -608,7 +649,11 @@ covers the shader from `progress*100%` to the right edge with a `carbon`,
 is" — still texture, not a literal progress bar. Omitting `progress` (the
 default) renders the plain full shader, unchanged from before; several call
 sites (e.g. Create's brief pre-jobId "STARTING…" state) still do this since
-no progress fraction exists yet at that point.
+no progress fraction exists yet at that point. An extra engine's job (e.g.
+YuE2) reports a fraction of its *current stage* rather than of the whole job,
+so its card names the stage and that stage's share ("synthesizing audio
+41%") and shows the plain shader — a veil that swept back to empty at every
+stage would claim the job was going backwards.
 
 **Size rule — background fill vs. thick border**: the shader reads as
 texture, not as legible surface for text sitting on top of it. Apply it
