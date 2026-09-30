@@ -93,9 +93,10 @@ wsl.exe -d Ubuntu-24.04 --exec bash -lc "cd /mnt/e/repos/Mulakai/yue-server && Y
 (Works from cmd and PowerShell; adjust the `/mnt/e/...` path to your
 checkout.) Add `YUE_API_KEY=<secret>` before `~/yue2/...` to require a bearer
 key.
-Startup verifies the weight hashes (~4 s) and then reports ready; the model
+Startup verifies the weight hashes (~6 s) and then reports ready; the model
 itself is read from disk on the first job (~3 s) and parked in system RAM
-after every job.
+after every job, including cancelled and failed ones. Between jobs the
+server holds only its CUDA context (~0.8 GB on the card).
 
 Point Mulakai's server at it (Windows side):
 
@@ -181,7 +182,9 @@ Job record:
 - `progress`: the fraction of the **current stage**, when its total is known:
   ODE steps in `synthesis`, VAE chunks in `decode`. `null` in `planning` and
   `semantic`, which have no known length (the token limit is a cap, not a
-  target); watch `tokens` there instead.
+  target); watch `tokens` there instead. Most of `decode` is the pipeline
+  moving the model to system RAM (~1–5 s) before the chunks start, so its
+  fraction jumps late.
 - `result` (on success): `audio_url`, `score_url` (or null), `audio_seconds`,
   `sample_rate`, `truncated: {abc, semantic}`, `timing` (seconds per stage).
 - `error` (on failure): `{code, message}` with code `invalid_generation`

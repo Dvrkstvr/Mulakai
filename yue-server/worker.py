@@ -88,9 +88,11 @@ def run_job(pipe, store: JobStore, job_id: str, request: dict) -> None:
     except Exception as error:  # every failure must reach the job record
         outcome = ("failed", None, _error(error))
     finally:
+        parking = time.monotonic()
         pipe.park()
     status, result, error = outcome
-    log.info("job %s %s%s", job_id, status, f": {error['message']}" if error else "")
+    log.info("job %s %s (parked in %.1f s)%s", job_id, status, time.monotonic() - parking,
+             f": {error['message']}" if error else "")
     store.finish(job_id, status, result=result, error=error)
 
 
