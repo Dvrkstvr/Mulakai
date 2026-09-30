@@ -2905,6 +2905,59 @@ question below.
 - `GET /api/generate/active` also returns the lock's `engine`, so a
   rehydrated GeneratingCard can say which engine is running.
 
+### YuE2 engine decisions (2026-09-30, `feat/yue-engine`)
+
+`engines/yue2.ts` (descriptor, `toRequest`), `engines/abcMeta.ts` (the ABC
+`readMeta`) and the registry entry. Where these differ from the YuE2
+mapping table above, they supersede it:
+
+- **CFG is an engine-only control, not ACE-Step's GUIDANCE** (project owner,
+  2026-09-30). The descriptor lists `extraControls: ['cfg', 'cot']`, and
+  `cfg_scale` comes from `CreateFields.cfg`, clamped to 0–20, with AUTO
+  omitting it. `guidance_scale` is never sent to YuE2. The two scales mean
+  different things: YuE2's neutral value is 1.0 and it runs without CFG by
+  default, while GUIDANCE is typically ~5–7. Since GUIDANCE is a persisted
+  app setting, a value set for ACE-Step would otherwise silently apply heavy
+  CFG to every YuE2 song. This supersedes the table's GUIDANCE row, and
+  `engineSettings.ts` (picker UI) owns the CFG value.
+- **Empty LYRICS become a tags-only skeleton**:
+  `[Intro] [Verse] [Chorus] [Verse] [Chorus] [Outro]`, one tag per line.
+  `instrumental, no vocals` is also added to `style`. Blank lyrics still
+  plan a sung line, and `yue2-serve` rejects them outright. The end-to-end
+  check (below) planned 0 of 49 vocal bars on a new seed, and ran 136 s.
+- **Seed**: RANDOM SEED on, or absent, gives a fresh `crypto.randomInt(0,
+  2^32)`. With it off, SEED is sent as a non-negative integer, and a negative
+  or missing SEED is still random. The sent seed lands in `versions.seed`.
+- **Style**: `PROMPT, [instrumental, no vocals,] <bpm> bpm, <key>, <meter>
+  time`, each hint only when not AUTO. A meter is written out from
+  Create's numerator (`'6'` → `6/8`). An empty result fails the job with
+  "YUE2 needs a PROMPT", instead of the wrapper's bare 422.
+- **Descriptor**:
+  - `duration: 'none'`, `musicalMeta: 'style-text'`, `languages: ['en',
+    'zh']`.
+  - No reference audio, adapters, LM tools, ADVANCED or TAKES.
+  - `sectionTags` lists the tags upstream documents plus those the spike
+    sang: Intro, Verse, Pre-Chorus, Chorus, Bridge, Outro. It is not a
+    closed vocabulary.
+  - The consequence line is the one above.
+- **The registry ships YuE2.** With `YUE_API_URL` unset it is listed as not
+  configured and is never probed, so the picker UI's "render only if one is
+  configured" rule still keeps a default install unchanged.
+- **Stored metadata comes from the score, not the hints.** In the
+  end-to-end run the style asked for "84 bpm, D minor". The plan chose
+  `Q:1/4=85` and `K:D#m`, and the song stored 85 / `D# minor`, as the
+  `readMeta` rules intend.
+- The root `README.md` gets the two `YUE_*` rows, the ACE-Step offload
+  requirement, the Sysmem Fallback recommendation and the license note. The
+  HeartMuLa variables are documented with its engine, since until then they
+  do nothing.
+- **Verified end to end (2026-09-30)**: a Mulakai server with
+  `YUE_API_URL` set drove `yue-server` in WSL through `engineClient`.
+  `GET /api/engines` reported YuE2 as ready. The job's stage and
+  per-stage progress reached `GET /api/generate/:jobId`. The song was
+  persisted with `engine = 'yue2'`, a duration read from the file, and the
+  `.abc` sidecar.
+
 ### File-level plan
 
 Shared (engine framework):
