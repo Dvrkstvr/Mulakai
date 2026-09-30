@@ -4210,6 +4210,32 @@ supersede them:
   system RAM between jobs, which leaves about 0.8 GB of CUDA context, and
   SheetSage2 needs about 3.7 GB. If the YuE2 pipeline failed to load,
   transcription is unavailable too: one worker runs both.
+- **Verified end to end (2026-10-01)**, in WSL on the RTX 4080, against the
+  real SheetSage2 and YuE2 installs:
+  - **Transcription:** *Ellies* transcribed in 18 s. It gave the same score
+    as the spike (44 measures, 167 `Vocal` and 16 `Ins` notes) and a 24 MB
+    piano preview.
+  - **Sung cover:** from that score, with `cot=melody`, 62 s for 135 s of
+    audio.
+  - **Instrumental cover:** 61 s. All 167 vocal notes moved to `Ins`, and
+    the generated score had 0 `Vocal` notes. This is the first GPU run of
+    `plan()` with a supplied score and the real 4096-token check, the
+    parts "YuE2: Align With Upstream's `yue2-music` Skill" had left
+    unverified.
+  - No truncation in either cover.
+  - **Melody kept:** measured in note order (longest common subsequence,
+    octave-folded, timing ignored), 0.98 for the sung cover (the spike's
+    identical request also scored 0.98) and 0.96 for the instrumental.
+    The no-score control scored 0.43 and chance 0.38.
+  - **Timed comparison:** the spike's note-F1 put this sung run at only
+    0.55. It had shifted locally, which one global tempo-and-offset
+    alignment can't follow. So note order is the better measure of
+    melody survival.
+  - **A lesson:** a game on the GPU (10 GB, 85%) slowed transcription to
+    5½ minutes, and stalled a cover at 1.8 tokens/s. A stalled job cannot
+    be cancelled, because cancel is only checked per token. The earlier
+    spike's stalled instrumental run was most likely the same kind of
+    contention.
 
 ### Open questions
 
