@@ -205,3 +205,36 @@ describe('isDraftEmpty', () => {
     expect(isDraftEmpty(get())).toBe(false);
   });
 });
+
+describe('engine choice', () => {
+  it('defaults to ACE-Step and survives a tab switch', () => {
+    expect(get().engine).toBe('acestep');
+    get().patch({ engine: 'yue2' });
+    get().patch({ genType: 'audio' });
+    get().patch({ genType: 'prompt' });
+    expect(get().engine).toBe('yue2');
+  });
+
+  it('is set by load (REUSE PROMPT, RETRY) and falls back to ACE-Step when the draft names none', () => {
+    get().load({ genType: 'prompt', prompt: 'p', engine: 'yue2' });
+    expect(get().engine).toBe('yue2');
+    get().load({ genType: 'prompt', prompt: 'p' });
+    expect(get().engine).toBe('acestep');
+  });
+
+  it('is reset by CLEAR DRAFT, but on its own is not something to clear', () => {
+    get().patch({ engine: 'yue2' });
+    expect(isDraftEmpty(get())).toBe(true);
+    get().patch({ prompt: 'p' });
+    get().clear();
+    expect(get().engine).toBe('acestep');
+  });
+
+  it('does not claim the prompt for another tab when switched', () => {
+    get().patch({ genType: 'audio' });
+    get().patch({ prompt: 'a change to the source' });
+    get().patch({ genType: 'prompt' });
+    get().patch({ engine: 'yue2' });
+    expect(get().intentOrigin).toBe('audio');
+  });
+});
