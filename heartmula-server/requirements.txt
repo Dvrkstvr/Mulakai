@@ -1,0 +1,5 @@
+# The HTTP layer. Install torch and heartlib first; see README.md "Setup".
+fastapi
+uvicorn[standard]
+soundfile
+numpy

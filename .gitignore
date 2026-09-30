@@ -11,6 +11,8 @@ server/data/
 openspec/changes/
 demucs-server/data/
 demucs-server/venv/
+heartmula-server/data/
+.pytest_cache/
 
 # logs
 *.log
