@@ -4237,6 +4237,75 @@ supersede them:
     spike's stalled instrumental run was most likely the same kind of
     contention.
 
+### Mulakai server cover decisions (2026-10-01, `feat/yue-cover-server`)
+
+PR 2. Where these differ from points 5, 9 and 10 or the file-level plan,
+they supersede them:
+
+- **Covers are an optional engine ability.** `SongEngine` gains an
+  optional `toCoverRequest(fields, abc)`. Only YuE2 has one, and HeartMuLa
+  doesn't. The cover routes answer 400 for an engine without it, or one
+  that isn't configured.
+- **`EngineInfo.coverReady`** is true when the engine can cover, is
+  configured, and answers `GET /v1/transcriptions/health` with 200. It is
+  probed in parallel with the other health checks. A `yue2-serve` backend,
+  which has no such route, reads as false.
+- **`POST /api/engines/:id/transcribe`** takes multipart `src_audio`, as
+  COVER does today, plus an optional `source_label`. It returns 202
+  `{jobId}`, and is polled through `GET /api/generate/:jobId`.
+  - It holds the genLock as `{kind: 'transcribe', title: <source label>,
+    engine}`. The client already shows an unknown kind as another job
+    holding the lock, and PR 3 names it.
+  - The coverReady check runs at request time: false is a 400, "covers
+    are not set up".
+- **The finished job carries `transcription`**: `score` (the ABC),
+  `sourceLabel`, `warnings`, `measures`, `vocalNotes`, `instrumentalNotes`,
+  `durationSeconds` and `hasPreview`. Nothing is written to the library.
+- **The preview is proxied, not copied.**
+  `GET /api/engines/:id/transcribe/:jobId/preview` streams yue-server's
+  preview and forwards `Range`, so the player can seek.
+  - yue-server keeps it for its retention window (24 h) or until it
+    restarts. After that it is a 404, which matches point 9's "after a
+    reload, re-transcribe for a preview".
+  - Mulakai keeps no scratch file to clean up.
+- **`buildYue2CoverRequest(fields, abc)`**:
+  - `style`: the language and PROMPT only, as text2music writes them. No
+    BPM / KEY / TIME SIGNATURE hints, because the score fixes those
+    (point 5).
+  - Instrumental: upstream's wording, as in text2music.
+  - `lyrics`: as typed. Empty lyrics become the tags-only skeleton, which
+    yue-server replaces with the score's own section tags.
+  - `cot: 'melody'`, `abc`, `seed` and `cfg_scale` are mapped as usual.
+- **`POST /api/engines/:id/cover`** takes JSON with the Create fields plus
+  `abc` (non-blank, at most 64 KB) and `source` (the source label).
+  - It runs `startEngineGeneration` with a cover option. That option picks
+    the request builder and the lock's and the song's `gen_task: 'cover'`.
+  - The version's `params.request` keeps `abc`: the *supplied* score,
+    which REUSE PROMPT needs. The `.abc` sidecar is the score yue-server
+    generated from, which for an instrumental cover is the converted one.
+    `params.source` is the source label.
+- **`GET /api/engines/:id/covers/:songId/score`** returns that supplied
+  score (`text/plain`) from the song's first base version. It is a 404
+  for a song that isn't a YuE2 cover. PR 3's REUSE PROMPT uses it, so
+  another cover of the same melody needs no new transcription.
+- **Verified end to end (2026-10-01).** This branch's server ran on a
+  scratch database against the real yue-server in WSL, through the same
+  API the client will call:
+  - `GET /api/engines` showed YuE2 `coverReady: true`.
+  - **Transcribe:** *Ellies City 2* from the library, under a `transcribe`
+    lock titled with the source. Done in 21 s, with the spike's facts (44
+    measures, 167/16 notes).
+  - **Preview:** a Range request returned 206, and a full one 200 with
+    24.7 MB.
+  - **Cover:** held the lock as `generate · cover`, and polled through
+    semantic → synthesis → decode. It saved a new song in 65 s:
+    `engine: yue2`, `gen_task: cover`, 137 s.
+  - **Metadata from the score:** the song's 75 BPM / F minor / 4/4 came
+    from the score. The `bpm: 140` in the request was dropped, as
+    intended.
+  - **Stored score:** `covers/:songId/score` returned exactly the
+    transcribed score.
+
 ### Open questions
 
 - **Section alignment.** If YuE2 needs lyric section tags that match the
