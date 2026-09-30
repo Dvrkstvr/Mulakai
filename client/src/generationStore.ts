@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { api, type ActiveGeneration, type StemKind } from './api';
+import { api, type ActiveGeneration, type EngineId, type StemKind } from './api';
 import { taskToGenType, type CreateDraft } from './createDraft';
 
 export type GenStage = 'loading' | 'running' | 'done' | 'failed';
@@ -33,7 +33,8 @@ interface GenerationState {
   job: GenerationJob | null;
   otherLock: OtherLock | null;
   /** Kicks off a song generation, then polls it to completion independent of whatever
-   * view is mounted — CreateView calls this and navigates away immediately afterward. */
+   * view is mounted — CreateView calls this and navigates away immediately afterward.
+   * A draft whose `engine` is an extra engine goes to that engine instead of ACE-Step. */
   start: (
     params: { title: string; prompt: string; lyrics?: string } & Record<string, unknown>,
     draft: CreateDraft,
@@ -129,7 +130,10 @@ function adoptLock(active: ActiveGeneration): GenerationJob {
   return {
     jobId: active.jobId, title: active.title ?? 'Untitled', caption: active.caption ?? '',
     stage: active.status, error: active.error, startedAt: active.startedAt,
-    draft: { genType: taskToGenType(active.task), prompt: active.caption },
+    draft: {
+      genType: taskToGenType(active.task), prompt: active.caption,
+      ...(active.engine ? { engine: active.engine as EngineId } : {}),
+    },
   };
 }
 
@@ -139,7 +143,9 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
 
   start: (params, draft, referenceAudio) =>
     launch(set, get, params.prompt || params.lyrics || '', params.title, draft,
-      () => api.generate(params, referenceAudio)),
+      () => (draft.engine && draft.engine !== 'acestep'
+        ? api.generateWithEngine(draft.engine, params)
+        : api.generate(params, referenceAudio))),
 
   startFromAudio: (params, srcAudio, draft, referenceAudio) =>
     launch(set, get, params.prompt || params.lyrics || '', params.title, draft,

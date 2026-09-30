@@ -1,4 +1,4 @@
-import type { Song } from './api';
+import type { EngineId, Song } from './api';
 
 export type GenType = 'prompt' | 'audio' | 'complete';
 export type Source = 'upload' | 'library';
@@ -38,6 +38,8 @@ export interface CreateDraft {
   referenceLabel?: string;
   audioInfluence?: number;
   styleInfluence?: number;
+  /** Which engine makes a PROMPT take; absent = ACE-Step. COVER/ARRANGE ignore it. */
+  engine?: EngineId;
 }
 
 /** Tab names as the UI spells them — the Create tabs and the rail's GENERATED WITH row. */
@@ -71,6 +73,7 @@ export const reusePromptDraft = (song: Song): CreateDraft => {
     ...(song.time_signature ? { timeSignature: song.time_signature } : {}),
     ...(song.duration ? { duration: song.duration } : {}),
     ...(genType === 'prompt' ? {} : { reusedFrom: song.title }),
+    ...(genType === 'prompt' && song.engine ? { engine: song.engine as EngineId } : {}),
     ...(song.reference_audio_label ? { referenceLabel: song.reference_audio_label } : {}),
     ...(song.reference_audio_influence != null ? { audioInfluence: song.reference_audio_influence } : {}),
     ...(song.reference_style_influence != null ? { styleInfluence: song.reference_style_influence } : {}),

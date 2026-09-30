@@ -1,6 +1,7 @@
 /** Generation slice: the three song-creating tasks, prompt tooling, and job/lock status. */
 import { json, appendParams } from './http';
 import type { ModelInventory, RefineResult, ActiveGeneration, StemKind } from './types';
+import type { EngineId, EngineInfo } from './engineTypes';
 
 export const generationApi = {
   /** Plain JSON unless an ad-hoc reference-audio file is attached (see ReferenceAudioPicker.tsx),
@@ -54,6 +55,18 @@ export const generationApi = {
     appendParams(form, params);
     return fetch('/api/generate/complete', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
   },
+
+  /** Every engine, ACE-Step first, with live health — see server/src/routes/engines.ts. */
+  engines: (): Promise<EngineInfo[]> => fetch('/api/engines').then((r) => json<EngineInfo[]>(r)),
+
+  /** A PROMPT generation on an extra engine. The body uses the same Create field names as
+   * `generate`; the server maps them per engine. JSON only: no extra engine takes audio. */
+  generateWithEngine: (engine: EngineId, params: Record<string, unknown>): Promise<{ jobId: string }> =>
+    fetch(`/api/engines/${engine}/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    }).then((r) => json<{ jobId: string }>(r)),
 
   /** "Describe this audio for me" — ACE-Step's `/v1/analyze_audio`, same dual-source shape
    * as `generateComplete`'s source param (a direct upload, or a reference into an already-run
