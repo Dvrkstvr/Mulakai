@@ -2,12 +2,14 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 
 const generate = vi.fn();
 const generateWithEngine = vi.fn();
+const coverWithEngine = vi.fn();
 const activeGeneration = vi.fn();
 const jobStatus = vi.fn(() => new Promise(() => {})); // never settles: polling is not under test
 vi.mock('./api', () => ({
   api: {
     generate: (...a: unknown[]) => generate(...a),
     generateWithEngine: (...a: unknown[]) => generateWithEngine(...a),
+    coverWithEngine: (...a: unknown[]) => coverWithEngine(...a),
     activeGeneration: () => activeGeneration(),
     jobStatus: () => jobStatus(),
   },
@@ -20,6 +22,7 @@ beforeEach(() => {
   useGenerationStore.setState({ job: null, otherLock: null });
   generate.mockReset().mockResolvedValue({ jobId: 'ace-job' });
   generateWithEngine.mockReset().mockResolvedValue({ jobId: 'engine-job' });
+  coverWithEngine.mockReset().mockResolvedValue({ jobId: 'cover-job' });
 });
 
 describe('start routing', () => {
@@ -60,11 +63,28 @@ describe('rehydrating from the lock', () => {
     expect(useGenerationStore.getState().job?.draft).toEqual({ genType: 'prompt', prompt: 'c', engine: 'yue2' });
   });
 
+  it('reopens a YuE2 cover on COVER with its engine', async () => {
+    activeGeneration.mockResolvedValue({ active: {
+      kind: 'generate', jobId: 'j', caption: 'folk', task: 'cover', engine: 'yue2', startedAt: 1, status: 'running',
+    } });
+    await useGenerationStore.getState().hydrate();
+    expect(useGenerationStore.getState().job?.draft).toEqual({ genType: 'audio', prompt: 'folk', coverEngine: 'yue2' });
+  });
+
   it('leaves the engine out for an ACE-Step job', async () => {
     activeGeneration.mockResolvedValue({ active: {
       kind: 'generate', jobId: 'j', task: 'cover', startedAt: 1, status: 'running',
     } });
     await useGenerationStore.getState().hydrate();
     expect(useGenerationStore.getState().job?.draft).toEqual({ genType: 'audio', prompt: undefined });
+  });
+});
+
+describe('startCover', () => {
+  it("sends a cover to the engine's cover route, and keeps the draft for RETRY", async () => {
+    const cover = { title: 'T', prompt: 'folk', abc: 'X:1\n', source: 'Ellies City 2' };
+    await useGenerationStore.getState().startCover('yue2', cover, { genType: 'audio', coverEngine: 'yue2' });
+    expect(coverWithEngine).toHaveBeenCalledWith('yue2', cover);
+    expect(useGenerationStore.getState().job).toMatchObject({ jobId: 'cover-job', draft: { coverEngine: 'yue2' } });
   });
 });

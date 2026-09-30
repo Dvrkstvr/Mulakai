@@ -35,3 +35,9 @@ export async function resolveCoverSource({ source, uploadFile, selectedSongId }:
 
 export const coverSourceReady = ({ source, uploadFile, selectedSongId }: CoverSourceChoice): boolean =>
   source === 'upload' ? !!uploadFile : !!selectedSongId;
+
+/** Identifies the picked source, so work done for one source isn't applied to another. */
+export function coverSourceKey({ source, uploadFile, selectedSongId }: CoverSourceChoice): string | null {
+  if (source === 'upload') return uploadFile ? `upload:${uploadFile.name}:${uploadFile.size}:${uploadFile.lastModified}` : null;
+  return selectedSongId ? `library:${selectedSongId}` : null;
+}

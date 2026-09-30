@@ -3,11 +3,13 @@ import type { EngineId, EngineInfo } from './api';
 import { useEngineStore } from './engineStore';
 
 /** What the server's env and each wrapper's README say, which the descriptor doesn't carry. */
-const ENGINE_NOTES: Partial<Record<EngineId, { env: string; readme: string; license?: string }>> = {
+const ENGINE_NOTES: Partial<Record<EngineId, { env: string; readme: string; license?: string; covers?: string }>> = {
   yue2: {
     env: 'YUE_API_URL',
     readme: 'yue-server/README.md',
-    license: 'YuE2 weights: CC BY-NC 4.0 — individuals may use and monetize outputs; companies need a license from the authors.',
+    license: 'YuE2 weights: CC BY-NC 4.0 — individuals may use and monetize outputs; companies need a license from the authors.'
+      + ' SheetSage2 weights: CC BY-NC 4.0.',
+    covers: 'SheetSage2 on yue-server (YUE_SHEETSAGE_PYTHON / YUE_SHEETSAGE_DIR) — setup in yue-server/README.md section 5',
   },
   heartmula: { env: 'HEARTMULA_API_URL', readme: 'heartmula-server/README.md' },
 };
@@ -30,7 +32,8 @@ export function EnginesSection() {
     <div className="settings-card">
       <div className="settings-card-head"><span className="section-label">ENGINES</span></div>
       <div className="hint">
-        optional models for a new song&apos;s first take, picked on Create › PROMPT — every later edit runs on ACE-Step
+        optional models for a new song&apos;s first take, picked on Create › PROMPT (and COVER, for an engine that
+        can cover) — every later edit runs on ACE-Step
       </div>
       {!loaded && <span className="meta">checking engines…</span>}
       {loaded && extras.length === 0 && <div className="empty">This server offers no extra engines.</div>}
@@ -46,6 +49,14 @@ export function EnginesSection() {
                   <div className="hint">
                     {e.configured ? `set by ${note.env} on the server` : `set ${note.env} on the server to enable it`}
                     {' '}— setup in {note.readme}
+                  </div>
+                )}
+                {note?.covers && e.configured && (
+                  <div className="hint">
+                    COVERS: <span className={e.coverReady ? 'health ok' : 'health'} style={{ marginLeft: 4 }}>
+                      {e.coverReady ? 'READY' : 'NOT SET UP'}
+                    </span>
+                    {e.coverReady ? '' : ` — needs ${note.covers}`}
                   </div>
                 )}
                 {note?.license && <div className="hint">{note.license}</div>}

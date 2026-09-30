@@ -1,4 +1,5 @@
 import type { EngineId, Song } from './api';
+import type { CoverScore } from './coverDraft';
 
 export type GenType = 'prompt' | 'audio' | 'complete';
 export type Source = 'upload' | 'library';
@@ -40,6 +41,13 @@ export interface CreateDraft {
   styleInfluence?: number;
   /** Which engine makes a PROMPT take; absent = ACE-Step. COVER/ARRANGE ignore it. */
   engine?: EngineId;
+  /** Which engine makes a COVER; absent = ACE-Step (PLAN.md "Client cover decisions"). */
+  coverEngine?: EngineId;
+  /** REUSE PROMPT on an engine cover: the song whose source score COVER fetches, so another
+   * cover of the same melody needs no new source or transcription. */
+  reuseScore?: { engine: EngineId; songId: string };
+  /** A failed engine cover's score, so RETRY reopens COVER ready to generate again. */
+  coverScore?: CoverScore;
 }
 
 /** Tab names as the UI spells them — the Create tabs and the rail's GENERATED WITH row. */
@@ -74,6 +82,9 @@ export const reusePromptDraft = (song: Song): CreateDraft => {
     ...(song.duration ? { duration: song.duration } : {}),
     ...(genType === 'prompt' ? {} : { reusedFrom: song.title }),
     ...(genType === 'prompt' && song.engine ? { engine: song.engine as EngineId } : {}),
+    ...(genType === 'audio' && song.engine
+      ? { coverEngine: song.engine as EngineId, reuseScore: { engine: song.engine as EngineId, songId: song.id } }
+      : {}),
     ...(song.reference_audio_label ? { referenceLabel: song.reference_audio_label } : {}),
     ...(song.reference_audio_influence != null ? { audioInfluence: song.reference_audio_influence } : {}),
     ...(song.reference_style_influence != null ? { styleInfluence: song.reference_style_influence } : {}),

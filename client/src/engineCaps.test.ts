@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import type { EngineCapabilities, EngineInfo } from './api';
 import {
-  aceOnlyNote, durationReadout, languageOptions, liveLanguage, pickerEngines, songDetailNotes, unavailableReason, unsupported,
+  aceOnlyNote, coverEngines, coverUnavailableReason, durationReadout, languageOptions, liveLanguage, pickerEngines,
+  songDetailNotes, unavailableReason, unsupported,
 } from './engineCaps';
 
 const BASE: EngineCapabilities = {
@@ -18,8 +19,9 @@ const HEARTMULA: EngineCapabilities = {
   extraControls: ['cfg', 'temperature', 'topK'],
 };
 
-const info = (id: EngineInfo['id'], capabilities: EngineCapabilities, configured = true, ready = true): EngineInfo =>
-  ({ id, label: id.toUpperCase(), capabilities, configured, ready });
+const info = (
+  id: EngineInfo['id'], capabilities: EngineCapabilities, configured = true, ready = true, coverReady = false,
+): EngineInfo => ({ id, label: id.toUpperCase(), capabilities, configured, ready, coverReady });
 
 describe('unsupported', () => {
   it('gates nothing on ACE-Step', () => {
@@ -106,5 +108,20 @@ describe('picker', () => {
     expect(unavailableReason({ configured: true, ready: true })).toBe('');
     expect(unavailableReason({ configured: true, ready: false })).toMatch(/not reachable/);
     expect(unavailableReason({ configured: false, ready: false })).toMatch(/not configured/);
+  });
+});
+
+describe('COVER engines', () => {
+  it('offers ACE-Step plus the engines that can cover now, and nothing until one can', () => {
+    const ace = info('acestep', BASE);
+    expect(coverEngines([ace, info('yue2', YUE2), info('heartmula', HEARTMULA)])).toEqual([]);
+    const yue = info('yue2', YUE2, true, true, true);
+    expect(coverEngines([ace, yue, info('heartmula', HEARTMULA)]).map((e) => e.id)).toEqual(['acestep', 'yue2']);
+  });
+
+  it("says why an engine can't cover", () => {
+    expect(coverUnavailableReason(info('yue2', YUE2, true, true, true))).toBe('');
+    expect(coverUnavailableReason(info('yue2', YUE2, true, true, false))).toMatch(/covers are not set up/);
+    expect(coverUnavailableReason(info('yue2', YUE2, false, false, false))).toBe('not configured on the server');
   });
 });

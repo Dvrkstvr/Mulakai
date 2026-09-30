@@ -13,6 +13,8 @@ import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
 import { CoverSourcePicker } from './CoverSourcePicker';
+import { CoverEngineChoice } from './EngineChoice';
+import { YueCoverPanel } from './YueCoverPanel';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { MoveToEditorAction } from './MoveToEditorAction';
@@ -97,8 +99,21 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
     }
   };
 
+  // An engine cover transcribes the source and sings the score; none of ACE-Step's model,
+  // variance or audio analysis applies (PLAN.md "Client cover decisions").
+  if (draft.audio.engine !== 'acestep') {
+    return (
+      <>
+        <CoverEngineChoice />
+        <CoverSourcePicker songs={songs} satisfied={sourceReady || !!draft.audio.yueScore || !!draft.audio.reuseScore} />
+        <YueCoverPanel songs={songs} onBack={onBack} />
+      </>
+    );
+  }
+
   return (
     <>
+      <CoverEngineChoice />
       <CoverSourcePicker songs={songs} satisfied={sourceReady} />
       {coverModels === null ? (
         <span className="meta">checking available models…</span>
