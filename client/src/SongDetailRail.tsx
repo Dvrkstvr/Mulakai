@@ -169,7 +169,9 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
         <div className="hint">
           {origin === 'prompt'
             ? `Opens Create’s PROMPT tab${engineLabel ? ` on ${engineLabel}` : ''} with this prompt, lyrics and song details.`
-            : `Opens Create’s ${GEN_TYPE_LABEL[origin]} tab — the tab this song was made with — with its prompt, lyrics and song details; you pick a new source track there.`}
+            : origin === 'audio' && engineLabel
+              ? `Opens Create’s COVER tab on ${engineLabel} with this cover’s score, prompt and lyrics — ready to cover the same melody again, no source needed.`
+              : `Opens Create’s ${GEN_TYPE_LABEL[origin]} tab — the tab this song was made with — with its prompt, lyrics and song details; you pick a new source track there.`}
         </div>
 
         <SongOutputTags song={song} onChanged={onRenamed} />

@@ -31,4 +31,6 @@ export interface EngineInfo {
   configured: boolean;
   /** Its health check answered just now. */
   ready: boolean;
+  /** COVER can run on it now: it can sing a score and its transcriber answers. */
+  coverReady: boolean;
 }

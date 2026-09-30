@@ -3622,3 +3622,59 @@ button.acid-outline:not(:disabled):hover {
   flex-direction: column;
   gap: 8px;
 }
+
+/* COVER on an engine (YueCoverPanel / YueScoreReview): TRANSCRIBE + USE .ABC FILE, then the
+   score's facts in SONG DETAILS' grid, and the ABC behind a disclosure. Carbon only — nothing
+   here is a selection or a commit beyond TRANSCRIBE's own acid outline. */
+.score-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.score-actions .tag-guide-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.score-review {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px 12px;
+  margin: 10px 0;
+}
+
+.score-facts {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 2px 16px;
+  margin: 6px 0 8px;
+}
+
+.score-fact {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 3px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.score-abc {
+  margin-top: 8px;
+}
+
+.score-abc summary {
+  cursor: pointer;
+  color: var(--text-mid);
+}
+
+.score-abc pre {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--text-mid);
+  max-height: 240px;
+  overflow: auto;
+  margin: 6px 0 0;
+  white-space: pre;
+}

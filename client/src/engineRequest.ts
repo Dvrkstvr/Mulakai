@@ -41,3 +41,18 @@ export function enginePromptParams(
     ...(d.folderId ? { folder_id: d.folderId } : {}),
   };
 }
+
+/** COVER on an extra engine (PLAN.md "Client cover decisions"): PROMPT's fields minus what the
+ * score fixes — BPM, KEY, TIME SIGNATURE, DURATION — and minus COT (a cover is always
+ * `melody`), plus the score and what it came from. */
+export function coverParams(
+  d: Pick<PromptIntent, 'title' | 'prompt' | 'lyrics' | 'vocalLanguage' | 'folderId'>,
+  caps: EngineCapabilities,
+  seed: { randomSeed: boolean; seed: number },
+  controls: EngineControlValues,
+  output: unknown,
+  score: { abc: string; source: string },
+): Record<string, unknown> {
+  const intent: PromptIntent = { ...d, bpm: 0, keyScale: '', timeSignature: '', duration: 0 };
+  return { ...enginePromptParams(intent, caps, seed, { ...controls, cot: '' }, output), abc: score.abc, source: score.source };
+}

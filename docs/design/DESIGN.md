@@ -281,7 +281,7 @@ requiring its own justification against a screen-count rule.
        parameters (bpm/key/structure) from the prompt — lilac because it's
        describing AI-derived behavior, not a live selection. LM MODEL stays
        enabled in the settings panel.
-     - **ENGINE** (PROMPT only): which model makes the song's first take —
+     - **ENGINE** (PROMPT and COVER): which model makes the song's first take —
        ACE-STEP, or an optional extra engine (YuE2, HeartMuLa) whose server
        is configured. One sky parallelogram per engine, ACE-STEP first,
        active = sky fill with `on-sky` text; the row **does not render at
@@ -290,8 +290,15 @@ requiring its own justification against a screen-count rule.
        disabled with its reason as a line under the row; if the *selected*
        engine can't take a job, a `.warn-note` says so and GENERATE is off.
        The choice is part of the draft (REUSE PROMPT restores it, CLEAR
-       DRAFT resets it), never a sticky preference. COVER and ARRANGE are
-       always ACE-Step, and every later edit is too.
+       DRAFT resets it), never a sticky preference.
+       - **COVER has its own ENGINE row** (added 2026-10-01): ACE-STEP plus
+         any engine that can sing a score and whose transcriber answers
+         (YuE2 with SheetSage2). It is kept separate from PROMPT's, so
+         picking YUE2 on COVER never changes what PROMPT generates on, and
+         it has the same no-row-until-available rule. The settings panel
+         follows it; on a cover, COT is replaced by a one-line hint, because
+         a cover always follows its score's melody.
+       - ARRANGE is always ACE-Step, and so is every later edit.
        - **Descriptor-driven N/A**: each engine publishes what it can take;
          a control it can't stays **in place**, disabled, with an `N/A`
          readout (the same idiom as GUIDANCE on a Turbo model) and one reason
@@ -319,6 +326,25 @@ requiring its own justification against a screen-count rule.
        enabled in the settings panel; LM MODEL is disabled (`n/a`) since
        `cover` skips the LM planner, same as Editor's repaint mode
        (`API.md` §4.2).
+       - *Audio on an engine (YUE2)*: a melody cover sung from a score. The
+         flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
+         - The SOURCE picker is unchanged. **TRANSCRIBE** is an acid
+           *outline*, because GENERATE COVER stays the one filled acid CTA.
+           While it runs it reads `TRANSCRIBING… n%`, with no shader: the AI
+           shimmer stays on GENERATE / REPAINT. Beside it, **USE .ABC FILE**
+           (a quiet outline) swaps in a score corrected elsewhere, which is
+           the only way to fix one. Mulakai has no score editor.
+         - The **score review** is a carbon panel. Its facts sit in the same
+           label/value grid idiom as SONG DETAILS: tempo, key, meter, bars,
+           length, and sung/played note counts. SheetSage2's warnings come
+           as a `.warn-note`, then the piano preview (inline `AudioPreview`),
+           then the ABC behind a collapsed SHOW SCORE disclosure.
+         - The facts replace BPM / KEY / TIME SIGNATURE / DURATION, which a
+           score fixes. VOCAL LANGUAGE stays.
+         - LYRICS carry a **FIT TO SCORE** quiet outline, which re-tags the
+           words onto the score's sections. A hint names those sections.
+           Lyrics that are only tags, or empty, make an instrumental cover,
+           and the consequence line under GENERATE COVER says so.
      - *Arrange*: same shape as Audio but for `complete` — a **SOURCE**
        sub-choice (UPLOAD SINGLE TRACK / SPLIT A SONG, the latter reusing
        `ScratchSplitPicker`'s stem picker), a description field, LYRICS +
@@ -469,7 +495,9 @@ requiring its own justification against a screen-count rule.
      UNREACHABLE, same `.health` pill as MODELS) and the env var that
      enables it — engines are configured on the server, so this card
      reports and points rather than edits. An engine's license caveat is
-     stated here once (YuE2's CC BY-NC 4.0). While any engine is configured,
+     stated here once (YuE2's CC BY-NC 4.0, and SheetSage2's). An engine
+     that can cover gets a COVERS line under its row: READY, or NOT SET UP
+     plus what its server needs (same `.health` pill). While any engine is configured,
      a `.warn-note` reminds you to run ACE-Step with
      `ACESTEP_OFFLOAD_TO_CPU=true` — a standing reminder, since Mulakai can't
      read ACE-Step's startup settings.
