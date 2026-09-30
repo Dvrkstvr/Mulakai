@@ -7,7 +7,10 @@
 
 This project is intentionally slim: generate a song with ACE-Step 1.5, then
 repaint sections and layer new instruments/vocals directly on it, with full
-version history. It is explicitly **not**:
+version history. A song's first take may instead come from an optional extra
+engine (YuE2, then HeartMuLa: separate local processes, see `PLAN.md`'s
+"Multiple Song-Creation Engines"). Every edit after that first take still
+runs on ACE-Step. It is explicitly **not**:
 - a multitrack arrangement DAW (no placing/arranging multiple distinct songs
   together — one song open at a time),
 - `ACE-Step-DAW`'s full feature set (no VST3/WAM, no MPE, no MIDI editor, no
