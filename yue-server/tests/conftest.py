@@ -18,8 +18,10 @@ ABC = "X:1\nM:4/4\nQ:1/4=92\nK:Am\n|A2 c2|\n"
 class FakePipeline:
     sample_rate = 48000
 
-    def __init__(self, *, truncated=(False, False), error=None, gate=None, on_park=None):
+    def __init__(self, *, truncated=(False, False), error=None, gate=None, on_park=None,
+                 score=ABC, fits=True):
         self.truncated, self.error, self.gate, self.on_park = truncated, error, gate, on_park
+        self.score, self.fits = score, fits
         self.requests: list[dict] = []
         self.parked = 0
 
@@ -27,8 +29,12 @@ class FakePipeline:
         self.requests.append(request)
         for _ in range(3):
             on_token("abc", 1)
-        abc = None if request.get("cot") == "off" else ABC
+        # A supplied score skips planning, as in yue2: the plan is that score.
+        abc = None if request.get("cot") == "off" else request.get("abc") or self.score
         return SimpleNamespace(abc=abc, truncated=self.truncated[0])
+
+    def fits_plan_budget(self, abc):
+        return self.fits
 
     def semantic(self, plan, *, cancelled, on_token):
         # Holds the job in the semantic stage until the test opens the gate.

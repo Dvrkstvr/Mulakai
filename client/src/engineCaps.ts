@@ -2,6 +2,7 @@
  * "Engine picker UI decisions"). Pure, so the rules are unit-testable without a DOM. A null
  * engine means ACE-Step, the built-in one, where nothing is gated. */
 import type { EngineCapabilities, EngineInfo } from './api';
+import { VOCAL_LANGUAGES } from './songMeta';
 
 /** Create fields that some engines can't take. */
 export type GatedField = 'duration' | 'bpm' | 'keyScale' | 'timeSignature' | 'vocalLanguage' | 'takes';
@@ -14,9 +15,22 @@ export function unsupported(field: GatedField, caps: EngineCapabilities | null):
   switch (field) {
     case 'duration': return caps.duration === 'none';
     case 'bpm': case 'keyScale': case 'timeSignature': return caps.musicalMeta === 'none';
-    case 'vocalLanguage': return caps.languages !== 'any';
+    // A style-text engine takes the language as style text too (YuE2: "English, …").
+    case 'vocalLanguage': return caps.languages !== 'any' && caps.musicalMeta !== 'style-text';
     case 'takes': return !caps.takes;
   }
+}
+
+/** VOCAL LANGUAGE's options: AUTO plus the languages the engine sings. */
+export function languageOptions(caps: EngineCapabilities | null): typeof VOCAL_LANGUAGES {
+  const listed = caps?.languages;
+  return !listed || listed === 'any' ? VOCAL_LANGUAGES : VOCAL_LANGUAGES.filter((o) => !o.value || listed.includes(o.value));
+}
+
+/** A language left over from another engine that this one doesn't sing counts as AUTO. */
+export function liveLanguage(value: string, caps: EngineCapabilities | null): string {
+  if (unsupported('vocalLanguage', caps)) return '';
+  return languageOptions(caps).some((o) => o.value === value) ? value : '';
 }
 
 /** DURATION's readout: HeartMuLa-style engines take it as a ceiling. */
@@ -35,7 +49,7 @@ export function songDetailNotes(engine: Engine | null): string[] {
   if (c.duration === 'max') notes.push(`DURATION — a cap for ${l}, not a target; it may end sooner`);
   if (c.musicalMeta === 'none') notes.push(`BPM, KEY / SCALE, TIME SIGNATURE — ${l} takes none of them`);
   if (c.musicalMeta === 'style-text') {
-    notes.push(`BPM, KEY / SCALE, TIME SIGNATURE — sent to ${l} as style text, a hint rather than a guarantee`);
+    notes.push(`BPM, KEY / SCALE, TIME SIGNATURE, VOCAL LANGUAGE — sent to ${l} as style text, a hint rather than a guarantee`);
   }
   if (c.languages !== 'any') notes.push(`VOCAL LANGUAGE — ${l} sings ${c.languages.join(', ')}, following the lyrics`);
   if (!c.takes) notes.push(`TAKES — ${l} makes one take per generation`);

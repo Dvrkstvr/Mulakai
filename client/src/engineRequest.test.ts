@@ -29,7 +29,13 @@ describe('enginePromptParams', () => {
     });
   });
 
-  it('never sends GUIDANCE, a vocal language YuE2 can\'t take, or a duration it ignores', () => {
+  it('sends YuE2 a VOCAL LANGUAGE it sings, as a style-text detail', () => {
+    expect(enginePromptParams({ ...DRAFT, vocalLanguage: 'zh' }, YUE2, SEED, AUTO_CONTROLS, {}).vocal_language).toBe('zh');
+    expect(enginePromptParams({ ...DRAFT, vocalLanguage: 'zh' }, HEARTMULA, SEED, AUTO_CONTROLS, {}))
+      .not.toHaveProperty('vocal_language');
+  });
+
+  it('never sends GUIDANCE, a vocal language YuE2 doesn\'t sing, or a duration it ignores', () => {
     const params = enginePromptParams(DRAFT, YUE2, SEED, AUTO_CONTROLS, {});
     for (const key of ['guidance_scale', 'vocal_language', 'audio_duration', 'lm_model_path', 'thinking']) {
       expect(params).not.toHaveProperty(key);
@@ -68,7 +74,7 @@ describe('engine controls', () => {
   });
 
   it('uses each engine\'s own slider range', () => {
-    expect(controlRange('yue2', 'cfg').max).toBe(20);
+    expect(controlRange('yue2', 'cfg')).toEqual({ min: 0, max: 3, step: 0.05 });
     expect(controlRange('heartmula', 'cfg').max).toBe(10);
     expect(controlRange('acestep', 'temperature')).toEqual({ min: 0, max: 2, step: 0.05 });
   });
