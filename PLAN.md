@@ -2321,6 +2321,54 @@ most, the whole-song first take, without adding a second editing stack.
    - *Wrappers as built*: `heartmula-server/` follows this list. What it adds
      on top (the full job snapshot, error codes, the health body) is under
      "heartmula-server decisions" in the HeartMuLa section.
+
+   **What `yue-server` pins down within that contract** (2026-09-30,
+   `feat/yue-server`). These are its answers to the details above that
+   leave room. Each matches `yue2-serve` unless it says otherwise, so a
+   future wrapper can copy them:
+   - *Submit*: 202 with the full job record and `Location:
+     /v1/jobs/{id}`. The same `Idempotency-Key` with the same body returns
+     the original job with 200; the same key with a different body is a
+     409. The key is logged with the job. Other answers: 401 bad key, 422
+     invalid body, 429 queue full, 503 not ready. 429 and 503 carry
+     `Retry-After: 5`.
+   - *Job record*: `{id, status, stage, progress, tokens: {abc, semantic},
+     created_at, updated_at, started_at, finished_at, cancel_requested,
+     result, error}`, timestamps in epoch seconds.
+     - `stage` uses `yue2-serve`'s names: `queued`, `planning`, `semantic`,
+       `synthesis`, `decode`, `saving`, `finished`. (Turbo also shows
+       `claimed_waiting` briefly.) `GeneratingCard`'s `stageDetail` should
+       learn these, not the method names `plan` / `synthesize`.
+     - `progress` (wrapper-only) is the fraction of the **current stage**:
+       ODE steps in `synthesis` and VAE chunks in `decode`. It is null in
+       `planning` and `semantic`, whose length is unknown until they end;
+       `tokens` counts there instead. It therefore restarts from 0 at each
+       stage and is not an overall fraction.
+     - `result` on `succeeded` / `truncated`: `{audio_url, score_url |
+       null, audio_seconds, sample_rate, truncated: {abc, semantic},
+       timing}`. The URLs are relative paths on the engine's base URL.
+     - `error` on `failed`: `{code, message}`. The codes are
+       `invalid_generation` and `inference_failed` (both servers), `timeout`
+       (Turbo only), and `out_of_memory` (`yue-server` only).
+   - *HTTP errors* use FastAPI's `{"detail": string}` (a list for 422), which
+     is what `engineClient`'s `failure()` reads.
+   - *Audio and score*: 404 also covers a job or artifact that has been
+     cleaned up. `yue-server` keeps finished jobs for 24 h, and forgets them
+     on restart.
+   - *Health*: 200 `{"status": "ready"}`, or 503 with `{"status": "loading"
+     | "failed"}`. `GET /health/live` is 200 while the process is up.
+   - *Cancel* returns the job record. A queued job becomes `cancelled` at
+     once. A running one stops at the next token, ODE step or stage
+     boundary, and is reported `cancelled` only once the model is parked in
+     RAM. A cancel that races completion wins. Cancelling a finished job
+     changes nothing.
+   - *Auth*: Turbo requires a key of at least 16 characters; the wrapper's
+     is optional.
+   - *Request body*: `yue-server` requires `seed`, and it also tolerates a
+     body `id` and the `X-Admission-Id` header (both echoed back). Neither
+     server takes blank `lyrics` safely: `yue2-serve` rejects them with a
+     422, and on `yue-server` they still plan a vocal line. See
+     "Instrumentals" in the YuE2 spike results.
 4. **Server-side engine interface.** Each extra engine is a small module in
    `server/src/services/engines/` exporting:
    ```ts
@@ -2860,7 +2908,7 @@ results" below.
 | --- | --- | --- |
 | PROMPT (caption) | `style` | |
 | BPM / KEY-SCALE / TIME SIGNATURE | appended to `style` | e.g. `…, 92 bpm, A minor, 6/8 time`, only for fields not left on AUTO. This is a text hint, not a guarantee; what gets stored comes from the ABC. |
-| LYRICS | `lyrics` | as-is |
+| LYRICS | `lyrics` | as-is. Empty LYRICS (instrumental) need a tags-only skeleton; see "Instrumentals" in the YuE2 spike results |
 | GUIDANCE | `cfg_scale` | clamped to 0–20; AUTO omits it |
 | RANDOM SEED / SEED | `seed` | **always sent.** YuE's default is the fixed 831001, so omitting it would return the same song for the same prompt every time. With RANDOM SEED on, the server picks a seed and records it. |
 | COT (engine control) | `cot` | AUTO / FULL / MELODY / OFF; AUTO omits it |
@@ -2929,7 +2977,7 @@ column includes ~1.17 GB for the Windows desktop.
 - **Why the peak is flat**: the AR KV cache is preallocated for the prefix
   plus `max_tokens` (9000), ~1.2 GiB for one branch and ~2.4 GiB for
   `cot=off`'s two, whatever the song length. Only the acoustic stage grows
-  with length, and songs near the 360 s cap were not tried.
+  with length; see "Long songs" below.
 - **RAM parking** (`.to()` plus `empty_cache()`, 3 reps):
 
   | Model | Size | GPU → CPU | CPU → GPU |
@@ -2954,9 +3002,52 @@ column includes ~1.17 GB for the Windows desktop.
      once, and call `torch.cuda.empty_cache()` after each job.
   3. A job needs ~9 GiB of free VRAM, so ACE-Step must be idle and
      offloaded (~0.5 GB) while it runs. That holds under `genLock`.
-- **Not yet checked**: listening to the songs, instrumental (empty lyrics),
-  songs near the 360 s cap, and YuE2-Turbo. The plain pipeline leaves
-  ~5 GiB free, but Turbo is a vLLM setup tuned for 32 GB cards.
+- **Not yet checked**: listening to the songs and YuE2-Turbo. The plain
+  pipeline leaves ~5 GiB free, but Turbo is a vLLM setup tuned for 32 GB
+  cards.
+
+**Follow-up checks (2026-09-30, same setup, default flags, seed 20260930;
+rollout step 5's two open items).** The logs and requests are in
+`~/yue2/logs/run_{instrumental_empty,instrumental_tags,long,long_cap}.log`
+and `~/yue2/scripts/song_*.json`. The spill column of these runs is blank:
+the Windows sampler's WDDM counter ID had changed since the spike. The
+card peaks stayed ≤ 11.6 GB of 16, so there was nothing to spill.
+
+| Run | Lyrics | Audio | Wall time | RTF | Plan / semantic tokens | PyTorch peak (alloc / reserved) | Card peak | Truncated |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| instrumental, empty | `""` | 170.0 s | 89.5 s | 0.53 | 1,307 / 4,250 | 7.96 / 8.62 GiB | 10.6 GB | no |
+| instrumental, tags only | `[Intro]` `[Verse]` `[Chorus]` `[Verse]` `[Chorus]` `[Outro]` | 92.2 s | 50.0 s | 0.54 | 741 / 2,305 | 7.92 / 8.12 GiB | 10.4 GB | no |
+| long (404 words, 92 BPM) | 12 sections | 294.9 s | 165.1 s | 0.56 | 2,491 / 7,374 | 8.47 / 8.93 GiB | 11.2 GB | no |
+| near the cap (563 words, 80 BPM) | 18 sections | 346.0 s | 221.2 s | 0.64 | 3,890 / 8,650 | 8.93 / 9.36 GiB | 11.6 GB | no |
+
+- **Instrumentals.** The pipeline accepts empty lyrics, but they do **not**
+  give an instrumental. The ABC score plan still wrote a vocal melody in
+  40 of 61 `V: Vocal` bars, so expect wordless singing. With **only the
+  section tags** as lyrics, the vocal voice was rests in all 33 bars, and
+  the instrumental voice had notes in 32. Upstream's own instrumental
+  workflow (`skills/yue2-music/instrumental`) also uses "empty or exactly
+  the score's section tags". This is read from the score, not from the
+  audio; nobody has listened yet.
+  - *Consequence for `feat/yue-engine`*: when LYRICS is empty, `toRequest`
+    should send a tags-only skeleton (for example `[Intro]` / `[Verse]` /
+    `[Chorus]` / `[Verse]` / `[Chorus]` / `[Outro]`, one per line). It
+    should also add "instrumental, no vocals" to `style`. That also avoids
+    `yue2-serve`, which rejects blank lyrics. No GENERATE guard is needed.
+  - The tags-only take came out short (92 s). The tag count sets the
+    length, so a longer skeleton gives a longer piece.
+- **Long songs.** Neither long request was truncated. Songs end on their
+  own near, but under, the caps: the near-cap run used 8,650 of 9,000
+  semantic tokens (346 s of the ~360 s) and 3,890 of the planner's 4,096
+  score tokens. So `truncated` needs lyrics longer than ~6 minutes of song,
+  and the planner's 4,096-token score limit is about as close as the
+  semantic one.
+  - *Peak VRAM grows only in synthesis*, from 8.09 GiB at 178 s to
+    8.93 GiB at 346 s allocated (9.36 GiB reserved), and 11.6 GB on the
+    card. That is still ~4.4 GB under the 16 GB card, so the whole length
+    range fits with the defaults.
+  - *Speed*: RTF climbs from 0.54 to 0.64 at the cap. The longer prefix
+    slows the AR stages (81 vs 95 tokens/s), and synthesis takes 58 s. A
+    6-minute song takes ~3.7 minutes.
 
 ### Skipped: MiniMax Music 3
 
@@ -3119,6 +3210,22 @@ YuE2:
   found fp8 4.6x slower), reaching the server from Windows at
   `http://127.0.0.1:<port>`, starting it through `wsl.exe`, and the WSL
   first-run hang workaround.
+  - *As built (2026-09-30)*: split by responsibility to stay under 150 LOC
+    each. `main.py` (FastAPI routes, auth), `request_model.py` (the submit
+    body), `jobs.py` (the in-memory job table, FIFO queue, Idempotency-Key
+    replay and artifact retention; 161 LOC, over the target), `worker.py`
+    (the single inference thread and the staged run with its cancel
+    checks), `yue_pipeline.py` (the only module importing torch / yue2),
+    and `settings.py` (`YUE_*` env vars; default port 8004). The tests
+    (`yue-server/tests/`, pytest) use a fake pipeline and need no GPU;
+    `requirements-test.txt` installs just enough to run them.
+  - `requirements.txt` pins `yue2-infer` to upstream commit `18a07bb` by git
+    URL rather than vendoring it. `yue_pipeline.py` uses two private
+    pipeline members (`_status` for step progress, `_model` / `_vae` to park
+    after a cancelled or failed job), so they must be re-checked whenever
+    that pin moves.
+  - The model is parked **before** a job turns terminal, so Mulakai never
+    releases `genLock` while YuE2 still holds VRAM.
 - `server/src/services/engines/yue2.ts` — new. Descriptor, `toRequest`, and
   the ABC `readMeta`.
 
@@ -3186,6 +3293,11 @@ Tests (Vitest):
    **Spike done 2026-09-30: go, with caveats.** See "YuE2 spike results".
    `truncated` did not show up at the default `max_tokens` for ~3-minute
    songs. Empty lyrics were not tried.
+
+   **Both open checks done 2026-09-30** (see the follow-up checks under
+   "YuE2 spike results"). Empty lyrics run but still plan a vocal line;
+   tags-only lyrics give an instrumental score. A 346 s song, 96% of the
+   cap, was not truncated, and it peaked at 11.6 GB on the card.
 
 **Reordered 2026-09-30: YuE2 ships first** (see "Engine order"). The PRs
 below replace the original order, which was framework → HeartMuLa server →
@@ -3309,6 +3421,11 @@ YuE2:
   - *Not seen in the spike (2026-09-30)*: none of the four ~3-minute runs
     was truncated. A ~3-minute song used ~4,500 of the 9,000 semantic
     tokens.
+  - *Near the cap (2026-09-30)*: a 346 s song used 8,650 semantic tokens
+    and 3,890 of the 4,096 score tokens, and was not truncated either.
+    Truncation is rare in practice: it needs lyrics for more than ~6
+    minutes. That fits the keep-and-label decision below. `yue-server`
+    serves the audio for `truncated` jobs, as `yue2-serve` does.
   - **Answered (2026-09-30): keep it, with the label.** See "Framework
     decisions".
 - **Should ALT on a YuE2 base version resubmit to YuE2** instead of being
@@ -3319,6 +3436,12 @@ YuE2:
   - *Partly answered (2026-09-30), from source*: `yue2-serve` rejects blank
     `lyrics` (and blank `style`) with a 422, so on Turbo the answer is no.
     The official pipeline behind `yue-server/` was not tried.
+  - **Answered for the official pipeline (2026-09-30): yes, through
+    tags-only lyrics, not empty ones.** Empty lyrics run, but the planner
+    still writes a vocal line. Tags-only lyrics plan no vocal notes, and
+    they are not blank, so Turbo accepts them too. `toRequest` should map
+    empty LYRICS to a tags-only skeleton, so no guard is needed. See the
+    follow-up checks under "YuE2 spike results". Still to confirm by ear.
 - **Languages other than en / zh**: hard-block them or only warn? VOCAL
   LANGUAGE is disabled either way, but nothing stops the lyrics themselves
   from being in another language.
