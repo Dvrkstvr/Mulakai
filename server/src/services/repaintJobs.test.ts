@@ -32,6 +32,7 @@ const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
 const { getJob, getActiveGeneration, abortJob } = await import('./jobs.js');
 const { startRegenerate, startSimilarTake, startRepaint } = await import('./repaintJobs.js');
+const { NOT_REPLAYABLE_ENGINE } = await import('./replayGuard.js');
 
 function seedVersion(seed = 'original-seed-123'): { layerId: string; versionId: string } {
   const songId = crypto.randomUUID();
@@ -168,5 +169,42 @@ describe('startRepaint abort race', () => {
     await new Promise((r) => setTimeout(r, 30));
     const after = db.prepare(`SELECT COUNT(*) as c FROM versions WHERE layer_id = ?`).get(layerId) as { c: number };
     expect(after.c).toBe(before.c);
+  });
+});
+
+describe('ALT / SIMILAR on an extra engine\'s base version', () => {
+  function seedEngineSong(): { layerId: string; engineVersionId: string; repaintVersionId: string } {
+    const songId = crypto.randomUUID();
+    const layerId = crypto.randomUUID();
+    const engineVersionId = crypto.randomUUID();
+    const repaintVersionId = crypto.randomUUID();
+    db.prepare(`INSERT INTO songs (id, title, engine) VALUES (?, ?, 'yue2')`).run(songId, 'Engine Song');
+    db.prepare(`INSERT INTO layers (id, song_id, name, kind, position) VALUES (?, ?, 'Base', 'base', 0)`).run(layerId, songId);
+    const insert = db.prepare(
+      `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, active) VALUES (?, ?, 'base.mp3', ?, ?, '42', ?)`,
+    );
+    insert.run(engineVersionId, layerId, 'first generation', JSON.stringify({
+      prompt: 'a song', engine: 'yue2', task_type: 'text2music', request: { style: 'a song', seed: 42 },
+    }), 0);
+    insert.run(repaintVersionId, layerId, 'repaint 0:10–0:20', JSON.stringify({
+      prompt: 'a song', task_type: 'repaint', repainting_start: 10, repainting_end: 20,
+    }), 1);
+    fs.writeFileSync(path.join(config.audioDir, 'base.mp3'), 'source audio');
+    return { layerId, engineVersionId, repaintVersionId };
+  }
+
+  it('refuses both, before taking the genLock or calling ACE-Step', async () => {
+    releaseTask.mockClear();
+    const { engineVersionId } = seedEngineSong();
+    await expect(startRegenerate(engineVersionId)).rejects.toThrow(NOT_REPLAYABLE_ENGINE);
+    await expect(startSimilarTake(engineVersionId)).rejects.toThrow(NOT_REPLAYABLE_ENGINE);
+    expect(getActiveGeneration().lock).toBeNull();
+    expect(releaseTask).not.toHaveBeenCalled();
+  });
+
+  it('still replays the ACE-Step versions added to that song later', async () => {
+    const { repaintVersionId } = seedEngineSong();
+    const job = await startRegenerate(repaintVersionId);
+    await waitForDone(job.id);
   });
 });

@@ -83,3 +83,16 @@ describe('version files', () => {
     await expect(removeVersionFiles({ id: crypto.randomUUID(), audio_file: 'missing.flac' })).resolves.toBeUndefined();
   });
 });
+
+describe('ALT / SIMILAR routes on an extra engine\'s version', () => {
+  it('answer 400 with the refusal', async () => {
+    const { scored } = seed('base');
+    db.prepare(`UPDATE versions SET params_json = ? WHERE id = ?`)
+      .run(JSON.stringify({ prompt: 'p', engine: 'yue2', task_type: 'text2music' }), scored.id);
+    for (const action of ['regenerate', 'retake']) {
+      const res = await fetch(`${baseUrl}/versions/${scored.id}/${action}`, { method: 'POST' });
+      expect(res.status).toBe(400);
+      expect((await res.json()).error).toContain('another engine');
+    }
+  });
+});
