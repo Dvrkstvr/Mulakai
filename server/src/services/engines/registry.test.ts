@@ -6,6 +6,8 @@ const engineHealth = vi.fn(async (_e: { url: string }) => true);
 vi.mock('../acestep.js', () => ({ health: () => acestepHealth() }));
 vi.mock('../engineClient.js', () => ({ health: (e: { url: string }) => engineHealth(e) }));
 
+// A developer's own HEARTMULA_API_URL must not leak in: config reads it at import.
+vi.stubEnv('HEARTMULA_API_URL', '');
 const { listEngines, getEngine, EXTRA_ENGINES, ACESTEP_CAPABILITIES } = await import('./registry.js');
 
 function fake(id: SongEngine['id'], url: string): SongEngine {
@@ -18,12 +20,15 @@ function fake(id: SongEngine['id'], url: string): SongEngine {
 }
 
 describe('engine registry', () => {
-  it('ships with no extra engine, so a default install lists only ACE-Step', async () => {
-    expect(EXTRA_ENGINES).toEqual([]);
+  it('lists HeartMuLa as not configured, and never probes it, when its URL is unset', async () => {
+    engineHealth.mockClear();
+    expect(EXTRA_ENGINES.map((e) => e.id)).toEqual(['heartmula']);
     const list = await listEngines();
-    expect(list).toEqual([
+    expect(list[0]).toEqual(
       { id: 'acestep', label: 'ACE-STEP', capabilities: ACESTEP_CAPABILITIES, configured: true, ready: true },
-    ]);
+    );
+    expect(list.slice(1).map((e) => [e.id, e.configured, e.ready])).toEqual([['heartmula', false, false]]);
+    expect(engineHealth).not.toHaveBeenCalled();
   });
 
   it('lists ACE-Step first, then each extra engine in order, with live health', async () => {

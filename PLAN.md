@@ -2569,11 +2569,11 @@ machine the same day; see "HeartMuLa spike results" below.
 
 | Create field | HeartMuLa | Notes |
 | --- | --- | --- |
-| PROMPT (caption) | `tags` | v1: split on `,` / `;`, trim, lowercase, and join the words inside a tag with `-`, so `dreamy synth pop` → `dreamy-synth-pop`. The resulting tag string is shown read-only under PROMPT, so the user sees what is sent. A better caption → tag strategy is an open question. |
+| PROMPT (caption) | `tags` | v1: split on `,` / `;`, trim, lowercase, and join the words inside a tag with `-`, so `dreamy synth pop` → `dreamy-synth-pop`. Newlines also split, and empty and repeated tags are dropped. The resulting tag string is shown read-only under PROMPT, so the user sees what is sent. A better caption → tag strategy is an open question. |
 | LYRICS | `lyrics` | as-is. The descriptor's `sectionTags` lists HeartMuLa's six section tags. |
-| DURATION | `max_audio_length_ms` | **a cap.** AUTO sends 240000 (the CLI default) so AUTO doesn't cut songs at the pipeline's 2 minutes. The readout says MAX. |
-| GUIDANCE | `cfg` | AUTO omits it |
-| TEMPERATURE / TOP-K (engine controls) | temperature, top-k | AUTO omits them |
+| DURATION | `max_audio_length_ms` | **a cap.** AUTO sends 240000 (the CLI default) so AUTO doesn't cut songs at the pipeline's 2 minutes. A set value is clamped to the wrapper's 10–360 s. The readout says MAX. |
+| GUIDANCE | — | **not mapped** (changed 2026-09-30 in `feat/heartmula-engine`). The slider is ACE-Step's (0.5–15) and persists across engines, so a value tuned for ACE-Step would reach HeartMuLa far outside its range (default 1.5). HeartMuLa's own CFG engine control is used instead, as design point 11 describes. |
+| CFG / TEMPERATURE / TOP-K (engine controls: `extraControls` `cfg`, `temperature`, `topK`) | `cfg_scale`, `temperature`, `topk` | AUTO (absent, or 0) omits them. A set value is clamped to the wrapper's ranges (1–10, 0.05–2, 1–1000), so it can't 422 the job. |
 | RANDOM SEED / SEED | — | **no seed.** RANDOM SEED is shown locked on with "not reproducible", and `params_json` records `seed: null`. |
 | BPM / KEY-SCALE / TIME SIGNATURE | — | disabled. HeartMuLa's tag vocabulary has no tempo or key category, so these are not smuggled into `tags` either. |
 | VOCAL LANGUAGE | — | disabled; the lyrics' language decides. The descriptor lists zh / en / ja / ko / es. |
