@@ -2722,6 +2722,17 @@ gaps were filled from YuE2-Turbo's `yue2-serve` source
   - HeartMuLa's reserved peak is 12.85 GiB whatever the song length.
   - Going over the cap is an `out_of_memory` failure, not a silent spill.
 - **Default port 8003**, next to ACE-Step's 8001 and Demucs' 8002.
+- **Verified end to end on the RTX 4080 (2026-09-30)**. The run went over
+  HTTP against the real server, with ACE-Step idle (offloaded).
+  - The weights load to RAM in 10.7 s, with a warm file cache.
+  - A 30 s cap took 41.8 s. The next job, a 20 s cap at `cfg_scale 1.0`,
+    took 25.8 s, which confirms the KV-cache rebuild.
+  - A cancel sent 6 s into a job ended it at 9.8 s.
+  - The card peaked at 15.2 GB total, from a 1.7 GB baseline (desktop plus
+    idle ACE-Step). Nothing spilled, judging by the timings.
+  - The server idles at ~0.3 GB between jobs.
+  - A CPU-only run against the real model also passed the cancel and
+    context-guard paths.
 
 ### Engine 2: YuE2
 
