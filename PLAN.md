@@ -2958,6 +2958,79 @@ mapping table above, they supersede it:
   persisted with `engine = 'yue2'`, a duration read from the file, and the
   `.abc` sidecar.
 
+### Engine picker UI decisions (2026-09-30, `feat/engine-picker-ui`)
+
+Design points 6, 11 and 12, made concrete. They are written against both
+descriptors: YuE2's (#39) and HeartMuLa's (#38, open).
+
+- **The engine is a draft field, used on the PROMPT tab only.** It lives in
+  `createDraftStore` as `engine` (`'acestep'` by default). `load` sets it
+  (REUSE PROMPT reads `songs.engine`, RETRY reads the draft), and CLEAR
+  DRAFT resets it. It does not make a draft non-empty on its own: like a
+  tab's model, it is a pick, not something typed. COVER and ARRANGE always
+  generate on ACE-Step, whatever the draft says.
+- **The engine list** comes from `GET /api/engines`. A small `engineStore`
+  fetches it when Create or Settings mounts; it is not polled. The ENGINE
+  row renders only when at least one extra engine is `configured`.
+- **The picker** is a row of sky parallelograms: ACE-STEP first, then
+  each configured engine. They are the `.tab` shape with a sky active
+  state, because the pick targets where the request goes; acid stays
+  with GENERATE. An engine that is configured but not ready is disabled,
+  with the reason inline. If the *selected* engine is not ready, a
+  `.warn-note` says so and GENERATE is disabled.
+- **Gating** (`engineCaps.ts`, pure). Each unsupported control stays in
+  place with an `N/A` readout and a one-line reason built from the
+  descriptor:
+
+  | Control | Rule |
+  | --- | --- |
+  | DURATION | `none` → N/A. `max` → readout `MAX Ns` (AUTO stays AUTO), with a "cap, not a target" note. |
+  | BPM, KEY / SCALE, TIME SIGNATURE | `params` → live. `style-text` → live, with a note that they go in as style text, a hint and not a guarantee. `none` → N/A. |
+  | VOCAL LANGUAGE | Live only for `languages: 'any'` (ACE-Step's `vocal_language` param). Otherwise N/A: "sings <langs>, following the lyrics". |
+  | TAKES | N/A unless `takes`. |
+  | AI ENHANCE badge and the lilac LM note | Shown only with `lmTools`. Otherwise the note says prompt and lyrics are sent as typed. |
+  | REFINE INPUT, FEELING LUCKY | Stay live (draft tooling on ACE-Step, design point 11). |
+
+- **The settings panel** (generate mode, PROMPT tab, extra engine) renders
+  `EngineGenSettings` instead of the model / LM / STEPS / GUIDANCE /
+  ADVANCED / REFERENCE AUDIO block:
+  - One control per `extraControls` entry. CFG, TEMPERATURE and TOP-K are
+    sliders where 0 means AUTO; COT is AUTO / FULL / MELODY / OFF.
+  - The ranges are a client table per engine, because the descriptor has
+    none. YuE2 CFG runs 0–20; HeartMuLa CFG 1–10, TEMPERATURE 0.05–2 and
+    TOP-K 1–1000. The server clamps either way.
+  - With `seed` on, the panel shows the same RANDOM SEED / SEED pair as
+    ACE-Step, sharing its persisted values. A seed means the same thing
+    everywhere, unlike GUIDANCE. With `seed` off, it shows a locked "not
+    reproducible" note.
+  - One line names the ACE-Step settings that don't apply.
+- **`engineSettings.ts`** is a persisted zustand store keyed by engine
+  (`cfg`, `temperature`, `topK`, `cot`, each null = AUTO). Its `engineFields`
+  maps it to `CreateFields`.
+- **GENERATE** on an extra engine posts `/api/engines/:id/generate` with
+  the Create field names. It sends the song details, the seed pair, the
+  output settings and the engine's own controls, but never GUIDANCE, the
+  LM knobs or a reference voice.
+  - The descriptor's `consequence` line sits under the button.
+  - The adapter note becomes "adapter not applied — <ENGINE>".
+- **The job card** maps the shared contract's stage names (`queued`,
+  `planning`, `semantic`, `synthesis`, `decode`, `saving`) to labels. Its
+  percentage is labelled as the stage's, because YuE2's `progress` restarts
+  at every stage.
+- **The Library rail** shows GENERATED WITH `PROMPT · YUE2`, and REUSE
+  PROMPT's consequence line names the engine. **VersionHistory** hides
+  ALT / SIMILAR on a version whose `engine` is set.
+- **The Settings › Engines card** is read-only. It has one row per extra
+  engine with READY / NOT CONFIGURED / UNREACHABLE and its env variable.
+  The license note appears once per engine that has one, from a client
+  table (YuE2's CC BY-NC 4.0). While any engine is configured, a
+  `.warn-note` reminds you to run ACE-Step with `ACESTEP_OFFLOAD_TO_CPU=true`.
+- **Not in this PR**: filtering the lyric-tag guide by `sectionTags` (still
+  an open question), and HeartMuLa's tag preview (`feat/heartmula-engine`).
+- **`generationStore.ts`** was already 217 LOC, over the cap. Its three
+  near-identical `start*` actions fold into one helper first, in a separate
+  `refactor:` commit, before engine routing is added.
+
 ### File-level plan
 
 Shared (engine framework):
