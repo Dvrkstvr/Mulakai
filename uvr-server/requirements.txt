@@ -1,0 +1,5 @@
+fastapi
+uvicorn[standard]
+python-multipart
+# librosa 0.9.2 (pinned by the runner) imports pkg_resources, gone in setuptools 81
+setuptools<81
