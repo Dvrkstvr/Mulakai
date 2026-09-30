@@ -139,11 +139,14 @@ def test_prompt_plus_cap_over_the_context_is_rejected_before_the_gpu():
 def test_vram_cap_defaults_to_card_total_minus_2_gib(monkeypatch, budget, fraction):
     calls = []
     props = type("Props", (), {"total_memory": 16 * 1024**3})()
+    monkeypatch.setattr(torch.cuda, "current_device", lambda: 0)
     monkeypatch.setattr(torch.cuda, "get_device_properties", lambda _d: props)
-    monkeypatch.setattr(torch.cuda, "set_per_process_memory_fraction", lambda f, _d: calls.append(f))
+    # torch rejects an un-indexed torch.device("cuda") here, so the index must be resolved.
+    monkeypatch.setattr(torch.cuda, "set_per_process_memory_fraction", lambda f, d: calls.append((f, d)))
     HeartMulaEngine("unused", device="cuda", vram_budget_gb=budget)._cap_vram()
+    HeartMulaEngine("unused", device="cuda:1", vram_budget_gb=budget)._cap_vram()
     HeartMulaEngine("unused", device="cpu", vram_budget_gb=budget)._cap_vram()
-    assert calls == [pytest.approx(fraction)]
+    assert calls == [(pytest.approx(fraction), 0), (pytest.approx(fraction), 1)]
 
 
 def test_drop_kv_caches_leaves_cacheless_modules_alone():

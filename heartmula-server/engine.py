@@ -46,9 +46,10 @@ class HeartMulaEngine:
         # 12.85 GiB whatever the song length (the KV cache is preallocated).
         if self.device.type != "cuda":
             return
-        total = torch.cuda.get_device_properties(self.device).total_memory / GIB
+        index = self.device.index if self.device.index is not None else torch.cuda.current_device()
+        total = torch.cuda.get_device_properties(index).total_memory / GIB
         budget = self.vram_budget_gb or total - 2
-        torch.cuda.set_per_process_memory_fraction(min(1.0, budget / total), self.device)
+        torch.cuda.set_per_process_memory_fraction(min(1.0, budget / total), index)
 
     def load(self) -> None:
         from heartlib import HeartMuLaGenPipeline
