@@ -9,6 +9,8 @@ Engines", design point 3), which is YuE2-Turbo's `yue2-serve` job API, so the
 same client can point at either: POST /v1/jobs -> 202 job, GET /v1/jobs/{id},
 POST /v1/jobs/{id}/cancel, GET /v1/jobs/{id}/audio (FLAC), GET
 /v1/jobs/{id}/score (ABC), GET /health/ready. One job runs at a time.
+SheetSage2 transcription for covers adds /v1/transcriptions
+(transcribe_routes.py).
 
 Run (inside WSL, in the yue2 venv): python main.py
 """
@@ -25,7 +27,10 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 from jobs import IdempotencyConflict, JobStore, QueueFull
 from request_model import GenerateRequest
+from scores import ScoreError, prepare_score
 from settings import Settings
+from transcribe_routes import add_transcription_routes
+from transcriber import Transcriber
 from worker import Worker
 
 log = logging.getLogger("yue-server")
@@ -38,7 +43,8 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
         def pipeline_factory():
             from yue_pipeline import YuePipeline
             return YuePipeline(settings)
-    worker = Worker(store, pipeline_factory)
+    transcriber = Transcriber(settings.sheetsage_python, settings.sheetsage_dir)
+    worker = Worker(store, pipeline_factory, transcriber)
 
     @asynccontextmanager
     async def lifespan(_app):
@@ -59,7 +65,7 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
             raise HTTPException(401, "Invalid bearer token", headers={"WWW-Authenticate": "Bearer"})
 
     def get_job(job_id: str) -> dict:
-        job = store.get(job_id)
+        job = store.get(job_id, kind="song")
         if job is None:
             raise HTTPException(404, "Job not found")
         return job
@@ -80,8 +86,16 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
                x_admission_id: str | None = Header(default=None, max_length=128)):
         if worker.state != "ready":
             raise HTTPException(503, "Inference worker is not ready", headers={"Retry-After": "5"})
+        body = request.model_dump(exclude_none=True)
+        if "abc" in body:
+            try:
+                body["abc"] = prepare_score(body["abc"], body["cot"])
+            except ScoreError as error:
+                raise HTTPException(422, str(error)) from None
+            if not worker.fits_plan_budget(body["abc"]):
+                raise HTTPException(422, "The score is over YuE2's 4096-token planning budget")
         try:
-            job, created = store.submit(request.model_dump(exclude_none=True),
+            job, created = store.submit(body,
                                         admission_id=x_admission_id, idempotency_key=idempotency_key)
         except QueueFull:
             raise HTTPException(429, "Queue is full", headers={"Retry-After": "5"}) from None
@@ -98,7 +112,7 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
 
     @app.post("/v1/jobs/{job_id}/cancel", dependencies=[Depends(authorize)])
     def cancel(job_id: str):
-        job = store.cancel(job_id)
+        job = store.cancel(job_id, kind="song")
         if job is None:
             raise HTTPException(404, "Job not found")
         return job
@@ -120,6 +134,7 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
     def score(job_id: str):
         return artifact(job_id, "score.abc", "text/plain; charset=utf-8")
 
+    add_transcription_routes(app, settings, store, worker, authorize)
     return app
 
 

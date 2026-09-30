@@ -127,6 +127,46 @@ PyTorch allocations at the card total minus 2 GiB; the setting guards the
 case where something else holds VRAM at the same time. It is a system
 setting: Mulakai and this server document it and never change it.
 
+## 5. Covers: SheetSage2 (optional)
+
+YuE2 covers a song by its melody: [SheetSage2](https://huggingface.co/m-a-p/SheetSage2)
+transcribes the source into a score, and YuE2 sings that score in a new
+style (`PLAN.md`, "YuE2 Melody Covers via SheetSage2"). SheetSage2 pins
+Python 3.11, torch 2.8 and NumPy 1.24, which clash with YuE2's venv, so it
+gets its own. yue-server runs it as a subprocess, one job at a time on the
+same worker, so it never shares the GPU with a song.
+
+Inside WSL (FFmpeg 6.1 comes with Ubuntu 24.04: `sudo apt install ffmpeg`):
+
+```bash
+mkdir -p ~/sheetsage2 && cd ~/sheetsage2
+uv venv --python 3.11 .venv
+uv pip install --python .venv/bin/python huggingface-hub==0.36.0
+.venv/bin/huggingface-cli download m-a-p/SheetSage2   --revision cafc0df1021e14f49e928c4b345f5959d414ef64 --local-dir SheetSage2
+uv pip install --python .venv/bin/python torch==2.8.0 torchaudio==2.8.0   --index-url https://download.pytorch.org/whl/cu126
+uv pip install --python .venv/bin/python -r SheetSage2/requirements.txt
+.venv/bin/python SheetSage2/setup_render.py   # the piano preview's renderer
+```
+
+- **No Hugging Face login is needed.** The first transcription fetches
+  SheetSage2's MERT-v2-FullSong parent (`d8ba1c74…`) into the HF cache.
+- **The revision is pinned** because SheetSage2 loads with
+  `trust_remote_code`: the pin is what makes that code the reviewed code.
+  `cafc0df1` is what the cover spike ran.
+- **The piano preview renderer:** without `setup_render.py`, a
+  transcription still returns its score, with a warning and no preview.
+  On a minimal Ubuntu, use `setup_render.py --with-deps`.
+
+Then start yue-server with the two paths (`start-all.bat` does this when
+`~/sheetsage2/.venv` exists; override with `YUE_SHEETSAGE_HOME`):
+
+```bash
+YUE_SHEETSAGE_PYTHON=~/sheetsage2/.venv/bin/python YUE_SHEETSAGE_DIR=~/sheetsage2/SheetSage2   YUE_DATA_DIR=~/yue-data ~/yue2/.venv/bin/python main.py
+```
+
+`GET /v1/transcriptions/health` answers 200 once both are found. Measured
+on the 4080: 6–12 s per song, about 3.7 GB on the card.
+
 ## Config (env vars, all optional)
 
 | Variable | Default | Meaning |
@@ -140,13 +180,15 @@ setting: Mulakai and this server document it and never change it.
 | `YUE_BUDGET_GIB` | `24` | yue2's `--budget`. PyTorch is capped at min(budget, card) − 2 GiB. |
 | `YUE_QUANTIZATION` | `none` | `fp8` exists but is **not recommended**: it disables CUDA graphs, runs 4.6x slower on the 4080, saves ~0.2 GiB and changes the song for a given seed. |
 | `YUE_OFFLOAD_AR` | off | yue2's `--offload-ar`. Measured to change nothing at 16 GB (the peak is in the semantic stage). |
+| `YUE_SHEETSAGE_PYTHON` / `YUE_SHEETSAGE_DIR` | empty | SheetSage2's venv Python and its snapshot folder (holding `infer.py`). Either empty = no transcription (section 5). |
+| `YUE_MAX_UPLOAD_MB` | `100` | Largest audio `POST /v1/transcriptions` accepts. |
 
 ## API
 
 The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
 `yue2-serve` job API, so Mulakai's one engine client talks to either.
 
-- `POST /v1/jobs` — body `{style, lyrics, seed, cot?, cfg_scale?, id?}`.
+- `POST /v1/jobs` — body `{style, lyrics, seed, cot?, cfg_scale?, id?, abc?}`.
   `seed` is **required** (YuE's own default is a fixed 831001). `cot` is
   `full` (default) / `melody` / `off`; `cfg_scale` 0–20. Unknown fields →
   422. Mulakai sends its own job id as the **`Idempotency-Key`** header: it
@@ -157,6 +199,15 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   `X-Admission-Id` header (echoed as `admission_id`) are also accepted.
   → **202** with the job record and `Location: /v1/jobs/{id}`; 503 while the
   pipeline is loading or failed to load; 429 when the queue is full.
+  - `abc` is a supplied score, for a cover. It is at most 64 KB, and `cot`
+    must be `melody` or `full`.
+  - It must be in YuE2's native two-voice ABC (the `Vocal` / `Ins` voices
+    SheetSage2 and YuE2 write) and within the 4096-token planning budget.
+    Otherwise it is a 422.
+  - With `cot=melody`, its chord symbols are stripped first, since YuE2
+    doesn't strip them itself.
+  - Tags-only lyrics with a score make an instrumental cover: the score's
+    `Vocal` notes move to `Ins` (see Instrumentals).
 - `GET /v1/jobs/{id}` — the job record (below).
 - `POST /v1/jobs/{id}/cancel` — returns the job record. A queued job is
   cancelled at once; a running one at the next token, ODE step or stage
@@ -165,6 +216,29 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   the job is `succeeded` or `truncated`.
 - `GET /v1/jobs/{id}/score` — the ABC score plan (`text/plain`). 404 when
   there is none (`cot=off`).
+- **Transcriptions** (section 5): SheetSage2 reads a song's melody into a
+  score. They use the same auth, queue, retention and `Idempotency-Key`
+  replay as `/v1/jobs`. A record has `kind: "transcription"`, where a
+  song's has `kind: "song"`, and has no `seed`, `tokens` or `request_id`.
+  Each route family 404s the other kind's ids.
+  - `POST /v1/transcriptions` takes a multipart `audio` field. It returns
+    **202** with the record and `Location`. 400 for empty audio, 413 over
+    `YUE_MAX_UPLOAD_MB`, 503 when transcription isn't available.
+  - `GET /v1/transcriptions/{id}`: the record. `stage` is `transcribing`,
+    and `progress` is the fraction of SheetSage2's windows.
+  - `POST /v1/transcriptions/{id}/cancel` kills the SheetSage2 process.
+  - `GET /v1/transcriptions/{id}/score`: the melody-only score, in both
+    voices with no chords, as `text/plain`.
+  - `GET /v1/transcriptions/{id}/preview`: SheetSage2's piano rendering of
+    it, as `audio/wav`. 404 when the render failed.
+  - `result` on success has `score_url`, `preview_url` (or null),
+    `warnings` (SheetSage2's own, plus a render failure), `measures`,
+    `vocal_notes`, `instrumental_notes`, `duration_seconds` and `timing`.
+  - `error` codes: `no_score` (SheetSage2 ran but built no score) and
+    `transcription_failed`, each with the last lines of its output.
+- `GET /v1/transcriptions/health` needs no auth. It returns 200
+  `{"status": "ready"}`, else 503 with `status` `not_configured`,
+  `missing_files` (with `detail`), or the worker's `loading` / `failed`.
 - `GET /health/ready` — 200 `{"status": "ready"}`, else 503 with
   `"loading"` or `"failed"`. `GET /health/live` — 200 `{"status": "alive"}`.
 
@@ -174,7 +248,7 @@ Job record:
 
 ```json
 {
-  "id": "…32 hex…", "idempotency_key": "<mulakai job id>", "admission_id": null,
+  "id": "…32 hex…", "kind": "song", "idempotency_key": "<mulakai job id>", "admission_id": null,
   "request_id": null, "seed": 20260930,
   "status": "running", "stage": "synthesis", "progress": 0.41,
   "tokens": {"abc": 1673, "semantic": 4442},
@@ -209,8 +283,9 @@ YuE2 has no instrumental flag. Empty `lyrics` are accepted, but the score
 planner still writes a vocal melody for them, so expect wordless singing.
 
 For an instrumental, send **only section tags** as lyrics (`[Intro]`,
-`[Verse]`, `[Chorus]`, `[Outro]`, one per line), no `abc`, and a `cot` other
-than `off`. Start `style` with "Instrumental" and end it with "no vocals, no
+`[Verse]`, `[Chorus]`, `[Outro]`, one per line) and a `cot` other than
+`off`. With an `abc` (an instrumental cover), the supplied score is
+converted instead of a planned one. Start `style` with "Instrumental" and end it with "no vocals, no
 singing, no choir, no spoken words". The server then runs upstream's
 instrumental workflow (`skills/yue2-music/instrumental` in the YuE repo):
 
@@ -242,3 +317,6 @@ The wrapper is part of Mulakai. `yue2-infer` code is Apache-2.0. **The YuE2
 weights are CC BY-NC 4.0 plus a creator permission**: individuals may use them
 and monetize the outputs; companies need a license from the authors. Check
 the current terms in the upstream `MODEL_LICENSE` before any commercial use.
+SheetSage2's weights are CC BY-NC 4.0 as well. Its renderer's FluidR3 piano
+samples are CC BY 3.0 US. Whether you may cover a given song is up to you, as
+with ACE-Step's COVER.

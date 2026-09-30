@@ -27,6 +27,11 @@ class Settings:
     offload_ar: bool = False
     max_pending: int = 4
     retention_hours: float = 24.0
+    # SheetSage2 transcription (PLAN.md, "yue-server transcription decisions"): its own
+    # venv's python and the downloaded snapshot holding infer.py. Unset = no covers.
+    sheetsage_python: str = ""
+    sheetsage_dir: str = ""
+    max_upload_mb: float = 100.0
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "Settings":
@@ -47,4 +52,7 @@ class Settings:
             offload_ar=_flag(env.get("YUE_OFFLOAD_AR", "")),
             max_pending=int(env.get("YUE_MAX_PENDING", default.max_pending)),
             retention_hours=float(env.get("YUE_RETENTION_HOURS", default.retention_hours)),
+            sheetsage_python=os.path.expanduser(env.get("YUE_SHEETSAGE_PYTHON", "")),
+            sheetsage_dir=os.path.expanduser(env.get("YUE_SHEETSAGE_DIR", "")),
+            max_upload_mb=float(env.get("YUE_MAX_UPLOAD_MB", default.max_upload_mb)),
         )
