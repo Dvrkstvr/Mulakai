@@ -1854,6 +1854,15 @@ footer .player {
   color: var(--carbon);
 }
 
+/* ENGINE row (Create › PROMPT): same parallelogram as the tabs above it, but its active
+   state is sky — picking an engine targets where the request goes; acid stays with
+   GENERATE (docs/design/DESIGN.md, Create). */
+.tab.engine-tab.active {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: var(--on-sky);
+}
+
 .tab:disabled {
   opacity: 0.4;
   cursor: default;

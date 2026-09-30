@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { type RefineResult } from './api';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
-import { SongDetailsFields } from './SongDetailsFields';
+import { NaSetting, SongDetailsFields } from './SongDetailsFields';
 import { TIME_SIGNATURES, VOCAL_LANGUAGES } from './songMeta';
 import { useSettings } from './settings';
 import { AutoTextarea } from './AutoTextarea';
@@ -14,6 +14,9 @@ import { LyricTagGuidePopover } from './LyricTagGuidePopover';
 import { useCreateDraftStore } from './createDraftStore';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { PromptGenerateRow } from './PromptGenerateRow';
+import { EngineChoice } from './EngineChoice';
+import { useEngineCaps } from './useEngineCaps';
+import { songDetailNotes, unsupported } from './engineCaps';
 
 /** PROMPT tab: a plain text2music generation. Extracted from CreateView.tsx, which had grown
  * past the module cap holding both this form and the screen's shell. Owns the Quick Start
@@ -28,6 +31,10 @@ export function CreatePromptTab({ refining, onRefine, onBack }: {
     useCreateDraftStore();
   const patch = useCreateDraftStore((s) => s.patch);
   const clearPendingQuery = useCreateDraftStore((s) => s.clearPendingQuery);
+  const { info: engine } = useEngineCaps();
+  const caps = engine?.capabilities ?? null;
+  // AI ENHANCE is ACE-Step's LM rewriting the request; an engine without LM tools gets the text as typed.
+  const enhance = gen.useFormat && !formatted && (!caps || caps.lmTools);
 
   const [pendingResult, setPendingResult] = useState<RefineResult | null>(null);
   const { phase: thinkPhase, error: thinkError, retry: retryThink, finish: finishThink } =
@@ -55,10 +62,11 @@ export function CreatePromptTab({ refining, onRefine, onBack }: {
 
   return (
     <>
+      <EngineChoice />
       <div className="thinking-host">
         <div className="field-label-row">
           <span className="section-label">PROMPT</span>
-          {gen.useFormat && !formatted && <AiEnhanceBadge />}
+          {enhance && <AiEnhanceBadge />}
         </div>
         <AutoTextarea
           placeholder="Describe it — style, mood, instruments"
@@ -67,18 +75,20 @@ export function CreatePromptTab({ refining, onRefine, onBack }: {
           disabled={thinkPhase !== 'idle'}
         />
         <CarriedPromptNote />
-        <div className="lm-note">
+        {caps && !caps.lmTools ? (
+          <div className="hint">{engine?.label} gets prompt and lyrics as typed — AI ENHANCE is ACE-Step&apos;s LM and doesn&apos;t apply.</div>
+        ) : <div className="lm-note">
           {!gen.useFormat
             ? 'AI ENHANCE is off — AUTO song details below are left for the model to decide, with no LM enhancement.'
             : formatted
               ? 'AI ENHANCE is on, but this draft is already LM-formatted — it will generate as-is, unformatted, to avoid re-enhancing it.'
               : 'AI ENHANCE is on — prompt, lyrics, and any AUTO song details below are refined and filled in by the LM.'}
-        </div>
+        </div>}
 
         <div className="field-label-row">
           <span className="section-label">LYRICS</span>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {gen.useFormat && !formatted && <AiEnhanceBadge />}
+            {enhance && <AiEnhanceBadge />}
             <LyricTagGuidePopover />
           </div>
         </div>
@@ -109,15 +119,20 @@ export function CreatePromptTab({ refining, onRefine, onBack }: {
         <SongDetailsFields
           bpm={bpm} onBpmChange={(v) => patch({ bpm: v })}
           duration={duration} onDurationChange={(v) => patch({ duration: v })}
-          keyScale={keyScale} onKeyScaleChange={(v) => patch({ keyScale: v })}
+          keyScale={keyScale} onKeyScaleChange={(v) => patch({ keyScale: v })} caps={caps}
         />
-        <CustomSelect label="TIME SIGNATURE" value={timeSignature} onChange={(v) => patch({ timeSignature: v })} options={TIME_SIGNATURES} />
-        <CustomSelect label="VOCAL LANGUAGE" value={vocalLanguage} onChange={(v) => patch({ vocalLanguage: v })} options={VOCAL_LANGUAGES} />
-        <Slider label="TAKES" value={gen.batchSize} min={0} max={4} step={1}
-          readout={gen.batchSize === 0 ? 'AUTO (2)' : undefined}
+        {unsupported('timeSignature', caps) ? <NaSetting label="TIME SIGNATURE" /> : (
+          <CustomSelect label="TIME SIGNATURE" value={timeSignature} onChange={(v) => patch({ timeSignature: v })} options={TIME_SIGNATURES} />
+        )}
+        {unsupported('vocalLanguage', caps) ? <NaSetting label="VOCAL LANGUAGE" /> : (
+          <CustomSelect label="VOCAL LANGUAGE" value={vocalLanguage} onChange={(v) => patch({ vocalLanguage: v })} options={VOCAL_LANGUAGES} />
+        )}
+        <Slider label="TAKES" value={gen.batchSize} min={0} max={4} step={1} disabled={unsupported('takes', caps)}
+          readout={unsupported('takes', caps) ? 'N/A' : gen.batchSize === 0 ? 'AUTO (2)' : undefined}
           onChange={(v) => useSettings.getState().setGen({ batchSize: v })}
           info="Generates N candidates per request. Only one is currently kept — the rest are discarded." />
       </div>
+      {songDetailNotes(engine).map((note) => <div key={note} className="hint">{note}</div>)}
 
       <PromptGenerateRow thinking={thinkPhase !== 'idle'} onBack={onBack} />
     </>
