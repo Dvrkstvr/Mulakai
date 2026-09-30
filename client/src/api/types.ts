@@ -154,7 +154,7 @@ export interface RefineResult {
 
 /** Mirrors server/src/services/genLock.ts's GenLockInfo, joined with the underlying job's status. */
 export interface ActiveGeneration {
-  kind: 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster';
+  kind: 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe';
   jobId: string;
   songId?: string;
   title?: string;
@@ -162,7 +162,7 @@ export interface ActiveGeneration {
   /** Only present for `generate` — which of the three song-creating tasks is running,
    * so a retry after a page refresh reopens Create on the right tab. */
   task?: string;
-  /** Only present for `generate` on an extra engine. */
+  /** Present for `generate` on an extra engine, and for `transcribe`. */
   engine?: string;
   startedAt: number;
   status: 'loading' | 'running' | 'done' | 'failed';

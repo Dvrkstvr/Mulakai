@@ -3859,10 +3859,66 @@ or use a reference voice. What upstream offers, checked 2026-09-30:
     rights to the source song. A melody cover of someone else's song is a
     derivative work, which is the user's call, as with ACE-Step's COVER.
 
+### Upstream skill-doc review (2026-09-30)
+
+Checked against upstream's `skills/yue2-music` references (see "YuE2:
+Align With Upstream's `yue2-music` Skill"). Where these differ from the
+decisions above, they supersede them:
+
+- **The score keeps both melodies.** SheetSage2's native ABC has two
+  monophonic voices: `Vocal` (the sung line, plus the chord symbols) and
+  `Ins` (instrumental themes, fills and solos). `--melody-only` drops only
+  the chords, not `Ins`; upstream says not to discard `Ins` just because
+  the task is a cover. Transcribe with `melody_full` (upstream's helper:
+  `--task melody-full`), never `melody_vocal`, and send both voices.
+- **`cot="melody"` does not strip chords** (point 5 assumed it). A
+  transcription made with `--melody-only` has none, but a USE .ABC FILE
+  score may. `yue-server` strips them with the vendored
+  `abc_tools.strip_chords` (it checks that every note, onset, meter and
+  tempo survive), rather than rejecting the file.
+- **A supplied score has a size limit**: upstream refuses one over 4096
+  ABC tokens ("the normal planning budget"). That is a 422 from
+  `yue-server`, reported in Create's terms, not a job that fails later.
+- **USE .ABC FILE makes the piano preview stale** (point 3). The preview is
+  rendered from the transcription's MIDI, not from the ABC, and editing
+  the ABC does not update that MIDI. A replaced score drops the preview and
+  says "no preview for a replaced score"; `render.py --abc` renders sheet
+  music only, not audio.
+- **Sections: answered.** The score marks them with `% verse`,
+  `% chorus`, `% bridge`, `% interlude` comments, and has no lyric slots
+  or `w:` lines (upstream: never add them). So the open question's answer
+  is yes: Mulakai can write the section outline (`% pre-chorus` →
+  `[Pre-Chorus]`, as `yue-server/instrumental.py`'s `section_tags` does)
+  and seed an upload's LYRICS with it, for the user to fill in.
+- **An instrumental cover is upstream's instrumental workflow** (point 4):
+  the score's `Vocal` notes move to `Ins`, the chords are stripped, and it
+  is generated with `cot="melody"` and the score's section tags as lyrics.
+  `yue-server`'s converter (`upstream/instrumentalize.py`) already does
+  the move, so empty LYRICS on COVER no longer waits on the spike: it
+  sends the tags-only skeleton, and `yue-server` converts the supplied
+  score too. `is_instrumental` gains that case in PR 1.
+- **Setup details** for PR 1's README:
+  - Pin the snapshots. Upstream's `cover-release.json` uses SheetSage2
+    `eab522a8168e8b8b8c4856bf8609cd86198f01fe` and MERT-v2-FullSong
+    `d8ba1c745e733b3908ce6ad16ebeb17ac7600a42`. SheetSage2 loads with
+    `trust_remote_code`, so a pinned revision is what makes that code
+    reviewed.
+  - Use Python 3.10 or 3.11, `torch==2.8.0` / `torchaudio==2.8.0` from the
+    cu126 index, then the snapshot's `requirements.txt` (Transformers
+    4.45.2, NumPy 1.24.3).
+  - `--render-audio` needs `setup_render.py` (`--with-deps` on minimal
+    Ubuntu) first. It installs Playwright/Chromium and FluidR3 piano
+    samples (CC BY 3.0 US).
+- **The review panel shows SheetSage2's `warnings`.** Upstream: inspect
+  `warnings`, `diagnostics` and `abc_error` before generating, and a
+  melody-only request that can't build ABC is an error, not a result with
+  annotations alone.
+
 ### File-level plan
 
 **PR 0 — spike (`docs/yue2-cover-spike`, PLAN.md only).** Manual, in WSL,
-with the numbers written back here:
+with the numbers written back here. *Done 2026-09-30: see "Cover spike
+results" below.*
 
 - Install SheetSage2 per `docs/covers.md` in `~/sheetsage2`, including
   the Hugging Face login.
@@ -3962,12 +4018,399 @@ nobody will do it, this section gets a "not pursued" note with the numbers
 and the work stops there. PRs 1–3 then land in order, each usable on its
 own terms (PR 1 is testable through curl; PR 2 through the API).
 
+### Cover spike results (2026-09-30)
+
+**Verdict: go ahead.** A supplied score steers YuE2's melody strongly: a
+sung cover kept 0.93–0.98 of the source melody, against 0.10 for an
+unrelated melody. The lyrics don't have to be hand-aligned. They do have
+to use the score's sections; the source's own section tags cost a third
+of the melody. Run in WSL (Ubuntu 24.04, RTX 4080 16 GB); every file is in
+`~/sheetsage-spike`.
+
+**Sources.** Three ACE-Step songs from the library: *Ellies City 2*
+(trip-hop, female vocal, 140 s), *Purple Shinings* (dream pop, female
+vocal, 177 s) and *eventide* (instrumental guitar and cello, 147 s). No
+commercial recording was used; none was on hand, and the question is
+whether YuE2 follows a transcription, which a library song answers.
+
+**Setup.**
+- `~/sheetsage2/.venv`: Python 3.11.16, torch 2.8.0+cu126, Transformers
+  4.45.2, NumPy 1.24.3. FFmpeg 6.1.1 comes from Ubuntu.
+- **No Hugging Face login was needed**: the snapshot and its MERT parent
+  downloaded anonymously. That answers the open question: document no login.
+- The snapshot came down unpinned, as `ce18e5ba…`. Upstream's
+  `cover-release.json` pins `eab522a8…`; MERT-v2-FullSong matched its pin
+  (`d8ba1c74…`). PR 1's README pins SheetSage2 to a revision.
+- `--render-audio` failed ("Could not start the renderer") until
+  `setup_render.py` was run.
+
+**Transcription** (`infer.py --melody-only --render-audio`).
+- Model time was 6–12 s per song, 11–22 s wall including the model load.
+  PyTorch peaked at 3.4 GiB, 3.7 GB on the card. `warnings` was empty and
+  `abc_error` null for all three.
+- **Section markers: yes. Lyric slots: no.** Each score has `% intro`,
+  `% verse`, `% chorus`, `% bridge`, `% interlude` and `% outro` comments,
+  and no `w:` lines.
+- The section labels are approximate. *Purple*'s verse/chorus layout came
+  out as intro, verse, bridge, interlude.
+- Header facts are mostly right. *Ellies* came out as 75 BPM, F minor,
+  matching the song, and *Purple* as 87 BPM, D minor, also matching.
+  *eventide* came out as 65 BPM in 2/4 (the song is 130 BPM in 4/4, so
+  half time) and B♭ minor, where its stored key is F♯ major. The review
+  panel's header facts are how a user spots this.
+- Both voices are used: *Ellies* has 167 `Vocal` and 16 `Ins` notes,
+  *Purple* 122 and 171, *eventide* 0 and 160.
+
+**Generation** (`yue2 generate --abc-file … --cot melody`, seed 42; for
+instrumentals, upstream's conversion first, see "YuE2: Align With
+Upstream's `yue2-music` Skill").
+- **Speed:** 59–76 s for a 136–140 s song, and 95 s for *eventide*'s
+  157 s. *Purple* took 124 s for 176 s, but ran while ACE-Step was loaded
+  on the card.
+- **Contention:** an earlier *eventide* attempt, made with ACE-Step
+  resident, stalled at 9 tokens/s and never finished. Alone it ran at
+  63 tokens/s. This confirms point 9's genLock and the ACE-Step offload
+  requirement.
+- **Truncation:** none, in either flag, on any run.
+- **Tempo:** the result's tempo landed within 4% of the score's.
+
+**Melody survival.** Each result was transcribed again by SheetSage2 and
+compared with the source's transcription, note by note (`mir_eval`: onset
+within 0.25 s, pitch within 50 cents, offsets ignored). The comparison
+takes the best time shift within ±15 s and the best tempo scale between
+0.94 and 1.06. A source against its own piano rendering scores 1.00, which
+is the ceiling.
+
+| Run | Lyrics | F1 | Octave-folded |
+| --- | --- | --- | --- |
+| Purple, synth-pop | its own | **0.98** | 0.98 |
+| Ellies, folk | don't fit the melody (long lines, 3 sections) | **0.96** | 0.96 |
+| Ellies, folk | its words, re-tagged to the score's 6 sections | **0.93** | 0.93 |
+| Ellies, folk | its own (`[Verse 1]`, `[Bridge]`, `[Humming]` ×5) | 0.66 | 0.66 |
+| Ellies, cello instrumental | score tags only, `Vocal` moved to `Ins` | 0.52 | 0.67 |
+| eventide, lo-fi instrumental | score tags only | 0.55 | 0.55 |
+| Ellies control: no score, `cot=full` | re-tagged | 0.11 | 0.13 |
+| Chance: Ellies vs the Purple cover | — | 0.10 | 0.10 |
+
+In every sung run the melody was sung: 166–169 vocal notes, like the
+source's 167. Lyrics that don't fit did not push it onto an instrument.
+Without the tempo search, runs that drifted 1–4% scored far lower (0.41
+for the re-tagged run), so a fixed-tempo comparison is misleading here.
+
+**Answers.**
+- **Do the lyrics' section tags need to match the score's?** They should.
+  Same words, same seed: 0.93 with the score's tags, 0.66 with the
+  source's own tags. The source's tags have an extra `[Bridge]` and a run
+  of `[Humming]` tags. Mulakai writes the score's section outline into
+  LYRICS, and a library source's words are re-tagged to it; the user can
+  still edit it. This replaces point 4's "seeds LYRICS from that song"
+  as-is.
+- **Do the syllables need to fit?** Not for the melody: the misfit lyrics
+  scored 0.96. Whether all their words were sung, and clearly, was not
+  measured. There was no ASR or listening pass, so point 4's hint about
+  phrasing stays.
+- **Instrumental covers work, less faithfully.** Around 0.5–0.67, far above
+  chance, with the melody moved partly an octave away. Empty LYRICS on COVER
+  is allowed, and its consequence line says the melody is followed more
+  loosely.
+
+**ACE-Step side check: dropped for sung covers.** SheetSage2's piano
+rendering was used as the *source* of a Mulakai COVER (`acestep-v15-sft`)
+and ARRANGE (`acestep-v15-base`) job, with the folk style and the re-tagged
+lyrics. The results were scored the same way and saved to the library's
+"SheetSage spike" folder.
+
+| Run | F1 | Octave-folded | Sung notes |
+| --- | --- | --- | --- |
+| Ellies → COVER | 0.29 | 0.30 | 0 of 413 melody notes |
+| Ellies → ARRANGE | 0.10 | 0.12 | 114 |
+| eventide → COVER, lo-fi instrumental | 0.02 | 0.68 | 0 |
+
+- **COVER gives a restyled instrumental, not a song.** Nothing was sung,
+  despite the lyrics and "warm female vocal". About half of the melody
+  is in there, among many added notes.
+- **ARRANGE sings, but a new melody**, at chance level (0.10).
+- **COVER on an instrumental** keeps the melody's pitch classes about as
+  well as YuE2 did (0.68 octave-folded), though an octave away.
+
+So a transcription's piano rendering does not make ACE-Step sing the
+source's melody. The follow-up section is not written. Two caveats:
+- COVER ran at ACE-Step's default strength. VARIANCE never reaches
+  ACE-Step, because `/from-audio` drops `audio_cover_strength`. That bug
+  was found here and filed separately. An instrumental-only variant could
+  be retried once it is fixed.
+- The XL models spilled out of 16 GB at 55 s per step, about 47 minutes a
+  job, so the standard models were used. They took 4.5–6 minutes a job.
+
+**Not done.**
+- A listening pass. The files are in
+  `\\wsl$\Ubuntu-24.04\home\calvin\sheetsage-spike\gen\*\song\audio.flac`,
+  and the ACE-Step results are in the library.
+- ASR on the misfit lyrics.
+
+### yue-server transcription decisions (2026-09-30, `feat/yue-transcribe`)
+
+PR 1. Where these differ from points 6–8 or the file-level plan, they
+supersede them:
+
+- **Job kinds.** Every record gains `kind`: `song` or `transcription`.
+  - Only song records carry `seed`, `tokens` and `request_id`.
+  - Both kinds share the queue, the `max_pending` limit, retention and
+    `Idempotency-Key` replay. The idempotency digest includes the kind.
+  - Each route family returns 404 for the other kind's ids, so
+    `/v1/jobs/{id}` never serves a transcription.
+- **Upload.** `POST /v1/transcriptions` takes a multipart `audio` field,
+  up to `YUE_MAX_UPLOAD_MB` (default 100, the same as Mulakai's multer
+  limit). Over that is a 413, and an empty file a 400.
+  - The file is stored as `uploads/<sha256><ext>`, so a replayed
+    `Idempotency-Key` with the same audio matches its digest.
+  - Uploads older than the retention window are swept on each submit, and
+    all of them on startup.
+  - This adds `python-multipart` to `requirements.txt`.
+- **The subprocess** runs `infer.py <audio> --output <job dir> --melody-only
+  --render-audio --local-files-only`, from `YUE_SHEETSAGE_DIR`, so the
+  pinned local snapshot is what runs and nothing is fetched.
+  - `--melody-only` keeps the default tasks, so both melody voices are
+    kept (see "Upstream skill-doc review").
+  - Progress comes from its `Window i/n` lines.
+  - Cancel kills the process group.
+- **Success is decided by the score, not the exit code.** A failed piano
+  render exits 1 but still writes `score.abc`; the spike hit exactly this.
+  - A job succeeds when `score.abc` is non-empty and `result.json` has no
+    `abc_error`.
+  - The preview is `piano_mix.wav` when it exists. Otherwise
+    `preview_url` is null, and the `render_error` joins `warnings`.
+  - Failure codes: `no_score` (SheetSage2 ran but built no score) and
+    `transcription_failed`. Both carry the last lines of its output.
+- **The record's `result`**: `score_url`, `preview_url`, `warnings`
+  (SheetSage2's own, plus any render error), `measures`, `vocal_notes`,
+  `instrumental_notes`, `duration_seconds`, and `timing.total_seconds`.
+- **Health.** `GET /v1/transcriptions/health` needs no auth, like
+  `/health/*`.
+  - 200 `{"status": "ready"}` when the worker is ready and the venv's
+    Python, `infer.py` and `model.safetensors` all exist.
+  - Otherwise 503 with `status` `not_configured`, `missing_files` (and
+    `detail`), or the worker's state.
+  - A submit when not ready is also a 503.
+- **A supplied score (`abc`) is checked before it is queued.** Each check
+  fails as a 422:
+  1. It must be non-blank and at most 64 KB, and `cot` must not be `off`.
+  2. It must parse in the native two-voice dialect (the vendored
+     `abc_tools.parse_abc`).
+  3. With `cot="melody"`, its chord symbols are stripped
+     (`strip_chords`, which checks every note survives).
+  4. It must fit the pipeline's 4096-token plan budget. This is checked
+     once the pipeline is loaded; a submit before then is already a 503.
+- **An instrumental cover converts the supplied score too.**
+  `is_instrumental` no longer excludes `abc`: tags-only lyrics with a score
+  move its `Vocal` notes to `Ins`, as upstream's instrumental cover does.
+- **The SheetSage2 pin is HF `main` at `cafc0df1…` (2026-09-29).** That is
+  what the spike ran. Upstream's `eab522a8…` is older.
+- **Transcription never touches the YuE2 pipeline.** YuE2 is parked in
+  system RAM between jobs, which leaves about 0.8 GB of CUDA context, and
+  SheetSage2 needs about 3.7 GB. If the YuE2 pipeline failed to load,
+  transcription is unavailable too: one worker runs both.
+- **Verified end to end (2026-10-01)**, in WSL on the RTX 4080, against the
+  real SheetSage2 and YuE2 installs:
+  - **Transcription:** *Ellies* transcribed in 18 s. It gave the same score
+    as the spike (44 measures, 167 `Vocal` and 16 `Ins` notes) and a 24 MB
+    piano preview.
+  - **Sung cover:** from that score, with `cot=melody`, 62 s for 135 s of
+    audio.
+  - **Instrumental cover:** 61 s. All 167 vocal notes moved to `Ins`, and
+    the generated score had 0 `Vocal` notes. This is the first GPU run of
+    `plan()` with a supplied score and the real 4096-token check, the
+    parts "YuE2: Align With Upstream's `yue2-music` Skill" had left
+    unverified.
+  - No truncation in either cover.
+  - **Melody kept:** measured in note order (longest common subsequence,
+    octave-folded, timing ignored), 0.98 for the sung cover (the spike's
+    identical request also scored 0.98) and 0.96 for the instrumental.
+    The no-score control scored 0.43 and chance 0.38.
+  - **Timed comparison:** the spike's note-F1 put this sung run at only
+    0.55. It had shifted locally, which one global tempo-and-offset
+    alignment can't follow. So note order is the better measure of
+    melody survival.
+  - **A lesson:** a game on the GPU (10 GB, 85%) slowed transcription to
+    5½ minutes, and stalled a cover at 1.8 tokens/s. A stalled job cannot
+    be cancelled, because cancel is only checked per token. The earlier
+    spike's stalled instrumental run was most likely the same kind of
+    contention.
+
+### Mulakai server cover decisions (2026-10-01, `feat/yue-cover-server`)
+
+PR 2. Where these differ from points 5, 9 and 10 or the file-level plan,
+they supersede them:
+
+- **Covers are an optional engine ability.** `SongEngine` gains an
+  optional `toCoverRequest(fields, abc)`. Only YuE2 has one, and HeartMuLa
+  doesn't. The cover routes answer 400 for an engine without it, or one
+  that isn't configured.
+- **`EngineInfo.coverReady`** is true when the engine can cover, is
+  configured, and answers `GET /v1/transcriptions/health` with 200. It is
+  probed in parallel with the other health checks. A `yue2-serve` backend,
+  which has no such route, reads as false.
+- **`POST /api/engines/:id/transcribe`** takes multipart `src_audio`, as
+  COVER does today, plus an optional `source_label`. It returns 202
+  `{jobId}`, and is polled through `GET /api/generate/:jobId`.
+  - It holds the genLock as `{kind: 'transcribe', title: <source label>,
+    engine}`. The client already shows an unknown kind as another job
+    holding the lock, and PR 3 names it.
+  - The coverReady check runs at request time: false is a 400, "covers
+    are not set up".
+- **The finished job carries `transcription`**: `score` (the ABC),
+  `sourceLabel`, `warnings`, `measures`, `vocalNotes`, `instrumentalNotes`,
+  `durationSeconds` and `hasPreview`. Nothing is written to the library.
+- **The preview is proxied, not copied.**
+  `GET /api/engines/:id/transcribe/:jobId/preview` streams yue-server's
+  preview and forwards `Range`, so the player can seek.
+  - yue-server keeps it for its retention window (24 h) or until it
+    restarts. After that it is a 404, which matches point 9's "after a
+    reload, re-transcribe for a preview".
+  - Mulakai keeps no scratch file to clean up.
+- **`buildYue2CoverRequest(fields, abc)`**:
+  - `style`: the language and PROMPT only, as text2music writes them. No
+    BPM / KEY / TIME SIGNATURE hints, because the score fixes those
+    (point 5).
+  - Instrumental: upstream's wording, as in text2music.
+  - `lyrics`: as typed. Empty lyrics become the tags-only skeleton, which
+    yue-server replaces with the score's own section tags.
+  - `cot: 'melody'`, `abc`, `seed` and `cfg_scale` are mapped as usual.
+- **`POST /api/engines/:id/cover`** takes JSON with the Create fields plus
+  `abc` (non-blank, at most 64 KB) and `source` (the source label).
+  - It runs `startEngineGeneration` with a cover option. That option picks
+    the request builder and the lock's and the song's `gen_task: 'cover'`.
+  - The version's `params.request` keeps `abc`: the *supplied* score,
+    which REUSE PROMPT needs. The `.abc` sidecar is the score yue-server
+    generated from, which for an instrumental cover is the converted one.
+    `params.source` is the source label.
+- **`GET /api/engines/:id/covers/:songId/score`** returns that supplied
+  score (`text/plain`) from the song's first base version. It is a 404
+  for a song that isn't a YuE2 cover. PR 3's REUSE PROMPT uses it, so
+  another cover of the same melody needs no new transcription.
+- **Verified end to end (2026-10-01).** This branch's server ran on a
+  scratch database against the real yue-server in WSL, through the same
+  API the client will call:
+  - `GET /api/engines` showed YuE2 `coverReady: true`.
+  - **Transcribe:** *Ellies City 2* from the library, under a `transcribe`
+    lock titled with the source. Done in 21 s, with the spike's facts (44
+    measures, 167/16 notes).
+  - **Preview:** a Range request returned 206, and a full one 200 with
+    24.7 MB.
+  - **Cover:** held the lock as `generate · cover`, and polled through
+    semantic → synthesis → decode. It saved a new song in 65 s:
+    `engine: yue2`, `gen_task: cover`, 137 s.
+  - **Metadata from the score:** the song's 75 BPM / F minor / 4/4 came
+    from the score. The `bpm: 140` in the request was dropped, as
+    intended.
+  - **Stored score:** `covers/:songId/score` returned exactly the
+    transcribed score.
+
+### Client cover decisions (2026-10-01, `feat/yue-cover-ui`)
+
+PR 3. Where these differ from points 1–4, 9–12 or the file-level plan,
+they supersede them:
+
+- **ENGINE on COVER.** `EngineChoice` takes its choices, value and
+  handler as props, so PROMPT and COVER share it.
+  - COVER offers ACE-STEP plus every extra engine whose `coverReady` is
+    true. The row renders only when one exists, or when the draft already
+    names one.
+  - The pick is `draft.audio.engine`, so PROMPT's engine is untouched.
+    ARRANGE stays ACE-Step-only.
+- **The score lives in the draft**: `draft.audio.yueScore`, which holds
+  the ABC, its source label, SheetSage2's facts (null for a file or a
+  reused score), and the transcription job id for the preview.
+  - The draft is in memory only, as it always has been, so this
+    supersedes point 9's "survives a reload". The score survives tab
+    switches and leaving Create, like the rest of the draft.
+  - Changing the source (the tab, the picked song or the upload) clears
+    it. CLEAR DRAFT clears it and resets the engine.
+- **The settings panel follows COVER's engine.** `useEngineCaps` resolves
+  COVER to `audio.engine`, so on YUE2 the panel shows YuE2's CFG and SEED.
+  COT is hidden there, with a hint, because a cover always uses `melody`
+  (point 5).
+- **TRANSCRIBE** is an acid-outline button: GENERATE COVER stays the one
+  filled CTA.
+  - While it runs it reads `TRANSCRIBING… n%`, from SheetSage2's windows.
+  - No shader: DESIGN.md keeps the AI shimmer to GENERATE / REPAINT.
+  - It is off while any job holds the lock, and needs a source.
+  - A new `transcribeStore.ts` runs it, because `generationStore.ts` is at
+    the cap. The result is applied only if the draft's source is still
+    the one that was transcribed.
+- **The review panel** (`YueScoreReview.tsx`):
+  - Tempo, key, meter, bars and length, from `abcFacts.ts`. Its header
+    parsing mirrors the server's `abcMeta.ts`.
+  - SheetSage2's vocal and instrument note counts.
+  - Its warnings, as a `.warn-note`.
+  - The piano preview through `AudioPreview`, from the proxy route.
+    Without one, a hint says why: a replaced or reused score has none,
+    and an expired one needs re-transcribing.
+  - The ABC in a collapsed, read-only block.
+  - **USE .ABC FILE** replaces the score and drops the preview. The server
+    checks the file at GENERATE, and its 422 message is shown.
+- **Lyrics fit the score's sections** (spike: 0.93 against 0.66 with the
+  source's own tags).
+  - When a score arrives and LYRICS is empty, it is filled: with the
+    score's section outline, or for a library source with that song's
+    words re-tagged in order onto the score's sung sections
+    (`coverLyrics.ts`).
+  - **FIT TO SCORE** re-tags whatever LYRICS holds now.
+  - Empty LYRICS makes an instrumental cover, and the consequence line
+    says the melody is then followed more loosely.
+- **Song details on COVER · YUE2.** There are no BPM, KEY, TIME SIGNATURE
+  or DURATION inputs: the score fixes them (point 5), and the review
+  facts stand in for them. VOCAL LANGUAGE stays, English or Chinese.
+- **GENERATE COVER** calls `startYueCover`, through the shared `launch`.
+  - The request carries title, prompt, lyrics, language, the seed pair,
+    CFG (no COT), output, folder, `abc` and `source`.
+  - Consequence lines follow point 11, with an instrumental variant.
+- **REUSE PROMPT on a `COVER · YUE2` song** opens COVER on YUE2.
+  - The draft carries `reuseScore` (the engine and song), and the panel
+    fetches the song's source score into `yueScore`.
+  - So it is ready to GENERATE with no source. TRANSCRIBE is still there
+    if a source is picked.
+  - The rail's consequence line says so.
+  - A retry of a failed cover, or a job adopted from the lock, reopens
+    COVER on its engine.
+- **Settings › Engines:**
+  - The YuE2 row gains `COVERS: READY / NOT SET UP` and "SheetSage2
+    weights: CC BY-NC 4.0."
+  - The card's hint names COVER too.
+  - The header pill shows the new lock kind as `TRANSCRIBE · RUNNING`.
+- **DESIGN.md is updated in its own commit.** It says COVER is always
+  ACE-Step, which is no longer true.
+- **Browser-checked end to end (2026-10-01).** This branch's client and
+  server ran on a scratch library against the real yue-server in WSL:
+  - **Engine row:** COVER showed ENGINE (ACE-STEP / YUE2), and picking
+    YUE2 swapped the settings panel to CFG / SEED with the COT hint.
+  - **Transcribe an upload:** *Ellies* reviewed as 75 BPM, F minor, 4/4,
+    44 bars, 2:21, 167 sung / 16 played, with a playable 2:20 piano
+    preview. LYRICS were seeded with the score's outline.
+  - **FIT TO SCORE** turned untagged words into exactly the spike's
+    hand-aligned lyrics.
+  - **Generate:** GENERATE COVER handed off to the Library card and
+    saved `COVER · YUE2` (75 BPM / F minor / 2:21).
+  - **REUSE PROMPT** reopened COVER on YUE2 with the fetched score, ready
+    to GENERATE with no source.
+  - **Library source:** transcribing the new cover as a FROM LIBRARY
+    source (a client-side bounce) gave 46 bars and 168 sung / 14 played
+    notes, close to the original's 167 / 16.
+  - **Settings:** Settings › Engines showed `COVERS: READY` and the
+    SheetSage2 licence line.
+  - **A bug found and fixed along the way:** tags-only lyrics were not
+    read as an instrumental. The consequence line now uses yue-server's
+    rule (`hasWords`).
+
 ### Open questions
 
 - **Section alignment.** If YuE2 needs lyric section tags that match the
   score's sections, can Mulakai write the skeleton (`[Verse]` / `[Chorus]`
   with the right line counts) from the ABC? That depends on what SheetSage2
-  puts in the score; the spike decides.
+  puts in the score; the spike decides. *Partly answered 2026-09-30*: the
+  section tags, yes (see "Upstream skill-doc review"). The line counts are
+  still open: the score has no lyric slots, so they would have to come from
+  the `Vocal` phrases' rests. The spike shows whether YuE2 needs them.
 - **Transcribing a stem.** A library song with a vocals layer could
   transcribe that layer alone rather than the full mix, which may be
   cleaner. It's cheap to add (the rail already has the layers). Is it
@@ -3975,10 +4418,110 @@ own terms (PR 1 is testable through curl; PR 2 through the API).
   full mix?
 - **Hugging Face login.** If SheetSage2 is gated, setup needs a token in
   WSL. Document only, or should `yue-server`'s health say "weights not
-  found" specifically enough to point at the login step?
+  found" specifically enough to point at the login step? *Answered
+  2026-09-30: it isn't gated; the spike downloaded it without a login.*
 - **Copying the melody of a copyrighted song.** Point 12 leaves this to
   the user, the same as ACE-Step's COVER. Should COVER on YUE2 say so
   inline, given it is a much more literal copy of the melody?
+
+## YuE2: Align With Upstream's `yue2-music` Skill (planned 2026-09-30)
+
+Upstream published an agent skill, `skills/yue2-music` in
+`github.com/multimodal-art-projection/YuE` (commit `72272f9`), with five
+reference docs: `abc-editing.md`, `editing-workflows.md`,
+`generation-and-covers.md`, `listening-and-evaluation.md` and
+`models-and-setup.md`, plus an `instrumental/` sub-skill. This section
+checks the YuE2 integration against them.
+
+**Already matching upstream**: the three `cot` modes; a seed on every
+request (upstream's default is a fixed 831001); CFG omitted on AUTO
+(upstream's default is 1.0 for `full`/`melody`, 1.01 for `off`); tempo, key
+and meter only as style text, since the request has no `bpm` field; both
+truncation flags checked; `YuE2-Vae` as the listening decoder; no fp8 by
+default ("do not lower inference settings to hide an OOM"). Upstream's
+native score header (`X T M L Q V V K`, then `% verse` section comments)
+parses as `abcMeta.ts` expects; five real scores from the library were
+checked.
+
+**Still out of scope**: score editing, reharmonization, lyric adaptation and
+"agentic editing" (`editing-workflows.md`, `abc-editing.md`). Upstream's
+edit is a full regeneration from a revised score, with no inpainting, so it
+is not a repaint either. The benchmark tooling (`YuE2-Vae-legacy`,
+SongBench, PER) is for reproducing papers, not for an app.
+
+### Decisions
+
+1. **Instrumentals follow upstream's workflow** (`instrumental/SKILL.md`).
+   Upstream does not rely on the planner writing no vocal notes, which the
+   tags-only skeleton did (the spike's 0 of 49 vocal bars was one seed).
+   Instead:
+   1. YuE2 plans a score as usual (`cot` `full`, or `melody` if chosen).
+   2. Every `Vocal` note moves to the `Ins` voice. On overlap the vocal note
+      wins and the `Ins` note keeps only its free part. Chords, meter, key,
+      tempo and section comments are kept, and the result is checked
+      note-for-note.
+   3. The song is generated from that score: `abc` = the converted score,
+      `cot` = `full` if it has chords, else `melody`, and `lyrics` = the
+      score's own section tags (`% verse` → `[Verse]`), with no words.
+   - An external score skips the planner, so the second pass costs one
+     short `plan()` call, not a second planning run.
+   - **Where it runs: inside `yue-server`, with no contract change.** A
+     request whose lyrics are only section tags, with no `abc` and `cot`
+     not `off`, is an instrumental; that is upstream's own rule
+     ("lyrics must be empty or exactly the score section tags"). Mulakai
+     already sends exactly that for empty LYRICS. A `yue2-serve` backend
+     keeps today's single-pass behaviour.
+   - **The converter is upstream's, vendored unmodified**:
+     `instrumentalize.py`, `abc_tools.py`, `compile_score.py` and
+     `common.py` from `instrumental/scripts/` (MIT, standard library only)
+     go in `yue-server/upstream/` with their licence and the source commit.
+     They are over the 200-LOC cap; they are third-party files kept
+     byte-identical so they can be re-synced, not Mulakai modules.
+   - **If conversion fails** (a truncated or unparseable plan, or no notes
+     at all), the job falls back to the unconverted plan (today's
+     behaviour), logs a warning and records why in `result.json`. A song
+     that mostly works beats a failed job; the record keeps it visible.
+   - `score.abc` is the converted score, the one the audio was made from.
+     `result.json` gains an `instrumental` record (vocal notes moved,
+     `Ins` notes trimmed, or the fallback reason) and the final request.
+   - The style follows upstream's too: `Instrumental, <PROMPT>, <hints>,
+     no vocals, no singing, no choir, no spoken words`. It replaces
+     `…, instrumental, no vocals`, and helps a `yue2-serve` backend too.
+2. **VOCAL LANGUAGE reaches YuE2 as style text.** Upstream puts the
+   language first in `style` ("English, warm female vocal, …"). The control
+   was N/A for YuE2; it now offers only the languages the engine lists
+   (English, Chinese), and the style starts with the language name. AUTO
+   omits it. An instrumental skips it.
+   - Rule: VOCAL LANGUAGE is live when an engine takes any language, or
+     takes BPM/KEY as style text (`musicalMeta: 'style-text'`, which now
+     covers language too). HeartMuLa (`'none'`) stays N/A.
+   - A language left over from ACE-Step that YuE2 doesn't list is not
+     sent; the server ignores unknown codes as well.
+3. **YuE2's CFG slider runs 0–3, step 0.05**, not 0–20. Upstream's default
+   is 1.0, and it calls 1.2 "an explicit experiment". The server still
+   clamps to the protocol's 0–20.
+4. **Covers plan corrections** go into "YuE2 Melody Covers via SheetSage2"
+   (see its "Upstream skill-doc review" block).
+
+### File-level plan
+
+- `yue-server/upstream/` — vendored converter + `LICENSE` + `README.md`
+  (source commit, what each file is, "do not edit").
+- `yue-server/instrumental.py` — new: `is_instrumental(request)`,
+  `section_tags(abc)`, `arrange(pipe, request, plan, …)` → the plan,
+  request and record to generate from.
+- `yue-server/worker.py` — call `arrange` after planning; save the final
+  request and the `instrumental` record.
+- `yue-server/tests/test_instrumental.py` — detection, tag extraction,
+  conversion of a native score, fallback, and the worker path through the
+  fake pipeline.
+- `yue-server/README.md` — the Instrumentals section.
+- `server/src/services/engines/yue2.ts` (+ test) — language prefix,
+  upstream's instrumental style.
+- `client/src/engineCaps.ts` (+ test) — the VOCAL LANGUAGE rule and
+  `languageOptions`; `CreatePromptTab.tsx` uses them;
+  `engineRequest.ts` (+ test) drops unlisted languages.
+- `client/src/engineSettings.ts` — the YuE2 CFG range.
 
 ## UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)
 

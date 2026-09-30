@@ -30,6 +30,8 @@ export interface Job {
   progress?: number;
   progressStage?: string;
   progressText?: string;
+  /** Set by transcribeJobs.ts on success: the score and what SheetSage2 reported. */
+  transcription?: import('./transcribeJobs.js').TranscriptionOutcome;
 }
 
 const jobs = new Map<string, Job>();

@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import type { EngineCapabilities, EngineInfo } from './api';
-import { aceOnlyNote, durationReadout, pickerEngines, songDetailNotes, unavailableReason, unsupported } from './engineCaps';
+import {
+  aceOnlyNote, coverEngines, coverUnavailableReason, durationReadout, languageOptions, liveLanguage, pickerEngines,
+  songDetailNotes, unavailableReason, unsupported,
+} from './engineCaps';
 
 const BASE: EngineCapabilities = {
   duration: 'exact', musicalMeta: 'params', referenceAudio: true, adapters: true, seed: true, languages: 'any',
@@ -16,8 +19,9 @@ const HEARTMULA: EngineCapabilities = {
   extraControls: ['cfg', 'temperature', 'topK'],
 };
 
-const info = (id: EngineInfo['id'], capabilities: EngineCapabilities, configured = true, ready = true): EngineInfo =>
-  ({ id, label: id.toUpperCase(), capabilities, configured, ready });
+const info = (
+  id: EngineInfo['id'], capabilities: EngineCapabilities, configured = true, ready = true, coverReady = false,
+): EngineInfo => ({ id, label: id.toUpperCase(), capabilities, configured, ready, coverReady });
 
 describe('unsupported', () => {
   it('gates nothing on ACE-Step', () => {
@@ -27,16 +31,32 @@ describe('unsupported', () => {
     }
   });
 
-  it('keeps YuE2\'s style-text details live, and gates duration, language and takes', () => {
-    expect(['bpm', 'keyScale', 'timeSignature'].map((f) => unsupported(f as never, YUE2))).toEqual([false, false, false]);
+  it('keeps YuE2\'s style-text details and language live, and gates duration and takes', () => {
+    expect(['bpm', 'keyScale', 'timeSignature', 'vocalLanguage'].map((f) => unsupported(f as never, YUE2)))
+      .toEqual([false, false, false, false]);
     expect(unsupported('duration', YUE2)).toBe(true);
-    expect(unsupported('vocalLanguage', YUE2)).toBe(true);
     expect(unsupported('takes', YUE2)).toBe(true);
   });
 
-  it('keeps HeartMuLa\'s max duration live, and gates its missing musical metadata', () => {
+  it('keeps HeartMuLa\'s max duration live, and gates its missing musical metadata and language', () => {
     expect(unsupported('duration', HEARTMULA)).toBe(false);
-    expect(['bpm', 'keyScale', 'timeSignature'].map((f) => unsupported(f as never, HEARTMULA))).toEqual([true, true, true]);
+    expect(['bpm', 'keyScale', 'timeSignature', 'vocalLanguage'].map((f) => unsupported(f as never, HEARTMULA)))
+      .toEqual([true, true, true, true]);
+  });
+});
+
+describe('VOCAL LANGUAGE', () => {
+  it('offers AUTO plus only the languages a listing engine sings', () => {
+    expect(languageOptions(YUE2).map((o) => o.label)).toEqual(['AUTO', 'English', 'Chinese']);
+    expect(languageOptions(null).length).toBeGreaterThan(3);
+    expect(languageOptions(BASE)).toEqual(languageOptions(null));
+  });
+
+  it('treats a language the engine does not sing, or cannot take, as AUTO', () => {
+    expect(liveLanguage('zh', YUE2)).toBe('zh');
+    expect(liveLanguage('de', YUE2)).toBe('');
+    expect(liveLanguage('de', null)).toBe('de');
+    expect(liveLanguage('zh', HEARTMULA)).toBe('');
   });
 });
 
@@ -55,7 +75,7 @@ describe('notes', () => {
     const notes = songDetailNotes(info('yue2', YUE2));
     expect(notes).toEqual([
       'DURATION — YUE2 sets the length from the song it plans',
-      'BPM, KEY / SCALE, TIME SIGNATURE — sent to YUE2 as style text, a hint rather than a guarantee',
+      'BPM, KEY / SCALE, TIME SIGNATURE, VOCAL LANGUAGE — sent to YUE2 as style text, a hint rather than a guarantee',
       'VOCAL LANGUAGE — YUE2 sings en, zh, following the lyrics',
       'TAKES — YUE2 makes one take per generation',
     ]);
@@ -88,5 +108,20 @@ describe('picker', () => {
     expect(unavailableReason({ configured: true, ready: true })).toBe('');
     expect(unavailableReason({ configured: true, ready: false })).toMatch(/not reachable/);
     expect(unavailableReason({ configured: false, ready: false })).toMatch(/not configured/);
+  });
+});
+
+describe('COVER engines', () => {
+  it('offers ACE-Step plus the engines that can cover now, and nothing until one can', () => {
+    const ace = info('acestep', BASE);
+    expect(coverEngines([ace, info('yue2', YUE2), info('heartmula', HEARTMULA)])).toEqual([]);
+    const yue = info('yue2', YUE2, true, true, true);
+    expect(coverEngines([ace, yue, info('heartmula', HEARTMULA)]).map((e) => e.id)).toEqual(['acestep', 'yue2']);
+  });
+
+  it("says why an engine can't cover", () => {
+    expect(coverUnavailableReason(info('yue2', YUE2, true, true, true))).toBe('');
+    expect(coverUnavailableReason(info('yue2', YUE2, true, true, false))).toMatch(/covers are not set up/);
+    expect(coverUnavailableReason(info('yue2', YUE2, false, false, false))).toBe('not configured on the server');
   });
 });

@@ -30,7 +30,13 @@ export const YUE2_CAPABILITIES: EngineCapabilities = {
 /** Blank lyrics still get a sung line from YuE2's planner; section tags alone plan no
  * vocal notes (PLAN.md, YuE2 spike follow-up checks). yue2-serve also rejects blanks. */
 export const INSTRUMENTAL_LYRICS = '[Intro]\n\n[Verse]\n\n[Chorus]\n\n[Verse]\n\n[Chorus]\n\n[Outro]\n';
-export const INSTRUMENTAL_STYLE = 'instrumental, no vocals';
+/** Upstream's instrumental style wording (skills/yue2-music/instrumental). yue-server also
+ * moves any planned vocal notes to the instrument voice (PLAN.md, "YuE2: Align With
+ * Upstream's `yue2-music` Skill"); a yue2-serve backend has only this text to go on. */
+export const INSTRUMENTAL_CONDITIONS = ['no vocals', 'no singing', 'no choir', 'no spoken words'];
+
+/** VOCAL LANGUAGE leads the style, as upstream writes it ("English, warm female vocal, …"). */
+const LANGUAGE_NAMES: Record<string, string> = { en: 'English', zh: 'Chinese' };
 
 /** Create stores a meter as its numerator (client songMeta.ts). */
 const METER_TEXT: Record<string, string> = { '2': '2/4', '3': '3/4', '4': '4/4', '6': '6/8' };
@@ -53,6 +59,11 @@ function styleHints(fields: CreateFields): string[] {
   return hints;
 }
 
+function instrumentalStyle(prompt: string, hints: string[]): string[] {
+  const conditions = INSTRUMENTAL_CONDITIONS.filter((c) => !prompt.toLowerCase().includes(c));
+  return [/^instrumental\b/i.test(prompt) ? '' : 'Instrumental', prompt, ...hints, ...conditions];
+}
+
 function chooseSeed(fields: CreateFields, random: () => number): number {
   const fixed = fields.use_random_seed === false && fields.seed !== undefined && fields.seed >= 0;
   return fixed ? Math.min(Math.floor(fields.seed!), Number.MAX_SAFE_INTEGER) : random();
@@ -60,7 +71,9 @@ function chooseSeed(fields: CreateFields, random: () => number): number {
 
 export function buildYue2Request(fields: CreateFields, random: () => number = randomSeed): Record<string, unknown> {
   const instrumental = !fields.lyrics?.trim();
-  const style = [fields.prompt?.trim(), instrumental ? INSTRUMENTAL_STYLE : '', ...styleHints(fields)]
+  const prompt = fields.prompt?.trim() ?? '';
+  const style = (instrumental ? instrumentalStyle(prompt, styleHints(fields))
+    : [LANGUAGE_NAMES[fields.vocal_language ?? ''], prompt, ...styleHints(fields)])
     .filter(Boolean).join(', ');
   // Both wrappers 422 a blank style; say why in Create's terms instead.
   if (!style) throw new Error('YUE2 needs a PROMPT: it has no default style');
@@ -74,6 +87,15 @@ export function buildYue2Request(fields: CreateFields, random: () => number = ra
   return request;
 }
 
+/** COVER on YUE2: the source score fixes tempo, key and meter, so BPM / KEY / TIME SIGNATURE
+ * hints are dropped rather than argue with it, and `cot` is `melody` so the accompaniment
+ * is free (point 5). Empty lyrics still send the tags-only skeleton: yue-server then moves
+ * the score's vocal line to an instrument and sings nothing. */
+export function buildYue2CoverRequest(fields: CreateFields, abc: string, random: () => number = randomSeed): Record<string, unknown> {
+  const { bpm: _bpm, key_scale: _key, time_signature: _meter, ...rest } = fields;
+  return { ...buildYue2Request({ ...rest, cot: 'melody' }, random), abc };
+}
+
 export const yue2Engine: SongEngine = {
   id: 'yue2',
   label: 'YUE2',
@@ -81,5 +103,6 @@ export const yue2Engine: SongEngine = {
   apiKey: config.yueApiKey,
   capabilities: YUE2_CAPABILITIES,
   toRequest: (fields) => buildYue2Request(fields),
+  toCoverRequest: (fields, abc) => buildYue2CoverRequest(fields, abc),
   readMeta: ({ score }) => readAbcMeta(score),
 };

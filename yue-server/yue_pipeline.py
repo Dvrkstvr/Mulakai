@@ -18,6 +18,9 @@ from contextlib import contextmanager
 from settings import Settings
 
 SAMPLE_RATE = 48000
+# Upstream's instrumental helper refuses a supplied score above this many ABC
+# tokens, "the normal planning budget" (skills/yue2-music/instrumental).
+PLAN_TOKEN_BUDGET = 4096
 
 
 class _StageTap:
@@ -66,6 +69,9 @@ class YuePipeline:
     def plan(self, request: dict, *, cancelled, on_token):
         song = self._request_type(**request)
         return self.pipe.plan(request=song, cancelled=cancelled, on_token=on_token)
+
+    def fits_plan_budget(self, abc: str) -> bool:
+        return len(self.pipe.tokenizer.encode(abc)) <= PLAN_TOKEN_BUDGET
 
     def semantic(self, plan, *, cancelled, on_token):
         return self.pipe.generate_semantic(plan, cancelled=cancelled, on_token=on_token)

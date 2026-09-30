@@ -3,6 +3,7 @@ import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
 import { Seed } from './Seed';
 import { useSettings } from './settings';
+import { useCreateDraftStore } from './createDraftStore';
 import { aceOnlyNote } from './engineCaps';
 import { AUTO_CONTROLS, controlRange, useEngineSettings, type Cot, type SliderControl } from './engineSettings';
 
@@ -32,12 +33,15 @@ export function EngineGenSettings({ engine }: { engine: EngineInfo }) {
   const setGen = useSettings((s) => s.setGen);
   const values = { ...AUTO_CONTROLS, ...stored };
   const caps = engine.capabilities;
+  const onCover = useCreateDraftStore((s) => s.genType === 'audio');
 
   return (
     <>
       <div className="hint">{engine.label} — {aceOnlyNote(engine)}.</div>
       {caps.extraControls.map((control) => {
         if (control === 'cot') {
+          // A cover sings a supplied score, so its plan mode is always `melody` (PLAN.md point 5).
+          if (onCover) return <div key={control} className="hint">COT — a cover follows its score&apos;s melody (MELODY)</div>;
           return (
             <CustomSelect key={control} label="COT" value={values.cot} options={COT_OPTIONS}
               onChange={(v) => setControls(engine.id, { cot: v as Cot })} />

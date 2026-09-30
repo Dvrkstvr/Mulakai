@@ -57,6 +57,8 @@ interface GenerationState {
     draft: CreateDraft,
     referenceAudio?: Blob,
   ) => Promise<void>;
+  /** A melody cover from a score on an extra engine (COVER on YUE2) — a new song like the rest. */
+  startCover: (engine: EngineId, params: { title: string; prompt: string } & Record<string, unknown>, draft: CreateDraft) => Promise<void>;
   /** Clears a failed job (called right before navigating back to Create for a retry). */
   dismiss: () => void;
   /** Rehydrates from the server's generation lock — call once on app mount, in case a
@@ -132,7 +134,7 @@ function adoptLock(active: ActiveGeneration): GenerationJob {
     stage: active.status, error: active.error, startedAt: active.startedAt,
     draft: {
       genType: taskToGenType(active.task), prompt: active.caption,
-      ...(active.engine ? { engine: active.engine as EngineId } : {}),
+      ...(active.engine ? { [active.task === 'cover' ? 'coverEngine' : 'engine']: active.engine as EngineId } : {}),
     },
   };
 }
@@ -146,6 +148,9 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
       () => (draft.engine && draft.engine !== 'acestep'
         ? api.generateWithEngine(draft.engine, params)
         : api.generate(params, referenceAudio))),
+
+  startCover: (engine, params, draft) =>
+    launch(set, get, params.prompt || String(params.lyrics ?? ''), params.title, draft, () => api.coverWithEngine(engine, params)),
 
   startFromAudio: (params, srcAudio, draft, referenceAudio) =>
     launch(set, get, params.prompt || params.lyrics || '', params.title, draft,

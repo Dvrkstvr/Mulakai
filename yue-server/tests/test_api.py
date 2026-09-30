@@ -2,7 +2,7 @@ import threading
 
 import pytest
 
-from conftest import ABC, BODY, FakePipeline, wait_for, wait_terminal
+from conftest import ABC, BODY, NATIVE, FakePipeline, wait_for, wait_terminal
 
 
 def test_happy_path_serves_flac_score_and_result(make_client):
@@ -55,7 +55,10 @@ def test_cot_off_has_no_score(make_client):
     {"style": "   "},
     {"cfg_scale": 20.5},
     {"cot": "auto"},
-    {"abc": "X:1"},                      # score editing is out of scope
+    {"abc": "X:1"},                      # not a native two-voice score
+    {"abc": "   "},
+    {"abc": NATIVE, "cot": "off"},       # off generates without a score
+    {"abc": "X" * 65537},
     {"n": 2},
     {"id": "../escape"},
 ])

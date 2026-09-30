@@ -12,15 +12,42 @@ yet, only on the unreleased main branch. This means each /split call reloads
 the model from disk; if that ever becomes the bottleneck, switching to
 demucs.api.Separator (kept warm at startup) is the fix, once available on PyPI.
 
+Stems are written with soundfile, not demucs' own save_audio: see _save_wav.
+
 Run: pip install -r requirements.txt && uvicorn main:app --port 8002
 """
 import os
 import uuid
 from pathlib import Path
 
+import soundfile
 from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.staticfiles import StaticFiles
 import demucs.separate
+from demucs.audio import prevent_clip
+
+_demucs_save_audio = demucs.separate.save_audio
+
+
+def _save_wav(wav, path, samplerate, clip="rescale", as_float=False,
+              bits_per_sample=16, **kwargs):
+    # demucs 4.0.1 writes WAVs via torchaudio.save, which since torchaudio
+    # 2.9 always routes through torchcodec - and torchcodec needs FFmpeg
+    # *shared* libraries of a matching ABI, which static Windows FFmpeg
+    # builds (winget/gyan) don't provide. Pinning torchaudio < 2.9 isn't an
+    # option either: torch < 2.9 has no Python 3.14 wheels. soundfile bundles
+    # libsndfile, so it works regardless of the torch or FFmpeg version.
+    if not str(path).lower().endswith(".wav"):
+        return _demucs_save_audio(wav, path, samplerate=samplerate, clip=clip,
+                                  as_float=as_float,
+                                  bits_per_sample=bits_per_sample, **kwargs)
+    subtype = "FLOAT" if as_float else f"PCM_{bits_per_sample}"
+    data = prevent_clip(wav, mode=clip).cpu().numpy().T  # (frames, channels)
+    soundfile.write(str(path), data, samplerate, subtype=subtype)
+
+
+# demucs.separate imported save_audio by name, so patch it there.
+demucs.separate.save_audio = _save_wav
 
 MODEL_NAME = os.environ.get("DEMUCS_MODEL", "htdemucs")
 DATA_DIR = Path(os.environ.get("DEMUCS_DATA_DIR", Path(__file__).parent / "data"))
@@ -51,10 +78,7 @@ async def split(request: Request, audio: UploadFile = File(...)):
     # Float32 WAV, not mp3: this service now hands Mulakai a *lossless master*
     # and the Node side applies the user's chosen container/rate/depth once
     # (server/src/services/transcode.ts). Encoding mp3 here would make every
-    # non-mp3 export a lossy->lossless upconvert. --float32 also keeps the
-    # output on demucs' soundfile writer rather than torchaudio -> torchcodec,
-    # which needs an ffmpeg shared-library ABI match that's brittle across
-    # platforms/versions.
+    # non-mp3 export a lossy->lossless upconvert.
     demucs.separate.main([
         "-n", MODEL_NAME,
         "-o", str(job_dir),

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildYue2Request, yue2Engine, INSTRUMENTAL_LYRICS, INSTRUMENTAL_STYLE, YUE2_CAPABILITIES } from './yue2.js';
+import { buildYue2CoverRequest, buildYue2Request, yue2Engine, INSTRUMENTAL_LYRICS, YUE2_CAPABILITIES } from './yue2.js';
 
 const fixedRandom = () => 4242;
 const LYRICS = '[Verse]\nsalt on the window';
@@ -51,18 +51,52 @@ describe('YuE2 request mapping', () => {
     expect(Object.keys(req).sort()).toEqual(['lyrics', 'seed', 'style']);
   });
 
-  it('turns empty lyrics into a tags-only instrumental skeleton', () => {
+  it('turns empty lyrics into a tags-only skeleton and upstream\'s instrumental style', () => {
     for (const lyrics of [undefined, '', '  \n ']) {
-      const req = buildYue2Request({ prompt: 'lo-fi', lyrics }, fixedRandom);
+      const req = buildYue2Request({ prompt: 'lo-fi', lyrics, bpm: 80 }, fixedRandom);
       expect(req.lyrics).toBe(INSTRUMENTAL_LYRICS);
-      expect(req.style).toBe(`lo-fi, ${INSTRUMENTAL_STYLE}`);
+      expect(req.style).toBe('Instrumental, lo-fi, 80 bpm, no vocals, no singing, no choir, no spoken words');
     }
     expect(INSTRUMENTAL_LYRICS.replace(/\[[^\]]+\]/g, '').trim()).toBe('');
+  });
+
+  it('does not repeat what an instrumental prompt already says, and skips the language', () => {
+    expect(buildYue2Request({ prompt: 'Instrumental jazz, no vocals', vocal_language: 'en' }, fixedRandom).style)
+      .toBe('Instrumental jazz, no vocals, no singing, no choir, no spoken words');
+    expect(buildYue2Request({}, fixedRandom).style).toBe('Instrumental, no vocals, no singing, no choir, no spoken words');
+  });
+
+  it('puts VOCAL LANGUAGE first in the style, for the two languages YuE2 sings', () => {
+    const style = (vocal_language?: string) =>
+      buildYue2Request({ prompt: 'pop', lyrics: LYRICS, bpm: 90, vocal_language }, fixedRandom).style;
+    expect(style('en')).toBe('English, pop, 90 bpm');
+    expect(style('zh')).toBe('Chinese, pop, 90 bpm');
+    expect(style('de')).toBe('pop, 90 bpm');
+    expect(style()).toBe('pop, 90 bpm');
   });
 
   it('refuses a request with no style at all, in Create terms', () => {
     expect(() => buildYue2Request({ prompt: '  ', lyrics: LYRICS }, fixedRandom)).toThrow(/needs a PROMPT/);
     expect(buildYue2Request({ lyrics: LYRICS, bpm: 100 }, fixedRandom).style).toBe('100 bpm');
+  });
+});
+
+describe('YuE2 cover request', () => {
+  const ABC = 'X:1\nM:4/4\nQ:1/4=75\nK:Fm\n% verse\nV: Vocal\nC8|\n';
+
+  it('sends the score with cot melody, and drops the tempo/key/meter hints the score fixes', () => {
+    const req = buildYue2CoverRequest({
+      prompt: 'folk', lyrics: LYRICS, bpm: 120, key_scale: 'C major', time_signature: '3', vocal_language: 'en',
+      cot: 'full', cfg: 1.2, use_random_seed: false, seed: 9,
+    }, ABC, fixedRandom);
+    expect(req).toEqual({ style: 'English, folk', lyrics: LYRICS, seed: 9, cfg_scale: 1.2, cot: 'melody', abc: ABC });
+  });
+
+  it('keeps the tags-only skeleton for an instrumental cover, which yue-server re-tags from the score', () => {
+    const req = buildYue2CoverRequest({ prompt: 'cello', lyrics: '' }, ABC, fixedRandom);
+    expect(req.lyrics).toBe(INSTRUMENTAL_LYRICS);
+    expect(req.style).toBe('Instrumental, cello, no vocals, no singing, no choir, no spoken words');
+    expect(yue2Engine.toCoverRequest?.({ prompt: 'p', lyrics: LYRICS }, ABC)).toMatchObject({ abc: ABC, cot: 'melody' });
   });
 });
 

@@ -3,7 +3,7 @@ import { type RefineResult } from './api';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
 import { NaSetting, SongDetailsFields } from './SongDetailsFields';
-import { TIME_SIGNATURES, VOCAL_LANGUAGES } from './songMeta';
+import { TIME_SIGNATURES } from './songMeta';
 import { useSettings } from './settings';
 import { AutoTextarea } from './AutoTextarea';
 import { useThinkingQuery } from './useThinkingQuery';
@@ -14,9 +14,9 @@ import { LyricTagGuidePopover } from './LyricTagGuidePopover';
 import { useCreateDraftStore } from './createDraftStore';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { PromptGenerateRow } from './PromptGenerateRow';
-import { EngineChoice } from './EngineChoice';
+import { PromptEngineChoice } from './EngineChoice';
 import { useEngineCaps } from './useEngineCaps';
-import { songDetailNotes, unsupported } from './engineCaps';
+import { languageOptions, liveLanguage, songDetailNotes, unsupported } from './engineCaps';
 
 /** PROMPT tab: a plain text2music generation. Extracted from CreateView.tsx, which had grown
  * past the module cap holding both this form and the screen's shell. Owns the Quick Start
@@ -62,7 +62,7 @@ export function CreatePromptTab({ refining, onRefine, onBack }: {
 
   return (
     <>
-      <EngineChoice />
+      <PromptEngineChoice />
       <div className="thinking-host">
         <div className="field-label-row">
           <span className="section-label">PROMPT</span>
@@ -125,7 +125,7 @@ export function CreatePromptTab({ refining, onRefine, onBack }: {
           <CustomSelect label="TIME SIGNATURE" value={timeSignature} onChange={(v) => patch({ timeSignature: v })} options={TIME_SIGNATURES} />
         )}
         {unsupported('vocalLanguage', caps) ? <NaSetting label="VOCAL LANGUAGE" /> : (
-          <CustomSelect label="VOCAL LANGUAGE" value={vocalLanguage} onChange={(v) => patch({ vocalLanguage: v })} options={VOCAL_LANGUAGES} />
+          <CustomSelect label="VOCAL LANGUAGE" value={liveLanguage(vocalLanguage, caps)} onChange={(v) => patch({ vocalLanguage: v })} options={languageOptions(caps)} />
         )}
         <Slider label="TAKES" value={gen.batchSize} min={0} max={4} step={1} disabled={unsupported('takes', caps)}
           readout={unsupported('takes', caps) ? 'N/A' : gen.batchSize === 0 ? 'AUTO (2)' : undefined}

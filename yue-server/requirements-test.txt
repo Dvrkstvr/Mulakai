@@ -2,3 +2,5 @@
 fastapi==0.142.1
 httpx==0.28.1
 pytest==9.1.1
+# FastAPI's multipart parser, for POST /v1/transcriptions uploads.
+python-multipart==0.0.32

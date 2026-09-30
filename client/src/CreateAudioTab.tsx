@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { api, type Song } from './api';
+import type { Song } from './api';
 import { CustomSelect } from './CustomSelect';
 import { VarianceSlider } from './SettingsPanel';
 import { GenerateButton } from './GenerateButton';
@@ -8,18 +8,14 @@ import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { useVoiceStore } from './voiceStore';
 import { useModelsForTask } from './useModelsForTask';
-import { activeLayers } from './mix/activeLayers';
-import { decodeLayers } from './mix/decodeLayers';
-import { bounceMix, encodeWav } from './mix/bounceMix';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
-import { Dropzone } from './Dropzone';
-import { AudioPreview } from './AudioPreview';
-import { AudioPreviewPopover } from './AudioPreviewPopover';
-import { useObjectUrl } from './useObjectUrl';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
-import { ReusedSourceNote } from './ReusedSourceNote';
+import { CoverSourcePicker } from './CoverSourcePicker';
+import { CoverEngineChoice } from './EngineChoice';
+import { YueCoverPanel } from './YueCoverPanel';
+import { coverSourceReady, resolveCoverSource } from './coverSource';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { MoveToEditorAction } from './MoveToEditorAction';
 
@@ -34,12 +30,10 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
   const patchAudio = draft.patchAudio;
   const { title, prompt, lyrics, bpm, keyScale, duration, folderId } = draft;
 
-  const [librarySearch, setLibrarySearch] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const coverModels = useModelsForTask('cover');
-  const uploadUrl = useObjectUrl(uploadFile);
   useEffect(() => {
     if (coverModels && !model) patchAudio({ model: coverModels.find((n) => n.includes('xl-sft')) ?? coverModels[0] ?? '' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -51,32 +45,10 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
   const voice = useVoiceStore();
   const busy = submitting || !!genJob;
 
-  const visibleLibrary = songs.filter((s) => s.title.toLowerCase().includes(librarySearch.toLowerCase()));
-  const sourceReady = source === 'upload' ? !!uploadFile : !!selectedSongId;
+  const sourceReady = coverSourceReady(draft.audio);
   const ready = sourceReady && !!model && (coverModels?.length ?? 0) > 0;
 
-  /** The raw upload as-is, or the current audible mix of a library song bounced down
-   * client-side (same decode/mix/encode pipeline RemasterAction.tsx uses). */
-  const resolveSrcAudio = async (): Promise<Blob> => {
-    if (source === 'upload') {
-      if (!uploadFile) throw new Error('choose an audio file to upload');
-      return uploadFile;
-    }
-    if (!selectedSongId) throw new Error('choose a song from your library');
-    const detail = await api.songDetail(selectedSongId);
-    const audible = activeLayers(detail.layers)
-      .map((l) => ({ layer: l, version: l.versions.find((v) => v.active) }))
-      .filter((x): x is { layer: typeof x.layer; version: NonNullable<typeof x.version> } => !!x.version);
-    if (audible.length === 0) throw new Error('that song has no audible layers to use as a source');
-    const mixCtx = new AudioContext();
-    const decoded = await decodeLayers(
-      audible.map((x, i) => ({ id: String(i), audioUrl: `/audio/${x.version.audio_file}`, volume: x.layer.volume })),
-      mixCtx,
-    );
-    const mixed = await bounceMix(decoded);
-    await mixCtx.close();
-    return encodeWav(mixed);
-  };
+  const resolveSrcAudio = () => resolveCoverSource(draft.audio);
 
   // Resolves lazily (the library branch bounces a full mix down client-side) so it's only
   // paid for when the user actually clicks ANALYZE AUDIO.
@@ -127,37 +99,22 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
     }
   };
 
+  // An engine cover transcribes the source and sings the score; none of ACE-Step's model,
+  // variance or audio analysis applies (PLAN.md "Client cover decisions").
+  if (draft.audio.engine !== 'acestep') {
+    return (
+      <>
+        <CoverEngineChoice />
+        <CoverSourcePicker songs={songs} satisfied={sourceReady || !!draft.audio.yueScore || !!draft.audio.reuseScore} />
+        <YueCoverPanel songs={songs} onBack={onBack} />
+      </>
+    );
+  }
+
   return (
     <>
-      <div className="section-label">SOURCE</div>
-      <ReusedSourceNote title={draft.reusedFrom} satisfied={sourceReady} />
-      <div className="type-tabs">
-        <button className={source === 'upload' ? 'tab active' : 'tab'} onClick={() => patchAudio({ source: 'upload' })}><span>UPLOAD</span></button>
-        <button className={source === 'library' ? 'tab active' : 'tab'} onClick={() => patchAudio({ source: 'library' })}><span>FROM LIBRARY</span></button>
-      </div>
-      {source === 'upload' ? (
-        <>
-          <Dropzone accept="audio/*" onFile={(f) => patchAudio({ uploadFile: f })}>
-            {uploadFile ? uploadFile.name : 'drag audio file here or click to browse'}
-          </Dropzone>
-          {uploadFile && uploadUrl && <AudioPreview src={uploadUrl} label={uploadFile.name} height={26} />}
-        </>
-      ) : (
-        <div className="song-picker">
-          <input placeholder="Search your library…" value={librarySearch} onChange={(e) => setLibrarySearch(e.target.value)} />
-          <div className="song-picker-list">
-            {visibleLibrary.map((s) => (
-              <div key={s.id} className={s.id === selectedSongId ? 'song-pick current' : 'song-pick'} onClick={() => patchAudio({ selectedSongId: s.id })}>
-                {s.audio_file && (
-                  <AudioPreviewPopover src={`/audio/${s.audio_file}`} label={s.title} duration={s.duration ?? undefined} />
-                )}
-                <span className="song-pick-title">{s.title}</span>
-              </div>
-            ))}
-            {visibleLibrary.length === 0 && <div className="empty">No songs match.</div>}
-          </div>
-        </div>
-      )}
+      <CoverEngineChoice />
+      <CoverSourcePicker songs={songs} satisfied={sourceReady} />
       {coverModels === null ? (
         <span className="meta">checking available models…</span>
       ) : coverModels.length === 0 ? (
