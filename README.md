@@ -116,6 +116,23 @@ the server, the optional Demucs service and the client in one go (set
 Stem splitting via Demucs is optional — see
 [`demucs-server/README.md`](demucs-server/README.md).
 
+### Optional: YuE2 as a first-take engine
+
+A new song's first take can come from [YuE2](https://github.com/multimodal-art-projection/YuE)
+instead of ACE-Step; every edit afterwards still runs on ACE-Step. YuE2 runs
+in WSL2 behind [`yue-server/`](yue-server/README.md) (setup, weights and
+license are there). Point `YUE_API_URL` at it and it shows up as an engine.
+
+- **Run ACE-Step with `ACESTEP_OFFLOAD_TO_CPU=true`** whenever an engine is
+  configured. Only one model fits in 16 GB of VRAM at a time; with offload on,
+  an idle ACE-Step holds ~0.5 GB.
+- **Recommended**: NVIDIA Control Panel → Manage 3D settings → *CUDA – Sysmem
+  Fallback Policy* → **Prefer No Sysmem Fallback**. Otherwise an out-of-memory
+  run silently spills into system RAM and crawls instead of failing. Mulakai
+  never changes this setting.
+- The YuE2 weights are **CC BY-NC 4.0**: individuals may use them and monetize
+  the outputs; companies need a license from the authors.
+
 ### Configuration
 
 Server environment variables, all optional:
@@ -128,6 +145,8 @@ Server environment variables, all optional:
 | `ACESTEP_API_KEY` | — | Sent if ACE-Step requires one |
 | `ACESTEP_TIMEOUT_MS` | `60000` | Per-request ceiling on ACE-Step calls (downloads get 5×) |
 | `DEMUCS_API_URL` | — | Empty disables the Demucs split backend |
+| `YUE_API_URL` | — | YuE2 engine (`yue-server/`, e.g. `http://127.0.0.1:8004`; use `127.0.0.1`, not `localhost`). Empty disables it |
+| `YUE_API_KEY` | — | Bearer key, if the YuE2 server requires one |
 | `DATA_DIR` | `server/data` | SQLite DB + generated audio |
 | `POLL_INTERVAL_MS` | `2000` | Job polling interval |
 | `FFMPEG_PATH` | `ffmpeg` | ffmpeg binary |
@@ -138,7 +157,7 @@ Server environment variables, all optional:
 |---|---|
 | Client | React · TypeScript · Vite · Zustand · Framer Motion · Web Audio |
 | Server | Express · TypeScript · SQLite (better-sqlite3) |
-| Generation | ACE-Step 1.5 (external process, native FastAPI API) |
+| Generation | ACE-Step 1.5 (external process, native FastAPI API); optionally YuE2 for a song's first take (`yue-server/`, WSL2) |
 | Stem splitting | ACE-Step `extract`, or a Demucs microservice (FastAPI, optional) |
 | Tests | Vitest on both sides · oxlint |
 
