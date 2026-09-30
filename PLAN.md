@@ -2318,6 +2318,9 @@ most, the whole-song first take, without adding a second editing stack.
    - *Cancel*: fire-and-forget. A 404, or any other error, is ignored.
    - *Health*: 200 means ready. Anything else, including `yue2-serve`'s 503
      while loading, or no answer within 10 s, shows as not ready.
+   - *Wrappers as built*: `heartmula-server/` follows this list. What it adds
+     on top (the full job snapshot, error codes, the health body) is under
+     "heartmula-server decisions" in the HeartMuLa section.
 4. **Server-side engine interface.** Each extra engine is a small module in
    `server/src/services/engines/` exporting:
    ```ts
@@ -2566,11 +2569,11 @@ machine the same day; see "HeartMuLa spike results" below.
 
 | Create field | HeartMuLa | Notes |
 | --- | --- | --- |
-| PROMPT (caption) | `tags` | v1: split on `,` / `;`, trim, lowercase, and join the words inside a tag with `-`, so `dreamy synth pop` → `dreamy-synth-pop`. The resulting tag string is shown read-only under PROMPT, so the user sees what is sent. A better caption → tag strategy is an open question. |
+| PROMPT (caption) | `tags` | v1: split on `,` / `;`, trim, lowercase, and join the words inside a tag with `-`, so `dreamy synth pop` → `dreamy-synth-pop`. Newlines also split, and empty and repeated tags are dropped. The resulting tag string is shown read-only under PROMPT, so the user sees what is sent. A better caption → tag strategy is an open question. |
 | LYRICS | `lyrics` | as-is. The descriptor's `sectionTags` lists HeartMuLa's six section tags. |
-| DURATION | `max_audio_length_ms` | **a cap.** AUTO sends 240000 (the CLI default) so AUTO doesn't cut songs at the pipeline's 2 minutes. The readout says MAX. |
-| GUIDANCE | `cfg` | AUTO omits it |
-| TEMPERATURE / TOP-K (engine controls) | temperature, top-k | AUTO omits them |
+| DURATION | `max_audio_length_ms` | **a cap.** AUTO sends 240000 (the CLI default) so AUTO doesn't cut songs at the pipeline's 2 minutes. A set value is clamped to the wrapper's 10–360 s. The readout says MAX. |
+| GUIDANCE | — | **not mapped** (changed 2026-09-30 in `feat/heartmula-engine`). The slider is ACE-Step's (0.5–15) and persists across engines, so a value tuned for ACE-Step would reach HeartMuLa far outside its range (default 1.5). HeartMuLa's own CFG engine control is used instead, as design point 11 describes. |
+| CFG / TEMPERATURE / TOP-K (engine controls: `extraControls` `cfg`, `temperature`, `topK`) | `cfg_scale`, `temperature`, `topk` | AUTO (absent, or 0) omits them. A set value is clamped to the wrapper's ranges (1–10, 0.05–2, 1–1000), so it can't 422 the job. |
 | RANDOM SEED / SEED | — | **no seed.** RANDOM SEED is shown locked on with "not reproducible", and `params_json` records `seed: null`. |
 | BPM / KEY-SCALE / TIME SIGNATURE | — | disabled. HeartMuLa's tag vocabulary has no tempo or key category, so these are not smuggled into `tags` either. |
 | VOCAL LANGUAGE | — | disabled; the lyrics' language decides. The descriptor lists zh / en / ja / ko / es. |
@@ -2661,6 +2664,101 @@ together. The raw logs, harness scripts, exact commands and audio are in
 - **Not yet checked by ear**: whether the Spanish vocals are Spanish, and
   whether the ACE-Step performance tags (`[soft voice]`, `[guitar solo]`, …)
   are sung aloud or ignored. They did not cause any error.
+
+#### heartmula-server decisions (2026-09-30)
+
+Made while building `feat/heartmula-server`, which was written in parallel
+with `feat/engine-framework`. Both filled design point 3's gaps from
+`yue2-serve`'s source, and they agree. `heartmula-server/README.md` has the
+full reference.
+
+**Against design point 3's contract details:**
+
+- **Job snapshot**: the whole `yue2-serve` record except its engine-specific
+  extras (`tokens`, `admission_id`):
+  `{id, status, stage, created_at, updated_at, started_at, finished_at, cancel_requested, result, error}`.
+  - The times are Unix seconds.
+  - `result` is
+    `{audio_url, score_url: null, audio_seconds, sample_rate, gain_db, truncated, timing}`.
+- **`Idempotency-Key`**: logged next to the wrapper's job id. The same key
+  with the same body replays the original job (200). With a different body
+  it is a 409, as in `yue2-serve`.
+- **Failed jobs**: `error: {code, message}`. The codes are `yue2-serve`'s
+  `invalid_generation` and `inference_failed`, plus `out_of_memory`, whose
+  message points at ACE-Step's offload.
+- **Cancelled jobs** have `error: null`. A cancel that arrives after the
+  audio is written still ends the job `cancelled`.
+- **Health**: `/health/ready`'s 503 body is `{"status":"loading"}`, or
+  `{"status":"failed","error":…}` when the weights failed to load.
+  `/health/live` exists too.
+- **Auth**: the key is checked only when `HEARTMULA_API_KEY` is set, unlike
+  `yue2-serve`, which always requires one. The server binds to 127.0.0.1
+  by default.
+- **Stages**: `queued`, `starting`, `generating`, `decoding`, `saving`,
+  `finished`. There is no `progress`.
+- **Jobs are in memory.** A restart forgets them, and the next poll is a
+  404, which the 3-strike rule turns into a failed job.
+
+**HeartMuLa specifics:**
+
+- **Request fields keep heartlib's names**: `tags`, `lyrics`,
+  `max_audio_length_ms` (default 240000, range 10000–360000), `cfg_scale`,
+  `temperature`, `topk`.
+  - `null` means heartlib's default, so AUTO omits the field.
+  - The mapping table's "GUIDANCE → `cfg`" is `cfg_scale` on the wire, and
+    "top-k" is `topk`.
+- **Blank lyrics → 422.** heartlib indexes the first lyric token, so an
+  empty lyric crashes it. HeartMuLa has no instrumental mode, and the
+  engine-picker UI needs a guard like the one planned for YuE2.
+- **A `tags` or `lyrics` value that is an existing file path → 422.**
+  heartlib's `preprocess` would read that file and sing it.
+- **`truncated`** means the LM hit `max_audio_length_ms` without emitting
+  its end token, so the song is cut off. The spike's first English song hit
+  this. It maps to Mulakai's done state, and the YuE2 `(truncated)` label
+  idea can reuse it.
+- **FLAC is 24-bit integer, not float.** FLAC has no float format:
+  libsndfile rejects `FLAC` + `FLOAT`, which rules out the spec's "float
+  FLAC" option.
+  - Over-scale audio instead gets one static gain down to −0.1 dBFS. That
+    means no clipping and no limiter coloring. `gain_db` reports the change.
+  - The spike's 1.12–1.33 peaks become about −1 to −2.5 dB.
+- **No progress fraction** (this answers the open question below). The
+  per-frame hook exists, but the fraction would be an upper bound. `stage`
+  is reported instead.
+- **Cancel reaches into the LM loop.** A forward pre-hook on the backbone
+  checks the flag once per 80 ms frame, and it is removed after every job.
+  heartlib's code is not modified.
+- **KV caches are dropped after every job.**
+  - The finding: torchtune 0.4's `setup_cache` *skips* any layer whose
+    cache already exists.
+  - Without the drop, a long-lived server would reuse job 1's cache for
+    every later job. That includes job 1's CFG batch size, which breaks a
+    later `cfg_scale = 1.0` request.
+  - It would also park ~5 GB of stale cache in RAM with the LM.
+  - The one-job-per-process spike could not have seen this.
+- **Parking uses `.to()` instead of heartlib's `lazy_load`**, which frees
+  models with `del` and reloads them from disk.
+  - `.to()` moves the tensors in place, so no lingering reference can pin
+    them on the GPU (spike requirement 2).
+  - heartlib's `preprocess` / `_forward` are used as-is. The wrapper decodes
+    with `codec.detokenize` itself to get float audio back.
+- **VRAM cap.** `set_per_process_memory_fraction` caps the process at the
+  card's total minus 2 GiB (`HEARTMULA_VRAM_BUDGET_GB`), the same approach
+  YuE2 takes.
+  - HeartMuLa's reserved peak is 12.85 GiB whatever the song length.
+  - Going over the cap is an `out_of_memory` failure, not a silent spill.
+- **Default port 8003**, next to ACE-Step's 8001 and Demucs' 8002.
+- **Verified end to end on the RTX 4080 (2026-09-30)**. The run went over
+  HTTP against the real server, with ACE-Step idle (offloaded).
+  - The weights load to RAM in 10.7 s, with a warm file cache.
+  - A 30 s cap took 41.8 s. The next job, a 20 s cap at `cfg_scale 1.0`,
+    took 25.8 s, which confirms the KV-cache rebuild.
+  - A cancel sent 6 s into a job ended it at 9.8 s.
+  - The card peaked at 15.2 GB total, from a 1.7 GB baseline (desktop plus
+    idle ACE-Step). Nothing spilled, judging by the timings.
+  - The server idles at ~0.3 GB between jobs.
+  - A CPU-only run against the real model also passed the cancel and
+    context-guard paths.
 
 ### Engine: YuE2 (ships first)
 
@@ -3049,10 +3147,11 @@ Shared (engine framework):
 HeartMuLa:
 - `heartmula-server/main.py`, `requirements.txt`, `README.md` — new.
   Covers the native-Windows setup (Python 3.10 venv, the pins above,
-  ~22 GB of weights, `--lazy_load`), the WSL2 fallback, the Sysmem Fallback
-  Policy recommendation, and the ACE-Step offload requirement. The server
-  parks the model on the CPU between jobs (design point 10) and writes
-  FLAC.
+  ~22 GB of weights), the WSL2 fallback, the Sysmem Fallback Policy
+  recommendation, and the ACE-Step offload requirement. The server parks
+  each model on the CPU between stages and jobs (design point 10), in place
+  of heartlib's `lazy_load`, and writes FLAC. Built 2026-09-30; see
+  "heartmula-server decisions".
 - `server/src/services/engines/heartmula.ts` — new. Descriptor,
   `toRequest` (caption → tags, duration → cap), and a no-op `readMeta`.
 
@@ -3226,6 +3325,9 @@ HeartMuLa:
   plus a codec step. That is an upper-bound fraction, because the song can
   end before the cap. v1 keeps "no progress fraction" unless this is picked
   up in `feat/heartmula-server`.
+  - **Answered (2026-09-30): not picked up.** The wrapper reports `stage`
+    only. A fraction that jumps from ~60% to done whenever a song ends
+    early would mislead more than it helps.
 
 YuE2:
 - **Is WSL2 viable, and how fast is it?** Answered by its spike.
