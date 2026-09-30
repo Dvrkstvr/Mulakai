@@ -96,7 +96,35 @@ describe('GET /api/engines/:id/transcribe/:jobId/preview', () => {
     expect(res.status).toBe(206);
     expect(res.headers.get('content-range')).toBe('bytes 0-1/4');
     expect(await res.text()).toBe('RI');
-    expect(fetchTranscriptionPreview).toHaveBeenCalledWith(yue, 'remote-1', 'bytes=0-1');
+    expect(fetchTranscriptionPreview).toHaveBeenCalledWith(yue, 'remote-1', 'bytes=0-1', expect.any(AbortSignal));
+  });
+
+  it('survives the engine\'s stream breaking mid-body, as when a paused player sits past a timeout', async () => {
+    // The body sends a chunk, then errors, which is what a timed-out upstream fetch does.
+    // Unhandled, this crashed the whole server (a Readable 'error' with no listener).
+    fetchTranscriptionPreview.mockResolvedValueOnce(new Response(new ReadableStream({
+      start(c) {
+        c.enqueue(new TextEncoder().encode('RIFF'));
+        setTimeout(() => c.error(new DOMException('The operation was aborted due to timeout', 'TimeoutError')), 20);
+      },
+    }), { headers: { 'Content-Type': 'audio/wav' } }));
+    const res = await fetch(`${base}/yue2/transcribe/done/preview`);
+    await res.arrayBuffer().catch(() => {}); // the listener sees a cut-off body, nothing worse
+    await new Promise((r) => setTimeout(r, 50));
+    expect((await fetch(`${base}/yue2/covers/missing/score`)).status).toBe(404); // still serving
+  });
+
+  it('tells the engine to stop once the listener leaves', async () => {
+    let upstreamSignal: AbortSignal | undefined;
+    fetchTranscriptionPreview.mockImplementationOnce(async (...a: unknown[]) => {
+      upstreamSignal = a[3] as AbortSignal;
+      return new Response(new ReadableStream({ start(c) { c.enqueue(new TextEncoder().encode('RIFF')); } }));
+    });
+    const listener = new AbortController();
+    const res = await fetch(`${base}/yue2/transcribe/done/preview`, { signal: listener.signal });
+    await res.body!.getReader().read();
+    listener.abort();
+    await vi.waitFor(() => expect(upstreamSignal?.aborted).toBe(true));
   });
 
   it('404s without a preview, or once the engine no longer has it', async () => {

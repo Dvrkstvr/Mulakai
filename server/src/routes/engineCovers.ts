@@ -7,6 +7,7 @@
 import { Router, type Response } from 'express';
 import multer from 'multer';
 import { Readable } from 'node:stream';
+import { pipeline } from 'node:stream/promises';
 import { db } from '../db/index.js';
 import { getEngine, coverReady } from '../services/engines/registry.js';
 import { startTranscription } from '../services/transcribeJobs.js';
@@ -23,6 +24,8 @@ const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100
 /** yue-server's own limit on a supplied score. */
 const MAX_SCORE_BYTES = 65536;
 const PREVIEW_HEADERS = ['content-type', 'content-length', 'content-range', 'accept-ranges'];
+/** How long the engine may take to start answering a preview request; the body itself is untimed. */
+const PREVIEW_HEADERS_TIMEOUT_MS = 10_000;
 
 /** The engine for a cover route, or undefined after answering the request itself. */
 function coverEngine(id: string, res: Response): SongEngine | undefined {
@@ -66,24 +69,37 @@ coversRouter.post('/:id/transcribe', upload.single('src_audio'), async (req, res
 });
 
 /** Streams the engine's piano preview, forwarding Range so the player can seek. The engine
- * keeps it for its retention window; after that this is a 404 (re-transcribe). */
+ * keeps it for its retention window; after that this is a 404 (re-transcribe).
+ *
+ * A player reads a little, then holds the connection idle while paused, or drops it to
+ * seek. So only the wait for response headers is timed. The engine is told to stop as soon
+ * as the listener leaves, and `pipeline` owns both ends, so a broken stream can never go
+ * unhandled. A bare `.pipe()` with a whole-request timeout crashed the server here. */
 coversRouter.get('/:id/transcribe/:jobId/preview', async (req, res) => {
   const engine = coverEngine(String(req.params.id), res);
   if (!engine) return;
   const job = getJob(String(req.params.jobId));
   if (!job?.transcription?.hasPreview) return res.status(404).json({ error: 'no preview for this job' });
+  const upstreamAbort = new AbortController();
+  res.on('close', () => upstreamAbort.abort());
+  const headersTimer = setTimeout(() => upstreamAbort.abort(), PREVIEW_HEADERS_TIMEOUT_MS);
+  let upstream: globalThis.Response;
   try {
-    const upstream = await fetchTranscriptionPreview(engine, job.taskId, req.headers.range);
-    if (!upstream.ok || !upstream.body) return res.status(upstream.status === 416 ? 416 : 404).json({ error: 'preview unavailable' });
-    res.status(upstream.status);
-    for (const name of PREVIEW_HEADERS) {
-      const value = upstream.headers.get(name);
-      if (value) res.setHeader(name, value);
-    }
-    Readable.fromWeb(upstream.body as import('node:stream/web').ReadableStream).pipe(res);
+    upstream = await fetchTranscriptionPreview(engine, job.taskId, req.headers.range, upstreamAbort.signal);
   } catch (err) {
-    res.status(502).json({ error: err instanceof Error ? err.message : String(err) });
+    if (!res.headersSent && !res.destroyed) res.status(502).json({ error: err instanceof Error ? err.message : String(err) });
+    return;
+  } finally {
+    clearTimeout(headersTimer);
   }
+  if (!upstream.ok || !upstream.body) return res.status(upstream.status === 416 ? 416 : 404).json({ error: 'preview unavailable' });
+  res.status(upstream.status);
+  for (const name of PREVIEW_HEADERS) {
+    const value = upstream.headers.get(name);
+    if (value) res.setHeader(name, value);
+  }
+  // Rejects when either side goes away mid-stream: a listener leaving is normal, so it's ignored.
+  await pipeline(Readable.fromWeb(upstream.body as import('node:stream/web').ReadableStream), res).catch(() => {});
 });
 
 coversRouter.post('/:id/cover', (req, res) => {

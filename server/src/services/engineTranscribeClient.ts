@@ -91,9 +91,17 @@ export async function fetchTranscriptionScore(target: EngineTarget, id: string):
 }
 
 /** The raw preview response, for the route to stream on. `range` is forwarded so the player
- * can seek; the caller relays status (200/206/404) and headers as they come. */
-export function fetchTranscriptionPreview(target: EngineTarget, id: string, range?: string): Promise<Response> {
-  return request(target, path(id, '/preview'), { headers: headers(target, range ? { Range: range } : {}) }, 'preview');
+ * can seek; the caller relays status (200/206/404) and headers as they come. Deliberately not
+ * `request()`: its timeout would cut the body off mid-stream while a paused player holds the
+ * connection. The caller owns `signal` and times only the headers. */
+export async function fetchTranscriptionPreview(
+  target: EngineTarget, id: string, range: string | undefined, signal: AbortSignal,
+): Promise<Response> {
+  try {
+    return await fetch(`${target.url}${path(id, '/preview')}`, { headers: headers(target, range ? { Range: range } : {}), signal });
+  } catch (err) {
+    throw new Error(`${target.label} preview -> ${err instanceof Error ? err.message : String(err)}`);
+  }
 }
 
 /** Fire-and-forget, as engineClient's cancel: our side has already given up on the job. */
