@@ -7,12 +7,20 @@
 import crypto from 'node:crypto';
 import { config } from '../config.js';
 import { type Job, registerJob, run, wasAborted, MAX_POLL_STRIKES } from './jobs.js';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { acquireGenLock, releaseGenLock, type GenTask } from './genLock.js';
 import { submit, status, fetchAudio, fetchScore, cancel, type EngineJobState } from './engineClient.js';
 import { insertGeneratedSong } from './songPersist.js';
 import type { CreateFields, SongEngine } from './engines/types.js';
 
 export const TRUNCATED_LABEL = 'first generation (truncated)';
+
+/** A melody cover from a supplied score (PLAN.md "Mulakai server cover decisions"): the
+ * engine's toCoverRequest builds the request, and the song is recorded as `cover`. */
+export interface EngineCover {
+  abc: string;
+  /** What the score was transcribed from, e.g. a library song's title or a file name. */
+  source: string;
+}
 
 /**
  * Polls until the wrapper reports a terminal state. Resolves with the finished state,
@@ -50,15 +58,17 @@ async function pollEngine(job: Job, engine: SongEngine): Promise<EngineJobState 
 
 async function persistEngineSong(
   engine: SongEngine, taskId: string, fields: CreateFields, request: Record<string, unknown>,
-  truncated: boolean, title: string, folderId?: string | null,
+  truncated: boolean, title: string, folderId?: string | null, cover?: EngineCover,
 ): Promise<string> {
   const audio = await fetchAudio(engine, taskId);
   // The score is optional garnish (metadata + a sidecar): losing it must not lose the song.
   const score = await fetchScore(engine, taskId).catch(() => null);
   const meta = engine.readMeta(score ? { score } : {});
   // Create names at the top level (the Editor's history row reads `prompt`), the exact
-  // wire body under `request` — see PLAN.md "Framework decisions".
-  const params = { ...fields, engine: engine.id, task_type: 'text2music', request };
+  // wire body under `request` — see PLAN.md "Framework decisions". A cover's `request.abc`
+  // is the supplied score REUSE PROMPT reopens; the sidecar is what the engine sang.
+  const task: GenTask = cover ? 'cover' : 'text2music';
+  const params = { ...fields, engine: engine.id, task_type: task, request, ...(cover ? { source: cover.source } : {}) };
   return insertGeneratedSong({
     audio,
     meta: {
@@ -79,13 +89,18 @@ async function persistEngineSong(
 }
 
 /** Submit a new-song generation to an extra engine and persist the result as a new song
- * with a base layer. Throws GenLockError synchronously if another generation is running. */
-export function startEngineGeneration(engine: SongEngine, fields: CreateFields, title: string, folderId?: string | null): Job {
+ * with a base layer. Throws GenLockError synchronously if another generation is running;
+ * throws before locking if `cover` is given to an engine that can't cover. */
+export function startEngineGeneration(
+  engine: SongEngine, fields: CreateFields, title: string, folderId?: string | null, cover?: EngineCover,
+): Job {
+  if (cover && !engine.toCoverRequest) throw new Error(`${engine.label} cannot cover a score`);
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
-  acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: fields.prompt, task: 'text2music', engine: engine.id });
+  const task: GenTask = cover ? 'cover' : 'text2music';
+  acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: fields.prompt, task, engine: engine.id });
   registerJob(job);
   void run(job, async () => {
-    const request = engine.toRequest(fields);
+    const request = cover ? engine.toCoverRequest!(fields, cover.abc) : engine.toRequest(fields);
     const taskId = await submit(engine, request, job.id);
     job.taskId = taskId;
     if (wasAborted(job)) {
@@ -96,7 +111,7 @@ export function startEngineGeneration(engine: SongEngine, fields: CreateFields, 
     job.status = 'running';
     const finished = await pollEngine(job, engine);
     if (!finished) return;
-    job.songId = await persistEngineSong(engine, taskId, fields, request, finished.truncated, title, folderId);
+    job.songId = await persistEngineSong(engine, taskId, fields, request, finished.truncated, title, folderId, cover);
     job.status = 'done';
   }).finally(() => releaseGenLock(job.id));
   return job;

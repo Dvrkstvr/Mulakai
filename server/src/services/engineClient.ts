@@ -21,11 +21,11 @@ export interface EngineJobState {
 
 const HEALTH_TIMEOUT_MS = 10_000;
 
-function headers(target: EngineTarget, extra?: Record<string, string>): Record<string, string> {
+export function headers(target: EngineTarget, extra?: Record<string, string>): Record<string, string> {
   return { ...(target.apiKey ? { Authorization: `Bearer ${target.apiKey}` } : {}), ...extra };
 }
 
-async function request(target: EngineTarget, route: string, init: RequestInit, label: string, timeoutMs = config.acestepTimeoutMs): Promise<Response> {
+export async function request(target: EngineTarget, route: string, init: RequestInit, label: string, timeoutMs = config.acestepTimeoutMs): Promise<Response> {
   try {
     return await fetch(`${target.url}${route}`, { ...init, signal: AbortSignal.timeout(timeoutMs) });
   } catch (err) {
@@ -37,7 +37,7 @@ async function request(target: EngineTarget, route: string, init: RequestInit, l
 }
 
 /** FastAPI's `detail` is a string, or a list of validation errors for a 422. */
-async function failure(target: EngineTarget, label: string, res: Response): Promise<Error> {
+export async function failure(target: EngineTarget, label: string, res: Response): Promise<Error> {
   let detail = '';
   try {
     const body = (await res.json()) as { detail?: unknown };
@@ -73,7 +73,7 @@ export async function submit(target: EngineTarget, body: Record<string, unknown>
   return job.id;
 }
 
-function errorMessage(error: unknown): string | undefined {
+export function errorMessage(error: unknown): string | undefined {
   if (typeof error === 'string') return error || undefined;
   if (error && typeof error === 'object' && typeof (error as { message?: unknown }).message === 'string') {
     return (error as { message: string }).message || undefined;

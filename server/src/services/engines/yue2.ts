@@ -87,6 +87,15 @@ export function buildYue2Request(fields: CreateFields, random: () => number = ra
   return request;
 }
 
+/** COVER on YUE2: the source score fixes tempo, key and meter, so BPM / KEY / TIME SIGNATURE
+ * hints are dropped rather than argue with it, and `cot` is `melody` so the accompaniment
+ * is free (point 5). Empty lyrics still send the tags-only skeleton: yue-server then moves
+ * the score's vocal line to an instrument and sings nothing. */
+export function buildYue2CoverRequest(fields: CreateFields, abc: string, random: () => number = randomSeed): Record<string, unknown> {
+  const { bpm: _bpm, key_scale: _key, time_signature: _meter, ...rest } = fields;
+  return { ...buildYue2Request({ ...rest, cot: 'melody' }, random), abc };
+}
+
 export const yue2Engine: SongEngine = {
   id: 'yue2',
   label: 'YUE2',
@@ -94,5 +103,6 @@ export const yue2Engine: SongEngine = {
   apiKey: config.yueApiKey,
   capabilities: YUE2_CAPABILITIES,
   toRequest: (fields) => buildYue2Request(fields),
+  toCoverRequest: (fields, abc) => buildYue2CoverRequest(fields, abc),
   readMeta: ({ score }) => readAbcMeta(score),
 };

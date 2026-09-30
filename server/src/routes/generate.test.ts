@@ -298,6 +298,17 @@ describe('GET /:jobId', () => {
     expect(body).toMatchObject({ status: 'running', progress: 0.42, progressStage: 'sampling', progressText: 'step 12/50' });
   });
 
+  it('carries a finished transcription\'s score and facts, and nothing extra otherwise', async () => {
+    const transcription = {
+      score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2', warnings: [], measures: 44, vocalNotes: 167,
+      instrumentalNotes: 16, durationSeconds: 140, hasPreview: true,
+    };
+    vi.mocked(jobs.getJob).mockReturnValueOnce({ id: 'tr-1', taskId: 't', status: 'done', createdAt: Date.now(), transcription });
+    expect(await (await fetch(`${baseUrl}/tr-1`)).json()).toMatchObject({ status: 'done', transcription });
+    vi.mocked(jobs.getJob).mockReturnValueOnce({ id: 'g-1', taskId: 't', status: 'done', createdAt: Date.now(), songId: 's' });
+    expect(await (await fetch(`${baseUrl}/g-1`)).json()).not.toHaveProperty('transcription');
+  });
+
   it('returns 404 for an unknown job', async () => {
     vi.mocked(jobs.getJob).mockReturnValueOnce(undefined);
     const res = await fetch(`${baseUrl}/unknown-job`);
