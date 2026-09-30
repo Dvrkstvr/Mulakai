@@ -2318,6 +2318,54 @@ most, the whole-song first take, without adding a second editing stack.
    - *Cancel*: fire-and-forget. A 404, or any other error, is ignored.
    - *Health*: 200 means ready. Anything else, including `yue2-serve`'s 503
      while loading, or no answer within 10 s, shows as not ready.
+
+   **What `yue-server` pins down within that contract** (2026-09-30,
+   `feat/yue-server`). These are its answers to the details above that
+   leave room. Each matches `yue2-serve` unless it says otherwise, so a
+   future wrapper can copy them:
+   - *Submit*: 202 with the full job record and `Location:
+     /v1/jobs/{id}`. The same `Idempotency-Key` with the same body returns
+     the original job with 200; the same key with a different body is a
+     409. The key is logged with the job. Other answers: 401 bad key, 422
+     invalid body, 429 queue full, 503 not ready. 429 and 503 carry
+     `Retry-After: 5`.
+   - *Job record*: `{id, status, stage, progress, tokens: {abc, semantic},
+     created_at, updated_at, started_at, finished_at, cancel_requested,
+     result, error}`, timestamps in epoch seconds.
+     - `stage` uses `yue2-serve`'s names: `queued`, `planning`, `semantic`,
+       `synthesis`, `decode`, `saving`, `finished`. (Turbo also shows
+       `claimed_waiting` briefly.) `GeneratingCard`'s `stageDetail` should
+       learn these, not the method names `plan` / `synthesize`.
+     - `progress` (wrapper-only) is the fraction of the **current stage**:
+       ODE steps in `synthesis` and VAE chunks in `decode`. It is null in
+       `planning` and `semantic`, whose length is unknown until they end;
+       `tokens` counts there instead. It therefore restarts from 0 at each
+       stage and is not an overall fraction.
+     - `result` on `succeeded` / `truncated`: `{audio_url, score_url |
+       null, audio_seconds, sample_rate, truncated: {abc, semantic},
+       timing}`. The URLs are relative paths on the engine's base URL.
+     - `error` on `failed`: `{code, message}`. The codes are
+       `invalid_generation` and `inference_failed` (both servers), `timeout`
+       (Turbo only), and `out_of_memory` (`yue-server` only).
+   - *HTTP errors* use FastAPI's `{"detail": string}` (a list for 422), which
+     is what `engineClient`'s `failure()` reads.
+   - *Audio and score*: 404 also covers a job or artifact that has been
+     cleaned up. `yue-server` keeps finished jobs for 24 h, and forgets them
+     on restart.
+   - *Health*: 200 `{"status": "ready"}`, or 503 with `{"status": "loading"
+     | "failed"}`. `GET /health/live` is 200 while the process is up.
+   - *Cancel* returns the job record. A queued job becomes `cancelled` at
+     once. A running one stops at the next token, ODE step or stage
+     boundary, and is reported `cancelled` only once the model is parked in
+     RAM. A cancel that races completion wins. Cancelling a finished job
+     changes nothing.
+   - *Auth*: Turbo requires a key of at least 16 characters; the wrapper's
+     is optional.
+   - *Request body*: `yue-server` requires `seed`, and it also tolerates a
+     body `id` and the `X-Admission-Id` header (both echoed back). Neither
+     server takes blank `lyrics` safely: `yue2-serve` rejects them with a
+     422, and on `yue-server` they still plan a vocal line. See
+     "Instrumentals" in the YuE2 spike results.
 4. **Server-side engine interface.** Each extra engine is a small module in
    `server/src/services/engines/` exporting:
    ```ts
@@ -2753,7 +2801,7 @@ results" below.
 | --- | --- | --- |
 | PROMPT (caption) | `style` | |
 | BPM / KEY-SCALE / TIME SIGNATURE | appended to `style` | e.g. `…, 92 bpm, A minor, 6/8 time`, only for fields not left on AUTO. This is a text hint, not a guarantee; what gets stored comes from the ABC. |
-| LYRICS | `lyrics` | as-is |
+| LYRICS | `lyrics` | as-is. Empty LYRICS (instrumental) need a tags-only skeleton; see "Instrumentals" in the YuE2 spike results |
 | GUIDANCE | `cfg_scale` | clamped to 0–20; AUTO omits it |
 | RANDOM SEED / SEED | `seed` | **always sent.** YuE's default is the fixed 831001, so omitting it would return the same song for the same prompt every time. With RANDOM SEED on, the server picks a seed and records it. |
 | COT (engine control) | `cot` | AUTO / FULL / MELODY / OFF; AUTO omits it |
@@ -3011,6 +3059,21 @@ YuE2:
   found fp8 4.6x slower), reaching the server from Windows at
   `http://127.0.0.1:<port>`, starting it through `wsl.exe`, and the WSL
   first-run hang workaround.
+  - *As built (2026-09-30)*: split by responsibility to stay under 150 LOC
+    each. `main.py` (FastAPI routes, auth, request model), `jobs.py` (the
+    in-memory job table and FIFO queue, artifact retention), `worker.py`
+    (the single inference thread and the staged run with its cancel
+    checks), `yue_pipeline.py` (the only module importing torch / yue2),
+    and `settings.py` (`YUE_*` env vars; default port 8004). The tests
+    (`yue-server/tests/`, pytest) use a fake pipeline and need no GPU;
+    `requirements-test.txt` installs just enough to run them.
+  - `requirements.txt` pins `yue2-infer` to upstream commit `18a07bb` by git
+    URL rather than vendoring it. `yue_pipeline.py` uses two private
+    pipeline members (`_status` for step progress, `_model` / `_vae` to park
+    after a cancelled or failed job), so they must be re-checked whenever
+    that pin moves.
+  - The model is parked **before** a job turns terminal, so Mulakai never
+    releases `genLock` while YuE2 still holds VRAM.
 - `server/src/services/engines/yue2.ts` — new. Descriptor, `toRequest`, and
   the ABC `readMeta`.
 
