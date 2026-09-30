@@ -59,6 +59,9 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
     : null;
 
   const origin = taskToGenType(song.gen_task);
+  // Engine ids and their labels coincide ('yue2' -> 'YUE2'), so the rail needs no engine list.
+  const engineLabel = song.engine ? song.engine.toUpperCase() : '';
+  const generatedWith = engineLabel ? `${GEN_TYPE_LABEL[origin]} · ${engineLabel}` : GEN_TYPE_LABEL[origin];
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
   const [comment, setComment] = useState(song.comment);
@@ -119,7 +122,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
 
         <div className="detail-meta">
           <div className="section-header">METADATA</div>
-          <MetaRow label="GENERATED WITH" value={GEN_TYPE_LABEL[origin]} />
+          <MetaRow label="GENERATED WITH" value={generatedWith} />
           <MetaRow label="BPM" value={song.bpm ? String(song.bpm) : 'AUTO'} />
           <MetaRow label="KEY / SCALE" value={song.key_scale || 'AUTO'} />
           <MetaRow label="TIME SIGNATURE" value={song.time_signature ? timeSignatureLabel(song.time_signature) : 'AUTO'} />
@@ -165,7 +168,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
         </div>
         <div className="hint">
           {origin === 'prompt'
-            ? 'Opens Create’s PROMPT tab with this prompt, lyrics and song details.'
+            ? `Opens Create’s PROMPT tab${engineLabel ? ` on ${engineLabel}` : ''} with this prompt, lyrics and song details.`
             : `Opens Create’s ${GEN_TYPE_LABEL[origin]} tab — the tab this song was made with — with its prompt, lyrics and song details; you pick a new source track there.`}
         </div>
 

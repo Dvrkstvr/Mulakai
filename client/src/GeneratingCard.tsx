@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import type { GenerationJob } from './generationStore';
-import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
+import { fmtElapsed, fmtProgress, isEngineStage, stageDetail, useElapsedMs } from './genProgress';
 
 const STAGE_LABEL: Record<GenerationJob['stage'], string> = {
   loading: 'LOADING MODEL',
@@ -33,7 +33,9 @@ export function GeneratingCard({ job, onRetry }: Props) {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2 }}
     >
-      {!shrunk && !failed && <AIGeneratingBackground progress={job.progress} />}
+      {/* The veil means "how far along the whole job is"; an engine's per-stage fraction would
+          sweep it back to zero at every stage, so engine jobs get the plain shader. */}
+      {!shrunk && !failed && <AIGeneratingBackground progress={isEngineStage(job.progressStage) ? undefined : job.progress} />}
       <div className="generating-body">
         <div className="row-main">
           <span className="song-title">{job.title}</span>
@@ -45,8 +47,15 @@ export function GeneratingCard({ job, onRetry }: Props) {
             {!failed && (
               <span className="meta" title={job.progressText}>
                 {fmtElapsed(elapsedMs)} elapsed
-                {fmtProgress(job.progress) && ` · ${fmtProgress(job.progress)}`}
-                {stageDetail(job.progressStage) && ` · ${stageDetail(job.progressStage)}`}
+                {isEngineStage(job.progressStage) ? (
+                  // An engine's progress restarts at each stage: name the stage, then its share.
+                  <>{` · ${stageDetail(job.progressStage)}`}{fmtProgress(job.progress) && ` ${fmtProgress(job.progress)}`}</>
+                ) : (
+                  <>
+                    {fmtProgress(job.progress) && ` · ${fmtProgress(job.progress)}`}
+                    {stageDetail(job.progressStage) && ` · ${stageDetail(job.progressStage)}`}
+                  </>
+                )}
               </span>
             )}
           </div>

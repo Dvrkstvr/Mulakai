@@ -3,6 +3,7 @@ import { useHeaderSlot } from './HeaderSlot';
 import { ScrollArea } from './ScrollArea';
 import { ModelsSection } from './ModelsSection';
 import { AdaptersSection } from './AdaptersSection';
+import { EnginesSection } from './EnginesSection';
 import { PlaybackExportSection } from './PlaybackExportSection';
 import { VoiceManagementSection } from './VoiceManagementSection';
 import { LibraryMaintenanceSection } from './LibraryMaintenanceSection';
@@ -29,6 +30,7 @@ export function SettingsView({ online, onBack }: Props) {
       <ScrollArea className="settings-content">
         <ModelsSection online={online} />
         <AdaptersSection />
+        <EnginesSection />
         <PlaybackExportSection />
         <VoiceManagementSection />
         <LibraryMaintenanceSection />
