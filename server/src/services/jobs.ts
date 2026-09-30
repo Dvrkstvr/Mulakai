@@ -5,20 +5,16 @@
  * exported below.
  */
 import crypto from 'node:crypto';
-import fs from 'node:fs/promises';
-import path from 'node:path';
 import { config } from '../config.js';
-import { db } from '../db/index.js';
 import {
   releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl,
   type ReleaseTaskParams, type TaskResult,
 } from './acestep.js';
 import { reconcileAdapter } from './adapters.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
-import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT } from './audioOutput.js';
-import { transcodeBuffer } from './transcode.js';
+import { MASTER_AUDIO_FORMAT } from './audioOutput.js';
 import { loadVoiceReference, applyStyleInfluence } from './voiceConditioning.js';
-import { tagOutputFile } from './fileTags.js';
+import { insertGeneratedSong, type ReferenceAudioMeta } from './songPersist.js';
 import { acquireGenLock, releaseGenLock, getGenLock, type GenLockInfo } from './genLock.js';
 
 export interface Job {
@@ -100,14 +96,7 @@ export async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void
   if (adapter) params.adapter = adapter;
 }
 
-/** What reference audio (if any) conditioned a generation, persisted onto the song for the
- * Library detail rail. Influences are null for cover/complete, which don't remap them, and
- * audioInfluence is also null for text2music (see startGeneration). */
-export interface ReferenceAudioMeta {
-  label: string;
-  audioInfluence: number | null;
-  styleInfluence: number | null;
-}
+export type { ReferenceAudioMeta };
 
 export interface VoiceOptions {
   voiceId?: string;
@@ -264,40 +253,24 @@ export async function persistSong(
 ): Promise<string> {
   const audio = await downloadAudio(fileUrl);
   const lyricTimestamps = await fetchLyricTimestampsJson(result, params);
-  const songId = crypto.randomUUID();
-  const layerId = crypto.randomUUID();
-  const versionId = crypto.randomUUID();
-  // ACE-Step hands back a wav32 master; the user's format/rate/depth is applied
-  // here, once, on the way into audioDir (see transcode.ts).
-  const out = parseOutputSettings(params.output);
-  const filename = `${versionId}.${outputExt(out)}`;
-  await transcodeBuffer(audio, path.join(config.audioDir, filename), out);
-  await tagOutputFile(path.join(config.audioDir, filename), {
-    title, bpm: result.metas.bpm ?? null, keyScale: result.metas.keyscale ?? '',
+  return insertGeneratedSong({
+    audio,
+    // Prefer the lyrics the user approved in Create over TaskResult's echoed `lyrics` —
+    // ACE-Step's echo can come back with decoding artifacts, and every other write path
+    // (repaintJobs.ts, versions.ts) already treats params.lyrics as the source of truth.
+    meta: {
+      caption: result.prompt,
+      lyrics: params.lyrics || result.lyrics,
+      bpm: result.metas.bpm ?? null,
+      keyScale: result.metas.keyscale ?? '',
+      timeSignature: result.metas.timesignature ?? '',
+      duration: result.metas.duration ?? null,
+      seed: result.seed_value,
+    },
+    params,
+    lyricTimestamps,
+    title,
+    folderId,
+    referenceMeta,
   });
-
-  // Prefer the lyrics the user approved in Create over TaskResult's echoed `lyrics` —
-  // ACE-Step's echo can come back with decoding artifacts, and every other write path
-  // (repaintJobs.ts, versions.ts) already treats params.lyrics as the source of truth.
-  db.prepare(
-    `INSERT INTO songs (id, title, caption, lyrics, bpm, key_scale, time_signature, duration, folder_id,
-                        reference_audio_label, reference_audio_influence, reference_style_influence, gen_task)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(
-    songId, title, result.prompt, params.lyrics || result.lyrics,
-    result.metas.bpm ?? null, result.metas.keyscale ?? '',
-    result.metas.timesignature ?? '', result.metas.duration ?? null,
-    folderId ?? null,
-    referenceMeta?.label ?? null, referenceMeta?.audioInfluence ?? null, referenceMeta?.styleInfluence ?? null,
-    params.task_type ?? null,
-  );
-  db.prepare(
-    `INSERT INTO layers (id, song_id, name, kind, position) VALUES (?, ?, 'Base', 'base', 0)`,
-  ).run(layerId, songId);
-  db.prepare(
-    `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, lyric_timestamps)
-     VALUES (?, ?, ?, 'first generation', ?, ?, ?)`,
-  ).run(versionId, layerId, filename, JSON.stringify(params), result.seed_value, lyricTimestamps);
-
-  return songId;
 }
