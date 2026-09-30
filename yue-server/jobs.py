@@ -6,6 +6,10 @@ engine client reads both. `progress` is this wrapper's addition: the fraction
 of the current stage, or null when the stage has no known total. Submits
 are idempotent per `Idempotency-Key`, as in yue2-serve. Jobs live only for
 this process's lifetime; artifacts are swept after the retention window.
+
+`kind` is `song` or `transcription` (a SheetSage2 run, transcriber.py). Both
+share the queue, limit, retention and idempotency; only songs carry `seed`,
+`tokens` and `request_id`.
 """
 from __future__ import annotations
 
@@ -47,10 +51,10 @@ class JobStore:
         return self.root / job_id
 
     def submit(self, request: dict, admission_id: str | None = None,
-               idempotency_key: str | None = None) -> tuple[dict, bool]:
+               idempotency_key: str | None = None, kind: str = "song") -> tuple[dict, bool]:
         """Returns (job, created). A repeated Idempotency-Key with the same body
         returns the original job instead of starting a second song."""
-        digest = json.dumps(request, sort_keys=True)
+        digest = json.dumps({"kind": kind, "request": request}, sort_keys=True)
         with self._cond:
             if idempotency_key in self._idempotency:
                 known_digest, job_id = self._idempotency[idempotency_key]
@@ -60,11 +64,13 @@ class JobStore:
             if sum(j["status"] in PENDING for j in self._jobs.values()) >= self.max_pending:
                 raise QueueFull()
             now = self._clock()
-            job = dict(id=uuid.uuid4().hex, idempotency_key=idempotency_key, admission_id=admission_id,
-                       request_id=request.get("id"), seed=request["seed"], status="queued",
-                       stage="queued", progress=None, tokens={"abc": 0, "semantic": 0},
+            job = dict(id=uuid.uuid4().hex, kind=kind, idempotency_key=idempotency_key,
+                       admission_id=admission_id, status="queued", stage="queued", progress=None,
                        created_at=now, updated_at=now, started_at=None, finished_at=None,
                        cancel_requested=False, result=None, error=None)
+            if kind == "song":
+                job.update(request_id=request.get("id"), seed=request["seed"],
+                           tokens={"abc": 0, "semantic": 0})
             self._jobs[job["id"]] = job
             self._requests[job["id"]] = dict(request)
             if idempotency_key is not None:
@@ -73,10 +79,11 @@ class JobStore:
             self._cond.notify_all()
             return copy.deepcopy(job), True
 
-    def get(self, job_id: str) -> dict | None:
+    def get(self, job_id: str, kind: str | None = None) -> dict | None:
+        """None for an unknown id, or one of another kind when `kind` is given."""
         with self._cond:
             job = self._jobs.get(job_id)
-            return copy.deepcopy(job) if job else None
+            return copy.deepcopy(job) if job and kind in (None, job["kind"]) else None
 
     def claim(self, timeout: float | None = None) -> tuple[str, dict] | None:
         """Block until a queued job exists (or stop/timeout), then mark it running."""
@@ -90,10 +97,10 @@ class JobStore:
             job.update(status="running", started_at=self._clock(), updated_at=self._clock())
             return job_id, dict(self._requests[job_id])
 
-    def cancel(self, job_id: str) -> dict | None:
+    def cancel(self, job_id: str, kind: str | None = None) -> dict | None:
         with self._cond:
             job = self._jobs.get(job_id)
-            if job is None:
+            if job is None or kind not in (None, job["kind"]):
                 return None
             if job["status"] not in TERMINAL:
                 job["cancel_requested"] = True

@@ -1,31 +1,10 @@
 import json
 
-from conftest import FakePipeline
+from conftest import NATIVE, FakePipeline
 from instrumental import arrange, is_instrumental, section_tags
 from jobs import JobStore
 from worker import run_job
 
-# A native two-voice YuE2 score: chords ride on Vocal, and the last Ins note
-# overlaps the vocal line, so the move trims it.
-NATIVE = """X:1
-T:
-M:4/4
-L:1/32
-Q:1/4=88
-V: Vocal clef=treble name="Vocal Melody" snm="Vocal"
-V: Ins clef=treble name="Ins Melody" snm="Inst."
-K:G
-% intro
-V: Vocal
-"G"z32|
-V: Ins
-G8B8d8B8|
-% pre-chorus
-V: Vocal
-"Gmaj7"B8d8"Am7"c8A8|"D7"F16"G"G16|
-V: Ins
-z16d16|Z|
-"""
 TAGS = "[Intro]\n\n[Verse]\n\n[Chorus]\n"
 REQUEST = {"style": "Instrumental, lo-fi", "lyrics": TAGS, "seed": 3}
 
@@ -34,13 +13,13 @@ def noop(*_args):
     return False
 
 
-def test_only_tags_only_lyrics_without_a_score_are_instrumental():
+def test_only_tags_only_lyrics_are_instrumental():
     assert is_instrumental(REQUEST)
     assert is_instrumental({**REQUEST, "lyrics": " [Intro] \n\n[Outro]", "cot": "melody"})
     assert not is_instrumental({**REQUEST, "lyrics": "[Verse]\nsalt on the window"})
     assert not is_instrumental({**REQUEST, "lyrics": "  \n"})  # empty sings wordlessly
     assert not is_instrumental({**REQUEST, "cot": "off"})  # no score to convert
-    assert not is_instrumental({**REQUEST, "abc": NATIVE})  # the caller's score stands
+    assert is_instrumental({**REQUEST, "abc": NATIVE})  # an instrumental cover converts it too
 
 
 def test_section_tags_come_from_the_score_comments():

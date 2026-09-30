@@ -15,7 +15,9 @@ import re
 import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent / "upstream"))
+UPSTREAM = str(Path(__file__).parent / "upstream")
+if UPSTREAM not in sys.path:
+    sys.path.insert(0, UPSTREAM)
 from abc_tools import parse_abc  # noqa: E402  (vendored; needs the path above)
 from instrumentalize import convert_score  # noqa: E402
 
@@ -26,8 +28,9 @@ TAG_LINE = re.compile(r"^\[[^\]\n]+\]$")
 
 def is_instrumental(request: dict) -> bool:
     """Upstream's rule: lyrics that are only section tags. Empty lyrics don't
-    count: the planner sings those wordlessly, which a caller may want."""
-    if request.get("abc") or request.get("cot") == "off":
+    count: the planner sings those wordlessly, which a caller may want. A
+    supplied score (an instrumental cover) is converted too."""
+    if request.get("cot") == "off":
         return False
     lines = [line.strip() for line in request["lyrics"].splitlines() if line.strip()]
     return bool(lines) and all(TAG_LINE.match(line) for line in lines)

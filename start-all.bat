@@ -68,6 +68,9 @@ REM yue-server\README.md. Override with: set YUE_DISTRO=... / set YUE_VENV=... (
 REM path). A YUE_API_URL that is already set is used as-is and nothing is started here.
 if "%YUE_DISTRO%"=="" set "YUE_DISTRO=Ubuntu-24.04"
 if "%YUE_VENV%"=="" set "YUE_VENV=~/yue2/.venv"
+REM SheetSage2 (YuE2 covers' transcriber) is picked up when installed in the same distro
+REM as yue-server\README.md describes. Override with: set YUE_SHEETSAGE_HOME=... (a Linux path).
+if "%YUE_SHEETSAGE_HOME%"=="" set "YUE_SHEETSAGE_HOME=~/sheetsage2"
 set "YUE_READY="
 if not defined YUE_API_URL (
     wsl.exe -d %YUE_DISTRO% --exec bash -lc "test -x %YUE_VENV%/bin/python" >nul 2>&1 && set "YUE_READY=1"
@@ -118,7 +121,7 @@ if not defined HEARTMULA_API_URL echo   Skipped - no heartlib venv and weights u
 echo [5/6] Starting YuE2 engine...
 REM Launched through wsl.exe: WSL does not start on its own, and this process keeps the
 REM distro running. 127.0.0.1 inside WSL is reachable from Windows.
-if defined YUE_READY start "YuE2 Server" cmd /k wsl.exe -d %YUE_DISTRO% --cd "%~dp0yue-server" --exec bash -lc "YUE_DATA_DIR=~/yue-data %YUE_VENV%/bin/python main.py"
+if defined YUE_READY start "YuE2 Server" cmd /k wsl.exe -d %YUE_DISTRO% --cd "%~dp0yue-server" --exec bash -lc "if [ -x %YUE_SHEETSAGE_HOME%/.venv/bin/python ]; then export YUE_SHEETSAGE_PYTHON=%YUE_SHEETSAGE_HOME%/.venv/bin/python YUE_SHEETSAGE_DIR=%YUE_SHEETSAGE_HOME%/SheetSage2; fi; YUE_DATA_DIR=~/yue-data %YUE_VENV%/bin/python main.py"
 if not defined YUE_READY if defined YUE_API_URL echo   Not started - using YUE_API_URL=%YUE_API_URL%
 if not defined YUE_API_URL echo   Skipped - no YuE2 venv at %YUE_VENV% in WSL distro %YUE_DISTRO%. See yue-server\README.md.
 
