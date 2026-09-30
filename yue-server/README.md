@@ -206,10 +206,26 @@ leftover files.
 ### Instrumentals
 
 YuE2 has no instrumental flag. Empty `lyrics` are accepted, but the score
-planner still writes a vocal melody for them, so expect wordless singing. For
-an instrumental, send **only section tags** as lyrics (`[Intro]`, `[Verse]`,
-`[Chorus]`, `[Outro]`, one per line) and say "instrumental, no vocals" in
-`style`; upstream's own instrumental workflow does the same.
+planner still writes a vocal melody for them, so expect wordless singing.
+
+For an instrumental, send **only section tags** as lyrics (`[Intro]`,
+`[Verse]`, `[Chorus]`, `[Outro]`, one per line), no `abc`, and a `cot` other
+than `off`. Start `style` with "Instrumental" and end it with "no vocals, no
+singing, no choir, no spoken words". The server then runs upstream's
+instrumental workflow (`skills/yue2-music/instrumental` in the YuE repo):
+
+1. YuE2 plans a score as usual.
+2. Every `Vocal` note moves to the `Ins` voice (`upstream/instrumentalize.py`,
+   vendored unmodified). Chords, meter, key, tempo and sections stay.
+3. The song is generated from that score, with its own section tags as
+   lyrics: `cot` is `full` if the score has chords, else `melody`.
+
+`score.abc` is the converted score and `planned.abc` the one YuE2 planned.
+`result.json` gains `instrumental` (`vocal_notes_moved`, `ins_notes_trimmed`)
+and its `request` is the final one, with the converted score. If the plan
+can't be converted (truncated, outside the native dialect, or over 4096 ABC
+tokens), the job uses the unconverted plan and `instrumental.reason` says
+why. A `yue2-serve` backend has no such step: it plans once.
 
 ## Tests
 
