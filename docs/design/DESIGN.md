@@ -345,6 +345,18 @@ requiring its own justification against a screen-count rule.
            words onto the score's sections. A hint names those sections.
            Lyrics that are only tags, or empty, make an instrumental cover,
            and the consequence line under GENERATE COVER says so.
+         - **ANALYZE AUDIO** (added 2026-10-01) sits under PROMPT, above
+           LYRICS, the same button and place as on ACE-STEP. It runs with
+           COVER's ACE-Step model and fills only the fields a score leaves
+           open: an empty (or carried-over) PROMPT gets ACE-Step's
+           description **rewritten as YuE2 style tags** (voice, genre, mood,
+           instruments; no tempo, key or language), wordless LYRICS get the
+           words it heard (fitted to the score's sections), and an AUTO VOCAL
+           LANGUAGE gets its language. BPM / KEY / DURATION are never
+           written. Its consequence line says the lyrics are *described,
+           not transcribed*; after a run, a line says what was filled and a
+           collapsed SHOW DESCRIPTION block (same idiom as SHOW SCORE) keeps
+           the full prose, so a dropped phrase can be put back by hand.
      - *Arrange*: same shape as Audio but for `complete` — a **SOURCE**
        sub-choice (UPLOAD SINGLE TRACK / SPLIT A SONG, the latter reusing
        `ScratchSplitPicker`'s stem picker), a description field, LYRICS +
@@ -714,7 +726,11 @@ MODE` toggles while active; Create's Quick Start reveal (the library create
 bar's typed idea expanded into a full draft — the PROMPT/LYRICS block
 shimmers solid while the LM works, then wipes away left-to-right in one
 sweep as the result types in underneath, `ThinkingWipe.tsx` /
-`useThinkingQuery.ts`).
+`useThinkingQuery.ts`); and COVER/ARRANGE's ANALYZE AUDIO button while
+ACE-Step's LM describes the source (`AnalyzeAudioButton.tsx`, on every
+engine — it has worn the shader since it was added, and is listed here
+now so the list is complete). TRANSCRIBE stays plain: SheetSage2 reads
+notes, it doesn't describe or generate.
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
 keeps the strict one-hue-per-job rule — if a future feature wants to reuse
