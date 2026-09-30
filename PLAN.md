@@ -3979,3 +3979,112 @@ own terms (PR 1 is testable through curl; PR 2 through the API).
 - **Copying the melody of a copyrighted song.** Point 12 leaves this to
   the user, the same as ACE-Step's COVER. Should COVER on YUE2 say so
   inline, given it is a much more literal copy of the melody?
+
+## UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)
+
+SPLIT's DEMUCS option runs `htdemucs` through `demucs-server/`. Its vocal
+stem is the weakest of the four, and it is also the one people claim most
+(a clean vocal layer to repaint around, and the input for the lyric-timestamp
+to-do under "Open Questions For Later Phases"). The Roformer vocal models
+from the Ultimate Vocal Remover (UVR) community separate vocals much more
+cleanly. BS-Roformer-Viperx-1297's published vocal SDR is about 12.9 dB,
+against about 9 dB for htdemucs on MUSDB. The test sets differ, but the gap
+is well established. [uvr-headless-runner](https://github.com/chyinan/uvr-headless-runner)
+(MIT) runs UVR's own separation code headless, with UVR's model registry
+and auto-download.
+
+This is a backend swap behind the existing `/split` contract, not a new
+feature. `stemSplit.ts`, the routes and the SPLIT UI do not change.
+
+### Decisions
+
+- **A sibling service, `uvr-server/`, not a mode inside `demucs-server/`.**
+  The runner installs top-level modules named `demucs`, `separate`, `cli`,
+  `UVR`, `progress`, `models`, … Its vendored `demucs` collides with the pip
+  `demucs` that `demucs-server` imports. It also pins Python `>=3.9,<3.11`
+  and old numpy/librosa. So it gets its own Python 3.10 venv, like
+  HeartMuLa. None of the service's own modules may reuse one of the
+  runner's module names.
+- **Same contract, same port, same env var.** `uvr-server` answers
+  `GET /health` and `POST /split` → `{"stems": {vocals, drums, bass, other}}`
+  of float32 WAV URLs on port 8002. Mulakai reaches it through the existing
+  `DEMUCS_API_URL`. Only one of the two services runs at a time.
+  `start-all.bat` prefers `uvr-server` when its venv exists and falls back
+  to `demucs-server`.
+- **Two passes, because Roformer vocal models have only two stems.**
+  1. The vocal model (`UVR_VOCAL_MODEL`, default `Roformer Model:
+     BS-Roformer-Viperx-1297`) splits the mix into Vocals and Instrumental.
+     Its Vocals is the `vocals` stem. The Instrumental is exactly the mix
+     minus the vocals (-153 dB residual when measured).
+  2. The runner's own Demucs (`UVR_DEMUCS_MODEL`, default `htdemucs`)
+     splits that Instrumental into drums/bass/other. Because it's the
+     runner's copy, the venv needs no pip `demucs`.
+- **Pass 2's "Vocals" is folded into `other`, not dropped.** The plan was
+  to discard it as bleed, but on a real mix it measured -12 dB against the
+  instrumental. That is far too loud for leftover vocals. It is mostly
+  vocal-like instruments (leads, pads). Dropping it left the four stems
+  -14 dB off the mix; folding it in brings them to -29 dB, which is about
+  htdemucs' own reconstruction error.
+- **Float32 WAV out** (`wav_type_set='FLOAT'`), the same lossless-master
+  rule as every other producer. `transcode.ts` applies the user's format.
+  UVR works at 44.1 kHz like htdemucs, so the resample-up note in "Output
+  Format" applies unchanged. The Node path was verified end to end: a scratch
+  split through `/api/split/scratch` came back as 48 kHz FLAC.
+- **One split at a time, GPU memory freed after each.** The endpoint is a
+  plain `def` behind a lock, so it runs in FastAPI's threadpool and `/health`
+  stays responsive during a split. After each split, including a failed one,
+  the service frees CUDA's cache so it doesn't hold VRAM that ACE-Step or an
+  engine needs.
+- **The runner comes from a pinned git checkout, not PyPI.** The 1.1.0 wheel
+  leaves out the runner's `models/` data files, and without them no MDX model
+  loads by name. `uvr-server/runner/` (gitignored) is cloned at commit
+  `0088e1e` and installed editable, so it finds its data files and downloads
+  models next to them (about 640 MB for Roformer and 80 MB for htdemucs).
+- **Two runner bugs are worked around in `uvr_models.py`.** Both were found
+  in real runs, and the runner's own CLI fails the same way.
+  - *Roformer by registry name fails* with KeyError `'hyper_parameters'`. UVR's
+    GUI merges UVR's online hash → config table (`model_data_new.json`),
+    which marks Roformer checkpoints `is_roformer` with their YAML. The runner
+    defines that URL but never fetches it. The service looks the
+    checkpoint's hash up there and passes the entry as `model_json_path`.
+    The entry is cached in `uvr-server/model-configs/`.
+  - *Demucs v4's first download* resolves to the `.th` weights instead of the
+    `{name}.yaml` bag Demucs loads by. After the download the service looks
+    the name up again, and that finds the yaml.
+- **Measured:** a 3½-minute song takes about 50 s warm on an RTX 4080 for
+  both passes. That includes loading both models, which happens on every
+  call, the same as `demucs-server`.
+
+### File-level plan (as built)
+
+- `uvr-server/chain.py` — the two-pass split, with the runners injected so
+  tests can pass fakes. It maps `{base}_({Stem}).wav` to `StemKind`s and
+  folds pass 2's Vocals into `other`.
+- `uvr-server/uvr_models.py` — the two runner workarounds above.
+- `uvr-server/api.py` — `create_app`: `/health`, `/split`, the `/audio`
+  static mount, the lock, freeing GPU memory, and pruning intermediate files.
+- `uvr-server/main.py` — wires the real runners and env vars into `api.py`.
+  Run it with `uvicorn main:app --port 8002`.
+- `uvr-server/tests/` — pytest with fake runners, no GPU: pass order and
+  arguments, stem mapping, the fold, missing outputs, the workarounds, and
+  the `/split` response, pruning and 500 path.
+- `uvr-server/requirements*.txt`, `pytest.ini`, `README.md` — setup (uv,
+  Python 3.10, CUDA torch, then the editable runner), env vars, run and test
+  commands. It pins `setuptools<81` because librosa 0.9.2 imports
+  `pkg_resources`.
+- `start-all.bat` — start `uvr-server` on 8002 when `uvr-server\venv`
+  exists, otherwise `demucs-server` as before.
+- `.gitignore` — `uvr-server/{data,venv,runner,model-configs}/`.
+
+### Open questions
+
+- **The SPLIT button still says DEMUCS.** With `uvr-server` behind it, that
+  label is inaccurate. `/health` already returns `backend: "uvr"`. Passing
+  it through `GET /api/split/health` to the button touches the server route
+  and both split pickers, so it's a separate small PR if wanted.
+- **6-stem output (`htdemucs_6s`: guitar, piano)** would need new
+  `StemKind`s and layer kinds. That is a scope question, not part of this
+  change.
+- **Upstreaming the two runner fixes** to chyinan/uvr-headless-runner would
+  let `uvr_models.py` go away, along with the switch from PyPI to a git
+  checkout.
