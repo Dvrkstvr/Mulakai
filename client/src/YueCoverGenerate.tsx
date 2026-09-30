@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import type { CreateDraft } from './createDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
@@ -15,7 +15,7 @@ import { GenerateButton } from './GenerateButton';
 
 /** The second half of COVER on an engine: what to sing the score as, and GENERATE COVER. BPM /
  * KEY / TIME SIGNATURE / DURATION aren't offered — the score fixes them (PLAN.md point 5). */
-export function YueCoverGenerate({ onBack, blocked }: { onBack: () => void; blocked: boolean }) {
+export function YueCoverGenerate({ onBack, blocked, analyze }: { onBack: () => void; blocked: boolean; analyze: ReactNode }) {
   const draft = useCreateDraftStore();
   const { title, prompt, lyrics, vocalLanguage, folderId, patch } = draft;
   const score = draft.audio.yueScore;
@@ -64,6 +64,7 @@ export function YueCoverGenerate({ onBack, blocked }: { onBack: () => void; bloc
       <AutoTextarea placeholder="Describe the cover — style, mood, instruments, voice. The melody comes from the score."
         value={prompt} onChange={(v) => patch({ prompt: v })} />
       <CarriedPromptNote />
+      {analyze}
       <div className="field-label-row">
         <span className="section-label">LYRICS</span>
         {score && sections.length > 0 && (

@@ -99,14 +99,15 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
     }
   };
 
-  // An engine cover transcribes the source and sings the score; none of ACE-Step's model,
-  // variance or audio analysis applies (PLAN.md "Client cover decisions").
+  // An engine cover transcribes the source and sings the score; ACE-Step's model and variance
+  // don't apply, and its audio analysis only describes the source (PLAN.md "Client cover
+  // decisions", "ANALYZE AUDIO on COVER · YUE2").
   if (draft.audio.engine !== 'acestep') {
     return (
       <>
         <CoverEngineChoice />
         <CoverSourcePicker songs={songs} satisfied={sourceReady || !!draft.audio.yueScore || !!draft.audio.reuseScore} />
-        <YueCoverPanel songs={songs} onBack={onBack} />
+        <YueCoverPanel songs={songs} onBack={onBack} noCoverModel={coverModels?.length === 0} />
       </>
     );
   }

@@ -59,6 +59,25 @@ describe('transcribeStore', () => {
     expect(useCreateDraftStore.getState().lyrics).toBe('my words');
   });
 
+  it("fits lyrics ANALYZE AUDIO wrote to the score's sections, unless they were edited since", async () => {
+    const described = '[Verse 1]\nNeon in the rain';
+    useCreateDraftStore.getState().patch({ lyrics: described });
+    useTranscribeStore.setState({ analyzedLyrics: described });
+    jobStatus.mockResolvedValue({ status: 'done', transcription: T });
+    let run = useTranscribeStore.getState().start('yue2', src, 'x', 'seed');
+    await tick();
+    await run;
+    expect(useCreateDraftStore.getState().lyrics).toBe('[Intro]\n\n[Verse]\nNeon in the rain');
+    expect(useTranscribeStore.getState().analyzedLyrics).toBeNull();
+
+    useCreateDraftStore.getState().patch({ lyrics: 'edited words' });
+    useTranscribeStore.setState({ analyzedLyrics: described });
+    run = useTranscribeStore.getState().start('yue2', src, 'x', 'seed');
+    await tick();
+    await run;
+    expect(useCreateDraftStore.getState().lyrics).toBe('edited words');
+  });
+
   it('drops the result when the source was changed meanwhile', async () => {
     jobStatus.mockResolvedValue({ status: 'done', transcription: T });
     const run = useTranscribeStore.getState().start('yue2', src, 'x', '');
