@@ -109,29 +109,36 @@ cd client && npm install && npm run dev     # Vite, http://localhost:5173
 cd server && npm install && npm run dev     # Express, http://localhost:3001
 ```
 
-On Windows, `install.bat` installs both and `start-all.bat` launches ACE-Step,
-the server, the optional Demucs service and the client in one go (set
-`ACESTEP_PATH` to point at your ACE-Step checkout).
+On Windows, `install.bat` installs both, and `start-all.bat` launches ACE-Step,
+the server, the optional Demucs and HeartMuLa services, and the client in one
+go. Set `ACESTEP_PATH` to point at your ACE-Step checkout, and
+`HEARTMULA_PATH` at your heartlib checkout if it isn't `S:\AI Gen\heartlib`.
+Each optional service is started only when its install is found.
 
-Stem splitting via Demucs is optional — see
+Stem splitting via Demucs is optional. See
 [`demucs-server/README.md`](demucs-server/README.md).
 
-### Optional: YuE2 as a first-take engine
+A song's first take can optionally come from another local model, an extra
+*engine*, instead of ACE-Step. Every later edit still runs on ACE-Step. See
+`PLAN.md`, "Multiple Song-Creation Engines". HeartMuLa is set up in
+[`heartmula-server/README.md`](heartmula-server/README.md). YuE2 runs in WSL2
+behind [`yue-server/`](yue-server/README.md), which covers its setup and
+weights. When any extra engine is configured, two things apply:
 
-A new song's first take can come from [YuE2](https://github.com/multimodal-art-projection/YuE)
-instead of ACE-Step; every edit afterwards still runs on ACE-Step. YuE2 runs
-in WSL2 behind [`yue-server/`](yue-server/README.md) (setup, weights and
-license are there). Point `YUE_API_URL` at it and it shows up as an engine.
+- **ACE-Step must run with `ACESTEP_OFFLOAD_TO_CPU=true`**, so that it hands
+  its VRAM back when idle. No two models fit on a 16 GB card together.
+  - `start-all.bat` sets this, plus `ACESTEP_OFFLOAD_DIT_TO_CPU` and
+    `ACESTEP_LM_OFFLOAD_TO_CPU`, whenever an engine is configured.
+  - If you start ACE-Step some other way, set all three yourself.
+- **Recommended:** NVIDIA Control Panel → Manage 3D settings → CUDA – Sysmem
+  Fallback Policy → **Prefer No Sysmem Fallback**.
+  - With the default policy, Windows silently spills an over-budget model
+    into system RAM. It then runs ~25x slower, with no error.
+  - With this setting, the same mistake becomes a failed job.
+  - Mulakai documents this setting but never changes it.
 
-- **Run ACE-Step with `ACESTEP_OFFLOAD_TO_CPU=true`** whenever an engine is
-  configured. Only one model fits in 16 GB of VRAM at a time; with offload on,
-  an idle ACE-Step holds ~0.5 GB.
-- **Recommended**: NVIDIA Control Panel → Manage 3D settings → *CUDA – Sysmem
-  Fallback Policy* → **Prefer No Sysmem Fallback**. Otherwise an out-of-memory
-  run silently spills into system RAM and crawls instead of failing. Mulakai
-  never changes this setting.
-- The YuE2 weights are **CC BY-NC 4.0**: individuals may use them and monetize
-  the outputs; companies need a license from the authors.
+The YuE2 weights are **CC BY-NC 4.0**: individuals may use them and monetize
+the outputs; companies need a license from the authors.
 
 ### Configuration
 
@@ -145,6 +152,8 @@ Server environment variables, all optional:
 | `ACESTEP_API_KEY` | — | Sent if ACE-Step requires one |
 | `ACESTEP_TIMEOUT_MS` | `60000` | Per-request ceiling on ACE-Step calls (downloads get 5×) |
 | `DEMUCS_API_URL` | — | Empty disables the Demucs split backend |
+| `HEARTMULA_API_URL` | — | heartmula-server, e.g. `http://127.0.0.1:8003`. Empty disables the HeartMuLa engine |
+| `HEARTMULA_API_KEY` | — | Bearer key, if heartmula-server was started with one |
 | `YUE_API_URL` | — | YuE2 engine (`yue-server/`, e.g. `http://127.0.0.1:8004`; use `127.0.0.1`, not `localhost`). Empty disables it |
 | `YUE_API_KEY` | — | Bearer key, if the YuE2 server requires one |
 | `DATA_DIR` | `server/data` | SQLite DB + generated audio |

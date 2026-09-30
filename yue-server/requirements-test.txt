@@ -1,0 +1,4 @@
+# The tests use a fake pipeline, so they need neither torch, yue2 nor a GPU.
+fastapi==0.142.1
+httpx==0.28.1
+pytest==9.1.1

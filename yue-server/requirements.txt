@@ -1,0 +1,7 @@
+# Install inside WSL2, into a Python 3.12 venv (see README.md).
+# yue2-infer brings torch 2.10.0 and the rest of YuE2's pinned stack. It is
+# installed from upstream at the commit this wrapper was written against
+# (0.1.6); it is never vendored into this repo.
+yue2-infer @ git+https://github.com/multimodal-art-projection/YuE.git@18a07bb628f070c2eede44c3143834818e856a73
+fastapi==0.142.1
+uvicorn==0.54.0
