@@ -134,7 +134,8 @@ Errors are FastAPI's `{"detail": ...}` with these statuses:
 
 - `401`: bad or missing key
 - `404`: unknown job
-- `409`: audio requested for a job without audio
+- `409`: audio requested for a job without audio, or an `Idempotency-Key`
+  reused with a different body
 - `422`: invalid body
 - `429`: queue full
 - `503`: model still loading
@@ -143,7 +144,7 @@ Errors are FastAPI's `{"detail": ...}` with these statuses:
 | --- | --- |
 | `GET /health/ready` | `200 {"status":"ready"}`, or `503 {"status":"loading"}` / `503 {"status":"failed","error":…}` |
 | `GET /health/live` | `200 {"status":"alive"}` |
-| `POST /v1/jobs` | `202` job snapshot, `Location: /v1/jobs/{id}` |
+| `POST /v1/jobs` | `202` job snapshot, `Location: /v1/jobs/{id}`. An optional `Idempotency-Key` header (Mulakai sends its own job id) is logged. Repeating it with the same body returns the original job with `200`. |
 | `GET /v1/jobs/{id}` | job snapshot |
 | `POST /v1/jobs/{id}/cancel` | job snapshot. A queued job is cancelled at once. A running job stops within one 80 ms LM frame, or at the next stage boundary. |
 | `GET /v1/jobs/{id}/audio` | `audio/flac`, 48 kHz stereo, 24-bit, only when `succeeded` or `truncated` |

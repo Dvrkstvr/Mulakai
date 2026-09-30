@@ -16,15 +16,17 @@ import os
 import secrets
 from contextlib import asynccontextmanager
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 import config
 from engine_api import Engine
-from jobs import JobStore, QueueFull
+from jobs import IdempotencyConflict, JobStore, QueueFull
 from request import GenerateRequest
 from worker import Worker
+
+log = logging.getLogger("heartmula.api")
 
 
 def create_app(engine: Engine | None = None, settings: config.Settings | None = None) -> FastAPI:
@@ -72,16 +74,23 @@ def create_app(engine: Engine | None = None, settings: config.Settings | None = 
         return {"status": "ready"}
 
     @app.post("/v1/jobs", status_code=202, dependencies=[Depends(authorize)])
-    def submit(request: GenerateRequest):
+    def submit(request: GenerateRequest,
+               idempotency_key: str | None = Header(default=None, min_length=1, max_length=128)):
+        # Mulakai sends its own job id as the Idempotency-Key, so a retried submit
+        # replays the original job and both sides' logs can be matched.
         if not worker.ready:
             raise HTTPException(503, "Inference worker is not ready", headers={"Retry-After": "5"})
         for job_id in store.prune(settings.retention_hours * 3600):
             worker.remove_artifacts(job_id)
         try:
-            job = store.submit(request.model_dump())
+            job, created = store.submit(request.model_dump(), idempotency_key)
         except QueueFull:
             raise HTTPException(429, "Queue is full", headers={"Retry-After": "5"}) from None
-        return JSONResponse(job, status_code=202, headers={"Location": f"/v1/jobs/{job['id']}"})
+        except IdempotencyConflict:
+            raise HTTPException(409, "Idempotency-Key was already used with different input") from None
+        log.info("job %s %s (Idempotency-Key %s)", job["id"], "queued" if created else "replayed", idempotency_key)
+        return JSONResponse(job, status_code=202 if created else 200,
+                            headers={"Location": f"/v1/jobs/{job['id']}"})
 
     @app.get("/v1/jobs/{job_id}", dependencies=[Depends(authorize)])
     def status(job_id: str):

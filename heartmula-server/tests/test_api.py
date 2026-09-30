@@ -62,6 +62,18 @@ def test_hitting_the_cap_reports_truncated(tmp_path, lyrics):
         assert client.get(f"/v1/jobs/{done['id']}/audio").status_code == 200
 
 
+def test_idempotency_key_replays_or_conflicts(tmp_path, lyrics):
+    with make_client(tmp_path) as client:
+        wait_ready(client)
+        key = {"Idempotency-Key": "mulakai-job-42"}
+        first = client.post("/v1/jobs", json={"lyrics": lyrics}, headers=key)
+        again = client.post("/v1/jobs", json={"lyrics": lyrics}, headers=key)
+        assert (first.status_code, again.status_code) == (202, 200)
+        assert again.json()["id"] == first.json()["id"]
+        other = client.post("/v1/jobs", json={"lyrics": "different"}, headers=key)
+        assert other.status_code == 409
+
+
 def test_cancel_while_running(tmp_path, lyrics):
     engine = FakeEngine(gated=True)
     with make_client(tmp_path, engine) as client:

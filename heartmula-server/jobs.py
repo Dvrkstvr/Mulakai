@@ -16,16 +16,28 @@ class QueueFull(Exception):
     pass
 
 
+class IdempotencyConflict(Exception):
+    pass
+
+
 class JobStore:
     def __init__(self, max_pending: int):
         self.max_pending = max_pending
         self._lock = threading.Lock()
         self._jobs: dict[str, dict] = {}
         self._requests: dict[str, dict] = {}
+        self._idem: dict[str, tuple[str, dict]] = {}  # Idempotency-Key -> (job id, request)
         self._queue: "queue.Queue[str]" = queue.Queue()
 
-    def submit(self, request: dict) -> dict:
+    def submit(self, request: dict, idem_key: str | None = None) -> tuple[dict, bool]:
+        """Returns (snapshot, created). A repeated key with the same request is a
+        replay of the original job, as in yue2-serve; with a different one, a conflict."""
         with self._lock:
+            if idem_key is not None and idem_key in self._idem:
+                job_id, original = self._idem[idem_key]
+                if original != request:
+                    raise IdempotencyConflict()
+                return dict(self._jobs[job_id]), False
             pending = sum(j["status"] in ("queued", "running") for j in self._jobs.values())
             if pending >= self.max_pending:
                 raise QueueFull()
@@ -33,8 +45,10 @@ class JobStore:
             job = dict(id=job_id, status="queued", stage="queued", created_at=now, updated_at=now,
                        started_at=None, finished_at=None, cancel_requested=False, result=None, error=None)
             self._jobs[job_id], self._requests[job_id] = job, request
+            if idem_key is not None:
+                self._idem[idem_key] = (job_id, request)
             self._queue.put(job_id)
-            return dict(job)
+            return dict(job), True
 
     def get(self, job_id: str) -> dict | None:
         with self._lock:
@@ -101,4 +115,6 @@ class JobStore:
                    if j["status"] in TERMINAL and j["finished_at"] < cutoff]
             for job_id in old:
                 del self._jobs[job_id]
+            gone = set(old)
+            self._idem = {k: v for k, v in self._idem.items() if v[0] not in gone}
             return old
