@@ -10,7 +10,9 @@
  */
 import type { EngineId } from './engines/types.js';
 
-export type GenKind = 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster';
+/** `transcribe` is SheetSage2 reading a cover source's melody (transcribeJobs.ts): small,
+ * but it still must not run next to an ACE-Step job on a 16 GB card. */
+export type GenKind = 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe';
 
 /** The three ACE-Step tasks that create a whole new song — all held under the single
  * `generate` kind, so this is what tells them apart. Mirrors `songs.gen_task`. */
@@ -25,8 +27,9 @@ export interface GenLockInfo {
   /** Only set for `generate` — lets a client rehydrating mid-generation (or retrying a
    * failed one after a refresh) reopen Create on the tab that started it. */
   task?: GenTask;
-  /** Only set for a `generate` running on an extra engine (absent = ACE-Step), so a
-   * rehydrated GeneratingCard and a retry reopen with the right engine. */
+  /** Set for a `generate` running on an extra engine (absent = ACE-Step), and for a
+   * `transcribe`. For a `generate` it lets a rehydrated GeneratingCard and a retry reopen
+   * with the right engine. */
   engine?: EngineId;
   startedAt: number;
 }
