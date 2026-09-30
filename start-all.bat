@@ -43,8 +43,14 @@ if exist "%ACESTEP_PATH%\python_embeded\python.exe" (
 
 REM Demucs (stem separation) is optional — detect it before starting the
 REM Mulakai server so DEMUCS_API_URL is in the environment it inherits.
+REM uvr-server speaks the same contract on the same port (Roformer vocals, see
+REM uvr-server\README.md) and is preferred when installed; only one of the two runs.
 set "DEMUCS_READY="
-if exist "%~dp0demucs-server\venv\Scripts\activate.bat" (
+set "UVR_READY="
+if exist "%~dp0uvr-server\venv\Scripts\python.exe" (
+    set "UVR_READY=1"
+    set "DEMUCS_API_URL=http://127.0.0.1:8002"
+) else if exist "%~dp0demucs-server\venv\Scripts\activate.bat" (
     set "DEMUCS_READY=1"
     set "DEMUCS_API_URL=http://127.0.0.1:8002"
 )
@@ -99,11 +105,13 @@ start "Mulakai Server" cmd /k "cd /d "%~dp0server" && npm run dev"
 
 timeout /t 3 /nobreak >nul
 
-echo [3/6] Starting Demucs stem-separation service...
-if defined DEMUCS_READY (
+echo [3/6] Starting stem-separation service...
+if defined UVR_READY (
+    start "UVR Server" cmd /k "cd /d "%~dp0uvr-server" && venv\Scripts\python.exe -m uvicorn main:app --port 8002"
+) else if defined DEMUCS_READY (
     start "Demucs Server" cmd /k "cd /d "%~dp0demucs-server" && venv\Scripts\activate && uvicorn main:app --port 8002"
 ) else (
-    echo   Skipped - demucs-server\venv not found. See demucs-server\README.md to set it up.
+    echo   Skipped - neither uvr-server\venv nor demucs-server\venv found. See their README.md files.
 )
 
 timeout /t 2 /nobreak >nul
@@ -135,6 +143,7 @@ echo.
 echo   ACE-Step API: http://localhost:8001
 echo   Server:       http://localhost:3001
 echo   Client:       http://localhost:5173
+if defined UVR_READY echo   UVR split:    http://localhost:8002
 if defined DEMUCS_READY echo   Demucs:       http://localhost:8002
 if defined HEARTMULA_READY echo   HeartMuLa:    http://localhost:8003 (loads its weights into RAM, ~20 s)
 if defined YUE_READY echo   YuE2:         http://127.0.0.1:8004 (verifies its weights, ~6 s)
