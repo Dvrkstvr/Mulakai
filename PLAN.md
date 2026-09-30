@@ -4631,3 +4631,168 @@ feature. `stemSplit.ts`, the routes and the SPLIT UI do not change.
 - **Upstreaming the two runner fixes** to chyinan/uvr-headless-runner would
   let `uvr_models.py` go away, along with the switch from PyPI to a git
   checkout.
+
+## Cover Lyrics From the Recording (planned 2026-10-01)
+
+On COVER · YUE2 an **uploaded** source fills LYRICS only with the score's
+section outline (`[Intro]`, `[Verse]`, …). SheetSage2 reads the melody,
+never the words, and a library source's stored lyrics are the only words
+Mulakai can seed ("Client cover decisions"). The user asked for the words
+sung in an upload to be read back into LYRICS. That is lyric
+transcription, which the covers plan left out of scope ("Lyric
+transcription … is out of scope", point 4). This section plans it.
+
+### What is available (checked 2026-10-01)
+
+- **HeartTranscriptor-oss** (`HeartMuLa/HeartTranscriptor-oss`, revision
+  `918f8891`): a Whisper fine-tuned for *lyrics*, not speech.
+  - Apache-2.0. That is looser than every music model in the stack, which
+    are all CC BY-NC.
+  - It has Whisper-medium's shape: 24 + 24 layers, `d_model` 1024, 80 mel
+    bins. The weights are 3.06 GB in fp32, about 1.5 GB in fp16.
+  - Languages: zh, en, ja, ko, es.
+  - It was trained on **separated vocal tracks**. Upstream recommends
+    separating the vocals first.
+  - heartlib already ships it as `HeartTranscriptorPipeline`: a
+    Transformers ASR pipeline, in 30 s chunks, used in fp16 with beam 2.
+    It is in the venv `heartmula-server` already uses
+    (`S:\AI Gen\heartlib`). The weights are **not** downloaded yet
+    (`ckpt/HeartTranscriptor-oss` is missing).
+- **Generic Whisper** (faster-whisper large-v3, or `stable-ts` around it):
+  word-level timestamps, which is what the 2026-07-08 lyric-timestamp to-do
+  (under "Open Questions For Later Phases") wants. It is trained on speech,
+  so sung words are its weak point. It is not installed anywhere.
+- **ACE-Step's `/v1/analyze_audio`** (the mulakai fork): its LM
+  "describes" a track, lyrics included. The ACE-Step COVER tab already
+  uses it (ANALYZE AUDIO). How its lyrics compare with an ASR is
+  unmeasured; an LM describing audio may paraphrase rather than transcribe.
+- **Vocal isolation is already there.** `uvr-server` (Roformer vocals,
+  merged in #53) sits behind `DEMUCS_API_URL`, with `demucs-server` as the
+  fallback. `POST /split` returns vocals / drums / bass / other.
+
+### Decisions (proposed; the spike confirms or changes them)
+
+1. **A spike picks the model before any code.** Three candidates, all run
+   on the same songs:
+   - HeartTranscriptor on the separated vocals;
+   - faster-whisper large-v3 on the separated vocals;
+   - ACE-Step's `analyze_audio` on the mix.
+   The measure is **word error rate against known lyrics**. Library songs
+   made by ACE-Step carry the lyrics they were sung from, so the reference
+   is free (tags stripped; case and punctuation normalised). Each model is
+   also run on the unseparated mix, to price the separation step. Time and
+   peak VRAM are recorded.
+2. **Words are placed by time, not order.** An ASR returns segments with
+   start times.
+   - The score's section comments sit at known bars, and its tempo and
+     meter turn bars into seconds.
+   - Each segment goes under the section its midpoint falls in. That fixes
+     the one thing order-based `fitLyricsToSections` can't: a verse the
+     ASR missed would otherwise shift every later block up one section.
+   - Order-based fitting stays as the fallback when there are no
+     timestamps (e.g. `analyze_audio`).
+   - It needs the time of the score's bar 1 in the source (see open
+     questions).
+3. **An explicit action, not automatic: READ LYRICS.** It sits next to
+   TRANSCRIBE on COVER · YUE2, and is live once a source is picked.
+   - It costs a vocal split (about 50 s warm for a 3½-minute song on
+     `uvr-server`) plus the ASR. That is too much to add silently to every
+     transcription, and a library source already has its words.
+   - The result replaces LYRICS only when LYRICS is empty or still just the
+     section outline. Otherwise it asks first, with the consequence stated
+     inline, like FEELING LUCKY's confirm.
+   - Consequence line: "reads the words sung in the source into LYRICS ·
+     separates the vocals first, about a minute · nothing is saved to your
+     library".
+4. **Mulakai orchestrates; the services stay single-purpose.**
+   - `POST /api/lyrics/transcribe` takes a multipart source and runs one
+     job under the genLock (a new `lyrics` kind), polled through
+     `GET /api/generate/:jobId`:
+     1. It asks the split service for vocals.
+     2. It hands them to the ASR service.
+     3. The finished job carries `{language, segments: [{text, start,
+        end}]}`.
+   - It holds the lock across both steps, so nothing else loads a model
+     in between.
+5. **Where the ASR runs depends on the winner.**
+   - *HeartTranscriptor*: `heartmula-server` gains a lyrics job
+     (`POST /v1/lyrics`), because heartlib's venv already has the pipeline.
+     It loads per job and is freed afterwards, like its generation model.
+     Its availability is probed like `coverReady`.
+   - *Generic Whisper*: a small `lyrics-server/` of its own. That also
+     serves the lyric-timestamp to-do later (word timings for the Editor's
+     region select).
+6. **VOCAL LANGUAGE is passed as the ASR language when set**, and
+   auto-detect is used otherwise. HeartTranscriptor covers en/zh/ja/ko/es;
+   YuE2 sings en/zh.
+7. **Scope.** v1 only fills LYRICS on COVER · YUE2. It stores no words or
+   timings, and it doesn't touch the Editor. A split service that could
+   return only the vocals would halve the separation time. That would be
+   an optional `stems=vocals` on `uvr-server`'s `/split`, and pass 1 alone
+   is enough there. It is left for after the spike shows the time matters.
+
+### File-level plan
+
+**PR 0 — spike (`docs/cover-lyrics-asr-spike`, PLAN.md only).** In a
+scratch venv or the heartlib venv, with the numbers written back here:
+
+- Download HeartTranscriptor-oss into `S:\AI Gen\heartlib\ckpt`. Install
+  faster-whisper in a scratch venv.
+- Take three library songs with stored lyrics: *Ellies City 2*, *Purple
+  Shinings*, and a third with denser words. Split each through
+  `uvr-server`.
+- Run the three candidates (point 1), on the vocals and on the mix. Record
+  WER, run time and peak VRAM.
+- Check whether segment timestamps land lyric lines in the right score
+  section (point 2), using the spike scores from "Cover spike results".
+- Answer the open questions below that the data can answer.
+
+**PR 1 — the ASR service**, `heartmula-server` or `lyrics-server/`
+depending on point 5:
+- the lyrics job route and its model loading and freeing;
+- availability health;
+- tests with a fake model;
+- README setup (the weights download).
+
+**PR 2 — Mulakai server** (`feat/cover-lyrics-server`):
+- `services/lyricsJobs.ts`: split vocals → ASR → segments, under the
+  `lyrics` genLock kind;
+- the client for the ASR route;
+- `POST /api/lyrics/transcribe`;
+- an `EngineInfo`-style `lyricsReady` probe;
+- tests alongside each.
+
+**PR 3 — client** (`feat/cover-lyrics-ui`):
+- READ LYRICS on the YuE2 cover panel, with its progress and consequence
+  line;
+- `coverLyrics.ts` gains `placeSegmentsInSections(segments, abc,
+  offsetSeconds)`, pure and tested;
+- the replace-or-confirm rule (point 3);
+- DESIGN.md in its own commit;
+- a browser check: upload → TRANSCRIBE → READ LYRICS → the words land
+  under the right sections → GENERATE COVER.
+
+### Rollout
+
+PR 0 decides the model, and whether this is worth building at all. If no
+candidate gets sung words close enough to save typing (a WER the spike
+records against a quick "would I fix this or retype it" read), the section
+gets a "not pursued" note and the upload hint stays as it is. PRs 1–3 then
+land in order.
+
+### Open questions
+
+- **Where bar 1 sits in the source.** Placing words by time needs the
+  offset of the score's first downbeat. SheetSage2 writes `downbeat.lab`;
+  `yue-server` could return its first entry with the transcription. Or
+  does the score's start already match the audio closely enough? The
+  spike measures it.
+- **Automatic for uploads after all?** If the spike's split + ASR comes
+  in well under a minute, running READ LYRICS with TRANSCRIBE for an
+  upload (only when LYRICS is empty) might be the better default.
+- **Beyond YuE2 covers.** The same action would serve ACE-Step's COVER
+  (whose ANALYZE AUDIO is LM-described lyrics) and imports without
+  lyrics. Worth widening once v1 has shown its accuracy?
+- **Word timestamps for the Editor.** If generic Whisper wins, the same
+  service is most of the 2026-07-08 lyric-timestamp to-do. Plan that
+  separately, or fold it in?
