@@ -2322,11 +2322,11 @@ most, the whole-song first take, without adding a second editing stack.
    `server/src/services/engines/` exporting:
    ```ts
    interface SongEngine {
-     id: EngineId;                          // 'heartmula' | 'yue2'
-     label: string;                         // 'HEARTMULA'
+     id: EngineId;                          // 'yue2' | 'heartmula'
+     label: string;                         // 'YUE2'
      url: string; apiKey: string;           // from config; '' = disabled
      capabilities: EngineCapabilities;      // static — see 6
-     toRequest(fields: CreateFields, jobId: string): Record<string, unknown>; // pure mapper
+     toRequest(fields: CreateFields): Record<string, unknown>; // pure mapper; the job id rides as Idempotency-Key (3)
      readMeta(result: { score?: string }): SongMeta; // bpm/key/timesig, if the engine returns any
    }
    ```
@@ -2408,8 +2408,9 @@ most, the whole-song first take, without adding a second editing stack.
      reason `gen_task` was lifted out of params_json: the Library detail rail
      (GENERATED WITH → `PROMPT · YUE2`) and REUSE PROMPT read song
      rows, not versions. See Open questions for the case against.
-   - `GenLockInfo` gets an optional `engine`, so a rehydrated GeneratingCard
-     and a retry reopen with the right engine.
+   - `GenLockInfo` gets an optional `engine` (absent means ACE-Step, like
+     `songs.engine`), so a rehydrated GeneratingCard and a retry reopen with
+     the right engine.
    - *Rejected*: new `GenTask` values per engine. That would mix up "which
      tab" with "which model", and every `taskToGenType` consumer would need
      to learn each engine.
@@ -2928,10 +2929,13 @@ Shared (engine framework):
   extracted from `persistSong`.
 - `server/src/services/jobs.ts` — `persistSong` delegates to
   `insertGeneratedSong`, so the file gets smaller.
-- `server/src/services/genLock.ts` — add `engine?: EngineId | 'acestep'` to
-  `GenLockInfo`.
-- `server/src/services/repaintJobs.ts` — `assertReplayable` refuses any
-  non-ACE-Step `engine`.
+- `server/src/services/genLock.ts` — add `engine?: EngineId` to
+  `GenLockInfo` (absent = ACE-Step).
+- `server/src/services/replayGuard.ts` — new. `assertReplayable` moves out of
+  `repaintJobs.ts`, which was already over the 200 LOC cap, and refuses any
+  version whose `params_json` records an `engine`.
+- `server/src/services/fileTags.ts` — `readAudioDuration`, the taglib read
+  behind the duration fallback in design point 7.
 - `server/src/routes/engines.ts` — new. `GET /api/engines` and
   `POST /api/engines/:id/generate`.
 - `server/src/index.ts` — mount the router.
@@ -2979,7 +2983,9 @@ Shared (engine framework):
 - `docs/design/DESIGN.md` — the ENGINE choice, the descriptor-driven `n/a`
   gating, the Engines card, and the consequence lines, committed in the same
   PR as the UI.
-- `README.md` — env table rows for the four new variables, the "run
+- `README.md` (in `feat/yue-engine`, not the framework PR: until an engine
+  module exists, setting these variables does nothing) — env table rows for
+  the four new variables, the "run
   ACE-Step with `ACESTEP_OFFLOAD_TO_CPU=true` when any engine is configured"
   requirement, the Sysmem Fallback Policy recommendation, and pointers to
   each wrapper's README.
@@ -3010,7 +3016,8 @@ YuE2:
 
 Tests (Vitest):
 - `engineClient.test.ts` — mocked fetch.
-  - The bearer header is sent only when a key is set.
+  - The bearer header is sent only when a key is set, and our job id goes
+    out as the `Idempotency-Key`.
   - Status mapping: queued / running → running; succeeded / truncated →
     done (see Open questions); failed / cancelled → failed.
   - Timeouts, and health is false when the server is unreachable or
