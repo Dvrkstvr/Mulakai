@@ -262,6 +262,18 @@ describe('ensureModelLoaded', () => {
     expect(reconcileAdapter).toHaveBeenCalledTimes(1);
   });
 
+  it.each(['lego', 'complete'] as const)('skips the LM init for thinking alone on %s, which ACE-Step never runs', async (task_type) => {
+    await jobsModule.ensureModelLoaded({ task_type, model: 'acestep-v15-base', thinking: true });
+
+    expect(initModel).toHaveBeenCalledWith(expect.objectContaining({ initLlm: false }));
+  });
+
+  it.each(['lego', 'complete'] as const)('still loads the LM for AI ENHANCE on %s, which is formatted API-side', async (task_type) => {
+    await jobsModule.ensureModelLoaded({ task_type, model: 'acestep-v15-base', use_format: true });
+
+    expect(initModel).toHaveBeenCalledWith(expect.objectContaining({ initLlm: true }));
+  });
+
   it('fails the job when the adapter cannot be applied, rather than silently using the base model', async () => {
     reconcileAdapter.mockRejectedValueOnce(new Error('ACE-Step /v1/lora/load -> Failed to load LoRA'));
 

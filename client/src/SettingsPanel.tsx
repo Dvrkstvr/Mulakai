@@ -43,15 +43,18 @@ export function VarianceSlider({ value, onChange }: { value: number; onChange: (
   );
 }
 
-export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType, addLayerActive, songLyrics }: {
+export function SettingsPanel({ mode, hideLmControls, hideThinking, referenceAudioTaskType, addLayerActive, songLyrics }: {
   mode: 'generate' | 'repaint';
   hideLmControls?: boolean;
+  /** Hides only THINKING MODE — for tasks where ACE-Step skips the in-generation LM but still
+   * runs AI ENHANCE's API-side formatting (ARRANGE's `complete`). */
+  hideThinking?: boolean;
   /** Only meaningful for mode 'generate' — renders the shared ReferenceAudioPicker so its choice
    * persists across the PROMPT/AUDIO/ARRANGE tab switch. Omit to hide it (e.g. Editor screens
    * that reuse mode 'generate' contexts without a reference-audio concept). */
   referenceAudioTaskType?: 'text2music' | 'cover' | 'complete';
   /** mode 'repaint' only — Editor's Add Layer row is expanded, so this panel is the shared
-   * Add Layer settings surface: it shows the lyrics editor + LM controls and gates advanced
+   * Add Layer settings surface: it shows the lyrics editor and gates advanced
    * knobs on the Base (lego) model instead of repaint's model. */
   addLayerActive?: boolean;
   /** The song's current lyrics, offered as a one-click prefill for the Add Layer lyrics editor. */
@@ -103,7 +106,9 @@ export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType, ad
                 onChange={(v) => setGen({ lmModel: v })}
                 options={[{ ...AUTO, description: lmModelDescription('') }, ...lmModels.map(m => ({ label: m, value: m, description: lmModelDescription(m) }))]}
               />
-              <Toggle label="THINKING MODE" checked={gen.thinking} onChange={(v) => setGen({ thinking: v })} ai />
+              {!hideThinking && (
+                <Toggle label="THINKING MODE" checked={gen.thinking} onChange={(v) => setGen({ thinking: v })} ai />
+              )}
               <Toggle label="AI ENHANCE" checked={gen.useFormat} onChange={(v) => setGen({ useFormat: v })} ai />
             </>
           )}
@@ -156,7 +161,7 @@ export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType, ad
             onChange={(v) => setRepaint({ guidanceScale: v })} />
           <Seed random={repaint.randomSeed} seed={repaint.seed}
             onRandom={(v) => setRepaint({ randomSeed: v })} onSeed={(v) => setRepaint({ seed: v })} />
-          <AdvancedGenSettings adv={repaint} setAdv={setRepaint} gatingModel={gatingModel} hideLmControls={!addLayerActive} />
+          <AdvancedGenSettings adv={repaint} setAdv={setRepaint} gatingModel={gatingModel} hideLmControls />
         </>
       )}
       </ScrollArea>

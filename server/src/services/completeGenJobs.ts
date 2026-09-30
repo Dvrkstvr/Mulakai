@@ -2,9 +2,9 @@
  * "Complete": ACE-Step's `complete` task builds a whole accompaniment around a
  * single bare track (e.g. a cappella vocals), unlike `cover` (regenerate a full
  * mix, structure preserved) or `lego`/Add Layer (add one part to an existing
- * multi-layer mix). Base-model only, and — unlike cover/repaint/extract — the
- * 5Hz LM is NOT skipped for this task (docs/ace-step-1.5/API.md#4.2), so
- * thinking/AI-enhance are meaningful here. Persists as a brand-new song via the
+ * multi-layer mix). Base-model only. ACE-Step skips the in-generation LM stage
+ * for this task (upstream #1287), so thinking is ignored; AI ENHANCE still
+ * applies, as use_format is formatted API-side first. Persists as a brand-new song via the
  * same persistSong() path coverGenJobs.ts uses, sharing its `generate` genLock
  * kind for identical library/hydration behavior.
  */

@@ -22,9 +22,9 @@ import { CarriedPromptNote } from './CarriedPromptNote';
 /** ARRANGE tab: ACE-Step's `complete` task — build a whole accompaniment around a single
  * bare source track (as opposed to AUDIO's `cover`, which regenerates a full existing mix
  * keeping its structure, or the Editor's Add Layer `lego`, which adds one part to an
- * already-multi-layer song). Unlike AUDIO, the 5Hz LM is NOT skipped for `complete`
- * (docs/ace-step-1.5/API.md#4.2), so THINKING MODE / AI ENHANCE in the sidebar are live here —
- * see CreateView.tsx's `hideLmControls` check, which only targets the AUDIO tab.
+ * already-multi-layer song). ACE-Step skips the in-generation LM for `complete` (upstream
+ * #1287), so CreateView.tsx hides THINKING MODE here; AI ENHANCE stays, since use_format is
+ * formatted API-side before generation, unlike AUDIO where all LM controls are hidden.
  * Song intent is shared via createDraftStore; only source/model live in this tab's slice. */
 export function CreateArrangeTab({ onBack }: { onBack: () => void }) {
   const gen = useSettings((s) => s.gen);

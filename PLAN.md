@@ -3644,3 +3644,47 @@ apology attached.
 - `client/src/referenceInfluence.test.ts` — new: per-task cases.
 - `client/src/ReferenceAudioPicker.tsx` — renders from the helpers; the
   AUDIO INFLUENCE slider is removed.
+
+## Upstream Sync: `complete`/`lego` Skip the LM (planned + implemented 2026-09-30)
+
+Upstream `main` moved again (15 commits, 2026-08-16 → 08-29). The one that
+changes Mulakai's behaviour is `14c0211` (#1287): `complete` and `lego` join
+`cover`/`repaint`/`extract` in `DIRECT_CONDITIONING_TASKS`
+(`acestep/inference.py:36`), so the in-generation LM stage — THINKING's audio
+codes and the `use_cot_*` rewrites — is now skipped for them. Before, THINKING
+on a `complete` made the LM write codes from text alone, which then pre-empted
+the source audio entirely ("Audio codes provided, ignoring src_audio"), so the
+change is a fix, but it leaves three of our controls and one comment stale.
+
+### Decisions
+
+- **`use_format` (AI ENHANCE) is unaffected.** It runs in the API layer
+  (`llm_generation_inputs.py:149`, `format_sample()`) before `generate_music`,
+  so it still rewrites caption/lyrics for `complete`. ARRANGE keeps AI ENHANCE
+  and the LM MODEL picker; only THINKING MODE is hidden there.
+- **Add Layer hides its ADVANCED LM sliders.** It never sent `thinking` or
+  `use_format`, so the LM only ever ran for `lego` via the API's
+  default-true CoT flags — which are now skipped. Every LM slider there is
+  inert; the Editor's advanced block now hides them for both repaint and Add
+  Layer.
+- **`ensureModelLoaded` stops counting `thinking` for `lego`/`complete`.** It
+  still honours `use_format` and an explicit LM pick (format needs a loaded LM),
+  so this only saves an LM init for THINKING-on/AUTO-LM runs. `thinking` is left
+  in the recorded params — it is what was requested, and dropping it would make
+  old/new takes' params diverge for no user-visible gain.
+
+### File-level plan
+
+- `server/src/services/jobs.ts` — `thinkingIgnored` alongside `lmIgnored`.
+- `server/src/services/jobs.test.ts` — LM-init cases for `lego`/`complete`.
+- `server/src/services/completeGenJobs.ts` — header comment.
+- `client/src/SettingsPanel.tsx` — `hideThinking` prop; Editor mode always
+  passes `hideLmControls` to `AdvancedGenSettings`.
+- `client/src/CreateView.tsx` — pass `hideThinking` for ARRANGE.
+- `client/src/CreateArrangeTab.tsx` — header comment.
+
+### Open questions
+
+- Upstream calls this an interim workaround; the root fix is feeding
+  `src_audio` to the LM before it writes codes. If that lands, THINKING on
+  ARRANGE becomes meaningful again — revisit then.
