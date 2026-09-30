@@ -2888,7 +2888,8 @@ results" below.
   score-level editing, which this plan excludes along with MIDI editing. The
   returned ABC is read once, for metadata. `abc` is never sent.
 - **Covers via SheetSage2 transcription are deferred.** They are an open
-  question and are not built.
+  question and are not built. *Planned 2026-09-30*: see "YuE2 Melody
+  Covers via SheetSage2".
 - **ABC → song metadata** (`readMeta`). It reads the first `Q:`, `K:` and
   `M:` header lines of `score.abc`, stopping at the first body line, into
   `songs.bpm` / `key_scale` / `time_signature`. The same values go into the
@@ -3540,6 +3541,8 @@ YuE2:
   - **Answered (2026-09-30): yes, from PR 1.** See "Framework decisions".
 - **Covers via SheetSage2**: this needs its own dated section if it is ever
   wanted.
+  - **Answered (2026-09-30):** it has one, "YuE2 Melody Covers via
+    SheetSage2", starting with a spike.
 - **`truncated` results.** A plan longer than the semantic `max_tokens` gets
   cut off. The v1 leaning is to keep the song, label its version
   `first generation (truncated)`, and show a `.warn-note` in the rail.
@@ -3688,3 +3691,291 @@ change is a fix, but it leaves three of our controls and one comment stale.
 - Upstream calls this an interim workaround; the root fix is feeding
   `src_audio` to the LM before it writes codes. If that lands, THINKING on
   ARRANGE becomes meaningful again — revisit then.
+
+## YuE2 Melody Covers via SheetSage2 (planned 2026-09-30)
+
+Picks up the deferred item under "Engine: YuE2" ("Covers via SheetSage2
+transcription are deferred"). The user asked whether YuE2 can make a cover
+or use a reference voice. What upstream offers, checked 2026-09-30:
+
+- **YuE2 has no audio prompt.** `yue2 generate` takes `--style`, `--lyrics`,
+  `--seed`, `--cfg-scale`, `--cot` and `--abc-file`, and nothing else that
+  conditions the song. `yue2-infer` 0.1.6 has no reference-audio or voice
+  path.
+- **YuE2's cover path is a score, not audio.** Upstream's `docs/covers.md`:
+  transcribe the source with [SheetSage2](https://huggingface.co/m-a-p/SheetSage2)
+  (`infer.py source.wav --output cover-score --melody-only`), review the
+  ABC it writes, then generate with that ABC, `cot="melody"`, new lyrics
+  and a target style.
+  - `yue2.protocol.SongRequest` has an `abc` field. An external ABC skips
+    the planning stage, and needs `cot` `melody` or `full`
+    (`protocol.py:99`).
+  - With `melody`, the score has no chord symbols, so the accompaniment is
+    free to follow the new style.
+- **A cover keeps the melody only.** The source singer's voice, the
+  arrangement and the sound are not carried over. This is a different
+  thing from ACE-Step's COVER, which regenerates the audio itself.
+- **YuE v1's in-context learning is not this plan.** The `YuE-v1` branch
+  has `--use_audio_prompt` / dual-track prompts: a ~30 s clip steers the
+  style of a new song. It needs the 7B `-icl` stage-1 checkpoint plus the
+  1B stage 2, upstream quotes ~360 s per 30 s of audio on an RTX 4090, and
+  it carries style rather than a cloned voice. That would be a third
+  engine with its own venv and ~10+ GB of weights, for a song that takes
+  30+ minutes. Not planned; raise it separately if wanted.
+- **MuLaCover stays out of scope** (see "Engine: HeartMuLa").
+
+### What SheetSage2 is
+
+- 57.2M parameters, weights **CC BY-NC 4.0**, the same terms class as the
+  YuE2 weights. The model card says access needs a Hugging Face login.
+- Python 3.10/3.11, torch 2.8.0 / torchaudio 2.8.0, FFmpeg 6.1 with shared
+  libraries. That conflicts with YuE2's venv (Python 3.12, torch 2.10), so
+  it gets its own. Ubuntu 24.04's packaged FFmpeg is 6.1, so it goes in
+  WSL next to YuE2.
+- Input: any FFmpeg-readable audio, mono or stereo, whole songs (windowed).
+- Output in `--output`: `score.abc` (melody, and chords unless
+  `--melody-only`), `transcription.mid`, `melody_vocal.mid`,
+  `melody_instrumental.mid`, `chords.mid`, `events.json`, `*.lab`.
+  `--render-audio` adds a piano preview.
+- The model card does not say whether the ABC carries section markers or
+  lyric slots. The spike answers that.
+
+### Decisions
+
+1. **Only COVER gets it, as an engine choice.** Create › COVER gains the
+   same sky ENGINE row as PROMPT, offering ACE-STEP and YUE2. It extends
+   "Engine picker UI decisions", where COVER always ran on ACE-Step.
+   - The row appears only when YuE2 is `ready` *and* its transcriber is
+     available (point 8). HeartMuLa never appears here: it has no score
+     input.
+   - The engine pick is per tab: `draft.audio.engine`, separate from the
+     PROMPT tab's `engine`, so choosing YUE2 on COVER never changes what
+     PROMPT generates on.
+   - ARRANGE stays ACE-Step-only.
+2. **Two steps, transcription first.** On YUE2 the tab reads SOURCE →
+   TRANSCRIBE → review → GENERATE.
+   - TRANSCRIBE runs SheetSage2 on the source (the upload as-is, or the
+     library song's bounced mix, the same `resolveSrcAudio` as today).
+   - Upstream says transcription errors carry into the cover, so there is
+     a review point before the ~95 s generation, not one chained click.
+   - One transcription serves any number of covers: changing the style,
+     lyrics or seed does not re-transcribe.
+3. **Review is listen-and-read, not edit.** ABC score editing stays out
+   of scope ("Engine: YuE2").
+   - The review panel shows the header facts (tempo, key, meter), the bar
+     count and the length, and plays SheetSage2's `--render-audio` piano
+     preview through `AudioPreview`.
+   - The ABC text is in a collapsed, read-only block.
+   - **USE .ABC FILE** replaces the transcription with a file you fixed in
+     an outside editor. That is the one way to correct a score, and it
+     keeps an editor out of Mulakai. The file goes through the same
+     server-side checks (point 6).
+   - Changing the source clears the score.
+4. **Lyrics are the user's job, seeded where possible.**
+   - A library source seeds LYRICS from that song (same words, new style),
+     and says so in a hint.
+   - An upload leaves LYRICS as typed. The hint says the words should
+     match the melody's phrasing and syllable counts (upstream's rule).
+   - Empty LYRICS makes an instrumental cover through the existing
+     tags-only skeleton and "instrumental, no vocals" style, *if* the
+     spike shows YuE2 still follows the score's melody that way. If not,
+     GENERATE requires lyrics.
+   - Lyric transcription (words from the source) is out of scope.
+5. **What the request carries.** `buildYue2CoverRequest(fields, abc)`
+   extends `buildYue2Request`: the same `style`, `lyrics`, `seed` and
+   `cfg_scale` mapping, plus `abc`, and `cot` forced to `melody`.
+   - The COT control is hidden on COVER: `off` is invalid with a score,
+     and `full` keeps chord symbols the `--melody-only` score doesn't have.
+   - BPM / KEY / TIME SIGNATURE are N/A with the reason "follows the
+     source score". The score fixes them, and style-text hints would argue
+     with it.
+   - DURATION stays N/A: length follows the score.
+6. **yue-server accepts `abc`, with limits.** `GenerateRequest` gains
+   `abc: str | None` (max 64 KB, must be non-blank, `cot` must not be
+   `off`, so a bad pair is a 422 here, not a failed job).
+   - That walks back the docstring's "minus `abc`", and only for this
+     flow. Mulakai sends `abc` only from COVER, and only text that came
+     out of a transcription or a user's `.abc` file.
+   - The spike records how long a score YuE2 accepts. If a long song's ABC
+     overruns the semantic cap, the result already comes back as
+     `truncated` and is kept (see "YuE2 engine decisions").
+7. **SheetSage2 runs inside yue-server, as a second job kind.**
+   - It is a subprocess of yue-server, run from its own venv:
+     `YUE_SHEETSAGE_PYTHON` (e.g. `~/sheetsage2/.venv/bin/python`) and
+     `YUE_SHEETSAGE_DIR` (the downloaded `m-a-p/SheetSage2`, holding
+     `infer.py`). Both unset = no transcription.
+   - New routes, same auth: `POST /v1/transcriptions` (multipart audio →
+     202 + record), `GET /v1/transcriptions/{id}`,
+     `GET /v1/transcriptions/{id}/score` (ABC),
+     `GET /v1/transcriptions/{id}/preview` (the rendered piano audio),
+     `POST /v1/transcriptions/{id}/cancel`.
+   - Transcriptions go through the existing single worker and job store,
+     so a transcription and a YuE2 song never share the GPU. Same
+     retention, same `Idempotency-Key` handling.
+   - *Why not its own microservice* (like `demucs-server/`): it only ever
+     feeds YuE2, it needs WSL for the same FFmpeg reasons, and a separate
+     process would need its own launcher step and port for a 57M model.
+   - *Cost*: a `yue2-serve` (Turbo) deployment behind `YUE_API_URL` has no
+     transcription routes, so it can't do covers. The point-8 probe makes
+     that visible instead of a failure.
+8. **Availability is probed, not declared.** `EngineCapabilities` stays
+   static (it describes the model). `listEngines` also calls
+   `GET /v1/transcriptions/health` for YuE2, which returns 200 when the
+   SheetSage2 venv and weights are found, else 503. The result lands as a
+   new `EngineInfo.coverReady: boolean`. Settings › Engines shows
+   COVERS: READY / NOT SET UP under the YuE2 row.
+9. **Mulakai side: a transcription is a short job, under the genLock.**
+   - `POST /api/engines/yue2/transcribe` takes the source (multipart, as
+     COVER does today) and returns a job id. It polls through the existing
+     `GET /api/generate/:jobId`.
+   - It holds the genLock under a new `transcribe` kind. SheetSage2 is
+     small, but the lock is what stops it running next to an ACE-Step job
+     on a 16 GB card. The spike's VRAM figure can relax this later.
+   - When it finishes, the job carries the ABC and a preview URL. Nothing
+     is written to the library.
+   - The ABC lives in the COVER draft (`draft.audio.yueScore`: ABC text,
+     source label, header facts), so it survives a reload. The preview
+     audio does not; after a reload the panel says to re-transcribe for
+     a preview.
+10. **The cover is a new song, like every Create task.**
+    `POST /api/engines/yue2/cover` takes the Create fields plus `abc` and
+    runs `engineGenJobs` unchanged except for the request builder.
+    - The song is stored with `engine = 'yue2'`, `gen_task = 'cover'`, the
+      ABC as its `score` sidecar (the same one text2music takes store),
+      and `params.source` = the source label.
+    - The Library rail reads GENERATED WITH `COVER · YUE2`. REUSE PROMPT
+      on it reopens COVER on YUE2 with the stored ABC, so another cover of
+      the same melody needs no new transcription.
+    - Every edit afterwards is ACE-Step's, as for any YuE2 song.
+11. **Consequence line** (DESIGN.md: stated before commit):
+    - TRANSCRIBE: "reads the source's melody into a score · nothing is
+      saved to your library".
+    - GENERATE: "YuE2 melody cover · keeps the source's melody, not its
+      voice or sound · length follows the score · ~95 s per 3-minute
+      song on an RTX 4080 · result will be saved as a new song · later
+      edits use ACE-Step".
+12. **Licence note.** The Settings › Engines YuE2 note gains:
+    "SheetSage2 weights: CC BY-NC 4.0." Mulakai says nothing about the
+    rights to the source song. A melody cover of someone else's song is a
+    derivative work, which is the user's call, as with ACE-Step's COVER.
+
+### File-level plan
+
+**PR 0 — spike (`docs/yue2-cover-spike`, PLAN.md only).** Manual, in WSL,
+with the numbers written back here:
+
+- Install SheetSage2 per `docs/covers.md` in `~/sheetsage2`, including
+  the Hugging Face login.
+- Transcribe three sources: an ACE-Step song from the library, a
+  commercial-style song with vocals, and an instrumental. Record time,
+  peak VRAM, and whether the ABC has section markers or lyric slots.
+- Generate from each with `yue2 generate --abc-file … --cot melody`:
+  with lyrics seeded from the source, with lyrics that don't fit the
+  melody, and with the tags-only instrumental skeleton. Record time,
+  truncation, and whether the melody survives in each case.
+- Answer: does YuE2 need the lyrics' section tags to line up with the
+  score's sections, and what happens when they don't?
+- **ACE-Step side check (added 2026-09-30).** ACE-Step 1.5 takes no score
+  or MIDI (`docs/ace-step-1.5/API.md` has no symbolic input), so the ABC
+  itself is useless to it. SheetSage2's `--render-audio` piano rendering
+  of the melody is ordinary audio, though, and could be the *source* of
+  an ACE-Step job: a melody-only cover that keeps none of the original's
+  sound or voice.
+  - Run the piano rendering of each source through ACE-Step `cover` (at a
+    few VARIANCE settings) and `complete` (ARRANGE), with a style prompt.
+  - Record whether the result is a full song that keeps the melody, or
+    just a restyled piano track.
+  - If it works: a follow-up section lets COVER and ARRANGE on ACE-Step
+    use a transcription's piano rendering as their source. It reuses the
+    same TRANSCRIBE step, and needs no ACE-Step change. If it doesn't,
+    note the result here and drop it. Either way, this check does not
+    gate the YuE2 plan.
+
+**PR 1 — yue-server (`feat/yue-transcribe`).**
+
+- `yue-server/request_model.py` — `abc` field + validator (point 6).
+- `yue-server/settings.py` — `YUE_SHEETSAGE_PYTHON`, `YUE_SHEETSAGE_DIR`.
+- `yue-server/transcriber.py` — new: builds and runs the `infer.py`
+  subprocess (`--melody-only --render-audio`), cancel by killing it, and
+  collects `score.abc` + the preview.
+- `yue-server/jobs.py`, `worker.py` — a `kind` on job records, so one
+  worker runs both. Watch the size of both; `worker.py` is at 130 LOC.
+- `yue-server/main.py` — the transcription routes and health (points 7–8).
+  It is at 134 LOC, so the new routes go in `transcribe_routes.py`.
+- `yue-server/tests/` — a fake transcriber, as the pipeline has; `abc`
+  validation cases; transcription lifecycle, cancel, retention.
+- `yue-server/README.md` — SheetSage2 setup section.
+- `start-all.bat` — pass `YUE_SHEETSAGE_PYTHON` / `YUE_SHEETSAGE_DIR`
+  into the `wsl.exe` command when `~/sheetsage2` exists.
+
+**PR 2 — Mulakai server (`feat/yue-cover-server`).**
+
+- `server/src/services/engines/yue2.ts` — `buildYue2CoverRequest`
+  (point 5).
+- `server/src/services/engineClient.ts` — `transcribe`,
+  `transcriptionStatus`, `fetchTranscriptionScore`,
+  `fetchTranscriptionPreview`, `transcriptionHealth`. It is at 130 LOC, so
+  these go in a new `engineTranscribeClient.ts`.
+- `server/src/services/transcribeJobs.ts` — new: submit → poll → keep
+  ABC + preview on the job; genLock `transcribe`.
+- `server/src/services/genLock.ts` — `transcribe` kind.
+- `server/src/services/engineGenJobs.ts` — accept a prebuilt request and a
+  `genTask`, so the cover path reuses it; persist `gen_task = 'cover'`.
+- `server/src/services/engines/registry.ts` — `coverReady` probe.
+- `server/src/routes/engines.ts` — `POST /:id/transcribe` (multipart),
+  `GET /:id/transcribe/:jobId/preview`, `POST /:id/cover`; 400 for any
+  engine but `yue2` or when `coverReady` is false.
+- Tests alongside each: `yue2.test.ts`, `transcribeJobs.test.ts`,
+  `engines.test.ts`, `registry.test.ts`.
+
+**PR 3 — client (`feat/yue-cover-ui`).**
+
+- `client/src/CreateAudioTab.tsx` is at 197 LOC, at the cap. First, in a
+  `refactor:` commit: move source picking (`resolveSrcAudio` and the
+  upload/library choice) into `CoverSourcePicker.tsx`.
+- `client/src/CoverEngineRow.tsx` — new: the ENGINE row for COVER
+  (reuses the PROMPT row's component if it takes a value/onChange pair).
+- `client/src/YueCoverPanel.tsx` — new: TRANSCRIBE button, transcription
+  progress, the review panel (facts, piano preview, collapsed ABC,
+  USE .ABC FILE) and the consequence lines.
+- `client/src/abcFacts.ts` — new, pure: tempo / key / meter / bars /
+  length from an ABC header, for the review panel. It mirrors the server's
+  `abcMeta.ts` and is unit-tested separately.
+- `client/src/createDraft.ts`, `createDraftStore.ts` — `audio.engine`,
+  `audio.yueScore`; `load` handles REUSE PROMPT on a `cover · yue2` song.
+- `client/src/generationStore.ts` — a `startYueCover` action through the
+  shared start helper; transcription job state.
+- `client/src/api/*` — the three routes and `EngineInfo.coverReady`.
+- `client/src/EnginesSection.tsx` — the COVERS row and the licence line.
+- `client/src/engineCaps.ts` — COVER-on-YUE2 gating (point 5).
+- Tests: `abcFacts.test.ts`, `createDraft*.test.ts`,
+  `generationStore.test.ts`, `engineCaps.test.ts`.
+- Browser check of the golden path: library song → TRANSCRIBE → preview
+  → GENERATE → the new song opens with `COVER · YUE2`. Also one Playwright
+  step, once e2e exists (docs/AUDIT.md).
+
+### Rollout
+
+PR 0 decides whether this goes ahead at all. If the spike shows the melody
+doesn't survive, or the lyrics have to be hand-aligned so tightly that
+nobody will do it, this section gets a "not pursued" note with the numbers
+and the work stops there. PRs 1–3 then land in order, each usable on its
+own terms (PR 1 is testable through curl; PR 2 through the API).
+
+### Open questions
+
+- **Section alignment.** If YuE2 needs lyric section tags that match the
+  score's sections, can Mulakai write the skeleton (`[Verse]` / `[Chorus]`
+  with the right line counts) from the ABC? That depends on what SheetSage2
+  puts in the score; the spike decides.
+- **Transcribing a stem.** A library song with a vocals layer could
+  transcribe that layer alone rather than the full mix, which may be
+  cleaner. It's cheap to add (the rail already has the layers). Is it
+  worth it in v1, or after the spike shows how SheetSage2 copes with a
+  full mix?
+- **Hugging Face login.** If SheetSage2 is gated, setup needs a token in
+  WSL. Document only, or should `yue-server`'s health say "weights not
+  found" specifically enough to point at the login step?
+- **Copying the melody of a copyrighted song.** Point 12 leaves this to
+  the user, the same as ACE-Step's COVER. Should COVER on YUE2 say so
+  inline, given it is a much more literal copy of the melody?
