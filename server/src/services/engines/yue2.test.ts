@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildYue2Request, yue2Engine, INSTRUMENTAL_LYRICS, INSTRUMENTAL_STYLE, YUE2_CAPABILITIES } from './yue2.js';
+import { buildYue2Request, yue2Engine, INSTRUMENTAL_LYRICS, YUE2_CAPABILITIES } from './yue2.js';
 
 const fixedRandom = () => 4242;
 const LYRICS = '[Verse]\nsalt on the window';
@@ -51,13 +51,28 @@ describe('YuE2 request mapping', () => {
     expect(Object.keys(req).sort()).toEqual(['lyrics', 'seed', 'style']);
   });
 
-  it('turns empty lyrics into a tags-only instrumental skeleton', () => {
+  it('turns empty lyrics into a tags-only skeleton and upstream\'s instrumental style', () => {
     for (const lyrics of [undefined, '', '  \n ']) {
-      const req = buildYue2Request({ prompt: 'lo-fi', lyrics }, fixedRandom);
+      const req = buildYue2Request({ prompt: 'lo-fi', lyrics, bpm: 80 }, fixedRandom);
       expect(req.lyrics).toBe(INSTRUMENTAL_LYRICS);
-      expect(req.style).toBe(`lo-fi, ${INSTRUMENTAL_STYLE}`);
+      expect(req.style).toBe('Instrumental, lo-fi, 80 bpm, no vocals, no singing, no choir, no spoken words');
     }
     expect(INSTRUMENTAL_LYRICS.replace(/\[[^\]]+\]/g, '').trim()).toBe('');
+  });
+
+  it('does not repeat what an instrumental prompt already says, and skips the language', () => {
+    expect(buildYue2Request({ prompt: 'Instrumental jazz, no vocals', vocal_language: 'en' }, fixedRandom).style)
+      .toBe('Instrumental jazz, no vocals, no singing, no choir, no spoken words');
+    expect(buildYue2Request({}, fixedRandom).style).toBe('Instrumental, no vocals, no singing, no choir, no spoken words');
+  });
+
+  it('puts VOCAL LANGUAGE first in the style, for the two languages YuE2 sings', () => {
+    const style = (vocal_language?: string) =>
+      buildYue2Request({ prompt: 'pop', lyrics: LYRICS, bpm: 90, vocal_language }, fixedRandom).style;
+    expect(style('en')).toBe('English, pop, 90 bpm');
+    expect(style('zh')).toBe('Chinese, pop, 90 bpm');
+    expect(style('de')).toBe('pop, 90 bpm');
+    expect(style()).toBe('pop, 90 bpm');
   });
 
   it('refuses a request with no style at all, in Create terms', () => {

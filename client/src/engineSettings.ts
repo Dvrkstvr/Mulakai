@@ -29,7 +29,8 @@ const DEFAULT_RANGES: Record<SliderControl, ControlRange> = {
 /** The descriptor carries no ranges, so each engine's live range is kept here (0 = AUTO).
  * The server clamps anyway; these keep the slider inside values that mean something. */
 const ENGINE_RANGES: Partial<Record<EngineId, Partial<Record<SliderControl, ControlRange>>>> = {
-  yue2: { cfg: { min: 0, max: 20, step: 0.1 } },
+  // Upstream's default is 1.0 and it calls 1.2 an experiment; 0-20 is only the protocol bound.
+  yue2: { cfg: { min: 0, max: 3, step: 0.05 } },
   heartmula: {
     cfg: { min: 0, max: 10, step: 0.1 },
     temperature: { min: 0, max: 2, step: 0.05 },
