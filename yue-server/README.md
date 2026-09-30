@@ -144,9 +144,13 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
 
 - `POST /v1/jobs` — body `{style, lyrics, seed, cot?, cfg_scale?, id?}`.
   `seed` is **required** (YuE's own default is a fixed 831001). `cot` is
-  `full` (default) / `melody` / `off`; `cfg_scale` 0–20; `id` is a
-  filename-safe caller id echoed as `request_id`. An optional
-  `X-Admission-Id` header is echoed as `admission_id`. Unknown fields → 422.
+  `full` (default) / `melody` / `off`; `cfg_scale` 0–20. Unknown fields →
+  422. Mulakai sends its own job id as the **`Idempotency-Key`** header: it
+  is logged and echoed as `idempotency_key`, and resubmitting the same key
+  with the same body returns the original job (200) instead of starting a
+  second song; the same key with a different body is a 409. For
+  compatibility, a filename-safe body `id` (echoed as `request_id`) and an
+  `X-Admission-Id` header (echoed as `admission_id`) are also accepted.
   → **202** with the job record and `Location: /v1/jobs/{id}`; 503 while the
   pipeline is loading or failed to load; 429 when the queue is full.
 - `GET /v1/jobs/{id}` — the job record (below).
@@ -166,7 +170,8 @@ Job record:
 
 ```json
 {
-  "id": "…32 hex…", "request_id": "mulakai-job-id", "admission_id": null, "seed": 20260930,
+  "id": "…32 hex…", "idempotency_key": "<mulakai job id>", "admission_id": null,
+  "request_id": null, "seed": 20260930,
   "status": "running", "stage": "synthesis", "progress": 0.41,
   "tokens": {"abc": 1673, "semantic": 4442},
   "created_at": 0.0, "updated_at": 0.0, "started_at": 0.0, "finished_at": null,

@@ -18,37 +18,17 @@ import asyncio
 import logging
 import secrets
 from contextlib import asynccontextmanager
-from typing import Literal
 
 from fastapi import Depends, FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from jobs import JobStore, QueueFull
+from jobs import IdempotencyConflict, JobStore, QueueFull
+from request_model import GenerateRequest
 from settings import Settings
 from worker import Worker
 
-
-class GenerateRequest(BaseModel):
-    """yue2-serve's body, minus `n` (one take per job) and `abc` (score editing
-    is out of scope), plus the optional `id` the spec's mapping sends. `seed`
-    is required: YuE's default is a fixed 831001, so omitting it would
-    silently repeat the same song."""
-    model_config = ConfigDict(extra="forbid", allow_inf_nan=False)
-    style: str = Field(min_length=1, max_length=2000)
-    lyrics: str = Field(max_length=16000)
-    cot: Literal["full", "melody", "off"] = "full"
-    seed: int = Field(ge=0, lt=2**63, strict=True)
-    cfg_scale: float | None = Field(default=None, ge=0, le=20)
-    id: str | None = Field(default=None, pattern=r"^[A-Za-z0-9][A-Za-z0-9_.-]{0,179}$")
-
-    @field_validator("style")
-    @classmethod
-    def nonblank(cls, value: str) -> str:
-        if not value.strip():
-            raise ValueError("Text must not be blank")
-        return value
+log = logging.getLogger("yue-server")
 
 
 def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastAPI:
@@ -96,14 +76,21 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
 
     @app.post("/v1/jobs", status_code=202, dependencies=[Depends(authorize)])
     def submit(request: GenerateRequest,
+               idempotency_key: str | None = Header(default=None, min_length=1, max_length=128),
                x_admission_id: str | None = Header(default=None, max_length=128)):
         if worker.state != "ready":
             raise HTTPException(503, "Inference worker is not ready", headers={"Retry-After": "5"})
         try:
-            job = store.submit(request.model_dump(exclude_none=True), admission_id=x_admission_id)
+            job, created = store.submit(request.model_dump(exclude_none=True),
+                                        admission_id=x_admission_id, idempotency_key=idempotency_key)
         except QueueFull:
             raise HTTPException(429, "Queue is full", headers={"Retry-After": "5"}) from None
-        return JSONResponse(job, status_code=202, headers={"Location": f"/v1/jobs/{job['id']}"})
+        except IdempotencyConflict:
+            raise HTTPException(409, "Idempotency-Key was already used with different input") from None
+        log.info("job %s %s (Idempotency-Key %s)", job["id"], "queued" if created else "replayed",
+                 idempotency_key)
+        return JSONResponse(job, status_code=202 if created else 200,
+                            headers={"Location": f"/v1/jobs/{job['id']}"})
 
     @app.get("/v1/jobs/{job_id}", dependencies=[Depends(authorize)])
     def status(job_id: str):

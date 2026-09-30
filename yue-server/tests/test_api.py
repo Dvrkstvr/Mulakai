@@ -111,3 +111,24 @@ def test_unknown_job_is_404(make_client):
     for method, path in [("get", "/v1/jobs/nope"), ("post", "/v1/jobs/nope/cancel"),
                          ("get", "/v1/jobs/nope/audio"), ("get", "/v1/jobs/nope/score")]:
         assert getattr(client, method)(path).status_code == 404
+
+
+def test_idempotency_key_replays_the_original_job(make_client):
+    pipe = FakePipeline()
+    client = make_client(pipe)
+    key = {"Idempotency-Key": "mulakai-job-7"}
+    first = client.post("/v1/jobs", json=BODY, headers=key)
+    assert first.status_code == 202 and first.json()["idempotency_key"] == "mulakai-job-7"
+    wait_terminal(client, first.json()["id"])
+    replay = client.post("/v1/jobs", json=BODY, headers=key)
+    assert replay.status_code == 200
+    assert replay.json()["id"] == first.json()["id"] and replay.json()["status"] == "succeeded"
+    assert len(pipe.requests) == 1
+
+
+def test_idempotency_key_with_a_different_body_is_409(make_client):
+    client = make_client()
+    key = {"Idempotency-Key": "mulakai-job-8"}
+    assert client.post("/v1/jobs", json=BODY, headers=key).status_code == 202
+    assert client.post("/v1/jobs", json={**BODY, "seed": 9}, headers=key).status_code == 409
+    assert client.post("/v1/jobs", json=BODY, headers={"Idempotency-Key": "x" * 129}).status_code == 422

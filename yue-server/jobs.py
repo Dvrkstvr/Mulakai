@@ -3,13 +3,14 @@
 The job record mirrors YuE2-Turbo's `yue2-serve` snapshot (id, status, stage,
 tokens, timestamps, cancel_requested, result, error) so Mulakai's one generic
 engine client reads both. `progress` is this wrapper's addition: the fraction
-of the current stage, or null when the stage has no known total. Jobs live
-only for this process's lifetime; artifacts are swept after the retention
-window.
+of the current stage, or null when the stage has no known total. Submits
+are idempotent per `Idempotency-Key`, as in yue2-serve. Jobs live only for
+this process's lifetime; artifacts are swept after the retention window.
 """
 from __future__ import annotations
 
 import copy
+import json
 import shutil
 import threading
 import time
@@ -25,6 +26,10 @@ class QueueFull(Exception):
     pass
 
 
+class IdempotencyConflict(Exception):
+    pass
+
+
 class JobStore:
     def __init__(self, root: Path, max_pending: int, retention_seconds: float, clock=time.time):
         self.root = Path(root)
@@ -33,6 +38,7 @@ class JobStore:
         self._clock = clock
         self._jobs: dict[str, dict] = {}
         self._requests: dict[str, dict] = {}
+        self._idempotency: dict[str, tuple[str, str]] = {}  # key -> (request digest, job id)
         self._queue: deque[str] = deque()
         self._cond = threading.Condition()
         self._stopping = False
@@ -40,21 +46,32 @@ class JobStore:
     def artifact_dir(self, job_id: str) -> Path:
         return self.root / job_id
 
-    def submit(self, request: dict, admission_id: str | None = None) -> dict:
+    def submit(self, request: dict, admission_id: str | None = None,
+               idempotency_key: str | None = None) -> tuple[dict, bool]:
+        """Returns (job, created). A repeated Idempotency-Key with the same body
+        returns the original job instead of starting a second song."""
+        digest = json.dumps(request, sort_keys=True)
         with self._cond:
+            if idempotency_key in self._idempotency:
+                known_digest, job_id = self._idempotency[idempotency_key]
+                if known_digest != digest:
+                    raise IdempotencyConflict()
+                return copy.deepcopy(self._jobs[job_id]), False
             if sum(j["status"] in PENDING for j in self._jobs.values()) >= self.max_pending:
                 raise QueueFull()
             now = self._clock()
-            job = dict(id=uuid.uuid4().hex, admission_id=admission_id, request_id=request.get("id"),
-                       seed=request["seed"], status="queued", stage="queued", progress=None,
-                       tokens={"abc": 0, "semantic": 0}, created_at=now, updated_at=now,
-                       started_at=None, finished_at=None, cancel_requested=False,
-                       result=None, error=None)
+            job = dict(id=uuid.uuid4().hex, idempotency_key=idempotency_key, admission_id=admission_id,
+                       request_id=request.get("id"), seed=request["seed"], status="queued",
+                       stage="queued", progress=None, tokens={"abc": 0, "semantic": 0},
+                       created_at=now, updated_at=now, started_at=None, finished_at=None,
+                       cancel_requested=False, result=None, error=None)
             self._jobs[job["id"]] = job
             self._requests[job["id"]] = dict(request)
+            if idempotency_key is not None:
+                self._idempotency[idempotency_key] = (digest, job["id"])
             self._queue.append(job["id"])
             self._cond.notify_all()
-            return copy.deepcopy(job)
+            return copy.deepcopy(job), True
 
     def get(self, job_id: str) -> dict | None:
         with self._cond:
@@ -122,6 +139,7 @@ class JobStore:
                        if j["status"] in TERMINAL and j["finished_at"] < cutoff]
             for job_id in expired:
                 del self._jobs[job_id]
+            self._idempotency = {k: v for k, v in self._idempotency.items() if v[1] in self._jobs}
         for job_id in expired:
             shutil.rmtree(self.artifact_dir(job_id), ignore_errors=True)
 

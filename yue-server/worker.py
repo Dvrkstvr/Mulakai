@@ -48,7 +48,7 @@ class Worker:
 
 
 def run_job(pipe, store: JobStore, job_id: str, request: dict) -> None:
-    log.info("job %s started (request id %s, seed %s)", job_id, request.get("id"), request["seed"])
+    log.info("job %s started (seed %s)", job_id, request["seed"])
     timing: dict[str, float] = {}
     clock = {"stage": None, "t": time.monotonic()}
 

@@ -20,7 +20,7 @@ class Clock:
 
 def test_progress_is_a_per_stage_fraction(tmp_path):
     store = JobStore(tmp_path, 4, 3600)
-    job_id = store.submit(REQUEST)["id"]
+    job_id = store.submit(REQUEST)[0]["id"]
     store.claim(timeout=1)
     seen = []
 
@@ -51,7 +51,7 @@ def test_progress_is_a_per_stage_fraction(tmp_path):
 def test_sweep_drops_expired_jobs_and_their_artifacts(tmp_path):
     clock = Clock()
     store = JobStore(tmp_path, 4, 60, clock=clock)
-    job_id = store.submit(REQUEST)["id"]
+    job_id = store.submit(REQUEST)[0]["id"]
     store.claim(timeout=1)
     store.artifact_dir(job_id).mkdir()
     store.finish(job_id, "failed", error={"code": "x", "message": "y"})
@@ -65,7 +65,7 @@ def test_sweep_drops_expired_jobs_and_their_artifacts(tmp_path):
 
 def test_a_cancel_that_races_completion_wins(tmp_path):
     store = JobStore(tmp_path, 4, 3600)
-    job_id = store.submit(REQUEST)["id"]
+    job_id = store.submit(REQUEST)[0]["id"]
     store.claim(timeout=1)
     store.cancel(job_id)
     store.finish(job_id, "succeeded", result={"audio_url": "x"})
@@ -95,3 +95,16 @@ def test_settings_read_the_environment():
     assert s.data_dir == Path("/tmp/yue")
     with pytest.raises(ValueError):
         Settings.from_env({"YUE_QUANTIZATION": "int4"})
+
+
+def test_idempotency_keys_expire_with_their_job(tmp_path):
+    clock = Clock()
+    store = JobStore(tmp_path, 4, 60, clock=clock)
+    job, created = store.submit(REQUEST, idempotency_key="k")
+    assert created and store.submit(REQUEST, idempotency_key="k") == (store.get(job["id"]), False)
+    store.claim(timeout=1)
+    store.finish(job["id"], "cancelled")
+    clock.now += 61
+    store.sweep()
+    again, created = store.submit(REQUEST, idempotency_key="k")
+    assert created and again["id"] != job["id"]

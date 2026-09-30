@@ -3103,8 +3103,9 @@ YuE2:
   `http://127.0.0.1:<port>`, starting it through `wsl.exe`, and the WSL
   first-run hang workaround.
   - *As built (2026-09-30)*: split by responsibility to stay under 150 LOC
-    each. `main.py` (FastAPI routes, auth, request model), `jobs.py` (the
-    in-memory job table and FIFO queue, artifact retention), `worker.py`
+    each. `main.py` (FastAPI routes, auth), `request_model.py` (the submit
+    body), `jobs.py` (the in-memory job table, FIFO queue, Idempotency-Key
+    replay and artifact retention; 161 LOC, over the target), `worker.py`
     (the single inference thread and the staged run with its cancel
     checks), `yue_pipeline.py` (the only module importing torch / yue2),
     and `settings.py` (`YUE_*` env vars; default port 8004). The tests
