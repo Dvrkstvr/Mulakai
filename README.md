@@ -121,8 +121,9 @@ Stem splitting via Demucs is optional. See
 A song's first take can optionally come from another local model, an extra
 *engine*, instead of ACE-Step. Every later edit still runs on ACE-Step. See
 `PLAN.md`, "Multiple Song-Creation Engines". HeartMuLa is set up in
-[`heartmula-server/README.md`](heartmula-server/README.md). When any extra
-engine is configured, two things apply:
+[`heartmula-server/README.md`](heartmula-server/README.md). YuE2 runs in WSL2
+behind [`yue-server/`](yue-server/README.md), which covers its setup and
+weights. When any extra engine is configured, two things apply:
 
 - **ACE-Step must run with `ACESTEP_OFFLOAD_TO_CPU=true`**, so that it hands
   its VRAM back when idle. No two models fit on a 16 GB card together.
@@ -135,6 +136,9 @@ engine is configured, two things apply:
     into system RAM. It then runs ~25x slower, with no error.
   - With this setting, the same mistake becomes a failed job.
   - Mulakai documents this setting but never changes it.
+
+The YuE2 weights are **CC BY-NC 4.0**: individuals may use them and monetize
+the outputs; companies need a license from the authors.
 
 ### Configuration
 
@@ -150,8 +154,8 @@ Server environment variables, all optional:
 | `DEMUCS_API_URL` | — | Empty disables the Demucs split backend |
 | `HEARTMULA_API_URL` | — | heartmula-server, e.g. `http://127.0.0.1:8003`. Empty disables the HeartMuLa engine |
 | `HEARTMULA_API_KEY` | — | Bearer key, if heartmula-server was started with one |
-| `YUE_API_URL` | — | The YuE2 engine's wrapper. Empty disables it |
-| `YUE_API_KEY` | — | Bearer key for the YuE2 wrapper |
+| `YUE_API_URL` | — | YuE2 engine (`yue-server/`, e.g. `http://127.0.0.1:8004`; use `127.0.0.1`, not `localhost`). Empty disables it |
+| `YUE_API_KEY` | — | Bearer key, if the YuE2 server requires one |
 | `DATA_DIR` | `server/data` | SQLite DB + generated audio |
 | `POLL_INTERVAL_MS` | `2000` | Job polling interval |
 | `FFMPEG_PATH` | `ffmpeg` | ffmpeg binary |
@@ -162,7 +166,7 @@ Server environment variables, all optional:
 |---|---|
 | Client | React · TypeScript · Vite · Zustand · Framer Motion · Web Audio |
 | Server | Express · TypeScript · SQLite (better-sqlite3) |
-| Generation | ACE-Step 1.5 (external process, native FastAPI API) |
+| Generation | ACE-Step 1.5 (external process, native FastAPI API); optionally YuE2 for a song's first take (`yue-server/`, WSL2) |
 | Stem splitting | ACE-Step `extract`, or a Demucs microservice (FastAPI, optional) |
 | Tests | Vitest on both sides · oxlint |
 

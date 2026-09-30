@@ -6,9 +6,11 @@ const engineHealth = vi.fn(async (_e: { url: string }) => true);
 vi.mock('../acestep.js', () => ({ health: () => acestepHealth() }));
 vi.mock('../engineClient.js', () => ({ health: (e: { url: string }) => engineHealth(e) }));
 
-// A developer's own HEARTMULA_API_URL must not leak in: config reads it at import.
+// A developer's own engine URLs must not leak in: config reads them at import.
+vi.stubEnv('YUE_API_URL', '');
 vi.stubEnv('HEARTMULA_API_URL', '');
 const { listEngines, getEngine, EXTRA_ENGINES, ACESTEP_CAPABILITIES } = await import('./registry.js');
+const { YUE2_CAPABILITIES } = await import('./yue2.js');
 
 function fake(id: SongEngine['id'], url: string): SongEngine {
   return {
@@ -20,14 +22,15 @@ function fake(id: SongEngine['id'], url: string): SongEngine {
 }
 
 describe('engine registry', () => {
-  it('lists HeartMuLa as not configured, and never probes it, when its URL is unset', async () => {
+  it('lists every extra engine as not configured, and never probes one, while its URL is unset', async () => {
     engineHealth.mockClear();
-    expect(EXTRA_ENGINES.map((e) => e.id)).toEqual(['heartmula']);
+    expect(EXTRA_ENGINES.map((e) => e.id)).toEqual(['yue2', 'heartmula']);
     const list = await listEngines();
     expect(list[0]).toEqual(
       { id: 'acestep', label: 'ACE-STEP', capabilities: ACESTEP_CAPABILITIES, configured: true, ready: true },
     );
-    expect(list.slice(1).map((e) => [e.id, e.configured, e.ready])).toEqual([['heartmula', false, false]]);
+    expect(list.slice(1).map((e) => [e.id, e.configured, e.ready])).toEqual([['yue2', false, false], ['heartmula', false, false]]);
+    expect(list[1].capabilities).toEqual(YUE2_CAPABILITIES);
     expect(engineHealth).not.toHaveBeenCalled();
   });
 
