@@ -14,6 +14,7 @@ import { CreatePromptTab } from './CreatePromptTab';
 import { AutoTextarea } from './AutoTextarea';
 import { useResizableWidth } from './useResizableWidth';
 import { ResizeHandle } from './ResizeHandle';
+import { useEngineStore } from './engineStore';
 
 /** Dedicated Create takeover — reached from the Library create bar or the Library detail
  * rail's REUSE PROMPT / CREATE COVER FROM AUDIO actions, per docs/design/DESIGN.md.
@@ -45,6 +46,9 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
     api.nextFolderTitle(folderId).then((r) => patch({ title: r.title, titleSuggested: true })).catch(() => {});
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderId, draft.revision]);
+
+  // Fresh engine health each time Create opens: it gates the PROMPT tab's ENGINE row.
+  useEffect(() => { void useEngineStore.getState().load(); }, []);
 
   // Re-apply a reused song's reference audio (voice + the influences it was rendered at).
   // Keyed on the draft's own values so a fresh draft re-runs it — including the no-reference

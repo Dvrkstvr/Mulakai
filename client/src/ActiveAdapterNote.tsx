@@ -9,7 +9,10 @@ import { useAdapterStore, activeAdapter } from './adapterStore';
  * somewhere the user isn't looking. Renders nothing when no adapter is active — the common
  * case, and the reason this can sit on every commit surface without adding noise.
  */
-export function ActiveAdapterNote() {
+export function ActiveAdapterNote({ notAppliedBy }: {
+  /** The label of an extra engine that can't take adapters, when one is generating. */
+  notAppliedBy?: string;
+} = {}) {
   const ensureLoaded = useAdapterStore((s) => s.ensureLoaded);
   const active = useAdapterStore(activeAdapter);
 
@@ -18,6 +21,9 @@ export function ActiveAdapterNote() {
   }, [ensureLoaded]);
 
   if (!active) return null;
+  if (notAppliedBy) {
+    return <div className="hint">ADAPTER {active.name.toUpperCase()} not applied — {notAppliedBy} doesn&apos;t take adapters</div>;
+  }
 
   return (
     <div className="hint">

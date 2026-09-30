@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { StemKind } from './api';
+import type { EngineId, StemKind } from './api';
 import type { CreateDraft, GenType, Source } from './createDraft';
 
 export type ArrangeSource = 'upload' | 'split';
@@ -41,6 +41,10 @@ interface SharedIntent {
    * doesn't match `genType` the tab names the shift (CarriedPromptNote.tsx) and ANALYZE AUDIO
    * is allowed to overwrite the text (useAnalyzeSourceAudio.ts). */
   intentOrigin: GenType;
+  /** The engine a PROMPT take goes to (PLAN.md "Engine picker UI decisions"). Not a
+   * persisted preference: a sticky engine would quietly send the next Quick Start to an
+   * engine with fewer controls. COVER/ARRANGE always use ACE-Step. */
+  engine: EngineId;
 }
 
 /** COVER tab state — meaningless to the other tabs, so it stays out of SharedIntent, but
@@ -64,7 +68,7 @@ interface ArrangeMethod {
 
 const INTENT: SharedIntent = {
   genType: 'prompt', title: '', titleSuggested: false, prompt: '', lyrics: '', bpm: 0, keyScale: '', timeSignature: '',
-  vocalLanguage: '', duration: 0, formatted: false, intentOrigin: 'prompt',
+  vocalLanguage: '', duration: 0, formatted: false, intentOrigin: 'prompt', engine: 'acestep',
   folderId: undefined, folderName: undefined, pendingQuery: undefined, reusedFrom: undefined,
   referenceLabel: undefined, referenceAudioInfluence: undefined, referenceStyleInfluence: undefined,
 };
@@ -136,6 +140,7 @@ export const useCreateDraftStore = create<CreateDraftState>()((set, get) => ({
     referenceLabel: d.referenceLabel,
     referenceAudioInfluence: d.audioInfluence,
     referenceStyleInfluence: d.styleInfluence,
+    engine: d.engine ?? 'acestep',
     audio: { ...AUDIO, source: d.source ?? AUDIO.source, selectedSongId: d.selectedSongId ?? null },
     arrange: ARRANGE,
     revision: get().revision + 1,

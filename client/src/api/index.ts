@@ -10,6 +10,7 @@
  * across slices (TypeScript won't flag a collision — the last spread would win).
  */
 export * from './types';
+export * from './engineTypes';
 export { ApiError } from './http';
 
 import { libraryApi } from './library';

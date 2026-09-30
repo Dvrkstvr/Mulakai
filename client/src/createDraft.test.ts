@@ -88,6 +88,13 @@ describe('reusePromptDraft', () => {
     expect(reusePromptDraft(song()).reusedFrom).toBeUndefined();
   });
 
+  it('reopens a PROMPT song on the engine that made it; ACE-Step songs and other tabs carry none', () => {
+    expect(reusePromptDraft(song({ engine: 'yue2' })).engine).toBe('yue2');
+    expect(reusePromptDraft(song({ engine: null })).engine).toBeUndefined();
+    expect(reusePromptDraft(song()).engine).toBeUndefined();
+    expect(reusePromptDraft(song({ gen_task: 'cover', engine: 'yue2' })).engine).toBeUndefined();
+  });
+
   it('carries the reference audio that conditioned the song, with its influences', () => {
     const draft = reusePromptDraft(song({
       reference_audio_label: 'Daniel',

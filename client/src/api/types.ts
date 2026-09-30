@@ -27,6 +27,8 @@ export interface Song {
    * Null for songs generated before the column existed whose base-version params
    * didn't record one (see server/src/db/backfillGenTask.ts); treated as text2music. */
   gen_task: string | null;
+  /** The extra engine that made the first take (e.g. 'yue2'); null = ACE-Step. */
+  engine?: string | null;
 }
 
 export interface Folder {
@@ -106,6 +108,8 @@ export interface Version {
   created_at: string;
   prompt: string;
   task_type: string;
+  /** Set on an extra engine's take, which ALT/SIMILAR can't replay (see repaintJobs.ts). */
+  engine?: string | null;
   region_start: number | null;
   region_end: number | null;
   lyricTimestamps: LyricLine[] | null;
@@ -158,6 +162,8 @@ export interface ActiveGeneration {
   /** Only present for `generate` — which of the three song-creating tasks is running,
    * so a retry after a page refresh reopens Create on the right tab. */
   task?: string;
+  /** Only present for `generate` on an extra engine. */
+  engine?: string;
   startedAt: number;
   status: 'loading' | 'running' | 'done' | 'failed';
   error?: string;

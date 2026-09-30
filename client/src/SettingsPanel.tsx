@@ -10,7 +10,10 @@ import { AdvancedGenSettings } from './AdvancedGenSettings';
 import { ScrollArea } from './ScrollArea';
 import { ReferenceAudioPicker } from './ReferenceAudioPicker';
 import { AutoTextarea } from './AutoTextarea';
+import { Seed } from './Seed';
 import { useAddLayerDraft } from './addLayerStore';
+import { EngineGenSettings } from './EngineGenSettings';
+import { useEngineCaps } from './useEngineCaps';
 
 const STEPS_INFO = 'Diffusion steps — more steps means finer detail but slower generation. Turbo models: 1–20 (8 recommended). Base/SFT models: 32–100 recommended. AUTO picks the count the selected model wants (Turbo 8, SFT 50, Base 32).';
 
@@ -40,19 +43,6 @@ export function VarianceSlider({ value, onChange }: { value: number; onChange: (
   );
 }
 
-function Seed({ random, seed, onRandom, onSeed }: {
-  random: boolean; seed: number; onRandom: (v: boolean) => void; onSeed: (v: number) => void;
-}) {
-  return (
-    <div className="setting">
-      <Toggle label="RANDOM SEED" checked={random} onChange={onRandom} />
-      {!random && (
-        <input type="number" className="seed" value={seed} onChange={(e) => onSeed(Number(e.target.value))} />
-      )}
-    </div>
-  );
-}
-
 export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType, addLayerActive, songLyrics }: {
   mode: 'generate' | 'repaint';
   hideLmControls?: boolean;
@@ -75,6 +65,8 @@ export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType, ad
   // Advanced knobs (shift/ADG/CFG-interval) only affect Base models; when Add Layer is active
   // the model is its Base lego model, otherwise repaint's own DiT model.
   const gatingModel = addLayerActive ? addLayer.model : repaint.model;
+  // PROMPT on an extra engine: its own controls replace ACE-Step's whole generate block.
+  const { info: engine } = useEngineCaps();
 
   useEffect(() => {
     api.listModels().then((data) => {
@@ -93,7 +85,9 @@ export function SettingsPanel({ mode, hideLmControls, referenceAudioTaskType, ad
       <motion.div layout="position" className="section-label">{mode === 'generate' ? 'GENERATION' : addLayerActive ? 'ADD LAYER' : 'REPAINT'} SETTINGS</motion.div>
 
       <ScrollArea className="settings-panel-scroll">
-      {mode === 'generate' ? (
+      {mode === 'generate' && engine ? (
+        <EngineGenSettings engine={engine} />
+      ) : mode === 'generate' ? (
         <>
           <CustomSelect
             label="DIT MODEL"

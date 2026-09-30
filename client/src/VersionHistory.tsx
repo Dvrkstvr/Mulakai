@@ -95,7 +95,9 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
         // to replay — both rebuild a request from the version's stored params, which for an
         // import would submit an effectively empty text2music. The server refuses it too
         // (repaintJobs.ts's NOT_REPLAYABLE); this keeps a dead button off the row.
-        const replayable = v.task_type !== 'import';
+        // An extra engine's take can't be replayed either: both rebuild an ACE-Step request,
+        // which would quietly answer a YuE2/HeartMuLa prompt with an ACE-Step song.
+        const replayable = v.task_type !== 'import' && !v.engine;
         return (
           <motion.div key={v.id} layout="position"
             initial={{ opacity: 0, y: -14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}

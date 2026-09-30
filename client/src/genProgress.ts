@@ -38,11 +38,28 @@ export function fmtProgress(p?: number): string | null {
   return `${Math.round(Math.max(0, Math.min(1, p)) * 100)}%`;
 }
 
+/** The shared engine contract's stage names (yue2-serve's, which yue-server/ also uses) ->
+ * readable labels. `progress` on an engine job is the fraction of *this* stage, so the card
+ * pairs the two rather than showing a bare percentage (PLAN.md "Engine picker UI decisions"). */
+const ENGINE_STAGES: Record<string, string> = {
+  queued: 'queued',
+  claimed_waiting: 'queued',
+  planning: 'planning the score',
+  semantic: 'generating song tokens',
+  synthesis: 'synthesizing audio',
+  decode: 'decoding audio',
+  saving: 'saving',
+};
+
+/** Whether this stage's progress is per-stage (an engine job) rather than whole-job (ACE-Step). */
+export const isEngineStage = (stage?: string): boolean => !!stage && stage.trim() in ENGINE_STAGES;
+
 /** ACE-Step's free-text `stage` is only worth surfacing when it says something beyond
  * "a job is running" — filters out empty/whitespace and the generic default the API sends
- * when no more specific stage label was set ("running", case-insensitive). */
+ * when no more specific stage label was set ("running", case-insensitive). An engine's
+ * contract stage name gets its readable label. */
 export function stageDetail(stage?: string): string | null {
   const trimmed = stage?.trim();
   if (!trimmed || trimmed.toLowerCase() === 'running') return null;
-  return trimmed;
+  return ENGINE_STAGES[trimmed] ?? trimmed;
 }

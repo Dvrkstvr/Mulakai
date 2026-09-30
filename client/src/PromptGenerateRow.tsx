@@ -2,12 +2,15 @@ import { useState } from 'react';
 import { api, type RefineResult } from './api';
 import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
-import { useSettings, genParams } from './settings';
+import { useSettings, genParams, outputParams } from './settings';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
 import { useCreateDraftStore } from './createDraftStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import type { CreateDraft } from './createDraft';
+import { useEngineCaps } from './useEngineCaps';
+import { AUTO_CONTROLS, useEngineSettings } from './engineSettings';
+import { enginePromptParams } from './engineRequest';
 
 /** The PROMPT tab's two commit actions — FEELING LUCKY (overwrite the draft with an LM sample)
  * and GENERATE — split out of CreatePromptTab.tsx to keep both under the module cap. Reads and
@@ -27,6 +30,10 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
   const [luckyConfirm, setLuckyConfirm] = useState(false);
   const [luckyError, setLuckyError] = useState('');
   const busy = submitting || !!genJob;
+  const { id: engineId, info: engine } = useEngineCaps();
+  const controls = useEngineSettings((s) => s.values[engineId]);
+  // Also covers "not loaded yet": an extra engine's GENERATE waits for its descriptor.
+  const engineBlocked = engineId !== 'acestep' && !engine?.ready;
 
   const { title, prompt, lyrics, bpm, keyScale, timeSignature, vocalLanguage, duration, folderId, formatted } = draft;
   const hasDraftContent = !!(prompt || lyrics || bpm || keyScale || timeSignature || vocalLanguage || duration);
@@ -37,6 +44,7 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
     const retryDraft: CreateDraft = {
       genType: 'prompt', prompt, lyrics, bpm, keyScale, timeSignature, duration,
       ...(folderId ? { folderId, folderName: draft.folderName } : {}),
+      ...(engineId !== 'acestep' ? { engine: engineId } : {}),
     };
     // AI ENHANCE re-formats whatever prompt/lyrics it's given — fine for hand-typed text, but
     // re-running it on text the LM already produced is what garbled the sung output (see
@@ -44,8 +52,10 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
     // persisted setting, so it's back next time you type.
     const effectiveGen = formatted ? { ...gen, useFormat: false } : gen;
     try {
-      await startGeneration(
-        {
+      await startGeneration(engine ? enginePromptParams(
+        { title, prompt, lyrics, bpm, keyScale, timeSignature, vocalLanguage, duration, folderId },
+        engine.capabilities, gen, { ...AUTO_CONTROLS, ...controls }, outputParams(),
+      ) : {
           title: title || 'Untitled', prompt, lyrics,
           ...(bpm > 0 ? { bpm } : {}),
           ...(keyScale ? { key_scale: keyScale } : {}),
@@ -56,7 +66,7 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
           ...(folderId ? { folder_id: folderId } : {}),
         },
         retryDraft,
-        voice.uploadedRefFile ?? undefined,
+        engine ? undefined : voice.uploadedRefFile ?? undefined,
       );
       const failure = useGenerationStore.getState().job;
       if (failure?.stage === 'failed') {
@@ -112,7 +122,7 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
           }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
           style={{ position: 'relative', overflow: 'hidden' }}
-          disabled={busy || !prompt || thinking}
+          disabled={busy || !prompt || thinking || engineBlocked}
           onClick={generate}
         >
           {submitting ? (
@@ -125,7 +135,8 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
           ) : genJob ? 'A GENERATION IS ALREADY RUNNING' : 'GENERATE'}
         </motion.button>
       </div>
-      <ActiveAdapterNote />
+      {engine?.capabilities.consequence && <div className="hint">{engine.capabilities.consequence}</div>}
+      <ActiveAdapterNote notAppliedBy={engine && !engine.capabilities.adapters ? engine.label : undefined} />
       {luckyConfirm && <div className="hint">This will overwrite your current prompt, lyrics, and song details.</div>}
       {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
