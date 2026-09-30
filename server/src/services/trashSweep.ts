@@ -3,6 +3,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
+import { versionFileNames } from './versionFiles.js';
 
 const TRASH_TTL_DAYS = 7;
 
@@ -10,10 +11,10 @@ function deleteSongsPermanently(ids: string[]): void {
   for (const id of ids) {
     const files = db
       .prepare(
-        `SELECT v.audio_file FROM versions v JOIN layers l ON v.layer_id = l.id WHERE l.song_id = ?`,
+        `SELECT v.id, v.audio_file FROM versions v JOIN layers l ON v.layer_id = l.id WHERE l.song_id = ?`,
       )
       .all(id)
-      .map((r) => (r as { audio_file: string }).audio_file);
+      .flatMap((r) => versionFileNames(r as { id: string; audio_file: string }));
     const song = db.prepare(`SELECT cover_art_file FROM songs WHERE id = ?`).get(id) as
       | { cover_art_file: string | null }
       | undefined;

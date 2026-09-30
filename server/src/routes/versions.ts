@@ -1,10 +1,8 @@
 import { Router } from 'express';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { startRegenerate, startSimilarTake, NOT_REPLAYABLE } from '../services/repaintJobs.js';
 import { GenLockError } from '../services/genLock.js';
+import { removeVersionFiles } from '../services/versionFiles.js';
 
 export const versionsRouter = Router();
 
@@ -60,7 +58,7 @@ versionsRouter.delete('/versions/:versionId', async (req, res) => {
       .get(version.layer_id) as { id: string } | undefined;
     if (next) db.prepare(`UPDATE versions SET active = 1 WHERE id = ?`).run(next.id);
   }
-  await fs.unlink(path.join(config.audioDir, version.audio_file)).catch(() => {});
+  await removeVersionFiles(version);
   res.json({ ok: true });
 });
 

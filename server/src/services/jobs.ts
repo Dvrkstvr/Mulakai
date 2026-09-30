@@ -162,7 +162,7 @@ export async function run(job: Job, body: () => Promise<void>): Promise<void> {
 // A single failed status poll must not kill a long GPU run (the generation itself is
 // unaffected), but persistent failure — e.g. every request timing out against a wedged
 // backend — has to fail the job eventually or the genLock is held forever.
-const MAX_POLL_STRIKES = 3;
+export const MAX_POLL_STRIKES = 3;
 
 export async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<string>): Promise<void> {
   let strikes = 0;
