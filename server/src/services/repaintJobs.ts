@@ -9,21 +9,10 @@ import { type Job, registerJob, poll, ensureModelLoaded, fetchLyricTimestampsJso
 import { resolveInferenceSteps } from './inferenceSteps.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 import { tagOutputFile } from './fileTags.js';
+import { assertReplayable } from './replayGuard.js';
 
 function fmtTime(sec: number): string {
   return `${Math.floor(sec / 60)}:${String(Math.floor(sec % 60)).padStart(2, '0')}`;
-}
-
-/**
- * An imported song's base version has no generation behind it (its params_json is
- * `{"task_type":"import"}` — see routes/songImport.ts), so ALT/SIMILAR have nothing to
- * replay: they would submit an effectively empty text2music and return audio unrelated
- * to the song. `import` is not an ACE-Step TaskType, hence the plain string compare.
- */
-export const NOT_REPLAYABLE = 'imported audio has no generation to replay';
-
-function assertReplayable(stored: { task_type?: string }): void {
-  if (stored.task_type === 'import') throw new Error(NOT_REPLAYABLE);
 }
 
 function repaintLabel(prefix: string, params: ReleaseTaskParams): string {

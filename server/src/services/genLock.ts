@@ -4,8 +4,11 @@
  * run at a time. ACE-Step's own queue is effectively single-worker by default
  * (docs/ace-step-1.5/API.md#Queue Configuration), so letting the client fire
  * several at once just queues them invisibly — this makes that limit explicit
- * and lets the UI show one clear "busy" state instead.
+ * and lets the UI show one clear "busy" state instead. An extra engine's song
+ * generation holds it too, under `generate`: the 16 GB card fits only one model
+ * in VRAM at a time (PLAN.md "Multiple Song-Creation Engines", design point 10).
  */
+import type { EngineId } from './engines/types.js';
 
 export type GenKind = 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster';
 
@@ -22,6 +25,9 @@ export interface GenLockInfo {
   /** Only set for `generate` — lets a client rehydrating mid-generation (or retrying a
    * failed one after a refresh) reopen Create on the tab that started it. */
   task?: GenTask;
+  /** Only set for a `generate` running on an extra engine (absent = ACE-Step), so a
+   * rehydrated GeneratingCard and a retry reopen with the right engine. */
+  engine?: EngineId;
   startedAt: number;
 }
 

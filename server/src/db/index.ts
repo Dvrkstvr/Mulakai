@@ -28,5 +28,7 @@ ensureColumn('songs', 'reference_audio_label', 'reference_audio_label TEXT');
 ensureColumn('songs', 'reference_audio_influence', 'reference_audio_influence REAL');
 ensureColumn('songs', 'reference_style_influence', 'reference_style_influence REAL');
 ensureColumn('songs', 'gen_task', 'gen_task TEXT');
+// No backfill: every song made before extra engines existed is ACE-Step's, which is null.
+ensureColumn('songs', 'engine', 'engine TEXT');
 db.exec(`CREATE INDEX IF NOT EXISTS idx_songs_folder ON songs(folder_id)`);
 backfillGenTask(db);

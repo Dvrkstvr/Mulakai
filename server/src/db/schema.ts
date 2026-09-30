@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS songs (
   reference_audio_influence REAL,               -- 0.0-1.0, only for text2music (cover/complete leave null)
   reference_style_influence REAL,               -- 0.0-1.0, only for text2music
   gen_task       TEXT,                          -- ACE-Step task that created this song (text2music | cover | complete); null if unknown
+  engine         TEXT,                          -- extra engine that made the first take (yue2 | heartmula); null = ACE-Step
   trashed_at     TEXT,
   created_at     TEXT NOT NULL DEFAULT (datetime('now'))
 );

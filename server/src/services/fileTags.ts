@@ -88,6 +88,22 @@ export async function tagOutputFile(filePath: string, fields: SongTagFields): Pr
   }
 }
 
+/** A produced file's length in seconds, for generators that don't report one (extra
+ * engines — see songPersist.ts). Null when the file can't be read; never throws. */
+export function readAudioDuration(filePath: string): number | null {
+  try {
+    const file = File.createFromPath(filePath);
+    try {
+      const ms = file.properties?.durationMilliseconds;
+      return ms && ms > 0 ? ms / 1000 : null;
+    } finally {
+      file.dispose();
+    }
+  } catch {
+    return null;
+  }
+}
+
 interface SongRow {
   title: string;
   bpm: number | null;

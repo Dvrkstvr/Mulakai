@@ -1,11 +1,9 @@
 import { Router } from 'express';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { startRepaint } from '../services/repaintJobs.js';
 import { startSplit, type SplitModel } from '../services/stemSplit.js';
 import { GenLockError } from '../services/genLock.js';
+import { removeVersionFiles } from '../services/versionFiles.js';
 
 export const layersRouter = Router();
 
@@ -37,9 +35,9 @@ layersRouter.delete('/:id', async (req, res) => {
   if (!layer) return res.status(404).json({ error: 'unknown layer' });
   if (layer.kind === 'base') return res.status(400).json({ error: 'cannot delete the base layer' });
 
-  const versions = db.prepare(`SELECT audio_file FROM versions WHERE layer_id = ?`).all(req.params.id) as { audio_file: string }[];
+  const versions = db.prepare(`SELECT id, audio_file FROM versions WHERE layer_id = ?`).all(req.params.id) as { id: string; audio_file: string }[];
   db.prepare(`DELETE FROM layers WHERE id = ?`).run(req.params.id); // cascades to versions
-  await Promise.all(versions.map((v) => fs.unlink(path.join(config.audioDir, v.audio_file)).catch(() => {})));
+  await Promise.all(versions.map(removeVersionFiles));
   res.json({ ok: true });
 });
 
