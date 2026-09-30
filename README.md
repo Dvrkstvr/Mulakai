@@ -109,12 +109,32 @@ cd client && npm install && npm run dev     # Vite, http://localhost:5173
 cd server && npm install && npm run dev     # Express, http://localhost:3001
 ```
 
-On Windows, `install.bat` installs both and `start-all.bat` launches ACE-Step,
-the server, the optional Demucs service and the client in one go (set
-`ACESTEP_PATH` to point at your ACE-Step checkout).
+On Windows, `install.bat` installs both, and `start-all.bat` launches ACE-Step,
+the server, the optional Demucs and HeartMuLa services, and the client in one
+go. Set `ACESTEP_PATH` to point at your ACE-Step checkout, and
+`HEARTMULA_PATH` at your heartlib checkout if it isn't `S:\AI Gen\heartlib`.
+Each optional service is started only when its install is found.
 
-Stem splitting via Demucs is optional — see
+Stem splitting via Demucs is optional. See
 [`demucs-server/README.md`](demucs-server/README.md).
+
+A song's first take can optionally come from another local model, an extra
+*engine*, instead of ACE-Step. Every later edit still runs on ACE-Step. See
+`PLAN.md`, "Multiple Song-Creation Engines". HeartMuLa is set up in
+[`heartmula-server/README.md`](heartmula-server/README.md). When any extra
+engine is configured, two things apply:
+
+- **ACE-Step must run with `ACESTEP_OFFLOAD_TO_CPU=true`**, so that it hands
+  its VRAM back when idle. No two models fit on a 16 GB card together.
+  - `start-all.bat` sets this, plus `ACESTEP_OFFLOAD_DIT_TO_CPU` and
+    `ACESTEP_LM_OFFLOAD_TO_CPU`, whenever an engine is configured.
+  - If you start ACE-Step some other way, set all three yourself.
+- **Recommended:** NVIDIA Control Panel → Manage 3D settings → CUDA – Sysmem
+  Fallback Policy → **Prefer No Sysmem Fallback**.
+  - With the default policy, Windows silently spills an over-budget model
+    into system RAM. It then runs ~25x slower, with no error.
+  - With this setting, the same mistake becomes a failed job.
+  - Mulakai documents this setting but never changes it.
 
 ### Configuration
 
@@ -128,6 +148,10 @@ Server environment variables, all optional:
 | `ACESTEP_API_KEY` | — | Sent if ACE-Step requires one |
 | `ACESTEP_TIMEOUT_MS` | `60000` | Per-request ceiling on ACE-Step calls (downloads get 5×) |
 | `DEMUCS_API_URL` | — | Empty disables the Demucs split backend |
+| `HEARTMULA_API_URL` | — | heartmula-server, e.g. `http://127.0.0.1:8003`. Empty disables the HeartMuLa engine |
+| `HEARTMULA_API_KEY` | — | Bearer key, if heartmula-server was started with one |
+| `YUE_API_URL` | — | The YuE2 engine's wrapper. Empty disables it |
+| `YUE_API_KEY` | — | Bearer key for the YuE2 wrapper |
 | `DATA_DIR` | `server/data` | SQLite DB + generated audio |
 | `POLL_INTERVAL_MS` | `2000` | Job polling interval |
 | `FFMPEG_PATH` | `ffmpeg` | ffmpeg binary |

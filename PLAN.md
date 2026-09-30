@@ -2444,6 +2444,15 @@ most, the whole-song first take, without adding a second editing stack.
       (`:752`, `:762`) are there if the umbrella flag isn't enough.
       - This is ACE-Step *configuration*, not a modification, and Mulakai
         cannot set it at runtime.
+      - `start-all.bat` launches ACE-Step itself, so it does set it
+        (2026-09-30, `feat/start-heartmula`). Whenever `HEARTMULA_API_URL`
+        or `YUE_API_URL` is set, or heartlib is found and HeartMuLa gets
+        launched, it sets all three flags true in ACE-Step's process env.
+        - All three, because the finer two default to false on their own,
+          and the spike's ~0.53 GB idle figure was measured with all three
+          on.
+        - ACE-Step loads its `.env` with `override=False`, so the process
+          env wins.
       - The README says so, and the Engines card shows a `.warn-note` while
         an extra engine is configured. Mulakai cannot read ACE-Step's
         startup env, so the note is a standing reminder, not a check.
