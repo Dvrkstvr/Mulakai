@@ -56,9 +56,12 @@ describe('engine transcription client', () => {
     fetchMock.mockResolvedValueOnce(new Response('X:1\n'));
     expect(await fetchTranscriptionScore(target, 'r1')).toBe('X:1\n');
     fetchMock.mockResolvedValueOnce(new Response('RIFF', { status: 206 }));
-    expect((await fetchTranscriptionPreview(target, 'r1', 'bytes=0-3')).status).toBe(206);
+    const signal = new AbortController().signal;
+    expect((await fetchTranscriptionPreview(target, 'r1', 'bytes=0-3', signal)).status).toBe(206);
     expect(fetchMock.mock.calls[1][0]).toBe('http://127.0.0.1:8004/v1/transcriptions/r1/preview');
     expect(fetchMock.mock.calls[1][1]?.headers).toMatchObject({ Range: 'bytes=0-3' });
+    // The caller's signal, not a whole-request timeout: a paused player keeps the body open.
+    expect(fetchMock.mock.calls[1][1]?.signal).toBe(signal);
     fetchMock.mockRejectedValueOnce(new Error('ECONNREFUSED'));
     await expect(cancelTranscription(target, 'r1')).resolves.toBeUndefined();
   });
