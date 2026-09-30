@@ -63,3 +63,21 @@ describe('POST /:id/cover-art', () => {
     expect(res.status).toBe(400);
   });
 });
+
+describe('GET /:id engine fields', () => {
+  it('carries songs.engine and each version\'s engine (null for ACE-Step)', async () => {
+    db.prepare(`INSERT INTO songs (id, title, engine) VALUES ('s-engine', 'Engine Song', 'yue2')`).run();
+    db.prepare(`INSERT INTO layers (id, song_id, name, kind, position) VALUES ('l-engine', 's-engine', 'Base', 'base', 0)`).run();
+    db.prepare(`INSERT INTO versions (id, layer_id, audio_file, params_json, created_at) VALUES (?, 'l-engine', 'a.flac', ?, '2026-09-30 10:00:00')`)
+      .run('v-engine', JSON.stringify({ prompt: 'p', engine: 'yue2', task_type: 'text2music' }));
+    db.prepare(`INSERT INTO versions (id, layer_id, audio_file, params_json, created_at) VALUES (?, 'l-engine', 'b.flac', ?, '2026-09-30 11:00:00')`)
+      .run('v-repaint', JSON.stringify({ prompt: 'p', task_type: 'repaint' }));
+
+    const song = await (await fetch(`${baseUrl}/s-engine`)).json();
+    expect(song.engine).toBe('yue2');
+    expect(song.layers[0].versions.map((v: { id: string; engine: string | null }) => [v.id, v.engine])).toEqual([
+      ['v-repaint', null],
+      ['v-engine', 'yue2'],
+    ]);
+  });
+});

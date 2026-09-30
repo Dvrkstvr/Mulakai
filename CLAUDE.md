@@ -22,7 +22,10 @@ React + TypeScript + Vite (client) · Express + SQLite (server) · Zustand ·
 minimal Web Audio playback (layer versions summed to master — no
 synthesis/plugin layers, no Tone.js) · ACE-Step 1.5 (external process,
 Gradio API) for generation, repaint, and layer conditioning · optional
-Demucs microservice (`demucs-server/`, FastAPI) for stem splits.
+extra song-creation engines for a new song's first take only (YuE2, then
+HeartMuLa; each its own process and venv behind `YUE_API_URL` /
+`HEARTMULA_API_URL`, speaking one shared job API, `engineClient.ts`) ·
+optional Demucs microservice (`demucs-server/`, FastAPI) for stem splits.
 
 ## Commands
 
@@ -63,8 +66,9 @@ zero radius), typography, and the three-screen app model live there.
 - `server/src/routes/` — Express routers (songs, folders, layers, versions,
   generate, split, voices, adapters, …)
 - `server/src/services/` — job orchestration (`jobs`, `repaintJobs`,
-  `addLayerJobs`, `stemSplit`), the ACE-Step HTTP client (`acestep`),
-  transcode/tagging, trash sweep
+  `addLayerJobs`, `stemSplit`, `engineGenJobs`), the ACE-Step HTTP client
+  (`acestep`), the extra-engine client (`engineClient`) and per-engine
+  modules (`engines/`), transcode/tagging, trash sweep
 - `server/src/db/` — SQLite schema + migrations (songs → layers → versions;
   no users/profiles/playlists tables)
 - `demucs-server/` — optional FastAPI stem-split microservice (Python)

@@ -12,6 +12,12 @@ export const config = {
   acestepApiKey: process.env.ACESTEP_API_KEY ?? '',
   /** Empty = Demucs backend disabled (no separate stem-split microservice configured). */
   demucsUrl: process.env.DEMUCS_API_URL ?? '',
+  /** Extra song-creation engines (PLAN.md "Multiple Song-Creation Engines"), in rollout
+   * order. Empty URL = that engine is disabled; the key is an optional bearer token. */
+  yueUrl: process.env.YUE_API_URL ?? '',
+  yueApiKey: process.env.YUE_API_KEY ?? '',
+  heartmulaUrl: process.env.HEARTMULA_API_URL ?? '',
+  heartmulaApiKey: process.env.HEARTMULA_API_KEY ?? '',
   dataDir: process.env.DATA_DIR ?? path.resolve(__dirname, '../data'),
   get dbPath() {
     return path.join(this.dataDir, 'mulakai.db');

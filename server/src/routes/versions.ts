@@ -1,10 +1,9 @@
 import { Router } from 'express';
-import fs from 'node:fs/promises';
-import path from 'node:path';
-import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { startRegenerate, startSimilarTake, NOT_REPLAYABLE } from '../services/repaintJobs.js';
+import { startRegenerate, startSimilarTake } from '../services/repaintJobs.js';
+import { NOT_REPLAYABLE_ERRORS } from '../services/replayGuard.js';
 import { GenLockError } from '../services/genLock.js';
+import { removeVersionFiles } from '../services/versionFiles.js';
 
 export const versionsRouter = Router();
 
@@ -60,7 +59,7 @@ versionsRouter.delete('/versions/:versionId', async (req, res) => {
       .get(version.layer_id) as { id: string } | undefined;
     if (next) db.prepare(`UPDATE versions SET active = 1 WHERE id = ?`).run(next.id);
   }
-  await fs.unlink(path.join(config.audioDir, version.audio_file)).catch(() => {});
+  await removeVersionFiles(version);
   res.json({ ok: true });
 });
 
@@ -72,7 +71,7 @@ versionsRouter.post('/versions/:versionId/regenerate', async (req, res) => {
   } catch (err) {
     if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'regenerate failed';
-    res.status(msg === 'unknown version' ? 404 : msg === NOT_REPLAYABLE ? 400 : 502).json({ error: msg });
+    res.status(msg === 'unknown version' ? 404 : NOT_REPLAYABLE_ERRORS.has(msg) ? 400 : 502).json({ error: msg });
   }
 });
 
@@ -84,6 +83,6 @@ versionsRouter.post('/versions/:versionId/retake', async (req, res) => {
   } catch (err) {
     if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'retake failed';
-    res.status(msg === 'unknown version' ? 404 : msg === NOT_REPLAYABLE ? 400 : 502).json({ error: msg });
+    res.status(msg === 'unknown version' ? 404 : NOT_REPLAYABLE_ERRORS.has(msg) ? 400 : 502).json({ error: msg });
   }
 });

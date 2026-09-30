@@ -2230,12 +2230,20 @@ come from another local model, called an *engine* here. Nothing else changes.
 - The earlier lines stay as written. This section supersedes them, the same
   way "Settings Screen" superseded the three-screen line.
 
-Engine order:
+Engine order (**reordered 2026-09-30** at the project owner's request, after
+both spikes came back "go"; HeartMuLa was first in the original plan):
 
-1. **HeartMuLa** first. Its code and weights are Apache-2.0, and it may run on
+1. **YuE2** first. It needs WSL2 on this machine. The spike measured RTF
+   0.54 with no spill (see "YuE2 spike results"). Its weights are CC BY-NC
+   4.0 with a creator permission, so the first engine to ship brings the
+   Settings card's license note with it.
+2. **HeartMuLa** next. Its code and weights are Apache-2.0, and it runs on
    native Windows.
-2. **YuE2** next. It needs WSL2 on this machine.
 3. **MiniMax Music 3** is skipped. The reasons are recorded below.
+
+Nothing in design points 1–13 depends on the order. Engines are listed in
+the order above wherever order is visible: config, `GET /api/engines`, the
+ENGINE row, and the Engines card, with ACE-Step first.
 
 The goal is a second model family for the step where model choice matters
 most, the whole-song first take, without adding a second editing stack.
@@ -2251,12 +2259,12 @@ most, the whole-song first take, without adding a second editing stack.
 2. **Each extra engine is an optional, separate process.** This follows
    `demucs-server/` + `config.demucsUrl` and the health-gated disabled option
    in `SplitPanel.tsx` / `ScratchSplitPicker.tsx`.
-   - Each engine has its own env URL (`HEARTMULA_API_URL`, `YUE_API_URL`).
+   - Each engine has its own env URL (`YUE_API_URL`, `HEARTMULA_API_URL`).
      An empty URL disables that engine.
-   - Each engine has its own optional bearer key (`HEARTMULA_API_KEY`,
-     `YUE_API_KEY`).
-   - Each engine has its own wrapper directory (`heartmula-server/`,
-     `yue-server/`).
+   - Each engine has its own optional bearer key (`YUE_API_KEY`,
+     `HEARTMULA_API_KEY`).
+   - Each engine has its own wrapper directory (`yue-server/`,
+     `heartmula-server/`).
    - **Each engine has its own Python environment.** The pins conflict:
      HeartMuLa wants Python 3.10 with torchtune 0.4.0 and transformers
      4.57.0, while YuE2 wants Python 3.12 with torch 2.10.0. Engine code is
@@ -2274,19 +2282,54 @@ most, the whole-song first take, without adding a second editing stack.
    Mulakai then needs one generic HTTP client (`engineClient.ts`, taking a
    base URL and key) instead of one per engine. Adopting a real engine's
    existing API also means YuE2-Turbo works with no wrapper at all.
-   - The details this list leaves open (the snapshot fields, the error
-     bodies, the health payload, the audio route's statuses) were settled in
-     `feat/heartmula-server` by copying `yue2-serve`. See "heartmula-server
-     contract decisions" under Engine 1. `yue-server/` should match them.
+
+   **Contract details** (added 2026-09-30 for `feat/engine-framework`, and
+   checked against `yue2-serve`'s source, `src/yue2/service.py` and
+   `service_store.py`). The list above left these open. Wrappers must follow
+   them, and `engineClient.ts` reads exactly this:
+   - *Auth*: `Authorization: Bearer <key>` on every call, sent only when a
+     key is set. `yue2-serve` leaves `/health/*` unauthenticated; sending the
+     header there anyway is harmless.
+   - *Submit*: the body is the engine's `toRequest` output, as JSON. The
+     reply is 202 with a job object carrying at least `id`. `yue2-serve`
+     returns the whole job record, and 200 for an idempotent replay, so any
+     2xx with a string `id` is accepted. 429 (queue full) and 503 (not
+     ready) fail the Mulakai job with the wrapper's `detail`.
+   - *Our job id travels as the `Idempotency-Key` header*, not in the body.
+     `yue2-serve`'s request model is `extra="forbid"`, so the YuE2 mapping's
+     `id` body field would be rejected with a 422 there. The header also makes
+     a retried submit safe. **Wrappers should log it.** The `id` row in the
+     YuE2 mapping table below is superseded by this.
+   - *Status*: `{ id, status, stage?, progress?, error? }`.
+     - `status` is one of the six values above. Anything else fails the
+       job, so a wrapper bug can't hold the genLock forever. (`yue2-serve`'s
+       `partial_failed` only exists for `n = 2` groups, which Mulakai never
+       requests.)
+     - `stage` is a free-text string. It becomes `Job.progressStage`, the
+       same field ACE-Step's stage fills.
+     - `progress` is an optional float from **0 to 1**, matching ACE-Step's
+       and `fmtProgress`. `yue2-serve` sends none, only `stage` and token
+       counts.
+     - `error` is either a string or `{ code?, message }`; `yue2-serve`
+       uses the object. Its message becomes the job's error.
+   - *Audio and score*: available once the status is `succeeded` or
+     `truncated` (`yue2-serve` answers 409 before that). The score's 404
+     means "this engine has none", not a failure.
+   - *Cancel*: fire-and-forget. A 404, or any other error, is ignored.
+   - *Health*: 200 means ready. Anything else, including `yue2-serve`'s 503
+     while loading, or no answer within 10 s, shows as not ready.
+   - *Wrappers as built*: `heartmula-server/` follows this list. What it adds
+     on top (the full job snapshot, error codes, the health body) is under
+     "heartmula-server decisions" in the HeartMuLa section.
 4. **Server-side engine interface.** Each extra engine is a small module in
    `server/src/services/engines/` exporting:
    ```ts
    interface SongEngine {
-     id: EngineId;                          // 'heartmula' | 'yue2'
-     label: string;                         // 'HEARTMULA'
+     id: EngineId;                          // 'yue2' | 'heartmula'
+     label: string;                         // 'YUE2'
      url: string; apiKey: string;           // from config; '' = disabled
      capabilities: EngineCapabilities;      // static — see 6
-     toRequest(fields: CreateFields, jobId: string): Record<string, unknown>; // pure mapper
+     toRequest(fields: CreateFields): Record<string, unknown>; // pure mapper; the job id rides as Idempotency-Key (3)
      readMeta(result: { score?: string }): SongMeta; // bpm/key/timesig, if the engine returns any
    }
    ```
@@ -2366,10 +2409,11 @@ most, the whole-song first take, without adding a second editing stack.
      added with `ensureColumn` in `server/src/db/`. It needs no backfill,
      since every existing song is ACE-Step. It is a column for the same
      reason `gen_task` was lifted out of params_json: the Library detail rail
-     (GENERATED WITH → `PROMPT · HEARTMULA`) and REUSE PROMPT read song
+     (GENERATED WITH → `PROMPT · YUE2`) and REUSE PROMPT read song
      rows, not versions. See Open questions for the case against.
-   - `GenLockInfo` gets an optional `engine`, so a rehydrated GeneratingCard
-     and a retry reopen with the right engine.
+   - `GenLockInfo` gets an optional `engine` (absent means ACE-Step, like
+     `songs.engine`), so a rehydrated GeneratingCard and a retry reopen with
+     the right engine.
    - *Rejected*: new `GenTask` values per engine. That would mix up "which
      tab" with "which model", and every `taskToGenType` consumer would need
      to learn each engine.
@@ -2416,6 +2460,7 @@ most, the whole-song first take, without adding a second editing stack.
         `torch.cuda.empty_cache()`.
       - Switching engines then costs a host → device copy, not a ~8–22 GB
         read from disk. Measured for HeartMuLa: ~1 s per model each way.
+        Measured for YuE2: ~1.2–1.5 s to park, ~0.8 s to bring back.
       - *Rejected*: unloading to disk after each job. It is slower on every
         switch, for RAM this machine does not need to save.
     - **Windows driver trap.** When an allocation goes over budget, the
@@ -2462,7 +2507,7 @@ most, the whole-song first take, without adding a second editing stack.
     - Polling reuses `GET /api/generate/:jobId`, because `registerJob` puts
       engine jobs in the shared map.
 
-### Engine 1: HeartMuLa
+### Engine: HeartMuLa (ships second)
 
 Sources: `github.com/HeartMuLa/heartlib`, arXiv 2601.10547, and the
 HuggingFace org `HeartMuLa`. Researched 2026-09-30, then run on this
@@ -2620,56 +2665,37 @@ together. The raw logs, harness scripts, exact commands and audio are in
   whether the ACE-Step performance tags (`[soft voice]`, `[guitar solo]`, …)
   are sung aloud or ignored. They did not cause any error.
 
-#### heartmula-server contract decisions (2026-09-30)
+#### heartmula-server decisions (2026-09-30)
 
-Made while building `feat/heartmula-server`. At that point neither
-`feat/engine-framework` nor `feat/yue-server` existed, so design point 3's
-gaps were filled from YuE2-Turbo's `yue2-serve` source
-(`src/yue2/service.py`, `service_store.py`), the API that point adopts.
-`heartmula-server/README.md` has the full reference.
+Made while building `feat/heartmula-server`, which was written in parallel
+with `feat/engine-framework`. Both filled design point 3's gaps from
+`yue2-serve`'s source, and they agree. `heartmula-server/README.md` has the
+full reference.
 
-**Shared contract** (what `engineClient.ts` can rely on for every wrapper):
+**Against design point 3's contract details:**
 
-- **Job snapshot**: `{id, status, stage, created_at, updated_at, started_at, finished_at, cancel_requested, result, error}`.
+- **Job snapshot**: the whole `yue2-serve` record except its engine-specific
+  extras (`tokens`, `admission_id`):
+  `{id, status, stage, created_at, updated_at, started_at, finished_at, cancel_requested, result, error}`.
   - The times are Unix seconds.
-  - This is `yue2-serve`'s record minus its engine-specific extras
-    (`tokens`, `admission_id`).
-- **`POST /v1/jobs`** → 202 with the snapshot and a `Location` header.
-  - Unknown body fields → 422, since `extra="forbid"` as in `yue2-serve`.
-  - Queue full → 429 with `Retry-After`.
-  - Model not loaded yet → 503 with `Retry-After`.
-- **Errors**: FastAPI's `{"detail": …}`.
-  - 401 `Invalid bearer token`, with `WWW-Authenticate`.
-  - 404 `Job not found`.
-  - 409 `Artifact is not available for this job state`, from `/audio` on a
-    job that is neither `succeeded` nor `truncated`.
-- **A failed job** carries `error: {code, message}` and `result: null`.
-  - `yue2-serve`'s codes are `invalid_generation`, `inference_failed` and
-    `timeout`.
-  - heartmula-server adds `out_of_memory`, whose message points at
-    ACE-Step's offload.
-  - `engineClient` should show `message` and treat any unknown `code` as
-    `inference_failed`.
-- **A cancelled job** has `error: null`.
-  - Cancelling a queued job is immediate.
-  - A running job gets `cancel_requested: true` and ends `cancelled`, even
-    if its audio was already written.
-  - Cancelling a finished job returns it unchanged.
-- **Result**: `{audio_url, score_url, audio_seconds, sample_rate, truncated, timing: {seconds}}`,
-  set on `succeeded` / `truncated`.
-  - `audio_url` is a path relative to the wrapper (`/v1/jobs/{id}/audio`).
-  - heartmula-server adds `gain_db` (see below).
-- **Stages**: the first is `queued`, the last is `finished`, and the names in
-  between belong to each engine. HeartMuLa's are `starting`, `generating`,
-  `decoding` and `saving`.
-- **Health**: `GET /health/ready` → 200 `{"status":"ready"}`, or 503
-  `{"status":"loading"}` / `{"status":"failed"}`. Mulakai's health check is
-  "200 or not".
-  - Health routes need no key, as in `yue2-serve`.
-  - `/health/live` exists too.
-  - heartmula-server's failed body also carries `error`, the load exception.
-- **Auth**: `yue2-serve` always requires its key. The Mulakai wrappers check
-  it only when `<ENGINE>_API_KEY` is set, and bind to 127.0.0.1 by default.
+  - `result` is
+    `{audio_url, score_url: null, audio_seconds, sample_rate, gain_db, truncated, timing}`.
+- **`Idempotency-Key`**: logged next to the wrapper's job id. The same key
+  with the same body replays the original job (200). With a different body
+  it is a 409, as in `yue2-serve`.
+- **Failed jobs**: `error: {code, message}`. The codes are `yue2-serve`'s
+  `invalid_generation` and `inference_failed`, plus `out_of_memory`, whose
+  message points at ACE-Step's offload.
+- **Cancelled jobs** have `error: null`. A cancel that arrives after the
+  audio is written still ends the job `cancelled`.
+- **Health**: `/health/ready`'s 503 body is `{"status":"loading"}`, or
+  `{"status":"failed","error":…}` when the weights failed to load.
+  `/health/live` exists too.
+- **Auth**: the key is checked only when `HEARTMULA_API_KEY` is set, unlike
+  `yue2-serve`, which always requires one. The server binds to 127.0.0.1
+  by default.
+- **Stages**: `queued`, `starting`, `generating`, `decoding`, `saving`,
+  `finished`. There is no `progress`.
 - **Jobs are in memory.** A restart forgets them, and the next poll is a
   404, which the 3-strike rule turns into a failed job.
 
@@ -2734,11 +2760,12 @@ gaps were filled from YuE2-Turbo's `yue2-serve` source
   - A CPU-only run against the real model also passed the cancel and
     context-guard paths.
 
-### Engine 2: YuE2
+### Engine: YuE2 (ships first)
 
 Sources: `github.com/multimodal-art-projection/YuE` (main),
 HuggingFace `m-a-p/YuE2-3B`, and `github.com/NoizAI/YuE2-Turbo`. Researched
-2026-09-30 and not yet run on this machine.
+2026-09-30, then run in WSL2 on this machine the same day; see "YuE2 spike
+results" below.
 
 - **Model**: one AR–NAR model of ~3.58B params. It works in three steps: an
   ABC score plan → MERT2 semantic tokens at 25 Hz → flow-matched acoustic
@@ -2764,19 +2791,20 @@ HuggingFace `m-a-p/YuE2-3B`, and `github.com/NoizAI/YuE2-Turbo`. Researched
   timings). No stems. No lyric timestamps are documented.
 - **Runtime**: Linux only. Python 3.12, torch 2.10.0, an NVIDIA BF16 GPU.
   - VRAM: 24 GB is the official figure; the measured peak is ~11–14 GiB.
-  - Speed: an RTX 4090 renders a 215 s song in 71 s.
+  - Speed: an RTX 4090 renders a 215 s song in 71 s. The spike measured
+    178 s of audio in 96 s on the 4080 (RTF 0.54).
   - Weights: 7.26 GB plus a 0.53 GB VAE.
   - `--quantization fp8` (compute capability ≥ 8.9) and `--offload-ar` exist
     but are experimental.
-  - *At 16 GB*: the measured peak is 11–14 GiB, reaching **14.08 GiB at
-    maximum context**, which is borderline against ~14.5 GB usable. WSL2
-    shares the same 16 GB. The 4080 is compute capability 8.9, so
-    `--quantization fp8` for the AR stage is available, along with
-    `--offload-ar`. Both are the planned mitigations if the spike hits the
-    ceiling.
+  - *At 16 GB*: it fits with the defaults. The spike's PyTorch peak was
+    8.1 GiB (8.8 GiB with `cot=off`), or 10.2–10.9 GB on the card with the
+    desktop included. Neither fp8 nor `--offload-ar` is needed, and fp8 is
+    4.6x slower (see "YuE2 spike results"). The card's 14.08 GiB at maximum
+    context was not reproduced; the longest song tried was ~3 minutes.
 - **Windows is unsupported.** Open issue #209: on Windows the acoustic stage
   falls back to the MATH attention kernel, which is ~6x slower and uses
-  ~7 GB more VRAM. On this machine that means **WSL2**.
+  ~7 GB more VRAM. On this machine that means **WSL2**, where the spike
+  confirmed the fast path (FlashAttention with CUDA graphs).
 - **Serving**: the official repo has **no HTTP server**, only a CLI
   (`yue2 doctor|generate|batch`). YuE2-Turbo (Apache-2.0) ships `yue2-serve`
   (FastAPI, bearer `YUE2_API_KEY`). Its job API is the one design point 3
@@ -2828,12 +2856,98 @@ HuggingFace `m-a-p/YuE2-3B`, and `github.com/NoizAI/YuE2-Turbo`. Researched
 | RANDOM SEED / SEED | `seed` | **always sent.** YuE's default is the fixed 831001, so omitting it would return the same song for the same prompt every time. With RANDOM SEED on, the server picks a seed and records it. |
 | COT (engine control) | `cot` | AUTO / FULL / MELODY / OFF; AUTO omits it |
 | DURATION, VOCAL LANGUAGE, reference audio / voice, adapter, TAKES, model / LM / STEPS / ADVANCED | — | disabled |
-| — | `id` | our job id, so both sides' logs can be matched |
+| — | ~~`id`~~ | our job id, so both sides' logs can be matched. **Superseded 2026-09-30**: it is sent as the `Idempotency-Key` header instead, because `yue2-serve` rejects unknown body fields (see design point 3's contract details) |
 
 **Consequence line**: "YuE2 · no duration control, no reference voice, no
-section strip · ~70 s per song on a 4090 · later edits use ACE-Step".
+section strip · ~95 s per 3-minute song on an RTX 4080 · later edits use
+ACE-Step".
 **Settings card license note**: "YuE2 weights: CC BY-NC 4.0 — individuals
 may use and monetize outputs; companies need a license from the authors."
+
+#### YuE2 spike results (2026-09-30)
+
+**Verdict: go, with caveats.** The official pipeline runs in WSL2 on the
+4080 at about half real time, with the default settings, without spilling.
+The logs, harness scripts, exact commands and audio are in WSL at
+`~/yue2/` (`RESULTS.md`, `COMMANDS.md`), reachable from Windows at
+`\\wsl.localhost\Ubuntu-24.04\home\calvin\yue2\`.
+
+- **Setup**: WSL2 (NAT networking, no `.wslconfig`), Ubuntu 24.04.5 with
+  62 GB of RAM visible. YuE commit `18a07bb` (`yue2-infer` 0.1.6). Python
+  3.12.3 (uv venv), torch 2.10.0+cu128, transformers 4.57.6. The Windows
+  driver (596.21) provides CUDA inside WSL, and no Linux driver was
+  installed. `yue2 doctor` reported the dependencies ready and saw the 4080
+  as 15.99 GiB, compute capability 8.9. `--verify-hashes` downloaded the
+  weights in 221 s.
+- **Install blockers**: none in YuE2 itself. Getting WSL working took three
+  tries:
+  - Enabling Virtual Machine Platform needed a reboot.
+  - A distro installed before that reboot never registered.
+  - Ubuntu's first-run user setup then hung and locked up all of WSL,
+    including `wsl --shutdown`. The fix was stopping the WSL service and
+    creating the user as root (`wsl -u root`, `adduser`, `[user] default=`
+    in `/etc/wsl.conf`). `yue-server/README.md` should carry this.
+- **Driver policy**: the spike ran with the default Sysmem Fallback Policy,
+  and nothing spilled. YuE2 caps its own PyTorch allocations at the card's
+  total minus 2 GiB (`set_per_process_memory_fraction`, from `--budget`), so
+  on its own it would hit out-of-memory before spilling.
+
+One ~3-minute English request (`[Verse]` / `[Pre-Chorus]` / `[Chorus]` /
+`[Bridge]` / `[Outro]`, seed 20260930) was generated in every run. The card
+column includes ~1.17 GB for the Windows desktop.
+
+| Run | Audio | Wall time | RTF | PyTorch peak (alloc / reserved) | Card peak (nvidia-smi) | Spill (WDDM shared) | Truncated | AR path |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| default (bf16, `cot=full`) | 177.6 s | 95.7 s | 0.54 | 8.09 / 8.69 GiB | 10.2 GB | none | no | CUDA graphs, flash |
+| `--quantization fp8` | 189.8 s | 443.7 s | 2.34 | 7.89 / 9.75 GiB | 11.5 GB | none | no | eager, sdpa |
+| `--offload-ar` | 177.6 s | 94.5 s | 0.53 | 8.09 / 8.69 GiB | 10.2 GB | none | no | CUDA graphs, flash |
+| `cot=off` (two CFG branches) | 183.8 s | 82.5 s | 0.45 | 8.79 / 9.17 GiB | 10.9 GB | none | no | CUDA graphs, flash |
+
+- **Stages (default run)**:
+  - Pipeline start 3.9 s, of which 3.4 s is weight hashing, plus 2.8 s to
+    load the model.
+  - Score plan 17.9 s (1,673 tokens at 94 tokens/s).
+  - Semantic tokens 46.8 s (4,442 tokens at 95 tokens/s).
+  - Acoustic synthesis 20.9 s, VAE decode 7.2 s.
+- **fp8 is not worth it here.** It turns CUDA graphs off
+  (`graph_fallback_reason: fp8_not_graph_validated`), so the AR stages drop
+  from ~95 to ~16 tokens/s. It saves only 0.2 GiB at peak, and synthesis
+  reserves more, because the bf16 weights are restored for it. It also
+  changes the sampling, so the same seed gives a different song.
+- **`--offload-ar` changes nothing at this length.** The peak is in the
+  semantic AR stage, which offload-ar does not touch. Its output was
+  bit-identical to the default run's, so seeded runs are reproducible.
+- **Why the peak is flat**: the AR KV cache is preallocated for the prefix
+  plus `max_tokens` (9000), ~1.2 GiB for one branch and ~2.4 GiB for
+  `cot=off`'s two, whatever the song length. Only the acoustic stage grows
+  with length, and songs near the 360 s cap were not tried.
+- **RAM parking** (`.to()` plus `empty_cache()`, 3 reps):
+
+  | Model | Size | GPU → CPU | CPU → GPU |
+  | --- | --- | --- | --- |
+  | AR/NAR model + VAE decoder (bf16) | 6.67 + 0.25 GiB | 1.2–1.5 s (4.9 s the first time) | 0.78 s (0.30 s from pinned memory) |
+
+  - Parked, the card drops back to its idle baseline.
+  - The pipeline already moves the model to CPU before the VAE decode and
+    moves the VAE back after it, so after a job only the CUDA context
+    (~0.6 GB) stays on the card. The next job brings the model back in
+    ~0.8 s.
+- **Windows → WSL**: a server bound to `0.0.0.0` or `127.0.0.1` inside WSL
+  answers on Windows at `localhost` and `127.0.0.1`, and Node 22's `fetch`
+  works. `[::1]` does not, because NAT-mode forwarding is IPv4-only, so the
+  URL should be `http://127.0.0.1:<port>`. WSL does not start on its own,
+  so the wrapper has to be launched through `wsl.exe`, by the user or a
+  startup task.
+- **Requirements for `yue-server/`** that follow from these numbers:
+  1. Default flags: bf16, `torch` backend, default `--budget`, no fp8, no
+     `--offload-ar`.
+  2. Keep one pipeline alive between jobs, so hashing and loading happen
+     once, and call `torch.cuda.empty_cache()` after each job.
+  3. A job needs ~9 GiB of free VRAM, so ACE-Step must be idle and
+     offloaded (~0.5 GB) while it runs. That holds under `genLock`.
+- **Not yet checked**: listening to the songs, instrumental (empty lyrics),
+  songs near the 360 s cap, and YuE2-Turbo. The plain pipeline leaves
+  ~5 GiB free, but Turbo is a vLLM setup tuned for 32 GB cards.
 
 ### Skipped: MiniMax Music 3
 
@@ -2851,11 +2965,49 @@ Considered 2026-09-30 and not planned:
 
 Revisit only if two or more of these change.
 
+### Framework decisions (2026-09-30, `feat/engine-framework`)
+
+The project owner confirmed these before PR 1. Each one also closes an open
+question below.
+
+- **`songs.engine` is a column**, as design point 8 recommends. Null means
+  ACE-Step, and there is no backfill.
+- **A `truncated` result is kept.** It is stored like `succeeded`, under the
+  version label `first generation (truncated)`. The rail's `.warn-note`
+  ships with the picker UI.
+- **The score is persisted now.** When `/score` returns one, it is written
+  next to the audio as `${versionId}.abc`, after `readMeta` has read it. A
+  failed or missing score never fails the song. The sidecar is not served
+  and nothing reads it yet. Every path that deletes a version's audio (a
+  version, a non-base layer, a trashed song) goes through `versionFiles.ts`,
+  so the sidecar is deleted along with it.
+- **What an engine version records in `params_json`**: the Create fields
+  under their Create names at the top level, then `engine`,
+  `task_type: 'text2music'`, and `request`, the exact body sent to the
+  wrapper. The top level has to keep Create names, because the Editor's
+  history row reads `params.prompt`. Nesting the wire body keeps "what was
+  sent" exact, without every engine declaring which fields it left unmapped.
+  `versions.seed` is `request.seed` when the engine sent one, and `''`
+  otherwise.
+- **`CreateFields`** uses the ACE-Step route's names: `prompt`, `lyrics`,
+  `bpm`, `key_scale`, `time_signature`, `vocal_language`, `audio_duration`,
+  `guidance_scale`, `use_random_seed`, `seed` and `output`. The engine-only
+  controls are named after `extraControls`: `cfg`, `temperature`, `top_k`
+  and `cot`. A field that is absent means AUTO. The route takes JSON only,
+  since no extra engine accepts reference audio.
+- **Route errors**: an unknown engine id is a 404. `acestep` or an engine
+  with an empty URL is a 400. A held genLock is a 409, as on
+  `/api/generate`. A wrapper that is unreachable or refuses the job fails
+  the job, not the request. This matches ACE-Step, whose submit also runs
+  after the 202.
+- `GET /api/generate/active` also returns the lock's `engine`, so a
+  rehydrated GeneratingCard can say which engine is running.
+
 ### File-level plan
 
 Shared (engine framework):
-- `server/src/config.ts` — add `heartmulaUrl` / `heartmulaApiKey` and
-  `yueUrl` / `yueApiKey`, next to `demucsUrl`.
+- `server/src/config.ts` — add `yueUrl` / `yueApiKey` and
+  `heartmulaUrl` / `heartmulaApiKey`, next to `demucsUrl`.
 - `server/src/services/engines/types.ts` — new. `SongEngine`,
   `EngineCapabilities`, `EngineId`, `CreateFields`, `SongMeta`.
 - `server/src/services/engines/registry.ts` — new. Lists the configured
@@ -2866,20 +3018,31 @@ Shared (engine framework):
   `acestep.ts`'s timeout pattern (the per-request ceiling, 5x for downloads).
 - `server/src/services/engineGenJobs.ts` — new.
   `startEngineGeneration(engine, fields, title, folderId)`.
+- `server/src/services/versionFiles.ts` — new. A version's files on disk
+  (its audio plus an optional `${versionId}.abc` score sidecar), so every
+  delete path removes both.
+- `server/src/routes/versions.ts`, `server/src/routes/layers.ts`,
+  `server/src/services/trashSweep.ts` — delete through `versionFiles.ts`.
 - `server/src/services/songPersist.ts` — new. `insertGeneratedSong`,
   extracted from `persistSong`.
 - `server/src/services/jobs.ts` — `persistSong` delegates to
   `insertGeneratedSong`, so the file gets smaller.
-- `server/src/services/genLock.ts` — add `engine?: EngineId | 'acestep'` to
-  `GenLockInfo`.
-- `server/src/services/repaintJobs.ts` — `assertReplayable` refuses any
-  non-ACE-Step `engine`.
+- `server/src/services/genLock.ts` — add `engine?: EngineId` to
+  `GenLockInfo` (absent = ACE-Step).
+- `server/src/services/replayGuard.ts` — new. `assertReplayable` moves out of
+  `repaintJobs.ts`, which was already over the 200 LOC cap, and refuses any
+  version whose `params_json` records an `engine`.
+- `server/src/services/fileTags.ts` — `readAudioDuration`, the taglib read
+  behind the duration fallback in design point 7.
 - `server/src/routes/engines.ts` — new. `GET /api/engines` and
   `POST /api/engines/:id/generate`.
 - `server/src/index.ts` — mount the router.
 - `server/src/db/schema.ts`, `server/src/db/index.ts` — add `songs.engine`
   and its `ensureColumn`. `routes/songs.ts` already selects `s.*`, so the
   field reaches the client with no route change.
+- `server/src/routes/songs.ts` — each version in the editor payload also
+  carries `engine` (from `params_json`, null for ACE-Step), so
+  `VersionHistory` can hide ALT / SIMILAR without parsing params itself.
 - `client/src/api/generation.ts` — `engines()`, `generateWithEngine()`.
 - `client/src/api/types.ts` — `Song.engine`, the lock's `engine`,
   `EngineInfo`.
@@ -2918,7 +3081,9 @@ Shared (engine framework):
 - `docs/design/DESIGN.md` — the ENGINE choice, the descriptor-driven `n/a`
   gating, the Engines card, and the consequence lines, committed in the same
   PR as the UI.
-- `README.md` — env table rows for the four new variables, the "run
+- `README.md` (in `feat/yue-engine`, not the framework PR: until an engine
+  module exists, setting these variables does nothing) — env table rows for
+  the four new variables, the "run
   ACE-Step with `ACESTEP_OFFLOAD_TO_CPU=true` when any engine is configured"
   requirement, the Sysmem Fallback Policy recommendation, and pointers to
   each wrapper's README.
@@ -2933,7 +3098,7 @@ HeartMuLa:
   recommendation, and the ACE-Step offload requirement. The server parks
   each model on the CPU between stages and jobs (design point 10), in place
   of heartlib's `lazy_load`, and writes FLAC. Built 2026-09-30; see
-  "heartmula-server contract decisions".
+  "heartmula-server decisions".
 - `server/src/services/engines/heartmula.ts` — new. Descriptor,
   `toRequest` (caption → tags, duration → cap), and a no-op `readMeta`.
 
@@ -2941,14 +3106,17 @@ YuE2:
 - `yue-server/main.py`, `requirements.txt`, `README.md` — new. Covers the
   WSL2 setup (Python 3.12 venv, torch 2.10.0, `yue2 doctor`), the
   staged-progress reporting, the cancel-between-stages flag, CPU parking
-  between jobs, the fp8 / `--offload-ar` flags, and reaching the server from
-  Windows at `http://127.0.0.1:<port>`.
+  between jobs, the fp8 / `--offload-ar` flags (off by default; the spike
+  found fp8 4.6x slower), reaching the server from Windows at
+  `http://127.0.0.1:<port>`, starting it through `wsl.exe`, and the WSL
+  first-run hang workaround.
 - `server/src/services/engines/yue2.ts` — new. Descriptor, `toRequest`, and
   the ABC `readMeta`.
 
 Tests (Vitest):
 - `engineClient.test.ts` — mocked fetch.
-  - The bearer header is sent only when a key is set.
+  - The bearer header is sent only when a key is set, and our job id goes
+    out as the `Idempotency-Key`.
   - Status mapping: queued / running → running; succeeded / truncated →
     done (see Open questions); failed / cancelled → failed.
   - Timeouts, and health is false when the server is unreachable or
@@ -2959,6 +3127,10 @@ Tests (Vitest):
   - The duration falls back to the file.
   - The genLock is held during the job and released after it.
   - The 3-strike poll rule applies, and an abort sends cancel.
+  - `truncated` keeps the song under the `first generation (truncated)`
+    label, and a returned score lands as the `${versionId}.abc` sidecar.
+- `versionFiles.test.ts` — deleting a version, a layer, or a trashed song
+  also removes a score sidecar, and a missing sidecar is not an error.
 - `engines/heartmula.test.ts` — caption → tags normalisation (commas,
   semicolons, inner spaces, case, empties), AUTO duration → 240000, and
   dropped fields.
@@ -2975,7 +3147,7 @@ Tests (Vitest):
   version.
 - `createDraft.test.ts` — `reusePromptDraft` carries `engine`.
 - Playwright (not set up yet; see `docs/AUDIT.md`): the golden path PROMPT +
-  HEARTMULA → library → open in Editor → repaint a region on ACE-Step → a
+  YUE2 → library → open in Editor → repaint a region on ACE-Step → a
   new version. It runs against a fake wrapper fixture that implements the
   shared contract, so CI needs no GPU.
 
@@ -2999,19 +3171,41 @@ Tests (Vitest):
    **Done 2026-09-30: go, with caveats.** See "HeartMuLa spike results". All
    items were covered on native Windows. The exception is the Sysmem Fallback
    Policy, which stayed at the driver default.
+0b. YuE2: a WSL2 spike like step 0 (also try empty lyrics, and note whether
+   `truncated` shows up at the default `max_tokens`).
+
+   **Spike done 2026-09-30: go, with caveats.** See "YuE2 spike results".
+   `truncated` did not show up at the default `max_tokens` for ~3-minute
+   songs. Empty lyrics were not tried.
+
+**Reordered 2026-09-30: YuE2 ships first** (see "Engine order"). The PRs
+below replace the original order, which was framework → HeartMuLa server →
+HeartMuLa engine → picker UI → YuE2 server and engine. The server-side
+pieces are server-only and ship dark; the client files in the file-level
+plan all belong to step 4.
+
 1. `feat/engine-framework` — the `songPersist` split as its own first
    `refactor:` commit, then the interface, registry, `engineClient`,
-   `engineGenJobs`, routes, `songs.engine`, the ALT guard, and the
-   `AGENTS.md` / `CLAUDE.md` amendment. No engine is configured yet, so
-   nothing changes for the user.
-2. `feat/heartmula-server` — the wrapper and its README.
-3. `feat/heartmula-engine` — the engine module, mapping, and tests.
+   `engineGenJobs`, routes, `songs.engine`, the ALT guard, the score
+   sidecar (`versionFiles.ts`), and the `AGENTS.md` / `CLAUDE.md`
+   amendment. No engine module exists yet, so `GET /api/engines` lists only
+   ACE-Step and nothing changes for the user.
+2. `feat/yue-server` — the WSL2 wrapper and its README. It is built in
+   parallel with step 1, against design point 3's contract details.
+3. `feat/yue-engine` — `engines/yue2.ts` (descriptor, `toRequest`, ABC
+   `readMeta`), its registry entry, and tests. Once this lands a configured
+   `YUE_API_URL` generates through the API, but there is still no UI for it.
 4. `feat/engine-picker-ui` — the Create picker, descriptor gating, the
-   Engines card, and `DESIGN.md` (its own commit).
-5. YuE2: a WSL2 spike like step 0 (also try empty lyrics, and note whether
-   `truncated` shows up at the default `max_tokens`), then `feat/yue-server`
-   and `feat/yue-engine`. There is no new UI work, because the descriptor
-   already covers it.
+   Engines card (with YuE2's license note), `GeneratingCard`'s YuE2 stage
+   names, `VersionHistory`'s ALT / SIMILAR hiding, and `DESIGN.md` (its own
+   commit). It is exercised against YuE2, so the `'max'` duration readout
+   and the `seed: false` lock are built from the descriptor but only
+   unit-tested until HeartMuLa lands.
+5. `feat/heartmula-server` — the wrapper and its README.
+6. `feat/heartmula-engine` — the engine module, mapping, and tests, plus its
+   one piece of engine-specific UI: the read-only tag preview under PROMPT
+   (`CreatePromptTab.tsx`, and a `DESIGN.md` note if it needs one).
+   Everything else is already driven by the descriptor.
 
 ### Open questions
 
@@ -3035,10 +3229,15 @@ General:
     model. It would also leave the 7.3 GB LM resident, and that plus
     ACE-Step's 9.2 GB generation peak does not fit in 16 GB. Revisit for
     YuE2 after its spike.
+  - **Answered for YuE2 (2026-09-30): park after every job too.** Bringing
+    the model back takes ~0.8 s, and the pipeline already parks it during
+    the decode. A resident 6.9 GiB model plus ACE-Step's 9.2 GB peak would
+    not fit either.
 - **Engine column vs params_json only.** The column is recommended (design
   point 8). The case against: params_json already records `engine`, and a
   column is one more migration for a value that only two readers use.
   Confirm before PR 1.
+  - **Answered (2026-09-30): the column.** See "Framework decisions".
 - **Compare engines (future idea, not planned).** Generate one prompt on
   several engines and keep each result as a Base-layer version of the same
   song. It fits the version model, but it is a batch across engines, and
@@ -3079,23 +3278,38 @@ HeartMuLa:
 
 YuE2:
 - **Is WSL2 viable, and how fast is it?** Answered by its spike.
+  - **Answered (2026-09-30): yes.** RTF 0.54 (~95 s for a 3-minute song),
+    10.2 GB peak on the card, no spill, and the fast attention path. See
+    "YuE2 spike results".
 - **Wrapper vs Turbo.** Revisit after the spike. Switching is a deployment
   change and needs no code.
+  - *Leaning wrapper (2026-09-30)*: the official pipeline already runs the
+    AR stages with CUDA graphs and FlashAttention at ~95 tokens/s on the
+    4080. Turbo was not tried.
 - **Persist `score.abc`?** Leaning yes: store it as a `${versionId}.abc`
   sidecar. It is tiny, it cannot be recovered later, and anything
   score-aware in the future needs it. Against: nothing reads it yet, and
   ABC editing is out of scope.
+  - **Answered (2026-09-30): yes, from PR 1.** See "Framework decisions".
 - **Covers via SheetSage2**: this needs its own dated section if it is ever
   wanted.
 - **`truncated` results.** A plan longer than the semantic `max_tokens` gets
   cut off. The v1 leaning is to keep the song, label its version
   `first generation (truncated)`, and show a `.warn-note` in the rail.
   The alternative is to fail the job.
+  - *Not seen in the spike (2026-09-30)*: none of the four ~3-minute runs
+    was truncated. A ~3-minute song used ~4,500 of the 9,000 semantic
+    tokens.
+  - **Answered (2026-09-30): keep it, with the label.** See "Framework
+    decisions".
 - **Should ALT on a YuE2 base version resubmit to YuE2** instead of being
   refused (design point 9)? The same question applies to HeartMuLa, but
   HeartMuLa has no seed, so a resubmit would only produce a new take.
 - **Instrumental (empty lyrics)**: is it supported? If not, GENERATE needs
   a guard for YuE2.
+  - *Partly answered (2026-09-30), from source*: `yue2-serve` rejects blank
+    `lyrics` (and blank `style`) with a 422, so on Turbo the answer is no.
+    The official pipeline behind `yue-server/` was not tried.
 - **Languages other than en / zh**: hard-block them or only warn? VOCAL
   LANGUAGE is disabled either way, but nothing stops the lyrics themselves
   from being in another language.

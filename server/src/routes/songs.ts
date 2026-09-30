@@ -79,12 +79,14 @@ songsRouter.get('/:id', (req, res) => {
       .all(layer.id as string) as Array<Record<string, unknown>>;
     layer.versions = versions.map(({ params_json, lyric_timestamps, ...rest }) => {
       const params = JSON.parse(params_json as string) as {
-        prompt?: string; task_type?: string; repainting_start?: number; repainting_end?: number;
+        prompt?: string; task_type?: string; repainting_start?: number; repainting_end?: number; engine?: string;
       };
       return {
         ...rest,
         prompt: params.prompt ?? '',
         task_type: params.task_type ?? 'text2music',
+        // Set only on an extra engine's take, which ALT/SIMILAR refuse (repaintJobs.ts).
+        engine: params.engine ?? null,
         region_start: params.repainting_start ?? null,
         region_end: params.repainting_end ?? null,
         lyricTimestamps: lyric_timestamps ? JSON.parse(lyric_timestamps as string) : null,
