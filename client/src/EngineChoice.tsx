@@ -50,8 +50,8 @@ export function EngineChoice() {
       ))}
       {unavailable && loaded && selected && (
         <div className="warn-note">
-          {selected.label} can&apos;t take a job right now — {unavailableReason(selected)}. GENERATE is off until
-          it is back, or switch to ACE-STEP.
+          {selected.label} can&apos;t take a job right now ({unavailableReason(selected)}) — GENERATE is off until
+          it&apos;s back, or switch to ACE-STEP.
         </div>
       )}
     </>
