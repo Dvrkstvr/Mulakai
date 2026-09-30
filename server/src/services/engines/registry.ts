@@ -5,11 +5,11 @@
 import { health as acestepHealth } from '../acestep.js';
 import { health as engineHealth } from '../engineClient.js';
 import type { EngineCapabilities, EngineId, SongEngine } from './types.js';
+import { yue2Engine } from './yue2.js';
 
-/** Extra engines in rollout order: YuE2, then HeartMuLa. Each lands with its own module
- * (feat/yue-engine, feat/heartmula-engine), so until then this is empty and Create looks
- * exactly as it does today. */
-export const EXTRA_ENGINES: readonly SongEngine[] = [];
+/** Extra engines in rollout order: YuE2, then HeartMuLa (feat/heartmula-engine). An
+ * engine whose URL is unset is listed as not configured and never probed. */
+export const EXTRA_ENGINES: readonly SongEngine[] = [yue2Engine];
 
 export const ACESTEP_CAPABILITIES: EngineCapabilities = {
   duration: 'exact',

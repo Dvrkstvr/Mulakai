@@ -6,7 +6,10 @@ const engineHealth = vi.fn(async (_e: { url: string }) => true);
 vi.mock('../acestep.js', () => ({ health: () => acestepHealth() }));
 vi.mock('../engineClient.js', () => ({ health: (e: { url: string }) => engineHealth(e) }));
 
+// A default install: no engine URL set (config reads the env once, at import).
+process.env.YUE_API_URL = '';
 const { listEngines, getEngine, EXTRA_ENGINES, ACESTEP_CAPABILITIES } = await import('./registry.js');
+const { YUE2_CAPABILITIES } = await import('./yue2.js');
 
 function fake(id: SongEngine['id'], url: string): SongEngine {
   return {
@@ -18,12 +21,15 @@ function fake(id: SongEngine['id'], url: string): SongEngine {
 }
 
 describe('engine registry', () => {
-  it('ships with no extra engine, so a default install lists only ACE-Step', async () => {
-    expect(EXTRA_ENGINES).toEqual([]);
+  it('ships YuE2, listed as not configured (and never probed) until YUE_API_URL is set', async () => {
+    engineHealth.mockClear();
+    expect(EXTRA_ENGINES.map((e) => e.id)).toEqual(['yue2']);
     const list = await listEngines();
     expect(list).toEqual([
       { id: 'acestep', label: 'ACE-STEP', capabilities: ACESTEP_CAPABILITIES, configured: true, ready: true },
+      { id: 'yue2', label: 'YUE2', capabilities: YUE2_CAPABILITIES, configured: false, ready: false },
     ]);
+    expect(engineHealth).not.toHaveBeenCalled();
   });
 
   it('lists ACE-Step first, then each extra engine in order, with live health', async () => {
