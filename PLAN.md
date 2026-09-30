@@ -4380,6 +4380,27 @@ they supersede them:
   - The header pill shows the new lock kind as `TRANSCRIBE · RUNNING`.
 - **DESIGN.md is updated in its own commit.** It says COVER is always
   ACE-Step, which is no longer true.
+- **Browser-checked end to end (2026-10-01).** This branch's client and
+  server ran on a scratch library against the real yue-server in WSL:
+  - **Engine row:** COVER showed ENGINE (ACE-STEP / YUE2), and picking
+    YUE2 swapped the settings panel to CFG / SEED with the COT hint.
+  - **Transcribe an upload:** *Ellies* reviewed as 75 BPM, F minor, 4/4,
+    44 bars, 2:21, 167 sung / 16 played, with a playable 2:20 piano
+    preview. LYRICS were seeded with the score's outline.
+  - **FIT TO SCORE** turned untagged words into exactly the spike's
+    hand-aligned lyrics.
+  - **Generate:** GENERATE COVER handed off to the Library card and
+    saved `COVER · YUE2` (75 BPM / F minor / 2:21).
+  - **REUSE PROMPT** reopened COVER on YUE2 with the fetched score, ready
+    to GENERATE with no source.
+  - **Library source:** transcribing the new cover as a FROM LIBRARY
+    source (a client-side bounce) gave 46 bars and 168 sung / 14 played
+    notes, close to the original's 167 / 16.
+  - **Settings:** Settings › Engines showed `COVERS: READY` and the
+    SheetSage2 licence line.
+  - **A bug found and fixed along the way:** tags-only lyrics were not
+    read as an instrumental. The consequence line now uses yue-server's
+    rule (`hasWords`).
 
 ### Open questions
 
