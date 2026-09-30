@@ -2274,6 +2274,10 @@ most, the whole-song first take, without adding a second editing stack.
    Mulakai then needs one generic HTTP client (`engineClient.ts`, taking a
    base URL and key) instead of one per engine. Adopting a real engine's
    existing API also means YuE2-Turbo works with no wrapper at all.
+   - The details this list leaves open (the snapshot fields, the error
+     bodies, the health payload, the audio route's statuses) were settled in
+     `feat/heartmula-server` by copying `yue2-serve`. See "heartmula-server
+     contract decisions" under Engine 1. `yue-server/` should match them.
 4. **Server-side engine interface.** Each extra engine is a small module in
    `server/src/services/engines/` exporting:
    ```ts
@@ -2616,6 +2620,109 @@ together. The raw logs, harness scripts, exact commands and audio are in
   whether the ACE-Step performance tags (`[soft voice]`, `[guitar solo]`, …)
   are sung aloud or ignored. They did not cause any error.
 
+#### heartmula-server contract decisions (2026-09-30)
+
+Made while building `feat/heartmula-server`. At that point neither
+`feat/engine-framework` nor `feat/yue-server` existed, so design point 3's
+gaps were filled from YuE2-Turbo's `yue2-serve` source
+(`src/yue2/service.py`, `service_store.py`), the API that point adopts.
+`heartmula-server/README.md` has the full reference.
+
+**Shared contract** (what `engineClient.ts` can rely on for every wrapper):
+
+- **Job snapshot**: `{id, status, stage, created_at, updated_at, started_at, finished_at, cancel_requested, result, error}`.
+  - The times are Unix seconds.
+  - This is `yue2-serve`'s record minus its engine-specific extras
+    (`tokens`, `admission_id`).
+- **`POST /v1/jobs`** → 202 with the snapshot and a `Location` header.
+  - Unknown body fields → 422, since `extra="forbid"` as in `yue2-serve`.
+  - Queue full → 429 with `Retry-After`.
+  - Model not loaded yet → 503 with `Retry-After`.
+- **Errors**: FastAPI's `{"detail": …}`.
+  - 401 `Invalid bearer token`, with `WWW-Authenticate`.
+  - 404 `Job not found`.
+  - 409 `Artifact is not available for this job state`, from `/audio` on a
+    job that is neither `succeeded` nor `truncated`.
+- **A failed job** carries `error: {code, message}` and `result: null`.
+  - `yue2-serve`'s codes are `invalid_generation`, `inference_failed` and
+    `timeout`.
+  - heartmula-server adds `out_of_memory`, whose message points at
+    ACE-Step's offload.
+  - `engineClient` should show `message` and treat any unknown `code` as
+    `inference_failed`.
+- **A cancelled job** has `error: null`.
+  - Cancelling a queued job is immediate.
+  - A running job gets `cancel_requested: true` and ends `cancelled`, even
+    if its audio was already written.
+  - Cancelling a finished job returns it unchanged.
+- **Result**: `{audio_url, score_url, audio_seconds, sample_rate, truncated, timing: {seconds}}`,
+  set on `succeeded` / `truncated`.
+  - `audio_url` is a path relative to the wrapper (`/v1/jobs/{id}/audio`).
+  - heartmula-server adds `gain_db` (see below).
+- **Stages**: the first is `queued`, the last is `finished`, and the names in
+  between belong to each engine. HeartMuLa's are `starting`, `generating`,
+  `decoding` and `saving`.
+- **Health**: `GET /health/ready` → 200 `{"status":"ready"}`, or 503
+  `{"status":"loading"}` / `{"status":"failed"}`. Mulakai's health check is
+  "200 or not".
+  - Health routes need no key, as in `yue2-serve`.
+  - `/health/live` exists too.
+  - heartmula-server's failed body also carries `error`, the load exception.
+- **Auth**: `yue2-serve` always requires its key. The Mulakai wrappers check
+  it only when `<ENGINE>_API_KEY` is set, and bind to 127.0.0.1 by default.
+- **Jobs are in memory.** A restart forgets them, and the next poll is a
+  404, which the 3-strike rule turns into a failed job.
+
+**HeartMuLa specifics:**
+
+- **Request fields keep heartlib's names**: `tags`, `lyrics`,
+  `max_audio_length_ms` (default 240000, range 10000–360000), `cfg_scale`,
+  `temperature`, `topk`.
+  - `null` means heartlib's default, so AUTO omits the field.
+  - The mapping table's "GUIDANCE → `cfg`" is `cfg_scale` on the wire, and
+    "top-k" is `topk`.
+- **Blank lyrics → 422.** heartlib indexes the first lyric token, so an
+  empty lyric crashes it. HeartMuLa has no instrumental mode, and the
+  engine-picker UI needs a guard like the one planned for YuE2.
+- **A `tags` or `lyrics` value that is an existing file path → 422.**
+  heartlib's `preprocess` would read that file and sing it.
+- **`truncated`** means the LM hit `max_audio_length_ms` without emitting
+  its end token, so the song is cut off. The spike's first English song hit
+  this. It maps to Mulakai's done state, and the YuE2 `(truncated)` label
+  idea can reuse it.
+- **FLAC is 24-bit integer, not float.** FLAC has no float format:
+  libsndfile rejects `FLAC` + `FLOAT`, which rules out the spec's "float
+  FLAC" option.
+  - Over-scale audio instead gets one static gain down to −0.1 dBFS. That
+    means no clipping and no limiter coloring. `gain_db` reports the change.
+  - The spike's 1.12–1.33 peaks become about −1 to −2.5 dB.
+- **No progress fraction** (this answers the open question below). The
+  per-frame hook exists, but the fraction would be an upper bound. `stage`
+  is reported instead.
+- **Cancel reaches into the LM loop.** A forward pre-hook on the backbone
+  checks the flag once per 80 ms frame, and it is removed after every job.
+  heartlib's code is not modified.
+- **KV caches are dropped after every job.**
+  - The finding: torchtune 0.4's `setup_cache` *skips* any layer whose
+    cache already exists.
+  - Without the drop, a long-lived server would reuse job 1's cache for
+    every later job. That includes job 1's CFG batch size, which breaks a
+    later `cfg_scale = 1.0` request.
+  - It would also park ~5 GB of stale cache in RAM with the LM.
+  - The one-job-per-process spike could not have seen this.
+- **Parking uses `.to()` instead of heartlib's `lazy_load`**, which frees
+  models with `del` and reloads them from disk.
+  - `.to()` moves the tensors in place, so no lingering reference can pin
+    them on the GPU (spike requirement 2).
+  - heartlib's `preprocess` / `_forward` are used as-is. The wrapper decodes
+    with `codec.detokenize` itself to get float audio back.
+- **VRAM cap.** `set_per_process_memory_fraction` caps the process at the
+  card's total minus 2 GiB (`HEARTMULA_VRAM_BUDGET_GB`), the same approach
+  YuE2 takes.
+  - HeartMuLa's reserved peak is 12.85 GiB whatever the song length.
+  - Going over the cap is an `out_of_memory` failure, not a silent spill.
+- **Default port 8003**, next to ACE-Step's 8001 and Demucs' 8002.
+
 ### Engine 2: YuE2
 
 Sources: `github.com/multimodal-art-projection/YuE` (main),
@@ -2811,10 +2918,11 @@ Shared (engine framework):
 HeartMuLa:
 - `heartmula-server/main.py`, `requirements.txt`, `README.md` — new.
   Covers the native-Windows setup (Python 3.10 venv, the pins above,
-  ~22 GB of weights, `--lazy_load`), the WSL2 fallback, the Sysmem Fallback
-  Policy recommendation, and the ACE-Step offload requirement. The server
-  parks the model on the CPU between jobs (design point 10) and writes
-  FLAC.
+  ~22 GB of weights), the WSL2 fallback, the Sysmem Fallback Policy
+  recommendation, and the ACE-Step offload requirement. The server parks
+  each model on the CPU between stages and jobs (design point 10), in place
+  of heartlib's `lazy_load`, and writes FLAC. Built 2026-09-30; see
+  "heartmula-server contract decisions".
 - `server/src/services/engines/heartmula.ts` — new. Descriptor,
   `toRequest` (caption → tags, duration → cap), and a no-op `readMeta`.
 
@@ -2954,6 +3062,9 @@ HeartMuLa:
   plus a codec step. That is an upper-bound fraction, because the song can
   end before the cap. v1 keeps "no progress fraction" unless this is picked
   up in `feat/heartmula-server`.
+  - **Answered (2026-09-30): not picked up.** The wrapper reports `stage`
+    only. A fraction that jumps from ~60% to done whenever a song ends
+    early would mislead more than it helps.
 
 YuE2:
 - **Is WSL2 viable, and how fast is it?** Answered by its spike.
