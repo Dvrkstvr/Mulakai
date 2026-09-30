@@ -14,9 +14,16 @@ venv\Scripts\activate        # Windows; use `source venv/bin/activate` on macOS/
 pip install -r requirements.txt
 ```
 
-FFmpeg is required on Windows for Demucs to decode/encode audio — install it
-and make sure it's on `PATH` if you don't already have it (e.g. via
+FFmpeg is required on Windows for Demucs to decode audio — install it and
+make sure it's on `PATH` if you don't already have it (e.g. via
 `winget install ffmpeg` or the ACE-Step setup, which also needs it).
+
+Stems are written with `soundfile` (bundled libsndfile), not torchaudio:
+since torchaudio 2.9, `torchaudio.save` requires `torchcodec`, which in turn
+needs FFmpeg *shared* libraries of a matching version — static Windows builds
+(winget/gyan) don't ship them. You don't need `torchcodec` installed, and any
+torch/torchaudio version works. If you're upgrading an existing venv, run
+`pip install -r requirements.txt` again to pick up `soundfile`.
 
 First run downloads the `htdemucs` model (~80MB) to the Demucs cache dir.
 
