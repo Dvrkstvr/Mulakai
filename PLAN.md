@@ -4148,6 +4148,69 @@ source's melody. The follow-up section is not written. Two caveats:
   and the ACE-Step results are in the library.
 - ASR on the misfit lyrics.
 
+### yue-server transcription decisions (2026-09-30, `feat/yue-transcribe`)
+
+PR 1. Where these differ from points 6–8 or the file-level plan, they
+supersede them:
+
+- **Job kinds.** Every record gains `kind`: `song` or `transcription`.
+  - Only song records carry `seed`, `tokens` and `request_id`.
+  - Both kinds share the queue, the `max_pending` limit, retention and
+    `Idempotency-Key` replay. The idempotency digest includes the kind.
+  - Each route family returns 404 for the other kind's ids, so
+    `/v1/jobs/{id}` never serves a transcription.
+- **Upload.** `POST /v1/transcriptions` takes a multipart `audio` field,
+  up to `YUE_MAX_UPLOAD_MB` (default 100, the same as Mulakai's multer
+  limit). Over that is a 413, and an empty file a 400.
+  - The file is stored as `uploads/<sha256><ext>`, so a replayed
+    `Idempotency-Key` with the same audio matches its digest.
+  - Uploads older than the retention window are swept on each submit, and
+    all of them on startup.
+  - This adds `python-multipart` to `requirements.txt`.
+- **The subprocess** runs `infer.py <audio> --output <job dir> --melody-only
+  --render-audio --local-files-only`, from `YUE_SHEETSAGE_DIR`, so the
+  pinned local snapshot is what runs and nothing is fetched.
+  - `--melody-only` keeps the default tasks, so both melody voices are
+    kept (see "Upstream skill-doc review").
+  - Progress comes from its `Window i/n` lines.
+  - Cancel kills the process group.
+- **Success is decided by the score, not the exit code.** A failed piano
+  render exits 1 but still writes `score.abc`; the spike hit exactly this.
+  - A job succeeds when `score.abc` is non-empty and `result.json` has no
+    `abc_error`.
+  - The preview is `piano_mix.wav` when it exists. Otherwise
+    `preview_url` is null, and the `render_error` joins `warnings`.
+  - Failure codes: `no_score` (SheetSage2 ran but built no score) and
+    `transcription_failed`. Both carry the last lines of its output.
+- **The record's `result`**: `score_url`, `preview_url`, `warnings`
+  (SheetSage2's own, plus any render error), `measures`, `vocal_notes`,
+  `instrumental_notes`, `duration_seconds`, and `timing.total_seconds`.
+- **Health.** `GET /v1/transcriptions/health` needs no auth, like
+  `/health/*`.
+  - 200 `{"status": "ready"}` when the worker is ready and the venv's
+    Python, `infer.py` and `model.safetensors` all exist.
+  - Otherwise 503 with `status` `not_configured`, `missing_files` (and
+    `detail`), or the worker's state.
+  - A submit when not ready is also a 503.
+- **A supplied score (`abc`) is checked before it is queued.** Each check
+  fails as a 422:
+  1. It must be non-blank and at most 64 KB, and `cot` must not be `off`.
+  2. It must parse in the native two-voice dialect (the vendored
+     `abc_tools.parse_abc`).
+  3. With `cot="melody"`, its chord symbols are stripped
+     (`strip_chords`, which checks every note survives).
+  4. It must fit the pipeline's 4096-token plan budget. This is checked
+     once the pipeline is loaded; a submit before then is already a 503.
+- **An instrumental cover converts the supplied score too.**
+  `is_instrumental` no longer excludes `abc`: tags-only lyrics with a score
+  move its `Vocal` notes to `Ins`, as upstream's instrumental cover does.
+- **The SheetSage2 pin is HF `main` at `cafc0df1…` (2026-09-29).** That is
+  what the spike ran. Upstream's `eab522a8…` is older.
+- **Transcription never touches the YuE2 pipeline.** YuE2 is parked in
+  system RAM between jobs, which leaves about 0.8 GB of CUDA context, and
+  SheetSage2 needs about 3.7 GB. If the YuE2 pipeline failed to load,
+  transcription is unavailable too: one worker runs both.
+
 ### Open questions
 
 - **Section alignment.** If YuE2 needs lyric section tags that match the
