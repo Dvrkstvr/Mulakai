@@ -110,10 +110,12 @@ cd server && npm install && npm run dev     # Express, http://localhost:3001
 ```
 
 On Windows, `install.bat` installs both, and `start-all.bat` launches ACE-Step,
-the server, the optional Demucs and HeartMuLa services, and the client in one
-go. Set `ACESTEP_PATH` to point at your ACE-Step checkout, and
+the server, the optional Demucs, HeartMuLa and YuE2 services, and the client
+in one go. Set `ACESTEP_PATH` to point at your ACE-Step checkout, and
 `HEARTMULA_PATH` at your heartlib checkout if it isn't `S:\AI Gen\heartlib`.
-Each optional service is started only when its install is found.
+YuE2 is found by its venv inside WSL (`YUE_DISTRO`, default `Ubuntu-24.04`;
+`YUE_VENV`, default `~/yue2/.venv`). Each optional service is started only
+when its install is found.
 
 Stem splitting via Demucs is optional. See
 [`demucs-server/README.md`](demucs-server/README.md).

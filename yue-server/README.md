@@ -82,7 +82,11 @@ The weights land in the Hugging Face cache (`~/.cache/huggingface/hub`).
 
 ## 4. Start the server
 
-WSL does not start on its own, so launch the server from Windows through
+`start-all.bat` does this for you: when it finds `~/yue2/.venv` in the
+`Ubuntu-24.04` distro (override with `YUE_VENV` / `YUE_DISTRO`), it starts
+the server as below and sets `YUE_API_URL` for Mulakai's server.
+
+To run it yourself: WSL does not start on its own, so launch the server from Windows through
 `wsl.exe` (a terminal, a shortcut, or a Task Scheduler startup task). The
 server process keeps the distro running; closing it lets WSL shut down.
 
