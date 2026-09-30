@@ -3917,7 +3917,8 @@ decisions above, they supersede them:
 ### File-level plan
 
 **PR 0 — spike (`docs/yue2-cover-spike`, PLAN.md only).** Manual, in WSL,
-with the numbers written back here:
+with the numbers written back here. *Done 2026-09-30: see "Cover spike
+results" below.*
 
 - Install SheetSage2 per `docs/covers.md` in `~/sheetsage2`, including
   the Hugging Face login.
@@ -4017,6 +4018,136 @@ nobody will do it, this section gets a "not pursued" note with the numbers
 and the work stops there. PRs 1–3 then land in order, each usable on its
 own terms (PR 1 is testable through curl; PR 2 through the API).
 
+### Cover spike results (2026-09-30)
+
+**Verdict: go ahead.** A supplied score steers YuE2's melody strongly: a
+sung cover kept 0.93–0.98 of the source melody, against 0.10 for an
+unrelated melody. The lyrics don't have to be hand-aligned. They do have
+to use the score's sections; the source's own section tags cost a third
+of the melody. Run in WSL (Ubuntu 24.04, RTX 4080 16 GB); every file is in
+`~/sheetsage-spike`.
+
+**Sources.** Three ACE-Step songs from the library: *Ellies City 2*
+(trip-hop, female vocal, 140 s), *Purple Shinings* (dream pop, female
+vocal, 177 s) and *eventide* (instrumental guitar and cello, 147 s). No
+commercial recording was used; none was on hand, and the question is
+whether YuE2 follows a transcription, which a library song answers.
+
+**Setup.**
+- `~/sheetsage2/.venv`: Python 3.11.16, torch 2.8.0+cu126, Transformers
+  4.45.2, NumPy 1.24.3. FFmpeg 6.1.1 comes from Ubuntu.
+- **No Hugging Face login was needed**: the snapshot and its MERT parent
+  downloaded anonymously. That answers the open question: document no login.
+- The snapshot came down unpinned, as `ce18e5ba…`. Upstream's
+  `cover-release.json` pins `eab522a8…`; MERT-v2-FullSong matched its pin
+  (`d8ba1c74…`). PR 1's README pins SheetSage2 to a revision.
+- `--render-audio` failed ("Could not start the renderer") until
+  `setup_render.py` was run.
+
+**Transcription** (`infer.py --melody-only --render-audio`).
+- Model time was 6–12 s per song, 11–22 s wall including the model load.
+  PyTorch peaked at 3.4 GiB, 3.7 GB on the card. `warnings` was empty and
+  `abc_error` null for all three.
+- **Section markers: yes. Lyric slots: no.** Each score has `% intro`,
+  `% verse`, `% chorus`, `% bridge`, `% interlude` and `% outro` comments,
+  and no `w:` lines.
+- The section labels are approximate. *Purple*'s verse/chorus layout came
+  out as intro, verse, bridge, interlude.
+- Header facts are mostly right. *Ellies* came out as 75 BPM, F minor,
+  matching the song, and *Purple* as 87 BPM, D minor, also matching.
+  *eventide* came out as 65 BPM in 2/4 (the song is 130 BPM in 4/4, so
+  half time) and B♭ minor, where its stored key is F♯ major. The review
+  panel's header facts are how a user spots this.
+- Both voices are used: *Ellies* has 167 `Vocal` and 16 `Ins` notes,
+  *Purple* 122 and 171, *eventide* 0 and 160.
+
+**Generation** (`yue2 generate --abc-file … --cot melody`, seed 42; for
+instrumentals, upstream's conversion first, see "YuE2: Align With
+Upstream's `yue2-music` Skill").
+- **Speed:** 59–76 s for a 136–140 s song, and 95 s for *eventide*'s
+  157 s. *Purple* took 124 s for 176 s, but ran while ACE-Step was loaded
+  on the card.
+- **Contention:** an earlier *eventide* attempt, made with ACE-Step
+  resident, stalled at 9 tokens/s and never finished. Alone it ran at
+  63 tokens/s. This confirms point 9's genLock and the ACE-Step offload
+  requirement.
+- **Truncation:** none, in either flag, on any run.
+- **Tempo:** the result's tempo landed within 4% of the score's.
+
+**Melody survival.** Each result was transcribed again by SheetSage2 and
+compared with the source's transcription, note by note (`mir_eval`: onset
+within 0.25 s, pitch within 50 cents, offsets ignored). The comparison
+takes the best time shift within ±15 s and the best tempo scale between
+0.94 and 1.06. A source against its own piano rendering scores 1.00, which
+is the ceiling.
+
+| Run | Lyrics | F1 | Octave-folded |
+| --- | --- | --- | --- |
+| Purple, synth-pop | its own | **0.98** | 0.98 |
+| Ellies, folk | don't fit the melody (long lines, 3 sections) | **0.96** | 0.96 |
+| Ellies, folk | its words, re-tagged to the score's 6 sections | **0.93** | 0.93 |
+| Ellies, folk | its own (`[Verse 1]`, `[Bridge]`, `[Humming]` ×5) | 0.66 | 0.66 |
+| Ellies, cello instrumental | score tags only, `Vocal` moved to `Ins` | 0.52 | 0.67 |
+| eventide, lo-fi instrumental | score tags only | 0.55 | 0.55 |
+| Ellies control: no score, `cot=full` | re-tagged | 0.11 | 0.13 |
+| Chance: Ellies vs the Purple cover | — | 0.10 | 0.10 |
+
+In every sung run the melody was sung: 166–169 vocal notes, like the
+source's 167. Lyrics that don't fit did not push it onto an instrument.
+Without the tempo search, runs that drifted 1–4% scored far lower (0.41
+for the re-tagged run), so a fixed-tempo comparison is misleading here.
+
+**Answers.**
+- **Do the lyrics' section tags need to match the score's?** They should.
+  Same words, same seed: 0.93 with the score's tags, 0.66 with the
+  source's own tags. The source's tags have an extra `[Bridge]` and a run
+  of `[Humming]` tags. Mulakai writes the score's section outline into
+  LYRICS, and a library source's words are re-tagged to it; the user can
+  still edit it. This replaces point 4's "seeds LYRICS from that song"
+  as-is.
+- **Do the syllables need to fit?** Not for the melody: the misfit lyrics
+  scored 0.96. Whether all their words were sung, and clearly, was not
+  measured. There was no ASR or listening pass, so point 4's hint about
+  phrasing stays.
+- **Instrumental covers work, less faithfully.** Around 0.5–0.67, far above
+  chance, with the melody moved partly an octave away. Empty LYRICS on COVER
+  is allowed, and its consequence line says the melody is followed more
+  loosely.
+
+**ACE-Step side check: dropped for sung covers.** SheetSage2's piano
+rendering was used as the *source* of a Mulakai COVER (`acestep-v15-sft`)
+and ARRANGE (`acestep-v15-base`) job, with the folk style and the re-tagged
+lyrics. The results were scored the same way and saved to the library's
+"SheetSage spike" folder.
+
+| Run | F1 | Octave-folded | Sung notes |
+| --- | --- | --- | --- |
+| Ellies → COVER | 0.29 | 0.30 | 0 of 413 melody notes |
+| Ellies → ARRANGE | 0.10 | 0.12 | 114 |
+| eventide → COVER, lo-fi instrumental | 0.02 | 0.68 | 0 |
+
+- **COVER gives a restyled instrumental, not a song.** Nothing was sung,
+  despite the lyrics and "warm female vocal". About half of the melody
+  is in there, among many added notes.
+- **ARRANGE sings, but a new melody**, at chance level (0.10).
+- **COVER on an instrumental** keeps the melody's pitch classes about as
+  well as YuE2 did (0.68 octave-folded), though an octave away.
+
+So a transcription's piano rendering does not make ACE-Step sing the
+source's melody. The follow-up section is not written. Two caveats:
+- COVER ran at ACE-Step's default strength. VARIANCE never reaches
+  ACE-Step, because `/from-audio` drops `audio_cover_strength`. That bug
+  was found here and filed separately. An instrumental-only variant could
+  be retried once it is fixed.
+- The XL models spilled out of 16 GB at 55 s per step, about 47 minutes a
+  job, so the standard models were used. They took 4.5–6 minutes a job.
+
+**Not done.**
+- A listening pass. The files are in
+  `\\wsl$\Ubuntu-24.04\home\calvin\sheetsage-spike\gen\*\song\audio.flac`,
+  and the ACE-Step results are in the library.
+- ASR on the misfit lyrics.
+
 ### Open questions
 
 - **Section alignment.** If YuE2 needs lyric section tags that match the
@@ -4033,7 +4164,8 @@ own terms (PR 1 is testable through curl; PR 2 through the API).
   full mix?
 - **Hugging Face login.** If SheetSage2 is gated, setup needs a token in
   WSL. Document only, or should `yue-server`'s health say "weights not
-  found" specifically enough to point at the login step?
+  found" specifically enough to point at the login step? *Answered
+  2026-09-30: it isn't gated; the spike downloaded it without a login.*
 - **Copying the melody of a copyrighted song.** Point 12 leaves this to
   the user, the same as ACE-Step's COVER. Should COVER on YUE2 say so
   inline, given it is a much more literal copy of the melody?
