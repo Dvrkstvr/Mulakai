@@ -39,6 +39,10 @@
   (generate → repaint → add layer → revert → export) through the real client and
   server against a fake ACE-Step, on a throwaway data dir (`npm run test:e2e`) —
   PR #87 (was #19).
+- Editor failures were silent: a failed song load sat on "Loading…" forever, and lane
+  rename/volume/mute/solo, REVERT and the song detail rail's saves dropped their
+  errors. Each now shows a rust `.error` line (RETRY for a load or refresh), and a
+  volume drag sends one PATCH at a time, latest value wins — PR #83 (was #4).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -69,7 +73,7 @@ split retained forever, publicly served.
 - **Fix:** make handlers sync `def` (FastAPI threadpool), add try/finally cleanup,
   add a TTL sweep or delete-after-claim.
 
-### 4. Silent failures across the Editor
+### 4. ~~Silent failures across the Editor~~ — fixed, PR #83
 - `client/src/Editor.tsx` — `reload()` is `catch(() => {})`: a failed song load is a
   permanent "Loading…" spinner with no error and no way out but Back.
 - `client/src/LayerLane.tsx` — rename/volume/mute/solo PATCHes have no catch;
