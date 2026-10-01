@@ -6,6 +6,7 @@ import { canAnalyze, useAnalyzeSourceAudio, type AnalyzeSource } from './useAnal
 import { coverSourceKey, coverSourceReady, resolveCoverSource } from './coverSource';
 import { yueAnalysisPatch, type YueAnalysis } from './yueCoverAnalysis';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
+import { sungScore } from './scoreCut';
 
 /** ANALYZE AUDIO on COVER · YUE2 (PLAN.md "ANALYZE AUDIO on COVER · YUE2"): ACE-Step describes the
  * source with COVER's ACE-Step model, and the description becomes a tagged PROMPT (plus wordless
@@ -28,7 +29,7 @@ export function YueCoverAnalyze({ blocked, noModel }: { blocked: boolean; noMode
     if (coverSourceKey(d.audio) !== sourceRef.current) return; // the source changed while ACE-Step listened
     const a = yueAnalysisPatch(result, {
       prompt: d.prompt, lyrics: d.lyrics, vocalLanguage: d.vocalLanguage, carried: d.intentOrigin !== 'audio',
-      abc: d.audio.yueScore?.abc ?? null, languages: info?.capabilities.languages ?? [],
+      abc: d.audio.yueScore ? sungScore(d.audio.yueScore) : null, languages: info?.capabilities.languages ?? [],
     });
     if (Object.keys(a.patch).length) patch(a.patch);
     // Without a score yet, the words follow the one TRANSCRIBE brings (transcribeStore).

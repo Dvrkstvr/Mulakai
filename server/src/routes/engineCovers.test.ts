@@ -18,8 +18,10 @@ vi.mock('../services/transcribeJobs.js', () => ({ startTranscription: (...a: unk
 const startEngineGeneration = vi.fn((..._a: unknown[]) => ({ id: 'cover-1' }));
 vi.mock('../services/engineGenJobs.js', () => ({ startEngineGeneration: (...a: unknown[]) => startEngineGeneration(...a) }));
 const fetchTranscriptionPreview = vi.fn(async (..._a: unknown[]) => new Response('RIFF'));
+const measureScore = vi.fn(async (..._a: unknown[]): Promise<unknown> => null);
 vi.mock('../services/engineTranscribeClient.js', () => ({
   fetchTranscriptionPreview: (...a: unknown[]) => fetchTranscriptionPreview(...a),
+  measureScore: (...a: unknown[]) => measureScore(...a),
 }));
 const jobs: Record<string, unknown> = {
   done: { id: 'done', taskId: 'remote-1', status: 'done', transcription: { hasPreview: true } },
@@ -44,7 +46,7 @@ beforeAll(async () => {
 });
 afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));
 beforeEach(() => {
-  for (const fn of [coverReady, startTranscription, startEngineGeneration, fetchTranscriptionPreview, versionRow]) fn.mockClear();
+  for (const fn of [coverReady, startTranscription, startEngineGeneration, fetchTranscriptionPreview, versionRow, measureScore]) fn.mockClear();
   coverReady.mockImplementation(async () => true);
 });
 
@@ -150,6 +152,32 @@ describe('POST /api/engines/:id/cover', () => {
     expect((await cover('yue2', { prompt: 'p', abc: 'x'.repeat(65537) })).status).toBe(400);
     expect((await cover('heartmula', { prompt: 'p', abc: 'X:1' })).status).toBe(400);
     expect(startEngineGeneration).not.toHaveBeenCalled();
+  });
+});
+
+describe('POST /api/engines/:id/score-size', () => {
+  const post = (id: string, body: unknown) => fetch(`${base}/${id}/score-size`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
+  });
+
+  it("relays the engine's per-section size, or 204 when it can't say", async () => {
+    const size = { budget: 4096, header: 73, sections: [{ name: 'intro', tokens: 646 }] };
+    measureScore.mockResolvedValueOnce(size);
+    const res = await post('yue2', { abc: 'X:1\n% intro\n' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual(size);
+    expect(measureScore).toHaveBeenCalledWith(yue, 'X:1\n% intro\n');
+    expect((await post('yue2', { abc: 'X:1\n' })).status).toBe(204);
+  });
+
+  it("passes on the engine's refusal, and needs a score on an engine that can cover", async () => {
+    measureScore.mockRejectedValueOnce(new Error("YUE2 score size -> HTTP 422: Not a score in YuE2's native two-voice ABC"));
+    const refused = await post('yue2', { abc: 'junk' });
+    expect(refused.status).toBe(502);
+    expect((await refused.json()).error).toContain('Not a score');
+    expect((await post('yue2', { abc: ' ' })).status).toBe(400);
+    expect((await post('heartmula', { abc: 'X:1' })).status).toBe(400);
+    expect((await post('nope', { abc: 'X:1' })).status).toBe(404);
   });
 });
 

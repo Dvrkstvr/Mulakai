@@ -29,3 +29,19 @@ def prepare_score(abc: str, cot: str) -> str:
     except ValueError as error:  # the vendored AbcError is a ValueError
         raise ScoreError(f"Not a score in YuE2's native two-voice ABC: {error}") from None
     return abc
+
+
+def split_sections(abc: str) -> tuple[str, list[tuple[str, str]]]:
+    """The header (everything before the first `% name` line) and each section's
+    block, in order, as `scoreSections` in Mulakai's client reads them. Joined
+    back together they are the score, byte for byte."""
+    header: list[str] = []
+    sections: list[tuple[str, list[str]]] = []
+    for line in abc.splitlines(keepends=True):
+        if line.startswith("% "):
+            sections.append((line[2:].strip(), [line]))
+        elif sections:
+            sections[-1][1].append(line)
+        else:
+            header.append(line)
+    return "".join(header), [(name, "".join(body)) for name, body in sections]

@@ -54,6 +54,9 @@ class FakePipeline:
         abc = None if request.get("cot") == "off" else request.get("abc") or self.score
         return SimpleNamespace(abc=abc, truncated=self.truncated[0])
 
+    def count_tokens(self, abc):
+        return len(abc)  # one "token" per character: additive, like the real tokenizer across lines
+
     def fits_plan_budget(self, abc):
         return self.fits
 

@@ -2,6 +2,9 @@ import { api, type EngineId } from './api';
 import { abcFacts } from './abcFacts';
 import { AudioPreview } from './AudioPreview';
 import type { CoverScore } from './coverDraft';
+import { sungScore } from './scoreCut';
+import { useScoreSize } from './useScoreSize';
+import { ScoreSectionStrip } from './ScoreSectionStrip';
 
 const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`;
 
@@ -15,10 +18,13 @@ function Fact({ label, value }: { label: string; value: string }) {
 }
 
 /** COVER on an engine: what the score says before ~a minute is spent singing it (PLAN.md "Client
- * cover decisions"). Listen-and-read only — a score is corrected outside Mulakai and brought
- * back with USE .ABC FILE. Its facts stand in for SONG DETAILS: the score fixes them. */
+ * cover decisions"). Notes are corrected outside Mulakai and brought back with USE .ABC FILE;
+ * whole sections can be left out here (PLAN.md "YuE2 Covers: Pick the Score's Sections"). Its
+ * facts describe what will be sung and stand in for SONG DETAILS: the score fixes them. */
 export function YueScoreReview({ engine, score }: { engine: EngineId; score: CoverScore }) {
-  const facts = abcFacts(score.abc);
+  const sung = sungScore(score);
+  const facts = abcFacts(sung);
+  const { size, error } = useScoreSize(engine, score.abc);
   const t = score.transcription;
   const previewable = !!(t?.hasPreview && score.previewJobId);
   return (
@@ -35,6 +41,8 @@ export function YueScoreReview({ engine, score }: { engine: EngineId; score: Cov
         <Fact label="LENGTH" value={facts.seconds ? clock(facts.seconds) : '—'} />
         {t && <Fact label="MELODY NOTES" value={`${t.vocalNotes ?? 0} sung · ${t.instrumentalNotes ?? 0} played`} />}
       </div>
+      <ScoreSectionStrip score={score} size={size} />
+      {error && <div className="hint">couldn&apos;t size the score against YuE2&apos;s planner: {error}</div>}
       {t && t.warnings.length > 0 && <div className="warn-note">SheetSage2: {t.warnings.join(' · ')}</div>}
       {previewable ? (
         <>
@@ -51,7 +59,7 @@ export function YueScoreReview({ engine, score }: { engine: EngineId; score: Cov
       )}
       <details className="score-abc">
         <summary className="section-label">SHOW SCORE (ABC)</summary>
-        <pre>{score.abc}</pre>
+        <pre>{sung}</pre>
       </details>
     </div>
   );
