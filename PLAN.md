@@ -6052,3 +6052,19 @@ outright, so those files can then never be reached by any cleanup.
 - `server/src/services/stemSplit.evict.test.ts` (new): an idle split is
   evicted with its unclaimed files and keeps its claimed one; a polled
   split survives past an hour from its start.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir and
+`uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A 60 s song
+imported, SPLIT with DEMUCS:
+
+- Restart: four stems landed; VOCALS → ADD LAYER; the tab navigated away
+  with no CANCEL SPLIT; server restarted. Boot logged "Removed 3 unclaimed
+  split stem file(s)": drums/bass/other gone, the claimed vocals file and
+  the source kept. Reopened, the Vocals layer loaded its file (200).
+- Idle eviction, run with the TTL temporarily cut to 60 s and the check to
+  10 s (not committed): a second split left open and polled stayed past
+  two minutes, and DRUMS → ADD LAYER still worked then. With the tab then
+  navigated away, its three unclaimed stems were deleted about a minute
+  later; the claimed drums file stayed.
