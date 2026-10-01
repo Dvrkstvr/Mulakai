@@ -5994,8 +5994,8 @@ base takes from the library, then a prototype of the alignment in decision
 
 ### Decisions
 
-1. **When timings are read: automatically, in the Editor** *(proposed; the
-   user's call, see open questions)*.
+1. **When timings are read: automatically, in the Editor** *(the user's
+   call, 2026-10-02)*.
    - When the Editor shows a song whose base layer's active version has no
      word timings, `lyrics-server` reads it in the background, if the
      service is configured and the genLock is free. A repaint that lands
@@ -6078,8 +6078,8 @@ base takes from the library, then a prototype of the alignment in decision
      extends the selection from the last clicked line through this one.
      Double-click also moves the playhead to the line's start, the same as
      the section strip.
-   - **A short line is widened to the repaint minimum** *(proposed; the
-     user's call)*. A selection under 3 s can't be repainted
+   - **A short line is widened to the repaint minimum** *(the user's call,
+     2026-10-02)*. A selection under 3 s can't be repainted
      (`REPAINT_MIN_SECONDS`), and many sung lines are 2–4 s. The region
      grows evenly around the line to 3 s, clamped to the song.
    - **The selected line(s) get the sky echo**: a sky left border and
@@ -6155,10 +6155,11 @@ on PR 2):
 
 ### Open questions
 
-- **Automatic or explicit (decision 1)?** The user's call before PR 2.
-- **Widen short lines to 3 s (decision 8)?** The alternative is the exact
-  span, with REPAINT disabled and "MIN 3s" shown, as for a short drag.
-  The user's call before PR 3.
+- ~~Automatic or explicit (decision 1)?~~ *Answered 2026-10-02:
+  automatic in the Editor.*
+- ~~Widen short lines to 3 s (decision 8)?~~ *Answered 2026-10-02: widen.
+  The alternative was the exact span, with REPAINT disabled and "MIN 3s"
+  shown, as for a short drag.*
 - **Follow the playhead?** Highlighting the line being sung while playing
   (karaoke-style) is a small step once lines are timed. Not planned; it
   would be a new use of sky, so it's a design question first.
