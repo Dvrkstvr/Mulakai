@@ -35,6 +35,9 @@
   down mid-job, and every split's files stayed on disk forever. `/split` now runs in
   the threadpool, failed splits remove their job dir, and each stem is deleted once
   downloaded or swept after a TTL; uvr-server had the same leak — PR #80 (was #3).
+- COVER sent only `model` + `audio_cover_strength`: the rail's STEPS/GUIDANCE/SEED/
+  advanced knobs did nothing, and covers ignored the Settings output format. Now
+  sent via `coverParams()`, with the rail gated on the tab's model — PR #95 (was #5).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -76,7 +79,11 @@ split retained forever, publicly served.
 
 ## 🟠 Correctness
 
-### 5. Dead controls presented as live
+### 5. ~~Dead controls presented as live~~ — fixed, PR #95
+COVER now sends the rail's STEPS/GUIDANCE/SEED/DiT knobs, the `output` block and the
+`wav32` master, and the rail drops its duplicate DIT MODEL there. The ARRANGE
+influence half was fixed earlier (`referenceInfluence.ts`).
+
 - `client/src/CreateAudioTab.tsx` — cover generation sends only `model` +
   `audio_cover_strength`; the STEPS/GUIDANCE/SEED/advanced panel rendered on that
   tab has zero effect.
