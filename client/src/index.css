@@ -3010,6 +3010,37 @@ footer .player {
   letter-spacing: 0.5px;
 }
 
+/* Plain while lyrics-server reads the take, like TRANSCRIBE: reading words isn't generating. */
+.lyrics-timing {
+  color: var(--text-low);
+}
+
+.lyrics-timing-error {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 0;
+}
+
+.lyrics-timing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lyrics-timing-reason {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lyrics-timing-error button {
+  flex: none;
+  font-size: 10px;
+  padding: 2px 8px;
+}
+
 /* position: fixed + portal-rendered to document.body (see InfoTooltip.tsx) — an
    in-flow absolute version was clipped by the settings panel's ScrollArea and by
    Toggle's overflow:hidden shader mask, the same problem .option-description
