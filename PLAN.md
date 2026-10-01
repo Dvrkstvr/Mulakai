@@ -5665,3 +5665,42 @@ The fix:
 
 No `!!genJob` busy check is left. `App.tsx` still reads the job, but only
 to show the card.
+
+## A Failed Editor Job Blocks Nothing (planned 2026-10-01)
+
+The editor-side twin of "A Failed Generation Blocks Nothing" above. `editorJobStore` keeps a
+failed repaint, regenerate, retake, add layer, remaster or split on
+purpose, so its own panel can show the error and RETRY. But every busy
+check was `!!editorJob`. So after, say, a failed repaint, the Editor's
+add-layer, remaster, split and version actions all read as busy until
+a reload, though the server had already released its lock. The store's
+own guard (`if (get().editorJob) return`, in `runSingleJob` and
+`startSplit`) refused every new start too. VersionHistory dismissed
+only its *own* failed job before regenerate/retake, so a failed job of
+another kind still blocked it.
+
+### Decisions
+
+1. **One predicate, `isEditorBusy(job)`**, the same as `isGenerating`:
+   a job counts unless its stage is `failed`. `done` still counts (the
+   1.5 s linger, and an open split session, both as before).
+2. **A new start replaces the failed job**, whatever its kind. The
+   failed panel's error goes away with it. A job still in flight keeps
+   refusing a second start.
+3. **Where a failed job's own panel shows it, nothing changes.**
+   `myEditorJob` still matches it, so the error and RETRY stay.
+
+### File-level plan
+
+- `client/src/editorJob.ts` (new): the job types, `myEditorJob` and
+  `isEditorBusy`, moved out of the store (pure job helpers). The store
+  was at the 200-line cap. The store re-exports both helpers, so
+  callers keep one import.
+- `client/src/editorJobStore.ts`: `runSingleJob` and `startSplit`
+  guard with `isEditorBusy`.
+- Busy checks switch from `!!editorJob` to `isEditorBusy`:
+  `Editor.tsx`, `AddLayerTrigger.tsx`, `RemasterAction.tsx`,
+  `SplitPanel.tsx`, `VersionHistory.tsx`. `LibraryJobBadge.tsx` takes
+  its type from `editorJob.ts`.
+- `client/src/editorJobStore.test.ts`: the predicate, a start of
+  another kind over a failed job, and a refused start while in flight.
