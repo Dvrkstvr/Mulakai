@@ -7,6 +7,7 @@ import { useHeaderSlot } from './HeaderSlot';
 import { ScrollArea } from './ScrollArea';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { ClearDraftButton } from './ClearDraftButton';
 import { CreateAudioTab } from './CreateAudioTab';
 import { CreateArrangeTab } from './CreateArrangeTab';
@@ -30,7 +31,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
   const draft = useCreateDraftStore();
   const { genType, title, folderId, folderName } = draft;
   const patch = draft.patch;
-  const genJob = useGenerationStore((s) => s.job);
+  const genRunning = useGenerationStore((s) => isGenerating(s.job));
 
   const [refining, setRefining] = useState(false);
   const [refinePreview, setRefinePreview] = useState<RefineResult | null>(null);
@@ -107,7 +108,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
           <ScrollArea className="create-content">
             <div className="field-label-row">
               <span className="section-label">GENERATION TYPE</span>
-              <ClearDraftButton disabled={!!genJob} />
+              <ClearDraftButton disabled={genRunning} />
             </div>
             <div className="type-tabs">
               <button className={genType === 'prompt' ? 'tab active' : 'tab'} onClick={() => patch({ genType: 'prompt' })}><span>PROMPT</span></button>

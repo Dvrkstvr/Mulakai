@@ -19,6 +19,7 @@ import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useMainTransportGuard } from './previewPlayback';
 import { useHeaderSlot } from './HeaderSlot';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { useResizableWidth } from './useResizableWidth';
 import { ResizeHandle } from './ResizeHandle';
@@ -48,7 +49,7 @@ export function Editor({ songId, onBack }: Props) {
     else collapseTimer.current = window.setTimeout(() => setAddingLayerExpanded(false), 500);
   }, []);
   useEffect(() => () => { if (collapseTimer.current !== null) window.clearTimeout(collapseTimer.current); }, []);
-  const genJob = useGenerationStore((s) => s.job);
+  const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
   const startRepaint = useEditorJobStore((s) => s.startRepaint);
@@ -61,7 +62,7 @@ export function Editor({ songId, onBack }: Props) {
   const error = myRepaint?.stage === 'failed' ? (myRepaint.error ?? 'repaint failed') : '';
   // A song generating in the Library, or a *different* editor action already running,
   // both hold the same global lock (see server genLock.ts) — either one blocks repaint here too.
-  const busyElsewhere = !myRepaint && (!!genJob || !!editorJob || !!otherLock);
+  const busyElsewhere = !myRepaint && (genRunning || !!editorJob || !!otherLock);
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);

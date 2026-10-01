@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 const generate = vi.fn();
 const generateWithEngine = vi.fn();
 const coverWithEngine = vi.fn();
+const generateFromAudio = vi.fn();
 const activeGeneration = vi.fn();
 const jobStatus = vi.fn(() => new Promise(() => {})); // never settles: polling is not under test
 vi.mock('./api', () => ({
@@ -10,12 +11,14 @@ vi.mock('./api', () => ({
     generate: (...a: unknown[]) => generate(...a),
     generateWithEngine: (...a: unknown[]) => generateWithEngine(...a),
     coverWithEngine: (...a: unknown[]) => coverWithEngine(...a),
+    generateFromAudio: (...a: unknown[]) => generateFromAudio(...a),
     activeGeneration: () => activeGeneration(),
     jobStatus: () => jobStatus(),
   },
 }));
 
 const { useGenerationStore } = await import('./generationStore');
+const { isGenerating } = await import('./generationJob');
 const params = { title: 'T', prompt: 'indie pop' };
 
 beforeEach(() => {
@@ -23,6 +26,7 @@ beforeEach(() => {
   generate.mockReset().mockResolvedValue({ jobId: 'ace-job' });
   generateWithEngine.mockReset().mockResolvedValue({ jobId: 'engine-job' });
   coverWithEngine.mockReset().mockResolvedValue({ jobId: 'cover-job' });
+  generateFromAudio.mockReset().mockResolvedValue({ jobId: 'audio-job' });
 });
 
 describe('start routing', () => {
@@ -86,5 +90,35 @@ describe('startCover', () => {
     await useGenerationStore.getState().startCover('yue2', cover, { genType: 'audio', coverEngine: 'yue2' });
     expect(coverWithEngine).toHaveBeenCalledWith('yue2', cover);
     expect(useGenerationStore.getState().job).toMatchObject({ jobId: 'cover-job', draft: { coverEngine: 'yue2' } });
+  });
+});
+
+describe('a failed job blocks nothing', () => {
+  const failed = { jobId: 'old', title: 'T', caption: '', stage: 'failed' as const, error: 'boom', startedAt: 1, draft: { genType: 'audio' as const } };
+
+  it.each([
+    ['loading', true], ['running', true], ['done', true], ['failed', false],
+  ] as const)('isGenerating(%s) is %s', (stage, expected) => {
+    expect(isGenerating({ ...failed, stage })).toBe(expected);
+  });
+
+  it('starts a new cover over a failed one, replacing its card', async () => {
+    useGenerationStore.setState({ job: failed });
+    await useGenerationStore.getState().startFromAudio(params, new Blob(['src']), { genType: 'audio' });
+    expect(generateFromAudio).toHaveBeenCalledTimes(1);
+    expect(useGenerationStore.getState().job).toMatchObject({ jobId: 'audio-job', stage: 'loading' });
+  });
+
+  it('still refuses a second start while a job is in flight', async () => {
+    useGenerationStore.setState({ job: { ...failed, stage: 'running' } });
+    await useGenerationStore.getState().startFromAudio(params, new Blob(['src']), { genType: 'audio' });
+    expect(generateFromAudio).not.toHaveBeenCalled();
+  });
+
+  it('keeps tracking other locks while a failed card is showing', async () => {
+    useGenerationStore.setState({ job: failed });
+    activeGeneration.mockResolvedValue({ active: { kind: 'repaint', songId: 's1' } });
+    await useGenerationStore.getState().refreshLock();
+    expect(useGenerationStore.getState()).toMatchObject({ otherLock: { kind: 'repaint', songId: 's1' }, job: failed });
   });
 });

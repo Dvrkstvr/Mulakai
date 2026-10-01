@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, type Layer, type StemKind } from './api';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
@@ -27,7 +28,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [error, setError] = useState('');
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
-  const genJob = useGenerationStore((s) => s.job);
+  const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
   const startSplit = useEditorJobStore((s) => s.startSplit);
@@ -36,7 +37,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const mine = myEditorJob(editorJob, 'split', { layerId: layer.id });
   const stems = mine?.stems ?? null;
   const extracting = mine?.stage === 'running';
-  const busyElsewhere = !mine && (!!genJob || !!editorJob || !!otherLock);
+  const busyElsewhere = !mine && (genRunning || !!editorJob || !!otherLock);
   const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
 
   useEffect(() => {

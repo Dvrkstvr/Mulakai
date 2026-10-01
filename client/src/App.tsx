@@ -21,6 +21,7 @@ import { SettingsView } from './SettingsView';
 import { ForgeStub } from './ForgeStub';
 import { useSettings } from './settings';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { GeneratingCard } from './GeneratingCard';
 import { useEditorJobStore } from './editorJobStore';
 import { LibraryJobBadge } from './LibraryJobBadge';
@@ -214,7 +215,7 @@ export default function App() {
           <motion.div className="view-fill" key="library" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
             <CreateBar
               onCreate={(draft) => openCreate(activeFolder ? { ...draft, folderId: activeFolder.id, folderName: activeFolder.name } : draft)}
-              busy={!!genJob && genJob.stage !== 'failed'}
+              busy={isGenerating(genJob)}
             />
 
             <LibraryToolbar

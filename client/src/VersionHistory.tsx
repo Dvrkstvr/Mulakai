@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { ScrollArea } from './ScrollArea';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { useEditorJobStore } from './editorJobStore';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 
@@ -26,7 +27,7 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [error, setError] = useState('');
-  const genJob = useGenerationStore((s) => s.job);
+  const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
   const startRegenerate = useEditorJobStore((s) => s.startRegenerate);
@@ -39,7 +40,7 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
   const elapsedMs = useElapsedMs(mine?.stage === 'running', mine?.startedAt ?? null);
   const progressSuffix = `${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`;
   const busyOtherKind = !!editorJob && !mine;
-  const busy = !!genJob || !!otherLock || busyOtherKind || mine?.stage === 'running';
+  const busy = genRunning || !!otherLock || busyOtherKind || mine?.stage === 'running';
 
   // Runs once when *our* regenerate/retake finishes, even if it settled while this Editor/layer
   // wasn't focused — reload picks up the newly appended history row.
@@ -61,14 +62,14 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
   };
 
   const regenerate = (id: string) => {
-    if (busyOtherKind || !!genJob || !!otherLock) return;
+    if (busyOtherKind || genRunning || !!otherLock) return;
     if (mine?.stage === 'running') return;
     if (mine?.stage === 'failed') dismissEditorJob();
     void startRegenerate(layerId, songId, id);
   };
 
   const retake = (id: string) => {
-    if (busyOtherKind || !!genJob || !!otherLock) return;
+    if (busyOtherKind || genRunning || !!otherLock) return;
     if (mine?.stage === 'running') return;
     if (mine?.stage === 'failed') dismissEditorJob();
     void startRetake(layerId, songId, id);
