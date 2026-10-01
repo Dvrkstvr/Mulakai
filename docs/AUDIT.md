@@ -154,8 +154,8 @@ Recounted 2026-10-02 (`wc -l`, every non-test `.ts`/`.tsx` under `client/src`
 and `server/src`; 215 files). Since the 2026-07-31 snapshot `api.ts` (601) was
 split into `client/src/api/` (PR #25) and `generationStore.ts` fell to 188.
 
-**Over the 200 hard cap (8)** — each has its own pure `refactor:` PR splitting
-it by responsibility (no behaviour change; every resulting file ≤150):
+**Over the 200 hard cap (8)** — each gets a pure `refactor:` PR splitting it by
+responsibility (no behaviour change; every resulting file ≤150):
 
 | Module | LOC | PR |
 |---|---|---|
@@ -165,14 +165,16 @@ it by responsibility (no behaviour change; every resulting file ≤150):
 | `client/src/App.tsx` | 317 | #77 |
 | `server/src/routes/generate.ts` | 298 | #72 |
 | `server/src/services/jobs.ts` | 283 | #73 |
-| `server/src/services/stemSplit.ts` | 282 | #76 |
+| `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
 | `server/src/services/repaintJobs.ts` | 235 | #71 |
 
-The eight branches merge cleanly together; on the combined tree both suites
-stay green (client 289, server 407), both builds pass, and no non-test module is
-over the cap. Strike this item once they land.
+The split branches merged cleanly together before #81 landed; on that combined
+tree both suites stayed green (client 289, server 407), both builds passed, and
+no non-test module was over the cap. #72 and #82 are rebased onto the fixes that
+touch the same files (#84, #83) once those land. Strike this item once all are in.
 
-**Over the 150 target, under the cap (23)** — no action required by policy;
+**Over the 150 target, under the cap (23, plus `stemRunners.ts` 171 and
+`stemSplit.ts` 165 after #81)** — no action required by policy;
 split opportunistically when a feature touches them:
 `client/src/Waveform.tsx` 195 · `client/src/generationStore.ts` 188 ·
 `server/src/services/lyricTagProbe.ts` 187 · `client/src/CreateArrangeTab.tsx` 182 ·
