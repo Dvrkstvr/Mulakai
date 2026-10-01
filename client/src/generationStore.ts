@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { api, type EngineId, type StemKind } from './api';
+import { api, type ActiveGeneration, type EngineId, type StemKind } from './api';
 import type { CreateDraft } from './createDraft';
 import { adoptLock, isGenerating } from './generationJob';
 
@@ -23,10 +23,10 @@ export interface GenerationJob {
 }
 
 /** A generation lock held by something other than a song-generation job (repaint,
- * regenerate, retake, add layer, split, remaster) — tracked only enough to let other
+ * regenerate, retake, add layer, split, remaster, transcribe, read lyrics, analyze) — tracked only enough to let other
  * screens proactively disable their own triggers instead of firing and getting a 409. */
 export interface OtherLock {
-  kind: string;
+  kind: ActiveGeneration['kind'];
   songId?: string;
 }
 

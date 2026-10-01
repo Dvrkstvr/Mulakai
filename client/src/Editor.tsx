@@ -20,7 +20,7 @@ import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useMainTransportGuard } from './previewPlayback';
 import { useHeaderSlot } from './HeaderSlot';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { isGenerating, lockHolder } from './generationJob';
 import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { useResizableWidth } from './useResizableWidth';
 import { ResizeHandle } from './ResizeHandle';
@@ -65,6 +65,7 @@ export function Editor({ songId, onBack }: Props) {
   // A song generating in the Library, a *different* editor action or a split extracting all
   // hold the same global lock (see server genLock.ts) — any one blocks repaint here too.
   const busyElsewhere = splitRunning || (!myRepaint && (genRunning || isEditorBusy(editorJob) || !!otherLock));
+  const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);
@@ -251,7 +252,7 @@ export function Editor({ songId, onBack }: Props) {
         progress={myRepaint?.progress}
         progressStage={myRepaint?.progressStage}
         progressText={myRepaint?.progressText}
-        busyElsewhere={busyElsewhere}
+        busyBy={busyBy}
         onRepaint={repaint}
         error={error}
       />

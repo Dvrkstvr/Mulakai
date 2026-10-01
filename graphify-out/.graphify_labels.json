@@ -288,5 +288,16 @@
   "287": "FastAPI",
   "288": "Path",
   "289": "waveformPeaks.ts",
-  "290": "versionsTimings.test.ts"
+  "290": "versionsTimings.test.ts",
+  "291": "ReferenceAudioPicker.tsx",
+  "292": "ScratchSplitPicker.tsx",
+  "293": "inferenceSteps.ts",
+  "294": "FakeAudio",
+  "295": "yueCoverAnalysis.ts",
+  "296": "transcribeJobs.test.ts",
+  "297": "Playwright Golden-Path E2E (planned 2026-10-02)",
+  "298": "ShaderCanvas.tsx",
+  "299": "from_env",
+  "300": "12. Health Check",
+  "301": "1. Authentication"
 }
