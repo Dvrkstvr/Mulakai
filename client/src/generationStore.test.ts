@@ -18,7 +18,7 @@ vi.mock('./api', () => ({
 }));
 
 const { useGenerationStore } = await import('./generationStore');
-const { isGenerating } = await import('./generationJob');
+const { coverLocked, isGenerating } = await import('./generationJob');
 const params = { title: 'T', prompt: 'indie pop' };
 
 beforeEach(() => {
@@ -100,6 +100,13 @@ describe('a failed job blocks nothing', () => {
     ['loading', true], ['running', true], ['done', true], ['failed', false],
   ] as const)('isGenerating(%s) is %s', (stage, expected) => {
     expect(isGenerating({ ...failed, stage })).toBe(expected);
+  });
+
+  it("doesn't let a failed cover hold COVER · YUE2's panel", () => {
+    expect(coverLocked(failed, null, false)).toBe(false);
+    expect(coverLocked({ ...failed, stage: 'running' }, null, false)).toBe(true);
+    expect(coverLocked(null, { kind: 'repaint' }, false)).toBe(true); // a lock held elsewhere
+    expect(coverLocked(null, { kind: 'lyrics' }, true)).toBe(false); // the panel's own read
   });
 
   it('starts a new cover over a failed one, replacing its card', async () => {

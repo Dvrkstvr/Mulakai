@@ -9,6 +9,13 @@ export function isGenerating(job: GenerationJob | null): boolean {
   return !!job && job.stage !== 'failed';
 }
 
+/** Whether COVER · YUE2's TRANSCRIBE, READ LYRICS, ANALYZE AUDIO and GENERATE COVER are held off
+ * by another job: a song generation still running, or the server's lock held by something other
+ * than the panel's own transcription or read (`ownRunning`). A failed cover blocks nothing. */
+export function coverLocked(job: GenerationJob | null, otherLock: unknown, ownRunning: boolean): boolean {
+  return isGenerating(job) || (!!otherLock && !ownRunning);
+}
+
 /** A song generation found in the server's lock (after a reload, or started in another tab),
  * as our own job. It has no draft to recover, but the lock knows which task is running —
  * enough for RETRY to reopen the tab that started it instead of always dropping into PROMPT. */
