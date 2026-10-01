@@ -6293,3 +6293,39 @@ on PR 2):
   clip its first syllable, add a fixed lead-in to line selections.
 - **Add Layer vocals.** A vocal layer has its own lyrics. Reading that
   layer's version would time them the same way. Not in v1.
+
+## The Newest Library Search Wins (planned 2026-10-02)
+
+AUDIT.md #6. Every keystroke in the Library search fired its own
+`listSongs`, and whichever response landed last was shown. A slow
+response for "co" could replace the results for "copper". The same
+unguarded call served the folder switch, favorite, trash, the return
+from the Editor and the reload after a generation, so any of them could
+race a search too.
+
+### Decisions
+
+1. **One loader for the song list** (`songListLoader`). Each request
+   gets a number, and a response is applied only if no newer request
+   has started since. An older one that lands later is dropped.
+2. **The loader reads the query and folder when it fires**, from the
+   current render, not from the caller's arguments. A refresh queued
+   behind a favorite toggle can't send the query from before the user
+   kept typing.
+3. **Search is debounced, 250 ms.** A burst of keystrokes sends one
+   request, for the final text. Any other refresh sends at once and
+   cancels a pending search, since it reads the same, newer query.
+4. **A failed load still leaves the list as it was**, as before. Saying
+   so is a separate fix, not this one.
+
+### File-level plan
+
+- `client/src/songListLoader.ts` (new): the loader (`refresh`,
+  `search`, `dispose`); `songListLoader.test.ts` (new): a stale
+  response dropped, a keystroke burst collapsed to one request, a
+  refresh cancelling a pending search, the params read at fire time.
+- `client/src/useLibraryData.ts`: builds the loader; `refresh()` takes
+  no arguments; `search(text)` sets the query and debounces.
+- `client/src/LibraryView.tsx`: the search box calls `search`.
+- `client/src/useAppSync.ts`: the folder-scope and post-generation
+  reloads go through `refresh()`.
