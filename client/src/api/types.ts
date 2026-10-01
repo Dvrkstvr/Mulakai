@@ -1,5 +1,7 @@
 /** Wire types shared by the API client slices (see ./index.ts). */
 
+import type { WordTimings } from './lyrics';
+
 export interface Song {
   id: string;
   title: string;
@@ -113,6 +115,8 @@ export interface Version {
   region_start: number | null;
   region_end: number | null;
   lyricTimestamps: LyricLine[] | null;
+  /** lyrics-server's reading of this version's audio, or null until it's read. */
+  wordTimings: WordTimings | null;
 }
 
 export interface Layer {
@@ -154,7 +158,9 @@ export interface RefineResult {
 
 /** Mirrors server/src/services/genLock.ts's GenLockInfo, joined with the underlying job's status. */
 export interface ActiveGeneration {
-  kind: 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe' | 'lyrics';
+  kind:
+    | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster'
+    | 'transcribe' | 'lyrics' | 'timings' | 'analyze';
   jobId: string;
   songId?: string;
   title?: string;

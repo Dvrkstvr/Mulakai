@@ -6,7 +6,7 @@ import { GenerateButton } from './GenerateButton';
 import type { CreateDraft } from './createDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { busyMessage } from './generationJob';
 import { useVoiceStore } from './voiceStore';
 import { useModelsForTask } from './useModelsForTask';
 import { AutoTextarea } from './AutoTextarea';
@@ -15,6 +15,7 @@ import { AnalyzeAudioButton } from './AnalyzeAudioButton';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
 import { CoverSourcePicker } from './CoverSourcePicker';
 import { CoverEngineChoice } from './EngineChoice';
+import { aceCoverLocks } from './coverDraft';
 import { YueCoverPanel } from './YueCoverPanel';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
 import { CarriedPromptNote } from './CarriedPromptNote';
@@ -41,12 +42,12 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coverModels, model]);
 
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
+  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const startFromAudio = useGenerationStore((s) => s.startFromAudio);
   const dismiss = useGenerationStore((s) => s.dismiss);
   const voice = useVoiceStore();
   const gen = useSettings((s) => s.gen);
-  const busy = submitting || genRunning;
+  const busy = submitting || !!blockedBy;
 
   const sourceReady = coverSourceReady(draft.audio);
   const ready = sourceReady && !!model && (coverModels?.length ?? 0) > 0;
@@ -65,6 +66,7 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
     setKeyScale: (v) => patch({ keyScale: v }),
     setDuration: (v) => patch({ duration: v }),
   }, { carried: draft.intentOrigin !== 'audio' });
+  const locks = aceCoverLocks({ analyzing: analysis.analyzing, generating: busy });
 
   const generate = async () => {
     setError('');
@@ -104,21 +106,17 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
 
   // An engine cover transcribes the source and sings the score; ACE-Step's model and variance
   // don't apply, and its audio analysis only describes the source (PLAN.md "Client cover
-  // decisions", "ANALYZE AUDIO on COVER · YUE2"). The panel renders its own SOURCE, which its
-  // jobs lock while they read it.
+  // decisions", "ANALYZE AUDIO on COVER · YUE2"). The panel renders its own ENGINE and SOURCE,
+  // which its jobs lock while they read the source.
   if (draft.audio.engine !== 'acestep') {
-    return (
-      <>
-        <CoverEngineChoice />
-        <YueCoverPanel songs={songs} onBack={onBack} noCoverModel={coverModels?.length === 0} />
-      </>
-    );
+    return <YueCoverPanel songs={songs} onBack={onBack} noCoverModel={coverModels?.length === 0} />;
   }
 
   return (
     <>
-      <CoverEngineChoice />
-      <CoverSourcePicker songs={songs} satisfied={sourceReady} />
+      {/* This tab stays mounted across a switch, so an analysis would land in the other engine's draft. */}
+      <CoverEngineChoice lockedBy={locks.engine} />
+      <CoverSourcePicker songs={songs} satisfied={sourceReady} lockedBy={locks.source} />
       {coverModels === null ? (
         <span className="meta">checking available models…</span>
       ) : coverModels.length === 0 ? (
@@ -147,7 +145,7 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
         keyScale={keyScale} onKeyScaleChange={(v) => patch({ keyScale: v })}
       />
 
-      <GenerateButton submitting={submitting} blocked={genRunning} label="GENERATE COVER" disabled={busy || !ready} onClick={generate} />
+      <GenerateButton submitting={submitting} blocked={blockedBy} label="GENERATE COVER" disabled={busy || !ready} onClick={generate} />
       <div className="hint">Renders a new song conditioned on the chosen source track — can take several minutes.</div>
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
       {/* Upload only: a library song is already editable from its row's EDIT button, and this

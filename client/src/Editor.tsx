@@ -7,7 +7,8 @@ import { ExportPanel } from './ExportPanel';
 import { SplitPanel } from './SplitPanel';
 import { LayerStack } from './LayerStack';
 import { SectionStrip } from './SectionStrip';
-import { groupSections, findActiveSectionIndex } from './lyricSections';
+import { findActiveSectionIndex } from './lyricSections';
+import { useLyricTiming } from './useLyricTiming';
 import { splitLyricsBlocks, matchSectionBlocks } from './lyricsBlocks';
 import { LyricsPanel } from './LyricsPanel';
 import { RepaintBar } from './RepaintBar';
@@ -19,7 +20,7 @@ import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useMainTransportGuard } from './previewPlayback';
 import { useHeaderSlot } from './HeaderSlot';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { isGenerating, lockHolder } from './generationJob';
 import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { useResizableWidth } from './useResizableWidth';
 import { ResizeHandle } from './ResizeHandle';
@@ -64,6 +65,7 @@ export function Editor({ songId, onBack }: Props) {
   // A song generating in the Library, a *different* editor action or a split extracting all
   // hold the same global lock (see server genLock.ts) — any one blocks repaint here too.
   const busyElsewhere = splitRunning || (!myRepaint && (genRunning || isEditorBusy(editorJob) || !!otherLock));
+  const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);
@@ -135,10 +137,8 @@ export function Editor({ songId, onBack }: Props) {
   // Section structure comes from the base layer's active render (the whole song),
   // not the focused layer — a focused stem shares the song's section timeline.
   const baseActive = song?.layers.find((l) => l.kind === 'base')?.versions.find((v) => v.active);
-  const sections = useMemo(
-    () => groupSections(baseActive?.lyricTimestamps, duration),
-    [baseActive, duration],
-  );
+  const timing = useLyricTiming(song, baseActive, duration, reload);
+  const sections = timing.sections;
   const activeSectionIndex = useMemo(() => findActiveSectionIndex(sections, selection), [sections, selection]);
 
   // Parsed from the live draft (not the stored song.lyrics) so block char-offsets
@@ -214,6 +214,8 @@ export function Editor({ songId, onBack }: Props) {
               onDraftChange={setLyricsDraft}
               activeBlock={activeLyricsBlock}
               unlocked={lyricsUnlocked}
+              timing={timing}
+              lines={{ timings: timing.timings, duration, selection, onSelect: setSelection, onSeek: seek }}
             />
             {/* While Add Layer is active this panel hosts its lyrics editor, so hovering/
                 focusing it must keep the Add Layer context alive (same debounced keep-alive
@@ -250,7 +252,7 @@ export function Editor({ songId, onBack }: Props) {
         progress={myRepaint?.progress}
         progressStage={myRepaint?.progressStage}
         progressText={myRepaint?.progressText}
-        busyElsewhere={busyElsewhere}
+        busyBy={busyBy}
         onRepaint={repaint}
         error={error}
       />

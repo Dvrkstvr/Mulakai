@@ -1,5 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { LyricsBlock } from './lyricsBlocks';
+import type { LyricTiming } from './useLyricTiming';
+import { LyricsLines, type LineSelect } from './LyricsLines';
 
 interface Props {
   blocks: LyricsBlock[];
@@ -7,6 +9,8 @@ interface Props {
   onDraftChange: (text: string) => void;
   activeBlock: LyricsBlock | null;
   unlocked: boolean;
+  timing: Pick<LyricTiming, 'status' | 'error' | 'retry'>;
+  lines: LineSelect;
 }
 
 /**
@@ -18,7 +22,7 @@ interface Props {
  * selected) is always shown highlighted when locked, and native-selected
  * (so the browser visibly marks it, ready to type over) when unlocked.
  */
-export function LyricsPanel({ blocks, draft, onDraftChange, activeBlock, unlocked }: Props) {
+export function LyricsPanel({ blocks, draft, onDraftChange, activeBlock, unlocked, timing, lines }: Props) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
@@ -38,7 +42,18 @@ export function LyricsPanel({ blocks, draft, onDraftChange, activeBlock, unlocke
 
   return (
     <div className="lyrics-panel">
-      <div className="section-label">LYRICS</div>
+      <div className="section-label">
+        LYRICS{timing.status === 'reading' && <span className="lyrics-timing"> · TIMING…</span>}
+      </div>
+      {timing.status === 'failed' && (
+        <div className="warn-note lyrics-timing-error">
+          <div className="lyrics-timing-row">
+            <span>couldn't time these lyrics</span>
+            <button type="button" onClick={timing.retry}>RETRY</button>
+          </div>
+          <div className="lyrics-timing-reason" title={timing.error}>{timing.error}</div>
+        </div>
+      )}
       {unlocked ? (
         <textarea
           ref={textareaRef}
@@ -48,15 +63,7 @@ export function LyricsPanel({ blocks, draft, onDraftChange, activeBlock, unlocke
           spellCheck={false}
         />
       ) : (
-        <div className="lyrics-readonly">
-          {blocks.map((b, i) => (
-            <div key={i} className={`lyrics-block${b === activeBlock ? ' active' : ''}`}>
-              {b.text.split('\n').map((line, li) => (
-                <div key={li} className={li === 0 && b.label ? 'lyrics-tag' : undefined}>{line || ' '}</div>
-              ))}
-            </div>
-          ))}
-        </div>
+        <LyricsLines blocks={blocks} draft={draft} activeBlock={activeBlock} {...lines} />
       )}
       {unlocked && (
         <div className="lyrics-hint">editing applies to this repaint — adjusting the region re-locks it</div>

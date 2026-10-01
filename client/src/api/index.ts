@@ -15,7 +15,7 @@ export * from './types';
 export * from './engineTypes';
 export { ApiError } from './http';
 export type { ScoreSize, Transcription } from './covers';
-export type { LyricSegment, LyricWord, LyricsReading } from './lyrics';
+export type { LyricSegment, LyricWord, LyricsReading, WordTimings } from './lyrics';
 
 import { libraryApi } from './library';
 import { generationApi } from './generation';

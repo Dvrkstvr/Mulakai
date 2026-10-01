@@ -29,7 +29,7 @@ optional Demucs microservice (`demucs-server/`, FastAPI) for stem splits.
 
 ## Commands
 
-There is no root package.json — run these inside `client/` or `server/`.
+There is no root package.json — run these inside `client/`, `server/` or `e2e/`.
 
 ```bash
 # Frontend (client/)
@@ -42,12 +42,22 @@ npm run lint           # oxlint
 npm run dev            # Express dev server (tsx watch)
 npm test               # Vitest unit tests
 
+# End-to-end (e2e/) — needs client/ and server/ installed, plus ffmpeg on PATH
+npx playwright install chromium   # once
+npm run test:e2e       # golden path against a fake ACE-Step
+
 # ACE-Step 1.5 (separate process, see its own AGENTS.md)
 uv run acestep --port 8001 --enable-api --backend pt --server-name 127.0.0.1
 ```
 
-Playwright e2e is required by AGENTS.md but not yet set up — see
-docs/AUDIT.md's open items.
+`test:e2e` starts its own stack on 127.0.0.1 — fake ACE-Step 8101
+(`e2e/fake-acestep/`), server 3101 with a throwaway `DATA_DIR`, Vite 5183 —
+so it runs beside a dev stack. If a hard-killed run orphans one of them,
+the next run fails with "port in use": find the PID with
+`Get-NetTCPConnection -LocalPort <port>` and stop it. CI runs the same
+e2e on Ubuntu for every PR into `main` (`.github/workflows/e2e.yml`; failed
+runs upload the report and traces). Design: PLAN.md "Playwright
+Golden-Path E2E".
 
 ## Design System
 
@@ -72,6 +82,7 @@ zero radius), typography, and the three-screen app model live there.
 - `server/src/db/` — SQLite schema + migrations (songs → layers → versions;
   no users/profiles/playlists tables)
 - `demucs-server/` — optional FastAPI stem-split microservice (Python)
+- `e2e/` — Playwright golden-path spec and the fake ACE-Step it runs against
 
 ## Spec-Driven Development
 

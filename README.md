@@ -240,9 +240,9 @@ Work goes through pull requests against `main`.
 ## Status
 
 Working prototype under active development, built for a single local user on
-one machine. Known gaps are tracked in [`docs/AUDIT.md`](docs/AUDIT.md) —
-including that the Playwright end-to-end suite required by `AGENTS.md` is not
-set up yet.
+one machine. Known gaps are tracked in [`docs/AUDIT.md`](docs/AUDIT.md). A
+Playwright golden-path test runs against a fake ACE-Step (`e2e/`,
+`npm run test:e2e`).
 
 The server has **no authentication** and is bound to localhost for that reason.
 Don't expose it.
