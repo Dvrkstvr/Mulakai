@@ -1,3 +1,6 @@
+import threading
+from concurrent.futures import ThreadPoolExecutor
+
 import pytest
 from fastapi.testclient import TestClient
 
@@ -40,6 +43,13 @@ def test_split_returns_downloadable_urls_for_all_four_stems(setup):
     assert freed == [1]
 
 
+def test_downloading_every_stem_leaves_the_data_dir_empty(setup):
+    client, _, _, data_dir = setup
+    for url in post(client).json()["stems"].values():
+        assert client.get(url).status_code == 200
+    assert list(data_dir.iterdir()) == []
+
+
 def test_split_keeps_only_the_served_stems(setup):
     client, _, _, data_dir = setup
     post(client)
@@ -60,4 +70,25 @@ def test_failed_split_is_a_500_and_still_frees_the_gpu(tmp_path):
     assert res.status_code == 500
     assert "hyper_parameters" in res.json()["detail"]
     assert freed == [1]
-    assert not any(p.name.startswith("source") for p in tmp_path.rglob("*"))
+    assert list(tmp_path.iterdir()) == []
+
+
+def test_health_answers_while_a_split_runs(tmp_path):
+    started, release = threading.Event(), threading.Event()
+    runners = FakeRunners()
+
+    def slow_mdx(**kwargs):
+        started.set()
+        assert release.wait(10)
+        runners.mdx(**kwargs)
+
+    app = create_app(slow_mdx, runners.demucs, lambda: None, tmp_path, "vox", "htdemucs")
+    with TestClient(app) as client, ThreadPoolExecutor(2) as pool:
+        pending = pool.submit(post, client)
+        try:
+            assert started.wait(10)
+            # A blocked event loop would hang this, so it gets a deadline.
+            assert pool.submit(client.get, "/health").result(5).status_code == 200
+        finally:
+            release.set()
+        assert pending.result(10).status_code == 200
