@@ -5704,3 +5704,56 @@ another kind still blocked it.
   its type from `editorJob.ts`.
 - `client/src/editorJobStore.test.ts`: the predicate, a start of
   another kind over a failed job, and a refused start while in flight.
+
+## A Settled Split Blocks Nothing (planned 2026-10-01)
+
+Found while browser-checking the section above. Once a split's four
+stems settle, the server releases its lock, but the split session stays
+open so each stem can be previewed, REPLACEd, ADD LAYERed or
+RE-EXTRACTed. On the client, that session sat in the one `editorJob`
+slot with stage `done`, so every other Editor action read BUSY ELSEWHERE
+until CANCEL SPLIT, even when all four stems had failed. A split that
+failed to start also showed four stems "running" forever, with no
+error.
+
+### Decisions
+
+1. **The split session gets its own slot**, `splitJob`, next to
+   `editorJob`. Repaint, regenerate, retake, add layer and remaster can
+   then run while a settled split stays open, and both stay visible.
+2. **Only a running split blocks.** A split is running while any stem
+   is (the first pass or a RE-EXTRACT), which is exactly when the
+   server holds its lock (`selectSplitRunning`). An editor job still
+   blocks RE-EXTRACT, since that needs the lock.
+3. **A new split replaces a settled one on another layer**, and says so
+   first: "starting closes the open split on another layer — its
+   unclaimed stems are discarded". The old session is cancelled on the
+   server. A failed split is replaced silently, as in the section above.
+4. **A failed split start shows its error** in SplitPanel, and GENERATE
+   STEMS retries it.
+5. **One busy rule for the other panels:** busy elsewhere = a running
+   split, or (if this panel has no job of its own) a generation, a busy
+   editor job or another lock. A running split now blocks even beside
+   this panel's own failed job, which a single slot never allowed.
+
+### File-level plan
+
+- `client/src/editorJobStore.ts`: `splitJob` slot; `startSplit`,
+  `cancelSplit`, `patchSplitStem` and the 404 handling use it;
+  `runSingleJob` also refuses while a split runs; `startSplit` cancels
+  a replaced settled session; `selectSplitRunning`.
+- `client/src/editorJob.ts`: `SingleEditorJob` (every kind but split)
+  as the type of `editorJob`.
+- `client/src/SplitPanel.tsx`: reads `splitJob`; failed start error and
+  retry; the replace consequence; RE-EXTRACT blocked by other work.
+- `Editor.tsx`, `AddLayerTrigger.tsx`, `RemasterAction.tsx`,
+  `VersionHistory.tsx`: the busy rule above. `Editor.tsx`'s
+  reopen-the-split-rail effect reads `splitJob`.
+- `client/src/LibraryJobBadge.tsx`: takes a `songId` and picks that
+  song's editor job, else its split, so `App.tsx` stops reading the
+  store.
+- `client/src/editorJobStore.split.test.ts` (new, beside the store's
+  own test file, which is near the cap): a repaint beside a settled
+  split, a repaint refused while a split runs, a split replacing a
+  settled one (and cancelling it on the server), and a failed split
+  start.

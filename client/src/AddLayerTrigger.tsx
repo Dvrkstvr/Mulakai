@@ -8,7 +8,7 @@ import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
-import { useEditorJobStore, myEditorJob, isEditorBusy } from './editorJobStore';
+import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { CustomSelect } from './CustomSelect';
@@ -45,13 +45,14 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
+  const splitRunning = useEditorJobStore(selectSplitRunning);
   const startAddLayer = useEditorJobStore((s) => s.startAddLayer);
   const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
   // Add Layer isn't tied to any one existing layer, so "mine" is just "an addLayer job for this song".
   const mine = myEditorJob(editorJob, 'addLayer', { songId });
   const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
   const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'add layer failed') : '');
-  const busyElsewhere = !mine && (genRunning || isEditorBusy(editorJob) || !!otherLock);
+  const busyElsewhere = splitRunning || (!mine && (genRunning || isEditorBusy(editorJob) || !!otherLock));
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {

@@ -6,7 +6,7 @@ import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { ScrollArea } from './ScrollArea';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
-import { useEditorJobStore, isEditorBusy } from './editorJobStore';
+import { useEditorJobStore, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
@@ -30,6 +30,7 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
+  const splitRunning = useEditorJobStore(selectSplitRunning);
   const startRegenerate = useEditorJobStore((s) => s.startRegenerate);
   const startRetake = useEditorJobStore((s) => s.startRetake);
   const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
@@ -39,7 +40,7 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
   const mine = (editorJob?.kind === 'regenerate' || editorJob?.kind === 'retake') && editorJob.layerId === layerId ? editorJob : null;
   const elapsedMs = useElapsedMs(mine?.stage === 'running', mine?.startedAt ?? null);
   const progressSuffix = `${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`;
-  const busyOtherKind = isEditorBusy(editorJob) && !mine;
+  const busyOtherKind = (isEditorBusy(editorJob) && !mine) || splitRunning;
   const busy = genRunning || !!otherLock || busyOtherKind || mine?.stage === 'running';
 
   // Runs once when *our* regenerate/retake finishes, even if it settled while this Editor/layer

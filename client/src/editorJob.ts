@@ -21,6 +21,9 @@ export interface RemasterJob extends JobBase { kind: 'remaster' }
 export interface SplitJobState extends JobBase { kind: 'split'; layerId: string; splitJobId: string; stems: StemResult[] }
 
 export type EditorJob = RepaintJob | RegenerateJob | RetakeJob | AddLayerJob | RemasterJob | SplitJobState;
+/** Every kind but split, which has its own store slot: a settled split stays open for its
+ * stems while other editor jobs run. */
+export type SingleEditorJob = Exclude<EditorJob, SplitJobState>;
 
 /** Whether an editor job still holds the server's lock. A failed job stays in the store only
  * so its own panel can show the error and RETRY — the server already released the lock, so it

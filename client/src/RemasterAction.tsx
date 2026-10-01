@@ -7,7 +7,7 @@ import { useSettings } from './settings';
 import { AudioPreview } from './AudioPreview';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
-import { useEditorJobStore, myEditorJob, isEditorBusy } from './editorJobStore';
+import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { useRemasterResult } from './remasterResult';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
@@ -35,6 +35,7 @@ export function RemasterAction({ songId, layers }: Props) {
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
+  const splitRunning = useEditorJobStore(selectSplitRunning);
   const remasterResult = useRemasterResult((s) => s.result);
   const startRemaster = useEditorJobStore((s) => s.startRemaster);
   const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
@@ -42,7 +43,7 @@ export function RemasterAction({ songId, layers }: Props) {
   const mine = myEditorJob(editorJob, 'remaster', { songId });
   const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
   const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'remaster failed') : '');
-  const busyElsewhere = !mine && (genRunning || isEditorBusy(editorJob) || !!otherLock);
+  const busyElsewhere = splitRunning || (!mine && (genRunning || isEditorBusy(editorJob) || !!otherLock));
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {
