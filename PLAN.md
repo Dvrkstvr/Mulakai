@@ -6000,3 +6000,24 @@ COVER · ACE-STEP and ARRANGE didn't check the lock at all.
   `busyMessage`.
 - `client/src/useAnalyzeSourceAudio.ts`: `refreshLock()` when a call
   settles.
+
+### Browser check (2026-10-02)
+
+This branch's server and client on spare ports, against a stand-in for
+ACE-Step: model inventory, health, and a `/v1/analyze_audio` that answers
+after 40 s. The check is about the lock, not the analysis: the real call was
+browser-checked in "ANALYZE AUDIO on COVER · YUE2". This also kept a second
+model off a GPU another session was using. Two tabs:
+
+- **Before:** tab B on PROMPT with a prompt typed. GENERATE was enabled.
+- **Tab A, COVER · ACE-STEP**, an uploaded WAV, then ANALYZE AUDIO.
+  `/active` reported `kind: analyze, status: running` within a second, and
+  the button read ANALYZING….
+- **Tab B, within one poll:** GENERATE was off and read "ANALYZE AUDIO IS
+  ALREADY RUNNING". FEELING LUCKY was off too. The header pill read
+  `ANALYZE · RUNNING`.
+- **A stale tab's GENERATE** (a direct `POST /api/generate` from tab B):
+  409, "an audio analysis is already in progress".
+- **After the 40 s:** `/active` was null, the pill gone, and tab B's
+  GENERATE enabled again. Tab A's PROMPT and LYRICS held the analysis
+  result, and its GENERATE COVER was enabled.
