@@ -186,8 +186,8 @@ AGENTS.md requires one golden-path e2e per phase; none was set up. Now `e2e/`
 holds Playwright plus a fake ACE-Step (`e2e/fake-acestep/`), and `npm run
 test:e2e` drives PLAN.md Phase 10's path (generate → repaint a region → add a
 layer → revert a version → export) through the real client and server on a
-throwaway data dir. Still open: no CI
-runs it, and per-phase edge-case specs are yet to come (PLAN.md "Playwright
+throwaway data dir. `.github/workflows/e2e.yml` runs it on every PR into
+`main`. Still open: per-phase edge-case specs (PLAN.md "Playwright
 Golden-Path E2E", open questions).
 
 ### 20. Untested critical modules
