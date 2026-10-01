@@ -184,7 +184,7 @@ responsibility (no behaviour change; every resulting file ≤150):
 | `client/src/settings.ts` | 329 | #75 (merged) |
 | `client/src/Editor.tsx` | 320 | #82 |
 | `client/src/App.tsx` | 317 | #77 (merged) |
-| `server/src/routes/generate.ts` | 298 | #72 |
+| `server/src/routes/generate.ts` | 298 | #72 (merged) |
 | `server/src/services/jobs.ts` | 283 | #73 (merged) |
 | `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
 | `server/src/services/repaintJobs.ts` | 235 | #71 (merged) |
