@@ -2,6 +2,7 @@
 import { outputParams } from '../settings';
 import { json, appendParams } from './http';
 import type { StemKind, StemResult } from './types';
+import type { SplitHealth } from '../splitBackend';
 
 export const editorApi = {
   repaint: (
@@ -81,7 +82,7 @@ export const editorApi = {
   splitStatus: (jobId: string): Promise<{ status: 'running' | 'done'; stems: StemResult[] }> =>
     fetch(`/api/split/${jobId}`).then((r) => json(r)),
 
-  splitHealth: (): Promise<{ acestep: boolean; demucs: boolean }> =>
+  splitHealth: (): Promise<SplitHealth> =>
     fetch('/api/split/health').then((r) => json(r)),
 
   claimStem: (jobId: string, kind: StemKind, action: 'replace' | 'add-layer'): Promise<{ songId: string }> =>

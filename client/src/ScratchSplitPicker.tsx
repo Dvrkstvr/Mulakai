@@ -3,6 +3,7 @@ import { api, ApiError, type StemKind, type StemResult } from './api';
 import { AudioPreview } from './AudioPreview';
 import { previewPlayback } from './previewPlayback';
 import { Dropzone } from './Dropzone';
+import { SPLIT_HEALTH_DOWN, splitServiceLabel, splitServiceTitle, type SplitHealth } from './splitBackend';
 
 interface Props {
   /** Fired when the user picks a ready stem to use as a generation source — the split job/
@@ -13,14 +14,14 @@ interface Props {
 const POLL_MS = 2000;
 
 /**
- * Standalone stem split: upload any song, run ACE-Step `extract` or Demucs, get back
+ * Standalone stem split: upload any song, run ACE-Step `extract` or the split service (Demucs or UVR), get back
  * downloadable stems — no song/library entry is ever created. Doubles as a source-picker
  * for Complete generation (CreateCompleteTab.tsx) via `onUseStem`, but is fully usable on
  * its own (split, download, done) per the "bonus" utility request. Stem playback goes
  * through the shared previewPlayback slot via AudioPreview.
  */
 export function ScratchSplitPicker({ onUseStem }: Props) {
-  const [health, setHealth] = useState<{ acestep: boolean; demucs: boolean } | null>(null);
+  const [health, setHealth] = useState<SplitHealth | null>(null);
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
@@ -30,7 +31,7 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
   const pollRef = useRef<number | null>(null);
 
   useEffect(() => {
-    api.splitHealth().then(setHealth).catch(() => setHealth({ acestep: false, demucs: false }));
+    api.splitHealth().then(setHealth).catch(() => setHealth(SPLIT_HEALTH_DOWN));
   }, []);
 
   useEffect(() => {
@@ -116,10 +117,10 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
               <button
                 className={`tab${model === 'demucs' ? ' active' : ''}`}
                 disabled={!health.demucs}
-                title={health.demucs ? undefined : 'Demucs is not configured (DEMUCS_API_URL unset)'}
+                title={splitServiceTitle(health)}
                 onClick={() => setModel('demucs')}
               >
-                <span>DEMUCS</span>
+                <span>{splitServiceLabel(health)}</span>
               </button>
             </div>
           )}

@@ -6,6 +6,7 @@ import { useEditorJobStore, isEditorBusy } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
+import { SPLIT_HEALTH_DOWN, splitServiceLabel, splitServiceTitle, type SplitHealth } from './splitBackend';
 
 interface Props {
   songId: string;
@@ -25,7 +26,7 @@ interface Props {
  * through the shared previewPlayback slot via AudioPreview.
  */
 export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
-  const [health, setHealth] = useState<{ acestep: boolean; demucs: boolean } | null>(null);
+  const [health, setHealth] = useState<SplitHealth | null>(null);
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [error, setError] = useState('');
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
@@ -45,7 +46,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
 
   useEffect(() => {
-    api.splitHealth().then(setHealth).catch(() => setHealth({ acestep: false, demucs: false }));
+    api.splitHealth().then(setHealth).catch(() => setHealth(SPLIT_HEALTH_DOWN));
   }, []);
 
   useEffect(() => {
@@ -126,10 +127,10 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
               <button
                 className={`tab${model === 'demucs' ? ' active' : ''}`}
                 disabled={!health.demucs}
-                title={health.demucs ? undefined : 'Demucs is not configured (DEMUCS_API_URL unset)'}
+                title={splitServiceTitle(health)}
                 onClick={() => setModel('demucs')}
               >
-                <span>DEMUCS</span>
+                <span>{splitServiceLabel(health)}</span>
               </button>
             </div>
           )}
