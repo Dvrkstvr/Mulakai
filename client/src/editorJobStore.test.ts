@@ -1,9 +1,14 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 const repaint = vi.fn();
+const retakeVersion = vi.fn();
 const jobStatus = vi.fn();
 vi.mock('./api', () => ({
-  api: { repaint: (...args: unknown[]) => repaint(...args), jobStatus: (id: string) => jobStatus(id) },
+  api: {
+    repaint: (...args: unknown[]) => repaint(...args),
+    retakeVersion: (id: string) => retakeVersion(id),
+    jobStatus: (id: string) => jobStatus(id),
+  },
   ApiError: class ApiError extends Error {
     status: number;
     constructor(status: number, message: string) {
@@ -13,7 +18,7 @@ vi.mock('./api', () => ({
   },
 }));
 
-const { useEditorJobStore } = await import('./editorJobStore');
+const { useEditorJobStore, isEditorBusy } = await import('./editorJobStore');
 
 const POLL_MS = 2000;
 
@@ -79,5 +84,47 @@ describe('runSingleJob polling', () => {
     await tick();
     expect(jobStatus).toHaveBeenCalledTimes(1);
     expect(useEditorJobStore.getState().editorJob).toBeNull();
+  });
+});
+
+describe('a failed editor job', () => {
+  it('is not busy; running and done (during its linger) are', () => {
+    const job = { kind: 'remaster', jobId: 'j', songId: 's', startedAt: 0 } as const;
+    expect(isEditorBusy(null)).toBe(false);
+    expect(isEditorBusy({ ...job, stage: 'failed' })).toBe(false);
+    expect(isEditorBusy({ ...job, stage: 'running' })).toBe(true);
+    expect(isEditorBusy({ ...job, stage: 'done' })).toBe(true);
+  });
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    useEditorJobStore.setState({ editorJob: null });
+    repaint.mockReset().mockResolvedValue({ jobId: 'j1' });
+    retakeVersion.mockReset().mockResolvedValue({ jobId: 'j2' });
+    jobStatus.mockReset().mockResolvedValue({ status: 'running' });
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it('lets a start of another kind replace it', async () => {
+    repaint.mockRejectedValueOnce(new Error('ACE-Step down'));
+    await useEditorJobStore.getState().startRepaint('l1', 's1', { prompt: 'p', start: 0, end: 1 });
+    expect(useEditorJobStore.getState().editorJob).toMatchObject({ kind: 'repaint', stage: 'failed' });
+
+    void useEditorJobStore.getState().startRetake('l2', 's1', 'v1');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(retakeVersion).toHaveBeenCalledWith('v1');
+    expect(useEditorJobStore.getState().editorJob).toMatchObject({ kind: 'retake', jobId: 'j2', stage: 'running' });
+  });
+
+  it('still refuses a second start while one is in flight', async () => {
+    void useEditorJobStore.getState().startRepaint('l1', 's1', { prompt: 'p', start: 0, end: 1 });
+    await vi.advanceTimersByTimeAsync(0);
+
+    await useEditorJobStore.getState().startRetake('l2', 's1', 'v1');
+    expect(retakeVersion).not.toHaveBeenCalled();
+    expect(useEditorJobStore.getState().editorJob).toMatchObject({ kind: 'repaint', stage: 'running' });
   });
 });

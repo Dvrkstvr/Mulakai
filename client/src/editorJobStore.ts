@@ -1,42 +1,9 @@
 import { create } from 'zustand';
 import { api, ApiError, type StemResult } from './api';
 import { useRemasterResult } from './remasterResult';
+import { isEditorBusy, type EditorJob, type SplitJobState } from './editorJob';
 
-export type Stage = 'running' | 'done' | 'failed';
-
-interface JobBase {
-  jobId: string;
-  songId: string;
-  startedAt: number;
-  stage: Stage;
-  error?: string;
-  progress?: number; // live progress from ACE-Step's /query_result, refreshed each poll tick
-  progressStage?: string;
-  progressText?: string;
-}
-
-export interface RepaintJob extends JobBase { kind: 'repaint'; layerId: string }
-export interface RegenerateJob extends JobBase { kind: 'regenerate'; layerId: string; versionId: string }
-export interface RetakeJob extends JobBase { kind: 'retake'; layerId: string; versionId: string }
-export interface AddLayerJob extends JobBase { kind: 'addLayer' }
-export interface RemasterJob extends JobBase { kind: 'remaster' }
-export interface SplitJobState extends JobBase { kind: 'split'; layerId: string; splitJobId: string; stems: StemResult[] }
-
-export type EditorJob = RepaintJob | RegenerateJob | RetakeJob | AddLayerJob | RemasterJob | SplitJobState;
-
-/** Selects `editorJob` only if it matches this kind and every id given — lets a
- * component tell "this is my own in-flight job" apart from "something else is
- * running" without each caller re-deriving the comparison. */
-export function myEditorJob<K extends EditorJob['kind']>(
-  job: EditorJob | null, kind: K, ids: Partial<Record<'songId' | 'layerId' | 'versionId', string>>,
-): (EditorJob & { kind: K }) | null {
-  if (!job || job.kind !== kind) return null;
-  const record = job as unknown as Record<string, unknown>;
-  for (const [key, value] of Object.entries(ids)) {
-    if (value !== undefined && record[key] !== value) return null;
-  }
-  return job as EditorJob & { kind: K };
-}
+export { isEditorBusy, myEditorJob } from './editorJob';
 
 interface EditorJobState {
   editorJob: EditorJob | null;
@@ -72,7 +39,8 @@ async function runSingleJob(
   submit: () => Promise<{ jobId: string }>,
   onDone?: (job: EditorJob) => void,
 ): Promise<void> {
-  if (get().editorJob) return; // one editor job at a time — mirrors the server's genLock
+  // One editor job at a time — mirrors the server's genLock. A failed one is just replaced.
+  if (isEditorBusy(get().editorJob)) return;
   set({ editorJob: provisional });
   let jobId: string;
   try {
@@ -147,7 +115,7 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
   },
 
   startSplit: async (layerId, songId, model) => {
-    if (get().editorJob) return;
+    if (isEditorBusy(get().editorJob)) return;
     const stems: StemResult[] = (['vocals', 'drums', 'bass', 'other'] as const).map((kind) => ({ kind, status: 'running' }));
     const provisional: SplitJobState = { kind: 'split', jobId: '', songId, layerId, splitJobId: '', stems, startedAt: Date.now(), stage: 'running' };
     set({ editorJob: provisional });

@@ -8,7 +8,7 @@ import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
-import { useEditorJobStore, myEditorJob } from './editorJobStore';
+import { useEditorJobStore, myEditorJob, isEditorBusy } from './editorJobStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { CustomSelect } from './CustomSelect';
@@ -51,7 +51,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   const mine = myEditorJob(editorJob, 'addLayer', { songId });
   const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
   const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'add layer failed') : '');
-  const busyElsewhere = !mine && (genRunning || !!editorJob || !!otherLock);
+  const busyElsewhere = !mine && (genRunning || isEditorBusy(editorJob) || !!otherLock);
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {
