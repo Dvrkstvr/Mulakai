@@ -6137,3 +6137,25 @@ The Create and Settings twins of "Lookup Failures Aren't Answers"
 - Tests: `lookup.test.ts` — `modelsFor` failing for cover and complete,
   and the full inventory failing, without becoming an answer.
 - DESIGN.md: extend the lookup line to Create and Settings.
+
+### Browser check (2026-10-02)
+
+Same setup as the Editor check: worktree client and server on spare
+ports, a copy of the library database, ACE-Step not running. `fetch`
+patched in the page to reject `/api/generate/models` and `/api/voices`
+with "Failed to fetch", then CREATE:
+
+- PROMPT: "couldn't load the model list — Failed to fetch · RETRY" at
+  the top of GENERATION SETTINGS; DIT and LM MODEL stayed on AUTO.
+  REFERENCE AUDIO › VOICE: "couldn't load voices — Failed to fetch ·
+  RETRY" under the VOICE select, NONE still selected.
+- COVER: "couldn't check models for Cover — Failed to fetch · RETRY"
+  where the MODEL select goes.
+- ARRANGE: "couldn't check models for Arrange — Failed to fetch ·
+  RETRY"; ARRANGE disabled.
+- Settings > Models: "couldn't load the model inventory — Failed to
+  fetch · RETRY". Patch lifted, RETRY: the line went away and the
+  server's answer showed ("No DIT models reported", ACE-Step being
+  down; see "Lookup Failures Aren't Answers" decision 5).
+- Server stopped, CREATE opened again on ARRANGE: the model list,
+  voices and Arrange lines all read "HTTP 502 · RETRY".
