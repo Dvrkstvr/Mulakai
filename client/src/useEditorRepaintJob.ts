@@ -1,8 +1,8 @@
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { isGenerating, lockHolder } from './generationJob';
 import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 
-/** The focused layer's repaint job status, and whether the global lock is held elsewhere. */
+/** The focused layer's repaint job status, and whether (and by whom) the global lock is held elsewhere. */
 export function useEditorRepaintJob(focusedLayerId: string | null) {
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
@@ -19,5 +19,6 @@ export function useEditorRepaintJob(focusedLayerId: string | null) {
   // A song generating in the Library, a *different* editor action or a split extracting all
   // hold the same global lock (see server genLock.ts) — any one blocks repaint here too.
   const busyElsewhere = splitRunning || (!myRepaint && (genRunning || isEditorBusy(editorJob) || !!otherLock));
-  return { startRepaint, dismissEditorJob, myRepaint, job, startedAt, error, busyElsewhere };
+  const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
+  return { startRepaint, dismissEditorJob, myRepaint, job, startedAt, error, busyElsewhere, busyBy };
 }

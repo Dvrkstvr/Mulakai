@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { api, type SongDetail } from './api';
+import { useState } from 'react';
+import { useSongDetail } from './useSongDetail';
 import type { Region } from './Waveform';
 import { Player } from './Player';
 import { LayerStack } from './LayerStack';
@@ -28,17 +28,14 @@ interface Props {
 
 export function Editor({ songId, onBack }: Props) {
   const repaintSettings = useSettings((s) => s.repaint);
-  const [song, setSong] = useState<SongDetail | null>(null);
+  const { song, loadError, reload } = useSongDetail(songId);
   const [focusedLayerId, setFocusedLayerId] = useState<string | null>(null);
   const [selection, setSelection] = useState<Region | null>(null);
   const [prompt, setPrompt] = useState('');
   const [lyricsDraft, setLyricsDraft] = useState('');
   const [railMode, setRailMode] = useState<RailMode>('history');
   const { addingLayerExpanded, requestAddingLayerExpanded } = useAddLayerExpanded();
-  const { startRepaint, dismissEditorJob, myRepaint, job, startedAt, error, busyElsewhere } = useEditorRepaintJob(focusedLayerId);
-
-  const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
-  useEffect(() => { reload(); }, [reload]);
+  const { startRepaint, dismissEditorJob, myRepaint, job, startedAt, error, busyElsewhere, busyBy } = useEditorRepaintJob(focusedLayerId);
 
   useLyricsDraftSync(song, setLyricsDraft);
   const engine = usePlaybackEngine(song?.layers ?? []);
@@ -63,7 +60,12 @@ export function Editor({ songId, onBack }: Props) {
   useLibraryBackButton(onBack);
   const { leftWidth, railWidth, gridTemplateColumns } = useEditorColumns();
 
-  if (!song) return <div className="empty">Loading…</div>;
+  const retryLoad = <button onClick={() => void reload()}>RETRY</button>;
+  if (!song) {
+    return loadError
+      ? <div className="empty"><div className="error">couldn't load this song — {loadError} {retryLoad}</div></div>
+      : <div className="empty">Loading…</div>;
+  }
 
   return (
     <div className="editor-shell">
@@ -82,6 +84,7 @@ export function Editor({ songId, onBack }: Props) {
           onResizePointerDown={leftWidth.onPointerDown}
         />
         <div className="editor-main">
+      {loadError && <div className="error">couldn't refresh this song — {loadError} {retryLoad}</div>}
       <EditorTitleRow song={song} duration={duration} />
 
       <RepaintBar
@@ -95,7 +98,7 @@ export function Editor({ songId, onBack }: Props) {
         progress={myRepaint?.progress}
         progressStage={myRepaint?.progressStage}
         progressText={myRepaint?.progressText}
-        busyElsewhere={busyElsewhere}
+        busyBy={busyBy}
         onRepaint={repaint}
         error={error}
       />

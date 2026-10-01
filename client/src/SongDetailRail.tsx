@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, type Folder, type Song } from './api';
+import { attempt } from './actionError';
 import { timeSignatureLabel } from './songMeta';
 import { CustomSelect } from './CustomSelect';
 import { AudioPreview } from './AudioPreview';
@@ -65,10 +66,12 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
   const [comment, setComment] = useState(song.comment);
+  const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => setTitle(song.title), [song.title]);
   useEffect(() => setComment(song.comment), [song.comment]);
+  useEffect(() => setError(''), [song.id]); // the rail stays mounted across songs
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
@@ -80,17 +83,20 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
       setTitle(song.title);
       return;
     }
-    api.renameSong(song.id, trimmed).then(onRenamed);
+    // A refused rename snaps back to the stored title rather than leaving the rejected one up.
+    void attempt("couldn't rename", () => api.renameSong(song.id, trimmed).then(onRenamed), setError)
+      .then((ok) => { if (!ok) setTitle(song.title); });
   };
 
   const commitComment = () => {
     if (comment === song.comment) return;
-    api.updateSongMetadata(song.id, { comment }).then(onRenamed);
+    // A refused comment stays in the box, so clicking away again retries it.
+    void attempt("comment not saved", () => api.updateSongMetadata(song.id, { comment }).then(onRenamed), setError);
   };
 
   const folderOptions = [{ label: 'UNFILED', value: UNFILED }, ...folders.map((f) => ({ label: f.name.toUpperCase(), value: f.id }))];
   const moveFolder = (folderId: string) => {
-    api.moveSongToFolder(song.id, folderId || null).then(onRenamed);
+    void attempt("couldn't move to folder", () => api.moveSongToFolder(song.id, folderId || null).then(onRenamed), setError);
   };
 
   return (
@@ -117,6 +123,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
           <div className="song-title" onDoubleClick={() => setEditing(true)}>{song.title}</div>
         )}
         <p className="meta">{song.caption}</p>
+        {error && <div className="error">{error}</div>}
 
         <CustomSelect label="FOLDER" value={song.folder_id ?? UNFILED} onChange={moveFolder} options={folderOptions} />
 

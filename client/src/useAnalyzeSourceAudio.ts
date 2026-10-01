@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { api, type RefineResult, type StemKind } from './api';
+import { useGenerationStore } from './generationStore';
 
 export type AnalyzeSource =
   | { kind: 'file'; resolve: () => Promise<Blob> }
@@ -52,6 +53,9 @@ export function useAnalyzeSourceAudio(): AnalyzeState & { analyze: (source: Anal
         if (tokenRef.current === token) {
           setState({ analyzing: false, error: err instanceof Error ? err.message : String(err), result: null });
         }
+      } finally {
+        // The server held its lock (`analyze`) for the call: clear otherLock now, not a poll later.
+        void useGenerationStore.getState().refreshLock();
       }
     })();
   }, []);

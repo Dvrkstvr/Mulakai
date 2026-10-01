@@ -5588,6 +5588,7 @@ rewrites the caption into YuE2-style tags.
   never did, on either engine. The client disables it while a job holds
   the lock, but a job started in another tab can still overlap it. Should
   analysis take the lock under a new `analyze` kind?
+  **Answered (2026-10-02): yes.** See "ANALYZE AUDIO Takes the genLock".
 - **Is the vocabulary wide enough?** It is hand-written. Once the style
   tag probe exists, its mined counts could show which common caption
   words the extractor misses.
@@ -6113,6 +6114,143 @@ the running `uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A
 - The Vocals layer, soloed and played, loaded the first split's file, and
   the bytes served to the page matched its original sha256.
 
+## Playwright Golden-Path E2E (planned 2026-10-02)
+
+Closes `docs/AUDIT.md` #19. AGENTS.md asks for one golden-path e2e per
+phase, and Phase 10 names the path: generate → repaint a region → add a
+layer → revert a version → export. None existed: no dependency, no
+config, no script. The real backends (ACE-Step, YuE2 in WSL2, HeartMuLa)
+are slow GPU processes, so the e2e runs against a fake.
+
+### Decisions
+
+1. **A new `e2e/` package, not `client/`.** The test drives three
+   processes: the Vite client, the Express server and a fake ACE-Step.
+   The fake is Node server code, so it belongs to neither app. In
+   `client/` the specs would also collide with Vitest, whose default
+   include (`**/*.{test,spec}.ts`) would pick up `*.spec.ts`. And
+   Playwright's browsers are a large install that client work doesn't
+   need. `e2e/` has its own `package.json` with `test:e2e`, in the same
+   way `client/` and `server/` stand alone (there is no root package).
+2. **The fake ACE-Step** (`e2e/fake-acestep/`) is plain `node:http`, with
+   no dependencies. It answers every route `server/src/services/acestep.ts`
+   calls on this path, in ACE-Step's `{data, code, error}` envelope:
+   - `release_task` takes JSON, or multipart with a source file for
+     repaint, lego and cover;
+   - `query_result` reports "running" with progress once, then done
+     (400 ms);
+   - `/v1/audio` serves a 12 s, 48 kHz stereo tone, built in memory. Each
+     task gets its own pitch, so every version's audio differs;
+   - `/lyric_timestamp` answers 404, ACE-Step's answer when there is no
+     sidecar, which callers treat as "no timestamps";
+   - also `/health`, `/v1/model_inventory` (a turbo and a base model, so
+     Add Layer's `lego` gate opens), `/v1/init`, the LoRA routes,
+     `/format_input` and `/v1/create_sample`.
+   - `GET /__fake/tasks` is the fake's own. The spec reads it to check
+     what went over the wire, e.g. that the repaint carried the selected
+     region.
+3. **Every take is 12 s, whatever was asked.** The spec's region drag
+   is then simple arithmetic on a known duration.
+4. **Its own ports, all on 127.0.0.1:** fake 8101, server 3101, client
+   5183. They sit beside a live dev stack (8001/3001/5173). Vite gets
+   `--host 127.0.0.1 --strictPort`: the config's `host: true` can land
+   on IPv6, where a 127.0.0.1 readiness probe fails.
+   `reuseExistingServer: false` means a leftover process on a port fails
+   the run loudly. It does not quietly serve a stale database.
+5. **`client/vite.config.ts` reads its proxy target from
+   `MULAKAI_API_URL`** (default `http://127.0.0.1:3001`, as before). The
+   alternative, a second Vite config under `e2e/`, could not resolve
+   `@vitejs/plugin-react` from outside `client/`.
+6. **A throwaway data dir.** The config makes a fresh
+   `mulakai-e2e/<time>` under the OS temp dir. It is set once in the
+   main process's env, so workers that re-load the config reuse it.
+   A run can't delete its own: Playwright runs `globalTeardown` before
+   it stops the `webServer`s, so the server still holds the SQLite file
+   (EBUSY on Windows). `globalSetup` removes earlier runs' dirs instead,
+   once they are over an hour old. A younger one may belong to a run in
+   another worktree. The server runs with `DATA_DIR` there and
+   `POLL_INTERVAL_MS=200`. The YuE2, HeartMuLa,
+   Demucs and lyrics URLs are forced empty, so a developer's shell env
+   can't reach real services.
+7. **One worker, Chromium only, a 1440×900 viewport.** The app has one
+   global generation lock, and the layout is desktop-only.
+8. **Orphaned processes on Windows.** Playwright's `webServer` kills each
+   command's process tree on a normal finish and on Ctrl+C. If the
+   runner itself is killed hard (e.g. a stopped background task), the
+   children can outlive it. The fixed, strict ports then make the next
+   run fail with "port in use" rather than test against stale state.
+   CLAUDE.md says how to find those processes.
+9. **The golden path, as one spec:**
+   - **Generate:** Create → PROMPT → title and prompt → GENERATE. The song
+     appears in the library, and EDIT opens it.
+   - **Repaint:** drag 2 s → 8 s on the base lane → prompt → REPAINT
+     REGION. History gains the `0:02–0:08` row as CURRENT, and the fake
+     received `task_type=repaint` with that region.
+   - **Add layer:** + ADD LAYER → prompt → GENERATE. The song reads
+     "2 layers", and the fake received `lego` with a source file.
+   - **Revert:** on the base layer, SEL on the first take. CURRENT moves
+     back, and the server agrees.
+   - **Export:** the EXPORT rail lists both stems. The base stem's
+     download is byte-identical to the reverted version's file. REMASTER
+     SONG renders the composite mix through a fake `cover` and downloads
+     it. Remaster is the only composite export (Phase 9's design).
+10. **ffmpeg stays a prerequisite.** Every master goes through
+    `transcode.ts`, and faking that would skip a real output boundary.
+
+### File-level plan
+
+- `e2e/package.json` (+ lock): `@playwright/test`, `tsx`, `typescript`,
+  `@types/node`; scripts `test:e2e`, `typecheck`.
+- `e2e/playwright.config.ts`: three `webServer`s, env, data dir.
+  `e2e/ports.ts` and `e2e/data-dir.ts`: the shared constants.
+- `e2e/global-setup.ts`: sweeps stale data dirs.
+- `e2e/fake-acestep/server.ts`: the routes. `e2e/fake-acestep/wav.ts`:
+  the tone.
+- `e2e/tests/golden-path.spec.ts`: the path above. `e2e/tests/helpers.ts`:
+  the fake's task log, song lookup, the region drag, download bytes.
+- `e2e/tsconfig.json`, `e2e/.gitignore`.
+- `client/vite.config.ts`: `MULAKAI_API_URL`.
+- `CLAUDE.md` Commands, `docs/AUDIT.md` #19.
+
+### Open questions
+
+- **CI.** Settled below, in "CI (added 2026-10-02)".
+- **Edge cases per phase.** AGENTS.md asks for those as phases add
+  them, e.g. a failed task (the fake could fail on a magic prompt) and
+  the BUSY ELSEWHERE lock.
+
+### CI (added 2026-10-02)
+
+The repo had no workflow at all. `.github/workflows/e2e.yml` runs the
+e2e on GitHub Actions.
+
+1. **Ubuntu, not Windows.** Linux runners start faster and cost less,
+   and `apt` has ffmpeg. Windows is already covered, because that is
+   where the e2e is developed and run locally.
+2. **When it runs:** pull requests into `main`, pushes to `main`, and by
+   hand (`workflow_dispatch`). A newer push to the same ref cancels the
+   older run.
+3. **Node 22**, the version the stack runs on locally. Nothing in the
+   repo pins one yet.
+4. **Setup:** `npm ci` in `client/`, `server/` and `e2e/`, with
+   setup-node's npm cache keyed on all three lockfiles. Then
+   `npx playwright install --with-deps chromium`, since Ubuntu needs the
+   browser's system libraries too. There is no browser cache: a cached
+   browser would still need `install-deps`, which is most of the time.
+5. **CI-only config:** `forbidOnly`, so a stray `test.only` fails the run,
+   and the `github` reporter, so failures show as PR annotations. No
+   retries: a flaky step should show up, not be retried away.
+6. **On failure:** the HTML report and `test-results/` (traces) are
+   uploaded as an artifact for 7 days.
+7. **Only the e2e.** Client/server unit tests, build and lint are not in
+   this workflow. Adding them is a separate change.
+
+File-level plan:
+- `.github/workflows/e2e.yml` (new).
+- `e2e/playwright.config.ts`: the `CI` branches above.
+- `CLAUDE.md`: one line about the workflow. `docs/AUDIT.md` #19: CI is no
+  longer open.
+
 ## The Library Loads Without Trying to Play (planned 2026-10-02)
 
 Loading the library at `/` logged two unhandled rejections before any
@@ -6430,6 +6568,10 @@ on PR 2):
   ELSEWHERE with "a generation is already running elsewhere". That line is
   shared by every lock kind; naming the kind ("lyric timings are being
   read") would be clearer, and is a change for all kinds at once.
+  **Answered (2026-10-02)** by "ANALYZE AUDIO Takes the genLock"'s
+  follow-up, for every kind at once: REPAINT REGION reads "WAIT FOR WORD
+  TIMINGS" while a read runs, and the hint reads "only one job can use
+  the GPU at a time — try again once it finishes".
 
 ### Browser check, PR 2 (2026-10-02)
 
@@ -6501,3 +6643,253 @@ handler as a click).
 
 `Editor.tsx` grew by one line, to 321: the `lines` prop. It was 320 before
 this work, over the 200 cap; splitting it is its own PR.
+
+## ANALYZE AUDIO Takes the genLock (planned 2026-10-02)
+
+Answers the first open question in "ANALYZE AUDIO on COVER · YUE2".
+`POST /api/generate/analyze-audio` never took the server's genLock, on
+either engine (COVER · YUE2's ANALYZE AUDIO calls the same route). The
+YUE2 panel disables the button while a job holds the lock, but a job
+started in another tab could still overlap it. The analysis loads a DiT
+and the LM onto the 16 GB card, so it must not run next to another job.
+COVER · ACE-STEP and ARRANGE didn't check the lock at all.
+
+### Decisions
+
+1. **Analysis takes the lock under a new `analyze` kind.** It is
+   acquired after the source is resolved, so a 400 for a missing source
+   never touches it. It is released in a `finally`: on success, on
+   ACE-Step's error, and on a timeout (`call()`'s `acestepTimeoutMs`
+   leash rejects like any other failure). A refused analysis answers
+   409, like every other locked route.
+   - No `Job` record: the call is synchronous, so the request is the
+     job. `/active` reports it as `running`; ABORT releases the lock
+     (best-effort, as for every kind — the ACE-Step call can't be
+     killed).
+2. **A 409 names what holds the lock.** `GenLockError` takes the
+   holder's kind: "an audio analysis is already in progress", "a repaint
+   is already in progress", … `generate` keeps today's "a generation is
+   already in progress".
+3. **Create's commit buttons see another job's lock.** GENERATE (PROMPT,
+   COVER on both engines, ARRANGE) and ANALYZE AUDIO only checked this
+   tab's own song generation, so they fired into a 409. They now also
+   read `otherLock`, which `refreshLock`'s existing poll already keeps,
+   and the GENERATE label names the holder: "WAIT FOR ANALYZE AUDIO",
+   "WAIT FOR A REPAINT", or "WAIT FOR A GENERATION" (formerly "A
+   GENERATION IS ALREADY RUNNING"; see the follow-up below for the
+   wording). One pure helper, `busyMessage(job, otherLock)`.
+   - The header pill already reads `ANALYZE · RUNNING` from `/active`.
+   - The Editor's BUSY ELSEWHERE already counts any `otherLock`. It
+     names the holder too since the follow-up below.
+   - A tab's own analysis also shows up as `otherLock` once polled, so
+     its GENERATE reads "WAIT FOR ANALYZE AUDIO" too (the server would
+     refuse it). `useAnalyzeSourceAudio` re-polls the lock
+     when its call settles, so that clears at once instead of up to one
+     poll later.
+
+### File-level plan
+
+- `server/src/services/genLock.ts` (+ test): the `analyze` kind;
+  `GenLockError(holder)` names it.
+- `server/src/services/analyzeJobs.ts` (new): `analyzeUnderLock(file,
+  model)`, acquire → `analyzeAudio` → release in `finally`. Its own
+  module keeps `routes/generate.ts` (already past the cap) from growing.
+- `server/src/routes/generate.ts`: `/analyze-audio` calls it; 409 on
+  `GenLockError`.
+- `server/src/routes/generateAnalyze.test.ts` (new): the lock is held
+  (and reported by `/active`) during an analysis, a concurrent generate
+  gets a 409 naming the analysis, a second analysis is refused, and the
+  lock is released after success, an error and a timeout.
+- `client/src/api/types.ts`: `analyze` in `ActiveGeneration.kind`.
+- `client/src/generationJob.ts` (+ `generationStore.test.ts`):
+  `busyMessage`.
+- `client/src/GenerateButton.tsx`: `blocked` becomes the message (or
+  null).
+- `client/src/PromptGenerateRow.tsx`, `CreateAudioTab.tsx`,
+  `CreateArrangeTab.tsx`, `YueCoverGenerate.tsx`: busy from
+  `busyMessage`.
+- `client/src/useAnalyzeSourceAudio.ts`: `refreshLock()` when a call
+  settles.
+
+### Browser check (2026-10-02)
+
+This branch's server and client on spare ports, against a stand-in for
+ACE-Step: model inventory, health, and a `/v1/analyze_audio` that answers
+after 40 s. The check is about the lock, not the analysis: the real call was
+browser-checked in "ANALYZE AUDIO on COVER · YUE2". This also kept a second
+model off a GPU another session was using. Two tabs:
+
+- **Before:** tab B on PROMPT with a prompt typed. GENERATE was enabled.
+- **Tab A, COVER · ACE-STEP**, an uploaded WAV, then ANALYZE AUDIO.
+  `/active` reported `kind: analyze, status: running` within a second, and
+  the button read ANALYZING….
+- **Tab B, within one poll:** GENERATE was off and read "ANALYZE AUDIO IS
+  ALREADY RUNNING" (the wording then; now "WAIT FOR ANALYZE AUDIO").
+  FEELING LUCKY was off too. The header pill read
+  `ANALYZE · RUNNING`.
+- **A stale tab's GENERATE** (a direct `POST /api/generate` from tab B):
+  409, "an audio analysis is already in progress".
+- **After the 40 s:** `/active` was null, the pill gone, and tab B's
+  GENERATE enabled again. Tab A's PROMPT and LYRICS held the analysis
+  result, and its GENERATE COVER was enabled.
+
+**Follow-up (2026-10-02): the Editor names the holder too.**
+
+REPAINT REGION, ADD LAYER's GENERATE, REMASTER SONG and GENERATE STEMS
+read "BUSY ELSEWHERE" whatever held the lock. Their hint, "a generation is
+already running elsewhere", was wrong for anything but a generation.
+
+- **One pure helper, `lockHolder`,** names whatever blocks an action. It
+  checks, in order: a split extracting in this tab, this tab's song
+  generation, this tab's editor job, then the polled `otherLock`.
+  `busyMessage` now uses it too, so Create and the Editor name the same
+  thing.
+- **The wording is short: "WAIT FOR ANALYZE AUDIO", "WAIT FOR A
+  REPAINT", ….** Found in the browser check: Create's full sentence
+  ("ANALYZE AUDIO IS ALREADY RUNNING") wrapped to two lines on the rail's
+  GENERATE STEMS and REMASTER SONG, and squeezed REPAINT REGION's prompt
+  field to a few letters. The longest short form, "WAIT FOR A SIMILAR
+  TAKE", is 23 characters and fits the rail on one line. Create uses the
+  same `waitLabel`, so one wording runs everywhere ("WAIT FOR A
+  GENERATION" replaces "A GENERATION IS ALREADY RUNNING").
+- **The busy rules don't change.** Each panel still decides
+  `busyElsewhere` as before (its own job excluded). Only the label and
+  the hint change.
+- **The hint drops the wrong noun:** "only one job can use the GPU at a
+  time — try again once it finishes".
+- **Names follow the buttons:** regenerate is "AN ALT TAKE" and retake is
+  "A SIMILAR TAKE", after VersionHistory's ALT / SIMILAR.
+- **VersionHistory's ALT / SIMILAR** have no busy label, but their
+  tooltip said "a generation is already running elsewhere", and only for
+  another editor job. It now names the holder whenever they're blocked by
+  anything but this layer's own take.
+
+Files:
+- `client/src/generationJob.ts`: `lockHolder` and `waitLabel`;
+  `busyMessage` built on them.
+- `client/src/generationJob.test.ts` (new): the holder's order, and that
+  a failed job names nothing.
+- `client/src/AddLayerTrigger.tsx`, `RemasterAction.tsx`,
+  `SplitPanel.tsx`, `Editor.tsx`: the label from `lockHolder`, and the new
+  hint.
+- `client/src/RepaintBar.tsx`: `busyElsewhere` becomes the holder (or
+  null).
+- `client/src/VersionHistory.tsx`: the tooltip from `lockHolder`.
+
+Browser check (2026-10-02), set up as above: an imported 10 s song open
+in the Editor in one tab, and ANALYZE AUDIO on COVER in the other.
+
+- **First pass, with Create's full sentence:** every Editor label named
+  the analysis. But GENERATE STEMS and REMASTER SONG wrapped to two lines
+  in the rail, and REPAINT REGION's prompt field shrank to "Describ…".
+  That led to the shorter `waitLabel`.
+- **With `waitLabel`:** REPAINT REGION, ADD LAYER's GENERATE, GENERATE
+  STEMS and REMASTER SONG all read "WAIT FOR ANALYZE AUDIO", disabled, on
+  one line (29 px). The repaint prompt stays readable. The hint reads
+  "only one job can use the GPU at a time — try again once it finishes".
+- **Every holder name fits:** each "WAIT FOR …" was measured on a hidden
+  clone of the rail button (228 px). All stay on one line, the longest
+  being "WAIT FOR A SIMILAR TAKE".
+- **The timeout path, live:** the stand-in was set to answer after 120 s,
+  so the server's 60 s ACE-Step leash fired first. Tab A showed
+  "ACE-Step /v1/analyze_audio -> no response within 60s", the lock was
+  released, and both tabs' buttons came back. That is decision 1's
+  timeout release, end to end.
+- **One false reading:** a tab left open while Vite hot-reloaded
+  `generationJob.ts` showed a mixed state (buttons disabled with no label,
+  REMASTER enabled). The hot reload re-created the store modules under a
+  page whose lock-poll interval still held the old ones. A fresh load was
+  correct throughout.
+- **Create on `waitLabel` (2026-10-02):** the lock was stubbed in the
+  page (`/api/generate/active` answering `analyze`). That checks only the
+  wording; the lock itself was checked end to end above. PROMPT's
+  GENERATE and COVER's GENERATE COVER read "WAIT FOR ANALYZE AUDIO",
+  disabled, and FEELING LUCKY was off. With the stub cleared, COVER's
+  read GENERATE COVER again within one poll.
+
+**Merged with "Editor Word Timestamps" (2026-10-02).** That section added a
+`timings` lock kind: lyrics-server reading a version's words in the
+background, with no button of its own. It is named like the others: a 409
+says "a word-timings reading is already in progress", and a blocked
+button reads "WAIT FOR WORD TIMINGS" (21 characters, one line in the
+rail). Without a name the label would have fallen back to "WAIT FOR
+ANOTHER JOB".
+
+## Editor Failures Say So (planned 2026-10-02)
+
+AUDIT.md #4. Several Editor actions dropped their errors. A song that
+failed to load sat on "Loading…" forever. A lane's rename, volume, MUTE
+or SOLO had no catch at all, so a refused PATCH looked like a click
+that did nothing. REVERT (the history rail's SEL) and the Library song
+detail rail's rename, comment, folder move, genre, album and cover art
+failed the same way. PRs #65–#67 fixed how failed *jobs* and splits
+settle in `editorJobStore`; these direct API calls were never covered.
+
+### Decisions
+
+1. **Failures use the existing `.error` line**, rust per DESIGN.md: a
+   toast for an action that just failed, shown where the action lives.
+   No new toast system. Copy is "what failed — why", e.g. "couldn't
+   mute — Failed to fetch".
+2. **A failed song load shows the error and RETRY** in place of
+   "Loading…". A failed *refresh* (the reload after a mute, a revert, a
+   claimed stem) keeps the song on screen and shows the same line with
+   RETRY above the title row. Blanking a loaded song over a refresh
+   would hide work for no reason.
+3. **`reload` never rejects.** It reports its own failure, so callers
+   that `await onChanged()` inside their own try/catch don't report it
+   twice.
+4. **A lane control reloads even when its PATCH fails.** A solo PATCHes
+   several layers; if one fails, the reload shows which ones landed.
+5. **A volume drag sends one PATCH at a time.** Each tick used to fire
+   a PATCH plus a full song reload. They could land out of order and
+   leave an earlier tick's value as the final one. Ticks that arrive
+   mid-send collapse to the latest, sent when the current one lands.
+   The slider shows the dragged value meanwhile.
+6. **REVERT selects the version's region only once the revert lands.**
+7. **Rail edits keep what the user typed only where it costs them
+   text.** A refused rename snaps back to the stored title. A refused
+   comment, genre or album stays in its field, so blurring again
+   retries.
+8. **Out of scope:** CANCEL SPLIT's server call stays best-effort (the
+   session is already gone locally; a stuck server lock surfaces as the
+   next start's error). The model list and split health lookups fall
+   back to "no model supports…" / "not configured" on a network error;
+   that misreports the cause but isn't silent. Left for a follow-up.
+
+### File-level plan
+
+- `client/src/actionError.ts` (new): `errorText(err)` and
+  `attempt(label, action, setError)`, which clears the error, runs the
+  action and reports "label — message" on a throw.
+- `client/src/latestOnly.ts` (new): coalesces a stream of values to
+  one send in flight, latest value wins.
+- `client/src/useSongDetail.ts` (new): the Editor's song state,
+  `loadError` and a non-rejecting `reload`, built on a plain
+  `songReloader` the tests drive. Moves load state out of
+  `Editor.tsx`, which is over the cap.
+- `client/src/Editor.tsx`: uses the hook; load-failure screen with
+  RETRY; refresh-failure line; `revert` returns its promise.
+- `client/src/LayerLane.tsx`: rename, volume, MUTE and SOLO go through
+  `attempt`; volume through `latestOnly`.
+- `client/src/VersionHistory.tsx`: REVERT through `attempt`.
+- `client/src/SongDetailRail.tsx`, `client/src/SongOutputTags.tsx`:
+  every save through `attempt`, error shown in the rail.
+- Tests: `actionError.test.ts`, `latestOnly.test.ts`,
+  `useSongDetail.test.ts`.
+- DESIGN.md: the Editor's load-failure state, one line.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, against a copy of the
+library database (no audio). The server was stopped with the Editor
+open, then:
+
+- MUTE on the base lane: "couldn't mute — HTTP 502" in the lane, MUTE
+  stayed off, and "couldn't refresh this song — HTTP 502 · RETRY" above
+  the title row. The song stayed on screen.
+- Back to the Library, EDIT on another song: "couldn't load this song —
+  HTTP 502 · RETRY" in place of "Loading…". Server restarted, RETRY:
+  the song loaded and the line went away.
+- Ten volume ticks fired in one burst: two PATCHes (0.9, then 0.12),
+  and the server held 0.12.
