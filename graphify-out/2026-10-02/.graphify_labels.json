@@ -291,8 +291,13 @@
   "289": "waveformPeaks.ts",
   "290": "versionsTimings.test.ts",
   "291": "ReferenceAudioPicker.tsx",
+  "292": "run_chain",
+  "293": "test_api.py",
+  "294": "FakeAudio",
+  "295": "test_chain.py",
   "296": "transcribeJobs.test.ts",
   "297": "Playwright Golden-Path E2E (planned 2026-10-02)",
+  "298": "Lookup Failures Aren't Answers (planned 2026-10-02)",
   "299": "from_env",
   "300": "12. Health Check"
 }
