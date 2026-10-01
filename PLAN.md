@@ -5982,3 +5982,18 @@ stem files were never deleted.
   other stem; RE-EXTRACT after REPLACE reads the original source; the
   superseded file and cancelled unclaimed files are removed, claimed ones
   kept.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir and
+the running `uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A
+60 s song (hial4) imported, SPLIT with DEMUCS:
+
+- Four stems landed as `<job>-<kind>-<nonce>.flac`. VOCALS → ADD LAYER.
+- RE-EXTRACT DRUMS: only DRUMS read "extracting…". A new drums file
+  landed and the old one was deleted; the claimed vocals file and the
+  bass/other files kept their bytes (sha256 unchanged).
+- CANCEL SPLIT deleted the three unclaimed stems and kept vocals. A second
+  split wrote four files under its own job id.
+- The Vocals layer, soloed and played, loaded the first split's file, and
+  the bytes served to the page matched its original sha256.
