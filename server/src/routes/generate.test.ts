@@ -97,6 +97,7 @@ describe('POST /', () => {
     form.append('title', 'My Song');
     form.append('prompt', 'a driving synthwave track');
     form.append('bpm', '120');
+    form.append('audio_cover_strength', '0.3');
     form.append('reference_audio', new Blob([Buffer.from('ref-bytes')]), 'ref.wav');
 
     const res = await fetch(`${baseUrl}/`, { method: 'POST', body: form });
@@ -104,6 +105,7 @@ describe('POST /', () => {
 
     const [params, , voice] = vi.mocked(jobs.startGeneration).mock.calls[0];
     expect(params.bpm).toBe(120); // coerced from the multipart string '120'
+    expect(params).not.toHaveProperty('audio_cover_strength'); // cover-only, see jobs.ts
     expect(voice?.referenceAudioFile?.data.toString()).toBe('ref-bytes');
   });
 
@@ -208,6 +210,33 @@ describe('POST /from-audio', () => {
     expect(params.bpm).toBe(128);
   });
 
+  it.each([
+    ['0.35', 0.35],
+    ['1.7', 1],
+    ['-0.2', 0],
+  ])('forwards audio_cover_strength %s to the cover job as the number %d', async (sent, expected) => {
+    vi.mocked(coverGenJobs.startCoverGeneration).mockClear();
+    const form = new FormData();
+    form.append('audio_cover_strength', sent);
+    form.append('src_audio', new Blob([Buffer.from('audio-bytes')]), 'source.wav');
+
+    const res = await fetch(`${baseUrl}/from-audio`, { method: 'POST', body: form });
+    expect(res.status).toBe(202);
+    const [, , params] = vi.mocked(coverGenJobs.startCoverGeneration).mock.calls[0];
+    expect(params.audio_cover_strength).toBe(expected);
+  });
+
+  it('omits audio_cover_strength when it is absent or not a number', async () => {
+    vi.mocked(coverGenJobs.startCoverGeneration).mockClear();
+    const form = new FormData();
+    form.append('audio_cover_strength', 'abc');
+    form.append('src_audio', new Blob([Buffer.from('audio-bytes')]), 'source.wav');
+
+    await fetch(`${baseUrl}/from-audio`, { method: 'POST', body: form });
+    const [, , params] = vi.mocked(coverGenJobs.startCoverGeneration).mock.calls[0];
+    expect(params).not.toHaveProperty('audio_cover_strength');
+  });
+
   it('resolves reference audio via voice_id when no reference_audio file is uploaded', async () => {
     vi.mocked(referenceAudioResolve.resolveReferenceAudioFile).mockClear();
     vi.mocked(referenceAudioResolve.resolveReferenceAudioFile).mockResolvedValueOnce({ data: Buffer.from('voice-bytes'), filename: 'voice.wav' });
@@ -241,6 +270,7 @@ describe('POST /complete', () => {
     form.append('title', 'My Complete');
     form.append('prompt', 'add a full band');
     form.append('model', 'acestep-v15-xl-base');
+    form.append('audio_cover_strength', '0.3');
     form.append('src_audio', new Blob([Buffer.from('vocals-bytes')]), 'vocals.wav');
     form.append('reference_audio', new Blob([Buffer.from('ref-bytes')]), 'ref.wav');
 
@@ -254,6 +284,7 @@ describe('POST /complete', () => {
     expect(src.data.toString()).toBe('vocals-bytes');
     expect(title).toBe('My Complete');
     expect(params.prompt).toBe('add a full band');
+    expect(params).not.toHaveProperty('audio_cover_strength');
     expect(ref?.data.toString()).toBe('ref-bytes');
   });
 

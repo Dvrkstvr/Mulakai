@@ -333,12 +333,28 @@ requiring its own justification against a screen-count rule.
            While it runs it reads `TRANSCRIBING… n%`, with no shader: the AI
            shimmer stays on GENERATE / REPAINT. Beside it, **USE .ABC FILE**
            (a quiet outline) swaps in a score corrected elsewhere, which is
-           the only way to fix one. Mulakai has no score editor.
+           the only way to fix its notes. Mulakai has no note editor; it can
+           only leave whole sections out (SECTIONS, below).
          - The **score review** is a carbon panel. Its facts sit in the same
            label/value grid idiom as SONG DETAILS: tempo, key, meter, bars,
            length, and sung/played note counts. SheetSage2's warnings come
            as a `.warn-note`, then the piano preview (inline `AudioPreview`),
            then the ABC behind a collapsed SHOW SCORE disclosure.
+         - **SECTIONS** (added 2026-10-01) sits under the facts: the score's
+           `% name` sections as the Editor's **section strip**
+           (clip-path parallelograms, 3px gaps), flex-weighted by each
+           section's planner tokens. Kept sections are **sky**, since they
+           are the scope of what will be sung; a left-out one is
+           `carbon-raised` with its name struck through. A click leaves a
+           section out or puts it back, and the last kept one can't go.
+           The label row reads `3,469 / 4,096 TOKENS`, rust-text while the
+           cut is over YuE2's planning budget, with a `.warn-note` under
+           the strip naming the longest sections. GENERATE COVER is off
+           until it fits. A hint names what's left out (and that the piano
+           preview still plays the whole transcription), and GENERATE's
+           consequence line gains "· leaves out OUTRO". The facts and SHOW
+           SCORE describe the cut. This is the only score editing here:
+           whole sections, never notes.
          - The facts replace BPM / KEY / TIME SIGNATURE / DURATION, which a
            score fixes. VOCAL LANGUAGE stays.
          - LYRICS carry a **FIT TO SCORE** quiet outline, which re-tags the

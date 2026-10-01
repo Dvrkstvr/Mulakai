@@ -77,6 +77,13 @@ function pickMultipartParams(body: Record<string, unknown>): ReleaseTaskParams {
   return out as ReleaseTaskParams;
 }
 
+/** Cover-only (the AUDIO tab's VARIANCE slider): kept out of GEN_FIELDS so it never reaches
+ * text2music (ACE-Step neutralizes it there, upstream #1305) or complete (no documented use). */
+function withCoverStrength(params: ReleaseTaskParams, raw: unknown): ReleaseTaskParams {
+  const n = raw === undefined || raw === '' ? NaN : Number(raw);
+  return Number.isFinite(n) ? { ...params, audio_cover_strength: Math.min(1, Math.max(0, n)) } : params;
+}
+
 /** Accepts both plain JSON (the common case, unchanged) and multipart form-data (only when
  * the client is attaching an ad-hoc reference-audio upload — see ReferenceAudioPicker.tsx).
  * multer only engages for multipart requests; a JSON request's `req.files` stays undefined
@@ -118,7 +125,8 @@ generateRouter.post(
         voice_id ? String(voice_id) : undefined,
       );
       const job = startCoverGeneration(
-        srcFile.buffer, String(title), pickMultipartParams(req.body ?? {}), referenceAudio,
+        srcFile.buffer, String(title),
+        withCoverStrength(pickMultipartParams(req.body ?? {}), req.body?.audio_cover_strength), referenceAudio,
         folder_id ? String(folder_id) : undefined,
         labelOnlyReferenceMeta(refFile, voice_id ? String(voice_id) : undefined),
       );

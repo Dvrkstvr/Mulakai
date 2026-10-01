@@ -13,7 +13,7 @@
 export * from './types';
 export * from './engineTypes';
 export { ApiError } from './http';
-export type { Transcription } from './covers';
+export type { ScoreSize, Transcription } from './covers';
 
 import { libraryApi } from './library';
 import { generationApi } from './generation';

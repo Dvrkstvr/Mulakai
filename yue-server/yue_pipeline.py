@@ -70,8 +70,11 @@ class YuePipeline:
         song = self._request_type(**request)
         return self.pipe.plan(request=song, cancelled=cancelled, on_token=on_token)
 
+    def count_tokens(self, abc: str) -> int:
+        return len(self.pipe.tokenizer.encode(abc))
+
     def fits_plan_budget(self, abc: str) -> bool:
-        return len(self.pipe.tokenizer.encode(abc)) <= PLAN_TOKEN_BUDGET
+        return self.count_tokens(abc) <= PLAN_TOKEN_BUDGET
 
     def semantic(self, plan, *, cancelled, on_token):
         return self.pipe.generate_semantic(plan, cancelled=cancelled, on_token=on_token)
