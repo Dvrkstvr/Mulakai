@@ -6,9 +6,10 @@ import { coverLocked, isGenerating } from './generationJob';
 import { useTranscribeStore } from './transcribeStore';
 import { useEngineCaps } from './useEngineCaps';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
-import { sourceLockedBy } from './coverDraft';
+import { engineLockedBy, sourceLockedBy } from './coverDraft';
 import { useAnalyzeSourceAudio } from './useAnalyzeSourceAudio';
 import { CoverSourcePicker } from './CoverSourcePicker';
+import { CoverEngineChoice } from './EngineChoice';
 import { sectionOutline } from './coverLyrics';
 import { YueScoreReview } from './YueScoreReview';
 import { YueCoverGenerate } from './YueCoverGenerate';
@@ -17,8 +18,8 @@ import { useReadLyricsStore } from './readLyricsStore';
 import { useReadLyrics } from './YueReadLyrics';
 
 /** COVER on an extra engine (PLAN.md "YuE2 Melody Covers via SheetSage2", "Client cover
- * decisions"): SOURCE → TRANSCRIBE → review → GENERATE. The score lives in the draft, so style,
- * lyrics or seed can change without transcribing again. */
+ * decisions"): ENGINE, SOURCE → TRANSCRIBE → review → GENERATE. The score lives in the draft, so
+ * style, lyrics or seed can change without transcribing again. */
 export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; onBack: () => void; noCoverModel: boolean }) {
   const audio = useCreateDraftStore((s) => s.audio);
   const lyrics = useCreateDraftStore((s) => s.lyrics);
@@ -55,9 +56,8 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
   const read = useReadLyrics(songs, transcribing || locked);
   const running = transcribing || read.running;
   const analysis = useAnalyzeSourceAudio();
-  const lockedBy = sourceLockedBy({
-    transcribing, reading: read.running, analyzing: analysis.analyzing, generating: isGenerating(genJob),
-  });
+  const jobs = { transcribing, reading: read.running, analyzing: analysis.analyzing };
+  const lockedBy = sourceLockedBy({ ...jobs, generating: isGenerating(genJob) });
   const transcribe = async () => {
     setError('');
     setPreparing(true);
@@ -87,6 +87,7 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
       : score?.transcription ? 'TRANSCRIBE AGAIN' : 'TRANSCRIBE';
   return (
     <>
+      <CoverEngineChoice lockedBy={engineLockedBy(jobs)} />
       <CoverSourcePicker songs={songs} lockedBy={lockedBy}
         satisfied={coverSourceReady(audio) || !!score || !!audio.reuseScore} />
       <div className="score-actions">

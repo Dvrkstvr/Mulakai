@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { sourceLockedBy, withSourceChange, type CoverScore } from './coverDraft';
+import { engineLockedBy, sourceLockedBy, withSourceChange, type CoverScore } from './coverDraft';
 import type { Source } from './createDraft';
 
 const transcribed: CoverScore = {
@@ -48,5 +48,19 @@ describe('sourceLockedBy', () => {
     expect(sourceLockedBy({ ...idle, reading: true, analyzing: true })).toBe('READ LYRICS');
     expect(sourceLockedBy({ ...idle, analyzing: true, generating: true })).toBe('ANALYZE AUDIO');
     expect(sourceLockedBy({ ...idle, generating: true })).toBe('a generation');
+  });
+});
+
+describe('engineLockedBy', () => {
+  const idle = { transcribing: false, reading: false, analyzing: false };
+
+  it('is null with nothing reading the source for this engine', () => {
+    expect(engineLockedBy(idle)).toBeNull();
+  });
+
+  it("names the job whose result lands in this engine's draft, as the source lock does", () => {
+    expect(engineLockedBy({ ...idle, transcribing: true, reading: true })).toBe('TRANSCRIBE');
+    expect(engineLockedBy({ ...idle, reading: true, analyzing: true })).toBe('READ LYRICS');
+    expect(engineLockedBy({ ...idle, analyzing: true })).toBe('ANALYZE AUDIO');
   });
 });

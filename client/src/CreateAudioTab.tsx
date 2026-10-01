@@ -15,6 +15,7 @@ import { AnalyzeAudioButton } from './AnalyzeAudioButton';
 import { useAnalyzeAndApply, canAnalyze, type AnalyzeSource } from './useAnalyzeSourceAudio';
 import { CoverSourcePicker } from './CoverSourcePicker';
 import { CoverEngineChoice } from './EngineChoice';
+import { engineLockedBy } from './coverDraft';
 import { YueCoverPanel } from './YueCoverPanel';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
 import { CarriedPromptNote } from './CarriedPromptNote';
@@ -102,20 +103,16 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
 
   // An engine cover transcribes the source and sings the score; ACE-Step's model and variance
   // don't apply, and its audio analysis only describes the source (PLAN.md "Client cover
-  // decisions", "ANALYZE AUDIO on COVER · YUE2"). The panel renders its own SOURCE, which its
-  // jobs lock while they read it.
+  // decisions", "ANALYZE AUDIO on COVER · YUE2"). The panel renders its own ENGINE and SOURCE,
+  // which its jobs lock while they read the source.
   if (draft.audio.engine !== 'acestep') {
-    return (
-      <>
-        <CoverEngineChoice />
-        <YueCoverPanel songs={songs} onBack={onBack} noCoverModel={coverModels?.length === 0} />
-      </>
-    );
+    return <YueCoverPanel songs={songs} onBack={onBack} noCoverModel={coverModels?.length === 0} />;
   }
 
   return (
     <>
-      <CoverEngineChoice />
+      {/* This tab stays mounted across a switch, so an analysis would land in the other engine's draft. */}
+      <CoverEngineChoice lockedBy={engineLockedBy({ transcribing: false, reading: false, analyzing: analysis.analyzing })} />
       <CoverSourcePicker songs={songs} satisfied={sourceReady} />
       {coverModels === null ? (
         <span className="meta">checking available models…</span>

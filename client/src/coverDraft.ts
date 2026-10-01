@@ -43,3 +43,9 @@ export function sourceLockedBy(jobs: { transcribing: boolean; reading: boolean; 
   if (jobs.analyzing) return 'ANALYZE AUDIO';
   return jobs.generating ? 'a generation' : null;
 }
+
+/** What holds COVER's ENGINE choice still, or null: a job whose result lands in this engine's
+ * draft. A generation doesn't — its result is a library song, and its retry keeps the engine. */
+export function engineLockedBy(jobs: { transcribing: boolean; reading: boolean; analyzing: boolean }): string | null {
+  return sourceLockedBy({ ...jobs, generating: false });
+}
