@@ -31,6 +31,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
   const draft = useCreateDraftStore();
   const { genType, title, folderId, folderName } = draft;
   const patch = draft.patch;
+  const coverModel = draft.audio.model;
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
 
   const [refining, setRefining] = useState(false);
@@ -101,7 +102,8 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
     <div className="create-shell">
       <div className={showRail ? 'with-panel create-layout with-rail' : 'with-panel create-layout'} style={{ gridTemplateColumns }}>
         <div className="resizable-col">
-          <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} hideThinking={genType === 'complete'} referenceAudioTaskType={referenceAudioTaskType} />
+          <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} hideThinking={genType === 'complete'}
+            coverModel={genType === 'audio' ? coverModel : undefined} referenceAudioTaskType={referenceAudioTaskType} />
           <ResizeHandle side="right" onPointerDown={settingsWidth.onPointerDown} />
         </div>
         <div className="create-panel">

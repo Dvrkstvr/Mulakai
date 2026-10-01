@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "client/src/CreateAudioTab.tsx": {
-    "mtime": 1790898772.3245466,
-    "ast_hash": "abc3f97190bcff018f3dd61a40dcc868",
+    "mtime": 1790899087.8084972,
+    "ast_hash": "b1938baaaeb9885e5649971aad4f0e75",
     "semantic_hash": ""
   },
   "client/src/CreateBar.tsx": {
@@ -55,8 +55,8 @@
     "semantic_hash": ""
   },
   "client/src/CreateView.tsx": {
-    "mtime": 1790898016.8451087,
-    "ast_hash": "ae049dc7d255197d51548bfb029acfae",
+    "mtime": 1790899087.8084972,
+    "ast_hash": "2de5e4b7a6cc0028bdb691ce3dc51f22",
     "semantic_hash": ""
   },
   "client/src/CustomSelect.tsx": {
@@ -210,8 +210,8 @@
     "semantic_hash": "5cf67986cabf30c2b0ba0eb5087911f1"
   },
   "client/src/SettingsPanel.tsx": {
-    "mtime": 1790898016.8587065,
-    "ast_hash": "5cbec1045c83eca92df08dbfd9ee5e47",
+    "mtime": 1790899087.8095098,
+    "ast_hash": "a573382c55c3289556f6d22abe54c408",
     "semantic_hash": ""
   },
   "client/src/SettingsView.tsx": {
@@ -395,8 +395,8 @@
     "semantic_hash": ""
   },
   "client/src/settings.ts": {
-    "mtime": 1790898772.3406334,
-    "ast_hash": "652537243000bd075a055eda788b9661",
+    "mtime": 1790899087.8105323,
+    "ast_hash": "12e4ffdf71def610e4ae1ead1bb30783",
     "semantic_hash": ""
   },
   "client/src/songMeta.ts": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790898989.1110742,
-    "ast_hash": "54e8c2ac435c788ace0767a49461082b",
+    "mtime": 1790899099.102223,
+    "ast_hash": "991a1c01e01f4c1a9fbd1a62e82572c9",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -755,8 +755,8 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN.md": {
-    "mtime": 1790898978.3779826,
-    "ast_hash": "9e69b574acdcddf713353a7eb39122ed",
+    "mtime": 1790899087.8115377,
+    "ast_hash": "3bc5c48046bd55bb3d34457dff19e871",
     "semantic_hash": ""
   },
   "client/public/favicon.svg": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790898978.3774774,
-    "ast_hash": "40fd0e224e29caf8ecd21e0b0c25bd61",
+    "mtime": 1790899087.8115377,
+    "ast_hash": "0cc5ba6e716e9f88820251777cb7f959",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -2005,8 +2005,8 @@
     "semantic_hash": ""
   },
   "client/src/settingsParams.ts": {
-    "mtime": 1790898772.3411381,
-    "ast_hash": "959d7100a58a737eaa47b6d0950b7ed6",
+    "mtime": 1790899087.8105323,
+    "ast_hash": "b18aca865dff2702b897b934837515f2",
     "semantic_hash": ""
   },
   "client/src/settingsPersist.ts": {
@@ -2267,6 +2267,11 @@
   "server/src/services/analyzeJobs.ts": {
     "mtime": 1790898772.4332519,
     "ast_hash": "a76260b2e3f540d4bd69f8e422d7c2bf",
+    "semantic_hash": ""
+  },
+  "client/src/coverParams.test.ts": {
+    "mtime": 1790899087.8095098,
+    "ast_hash": "50ed1fd7f94e356fc78e44f3ce84d746",
     "semantic_hash": ""
   },
   "server/src/routes/generateAudio.ts": {
