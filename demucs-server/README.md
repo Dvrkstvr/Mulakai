@@ -56,4 +56,21 @@ The DEMUCS option in the Editor's SPLIT panel enables automatically once
   loaded.
 - `POST /split` — multipart `audio` file field → `{"stems": {"vocals": url,
   "drums": url, "bass": url, "other": url}}`, absolute URLs served from this
-  same process's `/audio` static mount.
+  same process's `/audio` route. A failed split returns 500 with the reason
+  in `detail` and leaves nothing on disk.
+- `GET /audio/...` � each stem can be downloaded **once**: the file is
+  deleted after it is sent, and the job's folder goes with its last stem.
+  Stems nobody downloads are swept after `DEMUCS_RESULT_TTL`, at startup
+  and before each split. Mulakai downloads all four right after `/split`.
+
+The split runs in FastAPI's threadpool, one at a time, so `/health` keeps
+answering while a split is in progress.
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+The tests use a fake separator and never load Demucs or touch the GPU.
