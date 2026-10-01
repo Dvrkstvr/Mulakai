@@ -43,6 +43,10 @@
   (generate → repaint → add layer → revert → export) through the real client and
   server against a fake ACE-Step, on a throwaway data dir (`npm run test:e2e`) —
   PR #87 (was #19).
+- Editor failures were silent: a failed song load sat on "Loading…" forever, and lane
+  rename/volume/mute/solo, REVERT and the song detail rail's saves dropped their
+  errors. Each now shows a rust `.error` line (RETRY for a load or refresh), and a
+  volume drag sends one PATCH at a time, latest value wins — PR #83 (was #4).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -75,7 +79,7 @@ split retained forever, publicly served.
 - **Fix:** make handlers sync `def` (FastAPI threadpool), add try/finally cleanup,
   add a TTL sweep or delete-after-claim.
 
-### 4. Silent failures across the Editor
+### 4. ~~Silent failures across the Editor~~ — fixed, PR #83
 - `client/src/Editor.tsx` — `reload()` is `catch(() => {})`: a failed song load is a
   permanent "Loading…" spinner with no error and no way out but Back.
 - `client/src/LayerLane.tsx` — rename/volume/mute/solo PATCHes have no catch;
@@ -191,7 +195,7 @@ responsibility (no behaviour change; every resulting file ≤150):
 | `client/src/settings.ts` | 329 | #75 (merged) |
 | `client/src/Editor.tsx` | 320 | #82 |
 | `client/src/App.tsx` | 317 | #77 (merged) |
-| `server/src/routes/generate.ts` | 298 | #72 |
+| `server/src/routes/generate.ts` | 298 | #72 (merged) |
 | `server/src/services/jobs.ts` | 283 | #73 (merged) |
 | `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
 | `server/src/services/repaintJobs.ts` | 235 | #71 (merged) |
