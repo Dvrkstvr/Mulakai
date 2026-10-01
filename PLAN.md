@@ -5002,8 +5002,10 @@ stays the way to correct notes.
    `CoverScore.dropped: number[]` holds section indexes, and
    `sungScore(score)` builds the ABC that is sent.
    - Everything that means "what will be sung" reads `sungScore`: the
-     request, the review's facts (bars, length), FIT TO SCORE, the
-     section hint, ANALYZE AUDIO's lyric fit, and transcribeStore's seeding.
+     request, the review's facts (bars, length) and SHOW SCORE, FIT TO
+     SCORE, the section hint, and ANALYZE AUDIO's lyric fit. A score that
+     just landed has nothing left out, so transcribeStore's seeding is
+     unchanged.
    - The cover's stored score is the trimmed one, so REUSE PROMPT covers
      the same cut.
    - The piano preview still plays the whole transcription. A hint says so
@@ -5033,8 +5035,10 @@ stays the way to correct notes.
   warning.
 - `client/src/coverDraft.ts`: `dropped`.
 - `client/src/YueScoreReview.tsx`, `YueCoverGenerate.tsx`,
-  `YueCoverAnalyze.tsx`, `transcribeStore.ts`: read `sungScore`.
-- `client/src/api/generation.ts`: `scoreSize()`.
+  `YueCoverAnalyze.tsx`: read `sungScore`. GENERATE COVER is off over
+  budget.
+- `client/src/index.css`: the dropped segment and the rust count.
+- `client/src/api/covers.ts`: `scoreSize()` and `ScoreSize`.
 - `docs/design/DESIGN.md`: the strip in the review, in its own commit.
 
 ### Open questions
