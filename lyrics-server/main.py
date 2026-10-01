@@ -38,5 +38,11 @@ def _load_model():
     return WhisperModel(MODEL, device=DEVICE, compute_type=COMPUTE_TYPE, download_root=str(MODEL_DIR))
 
 
+def _load_audio(path: Path):
+    from faster_whisper import decode_audio
+
+    return decode_audio(str(path), sampling_rate=16000)
+
+
 _add_cuda_dlls()
-app = create_app(make_transcriber(_load_model), MODEL)
+app = create_app(make_transcriber(_load_model, _load_audio), MODEL)
