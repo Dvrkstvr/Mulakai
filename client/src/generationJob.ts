@@ -30,9 +30,15 @@ export function lockHolder(s: {
   return s.otherLock ? LOCK_NAME[s.otherLock.kind] ?? 'ANOTHER JOB' : null;
 }
 
-/** A commit button's label while `holder` has the lock — the same words in Create and the Editor. */
+/** Create's commit-button label while `holder` has the lock. */
 export function busyLabel(holder: string): string {
   return `${holder} IS ALREADY RUNNING`;
+}
+
+/** The Editor's shorter form: its rail buttons are a third as wide, and the full sentence wrapped
+ * there (and squeezed REPAINT REGION's prompt). At most 23 characters, one line in the rail. */
+export function waitLabel(holder: string): string {
+  return `WAIT FOR ${holder}`;
 }
 
 /** Why Create's commit buttons are off (a song generation this tab tracks, or anything the poll

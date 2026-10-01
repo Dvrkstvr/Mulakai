@@ -7,7 +7,7 @@ import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
-import { busyLabel, isGenerating, lockHolder } from './generationJob';
+import { isGenerating, lockHolder, waitLabel } from './generationJob';
 import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
@@ -166,7 +166,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
             >
               {job === 'running'
                 ? `GENERATING… ${fmtElapsed(elapsedMs)}${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`
-                : busyBy ? busyLabel(busyBy) : 'GENERATE'}
+                : busyBy ? waitLabel(busyBy) : 'GENERATE'}
             </button>
             {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
             <ActiveAdapterNote />

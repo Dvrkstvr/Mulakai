@@ -6031,9 +6031,15 @@ already running elsewhere", was wrong for anything but a generation.
 - **One pure helper, `lockHolder`,** names whatever blocks an action. It
   checks, in order: a split extracting in this tab, this tab's song
   generation, this tab's editor job, then the polled `otherLock`.
-  `busyMessage` now uses it too, so Create and the Editor say the same
-  thing: "ANALYZE AUDIO IS ALREADY RUNNING", "A REPAINT IS ALREADY
-  RUNNING", ….
+  `busyMessage` now uses it too, so Create and the Editor name the same
+  thing.
+- **The Editor says it shorter: "WAIT FOR ANALYZE AUDIO", "WAIT FOR A
+  REPAINT", ….** Found in the browser check: Create's full sentence
+  ("ANALYZE AUDIO IS ALREADY RUNNING") wrapped to two lines on the rail's
+  GENERATE STEMS and REMASTER SONG, and squeezed REPAINT REGION's prompt
+  field to a few letters. The longest short form, "WAIT FOR A SIMILAR
+  TAKE", is 23 characters and fits the rail on one line. Create keeps the
+  full sentence, since its buttons are full-width.
 - **The busy rules don't change.** Each panel still decides
   `busyElsewhere` as before (its own job excluded). Only the label and
   the hint change.
@@ -6047,8 +6053,8 @@ already running elsewhere", was wrong for anything but a generation.
   anything but this layer's own take.
 
 Files:
-- `client/src/generationJob.ts`: `lockHolder`, `busyLabel`; `busyMessage`
-  built on them.
+- `client/src/generationJob.ts`: `lockHolder`, `busyLabel` (Create),
+  `waitLabel` (the Editor); `busyMessage` built on them.
 - `client/src/generationJob.test.ts` (new): the holder's order, and that
   a failed job names nothing.
 - `client/src/AddLayerTrigger.tsx`, `RemasterAction.tsx`,
@@ -6057,4 +6063,29 @@ Files:
 - `client/src/RepaintBar.tsx`: `busyElsewhere` becomes the holder (or
   null).
 - `client/src/VersionHistory.tsx`: the tooltip from `lockHolder`.
+
+Browser check (2026-10-02), set up as above: an imported 10 s song open
+in the Editor in one tab, and ANALYZE AUDIO on COVER in the other.
+
+- **First pass, with Create's full sentence:** every Editor label named
+  the analysis. But GENERATE STEMS and REMASTER SONG wrapped to two lines
+  in the rail, and REPAINT REGION's prompt field shrank to "Describ…".
+  That led to the shorter `waitLabel`.
+- **With `waitLabel`:** REPAINT REGION, ADD LAYER's GENERATE, GENERATE
+  STEMS and REMASTER SONG all read "WAIT FOR ANALYZE AUDIO", disabled, on
+  one line (29 px). The repaint prompt stays readable. The hint reads
+  "only one job can use the GPU at a time — try again once it finishes".
+- **Every holder name fits:** each "WAIT FOR …" was measured on a hidden
+  clone of the rail button (228 px). All stay on one line, the longest
+  being "WAIT FOR A SIMILAR TAKE".
+- **The timeout path, live:** the stand-in was set to answer after 120 s,
+  so the server's 60 s ACE-Step leash fired first. Tab A showed
+  "ACE-Step /v1/analyze_audio -> no response within 60s", the lock was
+  released, and both tabs' buttons came back. That is decision 1's
+  timeout release, end to end.
+- **One false reading:** a tab left open while Vite hot-reloaded
+  `generationJob.ts` showed a mixed state (buttons disabled with no label,
+  REMASTER enabled). The hot reload re-created the store modules under a
+  page whose lock-poll interval still held the old ones. A fresh load was
+  correct throughout.
 

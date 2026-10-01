@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, type Layer, type StemKind } from './api';
 import { useGenerationStore } from './generationStore';
-import { busyLabel, isGenerating, lockHolder } from './generationJob';
+import { isGenerating, lockHolder, waitLabel } from './generationJob';
 import { useEditorJobStore, isEditorBusy } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
@@ -136,7 +136,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
             </div>
           )}
           <button className="acid" disabled={!canSubmit} onClick={generate}>
-            {busyBy ? busyLabel(busyBy) : 'GENERATE STEMS'}
+            {busyBy ? waitLabel(busyBy) : 'GENERATE STEMS'}
           </button>
           {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
           {!busyElsewhere && otherSplit?.stage === 'done' && <div className="hint">starting closes the open split on another layer — its unclaimed stems are discarded</div>}

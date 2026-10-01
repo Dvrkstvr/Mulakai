@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { busyLabel, lockHolder } from './generationJob';
+import { busyLabel, lockHolder, waitLabel } from './generationJob';
 import type { SingleEditorJob } from './editorJob';
 
 const repaint: SingleEditorJob = { kind: 'repaint', jobId: 'r', songId: 's', layerId: 'l', startedAt: 1, stage: 'running' };
@@ -8,7 +8,8 @@ describe('lockHolder names what blocks an action', () => {
   it('names another tab\'s ANALYZE AUDIO seen by the poll', () => {
     const holder = lockHolder({ generating: false, otherLock: { kind: 'analyze' } });
     expect(holder).toBe('ANALYZE AUDIO');
-    expect(busyLabel(holder!)).toBe('ANALYZE AUDIO IS ALREADY RUNNING');
+    expect(busyLabel(holder!)).toBe('ANALYZE AUDIO IS ALREADY RUNNING'); // Create
+    expect(waitLabel(holder!)).toBe('WAIT FOR ANALYZE AUDIO'); // the Editor
   });
 
   it('names an editor job by what the user pressed', () => {

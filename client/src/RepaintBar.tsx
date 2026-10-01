@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
-import { busyLabel } from './generationJob';
+import { waitLabel } from './generationJob';
 import { useSettings } from './settings';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import type { Region } from './Waveform';
@@ -100,7 +100,7 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
                 {stageDetail(progressStage) && ` · ${stageDetail(progressStage)}`}
               </span>
             </>
-          ) : busyBy ? busyLabel(busyBy) : 'REPAINT REGION'}
+          ) : busyBy ? waitLabel(busyBy) : 'REPAINT REGION'}
         </motion.button>
       </motion.section>
       {regionValid && job !== 'running' && !busyBy && (

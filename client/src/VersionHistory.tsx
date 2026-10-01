@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { ScrollArea } from './ScrollArea';
 import { useGenerationStore } from './generationStore';
-import { busyLabel, isGenerating, lockHolder } from './generationJob';
+import { isGenerating, lockHolder, waitLabel } from './generationJob';
 import { useEditorJobStore, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 
@@ -141,11 +141,11 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
                 {replayable && (
                   <>
                     <button onClick={() => regenerate(v.id)} disabled={busy}
-                      title={busyBy ? busyLabel(busyBy) : 'regenerate as an alternate version'}>
+                      title={busyBy ? waitLabel(busyBy) : 'regenerate as an alternate version'}>
                       <span>{mine?.versionId === v.id && mine.kind === 'regenerate' && mine.stage === 'running' ? `ALT… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'ALT'}</span>
                     </button>
                     <button onClick={() => retake(v.id)} disabled={busy}
-                      title={busyBy ? busyLabel(busyBy) : "generate a similar take from this version's seed, appended to history"}>
+                      title={busyBy ? waitLabel(busyBy) : "generate a similar take from this version's seed, appended to history"}>
                       <span>{mine?.versionId === v.id && mine.kind === 'retake' && mine.stage === 'running' ? `SIMILAR… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'SIMILAR'}</span>
                     </button>
                   </>
