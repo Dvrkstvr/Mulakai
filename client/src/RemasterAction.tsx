@@ -6,7 +6,7 @@ import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useSettings } from './settings';
 import { AudioPreview } from './AudioPreview';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { isGenerating, lockHolder, waitLabel } from './generationJob';
 import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { useRemasterResult } from './remasterResult';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
@@ -44,6 +44,7 @@ export function RemasterAction({ songId, layers }: Props) {
   const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
   const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'remaster failed') : '');
   const busyElsewhere = splitRunning || (!mine && (genRunning || isEditorBusy(editorJob) || !!otherLock));
+  const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {
@@ -123,9 +124,9 @@ export function RemasterAction({ songId, layers }: Props) {
               <button className="acid" disabled={job === 'running' || busyElsewhere} onClick={submit} title={job === 'running' ? mine?.progressText : undefined}>
                 {job === 'running'
                   ? `RENDERING… ${fmtElapsed(elapsedMs)}${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`
-                  : busyElsewhere ? 'BUSY ELSEWHERE' : 'REMASTER SONG'}
+                  : busyBy ? waitLabel(busyBy) : 'REMASTER SONG'}
               </button>
-              {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
+              {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
             </>
           )}
         </>

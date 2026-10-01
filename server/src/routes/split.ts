@@ -120,7 +120,7 @@ splitRouter.post('/:jobId/stems/:kind/reextract', (req, res) => {
   }
 });
 
-splitRouter.post('/:jobId/cancel', (req, res) => {
-  cancelSplit(req.params.jobId);
+splitRouter.post('/:jobId/cancel', async (req, res) => {
+  await cancelSplit(req.params.jobId);
   res.json({ ok: true });
 });

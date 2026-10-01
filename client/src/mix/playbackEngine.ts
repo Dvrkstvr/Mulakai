@@ -21,6 +21,10 @@ export class PlaybackEngine {
   private positionSeconds = 0; // remembered position while paused
   private startedAtCtxTime = 0; // ctx.currentTime when the current sources were started
   private startOffsetSeconds = 0; // playhead offset those sources were started from
+  // Bumped on every teardown. `onended` also fires for sources stopped by hand
+  // (pause/seek/restart/reload), so an end handler only counts if its start's
+  // generation is still current.
+  private generation = 0;
 
   constructor() {
     this.ctx = new AudioContext();
@@ -48,7 +52,9 @@ export class PlaybackEngine {
   /** Current playhead position in seconds, live-derived from AudioContext time while playing. */
   currentTime(): number {
     if (!this.playing) return this.positionSeconds;
-    return this.startOffsetSeconds + (this.ctx.currentTime - this.startedAtCtxTime);
+    const t = this.startOffsetSeconds + (this.ctx.currentTime - this.startedAtCtxTime);
+    // `onended` lands a little after the buffer actually runs out — don't let the readout overshoot meanwhile.
+    return this.decoded.length ? Math.min(t, this.duration) : t;
   }
 
   /**
@@ -90,10 +96,15 @@ export class PlaybackEngine {
    * (no sound, and currentTime() — the playhead — never advances either).
    */
   async play(fromSeconds?: number): Promise<void> {
-    const offset = Math.max(0, fromSeconds ?? this.positionSeconds);
+    // Like a native <audio>, pressing play on a finished song starts it over.
+    const atEnd = fromSeconds === undefined && this.decoded.length > 0 && this.positionSeconds >= this.duration;
+    const offset = atEnd ? 0 : Math.max(0, fromSeconds ?? this.positionSeconds);
     this.stopSources();
+    const gen = this.generation;
     if (this.ctx.state !== 'running') {
       await this.ctx.resume().catch((err) => console.error('PlaybackEngine: AudioContext.resume() failed', err));
+      // A newer play/seek/pause/reload ran while we waited — it owns the sources now.
+      if (gen !== this.generation) return;
     }
     const startCtxTime = this.ctx.currentTime;
     this.sources = this.decoded.map((layer) => {
@@ -106,6 +117,12 @@ export class PlaybackEngine {
       source.start(startCtxTime, withinBuffer);
       return { id: layer.id, source, gain };
     });
+    // The longest layer finishing is the song finishing.
+    const longest = this.sources.reduce<AudioBufferSourceNode | null>(
+      (best, s) => (!best || s.source.buffer!.duration > best.buffer!.duration ? s.source : best),
+      null,
+    );
+    if (longest) longest.onended = () => { if (gen === this.generation) this.finish(); };
     this.startedAtCtxTime = startCtxTime;
     this.startOffsetSeconds = offset;
     this.playing = true;
@@ -127,7 +144,14 @@ export class PlaybackEngine {
     }
   }
 
+  private finish() {
+    this.stopSources();
+    this.positionSeconds = this.duration;
+    this.playing = false;
+  }
+
   private stopSources() {
+    this.generation++;
     for (const { source } of this.sources) {
       try { source.stop(); } catch { /* already stopped/ended */ }
       source.disconnect();
