@@ -6844,3 +6844,15 @@ do the same step correctly, each with its own copy that keeps
   carries through.
 - `client/src/AddLayerTrigger.tsx`, `client/src/RemasterAction.tsx`,
   `client/src/coverSource.ts`: use `audibleTakes`.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, with e2e's fake ACE-Step,
+against a copy of the library database. "Ellies City" was set up with
+its base layer's versions all inactive, Drums at volume 0.3 and the
+conga layer at 0.8. The page's `OfflineAudioContext.createGain` was
+wrapped to record each bounce gain. ADD LAYER ("walking bassline"):
+
+- The bounce mixed two layers at 0.3 and 0.8. Before this fix they
+  would have been 1.0 (the base layer's volume) and 0.3.
+- The job ran against the fake and the new lane appeared, 4 layers.
