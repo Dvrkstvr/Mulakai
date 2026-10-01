@@ -495,8 +495,8 @@
     "semantic_hash": ""
   },
   "server/src/routes/generate.ts": {
-    "mtime": 1790893258.3519332,
-    "ast_hash": "07f902299befb8f013acc1972bdbc710",
+    "mtime": 1790896106.568334,
+    "ast_hash": "773ea535416201c2b2518274bd619dca",
     "semantic_hash": ""
   },
   "server/src/routes/layers.ts": {
@@ -530,8 +530,8 @@
     "semantic_hash": ""
   },
   "server/src/routes/split.ts": {
-    "mtime": 1790893258.355441,
-    "ast_hash": "d2a0e125fab96322bb95d0e39a67c16c",
+    "mtime": 1790896106.5693383,
+    "ast_hash": "a33f0456f1046a9e810bb45ae8130b5c",
     "semantic_hash": ""
   },
   "server/src/routes/versions.test.ts": {
@@ -670,8 +670,8 @@
     "semantic_hash": ""
   },
   "server/src/services/scratchSplitJobs.ts": {
-    "mtime": 1790893258.3734937,
-    "ast_hash": "a248162d9c977e1cbd093eda78afa63d",
+    "mtime": 1790896106.5693383,
+    "ast_hash": "01a7bc9900706f72682df51f80c900f3",
     "semantic_hash": ""
   },
   "server/src/services/stemSplit.test.ts": {
@@ -680,8 +680,8 @@
     "semantic_hash": ""
   },
   "server/src/services/stemSplit.ts": {
-    "mtime": 1790893258.3744924,
-    "ast_hash": "8f9d1a5edcec9cea891dac4b0d032bf2",
+    "mtime": 1790896106.570342,
+    "ast_hash": "539429c9cb528e7f46475a68dbd2c044",
     "semantic_hash": ""
   },
   "server/src/services/trashSweep.ts": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790893258.149191,
-    "ast_hash": "48ce6032c9cc0b9ff0ff626441b59bf8",
+    "mtime": 1790896106.547271,
+    "ast_hash": "06f7c26228d692720987c54e30aa5ae0",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790895511.342966,
-    "ast_hash": "e2d94c220d05ff4813df71124669774a",
+    "mtime": 1790896106.547775,
+    "ast_hash": "a8662e3acc687aa51eb487cb8e0bd86e",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1937,6 +1937,16 @@
   "client/src/coverDraft.test.ts": {
     "mtime": 1790893258.1852045,
     "ast_hash": "1f25379c408672502e0ffcbded164bce",
+    "semantic_hash": ""
+  },
+  "server/src/services/stemRunners.ts": {
+    "mtime": 1790896106.5698419,
+    "ast_hash": "4744cf2756ad37b605120b36a59cdf92",
+    "semantic_hash": ""
+  },
+  "server/src/services/stemSplit.reextract.test.ts": {
+    "mtime": 1790896106.570342,
+    "ast_hash": "02b9b463ce3c3acbf10588cf167bbc2a",
     "semantic_hash": ""
   },
   "client/src/mix/playbackEngine.test.ts": {
