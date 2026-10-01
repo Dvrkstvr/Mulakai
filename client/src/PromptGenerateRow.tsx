@@ -5,7 +5,7 @@ import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { useSettings, genParams, outputParams } from './settings';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { busyMessage } from './generationJob';
 import { useCreateDraftStore } from './createDraftStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import type { CreateDraft } from './createDraft';
@@ -21,7 +21,7 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
   const voice = useVoiceStore();
   const draft = useCreateDraftStore();
   const patch = useCreateDraftStore((s) => s.patch);
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
+  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const startGeneration = useGenerationStore((s) => s.start);
   const dismissGeneration = useGenerationStore((s) => s.dismiss);
 
@@ -30,7 +30,7 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
   const [luckyLoading, setLuckyLoading] = useState(false);
   const [luckyConfirm, setLuckyConfirm] = useState(false);
   const [luckyError, setLuckyError] = useState('');
-  const busy = submitting || genRunning;
+  const busy = submitting || !!blockedBy;
   const { id: engineId, info: engine } = useEngineCaps();
   const controls = useEngineSettings((s) => s.values[engineId]);
   // Also covers "not loaded yet": an extra engine's GENERATE waits for its descriptor.
@@ -133,7 +133,7 @@ export function PromptGenerateRow({ thinking, onBack }: { thinking: boolean; onB
                 STARTING…
               </span>
             </>
-          ) : genRunning ? 'A GENERATION IS ALREADY RUNNING' : 'GENERATE'}
+          ) : blockedBy ?? 'GENERATE'}
         </motion.button>
       </div>
       {engine?.capabilities.consequence && <div className="hint">{engine.capabilities.consequence}</div>}
