@@ -3,8 +3,9 @@ import { AIGeneratingBackground } from './AIGeneratingBackground';
 
 interface Props {
   submitting: boolean;
-  /** Another generation job is already running (anywhere in the app, not just this tab). */
-  blocked: boolean;
+  /** Why the server's lock refuses a start right now (busyMessage), naming the job holding it —
+   * anywhere in the app, not just this tab. Null when free. */
+  blocked: string | null;
   label: string;
   disabled: boolean;
   onClick: () => void;
@@ -28,7 +29,7 @@ export function GenerateButton({ submitting, blocked, label, disabled, onClick }
             <AIGeneratingBackground />
             <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>STARTING…</span>
           </>
-        ) : blocked ? 'A GENERATION IS ALREADY RUNNING' : label}
+        ) : blocked ?? label}
       </motion.button>
     </div>
   );

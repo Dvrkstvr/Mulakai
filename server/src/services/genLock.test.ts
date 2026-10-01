@@ -17,6 +17,14 @@ describe('genLock', () => {
     expect(() => acquireGenLock({ kind: 'remaster', jobId: 'job-2', songId: 'song-1' })).toThrow(GenLockError);
   });
 
+  it('names the holder in the refusal', () => {
+    acquireGenLock({ kind: 'analyze', jobId: 'analyze-1' });
+    expect(() => acquireGenLock({ kind: 'generate', jobId: 'job-2' })).toThrow('an audio analysis is already in progress');
+    releaseGenLock('analyze-1');
+    acquireGenLock({ kind: 'generate', jobId: 'job-1' });
+    expect(() => acquireGenLock({ kind: 'analyze', jobId: 'analyze-2' })).toThrow('a generation is already in progress');
+  });
+
   it('releasing a non-holder jobId is a no-op', () => {
     acquireGenLock({ kind: 'generate', jobId: 'job-1' });
     releaseGenLock('some-other-id');
