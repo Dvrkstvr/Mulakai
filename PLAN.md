@@ -6039,3 +6039,35 @@ are slow GPU processes, so the e2e runs against a fake.
 - **Edge cases per phase.** AGENTS.md asks for those as phases add
   them, e.g. a failed task (the fake could fail on a magic prompt) and
   the BUSY ELSEWHERE lock.
+
+## E2E Fails on Uncaught Page Errors (planned 2026-10-02)
+
+Loading `/` logged two unhandled `NotAllowedError: play() failed…`
+rejections from the footer player (`useSingleAudioPlayback.ts` with an
+empty `src`), fixed on `fix/footer-autoplay-on-load`. The golden-path e2e
+passed straight through them because nothing listened for Playwright's
+`pageerror`.
+
+### Decisions
+
+1. **An auto fixture, not a per-spec hook.** `e2e/tests/fixtures.ts`
+   extends Playwright's `test` with `failOnPageError` (`auto: true`).
+   It records every `pageerror` (uncaught exceptions and unhandled
+   rejections) on every page of the test's context, popups included,
+   and after the test asserts that the list is empty. Specs import
+   `test`/`expect` from `./fixtures` instead of `@playwright/test`, so a
+   new spec gets the guard by following the existing import.
+2. **The failure names the errors.** The assertion is on the collected
+   `name: message` strings, so the report shows what was thrown, not
+   only that something was.
+3. **`console.error` is not covered.** React and Vite warnings go there,
+   and failing on them is a separate decision.
+4. **Lands after the footer fix.** Without it the e2e fails on load.
+   This was checked both ways: without the fix the golden path fails
+   with both `NotAllowedError`s. With it, the path passes. A temporary
+   `throw` in `client/src/main.tsx` fails the run with its message.
+
+### File-level plan
+
+- `e2e/tests/fixtures.ts`: the guard (new).
+- `e2e/tests/golden-path.spec.ts`: imports from `./fixtures`.
