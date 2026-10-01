@@ -81,3 +81,21 @@ describe('GET /:id engine fields', () => {
     ]);
   });
 });
+
+describe('GET /:id word timings', () => {
+  it("carries each version's stored reading, or null when it hasn't been read", async () => {
+    const reading = { language: 'en', segments: [{ text: 'Midnight', start: 20.98, end: 21.62, words: [] }] };
+    db.prepare(`INSERT INTO songs (id, title) VALUES ('s-timed', 'Timed Song')`).run();
+    db.prepare(`INSERT INTO layers (id, song_id, name, kind, position) VALUES ('l-timed', 's-timed', 'Base', 'base', 0)`).run();
+    db.prepare(`INSERT INTO versions (id, layer_id, audio_file, params_json, word_timings, created_at) VALUES (?, 'l-timed', 'a.wav', '{}', ?, '2026-10-02 10:00:00')`)
+      .run('v-read', JSON.stringify(reading));
+    db.prepare(`INSERT INTO versions (id, layer_id, audio_file, params_json, created_at) VALUES (?, 'l-timed', 'b.wav', '{}', '2026-10-02 11:00:00')`)
+      .run('v-unread');
+
+    const song = await (await fetch(`${baseUrl}/s-timed`)).json();
+    expect(song.layers[0].versions.map((v: { id: string; wordTimings: unknown }) => [v.id, v.wordTimings])).toEqual([
+      ['v-unread', null],
+      ['v-read', reading],
+    ]);
+  });
+});

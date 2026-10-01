@@ -298,6 +298,14 @@ requiring its own justification against a screen-count rule.
          it has the same no-row-until-available rule. The settings panel
          follows it; on a cover, COT is replaced by a one-line hint, because
          a cover always follows its score's melody.
+         It **holds still** (added 2026-10-02) while a job whose result
+         lands in that engine's draft runs: TRANSCRIBE, READ LYRICS (with
+         their PREPARING SOURCE step) or ANALYZE AUDIO on YUE2, ANALYZE
+         AUDIO on ACE-STEP. Every engine tab is disabled, the selected one
+         included, and a hint under the row says why, in SOURCE's words:
+         "ENGINE is locked while TRANSCRIBE runs — its result belongs to
+         this engine's cover". A generation doesn't lock it; its result is
+         a library song, not the draft.
        - ARRANGE is always ACE-Step, and so is every later edit.
        - **Descriptor-driven N/A**: each engine publishes what it can take;
          a control it can't stays **in place**, disabled, with an `N/A`
@@ -326,6 +334,10 @@ requiring its own justification against a screen-count rule.
        enabled in the settings panel; LM MODEL is disabled (`n/a`) since
        `cover` skips the LM planner, same as Editor's repaint mode
        (`API.md` §4.2).
+       The SOURCE picker **holds still** here too (added 2026-10-02), the
+       same way as on YUE2 below: while ANALYZE AUDIO or a generation
+       (GENERATE COVER's submit included) runs, with the same disabled
+       tabs, drop zone and rows and the same reason line.
        - *Audio on an engine (YUE2)*: a melody cover sung from a score. The
          flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
          - The SOURCE picker is unchanged, except that it **holds still**
@@ -468,6 +480,26 @@ requiring its own justification against a screen-count rule.
      canonical lyrics on success; reverting to an older version restores that
      version's own lyrics alongside its audio (same "current" idiom as audio
      history — see Lilac below).
+     - **Timing** (added 2026-10-02): opening a song whose base version
+       hasn't been read reads it in the background (a genLock job, shown in
+       the header). While it runs, the panel label reads `LYRICS · TIMING…`,
+       the suffix in `text-low`. It stays plain, like TRANSCRIBE: reading
+       words isn't generating. A failed read shows a `.warn-note` under the
+       label, "couldn't time these lyrics" with RETRY, and the reason on one
+       ellipsized line (full text on hover). Nothing else is blocked.
+     - **Lines** (added 2026-10-02): once read, a line that was heard is
+       clickable in the read-only view. Click selects when it's sung as the
+       region, shift-click extends from the last clicked line, and
+       double-click also moves the playhead to the line's start (the same
+       rhythm as the section strip). A line under the 3 s repaint minimum
+       is widened evenly to 3 s, so one line is always repaintable. The
+       clicked lines echo the selection in sky: `sky-tint` with a 2px sky
+       inset edge, one level below the active block's treatment, and only
+       while the selection is still what they made. Hover is
+       `carbon-raised`, never sky (sky means selected, not pointed at). A
+       line that wasn't heard is `text-low`, with "not heard in this take"
+       on hover. Tag lines aren't clickable. Selecting lines doesn't unlock
+       editing; that still takes one whole section.
    - Left settings panel (~210–240px, see below): repaint parameters.
      Permanent, fixed width.
    - **Title row**: song title (bold, 16px) + time/bpm/key/layer-count
@@ -528,7 +560,11 @@ requiring its own justification against a screen-count rule.
    - Section strip: parallelogram segments (Intro/Verse/…) derived from
      lyric-aligned timestamps, flex-weighted by section length; click = select
      that section as the region; active (selected) = sky. Double-click also
-     moves the playhead to the section's start, for quick preview.
+     moves the playhead to the section's start, for quick preview. The times
+     come from lyrics-server's reading of the base version, aligned to the
+     song's LYRICS, or from ACE-Step's own stored timings when there is no
+     good reading (added 2026-10-02, PLAN.md "Editor Word Timestamps"). So
+     engine songs, imports and repaints get a strip too.
    - Prompt bar: sky scope chip mirroring current selection, free-text
      instruction, acid REPAINT REGION action.
    - **Right rail** (~260–320px, carbon-panel surface, 1px border): persistent,
