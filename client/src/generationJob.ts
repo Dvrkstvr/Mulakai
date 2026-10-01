@@ -1,5 +1,6 @@
 import type { ActiveGeneration, EngineId } from './api';
 import { taskToGenType } from './createDraft';
+import { isEditorBusy, type SingleEditorJob } from './editorJob';
 import type { GenerationJob, OtherLock } from './generationStore';
 
 /** Whether a song generation still holds the server's lock. A failed job stays in the store
@@ -11,18 +12,34 @@ export function isGenerating(job: GenerationJob | null): boolean {
 
 /** What each lock kind is called in a busy label — what the user pressed to start it. */
 const LOCK_NAME: Record<ActiveGeneration['kind'], string> = {
-  generate: 'A GENERATION', repaint: 'A REPAINT', regenerate: 'A REGENERATE', retake: 'A SIMILAR TAKE',
+  generate: 'A GENERATION', repaint: 'A REPAINT', regenerate: 'AN ALT TAKE', retake: 'A SIMILAR TAKE',
   addLayer: 'ADD LAYER', split: 'A STEM SPLIT', remaster: 'A REMASTER', transcribe: 'TRANSCRIBE',
   lyrics: 'READ LYRICS', analyze: 'ANALYZE AUDIO',
 };
 
-/** Why Create's commit buttons are off, naming what holds the server's lock — a song generation
- * this tab tracks, or anything else seen by refreshLock's poll (another tab's ANALYZE AUDIO, an
- * Editor repaint). Null when nothing does. The server would 409 a start either way. */
+/** What holds the server's lock, as a busy label names it: a split extracting in this tab, this
+ * tab's song generation, this tab's editor job, or whatever refreshLock's poll saw (another tab's
+ * ANALYZE AUDIO, say). Null when none does. Callers decide *whether* they're blocked (each excludes
+ * its own job); this only says by what, so check it after that decision. */
+export function lockHolder(s: {
+  generating: boolean; otherLock: OtherLock | null; editorJob?: SingleEditorJob | null; splitRunning?: boolean;
+}): string | null {
+  if (s.splitRunning) return LOCK_NAME.split;
+  if (s.generating) return LOCK_NAME.generate;
+  if (s.editorJob && isEditorBusy(s.editorJob)) return LOCK_NAME[s.editorJob.kind];
+  return s.otherLock ? LOCK_NAME[s.otherLock.kind] ?? 'ANOTHER JOB' : null;
+}
+
+/** A commit button's label while `holder` has the lock — the same words in Create and the Editor. */
+export function busyLabel(holder: string): string {
+  return `${holder} IS ALREADY RUNNING`;
+}
+
+/** Why Create's commit buttons are off (a song generation this tab tracks, or anything the poll
+ * saw), or null. The server would 409 a start either way. */
 export function busyMessage(job: GenerationJob | null, otherLock: OtherLock | null): string | null {
-  if (isGenerating(job)) return 'A GENERATION IS ALREADY RUNNING';
-  if (!otherLock) return null;
-  return `${LOCK_NAME[otherLock.kind] ?? 'ANOTHER JOB'} IS ALREADY RUNNING`;
+  const holder = lockHolder({ generating: isGenerating(job), otherLock });
+  return holder && busyLabel(holder);
 }
 
 /** Whether COVER · YUE2's TRANSCRIBE, READ LYRICS, ANALYZE AUDIO and GENERATE COVER are held off

@@ -6041,8 +6041,10 @@ already running elsewhere", was wrong for anything but a generation.
   time — try again once it finishes".
 - **Names follow the buttons:** regenerate is "AN ALT TAKE" and retake is
   "A SIMILAR TAKE", after VersionHistory's ALT / SIMILAR.
-- VersionHistory's ALT / SIMILAR have no busy label (they are only
-  disabled), so they are unchanged.
+- **VersionHistory's ALT / SIMILAR** have no busy label, but their
+  tooltip said "a generation is already running elsewhere", and only for
+  another editor job. It now names the holder whenever they're blocked by
+  anything but this layer's own take.
 
 Files:
 - `client/src/generationJob.ts`: `lockHolder`, `busyLabel`; `busyMessage`
@@ -6054,4 +6056,5 @@ Files:
   hint.
 - `client/src/RepaintBar.tsx`: `busyElsewhere` becomes the holder (or
   null).
+- `client/src/VersionHistory.tsx`: the tooltip from `lockHolder`.
 

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
+import { busyLabel } from './generationJob';
 import { useSettings } from './settings';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import type { Region } from './Waveform';
@@ -24,15 +25,16 @@ interface Props {
   progress?: number;
   progressStage?: string;
   progressText?: string;
-  /** True while a *different* generation (song gen, another layer's repaint, remaster, split…)
-   * is running anywhere — disables this trigger proactively instead of just failing with a 409. */
-  busyElsewhere: boolean;
+  /** What holds the lock while a *different* job (song gen, another layer's repaint, remaster,
+   * split, another tab's ANALYZE AUDIO…) runs anywhere, or null — disables this trigger
+   * proactively, naming the job, instead of just failing with a 409. */
+  busyBy: string | null;
   onRepaint: () => void;
   error: string;
 }
 
 /** Scope chip + prompt input + REPAINT REGION commit, re-targetable to whichever layer is focused. */
-export function RepaintBar({ layerName, nextVersion, selection, prompt, onPromptChange, job, startedAt, progress, progressStage, progressText, busyElsewhere, onRepaint, error }: Props) {
+export function RepaintBar({ layerName, nextVersion, selection, prompt, onPromptChange, job, startedAt, progress, progressStage, progressText, busyBy, onRepaint, error }: Props) {
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const regionTooShort = !!selection && regionSeconds < REPAINT_MIN_SECONDS;
   const regionTooLong = !!selection && regionSeconds > REPAINT_MAX_SECONDS;
@@ -83,7 +85,7 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
           }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
           style={{ position: 'relative', overflow: 'hidden' }}
-          disabled={!regionValid || job === 'running' || busyElsewhere}
+          disabled={!regionValid || job === 'running' || !!busyBy}
           onClick={onRepaint}
         >
           {job === 'running' ? (
@@ -98,15 +100,15 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
                 {stageDetail(progressStage) && ` · ${stageDetail(progressStage)}`}
               </span>
             </>
-          ) : busyElsewhere ? 'BUSY ELSEWHERE' : 'REPAINT REGION'}
+          ) : busyBy ? busyLabel(busyBy) : 'REPAINT REGION'}
         </motion.button>
       </motion.section>
-      {regionValid && job !== 'running' && !busyElsewhere && (
+      {regionValid && job !== 'running' && !busyBy && (
         <div className="hint">will save as {layerName.toUpperCase()} v{nextVersion}</div>
       )}
       <ActiveAdapterNote />
-      {busyElsewhere && job !== 'running' && (
-        <div className="hint">a generation is already running elsewhere — try again once it finishes</div>
+      {busyBy && job !== 'running' && (
+        <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>
       )}
       {error && <div className="error">{error} <button onClick={onRepaint}>RETRY</button></div>}
     </>
