@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, type Layer, type StemKind } from './api';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
-import { useEditorJobStore, myEditorJob } from './editorJobStore';
+import { useEditorJobStore, myEditorJob, isEditorBusy } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
@@ -37,7 +37,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const mine = myEditorJob(editorJob, 'split', { layerId: layer.id });
   const stems = mine?.stems ?? null;
   const extracting = mine?.stage === 'running';
-  const busyElsewhere = !mine && (genRunning || !!editorJob || !!otherLock);
+  const busyElsewhere = !mine && (genRunning || isEditorBusy(editorJob) || !!otherLock);
   const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
 
   useEffect(() => {

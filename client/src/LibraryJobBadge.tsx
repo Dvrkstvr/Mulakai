@@ -1,5 +1,5 @@
 import { EDITOR_STAGE_LABEL, fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
-import type { EditorJob } from './editorJobStore';
+import type { EditorJob } from './editorJob';
 
 /** Small inline status pill shown on a song's Library row while one of its layers is
  * mid-repaint/split/remaster/add-layer/regenerate/retake — see PLAN.md's note on jobs
