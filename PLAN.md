@@ -6113,7 +6113,8 @@ base takes from the library, then a prototype of the alignment in decision
   version's audio file, sends it to `transcribeLyrics` with language '',
   and writes the reading to the row. Aborts cancel the request, as in
   `lyricsJobs.ts`.
-- `routes/versions.ts`: `POST /api/versions/:id/timings` answers 202
+- `routes/versions.ts`: `POST /api/layers/versions/:id/timings` (where
+  the router is mounted, next to REVERT and ALT) answers 202
   `{jobId}`; 404 for an unknown version; 400 when `lyrics-server` isn't
   configured; 409 when the lock is held.
 - `routes/songs.ts`: each version carries `wordTimings` (parsed, or null).
