@@ -45,8 +45,8 @@
     "semantic_hash": ""
   },
   "client/src/CreateAudioTab.tsx": {
-    "mtime": 1790893400.05045,
-    "ast_hash": "98a0b000481da91b64ee5814f0e10f08",
+    "mtime": 1790896104.431883,
+    "ast_hash": "c0bb59cc597b12b4ced140c24267d6cf",
     "semantic_hash": ""
   },
   "client/src/CreateBar.tsx": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790893746.6060224,
-    "ast_hash": "df92a32845501f0d1af0b610ba9a1a74",
+    "mtime": 1790896285.4558208,
+    "ast_hash": "22eba524039b4783b5077f8e6956063e",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -755,8 +755,8 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN.md": {
-    "mtime": 1790893746.606522,
-    "ast_hash": "11f6bd34f93a83ecc48e2596cca32571",
+    "mtime": 1790896285.4563265,
+    "ast_hash": "5681b1d3a81570336c3d691251d1ca8e",
     "semantic_hash": ""
   },
   "client/public/favicon.svg": {
@@ -1610,8 +1610,8 @@
     "semantic_hash": ""
   },
   "client/src/coverDraft.ts": {
-    "mtime": 1790893399.9855895,
-    "ast_hash": "eff296d20afafa2f323bfd7e33327efc",
+    "mtime": 1790896104.4313836,
+    "ast_hash": "c4796ed89c0e7110720ad4a75b7c9757",
     "semantic_hash": ""
   },
   "client/src/coverLyrics.test.ts": {
@@ -1935,8 +1935,8 @@
     "semantic_hash": ""
   },
   "client/src/coverDraft.test.ts": {
-    "mtime": 1790893451.973451,
-    "ast_hash": "827d42e16b665f55dd3093326505bd7a",
+    "mtime": 1790896104.4323854,
+    "ast_hash": "26110db353f837ef01fd082293a93557",
     "semantic_hash": ""
   },
   "client/src/EngineChoice.test.tsx": {
