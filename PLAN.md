@@ -5969,8 +5969,8 @@ COVER · ACE-STEP and ARRANGE didn't check the lock at all.
    RUNNING", "A REPAINT IS ALREADY RUNNING", or today's "A GENERATION IS
    ALREADY RUNNING". One pure helper, `busyMessage(job, otherLock)`.
    - The header pill already reads `ANALYZE · RUNNING` from `/active`.
-   - The Editor's BUSY ELSEWHERE already counts any `otherLock`;
-     unchanged.
+   - The Editor's BUSY ELSEWHERE already counts any `otherLock`. It
+     names the holder too since the follow-up below.
    - A tab's own analysis also shows up as `otherLock` once polled, so
      its GENERATE reads "ANALYZE AUDIO IS ALREADY RUNNING" too (the
      server would refuse it). `useAnalyzeSourceAudio` re-polls the lock
@@ -6021,3 +6021,37 @@ model off a GPU another session was using. Two tabs:
 - **After the 40 s:** `/active` was null, the pill gone, and tab B's
   GENERATE enabled again. Tab A's PROMPT and LYRICS held the analysis
   result, and its GENERATE COVER was enabled.
+
+**Follow-up (2026-10-02): the Editor names the holder too.**
+
+REPAINT REGION, ADD LAYER's GENERATE, REMASTER SONG and GENERATE STEMS
+read "BUSY ELSEWHERE" whatever held the lock. Their hint, "a generation is
+already running elsewhere", was wrong for anything but a generation.
+
+- **One pure helper, `lockHolder`,** names whatever blocks an action. It
+  checks, in order: a split extracting in this tab, this tab's song
+  generation, this tab's editor job, then the polled `otherLock`.
+  `busyMessage` now uses it too, so Create and the Editor say the same
+  thing: "ANALYZE AUDIO IS ALREADY RUNNING", "A REPAINT IS ALREADY
+  RUNNING", ….
+- **The busy rules don't change.** Each panel still decides
+  `busyElsewhere` as before (its own job excluded). Only the label and
+  the hint change.
+- **The hint drops the wrong noun:** "only one job can use the GPU at a
+  time — try again once it finishes".
+- **Names follow the buttons:** regenerate is "AN ALT TAKE" and retake is
+  "A SIMILAR TAKE", after VersionHistory's ALT / SIMILAR.
+- VersionHistory's ALT / SIMILAR have no busy label (they are only
+  disabled), so they are unchanged.
+
+Files:
+- `client/src/generationJob.ts`: `lockHolder`, `busyLabel`; `busyMessage`
+  built on them.
+- `client/src/generationJob.test.ts` (new): the holder's order, and that
+  a failed job names nothing.
+- `client/src/AddLayerTrigger.tsx`, `RemasterAction.tsx`,
+  `SplitPanel.tsx`, `Editor.tsx`: the label from `lockHolder`, and the new
+  hint.
+- `client/src/RepaintBar.tsx`: `busyElsewhere` becomes the holder (or
+  null).
+
