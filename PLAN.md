@@ -5646,3 +5646,22 @@ polling the lock, so it missed repaints or generations from other tabs.
 - `client/src/generationStore.test.ts`: the predicate, a start over a
   failed card, a refused start while in flight, and lock tracking while
   a failed card shows.
+
+**Follow-up (2026-10-01): the YuE2 cover panel was missed.**
+
+`YueCoverPanel.tsx` and `YueCoverGenerate.tsx` still checked `!!genJob`.
+A YuE2 cover that failed mid-run kept TRANSCRIBE, READ LYRICS, ANALYZE
+AUDIO and GENERATE COVER off until the card was dismissed. A browser
+check on `main` showed "A GENERATION IS ALREADY RUNNING" with the server's
+lock free.
+
+The fix:
+- **New pure helper:** `generationJob.coverLocked(job, otherLock,
+  ownRunning)` combines `isGenerating` with the panel's existing "lock held
+  by something other than my own transcription or read" rule.
+- **Panel:** `YueCoverPanel.tsx` uses `coverLocked`.
+- **GENERATE COVER:** `YueCoverGenerate.tsx` uses `isGenerating`.
+- **Tests:** `generationStore.test.ts` covers the helper.
+
+No `!!genJob` busy check is left. `App.tsx` still reads the job, but only
+to show the card.
