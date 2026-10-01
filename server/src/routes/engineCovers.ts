@@ -1,7 +1,7 @@
 /**
  * COVER on an extra engine (PLAN.md "YuE2 Melody Covers via SheetSage2" and "Mulakai server
- * cover decisions"): TRANSCRIBE a source into a score, stream that score's piano preview,
- * then GENERATE a cover from the score as a new song. Mounted under /api/engines; jobs poll
+ * cover decisions"): TRANSCRIBE a source into a score, stream that score's piano preview, size
+ * it against the planner's budget, then GENERATE a cover from the score as a new song. Mounted under /api/engines; jobs poll
  * through GET /api/generate/:jobId like every other job.
  */
 import { Router, type Response } from 'express';
@@ -11,7 +11,7 @@ import { pipeline } from 'node:stream/promises';
 import { db } from '../db/index.js';
 import { getEngine, coverReady } from '../services/engines/registry.js';
 import { startTranscription } from '../services/transcribeJobs.js';
-import { fetchTranscriptionPreview } from '../services/engineTranscribeClient.js';
+import { fetchTranscriptionPreview, measureScore } from '../services/engineTranscribeClient.js';
 import { startEngineGeneration } from '../services/engineGenJobs.js';
 import { getJob } from '../services/jobs.js';
 import { GenLockError } from '../services/genLock.js';
@@ -117,6 +117,23 @@ coversRouter.post('/:id/cover', (req, res) => {
     res.status(202).json({ jobId: job.id });
   } catch (err) {
     lockOrServerError(res, err);
+  }
+});
+
+/** The score's size per section against the engine's planning budget, so the review can show
+ * what fits before GENERATE (PLAN.md "YuE2 Covers: Pick the Score's Sections"). 204 when the
+ * engine can't say; 502 with the engine's reason when it refuses the score. */
+coversRouter.post('/:id/score-size', async (req, res) => {
+  const engine = coverEngine(String(req.params.id), res);
+  if (!engine) return;
+  const abc = typeof req.body?.abc === 'string' ? req.body.abc : '';
+  if (!abc.trim() || Buffer.byteLength(abc, 'utf8') > MAX_SCORE_BYTES) return res.status(400).json({ error: 'abc must be a score within 64 KB' });
+  try {
+    const size = await measureScore(engine, abc);
+    if (size) res.json(size);
+    else res.status(204).end();
+  } catch (err) {
+    res.status(502).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });
 

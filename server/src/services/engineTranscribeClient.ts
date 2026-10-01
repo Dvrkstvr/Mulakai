@@ -104,6 +104,31 @@ export async function fetchTranscriptionPreview(
   }
 }
 
+/** A cover score's size in the planner's tokens: the header and each `% name` section, which
+ * add up to the whole (PLAN.md "YuE2 Covers: Pick the Score's Sections"). Null when the backend
+ * can't say: a `yue2-serve` has no such route, and GENERATE's own check is then the only one. */
+export interface ScoreSize {
+  budget: number;
+  header: number;
+  sections: { name: string; tokens: number }[];
+}
+
+export async function measureScore(target: EngineTarget, abc: string): Promise<ScoreSize | null> {
+  const res = await request(target, '/v1/scores/measure', {
+    method: 'POST', headers: headers(target, { 'Content-Type': 'application/json' }), body: JSON.stringify({ abc }),
+  }, 'score size');
+  if (res.status === 404) return null;
+  if (!res.ok) throw await failure(target, 'score size', res);
+  const body = (await res.json()) as { budget?: unknown; header?: unknown; sections?: unknown };
+  const sections = Array.isArray(body.sections) ? body.sections as { name?: unknown; tokens?: unknown }[] : [];
+  const budget = num(body.budget);
+  const header = num(body.header);
+  if (budget === null || header === null || sections.some((s) => typeof s.name !== 'string' || num(s.tokens) === null)) {
+    throw new Error(`${target.label} score size -> unreadable reply`);
+  }
+  return { budget, header, sections: sections.map((s) => ({ name: s.name as string, tokens: s.tokens as number })) };
+}
+
 /** Fire-and-forget, as engineClient's cancel: our side has already given up on the job. */
 export async function cancelTranscription(target: EngineTarget, id: string): Promise<void> {
   try {
