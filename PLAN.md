@@ -6957,3 +6957,48 @@ ACE-Step 1.5 on 8001. Create → COVER · ACE-STEP:
 - ACE-Step ran 18/18 diffusion steps and saved a wav32 master. The new
   song's version stored those params, seed 4242, and its file landed as
   `.mp3`.
+
+## A Preview Stopped Before It Starts Fails Quietly (planned 2026-10-02)
+
+Follows the open question in "The Library Loads Without Trying to Play".
+`previewPlayback.ts` started every preview with `void a.play()`. A
+`pause()` or new `src` while that play is still pending (the audio still
+loading) makes Chromium reject it with `AbortError`, and `void` left the
+rejection unhandled. Reproduced on main in the editor: a version's micro
+preview clicked twice in one go logged "The play() request was
+interrupted by a call to pause()" as an uncaught page error. Closing the
+popover, ✕, Escape or another preview taking the slot all hit the same
+path.
+
+### Decisions
+
+1. **Previews use the footer's `playOrStayPaused`.** `AbortError` and
+   `NotAllowedError` leave the preview paused; the element's own
+   `play`/`pause` events already keep the snapshot right. Any other
+   rejection is logged, now as "Preview: play() failed".
+2. **`playOrStayPaused` moves to its own module** so the preview slot
+   doesn't import the footer's. It takes the player's name for the log
+   line, and accepts a `play()` that returns nothing, as
+   `PreviewAudioElement` allows.
+
+### File-level plan
+
+- `client/src/playOrStayPaused.ts` (new), out of `singleTrack.ts`.
+- `client/src/previewPlayback.ts`: its four `void a.play()` calls use it.
+- `client/src/singleTrack.ts`, `client/src/useSingleAudioPlayback.ts`:
+  import it from the new module.
+- `client/src/playOrStayPaused.test.ts` (new), taking the cases from
+  `singleTrack.test.ts`.
+- `client/src/previewPlayback.abort.test.ts` (new; the existing preview
+  test file is near the size cap): a fake whose `play()` stays pending
+  until playback begins. Toggle off, another preview, and stop before
+  then all stay quiet and leave the right state.
+
+### Browser check (2026-10-02)
+
+Playwright Chromium against the e2e harness from
+`test/playwright-golden-path`, copied in for the run: generate a song,
+open it in the editor, click the version preview twice in one task, then
+open it and close it with ✕ as soon as it renders, then preview it
+normally. On main: one `pageerror`, the `AbortError` above. With the
+fix: none, and the last preview played. The golden path still passes.
