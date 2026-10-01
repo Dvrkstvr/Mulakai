@@ -5041,6 +5041,25 @@ stays the way to correct notes.
 - `client/src/api/covers.ts`: `scoreSize()` and `ScoreSize`.
 - `docs/design/DESIGN.md`: the strip in the review, in its own commit.
 
+### Browser check (2026-10-01)
+
+This branch's client, server and yue-server ran on a scratch library and
+spare ports against the real YuE2 model, with the GPU otherwise idle. The
+input was the score that failed (via USE .ABC FILE).
+- `POST /api/engines/yue2/score-size` measured it with the real tokenizer:
+  header 73 plus sections, summing to exactly 5,032.
+- **Before the cut:** the strip read `5,032 / 4,096 TOKENS` in rust, the
+  warn-note named the interlude and the outro, and GENERATE COVER was off.
+  The facts read 283 bars, 7:48.
+- **Leaving out the OUTRO:** `3,469 / 4,096 TOKENS`, the warning cleared and
+  GENERATE came on. The hint and the consequence line said "leaves out
+  OUTRO", and the facts read 206 bars, 5:41. The wordless LYRICS outline lost
+  its `[Outro]`, and SHOW SCORE ended before the outro.
+- **GENERATE COVER** was accepted and saved `COVER · YUE2`: 145 BPM,
+  E♭ major, 5:23, not truncated, in about 2½ minutes (8,076 semantic
+  tokens). The stored score holds the six kept sections, so REUSE PROMPT
+  covers the same cut.
+
 ### Open questions
 
 - **Should TRANSCRIBE warn before it runs?** A source's length predicts
