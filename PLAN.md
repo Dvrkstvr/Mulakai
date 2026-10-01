@@ -5046,3 +5046,157 @@ same way (`--melody-only`, 43 s wall).
 - HeartTranscriptor's weights (3.06 GB) are still in
   `S:\AI Gen\heartlib\ckpt\HeartTranscriptor-oss`. Nothing uses them now,
   and they can be deleted.
+
+## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
+
+A YuE2 cover needs a style PROMPT: `buildYue2Request` throws "YUE2 needs a
+PROMPT" for a sung request with no style. For an upload there is no quick
+way to get one on the YUE2 panel. Today the workaround is to switch COVER's
+ENGINE to ACE-STEP, press ANALYZE AUDIO and switch back. That leaves
+ACE-Step's prose caption in PROMPT, plus BPM / KEY / DURATION the score
+already fixes. This section puts ANALYZE AUDIO on the YUE2 panel and
+rewrites the caption into YuE2-style tags.
+
+### Decisions
+
+1. **ANALYZE AUDIO on the YUE2 panel reuses ACE-Step's analysis.** It is
+   the same `AnalyzeAudioButton` and `useAnalyzeSourceAudio` call, with
+   COVER's ACE-Step model (`draft.audio.model`). `CreateAudioTab` already
+   auto-picks that model on mount, whichever engine is selected.
+   - It sits under PROMPT, above LYRICS, as it does on ACE-STEP: between
+     the two fields it fills.
+   - It needs a picked source. A reused score with no source can't be
+     analyzed; there is no audio.
+   - It is off while TRANSCRIBE runs, while any job holds the lock, and
+     when no ACE-Step model supports cover. A line says so. The analysis
+     loads a DiT and the LM onto the card, and must not run next to a
+     YuE2 job.
+   - It does **not** use `useAnalyzeAndApply`. That hook also writes BPM,
+     KEY-SCALE and DURATION, which the score fixes on YUE2 (covers point
+     5). They would also carry into the other tabs' shared SONG DETAILS.
+2. **The prose → tags rewrite is a pure extractor, not the LM.**
+   - ACE-Step's LM has fixed tasks: describe audio, format input, make a
+     sample. None of them writes a comma-separated tag list. `/format`
+     rewrites a caption into more prose. A second LM call would also cost
+     GPU time and a model load for text that a vocabulary match handles.
+   - `styleTags.ts` (new, pure) finds phrases from four vocabularies in
+     the caption: **genre**, **vocal character**, **mood** and
+     **instruments**.
+     - A phrase is a head word ("guitar", "vocal", "trap") plus up to two
+       modifiers from its category's list, to its left: "rhythmic electric
+       guitar", "warm female vocal", "latin trap".
+     - Genre also takes any `-pop`, `-rock`, `-hop`, `-wave`, `-core` or
+       `-step` compound ("samba-pop", "j-rock").
+     - A negated phrase ("no drums", "without vocals") is skipped.
+   - Output order follows upstream's example: voice, genre, mood,
+     instruments, then vocal traits (falsetto, auto-tune). Upstream's
+     example is "English, warm female vocal, contemporary pop, 96 BPM,
+     piano, rounded electric bass, restrained drums, clear diction".
+     - At most 2 voice, 2 genre, 2 mood and 4 instrument tags, in the
+       order the caption mentions them.
+     - A tag contained in a more specific one is dropped ("guitar" under
+       "electric guitar").
+   - **No tempo, key, meter or language.** The score fixes the first
+     three. VOCAL LANGUAGE is prefixed server-side.
+   - A caption that is already a tag list (short comma-separated parts)
+     keeps its own tags, minus the tempo / key / meter / language ones.
+   - **Nothing recognised → the caption as written.** YuE2's `style` is
+     free text, so prose still works, and an empty PROMPT would block
+     GENERATE. A hint says it wasn't rewritten.
+   - **The vocabulary is ACE-Step's own guide.** "Style Tag Vocabulary for
+     the Caption Field" was planned but never built, so there is no mined
+     vocabulary to reuse. The lists start from `docs/ace-step-1.5/GUIDE.md`'s
+     "Common Dimensions for Caption Writing" and that section's planned
+     categories (genre, mood, instrument, vocal). They are extended with
+     the words ACE-Step's captions use (its `examples/text2music`). The
+     lists live in their own module, `styleTagVocab.ts`, so a later tag
+     picker can share them.
+3. **PROMPT is filled only when fillable.** `fillable(prompt, carried)`:
+   PROMPT is empty, or it holds text carried from another tab. A prompt
+   typed on COVER is never overwritten. The tags land in PROMPT as plain,
+   editable text.
+   - The full description stays readable under the button, in a collapsed
+     SHOW DESCRIPTION block, so a dropped phrase can be put back by hand.
+4. **LYRICS are filled too, when they have no words.** That is empty,
+   carried from another tab, or only section tags (TRANSCRIBE's outline).
+   Words typed here are kept.
+   - With a score, the words are fitted onto its sections
+     (`fitLyricsToSections`). The spike showed the source's own tags cost
+     a third of the melody.
+   - Without a score yet, they go in as ACE-Step wrote them.
+     `transcribeStore` remembers the lyrics analysis wrote. When the score
+     lands and LYRICS still holds exactly those lyrics, it fits them to
+     the sections. Once edited, they are the user's and are left alone.
+   - **They are described, not transcribed.** ACE-Step's LM describes the
+     audio and may paraphrase. The consequence line says so. "Cover Lyrics
+     From the Recording" plans real lyric transcription (READ LYRICS). If
+     it ships, it replaces this lyrics fill.
+5. **VOCAL LANGUAGE is filled when AUTO** and the analysis names a
+   language YuE2 lists (en, zh). Upstream puts the language first in
+   `style`, and the server prefixes it from this control.
+   - When the lyrics it filled are in a language YuE2 doesn't list, a
+     `.warn-note` names it. The browser check's source was sung in Turkish;
+     YuE2 would have been handed Turkish words with nothing saying so.
+6. **Consequence line** (DESIGN.md copy rule), under the button:
+   "ACE-Step describes the source · fills an empty PROMPT with its style as
+   tags (voice, genre, mood, instruments) and wordless LYRICS with the
+   words it hears, described rather than transcribed · nothing is saved to
+   your library".
+
+### File-level plan
+
+- `client/src/styleTagVocab.ts` (new): the four vocabularies, data only.
+- `client/src/styleTags.ts` (new) + test: `captionToStyleTags(caption)`.
+- `client/src/yueCoverAnalysis.ts` (new) + test: `yueAnalysisPatch`, which
+  turns an analysis result and the draft into the fields to write (points
+  3–5). Pure.
+- `client/src/YueCoverAnalyze.tsx` (new): the button, its consequence
+  line, the error and SHOW DESCRIPTION block. It applies the patch.
+- `client/src/YueCoverGenerate.tsx`: renders it between PROMPT and LYRICS.
+- `client/src/transcribeStore.ts` (+ test): `analyzedLyrics`, fitted to
+  the score when it lands (point 4).
+- `client/src/index.css`: the SHOW DESCRIPTION block reuses
+  `.score-abc`'s look.
+- `docs/design/DESIGN.md`: ANALYZE AUDIO on COVER · YUE2, in its own commit.
+- `server/src/services/acestep.ts` (+ test): `analyzeAudio` reads the
+  route's own field names (found in the browser check, below).
+
+### Browser check (2026-10-01)
+
+- **Browser-checked end to end.** This branch's client and server ran on a scratch library against real ACE-Step and yue-server
+  (SheetSage2) processes on spare ports, with the GPU otherwise idle:
+  - **ANALYZE AUDIO** on an uploaded 3½-minute piano ballad: ACE-Step's
+    prose ("A delicate and melancholic piano ballad … arpeggiated piano …
+    A clear, emotive female vocal …") became `emotive female vocal,
+    cinematic, electronic, melancholic, nostalgic, arpeggiated piano, deep
+    synth bass, spoken word`. A first run gave `breathy female vocal,
+    ballad, melancholic, emotional, grand piano`; the LM samples. LYRICS
+    filled, the outcome line and SHOW DESCRIPTION showed, and VOCAL
+    LANGUAGE stayed AUTO.
+  - **The source was sung in Turkish**, and nothing said YuE2 can't sing
+    it. That added point 5's warn-note: "ACE-Step heard the words in TR —
+    YUE2 sings EN, ZH".
+  - **A server bug found along the way:** `analyzeAudio` read `keyscale` /
+    `timesignature` / `language`, but `analyze_audio_route.py` answers
+    with `key_scale` / `time_signature` / `vocal_language`. So ANALYZE
+    AUDIO never filled KEY-SCALE or reported a language, on either engine.
+    It now reads both spellings; the fixed run reported `tr` and F major,
+    the key SheetSage2 found.
+  - **TRANSCRIBE** gave 77 BPM, F major, 4/4, 68 bars, 3:32. The analyzed
+    lyrics were re-tagged onto the score's sections as it landed
+    (`[Intro] [Verse] [Chorus] [Verse] [Chorus] [Outro]`).
+  - **GENERATE COVER** saved `COVER · YUE2` (77 BPM / F major / 3:07)
+    with the tags as its caption, in about 90 s (48 s of tokens, 19 s of
+    synthesis). An earlier attempt, while another process took part of
+    the GPU, stalled at 0 synthesis steps for over five minutes and was
+    aborted.
+
+### Open questions
+
+- **ANALYZE AUDIO holds no genLock.** `POST /api/generate/analyze-audio`
+  never did, on either engine. The client disables it while a job holds
+  the lock, but a job started in another tab can still overlap it. Should
+  analysis take the lock under a new `analyze` kind?
+- **Is the vocabulary wide enough?** It is hand-written. Once the style
+  tag probe exists, its mined counts could show which common caption
+  words the extractor misses.

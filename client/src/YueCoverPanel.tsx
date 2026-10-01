@@ -8,11 +8,12 @@ import { coverSourceReady, resolveCoverSource } from './coverSource';
 import { sectionOutline } from './coverLyrics';
 import { YueScoreReview } from './YueScoreReview';
 import { YueCoverGenerate } from './YueCoverGenerate';
+import { YueCoverAnalyze } from './YueCoverAnalyze';
 
 /** COVER on an extra engine (PLAN.md "YuE2 Melody Covers via SheetSage2", "Client cover
  * decisions"): SOURCE → TRANSCRIBE → review → GENERATE. The source picker sits above this;
  * the score lives in the draft, so style, lyrics or seed can change without transcribing again. */
-export function YueCoverPanel({ songs, onBack }: { songs: Song[]; onBack: () => void }) {
+export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; onBack: () => void; noCoverModel: boolean }) {
   const audio = useCreateDraftStore((s) => s.audio);
   const lyrics = useCreateDraftStore((s) => s.lyrics);
   const reusedFrom = useCreateDraftStore((s) => s.reusedFrom);
@@ -87,7 +88,8 @@ export function YueCoverPanel({ songs, onBack }: { songs: Song[]; onBack: () => 
       {(error || tr.error) && <div className="error">{error || tr.error}</div>}
       {reuse && !score && <span className="meta">loading the earlier cover&apos;s score…</span>}
       {score && <YueScoreReview engine={engine} score={score} />}
-      <YueCoverGenerate onBack={onBack} blocked={running || locked} />
+      <YueCoverGenerate onBack={onBack} blocked={running || locked}
+        analyze={<YueCoverAnalyze blocked={running || locked} noModel={noCoverModel} />} />
     </>
   );
 }
