@@ -5977,8 +5977,8 @@ base takes from the library, then a prototype of the alignment in decision
 
 | Song | Made by | Read | LYRICS words matched | Lines timed |
 | --- | --- | --- | --- | --- |
-| *Ellies City* (2:20) | ACE-Step text2music | 22 s, model load included | 93 / 94 (0.99) | 22 / 22 |
-| *Purple Shinings* (2:00) | YuE2 | 7 s, warm | 81 / 104 (0.78) | 22 / 28 |
+| *Ellies City* (2:20) | ACE-Step text2music | 22 s, model load included | 93 / 94 (0.99) | 20 / 20 |
+| *Purple Shinings* (2:00) | YuE2 | 7 s, warm | 81 / 104 (0.78) | 18 / 24 |
 
 - **Line times are the sung times.** On *Ellies* every line's span runs
   from its first word to its last. Repeated choruses landed on the right
@@ -6037,9 +6037,22 @@ base takes from the library, then a prototype of the alignment in decision
      runs from the earliest to the latest heard word paired with any of
      its tokens (substitutions included, so a misheard first word still
      anchors the start). Lines with no match stay untimed.
-   - It runs against the live LYRICS draft, memoised, so it stays right
-     when a repaint changes the song's lyrics or a revert restores older
-     ones. It needs no server round trip.
+   - **Repeats Whisper heard twice** (found in PR 2's browser check, *Gertar*,
+     YuE2): the outro's last lines were heard twice, and one LYRICS line was
+     paired half with each hearing, so its span ran 153–193 s. Two rules
+     fix it:
+     - On a score tie the traceback skips the *later* heard word, so a line
+       pairs whole with its first hearing.
+     - A line's heard words more than 5 s apart were heard in two places;
+       the cluster with more matched words is the line.
+     - Re-checked on *Ellies*, *Purple* and *Gertar*: no line spans more than
+       10 s, and alignment takes 2–18 ms.
+   - The section strip aligns the song's **stored** LYRICS, not the draft.
+     Aligning the draft would move a section while its unlocked lyrics are
+     being typed, and the panel would re-lock mid-edit. The stored LYRICS
+     change with a repaint or a revert, so the alignment follows them. Line
+     clicks (PR 3) align the draft the read-only panel shows. Neither needs
+     a server round trip.
 4. **Section times come from the aligned lines** and feed the existing
    `groupSections` unchanged (it reads tag lines' starts).
    - A section with sung lines starts where the previous section's last
@@ -6138,7 +6151,12 @@ base takes from the library, then a prototype of the alignment in decision
   `groupSections` memo. It returns sections, line spans and read status.
   `Editor.tsx` is already 320 lines, over the cap; this change keeps its
   net lines at or below today's, and the split it needs is a separate PR.
-- Tests for each pure module and the store.
+- `LyricsPanel.tsx` + `index.css`: the `TIMING…` label, and the failure
+  hint with RETRY. They moved here from PR 3 so a failed read is never
+  silent. DESIGN.md in its own commit.
+- Tests for each pure module and the store. The client has no DOM test
+  setup, so the auto-read rule is a pure `shouldAutoRead` in the store,
+  tested there.
 
 **PR 3 — client: click a lyric line** (`feat/editor-word-timestamps-lines`,
 on PR 2):
@@ -6147,7 +6165,7 @@ on PR 2):
   `LyricsPanel.tsx`.
 - `lineSelection.ts` (new, pure): line span(s) → region, with the 3 s
   widening and clamping. Tested.
-- `LyricsPanel.tsx`: the `TIMING…` label, the failure hint with RETRY.
+- `LyricsPanel.tsx`: renders `LyricsLines` when locked.
 - `index.css`: the line styles.
 - DESIGN.md in its own commit.
 - Browser check: an engine song (no ACE-Step timings) opens, reads, gets a
@@ -6169,3 +6187,44 @@ on PR 2):
   clip its first syllable, add a fixed lead-in to line selections.
 - **Add Layer vocals.** A vocal layer has its own lyrics. Reading that
   layer's version would time them the same way. Not in v1.
+- **The lock's generic copy.** While a read runs, REPAINT REGION shows BUSY
+  ELSEWHERE with "a generation is already running elsewhere". That line is
+  shared by every lock kind; naming the kind ("lyric timings are being
+  read") would be clearer, and is a change for all kinds at once.
+
+### Browser check, PR 2 (2026-10-02)
+
+**Setup:** the user's app was stopped by then. Worktree server on 3041
+with a scratch copy of the library DB (SQLite `backup()`, read-only
+on the original) and three audio files; a lyrics-server copy on 8045 from
+the main checkout's venv; the worktree client on 5195. The GPU was checked
+idle before each read.
+
+1. **A YuE2 song, no ACE-Step timings** (*Purple Shinings*): opening it
+   started the read on its own. The header showed `TIMINGS · RUNNING`, the
+   panel `LYRICS · TIMING…`, and REPAINT REGION waited (BUSY ELSEWHERE).
+   It took 11 s with a cold model load. A section strip appeared, INTRO …
+   OUTRO, with `[Rhodes piano melody]` folded into INTRO.
+2. **CHORUS** selected 0:45–1:03: the first sung word is at 46.6 s, less
+   the 1 s lead-in after a wordless `[Humming]`. Its block unlocked, and
+   typing in it kept the section selected and the block unlocked (sections
+   align the stored LYRICS).
+3. **A repaint version** (*Unmoving*, read during PR 1's check): a strip
+   with no new read. Before this PR it had none.
+4. **A read that fails** (*Gertar*, its audio absent from the scratch
+   copy): "couldn't time these lyrics" with RETRY, and the reason on one
+   line.
+   - **It found a layout bug:** the first version put the reason inline,
+     and a long path pushed RETRY out of the panel over the repaint bar.
+     Fixed with the reason on its own ellipsized line.
+5. **RETRY,** with the audio copied in: the read ran (11 s) and the strip
+   appeared.
+   - **It found the repeat bug** described under decision 3: "Die Welt
+     dreht laut …" spanned 153–193 s. After the fix, the Outro ends at
+     2:44, and Whisper's second hearing falls in the instrumental tail.
+   - *Caveat:* Verse 1 is 0:27–0:33, because Whisper heard only two of its
+     eight lines. Alignment can't time words that weren't heard.
+
+**Not checked:** a repaint landing in the Editor and being read (PR 3's
+check covers it, since ACE-Step is needed), and the 409 path when another
+job takes the lock first (unit-tested).
