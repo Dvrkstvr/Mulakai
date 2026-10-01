@@ -12,6 +12,8 @@ import { AutoTextarea } from './AutoTextarea';
 import { CustomSelect } from './CustomSelect';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { GenerateButton } from './GenerateButton';
+import { keptTokens, splitScore, sungScore } from './scoreCut';
+import { useScoreSize } from './useScoreSize';
 
 /** The second half of COVER on an engine: what to sing the score as, and GENERATE COVER. BPM /
  * KEY / TIME SIGNATURE / DURATION aren't offered — the score fixes them (PLAN.md point 5). */
@@ -29,7 +31,12 @@ export function YueCoverGenerate({ onBack, blocked, analyze }: { onBack: () => v
   const [error, setError] = useState('');
 
   const caps = info?.capabilities ?? null;
-  const sections = score ? scoreSections(score.abc) : [];
+  const sung = score ? sungScore(score) : '';
+  const sections = scoreSections(sung);
+  const { size } = useScoreSize(engine, score?.abc ?? null);
+  const overBudget = !!score && !!size && keptTokens(size, score.dropped) > size.budget;
+  const leftOut = score?.dropped?.length
+    ? splitScore(score.abc).sections.filter((_, i) => score.dropped!.includes(i)).map((s) => s.name.toUpperCase()) : [];
   const instrumental = !hasWords(lyrics);
   const fromUpload = draft.audio.source === 'upload' && !!score?.transcription;
 
@@ -45,7 +52,7 @@ export function YueCoverGenerate({ onBack, blocked, analyze }: { onBack: () => v
     try {
       await startCover(engine, coverParams(
         { title: title || 'Untitled', prompt, lyrics, vocalLanguage, folderId }, caps, gen,
-        { ...AUTO_CONTROLS, ...controls }, outputParams(), { abc: score.abc, source: score.source },
+        { ...AUTO_CONTROLS, ...controls }, outputParams(), { abc: sung, source: score.source },
       ) as { title: string; prompt: string }, retry);
       const failure = useGenerationStore.getState().job;
       if (failure?.stage === 'failed') {
@@ -68,7 +75,7 @@ export function YueCoverGenerate({ onBack, blocked, analyze }: { onBack: () => v
       <div className="field-label-row">
         <span className="section-label">LYRICS</span>
         {score && sections.length > 0 && (
-          <button type="button" className="tag-guide-btn" onClick={() => patch({ lyrics: fitLyricsToSections(lyrics, score.abc) })}>
+          <button type="button" className="tag-guide-btn" onClick={() => patch({ lyrics: fitLyricsToSections(lyrics, sung) })}>
             <span>FIT TO SCORE</span>
           </button>
         )}
@@ -85,10 +92,11 @@ export function YueCoverGenerate({ onBack, blocked, analyze }: { onBack: () => v
         onChange={(v) => patch({ vocalLanguage: v })} />
 
       <GenerateButton submitting={submitting} blocked={!!genJob} label="GENERATE COVER"
-        disabled={submitting || !!genJob || blocked || unavailable || !score || !caps} onClick={generate} />
+        disabled={submitting || !!genJob || blocked || unavailable || !score || !caps || overBudget} onClick={generate} />
       <div className="hint">
         {info?.label ?? 'YUE2'} melody cover · keeps the source&apos;s melody, not its voice or sound
         {instrumental ? ' · no lyrics: an instrumental, where an instrument plays the melody, followed more loosely' : ''}
+        {leftOut.length ? ` · leaves out ${leftOut.join(', ')}` : ''}
         {' '}· length follows the score · ~95 s per 3-minute song on an RTX 4080 · result will be saved as a new song ·
         later edits use ACE-Step
       </div>

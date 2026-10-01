@@ -46,6 +46,10 @@ class Worker:
         """Only meaningful once ready; the submit routes return 503 before that."""
         return self.pipe is None or self.pipe.fits_plan_budget(abc)
 
+    def count_tokens(self, abc: str) -> int | None:
+        """The score's size in the planner's tokens; None until the pipeline is loaded."""
+        return None if self.pipe is None else self.pipe.count_tokens(abc)
+
     def _main(self) -> None:
         try:
             self.pipe = self._factory()

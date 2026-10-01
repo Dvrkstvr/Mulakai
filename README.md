@@ -158,6 +158,7 @@ Server environment variables, all optional:
 | `HEARTMULA_API_KEY` | — | Bearer key, if heartmula-server was started with one |
 | `YUE_API_URL` | — | YuE2 engine (`yue-server/`, e.g. `http://127.0.0.1:8004`; use `127.0.0.1`, not `localhost`). Empty disables it |
 | `YUE_API_KEY` | — | Bearer key, if the YuE2 server requires one |
+| `COVER_MAX_UPLOAD_MB` | `300` | Largest source a YuE2 cover's TRANSCRIBE accepts (a library WAV is about 23 MB a minute). yue-server's `YUE_MAX_UPLOAD_MB` must be at least this |
 | `DATA_DIR` | `server/data` | SQLite DB + generated audio |
 | `POLL_INTERVAL_MS` | `2000` | Job polling interval |
 | `FFMPEG_PATH` | `ffmpeg` | ffmpeg binary |

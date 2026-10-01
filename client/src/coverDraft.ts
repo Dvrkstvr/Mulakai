@@ -13,6 +13,10 @@ export interface CoverScore {
   transcription: Transcription | null;
   /** The TRANSCRIBE job, whose preview the server proxies; null without one. */
   previewJobId: string | null;
+  /** Sections left out (indexes into the score's `% name` blocks), so a song too long for the
+   * planner can still be covered; `sungScore` builds what is sent (PLAN.md "YuE2 Covers: Pick
+   * the Score's Sections"). */
+  dropped?: number[];
 }
 
 /** The part of COVER's draft slice a source change touches. */

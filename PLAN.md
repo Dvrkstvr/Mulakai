@@ -4160,8 +4160,13 @@ supersede them:
   - Each route family returns 404 for the other kind's ids, so
     `/v1/jobs/{id}` never serves a transcription.
 - **Upload.** `POST /v1/transcriptions` takes a multipart `audio` field,
-  up to `YUE_MAX_UPLOAD_MB` (default 100, the same as Mulakai's multer
-  limit). Over that is a 413, and an empty file a 400.
+  up to `YUE_MAX_UPLOAD_MB` (default 300, the same as Mulakai's
+  `COVER_MAX_UPLOAD_MB`). Over that is a 413, and an empty file a 400.
+  - 2026-10-01: both were 100 MB, which rejected any library WAV (float32
+    stereo, about 23 MB a minute) over about 4.3 minutes. Mulakai's
+    TRANSCRIBE route now answers an oversized file with a JSON 413 and a
+    broken form with a JSON 400, as READ LYRICS does, instead of Express's
+    HTML 500.
   - The file is stored as `uploads/<sha256><ext>`, so a replayed
     `Idempotency-Key` with the same audio matches its digest.
   - Uploads older than the retention window are swept on each submit, and
@@ -5235,3 +5240,120 @@ rewrites the caption into YuE2-style tags.
 - **Is the vocabulary wide enough?** It is hand-written. Once the style
   tag probe exists, its mined counts could show which common caption
   words the extractor misses.
+
+## YuE2 Covers: Pick the Score's Sections (planned 2026-10-01)
+
+A cover of a 7:47 song failed at GENERATE with yue-server's
+"HTTP 422: The score is over YuE2's 4096-token planning budget". Its score
+measured **5,032 tokens**: header 73, intro 646, verse 424, chorus 183,
+**interlude 1,594**, bridge 107, chorus 442, **outro 1,563**. Mulakai only
+learned this at GENERATE, after the transcription and the review. The
+3½-minute song in "ANALYZE AUDIO on COVER · YUE2"'s browser check fit; a
+song roughly twice as long at nearly twice the tempo doesn't.
+
+**Scope decision (the user's, 2026-10-01).** Asked to choose between an
+early warning only, a warning plus section picking, and an automatic trim,
+the user chose **section picking**. That walks back, for whole sections
+only, "Review is listen-and-read, not edit" (covers point 3) and "ABC score
+editing stays out of scope". Note-level editing stays out; USE .ABC FILE
+stays the way to correct notes.
+
+### Decisions
+
+1. **yue-server measures, Mulakai sums.** New `POST /v1/scores/measure`
+   `{abc}` → `{budget, header, sections: [{name, tokens}]}`.
+   - It runs `prepare_score` first, as `/v1/jobs` does, so a file's chord
+     symbols are stripped before counting. A bad score is the same 422.
+   - It counts with the pipeline's own tokenizer, the one the budget check
+     uses. 503 until the worker is ready.
+   - Sections are the `% name` blocks: a line starting with `% ` opens one,
+     and everything before the first is the header. That is the rule
+     `scoreSections` (`coverLyrics.ts`) and yue-server's `section_tags`
+     already use.
+   - **Counts add up exactly.** Qwen's pre-tokenizer never joins text
+     across a line break, and every section starts on a new line. Measured
+     on the failing score, the sections summed to 5,032, the whole score's
+     count. So the client sums the header plus the kept sections, with no
+     second request per click. GENERATE's own check stays as the backstop.
+   - A `yue2-serve` backend has no such route. Mulakai then shows no count
+     and relies on GENERATE's 422, as before.
+2. **Picking happens in the score review, as a section strip.** It reuses
+   the Editor's section-strip idiom (clip-path parallelograms, 3px gaps,
+   flex-weighted), here weighted by tokens.
+   - Kept sections are **sky**: they are the scope of what will be sung.
+     Dropped ones are carbon, struck through. A click toggles one.
+   - The last kept section can't be dropped.
+   - The label row reads `3,469 / 4,096 TOKENS`.
+3. **Over budget is a standing warning.** A `.warn-note` says "5,032 /
+   4,096 tokens — too long for YuE2's planner · leave sections out until it
+   fits", naming the two longest. GENERATE COVER is off until it fits. It
+   is rust because it is a state to resolve, not a failed click.
+4. **The draft keeps the full score plus what's left out.**
+   `CoverScore.dropped: number[]` holds section indexes, and
+   `sungScore(score)` builds the ABC that is sent.
+   - Everything that means "what will be sung" reads `sungScore`: the
+     request, the review's facts (bars, length) and SHOW SCORE, FIT TO
+     SCORE, the section hint, and ANALYZE AUDIO's lyric fit. A score that
+     just landed has nothing left out, so transcribeStore's seeding is
+     unchanged.
+   - The cover's stored score is the trimmed one, so REUSE PROMPT covers
+     the same cut.
+   - The piano preview still plays the whole transcription. A hint says so
+     while sections are left out.
+5. **LYRICS follow when they hold no words.** A wordless outline is
+   re-seeded from the kept sections, so an instrumental's tags match the
+   score. Words are left alone; FIT TO SCORE re-tags them.
+6. **Consequence line**: GENERATE COVER's line gains "· leaves out OUTRO"
+   (the dropped sections) while any are dropped.
+
+### File-level plan
+
+- `yue-server/scores.py`: `split_sections(abc)`.
+- `yue-server/score_routes.py` (new): `POST /v1/scores/measure`.
+- `yue-server/yue_pipeline.py` and `worker.py`: `count_tokens(abc)`.
+  `fits_plan_budget` uses it.
+- `yue-server/main.py`: mount the route.
+- yue-server tests: the split, the route (counts, 422, 503) and the fake
+  pipeline's tokenizer.
+- `server/src/services/engineTranscribeClient.ts` (+ test): `measureScore`.
+- `server/src/routes/engineCovers.ts` (+ test):
+  `POST /api/engines/:id/score-size`.
+- `client/src/scoreCut.ts` (new) + test: `splitScore`, `sungScore`,
+  `scoreTokens`.
+- `client/src/useScoreSize.ts` (new): fetches the measure once per score.
+- `client/src/ScoreSectionStrip.tsx` (new): the strip, the count and the
+  warning.
+- `client/src/coverDraft.ts`: `dropped`.
+- `client/src/YueScoreReview.tsx`, `YueCoverGenerate.tsx`,
+  `YueCoverAnalyze.tsx`: read `sungScore`. GENERATE COVER is off over
+  budget.
+- `client/src/index.css`: the dropped segment and the rust count.
+- `client/src/api/covers.ts`: `scoreSize()` and `ScoreSize`.
+- `docs/design/DESIGN.md`: the strip in the review, in its own commit.
+
+### Browser check (2026-10-01)
+
+This branch's client, server and yue-server ran on a scratch library and
+spare ports against the real YuE2 model, with the GPU otherwise idle. The
+input was the score that failed (via USE .ABC FILE).
+- `POST /api/engines/yue2/score-size` measured it with the real tokenizer:
+  header 73 plus sections, summing to exactly 5,032.
+- **Before the cut:** the strip read `5,032 / 4,096 TOKENS` in rust, the
+  warn-note named the interlude and the outro, and GENERATE COVER was off.
+  The facts read 283 bars, 7:48.
+- **Leaving out the OUTRO:** `3,469 / 4,096 TOKENS`, the warning cleared and
+  GENERATE came on. The hint and the consequence line said "leaves out
+  OUTRO", and the facts read 206 bars, 5:41. The wordless LYRICS outline lost
+  its `[Outro]`, and SHOW SCORE ended before the outro.
+- **GENERATE COVER** was accepted and saved `COVER · YUE2`: 145 BPM,
+  E♭ major, 5:23, not truncated, in about 2½ minutes (8,076 semantic
+  tokens). The stored score holds the six kept sections, so REUSE PROMPT
+  covers the same cut.
+
+### Open questions
+
+- **Should TRANSCRIBE warn before it runs?** A source's length predicts
+  the token count only roughly (tempo and note density matter more), so
+  nothing is said up front.
+- **Cutting inside a section.** A single section over budget (a 4,000-token
+  outro) can't be fixed here. That still needs USE .ABC FILE.
