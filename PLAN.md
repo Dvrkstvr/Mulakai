@@ -5933,3 +5933,47 @@ YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
 - FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
   from the library: all rows disabled, a click on another row ignored,
   search live.
+
+## The Library Loads Without Trying to Play (planned 2026-10-02)
+
+Loading the library at `/` logged two unhandled rejections before any
+click: `NotAllowedError: play() failed because the user didn't interact
+with the document first`. App.tsx always mounts the footer player as
+`useSingleAudioPlayback(src, true)`, and before a song is picked `src` is
+`''`. The hook still made `new Audio('')` and called `void a.play()`; the
+autoplay policy rejected it, and `void` dropped the rejection unhandled.
+StrictMode's double effect pass made it two. PlaybackEngine was not
+involved: its `resume()` rejection was already caught.
+
+### Decisions
+
+1. **No song picked, no element.** An empty `src` opens nothing and never
+   calls `play()`. The footer's PLAY with nothing loaded is a no-op, as
+   before.
+2. **Expected `play()` rejections are caught.** `NotAllowedError` (no
+   gesture yet, e.g. a generation that finishes after a reload loads its
+   song into the footer) and `AbortError` (pause or a new song before
+   playback began) leave the track loaded and paused, PLAY ready. Any
+   other rejection is logged with `console.error`, not swallowed. This
+   covers the footer's autoplay and its PLAY button.
+3. **The effect body moves to `singleTrack.ts`** with an injectable
+   `createAudio`, the same pattern as `createPreviewPlayback`, so node
+   Vitest can test it without a DOM.
+
+### File-level plan
+
+- `client/src/singleTrack.ts` (new): `openTrack` (load, wire events,
+  autoplay; null for an empty src) and `playOrStayPaused`.
+- `client/src/useSingleAudioPlayback.ts`: the `src` effect and `play` go
+  through them.
+- `client/src/singleTrack.test.ts` (new): empty src never plays; a
+  blocked or aborted play stays paused with no unhandled rejection; a
+  real failure is still reported; close unwires.
+
+### Open questions
+
+- `previewPlayback.ts` still calls `void a.play()`. Its plays follow a
+  click, so autoplay is not the risk, but a preview replaced before it
+  starts can still reject with `AbortError`. Not changed here.
+- The Playwright golden path (on `test/playwright-golden-path`, not yet
+  merged) should fail on any `pageerror` so this cannot come back.
