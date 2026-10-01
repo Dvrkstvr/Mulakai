@@ -487,6 +487,19 @@ requiring its own justification against a screen-count rule.
        words isn't generating. A failed read shows a `.warn-note` under the
        label, "couldn't time these lyrics" with RETRY, and the reason on one
        ellipsized line (full text on hover). Nothing else is blocked.
+     - **Lines** (added 2026-10-02): once read, a line that was heard is
+       clickable in the read-only view. Click selects when it's sung as the
+       region, shift-click extends from the last clicked line, and
+       double-click also moves the playhead to the line's start (the same
+       rhythm as the section strip). A line under the 3 s repaint minimum
+       is widened evenly to 3 s, so one line is always repaintable. The
+       clicked lines echo the selection in sky: `sky-tint` with a 2px sky
+       inset edge, one level below the active block's treatment, and only
+       while the selection is still what they made. Hover is
+       `carbon-raised`, never sky (sky means selected, not pointed at). A
+       line that wasn't heard is `text-low`, with "not heard in this take"
+       on hover. Tag lines aren't clickable. Selecting lines doesn't unlock
+       editing; that still takes one whole section.
    - Left settings panel (~210–240px, see below): repaint parameters.
      Permanent, fixed width.
    - **Title row**: song title (bold, 16px) + time/bpm/key/layer-count

@@ -1,5 +1,5 @@
 import { useEffect, useMemo } from 'react';
-import type { SongDetail, Version } from './api';
+import type { SongDetail, Version, WordTimings } from './api';
 import { alignLyrics, tokenize, type LyricAlignment } from './lyricAlign';
 import { groupSections, type Section } from './lyricSections';
 import { sectionTimings } from './timedSections';
@@ -12,6 +12,8 @@ export interface LyricTiming {
   sections: Section[];
   /** The base version's reading aligned to the song's stored LYRICS, once read. */
   alignment: LyricAlignment | null;
+  /** The base version's reading itself, for aligning the draft's lines. */
+  timings: WordTimings | null;
   status: 'idle' | 'reading' | 'failed';
   error?: string;
   retry: () => void;
@@ -57,6 +59,7 @@ export function useLyricTiming(
   return {
     sections,
     alignment,
+    timings,
     status: run?.stage === 'running' ? 'reading' : run?.stage === 'failed' ? 'failed' : 'idle',
     error: run?.error,
     retry: () => { if (versionId) useTimingsStore.getState().retry(versionId); },
