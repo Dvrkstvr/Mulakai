@@ -8,7 +8,10 @@ import type { TranscriptionState } from './engineTranscribeClient.js';
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-transcribe-test-'));
 process.env.POLL_INTERVAL_MS = '5';
 
-const FACTS = { warnings: ['short clip'], measures: 44, vocalNotes: 167, instrumentalNotes: 16, durationSeconds: 140, hasPreview: true };
+const FACTS = {
+  warnings: ['short clip'], measures: 44, vocalNotes: 167, instrumentalNotes: 16, durationSeconds: 140, hasPreview: true,
+  sectionStarts: [{ label: 'intro', bar: 0, seconds: 0.01 }, { label: 'verse', bar: 4, seconds: 12.85 }],
+};
 const client = {
   transcribe: vi.fn(async (..._a: unknown[]) => 'remote-1'),
   transcriptionStatus: vi.fn(async (..._a: unknown[]): Promise<TranscriptionState> => ({ state: 'done', facts: FACTS })),

@@ -7,6 +7,14 @@ import { errorMessage, failure, headers, request, type EngineTarget } from './en
 
 const HEALTH_TIMEOUT_MS = 10_000;
 
+/** Where one of the score's `% label` sections starts in the source, from its downbeats
+ * (PLAN.md "Section start times with a transcription"). `bar` is 0-based. */
+export interface SectionStart {
+  label: string;
+  bar: number;
+  seconds: number;
+}
+
 /** What yue-server reports once a transcription has succeeded (its record's `result`). */
 export interface TranscriptionFacts {
   warnings: string[];
@@ -15,6 +23,8 @@ export interface TranscriptionFacts {
   instrumentalNotes: number | null;
   durationSeconds: number | null;
   hasPreview: boolean;
+  /** Null when yue-server sent none: an older yue-server, or no downbeats to anchor to. */
+  sectionStarts: SectionStart[] | null;
 }
 
 export interface TranscriptionState {
@@ -52,6 +62,16 @@ export async function transcribe(target: EngineTarget, audio: Buffer, filename: 
   return job.id;
 }
 
+function readSectionStarts(raw: unknown): SectionStart[] | null {
+  if (!Array.isArray(raw)) return null;
+  return raw.flatMap((entry) => {
+    const s = (entry ?? {}) as Record<string, unknown>;
+    const bar = num(s.bar);
+    const seconds = num(s.seconds);
+    return typeof s.label === 'string' && bar !== null && seconds !== null ? [{ label: s.label, bar, seconds }] : [];
+  });
+}
+
 function readFacts(result: unknown): TranscriptionFacts {
   const r = (result ?? {}) as Record<string, unknown>;
   return {
@@ -61,6 +81,7 @@ function readFacts(result: unknown): TranscriptionFacts {
     instrumentalNotes: num(r.instrumental_notes),
     durationSeconds: num(r.duration_seconds),
     hasPreview: typeof r.preview_url === 'string',
+    sectionStarts: readSectionStarts(r.section_starts),
   };
 }
 

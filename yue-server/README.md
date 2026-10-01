@@ -233,7 +233,17 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
     it, as `audio/wav`. 404 when the render failed.
   - `result` on success has `score_url`, `preview_url` (or null),
     `warnings` (SheetSage2's own, plus a render failure), `measures`,
-    `vocal_notes`, `instrumental_notes`, `duration_seconds` and `timing`.
+    `vocal_notes`, `instrumental_notes`, `duration_seconds`,
+    `section_starts` and `timing`.
+  - `section_starts` lists the score's `% label` sections in order as
+    `{label, bar, seconds}`, with `bar` 0-based.
+    - `seconds` is that bar's downbeat in SheetSage2's `downbeat.lab`, not
+      the score's tempo grid, which can run a bar late.
+    - A section past the last downbeat is extrapolated on the tempo grid.
+    - It is null when there are no downbeats or no sections; the
+      transcription still succeeds.
+    - Mulakai's READ LYRICS places the words it reads by these times (see
+      `sections.py`).
   - `error` codes: `no_score` (SheetSage2 ran but built no score) and
     `transcription_failed`, each with the last lines of its output.
 - `GET /v1/transcriptions/health` needs no auth. It returns 200

@@ -14,6 +14,9 @@ export interface Transcription {
   instrumentalNotes: number | null;
   durationSeconds: number | null;
   hasPreview: boolean;
+  /** Where each score section starts in the source, from its downbeats; null when the engine
+   * sent none (READ LYRICS then falls back to the score's tempo grid). */
+  sectionStarts: { label: string; bar: number; seconds: number }[] | null;
 }
 
 export const coversApi = {

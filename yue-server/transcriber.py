@@ -19,6 +19,8 @@ import threading
 import time
 from pathlib import Path
 
+from sections import read_downbeats, section_starts
+
 log = logging.getLogger("yue-server")
 
 WINDOW = re.compile(r"^Window (\d+)/(\d+)")
@@ -93,6 +95,11 @@ def _collect(out: Path, returncode: int, tail: str) -> dict:
     if report.get("render_error"):
         facts["warnings"].append(f"No piano preview: {report['render_error']}")
     facts["preview"] = (out / "piano_mix.wav").is_file()
+    try:
+        facts["section_starts"] = section_starts(score.read_text(encoding="utf-8"), read_downbeats(out / "downbeat.lab"))
+    except Exception as error:  # the score itself is fine; READ LYRICS falls back to its tempo grid
+        log.warning("no section start times: %s", error)
+        facts["section_starts"] = None
     if returncode:
         log.warning("SheetSage2 exited %s but wrote a score: %s", returncode, tail)
     return facts

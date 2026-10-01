@@ -302,6 +302,7 @@ describe('GET /:jobId', () => {
     const transcription = {
       score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2', warnings: [], measures: 44, vocalNotes: 167,
       instrumentalNotes: 16, durationSeconds: 140, hasPreview: true,
+      sectionStarts: [{ label: 'intro', bar: 0, seconds: 0.01 }],
     };
     vi.mocked(jobs.getJob).mockReturnValueOnce({ id: 'tr-1', taskId: 't', status: 'done', createdAt: Date.now(), transcription });
     expect(await (await fetch(`${baseUrl}/tr-1`)).json()).toMatchObject({ status: 'done', transcription });

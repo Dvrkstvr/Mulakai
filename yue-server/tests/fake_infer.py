@@ -22,6 +22,7 @@ if mode == "no_score":
     report["abc_error"] = "no beats decoded"
 else:
     (out / "score.abc").write_text("X:1\nK:C\n% verse\nV: Vocal\nC8|\n", encoding="utf-8")
+    (out / "downbeat.lab").write_text("0.5\n2.5\n", encoding="utf-8")
 if mode == "render_fail":
     report["render_error"] = "Could not start the renderer"
 elif mode != "no_score":
