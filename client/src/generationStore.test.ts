@@ -138,13 +138,13 @@ describe('busy messages name the lock holder', () => {
     await useGenerationStore.getState().refreshLock();
     const { job, otherLock } = useGenerationStore.getState();
     expect(otherLock).toEqual({ kind: 'analyze', songId: undefined });
-    expect(busyMessage(job, otherLock)).toBe('ANALYZE AUDIO IS ALREADY RUNNING');
+    expect(busyMessage(job, otherLock)).toBe('WAIT FOR ANALYZE AUDIO');
   });
 
   it("keeps a song generation's own wording, and is null when the lock is free", () => {
-    expect(busyMessage(running, null)).toBe('A GENERATION IS ALREADY RUNNING');
+    expect(busyMessage(running, null)).toBe('WAIT FOR A GENERATION');
     expect(busyMessage({ ...running, stage: 'failed' }, null)).toBeNull();
-    expect(busyMessage(null, { kind: 'repaint' })).toBe('A REPAINT IS ALREADY RUNNING');
+    expect(busyMessage(null, { kind: 'repaint' })).toBe('WAIT FOR A REPAINT');
     expect(busyMessage(null, null)).toBeNull();
   });
 

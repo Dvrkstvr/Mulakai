@@ -6029,15 +6029,16 @@ COVER · ACE-STEP and ARRANGE didn't check the lock at all.
    COVER on both engines, ARRANGE) and ANALYZE AUDIO only checked this
    tab's own song generation, so they fired into a 409. They now also
    read `otherLock`, which `refreshLock`'s existing poll already keeps,
-   and the GENERATE label names the holder: "ANALYZE AUDIO IS ALREADY
-   RUNNING", "A REPAINT IS ALREADY RUNNING", or today's "A GENERATION IS
-   ALREADY RUNNING". One pure helper, `busyMessage(job, otherLock)`.
+   and the GENERATE label names the holder: "WAIT FOR ANALYZE AUDIO",
+   "WAIT FOR A REPAINT", or "WAIT FOR A GENERATION" (formerly "A
+   GENERATION IS ALREADY RUNNING"; see the follow-up below for the
+   wording). One pure helper, `busyMessage(job, otherLock)`.
    - The header pill already reads `ANALYZE · RUNNING` from `/active`.
    - The Editor's BUSY ELSEWHERE already counts any `otherLock`. It
      names the holder too since the follow-up below.
    - A tab's own analysis also shows up as `otherLock` once polled, so
-     its GENERATE reads "ANALYZE AUDIO IS ALREADY RUNNING" too (the
-     server would refuse it). `useAnalyzeSourceAudio` re-polls the lock
+     its GENERATE reads "WAIT FOR ANALYZE AUDIO" too (the server would
+     refuse it). `useAnalyzeSourceAudio` re-polls the lock
      when its call settles, so that clears at once instead of up to one
      poll later.
 
@@ -6078,7 +6079,8 @@ model off a GPU another session was using. Two tabs:
   `/active` reported `kind: analyze, status: running` within a second, and
   the button read ANALYZING….
 - **Tab B, within one poll:** GENERATE was off and read "ANALYZE AUDIO IS
-  ALREADY RUNNING". FEELING LUCKY was off too. The header pill read
+  ALREADY RUNNING" (the wording then; now "WAIT FOR ANALYZE AUDIO").
+  FEELING LUCKY was off too. The header pill read
   `ANALYZE · RUNNING`.
 - **A stale tab's GENERATE** (a direct `POST /api/generate` from tab B):
   409, "an audio analysis is already in progress".
@@ -6097,13 +6099,14 @@ already running elsewhere", was wrong for anything but a generation.
   generation, this tab's editor job, then the polled `otherLock`.
   `busyMessage` now uses it too, so Create and the Editor name the same
   thing.
-- **The Editor says it shorter: "WAIT FOR ANALYZE AUDIO", "WAIT FOR A
+- **The wording is short: "WAIT FOR ANALYZE AUDIO", "WAIT FOR A
   REPAINT", ….** Found in the browser check: Create's full sentence
   ("ANALYZE AUDIO IS ALREADY RUNNING") wrapped to two lines on the rail's
   GENERATE STEMS and REMASTER SONG, and squeezed REPAINT REGION's prompt
   field to a few letters. The longest short form, "WAIT FOR A SIMILAR
-  TAKE", is 23 characters and fits the rail on one line. Create keeps the
-  full sentence, since its buttons are full-width.
+  TAKE", is 23 characters and fits the rail on one line. Create uses the
+  same `waitLabel`, so one wording runs everywhere ("WAIT FOR A
+  GENERATION" replaces "A GENERATION IS ALREADY RUNNING").
 - **The busy rules don't change.** Each panel still decides
   `busyElsewhere` as before (its own job excluded). Only the label and
   the hint change.
@@ -6117,8 +6120,8 @@ already running elsewhere", was wrong for anything but a generation.
   anything but this layer's own take.
 
 Files:
-- `client/src/generationJob.ts`: `lockHolder`, `busyLabel` (Create),
-  `waitLabel` (the Editor); `busyMessage` built on them.
+- `client/src/generationJob.ts`: `lockHolder` and `waitLabel`;
+  `busyMessage` built on them.
 - `client/src/generationJob.test.ts` (new): the holder's order, and that
   a failed job names nothing.
 - `client/src/AddLayerTrigger.tsx`, `RemasterAction.tsx`,
@@ -6152,3 +6155,10 @@ in the Editor in one tab, and ANALYZE AUDIO on COVER in the other.
   REMASTER enabled). The hot reload re-created the store modules under a
   page whose lock-poll interval still held the old ones. A fresh load was
   correct throughout.
+- **Create on `waitLabel` (2026-10-02):** the lock was stubbed in the
+  page (`/api/generate/active` answering `analyze`). That checks only the
+  wording; the lock itself was checked end to end above. PROMPT's
+  GENERATE and COVER's GENERATE COVER read "WAIT FOR ANALYZE AUDIO",
+  disabled, and FEELING LUCKY was off. With the stub cleared, COVER's
+  read GENERATE COVER again within one poll.
+
