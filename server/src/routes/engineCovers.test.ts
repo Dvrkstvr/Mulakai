@@ -3,6 +3,8 @@ import express from 'express';
 import type { Server } from 'node:http';
 import type { SongEngine } from '../services/engines/types.js';
 
+process.env.COVER_MAX_UPLOAD_MB = '1';
+
 const yue: Partial<SongEngine> = { id: 'yue2', label: 'YUE2', url: 'http://127.0.0.1:9000', toCoverRequest: () => ({}) };
 const noCover: Partial<SongEngine> = { id: 'heartmula', label: 'HEARTMULA', url: 'http://127.0.0.1:9001' };
 const unset: Partial<SongEngine> = { ...yue, id: 'yue2' as const, url: '' };
@@ -86,6 +88,24 @@ describe('POST /api/engines/:id/transcribe', () => {
   it('409s while another job holds the lock', async () => {
     startTranscription.mockImplementationOnce(() => { throw new GenLockError(); });
     expect((await transcribe('yue2')).status).toBe(409);
+  });
+
+  it('answers an oversized source with a 413 in JSON, not an HTML 500', async () => {
+    const form = new FormData();
+    form.append('src_audio', new Blob([new Uint8Array(1024 * 1024 + 1)]), 'tanz.wav');
+    const res = await fetch(`${base}/yue2/transcribe`, { method: 'POST', body: form });
+    expect(res.status).toBe(413);
+    expect(await res.json()).toEqual({ error: 'the source is over 1 MB' });
+    expect(startTranscription).not.toHaveBeenCalled();
+  });
+
+  it('answers an unexpected file field with a 400 in JSON', async () => {
+    const form = new FormData();
+    form.append('audio', new Blob([new Uint8Array([1])]), 'a.wav');
+    const res = await fetch(`${base}/yue2/transcribe`, { method: 'POST', body: form });
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toContain('could not read the upload');
+    expect(startTranscription).not.toHaveBeenCalled();
   });
 });
 

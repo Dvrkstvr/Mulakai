@@ -4,10 +4,11 @@
  * it against the planner's budget, then GENERATE a cover from the score as a new song. Mounted under /api/engines; jobs poll
  * through GET /api/generate/:jobId like every other job.
  */
-import { Router, type Response } from 'express';
+import { Router, type RequestHandler, type Response } from 'express';
 import multer from 'multer';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
+import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { getEngine, coverReady } from '../services/engines/registry.js';
 import { startTranscription } from '../services/transcribeJobs.js';
@@ -20,7 +21,9 @@ import { pickCreateFields } from './createFields.js';
 
 export const coversRouter = Router();
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 100 * 1024 * 1024 } });
+const upload = multer({
+  storage: multer.memoryStorage(), limits: { fileSize: config.coverMaxUploadMb * 1024 * 1024 },
+}).single('src_audio');
 /** yue-server's own limit on a supplied score. */
 const MAX_SCORE_BYTES = 65536;
 const PREVIEW_HEADERS = ['content-type', 'content-length', 'content-range', 'accept-ranges'];
@@ -45,12 +48,24 @@ function coverEngine(id: string, res: Response): SongEngine | undefined {
   return engine;
 }
 
+/** multer's own errors (an oversized file, a broken form) would otherwise reach Express's
+ * default handler and come back as an HTML 500 with a stack trace. Same as routes/lyrics.ts. */
+const receiveSource: RequestHandler = (req, res, next) => {
+  upload(req, res, (err: unknown) => {
+    if (!err) return next();
+    if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(413).json({ error: `the source is over ${config.coverMaxUploadMb} MB` });
+    }
+    res.status(400).json({ error: `could not read the upload: ${err instanceof Error ? err.message : String(err)}` });
+  });
+};
+
 function lockOrServerError(res: Response, err: unknown) {
   if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
   res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
 }
 
-coversRouter.post('/:id/transcribe', upload.single('src_audio'), async (req, res) => {
+coversRouter.post('/:id/transcribe', receiveSource, async (req, res) => {
   const engine = coverEngine(String(req.params.id), res);
   if (!engine) return;
   if (!req.file) return res.status(400).json({ error: 'src_audio is required' });
