@@ -13,18 +13,18 @@ the model from disk; if that ever becomes the bottleneck, switching to
 demucs.api.Separator (kept warm at startup) is the fix, once available on PyPI.
 
 Stems are written with soundfile, not demucs' own save_audio: see _save_wav.
+The HTTP layer and the job files' lifecycle live in api.py and job_files.py.
 
 Run: pip install -r requirements.txt && uvicorn main:app --port 8002
 """
 import os
-import uuid
 from pathlib import Path
 
 import soundfile
-from fastapi import FastAPI, UploadFile, File, Request
-from fastapi.staticfiles import StaticFiles
 import demucs.separate
 from demucs.audio import prevent_clip
+
+from api import create_app
 
 _demucs_save_audio = demucs.separate.save_audio
 
@@ -51,26 +51,11 @@ demucs.separate.save_audio = _save_wav
 
 MODEL_NAME = os.environ.get("DEMUCS_MODEL", "htdemucs")
 DATA_DIR = Path(os.environ.get("DEMUCS_DATA_DIR", Path(__file__).parent / "data"))
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-app = FastAPI()
-app.mount("/audio", StaticFiles(directory=DATA_DIR), name="audio")
+# Seconds an unfetched split's files are kept (see job_files.py).
+RESULT_TTL = float(os.environ.get("DEMUCS_RESULT_TTL", "900"))
 
 
-@app.get("/health")
-def health():
-    return {"ok": True, "model": MODEL_NAME}
-
-
-@app.post("/split")
-async def split(request: Request, audio: UploadFile = File(...)):
-    job_id = uuid.uuid4().hex
-    job_dir = DATA_DIR / job_id
-    job_dir.mkdir(parents=True, exist_ok=True)
-
-    src_path = job_dir / f"source{Path(audio.filename or 'audio.mp3').suffix or '.mp3'}"
-    src_path.write_bytes(await audio.read())
-
+def _separate(src_path, job_dir):
     # --filename "{stem}.{ext}" drops demucs' default {track}/ prefix, so
     # output lands directly at job_dir/MODEL_NAME/{stem}.wav - deterministic,
     # no need to know the source track's basename.
@@ -86,14 +71,9 @@ async def split(request: Request, audio: UploadFile = File(...)):
         "--float32",
         str(src_path),
     ])
-    src_path.unlink(missing_ok=True)
-
-    base = str(request.base_url).rstrip("/")
-    model_dir = job_dir / MODEL_NAME
-    urls = {}
     # Demucs' htdemucs stem names (drums/bass/other/vocals) match Mulakai's
     # StemKind set exactly - no renaming needed.
-    for stem_path in model_dir.glob("*.wav"):
-        urls[stem_path.stem] = f"{base}/audio/{job_id}/{MODEL_NAME}/{stem_path.name}"
+    return {p.stem: p for p in (job_dir / MODEL_NAME).glob("*.wav")}
 
-    return {"stems": urls}
+
+app = create_app(_separate, DATA_DIR, MODEL_NAME, RESULT_TTL)

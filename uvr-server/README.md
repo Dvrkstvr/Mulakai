@@ -67,6 +67,8 @@ runs through this service.
 - `UVR_DEMUCS_MODEL`: the pass-2 model (default `htdemucs`). It must be a
   4-stem Demucs model. Only `htdemucs` has been tested.
 - `UVR_DATA_DIR`: where uploads and stems go (default `./data`, gitignored).
+- `UVR_RESULT_TTL`: seconds a split's stems wait to be downloaded before
+  they are deleted anyway (default `900`).
 
 ## Endpoints
 
@@ -75,7 +77,12 @@ runs through this service.
 - `POST /split` takes a multipart `audio` file field and returns
   `{"stems": {"vocals": url, "drums": url, "bass": url, "other": url}}`.
   The URLs are float32 WAVs served from `/audio`. A failed split returns 500
-  with the reason in `detail`.
+  with the reason in `detail` and leaves nothing on disk.
+- `GET /audio/...` serves each stem **once**: the file is deleted after it
+  is sent, and the job's folder goes with its last stem. Stems nobody
+  downloads are swept after `UVR_RESULT_TTL`, at startup and before each
+  split. `job_files.py` does this, and is a copy of
+  `demucs-server/job_files.py`.
 
 ## Tests
 

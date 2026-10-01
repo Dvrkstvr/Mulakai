@@ -5914,7 +5914,8 @@ down ("PREPARING SOURCE…") send one song's audio under the other's key.
 
 - CoverEngineChoice can still switch COVER to ACE-Step mid-job, which
   unmounts the panel but not the job. Its result lands in the draft as
-  before; not changed here.
+  before; not changed here. **Answered 2026-10-02**: the ENGINE row now
+  holds still too (see "COVER's Engine Holds Still Too").
 
 ### Browser check (2026-10-02)
 
@@ -5933,6 +5934,244 @@ YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
 - FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
   from the library: all rows disabled, a click on another row ignored,
   search live.
+
+## COVER's Engine Holds Still Too (planned 2026-10-02)
+
+Answers the open question in "COVER's Source Holds Still While a Job
+Reads It". COVER's ENGINE row stayed live while a job read the source.
+Switching COVER · YUE2 to ACE-STEP mid-TRANSCRIBE unmounted the panel but
+not the job: the score (and the automatic READ LYRICS after it) still
+landed in the draft, under a form that no longer showed them. The other
+way round is the same bug: CreateAudioTab stays mounted across a switch,
+so an ACE-Step ANALYZE AUDIO that finished after a switch to YUE2 wrote
+ACE-Step's PROMPT / LYRICS / BPM / KEY / DURATION into the YUE2 draft.
+
+### Decisions
+
+1. **The ENGINE row is locked while a job whose result lands in this
+   engine's draft runs**: on YUE2, TRANSCRIBE or READ LYRICS (with their
+   PREPARING SOURCE step, and the automatic read after TRANSCRIBE) and
+   ANALYZE AUDIO; on ACE-STEP, ANALYZE AUDIO. Every engine tab is
+   disabled, the selected one included.
+2. **A generation doesn't lock it**, unlike SOURCE. Its result is a
+   library song, not the draft, and its RETRY draft keeps the engine it
+   ran on. Locking it would also hold COVER's engine still while a PROMPT
+   generation runs, with no reason to give.
+3. **The reason is said inline**, under the row, with the same wording as
+   SOURCE's: "ENGINE is locked while TRANSCRIBE runs — its result belongs
+   to this engine's cover". It sits beside the row's existing reason lines
+   (an engine that can't take a job). DESIGN.md's ENGINE entry gets the
+   rule.
+4. **YueCoverPanel renders the ENGINE row on YUE2**, as it does SOURCE,
+   since it holds the job states. `engineLockedBy` is `sourceLockedBy`
+   without the generation, so the two locks name a job the same way.
+
+### File-level plan
+
+- `client/src/coverDraft.ts`: `engineLockedBy`.
+- `client/src/EngineChoice.tsx`: a `lockedBy` prop on `EngineChoice` and
+  `CoverEngineChoice` disables every tab and shows the reason.
+- `client/src/YueCoverPanel.tsx`: renders `CoverEngineChoice` with
+  `engineLockedBy`.
+- `client/src/CreateAudioTab.tsx`: the engine branch drops its own row; the
+  ACE-STEP row is locked while its ANALYZE AUDIO runs.
+- `client/src/coverDraft.test.ts`: `engineLockedBy` names the job in the
+  same priority order as `sourceLockedBy`, and is null when idle.
+- `client/src/EngineChoice.test.tsx` (new): the row renders with every tab
+  enabled when idle, and every tab disabled plus the reason when locked.
+
+### Open questions
+
+- ACE-STEP COVER's own SOURCE picker stays live while its ANALYZE AUDIO
+  runs, and the result is applied whatever the source is by then. Same
+  class of bug, on the source; not changed here. **Answered 2026-10-02**,
+  in the same PR: see "ACE-STEP COVER's Source Holds Still Too".
+
+### Browser check (2026-10-02)
+
+Worktree client on a spare port against the running server, ACE-Step and
+YuE2. COVER · YUE2, hial4 FROM LIBRARY, the row's state logged every
+100 ms:
+
+- TRANSCRIBE: both engine tabs disabled from PREPARING SOURCE on, "ENGINE
+  is locked while TRANSCRIBE runs — its result belongs to this engine's
+  cover" under the row, next to SOURCE's own line. A click on ACE-STEP was
+  ignored (the panel stayed on YUE2). Released when the score landed
+  (about 21 s in), and ACE-STEP was pickable again.
+- ANALYZE AUDIO on YUE2: locked while ANALYZING… (about 80 s, model load
+  included), released after.
+- ANALYZE AUDIO on ACE-STEP: locked while it ran, released when it ended.
+  ACE-Step had gone offline by then, so that run ended in "fetch failed"
+  rather than a result; the lock and its release were still seen.
+
+## ACE-STEP COVER's Source Holds Still Too (planned 2026-10-02)
+
+Answers the open question in "COVER's Engine Holds Still Too", and
+supersedes decision 5 of "COVER's Source Holds Still While a Job Reads
+It" ("the ACE-Step COVER path is unchanged: its only job is GENERATE").
+ACE-STEP COVER has ANALYZE AUDIO too. Its result (PROMPT, LYRICS, BPM,
+KEY, DURATION) was applied to the draft whatever the source was by then,
+so a source picked mid-analysis got the previous one's description.
+GENERATE COVER bounces a library song down before it sends it, so a
+source picked during that bounce was a near miss as well.
+
+### Decisions
+
+1. **ACE-STEP's SOURCE picker takes the same lock as YUE2's**: while ANALYZE
+   AUDIO runs, and while a generation runs (GENERATE COVER's submit with
+   its bounce included, as YUE2's rule counts a running generation). Same
+   disabled tabs, drop zone and rows, same reason line.
+2. **`aceCoverLocks`** gives ACE-STEP COVER's two locks from its two jobs:
+   SOURCE from `sourceLockedBy`, ENGINE from `engineLockedBy` (analysis
+   only, per "COVER's Engine Holds Still Too" decision 2). This replaces
+   the inline `engineLockedBy` call in CreateAudioTab.
+
+### File-level plan
+
+- `client/src/coverDraft.ts`: `aceCoverLocks`.
+- `client/src/CreateAudioTab.tsx`: passes its locks to `CoverEngineChoice`
+  and `CoverSourcePicker`.
+- `client/src/coverDraft.test.ts`: idle locks nothing; ANALYZE AUDIO locks
+  both; a generation locks only SOURCE.
+
+### Browser check (2026-10-02)
+
+The Mulakai server and ACE-Step were both stopped by then, so the
+worktree client ran with `fetch` stubbed in the page for `/api/engines`,
+`/api/generate/models`, and an `/api/generate/analyze-audio` that answers
+a 503 after 4 s. COVER · ACE-STEP, a generated WAV as the upload:
+
+- ANALYZE AUDIO: UPLOAD / FROM LIBRARY, the drop zone, and both engine
+  tabs disabled, with both reason lines ("SOURCE is locked while ANALYZE
+  AUDIO runs…", "ENGINE is locked while…"). Clicks on FROM LIBRARY and
+  YUE2 were ignored: the upload and ACE-STEP stayed. All released when
+  the request ended (the stub's error showed).
+- GENERATE COVER's lock wasn't exercised in the browser (it would have
+  submitted a real generation); `aceCoverLocks` covers it in Vitest.
+
+## RE-EXTRACT Never Touches a Claimed Stem (planned 2026-10-02)
+
+Fixes AUDIT.md #2. Every stem write used the deterministic name
+`${jobId}-${kind}.${ext}`. RE-EXTRACT on a Demucs/UVR split (both sit
+behind `DEMUCS_API_URL` and answer with all four stems) re-ran the full
+pass and wrote all four files again, so a stem already claimed as a
+version (REPLACE or ADD LAYER) had its audio swapped under it, and a
+failed re-run marked claimed stems failed. Two smaller holes sat beside
+it: RE-EXTRACT read the layer's *active* audio, which after a REPLACE is
+the claimed stem itself, not the mix the split began from; and unclaimed
+stem files were never deleted.
+
+### Decisions
+
+1. **Append-only stem files.** Each write gets its own name,
+   `${jobId}-${kind}-${nonce}.${ext}`, so no write can land on a file a
+   version points at. This matches the version model: a claim records a
+   path, and that path's bytes never change.
+2. **A Demucs/UVR RE-EXTRACT keeps only the asked-for stem.** The service
+   still returns all four; the other three are ignored, so their state,
+   files and claims stay as they were.
+3. **RE-EXTRACT reads the split's own source**, the `audio_file` recorded
+   when the split started, not whatever is active on the layer now.
+4. **Unclaimed files are deleted** when a RE-EXTRACT supersedes one, when
+   the split is cancelled (CANCEL SPLIT, a new split replacing it, the
+   ABORT pill), and when a result lands after its job was cancelled.
+   Before deleting, the file is checked against `versions.audio_file`, so
+   a claimed file is never removed even if in-memory state is wrong.
+5. **`stemSplit.ts` is split first** (it was 282 LOC, over the 200 cap):
+   the per-stem runners shared with the scratch split move to
+   `stemRunners.ts`; `stemSplit.ts` keeps the layer-bound job. No client
+   change: unique names also cache-bust the stem preview after a
+   RE-EXTRACT.
+
+### File-level plan
+
+- `server/src/services/stemRunners.ts` (new): stem types, instructions,
+  `runAcestepStem`, `runDemucs` (with a `kinds` filter), unique
+  `stemFilename`, and the unlink-if-cancelled step.
+- `server/src/services/stemSplit.ts`: `sourceFile` on `SplitJob`;
+  `reextractStem` reads it and passes `[kind]` to `runDemucs`, then
+  removes the superseded file; `cancelSplit` removes unclaimed files.
+- `server/src/services/scratchSplitJobs.ts`: import from `stemRunners.ts`.
+- `server/src/services/stemSplit.reextract.test.ts` (new): a Demucs
+  RE-EXTRACT leaves a claimed stem's row and bytes alone and touches no
+  other stem; RE-EXTRACT after REPLACE reads the original source; the
+  superseded file and cancelled unclaimed files are removed, claimed ones
+  kept.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir and
+the running `uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A
+60 s song (hial4) imported, SPLIT with DEMUCS:
+
+- Four stems landed as `<job>-<kind>-<nonce>.flac`. VOCALS → ADD LAYER.
+- RE-EXTRACT DRUMS: only DRUMS read "extracting…". A new drums file
+  landed and the old one was deleted; the claimed vocals file and the
+  bass/other files kept their bytes (sha256 unchanged).
+- CANCEL SPLIT deleted the three unclaimed stems and kept vocals. A second
+  split wrote four files under its own job id.
+- The Vocals layer, soloed and played, loaded the first split's file, and
+  the bytes served to the page matched its original sha256.
+
+## The Library Loads Without Trying to Play (planned 2026-10-02)
+
+Loading the library at `/` logged two unhandled rejections before any
+click: `NotAllowedError: play() failed because the user didn't interact
+with the document first`. App.tsx always mounts the footer player as
+`useSingleAudioPlayback(src, true)`, and before a song is picked `src` is
+`''`. The hook still made `new Audio('')` and called `void a.play()`; the
+autoplay policy rejected it, and `void` dropped the rejection unhandled.
+StrictMode's double effect pass made it two. PlaybackEngine was not
+involved: its `resume()` rejection was already caught.
+
+### Decisions
+
+1. **No song picked, no element.** An empty `src` opens nothing and never
+   calls `play()`. The footer's PLAY with nothing loaded is a no-op, as
+   before.
+2. **Expected `play()` rejections are caught.** `NotAllowedError` (no
+   gesture yet, e.g. a generation that finishes after a reload loads its
+   song into the footer) and `AbortError` (pause or a new song before
+   playback began) leave the track loaded and paused, PLAY ready. Any
+   other rejection is logged with `console.error`, not swallowed. This
+   covers the footer's autoplay and its PLAY button.
+3. **The effect body moves to `singleTrack.ts`** with an injectable
+   `createAudio`, the same pattern as `createPreviewPlayback`, so node
+   Vitest can test it without a DOM.
+
+### File-level plan
+
+- `client/src/singleTrack.ts` (new): `openTrack` (load, wire events,
+  autoplay; null for an empty src) and `playOrStayPaused`.
+- `client/src/useSingleAudioPlayback.ts`: the `src` effect and `play` go
+  through them.
+- `client/src/singleTrack.test.ts` (new): empty src never plays; a
+  blocked or aborted play stays paused with no unhandled rejection; a
+  real failure is still reported; close unwires.
+
+### Open questions
+
+- `previewPlayback.ts` still calls `void a.play()`. Its plays follow a
+  click, so autoplay is not the risk, but a preview replaced before it
+  starts can still reject with `AbortError`. Not changed here.
+- The Playwright golden path (on `test/playwright-golden-path`, not yet
+  merged) should fail on any `pageerror` so this cannot come back.
+
+### Browser check (2026-10-02)
+
+Playwright Chromium, against the e2e harness from
+`test/playwright-golden-path` (fake ACE-Step, real server and client)
+copied in for the run:
+
+- Before the fix, loading `/` on a fresh, empty database: two
+  `pageerror`s, "play() failed because the user didn't interact with
+  the document first".
+- After: none on a fresh load, and none through the whole golden path
+  (generate, repaint, add layer, revert, export) with a `pageerror`
+  guard added to it.
+- Footer still plays: a generated song's row PLAY started it (0:01 /
+  0:12 after about a second), footer PAUSE and PLAY toggled it, with no
+  page errors.
 
 ## Editor Word Timestamps: Click a Lyric Line (planned 2026-10-02)
 

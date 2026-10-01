@@ -43,3 +43,16 @@ export function sourceLockedBy(jobs: { transcribing: boolean; reading: boolean; 
   if (jobs.analyzing) return 'ANALYZE AUDIO';
   return jobs.generating ? 'a generation' : null;
 }
+
+/** What holds COVER's ENGINE choice still, or null: a job whose result lands in this engine's
+ * draft. A generation doesn't — its result is a library song, and its retry keeps the engine. */
+export function engineLockedBy(jobs: { transcribing: boolean; reading: boolean; analyzing: boolean }): string | null {
+  return sourceLockedBy({ ...jobs, generating: false });
+}
+
+/** ACE-STEP COVER's locks: its ANALYZE AUDIO and GENERATE COVER (the bounce of a library song
+ * included) read the source, as YUE2's jobs do; only the analysis lands in the draft. */
+export function aceCoverLocks(jobs: { analyzing: boolean; generating: boolean }): { source: string | null; engine: string | null } {
+  const none = { transcribing: false, reading: false };
+  return { source: sourceLockedBy({ ...none, ...jobs }), engine: engineLockedBy({ ...none, analyzing: jobs.analyzing }) };
+}

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PlaybackApi } from './mix/playerApi';
+import { openTrack, playOrStayPaused } from './singleTrack';
 
 /**
  * Single-track playback behind the same PlaybackApi shape Player.tsx expects
@@ -18,30 +19,16 @@ export function useSingleAudioPlayback(src: string, autoPlay?: boolean): Playbac
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
-    const a = new Audio(src);
-    a.volume = volumeRef.current;
-    audioRef.current = a;
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
-    const onEnded = () => setIsPlaying(false);
-    const onTime = () => setCurrentTime(a.currentTime);
-    const onMeta = () => setDuration(a.duration);
-    a.addEventListener('play', onPlay);
-    a.addEventListener('pause', onPause);
-    a.addEventListener('ended', onEnded);
-    a.addEventListener('timeupdate', onTime);
-    a.addEventListener('loadedmetadata', onMeta);
     setCurrentTime(0);
     setDuration(0);
-    if (autoPlay) void a.play();
-    return () => {
-      a.pause();
-      a.removeEventListener('play', onPlay);
-      a.removeEventListener('pause', onPause);
-      a.removeEventListener('ended', onEnded);
-      a.removeEventListener('timeupdate', onTime);
-      a.removeEventListener('loadedmetadata', onMeta);
-    };
+    const track = openTrack(
+      src,
+      { autoPlay: !!autoPlay, volume: volumeRef.current },
+      { onPlaying: setIsPlaying, onTime: setCurrentTime, onDuration: setDuration },
+      (s) => new Audio(s),
+    );
+    audioRef.current = track?.audio ?? null;
+    return track?.close;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
 
@@ -49,7 +36,7 @@ export function useSingleAudioPlayback(src: string, autoPlay?: boolean): Playbac
     isPlaying,
     currentTime,
     duration,
-    play: () => void audioRef.current?.play(),
+    play: () => { if (audioRef.current) playOrStayPaused(audioRef.current); },
     pause: () => audioRef.current?.pause(),
     stop: () => { const a = audioRef.current; if (a) { a.pause(); a.currentTime = 0; } setCurrentTime(0); },
     seek: (s: number) => { const a = audioRef.current; if (a) a.currentTime = s; setCurrentTime(s); },
