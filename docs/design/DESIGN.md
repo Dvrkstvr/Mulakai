@@ -322,10 +322,12 @@ requiring its own justification against a screen-count rule.
        selected song uses **sky** (selection/scope — same concept as
        focusing a layer in the Editor), not lilac. Below the source picker:
        a description field for the requested change, then a LYRICS + SONG
-       DETAILS block (see below), then GENERATE COVER. DIT MODEL stays
-       enabled in the settings panel; LM MODEL is disabled (`n/a`) since
-       `cover` skips the LM planner, same as Editor's repaint mode
-       (`API.md` §4.2).
+       DETAILS block (see below), then GENERATE COVER. The tab's own MODEL
+       picker (cover-capable models only) is the cover's model, so the
+       settings panel hides DIT MODEL here and gates STEPS, GUIDANCE and
+       ADVANCED on the tab's pick; STEPS, GUIDANCE, SEED and the DiT knobs
+       are sent with the cover. The LM controls are hidden since `cover`
+       skips the LM planner, same as Editor's repaint mode (`API.md` §4.2).
        - *Audio on an engine (YUE2)*: a melody cover sung from a score. The
          flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
          - The SOURCE picker is unchanged, except that it **holds still**
