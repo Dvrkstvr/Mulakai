@@ -6103,3 +6103,21 @@ is client-only.
   knobs, the output block and `wav32`; omits LM/batch/thinking; clamps
   steps to the cover model.
 - `docs/design/DESIGN.md`: the COVER rail line.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports against a scratch data dir, and
+ACE-Step 1.5 on 8001. Create → COVER · ACE-STEP:
+
+- The rail has no DIT MODEL. STEPS reads AUTO (50) with the tab's
+  XL-SFT, then AUTO (8) and GUIDANCE N/A after picking TURBO on the tab.
+  PROMPT still shows DIT MODEL, LM MODEL and the rest.
+- Settings → OUTPUT FORMAT MP3. COVER on ACESTEP-V15-SFT, STEPS 18,
+  GUIDANCE 5, SEED 4242 (random off), source hial4 from the library. The
+  `/from-audio` form carried `inference_steps` 18, `guidance_scale` 5,
+  `seed` 4242, `use_random_seed` false, the DiT knobs, `audio_format`
+  wav32 and the MP3 `output` block. Before, it carried only title,
+  prompt, lyrics, model and `audio_cover_strength`.
+- ACE-Step ran 18/18 diffusion steps and saved a wav32 master. The new
+  song's version stored those params, seed 4242, and its file landed as
+  `.mp3`.
