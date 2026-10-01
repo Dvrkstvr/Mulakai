@@ -334,6 +334,10 @@ requiring its own justification against a screen-count rule.
        enabled in the settings panel; LM MODEL is disabled (`n/a`) since
        `cover` skips the LM planner, same as Editor's repaint mode
        (`API.md` §4.2).
+       The SOURCE picker **holds still** here too (added 2026-10-02), the
+       same way as on YUE2 below: while ANALYZE AUDIO or a generation
+       (GENERATE COVER's submit included) runs, with the same disabled
+       tabs, drop zone and rows and the same reason line.
        - *Audio on an engine (YUE2)*: a melody cover sung from a score. The
          flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
          - The SOURCE picker is unchanged, except that it **holds still**
