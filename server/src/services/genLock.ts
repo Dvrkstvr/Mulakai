@@ -10,10 +10,13 @@
  */
 import type { EngineId } from './engines/types.js';
 
-/** `transcribe` is SheetSage2 reading a cover source's melody (transcribeJobs.ts), and
- * `lyrics` is lyrics-server reading its words (lyricsJobs.ts): small, but neither may run
- * next to an ACE-Step job on a 16 GB card. */
-export type GenKind = 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe' | 'lyrics';
+/** `transcribe` is SheetSage2 reading a cover source's melody (transcribeJobs.ts), `lyrics`
+ * is lyrics-server reading its words (lyricsJobs.ts), and `timings` is lyrics-server reading
+ * a version's words for the Editor (timingsJobs.ts): small, but none may run next to an
+ * ACE-Step job on a 16 GB card. */
+export type GenKind =
+  | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster'
+  | 'transcribe' | 'lyrics' | 'timings';
 
 /** The three ACE-Step tasks that create a whole new song — all held under the single
  * `generate` kind, so this is what tells them apart. Mirrors `songs.gen_task`. */

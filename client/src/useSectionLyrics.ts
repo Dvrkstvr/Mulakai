@@ -1,7 +1,8 @@
 import { useMemo } from 'react';
 import type { Layer, SongDetail } from './api';
 import type { Region } from './Waveform';
-import { groupSections, findActiveSectionIndex } from './lyricSections';
+import { findActiveSectionIndex } from './lyricSections';
+import { useLyricTiming } from './useLyricTiming';
 import { splitLyricsBlocks, matchSectionBlocks } from './lyricsBlocks';
 
 /** The song's sections, the one the selection sits in, and the lyrics block it maps to. */
@@ -11,14 +12,13 @@ export function useSectionLyrics(
   selection: Region | null,
   lyricsDraft: string,
   focusedLayer: Layer | undefined,
+  reload: () => Promise<void>,
 ) {
   // Section structure comes from the base layer's active render (the whole song),
   // not the focused layer — a focused stem shares the song's section timeline.
   const baseActive = song?.layers.find((l) => l.kind === 'base')?.versions.find((v) => v.active);
-  const sections = useMemo(
-    () => groupSections(baseActive?.lyricTimestamps, duration),
-    [baseActive, duration],
-  );
+  const timing = useLyricTiming(song, baseActive, duration, reload);
+  const sections = timing.sections;
   const activeSectionIndex = useMemo(() => findActiveSectionIndex(sections, selection), [sections, selection]);
 
   // Parsed from the live draft (not the stored song.lyrics) so block char-offsets
@@ -32,5 +32,5 @@ export function useSectionLyrics(
   // only gets sent as repaint conditioning) while repainting the base layer.
   const canEditLyrics = focusedLayer?.kind === 'base';
   const lyricsUnlocked = canEditLyrics && activeSectionIndex !== -1;
-  return { sections, activeSectionIndex, lyricsBlocks, activeLyricsBlock, lyricsUnlocked };
+  return { timing, sections, activeSectionIndex, lyricsBlocks, activeLyricsBlock, lyricsUnlocked };
 }

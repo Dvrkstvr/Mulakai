@@ -50,8 +50,8 @@ export function Editor({ songId, onBack }: Props) {
   const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
   const activeVersion = focusedLayer?.versions.find((v) => v.active);
   const duration = song?.duration ?? 0;
-  const { sections, activeSectionIndex, lyricsBlocks, activeLyricsBlock, lyricsUnlocked } =
-    useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer);
+  const { timing, sections, activeSectionIndex, lyricsBlocks, activeLyricsBlock, lyricsUnlocked } =
+    useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer, reload);
 
   const repaint = useRepaintSubmit({
     songId, focusedLayer, selection, prompt, lyricsUnlocked, lyricsDraft, repaintSettings,
@@ -76,6 +76,8 @@ export function Editor({ songId, onBack }: Props) {
           onLyricsDraftChange={setLyricsDraft}
           activeLyricsBlock={activeLyricsBlock}
           lyricsUnlocked={lyricsUnlocked}
+          lyricsTiming={timing}
+          lyricsLines={{ timings: timing.timings, duration, selection, onSelect: setSelection, onSeek: seek }}
           songLyrics={song.lyrics}
           onResizePointerDown={leftWidth.onPointerDown}
         />

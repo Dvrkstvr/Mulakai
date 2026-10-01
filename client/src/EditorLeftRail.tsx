@@ -1,4 +1,6 @@
 import type { LyricsBlock } from './lyricsBlocks';
+import type { LyricTiming } from './useLyricTiming';
+import type { LineSelect } from './LyricsLines';
 import { LyricsPanel } from './LyricsPanel';
 import { SettingsPanel } from './SettingsPanel';
 import { VoicePicker } from './VoicePicker';
@@ -12,6 +14,8 @@ interface Props {
   onLyricsDraftChange: (text: string) => void;
   activeLyricsBlock: LyricsBlock | null;
   lyricsUnlocked: boolean;
+  lyricsTiming: Pick<LyricTiming, 'status' | 'error' | 'retry'>;
+  lyricsLines: LineSelect;
   songLyrics: string;
   onResizePointerDown: (e: React.PointerEvent) => void;
 }
@@ -19,7 +23,7 @@ interface Props {
 /** Editor's left rail: the Add Layer voice picker (while expanded), lyrics, and repaint settings. */
 export function EditorLeftRail({
   addingLayerExpanded, requestAddingLayerExpanded, lyricsBlocks, lyricsDraft, onLyricsDraftChange,
-  activeLyricsBlock, lyricsUnlocked, songLyrics, onResizePointerDown,
+  activeLyricsBlock, lyricsUnlocked, lyricsTiming, lyricsLines, songLyrics, onResizePointerDown,
 }: Props) {
   return (
     <div className="resizable-col">
@@ -36,6 +40,8 @@ export function EditorLeftRail({
           onDraftChange={onLyricsDraftChange}
           activeBlock={activeLyricsBlock}
           unlocked={lyricsUnlocked}
+          timing={lyricsTiming}
+          lines={lyricsLines}
         />
         {/* While Add Layer is active this panel hosts its lyrics editor, so hovering/
             focusing it must keep the Add Layer context alive (same debounced keep-alive
