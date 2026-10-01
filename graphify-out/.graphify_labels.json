@@ -259,6 +259,7 @@
   "257": "Upstream Sync: `complete`/`lego` Skip the LM (planned + implemented 2026-09-30)",
   "258": "UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)",
   "259": "A Failed Editor Job Blocks Nothing (planned 2026-10-01)",
+  "260": "Path",
   "261": "Path",
   "262": "Runner",
   "263": "Path",
@@ -269,7 +270,10 @@
   "268": "FastAPI",
   "269": "FastAPI",
   "270": "Path",
+  "271": "Runner",
   "272": "Exception",
   "273": "JobStore",
-  "274": "Settings"
+  "274": "Settings",
+  "275": "FastAPI",
+  "276": "Path"
 }
