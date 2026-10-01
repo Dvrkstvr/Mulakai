@@ -56,6 +56,13 @@ export function YueCoverAnalyze({ blocked, noModel }: { blocked: boolean; noMode
       {!source && audio.yueScore && <div className="hint">pick a source to analyze — a reused score has no audio</div>}
       {error && <div className="error">{error}</div>}
       {outcome && <div className="hint">{outcomeLine(outcome)}</div>}
+      {outcome?.unsung && (
+        <div className="warn-note">
+          ACE-Step heard the words in {outcome.unsung.toUpperCase()} — {info?.label ?? 'YUE2'} sings{' '}
+          {info?.capabilities.languages === 'any' ? 'any language' : (info?.capabilities.languages ?? []).join(', ').toUpperCase()}
+          {' '}· rewrite LYRICS in one of those, or expect the words to come out garbled
+        </div>
+      )}
       {outcome && caption && (
         <details className="score-abc analysis-caption">
           <summary className="section-label">SHOW DESCRIPTION</summary>

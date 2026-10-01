@@ -50,4 +50,13 @@ describe('yueAnalysisPatch', () => {
     expect(a.patch.vocalLanguage).toBeUndefined();
     expect(a.lyrics).toBe('none');
   });
+
+  it('names a heard language the engine does not sing, once it filled LYRICS with it', () => {
+    const turkish = { ...R, lyrics: '[Verse]\nBeni sorgulayan rüyalar', vocal_language: 'tr' };
+    const a = yueAnalysisPatch(turkish, EMPTY);
+    expect(a).toMatchObject({ lyrics: 'filled', unsung: 'tr' });
+    expect(a.patch.vocalLanguage).toBeUndefined();
+    expect(yueAnalysisPatch(turkish, { ...EMPTY, lyrics: 'my words' }).unsung).toBeUndefined();
+    expect(yueAnalysisPatch({ ...R, vocal_language: 'unknown' }, EMPTY).unsung).toBeUndefined();
+  });
 });

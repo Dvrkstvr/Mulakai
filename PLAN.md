@@ -4884,6 +4884,9 @@ rewrites the caption into YuE2-style tags.
 5. **VOCAL LANGUAGE is filled when AUTO** and the analysis names a
    language YuE2 lists (en, zh). Upstream puts the language first in
    `style`, and the server prefixes it from this control.
+   - When the lyrics it filled are in a language YuE2 doesn't list, a
+     `.warn-note` names it. The browser check's source was sung in Turkish;
+     YuE2 would have been handed Turkish words with nothing saying so.
 6. **Consequence line** (DESIGN.md copy rule), under the button:
    "ACE-Step describes the source · fills an empty PROMPT with its style as
    tags (voice, genre, mood, instruments) and wordless LYRICS with the

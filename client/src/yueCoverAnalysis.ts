@@ -25,6 +25,8 @@ export interface YueAnalysis {
   prompt: 'tags' | 'prose' | 'kept';
   /** `none`: ACE-Step heard no words. */
   lyrics: 'filled' | 'kept' | 'none';
+  /** The language ACE-Step heard, when the filled lyrics are in one the engine doesn't sing. */
+  unsung?: string;
 }
 
 export function yueAnalysisPatch(r: RefineResult, d: YueAnalysisTarget): YueAnalysis {
@@ -41,8 +43,9 @@ export function yueAnalysisPatch(r: RefineResult, d: YueAnalysisTarget): YueAnal
     out.patch.lyrics = d.abc ? fitLyricsToSections(r.lyrics, d.abc) : r.lyrics.trim();
     out.lyrics = 'filled';
   }
-  if (!d.vocalLanguage && r.vocal_language && (d.languages === 'any' || d.languages.includes(r.vocal_language))) {
-    out.patch.vocalLanguage = r.vocal_language;
-  }
+  const lang = r.vocal_language && r.vocal_language !== 'unknown' ? r.vocal_language : '';
+  const sung = !lang || d.languages === 'any' || d.languages.includes(lang);
+  if (!d.vocalLanguage && lang && sung) out.patch.vocalLanguage = lang;
+  if (!sung && out.lyrics === 'filled') out.unsung = lang;
   return out;
 }
