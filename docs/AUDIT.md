@@ -171,15 +171,48 @@ palette is locked. Use a token or add the accent to DESIGN.md properly.
 ## ⚪ Process debt
 
 ### 18. Module-size hard cap (AGENTS.md: 200 LOC) — current violations
-Non-test modules over the cap at snapshot time:
-`client/src/api.ts` 601 · `server/src/services/acestep.ts` 522 ·
-`client/src/settings.ts` 329 · `client/src/Editor.tsx` 318 ·
-`client/src/App.tsx` 318 · `server/src/services/jobs.ts` 289 ·
-`server/src/services/stemSplit.ts` 282 · `server/src/routes/generate.ts` 270 ·
-`server/src/services/repaintJobs.ts` 246 · `client/src/generationStore.ts` 217.
-(`client/src/index.css` is 3,615 lines — same lesson, outside the letter of the
-policy.) An `api.ts` split is in progress; the rest need split plans or explicit
-justifications per AGENTS.md.
+Recounted 2026-10-02 (`wc -l`, every non-test `.ts`/`.tsx` under `client/src`
+and `server/src`; 215 files). Since the 2026-07-31 snapshot `api.ts` (601) was
+split into `client/src/api/` (PR #25) and `generationStore.ts` fell to 188.
+
+**Over the 200 hard cap (8)** — each gets a pure `refactor:` PR splitting it by
+responsibility (no behaviour change; every resulting file ≤150):
+
+| Module | LOC | PR |
+|---|---|---|
+| `server/src/services/acestep.ts` | 539 | #74 (merged) |
+| `client/src/settings.ts` | 329 | #75 (merged) |
+| `client/src/Editor.tsx` | 320 | #82 |
+| `client/src/App.tsx` | 317 | #77 (merged) |
+| `server/src/routes/generate.ts` | 298 | #72 |
+| `server/src/services/jobs.ts` | 283 | #73 (merged) |
+| `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
+| `server/src/services/repaintJobs.ts` | 235 | #71 (merged) |
+
+The split branches merged cleanly together before #81 landed; on that combined
+tree both suites stayed green (client 289, server 407), both builds passed, and
+no non-test module was over the cap. #72 and #82 are rebased onto the fixes that
+touch the same files (#84, #83) once those land. Strike this item once all are in.
+
+**Over the 150 target, under the cap (23, plus `stemRunners.ts` 171 and
+`stemSplit.ts` 165 after #81)** — no action required by policy;
+split opportunistically when a feature touches them:
+`client/src/Waveform.tsx` 195 · `client/src/generationStore.ts` 188 ·
+`server/src/services/lyricTagProbe.ts` 187 · `client/src/CreateArrangeTab.tsx` 182 ·
+`client/src/api/types.ts` 181 · `client/src/SongDetailRail.tsx` 181 ·
+`client/src/lyricTagGuide.ts` 180 · `client/src/editorJobStore.ts` 179 ·
+`client/src/AddLayerTrigger.tsx` 178 · `client/src/VersionHistory.tsx` 175 ·
+`server/src/routes/songs.ts` 174 · `client/src/createDraftStore.ts` 173 ·
+`client/src/previewPlayback.ts` 172 · `client/src/SettingsPanel.tsx` 170 ·
+`server/src/routes/engineCovers.ts` 168 · `client/src/lyricTags.ts` 163 ·
+`client/src/SplitPanel.tsx` 163 · `server/src/services/engineTranscribeClient.ts` 160 ·
+`client/src/ScratchSplitPicker.tsx` 159 · `client/src/CreateView.tsx` 158 ·
+`client/src/CreateAudioTab.tsx` 156 · `client/src/LayerLane.tsx` 155 ·
+`client/src/ShaderCanvas.tsx` 151.
+
+(`client/src/index.css` — same lesson, outside the letter of the policy and out
+of scope here. Vendored third-party code such as `yue-server/upstream/` is not
+ours to split.)
 
 ### 19. ~~No Playwright e2e exists~~ — fixed, PR #87
 AGENTS.md requires one golden-path e2e per phase; none was set up. Now `e2e/`
