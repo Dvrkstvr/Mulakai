@@ -5132,6 +5132,47 @@ is no split step.
   small PR of their own before PR 3. They change `yue-server` and the
   transcription facts, not the lyrics path.
 
+### Section start times with a transcription (2026-10-01)
+
+Spike decision 2: words are placed by time, so PR 3 needs each score
+section's start in seconds. The score's tempo grid can't supply that; it was
+a bar (2.5 s) late on *Purple*. The audio's own downbeats can: score bar *i*
+is downbeat *i* in every spike score.
+
+- **`yue-server/sections.py`** (new, pure) reads the score's `% label`
+  comments and counts bars per section from the Vocal music lines.
+  - It uses the vendored parser's rules: `|`-separated measures, `Z` and
+    `Z2`–`Z4` expanded.
+  - The vendored `abc_tools.py` is upstream's and records no sections, so
+    it is not changed.
+  - It returns `[{label, bar, seconds}]` in score order, where `bar` is
+    0-based and `seconds = downbeats[bar]`.
+- **Edge cases:**
+  - Comments in a row give the earlier sections zero bars, and so the same
+    start time.
+  - A section starting past the last downbeat is extrapolated from the last
+    one on the score's tempo grid. *Tanz*'s closing interlude starts within
+    its downbeats, so no spike score needed it.
+  - `seconds` is rounded to 0.01.
+- **When it's absent:** with no `downbeat.lab`, or a score whose sections
+  can't be read, the result's `section_starts` is `null` and the
+  transcription still succeeds. The client then falls back to the score's
+  tempo grid, warned in PR 3.
+- **`transcriber._collect`** adds `section_starts` to the result facts.
+  The yue-server README documents the field.
+- **Mulakai:**
+  - `engineTranscribeClient.readFacts` maps it to `sectionStarts: {label,
+    bar, seconds}[] | null`, which drops malformed entries and is `null`
+    when absent.
+  - It rides on `TranscriptionFacts`, so a finished TRANSCRIBE job carries
+    it. The client's `Transcription` mirror gains it, unused until PR 3.
+- **Tests:**
+  - `sections.py` gets unit tests: the *Ellies* layout, `Z` rests,
+    comments in a row, extrapolation, and unreadable input.
+  - The fake `infer.py` writes a `downbeat.lab`, and a transcription's
+    result carries the starts.
+  - `readFacts` covers present, absent and malformed input.
+
 ## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
 
 A YuE2 cover needs a style PROMPT: `buildYue2Request` throws "YUE2 needs a
