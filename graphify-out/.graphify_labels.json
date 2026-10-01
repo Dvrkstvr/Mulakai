@@ -282,5 +282,12 @@
   "280": "LibraryMaintenanceSection.tsx",
   "281": "Playwright Golden-Path E2E (planned 2026-10-02)",
   "282": "createDraftStore.test.ts",
-  "283": "GenerateButton.tsx"
+  "283": "GenerateButton.tsx",
+  "284": "Color tokens",
+  "285": "🟡 Resource leaks / unbounded growth",
+  "286": "🔴 High — broken or data-risky behavior",
+  "287": "Motion",
+  "288": "12. Health Check",
+  "289": "1. Authentication",
+  "290": "E2E Fails on Uncaught Page Errors (planned 2026-10-02)"
 }
