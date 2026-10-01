@@ -7,7 +7,7 @@ import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { isGenerating, lockHolder, waitLabel } from './generationJob';
 import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
@@ -53,6 +53,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
   const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'add layer failed') : '');
   const busyElsewhere = splitRunning || (!mine && (genRunning || isEditorBusy(editorJob) || !!otherLock));
+  const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {
@@ -165,9 +166,9 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
             >
               {job === 'running'
                 ? `GENERATING… ${fmtElapsed(elapsedMs)}${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`
-                : busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE'}
+                : busyBy ? waitLabel(busyBy) : 'GENERATE'}
             </button>
-            {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
+            {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
             <ActiveAdapterNote />
           </>
         )}
