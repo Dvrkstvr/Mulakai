@@ -5914,7 +5914,8 @@ down ("PREPARING SOURCE…") send one song's audio under the other's key.
 
 - CoverEngineChoice can still switch COVER to ACE-Step mid-job, which
   unmounts the panel but not the job. Its result lands in the draft as
-  before; not changed here.
+  before; not changed here. **Answered 2026-10-02**: the ENGINE row now
+  holds still too (see "COVER's Engine Holds Still Too").
 
 ### Browser check (2026-10-02)
 
@@ -5933,6 +5934,120 @@ YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
 - FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
   from the library: all rows disabled, a click on another row ignored,
   search live.
+
+## COVER's Engine Holds Still Too (planned 2026-10-02)
+
+Answers the open question in "COVER's Source Holds Still While a Job
+Reads It". COVER's ENGINE row stayed live while a job read the source.
+Switching COVER · YUE2 to ACE-STEP mid-TRANSCRIBE unmounted the panel but
+not the job: the score (and the automatic READ LYRICS after it) still
+landed in the draft, under a form that no longer showed them. The other
+way round is the same bug: CreateAudioTab stays mounted across a switch,
+so an ACE-Step ANALYZE AUDIO that finished after a switch to YUE2 wrote
+ACE-Step's PROMPT / LYRICS / BPM / KEY / DURATION into the YUE2 draft.
+
+### Decisions
+
+1. **The ENGINE row is locked while a job whose result lands in this
+   engine's draft runs**: on YUE2, TRANSCRIBE or READ LYRICS (with their
+   PREPARING SOURCE step, and the automatic read after TRANSCRIBE) and
+   ANALYZE AUDIO; on ACE-STEP, ANALYZE AUDIO. Every engine tab is
+   disabled, the selected one included.
+2. **A generation doesn't lock it**, unlike SOURCE. Its result is a
+   library song, not the draft, and its RETRY draft keeps the engine it
+   ran on. Locking it would also hold COVER's engine still while a PROMPT
+   generation runs, with no reason to give.
+3. **The reason is said inline**, under the row, with the same wording as
+   SOURCE's: "ENGINE is locked while TRANSCRIBE runs — its result belongs
+   to this engine's cover". It sits beside the row's existing reason lines
+   (an engine that can't take a job). DESIGN.md's ENGINE entry gets the
+   rule.
+4. **YueCoverPanel renders the ENGINE row on YUE2**, as it does SOURCE,
+   since it holds the job states. `engineLockedBy` is `sourceLockedBy`
+   without the generation, so the two locks name a job the same way.
+
+### File-level plan
+
+- `client/src/coverDraft.ts`: `engineLockedBy`.
+- `client/src/EngineChoice.tsx`: a `lockedBy` prop on `EngineChoice` and
+  `CoverEngineChoice` disables every tab and shows the reason.
+- `client/src/YueCoverPanel.tsx`: renders `CoverEngineChoice` with
+  `engineLockedBy`.
+- `client/src/CreateAudioTab.tsx`: the engine branch drops its own row; the
+  ACE-STEP row is locked while its ANALYZE AUDIO runs.
+- `client/src/coverDraft.test.ts`: `engineLockedBy` names the job in the
+  same priority order as `sourceLockedBy`, and is null when idle.
+- `client/src/EngineChoice.test.tsx` (new): the row renders with every tab
+  enabled when idle, and every tab disabled plus the reason when locked.
+
+### Open questions
+
+- ACE-STEP COVER's own SOURCE picker stays live while its ANALYZE AUDIO
+  runs, and the result is applied whatever the source is by then. Same
+  class of bug, on the source; not changed here. **Answered 2026-10-02**,
+  in the same PR: see "ACE-STEP COVER's Source Holds Still Too".
+
+### Browser check (2026-10-02)
+
+Worktree client on a spare port against the running server, ACE-Step and
+YuE2. COVER · YUE2, hial4 FROM LIBRARY, the row's state logged every
+100 ms:
+
+- TRANSCRIBE: both engine tabs disabled from PREPARING SOURCE on, "ENGINE
+  is locked while TRANSCRIBE runs — its result belongs to this engine's
+  cover" under the row, next to SOURCE's own line. A click on ACE-STEP was
+  ignored (the panel stayed on YUE2). Released when the score landed
+  (about 21 s in), and ACE-STEP was pickable again.
+- ANALYZE AUDIO on YUE2: locked while ANALYZING… (about 80 s, model load
+  included), released after.
+- ANALYZE AUDIO on ACE-STEP: locked while it ran, released when it ended.
+  ACE-Step had gone offline by then, so that run ended in "fetch failed"
+  rather than a result; the lock and its release were still seen.
+
+## ACE-STEP COVER's Source Holds Still Too (planned 2026-10-02)
+
+Answers the open question in "COVER's Engine Holds Still Too", and
+supersedes decision 5 of "COVER's Source Holds Still While a Job Reads
+It" ("the ACE-Step COVER path is unchanged: its only job is GENERATE").
+ACE-STEP COVER has ANALYZE AUDIO too. Its result (PROMPT, LYRICS, BPM,
+KEY, DURATION) was applied to the draft whatever the source was by then,
+so a source picked mid-analysis got the previous one's description.
+GENERATE COVER bounces a library song down before it sends it, so a
+source picked during that bounce was a near miss as well.
+
+### Decisions
+
+1. **ACE-STEP's SOURCE picker takes the same lock as YUE2's**: while ANALYZE
+   AUDIO runs, and while a generation runs (GENERATE COVER's submit with
+   its bounce included, as YUE2's rule counts a running generation). Same
+   disabled tabs, drop zone and rows, same reason line.
+2. **`aceCoverLocks`** gives ACE-STEP COVER's two locks from its two jobs:
+   SOURCE from `sourceLockedBy`, ENGINE from `engineLockedBy` (analysis
+   only, per "COVER's Engine Holds Still Too" decision 2). This replaces
+   the inline `engineLockedBy` call in CreateAudioTab.
+
+### File-level plan
+
+- `client/src/coverDraft.ts`: `aceCoverLocks`.
+- `client/src/CreateAudioTab.tsx`: passes its locks to `CoverEngineChoice`
+  and `CoverSourcePicker`.
+- `client/src/coverDraft.test.ts`: idle locks nothing; ANALYZE AUDIO locks
+  both; a generation locks only SOURCE.
+
+### Browser check (2026-10-02)
+
+The Mulakai server and ACE-Step were both stopped by then, so the
+worktree client ran with `fetch` stubbed in the page for `/api/engines`,
+`/api/generate/models`, and an `/api/generate/analyze-audio` that answers
+a 503 after 4 s. COVER · ACE-STEP, a generated WAV as the upload:
+
+- ANALYZE AUDIO: UPLOAD / FROM LIBRARY, the drop zone, and both engine
+  tabs disabled, with both reason lines ("SOURCE is locked while ANALYZE
+  AUDIO runs…", "ENGINE is locked while…"). Clicks on FROM LIBRARY and
+  YUE2 were ignored: the upload and ACE-STEP stayed. All released when
+  the request ended (the stub's error showed).
+- GENERATE COVER's lock wasn't exercised in the browser (it would have
+  submitted a real generation); `aceCoverLocks` covers it in Vitest.
 
 ## RE-EXTRACT Never Touches a Claimed Stem (planned 2026-10-02)
 
@@ -6101,8 +6216,8 @@ base takes from the library, then a prototype of the alignment in decision
 
 | Song | Made by | Read | LYRICS words matched | Lines timed |
 | --- | --- | --- | --- | --- |
-| *Ellies City* (2:20) | ACE-Step text2music | 22 s, model load included | 93 / 94 (0.99) | 22 / 22 |
-| *Purple Shinings* (2:00) | YuE2 | 7 s, warm | 81 / 104 (0.78) | 22 / 28 |
+| *Ellies City* (2:20) | ACE-Step text2music | 22 s, model load included | 93 / 94 (0.99) | 20 / 20 |
+| *Purple Shinings* (2:00) | YuE2 | 7 s, warm | 81 / 104 (0.78) | 18 / 24 |
 
 - **Line times are the sung times.** On *Ellies* every line's span runs
   from its first word to its last. Repeated choruses landed on the right
@@ -6161,9 +6276,22 @@ base takes from the library, then a prototype of the alignment in decision
      runs from the earliest to the latest heard word paired with any of
      its tokens (substitutions included, so a misheard first word still
      anchors the start). Lines with no match stay untimed.
-   - It runs against the live LYRICS draft, memoised, so it stays right
-     when a repaint changes the song's lyrics or a revert restores older
-     ones. It needs no server round trip.
+   - **Repeats Whisper heard twice** (found in PR 2's browser check, *Gertar*,
+     YuE2): the outro's last lines were heard twice, and one LYRICS line was
+     paired half with each hearing, so its span ran 153–193 s. Two rules
+     fix it:
+     - On a score tie the traceback skips the *later* heard word, so a line
+       pairs whole with its first hearing.
+     - A line's heard words more than 5 s apart were heard in two places;
+       the cluster with more matched words is the line.
+     - Re-checked on *Ellies*, *Purple* and *Gertar*: no line spans more than
+       10 s, and alignment takes 2–18 ms.
+   - The section strip aligns the song's **stored** LYRICS, not the draft.
+     Aligning the draft would move a section while its unlocked lyrics are
+     being typed, and the panel would re-lock mid-edit. The stored LYRICS
+     change with a repaint or a revert, so the alignment follows them. Line
+     clicks (PR 3) align the draft the read-only panel shows. Neither needs
+     a server round trip.
 4. **Section times come from the aligned lines** and feed the existing
    `groupSections` unchanged (it reads tag lines' starts).
    - A section with sung lines starts where the previous section's last
@@ -6262,7 +6390,12 @@ base takes from the library, then a prototype of the alignment in decision
   `groupSections` memo. It returns sections, line spans and read status.
   `Editor.tsx` is already 320 lines, over the cap; this change keeps its
   net lines at or below today's, and the split it needs is a separate PR.
-- Tests for each pure module and the store.
+- `LyricsPanel.tsx` + `index.css`: the `TIMING…` label, and the failure
+  hint with RETRY. They moved here from PR 3 so a failed read is never
+  silent. DESIGN.md in its own commit.
+- Tests for each pure module and the store. The client has no DOM test
+  setup, so the auto-read rule is a pure `shouldAutoRead` in the store,
+  tested there.
 
 **PR 3 — client: click a lyric line** (`feat/editor-word-timestamps-lines`,
 on PR 2):
@@ -6271,7 +6404,7 @@ on PR 2):
   `LyricsPanel.tsx`.
 - `lineSelection.ts` (new, pure): line span(s) → region, with the 3 s
   widening and clamping. Tested.
-- `LyricsPanel.tsx`: the `TIMING…` label, the failure hint with RETRY.
+- `LyricsPanel.tsx`: renders `LyricsLines` when locked.
 - `index.css`: the line styles.
 - DESIGN.md in its own commit.
 - Browser check: an engine song (no ACE-Step timings) opens, reads, gets a
@@ -6293,6 +6426,82 @@ on PR 2):
   clip its first syllable, add a fixed lead-in to line selections.
 - **Add Layer vocals.** A vocal layer has its own lyrics. Reading that
   layer's version would time them the same way. Not in v1.
+- **The lock's generic copy.** While a read runs, REPAINT REGION shows BUSY
+  ELSEWHERE with "a generation is already running elsewhere". That line is
+  shared by every lock kind; naming the kind ("lyric timings are being
+  read") would be clearer, and is a change for all kinds at once.
+
+### Browser check, PR 2 (2026-10-02)
+
+**Setup:** the user's app was stopped by then. Worktree server on 3041
+with a scratch copy of the library DB (SQLite `backup()`, read-only
+on the original) and three audio files; a lyrics-server copy on 8045 from
+the main checkout's venv; the worktree client on 5195. The GPU was checked
+idle before each read.
+
+1. **A YuE2 song, no ACE-Step timings** (*Purple Shinings*): opening it
+   started the read on its own. The header showed `TIMINGS · RUNNING`, the
+   panel `LYRICS · TIMING…`, and REPAINT REGION waited (BUSY ELSEWHERE).
+   It took 11 s with a cold model load. A section strip appeared, INTRO …
+   OUTRO, with `[Rhodes piano melody]` folded into INTRO.
+2. **CHORUS** selected 0:45–1:03: the first sung word is at 46.6 s, less
+   the 1 s lead-in after a wordless `[Humming]`. Its block unlocked, and
+   typing in it kept the section selected and the block unlocked (sections
+   align the stored LYRICS).
+3. **A repaint version** (*Unmoving*, read during PR 1's check): a strip
+   with no new read. Before this PR it had none.
+4. **A read that fails** (*Gertar*, its audio absent from the scratch
+   copy): "couldn't time these lyrics" with RETRY, and the reason on one
+   line.
+   - **It found a layout bug:** the first version put the reason inline,
+     and a long path pushed RETRY out of the panel over the repaint bar.
+     Fixed with the reason on its own ellipsized line.
+5. **RETRY,** with the audio copied in: the read ran (11 s) and the strip
+   appeared.
+   - **It found the repeat bug** described under decision 3: "Die Welt
+     dreht laut …" spanned 153–193 s. After the fix, the Outro ends at
+     2:44, and Whisper's second hearing falls in the instrumental tail.
+   - *Caveat:* Verse 1 is 0:27–0:33, because Whisper heard only two of its
+     eight lines. Alignment can't time words that weren't heard.
+
+**Not checked:** a repaint landing in the Editor and being read (PR 3's
+check covers it, since ACE-Step is needed), and the 409 path when another
+job takes the lock first (unit-tested).
+
+### Browser check, PR 3 (2026-10-02)
+
+Same setup as PR 2's.
+
+1. ***Purple Shinings*, read:** 18 lines clickable. The 6 lines that
+   weren't sung ("(Mmm Mmm Mmm)" ×4, the outro's "In the shadows" ×2) are
+   `text-low`.
+   - **It found a bug:** tag lines inside a block (`[Rhodes piano melody]`,
+     `[Humming]`) were drawn as unheard lyrics. Tags now render as before.
+2. **Click** "Neon signs and silhouettes": the region, the scope chip and
+   the line's sky echo all read 0:27–0:32, and REPAINT REGION came on
+   ("will save as BASE v2").
+3. **Shift-click** two lines down: 0:27–0:42, with the three sung lines
+   echoed and the unsung "(Mmm)" between them not. No stray text
+   selection.
+4. **A short line** ("Clandestine and free", 0:56.8–0:58.6): widened to
+   0:56–0:59, repaintable.
+5. **Double-click** "Concrete jungle breathing slow": the playhead moved to
+   its start (about 68.8 s), and the 2.7 s line was widened to 1:08–1:11.
+6. **CHORUS in the strip** afterwards: the line echo went away and the
+   block unlocked for editing, as before.
+7. **A new active version gets read:** with ACE-Step offline, no real
+   repaint could land. REVERT (SEL) on *Unmoving*'s first take did the same
+   job: a new active version with no reading. The read started on its own
+   (`TIMINGS · RUNNING`), took 13 s, rebuilt the strip, and timed 17 of 18
+   lines.
+
+**Not checked:** a real repaint landing (ACE-Step was offline; step 7 runs
+the same path) and keyboard Enter on a focused line (it calls the same
+handler as a click).
+
+`Editor.tsx` grew by one line, to 321: the `lines` prop. It was 320 before
+this work, over the 200 cap; splitting it is its own PR.
+
 
 ## The Newest Library Search Wins (planned 2026-10-02)
 
