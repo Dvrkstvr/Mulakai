@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { api, ApiError, type StemResult } from './api';
 import { useRemasterResult } from './remasterResult';
-import { isEditorBusy, type EditorJob, type SplitJobState } from './editorJob';
+import { isEditorBusy, type SingleEditorJob, type SplitJobState } from './editorJob';
 
 export { isEditorBusy, myEditorJob } from './editorJob';
 
 interface EditorJobState {
-  editorJob: EditorJob | null;
+  editorJob: SingleEditorJob | null;
+  /** The open split session, if any. Its own slot, because it outlives its lock: once the
+   * stems settle the server is free, but the stems stay up for REPLACE/ADD LAYER. */
+  splitJob: SplitJobState | null;
   dismiss: () => void;
   startRepaint: (layerId: string, songId: string, params: { prompt: string; start: number; end: number } & Record<string, unknown>) => Promise<void>;
   startRegenerate: (layerId: string, songId: string, versionId: string) => Promise<void>;
@@ -14,7 +17,7 @@ interface EditorJobState {
   startAddLayer: (songId: string, mixAudio: Blob, params: { prompt: string; layerName: string } & Record<string, unknown>) => Promise<void>;
   startRemaster: (songId: string, mixAudio: Blob, model: string, opts: { audioFormat: string; steps: number }) => Promise<void>;
   startSplit: (layerId: string, songId: string, model: 'acestep' | 'demucs') => Promise<void>;
-  /** Abandons the current split session (CANCEL SPLIT) — releases the store slot and
+  /** Abandons the current split session (CANCEL SPLIT) — releases the split slot and
    * tells the server to stop tracking it, same semantics as the old component-local flow. */
   cancelSplit: () => Promise<void>;
   /** Merges a fresh stem (e.g. after RE-EXTRACT or a claim) into the split session in
@@ -35,12 +38,12 @@ type Setter = (partial: Partial<EditorJobState> | ((s: EditorJobState) => Partia
 async function runSingleJob(
   set: Setter,
   get: () => EditorJobState,
-  provisional: EditorJob,
+  provisional: SingleEditorJob,
   submit: () => Promise<{ jobId: string }>,
-  onDone?: (job: EditorJob) => void,
+  onDone?: (job: SingleEditorJob) => void,
 ): Promise<void> {
   // One editor job at a time — mirrors the server's genLock. A failed one is just replaced.
-  if (isEditorBusy(get().editorJob)) return;
+  if (isEditorBusy(get().editorJob) || selectSplitRunning(get())) return;
   set({ editorJob: provisional });
   let jobId: string;
   try {
@@ -79,6 +82,7 @@ async function runSingleJob(
 
 export const useEditorJobStore = create<EditorJobState>((set, get) => ({
   editorJob: null,
+  splitJob: null,
   dismiss: () => set({ editorJob: null }),
 
   startRepaint: (layerId, songId, params) => runSingleJob(
@@ -115,24 +119,27 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
   },
 
   startSplit: async (layerId, songId, model) => {
-    if (isEditorBusy(get().editorJob)) return;
+    const prev = get().splitJob;
+    if (isEditorBusy(get().editorJob) || selectSplitRunning(get())) return;
     const stems: StemResult[] = (['vocals', 'drums', 'bass', 'other'] as const).map((kind) => ({ kind, status: 'running' }));
     const provisional: SplitJobState = { kind: 'split', jobId: '', songId, layerId, splitJobId: '', stems, startedAt: Date.now(), stage: 'running' };
-    set({ editorJob: provisional });
+    set({ splitJob: provisional });
+    // A settled session (SplitPanel said so first) is closed on the server; a failed one never started there.
+    if (prev?.splitJobId) void api.cancelSplit(prev.splitJobId).catch(() => {});
     let splitJobId: string;
     try {
       ({ jobId: splitJobId } = await api.startSplit(layerId, model));
     } catch (err) {
-      set((s) => (s.editorJob === provisional ? { editorJob: { ...provisional, stage: 'failed', error: errMsg(err) } } : {}));
+      set((s) => (s.splitJob === provisional ? { splitJob: { ...provisional, stage: 'failed', error: errMsg(err) } } : {}));
       return;
     }
     const job: SplitJobState = { ...provisional, jobId: splitJobId, splitJobId };
-    set((s) => (s.editorJob === provisional ? { editorJob: job } : {}));
+    set((s) => (s.splitJob === provisional ? { splitJob: job } : {}));
+    const isThis = (s: EditorJobState) => s.splitJob?.splitJobId === splitJobId;
 
     for (;;) {
       await new Promise((r) => setTimeout(r, POLL_MS));
-      const current = get().editorJob;
-      if (!current || current.kind !== 'split' || current.splitJobId !== splitJobId) return; // cancelled/superseded
+      if (!isThis(get())) return; // cancelled/superseded
       let result: Awaited<ReturnType<typeof api.splitStatus>>;
       try {
         result = await api.splitStatus(splitJobId);
@@ -141,28 +148,32 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
         // tab) — stemSplit.ts's cancelSplit deletes it outright, so unlike other job
         // kinds there's no "aborted" status to poll for. Any other error is transient.
         if (err instanceof ApiError && err.status === 404) {
-          set((s) => (s.editorJob?.kind === 'split' && s.editorJob.splitJobId === splitJobId ? { editorJob: null } : {}));
+          set((s) => (isThis(s) ? { splitJob: null } : {}));
           return;
         }
         continue;
       }
-      set((s) => (s.editorJob?.kind === 'split' && s.editorJob.splitJobId === splitJobId
-        ? { editorJob: { ...s.editorJob, stems: result.stems, stage: result.status === 'done' ? 'done' : 'running' } }
+      set((s) => (isThis(s) && s.splitJob
+        ? { splitJob: { ...s.splitJob, stems: result.stems, stage: result.status === 'done' ? 'done' : 'running' } }
         : {}));
       // Keeps polling indefinitely (not just until the first "done") so a later RE-EXTRACT — which
       // flips one stem back to 'running' server-side — is picked up too. The session only ends via
-      // cancelSplit(), which clears `editorJob` and makes the guard above return on the next tick.
+      // cancelSplit() or a new split, either of which makes the guard above return on the next tick.
     }
   },
 
   cancelSplit: async () => {
-    const job = get().editorJob;
-    if (job?.kind !== 'split') return;
-    set({ editorJob: null });
-    await api.cancelSplit(job.splitJobId).catch(() => {});
+    const job = get().splitJob;
+    if (!job) return;
+    set({ splitJob: null });
+    if (job.splitJobId) await api.cancelSplit(job.splitJobId).catch(() => {});
   },
 
-  patchSplitStem: (stem) => set((s) => (s.editorJob?.kind === 'split'
-    ? { editorJob: { ...s.editorJob, stems: s.editorJob.stems.map((x) => (x.kind === stem.kind ? stem : x)) } }
+  patchSplitStem: (stem) => set((s) => (s.splitJob
+    ? { splitJob: { ...s.splitJob, stems: s.splitJob.stems.map((x) => (x.kind === stem.kind ? stem : x)) } }
     : {})),
 }));
+
+/** Whether a split holds the server's lock: its first pass, or a RE-EXTRACT, is still running.
+ * A settled split session blocks nothing — see PLAN.md "A Settled Split Blocks Nothing". */
+export const selectSplitRunning = (s: Pick<EditorJobState, 'splitJob'>): boolean => s.splitJob?.stage === 'running';

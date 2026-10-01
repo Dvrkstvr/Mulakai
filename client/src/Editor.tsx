@@ -20,7 +20,7 @@ import { useMainTransportGuard } from './previewPlayback';
 import { useHeaderSlot } from './HeaderSlot';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
-import { useEditorJobStore, myEditorJob, isEditorBusy } from './editorJobStore';
+import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
 import { useResizableWidth } from './useResizableWidth';
 import { ResizeHandle } from './ResizeHandle';
 
@@ -52,6 +52,7 @@ export function Editor({ songId, onBack }: Props) {
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
+  const splitRunning = useEditorJobStore(selectSplitRunning);
   const startRepaint = useEditorJobStore((s) => s.startRepaint);
   const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
   // The repaint job belonging to *this* layer, if any — survives navigating away and back
@@ -60,9 +61,9 @@ export function Editor({ songId, onBack }: Props) {
   const job: 'idle' | 'running' = myRepaint?.stage === 'running' ? 'running' : 'idle';
   const startedAt = myRepaint?.startedAt ?? null;
   const error = myRepaint?.stage === 'failed' ? (myRepaint.error ?? 'repaint failed') : '';
-  // A song generating in the Library, or a *different* editor action already running,
-  // both hold the same global lock (see server genLock.ts) — either one blocks repaint here too.
-  const busyElsewhere = !myRepaint && (genRunning || isEditorBusy(editorJob) || !!otherLock);
+  // A song generating in the Library, a *different* editor action or a split extracting all
+  // hold the same global lock (see server genLock.ts) — any one blocks repaint here too.
+  const busyElsewhere = splitRunning || (!myRepaint && (genRunning || isEditorBusy(editorJob) || !!otherLock));
 
   const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
   useEffect(() => { reload(); }, [reload]);
@@ -116,14 +117,14 @@ export function Editor({ songId, onBack }: Props) {
     setFocusedLayerId(song.layers.find((l) => l.kind === 'base')?.id ?? song.layers[0]?.id ?? null);
   }, [song, focusedLayerId]);
 
-  // If this song already has a remaster or split running (e.g. the user left mid-job and came
-  // back), jump straight to the rail that shows it instead of defaulting to History — otherwise
-  // the job is invisibly still running behind a rail the user isn't looking at. Runs once per
-  // song load, not on every editorJob tick, so manually switching rails afterward still sticks.
+  // If this song already has a remaster running or a split open (e.g. the user left mid-job and
+  // came back), jump straight to the rail that shows it instead of defaulting to History — otherwise
+  // the job is invisibly still there behind a rail the user isn't looking at. Runs once per song
+  // load, not on every job tick (hence getState), so manually switching rails afterward sticks.
   useEffect(() => {
-    if (!song || editorJob?.songId !== song.id) return;
-    if (editorJob.kind === 'remaster') setRailMode('export');
-    else if (editorJob.kind === 'split') { setRailMode('split'); setFocusedLayerId(editorJob.layerId); }
+    const { editorJob: job, splitJob } = useEditorJobStore.getState();
+    if (song && job?.songId === song.id && job.kind === 'remaster') setRailMode('export');
+    else if (song && splitJob?.songId === song.id) { setRailMode('split'); setFocusedLayerId(splitJob.layerId); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song?.id]);
 

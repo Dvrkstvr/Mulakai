@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, type Layer, type StemKind } from './api';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
-import { useEditorJobStore, myEditorJob, isEditorBusy } from './editorJobStore';
+import { useEditorJobStore, isEditorBusy } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
@@ -18,9 +18,10 @@ interface Props {
  * Right-rail split view — pick a backend, extract stems, then per-stem
  * preview/replace/add-layer/re-extract. Swaps into the rail in place of
  * history (see ExportPanel.tsx for the sibling view this mirrors). The
- * extraction session itself lives in editorJobStore.ts, not local state, so
- * navigating to the Library and back (or to a different layer and back)
- * reconnects to the same stems instead of losing them. Stem playback goes
+ * extraction session itself lives in editorJobStore.ts's `splitJob` slot, not
+ * local state, so navigating to the Library and back (or to a different layer
+ * and back) reconnects to the same stems instead of losing them. Once settled it
+ * blocks nothing else; only a new split elsewhere replaces it. Stem playback goes
  * through the shared previewPlayback slot via AudioPreview.
  */
 export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
@@ -31,13 +32,16 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
+  const splitJob = useEditorJobStore((s) => s.splitJob);
   const startSplit = useEditorJobStore((s) => s.startSplit);
   const cancelSplitJob = useEditorJobStore((s) => s.cancelSplit);
   const patchSplitStem = useEditorJobStore((s) => s.patchSplitStem);
-  const mine = myEditorJob(editorJob, 'split', { layerId: layer.id });
-  const stems = mine?.stems ?? null;
+  const mine = splitJob?.layerId === layer.id ? splitJob : null;
+  const stems = mine && mine.stage !== 'failed' ? mine.stems : null; // a failed start offers GENERATE STEMS again
   const extracting = mine?.stage === 'running';
-  const busyElsewhere = !mine && (genRunning || isEditorBusy(editorJob) || !!otherLock);
+  const otherSplit = splitJob && !mine ? splitJob : null;
+  // While extracting, the lock is this split's own; otherwise anything holding it blocks a start or RE-EXTRACT.
+  const busyElsewhere = !extracting && (genRunning || isEditorBusy(editorJob) || otherSplit?.stage === 'running' || !!otherLock);
   const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
 
   useEffect(() => {
@@ -50,7 +54,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
     else if (health.demucs) setModel('demucs');
   }, [health, model]);
 
-  const canSubmit = !!model && !!health?.[model] && !mine && !busyElsewhere;
+  const canSubmit = !!model && !!health?.[model] && !stems && !busyElsewhere;
 
   const generate = async () => {
     if (!canSubmit || !model) return;
@@ -133,6 +137,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
             {busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE STEMS'}
           </button>
           {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
+          {!busyElsewhere && otherSplit?.stage === 'done' && <div className="hint">starting closes the open split on another layer — its unclaimed stems are discarded</div>}
         </>
       ) : (
         <>
@@ -152,7 +157,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
           ))}
         </>
       )}
-      {error && <div className="error">{error}</div>}
+      {(error || mine?.stage === 'failed') && <div className="error">{error || mine?.error || 'split failed'}</div>}
     </div>
   );
 }
