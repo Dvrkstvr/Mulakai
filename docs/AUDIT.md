@@ -22,24 +22,49 @@
   elsewhere; now JSON-encoded client-side and parsed server-side — PR #21.
 - No timeout on any ACE-Step fetch: a hung socket held the global genLock forever.
   Now `AbortSignal.timeout` everywhere + 3-strike poll tolerance — PR #22.
+- Demucs/UVR RE-EXTRACT rewrote every stem file, including ones already claimed as
+  versions. Stem files are now append-only (unique names), a re-extract keeps only its
+  own stem and reads the split's original source, and unclaimed files are deleted on
+  supersede/cancel — PR #81 (was #2).
+- Playback never ended: no `onended` on any source, so the Editor stayed "playing"
+  with `currentTime()` growing past the song forever. The longest layer's end now
+  stops the engine at the duration (play again restarts from 0), guarded by a
+  per-start generation token so manual pause/seek/restart/reload can't trip it —
+  PR #85 (was #1).
+- demucs-server ran each split inside `async def`, so `/health` read the service as
+  down mid-job, and every split's files stayed on disk forever. `/split` now runs in
+  the threadpool, failed splits remove their job dir, and each stem is deleted once
+  downloaded or swept after a TTL; uvr-server had the same leak — PR #80 (was #3).
+- No Playwright e2e existed. `e2e/` now runs PLAN.md Phase 10's golden path
+  (generate → repaint → add layer → revert → export) through the real client and
+  server against a fake ACE-Step, on a throwaway data dir (`npm run test:e2e`) —
+  PR #87 (was #19).
+- Editor failures were silent: a failed song load sat on "Loading…" forever, and lane
+  rename/volume/mute/solo, REVERT and the song detail rail's saves dropped their
+  errors. Each now shows a rust `.error` line (RETRY for a load or refresh), and a
+  volume drag sends one PATCH at a time, latest value wins — PR #83 (was #4).
 
 ## 🔴 High — broken or data-risky behavior
 
-### 1. Playback never ends
+### 1. ~~Playback never ends~~ — fixed, PR #85
 `client/src/mix/playbackEngine.ts` — no `onended` on any `AudioBufferSourceNode`;
 after the last buffer plays out, `playing` stays true and `currentTime()` grows past
 `duration` forever. Play button shows pause forever; elapsed readout runs on.
 - **Fix:** arm `onended` on the longest source (or compare `currentTime() >= duration`)
   and flip to stopped. Add the missing playbackEngine test.
 
-### 2. Demucs re-extract silently overwrites already-claimed stems
+### 2. ~~Demucs re-extract silently overwrites already-claimed stems~~ — fixed, PR #81
 `server/src/services/stemSplit.ts` — `reextractStem('demucs')` re-runs the full
 4-stem pass with deterministic `${job.id}-${kind}.${ext}` filenames, clobbering the
 on-disk audio of stems already claimed as versions. The doc comment ("keeps only
 this stem's output") describes behavior the code doesn't implement. Unclaimed stem
 files are also never deleted (`cancelSplit` only drops the in-memory job).
 
-### 3. demucs-server blocks its event loop and leaks disk
+### 3. ~~demucs-server blocks its event loop and leaks disk~~ — fixed, PR #80
+`/split` is now a sync `def` (threadpool, one at a time); failed splits remove
+their job dir; each stem is deleted once downloaded, unfetched ones are swept
+after `DEMUCS_RESULT_TTL`. uvr-server had the same disk leak; fixed there too.
+
 `demucs-server/main.py` — `demucs.separate.main(...)` runs inside `async def`,
 freezing the loop for the whole split (so `/health` reports the service down
 mid-job); no try/finally around the split (a corrupt upload leaks the source file
@@ -48,7 +73,7 @@ split retained forever, publicly served.
 - **Fix:** make handlers sync `def` (FastAPI threadpool), add try/finally cleanup,
   add a TTL sweep or delete-after-claim.
 
-### 4. Silent failures across the Editor — ✅ fixed 2026-10-02 (`fix/editor-silent-failures`)
+### 4. ~~Silent failures across the Editor~~ — fixed, PR #83
 - `client/src/Editor.tsx` — `reload()` is `catch(() => {})`: a failed song load is a
   permanent "Loading…" spinner with no error and no way out but Back.
 - `client/src/LayerLane.tsx` — rename/volume/mute/solo PATCHes have no catch;
@@ -150,19 +175,57 @@ palette is locked. Use a token or add the accent to DESIGN.md properly.
 ## ⚪ Process debt
 
 ### 18. Module-size hard cap (AGENTS.md: 200 LOC) — current violations
-Non-test modules over the cap at snapshot time:
-`client/src/api.ts` 601 · `server/src/services/acestep.ts` 522 ·
-`client/src/settings.ts` 329 · `client/src/Editor.tsx` 318 ·
-`client/src/App.tsx` 318 · `server/src/services/jobs.ts` 289 ·
-`server/src/services/stemSplit.ts` 282 · `server/src/routes/generate.ts` 270 ·
-`server/src/services/repaintJobs.ts` 246 · `client/src/generationStore.ts` 217.
-(`client/src/index.css` is 3,615 lines — same lesson, outside the letter of the
-policy.) An `api.ts` split is in progress; the rest need split plans or explicit
-justifications per AGENTS.md.
+Recounted 2026-10-02 (`wc -l`, every non-test `.ts`/`.tsx` under `client/src`
+and `server/src`; 215 files). Since the 2026-07-31 snapshot `api.ts` (601) was
+split into `client/src/api/` (PR #25) and `generationStore.ts` fell to 188.
 
-### 19. No Playwright e2e exists
-AGENTS.md requires one golden-path e2e per phase; none is set up (no dependency,
-no config, no `test:e2e` script).
+**Over the 200 hard cap (8)** — each gets a pure `refactor:` PR splitting it by
+responsibility (no behaviour change; every resulting file ≤150):
+
+| Module | LOC | PR |
+|---|---|---|
+| `server/src/services/acestep.ts` | 539 | #74 (merged) |
+| `client/src/settings.ts` | 329 | #75 (merged) |
+| `client/src/Editor.tsx` | 320 | #82 |
+| `client/src/App.tsx` | 317 | #77 (merged) |
+| `server/src/routes/generate.ts` | 298 | #72 |
+| `server/src/services/jobs.ts` | 283 | #73 (merged) |
+| `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
+| `server/src/services/repaintJobs.ts` | 235 | #71 (merged) |
+
+The split branches merged cleanly together before #81 landed; on that combined
+tree both suites stayed green (client 289, server 407), both builds passed, and
+no non-test module was over the cap. #72 and #82 are rebased onto the fixes that
+touch the same files (#84, #83) once those land. Strike this item once all are in.
+
+**Over the 150 target, under the cap (23, plus `stemRunners.ts` 171 and
+`stemSplit.ts` 165 after #81)** — no action required by policy;
+split opportunistically when a feature touches them:
+`client/src/Waveform.tsx` 195 · `client/src/generationStore.ts` 188 ·
+`server/src/services/lyricTagProbe.ts` 187 · `client/src/CreateArrangeTab.tsx` 182 ·
+`client/src/api/types.ts` 181 · `client/src/SongDetailRail.tsx` 181 ·
+`client/src/lyricTagGuide.ts` 180 · `client/src/editorJobStore.ts` 179 ·
+`client/src/AddLayerTrigger.tsx` 178 · `client/src/VersionHistory.tsx` 175 ·
+`server/src/routes/songs.ts` 174 · `client/src/createDraftStore.ts` 173 ·
+`client/src/previewPlayback.ts` 172 · `client/src/SettingsPanel.tsx` 170 ·
+`server/src/routes/engineCovers.ts` 168 · `client/src/lyricTags.ts` 163 ·
+`client/src/SplitPanel.tsx` 163 · `server/src/services/engineTranscribeClient.ts` 160 ·
+`client/src/ScratchSplitPicker.tsx` 159 · `client/src/CreateView.tsx` 158 ·
+`client/src/CreateAudioTab.tsx` 156 · `client/src/LayerLane.tsx` 155 ·
+`client/src/ShaderCanvas.tsx` 151.
+
+(`client/src/index.css` — same lesson, outside the letter of the policy and out
+of scope here. Vendored third-party code such as `yue-server/upstream/` is not
+ours to split.)
+
+### 19. ~~No Playwright e2e exists~~ — fixed, PR #87
+AGENTS.md requires one golden-path e2e per phase; none was set up. Now `e2e/`
+holds Playwright plus a fake ACE-Step (`e2e/fake-acestep/`), and `npm run
+test:e2e` drives PLAN.md Phase 10's path (generate → repaint a region → add a
+layer → revert a version → export) through the real client and server on a
+throwaway data dir. `.github/workflows/e2e.yml` runs it on every PR into
+`main`. Still open: per-phase edge-case specs (PLAN.md "Playwright
+Golden-Path E2E", open questions).
 
 ### 20. Untested critical modules
 `server/src/routes/`: songs (main flows beyond cover-art), layers, remaster,
@@ -174,4 +237,4 @@ referenceAudioResolve. `client/src`: `mix/playbackEngine.ts`,
 ---
 
 **Suggested next PRs:** #1 (playback end — small, user-visible), #2 (stem
-overwrite — data loss), #3 (demucs-server hygiene). #4 is fixed.
+overwrite — data loss), #4 (silent editor failures), #3 (demucs-server hygiene).
