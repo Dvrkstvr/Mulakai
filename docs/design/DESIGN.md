@@ -374,6 +374,36 @@ requiring its own justification against a screen-count rule.
            not transcribed*; after a run, a line says what was filled and a
            collapsed SHOW DESCRIPTION block (same idiom as SHOW SCORE) keeps
            the full prose, so a dropped phrase can be put back by hand.
+         - **READ LYRICS** (added 2026-10-01) reads the words *sung* in the
+           source into LYRICS. ANALYZE AUDIO only describes them.
+           - **Place:** an acid *outline* in the score-actions row, between
+             TRANSCRIBE and USE .ABC FILE. It is live once a source is
+             picked, before any score.
+           - **Shown only when set up:** it doesn't render at all unless the
+             server has a lyrics reader configured (the no-row-until-available
+             rule). One that is configured but not answering leaves it
+             disabled, with a reason line.
+           - **While running:** it reads `READING LYRICS…`, plain like
+             TRANSCRIBE, and the two disable each other.
+           - **Consequence line:** "READ LYRICS reads the words sung in the
+             source into LYRICS · placed under the score's sections by when
+             they're sung · about 10 seconds · nothing is saved to your
+             library".
+           - **Placement:** each line goes under the section it was sung in.
+             Lines in sections left out of the strip are dropped, and the
+             outcome line counts them.
+           - **Following the score:** while LYRICS still hold exactly what it
+             wrote, they follow TRANSCRIBE AGAIN and the strip's toggles with
+             no new read. An edit makes them the user's.
+           - **Replacing typed words:** LYRICS holding the user's own words
+             are replaced only after the FEELING LUCKY two-step. The button
+             arms as `REPLACE LYRICS? CONFIRM`, with a hint naming what goes.
+           - **Warnings:** each is a `.warn-note`, a state to resolve, not a
+             failed click.
+             - A score without downbeat times (a file, a reused cover) gets
+               its sections timed on the tempo grid.
+             - A heard language the engine doesn't sing is named, as with
+               ANALYZE AUDIO.
      - *Arrange*: same shape as Audio but for `complete` — a **SOURCE**
        sub-choice (UPLOAD SINGLE TRACK / SPLIT A SONG, the latter reusing
        `ScratchSplitPicker`'s stem picker), a description field, LYRICS +
@@ -746,8 +776,8 @@ sweep as the result types in underneath, `ThinkingWipe.tsx` /
 `useThinkingQuery.ts`); and COVER/ARRANGE's ANALYZE AUDIO button while
 ACE-Step's LM describes the source (`AnalyzeAudioButton.tsx`, on every
 engine — it has worn the shader since it was added, and is listed here
-now so the list is complete). TRANSCRIBE stays plain: SheetSage2 reads
-notes, it doesn't describe or generate.
+now so the list is complete). TRANSCRIBE and READ LYRICS stay plain: SheetSage2 reads
+notes and lyrics-server reads words; neither describes or generates.
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
 keeps the strict one-hue-per-job rule — if a future feature wants to reuse
