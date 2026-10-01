@@ -6,6 +6,7 @@ import { useEditorJobStore, isEditorBusy } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
+import { useLookup } from './lookup';
 
 interface Props {
   songId: string;
@@ -25,7 +26,6 @@ interface Props {
  * through the shared previewPlayback slot via AudioPreview.
  */
 export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
-  const [health, setHealth] = useState<{ acestep: boolean; demucs: boolean } | null>(null);
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [error, setError] = useState('');
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
@@ -44,9 +44,8 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const busyElsewhere = !extracting && (genRunning || isEditorBusy(editorJob) || otherSplit?.stage === 'running' || !!otherLock);
   const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
 
-  useEffect(() => {
-    api.splitHealth().then(setHealth).catch(() => setHealth({ acestep: false, demucs: false }));
-  }, []);
+  const healthLookup = useLookup(api.splitHealth);
+  const health = healthLookup.data;
 
   useEffect(() => {
     if (model || !health) return;
@@ -111,7 +110,11 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
       {!stems ? (
         <>
           <div className="hint">will extract vocals, drums, bass, and other as new stems from "{layer.name}"</div>
-          {health === null ? (
+          {healthLookup.error ? (
+            <div className="error">
+              couldn't check split backends — {healthLookup.error} <button onClick={healthLookup.retry}>RETRY</button>
+            </div>
+          ) : health === null ? (
             <span className="meta">checking available backends…</span>
           ) : (
             <div className="type-tabs">
