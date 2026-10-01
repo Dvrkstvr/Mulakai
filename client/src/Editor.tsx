@@ -214,6 +214,7 @@ export function Editor({ songId, onBack }: Props) {
               activeBlock={activeLyricsBlock}
               unlocked={lyricsUnlocked}
               timing={timing}
+              lines={{ timings: timing.timings, duration, selection, onSelect: setSelection, onSeek: seek }}
             />
             {/* While Add Layer is active this panel hosts its lyrics editor, so hovering/
                 focusing it must keep the Add Layer context alive (same debounced keep-alive
