@@ -4802,6 +4802,256 @@ land in order.
   service is most of the 2026-07-08 lyric-timestamp to-do. Plan that
   separately, or fold it in?
 
+### Cover lyrics spike results (2026-10-01)
+
+**Verdict: go ahead, with faster-whisper large-v3 on the unseparated mix.**
+- It reads sung words well enough to fix rather than retype: mean WER
+  0.14 on the mix.
+- It places lines in the right score section 0.90–0.97 of the time.
+- It needs no vocal split. That drops the split's 43–88 s per song, leaving
+  3–15 s of ASR.
+- HeartTranscriptor did worse (0.29 on separated vocals, unusable on one
+  mix), emits no segment timestamps, and its word timings only run at
+  beam 1. ACE-Step's `analyze_audio` does not transcribe at all.
+
+Run on Windows (RTX 4080 16 GB) against the running app's services. The
+card was checked idle before each GPU run, and one model ran at a time.
+
+**Sources.** Four ACE-Step songs from the library, with their stored lyrics
+as the reference:
+- *Ellies City 2*: trip-hop, female, en, 140 s, 94 words.
+- *Purple Shinings*: dream pop, female, en, 177 s, 93 words.
+- *Tanz im Loop*: techno, processed male vocal, de, 384 s, 462 words. It is
+  the densest lyrics in the library, and German, which HeartTranscriptor
+  doesn't list.
+- *Unmoving*: ambient, whispery female, en, 213 s, 79 words. Its first
+  take is used, not the later repaint.
+
+Each was split through `uvr-server` (BS-Roformer). That took 50, 43, 88 and
+51 s, warm.
+
+**Setup.**
+- **HeartTranscriptor-oss** (rev `918f8891`, now in
+  `S:\AI Gen\heartlib\ckpt\HeartTranscriptor-oss`, 3.06 GB) ran in
+  heartlib's venv: torch 2.6.0+cu126, Transformers 4.57.0. It used
+  `HeartTranscriptorPipeline` with the example's settings: fp16, beam 2,
+  temperature fallback, 30 s chunks, batch 16.
+- **faster-whisper** 1.2.1 (CTranslate2 4.8.2) ran in a scratch Python 3.11
+  venv: `Systran/faster-whisper-large-v3`, rev `edaa852e`, fp16.
+  - On Windows, CTranslate2 needs the cuBLAS and cuDNN 9 DLLs from the
+    `nvidia-cublas-cu12` and `nvidia-cudnn-cu12` wheels on `PATH`.
+- **`analyze_audio`** ran on the running ACE-Step (xl-sft + 4B LM).
+- **WER** is jiwer 4.0. Both sides are normalised the same way: `[tags]`
+  and balanced `(…)`/`（…）` removed, lowercase, apostrophes dropped, other
+  punctuation turned into spaces.
+
+**WER** (mix · separated vocals; lower is better):
+
+| Candidate, settings | Ellies | Purple | Tanz (de) | Unmoving | Mean |
+| --- | --- | --- | --- | --- | --- |
+| HeartTranscriptor, heartlib settings, language auto | 0.17 · 0.27 | 0.33 · 0.33 | 0.31 · 0.25 | 1.78 · 0.43 | 0.65 · 0.32 |
+| HeartTranscriptor, language given | 0.17 · 0.26 | 0.37 · 0.24 | 0.24 · 0.27 | 1.95 · 0.38 | 0.68 · 0.29 |
+| HeartTranscriptor, word timings (beam 1, temp 0, batch 1) | 0.21 · 0.60 | 0.35 · 0.31 | 0.56 · 0.34 | 2.28 · 0.35 | 0.85 · 0.40 |
+| faster-whisper, library defaults, language auto | 0.19 · 0.18 | 1.14 · 0.73 | 0.48 · 0.46 | 0.82 · 1.00 | 0.66 · 0.59 |
+| faster-whisper, library defaults, language given | 0.13 · 0.14 | 0.14 · 0.70 | 0.41 · 0.75 | 0.16 · 1.00 | 0.21 · 0.65 |
+| **faster-whisper, `condition_on_previous_text=False`** | 0.14 · 0.15 | 0.14 · 0.37 | 0.23 · 0.30 | 0.06 · 0.16 | **0.14** · 0.25 |
+| … plus `word_timestamps=True` | 0.14 · 0.23 | 0.16 · 0.33 | 0.22 · 0.30 | 0.05 · 0.18 | **0.14** · 0.26 |
+| … plus Silero VAD | 0.69 · 0.18 | 1.00 · 0.35 | 0.37 · 0.24 | 1.00 · 0.70 | 0.76 · 0.37 |
+| ACE-Step `analyze_audio` | 1.01 · 1.24 | 1.09 · 0.97 | 1.05 · 1.18 | 0.95 · 1.05 | 1.02 · 1.11 |
+
+- **The bold rows are deterministic.** A repeat run, and a run with the
+  language auto-detected instead of given, matched them to the third
+  decimal. Auto-detect was right on all 8 inputs (en ×6, de ×2).
+- **The library defaults are not stable.** Giving the language it had
+  already detected correctly moved Purple's mix from 1.14 to 0.14. The
+  repetition loops' temperature fallback is random, so that is not the
+  language's effect.
+- **The reference is a little noisy.** Substitutions that faster-whisper
+  and HeartTranscriptor make identically are only 1–4% of reference words.
+  Those are where ACE-Step sang something else.
+  - *Ellies*: "Crashing signs", "Under the shadows", "Anonymous never
+    sleeps". ACE-Step's own stored `lyric_timestamps` for that take read
+    "Crash and signs … Under the shadows".
+  - *Tanz*: the reference has typos ("einoid", "meinrt", "getrafft"), and
+    the song sings one more chorus than it lists.
+  - So the true WER is a few points lower than the table's.
+- **Would I fix or retype?** Fix. The winner's *Ellies* mix comes back as
+  the right lines in the right order:
+  - "Midnight city streets are wet / Crashing signs and silhouettes /
+    Crashing walking through the urban maze / …".
+  - The edits are single words, plus deleting a hallucinated last line.
+  - *Tanz* at 0.22 reads the same way, in German: "Leg die Kai in die Tüte
+    und das Hirn ins System / Verlasse meinen Körper, ich will
+    durchgehen / …".
+
+**Failures and quirks found.**
+- **HeartTranscriptor emits no timestamps.** Every result is one chunk with
+  `start`/`end` of `None` ("Whisper did not predict an ending timestamp").
+  The fine-tune dropped timestamp tokens.
+- **Its word timings are fragile.** They come from the inherited
+  cross-attention `alignment_heads`.
+  - In Transformers 4.57 they crash (`_extract_token_timestamps`,
+    IndexError) with beam 2 or with temperature fallback. They only run at
+    beam 1, temperature 0.
+  - At heartlib's batch 16, they filled the 16 GB card and stalled; that
+    run was stopped. Batch 1 works.
+  - Its first word absorbs the intro ("Midnight" 0.0–12.0 s).
+- **HeartTranscriptor hallucinates.**
+  - Chinese translation lines are interleaved on *Ellies*' vocals and on
+    *Tanz*. Passing the language through the pipeline brought the same
+    Chinese passages back on all three inputs.
+  - YouTube outros: "Thank you for listening! Please, like, Share, and
+    Subscribe!".
+  - Repetition loops: "be still" ×40 on *Unmoving*'s mix, hence WER 1.8–2.3.
+- **faster-whisper's defaults loop on separated vocals.** Insertions were
+  0.53–0.58 on *Purple* and *Tanz*, and it wrote "Thank you for watching!"
+  ×8 over *Unmoving*'s whispered vocal stem. Turning
+  `condition_on_previous_text` off fixes this.
+- **VAD drops whispered singing and most of a mix.** Not for v1.
+- **Every Whisper run invents 1–3 lines over the instrumental tail.**
+  Examples: "Thanks for watching!", "Untertitelung des ZDF, 2020", "Bis zum
+  nächsten Mal." They are counted in the WER above.
+  - Dropping whole-window (≥ 25 s) segments removes most of them. It also
+    drops real lines (a first segment that absorbs the intro), so
+    `lyrics-server` needs a known-phrase list plus `no_speech_prob`.
+- **`analyze_audio` makes up new lyrics.** For *Ellies*' mix it wrote
+  French lyrics ("Dieu, mort, vie, c'est le même chemin"). WER is about
+  1.0 on all 8 inputs.
+
+**Speed and VRAM** (warm; model load from a warm file cache; VRAM is the
+card's peak over idle):
+
+| | Load | ASR per song (140 / 177 / 384 / 213 s) | VRAM |
+| --- | --- | --- | --- |
+| faster-whisper, winner settings, mix | 2.8 s | 3.0 / 2.7 / 12.4 / 3.1 s | 4.3–5.6 GB across the logged faster-whisper runs (the winner's own run wasn't logged) |
+| HeartTranscriptor, heartlib settings, vocals | 1.4 s | 6.6 / 4.2 / 14.9 / 4.1 s | up to 12.5 GB (allocated 3.8–7.8 GB, grows with length) |
+| HeartTranscriptor, word timings, batch 1 | 1.2 s | 10–52 s | 4.0–4.6 GB |
+| `analyze_audio` | resident | 27–83 s | 10.3–11.3 GB |
+| `uvr-server` split (not needed by the winner) | resident | 50 / 43 / 88 / 51 s | — |
+
+A cold load (about 3 GB from disk) was not measured.
+
+**Section placement** (point 2). The scores are the SheetSage2 ones from
+"Cover spike results" for *Ellies* and *Purple*. *Tanz* was transcribed the
+same way (`--melody-only`, 43 s wall).
+
+- **The score's bar grid vs the audio.** Each section's start was computed
+  as first downbeat + bars × (60 / Q × beats per bar), then compared with
+  that bar's time in `downbeat.lab`.
+  - Score bar *i* is downbeat *i* in all three scores. *Ellies* has 44
+    bars and 44 downbeats, *Purple* 65 and 65. *Tanz* has 240 bars for 221
+    downbeats; its last 19 bars are the closing interlude.
+  - *Ellies*: within 0.04 s on every section.
+  - *Tanz*: 0.00 s on all 14.
+  - *Purple*: 2.52–2.58 s late on every section after the intro.
+    SheetSage's first downbeat interval is a 0.35 s fragment (0.01 → 0.36
+    s), and the score counts it as a full bar.
+- **Where lines land.** The truth is ACE-Step's stored per-line
+  `lyric_timestamps`, mapped to each ASR segment through the text
+  alignment. *Purple* has no stored timings.
+  - Some segments aligned to a different repeat of a chorus line, more than
+    20 s away. They were skipped as ambiguous: 12–14 on *Tanz*, 1 on
+    *Ellies*.
+  - Results for faster-whisper, winner settings plus word timestamps, mix
+    and vocals:
+
+    | Placement | Ellies | Tanz |
+    | --- | --- | --- |
+    | segment midpoint | 0.90 · 0.95 | 0.95 · 0.94 |
+    | **median of the segment's word midpoints** | 0.90 · 0.95 | **0.97 · 0.97** |
+    | segment cut at section starts, by word | 0.83 · 0.86 | 0.89 · 0.90 |
+
+  - **Lines start before the downbeat.** Cutting at section starts is worse
+    because sung lines start on a pickup: "Die Stadt liegt still" is sung
+    at 62.8–64.1 s, and its verse starts at 64.0 s. So a line stays whole.
+  - **The median fixes the first line.** Placing by the median word fixes a
+    first segment whose start absorbs the intro (*Tanz*'s "Leg die KI …",
+    0.0–15.3 s).
+  - The remaining misses are long merged segments at a boundary.
+  - *Purple* (no truth timings) was compared with exact-downbeat placement
+    instead. It matched 0.89–0.95, entirely because of the 2.5 s grid
+    error.
+- **Order-based fitting can't serve ASR output.** An ASR returns no tags,
+  so `fitLyricsToSections` sees one block and puts every word under the
+  first sung section. Time placement is required for ASR text, not just
+  better.
+- **The score's labels match the song's own tags only 0.36–0.75 of the
+  time.** *Purple*'s choruses came out as "verse". This is SheetSage's
+  labelling, the same under any placement, and the cover follows the
+  score's tags anyway ("Cover spike results").
+
+**What changes in the decisions above.**
+- **1 · Model:** faster-whisper large-v3, fp16, beam 5,
+  `condition_on_previous_text=False`, `word_timestamps=True`.
+  HeartTranscriptor is not used.
+- **2 · Placement:**
+  - Each segment is kept whole and placed by the median of its words'
+    midpoints.
+  - Section start times come from `downbeat.lab`, not Q × bars.
+    `yue-server` returns each section's start in seconds with the
+    transcription. That is `downbeats[bar0]`; score bar *i* is downbeat
+    *i*.
+  - `placeSegmentsInSections(segments, sectionStarts)` replaces
+    `(segments, abc, offsetSeconds)`.
+- **3 · Consequence line:** there is no separation step any more, so it
+  becomes "reads the words sung in the source into LYRICS · about 10
+  seconds · nothing is saved to your library" (exact wording in PR 3).
+- **4 · The job:**
+  - It sends the source mix straight to the ASR, with no split call.
+  - It still holds the genLock: the same model peaked at 4.3–5.6 GB.
+  - `lyrics-server` drops Whisper's known outro hallucinations before
+    returning segments.
+- **5 · Where it runs:** a `lyrics-server/` of its own (faster-whisper).
+  - `heartmula-server` is not touched.
+  - The model is MIT-licensed and about 3 GB.
+  - The README covers the cuBLAS/cuDNN wheels on Windows.
+- **6 · Language:** holds. VOCAL LANGUAGE is passed when set, and
+  auto-detect otherwise.
+- **7 · Scope:** `stems=vocals` on `uvr-server` is not needed.
+
+**Answers to the open questions.**
+- **Where bar 1 sits:** at the first downbeat, which was 0.00–0.01 s in all
+  three scores.
+  - The tempo grid holds to 0.04 s when the first bar is whole.
+  - It is a bar off (2.5 s) when SheetSage starts on a fragment (*Purple*).
+  - Neither "score start = audio start" nor a single offset is safe.
+    `yue-server` returns per-section start seconds from `downbeat.lab`
+    (point 2 above).
+- **Automatic for uploads:** the cost objection is gone.
+  - ASR on the mix is 3–15 s per song after a 3 s load, with no split. That
+    is well under a minute.
+  - Running it with TRANSCRIBE when LYRICS is empty is now a reasonable
+    default, with READ LYRICS kept to re-read. This is a product call for
+    PR 3's review.
+  - It would also add about 5.5 GB of load after SheetSage, one after the
+    other under the lock.
+- **Beyond YuE2 covers:** worth widening after v1. ACE-Step COVER's ANALYZE
+  AUDIO lyrics are not the song's words (WER about 1.0, once in another
+  language), so READ LYRICS would give that tab real words for the first
+  time.
+- **Word timestamps for the Editor:**
+  - The winner already produces word timings, at no extra time (21 s vs
+    26 s over all four mixes).
+  - `lyrics-server` should return words from day one.
+  - The Editor's lyric-timestamp to-do still gets its own plan, since it
+    touches the Editor, but it needs no new service.
+
+**Caveats.**
+- Four songs, all ACE-Step-made: clean, centred, synthetic vocals. A dense
+  commercial mix is unmeasured, and the vocals stem might win there. PR 3's
+  browser check uses one real upload, and the vocals path stays a fallback
+  to measure, not a v1 feature.
+- Single runs. The winner was shown to be deterministic; the other rows may
+  move between runs.
+
+**Cleanup.**
+- The scratch venv, the faster-whisper model cache, the audio copies and
+  the four `uvr-server` job folders were removed, along with the WSL temp
+  transcription.
+- HeartTranscriptor's weights (3.06 GB) are still in
+  `S:\AI Gen\heartlib\ckpt\HeartTranscriptor-oss`. Nothing uses them now,
+  and they can be deleted.
+
 ## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
 
 A YuE2 cover needs a style PROMPT: `buildYue2Request` throws "YUE2 needs a
