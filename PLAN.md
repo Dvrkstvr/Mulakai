@@ -5933,3 +5933,52 @@ YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
 - FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
   from the library: all rows disabled, a click on another row ignored,
   search live.
+
+## RE-EXTRACT Never Touches a Claimed Stem (planned 2026-10-02)
+
+Fixes AUDIT.md #2. Every stem write used the deterministic name
+`${jobId}-${kind}.${ext}`. RE-EXTRACT on a Demucs/UVR split (both sit
+behind `DEMUCS_API_URL` and answer with all four stems) re-ran the full
+pass and wrote all four files again, so a stem already claimed as a
+version (REPLACE or ADD LAYER) had its audio swapped under it, and a
+failed re-run marked claimed stems failed. Two smaller holes sat beside
+it: RE-EXTRACT read the layer's *active* audio, which after a REPLACE is
+the claimed stem itself, not the mix the split began from; and unclaimed
+stem files were never deleted.
+
+### Decisions
+
+1. **Append-only stem files.** Each write gets its own name,
+   `${jobId}-${kind}-${nonce}.${ext}`, so no write can land on a file a
+   version points at. This matches the version model: a claim records a
+   path, and that path's bytes never change.
+2. **A Demucs/UVR RE-EXTRACT keeps only the asked-for stem.** The service
+   still returns all four; the other three are ignored, so their state,
+   files and claims stay as they were.
+3. **RE-EXTRACT reads the split's own source**, the `audio_file` recorded
+   when the split started, not whatever is active on the layer now.
+4. **Unclaimed files are deleted** when a RE-EXTRACT supersedes one, when
+   the split is cancelled (CANCEL SPLIT, a new split replacing it, the
+   ABORT pill), and when a result lands after its job was cancelled.
+   Before deleting, the file is checked against `versions.audio_file`, so
+   a claimed file is never removed even if in-memory state is wrong.
+5. **`stemSplit.ts` is split first** (it was 282 LOC, over the 200 cap):
+   the per-stem runners shared with the scratch split move to
+   `stemRunners.ts`; `stemSplit.ts` keeps the layer-bound job. No client
+   change: unique names also cache-bust the stem preview after a
+   RE-EXTRACT.
+
+### File-level plan
+
+- `server/src/services/stemRunners.ts` (new): stem types, instructions,
+  `runAcestepStem`, `runDemucs` (with a `kinds` filter), unique
+  `stemFilename`, and the unlink-if-cancelled step.
+- `server/src/services/stemSplit.ts`: `sourceFile` on `SplitJob`;
+  `reextractStem` reads it and passes `[kind]` to `runDemucs`, then
+  removes the superseded file; `cancelSplit` removes unclaimed files.
+- `server/src/services/scratchSplitJobs.ts`: import from `stemRunners.ts`.
+- `server/src/services/stemSplit.reextract.test.ts` (new): a Demucs
+  RE-EXTRACT leaves a claimed stem's row and bytes alone and touches no
+  other stem; RE-EXTRACT after REPLACE reads the original source; the
+  superseded file and cancelled unclaimed files are removed, claimed ones
+  kept.
