@@ -6815,6 +6815,85 @@ button reads "WAIT FOR WORD TIMINGS" (21 characters, one line in the
 rail). Without a name the label would have fallen back to "WAIT FOR
 ANOTHER JOB".
 
+## Editor Failures Say So (planned 2026-10-02)
+
+AUDIT.md #4. Several Editor actions dropped their errors. A song that
+failed to load sat on "Loading…" forever. A lane's rename, volume, MUTE
+or SOLO had no catch at all, so a refused PATCH looked like a click
+that did nothing. REVERT (the history rail's SEL) and the Library song
+detail rail's rename, comment, folder move, genre, album and cover art
+failed the same way. PRs #65–#67 fixed how failed *jobs* and splits
+settle in `editorJobStore`; these direct API calls were never covered.
+
+### Decisions
+
+1. **Failures use the existing `.error` line**, rust per DESIGN.md: a
+   toast for an action that just failed, shown where the action lives.
+   No new toast system. Copy is "what failed — why", e.g. "couldn't
+   mute — Failed to fetch".
+2. **A failed song load shows the error and RETRY** in place of
+   "Loading…". A failed *refresh* (the reload after a mute, a revert, a
+   claimed stem) keeps the song on screen and shows the same line with
+   RETRY above the title row. Blanking a loaded song over a refresh
+   would hide work for no reason.
+3. **`reload` never rejects.** It reports its own failure, so callers
+   that `await onChanged()` inside their own try/catch don't report it
+   twice.
+4. **A lane control reloads even when its PATCH fails.** A solo PATCHes
+   several layers; if one fails, the reload shows which ones landed.
+5. **A volume drag sends one PATCH at a time.** Each tick used to fire
+   a PATCH plus a full song reload. They could land out of order and
+   leave an earlier tick's value as the final one. Ticks that arrive
+   mid-send collapse to the latest, sent when the current one lands.
+   The slider shows the dragged value meanwhile.
+6. **REVERT selects the version's region only once the revert lands.**
+7. **Rail edits keep what the user typed only where it costs them
+   text.** A refused rename snaps back to the stored title. A refused
+   comment, genre or album stays in its field, so blurring again
+   retries.
+8. **Out of scope:** CANCEL SPLIT's server call stays best-effort (the
+   session is already gone locally; a stuck server lock surfaces as the
+   next start's error). The model list and split health lookups fall
+   back to "no model supports…" / "not configured" on a network error;
+   that misreports the cause but isn't silent. Left for a follow-up.
+
+### File-level plan
+
+- `client/src/actionError.ts` (new): `errorText(err)` and
+  `attempt(label, action, setError)`, which clears the error, runs the
+  action and reports "label — message" on a throw.
+- `client/src/latestOnly.ts` (new): coalesces a stream of values to
+  one send in flight, latest value wins.
+- `client/src/useSongDetail.ts` (new): the Editor's song state,
+  `loadError` and a non-rejecting `reload`, built on a plain
+  `songReloader` the tests drive. Moves load state out of
+  `Editor.tsx`, which is over the cap.
+- `client/src/Editor.tsx`: uses the hook; load-failure screen with
+  RETRY; refresh-failure line; `revert` returns its promise.
+- `client/src/LayerLane.tsx`: rename, volume, MUTE and SOLO go through
+  `attempt`; volume through `latestOnly`.
+- `client/src/VersionHistory.tsx`: REVERT through `attempt`.
+- `client/src/SongDetailRail.tsx`, `client/src/SongOutputTags.tsx`:
+  every save through `attempt`, error shown in the rail.
+- Tests: `actionError.test.ts`, `latestOnly.test.ts`,
+  `useSongDetail.test.ts`.
+- DESIGN.md: the Editor's load-failure state, one line.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, against a copy of the
+library database (no audio). The server was stopped with the Editor
+open, then:
+
+- MUTE on the base lane: "couldn't mute — HTTP 502" in the lane, MUTE
+  stayed off, and "couldn't refresh this song — HTTP 502 · RETRY" above
+  the title row. The song stayed on screen.
+- Back to the Library, EDIT on another song: "couldn't load this song —
+  HTTP 502 · RETRY" in place of "Loading…". Server restarted, RETRY:
+  the song loaded and the line went away.
+- Ten volume ticks fired in one burst: two PATCHes (0.9, then 0.12),
+  and the server held 0.12.
+
 ## A Preview Stopped Before It Starts Fails Quietly (planned 2026-10-02)
 
 Follows the open question in "The Library Loads Without Trying to Play".
