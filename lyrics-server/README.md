@@ -10,6 +10,9 @@ the mix scored better than the separated vocals (mean WER 0.14 vs 0.25; see
 "Cover lyrics spike results").
 - The settings are fixed to the spike's winner: fp16, beam 5,
   `condition_on_previous_text=False`, word timestamps, no VAD.
+- With no language given, it detects the language of every 30 s window
+  (`multilingual=True`). With the first window's guess alone, Whisper
+  translated a German song's verses into English.
 - The model loads for each job and is freed afterwards. That is about 3 s,
   plus 3–15 s for a 2–6 minute song on an RTX 4080.
 - It needs 4–6 GB of VRAM while a job runs.
@@ -59,6 +62,8 @@ arrive with the server side of READ LYRICS (PR 2 in the plan).
   auto-detect.
   - It returns `{"language": "en", "segments": [{"text", "start", "end",
     "words": [{"text", "start", "end"}]}]}`, with times in seconds.
+  - On auto-detect, `language` is the language most sung words are in: a
+    vote of the windows that hold words, each weighed by its word count.
   - Whisper's stock subtitle lines ("Thanks for watching!", "Untertitelung
     des ZDF", "… Musik …") are dropped before returning; see
     `hallucinations.py`.
