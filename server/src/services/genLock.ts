@@ -1,7 +1,7 @@
 /**
  * Global single-flight lock: only one ACE-Step generation job (song
- * generation, repaint, regenerate, retake, add layer, split, remaster) may
- * run at a time. ACE-Step's own queue is effectively single-worker by default
+ * generation, repaint, regenerate, retake, add layer, split, remaster, audio
+ * analysis) may run at a time. ACE-Step's own queue is effectively single-worker by default
  * (docs/ace-step-1.5/API.md#Queue Configuration), so letting the client fire
  * several at once just queues them invisibly — this makes that limit explicit
  * and lets the UI show one clear "busy" state instead. An extra engine's song
@@ -12,8 +12,18 @@ import type { EngineId } from './engines/types.js';
 
 /** `transcribe` is SheetSage2 reading a cover source's melody (transcribeJobs.ts), and
  * `lyrics` is lyrics-server reading its words (lyricsJobs.ts): small, but neither may run
- * next to an ACE-Step job on a 16 GB card. */
-export type GenKind = 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe' | 'lyrics';
+ * next to an ACE-Step job on a 16 GB card. `analyze` is ACE-Step describing a source
+ * (analyzeJobs.ts), which loads a DiT and the LM. */
+export type GenKind =
+  | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe' | 'lyrics'
+  | 'analyze';
+
+/** What a 409 calls the job holding the lock. */
+const HOLDER: Record<GenKind, string> = {
+  generate: 'a generation', repaint: 'a repaint', regenerate: 'a regenerate', retake: 'a retake',
+  addLayer: 'an add layer', split: 'a stem split', remaster: 'a remaster', transcribe: 'a transcription',
+  lyrics: 'a lyrics reading', analyze: 'an audio analysis',
+};
 
 /** The three ACE-Step tasks that create a whole new song — all held under the single
  * `generate` kind, so this is what tells them apart. Mirrors `songs.gen_task`. */
@@ -36,8 +46,8 @@ export interface GenLockInfo {
 }
 
 export class GenLockError extends Error {
-  constructor() {
-    super('a generation is already in progress');
+  constructor(holder: GenKind = 'generate') {
+    super(`${HOLDER[holder]} is already in progress`);
   }
 }
 
@@ -45,7 +55,7 @@ let active: GenLockInfo | null = null;
 
 /** Throws GenLockError if another generation is already running. */
 export function acquireGenLock(info: Omit<GenLockInfo, 'startedAt'>): void {
-  if (active) throw new GenLockError();
+  if (active) throw new GenLockError(active.kind);
   active = { ...info, startedAt: Date.now() };
 }
 
