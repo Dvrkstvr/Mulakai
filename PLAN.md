@@ -6796,3 +6796,85 @@ Library:
   was down; see decision 5) and no error line was left.
 - Server stopped, SPLIT opened again: "couldn't check split backends —
   HTTP 502 · RETRY", where it used to say Demucs wasn't configured.
+
+## An Unreachable ACE-Step Is a Failure, Not "No Models" (planned 2026-10-02)
+
+Server half of "Lookup Failures Aren't Answers" (its decision 5).
+`acestep.ts`'s `listModels()` returned the same empty inventory
+`{ models: [], lmModels: [], defaultModel: null }` when ACE-Step answered
+"no models" and when it was unreachable, answered non-2xx, or timed out.
+Its callers passed that on:
+
+- `GET /api/generate/models` answered 200 with the empty inventory, so
+  the client's `useLookup` never saw a failure. Add Layer and Remaster
+  said "no downloaded model supports…".
+- `GET /api/split/health` turned it into `acestep: false`, so ACE-STEP
+  split was disabled as "no downloaded model supports extract".
+- The same route reported `demucs: false` both for an unset
+  `DEMUCS_API_URL` and for a set one that didn't answer. The client
+  tooltip always said "not configured (DEMUCS_API_URL unset)". Its fetch
+  also had no timeout, so a hung Demucs held the whole response.
+
+### Decisions
+
+1. **`listModels()` throws when it gets no answer.** A transport error
+   or timeout throws "ACE-Step unreachable at <url> (<cause>)", where the
+   cause is the socket error code or "no response within Ns". A non-2xx
+   throws "ACE-Step model inventory -> HTTP <status>". A 2xx body with
+   no `data` is still an empty answer.
+2. **`/api/generate/models` answers 502 `{ error }`** with that message,
+   like `/sample-from-query` and the other ACE-Step routes. The client's
+   `useLookup` shows it with RETRY.
+3. **`/api/split/health` stays 200 and reports each backend on its own.**
+   Demucs splits never touch ACE-Step, so failing the whole request when
+   ACE-Step is down would hide a working Demucs (user decision,
+   2026-10-02). The response gains two fields:
+   `{ acestep, acestepError, demucs, demucsReason }`.
+   - `acestepError`: the `listModels()` message when ACE-Step couldn't
+     be asked. It is null when ACE-Step answered, and `acestep: false`
+     then really means no model supports extract.
+   - `demucsReason`: `'unset'` (no `DEMUCS_API_URL`), `'unreachable'`
+     (set, but `/health` failed, answered non-2xx, or took over 10s,
+     the same leash as `acestep.health()`), or null when it's up.
+   The two probes run in parallel.
+4. **The split panels show `acestepError` as a rust `.error` line with
+   RETRY** above the backend buttons, which stay usable: "couldn't check
+   ACE-Step — ACE-Step unreachable at … · RETRY". The ACE-STEP button is
+   disabled, titled "ACE-Step unreachable". The DEMUCS button's title
+   now says which: "Demucs is not configured (DEMUCS_API_URL unset)" or
+   "Demucs is not answering at DEMUCS_API_URL". One helper builds these
+   titles for both panels.
+5. **Other `listModels()` callers keep their behaviour.**
+   `inferenceSteps.ts`'s AUTO-model lookup catches the throw and falls
+   back to the legacy step count, as it did with the empty inventory. A
+   down ACE-Step must not change the steps we send. The job services
+   don't call `listModels()` directly. Their tests mock it and are
+   unaffected.
+6. **Out of scope:** the Create-side client lookups (`useModelsForTask`,
+   `ModelsSection`, `SettingsPanel`) already catch a failed
+   `listModels()` into an empty list. They now get a 502 where they used
+   to get an empty 200, so what they show doesn't change. Making them
+   say "couldn't check" is the follow-up that decision 5 of the earlier
+   section names.
+
+### File-level plan
+
+- `server/src/services/acestep.ts`: `listModels()` throws per
+  decision 1. The function stays the same size.
+- `server/src/services/splitHealth.ts` (new): `splitHealth()` runs both
+  probes and returns the decision 3 shape.
+- `server/src/routes/generate.ts`: `/models` sends a 502 on a throw.
+- `server/src/routes/split.ts`: `/health` returns `splitHealth()`.
+- `server/src/services/inferenceSteps.ts`: catch around the lookup.
+- `client/src/api/editor.ts`: a `SplitHealth` type with the new fields.
+- `client/src/lookup.ts`: `splitBackendTitle(health, backend)`, the
+  tooltip for a disabled backend button.
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`: the
+  `acestepError` line and the titles from the helper.
+- Tests: `acestep.test.ts` (`listModels` empty answer vs refused,
+  timeout, and non-2xx), `splitHealth.test.ts` (each backend's states,
+  and an ACE-Step failure that doesn't hide Demucs), `generate.test.ts`
+  (`/models` 502), `split.test.ts` (`/health` passes the shape on),
+  `inferenceSteps.test.ts` (non-2xx inventory falls back),
+  `lookup.test.ts` (titles).
+- DESIGN.md: extend the lookup bullet with the per-backend line.
