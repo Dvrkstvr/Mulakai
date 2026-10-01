@@ -4160,8 +4160,13 @@ supersede them:
   - Each route family returns 404 for the other kind's ids, so
     `/v1/jobs/{id}` never serves a transcription.
 - **Upload.** `POST /v1/transcriptions` takes a multipart `audio` field,
-  up to `YUE_MAX_UPLOAD_MB` (default 100, the same as Mulakai's multer
-  limit). Over that is a 413, and an empty file a 400.
+  up to `YUE_MAX_UPLOAD_MB` (default 300, the same as Mulakai's
+  `COVER_MAX_UPLOAD_MB`). Over that is a 413, and an empty file a 400.
+  - 2026-10-01: both were 100 MB, which rejected any library WAV (float32
+    stereo, about 23 MB a minute) over about 4.3 minutes. Mulakai's
+    TRANSCRIBE route now answers an oversized file with a JSON 413 and a
+    broken form with a JSON 400, as READ LYRICS does, instead of Express's
+    HTML 500.
   - The file is stored as `uploads/<sha256><ext>`, so a replayed
     `Idempotency-Key` with the same audio matches its digest.
   - Uploads older than the retention window are swept on each submit, and

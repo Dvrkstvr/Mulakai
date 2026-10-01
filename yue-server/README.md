@@ -181,7 +181,7 @@ on the 4080: 6–12 s per song, about 3.7 GB on the card.
 | `YUE_QUANTIZATION` | `none` | `fp8` exists but is **not recommended**: it disables CUDA graphs, runs 4.6x slower on the 4080, saves ~0.2 GiB and changes the song for a given seed. |
 | `YUE_OFFLOAD_AR` | off | yue2's `--offload-ar`. Measured to change nothing at 16 GB (the peak is in the semantic stage). |
 | `YUE_SHEETSAGE_PYTHON` / `YUE_SHEETSAGE_DIR` | empty | SheetSage2's venv Python and its snapshot folder (holding `infer.py`). Either empty = no transcription (section 5). |
-| `YUE_MAX_UPLOAD_MB` | `100` | Largest audio `POST /v1/transcriptions` accepts. |
+| `YUE_MAX_UPLOAD_MB` | `300` | Largest audio `POST /v1/transcriptions` accepts (a library WAV is about 23 MB a minute). Keep it at least Mulakai's `COVER_MAX_UPLOAD_MB`, which forwards the source here. |
 
 ## API
 
