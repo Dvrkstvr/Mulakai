@@ -4,40 +4,24 @@
  *   GUIDE.md#Task Types), so getting all 4 stems fans out 4 concurrent
  *   generation jobs, each settling independently.
  * - Demucs runs as a separate HTTP microservice (like ACESTEP_API_URL). Its
- *   request/response contract below is provisional pending the real repo.
+ *   request/response contract (stemSplitDemucs.ts) is provisional pending the real repo.
  */
 import crypto from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { releaseTask, queryResult, downloadAudio, type ReleaseTaskParams } from './acestep.js';
-import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT, type OutputSettings } from './audioOutput.js';
-import { transcodeBuffer } from './transcode.js';
-import { ensureModelLoaded } from './jobs.js';
-import { resolveInferenceSteps } from './inferenceSteps.js';
+import { parseOutputSettings, type OutputSettings } from './audioOutput.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
+import {
+  STEM_KINDS, INSTRUCTIONS, type StemKind, type SplitModel, type StemResult, type SourceAudio,
+} from './stemSplitTypes.js';
+import { runAcestepStem } from './stemSplitAcestep.js';
+import { runDemucs } from './stemSplitDemucs.js';
 
-export type StemKind = 'vocals' | 'drums' | 'bass' | 'other';
-export type SplitModel = 'acestep' | 'demucs';
-
-export interface StemResult {
-  kind: StemKind;
-  status: 'running' | 'done' | 'failed';
-  audioFile?: string;
-  error?: string;
-  claimed?: 'replaced' | 'added';
-}
-
-/** Minimal shape `runAcestepStem`/`runDemucs`/`pollStem` need — satisfied by both `SplitJob`
- * (this file) and `ScratchSplitJob` (scratchSplitJobs.ts), which has no layer/song to belong to. */
-export interface StemJobLike {
-  id: string;
-  stems: StemResult[];
-  /** Output format/rate/depth chosen when the job started — stems honour the
-   * same Settings block as generation output. */
-  output: OutputSettings;
-}
+export type { StemKind, SplitModel, StemResult, StemJobLike, SourceAudio } from './stemSplitTypes.js';
+export { runAcestepStem } from './stemSplitAcestep.js';
+export { runDemucs } from './stemSplitDemucs.js';
 
 export interface SplitJob {
   id: string;
@@ -51,22 +35,8 @@ export interface SplitJob {
 
 const jobs = new Map<string, SplitJob>();
 
-const STEM_KINDS: StemKind[] = ['vocals', 'drums', 'bass', 'other'];
-
-const INSTRUCTIONS: Record<StemKind, string> = {
-  vocals: 'Extract the vocals from this audio, isolating the vocal track.',
-  drums: 'Extract the drums from this audio, isolating the drum track.',
-  bass: 'Extract the bass from this audio, isolating the bass track.',
-  other: 'Extract the remaining instrumental elements (excluding vocals, drums, and bass) from this audio.',
-};
-
 export function getSplitJob(id: string): SplitJob | undefined {
   return jobs.get(id);
-}
-
-export interface SourceAudio {
-  data: Buffer;
-  filename: string;
 }
 
 async function loadSourceAudio(layerId: string): Promise<SourceAudio & { songId: string }> {
@@ -107,109 +77,6 @@ export async function startSplit(layerId: string, model: SplitModel, output?: un
   void settled.finally(() => releaseGenLock(jobId));
 
   return job;
-}
-
-/** Run one ACE-Step `extract` call for a single stem, writing its result into `outDir`.
- * `isActive` reports whether the owning job was cancelled/discarded — shared between the
- * layer-based split above and scratchSplitJobs.ts's upload-based variant, each with their own
- * job registry, so cancellation checks can't be a hardcoded module-private lookup here. */
-export async function runAcestepStem(
-  job: StemJobLike, kind: StemKind, src: SourceAudio, outDir: string, isActive: () => boolean,
-): Promise<void> {
-  const stem = job.stems.find((s) => s.kind === kind);
-  if (!stem) return;
-  try {
-    const params: ReleaseTaskParams = {
-      audio_format: MASTER_AUDIO_FORMAT,
-      task_type: 'extract',
-      instruction: INSTRUCTIONS[kind],
-      use_random_seed: true,
-    };
-    await ensureModelLoaded(params);
-    await resolveInferenceSteps(params);
-    const { task_id } = await releaseTask(params, { srcAudio: src });
-    await pollStem(job.id, stem, task_id, outDir, isActive, job.output);
-  } catch (err) {
-    if (!isActive()) return; // cancelled
-    stem.status = 'failed';
-    stem.error = err instanceof Error ? err.message : String(err);
-  }
-}
-
-async function pollStem(
-  jobId: string, stem: StemResult, taskId: string, outDir: string, isActive: () => boolean, out: OutputSettings,
-): Promise<void> {
-  for (;;) {
-    await new Promise((r) => setTimeout(r, config.pollIntervalMs));
-    if (!isActive()) return; // cancelled while waiting
-    const [row] = await queryResult([taskId]);
-    if (!row || row.status === 0) continue;
-    if (row.status === 2) {
-      stem.status = 'failed';
-      stem.error = 'extraction failed';
-      return;
-    }
-    const result = row.result.find((r) => r.status === 1) ?? row.result[0];
-    if (!result?.file) {
-      stem.status = 'failed';
-      stem.error = 'no audio in result';
-      return;
-    }
-    const audio = await downloadAudio(result.file);
-    const filename = `${jobId}-${stem.kind}.${outputExt(out)}`;
-    await transcodeBuffer(audio, path.join(outDir, filename), out);
-    if (!isActive()) return; // cancelled while downloading
-    stem.audioFile = filename;
-    stem.status = 'done';
-    return;
-  }
-}
-
-/**
- * Provisional Demucs contract: POST the source audio, expect
- * `{ stems: { vocals, drums, bass, other } }` of downloadable URLs. One
- * deterministic pass — all 4 stems settle together, no partial progress.
- */
-export async function runDemucs(job: StemJobLike, src: SourceAudio, outDir: string, isActive: () => boolean): Promise<void> {
-  try {
-    if (!config.demucsUrl) throw new Error('Demucs is not configured (DEMUCS_API_URL unset)');
-    const form = new FormData();
-    form.append('audio', new Blob([new Uint8Array(src.data)]), src.filename);
-    const res = await fetch(`${config.demucsUrl}/split`, { method: 'POST', body: form });
-    if (!res.ok) throw new Error(`Demucs split -> HTTP ${res.status}`);
-    const json = (await res.json()) as { stems: Record<StemKind, string> };
-    if (!isActive()) return;
-    await Promise.all(
-      STEM_KINDS.map(async (kind) => {
-        const stem = job.stems.find((s) => s.kind === kind);
-        if (!stem) return;
-        try {
-          const url = json.stems[kind];
-          if (!url) throw new Error(`missing ${kind} stem in Demucs response`);
-          const audioRes = await fetch(url);
-          if (!audioRes.ok) throw new Error(`Demucs stem download -> HTTP ${audioRes.status}`);
-          const master = Buffer.from(await audioRes.arrayBuffer());
-          // demucs-server hands back a lossless float WAV master (see its main.py);
-          // the user's container/rate/depth is applied here, same as every other path.
-          const filename = `${job.id}-${kind}.${outputExt(job.output)}`;
-          await transcodeBuffer(master, path.join(outDir, filename), job.output);
-          if (!isActive()) return;
-          stem.audioFile = filename;
-          stem.status = 'done';
-        } catch (err) {
-          stem.status = 'failed';
-          stem.error = err instanceof Error ? err.message : String(err);
-        }
-      }),
-    );
-  } catch (err) {
-    if (!isActive()) return;
-    const msg = err instanceof Error ? err.message : String(err);
-    for (const stem of job.stems) {
-      stem.status = 'failed';
-      stem.error = msg;
-    }
-  }
 }
 
 /**
