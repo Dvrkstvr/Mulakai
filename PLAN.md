@@ -4626,10 +4626,12 @@ feature. `stemSplit.ts`, the routes and the SPLIT UI do not change.
 
 ### Open questions
 
-- **The SPLIT button still says DEMUCS.** With `uvr-server` behind it, that
+- ~~**The SPLIT button still says DEMUCS.** With `uvr-server` behind it, that
   label is inaccurate. `/health` already returns `backend: "uvr"`. Passing
   it through `GET /api/split/health` to the button touches the server route
-  and both split pickers, so it's a separate small PR if wanted.
+  and both split pickers, so it's a separate small PR if wanted.~~
+  **Answered 2026-10-02** in "SPLIT Names Its Real Backend": the tab reads
+  UVR or DEMUCS, whichever service answers at `DEMUCS_API_URL`.
 - **6-stem output (`htdemucs_6s`: guitar, piano)** would need new
   `StemKind`s and layer kinds. That is a scope question, not part of this
   change.
@@ -5933,3 +5935,54 @@ YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
 - FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
   from the library: all rows disabled, a click on another row ignored,
   search live.
+
+## SPLIT Names Its Real Backend (planned 2026-10-02)
+
+Answers the first open question in "UVR Separator: Roformer Vocals for
+SPLIT". Both split pickers (the Editor's SplitPanel and Create's
+ScratchSplitPicker) label the `DEMUCS_API_URL` service DEMUCS, even when
+`uvr-server` answers there. `uvr-server`'s `/health` says
+`backend: "uvr"`; `demucs-server`'s says no backend at all.
+
+### Decisions
+
+1. **`GET /api/split/health` adds `demucsBackend`**: `"uvr"` when the
+   service's `/health` says so, `"demucs"` for any other healthy answer
+   (demucs-server sends no `backend`, and a body that isn't JSON counts as
+   none), `null` when the service is unset or down. `acestep` and `demucs` keep their
+   meaning, so the `model: 'demucs'` value sent to start a split is
+   unchanged: it names the slot, not the backend.
+2. **The tab reads `UVR` or `DEMUCS`.** With no backend known (unset or
+   down) it stays `DEMUCS`, the env var's name. The disabled tooltip no
+   longer claims the URL is unset: it says no split service answers at
+   `DEMUCS_API_URL`.
+3. **One mapping, `splitBackend.ts`**, used by both pickers, so they
+   cannot disagree. DESIGN.md is unchanged: a tab label, same shape and
+   color.
+
+### File-level plan
+
+- `server/src/routes/split.ts`: read the service's health body.
+- `server/src/routes/split.test.ts`: `/health` against a fake service
+  answering as uvr-server, as demucs-server, with a 500, and unset.
+- `client/src/splitBackend.ts` (new): `SplitHealth`, `splitServiceLabel`,
+  `splitServiceTitle`, and the all-down fallback.
+- `client/src/splitBackend.test.ts` (new): the mapping.
+- `client/src/api/editor.ts`: `splitHealth` returns `SplitHealth`.
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`: use it.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, with a scratch `DATA_DIR` and
+one imported song:
+
+- `DEMUCS_API_URL` at the running `uvr-server` (8002): `/api/split/health`
+  returned `{"acestep":true,"demucs":true,"demucsBackend":"uvr"}`. The
+  Editor's SPLIT panel and Create's ARRANGE → SPLIT A SONG both read
+  `ACE-STEP | UVR`, with the tooltip "uvr-server: Roformer vocals, htdemucs
+  for the rest".
+- `DEMUCS_API_URL` at a port with nothing listening: `demucsBackend: null`,
+  and the tab reads `DEMUCS`, disabled, titled "no split service answers at
+  DEMUCS_API_URL (demucs-server or uvr-server)".
+- `demucs-server` was not running, so its `DEMUCS` label is covered by the
+  route test (a health body with no `backend`), not seen in the browser.
