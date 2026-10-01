@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { api, type SongDetail } from './api';
+import { api } from './api';
+import { useSongDetail } from './useSongDetail';
 import type { Region } from './Waveform';
 import { Player } from './Player';
 import { VersionHistory } from './VersionHistory';
@@ -33,7 +34,7 @@ const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).p
 
 export function Editor({ songId, onBack }: Props) {
   const repaintSettings = useSettings((s) => s.repaint);
-  const [song, setSong] = useState<SongDetail | null>(null);
+  const { song, loadError, reload } = useSongDetail(songId);
   const [focusedLayerId, setFocusedLayerId] = useState<string | null>(null);
   const [selection, setSelection] = useState<Region | null>(null);
   const [prompt, setPrompt] = useState('');
@@ -64,9 +65,6 @@ export function Editor({ songId, onBack }: Props) {
   // A song generating in the Library, a *different* editor action or a split extracting all
   // hold the same global lock (see server genLock.ts) — any one blocks repaint here too.
   const busyElsewhere = splitRunning || (!myRepaint && (genRunning || isEditorBusy(editorJob) || !!otherLock));
-
-  const reload = useCallback(() => api.songDetail(songId).then(setSong).catch(() => {}), [songId]);
-  useEffect(() => { reload(); }, [reload]);
 
   // Re-sync the editable lyrics draft only when the *canonical* text actually
   // changes (new song, or this song's lyrics were updated by a repaint/revert)
@@ -195,7 +193,12 @@ export function Editor({ songId, onBack }: Props) {
   const railWidth = useResizableWidth({ storageKey: 'mulakai:editorRailWidth', default: 300, min: 240, max: 520, growsToward: 'left' });
   const gridTemplateColumns = `${leftWidth.width}px 1fr ${railWidth.width}px`;
 
-  if (!song) return <div className="empty">Loading…</div>;
+  const retryLoad = <button onClick={() => void reload()}>RETRY</button>;
+  if (!song) {
+    return loadError
+      ? <div className="empty"><div className="error">couldn't load this song — {loadError} {retryLoad}</div></div>
+      : <div className="empty">Loading…</div>;
+  }
 
   return (
     <div className="editor-shell">
@@ -231,6 +234,7 @@ export function Editor({ songId, onBack }: Props) {
           <ResizeHandle side="right" onPointerDown={leftWidth.onPointerDown} />
         </div>
         <div className="editor-main">
+      {loadError && <div className="error">couldn't refresh this song — {loadError} {retryLoad}</div>}
       <div className="title-row">
         <span className="song-title">{song.title}</span>
         <span className="meta">

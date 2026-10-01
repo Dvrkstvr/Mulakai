@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, type Song } from './api';
+import { attempt } from './actionError';
 import { Dropzone } from './Dropzone';
 
 /** The song detail rail's OUTPUT FILE TAGS block — per-song ID3 fields written into the
@@ -10,38 +11,36 @@ export function SongOutputTags({ song, onChanged }: { song: Song; onChanged: () 
   const [genre, setGenre] = useState(song.genre);
   const [album, setAlbum] = useState(song.album);
   const [coverUploading, setCoverUploading] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => setGenre(song.genre), [song.genre]);
   useEffect(() => setAlbum(song.album), [song.album]);
+  useEffect(() => setError(''), [song.id]);
 
   const commitGenre = () => {
     if (genre === song.genre) return;
-    api.updateSongMetadata(song.id, { genre }).then(onChanged);
+    void attempt('genre not saved', () => api.updateSongMetadata(song.id, { genre }).then(onChanged), setError);
   };
 
   const commitAlbum = () => {
     if (album === song.album) return;
-    api.updateSongMetadata(song.id, { album }).then(onChanged);
+    void attempt('album not saved', () => api.updateSongMetadata(song.id, { album }).then(onChanged), setError);
   };
 
   const uploadCoverArt = async (file: File) => {
     setCoverUploading(true);
-    try {
-      await api.uploadSongCoverArt(song.id, file);
-      onChanged();
-    } finally {
-      setCoverUploading(false);
-    }
+    await attempt("couldn't upload cover art", () => api.uploadSongCoverArt(song.id, file).then(onChanged), setError);
+    setCoverUploading(false);
   };
 
-  const removeCoverArt = async () => {
-    await api.deleteSongCoverArt(song.id);
-    onChanged();
+  const removeCoverArt = () => {
+    void attempt("couldn't remove cover art", () => api.deleteSongCoverArt(song.id).then(onChanged), setError);
   };
 
   return (
     <div className="detail-meta">
       <div className="section-header">OUTPUT FILE TAGS</div>
+      {error && <div className="error">{error}</div>}
       <div className="setting">
         <div className="setting-head"><span>GENRE</span></div>
         <input value={genre} onChange={(e) => setGenre(e.target.value)} onBlur={commitGenre} placeholder="AUTO — left blank" />
