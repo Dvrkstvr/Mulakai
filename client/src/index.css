@@ -2988,6 +2988,26 @@ footer .player {
   background: var(--sky-tint);
 }
 
+.lyrics-line.timed {
+  cursor: pointer;
+}
+
+.lyrics-line.timed:hover {
+  background: var(--carbon-raised);
+}
+
+/* The selection's echo, one level below the active block: "selection must read as one
+   continuous color everywhere it is echoed". */
+.lyrics-line.selected,
+.lyrics-line.selected:hover {
+  background: var(--sky-tint);
+  box-shadow: inset 2px 0 0 var(--sky);
+}
+
+.lyrics-line.untimed {
+  color: var(--text-low);
+}
+
 .lyrics-tag {
   font-weight: 700;
   letter-spacing: 1px;
