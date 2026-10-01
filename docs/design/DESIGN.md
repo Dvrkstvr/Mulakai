@@ -480,6 +480,13 @@ requiring its own justification against a screen-count rule.
      canonical lyrics on success; reverting to an older version restores that
      version's own lyrics alongside its audio (same "current" idiom as audio
      history — see Lilac below).
+     - **Timing** (added 2026-10-02): opening a song whose base version
+       hasn't been read reads it in the background (a genLock job, shown in
+       the header). While it runs, the panel label reads `LYRICS · TIMING…`,
+       the suffix in `text-low`. It stays plain, like TRANSCRIBE: reading
+       words isn't generating. A failed read shows a `.warn-note` under the
+       label, "couldn't time these lyrics" with RETRY, and the reason on one
+       ellipsized line (full text on hover). Nothing else is blocked.
    - Left settings panel (~210–240px, see below): repaint parameters.
      Permanent, fixed width.
    - **Title row**: song title (bold, 16px) + time/bpm/key/layer-count
@@ -540,7 +547,11 @@ requiring its own justification against a screen-count rule.
    - Section strip: parallelogram segments (Intro/Verse/…) derived from
      lyric-aligned timestamps, flex-weighted by section length; click = select
      that section as the region; active (selected) = sky. Double-click also
-     moves the playhead to the section's start, for quick preview.
+     moves the playhead to the section's start, for quick preview. The times
+     come from lyrics-server's reading of the base version, aligned to the
+     song's LYRICS, or from ACE-Step's own stored timings when there is no
+     good reading (added 2026-10-02, PLAN.md "Editor Word Timestamps"). So
+     engine songs, imports and repaints get a strip too.
    - Prompt bar: sky scope chip mirroring current selection, free-text
      instruction, acid REPAINT REGION action.
    - **Right rail** (~260–320px, carbon-panel surface, 1px border): persistent,
