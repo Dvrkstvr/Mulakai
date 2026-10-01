@@ -35,6 +35,10 @@
   down mid-job, and every split's files stayed on disk forever. `/split` now runs in
   the threadpool, failed splits remove their job dir, and each stem is deleted once
   downloaded or swept after a TTL; uvr-server had the same leak — PR #80 (was #3).
+- Library search raced: each keystroke fired its own `listSongs` and the last response
+  to land won, so a slow "co" could replace "copper". Every song-list load now goes
+  through one loader that applies only the newest response and reads the query and
+  folder at fire time; search is debounced 250 ms — PR #93 (was #6).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -84,7 +88,7 @@ split retained forever, publicly served.
   INFLUENCE sliders don't apply to `complete` (only the stored voice defaults do),
   but the hint text claims they do.
 
-### 6. Library search race
+### 6. ~~Library search race~~ — fixed, PR #93
 `client/src/App.tsx` — one un-guarded `listSongs` per keystroke; a slow early
 response can overwrite results for a newer query. Debounce + drop stale responses.
 
