@@ -154,7 +154,7 @@ export interface RefineResult {
 
 /** Mirrors server/src/services/genLock.ts's GenLockInfo, joined with the underlying job's status. */
 export interface ActiveGeneration {
-  kind: 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe';
+  kind: 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe' | 'lyrics';
   jobId: string;
   songId?: string;
   title?: string;

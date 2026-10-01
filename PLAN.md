@@ -5104,6 +5104,56 @@ same way (`--melody-only`, 43 s wall).
 - **Not in PR 1:** `start-all.bat` and `LYRICS_API_URL` arrive with PR 2,
   the first consumer.
 
+### Mulakai server for READ LYRICS (PR 2, 2026-10-01)
+
+This replaces PR 2's original file list where the spike changed it: there
+is no split step.
+- **`config.lyricsUrl`** comes from `LYRICS_API_URL`. Empty means READ
+  LYRICS is not set up. `LYRICS_TIMEOUT_MS` (default 15 min) caps the one
+  synchronous `/transcribe` call.
+  - A warm job is 3–15 s. The first job downloads the model (minutes), and
+    PR 1's live check took 9 minutes under GPU contention.
+  - Without a cap, a hung call would hold the genLock forever.
+- **`services/lyricsClient.ts`:**
+  - `lyricsHealth()` is `GET /health` with a 5 s timeout.
+  - `transcribeLyrics(audio, filename, language, signal)` posts multipart,
+    then checks the reply's shape and normalises it to `{language,
+    segments: [{text, start, end, words}]}`.
+- **`services/lyricsJobs.ts`:** `startLyricsTranscription(source)`.
+  - It takes the genLock under a new `lyrics` kind, with the source label
+    as the title.
+  - It sends the source as-is to `lyrics-server`, and stores `{language,
+    segments, sourceLabel}` on the job as `job.lyrics`.
+  - The job is polled through `GET /api/generate/:jobId` like every other
+    job; a finished one carries `lyrics`.
+  - An abort (`/api/generate/active/abort`) cancels the request. The
+    service may still finish its current job, the same caveat as a split.
+- **`routes/lyrics.ts`,** mounted at `/api/lyrics`:
+  - `POST /transcribe` takes multipart `src_audio` (the same field as
+    TRANSCRIBE), an optional `language` (2–3 lowercase letters, else 400)
+    and an optional `source_label`. It answers 202 `{jobId}`.
+    - 400 when the service is not configured or not answering.
+    - 409 when the lock is held.
+    - Uploads go up to `LYRICS_MAX_UPLOAD_MB` (default 300). A library WAV
+      is float32 stereo, about 23 MB a minute; *Tanz*'s 6:24 is 147 MB.
+      An oversized upload gets a 413 in JSON, and a broken form a 400.
+      multer's errors would otherwise reach Express's default handler as
+      an HTML 500.
+  - `GET /health` returns `{configured, ready}`; this is the
+    `lyricsReady` probe.
+  - The probe is a route of its own rather than an `EngineInfo` field.
+    READ LYRICS is not tied to one engine, and the plan may widen it to
+    ACE-Step's COVER.
+- **The client's `ActiveGeneration.kind`** mirror gains `lyrics`. A running
+  job already shows as "LYRICS · RUNNING" in the header, through the
+  generic path.
+- **`start-all.bat`** starts `lyrics-server` on 8005 when
+  `lyrics-server\venv` exists, and sets `LYRICS_API_URL` for the Mulakai
+  server.
+- **Not here:** section start times from `yue-server` (spike point 2) are a
+  small PR of their own before PR 3. They change `yue-server` and the
+  transcription facts, not the lyrics path.
+
 ## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
 
 A YuE2 cover needs a style PROMPT: `buildYue2Request` throws "YUE2 needs a

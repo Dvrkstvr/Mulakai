@@ -41,8 +41,10 @@ cd /d E:\repos\Mulakai\lyrics-server
 venv\Scripts\python.exe -m uvicorn main:app --port 8005
 ```
 
-Nothing in Mulakai calls it yet. `start-all.bat` and `LYRICS_API_URL`
-arrive with the server side of READ LYRICS (PR 2 in the plan).
+`start-all.bat` does this automatically when `lyrics-server\venv` exists.
+It also sets `LYRICS_API_URL=http://127.0.0.1:8005` for the Mulakai server,
+whose `POST /api/lyrics/transcribe` runs READ LYRICS through this service.
+`GET /api/lyrics/health` reports whether it is configured and answering.
 
 ## Config (env vars)
 
