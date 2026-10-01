@@ -31,7 +31,9 @@ class Settings:
     # venv's python and the downloaded snapshot holding infer.py. Unset = no covers.
     sheetsage_python: str = ""
     sheetsage_dir: str = ""
-    max_upload_mb: float = 100.0
+    # A library WAV is float32 stereo, about 23 MB a minute; 300 MB is ~13 minutes.
+    # Keep it at least Mulakai's COVER_MAX_UPLOAD_MB, which forwards the source here.
+    max_upload_mb: float = 300.0
 
     @classmethod
     def from_env(cls, env: dict[str, str] | None = None) -> "Settings":
