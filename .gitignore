@@ -17,6 +17,8 @@ uvr-server/runner/
 uvr-server/model-configs/
 yue-server/data/
 heartmula-server/data/
+lyrics-server/venv/
+lyrics-server/models/
 .pytest_cache/
 
 # logs
