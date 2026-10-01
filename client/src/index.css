@@ -3678,3 +3678,11 @@ button.acid-outline:not(:disabled):hover {
   margin: 6px 0 0;
   white-space: pre;
 }
+
+/* SHOW DESCRIPTION under ANALYZE AUDIO on COVER · YUE2: the same collapsed block as SHOW SCORE,
+   but prose, so it wraps. */
+.analysis-caption p {
+  font-size: 12px;
+  color: var(--text-mid);
+  margin: 6px 0 0;
+}

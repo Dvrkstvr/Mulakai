@@ -131,6 +131,25 @@ describe('analyzeAudio', () => {
     expect(capturedBody?.get('audio')).toBeTruthy();
   });
 
+  it("reads analyze_audio_route.py's own field names: key_scale, time_signature, vocal_language", async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(
+      JSON.stringify({
+        data: {
+          caption: 'a piano ballad', lyrics: 'la la', bpm: 77, key_scale: 'F major',
+          time_signature: '4', duration: 212, vocal_language: 'tr',
+        },
+        code: 200, error: null,
+      }),
+      { status: 200 },
+    )));
+    const { analyzeAudio } = await import('./acestep.js');
+
+    expect(await analyzeAudio({ data: Buffer.from('x'), filename: 'source.wav' })).toEqual({
+      caption: 'a piano ballad', lyrics: 'la la', bpm: 77, key_scale: 'F major',
+      time_signature: '4', duration: 212, vocal_language: 'tr',
+    });
+  });
+
   it('loads the given model + LM via /v1/init before calling /v1/analyze_audio', async () => {
     const calledUrls: string[] = [];
     vi.stubGlobal(

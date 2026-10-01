@@ -17,6 +17,10 @@ interface TranscribeState {
   /** The draft source this run reads (coverSourceKey), so a result for a source picked away
    * from in the meantime is dropped rather than shown against the wrong song. */
   sourceKey: string | null;
+  /** LYRICS as ANALYZE AUDIO wrote them before there was a score (YueCoverAnalyze.tsx). While
+   * LYRICS still holds exactly this, a landing score re-tags them onto its sections; once
+   * edited they are the user's (PLAN.md "ANALYZE AUDIO on COVER · YUE2", point 4). */
+  analyzedLyrics: string | null;
   /** `seedLyrics` fills an empty LYRICS once the score lands: a library source's own words,
    * re-tagged to the score's sections, or '' for just the section outline. */
   start: (engine: EngineId, srcAudio: Blob, label: string, seedLyrics: string) => Promise<void>;
@@ -26,8 +30,9 @@ interface TranscribeState {
 export const useTranscribeStore = create<TranscribeState>((set, get) => ({
   stage: 'idle',
   sourceKey: null,
+  analyzedLyrics: null,
 
-  reset: () => set({ stage: 'idle', progress: undefined, error: undefined, sourceKey: null }),
+  reset: () => set({ stage: 'idle', progress: undefined, error: undefined, sourceKey: null, analyzedLyrics: null }),
 
   start: async (engine, srcAudio, label, seedLyrics) => {
     if (get().stage === 'running') return;
@@ -62,8 +67,9 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
         const t = s.transcription;
         draft.patchAudio({ yueScore: { abc: t.score, source: t.sourceLabel, transcription: t, previewJobId: jobId } });
         if (!draft.lyrics.trim()) draft.patch({ lyrics: fitLyricsToSections(seedLyrics, t.score) });
+        else if (draft.lyrics === get().analyzedLyrics) draft.patch({ lyrics: fitLyricsToSections(draft.lyrics, t.score) });
       }
-      set({ stage: 'idle', progress: undefined, sourceKey: null });
+      set({ stage: 'idle', progress: undefined, sourceKey: null, analyzedLyrics: null });
       return;
     }
   },
