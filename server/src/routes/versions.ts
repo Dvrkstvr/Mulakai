@@ -12,7 +12,7 @@ export const versionsRouter = Router();
  * restores the song's canonical lyrics to whatever this version was rendered
  * with (stored in its params_json since generation/repaint always send it) —
  * audio and lyrics move together on revert, mirroring how repaint updates
- * both together (see repaintJobs.ts's persistVersion).
+ * both together (see repaintVersion.ts's persistVersion).
  */
 versionsRouter.patch('/versions/:versionId/activate', (req, res) => {
   const version = db
