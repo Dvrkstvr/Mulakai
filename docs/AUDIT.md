@@ -26,10 +26,23 @@
   versions. Stem files are now append-only (unique names), a re-extract keeps only its
   own stem and reads the split's original source, and unclaimed files are deleted on
   supersede/cancel — PR #81 (was #2).
+- Playback never ended: no `onended` on any source, so the Editor stayed "playing"
+  with `currentTime()` growing past the song forever. The longest layer's end now
+  stops the engine at the duration (play again restarts from 0), guarded by a
+  per-start generation token so manual pause/seek/restart/reload can't trip it —
+  PR #85 (was #1).
+- demucs-server ran each split inside `async def`, so `/health` read the service as
+  down mid-job, and every split's files stayed on disk forever. `/split` now runs in
+  the threadpool, failed splits remove their job dir, and each stem is deleted once
+  downloaded or swept after a TTL; uvr-server had the same leak — PR #80 (was #3).
+- No Playwright e2e existed. `e2e/` now runs PLAN.md Phase 10's golden path
+  (generate → repaint → add layer → revert → export) through the real client and
+  server against a fake ACE-Step, on a throwaway data dir (`npm run test:e2e`) —
+  PR #87 (was #19).
 
 ## 🔴 High — broken or data-risky behavior
 
-### 1. Playback never ends
+### 1. ~~Playback never ends~~ — fixed, PR #85
 `client/src/mix/playbackEngine.ts` — no `onended` on any `AudioBufferSourceNode`;
 after the last buffer plays out, `playing` stays true and `currentTime()` grows past
 `duration` forever. Play button shows pause forever; elapsed readout runs on.
@@ -43,7 +56,11 @@ on-disk audio of stems already claimed as versions. The doc comment ("keeps only
 this stem's output") describes behavior the code doesn't implement. Unclaimed stem
 files are also never deleted (`cancelSplit` only drops the in-memory job).
 
-### 3. demucs-server blocks its event loop and leaks disk
+### 3. ~~demucs-server blocks its event loop and leaks disk~~ — fixed, PR #80
+`/split` is now a sync `def` (threadpool, one at a time); failed splits remove
+their job dir; each stem is deleted once downloaded, unfetched ones are swept
+after `DEMUCS_RESULT_TTL`. uvr-server had the same disk leak; fixed there too.
+
 `demucs-server/main.py` — `demucs.separate.main(...)` runs inside `async def`,
 freezing the loop for the whole split (so `/health` reports the service down
 mid-job); no try/finally around the split (a corrupt upload leaks the source file
@@ -164,12 +181,12 @@ Non-test modules over the cap at snapshot time:
 policy.) An `api.ts` split is in progress; the rest need split plans or explicit
 justifications per AGENTS.md.
 
-### 19. ~~No Playwright e2e exists~~ — fixed 2026-10-02
+### 19. ~~No Playwright e2e exists~~ — fixed, PR #87
 AGENTS.md requires one golden-path e2e per phase; none was set up. Now `e2e/`
 holds Playwright plus a fake ACE-Step (`e2e/fake-acestep/`), and `npm run
 test:e2e` drives PLAN.md Phase 10's path (generate → repaint a region → add a
 layer → revert a version → export) through the real client and server on a
-throwaway data dir — branch `test/playwright-golden-path`. Still open: no CI
+throwaway data dir. Still open: no CI
 runs it, and per-phase edge-case specs are yet to come (PLAN.md "Playwright
 Golden-Path E2E", open questions).
 

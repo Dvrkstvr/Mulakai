@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "client/src/mix/playbackEngine.ts": {
-    "mtime": 1790893261.9790998,
-    "ast_hash": "35bb7beec4f39da6c8526dd3af015cd9",
+    "mtime": 1790896229.7846527,
+    "ast_hash": "30c773b95c793667e49133ee72f76a85",
     "semantic_hash": ""
   },
   "client/src/mix/playerApi.ts": {
@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "demucs-server/main.py": {
-    "mtime": 1790893261.9997118,
-    "ast_hash": "d76461920c6a41ee5a480af2f612a77f",
+    "mtime": 1790896229.7856572,
+    "ast_hash": "3fa78b70763b64317f26610527f73982",
     "semantic_hash": ""
   },
   "server/package.json": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790896115.943259,
-    "ast_hash": "045ac7e7c58d62fc2151ed67728cdf28",
+    "mtime": 1790896154.006935,
+    "ast_hash": "5691475c46a9d945539a8d27a5123412",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -735,8 +735,8 @@
     "semantic_hash": ""
   },
   "demucs-server/README.md": {
-    "mtime": 1790893261.9997118,
-    "ast_hash": "167b070dade0a2fdd5ec6751069c9b3d",
+    "mtime": 1790896229.7846527,
+    "ast_hash": "e40be72c92f8d32413d88ca642c8d338",
     "semantic_hash": ""
   },
   "demucs-server/requirements.txt": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790896115.9442625,
-    "ast_hash": "d1ce33cef6d3a7db64b06331c1305ac5",
+    "mtime": 1790896229.7876675,
+    "ast_hash": "70b269eedce089ef1c38c1705158bd16",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1415,8 +1415,8 @@
     "semantic_hash": ""
   },
   "uvr-server/api.py": {
-    "mtime": 1790893262.2230308,
-    "ast_hash": "d7114d5c75063f0bb15292c5eb3ab3e6",
+    "mtime": 1790896229.8264852,
+    "ast_hash": "c1e1f5fe7db95931fd8b22654ecb02f1",
     "semantic_hash": ""
   },
   "uvr-server/chain.py": {
@@ -1425,8 +1425,8 @@
     "semantic_hash": ""
   },
   "uvr-server/main.py": {
-    "mtime": 1790893262.2240362,
-    "ast_hash": "253f3edc25e947f9eda7884708dbeba6",
+    "mtime": 1790896229.8264852,
+    "ast_hash": "e50d3d05794482b21e722be601c13d48",
     "semantic_hash": ""
   },
   "uvr-server/tests/conftest.py": {
@@ -1435,8 +1435,8 @@
     "semantic_hash": ""
   },
   "uvr-server/tests/test_api.py": {
-    "mtime": 1790893262.226054,
-    "ast_hash": "afb481861c91dcb54254e0c49742fd1f",
+    "mtime": 1790896229.8275778,
+    "ast_hash": "7ba815e4a3d53cb3ee673000a13fe1e1",
     "semantic_hash": ""
   },
   "uvr-server/tests/test_chain.py": {
@@ -1530,8 +1530,8 @@
     "semantic_hash": ""
   },
   "uvr-server/README.md": {
-    "mtime": 1790893262.2230308,
-    "ast_hash": "e60f033b1f405c32aba090d9e18e0c52",
+    "mtime": 1790896229.8254032,
+    "ast_hash": "1000fc8e875dc15277dbd1581448164a",
     "semantic_hash": ""
   },
   "uvr-server/requirements-dev.txt": {
@@ -1949,6 +1949,46 @@
     "ast_hash": "02b9b463ce3c3acbf10588cf167bbc2a",
     "semantic_hash": ""
   },
+  "client/src/mix/playbackEngine.test.ts": {
+    "mtime": 1790896229.783647,
+    "ast_hash": "3d30acfff4c93c8d6811ae0a71ae236e",
+    "semantic_hash": ""
+  },
+  "demucs-server/api.py": {
+    "mtime": 1790896229.7851572,
+    "ast_hash": "e7c8ebf0842f1c9d80744b4318d530bc",
+    "semantic_hash": ""
+  },
+  "demucs-server/job_files.py": {
+    "mtime": 1790896229.7856572,
+    "ast_hash": "8d05c3b3a46b9e6b409a492fe6f41757",
+    "semantic_hash": ""
+  },
+  "demucs-server/tests/test_api.py": {
+    "mtime": 1790896229.7866614,
+    "ast_hash": "0234374980ed849da89ba5d1f5a0e922",
+    "semantic_hash": ""
+  },
+  "demucs-server/tests/test_job_files.py": {
+    "mtime": 1790896229.7871673,
+    "ast_hash": "1afae167fec87520d4c2c6828231e2d7",
+    "semantic_hash": ""
+  },
+  "uvr-server/job_files.py": {
+    "mtime": 1790896229.8264852,
+    "ast_hash": "9216daf494fbebdfc22a636d5f0a946f",
+    "semantic_hash": ""
+  },
+  "uvr-server/tests/test_job_files.py": {
+    "mtime": 1790896229.8275778,
+    "ast_hash": "1afae167fec87520d4c2c6828231e2d7",
+    "semantic_hash": ""
+  },
+  "demucs-server/requirements-dev.txt": {
+    "mtime": 1790896229.7866614,
+    "ast_hash": "5c7a687f7413aabfbcb18ef7c9efc984",
+    "semantic_hash": ""
+  },
   "e2e/data-dir.ts": {
     "mtime": 1790893816.0133836,
     "ast_hash": "74c98f4f6a2db523e6694d751bab3953",
@@ -1985,7 +2025,7 @@
     "semantic_hash": ""
   },
   "e2e/test-results/.last-run.json": {
-    "mtime": 1790894133.3038366,
+    "mtime": 1790896202.6171582,
     "ast_hash": "f196824657d8858bc7fa44eecbba38b1",
     "semantic_hash": ""
   },
@@ -2005,8 +2045,8 @@
     "semantic_hash": ""
   },
   "e2e/playwright-report/index.html": {
-    "mtime": 1790894133.303332,
-    "ast_hash": "91d285d6464d169afa822b7e540ad92f",
+    "mtime": 1790896202.615628,
+    "ast_hash": "992eeecc8404d8ec08b1ba6ec03e1883",
     "semantic_hash": ""
   }
 }
