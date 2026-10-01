@@ -298,6 +298,14 @@ requiring its own justification against a screen-count rule.
          it has the same no-row-until-available rule. The settings panel
          follows it; on a cover, COT is replaced by a one-line hint, because
          a cover always follows its score's melody.
+         It **holds still** (added 2026-10-02) while a job whose result
+         lands in that engine's draft runs: TRANSCRIBE, READ LYRICS (with
+         their PREPARING SOURCE step) or ANALYZE AUDIO on YUE2, ANALYZE
+         AUDIO on ACE-STEP. Every engine tab is disabled, the selected one
+         included, and a hint under the row says why, in SOURCE's words:
+         "ENGINE is locked while TRANSCRIBE runs — its result belongs to
+         this engine's cover". A generation doesn't lock it; its result is
+         a library song, not the draft.
        - ARRANGE is always ACE-Step, and so is every later edit.
        - **Descriptor-driven N/A**: each engine publishes what it can take;
          a control it can't stays **in place**, disabled, with an `N/A`
