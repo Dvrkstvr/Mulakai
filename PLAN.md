@@ -5046,3 +5046,38 @@ same way (`--melody-only`, 43 s wall).
 - HeartTranscriptor's weights (3.06 GB) are still in
   `S:\AI Gen\heartlib\ckpt\HeartTranscriptor-oss`. Nothing uses them now,
   and they can be deleted.
+
+### lyrics-server contract (PR 1, 2026-10-01)
+
+- **Process.** `lyrics-server/` is a FastAPI service on port 8005, in its
+  own venv, built like `uvr-server`. The HTTP layer takes an injected
+  transcriber, so the tests need no model.
+- **`GET /health`** returns `{"ok": true, "backend": "faster-whisper",
+  "model": …}` and loads nothing. PR 2's `lyricsReady` probe calls it.
+- **`POST /transcribe`** takes a multipart `audio` field and an optional
+  `language` form field. An empty `language` means auto-detect.
+  - It returns `{"language": "en", "segments": [{"text", "start", "end",
+    "words": [{"text", "start", "end"}]}]}`, with times in seconds rounded
+    to 0.01.
+  - A failure returns 500 with the reason in `detail`.
+  - One job runs at a time, under a lock, like `uvr-server`'s.
+- **The model loads per job and is freed afterwards.** That costs a 3 s
+  load against a 3–15 s job, and the 4–6 GB goes back to ACE-Step and the
+  engines in between.
+- **Settings are fixed to the spike's winner:** large-v3, fp16, beam 5,
+  `condition_on_previous_text=False`, `word_timestamps=True`, no VAD.
+  `LYRICS_MODEL`, `LYRICS_DEVICE` and `LYRICS_COMPUTE_TYPE` override the
+  model and where it runs, for a smaller card.
+- **Hallucinations** are dropped per segment before returning:
+  - Anywhere: segments with no letters (e.g. "🎵"), and stock phrases that
+    are never lyrics ("thanks/thank you for watching", "… for listening",
+    "subscribe", "Untertitel…", "subtitles by").
+  - When it is the whole segment: a subtitle cue ("… Musik …", "[Music]",
+    "Applaus"). The first live run produced one over *Tanz*'s outro.
+  - Only in the trailing run after the last real line: phrases a song could
+    sing ("thank you", "vielen Dank", "bis zum nächsten Mal").
+  - `no_speech_prob` thresholds are left out. The spike didn't measure
+    them, and PR 3's browser check is where an unfiltered one would show
+    up.
+- **Not in PR 1:** `start-all.bat` and `LYRICS_API_URL` arrive with PR 2,
+  the first consumer.
