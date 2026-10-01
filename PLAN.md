@@ -6098,8 +6098,39 @@ are slow GPU processes, so the e2e runs against a fake.
 
 ### Open questions
 
-- **CI.** There is no CI workflow yet. The e2e needs ffmpeg and a
-  Playwright Chromium on the runner.
+- **CI.** Settled below, in "CI (added 2026-10-02)".
 - **Edge cases per phase.** AGENTS.md asks for those as phases add
   them, e.g. a failed task (the fake could fail on a magic prompt) and
   the BUSY ELSEWHERE lock.
+
+### CI (added 2026-10-02)
+
+The repo had no workflow at all. `.github/workflows/e2e.yml` runs the
+e2e on GitHub Actions.
+
+1. **Ubuntu, not Windows.** Linux runners start faster and cost less,
+   and `apt` has ffmpeg. Windows is already covered, because that is
+   where the e2e is developed and run locally.
+2. **When it runs:** pull requests into `main`, pushes to `main`, and by
+   hand (`workflow_dispatch`). A newer push to the same ref cancels the
+   older run.
+3. **Node 22**, the version the stack runs on locally. Nothing in the
+   repo pins one yet.
+4. **Setup:** `npm ci` in `client/`, `server/` and `e2e/`, with
+   setup-node's npm cache keyed on all three lockfiles. Then
+   `npx playwright install --with-deps chromium`, since Ubuntu needs the
+   browser's system libraries too. There is no browser cache: a cached
+   browser would still need `install-deps`, which is most of the time.
+5. **CI-only config:** `forbidOnly`, so a stray `test.only` fails the run,
+   and the `github` reporter, so failures show as PR annotations. No
+   retries: a flaky step should show up, not be retried away.
+6. **On failure:** the HTML report and `test-results/` (traces) are
+   uploaded as an artifact for 7 days.
+7. **Only the e2e.** Client/server unit tests, build and lint are not in
+   this workflow. Adding them is a separate change.
+
+File-level plan:
+- `.github/workflows/e2e.yml` (new).
+- `e2e/playwright.config.ts`: the `CI` branches above.
+- `CLAUDE.md`: one line about the workflow. `docs/AUDIT.md` #19: CI is no
+  longer open.
