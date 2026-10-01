@@ -7,6 +7,7 @@
  *   editor.ts      repaint/versions/layers, remaster, stem splits
  *   management.ts  voices, adapters, lyric tags, output metadata
  *   covers.ts      YuE2 melody covers: transcribe, preview, cover, stored score
+ *   lyrics.ts      READ LYRICS: the words sung in a cover's source
  * The slices spread into one flat `api` object, so method names must stay unique
  * across slices (TypeScript won't flag a collision — the last spread would win).
  */
@@ -14,12 +15,14 @@ export * from './types';
 export * from './engineTypes';
 export { ApiError } from './http';
 export type { ScoreSize, Transcription } from './covers';
+export type { LyricSegment, LyricWord, LyricsReading } from './lyrics';
 
 import { libraryApi } from './library';
 import { generationApi } from './generation';
 import { editorApi } from './editor';
 import { managementApi } from './management';
 import { coversApi } from './covers';
+import { lyricsApi } from './lyrics';
 
 export const api = {
   ...libraryApi,
@@ -27,4 +30,5 @@ export const api = {
   ...editorApi,
   ...managementApi,
   ...coversApi,
+  ...lyricsApi,
 };

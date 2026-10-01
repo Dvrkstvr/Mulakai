@@ -3,6 +3,7 @@ import { json, appendParams } from './http';
 import type { ModelInventory, RefineResult, ActiveGeneration, StemKind } from './types';
 import type { EngineId, EngineInfo } from './engineTypes';
 import type { Transcription } from './covers';
+import type { LyricsReading } from './lyrics';
 
 export const generationApi = {
   /** Plain JSON unless an ad-hoc reference-audio file is attached (see ReferenceAudioPicker.tsx),
@@ -116,6 +117,8 @@ export const generationApi = {
     progress?: number; progressStage?: string; progressText?: string;
     /** Only on a finished TRANSCRIBE job. */
     transcription?: Transcription;
+    /** Only on a finished READ LYRICS job. */
+    lyrics?: LyricsReading;
   }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),
 
