@@ -8,7 +8,7 @@ import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
 import { useVoiceStore } from './voiceStore';
-import { useModelsForTask } from './useModelsForTask';
+import { useLookup, modelsFor } from './lookup';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
@@ -34,7 +34,8 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
-  const coverModels = useModelsForTask('cover');
+  const coverLookup = useLookup(() => modelsFor('cover'));
+  const coverModels = coverLookup.data;
   useEffect(() => {
     if (coverModels && !model) patchAudio({ model: coverModels.find((n) => n.includes('xl-sft')) ?? coverModels[0] ?? '' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -117,7 +118,9 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
     <>
       <CoverEngineChoice />
       <CoverSourcePicker songs={songs} satisfied={sourceReady} />
-      {coverModels === null ? (
+      {coverLookup.error ? (
+        <div className="error">couldn't check models for Cover — {coverLookup.error} <button onClick={coverLookup.retry}>RETRY</button></div>
+      ) : coverModels === null ? (
         <span className="meta">checking available models…</span>
       ) : coverModels.length === 0 ? (
         <span className="meta" style={{ color: 'var(--rust-text)' }}>no downloaded model supports cover generation</span>

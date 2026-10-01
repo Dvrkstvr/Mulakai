@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import { api } from './api';
 import { useSettings } from './settings';
 import { CustomSelect } from './CustomSelect';
@@ -14,6 +13,7 @@ import { Seed } from './Seed';
 import { useAddLayerDraft } from './addLayerStore';
 import { EngineGenSettings } from './EngineGenSettings';
 import { useEngineCaps } from './useEngineCaps';
+import { useLookup } from './lookup';
 
 const STEPS_INFO = 'Diffusion steps — more steps means finer detail but slower generation. Turbo models: 1–20 (8 recommended). Base/SFT models: 32–100 recommended. AUTO picks the count the selected model wants (Turbo 8, SFT 50, Base 32).';
 
@@ -63,23 +63,15 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, referenceAud
   const { gen, repaint, addLayer, setGen, setRepaint } = useSettings();
   const lyrics = useAddLayerDraft((s) => s.lyrics);
   const setLyrics = useAddLayerDraft((s) => s.setLyrics);
-  const [models, setModels] = useState<string[]>([]);
-  const [lmModels, setLmModels] = useState<string[]>([]);
+  // A failed list leaves AUTO, which needs no list; the error line says why the rest are missing.
+  const inventory = useLookup(api.listModels);
+  const models = inventory.data?.models.map((m) => m.name) ?? [];
+  const lmModels = inventory.data?.lmModels ?? [];
   // Advanced knobs (shift/ADG/CFG-interval) only affect Base models; when Add Layer is active
   // the model is its Base lego model, otherwise repaint's own DiT model.
   const gatingModel = addLayerActive ? addLayer.model : repaint.model;
   // PROMPT on an extra engine: its own controls replace ACE-Step's whole generate block.
   const { info: engine } = useEngineCaps();
-
-  useEffect(() => {
-    api.listModels().then((data) => {
-      setModels(data.models.map((m) => m.name));
-      setLmModels(data.lmModels);
-    }).catch(() => {
-      setModels([]);
-      setLmModels([]);
-    });
-  }, []);
 
   const AUTO = { label: 'AUTO', value: '' };
 
@@ -88,6 +80,9 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, referenceAud
       <motion.div layout="position" className="section-label">{mode === 'generate' ? 'GENERATION' : addLayerActive ? 'ADD LAYER' : 'REPAINT'} SETTINGS</motion.div>
 
       <ScrollArea className="settings-panel-scroll">
+      {inventory.error && !(mode === 'generate' && engine) && (
+        <div className="error">couldn't load the model list — {inventory.error} <button onClick={inventory.retry}>RETRY</button></div>
+      )}
       {mode === 'generate' && engine ? (
         <EngineGenSettings engine={engine} />
       ) : mode === 'generate' ? (
