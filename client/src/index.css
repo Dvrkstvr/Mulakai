@@ -1886,6 +1886,12 @@ footer .player {
   color: var(--acid);
 }
 
+.dropzone.disabled {
+  border-color: var(--line);
+  color: var(--text-low);
+  cursor: default;
+}
+
 .song-picker {
   display: flex;
   flex-direction: column;
@@ -1923,6 +1929,11 @@ footer .player {
   border-color: var(--sky);
   background: var(--sky-tint);
   color: var(--text-hi);
+}
+
+.song-pick.disabled {
+  cursor: default;
+  color: var(--text-low);
 }
 
 .lm-note {

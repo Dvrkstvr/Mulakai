@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from 'react';
 import { api, type Song } from './api';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
-import { coverLocked } from './generationJob';
+import { coverLocked, isGenerating } from './generationJob';
 import { useTranscribeStore } from './transcribeStore';
 import { useEngineCaps } from './useEngineCaps';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
+import { sourceLockedBy } from './coverDraft';
+import { useAnalyzeSourceAudio } from './useAnalyzeSourceAudio';
+import { CoverSourcePicker } from './CoverSourcePicker';
 import { sectionOutline } from './coverLyrics';
 import { YueScoreReview } from './YueScoreReview';
 import { YueCoverGenerate } from './YueCoverGenerate';
@@ -14,8 +17,8 @@ import { useReadLyricsStore } from './readLyricsStore';
 import { useReadLyrics } from './YueReadLyrics';
 
 /** COVER on an extra engine (PLAN.md "YuE2 Melody Covers via SheetSage2", "Client cover
- * decisions"): SOURCE → TRANSCRIBE → review → GENERATE. The source picker sits above this;
- * the score lives in the draft, so style, lyrics or seed can change without transcribing again. */
+ * decisions"): SOURCE → TRANSCRIBE → review → GENERATE. The score lives in the draft, so style,
+ * lyrics or seed can change without transcribing again. */
 export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; onBack: () => void; noCoverModel: boolean }) {
   const audio = useCreateDraftStore((s) => s.audio);
   const lyrics = useCreateDraftStore((s) => s.lyrics);
@@ -51,6 +54,10 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
   const locked = coverLocked(genJob, otherLock, transcribing || reading);
   const read = useReadLyrics(songs, transcribing || locked);
   const running = transcribing || read.running;
+  const analysis = useAnalyzeSourceAudio();
+  const lockedBy = sourceLockedBy({
+    transcribing, reading: read.running, analyzing: analysis.analyzing, generating: isGenerating(genJob),
+  });
   const transcribe = async () => {
     setError('');
     setPreparing(true);
@@ -80,6 +87,8 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
       : score?.transcription ? 'TRANSCRIBE AGAIN' : 'TRANSCRIBE';
   return (
     <>
+      <CoverSourcePicker songs={songs} lockedBy={lockedBy}
+        satisfied={coverSourceReady(audio) || !!score || !!audio.reuseScore} />
       <div className="score-actions">
         <button className="acid-outline" disabled={!coverSourceReady(audio) || running || locked || unavailable} onClick={transcribe}>
           <span>{label}</span>
@@ -101,7 +110,7 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
       {reuse && !score && <span className="meta">loading the earlier cover&apos;s score…</span>}
       {score && <YueScoreReview engine={engine} score={score} />}
       <YueCoverGenerate onBack={onBack} blocked={running || locked}
-        analyze={<YueCoverAnalyze blocked={running || locked} noModel={noCoverModel} />} />
+        analyze={<YueCoverAnalyze analysis={analysis} blocked={running || locked} noModel={noCoverModel} />} />
     </>
   );
 }

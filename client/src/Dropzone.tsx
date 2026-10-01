@@ -19,7 +19,7 @@ export function Dropzone({ accept, disabled, onFile, children }: Props) {
 
   return (
     <label
-      className={over ? 'dropzone drag-over' : 'dropzone'}
+      className={`dropzone${over ? ' drag-over' : ''}${disabled ? ' disabled' : ''}`}
       onDragOver={(e) => { stop(e); if (!disabled) setOver(true); }}
       onDragLeave={(e) => { stop(e); setOver(false); }}
       onDrop={(e) => {
