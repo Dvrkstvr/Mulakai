@@ -1,6 +1,7 @@
 import { create } from 'zustand';
-import { api, type ActiveGeneration, type EngineId, type StemKind } from './api';
-import { taskToGenType, type CreateDraft } from './createDraft';
+import { api, type EngineId, type StemKind } from './api';
+import type { CreateDraft } from './createDraft';
+import { adoptLock, isGenerating } from './generationJob';
 
 export type GenStage = 'loading' | 'running' | 'done' | 'failed';
 
@@ -59,7 +60,8 @@ interface GenerationState {
   ) => Promise<void>;
   /** A melody cover from a score on an extra engine (COVER on YUE2) — a new song like the rest. */
   startCover: (engine: EngineId, params: { title: string; prompt: string } & Record<string, unknown>, draft: CreateDraft) => Promise<void>;
-  /** Clears a failed job (called right before navigating back to Create for a retry). */
+  /** Clears a failed job (called right before navigating back to Create for a retry). A failed
+   * job blocks nothing meanwhile (see isGenerating) — a new start just replaces its card. */
   dismiss: () => void;
   /** Rehydrates from the server's generation lock — call once on app mount, in case a
    * generation was already in flight before a page refresh. */
@@ -111,7 +113,7 @@ async function launch(
   set: SetState, get: () => GenerationState, caption: string, title: string, draft: CreateDraft,
   submit: () => Promise<{ jobId: string }>,
 ): Promise<void> {
-  if (get().job) return;
+  if (isGenerating(get().job)) return;
   const provisional: GenerationJob = { jobId: '', title, caption, stage: 'loading', startedAt: Date.now(), draft };
   set(() => ({ job: provisional }));
   try {
@@ -123,20 +125,6 @@ async function launch(
       ? { job: { ...provisional, stage: 'failed', error: err instanceof Error ? err.message : String(err) } }
       : {}));
   }
-}
-
-/** A song generation found in the server's lock (after a reload, or started in another tab),
- * as our own job. It has no draft to recover, but the lock knows which task is running —
- * enough for RETRY to reopen the tab that started it instead of always dropping into PROMPT. */
-function adoptLock(active: ActiveGeneration): GenerationJob {
-  return {
-    jobId: active.jobId, title: active.title ?? 'Untitled', caption: active.caption ?? '',
-    stage: active.status, error: active.error, startedAt: active.startedAt,
-    draft: {
-      genType: taskToGenType(active.task), prompt: active.caption,
-      ...(active.engine ? { [active.task === 'cover' ? 'coverEngine' : 'engine']: active.engine as EngineId } : {}),
-    },
-  };
 }
 
 export const useGenerationStore = create<GenerationState>((set, get) => ({
@@ -175,7 +163,7 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
   },
 
   refreshLock: async () => {
-    if (get().job) {
+    if (isGenerating(get().job)) {
       if (get().otherLock) set({ otherLock: null }); // our own job holds the lock — nothing "other" to report
       return;
     }

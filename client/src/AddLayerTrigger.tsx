@@ -7,6 +7,7 @@ import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
@@ -41,7 +42,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   const [mixError, setMixError] = useState('');
   const [expanded, setExpanded] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
-  const genJob = useGenerationStore((s) => s.job);
+  const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
   const startAddLayer = useEditorJobStore((s) => s.startAddLayer);
@@ -50,7 +51,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   const mine = myEditorJob(editorJob, 'addLayer', { songId });
   const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
   const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'add layer failed') : '');
-  const busyElsewhere = !mine && (!!genJob || !!editorJob || !!otherLock);
+  const busyElsewhere = !mine && (genRunning || !!editorJob || !!otherLock);
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {

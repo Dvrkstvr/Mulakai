@@ -6,6 +6,7 @@ import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useSettings } from './settings';
 import { AudioPreview } from './AudioPreview';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { useRemasterResult } from './remasterResult';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
@@ -31,7 +32,7 @@ export function RemasterAction({ songId, layers }: Props) {
   const [coverModels, setCoverModels] = useState<string[] | null>(null);
   const [model, setModel] = useState('');
   const [mixError, setMixError] = useState('');
-  const genJob = useGenerationStore((s) => s.job);
+  const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const otherLock = useGenerationStore((s) => s.otherLock);
   const editorJob = useEditorJobStore((s) => s.editorJob);
   const remasterResult = useRemasterResult((s) => s.result);
@@ -41,7 +42,7 @@ export function RemasterAction({ songId, layers }: Props) {
   const mine = myEditorJob(editorJob, 'remaster', { songId });
   const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
   const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'remaster failed') : '');
-  const busyElsewhere = !mine && (!!genJob || !!editorJob || !!otherLock);
+  const busyElsewhere = !mine && (genRunning || !!editorJob || !!otherLock);
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
   useEffect(() => {

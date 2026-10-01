@@ -5072,3 +5072,40 @@ input was the score that failed (via USE .ABC FILE).
   nothing is said up front.
 - **Cutting inside a section.** A single section over budget (a 4,000-token
   outro) can't be fixed here. That still needs USE .ABC FILE.
+
+## A Failed Generation Blocks Nothing (planned 2026-10-01)
+
+After a cover failed (found while browser-checking #48), Create's button
+read "A GENERATION IS ALREADY RUNNING" until a page reload, though the
+server had already released its lock. A failed job stays in
+`generationStore` on purpose, so the Library card can show the error
+and RETRY, but every "busy" check was `!!genJob`. Only CreateBar's
+already excluded `failed`. The store had the same gap: `launch()`
+refused any start while a job existed, and `refreshLock()` stopped
+polling the lock, so it missed repaints or generations from other tabs.
+
+### Decisions
+
+1. **One predicate, `isGenerating(job)`**: a job counts unless its
+   stage is `failed`. `done` still counts during its 900 ms linger, as
+   CreateBar already did.
+2. **A new start replaces the failed card**; nothing asks to dismiss it
+   first. A job still in flight keeps refusing a second start.
+3. **Editor-side failures stay as they are.** `editorJobStore` has the
+   same pattern for repaint/regenerate/add layer, but it's a separate
+   store with its own RETRY flow. That's its own fix.
+
+### File-level plan
+
+- `client/src/generationJob.ts` (new): `isGenerating`, plus
+  `adoptLock` moved out of the store (pure job helpers), which keeps
+  `generationStore.ts` under the 200-line cap.
+- `client/src/generationStore.ts`: `launch` and `refreshLock` use
+  `isGenerating`.
+- Busy checks switch from `!!genJob` to `isGenerating`: `App.tsx`,
+  `CreateView.tsx`, `PromptGenerateRow.tsx`, `CreateAudioTab.tsx`,
+  `CreateArrangeTab.tsx`, `Editor.tsx`, `AddLayerTrigger.tsx`,
+  `RemasterAction.tsx`, `SplitPanel.tsx`, `VersionHistory.tsx`.
+- `client/src/generationStore.test.ts`: the predicate, a start over a
+  failed card, a refused start while in flight, and lock tracking while
+  a failed card shows.

@@ -6,6 +6,7 @@ import { GenerateButton } from './GenerateButton';
 import type { CreateDraft } from './createDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { useVoiceStore } from './voiceStore';
 import { useModelsForTask } from './useModelsForTask';
 import { AutoTextarea } from './AutoTextarea';
@@ -39,11 +40,11 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coverModels, model]);
 
-  const genJob = useGenerationStore((s) => s.job);
+  const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const startFromAudio = useGenerationStore((s) => s.startFromAudio);
   const dismiss = useGenerationStore((s) => s.dismiss);
   const voice = useVoiceStore();
-  const busy = submitting || !!genJob;
+  const busy = submitting || genRunning;
 
   const sourceReady = coverSourceReady(draft.audio);
   const ready = sourceReady && !!model && (coverModels?.length ?? 0) > 0;
@@ -144,7 +145,7 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
         keyScale={keyScale} onKeyScaleChange={(v) => patch({ keyScale: v })}
       />
 
-      <GenerateButton submitting={submitting} blocked={!!genJob} label="GENERATE COVER" disabled={busy || !ready} onClick={generate} />
+      <GenerateButton submitting={submitting} blocked={genRunning} label="GENERATE COVER" disabled={busy || !ready} onClick={generate} />
       <div className="hint">Renders a new song conditioned on the chosen source track — can take several minutes.</div>
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
       {/* Upload only: a library song is already editable from its row's EDIT button, and this

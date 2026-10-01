@@ -6,6 +6,7 @@ import { ScratchSplitPicker } from './ScratchSplitPicker';
 import type { CreateDraft } from './createDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
+import { isGenerating } from './generationJob';
 import { useVoiceStore } from './voiceStore';
 import { useModelsForTask } from './useModelsForTask';
 import { useSettings, genParams } from './settings';
@@ -46,11 +47,11 @@ export function CreateArrangeTab({ onBack }: { onBack: () => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [arrangeModels, model]);
 
-  const genJob = useGenerationStore((s) => s.job);
+  const genRunning = useGenerationStore((s) => isGenerating(s.job));
   const startComplete = useGenerationStore((s) => s.startComplete);
   const dismiss = useGenerationStore((s) => s.dismiss);
   const voice = useVoiceStore();
-  const busy = submitting || !!genJob;
+  const busy = submitting || genRunning;
 
   const sourceReady = source === 'upload' ? !!uploadFile : !!scratchSource;
   const ready = sourceReady && !!model && (arrangeModels?.length ?? 0) > 0;
@@ -173,7 +174,7 @@ export function CreateArrangeTab({ onBack }: { onBack: () => void }) {
         keyScale={keyScale} onKeyScaleChange={(v) => patch({ keyScale: v })}
       />
 
-      <GenerateButton submitting={submitting} blocked={!!genJob} label="ARRANGE" disabled={busy || !ready} onClick={generate} />
+      <GenerateButton submitting={submitting} blocked={genRunning} label="ARRANGE" disabled={busy || !ready} onClick={generate} />
       <div className="hint">Builds a whole new accompaniment around the source track — uses the BASE model, slower than Turbo — can take several minutes.</div>
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
     </>
