@@ -1,6 +1,6 @@
 /**
  * Standalone stem split: upload any audio file and get back its stems, with no
- * song/layer required. Reuses stemSplit.ts's per-stem ACE-Step/Demucs runners,
+ * song/layer required. Reuses stemRunners.ts's per-stem ACE-Step/Demucs runners,
  * just writing results to a scratch OS-tmp directory instead of `config.audioDir`
  * and tracking its own job registry (a scratch job has no layerId/songId to
  * belong to). Used both as a standalone utility (split, download, done) and as
@@ -13,7 +13,7 @@ import fs from 'node:fs/promises';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
 import {
   runAcestepStem, runDemucs, type SourceAudio, type StemResult, type SplitModel,
-} from './stemSplit.js';
+} from './stemRunners.js';
 import { parseOutputSettings, type OutputSettings } from './audioOutput.js';
 
 const STEM_KINDS: StemResult['kind'][] = ['vocals', 'drums', 'bass', 'other'];
