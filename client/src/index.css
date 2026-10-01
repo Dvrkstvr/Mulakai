@@ -2988,6 +2988,26 @@ footer .player {
   background: var(--sky-tint);
 }
 
+.lyrics-line.timed {
+  cursor: pointer;
+}
+
+.lyrics-line.timed:hover {
+  background: var(--carbon-raised);
+}
+
+/* The selection's echo, one level below the active block: "selection must read as one
+   continuous color everywhere it is echoed". */
+.lyrics-line.selected,
+.lyrics-line.selected:hover {
+  background: var(--sky-tint);
+  box-shadow: inset 2px 0 0 var(--sky);
+}
+
+.lyrics-line.untimed {
+  color: var(--text-low);
+}
+
 .lyrics-tag {
   font-weight: 700;
   letter-spacing: 1px;
@@ -3008,6 +3028,37 @@ footer .player {
   font-size: 10px;
   color: var(--text-low);
   letter-spacing: 0.5px;
+}
+
+/* Plain while lyrics-server reads the take, like TRANSCRIBE: reading words isn't generating. */
+.lyrics-timing {
+  color: var(--text-low);
+}
+
+.lyrics-timing-error {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 0;
+}
+
+.lyrics-timing-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.lyrics-timing-reason {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lyrics-timing-error button {
+  flex: none;
+  font-size: 10px;
+  padding: 2px 8px;
 }
 
 /* position: fixed + portal-rendered to document.body (see InfoTooltip.tsx) — an

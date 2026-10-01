@@ -22,6 +22,8 @@ from uvr_models import demucs_model_path, mdx_config_json
 VOCAL_MODEL = os.environ.get("UVR_VOCAL_MODEL", "Roformer Model: BS-Roformer-Viperx-1297")
 DEMUCS_MODEL = os.environ.get("UVR_DEMUCS_MODEL", "htdemucs")
 DATA_DIR = Path(os.environ.get("UVR_DATA_DIR", Path(__file__).parent / "data"))
+# Seconds an unfetched split's files are kept (see job_files.py).
+RESULT_TTL = float(os.environ.get("UVR_RESULT_TTL", "900"))
 # Outside DATA_DIR, which is served as /audio.
 CONFIG_DIR = Path(__file__).parent / "model-configs"
 
@@ -55,4 +57,4 @@ def _free_gpu():
         torch.cuda.empty_cache()
 
 
-app = create_app(_run_mdx, _run_demucs, _free_gpu, DATA_DIR, VOCAL_MODEL, DEMUCS_MODEL)
+app = create_app(_run_mdx, _run_demucs, _free_gpu, DATA_DIR, VOCAL_MODEL, DEMUCS_MODEL, RESULT_TTL)
