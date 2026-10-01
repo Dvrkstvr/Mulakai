@@ -6228,3 +6228,37 @@ idle before each read.
 **Not checked:** a repaint landing in the Editor and being read (PR 3's
 check covers it, since ACE-Step is needed), and the 409 path when another
 job takes the lock first (unit-tested).
+
+### Browser check, PR 3 (2026-10-02)
+
+Same setup as PR 2's.
+
+1. ***Purple Shinings*, read:** 18 lines clickable. The 6 lines that
+   weren't sung ("(Mmm Mmm Mmm)" ×4, the outro's "In the shadows" ×2) are
+   `text-low`.
+   - **It found a bug:** tag lines inside a block (`[Rhodes piano melody]`,
+     `[Humming]`) were drawn as unheard lyrics. Tags now render as before.
+2. **Click** "Neon signs and silhouettes": the region, the scope chip and
+   the line's sky echo all read 0:27–0:32, and REPAINT REGION came on
+   ("will save as BASE v2").
+3. **Shift-click** two lines down: 0:27–0:42, with the three sung lines
+   echoed and the unsung "(Mmm)" between them not. No stray text
+   selection.
+4. **A short line** ("Clandestine and free", 0:56.8–0:58.6): widened to
+   0:56–0:59, repaintable.
+5. **Double-click** "Concrete jungle breathing slow": the playhead moved to
+   its start (about 68.8 s), and the 2.7 s line was widened to 1:08–1:11.
+6. **CHORUS in the strip** afterwards: the line echo went away and the
+   block unlocked for editing, as before.
+7. **A new active version gets read:** with ACE-Step offline, no real
+   repaint could land. REVERT (SEL) on *Unmoving*'s first take did the same
+   job: a new active version with no reading. The read started on its own
+   (`TIMINGS · RUNNING`), took 13 s, rebuilt the strip, and timed 17 of 18
+   lines.
+
+**Not checked:** a real repaint landing (ACE-Step was offline; step 7 runs
+the same path) and keyboard Enter on a focused line (it calls the same
+handler as a click).
+
+`Editor.tsx` grew by one line, to 321: the `lines` prop. It was 320 before
+this work, over the 200 cap; splitting it is its own PR.
