@@ -13,13 +13,15 @@ interface Props {
   onPick: (id: EngineId) => void;
   /** Why an extra engine can't take this tab's job right now; '' when it can. */
   reasonFor: (e: Choice) => string;
+  /** A job whose result belongs to this engine's draft, which holds the choice still until done. */
+  lockedBy?: string | null;
 }
 
 /** An ENGINE row: which model makes this tab's song (PLAN.md design point 11, and "Client cover
  * decisions" for COVER). Sky, not acid — picking an engine targets where the request goes;
  * GENERATE commits it. Renders nothing until some extra engine can take the tab's job, so a
  * default install is unchanged. */
-export function EngineChoice({ choices: offered, value, onPick, reasonFor }: Props) {
+export function EngineChoice({ choices: offered, value, onPick, reasonFor, lockedBy = null }: Props) {
   const engines = useEngineStore((s) => s.engines);
   const loaded = useEngineStore((s) => s.loaded);
   const { info, unavailable } = useEngineCaps();
@@ -44,12 +46,13 @@ export function EngineChoice({ choices: offered, value, onPick, reasonFor }: Pro
       <div className="type-tabs">
         {choices.map((e) => (
           <button key={e.id} className={e.id === value ? 'tab engine-tab active' : 'tab engine-tab'}
-            disabled={!!reason(e) && e.id !== value} title={reason(e) || undefined}
+            disabled={!!lockedBy || (!!reason(e) && e.id !== value)} title={reason(e) || undefined}
             onClick={() => onPick(e.id)}>
             <span>{e.label}</span>
           </button>
         ))}
       </div>
+      {lockedBy && <div className="hint">ENGINE is locked while {lockedBy} runs — its result belongs to this engine&apos;s cover</div>}
       {choices.filter((e) => e.id !== value && reason(e)).map((e) => (
         <div key={e.id} className="hint">{e.label} — {reason(e)}</div>
       ))}
@@ -71,10 +74,11 @@ export function PromptEngineChoice() {
   return <EngineChoice choices={pickerEngines(engines)} value={engine} onPick={(id) => patch({ engine: id })} reasonFor={unavailableReason} />;
 }
 
-/** COVER's ENGINE row: engines that can cover. ARRANGE has none — it is ACE-Step only. */
-export function CoverEngineChoice() {
+/** COVER's ENGINE row: engines that can cover. ARRANGE has none — it is ACE-Step only. `lockedBy`
+ * names a job reading the source for this engine (PLAN.md "COVER's Engine Holds Still Too"). */
+export function CoverEngineChoice({ lockedBy = null }: { lockedBy?: string | null }) {
   const engines = useEngineStore((s) => s.engines);
   const engine = useCreateDraftStore((s) => s.audio.engine);
   const patchAudio = useCreateDraftStore((s) => s.patchAudio);
-  return <EngineChoice choices={coverEngines(engines)} value={engine} onPick={(id) => patchAudio({ engine: id })} reasonFor={coverUnavailableReason} />;
+  return <EngineChoice choices={coverEngines(engines)} value={engine} onPick={(id) => patchAudio({ engine: id })} reasonFor={coverUnavailableReason} lockedBy={lockedBy} />;
 }
