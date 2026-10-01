@@ -1,6 +1,7 @@
 import { clampDepth } from './formatCaps';
 import type { GenSettings, AdvancedSettings, RepaintSettings, AddLayerSettings, ExportSettings } from './settingsTypes';
 import { useSettings } from './settingsStore';
+import { stepsMax } from './modelInfo';
 
 /**
  * ACE-Step is always asked for its highest-fidelity container regardless of what
@@ -78,6 +79,26 @@ function lmAdvancedParams(s: AdvancedSettings) {
     ...(s.lmTopK > 0 ? { lm_top_k: s.lmTopK } : {}),
     lm_top_p: s.lmTopP,
     lm_repetition_penalty: s.lmRepetitionPenalty,
+  };
+}
+
+/**
+ * Map the Create rail's settings to a COVER request. `model` is the COVER tab's own
+ * picker (cover-capable models only), not `g.model`. STEPS is shared with PROMPT, so it
+ * is clamped to this model's ceiling. `cover` skips the LM planner, and the server pins
+ * batch_size to 1, so no LM knobs, THINKING/AI ENHANCE or TAKES.
+ */
+export function coverParams(g: GenSettings, model: string) {
+  const steps = Math.min(g.inferenceSteps, stepsMax(model));
+  return {
+    audio_format: MASTER_AUDIO_FORMAT,
+    output: outputParams(),
+    ...(model ? { model } : {}),
+    ...(steps > 0 ? { inference_steps: steps } : {}),
+    ...(g.guidanceScale > 0 ? { guidance_scale: g.guidanceScale } : {}),
+    use_random_seed: g.randomSeed,
+    ...(g.randomSeed ? {} : { seed: g.seed }),
+    ...ditAdvancedParams(g),
   };
 }
 
