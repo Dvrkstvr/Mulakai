@@ -102,12 +102,12 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
 
   // An engine cover transcribes the source and sings the score; ACE-Step's model and variance
   // don't apply, and its audio analysis only describes the source (PLAN.md "Client cover
-  // decisions", "ANALYZE AUDIO on COVER · YUE2").
+  // decisions", "ANALYZE AUDIO on COVER · YUE2"). The panel renders its own SOURCE, which its
+  // jobs lock while they read it.
   if (draft.audio.engine !== 'acestep') {
     return (
       <>
         <CoverEngineChoice />
-        <CoverSourcePicker songs={songs} satisfied={sourceReady || !!draft.audio.yueScore || !!draft.audio.reuseScore} />
         <YueCoverPanel songs={songs} onBack={onBack} noCoverModel={coverModels?.length === 0} />
       </>
     );

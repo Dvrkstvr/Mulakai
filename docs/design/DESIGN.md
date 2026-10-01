@@ -328,7 +328,14 @@ requiring its own justification against a screen-count rule.
        (`API.md` §4.2).
        - *Audio on an engine (YUE2)*: a melody cover sung from a score. The
          flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
-         - The SOURCE picker is unchanged. **TRANSCRIBE** is an acid
+         - The SOURCE picker is unchanged, except that it **holds still**
+           (added 2026-10-02) while a job reads the source: TRANSCRIBE, READ
+           LYRICS (with their PREPARING SOURCE step), ANALYZE AUDIO or a
+           generation. Its tabs, drop zone and library rows are disabled
+           (`text-low`, no acid hover); search and row previews stay live. A
+           hint under SOURCE says why: "SOURCE is locked while TRANSCRIBE
+           runs — its result belongs to this source". Another job's server
+           lock doesn't lock it. **TRANSCRIBE** is an acid
            *outline*, because GENERATE COVER stays the one filled acid CTA.
            While it runs it reads `TRANSCRIBING… n%`, with no shader: the AI
            shimmer stays on GENERATE / REPAINT. Beside it, **USE .ABC FILE**

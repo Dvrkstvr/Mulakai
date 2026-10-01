@@ -5856,3 +5856,80 @@ error.
   split, a repaint refused while a split runs, a split replacing a
   settled one (and cancelling it on the server), and a failed split
   start.
+
+## COVER's Source Holds Still While a Job Reads It (planned 2026-10-02)
+
+Explains the "Unexplained, from the first run" note in "READ LYRICS
+With TRANSCRIBE for Uploads". On COVER · YUE2 the SOURCE picker stayed
+live while TRANSCRIBE, READ LYRICS and ANALYZE AUDIO ran. Picking the
+same file again makes a new `File` object, and `withSourceChange`
+compared `uploadFile` by identity, so it cleared the transcribed score.
+`coverSourceKey` (name, size, lastModified) still matched, so the read
+that finished next was placed, but with no score: untagged lines. The
+same gap let a source picked while a library song was being bounced
+down ("PREPARING SOURCE…") send one song's audio under the other's key.
+
+### Decisions
+
+1. **The picker is locked while a cover job reads the source**: TRANSCRIBE
+   or READ LYRICS (their PREPARING SOURCE step included, and an automatic
+   read after TRANSCRIBE), ANALYZE AUDIO, and a running generation. The
+   UPLOAD / FROM LIBRARY tabs, the drop zone and the library rows are
+   disabled; library search and the row previews stay live, since they
+   change nothing.
+2. **Another job's server lock does not lock it.** `coverLocked` folds in
+   `otherLock` (an Editor repaint, say) to block TRANSCRIBE, but that job
+   never reads COVER's source, and picking one while it runs is harmless.
+3. **The reason is said inline**, under SOURCE: "SOURCE is locked while
+   TRANSCRIBE runs — its result belongs to this source" (READ LYRICS /
+   ANALYZE AUDIO / a generation). DESIGN.md's COVER · YUE2 entry gets the
+   rule.
+4. **`withSourceChange` compares by `coverSourceKey`**, the identity every
+   job guard already uses. Re-picking the same file keeps its score; a
+   different file, song or tab still drops a transcribed one. The two
+   rules can no longer disagree about what "the same source" is.
+5. **YueCoverPanel renders the picker**, since it holds every job state the
+   lock needs. ANALYZE AUDIO's request state moves up into it from
+   YueCoverAnalyze (passed down as a prop), so the panel can see it. The
+   ACE-Step COVER path is unchanged: its only job is GENERATE, which reads
+   the source once at submit.
+
+### File-level plan
+
+- `client/src/coverDraft.ts`: `withSourceChange` by key; `sourceLockedBy`
+  names the job holding the source, or null.
+- `client/src/CoverSourcePicker.tsx`: `lockedBy` prop disables the tabs,
+  drop zone and rows, and shows the reason.
+- `client/src/Dropzone.tsx`, `client/src/index.css`: a disabled drop zone
+  and library row look disabled (no acid hover).
+- `client/src/YueCoverPanel.tsx`: renders the picker with `lockedBy`;
+  owns ANALYZE AUDIO's state.
+- `client/src/YueCoverAnalyze.tsx`: takes that state as a prop.
+- `client/src/CreateAudioTab.tsx`: the engine branch drops its own picker.
+- `client/src/coverDraft.test.ts` (new): re-picking the same file keeps the
+  score; another file, song or tab drops it; a file's score stays; the
+  lock's reason in priority order.
+
+### Open questions
+
+- CoverEngineChoice can still switch COVER to ACE-Step mid-job, which
+  unmounts the panel but not the job. Its result lands in the draft as
+  before; not changed here.
+
+### Browser check (2026-10-02)
+
+Worktree client on a spare port against the running server, ACE-Step,
+YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
+
+- TRANSCRIBE: tabs and drop zone disabled, "SOURCE is locked while
+  TRANSCRIBE runs". The score landed and the automatic READ LYRICS took
+  the lock over with no gap ("…while READ LYRICS runs"), then released
+  it about 9 s in. LYRICS came out tagged (`[Intro]`, `[Interlude]`, …).
+- The same file picked again (a new `File` object): score and tagged
+  LYRICS kept. Before this fix that re-pick cleared the score, which
+  explains the "Unexplained" note in "READ LYRICS With TRANSCRIBE for
+  Uploads".
+- ANALYZE AUDIO: locked while ANALYZING…, released after.
+- FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
+  from the library: all rows disabled, a click on another row ignored,
+  search live.

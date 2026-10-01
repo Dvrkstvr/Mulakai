@@ -3,7 +3,7 @@ import { useCreateDraftStore } from './createDraftStore';
 import { useTranscribeStore } from './transcribeStore';
 import { useReadLyricsStore } from './readLyricsStore';
 import { useEngineCaps } from './useEngineCaps';
-import { canAnalyze, useAnalyzeSourceAudio, type AnalyzeSource } from './useAnalyzeSourceAudio';
+import { canAnalyze, type AnalyzeSource, type useAnalyzeSourceAudio } from './useAnalyzeSourceAudio';
 import { coverSourceKey, coverSourceReady, resolveCoverSource } from './coverSource';
 import { yueAnalysisPatch, type YueAnalysis } from './yueCoverAnalysis';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
@@ -12,12 +12,14 @@ import { sungScore } from './scoreCut';
 /** ANALYZE AUDIO on COVER · YUE2 (PLAN.md "ANALYZE AUDIO on COVER · YUE2"): ACE-Step describes the
  * source with COVER's ACE-Step model, and the description becomes a tagged PROMPT (plus wordless
  * LYRICS and an AUTO VOCAL LANGUAGE). Not `useAnalyzeAndApply`: that also writes BPM / KEY /
- * DURATION, which the score fixes here. */
-export function YueCoverAnalyze({ blocked, noModel }: { blocked: boolean; noModel: boolean }) {
+ * DURATION, which the score fixes here. `analysis` is YueCoverPanel's, so a run holds the source. */
+export function YueCoverAnalyze({ analysis, blocked, noModel }: {
+  analysis: ReturnType<typeof useAnalyzeSourceAudio>; blocked: boolean; noModel: boolean;
+}) {
   const audio = useCreateDraftStore((s) => s.audio);
   const patch = useCreateDraftStore((s) => s.patch);
   const { info } = useEngineCaps();
-  const { analyze, analyzing, error, result } = useAnalyzeSourceAudio();
+  const { analyze, analyzing, error, result } = analysis;
   // Once READ LYRICS has written LYRICS, they are no longer what ACE-Step heard.
   const lyrics = useCreateDraftStore((s) => s.lyrics);
   const readOwns = useReadLyricsStore((s) => s.placed) === lyrics;

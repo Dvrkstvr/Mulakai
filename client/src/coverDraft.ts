@@ -2,6 +2,7 @@
  * of createDraftStore.ts, which is near the module cap. */
 import type { Source } from './createDraft';
 import type { Transcription } from './api';
+import { coverSourceKey } from './coverSource';
 
 /** The score an engine cover sings (PLAN.md "Client cover decisions"): from a TRANSCRIBE, a
  * USE .ABC FILE, or a reused cover. Only a transcribed one belongs to the source it came from. */
@@ -28,10 +29,17 @@ interface CoverSourceState {
 }
 
 /** A transcribed score describes its source, so picking another source drops it. A score
- * from a file or a reused cover isn't tied to the source, so it stays. */
+ * from a file or a reused cover isn't tied to the source, so it stays. "Another source" is
+ * `coverSourceKey`'s, as for every job's result: re-picking the same file is a new `File`. */
 export function withSourceChange<A extends CoverSourceState>(a: A, p: Partial<A>): A {
-  const moved = ('source' in p && p.source !== a.source)
-    || ('selectedSongId' in p && p.selectedSongId !== a.selectedSongId)
-    || ('uploadFile' in p && p.uploadFile !== a.uploadFile);
+  const moved = coverSourceKey({ ...a, ...p }) !== coverSourceKey(a);
   return { ...a, ...(moved && a.yueScore?.transcription ? { yueScore: null } : {}), ...p };
+}
+
+/** What holds COVER's source still, as the picker's reason line names it, or null. */
+export function sourceLockedBy(jobs: { transcribing: boolean; reading: boolean; analyzing: boolean; generating: boolean }): string | null {
+  if (jobs.transcribing) return 'TRANSCRIBE';
+  if (jobs.reading) return 'READ LYRICS';
+  if (jobs.analyzing) return 'ANALYZE AUDIO';
+  return jobs.generating ? 'a generation' : null;
 }
