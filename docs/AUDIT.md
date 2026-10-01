@@ -39,7 +39,12 @@ on-disk audio of stems already claimed as versions. The doc comment ("keeps only
 this stem's output") describes behavior the code doesn't implement. Unclaimed stem
 files are also never deleted (`cancelSplit` only drops the in-memory job).
 
-### 3. demucs-server blocks its event loop and leaks disk
+### 3. ✅ demucs-server blocks its event loop and leaks disk
+**Fixed 2026-10-02 — PR #80.** `/split` is a sync `def` (threadpool, one at a
+time); failed splits remove their job dir; each stem is deleted once
+downloaded, unfetched ones are swept after `DEMUCS_RESULT_TTL`. uvr-server
+already split off the loop but had the same disk leak; fixed there too.
+
 `demucs-server/main.py` — `demucs.separate.main(...)` runs inside `async def`,
 freezing the loop for the whole split (so `/health` reports the service down
 mid-job); no try/finally around the split (a corrupt upload leaks the source file
