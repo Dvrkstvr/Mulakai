@@ -5227,6 +5227,13 @@ Covers: Pick the Score's Sections" changed it.
     it. That is the same rule as ANALYZE AUDIO.
   - A language heard that the engine doesn't sing gets the same
     `.warn-note` as ANALYZE AUDIO.
+  - **A language READ LYRICS filled in itself is never sent as forced.**
+    `readLyricsStore.filledLanguage` remembers it, and while VOCAL LANGUAGE
+    still holds it, the next read auto-detects. A later read that hears
+    another language puts the guess back to AUTO.
+    - Why (browser check): an early read guessed EN for a German song, and
+      the next read sent EN as forced. Whisper then translated the German
+      verses into English.
 - **Placement** is in new `lyricsPlacement.ts` (pure), as
   `placeReading(reading, score)`:
   - Each segment is one line, in the section where the median of its
@@ -5277,6 +5284,60 @@ Covers: Pick the Score's Sections" changed it.
   upload (spike open question 2). v1 keeps it explicit, as decision 3
   says. The spike's numbers make the automatic version cheap, so it is the
   user's call after trying v1.
+
+#### READ LYRICS browser check (2026-10-01)
+
+**Setup:** worktree copies of the services on spare ports, with the user's
+own app stopped at the time.
+- Mulakai server on 3011, with a scratch `DATA_DIR`.
+- lyrics-server on 8015, large-v3.
+- This branch's yue-server in WSL on 8014, with its own data dir, so the
+  real `section_starts` were in the loop.
+- The client on 5174.
+
+**Source:** the real upload *Kopf hoch und Tanz.mp3*, 7:46, German. It is
+the song whose 5,032-token score "YuE2 Covers: Pick the Score's Sections"
+was written for.
+
+1. **Upload → TRANSCRIBE:** 45 s, and the score came back at 5,032 tokens.
+   READ LYRICS was disabled while it ran.
+   - yue-server returned `section_starts` for all 7 sections, e.g. verse
+     62.77 s and outro 340.83 s.
+2. **READ LYRICS on the wordless outline:** no confirm, as designed. The
+   first job downloaded the model (about 2 min).
+   - **It found a real bug: the German verses came back translated into
+     English.** Whisper had judged the whole song by its first window
+     ("en"). It was fixed in lyrics-server (#57) by per-window detection and
+     a word-weighted language; see "lyrics-server contract".
+   - It also wrote "We'll be right back." over the instrumental stretches,
+     which is now filtered.
+3. **An edit to LYRICS, then READ LYRICS:** the first click armed `REPLACE
+   LYRICS? CONFIRM` with its hint and started no job; the second click ran
+   it.
+   - **This run found the second bug:** the first read's EN guess was being
+     forced (the `filledLanguage` rule above).
+4. **The fixed read** (VOCAL LANGUAGE AUTO, fixed lyrics-server) took 16 s:
+   - It returned 22 lines in German, matching the stored *Kopf Hoch* lyrics
+     nearly word for word: "Hey du, was ist los mit dir heut' Nacht? / Du
+     siehst so traurig aus in deinem Schlafanzug".
+   - Every line sat under the section it was sung in: verse lines under
+     [Verse], "Kopf hoch und tanz gegen den Takt" under [Chorus], "Was ist
+     bloß mit dir geschehen?" under [Bridge], and an empty [Interlude].
+   - The warn-note said "READ LYRICS heard the words in DE — YUE2 sings EN,
+     ZH", and VOCAL LANGUAGE stayed AUTO.
+5. **Leaving out INTERLUDE and OUTRO** (1,875 / 4,096 tokens): LYRICS lost
+   those two sections with no new read. The outcome read "20 lines … · 2
+   more fell in sections left out", and GENERATE COVER came on.
+6. **GENERATE COVER** with a typed style prompt: 92 s. The new song is a
+   YuE2 cover of 3:23 (5 of 7 sections), and its stored lyrics are the
+   placed German lines.
+
+**Not checked:**
+- A score with no downbeat times (the tempo-grid warn-note); unit tests
+  cover it.
+- READ LYRICS before any score; unit tests cover it.
+- How the cover *sounds*, given German words on an engine that sings
+  EN/ZH, which the warn-note covers.
 
 ## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
 
