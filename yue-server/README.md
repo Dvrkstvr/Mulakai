@@ -239,6 +239,13 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
 - `GET /v1/transcriptions/health` needs no auth. It returns 200
   `{"status": "ready"}`, else 503 with `status` `not_configured`,
   `missing_files` (with `detail`), or the worker's `loading` / `failed`.
+- `POST /v1/scores/measure` — body `{abc}` → `{budget, header, sections:
+  [{name, tokens}]}`: a cover score's size in the planner's tokens, against
+  the 4096-token budget a supplied score must fit. The score is prepared as
+  `POST /v1/jobs` prepares it (a bad one is the same 422). `header` is
+  everything before the first `% name` line, and each section is its block.
+  The counts add up to the whole score's, so a client can sum any cut of
+  whole sections. 503 until the worker is ready.
 - `GET /health/ready` — 200 `{"status": "ready"}`, else 503 with
   `"loading"` or `"failed"`. `GET /health/live` — 200 `{"status": "alive"}`.
 
