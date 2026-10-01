@@ -1,0 +1,7 @@
+fastapi
+uvicorn[standard]
+python-multipart
+faster-whisper==1.2.1
+# CTranslate2 needs cuBLAS 12 and cuDNN 9; main.py puts these wheels' DLLs on the search path
+nvidia-cublas-cu12
+nvidia-cudnn-cu12==9.*

@@ -5052,6 +5052,58 @@ same way (`--melody-only`, 43 s wall).
   `S:\AI Gen\heartlib\ckpt\HeartTranscriptor-oss`. Nothing uses them now,
   and they can be deleted.
 
+### lyrics-server contract (PR 1, 2026-10-01)
+
+- **Process.** `lyrics-server/` is a FastAPI service on port 8005, in its
+  own venv, built like `uvr-server`. The HTTP layer takes an injected
+  transcriber, so the tests need no model.
+- **`GET /health`** returns `{"ok": true, "backend": "faster-whisper",
+  "model": …}` and loads nothing. PR 2's `lyricsReady` probe calls it.
+- **`POST /transcribe`** takes a multipart `audio` field and an optional
+  `language` form field. An empty `language` means auto-detect.
+  - It returns `{"language": "en", "segments": [{"text", "start", "end",
+    "words": [{"text", "start", "end"}]}]}`, with times in seconds rounded
+    to 0.01.
+  - A failure returns 500 with the reason in `detail`.
+  - One job runs at a time, under a lock, like `uvr-server`'s.
+- **The model loads per job and is freed afterwards.** That costs a 3 s
+  load against a 3–15 s job, and the 4–6 GB goes back to ACE-Step and the
+  engines in between.
+- **Settings are fixed to the spike's winner:** large-v3, fp16, beam 5,
+  `condition_on_previous_text=False`, `word_timestamps=True`, no VAD.
+  `LYRICS_MODEL`, `LYRICS_DEVICE` and `LYRICS_COMPUTE_TYPE` override the
+  model and where it runs, for a smaller card.
+- **Auto-detect is per window** (added after PR 3's browser check on a real
+  upload, the 7:46 *Kopf hoch und Tanz*):
+  - **The problem:** Whisper takes the first 30 s window's language for the
+    whole song. It judged the opening "en", then wrote the German verses as
+    English translations: "You look so sad in your sleeping suit" for "Du
+    siehst so traurig aus in deinem Schlafanzug".
+  - **The fix:** with no language given, the service transcribes with
+    `multilingual=True`, which detects the language of every window. The
+    verses then came back in German, matching the stored lyrics nearly word
+    for word, and the run was a little faster (16.1 s vs 19.2 s).
+  - **The reported language** is a vote. Each 30 s window that holds words
+    detects its language and weighs it by its word count, and stock lines
+    don't vote. *Kopf hoch* came out "de" 157 to "en" 29, where the first
+    window alone said "en". The vote costs about 2 s.
+  - A given language is still forced on every window and reported as given.
+- **Hallucinations** are dropped per segment before returning:
+  - Anywhere: segments with no letters (e.g. "🎵"), and stock phrases that
+    are never lyrics ("thanks/thank you for watching", "… for listening",
+    "subscribe", "Untertitel…", "subtitles by").
+  - When it is the whole segment: a subtitle cue ("… Musik …", "[Music]",
+    "Applaus"), or the stock line "We'll be right back." The first live run
+    produced a cue over *Tanz*'s outro; *Kopf hoch* got that stock line four
+    times over its instrumental stretches.
+  - Only in the trailing run after the last real line: phrases a song could
+    sing ("thank you", "vielen Dank", "bis zum nächsten Mal").
+  - `no_speech_prob` thresholds are left out. The spike didn't measure
+    them, and PR 3's browser check is where an unfiltered one would show
+    up.
+- **Not in PR 1:** `start-all.bat` and `LYRICS_API_URL` arrive with PR 2,
+  the first consumer.
+
 ## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
 
 A YuE2 cover needs a style PROMPT: `buildYue2Request` throws "YUE2 needs a
