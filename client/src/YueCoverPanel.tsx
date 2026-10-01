@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, type Song } from './api';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
+import { coverLocked } from './generationJob';
 import { useTranscribeStore } from './transcribeStore';
 import { useEngineCaps } from './useEngineCaps';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
@@ -47,7 +48,7 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
   const transcribing = tr.stage === 'running' || preparing;
   // A READ LYRICS job holds the server's lock too: count it as this panel's own, not another's.
   const reading = useReadLyricsStore((s) => s.stage === 'running');
-  const locked = !!genJob || (!!otherLock && !transcribing && !reading);
+  const locked = coverLocked(genJob, otherLock, transcribing || reading);
   const read = useReadLyrics(songs, transcribing || locked);
   const running = transcribing || read.running;
   const transcribe = async () => {
