@@ -298,6 +298,14 @@ requiring its own justification against a screen-count rule.
          it has the same no-row-until-available rule. The settings panel
          follows it; on a cover, COT is replaced by a one-line hint, because
          a cover always follows its score's melody.
+         It **holds still** (added 2026-10-02) while a job whose result
+         lands in that engine's draft runs: TRANSCRIBE, READ LYRICS (with
+         their PREPARING SOURCE step) or ANALYZE AUDIO on YUE2, ANALYZE
+         AUDIO on ACE-STEP. Every engine tab is disabled, the selected one
+         included, and a hint under the row says why, in SOURCE's words:
+         "ENGINE is locked while TRANSCRIBE runs — its result belongs to
+         this engine's cover". A generation doesn't lock it; its result is
+         a library song, not the draft.
        - ARRANGE is always ACE-Step, and so is every later edit.
        - **Descriptor-driven N/A**: each engine publishes what it can take;
          a control it can't stays **in place**, disabled, with an `N/A`
@@ -326,6 +334,10 @@ requiring its own justification against a screen-count rule.
        enabled in the settings panel; LM MODEL is disabled (`n/a`) since
        `cover` skips the LM planner, same as Editor's repaint mode
        (`API.md` §4.2).
+       The SOURCE picker **holds still** here too (added 2026-10-02), the
+       same way as on YUE2 below: while ANALYZE AUDIO or a generation
+       (GENERATE COVER's submit included) runs, with the same disabled
+       tabs, drop zone and rows and the same reason line.
        - *Audio on an engine (YUE2)*: a melody cover sung from a score. The
          flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
          - The SOURCE picker is unchanged, except that it **holds still**
