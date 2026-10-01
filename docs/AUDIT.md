@@ -46,6 +46,10 @@
 - COVER sent only `model` + `audio_cover_strength`: the rail's STEPS/GUIDANCE/SEED/
   advanced knobs did nothing, and covers ignored the Settings output format. Now
   sent via `coverParams()`, with the rail gated on the tab's model — PR #95 (was #5).
+- Add Layer's bounce read each layer's volume by position from an unfiltered list, so a
+  layer with no active version shifted every later layer onto its neighbour's volume.
+  `audibleTakes()` keeps each layer with its version; Add Layer, REMASTER and COVER's
+  library source share it — PR #99 (was #7).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -103,7 +107,7 @@ influence half was fixed earlier (`referenceInfluence.ts`).
 `client/src/App.tsx` — one un-guarded `listSongs` per keystroke; a slow early
 response can overwrite results for a newer query. Debounce + drop stale responses.
 
-### 7. Add Layer bounce: volume index misalignment
+### 7. ~~Add Layer bounce: volume index misalignment~~ — fixed, PR #99
 `client/src/AddLayerTrigger.tsx` — `audible` filters layers without an active
 version, then indexes volumes via the *unfiltered* `activeLayers(layers)[i]`;
 neighbors' volumes shift when the lists diverge. (`RemasterAction.tsx` and
