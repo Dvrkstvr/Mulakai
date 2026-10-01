@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { PlaybackApi } from './mix/playerApi';
-import { openTrack, playOrStayPaused } from './singleTrack';
+import { playOrStayPaused } from './playOrStayPaused';
+import { openTrack } from './singleTrack';
 
 /**
  * Single-track playback behind the same PlaybackApi shape Player.tsx expects
@@ -36,7 +37,7 @@ export function useSingleAudioPlayback(src: string, autoPlay?: boolean): Playbac
     isPlaying,
     currentTime,
     duration,
-    play: () => { if (audioRef.current) playOrStayPaused(audioRef.current); },
+    play: () => { if (audioRef.current) playOrStayPaused(audioRef.current, 'Footer player'); },
     pause: () => audioRef.current?.pause(),
     stop: () => { const a = audioRef.current; if (a) { a.pause(); a.currentTime = 0; } setCurrentTime(0); },
     seek: (s: number) => { const a = audioRef.current; if (a) a.currentTime = s; setCurrentTime(s); },
