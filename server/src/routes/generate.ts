@@ -275,7 +275,7 @@ generateRouter.post('/active/abort', (_req, res) => {
   const { lock } = getActiveGeneration();
   if (!lock) return res.json({ ok: true, aborted: false });
   if (lock.kind === 'split') {
-    cancelSplit(lock.jobId);
+    void cancelSplit(lock.jobId).catch(() => {});
     void discardScratchSplit(lock.jobId).catch(() => {});
   } else {
     abortJob(lock.jobId);
