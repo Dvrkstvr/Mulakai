@@ -259,6 +259,7 @@
   "257": "Upstream Sync: `complete`/`lego` Skip the LM (planned + implemented 2026-09-30)",
   "258": "UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)",
   "259": "A Failed Editor Job Blocks Nothing (planned 2026-10-01)",
+  "260": "apiStatusStore.ts",
   "261": "Path",
   "262": "Runner",
   "263": "Path",
@@ -269,7 +270,13 @@
   "268": "FastAPI",
   "269": "FastAPI",
   "270": "Path",
+  "271": "Voice",
   "272": "Exception",
   "273": "JobStore",
-  "274": "Settings"
+  "274": "Settings",
+  "275": "LibraryToolbar.tsx",
+  "276": "ShaderCanvas.tsx",
+  "277": "A Preview Stopped Before It Starts Fails Quietly (planned 2026-10-02)",
+  "278": "12. Health Check",
+  "279": "1. Authentication"
 }
