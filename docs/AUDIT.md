@@ -186,7 +186,7 @@ responsibility (no behaviour change; every resulting file ≤150):
 |---|---|---|
 | `server/src/services/acestep.ts` | 539 | #74 (merged) |
 | `client/src/settings.ts` | 329 | #75 (merged) |
-| `client/src/Editor.tsx` | 320 | #82 |
+| `client/src/Editor.tsx` | 320 | #82 (merged) |
 | `client/src/App.tsx` | 317 | #77 (merged) |
 | `server/src/routes/generate.ts` | 298 | #72 (merged) |
 | `server/src/services/jobs.ts` | 283 | #73 (merged) |
