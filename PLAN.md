@@ -5377,6 +5377,14 @@ numbers make it cheap: 3–15 s of ASR after a 3 s load, no split.
    confirmed manual read.
 8. A failed automatic read shows READ LYRICS' error line, as a click does.
    The score is already in and stays.
+9. **ANALYZE AUDIO's VOCAL LANGUAGE is a guess too** (found in the browser
+   check). ANALYZE fills an AUTO VOCAL LANGUAGE from words it made up, and
+   READ LYRICS then forced it. Whisper translated the German verses into
+   English, the same failure as "READ LYRICS browser check" point 3.
+   ANALYZE now records its language as `readLyricsStore.filledLanguage`,
+   so a read auto-detects while VOCAL LANGUAGE still holds it and puts it
+   back to AUTO when it hears a language the engine doesn't sing. This
+   also covers a manual read after ANALYZE.
 
 ### Files
 
@@ -5390,7 +5398,7 @@ numbers make it cheap: 3–15 s of ASR after a 3 s load, no split.
   that started TRANSCRIBE.
 - `YueCoverPanel.tsx`: after `tr.start`, calls `read.auto` with the blob
   TRANSCRIBE already resolved; the consequence line.
-- `YueCoverAnalyze.tsx`: decision 7.
+- `YueCoverAnalyze.tsx`: decisions 7 and 9.
 - DESIGN.md in its own commit.
 
 **Browser check:** a worktree client on 5174 against the user's running
@@ -5398,6 +5406,37 @@ server and services (no server change). Upload → ANALYZE AUDIO →
 TRANSCRIBE → the read starts by itself → words under the sections; then
 TRANSCRIBE AGAIN starts no second read; then a typed edit + new upload
 keeps typed words.
+
+#### Browser check (2026-10-01)
+
+A worktree client on 5174 against the user's running server, YuE2 and
+lyrics-server. The source was the real upload *Kopf hoch und Tanz.mp3*
+(7:46, German), with VOCAL LANGUAGE AUTO and LYRICS empty.
+1. **ANALYZE AUDIO** (65 s) filled PROMPT, invented English LYRICS, and
+   set VOCAL LANGUAGE to EN.
+2. **TRANSCRIBE** (55 s): the score landed, and READ LYRICS started by
+   itself at once. TRANSCRIBE AGAIN stayed disabled while it ran.
+   - *First run, before decision 9:* the read forced ANALYZE's EN, and the
+     verses came back translated ("Hey, hey you, what's going on with you
+     tonight?").
+   - *After decision 9 (19 s):* 22 lines in German, each under its section
+     ([Verse], [Chorus], an empty [Interlude], [Bridge]). VOCAL LANGUAGE
+     went back to AUTO with the "heard the words in DE" warn-note.
+     ANALYZE's outcome line read "LYRICS now hold what READ LYRICS read".
+3. **TRANSCRIBE AGAIN** (55 s): no second read, and LYRICS were unchanged.
+
+**Not checked in the browser** (unit tests cover them):
+- typed words left alone;
+- a library source not read.
+
+**Unexplained, from the first run:** the score was cleared while the
+read ran, with the same upload still picked. LYRICS got the read's lines
+untagged. The instrumented rerun didn't repeat it, and nothing in this
+change writes the source. The one path that clears a transcribed score
+is `withSourceChange` seeing a new `uploadFile` object. The drop zone
+stays live while TRANSCRIBE and READ LYRICS run, so a re-pick during the
+check would explain it. Locking the source picker while a cover job runs
+is a separate fix.
 
 ## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
 
