@@ -40,13 +40,13 @@
     "semantic_hash": ""
   },
   "client/src/CreateArrangeTab.tsx": {
-    "mtime": 1790895426.7047386,
-    "ast_hash": "c03883259afbf94b89b7f405fa225308",
+    "mtime": 1790898070.3326933,
+    "ast_hash": "a6037af39e877e28a41ac64ee203852c",
     "semantic_hash": ""
   },
   "client/src/CreateAudioTab.tsx": {
-    "mtime": 1790895426.7047386,
-    "ast_hash": "9ba69dd8c50cc30c93dfe8ae6b30346f",
+    "mtime": 1790898070.3321874,
+    "ast_hash": "11c2986c53024587d5069ecb50b5283a",
     "semantic_hash": ""
   },
   "client/src/CreateBar.tsx": {
@@ -140,9 +140,9 @@
     "semantic_hash": ""
   },
   "client/src/ModelsSection.tsx": {
-    "mtime": 1790895426.7133074,
-    "ast_hash": "78ddc48ec5c1dc638424e7c3f6ac6e5f",
-    "semantic_hash": "78ddc48ec5c1dc638424e7c3f6ac6e5f"
+    "mtime": 1790898070.3331947,
+    "ast_hash": "a799bca50c047f5c245e329ccf27228b",
+    "semantic_hash": ""
   },
   "client/src/Navigation.tsx": {
     "mtime": 1790895426.7143357,
@@ -170,8 +170,8 @@
     "semantic_hash": ""
   },
   "client/src/ReferenceAudioPicker.tsx": {
-    "mtime": 1790895426.7168553,
-    "ast_hash": "00560e40c7d2111f9a5f1f0872d64de2",
+    "mtime": 1790898070.3326933,
+    "ast_hash": "9f0005306a1971835adf4301c79982fa",
     "semantic_hash": ""
   },
   "client/src/RefineRail.tsx": {
@@ -210,8 +210,8 @@
     "semantic_hash": "5cf67986cabf30c2b0ba0eb5087911f1"
   },
   "client/src/SettingsPanel.tsx": {
-    "mtime": 1790895426.7202585,
-    "ast_hash": "5cbec1045c83eca92df08dbfd9ee5e47",
+    "mtime": 1790898070.3331947,
+    "ast_hash": "6bf072703fabeb3fbe2d7f4f6ec64408",
     "semantic_hash": ""
   },
   "client/src/SettingsView.tsx": {
@@ -407,11 +407,6 @@
   "client/src/typewriter.ts": {
     "mtime": 1790895426.759324,
     "ast_hash": "a2526c8f07d09a6977e86be935d7f600",
-    "semantic_hash": ""
-  },
-  "client/src/useModelsForTask.ts": {
-    "mtime": 1790895426.7603285,
-    "ast_hash": "19598eabaaca90c0a1f5d55aded8a30e",
     "semantic_hash": ""
   },
   "client/src/useResizableWidth.ts": {
@@ -720,8 +715,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790895774.3778243,
-    "ast_hash": "7a2a8414c0997ecd62dd1151a00feaa5",
+    "mtime": 1790898191.3991506,
+    "ast_hash": "c05021ec45957f5952377df2150108fc",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -755,8 +750,8 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN.md": {
-    "mtime": 1790895635.9040775,
-    "ast_hash": "2db3f88a6f1affc7dcaea7b24c56c4fb",
+    "mtime": 1790898094.784122,
+    "ast_hash": "f5fcbe577bc34500de88c5009de553cc",
     "semantic_hash": ""
   },
   "client/public/favicon.svg": {
@@ -1970,8 +1965,8 @@
     "semantic_hash": ""
   },
   "client/src/lookup.test.ts": {
-    "mtime": 1790895622.353712,
-    "ast_hash": "16392e37f0bc14b40a9934d143e71451",
+    "mtime": 1790898077.6127574,
+    "ast_hash": "f7b74960b22349eec194e4cd2cb48b8e",
     "semantic_hash": ""
   },
   "client/src/lookup.ts": {
