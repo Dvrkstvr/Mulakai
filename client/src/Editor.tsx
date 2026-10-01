@@ -7,7 +7,8 @@ import { ExportPanel } from './ExportPanel';
 import { SplitPanel } from './SplitPanel';
 import { LayerStack } from './LayerStack';
 import { SectionStrip } from './SectionStrip';
-import { groupSections, findActiveSectionIndex } from './lyricSections';
+import { findActiveSectionIndex } from './lyricSections';
+import { useLyricTiming } from './useLyricTiming';
 import { splitLyricsBlocks, matchSectionBlocks } from './lyricsBlocks';
 import { LyricsPanel } from './LyricsPanel';
 import { RepaintBar } from './RepaintBar';
@@ -135,10 +136,8 @@ export function Editor({ songId, onBack }: Props) {
   // Section structure comes from the base layer's active render (the whole song),
   // not the focused layer — a focused stem shares the song's section timeline.
   const baseActive = song?.layers.find((l) => l.kind === 'base')?.versions.find((v) => v.active);
-  const sections = useMemo(
-    () => groupSections(baseActive?.lyricTimestamps, duration),
-    [baseActive, duration],
-  );
+  const timing = useLyricTiming(song, baseActive, duration, reload);
+  const sections = timing.sections;
   const activeSectionIndex = useMemo(() => findActiveSectionIndex(sections, selection), [sections, selection]);
 
   // Parsed from the live draft (not the stored song.lyrics) so block char-offsets
@@ -214,6 +213,8 @@ export function Editor({ songId, onBack }: Props) {
               onDraftChange={setLyricsDraft}
               activeBlock={activeLyricsBlock}
               unlocked={lyricsUnlocked}
+              timing={timing}
+              lines={{ timings: timing.timings, duration, selection, onSelect: setSelection, onSeek: seek }}
             />
             {/* While Add Layer is active this panel hosts its lyrics editor, so hovering/
                 focusing it must keep the Add Layer context alive (same debounced keep-alive
