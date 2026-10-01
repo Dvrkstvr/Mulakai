@@ -6091,3 +6091,49 @@ Library:
   was down; see decision 5) and no error line was left.
 - Server stopped, SPLIT opened again: "couldn't check split backends —
   HTTP 502 · RETRY", where it used to say Demucs wasn't configured.
+
+## Create-Side Lookup Failures (planned 2026-10-02)
+
+The Create and Settings twins of "Lookup Failures Aren't Answers"
+(its decision 5). Same pattern, same fix:
+
+- `useModelsForTask` (COVER's and ARRANGE's model select): a failed
+  `listModels()` became `[]` → "no downloaded model supports cover /
+  arrange generation".
+- `ReferenceAudioPicker` (Create's REFERENCE AUDIO): `fetchVoices()`
+  had no catch: an unhandled rejection behind an empty VOICE select.
+- `SettingsPanel` (Create's and the Editor's DIT/LM selects): a failed
+  `listModels()` left only AUTO, with nothing said.
+- `ModelsSection` (Settings > Models): a failed `listModels()` became an
+  empty inventory → "No DIT models reported by ACE-Step."
+
+### Decisions
+
+1. **Same shape as the Editor:** `useLookup` from `lookup.ts`, and a
+   rust `.error` line with RETRY in place of "checking…" / the empty
+   message: "couldn't check models for Cover — why · RETRY",
+   "couldn't load voices", "couldn't load the model list",
+   "couldn't load the model inventory".
+2. **`useModelsForTask` is removed**, not patched. Its two callers pass
+   a fixed task, so `useLookup(() => modelsFor(task))` covers it and
+   there's one lookup shape instead of two.
+3. **Selects stay usable where a fallback is honest.** SettingsPanel
+   keeps AUTO (ACE-Step picks its own model); REFERENCE AUDIO keeps
+   NONE and UPLOAD, and shows the voice error under the VOICE tab only.
+   SettingsPanel shows nothing on an engine's PROMPT, where its model
+   list isn't used.
+4. **YuE's COVER panel loses the "needs a model that can cover" hint on
+   a failed lookup** instead of claiming it. The panel doesn't show the
+   lookup's error; ANALYZE AUDIO reports its own failure if it runs.
+
+### File-level plan
+
+- `client/src/CreateAudioTab.tsx`, `client/src/CreateArrangeTab.tsx`:
+  `useLookup(() => modelsFor(…))`; error line with RETRY.
+- `client/src/useModelsForTask.ts`: deleted.
+- `client/src/ReferenceAudioPicker.tsx`: `useLookup(fetchVoices)`.
+- `client/src/SettingsPanel.tsx`, `client/src/ModelsSection.tsx`:
+  `useLookup(api.listModels)`; error line with RETRY.
+- Tests: `lookup.test.ts` — `modelsFor` failing for cover and complete,
+  and the full inventory failing, without becoming an answer.
+- DESIGN.md: extend the lookup line to Create and Settings.
