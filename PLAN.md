@@ -4908,6 +4908,38 @@ rewrites the caption into YuE2-style tags.
 - `client/src/index.css`: the SHOW DESCRIPTION block reuses
   `.score-abc`'s look.
 - `docs/design/DESIGN.md`: ANALYZE AUDIO on COVER · YUE2, in its own commit.
+- `server/src/services/acestep.ts` (+ test): `analyzeAudio` reads the
+  route's own field names (found in the browser check, below).
+
+### Browser check (2026-10-01)
+
+- **Browser-checked end to end.** This branch's client and server ran on a scratch library against real ACE-Step and yue-server
+  (SheetSage2) processes on spare ports, with the GPU otherwise idle:
+  - **ANALYZE AUDIO** on an uploaded 3½-minute piano ballad: ACE-Step's
+    prose ("A delicate and melancholic piano ballad … arpeggiated piano …
+    A clear, emotive female vocal …") became `emotive female vocal,
+    cinematic, electronic, melancholic, nostalgic, arpeggiated piano, deep
+    synth bass, spoken word`. A first run gave `breathy female vocal,
+    ballad, melancholic, emotional, grand piano`; the LM samples. LYRICS
+    filled, the outcome line and SHOW DESCRIPTION showed, and VOCAL
+    LANGUAGE stayed AUTO.
+  - **The source was sung in Turkish**, and nothing said YuE2 can't sing
+    it. That added point 5's warn-note: "ACE-Step heard the words in TR —
+    YUE2 sings EN, ZH".
+  - **A server bug found along the way:** `analyzeAudio` read `keyscale` /
+    `timesignature` / `language`, but `analyze_audio_route.py` answers
+    with `key_scale` / `time_signature` / `vocal_language`. So ANALYZE
+    AUDIO never filled KEY-SCALE or reported a language, on either engine.
+    It now reads both spellings; the fixed run reported `tr` and F major,
+    the key SheetSage2 found.
+  - **TRANSCRIBE** gave 77 BPM, F major, 4/4, 68 bars, 3:32. The analyzed
+    lyrics were re-tagged onto the score's sections as it landed
+    (`[Intro] [Verse] [Chorus] [Verse] [Chorus] [Outro]`).
+  - **GENERATE COVER** saved `COVER · YUE2` (77 BPM / F major / 3:07)
+    with the tags as its caption, in about 90 s (48 s of tokens, 19 s of
+    synthesis). An earlier attempt, while another process took part of
+    the GPU, stalled at 0 synthesis steps for over five minutes and was
+    aborted.
 
 ### Open questions
 
