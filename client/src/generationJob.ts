@@ -1,12 +1,28 @@
 import type { ActiveGeneration, EngineId } from './api';
 import { taskToGenType } from './createDraft';
-import type { GenerationJob } from './generationStore';
+import type { GenerationJob, OtherLock } from './generationStore';
 
 /** Whether a song generation still holds the server's lock. A failed job stays in the store
  * only so the Library card can show its error and RETRY — the server already released the
  * lock, so it must not block a new generation or any editor action. */
 export function isGenerating(job: GenerationJob | null): boolean {
   return !!job && job.stage !== 'failed';
+}
+
+/** What each lock kind is called in a busy label — what the user pressed to start it. */
+const LOCK_NAME: Record<ActiveGeneration['kind'], string> = {
+  generate: 'A GENERATION', repaint: 'A REPAINT', regenerate: 'A REGENERATE', retake: 'A SIMILAR TAKE',
+  addLayer: 'ADD LAYER', split: 'A STEM SPLIT', remaster: 'A REMASTER', transcribe: 'TRANSCRIBE',
+  lyrics: 'READ LYRICS', analyze: 'ANALYZE AUDIO',
+};
+
+/** Why Create's commit buttons are off, naming what holds the server's lock — a song generation
+ * this tab tracks, or anything else seen by refreshLock's poll (another tab's ANALYZE AUDIO, an
+ * Editor repaint). Null when nothing does. The server would 409 a start either way. */
+export function busyMessage(job: GenerationJob | null, otherLock: OtherLock | null): string | null {
+  if (isGenerating(job)) return 'A GENERATION IS ALREADY RUNNING';
+  if (!otherLock) return null;
+  return `${LOCK_NAME[otherLock.kind] ?? 'ANOTHER JOB'} IS ALREADY RUNNING`;
 }
 
 /** Whether COVER · YUE2's TRANSCRIBE, READ LYRICS, ANALYZE AUDIO and GENERATE COVER are held off

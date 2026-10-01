@@ -18,7 +18,7 @@ vi.mock('./api', () => ({
 }));
 
 const { useGenerationStore } = await import('./generationStore');
-const { coverLocked, isGenerating } = await import('./generationJob');
+const { busyMessage, coverLocked, isGenerating } = await import('./generationJob');
 const params = { title: 'T', prompt: 'indie pop' };
 
 beforeEach(() => {
@@ -127,5 +127,31 @@ describe('a failed job blocks nothing', () => {
     activeGeneration.mockResolvedValue({ active: { kind: 'repaint', songId: 's1' } });
     await useGenerationStore.getState().refreshLock();
     expect(useGenerationStore.getState()).toMatchObject({ otherLock: { kind: 'repaint', songId: 's1' }, job: failed });
+  });
+});
+
+describe('busy messages name the lock holder', () => {
+  const running = { jobId: 'j', title: 'T', caption: '', stage: 'running' as const, startedAt: 1, draft: { genType: 'prompt' as const } };
+
+  it('names an audio analysis seen in the lock (another tab, or this one)', async () => {
+    activeGeneration.mockResolvedValue({ active: { kind: 'analyze', jobId: 'a1', startedAt: 1, status: 'running' } });
+    await useGenerationStore.getState().refreshLock();
+    const { job, otherLock } = useGenerationStore.getState();
+    expect(otherLock).toEqual({ kind: 'analyze', songId: undefined });
+    expect(busyMessage(job, otherLock)).toBe('ANALYZE AUDIO IS ALREADY RUNNING');
+  });
+
+  it("keeps a song generation's own wording, and is null when the lock is free", () => {
+    expect(busyMessage(running, null)).toBe('A GENERATION IS ALREADY RUNNING');
+    expect(busyMessage({ ...running, stage: 'failed' }, null)).toBeNull();
+    expect(busyMessage(null, { kind: 'repaint' })).toBe('A REPAINT IS ALREADY RUNNING');
+    expect(busyMessage(null, null)).toBeNull();
+  });
+
+  it('clears once the analysis releases the lock', async () => {
+    useGenerationStore.setState({ otherLock: { kind: 'analyze' } });
+    activeGeneration.mockResolvedValue({ active: null });
+    await useGenerationStore.getState().refreshLock();
+    expect(busyMessage(null, useGenerationStore.getState().otherLock)).toBeNull();
   });
 });
