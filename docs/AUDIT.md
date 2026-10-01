@@ -22,6 +22,10 @@
   elsewhere; now JSON-encoded client-side and parsed server-side — PR #21.
 - No timeout on any ACE-Step fetch: a hung socket held the global genLock forever.
   Now `AbortSignal.timeout` everywhere + 3-strike poll tolerance — PR #22.
+- Demucs/UVR RE-EXTRACT rewrote every stem file, including ones already claimed as
+  versions. Stem files are now append-only (unique names), a re-extract keeps only its
+  own stem and reads the split's original source, and unclaimed files are deleted on
+  supersede/cancel — PR #81 (was #2).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -32,7 +36,7 @@ after the last buffer plays out, `playing` stays true and `currentTime()` grows 
 - **Fix:** arm `onended` on the longest source (or compare `currentTime() >= duration`)
   and flip to stopped. Add the missing playbackEngine test.
 
-### 2. Demucs re-extract silently overwrites already-claimed stems
+### 2. ~~Demucs re-extract silently overwrites already-claimed stems~~ — fixed, PR #81
 `server/src/services/stemSplit.ts` — `reextractStem('demucs')` re-runs the full
 4-stem pass with deterministic `${job.id}-${kind}.${ext}` filenames, clobbering the
 on-disk audio of stems already claimed as versions. The doc comment ("keeps only
