@@ -35,6 +35,10 @@
   down mid-job, and every split's files stayed on disk forever. `/split` now runs in
   the threadpool, failed splits remove their job dir, and each stem is deleted once
   downloaded or swept after a TTL; uvr-server had the same leak — PR #80 (was #3).
+- No Playwright e2e existed. `e2e/` now runs PLAN.md Phase 10's golden path
+  (generate → repaint → add layer → revert → export) through the real client and
+  server against a fake ACE-Step, on a throwaway data dir (`npm run test:e2e`) —
+  PR #87 (was #19).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -210,9 +214,14 @@ split opportunistically when a feature touches them:
 of scope here. Vendored third-party code such as `yue-server/upstream/` is not
 ours to split.)
 
-### 19. No Playwright e2e exists
-AGENTS.md requires one golden-path e2e per phase; none is set up (no dependency,
-no config, no `test:e2e` script).
+### 19. ~~No Playwright e2e exists~~ — fixed, PR #87
+AGENTS.md requires one golden-path e2e per phase; none was set up. Now `e2e/`
+holds Playwright plus a fake ACE-Step (`e2e/fake-acestep/`), and `npm run
+test:e2e` drives PLAN.md Phase 10's path (generate → repaint a region → add a
+layer → revert a version → export) through the real client and server on a
+throwaway data dir. `.github/workflows/e2e.yml` runs it on every PR into
+`main`. Still open: per-phase edge-case specs (PLAN.md "Playwright
+Golden-Path E2E", open questions).
 
 ### 20. Untested critical modules
 `server/src/routes/`: songs (main flows beyond cover-art), layers, remaster,

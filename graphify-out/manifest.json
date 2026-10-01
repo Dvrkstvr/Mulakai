@@ -455,8 +455,8 @@
     "semantic_hash": ""
   },
   "client/vite.config.ts": {
-    "mtime": 1790898346.7513342,
-    "ast_hash": "629f184f2f82b86ade1f9bb658e2fda7",
+    "mtime": 1790898531.7083933,
+    "ast_hash": "e8974b2725426f295997e344ccee92a9",
     "semantic_hash": ""
   },
   "demucs-server/main.py": {
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1790895416.8394377,
-    "ast_hash": "33bed2806d79a5cf57a806aed016ae50",
+    "mtime": 1790898531.7048643,
+    "ast_hash": "4c8401eeb6bec54f661621a3988452a8",
     "semantic_hash": ""
   },
   "FORGE_PLAN.md": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790898465.8031516,
-    "ast_hash": "b7a84edbec7e9ba10e62ec6cad938ed6",
+    "mtime": 1790898531.7078938,
+    "ast_hash": "5379a7f8e9895d439f43c05467c7144d",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790898457.886156,
-    "ast_hash": "88ca421b4838e5e72603b375b3e88147",
+    "mtime": 1790898531.7083933,
+    "ast_hash": "dbb0b46437dcd1695659e12dde36e69d",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1505,8 +1505,8 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1790895417.024579,
-    "ast_hash": "d8e30ad78eccd3f4a7ea6e3dc66db274",
+    "mtime": 1790898531.7083933,
+    "ast_hash": "0875787178c04e9a803f7b2c1f6a1e5d",
     "semantic_hash": ""
   },
   "docs/ace-step-1.5/README.md": {
@@ -2167,6 +2167,61 @@
   "server/src/services/timingsJobs.ts": {
     "mtime": 1790898457.9267807,
     "ast_hash": "c19d7e89d0ea400b0703c95a66d0d92e",
+    "semantic_hash": ""
+  },
+  "e2e/data-dir.ts": {
+    "mtime": 1790898531.709398,
+    "ast_hash": "59cf6595f33c44da06f4f7e940b5521d",
+    "semantic_hash": ""
+  },
+  "e2e/fake-acestep/server.ts": {
+    "mtime": 1790898531.7099037,
+    "ast_hash": "92616422afb277c2b21d97cba5b93803",
+    "semantic_hash": ""
+  },
+  "e2e/fake-acestep/wav.ts": {
+    "mtime": 1790898531.7099037,
+    "ast_hash": "bcf53506d9f7c20c79e976386ea2d448",
+    "semantic_hash": ""
+  },
+  "e2e/global-setup.ts": {
+    "mtime": 1790898531.7099037,
+    "ast_hash": "de24ad7c48bd6fc4ef6ac2e5d8bdad06",
+    "semantic_hash": ""
+  },
+  "e2e/package.json": {
+    "mtime": 1790898531.7104032,
+    "ast_hash": "c442fecc250e6b70262f1ffe7a0b7fd1",
+    "semantic_hash": ""
+  },
+  "e2e/playwright.config.ts": {
+    "mtime": 1790898531.7109077,
+    "ast_hash": "15bf45c755aec839d647700278d9a4ac",
+    "semantic_hash": ""
+  },
+  "e2e/ports.ts": {
+    "mtime": 1790898531.7114127,
+    "ast_hash": "8ad2583a6440ffe479903ef4330deb78",
+    "semantic_hash": ""
+  },
+  "e2e/tests/golden-path.spec.ts": {
+    "mtime": 1790898531.7114127,
+    "ast_hash": "e8b474a649a7d1c29b29501eca973f50",
+    "semantic_hash": ""
+  },
+  "e2e/tests/helpers.ts": {
+    "mtime": 1790898531.7114127,
+    "ast_hash": "a312a2bc39002abee47fcc81bf5b0326",
+    "semantic_hash": ""
+  },
+  "e2e/tsconfig.json": {
+    "mtime": 1790898531.7114127,
+    "ast_hash": "92eb5097dd22448c70dcc14756e0aa50",
+    "semantic_hash": ""
+  },
+  ".github/workflows/e2e.yml": {
+    "mtime": 1790898531.7048643,
+    "ast_hash": "ac4754147abb7b3885aefd5fa577730f",
     "semantic_hash": ""
   },
   "client/src/playOrStayPaused.test.ts": {
