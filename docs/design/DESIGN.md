@@ -473,6 +473,13 @@ requiring its own justification against a screen-count rule.
    - **Title row**: song title (bold, 16px) + time/bpm/key/layer-count
      metadata, directly above the shared scrub timeline — the one place this
      information lives now that the header doesn't carry it.
+   - **Load failure**: a song that fails to load shows a rust `.error` line
+     ("couldn't load this song — why · RETRY") where the editor would be,
+     never an endless "Loading…". A failed refresh of a loaded song (after a
+     mute, a revert, a claimed stem) keeps the song on screen and shows the
+     same line, "couldn't refresh this song", above the title row. A lane
+     control or a history action that fails shows its own `.error` line in
+     the lane or the rail ("couldn't mute — why").
    - **Layer stack (`LayerStack.tsx` + `LayerLane.tsx`)**: a DAW-style
      multi-lane waveform view, the editor's primary waveform surface.
      `Timeline.tsx` (the shared scrub strip) and the lane grid share one
