@@ -6800,7 +6800,8 @@ Library:
 ## An Unreachable ACE-Step Is a Failure, Not "No Models" (planned 2026-10-02)
 
 Server half of "Lookup Failures Aren't Answers" (its decision 5).
-`acestep.ts`'s `listModels()` returned the same empty inventory
+`listModels()` (`server/src/services/acestep/models.ts`, behind the
+`acestep.ts` facade) returned the same empty inventory
 `{ models: [], lmModels: [], defaultModel: null }` when ACE-Step answered
 "no models" and when it was unreachable, answered non-2xx, or timed out.
 Its callers passed that on:
@@ -6859,8 +6860,8 @@ Its callers passed that on:
 
 ### File-level plan
 
-- `server/src/services/acestep.ts`: `listModels()` throws per
-  decision 1. The function grows by three lines.
+- `server/src/services/acestep/models.ts`: `listModels()` throws per
+  decision 1.
 - `server/src/services/splitHealth.ts` (new): `splitHealth()` runs both
   probes and returns the decision 3 shape.
 - `server/src/routes/generate.ts`: `/models` sends a 502 on a throw.
