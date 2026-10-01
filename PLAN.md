@@ -6114,6 +6114,143 @@ the running `uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A
 - The Vocals layer, soloed and played, loaded the first split's file, and
   the bytes served to the page matched its original sha256.
 
+## Playwright Golden-Path E2E (planned 2026-10-02)
+
+Closes `docs/AUDIT.md` #19. AGENTS.md asks for one golden-path e2e per
+phase, and Phase 10 names the path: generate → repaint a region → add a
+layer → revert a version → export. None existed: no dependency, no
+config, no script. The real backends (ACE-Step, YuE2 in WSL2, HeartMuLa)
+are slow GPU processes, so the e2e runs against a fake.
+
+### Decisions
+
+1. **A new `e2e/` package, not `client/`.** The test drives three
+   processes: the Vite client, the Express server and a fake ACE-Step.
+   The fake is Node server code, so it belongs to neither app. In
+   `client/` the specs would also collide with Vitest, whose default
+   include (`**/*.{test,spec}.ts`) would pick up `*.spec.ts`. And
+   Playwright's browsers are a large install that client work doesn't
+   need. `e2e/` has its own `package.json` with `test:e2e`, in the same
+   way `client/` and `server/` stand alone (there is no root package).
+2. **The fake ACE-Step** (`e2e/fake-acestep/`) is plain `node:http`, with
+   no dependencies. It answers every route `server/src/services/acestep.ts`
+   calls on this path, in ACE-Step's `{data, code, error}` envelope:
+   - `release_task` takes JSON, or multipart with a source file for
+     repaint, lego and cover;
+   - `query_result` reports "running" with progress once, then done
+     (400 ms);
+   - `/v1/audio` serves a 12 s, 48 kHz stereo tone, built in memory. Each
+     task gets its own pitch, so every version's audio differs;
+   - `/lyric_timestamp` answers 404, ACE-Step's answer when there is no
+     sidecar, which callers treat as "no timestamps";
+   - also `/health`, `/v1/model_inventory` (a turbo and a base model, so
+     Add Layer's `lego` gate opens), `/v1/init`, the LoRA routes,
+     `/format_input` and `/v1/create_sample`.
+   - `GET /__fake/tasks` is the fake's own. The spec reads it to check
+     what went over the wire, e.g. that the repaint carried the selected
+     region.
+3. **Every take is 12 s, whatever was asked.** The spec's region drag
+   is then simple arithmetic on a known duration.
+4. **Its own ports, all on 127.0.0.1:** fake 8101, server 3101, client
+   5183. They sit beside a live dev stack (8001/3001/5173). Vite gets
+   `--host 127.0.0.1 --strictPort`: the config's `host: true` can land
+   on IPv6, where a 127.0.0.1 readiness probe fails.
+   `reuseExistingServer: false` means a leftover process on a port fails
+   the run loudly. It does not quietly serve a stale database.
+5. **`client/vite.config.ts` reads its proxy target from
+   `MULAKAI_API_URL`** (default `http://127.0.0.1:3001`, as before). The
+   alternative, a second Vite config under `e2e/`, could not resolve
+   `@vitejs/plugin-react` from outside `client/`.
+6. **A throwaway data dir.** The config makes a fresh
+   `mulakai-e2e/<time>` under the OS temp dir. It is set once in the
+   main process's env, so workers that re-load the config reuse it.
+   A run can't delete its own: Playwright runs `globalTeardown` before
+   it stops the `webServer`s, so the server still holds the SQLite file
+   (EBUSY on Windows). `globalSetup` removes earlier runs' dirs instead,
+   once they are over an hour old. A younger one may belong to a run in
+   another worktree. The server runs with `DATA_DIR` there and
+   `POLL_INTERVAL_MS=200`. The YuE2, HeartMuLa,
+   Demucs and lyrics URLs are forced empty, so a developer's shell env
+   can't reach real services.
+7. **One worker, Chromium only, a 1440×900 viewport.** The app has one
+   global generation lock, and the layout is desktop-only.
+8. **Orphaned processes on Windows.** Playwright's `webServer` kills each
+   command's process tree on a normal finish and on Ctrl+C. If the
+   runner itself is killed hard (e.g. a stopped background task), the
+   children can outlive it. The fixed, strict ports then make the next
+   run fail with "port in use" rather than test against stale state.
+   CLAUDE.md says how to find those processes.
+9. **The golden path, as one spec:**
+   - **Generate:** Create → PROMPT → title and prompt → GENERATE. The song
+     appears in the library, and EDIT opens it.
+   - **Repaint:** drag 2 s → 8 s on the base lane → prompt → REPAINT
+     REGION. History gains the `0:02–0:08` row as CURRENT, and the fake
+     received `task_type=repaint` with that region.
+   - **Add layer:** + ADD LAYER → prompt → GENERATE. The song reads
+     "2 layers", and the fake received `lego` with a source file.
+   - **Revert:** on the base layer, SEL on the first take. CURRENT moves
+     back, and the server agrees.
+   - **Export:** the EXPORT rail lists both stems. The base stem's
+     download is byte-identical to the reverted version's file. REMASTER
+     SONG renders the composite mix through a fake `cover` and downloads
+     it. Remaster is the only composite export (Phase 9's design).
+10. **ffmpeg stays a prerequisite.** Every master goes through
+    `transcode.ts`, and faking that would skip a real output boundary.
+
+### File-level plan
+
+- `e2e/package.json` (+ lock): `@playwright/test`, `tsx`, `typescript`,
+  `@types/node`; scripts `test:e2e`, `typecheck`.
+- `e2e/playwright.config.ts`: three `webServer`s, env, data dir.
+  `e2e/ports.ts` and `e2e/data-dir.ts`: the shared constants.
+- `e2e/global-setup.ts`: sweeps stale data dirs.
+- `e2e/fake-acestep/server.ts`: the routes. `e2e/fake-acestep/wav.ts`:
+  the tone.
+- `e2e/tests/golden-path.spec.ts`: the path above. `e2e/tests/helpers.ts`:
+  the fake's task log, song lookup, the region drag, download bytes.
+- `e2e/tsconfig.json`, `e2e/.gitignore`.
+- `client/vite.config.ts`: `MULAKAI_API_URL`.
+- `CLAUDE.md` Commands, `docs/AUDIT.md` #19.
+
+### Open questions
+
+- **CI.** Settled below, in "CI (added 2026-10-02)".
+- **Edge cases per phase.** AGENTS.md asks for those as phases add
+  them, e.g. a failed task (the fake could fail on a magic prompt) and
+  the BUSY ELSEWHERE lock.
+
+### CI (added 2026-10-02)
+
+The repo had no workflow at all. `.github/workflows/e2e.yml` runs the
+e2e on GitHub Actions.
+
+1. **Ubuntu, not Windows.** Linux runners start faster and cost less,
+   and `apt` has ffmpeg. Windows is already covered, because that is
+   where the e2e is developed and run locally.
+2. **When it runs:** pull requests into `main`, pushes to `main`, and by
+   hand (`workflow_dispatch`). A newer push to the same ref cancels the
+   older run.
+3. **Node 22**, the version the stack runs on locally. Nothing in the
+   repo pins one yet.
+4. **Setup:** `npm ci` in `client/`, `server/` and `e2e/`, with
+   setup-node's npm cache keyed on all three lockfiles. Then
+   `npx playwright install --with-deps chromium`, since Ubuntu needs the
+   browser's system libraries too. There is no browser cache: a cached
+   browser would still need `install-deps`, which is most of the time.
+5. **CI-only config:** `forbidOnly`, so a stray `test.only` fails the run,
+   and the `github` reporter, so failures show as PR annotations. No
+   retries: a flaky step should show up, not be retried away.
+6. **On failure:** the HTML report and `test-results/` (traces) are
+   uploaded as an artifact for 7 days.
+7. **Only the e2e.** Client/server unit tests, build and lint are not in
+   this workflow. Adding them is a separate change.
+
+File-level plan:
+- `.github/workflows/e2e.yml` (new).
+- `e2e/playwright.config.ts`: the `CI` branches above.
+- `CLAUDE.md`: one line about the workflow. `docs/AUDIT.md` #19: CI is no
+  longer open.
+
 ## The Library Loads Without Trying to Play (planned 2026-10-02)
 
 Loading the library at `/` logged two unhandled rejections before any
