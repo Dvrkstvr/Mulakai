@@ -219,3 +219,28 @@ describe('startEngineGeneration abort', () => {
     expect(client.status).not.toHaveBeenCalled();
   });
 });
+
+describe('startEngineGeneration cover', () => {
+  const ABC = 'X:1\nQ:1/4=75\nK:Fm\nM:4/4\n';
+  const coverEngine: SongEngine = {
+    ...engine,
+    toCoverRequest: (f, abc) => ({ style: f.prompt, lyrics: f.lyrics, seed: 42, cot: 'melody', abc }),
+  };
+
+  it('sends the cover request and stores a cover song with its source and supplied score', async () => {
+    const job = startEngineGeneration(coverEngine, fields, 'Cover Song', null, { abc: ABC, source: 'Ellies City 2' });
+    expect(getGenLock()).toMatchObject({ kind: 'generate', task: 'cover', engine: 'yue2' });
+    await settle(job.id, 'done');
+
+    const request = { style: 'dreamy synth pop', lyrics: '[Verse]\nla la', seed: 42, cot: 'melody', abc: ABC };
+    expect(client.submit).toHaveBeenCalledWith(coverEngine, request, job.id);
+    const { song, params } = songOf(job.id);
+    expect(song).toMatchObject({ engine: 'yue2', gen_task: 'cover' });
+    expect(params).toMatchObject({ task_type: 'cover', source: 'Ellies City 2', request });
+  });
+
+  it('refuses a cover on an engine that cannot cover, before taking the lock', () => {
+    expect(() => startEngineGeneration(engine, fields, 'No Cover', null, { abc: ABC, source: 's' })).toThrow(/cannot cover/);
+    expect(getGenLock()).toBeNull();
+  });
+});

@@ -5,3 +5,5 @@
 yue2-infer @ git+https://github.com/multimodal-art-projection/YuE.git@18a07bb628f070c2eede44c3143834818e856a73
 fastapi==0.142.1
 uvicorn==0.54.0
+# FastAPI's multipart parser, for POST /v1/transcriptions uploads.
+python-multipart==0.0.32

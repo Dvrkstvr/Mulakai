@@ -90,6 +90,16 @@ describe('load', () => {
     expect(get().audio).toMatchObject({ source: 'library', selectedSongId: 's1' });
   });
 
+  it('carries COVER\'s engine, a reused cover\'s score pointer and a retry\'s score, and CLEAR resets them', () => {
+    const score = { abc: 'X:1\n', source: 'Ellies', transcription: null, previewJobId: null };
+    get().load({ genType: 'audio', coverEngine: 'yue2', reuseScore: { engine: 'yue2', songId: 's2' }, coverScore: score });
+    expect(get().audio).toMatchObject({ engine: 'yue2', reuseScore: { engine: 'yue2', songId: 's2' }, yueScore: score });
+    expect(get().engine).toBe('acestep'); // COVER's engine never changes PROMPT's
+    expect(isDraftEmpty(get())).toBe(false); // a score is something to clear
+    get().clear();
+    expect(get().audio).toMatchObject({ engine: 'acestep', reuseScore: null, yueScore: null });
+  });
+
   it('defaults to PROMPT for a draft that names no tab', () => {
     get().load({ pendingQuery: 'something dreamy' });
     expect(get().genType).toBe('prompt');

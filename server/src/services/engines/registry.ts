@@ -4,6 +4,7 @@
  */
 import { health as acestepHealth } from '../acestep.js';
 import { health as engineHealth } from '../engineClient.js';
+import { transcriptionHealth } from '../engineTranscribeClient.js';
 import { heartmula } from './heartmula.js';
 import type { EngineCapabilities, EngineId, SongEngine } from './types.js';
 import { yue2Engine } from './yue2.js';
@@ -35,6 +36,14 @@ export interface EngineInfo {
   capabilities: EngineCapabilities;
   configured: boolean;
   ready: boolean;
+  /** COVER can run on it: it can sing a score and its transcriber answers health (PLAN.md
+   * "Mulakai server cover decisions"). Probed, not declared: a yue2-serve backend can't. */
+  coverReady: boolean;
+}
+
+/** Whether COVER can run on `engine` right now. */
+export function coverReady(engine: SongEngine): Promise<boolean> {
+  return engine.url && engine.toCoverRequest ? transcriptionHealth(engine) : Promise.resolve(false);
 }
 
 export function getEngine(id: string, engines: readonly SongEngine[] = EXTRA_ENGINES): SongEngine | undefined {
@@ -44,14 +53,17 @@ export function getEngine(id: string, engines: readonly SongEngine[] = EXTRA_ENG
 /** Every engine with live health, probed in parallel. An unconfigured engine is never
  * probed — it isn't ready by definition. */
 export async function listEngines(engines: readonly SongEngine[] = EXTRA_ENGINES): Promise<EngineInfo[]> {
-  const [acestepReady, ...extraReady] = await Promise.all([
+  const [acestepReady, extraReady, extraCovers] = await Promise.all([
     acestepHealth(),
-    ...engines.map((e) => (e.url ? engineHealth(e) : Promise.resolve(false))),
+    Promise.all(engines.map((e) => (e.url ? engineHealth(e) : Promise.resolve(false)))),
+    Promise.all(engines.map(coverReady)),
   ]);
   return [
-    { id: 'acestep', label: 'ACE-STEP', capabilities: ACESTEP_CAPABILITIES, configured: true, ready: acestepReady },
+    // ACE-Step's own COVER tab predates engines and needs no probe.
+    { id: 'acestep', label: 'ACE-STEP', capabilities: ACESTEP_CAPABILITIES, configured: true, ready: acestepReady, coverReady: acestepReady },
     ...engines.map((e, i) => ({
       id: e.id, label: e.label, capabilities: e.capabilities, configured: !!e.url, ready: extraReady[i],
+      coverReady: extraReady[i] && extraCovers[i],
     })),
   ];
 }

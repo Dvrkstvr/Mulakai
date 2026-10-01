@@ -221,27 +221,29 @@ export async function analyzeAudio(
   if (model) await initModel({ model, initLlm: true });
   const form = new FormData();
   form.append('audio', new Blob([new Uint8Array(file.data)]), file.filename);
-  // Like createRandomSample/createSampleFromQuery, the raw response uses keyscale/timesignature/
-  // language (no underscore, different names) instead of key_scale/time_signature/vocal_language —
-  // remapped here so callers see FormatInputResult's shape. Without this, key_scale/time_signature
-  // silently come back undefined even though ACE-Step returned them.
+  // ACE-Step's analyze_audio_route.py answers with key_scale/time_signature/vocal_language; older
+  // builds answered keyscale/timesignature/language like createRandomSample does. Read either, or
+  // those fields silently come back undefined even though ACE-Step returned them.
   const raw = await call<{
     caption: string;
     lyrics?: string;
     bpm?: number;
+    key_scale?: string;
     keyscale?: string;
+    time_signature?: string;
     timesignature?: string;
     duration?: number;
+    vocal_language?: string;
     language?: string;
   }>('/v1/analyze_audio', undefined, { method: 'POST', body: form });
   return {
     caption: raw.caption,
     lyrics: raw.lyrics ?? '',
     bpm: raw.bpm,
-    key_scale: raw.keyscale,
-    time_signature: raw.timesignature,
+    key_scale: raw.key_scale ?? raw.keyscale,
+    time_signature: raw.time_signature ?? raw.timesignature,
     duration: raw.duration,
-    vocal_language: raw.language,
+    vocal_language: raw.vocal_language ?? raw.language,
   };
 }
 

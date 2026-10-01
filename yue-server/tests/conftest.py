@@ -13,6 +13,27 @@ from main import create_app
 from settings import Settings
 
 ABC = "X:1\nM:4/4\nQ:1/4=92\nK:Am\n|A2 c2|\n"
+# A native two-voice YuE2 score: chords ride on Vocal, and the last Ins note
+# overlaps the vocal line, so an instrumental conversion trims it.
+NATIVE = """X:1
+T:
+M:4/4
+L:1/32
+Q:1/4=88
+V: Vocal clef=treble name="Vocal Melody" snm="Vocal"
+V: Ins clef=treble name="Ins Melody" snm="Inst."
+K:G
+% intro
+V: Vocal
+"G"z32|
+V: Ins
+G8B8d8B8|
+% pre-chorus
+V: Vocal
+"Gmaj7"B8d8"Am7"c8A8|"D7"F16"G"G16|
+V: Ins
+z16d16|Z|
+"""
 
 
 class FakePipeline:
@@ -32,6 +53,9 @@ class FakePipeline:
         # A supplied score skips planning, as in yue2: the plan is that score.
         abc = None if request.get("cot") == "off" else request.get("abc") or self.score
         return SimpleNamespace(abc=abc, truncated=self.truncated[0])
+
+    def count_tokens(self, abc):
+        return len(abc)  # one "token" per character: additive, like the real tokenizer across lines
 
     def fits_plan_budget(self, abc):
         return self.fits

@@ -77,6 +77,9 @@ export interface SongEngine {
   /** Pure mapper to the wrapper's POST /v1/jobs body. Our job id travels separately, as
    * the Idempotency-Key header (see engineClient.ts). */
   toRequest(fields: CreateFields): Record<string, unknown>;
+  /** A melody cover from a supplied score (PLAN.md "YuE2 Melody Covers via SheetSage2").
+   * Only engines that can sing a given score have one; the cover routes 400 the rest. */
+  toCoverRequest?(fields: CreateFields, abc: string): Record<string, unknown>;
   /** bpm/key/time signature, from whatever the engine returns (e.g. YuE2's ABC score). */
   readMeta(result: { score?: string }): SongMeta;
 }

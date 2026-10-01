@@ -95,6 +95,13 @@ describe('reusePromptDraft', () => {
     expect(reusePromptDraft(song({ gen_task: 'cover', engine: 'yue2' })).engine).toBeUndefined();
   });
 
+  it('reopens an engine cover on COVER with that engine, pointing at its stored score', () => {
+    const d = reusePromptDraft(song({ id: 's9', gen_task: 'cover', engine: 'yue2' }));
+    expect(d).toMatchObject({ genType: 'audio', coverEngine: 'yue2', reuseScore: { engine: 'yue2', songId: 's9' } });
+    expect(reusePromptDraft(song({ gen_task: 'cover' }))).not.toHaveProperty('coverEngine');
+    expect(reusePromptDraft(song({ engine: 'yue2' }))).not.toHaveProperty('reuseScore');
+  });
+
   it('carries the reference audio that conditioned the song, with its influences', () => {
     const draft = reusePromptDraft(song({
       reference_audio_label: 'Daniel',

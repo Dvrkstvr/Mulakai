@@ -281,7 +281,7 @@ requiring its own justification against a screen-count rule.
        parameters (bpm/key/structure) from the prompt — lilac because it's
        describing AI-derived behavior, not a live selection. LM MODEL stays
        enabled in the settings panel.
-     - **ENGINE** (PROMPT only): which model makes the song's first take —
+     - **ENGINE** (PROMPT and COVER): which model makes the song's first take —
        ACE-STEP, or an optional extra engine (YuE2, HeartMuLa) whose server
        is configured. One sky parallelogram per engine, ACE-STEP first,
        active = sky fill with `on-sky` text; the row **does not render at
@@ -290,8 +290,15 @@ requiring its own justification against a screen-count rule.
        disabled with its reason as a line under the row; if the *selected*
        engine can't take a job, a `.warn-note` says so and GENERATE is off.
        The choice is part of the draft (REUSE PROMPT restores it, CLEAR
-       DRAFT resets it), never a sticky preference. COVER and ARRANGE are
-       always ACE-Step, and every later edit is too.
+       DRAFT resets it), never a sticky preference.
+       - **COVER has its own ENGINE row** (added 2026-10-01): ACE-STEP plus
+         any engine that can sing a score and whose transcriber answers
+         (YuE2 with SheetSage2). It is kept separate from PROMPT's, so
+         picking YUE2 on COVER never changes what PROMPT generates on, and
+         it has the same no-row-until-available rule. The settings panel
+         follows it; on a cover, COT is replaced by a one-line hint, because
+         a cover always follows its score's melody.
+       - ARRANGE is always ACE-Step, and so is every later edit.
        - **Descriptor-driven N/A**: each engine publishes what it can take;
          a control it can't stays **in place**, disabled, with an `N/A`
          readout (the same idiom as GUIDANCE on a Turbo model) and one reason
@@ -319,6 +326,54 @@ requiring its own justification against a screen-count rule.
        enabled in the settings panel; LM MODEL is disabled (`n/a`) since
        `cover` skips the LM planner, same as Editor's repaint mode
        (`API.md` §4.2).
+       - *Audio on an engine (YUE2)*: a melody cover sung from a score. The
+         flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
+         - The SOURCE picker is unchanged. **TRANSCRIBE** is an acid
+           *outline*, because GENERATE COVER stays the one filled acid CTA.
+           While it runs it reads `TRANSCRIBING… n%`, with no shader: the AI
+           shimmer stays on GENERATE / REPAINT. Beside it, **USE .ABC FILE**
+           (a quiet outline) swaps in a score corrected elsewhere, which is
+           the only way to fix its notes. Mulakai has no note editor; it can
+           only leave whole sections out (SECTIONS, below).
+         - The **score review** is a carbon panel. Its facts sit in the same
+           label/value grid idiom as SONG DETAILS: tempo, key, meter, bars,
+           length, and sung/played note counts. SheetSage2's warnings come
+           as a `.warn-note`, then the piano preview (inline `AudioPreview`),
+           then the ABC behind a collapsed SHOW SCORE disclosure.
+         - **SECTIONS** (added 2026-10-01) sits under the facts: the score's
+           `% name` sections as the Editor's **section strip**
+           (clip-path parallelograms, 3px gaps), flex-weighted by each
+           section's planner tokens. Kept sections are **sky**, since they
+           are the scope of what will be sung; a left-out one is
+           `carbon-raised` with its name struck through. A click leaves a
+           section out or puts it back, and the last kept one can't go.
+           The label row reads `3,469 / 4,096 TOKENS`, rust-text while the
+           cut is over YuE2's planning budget, with a `.warn-note` under
+           the strip naming the longest sections. GENERATE COVER is off
+           until it fits. A hint names what's left out (and that the piano
+           preview still plays the whole transcription), and GENERATE's
+           consequence line gains "· leaves out OUTRO". The facts and SHOW
+           SCORE describe the cut. This is the only score editing here:
+           whole sections, never notes.
+         - The facts replace BPM / KEY / TIME SIGNATURE / DURATION, which a
+           score fixes. VOCAL LANGUAGE stays.
+         - LYRICS carry a **FIT TO SCORE** quiet outline, which re-tags the
+           words onto the score's sections. A hint names those sections.
+           Lyrics that are only tags, or empty, make an instrumental cover,
+           and the consequence line under GENERATE COVER says so.
+         - **ANALYZE AUDIO** (added 2026-10-01) sits under PROMPT, above
+           LYRICS, the same button and place as on ACE-STEP. It runs with
+           COVER's ACE-Step model and fills only the fields a score leaves
+           open: an empty (or carried-over) PROMPT gets ACE-Step's
+           description **rewritten as YuE2 style tags** (voice, genre, mood,
+           instruments; no tempo, key or language), wordless LYRICS get the
+           words it heard (fitted to the score's sections), and an AUTO VOCAL
+           LANGUAGE gets its language (a heard language the engine doesn't
+           sing is named in a `.warn-note` instead). BPM / KEY / DURATION
+           are never written. Its consequence line says the lyrics are *described,
+           not transcribed*; after a run, a line says what was filled and a
+           collapsed SHOW DESCRIPTION block (same idiom as SHOW SCORE) keeps
+           the full prose, so a dropped phrase can be put back by hand.
      - *Arrange*: same shape as Audio but for `complete` — a **SOURCE**
        sub-choice (UPLOAD SINGLE TRACK / SPLIT A SONG, the latter reusing
        `ScratchSplitPicker`'s stem picker), a description field, LYRICS +
@@ -469,7 +524,9 @@ requiring its own justification against a screen-count rule.
      UNREACHABLE, same `.health` pill as MODELS) and the env var that
      enables it — engines are configured on the server, so this card
      reports and points rather than edits. An engine's license caveat is
-     stated here once (YuE2's CC BY-NC 4.0). While any engine is configured,
+     stated here once (YuE2's CC BY-NC 4.0, and SheetSage2's). An engine
+     that can cover gets a COVERS line under its row: READY, or NOT SET UP
+     plus what its server needs (same `.health` pill). While any engine is configured,
      a `.warn-note` reminds you to run ACE-Step with
      `ACESTEP_OFFLOAD_TO_CPU=true` — a standing reminder, since Mulakai can't
      read ACE-Step's startup settings.
@@ -686,7 +743,11 @@ MODE` toggles while active; Create's Quick Start reveal (the library create
 bar's typed idea expanded into a full draft — the PROMPT/LYRICS block
 shimmers solid while the LM works, then wipes away left-to-right in one
 sweep as the result types in underneath, `ThinkingWipe.tsx` /
-`useThinkingQuery.ts`).
+`useThinkingQuery.ts`); and COVER/ARRANGE's ANALYZE AUDIO button while
+ACE-Step's LM describes the source (`AnalyzeAudioButton.tsx`, on every
+engine — it has worn the shader since it was added, and is listed here
+now so the list is complete). TRANSCRIBE stays plain: SheetSage2 reads
+notes, it doesn't describe or generate.
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
 keeps the strict one-hue-per-job rule — if a future feature wants to reuse

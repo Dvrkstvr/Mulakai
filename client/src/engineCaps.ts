@@ -70,10 +70,24 @@ export function unavailableReason(engine: Pick<EngineInfo, 'configured' | 'ready
   return engine.ready ? '' : 'not reachable — is its server running?';
 }
 
+/** Why an engine can't make a cover right now; '' when it can. */
+export function coverUnavailableReason(engine: Pick<EngineInfo, 'configured' | 'ready' | 'coverReady'>): string {
+  return unavailableReason(engine) || (engine.coverReady ? '' : 'covers are not set up — its transcriber is not answering');
+}
+
 /** The ENGINE row only appears once some extra engine is configured, so a default install
  * looks exactly as it did before engines existed. ACE-Step is always first. */
 export function pickerEngines(engines: EngineInfo[]): EngineInfo[] {
   const extras = engines.filter((e) => e.id !== 'acestep' && e.configured);
+  if (extras.length === 0) return [];
+  const acestep = engines.find((e) => e.id === 'acestep');
+  return acestep ? [acestep, ...extras] : extras;
+}
+
+/** COVER's ENGINE row: ACE-Step plus the extra engines that can cover right now (their
+ * transcriber answers). Empty — no row — until one can, so a default install is unchanged. */
+export function coverEngines(engines: EngineInfo[]): EngineInfo[] {
+  const extras = engines.filter((e) => e.id !== 'acestep' && e.coverReady);
   if (extras.length === 0) return [];
   const acestep = engines.find((e) => e.id === 'acestep');
   return acestep ? [acestep, ...extras] : extras;

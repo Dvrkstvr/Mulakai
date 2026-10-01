@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import type { EngineId, StemKind } from './api';
+import { withSourceChange, type CoverScore } from './coverDraft';
 import type { CreateDraft, GenType, Source } from './createDraft';
 
 export type ArrangeSource = 'upload' | 'split';
@@ -56,6 +57,10 @@ interface AudioMethod {
   model: string;
   /** 0-1, inverse of audio_cover_strength — see CreateAudioTab.tsx. */
   variance: number;
+  /** Which engine makes the cover. Per tab, so COVER never changes what PROMPT generates on. */
+  engine: EngineId;
+  yueScore: CoverScore | null;
+  reuseScore: { engine: EngineId; songId: string } | null;
 }
 
 /** ARRANGE tab state, same reasoning as AudioMethod. */
@@ -72,7 +77,10 @@ const INTENT: SharedIntent = {
   folderId: undefined, folderName: undefined, pendingQuery: undefined, reusedFrom: undefined,
   referenceLabel: undefined, referenceAudioInfluence: undefined, referenceStyleInfluence: undefined,
 };
-const AUDIO: AudioMethod = { source: 'upload', selectedSongId: null, uploadFile: null, model: '', variance: 0.5 };
+const AUDIO: AudioMethod = {
+  source: 'upload', selectedSongId: null, uploadFile: null, model: '', variance: 0.5,
+  engine: 'acestep', yueScore: null, reuseScore: null,
+};
 const ARRANGE: ArrangeMethod = { source: 'upload', uploadFile: null, scratchSource: null, model: '' };
 
 interface CreateDraftState extends SharedIntent {
@@ -108,7 +116,7 @@ interface CreateDraftState extends SharedIntent {
  * otherwise make a draft never look empty. */
 export const isDraftEmpty = (s: CreateDraftState): boolean =>
   (!s.title || s.titleSuggested) && !s.prompt && !s.lyrics && !s.bpm && !s.keyScale && !s.timeSignature
-  && !s.vocalLanguage && !s.duration && !s.audio.selectedSongId && !s.audio.uploadFile
+  && !s.vocalLanguage && !s.duration && !s.audio.selectedSongId && !s.audio.uploadFile && !s.audio.yueScore
   && !s.arrange.uploadFile && !s.arrange.scratchSource;
 
 /** In-memory only, deliberately: `uploadFile` is a `File` and can't be serialized, and a
@@ -120,7 +128,7 @@ export const useCreateDraftStore = create<CreateDraftState>()((set, get) => ({
   revision: 0,
 
   patch: (p) => set('prompt' in p || 'lyrics' in p ? { ...p, intentOrigin: get().genType } : p),
-  patchAudio: (p) => set({ audio: { ...get().audio, ...p } }),
+  patchAudio: (p) => set({ audio: withSourceChange(get().audio, p) }),
   patchArrange: (p) => set({ arrange: { ...get().arrange, ...p } }),
 
   load: (d) => set({
@@ -141,7 +149,10 @@ export const useCreateDraftStore = create<CreateDraftState>()((set, get) => ({
     referenceAudioInfluence: d.audioInfluence,
     referenceStyleInfluence: d.styleInfluence,
     engine: d.engine ?? 'acestep',
-    audio: { ...AUDIO, source: d.source ?? AUDIO.source, selectedSongId: d.selectedSongId ?? null },
+    audio: {
+      ...AUDIO, source: d.source ?? AUDIO.source, selectedSongId: d.selectedSongId ?? null,
+      engine: d.coverEngine ?? 'acestep', reuseScore: d.reuseScore ?? null, yueScore: d.coverScore ?? null,
+    },
     arrange: ARRANGE,
     revision: get().revision + 1,
   }),

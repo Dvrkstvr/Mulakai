@@ -3,7 +3,7 @@ import { extraEngine, useEngineStore } from './engineStore';
 import type { EngineId, EngineInfo } from './api';
 
 export interface SelectedEngine {
-  /** Where GENERATE sends this draft. Always 'acestep' outside the PROMPT tab. */
+  /** Where GENERATE sends this draft: PROMPT's engine, COVER's own, and ACE-Step for ARRANGE. */
   id: EngineId;
   /** The extra engine's descriptor and health; null for ACE-Step. */
   info: EngineInfo | null;
@@ -16,11 +16,13 @@ export interface SelectedEngine {
  * gated control and the settings panel read this. */
 export function useEngineCaps(): SelectedEngine {
   const genType = useCreateDraftStore((s) => s.genType);
-  const engine = useCreateDraftStore((s) => s.engine);
+  const promptEngine = useCreateDraftStore((s) => s.engine);
+  const coverEngine = useCreateDraftStore((s) => s.audio.engine);
   const engines = useEngineStore((s) => s.engines);
   const loaded = useEngineStore((s) => s.loaded);
-  const id: EngineId = genType === 'prompt' ? engine : 'acestep';
+  const id: EngineId = genType === 'prompt' ? promptEngine : genType === 'audio' ? coverEngine : 'acestep';
   const info = extraEngine(engines, id);
-  const unavailable = id !== 'acestep' && loaded && !(info?.configured && info.ready);
+  const ready = genType === 'audio' ? info?.coverReady : info?.configured && info.ready;
+  const unavailable = id !== 'acestep' && loaded && !ready;
   return { id, info, unavailable };
 }

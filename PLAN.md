@@ -3917,7 +3917,8 @@ decisions above, they supersede them:
 ### File-level plan
 
 **PR 0 — spike (`docs/yue2-cover-spike`, PLAN.md only).** Manual, in WSL,
-with the numbers written back here:
+with the numbers written back here. *Done 2026-09-30: see "Cover spike
+results" below.*
 
 - Install SheetSage2 per `docs/covers.md` in `~/sheetsage2`, including
   the Hugging Face login.
@@ -4017,6 +4018,395 @@ nobody will do it, this section gets a "not pursued" note with the numbers
 and the work stops there. PRs 1–3 then land in order, each usable on its
 own terms (PR 1 is testable through curl; PR 2 through the API).
 
+### Cover spike results (2026-09-30)
+
+**Verdict: go ahead.** A supplied score steers YuE2's melody strongly: a
+sung cover kept 0.93–0.98 of the source melody, against 0.10 for an
+unrelated melody. The lyrics don't have to be hand-aligned. They do have
+to use the score's sections; the source's own section tags cost a third
+of the melody. Run in WSL (Ubuntu 24.04, RTX 4080 16 GB); every file is in
+`~/sheetsage-spike`.
+
+**Sources.** Three ACE-Step songs from the library: *Ellies City 2*
+(trip-hop, female vocal, 140 s), *Purple Shinings* (dream pop, female
+vocal, 177 s) and *eventide* (instrumental guitar and cello, 147 s). No
+commercial recording was used; none was on hand, and the question is
+whether YuE2 follows a transcription, which a library song answers.
+
+**Setup.**
+- `~/sheetsage2/.venv`: Python 3.11.16, torch 2.8.0+cu126, Transformers
+  4.45.2, NumPy 1.24.3. FFmpeg 6.1.1 comes from Ubuntu.
+- **No Hugging Face login was needed**: the snapshot and its MERT parent
+  downloaded anonymously. That answers the open question: document no login.
+- The snapshot came down unpinned, as `ce18e5ba…`. Upstream's
+  `cover-release.json` pins `eab522a8…`; MERT-v2-FullSong matched its pin
+  (`d8ba1c74…`). PR 1's README pins SheetSage2 to a revision.
+- `--render-audio` failed ("Could not start the renderer") until
+  `setup_render.py` was run.
+
+**Transcription** (`infer.py --melody-only --render-audio`).
+- Model time was 6–12 s per song, 11–22 s wall including the model load.
+  PyTorch peaked at 3.4 GiB, 3.7 GB on the card. `warnings` was empty and
+  `abc_error` null for all three.
+- **Section markers: yes. Lyric slots: no.** Each score has `% intro`,
+  `% verse`, `% chorus`, `% bridge`, `% interlude` and `% outro` comments,
+  and no `w:` lines.
+- The section labels are approximate. *Purple*'s verse/chorus layout came
+  out as intro, verse, bridge, interlude.
+- Header facts are mostly right. *Ellies* came out as 75 BPM, F minor,
+  matching the song, and *Purple* as 87 BPM, D minor, also matching.
+  *eventide* came out as 65 BPM in 2/4 (the song is 130 BPM in 4/4, so
+  half time) and B♭ minor, where its stored key is F♯ major. The review
+  panel's header facts are how a user spots this.
+- Both voices are used: *Ellies* has 167 `Vocal` and 16 `Ins` notes,
+  *Purple* 122 and 171, *eventide* 0 and 160.
+
+**Generation** (`yue2 generate --abc-file … --cot melody`, seed 42; for
+instrumentals, upstream's conversion first, see "YuE2: Align With
+Upstream's `yue2-music` Skill").
+- **Speed:** 59–76 s for a 136–140 s song, and 95 s for *eventide*'s
+  157 s. *Purple* took 124 s for 176 s, but ran while ACE-Step was loaded
+  on the card.
+- **Contention:** an earlier *eventide* attempt, made with ACE-Step
+  resident, stalled at 9 tokens/s and never finished. Alone it ran at
+  63 tokens/s. This confirms point 9's genLock and the ACE-Step offload
+  requirement.
+- **Truncation:** none, in either flag, on any run.
+- **Tempo:** the result's tempo landed within 4% of the score's.
+
+**Melody survival.** Each result was transcribed again by SheetSage2 and
+compared with the source's transcription, note by note (`mir_eval`: onset
+within 0.25 s, pitch within 50 cents, offsets ignored). The comparison
+takes the best time shift within ±15 s and the best tempo scale between
+0.94 and 1.06. A source against its own piano rendering scores 1.00, which
+is the ceiling.
+
+| Run | Lyrics | F1 | Octave-folded |
+| --- | --- | --- | --- |
+| Purple, synth-pop | its own | **0.98** | 0.98 |
+| Ellies, folk | don't fit the melody (long lines, 3 sections) | **0.96** | 0.96 |
+| Ellies, folk | its words, re-tagged to the score's 6 sections | **0.93** | 0.93 |
+| Ellies, folk | its own (`[Verse 1]`, `[Bridge]`, `[Humming]` ×5) | 0.66 | 0.66 |
+| Ellies, cello instrumental | score tags only, `Vocal` moved to `Ins` | 0.52 | 0.67 |
+| eventide, lo-fi instrumental | score tags only | 0.55 | 0.55 |
+| Ellies control: no score, `cot=full` | re-tagged | 0.11 | 0.13 |
+| Chance: Ellies vs the Purple cover | — | 0.10 | 0.10 |
+
+In every sung run the melody was sung: 166–169 vocal notes, like the
+source's 167. Lyrics that don't fit did not push it onto an instrument.
+Without the tempo search, runs that drifted 1–4% scored far lower (0.41
+for the re-tagged run), so a fixed-tempo comparison is misleading here.
+
+**Answers.**
+- **Do the lyrics' section tags need to match the score's?** They should.
+  Same words, same seed: 0.93 with the score's tags, 0.66 with the
+  source's own tags. The source's tags have an extra `[Bridge]` and a run
+  of `[Humming]` tags. Mulakai writes the score's section outline into
+  LYRICS, and a library source's words are re-tagged to it; the user can
+  still edit it. This replaces point 4's "seeds LYRICS from that song"
+  as-is.
+- **Do the syllables need to fit?** Not for the melody: the misfit lyrics
+  scored 0.96. Whether all their words were sung, and clearly, was not
+  measured. There was no ASR or listening pass, so point 4's hint about
+  phrasing stays.
+- **Instrumental covers work, less faithfully.** Around 0.5–0.67, far above
+  chance, with the melody moved partly an octave away. Empty LYRICS on COVER
+  is allowed, and its consequence line says the melody is followed more
+  loosely.
+
+**ACE-Step side check: dropped for sung covers.** SheetSage2's piano
+rendering was used as the *source* of a Mulakai COVER (`acestep-v15-sft`)
+and ARRANGE (`acestep-v15-base`) job, with the folk style and the re-tagged
+lyrics. The results were scored the same way and saved to the library's
+"SheetSage spike" folder.
+
+| Run | F1 | Octave-folded | Sung notes |
+| --- | --- | --- | --- |
+| Ellies → COVER | 0.29 | 0.30 | 0 of 413 melody notes |
+| Ellies → ARRANGE | 0.10 | 0.12 | 114 |
+| eventide → COVER, lo-fi instrumental | 0.02 | 0.68 | 0 |
+
+- **COVER gives a restyled instrumental, not a song.** Nothing was sung,
+  despite the lyrics and "warm female vocal". About half of the melody
+  is in there, among many added notes.
+- **ARRANGE sings, but a new melody**, at chance level (0.10).
+- **COVER on an instrumental** keeps the melody's pitch classes about as
+  well as YuE2 did (0.68 octave-folded), though an octave away.
+
+So a transcription's piano rendering does not make ACE-Step sing the
+source's melody. The follow-up section is not written. Two caveats:
+- COVER ran at ACE-Step's default strength. VARIANCE never reaches
+  ACE-Step, because `/from-audio` drops `audio_cover_strength`. That bug
+  was found here and filed separately. An instrumental-only variant could
+  be retried once it is fixed.
+- The XL models spilled out of 16 GB at 55 s per step, about 47 minutes a
+  job, so the standard models were used. They took 4.5–6 minutes a job.
+
+**Not done.**
+- A listening pass. The files are in
+  `\\wsl$\Ubuntu-24.04\home\calvin\sheetsage-spike\gen\*\song\audio.flac`,
+  and the ACE-Step results are in the library.
+- ASR on the misfit lyrics.
+
+### yue-server transcription decisions (2026-09-30, `feat/yue-transcribe`)
+
+PR 1. Where these differ from points 6–8 or the file-level plan, they
+supersede them:
+
+- **Job kinds.** Every record gains `kind`: `song` or `transcription`.
+  - Only song records carry `seed`, `tokens` and `request_id`.
+  - Both kinds share the queue, the `max_pending` limit, retention and
+    `Idempotency-Key` replay. The idempotency digest includes the kind.
+  - Each route family returns 404 for the other kind's ids, so
+    `/v1/jobs/{id}` never serves a transcription.
+- **Upload.** `POST /v1/transcriptions` takes a multipart `audio` field,
+  up to `YUE_MAX_UPLOAD_MB` (default 300, the same as Mulakai's
+  `COVER_MAX_UPLOAD_MB`). Over that is a 413, and an empty file a 400.
+  - 2026-10-01: both were 100 MB, which rejected any library WAV (float32
+    stereo, about 23 MB a minute) over about 4.3 minutes. Mulakai's
+    TRANSCRIBE route now answers an oversized file with a JSON 413 and a
+    broken form with a JSON 400, as READ LYRICS does, instead of Express's
+    HTML 500.
+  - The file is stored as `uploads/<sha256><ext>`, so a replayed
+    `Idempotency-Key` with the same audio matches its digest.
+  - Uploads older than the retention window are swept on each submit, and
+    all of them on startup.
+  - This adds `python-multipart` to `requirements.txt`.
+- **The subprocess** runs `infer.py <audio> --output <job dir> --melody-only
+  --render-audio --local-files-only`, from `YUE_SHEETSAGE_DIR`, so the
+  pinned local snapshot is what runs and nothing is fetched.
+  - `--melody-only` keeps the default tasks, so both melody voices are
+    kept (see "Upstream skill-doc review").
+  - Progress comes from its `Window i/n` lines.
+  - Cancel kills the process group.
+- **Success is decided by the score, not the exit code.** A failed piano
+  render exits 1 but still writes `score.abc`; the spike hit exactly this.
+  - A job succeeds when `score.abc` is non-empty and `result.json` has no
+    `abc_error`.
+  - The preview is `piano_mix.wav` when it exists. Otherwise
+    `preview_url` is null, and the `render_error` joins `warnings`.
+  - Failure codes: `no_score` (SheetSage2 ran but built no score) and
+    `transcription_failed`. Both carry the last lines of its output.
+- **The record's `result`**: `score_url`, `preview_url`, `warnings`
+  (SheetSage2's own, plus any render error), `measures`, `vocal_notes`,
+  `instrumental_notes`, `duration_seconds`, and `timing.total_seconds`.
+- **Health.** `GET /v1/transcriptions/health` needs no auth, like
+  `/health/*`.
+  - 200 `{"status": "ready"}` when the worker is ready and the venv's
+    Python, `infer.py` and `model.safetensors` all exist.
+  - Otherwise 503 with `status` `not_configured`, `missing_files` (and
+    `detail`), or the worker's state.
+  - A submit when not ready is also a 503.
+- **A supplied score (`abc`) is checked before it is queued.** Each check
+  fails as a 422:
+  1. It must be non-blank and at most 64 KB, and `cot` must not be `off`.
+  2. It must parse in the native two-voice dialect (the vendored
+     `abc_tools.parse_abc`).
+  3. With `cot="melody"`, its chord symbols are stripped
+     (`strip_chords`, which checks every note survives).
+  4. It must fit the pipeline's 4096-token plan budget. This is checked
+     once the pipeline is loaded; a submit before then is already a 503.
+- **An instrumental cover converts the supplied score too.**
+  `is_instrumental` no longer excludes `abc`: tags-only lyrics with a score
+  move its `Vocal` notes to `Ins`, as upstream's instrumental cover does.
+- **The SheetSage2 pin is HF `main` at `cafc0df1…` (2026-09-29).** That is
+  what the spike ran. Upstream's `eab522a8…` is older.
+- **Transcription never touches the YuE2 pipeline.** YuE2 is parked in
+  system RAM between jobs, which leaves about 0.8 GB of CUDA context, and
+  SheetSage2 needs about 3.7 GB. If the YuE2 pipeline failed to load,
+  transcription is unavailable too: one worker runs both.
+- **Verified end to end (2026-10-01)**, in WSL on the RTX 4080, against the
+  real SheetSage2 and YuE2 installs:
+  - **Transcription:** *Ellies* transcribed in 18 s. It gave the same score
+    as the spike (44 measures, 167 `Vocal` and 16 `Ins` notes) and a 24 MB
+    piano preview.
+  - **Sung cover:** from that score, with `cot=melody`, 62 s for 135 s of
+    audio.
+  - **Instrumental cover:** 61 s. All 167 vocal notes moved to `Ins`, and
+    the generated score had 0 `Vocal` notes. This is the first GPU run of
+    `plan()` with a supplied score and the real 4096-token check, the
+    parts "YuE2: Align With Upstream's `yue2-music` Skill" had left
+    unverified.
+  - No truncation in either cover.
+  - **Melody kept:** measured in note order (longest common subsequence,
+    octave-folded, timing ignored), 0.98 for the sung cover (the spike's
+    identical request also scored 0.98) and 0.96 for the instrumental.
+    The no-score control scored 0.43 and chance 0.38.
+  - **Timed comparison:** the spike's note-F1 put this sung run at only
+    0.55. It had shifted locally, which one global tempo-and-offset
+    alignment can't follow. So note order is the better measure of
+    melody survival.
+  - **A lesson:** a game on the GPU (10 GB, 85%) slowed transcription to
+    5½ minutes, and stalled a cover at 1.8 tokens/s. A stalled job cannot
+    be cancelled, because cancel is only checked per token. The earlier
+    spike's stalled instrumental run was most likely the same kind of
+    contention.
+
+### Mulakai server cover decisions (2026-10-01, `feat/yue-cover-server`)
+
+PR 2. Where these differ from points 5, 9 and 10 or the file-level plan,
+they supersede them:
+
+- **Covers are an optional engine ability.** `SongEngine` gains an
+  optional `toCoverRequest(fields, abc)`. Only YuE2 has one, and HeartMuLa
+  doesn't. The cover routes answer 400 for an engine without it, or one
+  that isn't configured.
+- **`EngineInfo.coverReady`** is true when the engine can cover, is
+  configured, and answers `GET /v1/transcriptions/health` with 200. It is
+  probed in parallel with the other health checks. A `yue2-serve` backend,
+  which has no such route, reads as false.
+- **`POST /api/engines/:id/transcribe`** takes multipart `src_audio`, as
+  COVER does today, plus an optional `source_label`. It returns 202
+  `{jobId}`, and is polled through `GET /api/generate/:jobId`.
+  - It holds the genLock as `{kind: 'transcribe', title: <source label>,
+    engine}`. The client already shows an unknown kind as another job
+    holding the lock, and PR 3 names it.
+  - The coverReady check runs at request time: false is a 400, "covers
+    are not set up".
+- **The finished job carries `transcription`**: `score` (the ABC),
+  `sourceLabel`, `warnings`, `measures`, `vocalNotes`, `instrumentalNotes`,
+  `durationSeconds` and `hasPreview`. Nothing is written to the library.
+- **The preview is proxied, not copied.**
+  `GET /api/engines/:id/transcribe/:jobId/preview` streams yue-server's
+  preview and forwards `Range`, so the player can seek.
+  - yue-server keeps it for its retention window (24 h) or until it
+    restarts. After that it is a 404, which matches point 9's "after a
+    reload, re-transcribe for a preview".
+  - Mulakai keeps no scratch file to clean up.
+- **`buildYue2CoverRequest(fields, abc)`**:
+  - `style`: the language and PROMPT only, as text2music writes them. No
+    BPM / KEY / TIME SIGNATURE hints, because the score fixes those
+    (point 5).
+  - Instrumental: upstream's wording, as in text2music.
+  - `lyrics`: as typed. Empty lyrics become the tags-only skeleton, which
+    yue-server replaces with the score's own section tags.
+  - `cot: 'melody'`, `abc`, `seed` and `cfg_scale` are mapped as usual.
+- **`POST /api/engines/:id/cover`** takes JSON with the Create fields plus
+  `abc` (non-blank, at most 64 KB) and `source` (the source label).
+  - It runs `startEngineGeneration` with a cover option. That option picks
+    the request builder and the lock's and the song's `gen_task: 'cover'`.
+  - The version's `params.request` keeps `abc`: the *supplied* score,
+    which REUSE PROMPT needs. The `.abc` sidecar is the score yue-server
+    generated from, which for an instrumental cover is the converted one.
+    `params.source` is the source label.
+- **`GET /api/engines/:id/covers/:songId/score`** returns that supplied
+  score (`text/plain`) from the song's first base version. It is a 404
+  for a song that isn't a YuE2 cover. PR 3's REUSE PROMPT uses it, so
+  another cover of the same melody needs no new transcription.
+- **Verified end to end (2026-10-01).** This branch's server ran on a
+  scratch database against the real yue-server in WSL, through the same
+  API the client will call:
+  - `GET /api/engines` showed YuE2 `coverReady: true`.
+  - **Transcribe:** *Ellies City 2* from the library, under a `transcribe`
+    lock titled with the source. Done in 21 s, with the spike's facts (44
+    measures, 167/16 notes).
+  - **Preview:** a Range request returned 206, and a full one 200 with
+    24.7 MB.
+  - **Cover:** held the lock as `generate · cover`, and polled through
+    semantic → synthesis → decode. It saved a new song in 65 s:
+    `engine: yue2`, `gen_task: cover`, 137 s.
+  - **Metadata from the score:** the song's 75 BPM / F minor / 4/4 came
+    from the score. The `bpm: 140` in the request was dropped, as
+    intended.
+  - **Stored score:** `covers/:songId/score` returned exactly the
+    transcribed score.
+
+### Client cover decisions (2026-10-01, `feat/yue-cover-ui`)
+
+PR 3. Where these differ from points 1–4, 9–12 or the file-level plan,
+they supersede them:
+
+- **ENGINE on COVER.** `EngineChoice` takes its choices, value and
+  handler as props, so PROMPT and COVER share it.
+  - COVER offers ACE-STEP plus every extra engine whose `coverReady` is
+    true. The row renders only when one exists, or when the draft already
+    names one.
+  - The pick is `draft.audio.engine`, so PROMPT's engine is untouched.
+    ARRANGE stays ACE-Step-only.
+- **The score lives in the draft**: `draft.audio.yueScore`, which holds
+  the ABC, its source label, SheetSage2's facts (null for a file or a
+  reused score), and the transcription job id for the preview.
+  - The draft is in memory only, as it always has been, so this
+    supersedes point 9's "survives a reload". The score survives tab
+    switches and leaving Create, like the rest of the draft.
+  - Changing the source (the tab, the picked song or the upload) clears
+    it. CLEAR DRAFT clears it and resets the engine.
+- **The settings panel follows COVER's engine.** `useEngineCaps` resolves
+  COVER to `audio.engine`, so on YUE2 the panel shows YuE2's CFG and SEED.
+  COT is hidden there, with a hint, because a cover always uses `melody`
+  (point 5).
+- **TRANSCRIBE** is an acid-outline button: GENERATE COVER stays the one
+  filled CTA.
+  - While it runs it reads `TRANSCRIBING… n%`, from SheetSage2's windows.
+  - No shader: DESIGN.md keeps the AI shimmer to GENERATE / REPAINT.
+  - It is off while any job holds the lock, and needs a source.
+  - A new `transcribeStore.ts` runs it, because `generationStore.ts` is at
+    the cap. The result is applied only if the draft's source is still
+    the one that was transcribed.
+- **The review panel** (`YueScoreReview.tsx`):
+  - Tempo, key, meter, bars and length, from `abcFacts.ts`. Its header
+    parsing mirrors the server's `abcMeta.ts`.
+  - SheetSage2's vocal and instrument note counts.
+  - Its warnings, as a `.warn-note`.
+  - The piano preview through `AudioPreview`, from the proxy route.
+    Without one, a hint says why: a replaced or reused score has none,
+    and an expired one needs re-transcribing.
+  - The ABC in a collapsed, read-only block.
+  - **USE .ABC FILE** replaces the score and drops the preview. The server
+    checks the file at GENERATE, and its 422 message is shown.
+- **Lyrics fit the score's sections** (spike: 0.93 against 0.66 with the
+  source's own tags).
+  - When a score arrives and LYRICS is empty, it is filled: with the
+    score's section outline, or for a library source with that song's
+    words re-tagged in order onto the score's sung sections
+    (`coverLyrics.ts`).
+  - **FIT TO SCORE** re-tags whatever LYRICS holds now.
+  - Empty LYRICS makes an instrumental cover, and the consequence line
+    says the melody is then followed more loosely.
+- **Song details on COVER · YUE2.** There are no BPM, KEY, TIME SIGNATURE
+  or DURATION inputs: the score fixes them (point 5), and the review
+  facts stand in for them. VOCAL LANGUAGE stays, English or Chinese.
+- **GENERATE COVER** calls `startYueCover`, through the shared `launch`.
+  - The request carries title, prompt, lyrics, language, the seed pair,
+    CFG (no COT), output, folder, `abc` and `source`.
+  - Consequence lines follow point 11, with an instrumental variant.
+- **REUSE PROMPT on a `COVER · YUE2` song** opens COVER on YUE2.
+  - The draft carries `reuseScore` (the engine and song), and the panel
+    fetches the song's source score into `yueScore`.
+  - So it is ready to GENERATE with no source. TRANSCRIBE is still there
+    if a source is picked.
+  - The rail's consequence line says so.
+  - A retry of a failed cover, or a job adopted from the lock, reopens
+    COVER on its engine.
+- **Settings › Engines:**
+  - The YuE2 row gains `COVERS: READY / NOT SET UP` and "SheetSage2
+    weights: CC BY-NC 4.0."
+  - The card's hint names COVER too.
+  - The header pill shows the new lock kind as `TRANSCRIBE · RUNNING`.
+- **DESIGN.md is updated in its own commit.** It says COVER is always
+  ACE-Step, which is no longer true.
+- **Browser-checked end to end (2026-10-01).** This branch's client and
+  server ran on a scratch library against the real yue-server in WSL:
+  - **Engine row:** COVER showed ENGINE (ACE-STEP / YUE2), and picking
+    YUE2 swapped the settings panel to CFG / SEED with the COT hint.
+  - **Transcribe an upload:** *Ellies* reviewed as 75 BPM, F minor, 4/4,
+    44 bars, 2:21, 167 sung / 16 played, with a playable 2:20 piano
+    preview. LYRICS were seeded with the score's outline.
+  - **FIT TO SCORE** turned untagged words into exactly the spike's
+    hand-aligned lyrics.
+  - **Generate:** GENERATE COVER handed off to the Library card and
+    saved `COVER · YUE2` (75 BPM / F minor / 2:21).
+  - **REUSE PROMPT** reopened COVER on YUE2 with the fetched score, ready
+    to GENERATE with no source.
+  - **Library source:** transcribing the new cover as a FROM LIBRARY
+    source (a client-side bounce) gave 46 bars and 168 sung / 14 played
+    notes, close to the original's 167 / 16.
+  - **Settings:** Settings › Engines showed `COVERS: READY` and the
+    SheetSage2 licence line.
+  - **A bug found and fixed along the way:** tags-only lyrics were not
+    read as an instrumental. The consequence line now uses yue-server's
+    rule (`hasWords`).
+
 ### Open questions
 
 - **Section alignment.** If YuE2 needs lyric section tags that match the
@@ -4033,7 +4423,8 @@ own terms (PR 1 is testable through curl; PR 2 through the API).
   full mix?
 - **Hugging Face login.** If SheetSage2 is gated, setup needs a token in
   WSL. Document only, or should `yue-server`'s health say "weights not
-  found" specifically enough to point at the login step?
+  found" specifically enough to point at the login step? *Answered
+  2026-09-30: it isn't gated; the spike downloaded it without a login.*
 - **Copying the melody of a copyrighted song.** Point 12 leaves this to
   the user, the same as ACE-Step's COVER. Should COVER on YUE2 say so
   inline, given it is a much more literal copy of the melody?
@@ -4136,3 +4527,548 @@ SongBench, PER) is for reproducing papers, not for an app.
   `languageOptions`; `CreatePromptTab.tsx` uses them;
   `engineRequest.ts` (+ test) drops unlisted languages.
 - `client/src/engineSettings.ts` — the YuE2 CFG range.
+
+## UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)
+
+SPLIT's DEMUCS option runs `htdemucs` through `demucs-server/`. Its vocal
+stem is the weakest of the four, and it is also the one people claim most
+(a clean vocal layer to repaint around, and the input for the lyric-timestamp
+to-do under "Open Questions For Later Phases"). The Roformer vocal models
+from the Ultimate Vocal Remover (UVR) community separate vocals much more
+cleanly. BS-Roformer-Viperx-1297's published vocal SDR is about 12.9 dB,
+against about 9 dB for htdemucs on MUSDB. The test sets differ, but the gap
+is well established. [uvr-headless-runner](https://github.com/chyinan/uvr-headless-runner)
+(MIT) runs UVR's own separation code headless, with UVR's model registry
+and auto-download.
+
+This is a backend swap behind the existing `/split` contract, not a new
+feature. `stemSplit.ts`, the routes and the SPLIT UI do not change.
+
+### Decisions
+
+- **A sibling service, `uvr-server/`, not a mode inside `demucs-server/`.**
+  The runner installs top-level modules named `demucs`, `separate`, `cli`,
+  `UVR`, `progress`, `models`, … Its vendored `demucs` collides with the pip
+  `demucs` that `demucs-server` imports. It also pins Python `>=3.9,<3.11`
+  and old numpy/librosa. So it gets its own Python 3.10 venv, like
+  HeartMuLa. None of the service's own modules may reuse one of the
+  runner's module names.
+- **Same contract, same port, same env var.** `uvr-server` answers
+  `GET /health` and `POST /split` → `{"stems": {vocals, drums, bass, other}}`
+  of float32 WAV URLs on port 8002. Mulakai reaches it through the existing
+  `DEMUCS_API_URL`. Only one of the two services runs at a time.
+  `start-all.bat` prefers `uvr-server` when its venv exists and falls back
+  to `demucs-server`.
+- **Two passes, because Roformer vocal models have only two stems.**
+  1. The vocal model (`UVR_VOCAL_MODEL`, default `Roformer Model:
+     BS-Roformer-Viperx-1297`) splits the mix into Vocals and Instrumental.
+     Its Vocals is the `vocals` stem. The Instrumental is exactly the mix
+     minus the vocals (-153 dB residual when measured).
+  2. The runner's own Demucs (`UVR_DEMUCS_MODEL`, default `htdemucs`)
+     splits that Instrumental into drums/bass/other. Because it's the
+     runner's copy, the venv needs no pip `demucs`.
+- **Pass 2's "Vocals" is folded into `other`, not dropped.** The plan was
+  to discard it as bleed, but on a real mix it measured -12 dB against the
+  instrumental. That is far too loud for leftover vocals. It is mostly
+  vocal-like instruments (leads, pads). Dropping it left the four stems
+  -14 dB off the mix; folding it in brings them to -29 dB, which is about
+  htdemucs' own reconstruction error.
+- **Float32 WAV out** (`wav_type_set='FLOAT'`), the same lossless-master
+  rule as every other producer. `transcode.ts` applies the user's format.
+  UVR works at 44.1 kHz like htdemucs, so the resample-up note in "Output
+  Format" applies unchanged. The Node path was verified end to end: a scratch
+  split through `/api/split/scratch` came back as 48 kHz FLAC.
+- **One split at a time, GPU memory freed after each.** The endpoint is a
+  plain `def` behind a lock, so it runs in FastAPI's threadpool and `/health`
+  stays responsive during a split. After each split, including a failed one,
+  the service frees CUDA's cache so it doesn't hold VRAM that ACE-Step or an
+  engine needs.
+- **The runner comes from a pinned git checkout, not PyPI.** The 1.1.0 wheel
+  leaves out the runner's `models/` data files, and without them no MDX model
+  loads by name. `uvr-server/runner/` (gitignored) is cloned at commit
+  `0088e1e` and installed editable, so it finds its data files and downloads
+  models next to them (about 640 MB for Roformer and 80 MB for htdemucs).
+- **Two runner bugs are worked around in `uvr_models.py`.** Both were found
+  in real runs, and the runner's own CLI fails the same way.
+  - *Roformer by registry name fails* with KeyError `'hyper_parameters'`. UVR's
+    GUI merges UVR's online hash → config table (`model_data_new.json`),
+    which marks Roformer checkpoints `is_roformer` with their YAML. The runner
+    defines that URL but never fetches it. The service looks the
+    checkpoint's hash up there and passes the entry as `model_json_path`.
+    The entry is cached in `uvr-server/model-configs/`.
+  - *Demucs v4's first download* resolves to the `.th` weights instead of the
+    `{name}.yaml` bag Demucs loads by. After the download the service looks
+    the name up again, and that finds the yaml.
+- **Measured:** a 3½-minute song takes about 50 s warm on an RTX 4080 for
+  both passes. That includes loading both models, which happens on every
+  call, the same as `demucs-server`.
+
+### File-level plan (as built)
+
+- `uvr-server/chain.py` — the two-pass split, with the runners injected so
+  tests can pass fakes. It maps `{base}_({Stem}).wav` to `StemKind`s and
+  folds pass 2's Vocals into `other`.
+- `uvr-server/uvr_models.py` — the two runner workarounds above.
+- `uvr-server/api.py` — `create_app`: `/health`, `/split`, the `/audio`
+  static mount, the lock, freeing GPU memory, and pruning intermediate files.
+- `uvr-server/main.py` — wires the real runners and env vars into `api.py`.
+  Run it with `uvicorn main:app --port 8002`.
+- `uvr-server/tests/` — pytest with fake runners, no GPU: pass order and
+  arguments, stem mapping, the fold, missing outputs, the workarounds, and
+  the `/split` response, pruning and 500 path.
+- `uvr-server/requirements*.txt`, `pytest.ini`, `README.md` — setup (uv,
+  Python 3.10, CUDA torch, then the editable runner), env vars, run and test
+  commands. It pins `setuptools<81` because librosa 0.9.2 imports
+  `pkg_resources`.
+- `start-all.bat` — start `uvr-server` on 8002 when `uvr-server\venv`
+  exists, otherwise `demucs-server` as before.
+- `.gitignore` — `uvr-server/{data,venv,runner,model-configs}/`.
+
+### Open questions
+
+- **The SPLIT button still says DEMUCS.** With `uvr-server` behind it, that
+  label is inaccurate. `/health` already returns `backend: "uvr"`. Passing
+  it through `GET /api/split/health` to the button touches the server route
+  and both split pickers, so it's a separate small PR if wanted.
+- **6-stem output (`htdemucs_6s`: guitar, piano)** would need new
+  `StemKind`s and layer kinds. That is a scope question, not part of this
+  change.
+- **Upstreaming the two runner fixes** to chyinan/uvr-headless-runner would
+  let `uvr_models.py` go away, along with the switch from PyPI to a git
+  checkout.
+
+## Cover Lyrics From the Recording (planned 2026-10-01)
+
+On COVER · YUE2 an **uploaded** source fills LYRICS only with the score's
+section outline (`[Intro]`, `[Verse]`, …). SheetSage2 reads the melody,
+never the words, and a library source's stored lyrics are the only words
+Mulakai can seed ("Client cover decisions"). The user asked for the words
+sung in an upload to be read back into LYRICS. That is lyric
+transcription, which the covers plan left out of scope ("Lyric
+transcription … is out of scope", point 4). This section plans it.
+
+### What is available (checked 2026-10-01)
+
+- **HeartTranscriptor-oss** (`HeartMuLa/HeartTranscriptor-oss`, revision
+  `918f8891`): a Whisper fine-tuned for *lyrics*, not speech.
+  - Apache-2.0. That is looser than every music model in the stack, which
+    are all CC BY-NC.
+  - It has Whisper-medium's shape: 24 + 24 layers, `d_model` 1024, 80 mel
+    bins. The weights are 3.06 GB in fp32, about 1.5 GB in fp16.
+  - Languages: zh, en, ja, ko, es.
+  - It was trained on **separated vocal tracks**. Upstream recommends
+    separating the vocals first.
+  - heartlib already ships it as `HeartTranscriptorPipeline`: a
+    Transformers ASR pipeline, in 30 s chunks, used in fp16 with beam 2.
+    It is in the venv `heartmula-server` already uses
+    (`S:\AI Gen\heartlib`). The weights are **not** downloaded yet
+    (`ckpt/HeartTranscriptor-oss` is missing).
+- **Generic Whisper** (faster-whisper large-v3, or `stable-ts` around it):
+  word-level timestamps, which is what the 2026-07-08 lyric-timestamp to-do
+  (under "Open Questions For Later Phases") wants. It is trained on speech,
+  so sung words are its weak point. It is not installed anywhere.
+- **ACE-Step's `/v1/analyze_audio`** (the mulakai fork): its LM
+  "describes" a track, lyrics included. The ACE-Step COVER tab already
+  uses it (ANALYZE AUDIO). How its lyrics compare with an ASR is
+  unmeasured; an LM describing audio may paraphrase rather than transcribe.
+- **Vocal isolation is already there.** `uvr-server` (Roformer vocals,
+  merged in #53) sits behind `DEMUCS_API_URL`, with `demucs-server` as the
+  fallback. `POST /split` returns vocals / drums / bass / other.
+
+### Decisions (proposed; the spike confirms or changes them)
+
+1. **A spike picks the model before any code.** Three candidates, all run
+   on the same songs:
+   - HeartTranscriptor on the separated vocals;
+   - faster-whisper large-v3 on the separated vocals;
+   - ACE-Step's `analyze_audio` on the mix.
+   The measure is **word error rate against known lyrics**. Library songs
+   made by ACE-Step carry the lyrics they were sung from, so the reference
+   is free (tags stripped; case and punctuation normalised). Each model is
+   also run on the unseparated mix, to price the separation step. Time and
+   peak VRAM are recorded.
+2. **Words are placed by time, not order.** An ASR returns segments with
+   start times.
+   - The score's section comments sit at known bars, and its tempo and
+     meter turn bars into seconds.
+   - Each segment goes under the section its midpoint falls in. That fixes
+     the one thing order-based `fitLyricsToSections` can't: a verse the
+     ASR missed would otherwise shift every later block up one section.
+   - Order-based fitting stays as the fallback when there are no
+     timestamps (e.g. `analyze_audio`).
+   - It needs the time of the score's bar 1 in the source (see open
+     questions).
+3. **An explicit action, not automatic: READ LYRICS.** It sits next to
+   TRANSCRIBE on COVER · YUE2, and is live once a source is picked.
+   - It costs a vocal split (about 50 s warm for a 3½-minute song on
+     `uvr-server`) plus the ASR. That is too much to add silently to every
+     transcription, and a library source already has its words.
+   - The result replaces LYRICS only when LYRICS is empty or still just the
+     section outline. Otherwise it asks first, with the consequence stated
+     inline, like FEELING LUCKY's confirm.
+   - Consequence line: "reads the words sung in the source into LYRICS ·
+     separates the vocals first, about a minute · nothing is saved to your
+     library".
+4. **Mulakai orchestrates; the services stay single-purpose.**
+   - `POST /api/lyrics/transcribe` takes a multipart source and runs one
+     job under the genLock (a new `lyrics` kind), polled through
+     `GET /api/generate/:jobId`:
+     1. It asks the split service for vocals.
+     2. It hands them to the ASR service.
+     3. The finished job carries `{language, segments: [{text, start,
+        end}]}`.
+   - It holds the lock across both steps, so nothing else loads a model
+     in between.
+5. **Where the ASR runs depends on the winner.**
+   - *HeartTranscriptor*: `heartmula-server` gains a lyrics job
+     (`POST /v1/lyrics`), because heartlib's venv already has the pipeline.
+     It loads per job and is freed afterwards, like its generation model.
+     Its availability is probed like `coverReady`.
+   - *Generic Whisper*: a small `lyrics-server/` of its own. That also
+     serves the lyric-timestamp to-do later (word timings for the Editor's
+     region select).
+6. **VOCAL LANGUAGE is passed as the ASR language when set**, and
+   auto-detect is used otherwise. HeartTranscriptor covers en/zh/ja/ko/es;
+   YuE2 sings en/zh.
+7. **Scope.** v1 only fills LYRICS on COVER · YUE2. It stores no words or
+   timings, and it doesn't touch the Editor. A split service that could
+   return only the vocals would halve the separation time. That would be
+   an optional `stems=vocals` on `uvr-server`'s `/split`, and pass 1 alone
+   is enough there. It is left for after the spike shows the time matters.
+
+### File-level plan
+
+**PR 0 — spike (`docs/cover-lyrics-asr-spike`, PLAN.md only).** In a
+scratch venv or the heartlib venv, with the numbers written back here:
+
+- Download HeartTranscriptor-oss into `S:\AI Gen\heartlib\ckpt`. Install
+  faster-whisper in a scratch venv.
+- Take three library songs with stored lyrics: *Ellies City 2*, *Purple
+  Shinings*, and a third with denser words. Split each through
+  `uvr-server`.
+- Run the three candidates (point 1), on the vocals and on the mix. Record
+  WER, run time and peak VRAM.
+- Check whether segment timestamps land lyric lines in the right score
+  section (point 2), using the spike scores from "Cover spike results".
+- Answer the open questions below that the data can answer.
+
+**PR 1 — the ASR service**, `heartmula-server` or `lyrics-server/`
+depending on point 5:
+- the lyrics job route and its model loading and freeing;
+- availability health;
+- tests with a fake model;
+- README setup (the weights download).
+
+**PR 2 — Mulakai server** (`feat/cover-lyrics-server`):
+- `services/lyricsJobs.ts`: split vocals → ASR → segments, under the
+  `lyrics` genLock kind;
+- the client for the ASR route;
+- `POST /api/lyrics/transcribe`;
+- an `EngineInfo`-style `lyricsReady` probe;
+- tests alongside each.
+
+**PR 3 — client** (`feat/cover-lyrics-ui`):
+- READ LYRICS on the YuE2 cover panel, with its progress and consequence
+  line;
+- `coverLyrics.ts` gains `placeSegmentsInSections(segments, abc,
+  offsetSeconds)`, pure and tested;
+- the replace-or-confirm rule (point 3);
+- DESIGN.md in its own commit;
+- a browser check: upload → TRANSCRIBE → READ LYRICS → the words land
+  under the right sections → GENERATE COVER.
+
+### Rollout
+
+PR 0 decides the model, and whether this is worth building at all. If no
+candidate gets sung words close enough to save typing (a WER the spike
+records against a quick "would I fix this or retype it" read), the section
+gets a "not pursued" note and the upload hint stays as it is. PRs 1–3 then
+land in order.
+
+### Open questions
+
+- **Where bar 1 sits in the source.** Placing words by time needs the
+  offset of the score's first downbeat. SheetSage2 writes `downbeat.lab`;
+  `yue-server` could return its first entry with the transcription. Or
+  does the score's start already match the audio closely enough? The
+  spike measures it.
+- **Automatic for uploads after all?** If the spike's split + ASR comes
+  in well under a minute, running READ LYRICS with TRANSCRIBE for an
+  upload (only when LYRICS is empty) might be the better default.
+- **Beyond YuE2 covers.** The same action would serve ACE-Step's COVER
+  (whose ANALYZE AUDIO is LM-described lyrics) and imports without
+  lyrics. Worth widening once v1 has shown its accuracy?
+- **Word timestamps for the Editor.** If generic Whisper wins, the same
+  service is most of the 2026-07-08 lyric-timestamp to-do. Plan that
+  separately, or fold it in?
+
+## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
+
+A YuE2 cover needs a style PROMPT: `buildYue2Request` throws "YUE2 needs a
+PROMPT" for a sung request with no style. For an upload there is no quick
+way to get one on the YUE2 panel. Today the workaround is to switch COVER's
+ENGINE to ACE-STEP, press ANALYZE AUDIO and switch back. That leaves
+ACE-Step's prose caption in PROMPT, plus BPM / KEY / DURATION the score
+already fixes. This section puts ANALYZE AUDIO on the YUE2 panel and
+rewrites the caption into YuE2-style tags.
+
+### Decisions
+
+1. **ANALYZE AUDIO on the YUE2 panel reuses ACE-Step's analysis.** It is
+   the same `AnalyzeAudioButton` and `useAnalyzeSourceAudio` call, with
+   COVER's ACE-Step model (`draft.audio.model`). `CreateAudioTab` already
+   auto-picks that model on mount, whichever engine is selected.
+   - It sits under PROMPT, above LYRICS, as it does on ACE-STEP: between
+     the two fields it fills.
+   - It needs a picked source. A reused score with no source can't be
+     analyzed; there is no audio.
+   - It is off while TRANSCRIBE runs, while any job holds the lock, and
+     when no ACE-Step model supports cover. A line says so. The analysis
+     loads a DiT and the LM onto the card, and must not run next to a
+     YuE2 job.
+   - It does **not** use `useAnalyzeAndApply`. That hook also writes BPM,
+     KEY-SCALE and DURATION, which the score fixes on YUE2 (covers point
+     5). They would also carry into the other tabs' shared SONG DETAILS.
+2. **The prose → tags rewrite is a pure extractor, not the LM.**
+   - ACE-Step's LM has fixed tasks: describe audio, format input, make a
+     sample. None of them writes a comma-separated tag list. `/format`
+     rewrites a caption into more prose. A second LM call would also cost
+     GPU time and a model load for text that a vocabulary match handles.
+   - `styleTags.ts` (new, pure) finds phrases from four vocabularies in
+     the caption: **genre**, **vocal character**, **mood** and
+     **instruments**.
+     - A phrase is a head word ("guitar", "vocal", "trap") plus up to two
+       modifiers from its category's list, to its left: "rhythmic electric
+       guitar", "warm female vocal", "latin trap".
+     - Genre also takes any `-pop`, `-rock`, `-hop`, `-wave`, `-core` or
+       `-step` compound ("samba-pop", "j-rock").
+     - A negated phrase ("no drums", "without vocals") is skipped.
+   - Output order follows upstream's example: voice, genre, mood,
+     instruments, then vocal traits (falsetto, auto-tune). Upstream's
+     example is "English, warm female vocal, contemporary pop, 96 BPM,
+     piano, rounded electric bass, restrained drums, clear diction".
+     - At most 2 voice, 2 genre, 2 mood and 4 instrument tags, in the
+       order the caption mentions them.
+     - A tag contained in a more specific one is dropped ("guitar" under
+       "electric guitar").
+   - **No tempo, key, meter or language.** The score fixes the first
+     three. VOCAL LANGUAGE is prefixed server-side.
+   - A caption that is already a tag list (short comma-separated parts)
+     keeps its own tags, minus the tempo / key / meter / language ones.
+   - **Nothing recognised → the caption as written.** YuE2's `style` is
+     free text, so prose still works, and an empty PROMPT would block
+     GENERATE. A hint says it wasn't rewritten.
+   - **The vocabulary is ACE-Step's own guide.** "Style Tag Vocabulary for
+     the Caption Field" was planned but never built, so there is no mined
+     vocabulary to reuse. The lists start from `docs/ace-step-1.5/GUIDE.md`'s
+     "Common Dimensions for Caption Writing" and that section's planned
+     categories (genre, mood, instrument, vocal). They are extended with
+     the words ACE-Step's captions use (its `examples/text2music`). The
+     lists live in their own module, `styleTagVocab.ts`, so a later tag
+     picker can share them.
+3. **PROMPT is filled only when fillable.** `fillable(prompt, carried)`:
+   PROMPT is empty, or it holds text carried from another tab. A prompt
+   typed on COVER is never overwritten. The tags land in PROMPT as plain,
+   editable text.
+   - The full description stays readable under the button, in a collapsed
+     SHOW DESCRIPTION block, so a dropped phrase can be put back by hand.
+4. **LYRICS are filled too, when they have no words.** That is empty,
+   carried from another tab, or only section tags (TRANSCRIBE's outline).
+   Words typed here are kept.
+   - With a score, the words are fitted onto its sections
+     (`fitLyricsToSections`). The spike showed the source's own tags cost
+     a third of the melody.
+   - Without a score yet, they go in as ACE-Step wrote them.
+     `transcribeStore` remembers the lyrics analysis wrote. When the score
+     lands and LYRICS still holds exactly those lyrics, it fits them to
+     the sections. Once edited, they are the user's and are left alone.
+   - **They are described, not transcribed.** ACE-Step's LM describes the
+     audio and may paraphrase. The consequence line says so. "Cover Lyrics
+     From the Recording" plans real lyric transcription (READ LYRICS). If
+     it ships, it replaces this lyrics fill.
+5. **VOCAL LANGUAGE is filled when AUTO** and the analysis names a
+   language YuE2 lists (en, zh). Upstream puts the language first in
+   `style`, and the server prefixes it from this control.
+   - When the lyrics it filled are in a language YuE2 doesn't list, a
+     `.warn-note` names it. The browser check's source was sung in Turkish;
+     YuE2 would have been handed Turkish words with nothing saying so.
+6. **Consequence line** (DESIGN.md copy rule), under the button:
+   "ACE-Step describes the source · fills an empty PROMPT with its style as
+   tags (voice, genre, mood, instruments) and wordless LYRICS with the
+   words it hears, described rather than transcribed · nothing is saved to
+   your library".
+
+### File-level plan
+
+- `client/src/styleTagVocab.ts` (new): the four vocabularies, data only.
+- `client/src/styleTags.ts` (new) + test: `captionToStyleTags(caption)`.
+- `client/src/yueCoverAnalysis.ts` (new) + test: `yueAnalysisPatch`, which
+  turns an analysis result and the draft into the fields to write (points
+  3–5). Pure.
+- `client/src/YueCoverAnalyze.tsx` (new): the button, its consequence
+  line, the error and SHOW DESCRIPTION block. It applies the patch.
+- `client/src/YueCoverGenerate.tsx`: renders it between PROMPT and LYRICS.
+- `client/src/transcribeStore.ts` (+ test): `analyzedLyrics`, fitted to
+  the score when it lands (point 4).
+- `client/src/index.css`: the SHOW DESCRIPTION block reuses
+  `.score-abc`'s look.
+- `docs/design/DESIGN.md`: ANALYZE AUDIO on COVER · YUE2, in its own commit.
+- `server/src/services/acestep.ts` (+ test): `analyzeAudio` reads the
+  route's own field names (found in the browser check, below).
+
+### Browser check (2026-10-01)
+
+- **Browser-checked end to end.** This branch's client and server ran on a scratch library against real ACE-Step and yue-server
+  (SheetSage2) processes on spare ports, with the GPU otherwise idle:
+  - **ANALYZE AUDIO** on an uploaded 3½-minute piano ballad: ACE-Step's
+    prose ("A delicate and melancholic piano ballad … arpeggiated piano …
+    A clear, emotive female vocal …") became `emotive female vocal,
+    cinematic, electronic, melancholic, nostalgic, arpeggiated piano, deep
+    synth bass, spoken word`. A first run gave `breathy female vocal,
+    ballad, melancholic, emotional, grand piano`; the LM samples. LYRICS
+    filled, the outcome line and SHOW DESCRIPTION showed, and VOCAL
+    LANGUAGE stayed AUTO.
+  - **The source was sung in Turkish**, and nothing said YuE2 can't sing
+    it. That added point 5's warn-note: "ACE-Step heard the words in TR —
+    YUE2 sings EN, ZH".
+  - **A server bug found along the way:** `analyzeAudio` read `keyscale` /
+    `timesignature` / `language`, but `analyze_audio_route.py` answers
+    with `key_scale` / `time_signature` / `vocal_language`. So ANALYZE
+    AUDIO never filled KEY-SCALE or reported a language, on either engine.
+    It now reads both spellings; the fixed run reported `tr` and F major,
+    the key SheetSage2 found.
+  - **TRANSCRIBE** gave 77 BPM, F major, 4/4, 68 bars, 3:32. The analyzed
+    lyrics were re-tagged onto the score's sections as it landed
+    (`[Intro] [Verse] [Chorus] [Verse] [Chorus] [Outro]`).
+  - **GENERATE COVER** saved `COVER · YUE2` (77 BPM / F major / 3:07)
+    with the tags as its caption, in about 90 s (48 s of tokens, 19 s of
+    synthesis). An earlier attempt, while another process took part of
+    the GPU, stalled at 0 synthesis steps for over five minutes and was
+    aborted.
+
+### Open questions
+
+- **ANALYZE AUDIO holds no genLock.** `POST /api/generate/analyze-audio`
+  never did, on either engine. The client disables it while a job holds
+  the lock, but a job started in another tab can still overlap it. Should
+  analysis take the lock under a new `analyze` kind?
+- **Is the vocabulary wide enough?** It is hand-written. Once the style
+  tag probe exists, its mined counts could show which common caption
+  words the extractor misses.
+
+## YuE2 Covers: Pick the Score's Sections (planned 2026-10-01)
+
+A cover of a 7:47 song failed at GENERATE with yue-server's
+"HTTP 422: The score is over YuE2's 4096-token planning budget". Its score
+measured **5,032 tokens**: header 73, intro 646, verse 424, chorus 183,
+**interlude 1,594**, bridge 107, chorus 442, **outro 1,563**. Mulakai only
+learned this at GENERATE, after the transcription and the review. The
+3½-minute song in "ANALYZE AUDIO on COVER · YUE2"'s browser check fit; a
+song roughly twice as long at nearly twice the tempo doesn't.
+
+**Scope decision (the user's, 2026-10-01).** Asked to choose between an
+early warning only, a warning plus section picking, and an automatic trim,
+the user chose **section picking**. That walks back, for whole sections
+only, "Review is listen-and-read, not edit" (covers point 3) and "ABC score
+editing stays out of scope". Note-level editing stays out; USE .ABC FILE
+stays the way to correct notes.
+
+### Decisions
+
+1. **yue-server measures, Mulakai sums.** New `POST /v1/scores/measure`
+   `{abc}` → `{budget, header, sections: [{name, tokens}]}`.
+   - It runs `prepare_score` first, as `/v1/jobs` does, so a file's chord
+     symbols are stripped before counting. A bad score is the same 422.
+   - It counts with the pipeline's own tokenizer, the one the budget check
+     uses. 503 until the worker is ready.
+   - Sections are the `% name` blocks: a line starting with `% ` opens one,
+     and everything before the first is the header. That is the rule
+     `scoreSections` (`coverLyrics.ts`) and yue-server's `section_tags`
+     already use.
+   - **Counts add up exactly.** Qwen's pre-tokenizer never joins text
+     across a line break, and every section starts on a new line. Measured
+     on the failing score, the sections summed to 5,032, the whole score's
+     count. So the client sums the header plus the kept sections, with no
+     second request per click. GENERATE's own check stays as the backstop.
+   - A `yue2-serve` backend has no such route. Mulakai then shows no count
+     and relies on GENERATE's 422, as before.
+2. **Picking happens in the score review, as a section strip.** It reuses
+   the Editor's section-strip idiom (clip-path parallelograms, 3px gaps,
+   flex-weighted), here weighted by tokens.
+   - Kept sections are **sky**: they are the scope of what will be sung.
+     Dropped ones are carbon, struck through. A click toggles one.
+   - The last kept section can't be dropped.
+   - The label row reads `3,469 / 4,096 TOKENS`.
+3. **Over budget is a standing warning.** A `.warn-note` says "5,032 /
+   4,096 tokens — too long for YuE2's planner · leave sections out until it
+   fits", naming the two longest. GENERATE COVER is off until it fits. It
+   is rust because it is a state to resolve, not a failed click.
+4. **The draft keeps the full score plus what's left out.**
+   `CoverScore.dropped: number[]` holds section indexes, and
+   `sungScore(score)` builds the ABC that is sent.
+   - Everything that means "what will be sung" reads `sungScore`: the
+     request, the review's facts (bars, length) and SHOW SCORE, FIT TO
+     SCORE, the section hint, and ANALYZE AUDIO's lyric fit. A score that
+     just landed has nothing left out, so transcribeStore's seeding is
+     unchanged.
+   - The cover's stored score is the trimmed one, so REUSE PROMPT covers
+     the same cut.
+   - The piano preview still plays the whole transcription. A hint says so
+     while sections are left out.
+5. **LYRICS follow when they hold no words.** A wordless outline is
+   re-seeded from the kept sections, so an instrumental's tags match the
+   score. Words are left alone; FIT TO SCORE re-tags them.
+6. **Consequence line**: GENERATE COVER's line gains "· leaves out OUTRO"
+   (the dropped sections) while any are dropped.
+
+### File-level plan
+
+- `yue-server/scores.py`: `split_sections(abc)`.
+- `yue-server/score_routes.py` (new): `POST /v1/scores/measure`.
+- `yue-server/yue_pipeline.py` and `worker.py`: `count_tokens(abc)`.
+  `fits_plan_budget` uses it.
+- `yue-server/main.py`: mount the route.
+- yue-server tests: the split, the route (counts, 422, 503) and the fake
+  pipeline's tokenizer.
+- `server/src/services/engineTranscribeClient.ts` (+ test): `measureScore`.
+- `server/src/routes/engineCovers.ts` (+ test):
+  `POST /api/engines/:id/score-size`.
+- `client/src/scoreCut.ts` (new) + test: `splitScore`, `sungScore`,
+  `scoreTokens`.
+- `client/src/useScoreSize.ts` (new): fetches the measure once per score.
+- `client/src/ScoreSectionStrip.tsx` (new): the strip, the count and the
+  warning.
+- `client/src/coverDraft.ts`: `dropped`.
+- `client/src/YueScoreReview.tsx`, `YueCoverGenerate.tsx`,
+  `YueCoverAnalyze.tsx`: read `sungScore`. GENERATE COVER is off over
+  budget.
+- `client/src/index.css`: the dropped segment and the rust count.
+- `client/src/api/covers.ts`: `scoreSize()` and `ScoreSize`.
+- `docs/design/DESIGN.md`: the strip in the review, in its own commit.
+
+### Browser check (2026-10-01)
+
+This branch's client, server and yue-server ran on a scratch library and
+spare ports against the real YuE2 model, with the GPU otherwise idle. The
+input was the score that failed (via USE .ABC FILE).
+- `POST /api/engines/yue2/score-size` measured it with the real tokenizer:
+  header 73 plus sections, summing to exactly 5,032.
+- **Before the cut:** the strip read `5,032 / 4,096 TOKENS` in rust, the
+  warn-note named the interlude and the outro, and GENERATE COVER was off.
+  The facts read 283 bars, 7:48.
+- **Leaving out the OUTRO:** `3,469 / 4,096 TOKENS`, the warning cleared and
+  GENERATE came on. The hint and the consequence line said "leaves out
+  OUTRO", and the facts read 206 bars, 5:41. The wordless LYRICS outline lost
+  its `[Outro]`, and SHOW SCORE ended before the outro.
+- **GENERATE COVER** was accepted and saved `COVER · YUE2`: 145 BPM,
+  E♭ major, 5:23, not truncated, in about 2½ minutes (8,076 semantic
+  tokens). The stored score holds the six kept sections, so REUSE PROMPT
+  covers the same cut.
+
+### Open questions
+
+- **Should TRANSCRIBE warn before it runs?** A source's length predicts
+  the token count only roughly (tempo and note density matter more), so
+  nothing is said up front.
+- **Cutting inside a section.** A single section over budget (a 4,000-token
+  outro) can't be fixed here. That still needs USE .ABC FILE.

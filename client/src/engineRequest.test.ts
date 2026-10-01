@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import type { EngineCapabilities } from './api';
-import { enginePromptParams, type PromptIntent } from './engineRequest';
+import { coverParams, enginePromptParams, type PromptIntent } from './engineRequest';
 import { AUTO_CONTROLS, controlRange, controlsFor, engineFields, useEngineSettings } from './engineSettings';
 
 const YUE2: EngineCapabilities = {
@@ -77,5 +77,19 @@ describe('engine controls', () => {
     expect(controlRange('yue2', 'cfg')).toEqual({ min: 0, max: 3, step: 0.05 });
     expect(controlRange('heartmula', 'cfg').max).toBe(10);
     expect(controlRange('acestep', 'temperature')).toEqual({ min: 0, max: 2, step: 0.05 });
+  });
+});
+
+describe('coverParams', () => {
+  it('sends the score and its source, and none of what the score fixes', () => {
+    const params = coverParams(
+      { title: 'Folk Ellies', prompt: 'folk', lyrics: '[Verse]\nla', vocalLanguage: 'en', folderId: 'f1' },
+      YUE2, SEED, { ...AUTO_CONTROLS, cfg: 1.2, cot: 'full' }, { f: 'flac' }, { abc: 'X:1\n', source: 'Ellies City 2' },
+    );
+    expect(params).toEqual({
+      title: 'Folk Ellies', prompt: 'folk', lyrics: '[Verse]\nla', vocal_language: 'en',
+      use_random_seed: false, seed: 7, cfg: 1.2, output: { f: 'flac' }, folder_id: 'f1',
+      abc: 'X:1\n', source: 'Ellies City 2',
+    });
   });
 });

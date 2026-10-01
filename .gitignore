@@ -11,6 +11,10 @@ server/data/
 openspec/changes/
 demucs-server/data/
 demucs-server/venv/
+uvr-server/data/
+uvr-server/venv/
+uvr-server/runner/
+uvr-server/model-configs/
 yue-server/data/
 heartmula-server/data/
 .pytest_cache/

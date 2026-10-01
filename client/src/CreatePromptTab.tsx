@@ -14,7 +14,7 @@ import { LyricTagGuidePopover } from './LyricTagGuidePopover';
 import { useCreateDraftStore } from './createDraftStore';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { PromptGenerateRow } from './PromptGenerateRow';
-import { EngineChoice } from './EngineChoice';
+import { PromptEngineChoice } from './EngineChoice';
 import { useEngineCaps } from './useEngineCaps';
 import { languageOptions, liveLanguage, songDetailNotes, unsupported } from './engineCaps';
 
@@ -62,7 +62,7 @@ export function CreatePromptTab({ refining, onRefine, onBack }: {
 
   return (
     <>
-      <EngineChoice />
+      <PromptEngineChoice />
       <div className="thinking-host">
         <div className="field-label-row">
           <span className="section-label">PROMPT</span>

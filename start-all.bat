@@ -43,8 +43,14 @@ if exist "%ACESTEP_PATH%\python_embeded\python.exe" (
 
 REM Demucs (stem separation) is optional — detect it before starting the
 REM Mulakai server so DEMUCS_API_URL is in the environment it inherits.
+REM uvr-server speaks the same contract on the same port (Roformer vocals, see
+REM uvr-server\README.md) and is preferred when installed; only one of the two runs.
 set "DEMUCS_READY="
-if exist "%~dp0demucs-server\venv\Scripts\activate.bat" (
+set "UVR_READY="
+if exist "%~dp0uvr-server\venv\Scripts\python.exe" (
+    set "UVR_READY=1"
+    set "DEMUCS_API_URL=http://127.0.0.1:8002"
+) else if exist "%~dp0demucs-server\venv\Scripts\activate.bat" (
     set "DEMUCS_READY=1"
     set "DEMUCS_API_URL=http://127.0.0.1:8002"
 )
@@ -68,6 +74,9 @@ REM yue-server\README.md. Override with: set YUE_DISTRO=... / set YUE_VENV=... (
 REM path). A YUE_API_URL that is already set is used as-is and nothing is started here.
 if "%YUE_DISTRO%"=="" set "YUE_DISTRO=Ubuntu-24.04"
 if "%YUE_VENV%"=="" set "YUE_VENV=~/yue2/.venv"
+REM SheetSage2 (YuE2 covers' transcriber) is picked up when installed in the same distro
+REM as yue-server\README.md describes. Override with: set YUE_SHEETSAGE_HOME=... (a Linux path).
+if "%YUE_SHEETSAGE_HOME%"=="" set "YUE_SHEETSAGE_HOME=~/sheetsage2"
 set "YUE_READY="
 if not defined YUE_API_URL (
     wsl.exe -d %YUE_DISTRO% --exec bash -lc "test -x %YUE_VENV%/bin/python" >nul 2>&1 && set "YUE_READY=1"
@@ -99,11 +108,13 @@ start "Mulakai Server" cmd /k "cd /d "%~dp0server" && npm run dev"
 
 timeout /t 3 /nobreak >nul
 
-echo [3/6] Starting Demucs stem-separation service...
-if defined DEMUCS_READY (
+echo [3/6] Starting stem-separation service...
+if defined UVR_READY (
+    start "UVR Server" cmd /k "cd /d "%~dp0uvr-server" && venv\Scripts\python.exe -m uvicorn main:app --port 8002"
+) else if defined DEMUCS_READY (
     start "Demucs Server" cmd /k "cd /d "%~dp0demucs-server" && venv\Scripts\activate && uvicorn main:app --port 8002"
 ) else (
-    echo   Skipped - demucs-server\venv not found. See demucs-server\README.md to set it up.
+    echo   Skipped - neither uvr-server\venv nor demucs-server\venv found. See their README.md files.
 )
 
 timeout /t 2 /nobreak >nul
@@ -118,7 +129,7 @@ if not defined HEARTMULA_API_URL echo   Skipped - no heartlib venv and weights u
 echo [5/6] Starting YuE2 engine...
 REM Launched through wsl.exe: WSL does not start on its own, and this process keeps the
 REM distro running. 127.0.0.1 inside WSL is reachable from Windows.
-if defined YUE_READY start "YuE2 Server" cmd /k wsl.exe -d %YUE_DISTRO% --cd "%~dp0yue-server" --exec bash -lc "YUE_DATA_DIR=~/yue-data %YUE_VENV%/bin/python main.py"
+if defined YUE_READY start "YuE2 Server" cmd /k wsl.exe -d %YUE_DISTRO% --cd "%~dp0yue-server" --exec bash -lc "if [ -x %YUE_SHEETSAGE_HOME%/.venv/bin/python ]; then export YUE_SHEETSAGE_PYTHON=%YUE_SHEETSAGE_HOME%/.venv/bin/python YUE_SHEETSAGE_DIR=%YUE_SHEETSAGE_HOME%/SheetSage2; fi; YUE_DATA_DIR=~/yue-data %YUE_VENV%/bin/python main.py"
 if not defined YUE_READY if defined YUE_API_URL echo   Not started - using YUE_API_URL=%YUE_API_URL%
 if not defined YUE_API_URL echo   Skipped - no YuE2 venv at %YUE_VENV% in WSL distro %YUE_DISTRO%. See yue-server\README.md.
 
@@ -135,6 +146,7 @@ echo.
 echo   ACE-Step API: http://localhost:8001
 echo   Server:       http://localhost:3001
 echo   Client:       http://localhost:5173
+if defined UVR_READY echo   UVR split:    http://localhost:8002
 if defined DEMUCS_READY echo   Demucs:       http://localhost:8002
 if defined HEARTMULA_READY echo   HeartMuLa:    http://localhost:8003 (loads its weights into RAM, ~20 s)
 if defined YUE_READY echo   YuE2:         http://127.0.0.1:8004 (verifies its weights, ~6 s)
