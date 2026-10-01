@@ -11,8 +11,9 @@ ALWAYS = (
     "thanks for watching", "thank you for watching", "for listening",
     "subscribe", "untertitel", "subtitles by",
 )
-# Subtitle cues ("... Musik ..."), dropped when they are the whole segment.
-CUES = {"music", "musik", "applause", "applaus"}
+# Dropped when they are the whole segment: subtitle cues ("... Musik ...") and stock lines
+# Whisper writes over instrumental stretches (a live READ LYRICS run had four).
+WHOLE = {"music", "musik", "applause", "applaus", "we ll be right back"}
 # Could be sung, so dropped only in the trailing run after the last real line.
 TAIL = {"thank you", "thanks", "thank you very much", "danke", "vielen dank", "bis zum nächsten mal"}
 
@@ -23,7 +24,7 @@ def _norm(text: str) -> str:
 
 def _stock(text: str) -> bool:
     words = _norm(text)
-    return not re.search(r"[^\W\d_]", words) or words in CUES or any(p in words for p in ALWAYS)
+    return not re.search(r"[^\W\d_]", words) or words in WHOLE or any(p in words for p in ALWAYS)
 
 
 def drop_hallucinations(segments: list[dict]) -> list[dict]:
