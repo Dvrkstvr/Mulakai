@@ -30,8 +30,8 @@
     "semantic_hash": ""
   },
   "client/src/App.tsx": {
-    "mtime": 1790893307.033481,
-    "ast_hash": "c8f0dd35689178472cbf5c28477c9cd0",
+    "mtime": 1790898163.9041808,
+    "ast_hash": "386960bf3c82bd8209abf4fa87fd4b64",
     "semantic_hash": ""
   },
   "client/src/AutoTextarea.tsx": {
@@ -2082,6 +2082,26 @@
   "server/src/services/replayJobs.ts": {
     "mtime": 1790898119.390228,
     "ast_hash": "f8f7602ee685264e9e25eb34da822dda",
+    "semantic_hash": ""
+  },
+  "client/src/LibraryView.tsx": {
+    "mtime": 1790898163.9051867,
+    "ast_hash": "fd800406f7cdc0386833c3025a822e57",
+    "semantic_hash": ""
+  },
+  "client/src/PlayerFooter.tsx": {
+    "mtime": 1790898163.9051867,
+    "ast_hash": "0284d4ae2b81e06a95035c297d1a63c6",
+    "semantic_hash": ""
+  },
+  "client/src/useAppSync.ts": {
+    "mtime": 1790898163.906205,
+    "ast_hash": "a7629aefd803943f59b6d52eb5791b5f",
+    "semantic_hash": ""
+  },
+  "client/src/useLibraryData.ts": {
+    "mtime": 1790898163.9067116,
+    "ast_hash": "10db608900e7d70378fb0afb8209d9ce",
     "semantic_hash": ""
   }
 }
