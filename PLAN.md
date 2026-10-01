@@ -5588,6 +5588,7 @@ rewrites the caption into YuE2-style tags.
   never did, on either engine. The client disables it while a job holds
   the lock, but a job started in another tab can still overlap it. Should
   analysis take the lock under a new `analyze` kind?
+  **Answered (2026-10-02): yes.** See "ANALYZE AUDIO Takes the genLock".
 - **Is the vocabulary wide enough?** It is hand-written. Once the style
   tag probe exists, its mined counts could show which common caption
   words the extractor misses.
@@ -5933,3 +5934,69 @@ YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
 - FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
   from the library: all rows disabled, a click on another row ignored,
   search live.
+
+## ANALYZE AUDIO Takes the genLock (planned 2026-10-02)
+
+Answers the first open question in "ANALYZE AUDIO on COVER · YUE2".
+`POST /api/generate/analyze-audio` never took the server's genLock, on
+either engine (COVER · YUE2's ANALYZE AUDIO calls the same route). The
+YUE2 panel disables the button while a job holds the lock, but a job
+started in another tab could still overlap it. The analysis loads a DiT
+and the LM onto the 16 GB card, so it must not run next to another job.
+COVER · ACE-STEP and ARRANGE didn't check the lock at all.
+
+### Decisions
+
+1. **Analysis takes the lock under a new `analyze` kind.** It is
+   acquired after the source is resolved, so a 400 for a missing source
+   never touches it. It is released in a `finally`: on success, on
+   ACE-Step's error, and on a timeout (`call()`'s `acestepTimeoutMs`
+   leash rejects like any other failure). A refused analysis answers
+   409, like every other locked route.
+   - No `Job` record: the call is synchronous, so the request is the
+     job. `/active` reports it as `running`; ABORT releases the lock
+     (best-effort, as for every kind — the ACE-Step call can't be
+     killed).
+2. **A 409 names what holds the lock.** `GenLockError` takes the
+   holder's kind: "an audio analysis is already in progress", "a repaint
+   is already in progress", … `generate` keeps today's "a generation is
+   already in progress".
+3. **Create's commit buttons see another job's lock.** GENERATE (PROMPT,
+   COVER on both engines, ARRANGE) and ANALYZE AUDIO only checked this
+   tab's own song generation, so they fired into a 409. They now also
+   read `otherLock`, which `refreshLock`'s existing poll already keeps,
+   and the GENERATE label names the holder: "ANALYZE AUDIO IS ALREADY
+   RUNNING", "A REPAINT IS ALREADY RUNNING", or today's "A GENERATION IS
+   ALREADY RUNNING". One pure helper, `busyMessage(job, otherLock)`.
+   - The header pill already reads `ANALYZE · RUNNING` from `/active`.
+   - The Editor's BUSY ELSEWHERE already counts any `otherLock`;
+     unchanged.
+   - A tab's own analysis also shows up as `otherLock` once polled, so
+     its GENERATE reads "ANALYZE AUDIO IS ALREADY RUNNING" too (the
+     server would refuse it). `useAnalyzeSourceAudio` re-polls the lock
+     when its call settles, so that clears at once instead of up to one
+     poll later.
+
+### File-level plan
+
+- `server/src/services/genLock.ts` (+ test): the `analyze` kind;
+  `GenLockError(holder)` names it.
+- `server/src/services/analyzeJobs.ts` (new): `analyzeUnderLock(file,
+  model)`, acquire → `analyzeAudio` → release in `finally`. Its own
+  module keeps `routes/generate.ts` (already past the cap) from growing.
+- `server/src/routes/generate.ts`: `/analyze-audio` calls it; 409 on
+  `GenLockError`.
+- `server/src/routes/generateAnalyze.test.ts` (new): the lock is held
+  (and reported by `/active`) during an analysis, a concurrent generate
+  gets a 409 naming the analysis, a second analysis is refused, and the
+  lock is released after success, an error and a timeout.
+- `client/src/api/types.ts`: `analyze` in `ActiveGeneration.kind`.
+- `client/src/generationJob.ts` (+ `generationStore.test.ts`):
+  `busyMessage`.
+- `client/src/GenerateButton.tsx`: `blocked` becomes the message (or
+  null).
+- `client/src/PromptGenerateRow.tsx`, `CreateAudioTab.tsx`,
+  `CreateArrangeTab.tsx`, `YueCoverGenerate.tsx`: busy from
+  `busyMessage`.
+- `client/src/useAnalyzeSourceAudio.ts`: `refreshLock()` when a call
+  settles.
