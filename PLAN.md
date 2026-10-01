@@ -5977,3 +5977,19 @@ involved: its `resume()` rejection was already caught.
   starts can still reject with `AbortError`. Not changed here.
 - The Playwright golden path (on `test/playwright-golden-path`, not yet
   merged) should fail on any `pageerror` so this cannot come back.
+
+### Browser check (2026-10-02)
+
+Playwright Chromium, against the e2e harness from
+`test/playwright-golden-path` (fake ACE-Step, real server and client)
+copied in for the run:
+
+- Before the fix, loading `/` on a fresh, empty database: two
+  `pageerror`s, "play() failed because the user didn't interact with
+  the document first".
+- After: none on a fresh load, and none through the whole golden path
+  (generate, repaint, add layer, revert, export) with a `pageerror`
+  guard added to it.
+- Footer still plays: a generated song's row PLAY started it (0:01 /
+  0:12 after about a second), footer PAUSE and PLAY toggled it, with no
+  page errors.
