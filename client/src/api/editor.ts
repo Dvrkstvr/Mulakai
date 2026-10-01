@@ -26,6 +26,10 @@ export const editorApi = {
   retakeVersion: (versionId: string): Promise<{ jobId: string }> =>
     fetch(`/api/layers/versions/${versionId}/retake`, { method: 'POST' }).then((r) => json<{ jobId: string }>(r)),
 
+  /** Reads the version's sung words for the Editor's line timings; polls via `jobStatus`. */
+  readTimings: (versionId: string): Promise<{ jobId: string }> =>
+    fetch(`/api/layers/versions/${versionId}/timings`, { method: 'POST' }).then((r) => json<{ jobId: string }>(r)),
+
   addLayer: (
     songId: string,
     mixAudio: Blob,
