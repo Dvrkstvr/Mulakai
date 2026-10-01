@@ -6070,3 +6070,24 @@ env var. Neither was the problem.
 - Tests: `lookup.test.ts` — runner states, plus each caller's load
   failing (models, split health, voices) without becoming an answer.
 - DESIGN.md: one line under the Editor's load-failure bullet.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, against a copy of the
+library database (no audio), ACE-Step not running. `fetch` was patched
+in the page to reject `/api/generate/models`, `/api/split/health` and
+`/api/voices` with "Failed to fetch", then a song was opened from the
+Library:
+
+- ADD LAYER row: "couldn't check models for Add Layer — Failed to
+  fetch · RETRY". Expanded, the left rail's voice picker kept NONE
+  selectable and showed "couldn't load voices — Failed to fetch · RETRY".
+- SPLIT: "couldn't check split backends — Failed to fetch · RETRY" in
+  place of the backend buttons; GENERATE STEMS disabled.
+- EXPORT: "couldn't check models for Remaster — Failed to fetch ·
+  RETRY".
+- Patch lifted, RETRY on Remaster and Add Layer: both showed the
+  server's real answer ("no downloaded model supports…", since ACE-Step
+  was down; see decision 5) and no error line was left.
+- Server stopped, SPLIT opened again: "couldn't check split backends —
+  HTTP 502 · RETRY", where it used to say Demucs wasn't configured.
