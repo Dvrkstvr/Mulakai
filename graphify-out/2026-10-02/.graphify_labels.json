@@ -259,7 +259,6 @@
   "257": "Upstream Sync: `complete`/`lego` Skip the LM (planned + implemented 2026-09-30)",
   "258": "UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)",
   "259": "A Failed Editor Job Blocks Nothing (planned 2026-10-01)",
-  "260": "A Failed Generation Blocks Nothing (planned 2026-10-01)",
   "261": "Path",
   "262": "Runner",
   "263": "Path",
@@ -270,12 +269,7 @@
   "268": "FastAPI",
   "269": "FastAPI",
   "270": "Path",
-  "271": "A Settled Split Blocks Nothing (planned 2026-10-01)",
   "272": "Exception",
   "273": "JobStore",
-  "274": "Settings",
-  "275": "COVER and ARRANGE Reference Audio: No Influence Sliders (planned + implemented 2026-09-30)",
-  "276": "Text2music Reference Audio: Style Influence Only (planned + implemented 2026-09-30)",
-  "277": "YuE2: Align With Upstream's `yue2-music` Skill (planned 2026-09-30)",
-  "278": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)"
+  "274": "Settings"
 }
