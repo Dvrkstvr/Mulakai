@@ -14,6 +14,9 @@ export interface Transcription {
   instrumentalNotes: number | null;
   durationSeconds: number | null;
   hasPreview: boolean;
+  /** Where each score section starts in the source, from its downbeats; null when the engine
+   * sent none (READ LYRICS then falls back to the score's tempo grid). */
+  sectionStarts: { label: string; bar: number; seconds: number }[] | null;
 }
 
 /** A cover score's planner tokens: the header and each `% name` section, which add up to the

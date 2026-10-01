@@ -16,7 +16,7 @@ const { useCreateDraftStore } = await import('./createDraftStore');
 const SCORE = 'X:1\nK:Fm\n% intro\nV: Vocal\nZ|\n% verse\nV: Vocal\nC8|\n';
 const T: Transcription = {
   score: SCORE, sourceLabel: 'Ellies City 2', warnings: [], measures: 2, vocalNotes: 1, instrumentalNotes: 0,
-  durationSeconds: 6, hasPreview: true,
+  durationSeconds: 6, hasPreview: true, sectionStarts: [{ label: 'intro', bar: 0, seconds: 0 }, { label: 'verse', bar: 1, seconds: 3.2 }],
 };
 const src = new Blob(['audio']);
 

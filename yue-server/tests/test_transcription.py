@@ -57,6 +57,7 @@ def test_a_transcription_serves_its_score_preview_and_facts(make_client, sheetsa
     assert result["preview_url"] == f"/v1/transcriptions/{job['id']}/preview"
     assert result["warnings"] == ["short clip"] and result["measures"] == 3
     assert (result["vocal_notes"], result["instrumental_notes"], result["duration_seconds"]) == (6, 5, 8.2)
+    assert result["section_starts"] == [{"label": "verse", "bar": 0, "seconds": 0.5}]
     assert client.get(result["score_url"]).text.startswith("X:1")
     preview = client.get(result["preview_url"])
     assert preview.headers["content-type"] == "audio/wav" and preview.content == b"RIFF-fake"

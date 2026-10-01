@@ -43,6 +43,7 @@ describe('engine transcription client', () => {
     }));
     expect(await transcriptionStatus(target, 'r1')).toEqual({ state: 'done', stage: 'finished', facts: {
       warnings: ['short clip'], measures: 44, vocalNotes: 167, instrumentalNotes: 16, durationSeconds: 140, hasPreview: false,
+      sectionStarts: null,
     } });
     fetchMock.mockResolvedValueOnce(json({ status: 'failed', error: { code: 'no_score', message: 'SheetSage2 built no score' } }));
     expect(await transcriptionStatus(target, 'r1')).toEqual({ state: 'failed', error: 'SheetSage2 built no score' });
@@ -50,6 +51,22 @@ describe('engine transcription client', () => {
     expect((await transcriptionStatus(target, 'r1')).state).toBe('failed');
     fetchMock.mockResolvedValueOnce(json({ status: 'exploded' }));
     expect(await transcriptionStatus(target, 'r1')).toMatchObject({ state: 'failed', error: expect.stringContaining('unknown status') });
+  });
+
+  it("maps the score's section start times, dropping malformed entries", async () => {
+    fetchMock.mockResolvedValueOnce(json({
+      status: 'succeeded',
+      result: { section_starts: [
+        { label: 'intro', bar: 0, seconds: 0.01 }, { label: 'verse', bar: 4, seconds: 12.85 },
+        { label: 'chorus', bar: 'twelve', seconds: 38.45 }, { bar: 18, seconds: 57.65 }, null,
+      ] },
+    }));
+    const state = await transcriptionStatus(target, 'r1');
+    expect(state.facts?.sectionStarts).toEqual([
+      { label: 'intro', bar: 0, seconds: 0.01 }, { label: 'verse', bar: 4, seconds: 12.85 },
+    ]);
+    fetchMock.mockResolvedValueOnce(json({ status: 'succeeded', result: { section_starts: null } }));
+    expect((await transcriptionStatus(target, 'r1')).facts?.sectionStarts).toBeNull();
   });
 
   it('reads the score, forwards Range for the preview, and cancels without throwing', async () => {
