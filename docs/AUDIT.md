@@ -31,6 +31,10 @@
   stops the engine at the duration (play again restarts from 0), guarded by a
   per-start generation token so manual pause/seek/restart/reload can't trip it —
   PR #85 (was #1).
+- demucs-server ran each split inside `async def`, so `/health` read the service as
+  down mid-job, and every split's files stayed on disk forever. `/split` now runs in
+  the threadpool, failed splits remove their job dir, and each stem is deleted once
+  downloaded or swept after a TTL; uvr-server had the same leak — PR #80 (was #3).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -48,7 +52,11 @@ on-disk audio of stems already claimed as versions. The doc comment ("keeps only
 this stem's output") describes behavior the code doesn't implement. Unclaimed stem
 files are also never deleted (`cancelSplit` only drops the in-memory job).
 
-### 3. demucs-server blocks its event loop and leaks disk
+### 3. ~~demucs-server blocks its event loop and leaks disk~~ — fixed, PR #80
+`/split` is now a sync `def` (threadpool, one at a time); failed splits remove
+their job dir; each stem is deleted once downloaded, unfetched ones are swept
+after `DEMUCS_RESULT_TTL`. uvr-server had the same disk leak; fixed there too.
+
 `demucs-server/main.py` — `demucs.separate.main(...)` runs inside `async def`,
 freezing the loop for the whole split (so `/health` reports the service down
 mid-job); no try/finally around the split (a corrupt upload leaks the source file
