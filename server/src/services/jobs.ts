@@ -5,103 +5,24 @@
  * exported below.
  */
 import crypto from 'node:crypto';
-import { config } from '../config.js';
 import {
-  releaseTask, queryResult, downloadAudio, initModel, lyricTimestamp, rawPathFromAudioUrl,
+  releaseTask, downloadAudio,
   type ReleaseTaskParams, type TaskResult,
 } from './acestep.js';
-import { reconcileAdapter } from './adapters.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
 import { MASTER_AUDIO_FORMAT } from './audioOutput.js';
 import { loadVoiceReference, applyStyleInfluence } from './voiceConditioning.js';
 import { insertGeneratedSong, type ReferenceAudioMeta } from './songPersist.js';
 import { acquireGenLock, releaseGenLock, getGenLock, type GenLockInfo } from './genLock.js';
+import { type Job, getJob, registerJob, wasAborted } from './jobRegistry.js';
+import { ensureModelLoaded } from './modelLoad.js';
+import { run, poll } from './jobRunner.js';
+import { fetchLyricTimestampsJson } from './lyricTimestamps.js';
 
-export interface Job {
-  id: string;
-  taskId: string;
-  status: 'loading' | 'running' | 'done' | 'failed';
-  error?: string;
-  songId?: string;
-  createdAt: number;
-  /** Set by remasterJobs.ts on success; a scratch file path streamed once by remaster.ts's download route, then cleared. No other job type uses this. */
-  resultPath?: string;
-  /** Live progress from ACE-Step's /query_result while status is 'running' — see poll(). */
-  progress?: number;
-  progressStage?: string;
-  progressText?: string;
-  /** Set by transcribeJobs.ts on success: the score and what SheetSage2 reported. */
-  transcription?: import('./transcribeJobs.js').TranscriptionOutcome;
-  /** Set by lyricsJobs.ts on success: the words read from the source, with timings. */
-  lyrics?: import('./lyricsJobs.js').LyricsOutcome;
-}
-
-const jobs = new Map<string, Job>();
-
-export function getJob(id: string): Job | undefined {
-  return jobs.get(id);
-}
-
-/** Register a job created elsewhere (e.g. repaintJobs.ts) so getJob() can find it. */
-export function registerJob(job: Job): void {
-  jobs.set(job.id, job);
-}
-
-/**
- * Whether `job` was aborted since the caller last checked. A plain `job.status === 'failed'`
- * read works at runtime (another tick's abortJob call mutates the same object across an
- * `await`), but TS's control-flow narrowing doesn't know that and flags it as an impossible
- * comparison once a literal like `job.status = 'running'` appears earlier in the function —
- * routing the read through this helper sidesteps that narrowing.
- */
-export function wasAborted(job: Job): boolean {
-  return job.status === 'failed';
-}
-
-/**
- * Dev-facing abort: marks a job failed so `poll()` stops on its next tick and
- * releases the generation lock immediately, so the UI unblocks right away. Also
- * catches a job still in its pre-registration `run()` body (see repaintJobs.ts
- * etc.'s `wasAborted()` checks after each await) — every job-start function
- * registers its Job synchronously before its first await specifically so this
- * has something to mark right away, not just once polling begins.
- * The underlying ACE-Step task keeps running server-side (no cancel primitive
- * exists there, same caveat as stemSplit.ts's cancelSplit) — its eventual
- * result is simply ignored since `poll()` has already returned.
- */
-export function abortJob(jobId: string): boolean {
-  const job = jobs.get(jobId);
-  releaseGenLock(jobId);
-  if (!job || job.status === 'done' || job.status === 'failed') return false;
-  job.status = 'failed';
-  job.error = 'Aborted';
-  return true;
-}
-
-/**
- * Load the requested model into slot 1 if a specific one was chosen.
- * AUTO (no model / no LM selected) skips init and lets ACE-Step lazy-load its
- * own defaults. The 5Hz LM is silently skipped by ACE-Step for repaint/cover/
- * extract task types (docs/ace-step-1.5/API.md#4.2), so an LM selection is
- * ignored here for those task types rather than wastefully loaded. lego/complete
- * skip the same in-generation LM stage (upstream #1287), but the API still runs
- * use_format's format_sample() for them before generation — only thinking is dead.
- */
-export async function ensureModelLoaded(params: ReleaseTaskParams): Promise<void> {
-  const lmIgnored = params.task_type === 'repaint' || params.task_type === 'cover' || params.task_type === 'extract';
-  const thinkingIgnored = lmIgnored || params.task_type === 'lego' || params.task_type === 'complete';
-  const lmSelected = !lmIgnored && !!params.lm_model_path;
-  const needLlm = !lmIgnored && ((!thinkingIgnored && !!params.thinking) || !!params.use_format || lmSelected);
-  if (params.model || lmSelected) {
-    await initModel({ model: params.model, lmModel: lmSelected ? params.lm_model_path : undefined, initLlm: needLlm });
-  }
-  // Strictly after init: adapters attach to the model, so an init above has just dropped
-  // whichever one was loaded (see adapters.ts). ACE-Step has no per-request adapter param,
-  // so this is the only place the selection can be honoured — and, since `params` is the
-  // object every persist path records into versions.params_json, stamped.
-  const adapter = await reconcileAdapter();
-  if (adapter) params.adapter = adapter;
-}
+export { type Job, getJob, registerJob, wasAborted, abortJob } from './jobRegistry.js';
+export { ensureModelLoaded } from './modelLoad.js';
+export { run, MAX_POLL_STRIKES, poll } from './jobRunner.js';
+export { fetchLyricTimestampsJson } from './lyricTimestamps.js';
 
 export type { ReferenceAudioMeta };
 
@@ -118,7 +39,7 @@ export interface VoiceOptions {
 export function startGeneration(params: ReleaseTaskParams, title: string, voice?: VoiceOptions, folderId?: string | null): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
   acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt, task: 'text2music' });
-  jobs.set(job.id, job);
+  registerJob(job);
   void run(job, async () => {
     await ensureModelLoaded(params);
     // Resolve before fullParams is spread below — persistSong records fullParams into
@@ -154,99 +75,6 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
 export function getActiveGeneration(): { lock: GenLockInfo | null; job?: Job } {
   const lock = getGenLock();
   return { lock, job: lock ? getJob(lock.jobId) : undefined };
-}
-
-/** Wrap an async job body so any thrown error marks the job failed. Exported for coverGenJobs.ts's cover-from-audio flow. */
-export async function run(job: Job, body: () => Promise<void>): Promise<void> {
-  try {
-    await body();
-  } catch (err) {
-    job.status = 'failed';
-    job.error = err instanceof Error ? err.message : String(err);
-  }
-}
-
-// A single failed status poll must not kill a long GPU run (the generation itself is
-// unaffected), but persistent failure — e.g. every request timing out against a wedged
-// backend — has to fail the job eventually or the genLock is held forever.
-export const MAX_POLL_STRIKES = 3;
-
-export async function poll(job: Job, onSuccess: (result: TaskResult) => Promise<string>): Promise<void> {
-  let strikes = 0;
-  for (;;) {
-    await new Promise((r) => setTimeout(r, config.pollIntervalMs));
-    if (job.status !== 'running') return; // aborted externally (see abortJob)
-    let querying = true;
-    try {
-      const [row] = await queryResult([job.taskId]);
-      querying = false;
-      strikes = 0;
-      if (!row) continue;
-      if (row.status === 0) {
-        job.progress = row.result?.[0]?.progress;
-        job.progressStage = row.result?.[0]?.stage;
-        job.progressText = row.progress_text;
-        continue;
-      }
-      if (row.status === 2) {
-        job.status = 'failed';
-        job.error = 'generation failed';
-        return;
-      }
-      const result = row.result.find((r) => r.status === 1) ?? row.result[0];
-      if (!result?.file) {
-        job.status = 'failed';
-        job.error = 'no audio in result';
-        return;
-      }
-      job.songId = await onSuccess(result);
-      job.status = 'done';
-      return;
-    } catch (err) {
-      // Only status-poll failures earn strikes; a failed onSuccess (download/persist) is final.
-      if (querying && ++strikes < MAX_POLL_STRIKES) continue;
-      job.status = 'failed';
-      job.error = err instanceof Error ? err.message : String(err);
-      return;
-    }
-  }
-}
-
-/**
- * Best-effort lyric alignment, fetched at generation time while ACE-Step's
- * artifact sidecar still exists (it lives in ACE-Step's temp dir and is cleaned
- * up later, so it can't be fetched lazily from the editor). Returns a JSON
- * string for the `versions.lyric_timestamps` column, or null when unavailable —
- * a missing sidecar (404), instrumental track, or any error is non-fatal and
- * must never fail the surrounding generation.
- */
-export async function fetchLyricTimestampsJson(
-  result: TaskResult,
-  params: ReleaseTaskParams,
-): Promise<string | null> {
-  // Everything is inside the try: this is best-effort and must never throw into
-  // the surrounding generation — a 404 (no sidecar), instrumental track, or any
-  // other error just means "no timestamps".
-  try {
-    const audioPath = rawPathFromAudioUrl(result.file);
-    // ACE-Step's metas.duration is typed as number but comes back as the literal
-    // string "N/A" for repaint/regenerate results where it isn't computed — Number()
-    // that case is NaN, which the isFinite check below rejects instead of forwarding
-    // an unparseable value that ACE-Step's /lyric_timestamp rejects with a 422.
-    const duration = Number(result.metas.duration ?? params.audio_duration);
-    if (!audioPath || !Number.isFinite(duration) || duration <= 0) return null;
-    const aligned = await lyricTimestamp({
-      audioPath,
-      duration,
-      vocalLanguage: params.vocal_language,
-      inferenceSteps: params.inference_steps,
-      model: params.model,
-    });
-    if (!aligned.success || aligned.sentence_timestamps.length === 0) return null;
-    return JSON.stringify(aligned.sentence_timestamps);
-  } catch {
-    return null;
-  }
 }
 
 /** Persist a task result as a brand-new song with a single base layer/version. Exported for coverGenJobs.ts. */

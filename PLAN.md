@@ -5933,3 +5933,127 @@ YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
 - FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
   from the library: all rows disabled, a click on another row ignored,
   search live.
+
+## RE-EXTRACT Never Touches a Claimed Stem (planned 2026-10-02)
+
+Fixes AUDIT.md #2. Every stem write used the deterministic name
+`${jobId}-${kind}.${ext}`. RE-EXTRACT on a Demucs/UVR split (both sit
+behind `DEMUCS_API_URL` and answer with all four stems) re-ran the full
+pass and wrote all four files again, so a stem already claimed as a
+version (REPLACE or ADD LAYER) had its audio swapped under it, and a
+failed re-run marked claimed stems failed. Two smaller holes sat beside
+it: RE-EXTRACT read the layer's *active* audio, which after a REPLACE is
+the claimed stem itself, not the mix the split began from; and unclaimed
+stem files were never deleted.
+
+### Decisions
+
+1. **Append-only stem files.** Each write gets its own name,
+   `${jobId}-${kind}-${nonce}.${ext}`, so no write can land on a file a
+   version points at. This matches the version model: a claim records a
+   path, and that path's bytes never change.
+2. **A Demucs/UVR RE-EXTRACT keeps only the asked-for stem.** The service
+   still returns all four; the other three are ignored, so their state,
+   files and claims stay as they were.
+3. **RE-EXTRACT reads the split's own source**, the `audio_file` recorded
+   when the split started, not whatever is active on the layer now.
+4. **Unclaimed files are deleted** when a RE-EXTRACT supersedes one, when
+   the split is cancelled (CANCEL SPLIT, a new split replacing it, the
+   ABORT pill), and when a result lands after its job was cancelled.
+   Before deleting, the file is checked against `versions.audio_file`, so
+   a claimed file is never removed even if in-memory state is wrong.
+5. **`stemSplit.ts` is split first** (it was 282 LOC, over the 200 cap):
+   the per-stem runners shared with the scratch split move to
+   `stemRunners.ts`; `stemSplit.ts` keeps the layer-bound job. No client
+   change: unique names also cache-bust the stem preview after a
+   RE-EXTRACT.
+
+### File-level plan
+
+- `server/src/services/stemRunners.ts` (new): stem types, instructions,
+  `runAcestepStem`, `runDemucs` (with a `kinds` filter), unique
+  `stemFilename`, and the unlink-if-cancelled step.
+- `server/src/services/stemSplit.ts`: `sourceFile` on `SplitJob`;
+  `reextractStem` reads it and passes `[kind]` to `runDemucs`, then
+  removes the superseded file; `cancelSplit` removes unclaimed files.
+- `server/src/services/scratchSplitJobs.ts`: import from `stemRunners.ts`.
+- `server/src/services/stemSplit.reextract.test.ts` (new): a Demucs
+  RE-EXTRACT leaves a claimed stem's row and bytes alone and touches no
+  other stem; RE-EXTRACT after REPLACE reads the original source; the
+  superseded file and cancelled unclaimed files are removed, claimed ones
+  kept.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir and
+the running `uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A
+60 s song (hial4) imported, SPLIT with DEMUCS:
+
+- Four stems landed as `<job>-<kind>-<nonce>.flac`. VOCALS → ADD LAYER.
+- RE-EXTRACT DRUMS: only DRUMS read "extracting…". A new drums file
+  landed and the old one was deleted; the claimed vocals file and the
+  bass/other files kept their bytes (sha256 unchanged).
+- CANCEL SPLIT deleted the three unclaimed stems and kept vocals. A second
+  split wrote four files under its own job id.
+- The Vocals layer, soloed and played, loaded the first split's file, and
+  the bytes served to the page matched its original sha256.
+
+## The Library Loads Without Trying to Play (planned 2026-10-02)
+
+Loading the library at `/` logged two unhandled rejections before any
+click: `NotAllowedError: play() failed because the user didn't interact
+with the document first`. App.tsx always mounts the footer player as
+`useSingleAudioPlayback(src, true)`, and before a song is picked `src` is
+`''`. The hook still made `new Audio('')` and called `void a.play()`; the
+autoplay policy rejected it, and `void` dropped the rejection unhandled.
+StrictMode's double effect pass made it two. PlaybackEngine was not
+involved: its `resume()` rejection was already caught.
+
+### Decisions
+
+1. **No song picked, no element.** An empty `src` opens nothing and never
+   calls `play()`. The footer's PLAY with nothing loaded is a no-op, as
+   before.
+2. **Expected `play()` rejections are caught.** `NotAllowedError` (no
+   gesture yet, e.g. a generation that finishes after a reload loads its
+   song into the footer) and `AbortError` (pause or a new song before
+   playback began) leave the track loaded and paused, PLAY ready. Any
+   other rejection is logged with `console.error`, not swallowed. This
+   covers the footer's autoplay and its PLAY button.
+3. **The effect body moves to `singleTrack.ts`** with an injectable
+   `createAudio`, the same pattern as `createPreviewPlayback`, so node
+   Vitest can test it without a DOM.
+
+### File-level plan
+
+- `client/src/singleTrack.ts` (new): `openTrack` (load, wire events,
+  autoplay; null for an empty src) and `playOrStayPaused`.
+- `client/src/useSingleAudioPlayback.ts`: the `src` effect and `play` go
+  through them.
+- `client/src/singleTrack.test.ts` (new): empty src never plays; a
+  blocked or aborted play stays paused with no unhandled rejection; a
+  real failure is still reported; close unwires.
+
+### Open questions
+
+- `previewPlayback.ts` still calls `void a.play()`. Its plays follow a
+  click, so autoplay is not the risk, but a preview replaced before it
+  starts can still reject with `AbortError`. Not changed here.
+- The Playwright golden path (on `test/playwright-golden-path`, not yet
+  merged) should fail on any `pageerror` so this cannot come back.
+
+### Browser check (2026-10-02)
+
+Playwright Chromium, against the e2e harness from
+`test/playwright-golden-path` (fake ACE-Step, real server and client)
+copied in for the run:
+
+- Before the fix, loading `/` on a fresh, empty database: two
+  `pageerror`s, "play() failed because the user didn't interact with
+  the document first".
+- After: none on a fresh load, and none through the whole golden path
+  (generate, repaint, add layer, revert, export) with a `pageerror`
+  guard added to it.
+- Footer still plays: a generated song's row PLAY started it (0:01 /
+  0:12 after about a second), footer PAUSE and PLAY toggled it, with no
+  page errors.
