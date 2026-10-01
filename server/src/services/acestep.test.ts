@@ -300,3 +300,41 @@ describe('releaseTask', () => {
     expect(body.output).toBeUndefined();
   });
 });
+
+describe('listModels', () => {
+  it('maps the inventory, and an inventory with nothing in it is an empty answer', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(JSON.stringify({
+      data: {
+        models: [{ name: 'acestep-v15-base', supported_task_types: ['extract', 'lego'] }],
+        lm_models: [{ name: 'acestep-5Hz-lm-1.7B' }],
+        default_model: 'acestep-v15-base',
+      },
+    }), { status: 200 })));
+    const { listModels } = await import('./acestep.js');
+
+    await expect(listModels()).resolves.toEqual({
+      models: [{ name: 'acestep-v15-base', supportedTaskTypes: ['extract', 'lego'] }],
+      lmModels: ['acestep-5Hz-lm-1.7B'],
+      defaultModel: 'acestep-v15-base',
+    });
+
+    mockFetchOnce({ models: [], lm_models: [], default_model: null });
+    await expect(listModels()).resolves.toEqual({ models: [], lmModels: [], defaultModel: null });
+  });
+
+  it('throws "unreachable" with the socket error code when ACE-Step refuses the connection', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => {
+      throw new TypeError('fetch failed', { cause: Object.assign(new Error('connect ECONNREFUSED'), { code: 'ECONNREFUSED' }) });
+    }));
+    const { listModels } = await import('./acestep.js');
+
+    await expect(listModels()).rejects.toThrow('ACE-Step unreachable at http://acestep.test (ECONNREFUSED)');
+  });
+
+  it('throws with the status on a non-2xx, rather than reading it as no models', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{"detail":"Unauthorized"}', { status: 401 })));
+    const { listModels } = await import('./acestep.js');
+
+    await expect(listModels()).rejects.toThrow('ACE-Step model inventory -> HTTP 401');
+  });
+});

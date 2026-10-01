@@ -51,35 +51,38 @@ export interface ModelInventory {
  *
  * Uses `/v1/model_inventory`, not `/v1/models`: the OpenRouter adapter shadows
  * `/v1/models` with an OpenAI-style (and empty) response, so the native
- * checkpoint scan is only reachable via the inventory endpoint. No fallbacks —
- * an unreachable server yields an empty inventory.
+ * checkpoint scan is only reachable via the inventory endpoint. Throws when
+ * ACE-Step can't be asked (unreachable, timed out, non-2xx), so a caller never
+ * mistakes a down server for one with no models downloaded.
  */
 export async function listModels(): Promise<ModelInventory> {
-  const empty: ModelInventory = { models: [], lmModels: [], defaultModel: null };
-  try {
-    const headers: Record<string, string> = {};
-    if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
-    const res = await fetch(`${config.acestepUrl}/v1/model_inventory`, { headers, signal: AbortSignal.timeout(config.acestepTimeoutMs) });
-    if (!res.ok) return empty;
-    const json = (await res.json()) as {
-      data?: {
-        models?: Array<{ name: string; supported_task_types?: string[] }>;
-        lm_models?: Array<{ name: string }>;
-        default_model?: string | null;
-      };
+  const headers: Record<string, string> = {};
+  if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
+  const timeoutMs = config.acestepTimeoutMs;
+  const res = await fetch(`${config.acestepUrl}/v1/model_inventory`, { headers, signal: AbortSignal.timeout(timeoutMs) }).catch((err: unknown) => {
+    const timedOut = err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError');
+    // undici's bare "fetch failed" keeps the useful part (ECONNREFUSED, ENOTFOUND…) in `cause`.
+    const code = (err as { cause?: { code?: string } } | null)?.cause?.code;
+    const why = timedOut ? `no response within ${Math.round(timeoutMs / 1000)}s` : code ?? (err instanceof Error ? err.message : String(err));
+    throw new Error(`ACE-Step unreachable at ${config.acestepUrl} (${why})`);
+  });
+  if (!res.ok) throw new Error(`ACE-Step model inventory -> HTTP ${res.status}`);
+  const json = (await res.json()) as {
+    data?: {
+      models?: Array<{ name: string; supported_task_types?: string[] }>;
+      lm_models?: Array<{ name: string }>;
+      default_model?: string | null;
     };
-    const data = json.data;
-    if (!data) return empty;
-    return {
-      models: (data.models ?? [])
-        .filter((m) => m.name)
-        .map((m) => ({ name: m.name, supportedTaskTypes: (m.supported_task_types ?? []) as TaskType[] })),
-      lmModels: (data.lm_models ?? []).map((m) => m.name).filter(Boolean),
-      defaultModel: data.default_model ?? null,
-    };
-  } catch {
-    return empty;
-  }
+  };
+  const data = json.data;
+  if (!data) return { models: [], lmModels: [], defaultModel: null };
+  return {
+    models: (data.models ?? [])
+      .filter((m) => m.name)
+      .map((m) => ({ name: m.name, supportedTaskTypes: (m.supported_task_types ?? []) as TaskType[] })),
+    lmModels: (data.lm_models ?? []).map((m) => m.name).filter(Boolean),
+    defaultModel: data.default_model ?? null,
+  };
 }
 
 export async function health(): Promise<boolean> {

@@ -111,9 +111,18 @@ describe('resolveInferenceSteps', () => {
   });
 
   it('falls back to ACE-Steps own default when the inventory is unreachable', async () => {
-    // listModels() swallows transport errors into an empty inventory, so an ACE-Step
-    // that is down must not change the number we send — it must stay legacy behaviour.
+    // listModels() throws when ACE-Step is down; that must not change the number we
+    // send — it must stay legacy behaviour.
     vi.stubGlobal('fetch', vi.fn(async () => { throw new Error('ECONNREFUSED'); }));
+    const params: ReleaseTaskParams = {};
+
+    await resolveInferenceSteps(params);
+
+    expect(params.inference_steps).toBe(8);
+  });
+
+  it('falls back to ACE-Steps own default when the inventory answers non-2xx', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 500 })));
     const params: ReleaseTaskParams = {};
 
     await resolveInferenceSteps(params);

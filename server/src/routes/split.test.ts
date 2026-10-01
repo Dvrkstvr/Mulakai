@@ -21,6 +21,7 @@ vi.mock('../services/scratchSplitJobs.js', () => ({
   scratchStemPath: vi.fn(),
 }));
 
+const acestep = await import('../services/acestep.js');
 const scratchSplitJobs = await import('../services/scratchSplitJobs.js');
 const { splitRouter } = await import('./split.js');
 
@@ -135,5 +136,21 @@ describe('POST /scratch/:jobId/discard', () => {
     const res = await fetch(`${baseUrl}/scratch/scratch-job-1/discard`, { method: 'POST' });
     expect(res.status).toBe(200);
     expect(scratchSplitJobs.discardScratchSplit).toHaveBeenCalledWith('scratch-job-1');
+  });
+});
+
+describe('GET /health', () => {
+  it('reports an unreachable ACE-Step as an error beside the Demucs status, still 200', async () => {
+    const { config } = await import('../config.js');
+    config.demucsUrl = '';
+    vi.mocked(acestep.listModels).mockRejectedValueOnce(new Error('ACE-Step unreachable at http://acestep.test (ECONNREFUSED)'));
+    const res = await fetch(`${baseUrl}/health`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      acestep: false,
+      acestepError: 'ACE-Step unreachable at http://acestep.test (ECONNREFUSED)',
+      demucs: false,
+      demucsReason: 'unset',
+    });
   });
 });
