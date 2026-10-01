@@ -5073,12 +5073,29 @@ same way (`--melody-only`, 43 s wall).
   `condition_on_previous_text=False`, `word_timestamps=True`, no VAD.
   `LYRICS_MODEL`, `LYRICS_DEVICE` and `LYRICS_COMPUTE_TYPE` override the
   model and where it runs, for a smaller card.
+- **Auto-detect is per window** (added after PR 3's browser check on a real
+  upload, the 7:46 *Kopf hoch und Tanz*):
+  - **The problem:** Whisper takes the first 30 s window's language for the
+    whole song. It judged the opening "en", then wrote the German verses as
+    English translations: "You look so sad in your sleeping suit" for "Du
+    siehst so traurig aus in deinem Schlafanzug".
+  - **The fix:** with no language given, the service transcribes with
+    `multilingual=True`, which detects the language of every window. The
+    verses then came back in German, matching the stored lyrics nearly word
+    for word, and the run was a little faster (16.1 s vs 19.2 s).
+  - **The reported language** is a vote. Each 30 s window that holds words
+    detects its language and weighs it by its word count, and stock lines
+    don't vote. *Kopf hoch* came out "de" 157 to "en" 29, where the first
+    window alone said "en". The vote costs about 2 s.
+  - A given language is still forced on every window and reported as given.
 - **Hallucinations** are dropped per segment before returning:
   - Anywhere: segments with no letters (e.g. "🎵"), and stock phrases that
     are never lyrics ("thanks/thank you for watching", "… for listening",
     "subscribe", "Untertitel…", "subtitles by").
   - When it is the whole segment: a subtitle cue ("… Musik …", "[Music]",
-    "Applaus"). The first live run produced one over *Tanz*'s outro.
+    "Applaus"), or the stock line "We'll be right back." The first live run
+    produced a cue over *Tanz*'s outro; *Kopf hoch* got that stock line four
+    times over its instrumental stretches.
   - Only in the trailing run after the last real line: phrases a song could
     sing ("thank you", "vielen Dank", "bis zum nächsten Mal").
   - `no_speech_prob` thresholds are left out. The spike didn't measure
