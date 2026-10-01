@@ -5915,3 +5915,21 @@ down ("PREPARING SOURCE…") send one song's audio under the other's key.
 - CoverEngineChoice can still switch COVER to ACE-Step mid-job, which
   unmounts the panel but not the job. Its result lands in the draft as
   before; not changed here.
+
+### Browser check (2026-10-02)
+
+Worktree client on a spare port against the running server, ACE-Step,
+YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
+
+- TRANSCRIBE: tabs and drop zone disabled, "SOURCE is locked while
+  TRANSCRIBE runs". The score landed and the automatic READ LYRICS took
+  the lock over with no gap ("…while READ LYRICS runs"), then released
+  it about 9 s in. LYRICS came out tagged (`[Intro]`, `[Interlude]`, …).
+- The same file picked again (a new `File` object): score and tagged
+  LYRICS kept. Before this fix that re-pick cleared the score, which
+  explains the "Unexplained" note in "READ LYRICS With TRANSCRIBE for
+  Uploads".
+- ANALYZE AUDIO: locked while ANALYZING…, released after.
+- FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
+  from the library: all rows disabled, a click on another row ignored,
+  search live.
