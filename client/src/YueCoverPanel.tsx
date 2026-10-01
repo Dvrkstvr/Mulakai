@@ -9,6 +9,8 @@ import { sectionOutline } from './coverLyrics';
 import { YueScoreReview } from './YueScoreReview';
 import { YueCoverGenerate } from './YueCoverGenerate';
 import { YueCoverAnalyze } from './YueCoverAnalyze';
+import { useReadLyricsStore } from './readLyricsStore';
+import { useReadLyrics } from './YueReadLyrics';
 
 /** COVER on an extra engine (PLAN.md "YuE2 Melody Covers via SheetSage2", "Client cover
  * decisions"): SOURCE → TRANSCRIBE → review → GENERATE. The source picker sits above this;
@@ -42,8 +44,12 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
     return () => { live = false; };
   }, [reuse, score, reusedFrom, patchAudio]);
 
-  const running = tr.stage === 'running' || preparing;
-  const locked = !!genJob || (!!otherLock && !running);
+  const transcribing = tr.stage === 'running' || preparing;
+  // A READ LYRICS job holds the server's lock too: count it as this panel's own, not another's.
+  const reading = useReadLyricsStore((s) => s.stage === 'running');
+  const locked = !!genJob || (!!otherLock && !transcribing && !reading);
+  const read = useReadLyrics(songs, transcribing || locked);
+  const running = transcribing || read.running;
   const transcribe = async () => {
     setError('');
     setPreparing(true);
@@ -75,6 +81,7 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
         <button className="acid-outline" disabled={!coverSourceReady(audio) || running || locked || unavailable} onClick={transcribe}>
           <span>{label}</span>
         </button>
+        {read.button}
         <button type="button" className="tag-guide-btn" disabled={running} onClick={() => fileRef.current?.click()}>
           <span>USE .ABC FILE</span>
         </button>
@@ -85,6 +92,7 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
         TRANSCRIBE reads the source&apos;s melody into a score · nothing is saved to your library · USE .ABC FILE
         swaps in a score you corrected elsewhere
       </div>
+      {read.notes}
       {(error || tr.error) && <div className="error">{error || tr.error}</div>}
       {reuse && !score && <span className="meta">loading the earlier cover&apos;s score…</span>}
       {score && <YueScoreReview engine={engine} score={score} />}
