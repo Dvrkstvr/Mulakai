@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { api, type Version } from './api';
+import { attempt } from './actionError';
 import type { Region } from './Waveform';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
@@ -18,7 +19,7 @@ interface Props {
   versions: Version[];
   onSelectRegion: (region: Region) => void;
   onLoadPrompt: (prompt: string) => void;
-  onRevert: (versionId: string) => void;
+  onRevert: (versionId: string) => Promise<void>;
   onChanged: () => Promise<void>;
 }
 
@@ -131,10 +132,9 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
                 {v.active ? (
                   <span className="current"><span>CURRENT</span></span>
                 ) : (
-                  <button onClick={() => {
-                    onRevert(v.id);
-                    if (hasRegion) onSelectRegion({ start: v.region_start as number, end: v.region_end as number });
-                  }} title="revert to this version and select its region">
+                  <button onClick={() => void attempt("couldn't revert", () => onRevert(v.id), setError).then((ok) => {
+                    if (ok && hasRegion) onSelectRegion({ start: v.region_start as number, end: v.region_end as number });
+                  })} title="revert to this version and select its region">
                     <span>SEL</span>
                   </button>
                 )}
