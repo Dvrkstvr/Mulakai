@@ -6893,3 +6893,67 @@ open, then:
   the song loaded and the line went away.
 - Ten volume ticks fired in one burst: two PATCHes (0.9, then 0.12),
   and the server held 0.12.
+
+## COVER Sends the Settings It Shows (planned 2026-10-02)
+
+Fixes AUDIT.md #5. The ARRANGE half of that entry (influence sliders
+promising an effect on `complete`) was fixed earlier: `referenceInfluence.ts`
+hides them and its hint says the reference is used as-is. The COVER half is
+still live. On COVER · ACE-STEP the left rail shows DIT MODEL, STEPS,
+GUIDANCE, SEED and ADVANCED, but `CreateAudioTab` sends only `model` and
+`audio_cover_strength`. So every one of those controls does nothing. The
+request also carries no `output` block, so a cover ignores the Settings
+format/rate/depth and lands as the server default (FLAC 48 kHz 24-bit), and
+it asks ACE-Step for `wav` instead of the `wav32` master every other path
+uses. `/from-audio` already accepts and parses all of these fields: the gap
+is client-only.
+
+### Decisions
+
+1. **COVER sends the rail's STEPS, GUIDANCE, SEED and advanced DiT knobs**,
+   plus the `output` block and the `wav32` master, through a new
+   `coverParams()` beside `genParams()`. No LM knobs (`cover` skips the LM
+   planner and the rail already hides them there), no THINKING/AI ENHANCE,
+   no `batch_size` (the server forces 1).
+2. **The tab's MODEL picker is the cover's model; the rail hides DIT
+   MODEL on COVER.** The tab's list is filtered to cover-capable models and
+   has been the only model sent since COVER shipped. A second picker
+   editing PROMPT's `gen.model` was a dead duplicate. DESIGN.md's
+   "DIT MODEL stays enabled" line is corrected in its own commit.
+3. **The rail gates on the cover model there.** STEPS' ceiling and AUTO
+   readout, GUIDANCE's N/A, and ADVANCED's Base-only gating read the tab's
+   model, so what the rail says matches what will run. STEPS is clamped to
+   that model's ceiling at submit too, since the value is shared with PROMPT
+   (e.g. 100 set for an SFT model, then a Turbo cover).
+4. **COVER · YUE2 is unchanged**: its rail is EngineGenSettings, already
+   wired.
+
+### File-level plan
+
+- `client/src/settingsParams.ts` (+ `settings.ts` re-export): `coverParams(gen, model)`.
+- `client/src/CreateAudioTab.tsx`: spread `coverParams(gen, model)` into the request.
+- `client/src/SettingsPanel.tsx`: `coverModel` prop; when set, no DIT MODEL
+  and the gating reads it.
+- `client/src/CreateView.tsx`: passes the tab's model on COVER · ACE-STEP.
+- `client/src/settings.test.ts`: `coverParams` sends steps/guidance/seed/DiT
+  knobs, the output block and `wav32`; omits LM/batch/thinking; clamps
+  steps to the cover model.
+- `docs/design/DESIGN.md`: the COVER rail line.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports against a scratch data dir, and
+ACE-Step 1.5 on 8001. Create → COVER · ACE-STEP:
+
+- The rail has no DIT MODEL. STEPS reads AUTO (50) with the tab's
+  XL-SFT, then AUTO (8) and GUIDANCE N/A after picking TURBO on the tab.
+  PROMPT still shows DIT MODEL, LM MODEL and the rest.
+- Settings → OUTPUT FORMAT MP3. COVER on ACESTEP-V15-SFT, STEPS 18,
+  GUIDANCE 5, SEED 4242 (random off), source hial4 from the library. The
+  `/from-audio` form carried `inference_steps` 18, `guidance_scale` 5,
+  `seed` 4242, `use_random_seed` false, the DiT knobs, `audio_format`
+  wav32 and the MP3 `output` block. Before, it carried only title,
+  prompt, lyrics, model and `audio_cover_strength`.
+- ACE-Step ran 18/18 diffusion steps and saved a wav32 master. The new
+  song's version stored those params, seed 4242, and its file landed as
+  `.mp3`.

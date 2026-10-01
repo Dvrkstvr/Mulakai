@@ -20,6 +20,7 @@ import { YueCoverPanel } from './YueCoverPanel';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { MoveToEditorAction } from './MoveToEditorAction';
+import { useSettings, coverParams } from './settings';
 
 /** AUDIO tab: "create cover from audio" — a `cover` generation conditioned on an uploaded
  * file or a client-bounced mix of an existing library song, persisted as a brand-new song.
@@ -45,6 +46,7 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
   const startFromAudio = useGenerationStore((s) => s.startFromAudio);
   const dismiss = useGenerationStore((s) => s.dismiss);
   const voice = useVoiceStore();
+  const gen = useSettings((s) => s.gen);
   const busy = submitting || !!blockedBy;
 
   const sourceReady = coverSourceReady(draft.audio);
@@ -77,7 +79,7 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
       const srcAudio = await resolveSrcAudio();
       await startFromAudio(
         {
-          title: title || 'Untitled', prompt, lyrics, model, audio_cover_strength: 1 - variance,
+          title: title || 'Untitled', prompt, lyrics, ...coverParams(gen, model), audio_cover_strength: 1 - variance,
           ...(bpm > 0 ? { bpm } : {}),
           ...(keyScale ? { key_scale: keyScale } : {}),
           ...(duration > 0 ? { audio_duration: duration } : {}),
