@@ -5997,3 +5997,18 @@ settle in `editorJobStore`; these direct API calls were never covered.
 - Tests: `actionError.test.ts`, `latestOnly.test.ts`,
   `useSongDetail.test.ts`.
 - DESIGN.md: the Editor's load-failure state, one line.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, against a copy of the
+library database (no audio). The server was stopped with the Editor
+open, then:
+
+- MUTE on the base lane: "couldn't mute — HTTP 502" in the lane, MUTE
+  stayed off, and "couldn't refresh this song — HTTP 502 · RETRY" above
+  the title row. The song stayed on screen.
+- Back to the Library, EDIT on another song: "couldn't load this song —
+  HTTP 502 · RETRY" in place of "Loading…". Server restarted, RETRY:
+  the song loaded and the line went away.
+- Ten volume ticks fired in one burst: two PATCHes (0.9, then 0.12),
+  and the server held 0.12.

@@ -48,7 +48,7 @@ split retained forever, publicly served.
 - **Fix:** make handlers sync `def` (FastAPI threadpool), add try/finally cleanup,
   add a TTL sweep or delete-after-claim.
 
-### 4. Silent failures across the Editor
+### 4. Silent failures across the Editor — ✅ fixed 2026-10-02 (`fix/editor-silent-failures`)
 - `client/src/Editor.tsx` — `reload()` is `catch(() => {})`: a failed song load is a
   permanent "Loading…" spinner with no error and no way out but Back.
 - `client/src/LayerLane.tsx` — rename/volume/mute/solo PATCHes have no catch;
@@ -174,4 +174,4 @@ referenceAudioResolve. `client/src`: `mix/playbackEngine.ts`,
 ---
 
 **Suggested next PRs:** #1 (playback end — small, user-visible), #2 (stem
-overwrite — data loss), #4 (silent editor failures), #3 (demucs-server hygiene).
+overwrite — data loss), #3 (demucs-server hygiene). #4 is fixed.
