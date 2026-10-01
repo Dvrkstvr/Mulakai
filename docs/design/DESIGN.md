@@ -352,8 +352,9 @@ requiring its own justification against a screen-count rule.
            description **rewritten as YuE2 style tags** (voice, genre, mood,
            instruments; no tempo, key or language), wordless LYRICS get the
            words it heard (fitted to the score's sections), and an AUTO VOCAL
-           LANGUAGE gets its language. BPM / KEY / DURATION are never
-           written. Its consequence line says the lyrics are *described,
+           LANGUAGE gets its language (a heard language the engine doesn't
+           sing is named in a `.warn-note` instead). BPM / KEY / DURATION
+           are never written. Its consequence line says the lyrics are *described,
            not transcribed*; after a run, a line says what was filled and a
            collapsed SHOW DESCRIPTION block (same idiom as SHOW SCORE) keeps
            the full prose, so a dropped phrase can be put back by hand.
