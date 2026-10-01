@@ -27,6 +27,8 @@ describe('lockHolder names what blocks an action', () => {
   it('skips a failed editor job (its lock is already released) and is null when nothing holds one', () => {
     const failed = { ...repaint, stage: 'failed' as const };
     expect(lockHolder({ generating: false, otherLock: { kind: 'lyrics' }, editorJob: failed })).toBe('READ LYRICS');
+    // The Editor's background word-timings read (no button of its own) still names itself.
+    expect(waitLabel(lockHolder({ generating: false, otherLock: { kind: 'timings' } })!)).toBe('WAIT FOR WORD TIMINGS');
     expect(lockHolder({ generating: false, otherLock: null, editorJob: failed })).toBeNull();
   });
 });

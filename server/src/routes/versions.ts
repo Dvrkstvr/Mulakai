@@ -3,6 +3,7 @@ import { db } from '../db/index.js';
 import { startRegenerate, startSimilarTake } from '../services/repaintJobs.js';
 import { NOT_REPLAYABLE_ERRORS } from '../services/replayGuard.js';
 import { GenLockError } from '../services/genLock.js';
+import { startVersionTimings, TIMINGS_NOT_SET_UP } from '../services/timingsJobs.js';
 import { removeVersionFiles } from '../services/versionFiles.js';
 
 export const versionsRouter = Router();
@@ -84,5 +85,17 @@ versionsRouter.post('/versions/:versionId/retake', async (req, res) => {
     if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'retake failed';
     res.status(msg === 'unknown version' ? 404 : NOT_REPLAYABLE_ERRORS.has(msg) ? 400 : 502).json({ error: msg });
+  }
+});
+
+/** Read this version's sung words for the Editor's line timings (timingsJobs.ts). */
+versionsRouter.post('/versions/:versionId/timings', (req, res) => {
+  try {
+    const job = startVersionTimings(req.params.versionId);
+    res.status(202).json({ jobId: job.id });
+  } catch (err) {
+    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    const msg = err instanceof Error ? err.message : 'timings failed';
+    res.status(msg === 'unknown version' ? 404 : msg === TIMINGS_NOT_SET_UP ? 400 : 500).json({ error: msg });
   }
 });

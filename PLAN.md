@@ -5915,7 +5915,8 @@ down ("PREPARING SOURCE…") send one song's audio under the other's key.
 
 - CoverEngineChoice can still switch COVER to ACE-Step mid-job, which
   unmounts the panel but not the job. Its result lands in the draft as
-  before; not changed here.
+  before; not changed here. **Answered 2026-10-02**: the ENGINE row now
+  holds still too (see "COVER's Engine Holds Still Too").
 
 ### Browser check (2026-10-02)
 
@@ -5934,6 +5935,120 @@ YuE2 and lyrics-server. A 60 s song (hial4) as an upload:
 - FROM LIBRARY: still drops the transcribed score. READ LYRICS on hial4
   from the library: all rows disabled, a click on another row ignored,
   search live.
+
+## COVER's Engine Holds Still Too (planned 2026-10-02)
+
+Answers the open question in "COVER's Source Holds Still While a Job
+Reads It". COVER's ENGINE row stayed live while a job read the source.
+Switching COVER · YUE2 to ACE-STEP mid-TRANSCRIBE unmounted the panel but
+not the job: the score (and the automatic READ LYRICS after it) still
+landed in the draft, under a form that no longer showed them. The other
+way round is the same bug: CreateAudioTab stays mounted across a switch,
+so an ACE-Step ANALYZE AUDIO that finished after a switch to YUE2 wrote
+ACE-Step's PROMPT / LYRICS / BPM / KEY / DURATION into the YUE2 draft.
+
+### Decisions
+
+1. **The ENGINE row is locked while a job whose result lands in this
+   engine's draft runs**: on YUE2, TRANSCRIBE or READ LYRICS (with their
+   PREPARING SOURCE step, and the automatic read after TRANSCRIBE) and
+   ANALYZE AUDIO; on ACE-STEP, ANALYZE AUDIO. Every engine tab is
+   disabled, the selected one included.
+2. **A generation doesn't lock it**, unlike SOURCE. Its result is a
+   library song, not the draft, and its RETRY draft keeps the engine it
+   ran on. Locking it would also hold COVER's engine still while a PROMPT
+   generation runs, with no reason to give.
+3. **The reason is said inline**, under the row, with the same wording as
+   SOURCE's: "ENGINE is locked while TRANSCRIBE runs — its result belongs
+   to this engine's cover". It sits beside the row's existing reason lines
+   (an engine that can't take a job). DESIGN.md's ENGINE entry gets the
+   rule.
+4. **YueCoverPanel renders the ENGINE row on YUE2**, as it does SOURCE,
+   since it holds the job states. `engineLockedBy` is `sourceLockedBy`
+   without the generation, so the two locks name a job the same way.
+
+### File-level plan
+
+- `client/src/coverDraft.ts`: `engineLockedBy`.
+- `client/src/EngineChoice.tsx`: a `lockedBy` prop on `EngineChoice` and
+  `CoverEngineChoice` disables every tab and shows the reason.
+- `client/src/YueCoverPanel.tsx`: renders `CoverEngineChoice` with
+  `engineLockedBy`.
+- `client/src/CreateAudioTab.tsx`: the engine branch drops its own row; the
+  ACE-STEP row is locked while its ANALYZE AUDIO runs.
+- `client/src/coverDraft.test.ts`: `engineLockedBy` names the job in the
+  same priority order as `sourceLockedBy`, and is null when idle.
+- `client/src/EngineChoice.test.tsx` (new): the row renders with every tab
+  enabled when idle, and every tab disabled plus the reason when locked.
+
+### Open questions
+
+- ACE-STEP COVER's own SOURCE picker stays live while its ANALYZE AUDIO
+  runs, and the result is applied whatever the source is by then. Same
+  class of bug, on the source; not changed here. **Answered 2026-10-02**,
+  in the same PR: see "ACE-STEP COVER's Source Holds Still Too".
+
+### Browser check (2026-10-02)
+
+Worktree client on a spare port against the running server, ACE-Step and
+YuE2. COVER · YUE2, hial4 FROM LIBRARY, the row's state logged every
+100 ms:
+
+- TRANSCRIBE: both engine tabs disabled from PREPARING SOURCE on, "ENGINE
+  is locked while TRANSCRIBE runs — its result belongs to this engine's
+  cover" under the row, next to SOURCE's own line. A click on ACE-STEP was
+  ignored (the panel stayed on YUE2). Released when the score landed
+  (about 21 s in), and ACE-STEP was pickable again.
+- ANALYZE AUDIO on YUE2: locked while ANALYZING… (about 80 s, model load
+  included), released after.
+- ANALYZE AUDIO on ACE-STEP: locked while it ran, released when it ended.
+  ACE-Step had gone offline by then, so that run ended in "fetch failed"
+  rather than a result; the lock and its release were still seen.
+
+## ACE-STEP COVER's Source Holds Still Too (planned 2026-10-02)
+
+Answers the open question in "COVER's Engine Holds Still Too", and
+supersedes decision 5 of "COVER's Source Holds Still While a Job Reads
+It" ("the ACE-Step COVER path is unchanged: its only job is GENERATE").
+ACE-STEP COVER has ANALYZE AUDIO too. Its result (PROMPT, LYRICS, BPM,
+KEY, DURATION) was applied to the draft whatever the source was by then,
+so a source picked mid-analysis got the previous one's description.
+GENERATE COVER bounces a library song down before it sends it, so a
+source picked during that bounce was a near miss as well.
+
+### Decisions
+
+1. **ACE-STEP's SOURCE picker takes the same lock as YUE2's**: while ANALYZE
+   AUDIO runs, and while a generation runs (GENERATE COVER's submit with
+   its bounce included, as YUE2's rule counts a running generation). Same
+   disabled tabs, drop zone and rows, same reason line.
+2. **`aceCoverLocks`** gives ACE-STEP COVER's two locks from its two jobs:
+   SOURCE from `sourceLockedBy`, ENGINE from `engineLockedBy` (analysis
+   only, per "COVER's Engine Holds Still Too" decision 2). This replaces
+   the inline `engineLockedBy` call in CreateAudioTab.
+
+### File-level plan
+
+- `client/src/coverDraft.ts`: `aceCoverLocks`.
+- `client/src/CreateAudioTab.tsx`: passes its locks to `CoverEngineChoice`
+  and `CoverSourcePicker`.
+- `client/src/coverDraft.test.ts`: idle locks nothing; ANALYZE AUDIO locks
+  both; a generation locks only SOURCE.
+
+### Browser check (2026-10-02)
+
+The Mulakai server and ACE-Step were both stopped by then, so the
+worktree client ran with `fetch` stubbed in the page for `/api/engines`,
+`/api/generate/models`, and an `/api/generate/analyze-audio` that answers
+a 503 after 4 s. COVER · ACE-STEP, a generated WAV as the upload:
+
+- ANALYZE AUDIO: UPLOAD / FROM LIBRARY, the drop zone, and both engine
+  tabs disabled, with both reason lines ("SOURCE is locked while ANALYZE
+  AUDIO runs…", "ENGINE is locked while…"). Clicks on FROM LIBRARY and
+  YUE2 were ignored: the upload and ACE-STEP stayed. All released when
+  the request ended (the stub's error showed).
+- GENERATE COVER's lock wasn't exercised in the browser (it would have
+  submitted a real generation); `aceCoverLocks` covers it in Vitest.
 
 ## RE-EXTRACT Never Touches a Claimed Stem (planned 2026-10-02)
 
@@ -6058,6 +6173,242 @@ copied in for the run:
 - Footer still plays: a generated song's row PLAY started it (0:01 /
   0:12 after about a second), footer PAUSE and PLAY toggled it, with no
   page errors.
+
+## Editor Word Timestamps: Click a Lyric Line (planned 2026-10-02)
+
+The 2026-07-08 to-do under "Open Questions For Later Phases": clicking a
+lyric line in the Editor snaps the region selection to when that line is
+actually sung. "Cover Lyrics From the Recording" settled the hard part:
+faster-whisper large-v3 on the unseparated mix reads sung words with word
+timings, and `lyrics-server` already returns them. This section plans the
+Editor side. It also answers the multi-engine open question "Section strip
+for engine-made songs".
+
+### What is there today (checked 2026-10-02)
+
+- **ACE-Step's `/lyric_timestamp`** (the mulakai fork) is called once, at
+  generation time, by `fetchLyricTimestampsJson` (`jobs.ts`). It reads a
+  sidecar in ACE-Step's temp dir, so it can't be fetched later. The
+  result goes in `versions.lyric_timestamps`, and `groupSections` builds
+  the section strip from its `[tag]` lines.
+- **Coverage in the user's library** (base-layer versions with ACE-Step
+  timings / all):
+  - text2music 11/12 and complete 9/9;
+  - **repaint 0/8**: the fetch never succeeds for a repaint result, so the
+    section strip disappears as soon as the active base version is a
+    repaint;
+  - YuE2 takes and covers 0/7, ACE-Step covers 0/2, imports 0/2.
+- **ACE-Step's line times tile the song.** Each line starts where the
+  previous one ends, so they bound a section well but not a line. On
+  *Ellies City*, "Midnight city streets are wet" is stored as
+  1.04–23.84 s; it is sung at 20.98–23.36 s. A tag line sits at the end
+  of the previous section's last line, which puts an instrumental gap at
+  the start of the section after it.
+- **The lyrics panel** (`LyricsPanel.tsx`) shows the live LYRICS draft as
+  blocks. It highlights the block matching the selected section and
+  unlocks into a textarea when one whole section is selected on the base
+  layer. Lines aren't interactive.
+
+### Timing spike (2026-10-02)
+
+`lyrics-server` (the running one, winner settings, language auto) on two
+base takes from the library, then a prototype of the alignment in decision
+3 against each song's own LYRICS:
+
+| Song | Made by | Read | LYRICS words matched | Lines timed |
+| --- | --- | --- | --- | --- |
+| *Ellies City* (2:20) | ACE-Step text2music | 22 s, model load included | 93 / 94 (0.99) | 22 / 22 |
+| *Purple Shinings* (2:00) | YuE2 | 7 s, warm | 81 / 104 (0.78) | 22 / 28 |
+
+- **Line times are the sung times.** On *Ellies* every line's span runs
+  from its first word to its last. Repeated choruses landed on the right
+  repeat: the first chorus is 46.0–68.2 s, the second 101.2–125.3 s.
+- **The misses are lines that weren't sung.** On *Purple*, the six untimed
+  lines are four "(Mmm Mmm Mmm)" humming lines and an outro YuE2 left out.
+  Leaving them untimed is the right answer.
+- **The alignment is cheap:** 3–12 ms in Node for these songs. A 6-minute
+  song with about 500 words a side is around 250k cells, still a one-off
+  cost well under a frame.
+- Whisper heard more words than LYRICS has on *Ellies* (208 vs 94): ad-libs
+  and repeats. Global alignment skips them as gaps.
+
+### Decisions
+
+1. **When timings are read: automatically, in the Editor** *(the user's
+   call, 2026-10-02)*.
+   - When the Editor shows a song whose base layer's active version has no
+     word timings, `lyrics-server` reads it in the background, if the
+     service is configured and the genLock is free. A repaint that lands
+     makes a new active version, which is read the same way.
+   - It costs one read under the genLock: about 3 s of model load plus
+     3–15 s per song warm (spike numbers), during which GENERATE elsewhere
+     waits, as with any job.
+   - Only songs that are opened are read. Library generations aren't
+     slowed, and nothing is read twice: timings are saved.
+   - The alternatives were an explicit READ TIMINGS action per version
+     (no surprise lock, but a click before the first line-click, and again
+     after every repaint), or a read at the end of every generation job
+     (pays for songs never opened).
+2. **Stored per version, as a column.** `versions.word_timings TEXT`, the
+   reading as `lyrics-server` returned it: `{language, segments: [{text,
+   start, end, words}]}`.
+   - Per version, because timings belong to one audio render. A version's
+     audio never changes, so its timings never go stale.
+   - A column rather than a sidecar file like `.abc`. It is the same kind
+     of thing as `lyric_timestamps` (JSON for the client, not a file a
+     service writes), it goes away with its row, and it rides along in the
+     song detail with no new fetch. A 4-minute reading is about 20 KB,
+     smaller than ACE-Step's stored timings with their token arrays.
+   - Only the base layer's active version is read in v1. The column works
+     for any version.
+3. **Sung words are aligned to the song's own LYRICS, on the client.**
+   - Whisper's text is never shown. The words on screen stay the user's
+     LYRICS; the reading only supplies times.
+   - Both sides are tokenised the same way. `[tags]` are dropped, the text
+     is lowercased and NFKC-normalised, apostrophes are removed, and other
+     punctuation separates words. CJK text is split per character, since
+     neither side has spaces there.
+   - A global (Needleman–Wunsch) alignment pairs LYRICS tokens with heard
+     tokens in order. Two tokens match when equal or within an edit-
+     distance similarity of 0.6 (so "silhouettes" ≈ "silhouette"). Gaps
+     absorb ad-libs, repeats Whisper heard but LYRICS doesn't list, and
+     lines that weren't sung. Order is what keeps repeated choruses apart.
+   - **A line is timed** when at least one of its tokens matched. Its span
+     runs from the earliest to the latest heard word paired with any of
+     its tokens (substitutions included, so a misheard first word still
+     anchors the start). Lines with no match stay untimed.
+   - It runs against the live LYRICS draft, memoised, so it stays right
+     when a repaint changes the song's lyrics or a revert restores older
+     ones. It needs no server round trip.
+4. **Section times come from the aligned lines** and feed the existing
+   `groupSections` unchanged (it reads tag lines' starts).
+   - A section with sung lines starts where the previous section's last
+     timed line ends, the same convention ACE-Step's tag lines follow, so
+     the gap before a verse belongs to that verse.
+   - A run of wordless tags (`[Intro]`, `[Rhodes piano melody]`, an
+     instrumental `[Interlude]`) takes the gap before the next sung line,
+     minus a 1 s lead-in. The first tag of the run gets the whole gap, the
+     rest get none and drop out of the strip, as coincident tags already do
+     with ACE-Step's timings. So `[Intro]` spans the intro, not the
+     description tag after it.
+   - Tags after the last sung line share the tail the same way.
+5. **Which timings win:** the reading, when it covers at least half the
+   LYRICS words. It was measured on this version's own audio, and ACE-Step's
+   line times tile. Below half (a song sung far from its LYRICS), sections
+   fall back to ACE-Step's timings when there are any, and line clicks stay
+   on the lines that did match.
+   - **ACE-Step's `/lyric_timestamp` stays as it is.** It is free, it is
+     already stored, and it gives a section strip before any read. Nothing
+     changes in the fork; it can't read an upload, and it doesn't need to,
+     since `lyrics-server` covers every version.
+   - **Engine songs, imports and repaints** get a section strip from the
+     reading. That closes the multi-engine open question "Section strip for
+     engine-made songs".
+6. **No vocal isolation.** The 07-08 to-do assumed a split first. The cover
+   lyrics spike measured the mix as better for ACE-Step-made vocals (WER
+   0.14 vs 0.25), and a split adds 43–88 s. The mix is read as-is.
+7. **Language is always auto-detected.** `lyrics-server` detects per 30 s
+   window. Forcing the song's stored VOCAL LANGUAGE risks what READ LYRICS'
+   browser check found: a wrong forced language makes Whisper translate.
+   The words are only used for times, so the detected language isn't
+   stored on the song.
+8. **The UI** (DESIGN.md gets its own commit):
+   - **A timed line is clickable** in the read-only lyrics panel. Click
+     selects its span as the region (sky, like a section). Shift-click
+     extends the selection from the last clicked line through this one.
+     Double-click also moves the playhead to the line's start, the same as
+     the section strip.
+   - **A short line is widened to the repaint minimum** *(the user's call,
+     2026-10-02)*. A selection under 3 s can't be repainted
+     (`REPAINT_MIN_SECONDS`), and many sung lines are 2–4 s. The region
+     grows evenly around the line to 3 s, clamped to the song.
+   - **The selected line(s) get the sky echo**: a sky left border and
+     `sky-tint`, the same treatment as the active block, one level down.
+     "Selection must read as one continuous color everywhere it is echoed".
+   - **Untimed lines** stay as they are, in `text-low`, with a title saying
+     they weren't heard in this take. Tag lines aren't clickable; the
+     section strip already selects sections.
+   - **While a read runs**, the panel's label reads `LYRICS · TIMING…` in
+     `text-low`. It is plain, like TRANSCRIBE and READ LYRICS: reading
+     words isn't generating.
+   - **A failed read** shows a rust hint under the label with RETRY. It
+     never blocks the panel: lines just stay unclickable.
+   - With `lyrics-server` not configured, nothing changes from today.
+   - Selecting a line doesn't unlock editing. That still needs one whole
+     section (DESIGN.md's lyrics panel rule).
+9. **Abort and lock.** The read is a genLock job of a new `timings` kind,
+   polled through `GET /api/generate/:jobId`, and shows in the header like
+   every job. The auto-read never starts while another job holds the lock;
+   it tries again when the lock frees and the Editor is still on that
+   version. A failed read isn't retried on its own (RETRY does that), so a
+   broken service can't loop.
+
+### File-level plan
+
+**PR 1 — server** (`feat/editor-word-timestamps`, this spec plus):
+- `db/schema.ts` + `db/index.ts`: the `word_timings` column, via
+  `ensureColumn`.
+- `services/timingsJobs.ts` (new): `startVersionTimings(versionId)`. It
+  takes the genLock under `timings` with the song title, reads the
+  version's audio file, sends it to `transcribeLyrics` with language '',
+  and writes the reading to the row. Aborts cancel the request, as in
+  `lyricsJobs.ts`.
+- `routes/versions.ts`: `POST /api/layers/versions/:id/timings` (where
+  the router is mounted, next to REVERT and ALT) answers 202
+  `{jobId}`; 404 for an unknown version; 400 when `lyrics-server` isn't
+  configured; 409 when the lock is held.
+- `routes/songs.ts`: each version carries `wordTimings` (parsed, or null).
+- `genLock.ts`: the `timings` kind.
+- Tests: the job (fake client, the row written, lock released on
+  failure/abort), the route's status codes, and song detail parsing.
+
+**PR 2 — client: timings and the section strip**
+(`feat/editor-word-timestamps-sections`, on PR 1):
+- `api/types.ts`: `Version.wordTimings`, and `ActiveGeneration.kind` gains
+  `timings`. `api/editor.ts`: `readTimings(versionId)`.
+- `lyricAlign.ts` (new, pure): tokenising and the alignment, returning a
+  time span or null per LYRICS line, and the share of words matched.
+- `timedSections.ts` (new, pure): aligned lines → the `LyricLine[]`
+  (tag lines with decision 4's starts, plus timed lines) that
+  `groupSections` reads, and decision 5's choice of source.
+- `timingsStore.ts` (new): the auto-read per version, outside React so it
+  survives leaving the Editor, as `editorJobStore` does. It tracks the
+  running job, a failure per version, and waits for a free lock.
+- `useLyricTiming.ts` (new): the hook the Editor calls instead of its
+  `groupSections` memo. It returns sections, line spans and read status.
+  `Editor.tsx` is already 320 lines, over the cap; this change keeps its
+  net lines at or below today's, and the split it needs is a separate PR.
+- Tests for each pure module and the store.
+
+**PR 3 — client: click a lyric line** (`feat/editor-word-timestamps-lines`,
+on PR 2):
+- `LyricsLines.tsx` (new): the read-only view, with clickable lines,
+  shift-click ranges, the sky echo and the untimed style, moved out of
+  `LyricsPanel.tsx`.
+- `lineSelection.ts` (new, pure): line span(s) → region, with the 3 s
+  widening and clamping. Tested.
+- `LyricsPanel.tsx`: the `TIMING…` label, the failure hint with RETRY.
+- `index.css`: the line styles.
+- DESIGN.md in its own commit.
+- Browser check: an engine song (no ACE-Step timings) opens, reads, gets a
+  section strip, and a line click selects the sung span. Then a repaint of
+  that line lands and the new version is read.
+
+### Open questions
+
+- ~~Automatic or explicit (decision 1)?~~ *Answered 2026-10-02:
+  automatic in the Editor.*
+- ~~Widen short lines to 3 s (decision 8)?~~ *Answered 2026-10-02: widen.
+  The alternative was the exact span, with REPAINT disabled and "MIN 3s"
+  shown, as for a short drag.*
+- **Follow the playhead?** Highlighting the line being sung while playing
+  (karaoke-style) is a small step once lines are timed. Not planned; it
+  would be a new use of sky, so it's a design question first.
+- **Pre-roll.** Whisper's word starts may sit slightly after a consonant's
+  onset. The repaint crossfade covers small errors. If repaints of one line
+  clip its first syllable, add a fixed lead-in to line selections.
+- **Add Layer vocals.** A vocal layer has its own lyrics. Reading that
+  layer's version would time them the same way. Not in v1.
 
 ## ANALYZE AUDIO Takes the genLock (planned 2026-10-02)
 
@@ -6221,3 +6572,11 @@ in the Editor in one tab, and ANALYZE AUDIO on COVER in the other.
   GENERATE and COVER's GENERATE COVER read "WAIT FOR ANALYZE AUDIO",
   disabled, and FEELING LUCKY was off. With the stub cleared, COVER's
   read GENERATE COVER again within one poll.
+
+**Merged with "Editor Word Timestamps" (2026-10-02).** That section added a
+`timings` lock kind: lyrics-server reading a version's words in the
+background, with no button of its own. It is named like the others: a 409
+says "a word-timings reading is already in progress", and a blocked
+button reads "WAIT FOR WORD TIMINGS" (21 characters, one line in the
+rail). Without a name the label would have fallen back to "WAIT FOR
+ANOTHER JOB".

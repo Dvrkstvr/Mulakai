@@ -10,19 +10,20 @@
  */
 import type { EngineId } from './engines/types.js';
 
-/** `transcribe` is SheetSage2 reading a cover source's melody (transcribeJobs.ts), and
- * `lyrics` is lyrics-server reading its words (lyricsJobs.ts): small, but neither may run
- * next to an ACE-Step job on a 16 GB card. `analyze` is ACE-Step describing a source
- * (analyzeJobs.ts), which loads a DiT and the LM. */
+/** `transcribe` is SheetSage2 reading a cover source's melody (transcribeJobs.ts), `lyrics`
+ * is lyrics-server reading its words (lyricsJobs.ts), and `timings` is lyrics-server reading
+ * a version's words for the Editor (timingsJobs.ts): small, but none may run next to an
+ * ACE-Step job on a 16 GB card. `analyze` is ACE-Step describing a source (analyzeJobs.ts),
+ * which loads a DiT and the LM. */
 export type GenKind =
-  | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster' | 'transcribe' | 'lyrics'
-  | 'analyze';
+  | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster'
+  | 'transcribe' | 'lyrics' | 'timings' | 'analyze';
 
 /** What a 409 calls the job holding the lock. */
 const HOLDER: Record<GenKind, string> = {
   generate: 'a generation', repaint: 'a repaint', regenerate: 'a regenerate', retake: 'a retake',
   addLayer: 'an add layer', split: 'a stem split', remaster: 'a remaster', transcribe: 'a transcription',
-  lyrics: 'a lyrics reading', analyze: 'an audio analysis',
+  lyrics: 'a lyrics reading', timings: 'a word-timings reading', analyze: 'an audio analysis',
 };
 
 /** The three ACE-Step tasks that create a whole new song — all held under the single

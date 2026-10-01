@@ -14,7 +14,7 @@ export function isGenerating(job: GenerationJob | null): boolean {
 const LOCK_NAME: Record<ActiveGeneration['kind'], string> = {
   generate: 'A GENERATION', repaint: 'A REPAINT', regenerate: 'AN ALT TAKE', retake: 'A SIMILAR TAKE',
   addLayer: 'ADD LAYER', split: 'A STEM SPLIT', remaster: 'A REMASTER', transcribe: 'TRANSCRIBE',
-  lyrics: 'READ LYRICS', analyze: 'ANALYZE AUDIO',
+  lyrics: 'READ LYRICS', timings: 'WORD TIMINGS', analyze: 'ANALYZE AUDIO',
 };
 
 /** What holds the server's lock, as a busy label names it: a split extracting in this tab, this
