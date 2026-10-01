@@ -32,6 +32,8 @@ export interface Job {
   progressText?: string;
   /** Set by transcribeJobs.ts on success: the score and what SheetSage2 reported. */
   transcription?: import('./transcribeJobs.js').TranscriptionOutcome;
+  /** Set by lyricsJobs.ts on success: the words read from the source, with timings. */
+  lyrics?: import('./lyricsJobs.js').LyricsOutcome;
 }
 
 const jobs = new Map<string, Job>();

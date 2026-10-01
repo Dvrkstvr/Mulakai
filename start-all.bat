@@ -1,6 +1,6 @@
 @echo off
 REM Mulakai complete startup: ACE-Step API + server + client, plus the optional
-REM Demucs, HeartMuLa and YuE2 services when they are installed
+REM Demucs, lyrics, HeartMuLa and YuE2 services when they are installed
 setlocal
 
 echo ==================================
@@ -55,6 +55,14 @@ if exist "%~dp0uvr-server\venv\Scripts\python.exe" (
     set "DEMUCS_API_URL=http://127.0.0.1:8002"
 )
 
+REM lyrics-server (READ LYRICS: the words sung in a cover's source) is optional - see
+REM lyrics-server\README.md. Detected here so LYRICS_API_URL reaches the Mulakai server.
+set "LYRICS_READY="
+if exist "%~dp0lyrics-server\venv\Scripts\python.exe" (
+    set "LYRICS_READY=1"
+    set "LYRICS_API_URL=http://127.0.0.1:8005"
+)
+
 REM HeartMuLa (optional first-take engine) runs from heartlib's own Python 3.10 venv
 REM with its ~22 GB of weights - see heartmula-server\README.md. Override with:
 REM set HEARTMULA_PATH=C:\path\to\heartlib. A HEARTMULA_API_URL that is already set
@@ -97,18 +105,18 @@ if defined ENGINE_CONFIGURED (
 )
 
 echo.
-echo [1/6] Starting ACE-Step API server...
+echo [1/7] Starting ACE-Step API server...
 start "ACE-Step API" cmd /k "cd /d "%ACESTEP_PATH%" && %API_COMMAND%"
 
 echo Waiting for API to initialize...
 timeout /t 5 /nobreak >nul
 
-echo [2/6] Starting Mulakai server...
+echo [2/7] Starting Mulakai server...
 start "Mulakai Server" cmd /k "cd /d "%~dp0server" && npm run dev"
 
 timeout /t 3 /nobreak >nul
 
-echo [3/6] Starting stem-separation service...
+echo [3/7] Starting stem-separation service...
 if defined UVR_READY (
     start "UVR Server" cmd /k "cd /d "%~dp0uvr-server" && venv\Scripts\python.exe -m uvicorn main:app --port 8002"
 ) else if defined DEMUCS_READY (
@@ -119,21 +127,25 @@ if defined UVR_READY (
 
 timeout /t 2 /nobreak >nul
 
-echo [4/6] Starting HeartMuLa engine...
+echo [4/7] Starting lyrics reader...
+if defined LYRICS_READY start "Lyrics Server" cmd /k "cd /d "%~dp0lyrics-server" && venv\Scripts\python.exe -m uvicorn main:app --port 8005"
+if not defined LYRICS_READY echo   Skipped - no lyrics-server\venv. See lyrics-server\README.md.
+
+echo [5/7] Starting HeartMuLa engine...
 REM One-line IFs, not a ( ) block: cmd parses a whole block up front, and a HEARTMULA_PATH
 REM like "C:\Program Files (x86)\..." would end it early at its ")".
 if defined HEARTMULA_READY start "HeartMuLa Server" cmd /k "cd /d "%~dp0heartmula-server" && "%HEARTMULA_PATH%\.venv\Scripts\python.exe" main.py"
 if not defined HEARTMULA_READY if defined HEARTMULA_API_URL echo   Not started - using HEARTMULA_API_URL=%HEARTMULA_API_URL%
 if not defined HEARTMULA_API_URL echo   Skipped - no heartlib venv and weights under HEARTMULA_PATH. See heartmula-server\README.md.
 
-echo [5/6] Starting YuE2 engine...
+echo [6/7] Starting YuE2 engine...
 REM Launched through wsl.exe: WSL does not start on its own, and this process keeps the
 REM distro running. 127.0.0.1 inside WSL is reachable from Windows.
 if defined YUE_READY start "YuE2 Server" cmd /k wsl.exe -d %YUE_DISTRO% --cd "%~dp0yue-server" --exec bash -lc "if [ -x %YUE_SHEETSAGE_HOME%/.venv/bin/python ]; then export YUE_SHEETSAGE_PYTHON=%YUE_SHEETSAGE_HOME%/.venv/bin/python YUE_SHEETSAGE_DIR=%YUE_SHEETSAGE_HOME%/SheetSage2; fi; YUE_DATA_DIR=~/yue-data %YUE_VENV%/bin/python main.py"
 if not defined YUE_READY if defined YUE_API_URL echo   Not started - using YUE_API_URL=%YUE_API_URL%
 if not defined YUE_API_URL echo   Skipped - no YuE2 venv at %YUE_VENV% in WSL distro %YUE_DISTRO%. See yue-server\README.md.
 
-echo [6/6] Starting Mulakai client...
+echo [7/7] Starting Mulakai client...
 start "Mulakai Client" cmd /k "cd /d "%~dp0client" && npm run dev"
 
 timeout /t 2 /nobreak >nul
@@ -149,6 +161,7 @@ echo   Client:       http://localhost:5173
 if defined UVR_READY echo   UVR split:    http://localhost:8002
 if defined DEMUCS_READY echo   Demucs:       http://localhost:8002
 if defined HEARTMULA_READY echo   HeartMuLa:    http://localhost:8003 (loads its weights into RAM, ~20 s)
+if defined LYRICS_READY echo   Lyrics:       http://localhost:8005 (loads its model per job)
 if defined YUE_READY echo   YuE2:         http://127.0.0.1:8004 (verifies its weights, ~6 s)
 echo.
 echo   Close the terminal windows to stop all services.

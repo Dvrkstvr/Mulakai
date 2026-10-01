@@ -14,6 +14,7 @@ import { outputMetadataRouter } from './routes/outputMetadata.js';
 import { lyricTagsRouter } from './routes/lyricTags.js';
 import { adaptersRouter } from './routes/adapters.js';
 import { enginesRouter } from './routes/engines.js';
+import { lyricsRouter } from './routes/lyrics.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 
@@ -34,6 +35,7 @@ app.use('/api/output-metadata', outputMetadataRouter);
 app.use('/api/lyric-tags', lyricTagsRouter);
 app.use('/api/adapters', adaptersRouter);
 app.use('/api/engines', enginesRouter);
+app.use('/api/lyrics', lyricsRouter);
 app.use('/audio', express.static(config.audioDir));
 
 sweepTrash();

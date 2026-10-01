@@ -18,6 +18,13 @@ export const config = {
   yueApiKey: process.env.YUE_API_KEY ?? '',
   heartmulaUrl: process.env.HEARTMULA_API_URL ?? '',
   heartmulaApiKey: process.env.HEARTMULA_API_KEY ?? '',
+  /** lyrics-server, for READ LYRICS (PLAN.md "Cover Lyrics From the Recording"). Empty = not set up. */
+  lyricsUrl: process.env.LYRICS_API_URL ?? '',
+  /** Ceiling on one synchronous /transcribe call: a warm job is seconds, the first one
+   * downloads the model, and a hung call would otherwise hold the genLock forever. */
+  lyricsTimeoutMs: Number(process.env.LYRICS_TIMEOUT_MS ?? 15 * 60_000),
+  /** Largest READ LYRICS upload. A library WAV is float32 stereo, about 23 MB a minute. */
+  lyricsMaxUploadMb: Number(process.env.LYRICS_MAX_UPLOAD_MB ?? 300),
   dataDir: process.env.DATA_DIR ?? path.resolve(__dirname, '../data'),
   get dbPath() {
     return path.join(this.dataDir, 'mulakai.db');

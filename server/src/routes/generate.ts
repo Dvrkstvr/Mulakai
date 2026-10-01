@@ -284,5 +284,7 @@ generateRouter.get('/:jobId', (req, res) => {
     progress: job.progress, progressStage: job.progressStage, progressText: job.progressText,
     // Only a finished TRANSCRIBE carries this: the score and SheetSage2's facts.
     ...(job.transcription ? { transcription: job.transcription } : {}),
+    // Only a finished READ LYRICS carries this: the sung words, timed.
+    ...(job.lyrics ? { lyrics: job.lyrics } : {}),
   });
 });
