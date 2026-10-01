@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1790893930.5668254,
-    "ast_hash": "0c074c31bc688833525852635d0d0f71",
+    "mtime": 1790898124.9519,
+    "ast_hash": "4c8401eeb6bec54f661621a3988452a8",
     "semantic_hash": ""
   },
   "FORGE_PLAN.md": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790896154.006935,
-    "ast_hash": "5691475c46a9d945539a8d27a5123412",
+    "mtime": 1790898075.8580024,
+    "ast_hash": "eaf8e16bb95387926576aae802dfc367",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790896229.7876675,
-    "ast_hash": "70b269eedce089ef1c38c1705158bd16",
+    "mtime": 1790898124.9524035,
+    "ast_hash": "cdbc5419b409ea18562422a34c008ba0",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -2015,8 +2015,8 @@
     "semantic_hash": ""
   },
   "e2e/playwright.config.ts": {
-    "mtime": 1790893816.092087,
-    "ast_hash": "3644538e99cf01cd9d764af139531f2f",
+    "mtime": 1790898086.8581035,
+    "ast_hash": "15bf45c755aec839d647700278d9a4ac",
     "semantic_hash": ""
   },
   "e2e/ports.ts": {
@@ -2025,7 +2025,7 @@
     "semantic_hash": ""
   },
   "e2e/test-results/.last-run.json": {
-    "mtime": 1790896202.6171582,
+    "mtime": 1790898118.0276093,
     "ast_hash": "f196824657d8858bc7fa44eecbba38b1",
     "semantic_hash": ""
   },
@@ -2045,8 +2045,13 @@
     "semantic_hash": ""
   },
   "e2e/playwright-report/index.html": {
-    "mtime": 1790896202.615628,
-    "ast_hash": "992eeecc8404d8ec08b1ba6ec03e1883",
+    "mtime": 1790898118.026608,
+    "ast_hash": "9e63b84bcf66623deec6a57f3f622dfb",
+    "semantic_hash": ""
+  },
+  ".github/workflows/e2e.yml": {
+    "mtime": 1790898086.8095043,
+    "ast_hash": "ccec134a84a6ff40554ed9ecea392742",
     "semantic_hash": ""
   }
 }
