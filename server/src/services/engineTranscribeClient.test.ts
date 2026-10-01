@@ -6,7 +6,7 @@ afterAll(() => vi.unstubAllGlobals());
 
 const {
   transcribe, transcriptionStatus, transcriptionHealth, fetchTranscriptionScore, fetchTranscriptionPreview,
-  cancelTranscription,
+  cancelTranscription, measureScore,
 } = await import('./engineTranscribeClient.js');
 
 const target = { label: 'YUE2', url: 'http://127.0.0.1:8004', apiKey: 'secret' };
@@ -75,5 +75,21 @@ describe('engine transcription client', () => {
     fetchMock.mockResolvedValueOnce(json({ detail: 'Not Found' }, 404)); // a yue2-serve backend
     expect(await transcriptionHealth(target)).toBe(false);
     expect(await transcriptionHealth({ ...target, url: '' })).toBe(false);
+  });
+
+  it('sizes a score per section, and says nothing for a backend without the route', async () => {
+    fetchMock.mockResolvedValueOnce(json({ budget: 4096, header: 73, sections: [{ name: 'intro', tokens: 646 }] }));
+    expect(await measureScore(target, 'X:1\n% intro\n')).toEqual({ budget: 4096, header: 73, sections: [{ name: 'intro', tokens: 646 }] });
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe('http://127.0.0.1:8004/v1/scores/measure');
+    expect(init).toMatchObject({ method: 'POST', body: JSON.stringify({ abc: 'X:1\n% intro\n' }) });
+    expect(init?.headers).toMatchObject({ Authorization: 'Bearer secret' });
+
+    fetchMock.mockResolvedValueOnce(json({ detail: 'Not Found' }, 404));
+    expect(await measureScore(target, 'X:1\n')).toBeNull();
+    fetchMock.mockResolvedValueOnce(json({ detail: "Not a score in YuE2's native two-voice ABC: bad" }, 422));
+    await expect(measureScore(target, 'junk')).rejects.toThrow('YUE2 score size -> HTTP 422: Not a score');
+    fetchMock.mockResolvedValueOnce(json({ budget: 4096, header: 1, sections: [{ name: 'intro' }] }));
+    await expect(measureScore(target, 'X:1\n')).rejects.toThrow('unreadable reply');
   });
 });

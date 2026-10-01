@@ -31,4 +31,7 @@ export const config = {
    * (GPU wedge, dropped connection) stalls the poll loop forever and the global
    * generation lock is never released. Audio downloads get 5x this. */
   acestepTimeoutMs: Number(process.env.ACESTEP_TIMEOUT_MS ?? 60_000),
+  /** Largest cover TRANSCRIBE upload. A library WAV is float32 stereo, about 23 MB a minute.
+   * The source is forwarded to yue-server, whose YUE_MAX_UPLOAD_MB must be at least this. */
+  coverMaxUploadMb: Number(process.env.COVER_MAX_UPLOAD_MB ?? 300),
 };
