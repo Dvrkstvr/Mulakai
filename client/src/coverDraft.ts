@@ -49,3 +49,10 @@ export function sourceLockedBy(jobs: { transcribing: boolean; reading: boolean; 
 export function engineLockedBy(jobs: { transcribing: boolean; reading: boolean; analyzing: boolean }): string | null {
   return sourceLockedBy({ ...jobs, generating: false });
 }
+
+/** ACE-STEP COVER's locks: its ANALYZE AUDIO and GENERATE COVER (the bounce of a library song
+ * included) read the source, as YUE2's jobs do; only the analysis lands in the draft. */
+export function aceCoverLocks(jobs: { analyzing: boolean; generating: boolean }): { source: string | null; engine: string | null } {
+  const none = { transcribing: false, reading: false };
+  return { source: sourceLockedBy({ ...none, ...jobs }), engine: engineLockedBy({ ...none, analyzing: jobs.analyzing }) };
+}

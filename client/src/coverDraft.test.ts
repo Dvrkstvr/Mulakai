@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { engineLockedBy, sourceLockedBy, withSourceChange, type CoverScore } from './coverDraft';
+import { aceCoverLocks, engineLockedBy, sourceLockedBy, withSourceChange, type CoverScore } from './coverDraft';
 import type { Source } from './createDraft';
 
 const transcribed: CoverScore = {
@@ -62,5 +62,19 @@ describe('engineLockedBy', () => {
     expect(engineLockedBy({ ...idle, transcribing: true, reading: true })).toBe('TRANSCRIBE');
     expect(engineLockedBy({ ...idle, reading: true, analyzing: true })).toBe('READ LYRICS');
     expect(engineLockedBy({ ...idle, analyzing: true })).toBe('ANALYZE AUDIO');
+  });
+});
+
+describe('aceCoverLocks', () => {
+  it('locks nothing while ACE-STEP COVER is idle', () => {
+    expect(aceCoverLocks({ analyzing: false, generating: false })).toEqual({ source: null, engine: null });
+  });
+
+  it('holds source and engine still while ANALYZE AUDIO runs', () => {
+    expect(aceCoverLocks({ analyzing: true, generating: false })).toEqual({ source: 'ANALYZE AUDIO', engine: 'ANALYZE AUDIO' });
+  });
+
+  it('holds only the source while a generation runs', () => {
+    expect(aceCoverLocks({ analyzing: false, generating: true })).toEqual({ source: 'a generation', engine: null });
   });
 });
