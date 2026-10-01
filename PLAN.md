@@ -6860,17 +6860,22 @@ Its callers passed that on:
 ### File-level plan
 
 - `server/src/services/acestep.ts`: `listModels()` throws per
-  decision 1. The function stays the same size.
+  decision 1. The function grows by three lines.
 - `server/src/services/splitHealth.ts` (new): `splitHealth()` runs both
   probes and returns the decision 3 shape.
 - `server/src/routes/generate.ts`: `/models` sends a 502 on a throw.
 - `server/src/routes/split.ts`: `/health` returns `splitHealth()`.
 - `server/src/services/inferenceSteps.ts`: catch around the lookup.
-- `client/src/api/editor.ts`: a `SplitHealth` type with the new fields.
+- `client/src/api/types.ts`, `client/src/api/editor.ts`: a `SplitHealth`
+  type with the new fields, returned by `splitHealth()`.
 - `client/src/lookup.ts`: `splitBackendTitle(health, backend)`, the
   tooltip for a disabled backend button.
-- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`: the
-  `acestepError` line and the titles from the helper.
+- `client/src/SplitBackendTabs.tsx` (new): the checking / error / ACE-STEP
+  and DEMUCS block both panels had verbatim, plus the `acestepError`
+  line. Adding that line twice would have pushed both panels further
+  past the 150-line target. Both now sit under it (142 and 138 lines).
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`:
+  render `SplitBackendTabs`.
 - Tests: `acestep.test.ts` (`listModels` empty answer vs refused,
   timeout, and non-2xx), `splitHealth.test.ts` (each backend's states,
   and an ACE-Step failure that doesn't hide Demucs), `generate.test.ts`
@@ -6878,3 +6883,28 @@ Its callers passed that on:
   `inferenceSteps.test.ts` (non-2xx inventory falls back),
   `lookup.test.ts` (titles).
 - DESIGN.md: extend the lookup bullet with the per-backend line.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, with a fresh library. One
+imported 3s tone was used as the Editor's song.
+`ACESTEP_API_URL` and `DEMUCS_API_URL` pointed at closed ports.
+
+- `curl /api/generate/models`: 502 `{"error":"ACE-Step unreachable at
+  http://127.0.0.1:8099 (ECONNREFUSED)"}`. `/api/split/health`: 200 with
+  that `acestepError` and `demucsReason: "unreachable"`.
+- Create › ARRANGE › SPLIT A SONG: "couldn't check ACE-Step — ACE-Step
+  unreachable at … (ECONNREFUSED) · RETRY". Both backend buttons were
+  disabled. ACE-STEP was titled "couldn't check ACE-Step" and DEMUCS
+  "Demucs is not answering at DEMUCS_API_URL".
+- A stub answering 200 on `:8098/health`, then RETRY: the ACE-Step line
+  stayed, and DEMUCS became enabled and was auto-selected.
+- Editor: Add Layer and EXPORT showed "couldn't check models for Add
+  Layer / Remaster — ACE-Step unreachable at … · RETRY". SPLIT showed
+  the ACE-Step line, with DEMUCS picked and GENERATE STEMS enabled.
+- A stub ACE-Step answering an empty inventory on `:8099`, then RETRY:
+  "no downloaded model supports Add Layer / Remaster" with no error
+  line. SPLIT showed no error line, and ACE-STEP was titled "no
+  downloaded model supports extract".
+- Create's ARRANGE still says "no downloaded model supports arrange
+  generation" while ACE-Step is down (decision 6, unchanged).
