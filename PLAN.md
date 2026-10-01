@@ -5984,7 +5984,8 @@ ACE-Step's PROMPT / LYRICS / BPM / KEY / DURATION into the YUE2 draft.
 
 - ACE-STEP COVER's own SOURCE picker stays live while its ANALYZE AUDIO
   runs, and the result is applied whatever the source is by then. Same
-  class of bug, on the source; not changed here.
+  class of bug, on the source; not changed here. **Answered 2026-10-02**,
+  in the same PR: see "ACE-STEP COVER's Source Holds Still Too".
 
 ### Browser check (2026-10-02)
 
@@ -6002,3 +6003,48 @@ YuE2. COVER · YUE2, hial4 FROM LIBRARY, the row's state logged every
 - ANALYZE AUDIO on ACE-STEP: locked while it ran, released when it ended.
   ACE-Step had gone offline by then, so that run ended in "fetch failed"
   rather than a result; the lock and its release were still seen.
+
+## ACE-STEP COVER's Source Holds Still Too (planned 2026-10-02)
+
+Answers the open question in "COVER's Engine Holds Still Too", and
+supersedes decision 5 of "COVER's Source Holds Still While a Job Reads
+It" ("the ACE-Step COVER path is unchanged: its only job is GENERATE").
+ACE-STEP COVER has ANALYZE AUDIO too. Its result (PROMPT, LYRICS, BPM,
+KEY, DURATION) was applied to the draft whatever the source was by then,
+so a source picked mid-analysis got the previous one's description.
+GENERATE COVER bounces a library song down before it sends it, so a
+source picked during that bounce was a near miss as well.
+
+### Decisions
+
+1. **ACE-STEP's SOURCE picker takes the same lock as YUE2's**: while ANALYZE
+   AUDIO runs, and while a generation runs (GENERATE COVER's submit with
+   its bounce included, as YUE2's rule counts a running generation). Same
+   disabled tabs, drop zone and rows, same reason line.
+2. **`aceCoverLocks`** gives ACE-STEP COVER's two locks from its two jobs:
+   SOURCE from `sourceLockedBy`, ENGINE from `engineLockedBy` (analysis
+   only, per "COVER's Engine Holds Still Too" decision 2). This replaces
+   the inline `engineLockedBy` call in CreateAudioTab.
+
+### File-level plan
+
+- `client/src/coverDraft.ts`: `aceCoverLocks`.
+- `client/src/CreateAudioTab.tsx`: passes its locks to `CoverEngineChoice`
+  and `CoverSourcePicker`.
+- `client/src/coverDraft.test.ts`: idle locks nothing; ANALYZE AUDIO locks
+  both; a generation locks only SOURCE.
+
+### Browser check (2026-10-02)
+
+The Mulakai server and ACE-Step were both stopped by then, so the
+worktree client ran with `fetch` stubbed in the page for `/api/engines`,
+`/api/generate/models`, and an `/api/generate/analyze-audio` that answers
+a 503 after 4 s. COVER · ACE-STEP, a generated WAV as the upload:
+
+- ANALYZE AUDIO: UPLOAD / FROM LIBRARY, the drop zone, and both engine
+  tabs disabled, with both reason lines ("SOURCE is locked while ANALYZE
+  AUDIO runs…", "ENGINE is locked while…"). Clicks on FROM LIBRARY and
+  YUE2 were ignored: the upload and ACE-STEP stayed. All released when
+  the request ended (the stub's error showed).
+- GENERATE COVER's lock wasn't exercised in the browser (it would have
+  submitted a real generation); `aceCoverLocks` covers it in Vitest.
