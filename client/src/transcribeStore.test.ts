@@ -83,8 +83,48 @@ describe('transcribeStore', () => {
     const run = useTranscribeStore.getState().start('yue2', src, 'x', '');
     useCreateDraftStore.getState().patchAudio({ selectedSongId: 'song-2' });
     await tick();
-    await run;
+    expect(await run).toBe(false);
     expect(useCreateDraftStore.getState().audio.yueScore).toBeNull();
+  });
+
+  describe('says whether LYRICS hold none of the user words once the score lands', () => {
+    async function land(seed: string): Promise<boolean> {
+      jobStatus.mockResolvedValue({ status: 'done', transcription: T });
+      const run = useTranscribeStore.getState().start('yue2', src, 'x', seed);
+      await tick();
+      return run;
+    }
+
+    it('open over empty LYRICS that get only the outline', async () => {
+      expect(await land('')).toBe(true);
+      expect(useCreateDraftStore.getState().lyrics).toBe('[Intro]\n\n[Verse]');
+    });
+
+    it('open over words ANALYZE AUDIO wrote and nobody touched', async () => {
+      const described = 'Neon in the rain';
+      useCreateDraftStore.getState().patch({ lyrics: described });
+      useTranscribeStore.setState({ analyzedLyrics: described });
+      expect(await land('')).toBe(true);
+    });
+
+    it('open over typed tags with no words', async () => {
+      useCreateDraftStore.getState().patch({ lyrics: '[Verse]\n\n[Chorus]' });
+      expect(await land('')).toBe(true);
+    });
+
+    it('closed over typed words, or a library song seeded with its own', async () => {
+      useCreateDraftStore.getState().patch({ lyrics: 'my words' });
+      expect(await land('')).toBe(false);
+      useCreateDraftStore.getState().patch({ lyrics: '' });
+      expect(await land('Midnight city')).toBe(false);
+    });
+
+    it('closed when the job fails', async () => {
+      jobStatus.mockResolvedValue({ status: 'failed', error: 'no score' });
+      const run = useTranscribeStore.getState().start('yue2', src, 'x', '');
+      await tick();
+      expect(await run).toBe(false);
+    });
   });
 
   it('reports a failed submit or job, and a new source clears a transcribed score', async () => {

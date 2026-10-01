@@ -20,9 +20,10 @@ interface ReadLyricsState {
   placed: string | null;
   /** How the last placement went, for the outcome line. */
   outcome: Placement | null;
-  /** The VOCAL LANGUAGE READ LYRICS filled in itself. While VOCAL LANGUAGE still holds it, the
-   * next read auto-detects again: forcing a language that was only a guess made Whisper
-   * translate a German song's verses into English (PLAN.md "READ LYRICS on COVER · YUE2"). */
+  /** The VOCAL LANGUAGE READ LYRICS (or ANALYZE AUDIO) filled in itself. While VOCAL LANGUAGE
+   * still holds it, the next read auto-detects again: forcing a language that was only a guess
+   * made Whisper translate a German song's verses into English (PLAN.md "READ LYRICS on COVER
+   * · YUE2"). */
   filledLanguage: string | null;
   /** `language` '' = auto-detect. `sings` is the engine's languages: an AUTO VOCAL LANGUAGE takes
    * the one heard only when the engine sings it, as ANALYZE AUDIO does. */

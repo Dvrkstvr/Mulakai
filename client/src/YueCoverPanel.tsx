@@ -58,7 +58,9 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
       const song = audio.source === 'library' ? songs.find((s) => s.id === audio.selectedSongId) : undefined;
       const blob = await resolveCoverSource(audio); // a library song is bounced down client-side first
       setPreparing(false);
-      await tr.start(engine, blob, song?.title ?? audio.uploadFile?.name ?? 'source', song?.lyrics ?? '');
+      const label = song?.title ?? audio.uploadFile?.name ?? 'source';
+      const lyricsOpen = await tr.start(engine, blob, label, song?.lyrics ?? '');
+      await read.auto(blob, label, lyricsOpen);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -90,8 +92,9 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
           onChange={(e) => { void loadScoreFile(e.target.files?.[0]); e.target.value = ''; }} />
       </div>
       <div className="hint">
-        TRANSCRIBE reads the source&apos;s melody into a score · nothing is saved to your library · USE .ABC FILE
-        swaps in a score you corrected elsewhere
+        TRANSCRIBE reads the source&apos;s melody into a score
+        {audio.source === 'upload' && read.autoOn && ' · then READ LYRICS reads its words into LYRICS, unless they hold yours'}
+        {' '}· nothing is saved to your library · USE .ABC FILE swaps in a score you corrected elsewhere
       </div>
       {read.notes}
       {(error || tr.error) && <div className="error">{error || tr.error}</div>}

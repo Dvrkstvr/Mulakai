@@ -6,6 +6,7 @@ import { useEngineCaps } from './useEngineCaps';
 import { coverSourceKey, coverSourceReady, resolveCoverSource } from './coverSource';
 import { liveLanguage } from './engineCaps';
 import { hasWords } from './coverLyrics';
+import { shouldAutoRead } from './autoReadLyrics';
 
 type Health = { configured: boolean; ready: boolean };
 
@@ -13,7 +14,14 @@ type Health = { configured: boolean; ready: boolean };
  * source, read into LYRICS under the score's sections by when they're sung. Returns the button
  * for the score-actions row and the notes that go under it; nothing at all when no lyrics-server
  * is configured, the same no-row-until-available rule as ENGINE. */
-export function useReadLyrics(songs: Song[], blocked: boolean): { button: ReactNode; notes: ReactNode; running: boolean } {
+export function useReadLyrics(songs: Song[], blocked: boolean): {
+  button: ReactNode; notes: ReactNode; running: boolean;
+  /** Whether a lyrics reader is set up and answering, so TRANSCRIBE may read an upload's words. */
+  autoOn: boolean;
+  /** TRANSCRIBE's own read once its score lands (PLAN.md "READ LYRICS With TRANSCRIBE for
+   * Uploads"); `lyricsOpen` is transcribeStore.start's answer. */
+  auto: (blob: Blob, label: string, lyricsOpen: boolean) => Promise<void>;
+} {
   const audio = useCreateDraftStore((s) => s.audio);
   const lyrics = useCreateDraftStore((s) => s.lyrics);
   const vocalLanguage = useCreateDraftStore((s) => s.vocalLanguage);
@@ -37,9 +45,22 @@ export function useReadLyrics(songs: Song[], blocked: boolean): { button: ReactN
   useEffect(() => { useReadLyricsStore.getState().follow(); }, [score?.abc, dropped]);
 
   const running = rl.stage === 'running' || preparing;
-  if (!health?.configured) return { button: null, notes: null, running };
-
   const caps = info?.capabilities ?? null;
+  const autoOn = !!health?.ready;
+  const auto = async (blob: Blob, label: string, lyricsOpen: boolean) => {
+    // Read from the stores, not this render: TRANSCRIBE ran for a while since it was clicked.
+    const draft = useCreateDraftStore.getState();
+    const go = shouldAutoRead({
+      source: draft.audio.source, lyricsOpen, readerReady: autoOn,
+      sourceKey: coverSourceKey(draft.audio), readSourceKey: useReadLyricsStore.getState().sourceKey,
+    });
+    if (!go) return;
+    setConfirm(false);
+    setError('');
+    await useReadLyricsStore.getState().start(blob, label, liveLanguage(draft.vocalLanguage, caps), caps?.languages ?? 'any');
+  };
+  if (!health?.configured) return { button: null, notes: null, running, autoOn, auto };
+
   const userWords = hasWords(lyrics) && lyrics !== rl.placed;
   const armed = confirm && userWords && !blocked && !running;
   const ours = !!rl.reading && rl.sourceKey === coverSourceKey(audio);
@@ -96,7 +117,7 @@ export function useReadLyrics(songs: Song[], blocked: boolean): { button: ReactN
       )}
     </>
   );
-  return { button, notes, running };
+  return { button, notes, running, autoOn, auto };
 }
 
 function outcomeLine(lines: number, leftOut: number, placed: boolean): string {

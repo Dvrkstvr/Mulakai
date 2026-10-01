@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useCreateDraftStore } from './createDraftStore';
 import { useTranscribeStore } from './transcribeStore';
+import { useReadLyricsStore } from './readLyricsStore';
 import { useEngineCaps } from './useEngineCaps';
 import { canAnalyze, useAnalyzeSourceAudio, type AnalyzeSource } from './useAnalyzeSourceAudio';
 import { coverSourceKey, coverSourceReady, resolveCoverSource } from './coverSource';
@@ -17,6 +18,9 @@ export function YueCoverAnalyze({ blocked, noModel }: { blocked: boolean; noMode
   const patch = useCreateDraftStore((s) => s.patch);
   const { info } = useEngineCaps();
   const { analyze, analyzing, error, result } = useAnalyzeSourceAudio();
+  // Once READ LYRICS has written LYRICS, they are no longer what ACE-Step heard.
+  const lyrics = useCreateDraftStore((s) => s.lyrics);
+  const readOwns = useReadLyricsStore((s) => s.placed) === lyrics;
   const [outcome, setOutcome] = useState<YueAnalysis | null>(null);
   const [caption, setCaption] = useState('');
   const sourceRef = useRef<string | null>(null);
@@ -34,6 +38,9 @@ export function YueCoverAnalyze({ blocked, noModel }: { blocked: boolean; noMode
     if (Object.keys(a.patch).length) patch(a.patch);
     // Without a score yet, the words follow the one TRANSCRIBE brings (transcribeStore).
     if (a.patch.lyrics && !d.audio.yueScore) useTranscribeStore.setState({ analyzedLyrics: a.patch.lyrics });
+    // ACE-Step's language is a guess from words it made up: READ LYRICS must not force it, or
+    // Whisper translates the song into it (PLAN.md "READ LYRICS With TRANSCRIBE for Uploads").
+    if (a.patch.vocalLanguage) useReadLyricsStore.setState({ filledLanguage: a.patch.vocalLanguage });
     setOutcome(a);
     setCaption(result.caption);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -56,7 +63,7 @@ export function YueCoverAnalyze({ blocked, noModel }: { blocked: boolean; noMode
       {noModel && <div className="hint">ANALYZE AUDIO needs ACE-Step running with a model that can cover</div>}
       {!source && audio.yueScore && <div className="hint">pick a source to analyze — a reused score has no audio</div>}
       {error && <div className="error">{error}</div>}
-      {outcome && <div className="hint">{outcomeLine(outcome)}</div>}
+      {outcome && <div className="hint">{outcomeLine(outcome, readOwns)}</div>}
       {outcome?.unsung && (
         <div className="warn-note">
           ACE-Step heard the words in {outcome.unsung.toUpperCase()} — {info?.label ?? 'YUE2'} sings{' '}
@@ -74,11 +81,12 @@ export function YueCoverAnalyze({ blocked, noModel }: { blocked: boolean; noMode
   );
 }
 
-function outcomeLine({ prompt, lyrics }: YueAnalysis): string {
+function outcomeLine({ prompt, lyrics }: YueAnalysis, readOwns: boolean): string {
   const p = prompt === 'tags' ? "PROMPT holds the description's style as tags — edit freely"
     : prompt === 'prose' ? 'no style tags recognised: PROMPT holds the description as written — trim it to tags'
       : 'PROMPT kept as typed';
-  const l = lyrics === 'filled' ? 'LYRICS are what ACE-Step heard, not a transcription — check them against the recording'
+  const l = readOwns ? 'LYRICS now hold what READ LYRICS read'
+    : lyrics === 'filled' ? 'LYRICS are what ACE-Step heard, not a transcription — check them against the recording'
     : lyrics === 'none' ? 'ACE-Step heard no words' : 'LYRICS kept as typed';
   return `${p} · ${l}`;
 }
