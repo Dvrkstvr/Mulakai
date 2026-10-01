@@ -31,6 +31,10 @@
   stops the engine at the duration (play again restarts from 0), guarded by a
   per-start generation token so manual pause/seek/restart/reload can't trip it —
   PR #85 (was #1).
+- demucs-server ran each split inside `async def`, so `/health` read the service as
+  down mid-job, and every split's files stayed on disk forever. `/split` now runs in
+  the threadpool, failed splits remove their job dir, and each stem is deleted once
+  downloaded or swept after a TTL; uvr-server had the same leak — PR #80 (was #3).
 
 ## 🔴 High — broken or data-risky behavior
 
