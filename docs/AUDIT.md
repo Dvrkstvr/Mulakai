@@ -26,10 +26,15 @@
   versions. Stem files are now append-only (unique names), a re-extract keeps only its
   own stem and reads the split's original source, and unclaimed files are deleted on
   supersede/cancel — PR #81 (was #2).
+- Playback never ended: no `onended` on any source, so the Editor stayed "playing"
+  with `currentTime()` growing past the song forever. The longest layer's end now
+  stops the engine at the duration (play again restarts from 0), guarded by a
+  per-start generation token so manual pause/seek/restart/reload can't trip it —
+  PR #85 (was #1).
 
 ## 🔴 High — broken or data-risky behavior
 
-### 1. Playback never ends
+### 1. ~~Playback never ends~~ — fixed, PR #85
 `client/src/mix/playbackEngine.ts` — no `onended` on any `AudioBufferSourceNode`;
 after the last buffer plays out, `playing` stays true and `currentTime()` grows past
 `duration` forever. Play button shows pause forever; elapsed readout runs on.

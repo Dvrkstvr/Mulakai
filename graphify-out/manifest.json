@@ -360,8 +360,8 @@
     "semantic_hash": ""
   },
   "client/src/mix/playbackEngine.ts": {
-    "mtime": 1790893261.433916,
-    "ast_hash": "35bb7beec4f39da6c8526dd3af015cd9",
+    "mtime": 1790896183.9679537,
+    "ast_hash": "30c773b95c793667e49133ee72f76a85",
     "semantic_hash": ""
   },
   "client/src/mix/playerApi.ts": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790896115.8480794,
-    "ast_hash": "88f93434e61614267d3326bcb4a19ecd",
+    "mtime": 1790896183.9679537,
+    "ast_hash": "2b0c48da3fa923f1e0fb42668977eea2",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1947,6 +1947,11 @@
   "server/src/services/stemSplit.reextract.test.ts": {
     "mtime": 1790896115.885376,
     "ast_hash": "02b9b463ce3c3acbf10588cf167bbc2a",
+    "semantic_hash": ""
+  },
+  "client/src/mix/playbackEngine.test.ts": {
+    "mtime": 1790896183.9674551,
+    "ast_hash": "3d30acfff4c93c8d6811ae0a71ae236e",
     "semantic_hash": ""
   },
   "demucs-server/api.py": {
