@@ -23,6 +23,7 @@ vi.mock('../services/scratchSplitJobs.js', () => ({
 
 const scratchSplitJobs = await import('../services/scratchSplitJobs.js');
 const { splitRouter } = await import('./split.js');
+const { config } = await import('../config.js');
 
 let server: Server;
 let baseUrl: string;
@@ -135,5 +136,58 @@ describe('POST /scratch/:jobId/discard', () => {
     const res = await fetch(`${baseUrl}/scratch/scratch-job-1/discard`, { method: 'POST' });
     expect(res.status).toBe(200);
     expect(scratchSplitJobs.discardScratchSplit).toHaveBeenCalledWith('scratch-job-1');
+  });
+});
+
+describe('GET /health', () => {
+  // A stand-in for the service behind DEMUCS_API_URL; each test sets how it answers.
+  let answer: (res: express.Response) => void = (res) => res.json({ ok: true });
+  let service: Server;
+  let serviceUrl: string;
+
+  beforeAll(async () => {
+    const app = express();
+    app.get('/health', (_req, res) => answer(res));
+    await new Promise<void>((resolve) => {
+      service = app.listen(0, resolve);
+    });
+    const address = service.address();
+    serviceUrl = `http://127.0.0.1:${typeof address === 'object' && address ? address.port : 0}`;
+  });
+
+  afterAll(() => {
+    config.demucsUrl = '';
+    return new Promise<void>((resolve) => service.close(() => resolve()));
+  });
+
+  const health = async () => (await fetch(`${baseUrl}/health`)).json();
+
+  it('names uvr-server when its health says backend "uvr"', async () => {
+    config.demucsUrl = serviceUrl;
+    answer = (res) => res.json({ ok: true, backend: 'uvr', model: 'Roformer Model: BS-Roformer-Viperx-1297' });
+    expect(await health()).toEqual({ acestep: false, demucs: true, demucsBackend: 'uvr' });
+  });
+
+  it('names demucs-server, whose health has no backend field', async () => {
+    config.demucsUrl = serviceUrl;
+    answer = (res) => res.json({ ok: true, model: 'htdemucs' });
+    expect(await health()).toEqual({ acestep: false, demucs: true, demucsBackend: 'demucs' });
+  });
+
+  it('treats a healthy answer that is not JSON as demucs', async () => {
+    config.demucsUrl = serviceUrl;
+    answer = (res) => res.send('ok');
+    expect(await health()).toEqual({ acestep: false, demucs: true, demucsBackend: 'demucs' });
+  });
+
+  it('reports no backend when the service answers with an error', async () => {
+    config.demucsUrl = serviceUrl;
+    answer = (res) => res.status(500).json({ ok: false, backend: 'uvr' });
+    expect(await health()).toEqual({ acestep: false, demucs: false, demucsBackend: null });
+  });
+
+  it('reports no backend when DEMUCS_API_URL is unset', async () => {
+    config.demucsUrl = '';
+    expect(await health()).toEqual({ acestep: false, demucs: false, demucsBackend: null });
   });
 });

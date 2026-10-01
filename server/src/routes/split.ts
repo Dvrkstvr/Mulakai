@@ -35,15 +35,21 @@ splitRouter.get('/health', async (_req, res) => {
   const { models } = await listModels();
   const acestep = models.some((m) => m.supportedTaskTypes.includes('extract'));
   let demucs = false;
+  let demucsBackend: 'demucs' | 'uvr' | null = null;
   if (config.demucsUrl) {
     try {
       const r = await fetch(`${config.demucsUrl}/health`);
       demucs = r.ok;
+      if (r.ok) {
+        // uvr-server sends `backend: "uvr"`; demucs-server sends no backend at all.
+        const body = (await r.json().catch(() => null)) as { backend?: unknown } | null;
+        demucsBackend = body?.backend === 'uvr' ? 'uvr' : 'demucs';
+      }
     } catch {
       demucs = false;
     }
   }
-  res.json({ acestep, demucs });
+  res.json({ acestep, demucs, demucsBackend });
 });
 
 /** Standalone stem split: upload any audio file, get stems back with no song/library entry
