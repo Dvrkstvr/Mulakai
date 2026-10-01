@@ -10,13 +10,13 @@ import { resolveReferenceAudioFile } from '../services/referenceAudioResolve.js'
 import { getVoiceName } from '../services/voiceConditioning.js';
 import type { ReferenceAudioMeta } from '../services/jobs.js';
 import { GenLockError, releaseGenLock } from '../services/genLock.js';
+import { analyzeUnderLock } from '../services/analyzeJobs.js';
 import {
   health,
   listModels,
   formatInput,
   createRandomSample,
   createSampleFromQuery,
-  analyzeAudio,
   type ReleaseTaskParams,
 } from '../services/acestep.js';
 
@@ -182,7 +182,8 @@ generateRouter.post(
 
 /** "Describe this audio for me" — analyzes an uploaded source track (or a scratch stem,
  * same dual-source resolution `/complete` uses above) via ACE-Step's `/v1/analyze_audio`
- * and returns its caption/lyrics/metadata guess for the client to prefill Create fields. */
+ * and returns its caption/lyrics/metadata guess for the client to prefill Create fields.
+ * Holds the genLock (`analyze`) for the call, so it 409s next to any other job. */
 generateRouter.post('/analyze-audio', upload.fields([{ name: 'src_audio', maxCount: 1 }]), async (req, res) => {
   const { scratch_job_id, scratch_stem_kind, model } = req.body ?? {};
   const files = (req.files ?? {}) as Record<string, Express.Multer.File[] | undefined>;
@@ -200,8 +201,9 @@ generateRouter.post('/analyze-audio', upload.fields([{ name: 'src_audio', maxCou
     }
     if (!file) return res.status(400).json({ error: 'src_audio or scratch_job_id/scratch_stem_kind is required' });
 
-    res.json(await analyzeAudio(file, model ? String(model) : undefined));
+    res.json(await analyzeUnderLock(file, model ? String(model) : undefined));
   } catch (err) {
+    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
   }
 });
@@ -275,7 +277,7 @@ generateRouter.post('/active/abort', (_req, res) => {
   const { lock } = getActiveGeneration();
   if (!lock) return res.json({ ok: true, aborted: false });
   if (lock.kind === 'split') {
-    cancelSplit(lock.jobId);
+    void cancelSplit(lock.jobId).catch(() => {});
     void discardScratchSplit(lock.jobId).catch(() => {});
   } else {
     abortJob(lock.jobId);

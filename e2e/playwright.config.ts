@@ -7,6 +7,7 @@ import { DATA_ROOT } from './data-dir';
 // process's directory instead of minting their own.
 process.env.MULAKAI_E2E_DATA_DIR ??= path.join(DATA_ROOT, String(Date.now()));
 const dataDir = process.env.MULAKAI_E2E_DATA_DIR;
+const ci = !!process.env.CI;
 
 export default defineConfig({
   testDir: './tests',
@@ -14,9 +15,14 @@ export default defineConfig({
   // One global generation lock in the app, one song flow per spec.
   fullyParallel: false,
   workers: 1,
+  // A stray test.only fails CI. No retries anywhere: a flaky step should show, not be retried away.
+  forbidOnly: ci,
+  retries: 0,
   timeout: 120_000,
   expect: { timeout: 15_000 },
-  reporter: [['list'], ['html', { open: 'never' }]],
+  reporter: ci
+    ? [['list'], ['github'], ['html', { open: 'never' }]]
+    : [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: `http://127.0.0.1:${PORTS.client}`,
     viewport: { width: 1440, height: 900 },

@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import type { CreateDraft } from './createDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { busyMessage } from './generationJob';
 import { useEngineCaps } from './useEngineCaps';
 import { useSettings, outputParams } from './settings';
 import { AUTO_CONTROLS, useEngineSettings } from './engineSettings';
@@ -25,7 +25,7 @@ export function YueCoverGenerate({ onBack, blocked, analyze }: { onBack: () => v
   const { id: engine, info, unavailable } = useEngineCaps();
   const gen = useSettings((s) => s.gen);
   const controls = useEngineSettings((s) => s.values[engine]);
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
+  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const startCover = useGenerationStore((s) => s.startCover);
   const dismiss = useGenerationStore((s) => s.dismiss);
   const [submitting, setSubmitting] = useState(false);
@@ -92,8 +92,8 @@ export function YueCoverGenerate({ onBack, blocked, analyze }: { onBack: () => v
       <CustomSelect label="VOCAL LANGUAGE" value={liveLanguage(vocalLanguage, caps)} options={languageOptions(caps)}
         onChange={(v) => patch({ vocalLanguage: v })} />
 
-      <GenerateButton submitting={submitting} blocked={genRunning} label="GENERATE COVER"
-        disabled={submitting || genRunning || blocked || unavailable || !score || !caps || overBudget} onClick={generate} />
+      <GenerateButton submitting={submitting} blocked={blockedBy} label="GENERATE COVER"
+        disabled={submitting || !!blockedBy || blocked || unavailable || !score || !caps || overBudget} onClick={generate} />
       <div className="hint">
         {info?.label ?? 'YUE2'} melody cover · keeps the source&apos;s melody, not its voice or sound
         {instrumental ? ' · no lyrics: an instrumental, where an instrument plays the melody, followed more loosely' : ''}

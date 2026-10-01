@@ -13,10 +13,15 @@ export interface LyricSegment extends LyricWord {
   words: LyricWord[];
 }
 
-/** What a finished READ LYRICS job carries (`GET /api/generate/:jobId`'s `lyrics`). */
-export interface LyricsReading {
+/** A reading as lyrics-server returns it. A version's stored one (`Version.wordTimings`)
+ * times the Editor's lyric lines (PLAN.md "Editor Word Timestamps"). */
+export interface WordTimings {
   language: string;
   segments: LyricSegment[];
+}
+
+/** What a finished READ LYRICS job carries (`GET /api/generate/:jobId`'s `lyrics`). */
+export interface LyricsReading extends WordTimings {
   sourceLabel: string;
 }
 

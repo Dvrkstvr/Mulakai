@@ -54,8 +54,10 @@ uv run acestep --port 8001 --enable-api --backend pt --server-name 127.0.0.1
 (`e2e/fake-acestep/`), server 3101 with a throwaway `DATA_DIR`, Vite 5183 —
 so it runs beside a dev stack. If a hard-killed run orphans one of them,
 the next run fails with "port in use": find the PID with
-`Get-NetTCPConnection -LocalPort <port>` and stop it. Design: PLAN.md
-"Playwright Golden-Path E2E".
+`Get-NetTCPConnection -LocalPort <port>` and stop it. CI runs the same
+e2e on Ubuntu for every PR into `main` (`.github/workflows/e2e.yml`; failed
+runs upload the report and traces). Design: PLAN.md "Playwright
+Golden-Path E2E".
 
 ## Design System
 
