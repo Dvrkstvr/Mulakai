@@ -5283,7 +5283,8 @@ Covers: Pick the Score's Sections" changed it.
 - **Still open:** running READ LYRICS automatically with TRANSCRIBE for an
   upload (spike open question 2). v1 keeps it explicit, as decision 3
   says. The spike's numbers make the automatic version cheap, so it is the
-  user's call after trying v1.
+  user's call after trying v1. *Decided 2026-10-01: it runs automatically;
+  see "READ LYRICS With TRANSCRIBE for Uploads".*
 
 #### READ LYRICS browser check (2026-10-01)
 
@@ -5338,6 +5339,104 @@ was written for.
 - READ LYRICS before any score; unit tests cover it.
 - How the cover *sounds*, given German words on an engine that sings
   EN/ZH, which the warn-note covers.
+
+## READ LYRICS With TRANSCRIBE for Uploads (planned 2026-10-01)
+
+The user's call on spike open question 2: TRANSCRIBE on an upload runs
+READ LYRICS by itself once the score lands. An upload has no stored words,
+so without this every upload cover needed a second click. The spike's
+numbers make it cheap: 3–15 s of ASR after a 3 s load, no split.
+
+### Decisions
+
+1. **After the score, not beside it.** The genLock serialises the two jobs
+   anyway, and reading second means the words are placed against the
+   fresh score's `sectionStarts` at once, with no tempo-grid estimate.
+2. **Uploads only.** A library song brings its own stored words as LYRICS'
+   seed, so a read there would mostly be thrown away. READ LYRICS stays a
+   click for a library song.
+3. **Only over LYRICS with none of the user's words**, judged when the score
+   lands: no words at all (empty, or the score's outline), or ANALYZE
+   AUDIO's words still untouched. ANALYZE's words are a description, not a
+   transcription (WER about 1.0 in the spike), and a typical upload runs
+   ANALYZE AUDIO first for its PROMPT, so skipping them would make the
+   automatic read rarely fire. Anything typed is left alone, and the
+   button's `REPLACE LYRICS? CONFIRM` two-step is unchanged.
+4. **Not again for a source already read.** TRANSCRIBE AGAIN re-places a
+   stored reading (`follow`), so a second read would only repeat it.
+5. **Only when lyrics-server is configured and answering.** Otherwise
+   TRANSCRIBE behaves as before; the READ LYRICS reason line already says
+   why.
+6. **The consequence line says so.** For an upload with a lyrics reader,
+   TRANSCRIBE's hint gains "· then READ LYRICS reads its words into LYRICS,
+   unless they hold yours". While it runs, the button reads `READING
+   LYRICS…` as for a click, and TRANSCRIBE stays disabled.
+7. **ANALYZE AUDIO's outcome line stops claiming LYRICS** once READ LYRICS
+   has replaced its words. It said "LYRICS are what ACE-Step heard", which
+   a read makes false. This also fixes the same stale line after a
+   confirmed manual read.
+8. A failed automatic read shows READ LYRICS' error line, as a click does.
+   The score is already in and stays.
+9. **ANALYZE AUDIO's VOCAL LANGUAGE is a guess too** (found in the browser
+   check). ANALYZE fills an AUTO VOCAL LANGUAGE from words it made up, and
+   READ LYRICS then forced it. Whisper translated the German verses into
+   English, the same failure as "READ LYRICS browser check" point 3.
+   ANALYZE now records its language as `readLyricsStore.filledLanguage`,
+   so a read auto-detects while VOCAL LANGUAGE still holds it and puts it
+   back to AUTO when it hears a language the engine doesn't sing. This
+   also covers a manual read after ANALYZE.
+
+### Files
+
+- `transcribeStore.ts`: `start` resolves `true` when the score landed on
+  the same source over LYRICS with none of the user's words (decision 3).
+  Test.
+- `autoReadLyrics.ts` (new, pure): `shouldAutoRead` combines decisions 2,
+  4 and 5 with the store's answer. Test.
+- `YueReadLyrics.tsx`: returns `auto(blob, label)` and `autoOn`; `auto`
+  reads VOCAL LANGUAGE from the store when it runs, not from the render
+  that started TRANSCRIBE.
+- `YueCoverPanel.tsx`: after `tr.start`, calls `read.auto` with the blob
+  TRANSCRIBE already resolved; the consequence line.
+- `YueCoverAnalyze.tsx`: decisions 7 and 9.
+- DESIGN.md in its own commit.
+
+**Browser check:** a worktree client on 5174 against the user's running
+server and services (no server change). Upload → ANALYZE AUDIO →
+TRANSCRIBE → the read starts by itself → words under the sections; then
+TRANSCRIBE AGAIN starts no second read; then a typed edit + new upload
+keeps typed words.
+
+#### Browser check (2026-10-01)
+
+A worktree client on 5174 against the user's running server, YuE2 and
+lyrics-server. The source was the real upload *Kopf hoch und Tanz.mp3*
+(7:46, German), with VOCAL LANGUAGE AUTO and LYRICS empty.
+1. **ANALYZE AUDIO** (65 s) filled PROMPT, invented English LYRICS, and
+   set VOCAL LANGUAGE to EN.
+2. **TRANSCRIBE** (55 s): the score landed, and READ LYRICS started by
+   itself at once. TRANSCRIBE AGAIN stayed disabled while it ran.
+   - *First run, before decision 9:* the read forced ANALYZE's EN, and the
+     verses came back translated ("Hey, hey you, what's going on with you
+     tonight?").
+   - *After decision 9 (19 s):* 22 lines in German, each under its section
+     ([Verse], [Chorus], an empty [Interlude], [Bridge]). VOCAL LANGUAGE
+     went back to AUTO with the "heard the words in DE" warn-note.
+     ANALYZE's outcome line read "LYRICS now hold what READ LYRICS read".
+3. **TRANSCRIBE AGAIN** (55 s): no second read, and LYRICS were unchanged.
+
+**Not checked in the browser** (unit tests cover them):
+- typed words left alone;
+- a library source not read.
+
+**Unexplained, from the first run:** the score was cleared while the
+read ran, with the same upload still picked. LYRICS got the read's lines
+untagged. The instrumented rerun didn't repeat it, and nothing in this
+change writes the source. The one path that clears a transcribed score
+is `withSourceChange` seeing a new `uploadFile` object. The drop zone
+stays live while TRANSCRIBE and READ LYRICS run, so a re-pick during the
+check would explain it. Locking the source picker while a cover job runs
+is a separate fix.
 
 ## ANALYZE AUDIO on COVER · YUE2 (planned 2026-10-01)
 

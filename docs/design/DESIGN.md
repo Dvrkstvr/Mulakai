@@ -398,6 +398,14 @@ requiring its own justification against a screen-count rule.
            - **Replacing typed words:** LYRICS holding the user's own words
              are replaced only after the FEELING LUCKY two-step. The button
              arms as `REPLACE LYRICS? CONFIRM`, with a hint naming what goes.
+           - **With TRANSCRIBE, for an upload** (added 2026-10-01): once the
+             score lands, READ LYRICS runs by itself when LYRICS hold none of
+             the user's words (empty, the outline, or ANALYZE AUDIO's
+             untouched guess). It never runs twice for one source. The button
+             reads `READING LYRICS…` as for a click. TRANSCRIBE's consequence
+             line says so up front: "· then READ LYRICS reads its words into
+             LYRICS, unless they hold yours". There is no new control; the
+             button stays for a re-read.
            - **Warnings:** each is a `.warn-note`, a state to resolve, not a
              failed click.
              - A score without downbeat times (a file, a reused cover) gets
