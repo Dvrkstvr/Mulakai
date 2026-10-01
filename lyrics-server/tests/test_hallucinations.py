@@ -19,6 +19,8 @@ def test_segments_without_letters_go():
 def test_subtitle_cues_go_only_as_a_whole_segment():
     assert texts("... Musik ...", "Ich tanz im Loop", "[Music]", "Die Musik ist laut") == [
         "Ich tanz im Loop", "Die Musik ist laut"]
+    assert texts("We'll be right back.", "Kopf hoch und tanz", "We'll be right back") == ["Kopf hoch und tanz"]
+    assert texts("I'll be right back to you") == ["I'll be right back to you"]
 
 
 def test_singable_phrases_go_only_at_the_end():
