@@ -16,6 +16,14 @@ export interface Transcription {
   hasPreview: boolean;
 }
 
+/** A cover score's planner tokens: the header and each `% name` section, which add up to the
+ * whole (PLAN.md "YuE2 Covers: Pick the Score's Sections"). */
+export interface ScoreSize {
+  budget: number;
+  header: number;
+  sections: { name: string; tokens: number }[];
+}
+
 export const coversApi = {
   transcribe: (engine: EngineId, srcAudio: Blob, sourceLabel: string): Promise<{ jobId: string }> => {
     const form = new FormData();
@@ -39,5 +47,15 @@ export const coversApi = {
   coverSourceScore: async (engine: EngineId, songId: string): Promise<string | null> => {
     const res = await fetch(`/api/engines/${engine}/covers/${songId}/score`);
     return res.ok ? res.text() : null;
+  },
+
+  /** The score's size in the planner's tokens, per section; null when the engine can't say. */
+  scoreSize: async (engine: EngineId, abc: string): Promise<ScoreSize | null> => {
+    const res = await fetch(`/api/engines/${engine}/score-size`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ abc }),
+    });
+    return res.status === 204 ? null : json<ScoreSize>(res);
   },
 };

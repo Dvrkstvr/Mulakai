@@ -3686,3 +3686,19 @@ button.acid-outline:not(:disabled):hover {
   color: var(--text-mid);
   margin: 6px 0 0;
 }
+
+/* SECTIONS in a YuE2 cover's score review: the Editor's section strip, kept sections sky (the
+   scope of what will be sung), a left-out one carbon and struck through. The token count turns
+   rust while the cut is over the planner's budget, matching the warn-note under it. */
+.score-sections .section-strip {
+  margin-top: 4px;
+}
+
+.score-sections .section-seg.dropped span {
+  text-decoration: line-through;
+  color: var(--text-low);
+}
+
+.score-sections .meta.over {
+  color: var(--rust-text);
+}
