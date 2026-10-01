@@ -8,7 +8,7 @@ vi.mock('./api', () => ({
   api: { listModels: () => listModels(), splitHealth: () => splitHealth(), listVoices: () => listVoices() },
 }));
 
-const { lookupRunner, modelsFor } = await import('./lookup');
+const { lookupRunner, modelsFor, splitBackendTitle } = await import('./lookup');
 const { useVoiceStore } = await import('./voiceStore');
 
 const offline = () => Promise.reject(new TypeError('Failed to fetch'));
@@ -79,5 +79,25 @@ describe("a failed lookup isn't an answer", () => {
     const states = await run(useVoiceStore.getState().fetchVoices);
     expect(states.at(-1)?.error).toBe('HTTP 502');
     expect(useVoiceStore.getState().voices).toEqual([]);
+  });
+});
+
+describe('splitBackendTitle', () => {
+  const up = { acestep: true, acestepError: null, demucs: true, demucsReason: null };
+
+  it('says nothing about a backend that is up', () => {
+    expect(splitBackendTitle(up, 'acestep')).toBeUndefined();
+    expect(splitBackendTitle(up, 'demucs')).toBeUndefined();
+  });
+
+  it('tells "no extract model" apart from "couldn\'t check ACE-Step"', () => {
+    expect(splitBackendTitle({ ...up, acestep: false }, 'acestep')).toMatch(/no downloaded model supports extract/);
+    expect(splitBackendTitle({ ...up, acestep: false, acestepError: 'ACE-Step unreachable at x (ECONNREFUSED)' }, 'acestep'))
+      .toBe("couldn't check ACE-Step");
+  });
+
+  it('tells an unset DEMUCS_API_URL apart from one that is not answering', () => {
+    expect(splitBackendTitle({ ...up, demucs: false, demucsReason: 'unset' }, 'demucs')).toMatch(/not configured \(DEMUCS_API_URL unset\)/);
+    expect(splitBackendTitle({ ...up, demucs: false, demucsReason: 'unreachable' }, 'demucs')).toMatch(/not answering at DEMUCS_API_URL/);
   });
 });
