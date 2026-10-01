@@ -5,14 +5,6 @@
 > These are logic, security, and consistency issues that tooling doesn't catch.
 > Ordered by severity. Line references were accurate at snapshot time — re-verify before fixing.
 
-## Fixed since the 2026-07-31 snapshot
-
-- Playback never ended: no `onended` on any source, so the Editor stayed "playing"
-  with `currentTime()` growing past the song forever. The longest layer's end now
-  stops the engine at the duration (play again restarts from 0), guarded by a
-  per-start generation token so manual pause/seek/restart/reload can't trip it —
-  PR #85 (was #1).
-
 ## Fixed since the 2026-07-08 audit
 
 - Editor job polling died after the first progress tick (every repaint/add-layer/
@@ -34,11 +26,20 @@
   versions. Stem files are now append-only (unique names), a re-extract keeps only its
   own stem and reads the split's original source, and unclaimed files are deleted on
   supersede/cancel — PR #81 (was #2).
+- Playback never ended: no `onended` on any source, so the Editor stayed "playing"
+  with `currentTime()` growing past the song forever. The longest layer's end now
+  stops the engine at the duration (play again restarts from 0), guarded by a
+  per-start generation token so manual pause/seek/restart/reload can't trip it —
+  PR #85 (was #1).
 
 ## 🔴 High — broken or data-risky behavior
 
 ### 1. ~~Playback never ends~~ — fixed, PR #85
-See "Fixed since the 2026-07-31 snapshot" above. Numbering below is kept as-is.
+`client/src/mix/playbackEngine.ts` — no `onended` on any `AudioBufferSourceNode`;
+after the last buffer plays out, `playing` stays true and `currentTime()` grows past
+`duration` forever. Play button shows pause forever; elapsed readout runs on.
+- **Fix:** arm `onended` on the longest source (or compare `currentTime() >= duration`)
+  and flip to stopped. Add the missing playbackEngine test.
 
 ### 2. ~~Demucs re-extract silently overwrites already-claimed stems~~ — fixed, PR #81
 `server/src/services/stemSplit.ts` — `reextractStem('demucs')` re-runs the full
