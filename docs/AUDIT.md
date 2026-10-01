@@ -159,14 +159,14 @@ responsibility (no behaviour change; every resulting file ≤150):
 
 | Module | LOC | PR |
 |---|---|---|
-| `server/src/services/acestep.ts` | 539 | #74 |
-| `client/src/settings.ts` | 329 | #75 |
+| `server/src/services/acestep.ts` | 539 | #74 (merged) |
+| `client/src/settings.ts` | 329 | #75 (merged) |
 | `client/src/Editor.tsx` | 320 | #82 |
-| `client/src/App.tsx` | 317 | #77 |
+| `client/src/App.tsx` | 317 | #77 (merged) |
 | `server/src/routes/generate.ts` | 298 | #72 |
-| `server/src/services/jobs.ts` | 283 | #73 |
+| `server/src/services/jobs.ts` | 283 | #73 (merged) |
 | `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
-| `server/src/services/repaintJobs.ts` | 235 | #71 |
+| `server/src/services/repaintJobs.ts` | 235 | #71 (merged) |
 
 The split branches merged cleanly together before #81 landed; on that combined
 tree both suites stayed green (client 289, server 407), both builds passed, and
