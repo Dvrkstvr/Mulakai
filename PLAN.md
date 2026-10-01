@@ -6329,3 +6329,15 @@ race a search too.
 - `client/src/LibraryView.tsx`: the search box calls `search`.
 - `client/src/useAppSync.ts`: the folder-scope and post-generation
   reloads go through `refresh()`.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, against a copy of the
+library database. The page's `fetch` was wrapped to hold the
+one-letter query "k" for 1.5 s. Typed "k", paused half a second, then
+typed "opf h":
+
+- Six keystrokes sent two requests, "k" and "kopf h".
+- The held "k" response (25 songs) landed after "kopf h" (8 songs).
+  The list showed exactly the 8, and none of the 17 that only "k"
+  matched.
