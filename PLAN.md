@@ -6012,3 +6012,61 @@ open, then:
   the song loaded and the line went away.
 - Ten volume ticks fired in one burst: two PATCHes (0.9, then 0.12),
   and the server held 0.12.
+
+## Lookup Failures Aren't Answers (planned 2026-10-02)
+
+Follow-up to "Editor Failures Say So" (decision 8 left this open). Four
+lookups gate an Editor control on what the server reports, and each
+read a failed request as an answer:
+
+- `AddLayerTrigger.tsx` and `RemasterAction.tsx`: a failed
+  `listModels()` became `[]`, so the row said "no downloaded model
+  supports Add Layer / Remaster".
+- `SplitPanel.tsx` and `ScratchSplitPicker.tsx`: a failed
+  `splitHealth()` became `{ acestep: false, demucs: false }`, so both
+  backend buttons were disabled with "Demucs is not configured
+  (DEMUCS_API_URL unset)".
+- `VoicePicker.tsx`: `fetchVoices()` had no catch, an unhandled
+  rejection behind an empty picker.
+
+With the server down, the user was told to download a model or set an
+env var. Neither was the problem.
+
+### Decisions
+
+1. **A failed lookup is an error, not an empty answer.** The control
+   shows a rust `.error` line in place of its "checking…" text: "couldn't
+   check models for Add Layer — why · RETRY" (Remaster; "couldn't check
+   split backends"; "couldn't load voices"). "No model supports…" and
+   "not configured" appear only when the server answered so.
+2. **One shape for all four: `useLookup(load)`**, returning
+   `{ data, error, retry }`. `data` is null while loading or after a
+   failure; RETRY goes back to "checking…" and runs `load` again. Built
+   on a plain `lookupRunner` the tests drive, like `songReloader`.
+3. **Side effects of a successful lookup stay in `load`.** Add Layer
+   still picks the first lego model when none is set; Remaster still
+   prefers xl-sft.
+4. **The voice picker keeps NONE usable on a failure.** Generating
+   without a voice doesn't need the list; the error sits under the
+   select.
+5. **Out of scope:** the server's own `listModels()` returns an empty
+   inventory when ACE-Step is down, and `/api/split/health` reports
+   `demucs: false` for a set-but-unreachable `DEMUCS_API_URL`; both
+   still reach the client as answers. The Create-side twins
+   (`useModelsForTask`, `ReferenceAudioPicker`, `ModelsSection`,
+   `SettingsPanel`) have the same client pattern. Left for follow-ups.
+
+### File-level plan
+
+- `client/src/lookup.ts` (new): `lookupRunner`, `useLookup`, and
+  `modelsFor(task)` (the names of downloaded models supporting a task).
+- `client/src/AddLayerTrigger.tsx`, `client/src/RemasterAction.tsx`:
+  `useLookup(modelsFor(…))`; error line with RETRY.
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`:
+  `useLookup(api.splitHealth)`; error line with RETRY in place of the
+  backend buttons.
+- `client/src/VoicePicker.tsx`: `useLookup(fetchVoices)`; error line
+  with RETRY under the select.
+- Tests: `lookup.test.ts` — runner states, plus each caller's load
+  failing (models, split health, voices) without becoming an answer.
+- DESIGN.md: one line under the Editor's load-failure bullet.
