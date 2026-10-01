@@ -160,9 +160,14 @@ Non-test modules over the cap at snapshot time:
 policy.) An `api.ts` split is in progress; the rest need split plans or explicit
 justifications per AGENTS.md.
 
-### 19. No Playwright e2e exists
-AGENTS.md requires one golden-path e2e per phase; none is set up (no dependency,
-no config, no `test:e2e` script).
+### 19. ~~No Playwright e2e exists~~ — fixed 2026-10-02
+AGENTS.md requires one golden-path e2e per phase; none was set up. Now `e2e/`
+holds Playwright plus a fake ACE-Step (`e2e/fake-acestep/`), and `npm run
+test:e2e` drives PLAN.md Phase 10's path (generate → repaint a region → add a
+layer → revert a version → export) through the real client and server on a
+throwaway data dir — branch `test/playwright-golden-path`. Still open: no CI
+runs it, and per-phase edge-case specs are yet to come (PLAN.md "Playwright
+Golden-Path E2E", open questions).
 
 ### 20. Untested critical modules
 `server/src/routes/`: songs (main flows beyond cover-art), layers, remaster,
