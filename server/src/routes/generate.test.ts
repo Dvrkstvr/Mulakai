@@ -40,6 +40,7 @@ vi.mock('../services/completeGenJobs.js', () => ({ startCompleteGeneration: vi.f
 vi.mock('../services/scratchSplitJobs.js', () => ({
   getScratchSplitJob: vi.fn(),
   scratchStemPath: vi.fn(),
+  SCRATCH_GONE: 'stems expired',
 }));
 vi.mock('../services/referenceAudioResolve.js', () => ({
   // Default behavior mirrors the real function's "pass through an uploaded file as-is" branch —
@@ -305,7 +306,7 @@ describe('POST /complete', () => {
     expect(completeGenJobs.startCompleteGeneration).toHaveBeenCalledTimes(1);
   });
 
-  it('returns 400 for an unknown/not-ready scratch stem reference', async () => {
+  it('returns 400 saying the stems expired for a discarded or evicted scratch split', async () => {
     vi.mocked(scratchSplitJobs.getScratchSplitJob).mockReturnValueOnce(undefined);
     const form = new FormData();
     form.append('title', 'My Complete');
@@ -314,6 +315,7 @@ describe('POST /complete', () => {
 
     const res = await fetch(`${baseUrl}/complete`, { method: 'POST', body: form });
     expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'stems expired' });
   });
 });
 
@@ -377,5 +379,21 @@ describe('POST /sample-from-query', () => {
       body: JSON.stringify({ query: 'anything' }),
     });
     expect(res.status).toBe(502);
+  });
+});
+
+describe('GET /models', () => {
+  it('passes ACE-Step\'s inventory through, including an empty one', async () => {
+    vi.mocked(acestep.listModels).mockResolvedValueOnce({ models: [], lmModels: [], defaultModel: null });
+    const res = await fetch(`${baseUrl}/models`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ models: [], lmModels: [], defaultModel: null });
+  });
+
+  it('answers 502 with the reason when ACE-Step cannot be asked, not an empty inventory', async () => {
+    vi.mocked(acestep.listModels).mockRejectedValueOnce(new Error('ACE-Step unreachable at http://127.0.0.1:8001 (ECONNREFUSED)'));
+    const res = await fetch(`${baseUrl}/models`);
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: 'ACE-Step unreachable at http://127.0.0.1:8001 (ECONNREFUSED)' });
   });
 });

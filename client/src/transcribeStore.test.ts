@@ -8,10 +8,19 @@ vi.mock('./api', () => ({
     transcribe: (...a: unknown[]) => transcribe(...a),
     jobStatus: (...a: unknown[]) => jobStatus(...a),
   },
+  ApiError: class ApiError extends Error {
+    status: number;
+    constructor(message: string, status: number) {
+      super(message);
+      this.status = status;
+    }
+  },
 }));
 
 const { useTranscribeStore, POLL_MS } = await import('./transcribeStore');
 const { useCreateDraftStore } = await import('./createDraftStore');
+const { ApiError } = await import('./api');
+const { JOB_GONE } = await import('./jobGone');
 
 const SCORE = 'X:1\nK:Fm\n% intro\nV: Vocal\nZ|\n% verse\nV: Vocal\nC8|\n';
 const T: Transcription = {
@@ -34,6 +43,17 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe('transcribeStore', () => {
+  it('fails once the server no longer has the job, instead of polling a 404 forever', async () => {
+    jobStatus.mockRejectedValueOnce(new Error('network')).mockRejectedValueOnce(new ApiError('unknown job', 404));
+    const run = useTranscribeStore.getState().start('yue2', src, 'x', 'seed');
+    await tick();
+    expect(useTranscribeStore.getState().stage).toBe('running'); // a network error is retried
+    await tick();
+    expect(await run).toBe(false);
+    expect(useTranscribeStore.getState()).toMatchObject({ stage: 'failed', error: JOB_GONE });
+    expect(jobStatus).toHaveBeenCalledTimes(2);
+  });
+
   it('puts the score into the draft and seeds empty lyrics fitted to its sections', async () => {
     jobStatus.mockResolvedValueOnce({ status: 'running', progress: 0.5 }).mockResolvedValueOnce({ status: 'done', transcription: T });
     const run = useTranscribeStore.getState().start('yue2', src, 'Ellies City 2', '[Verse 1]\nMidnight city');

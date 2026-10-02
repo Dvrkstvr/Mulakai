@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
 import { useVoiceStore } from './voiceStore';
+import { useLookup } from './lookup';
 import { Dropzone } from './Dropzone';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { useObjectUrl } from './useObjectUrl';
@@ -27,10 +27,8 @@ export function ReferenceAudioPicker({ taskType }: Props) {
     fetchVoices, setRefMode, selectVoice, setUploadedRefFile, setStyleInfluence,
   } = useVoiceStore();
 
-  useEffect(() => {
-    fetchVoices();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // Only VOICE needs the list; NONE and UPLOAD stay usable when it fails to load.
+  const voicesLookup = useLookup(fetchVoices);
 
   const selected = voices.find((v) => v.id === selectedVoiceId);
   const options = [{ label: 'NONE', value: '' }, ...voices.map((v) => ({ label: v.name, value: v.id }))];
@@ -62,6 +60,9 @@ export function ReferenceAudioPicker({ taskType }: Props) {
               />
             )}
           </div>
+          {voicesLookup.error && (
+            <div className="error">couldn't load voices — {voicesLookup.error} <button onClick={voicesLookup.retry}>RETRY</button></div>
+          )}
           <div className="hint">manage saved voices in Settings &gt; Voices</div>
         </>
       )}

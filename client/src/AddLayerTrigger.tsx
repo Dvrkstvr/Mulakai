@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
-import { api, type Layer } from './api';
+import { type Layer } from './api';
 import { useAddLayerDraft } from './addLayerStore';
 import { useSettings, addLayerParams } from './settings';
-import { activeLayers } from './mix/activeLayers';
+import { audibleTakes } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
@@ -13,6 +13,7 @@ import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { CustomSelect } from './CustomSelect';
 import { TRACK_NAMES } from './trackNames';
+import { useLookup, modelsFor } from './lookup';
 
 interface Props {
   songId: string;
@@ -36,7 +37,6 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   const { addLayer, setAddLayer, repaint } = useSettings();
   const voice = useVoiceStore();
   const resetDraft = useAddLayerDraft((s) => s.reset);
-  const [legoModels, setLegoModels] = useState<string[] | null>(null);
   const [prompt, setPrompt] = useState('');
   const [trackName, setTrackName] = useState('');
   const [mixError, setMixError] = useState('');
@@ -56,16 +56,10 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
   const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
-  useEffect(() => {
-    api.listModels()
-      .then((data) => {
-        const names = data.models.filter((m) => m.supportedTaskTypes.includes('lego')).map((m) => m.name);
-        setLegoModels(names);
-        if (names.length > 0 && !addLayer.model) setAddLayer({ model: names[0] });
-      })
-      .catch(() => setLegoModels([]));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const legoModels = useLookup(() => modelsFor('lego').then((names) => {
+    if (names.length > 0 && !addLayer.model) setAddLayer({ model: names[0] });
+    return names;
+  }));
 
   useEffect(() => { onGeneratingChange?.(job === 'running'); }, [job, onGeneratingChange]);
 
@@ -82,21 +76,19 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mine?.stage]);
 
-  const gated = legoModels !== null && legoModels.length === 0;
-  const canSubmit = !gated && prompt.trim().length > 0 && job === 'idle' && !busyElsewhere;
+  const gated = legoModels.data !== null && legoModels.data.length === 0;
+  const canSubmit = !!legoModels.data?.length && prompt.trim().length > 0 && job === 'idle' && !busyElsewhere;
 
   const submit = async () => {
     if (!canSubmit) return;
     setMixError('');
     try {
-      const audible = activeLayers(layers)
-        .map((l) => l.versions.find((v) => v.active))
-        .filter((v): v is NonNullable<typeof v> => !!v);
+      const audible = audibleTakes(layers);
       if (audible.length === 0) throw new Error('no audible layers to mix — unmute or un-solo at least one layer');
 
       const mixCtx = new AudioContext();
       const decoded = await decodeLayers(
-        audible.map((v, i) => ({ id: String(i), audioUrl: `/audio/${v.audio_file}`, volume: activeLayers(layers)[i].volume })),
+        audible.map((x, i) => ({ id: String(i), audioUrl: `/audio/${x.version.audio_file}`, volume: x.layer.volume })),
         mixCtx,
       );
       const mixed = await bounceMix(decoded);
@@ -138,7 +130,11 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
         </span>
       </div>
       <div className="layer-add-expand">
-        {legoModels === null ? (
+        {legoModels.error ? (
+          <div className="error">
+            couldn't check models for Add Layer — {legoModels.error} <button onClick={legoModels.retry}>RETRY</button>
+          </div>
+        ) : legoModels.data === null ? (
           <span className="meta">checking available models…</span>
         ) : gated ? (
           <span className="meta" style={{ color: 'var(--rust-text)' }}>

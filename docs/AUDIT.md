@@ -30,6 +30,14 @@
   unclaimed stems in `audioDir` forever, and a restart stranded them. Idle splits (no
   poll, claim or RE-EXTRACT for an hour) are now cancelled, and boot sweeps stem files
   no version points at — PR #96.
+- Every other job registry (`jobRegistry.ts`, scratch splits) grew for the life of the
+  process, and remaster results / scratch stems in OS temp outlived their jobs. Settled
+  jobs are now evicted after an hour unread (scratch splits after 24 hours) with their
+  files, stale temp entries are swept, and the job pollers stop on a 404 — PR #104
+  (was #11, and #13's 404 half).
+- `generationStore` kept polling a generation it no longer tracked (dismissed while
+  running), and StrictMode's double `hydrate()` polled an adopted job twice. The loop
+  now stops once the store drops its job, one loop per job — PR #106 (was #13).
 - Playback never ended: no `onended` on any source, so the Editor stayed "playing"
   with `currentTime()` growing past the song forever. The longest layer's end now
   stops the engine at the duration (play again restarts from 0), guarded by a
@@ -50,6 +58,14 @@
 - COVER sent only `model` + `audio_cover_strength`: the rail's STEPS/GUIDANCE/SEED/
   advanced knobs did nothing, and covers ignored the Settings output format. Now
   sent via `coverParams()`, with the rail gated on the tab's model — PR #95 (was #5).
+- Library search raced: each keystroke fired its own `listSongs` and the last response
+  to land won, so a slow "co" could replace "copper". Every song-list load now goes
+  through one loader that applies only the newest response and reads the query and
+  folder at fire time; search is debounced 250 ms — PR #93 (was #6).
+- Add Layer's bounce read each layer's volume by position from an unfiltered list, so a
+  layer with no active version shifted every later layer onto its neighbour's volume.
+  `audibleTakes()` keeps each layer with its version; Add Layer, REMASTER and COVER's
+  library source share it — PR #99 (was #7).
 - Eight non-test modules were over AGENTS.md's 200-LOC hard cap (`acestep.ts` 539,
   `settings.ts` 329, `Editor.tsx` 320, `App.tsx` 317, `routes/generate.ts` 298,
   `jobs.ts` 283, `stemSplit.ts` 282, `repaintJobs.ts` 235). Each was split by
@@ -110,11 +126,11 @@ influence half was fixed earlier (`referenceInfluence.ts`).
   INFLUENCE sliders don't apply to `complete` (only the stored voice defaults do),
   but the hint text claims they do.
 
-### 6. Library search race
+### 6. ~~Library search race~~ — fixed, PR #93
 `client/src/App.tsx` — one un-guarded `listSongs` per keystroke; a slow early
 response can overwrite results for a newer query. Debounce + drop stale responses.
 
-### 7. Add Layer bounce: volume index misalignment
+### 7. ~~Add Layer bounce: volume index misalignment~~ — fixed, PR #99
 `client/src/AddLayerTrigger.tsx` — `audible` filters layers without an active
 version, then indexes volumes via the *unfiltered* `activeLayers(layers)[i]`;
 neighbors' volumes shift when the lists diverge. (`RemasterAction.tsx` and
@@ -136,20 +152,24 @@ but the abort is silently undone.
 
 ## 🟡 Resource leaks / unbounded growth
 
-### 11. Job registries never evict
+### 11. ~~Job registries never evict~~ — fixed, PRs #96 + #104
 `server/src/services/jobs.ts` / `stemSplit.ts` — `jobs.set(...)` has no paired
-delete; every job for the life of the process accumulates. (`stemSplit.ts` now evicts
-idle splits — PR #96; `jobs.ts` and the other registries still don't.)
+delete; every job for the life of the process accumulates. (`stemSplit.ts` evicts
+idle splits since PR #96; `jobRegistry.ts` and scratch splits since PR #104.)
 
 ### 12. WebGL context leak in `ShaderCanvas`
 `client/src/ShaderCanvas.tsx` — cleanup never calls
 `WEBGL_lose_context.loseContext()`; repeated AI-state mounts accumulate toward the
 browser's ~16-context cap, after which shader surfaces go black.
 
-### 13. `generationStore.pollJob` has no cancellation
+### 13. ~~`generationStore.pollJob` has no cancellation~~ — fixed, PRs #104 + #106
 Keeps hitting `/api/generate/:id` every 2s after `dismiss()` until the server says
 done/failed. Similarly `editorJobStore`'s single-job poll has no 404 exit (the
 split poll has one).
+- **404 half fixed (PR #104):** every `/api/generate/:id` poller now fails the job on
+  a 404.
+- **Cancellation fixed (PR #106):** the loop stops once the store no longer tracks its
+  job, and a job gets one loop at most.
 
 ### 14. Misc leaks
 `client/src/audioDuration.ts` — object URL not revoked on the error path.

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { api, type Layer, type Version } from './api';
-import { activeLayers } from './mix/activeLayers';
+import { useState } from 'react';
+import { type Layer } from './api';
+import { audibleTakes } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useSettings } from './settings';
@@ -11,6 +11,7 @@ import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from
 import { useRemasterResult } from './remasterResult';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
+import { useLookup, modelsFor } from './lookup';
 
 interface Props {
   songId: string;
@@ -29,7 +30,6 @@ interface Props {
  */
 export function RemasterAction({ songId, layers }: Props) {
   const exportSettings = useSettings((s) => s.exportSettings);
-  const [coverModels, setCoverModels] = useState<string[] | null>(null);
   const [model, setModel] = useState('');
   const [mixError, setMixError] = useState('');
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
@@ -47,25 +47,18 @@ export function RemasterAction({ songId, layers }: Props) {
   const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
   const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
 
-  useEffect(() => {
-    api.listModels()
-      .then((data) => {
-        const names = data.models.filter((m) => m.supportedTaskTypes.includes('cover')).map((m) => m.name);
-        setCoverModels(names);
-        setModel(names.find((n) => n.includes('xl-sft')) ?? names[0] ?? '');
-      })
-      .catch(() => setCoverModels([]));
-  }, []);
+  const coverModels = useLookup(() => modelsFor('cover').then((names) => {
+    setModel(names.find((n) => n.includes('xl-sft')) ?? names[0] ?? '');
+    return names;
+  }));
 
-  const gated = coverModels !== null && coverModels.length === 0;
+  const gated = !coverModels.data?.length;
 
   const submit = async () => {
     if (gated || job === 'running' || busyElsewhere) return;
     setMixError('');
     try {
-      const audible = activeLayers(layers)
-        .map((l) => ({ layer: l, version: l.versions.find((v) => v.active) }))
-        .filter((x): x is { layer: Layer; version: Version } => !!x.version);
+      const audible = audibleTakes(layers);
       if (audible.length === 0) throw new Error('no audible layers to mix — unmute or un-solo at least one layer');
 
       const mixCtx = new AudioContext();
@@ -93,7 +86,11 @@ export function RemasterAction({ songId, layers }: Props) {
       <div className="hint">
         one-shot ACE-Step cover of the current mix, aimed at max quality — not saved to history
       </div>
-      {coverModels === null ? (
+      {coverModels.error ? (
+        <div className="error">
+          couldn't check models for Remaster — {coverModels.error} <button onClick={coverModels.retry}>RETRY</button>
+        </div>
+      ) : coverModels.data === null ? (
         <span className="meta">checking available models…</span>
       ) : gated ? (
         <span className="meta" style={{ color: 'var(--rust-text)' }}>

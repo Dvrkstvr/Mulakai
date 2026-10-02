@@ -3,11 +3,12 @@
  * when they are sung. Keeps the reading, so LYRICS it wrote can follow the score (a score
  * landing, TRANSCRIBE AGAIN, a section left out) until the user edits them. */
 import { create } from 'zustand';
-import { api, type LyricsReading } from './api';
+import { api, ApiError, type LyricsReading } from './api';
 import { useCreateDraftStore } from './createDraftStore';
 import { coverSourceKey } from './coverSource';
 import { placeReading, type Placement } from './lyricsPlacement';
 import { POLL_MS } from './transcribeStore';
+import { JOB_GONE } from './jobGone';
 
 interface ReadLyricsState {
   stage: 'idle' | 'running' | 'failed';
@@ -81,8 +82,9 @@ export const useReadLyricsStore = create<ReadLyricsState>((set, get) => ({
       let s: Awaited<ReturnType<typeof api.jobStatus>>;
       try {
         s = await api.jobStatus(jobId);
-      } catch {
-        continue; // a network hiccup is not a failed read
+      } catch (err) {
+        if (!(err instanceof ApiError && err.status === 404)) continue; // a network hiccup is not a failed read
+        s = { status: 'failed', error: JOB_GONE };
       }
       if (s.status === 'loading' || s.status === 'running') continue;
       if (s.status === 'failed' || !s.lyrics) {

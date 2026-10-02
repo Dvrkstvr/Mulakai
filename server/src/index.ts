@@ -18,7 +18,8 @@ import { lyricsRouter } from './routes/lyrics.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 import { sweepOrphanStems } from './services/stemFiles.js';
-import { evictIdleSplits, isLiveSplit } from './services/stemSplit.js';
+import { isLiveSplit } from './services/stemSplit.js';
+import { evictIdle, sweepStaleTemp } from './services/jobEviction.js';
 
 const app = express();
 app.use(express.json({ limit: '2mb' }));
@@ -42,12 +43,17 @@ app.use('/audio', express.static(config.audioDir));
 
 sweepTrash();
 setInterval(sweepTrash, 60 * 60 * 1000);
-// Split jobs live only in memory: a restart strands their unclaimed stems on disk, and a
-// closed tab never cancels its split.
+// Jobs live only in memory: a restart strands the files they own, and a closed tab
+// never cancels or discards its job.
 void sweepOrphanStems(isLiveSplit)
   .then((n) => { if (n) console.log(`Removed ${n} unclaimed split stem file(s) from a previous run`); })
   .catch((err) => console.error('Orphaned stem sweep failed:', err));
-setInterval(() => void evictIdleSplits().catch((err) => console.error('Idle split eviction failed:', err)), 5 * 60 * 1000);
+const sweepTemp = () => void sweepStaleTemp()
+  .then((n) => { if (n) console.log(`Removed ${n} stale scratch split/remaster temp file(s)`); })
+  .catch((err) => console.error('Stale temp sweep failed:', err));
+sweepTemp();
+setInterval(sweepTemp, 60 * 60 * 1000);
+setInterval(() => void evictIdle().catch((err) => console.error('Idle job eviction failed:', err)), 5 * 60 * 1000);
 
 app.listen(config.port, config.host, async () => {
   console.log(`Mulakai server on http://${config.host}:${config.port} (ACE-Step: ${config.acestepUrl})`);

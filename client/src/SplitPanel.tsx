@@ -6,6 +6,8 @@ import { useEditorJobStore, isEditorBusy } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
+import { useLookup } from './lookup';
+import { SplitBackendTabs } from './SplitBackendTabs';
 
 interface Props {
   songId: string;
@@ -25,7 +27,6 @@ interface Props {
  * through the shared previewPlayback slot via AudioPreview.
  */
 export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
-  const [health, setHealth] = useState<{ acestep: boolean; demucs: boolean } | null>(null);
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [error, setError] = useState('');
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
@@ -46,9 +47,8 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
     ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning: otherSplit?.stage === 'running' }) : null;
   const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
 
-  useEffect(() => {
-    api.splitHealth().then(setHealth).catch(() => setHealth({ acestep: false, demucs: false }));
-  }, []);
+  const healthLookup = useLookup(api.splitHealth);
+  const health = healthLookup.data;
 
   useEffect(() => {
     if (model || !health) return;
@@ -113,28 +113,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
       {!stems ? (
         <>
           <div className="hint">will extract vocals, drums, bass, and other as new stems from "{layer.name}"</div>
-          {health === null ? (
-            <span className="meta">checking available backends…</span>
-          ) : (
-            <div className="type-tabs">
-              <button
-                className={`tab${model === 'acestep' ? ' active' : ''}`}
-                disabled={!health.acestep}
-                title={health.acestep ? undefined : 'no downloaded model supports extract — requires a Base model'}
-                onClick={() => setModel('acestep')}
-              >
-                <span>ACE-STEP</span>
-              </button>
-              <button
-                className={`tab${model === 'demucs' ? ' active' : ''}`}
-                disabled={!health.demucs}
-                title={health.demucs ? undefined : 'Demucs is not configured (DEMUCS_API_URL unset)'}
-                onClick={() => setModel('demucs')}
-              >
-                <span>DEMUCS</span>
-              </button>
-            </div>
-          )}
+          <SplitBackendTabs lookup={healthLookup} model={model} onPick={setModel} />
           <button className="acid" disabled={!canSubmit} onClick={generate}>
             {busyBy ? waitLabel(busyBy) : 'GENERATE STEMS'}
           </button>
