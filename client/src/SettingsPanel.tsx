@@ -43,12 +43,15 @@ export function VarianceSlider({ value, onChange }: { value: number; onChange: (
   );
 }
 
-export function SettingsPanel({ mode, hideLmControls, hideThinking, referenceAudioTaskType, addLayerActive, songLyrics }: {
+export function SettingsPanel({ mode, hideLmControls, hideThinking, coverModel, referenceAudioTaskType, addLayerActive, songLyrics }: {
   mode: 'generate' | 'repaint';
   hideLmControls?: boolean;
   /** Hides only THINKING MODE — for tasks where ACE-Step skips the in-generation LM but still
    * runs AI ENHANCE's API-side formatting (ARRANGE's `complete`). */
   hideThinking?: boolean;
+  /** COVER · ACE-STEP: the tab's own MODEL pick, which is what the cover runs on. Hides DIT
+   * MODEL here (it edits PROMPT's model) and gates STEPS/GUIDANCE/ADVANCED on this instead. */
+  coverModel?: string;
   /** Only meaningful for mode 'generate' — renders the shared ReferenceAudioPicker so its choice
    * persists across the PROMPT/AUDIO/ARRANGE tab switch. Omit to hide it (e.g. Editor screens
    * that reuse mode 'generate' contexts without a reference-audio concept). */
@@ -70,6 +73,7 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, referenceAud
   // Advanced knobs (shift/ADG/CFG-interval) only affect Base models; when Add Layer is active
   // the model is its Base lego model, otherwise repaint's own DiT model.
   const gatingModel = addLayerActive ? addLayer.model : repaint.model;
+  const genModel = coverModel ?? gen.model;
   // PROMPT on an extra engine: its own controls replace ACE-Step's whole generate block.
   const { info: engine } = useEngineCaps();
 
@@ -87,12 +91,14 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, referenceAud
         <EngineGenSettings engine={engine} />
       ) : mode === 'generate' ? (
         <>
-          <CustomSelect
-            label="DIT MODEL"
-            value={gen.model}
-            onChange={(v) => setGen({ model: v, inferenceSteps: Math.min(gen.inferenceSteps, stepsMax(v)) })}
-            options={[{ ...AUTO, description: ditModelDescription('') }, ...models.map(m => ({ label: m, value: m, description: ditModelDescription(m) }))]}
-          />
+          {coverModel === undefined && (
+            <CustomSelect
+              label="DIT MODEL"
+              value={gen.model}
+              onChange={(v) => setGen({ model: v, inferenceSteps: Math.min(gen.inferenceSteps, stepsMax(v)) })}
+              options={[{ ...AUTO, description: ditModelDescription('') }, ...models.map(m => ({ label: m, value: m, description: ditModelDescription(m) }))]}
+            />
+          )}
           {!hideLmControls && (
             <>
               <CustomSelect
@@ -107,16 +113,16 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, referenceAud
               <Toggle label="AI ENHANCE" checked={gen.useFormat} onChange={(v) => setGen({ useFormat: v })} ai />
             </>
           )}
-          <Slider label="STEPS" value={gen.inferenceSteps} min={0} max={stepsMax(gen.model)} step={1}
-            readout={gen.inferenceSteps === 0 ? autoStepsLabel(gen.model) : undefined} info={STEPS_INFO}
+          <Slider label="STEPS" value={Math.min(gen.inferenceSteps, stepsMax(genModel))} min={0} max={stepsMax(genModel)} step={1}
+            readout={gen.inferenceSteps === 0 ? autoStepsLabel(genModel) : undefined} info={STEPS_INFO}
             onChange={(v) => setGen({ inferenceSteps: v })} />
           <Slider label="GUIDANCE" value={gen.guidanceScale} min={0} max={15} step={0.5}
-            readout={!guidanceEffective(gen.model) ? 'N/A' : gen.guidanceScale === 0 ? 'AUTO' : undefined}
-            info={GUIDANCE_INFO} disabled={!guidanceEffective(gen.model)}
+            readout={!guidanceEffective(genModel) ? 'N/A' : gen.guidanceScale === 0 ? 'AUTO' : undefined}
+            info={GUIDANCE_INFO} disabled={!guidanceEffective(genModel)}
             onChange={(v) => setGen({ guidanceScale: v })} />
           <Seed random={gen.randomSeed} seed={gen.seed}
             onRandom={(v) => setGen({ randomSeed: v })} onSeed={(v) => setGen({ seed: v })} />
-          <AdvancedGenSettings adv={gen} setAdv={setGen} gatingModel={gen.model} hideLmControls={hideLmControls} />
+          <AdvancedGenSettings adv={gen} setAdv={setGen} gatingModel={genModel} hideLmControls={hideLmControls} />
           {referenceAudioTaskType && <ReferenceAudioPicker taskType={referenceAudioTaskType} />}
         </>
       ) : (
