@@ -1,5 +1,6 @@
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import type { PlaybackApi } from './mix/playerApi';
+import { playOrStayPaused } from './playOrStayPaused';
 
 export interface PreviewSnapshot {
   /** Identity of the item currently loaded into the preview element (null = idle). */
@@ -70,7 +71,7 @@ export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
     pendingSeconds = seek?.seconds ?? null;
     a.src = src;
     set({ key, playing: false, currentTime: 0, duration: 0 });
-    void a.play();
+    playOrStayPaused(a, 'Preview');
   };
 
   return {
@@ -88,7 +89,7 @@ export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
         if (state.playing) a.pause();
         else {
           mainTransports.forEach((pause) => pause());
-          void a.play();
+          playOrStayPaused(a, 'Preview');
         }
         return;
       }
@@ -102,7 +103,7 @@ export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
         set({ currentTime: a.currentTime });
         if (!state.playing) {
           mainTransports.forEach((pause) => pause());
-          void a.play();
+          playOrStayPaused(a, 'Preview');
         }
         return;
       }
@@ -116,7 +117,7 @@ export function createPreviewPlayback(createAudio: () => PreviewAudioElement) {
         set({ currentTime: a.currentTime });
         if (!state.playing) {
           mainTransports.forEach((pause) => pause());
-          void a.play();
+          playOrStayPaused(a, 'Preview');
         }
         return;
       }
