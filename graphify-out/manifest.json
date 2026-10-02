@@ -315,8 +315,8 @@
     "semantic_hash": ""
   },
   "client/src/generationStore.ts": {
-    "mtime": 1790901724.5336297,
-    "ast_hash": "644600f7d7da859ed1c08dfda3953591",
+    "mtime": 1790902652.3338943,
+    "ast_hash": "56ec42b35d58685899ec2e18c2a3db4f",
     "semantic_hash": ""
   },
   "client/src/lyricSections.test.ts": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790902585.8293417,
-    "ast_hash": "92f028bbe2a9d3e07c30ccfe991d0dcc",
+    "mtime": 1790902652.3333888,
+    "ast_hash": "6ff6cb590ec9dc18405aea908824ec16",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790902585.8313491,
-    "ast_hash": "3f44977c0fa580f4bc3213b3e8290d43",
+    "mtime": 1790902652.3348978,
+    "ast_hash": "0a416c44261bbb0f915b85d76061bbfc",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1235,8 +1235,8 @@
     "semantic_hash": ""
   },
   "client/src/generationStore.test.ts": {
-    "mtime": 1790901724.5336297,
-    "ast_hash": "18f502c19660fc8e3d955ae2856d8c2a",
+    "mtime": 1790902652.3338943,
+    "ast_hash": "905f010a2d6d14ffe8ea197b5653a3e8",
     "semantic_hash": ""
   },
   "client/src/referenceInfluence.test.ts": {
@@ -2372,6 +2372,11 @@
   "server/src/services/jobRunner.test.ts": {
     "mtime": 1790902455.9919043,
     "ast_hash": "9a50991e380d5787bce3d0e1025c29c7",
+    "semantic_hash": ""
+  },
+  "client/src/generationPoll.ts": {
+    "mtime": 1790902652.3338943,
+    "ast_hash": "0687e72de7b71d986255bbea6d93eb9a",
     "semantic_hash": ""
   }
 }
