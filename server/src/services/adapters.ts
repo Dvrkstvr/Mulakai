@@ -80,21 +80,36 @@ export function deleteAdapter(id: string): void {
  * Requires an initialized model — ACE-Step's adapter routes 500 with "Model not initialized"
  * otherwise, which surfaces to the caller unchanged.
  */
-export async function registerAdapter(name: string, adapterPath: string): Promise<Adapter> {
-  await loadLora(adapterPath);
-  // Loading also activates (ACE-Step sets lora_loaded/use_lora together), so the server is now
-  // running this adapter whether or not it is the selected one. Record that, then reconcile
-  // back to the actual selection below.
-  applied = { path: adapterPath, scale: 1, generation: getModelGeneration() };
-  const kind = (await loraStatus().catch(() => null))?.adapterType ?? 'lora';
-  const id = crypto.randomUUID();
-  db.prepare(`INSERT INTO adapters (id, name, path, kind) VALUES (?, ?, ?, ?)`).run(id, name, adapterPath, kind);
-  await reconcileAdapter();
-  return getAdapter(id)!;
+export function registerAdapter(name: string, adapterPath: string): Promise<Adapter> {
+  return serialized(async () => {
+    await loadLora(adapterPath);
+    // Loading also activates (ACE-Step sets lora_loaded/use_lora together), so the server is now
+    // running this adapter whether or not it is the selected one. Record that, then reconcile
+    // back to the actual selection below.
+    applied = { path: adapterPath, scale: 1, generation: getModelGeneration() };
+    const kind = (await loraStatus().catch(() => null))?.adapterType ?? 'lora';
+    const id = crypto.randomUUID();
+    db.prepare(`INSERT INTO adapters (id, name, path, kind) VALUES (?, ?, ?, ?)`).run(id, name, adapterPath, kind);
+    await reconcileNow();
+    return getAdapter(id)!;
+  });
 }
 
 /** What this process last applied to slot 1's current model, or null if nothing is loaded. */
 let applied: { path: string; scale: number; generation: number } | null = null;
+
+/**
+ * Every read-check-write of `applied` runs here, one at a time. An ACE-Step split fans out
+ * four stem jobs at once, each reconciling before its release_task; unserialized, all four
+ * read `applied` before any wrote it, and overlapping lora/load + lora/scale sequences
+ * reached ACE-Step. Queued, the first applies the adapter and the rest find it applied.
+ */
+let queue: Promise<unknown> = Promise.resolve();
+function serialized<T>(fn: () => Promise<T>): Promise<T> {
+  const run = queue.then(fn);
+  queue = run.catch(() => {}); // a failed step mustn't wedge the ones queued behind it
+  return run;
+}
 
 /** Recorded onto a finished take so it stays explicable — see ReleaseTaskParams#adapter. */
 export interface AdapterStamp {
@@ -115,7 +130,12 @@ export interface AdapterStamp {
  * ACE-Step's error rather than quietly generating on the base model, and leaving `applied`
  * untouched means the next attempt retries.
  */
-export async function reconcileAdapter(): Promise<AdapterStamp | null> {
+export function reconcileAdapter(): Promise<AdapterStamp | null> {
+  return serialized(reconcileNow);
+}
+
+/** reconcileAdapter's body, for callers already inside `serialized` (queuing again would deadlock). */
+async function reconcileNow(): Promise<AdapterStamp | null> {
   const desired = getActiveAdapter();
   const generation = getModelGeneration();
 

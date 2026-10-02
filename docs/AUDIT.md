@@ -71,6 +71,10 @@
   `jobs.ts` 283, `stemSplit.ts` 282, `repaintJobs.ts` 235). Each was split by
   responsibility with no behaviour change; none is over the cap now — PRs #71–#75,
   #77, #82, and #81 for `stemSplit.ts` (was #18).
+- An ACE-Step split's four concurrent stems each reconciled the LoRA adapter unsynchronized,
+  so a not-yet-applied adapter got four overlapping `lora/load` + `lora/scale` sequences.
+  Every reconcile (and `registerAdapter`) now runs through one queue; the first applies,
+  the rest find it applied — PR #102 (was #8).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -136,7 +140,7 @@ version, then indexes volumes via the *unfiltered* `activeLayers(layers)[i]`;
 neighbors' volumes shift when the lists diverge. (`RemasterAction.tsx` and
 `CreateAudioTab.tsx` do the same op correctly with `{layer, version}` pairs.)
 
-### 8. Adapter reconcile race during ACE-Step splits
+### 8. ~~Adapter reconcile race during ACE-Step splits~~ — fixed, PR #102
 `server/src/services/stemSplit.ts` fans out four concurrent `runAcestepStem`
 calls; each runs `reconcileAdapter()`'s unsynchronized read-check-write —
 overlapping `lora/load`/`lora/scale` sequences can reach ACE-Step.
