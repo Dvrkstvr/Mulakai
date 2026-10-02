@@ -35,6 +35,9 @@
   jobs are now evicted after an hour unread (scratch splits after 24 hours) with their
   files, stale temp entries are swept, and the job pollers stop on a 404 — PR #104
   (was #11, and #13's 404 half).
+- `generationStore` kept polling a generation it no longer tracked (dismissed while
+  running), and StrictMode's double `hydrate()` polled an adopted job twice. The loop
+  now stops once the store drops its job, one loop per job — PR #106 (was #13).
 - Playback never ended: no `onended` on any source, so the Editor stayed "playing"
   with `currentTime()` growing past the song forever. The longest layer's end now
   stops the engine at the duration (play again restarts from 0), guarded by a
@@ -158,12 +161,14 @@ idle splits since PR #96; `jobRegistry.ts` and scratch splits since PR #104.)
 `WEBGL_lose_context.loseContext()`; repeated AI-state mounts accumulate toward the
 browser's ~16-context cap, after which shader surfaces go black.
 
-### 13. `generationStore.pollJob` has no cancellation
+### 13. ~~`generationStore.pollJob` has no cancellation~~ — fixed, PRs #104 + #106
 Keeps hitting `/api/generate/:id` every 2s after `dismiss()` until the server says
 done/failed. Similarly `editorJobStore`'s single-job poll has no 404 exit (the
 split poll has one).
 - **404 half fixed (PR #104):** every `/api/generate/:id` poller now fails the job on
-  a 404. Polling on after `dismiss()` is still open.
+  a 404.
+- **Cancellation fixed (PR #106):** the loop stops once the store no longer tracks its
+  job, and a job gets one loop at most.
 
 ### 14. Misc leaks
 `client/src/audioDuration.ts` — object URL not revoked on the error path.
