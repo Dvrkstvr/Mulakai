@@ -84,12 +84,21 @@ export async function listModels(timeoutMs = config.acestepTimeoutMs): Promise<M
   };
 }
 
-export async function health(): Promise<boolean> {
+/** 'silent' = no answer within the leash, as opposed to a refused or failed request
+ * ('down'). ACE-Step answers nothing at all while it generates, so a caller that knows
+ * a job is running can read silence as busy rather than offline. */
+export type HealthState = 'up' | 'silent' | 'down';
+
+export async function healthState(): Promise<HealthState> {
   try {
-    // Short leash: this backs the UI status pill, where a hung probe is as bad as a down one.
+    // Short leash: this backs the UI status badge, where a hung probe is as bad as a down one.
     const res = await fetch(`${config.acestepUrl}/health`, { signal: AbortSignal.timeout(10_000) });
-    return res.ok;
-  } catch {
-    return false;
+    return res.ok ? 'up' : 'down';
+  } catch (err) {
+    return (err as { name?: string } | null)?.name === 'TimeoutError' ? 'silent' : 'down';
   }
+}
+
+export async function health(): Promise<boolean> {
+  return (await healthState()) === 'up';
 }
