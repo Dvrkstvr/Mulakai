@@ -324,5 +324,10 @@
   "322": "waveformPeaks.ts",
   "323": "lookup.test.ts",
   "324": "trackNames.ts",
-  "325": "1. Authentication"
+  "325": "1. Authentication",
+  "326": "COVER and ARRANGE Reference Audio: No Influence Sliders (planned + implemented 2026-09-30)",
+  "327": "Text2music Reference Audio: Style Influence Only (planned + implemented 2026-09-30)",
+  "328": "YuE2: Align With Upstream's `yue2-music` Skill (planned 2026-09-30)",
+  "329": "E2E Fails on Uncaught Page Errors (planned 2026-10-02)",
+  "330": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)"
 }
