@@ -311,9 +311,14 @@
   "309": "Training API",
   "310": "A Failed Editor Job Blocks Nothing (planned 2026-10-01)",
   "311": "splitHealth.test.ts",
+  "312": "FakeAudio",
+  "313": "7. Get Random Sample",
   "314": "6. Format Input",
   "315": "Idle Jobs Leave Every Registry (planned 2026-10-02)",
   "316": "jobRegistry.evict.test.ts",
   "317": "jobEviction.test.ts",
-  "318": "scratchSplitJobs.evict.test.ts"
+  "318": "scratchSplitJobs.evict.test.ts",
+  "319": "jobRunner.test.ts",
+  "320": "YuE2: Align With Upstream's `yue2-music` Skill (planned 2026-09-30)",
+  "321": "E2E Fails on Uncaught Page Errors (planned 2026-10-02)"
 }
