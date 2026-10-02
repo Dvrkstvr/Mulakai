@@ -2,9 +2,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useApiStatusStore } from './apiStatusStore';
+import { ModelStatusBadge } from './ModelStatusBadge';
 
 interface Props {
-  online: boolean | null;
   left: ReactNode;
   right: ReactNode;
   /** FORGE is feature-gated (Settings > Forge) — its header icon only renders when enabled, per FORGE_PLAN.md. */
@@ -15,7 +15,7 @@ interface Props {
 const STATUS_POLL_MS = 2000;
 
 /** Persistent app header — logo glides via a shared layoutId as the back-button/title slots mount around it on view change. */
-export function Header({ online, left, right, forgeEnabled, onForge }: Props) {
+export function Header({ left, right, forgeEnabled, onForge }: Props) {
   const active = useApiStatusStore((s) => s.active);
   const aborting = useApiStatusStore((s) => s.aborting);
   const poll = useApiStatusStore((s) => s.poll);
@@ -63,9 +63,7 @@ export function Header({ online, left, right, forgeEnabled, onForge }: Props) {
             </button>
           </span>
         )}
-        <span className={`health ${online ? 'ok' : 'down'}`}>
-          ACE-STEP {online === null ? '…' : online ? 'ONLINE' : 'OFFLINE'}
-        </span>
+        <ModelStatusBadge />
       </span>
     </motion.header>
   );

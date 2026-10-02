@@ -1,27 +1,26 @@
 import { useEffect } from 'react';
-import { api, type Song } from './api';
+import type { Song } from './api';
 import { useGenerationStore, type GenerationJob } from './generationStore';
+import { useModelStatusStore } from './modelStatusStore';
 import type { LibraryData } from './useLibraryData';
 
 interface Options {
   library: LibraryData;
   genJob: GenerationJob | null;
   hydrateGenJob: () => Promise<void>;
-  setOnline: (online: boolean) => void;
   setPlaying: (song: Song) => void;
 }
 
 /** The app shell's server sync: the initial library load, ACE-Step health and generation-lock
  * polling, folder-scope persistence, and the library refresh once a generation lands. */
-export function useAppSync({ library, genJob, hydrateGenJob, setOnline, setPlaying }: Options) {
+export function useAppSync({ library, genJob, hydrateGenJob, setPlaying }: Options) {
   const { folderScope, setFolderScope, folders, refresh, refreshFolders } = library;
 
   useEffect(() => {
     refresh();
     refreshFolders();
     hydrateGenJob();
-    const checkHealth = () =>
-      api.acestepHealth().then((h) => setOnline(h.acestep)).catch(() => setOnline(false));
+    const checkHealth = () => void useModelStatusStore.getState().checkAcestep();
     checkHealth();
     const timer = setInterval(checkHealth, 10_000);
     // Keeps generationStore's otherLock live so the editor's repaint/remaster/split/add-layer

@@ -1,6 +1,7 @@
 /** The engine list from `GET /api/engines` (ACE-Step first, with live health). Fetched when
- * Create or Settings mounts rather than polled: health only gates the picker, and the server
- * re-checks everything when a generation is actually submitted. */
+ * Create or Settings mounts and on the header status badge's slow refresh (modelStatusStore):
+ * health only gates the picker, and the server re-checks everything when a generation is
+ * actually submitted. */
 import { create } from 'zustand';
 import { api, type EngineId, type EngineInfo } from './api';
 

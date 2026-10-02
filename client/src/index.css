@@ -315,6 +315,173 @@ header {
   }
 }
 
+/* Header model status: a hairline badge with the summary, and a hover/focus
+   popover listing every model and service. No acid here: acid is reserved for
+   commit actions, so "ready" reads as plain text-hi, problems as rust. */
+.model-status {
+  position: relative;
+  display: inline-flex;
+}
+
+.model-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  border: 1px solid var(--line);
+  background: transparent;
+  padding: 4px 9px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-mid);
+  cursor: default;
+  transition: border-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+
+.model-status-badge:hover,
+.model-status-badge[aria-expanded="true"] {
+  border-color: var(--line-hi);
+  color: var(--text-hi);
+}
+
+.model-status-badge:focus-visible {
+  outline: 1px solid var(--text-hi);
+  outline-offset: 2px;
+}
+
+.model-status-badge.down {
+  border-color: var(--rust);
+  color: var(--rust-text);
+}
+
+.model-status-label {
+  color: var(--text-low);
+}
+
+.model-status-badge.down .model-status-label {
+  color: inherit;
+}
+
+.model-status-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--text-low);
+  animation: health-blip 0.5s ease-out;
+}
+
+.model-status-dot.ok,
+.model-status-dot.ready {
+  background: var(--text-hi);
+  border-color: var(--text-hi);
+}
+
+.model-status-dot.busy {
+  background: var(--text-mid);
+  border-color: var(--text-mid);
+  animation: model-status-busy 1.6s ease-in-out infinite;
+}
+
+.model-status-dot.down {
+  background: var(--rust);
+  border-color: var(--rust);
+}
+
+.model-status-dot.off {
+  border-color: var(--text-ghost);
+}
+
+@keyframes model-status-busy {
+  50% {
+    opacity: 0.3;
+  }
+}
+
+.model-status-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  width: 320px;
+  background: var(--carbon-raised);
+  border: 1px solid var(--line-hi);
+  padding: 10px 12px;
+  z-index: 60;
+}
+
+/* Bridges the gap above the popover so the pointer can travel into it. */
+.model-status-popover::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: 7px;
+}
+
+.model-status-head {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-low);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--line);
+}
+
+.model-status-row {
+  display: grid;
+  grid-template-columns: 6px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.model-status-name {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-hi);
+}
+
+.model-status-role {
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  color: var(--text-low);
+}
+
+.model-status-state {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text-hi);
+}
+
+.model-status-state.busy,
+.model-status-state.checking {
+  color: var(--text-mid);
+}
+
+.model-status-state.off {
+  color: var(--text-ghost);
+}
+
+.model-status-state.down {
+  color: var(--rust-text);
+}
+
+.model-status-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 8px;
+  font-size: 10px;
+  color: var(--text-low);
+}
+
 input,
 textarea {
   width: 100%;
