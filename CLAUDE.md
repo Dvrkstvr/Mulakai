@@ -15,6 +15,13 @@ Rules:
 - If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
+- `.gitattributes` gives `graphify-out/**` `merge=ours`: a local merge keeps
+  this branch's graph files instead of conflicting on them. Each clone needs
+  it defined once: `git config merge.ours.driver true` (without it, those
+  files conflict as before). The kept side is stale for whatever was merged
+  in, so run `graphify update .` after every merge. GitHub ignores custom
+  merge drivers: a PR whose only overlap with `main` is the graph still shows
+  as conflicting until someone merges `main` into it locally.
 
 ## Tech Stack
 
