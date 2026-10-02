@@ -14,7 +14,7 @@ interface Options {
 /** The app shell's server sync: the initial library load, ACE-Step health and generation-lock
  * polling, folder-scope persistence, and the library refresh once a generation lands. */
 export function useAppSync({ library, genJob, hydrateGenJob, setOnline, setPlaying }: Options) {
-  const { query, folderScope, setFolderScope, folders, setSongs, refresh, refreshFolders } = library;
+  const { folderScope, setFolderScope, folders, refresh, refreshFolders } = library;
 
   useEffect(() => {
     refresh();
@@ -35,7 +35,7 @@ export function useAppSync({ library, genJob, hydrateGenJob, setOnline, setPlayi
   // Re-fetch the song list whenever the folder scope changes — sort/filter stay local
   // (client-side, see visibleSongs in useLibraryData) but folder scoping is a server-side query param.
   useEffect(() => {
-    refresh(query, folderScope);
+    void refresh();
     if (folderScope) localStorage.setItem('folderScope', folderScope);
     else localStorage.removeItem('folderScope');
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -58,11 +58,10 @@ export function useAppSync({ library, genJob, hydrateGenJob, setOnline, setPlayi
     if (genJob?.stage !== 'done' || !genJob.songId) return;
     const newSongId = genJob.songId;
     refreshFolders();
-    api.listSongs(query, folderScope).then((list) => {
-      setSongs(list);
-      const newSong = list.find((s) => s.id === newSongId);
+    void refresh().then((list) => {
+      const newSong = list?.find((s) => s.id === newSongId);
       if (newSong) setPlaying(newSong);
-    }).catch(() => {});
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [genJob?.stage]);
 }

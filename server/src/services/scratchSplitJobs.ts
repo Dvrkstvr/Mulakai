@@ -25,12 +25,28 @@ export interface ScratchSplitJob {
   output: OutputSettings;
   outDir: string;
   createdAt: number;
+  /** Last client read (poll, preview, download, ANALYZE, GENERATE) — the idle clock. */
+  lastSeenAt: number;
 }
+
+/** Far longer than a layer split's hour: the picked stem is ARRANGE's source for as long as
+ * the draft lives, and nothing polls it meanwhile (PLAN.md "Idle Jobs Leave Every Registry"). */
+export const SCRATCH_IDLE_TTL_MS = 24 * 60 * 60 * 1000;
+
+/** What GENERATE / ANALYZE say for a split that was discarded or evicted meanwhile. */
+export const SCRATCH_GONE = "this split's stems have expired — split the file again";
 
 const jobs = new Map<string, ScratchSplitJob>();
 
+/** Look a job up for a client request, which also restarts its idle clock. */
 export function getScratchSplitJob(id: string): ScratchSplitJob | undefined {
-  return jobs.get(id);
+  const job = jobs.get(id);
+  if (job) job.lastSeenAt = Date.now();
+  return job;
+}
+
+export function isLiveScratchDir(dir: string): boolean {
+  return [...jobs.values()].some((j) => j.outDir === dir);
 }
 
 export function scratchStemPath(job: ScratchSplitJob, kind: string): string | undefined {
@@ -53,6 +69,7 @@ export async function startScratchSplit(src: SourceAudio, model: SplitModel, out
     output: parseOutputSettings(output),
     outDir,
     createdAt: Date.now(),
+    lastSeenAt: Date.now(),
   };
   jobs.set(job.id, job);
 
@@ -65,10 +82,18 @@ export async function startScratchSplit(src: SourceAudio, model: SplitModel, out
   return job;
 }
 
-/** Discard a scratch job and its temp files — no retention policy beyond "the user is done
- * with it" (explicit discard, or the process exiting); nothing here is ever added to the library. */
+/** Discard a scratch job and its temp files (RESET, the ABORT pill, or idle eviction);
+ * nothing here is ever added to the library. */
 export async function discardScratchSplit(jobId: string): Promise<void> {
   const job = jobs.get(jobId);
   jobs.delete(jobId);
   await fs.rm(job?.outDir ?? path.join(os.tmpdir(), `mulakai-split-${jobId}`), { recursive: true, force: true });
+}
+
+/** Discard every settled scratch split unread for SCRATCH_IDLE_TTL_MS. A running one is left
+ * to settle: it holds the genLock until its last stem lands. */
+export async function evictIdleScratchSplits(now = Date.now()): Promise<void> {
+  const idle = [...jobs.values()].filter((j) => j.stems.every((s) => s.status !== 'running')
+    && now - j.lastSeenAt > SCRATCH_IDLE_TTL_MS);
+  await Promise.all(idle.map((j) => discardScratchSplit(j.id)));
 }
