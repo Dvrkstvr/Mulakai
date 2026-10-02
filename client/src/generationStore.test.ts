@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 const generate = vi.fn();
 const generateWithEngine = vi.fn();
@@ -15,10 +15,19 @@ vi.mock('./api', () => ({
     activeGeneration: () => activeGeneration(),
     jobStatus: () => jobStatus(),
   },
+  ApiError: class ApiError extends Error {
+    status: number;
+    constructor(message: string, status: number) {
+      super(message);
+      this.status = status;
+    }
+  },
 }));
 
 const { useGenerationStore } = await import('./generationStore');
 const { busyMessage, coverLocked, isGenerating } = await import('./generationJob');
+const { ApiError } = await import('./api');
+const { JOB_GONE } = await import('./jobGone');
 const params = { title: 'T', prompt: 'indie pop' };
 
 beforeEach(() => {
@@ -27,6 +36,21 @@ beforeEach(() => {
   generateWithEngine.mockReset().mockResolvedValue({ jobId: 'engine-job' });
   coverWithEngine.mockReset().mockResolvedValue({ jobId: 'cover-job' });
   generateFromAudio.mockReset().mockResolvedValue({ jobId: 'audio-job' });
+});
+
+describe('polling', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('fails the card once the server no longer has the job, instead of polling a 404 forever', async () => {
+    vi.useFakeTimers();
+    jobStatus.mockRejectedValueOnce(new Error('network')).mockRejectedValueOnce(new ApiError('unknown job', 404));
+    await useGenerationStore.getState().start(params, { genType: 'prompt' });
+
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(useGenerationStore.getState().job).toMatchObject({ jobId: 'ace-job', stage: 'loading' }); // retried
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(useGenerationStore.getState().job).toMatchObject({ stage: 'failed', error: JOB_GONE });
+  });
 });
 
 describe('start routing', () => {

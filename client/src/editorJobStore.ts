@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { api, ApiError, type StemResult } from './api';
 import { useRemasterResult } from './remasterResult';
 import { isEditorBusy, type SingleEditorJob, type SplitJobState } from './editorJob';
+import { JOB_GONE } from './jobGone';
 
 export { isEditorBusy, myEditorJob } from './editorJob';
 
@@ -61,8 +62,9 @@ async function runSingleJob(
     let status: Awaited<ReturnType<typeof api.jobStatus>>;
     try {
       status = await api.jobStatus(jobId);
-    } catch {
-      continue;
+    } catch (err) {
+      if (!(err instanceof ApiError && err.status === 404)) continue;
+      status = { status: 'failed', error: JOB_GONE };
     }
     if (status.status === 'loading' || status.status === 'running') {
       set((s) => (s.editorJob?.jobId === jobId ? { editorJob: { ...s.editorJob, progress: status.progress, progressStage: status.progressStage, progressText: status.progressText } } : {}));
