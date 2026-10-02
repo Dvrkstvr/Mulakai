@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, type Layer, type StemKind } from './api';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { isGenerating, lockHolder, waitLabel } from './generationJob';
 import { useEditorJobStore, isEditorBusy } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
@@ -43,6 +43,8 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const otherSplit = splitJob && !mine ? splitJob : null;
   // While extracting, the lock is this split's own; otherwise anything holding it blocks a start or RE-EXTRACT.
   const busyElsewhere = !extracting && (genRunning || isEditorBusy(editorJob) || otherSplit?.stage === 'running' || !!otherLock);
+  const busyBy = busyElsewhere
+    ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning: otherSplit?.stage === 'running' }) : null;
   const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
 
   const healthLookup = useLookup(api.splitHealth);
@@ -113,9 +115,9 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
           <div className="hint">will extract vocals, drums, bass, and other as new stems from "{layer.name}"</div>
           <SplitBackendTabs lookup={healthLookup} model={model} onPick={setModel} />
           <button className="acid" disabled={!canSubmit} onClick={generate}>
-            {busyElsewhere ? 'BUSY ELSEWHERE' : 'GENERATE STEMS'}
+            {busyBy ? waitLabel(busyBy) : 'GENERATE STEMS'}
           </button>
-          {busyElsewhere && <div className="hint">a generation is already running elsewhere — try again once it finishes</div>}
+          {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
           {!busyElsewhere && otherSplit?.stage === 'done' && <div className="hint">starting closes the open split on another layer — its unclaimed stems are discarded</div>}
         </>
       ) : (

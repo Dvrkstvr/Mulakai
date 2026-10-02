@@ -6,7 +6,7 @@ import { GenerateButton } from './GenerateButton';
 import type { CreateDraft } from './createDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
+import { busyMessage } from './generationJob';
 import { useVoiceStore } from './voiceStore';
 import { useModelsForTask } from './useModelsForTask';
 import { AutoTextarea } from './AutoTextarea';
@@ -20,6 +20,7 @@ import { YueCoverPanel } from './YueCoverPanel';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { MoveToEditorAction } from './MoveToEditorAction';
+import { useSettings, coverParams } from './settings';
 
 /** AUDIO tab: "create cover from audio" — a `cover` generation conditioned on an uploaded
  * file or a client-bounced mix of an existing library song, persisted as a brand-new song.
@@ -41,11 +42,12 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [coverModels, model]);
 
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
+  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const startFromAudio = useGenerationStore((s) => s.startFromAudio);
   const dismiss = useGenerationStore((s) => s.dismiss);
   const voice = useVoiceStore();
-  const busy = submitting || genRunning;
+  const gen = useSettings((s) => s.gen);
+  const busy = submitting || !!blockedBy;
 
   const sourceReady = coverSourceReady(draft.audio);
   const ready = sourceReady && !!model && (coverModels?.length ?? 0) > 0;
@@ -77,7 +79,7 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
       const srcAudio = await resolveSrcAudio();
       await startFromAudio(
         {
-          title: title || 'Untitled', prompt, lyrics, model, audio_cover_strength: 1 - variance,
+          title: title || 'Untitled', prompt, lyrics, ...coverParams(gen, model), audio_cover_strength: 1 - variance,
           ...(bpm > 0 ? { bpm } : {}),
           ...(keyScale ? { key_scale: keyScale } : {}),
           ...(duration > 0 ? { audio_duration: duration } : {}),
@@ -143,7 +145,7 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
         keyScale={keyScale} onKeyScaleChange={(v) => patch({ keyScale: v })}
       />
 
-      <GenerateButton submitting={submitting} blocked={genRunning} label="GENERATE COVER" disabled={busy || !ready} onClick={generate} />
+      <GenerateButton submitting={submitting} blocked={blockedBy} label="GENERATE COVER" disabled={busy || !ready} onClick={generate} />
       <div className="hint">Renders a new song conditioned on the chosen source track — can take several minutes.</div>
       {error && <div className="error">{error} <button onClick={generate}>RETRY</button></div>}
       {/* Upload only: a library song is already editable from its row's EDIT button, and this

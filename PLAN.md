@@ -5588,6 +5588,7 @@ rewrites the caption into YuE2-style tags.
   never did, on either engine. The client disables it while a job holds
   the lock, but a job started in another tab can still overlap it. Should
   analysis take the lock under a new `analyze` kind?
+  **Answered (2026-10-02): yes.** See "ANALYZE AUDIO Takes the genLock".
 - **Is the vocabulary wide enough?** It is hand-written. Once the style
   tag probe exists, its mined counts could show which common caption
   words the extractor misses.
@@ -6567,6 +6568,10 @@ on PR 2):
   ELSEWHERE with "a generation is already running elsewhere". That line is
   shared by every lock kind; naming the kind ("lyric timings are being
   read") would be clearer, and is a change for all kinds at once.
+  **Answered (2026-10-02)** by "ANALYZE AUDIO Takes the genLock"'s
+  follow-up, for every kind at once: REPAINT REGION reads "WAIT FOR WORD
+  TIMINGS" while a read runs, and the hint reads "only one job can use
+  the GPU at a time — try again once it finishes".
 
 ### Browser check, PR 2 (2026-10-02)
 
@@ -6638,6 +6643,177 @@ handler as a click).
 
 `Editor.tsx` grew by one line, to 321: the `lines` prop. It was 320 before
 this work, over the 200 cap; splitting it is its own PR.
+
+## ANALYZE AUDIO Takes the genLock (planned 2026-10-02)
+
+Answers the first open question in "ANALYZE AUDIO on COVER · YUE2".
+`POST /api/generate/analyze-audio` never took the server's genLock, on
+either engine (COVER · YUE2's ANALYZE AUDIO calls the same route). The
+YUE2 panel disables the button while a job holds the lock, but a job
+started in another tab could still overlap it. The analysis loads a DiT
+and the LM onto the 16 GB card, so it must not run next to another job.
+COVER · ACE-STEP and ARRANGE didn't check the lock at all.
+
+### Decisions
+
+1. **Analysis takes the lock under a new `analyze` kind.** It is
+   acquired after the source is resolved, so a 400 for a missing source
+   never touches it. It is released in a `finally`: on success, on
+   ACE-Step's error, and on a timeout (`call()`'s `acestepTimeoutMs`
+   leash rejects like any other failure). A refused analysis answers
+   409, like every other locked route.
+   - No `Job` record: the call is synchronous, so the request is the
+     job. `/active` reports it as `running`; ABORT releases the lock
+     (best-effort, as for every kind — the ACE-Step call can't be
+     killed).
+2. **A 409 names what holds the lock.** `GenLockError` takes the
+   holder's kind: "an audio analysis is already in progress", "a repaint
+   is already in progress", … `generate` keeps today's "a generation is
+   already in progress".
+3. **Create's commit buttons see another job's lock.** GENERATE (PROMPT,
+   COVER on both engines, ARRANGE) and ANALYZE AUDIO only checked this
+   tab's own song generation, so they fired into a 409. They now also
+   read `otherLock`, which `refreshLock`'s existing poll already keeps,
+   and the GENERATE label names the holder: "WAIT FOR ANALYZE AUDIO",
+   "WAIT FOR A REPAINT", or "WAIT FOR A GENERATION" (formerly "A
+   GENERATION IS ALREADY RUNNING"; see the follow-up below for the
+   wording). One pure helper, `busyMessage(job, otherLock)`.
+   - The header pill already reads `ANALYZE · RUNNING` from `/active`.
+   - The Editor's BUSY ELSEWHERE already counts any `otherLock`. It
+     names the holder too since the follow-up below.
+   - A tab's own analysis also shows up as `otherLock` once polled, so
+     its GENERATE reads "WAIT FOR ANALYZE AUDIO" too (the server would
+     refuse it). `useAnalyzeSourceAudio` re-polls the lock
+     when its call settles, so that clears at once instead of up to one
+     poll later.
+
+### File-level plan
+
+- `server/src/services/genLock.ts` (+ test): the `analyze` kind;
+  `GenLockError(holder)` names it.
+- `server/src/services/analyzeJobs.ts` (new): `analyzeUnderLock(file,
+  model)`, acquire → `analyzeAudio` → release in `finally`. Its own
+  module keeps `routes/generate.ts` (already past the cap) from growing.
+- `server/src/routes/generate.ts`: `/analyze-audio` calls it; 409 on
+  `GenLockError`.
+- `server/src/routes/generateAnalyze.test.ts` (new): the lock is held
+  (and reported by `/active`) during an analysis, a concurrent generate
+  gets a 409 naming the analysis, a second analysis is refused, and the
+  lock is released after success, an error and a timeout.
+- `client/src/api/types.ts`: `analyze` in `ActiveGeneration.kind`.
+- `client/src/generationJob.ts` (+ `generationStore.test.ts`):
+  `busyMessage`.
+- `client/src/GenerateButton.tsx`: `blocked` becomes the message (or
+  null).
+- `client/src/PromptGenerateRow.tsx`, `CreateAudioTab.tsx`,
+  `CreateArrangeTab.tsx`, `YueCoverGenerate.tsx`: busy from
+  `busyMessage`.
+- `client/src/useAnalyzeSourceAudio.ts`: `refreshLock()` when a call
+  settles.
+
+### Browser check (2026-10-02)
+
+This branch's server and client on spare ports, against a stand-in for
+ACE-Step: model inventory, health, and a `/v1/analyze_audio` that answers
+after 40 s. The check is about the lock, not the analysis: the real call was
+browser-checked in "ANALYZE AUDIO on COVER · YUE2". This also kept a second
+model off a GPU another session was using. Two tabs:
+
+- **Before:** tab B on PROMPT with a prompt typed. GENERATE was enabled.
+- **Tab A, COVER · ACE-STEP**, an uploaded WAV, then ANALYZE AUDIO.
+  `/active` reported `kind: analyze, status: running` within a second, and
+  the button read ANALYZING….
+- **Tab B, within one poll:** GENERATE was off and read "ANALYZE AUDIO IS
+  ALREADY RUNNING" (the wording then; now "WAIT FOR ANALYZE AUDIO").
+  FEELING LUCKY was off too. The header pill read
+  `ANALYZE · RUNNING`.
+- **A stale tab's GENERATE** (a direct `POST /api/generate` from tab B):
+  409, "an audio analysis is already in progress".
+- **After the 40 s:** `/active` was null, the pill gone, and tab B's
+  GENERATE enabled again. Tab A's PROMPT and LYRICS held the analysis
+  result, and its GENERATE COVER was enabled.
+
+**Follow-up (2026-10-02): the Editor names the holder too.**
+
+REPAINT REGION, ADD LAYER's GENERATE, REMASTER SONG and GENERATE STEMS
+read "BUSY ELSEWHERE" whatever held the lock. Their hint, "a generation is
+already running elsewhere", was wrong for anything but a generation.
+
+- **One pure helper, `lockHolder`,** names whatever blocks an action. It
+  checks, in order: a split extracting in this tab, this tab's song
+  generation, this tab's editor job, then the polled `otherLock`.
+  `busyMessage` now uses it too, so Create and the Editor name the same
+  thing.
+- **The wording is short: "WAIT FOR ANALYZE AUDIO", "WAIT FOR A
+  REPAINT", ….** Found in the browser check: Create's full sentence
+  ("ANALYZE AUDIO IS ALREADY RUNNING") wrapped to two lines on the rail's
+  GENERATE STEMS and REMASTER SONG, and squeezed REPAINT REGION's prompt
+  field to a few letters. The longest short form, "WAIT FOR A SIMILAR
+  TAKE", is 23 characters and fits the rail on one line. Create uses the
+  same `waitLabel`, so one wording runs everywhere ("WAIT FOR A
+  GENERATION" replaces "A GENERATION IS ALREADY RUNNING").
+- **The busy rules don't change.** Each panel still decides
+  `busyElsewhere` as before (its own job excluded). Only the label and
+  the hint change.
+- **The hint drops the wrong noun:** "only one job can use the GPU at a
+  time — try again once it finishes".
+- **Names follow the buttons:** regenerate is "AN ALT TAKE" and retake is
+  "A SIMILAR TAKE", after VersionHistory's ALT / SIMILAR.
+- **VersionHistory's ALT / SIMILAR** have no busy label, but their
+  tooltip said "a generation is already running elsewhere", and only for
+  another editor job. It now names the holder whenever they're blocked by
+  anything but this layer's own take.
+
+Files:
+- `client/src/generationJob.ts`: `lockHolder` and `waitLabel`;
+  `busyMessage` built on them.
+- `client/src/generationJob.test.ts` (new): the holder's order, and that
+  a failed job names nothing.
+- `client/src/AddLayerTrigger.tsx`, `RemasterAction.tsx`,
+  `SplitPanel.tsx`, `Editor.tsx`: the label from `lockHolder`, and the new
+  hint.
+- `client/src/RepaintBar.tsx`: `busyElsewhere` becomes the holder (or
+  null).
+- `client/src/VersionHistory.tsx`: the tooltip from `lockHolder`.
+
+Browser check (2026-10-02), set up as above: an imported 10 s song open
+in the Editor in one tab, and ANALYZE AUDIO on COVER in the other.
+
+- **First pass, with Create's full sentence:** every Editor label named
+  the analysis. But GENERATE STEMS and REMASTER SONG wrapped to two lines
+  in the rail, and REPAINT REGION's prompt field shrank to "Describ…".
+  That led to the shorter `waitLabel`.
+- **With `waitLabel`:** REPAINT REGION, ADD LAYER's GENERATE, GENERATE
+  STEMS and REMASTER SONG all read "WAIT FOR ANALYZE AUDIO", disabled, on
+  one line (29 px). The repaint prompt stays readable. The hint reads
+  "only one job can use the GPU at a time — try again once it finishes".
+- **Every holder name fits:** each "WAIT FOR …" was measured on a hidden
+  clone of the rail button (228 px). All stay on one line, the longest
+  being "WAIT FOR A SIMILAR TAKE".
+- **The timeout path, live:** the stand-in was set to answer after 120 s,
+  so the server's 60 s ACE-Step leash fired first. Tab A showed
+  "ACE-Step /v1/analyze_audio -> no response within 60s", the lock was
+  released, and both tabs' buttons came back. That is decision 1's
+  timeout release, end to end.
+- **One false reading:** a tab left open while Vite hot-reloaded
+  `generationJob.ts` showed a mixed state (buttons disabled with no label,
+  REMASTER enabled). The hot reload re-created the store modules under a
+  page whose lock-poll interval still held the old ones. A fresh load was
+  correct throughout.
+- **Create on `waitLabel` (2026-10-02):** the lock was stubbed in the
+  page (`/api/generate/active` answering `analyze`). That checks only the
+  wording; the lock itself was checked end to end above. PROMPT's
+  GENERATE and COVER's GENERATE COVER read "WAIT FOR ANALYZE AUDIO",
+  disabled, and FEELING LUCKY was off. With the stub cleared, COVER's
+  read GENERATE COVER again within one poll.
+
+**Merged with "Editor Word Timestamps" (2026-10-02).** That section added a
+`timings` lock kind: lyrics-server reading a version's words in the
+background, with no button of its own. It is named like the others: a 409
+says "a word-timings reading is already in progress", and a blocked
+button reads "WAIT FOR WORD TIMINGS" (21 characters, one line in the
+rail). Without a name the label would have fallen back to "WAIT FOR
+ANOTHER JOB".
 
 ## Editor Failures Say So (planned 2026-10-02)
 
@@ -6717,6 +6893,218 @@ open, then:
   the song loaded and the line went away.
 - Ten volume ticks fired in one burst: two PATCHes (0.9, then 0.12),
   and the server held 0.12.
+
+## COVER Sends the Settings It Shows (planned 2026-10-02)
+
+Fixes AUDIT.md #5. The ARRANGE half of that entry (influence sliders
+promising an effect on `complete`) was fixed earlier: `referenceInfluence.ts`
+hides them and its hint says the reference is used as-is. The COVER half is
+still live. On COVER · ACE-STEP the left rail shows DIT MODEL, STEPS,
+GUIDANCE, SEED and ADVANCED, but `CreateAudioTab` sends only `model` and
+`audio_cover_strength`. So every one of those controls does nothing. The
+request also carries no `output` block, so a cover ignores the Settings
+format/rate/depth and lands as the server default (FLAC 48 kHz 24-bit), and
+it asks ACE-Step for `wav` instead of the `wav32` master every other path
+uses. `/from-audio` already accepts and parses all of these fields: the gap
+is client-only.
+
+### Decisions
+
+1. **COVER sends the rail's STEPS, GUIDANCE, SEED and advanced DiT knobs**,
+   plus the `output` block and the `wav32` master, through a new
+   `coverParams()` beside `genParams()`. No LM knobs (`cover` skips the LM
+   planner and the rail already hides them there), no THINKING/AI ENHANCE,
+   no `batch_size` (the server forces 1).
+2. **The tab's MODEL picker is the cover's model; the rail hides DIT
+   MODEL on COVER.** The tab's list is filtered to cover-capable models and
+   has been the only model sent since COVER shipped. A second picker
+   editing PROMPT's `gen.model` was a dead duplicate. DESIGN.md's
+   "DIT MODEL stays enabled" line is corrected in its own commit.
+3. **The rail gates on the cover model there.** STEPS' ceiling and AUTO
+   readout, GUIDANCE's N/A, and ADVANCED's Base-only gating read the tab's
+   model, so what the rail says matches what will run. STEPS is clamped to
+   that model's ceiling at submit too, since the value is shared with PROMPT
+   (e.g. 100 set for an SFT model, then a Turbo cover).
+4. **COVER · YUE2 is unchanged**: its rail is EngineGenSettings, already
+   wired.
+
+### File-level plan
+
+- `client/src/settingsParams.ts` (+ `settings.ts` re-export): `coverParams(gen, model)`.
+- `client/src/CreateAudioTab.tsx`: spread `coverParams(gen, model)` into the request.
+- `client/src/SettingsPanel.tsx`: `coverModel` prop; when set, no DIT MODEL
+  and the gating reads it.
+- `client/src/CreateView.tsx`: passes the tab's model on COVER · ACE-STEP.
+- `client/src/settings.test.ts`: `coverParams` sends steps/guidance/seed/DiT
+  knobs, the output block and `wav32`; omits LM/batch/thinking; clamps
+  steps to the cover model.
+- `docs/design/DESIGN.md`: the COVER rail line.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports against a scratch data dir, and
+ACE-Step 1.5 on 8001. Create → COVER · ACE-STEP:
+
+- The rail has no DIT MODEL. STEPS reads AUTO (50) with the tab's
+  XL-SFT, then AUTO (8) and GUIDANCE N/A after picking TURBO on the tab.
+  PROMPT still shows DIT MODEL, LM MODEL and the rest.
+- Settings → OUTPUT FORMAT MP3. COVER on ACESTEP-V15-SFT, STEPS 18,
+  GUIDANCE 5, SEED 4242 (random off), source hial4 from the library. The
+  `/from-audio` form carried `inference_steps` 18, `guidance_scale` 5,
+  `seed` 4242, `use_random_seed` false, the DiT knobs, `audio_format`
+  wav32 and the MP3 `output` block. Before, it carried only title,
+  prompt, lyrics, model and `audio_cover_strength`.
+- ACE-Step ran 18/18 diffusion steps and saved a wav32 master. The new
+  song's version stored those params, seed 4242, and its file landed as
+  `.mp3`.
+
+## A Preview Stopped Before It Starts Fails Quietly (planned 2026-10-02)
+
+Follows the open question in "The Library Loads Without Trying to Play".
+`previewPlayback.ts` started every preview with `void a.play()`. A
+`pause()` or new `src` while that play is still pending (the audio still
+loading) makes Chromium reject it with `AbortError`, and `void` left the
+rejection unhandled. Reproduced on main in the editor: a version's micro
+preview clicked twice in one go logged "The play() request was
+interrupted by a call to pause()" as an uncaught page error. Closing the
+popover, ✕, Escape or another preview taking the slot all hit the same
+path.
+
+### Decisions
+
+1. **Previews use the footer's `playOrStayPaused`.** `AbortError` and
+   `NotAllowedError` leave the preview paused; the element's own
+   `play`/`pause` events already keep the snapshot right. Any other
+   rejection is logged, now as "Preview: play() failed".
+2. **`playOrStayPaused` moves to its own module** so the preview slot
+   doesn't import the footer's. It takes the player's name for the log
+   line, and accepts a `play()` that returns nothing, as
+   `PreviewAudioElement` allows.
+
+### File-level plan
+
+- `client/src/playOrStayPaused.ts` (new), out of `singleTrack.ts`.
+- `client/src/previewPlayback.ts`: its four `void a.play()` calls use it.
+- `client/src/singleTrack.ts`, `client/src/useSingleAudioPlayback.ts`:
+  import it from the new module.
+- `client/src/playOrStayPaused.test.ts` (new), taking the cases from
+  `singleTrack.test.ts`.
+- `client/src/previewPlayback.abort.test.ts` (new; the existing preview
+  test file is near the size cap): a fake whose `play()` stays pending
+  until playback begins. Toggle off, another preview, and stop before
+  then all stay quiet and leave the right state.
+
+### Browser check (2026-10-02)
+
+Playwright Chromium against the e2e harness from
+`test/playwright-golden-path`, copied in for the run: generate a song,
+open it in the editor, click the version preview twice in one task, then
+open it and close it with ✕ as soon as it renders, then preview it
+normally. On main: one `pageerror`, the `AbortError` above. With the
+fix: none, and the last preview played. The golden path still passes.
+
+## Abandoned Splits Leave No Stems Behind (planned 2026-10-02)
+
+Follow-up to AUDIT.md #2 (and the `stemSplit.ts` half of #11). "RE-EXTRACT
+Never Touches a Claimed Stem" deletes unclaimed stem files on supersede
+and on cancel, but a split job lives only in `stemSplit.ts`'s in-memory
+map, and only `cancelSplit` removes it. The client cancels only when a
+new split starts or on CANCEL SPLIT, so a split left open when the tab
+closes keeps its job forever and its unclaimed stems sit in `audioDir`
+(served, and counted as library size). A server restart loses the map
+outright, so those files can then never be reached by any cleanup.
+
+### Decisions
+
+1. **An idle split is cancelled after an hour.** "Idle" counts from the
+   last time anyone touched the job (status poll, claim, RE-EXTRACT), not
+   from when it started: the client polls an open split every 2 s for as
+   long as the session is open, even outside the Editor, so a live
+   session is never idle, and a closed tab stops the polls. An hour is
+   well past a hidden tab's throttled timers (about one tick a minute).
+   Eviction is `cancelSplit`, so it takes the same path as CANCEL SPLIT:
+   unclaimed files removed after the `versions.audio_file` check, and a
+   result still in flight dropped when it lands. The client already
+   treats the 404 that follows as "the split was closed elsewhere".
+2. **Checked every five minutes**, on the same kind of `setInterval` as
+   the trash sweep in `index.ts`.
+3. **At startup, orphaned stems are swept.** Any file in `audioDir` named
+   like a stem (`<uuid>-<kind>-<nonce>.<ext>`, or the pre-#81
+   `<uuid>-<kind>.<ext>`) that no `versions` row points at is deleted. No
+   other writer uses that shape (versions are `<versionId>.<ext>`, cover
+   art `<songId>-cover.<ext>`, voices `<voiceId>.<ext>`). The sweep
+   also skips any file whose job is still in the map, so it is safe
+   whenever it runs, not only before the first split.
+4. **A file a version points at is never deleted.** Both paths read
+   `versions.audio_file` right before deleting; the startup sweep reads
+   all of them once, then deletes.
+5. **The scratch split is unchanged.** It writes to OS tmp, not
+   `audioDir`, and is out of scope here.
+
+### File-level plan
+
+- `server/src/services/stemFiles.ts` (new): `discardUnclaimedFile`
+  (moved from `stemSplit.ts`), the stem filename pattern, and
+  `sweepOrphanStems(isLive)`.
+- `server/src/services/stemSplit.ts`: `lastSeenAt` on `SplitJob`, bumped
+  by `getSplitJob`, `claimStem` and `reextractStem`; `isLiveSplit`;
+  `evictIdleSplits(now)`.
+- `server/src/index.ts`: the startup sweep and the five-minute eviction
+  timer.
+- `server/src/services/stemFiles.test.ts` (new): the sweep removes
+  unreferenced stems (both name shapes) and keeps referenced ones,
+  non-stem files and a live job's files.
+- `server/src/services/stemSplit.evict.test.ts` (new): an idle split is
+  evicted with its unclaimed files and keeps its claimed one; a polled
+  split survives past an hour from its start.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir and
+`uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A 60 s song
+imported, SPLIT with DEMUCS:
+
+- Restart: four stems landed; VOCALS → ADD LAYER; the tab navigated away
+  with no CANCEL SPLIT; server restarted. Boot logged "Removed 3 unclaimed
+  split stem file(s)": drums/bass/other gone, the claimed vocals file and
+  the source kept. Reopened, the Vocals layer loaded its file (200).
+- Idle eviction, run with the TTL temporarily cut to 60 s and the check to
+  10 s (not committed): a second split left open and polled stayed past
+  two minutes, and DRUMS → ADD LAYER still worked then. With the tab then
+  navigated away, its three unclaimed stems were deleted about a minute
+  later; the claimed drums file stayed.
+
+## E2E Fails on Uncaught Page Errors (planned 2026-10-02)
+
+Loading `/` logged two unhandled `NotAllowedError: play() failed…`
+rejections from the footer player (`useSingleAudioPlayback.ts` with an
+empty `src`), fixed on `fix/footer-autoplay-on-load`. The golden-path e2e
+passed straight through them because nothing listened for Playwright's
+`pageerror`.
+
+### Decisions
+
+1. **An auto fixture, not a per-spec hook.** `e2e/tests/fixtures.ts`
+   extends Playwright's `test` with `failOnPageError` (`auto: true`).
+   It records every `pageerror` (uncaught exceptions and unhandled
+   rejections) on every page of the test's context, popups included,
+   and after the test asserts that the list is empty. Specs import
+   `test`/`expect` from `./fixtures` instead of `@playwright/test`, so a
+   new spec gets the guard by following the existing import.
+2. **The failure names the errors.** The assertion is on the collected
+   `name: message` strings, so the report shows what was thrown, not
+   only that something was.
+3. **`console.error` is not covered.** React and Vite warnings go there,
+   and failing on them is a separate decision.
+4. **Lands after the footer fix.** Without it the e2e fails on load.
+   This was checked both ways: without the fix the golden path fails
+   with both `NotAllowedError`s. With it, the path passes. A temporary
+   `throw` in `client/src/main.tsx` fails the run with its message.
+
+### File-level plan
+
+- `e2e/tests/fixtures.ts`: the guard (new).
+- `e2e/tests/golden-path.spec.ts`: imports from `./fixtures`.
 
 ## Lookup Failures Aren't Answers (planned 2026-10-02)
 

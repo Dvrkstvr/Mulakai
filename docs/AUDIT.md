@@ -26,6 +26,10 @@
   versions. Stem files are now append-only (unique names), a re-extract keeps only its
   own stem and reads the split's original source, and unclaimed files are deleted on
   supersede/cancel — PR #81 (was #2).
+- Follow-up to #2: a split left open when its tab closed kept its job in memory and its
+  unclaimed stems in `audioDir` forever, and a restart stranded them. Idle splits (no
+  poll, claim or RE-EXTRACT for an hour) are now cancelled, and boot sweeps stem files
+  no version points at — PR #96.
 - Playback never ended: no `onended` on any source, so the Editor stayed "playing"
   with `currentTime()` growing past the song forever. The longest layer's end now
   stops the engine at the duration (play again restarts from 0), guarded by a
@@ -43,6 +47,9 @@
   rename/volume/mute/solo, REVERT and the song detail rail's saves dropped their
   errors. Each now shows a rust `.error` line (RETRY for a load or refresh), and a
   volume drag sends one PATCH at a time, latest value wins — PR #83 (was #4).
+- COVER sent only `model` + `audio_cover_strength`: the rail's STEPS/GUIDANCE/SEED/
+  advanced knobs did nothing, and covers ignored the Settings output format. Now
+  sent via `coverParams()`, with the rail gated on the tab's model — PR #95 (was #5).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -59,6 +66,8 @@ after the last buffer plays out, `playing` stays true and `currentTime()` grows 
 on-disk audio of stems already claimed as versions. The doc comment ("keeps only
 this stem's output") describes behavior the code doesn't implement. Unclaimed stem
 files are also never deleted (`cancelSplit` only drops the in-memory job).
+- **Follow-up (PR #96):** splits abandoned without a cancel (tab closed, server
+  restart) still leaked their stems; now evicted after an hour idle, and swept at boot.
 
 ### 3. ~~demucs-server blocks its event loop and leaks disk~~ — fixed, PR #80
 `/split` is now a sync `def` (threadpool, one at a time); failed splits remove
@@ -84,7 +93,11 @@ split retained forever, publicly served.
 
 ## 🟠 Correctness
 
-### 5. Dead controls presented as live
+### 5. ~~Dead controls presented as live~~ — fixed, PR #95
+COVER now sends the rail's STEPS/GUIDANCE/SEED/DiT knobs, the `output` block and the
+`wav32` master, and the rail drops its duplicate DIT MODEL there. The ARRANGE
+influence half was fixed earlier (`referenceInfluence.ts`).
+
 - `client/src/CreateAudioTab.tsx` — cover generation sends only `model` +
   `audio_cover_strength`; the STEPS/GUIDANCE/SEED/advanced panel rendered on that
   tab has zero effect.
@@ -120,7 +133,8 @@ but the abort is silently undone.
 
 ### 11. Job registries never evict
 `server/src/services/jobs.ts` / `stemSplit.ts` — `jobs.set(...)` has no paired
-delete; every job for the life of the process accumulates.
+delete; every job for the life of the process accumulates. (`stemSplit.ts` now evicts
+idle splits — PR #96; `jobs.ts` and the other registries still don't.)
 
 ### 12. WebGL context leak in `ShaderCanvas`
 `client/src/ShaderCanvas.tsx` — cleanup never calls
@@ -188,7 +202,7 @@ responsibility (no behaviour change; every resulting file ≤150):
 | `client/src/settings.ts` | 329 | #75 (merged) |
 | `client/src/Editor.tsx` | 320 | #82 |
 | `client/src/App.tsx` | 317 | #77 (merged) |
-| `server/src/routes/generate.ts` | 298 | #72 |
+| `server/src/routes/generate.ts` | 298 | #72 (merged) |
 | `server/src/services/jobs.ts` | 283 | #73 (merged) |
 | `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
 | `server/src/services/repaintJobs.ts` | 235 | #71 (merged) |
