@@ -184,7 +184,7 @@ requiring its own justification against a screen-count rule.
 1. **Library** (home) — full width is browsing surface; a right-hand detail
    rail opens only once a song is selected (see below), it does not reserve
    space up front.
-   - Header: brand + ACE-Step status only. No search, no form — kept clean
+   - Header: brand + model status badge only. No search, no form — kept clean
      since neither acts on the header itself.
    - **Create bar**: one slim row below the header — a single "what do you
      want to make?" prompt input + acid CREATE button (parallelogram) that
@@ -465,7 +465,7 @@ requiring its own justification against a screen-count rule.
      leaves a dead gap under a tall bordered card. The layer list caps at
      `55vh` and scrolls internally past that instead of growing the page.
    - Header (full width, persistent across all three screens): back-to-
-     library, brand wordmark, ACE-STEP status pill only. Song title, time/
+     library, brand wordmark, model status badge only. Song title, time/
      bpm/key metadata, and EXPORT live in the center column and right rail
      respectively (see below) — the header stays free of anything scoped to
      "this song," so it doesn't need to re-render per-song content.
@@ -733,13 +733,29 @@ progress states (see "AI states" below), which are allowed to feel alive.
 
 ### Persistent header
 
-The header (brand + ACE-Step status) is a single persistent element, not
+The header (brand + model status) is a single persistent element, not
 re-mounted per view — it never fades with the rest of the screen. The
 `MULAKAI` wordmark uses a shared `layoutId` so it glides (not cuts) between
 its Library position (left, standalone) and its Editor/Create position
-(left, beside the back button/title), while the ACE-Step status pill stays
+(left, beside the back button/title), while the model status badge stays
 in place at the right. Only the content *below* the header crossfades on
 view change.
+
+**Model status badge** (2026-10-02): one hairline rectangle at the header's
+right — a square dot, `MODELS`, and a summary: `N READY`, `N DOWN`,
+`ACE-STEP OFFLINE` (outranks any count: every edit runs on it), `ACE-STEP
+BUSY` (silent mid-job — it answers nothing while generating — so not an
+outage), or `CHECKING…`. Hovering or focusing it opens a popover (carbon-
+raised, `line-hi` hairline, anchored under its right edge) with one row per
+model or service: ACE-Step, each extra engine plus its cover model, the
+Demucs/UVR slot and ACE-Step extract for stem splits, and the lyrics reader
+— name, what the app uses it for, and its state, with a SETTINGS › link at
+the foot. States: READY/ONLINE in `text-hi` (filled dot), BUSY in
+`text-mid` (slow-pulsing dot), UNREACHABLE/OFFLINE in rust (filled rust
+dot; a down service also turns the badge rust), NOT CONFIGURED / NOT SET UP
+in `text-ghost` (hollow dot). Not configured is a setup choice, not a
+fault, so it never counts as down. No acid here: acid means "commit", and a
+healthy model isn't an action.
 
 ### View transitions
 
@@ -764,8 +780,8 @@ view change.
   failed — uses `.warn-note` instead: same rust hue, 1px left hairline, no
   entrance animation, since it wasn't triggered by the last click and
   animating it would claim otherwise.
-- **Status blips**: the ACE-Step health dot pulses once when it flips
-  online/offline, so the state change isn't silent.
+- **Status blips**: the model status badge's dot pulses once whenever its
+  overall state flips (ready/busy/down), so the change isn't silent.
 - **Commit actions**: GENERATE / REPAINT REGION give a brief acid glow/scale
   flash at the moment of commit, echoing "this just started something."
 
