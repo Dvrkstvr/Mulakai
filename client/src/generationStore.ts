@@ -1,8 +1,8 @@
 import { create } from 'zustand';
-import { api, ApiError, type ActiveGeneration, type EngineId, type StemKind } from './api';
+import { api, type ActiveGeneration, type EngineId, type StemKind } from './api';
 import type { CreateDraft } from './createDraft';
 import { adoptLock, isGenerating } from './generationJob';
-import { JOB_GONE } from './jobGone';
+import { pollJob } from './generationPoll';
 
 export type GenStage = 'loading' | 'running' | 'done' | 'failed';
 
@@ -72,48 +72,14 @@ interface GenerationState {
   refreshLock: () => Promise<void>;
 }
 
-const POLL_MS = 2000;
-/** How long the shrunk "done" card lingers before it's cleared, giving the shrink
- * transition somewhere to land before the real song row (from the library refresh)
- * takes its place. */
-const DONE_LINGER_MS = 900;
-
 type SetState = (fn: (s: GenerationState) => Partial<GenerationState>) => void;
-
-async function pollJob(jobId: string, set: SetState) {
-  for (;;) {
-    await new Promise((r) => setTimeout(r, POLL_MS));
-    let s: Awaited<ReturnType<typeof api.jobStatus>>;
-    try {
-      s = await api.jobStatus(jobId);
-    } catch (err) {
-      // A network hiccup keeps polling rather than surfacing a false failure; a 404 never recovers.
-      if (!(err instanceof ApiError && err.status === 404)) continue;
-      s = { status: 'failed', error: JOB_GONE };
-    }
-    if (s.status === 'loading' || s.status === 'running') {
-      set((state) => (state.job?.jobId === jobId
-        ? { job: { ...state.job, stage: s.status as GenStage, progress: s.progress, progressStage: s.progressStage, progressText: s.progressText } }
-        : {}));
-      continue;
-    }
-    if (s.status === 'done') {
-      set((state) => (state.job?.jobId === jobId ? { job: { ...state.job, stage: 'done', songId: s.songId } } : {}));
-      setTimeout(() => {
-        set((state) => (state.job?.jobId === jobId ? { job: null } : {}));
-      }, DONE_LINGER_MS);
-      return;
-    }
-    set((state) => (state.job?.jobId === jobId ? { job: { ...state.job, stage: 'failed', error: s.error ?? 'generation failed' } } : {}));
-    return;
-  }
-}
+type GetState = () => GenerationState;
 
 /** The shared shape of every song-creating submit: show a provisional "loading" job at once,
  * swap in the server's jobId when the submit answers (or fail the card with its error), then
  * poll to completion. One generation at a time, globally — see genLock.ts server-side. */
 async function launch(
-  set: SetState, get: () => GenerationState, caption: string, title: string, draft: CreateDraft,
+  set: SetState, get: GetState, caption: string, title: string, draft: CreateDraft,
   submit: () => Promise<{ jobId: string }>,
 ): Promise<void> {
   if (isGenerating(get().job)) return;
@@ -122,7 +88,7 @@ async function launch(
   try {
     const { jobId } = await submit();
     set((state) => (state.job === provisional ? { job: { ...provisional, jobId } } : {}));
-    void pollJob(jobId, set);
+    pollJob(jobId, set, get);
   } catch (err) {
     set((state) => (state.job === provisional
       ? { job: { ...provisional, stage: 'failed', error: err instanceof Error ? err.message : String(err) } }
@@ -159,7 +125,7 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
       const { active } = await api.activeGeneration();
       if (!active || active.kind !== 'generate') return;
       set({ job: adoptLock(active) });
-      if (active.status === 'loading' || active.status === 'running') void pollJob(active.jobId, set);
+      if (active.status === 'loading' || active.status === 'running') pollJob(active.jobId, set, get);
     } catch {
       // ACE-Step/server unreachable at startup — health check elsewhere already surfaces this
     }
@@ -180,7 +146,7 @@ export const useGenerationStore = create<GenerationState>((set, get) => ({
         // A song generation started elsewhere (e.g. another tab) — adopt it as our own job
         // so the library card and CreateBar pick it up, same as hydrate() does on mount.
         set({ otherLock: null, job: adoptLock(active) });
-        if (active.status === 'loading' || active.status === 'running') void pollJob(active.jobId, set);
+        if (active.status === 'loading' || active.status === 'running') pollJob(active.jobId, set, get);
         return;
       }
       set({ otherLock: { kind: active.kind, songId: active.songId } });
