@@ -1,8 +1,7 @@
 import path from 'node:path';
 import { Router } from 'express';
 import multer from 'multer';
-import { config } from '../config.js';
-import { listModels } from '../services/acestep.js';
+import { splitHealth } from '../services/splitHealth.js';
 import { getSplitJob, claimStem, reextractStem, cancelSplit, type StemKind, type SplitModel } from '../services/stemSplit.js';
 import { startScratchSplit, getScratchSplitJob, discardScratchSplit, scratchStemPath } from '../services/scratchSplitJobs.js';
 import { GenLockError } from '../services/genLock.js';
@@ -32,18 +31,7 @@ function isStemKind(v: unknown): v is StemKind {
 }
 
 splitRouter.get('/health', async (_req, res) => {
-  const { models } = await listModels();
-  const acestep = models.some((m) => m.supportedTaskTypes.includes('extract'));
-  let demucs = false;
-  if (config.demucsUrl) {
-    try {
-      const r = await fetch(`${config.demucsUrl}/health`);
-      demucs = r.ok;
-    } catch {
-      demucs = false;
-    }
-  }
-  res.json({ acestep, demucs });
+  res.json(await splitHealth());
 });
 
 /** Standalone stem split: upload any audio file, get stems back with no song/library entry

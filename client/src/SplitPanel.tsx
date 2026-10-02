@@ -7,6 +7,7 @@ import { fmtElapsed, useElapsedMs } from './genProgress';
 import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
 import { useLookup } from './lookup';
+import { SplitBackendTabs } from './SplitBackendTabs';
 
 interface Props {
   songId: string;
@@ -112,32 +113,7 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
       {!stems ? (
         <>
           <div className="hint">will extract vocals, drums, bass, and other as new stems from "{layer.name}"</div>
-          {healthLookup.error ? (
-            <div className="error">
-              couldn't check split backends — {healthLookup.error} <button onClick={healthLookup.retry}>RETRY</button>
-            </div>
-          ) : health === null ? (
-            <span className="meta">checking available backends…</span>
-          ) : (
-            <div className="type-tabs">
-              <button
-                className={`tab${model === 'acestep' ? ' active' : ''}`}
-                disabled={!health.acestep}
-                title={health.acestep ? undefined : 'no downloaded model supports extract — requires a Base model'}
-                onClick={() => setModel('acestep')}
-              >
-                <span>ACE-STEP</span>
-              </button>
-              <button
-                className={`tab${model === 'demucs' ? ' active' : ''}`}
-                disabled={!health.demucs}
-                title={health.demucs ? undefined : 'Demucs is not configured (DEMUCS_API_URL unset)'}
-                onClick={() => setModel('demucs')}
-              >
-                <span>DEMUCS</span>
-              </button>
-            </div>
-          )}
+          <SplitBackendTabs lookup={healthLookup} model={model} onPick={setModel} />
           <button className="acid" disabled={!canSubmit} onClick={generate}>
             {busyBy ? waitLabel(busyBy) : 'GENERATE STEMS'}
           </button>

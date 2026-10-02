@@ -68,7 +68,7 @@ export async function resolveInferenceSteps(params: ReleaseTaskParams): Promise<
     return;
   }
   // AUTO model: ACE-Step will lazy-load its own default, so ask which one that is.
-  // listModels() already swallows transport errors into an empty inventory.
-  const { defaultModel } = await listModels();
+  // A down ACE-Step must not change what we send: no inventory means the legacy count.
+  const defaultModel = await listModels().then((inv) => inv.defaultModel, () => null);
   params.inference_steps = stepsForModel(defaultModel) ?? LEGACY_STEPS;
 }

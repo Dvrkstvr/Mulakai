@@ -4626,10 +4626,12 @@ feature. `stemSplit.ts`, the routes and the SPLIT UI do not change.
 
 ### Open questions
 
-- **The SPLIT button still says DEMUCS.** With `uvr-server` behind it, that
+- ~~**The SPLIT button still says DEMUCS.** With `uvr-server` behind it, that
   label is inaccurate. `/health` already returns `backend: "uvr"`. Passing
   it through `GET /api/split/health` to the button touches the server route
-  and both split pickers, so it's a separate small PR if wanted.
+  and both split pickers, so it's a separate small PR if wanted.~~
+  **Answered 2026-10-02** in "SPLIT Names Its Real Backend": the tab reads
+  UVR or DEMUCS, whichever service answers at `DEMUCS_API_URL`.
 - **6-stem output (`htdemucs_6s`: guitar, piano)** would need new
   `StemKind`s and layer kinds. That is a scope question, not part of this
   change.
@@ -7474,3 +7476,237 @@ with "Failed to fetch", then CREATE:
   down; see "Lookup Failures Aren't Answers" decision 5).
 - Server stopped, CREATE opened again on ARRANGE: the model list,
   voices and Arrange lines all read "HTTP 502 · RETRY".
+
+## An Unreachable ACE-Step Is a Failure, Not "No Models" (planned 2026-10-02)
+
+Server half of "Lookup Failures Aren't Answers" (its decision 5).
+`listModels()` (`server/src/services/acestep/models.ts`, behind the
+`acestep.ts` facade) returned the same empty inventory
+`{ models: [], lmModels: [], defaultModel: null }` when ACE-Step answered
+"no models" and when it was unreachable, answered non-2xx, or timed out.
+Its callers passed that on:
+
+- `GET /api/generate/models` answered 200 with the empty inventory, so
+  the client's `useLookup` never saw a failure. Add Layer and Remaster
+  said "no downloaded model supports…".
+- `GET /api/split/health` turned it into `acestep: false`, so ACE-STEP
+  split was disabled as "no downloaded model supports extract".
+- The same route reported `demucs: false` both for an unset
+  `DEMUCS_API_URL` and for a set one that didn't answer. The client
+  tooltip always said "not configured (DEMUCS_API_URL unset)". Its fetch
+  also had no timeout, so a hung Demucs held the whole response.
+
+### Decisions
+
+1. **`listModels()` throws when it gets no answer.** A transport error
+   or timeout throws "ACE-Step unreachable at <url> (<cause>)", where the
+   cause is the socket error code or "no response within Ns". A non-2xx
+   throws "ACE-Step model inventory -> HTTP <status>". A 2xx body with
+   no `data` is still an empty answer.
+2. **`/api/generate/models` answers 502 `{ error }`** with that message,
+   like `/sample-from-query` and the other ACE-Step routes. The client's
+   `useLookup` shows it with RETRY.
+3. **`/api/split/health` stays 200 and reports each backend on its own.**
+   Demucs splits never touch ACE-Step, so failing the whole request when
+   ACE-Step is down would hide a working Demucs (user decision,
+   2026-10-02). The response gains two fields:
+   `{ acestep, acestepError, demucs, demucsReason }`.
+   - `acestepError`: the `listModels()` message when ACE-Step couldn't
+     be asked. It is null when ACE-Step answered, and `acestep: false`
+     then really means no model supports extract.
+   - `demucsReason`: `'unset'` (no `DEMUCS_API_URL`), `'unreachable'`
+     (set, but `/health` failed, answered non-2xx, or took over 10s,
+     the same leash as `acestep.health()`), or null when it's up.
+   The two probes run in parallel.
+4. **The split panels show `acestepError` as a rust `.error` line with
+   RETRY** above the backend buttons, which stay usable: "couldn't check
+   ACE-Step — ACE-Step unreachable at … · RETRY". The ACE-STEP button is
+   disabled, titled "ACE-Step unreachable". The DEMUCS button's title
+   now says which: "Demucs is not configured (DEMUCS_API_URL unset)" or
+   "Demucs is not answering at DEMUCS_API_URL". One helper builds these
+   titles for both panels.
+5. **Other `listModels()` callers keep their behaviour.**
+   `inferenceSteps.ts`'s AUTO-model lookup catches the throw and falls
+   back to the legacy step count, as it did with the empty inventory. A
+   down ACE-Step must not change the steps we send. The job services
+   don't call `listModels()` directly. Their tests mock it and are
+   unaffected.
+6. **Out of scope:** the Create-side client lookups (`useModelsForTask`,
+   `ModelsSection`, `SettingsPanel`) already catch a failed
+   `listModels()` into an empty list. They now get a 502 where they used
+   to get an empty 200, so what they show doesn't change. Making them
+   say "couldn't check" is the follow-up that decision 5 of the earlier
+   section names.
+
+### File-level plan
+
+- `server/src/services/acestep/models.ts`: `listModels()` throws per
+  decision 1.
+- `server/src/services/splitHealth.ts` (new): `splitHealth()` runs both
+  probes and returns the decision 3 shape.
+- `server/src/routes/generate.ts`: `/models` sends a 502 on a throw.
+- `server/src/routes/split.ts`: `/health` returns `splitHealth()`.
+- `server/src/services/inferenceSteps.ts`: catch around the lookup.
+- `client/src/api/types.ts`, `client/src/api/editor.ts`: a `SplitHealth`
+  type with the new fields, returned by `splitHealth()`.
+- `client/src/lookup.ts`: `splitBackendTitle(health, backend)`, the
+  tooltip for a disabled backend button.
+- `client/src/SplitBackendTabs.tsx` (new): the checking / error / ACE-STEP
+  and DEMUCS block both panels had verbatim, plus the `acestepError`
+  line. Adding that line twice would have pushed both panels further
+  past the 150-line target. Both now sit under it (142 and 138 lines).
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`:
+  render `SplitBackendTabs`.
+- Tests: `acestep.test.ts` (`listModels` empty answer vs refused,
+  timeout, and non-2xx), `splitHealth.test.ts` (each backend's states,
+  and an ACE-Step failure that doesn't hide Demucs), `generate.test.ts`
+  (`/models` 502), `split.test.ts` (`/health` passes the shape on),
+  `inferenceSteps.test.ts` (non-2xx inventory falls back),
+  `lookup.test.ts` (titles).
+- DESIGN.md: extend the lookup bullet with the per-backend line.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, with a fresh library. One
+imported 3s tone was used as the Editor's song.
+`ACESTEP_API_URL` and `DEMUCS_API_URL` pointed at closed ports.
+
+- `curl /api/generate/models`: 502 `{"error":"ACE-Step unreachable at
+  http://127.0.0.1:8099 (ECONNREFUSED)"}`. `/api/split/health`: 200 with
+  that `acestepError` and `demucsReason: "unreachable"`.
+- Create › ARRANGE › SPLIT A SONG: "couldn't check ACE-Step — ACE-Step
+  unreachable at … (ECONNREFUSED) · RETRY". Both backend buttons were
+  disabled. ACE-STEP was titled "couldn't check ACE-Step" and DEMUCS
+  "Demucs is not answering at DEMUCS_API_URL".
+- A stub answering 200 on `:8098/health`, then RETRY: the ACE-Step line
+  stayed, and DEMUCS became enabled and was auto-selected.
+- Editor: Add Layer and EXPORT showed "couldn't check models for Add
+  Layer / Remaster — ACE-Step unreachable at … · RETRY". SPLIT showed
+  the ACE-Step line, with DEMUCS picked and GENERATE STEMS enabled.
+- A stub ACE-Step answering an empty inventory on `:8099`, then RETRY:
+  "no downloaded model supports Add Layer / Remaster" with no error
+  line. SPLIT showed no error line, and ACE-STEP was titled "no
+  downloaded model supports extract".
+- Create's ARRANGE still says "no downloaded model supports arrange
+  generation" while ACE-Step is down (decision 6, unchanged).
+
+## SPLIT Names Its Real Backend (planned 2026-10-02)
+
+Answers the first open question in "UVR Separator: Roformer Vocals for
+SPLIT". Both split pickers (the Editor's SplitPanel and Create's
+ScratchSplitPicker) label the `DEMUCS_API_URL` service DEMUCS, even when
+`uvr-server` answers there. `uvr-server`'s `/health` says
+`backend: "uvr"`; `demucs-server`'s says no backend at all.
+
+### Decisions
+
+1. **`GET /api/split/health` adds `demucsBackend`**: `"uvr"` when the
+   service's `/health` says so, `"demucs"` for any other healthy answer
+   (demucs-server sends no `backend`, and a body that isn't JSON counts as
+   none), `null` when the service is unset or down. `acestep` and `demucs` keep their
+   meaning, so the `model: 'demucs'` value sent to start a split is
+   unchanged: it names the slot, not the backend.
+2. **The tab reads `UVR` or `DEMUCS`.** With no backend known (unset or
+   down) it stays `DEMUCS`, the env var's name. The disabled tooltip no
+   longer claims the URL is unset: it says no split service answers at
+   `DEMUCS_API_URL`.
+3. **One mapping, `splitBackend.ts`**, used by both pickers, so they
+   cannot disagree. DESIGN.md is unchanged: a tab label, same shape and
+   color.
+
+### File-level plan
+
+- `server/src/routes/split.ts`: read the service's health body.
+- `server/src/routes/split.test.ts`: `/health` against a fake service
+  answering as uvr-server, as demucs-server, with a 500, and unset.
+- `client/src/splitBackend.ts` (new): `SplitHealth`, `splitServiceLabel`,
+  `splitServiceTitle`, and the all-down fallback.
+- `client/src/splitBackend.test.ts` (new): the mapping.
+- `client/src/api/editor.ts`: `splitHealth` returns `SplitHealth`.
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`: use it.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, with a scratch `DATA_DIR` and
+one imported song:
+
+- `DEMUCS_API_URL` at the running `uvr-server` (8002): `/api/split/health`
+  returned `{"acestep":true,"demucs":true,"demucsBackend":"uvr"}`. The
+  Editor's SPLIT panel and Create's ARRANGE → SPLIT A SONG both read
+  `ACE-STEP | UVR`, with the tooltip "uvr-server: Roformer vocals, htdemucs
+  for the rest".
+- `DEMUCS_API_URL` at a port with nothing listening: `demucsBackend: null`,
+  and the tab reads `DEMUCS`, disabled, titled "no split service answers at
+  DEMUCS_API_URL (demucs-server or uvr-server)".
+- `demucs-server` was not running, so its `DEMUCS` label is covered by the
+  route test (a health body with no `backend`), not seen in the browser.
+
+## Split Health: Which Service, and Why It's Off (planned 2026-10-02)
+
+Merges "SPLIT Names Its Real Backend" (#78) into "An Unreachable ACE-Step
+Is a Failure" (#98). Both changed `/api/split/health` and the two split
+pickers, and they disagreed in two places:
+
+- #78 loaded health with `.catch(() => setHealth(SPLIT_HEALTH_DOWN))`.
+  That is the failure-as-answer pattern "Lookup Failures Aren't
+  Answers" removed.
+- #78's disabled tooltip folded "unset" and "not answering" into one
+  line. #98 kept them apart, but called the service "Demucs" even when
+  uvr-server sits behind `DEMUCS_API_URL`.
+
+### Decisions
+
+1. **One response:** `{ acestep, acestepError, demucs, demucsReason,
+   demucsBackend }`. `splitHealth.ts`'s Demucs probe reads the health
+   body only on a 2xx. It reports `"uvr"` when the body says so,
+   `"demucs"` for any other healthy answer, and null when the service is
+   off. The 10s probe timeout stays.
+2. **No `SPLIT_HEALTH_DOWN`.** A failed request stays an error with RETRY
+   (`useLookup`), and both pickers render `SplitBackendTabs`.
+3. **The second tab reads `UVR` or `DEMUCS`** from `demucsBackend`, and
+   `DEMUCS` when off (#78 decision 2). Its title names the service when
+   it's up. When it's off, the title says which way:
+   - unset: "no split service configured (DEMUCS_API_URL unset)";
+   - not answering: "no split service answers at DEMUCS_API_URL
+     (demucs-server or uvr-server)".
+4. **One module for the mapping: `client/src/splitBackend.ts`** holds
+   the tab label and both tabs' titles (#78 decision 3). #98's
+   `splitBackendTitle` moves there from `lookup.ts`. `SplitHealth`
+   stays with the other API types in `api/types.ts`.
+
+### File-level plan
+
+- `server/src/services/splitHealth.ts`: `demucsBackend`.
+- `server/src/services/splitHealth.test.ts`: uvr, demucs, non-JSON,
+  and an off service.
+- `server/src/routes/split.test.ts`: #78's `/health` cases against a
+  stand-in service, checked against the full shape.
+- `client/src/api/types.ts`: `demucsBackend` on `SplitHealth`.
+- `client/src/splitBackend.ts`: `splitServiceLabel` and
+  `splitBackendTitle(health, backend)`.
+- `client/src/splitBackend.test.ts`: the label and every title.
+- `client/src/lookup.ts`, `client/src/lookup.test.ts`: the title helper
+  and its tests move out.
+- `client/src/SplitBackendTabs.tsx`: the label and titles from
+  `splitBackend.ts`.
+- DESIGN.md: the split picker bullet names the UVR/DEMUCS label.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, with a fresh library. Two
+small stubs stood in for the backends: an ACE-Step answering
+`/v1/model_inventory` with one extract-capable model, and a split service
+whose `/health` says `backend: "uvr"`. Checked in Create's ARRANGE ›
+SPLIT A SONG. The Editor's SPLIT renders the same `SplitBackendTabs`.
+
+- ACE-Step down, UVR stub up: "couldn't check ACE-Step — ACE-Step
+  unreachable at … (ECONNREFUSED) · RETRY". ACE-STEP was disabled and
+  titled "couldn't check ACE-Step". The second tab read UVR, was
+  enabled and auto-selected, and was titled "uvr-server: Roformer
+  vocals, htdemucs for the rest".
+- ACE-Step stub started, then RETRY: no error line. ACE-STEP and UVR
+  were both enabled.
+- UVR stub stopped: the tab read DEMUCS, disabled, titled "no split
+  service answers at DEMUCS_API_URL (demucs-server or uvr-server)".
+- Server restarted with `DEMUCS_API_URL` empty: DEMUCS was disabled,
+  titled "no split service configured (DEMUCS_API_URL unset)".

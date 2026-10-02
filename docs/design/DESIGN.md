@@ -522,6 +522,13 @@ requiring its own justification against a screen-count rule.
      Create and Settings alike. "No model supports…", "not configured" and
      "no models reported" appear only when the server said so. A choice
      that needs no list (AUTO, NONE, UPLOAD) stays usable meanwhile.
+     The split backend picker checks each backend on its own: an ACE-Step
+     that couldn't be asked gets its own `.error` line with RETRY
+     ("couldn't check ACE-Step — why · RETRY") while the split-service tab
+     stays pickable. That tab is labelled for the service answering at
+     `DEMUCS_API_URL`: UVR (uvr-server) or DEMUCS (demucs-server, and the
+     slot's name when nothing answers). Its title names that service, or
+     says whether the URL is unset or set but not answering.
    - **Layer stack (`LayerStack.tsx` + `LayerLane.tsx`)**: a DAW-style
      multi-lane waveform view, the editor's primary waveform surface.
      `Timeline.tsx` (the shared scrub strip) and the lane grid share one
