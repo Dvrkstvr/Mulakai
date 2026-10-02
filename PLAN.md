@@ -7243,6 +7243,93 @@ to 10 s (not committed).
 - The registry's own eviction (remaster, transcribe, …) needs ACE-Step or
   the engines; it is covered by `jobRegistry.evict.test.ts`.
 
+## Add Layer Mixes Each Layer at Its Own Volume (planned 2026-10-02)
+
+AUDIT.md #7. Add Layer bounces the audible mix down as the new layer's
+context. It picked the audible layers' active versions, dropping any
+layer with none, then read each one's volume by position from the
+*unfiltered* audible list. Once one layer was dropped, every later layer
+was mixed at its neighbour's volume. REMASTER and COVER's library source
+do the same step correctly, each with its own copy that keeps
+`{layer, version}` together.
+
+### Decisions
+
+1. **One helper, `audibleTakes(layers)`**, beside `activeLayers` in
+   `mix/activeLayers.ts`: the audible layers paired with their active
+   versions, layers with none dropped. Volume always comes from the
+   same pair, so it can't drift.
+2. **All three bounce sites use it** (Add Layer, REMASTER, COVER's
+   library source). The two correct copies change shape only, so the
+   three can't diverge again. The decode/bounce/encode lines stay where
+   they are.
+
+### File-level plan
+
+- `client/src/mix/activeLayers.ts`: `audibleTakes`.
+- `client/src/mix/activeLayers.test.ts` (new): a layer with no active
+  version doesn't shift its neighbours' volumes; solo/mute selection
+  carries through.
+- `client/src/AddLayerTrigger.tsx`, `client/src/RemasterAction.tsx`,
+  `client/src/coverSource.ts`: use `audibleTakes`.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, with e2e's fake ACE-Step,
+against a copy of the library database. "Ellies City" was set up with
+its base layer's versions all inactive, Drums at volume 0.3 and the
+conga layer at 0.8. The page's `OfflineAudioContext.createGain` was
+wrapped to record each bounce gain. ADD LAYER ("walking bassline"):
+
+- The bounce mixed two layers at 0.3 and 0.8. Before this fix they
+  would have been 1.0 (the base layer's volume) and 0.3.
+- The job ran against the fake and the new lane appeared, 4 layers.
+
+## A Dropped Generation Stops Polling (planned 2026-10-02)
+
+Fixes the rest of AUDIT.md #13; "Idle Jobs Leave Every Registry" fixed
+its 404 half. `generationStore`'s `pollJob` only stopped when the server
+said done or failed. It never checked whether the store still tracked
+its job, so a job cleared while running (`dismiss()`, which the store
+allows though today's buttons only dismiss failed cards) kept being
+polled every 2 s until the server finished. And nothing stopped two
+loops on one job: `hydrate()` runs twice on mount under StrictMode, and
+both calls can adopt the same running job, so every dev reload polled
+it twice.
+
+### Decisions
+
+1. **The loop checks before each poll that the store still tracks its
+   job**, and stops if not (dismissed, or replaced by a new start). Same
+   guard as `editorJobStore`'s single-job poll.
+2. **One loop per job id.** A second `pollJob` for a job that already
+   has a loop is a no-op; the id is released when the loop ends, so a job
+   adopted again later (`refreshLock` after a dismiss) polls again.
+3. **The loop moves to `generationPoll.ts`.** The guard pushed
+   `generationStore.ts` to 203 lines, over the 200 cap; the poll loop is
+   its own responsibility. No behavior change beyond 1 and 2.
+
+### File-level plan
+
+- `client/src/generationPoll.ts` (new): `pollJob` (guard, one loop per
+  job), the poll loop and its timings, moved from the store.
+- `client/src/generationStore.ts`: imports `pollJob`, passes `get`.
+- `client/src/generationStore.test.ts`: a dismissed running job stops
+  polling; two concurrent `hydrate()` adoptions poll once per tick.
+
+### Browser check (2026-10-02)
+
+Worktree client (dev build, so StrictMode on) against a scratch server.
+ACE-Step was offline, so the page stubbed the generation submit and its
+job's status (always "running"); the store and its timers were the real
+ones, and requests were counted at the page's `fetch`.
+
+- A running generation polled 3 times in 6.5 s; after `dismiss()`, no
+  more requests in the next 6.5 s, and the card was gone.
+- With the lock stubbed to a running song generation, two concurrent
+  `hydrate()` calls (StrictMode's double mount) adopted it once and
+  polled it 3 times in 6.5 s, one loop. No console errors.
+
 ## Lookup Failures Aren't Answers (planned 2026-10-02)
 
 Follow-up to "Editor Failures Say So" (decision 8 left this open). Four
@@ -7321,6 +7408,74 @@ Library:
   was down; see decision 5) and no error line was left.
 - Server stopped, SPLIT opened again: "couldn't check split backends —
   HTTP 502 · RETRY", where it used to say Demucs wasn't configured.
+
+## Create-Side Lookup Failures (planned 2026-10-02)
+
+The Create and Settings twins of "Lookup Failures Aren't Answers"
+(its decision 5). Same pattern, same fix:
+
+- `useModelsForTask` (COVER's and ARRANGE's model select): a failed
+  `listModels()` became `[]` → "no downloaded model supports cover /
+  arrange generation".
+- `ReferenceAudioPicker` (Create's REFERENCE AUDIO): `fetchVoices()`
+  had no catch: an unhandled rejection behind an empty VOICE select.
+- `SettingsPanel` (Create's and the Editor's DIT/LM selects): a failed
+  `listModels()` left only AUTO, with nothing said.
+- `ModelsSection` (Settings > Models): a failed `listModels()` became an
+  empty inventory → "No DIT models reported by ACE-Step."
+
+### Decisions
+
+1. **Same shape as the Editor:** `useLookup` from `lookup.ts`, and a
+   rust `.error` line with RETRY in place of "checking…" / the empty
+   message: "couldn't check models for Cover — why · RETRY",
+   "couldn't load voices", "couldn't load the model list",
+   "couldn't load the model inventory".
+2. **`useModelsForTask` is removed**, not patched. Its two callers pass
+   a fixed task, so `useLookup(() => modelsFor(task))` covers it and
+   there's one lookup shape instead of two.
+3. **Selects stay usable where a fallback is honest.** SettingsPanel
+   keeps AUTO (ACE-Step picks its own model); REFERENCE AUDIO keeps
+   NONE and UPLOAD, and shows the voice error under the VOICE tab only.
+   SettingsPanel shows nothing on an engine's PROMPT, where its model
+   list isn't used.
+4. **YuE's COVER panel loses the "needs a model that can cover" hint on
+   a failed lookup** instead of claiming it. The panel doesn't show the
+   lookup's error; ANALYZE AUDIO reports its own failure if it runs.
+
+### File-level plan
+
+- `client/src/CreateAudioTab.tsx`, `client/src/CreateArrangeTab.tsx`:
+  `useLookup(() => modelsFor(…))`; error line with RETRY.
+- `client/src/useModelsForTask.ts`: deleted.
+- `client/src/ReferenceAudioPicker.tsx`: `useLookup(fetchVoices)`.
+- `client/src/SettingsPanel.tsx`, `client/src/ModelsSection.tsx`:
+  `useLookup(api.listModels)`; error line with RETRY.
+- Tests: `lookup.test.ts` — `modelsFor` failing for cover and complete,
+  and the full inventory failing, without becoming an answer.
+- DESIGN.md: extend the lookup line to Create and Settings.
+
+### Browser check (2026-10-02)
+
+Same setup as the Editor check: worktree client and server on spare
+ports, a copy of the library database, ACE-Step not running. `fetch`
+patched in the page to reject `/api/generate/models` and `/api/voices`
+with "Failed to fetch", then CREATE:
+
+- PROMPT: "couldn't load the model list — Failed to fetch · RETRY" at
+  the top of GENERATION SETTINGS; DIT and LM MODEL stayed on AUTO.
+  REFERENCE AUDIO › VOICE: "couldn't load voices — Failed to fetch ·
+  RETRY" under the VOICE select, NONE still selected.
+- COVER: "couldn't check models for Cover — Failed to fetch · RETRY"
+  where the MODEL select goes.
+- ARRANGE: "couldn't check models for Arrange — Failed to fetch ·
+  RETRY"; ARRANGE disabled.
+- Settings > Models: "couldn't load the model inventory — Failed to
+  fetch · RETRY". Patch lifted, RETRY: the line went away and the
+  server's answer showed ("No DIT models reported", ACE-Step being
+  down; see "Lookup Failures Aren't Answers" decision 5).
+- Server stopped, CREATE opened again on ARRANGE: the model list,
+  voices and Arrange lines all read "HTTP 502 · RETRY".
 
 ## An Unreachable ACE-Step Is a Failure, Not "No Models" (planned 2026-10-02)
 

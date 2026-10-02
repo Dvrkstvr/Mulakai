@@ -1,7 +1,7 @@
 /** COVER's source audio: the raw upload as-is, or the current audible mix of a library song
  * bounced down client-side (same decode/mix/encode pipeline RemasterAction.tsx uses). */
 import { api } from './api';
-import { activeLayers } from './mix/activeLayers';
+import { audibleTakes } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import type { Source } from './createDraft';
@@ -19,9 +19,7 @@ export async function resolveCoverSource({ source, uploadFile, selectedSongId }:
   }
   if (!selectedSongId) throw new Error('choose a song from your library');
   const detail = await api.songDetail(selectedSongId);
-  const audible = activeLayers(detail.layers)
-    .map((l) => ({ layer: l, version: l.versions.find((v) => v.active) }))
-    .filter((x): x is { layer: typeof x.layer; version: NonNullable<typeof x.version> } => !!x.version);
+  const audible = audibleTakes(detail.layers);
   if (audible.length === 0) throw new Error('that song has no audible layers to use as a source');
   const mixCtx = new AudioContext();
   const decoded = await decodeLayers(
