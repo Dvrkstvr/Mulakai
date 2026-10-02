@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { api } from './api';
 import { useVoiceStore } from './voiceStore';
 import { Dropzone } from './Dropzone';
-import { AudioPreview } from './AudioPreview';
 import { previewPlayback } from './previewPlayback';
 import { readDuration } from './audioDuration';
+import { attempt } from './actionError';
+import { useLookup } from './lookup';
+import { VoiceList } from './VoiceList';
 
 /** Manage-voices surface: upload a new clip, rename or delete existing ones.
  * `onClose` is only passed when embedded inline (legacy callers); Settings > Voices
@@ -14,6 +16,8 @@ export function VoiceUploadForm({ onClose }: { onClose?: () => void }) {
   const [name, setName] = useState('');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  // Refreshed after an upload or delete too, so a failed refresh reads as the list failing.
+  const list = useLookup(fetchVoices);
 
   const upload = async (file: File) => {
     if (!name.trim()) return setError('name is required');
@@ -23,7 +27,7 @@ export function VoiceUploadForm({ onClose }: { onClose?: () => void }) {
       const duration = await readDuration(file);
       await api.uploadVoice(name.trim(), file, { duration });
       setName('');
-      await fetchVoices();
+      list.retry();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -31,12 +35,11 @@ export function VoiceUploadForm({ onClose }: { onClose?: () => void }) {
     }
   };
 
-  const remove = async (id: string) => {
+  const remove = (id: string) => {
     const voice = voices.find((v) => v.id === id);
     // Its audio is about to 404 — don't leave a deleted clip as the live preview.
     if (voice) previewPlayback.stopIfCurrent(`/audio/${voice.audio_file}`);
-    await api.deleteVoice(id);
-    await fetchVoices();
+    void attempt("couldn't delete voice", () => api.deleteVoice(id), setError).then((ok) => { if (ok) list.retry(); });
   };
 
   return (
@@ -47,16 +50,7 @@ export function VoiceUploadForm({ onClose }: { onClose?: () => void }) {
         {uploading ? 'uploading…' : 'drag a short vocal clip here or click to upload'}
       </Dropzone>
       {error && <div className="error">{error}</div>}
-      <div className="voice-list">
-        {voices.map((v) => (
-          <div key={v.id} className="voice-list-row">
-            <span className="voice-list-name">{v.name}</span>
-            <AudioPreview src={`/audio/${v.audio_file}`} label={v.name} duration={v.duration ?? undefined} height={22} />
-            <button onClick={() => remove(v.id)}><span>✕</span></button>
-          </div>
-        ))}
-        {voices.length === 0 && <div className="empty">No saved voices yet.</div>}
-      </div>
+      <VoiceList voices={voices} listError={list.error} onRetry={list.retry} onRemove={remove} />
       {onClose && <button className="voice-manage-btn" onClick={onClose}><span>DONE</span></button>}
     </div>
   );

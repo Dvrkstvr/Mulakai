@@ -1,7 +1,7 @@
-import { useEffect, useState } from 'react';
-import { api, type ModelInventory } from './api';
+import { api } from './api';
 import { useSettings } from './settings';
 import { ditModelDescription, lmModelDescription } from './modelInfo';
+import { useLookup } from './lookup';
 
 interface Props {
   online: boolean | null;
@@ -14,11 +14,8 @@ interface Props {
 export function ModelsSection({ online }: Props) {
   const gen = useSettings((s) => s.gen);
   const setGen = useSettings((s) => s.setGen);
-  const [inventory, setInventory] = useState<ModelInventory | null>(null);
-
-  useEffect(() => {
-    api.listModels().then(setInventory).catch(() => setInventory({ models: [], lmModels: [], defaultModel: null }));
-  }, []);
+  const lookup = useLookup(api.listModels);
+  const inventory = lookup.data;
 
   return (
     <div className="settings-card">
@@ -30,7 +27,9 @@ export function ModelsSection({ online }: Props) {
       </div>
       <div className="hint">default DIT/LM model used next time Create opens — ACE-Step has no download/update API, so models must already be installed on the server</div>
 
-      {inventory === null ? (
+      {lookup.error ? (
+        <div className="error">couldn't load the model inventory — {lookup.error} <button onClick={lookup.retry}>RETRY</button></div>
+      ) : inventory === null ? (
         <span className="meta">loading model inventory…</span>
       ) : (
         <>

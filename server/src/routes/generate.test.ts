@@ -381,3 +381,19 @@ describe('POST /sample-from-query', () => {
     expect(res.status).toBe(502);
   });
 });
+
+describe('GET /models', () => {
+  it('passes ACE-Step\'s inventory through, including an empty one', async () => {
+    vi.mocked(acestep.listModels).mockResolvedValueOnce({ models: [], lmModels: [], defaultModel: null });
+    const res = await fetch(`${baseUrl}/models`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ models: [], lmModels: [], defaultModel: null });
+  });
+
+  it('answers 502 with the reason when ACE-Step cannot be asked, not an empty inventory', async () => {
+    vi.mocked(acestep.listModels).mockRejectedValueOnce(new Error('ACE-Step unreachable at http://127.0.0.1:8001 (ECONNREFUSED)'));
+    const res = await fetch(`${baseUrl}/models`);
+    expect(res.status).toBe(502);
+    expect(await res.json()).toEqual({ error: 'ACE-Step unreachable at http://127.0.0.1:8001 (ECONNREFUSED)' });
+  });
+});
