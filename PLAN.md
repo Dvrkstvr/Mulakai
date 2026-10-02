@@ -7088,3 +7088,18 @@ Failures Aren't Answers" and "Create-Side Lookup Failures":
   and RETRY and never "No saved voices yet."; an answered empty list
   still does.
 - DESIGN.md: add Settings > Voices and the rail to the lookup line.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, a copy of the library
+database. `fetch` patched in the page to reject `/api/voices`:
+
+- Library, "Kopf Hoch 1" (conditioned on Daniel): the rail's REFERENCE
+  AUDIO row still read "Daniel", with "couldn't load voices — Failed to
+  fetch · RETRY" under it. Patch lifted, RETRY: the line went away and
+  Daniel's preview appeared.
+- Page reloaded, patch on again, Settings > Voices: "couldn't load
+  voices — Failed to fetch · RETRY" where "No saved voices yet." used
+  to be.
+- Only DELETE rejected, RETRY: Daniel, DelVox and Elly listed. ✕ on
+  Elly: "couldn't delete voice — Failed to fetch", Elly still listed.
