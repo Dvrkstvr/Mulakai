@@ -64,6 +64,16 @@ describe("a failed lookup isn't an answer", () => {
     expect((await run(() => modelsFor('lego'))).at(-1)).toEqual({ data: null, error: 'Failed to fetch' });
   });
 
+  it.each(['cover', 'complete'] as const)('models for %s (Create): an unreachable server is an error, not "none"', async (task) => {
+    listModels.mockImplementation(offline);
+    expect((await run(() => modelsFor(task))).at(-1)).toEqual({ data: null, error: 'Failed to fetch' });
+  });
+
+  it('model inventory (Settings, model selects): an unreachable server is an error, not an empty inventory', async () => {
+    listModels.mockRejectedValue(new Error('HTTP 502'));
+    expect((await run(() => listModels())).at(-1)).toEqual({ data: null, error: 'HTTP 502' });
+  });
+
   it('models: a server that answers with none still gates the control', async () => {
     listModels.mockResolvedValue({ models: [{ name: 'xl-turbo', supportedTaskTypes: ['text2music'] }], lmModels: [], defaultModel: null });
     expect((await run(() => modelsFor('lego'))).at(-1)).toEqual({ data: [], error: '' });
