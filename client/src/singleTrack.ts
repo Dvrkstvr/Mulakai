@@ -1,3 +1,5 @@
+import { playOrStayPaused } from './playOrStayPaused';
+
 /** The slice of HTMLAudioElement the footer player needs — injectable so node tests can fake it. */
 export interface TrackAudio {
   volume: number;
@@ -13,19 +15,6 @@ export interface TrackEvents {
   onPlaying(playing: boolean): void;
   onTime(seconds: number): void;
   onDuration(seconds: number): void;
-}
-
-// Rejections that just mean "not playing yet": the autoplay policy blocked a play() with no
-// user gesture behind it (e.g. a generation finishing after a reload), or a pause()/new src
-// landed before playback began. Either way the track stays loaded and paused, PLAY ready.
-const STAYS_PAUSED = new Set(['NotAllowedError', 'AbortError']);
-
-/** `play()` whose rejection is handled — a bare `void a.play()` surfaces it as an unhandled rejection. */
-export function playOrStayPaused(a: Pick<TrackAudio, 'play'>): void {
-  a.play().catch((err: unknown) => {
-    const name = (err as { name?: unknown } | null)?.name;
-    if (typeof name !== 'string' || !STAYS_PAUSED.has(name)) console.error('Footer player: play() failed', err);
-  });
 }
 
 /**
@@ -50,7 +39,7 @@ export function openTrack<A extends TrackAudio>(
     loadedmetadata: () => events.onDuration(a.duration),
   };
   for (const [type, cb] of Object.entries(handlers)) a.addEventListener(type, cb);
-  if (opts.autoPlay) playOrStayPaused(a);
+  if (opts.autoPlay) playOrStayPaused(a, 'Footer player');
   return {
     audio: a,
     close: () => {

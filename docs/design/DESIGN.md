@@ -330,10 +330,12 @@ requiring its own justification against a screen-count rule.
        selected song uses **sky** (selection/scope — same concept as
        focusing a layer in the Editor), not lilac. Below the source picker:
        a description field for the requested change, then a LYRICS + SONG
-       DETAILS block (see below), then GENERATE COVER. DIT MODEL stays
-       enabled in the settings panel; LM MODEL is disabled (`n/a`) since
-       `cover` skips the LM planner, same as Editor's repaint mode
-       (`API.md` §4.2).
+       DETAILS block (see below), then GENERATE COVER. The tab's own MODEL
+       picker (cover-capable models only) is the cover's model, so the
+       settings panel hides DIT MODEL here and gates STEPS, GUIDANCE and
+       ADVANCED on the tab's pick; STEPS, GUIDANCE, SEED and the DiT knobs
+       are sent with the cover. The LM controls are hidden since `cover`
+       skips the LM planner, same as Editor's repaint mode (`API.md` §4.2).
        The SOURCE picker **holds still** here too (added 2026-10-02), the
        same way as on YUE2 below: while ANALYZE AUDIO or a generation
        (GENERATE COVER's submit included) runs, with the same disabled
@@ -505,6 +507,13 @@ requiring its own justification against a screen-count rule.
    - **Title row**: song title (bold, 16px) + time/bpm/key/layer-count
      metadata, directly above the shared scrub timeline — the one place this
      information lives now that the header doesn't carry it.
+   - **Load failure**: a song that fails to load shows a rust `.error` line
+     ("couldn't load this song — why · RETRY") where the editor would be,
+     never an endless "Loading…". A failed refresh of a loaded song (after a
+     mute, a revert, a claimed stem) keeps the song on screen and shows the
+     same line, "couldn't refresh this song", above the title row. A lane
+     control or a history action that fails shows its own `.error` line in
+     the lane or the rail ("couldn't mute — why").
    - **Layer stack (`LayerStack.tsx` + `LayerLane.tsx`)**: a DAW-style
      multi-lane waveform view, the editor's primary waveform surface.
      `Timeline.tsx` (the shared scrub strip) and the lane grid share one

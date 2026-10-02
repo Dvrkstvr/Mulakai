@@ -21,4 +21,4 @@ export type {
 } from './settingsTypes';
 export { mergeSettings, migrateExportSettings } from './settingsPersist';
 export { useSettings } from './settingsStore';
-export { outputParams, genParams, repaintParams, addLayerParams } from './settingsParams';
+export { outputParams, genParams, coverParams, repaintParams, addLayerParams } from './settingsParams';

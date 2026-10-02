@@ -1,10 +1,14 @@
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { api, type Layer } from './api';
+import { attempt } from './actionError';
+import { latestOnly } from './latestOnly';
 import { Waveform, type Region } from './Waveform';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { VolumeSlider } from './VolumeSlider';
 
 export const LANE_HEIGHT = 60;
+
+type LayerPatch = { name?: string; volume?: number; muted?: boolean; solo?: boolean };
 
 interface Props {
   layer: Layer;
@@ -36,24 +40,37 @@ export function LayerLane({ layer, layers, focused, duration, selection, onSelec
   const [editingName, setEditingName] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState('');
+  const [volumeDraft, setVolumeDraft] = useState<number | null>(null);
   const activeVersion = layer.versions.find((v) => v.active);
   const isBase = layer.kind === 'base';
 
-  const patch = async (body: { name?: string; volume?: number; muted?: boolean; solo?: boolean }) => {
-    await api.updateLayer(layer.id, body);
-    await onChanged();
+  // Reloads even when a PATCH fails: a solo PATCHes several layers, and the reload
+  // shows which of them landed.
+  const patch = (label: string, updates: [string, LayerPatch][]) => attempt(label, async () => {
+    try {
+      await Promise.all(updates.map(([id, body]) => api.updateLayer(id, body)));
+    } finally {
+      await onChanged();
+    }
+  }, setError);
+  const patchRef = useRef(patch);
+  patchRef.current = patch;
+  const sendVolume = useMemo(
+    () => latestOnly((volume: number) => patchRef.current("couldn't set volume", [[layer.id, { volume }]])),
+    [layer.id],
+  );
+  const changeVolume = (volume: number) => {
+    setVolumeDraft(volume);
+    void sendVolume(volume).finally(() => setVolumeDraft(null));
   };
 
-  const del = async () => {
+  const del = () => {
     if (!confirmDelete) { setConfirmDelete(true); return; }
     setConfirmDelete(false);
-    setError('');
-    try {
+    void attempt("couldn't delete layer", async () => {
       await api.deleteLayer(layer.id);
       await onChanged();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    }
+    }, setError);
   };
 
   /**
@@ -62,24 +79,24 @@ export function LayerLane({ layer, layers, focused, duration, selection, onSelec
    * rather than a one-way ratchet). Shift-click: additive — only this
    * layer's solo flips, siblings are untouched, per standard DAW convention.
    */
-  const handleSolo = async (e: React.MouseEvent) => {
+  const handleSolo = (e: React.MouseEvent) => {
     if (e.shiftKey) {
-      await patch({ solo: !layer.solo });
+      void patch("couldn't solo", [[layer.id, { solo: !layer.solo }]]);
       return;
     }
     const onlyThisSoloed = layers.every((l) => Boolean(l.solo) === (l.id === layer.id));
     const updates = layers
       .filter((l) => Boolean(l.solo) !== (onlyThisSoloed ? false : l.id === layer.id))
-      .map((l) => api.updateLayer(l.id, { solo: onlyThisSoloed ? false : l.id === layer.id }));
-    if (updates.length) await Promise.all(updates);
-    await onChanged();
+      .map((l): [string, LayerPatch] => [l.id, { solo: onlyThisSoloed ? false : l.id === layer.id }]);
+    void patch("couldn't solo", updates);
   };
 
   const commitName = () => {
     setEditingName(false);
     const trimmed = name.trim();
-    if (trimmed && trimmed !== layer.name) patch({ name: trimmed });
-    else setName(layer.name);
+    if (trimmed && trimmed !== layer.name) {
+      void patch("couldn't rename layer", [[layer.id, { name: trimmed }]]).then((ok) => { if (!ok) setName(layer.name); });
+    } else setName(layer.name);
   };
 
   return (
@@ -101,12 +118,12 @@ export function LayerLane({ layer, layers, focused, duration, selection, onSelec
           </span>
         )}
         <span onClick={(e) => e.stopPropagation()}>
-          <VolumeSlider value={layer.volume} onChange={(v) => patch({ volume: v })} />
+          <VolumeSlider value={volumeDraft ?? layer.volume} onChange={changeVolume} />
         </span>
         <span className="btn-row" onClick={(e) => e.stopPropagation()}>
           <button
             className={`toggle layer-toggle${layer.muted ? ' on rust' : ''}`}
-            onClick={() => patch({ muted: !layer.muted })}
+            onClick={() => void patch(layer.muted ? "couldn't unmute" : "couldn't mute", [[layer.id, { muted: !layer.muted }]])}
           >
             <span>MUTE</span>
           </button>
