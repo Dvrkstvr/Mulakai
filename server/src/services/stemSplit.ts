@@ -11,6 +11,7 @@ import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { parseOutputSettings, type OutputSettings } from './audioOutput.js';
 import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { discardUnclaimedFile } from './stemFiles.js';
 import {
   runAcestepStem, runDemucs, STEM_KINDS, INSTRUCTIONS,
   type StemKind, type SplitModel, type StemResult, type SourceAudio,
@@ -29,25 +30,29 @@ export interface SplitJob {
   stems: StemResult[];
   output: OutputSettings;
   createdAt: number;
+  /** Last status poll, claim or RE-EXTRACT — the idle clock evictIdleSplits reads. */
+  lastSeenAt: number;
 }
+
+/** An open session is polled every 2 s (even outside the Editor), so an hour without a
+ * touch means its tab is gone — see PLAN.md "Abandoned Splits Leave No Stems Behind". */
+export const SPLIT_IDLE_TTL_MS = 60 * 60 * 1000;
 
 const jobs = new Map<string, SplitJob>();
 
+/** Look a job up for a client request, which also restarts its idle clock. */
 export function getSplitJob(id: string): SplitJob | undefined {
-  return jobs.get(id);
+  const job = jobs.get(id);
+  if (job) job.lastSeenAt = Date.now();
+  return job;
+}
+
+export function isLiveSplit(id: string): boolean {
+  return jobs.has(id);
 }
 
 function readSource(file: string): Promise<SourceAudio> {
   return fs.readFile(path.join(config.audioDir, file)).then((data) => ({ data, filename: file }));
-}
-
-/** Delete a stem file no version points at. The DB check, not the in-memory `claimed`
- * flag, is what guards claimed audio here. */
-async function discardUnclaimedFile(file: string | undefined): Promise<void> {
-  if (!file) return;
-  const ref = db.prepare(`SELECT 1 FROM versions WHERE audio_file = ? LIMIT 1`).get(file);
-  if (ref) return;
-  await fs.rm(path.join(config.audioDir, file), { force: true }).catch(() => {});
 }
 
 /** Start a split job: reads the layer's active audio and fans out the chosen backend's extraction. */
@@ -72,6 +77,7 @@ export async function startSplit(layerId: string, model: SplitModel, output?: un
     stems: STEM_KINDS.map((kind) => ({ kind, status: 'running' })),
     output: parseOutputSettings(output),
     createdAt: Date.now(),
+    lastSeenAt: Date.now(),
   };
   jobs.set(job.id, job);
 
@@ -93,7 +99,7 @@ export async function startSplit(layerId: string, model: SplitModel, output?: un
  * filename; the superseded one (never claimed) is deleted once it's replaced.
  */
 export function reextractStem(jobId: string, kind: StemKind): StemResult {
-  const job = jobs.get(jobId);
+  const job = getSplitJob(jobId);
   if (!job) throw new Error('unknown split job');
   const stem = job.stems.find((s) => s.kind === kind);
   if (!stem) throw new Error('unknown stem');
@@ -120,7 +126,7 @@ export function reextractStem(jobId: string, kind: StemKind): StemResult {
 
 /** Replace the layer's audio (new revertible version) or add the stem as a brand-new layer. */
 export function claimStem(jobId: string, kind: StemKind, action: 'replace' | 'add-layer'): { songId: string } {
-  const job = jobs.get(jobId);
+  const job = getSplitJob(jobId);
   if (!job) throw new Error('unknown split job');
   const stem = job.stems.find((s) => s.kind === kind);
   if (!stem) throw new Error('unknown stem');
@@ -162,4 +168,11 @@ export async function cancelSplit(jobId: string): Promise<void> {
   jobs.delete(jobId);
   if (!job) return;
   await Promise.all(job.stems.filter((s) => !s.claimed).map((s) => discardUnclaimedFile(s.audioFile)));
+}
+
+/** Cancel every split nobody has touched for SPLIT_IDLE_TTL_MS — a closed tab never sends
+ * CANCEL SPLIT, so this is what bounds the map and removes its unclaimed stems. */
+export async function evictIdleSplits(now = Date.now()): Promise<void> {
+  const idle = [...jobs.values()].filter((j) => now - j.lastSeenAt > SPLIT_IDLE_TTL_MS);
+  await Promise.all(idle.map((j) => cancelSplit(j.id)));
 }

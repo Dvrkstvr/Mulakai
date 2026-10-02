@@ -6894,6 +6894,218 @@ open, then:
 - Ten volume ticks fired in one burst: two PATCHes (0.9, then 0.12),
   and the server held 0.12.
 
+## COVER Sends the Settings It Shows (planned 2026-10-02)
+
+Fixes AUDIT.md #5. The ARRANGE half of that entry (influence sliders
+promising an effect on `complete`) was fixed earlier: `referenceInfluence.ts`
+hides them and its hint says the reference is used as-is. The COVER half is
+still live. On COVER · ACE-STEP the left rail shows DIT MODEL, STEPS,
+GUIDANCE, SEED and ADVANCED, but `CreateAudioTab` sends only `model` and
+`audio_cover_strength`. So every one of those controls does nothing. The
+request also carries no `output` block, so a cover ignores the Settings
+format/rate/depth and lands as the server default (FLAC 48 kHz 24-bit), and
+it asks ACE-Step for `wav` instead of the `wav32` master every other path
+uses. `/from-audio` already accepts and parses all of these fields: the gap
+is client-only.
+
+### Decisions
+
+1. **COVER sends the rail's STEPS, GUIDANCE, SEED and advanced DiT knobs**,
+   plus the `output` block and the `wav32` master, through a new
+   `coverParams()` beside `genParams()`. No LM knobs (`cover` skips the LM
+   planner and the rail already hides them there), no THINKING/AI ENHANCE,
+   no `batch_size` (the server forces 1).
+2. **The tab's MODEL picker is the cover's model; the rail hides DIT
+   MODEL on COVER.** The tab's list is filtered to cover-capable models and
+   has been the only model sent since COVER shipped. A second picker
+   editing PROMPT's `gen.model` was a dead duplicate. DESIGN.md's
+   "DIT MODEL stays enabled" line is corrected in its own commit.
+3. **The rail gates on the cover model there.** STEPS' ceiling and AUTO
+   readout, GUIDANCE's N/A, and ADVANCED's Base-only gating read the tab's
+   model, so what the rail says matches what will run. STEPS is clamped to
+   that model's ceiling at submit too, since the value is shared with PROMPT
+   (e.g. 100 set for an SFT model, then a Turbo cover).
+4. **COVER · YUE2 is unchanged**: its rail is EngineGenSettings, already
+   wired.
+
+### File-level plan
+
+- `client/src/settingsParams.ts` (+ `settings.ts` re-export): `coverParams(gen, model)`.
+- `client/src/CreateAudioTab.tsx`: spread `coverParams(gen, model)` into the request.
+- `client/src/SettingsPanel.tsx`: `coverModel` prop; when set, no DIT MODEL
+  and the gating reads it.
+- `client/src/CreateView.tsx`: passes the tab's model on COVER · ACE-STEP.
+- `client/src/settings.test.ts`: `coverParams` sends steps/guidance/seed/DiT
+  knobs, the output block and `wav32`; omits LM/batch/thinking; clamps
+  steps to the cover model.
+- `docs/design/DESIGN.md`: the COVER rail line.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports against a scratch data dir, and
+ACE-Step 1.5 on 8001. Create → COVER · ACE-STEP:
+
+- The rail has no DIT MODEL. STEPS reads AUTO (50) with the tab's
+  XL-SFT, then AUTO (8) and GUIDANCE N/A after picking TURBO on the tab.
+  PROMPT still shows DIT MODEL, LM MODEL and the rest.
+- Settings → OUTPUT FORMAT MP3. COVER on ACESTEP-V15-SFT, STEPS 18,
+  GUIDANCE 5, SEED 4242 (random off), source hial4 from the library. The
+  `/from-audio` form carried `inference_steps` 18, `guidance_scale` 5,
+  `seed` 4242, `use_random_seed` false, the DiT knobs, `audio_format`
+  wav32 and the MP3 `output` block. Before, it carried only title,
+  prompt, lyrics, model and `audio_cover_strength`.
+- ACE-Step ran 18/18 diffusion steps and saved a wav32 master. The new
+  song's version stored those params, seed 4242, and its file landed as
+  `.mp3`.
+
+## A Preview Stopped Before It Starts Fails Quietly (planned 2026-10-02)
+
+Follows the open question in "The Library Loads Without Trying to Play".
+`previewPlayback.ts` started every preview with `void a.play()`. A
+`pause()` or new `src` while that play is still pending (the audio still
+loading) makes Chromium reject it with `AbortError`, and `void` left the
+rejection unhandled. Reproduced on main in the editor: a version's micro
+preview clicked twice in one go logged "The play() request was
+interrupted by a call to pause()" as an uncaught page error. Closing the
+popover, ✕, Escape or another preview taking the slot all hit the same
+path.
+
+### Decisions
+
+1. **Previews use the footer's `playOrStayPaused`.** `AbortError` and
+   `NotAllowedError` leave the preview paused; the element's own
+   `play`/`pause` events already keep the snapshot right. Any other
+   rejection is logged, now as "Preview: play() failed".
+2. **`playOrStayPaused` moves to its own module** so the preview slot
+   doesn't import the footer's. It takes the player's name for the log
+   line, and accepts a `play()` that returns nothing, as
+   `PreviewAudioElement` allows.
+
+### File-level plan
+
+- `client/src/playOrStayPaused.ts` (new), out of `singleTrack.ts`.
+- `client/src/previewPlayback.ts`: its four `void a.play()` calls use it.
+- `client/src/singleTrack.ts`, `client/src/useSingleAudioPlayback.ts`:
+  import it from the new module.
+- `client/src/playOrStayPaused.test.ts` (new), taking the cases from
+  `singleTrack.test.ts`.
+- `client/src/previewPlayback.abort.test.ts` (new; the existing preview
+  test file is near the size cap): a fake whose `play()` stays pending
+  until playback begins. Toggle off, another preview, and stop before
+  then all stay quiet and leave the right state.
+
+### Browser check (2026-10-02)
+
+Playwright Chromium against the e2e harness from
+`test/playwright-golden-path`, copied in for the run: generate a song,
+open it in the editor, click the version preview twice in one task, then
+open it and close it with ✕ as soon as it renders, then preview it
+normally. On main: one `pageerror`, the `AbortError` above. With the
+fix: none, and the last preview played. The golden path still passes.
+
+## Abandoned Splits Leave No Stems Behind (planned 2026-10-02)
+
+Follow-up to AUDIT.md #2 (and the `stemSplit.ts` half of #11). "RE-EXTRACT
+Never Touches a Claimed Stem" deletes unclaimed stem files on supersede
+and on cancel, but a split job lives only in `stemSplit.ts`'s in-memory
+map, and only `cancelSplit` removes it. The client cancels only when a
+new split starts or on CANCEL SPLIT, so a split left open when the tab
+closes keeps its job forever and its unclaimed stems sit in `audioDir`
+(served, and counted as library size). A server restart loses the map
+outright, so those files can then never be reached by any cleanup.
+
+### Decisions
+
+1. **An idle split is cancelled after an hour.** "Idle" counts from the
+   last time anyone touched the job (status poll, claim, RE-EXTRACT), not
+   from when it started: the client polls an open split every 2 s for as
+   long as the session is open, even outside the Editor, so a live
+   session is never idle, and a closed tab stops the polls. An hour is
+   well past a hidden tab's throttled timers (about one tick a minute).
+   Eviction is `cancelSplit`, so it takes the same path as CANCEL SPLIT:
+   unclaimed files removed after the `versions.audio_file` check, and a
+   result still in flight dropped when it lands. The client already
+   treats the 404 that follows as "the split was closed elsewhere".
+2. **Checked every five minutes**, on the same kind of `setInterval` as
+   the trash sweep in `index.ts`.
+3. **At startup, orphaned stems are swept.** Any file in `audioDir` named
+   like a stem (`<uuid>-<kind>-<nonce>.<ext>`, or the pre-#81
+   `<uuid>-<kind>.<ext>`) that no `versions` row points at is deleted. No
+   other writer uses that shape (versions are `<versionId>.<ext>`, cover
+   art `<songId>-cover.<ext>`, voices `<voiceId>.<ext>`). The sweep
+   also skips any file whose job is still in the map, so it is safe
+   whenever it runs, not only before the first split.
+4. **A file a version points at is never deleted.** Both paths read
+   `versions.audio_file` right before deleting; the startup sweep reads
+   all of them once, then deletes.
+5. **The scratch split is unchanged.** It writes to OS tmp, not
+   `audioDir`, and is out of scope here.
+
+### File-level plan
+
+- `server/src/services/stemFiles.ts` (new): `discardUnclaimedFile`
+  (moved from `stemSplit.ts`), the stem filename pattern, and
+  `sweepOrphanStems(isLive)`.
+- `server/src/services/stemSplit.ts`: `lastSeenAt` on `SplitJob`, bumped
+  by `getSplitJob`, `claimStem` and `reextractStem`; `isLiveSplit`;
+  `evictIdleSplits(now)`.
+- `server/src/index.ts`: the startup sweep and the five-minute eviction
+  timer.
+- `server/src/services/stemFiles.test.ts` (new): the sweep removes
+  unreferenced stems (both name shapes) and keeps referenced ones,
+  non-stem files and a live job's files.
+- `server/src/services/stemSplit.evict.test.ts` (new): an idle split is
+  evicted with its unclaimed files and keeps its claimed one; a polled
+  split survives past an hour from its start.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir and
+`uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A 60 s song
+imported, SPLIT with DEMUCS:
+
+- Restart: four stems landed; VOCALS → ADD LAYER; the tab navigated away
+  with no CANCEL SPLIT; server restarted. Boot logged "Removed 3 unclaimed
+  split stem file(s)": drums/bass/other gone, the claimed vocals file and
+  the source kept. Reopened, the Vocals layer loaded its file (200).
+- Idle eviction, run with the TTL temporarily cut to 60 s and the check to
+  10 s (not committed): a second split left open and polled stayed past
+  two minutes, and DRUMS → ADD LAYER still worked then. With the tab then
+  navigated away, its three unclaimed stems were deleted about a minute
+  later; the claimed drums file stayed.
+
+## E2E Fails on Uncaught Page Errors (planned 2026-10-02)
+
+Loading `/` logged two unhandled `NotAllowedError: play() failed…`
+rejections from the footer player (`useSingleAudioPlayback.ts` with an
+empty `src`), fixed on `fix/footer-autoplay-on-load`. The golden-path e2e
+passed straight through them because nothing listened for Playwright's
+`pageerror`.
+
+### Decisions
+
+1. **An auto fixture, not a per-spec hook.** `e2e/tests/fixtures.ts`
+   extends Playwright's `test` with `failOnPageError` (`auto: true`).
+   It records every `pageerror` (uncaught exceptions and unhandled
+   rejections) on every page of the test's context, popups included,
+   and after the test asserts that the list is empty. Specs import
+   `test`/`expect` from `./fixtures` instead of `@playwright/test`, so a
+   new spec gets the guard by following the existing import.
+2. **The failure names the errors.** The assertion is on the collected
+   `name: message` strings, so the report shows what was thrown, not
+   only that something was.
+3. **`console.error` is not covered.** React and Vite warnings go there,
+   and failing on them is a separate decision.
+4. **Lands after the footer fix.** Without it the e2e fails on load.
+   This was checked both ways: without the fix the golden path fails
+   with both `NotAllowedError`s. With it, the path passes. A temporary
+   `throw` in `client/src/main.tsx` fails the run with its message.
+
+### File-level plan
+
+- `e2e/tests/fixtures.ts`: the guard (new).
+- `e2e/tests/golden-path.spec.ts`: imports from `./fixtures`.
+
 ## Lookup Failures Aren't Answers (planned 2026-10-02)
 
 Follow-up to "Editor Failures Say So" (decision 8 left this open). Four

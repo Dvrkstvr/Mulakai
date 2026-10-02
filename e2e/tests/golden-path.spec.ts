@@ -3,7 +3,7 @@
  * replaced by e2e/fake-acestep: generate → repaint a region → add a layer → revert a version → export.
  * Every fake take is 12 s long, which is what the region drag below is measured against.
  */
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures';
 import { activeVersion, downloadBytes, dragRegion, lastTaskOfType, songByTitle } from './helpers';
 
 const DURATION = 12;
