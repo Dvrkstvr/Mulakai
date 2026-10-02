@@ -7773,3 +7773,55 @@ database. `fetch` patched in the page to reject `/api/voices`:
   to be.
 - Only DELETE rejected, RETRY: Daniel, DelVox and Elly listed. ✕ on
   Elly: "couldn't delete voice — Failed to fetch", Elly still listed.
+
+## Shader Surfaces Give Their WebGL Context Back (planned 2026-10-02)
+
+Fixes AUDIT.md #12. Every "AI in progress" surface (an AI toggle that is
+on, the AI ENHANCE badge, the generating veil on GENERATE, ANALYZE AUDIO,
+the Library card and a layer lane) mounts its own `ShaderCanvas`, and
+each gets a WebGL2 context. Unmounting deleted the program but never
+released the context, and its failure paths (a shader that won't
+compile) leaked it too. Browsers keep only about 16 live contexts and
+reclaim a dropped canvas's context only at garbage collection, so
+toggling or remounting shader surfaces piled contexts up until the
+browser started killing the oldest and surfaces went black.
+
+### Decisions
+
+1. **Stopping releases the context outright**: program and shaders are
+   deleted, then `WEBGL_lose_context.loseContext()`. The early returns
+   release it too.
+2. **A fresh `<canvas>` per effect run.** A released context can't be
+   reused, and `getContext` on the same element returns it again, so
+   StrictMode's mount-unmount-mount would leave the surface black. The
+   component renders a host `<div>` and its effect creates, fills and
+   removes the canvas. No CSS targets the canvas element, and the host
+   takes the canvas's old absolute fill.
+3. **The WebGL side moves to `shaderRenderer.ts`** (`startShader(canvas)`
+   returns its stop function), out of the component file, so it can be
+   tested in Node with a fake context; the client tests have no DOM.
+4. **Not changed:** surfaces that are live at the same time each still
+   hold a context. Sharing one renderer across them is a larger change
+   than this leak and not needed to stop the pile-up.
+
+### File-level plan
+
+- `client/src/shaderRenderer.ts` (new): shader source, compile/link,
+  `startShader`, moved from `ShaderCanvas.tsx`, plus the release.
+- `client/src/ShaderCanvas.tsx`: host div; a canvas per effect run.
+- `client/src/shaderRenderer.test.ts` (new): stop releases program,
+  shaders and context; a failed compile still releases the context; no
+  WebGL2 is a no-op.
+
+### Browser check (2026-10-02)
+
+Worktree client (dev build, StrictMode on) against a scratch server, in
+Create. AI ENHANCE clicked 41 times, 150 ms apart; each "on" mounts
+three shader surfaces (the toggle and two AI ENHANCE badges).
+
+- This fix: no WebGL warnings in the console. The surface left on had
+  one canvas with a live context (`isContextLost()` false), and the
+  toggle and badges showed the shader ring in color.
+- `main`'s `ShaderCanvas.tsx` swapped in for comparison, same loop: 25
+  "Too many active WebGL contexts. Oldest context will be lost."
+  warnings. Restored afterwards.
