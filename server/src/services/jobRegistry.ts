@@ -2,6 +2,7 @@
  * In-memory job registry shared by every job type (generate, repaint, add-layer, …):
  * the Job record, lookup/registration, and the dev-facing abort.
  */
+import fs from 'node:fs/promises';
 import { releaseGenLock } from './genLock.js';
 
 export interface Job {
@@ -11,6 +12,8 @@ export interface Job {
   error?: string;
   songId?: string;
   createdAt: number;
+  /** Last client read — the idle clock evictIdleJobs reads. Set by registerJob. */
+  lastSeenAt?: number;
   /** Set by remasterJobs.ts on success; a scratch file path streamed once by remaster.ts's download route, then cleared. No other job type uses this. */
   resultPath?: string;
   /** Live progress from ACE-Step's /query_result while status is 'running' — see poll(). */
@@ -23,15 +26,37 @@ export interface Job {
   lyrics?: import('./lyricsJobs.js').LyricsOutcome;
 }
 
+/** Readers stop once a job settles (a remaster is downloaded right then), so an hour
+ * without one means nobody is coming back — see PLAN.md "Idle Jobs Leave Every Registry". */
+export const JOB_IDLE_TTL_MS = 60 * 60 * 1000;
+
 const jobs = new Map<string, Job>();
 
+/** Look a job up for a client request, which also restarts its idle clock. */
 export function getJob(id: string): Job | undefined {
-  return jobs.get(id);
+  const job = jobs.get(id);
+  if (job) job.lastSeenAt = Date.now();
+  return job;
 }
 
 /** Register a job created elsewhere (e.g. repaintJobs.ts) so getJob() can find it. */
 export function registerJob(job: Job): void {
+  job.lastSeenAt = Date.now();
   jobs.set(job.id, job);
+}
+
+/** Whether a live job still owns this scratch file (a remaster result not yet downloaded). */
+export function isLiveResultPath(filePath: string): boolean {
+  return [...jobs.values()].some((j) => j.resultPath === filePath);
+}
+
+/** Drop every settled job unread for JOB_IDLE_TTL_MS, deleting a remaster result nobody
+ * downloaded. A running job is never evicted: its own poll loop settles it. */
+export async function evictIdleJobs(now = Date.now()): Promise<void> {
+  const idle = [...jobs.values()].filter((j) => (j.status === 'done' || j.status === 'failed')
+    && now - (j.lastSeenAt ?? j.createdAt) > JOB_IDLE_TTL_MS);
+  for (const job of idle) jobs.delete(job.id);
+  await Promise.all(idle.map((j) => (j.resultPath ? fs.rm(j.resultPath, { force: true }).catch(() => {}) : undefined)));
 }
 
 /**

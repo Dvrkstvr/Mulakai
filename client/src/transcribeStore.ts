@@ -2,10 +2,11 @@
  * SheetSage2, poll the job like any other, and put the score into COVER's draft. Its own store
  * because generationStore.ts is at the module cap, and because nothing here makes a song. */
 import { create } from 'zustand';
-import { api, type EngineId } from './api';
+import { api, ApiError, type EngineId } from './api';
 import { useCreateDraftStore } from './createDraftStore';
 import { coverSourceKey } from './coverSource';
 import { fitLyricsToSections, hasWords } from './coverLyrics';
+import { JOB_GONE } from './jobGone';
 
 export const POLL_MS = 1500;
 
@@ -56,8 +57,9 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
       let s: Awaited<ReturnType<typeof api.jobStatus>>;
       try {
         s = await api.jobStatus(jobId);
-      } catch {
-        continue; // a network hiccup is not a failed transcription
+      } catch (err) {
+        if (!(err instanceof ApiError && err.status === 404)) continue; // a network hiccup is not a failed transcription
+        s = { status: 'failed', error: JOB_GONE };
       }
       if (s.status === 'loading' || s.status === 'running') {
         set({ progress: s.progress });
