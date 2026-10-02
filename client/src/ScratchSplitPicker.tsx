@@ -4,6 +4,7 @@ import { AudioPreview } from './AudioPreview';
 import { previewPlayback } from './previewPlayback';
 import { Dropzone } from './Dropzone';
 import { useLookup } from './lookup';
+import { SplitBackendTabs } from './SplitBackendTabs';
 
 interface Props {
   /** Fired when the user picks a ready stem to use as a generation source — the split job/
@@ -100,32 +101,7 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
           <Dropzone accept="audio/*" onFile={setFile}>
             {file ? file.name : 'drag a full song here or click to browse'}
           </Dropzone>
-          {healthLookup.error ? (
-            <div className="error">
-              couldn't check split backends — {healthLookup.error} <button onClick={healthLookup.retry}>RETRY</button>
-            </div>
-          ) : health === null ? (
-            <span className="meta">checking available backends…</span>
-          ) : (
-            <div className="type-tabs">
-              <button
-                className={`tab${model === 'acestep' ? ' active' : ''}`}
-                disabled={!health.acestep}
-                title={health.acestep ? undefined : 'no downloaded model supports extract — requires a Base model'}
-                onClick={() => setModel('acestep')}
-              >
-                <span>ACE-STEP</span>
-              </button>
-              <button
-                className={`tab${model === 'demucs' ? ' active' : ''}`}
-                disabled={!health.demucs}
-                title={health.demucs ? undefined : 'Demucs is not configured (DEMUCS_API_URL unset)'}
-                onClick={() => setModel('demucs')}
-              >
-                <span>DEMUCS</span>
-              </button>
-            </div>
-          )}
+          <SplitBackendTabs lookup={healthLookup} model={model} onPick={setModel} />
           <button className="acid" disabled={!canSubmit} onClick={split}>
             {splitting ? 'SPLITTING…' : 'SPLIT INTO STEMS'}
           </button>
