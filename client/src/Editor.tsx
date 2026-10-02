@@ -16,7 +16,7 @@ import { RepaintBar } from './RepaintBar';
 import { SettingsPanel } from './SettingsPanel';
 import { VoicePicker } from './VoicePicker';
 import { useSettings, repaintParams } from './settings';
-import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
+import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS, clampCrossfade } from './repaintLimits';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useMainTransportGuard } from './previewPlayback';
 import { useHeaderSlot } from './HeaderSlot';
@@ -163,6 +163,7 @@ export function Editor({ songId, onBack }: Props) {
       end: selection.end,
       ...(lyricsUnlocked ? { lyrics: lyricsDraft } : {}),
       ...repaintParams(repaintSettings),
+      repaint_wav_crossfade_sec: clampCrossfade(repaintSettings.crossfadeSec, regionSeconds),
     });
   };
 
