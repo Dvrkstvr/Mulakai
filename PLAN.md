@@ -7272,3 +7272,16 @@ it twice.
 - `client/src/generationStore.ts`: imports `pollJob`, passes `get`.
 - `client/src/generationStore.test.ts`: a dismissed running job stops
   polling; two concurrent `hydrate()` adoptions poll once per tick.
+
+### Browser check (2026-10-02)
+
+Worktree client (dev build, so StrictMode on) against a scratch server.
+ACE-Step was offline, so the page stubbed the generation submit and its
+job's status (always "running"); the store and its timers were the real
+ones, and requests were counted at the page's `fetch`.
+
+- A running generation polled 3 times in 6.5 s; after `dismiss()`, no
+  more requests in the next 6.5 s, and the card was gone.
+- With the lock stubbed to a running song generation, two concurrent
+  `hydrate()` calls (StrictMode's double mount) adopted it once and
+  polled it 3 times in 6.5 s, one loop. No console errors.
