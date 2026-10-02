@@ -38,6 +38,10 @@
 - `generationStore` kept polling a generation it no longer tracked (dismissed while
   running), and StrictMode's double `hydrate()` polled an adopted job twice. The loop
   now stops once the store drops its job, one loop per job — PR #106 (was #13).
+- `ShaderCanvas` never released its WebGL context, so remounted AI shader surfaces
+  piled up toward the browser's ~16-context cap until they went black. Each surface
+  now releases its context (`loseContext`) on unmount and failure, on a fresh canvas
+  per mount — PR #108 (was #12).
 - Playback never ended: no `onended` on any source, so the Editor stayed "playing"
   with `currentTime()` growing past the song forever. The longest layer's end now
   stops the engine at the duration (play again restarts from 0), guarded by a
@@ -66,6 +70,18 @@
   layer with no active version shifted every later layer onto its neighbour's volume.
   `audibleTakes()` keeps each layer with its version; Add Layer, REMASTER and COVER's
   library source share it — PR #99 (was #7).
+- Eight non-test modules were over AGENTS.md's 200-LOC hard cap (`acestep.ts` 539,
+  `settings.ts` 329, `Editor.tsx` 320, `App.tsx` 317, `routes/generate.ts` 298,
+  `jobs.ts` 283, `stemSplit.ts` 282, `repaintJobs.ts` 235). Each was split by
+  responsibility with no behaviour change; none is over the cap now — PRs #71–#75,
+  #77, #82, and #81 for `stemSplit.ts` (was #18).
+- An ACE-Step split's four concurrent stems each reconciled the LoRA adapter unsynchronized,
+  so a not-yet-applied adapter got four overlapping `lora/load` + `lora/scale` sequences.
+  Every reconcile (and `registerAdapter`) now runs through one queue; the first applies,
+  the rest find it applied — PR #102 (was #8).
+- An ABORT that landed while a finished job's result was being saved was reversed: `poll()`
+  set `done` once the save returned. The job now stays aborted, says the result was saved,
+  and keeps its `songId`; an abort then a failed save keeps "Aborted" — PR #107 (was #10).
 - Repaint CROSSFADE was capped only when edited, so a value saved on a long region was
   shown and sent as-is on a shorter one. `clampCrossfade()` caps it at submit and in the
   box (half the region, at most 2.5 s, rounded to 0.1 s); the stored preference is kept —
@@ -135,7 +151,7 @@ version, then indexes volumes via the *unfiltered* `activeLayers(layers)[i]`;
 neighbors' volumes shift when the lists diverge. (`RemasterAction.tsx` and
 `CreateAudioTab.tsx` do the same op correctly with `{layer, version}` pairs.)
 
-### 8. Adapter reconcile race during ACE-Step splits
+### 8. ~~Adapter reconcile race during ACE-Step splits~~ — fixed, PR #102
 `server/src/services/stemSplit.ts` fans out four concurrent `runAcestepStem`
 calls; each runs `reconcileAdapter()`'s unsynchronized read-check-write —
 overlapping `lora/load`/`lora/scale` sequences can reach ACE-Step.
@@ -144,7 +160,7 @@ overlapping `lora/load`/`lora/scale` sequences can reach ACE-Step.
 `client/src/RepaintBar.tsx` / `settings.ts` — a persisted `crossfadeSec` larger
 than the current region's max is displayed and submitted as-is. Clamp at submit.
 
-### 10. Abort/persist race reverses an abort silently
+### 10. ~~Abort/persist race reverses an abort silently~~ — fixed, PR #107
 `server/src/services/jobs.ts` — `abortJob` during an in-flight `onSuccess` marks
 the job failed, then `poll` overwrites to done. Outcome is harmless (song exists)
 but the abort is silently undone.
@@ -156,7 +172,7 @@ but the abort is silently undone.
 delete; every job for the life of the process accumulates. (`stemSplit.ts` evicts
 idle splits since PR #96; `jobRegistry.ts` and scratch splits since PR #104.)
 
-### 12. WebGL context leak in `ShaderCanvas`
+### 12. ~~WebGL context leak in `ShaderCanvas`~~ — fixed, PR #108
 `client/src/ShaderCanvas.tsx` — cleanup never calls
 `WEBGL_lose_context.loseContext()`; repeated AI-state mounts accumulate toward the
 browser's ~16-context cap, after which shader surfaces go black.
@@ -212,7 +228,7 @@ palette is locked. Use a token or add the accent to DESIGN.md properly.
 
 ## ⚪ Process debt
 
-### 18. Module-size hard cap (AGENTS.md: 200 LOC) — current violations
+### 18. ~~Module-size hard cap (AGENTS.md: 200 LOC) — current violations~~ — fixed, PRs #71–#75, #77, #81, #82
 Recounted 2026-10-02 (`wc -l`, every non-test `.ts`/`.tsx` under `client/src`
 and `server/src`; 215 files). Since the 2026-07-31 snapshot `api.ts` (601) was
 split into `client/src/api/` (PR #25) and `generationStore.ts` fell to 188.
@@ -231,26 +247,26 @@ responsibility (no behaviour change; every resulting file ≤150):
 | `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
 | `server/src/services/repaintJobs.ts` | 235 | #71 (merged) |
 
-The split branches merged cleanly together before #81 landed; on that combined
-tree both suites stayed green (client 289, server 407), both builds passed, and
-no non-test module was over the cap. #72 and #82 are rebased onto the fixes that
-touch the same files (#84, #83) once those land. Strike this item once all are in.
+#72 and #82 were merged with the fixes that touched the same files (#84, #83)
+before landing. With #82 in, no non-test module is over the cap: recounted on
+main + #82, 266 files, largest 195.
 
-**Over the 150 target, under the cap (23, plus `stemRunners.ts` 171 and
-`stemSplit.ts` 165 after #81)** — no action required by policy;
-split opportunistically when a feature touches them:
+**Over the 150 target, under the cap (27, recounted with #82)** — no action
+required by policy; split opportunistically when a feature touches them:
 `client/src/Waveform.tsx` 195 · `client/src/generationStore.ts` 188 ·
-`server/src/services/lyricTagProbe.ts` 187 · `client/src/CreateArrangeTab.tsx` 182 ·
-`client/src/api/types.ts` 181 · `client/src/SongDetailRail.tsx` 181 ·
+`client/src/SongDetailRail.tsx` 188 · `server/src/services/lyricTagProbe.ts` 187 ·
+`client/src/api/types.ts` 187 · `client/src/CreateArrangeTab.tsx` 182 ·
 `client/src/lyricTagGuide.ts` 180 · `client/src/editorJobStore.ts` 179 ·
-`client/src/AddLayerTrigger.tsx` 178 · `client/src/VersionHistory.tsx` 175 ·
-`server/src/routes/songs.ts` 174 · `client/src/createDraftStore.ts` 173 ·
-`client/src/previewPlayback.ts` 172 · `client/src/SettingsPanel.tsx` 170 ·
-`server/src/routes/engineCovers.ts` 168 · `client/src/lyricTags.ts` 163 ·
-`client/src/SplitPanel.tsx` 163 · `server/src/services/engineTranscribeClient.ts` 160 ·
-`client/src/ScratchSplitPicker.tsx` 159 · `client/src/CreateView.tsx` 158 ·
-`client/src/CreateAudioTab.tsx` 156 · `client/src/LayerLane.tsx` 155 ·
-`client/src/ShaderCanvas.tsx` 151.
+`client/src/AddLayerTrigger.tsx` 179 · `server/src/services/stemSplit.ts` 178 ·
+`client/src/VersionHistory.tsx` 177 · `client/src/SettingsPanel.tsx` 176 ·
+`server/src/routes/songs.ts` 175 · `client/src/previewPlayback.ts` 173 ·
+`client/src/createDraftStore.ts` 173 · `client/src/LayerLane.tsx` 172 ·
+`server/src/services/stemRunners.ts` 171 · `server/src/routes/engineCovers.ts` 168 ·
+`client/src/mix/playbackEngine.ts` 167 · `client/src/SplitPanel.tsx` 165 ·
+`client/src/lyricTags.ts` 163 · `server/src/services/engineTranscribeClient.ts` 160 ·
+`client/src/CreateView.tsx` 160 · `client/src/ScratchSplitPicker.tsx` 159 ·
+`client/src/CreateAudioTab.tsx` 156 · `client/src/ShaderCanvas.tsx` 151 ·
+`client/src/Editor.tsx` 151.
 
 (`client/src/index.css` — same lesson, outside the letter of the policy and out
 of scope here. Vendored third-party code such as `yue-server/upstream/` is not
