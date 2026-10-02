@@ -311,8 +311,21 @@
   "309": "Create-Side Lookup Failures (planned 2026-10-02)",
   "310": "transcribe_routes.py",
   "311": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)",
+  "312": "test_api.py",
+  "313": "make_transcriber",
+  "314": "test_api.py",
   "315": "Idle Jobs Leave Every Registry (planned 2026-10-02)",
   "316": "jobRegistry.evict.test.ts",
   "317": "jobEviction.test.ts",
-  "318": "scratchSplitJobs.evict.test.ts"
+  "318": "scratchSplitJobs.evict.test.ts",
+  "319": ".new_job",
+  "320": "registry.ts",
+  "321": "adapterStore.test.ts",
+  "322": "RefineResult",
+  "323": "FakeAudio",
+  "324": "waveformPeaks.ts",
+  "325": "config.py",
+  "326": "A Failed Editor Job Blocks Nothing (planned 2026-10-01)",
+  "327": "Model Status Badge (planned 2026-10-02)",
+  "328": "generateHealth.test.ts"
 }

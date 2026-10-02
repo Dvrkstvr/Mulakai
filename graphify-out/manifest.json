@@ -30,8 +30,8 @@
     "semantic_hash": ""
   },
   "client/src/App.tsx": {
-    "mtime": 1790899171.0681973,
-    "ast_hash": "386960bf3c82bd8209abf4fa87fd4b64",
+    "mtime": 1790951257.698217,
+    "ast_hash": "d0f16fcf90a6155a7cbdbafbac41dc13",
     "semantic_hash": ""
   },
   "client/src/AutoTextarea.tsx": {
@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "client/src/Header.tsx": {
-    "mtime": 1783477441.5340834,
-    "ast_hash": "84d3e7228c766a87d787db0924a38cf6",
-    "semantic_hash": "84d3e7228c766a87d787db0924a38cf6"
+    "mtime": 1790951297.378939,
+    "ast_hash": "0add156bd0b8ed3af24877630b64f7e0",
+    "semantic_hash": ""
   },
   "client/src/HeaderSlot.tsx": {
     "mtime": 1783026648.8599532,
@@ -485,8 +485,8 @@
     "semantic_hash": ""
   },
   "server/src/routes/generate.test.ts": {
-    "mtime": 1790942904.786596,
-    "ast_hash": "ac2d7b6d6dd4df56a957e7b3ea6a5ed7",
+    "mtime": 1790951202.283041,
+    "ast_hash": "7acc2ccdfcf45e68e9e651a445d5d07a",
     "semantic_hash": ""
   },
   "server/src/routes/generate.ts": {
@@ -715,8 +715,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790950035.8316472,
-    "ast_hash": "af694d31afa30e8904c51e4c7faf69e3",
+    "mtime": 1790951415.7971995,
+    "ast_hash": "72d1e24334e94e006ad9da2088253602",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN.md": {
-    "mtime": 1790950035.8020997,
-    "ast_hash": "2517b057de273713a74943926f97ba18",
+    "mtime": 1790951397.0928757,
+    "ast_hash": "21fe3328316b1a0cc479d4927ebf224a",
     "semantic_hash": ""
   },
   "client/public/favicon.svg": {
@@ -1140,8 +1140,8 @@
     "semantic_hash": ""
   },
   "client/src/api/generation.ts": {
-    "mtime": 1790862936.8220637,
-    "ast_hash": "0ade6465ef7a88c66ef3392cb87795df",
+    "mtime": 1790951257.6473496,
+    "ast_hash": "ea637f49ae14b421f3e52290728f8ffc",
     "semantic_hash": ""
   },
   "client/src/api/http.ts": {
@@ -1170,8 +1170,8 @@
     "semantic_hash": ""
   },
   "server/src/services/acestepTimeout.test.ts": {
-    "mtime": 1790942912.090477,
-    "ast_hash": "ccbc1305c551278a8faf0947c097756e",
+    "mtime": 1790951202.2835417,
+    "ast_hash": "840359abf7a7e5a43d25c548abcba81e",
     "semantic_hash": ""
   },
   "client/src/EngineChoice.tsx": {
@@ -1225,8 +1225,8 @@
     "semantic_hash": ""
   },
   "client/src/engineStore.ts": {
-    "mtime": 1790783079.3291767,
-    "ast_hash": "8c8d8e920e7ac933519d6aa27ef301f7",
+    "mtime": 1790951257.6987169,
+    "ast_hash": "51170891b43da64a84ba3862a80e6fb3",
     "semantic_hash": ""
   },
   "client/src/generationStore.test.ts": {
@@ -2030,8 +2030,8 @@
     "semantic_hash": ""
   },
   "server/src/services/acestep/models.ts": {
-    "mtime": 1790942892.3393075,
-    "ast_hash": "f1df8e40cdda534da2e79891b99d3af9",
+    "mtime": 1790951202.2825406,
+    "ast_hash": "1d1d767d10b8be151ef8da44c90820cf",
     "semantic_hash": ""
   },
   "server/src/services/acestep/prompting.ts": {
@@ -2090,8 +2090,8 @@
     "semantic_hash": ""
   },
   "client/src/useAppSync.ts": {
-    "mtime": 1790902429.5387483,
-    "ast_hash": "960b924c1dfd93b030d2b124adf61fff",
+    "mtime": 1790951261.2087111,
+    "ast_hash": "48c2376b2aa47fff6dce67ec0732830f",
     "semantic_hash": ""
   },
   "client/src/useLibraryData.ts": {
@@ -2200,8 +2200,8 @@
     "semantic_hash": ""
   },
   "e2e/tests/golden-path.spec.ts": {
-    "mtime": 1790902429.5588303,
-    "ast_hash": "dace721bc211848705f15a0092549c08",
+    "mtime": 1790951365.160594,
+    "ast_hash": "214b542f580200a54b9686d11f6b3abb",
     "semantic_hash": ""
   },
   "e2e/tests/helpers.ts": {
@@ -2275,8 +2275,8 @@
     "semantic_hash": ""
   },
   "server/src/routes/generateHelpers.ts": {
-    "mtime": 1790942895.713774,
-    "ast_hash": "2c5537d437495fbeb6f17545c23efbcd",
+    "mtime": 1790951202.283041,
+    "ast_hash": "76c6ab53f2db04e9d810b9c9287dffb4",
     "semantic_hash": ""
   },
   "server/src/routes/generateParams.ts": {
@@ -2502,6 +2502,31 @@
   "server/src/services/jobRunner.test.ts": {
     "mtime": 1790943795.5019507,
     "ast_hash": "8a03b70f554daeb7b029d96c8f5d66f2",
+    "semantic_hash": ""
+  },
+  "client/src/ModelStatusBadge.tsx": {
+    "mtime": 1790951296.7997706,
+    "ast_hash": "da42be62999a58a5692859873d51fd9c",
+    "semantic_hash": ""
+  },
+  "client/src/modelStatus.test.ts": {
+    "mtime": 1790951330.916171,
+    "ast_hash": "236c4ee5cb6ffdc3110c7479bd331144",
+    "semantic_hash": ""
+  },
+  "client/src/modelStatus.ts": {
+    "mtime": 1790951233.81042,
+    "ast_hash": "0b23e811b612f182b4a26627f13e6e01",
+    "semantic_hash": ""
+  },
+  "client/src/modelStatusStore.ts": {
+    "mtime": 1790951246.954462,
+    "ast_hash": "b35f6e557bf235549b274b661045b98f",
+    "semantic_hash": ""
+  },
+  "server/src/routes/generateHealth.test.ts": {
+    "mtime": 1790951211.284091,
+    "ast_hash": "72102a2a2559b0cc6cd4470e90f57975",
     "semantic_hash": ""
   }
 }
