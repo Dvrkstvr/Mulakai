@@ -840,8 +840,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790942796.1403244,
-    "ast_hash": "99ac67d3ce87db3e2820b73e535614cb",
+    "mtime": 1790942809.9146276,
+    "ast_hash": "ac1a68177fe297f4ef4832e8701c6612",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1075,12 +1075,12 @@
     "semantic_hash": ""
   },
   "server/src/services/adapters.test.ts": {
-    "mtime": 1790942773.5648422,
+    "mtime": 1790942809.6990273,
     "ast_hash": "803a25e6ff137c8d7fbddb530de6f90f",
     "semantic_hash": ""
   },
   "server/src/services/adapters.ts": {
-    "mtime": 1790942773.5653443,
+    "mtime": 1790942809.6995268,
     "ast_hash": "8e50330ae0080c7dfec7a3fc27b37e76",
     "semantic_hash": ""
   },
@@ -2050,8 +2050,8 @@
     "semantic_hash": ""
   },
   "server/src/services/jobRunner.ts": {
-    "mtime": 1790942760.29977,
-    "ast_hash": "70ca921271a0ff45f3f194b1e1fcd359",
+    "mtime": 1790942809.2552357,
+    "ast_hash": "cb58e49f21b4417fe5078fa9e80bc85e",
     "semantic_hash": ""
   },
   "server/src/services/lyricTimestamps.ts": {
@@ -2357,6 +2357,11 @@
   "client/src/mix/activeLayers.test.ts": {
     "mtime": 1790942614.7641912,
     "ast_hash": "56c546bcd33c53f529d66bf2c1bb9779",
+    "semantic_hash": ""
+  },
+  "server/src/services/jobRunner.test.ts": {
+    "mtime": 1790942809.2547326,
+    "ast_hash": "8a03b70f554daeb7b029d96c8f5d66f2",
     "semantic_hash": ""
   },
   "client/src/generationPoll.ts": {

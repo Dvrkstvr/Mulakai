@@ -75,6 +75,9 @@
   so a not-yet-applied adapter got four overlapping `lora/load` + `lora/scale` sequences.
   Every reconcile (and `registerAdapter`) now runs through one queue; the first applies,
   the rest find it applied — PR #102 (was #8).
+- An ABORT that landed while a finished job's result was being saved was reversed: `poll()`
+  set `done` once the save returned. The job now stays aborted, says the result was saved,
+  and keeps its `songId`; an abort then a failed save keeps "Aborted" — PR #107 (was #10).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -149,7 +152,7 @@ overlapping `lora/load`/`lora/scale` sequences can reach ACE-Step.
 `client/src/RepaintBar.tsx` / `settings.ts` — a persisted `crossfadeSec` larger
 than the current region's max is displayed and submitted as-is. Clamp at submit.
 
-### 10. Abort/persist race reverses an abort silently
+### 10. ~~Abort/persist race reverses an abort silently~~ — fixed, PR #107
 `server/src/services/jobs.ts` — `abortJob` during an in-flight `onSuccess` marks
 the job failed, then `poll` overwrites to done. Outcome is harmless (song exists)
 but the abort is silently undone.
