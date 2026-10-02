@@ -212,3 +212,62 @@ describe('registry', () => {
     expect(() => setActiveAdapter('nope')).toThrow('Unknown adapter');
   });
 });
+
+describe('concurrent reconciles (an ACE-Step split fans out four stems at once)', () => {
+  /** Makes every adapter call take a tick, and records whether two were ever in flight together. */
+  function slowAceStep() {
+    let inFlight = 0;
+    let overlapped = false;
+    const slow = async () => {
+      inFlight++;
+      if (inFlight > 1) overlapped = true;
+      await new Promise((r) => setTimeout(r, 5));
+      inFlight--;
+    };
+    loadLora.mockImplementation(slow);
+    setLoraScale.mockImplementation(slow);
+    unloadLora.mockImplementation(slow);
+    return { overlapped: () => overlapped };
+  }
+
+  it('applies the adapter once, with no overlapping lora calls', async () => {
+    const adapter = await seed('Acid House', '/models/acid');
+    resetAppliedAdapter(); // as after a restart: selected, but nothing applied yet
+    setAdapterScale(adapter.id, 0.6);
+    setActiveAdapter(adapter.id);
+    const aceStep = slowAceStep();
+
+    const stamps = await Promise.all([1, 2, 3, 4].map(() => reconcileAdapter()));
+
+    expect(loadLora).toHaveBeenCalledTimes(1);
+    expect(setLoraScale).toHaveBeenCalledTimes(1);
+    expect(aceStep.overlapped()).toBe(false);
+    expect(stamps).toEqual(Array(4).fill({ name: 'Acid House', scale: 0.6 }));
+  });
+
+  it('a failed reconcile does not block the ones queued behind it', async () => {
+    const adapter = await seed('Acid House', '/models/acid');
+    resetAppliedAdapter();
+    setActiveAdapter(adapter.id);
+    loadLora.mockRejectedValueOnce(new Error('ACE-Step /v1/lora/load -> CUDA out of memory'));
+
+    const [first, second] = await Promise.allSettled([reconcileAdapter(), reconcileAdapter()]);
+
+    expect(first.status).toBe('rejected');
+    expect(second).toEqual({ status: 'fulfilled', value: { name: 'Acid House', scale: 1 } });
+    expect(loadLora).toHaveBeenCalledTimes(2); // the second retried, since `applied` was left untouched
+  });
+
+  it('a register and a reconcile take turns', async () => {
+    const existing = await seed('Acid House', '/models/acid');
+    setActiveAdapter(existing.id);
+    resetAppliedAdapter();
+    const aceStep = slowAceStep();
+
+    await Promise.all([reconcileAdapter(), registerAdapter('Lo-Fi', '/models/lofi'), reconcileAdapter()]);
+
+    expect(aceStep.overlapped()).toBe(false);
+    // Registering loads Lo-Fi, then reconciles back to the selected Acid House.
+    expect(loadLora.mock.calls.map((c) => c[0])).toEqual(['/models/acid', '/models/lofi', '/models/acid']);
+  });
+});

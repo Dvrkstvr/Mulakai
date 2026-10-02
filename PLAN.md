@@ -7774,6 +7774,105 @@ database. `fetch` patched in the page to reject `/api/voices`:
 - Only DELETE rejected, RETRY: Daniel, DelVox and Elly listed. ✕ on
   Elly: "couldn't delete voice — Failed to fetch", Elly still listed.
 
+## Shader Surfaces Give Their WebGL Context Back (planned 2026-10-02)
+
+Fixes AUDIT.md #12. Every "AI in progress" surface (an AI toggle that is
+on, the AI ENHANCE badge, the generating veil on GENERATE, ANALYZE AUDIO,
+the Library card and a layer lane) mounts its own `ShaderCanvas`, and
+each gets a WebGL2 context. Unmounting deleted the program but never
+released the context, and its failure paths (a shader that won't
+compile) leaked it too. Browsers keep only about 16 live contexts and
+reclaim a dropped canvas's context only at garbage collection, so
+toggling or remounting shader surfaces piled contexts up until the
+browser started killing the oldest and surfaces went black.
+
+### Decisions
+
+1. **Stopping releases the context outright**: program and shaders are
+   deleted, then `WEBGL_lose_context.loseContext()`. The early returns
+   release it too.
+2. **A fresh `<canvas>` per effect run.** A released context can't be
+   reused, and `getContext` on the same element returns it again, so
+   StrictMode's mount-unmount-mount would leave the surface black. The
+   component renders a host `<div>` and its effect creates, fills and
+   removes the canvas. No CSS targets the canvas element, and the host
+   takes the canvas's old absolute fill.
+3. **The WebGL side moves to `shaderRenderer.ts`** (`startShader(canvas)`
+   returns its stop function), out of the component file, so it can be
+   tested in Node with a fake context; the client tests have no DOM.
+4. **Not changed:** surfaces that are live at the same time each still
+   hold a context. Sharing one renderer across them is a larger change
+   than this leak and not needed to stop the pile-up.
+
+### File-level plan
+
+- `client/src/shaderRenderer.ts` (new): shader source, compile/link,
+  `startShader`, moved from `ShaderCanvas.tsx`, plus the release.
+- `client/src/ShaderCanvas.tsx`: host div; a canvas per effect run.
+- `client/src/shaderRenderer.test.ts` (new): stop releases program,
+  shaders and context; a failed compile still releases the context; no
+  WebGL2 is a no-op.
+
+### Browser check (2026-10-02)
+
+Worktree client (dev build, StrictMode on) against a scratch server, in
+Create. AI ENHANCE clicked 41 times, 150 ms apart; each "on" mounts
+three shader surfaces (the toggle and two AI ENHANCE badges).
+
+- This fix: no WebGL warnings in the console. The surface left on had
+  one canvas with a live context (`isContextLost()` false), and the
+  toggle and badges showed the shader ring in color.
+- `main`'s `ShaderCanvas.tsx` swapped in for comparison, same loop: 25
+  "Too many active WebGL contexts. Oldest context will be lost."
+  warnings. Restored afterwards.
+
+## Repaint Crossfade Is Clamped at Submit (planned 2026-10-02)
+
+AUDIT.md #9. CROSSFADE is capped at half the region, and at most 2.5 s
+(half of a 5 s ceiling), because a splice fade can't be longer than
+half the span it blends into. That cap was applied only in the input's
+`onChange`. A value saved while a long region was selected (say 2.5 s)
+stays in settings. On a 3 s region, where at most 1.5 s fits, it was
+still displayed as 2.5 and sent to ACE-Step as 2.5.
+
+### Decisions
+
+1. **One clamp, `clampCrossfade(sec, regionSeconds)`**, in
+   `repaintLimits.ts` beside the region limits, with the cap formula
+   (`maxCrossfadeSec`) moved there from RepaintBar. The cap rounds down
+   to the box's 0.1 s step: a dragged region is a raw float, and the
+   box used to show a cap like 2.0202702702702666.
+2. **Applied at submit.** `Editor.repaint` sends the clamped value,
+   whatever the stored setting holds.
+3. **Displayed clamped too**, so the box shows what will be sent.
+4. **The stored preference is left alone.** It's the user's crossfade
+   for regions long enough to take it. A longer region later gets it
+   back, and editing the box stores the new value as before.
+5. **Client only.** The server keeps passing the number through. Its
+   input checks are AUDIT #17's.
+
+### File-level plan
+
+- `client/src/repaintLimits.ts`: `maxCrossfadeSec`, `clampCrossfade`.
+- `client/src/repaintLimits.test.ts` (new): the cap at short/long
+  regions, an over-cap value clamped, negative and NaN to 0, an
+  invalid region to 0.
+- `client/src/RepaintBar.tsx`: uses both; shows the clamped value.
+- `client/src/useRepaintSubmit.ts` (the Editor's repaint, since the
+  Editor split): sends the clamped value.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, with e2e's fake ACE-Step,
+against a copy of the library database. `crossfadeSec` was stored as
+2.5 (valid on a long region), then a 4.04 s region was dragged on the
+Ellies City Drums lane:
+
+- CROSSFADE showed 2 (before the rounding: 2.0202702702702666), and
+  the stored setting stayed 2.5.
+- REPAINT REGION sent `repaint_wav_crossfade_sec: 2`, and the fake
+  ACE-Step received 2. Before this fix both would have been 2.5.
+
 ## The Model List Waits Out a Busy ACE-Step (planned 2026-10-02)
 
 Creating a song showed "couldn't load the model list — ACE-Step

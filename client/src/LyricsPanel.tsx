@@ -16,7 +16,7 @@ interface Props {
 /**
  * Left-rail lyrics view: read-only by default; unlocks into an editable
  * textarea only while the current selection is exactly one whole section on
- * the base layer (see Editor.tsx's `lyricsUnlocked`) — editing at any other
+ * the base layer (see useSectionLyrics.ts's `lyricsUnlocked`) — editing at any other
  * granularity isn't meaningful since ACE-Step's repaint only re-renders the
  * selected region. `activeBlock` (the matching block for whatever section is
  * selected) is always shown highlighted when locked, and native-selected
