@@ -1,7 +1,8 @@
 import { create } from 'zustand';
-import { api, type ActiveGeneration, type EngineId, type StemKind } from './api';
+import { api, ApiError, type ActiveGeneration, type EngineId, type StemKind } from './api';
 import type { CreateDraft } from './createDraft';
 import { adoptLock, isGenerating } from './generationJob';
+import { JOB_GONE } from './jobGone';
 
 export type GenStage = 'loading' | 'running' | 'done' | 'failed';
 
@@ -85,8 +86,10 @@ async function pollJob(jobId: string, set: SetState) {
     let s: Awaited<ReturnType<typeof api.jobStatus>>;
     try {
       s = await api.jobStatus(jobId);
-    } catch {
-      continue; // transient network hiccup — keep polling rather than surfacing a false failure
+    } catch (err) {
+      // A network hiccup keeps polling rather than surfacing a false failure; a 404 never recovers.
+      if (!(err instanceof ApiError && err.status === 404)) continue;
+      s = { status: 'failed', error: JOB_GONE };
     }
     if (s.status === 'loading' || s.status === 'running') {
       set((state) => (state.job?.jobId === jobId
