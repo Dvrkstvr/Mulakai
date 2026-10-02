@@ -7327,3 +7327,82 @@ ones, and requests were counted at the page's `fetch`.
 - With the lock stubbed to a running song generation, two concurrent
   `hydrate()` calls (StrictMode's double mount) adopted it once and
   polled it 3 times in 6.5 s, one loop. No console errors.
+
+## Lookup Failures Aren't Answers (planned 2026-10-02)
+
+Follow-up to "Editor Failures Say So" (decision 8 left this open). Four
+lookups gate an Editor control on what the server reports, and each
+read a failed request as an answer:
+
+- `AddLayerTrigger.tsx` and `RemasterAction.tsx`: a failed
+  `listModels()` became `[]`, so the row said "no downloaded model
+  supports Add Layer / Remaster".
+- `SplitPanel.tsx` and `ScratchSplitPicker.tsx`: a failed
+  `splitHealth()` became `{ acestep: false, demucs: false }`, so both
+  backend buttons were disabled with "Demucs is not configured
+  (DEMUCS_API_URL unset)".
+- `VoicePicker.tsx`: `fetchVoices()` had no catch, an unhandled
+  rejection behind an empty picker.
+
+With the server down, the user was told to download a model or set an
+env var. Neither was the problem.
+
+### Decisions
+
+1. **A failed lookup is an error, not an empty answer.** The control
+   shows a rust `.error` line in place of its "checking…" text: "couldn't
+   check models for Add Layer — why · RETRY" (Remaster; "couldn't check
+   split backends"; "couldn't load voices"). "No model supports…" and
+   "not configured" appear only when the server answered so.
+2. **One shape for all four: `useLookup(load)`**, returning
+   `{ data, error, retry }`. `data` is null while loading or after a
+   failure; RETRY goes back to "checking…" and runs `load` again. Built
+   on a plain `lookupRunner` the tests drive, like `songReloader`.
+3. **Side effects of a successful lookup stay in `load`.** Add Layer
+   still picks the first lego model when none is set; Remaster still
+   prefers xl-sft.
+4. **The voice picker keeps NONE usable on a failure.** Generating
+   without a voice doesn't need the list; the error sits under the
+   select.
+5. **Out of scope:** the server's own `listModels()` returns an empty
+   inventory when ACE-Step is down, and `/api/split/health` reports
+   `demucs: false` for a set-but-unreachable `DEMUCS_API_URL`; both
+   still reach the client as answers. The Create-side twins
+   (`useModelsForTask`, `ReferenceAudioPicker`, `ModelsSection`,
+   `SettingsPanel`) have the same client pattern. Left for follow-ups.
+
+### File-level plan
+
+- `client/src/lookup.ts` (new): `lookupRunner`, `useLookup`, and
+  `modelsFor(task)` (the names of downloaded models supporting a task).
+- `client/src/AddLayerTrigger.tsx`, `client/src/RemasterAction.tsx`:
+  `useLookup(modelsFor(…))`; error line with RETRY.
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`:
+  `useLookup(api.splitHealth)`; error line with RETRY in place of the
+  backend buttons.
+- `client/src/VoicePicker.tsx`: `useLookup(fetchVoices)`; error line
+  with RETRY under the select.
+- Tests: `lookup.test.ts` — runner states, plus each caller's load
+  failing (models, split health, voices) without becoming an answer.
+- DESIGN.md: one line under the Editor's load-failure bullet.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, against a copy of the
+library database (no audio), ACE-Step not running. `fetch` was patched
+in the page to reject `/api/generate/models`, `/api/split/health` and
+`/api/voices` with "Failed to fetch", then a song was opened from the
+Library:
+
+- ADD LAYER row: "couldn't check models for Add Layer — Failed to
+  fetch · RETRY". Expanded, the left rail's voice picker kept NONE
+  selectable and showed "couldn't load voices — Failed to fetch · RETRY".
+- SPLIT: "couldn't check split backends — Failed to fetch · RETRY" in
+  place of the backend buttons; GENERATE STEMS disabled.
+- EXPORT: "couldn't check models for Remaster — Failed to fetch ·
+  RETRY".
+- Patch lifted, RETRY on Remaster and Add Layer: both showed the
+  server's real answer ("no downloaded model supports…", since ACE-Step
+  was down; see decision 5) and no error line was left.
+- Server stopped, SPLIT opened again: "couldn't check split backends —
+  HTTP 502 · RETRY", where it used to say Demucs wasn't configured.

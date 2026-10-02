@@ -1,8 +1,8 @@
-import { useEffect } from 'react';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { useVoiceStore } from './voiceStore';
+import { useLookup } from './lookup';
 
 const AUDIO_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s actual sound (timbre, vocal tone, mixing) — higher pulls the result closer to the reference audio itself.';
 const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s genre/style character — higher pulls the result toward the reference\'s overall style rather than just your prompt.';
@@ -17,10 +17,8 @@ export function VoicePicker() {
   const { voices, selectedVoiceId, audioInfluence, styleInfluence, fetchVoices, selectVoice, setAudioInfluence, setStyleInfluence } =
     useVoiceStore();
 
-  useEffect(() => {
-    fetchVoices();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // NONE stays usable when the list fails to load: generating without a voice doesn't need it.
+  const voicesLookup = useLookup(fetchVoices);
 
   const selected = voices.find((v) => v.id === selectedVoiceId);
   const options = [{ label: 'NONE', value: '' }, ...voices.map((v) => ({ label: v.name, value: v.id }))];
@@ -37,6 +35,9 @@ export function VoicePicker() {
           />
         )}
       </div>
+      {voicesLookup.error && (
+        <div className="error">couldn't load voices — {voicesLookup.error} <button onClick={voicesLookup.retry}>RETRY</button></div>
+      )}
       {selected && (
         <>
           <Slider label="AUDIO INFLUENCE" value={Math.round(audioInfluence * 100)} min={0} max={100} step={5}

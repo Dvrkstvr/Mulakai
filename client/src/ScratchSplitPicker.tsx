@@ -3,6 +3,7 @@ import { api, ApiError, type StemKind, type StemResult } from './api';
 import { AudioPreview } from './AudioPreview';
 import { previewPlayback } from './previewPlayback';
 import { Dropzone } from './Dropzone';
+import { useLookup } from './lookup';
 
 interface Props {
   /** Fired when the user picks a ready stem to use as a generation source — the split job/
@@ -20,7 +21,6 @@ const POLL_MS = 2000;
  * through the shared previewPlayback slot via AudioPreview.
  */
 export function ScratchSplitPicker({ onUseStem }: Props) {
-  const [health, setHealth] = useState<{ acestep: boolean; demucs: boolean } | null>(null);
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
@@ -29,9 +29,8 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
   const [error, setError] = useState('');
   const pollRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    api.splitHealth().then(setHealth).catch(() => setHealth({ acestep: false, demucs: false }));
-  }, []);
+  const healthLookup = useLookup(api.splitHealth);
+  const health = healthLookup.data;
 
   useEffect(() => {
     if (model || !health) return;
@@ -101,7 +100,11 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
           <Dropzone accept="audio/*" onFile={setFile}>
             {file ? file.name : 'drag a full song here or click to browse'}
           </Dropzone>
-          {health === null ? (
+          {healthLookup.error ? (
+            <div className="error">
+              couldn't check split backends — {healthLookup.error} <button onClick={healthLookup.retry}>RETRY</button>
+            </div>
+          ) : health === null ? (
             <span className="meta">checking available backends…</span>
           ) : (
             <div className="type-tabs">
