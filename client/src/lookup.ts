@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { api, type SplitHealth, type TaskType } from './api';
+import { api, type TaskType } from './api';
 import { errorText } from './actionError';
 
 /** A read a control gates on (which models, which split backends, which voices).
@@ -37,14 +37,3 @@ export function useLookup<T>(load: () => Promise<T>): Lookup<T> & { retry: () =>
 /** Names of the downloaded models that support `task`; [] means the server answered "none". */
 export const modelsFor = (task: TaskType): Promise<string[]> =>
   api.listModels().then((inv) => inv.models.filter((m) => m.supportedTaskTypes.includes(task)).map((m) => m.name));
-
-/** The title on a disabled split-backend button: which of its "can't"s the server reported. */
-export function splitBackendTitle(health: SplitHealth, backend: 'acestep' | 'demucs'): string | undefined {
-  if (health[backend]) return undefined;
-  if (backend === 'acestep') {
-    return health.acestepError ? "couldn't check ACE-Step" : 'no downloaded model supports extract — requires a Base model';
-  }
-  return health.demucsReason === 'unreachable'
-    ? 'Demucs is not answering at DEMUCS_API_URL'
-    : 'Demucs is not configured (DEMUCS_API_URL unset)';
-}

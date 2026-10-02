@@ -144,8 +144,11 @@ export interface SplitHealth {
   acestep: boolean;
   /** Why ACE-Step couldn't be asked; null when it answered. */
   acestepError: string | null;
+  /** The DEMUCS_API_URL slot answers; `model: 'demucs'` starts a split there. */
   demucs: boolean;
   demucsReason: 'unset' | 'unreachable' | null;
+  /** Which service answers in that slot: uvr-server or demucs-server; null when it's off. */
+  demucsBackend: 'demucs' | 'uvr' | null;
 }
 
 export interface StemResult {

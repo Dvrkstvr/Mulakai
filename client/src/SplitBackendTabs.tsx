@@ -1,5 +1,6 @@
 import type { SplitHealth } from './api';
-import { splitBackendTitle, type Lookup } from './lookup';
+import type { Lookup } from './lookup';
+import { splitBackendTitle, splitServiceLabel } from './splitBackend';
 
 type Backend = 'acestep' | 'demucs';
 
@@ -9,7 +10,7 @@ interface Props {
   onPick: (model: Backend) => void;
 }
 
-/** The ACE-STEP / DEMUCS picker shared by the Editor's SplitPanel and Create's
+/** The ACE-STEP / UVR-or-DEMUCS picker shared by the Editor's SplitPanel and Create's
  * ScratchSplitPicker. A backend the server couldn't ask gets its own rust line with
  * RETRY; the other backend stays pickable. */
 export function SplitBackendTabs({ lookup, model, onPick }: Props) {
@@ -43,7 +44,7 @@ export function SplitBackendTabs({ lookup, model, onPick }: Props) {
       )}
       <div className="type-tabs">
         {tab('acestep', 'ACE-STEP')}
-        {tab('demucs', 'DEMUCS')}
+        {tab('demucs', splitServiceLabel(health))}
       </div>
     </>
   );

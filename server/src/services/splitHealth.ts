@@ -8,9 +8,12 @@ export interface SplitHealth {
   acestep: boolean;
   /** Why ACE-Step couldn't be asked (unreachable, timed out, non-2xx); null when it answered. */
   acestepError: string | null;
+  /** The DEMUCS_API_URL slot answers (and `model: 'demucs'` starts a split there). */
   demucs: boolean;
-  /** Why Demucs is off: DEMUCS_API_URL unset, or set but not answering; null when it's up. */
+  /** Why that slot is off: DEMUCS_API_URL unset, or set but not answering; null when it's up. */
   demucsReason: 'unset' | 'unreachable' | null;
+  /** Which service answers in the slot: uvr-server or demucs-server; null when it's off. */
+  demucsBackend: 'demucs' | 'uvr' | null;
 }
 
 // Same leash as acestep.health(): a hung probe is as bad as a down one.
@@ -25,11 +28,13 @@ async function acestepHealth(): Promise<Pick<SplitHealth, 'acestep' | 'acestepEr
   }
 }
 
-async function demucsHealth(): Promise<Pick<SplitHealth, 'demucs' | 'demucsReason'>> {
-  if (!config.demucsUrl) return { demucs: false, demucsReason: 'unset' };
-  const ok = await fetch(`${config.demucsUrl}/health`, { signal: AbortSignal.timeout(DEMUCS_PROBE_MS) })
-    .then((r) => r.ok, () => false);
-  return ok ? { demucs: true, demucsReason: null } : { demucs: false, demucsReason: 'unreachable' };
+async function demucsHealth(): Promise<Pick<SplitHealth, 'demucs' | 'demucsReason' | 'demucsBackend'>> {
+  if (!config.demucsUrl) return { demucs: false, demucsReason: 'unset', demucsBackend: null };
+  const res = await fetch(`${config.demucsUrl}/health`, { signal: AbortSignal.timeout(DEMUCS_PROBE_MS) }).catch(() => null);
+  if (!res?.ok) return { demucs: false, demucsReason: 'unreachable', demucsBackend: null };
+  // uvr-server sends `backend: "uvr"`; demucs-server sends no backend at all.
+  const body = (await res.json().catch(() => null)) as { backend?: unknown } | null;
+  return { demucs: true, demucsReason: null, demucsBackend: body?.backend === 'uvr' ? 'uvr' : 'demucs' };
 }
 
 export async function splitHealth(): Promise<SplitHealth> {

@@ -39,22 +39,28 @@ describe('splitHealth — Demucs', () => {
   it('is "unset" without DEMUCS_API_URL, and never probes', async () => {
     const fetchMock = vi.fn();
     vi.stubGlobal('fetch', fetchMock);
-    expect(await splitHealth()).toMatchObject({ demucs: false, demucsReason: 'unset' });
+    expect(await splitHealth()).toMatchObject({ demucs: false, demucsReason: 'unset', demucsBackend: null });
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  it('is up when its /health answers 2xx', async () => {
+  it('is up, as demucs-server, when its /health answers 2xx with no backend', async () => {
     config.demucsUrl = 'http://demucs.test';
-    const fetchMock = vi.fn(async () => new Response('{}', { status: 200 }));
+    const fetchMock = vi.fn(async () => new Response('{"ok":true,"model":"htdemucs"}', { status: 200 }));
     vi.stubGlobal('fetch', fetchMock);
-    expect(await splitHealth()).toMatchObject({ demucs: true, demucsReason: null });
+    expect(await splitHealth()).toMatchObject({ demucs: true, demucsReason: null, demucsBackend: 'demucs' });
     expect(fetchMock).toHaveBeenCalledWith('http://demucs.test/health', expect.objectContaining({ signal: expect.any(AbortSignal) }));
+  });
+
+  it('names uvr-server when its /health says backend "uvr"', async () => {
+    config.demucsUrl = 'http://demucs.test';
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('{"ok":true,"backend":"uvr"}', { status: 200 })));
+    expect(await splitHealth()).toMatchObject({ demucs: true, demucsReason: null, demucsBackend: 'uvr' });
   });
 
   it('is "unreachable", not "unset", when set but refused', async () => {
     config.demucsUrl = 'http://demucs.test';
     vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('fetch failed'); }));
-    expect(await splitHealth()).toMatchObject({ demucs: false, demucsReason: 'unreachable' });
+    expect(await splitHealth()).toMatchObject({ demucs: false, demucsReason: 'unreachable', demucsBackend: null });
   });
 
   it('is "unreachable" when its /health answers non-2xx', async () => {
@@ -72,6 +78,7 @@ describe('splitHealth — Demucs', () => {
       acestepError: 'ACE-Step unreachable at http://acestep.test (ECONNREFUSED)',
       demucs: true,
       demucsReason: null,
+      demucsBackend: 'demucs',
     });
   });
 });
