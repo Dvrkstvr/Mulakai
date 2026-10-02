@@ -7891,7 +7891,7 @@ a busy ACE-Step was reported as an unreachable one.
    health would hold the Demucs answer hostage. 300s is also where Node's
    fetch stops waiting for headers on its own (undici `headersTimeout`).
    A refused connection still fails at once.
-2. **A lookup running past 15s is marked `slow`** (`lookupRunner`, so
+2. **A lookup running past 60s is marked `slow`** (`lookupRunner`, so
    every `useLookup` gets it). The model-list surfaces add "ACE-Step is
    taking a while to answer, it may be busy generating" to their gray
    loading line: the four "checking available models…" lines (Cover,
