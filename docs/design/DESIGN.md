@@ -514,11 +514,13 @@ requiring its own justification against a screen-count rule.
      the lane or the rail ("couldn't mute — why").
      A lookup a control gates on (which models support Add Layer, Remaster,
      Cover or Arrange, which split backends are up, the voice list, the
-     model list in Settings and the DIT/LM selects) that fails shows its
-     own `.error` line with RETRY in place of "checking…"
+     model list in Settings and the DIT/LM selects, the saved voices in
+     Settings > Voices and the Library rail's reference voice) that fails
+     shows its own `.error` line with RETRY in place of "checking…"
      ("couldn't check models for Add Layer — why · RETRY"), in the Editor,
-     Create and Settings alike. "No model supports…", "not configured" and
-     "no models reported" appear only when the server said so. A choice
+     Create, Settings and the Library alike. "No model supports…", "not
+     configured", "no models reported" and "No saved voices yet." appear
+     only when the server said so. A choice
      that needs no list (AUTO, NONE, UPLOAD) stays usable meanwhile.
    - **Layer stack (`LayerStack.tsx` + `LayerLane.tsx`)**: a DAW-style
      multi-lane waveform view, the editor's primary waveform surface.
