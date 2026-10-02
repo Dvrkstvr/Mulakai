@@ -7825,6 +7825,7 @@ three shader surfaces (the toggle and two AI ENHANCE badges).
 - `main`'s `ShaderCanvas.tsx` swapped in for comparison, same loop: 25
   "Too many active WebGL contexts. Oldest context will be lost."
   warnings. Restored afterwards.
+
 ## Repaint Crossfade Is Clamped at Submit (planned 2026-10-02)
 
 AUDIT.md #9. CROSSFADE is capped at half the region, and at most 2.5 s
