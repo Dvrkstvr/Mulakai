@@ -39,7 +39,10 @@ beforeEach(() => {
 });
 
 describe('polling', () => {
-  afterEach(() => vi.useRealTimers());
+  afterEach(() => {
+    vi.useRealTimers();
+    jobStatus.mockReset(); // back to never settling, and call counts per test
+  });
 
   it('fails the card once the server no longer has the job, instead of polling a 404 forever', async () => {
     vi.useFakeTimers();
@@ -50,6 +53,33 @@ describe('polling', () => {
     expect(useGenerationStore.getState().job).toMatchObject({ jobId: 'ace-job', stage: 'loading' }); // retried
     await vi.advanceTimersByTimeAsync(2000);
     expect(useGenerationStore.getState().job).toMatchObject({ stage: 'failed', error: JOB_GONE });
+  });
+
+  it('stops polling a running job once it is dismissed', async () => {
+    vi.useFakeTimers();
+    jobStatus.mockResolvedValue({ status: 'running', progress: 0.2 });
+    await useGenerationStore.getState().start(params, { genType: 'prompt' });
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(jobStatus).toHaveBeenCalledTimes(1);
+
+    useGenerationStore.getState().dismiss();
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(jobStatus).toHaveBeenCalledTimes(1);
+    expect(useGenerationStore.getState().job).toBeNull();
+  });
+
+  it('polls a job adopted twice at mount (StrictMode) only once per tick', async () => {
+    vi.useFakeTimers();
+    jobStatus.mockResolvedValue({ status: 'running' });
+    activeGeneration.mockResolvedValue({ active: { kind: 'generate', jobId: 'adopted-1', status: 'running', title: 'T', startedAt: 0 } });
+    await Promise.all([useGenerationStore.getState().hydrate(), useGenerationStore.getState().hydrate()]);
+
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(jobStatus).toHaveBeenCalledTimes(1);
+    await vi.advanceTimersByTimeAsync(2000);
+    expect(jobStatus).toHaveBeenCalledTimes(2);
+    useGenerationStore.getState().dismiss(); // let the loop end before the next test
+    await vi.advanceTimersByTimeAsync(2000);
   });
 });
 
