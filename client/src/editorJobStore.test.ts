@@ -11,7 +11,7 @@ vi.mock('./api', () => ({
   },
   ApiError: class ApiError extends Error {
     status: number;
-    constructor(status: number, message: string) {
+    constructor(message: string, status: number) {
       super(message);
       this.status = status;
     }
@@ -19,6 +19,8 @@ vi.mock('./api', () => ({
 }));
 
 const { useEditorJobStore, isEditorBusy } = await import('./editorJobStore');
+const { ApiError } = await import('./api');
+const { JOB_GONE } = await import('./jobGone');
 
 const POLL_MS = 2000;
 
@@ -70,6 +72,19 @@ describe('runSingleJob polling', () => {
     await tick();
     await tick();
     expect(useEditorJobStore.getState().editorJob).toMatchObject({ stage: 'failed', error: 'boom' });
+  });
+
+  it('fails the job once the server no longer has it, instead of polling a 404 forever', async () => {
+    jobStatus.mockRejectedValueOnce(new Error('network')).mockRejectedValueOnce(new ApiError('unknown job', 404));
+    void useEditorJobStore.getState().startRepaint('l1', 's1', { prompt: 'p', start: 0, end: 1 });
+    await vi.advanceTimersByTimeAsync(0);
+
+    await tick();
+    expect(useEditorJobStore.getState().editorJob).toMatchObject({ stage: 'running' }); // a network error is retried
+    await tick();
+    expect(useEditorJobStore.getState().editorJob).toMatchObject({ stage: 'failed', error: JOB_GONE });
+    await tick();
+    expect(jobStatus).toHaveBeenCalledTimes(2);
   });
 
   it('stops polling once dismissed', async () => {
