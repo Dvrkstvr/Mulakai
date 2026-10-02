@@ -524,7 +524,7 @@ requiring its own justification against a screen-count rule.
      configured", "no models reported" and "No saved voices yet." appear
      only when the server said so. A choice that needs no list (AUTO,
      NONE, UPLOAD) stays usable meanwhile. A model lookup still waiting
-     after 15s says why in its gray `.meta` line ("checking available
+     after 60s says why in its gray `.meta` line ("checking available
      models… ACE-Step is taking a while to answer, it may be busy
      generating"); it isn't an error, so it isn't rust.
      The split backend picker checks each backend on its own: an ACE-Step
