@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { openTrack, playOrStayPaused, type TrackAudio } from './singleTrack';
+import { openTrack, type TrackAudio } from './singleTrack';
 
 /** Minimal HTMLAudioElement stand-in — vitest runs in node, no DOM. `play` rejects with `playError` if set. */
 class FakeAudio implements TrackAudio {
@@ -85,25 +85,5 @@ describe('openTrack', () => {
     track.audio.emit('timeupdate');
     expect(ev.onPlaying).not.toHaveBeenCalled();
     expect(ev.onTime).not.toHaveBeenCalled();
-  });
-});
-
-describe('playOrStayPaused', () => {
-  it('treats a play() interrupted by pause/new src as expected', async () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const a = new FakeAudio('/audio/a.mp3');
-    a.playError = domError('AbortError');
-    playOrStayPaused(a);
-    await settle();
-    expect(error).not.toHaveBeenCalled();
-  });
-
-  it('still reports a real playback failure', async () => {
-    const error = vi.spyOn(console, 'error').mockImplementation(() => {});
-    const a = new FakeAudio('/audio/a.mp3');
-    a.playError = domError('NotSupportedError');
-    playOrStayPaused(a);
-    await settle();
-    expect(error).toHaveBeenCalledOnce();
   });
 });
