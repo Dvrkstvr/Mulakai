@@ -315,8 +315,8 @@
     "semantic_hash": ""
   },
   "client/src/generationStore.ts": {
-    "mtime": 1790899728.2623608,
-    "ast_hash": "644600f7d7da859ed1c08dfda3953591",
+    "mtime": 1790901785.166777,
+    "ast_hash": "56ec42b35d58685899ec2e18c2a3db4f",
     "semantic_hash": ""
   },
   "client/src/lyricSections.test.ts": {
@@ -710,8 +710,8 @@
     "semantic_hash": ""
   },
   "CLAUDE.md": {
-    "mtime": 1790898772.3190203,
-    "ast_hash": "4c8401eeb6bec54f661621a3988452a8",
+    "mtime": 1790901887.195043,
+    "ast_hash": "9b2f0de32ab71f0ab31284c84c8e9ae6",
     "semantic_hash": ""
   },
   "FORGE_PLAN.md": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790901449.913671,
-    "ast_hash": "e2c65e3dc023a11ba9ad6d2f5477b263",
+    "mtime": 1790901881.320161,
+    "ast_hash": "0052f70f573db4fbe0e70a498d730bee",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -1235,8 +1235,8 @@
     "semantic_hash": ""
   },
   "client/src/generationStore.test.ts": {
-    "mtime": 1790899798.48032,
-    "ast_hash": "18bedeb5643de4aab63c64ce16957598",
+    "mtime": 1790901776.0830328,
+    "ast_hash": "01802d4c0bd053274f6cfcb263e15e1a",
     "semantic_hash": ""
   },
   "client/src/referenceInfluence.test.ts": {
@@ -2362,6 +2362,11 @@
   "server/src/services/scratchSplitJobs.evict.test.ts": {
     "mtime": 1790899642.0910864,
     "ast_hash": "a9857db45cafcaef21ca6755a1fc5556",
+    "semantic_hash": ""
+  },
+  "client/src/generationPoll.ts": {
+    "mtime": 1790901760.343016,
+    "ast_hash": "020f456fb9e644cd96cf598ee285a679",
     "semantic_hash": ""
   }
 }
