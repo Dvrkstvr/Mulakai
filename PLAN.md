@@ -7003,6 +7003,77 @@ open it and close it with ✕ as soon as it renders, then preview it
 normally. On main: one `pageerror`, the `AbortError` above. With the
 fix: none, and the last preview played. The golden path still passes.
 
+## Abandoned Splits Leave No Stems Behind (planned 2026-10-02)
+
+Follow-up to AUDIT.md #2 (and the `stemSplit.ts` half of #11). "RE-EXTRACT
+Never Touches a Claimed Stem" deletes unclaimed stem files on supersede
+and on cancel, but a split job lives only in `stemSplit.ts`'s in-memory
+map, and only `cancelSplit` removes it. The client cancels only when a
+new split starts or on CANCEL SPLIT, so a split left open when the tab
+closes keeps its job forever and its unclaimed stems sit in `audioDir`
+(served, and counted as library size). A server restart loses the map
+outright, so those files can then never be reached by any cleanup.
+
+### Decisions
+
+1. **An idle split is cancelled after an hour.** "Idle" counts from the
+   last time anyone touched the job (status poll, claim, RE-EXTRACT), not
+   from when it started: the client polls an open split every 2 s for as
+   long as the session is open, even outside the Editor, so a live
+   session is never idle, and a closed tab stops the polls. An hour is
+   well past a hidden tab's throttled timers (about one tick a minute).
+   Eviction is `cancelSplit`, so it takes the same path as CANCEL SPLIT:
+   unclaimed files removed after the `versions.audio_file` check, and a
+   result still in flight dropped when it lands. The client already
+   treats the 404 that follows as "the split was closed elsewhere".
+2. **Checked every five minutes**, on the same kind of `setInterval` as
+   the trash sweep in `index.ts`.
+3. **At startup, orphaned stems are swept.** Any file in `audioDir` named
+   like a stem (`<uuid>-<kind>-<nonce>.<ext>`, or the pre-#81
+   `<uuid>-<kind>.<ext>`) that no `versions` row points at is deleted. No
+   other writer uses that shape (versions are `<versionId>.<ext>`, cover
+   art `<songId>-cover.<ext>`, voices `<voiceId>.<ext>`). The sweep
+   also skips any file whose job is still in the map, so it is safe
+   whenever it runs, not only before the first split.
+4. **A file a version points at is never deleted.** Both paths read
+   `versions.audio_file` right before deleting; the startup sweep reads
+   all of them once, then deletes.
+5. **The scratch split is unchanged.** It writes to OS tmp, not
+   `audioDir`, and is out of scope here.
+
+### File-level plan
+
+- `server/src/services/stemFiles.ts` (new): `discardUnclaimedFile`
+  (moved from `stemSplit.ts`), the stem filename pattern, and
+  `sweepOrphanStems(isLive)`.
+- `server/src/services/stemSplit.ts`: `lastSeenAt` on `SplitJob`, bumped
+  by `getSplitJob`, `claimStem` and `reextractStem`; `isLiveSplit`;
+  `evictIdleSplits(now)`.
+- `server/src/index.ts`: the startup sweep and the five-minute eviction
+  timer.
+- `server/src/services/stemFiles.test.ts` (new): the sweep removes
+  unreferenced stems (both name shapes) and keeps referenced ones,
+  non-stem files and a live job's files.
+- `server/src/services/stemSplit.evict.test.ts` (new): an idle split is
+  evicted with its unclaimed files and keeps its claimed one; a polled
+  split survives past an hour from its start.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir and
+`uvr-server` (Roformer + htdemucs behind `DEMUCS_API_URL`). A 60 s song
+imported, SPLIT with DEMUCS:
+
+- Restart: four stems landed; VOCALS → ADD LAYER; the tab navigated away
+  with no CANCEL SPLIT; server restarted. Boot logged "Removed 3 unclaimed
+  split stem file(s)": drums/bass/other gone, the claimed vocals file and
+  the source kept. Reopened, the Vocals layer loaded its file (200).
+- Idle eviction, run with the TTL temporarily cut to 60 s and the check to
+  10 s (not committed): a second split left open and polled stayed past
+  two minutes, and DRUMS → ADD LAYER still worked then. With the tab then
+  navigated away, its three unclaimed stems were deleted about a minute
+  later; the claimed drums file stayed.
+
 ## Add Layer Mixes Each Layer at Its Own Volume (planned 2026-10-02)
 
 AUDIT.md #7. Add Layer bounces the audible mix down as the new layer's

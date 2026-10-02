@@ -26,6 +26,10 @@
   versions. Stem files are now append-only (unique names), a re-extract keeps only its
   own stem and reads the split's original source, and unclaimed files are deleted on
   supersede/cancel — PR #81 (was #2).
+- Follow-up to #2: a split left open when its tab closed kept its job in memory and its
+  unclaimed stems in `audioDir` forever, and a restart stranded them. Idle splits (no
+  poll, claim or RE-EXTRACT for an hour) are now cancelled, and boot sweeps stem files
+  no version points at — PR #96.
 - Playback never ended: no `onended` on any source, so the Editor stayed "playing"
   with `currentTime()` growing past the song forever. The longest layer's end now
   stops the engine at the duration (play again restarts from 0), guarded by a
@@ -66,6 +70,8 @@ after the last buffer plays out, `playing` stays true and `currentTime()` grows 
 on-disk audio of stems already claimed as versions. The doc comment ("keeps only
 this stem's output") describes behavior the code doesn't implement. Unclaimed stem
 files are also never deleted (`cancelSplit` only drops the in-memory job).
+- **Follow-up (PR #96):** splits abandoned without a cancel (tab closed, server
+  restart) still leaked their stems; now evicted after an hour idle, and swept at boot.
 
 ### 3. ~~demucs-server blocks its event loop and leaks disk~~ — fixed, PR #80
 `/split` is now a sync `def` (threadpool, one at a time); failed splits remove
@@ -131,7 +137,8 @@ but the abort is silently undone.
 
 ### 11. Job registries never evict
 `server/src/services/jobs.ts` / `stemSplit.ts` — `jobs.set(...)` has no paired
-delete; every job for the life of the process accumulates.
+delete; every job for the life of the process accumulates. (`stemSplit.ts` now evicts
+idle splits — PR #96; `jobs.ts` and the other registries still don't.)
 
 ### 12. WebGL context leak in `ShaderCanvas`
 `client/src/ShaderCanvas.tsx` — cleanup never calls
