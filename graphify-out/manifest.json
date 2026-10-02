@@ -20,8 +20,8 @@
     "semantic_hash": ""
   },
   "client/src/AddLayerTrigger.tsx": {
-    "mtime": 1790898772.322034,
-    "ast_hash": "7342f9910248ee55ed63837968b675c3",
+    "mtime": 1790902404.7376277,
+    "ast_hash": "457e08063a6c0de20c04172a45ced0b5",
     "semantic_hash": ""
   },
   "client/src/AdvancedGenSettings.tsx": {
@@ -180,8 +180,8 @@
     "semantic_hash": ""
   },
   "client/src/RemasterAction.tsx": {
-    "mtime": 1790898772.3295765,
-    "ast_hash": "308843df31309021bd19184ecc12a84c",
+    "mtime": 1790902404.7376277,
+    "ast_hash": "60bf8ece6569b385ff0d15c4437c5239",
     "semantic_hash": ""
   },
   "client/src/RepaintBar.tsx": {
@@ -345,8 +345,8 @@
     "semantic_hash": ""
   },
   "client/src/mix/activeLayers.ts": {
-    "mtime": 1790898016.8833158,
-    "ast_hash": "7c9d5464e507c1f8ecab06de29f2e27f",
+    "mtime": 1790902404.7386312,
+    "ast_hash": "ab1ff21fff652e8583efadd99eb3ac6e",
     "semantic_hash": ""
   },
   "client/src/mix/bounceMix.ts": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790901881.320161,
-    "ast_hash": "0052f70f573db4fbe0e70a498d730bee",
+    "mtime": 1790902413.6379924,
+    "ast_hash": "6ff6cb590ec9dc18405aea908824ec16",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790901437.5195541,
-    "ast_hash": "cf06ec45230e70e4bdad1e391835fe67",
+    "mtime": 1790902404.7391372,
+    "ast_hash": "7e01b11ed8898def93a07a2f066f275e",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1625,8 +1625,8 @@
     "semantic_hash": ""
   },
   "client/src/coverSource.ts": {
-    "mtime": 1790898016.873289,
-    "ast_hash": "987eba2b3b0e4ea1202ac3dc59269ae9",
+    "mtime": 1790902404.7376277,
+    "ast_hash": "4c43b631d59174ca1c082b956719e53d",
     "semantic_hash": ""
   },
   "client/src/scoreCut.test.ts": {
@@ -2367,6 +2367,11 @@
   "client/src/generationPoll.ts": {
     "mtime": 1790901760.343016,
     "ast_hash": "020f456fb9e644cd96cf598ee285a679",
+    "semantic_hash": ""
+  },
+  "client/src/mix/activeLayers.test.ts": {
+    "mtime": 1790902404.7386312,
+    "ast_hash": "56c546bcd33c53f529d66bf2c1bb9779",
     "semantic_hash": ""
   }
 }
