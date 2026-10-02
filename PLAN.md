@@ -7240,3 +7240,35 @@ to 10 s (not committed).
   expired" and RETRY, instead of loading forever.
 - The registry's own eviction (remaster, transcribe, …) needs ACE-Step or
   the engines; it is covered by `jobRegistry.evict.test.ts`.
+
+## A Dropped Generation Stops Polling (planned 2026-10-02)
+
+Fixes the rest of AUDIT.md #13; "Idle Jobs Leave Every Registry" fixed
+its 404 half. `generationStore`'s `pollJob` only stopped when the server
+said done or failed. It never checked whether the store still tracked
+its job, so a job cleared while running (`dismiss()`, which the store
+allows though today's buttons only dismiss failed cards) kept being
+polled every 2 s until the server finished. And nothing stopped two
+loops on one job: `hydrate()` runs twice on mount under StrictMode, and
+both calls can adopt the same running job, so every dev reload polled
+it twice.
+
+### Decisions
+
+1. **The loop checks before each poll that the store still tracks its
+   job**, and stops if not (dismissed, or replaced by a new start). Same
+   guard as `editorJobStore`'s single-job poll.
+2. **One loop per job id.** A second `pollJob` for a job that already
+   has a loop is a no-op; the id is released when the loop ends, so a job
+   adopted again later (`refreshLock` after a dismiss) polls again.
+3. **The loop moves to `generationPoll.ts`.** The guard pushed
+   `generationStore.ts` to 203 lines, over the 200 cap; the poll loop is
+   its own responsibility. No behavior change beyond 1 and 2.
+
+### File-level plan
+
+- `client/src/generationPoll.ts` (new): `pollJob` (guard, one loop per
+  job), the poll loop and its timings, moved from the store.
+- `client/src/generationStore.ts`: imports `pollJob`, passes `get`.
+- `client/src/generationStore.test.ts`: a dismissed running job stops
+  polling; two concurrent `hydrate()` adoptions poll once per tick.
