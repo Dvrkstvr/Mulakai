@@ -13,7 +13,7 @@ export interface Lookup<T> {
 
 /** ACE-Step answers nothing while it generates, so a model list can take minutes; past this
  * the control says why it's still waiting instead of looking stuck. */
-export const SLOW_LOOKUP_MS = 15_000;
+export const SLOW_LOOKUP_MS = 60_000;
 export const SLOW_ACESTEP_NOTE = 'ACE-Step is taking a while to answer, it may be busy generating';
 
 /** The "checking…" line for a model lookup, with the slow note once it has run long. */

@@ -300,6 +300,9 @@
   "298": "Path",
   "299": "FastAPI",
   "300": "Mulakai — Agent Instructions",
+  "301": "Repaint Crossfade Is Clamped at Submit (planned 2026-10-02)",
+  "302": "api.py",
+  "303": "COVER and ARRANGE Reference Audio: No Influence Sliders (planned + implemented 2026-09-30)",
   "306": "A Dropped Generation Stops Polling (planned 2026-10-02)",
   "307": "COVER Sends the Settings It Shows (planned 2026-10-02)",
   "308": "Add Layer Mixes Each Layer at Its Own Volume (planned 2026-10-02)",
@@ -308,10 +311,5 @@
   "315": "Idle Jobs Leave Every Registry (planned 2026-10-02)",
   "316": "jobRegistry.evict.test.ts",
   "317": "jobEviction.test.ts",
-  "318": "scratchSplitJobs.evict.test.ts",
-  "319": "PendingAudio",
-  "320": "FakeAudio",
-  "321": "FakeAudio",
-  "322": "waveformPeaks.ts",
-  "324": "trackNames.ts"
+  "318": "scratchSplitJobs.evict.test.ts"
 }
