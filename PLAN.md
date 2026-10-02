@@ -7073,3 +7073,65 @@ imported, SPLIT with DEMUCS:
   two minutes, and DRUMS → ADD LAYER still worked then. With the tab then
   navigated away, its three unclaimed stems were deleted about a minute
   later; the claimed drums file stayed.
+
+## Idle Jobs Leave Every Registry (planned 2026-10-02)
+
+Fixes AUDIT.md #11 for the registries "Abandoned Splits Leave No Stems
+Behind" left out, and the 404 half of #13. Every job type but the
+layer split (generate, repaint, add layer, remaster, transcribe, lyrics,
+…) lives in `jobRegistry.ts`'s map, and the scratch split in
+`scratchSplitJobs.ts`'s; neither ever deletes an entry. Two of them hold
+files: a remaster's result sits in OS temp until downloaded, and a
+scratch split's four stems sit in an OS-temp folder that only RESET
+discards, so a split used as ARRANGE's source, or a closed tab, keeps
+its folder until the process exits. A restart strands both for good,
+since OS temp is not cleaned on Windows.
+
+### Decisions
+
+1. **A settled job nobody reads for an hour is evicted.** Same idle
+   clock as the layer split: every client read (status poll, remaster
+   download, cover engine status) restarts it. A running or loading job
+   is never evicted: its own poll loop ends it (strikes and timeouts),
+   and `/api/generate/active` reads it through the lock. Readers stop
+   once a job settles (the remaster download happens right then), so an
+   hour is generous. An evicted remaster's undownloaded file is deleted.
+2. **A settled scratch split is evicted after 24 hours idle**, with its
+   temp folder. Its stems stay in use well after they settle: the picked
+   one is ARRANGE's source (and ANALYZE's) for as long as the draft
+   lives, and nothing polls it meanwhile. A stem preview, download,
+   ANALYZE or GENERATE restarts the clock. A GENERATE or ANALYZE that
+   names an evicted split says "this split's stems have expired — split
+   the file again" instead of "unknown or not-ready scratch stem".
+3. **Stale temp files are swept hourly**: `mulakai-split-*` folders and
+   `mulakai-remaster-*` files in OS temp older than 7 days, minus any
+   that belong to a live job. Age, not "not in my map", decides: other
+   Mulakai servers on the same machine (worktree copies, a second data
+   dir) share OS temp, and one of them may own a younger entry.
+4. **One eviction tick.** `jobEviction.ts` runs every registry's
+   eviction (layer splits included) every five minutes and the temp
+   sweep hourly; `index.ts` wires it instead of the split-only timer.
+5. **Pollers stop on a 404.** `generationStore`, `editorJobStore`'s
+   single-job poll, `readLyricsStore` and `transcribeStore` retried a
+   404 forever, so a job lost to a restart (or evicted while a laptop
+   slept through its finish) showed running for good. A 404 now fails
+   the job: "the server no longer has this job — it restarted or the job
+   expired". Other errors stay transient. `timingsStore` and both split
+   pollers already handle it.
+
+### File-level plan
+
+- `server/src/services/jobRegistry.ts`: `lastSeenAt`, bumped by
+  `getJob`; `evictIdleJobs(now)`, deleting a left-over `resultPath`;
+  `isLiveJobFile`-style lookup for the temp sweep.
+- `server/src/services/scratchSplitJobs.ts`: `lastSeenAt`, bumped by
+  `getScratchSplitJob`; `evictIdleScratchSplits(now)`; live-dir lookup.
+- `server/src/services/jobEviction.ts` (new): `evictIdle(now)` over all
+  three registries; `sweepStaleTemp(now)`.
+- `server/src/routes/generateAudio.ts`: the expired-stem message.
+- `server/src/index.ts`: the eviction tick and hourly temp sweep.
+- `client/src/api/http.ts` (or wherever `ApiError` lives): `isJobGone`.
+- `client/src/generationStore.ts`, `editorJobStore.ts`,
+  `readLyricsStore.ts`, `transcribeStore.ts`: the 404 exit.
+- Tests: `jobRegistry.evict.test.ts`, `scratchSplitJobs.evict.test.ts`,
+  `jobEviction.test.ts` (server); a 404 case in each store's test file.
