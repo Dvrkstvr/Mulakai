@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790899416.3125906,
-    "ast_hash": "f2933c1eaa4b2682c43739419240c77f",
+    "mtime": 1790899752.713515,
+    "ast_hash": "be1905c91786b3da14e32e2e0deb3dc7",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790899416.3141007,
-    "ast_hash": "0cc5ba6e716e9f88820251777cb7f959",
+    "mtime": 1790899731.848548,
+    "ast_hash": "8db4ebf2bf06a76e333dfd5f93eb308c",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -2205,8 +2205,8 @@
     "semantic_hash": ""
   },
   "e2e/tests/golden-path.spec.ts": {
-    "mtime": 1790898655.458129,
-    "ast_hash": "e8b474a649a7d1c29b29501eca973f50",
+    "mtime": 1790899752.714525,
+    "ast_hash": "dace721bc211848705f15a0092549c08",
     "semantic_hash": ""
   },
   "e2e/tests/helpers.ts": {
@@ -2322,6 +2322,11 @@
   "server/src/services/stemSplit.evict.test.ts": {
     "mtime": 1790899279.1862688,
     "ast_hash": "031d0ffe160e6a6a62a5052d2a796a7e",
+    "semantic_hash": ""
+  },
+  "e2e/tests/fixtures.ts": {
+    "mtime": 1790899752.713515,
+    "ast_hash": "21dfbe61793692ad043e35bd016bc2c1",
     "semantic_hash": ""
   }
 }
