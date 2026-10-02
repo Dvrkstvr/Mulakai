@@ -519,11 +519,13 @@ requiring its own justification against a screen-count rule.
      shows its own `.error` line with RETRY in place of "checking…"
      ("couldn't check models for Add Layer — why · RETRY"). "No model
      supports…" and "not configured" appear only when the server said so.
-     The split backend picker (ACE-STEP / DEMUCS) checks each backend on
-     its own: an ACE-Step that couldn't be asked gets its own `.error` line
-     with RETRY ("couldn't check ACE-Step — why · RETRY") while DEMUCS stays
-     pickable, and a disabled DEMUCS button's title says whether
-     `DEMUCS_API_URL` is unset or set but not answering.
+     The split backend picker checks each backend on its own: an ACE-Step
+     that couldn't be asked gets its own `.error` line with RETRY
+     ("couldn't check ACE-Step — why · RETRY") while the split-service tab
+     stays pickable. That tab is labelled for the service answering at
+     `DEMUCS_API_URL`: UVR (uvr-server) or DEMUCS (demucs-server, and the
+     slot's name when nothing answers). Its title names that service, or
+     says whether the URL is unset or set but not answering.
    - **Layer stack (`LayerStack.tsx` + `LayerLane.tsx`)**: a DAW-style
      multi-lane waveform view, the editor's primary waveform surface.
      `Timeline.tsx` (the shared scrub strip) and the lane grid share one
