@@ -285,7 +285,6 @@
   "283": "Path",
   "284": "abcMeta.ts",
   "285": "Path",
-  "286": "test_api.py",
   "287": "Abandoned Splits Leave No Stems Behind (planned 2026-10-02)",
   "288": "stemFiles.test.ts",
   "289": "engineGenJobs.test.ts",
@@ -320,13 +319,10 @@
   "318": "scratchSplitJobs.evict.test.ts",
   "319": "engineGenJobs.ts",
   "320": "4. Create Generation Task",
-  "321": "adapterStore.test.ts",
   "322": "ActiveGeneration",
   "323": "jobRunner.test.ts",
-  "324": "timingsStore.ts",
   "325": "config.py",
   "326": "Shader Surfaces Give Their WebGL Context Back (planned 2026-10-02)",
-  "327": "api.py",
   "328": "YuE2: Align With Upstream's `yue2-music` Skill (planned 2026-09-30)",
   "329": "E2E Fails on Uncaught Page Errors (planned 2026-10-02)"
 }
