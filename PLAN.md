@@ -7123,15 +7123,40 @@ since OS temp is not cleaned on Windows.
 
 - `server/src/services/jobRegistry.ts`: `lastSeenAt`, bumped by
   `getJob`; `evictIdleJobs(now)`, deleting a left-over `resultPath`;
-  `isLiveJobFile`-style lookup for the temp sweep.
+  `isLiveResultPath` for the temp sweep.
 - `server/src/services/scratchSplitJobs.ts`: `lastSeenAt`, bumped by
   `getScratchSplitJob`; `evictIdleScratchSplits(now)`; live-dir lookup.
 - `server/src/services/jobEviction.ts` (new): `evictIdle(now)` over all
   three registries; `sweepStaleTemp(now)`.
 - `server/src/routes/generateAudio.ts`: the expired-stem message.
 - `server/src/index.ts`: the eviction tick and hourly temp sweep.
-- `client/src/api/http.ts` (or wherever `ApiError` lives): `isJobGone`.
+- `client/src/jobGone.ts` (new): the `JOB_GONE` message.
 - `client/src/generationStore.ts`, `editorJobStore.ts`,
-  `readLyricsStore.ts`, `transcribeStore.ts`: the 404 exit.
+  `readLyricsStore.ts`, `transcribeStore.ts`: a 404 becomes a `failed`
+  status with that message, so each store's own failure path shows it.
+- `server/src/routes/generate.test.ts`: the expired-stem message.
 - Tests: `jobRegistry.evict.test.ts`, `scratchSplitJobs.evict.test.ts`,
   `jobEviction.test.ts` (server); a 404 case in each store's test file.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir, a
+scratch `TEMP`/`TMP` (so the sweep never saw the real OS temp) and
+`uvr-server`. Scratch TTL temporarily cut to 60 s and the eviction tick
+to 10 s (not committed).
+
+- Boot: two seeded `mulakai-split-<uuid>` folders, 8 days and 1 day old.
+  The server logged "Removed 1 stale scratch split/remaster temp file(s)";
+  only the 8-day one went.
+- ARRANGE → SPLIT A SONG (DEMUCS) on a 60 s song: four stems landed in
+  their temp folder and previewed; DRUMS → USE AS SOURCE. With the page
+  left open and untouched, the folder was deleted about a minute after the
+  last stem read. The ARRANGE request for that source (sent from the page,
+  since ACE-Step was offline and the button disabled) answered 400 "this
+  split's stems have expired — split the file again"; a stem preview 404'd.
+- A generation whose submit was stubbed to return an unknown job id (the
+  status poll hit the real server's 404): the Library card turned FAILED
+  with "the server no longer has this job — it restarted or the job
+  expired" and RETRY, instead of loading forever.
+- The registry's own eviction (remaster, transcribe, …) needs ACE-Step or
+  the engines; it is covered by `jobRegistry.evict.test.ts`.
