@@ -7106,6 +7106,141 @@ passed straight through them because nothing listened for Playwright's
 - `e2e/tests/fixtures.ts`: the guard (new).
 - `e2e/tests/golden-path.spec.ts`: imports from `./fixtures`.
 
+## The Newest Library Search Wins (planned 2026-10-02)
+
+AUDIT.md #6. Every keystroke in the Library search fired its own
+`listSongs`, and whichever response landed last was shown. A slow
+response for "co" could replace the results for "copper". The same
+unguarded call served the folder switch, favorite, trash, the return
+from the Editor and the reload after a generation, so any of them could
+race a search too.
+
+### Decisions
+
+1. **One loader for the song list** (`songListLoader`). Each request
+   gets a number, and a response is applied only if no newer request
+   has started since. An older one that lands later is dropped.
+2. **The loader reads the query and folder when it fires**, from the
+   current render, not from the caller's arguments. A refresh queued
+   behind a favorite toggle can't send the query from before the user
+   kept typing.
+3. **Search is debounced, 250 ms.** A burst of keystrokes sends one
+   request, for the final text. Any other refresh sends at once and
+   cancels a pending search, since it reads the same, newer query.
+4. **A failed load still leaves the list as it was**, as before. Saying
+   so is a separate fix, not this one.
+
+### File-level plan
+
+- `client/src/songListLoader.ts` (new): the loader (`refresh`,
+  `search`, `dispose`); `songListLoader.test.ts` (new): a stale
+  response dropped, a keystroke burst collapsed to one request, a
+  refresh cancelling a pending search, the params read at fire time.
+- `client/src/useLibraryData.ts`: builds the loader; `refresh()` takes
+  no arguments; `search(text)` sets the query and debounces.
+- `client/src/LibraryView.tsx`: the search box calls `search`.
+- `client/src/useAppSync.ts`: the folder-scope and post-generation
+  reloads go through `refresh()`.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, against a copy of the
+library database. The page's `fetch` was wrapped to hold the
+one-letter query "k" for 1.5 s. Typed "k", paused half a second, then
+typed "opf h":
+
+- Six keystrokes sent two requests, "k" and "kopf h".
+- The held "k" response (25 songs) landed after "kopf h" (8 songs).
+  The list showed exactly the 8, and none of the 17 that only "k"
+  matched.
+
+## Idle Jobs Leave Every Registry (planned 2026-10-02)
+
+Fixes AUDIT.md #11 for the registries "Abandoned Splits Leave No Stems
+Behind" left out, and the 404 half of #13. Every job type but the
+layer split (generate, repaint, add layer, remaster, transcribe, lyrics,
+…) lives in `jobRegistry.ts`'s map, and the scratch split in
+`scratchSplitJobs.ts`'s; neither ever deletes an entry. Two of them hold
+files: a remaster's result sits in OS temp until downloaded, and a
+scratch split's four stems sit in an OS-temp folder that only RESET
+discards, so a split used as ARRANGE's source, or a closed tab, keeps
+its folder until the process exits. A restart strands both for good,
+since OS temp is not cleaned on Windows.
+
+### Decisions
+
+1. **A settled job nobody reads for an hour is evicted.** Same idle
+   clock as the layer split: every client read (status poll, remaster
+   download, cover engine status) restarts it. A running or loading job
+   is never evicted: its own poll loop ends it (strikes and timeouts),
+   and `/api/generate/active` reads it through the lock. Readers stop
+   once a job settles (the remaster download happens right then), so an
+   hour is generous. An evicted remaster's undownloaded file is deleted.
+2. **A settled scratch split is evicted after 24 hours idle**, with its
+   temp folder. Its stems stay in use well after they settle: the picked
+   one is ARRANGE's source (and ANALYZE's) for as long as the draft
+   lives, and nothing polls it meanwhile. A stem preview, download,
+   ANALYZE or GENERATE restarts the clock. A GENERATE or ANALYZE that
+   names an evicted split says "this split's stems have expired — split
+   the file again" instead of "unknown or not-ready scratch stem".
+3. **Stale temp files are swept hourly**: `mulakai-split-*` folders and
+   `mulakai-remaster-*` files in OS temp older than 7 days, minus any
+   that belong to a live job. Age, not "not in my map", decides: other
+   Mulakai servers on the same machine (worktree copies, a second data
+   dir) share OS temp, and one of them may own a younger entry.
+4. **One eviction tick.** `jobEviction.ts` runs every registry's
+   eviction (layer splits included) every five minutes and the temp
+   sweep hourly; `index.ts` wires it instead of the split-only timer.
+5. **Pollers stop on a 404.** `generationStore`, `editorJobStore`'s
+   single-job poll, `readLyricsStore` and `transcribeStore` retried a
+   404 forever, so a job lost to a restart (or evicted while a laptop
+   slept through its finish) showed running for good. A 404 now fails
+   the job: "the server no longer has this job — it restarted or the job
+   expired". Other errors stay transient. `timingsStore` and both split
+   pollers already handle it.
+
+### File-level plan
+
+- `server/src/services/jobRegistry.ts`: `lastSeenAt`, bumped by
+  `getJob`; `evictIdleJobs(now)`, deleting a left-over `resultPath`;
+  `isLiveResultPath` for the temp sweep.
+- `server/src/services/scratchSplitJobs.ts`: `lastSeenAt`, bumped by
+  `getScratchSplitJob`; `evictIdleScratchSplits(now)`; live-dir lookup.
+- `server/src/services/jobEviction.ts` (new): `evictIdle(now)` over all
+  three registries; `sweepStaleTemp(now)`.
+- `server/src/routes/generateAudio.ts`: the expired-stem message.
+- `server/src/index.ts`: the eviction tick and hourly temp sweep.
+- `client/src/jobGone.ts` (new): the `JOB_GONE` message.
+- `client/src/generationStore.ts`, `editorJobStore.ts`,
+  `readLyricsStore.ts`, `transcribeStore.ts`: a 404 becomes a `failed`
+  status with that message, so each store's own failure path shows it.
+- `server/src/routes/generate.test.ts`: the expired-stem message.
+- Tests: `jobRegistry.evict.test.ts`, `scratchSplitJobs.evict.test.ts`,
+  `jobEviction.test.ts` (server); a 404 case in each store's test file.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, against a scratch data dir, a
+scratch `TEMP`/`TMP` (so the sweep never saw the real OS temp) and
+`uvr-server`. Scratch TTL temporarily cut to 60 s and the eviction tick
+to 10 s (not committed).
+
+- Boot: two seeded `mulakai-split-<uuid>` folders, 8 days and 1 day old.
+  The server logged "Removed 1 stale scratch split/remaster temp file(s)";
+  only the 8-day one went.
+- ARRANGE → SPLIT A SONG (DEMUCS) on a 60 s song: four stems landed in
+  their temp folder and previewed; DRUMS → USE AS SOURCE. With the page
+  left open and untouched, the folder was deleted about a minute after the
+  last stem read. The ARRANGE request for that source (sent from the page,
+  since ACE-Step was offline and the button disabled) answered 400 "this
+  split's stems have expired — split the file again"; a stem preview 404'd.
+- A generation whose submit was stubbed to return an unknown job id (the
+  status poll hit the real server's 404): the Library card turned FAILED
+  with "the server no longer has this job — it restarted or the job
+  expired" and RETRY, instead of loading forever.
+- The registry's own eviction (remaster, transcribe, …) needs ACE-Step or
+  the engines; it is covered by `jobRegistry.evict.test.ts`.
+
 ## Add Layer Mixes Each Layer at Its Own Volume (planned 2026-10-02)
 
 AUDIT.md #7. Add Layer bounces the audible mix down as the new layer's

@@ -33,7 +33,7 @@ export function LibraryView({
   library, genJob, dismissGenJob, detailSongId, setDetailSongId, playing, setPlaying, footerEngine, openEditor, openCreate, onSettings,
 }: Props) {
   const {
-    songs, query, setQuery, sort, setSort, filter, setFilter, folders, folderScope, setFolderScope,
+    songs, query, search, sort, setSort, filter, setFilter, folders, folderScope, setFolderScope,
     totalSongCount, activeFolder, unfiledCount, refresh, refreshFolders, createFolder, visibleSongs,
   } = library;
 
@@ -77,7 +77,7 @@ export function LibraryView({
 
       <LibraryToolbar
         query={query}
-        onQuery={(v) => { setQuery(v); refresh(v); }}
+        onQuery={search}
         sort={sort}
         onSort={setSort}
         filter={filter}
