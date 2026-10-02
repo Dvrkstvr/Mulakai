@@ -38,6 +38,10 @@
 - `generationStore` kept polling a generation it no longer tracked (dismissed while
   running), and StrictMode's double `hydrate()` polled an adopted job twice. The loop
   now stops once the store drops its job, one loop per job — PR #106 (was #13).
+- `ShaderCanvas` never released its WebGL context, so remounted AI shader surfaces
+  piled up toward the browser's ~16-context cap until they went black. Each surface
+  now releases its context (`loseContext`) on unmount and failure, on a fresh canvas
+  per mount — PR #108 (was #12).
 - Playback never ended: no `onended` on any source, so the Editor stayed "playing"
   with `currentTime()` growing past the song forever. The longest layer's end now
   stops the engine at the duration (play again restarts from 0), guarded by a
@@ -152,7 +156,7 @@ but the abort is silently undone.
 delete; every job for the life of the process accumulates. (`stemSplit.ts` evicts
 idle splits since PR #96; `jobRegistry.ts` and scratch splits since PR #104.)
 
-### 12. WebGL context leak in `ShaderCanvas`
+### 12. ~~WebGL context leak in `ShaderCanvas`~~ — fixed, PR #108
 `client/src/ShaderCanvas.tsx` — cleanup never calls
 `WEBGL_lose_context.loseContext()`; repeated AI-state mounts accumulate toward the
 browser's ~16-context cap, after which shader surfaces go black.
