@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { api, type Layer, type Version } from './api';
-import { activeLayers } from './mix/activeLayers';
+import { api, type Layer } from './api';
+import { audibleTakes } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useSettings } from './settings';
@@ -63,9 +63,7 @@ export function RemasterAction({ songId, layers }: Props) {
     if (gated || job === 'running' || busyElsewhere) return;
     setMixError('');
     try {
-      const audible = activeLayers(layers)
-        .map((l) => ({ layer: l, version: l.versions.find((v) => v.active) }))
-        .filter((x): x is { layer: Layer; version: Version } => !!x.version);
+      const audible = audibleTakes(layers);
       if (audible.length === 0) throw new Error('no audible layers to mix — unmute or un-solo at least one layer');
 
       const mixCtx = new AudioContext();

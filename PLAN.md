@@ -7240,3 +7240,45 @@ to 10 s (not committed).
   expired" and RETRY, instead of loading forever.
 - The registry's own eviction (remaster, transcribe, …) needs ACE-Step or
   the engines; it is covered by `jobRegistry.evict.test.ts`.
+
+## Add Layer Mixes Each Layer at Its Own Volume (planned 2026-10-02)
+
+AUDIT.md #7. Add Layer bounces the audible mix down as the new layer's
+context. It picked the audible layers' active versions, dropping any
+layer with none, then read each one's volume by position from the
+*unfiltered* audible list. Once one layer was dropped, every later layer
+was mixed at its neighbour's volume. REMASTER and COVER's library source
+do the same step correctly, each with its own copy that keeps
+`{layer, version}` together.
+
+### Decisions
+
+1. **One helper, `audibleTakes(layers)`**, beside `activeLayers` in
+   `mix/activeLayers.ts`: the audible layers paired with their active
+   versions, layers with none dropped. Volume always comes from the
+   same pair, so it can't drift.
+2. **All three bounce sites use it** (Add Layer, REMASTER, COVER's
+   library source). The two correct copies change shape only, so the
+   three can't diverge again. The decode/bounce/encode lines stay where
+   they are.
+
+### File-level plan
+
+- `client/src/mix/activeLayers.ts`: `audibleTakes`.
+- `client/src/mix/activeLayers.test.ts` (new): a layer with no active
+  version doesn't shift its neighbours' volumes; solo/mute selection
+  carries through.
+- `client/src/AddLayerTrigger.tsx`, `client/src/RemasterAction.tsx`,
+  `client/src/coverSource.ts`: use `audibleTakes`.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, with e2e's fake ACE-Step,
+against a copy of the library database. "Ellies City" was set up with
+its base layer's versions all inactive, Drums at volume 0.3 and the
+conga layer at 0.8. The page's `OfflineAudioContext.createGain` was
+wrapped to record each bounce gain. ADD LAYER ("walking bassline"):
+
+- The bounce mixed two layers at 0.3 and 0.8. Before this fix they
+  would have been 1.0 (the base layer's volume) and 0.3.
+- The job ran against the fake and the new lane appeared, 4 layers.
