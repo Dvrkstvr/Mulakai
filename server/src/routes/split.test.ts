@@ -21,6 +21,7 @@ vi.mock('../services/scratchSplitJobs.js', () => ({
   scratchStemPath: vi.fn(),
 }));
 
+const acestep = await import('../services/acestep.js');
 const scratchSplitJobs = await import('../services/scratchSplitJobs.js');
 const { splitRouter } = await import('./split.js');
 const { config } = await import('../config.js');
@@ -161,33 +162,50 @@ describe('GET /health', () => {
   });
 
   const health = async () => (await fetch(`${baseUrl}/health`)).json();
+  // ACE-Step answered (the listModels mock's empty inventory), so only the split service varies.
+  const acestepAnswered = { acestep: false, acestepError: null };
 
   it('names uvr-server when its health says backend "uvr"', async () => {
     config.demucsUrl = serviceUrl;
     answer = (res) => res.json({ ok: true, backend: 'uvr', model: 'Roformer Model: BS-Roformer-Viperx-1297' });
-    expect(await health()).toEqual({ acestep: false, demucs: true, demucsBackend: 'uvr' });
+    expect(await health()).toEqual({ ...acestepAnswered, demucs: true, demucsReason: null, demucsBackend: 'uvr' });
   });
 
   it('names demucs-server, whose health has no backend field', async () => {
     config.demucsUrl = serviceUrl;
     answer = (res) => res.json({ ok: true, model: 'htdemucs' });
-    expect(await health()).toEqual({ acestep: false, demucs: true, demucsBackend: 'demucs' });
+    expect(await health()).toEqual({ ...acestepAnswered, demucs: true, demucsReason: null, demucsBackend: 'demucs' });
   });
 
   it('treats a healthy answer that is not JSON as demucs', async () => {
     config.demucsUrl = serviceUrl;
     answer = (res) => res.send('ok');
-    expect(await health()).toEqual({ acestep: false, demucs: true, demucsBackend: 'demucs' });
+    expect(await health()).toEqual({ ...acestepAnswered, demucs: true, demucsReason: null, demucsBackend: 'demucs' });
   });
 
-  it('reports no backend when the service answers with an error', async () => {
+  it('reports the service unreachable, with no backend, when it answers with an error', async () => {
     config.demucsUrl = serviceUrl;
     answer = (res) => res.status(500).json({ ok: false, backend: 'uvr' });
-    expect(await health()).toEqual({ acestep: false, demucs: false, demucsBackend: null });
+    expect(await health()).toEqual({ ...acestepAnswered, demucs: false, demucsReason: 'unreachable', demucsBackend: null });
   });
 
-  it('reports no backend when DEMUCS_API_URL is unset', async () => {
+  it('reports "unset", with no backend, when DEMUCS_API_URL is unset', async () => {
     config.demucsUrl = '';
-    expect(await health()).toEqual({ acestep: false, demucs: false, demucsBackend: null });
+    expect(await health()).toEqual({ ...acestepAnswered, demucs: false, demucsReason: 'unset', demucsBackend: null });
+  });
+
+  it('reports an unreachable ACE-Step as an error beside the split service, still 200', async () => {
+    config.demucsUrl = serviceUrl;
+    answer = (res) => res.json({ ok: true, backend: 'uvr' });
+    vi.mocked(acestep.listModels).mockRejectedValueOnce(new Error('ACE-Step unreachable at http://acestep.test (ECONNREFUSED)'));
+    const res = await fetch(`${baseUrl}/health`);
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({
+      acestep: false,
+      acestepError: 'ACE-Step unreachable at http://acestep.test (ECONNREFUSED)',
+      demucs: true,
+      demucsReason: null,
+      demucsBackend: 'uvr',
+    });
   });
 });

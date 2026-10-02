@@ -34,6 +34,13 @@ describe('ACE-Step request timeouts', () => {
     await expect(downloadAudio('/v1/audio?path=x')).rejects.toThrow(/no response within \d+s/);
   });
 
+  it('fails a hung model inventory as unreachable, not as "no models"', async () => {
+    stubHungFetch();
+    const { listModels } = await import('./acestep.js');
+
+    await expect(listModels()).rejects.toThrow(/^ACE-Step unreachable at http:\/\/acestep\.test \(no response within \d+s\)$/);
+  });
+
   it('health() reports down rather than hanging on a dead socket', async () => {
     // health uses a fixed 10s leash — too slow for a unit test to wait out, so just
     // assert the signal is actually passed and a pre-aborted equivalent turns into false.

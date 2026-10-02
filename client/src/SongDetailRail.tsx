@@ -3,8 +3,8 @@ import { api, type Folder, type Song } from './api';
 import { attempt } from './actionError';
 import { timeSignatureLabel } from './songMeta';
 import { CustomSelect } from './CustomSelect';
-import { AudioPreview } from './AudioPreview';
 import { SongOutputTags } from './SongOutputTags';
+import { ReferenceAudioMeta } from './ReferenceAudioMeta';
 import { useVoiceStore } from './voiceStore';
 import { taskToGenType, GEN_TYPE_LABEL } from './createDraft';
 
@@ -20,17 +20,6 @@ interface Props {
 const UNFILED = '';
 
 const fmtDuration = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
-
-/** "<name>" plus whichever influence percentages were recorded: style only for text2music
- * (ACE-Step neutralizes audio there), both for older songs, label alone for cover/complete. */
-const referenceAudioValue = (song: Song): string => {
-  const label = song.reference_audio_label ?? '';
-  const parts = [
-    song.reference_audio_influence != null ? `audio ${Math.round(song.reference_audio_influence * 100)}%` : null,
-    song.reference_style_influence != null ? `style ${Math.round(song.reference_style_influence * 100)}%` : null,
-  ].filter(Boolean);
-  return parts.length ? `${label} — ${parts.join(' / ')}` : label;
-};
 
 function MetaRow({ label, value }: { label: string; value: string }) {
   return (
@@ -51,8 +40,11 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
   // saved voice — ad-hoc uploaded clips aren't persisted, so those stay label-only.
   const voices = useVoiceStore((s) => s.voices);
   const fetchVoices = useVoiceStore((s) => s.fetchVoices);
+  const [voicesError, setVoicesError] = useState('');
+  const loadVoices = () => void attempt("couldn't load voices", fetchVoices, setVoicesError);
   useEffect(() => {
-    if (song.reference_audio_label) void fetchVoices();
+    if (song.reference_audio_label) loadVoices();
+    else setVoicesError('');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song.reference_audio_label]);
   const referenceVoice = song.reference_audio_label
@@ -135,19 +127,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
           <MetaRow label="TIME SIGNATURE" value={song.time_signature ? timeSignatureLabel(song.time_signature) : 'AUTO'} />
           <MetaRow label="DURATION" value={song.duration ? fmtDuration(song.duration) : 'AUTO'} />
           {song.reference_audio_label && (
-            <>
-              <MetaRow label="REFERENCE AUDIO" value={referenceAudioValue(song)} />
-              {referenceVoice && (
-                <div className="rail-preview">
-                  <AudioPreview
-                    src={`/audio/${referenceVoice.audio_file}`}
-                    label={referenceVoice.name}
-                    duration={referenceVoice.duration ?? undefined}
-                    height={26}
-                  />
-                </div>
-              )}
-            </>
+            <ReferenceAudioMeta song={song} voice={referenceVoice} voicesError={voicesError} onRetry={loadVoices} />
           )}
         </div>
 

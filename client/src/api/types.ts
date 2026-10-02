@@ -138,6 +138,19 @@ export interface SongDetail extends Song {
 
 export type StemKind = 'vocals' | 'drums' | 'bass' | 'other';
 
+/** GET /api/split/health — each backend on its own, so one being down never hides the other. */
+export interface SplitHealth {
+  /** A downloaded model supports extract. Only an answer when acestepError is null. */
+  acestep: boolean;
+  /** Why ACE-Step couldn't be asked; null when it answered. */
+  acestepError: string | null;
+  /** The DEMUCS_API_URL slot answers; `model: 'demucs'` starts a split there. */
+  demucs: boolean;
+  demucsReason: 'unset' | 'unreachable' | null;
+  /** Which service answers in that slot: uvr-server or demucs-server; null when it's off. */
+  demucsBackend: 'demucs' | 'uvr' | null;
+}
+
 export interface StemResult {
   kind: StemKind;
   status: 'running' | 'done' | 'failed';

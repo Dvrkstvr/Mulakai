@@ -3,7 +3,8 @@ import { api, ApiError, type StemKind, type StemResult } from './api';
 import { AudioPreview } from './AudioPreview';
 import { previewPlayback } from './previewPlayback';
 import { Dropzone } from './Dropzone';
-import { SPLIT_HEALTH_DOWN, splitServiceLabel, splitServiceTitle, type SplitHealth } from './splitBackend';
+import { useLookup } from './lookup';
+import { SplitBackendTabs } from './SplitBackendTabs';
 
 interface Props {
   /** Fired when the user picks a ready stem to use as a generation source — the split job/
@@ -14,14 +15,13 @@ interface Props {
 const POLL_MS = 2000;
 
 /**
- * Standalone stem split: upload any song, run ACE-Step `extract` or the split service (Demucs or UVR), get back
+ * Standalone stem split: upload any song, run ACE-Step `extract` or Demucs, get back
  * downloadable stems — no song/library entry is ever created. Doubles as a source-picker
  * for Complete generation (CreateCompleteTab.tsx) via `onUseStem`, but is fully usable on
  * its own (split, download, done) per the "bonus" utility request. Stem playback goes
  * through the shared previewPlayback slot via AudioPreview.
  */
 export function ScratchSplitPicker({ onUseStem }: Props) {
-  const [health, setHealth] = useState<SplitHealth | null>(null);
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [file, setFile] = useState<File | null>(null);
   const [jobId, setJobId] = useState<string | null>(null);
@@ -30,9 +30,8 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
   const [error, setError] = useState('');
   const pollRef = useRef<number | null>(null);
 
-  useEffect(() => {
-    api.splitHealth().then(setHealth).catch(() => setHealth(SPLIT_HEALTH_DOWN));
-  }, []);
+  const healthLookup = useLookup(api.splitHealth);
+  const health = healthLookup.data;
 
   useEffect(() => {
     if (model || !health) return;
@@ -102,28 +101,7 @@ export function ScratchSplitPicker({ onUseStem }: Props) {
           <Dropzone accept="audio/*" onFile={setFile}>
             {file ? file.name : 'drag a full song here or click to browse'}
           </Dropzone>
-          {health === null ? (
-            <span className="meta">checking available backends…</span>
-          ) : (
-            <div className="type-tabs">
-              <button
-                className={`tab${model === 'acestep' ? ' active' : ''}`}
-                disabled={!health.acestep}
-                title={health.acestep ? undefined : 'no downloaded model supports extract — requires a Base model'}
-                onClick={() => setModel('acestep')}
-              >
-                <span>ACE-STEP</span>
-              </button>
-              <button
-                className={`tab${model === 'demucs' ? ' active' : ''}`}
-                disabled={!health.demucs}
-                title={splitServiceTitle(health)}
-                onClick={() => setModel('demucs')}
-              >
-                <span>{splitServiceLabel(health)}</span>
-              </button>
-            </div>
-          )}
+          <SplitBackendTabs lookup={healthLookup} model={model} onPick={setModel} />
           <button className="acid" disabled={!canSubmit} onClick={split}>
             {splitting ? 'SPLITTING…' : 'SPLIT INTO STEMS'}
           </button>

@@ -1,8 +1,7 @@
 /** Editor slice: repaint/versions/layers on an open song, remaster, and stem splits. */
 import { outputParams } from '../settings';
 import { json, appendParams } from './http';
-import type { StemKind, StemResult } from './types';
-import type { SplitHealth } from '../splitBackend';
+import type { SplitHealth, StemKind, StemResult } from './types';
 
 export const editorApi = {
   repaint: (

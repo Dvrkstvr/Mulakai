@@ -7285,6 +7285,311 @@ wrapped to record each bounce gain. ADD LAYER ("walking bassline"):
   would have been 1.0 (the base layer's volume) and 0.3.
 - The job ran against the fake and the new lane appeared, 4 layers.
 
+## A Dropped Generation Stops Polling (planned 2026-10-02)
+
+Fixes the rest of AUDIT.md #13; "Idle Jobs Leave Every Registry" fixed
+its 404 half. `generationStore`'s `pollJob` only stopped when the server
+said done or failed. It never checked whether the store still tracked
+its job, so a job cleared while running (`dismiss()`, which the store
+allows though today's buttons only dismiss failed cards) kept being
+polled every 2 s until the server finished. And nothing stopped two
+loops on one job: `hydrate()` runs twice on mount under StrictMode, and
+both calls can adopt the same running job, so every dev reload polled
+it twice.
+
+### Decisions
+
+1. **The loop checks before each poll that the store still tracks its
+   job**, and stops if not (dismissed, or replaced by a new start). Same
+   guard as `editorJobStore`'s single-job poll.
+2. **One loop per job id.** A second `pollJob` for a job that already
+   has a loop is a no-op; the id is released when the loop ends, so a job
+   adopted again later (`refreshLock` after a dismiss) polls again.
+3. **The loop moves to `generationPoll.ts`.** The guard pushed
+   `generationStore.ts` to 203 lines, over the 200 cap; the poll loop is
+   its own responsibility. No behavior change beyond 1 and 2.
+
+### File-level plan
+
+- `client/src/generationPoll.ts` (new): `pollJob` (guard, one loop per
+  job), the poll loop and its timings, moved from the store.
+- `client/src/generationStore.ts`: imports `pollJob`, passes `get`.
+- `client/src/generationStore.test.ts`: a dismissed running job stops
+  polling; two concurrent `hydrate()` adoptions poll once per tick.
+
+### Browser check (2026-10-02)
+
+Worktree client (dev build, so StrictMode on) against a scratch server.
+ACE-Step was offline, so the page stubbed the generation submit and its
+job's status (always "running"); the store and its timers were the real
+ones, and requests were counted at the page's `fetch`.
+
+- A running generation polled 3 times in 6.5 s; after `dismiss()`, no
+  more requests in the next 6.5 s, and the card was gone.
+- With the lock stubbed to a running song generation, two concurrent
+  `hydrate()` calls (StrictMode's double mount) adopted it once and
+  polled it 3 times in 6.5 s, one loop. No console errors.
+
+## Lookup Failures Aren't Answers (planned 2026-10-02)
+
+Follow-up to "Editor Failures Say So" (decision 8 left this open). Four
+lookups gate an Editor control on what the server reports, and each
+read a failed request as an answer:
+
+- `AddLayerTrigger.tsx` and `RemasterAction.tsx`: a failed
+  `listModels()` became `[]`, so the row said "no downloaded model
+  supports Add Layer / Remaster".
+- `SplitPanel.tsx` and `ScratchSplitPicker.tsx`: a failed
+  `splitHealth()` became `{ acestep: false, demucs: false }`, so both
+  backend buttons were disabled with "Demucs is not configured
+  (DEMUCS_API_URL unset)".
+- `VoicePicker.tsx`: `fetchVoices()` had no catch, an unhandled
+  rejection behind an empty picker.
+
+With the server down, the user was told to download a model or set an
+env var. Neither was the problem.
+
+### Decisions
+
+1. **A failed lookup is an error, not an empty answer.** The control
+   shows a rust `.error` line in place of its "checking…" text: "couldn't
+   check models for Add Layer — why · RETRY" (Remaster; "couldn't check
+   split backends"; "couldn't load voices"). "No model supports…" and
+   "not configured" appear only when the server answered so.
+2. **One shape for all four: `useLookup(load)`**, returning
+   `{ data, error, retry }`. `data` is null while loading or after a
+   failure; RETRY goes back to "checking…" and runs `load` again. Built
+   on a plain `lookupRunner` the tests drive, like `songReloader`.
+3. **Side effects of a successful lookup stay in `load`.** Add Layer
+   still picks the first lego model when none is set; Remaster still
+   prefers xl-sft.
+4. **The voice picker keeps NONE usable on a failure.** Generating
+   without a voice doesn't need the list; the error sits under the
+   select.
+5. **Out of scope:** the server's own `listModels()` returns an empty
+   inventory when ACE-Step is down, and `/api/split/health` reports
+   `demucs: false` for a set-but-unreachable `DEMUCS_API_URL`; both
+   still reach the client as answers. The Create-side twins
+   (`useModelsForTask`, `ReferenceAudioPicker`, `ModelsSection`,
+   `SettingsPanel`) have the same client pattern. Left for follow-ups.
+
+### File-level plan
+
+- `client/src/lookup.ts` (new): `lookupRunner`, `useLookup`, and
+  `modelsFor(task)` (the names of downloaded models supporting a task).
+- `client/src/AddLayerTrigger.tsx`, `client/src/RemasterAction.tsx`:
+  `useLookup(modelsFor(…))`; error line with RETRY.
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`:
+  `useLookup(api.splitHealth)`; error line with RETRY in place of the
+  backend buttons.
+- `client/src/VoicePicker.tsx`: `useLookup(fetchVoices)`; error line
+  with RETRY under the select.
+- Tests: `lookup.test.ts` — runner states, plus each caller's load
+  failing (models, split health, voices) without becoming an answer.
+- DESIGN.md: one line under the Editor's load-failure bullet.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, against a copy of the
+library database (no audio), ACE-Step not running. `fetch` was patched
+in the page to reject `/api/generate/models`, `/api/split/health` and
+`/api/voices` with "Failed to fetch", then a song was opened from the
+Library:
+
+- ADD LAYER row: "couldn't check models for Add Layer — Failed to
+  fetch · RETRY". Expanded, the left rail's voice picker kept NONE
+  selectable and showed "couldn't load voices — Failed to fetch · RETRY".
+- SPLIT: "couldn't check split backends — Failed to fetch · RETRY" in
+  place of the backend buttons; GENERATE STEMS disabled.
+- EXPORT: "couldn't check models for Remaster — Failed to fetch ·
+  RETRY".
+- Patch lifted, RETRY on Remaster and Add Layer: both showed the
+  server's real answer ("no downloaded model supports…", since ACE-Step
+  was down; see decision 5) and no error line was left.
+- Server stopped, SPLIT opened again: "couldn't check split backends —
+  HTTP 502 · RETRY", where it used to say Demucs wasn't configured.
+
+## Create-Side Lookup Failures (planned 2026-10-02)
+
+The Create and Settings twins of "Lookup Failures Aren't Answers"
+(its decision 5). Same pattern, same fix:
+
+- `useModelsForTask` (COVER's and ARRANGE's model select): a failed
+  `listModels()` became `[]` → "no downloaded model supports cover /
+  arrange generation".
+- `ReferenceAudioPicker` (Create's REFERENCE AUDIO): `fetchVoices()`
+  had no catch: an unhandled rejection behind an empty VOICE select.
+- `SettingsPanel` (Create's and the Editor's DIT/LM selects): a failed
+  `listModels()` left only AUTO, with nothing said.
+- `ModelsSection` (Settings > Models): a failed `listModels()` became an
+  empty inventory → "No DIT models reported by ACE-Step."
+
+### Decisions
+
+1. **Same shape as the Editor:** `useLookup` from `lookup.ts`, and a
+   rust `.error` line with RETRY in place of "checking…" / the empty
+   message: "couldn't check models for Cover — why · RETRY",
+   "couldn't load voices", "couldn't load the model list",
+   "couldn't load the model inventory".
+2. **`useModelsForTask` is removed**, not patched. Its two callers pass
+   a fixed task, so `useLookup(() => modelsFor(task))` covers it and
+   there's one lookup shape instead of two.
+3. **Selects stay usable where a fallback is honest.** SettingsPanel
+   keeps AUTO (ACE-Step picks its own model); REFERENCE AUDIO keeps
+   NONE and UPLOAD, and shows the voice error under the VOICE tab only.
+   SettingsPanel shows nothing on an engine's PROMPT, where its model
+   list isn't used.
+4. **YuE's COVER panel loses the "needs a model that can cover" hint on
+   a failed lookup** instead of claiming it. The panel doesn't show the
+   lookup's error; ANALYZE AUDIO reports its own failure if it runs.
+
+### File-level plan
+
+- `client/src/CreateAudioTab.tsx`, `client/src/CreateArrangeTab.tsx`:
+  `useLookup(() => modelsFor(…))`; error line with RETRY.
+- `client/src/useModelsForTask.ts`: deleted.
+- `client/src/ReferenceAudioPicker.tsx`: `useLookup(fetchVoices)`.
+- `client/src/SettingsPanel.tsx`, `client/src/ModelsSection.tsx`:
+  `useLookup(api.listModels)`; error line with RETRY.
+- Tests: `lookup.test.ts` — `modelsFor` failing for cover and complete,
+  and the full inventory failing, without becoming an answer.
+- DESIGN.md: extend the lookup line to Create and Settings.
+
+### Browser check (2026-10-02)
+
+Same setup as the Editor check: worktree client and server on spare
+ports, a copy of the library database, ACE-Step not running. `fetch`
+patched in the page to reject `/api/generate/models` and `/api/voices`
+with "Failed to fetch", then CREATE:
+
+- PROMPT: "couldn't load the model list — Failed to fetch · RETRY" at
+  the top of GENERATION SETTINGS; DIT and LM MODEL stayed on AUTO.
+  REFERENCE AUDIO › VOICE: "couldn't load voices — Failed to fetch ·
+  RETRY" under the VOICE select, NONE still selected.
+- COVER: "couldn't check models for Cover — Failed to fetch · RETRY"
+  where the MODEL select goes.
+- ARRANGE: "couldn't check models for Arrange — Failed to fetch ·
+  RETRY"; ARRANGE disabled.
+- Settings > Models: "couldn't load the model inventory — Failed to
+  fetch · RETRY". Patch lifted, RETRY: the line went away and the
+  server's answer showed ("No DIT models reported", ACE-Step being
+  down; see "Lookup Failures Aren't Answers" decision 5).
+- Server stopped, CREATE opened again on ARRANGE: the model list,
+  voices and Arrange lines all read "HTTP 502 · RETRY".
+
+## An Unreachable ACE-Step Is a Failure, Not "No Models" (planned 2026-10-02)
+
+Server half of "Lookup Failures Aren't Answers" (its decision 5).
+`listModels()` (`server/src/services/acestep/models.ts`, behind the
+`acestep.ts` facade) returned the same empty inventory
+`{ models: [], lmModels: [], defaultModel: null }` when ACE-Step answered
+"no models" and when it was unreachable, answered non-2xx, or timed out.
+Its callers passed that on:
+
+- `GET /api/generate/models` answered 200 with the empty inventory, so
+  the client's `useLookup` never saw a failure. Add Layer and Remaster
+  said "no downloaded model supports…".
+- `GET /api/split/health` turned it into `acestep: false`, so ACE-STEP
+  split was disabled as "no downloaded model supports extract".
+- The same route reported `demucs: false` both for an unset
+  `DEMUCS_API_URL` and for a set one that didn't answer. The client
+  tooltip always said "not configured (DEMUCS_API_URL unset)". Its fetch
+  also had no timeout, so a hung Demucs held the whole response.
+
+### Decisions
+
+1. **`listModels()` throws when it gets no answer.** A transport error
+   or timeout throws "ACE-Step unreachable at <url> (<cause>)", where the
+   cause is the socket error code or "no response within Ns". A non-2xx
+   throws "ACE-Step model inventory -> HTTP <status>". A 2xx body with
+   no `data` is still an empty answer.
+2. **`/api/generate/models` answers 502 `{ error }`** with that message,
+   like `/sample-from-query` and the other ACE-Step routes. The client's
+   `useLookup` shows it with RETRY.
+3. **`/api/split/health` stays 200 and reports each backend on its own.**
+   Demucs splits never touch ACE-Step, so failing the whole request when
+   ACE-Step is down would hide a working Demucs (user decision,
+   2026-10-02). The response gains two fields:
+   `{ acestep, acestepError, demucs, demucsReason }`.
+   - `acestepError`: the `listModels()` message when ACE-Step couldn't
+     be asked. It is null when ACE-Step answered, and `acestep: false`
+     then really means no model supports extract.
+   - `demucsReason`: `'unset'` (no `DEMUCS_API_URL`), `'unreachable'`
+     (set, but `/health` failed, answered non-2xx, or took over 10s,
+     the same leash as `acestep.health()`), or null when it's up.
+   The two probes run in parallel.
+4. **The split panels show `acestepError` as a rust `.error` line with
+   RETRY** above the backend buttons, which stay usable: "couldn't check
+   ACE-Step — ACE-Step unreachable at … · RETRY". The ACE-STEP button is
+   disabled, titled "ACE-Step unreachable". The DEMUCS button's title
+   now says which: "Demucs is not configured (DEMUCS_API_URL unset)" or
+   "Demucs is not answering at DEMUCS_API_URL". One helper builds these
+   titles for both panels.
+5. **Other `listModels()` callers keep their behaviour.**
+   `inferenceSteps.ts`'s AUTO-model lookup catches the throw and falls
+   back to the legacy step count, as it did with the empty inventory. A
+   down ACE-Step must not change the steps we send. The job services
+   don't call `listModels()` directly. Their tests mock it and are
+   unaffected.
+6. **Out of scope:** the Create-side client lookups (`useModelsForTask`,
+   `ModelsSection`, `SettingsPanel`) already catch a failed
+   `listModels()` into an empty list. They now get a 502 where they used
+   to get an empty 200, so what they show doesn't change. Making them
+   say "couldn't check" is the follow-up that decision 5 of the earlier
+   section names.
+
+### File-level plan
+
+- `server/src/services/acestep/models.ts`: `listModels()` throws per
+  decision 1.
+- `server/src/services/splitHealth.ts` (new): `splitHealth()` runs both
+  probes and returns the decision 3 shape.
+- `server/src/routes/generate.ts`: `/models` sends a 502 on a throw.
+- `server/src/routes/split.ts`: `/health` returns `splitHealth()`.
+- `server/src/services/inferenceSteps.ts`: catch around the lookup.
+- `client/src/api/types.ts`, `client/src/api/editor.ts`: a `SplitHealth`
+  type with the new fields, returned by `splitHealth()`.
+- `client/src/lookup.ts`: `splitBackendTitle(health, backend)`, the
+  tooltip for a disabled backend button.
+- `client/src/SplitBackendTabs.tsx` (new): the checking / error / ACE-STEP
+  and DEMUCS block both panels had verbatim, plus the `acestepError`
+  line. Adding that line twice would have pushed both panels further
+  past the 150-line target. Both now sit under it (142 and 138 lines).
+- `client/src/SplitPanel.tsx`, `client/src/ScratchSplitPicker.tsx`:
+  render `SplitBackendTabs`.
+- Tests: `acestep.test.ts` (`listModels` empty answer vs refused,
+  timeout, and non-2xx), `splitHealth.test.ts` (each backend's states,
+  and an ACE-Step failure that doesn't hide Demucs), `generate.test.ts`
+  (`/models` 502), `split.test.ts` (`/health` passes the shape on),
+  `inferenceSteps.test.ts` (non-2xx inventory falls back),
+  `lookup.test.ts` (titles).
+- DESIGN.md: extend the lookup bullet with the per-backend line.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, with a fresh library. One
+imported 3s tone was used as the Editor's song.
+`ACESTEP_API_URL` and `DEMUCS_API_URL` pointed at closed ports.
+
+- `curl /api/generate/models`: 502 `{"error":"ACE-Step unreachable at
+  http://127.0.0.1:8099 (ECONNREFUSED)"}`. `/api/split/health`: 200 with
+  that `acestepError` and `demucsReason: "unreachable"`.
+- Create › ARRANGE › SPLIT A SONG: "couldn't check ACE-Step — ACE-Step
+  unreachable at … (ECONNREFUSED) · RETRY". Both backend buttons were
+  disabled. ACE-STEP was titled "couldn't check ACE-Step" and DEMUCS
+  "Demucs is not answering at DEMUCS_API_URL".
+- A stub answering 200 on `:8098/health`, then RETRY: the ACE-Step line
+  stayed, and DEMUCS became enabled and was auto-selected.
+- Editor: Add Layer and EXPORT showed "couldn't check models for Add
+  Layer / Remaster — ACE-Step unreachable at … · RETRY". SPLIT showed
+  the ACE-Step line, with DEMUCS picked and GENERATE STEMS enabled.
+- A stub ACE-Step answering an empty inventory on `:8099`, then RETRY:
+  "no downloaded model supports Add Layer / Remaster" with no error
+  line. SPLIT showed no error line, and ACE-STEP was titled "no
+  downloaded model supports extract".
+- Create's ARRANGE still says "no downloaded model supports arrange
+  generation" while ACE-Step is down (decision 6, unchanged).
+
 ## SPLIT Names Its Real Backend (planned 2026-10-02)
 
 Answers the first open question in "UVR Separator: Roformer Vocals for
@@ -7335,3 +7640,136 @@ one imported song:
   DEMUCS_API_URL (demucs-server or uvr-server)".
 - `demucs-server` was not running, so its `DEMUCS` label is covered by the
   route test (a health body with no `backend`), not seen in the browser.
+
+## Split Health: Which Service, and Why It's Off (planned 2026-10-02)
+
+Merges "SPLIT Names Its Real Backend" (#78) into "An Unreachable ACE-Step
+Is a Failure" (#98). Both changed `/api/split/health` and the two split
+pickers, and they disagreed in two places:
+
+- #78 loaded health with `.catch(() => setHealth(SPLIT_HEALTH_DOWN))`.
+  That is the failure-as-answer pattern "Lookup Failures Aren't
+  Answers" removed.
+- #78's disabled tooltip folded "unset" and "not answering" into one
+  line. #98 kept them apart, but called the service "Demucs" even when
+  uvr-server sits behind `DEMUCS_API_URL`.
+
+### Decisions
+
+1. **One response:** `{ acestep, acestepError, demucs, demucsReason,
+   demucsBackend }`. `splitHealth.ts`'s Demucs probe reads the health
+   body only on a 2xx. It reports `"uvr"` when the body says so,
+   `"demucs"` for any other healthy answer, and null when the service is
+   off. The 10s probe timeout stays.
+2. **No `SPLIT_HEALTH_DOWN`.** A failed request stays an error with RETRY
+   (`useLookup`), and both pickers render `SplitBackendTabs`.
+3. **The second tab reads `UVR` or `DEMUCS`** from `demucsBackend`, and
+   `DEMUCS` when off (#78 decision 2). Its title names the service when
+   it's up. When it's off, the title says which way:
+   - unset: "no split service configured (DEMUCS_API_URL unset)";
+   - not answering: "no split service answers at DEMUCS_API_URL
+     (demucs-server or uvr-server)".
+4. **One module for the mapping: `client/src/splitBackend.ts`** holds
+   the tab label and both tabs' titles (#78 decision 3). #98's
+   `splitBackendTitle` moves there from `lookup.ts`. `SplitHealth`
+   stays with the other API types in `api/types.ts`.
+
+### File-level plan
+
+- `server/src/services/splitHealth.ts`: `demucsBackend`.
+- `server/src/services/splitHealth.test.ts`: uvr, demucs, non-JSON,
+  and an off service.
+- `server/src/routes/split.test.ts`: #78's `/health` cases against a
+  stand-in service, checked against the full shape.
+- `client/src/api/types.ts`: `demucsBackend` on `SplitHealth`.
+- `client/src/splitBackend.ts`: `splitServiceLabel` and
+  `splitBackendTitle(health, backend)`.
+- `client/src/splitBackend.test.ts`: the label and every title.
+- `client/src/lookup.ts`, `client/src/lookup.test.ts`: the title helper
+  and its tests move out.
+- `client/src/SplitBackendTabs.tsx`: the label and titles from
+  `splitBackend.ts`.
+- DESIGN.md: the split picker bullet names the UVR/DEMUCS label.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, with a fresh library. Two
+small stubs stood in for the backends: an ACE-Step answering
+`/v1/model_inventory` with one extract-capable model, and a split service
+whose `/health` says `backend: "uvr"`. Checked in Create's ARRANGE ›
+SPLIT A SONG. The Editor's SPLIT renders the same `SplitBackendTabs`.
+
+- ACE-Step down, UVR stub up: "couldn't check ACE-Step — ACE-Step
+  unreachable at … (ECONNREFUSED) · RETRY". ACE-STEP was disabled and
+  titled "couldn't check ACE-Step". The second tab read UVR, was
+  enabled and auto-selected, and was titled "uvr-server: Roformer
+  vocals, htdemucs for the rest".
+- ACE-Step stub started, then RETRY: no error line. ACE-STEP and UVR
+  were both enabled.
+- UVR stub stopped: the tab read DEMUCS, disabled, titled "no split
+  service answers at DEMUCS_API_URL (demucs-server or uvr-server)".
+- Server restarted with `DEMUCS_API_URL` empty: DEMUCS was disabled,
+  titled "no split service configured (DEMUCS_API_URL unset)".
+
+## Voice List Failures (planned 2026-10-02)
+
+The last two `fetchVoices()` callers without a catch, after "Lookup
+Failures Aren't Answers" and "Create-Side Lookup Failures":
+
+- **Settings > Voices** (`VoiceManagementSection` / `VoiceUploadForm`):
+  a failed list was an unhandled rejection, and the empty store read
+  "No saved voices yet." A failed delete (✕) had no catch either, and
+  a list refresh failing after a good upload showed under the upload as
+  if the upload had failed.
+- **Library song detail rail** (`SongDetailRail`): the lookup that
+  finds a song's reference voice (for its preview) was an unhandled
+  rejection; the preview just didn't appear.
+
+### Decisions
+
+1. **Same rust `.error` line with RETRY**: "couldn't load voices — why ·
+   RETRY", in place of "No saved voices yet." in Settings and under the
+   REFERENCE AUDIO row in the rail (the row's label still shows; it comes
+   from the song, not the list).
+2. **Settings uses `useLookup(fetchVoices)`**, moved from the section
+   into the form that shows the list. After an upload or delete the form
+   re-runs that lookup instead of awaiting `fetchVoices()` itself, so a
+   failed refresh reports as a list failure, not an upload failure.
+3. **A failed delete says so**: "couldn't delete voice — why", through
+   `attempt`, in the form's existing error line.
+4. **The rail keeps its own refetch-per-song effect**, through `attempt`
+   instead of `useLookup` (which runs once): the rail stays mounted
+   across songs, and only songs with a reference label need the list.
+
+### File-level plan
+
+- `client/src/VoiceList.tsx` (new): the rows plus the error-or-empty
+  line, from props.
+- `client/src/VoiceUploadForm.tsx`: `useLookup(fetchVoices)`, `VoiceList`,
+  delete through `attempt`.
+- `client/src/VoiceManagementSection.tsx`: drops its fetch effect.
+- `client/src/ReferenceAudioMeta.tsx` (new): the rail's REFERENCE AUDIO
+  row, preview and error line, from props. Moves `referenceAudioValue`
+  out of `SongDetailRail.tsx`, which sits at 188 lines.
+- `client/src/SongDetailRail.tsx`: `attempt` around `fetchVoices`,
+  renders `ReferenceAudioMeta`.
+- Tests: `VoiceList.test.tsx`, `ReferenceAudioMeta.test.tsx` (static
+  render, like `EngineChoice.test.tsx`): a failed list shows the error
+  and RETRY and never "No saved voices yet."; an answered empty list
+  still does.
+- DESIGN.md: add Settings > Voices and the rail to the lookup line.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, a copy of the library
+database. `fetch` patched in the page to reject `/api/voices`:
+
+- Library, "Kopf Hoch 1" (conditioned on Daniel): the rail's REFERENCE
+  AUDIO row still read "Daniel", with "couldn't load voices — Failed to
+  fetch · RETRY" under it. Patch lifted, RETRY: the line went away and
+  Daniel's preview appeared.
+- Page reloaded, patch on again, Settings > Voices: "couldn't load
+  voices — Failed to fetch · RETRY" where "No saved voices yet." used
+  to be.
+- Only DELETE rejected, RETRY: Daniel, DelVox and Elly listed. ✕ on
+  Elly: "couldn't delete voice — Failed to fetch", Elly still listed.
