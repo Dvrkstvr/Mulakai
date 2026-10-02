@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { Layer } from './api';
 import type { Region } from './Waveform';
 import { repaintParams, type RepaintSettings } from './settings';
-import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
+import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS, clampCrossfade } from './repaintLimits';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
 
 type RepaintJob = Pick<ReturnType<typeof useEditorRepaintJob>, 'startRepaint' | 'dismissEditorJob' | 'myRepaint' | 'busyElsewhere'>;
@@ -37,6 +37,7 @@ export function useRepaintSubmit({
       end: selection.end,
       ...(lyricsUnlocked ? { lyrics: lyricsDraft } : {}),
       ...repaintParams(repaintSettings),
+      repaint_wav_crossfade_sec: clampCrossfade(repaintSettings.crossfadeSec, regionSeconds),
     });
   };
 

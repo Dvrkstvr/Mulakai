@@ -1,14 +1,11 @@
 import { motion } from 'framer-motion';
-import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
+import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS, maxCrossfadeSec, clampCrossfade } from './repaintLimits';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { waitLabel } from './generationJob';
 import { useSettings } from './settings';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import type { Region } from './Waveform';
-
-/** Crossfade cap, seconds — half of whichever is smaller: a flat ceiling or the region itself. */
-const CROSSFADE_CAP_SECONDS = 5;
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
@@ -42,7 +39,7 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
   const elapsedMs = useElapsedMs(job === 'running', startedAt);
   const crossfadeSec = useSettings((s) => s.repaint.crossfadeSec);
   const setRepaint = useSettings((s) => s.setRepaint);
-  const maxCrossfade = regionValid ? Math.min(CROSSFADE_CAP_SECONDS, regionSeconds) / 2 : 0;
+  const maxCrossfade = maxCrossfadeSec(regionSeconds);
 
   return (
     <>
@@ -62,8 +59,8 @@ export function RepaintBar({ layerName, nextVersion, selection, prompt, onPrompt
             max={maxCrossfade}
             step={0.1}
             disabled={!regionValid}
-            value={crossfadeSec}
-            onChange={(e) => setRepaint({ crossfadeSec: Math.min(maxCrossfade, Math.max(0, Number(e.target.value) || 0)) })}
+            value={clampCrossfade(crossfadeSec, regionSeconds)}
+            onChange={(e) => setRepaint({ crossfadeSec: clampCrossfade(Number(e.target.value), regionSeconds) })}
           />
           <span className="crossfade-unit">s</span>
         </div>
