@@ -2954,7 +2954,7 @@ footer .player {
 }
 
 /* Lyrics panel: read-only by default; a textarea only while a whole section
-   is selected on the base layer (Editor.tsx's `lyricsUnlocked`). Sky marks
+   is selected on the base layer (useSectionLyrics.ts's `lyricsUnlocked`). Sky marks
    the block matching the current section-strip selection, same hue as the
    waveform selection wash it's echoing (DESIGN.md "selection must read as
    one continuous color everywhere it is echoed"). */

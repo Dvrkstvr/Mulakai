@@ -18,7 +18,7 @@ interface Props {
   onPromptChange: (prompt: string) => void;
   job: 'idle' | 'running';
   startedAt: number | null;
-  /** Live progress from ACE-Step's /query_result, threaded from Editor.tsx's myRepaint job. */
+  /** Live progress from ACE-Step's /query_result, threaded from useEditorRepaintJob.ts's myRepaint job. */
   progress?: number;
   progressStage?: string;
   progressText?: string;

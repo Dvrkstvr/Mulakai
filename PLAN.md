@@ -7806,7 +7806,8 @@ still displayed as 2.5 and sent to ACE-Step as 2.5.
   regions, an over-cap value clamped, negative and NaN to 0, an
   invalid region to 0.
 - `client/src/RepaintBar.tsx`: uses both; shows the clamped value.
-- `client/src/Editor.tsx`: `repaint` sends the clamped value.
+- `client/src/useRepaintSubmit.ts` (the Editor's repaint, since the
+  Editor split): sends the clamped value.
 
 ### Browser check (2026-10-02)
 
