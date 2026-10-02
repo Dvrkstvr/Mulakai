@@ -8,7 +8,7 @@ import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { busyMessage } from './generationJob';
 import { useVoiceStore } from './voiceStore';
-import { useLookup, modelsFor } from './lookup';
+import { useLookup, modelsFor, checkingModels } from './lookup';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
@@ -121,7 +121,7 @@ export function CreateAudioTab({ songs, onBack }: { songs: Song[]; onBack: () =>
       {coverLookup.error ? (
         <div className="error">couldn't check models for Cover — {coverLookup.error} <button onClick={coverLookup.retry}>RETRY</button></div>
       ) : coverModels === null ? (
-        <span className="meta">checking available models…</span>
+        <span className="meta">{checkingModels(coverLookup)}</span>
       ) : coverModels.length === 0 ? (
         <span className="meta" style={{ color: 'var(--rust-text)' }}>no downloaded model supports cover generation</span>
       ) : (

@@ -1,6 +1,7 @@
 /** Thin ACE-Step passthroughs for the Create screen: format, samples, health, model list.
  * Mounted on generateRouter (generate.ts). */
 import { Router } from 'express';
+import { config } from '../config.js';
 import { health, listModels, formatInput, createRandomSample, createSampleFromQuery } from '../services/acestep.js';
 
 export const generateHelpersRouter = Router();
@@ -40,7 +41,7 @@ generateHelpersRouter.get('/health', async (_req, res) => {
 
 generateHelpersRouter.get('/models', async (_req, res) => {
   try {
-    res.json(await listModels());
+    res.json(await listModels(config.acestepLookupTimeoutMs));
   } catch (err) {
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
   }

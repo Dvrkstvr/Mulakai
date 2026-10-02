@@ -8,7 +8,7 @@ vi.mock('./api', () => ({
   api: { listModels: () => listModels(), splitHealth: () => splitHealth(), listVoices: () => listVoices() },
 }));
 
-const { lookupRunner, modelsFor } = await import('./lookup');
+const { lookupRunner, modelsFor, SLOW_LOOKUP_MS } = await import('./lookup');
 const { useVoiceStore } = await import('./voiceStore');
 
 const offline = () => Promise.reject(new TypeError('Failed to fetch'));
@@ -48,6 +48,34 @@ describe('lookupRunner', () => {
     await retry();
     expect(states.map((s) => s.error)).toEqual(['', 'HTTP 502', '', '']);
     expect(states.at(-1)?.data).toBe('ok');
+  });
+
+  it('says a load is slow once it runs long, then still takes the answer', async () => {
+    vi.useFakeTimers();
+    try {
+      const states: Lookup<string>[] = [];
+      let answer!: (v: string) => void;
+      const done = lookupRunner(() => new Promise<string>((r) => { answer = r; }), (s) => states.push(s))();
+      await vi.advanceTimersByTimeAsync(SLOW_LOOKUP_MS);
+      expect(states.at(-1)).toEqual({ data: null, error: '', slow: true });
+      answer('ok');
+      await done;
+      expect(states.at(-1)).toEqual({ data: 'ok', error: '' });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('never marks a quick load slow after it lands', async () => {
+    vi.useFakeTimers();
+    try {
+      const states: Lookup<string>[] = [];
+      await lookupRunner(() => Promise.resolve('ok'), (s) => states.push(s))();
+      await vi.advanceTimersByTimeAsync(SLOW_LOOKUP_MS * 2);
+      expect(states.some((s) => s.slow)).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
 

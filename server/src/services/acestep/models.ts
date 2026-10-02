@@ -55,10 +55,9 @@ export interface ModelInventory {
  * ACE-Step can't be asked (unreachable, timed out, non-2xx), so a caller never
  * mistakes a down server for one with no models downloaded.
  */
-export async function listModels(): Promise<ModelInventory> {
+export async function listModels(timeoutMs = config.acestepTimeoutMs): Promise<ModelInventory> {
   const headers: Record<string, string> = {};
   if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
-  const timeoutMs = config.acestepTimeoutMs;
   const res = await fetch(`${config.acestepUrl}/v1/model_inventory`, { headers, signal: AbortSignal.timeout(timeoutMs) }).catch((err: unknown) => {
     const timedOut = err instanceof Error && (err.name === 'TimeoutError' || err.name === 'AbortError');
     // undici's bare "fetch failed" keeps the useful part (ECONNREFUSED, ENOTFOUND…) in `cause`.

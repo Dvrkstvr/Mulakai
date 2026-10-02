@@ -41,6 +41,18 @@ describe('ACE-Step request timeouts', () => {
     await expect(listModels()).rejects.toThrow(/^ACE-Step unreachable at http:\/\/acestep\.test \(no response within \d+s\)$/);
   });
 
+  it('waits out a slow model inventory when given a longer deadline', async () => {
+    const body = { data: { models: [{ name: 'xl-base' }], lm_models: [], default_model: null } };
+    vi.stubGlobal('fetch', vi.fn((_url: string, init?: RequestInit) => new Promise((resolve, reject) => {
+      setTimeout(() => resolve(Response.json(body)), 200);
+      init?.signal?.addEventListener('abort', () => reject(init.signal!.reason));
+    })));
+    const { listModels } = await import('./acestep.js');
+
+    await expect(listModels()).rejects.toThrow(/no response within/);
+    await expect(listModels(1000)).resolves.toMatchObject({ models: [{ name: 'xl-base' }] });
+  });
+
   it('health() reports down rather than hanging on a dead socket', async () => {
     // health uses a fixed 10s leash — too slow for a unit test to wait out, so just
     // assert the signal is actually passed and a pre-aborted equivalent turns into false.

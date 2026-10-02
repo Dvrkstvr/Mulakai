@@ -13,7 +13,7 @@ import { Seed } from './Seed';
 import { useAddLayerDraft } from './addLayerStore';
 import { EngineGenSettings } from './EngineGenSettings';
 import { useEngineCaps } from './useEngineCaps';
-import { useLookup } from './lookup';
+import { useLookup, SLOW_ACESTEP_NOTE } from './lookup';
 
 const STEPS_INFO = 'Diffusion steps — more steps means finer detail but slower generation. Turbo models: 1–20 (8 recommended). Base/SFT models: 32–100 recommended. AUTO picks the count the selected model wants (Turbo 8, SFT 50, Base 32).';
 
@@ -86,6 +86,9 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, coverModel, 
       <ScrollArea className="settings-panel-scroll">
       {inventory.error && !(mode === 'generate' && engine) && (
         <div className="error">couldn't load the model list — {inventory.error} <button onClick={inventory.retry}>RETRY</button></div>
+      )}
+      {inventory.slow && !(mode === 'generate' && engine) && (
+        <div className="meta">loading the model list… {SLOW_ACESTEP_NOTE}</div>
       )}
       {mode === 'generate' && engine ? (
         <EngineGenSettings engine={engine} />
