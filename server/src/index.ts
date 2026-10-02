@@ -17,6 +17,8 @@ import { enginesRouter } from './routes/engines.js';
 import { lyricsRouter } from './routes/lyrics.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
+import { sweepOrphanStems } from './services/stemFiles.js';
+import { evictIdleSplits, isLiveSplit } from './services/stemSplit.js';
 
 const app = express();
 app.use(express.json({ limit: '2mb' }));
@@ -40,6 +42,12 @@ app.use('/audio', express.static(config.audioDir));
 
 sweepTrash();
 setInterval(sweepTrash, 60 * 60 * 1000);
+// Split jobs live only in memory: a restart strands their unclaimed stems on disk, and a
+// closed tab never cancels its split.
+void sweepOrphanStems(isLiveSplit)
+  .then((n) => { if (n) console.log(`Removed ${n} unclaimed split stem file(s) from a previous run`); })
+  .catch((err) => console.error('Orphaned stem sweep failed:', err));
+setInterval(() => void evictIdleSplits().catch((err) => console.error('Idle split eviction failed:', err)), 5 * 60 * 1000);
 
 app.listen(config.port, config.host, async () => {
   console.log(`Mulakai server on http://${config.host}:${config.port} (ACE-Step: ${config.acestepUrl})`);
