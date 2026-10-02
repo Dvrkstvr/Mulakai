@@ -7710,3 +7710,66 @@ SPLIT A SONG. The Editor's SPLIT renders the same `SplitBackendTabs`.
   service answers at DEMUCS_API_URL (demucs-server or uvr-server)".
 - Server restarted with `DEMUCS_API_URL` empty: DEMUCS was disabled,
   titled "no split service configured (DEMUCS_API_URL unset)".
+
+## Voice List Failures (planned 2026-10-02)
+
+The last two `fetchVoices()` callers without a catch, after "Lookup
+Failures Aren't Answers" and "Create-Side Lookup Failures":
+
+- **Settings > Voices** (`VoiceManagementSection` / `VoiceUploadForm`):
+  a failed list was an unhandled rejection, and the empty store read
+  "No saved voices yet." A failed delete (✕) had no catch either, and
+  a list refresh failing after a good upload showed under the upload as
+  if the upload had failed.
+- **Library song detail rail** (`SongDetailRail`): the lookup that
+  finds a song's reference voice (for its preview) was an unhandled
+  rejection; the preview just didn't appear.
+
+### Decisions
+
+1. **Same rust `.error` line with RETRY**: "couldn't load voices — why ·
+   RETRY", in place of "No saved voices yet." in Settings and under the
+   REFERENCE AUDIO row in the rail (the row's label still shows; it comes
+   from the song, not the list).
+2. **Settings uses `useLookup(fetchVoices)`**, moved from the section
+   into the form that shows the list. After an upload or delete the form
+   re-runs that lookup instead of awaiting `fetchVoices()` itself, so a
+   failed refresh reports as a list failure, not an upload failure.
+3. **A failed delete says so**: "couldn't delete voice — why", through
+   `attempt`, in the form's existing error line.
+4. **The rail keeps its own refetch-per-song effect**, through `attempt`
+   instead of `useLookup` (which runs once): the rail stays mounted
+   across songs, and only songs with a reference label need the list.
+
+### File-level plan
+
+- `client/src/VoiceList.tsx` (new): the rows plus the error-or-empty
+  line, from props.
+- `client/src/VoiceUploadForm.tsx`: `useLookup(fetchVoices)`, `VoiceList`,
+  delete through `attempt`.
+- `client/src/VoiceManagementSection.tsx`: drops its fetch effect.
+- `client/src/ReferenceAudioMeta.tsx` (new): the rail's REFERENCE AUDIO
+  row, preview and error line, from props. Moves `referenceAudioValue`
+  out of `SongDetailRail.tsx`, which sits at 188 lines.
+- `client/src/SongDetailRail.tsx`: `attempt` around `fetchVoices`,
+  renders `ReferenceAudioMeta`.
+- Tests: `VoiceList.test.tsx`, `ReferenceAudioMeta.test.tsx` (static
+  render, like `EngineChoice.test.tsx`): a failed list shows the error
+  and RETRY and never "No saved voices yet."; an answered empty list
+  still does.
+- DESIGN.md: add Settings > Voices and the rail to the lookup line.
+
+### Browser check (2026-10-02)
+
+Worktree client and server on spare ports, a copy of the library
+database. `fetch` patched in the page to reject `/api/voices`:
+
+- Library, "Kopf Hoch 1" (conditioned on Daniel): the rail's REFERENCE
+  AUDIO row still read "Daniel", with "couldn't load voices — Failed to
+  fetch · RETRY" under it. Patch lifted, RETRY: the line went away and
+  Daniel's preview appeared.
+- Page reloaded, patch on again, Settings > Voices: "couldn't load
+  voices — Failed to fetch · RETRY" where "No saved voices yet." used
+  to be.
+- Only DELETE rejected, RETRY: Daniel, DelVox and Elly listed. ✕ on
+  Elly: "couldn't delete voice — Failed to fetch", Elly still listed.
