@@ -59,6 +59,10 @@
   to land won, so a slow "co" could replace "copper". Every song-list load now goes
   through one loader that applies only the newest response and reads the query and
   folder at fire time; search is debounced 250 ms — PR #93 (was #6).
+- Repaint CROSSFADE was capped only when edited, so a value saved on a long region was
+  shown and sent as-is on a shorter one. `clampCrossfade()` caps it at submit and in the
+  box (half the region, at most 2.5 s, rounded to 0.1 s); the stored preference is kept —
+  PR #105 (was #9).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -129,7 +133,7 @@ neighbors' volumes shift when the lists diverge. (`RemasterAction.tsx` and
 calls; each runs `reconcileAdapter()`'s unsynchronized read-check-write —
 overlapping `lora/load`/`lora/scale` sequences can reach ACE-Step.
 
-### 9. Repaint crossfade only clamped in the UI handler
+### 9. ~~Repaint crossfade only clamped in the UI handler~~ — fixed, PR #105
 `client/src/RepaintBar.tsx` / `settings.ts` — a persisted `crossfadeSec` larger
 than the current region's max is displayed and submitted as-is. Clamp at submit.
 
