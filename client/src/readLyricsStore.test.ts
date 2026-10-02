@@ -8,9 +8,18 @@ vi.mock('./api', () => ({
     readLyrics: (...a: unknown[]) => readLyrics(...a),
     jobStatus: (...a: unknown[]) => jobStatus(...a),
   },
+  ApiError: class ApiError extends Error {
+    status: number;
+    constructor(message: string, status: number) {
+      super(message);
+      this.status = status;
+    }
+  },
 }));
 
 const { useReadLyricsStore } = await import('./readLyricsStore');
+const { ApiError } = await import('./api');
+const { JOB_GONE } = await import('./jobGone');
 const { POLL_MS } = await import('./transcribeStore');
 const { useCreateDraftStore } = await import('./createDraftStore');
 
@@ -46,6 +55,15 @@ beforeEach(() => {
 afterEach(() => vi.useRealTimers());
 
 describe('readLyricsStore', () => {
+  it('fails once the server no longer has the job, instead of polling a 404 forever', async () => {
+    jobStatus.mockRejectedValueOnce(new Error('network')).mockRejectedValueOnce(new ApiError('unknown job', 404));
+    const run = useReadLyricsStore.getState().start(src, 'x', '', ['en']);
+    await vi.advanceTimersByTimeAsync(POLL_MS * 2);
+    await run;
+    expect(useReadLyricsStore.getState()).toMatchObject({ stage: 'failed', error: JOB_GONE });
+    expect(jobStatus).toHaveBeenCalledTimes(2);
+  });
+
   it('reads the source and places the words under the sections they were sung in', async () => {
     withScore();
     await finish();
