@@ -7400,3 +7400,23 @@ pickers, and they disagreed in two places:
 - `client/src/SplitBackendTabs.tsx`: the label and titles from
   `splitBackend.ts`.
 - DESIGN.md: the split picker bullet names the UVR/DEMUCS label.
+
+### Browser check (2026-10-02)
+
+Worktree server and client on spare ports, with a fresh library. Two
+small stubs stood in for the backends: an ACE-Step answering
+`/v1/model_inventory` with one extract-capable model, and a split service
+whose `/health` says `backend: "uvr"`. Checked in Create's ARRANGE ›
+SPLIT A SONG. The Editor's SPLIT renders the same `SplitBackendTabs`.
+
+- ACE-Step down, UVR stub up: "couldn't check ACE-Step — ACE-Step
+  unreachable at … (ECONNREFUSED) · RETRY". ACE-STEP was disabled and
+  titled "couldn't check ACE-Step". The second tab read UVR, was
+  enabled and auto-selected, and was titled "uvr-server: Roformer
+  vocals, htdemucs for the rest".
+- ACE-Step stub started, then RETRY: no error line. ACE-STEP and UVR
+  were both enabled.
+- UVR stub stopped: the tab read DEMUCS, disabled, titled "no split
+  service answers at DEMUCS_API_URL (demucs-server or uvr-server)".
+- Server restarted with `DEMUCS_API_URL` empty: DEMUCS was disabled,
+  titled "no split service configured (DEMUCS_API_URL unset)".
