@@ -14,7 +14,11 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
 
   await test.step('generate a song from the PROMPT tab', async () => {
     await page.goto('/');
-    await expect(page.getByText('ACE-STEP ONLINE')).toBeVisible();
+    // The header badge's popover lists each model; hovering it opens the list.
+    await page.getByRole('button', { name: /^Model status/ }).hover();
+    const acestepRow = page.getByRole('dialog', { name: 'Model status' }).locator('.model-status-row', { hasText: 'ACE-STEP 1.5' });
+    await expect(acestepRow).toContainText('ONLINE');
+    await page.mouse.move(0, 400);
     // CREATE on an empty box opens Create without asking the LM for a sample first.
     await page.getByRole('button', { name: 'CREATE', exact: true }).click();
     await page.getByPlaceholder('Title').fill(TITLE);

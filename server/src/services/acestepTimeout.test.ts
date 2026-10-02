@@ -67,4 +67,14 @@ describe('ACE-Step request timeouts', () => {
 
     await expect(health()).resolves.toBe(false);
   });
+
+  it('healthState() tells a silent ACE-Step from a refused one', async () => {
+    const { healthState } = await import('./acestep.js');
+    vi.stubGlobal('fetch', vi.fn(async () => { throw Object.assign(new Error('timed out'), { name: 'TimeoutError' }); }));
+    await expect(healthState()).resolves.toBe('silent');
+    vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('fetch failed'); }));
+    await expect(healthState()).resolves.toBe('down');
+    vi.stubGlobal('fetch', vi.fn(async () => new Response('', { status: 503 })));
+    await expect(healthState()).resolves.toBe('down');
+  });
 });

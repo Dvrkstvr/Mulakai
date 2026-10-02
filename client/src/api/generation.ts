@@ -132,6 +132,7 @@ export const generationApi = {
   abortActive: (): Promise<{ ok: boolean; aborted: boolean }> =>
     fetch('/api/generate/active/abort', { method: 'POST' }).then((r) => json(r)),
 
-  acestepHealth: (): Promise<{ acestep: boolean }> =>
+  /** busy: ACE-Step went silent mid-job (it answers nothing while generating), not down. */
+  acestepHealth: (): Promise<{ acestep: boolean; busy?: boolean }> =>
     fetch('/api/generate/health').then((r) => json(r)),
 };

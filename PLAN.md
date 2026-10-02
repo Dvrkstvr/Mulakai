@@ -7912,3 +7912,51 @@ a busy ACE-Step was reported as an unreachable one.
   `acestepTimeout.test.ts` (a longer deadline waits out a slow
   inventory), `generate.test.ts` (`/models` uses the lookup deadline).
 - DESIGN.md: the slow line in the lookup paragraph.
+
+## Model Status Badge (planned 2026-10-02)
+
+The header's right edge said only `ACE-STEP ONLINE`/`OFFLINE`, in acid
+(DESIGN.md reserves acid for commit actions). YuE2, HeartMuLa, SheetSage2,
+the Demucs/UVR slot and the lyrics reader had no app-wide status at all —
+you found out one was down when an action failed. And ACE-Step answers
+nothing while it generates, so its 10s `/health` probe timed out mid-job
+and the header flipped to OFFLINE during every long generation.
+
+### Decisions
+
+1. **One badge, one popover.** The header keeps a single status element: a
+   hairline badge (`MODELS` + a summary). Hover or focus opens a popover
+   with one row per model/service and its state. Nothing new in the
+   header's job pill or layout.
+2. **Busy is not down.** `GET /api/generate/health` adds `busy`: the probe
+   timed out (`healthState()` → `silent`, as opposed to a refused or
+   non-OK answer → `down`) while a job holds the generation lock. The
+   badge shows `ACE-STEP BUSY`; `online` stays true for Settings.
+3. **Not configured is not down.** An engine or service whose URL isn't
+   set reads NOT CONFIGURED and never counts toward `N DOWN`. A cover
+   model is listed only while its engine answers; ACE-Step EXTRACT only
+   when ACE-Step answered the split probe (its own row covers the rest).
+4. **Polling.** ACE-Step stays on the shell's 10s poll; engines, split and
+   lyrics refresh every 30s and whenever the popover opens, one request
+   set in flight at a time. Engines refresh through `engineStore`, so
+   Create's picker sees the same answer.
+5. **No acid.** Ready is `text-hi`, busy `text-mid`, down rust, not set up
+   `text-ghost`.
+
+### File-level plan
+
+- `server/src/services/acestep/models.ts`: `healthState()`; `health()`
+  wraps it.
+- `server/src/routes/generateHelpers.ts`: `/health` returns `busy`.
+- `client/src/modelStatus.ts` (new): pure `statusRows` /
+  `statusSummary`.
+- `client/src/modelStatusStore.ts` (new): ACE-Step state, split and
+  lyrics health; `checkAcestep`, `checkServices`.
+- `client/src/ModelStatusBadge.tsx` (new): badge + popover.
+- `Header.tsx`, `App.tsx`, `useAppSync.ts`: the badge replaces the pill;
+  `online` derives from the store.
+- `index.css`: `.model-status-*`.
+- Tests: `modelStatus.test.ts`, `generateHealth.test.ts`,
+  `acestepTimeout.test.ts` (silent vs down); the golden path hovers the
+  badge and reads ACE-Step's row.
+- DESIGN.md: header passages, the badge spec, status blips.

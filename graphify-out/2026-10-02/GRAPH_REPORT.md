@@ -5,12 +5,12 @@
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 3128 nodes · 6673 edges · 313 communities (198 shown, 115 thin omitted)
+- 3128 nodes · 6673 edges · 316 communities (202 shown, 114 thin omitted)
 - Extraction: 97% EXTRACTED · 3% INFERRED · 0% AMBIGUOUS · INFERRED: 213 edges (avg confidence: 0.73)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `94420690`
+- Built from commit: `7455c80d`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -304,10 +304,13 @@
 - Repaint Crossfade Is Clamped at Submit (planned 2026-10-02)
 - api.py
 - COVER and ARRANGE Reference Audio: No Influence Sliders (planned + implemented 2026-09-30)
+- Exception
+- Worker
 - A Dropped Generation Stops Polling (planned 2026-10-02)
 - COVER Sends the Settings It Shows (planned 2026-10-02)
 - Add Layer Mixes Each Layer at Its Own Volume (planned 2026-10-02)
 - Create-Side Lookup Failures (planned 2026-10-02)
+- transcribe_routes.py
 - Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)
 - Idle Jobs Leave Every Registry (planned 2026-10-02)
 - jobRegistry.evict.test.ts
@@ -327,19 +330,19 @@
 ## Surprising Connections (you probably didn't know these)
 - `AddLayerTrigger()` --indirect_call--> `lyrics()`  [INFERRED]
   client/src/AddLayerTrigger.tsx → heartmula-server/tests/conftest.py
-- `test_a_chordless_plan_is_generated_with_cot_melody()` --references--> `NATIVE`  [EXTRACTED]
-  yue-server/tests/test_instrumental.py → client/src/abcFacts.test.ts
 - `startVersionTimings()` --indirect_call--> `reading()`  [INFERRED]
   server/src/services/timingsJobs.ts → client/src/lyricAlign.test.ts
 - `useAnalyzeSourceAudio()` --indirect_call--> `result()`  [INFERRED]
   client/src/useAnalyzeSourceAudio.ts → server/src/services/lyricTimestamps.test.ts
-- `Clock` --uses--> `JobFiles`  [INFERRED]
-  uvr-server/tests/test_job_files.py → demucs-server/job_files.py
+- `Worker` --uses--> `JobStore`  [INFERRED]
+  yue-server/worker.py → heartmula-server/jobs.py
+- `Clock` --uses--> `JobStore`  [INFERRED]
+  yue-server/tests/test_store_and_worker.py → heartmula-server/jobs.py
 
 ## Import Cycles
 - None detected.
 
-## Communities (313 total, 115 thin omitted)
+## Communities (316 total, 114 thin omitted)
 
 ### Community 0 - "Backend Generation & Job Services"
 Cohesion: 0.15
@@ -402,8 +405,8 @@ Cohesion: 0.17
 Nodes (25): ScoreSize, fitLyricsToSections(), hasWords(), scoreSections(), sectionOutline(), SCORE, UNSUNG, wordBlocks() (+17 more)
 
 ### Community 15 - "Client TSConfig (node)"
-Cohesion: 0.07
-Nodes (28): ACE-Step Integration (verified against docs/en/API.md + INFERENCE.md, 2026-07-02), Add Layer: Forced batch_size 1 + Track-Type Picker (implemented 2026-07-10), Architecture, Architecture, Create AUDIO/ARRANGE Flows — `cover` and `complete` (implemented 2026-07-07), Create Draft Persistence + Origin-Aware Reuse (planned 2026-07-30), Custom Player Controls (planned 2026-07-02, then implemented), Decisions Locked In (+20 more)
+Cohesion: 0.06
+Nodes (31): A Failed Editor Job Blocks Nothing (planned 2026-10-01), ACE-Step Integration (verified against docs/en/API.md + INFERENCE.md, 2026-07-02), Add Layer: Forced batch_size 1 + Track-Type Picker (implemented 2026-07-10), Architecture, Architecture, Create AUDIO/ARRANGE Flows — `cover` and `complete` (implemented 2026-07-07), Create Draft Persistence + Origin-Aware Reuse (planned 2026-07-30), Custom Player Controls (planned 2026-07-02, then implemented) (+23 more)
 
 ### Community 16 - "Add-Layer & Mix Bounce"
 Cohesion: 0.13
@@ -414,8 +417,8 @@ Cohesion: 0.13
 Nodes (6): Adapter over the official YuE2 pipeline (`yue2-infer`, installed into this venv, Forwards to the pipeline's stage reporter and mirrors update() calls., Move weights to system RAM and hand the cached VRAM back., _StageTap, _tapped(), YuePipeline
 
 ### Community 18 - "Server TSConfig"
-Cohesion: 0.09
-Nodes (18): IdempotencyConflict, JobStore, QueueFull, In-memory job table and FIFO queue for yue-server.  The job record mirrors YuE, Drop finished jobs (and their artifacts) older than the retention window., Delete artifact directories left by a previous run (jobs are not persisted)., Returns (job, created). A repeated Idempotency-Key with the same body         r, None for an unknown id, or one of another kind when `kind` is given. (+10 more)
+Cohesion: 0.11
+Nodes (12): JobStore, Drop finished jobs (and their artifacts) older than the retention window., Delete artifact directories left by a previous run (jobs are not persisted)., None for an unknown id, or one of another kind when `kind` is given., Block until a queued job exists (or stop/timeout), then mark it running., Clock, test_a_cancel_that_races_completion_wins(), test_idempotency_keys_expire_with_their_job() (+4 more)
 
 ### Community 19 - "Icon Sprite Assets"
 Cohesion: 0.48
@@ -434,8 +437,8 @@ Cohesion: 0.14
 Nodes (7): offline, start, yue, acestepHealth, engineHealth, transcriptionHealth, SongEngine
 
 ### Community 23 - "Demucs Stem-Split Server"
-Cohesion: 0.09
-Nodes (15): _collect(), _kill(), SheetSage2 transcription, the second job kind (PLAN.md, "yue-server transcripti, Transcribe into `out`; returns the result facts plus `preview` (bool)., _read(), run_transcription(), TranscriptionError, _error() (+7 more)
+Cohesion: 0.12
+Nodes (15): downbeat.lab's first column; empty when the file is missing or unreadable., read_downbeats(), test_read_downbeats_tolerates_missing_and_broken_files(), _collect(), _kill(), SheetSage2 transcription, the second job kind (PLAN.md, "yue-server transcripti, Transcribe into `out`; returns the result facts plus `preview` (bool)., _read() (+7 more)
 
 ### Community 24 - "FileTags Test Suite"
 Cohesion: 0.33
@@ -446,8 +449,8 @@ Cohesion: 0.11
 Nodes (30): AdvancedGenSettings(), INFER_METHOD_OPTIONS, CustomSelect(), Props, InfoTooltip(), AUTO_STEPS, autoSteps(), ditModelDescription() (+22 more)
 
 ### Community 28 - "Client TSConfig Root"
-Cohesion: 0.28
-Nodes (14): A SheetSage2 snapshot whose infer.py is tests/fake_infer.py., sheetsage(), test_a_failed_render_still_returns_the_score(), test_a_replayed_key_returns_the_same_transcription(), test_a_supplied_score_is_checked_and_stripped_for_melody(), test_a_transcription_serves_its_score_preview_and_facts(), test_an_instrumental_cover_moves_the_supplied_melody_to_ins(), test_cancel_kills_a_running_transcription() (+6 more)
+Cohesion: 0.24
+Nodes (15): A SheetSage2 snapshot whose infer.py is tests/fake_infer.py., sheetsage(), test_a_failed_render_still_returns_the_score(), test_a_replayed_key_returns_the_same_transcription(), test_a_supplied_score_is_checked_and_stripped_for_melody(), test_a_transcription_serves_its_score_preview_and_facts(), test_an_instrumental_cover_moves_the_supplied_melody_to_ins(), test_cancel_kills_a_running_transcription() (+7 more)
 
 ### Community 32 - "Jobs Service Test Suite"
 Cohesion: 0.09
@@ -510,12 +513,12 @@ Cohesion: 0.40
 Nodes (4): INLINE_TAGS, LYRIC_TAGS, LyricTag, SECTION_TAGS
 
 ### Community 67 - "5. Batch Query Task Results"
-Cohesion: 0.23
-Nodes (4): JobFiles, The on-disk side of /split: each split gets a job dir under data_dir, and its s, Make the stems downloadable; returns kind -> path under /audio., _remove()
+Cohesion: 0.06
+Nodes (22): HTTP layer, built around an injected separate() so tests need no torch. Speaks, JobFiles, The on-disk side of /split: each split gets a job dir under data_dir, and its s, Make the stems downloadable; returns kind -> path under /audio., _remove(), Clock, finished_job(), setup() (+14 more)
 
 ### Community 68 - "6. Format Input"
-Cohesion: 0.14
-Nodes (15): ('ready' | 'not_configured' | 'missing_files', detail)., Transcriber, create_app(), main(), Thin HTTP wrapper around the official YuE2 pipeline (https://github.com/multimo, add_score_routes(), _flag(), Environment configuration for yue-server. Every knob is optional; the defaults (+7 more)
+Cohesion: 0.19
+Nodes (11): ('ready' | 'not_configured' | 'missing_files', detail)., Transcriber, create_app(), main(), Thin HTTP wrapper around the official YuE2 pipeline (https://github.com/multimo, add_score_routes(), POST /v1/scores/measure: a cover's score in the planner's tokens, per section,, _flag() (+3 more)
 
 ### Community 69 - "7. Get Random Sample"
 Cohesion: 0.08
@@ -526,16 +529,16 @@ Cohesion: 0.11
 Nodes (16): lyricsRouter, receiveSource(), upload, LyricSegment, lyricsHealth(), LyricsReading, LyricWord, num() (+8 more)
 
 ### Community 71 - "genLock.ts"
-Cohesion: 0.15
-Nodes (12): bar_seconds(), Each score section's start in seconds, for placing read lyrics by time (PLAN.md, (label, 0-based first bar) for each `% label` comment, in score order., One bar on the score's tempo grid, for sections past the last downbeat., downbeat.lab's first column; empty when the file is missing or unreadable., [{label, bar, seconds}] per section, or None when there is nothing to anchor it, read_downbeats(), section_bars() (+4 more)
+Cohesion: 0.19
+Nodes (9): bar_seconds(), Each score section's start in seconds, for placing read lyrics by time (PLAN.md, (label, 0-based first bar) for each `% label` comment, in score order., One bar on the score's tempo grid, for sections past the last downbeat., [{label, bar, seconds}] per section, or None when there is nothing to anchor it, section_bars(), section_starts(), test_a_section_past_the_last_downbeat_is_extrapolated_on_the_tempo_grid() (+1 more)
 
 ### Community 72 - "React + TypeScript + Vite"
 Cohesion: 0.14
 Nodes (19): Folder, FolderScope, Song, FolderRail(), Props, Props, GenerationJob, LibraryFilter (+11 more)
 
 ### Community 73 - "10. Server Statistics"
-Cohesion: 0.09
-Nodes (17): FakePipeline, make_client(), wait_terminal(), test_happy_path_serves_flac_score_and_result(), test_health_reports_loading_then_failed(), test_idempotency_key_replays_the_original_job(), test_truncated_job_keeps_its_audio(), test_the_job_saves_the_converted_score_the_planned_one_and_the_record() (+9 more)
+Cohesion: 0.14
+Nodes (14): _load_audio(), FakePipeline, make_client(), A fake of the yue_pipeline.YuePipeline adapter, so tests run without torch, yue, wait_terminal(), RuntimeError, OutOfMemoryError, Stands in for torch.OutOfMemoryError, which the worker matches by name. (+6 more)
 
 ### Community 74 - "11. Download Audio Files"
 Cohesion: 0.18
@@ -562,8 +565,8 @@ Cohesion: 0.26
 Nodes (10): fit_to_ceiling(), Path, Write the engine's float audio as a lossless FLAC master.  HeartMuLa's float p, Return (audio, gain_db). Only ever turns down, never up., write_flac(), test_audio_within_the_ceiling_is_untouched(), test_non_finite_samples_are_rejected(), test_over_full_scale_is_turned_down_to_the_ceiling() (+2 more)
 
 ### Community 135 - "Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02)"
-Cohesion: 0.23
-Nodes (14): arrange(), is_instrumental(), Upstream's instrumental workflow (PLAN.md "YuE2: Align With Upstream's `yue2-mu, Upstream's rule: lyrics that are only section tags. Empty lyrics don't     coun, `% pre-chorus` → `[Pre-Chorus]`, as upstream's `lyric_tags` writes them., Returns (plan, request, record) to generate from. record is None when the     r, section_tags(), noop() (+6 more)
+Cohesion: 0.19
+Nodes (16): NATIVE, arrange(), is_instrumental(), Upstream's instrumental workflow (PLAN.md "YuE2: Align With Upstream's `yue2-mu, Upstream's rule: lyrics that are only section tags. Empty lyrics don't     coun, `% pre-chorus` → `[Pre-Chorus]`, as upstream's `lyric_tags` writes them., Returns (plan, request, record) to generate from. record is None when the     r, section_tags() (+8 more)
 
 ### Community 136 - "Repaint Editor UX Upgrade (planned 2026-07-02)"
 Cohesion: 0.17
@@ -595,7 +598,7 @@ Nodes (28): cancel(), EngineTarget, errorMessage(), failure(), fetchAudio(), fet
 
 ### Community 143 - "api.ts"
 Cohesion: 0.06
-Nodes (38): Reads the words sung in a song (PLAN.md "Cover Lyrics From the Recording"): fas, client_for(), post(), seg(), test_failed_job_is_a_500_and_removes_the_upload(), test_hallucinated_segments_are_dropped(), test_health_names_the_model_without_running_a_job(), test_language_is_passed_when_given() (+30 more)
+Nodes (39): Reads the words sung in a song (PLAN.md "Cover Lyrics From the Recording"): fas, client_for(), post(), seg(), test_failed_job_is_a_500_and_removes_the_upload(), test_hallucinated_segments_are_dropped(), test_health_names_the_model_without_running_a_job(), test_language_is_passed_when_given() (+31 more)
 
 ### Community 145 - "Create Draft Persistence + Origin-Aware Reuse (planned 2026-07-30)"
 Cohesion: 0.13
@@ -626,7 +629,7 @@ Cohesion: 0.26
 Nodes (19): coverSourceKey(), coverSourceReady(), resolveCoverSource(), CoverSourcePicker(), useCreateDraftStore, coverLocked(), Placement, IDLE (+11 more)
 
 ### Community 152 - "generationStore.ts"
-Cohesion: 0.14
+Cohesion: 0.15
 Nodes (9): test_classify(), classify(), Engine, Exception, JobStore, Path, The single inference thread: load the engine once, then run jobs one at a time., Jobs live in memory, so job folders left by an earlier process are orphans. (+1 more)
 
 ### Community 153 - "adapters.test.ts"
@@ -638,16 +641,16 @@ Cohesion: 0.24
 Nodes (11): captionToTags(), CFG, clamp(), heartmula, HEARTMULA_CAPABILITIES, isSet(), MAX_LENGTH_MS, NO_META (+3 more)
 
 ### Community 155 - "adapterStore.test.ts"
-Cohesion: 0.19
-Nodes (5): HTTP layer, built around an injected separate() so tests need no torch. Speaks, JobFiles, The on-disk side of /split: each split gets a job dir under data_dir, and its s, Make the stems downloadable; returns kind -> path under /audio., _remove()
+Cohesion: 0.23
+Nodes (4): JobFiles, The on-disk side of /split: each split gets a job dir under data_dir, and its s, Make the stems downloadable; returns kind -> path under /audio., _remove()
 
 ### Community 156 - "apiStatusStore.ts"
 Cohesion: 0.26
 Nodes (8): readDuration(), MoveToEditorAction(), Nav, NavigationContext, useNavigation(), ImportDraft, importFields(), EMPTY
 
 ### Community 157 - "lyricSections.ts"
-Cohesion: 0.21
-Nodes (8): Clock, finished_job(), setup(), test_each_stem_is_served_once_then_deleted(), test_last_download_removes_the_job_dir(), test_only_published_stems_are_served(), test_publish_maps_kinds_to_paths_under_the_job(), test_sweep_removes_unfetched_jobs_once_expired()
+Cohesion: 0.16
+Nodes (12): Stands in for run_mdx_headless / run_demucs_headless: records each call     and, prepare_score(), Checks a supplied score (a cover's `abc`) before it is queued, so a bad one is, The score to generate from: validated, and chord-free for `melody`., The header (everything before the first `% name` line) and each section's     b, ScoreError, split_sections(), POST /v1/scores/measure and the section split behind it (PLAN.md, "YuE2 Covers: (+4 more)
 
 ### Community 158 - "compilerOptions"
 Cohesion: 0.20
@@ -670,8 +673,8 @@ Cohesion: 0.29
 Nodes (3): jobStatus, lyricsHealth, readTimings
 
 ### Community 163 - "Output Format: Rate / Depth / Bitrate, Everywhere (planned + implemented 2026-07-31)"
-Cohesion: 0.21
-Nodes (8): Clock, finished_job(), setup(), test_each_stem_is_served_once_then_deleted(), test_last_download_removes_the_job_dir(), test_only_published_stems_are_served(), test_publish_maps_kinds_to_paths_under_the_job(), test_sweep_removes_unfetched_jobs_once_expired()
+Cohesion: 0.14
+Nodes (7): BaseModel, GenerateRequest, The POST /v1/jobs body, validated before anything reaches the pipeline., yue2-serve's body, minus `n` (one take per job), plus a tolerated `id`     (Mul, MeasureRequest, GenerateRequest, POST /v1/jobs body. Field names are heartlib's own, so Mulakai's engines/heartm
 
 ### Community 164 - "STEPS AUTO Resolves Per Model (planned 2026-07-31)"
 Cohesion: 0.18
@@ -758,8 +761,8 @@ Cohesion: 0.50
 Nodes (4): ANALYZE AUDIO Takes the genLock (planned 2026-10-02), Browser check (2026-10-02), Decisions, File-level plan
 
 ### Community 190 - "engineGenJobs.test.ts"
-Cohesion: 0.44
-Nodes (7): abcFacts, barsOf(), header(), keyOf(), MODES, tempoOf(), NATIVE
+Cohesion: 0.54
+Nodes (6): abcFacts, barsOf(), header(), keyOf(), MODES, tempoOf()
 
 ### Community 191 - "abcMeta.ts"
 Cohesion: 0.33
@@ -811,7 +814,7 @@ Nodes (4): Browser check (2026-10-02), Decisions, File-level plan, The Newest Li
 
 ### Community 205 - "Upstream Sync: `complete`/`lego` Skip the LM (planned + implemented 2026-09-30)"
 Cohesion: 0.10
-Nodes (26): mix_into(), output_path(), The two-pass split behind /split. See PLAN.md "UVR Separator: Roformer Vocals f, Where uvr-headless-runner writes a stem: `{base}_({Stem}).wav`., Add `extra` into `target` in place, keeping float32 WAV., Separate `src` into Mulakai's four StemKinds, as float32 WAVs under `out_dir`., _require(), run_chain() (+18 more)
+Nodes (25): mix_into(), output_path(), The two-pass split behind /split. See PLAN.md "UVR Separator: Roformer Vocals f, Where uvr-headless-runner writes a stem: `{base}_({Stem}).wav`., Add `extra` into `target` in place, keeping float32 WAV., Separate `src` into Mulakai's four StemKinds, as float32 WAVs under `out_dir`., _require(), run_chain() (+17 more)
 
 ### Community 206 - "UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)"
 Cohesion: 0.40
@@ -826,8 +829,8 @@ Cohesion: 0.40
 Nodes (5): Decisions, File-level plan, Open questions, Rollout, Style Tag Vocabulary for the Caption Field (planned 2026-07-31)
 
 ### Community 210 - "RE-EXTRACT Never Touches a Claimed Stem (planned 2026-10-02)"
-Cohesion: 0.05
-Nodes (51): BaseModel, GenerateRequest, The POST /v1/jobs body, validated before anything reaches the pipeline., yue2-serve's body, minus `n` (one take per job), plus a tolerated `id`     (Mul, MeasureRequest, POST /v1/scores/measure: a cover's score in the planner's tokens, per section,, prepare_score(), Checks a supplied score (a cover's `abc`) before it is queued, so a bad one is (+43 more)
+Cohesion: 0.21
+Nodes (23): AbcError, compare(), fail(), json_value(), key_accidentals(), main(), meter_value(), parse() (+15 more)
 
 ### Community 211 - "transcribeStore.test.ts"
 Cohesion: 0.29
@@ -950,8 +953,8 @@ Cohesion: 0.50
 Nodes (4): Decisions, File-level plan (as built), Open questions, UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)
 
 ### Community 246 - "12. Health Check"
-Cohesion: 0.67
-Nodes (3): A Failed Editor Job Blocks Nothing (planned 2026-10-01), Decisions, File-level plan
+Cohesion: 0.23
+Nodes (9): fresh_directory(), Small standard-library helpers shared by the portable command-line tools., write_json(), main(), convert_score(), main(), Map native section comments to their absolute bar-start times., section_starts() (+1 more)
 
 ### Community 247 - "1. Authentication"
 Cohesion: 0.67
@@ -1037,9 +1040,21 @@ Nodes (5): CI (added 2026-10-02), Decisions, File-level plan, Open questions, Pl
 Cohesion: 0.50
 Nodes (4): Browser check (2026-10-02), Decisions, File-level plan, Repaint Crossfade Is Clamped at Submit (planned 2026-10-02)
 
+### Community 302 - "api.py"
+Cohesion: 0.18
+Nodes (3): test_happy_path_serves_flac_score_and_result(), test_idempotency_key_replays_the_original_job(), test_truncated_job_keeps_its_audio()
+
 ### Community 303 - "COVER and ARRANGE Reference Audio: No Influence Sliders (planned + implemented 2026-09-30)"
 Cohesion: 0.67
 Nodes (3): COVER and ARRANGE Reference Audio: No Influence Sliders (planned + implemented 2026-09-30), Decisions, File-level plan
+
+### Community 304 - "Exception"
+Cohesion: 0.24
+Nodes (6): TranscriptionError, IdempotencyConflict, QueueFull, In-memory job table and FIFO queue for yue-server.  The job record mirrors YuE, Returns (job, created). A repeated Idempotency-Key with the same body         r, Exception
+
+### Community 305 - "Worker"
+Cohesion: 0.25
+Nodes (3): Only meaningful once ready; the submit routes return 503 before that., The score's size in the planner's tokens; None until the pipeline is loaded., Worker
 
 ### Community 306 - "A Dropped Generation Stops Polling (planned 2026-10-02)"
 Cohesion: 0.50
@@ -1057,6 +1072,10 @@ Nodes (4): Add Layer Mixes Each Layer at Its Own Volume (planned 2026-10-02), Br
 Cohesion: 0.50
 Nodes (4): Browser check (2026-10-02), Create-Side Lookup Failures (planned 2026-10-02), Decisions, File-level plan
 
+### Community 310 - "transcribe_routes.py"
+Cohesion: 0.40
+Nodes (3): The /v1/transcriptions routes: SheetSage2 reads a source song's melody into a s, _read_limited(), UploadFile
+
 ### Community 311 - "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)"
 Cohesion: 0.67
 Nodes (3): Decisions, File-level plan, Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)
@@ -1068,7 +1087,7 @@ Nodes (4): Browser check (2026-10-02), Decisions, File-level plan, Idle Jobs Lea
 ## Knowledge Gaps
 - **919 isolated node(s):** `$schema`, `plugins`, `react/rules-of-hooks`, `react/only-export-components`, `name` (+914 more)
   These have ≤1 connection - possible missing edges or undocumented components.
-- **115 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **114 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
@@ -1077,8 +1096,8 @@ _Questions this graph is uniquely positioned to answer:_
   _High betweenness centrality (0.066) - this node is a cross-community bridge._
 - **Why does `lyrics()` connect `heartmula.ts` to `SettingsPanel.tsx`?**
   _High betweenness centrality (0.066) - this node is a cross-community bridge._
-- **Why does `wait_for()` connect `Client TSConfig Root` to `FakeAudio`, `6. Format Input`, `Add Layer (lego) — Phase 6+7 Design (planned 2026-07-02)`, `10. Server Statistics`, `Upstream Sync: `complete`/`lego` Skip the LM (planned + implemented 2026-09-30)`, `RE-EXTRACT Never Touches a Claimed Stem (planned 2026-10-02)`, `Server TSConfig`?**
-  _High betweenness centrality (0.059) - this node is a cross-community bridge._
+- **Why does `reading()` connect `AIGeneratingBackground.tsx` to `Core Domain Entities (Plan)`, `Advanced Generation Settings`?**
+  _High betweenness centrality (0.057) - this node is a cross-community bridge._
 - **What connects `$schema`, `plugins`, `react/rules-of-hooks` to the rest of the system?**
   _1002 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `Editor UI Components` be split into smaller, more focused modules?**

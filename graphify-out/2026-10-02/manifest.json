@@ -715,8 +715,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790943806.3272648,
-    "ast_hash": "1196039d84fd8680a943f05b21030470",
+    "mtime": 1790950035.8316472,
+    "ast_hash": "af694d31afa30e8904c51e4c7faf69e3",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -750,8 +750,8 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN.md": {
-    "mtime": 1790942966.5901613,
-    "ast_hash": "78ec7b30b8c84119af8e2a05d84964b3",
+    "mtime": 1790950035.8020997,
+    "ast_hash": "2517b057de273713a74943926f97ba18",
     "semantic_hash": ""
   },
   "client/public/favicon.svg": {
@@ -2365,8 +2365,8 @@
     "semantic_hash": ""
   },
   "client/src/lookup.ts": {
-    "mtime": 1790942945.93499,
-    "ast_hash": "b3b0b142ec681fe26918df53281602ae",
+    "mtime": 1790950035.769577,
+    "ast_hash": "c91dfcf2d755b00f97f385d547d235a6",
     "semantic_hash": ""
   },
   "client/src/SplitBackendTabs.tsx": {

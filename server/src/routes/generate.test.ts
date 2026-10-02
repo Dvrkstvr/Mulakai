@@ -26,6 +26,7 @@ vi.mock('../services/acestep.js', () => ({
     vocal_language: 'en',
   })),
   health: vi.fn(async () => true),
+  healthState: vi.fn(async () => 'up'),
   listModels: vi.fn(async () => ({ models: [], lmModels: [], defaultModel: null })),
   formatInput: vi.fn(async () => ({ caption: '', lyrics: '' })),
 }));

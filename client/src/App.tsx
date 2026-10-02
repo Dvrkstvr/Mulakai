@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useSingleAudioPlayback } from './useSingleAudioPlayback';
 import { useMainTransportGuard } from './previewPlayback';
 import { Header } from './Header';
+import { isAcestepOnline, useModelStatusStore } from './modelStatusStore';
 import { HeaderSlotContext } from './HeaderSlot';
 import { NavigationContext } from './Navigation';
 import { MaterializeSweep } from './MaterializeSweep';
@@ -28,7 +29,7 @@ export default function App() {
   const [detailSongId, setDetailSongId] = useState<string | null>(null);
   const library = useLibraryData();
   const { songs, refresh, refreshFolders } = library;
-  const [online, setOnline] = useState<boolean | null>(null);
+  const online = isAcestepOnline(useModelStatusStore((s) => s.acestep));
   const [playing, setPlaying] = useState<Song | null>(null);
   const [headerLeft, setHeaderLeft] = useState<ReactNode>(null);
   const [headerRight, setHeaderRight] = useState<ReactNode>(null);
@@ -52,7 +53,7 @@ export default function App() {
   const dismissGenJob = useGenerationStore((s) => s.dismiss);
   const hydrateGenJob = useGenerationStore((s) => s.hydrate);
 
-  useAppSync({ library, genJob, hydrateGenJob, setOnline, setPlaying });
+  useAppSync({ library, genJob, hydrateGenJob, setPlaying });
 
   /** Every route into Create goes through here. A draft that actually asks for something
    * (a create-bar query, REUSE PROMPT, CREATE COVER FROM AUDIO, RETRY) replaces whatever was
@@ -74,7 +75,7 @@ export default function App() {
     <div className={openSongId || isTakeover ? 'app app-editor' : 'app'}>
       <NavigationContext.Provider value={navValue}>
       <HeaderSlotContext.Provider value={setHeaderSlot}>
-      <Header online={online} left={headerLeft} right={headerRight} forgeEnabled={forgeEnabled} onForge={() => setView('forge')} />
+      <Header left={headerLeft} right={headerRight} forgeEnabled={forgeEnabled} onForge={() => setView('forge')} />
       <div className="app-body">
       <AnimatePresence mode="wait">
         {openSongId ? (
