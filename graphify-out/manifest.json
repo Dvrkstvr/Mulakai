@@ -485,8 +485,8 @@
     "semantic_hash": ""
   },
   "server/src/index.ts": {
-    "mtime": 1790893262.1829994,
-    "ast_hash": "41e5d0a2862d3b0f18bcd4dcbd374463",
+    "mtime": 1790899261.123062,
+    "ast_hash": "efa53e3fb7dd01df284c03be65e46582",
     "semantic_hash": ""
   },
   "server/src/routes/generate.test.ts": {
@@ -680,8 +680,8 @@
     "semantic_hash": ""
   },
   "server/src/services/stemSplit.ts": {
-    "mtime": 1790898735.7819052,
-    "ast_hash": "539429c9cb528e7f46475a68dbd2c044",
+    "mtime": 1790899261.1245613,
+    "ast_hash": "02b499ca797ec304d0e5abede8d67659",
     "semantic_hash": ""
   },
   "server/src/services/trashSweep.ts": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790899202.141382,
-    "ast_hash": "e0d16db563a00dacde1bca162520d4ac",
+    "mtime": 1790899261.2960997,
+    "ast_hash": "be1905c91786b3da14e32e2e0deb3dc7",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790899192.7588189,
-    "ast_hash": "b09c4c45f2bd1070d310383bb4e47244",
+    "mtime": 1790899261.094906,
+    "ast_hash": "0cc5ba6e716e9f88820251777cb7f959",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -2274,11 +2274,6 @@
     "ast_hash": "50ed1fd7f94e356fc78e44f3ce84d746",
     "semantic_hash": ""
   },
-  "e2e/test-results/.last-run.json": {
-    "mtime": 1790899170.47031,
-    "ast_hash": "f196824657d8858bc7fa44eecbba38b1",
-    "semantic_hash": ""
-  },
   "server/src/routes/generateAudio.ts": {
     "mtime": 1790899192.804024,
     "ast_hash": "cb7d86aeb3f54a14faa77920f2340dc2",
@@ -2299,11 +2294,6 @@
     "ast_hash": "2d2e138f09427a1435fc24110144f5f9",
     "semantic_hash": ""
   },
-  "e2e/playwright-report/index.html": {
-    "mtime": 1790899170.4698048,
-    "ast_hash": "bb6a26e3c5edb2bcd545ad6e4514fb5e",
-    "semantic_hash": ""
-  },
   "client/src/playOrStayPaused.test.ts": {
     "mtime": 1790899193.166729,
     "ast_hash": "974fbb8cb6291b73a3841449ff61e5ca",
@@ -2319,9 +2309,34 @@
     "ast_hash": "a5d6bec1c33343c1b8eaea313b30d469",
     "semantic_hash": ""
   },
+  "server/src/services/stemFiles.test.ts": {
+    "mtime": 1790899261.1235614,
+    "ast_hash": "aae63939f4cc8869d23ff0ca789b2cc5",
+    "semantic_hash": ""
+  },
+  "server/src/services/stemFiles.ts": {
+    "mtime": 1790899261.1235614,
+    "ast_hash": "c3362a6bf56181a79b907b10adae21a2",
+    "semantic_hash": ""
+  },
+  "server/src/services/stemSplit.evict.test.ts": {
+    "mtime": 1790899261.1240616,
+    "ast_hash": "031d0ffe160e6a6a62a5052d2a796a7e",
+    "semantic_hash": ""
+  },
+  "e2e/test-results/.last-run.json": {
+    "mtime": 1790899242.3750381,
+    "ast_hash": "f196824657d8858bc7fa44eecbba38b1",
+    "semantic_hash": ""
+  },
   "e2e/tests/fixtures.ts": {
     "mtime": 1790899192.759822,
     "ast_hash": "21dfbe61793692ad043e35bd016bc2c1",
+    "semantic_hash": ""
+  },
+  "e2e/playwright-report/index.html": {
+    "mtime": 1790899242.3740344,
+    "ast_hash": "06375093cf81fa9864230f8d090a4bb3",
     "semantic_hash": ""
   }
 }
