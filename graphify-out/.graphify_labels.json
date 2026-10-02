@@ -305,5 +305,15 @@
   "303": "Runner",
   "304": "FastAPI",
   "305": "Path",
-  "307": "COVER Sends the Settings It Shows (planned 2026-10-02)"
+  "306": "Output Format: Rate / Depth / Bitrate, Everywhere (planned + implemented 2026-07-31)",
+  "307": "COVER Sends the Settings It Shows (planned 2026-10-02)",
+  "308": "Upstream Sync: `complete`/`lego` Skip the LM (planned + implemented 2026-09-30)",
+  "309": "UVR Separator: Roformer Vocals for SPLIT (planned + implemented 2026-09-30)",
+  "310": "A Failed Editor Job Blocks Nothing (planned 2026-10-01)",
+  "311": "A Failed Generation Blocks Nothing (planned 2026-10-01)",
+  "312": "A Settled Split Blocks Nothing (planned 2026-10-01)",
+  "313": "COVER and ARRANGE Reference Audio: No Influence Sliders (planned + implemented 2026-09-30)",
+  "314": "Text2music Reference Audio: Style Influence Only (planned + implemented 2026-09-30)",
+  "315": "YuE2: Align With Upstream's `yue2-music` Skill (planned 2026-09-30)",
+  "316": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)"
 }
