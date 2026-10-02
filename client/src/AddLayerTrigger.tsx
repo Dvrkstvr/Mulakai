@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, type Layer } from './api';
 import { useAddLayerDraft } from './addLayerStore';
 import { useSettings, addLayerParams } from './settings';
-import { activeLayers } from './mix/activeLayers';
+import { audibleTakes } from './mix/activeLayers';
 import { decodeLayers } from './mix/decodeLayers';
 import { bounceMix, encodeWav } from './mix/bounceMix';
 import { useVoiceStore, voiceParams } from './voiceStore';
@@ -89,14 +89,12 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
     if (!canSubmit) return;
     setMixError('');
     try {
-      const audible = activeLayers(layers)
-        .map((l) => l.versions.find((v) => v.active))
-        .filter((v): v is NonNullable<typeof v> => !!v);
+      const audible = audibleTakes(layers);
       if (audible.length === 0) throw new Error('no audible layers to mix — unmute or un-solo at least one layer');
 
       const mixCtx = new AudioContext();
       const decoded = await decodeLayers(
-        audible.map((v, i) => ({ id: String(i), audioUrl: `/audio/${v.audio_file}`, volume: activeLayers(layers)[i].volume })),
+        audible.map((x, i) => ({ id: String(i), audioUrl: `/audio/${x.version.audio_file}`, volume: x.layer.volume })),
         mixCtx,
       );
       const mixed = await bounceMix(decoded);

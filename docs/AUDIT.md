@@ -59,6 +59,10 @@
   to land won, so a slow "co" could replace "copper". Every song-list load now goes
   through one loader that applies only the newest response and reads the query and
   folder at fire time; search is debounced 250 ms — PR #93 (was #6).
+- Add Layer's bounce read each layer's volume by position from an unfiltered list, so a
+  layer with no active version shifted every later layer onto its neighbour's volume.
+  `audibleTakes()` keeps each layer with its version; Add Layer, REMASTER and COVER's
+  library source share it — PR #99 (was #7).
 - An ACE-Step split's four concurrent stems each reconciled the LoRA adapter unsynchronized,
   so a not-yet-applied adapter got four overlapping `lora/load` + `lora/scale` sequences.
   Every reconcile (and `registerAdapter`) now runs through one queue; the first applies,
@@ -122,7 +126,7 @@ influence half was fixed earlier (`referenceInfluence.ts`).
 `client/src/App.tsx` — one un-guarded `listSongs` per keystroke; a slow early
 response can overwrite results for a newer query. Debounce + drop stale responses.
 
-### 7. Add Layer bounce: volume index misalignment
+### 7. ~~Add Layer bounce: volume index misalignment~~ — fixed, PR #99
 `client/src/AddLayerTrigger.tsx` — `audible` filters layers without an active
 version, then indexes volumes via the *unfiltered* `activeLayers(layers)[i]`;
 neighbors' volumes shift when the lists diverge. (`RemasterAction.tsx` and
