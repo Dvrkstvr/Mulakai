@@ -39,5 +39,9 @@ generateHelpersRouter.get('/health', async (_req, res) => {
 });
 
 generateHelpersRouter.get('/models', async (_req, res) => {
-  res.json(await listModels());
+  try {
+    res.json(await listModels());
+  } catch (err) {
+    res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
+  }
 });

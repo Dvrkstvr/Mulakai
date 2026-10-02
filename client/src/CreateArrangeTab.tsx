@@ -8,7 +8,7 @@ import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { busyMessage } from './generationJob';
 import { useVoiceStore } from './voiceStore';
-import { useModelsForTask } from './useModelsForTask';
+import { useLookup, modelsFor } from './lookup';
 import { useSettings, genParams } from './settings';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
@@ -41,7 +41,8 @@ export function CreateArrangeTab({ onBack }: { onBack: () => void }) {
   const [luckyLoading, setLuckyLoading] = useState(false);
   const [luckyError, setLuckyError] = useState('');
 
-  const arrangeModels = useModelsForTask('complete');
+  const arrangeLookup = useLookup(() => modelsFor('complete'));
+  const arrangeModels = arrangeLookup.data;
   useEffect(() => {
     if (arrangeModels && !model) patchArrange({ model: arrangeModels.find((n) => n.includes('xl-base')) ?? arrangeModels.find((n) => n.includes('base')) ?? arrangeModels[0] ?? '' });
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,7 +141,9 @@ export function CreateArrangeTab({ onBack }: { onBack: () => void }) {
         </>
       )}
 
-      {arrangeModels === null ? (
+      {arrangeLookup.error ? (
+        <div className="error">couldn't check models for Arrange — {arrangeLookup.error} <button onClick={arrangeLookup.retry}>RETRY</button></div>
+      ) : arrangeModels === null ? (
         <span className="meta">checking available models…</span>
       ) : arrangeModels.length === 0 ? (
         <span className="meta" style={{ color: 'var(--rust-text)' }}>no downloaded model supports arrange generation — requires a Base model</span>
