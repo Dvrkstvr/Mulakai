@@ -7321,3 +7321,16 @@ browser started killing the oldest and surfaces went black.
 - `client/src/shaderRenderer.test.ts` (new): stop releases program,
   shaders and context; a failed compile still releases the context; no
   WebGL2 is a no-op.
+
+### Browser check (2026-10-02)
+
+Worktree client (dev build, StrictMode on) against a scratch server, in
+Create. AI ENHANCE clicked 41 times, 150 ms apart; each "on" mounts
+three shader surfaces (the toggle and two AI ENHANCE badges).
+
+- This fix: no WebGL warnings in the console. The surface left on had
+  one canvas with a live context (`isContextLost()` false), and the
+  toggle and badges showed the shader ring in color.
+- `main`'s `ShaderCanvas.tsx` swapped in for comparison, same loop: 25
+  "Too many active WebGL contexts. Oldest context will be lost."
+  warnings. Restored afterwards.
