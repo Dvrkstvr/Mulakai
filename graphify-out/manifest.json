@@ -420,8 +420,8 @@
     "semantic_hash": ""
   },
   "client/src/useSingleAudioPlayback.ts": {
-    "mtime": 1790898121.5517178,
-    "ast_hash": "b94b3000b99a35d29f7ed50a446b8779",
+    "mtime": 1790899208.4600356,
+    "ast_hash": "aa3ec7ac6d159ac323f931cb5768cab7",
     "semantic_hash": ""
   },
   "client/src/useThinkingQuery.ts": {
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790899103.6701083,
-    "ast_hash": "27a6da7bd95e0d60be2421891653c4c9",
+    "mtime": 1790899208.7907648,
+    "ast_hash": "f2d4eef8eb58c436cdd2bf6eb37b87ab",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,8 +845,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790899103.2823563,
-    "ast_hash": "b09c4c45f2bd1070d310383bb4e47244",
+    "mtime": 1790899159.9510684,
+    "ast_hash": "aa5b3739f32b352ad0412b00dec965cd",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -900,8 +900,8 @@
     "semantic_hash": ""
   },
   "client/src/previewPlayback.ts": {
-    "mtime": 1790893260.3748908,
-    "ast_hash": "121f5f00a054505fc5677f62c9418c73",
+    "mtime": 1790899208.4590323,
+    "ast_hash": "eae540d6a878663ed2f71e0e18952530",
     "semantic_hash": ""
   },
   "client/src/trackNames.ts": {
@@ -1990,13 +1990,13 @@
     "semantic_hash": ""
   },
   "client/src/singleTrack.test.ts": {
-    "mtime": 1790898121.5507147,
-    "ast_hash": "7ca847f47a0d68570baf014935c6f07d",
+    "mtime": 1790899208.4590323,
+    "ast_hash": "3b1d86236b5d2c75d925a93e982e06ba",
     "semantic_hash": ""
   },
   "client/src/singleTrack.ts": {
-    "mtime": 1790898121.5517178,
-    "ast_hash": "76bf52db14c5d5f37f814acad4c93226",
+    "mtime": 1790899208.4600356,
+    "ast_hash": "5c298ab570e86c0fe4bab71732cf67a7",
     "semantic_hash": ""
   },
   "client/src/EngineChoice.test.tsx": {
@@ -2292,6 +2292,21 @@
   "server/src/routes/generateStatus.ts": {
     "mtime": 1790899103.319663,
     "ast_hash": "2d2e138f09427a1435fc24110144f5f9",
+    "semantic_hash": ""
+  },
+  "client/src/playOrStayPaused.test.ts": {
+    "mtime": 1790899208.458532,
+    "ast_hash": "974fbb8cb6291b73a3841449ff61e5ca",
+    "semantic_hash": ""
+  },
+  "client/src/playOrStayPaused.ts": {
+    "mtime": 1790899208.4590323,
+    "ast_hash": "48e0cef29fc82a92ba889a536aa1de43",
+    "semantic_hash": ""
+  },
+  "client/src/previewPlayback.abort.test.ts": {
+    "mtime": 1790899208.4590323,
+    "ast_hash": "a5d6bec1c33343c1b8eaea313b30d469",
     "semantic_hash": ""
   },
   "client/src/mix/activeLayers.test.ts": {
