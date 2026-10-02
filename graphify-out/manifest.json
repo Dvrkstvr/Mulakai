@@ -20,7 +20,7 @@
     "semantic_hash": ""
   },
   "client/src/AddLayerTrigger.tsx": {
-    "mtime": 1790899278.249576,
+    "mtime": 1790899772.2647014,
     "ast_hash": "457e08063a6c0de20c04172a45ced0b5",
     "semantic_hash": ""
   },
@@ -180,7 +180,7 @@
     "semantic_hash": ""
   },
   "client/src/RemasterAction.tsx": {
-    "mtime": 1790899278.250079,
+    "mtime": 1790899772.2652068,
     "ast_hash": "60bf8ece6569b385ff0d15c4437c5239",
     "semantic_hash": ""
   },
@@ -345,7 +345,7 @@
     "semantic_hash": ""
   },
   "client/src/mix/activeLayers.ts": {
-    "mtime": 1790899278.2510839,
+    "mtime": 1790899772.266207,
     "ast_hash": "ab1ff21fff652e8583efadd99eb3ac6e",
     "semantic_hash": ""
   },
@@ -720,8 +720,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790899279.4148138,
-    "ast_hash": "6467a8b160a5bc27d85fbb6117a2c9ee",
+    "mtime": 1790899773.5113742,
+    "ast_hash": "506bea9d2ed4e023ac27ad64cdb82bff",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -845,7 +845,7 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790899279.1556902,
+    "mtime": 1790899772.266207,
     "ast_hash": "c282030d86233a8eb32cf831a3277626",
     "semantic_hash": ""
   },
@@ -1080,12 +1080,12 @@
     "semantic_hash": ""
   },
   "server/src/services/adapters.test.ts": {
-    "mtime": 1790893260.5601254,
+    "mtime": 1790899772.2961657,
     "ast_hash": "47662d2858ae133507f5e6c637cff608",
     "semantic_hash": ""
   },
   "server/src/services/adapters.ts": {
-    "mtime": 1790893260.560634,
+    "mtime": 1790899772.2961657,
     "ast_hash": "6685627f4ca4f9cce21997e0b8e437c2",
     "semantic_hash": ""
   },
@@ -1625,7 +1625,7 @@
     "semantic_hash": ""
   },
   "client/src/coverSource.ts": {
-    "mtime": 1790899278.250079,
+    "mtime": 1790899772.265705,
     "ast_hash": "4c43b631d59174ca1c082b956719e53d",
     "semantic_hash": ""
   },
@@ -2205,8 +2205,8 @@
     "semantic_hash": ""
   },
   "e2e/tests/golden-path.spec.ts": {
-    "mtime": 1790898655.458129,
-    "ast_hash": "e8b474a649a7d1c29b29501eca973f50",
+    "mtime": 1790899773.102217,
+    "ast_hash": "dace721bc211848705f15a0092549c08",
     "semantic_hash": ""
   },
   "e2e/tests/helpers.ts": {
@@ -2324,8 +2324,13 @@
     "ast_hash": "031d0ffe160e6a6a62a5052d2a796a7e",
     "semantic_hash": ""
   },
+  "e2e/tests/fixtures.ts": {
+    "mtime": 1790899773.102217,
+    "ast_hash": "21dfbe61793692ad043e35bd016bc2c1",
+    "semantic_hash": ""
+  },
   "client/src/mix/activeLayers.test.ts": {
-    "mtime": 1790899278.2510839,
+    "mtime": 1790899772.265705,
     "ast_hash": "56c546bcd33c53f529d66bf2c1bb9779",
     "semantic_hash": ""
   }
