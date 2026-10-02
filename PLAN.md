@@ -7153,3 +7153,35 @@ typed "opf h":
 - The held "k" response (25 songs) landed after "kopf h" (8 songs).
   The list showed exactly the 8, and none of the 17 that only "k"
   matched.
+
+## Repaint Crossfade Is Clamped at Submit (planned 2026-10-02)
+
+AUDIT.md #9. CROSSFADE is capped at half the region, and at most 2.5 s
+(half of a 5 s ceiling), because a splice fade can't be longer than
+half the span it blends into. That cap was applied only in the input's
+`onChange`. A value saved while a long region was selected (say 2.5 s)
+stays in settings. On a 3 s region, where at most 1.5 s fits, it was
+still displayed as 2.5 and sent to ACE-Step as 2.5.
+
+### Decisions
+
+1. **One clamp, `clampCrossfade(sec, regionSeconds)`**, in
+   `repaintLimits.ts` beside the region limits, with the cap formula
+   (`maxCrossfadeSec`) moved there from RepaintBar.
+2. **Applied at submit.** `Editor.repaint` sends the clamped value,
+   whatever the stored setting holds.
+3. **Displayed clamped too**, so the box shows what will be sent.
+4. **The stored preference is left alone.** It's the user's crossfade
+   for regions long enough to take it. A longer region later gets it
+   back, and editing the box stores the new value as before.
+5. **Client only.** The server keeps passing the number through. Its
+   input checks are AUDIT #17's.
+
+### File-level plan
+
+- `client/src/repaintLimits.ts`: `maxCrossfadeSec`, `clampCrossfade`.
+- `client/src/repaintLimits.test.ts` (new): the cap at short/long
+  regions, an over-cap value clamped, negative and NaN to 0, an
+  invalid region to 0.
+- `client/src/RepaintBar.tsx`: uses both; shows the clamped value.
+- `client/src/Editor.tsx`: `repaint` sends the clamped value.
