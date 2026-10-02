@@ -38,6 +38,10 @@ export const config = {
    * (GPU wedge, dropped connection) stalls the poll loop forever and the global
    * generation lock is never released. Audio downloads get 5x this. */
   acestepTimeoutMs: Number(process.env.ACESTEP_TIMEOUT_MS ?? 60_000),
+  /** How long the model list, which a person is waiting on, waits for ACE-Step (ms). ACE-Step
+   * answers nothing while it generates, so 60s is too short there. Node's fetch gives up waiting
+   * for headers at 300s on its own (undici's headersTimeout), so a larger value has no effect. */
+  acestepLookupTimeoutMs: Number(process.env.ACESTEP_LOOKUP_TIMEOUT_MS ?? 300_000),
   /** Largest cover TRANSCRIBE upload. A library WAV is float32 stereo, about 23 MB a minute.
    * The source is forwarded to yue-server, whose YUE_MAX_UPLOAD_MB must be at least this. */
   coverMaxUploadMb: Number(process.env.COVER_MAX_UPLOAD_MB ?? 300),

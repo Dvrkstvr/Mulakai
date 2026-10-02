@@ -8,7 +8,7 @@ import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { busyMessage } from './generationJob';
 import { useVoiceStore } from './voiceStore';
-import { useLookup, modelsFor } from './lookup';
+import { useLookup, modelsFor, checkingModels } from './lookup';
 import { useSettings, genParams } from './settings';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
@@ -144,7 +144,7 @@ export function CreateArrangeTab({ onBack }: { onBack: () => void }) {
       {arrangeLookup.error ? (
         <div className="error">couldn't check models for Arrange — {arrangeLookup.error} <button onClick={arrangeLookup.retry}>RETRY</button></div>
       ) : arrangeModels === null ? (
-        <span className="meta">checking available models…</span>
+        <span className="meta">{checkingModels(arrangeLookup)}</span>
       ) : arrangeModels.length === 0 ? (
         <span className="meta" style={{ color: 'var(--rust-text)' }}>no downloaded model supports arrange generation — requires a Base model</span>
       ) : (

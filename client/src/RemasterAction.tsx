@@ -11,7 +11,7 @@ import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from
 import { useRemasterResult } from './remasterResult';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
-import { useLookup, modelsFor } from './lookup';
+import { useLookup, modelsFor, checkingModels } from './lookup';
 
 interface Props {
   songId: string;
@@ -91,7 +91,7 @@ export function RemasterAction({ songId, layers }: Props) {
           couldn't check models for Remaster — {coverModels.error} <button onClick={coverModels.retry}>RETRY</button>
         </div>
       ) : coverModels.data === null ? (
-        <span className="meta">checking available models…</span>
+        <span className="meta">{checkingModels(coverModels)}</span>
       ) : gated ? (
         <span className="meta" style={{ color: 'var(--rust-text)' }}>
           no downloaded model supports Remaster — requires a model with cover support

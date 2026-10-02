@@ -13,7 +13,7 @@ import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { CustomSelect } from './CustomSelect';
 import { TRACK_NAMES } from './trackNames';
-import { useLookup, modelsFor } from './lookup';
+import { useLookup, modelsFor, checkingModels } from './lookup';
 
 interface Props {
   songId: string;
@@ -135,7 +135,7 @@ export function AddLayerTrigger({ songId, layers, onDone, onGeneratingChange, on
             couldn't check models for Add Layer — {legoModels.error} <button onClick={legoModels.retry}>RETRY</button>
           </div>
         ) : legoModels.data === null ? (
-          <span className="meta">checking available models…</span>
+          <span className="meta">{checkingModels(legoModels)}</span>
         ) : gated ? (
           <span className="meta" style={{ color: 'var(--rust-text)' }}>
             no downloaded model supports Add Layer — requires a Base model

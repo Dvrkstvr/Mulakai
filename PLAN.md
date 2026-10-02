@@ -7773,3 +7773,43 @@ database. `fetch` patched in the page to reject `/api/voices`:
   to be.
 - Only DELETE rejected, RETRY: Daniel, DelVox and Elly listed. ✕ on
   Elly: "couldn't delete voice — Failed to fetch", Elly still listed.
+
+## The Model List Waits Out a Busy ACE-Step (planned 2026-10-02)
+
+Creating a song showed "couldn't load the model list — ACE-Step
+unreachable at http://127.0.0.1:8001 (no response within 60s)", and the
+song arrived 2–3 minutes later. ACE-Step answers nothing, not even
+`/v1/model_inventory`, while it generates. `listModels()` used the 60s
+per-call ceiling (`ACESTEP_TIMEOUT_MS`) that guards the job poll loop, so
+a busy ACE-Step was reported as an unreachable one.
+
+### Decisions
+
+1. **`GET /api/generate/models` waits up to 300s**
+   (`ACESTEP_LOOKUP_TIMEOUT_MS`, new). `listModels(timeoutMs)` takes the
+   deadline; its other callers keep 60s. `resolveInferenceSteps` sits on
+   the submit path and already falls back without an inventory. Split
+   health would hold the Demucs answer hostage. 300s is also where Node's
+   fetch stops waiting for headers on its own (undici `headersTimeout`).
+   A refused connection still fails at once.
+2. **A lookup running past 15s is marked `slow`** (`lookupRunner`, so
+   every `useLookup` gets it). The model-list surfaces add "ACE-Step is
+   taking a while to answer, it may be busy generating" to their gray
+   loading line: the four "checking available models…" lines (Cover,
+   Arrange, Add Layer, Remaster), Settings > Models, and a new line in
+   SettingsPanel, which showed nothing while loading.
+3. **Past 300s it is still an error with RETRY**, as before.
+
+### File-level plan
+
+- `server/src/config.ts`: `acestepLookupTimeoutMs`.
+- `server/src/services/acestep/models.ts`: `listModels(timeoutMs)`.
+- `server/src/routes/generateHelpers.ts`: `/models` passes it.
+- `client/src/lookup.ts`: `slow`, `SLOW_LOOKUP_MS`, `SLOW_ACESTEP_NOTE`,
+  `checkingModels()`.
+- `SettingsPanel`, `ModelsSection`, `CreateAudioTab`, `CreateArrangeTab`,
+  `AddLayerTrigger`, `RemasterAction`: show the note.
+- Tests: `lookup.test.ts` (slow then answer; a quick load never slow),
+  `acestepTimeout.test.ts` (a longer deadline waits out a slow
+  inventory), `generate.test.ts` (`/models` uses the lookup deadline).
+- DESIGN.md: the slow line in the lookup paragraph.

@@ -396,4 +396,10 @@ describe('GET /models', () => {
     expect(res.status).toBe(502);
     expect(await res.json()).toEqual({ error: 'ACE-Step unreachable at http://127.0.0.1:8001 (ECONNREFUSED)' });
   });
+  it('waits the longer lookup deadline, since ACE-Step answers nothing while it generates', async () => {
+    const { config } = await import('../config.js');
+    await fetch(`${baseUrl}/models`);
+    expect(acestep.listModels).toHaveBeenLastCalledWith(config.acestepLookupTimeoutMs);
+    expect(config.acestepLookupTimeoutMs).toBeGreaterThan(config.acestepTimeoutMs);
+  });
 });

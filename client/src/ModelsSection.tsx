@@ -1,7 +1,7 @@
 import { api } from './api';
 import { useSettings } from './settings';
 import { ditModelDescription, lmModelDescription } from './modelInfo';
-import { useLookup } from './lookup';
+import { useLookup, SLOW_ACESTEP_NOTE } from './lookup';
 
 interface Props {
   online: boolean | null;
@@ -30,7 +30,7 @@ export function ModelsSection({ online }: Props) {
       {lookup.error ? (
         <div className="error">couldn't load the model inventory — {lookup.error} <button onClick={lookup.retry}>RETRY</button></div>
       ) : inventory === null ? (
-        <span className="meta">loading model inventory…</span>
+        <span className="meta">loading model inventory…{lookup.slow && ` ${SLOW_ACESTEP_NOTE}`}</span>
       ) : (
         <>
           <div className="settings-model-list">
