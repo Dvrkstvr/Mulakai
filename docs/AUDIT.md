@@ -30,6 +30,11 @@
   unclaimed stems in `audioDir` forever, and a restart stranded them. Idle splits (no
   poll, claim or RE-EXTRACT for an hour) are now cancelled, and boot sweeps stem files
   no version points at — PR #96.
+- Every other job registry (`jobRegistry.ts`, scratch splits) grew for the life of the
+  process, and remaster results / scratch stems in OS temp outlived their jobs. Settled
+  jobs are now evicted after an hour unread (scratch splits after 24 hours) with their
+  files, stale temp entries are swept, and the job pollers stop on a 404 — PR #104
+  (was #11, and #13's 404 half).
 - Playback never ended: no `onended` on any source, so the Editor stayed "playing"
   with `currentTime()` growing past the song forever. The longest layer's end now
   stops the engine at the duration (play again restarts from 0), guarded by a
@@ -50,6 +55,10 @@
 - COVER sent only `model` + `audio_cover_strength`: the rail's STEPS/GUIDANCE/SEED/
   advanced knobs did nothing, and covers ignored the Settings output format. Now
   sent via `coverParams()`, with the rail gated on the tab's model — PR #95 (was #5).
+- Library search raced: each keystroke fired its own `listSongs` and the last response
+  to land won, so a slow "co" could replace "copper". Every song-list load now goes
+  through one loader that applies only the newest response and reads the query and
+  folder at fire time; search is debounced 250 ms — PR #93 (was #6).
 
 ## 🔴 High — broken or data-risky behavior
 
@@ -105,7 +114,7 @@ influence half was fixed earlier (`referenceInfluence.ts`).
   INFLUENCE sliders don't apply to `complete` (only the stored voice defaults do),
   but the hint text claims they do.
 
-### 6. Library search race
+### 6. ~~Library search race~~ — fixed, PR #93
 `client/src/App.tsx` — one un-guarded `listSongs` per keystroke; a slow early
 response can overwrite results for a newer query. Debounce + drop stale responses.
 
@@ -131,10 +140,10 @@ but the abort is silently undone.
 
 ## 🟡 Resource leaks / unbounded growth
 
-### 11. Job registries never evict
+### 11. ~~Job registries never evict~~ — fixed, PRs #96 + #104
 `server/src/services/jobs.ts` / `stemSplit.ts` — `jobs.set(...)` has no paired
-delete; every job for the life of the process accumulates. (`stemSplit.ts` now evicts
-idle splits — PR #96; `jobs.ts` and the other registries still don't.)
+delete; every job for the life of the process accumulates. (`stemSplit.ts` evicts
+idle splits since PR #96; `jobRegistry.ts` and scratch splits since PR #104.)
 
 ### 12. WebGL context leak in `ShaderCanvas`
 `client/src/ShaderCanvas.tsx` — cleanup never calls
@@ -145,6 +154,8 @@ browser's ~16-context cap, after which shader surfaces go black.
 Keeps hitting `/api/generate/:id` every 2s after `dismiss()` until the server says
 done/failed. Similarly `editorJobStore`'s single-job poll has no 404 exit (the
 split poll has one).
+- **404 half fixed (PR #104):** every `/api/generate/:id` poller now fails the job on
+  a 404. Polling on after `dismiss()` is still open.
 
 ### 14. Misc leaks
 `client/src/audioDuration.ts` — object URL not revoked on the error path.

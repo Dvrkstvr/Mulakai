@@ -40,12 +40,12 @@
     "semantic_hash": ""
   },
   "client/src/CreateArrangeTab.tsx": {
-    "mtime": 1790899904.1890528,
+    "mtime": 1790901716.0761244,
     "ast_hash": "30aaa1d09790d86d438d6cb260bae7d2",
     "semantic_hash": ""
   },
   "client/src/CreateAudioTab.tsx": {
-    "mtime": 1790899915.8498292,
+    "mtime": 1790901716.0761244,
     "ast_hash": "c46657e5b28880acf0e2b0e5f428d2f4",
     "semantic_hash": ""
   },
@@ -140,7 +140,7 @@
     "semantic_hash": ""
   },
   "client/src/ModelsSection.tsx": {
-    "mtime": 1790899904.190059,
+    "mtime": 1790901716.0776324,
     "ast_hash": "9e88c8c32b29ac737ba1b935e88d8cc1",
     "semantic_hash": ""
   },
@@ -170,7 +170,7 @@
     "semantic_hash": ""
   },
   "client/src/ReferenceAudioPicker.tsx": {
-    "mtime": 1790899904.190059,
+    "mtime": 1790901716.0776324,
     "ast_hash": "bd09392b52e1f4bbcea89078eb269a3d",
     "semantic_hash": ""
   },
@@ -210,7 +210,7 @@
     "semantic_hash": "5cf67986cabf30c2b0ba0eb5087911f1"
   },
   "client/src/SettingsPanel.tsx": {
-    "mtime": 1790899915.8508341,
+    "mtime": 1790901716.078135,
     "ast_hash": "d788a3d20c5bf77b617e46a9c7a35ebf",
     "semantic_hash": ""
   },
@@ -230,7 +230,7 @@
     "semantic_hash": ""
   },
   "client/src/SongDetailRail.tsx": {
-    "mtime": 1790899914.9164245,
+    "mtime": 1790901726.920892,
     "ast_hash": "1921b7c732a6830ac6193d47711506f1",
     "semantic_hash": ""
   },
@@ -265,7 +265,7 @@
     "semantic_hash": ""
   },
   "client/src/VoiceManagementSection.tsx": {
-    "mtime": 1790899914.9179332,
+    "mtime": 1790901726.9218953,
     "ast_hash": "d5117a7ffce8460f95484ecbb427c105",
     "semantic_hash": ""
   },
@@ -275,7 +275,7 @@
     "semantic_hash": ""
   },
   "client/src/VoiceUploadForm.tsx": {
-    "mtime": 1790899914.9179332,
+    "mtime": 1790901726.922393,
     "ast_hash": "f01831c141d77814c9b0720b915c727f",
     "semantic_hash": ""
   },
@@ -305,8 +305,8 @@
     "semantic_hash": ""
   },
   "client/src/editorJobStore.ts": {
-    "mtime": 1790895426.7411633,
-    "ast_hash": "351113dbbe8d550c5eddb2512cf2c782",
+    "mtime": 1790901727.8378353,
+    "ast_hash": "9e6a5d7809472e646f3041e621b922a7",
     "semantic_hash": ""
   },
   "client/src/genProgress.ts": {
@@ -315,8 +315,8 @@
     "semantic_hash": ""
   },
   "client/src/generationStore.ts": {
-    "mtime": 1790898981.3200197,
-    "ast_hash": "955bd0d3485f19411ef804e876a22763",
+    "mtime": 1790901727.8383396,
+    "ast_hash": "644600f7d7da859ed1c08dfda3953591",
     "semantic_hash": ""
   },
   "client/src/lyricSections.test.ts": {
@@ -480,13 +480,13 @@
     "semantic_hash": ""
   },
   "server/src/index.ts": {
-    "mtime": 1790899915.9123216,
-    "ast_hash": "efa53e3fb7dd01df284c03be65e46582",
+    "mtime": 1790901727.8916745,
+    "ast_hash": "ebafea6648b376482886d2e19271c987",
     "semantic_hash": ""
   },
   "server/src/routes/generate.test.ts": {
-    "mtime": 1790895426.8985298,
-    "ast_hash": "605ee8ea60453ce1613d0bdf9056803a",
+    "mtime": 1790901727.8921802,
+    "ast_hash": "2a6c161eaad142032b0fe02ee5ab5d46",
     "semantic_hash": ""
   },
   "server/src/routes/generate.ts": {
@@ -665,8 +665,8 @@
     "semantic_hash": ""
   },
   "server/src/services/scratchSplitJobs.ts": {
-    "mtime": 1790898869.5891097,
-    "ast_hash": "01a7bc9900706f72682df51f80c900f3",
+    "mtime": 1790901727.895179,
+    "ast_hash": "83efebae57ae6b248bdfb78a2626ce44",
     "semantic_hash": ""
   },
   "server/src/services/stemSplit.test.ts": {
@@ -715,8 +715,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1790899915.8488257,
-    "ast_hash": "3fdc29f8b02c93eefcf4e65c2be99405",
+    "mtime": 1790901727.836328,
+    "ast_hash": "773c77910a221136bcc2a44d78a5c34b",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -750,7 +750,7 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN.md": {
-    "mtime": 1790899915.855376,
+    "mtime": 1790901726.9259067,
     "ast_hash": "af16c93cdef2a0ea04b34e8b71202786",
     "semantic_hash": ""
   },
@@ -840,8 +840,8 @@
     "semantic_hash": ""
   },
   "docs/AUDIT.md": {
-    "mtime": 1790899915.854347,
-    "ast_hash": "0cc5ba6e716e9f88820251777cb7f959",
+    "mtime": 1790901727.8423672,
+    "ast_hash": "cf06ec45230e70e4bdad1e391835fe67",
     "semantic_hash": ""
   },
   "docs/UX_NOTES.md": {
@@ -1110,8 +1110,8 @@
     "semantic_hash": ""
   },
   "client/src/editorJobStore.test.ts": {
-    "mtime": 1790895426.7406623,
-    "ast_hash": "25dc8379898f3e4e7722127775c61263",
+    "mtime": 1790901727.8368316,
+    "ast_hash": "37a4275ca0f0251ea1057ce70b351078",
     "semantic_hash": ""
   },
   "server/src/routes/songLayers.test.ts": {
@@ -1230,8 +1230,8 @@
     "semantic_hash": ""
   },
   "client/src/generationStore.test.ts": {
-    "mtime": 1790898981.3195207,
-    "ast_hash": "95cfc063c38fd0228e703ad641978c59",
+    "mtime": 1790901727.8383396,
+    "ast_hash": "18f502c19660fc8e3d955ae2856d8c2a",
     "semantic_hash": ""
   },
   "client/src/referenceInfluence.test.ts": {
@@ -1650,13 +1650,13 @@
     "semantic_hash": ""
   },
   "client/src/transcribeStore.test.ts": {
-    "mtime": 1790895426.7588243,
-    "ast_hash": "5a6952d09091e454af2969327df90526",
+    "mtime": 1790901727.8408575,
+    "ast_hash": "c21ef579a86641e8db2469af2d2bf758",
     "semantic_hash": ""
   },
   "client/src/transcribeStore.ts": {
-    "mtime": 1790895426.7588243,
-    "ast_hash": "547847aa7130d8d046d1a3e731224ded",
+    "mtime": 1790901727.8413637,
+    "ast_hash": "b20f67fd5ea692031f880328a3d567a7",
     "semantic_hash": ""
   },
   "client/src/useScoreSize.ts": {
@@ -1825,13 +1825,13 @@
     "semantic_hash": ""
   },
   "client/src/readLyricsStore.test.ts": {
-    "mtime": 1790895426.752294,
-    "ast_hash": "791429ec6118b863ee080e806505c3e7",
+    "mtime": 1790901727.8393457,
+    "ast_hash": "56b663d2f89b287920dc6ca95775d648",
     "semantic_hash": ""
   },
   "client/src/readLyricsStore.ts": {
-    "mtime": 1790895426.7533004,
-    "ast_hash": "bed6e800827a03375e97a61d39fbfb30",
+    "mtime": 1790901727.8398538,
+    "ast_hash": "f826e7a8e65ac7863baf887b89448c24",
     "semantic_hash": ""
   },
   "lyrics-server/api.py": {
@@ -2050,8 +2050,8 @@
     "semantic_hash": ""
   },
   "server/src/services/jobRegistry.ts": {
-    "mtime": 1790898869.5870998,
-    "ast_hash": "48d236f7de7162128d3c44b280eea822",
+    "mtime": 1790901727.894179,
+    "ast_hash": "a310614900b98594d3af35830f834f2e",
     "semantic_hash": ""
   },
   "server/src/services/jobRunner.ts": {
@@ -2080,8 +2080,8 @@
     "semantic_hash": ""
   },
   "client/src/LibraryView.tsx": {
-    "mtime": 1790898869.5132806,
-    "ast_hash": "fd800406f7cdc0386833c3025a822e57",
+    "mtime": 1790901727.8368316,
+    "ast_hash": "a95008834fb6cd355fee1eb691489014",
     "semantic_hash": ""
   },
   "client/src/PlayerFooter.tsx": {
@@ -2090,13 +2090,13 @@
     "semantic_hash": ""
   },
   "client/src/useAppSync.ts": {
-    "mtime": 1790898869.5213058,
-    "ast_hash": "a7629aefd803943f59b6d52eb5791b5f",
+    "mtime": 1790901727.841863,
+    "ast_hash": "960b924c1dfd93b030d2b124adf61fff",
     "semantic_hash": ""
   },
   "client/src/useLibraryData.ts": {
-    "mtime": 1790898869.5213058,
-    "ast_hash": "10db608900e7d70378fb0afb8209d9ce",
+    "mtime": 1790901727.8423672,
+    "ast_hash": "6c86cf276986e153f88c34591f53c218",
     "semantic_hash": ""
   },
   "client/src/LyricsLines.tsx": {
@@ -2195,7 +2195,7 @@
     "semantic_hash": ""
   },
   "e2e/ports.ts": {
-    "mtime": 1790899884.9250917,
+    "mtime": 1790901708.3304,
     "ast_hash": "8ad2583a6440ffe479903ef4330deb78",
     "semantic_hash": ""
   },
@@ -2270,8 +2270,8 @@
     "semantic_hash": ""
   },
   "server/src/routes/generateAudio.ts": {
-    "mtime": 1790898981.3703148,
-    "ast_hash": "cb7d86aeb3f54a14faa77920f2340dc2",
+    "mtime": 1790901727.8931801,
+    "ast_hash": "f4e1d3a762cd864803140797af63e6ba",
     "semantic_hash": ""
   },
   "server/src/routes/generateHelpers.ts": {
@@ -2319,23 +2319,48 @@
     "ast_hash": "031d0ffe160e6a6a62a5052d2a796a7e",
     "semantic_hash": ""
   },
-  "e2e/test-results/.last-run.json": {
-    "mtime": 1790899884.864148,
-    "ast_hash": "f196824657d8858bc7fa44eecbba38b1",
-    "semantic_hash": ""
-  },
   "e2e/tests/fixtures.ts": {
     "mtime": 1790899915.8558805,
     "ast_hash": "21dfbe61793692ad043e35bd016bc2c1",
     "semantic_hash": ""
   },
-  "e2e/playwright-report/index.html": {
-    "mtime": 1790899884.864148,
-    "ast_hash": "d010cb9a81593b8f83c4331c6707e868",
+  "client/src/songListLoader.test.ts": {
+    "mtime": 1790901727.8398538,
+    "ast_hash": "5717ae068587566398805aeeea3fc10b",
+    "semantic_hash": ""
+  },
+  "client/src/songListLoader.ts": {
+    "mtime": 1790901727.8398538,
+    "ast_hash": "22e166658c14a4f757ba8c678a7d2abb",
+    "semantic_hash": ""
+  },
+  "client/src/jobGone.ts": {
+    "mtime": 1790901727.8383396,
+    "ast_hash": "b960f7eb44d572b29c0dc662ea67ea0a",
+    "semantic_hash": ""
+  },
+  "server/src/services/jobEviction.test.ts": {
+    "mtime": 1790901727.8931801,
+    "ast_hash": "162ac68c9b0c8cd9f3381aae04db8204",
+    "semantic_hash": ""
+  },
+  "server/src/services/jobEviction.ts": {
+    "mtime": 1790901727.8936822,
+    "ast_hash": "fe2b90d714806df1c808a20e7ee73956",
+    "semantic_hash": ""
+  },
+  "server/src/services/jobRegistry.evict.test.ts": {
+    "mtime": 1790901727.8936822,
+    "ast_hash": "01d9a774b957bee20aa88d6bce6eaa27",
+    "semantic_hash": ""
+  },
+  "server/src/services/scratchSplitJobs.evict.test.ts": {
+    "mtime": 1790901727.894679,
+    "ast_hash": "c0ec47c6ad804fa3446e4a064de81e24",
     "semantic_hash": ""
   },
   "client/src/lookup.test.ts": {
-    "mtime": 1790899904.1910634,
+    "mtime": 1790901716.0791397,
     "ast_hash": "14fcf3429e3413cd00b10b0f07cabd21",
     "semantic_hash": ""
   },
@@ -2344,23 +2369,33 @@
     "ast_hash": "5a3099ec71d8a3c518246a55fc7a5ed8",
     "semantic_hash": ""
   },
+  "e2e/test-results/.last-run.json": {
+    "mtime": 1790901708.2754252,
+    "ast_hash": "f196824657d8858bc7fa44eecbba38b1",
+    "semantic_hash": ""
+  },
+  "e2e/playwright-report/index.html": {
+    "mtime": 1790901708.2749257,
+    "ast_hash": "07be57ecb75c8a2f32ab0c090b185de2",
+    "semantic_hash": ""
+  },
   "client/src/ReferenceAudioMeta.test.tsx": {
-    "mtime": 1790899914.9159186,
+    "mtime": 1790901726.9203875,
     "ast_hash": "a5fa9c03297311903d8dce788a820790",
     "semantic_hash": ""
   },
   "client/src/ReferenceAudioMeta.tsx": {
-    "mtime": 1790899914.9159186,
+    "mtime": 1790901726.920892,
     "ast_hash": "37dcb6f4f09d3ea3dd9ca4882e1145ea",
     "semantic_hash": ""
   },
   "client/src/VoiceList.test.tsx": {
-    "mtime": 1790899914.9174297,
+    "mtime": 1790901726.9213934,
     "ast_hash": "56654d5db796aa6333bca4e25f8cac9b",
     "semantic_hash": ""
   },
   "client/src/VoiceList.tsx": {
-    "mtime": 1790899914.9174297,
+    "mtime": 1790901726.9213934,
     "ast_hash": "f0f86984f1ddee642c41ad8df0154c69",
     "semantic_hash": ""
   }

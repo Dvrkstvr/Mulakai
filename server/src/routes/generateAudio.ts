@@ -4,7 +4,7 @@ import fs from 'node:fs/promises';
 import { Router } from 'express';
 import { startCoverGeneration } from '../services/coverGenJobs.js';
 import { startCompleteGeneration, type CompleteSource } from '../services/completeGenJobs.js';
-import { getScratchSplitJob, scratchStemPath } from '../services/scratchSplitJobs.js';
+import { getScratchSplitJob, scratchStemPath, SCRATCH_GONE } from '../services/scratchSplitJobs.js';
 import { resolveReferenceAudioFile } from '../services/referenceAudioResolve.js';
 import { GenLockError } from '../services/genLock.js';
 import { analyzeUnderLock } from '../services/analyzeJobs.js';
@@ -63,7 +63,7 @@ generateAudioRouter.post(
       } else if (scratch_job_id && scratch_stem_kind) {
         const job = getScratchSplitJob(String(scratch_job_id));
         const filePath = job && scratchStemPath(job, String(scratch_stem_kind));
-        if (!filePath) return res.status(400).json({ error: 'unknown or not-ready scratch stem' });
+        if (!filePath) return res.status(400).json({ error: job ? 'scratch stem not ready' : SCRATCH_GONE });
         src = { data: await fs.readFile(filePath), filename: `${scratch_stem_kind}.mp3` };
       }
       if (!src) return res.status(400).json({ error: 'src_audio or scratch_job_id/scratch_stem_kind is required' });
@@ -101,7 +101,7 @@ generateAudioRouter.post('/analyze-audio', upload.fields([{ name: 'src_audio', m
     } else if (scratch_job_id && scratch_stem_kind) {
       const job = getScratchSplitJob(String(scratch_job_id));
       const filePath = job && scratchStemPath(job, String(scratch_stem_kind));
-      if (!filePath) return res.status(400).json({ error: 'unknown or not-ready scratch stem' });
+      if (!filePath) return res.status(400).json({ error: job ? 'scratch stem not ready' : SCRATCH_GONE });
       file = { data: await fs.readFile(filePath), filename: `${scratch_stem_kind}.mp3` };
     }
     if (!file) return res.status(400).json({ error: 'src_audio or scratch_job_id/scratch_stem_kind is required' });

@@ -40,6 +40,7 @@ vi.mock('../services/completeGenJobs.js', () => ({ startCompleteGeneration: vi.f
 vi.mock('../services/scratchSplitJobs.js', () => ({
   getScratchSplitJob: vi.fn(),
   scratchStemPath: vi.fn(),
+  SCRATCH_GONE: 'stems expired',
 }));
 vi.mock('../services/referenceAudioResolve.js', () => ({
   // Default behavior mirrors the real function's "pass through an uploaded file as-is" branch —
@@ -305,7 +306,7 @@ describe('POST /complete', () => {
     expect(completeGenJobs.startCompleteGeneration).toHaveBeenCalledTimes(1);
   });
 
-  it('returns 400 for an unknown/not-ready scratch stem reference', async () => {
+  it('returns 400 saying the stems expired for a discarded or evicted scratch split', async () => {
     vi.mocked(scratchSplitJobs.getScratchSplitJob).mockReturnValueOnce(undefined);
     const form = new FormData();
     form.append('title', 'My Complete');
@@ -314,6 +315,7 @@ describe('POST /complete', () => {
 
     const res = await fetch(`${baseUrl}/complete`, { method: 'POST', body: form });
     expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: 'stems expired' });
   });
 });
 
