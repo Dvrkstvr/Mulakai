@@ -3450,7 +3450,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "client_src_abcfacts_test_native",
-      "community": 190,
+      "community": 135,
       "norm_label": "native"
     },
     {
@@ -11360,7 +11360,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_api_py",
-      "community": 155,
+      "community": 67,
       "norm_label": "api.py"
     },
     {
@@ -11410,7 +11410,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_api_rationale_1",
-      "community": 155,
+      "community": 67,
       "norm_label": "http layer, built around an injected separate() so tests need no torch. speaks"
     },
     {
@@ -11740,7 +11740,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_py",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_job_files.py"
     },
     {
@@ -11750,7 +11750,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_clock",
-      "community": 157,
+      "community": 67,
       "norm_label": "clock"
     },
     {
@@ -11760,7 +11760,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_clock_init",
-      "community": 157,
+      "community": 67,
       "norm_label": ".__init__()"
     },
     {
@@ -11770,7 +11770,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_clock_call",
-      "community": 157,
+      "community": 67,
       "norm_label": ".__call__()"
     },
     {
@@ -11780,7 +11780,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_setup",
-      "community": 157,
+      "community": 67,
       "norm_label": "setup()"
     },
     {
@@ -11790,7 +11790,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_finished_job",
-      "community": 157,
+      "community": 67,
       "norm_label": "finished_job()"
     },
     {
@@ -11800,7 +11800,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_publish_maps_kinds_to_paths_under_the_job",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_publish_maps_kinds_to_paths_under_the_job()"
     },
     {
@@ -11810,7 +11810,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_each_stem_is_served_once_then_deleted",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_each_stem_is_served_once_then_deleted()"
     },
     {
@@ -11820,7 +11820,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_last_download_removes_the_job_dir",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_last_download_removes_the_job_dir()"
     },
     {
@@ -11830,7 +11830,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_only_published_stems_are_served",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_only_published_stems_are_served()"
     },
     {
@@ -11840,7 +11840,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_discard_removes_a_failed_job",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_discard_removes_a_failed_job()"
     },
     {
@@ -11850,7 +11850,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_sweep_removes_unfetched_jobs_once_expired",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_sweep_removes_unfetched_jobs_once_expired()"
     },
     {
@@ -11860,7 +11860,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_sweep_leaves_a_running_job_alone",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_sweep_leaves_a_running_job_alone()"
     },
     {
@@ -11870,7 +11870,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_sweep_ages_leftovers_from_a_previous_run_by_mtime",
-      "community": 157,
+      "community": 67,
       "norm_label": "test_sweep_ages_leftovers_from_a_previous_run_by_mtime()"
     },
     {
@@ -12870,7 +12870,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "exception",
-      "community": 18,
+      "community": 304,
       "norm_label": "exception"
     },
     {
@@ -13100,7 +13100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "heartmula_server_request",
-      "community": 210,
+      "community": 163,
       "norm_label": "request.py"
     },
     {
@@ -13110,7 +13110,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "heartmula_server_request_generaterequest",
-      "community": 210,
+      "community": 163,
       "norm_label": "generaterequest"
     },
     {
@@ -13120,7 +13120,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "basemodel",
-      "community": 210,
+      "community": 163,
       "norm_label": "basemodel"
     },
     {
@@ -13130,7 +13130,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "heartmula_server_request_generaterequest_lyrics_not_blank",
-      "community": 210,
+      "community": 163,
       "norm_label": ".lyrics_not_blank()"
     },
     {
@@ -13140,7 +13140,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "heartmula_server_request_generaterequest_not_a_file_path",
-      "community": 210,
+      "community": 163,
       "norm_label": ".not_a_file_path()"
     },
     {
@@ -13150,7 +13150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "heartmula_server_request_rationale_1",
-      "community": 210,
+      "community": 163,
       "norm_label": "post /v1/jobs body. field names are heartlib's own, so mulakai's engines/heartm"
     },
     {
@@ -14210,7 +14210,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_load_audio",
-      "community": 143,
+      "community": 73,
       "norm_label": "_load_audio()"
     },
     {
@@ -21420,7 +21420,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
-      "community": 302,
+      "community": 67,
       "norm_label": "api.py"
     },
     {
@@ -21430,7 +21430,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_create_app",
-      "community": 302,
+      "community": 67,
       "norm_label": "create_app()"
     },
     {
@@ -21470,7 +21470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
-      "community": 302,
+      "community": 67,
       "norm_label": "http layer, built around injected runners so tests need no torch. speaks the co"
     },
     {
@@ -21890,7 +21890,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
-      "community": 205,
+      "community": 157,
       "norm_label": "stands in for run_mdx_headless / run_demucs_headless: records each call     and"
     },
     {
@@ -22070,7 +22070,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_py",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_job_files.py"
     },
     {
@@ -22080,7 +22080,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_clock",
-      "community": 163,
+      "community": 67,
       "norm_label": "clock"
     },
     {
@@ -22090,7 +22090,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_clock_init",
-      "community": 163,
+      "community": 67,
       "norm_label": ".__init__()"
     },
     {
@@ -22100,7 +22100,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_clock_call",
-      "community": 163,
+      "community": 67,
       "norm_label": ".__call__()"
     },
     {
@@ -22110,7 +22110,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_setup",
-      "community": 163,
+      "community": 67,
       "norm_label": "setup()"
     },
     {
@@ -22120,7 +22120,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_finished_job",
-      "community": 163,
+      "community": 67,
       "norm_label": "finished_job()"
     },
     {
@@ -22130,7 +22130,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_test_publish_maps_kinds_to_paths_under_the_job",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_publish_maps_kinds_to_paths_under_the_job()"
     },
     {
@@ -22140,7 +22140,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_test_each_stem_is_served_once_then_deleted",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_each_stem_is_served_once_then_deleted()"
     },
     {
@@ -22150,7 +22150,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_test_last_download_removes_the_job_dir",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_last_download_removes_the_job_dir()"
     },
     {
@@ -22160,7 +22160,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_test_only_published_stems_are_served",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_only_published_stems_are_served()"
     },
     {
@@ -22170,7 +22170,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_test_discard_removes_a_failed_job",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_discard_removes_a_failed_job()"
     },
     {
@@ -22180,7 +22180,7 @@
       "source_location": "L83",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_test_sweep_removes_unfetched_jobs_once_expired",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_sweep_removes_unfetched_jobs_once_expired()"
     },
     {
@@ -22190,7 +22190,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_test_sweep_leaves_a_running_job_alone",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_sweep_leaves_a_running_job_alone()"
     },
     {
@@ -22200,7 +22200,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_test_sweep_ages_leftovers_from_a_previous_run_by_mtime",
-      "community": 163,
+      "community": 67,
       "norm_label": "test_sweep_ages_leftovers_from_a_previous_run_by_mtime()"
     },
     {
@@ -22470,7 +22470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
-      "community": 18,
+      "community": 304,
       "norm_label": "jobs.py"
     },
     {
@@ -22480,7 +22480,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_queuefull",
-      "community": 18,
+      "community": 304,
       "norm_label": "queuefull"
     },
     {
@@ -22490,7 +22490,7 @@
       "source_location": "L33",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_idempotencyconflict",
-      "community": 18,
+      "community": 304,
       "norm_label": "idempotencyconflict"
     },
     {
@@ -22540,7 +22540,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_submit",
-      "community": 18,
+      "community": 304,
       "norm_label": ".submit()"
     },
     {
@@ -22590,7 +22590,7 @@
       "source_location": "L116",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
-      "community": 152,
+      "community": 18,
       "norm_label": ".progress()"
     },
     {
@@ -22660,7 +22660,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_rationale_1",
-      "community": 18,
+      "community": 304,
       "norm_label": "in-memory job table and fifo queue for yue-server.  the job record mirrors yue"
     },
     {
@@ -22670,7 +22670,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_rationale_55",
-      "community": 18,
+      "community": 304,
       "norm_label": "returns (job, created). a repeated idempotency-key with the same body         r"
     },
     {
@@ -22780,7 +22780,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_py",
-      "community": 210,
+      "community": 163,
       "norm_label": "request_model.py"
     },
     {
@@ -22790,7 +22790,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_generaterequest",
-      "community": 210,
+      "community": 163,
       "norm_label": "generaterequest"
     },
     {
@@ -22800,7 +22800,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_generaterequest_nonblank",
-      "community": 210,
+      "community": 163,
       "norm_label": ".nonblank()"
     },
     {
@@ -22810,7 +22810,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_generaterequest_score_not_blank",
-      "community": 210,
+      "community": 163,
       "norm_label": ".score_not_blank()"
     },
     {
@@ -22820,7 +22820,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_generaterequest_score_needs_a_plan_mode",
-      "community": 210,
+      "community": 163,
       "norm_label": ".score_needs_a_plan_mode()"
     },
     {
@@ -22830,7 +22830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_rationale_1",
-      "community": 210,
+      "community": 163,
       "norm_label": "the post /v1/jobs body, validated before anything reaches the pipeline."
     },
     {
@@ -22840,7 +22840,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_rationale_10",
-      "community": 210,
+      "community": 163,
       "norm_label": "yue2-serve's body, minus `n` (one take per job), plus a tolerated `id`     (mul"
     },
     {
@@ -22850,7 +22850,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_py",
-      "community": 210,
+      "community": 68,
       "norm_label": "score_routes.py"
     },
     {
@@ -22860,7 +22860,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_measurerequest",
-      "community": 210,
+      "community": 163,
       "norm_label": "measurerequest"
     },
     {
@@ -22890,7 +22890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_rationale_1",
-      "community": 210,
+      "community": 68,
       "norm_label": "post /v1/scores/measure: a cover's score in the planner's tokens, per section,"
     },
     {
@@ -22900,7 +22900,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_py",
-      "community": 210,
+      "community": 157,
       "norm_label": "scores.py"
     },
     {
@@ -22910,7 +22910,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_scoreerror",
-      "community": 210,
+      "community": 157,
       "norm_label": "scoreerror"
     },
     {
@@ -22920,7 +22920,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "valueerror",
-      "community": 210,
+      "community": 157,
       "norm_label": "valueerror"
     },
     {
@@ -22930,7 +22930,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_prepare_score",
-      "community": 210,
+      "community": 157,
       "norm_label": "prepare_score()"
     },
     {
@@ -22940,7 +22940,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_split_sections",
-      "community": 210,
+      "community": 157,
       "norm_label": "split_sections()"
     },
     {
@@ -22950,7 +22950,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_1",
-      "community": 210,
+      "community": 157,
       "norm_label": "checks a supplied score (a cover's `abc`) before it is queued, so a bad one is"
     },
     {
@@ -22960,7 +22960,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
-      "community": 210,
+      "community": 157,
       "norm_label": "the score to generate from: validated, and chord-free for `melody`."
     },
     {
@@ -22970,7 +22970,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
-      "community": 210,
+      "community": 157,
       "norm_label": "the header (everything before the first `% name` line) and each section's     b"
     },
     {
@@ -23010,7 +23010,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_read_downbeats",
-      "community": 71,
+      "community": 23,
       "norm_label": "read_downbeats()"
     },
     {
@@ -23070,7 +23070,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_48",
-      "community": 71,
+      "community": 23,
       "norm_label": "downbeat.lab's first column; empty when the file is missing or unreadable."
     },
     {
@@ -23140,7 +23140,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_py",
-      "community": 68,
+      "community": 73,
       "norm_label": "conftest.py"
     },
     {
@@ -23280,7 +23280,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_rationale_1",
-      "community": 68,
+      "community": 73,
       "norm_label": "a fake of the yue_pipeline.yuepipeline adapter, so tests run without torch, yue"
     },
     {
@@ -23310,7 +23310,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_py",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_api.py"
     },
     {
@@ -23320,7 +23320,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_happy_path_serves_flac_score_and_result",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_happy_path_serves_flac_score_and_result()"
     },
     {
@@ -23330,7 +23330,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_truncated_job_keeps_its_audio",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_truncated_job_keeps_its_audio()"
     },
     {
@@ -23340,7 +23340,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_cot_off_has_no_score",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_cot_off_has_no_score()"
     },
     {
@@ -23350,7 +23350,7 @@
       "source_location": "L65",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_invalid_requests_are_422",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_invalid_requests_are_422()"
     },
     {
@@ -23360,7 +23360,7 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_empty_lyrics_are_accepted",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_empty_lyrics_are_accepted()"
     },
     {
@@ -23370,7 +23370,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_bearer_key_guards_jobs_but_not_health",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_bearer_key_guards_jobs_but_not_health()"
     },
     {
@@ -23380,7 +23380,7 @@
       "source_location": "L90",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_admission_id_header_is_recorded",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_admission_id_header_is_recorded()"
     },
     {
@@ -23390,7 +23390,7 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_health_reports_loading_then_failed",
-      "community": 73,
+      "community": 28,
       "norm_label": "test_health_reports_loading_then_failed()"
     },
     {
@@ -23400,7 +23400,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_unknown_job_is_404",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_unknown_job_is_404()"
     },
     {
@@ -23410,7 +23410,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_idempotency_key_replays_the_original_job",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_idempotency_key_replays_the_original_job()"
     },
     {
@@ -23420,7 +23420,7 @@
       "source_location": "L132",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_test_idempotency_key_with_a_different_body_is_409",
-      "community": 73,
+      "community": 302,
       "norm_label": "test_idempotency_key_with_a_different_body_is_409()"
     },
     {
@@ -23610,7 +23610,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_test_the_job_saves_the_converted_score_the_planned_one_and_the_record",
-      "community": 73,
+      "community": 135,
       "norm_label": "test_the_job_saves_the_converted_score_the_planned_one_and_the_record()"
     },
     {
@@ -23620,7 +23620,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_py",
-      "community": 210,
+      "community": 157,
       "norm_label": "test_scores.py"
     },
     {
@@ -23630,7 +23630,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_test_split_sections_keeps_every_byte_in_order",
-      "community": 210,
+      "community": 157,
       "norm_label": "test_split_sections_keeps_every_byte_in_order()"
     },
     {
@@ -23640,7 +23640,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_test_a_score_without_sections_is_all_header",
-      "community": 210,
+      "community": 157,
       "norm_label": "test_a_score_without_sections_is_all_header()"
     },
     {
@@ -23650,7 +23650,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_test_measure_counts_the_prepared_score_per_section",
-      "community": 210,
+      "community": 157,
       "norm_label": "test_measure_counts_the_prepared_score_per_section()"
     },
     {
@@ -23660,7 +23660,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_test_measure_rejects_a_bad_score_and_waits_for_the_worker",
-      "community": 210,
+      "community": 157,
       "norm_label": "test_measure_rejects_a_bad_score_and_waits_for_the_worker()"
     },
     {
@@ -23670,7 +23670,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_test_measure_needs_the_bearer_token",
-      "community": 210,
+      "community": 157,
       "norm_label": "test_measure_needs_the_bearer_token()"
     },
     {
@@ -23680,7 +23680,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_rationale_1",
-      "community": 210,
+      "community": 157,
       "norm_label": "post /v1/scores/measure and the section split behind it (plan.md, \"yue2 covers:"
     },
     {
@@ -23750,7 +23750,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_sections_test_read_downbeats_tolerates_missing_and_broken_files",
-      "community": 71,
+      "community": 23,
       "norm_label": "test_read_downbeats_tolerates_missing_and_broken_files()"
     },
     {
@@ -23800,7 +23800,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_test_progress_is_a_per_stage_fraction",
-      "community": 18,
+      "community": 23,
       "norm_label": "test_progress_is_a_per_stage_fraction()"
     },
     {
@@ -24010,7 +24010,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_py",
-      "community": 68,
+      "community": 310,
       "norm_label": "transcribe_routes.py"
     },
     {
@@ -24040,7 +24040,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_read_limited",
-      "community": 68,
+      "community": 310,
       "norm_label": "_read_limited()"
     },
     {
@@ -24050,7 +24050,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "uploadfile",
-      "community": 68,
+      "community": 310,
       "norm_label": "uploadfile"
     },
     {
@@ -24060,7 +24060,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_sweep",
-      "community": 68,
+      "community": 310,
       "norm_label": "_sweep()"
     },
     {
@@ -24080,7 +24080,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_rationale_1",
-      "community": 68,
+      "community": 310,
       "norm_label": "the /v1/transcriptions routes: sheetsage2 reads a source song's melody into a s"
     },
     {
@@ -24100,7 +24100,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_transcriptionerror",
-      "community": 23,
+      "community": 304,
       "norm_label": "transcriptionerror"
     },
     {
@@ -24110,7 +24110,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_transcriptionerror_init",
-      "community": 23,
+      "community": 304,
       "norm_label": ".__init__()"
     },
     {
@@ -24130,7 +24130,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_transcriber_init",
-      "community": 23,
+      "community": 304,
       "norm_label": ".__init__()"
     },
     {
@@ -24430,7 +24430,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_py",
-      "community": 210,
+      "community": 246,
       "norm_label": "common.py"
     },
     {
@@ -24440,7 +24440,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_sha256",
-      "community": 210,
+      "community": 246,
       "norm_label": "sha256()"
     },
     {
@@ -24450,7 +24450,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_read_json",
-      "community": 210,
+      "community": 246,
       "norm_label": "read_json()"
     },
     {
@@ -24460,7 +24460,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_write_json",
-      "community": 210,
+      "community": 246,
       "norm_label": "write_json()"
     },
     {
@@ -24470,7 +24470,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_fresh_directory",
-      "community": 210,
+      "community": 246,
       "norm_label": "fresh_directory()"
     },
     {
@@ -24480,7 +24480,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_rationale_1",
-      "community": 210,
+      "community": 246,
       "norm_label": "small standard-library helpers shared by the portable command-line tools."
     },
     {
@@ -24550,7 +24550,7 @@
       "source_location": "L208",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_main",
-      "community": 210,
+      "community": 246,
       "norm_label": "main()"
     },
     {
@@ -24560,7 +24560,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
-      "community": 210,
+      "community": 246,
       "norm_label": "instrumentalize.py"
     },
     {
@@ -24570,7 +24570,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_section_starts",
-      "community": 210,
+      "community": 246,
       "norm_label": "section_starts()"
     },
     {
@@ -24580,7 +24580,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_subtract_intervals",
-      "community": 210,
+      "community": 246,
       "norm_label": "subtract_intervals()"
     },
     {
@@ -24590,7 +24590,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_convert_score",
-      "community": 210,
+      "community": 246,
       "norm_label": "convert_score()"
     },
     {
@@ -24600,7 +24600,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_main",
-      "community": 210,
+      "community": 246,
       "norm_label": "main()"
     },
     {
@@ -24610,7 +24610,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_rationale_16",
-      "community": 210,
+      "community": 246,
       "norm_label": "map native section comments to their absolute bar-start times."
     },
     {
@@ -24630,7 +24630,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker",
-      "community": 23,
+      "community": 305,
       "norm_label": "worker"
     },
     {
@@ -24640,7 +24640,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_init",
-      "community": 23,
+      "community": 305,
       "norm_label": ".__init__()"
     },
     {
@@ -24660,7 +24660,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_start",
-      "community": 23,
+      "community": 305,
       "norm_label": ".start()"
     },
     {
@@ -24670,7 +24670,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_stop",
-      "community": 23,
+      "community": 305,
       "norm_label": ".stop()"
     },
     {
@@ -24680,7 +24680,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_fits_plan_budget",
-      "community": 23,
+      "community": 305,
       "norm_label": ".fits_plan_budget()"
     },
     {
@@ -24690,7 +24690,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_count_tokens",
-      "community": 23,
+      "community": 305,
       "norm_label": ".count_tokens()"
     },
     {
@@ -24760,7 +24760,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_rationale_46",
-      "community": 23,
+      "community": 305,
       "norm_label": "only meaningful once ready; the submit routes return 503 before that."
     },
     {
@@ -24770,7 +24770,7 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_rationale_50",
-      "community": 23,
+      "community": 305,
       "norm_label": "the score's size in the planner's tokens; none until the pipeline is loaded."
     },
     {
@@ -26770,7 +26770,7 @@
       "source_location": "L5771",
       "_origin": "ast",
       "id": "plan_a_failed_editor_job_blocks_nothing_planned_2026_10_01",
-      "community": 246,
+      "community": 15,
       "norm_label": "a failed editor job blocks nothing (planned 2026-10-01)"
     },
     {
@@ -26780,7 +26780,7 @@
       "source_location": "L5784",
       "_origin": "ast",
       "id": "plan_decisions_5784",
-      "community": 246,
+      "community": 15,
       "norm_label": "decisions"
     },
     {
@@ -26790,7 +26790,7 @@
       "source_location": "L5795",
       "_origin": "ast",
       "id": "plan_file_level_plan_5795",
-      "community": 246,
+      "community": 15,
       "norm_label": "file-level plan"
     },
     {
@@ -67181,7 +67181,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_job_files_jobfiles_resolve",
       "confidence_score": 1.0
     },
     {
@@ -67463,6 +67463,39 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_job_files_jobfiles_fetched",
       "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_job_files_jobfiles_discard",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "demucs-server/tests/test_job_files.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_py",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_job_files_jobfiles_resolve",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/api.py",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_job_files_jobfiles_resolve",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/tests/test_job_files.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_py",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_job_files_jobfiles_resolve",
       "confidence_score": 1.0
     },
     {
@@ -67901,17 +67934,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_py",
       "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_test_sweep_removes_unfetched_jobs_once_expired",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "demucs-server/tests/test_job_files.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_py",
-      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles",
       "confidence_score": 1.0
     },
     {
@@ -70185,7 +70207,7 @@
       "source_location": "L25",
       "weight": 1.0,
       "source": "heartmula_server_main",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_close",
       "confidence_score": 1.0
     },
     {
@@ -70207,7 +70229,7 @@
       "source_location": "L27",
       "weight": 1.0,
       "source": "heartmula_server_main",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_stop",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_init",
       "confidence_score": 1.0
     },
     {
@@ -70511,7 +70533,7 @@
       "source_location": "L9",
       "weight": 1.0,
       "source": "heartmula_server_tests_test_api",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
       "confidence_score": 1.0
     },
     {
@@ -70662,7 +70684,7 @@
       "source_location": "L10",
       "weight": 1.0,
       "source": "heartmula_server_tests_test_api",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_create_app",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_load_audio",
       "confidence_score": 1.0
     },
     {
@@ -71599,7 +71621,7 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "heartmula_server_tests_test_jobs",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_close",
       "confidence_score": 1.0
     },
     {
@@ -71610,7 +71632,7 @@
       "source_location": "L6",
       "weight": 1.0,
       "source": "heartmula_server_tests_test_jobs",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_stop",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_init",
       "confidence_score": 1.0
     },
     {
@@ -71663,7 +71685,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "heartmula_server_worker",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_close",
       "confidence_score": 1.0
     },
     {
@@ -71980,17 +72002,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "source_file": "lyrics-server/asr.py",
-      "source_location": "L32",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_segment",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_t",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -71998,7 +72009,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_t",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_py",
       "confidence_score": 1.0
     },
     {
@@ -72009,6 +72020,17 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_asr_py",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "lyrics-server/asr.py",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_segment",
       "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_t",
       "confidence_score": 1.0
     },
@@ -72253,6 +72275,17 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_rationale_1",
       "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/conftest.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_py",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_load_audio",
       "confidence_score": 1.0
     },
     {
@@ -72595,7 +72628,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_asr_py",
-      "target": "server_src_services_acestep_types",
+      "target": "server_src_services_engines_types",
       "confidence_score": 1.0
     },
     {
@@ -79556,17 +79589,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/conftest.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_py",
-      "target": "server_src_services_acestep_types",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "server/src/services/acestep/types.ts",
@@ -84276,6 +84298,17 @@
       "source": "server_src_services_engines_registry_listengines",
       "target": "server_src_services_engines_registry_coverready",
       "confidence_score": 0.5
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/conftest.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_py",
+      "target": "server_src_services_engines_types",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -90808,7 +90841,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_output_path",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -90819,17 +90852,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
       "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_create_app",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/api.py",
-      "source_location": "L14",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles",
       "confidence_score": 1.0
     },
     {
@@ -90925,28 +90947,6 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_output_path"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/tests/conftest.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_output_path",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/tests/test_chain.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_output_path",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -91020,6 +91020,28 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_split",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_run_chain"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/tests/conftest.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/tests/test_chain.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_1",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -91139,17 +91161,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles",
       "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles_sweep",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/tests/test_job_files.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_py",
-      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles",
       "confidence_score": 1.0
     },
     {
@@ -91288,7 +91299,7 @@
       "source_location": "L20",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_uvr_models_rationale_1",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_uvr_models_fetch_json",
       "confidence_score": 1.0
     },
     {
@@ -91495,11 +91506,88 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_transcription.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_transcription_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/tests/test_chain.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_api.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_instrumental.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_scores.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
       "source_file": "uvr-server/tests/test_api.py",
       "source_location": "L8",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_cancel_and_failures.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "yue_server_tests_test_cancel_and_failures",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_store_and_worker.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "yue_server_tests_test_store_and_worker",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
       "confidence_score": 1.0
     },
     {
@@ -91635,17 +91723,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_api_test_split_returns_downloadable_urls_for_all_four_stems",
       "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_api_post",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/tests/test_chain.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
       "confidence_score": 1.0
     },
     {
@@ -92058,7 +92135,7 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_uvr_models_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_uvr_models_rationale_1",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_uvr_models_fetch_json",
       "confidence_score": 1.0
     },
     {
@@ -92248,7 +92325,7 @@
       "source_location": "L21",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -92289,7 +92366,7 @@
       "source_location": "L22",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_main",
       "confidence_score": 1.0
     },
     {
@@ -92356,6 +92433,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_instrumental.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_section_tags",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -92365,6 +92453,17 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_test_section_tags_come_from_the_score_comments",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_section_tags"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/worker.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_section_tags",
+      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -92452,28 +92551,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_run_job",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_arrange"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_instrumental.py",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_rationale_1",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/worker.py",
-      "source_location": "L20",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_rationale_1",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -92851,61 +92928,6 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/main.py",
-      "source_location": "L29",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_instrumental.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/transcribe_routes.py",
-      "source_location": "L18",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/worker.py",
-      "source_location": "L21",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_store_and_worker.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "yue_server_tests_test_store_and_worker",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_progress",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -92952,6 +92974,61 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "yue-server/main.py",
+      "source_location": "L29",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_instrumental.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/transcribe_routes.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/worker.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_store_and_worker.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "yue_server_tests_test_store_and_worker",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_close",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/main.py",
       "source_location": "L35",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_py",
@@ -92986,7 +93063,7 @@
       "source_location": "L30",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_generaterequest_score_needs_a_plan_mode",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_generaterequest_score_not_blank",
       "confidence_score": 1.0
     },
     {
@@ -92997,7 +93074,7 @@
       "source_location": "L33",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_add_score_routes",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -93008,7 +93085,7 @@
       "source_location": "L31",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_scoreerror",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_prepare_score",
       "confidence_score": 1.0
     },
     {
@@ -93030,7 +93107,7 @@
       "source_location": "L34",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_sweep",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_add_transcription_routes",
       "confidence_score": 1.0
     },
     {
@@ -93041,7 +93118,7 @@
       "source_location": "L36",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_stop",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_init",
       "confidence_score": 1.0
     },
     {
@@ -93117,17 +93194,6 @@
       "source_location": "L148",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_main",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_create_app",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/conftest.py",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_py",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_main_create_app",
       "confidence_score": 1.0
     },
@@ -93230,7 +93296,7 @@
       "source_location": "L14",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_scoreerror",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_prepare_score",
       "confidence_score": 1.0
     },
     {
@@ -93241,7 +93307,7 @@
       "source_location": "L15",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_yue_pipeline_yuepipeline_synthesize",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_yue_pipeline_stagetap_getattr",
       "confidence_score": 1.0
     },
     {
@@ -93272,7 +93338,7 @@
       "source_location": "L16",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -93337,17 +93403,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_scores.py",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_scoreerror",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "inherits",
       "confidence": "EXTRACTED",
       "source_file": "yue-server/upstream/abc_tools.py",
@@ -93386,6 +93441,17 @@
       "source_location": "L24",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_prepare_score",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_scores.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_py",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_prepare_score",
       "confidence_score": 1.0
     },
@@ -93596,7 +93662,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_sections_py",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_39",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_21",
       "confidence_score": 1.0
     },
     {
@@ -93607,7 +93673,7 @@
       "source_location": "L22",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_py",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_39",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_21",
       "confidence_score": 1.0
     },
     {
@@ -94073,17 +94139,6 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_fakepipeline"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_transcription.py",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_transcription_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -94139,17 +94194,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_api.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -94161,39 +94205,6 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_instrumental.py",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_scores.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_cancel_and_failures.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "yue_server_tests_test_cancel_and_failures",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -94203,17 +94214,6 @@
       "weight": 1.0,
       "source": "yue_server_tests_test_cancel_and_failures_test_cancel_while_running_parks_before_reporting",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_store_and_worker.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "yue_server_tests_test_store_and_worker",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_conftest_wait_for",
-      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -94645,7 +94645,7 @@
       "source_location": "L6",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_stop",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_init",
       "confidence_score": 1.0
     },
     {
@@ -94820,7 +94820,7 @@
       "source_location": "L8",
       "weight": 1.0,
       "source": "yue_server_tests_test_store_and_worker",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_stop",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_worker_worker_init",
       "confidence_score": 1.0
     },
     {
@@ -96032,6 +96032,28 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/upstream/compile_score.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/upstream/instrumentalize.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -96062,28 +96084,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_main",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_strip_chords",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/compile_score.py",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/instrumentalize.py",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
       "confidence_score": 1.0
     },
     {
@@ -96148,6 +96148,17 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_write_json"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/upstream/compile_score.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_write_json",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -96162,11 +96173,11 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/compile_score.py",
-      "source_location": "L18",
+      "source_file": "yue-server/upstream/instrumentalize.py",
+      "source_location": "L11",
       "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_fresh_directory",
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_write_json",
       "confidence_score": 1.0
     },
     {
@@ -96179,17 +96190,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_main",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_fresh_directory"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/instrumentalize.py",
-      "source_location": "L11",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_fresh_directory",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -96285,17 +96285,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/instrumentalize.py",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_spelling",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -96327,6 +96316,17 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_convert_score",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_compile_events"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/upstream/instrumentalize.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_main",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -102331,5 +102331,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "94420690b36d7ff93d75fbe66413ec2fa5a017b1"
+  "built_at_commit": "7455c80d5f98202a80eba440eb98558afea1fd26"
 }
