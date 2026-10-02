@@ -66,6 +66,11 @@
   layer with no active version shifted every later layer onto its neighbour's volume.
   `audibleTakes()` keeps each layer with its version; Add Layer, REMASTER and COVER's
   library source share it — PR #99 (was #7).
+- Eight non-test modules were over AGENTS.md's 200-LOC hard cap (`acestep.ts` 539,
+  `settings.ts` 329, `Editor.tsx` 320, `App.tsx` 317, `routes/generate.ts` 298,
+  `jobs.ts` 283, `stemSplit.ts` 282, `repaintJobs.ts` 235). Each was split by
+  responsibility with no behaviour change; none is over the cap now — PRs #71–#75,
+  #77, #82, and #81 for `stemSplit.ts` (was #18).
 - An ACE-Step split's four concurrent stems each reconciled the LoRA adapter unsynchronized,
   so a not-yet-applied adapter got four overlapping `lora/load` + `lora/scale` sequences.
   Every reconcile (and `registerAdapter`) now runs through one queue; the first applies,
@@ -212,7 +217,7 @@ palette is locked. Use a token or add the accent to DESIGN.md properly.
 
 ## ⚪ Process debt
 
-### 18. Module-size hard cap (AGENTS.md: 200 LOC) — current violations
+### 18. ~~Module-size hard cap (AGENTS.md: 200 LOC) — current violations~~ — fixed, PRs #71–#75, #77, #81, #82
 Recounted 2026-10-02 (`wc -l`, every non-test `.ts`/`.tsx` under `client/src`
 and `server/src`; 215 files). Since the 2026-07-31 snapshot `api.ts` (601) was
 split into `client/src/api/` (PR #25) and `generationStore.ts` fell to 188.
@@ -231,26 +236,26 @@ responsibility (no behaviour change; every resulting file ≤150):
 | `server/src/services/stemSplit.ts` | 282 | resolved by #81 (runners moved to `stemRunners.ts`); #76 closed |
 | `server/src/services/repaintJobs.ts` | 235 | #71 (merged) |
 
-The split branches merged cleanly together before #81 landed; on that combined
-tree both suites stayed green (client 289, server 407), both builds passed, and
-no non-test module was over the cap. #72 and #82 are rebased onto the fixes that
-touch the same files (#84, #83) once those land. Strike this item once all are in.
+#72 and #82 were merged with the fixes that touched the same files (#84, #83)
+before landing. With #82 in, no non-test module is over the cap: recounted on
+main + #82, 266 files, largest 195.
 
-**Over the 150 target, under the cap (23, plus `stemRunners.ts` 171 and
-`stemSplit.ts` 165 after #81)** — no action required by policy;
-split opportunistically when a feature touches them:
+**Over the 150 target, under the cap (27, recounted with #82)** — no action
+required by policy; split opportunistically when a feature touches them:
 `client/src/Waveform.tsx` 195 · `client/src/generationStore.ts` 188 ·
-`server/src/services/lyricTagProbe.ts` 187 · `client/src/CreateArrangeTab.tsx` 182 ·
-`client/src/api/types.ts` 181 · `client/src/SongDetailRail.tsx` 181 ·
+`client/src/SongDetailRail.tsx` 188 · `server/src/services/lyricTagProbe.ts` 187 ·
+`client/src/api/types.ts` 187 · `client/src/CreateArrangeTab.tsx` 182 ·
 `client/src/lyricTagGuide.ts` 180 · `client/src/editorJobStore.ts` 179 ·
-`client/src/AddLayerTrigger.tsx` 178 · `client/src/VersionHistory.tsx` 175 ·
-`server/src/routes/songs.ts` 174 · `client/src/createDraftStore.ts` 173 ·
-`client/src/previewPlayback.ts` 172 · `client/src/SettingsPanel.tsx` 170 ·
-`server/src/routes/engineCovers.ts` 168 · `client/src/lyricTags.ts` 163 ·
-`client/src/SplitPanel.tsx` 163 · `server/src/services/engineTranscribeClient.ts` 160 ·
-`client/src/ScratchSplitPicker.tsx` 159 · `client/src/CreateView.tsx` 158 ·
-`client/src/CreateAudioTab.tsx` 156 · `client/src/LayerLane.tsx` 155 ·
-`client/src/ShaderCanvas.tsx` 151.
+`client/src/AddLayerTrigger.tsx` 179 · `server/src/services/stemSplit.ts` 178 ·
+`client/src/VersionHistory.tsx` 177 · `client/src/SettingsPanel.tsx` 176 ·
+`server/src/routes/songs.ts` 175 · `client/src/previewPlayback.ts` 173 ·
+`client/src/createDraftStore.ts` 173 · `client/src/LayerLane.tsx` 172 ·
+`server/src/services/stemRunners.ts` 171 · `server/src/routes/engineCovers.ts` 168 ·
+`client/src/mix/playbackEngine.ts` 167 · `client/src/SplitPanel.tsx` 165 ·
+`client/src/lyricTags.ts` 163 · `server/src/services/engineTranscribeClient.ts` 160 ·
+`client/src/CreateView.tsx` 160 · `client/src/ScratchSplitPicker.tsx` 159 ·
+`client/src/CreateAudioTab.tsx` 156 · `client/src/ShaderCanvas.tsx` 151 ·
+`client/src/Editor.tsx` 151.
 
 (`client/src/index.css` — same lesson, outside the letter of the policy and out
 of scope here. Vendored third-party code such as `yue-server/upstream/` is not
