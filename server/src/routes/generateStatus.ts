@@ -1,10 +1,8 @@
 /** Job status: the running job, the queue behind it, abort/cancel, and polling a job by id.
  * Mounted last on generateRouter (generate.ts) so `/:jobId` shadows nothing. */
 import { Router } from 'express';
-import { getJob, getActiveGeneration, abortJob } from '../services/jobs.js';
-import { discardScratchSplit } from '../services/scratchSplitJobs.js';
-import { cancelSplit } from '../services/stemSplit.js';
-import { cancelQueued, getQueued, getRunning, queuePosition, releaseSlot, type QueueInfo } from '../services/genQueue.js';
+import { getJob, getActiveGeneration } from '../services/jobs.js';
+import { abortRunning, cancelQueued, getQueued, getRunning, queuePosition, type QueueInfo } from '../services/genQueue.js';
 import { songTitle } from '../services/queueGuards.js';
 
 export const generateStatusRouter = Router();
@@ -46,34 +44,23 @@ generateStatusRouter.get('/queue', (_req, res) => {
 });
 
 /**
- * Best-effort stop of the running job (any kind, including a Demucs/ACE-Step split), freeing
- * the slot for the next queued job. See jobs.ts's abortJob and stemSplit.ts's cancelSplit for
- * why in-flight backend calls can't actually be killed, only ignored.
+ * Best-effort stop of the running job (any kind, including a Demucs/ACE-Step split). Its result
+ * is dropped at once, but the slot waits for the abandoned backend task to stop before the next
+ * job starts; a second ABORT frees it now (genQueue.ts's abortRunning).
  */
-function abortRunning(): boolean {
-  const lock = getRunning();
-  if (!lock) return false;
-  if (lock.kind === 'split') {
-    void cancelSplit(lock.jobId).catch(() => {});
-    void discardScratchSplit(lock.jobId).catch(() => {});
-  } else {
-    abortJob(lock.jobId);
-  }
-  releaseSlot(lock.jobId);
-  return true;
-}
-
 generateStatusRouter.post('/active/abort', (_req, res) => {
   res.json({ ok: true, aborted: abortRunning() });
 });
 
-/** CANCEL on an UP NEXT row: a queued job leaves the line and settles `cancelled`. The running
- * job's cancel is the same best-effort ABORT as above. */
+export const ALREADY_STARTED = "it already started — it's running now; ABORT it from RUNNING to stop it";
+
+/** CANCEL on an UP NEXT row: queued jobs only, since its promise is that nothing is lost. A job
+ * that started since the row was drawn is left running (409), never aborted by a stale CANCEL. */
 generateStatusRouter.post('/:jobId/cancel', (req, res) => {
   const { jobId } = req.params;
   if (cancelQueued(jobId)) return res.json({ ok: true, cancelled: true });
-  if (getRunning()?.jobId === jobId) return res.json({ ok: true, aborted: abortRunning() });
-  res.status(404).json({ error: 'this job is neither queued nor running' });
+  if (getRunning()?.jobId === jobId) return res.status(409).json({ error: ALREADY_STARTED });
+  res.status(404).json({ error: 'this job is no longer queued' });
 });
 
 generateStatusRouter.get('/:jobId', (req, res) => {

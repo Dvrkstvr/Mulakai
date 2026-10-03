@@ -201,14 +201,23 @@ describe('startEngineGeneration lock and polling', () => {
 });
 
 describe('startEngineGeneration abort', () => {
-  it('sends cancel on the next tick and persists nothing', async () => {
+  it('sends cancel, holds the slot until the wrapper has stopped, and persists nothing', async () => {
     client.status.mockImplementation(async () => RUNNING);
+    let stop!: () => void;
+    client.cancel.mockImplementationOnce(async () => {
+      stop = () => client.status.mockImplementation(async () => ({ state: 'failed', truncated: false, error: 'cancelled' }));
+    });
     const job = startEngineGeneration(engine, fields, 'Aborted Song');
     await vi.waitFor(() => expect(client.status).toHaveBeenCalled());
     abortJob(job.id);
-    await vi.waitFor(() => expect(client.cancel).toHaveBeenCalledWith(engine, 'wrapper-1'));
     expect(getJob(job.id)).toMatchObject({ status: 'failed', error: 'Aborted' });
+    await vi.waitFor(() => expect(client.cancel).toHaveBeenCalledWith(engine, 'wrapper-1'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect(getRunning()).toMatchObject({ jobId: job.id, draining: true }); // still on the GPU
+    stop();
+    await vi.waitFor(() => expect(getRunning()).toBeNull());
     expect(db.prepare(`SELECT COUNT(*) AS c FROM songs WHERE title = 'Aborted Song'`).get()).toEqual({ c: 0 });
+    client.status.mockImplementation(async () => DONE);
   });
 
   it('cancels a job aborted while the wrapper was still accepting it', async () => {
@@ -218,7 +227,9 @@ describe('startEngineGeneration abort', () => {
     abortJob(job.id);
     accept('wrapper-9');
     await vi.waitFor(() => expect(client.cancel).toHaveBeenCalledWith(engine, 'wrapper-9'));
-    expect(client.status).not.toHaveBeenCalled();
+    // Status is asked only to confirm the wrapper stopped (it says done here), then the slot frees.
+    await vi.waitFor(() => expect(getRunning()).toBeNull());
+    expect(db.prepare(`SELECT COUNT(*) AS c FROM songs WHERE title = 'Abort Submit Song'`).get()).toEqual({ c: 0 });
   });
 });
 

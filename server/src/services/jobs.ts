@@ -16,12 +16,12 @@ import { insertGeneratedSong, type ReferenceAudioMeta } from './songPersist.js';
 import { getRunning, type RunningInfo } from './genQueue.js';
 import { type Job, getJob, wasAborted } from './jobRegistry.js';
 import { ensureModelLoaded } from './modelLoad.js';
-import { poll, queueJob } from './jobRunner.js';
+import { drainTask, poll, queueJob } from './jobRunner.js';
 import { fetchLyricTimestampsJson } from './lyricTimestamps.js';
 
 export { type Job, getJob, registerJob, wasAborted, abortJob } from './jobRegistry.js';
 export { ensureModelLoaded } from './modelLoad.js';
-export { run, MAX_POLL_STRIKES, poll, queueJob } from './jobRunner.js';
+export { run, MAX_POLL_STRIKES, poll, queueJob, drainTask, drainWhile } from './jobRunner.js';
 export { fetchLyricTimestampsJson } from './lyricTimestamps.js';
 
 export type { ReferenceAudioMeta };
@@ -60,7 +60,7 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
       : null;
     if (wasAborted(job)) return; // aborted while resolving the voice reference
     const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
-    if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
+    if (wasAborted(job)) return drainTask(task_id); // aborted while ACE-Step was accepting it
     job.taskId = task_id;
     await poll(job, (result) => persistSong(result.file, fullParams, result, title, folderId, referenceMeta));
   });

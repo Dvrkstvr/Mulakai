@@ -5,7 +5,7 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, audioFileExt, type ReleaseTaskParams, type TaskResult } from './acestep.js';
-import { type Job, type VoiceOptions, queueJob, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { type Job, type VoiceOptions, queueJob, poll, ensureModelLoaded, wasAborted, drainTask } from './jobs.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
 import { loadVoiceReference, applyVoiceInfluence } from './voiceConditioning.js';
 import { assertSongLive } from './queueGuards.js';
@@ -55,7 +55,7 @@ export async function startAddLayer(
       srcAudio: { data: mixAudio, filename: 'mix.wav' },
       ...(ref ? { referenceAudio: ref.referenceAudio } : {}),
     });
-    if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
+    if (wasAborted(job)) return drainTask(task_id); // aborted while ACE-Step was accepting it
 
     job.taskId = task_id;
     job.status = 'running';

@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import {
   enqueue, releaseSlot, cancelQueued, cancelQueuedForSong, getRunning, getQueued, queuePosition, resetQueue,
-  QueueFullError, QUEUE_LIMIT,
+  abortRunning, QueueFullError, QUEUE_LIMIT,
 } from './genQueue.js';
 
 afterEach(() => resetQueue());
@@ -110,5 +110,23 @@ describe('genQueue', () => {
     releaseSlot('b');
     expect(getRunning()?.jobId).toBe('a');
     expect(queuePosition('b')).toBe(1);
+  });
+
+  it('ABORT marks the running job through its onAbort and drains until its body settles', async () => {
+    const a = held();
+    const onAbort = vi.fn();
+    enqueue({ kind: 'repaint', jobId: 'a' }, a.run, undefined, onAbort);
+    const b = held();
+    enqueue({ kind: 'repaint', jobId: 'b' }, b.run);
+    expect(abortRunning()).toBe(true);
+    expect(onAbort).toHaveBeenCalledTimes(1);
+    expect(getRunning()).toMatchObject({ jobId: 'a', draining: true });
+    expect(b.run).not.toHaveBeenCalled();
+    a.finish();
+    await vi.waitFor(() => expect(getRunning()?.jobId).toBe('b'));
+    expect(abortRunning()).toBe(true);
+    expect(abortRunning()).toBe(true); // second ABORT: free now
+    expect(getRunning()).toBeNull();
+    expect(abortRunning()).toBe(false);
   });
 });

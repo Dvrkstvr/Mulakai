@@ -3,6 +3,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 
 const jobStatus = vi.fn();
+const cancelJob = vi.fn(async (..._a: unknown[]) => ({ ok: true }));
 const submitted = { jobId: 'j1' };
 vi.mock('./api', () => ({
   api: {
@@ -12,6 +13,7 @@ vi.mock('./api', () => ({
     readLyrics: async () => submitted,
     readTimings: async () => submitted,
     analyzeSourceAudio: async () => submitted,
+    cancelJob: (...a: unknown[]) => cancelJob(...a),
     jobStatus: (...a: unknown[]) => jobStatus(...a),
   },
   ApiError: class ApiError extends Error {
@@ -158,5 +160,6 @@ describe('analyzeAndWait', () => {
     await tick(ANALYZE_POLL_MS);
     expect(await dropped).toBeNull();
     expect(jobStatus).not.toHaveBeenCalled();
+    expect(cancelJob).toHaveBeenCalledWith('j1'); // the abandoned analysis leaves the queue
   });
 });

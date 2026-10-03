@@ -3,7 +3,7 @@
  * the Job record, lookup/registration, and the dev-facing abort.
  */
 import fs from 'node:fs/promises';
-import { cancelQueued, releaseSlot } from './genQueue.js';
+import { abortRunning, cancelQueued, getRunning } from './genQueue.js';
 
 export interface Job {
   id: string;
@@ -83,24 +83,25 @@ export function settleCancelled(job: Job, reason: string): void {
   job.cancelled = true;
 }
 
-/**
- * Dev-facing abort: marks a job failed so `poll()` stops on its next tick and
- * frees the queue's slot immediately, so the next job starts right away. A job
- * still waiting in the queue is simply taken out of it. Also
- * catches a job still in its pre-registration `run()` body (see repaintJobs.ts
- * etc.'s `wasAborted()` checks after each await) — every job-start function
- * registers its Job synchronously before its first await specifically so this
- * has something to mark right away, not just once polling begins.
- * The underlying ACE-Step task keeps running server-side (no cancel primitive
- * exists there, same caveat as stemSplit.ts's cancelSplit) — its eventual
- * result is simply ignored since `poll()` has already returned.
- */
-export function abortJob(jobId: string): boolean {
-  const job = jobs.get(jobId);
-  if (cancelQueued(jobId)) return true;
-  releaseSlot(jobId);
-  if (!job || job.status === 'done' || job.status === 'failed') return false;
+/** Marks a job aborted unless it already settled — genQueue.ts's onAbort for a queued Job. */
+export function markAborted(job: Job): void {
+  if (job.status === 'done' || job.status === 'failed') return;
   job.status = 'failed';
   job.error = 'Aborted';
+}
+
+/**
+ * Dev-facing abort: marks a job failed so its body stops at its next `wasAborted()` check
+ * (every job-start function registers its Job before its first await, so this catches the
+ * model-load and submission window too). A queued job is simply taken out of the line. The
+ * running job's slot stays held while its backend task drains (genQueue.ts's abortRunning):
+ * ACE-Step has no cancel primitive, so the task keeps running there and its result is ignored.
+ */
+export function abortJob(jobId: string): boolean {
+  if (cancelQueued(jobId)) return true;
+  const job = jobs.get(jobId);
+  if (!job || job.status === 'done' || job.status === 'failed') return false;
+  markAborted(job);
+  if (getRunning()?.jobId === jobId) abortRunning();
   return true;
 }

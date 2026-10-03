@@ -11,7 +11,8 @@ interface QueueState {
   queued: QueueEntry[];
   /** Job ids whose CANCEL is in flight, so the row can't be pressed twice. */
   cancelling: string[];
-  /** Why the last CANCEL failed (the job had started meanwhile, say). */
+  /** Why the last CANCEL failed: the job had started since the row was drawn (409), so it is
+   * left running and the next poll moves it to RUNNING. */
   error: string | null;
   poll: () => Promise<void>;
   cancel: (jobId: string) => Promise<void>;

@@ -36,9 +36,8 @@ describe('startLyricsTranscription', () => {
     expect(getRunning()).toMatchObject({ kind: 'lyrics', jobId: job.id, title: 'Ellies City 2' });
     await settle(job.id, 'done');
 
-    const [data, filename, language, signal] = transcribeLyrics.mock.calls[0];
+    const [data, filename, language] = transcribeLyrics.mock.calls[0];
     expect([data, filename, language]).toEqual([source.data, 'ellies.wav', 'en']);
-    expect(signal).toBeInstanceOf(AbortSignal);
     expect(getJob(job.id)?.lyrics).toEqual({ ...READING, sourceLabel: 'Ellies City 2' });
     expect(getJob(job.id)?.songId).toBeUndefined(); // nothing reaches the library
   });
@@ -51,17 +50,19 @@ describe('startLyricsTranscription', () => {
     expect(getJob(job.id)?.lyrics).toBeUndefined();
   });
 
-  it('cancels the request when aborted and keeps the abort as the reason', async () => {
-    transcribeLyrics.mockImplementationOnce((...a: unknown[]) => new Promise((_resolve, reject) => {
-      (a[3] as AbortSignal).addEventListener('abort', () => reject(new Error('lyrics-server transcribe -> This operation was aborted')));
-    }));
+  it('on abort, holds the slot until lyrics-server answers, then drops the reading and keeps the abort', async () => {
+    let answer!: () => void;
+    transcribeLyrics.mockImplementationOnce(() => new Promise((resolve) => { answer = () => resolve(READING); }));
     const job = startLyricsTranscription(source);
+    await vi.waitFor(() => expect(transcribeLyrics).toHaveBeenCalled());
     expect(abortJob(job.id)).toBe(true);
-    expect(getRunning()).toBeNull();
+    expect(getJob(job.id)).toMatchObject({ status: 'failed', error: 'Aborted' });
+    expect(getRunning()).toMatchObject({ jobId: job.id, draining: true }); // still reading on the GPU
 
-    await vi.waitFor(() => expect((transcribeLyrics.mock.calls[0][3] as AbortSignal).aborted).toBe(true));
-    await vi.waitFor(() => expect(getJob(job.id)?.error).toBe('Aborted'));
-    expect(getJob(job.id)?.status).toBe('failed');
+    answer();
+    await vi.waitFor(() => expect(getRunning()).toBeNull());
+    expect(getJob(job.id)).toMatchObject({ status: 'failed', error: 'Aborted' });
+    expect(getJob(job.id)?.lyrics).toBeUndefined();
   });
 
   it('waits in the queue behind a running job, then reads once it finishes', async () => {

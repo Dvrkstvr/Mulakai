@@ -71,9 +71,12 @@ describe('startTranscription', () => {
     client.transcriptionStatus.mockImplementation(async () => ({ state: 'running' }));
     const job = startTranscription(engine, source);
     await vi.waitFor(() => expect(getJob(job.id)?.status).toBe('running'));
+    client.cancelTranscription.mockImplementationOnce(async () => {
+      client.transcriptionStatus.mockImplementation(async () => ({ state: 'failed', error: 'cancelled' }));
+    });
     abortJob(job.id);
     await vi.waitFor(() => expect(client.cancelTranscription).toHaveBeenCalledWith(engine, 'remote-1'));
-    expect(getRunning()).toBeNull();
+    await vi.waitFor(() => expect(getRunning()).toBeNull()); // freed once the engine says it stopped
     expect(client.fetchTranscriptionScore).not.toHaveBeenCalled();
   });
 

@@ -83,7 +83,7 @@ export async function startScratchSplit(src: SourceAudio, model: SplitModel, out
       await (model === 'acestep'
         ? Promise.all(STEM_KINDS.map((kind) => runAcestepStem(job, kind, src, outDir, isActive)))
         : runDemucs(job, src, outDir, isActive));
-    }, () => void discardScratchSplit(jobId));
+    }, () => void discardScratchSplit(jobId), () => void discardScratchSplit(jobId));
   } catch (err) {
     await discardScratchSplit(jobId);
     throw err;

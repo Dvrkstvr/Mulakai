@@ -34,11 +34,11 @@ export function startVersionTimings(versionId: string): Job {
   if (existing && (existing.status === 'queued' || existing.status === 'running')) return existing;
 
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
-  queueJob({ kind: 'timings', songId: row.song_id, title: row.title, label: 'word timings' }, job, () => abortable(job, async (signal) => {
+  queueJob({ kind: 'timings', songId: row.song_id, title: row.title, label: 'word timings' }, job, () => abortable(job, async () => {
     assertVersionLive(versionId);
     const { audio_file } = db.prepare(`SELECT audio_file FROM versions WHERE id = ?`).get(versionId) as { audio_file: string };
     const audio = await fs.readFile(path.join(config.audioDir, audio_file));
-    const reading = await transcribeLyrics(audio, audio_file, '', signal);
+    const reading = await transcribeLyrics(audio, audio_file, '');
     if (wasAborted(job)) return;
     db.prepare(`UPDATE versions SET word_timings = ? WHERE id = ?`).run(JSON.stringify(reading), versionId);
     job.status = 'done';

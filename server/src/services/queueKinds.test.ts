@@ -10,6 +10,8 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-queue-test
 process.env.POLL_INTERVAL_MS = '5';
 
 let taskSeq = 0;
+/** While set, every ACE-Step task reports "running" (status 0). */
+let pending = false;
 const releaseTask = vi.fn(async (..._args: unknown[]) => ({ task_id: `task-${(taskSeq += 1)}` }));
 vi.mock('./transcode.js', () => ({
   transcodeBuffer: async (master: Buffer, outPath: string) => {
@@ -21,7 +23,7 @@ vi.mock('./transcode.js', () => ({
 }));
 vi.mock('./acestep.js', () => ({
   releaseTask: (...args: unknown[]) => releaseTask(...args),
-  queryResult: vi.fn(async (ids: string[]) => [{
+  queryResult: vi.fn(async (ids: string[]) => [pending ? { task_id: ids[0], status: 0 as const, result: [] } : {
     task_id: ids[0], status: 1 as const,
     result: [{ file: '/v1/audio?path=x', status: 1 as const, prompt: '', lyrics: '', metas: {}, seed_value: '7' }],
   }]),
@@ -34,13 +36,13 @@ vi.mock('./modelLoad.js', () => ({ ensureModelLoaded: vi.fn(async () => {}) }));
 const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
 const { getJob, startGeneration } = await import('./jobs.js');
-const { enqueue, getQueued, getRunning, cancelQueuedForSong } = await import('./genQueue.js');
+const { enqueue, getQueued, getRunning, cancelQueuedForSong, abortRunning } = await import('./genQueue.js');
 const { startCoverGeneration } = await import('./coverGenJobs.js');
 const { startCompleteGeneration } = await import('./completeGenJobs.js');
 const { startRepaint, startRegenerate, startSimilarTake } = await import('./repaintJobs.js');
 const { startAddLayer } = await import('./addLayerJobs.js');
 const { startRemaster } = await import('./remasterJobs.js');
-const { startSplit, getSplitJob } = await import('./stemSplit.js');
+const { startSplit, getSplitJob, reextractStem } = await import('./stemSplit.js');
 const { startScratchSplit, getScratchSplitJob } = await import('./scratchSplitJobs.js');
 const { LAYER_DELETED, SONG_TRASHED } = await import('./queueGuards.js');
 
@@ -147,5 +149,61 @@ describe('every kind enters the queue', () => {
     await expect(startRepaint('nope', region)).rejects.toThrow('unknown layer');
     await expect(startSplit('nope', 'acestep')).rejects.toThrow('unknown layer');
     expect(getQueued()).toEqual([]);
+  });
+});
+
+describe('ABORT drains the slot until ACE-Step lets go of the task', () => {
+  it('keeps the next job waiting while the aborted repaint is still on the GPU, and saves nothing', async () => {
+    const { layerId } = seedSong();
+    const versions = () => (db.prepare(`SELECT COUNT(*) AS c FROM versions WHERE layer_id = ?`).get(layerId) as { c: number }).c;
+    pending = true;
+    const aborted = await startRepaint(layerId, region);
+    await vi.waitFor(() => expect(status(aborted.id)).toBe('running'));
+    const next = await startRepaint(layerId, region);
+    expect(abortRunning()).toBe(true);
+    expect(getJob(aborted.id)).toMatchObject({ status: 'failed', error: 'Aborted' });
+    await new Promise((r) => setTimeout(r, 40));
+    expect(getRunning()).toMatchObject({ jobId: aborted.id, draining: true });
+    expect(status(next.id)).toBe('queued');
+
+    pending = false; // ACE-Step finishes the abandoned task
+    await vi.waitFor(() => expect(status(next.id)).toBe('done'));
+    expect(versions()).toBe(2); // the first take, plus only the second repaint
+    expect(getJob(aborted.id)?.error).toBe('Aborted');
+  });
+
+  it('gives up waiting after config.abortDrainMs', async () => {
+    const before = config.abortDrainMs;
+    config.abortDrainMs = 30;
+    try {
+      let free!: () => void;
+      enqueue({ kind: 'generate', jobId: 'stuck' }, () => new Promise<void>((r) => { free = r; }));
+      abortRunning();
+      expect(getRunning()?.draining).toBe(true);
+      await vi.waitFor(() => expect(getRunning()).toBeNull());
+      free();
+    } finally {
+      config.abortDrainMs = before;
+    }
+  });
+
+  it("ABORT on a running RE-EXTRACT keeps the stem's last take and drops the new one", async () => {
+    const { layerId } = seedSong();
+    const split = await startSplit(layerId, 'acestep');
+    await vi.waitFor(() => expect(split.stems.every((s) => s.status === 'done')).toBe(true));
+    await vi.waitFor(() => expect(getRunning()).toBeNull());
+    const drums = split.stems.find((s) => s.kind === 'drums')!;
+    const kept = drums.audioFile;
+
+    pending = true;
+    reextractStem(split.id, 'drums');
+    await vi.waitFor(() => expect(getRunning()?.label).toBe('re-extract drums'));
+    abortRunning();
+    expect(drums).toMatchObject({ status: 'done', audioFile: kept });
+    expect(getRunning()?.draining).toBe(true);
+    pending = false;
+    await vi.waitFor(() => expect(getRunning()).toBeNull());
+    expect(drums).toMatchObject({ status: 'done', audioFile: kept });
+    expect(getSplitJob(split.id)).toBeDefined(); // the session stays open
   });
 });

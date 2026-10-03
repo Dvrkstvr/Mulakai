@@ -7,6 +7,7 @@
  * TRANSCRIBE and lyrics-server's reads wait here too. A second submission waits its turn
  * instead of being refused; a server restart loses the queue, like the job registry.
  */
+import { config } from '../config.js';
 import type { EngineId } from './engines/types.js';
 
 /** `transcribe` is SheetSage2 reading a cover source's melody (transcribeJobs.ts), `lyrics`
@@ -41,6 +42,8 @@ export interface QueueInfo {
 
 export interface RunningInfo extends QueueInfo {
   startedAt: number;
+  /** Aborted, but the backend task may still be on the GPU: the slot waits for it (abortRunning). */
+  draining?: boolean;
 }
 
 export interface QueuedInfo extends QueueInfo {
@@ -64,13 +67,18 @@ interface Entry {
   run: () => Promise<unknown> | void;
   /** Settles the job's own record when it leaves the queue without running. */
   onCancel: (reason: string) => void;
+  /** Marks the running job aborted, so its body drops the result and stops once its backend does. */
+  onAbort?: () => void;
 }
 
 let running: RunningInfo | null = null;
+let runningEntry: Entry | null = null;
+let drainTimer: ReturnType<typeof setTimeout> | null = null;
 const queue: Entry[] = [];
 
 function start(entry: Entry): void {
   running = { ...entry.info, startedAt: Date.now() };
+  runningEntry = entry;
   const { jobId } = entry.info;
   let done: Promise<unknown>;
   try {
@@ -86,8 +94,10 @@ function start(entry: Entry): void {
  * 0 = started right away. `run`'s settling frees the slot for the next entry. Throws
  * QueueFullError, before anything is queued, when QUEUE_LIMIT jobs already wait.
  */
-export function enqueue(info: QueueInfo, run: Entry['run'], onCancel: Entry['onCancel'] = () => {}): number {
-  const entry: Entry = { info, queuedAt: Date.now(), run, onCancel };
+export function enqueue(
+  info: QueueInfo, run: Entry['run'], onCancel: Entry['onCancel'] = () => {}, onAbort?: Entry['onAbort'],
+): number {
+  const entry: Entry = { info, queuedAt: Date.now(), run, onCancel, onAbort };
   if (!running && queue.length === 0) {
     start(entry);
     return 0;
@@ -98,12 +108,35 @@ export function enqueue(info: QueueInfo, run: Entry['run'], onCancel: Entry['onC
 }
 
 /** Frees the slot if `jobId` holds it, and starts the next queued job. A no-op otherwise
- * (already released by an abort, or never running). */
+ * (already released by a second ABORT or the drain bound, or never running). */
 export function releaseSlot(jobId: string): void {
   if (running?.jobId !== jobId) return;
   running = null;
+  runningEntry = null;
+  if (drainTimer) clearTimeout(drainTimer);
+  drainTimer = null;
   const next = queue.shift();
   if (next) start(next);
+}
+
+/**
+ * ABORT on the running job: its record is marked aborted at once (onAbort), but the slot stays
+ * held while the abandoned backend task drains, since nothing can kill it there. The job's body
+ * waits for the backend to stop and settling then frees the slot, or config.abortDrainMs does.
+ * A second ABORT while draining frees the slot now, for a backend that never answers.
+ */
+export function abortRunning(): boolean {
+  const lock = running;
+  if (!lock) return false;
+  if (lock.draining) {
+    releaseSlot(lock.jobId);
+    return true;
+  }
+  running = { ...lock, draining: true };
+  runningEntry?.onAbort?.();
+  drainTimer = setTimeout(() => releaseSlot(lock.jobId), config.abortDrainMs);
+  drainTimer.unref?.();
+  return true;
 }
 
 /** Removes queued jobs matching `match`, settling each through its onCancel. */
@@ -146,6 +179,9 @@ export function isQueued(jobId: string): boolean {
 
 /** Test hook: empty the line and the slot without settling anything. */
 export function resetQueue(): void {
+  if (drainTimer) clearTimeout(drainTimer);
+  drainTimer = null;
+  runningEntry = null;
   running = null;
   queue.length = 0;
 }

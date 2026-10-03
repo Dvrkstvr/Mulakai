@@ -10,7 +10,7 @@
  */
 import crypto from 'node:crypto';
 import { releaseTask, type ReleaseTaskParams } from './acestep.js';
-import { type Job, type ReferenceAudioMeta, queueJob, persistSong, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { type Job, type ReferenceAudioMeta, queueJob, persistSong, poll, ensureModelLoaded, wasAborted, drainTask } from './jobs.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
 
 export interface CompleteSource {
@@ -37,7 +37,7 @@ export function startCompleteGeneration(
     if (wasAborted(job)) return; // aborted while the model was loading (see abortJob)
     job.status = 'running';
     const { task_id } = await releaseTask(fullParams, { srcAudio, referenceAudio });
-    if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
+    if (wasAborted(job)) return drainTask(task_id); // aborted while ACE-Step was accepting it
     job.taskId = task_id;
     await poll(job, (result) => persistSong(result.file, fullParams, result, title, folderId, referenceMeta));
   });

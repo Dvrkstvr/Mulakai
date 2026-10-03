@@ -38,6 +38,10 @@ export const config = {
    * (GPU wedge, dropped connection) stalls the poll loop forever and the global
    * queue's slot is never freed. Audio downloads get 5x this. */
   acestepTimeoutMs: Number(process.env.ACESTEP_TIMEOUT_MS ?? 60_000),
+  /** After ABORT, how long the queue's slot may wait for the abandoned backend task to stop
+   * (ms) before the next job starts anyway. ACE-Step has no cancel, so an aborted task runs on
+   * until it finishes; starting the next job beside it could overrun a 16 GB card. */
+  abortDrainMs: Number(process.env.ABORT_DRAIN_MS ?? 10 * 60_000),
   /** How long the model list, which a person is waiting on, waits for ACE-Step (ms). ACE-Step
    * answers nothing while it generates, so 60s is too short there. Node's fetch gives up waiting
    * for headers at 300s on its own (undici's headersTimeout), so a larger value has no effect. */

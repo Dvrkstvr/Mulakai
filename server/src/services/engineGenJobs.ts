@@ -6,7 +6,7 @@
  */
 import crypto from 'node:crypto';
 import { config } from '../config.js';
-import { type Job, queueJob, wasAborted, MAX_POLL_STRIKES } from './jobs.js';
+import { type Job, queueJob, wasAborted, drainWhile, MAX_POLL_STRIKES } from './jobs.js';
 import type { GenTask } from './genQueue.js';
 import { submit, status, fetchAudio, fetchScore, cancel, type EngineJobState } from './engineClient.js';
 import { insertGeneratedSong } from './songPersist.js';
@@ -22,6 +22,13 @@ export interface EngineCover {
   source: string;
 }
 
+/** Ask the wrapper to stop an aborted job, then hold the queue's slot until it has (drainWhile). */
+async function stopEngineJob(engine: SongEngine, taskId: string): Promise<undefined> {
+  await cancel(engine, taskId);
+  await drainWhile(async () => (await status(engine, taskId)).state === 'running');
+  return undefined;
+}
+
 /**
  * Polls until the wrapper reports a terminal state. Resolves with the finished state,
  * or undefined once the job was aborted on our side (see jobs.ts's abortJob) — in which
@@ -32,8 +39,7 @@ async function pollEngine(job: Job, engine: SongEngine): Promise<EngineJobState 
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
     if (job.status !== 'running') {
-      void cancel(engine, job.taskId);
-      return undefined;
+      return stopEngineJob(engine, job.taskId);
     }
     let state: EngineJobState;
     try {
@@ -46,8 +52,7 @@ async function pollEngine(job: Job, engine: SongEngine): Promise<EngineJobState 
       throw err;
     }
     if (wasAborted(job)) {
-      void cancel(engine, job.taskId);
-      return undefined;
+      return stopEngineJob(engine, job.taskId);
     }
     if (state.state === 'failed') throw new Error(state.error ?? `${engine.label} generation failed`);
     if (state.state === 'done') return state;
@@ -103,7 +108,7 @@ export function startEngineGeneration(
     job.taskId = taskId;
     if (wasAborted(job)) {
       // aborted while the wrapper was accepting the submission
-      void cancel(engine, taskId);
+      await stopEngineJob(engine, taskId);
       return;
     }
     job.status = 'running';

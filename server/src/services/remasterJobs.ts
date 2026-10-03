@@ -13,7 +13,7 @@ import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams } from './acestep.js';
 import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT, type OutputSettings } from './audioOutput.js';
 import { transcodeBuffer } from './transcode.js';
-import { type Job, queueJob, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { type Job, queueJob, poll, ensureModelLoaded, wasAborted, drainTask } from './jobs.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
 import { assertSongLive } from './queueGuards.js';
 import { tagOutputFile } from './fileTags.js';
@@ -78,7 +78,7 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
     await resolveInferenceSteps(fullParams);
     if (wasAborted(job)) return; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: mixAudio, filename: 'mix.wav' } });
-    if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
+    if (wasAborted(job)) return drainTask(task_id); // aborted while ACE-Step was accepting it
 
     job.taskId = task_id;
     job.status = 'running';

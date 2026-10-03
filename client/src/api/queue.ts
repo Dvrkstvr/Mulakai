@@ -31,8 +31,8 @@ export interface QueueSnapshot {
 export const queueApi = {
   queue: (): Promise<QueueSnapshot> => fetch('/api/generate/queue').then((r) => json<QueueSnapshot>(r)),
 
-  /** A queued job leaves the line (its poll then reads failed + `cancelled`); the running one
-   * gets the best-effort ABORT. */
-  cancelJob: (jobId: string): Promise<{ ok: boolean; cancelled?: boolean; aborted?: boolean }> =>
+  /** A queued job leaves the line (its poll then reads failed + `cancelled`). Queued jobs only:
+   * one that started meanwhile answers 409 and keeps running (ABORT is `abortActive`). */
+  cancelJob: (jobId: string): Promise<{ ok: boolean; cancelled: true }> =>
     fetch(`/api/generate/${jobId}/cancel`, { method: 'POST' }).then((r) => json(r)),
 };

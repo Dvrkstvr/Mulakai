@@ -5,7 +5,7 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { releaseTask, type ReleaseTaskParams } from './acestep.js';
-import { type Job, queueJob, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { type Job, queueJob, poll, ensureModelLoaded, wasAborted, drainTask } from './jobs.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
 import { activeLayerSource, assertVersionLive, layerName } from './queueGuards.js';
 import { assertReplayable } from './replayGuard.js';
@@ -37,7 +37,7 @@ function queueReplay(
     await resolveInferenceSteps(fullParams);
     if (wasAborted(job)) return; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, srcAudio ? { srcAudio } : undefined);
-    if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
+    if (wasAborted(job)) return drainTask(task_id); // aborted while ACE-Step was accepting it
 
     job.taskId = task_id;
     job.status = 'running';

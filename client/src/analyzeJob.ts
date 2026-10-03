@@ -13,7 +13,8 @@ export class AnalyzeCancelled extends Error {
 }
 
 /** Resolves with ACE-Step's description of the source. `stillWanted` is asked before each poll:
- * once it says no (the source or model changed), polling stops and this resolves null. */
+ * once it says no (a newer ANALYZE replaced it), polling stops, a still-queued job is cancelled
+ * on the server so it never takes the GPU, and this resolves null. */
 export async function analyzeAndWait(
   input: { file: Blob } | { scratchJobId: string; scratchStemKind: StemKind },
   model: string,
@@ -22,7 +23,10 @@ export async function analyzeAndWait(
   const { jobId } = await api.analyzeSourceAudio(input, model);
   for (;;) {
     await new Promise((r) => setTimeout(r, ANALYZE_POLL_MS));
-    if (!stillWanted()) return null;
+    if (!stillWanted()) {
+      void api.cancelJob(jobId).catch(() => {}); // 409 once it started: it then runs out unread
+      return null;
+    }
     let s: Awaited<ReturnType<typeof api.jobStatus>>;
     try {
       s = await api.jobStatus(jobId);

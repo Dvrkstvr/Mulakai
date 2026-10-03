@@ -214,7 +214,7 @@ describe('poll() failure tolerance', () => {
 });
 
 describe('abortJob', () => {
-  it('marks a running job failed and frees the queue slot so the header can force-unblock it', async () => {
+  it('marks a running job failed and drains its slot; a second ABORT frees it', async () => {
     const { registerJob, abortJob, getJob } = jobsModule;
     const { enqueue, getRunning } = await import('./genQueue.js');
     enqueue({ kind: 'generate', jobId: 'abort-1' }, () => new Promise(() => {}));
@@ -224,6 +224,10 @@ describe('abortJob', () => {
 
     expect(getJob('abort-1')?.status).toBe('failed');
     expect(getJob('abort-1')?.error).toBe('Aborted');
+    // Its backend body never settles here, so the slot drains; a second ABORT frees it now.
+    expect(getRunning()).toMatchObject({ jobId: 'abort-1', draining: true });
+    const { abortRunning } = await import('./genQueue.js');
+    expect(abortRunning()).toBe(true);
     expect(getRunning()).toBeNull();
   });
 

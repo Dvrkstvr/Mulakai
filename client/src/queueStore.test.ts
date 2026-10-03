@@ -39,11 +39,14 @@ describe('queueStore', () => {
     expect(useQueueStore.getState().cancelling).toEqual([]);
   });
 
-  it('says why a CANCEL failed and keeps the row', async () => {
+  it('a CANCEL refused because the job just started keeps the row, says so, and lets the poll move it', async () => {
     await useQueueStore.getState().poll();
-    cancelJob.mockRejectedValueOnce(new Error('this job is neither queued nor running'));
+    const started = "it already started — it's running now; ABORT it from RUNNING to stop it";
+    cancelJob.mockRejectedValueOnce(new Error(started));
+    queue.mockResolvedValueOnce({ running: { ...RUNNING, jobId: 'a' }, queued: [entry('b', 1)] });
     await useQueueStore.getState().cancel('a');
-    expect(useQueueStore.getState().error).toBe('this job is neither queued nor running');
-    expect(useQueueStore.getState().queued.map((q) => q.jobId)).toEqual(['a', 'b']);
+    expect(useQueueStore.getState().error).toBe(started);
+    await vi.waitFor(() => expect(useQueueStore.getState().running?.jobId).toBe('a'));
+    expect(useQueueStore.getState().queued.map((q) => q.jobId)).toEqual(['b']);
   });
 });

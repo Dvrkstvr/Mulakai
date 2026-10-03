@@ -13,7 +13,7 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-queue-rout
 const { db } = await import('../db/index.js');
 const { registerJob, queueJob } = await import('../services/jobs.js');
 const { enqueue, resetQueue } = await import('../services/genQueue.js');
-const { generateStatusRouter } = await import('./generateStatus.js');
+const { generateStatusRouter, ALREADY_STARTED } = await import('./generateStatus.js');
 const { songsRouter } = await import('./songs.js');
 
 let server: Server;
@@ -76,16 +76,38 @@ describe('the queue routes', () => {
     expect(await getJson(`/generate/${queued.job.id}`)).toMatchObject({ status: 'failed', error: 'cancelled', cancelled: true });
   });
 
-  it("cancelling the running job is ABORT: it fails and the next one starts", async () => {
+  it("a stale CANCEL on a job that already started is refused (409) and leaves it running", async () => {
+    const running = job({ kind: 'generate' });
+    const res = await post(`/generate/${running.job.id}/cancel`);
+    expect(res.status).toBe(409);
+    expect((await res.json()).error).toBe(ALREADY_STARTED);
+    expect(await getJson(`/generate/${running.job.id}`)).toMatchObject({ status: 'running' });
+    expect((await getJson('/generate/queue')).running?.jobId).toBe(running.job.id);
+  });
+
+  it('ABORT fails the running job at once but holds the slot until its backend stops', async () => {
     const running = job({ kind: 'generate' });
     const next = job({ kind: 'remaster' });
-    expect(await (await post(`/generate/${running.job.id}/cancel`)).json()).toEqual({ ok: true, aborted: true });
+    expect(await (await post('/generate/active/abort')).json()).toEqual({ ok: true, aborted: true });
     expect(await getJson(`/generate/${running.job.id}`)).toMatchObject({ status: 'failed', error: 'Aborted' });
+    expect((await getJson('/generate/queue')).running).toMatchObject({ jobId: running.job.id });
+    expect((await getJson(`/generate/${next.job.id}`)).status).toBe('queued');
+
+    running.free(); // the abandoned task finishes on the GPU
     await vi.waitFor(async () => expect((await getJson('/generate/queue')).running?.jobId).toBe(next.job.id));
     expect((await getJson(`/generate/${next.job.id}`)).status).toBe('running');
   });
 
-  it('404s a cancel for a job that is neither queued nor running', async () => {
+  it('a second ABORT while draining frees the slot now', async () => {
+    const running = job({ kind: 'generate' });
+    const next = job({ kind: 'remaster' });
+    await post('/generate/active/abort');
+    expect((await getJson('/generate/queue')).running?.jobId).toBe(running.job.id);
+    await post('/generate/active/abort');
+    expect((await getJson('/generate/queue')).running?.jobId).toBe(next.job.id);
+  });
+
+  it('404s a cancel for a job that is no longer queued or running', async () => {
     registerJob({ id: 'settled', taskId: '', status: 'done', createdAt: Date.now() });
     expect((await post('/generate/settled/cancel')).status).toBe(404);
   });

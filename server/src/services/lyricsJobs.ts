@@ -5,7 +5,6 @@
  * library; the reading stays on the job for the client to place into LYRICS.
  */
 import crypto from 'node:crypto';
-import { config } from '../config.js';
 import { type Job, queueJob, wasAborted } from './jobs.js';
 import { transcribeLyrics, type LyricsReading } from './lyricsClient.js';
 
@@ -24,24 +23,21 @@ export interface LyricsSource {
 /** Throws QueueFullError synchronously when the queue is full. */
 export function startLyricsTranscription(source: LyricsSource): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
-  return queueJob({ kind: 'lyrics', title: source.label }, job, () => abortable(job, async (signal) => {
-    const reading = await transcribeLyrics(source.data, source.filename, source.language, signal);
+  return queueJob({ kind: 'lyrics', title: source.label }, job, () => abortable(job, async () => {
+    const reading = await transcribeLyrics(source.data, source.filename, source.language);
     if (wasAborted(job)) return;
     job.lyrics = { ...reading, sourceLabel: source.label };
     job.status = 'done';
   }), 'running');
 }
 
-/** abortJob only marks the job failed; this turns that into cancelling the request, and keeps
- * the abort's own message rather than the cancelled request's error. */
-export async function abortable(job: Job, body: (signal: AbortSignal) => Promise<void>): Promise<void> {
-  const abort = new AbortController();
-  const watch = setInterval(() => wasAborted(job) && abort.abort(), config.pollIntervalMs);
+/** An aborted read keeps the queue's slot until lyrics-server answers, or lyricsTimeoutMs fires:
+ * it has no cancel, and dropping the request wouldn't stop its work on the GPU. The reading is
+ * then ignored (the body checks wasAborted), and a late error keeps the abort's own message. */
+export async function abortable(job: Job, body: () => Promise<void>): Promise<void> {
   try {
-    await body(abort.signal);
+    await body();
   } catch (err) {
-    if (!abort.signal.aborted) throw err;
-  } finally {
-    clearInterval(watch);
+    if (!wasAborted(job)) throw err;
   }
 }

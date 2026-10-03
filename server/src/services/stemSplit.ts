@@ -93,7 +93,7 @@ export async function startSplit(layerId: string, model: SplitModel, output?: un
       } catch (err) {
         failRunning(job.stems, err);
       }
-    }, () => { jobs.delete(jobId); });
+    }, () => { jobs.delete(jobId); }, () => void cancelSplit(jobId));
   } catch (err) {
     jobs.delete(jobId);
     throw err;
@@ -115,7 +115,9 @@ export function reextractStem(jobId: string, kind: StemKind): StemResult {
   if (stem.claimed) throw new Error('stem already claimed');
   if (stem.status === 'running') throw new Error('stem is still running');
   const previous = stem.audioFile;
-  const isActive = () => jobs.has(job.id);
+  // ABORT on a running re-extract drops only this stem's new take; the session stays open.
+  let aborted = false;
+  const isActive = () => jobs.has(job.id) && !aborted;
   const info = { kind: 'split' as const, jobId: crypto.randomUUID(), songId: job.songId, layer: layerName(job.layerId), label: `re-extract ${kind}` };
   const prior = { status: stem.status, error: stem.error };
   stem.status = 'running';
@@ -129,7 +131,10 @@ export function reextractStem(jobId: string, kind: StemKind): StemResult {
           : runDemucs(job, src, config.audioDir, isActive, [kind])))
         .then(() => (stem.audioFile !== previous ? discardUnclaimedFile(previous) : undefined))
         .catch((err) => failRunning([stem], err));
-    }, (reason) => failRunning([stem], new Error(reason)));
+    }, (reason) => failRunning([stem], new Error(reason)), () => {
+      aborted = true;
+      Object.assign(stem, prior); // back to its last result
+    });
   } catch (err) {
     Object.assign(stem, prior); // the queue was full: the stem keeps its last result
     throw err;
