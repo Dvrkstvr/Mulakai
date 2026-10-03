@@ -46,7 +46,7 @@ const AI_KINDS = new Set<ActivityKind>(['generate', 'repaint', 'regenerate', 're
 export const RUNNING_LABEL: Record<ActivityKind, string> = {
   generate: 'GENERATING', ...EDITOR_STAGE_LABEL,
   transcribe: 'TRANSCRIBING', lyrics: 'READING LYRICS', timings: 'TIMING LYRICS', analyze: 'ANALYZING AUDIO',
-  lm: 'LM WRITING',
+  lm: 'LM WRITING', scoreRender: 'RENDERING SCORE',
 };
 
 type Draft = Omit<RunningRow, 'ai' | 'abortable' | 'label'> & { label?: string };

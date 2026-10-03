@@ -1,5 +1,6 @@
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { DockCommit } from './DockCommit';
+import { useElapsedMs } from './genProgress';
 import { queueSuffix } from './queueCopy';
 import { useJobsAhead } from './queueStore';
 import { ScorePlanList } from './ScorePlanList';
@@ -8,7 +9,7 @@ import {
   APPLY_OFF, ASKING_CONSEQUENCE, CHECK_FAILED_CONSEQUENCE, consequenceLine, jobLine, readingLine, REQUEST_PLACEHOLDER,
 } from './scoreCopy';
 import { useScoreStore } from './scoreStore';
-import { canPlan } from './scoreVerb';
+import { canPlan, canRender } from './scoreVerb';
 import type { ScoreVerbState } from './scoreVerbTypes';
 
 interface Props {
@@ -19,28 +20,32 @@ interface Props {
 /**
  * SCORE (pipeline/design/score-verb.html, DESIGN.md "Action dock › SCORE"): the reading, the
  * request field, the change list and checks once planned, then PLAN (acid outline) beside APPLY
- * & RENDER, the only acid fill. The plan job is a line under the commit: dashed while queued,
- * on the AI shader while the planner works. The dock grows with the plan (DT-1 A).
+ * & RENDER, the only acid fill. The plan and render jobs are a line under the commit: dashed while
+ * queued, on the plain AI shader (no veil: YuE2 reports a stage's share) while the GPU works.
+ * The dock grows with the plan (DT-1 A).
  */
 export function DockScore({ songId, state }: Props) {
   const ahead = useJobsAhead();
   const { dispatch, plan, cancel, recheck, apply } = useScoreStore.getState();
   const { phase, status, request } = state;
+  const elapsed = useElapsedMs(phase.kind === 'rendering', phase.kind === 'rendering' ? phase.startedAt : null);
   const onRecheck = () => void recheck(songId);
   if (phase.kind === 'hidden') return null;
   if (phase.kind === 'ineligible' || phase.kind === 'offline') {
     return <div className="dock-body"><ScoreStateLine phase={phase} onRecheck={onRecheck} onPlanAgain={() => {}} onRetryRender={() => {}} /></div>;
   }
 
+  const rendering = phase.kind === 'renderQueued' || phase.kind === 'rendering';
   const waiting = phase.kind === 'queued' || phase.kind === 'planning';
-  const locked = waiting || phase.kind === 'renderQueued' || phase.kind === 'rendering';
-  const ready = phase.kind === 'ready';
+  const locked = waiting || rendering;
+  const ready = canRender(state);
   const shownPlan = state.plan && phase.kind !== 'done';
-  const consequence = ready && state.plan ? consequenceLine(state.plan, status ?? {}, ahead)
+  // Its own plan or render is not a job ahead of it.
+  const consequence = state.plan && (ready || rendering) ? consequenceLine(state.plan, status ?? {}, rendering ? 0 : ahead)
     : phase.kind === 'checkFailed' ? CHECK_FAILED_CONSEQUENCE
-      : ASKING_CONSEQUENCE + (waiting ? '' : queueSuffix(ahead)); // its own plan is not a job ahead of it
+      : ASKING_CONSEQUENCE + (waiting ? '' : queueSuffix(ahead));
   const onPlan = () => void plan(songId);
-  const working = phase.kind === 'planning' && !phase.cancelling;
+  const working = (phase.kind === 'planning' && !phase.cancelling) || phase.kind === 'rendering';
 
   return (
     <>
@@ -76,11 +81,11 @@ export function DockScore({ songId, state }: Props) {
           </button>
         )}
       />
-      {waiting && (
+      {(waiting || rendering) && (
         <div className="dock-jobs">
           <div className={working ? 'dock-job score-job' : 'dock-job score-job waiting'}>
             {working && <AIGeneratingBackground />}
-            <span className="dock-job-label">{jobLine(phase)}</span>
+            <span className="dock-job-label">{jobLine(phase, elapsed)}</span>
             {!(phase.kind === 'planning' && phase.cancelling) && (
               <button type="button" className="tab dock-quiet score-job-cancel" onClick={() => void cancel(songId)}><span>CANCEL</span></button>
             )}

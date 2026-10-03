@@ -15,10 +15,11 @@ import type { EngineId } from './engines/types.js';
  * a version's words for the Editor (timingsJobs.ts). `analyze` is ACE-Step describing a
  * source (analyzeJobs.ts), which loads a DiT and the LM. `lm` is the LM writing for Create:
  * FEELING LUCKY, Quick Start and WRITE FOR ME (lmJobs.ts). `plan` is the score planner, held
- * through every attempt and the confirmed unload (score/planJob.ts). */
+ * through every attempt and the confirmed unload (score/planJob.ts); `scoreRender` is YuE2
+ * re-rendering a song from its edited score (score/scoreRenderJob.ts). */
 export type GenKind =
   | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster'
-  | 'transcribe' | 'lyrics' | 'timings' | 'analyze' | 'lm' | 'plan';
+  | 'transcribe' | 'lyrics' | 'timings' | 'analyze' | 'lm' | 'plan' | 'scoreRender';
 
 /** The three ACE-Step tasks that create a whole new song — all held under the single
  * `generate` kind, so this is what tells them apart. Mirrors `songs.gen_task`. */

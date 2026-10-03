@@ -1,5 +1,6 @@
-/** Score slice (PLAN.md "Score Agent", F-021, F-024): the SCORE verb's status, PLAN, the plan
- * run it polls, and CANCEL. The plan itself stays on the server; only its view comes back. */
+/** Score slice (PLAN.md "Score Agent", F-021, F-023, F-024): the SCORE verb's status, PLAN, the plan
+ * run it polls, APPLY & RENDER and its render run, and CANCEL. The plan itself stays on the server;
+ * only its view comes back. */
 import { json } from './http';
 
 export interface ScoreReading { bars: number; seconds: number; bpm: number; key: string; meter: string; tokens: number | null }
@@ -59,6 +60,27 @@ export interface ScorePlanRun {
 
 export interface ScorePlanState { run: ScorePlanRun | null; plan: ScorePlan | null }
 
+/** The base version a render saved: v`number`, its length and the new score's tempo. */
+export interface ScoreRenderVersion { id: string; number: number; seconds: number | null; bpm: number | null; truncated: boolean }
+
+/** GET /api/songs/:id/score/render's run. `stage` + `progress` are YuE2's stage and that stage's
+ * share; `cause` says why a failed run saved nothing (refused at its turn, CANCEL, the engine). */
+export interface ScoreRenderRun {
+  jobId: string;
+  planId: string;
+  status: 'queued' | 'loading' | 'running' | 'done' | 'failed';
+  queuePosition?: number;
+  stage?: string;
+  progress?: number;
+  startedAt?: number;
+  error?: string;
+  version: ScoreRenderVersion | null;
+  cause: 'refused' | 'cancelled' | 'failed' | null;
+}
+
+/** 202 with the job, or the re-check's reason when nothing was started (a stale plan). */
+export type ScoreRenderStart = { jobId: string; queuePosition: number } | { refused: string };
+
 const post = (url: string, body?: unknown) => fetch(url, {
   method: 'POST', headers: { 'Content-Type': 'application/json' }, body: body === undefined ? undefined : JSON.stringify(body),
 });
@@ -76,4 +98,21 @@ export const scoreApi = {
   /** Queued: leaves the line. Running: aborts the planner call; the slot frees after the unload. */
   cancelScorePlan: (songId: string): Promise<{ ok: true; cancelled?: true; aborted?: true }> =>
     post(`/api/songs/${songId}/score/plan/cancel`).then((r) => json(r)),
+
+  /** APPLY & RENDER. A 409 the re-check made is `{refused}`; any other refusal throws (queue full, in flight). */
+  startScoreRender: async (songId: string, planId: string): Promise<ScoreRenderStart> => {
+    const res = await post(`/api/songs/${songId}/score/render`, { planId });
+    if (res.status === 409) {
+      const body = (await res.clone().json().catch(() => ({}))) as { error?: string; stale?: boolean };
+      if (body.stale && body.error) return { refused: body.error };
+    }
+    return json(res);
+  },
+
+  scoreRenderState: (songId: string): Promise<{ run: ScoreRenderRun | null }> =>
+    fetch(`/api/songs/${songId}/score/render`).then((r) => json(r)),
+
+  /** Queued: leaves the line. Running: ABORT; the slot frees once YuE2 has stopped. */
+  cancelScoreRender: (songId: string): Promise<{ ok: true; cancelled?: true; aborted?: true }> =>
+    post(`/api/songs/${songId}/score/render/cancel`).then((r) => json(r)),
 };

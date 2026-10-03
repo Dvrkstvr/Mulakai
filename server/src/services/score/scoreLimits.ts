@@ -46,3 +46,11 @@ export function withLimits(result: ApplyResult): ApplyResult {
   if (broken.length === 0) return result;
   return { ...result, ok: false, checks: { ...result.checks, ok: false, problems: [...result.checks.problems, ...broken] } };
 }
+
+/** APPLY & RENDER's refusals (F-023 #3, F-024 #4): each names why nothing was started. */
+export const PLAN_EXPIRED = 'plan expired: the server restarted or a newer plan replaced it';
+export const NO_SEED = 'the base version has no stored seed or lyrics to render with';
+export const editQueued = (what: string) => `a ${what} was queued after this plan`;
+export const plannerLoaded = (models: string[]) =>
+  `the planner still holds the GPU (${models.join(', ')}): wait for it to unload, or run \`ollama stop ${models[0]}\``;
+export const plannerUnconfirmed = (why: string) => `can't confirm the planner let go of the GPU: ${why}`;

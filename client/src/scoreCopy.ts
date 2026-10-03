@@ -1,6 +1,7 @@
 /** Every line the SCORE verb says (pipeline/design/score-verb.html, DESIGN.md "Action dock ›
  * SCORE"). Pure. Tempo "follows"; harmony and style are "a request to YuE2, not a guarantee". */
-import type { ScoreChord, ScoreOp, ScorePlan, ScoreReading } from './api';
+import type { ScoreChord, ScoreOp, ScorePlan, ScoreReading, ScoreRenderVersion } from './api';
+import { fmtElapsed, fmtProgress, stageDetail } from './genProgress';
 import { queueSuffix, startsAfter } from './queueCopy';
 import type { ScorePhase } from './scoreVerbTypes';
 
@@ -98,14 +99,33 @@ export function consequenceLine(plan: ScorePlan, v: { baseVersion?: number | nul
   return parts.join(' · ') + queueSuffix(ahead);
 }
 
-/** The job line under the commit: dashed while queued, on the AI shader while the planner works. */
-export function jobLine(phase: ScorePhase): string {
+/** The job line under the commit: dashed while queued, on the AI shader while the planner or YuE2
+ * works. A render names YuE2's stage and that stage's share, then the time since it started. */
+export function jobLine(phase: ScorePhase, elapsedMs = 0): string {
   if (phase.kind === 'queued') return `PLANNING · QUEUED · ${startsAfter(phase.ahead).toUpperCase()}`;
   if (phase.kind === 'planning') {
     if (phase.cancelling) return 'CANCELLING… unloading the planner before the GPU is free';
     return `PLANNING… attempt ${phase.attempt} of ${MAX_ATTEMPTS}${phase.note ? ` · ${phase.note}` : ''}`;
   }
+  if (phase.kind === 'renderQueued') return `RENDERING · QUEUED · ${startsAfter(phase.ahead).toUpperCase()}`;
+  if (phase.kind === 'rendering') return `RENDERING · ${phase.line || 'starting'}${elapsedMs > 0 ? ` · ${fmtElapsed(elapsedMs)}` : ''}`;
   return '';
+}
+
+/** "synthesizing audio 41%": the stage's readable name and its share (DESIGN.md's YuE2 rule). */
+export const renderStage = (stage?: string, progress?: number) =>
+  [stageDetail(stage), stageDetail(stage) ? fmtProgress(progress) : null].filter(Boolean).join(' ');
+
+const clock = (seconds: number | null) => (seconds === null ? null : fmtElapsed(seconds * 1000));
+
+/** DONE in lilac, or TRUNCATED in rust: saved and revertible, but never "done" (D-025). */
+export function savedLine(v: ScoreRenderVersion): string {
+  const length = clock(v.seconds);
+  if (v.truncated) {
+    return `TRUNCATED${length ? ` at ${length}` : ''}, the song is cut short — v${v.number} is saved; revert in VERSIONS or shorten and re-render`;
+  }
+  const facts = [v.bpm === null ? null : `${v.bpm} BPM`, length].filter(Boolean).join(', ');
+  return `Saved base v${v.number}${facts ? ` · ${facts}` : ''}`;
 }
 
 export function offlineLines(phase: Extract<ScorePhase, { kind: 'offline' }>): { title: string; body: string; fix: string } {

@@ -48,7 +48,7 @@ export function Editor({ songId, onBack }: Props) {
   useMainTransportGuard(engine);
   const playhead = engine.currentTime;
   useSpaceTransport(engine);
-  const score = useScoreVerb(songId, scoreSongKey(song));
+  const score = useScoreVerb(songId, scoreSongKey(song), reload);
   const verbs = dockVerbs(score.phase.kind !== 'hidden');
   useDockKeys(setVerb, verbs);
   useEditorFocus(song, focusedLayerId, setFocusedLayerId, setVerb);

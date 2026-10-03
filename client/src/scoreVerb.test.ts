@@ -21,7 +21,8 @@ const asking = at({ kind: 'asking' });
 const planning = at({ kind: 'planning', attempt: 1, note: null, cancelling: false });
 const ready = at({ kind: 'ready' }, { plan: P1 });
 const replanning = at({ kind: 'planning', attempt: 1, note: null, cancelling: false }, { previous: P1 });
-const rendering = at({ kind: 'rendering', line: 'RENDERING… 0:12' }, { plan: P1 });
+const rendering = at({ kind: 'rendering', line: 'synthesizing audio 41%', startedAt: 5 }, { plan: P1 });
+const renderFailed = at({ kind: 'renderFailed', error: 'CUDA out of memory' }, { plan: P1 });
 
 type Row = [string, ScoreVerbState, ScoreEvent, Partial<ScoreVerbState>];
 
@@ -79,8 +80,14 @@ const ROWS: Row[] = [
   ['ready → stale (plan expired), plan kept for the dimmed list', ready, { type: 'renderRefused', reason: 'plan expired: the server restarted' }, { phase: { kind: 'stale', reason: 'plan expired: the server restarted' }, plan: P1 }],
   ['stale → PLAN AGAIN', at({ kind: 'stale', reason: 'x' }, { plan: P1 }), { type: 'planSubmitted', ahead: 0 }, { phase: { kind: 'planning', attempt: 1, note: null, cancelling: false }, plan: null, previous: P1 }],
   ['ready → render queued', ready, { type: 'renderSubmitted', ahead: 1 }, { phase: { kind: 'renderQueued', ahead: 1 }, plan: P1 }],
-  ['ready → rendering', ready, { type: 'renderSubmitted', ahead: 0 }, { phase: { kind: 'rendering', line: '' } }],
-  ['render queued → rendering', at({ kind: 'renderQueued', ahead: 1 }, { plan: P1 }), { type: 'renderProgress', ahead: 0, line: 'RENDERING… 0:03' }, { phase: { kind: 'rendering', line: 'RENDERING… 0:03' } }],
+  ['ready → rendering', ready, { type: 'renderSubmitted', ahead: 0 }, { phase: { kind: 'rendering', line: '', startedAt: null } }],
+  ['render queued → rendering', at({ kind: 'renderQueued', ahead: 1 }, { plan: P1 }), { type: 'renderProgress', ahead: 0, line: 'generating song tokens 3%', startedAt: 9 },
+    { phase: { kind: 'rendering', line: 'generating song tokens 3%', startedAt: 9 } }],
+  ['render failed → RETRY RENDER → rendering, the same plan', renderFailed, { type: 'renderSubmitted', ahead: 0 }, { phase: { kind: 'rendering', line: '', startedAt: null }, plan: P1 }],
+  ['render failed → RETRY RENDER refused → stale', renderFailed, { type: 'renderRefused', reason: 'this song changed since the plan' },
+    { phase: { kind: 'stale', reason: 'this song changed since the plan' }, plan: P1 }],
+  ['render queued → refused at its turn → stale, nothing started', at({ kind: 'renderQueued', ahead: 1 }, { plan: P1 }), { type: 'renderRefused', reason: 'this song changed since the plan' },
+    { phase: { kind: 'stale', reason: 'this song changed since the plan' } }],
   ['rendering → done clears the field and the plan', rendering, { type: 'renderDone', saved: 'Saved base v3 · 88.1 BPM, 3:04', truncated: false },
     { phase: { kind: 'done', saved: 'Saved base v3 · 88.1 BPM, 3:04', truncated: false }, request: '', plan: null }],
   ['rendering → done but truncated', rendering, { type: 'renderDone', saved: 'v3', truncated: true }, { phase: { kind: 'done', saved: 'v3', truncated: true } }],
@@ -101,6 +108,8 @@ const IGNORED: Row[] = [
   ['restore while a plan is under review', ready, { type: 'restore', run: null, plan: P2 }, {}],
   ['a failed run on restore', asking, { type: 'restore', run: run({ status: 'failed', cause: 'check', reasons: ['x'] }), plan: null }, {}],
   ['APPLY & RENDER outside plan ready', asking, { type: 'renderSubmitted', ahead: 0 }, {}],
+  ['APPLY & RENDER while rendering', rendering, { type: 'renderSubmitted', ahead: 0 }, {}],
+  ['a render poll after done', at({ kind: 'done', saved: 'v3', truncated: false }), { type: 'renderProgress', ahead: 0, line: 'x', startedAt: 1 }, {}],
   ['CANCEL while asking', asking, { type: 'cancel' }, {}],
 ];
 

@@ -12,12 +12,15 @@ type Kind = ScorePhase['kind'];
 const CAN_PLAN: Kind[] = ['asking', 'ready', 'checkFailed', 'stale', 'renderFailed', 'done'];
 const PLANNING: Kind[] = ['queued', 'planning'];
 const RENDERING: Kind[] = ['renderQueued', 'rendering'];
+/** Where APPLY & RENDER can be pressed: a plan under review, or RETRY RENDER after a failure. */
+const CAN_RENDER: Kind[] = ['ready', 'renderFailed'];
 /** States the server's status decides by itself (nothing of the user's is in flight there). */
 const SETTLED: Kind[] = ['hidden', 'ineligible', 'offline'];
 
 const is = (s: ScoreVerbState, kinds: Kind[]) => kinds.includes(s.phase.kind);
 
 export const canPlan = (s: ScoreVerbState) => is(s, CAN_PLAN) && s.request.trim().length > 0;
+export const canRender = (s: ScoreVerbState) => is(s, CAN_RENDER) && s.plan !== null;
 
 function fromStatus(s: ScoreVerbState, status: ScoreStatusView): ScoreVerbState {
   const next = { ...s, status };
@@ -78,13 +81,13 @@ export function scoreVerb(s: ScoreVerbState, e: ScoreEvent): ScoreVerbState {
       if (s.phase.kind === 'planning') return { ...s, phase: { ...s.phase, cancelling: true } };
       return s;
     case 'renderSubmitted':
-      if (s.phase.kind !== 'ready') return s;
-      return { ...s, phase: e.ahead > 0 ? { kind: 'renderQueued', ahead: e.ahead } : { kind: 'rendering', line: '' } };
-    case 'renderRefused':
-      return s.phase.kind === 'ready' ? { ...s, phase: { kind: 'stale', reason: e.reason } } : s;
+      if (!is(s, CAN_RENDER) || !s.plan) return s;
+      return { ...s, error: null, phase: e.ahead > 0 ? { kind: 'renderQueued', ahead: e.ahead } : { kind: 'rendering', line: '', startedAt: null } };
+    case 'renderRefused': // at the click, or when the queued render's turn came
+      return is(s, CAN_RENDER) || is(s, RENDERING) ? { ...s, phase: { kind: 'stale', reason: e.reason } } : s;
     case 'renderProgress':
       if (!is(s, RENDERING)) return s;
-      return { ...s, phase: e.ahead > 0 ? { kind: 'renderQueued', ahead: e.ahead } : { kind: 'rendering', line: e.line } };
+      return { ...s, phase: e.ahead > 0 ? { kind: 'renderQueued', ahead: e.ahead } : { kind: 'rendering', line: e.line, startedAt: e.startedAt } };
     case 'renderDone':
       return is(s, RENDERING) ? { ...s, phase: { kind: 'done', saved: e.saved, truncated: e.truncated }, request: '', plan: null, previous: null } : s;
     case 'renderFailed':

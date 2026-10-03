@@ -7,9 +7,11 @@ const scoreStatus = vi.fn<(id: string) => Promise<ScoreStatusView>>();
 const scorePlanState = vi.fn<(id: string) => Promise<ScorePlanState>>();
 const startScorePlan = vi.fn<(id: string, request: string) => Promise<{ jobId: string; queuePosition: number }>>();
 const cancelScorePlan = vi.fn<(id: string) => Promise<unknown>>();
+const startScoreRender = vi.fn<(id: string, planId: string) => Promise<unknown>>();
 vi.mock('./api', () => ({ api: {
   scoreStatus: (id: string) => scoreStatus(id), scorePlanState: (id: string) => scorePlanState(id),
   startScorePlan: (id: string, r: string) => startScorePlan(id, r), cancelScorePlan: (id: string) => cancelScorePlan(id),
+  startScoreRender: (id: string, p: string) => startScoreRender(id, p), scoreRenderState: async () => ({ run: null }),
 } }));
 
 const { useScoreStore } = await import('./scoreStore');
@@ -113,8 +115,9 @@ describe('scoreStore', () => {
     scorePlanState.mockResolvedValueOnce({ run: run({ status: 'done' }), plan: P1 });
     await store().load(S);
     expect(phase()).toEqual({ kind: 'ready' });
-    scorePlanState.mockResolvedValue({ run: null, plan: null });
+    startScoreRender.mockResolvedValue({ refused: 'plan expired: the server restarted or a newer plan replaced it' });
     await store().apply(S);
-    expect(phase()).toEqual({ kind: 'stale', reason: PLAN_EXPIRED });
+    expect(startScoreRender).toHaveBeenCalledWith(S, 'p1');
+    expect(phase()).toEqual({ kind: 'stale', reason: 'plan expired: the server restarted or a newer plan replaced it' });
   });
 });
