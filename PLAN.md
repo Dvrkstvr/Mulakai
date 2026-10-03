@@ -8477,6 +8477,50 @@ take still runs on ACE-Step, so ACE-Step stays a required process.
   with it unset, on ACE-Step; toggling the setting adds and removes
   ACE-STEP.
 
+### With the score agent (agentic editing, planned)
+
+A score agent for YuE2 songs is planned but not yet specified here. It
+gets its own dated section after its spikes, and that section supersedes
+"ABC score editing is out of scope" ("Engine: YuE2", "YuE2: Align With
+Upstream"). What is decided so far:
+
+- A local LLM turns a request ("jazz choruses, 88 BPM, add a sax solo")
+  into score operations on the song's saved `score.abc` sidecar.
+- Mulakai applies the operations and checks the result. The person reviews
+  the change list, and APPLY & RENDER re-renders the whole song on YuE2 as
+  a new base version.
+- It is a 5th Action Dock verb, **SCORE**, shown only for songs whose first
+  take came from YuE2.
+- SCORE is available only while the song has no ACE-Step edits (one layer,
+  no repaint versions). After that it offers "new song from this score"
+  instead.
+
+How this section changes that agent:
+
+1. **SCORE becomes the main edit path for a new song, not a side path.**
+   Every song made on the default engine carries a `score.abc` sidecar, so
+   SCORE is available from the first take. That sets the editing order:
+   first whole-song score edits on YuE2, then ACE-Step audio edits
+   (repaint, ADD LAYER, extract, remaster). The first ACE-Step edit ends
+   score editing for that song. The score agent's section must state this
+   in the dock before it happens. For example, REPAINT and ADD LAYER on a
+   song that still has SCORE carry the consequence line "score editing
+   ends after this edit — SCORE will offer a new song instead".
+2. **Songs made on ACE-Step never show SCORE.** That covers songs made
+   with ACE-STEP FOR NEW SONGS on, and every song on an install without
+   YuE2. ACE-Step returns no score.
+3. **AGENTS.md is amended once per rule.** This section's PR changes only
+   the first-take default. The score agent's PR amends "every edit after
+   the first take runs on ACE-Step", so that YuE2 may re-render its own
+   song from an edited score.
+4. **GPU.** YuE2 now loads for every default new song, and the agent adds
+   a planner LLM. All three share the 16 GB card one at a time. The
+   planner hand-off was measured on this machine on 2026-10-03: released
+   in about 0.1 s, then YuE2 ran at full speed. This section needs nothing
+   new for the GPU.
+5. **Removing HeartMuLa loses nothing here.** HeartMuLa returns no score,
+   so SCORE never applied to its songs.
+
 ### Open questions
 
 1. Should COVER default to YUE2 too? Recommendation: no, see decision 1.
