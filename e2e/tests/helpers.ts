@@ -15,6 +15,12 @@ export async function fakeTasks(request: APIRequestContext): Promise<FakeTask[]>
   return (await res.json()) as FakeTask[];
 }
 
+/** While held, every fake task keeps reporting "running" (see fake-acestep/server.ts). */
+export async function holdFake(request: APIRequestContext, hold: boolean): Promise<void> {
+  const res = await request.post(`http://127.0.0.1:${PORTS.fake}/__fake/hold`, { data: { hold } });
+  expect(res.ok()).toBe(true);
+}
+
 export async function lastTaskOfType(request: APIRequestContext, taskType: string): Promise<FakeTask> {
   const task = (await fakeTasks(request)).filter((t) => t.params.task_type === taskType).at(-1);
   expect(task, `fake ACE-Step received no ${taskType} task`).toBeTruthy();
