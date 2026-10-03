@@ -2,6 +2,7 @@
  * Started once by App; returns the unsubscribe. */
 import { api } from './api';
 import { useActivityStore, type ActivityEntry } from './activityStore';
+import { useApiStatusStore } from './apiStatusStore';
 import { editorSettled, genSettled, localSettled, splitSettled, timingsFailed } from './activitySettle';
 import { useEditorJobStore } from './editorJobStore';
 import { useGenerationStore } from './generationStore';
@@ -10,8 +11,10 @@ import { useSongIndexStore } from './songIndexStore';
 import { useTimingsStore } from './timingsStore';
 import { useTranscribeStore } from './transcribeStore';
 
-function record(entry: ActivityEntry | null): void {
+/** `jobId` is the lock's id for the settled job, where its store keeps one. */
+function record(entry: ActivityEntry | null, jobId?: string): void {
   if (!entry) return;
+  useApiStatusStore.getState().lockReleased(entry.kind, jobId);
   const activity = useActivityStore.getState();
   activity.record(entry);
   if (entry.status !== 'done') return;
@@ -29,10 +32,10 @@ function record(entry: ActivityEntry | null): void {
 
 export function trackActivity(): () => void {
   const unsubs = [
-    useGenerationStore.subscribe((s, prev) => record(genSettled(prev.job, s.job))),
+    useGenerationStore.subscribe((s, prev) => record(genSettled(prev.job, s.job), prev.job?.jobId)),
     useEditorJobStore.subscribe((s, prev) => {
-      record(editorSettled(prev.editorJob, s.editorJob));
-      record(splitSettled(prev.splitJob, s.splitJob));
+      record(editorSettled(prev.editorJob, s.editorJob), prev.editorJob?.jobId);
+      record(splitSettled(prev.splitJob, s.splitJob), prev.splitJob?.splitJobId);
     }),
     useTranscribeStore.subscribe((s, prev) => record(localSettled('transcribe', prev, s, s.retry))),
     useReadLyricsStore.subscribe((s, prev) => record(localSettled('lyrics', prev, s, s.retry))),
@@ -44,7 +47,7 @@ export function trackActivity(): () => void {
         timings.retry(versionId);
         void timings.read(versionId);
         return true;
-      }).forEach(record);
+      }).forEach((entry) => record(entry));
     }),
   ];
   return () => unsubs.forEach((u) => u());
