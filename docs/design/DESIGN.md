@@ -686,7 +686,10 @@ requiring its own justification against a screen-count rule.
        ("drag a waveform, click a section or a lyric line"), and the verb
        tabs at the right. The chip reads per verb (`dockTarget.ts`): REPAINT
        `VOCALS · VERSE 2 · 1:32–2:07` (the section only when the range is
-       exactly one), or `VOCALS · WHOLE SONG` with no selection, with a quiet
+       exactly one), or `VOCALS · WHOLE SONG` with no selection (held to the
+       same 3–90 s limit by the song's length: a longer song reads `VOCALS ·
+       WHOLE SONG · MAX 90s` in rust, with the commit off and the
+       consequence line asking for a region), with a quiet
        `✕ WHOLE SONG` that clears the range; a region under 3 s or over 90 s
        turns the chip rust (`· MIN 3s` / `· MAX 90s`) and holds the commit.
        ADD LAYER and EXPORT read `WHOLE SONG`, SPLIT `BASE · WHOLE LAYER`.
@@ -863,7 +866,8 @@ never destroys the old one.
 - Control path: open the verb's `TUNE ▸` in the dock (model, steps,
   guidance, seed, advanced) before committing — no per-action sheet, no
   modal; VARIANCE and CROSSFADE stay inline.
-- Empty selection = whole song scope (REPAINT repaints the whole layer).
+- Empty selection = whole song scope (REPAINT repaints the whole layer when
+  the song is within the 3–90 s repaint limit; a longer one takes a region).
 - Actions always state the version they will create before commit.
 
 ## Motion
@@ -903,9 +907,14 @@ commits**: every generative or destructive action is still made at its own
 acid button under its consequence line.
 - Anatomy: the search row (a sky scope chip, the input, an `ESC` key hint),
   grouped results, and a footer `↑↓ MOVE · ↵ RUN · TAB CHANGE SCOPE`.
-- Groups, in this order: **DO** (the open song's edit verbs: repaint a
-  section or the current selection, add a layer, split a layer, export —
-  each focuses its control with the target set), **OPEN** (songs, the open
+- Groups, in this order: **DO** (the open song's action-dock verbs, each
+  with its dock key as the hint: *Repaint <section>* / *Repaint <range>*
+  (R) selects that range and opens REPAINT with its instruction field
+  focused; one *Add layer · <track>* per TRACK option (L) opens ADD LAYER
+  with that track picked; *Split <layer>* (S) focuses the layer and opens
+  SPLIT; *Export mix* / *stems* / *remastered mix* (E) opens EXPORT on that
+  WHAT. Each sets the verb and target and never starts a job — the commit
+  stays the dock's), **OPEN** (songs, the open
   song's layers, folders), **CREATE** (the three start points, and "Remake
   <song>" = CREATE COVER FROM AUDIO), **SETTINGS** (each section; Forge only
   while enabled). Group labels are 9px `text-low`.
