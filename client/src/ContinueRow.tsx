@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, type RecentSong } from './api';
 import { isDraftEmpty, useCreateDraftStore } from './createDraftStore';
-import { GEN_TYPE_LABEL } from './createDraft';
+import { START_FROM } from './createDraft';
 import { PlayerWaveform } from './PlayerWaveform';
 import { lastAction } from './recentSongs';
 
@@ -43,7 +43,7 @@ export function ContinueRow({ refreshKey, openEditor, resumeCreate }: Props) {
             </div>
             <div className="continue-draft-note">{draftPrompt || 'no description yet'}</div>
             <div className="continue-card-foot">
-              <span className="continue-meta">Draft in Create · {GEN_TYPE_LABEL[draftType]}</span>
+              <span className="continue-meta">Draft in Create · {START_FROM[draftType].title}</span>
               <button type="button" className="continue-resume" onClick={resumeCreate}><span>RESUME</span></button>
             </div>
           </div>

@@ -6,10 +6,10 @@ import { AUTO_CONTROLS, controlRange, controlsFor, engineFields, useEngineSettin
 const YUE2: EngineCapabilities = {
   duration: 'none', musicalMeta: 'style-text', referenceAudio: false, adapters: false, seed: true,
   languages: ['en', 'zh'], sectionTags: null, lmTools: false, advanced: false, takes: false,
-  extraControls: ['cfg', 'cot'], consequence: 'YuE2 · …',
+  instrumental: true, extraControls: ['cfg', 'cot'], consequence: 'YuE2 · …',
 };
 const HEARTMULA: EngineCapabilities = {
-  ...YUE2, duration: 'max', musicalMeta: 'none', seed: false, extraControls: ['cfg', 'temperature', 'topK'],
+  ...YUE2, duration: 'max', musicalMeta: 'none', seed: false, instrumental: false, extraControls: ['cfg', 'temperature', 'topK'],
 };
 const DRAFT: PromptIntent = {
   title: '', prompt: 'indie pop', lyrics: '[Verse]\nla', bpm: 92, keyScale: 'A minor', timeSignature: '6',
@@ -18,6 +18,15 @@ const DRAFT: PromptIntent = {
 const SEED = { randomSeed: false, seed: 7 };
 
 describe('enginePromptParams', () => {
+  it('asks YuE2 for an instrumental its own way: blank LYRICS, not the ACE-Step tag', () => {
+    expect(enginePromptParams({ ...DRAFT, lyrics: '[Instrumental]' }, YUE2, SEED, AUTO_CONTROLS, null).lyrics).toBe('');
+    expect(enginePromptParams(DRAFT, YUE2, SEED, AUTO_CONTROLS, null).lyrics).toBe('[Verse]\nla');
+  });
+
+  it('never blanks LYRICS for an engine without an instrumental mode (HeartMuLa 422s blank lyrics)', () => {
+    expect(enginePromptParams({ ...DRAFT, lyrics: '[Instrumental]' }, HEARTMULA, SEED, AUTO_CONTROLS, null).lyrics).toBe('[Instrumental]');
+  });
+
   it('sends YuE2 only what it takes: style-text details, the seed pair and its own controls', () => {
     const params = enginePromptParams(DRAFT, YUE2, SEED, { ...AUTO_CONTROLS, cfg: 1.5, cot: 'melody', temperature: 0.9 }, { f: 'flac' });
     expect(params).toEqual({

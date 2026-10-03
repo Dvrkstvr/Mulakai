@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { api, type Song } from './api';
+import { api, type ModelInventory, type Song } from './api';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { coverLocked, isGenerating } from './generationJob';
@@ -12,17 +12,28 @@ import { CoverSourcePicker } from './CoverSourcePicker';
 import { CoverEngineChoice } from './EngineChoice';
 import { sectionOutline } from './coverLyrics';
 import { YueScoreReview } from './YueScoreReview';
-import { YueCoverGenerate } from './YueCoverGenerate';
 import { YueCoverAnalyze } from './YueCoverAnalyze';
+import { YueCoverLyrics } from './YueCoverLyrics';
+import { YueCoverCommit } from './YueCoverCommit';
 import { useReadLyricsStore } from './readLyricsStore';
 import { useReadLyrics } from './YueReadLyrics';
+import { AutoTextarea } from './AutoTextarea';
+import { CarriedPromptNote } from './CarriedPromptNote';
+import type { Lookup } from './lookup';
+import { CreateStep } from './CreateStep';
+import { RecipeCard } from './RecipeCard';
+import { GenTune } from './GenTune';
 
-/** COVER on an extra engine (PLAN.md "YuE2 Melody Covers via SheetSage2", "Client cover
- * decisions"): ENGINE, SOURCE → TRANSCRIBE → review → GENERATE. The score lives in the draft, so
- * style, lyrics or seed can change without transcribing again. */
-export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; onBack: () => void; noCoverModel: boolean }) {
+/** A SONG I HAVE on an extra engine (PLAN.md "YuE2 Melody Covers via SheetSage2", "Client cover
+ * decisions"): PICK THE SONG → TRANSCRIBE → review → WHAT CHANGES? → LYRICS, then GENERATE COVER
+ * on the RECIPE card. The score lives in the draft, so style, lyrics or seed can change without
+ * transcribing again; step 1 holds everything that reads the source. */
+export function YueCoverPanel({ songs, onBack, noCoverModel, inventory }: {
+  songs: Song[]; onBack: () => void; noCoverModel: boolean; inventory: Lookup<ModelInventory> & { retry: () => void };
+}) {
   const audio = useCreateDraftStore((s) => s.audio);
   const lyrics = useCreateDraftStore((s) => s.lyrics);
+  const prompt = useCreateDraftStore((s) => s.prompt);
   const reusedFrom = useCreateDraftStore((s) => s.reusedFrom);
   const patch = useCreateDraftStore((s) => s.patch);
   const patchAudio = useCreateDraftStore((s) => s.patchAudio);
@@ -85,33 +96,46 @@ export function YueCoverPanel({ songs, onBack, noCoverModel }: { songs: Song[]; 
   const label = preparing ? 'PREPARING SOURCE…'
     : tr.stage === 'running' ? `TRANSCRIBING… ${tr.progress != null ? Math.round(tr.progress * 100) : 0}%`
       : score?.transcription ? 'TRANSCRIBE AGAIN' : 'TRANSCRIBE';
+  const autoRead = audio.source === 'upload' && read.autoOn;
   return (
     <>
-      <CoverEngineChoice lockedBy={engineLockedBy(jobs)} />
-      <CoverSourcePicker songs={songs} lockedBy={lockedBy}
-        satisfied={coverSourceReady(audio) || !!score || !!audio.reuseScore} />
-      <div className="score-actions">
-        <button className="acid-outline" disabled={!coverSourceReady(audio) || running || locked || unavailable} onClick={transcribe}>
-          <span>{label}</span>
-        </button>
-        {read.button}
-        <button type="button" className="tag-guide-btn" disabled={running} onClick={() => fileRef.current?.click()}>
-          <span>USE .ABC FILE</span>
-        </button>
-        <input ref={fileRef} type="file" accept=".abc,.txt,text/plain" hidden
-          onChange={(e) => { void loadScoreFile(e.target.files?.[0]); e.target.value = ''; }} />
+      <div className="create-steps">
+        <CreateStep n={1} title="PICK THE SONG">
+          <CoverSourcePicker songs={songs} lockedBy={lockedBy}
+            satisfied={coverSourceReady(audio) || !!score || !!audio.reuseScore} />
+          <div className="score-actions">
+            <button className="acid-outline" disabled={!coverSourceReady(audio) || running || locked || unavailable} onClick={transcribe}>
+              <span>{label}</span>
+            </button>
+            {read.button}
+            <button type="button" className="tag-guide-btn" disabled={running} onClick={() => fileRef.current?.click()}>
+              <span>USE .ABC FILE</span>
+            </button>
+            <input ref={fileRef} type="file" accept=".abc,.txt,text/plain" hidden
+              onChange={(e) => { void loadScoreFile(e.target.files?.[0]); e.target.value = ''; }} />
+          </div>
+          <div className="hint">
+            TRANSCRIBE reads the source&apos;s melody into a score
+            {autoRead && ' · then READ LYRICS reads its words into LYRICS, unless they hold yours'}
+            {' '}· nothing is saved to your library · USE .ABC FILE swaps in a score you corrected elsewhere
+          </div>
+          {read.notes}
+          {(error || tr.error) && <div className="error">{error || tr.error}</div>}
+          {reuse && !score && <span className="meta">loading the earlier cover&apos;s score…</span>}
+          {score && <YueScoreReview engine={engine} score={score} />}
+        </CreateStep>
+        <CreateStep n={2} title="WHAT CHANGES?">
+          <AutoTextarea placeholder="Describe the cover — style, mood, instruments, voice. The melody comes from the score."
+            value={prompt} onChange={(v) => patch({ prompt: v })} />
+          <CarriedPromptNote />
+          <YueCoverAnalyze analysis={analysis} blocked={running || locked} noModel={noCoverModel} />
+        </CreateStep>
+        <YueCoverLyrics />
       </div>
-      <div className="hint">
-        TRANSCRIBE reads the source&apos;s melody into a score
-        {audio.source === 'upload' && read.autoOn && ' · then READ LYRICS reads its words into LYRICS, unless they hold yours'}
-        {' '}· nothing is saved to your library · USE .ABC FILE swaps in a score you corrected elsewhere
-      </div>
-      {read.notes}
-      {(error || tr.error) && <div className="error">{error || tr.error}</div>}
-      {reuse && !score && <span className="meta">loading the earlier cover&apos;s score…</span>}
-      {score && <YueScoreReview engine={engine} score={score} />}
-      <YueCoverGenerate onBack={onBack} blocked={running || locked}
-        analyze={<YueCoverAnalyze analysis={analysis} blocked={running || locked} noModel={noCoverModel} />} />
+      <RecipeCard stepsModel="" coverStepsAhead={score ? 1 : autoRead ? 3 : 2}
+        engine={<CoverEngineChoice lockedBy={engineLockedBy(jobs)} />}
+        tune={<GenTune inventory={inventory} stepsModel="" />}
+        commit={<YueCoverCommit onBack={onBack} blocked={running || locked} />} />
     </>
   );
 }

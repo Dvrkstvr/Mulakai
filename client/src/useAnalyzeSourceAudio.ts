@@ -31,8 +31,8 @@ export function fillable(value: string, carried?: boolean): boolean {
 }
 
 /** Manually-triggered "analyze this source audio" call — `analyze()` loads the given model
- * (+ its LM) then runs ACE-Step's `/v1/analyze_audio`. Shared by CreateAudioTab and
- * CreateArrangeTab via `AnalyzeAudioButton`. A request-token ref guards against a stale
+ * (+ its LM) then runs ACE-Step's `/v1/analyze_audio`. Shared by CoverSteps and
+ * TrackSteps via `AnalyzeAudioButton`. A request-token ref guards against a stale
  * in-flight response clobbering state if the source/model changes mid-request. */
 export function useAnalyzeSourceAudio(): AnalyzeState & { analyze: (source: AnalyzeSource, model: string) => void } {
   const [state, setState] = useState<AnalyzeState>(IDLE);

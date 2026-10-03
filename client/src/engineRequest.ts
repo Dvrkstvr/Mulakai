@@ -4,6 +4,7 @@
  * GUIDANCE, the LM knobs or a reference voice — those are ACE-Step's. */
 import type { EngineCapabilities } from './api';
 import { liveLanguage, unsupported } from './engineCaps';
+import { isInstrumental } from './instrumental';
 import { engineFields, type EngineControlValues } from './engineSettings';
 
 export interface PromptIntent {
@@ -29,7 +30,9 @@ export function enginePromptParams(
   return {
     title: d.title || 'Untitled',
     prompt: d.prompt,
-    lyrics: d.lyrics,
+    // INSTRUMENTAL's `[Instrumental]` is ACE-Step's spelling; an engine that can make one is
+    // asked the way it understands, blank LYRICS (YuE2's instrumental skeleton, yue2.ts).
+    lyrics: caps.instrumental && isInstrumental(d.lyrics) ? '' : d.lyrics,
     ...(live('bpm') && d.bpm > 0 ? { bpm: d.bpm } : {}),
     ...(live('keyScale') && d.keyScale ? { key_scale: d.keyScale } : {}),
     ...(live('timeSignature') && d.timeSignature ? { time_signature: d.timeSignature } : {}),
