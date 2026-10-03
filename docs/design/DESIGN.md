@@ -947,7 +947,10 @@ the Library's footer player. Sections, each with a 9px `text-low` label:
   AUDIO, another tab's job, a job from before a reload). Rows for jobs that
   make or describe audio wear the AI shader (see AI states); the others are
   plain cards with `n%` and a 2px `text-mid` bar. The row holding the
-  server's running slot carries ABORT, a quiet outline.
+  server's running slot carries ABORT, a quiet outline. ABORT drops the
+  result at once, but the next queued job waits until the abandoned task
+  has really stopped on its backend (ACE-Step can't cancel one), at most
+  10 minutes; pressing ABORT again starts the next job right away.
 - **UP NEXT** (added 2026-10-03, S4) — every job waiting in the server's
   queue, this tab's or another's, in queue order: a plain card with a
   **dashed** `line-hi` hairline (waiting, not working, so never the AI
@@ -955,7 +958,9 @@ the Library's footer player. Sections, each with a 9px `text-low` label:
   file), with the action and its place in line below in `text-mid`
   ("REPAINT 1:32–2:07 · starts after 1 job"), and **CANCEL**, a quiet
   outline. CANCEL takes it out of the queue: nothing was made yet, so the
-  row simply goes — no FAILED row, no RETRY. A job this tab follows shows
+  row simply goes — no FAILED row, no RETRY. CANCEL only ever cancels a
+  waiting job: if it started since the row was drawn, it is left running,
+  moves to RUNNING, and a `rust-text` note under UP NEXT says so. A job this tab follows shows
   here, not under RUNNING, until it starts. Trashing a song cancels its
   waiting jobs the same way.
 - **DONE** — title, a lilac result badge (`VOCALS v5`, `+1 LANE`,
