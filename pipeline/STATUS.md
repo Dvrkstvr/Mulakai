@@ -5,12 +5,12 @@
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
-- stage: 7 Build M0 — W0 (F-016 docs) on branch docs/score-agent-w0 (main checkout)
+- stage: 7 Build M0 — W0 = PR #124 (CI running, merge needs user OK); W1 (F-017 yue-server score routes) next on feat/score-w1-routes
 - clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-031) · decisions to D-046
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · owed: user listens (SP-3 A/B, SP-2 phrases)
 - milestone: M0 (F-016..F-025) · features passing 6/39 · owed: user listens (SP-3, SP-2); R-012 red golden path
-- autopilot: M0 · round 7/12 · progress 7·0·6·0 · stall 0 · remote control on
-- next: builder W0 → checks → commit → ask user to push/PR
+- autopilot: M0 · round 8/12 · progress 7·W0 PR·6·0 · stall 0 · remote control on
+- next: W1 builder (test-first vs SP-2 golden cases) while #124 CI runs; ask user before merging #124
 
 ## Stages
 | # | Stage | State | Gate | Date |

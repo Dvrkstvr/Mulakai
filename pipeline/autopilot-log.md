@@ -10,3 +10,5 @@ R5 stage 5 · ux-mocker → design/score-verb.html, 14 states; 2/3 must (Q-022, 
 R5b stage 5 · user picked Q-022 A, Q-023 C, signed off mockup (D-032) → gate 3/3 · progress 6·0·6·0 · next: stage 6
 R6 stage 6 · architect → architecture.md, playbook complete, checks green (client 624, server 518, pytest 65, e2e 5); context budget deferred to W0 by user (D-046) · progress 7·0·6·0 · STOP: fresh session before M0 build
 ## Run 2026-10-03 (resumed, same session, remote control on) → M0
+R7 stage 7 M0/W0 · builder → 5 docs/ci commits + pipeline commit on docs/score-agent-w0; checks green (client 624, server 520, pytest 65), context-budget exit 0 · progress 7·W0 local·6·0 · waiting: user OK to push + PR
+R8 stage 7 M0/W1 · builder → yue-server score read/apply routes (F-017), pytest 163 pass (98 new), 37/37 golden match; #5 live VRAM check owed at CP1 · progress 7·W1 local·6·0
