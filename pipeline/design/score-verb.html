@@ -1,0 +1,231 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>SCORE verb - decision mockup (M0)</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--li:#7B4B94;--lt:#A97FC1;--lw:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}
+h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:30px 0 12px}
+p,li{max-width:1100px}
+.mo,.k,.rd,.tg,.ck{font-family:ui-monospace,monospace}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
+.f{width:880px}.f.n{width:580px}
+.f>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.f>h4 b{color:var(--t)}
+.rc>h4:after{content:" · RECOMMENDED";color:var(--t)}
+.d{border:1px solid var(--l);background:var(--p)}
+.hd{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--l);flex-wrap:wrap}
+.lb,.hn{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.hn{font-weight:400;letter-spacing:0}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}
+.p>span{display:inline-block;transform:skewX(10deg)}
+.ch{background:var(--s);color:var(--sk);padding:4px 10px;font-size:10px}
+.vs{margin-left:auto;display:flex;gap:6px}
+.t{border:1px solid var(--l);color:var(--m);padding:6px 12px;font-size:10px}
+.t.on{border-color:var(--a);color:var(--a)}
+.k{font-size:9px;color:var(--w);border:1px solid var(--l);padding:1px 4px;margin-left:8px}
+.bd{display:flex;flex-direction:column;gap:10px;padding:14px}
+.in{border:1px solid var(--h);background:var(--c);padding:8px 10px}
+.in.e{color:#55555C}.in.x{opacity:.6;border-color:var(--l)}
+.rd{font-size:10px;color:var(--w)}
+.ls{border:1px solid var(--l)}
+.ls>div{display:flex;gap:12px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--l);min-height:30px}
+.ls>div:last-child{border:0}
+.o{font-size:11px;font-weight:700;letter-spacing:1px;width:112px}
+.dt{flex:1;color:var(--m)}.tg{font-size:10px;color:var(--w)}.no{color:var(--rt)}
+.ck{font-size:10px;color:var(--m)}.ck i{font-style:normal;color:var(--rt)}
+.dm{opacity:.4;border:1px dashed var(--h);padding:8px;pointer-events:none}.dm .ls{border:0}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}
+.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}.cs u{text-decoration:none;color:var(--rb)}
+.ac,.ao,.q{font-size:11px;padding:11px 22px;border:1px solid}
+.ac{background:var(--a);border-color:var(--a);color:var(--c)}.z{opacity:.5}
+.ao{color:var(--a);border-color:var(--a)}
+.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}
+.j{margin:0 14px 10px;padding:7px 10px;border:1px solid var(--l);font-size:10px;letter-spacing:1px;color:var(--a);display:flex;justify-content:space-between;align-items:center}
+.j.sh{background:linear-gradient(110deg,#2A2133,#153543 45%,#44510F)}
+.j.w{border:1px dashed var(--h);color:var(--m)}.j em{font-style:normal;letter-spacing:0;color:var(--m)}
+.er,.wn{margin:14px;padding:8px 10px;color:var(--rt);font-size:11px;display:flex;gap:10px;align-items:center}
+.er{border:1px solid var(--ru);background:var(--rw)}.wn{border-left:1px solid var(--ru);margin:0 14px 14px}
+.er div,.wn div{flex:1;color:var(--rb)}.er b,.wn b{color:var(--rt);letter-spacing:1px}
+.vb{background:var(--lw);border:1px solid var(--li);color:var(--lt);padding:3px 9px;font-size:10px}
+.ok{background:var(--lw);border-left:2px solid var(--li);padding:8px 10px;display:flex;gap:10px;align-items:center}
+.ok.r{background:var(--rw);border-color:var(--ru);color:var(--rt)}
+.rl{width:280px;border:1px solid var(--l);background:var(--p);padding:12px}
+.vr{padding:7px 8px;border-bottom:1px solid var(--l);font-size:11px;color:var(--m);display:flex;gap:8px;align-items:center}
+.vr.on{border-left:2px solid var(--li);background:var(--lw);color:var(--t)}
+.tb{border-collapse:collapse;font-size:11px;margin:8px 0}.tb td,.tb th{border:1px solid var(--l);padding:5px 8px;vertical-align:top;text-align:left}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:10px 0;max-width:1100px}
+.bl{color:var(--rt);font-weight:700}.as{color:var(--m)}.df{color:var(--w)}.sc{overflow:hidden;height:92px}
+</style></head><body>
+<h1>SCORE · decision mockup</h1>
+<div class="rd">stage 5 · M0 · F-021..F-024 · D-006 D-007 D-021 D-025 · Q-015 · tokens: docs/design/DESIGN.md, none added</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li>The SCORE verb in all 12 states with copy (frames 1-14); DT-1..DT-5, each with the alternative it beat. DT-1 (height) and DT-2 (key) are <span class="bl">BLOCKING</span>, three options drawn.</li>
+<li>Consequence line per op (tempo "follows", harmony and style "a request, not a guarantee") and the Q-015 line on REPAINT (frame 15, M1 preview).</li>
+<li>Not settled: bar map (M4), section/lyric referent (M2), Settings card, Activity entry.</li>
+<li>Dock structure <i>seen in code</i> (ActionDock.tsx, DockCommit.tsx, index.css); heights <i>inferred</i> from its paddings. Frames 880 px; the shader is a static stand-in.</li>
+</ul>
+
+<h2>STATES</h2>
+<div class="g">
+
+<div class="f"><h4><b>1 HIDDEN</b> · no tab, no key</h4><div class="d" style="padding:10px 14px">
+<div class="hn">ACE-Step song, import, or LLM_API_URL unset</div><div class="vs" style="margin:6px 0 12px" data-t="-|4|REPAINT"></div>
+<div class="hn">YuE2 first take, LLM_API_URL set: SCORE appended last</div><div class="vs" style="margin:6px 0 0" data-t="C|5|REPAINT"></div></div></div>
+
+<div class="f"><h4><b>2 INELIGIBLE</b> · D-006 / D-021: one reason, not rust (nothing is broken)</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div style="color:var(--m)">This song has a repaint version, so score editing ended when it was made.</div>
+<div class="rd">No button: NEW SONG FROM THIS SCORE arrives with M3.</div></div></div></div>
+
+<div class="f"><h4><b>3 OFFLINE</b> · planner unreachable mid-plan; GPU slot already released</h4><div class="d" data-c="BASE · WHOLE SCORE">
+<div class="er"><div><b>PLANNER OFFLINE</b> · Ollama stopped answering during the plan (connection refused, localhost:11434)<br>Start Ollama, then RECHECK. Request kept, nothing saved, GPU free.</div><span class="p q">RECHECK</span></div>
+<div class="bd" style="padding-top:0"><div class="rd">same shape: "qwen3:14b is not pulled: ollama pull qwen3:14b" · "LLM_API_URL is not an Ollama server"</div></div></div></div>
+
+<div class="f"><h4><b>4 ASKING</b> · empty field; PLAN waits for text</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in e">Describe the change, e.g. jazz chords in the chorus, 88 BPM</div><div class="rd" data-rd></div></div>
+<div class="cm"><span class="cs" data-cs="a"></span><span class="p ao z">PLAN</span><span class="p ac z">APPLY &amp; RENDER</span></div></div></div>
+
+<div class="f"><h4><b>5 QUEUED</b> · GPU busy; dashed = waiting, as in the dock's QUEUED job lines</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in x" data-rq></div></div>
+<div class="cm"><span class="cs" data-cs="a"></span><span class="p ao z">PLAN</span><span class="p ac z">APPLY &amp; RENDER</span></div>
+<div class="j w"><span>PLANNING · QUEUED · STARTS AFTER 2 JOBS</span><span class="p q">CANCEL</span></div></div></div>
+
+<div class="f"><h4><b>6 PLANNING</b> · slot held across attempts and the unload</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in x" data-rq></div></div>
+<div class="cm"><span class="cs" data-cs="a"></span><span class="p ao z">PLAN</span><span class="p ac z">APPLY &amp; RENDER</span></div>
+<div class="j sh"><span>PLANNING… attempt 2 of 3 <em>· bar 5 had 31/32 units</em></span><span class="p q">CANCEL</span></div></div></div>
+
+<div class="f"><h4><b>7 PLAN READY</b> · change list, checks, consequence, the only acid fill</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in" data-rq></div><div class="rd" data-rd></div>
+<div class="lb">PLAN · 3 CHANGES · AGAINST BASE v2</div><div class="ls" data-ls></div>
+<div class="ck">65 bars · est 183 s of 360 s · 1,520 of 4,096 tokens · chords valid · attempt 1 of 3</div></div>
+<div class="cm"><span class="cs" data-cs="f"></span><span class="p ao">PLAN</span><span class="p ac">APPLY &amp; RENDER</span></div></div></div>
+
+<div class="f"><h4><b>8 RE-PLANNING</b> · DT-5: old plan stays, dimmed + dashed, unpressable</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in">jazz chords in the chorus, 90 BPM</div>
+<div class="lb" style="color:var(--m)">PREVIOUS PLAN · REPLACED WHEN THE NEW ONE ARRIVES</div><div class="dm"><div class="ls" data-ls></div></div></div>
+<div class="cm"><span class="cs" data-cs="a"></span><span class="p ao z">PLAN</span><span class="p ac z">APPLY &amp; RENDER</span></div>
+<div class="j sh"><span>PLANNING… attempt 1 of 3</span><span class="p q">CANCEL</span></div></div></div>
+
+<div class="f"><h4><b>9 CHECK FAILED</b> · 3 attempts spent; the rejected op is listed, never dropped</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in" data-rq></div>
+<div class="ls"><div><span>✓</span><span class="o">SET TEMPO</span><span class="dt">87 → 88 BPM · whole song</span><span class="tg">follows</span></div>
+<div><span class="no">✕</span><span class="o no">REHARMONIZE</span><span class="dt">bars 17–24 · rejected: bar 20 had 30/32 units on the last attempt</span></div>
+<div><span>✓</span><span class="o">EDIT STYLE</span><span class="dt">+ jazz</span><span class="tg">a request</span></div></div>
+<div class="ck">65 bars · est 183 s of 360 s · 1,520 of 4,096 tokens · chords <i>invalid</i></div></div>
+<div class="er" style="margin:0 14px 14px"><div><b>CHECK FAILED · 3 OF 3 ATTEMPTS</b><br>REHARMONIZE bars 17–24 would not fit. Name fewer bars, then PLAN again.</div></div>
+<div class="cm"><span class="cs">Nothing was saved · APPLY &amp; RENDER stays off until a plan passes every check</span><span class="p ao">PLAN</span><span class="p ac z">APPLY &amp; RENDER</span></div></div></div>
+
+<div class="f"><h4><b>10 RENDERING</b> · 10a live (AI shader, stage share, no veil); 10b waiting; one appears</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in x" data-rq></div><div class="ls" data-ls></div></div>
+<div class="cm"><span class="cs" data-cs="f"></span><span class="p ao z">PLAN</span><span class="p ac z">APPLY &amp; RENDER</span></div>
+<div class="j sh"><span>RENDERING · synthesizing audio 41% · 1:12</span><span class="p q">CANCEL</span></div>
+<div class="j w"><span>RENDERING · QUEUED · STARTS AFTER 1 JOB</span><span class="p q">CANCEL</span></div></div></div>
+
+<div class="f"><h4><b>11 DONE</b> · new lilac version, old one a click away; field cleared</h4><div style="display:flex;gap:12px;align-items:flex-start"><div class="d" style="flex:1" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="ok"><span class="p vb">BASE v3</span><span>Saved base v3 · 88.1 BPM, 3:04</span></div>
+<div class="in e">Describe the change, e.g. jazz chords in the chorus, 88 BPM</div></div>
+<div class="cm"><span class="cs" data-cs="a"></span><span class="p ao z">PLAN</span><span class="p ac z">APPLY &amp; RENDER</span></div></div>
+<div class="rl"><div class="lb" style="color:var(--lt)">VERSIONS · BASE</div><div class="vr on"><b>v3</b> 88.1 BPM · 3:04 <span class="p vb">CURRENT</span></div><div class="vr"><b>v2</b> 87.0 BPM · 3:03</div></div></div></div>
+
+<div class="f"><h4><b>12 TRUNCATED</b> · saved and active, but rust and never "DONE" (D-025)</h4><div style="display:flex;gap:12px;align-items:flex-start"><div class="d" style="flex:1" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="ok r"><div><b style="letter-spacing:1px">TRUNCATED at 6:00</b>, the song is cut short<br><span style="color:var(--rb)">v3 is saved; revert in VERSIONS or shorten and re-render</span></div></div>
+<div class="in e">Describe the change, e.g. jazz chords in the chorus, 88 BPM</div></div>
+<div class="cm"><span class="cs" data-cs="a"></span><span class="p ao z">PLAN</span><span class="p ac z">APPLY &amp; RENDER</span></div></div>
+<div class="rl"><div class="lb" style="color:var(--lt)">VERSIONS · BASE</div><div class="vr on"><b>v3</b> 6:00 <span class="no" style="font-size:9px">TRUNCATED</span> <span class="p vb">CURRENT</span></div><div class="vr"><b>v2</b> 87.0 BPM · 5:41</div></div></div></div>
+
+<div class="f"><h4><b>13 RENDER FAILED</b> · no version, base unchanged, plan kept; RETRY on the error as in REPAINT</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in x" data-rq></div><div class="ls" data-ls></div></div>
+<div class="er"><div><b>RENDER FAILED</b> · yue-server: CUDA out of memory · nothing saved, base v2 is still active</div><span class="p q">RETRY RENDER</span></div>
+<div class="cm"><span class="cs" data-cs="f"></span><span class="p ao">PLAN</span><span class="p ac">APPLY &amp; RENDER</span></div></div></div>
+
+<div class="f"><h4><b>14 STALE</b> · refused at click time; no engine job started</h4><div class="d" data-c="BASE · WHOLE SCORE"><div class="bd">
+<div class="in x" data-rq></div><div class="dm"><div class="ls" data-ls></div></div></div>
+<div class="wn"><div><b>PLAN OUT OF DATE</b> · planned against base v2, the song is on v3 now. Nothing was started.</div><span class="p ao">PLAN AGAIN</span></div>
+<div class="cm"><span class="cs rd">also: "a repaint was queued after this plan" · "plan expired: the server restarted"</span><span class="p ac z">APPLY &amp; RENDER</span></div></div></div>
+</div>
+
+<h2>COPY FOR THE OTHER CAUSES</h2>
+<table class="tb"><tr><th>STATE</th><th>LINE</th></tr>
+<tr><td>2 ineligible</td><td>"This song has 2 layers; a re-render would drop the extra one." · "This song has no saved score." · "The saved score fails the checker: bar 12 has 31/32 units." · "This score has no chords; not supported yet."</td></tr>
+<tr><td>9 limits</td><td>"estimated 458 s: over the 360 s limit; at least 112 BPM fits" (330 s and up: segment turns rust) · "1,904 tokens over the 4,096 limit" · "this request did not change the score or the style"</td></tr>
+<tr><td>9 context</td><td>"planner context is 4,096, needs ~11,500: set OLLAMA_CONTEXT_LENGTH=16384"</td></tr></table>
+
+<h2>CONSEQUENCE LINE PER OP (SP-3: tempo reliable; harmony followed in 2 of 3 songs)</h2>
+<table class="tb"><tr><th>OP</th><th>CLAUSE</th><th>ROW TAG</th></tr>
+<tr><td>SET TEMPO</td><td>tempo <b>follows</b> 88 BPM</td><td class="mo">follows</td></tr>
+<tr><td>REHARMONIZE</td><td>harmony in bars 17–24 is <b>a request to YuE2, not a guarantee</b></td><td class="mo">a request</td></tr>
+<tr><td>EDIT STYLE</td><td>the style change is <b>a request to YuE2, not a guarantee</b></td><td class="mo">a request</td></tr></table>
+<div class="d" style="max-width:880px"><div class="cm"><span class="cs"><span class="lb">TEMPO ONLY</span> Saves base v3 · re-renders the whole song on YuE2, about 3 min · every bar will sound different · tempo follows 88 BPM · v2 stays in VERSIONS</span></div></div>
+<p class="rd">A busy GPU appends " · starts after 2 jobs".</p>
+
+<h2>15 · Q-015 PREVIEW (M1, F-027): REPAINT while SCORE is open</h2>
+<div class="g"><div class="f"><h4><b>REPAINT</b> · the clause is rust-body, only while the SCORE tab is open</h4><div class="d" data-c="BASE · VERSE 2 · 1:32–2:07" data-v="r" data-h="drag a waveform, click a section or a lyric line"><div class="bd"><div class="in">Make the second verse softer and slower</div><div class="rd">VARIANCE BALANCED · CROSSFADE 0.5 s · TUNE ▸ turbo · steps auto</div></div>
+<div class="cm"><span class="cs">Saves base v3 over VERSE 2 · v2 stays in VERSIONS · other layers untouched · <u>score editing ends after this edit, SCORE will be off for this song</u></span><span class="p ac">REPAINT VERSE 2</span></div></div></div>
+<div style="width:880px"><p style="margin-top:0">Same clause on ADD LAYER, extract, remaster; absent once SCORE is ineligible or hidden. Q-015's "will offer a new song instead" needs M3's button; until then "off" (no "coming soon").</p></div></div>
+
+<h2>OPTIONS · DT-1 DOCK BODY HEIGHT (R-006) · <span class="bl">BLOCKING</span></h2>
+<p>Stress plan of 5 ops (M1/M2 included), 580 px frames. Heights are inferred sums of the dock CSS (REPAINT today ≈ 250 px). D-006 makes a SCORE song one layer, so the stack above is short (≈ 280 of ≈ 950 px at 1080p): ≈ 390 px of dock fits without scrolling.</p>
+<div class="g">
+<div class="f n rc"><h4><b>A · GROW</b> · ≈ 330 px (3 ops) to ≈ 390 px (5)</h4><div class="d"><div class="bd"><div class="in" data-rq></div>
+<div class="ls" data-ls5></div><div class="ck">65 bars · est 183 s of 360 s · 1,520 of 4,096 tokens</div></div><div class="cm"><span class="cs">Saves base v3 · re-renders the whole song · …</span><span class="p ac">APPLY &amp; RENDER</span></div></div>
+<p class="rd">Everything visible. Costs +80..140 px over REPAINT: the transport moves down.</p></div>
+<div class="f n"><h4><b>B · CAP + SCROLL</b> · fixed ≈ 330 px</h4><div class="d"><div class="bd"><div class="in" data-rq></div>
+<div class="sc"><div class="ls" data-ls5></div></div><div class="ck">65 bars · est 183 s of 360 s · … · 2 more changes ↓</div></div><div class="cm"><span class="cs">Saves base v3 · re-renders the whole song · …</span><span class="p ac">APPLY &amp; RENDER</span></div></div>
+<p class="rd">Steady height; a rejected op or the 4th change hides below the fold.</p></div>
+<div class="f n"><h4><b>C · FOLD</b> · ≈ 270 px</h4><div class="d"><div class="bd"><div class="in" data-rq></div>
+<div class="ls"><div><span class="o" style="width:auto">5 CHANGES ▸</span><span class="dt">SET TEMPO · REHARMONIZE · WRITE PHRASE · REPEAT · EDIT STYLE</span></div></div><div class="ck">CHECKS OK ▸</div></div><div class="cm"><span class="cs">Saves base v3 · re-renders the whole song · …</span><span class="p ac">APPLY &amp; RENDER</span></div></div>
+<p class="rd">Shortest; the 360 s / token gates stay hidden until they fail.</p></div></div>
+
+<h2>OPTIONS · DT-2 THE SCORE KEY · <span class="bl">BLOCKING</span></h2>
+<p>Bound today: R L S E, Space, Ctrl K (seen in code). L shows a key need not be the first letter. Bare keys are ignored while typing.</p>
+<div class="g">
+<div class="f n rc"><h4><b>A · C</b> (S-C-ORE; also chords)</h4><div class="d" style="padding:10px 14px"><div class="vs" style="margin:0" data-t="C|5|SCORE"></div></div></div>
+<div class="f n"><h4><b>B · O</b> (scORE)</h4><div class="d" style="padding:10px 14px"><div class="vs" style="margin:0" data-t="O|5|SCORE"></div></div></div>
+<div class="f n"><h4><b>C · P</b> (the PLAN button)</h4><div class="d" style="padding:10px 14px"><div class="vs" style="margin:0" data-t="P|5|SCORE"></div></div></div></div>
+
+<h2>DECISIONS</h2>
+<div class="dc"><b>DT-1 · recommend A, GROW.</b> Checks stay one always-visible mono line (they gate the commit); a failing segment turns rust. M4's bar map enters as a collapsed BARS ▸ disclosure (the TUNE idiom). <i>Beat:</i> B (hides rejected ops), C (hides the gates). <i>Cost:</i> dock jumps ≈ +80 px on plan-ready; at 1366×768 the page scrolls.</div>
+<div class="dc"><b>DT-2 · recommend A, C.</b> Free, mnemonic. <i>Beat:</i> O (reads as zero), P (label SCORE, key P), no key. Cost: a later COMPARE verb would want C.</div>
+<div class="dc"><b>DT-3 · chip BASE · WHOLE SCORE</b>, sky, like SPLIT's BASE · WHOLE LAYER; the planned-against version sits in the checks and stale lines. <i>Beat:</i> WHOLE SONG (same as EXPORT), BASE v2 · WHOLE SCORE (changes every render). M2: a picked section becomes a sky suffix, no waveform wash.</div>
+<div class="dc"><b>DT-4 · hues.</b> Errors, refusals, TRUNCATED, failed checks: rust. Version badge and current row: lilac (a truncated v3 adds a small rust tag). Chip sky. APPLY &amp; RENDER is the only acid fill; PLAN is an acid outline sibling, always present, so the two-step shape never moves. <i>Beat:</i> PLAN filled until a plan exists (the fill would jump); hairline PLAN (it starts a GPU job). Row tags are text-low: rust on every REHARMONIZE would be alarm fatigue.</div>
+<div class="dc"><b>DT-5 · dimmed old plan.</b> Opacity .4, dashed hairline (dashed = waiting), a label, unpressable, APPLY off. <i>Beat:</i> hide at once (dock collapses then regrows), leave lit (looks applicable), strike-through (reads as rejected).</div>
+<div class="dc"><b>Shader.</b> Planning and rendering lines wear it once the GPU works; queued stays dashed. The planner is an LM working, like Quick Start in DESIGN's list; the F-021 PR adds "planning". Rendering follows DESIGN's YuE2 rule (stage share, no veil), correcting scope.md. <i>Beat:</i> plain text (3-10 s looks hung). DESIGN.md (own commit) gets: tab + key, chip, SCORE body, consequence grammar, shader list.</div>
+
+<h2>OPEN QUESTIONS</h2>
+<ul>
+<li><b>Q-022</b> <span class="bl">blocking</span> DT-1: A GROW (recommended) / B CAP / C FOLD.</li>
+<li><b>Q-023</b> <span class="bl">blocking</span> DT-2: C (recommended) / O / P.</li>
+<li><b>Q-024</b> <span class="as">assumable</span> SCORE tab last; chip BASE · WHOLE SCORE; PLAN acid outline beside the filled APPLY &amp; RENDER, off while its own render runs. Default as drawn.</li>
+<li><b>Q-025</b> <span class="as">assumable</span> a failed re-plan drops the dimmed old plan. Alternative: keep it with USE PREVIOUS PLAN.</li>
+<li><b>Q-026</b> <span class="as">assumable</span> planning wears the AI shader; fallback a plain dashed line.</li>
+<li><b>Q-027</b> <span class="as">assumable</span> Q-015 clause in rust-body, "SCORE will be off for this song" until M3.</li>
+<li><b>Q-028</b> <span class="as">assumable</span> EDIT STYLE always says "a request" (scope.md: only when an instrument is named).</li>
+<li><b>Q-029</b> <span class="df">deferred</span> M2 referent suffix and M4 bar map placement.</li>
+</ul>
+
+<h2>CHECK ON A REAL DEVICE (desktop only)</h2>
+<ul>
+<li>Dock height with 3 and 6 ops at 1920×1080 and 1366×768: transport on screen? plan-ready jump abrupt?</li>
+<li>Five tabs + chip + hint at 1280 wide: does the head wrap strand SCORE?</li>
+<li>Key C in the request field (types "c") and with the palette open (must not switch).</li>
+<li>text-low 10px on #202127 (reading, checks) and the 40% dimmed plan: legible?</li>
+<li>Shader on a real 3-10 s plan: do attempt changes flicker the text?</li>
+<li>The 3-line consequence line: still read before APPLY &amp; RENDER?</li>
+</ul>
+<script>
+const V=[["REPAINT","R"],["ADD LAYER","L"],["SPLIT","S"],["EXPORT","E"]];
+const tabs=s=>{const[k,n,on]=s.split("|");let a=V.slice();if(n==="5")a.push(["SCORE",k]);return a.map(x=>`<span class="p t${x[0]===on?" on":""}">${x[0]}<span class="k">${x[1]}</span></span>`).join("")};
+const B="Saves base v3 · re-renders the whole song on YuE2, about 3 min · every bar will sound different · tempo follows 88 BPM · ",H="<b>harmony in bars 17–24 and the style change are a request to YuE2, not a guarantee</b> · v2 stays in VERSIONS";
+const CS={a:"asks the planner · uses the GPU for ~10 s · changes nothing yet",f:B+H};
+const row=(o,d,t)=>`<div><span>✓</span><span class="o">${o}</span><span class="dt">${d}</span><span class="tg">${t}</span></div>`;
+const R3=row("SET TEMPO","87 → 88 BPM · whole song","follows")+row("REHARMONIZE","bars 17–24 (CHORUS 1) · Am7 D7 Gmaj7 Cmaj7","a request")+row("EDIT STYLE","+ jazz","a request");
+const R5=R3+row("WRITE PHRASE","bars 25–26 · sax, 6 notes","a request")+row("REPEAT","CHORUS 1 ×2","follows");
+const all=(s,f)=>document.querySelectorAll(s).forEach(f);
+all(".d[data-c]",d=>{const v=d.dataset.v;d.insertAdjacentHTML("afterbegin",`<div class="hd"><span class="lb">TARGET</span><span class="p ch">${d.dataset.c}</span><span class="hn">${d.dataset.h||"a score edit re-renders the whole song"}</span><span class="vs">${tabs("C|5|"+(v?"REPAINT":"SCORE"))}</span></div>`)});
+all("[data-t]",e=>e.innerHTML=tabs(e.dataset.t));
+all("[data-cs]",e=>e.innerHTML=CS[e.dataset.cs]);
+all("[data-rq]",e=>e.textContent="jazz chords in the chorus, 88 BPM");
+all("[data-rd]",e=>e.textContent="65 bars · 4/4 · Q:87 · key Am · est 183 s · 1,520 tokens");
+all("[data-ls]",e=>e.innerHTML=R3);all("[data-ls5]",e=>e.innerHTML=R5);
+all(".p",e=>e.innerHTML="<span>"+e.innerHTML+"</span>");
+</script></body></html>

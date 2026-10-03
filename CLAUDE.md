@@ -1,27 +1,35 @@
 # Mulakai — Agent Instructions
 
 > Automatically loaded by Claude Code for all sessions and subagents.
-> Rules of the road are in `AGENTS.md` (read together with this file).
 > Grand goal, scope, and phased plan are in `PLAN.md` — read it first.
+> `AGENTS.md` holds the full rules (scope, design, git, testing); read it
+> before a change outside the area rules. Area rules load with their files
+> from `.claude/rules/*.md`; the long whys are in `docs/decisions/`.
 
-@AGENTS.md
+## Costly rules (digest of AGENTS.md)
+
+- Never push to `main`: PR-merge only, and only after CI is green on the PR
+  and on the last push to `main`. Never merge with failing tests.
+- Branches `feat/` `fix/` `test/`; commits `feat:` `fix:` `docs:`
+  `refactor:` `test:` `chore:`; one problem per PR, no drive-by refactors.
+- Modules: target ≤150 LOC, hard cap 200. Split by responsibility first.
+- A Vitest test with every behaviour change; run the suites before every
+  commit; browser-check UI changes on the dev server.
+- Never modify `ACE-Step-1.5`; it is reached only via `ACESTEP_API_URL`.
+- UI follows `docs/design/DESIGN.md`: zero radius, one hue per job, a
+  consequence line before every generative or destructive commit. A UI
+  change that deviates updates DESIGN.md in the same PR, as its own commit.
+- Scope: a feature not in `PLAN.md` is a scope question first. A 3+ file
+  feature gets a dated `PLAN.md` section before code.
+- Feature-gate unfinished flows; never show "coming soon" as usable.
 
 ## graphify
 
 This project has a knowledge graph at graphify-out/ with god nodes, community structure, and cross-file relationships.
 
-Rules:
-- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts. These return a scoped subgraph, usually much smaller than GRAPH_REPORT.md or raw grep output.
-- If graphify-out/wiki/index.md exists, use it for broad navigation instead of raw source browsing.
-- Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
-- After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
-- `.gitattributes` gives `graphify-out/**` `merge=ours`: a local merge keeps
-  this branch's graph files instead of conflicting on them. Each clone needs
-  it defined once: `git config merge.ours.driver true` (without it, those
-  files conflict as before). The kept side is stale for whatever was merged
-  in, so run `graphify update .` after every merge. GitHub ignores custom
-  merge drivers: a PR whose only overlap with `main` is the graph still shows
-  as conflicting until someone merges `main` into it locally.
+- For codebase questions, first run `graphify query "<question>"` when graphify-out/graph.json exists. Use `graphify path "<A>" "<B>"` for relationships and `graphify explain "<concept>"` for focused concepts.
+- If graphify-out/wiki/index.md exists, use it for broad navigation; read graphify-out/GRAPH_REPORT.md only for broad architecture review.
+- After modifying code, and after every merge, run `graphify update .` (AST-only, no API cost). Merge-driver setup: `.claude/rules/graphify-out.md`.
 
 ## Tech Stack
 
@@ -29,74 +37,69 @@ React + TypeScript + Vite (client) · Express + SQLite (server) · Zustand ·
 minimal Web Audio playback (layer versions summed to master — no
 synthesis/plugin layers, no Tone.js) · ACE-Step 1.5 (external process,
 Gradio API) for generation, repaint, and layer conditioning · optional
-extra song-creation engines for a new song's first take only (YuE2, then
+extra song-creation engines for a new song's first take (YuE2, then
 HeartMuLa; each its own process and venv behind `YUE_API_URL` /
-`HEARTMULA_API_URL`, speaking one shared job API, `engineClient.ts`) ·
-optional Demucs microservice (`demucs-server/`, FastAPI) for stem splits.
+`HEARTMULA_API_URL`, speaking one shared job API, `engineClient.ts`); YuE2
+may also re-render a song it made from an edited copy of that song's score
+(the SCORE verb, PLAN.md "Score Agent"), and every audio edit (repaint, Add
+Layer, extract, remaster) still runs on ACE-Step · optional score planner:
+a local Ollama at `LLM_API_URL` (`LLM_MODEL`, default `qwen3:14b`); SCORE
+is hidden when it is unset · optional Demucs microservice
+(`demucs-server/`, FastAPI) for stem splits.
 
 ## Commands
 
-There is no root package.json — run these inside `client/`, `server/` or `e2e/`.
+There is no root package.json — run these inside `client/`, `server/`,
+`yue-server/` or `e2e/`.
 
 ```bash
 # Frontend (client/)
 npm run dev          # Vite dev server
-npm run build         # TypeScript check + Vite build
-npm test              # Vitest unit tests
-npm run lint           # oxlint
+npm run build        # TypeScript check + Vite build
+npm test             # Vitest unit tests
+npm run lint         # oxlint
 
 # Backend (server/)
-npm run dev            # Express dev server (tsx watch)
-npm test               # Vitest unit tests
+npm run dev          # Express dev server (tsx watch)
+npx tsc --noEmit     # typecheck
+npm test             # Vitest unit tests
+
+# yue-server/ — fake pipeline: no GPU, torch or yue2; runs on Windows too
+pip install -r requirements-test.txt   # once
+python -m pytest
 
 # End-to-end (e2e/) — needs client/ and server/ installed, plus ffmpeg on PATH
 npx playwright install chromium   # once
-npm run test:e2e       # golden path against a fake ACE-Step
+npm run test:e2e     # golden path against a fake ACE-Step
 
 # ACE-Step 1.5 (separate process, see its own AGENTS.md)
 uv run acestep --port 8001 --enable-api --backend pt --server-name 127.0.0.1
 ```
 
-`test:e2e` starts its own stack on 127.0.0.1 — fake ACE-Step 8101
-(`e2e/fake-acestep/`), server 3101 with a throwaway `DATA_DIR`, Vite 5183 —
-so it runs beside a dev stack. If a hard-killed run orphans one of them,
-the next run fails with "port in use": find the PID with
-`Get-NetTCPConnection -LocalPort <port>` and stop it. CI runs the same
-e2e on Ubuntu for every PR into `main` (`.github/workflows/e2e.yml`; failed
-runs upload the report and traces). Design: PLAN.md "Playwright
-Golden-Path E2E".
+`test:e2e` starts its own stack on 127.0.0.1 (fake ACE-Step 8101, server
+3101 with a throwaway `DATA_DIR`, Vite 5183), so it runs beside a dev
+stack; ports and orphans: `.claude/rules/e2e.md`. CI runs it on Ubuntu for
+every PR into `main` (`.github/workflows/e2e.yml`), plus the unit suites,
+typechecks, lint and pytest (`.github/workflows/checks.yml`).
 
-## Design System
+## Invariants (score agent)
 
-`docs/design/DESIGN.md` is mandatory reading before any UI work — color
-tokens (one semantic job per hue), shape grammar (parallelograms/hexagons,
-zero radius), typography, and the three-screen app model live there.
+- The planner and YuE2 never share the GPU: a `plan` job unloads the model
+  and sees `/api/ps` empty before it releases its queue slot; never shorten
+  or skip that (`server/src/services/score/planJob.ts`).
+- Only yue-server reads or writes ABC (apply, validate, count); no
+  TypeScript port (`docs/decisions/0002-score-logic-on-yue-server.md`).
 
 ## Project Structure
 
-- `client/src/` — flat, no subfolder layering: React components (Library,
-  Player, Create tabs, Editor with waveform/layer stack/version history),
-  Zustand stores (`generationStore`, `editorJobStore`, `createDraftStore`,
-  `addLayerStore`, `voiceStore`, `adapterStore`, `apiStatusStore`,
-  `settings`), and `api.ts` (the server API client). Audio playback lives
-  in `client/src/mix/` (`playbackEngine`, `bounceMix`, `decodeLayers`).
-- `server/src/routes/` — Express routers (songs, folders, layers, versions,
-  generate, split, voices, adapters, …)
-- `server/src/services/` — job orchestration (`jobs`, `repaintJobs`,
-  `addLayerJobs`, `stemSplit`, `engineGenJobs`), the ACE-Step HTTP client
-  (`acestep`), the extra-engine client (`engineClient`) and per-engine
-  modules (`engines/`), transcode/tagging, trash sweep
-- `server/src/db/` — SQLite schema + migrations (songs → layers → versions;
-  no users/profiles/playlists tables)
-- `demucs-server/` — optional FastAPI stem-split microservice (Python)
-- `e2e/` — Playwright golden-path spec and the fake ACE-Step it runs against
-
-## Spec-Driven Development
-
-`PLAN.md` is the spec log — non-trivial features (3+ files) get a dated
-section there (decisions, file-level plan, open questions) before code, the
-same way existing phases are documented. See `AGENTS.md` for the
-module-size and testing rules that apply to every change.
+- `client/src/` — flat: components, Zustand stores, `api/` (server client),
+  playback in `mix/`.
+- `server/src/` — `routes/` (Express routers), `services/` (jobs, the GPU
+  queue, ACE-Step and engine clients, `engines/`), `db/` (SQLite schema +
+  migrations: songs → layers → versions).
+- `yue-server/`, `lyrics-server/`, `demucs-server/`, `uvr-server/`,
+  `heartmula-server/` (marked for removal) — local Python services;
+  `e2e/` — Playwright golden path + fake ACE-Step.
 
 ## Reference Projects (do not modify)
 

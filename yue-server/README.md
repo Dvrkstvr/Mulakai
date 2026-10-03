@@ -2,8 +2,10 @@
 
 Thin HTTP wrapper around the official [YuE2](https://github.com/multimodal-art-projection/YuE)
 pipeline, so Mulakai can use YuE2 as an optional **first-take engine** on
-Create › PROMPT (see `PLAN.md`, "Multiple Song-Creation Engines"). Every edit
-after the first take still runs on ACE-Step.
+Create › PROMPT (see `PLAN.md`, "Multiple Song-Creation Engines"). YuE2 may
+also re-render a song it made from an edited copy of that song's score (the
+SCORE verb, `PLAN.md`'s "Score Agent"); every audio edit (repaint, Add Layer,
+extract, remaster) still runs on ACE-Step.
 
 It runs **inside WSL2**, not on native Windows: on Windows YuE2's acoustic
 stage falls back to the MATH attention kernel (~6x slower, ~7 GB more VRAM;

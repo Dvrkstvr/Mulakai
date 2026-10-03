@@ -1,0 +1,13 @@
+Shared GPU memory (MB, NVIDIA adapter luid 0x12d2d, 1 Hz Get-Counter) per run: [min,max] per window
+run, pre(10s before planner), planner loaded, after unload (10s), yue job, 10s after yue
+handoff (329, 329) (395, 863) (329, 395) (327, 395) (330, 332)
+handoff2 (225, 226) (261, 795) (225, 261) (225, 264) (225, 262)
+handoff3 (229, 242) (280, 798) (228, 264) (213, 264) (187, 266)
+negative (331, 332) (322, 1257) (324, 366) (322, 1257) (324, 366)
+negative2 (227, 264) (212, 1231) (226, 250) (212, 1231) (226, 250)
+control pre (328, 335) job (308, 332) post (329, 329)
+control2 pre (227, 252) job (213, 266) post (227, 761)
+near pre (147, 172) job (148, 270) post (225, 263)
+near_2700 pre (228, 265) job (205, 264) post (227, 263)
+near_3300 pre (227, 263) job (202, 264) post (225, 759)
+max shared over whole log: 1256.8
