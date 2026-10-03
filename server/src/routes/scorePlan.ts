@@ -2,12 +2,14 @@
  * PLAN on the SCORE verb (F-019): start a plan job for a song and read where it stands.
  *   POST /api/songs/:id/score/plan {request}  → 202 {jobId, queuePosition}
  *   GET  /api/songs/:id/score/plan            → {run, plan}
+ *   POST /api/songs/:id/score/plan/cancel     → CANCEL: a queued plan leaves the line; a running
+ *        one aborts its planner call and still unloads before the slot frees (F-024 #2, D-041)
  * The plan itself stays on the server (planStore, D-035); its edited score is not sent.
  */
 import { Router } from 'express';
 import { config } from '../config.js';
-import { QueueFullError, queuePosition } from '../services/genQueue.js';
-import { getJob } from '../services/jobRegistry.js';
+import { QueueFullError, getRunning, queuePosition } from '../services/genQueue.js';
+import { abortJob, getJob } from '../services/jobRegistry.js';
 import { planDeps, startPlan, type PlanDeps } from '../services/score/planJob.js';
 import { getPlan, lastRun } from '../services/score/planStore.js';
 import type { Plan } from '../services/score/planTypes.js';
@@ -15,6 +17,7 @@ import type { Plan } from '../services/score/planTypes.js';
 export const REQUEST_MAX = 500;
 export const NOT_SET_UP = 'the score planner is not set up: set LLM_API_URL to a local Ollama';
 export const ALREADY_PLANNING = 'a plan is already queued or running for this song';
+export const NOTHING_TO_CANCEL = 'no plan is queued or running for this song';
 
 const planView = ({ abc: _abc, fingerprint: _fp, ...plan }: Plan) => plan;
 
@@ -58,9 +61,22 @@ export function makeScorePlanRouter(deps: () => PlanDeps = () => planDeps()): Ro
         jobId: job.id, request: run.request, status: job.status, progressText: job.progressText,
         ...(job.status === 'queued' ? { queuePosition: queuePosition(job.id) } : {}),
         error: job.error, reasons: run.reasons, planId: run.planId, ...(job.cancelled ? { cancelled: true } : {}),
+        // An aborted plan reads failed at once but holds the slot until the unload is confirmed:
+        // its cause stays null until then, so the dock keeps saying CANCELLING.
+        cause: job.cancelled ? 'cancelled'
+          : run.cause ?? (job.status === 'failed' && getRunning()?.jobId !== job.id ? 'cancelled' : null),
       } : null,
       plan: plan ? planView(plan) : null,
     });
+  });
+
+  router.post('/:id/score/plan/cancel', (req, res) => {
+    const run = lastRun(req.params.id);
+    const job = run && getJob(run.jobId);
+    if (!job || (job.status !== 'queued' && job.status !== 'running')) return res.status(404).json({ error: NOTHING_TO_CANCEL });
+    const queued = job.status === 'queued';
+    abortJob(job.id);
+    res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
   });
 
   return router;

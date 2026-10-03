@@ -65,3 +65,8 @@ export interface Plan {
   attempts: number;
   createdAt: number;
 }
+
+/** Why a plan run ended without a plan (planJob's PlanError): `check` = attempts spent, a limit
+ * or a cut prompt; `offline` = the planner or yue-server could not be used; `refused` = the song
+ * stopped being eligible; `cancelled` = CANCEL / ABORT. */
+export type PlanCause = 'check' | 'offline' | 'refused' | 'cancelled';

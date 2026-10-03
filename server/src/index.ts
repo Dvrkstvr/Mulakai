@@ -16,6 +16,7 @@ import { adaptersRouter } from './routes/adapters.js';
 import { enginesRouter } from './routes/engines.js';
 import { lyricsRouter } from './routes/lyrics.js';
 import { scorePlanRouter } from './routes/scorePlan.js';
+import { scoreRouter } from './routes/score.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 import { sweepOrphanStems } from './services/stemFiles.js';
@@ -41,6 +42,7 @@ app.use('/api/adapters', adaptersRouter);
 app.use('/api/engines', enginesRouter);
 app.use('/api/lyrics', lyricsRouter);
 app.use('/api/songs', scorePlanRouter);
+app.use('/api/songs', scoreRouter);
 app.use('/audio', express.static(config.audioDir));
 
 sweepTrash();
