@@ -2,13 +2,13 @@
  * Song creation on an extra engine (PLAN.md "Multiple Song-Creation Engines", design
  * point 5): submit -> poll -> fetch audio + score -> insertGeneratedSong. Shares jobs.ts's
  * Job registry and the `generate` queue kind with ACE-Step's own startGeneration, but polls
- * the shared wrapper contract (engineClient.ts) instead of ACE-Step's query_result.
+ * the shared wrapper contract (enginePoll.ts) instead of ACE-Step's query_result.
  */
 import crypto from 'node:crypto';
-import { config } from '../config.js';
-import { type Job, queueJob, wasAborted, drainWhile, MAX_POLL_STRIKES } from './jobs.js';
+import { type Job, queueJob, wasAborted } from './jobs.js';
 import type { GenTask } from './genQueue.js';
-import { submit, status, fetchAudio, fetchScore, cancel, type EngineJobState } from './engineClient.js';
+import { submit, fetchAudio, fetchScore } from './engineClient.js';
+import { pollEngine, stopEngineJob } from './enginePoll.js';
 import { insertGeneratedSong } from './songPersist.js';
 import type { CreateFields, SongEngine } from './engines/types.js';
 
@@ -20,45 +20,6 @@ export interface EngineCover {
   abc: string;
   /** What the score was transcribed from, e.g. a library song's title or a file name. */
   source: string;
-}
-
-/** Ask the wrapper to stop an aborted job, then hold the queue's slot until it has (drainWhile). */
-async function stopEngineJob(engine: SongEngine, taskId: string): Promise<undefined> {
-  await cancel(engine, taskId);
-  await drainWhile(async () => (await status(engine, taskId)).state === 'running');
-  return undefined;
-}
-
-/**
- * Polls until the wrapper reports a terminal state. Resolves with the finished state,
- * or undefined once the job was aborted on our side (see jobs.ts's abortJob) — in which
- * case the wrapper is asked, best-effort, to stop too. Throws on a failed job.
- */
-async function pollEngine(job: Job, engine: SongEngine): Promise<EngineJobState | undefined> {
-  let strikes = 0;
-  for (;;) {
-    await new Promise((r) => setTimeout(r, config.pollIntervalMs));
-    if (job.status !== 'running') {
-      return stopEngineJob(engine, job.taskId);
-    }
-    let state: EngineJobState;
-    try {
-      state = await status(engine, job.taskId);
-      strikes = 0;
-    } catch (err) {
-      // Same 3-strike rule as jobs.ts's poll(): one flaky status call must not kill a long
-      // GPU run, but a wedged wrapper must not hold the queue's slot forever either.
-      if (++strikes < MAX_POLL_STRIKES) continue;
-      throw err;
-    }
-    if (wasAborted(job)) {
-      return stopEngineJob(engine, job.taskId);
-    }
-    if (state.state === 'failed') throw new Error(state.error ?? `${engine.label} generation failed`);
-    if (state.state === 'done') return state;
-    job.progress = state.progress;
-    job.progressStage = state.stage;
-  }
 }
 
 async function persistEngineSong(
