@@ -231,3 +231,11 @@ For CP1 and agent runs, the planner is a second `ollama serve` on 127.0.0.1:1143
 ## D-046 · 2026-10-03 · stage 6 · by: user
 D-044 and D-045 confirmed by the user: the context skeleton (CLAUDE.md keeps a pointer + costly-rules digest instead of `@AGENTS.md`, path-scoped `.claude/rules/`, docs/decisions records) lands as its own commit in the W0 docs PR; the score agent uses a second Ollama on :11435 with OLLAMA_CONTEXT_LENGTH=16384.
 - consequence: stage 6's context-budget must-item is met when W0 merges; it is re-checked at the M0 verify.
+
+## D-047 · 2026-10-03 · stage 7 · by: assumed
+W1 (F-017) defaults in the yue-server score routes: (a) the style's `NNN bpm` follows the score's `Q:` after the ops: SET_TEMPO rewrites it or appends `, NNN bpm`; an EDIT_STYLE that names a bpm gets the score's bpm, one that names none is left alone (R-018); (b) REHARMONIZE keeps SP-2's limit of 16 bars per op; (c) `/v1/scores/read` answers 200 with `ok: false`, upstream's error and the per-bar unit sums for a score upstream refuses (eligibility needs the verdict, not an HTTP error), with `facts`, `seconds` and `tokens` null; `/v1/scores/apply` refuses an invalid base score with 422; (d) each op is tried on a copy, so a failed op leaves no trace and the other ops still apply; `ok` is true only when every op applied and the checks pass; (e) a plain `python -m pytest` fails when a contract fixture no longer matches the live route, so the fixtures cannot go stale silently.
+- instead of: appending a bpm to every edited style (changes the style text YuE2 is conditioned on); a 422 from read; first-error-stops apply.
+
+## D-048 · 2026-10-03 · stage 7 · by: assumed
+F-017 #1 is checked against all 37 cases in SP-2's golden.json (10 library sidecars + 27 mutations); the criterion's "39 (10 + 29)" does not match the file golden.py wrote (Q-032).
+

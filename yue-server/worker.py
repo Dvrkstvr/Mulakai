@@ -32,6 +32,9 @@ class Worker:
         self.pipe = None
         self.state = "loading"  # loading | ready | failed
         self._thread: threading.Thread | None = None
+        # Request threads (score routes, submit) count at once; HF fast
+        # tokenizers are not documented as safe for that (D-042, R-021).
+        self._tokenizer = threading.Lock()
 
     def start(self) -> None:
         self._thread = threading.Thread(target=self._main, name="yue-worker", daemon=True)
@@ -44,11 +47,17 @@ class Worker:
 
     def fits_plan_budget(self, abc: str) -> bool:
         """Only meaningful once ready; the submit routes return 503 before that."""
-        return self.pipe is None or self.pipe.fits_plan_budget(abc)
+        if self.pipe is None:
+            return True
+        with self._tokenizer:
+            return self.pipe.fits_plan_budget(abc)
 
     def count_tokens(self, abc: str) -> int | None:
         """The score's size in the planner's tokens; None until the pipeline is loaded."""
-        return None if self.pipe is None else self.pipe.count_tokens(abc)
+        if self.pipe is None:
+            return None
+        with self._tokenizer:
+            return self.pipe.count_tokens(abc)
 
     def _main(self) -> None:
         try:

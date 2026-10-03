@@ -137,3 +137,7 @@ Which Ollama does the score agent use on this machine? The user's server on :114
 - A) Agents start a second `ollama serve` on :11435 with the setting, as the spikes did (default; touches nothing of the user's).
 - B) The user restarts their :11434 server with `OLLAMA_CONTEXT_LENGTH=16384` (system env) and `LLM_API_URL` points there.
 - Reversal cost: an env var.
+
+## Q-032 · assumable · stage 7 · assumed → D-048
+F-017 #1 says "the 39 golden cases ... (10 library sidecars, 29 mutations)", but `pipeline/spikes/SP-2-planner-quality/golden.json` holds 37 (10 + 27; golden.py has 27 `mutate` calls, golden.out.txt lists 37). Default: the bar is all 37, all matching upstream; fix the criterion text to 37. Alternative: add two mutations to reach 39 (no source says which). Reversal cost: two test cases.
+
