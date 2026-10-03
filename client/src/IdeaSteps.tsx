@@ -13,7 +13,8 @@ import { busyMessage } from './generationJob';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { PromptEngineChoice } from './EngineChoice';
 import { useEngineCaps } from './useEngineCaps';
-import { isInstrumental, toggleInstrumental } from './instrumental';
+import { instrumentalNaNote, isInstrumental, toggleInstrumental } from './instrumental';
+import { unsupported } from './engineCaps';
 import type { Lookup } from './lookup';
 import { CreateStep } from './CreateStep';
 import { IdeaLucky } from './IdeaLucky';
@@ -42,6 +43,8 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
   // AI ENHANCE is ACE-Step's LM rewriting the request; an engine without LM tools gets the text as typed.
   const enhance = gen.useFormat && !formatted && (!caps || caps.lmTools);
   const stepsModel = gen.model || inventory.data?.defaultModel || '';
+  const modelUnknownWhy = inventory.error ? "couldn't load the model list (RETRY in TUNE)"
+    : !inventory.data ? 'the model list is still loading' : 'ACE-Step names no default model, so pick a DIT MODEL in TUNE';
 
   const [pendingResult, setPendingResult] = useState<RefineResult | null>(null);
   const { phase: thinkPhase, error: thinkError, retry: retryThink, finish: finishThink } =
@@ -68,6 +71,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
   // re-entering Create) from re-running the same expansion on this component's next mount.
   const finishReveal = () => { finishThink(); clearPendingQuery(); };
   const instrumentalNext = toggleInstrumental(lyrics);
+  const instrumentalNa = unsupported('instrumental', caps);
 
   return (
     <>
@@ -94,15 +98,16 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
               {refining ? 'WRITING…' : 'WRITE FOR ME'}
             </button>
             <LyricTagGuidePopover />
-            <button type="button" className={isInstrumental(lyrics) ? 'tag-guide-btn on' : 'tag-guide-btn'}
-              aria-pressed={isInstrumental(lyrics)} disabled={instrumentalNext === null || thinking}
-              title={instrumentalNext === null ? 'clear the lyrics first — INSTRUMENTAL never replaces your words' : undefined}
+            <button type="button" className={isInstrumental(lyrics) && !instrumentalNa ? 'tag-guide-btn on' : 'tag-guide-btn'}
+              aria-pressed={isInstrumental(lyrics) && !instrumentalNa} disabled={instrumentalNa || instrumentalNext === null || thinking}
+              title={!instrumentalNa && instrumentalNext === null ? 'clear the lyrics first — INSTRUMENTAL never replaces your words' : undefined}
               onClick={() => instrumentalNext !== null && patch({ lyrics: instrumentalNext, formatted: false })}>
               <span>INSTRUMENTAL</span>
             </button>
           </>}>
             <AutoTextarea className="lyrics-input" placeholder="[verse]&#10;Lyrics (optional)" value={lyrics}
               onChange={(v) => patch({ lyrics: v, formatted: false })} disabled={thinking} />
+            {instrumentalNa && <div className="hint">{instrumentalNaNote(engine?.label ?? '', lyrics)}</div>}
             <div className="hint">WRITE FOR ME uses the LM to rewrite prompt &amp; lyrics and suggest AUTO details · you accept each one in the preview</div>
           </CreateStep>
           <ThinkingWipe phase={thinkPhase} onSwept={finishReveal} />
@@ -113,7 +118,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
         </CreateStep>
       </div>
       {rail ?? (
-        <RecipeCard stepsModel={stepsModel} engine={<PromptEngineChoice />}
+        <RecipeCard stepsModel={stepsModel} modelUnknownWhy={modelUnknownWhy} engine={<PromptEngineChoice />}
           tune={<GenTune inventory={inventory} stepsModel={stepsModel} />}
           commit={<IdeaCommit thinking={thinking} onBack={onBack} stepsModel={stepsModel} />} />
       )}

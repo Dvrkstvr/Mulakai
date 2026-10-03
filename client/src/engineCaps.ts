@@ -5,7 +5,7 @@ import type { EngineCapabilities, EngineInfo } from './api';
 import { VOCAL_LANGUAGES } from './songMeta';
 
 /** Create fields that some engines can't take. */
-export type GatedField = 'duration' | 'bpm' | 'keyScale' | 'timeSignature' | 'vocalLanguage' | 'takes';
+export type GatedField = 'duration' | 'bpm' | 'keyScale' | 'timeSignature' | 'vocalLanguage' | 'takes' | 'instrumental';
 
 type Engine = Pick<EngineInfo, 'label' | 'capabilities'>;
 
@@ -18,6 +18,7 @@ export function unsupported(field: GatedField, caps: EngineCapabilities | null):
     // A style-text engine takes the language as style text too (YuE2: "English, …").
     case 'vocalLanguage': return caps.languages !== 'any' && caps.musicalMeta !== 'style-text';
     case 'takes': return !caps.takes;
+    case 'instrumental': return !caps.instrumental;
   }
 }
 

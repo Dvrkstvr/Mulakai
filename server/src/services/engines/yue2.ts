@@ -20,6 +20,7 @@ export const YUE2_CAPABILITIES: EngineCapabilities = {
   lmTools: false,
   advanced: false,
   takes: false,
+  instrumental: true, // blank LYRICS: a tags-only skeleton plus instrumental style (buildYue2Request)
   // CFG is YuE2's own control, not ACE-Step's GUIDANCE: YuE2's neutral value is 1.0,
   // so a persisted GUIDANCE of ~7 would silently apply heavy CFG (PLAN.md, yue-engine).
   extraControls: ['cfg', 'cot'],

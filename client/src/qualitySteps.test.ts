@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { migrateQuality, qualitySteps, resolveSteps } from './qualitySteps';
+import { migrateQuality, qualityHint, qualitySteps, resolveSteps } from './qualitySteps';
 
 describe('qualitySteps', () => {
   it.each([
@@ -32,6 +32,23 @@ describe('resolveSteps', () => {
   it('sends the hand-set slider value for custom, whatever the model', () => {
     expect(resolveSteps({ quality: 'custom', inferenceSteps: 30 }, 'acestep-v15-turbo')).toBe(30);
     expect(resolveSteps({ quality: 'custom', inferenceSteps: 0 }, '')).toBe(0);
+  });
+});
+
+describe('qualityHint', () => {
+  it('names the steps a preset sends on a known model', () => {
+    expect(qualityHint('best', 'turbo', 'x')).toBe('12 steps · slower, finer detail');
+    expect(qualityHint('balanced', 'turbo', 'x')).toBe("AUTO steps · the model's own step count");
+  });
+
+  it('is honest that DRAFT/BEST send AUTO until the model is known, and says why', () => {
+    expect(qualityHint('draft', 'unknown', "couldn't load the model list"))
+      .toBe("DRAFT applies once the model is known — couldn't load the model list · AUTO steps until then");
+    expect(qualityHint('balanced', 'unknown', 'x')).toBe("AUTO steps · the model's own step count");
+  });
+
+  it('points a custom count at TUNE', () => {
+    expect(qualityHint('custom', 'turbo', 'x')).toContain('custom steps, set in TUNE');
   });
 });
 

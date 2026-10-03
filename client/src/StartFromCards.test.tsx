@@ -18,13 +18,13 @@ describe('START FROM cards', () => {
 
 describe('QUALITY chips', () => {
   it('light BALANCED by default, which leaves steps to AUTO', () => {
-    const html = renderToStaticMarkup(<RecipeQuality stepsModel="acestep-v15-turbo" naReason={null} />);
+    const html = renderToStaticMarkup(<RecipeQuality stepsModel="acestep-v15-turbo" naReason={null} unknownWhy="x" />);
     expect(pressed(html)).toEqual(['BALANCED']);
     expect(html).toContain('AUTO steps');
   });
 
   it('read N/A with the reason on an engine without step control', () => {
-    const html = renderToStaticMarkup(<RecipeQuality stepsModel="" naReason="YUE2 has no step control" />);
+    const html = renderToStaticMarkup(<RecipeQuality stepsModel="" naReason="YUE2 has no step control" unknownWhy="x" />);
     expect(html).toContain('N/A');
     expect(html).toContain('YUE2 has no step control');
     expect(html).not.toContain('<button');

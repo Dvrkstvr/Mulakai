@@ -1,17 +1,14 @@
 import { useSettings } from './settings';
 import { modelFamily } from './modelInfo';
-import { QUALITY_PRESETS, qualitySteps, type QualityPreset } from './qualitySteps';
-
-const FEEL: Record<QualityPreset, string> = {
-  draft: 'fastest, rougher',
-  balanced: "the model's own step count",
-  best: 'slower, finer detail',
-};
+import { QUALITY_PRESETS, qualityHint } from './qualitySteps';
 
 /** QUALITY (PLAN.md "S2 — Guided Create", point 4): three presets that resolve to diffusion
  * steps at submit, by the family of `stepsModel` (the model the flow runs). A connected group
- * of sky chips — it's a choice of how, not a commit. Moving STEPS in TUNE lights none. */
-export function RecipeQuality({ stepsModel, naReason }: { stepsModel: string; naReason: string | null }) {
+ * of sky chips — it's a choice of how, not a commit. Moving STEPS in TUNE lights none.
+ * `unknownWhy` says why `stepsModel` isn't known yet, for the hint. */
+export function RecipeQuality({ stepsModel, naReason, unknownWhy }: {
+  stepsModel: string; naReason: string | null; unknownWhy: string;
+}) {
   const quality = useSettings((s) => s.gen.quality);
   const setGen = useSettings((s) => s.setGen);
 
@@ -24,10 +21,6 @@ export function RecipeQuality({ stepsModel, naReason }: { stepsModel: string; na
     );
   }
 
-  const family = modelFamily(stepsModel);
-  const steps = quality === 'custom' ? null : qualitySteps(quality, family);
-  const line = quality === 'custom' ? 'custom steps, set in TUNE · pick one to go back to a preset'
-    : `${steps === null ? 'AUTO steps' : `${steps} steps`} · ${FEEL[quality]}`;
   return (
     <div className="recipe-field">
       <span className="section-label">QUALITY</span>
@@ -39,7 +32,7 @@ export function RecipeQuality({ stepsModel, naReason }: { stepsModel: string; na
           </button>
         ))}
       </div>
-      <div className="hint">{line}</div>
+      <div className="hint">{qualityHint(quality, modelFamily(stepsModel), unknownWhy)}</div>
     </div>
   );
 }

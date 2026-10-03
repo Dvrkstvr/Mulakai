@@ -17,9 +17,11 @@ const TAKES_INFO = 'Generates N candidates per request. Only one is currently ke
  * destination, TUNE, and the flow's commit. `stepsModel` is the model the flow runs (AUTO
  * resolved to the inventory default), which QUALITY and the time estimate key on;
  * `coverStepsAhead` counts an engine cover's remaining jobs (TRANSCRIBE, READ LYRICS, cover). */
-export function RecipeCard({ engine, stepsModel, coverStepsAhead, tune, commit }: {
+export function RecipeCard({ engine, stepsModel, modelUnknownWhy = "the card's MODEL isn't picked yet", coverStepsAhead, tune, commit }: {
   engine: ReactNode;
   stepsModel: string;
+  /** Why `stepsModel` is '' (not known yet), for QUALITY's hint. */
+  modelUnknownWhy?: string;
   coverStepsAhead?: number;
   tune: ReactNode;
   commit: ReactNode;
@@ -40,7 +42,8 @@ export function RecipeCard({ engine, stepsModel, coverStepsAhead, tune, commit }
         {engine}
         <div className="hint">{engineNote(genType, info?.label ?? null)}</div>
       </div>
-      <RecipeQuality stepsModel={stepsModel} naReason={info ? `${info.label} has no step control` : null} />
+      <RecipeQuality stepsModel={stepsModel} unknownWhy={modelUnknownWhy}
+        naReason={info ? `${info.label} has no step control` : null} />
       <RecipeVoice taskType={GEN_TASK[genType]}
         naReason={info && !caps?.referenceAudio ? `none · ${info.label} has no reference voice` : null} />
       {takesLive ? (

@@ -2,13 +2,18 @@ import type { CreateDraft } from './createDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { useVoiceStore } from './voiceStore';
-import { useSettings, genParams } from './settings';
+import { useSettings, genParams, type GenSettings } from './settings';
 import { recipeEtaKey } from './recipeCopy';
 import { useCreateSubmit } from './useCreateSubmit';
 
+/** ONE TRACK's ACE-Step params: the card's own MODEL goes last, so AN IDEA's DIT MODEL (in
+ * `gen.model`) can't replace the Base model `complete` needs; QUALITY resolves on it too. */
+export function trackParams(gen: GenSettings, model: string) {
+  return { ...genParams(gen, model), ...(model ? { model } : {}) };
+}
+
 /** ARRANGE: ACE-Step's `complete` task around one bare source track, persisted as a new song.
- * The flow's own MODEL is what runs (and what QUALITY resolves on); it is spread after the
- * shared settings so AN IDEA's DIT MODEL can't replace the Base model `complete` needs. */
+ * The flow's own MODEL is what runs (trackParams). */
 export function useTrackGenerate(onBack: () => void) {
   const draft = useCreateDraftStore();
   const gen = useSettings((s) => s.gen);
@@ -26,7 +31,7 @@ export function useTrackGenerate(onBack: () => void) {
     if (!src) throw new Error(source === 'upload' ? 'choose an audio file to upload' : 'split a song and pick a stem to use as the source');
     await startComplete(
       {
-        title: title || 'Untitled', prompt, lyrics, ...genParams(gen, model), ...(model ? { model } : {}),
+        title: title || 'Untitled', prompt, lyrics, ...trackParams(gen, model),
         ...(bpm > 0 ? { bpm } : {}),
         ...(keyScale ? { key_scale: keyScale } : {}),
         ...(duration > 0 ? { audio_duration: duration } : {}),
