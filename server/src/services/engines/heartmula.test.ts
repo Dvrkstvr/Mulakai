@@ -66,7 +66,7 @@ describe('heartmula engine', () => {
   it('describes a capped, seedless, reference-free model with its own controls', () => {
     expect(HEARTMULA_CAPABILITIES).toMatchObject({
       duration: 'max', musicalMeta: 'none', referenceAudio: false, adapters: false, seed: false,
-      lmTools: false, advanced: false, takes: false, extraControls: ['cfg', 'temperature', 'topK'],
+      lmTools: false, advanced: false, takes: false, instrumental: false, extraControls: ['cfg', 'temperature', 'topK'],
       languages: ['zh', 'en', 'ja', 'ko', 'es'],
       sectionTags: ['Intro', 'Verse', 'Prechorus', 'Chorus', 'Bridge', 'Outro'],
     });

@@ -20,6 +20,7 @@ import { useLibraryBackButton } from './useLibraryBackButton';
 import { useEditorColumns } from './useEditorColumns';
 import { EditorTitleRow } from './EditorTitleRow';
 import { EditorRail } from './EditorRail';
+import { useEditorCommands } from './useEditorCommands';
 
 interface Props {
   songId: string;
@@ -51,6 +52,7 @@ export function Editor({ songId, onBack }: Props) {
   const duration = song?.duration ?? 0;
   const { timing, sections, activeSectionIndex, activeLyricsBlock, lyricsUnlocked } =
     useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer, reload);
+  useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
 
   const repaint = useRepaintSubmit({
     songId, focusedLayer, selection, prompt, lyricsUnlocked, lyricsDraft, repaintSettings,

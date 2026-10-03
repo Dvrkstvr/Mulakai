@@ -14,12 +14,11 @@ interface Props {
   onKeyScaleChange: (v: string) => void;
 }
 
-/** LYRICS + SONG DETAILS block for the AUDIO/ARRANGE Create tabs — identical shape in both,
- * so it's shared rather than duplicated. Sits below `AnalyzeAudioButton`; fills from
- * `useAnalyzeSourceAudio`'s result (see CreateAudioTab.tsx/CreateArrangeTab.tsx), but the
- * fields stay plain editable inputs the user can override before generating. A failed
- * analysis just re-clicks the same button, so its error is shown here without its own
- * retry control. */
+/** LYRICS + SONG DETAILS for the last step of A SONG I HAVE and ONE TRACK — identical shape in
+ * both, so it's shared rather than duplicated; the step's own label names LYRICS. Fills from
+ * `useAnalyzeSourceAudio`'s result (see CoverSteps.tsx/TrackSteps.tsx), but the fields stay
+ * plain editable inputs the user can override before generating. A failed analysis just
+ * re-clicks ANALYZE AUDIO, so its error is shown here without its own retry control. */
 export function SongAnalysisFields({
   analyzing, error, lyrics, onLyricsChange, bpm, onBpmChange, duration, onDurationChange, keyScale, onKeyScaleChange,
 }: Props) {
@@ -27,8 +26,6 @@ export function SongAnalysisFields({
     <>
       {analyzing && <span className="meta">analyzing source audio…</span>}
       {error && <div className="error">{error}</div>}
-
-      <div className="section-label">LYRICS</div>
       <AutoTextarea className="lyrics-input" placeholder="[verse]&#10;Lyrics (optional)" value={lyrics} onChange={onLyricsChange} />
 
       <div className="section-label">SONG DETAILS</div>

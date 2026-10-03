@@ -13,7 +13,7 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
   // Unique per run, so `--repeat-each` against one database never finds an earlier run's song.
   const TITLE = `E2E Golden Path ${Date.now().toString(36)}`;
 
-  await test.step('generate a song from the PROMPT tab', async () => {
+  await test.step('generate a song from AN IDEA', async () => {
     await page.goto('/');
     // The header badge's popover lists each model; hovering it opens the list.
     await page.getByRole('button', { name: /^Model status/ }).hover();
@@ -22,14 +22,29 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
     await page.mouse.move(0, 400);
     // CREATE on an empty box opens Create without asking the LM for a sample first.
     await page.getByRole('button', { name: 'CREATE', exact: true }).click();
-    await page.getByPlaceholder('Title').fill(TITLE);
+    // A fresh draft starts from AN IDEA (text2music).
+    await expect(page.getByRole('button', { name: /^AN IDEA/ })).toHaveAttribute('aria-pressed', 'true');
+    await page.getByPlaceholder('New song').fill(TITLE);
     await page.getByPlaceholder('Describe it — style, mood, instruments').fill('lofi piano with soft drums');
     await page.getByRole('button', { name: 'GENERATE', exact: true }).click();
 
     const row = page.locator('.library .row', { hasText: TITLE });
     await expect(row).toBeVisible({ timeout: 30_000 });
     expect((await lastTaskOfType(request, 'text2music')).params.prompt).toBe('lofi piano with soft drums');
-    await row.getByRole('button', { name: 'EDIT' }).click();
+  });
+
+  await test.step('Activity lists it as DONE; the Ctrl K palette opens it by title', async () => {
+    await page.getByRole('button', { name: /^ACTIVITY/ }).click();
+    const drawer = page.getByRole('complementary', { name: 'Activity' });
+    const done = drawer.locator('.activity-job', { hasText: TITLE });
+    await expect(done).toContainText('GENERATED');
+    await expect(done.getByRole('button', { name: 'OPEN' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+
+    await page.keyboard.press('Control+k');
+    await page.getByRole('dialog', { name: 'Command palette' }).getByRole('textbox').fill(TITLE);
+    await page.keyboard.press('Enter');
     await expect(page.locator('.title-row .song-title')).toHaveText(TITLE);
     await expect(page.locator('.title-row .meta')).toContainText('1 layer');
   });

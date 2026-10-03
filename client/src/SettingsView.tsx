@@ -11,6 +11,7 @@ import { ForgeSection } from './ForgeSection';
 import { OutputMetadataSection } from './OutputMetadataSection';
 import { LyricTagGuideSection } from './LyricTagGuideSection';
 import { LyricTagsSection } from './LyricTagsSection';
+import { settingsAnchor } from './settingsSections';
 
 interface Props {
   online: boolean | null;
@@ -28,16 +29,16 @@ export function SettingsView({ online, onBack }: Props) {
   return (
     <div className="settings-shell">
       <ScrollArea className="settings-content">
-        <ModelsSection online={online} />
-        <AdaptersSection />
-        <EnginesSection />
-        <PlaybackExportSection />
-        <VoiceManagementSection />
-        <LibraryMaintenanceSection />
-        <ForgeSection />
-        <OutputMetadataSection />
-        <LyricTagGuideSection />
-        <LyricTagsSection />
+        <div id={settingsAnchor('models')}><ModelsSection online={online} /></div>
+        <div id={settingsAnchor('adapters')}><AdaptersSection /></div>
+        <div id={settingsAnchor('engines')}><EnginesSection /></div>
+        <div id={settingsAnchor('playback')}><PlaybackExportSection /></div>
+        <div id={settingsAnchor('voices')}><VoiceManagementSection /></div>
+        <div id={settingsAnchor('maintenance')}><LibraryMaintenanceSection /></div>
+        <div id={settingsAnchor('forge')}><ForgeSection /></div>
+        <div id={settingsAnchor('metadata')}><OutputMetadataSection /></div>
+        <div id={settingsAnchor('tag-guide')}><LyricTagGuideSection /></div>
+        <div id={settingsAnchor('tags')}><LyricTagsSection /></div>
       </ScrollArea>
     </div>
   );

@@ -25,6 +25,7 @@ export const ACESTEP_CAPABILITIES: EngineCapabilities = {
   lmTools: true,
   advanced: true,
   takes: true,
+  instrumental: true, // the `[Instrumental]` lyric (GUIDE.md)
   extraControls: [],
   // The default engine keeps today's PROMPT tab, which states no engine line.
   consequence: '',

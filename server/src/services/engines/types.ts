@@ -30,6 +30,8 @@ export interface EngineCapabilities {
   advanced: boolean;
   /** TAKES / batch_size. */
   takes: boolean;
+  /** Create's INSTRUMENTAL: the engine can be asked for a song with no vocals. */
+  instrumental: boolean;
   extraControls: ('cfg' | 'temperature' | 'topK' | 'cot')[];
   /** The DESIGN.md inline consequence line shown under GENERATE; '' = none. */
   consequence: string;

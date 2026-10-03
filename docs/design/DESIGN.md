@@ -100,7 +100,7 @@ an engine targets where the request goes, while GENERATE (acid) commits it.
   `clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%)` on a 10px square,
   riding a 2px track (`carbon-line-hi` track, semantic color for filled part).
 - **Parallelogram fader** (`Slider.tsx`, used for STEPS/GUIDANCE/VARIANCE in
-  the settings panels): not a reskinned native thumb — three plain divs
+  TUNE and the dock): not a reskinned native thumb — three plain divs
   (`.pgram-track`/`.pgram-fill`/`.pgram-handle`) layered under a fully
   transparent native `<input type="range">` (kept for real drag/keyboard/
   touch/a11y; the divs are purely decorative). Track and fill are `1px
@@ -162,7 +162,9 @@ closes any popover. Previews are auditions, not a second mixer.
 ## App model — a flat set of top-level views, one page
 
 Single-page app. Top-level state is a flat, enumerable set of full-takeover
-views — no nested pages, no stacked modals. The set is allowed to grow as the
+views — no nested pages, no stacked modals (one documented exception: the
+Ctrl K command palette, see "Command palette" under Motion › Persistent
+header). The set is allowed to grow as the
 app grows (Mulakai is built iteratively); adding a view is a normal addition
 to the pattern below, not an exception to a fixed count. Each view:
 
@@ -185,12 +187,26 @@ requiring its own justification against a screen-count rule.
 1. **Library** (home) — full width is browsing surface; a right-hand detail
    rail opens only once a song is selected (see below), it does not reserve
    space up front.
-   - Header: brand + model status badge only. No search, no form — kept clean
-     since neither acts on the header itself.
+   - Header: the shared persistent header (brand, the `Search or run
+     anything… CTRL K` palette trigger, ACTIVITY, model status badge — see
+     Motion › Persistent header). No library search or create form there:
+     those act on the list, so they live with it.
    - **Create bar**: one slim row below the header — a single "what do you
      want to make?" prompt input + acid CREATE button (parallelogram) that
      navigates to the Create takeover (see below). This replaces the old
      inline create form that used to live in Library.
+   - **CONTINUE** (added 2026-10-03): a row above the song grid with up to
+     three cards, the songs edited most recently (by their newest version —
+     songs have no `updated_at`, and versions are the edits), from
+     `GET /api/songs/recent`. Each card: title, a lilac version badge (`v4`,
+     that layer's take count), the base take's waveform (`PlayerWaveform`,
+     no playhead; a click resumes rather than plays — the footer stays the
+     Library's one playback surface), the last action in words
+     ("Repainted 1:32–2:07 · VOCALS · 12 min ago") and **RESUME**, a plain
+     skewed outline like EDIT (it navigates; acid is for commits). A Create
+     draft that holds anything is prepended as "Draft in Create · AN IDEA"
+     with its description, RESUME reopening Create as it was left. Hidden on
+     an empty library.
    - **Browse toolbar**: search input, SORT select (newest/oldest/title/
      favorites), and filter chips (ALL/FAVORITES — acid-outlined
      parallelograms, active = acid-filled) — grouped together directly above
@@ -234,69 +250,133 @@ requiring its own justification against a screen-count rule.
      `.warn-note` on the REFERENCE AUDIO control rather than quietly
      generating unconditioned; it clears as soon as any reference is picked.
      **CREATE COVER FROM AUDIO** (acid-outline, sibling per the
-     one-filled-acid-CTA rule) opens Create's Audio → From Library path with
+     one-filled-acid-CTA rule) opens Create's A SONG I HAVE → FROM LIBRARY path with
      this song preselected — it is the action that seeds a source, which is
      why REUSE PROMPT never quietly does so, and it carries no voice either.
 2. **Create** — its own takeover screen, reached from Library's create bar.
-   Header stays back/brand/status only (same as Editor's — the header is a
-   single persistent element and doesn't carry per-screen content); a
-   `.title-row` at the top of the content column holds "New song" + the
-   consequence line (e.g. "will appear in your library once generated").
-   Layout: fixed-width **left settings panel** (see Side panels) + a
-   **centered content column** (~800px, not full-bleed — a prompt/lyrics
-   editor doesn't get more usable by being 3x wider, so extra viewport width
-   is left as margin here, unlike Editor's waveform).
-   - **GENERATION TYPE** choice (acid-filled-parallelogram tabs, same idiom
-     as style-tag chips): **PROMPT**, **AUDIO** (cover), or **ARRANGE**
-     (complete). The three are **renderings of one draft, not three separate
-     forms**: title, prompt, lyrics and SONG DETAILS are shared and survive a
-     tab switch, and each tab's own source/model/variance choices survive it
-     too, so nothing typed or picked is lost by looking at another tab. The
-     draft also survives leaving Create and coming back within a session; it
-     does not survive a reload. Because a prompt means a different thing per
-     tab (a whole song / a change to a source / an accompaniment), text
-     written in another tab is marked with a carried-over hint under the
-     field, which clears once it's edited here. There is deliberately **no
-     "copy this field to that tab" control** — that only exists when the
-     tabs hold separate state, and they don't.
-     **CLEAR DRAFT** sits right-aligned on the GENERATION TYPE label row, so
-     all three tabs reach it (COVER/ARRANGE have no commit row to host it).
-     One button for the whole draft rather than a per-field "clear prompt":
-     with the fields shared, clearing one would leave the rest of a
-     half-abandoned draft to hunt down. Quiet outline until armed — a
-     two-step confirm (`CLEAR ALL? CONFIRM` plus a line naming what goes)
-     that turns rust only on the second press, matching the Library's delete
-     confirms; rust marks the moment something is about to be destroyed, not
-     a button that merely could. It clears the shared fields, both tabs'
-     sources, and the reference audio (a voice left selected would keep
-     conditioning an emptied draft), but **not** the destination folder or
-     the sidebar's generation settings — the folder came from where you were
-     in the Library, and those settings are app preferences shared with the
-     Editor's repaint/add-layer flows. Hidden-by-disabled when there's
-     nothing to clear; a folder-name title suggestion doesn't count as
-     something to clear, since it's offered, not typed.
-     - *Prompt*: an optional **ENGINE** row first (added 2026-09-30, see
-       below), then title, description field, lyrics editor (mono) with
-       instrumental toggle, one acid GENERATE bar. A lilac helper line under
-       the description notes that the LM model derives the generation
-       parameters (bpm/key/structure) from the prompt — lilac because it's
-       describing AI-derived behavior, not a live selection. LM MODEL stays
-       enabled in the settings panel.
-     - **ENGINE** (PROMPT and COVER): which model makes the song's first take —
-       ACE-STEP, or an optional extra engine (YuE2, HeartMuLa) whose server
-       is configured. One sky parallelogram per engine, ACE-STEP first,
-       active = sky fill with `on-sky` text; the row **does not render at
-       all** until some extra engine is configured, so a default install
-       looks unchanged. An engine that is configured but unreachable is
+   Header stays the shared persistent one plus the back button (same as
+   Editor's — the header is a single persistent element and doesn't carry
+   per-screen content).
+   **Guided Create** (2026-10-03, PLAN.md "S2 — Guided Create"; mockup
+   `GuidedCreate.dc.html`). One scrolling page, centered at ~1140px — a
+   prompt/lyrics editor doesn't get more usable by being 3x wider, so extra
+   viewport width is margin here, unlike Editor's waveform. Top to bottom:
+   - **Title row**: the song title as a plain input ("New song"
+     placeholder, 20px, 700, sentence case — it's content), the consequence
+     line ("will appear in **Demos** once generated", or "in your library"),
+     and **CLEAR DRAFT** right-aligned.
+   - **START FROM** — three wide clip-path parallelogram cards, one per
+     flow: **AN IDEA** (text2music: "Describe it in words and get a full
+     song"), **A SONG I HAVE** (cover: "Remake a song from your library or a
+     file"), **ONE TRACK** (complete: "Build a full arrangement around a
+     single part"). The picked card is **sky** (sky edge, `sky-tint` fill,
+     sky title), not acid: picking one targets which flow the draft feeds and
+     commits nothing. A fresh Create opens on AN IDEA; REUSE PROMPT lands on
+     the card that made the song. The three are **renderings of one draft,
+     not three separate forms**: title, prompt, lyrics and song details are
+     shared and survive a card switch, and each card's own
+     source/model/variance choices survive it too, so nothing typed or
+     picked is lost by looking at another card. The draft also survives
+     leaving Create and coming back within a session; it does not survive a
+     reload. Because a prompt means a different thing per card (a whole song
+     / a change to a source / an accompaniment), text written under another
+     card is marked with a carried-over hint under the field ("Carried over
+     from AN IDEA — …"), which clears once it's edited here. There is
+     deliberately **no "copy this field to that card" control** — that only
+     exists when the cards hold separate state, and they don't.
+   - Below the cards, two columns: the flow's **numbered steps** (fluid,
+     ~800px) and its **RECIPE card** (300px, sticky so the commit stays in
+     view while the steps scroll).
+   - **Steps**: each is a row with a small clip-path parallelogram number
+     (`text-hi` fill for steps the flow needs, `carbon-raised` for optional
+     ones), an uppercase label, optional `text-mid` sub copy and
+     right-aligned actions on the label row, then its fields.
+   - **CLEAR DRAFT**: one button for the whole draft rather than a
+     per-field "clear prompt": with the fields shared, clearing one would
+     leave the rest of a half-abandoned draft to hunt down. Quiet outline
+     until armed — a two-step confirm (`CLEAR ALL? CONFIRM` plus a line
+     naming what goes) that turns rust only on the second press, matching
+     the Library's delete confirms; rust marks the moment something is about
+     to be destroyed, not a button that merely could. It clears the title,
+     the shared fields, every card's source, and the reference audio (a
+     voice left selected would keep conditioning an emptied draft), but
+     **not** the destination folder or the recipe's generation settings —
+     the folder came from where you were in the Library, and those settings
+     are app preferences shared with the Editor's repaint/add-layer flows.
+     Hidden-by-disabled when there's nothing to clear; a folder-name title
+     suggestion doesn't count as something to clear, since it's offered,
+     not typed.
+   - **RECIPE card** (carbon-panel, 1px hairline), top to bottom:
+     - **ENGINE** (see below) and a `text-mid` note on what that engine does
+       with this card ("full control · reference voice · editable
+       afterwards", "arranging always runs on ACE-Step").
+     - **QUALITY**: DRAFT / BALANCED / BEST as a connected group of skewed
+       chips, the picked one sky-filled (a choice of how, not a commit),
+       with a hint naming the steps it sends ("12 steps · slower, finer
+       detail"). Presets resolve to diffusion steps at submit by the run
+       model's family (turbo 4 / AUTO / 12, SFT 24 / AUTO / 80, base 16 /
+       AUTO / 64); BALANCED sends nothing, leaving AUTO to the server.
+       Moving STEPS in TUNE lights no chip ("custom steps, set in TUNE").
+       While the model isn't known (AUTO model with the list loading,
+       failed, or naming no default) DRAFT/BEST can only send AUTO, and the
+       hint says so and why: "DRAFT applies once the model is known — the
+       model list is still loading · AUTO steps until then".
+       On an extra engine it reads N/A with "YUE2 has no step control".
+     - **VOICE**: the reference audio as one bordered line (preview
+       hexagon, "Mara · saved voice" / "clip.wav · uploaded clip" / "none")
+       with a quiet CHANGE that opens the full reference picker in place. A
+       reused song whose voice is missing opens it by itself, since its
+       warning lives there. N/A ("none · YUE2 has no reference voice") on an
+       engine without one.
+     - **TAKES** fader on AN IDEA · ACE-STEP; N/A elsewhere (covers and
+       arrangements make one take).
+     - **Takes about** / **Lands in** label-value rows: the wait is the
+       rolling mean of the last five real generations of this kind (task,
+       engine, model family, quality), so the row is **hidden until one has
+       finished** — never an invented number. An engine cover still missing
+       its score reads "a few min · 3 steps" (TRANSCRIBE, READ LYRICS, the
+       cover). Lands in is the destination folder, read-only.
+     - **TUNE ▸**: everything the old left settings panel held for the
+       flow, collapsed to one `text-low` line — "model, steps, guidance, seed
+       · all default", or just the non-defaults ("acestep-v15-xl-sft · 40
+       steps · seed 12"). See "Side panels" below for what it holds.
+     - The commit: the card's **one filled acid button** (GENERATE /
+       GENERATE COVER / ARRANGE), with its consequence copy, blockers and
+       a failed submit's RETRY under it.
+     WRITE FOR ME's preview takes the recipe's slot while open, with
+     `← RECIPE` to go back (the rail-swap idiom).
+     - *AN IDEA*: **1 DESCRIBE IT** — description field, FEELING LUCKY
+       (lilac, two-step once the draft holds anything), and a lilac helper
+       line on AI ENHANCE: the LM derives the generation parameters
+       (bpm/key/structure) from the prompt — lilac because it's describing
+       AI-derived behavior, not a live selection. **2 LYRICS** — the mono
+       lyrics editor with **WRITE FOR ME** (the LM rewrite with a per-field
+       preview, formerly REFINE INPUT), TAG GUIDE and **INSTRUMENTAL** on
+       the label row. INSTRUMENTAL is a setting, so it lights sky (not acid)
+       while LYRICS hold `[Instrumental]`; it never replaces typed words, so
+       it waits for an empty box. It follows the engine's descriptor: YuE2
+       is asked its own way (blank LYRICS, its instrumental skeleton);
+       HeartMuLa has no instrumental mode, so INSTRUMENTAL stays in place,
+       disabled, with a reason line under LYRICS ("INSTRUMENTAL — HEARTMULA
+       has no instrumental mode"). The Quick Start reveal covers steps 1–2.
+       **3 DETAILS** (optional · AUTO lets the planner decide) — BPM,
+       DURATION, KEY / SCALE, TIME SIGNATURE, VOCAL LANGUAGE.
+     - **ENGINE** (AN IDEA and A SONG I HAVE): which model makes the song's
+       first take — ACE-STEP, or an optional extra engine (YuE2, HeartMuLa)
+       whose server is configured. One sky parallelogram per engine,
+       ACE-STEP first, active = sky fill with `on-sky` text. Until some
+       extra engine is configured the row is a single fixed ACE-STEP chip
+       with nothing to pick, and ONE TRACK always shows it that way. An
+       engine that is configured but unreachable is
        disabled with its reason as a line under the row; if the *selected*
        engine can't take a job, a `.warn-note` says so and GENERATE is off.
        The choice is part of the draft (REUSE PROMPT restores it, CLEAR
        DRAFT resets it), never a sticky preference.
-       - **COVER has its own ENGINE row** (added 2026-10-01): ACE-STEP plus
-         any engine that can sing a score and whose transcriber answers
-         (YuE2 with SheetSage2). It is kept separate from PROMPT's, so
-         picking YUE2 on COVER never changes what PROMPT generates on, and
-         it has the same no-row-until-available rule. The settings panel
+       - **A SONG I HAVE has its own ENGINE row** (added 2026-10-01): ACE-STEP
+         plus any engine that can sing a score and whose transcriber answers
+         (YuE2 with SheetSage2). It is kept separate from AN IDEA's, so
+         picking YUE2 for a cover never changes what AN IDEA generates on,
+         and it has the same fixed-ACE-STEP-until-available rule. TUNE
          follows it; on a cover, COT is replaced by a one-line hint, because
          a cover always follows its score's melody.
          It **holds still** (added 2026-10-02) while a job whose result
@@ -307,42 +387,52 @@ requiring its own justification against a screen-count rule.
          "ENGINE is locked while TRANSCRIBE runs — its result belongs to
          this engine's cover". A generation doesn't lock it; its result is
          a library song, not the draft.
-       - ARRANGE is always ACE-Step, and so is every later edit.
+       - ONE TRACK is always ACE-Step, and so is every later edit.
        - **Descriptor-driven N/A**: each engine publishes what it can take;
          a control it can't stays **in place**, disabled, with an `N/A`
          readout (the same idiom as GUIDANCE on a Turbo model) and one reason
-         line under SONG DETAILS (e.g. "DURATION — YUE2 sets the length from
+         line under DETAILS (e.g. "DURATION — YUE2 sets the length from
          the song it plans"). Controls are never hidden, so switching engines
          doesn't reflow the form. A reinterpreted control keeps working and
          says how (HeartMuLa's DURATION reads `MAX 120s`; YuE2's BPM/KEY/TIME
          SIGNATURE are "sent as style text, a hint rather than a guarantee").
-       - The settings panel swaps ACE-Step's model/LM/steps/guidance/
-         advanced/reference block for the engine's own controls (CFG,
-         TEMPERATURE, TOP-K as `Slider.tsx` faders where 0 = AUTO; COT as a
-         select), the shared RANDOM SEED/SEED pair (or a locked "not
-         reproducible" SEED row for an engine without one), and one line
-         naming the ACE-Step settings that don't apply.
+       - TUNE swaps ACE-Step's model/LM/steps/guidance/advanced block for
+         the engine's own controls (CFG, TEMPERATURE, TOP-K as `Slider.tsx`
+         faders where 0 = AUTO; COT as a select), the shared RANDOM SEED/SEED
+         pair (or a locked "not reproducible" SEED row for an engine without
+         one), and one line naming the ACE-Step settings that don't apply;
+         QUALITY and VOICE read N/A in place.
        - GENERATE states the engine's consequence line underneath (e.g.
          "YuE2 · no duration control, no reference voice, no section strip ·
          ~95 s per 3-minute song on an RTX 4080 · later edits use
          ACE-Step"), per the copy rule below.
-     - *Audio*: a **SOURCE** sub-choice (UPLOAD / FROM LIBRARY, same tab
-       idiom). FROM LIBRARY shows a searchable mini song-picker; the
-       selected song uses **sky** (selection/scope — same concept as
-       focusing a layer in the Editor), not lilac. Below the source picker:
-       a description field for the requested change, then a LYRICS + SONG
-       DETAILS block (see below), then GENERATE COVER. The tab's own MODEL
-       picker (cover-capable models only) is the cover's model, so the
-       settings panel hides DIT MODEL here and gates STEPS, GUIDANCE and
-       ADVANCED on the tab's pick; STEPS, GUIDANCE, SEED and the DiT knobs
-       are sent with the cover. The LM controls are hidden since `cover`
-       skips the LM planner, same as Editor's repaint mode (`API.md` §4.2).
+     - *A SONG I HAVE* (cover): **1 PICK THE SONG** — the SOURCE choice
+       (UPLOAD / FROM LIBRARY, tab idiom). FROM LIBRARY shows a searchable
+       mini song-picker; the selected song uses **sky** (selection/scope —
+       same concept as focusing a layer in the Editor), not lilac. MOVE TO
+       EDITOR sits under an upload. **2 WHAT CHANGES?** — a description
+       field for the requested change, VARIANCE, and ANALYZE AUDIO.
+       **3 LYRICS** — the LYRICS + SONG DETAILS block (see below); GENERATE
+       COVER is the recipe's commit. The card's own MODEL picker
+       (cover-capable models only) is the cover's model, so in TUNE it
+       replaces DIT MODEL and gates STEPS, GUIDANCE and ADVANCED, and
+       QUALITY resolves on it; STEPS, GUIDANCE, SEED and the DiT knobs are
+       sent with the cover. A model list that is loading, failed or empty
+       says so beside the commit, since TUNE starts collapsed. The LM
+       controls are hidden since `cover` skips the LM planner, same as
+       Editor's repaint mode (`API.md` §4.2).
        The SOURCE picker **holds still** here too (added 2026-10-02), the
        same way as on YUE2 below: while ANALYZE AUDIO or a generation
        (GENERATE COVER's submit included) runs, with the same disabled
        tabs, drop zone and rows and the same reason line.
-       - *Audio on an engine (YUE2)*: a melody cover sung from a score. The
-         flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
+       - *A SONG I HAVE on an engine (YUE2)*: a melody cover sung from a
+         score. The flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
+         Step 1 holds everything that describes the source: the SOURCE
+         picker, TRANSCRIBE / READ LYRICS / USE .ABC FILE, the score review
+         and SECTIONS. Step 2 is the description and ANALYZE AUDIO; step 3 is
+         LYRICS (with FIT TO SCORE on the label row, and "read from the
+         recording · edit freely" while they hold what READ LYRICS wrote) and
+         VOCAL LANGUAGE.
          - The SOURCE picker is unchanged, except that it **holds still**
            (added 2026-10-02) while a job reads the source: TRANSCRIBE, READ
            LYRICS (with their PREPARING SOURCE step), ANALYZE AUDIO or a
@@ -434,21 +524,24 @@ requiring its own justification against a screen-count rule.
                its sections timed on the tempo grid.
              - A heard language the engine doesn't sing is named, as with
                ANALYZE AUDIO.
-     - *Arrange*: same shape as Audio but for `complete` — a **SOURCE**
-       sub-choice (UPLOAD SINGLE TRACK / SPLIT A SONG, the latter reusing
-       `ScratchSplitPicker`'s stem picker), a description field, LYRICS +
-       SONG DETAILS, then ARRANGE. Unlike Audio, `complete` doesn't skip the
-       LM planner, so THINKING MODE/AI ENHANCE stay live in the settings
-       panel here.
-     - **LYRICS + SONG DETAILS** (Audio/Arrange only — Prompt already has its
-       own copy of both, further up): once a source is picked and the
+     - *ONE TRACK* (arrange): same shape as A SONG I HAVE but for `complete`
+       — **1 YOUR TRACK** with the source choice on its label row (UPLOAD A
+       TRACK / PULL ONE FROM A SONG, the latter reusing
+       `ScratchSplitPicker`'s stem picker), **2 DESCRIBE THE BAND AROUND
+       IT** (description, FEELING LUCKY, ANALYZE AUDIO), **3 LYRICS +
+       DETAILS**, then ARRANGE on the recipe. Its own MODEL (Base models
+       only) replaces DIT MODEL in TUNE and is what runs. Unlike a cover,
+       `complete` doesn't skip the LM planner, so AI ENHANCE stays live in
+       TUNE; THINKING MODE is hidden (the in-generation LM is skipped).
+     - **LYRICS + SONG DETAILS** (A SONG I HAVE / ONE TRACK only — AN IDEA
+       has its own LYRICS and DETAILS steps): once a source is picked and the
        description field is still empty, ACE-Step's `/v1/analyze_audio`
        ("describe this audio for me") runs automatically and fills in
        caption→description, lyrics, and any of BPM/DURATION/KEY-SCALE it
        infers — a small "analyzing source audio…" line appears while it
        runs. It never overwrites text the user already typed; all fields
        stay plain editable inputs afterward, same BPM/DURATION/KEY-SCALE
-       trio as Prompt's SONG DETAILS.
+       trio as AN IDEA's DETAILS.
 3. **Editor** (the heart) — layout (revised 2026-10-03, PLAN.md "UI
      Redesign", S1): **two columns**, a fluid main column (title row,
      section strip, layer stack with its LYRICS lane, action dock, minimal
@@ -469,7 +562,8 @@ requiring its own justification against a screen-count rule.
      dead gap under a tall bordered card. The layer list caps at `55vh` and
      scrolls internally past that instead of growing the page.
    - Header (full width, persistent across all three screens): back-to-
-     library, brand wordmark, model status badge only. Song title and
+     library, brand wordmark, palette trigger, ACTIVITY, model status
+     badge. Song title and
      time/bpm/key metadata live in the main column — the header stays free
      of anything scoped to "this song," so it doesn't need to re-render
      per-song content.
@@ -490,7 +584,7 @@ requiring its own justification against a screen-count rule.
      left; state sits over them at the right edge (`panel` background):
      - **Timing** (added 2026-10-02): opening a song whose base version
        hasn't been read reads it in the background (a genLock job, shown in
-       the header). While it runs the state reads `TIMING…` in `text-low`.
+       Activity). While it runs the state reads `TIMING…` in `text-low`.
        It stays plain, like TRANSCRIBE: reading words isn't generating. A
        failed read shows a `.warn-note`, "couldn't time these lyrics" with
        RETRY and the reason on hover. Nothing else is blocked.
@@ -668,7 +762,7 @@ requiring its own justification against a screen-count rule.
    action). Sections, top to bottom:
    - **Models**: DIT/LM model inventory (from `/v1/models`) with a SET
      DEFAULT action per model — literally the same `gen.model`/`gen.lmModel`
-     Create's settings panel already persists, surfaced here so it's
+     Create's TUNE already persists, surfaced here so it's
      reachable without opening Create. Read/select only — ACE-Step's API
      has no download/update-model endpoint, so this is not a model manager.
    - **Engines** (added 2026-09-30): read-only, one row per optional
@@ -718,19 +812,25 @@ requiring its own justification against a screen-count rule.
 
 ### Side panels (Create + Editor)
 
-**Persistent left settings panel** (Create only, ~210–240px, carbon-panel
-surface, 1px border) holds generation parameters — it does NOT slide in
-per-action, so power controls are always visible without a selection. The
-**Editor** has no settings panel: its settings are verb-specific, so each
-lives under that verb's `TUNE ▸` in the action dock (above). It has the
-persistent right VERSIONS rail instead. Neither side panel scales with
-viewport width — see the Editor layout note above.
+Neither screen has a left settings panel any more (2026-10-03). Settings
+belong to what they tune, so they sit under a **`TUNE ▸`** disclosure next
+to the commit they feed: Create's in the RECIPE card, the Editor's under
+each action-dock verb. Collapsed, TUNE is one `text-low` summary line;
+open, it lays the controls out in place — no sheet, no modal, nothing
+slides in per action. The side columns that remain are the Editor's
+VERSIONS rail and Create's RECIPE card; neither scales with viewport
+width (see the layout notes above).
 
-- **Generate mode** (Create screen, both generation types): DIT MODEL select
-  (hidden if the backend lists none), STEPS + GUIDANCE sliders, RANDOM SEED
-  toggle with a seed field when off. LM MODEL select + THINKING MODE +
-  AI ENHANCE toggles are **Prompt-type only** — disabled/hidden for Audio,
-  since `cover` skips the LM planner the same way repaint does.
+- **Generate mode is gone from the side** (2026-10-03): Create has no left
+  panel. Its settings live in the RECIPE card's **TUNE ▸** disclosure (see
+  Create), collapsed to a one-line summary of the non-defaults. Open, it
+  holds DIT MODEL (or, on A SONG I HAVE / ONE TRACK, that card's own MODEL,
+  which gates the rest), LM MODEL + THINKING MODE + AI ENHANCE (hidden on A
+  SONG I HAVE, since `cover` skips the LM planner the same way repaint does;
+  THINKING hidden on ONE TRACK), STEPS + GUIDANCE faders, RANDOM SEED with a
+  seed field when off, and ADVANCED. STEPS reads the QUALITY preset's count
+  ("BEST · 12") until moved; moving it makes QUALITY custom. TAKES and the
+  reference audio moved to the recipe itself (TAKES, VOICE).
 - **Repaint knobs** (the dock's REPAINT and ADD LAYER): VARIANCE (the same
   `Slider.tsx` parallelogram fader as STEPS/GUIDANCE, passing a `color`
   prop that swaps the fill/handle live to sky/acid/rust depending on which
@@ -776,13 +876,72 @@ progress states (see "AI states" below), which are allowed to feel alive.
 
 ### Persistent header
 
-The header (brand + model status) is a single persistent element, not
-re-mounted per view — it never fades with the rest of the screen. The
+The header (brand, palette trigger, ACTIVITY, model status) is a single
+persistent element, not re-mounted per view — it never fades with the rest
+of the screen. The
 `MULAKAI` wordmark uses a shared `layoutId` so it glides (not cuts) between
 its Library position (left, standalone) and its Editor/Create position
 (left, beside the back button/title), while the model status badge stays
 in place at the right. Only the content *below* the header crossfades on
 view change.
+
+Left to right (revised 2026-10-03): back button (on a takeover view) ·
+`MULAKAI` · the **palette trigger**, a hairline field-shaped button reading
+`Search or run anything…` with a `CTRL K` key hint (it opens a search, so
+it looks like a field, not a chip) · then, at the right, **ACTIVITY** (a
+plain outlined parallelogram, `ACTIVITY · 2 RUNNING` while jobs run) · the
+model status badge. The old job pill and its rust ABORT left the header:
+the running job and its ABORT live in Activity.
+
+**Command palette** (added 2026-10-03, PLAN.md "UI Redesign" S3) — the one
+documented exception to the no-modal rule. Ctrl K (⌘K) from anywhere, or the
+header trigger, opens one centered panel (~660px, `carbon-panel`, `line-hi`
+hairline) over a dimmed canvas. Never stacked; ESC, a click on the dim, or
+running an item closes it, and focus returns to where it was (an item that
+focuses a field keeps that focus). It **navigates and pre-fills, it never
+commits**: every generative or destructive action is still made at its own
+acid button under its consequence line.
+- Anatomy: the search row (a sky scope chip, the input, an `ESC` key hint),
+  grouped results, and a footer `↑↓ MOVE · ↵ RUN · TAB CHANGE SCOPE`.
+- Groups, in this order: **DO** (the open song's edit verbs: repaint a
+  section or the current selection, add a layer, split a layer, export —
+  each focuses its control with the target set), **OPEN** (songs, the open
+  song's layers, folders), **CREATE** (the three start points, and "Remake
+  <song>" = CREATE COVER FROM AUDIO), **SETTINGS** (each section; Forge only
+  while enabled). Group labels are 9px `text-low`.
+- Scope: while the Editor is open the chip reads `IN · COPPER SKY` (sky
+  fill) and only DO plus the song's layers show; TAB flips it to `ALL` (sky
+  outline) and back. No chip outside the Editor.
+- The highlighted row is the palette's selection: `sky-tint` with a 2px sky
+  inset edge and a bold label, never acid. Each row: label, a `text-low` sub
+  line, and a key hint when one exists.
+- Matching: case-insensitive subsequence on the label with word-start and
+  run bonuses; the sub line matches only as plain text, below any label
+  match. At most 8 rows per group.
+- Views publish their own items (the Editor its DO and layer items) and
+  clear them when they unmount; the palette imports no view.
+
+**Activity drawer** (added 2026-10-03) — a right-edge panel (~340px,
+`carbon-panel`, 1px hairline) over the content, **not** a modal: the canvas
+stays live and clickable, ESC or the header button closes it. It stops above
+the Library's footer player. Sections, each with a 9px `text-low` label:
+- **RUNNING** — every job in flight: song generation, the repaint family,
+  add layer, remaster, split, TRANSCRIBE, READ LYRICS, word timings, and
+  whatever the server's lock names that this tab doesn't track (ANALYZE
+  AUDIO, another tab's job, a job from before a reload). Rows for jobs that
+  make or describe audio wear the AI shader (see AI states); the others are
+  plain cards with `n%` and a 2px `text-mid` bar. The row holding the
+  server's lock carries ABORT, a quiet outline.
+- **DONE** — title, a lilac result badge (`VOCALS v5`, `+1 LANE`,
+  `4 STEMS`, `NEW SONG`), what happened and when, and OPEN (lilac outline)
+  to the Editor, or to Create for TRANSCRIBE / READ LYRICS.
+- **FAILED** — a rust card (`rust` border, `rust-tint` fill): "<song> ·
+  repaint failed", the reason in `rust-body` with "· settings kept", and
+  RETRY (rust outline), which starts the same job again through its store (a
+  failed generation reopens Create on its draft). Word timings record only
+  failures: they start on their own, so only a failure needs a person.
+- CLEAR DONE empties DONE and FAILED. The list is session-only, newest
+  first, capped at 30; a reload rebuilds RUNNING from the server's lock.
 
 **Model status badge** (2026-10-02): one hairline rectangle at the header's
 right — a square dot, `MODELS`, and a summary: `N READY`, `N DOWN`,
@@ -889,7 +1048,8 @@ differently depending on how much of the element it would cover:
   region) — the shader fills the **entire background**, with foreground
   content (labels, timers) layered above it at `z-index: 1`. Example:
   `GeneratingCard.tsx`'s pinned library row — `AIGeneratingBackground` fills
-  the whole card while `STAGE_LABEL`/elapsed-time text sits on top. Also
+  the whole card while `STAGE_LABEL`/elapsed-time text sits on top.
+  Activity's RUNNING rows for those jobs do the same (`ActivityRow.tsx`). Also
   used this way by the action dock's commit (`DockCommit.tsx`: REPAINT,
   ADD LAYER, REMASTER MIX) while its job runs, LayerStack's ADD LAYER
   ghost lane,
@@ -918,8 +1078,11 @@ sweep as the result types in underneath, `ThinkingWipe.tsx` /
 `useThinkingQuery.ts`); and COVER/ARRANGE's ANALYZE AUDIO button while
 ACE-Step's LM describes the source (`AnalyzeAudioButton.tsx`, on every
 engine — it has worn the shader since it was added, and is listed here
-now so the list is complete). TRANSCRIBE and READ LYRICS stay plain: SheetSage2 reads
-notes and lyrics-server reads words; neither describes or generates.
+now so the list is complete); and Activity's RUNNING row for a song
+generation, a repaint/alt/similar take, an add layer, a remaster or an
+ANALYZE AUDIO. TRANSCRIBE and READ LYRICS stay plain: SheetSage2 reads
+notes and lyrics-server reads words; neither describes or generates. So do
+their Activity rows, and those for word timings and stem splits.
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
 keeps the strict one-hue-per-job rule — if a future feature wants to reuse

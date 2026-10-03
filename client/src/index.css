@@ -253,41 +253,6 @@ header {
   transition: color 0.2s ease;
 }
 
-.job-status-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.job-status-label {
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: var(--rust-text);
-}
-
-.job-abort-btn {
-  transform: skewX(-10deg);
-  border: 1px solid var(--rust);
-  background: var(--rust-tint);
-  color: var(--rust-text);
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-  padding: 3px 10px;
-  cursor: pointer;
-}
-
-.job-abort-btn:hover:not(:disabled) {
-  background: var(--rust);
-  color: var(--carbon);
-}
-
-.job-abort-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
 .health.ok {
   color: var(--acid);
   animation: health-blip 0.5s ease-out;
@@ -1661,21 +1626,16 @@ footer .player {
   border-color: var(--rust);
 }
 
-/* settings panel (left) */
+/* Editor: a fluid main column + the fixed-width VERSIONS rail. Neither column stretches to
+   fill the available height — each sizes to its own content, so a short layer list or a
+   short history list doesn't leave a dead gap under a tall bordered card. */
 .with-panel {
   display: grid;
-  grid-template-columns: 210px 1fr;
   gap: 16px;
   margin-top: 14px;
   align-items: start;
 }
 
-/* Editor adds a fixed-width right rail (version history) alongside the fixed
-   left settings panel; only the center column is fluid. None of the three
-   columns stretch to fill the available height — each sizes to its own
-   content (settings controls, title/repaint/layer-list, version history),
-   so a short layer list or a short history list doesn't leave a dead gap
-   under a tall bordered card. */
 .with-panel.editor-layout {
   grid-template-columns: minmax(0, 1fr) 300px;
   flex: 1;
@@ -1689,48 +1649,12 @@ footer .player {
   min-height: 0;
 }
 
-/* Create takeover: fixed left settings panel + a width-capped content
-   column. Unlike Editor's waveform, a prompt/lyrics editor doesn't get more
-   usable by being 3x wider, so extra viewport width is left as margin. */
-.with-panel.create-layout {
-  grid-template-columns: 210px 1fr;
-  flex: 1;
-  min-height: 0;
-  align-items: stretch;
-}
-
-/* Refine preview claims the same right-rail column Editor uses for version
-   history — only reserved when a refine is in flight, previewed, or errored.
-   Both column widths are overridden inline by CreateView.tsx's drag-to-resize
-   (useResizableWidth.ts) once the user drags a handle — these are just the
-   pre-drag/first-paint defaults. */
-.with-panel.create-layout.with-rail {
-  grid-template-columns: 210px 1fr 300px;
-}
-
 /* Wraps a resizable side column so a ResizeHandle can anchor to its
-   center-facing edge (useResizableWidth.ts / ResizeHandle.tsx) — used by both
-   Create's settings/refine columns and Editor's left/version-history rails. */
+   center-facing edge (useResizableWidth.ts / ResizeHandle.tsx) — the Editor's
+   VERSIONS rail. */
 .resizable-col {
   position: relative;
   min-width: 0;
-}
-
-/* Create's columns stretch to the row's full height (.create-layout's
-   align-items:stretch) — the wrapper takes over that job from the component
-   it now wraps. Editor's columns intentionally size to their own content
-   instead (.editor-layout has no align-items:stretch), so this only applies
-   here. */
-.create-layout .resizable-col {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.create-layout .resizable-col>.settings-panel,
-.create-layout .resizable-col>.rail {
-  flex: 1;
-  min-height: 0;
 }
 
 .resize-handle {
@@ -1755,40 +1679,385 @@ footer .player {
   background: var(--line-hi);
 }
 
-/* Gives the center column the same carbon-panel card treatment as the
-   settings panel and refine rail, so the stretched-to-full-height column
-   reads as an intentional bordered surface instead of leaving a blank void
-   below a short form. */
-.create-panel {
-  border: 1px solid var(--line-hi);
-  background: var(--panel);
-  margin-bottom: 12px;
+/* Guided Create (PLAN.md "S2 — Guided Create"): title row, START FROM cards,
+   then the flow's numbered steps (~800px) beside its RECIPE card (300px). The
+   whole screen scrolls as one; the recipe sticks so its commit stays in view.
+   Extra viewport width is margin — a prompt editor gains nothing from width. */
+.create-guided {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
+  gap: 18px;
+  padding: 16px max(16px, calc((100% - 1140px) / 2)) 24px;
 }
 
-.create-content {
-  max-width: 90%;
-  width: 100%;
-  margin: 12px auto;
-  padding: 0px 6px;
+.create-title-row {
+  align-items: center;
+  gap: 14px;
+  padding: 0;
+}
+
+.create-title {
+  flex: 0 1 420px;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  padding: 4px 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--text-hi);
+}
+
+.create-title::placeholder {
+  color: var(--text-low);
+}
+
+.create-title-row .dest {
+  color: var(--text-hi);
+}
+
+.create-title-row .clear-draft {
+  margin-left: auto;
+}
+
+.start-from {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.start-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* A clip-path parallelogram can't carry a border, so the card's 1px edge is its
+   own background showing around an inset inner parallelogram. Sky when picked:
+   the card targets a flow, it commits nothing. */
+.start-card {
+  border: none;
+  padding: 1px;
+  background: var(--line);
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+  cursor: pointer;
+  text-align: left;
+}
+
+.start-card-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  height: 72px;
+  padding: 0 30px;
+  background: var(--panel);
+  clip-path: polygon(14px 0, 100% 0, calc(100% - 14px) 100%, 0 100%);
+}
+
+.start-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-hi);
+}
+
+.start-card-sub {
+  font-size: 12px;
+  color: var(--text-mid);
+}
+
+.start-card:hover:not(.active) {
+  background: var(--line-hi);
+}
+
+.start-card.active {
+  background: var(--sky);
+}
+
+.start-card.active .start-card-inner {
+  background: var(--sky-tint);
+}
+
+.start-card.active .start-card-title {
+  color: var(--sky);
+}
+
+.create-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 24px;
+  align-items: start;
+}
+
+.create-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  min-width: 0;
+}
+
+.create-step {
+  display: flex;
+  gap: 14px;
+}
+
+.step-num {
+  flex-shrink: 0;
+  width: 26px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--text-hi);
+  color: var(--carbon);
+  clip-path: polygon(5px 0, 100% 0, calc(100% - 5px) 100%, 0 100%);
+}
+
+.step-num.optional {
+  background: var(--carbon-raised);
+  color: var(--text-mid);
+}
+
+.step-body {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.create-content textarea {
+.step-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 22px;
+}
+
+.step-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-hi);
+}
+
+.step-sub {
+  font-size: 11px;
+  color: var(--text-mid);
+}
+
+.step-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step-actions .type-tabs {
+  margin-bottom: 0;
+}
+
+.step-tools {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.create-steps textarea {
   min-height: 90px;
 }
 
-.create-content textarea.autosize {
+.create-steps textarea.autosize {
   min-height: unset;
 }
 
-.create-content textarea.autosize.lyrics-input {
+.create-steps textarea.autosize.lyrics-input {
   font-family: monospace;
+}
+
+/* INSTRUMENTAL is a setting, not an action: lit sky while LYRICS hold the tag. */
+.tag-guide-btn.on {
+  border-color: var(--sky);
+  color: var(--sky);
+}
+
+.tag-guide-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.recipe-card,
+.create-body > .rail {
+  position: sticky;
+  top: 0;
+}
+
+.recipe-card {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.recipe-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-hi);
+}
+
+.recipe-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.recipe-field .type-tabs {
+  flex-wrap: wrap;
+  padding-left: 4px;
+}
+
+.tab.engine-tab.fixed {
+  display: inline-block;
+  cursor: default;
+}
+
+/* QUALITY: connected skewed chips sharing hairlines (the "Connected button
+   groups" recipe), the picked one filled sky. */
+.quality-chips {
+  display: flex;
+  padding-left: 4px;
+}
+
+.quality-chip {
+  background: transparent;
+  border: 1px solid var(--line-hi);
+  color: var(--text-mid);
+  padding: 6px 12px;
+  margin-left: -1px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  transform: skewX(-10deg);
+  cursor: pointer;
+}
+
+.quality-chip span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.quality-chip.active {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: var(--on-sky);
+  position: relative;
+}
+
+.recipe-voice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  min-height: 34px;
+}
+
+.recipe-voice-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recipe-voice .linkish {
+  font-size: 10px;
+}
+
+.recipe-facts {
+  margin: 0;
+}
+
+.recipe-fact {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.recipe-fact dt {
+  color: var(--text-mid);
+}
+
+.recipe-fact dd {
+  margin: 0;
+  text-align: right;
+}
+
+.recipe-tune {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recipe-tune-toggle {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.recipe-tune-label {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-mid);
+}
+
+.recipe-tune-summary {
+  font-size: 11px;
+  color: var(--text-low);
+}
+
+.recipe-tune-toggle:hover .recipe-tune-label {
+  color: var(--text-hi);
+}
+
+.recipe-tune-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.recipe-tune-body .type-tabs {
+  flex-wrap: wrap;
+}
+
+.recipe-commit {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipe-commit .generate-row {
+  margin: 0 6px;
 }
 
 /* Quick Start "AI thinking" reveal — ThinkingWipe.tsx, driven by useThinkingQuery.ts.
@@ -2767,43 +3036,6 @@ footer .player {
 .versions .show-more:hover {
   color: var(--acid);
   border-color: var(--acid);
-}
-
-.settings-panel {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  padding: 6px;
-  margin-bottom: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  min-height: 0;
-}
-
-.settings-panel .section-label {
-  margin: 0 0 2px;
-}
-
-/* The sidebar column is narrower than .type-tabs' usual home (the main create/editor content
-   area) — ReferenceAudioPicker's three-way NONE/VOICE/UPLOAD choice needs to wrap here, unlike
-   every other (two-tab) usage that fits on one line. */
-.settings-panel .type-tabs {
-  flex-wrap: wrap;
-}
-
-.settings-panel .tab {
-  padding: 8px 10px;
-}
-
-/* The settings list can outgrow the panel's stretched grid height (esp. with
-   ADVANCED expanded) — scrolls internally via ScrollArea rather than
-   clipping, same hidden-scrollbar/bouncy-arrow treatment as Create's own
-   form and the layer stack. */
-.settings-panel-scroll {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 4px;
 }
 
 .setting {

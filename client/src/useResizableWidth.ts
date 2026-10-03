@@ -12,9 +12,8 @@ interface Options {
   growsToward: 'left' | 'right';
 }
 
-/** Drag-to-resize for a fixed-width column, persisted across sessions — used for
- * CreateView's SettingsPanel/RefineRail side columns (docs/design/DESIGN.md's
- * three-screen app model doesn't fix their width, just their role). */
+/** Drag-to-resize for a fixed-width column, persisted across sessions — used for the
+ * Editor's VERSIONS rail (docs/design/DESIGN.md's app model fixes its role, not its width). */
 export function useResizableWidth(opts: Options) {
   const [width, setWidth] = useState(() => {
     const saved = Number(localStorage.getItem(opts.storageKey));

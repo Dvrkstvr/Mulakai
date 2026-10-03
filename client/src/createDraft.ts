@@ -50,7 +50,14 @@ export interface CreateDraft {
   coverScore?: CoverScore;
 }
 
-/** Tab names as the UI spells them — the Create tabs and the rail's GENERATED WITH row. */
+/** Create's START FROM cards, one per flow (PLAN.md "S2 — Guided Create"). */
+export const START_FROM: Record<GenType, { title: string; sub: string }> = {
+  prompt: { title: 'AN IDEA', sub: 'Describe it in words and get a full song' },
+  audio: { title: 'A SONG I HAVE', sub: 'Remake a song from your library or a file' },
+  complete: { title: 'ONE TRACK', sub: 'Build a full arrangement around a single part' },
+};
+
+/** ACE-Step task names as the Library rail's GENERATED WITH row spells them. */
 export const GEN_TYPE_LABEL: Record<GenType, string> = { prompt: 'PROMPT', audio: 'COVER', complete: 'ARRANGE' };
 
 /** Whether a draft actually asks for something, as opposed to "just open Create" (the create

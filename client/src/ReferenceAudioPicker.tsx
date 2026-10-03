@@ -10,18 +10,20 @@ import { type ReferenceTaskType, influenceHint, showsStyleInfluence } from './re
 interface Props {
   /** Decides whether STYLE INFLUENCE is live and what the hint promises — see referenceInfluence.ts. */
   taskType: ReferenceTaskType;
+  /** Leaves out the REFERENCE AUDIO label, for a host row that already names it (the RECIPE's VOICE). */
+  bare?: boolean;
 }
 
 const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference clip\'s genre/style character — higher pulls the result toward the reference\'s overall style rather than just your prompt.';
 
 /**
- * Shared reference-audio control for all three Create tabs (PROMPT/AUDIO/ARRANGE), rendered
- * from the Generation Settings sidebar so the choice persists across tab switches. Either a
+ * Shared reference-audio control for all three START FROM flows, opened from the RECIPE card's
+ * VOICE row so the choice persists across a card switch. Either a
  * saved voice profile or an ad-hoc uploaded clip — never both, since ACE-Step only accepts one
  * `reference_audio` per request; voiceStore.ts enforces that mutual exclusion at the store
  * level (shared with Add Layer's VoicePicker, which never sets uploadedRefFile itself).
  */
-export function ReferenceAudioPicker({ taskType }: Props) {
+export function ReferenceAudioPicker({ taskType, bare }: Props) {
   const {
     voices, refMode, selectedVoiceId, uploadedRefFile, styleInfluence, missingReferenceLabel,
     fetchVoices, setRefMode, selectVoice, setUploadedRefFile, setStyleInfluence,
@@ -36,7 +38,7 @@ export function ReferenceAudioPicker({ taskType }: Props) {
 
   return (
     <div className="voice-picker">
-      <div className="section-label">REFERENCE AUDIO</div>
+      {!bare && <div className="section-label">REFERENCE AUDIO</div>}
       <div className="type-tabs">
         <button className={refMode === 'none' ? 'tab active' : 'tab'} onClick={() => setRefMode('none')}><span>NONE</span></button>
         <button className={refMode === 'voice' ? 'tab active' : 'tab'} onClick={() => setRefMode('voice')}><span>VOICE</span></button>

@@ -18,6 +18,8 @@ export interface EngineCapabilities {
   lmTools: boolean;
   advanced: boolean;
   takes: boolean;
+  /** INSTRUMENTAL can be asked of it (ACE-Step: the `[Instrumental]` lyric; YuE2: blank lyrics). */
+  instrumental: boolean;
   extraControls: EngineControl[];
   /** The inline consequence line under GENERATE; '' = none. */
   consequence: string;

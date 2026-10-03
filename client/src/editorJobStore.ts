@@ -39,12 +39,20 @@ type Setter = (partial: Partial<EditorJobState> | ((s: EditorJobState) => Partia
 async function runSingleJob(
   set: Setter,
   get: () => EditorJobState,
-  provisional: SingleEditorJob,
+  base: SingleEditorJob,
   submit: () => Promise<{ jobId: string }>,
   onDone?: (job: SingleEditorJob) => void,
 ): Promise<void> {
   // One editor job at a time — mirrors the server's genLock. A failed one is just replaced.
-  if (isEditorBusy(get().editorJob) || selectSplitRunning(get())) return;
+  if (slotBusy(get())) return;
+  const provisional: SingleEditorJob = {
+    ...base,
+    retry: () => {
+      if (slotBusy(get())) return false;
+      void runSingleJob(set, get, { ...base, startedAt: Date.now() }, submit, onDone);
+      return true;
+    },
+  };
   set({ editorJob: provisional });
   let jobId: string;
   try {
@@ -122,9 +130,16 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
 
   startSplit: async (layerId, songId, model) => {
     const prev = get().splitJob;
-    if (isEditorBusy(get().editorJob) || selectSplitRunning(get())) return;
+    if (slotBusy(get())) return;
     const stems: StemResult[] = (['vocals', 'drums', 'bass', 'other'] as const).map((kind) => ({ kind, status: 'running' }));
-    const provisional: SplitJobState = { kind: 'split', jobId: '', songId, layerId, splitJobId: '', stems, startedAt: Date.now(), stage: 'running' };
+    const provisional: SplitJobState = {
+      kind: 'split', jobId: '', songId, layerId, splitJobId: '', stems, startedAt: Date.now(), stage: 'running',
+      retry: () => {
+        if (slotBusy(get())) return false;
+        void get().startSplit(layerId, songId, model);
+        return true;
+      },
+    };
     set({ splitJob: provisional });
     // A settled session (DockSplit said so first) is closed on the server; a failed one never started there.
     if (prev?.splitJobId) void api.cancelSplit(prev.splitJobId).catch(() => {});
@@ -179,3 +194,6 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
 /** Whether a split holds the server's lock: its first pass, or a RE-EXTRACT, is still running.
  * A settled split session blocks nothing — see PLAN.md "A Settled Split Blocks Nothing". */
 export const selectSplitRunning = (s: Pick<EditorJobState, 'splitJob'>): boolean => s.splitJob?.stage === 'running';
+
+/** Whether a new editor job would be refused: one already runs, or a split is extracting. */
+const slotBusy = (s: EditorJobState): boolean => isEditorBusy(s.editorJob) || selectSplitRunning(s);
