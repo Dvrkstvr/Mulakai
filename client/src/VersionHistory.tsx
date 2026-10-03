@@ -16,6 +16,7 @@ const VISIBLE_COUNT = 4;
 interface Props {
   songId: string;
   layerId: string;
+  layerName: string;
   versions: Version[];
   onSelectRegion: (region: Region) => void;
   onLoadPrompt: (prompt: string) => void;
@@ -24,7 +25,7 @@ interface Props {
 }
 
 /** Per-layer version list: revert, delete (2-step confirm), regenerate as an untracked alternate. */
-export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLoadPrompt, onRevert, onChanged }: Props) {
+export function VersionHistory({ songId, layerId, layerName, versions, onSelectRegion, onLoadPrompt, onRevert, onChanged }: Props) {
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [error, setError] = useState('');
@@ -91,11 +92,12 @@ export function VersionHistory({ songId, layerId, versions, onSelectRegion, onLo
 
   return (
     <div className="versions">
-      <div className="section-label">HISTORY</div>
+      <div className="section-label versions-label">VERSIONS · {layerName.toUpperCase()}</div>
       <ScrollArea className="versions-list">
       <AnimatePresence initial={false}>
       {visible.map((v) => {
-        const hasRegion = v.region_start !== null && v.region_end !== null;
+        // A whole-layer repaint stores end -1 ("to the end"): its label says so, and there is no range to select.
+        const hasRegion = v.region_start !== null && v.region_end !== null && v.region_end > 0;
         // An imported file has no generation behind it, so there is nothing for ALT/SIMILAR
         // to replay — both rebuild a request from the version's stored params, which for an
         // import would submit an effectively empty text2music. The server refuses it too

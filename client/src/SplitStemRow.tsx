@@ -18,7 +18,7 @@ interface Props {
   onReextract: () => void;
 }
 
-/** One stem's row in SplitPanel — preview, status, and REPLACE/ADD LAYER/RE-EXTRACT. */
+/** One stem's row in the dock's SPLIT — preview, status, and REPLACE/ADD LAYER/RE-EXTRACT. */
 export function SplitStemRow({ stem, layerName, nextVersion, busy, reextractBlocked, onClaim, onReextract }: Props) {
   const locked = !!stem.claimed;
   const ready = stem.status === 'done' && !locked && !busy;

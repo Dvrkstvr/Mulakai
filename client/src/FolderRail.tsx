@@ -10,7 +10,7 @@ interface Props {
   onCreateFolder: (name: string) => void;
 }
 
-/** Library's persistent left rail — same fixed-width idiom as the Editor's settings panel.
+/** Library's persistent left rail — same fixed-width idiom as Create's settings panel.
  * Selecting a folder uses sky (selection/scope per DESIGN.md), the same concept as focusing
  * a layer in the Editor; no new hue needed for "which folder am I browsing." */
 export function FolderRail({ folders, scope, onScope, allCount, unfiledCount, onCreateFolder }: Props) {

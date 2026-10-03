@@ -1,6 +1,7 @@
 /**
  * PLAN.md Phase 10's golden path, end to end through the real client and server, with ACE-Step
- * replaced by e2e/fake-acestep: generate → repaint a region → add a layer → revert a version → export.
+ * replaced by e2e/fake-acestep: generate → repaint a region → add a layer → revert a version → export,
+ * every edit through the Editor's action dock.
  * Every fake take is 12 s long, which is what the region drag below is measured against.
  */
 import { test, expect } from './fixtures';
@@ -35,10 +36,11 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
 
   await test.step('repaint 0:02–0:08 of the base layer', async () => {
     await dragRegion(page, '.layer-lane >> nth=0 >> .lane-waveform canvas', DURATION, 2.5, 8.5);
-    await expect(page.locator('.scope-chip')).toHaveText('0:02–0:08 · BASE');
-    await expect(page.getByText('will save as BASE v2')).toBeVisible();
-    await page.getByPlaceholder('Describe what should change in the selected region').fill('add a bright synth lead');
-    await page.getByRole('button', { name: 'REPAINT REGION' }).click();
+    const dock = page.getByRole('region', { name: 'Action dock' });
+    await expect(dock.locator('.dock-target')).toHaveText('BASE · 0:02–0:08');
+    await expect(dock.getByText('Saves base v2 over 0:02–0:08')).toBeVisible();
+    await dock.getByPlaceholder('Describe what should change in the selected region').fill('add a bright synth lead');
+    await dock.getByRole('button', { name: 'REPAINT 0:02–0:08' }).click();
 
     const current = page.locator('.versions .version.current');
     await expect(current).toContainText('0:02–0:08', { timeout: 30_000 });
@@ -50,10 +52,12 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
   });
 
   await test.step('add a layer', async () => {
-    const addRow = page.locator('.layer-add-row');
-    await addRow.hover();
-    await addRow.getByPlaceholder(/Describe what to add/).fill('warm bass line');
-    await addRow.getByRole('button', { name: 'GENERATE', exact: true }).click();
+    const dock = page.getByRole('region', { name: 'Action dock' });
+    await dock.getByRole('tab', { name: 'ADD LAYER' }).click();
+    const addLayer = dock.getByRole('tabpanel', { name: 'ADD LAYER' });
+    await expect(dock.locator('.dock-target')).toHaveText('WHOLE SONG');
+    await addLayer.getByPlaceholder(/Describe what to add/).fill('warm bass line');
+    await addLayer.getByRole('button', { name: 'ADD LAYER', exact: true }).click();
 
     await expect(page.locator('.title-row .meta')).toContainText('2 layers', { timeout: 30_000 });
     await expect(page.locator('.layer-lane')).toHaveCount(2);
@@ -75,9 +79,24 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
     expect(activeVersion(base).label).toBe('first generation');
   });
 
-  await test.step('export: stems, then a remaster of the mix', async () => {
-    await page.getByRole('button', { name: 'EXPORT' }).click();
-    const stems = page.locator('.export-panel .stem-row');
+  await test.step('export: the mix, stems, then a remaster of the mix', async () => {
+    const dock = page.getByRole('region', { name: 'Action dock' });
+    await page.keyboard.press('e');
+    const exportPanel = dock.getByRole('tabpanel', { name: 'EXPORT' });
+    await expect(dock.getByRole('tab', { name: 'EXPORT' })).toHaveAttribute('aria-selected', 'true');
+
+    // MIX is a client-side bounce of what you hear: a WAV named after the song.
+    const [mix] = await Promise.all([
+      page.waitForEvent('download'),
+      exportPanel.getByRole('button', { name: 'DOWNLOAD MIX' }).click(),
+    ]);
+    expect(mix.suggestedFilename()).toBe(`${TITLE}.wav`);
+    const mixBytes = await downloadBytes(mix);
+    expect(mixBytes.subarray(0, 4).toString('ascii')).toBe('RIFF');
+    expect(mixBytes.subarray(8, 12).toString('ascii')).toBe('WAVE');
+
+    await exportPanel.getByRole('radio', { name: 'STEMS' }).click();
+    const stems = exportPanel.locator('.stem-row');
     await expect(stems).toHaveCount(2);
 
     // The base stem is whatever is active now — the reverted first take, byte for byte.
@@ -91,8 +110,9 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
     const served = await (await request.get(`/audio/${activeVersion(base).audio_file}`)).body();
     expect((await downloadBytes(stem)).equals(served)).toBe(true);
 
-    await page.getByRole('button', { name: 'REMASTER SONG' }).click();
-    const remasterLink = page.locator('.remaster-actions').getByRole('link', { name: 'DOWNLOAD' });
+    await exportPanel.getByRole('radio', { name: 'REMASTERED MIX' }).click();
+    await exportPanel.getByRole('button', { name: 'REMASTER MIX' }).click();
+    const remasterLink = exportPanel.getByRole('link', { name: 'DOWNLOAD', exact: true });
     await expect(remasterLink).toBeVisible({ timeout: 30_000 });
     expect((await lastTaskOfType(request, 'cover')).hadSrcAudio).toBe(true);
     const [remaster] = await Promise.all([page.waitForEvent('download'), remasterLink.click()]);

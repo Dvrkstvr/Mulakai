@@ -12,7 +12,7 @@ interface VoiceState {
   refMode: RefMode;
   selectedVoiceId: string | null;
   /** An ad-hoc uploaded reference clip — mutually exclusive with selectedVoiceId (see
-   * ReferenceAudioPicker.tsx; AddLayerTrigger.tsx's VoicePicker never sets this, since it has
+   * ReferenceAudioPicker.tsx; ADD LAYER's VoicePicker (DockAddLayer.tsx) never sets this, since it has
    * no upload UI, so Add Layer is unaffected by this field's existence). */
   uploadedRefFile: File | null;
   audioInfluence: number; // 0-1

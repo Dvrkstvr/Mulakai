@@ -8,25 +8,23 @@ import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
 import { useLookup } from './lookup';
 import { SplitBackendTabs } from './SplitBackendTabs';
+import { DockCommit } from './DockCommit';
 
 interface Props {
   songId: string;
   layer: Layer;
   onChanged: () => Promise<void>;
-  onBack: () => void;
 }
 
 /**
- * Right-rail split view — pick a backend, extract stems, then per-stem
- * preview/replace/add-layer/re-extract. Swaps into the rail in place of
- * history (see ExportPanel.tsx for the sibling view this mirrors). The
- * extraction session itself lives in editorJobStore.ts's `splitJob` slot, not
+ * SPLIT — pick a backend, extract stems from the focused layer, then per-stem
+ * preview/replace/add-layer/re-extract. The extraction session itself lives in editorJobStore.ts's `splitJob` slot, not
  * local state, so navigating to the Library and back (or to a different layer
  * and back) reconnects to the same stems instead of losing them. Once settled it
  * blocks nothing else; only a new split elsewhere replaces it. Stem playback goes
  * through the shared previewPlayback slot via AudioPreview.
  */
-export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
+export function DockSplit({ songId, layer, onChanged }: Props) {
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [error, setError] = useState('');
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
@@ -104,41 +102,42 @@ export function SplitPanel({ songId, layer, onChanged, onBack }: Props) {
   const nextVersion = layer.versions.length + 1;
 
   return (
-    <div className="split-panel">
-      <div className="export-head">
-        <span className="section-label" style={{ margin: 0 }}>SPLIT</span>
-        <button className="link-btn" onClick={onBack}><span>← HISTORY</span></button>
-      </div>
-
-      {!stems ? (
-        <>
-          <div className="hint">will extract vocals, drums, bass, and other as new stems from "{layer.name}"</div>
+    <>
+      <div className="dock-body split-panel">
+        {!stems ? (
           <SplitBackendTabs lookup={healthLookup} model={model} onPick={setModel} />
-          <button className="acid" disabled={!canSubmit} onClick={generate}>
-            {busyBy ? waitLabel(busyBy) : 'GENERATE STEMS'}
-          </button>
+        ) : (
+          <>
+            <button className="link-btn" style={{ color: 'var(--rust-text)', alignSelf: 'flex-start' }} onClick={cancel}><span>CANCEL SPLIT</span></button>
+            {extracting && <div className="hint">{fmtElapsed(elapsedMs)} elapsed</div>}
+            {stems.map((stem) => (
+              <SplitStemRow
+                key={stem.kind}
+                stem={stem}
+                layerName={layer.name}
+                nextVersion={nextVersion}
+                busy={busyKind === stem.kind}
+                reextractBlocked={busyElsewhere}
+                onClaim={(action) => claim(stem.kind, action)}
+                onReextract={() => reextract(stem.kind)}
+              />
+            ))}
+          </>
+        )}
+        {(error || mine?.stage === 'failed') && <div className="error">{error || mine?.error || 'split failed'}</div>}
+      </div>
+      {!stems && (
+        <>
+          <DockCommit
+            consequence={`extracts vocals, drums, bass and other as new stems from ${layer.name.toUpperCase()}`}
+            label={busyBy ? waitLabel(busyBy) : `SPLIT ${layer.name.toUpperCase()}`}
+            disabled={!canSubmit}
+            onCommit={() => void generate()}
+          />
           {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
           {!busyElsewhere && otherSplit?.stage === 'done' && <div className="hint">starting closes the open split on another layer — its unclaimed stems are discarded</div>}
         </>
-      ) : (
-        <>
-          <button className="link-btn" style={{ color: 'var(--rust-text)' }} onClick={cancel}><span>CANCEL SPLIT</span></button>
-          {extracting && <div className="hint">{fmtElapsed(elapsedMs)} elapsed</div>}
-          {stems.map((stem) => (
-            <SplitStemRow
-              key={stem.kind}
-              stem={stem}
-              layerName={layer.name}
-              nextVersion={nextVersion}
-              busy={busyKind === stem.kind}
-              reextractBlocked={busyElsewhere}
-              onClaim={(action) => claim(stem.kind, action)}
-              onReextract={() => reextract(stem.kind)}
-            />
-          ))}
-        </>
       )}
-      {(error || mine?.stage === 'failed') && <div className="error">{error || mine?.error || 'split failed'}</div>}
-    </div>
+    </>
   );
 }

@@ -2,49 +2,23 @@ import { api } from './api';
 import { useSettings } from './settings';
 import { CustomSelect } from './CustomSelect';
 import { Slider } from './Slider';
-import { ditModelDescription, lmModelDescription, stepsMax, guidanceEffective, autoSteps } from './modelInfo';
+import { ditModelDescription, lmModelDescription, stepsMax, guidanceEffective } from './modelInfo';
+import { STEPS_INFO, GUIDANCE_INFO, autoStepsLabel } from './knobInfo';
 import { motion } from 'framer-motion';
 import { Toggle } from './Toggle';
 import { AdvancedGenSettings } from './AdvancedGenSettings';
 import { ScrollArea } from './ScrollArea';
 import { ReferenceAudioPicker } from './ReferenceAudioPicker';
-import { AutoTextarea } from './AutoTextarea';
 import { Seed } from './Seed';
-import { useAddLayerDraft } from './addLayerStore';
 import { EngineGenSettings } from './EngineGenSettings';
 import { useEngineCaps } from './useEngineCaps';
 import { useLookup, SLOW_ACESTEP_NOTE } from './lookup';
 
-const STEPS_INFO = 'Diffusion steps — more steps means finer detail but slower generation. Turbo models: 1–20 (8 recommended). Base/SFT models: 32–100 recommended. AUTO picks the count the selected model wants (Turbo 8, SFT 50, Base 32).';
+export { VarianceSlider } from './VarianceSlider';
 
-/** STEPS readout under AUTO. Shows the number AUTO will actually resolve to once a model is
- * picked; stays bare 'AUTO' for AUTO model, where only the server can know which checkpoint
- * ACE-Step will load (see server/src/services/inferenceSteps.ts). */
-function autoStepsLabel(model: string): string {
-  const steps = autoSteps(model);
-  return steps === null ? 'AUTO' : `AUTO (${steps})`;
-}
-const GUIDANCE_INFO = 'Prompt adherence strength (CFG) — higher follows the prompt more strictly, but can overfit or sound artificial. Only affects Base/SFT models; Turbo ignores it. AUTO uses the model\'s own default.';
-
-/** Risk scale for repaint VARIANCE (audio_cover_strength inverse) — see docs/design/DESIGN.md#Color-tokens. */
-const VARIANCE_BANDS = [
-  { max: 33, color: 'var(--sky)', label: 'SUBTLE', text: 'stays close to the original, small tweaks only' },
-  { max: 66, color: 'var(--acid)', label: 'BALANCED', text: 'noticeable change, source still recognizable' },
-  { max: 100, color: 'var(--rust)', label: 'BOLD', text: 'high freedom, may diverge far from the source to follow the prompt' },
-];
-
-export function VarianceSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  const band = VARIANCE_BANDS.find((b) => value <= b.max) ?? VARIANCE_BANDS[VARIANCE_BANDS.length - 1];
-  return (
-    <div className="variance-slider">
-      <Slider label="VARIANCE" value={value} min={0} max={100} step={5} color={band.color} onChange={onChange} />
-      <div className="variance-note" style={{ color: band.color }}>{band.label} — {band.text}</div>
-    </div>
-  );
-}
-
-export function SettingsPanel({ mode, hideLmControls, hideThinking, coverModel, referenceAudioTaskType, addLayerActive, songLyrics }: {
-  mode: 'generate' | 'repaint';
+/** Create's generation settings. The Editor's repaint/add-layer knobs live under each dock verb's TUNE. */
+export function SettingsPanel({ hideLmControls, hideThinking, coverModel, referenceAudioTaskType }: {
+  mode: 'generate';
   hideLmControls?: boolean;
   /** Hides only THINKING MODE — for tasks where ACE-Step skips the in-generation LM but still
    * runs AI ENHANCE's API-side formatting (ARRANGE's `complete`). */
@@ -52,27 +26,15 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, coverModel, 
   /** COVER · ACE-STEP: the tab's own MODEL pick, which is what the cover runs on. Hides DIT
    * MODEL here (it edits PROMPT's model) and gates STEPS/GUIDANCE/ADVANCED on this instead. */
   coverModel?: string;
-  /** Only meaningful for mode 'generate' — renders the shared ReferenceAudioPicker so its choice
-   * persists across the PROMPT/AUDIO/ARRANGE tab switch. Omit to hide it (e.g. Editor screens
-   * that reuse mode 'generate' contexts without a reference-audio concept). */
+  /** Renders the shared ReferenceAudioPicker so its choice persists across the
+   * PROMPT/AUDIO/ARRANGE tab switch. Omit to hide it. */
   referenceAudioTaskType?: 'text2music' | 'cover' | 'complete';
-  /** mode 'repaint' only — Editor's Add Layer row is expanded, so this panel is the shared
-   * Add Layer settings surface: it shows the lyrics editor and gates advanced
-   * knobs on the Base (lego) model instead of repaint's model. */
-  addLayerActive?: boolean;
-  /** The song's current lyrics, offered as a one-click prefill for the Add Layer lyrics editor. */
-  songLyrics?: string;
 }) {
-  const { gen, repaint, addLayer, setGen, setRepaint } = useSettings();
-  const lyrics = useAddLayerDraft((s) => s.lyrics);
-  const setLyrics = useAddLayerDraft((s) => s.setLyrics);
+  const { gen, setGen } = useSettings();
   // A failed list leaves AUTO, which needs no list; the error line says why the rest are missing.
   const inventory = useLookup(api.listModels);
   const models = inventory.data?.models.map((m) => m.name) ?? [];
   const lmModels = inventory.data?.lmModels ?? [];
-  // Advanced knobs (shift/ADG/CFG-interval) only affect Base models; when Add Layer is active
-  // the model is its Base lego model, otherwise repaint's own DiT model.
-  const gatingModel = addLayerActive ? addLayer.model : repaint.model;
   const genModel = coverModel ?? gen.model;
   // PROMPT on an extra engine: its own controls replace ACE-Step's whole generate block.
   const { info: engine } = useEngineCaps();
@@ -81,18 +43,18 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, coverModel, 
 
   return (
     <motion.aside layout className="settings-panel" transition={{ duration: 0.2 }}>
-      <motion.div layout="position" className="section-label">{mode === 'generate' ? 'GENERATION' : addLayerActive ? 'ADD LAYER' : 'REPAINT'} SETTINGS</motion.div>
+      <motion.div layout="position" className="section-label">GENERATION SETTINGS</motion.div>
 
       <ScrollArea className="settings-panel-scroll">
-      {inventory.error && !(mode === 'generate' && engine) && (
+      {inventory.error && !engine && (
         <div className="error">couldn't load the model list — {inventory.error} <button onClick={inventory.retry}>RETRY</button></div>
       )}
-      {inventory.slow && !(mode === 'generate' && engine) && (
+      {inventory.slow && !engine && (
         <div className="meta">loading the model list… {SLOW_ACESTEP_NOTE}</div>
       )}
-      {mode === 'generate' && engine ? (
+      {engine ? (
         <EngineGenSettings engine={engine} />
-      ) : mode === 'generate' ? (
+      ) : (
         <>
           {coverModel === undefined && (
             <CustomSelect
@@ -127,45 +89,6 @@ export function SettingsPanel({ mode, hideLmControls, hideThinking, coverModel, 
             onRandom={(v) => setGen({ randomSeed: v })} onSeed={(v) => setGen({ seed: v })} />
           <AdvancedGenSettings adv={gen} setAdv={setGen} gatingModel={genModel} hideLmControls={hideLmControls} />
           {referenceAudioTaskType && <ReferenceAudioPicker taskType={referenceAudioTaskType} />}
-        </>
-      ) : (
-        <>
-          {addLayerActive ? (
-            <div className="setting">
-              <div className="setting-head">
-                <span>LYRICS</span>
-                {songLyrics?.trim() && (
-                  <button className="linkish" onClick={() => setLyrics(songLyrics)}>USE SONG LYRICS</button>
-                )}
-              </div>
-              <AutoTextarea
-                placeholder="Leave blank for an instrumental layer, or type/paste lyrics to sing"
-                value={lyrics}
-                onChange={setLyrics}
-              />
-            </div>
-          ) : (
-            <>
-              <CustomSelect
-                label="DIT MODEL"
-                value={repaint.model}
-                onChange={(v) => setRepaint({ model: v, inferenceSteps: Math.min(repaint.inferenceSteps, stepsMax(v)) })}
-                options={[{ ...AUTO, description: ditModelDescription('') }, ...models.map(m => ({ label: m, value: m, description: ditModelDescription(m) }))]}
-              />
-              <VarianceSlider value={Math.round(repaint.repaintStrength * 100)}
-                onChange={(v) => setRepaint({ repaintStrength: v / 100 })} />
-            </>
-          )}
-          <Slider label="STEPS" value={repaint.inferenceSteps} min={0} max={stepsMax(gatingModel)} step={1}
-            readout={repaint.inferenceSteps === 0 ? autoStepsLabel(gatingModel) : undefined} info={STEPS_INFO}
-            onChange={(v) => setRepaint({ inferenceSteps: v })} />
-          <Slider label="GUIDANCE" value={repaint.guidanceScale} min={0} max={15} step={0.5}
-            readout={!guidanceEffective(gatingModel) ? 'N/A' : repaint.guidanceScale === 0 ? 'AUTO' : undefined}
-            info={GUIDANCE_INFO} disabled={!guidanceEffective(gatingModel)}
-            onChange={(v) => setRepaint({ guidanceScale: v })} />
-          <Seed random={repaint.randomSeed} seed={repaint.seed}
-            onRandom={(v) => setRepaint({ randomSeed: v })} onSeed={(v) => setRepaint({ seed: v })} />
-          <AdvancedGenSettings adv={repaint} setAdv={setRepaint} gatingModel={gatingModel} hideLmControls />
         </>
       )}
       </ScrollArea>

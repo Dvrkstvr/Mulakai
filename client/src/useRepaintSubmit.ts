@@ -26,15 +26,17 @@ export function useRepaintSubmit({
   startRepaint, dismissEditorJob, myRepaint, busyElsewhere, setSelection, setPrompt, reload,
 }: Options) {
   const regionSeconds = selection ? selection.end - selection.start : 0;
-  const regionValid = !!selection && regionSeconds >= REPAINT_MIN_SECONDS && regionSeconds <= REPAINT_MAX_SECONDS;
+  // No selection is the whole layer (DESIGN's "empty selection = whole song scope"): the
+  // server reads end -1 as "to the end", and there is no boundary to crossfade.
+  const regionValid = !selection || (regionSeconds >= REPAINT_MIN_SECONDS && regionSeconds <= REPAINT_MAX_SECONDS);
 
   const repaint = () => {
-    if (!focusedLayer || !regionValid || !selection || busyElsewhere) return;
+    if (!focusedLayer || !regionValid || busyElsewhere) return;
     if (myRepaint?.stage === 'failed') dismissEditorJob(); // clear the failed attempt before resubmitting
     void startRepaint(focusedLayer.id, songId, {
       prompt,
-      start: selection.start,
-      end: selection.end,
+      start: selection?.start ?? 0,
+      end: selection?.end ?? -1,
       ...(lyricsUnlocked ? { lyrics: lyricsDraft } : {}),
       ...repaintParams(repaintSettings),
       repaint_wav_crossfade_sec: clampCrossfade(repaintSettings.crossfadeSec, regionSeconds),

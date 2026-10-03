@@ -1230,26 +1230,6 @@ footer .player {
   color: var(--carbon);
 }
 
-.repaint {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border: 1px solid var(--line-hi);
-  background: var(--panel);
-  padding: 8px 10px;
-  margin-top: 12px;
-}
-
-.repaint input[type="text"],
-.repaint input:not([type]) {
-  flex: 1;
-}
-
-.repaint+.hint {
-  display: block;
-  margin-top: 6px;
-}
-
 .scope-chip {
   background: var(--sky);
   color: var(--on-sky);
@@ -1681,91 +1661,6 @@ footer .player {
   border-color: var(--rust);
 }
 
-/* + ADD LAYER: a compact row that only reveals its form on hover/focus, so the
-   lane stack stays a dense wall of tooling rather than an always-open form. */
-.layer-add-row {
-  background: transparent;
-  border: 1px dashed var(--line-hi);
-  padding: 7px 10px;
-  margin-top: 4px;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
-}
-
-.layer-add-row:hover,
-.layer-add-row:focus-within {
-  border-color: var(--acid);
-  background: var(--panel);
-}
-
-/* Blocked/greyed while a job is in flight — the new lane's own progress
-   (the ghost lane in LayerStack.tsx) is the thing to watch, not this row. */
-.layer-add-row.generating {
-  border-color: var(--line);
-  background: var(--panel);
-  opacity: 0.5;
-  pointer-events: none;
-}
-
-.layer-add-row.generating .layer-add-expand {
-  max-height: 120px;
-  opacity: 1;
-  margin-top: 8px;
-}
-
-.layer-add-compact {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: var(--text-mid);
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-}
-
-.layer-add-compact .plus {
-  color: var(--acid);
-}
-
-.layer-add-compact .hint {
-  margin-left: auto;
-  color: var(--text-ghost);
-  font-weight: 400;
-  text-transform: none;
-  letter-spacing: 0;
-}
-
-.layer-add-row:hover .layer-add-compact,
-.layer-add-row:focus-within .layer-add-compact {
-  color: var(--acid);
-}
-
-.layer-add-expand {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-wrap: wrap;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition: max-height 0.25s ease, opacity 0.2s ease, margin-top 0.25s ease;
-}
-
-.layer-add-row:hover .layer-add-expand,
-.layer-add-row:focus-within .layer-add-expand {
-  max-height: 120px;
-  opacity: 1;
-  margin-top: 8px;
-  /* TRACK TYPE's CustomSelect dropdown is an absolutely-positioned, non-portal
-     child (see CustomSelect.tsx) — it must be allowed to escape this row's
-     bounding box once expanded, or its option list gets clipped. */
-  overflow: visible;
-}
-
-.layer-add-expand input {
-  flex: 1;
-  min-width: 180px;
-}
-
 /* settings panel (left) */
 .with-panel {
   display: grid;
@@ -1782,7 +1677,7 @@ footer .player {
    so a short layer list or a short history list doesn't leave a dead gap
    under a tall bordered card. */
 .with-panel.editor-layout {
-  grid-template-columns: 210px 1fr 300px;
+  grid-template-columns: minmax(0, 1fr) 300px;
   flex: 1;
   min-height: 0;
 }
@@ -1792,48 +1687,6 @@ footer .player {
   display: flex;
   flex-direction: column;
   min-height: 0;
-}
-
-/* Left column stacks the lyrics panel above repaint settings; each card sizes
-   to its own content, matching editor-layout's "no forced stretch" rule. */
-.left-rail {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 0;
-}
-
-/* Editor's grid intentionally sizes columns to content (no align-items:stretch),
-   which left the settings panel's own ScrollArea with no bounded parent to scroll
-   within — a tall list (Add Layer: lyrics + ADVANCED + LM knobs) then overflowed
-   the non-scrolling page and the lower settings were unreachable. Bind the left
-   rail to the row height so the settings panel flexes and its ScrollArea scrolls,
-   exactly as Create gets for free from .create-layout's align-items:stretch. The
-   voice block and lyrics panel above stay content-sized; only the settings slot
-   flexes. */
-.editor-layout .resizable-col:has(> .left-rail) {
-  align-self: stretch;
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-}
-
-.editor-layout .left-rail {
-  flex: 1;
-  min-height: 0;
-}
-
-.editor-layout .rail-settings-slot {
-  flex: 1;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-.editor-layout .rail-settings-slot > .settings-panel {
-  flex: 1;
-  min-height: 0;
-  margin-bottom: 0;
 }
 
 /* Create takeover: fixed left settings panel + a width-capped content
@@ -2617,33 +2470,6 @@ footer .player {
   gap: 4px;
 }
 
-.rail-export-btn {
-  width: 100%;
-  margin-top: 10px;
-  transform: skewX(-10deg);
-}
-
-.rail-export-btn span {
-  display: inline-block;
-  transform: skewX(10deg);
-}
-
-/* export view — swaps into the rail in place of history */
-.export-panel {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.export-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
 .link-btn {
   background: transparent;
   border: none;
@@ -2671,40 +2497,6 @@ footer .player {
   margin-left: auto;
 }
 
-.remaster-block {
-  border-top: 1px solid var(--line);
-  margin-top: 4px;
-  padding-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-/* Held remaster result: DOWNLOAD is the filled acid commit (an anchor — it
-   saves a file); RUN AGAIN is its acid-outline sibling per the one-filled-CTA
-   rule. */
-.remaster-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.remaster-actions a.acid {
-  background: var(--acid);
-  color: var(--carbon);
-  border: 1px solid var(--acid);
-  transform: skewX(-10deg);
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 11px;
-  letter-spacing: 1px;
-  padding: 6px 14px;
-}
-
-.remaster-actions a.acid>span {
-  display: inline-block;
-  transform: skewX(10deg);
-}
-
 .remaster-badges {
   display: flex;
   gap: 6px;
@@ -2719,16 +2511,6 @@ footer .player {
   font-weight: 700;
   letter-spacing: 0.5px;
   padding: 3px 6px;
-}
-
-/* split view — swaps into the rail in place of history, same idiom as .export-panel */
-.split-panel {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
 }
 
 .stem-row {
@@ -3120,69 +2902,6 @@ footer .player {
   color: var(--text-hi);
 }
 
-/* Lyrics panel: read-only by default; a textarea only while a whole section
-   is selected on the base layer (useSectionLyrics.ts's `lyricsUnlocked`). Sky marks
-   the block matching the current section-strip selection, same hue as the
-   waveform selection wash it's echoing (DESIGN.md "selection must read as
-   one continuous color everywhere it is echoed"). */
-.lyrics-panel {
-  border: 1px solid var(--line);
-  background: var(--panel);
-  padding: 12px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.lyrics-readonly {
-  max-height: 340px;
-  overflow-y: auto;
-  font-family: monospace;
-  font-size: 12px;
-  line-height: 1.5;
-  color: var(--text-hi);
-  scrollbar-width: thin;
-  scrollbar-color: var(--line-hi) var(--panel);
-}
-
-.lyrics-block {
-  padding: 4px 6px;
-  border-left: 2px solid transparent;
-}
-
-.lyrics-block.active {
-  border-left-color: var(--sky);
-  background: var(--sky-tint);
-}
-
-.lyrics-line.timed {
-  cursor: pointer;
-}
-
-.lyrics-line.timed:hover {
-  background: var(--carbon-raised);
-}
-
-/* The selection's echo, one level below the active block: "selection must read as one
-   continuous color everywhere it is echoed". */
-.lyrics-line.selected,
-.lyrics-line.selected:hover {
-  background: var(--sky-tint);
-  box-shadow: inset 2px 0 0 var(--sky);
-}
-
-.lyrics-line.untimed {
-  color: var(--text-low);
-}
-
-.lyrics-tag {
-  font-weight: 700;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-  color: var(--text-mid);
-  font-size: 10px;
-}
-
 .lyrics-textarea {
   min-height: 340px;
   max-height: 340px;
@@ -3200,32 +2919,6 @@ footer .player {
 /* Plain while lyrics-server reads the take, like TRANSCRIBE: reading words isn't generating. */
 .lyrics-timing {
   color: var(--text-low);
-}
-
-.lyrics-timing-error {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 0;
-}
-
-.lyrics-timing-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.lyrics-timing-reason {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.lyrics-timing-error button {
-  flex: none;
-  font-size: 10px;
-  padding: 2px 8px;
 }
 
 /* position: fixed + portal-rendered to document.body (see InfoTooltip.tsx) — an
@@ -3709,6 +3402,300 @@ footer .player {
   font-weight: 700;
   cursor: pointer;
   margin-left: 10px;
+}
+
+/* ============================================================
+   Action dock (ActionDock.tsx, DESIGN.md "Editor" → Action dock)
+   Under the layer stack: TARGET chip + verb tabs, the verb's body,
+   then consequence + the one filled acid commit in the dock.
+   ============================================================ */
+.action-dock {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  display: flex;
+  flex-direction: column;
+}
+
+.dock-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.dock-row-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-low);
+}
+
+.dock-target {
+  padding: 4px 10px;
+  font-size: 10px;
+}
+
+.dock-hint {
+  font-size: 10px;
+  color: var(--text-low);
+}
+
+.dock-verbs {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+/* Choices in the dock are quiet outlines at rest — acid fill is the commit's alone. */
+.tab.dock-verb,
+.tab.dock-quiet,
+.tab.dock-chip {
+  border-color: var(--line);
+  color: var(--text-mid);
+  padding: 6px 12px;
+  font-size: 10px;
+}
+
+.tab.dock-verb {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* The active verb: acid outline + acid text, never filled. */
+.tab.dock-verb.active {
+  background: transparent;
+  border-color: var(--acid);
+  color: var(--acid);
+}
+
+/* Picking a track or what to export targets the commit, it commits nothing: sky. */
+.tab.dock-chip.active {
+  background: var(--sky);
+  border-color: var(--sky);
+  color: var(--on-sky);
+}
+
+.tab.dock-quiet {
+  padding: 4px 9px;
+}
+
+.kbd {
+  font: 700 9px ui-monospace, Consolas, monospace;
+  color: var(--text-low);
+  border: 1px solid var(--line);
+  padding: 1px 4px;
+}
+
+.dock-panel[hidden] {
+  display: none;
+}
+
+.dock-panel > .hint,
+.dock-panel > .error,
+.dock-panel > .warn-note {
+  margin: 0 14px 10px;
+}
+
+.dock-body {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px;
+}
+
+.dock-prompt {
+  width: 100%;
+}
+
+.dock-row {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  flex-wrap: wrap;
+}
+
+.dock-variance {
+  width: 330px;
+}
+
+.dock-chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-left: 4px;
+}
+
+.dock-chips .dock-row-label {
+  margin-right: 8px;
+}
+
+.dock-lyrics {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.dock-lyrics .lyrics-textarea {
+  width: 100%;
+  min-height: 160px;
+  max-height: 160px;
+}
+
+.dock-commit {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--line);
+}
+
+.dock-consequence {
+  flex: 1;
+  font-size: 11px;
+  color: var(--text-mid);
+}
+
+.dock-commit-btn {
+  position: relative;
+  overflow: hidden;
+  padding: 11px 22px;
+  transform: skewX(-10deg);
+  white-space: nowrap;
+}
+
+.dock-commit-btn > .dock-commit-label,
+.dock-commit-btn > span {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+a.dock-commit-link {
+  background: var(--acid);
+  border: 1px solid var(--acid);
+  color: var(--carbon);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* TUNE ▸ — the verb's full settings, collapsed to one summary line. */
+.tune-toggle {
+  border: none;
+  padding: 0;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text-mid);
+  align-self: flex-start;
+}
+
+.tune-summary {
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--text-low);
+  margin-left: 6px;
+}
+
+.tune-body {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 10px 22px;
+  align-items: start;
+}
+
+/* LYRICS lane (LyricsLane.tsx): heard lines as chips at their sung spans, sharing the
+   waveforms' x-axis. Not focusable as a lane; each chip is its own button. */
+.lyrics-lane {
+  position: relative;
+  height: 24px;
+  background: var(--carbon);
+  border-bottom: 1px solid var(--line);
+}
+
+.lyrics-lane-label,
+.lyrics-lane-status {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 8px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-low);
+}
+
+.lyrics-lane-label {
+  left: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* State that has to stay readable (and RETRY clickable) sits over the chips, at the right. */
+.lyrics-lane-status {
+  right: 0;
+  z-index: 3;
+  background: var(--panel);
+  border-left: 1px solid var(--line);
+}
+
+.lyrics-lane-status button {
+  font-size: 9px;
+  padding: 1px 6px;
+}
+
+.lyrics-lane-warn {
+  margin: 0;
+  padding: 1px 6px;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+
+.lyrics-chip {
+  z-index: 2;
+  position: absolute;
+  top: 3px;
+  height: 18px;
+  min-width: 4px;
+  padding: 0 6px;
+  border: none;
+  background: var(--carbon-raised);
+  color: var(--text-mid);
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lyrics-chip:hover {
+  color: var(--text-hi);
+}
+
+/* The selection's echo: "selection must read as one continuous color everywhere it is echoed". */
+.lyrics-chip.selected,
+.lyrics-chip.selected:hover {
+  background: var(--sky-tint);
+  color: var(--text-hi);
+  box-shadow: inset 2px 0 0 var(--sky);
+}
+
+/* VERSIONS · <LAYER>: the rail's lilac heading. */
+.versions-label {
+  color: var(--lilac-text);
 }
 
 /* ============================================================
