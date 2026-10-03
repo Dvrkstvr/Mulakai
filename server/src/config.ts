@@ -18,6 +18,12 @@ export const config = {
   yueApiKey: process.env.YUE_API_KEY ?? '',
   heartmulaUrl: process.env.HEARTMULA_API_URL ?? '',
   heartmulaApiKey: process.env.HEARTMULA_API_KEY ?? '',
+  /** The score planner (PLAN.md "Score Agent"): a local Ollama, reached through its
+   * OpenAI-compatible /v1 and, to unload, its native /api (D-012). Empty = SCORE hidden. */
+  llmUrl: (process.env.LLM_API_URL ?? '').trim().replace(/\/+$/, '').replace(/\/v1$/, ''),
+  llmModel: process.env.LLM_MODEL || 'qwen3:14b',
+  /** One planner call, cold load included (SP-2: 2.5 s for qwen3:14b, up to 50 s for a 26B MoE). */
+  llmTimeoutMs: Number(process.env.LLM_TIMEOUT_MS ?? 180_000),
   /** lyrics-server, for READ LYRICS (PLAN.md "Cover Lyrics From the Recording"). Empty = not set up. */
   lyricsUrl: process.env.LYRICS_API_URL ?? '',
   /** Ceiling on one synchronous /transcribe call: a warm job is seconds, the first one
