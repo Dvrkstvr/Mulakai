@@ -64,4 +64,17 @@ describe('runningRows', () => {
   it('ignores a lock that has already settled', () => {
     expect(runningRows(idle({ active: active({ status: 'done' }) }))).toEqual([]);
   });
+
+  it('leaves a job still waiting in the queue to UP NEXT, by its id or its queue position', () => {
+    const repaint = { kind: 'repaint', jobId: 'e1', songId: 's1', layerId: 'l1', startedAt: 2, stage: 'running' } as SingleEditorJob;
+    const rows = runningRows(idle({
+      genJob: { ...gen, queuePosition: 1 },
+      editorJob: repaint,
+      readLyrics: { stage: 'running', jobId: 'rl1' },
+      transcribe: { stage: 'running', jobId: 't1' },
+      timings: { v1: { stage: 'running', jobId: 'tm1' } },
+      queuedIds: new Set(['e1', 'rl1', 'tm1']),
+    }));
+    expect(rows.map((r) => r.kind)).toEqual(['transcribe']);
+  });
 });

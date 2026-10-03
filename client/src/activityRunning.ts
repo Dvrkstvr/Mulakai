@@ -1,6 +1,7 @@
 /** Activity's RUNNING section (PLAN.md "UI Redesign", S3.5), read live from the stores that own
- * each job, plus the server's lock (`/active`) for a job none of them track: ANALYZE AUDIO, a job
- * started in another tab, or anything running before a reload. */
+ * each job, plus the server's running job (`/active`) for one none of them track: ANALYZE AUDIO,
+ * a job started in another tab, or anything running before a reload. A job a store follows that
+ * still waits in the server's queue is UP NEXT instead (S4). */
 import type { ActiveGeneration } from './api';
 import type { ActivityKind } from './activitySettle';
 import type { SingleEditorJob, SplitJobState } from './editorJob';
@@ -29,10 +30,12 @@ export interface RunningSources {
   genJob: GenerationJob | null;
   editorJob: SingleEditorJob | null;
   splitJob: SplitJobState | null;
-  transcribe: { stage: string; progress?: number };
-  readLyrics: { stage: string };
+  transcribe: { stage: string; progress?: number; jobId?: string };
+  readLyrics: { stage: string; jobId?: string };
   timings: Record<string, TimingsRun>;
   active: ActiveGeneration | null;
+  /** Jobs still waiting in the server's queue: those are UP NEXT, not RUNNING. */
+  queuedIds?: ReadonlySet<string>;
 }
 
 const AI_KINDS = new Set<ActivityKind>(['generate', 'repaint', 'regenerate', 'retake', 'addLayer', 'remaster', 'analyze']);
@@ -45,33 +48,37 @@ export const RUNNING_LABEL: Record<ActivityKind, string> = {
 type Draft = Omit<RunningRow, 'ai' | 'abortable' | 'label'> & { label?: string };
 
 export function runningRows(src: RunningSources, isEngineStage: (stage?: string) => boolean = () => false): RunningRow[] {
-  const drafts: Draft[] = [];
+  let drafts: Draft[] = [];
   const { genJob, editorJob, splitJob, active } = src;
-  if (genJob && (genJob.stage === 'loading' || genJob.stage === 'running')) {
+  if (genJob && (genJob.stage === 'loading' || genJob.stage === 'running') && !genJob.queuePosition) {
     drafts.push({
       key: `generate:${genJob.startedAt}`, kind: 'generate', jobId: genJob.jobId, title: genJob.title,
       label: genJob.stage === 'loading' ? 'LOADING MODEL' : undefined, songId: genJob.songId,
       startedAt: genJob.startedAt, progress: genJob.progress, stageProgress: isEngineStage(genJob.progressStage),
     });
   }
-  if (editorJob?.stage === 'running') {
+  if (editorJob?.stage === 'running' && !editorJob.queuePosition) {
     drafts.push({
       key: `${editorJob.kind}:${editorJob.startedAt}`, kind: editorJob.kind, jobId: editorJob.jobId,
       songId: editorJob.songId, startedAt: editorJob.startedAt, progress: editorJob.progress,
     });
   }
-  if (splitJob?.stage === 'running') {
+  if (splitJob?.stage === 'running' && !splitJob.queuePosition) {
     const done = splitJob.stems.filter((s) => s.status !== 'running').length;
     drafts.push({
       key: `split:${splitJob.startedAt}`, kind: 'split', jobId: splitJob.splitJobId, songId: splitJob.songId,
       startedAt: splitJob.startedAt, progress: splitJob.stems.length ? done / splitJob.stems.length : undefined,
     });
   }
-  if (src.transcribe.stage === 'running') drafts.push({ key: 'transcribe', kind: 'transcribe', progress: src.transcribe.progress });
-  if (src.readLyrics.stage === 'running') drafts.push({ key: 'lyrics', kind: 'lyrics' });
-  for (const [versionId, run] of Object.entries(src.timings)) {
-    if (run.stage === 'running') drafts.push({ key: `timings:${versionId}`, kind: 'timings' });
+  if (src.transcribe.stage === 'running') {
+    drafts.push({ key: 'transcribe', kind: 'transcribe', jobId: src.transcribe.jobId, progress: src.transcribe.progress });
   }
+  if (src.readLyrics.stage === 'running') drafts.push({ key: 'lyrics', kind: 'lyrics', jobId: src.readLyrics.jobId });
+  for (const [versionId, run] of Object.entries(src.timings)) {
+    if (run.stage === 'running') drafts.push({ key: `timings:${versionId}`, kind: 'timings', jobId: run.jobId });
+  }
+  const queued = src.queuedIds;
+  if (queued?.size) drafts = drafts.filter((d) => !d.jobId || !queued.has(d.jobId));
 
   // The lock names its job; one this tab tracks matches by id, or (no id kept) by kind.
   const holder = active && (active.status === 'loading' || active.status === 'running') ? active : null;

@@ -38,11 +38,21 @@ async function pollUntilSettled(jobId: string, set: SetState, get: GetState) {
       if (!(err instanceof ApiError && err.status === 404)) continue;
       s = { status: 'failed', error: JOB_GONE };
     }
+    if (s.status === 'queued') {
+      // Waiting behind another job: the card stays "loading", now saying where it is in line.
+      set((state) => (state.job?.jobId === jobId ? { job: { ...state.job, stage: 'loading', queuePosition: s.queuePosition ?? 1 } } : {}));
+      continue;
+    }
     if (s.status === 'loading' || s.status === 'running') {
       set((state) => (state.job?.jobId === jobId
-        ? { job: { ...state.job, stage: s.status as GenStage, progress: s.progress, progressStage: s.progressStage, progressText: s.progressText } }
+        ? { job: { ...state.job, stage: s.status as GenStage, queuePosition: undefined, progress: s.progress, progressStage: s.progressStage, progressText: s.progressText } }
         : {}));
       continue;
+    }
+    if (s.cancelled) {
+      // CANCEL on its UP NEXT row (or its song was trashed): gone, not failed — nothing to retry.
+      set((state) => (state.job?.jobId === jobId ? { job: null } : {}));
+      return;
     }
     if (s.status === 'done') {
       set((state) => (state.job?.jobId === jobId ? { job: { ...state.job, stage: 'done', songId: s.songId } } : {}));

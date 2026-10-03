@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import type { GenerationJob } from './generationStore';
 import { fmtElapsed, fmtProgress, isEngineStage, stageDetail, useElapsedMs } from './genProgress';
+import { startsAfter } from './queueCopy';
 
 const STAGE_LABEL: Record<GenerationJob['stage'], string> = {
   loading: 'LOADING MODEL',
@@ -35,7 +36,8 @@ export function GeneratingCard({ job, onRetry }: Props) {
     >
       {/* The veil means "how far along the whole job is"; an engine's per-stage fraction would
           sweep it back to zero at every stage, so engine jobs get the plain shader. */}
-      {!shrunk && !failed && <AIGeneratingBackground progress={isEngineStage(job.progressStage) ? undefined : job.progress} />}
+      {/* A queued job isn't working yet, so it doesn't wear the AI shader (DESIGN.md "AI states"). */}
+      {!shrunk && !failed && !job.queuePosition && <AIGeneratingBackground progress={isEngineStage(job.progressStage) ? undefined : job.progress} />}
       <div className="generating-body">
         <div className="row-main">
           <span className="song-title">{job.title}</span>
@@ -43,7 +45,9 @@ export function GeneratingCard({ job, onRetry }: Props) {
         </div>
         {!shrunk && (
           <div className="generating-status">
-            <span className={failed ? 'stage-label failed' : 'stage-label'}>{STAGE_LABEL[job.stage]}</span>
+            <span className={failed ? 'stage-label failed' : 'stage-label'}>
+              {job.queuePosition ? `QUEUED · ${startsAfter(job.queuePosition).toUpperCase()}` : STAGE_LABEL[job.stage]}
+            </span>
             {!failed && (
               <span className="meta" title={job.progressText}>
                 {fmtElapsed(elapsedMs)} elapsed

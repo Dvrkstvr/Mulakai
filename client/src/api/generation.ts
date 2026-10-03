@@ -72,11 +72,12 @@ export const generationApi = {
 
   /** "Describe this audio for me" — ACE-Step's `/v1/analyze_audio`, same dual-source shape
    * as `generateComplete`'s source param (a direct upload, or a reference into an already-run
-   * scratch split job's stem). Returns the same caption/lyrics/metadata shape as `refineInput`. */
+   * scratch split job's stem). Queued like any job: the polled job's `analysis` carries the
+   * same caption/lyrics/metadata shape as `refineInput` (see analyzeJob.ts). */
   analyzeSourceAudio: (
     source: { file: Blob } | { scratchJobId: string; scratchStemKind: StemKind },
     model: string,
-  ): Promise<RefineResult> => {
+  ): Promise<{ jobId: string }> => {
     const form = new FormData();
     if ('file' in source) {
       form.append('src_audio', source.file, 'source.wav');
@@ -85,7 +86,7 @@ export const generationApi = {
       form.append('scratch_stem_kind', source.scratchStemKind);
     }
     form.append('model', model);
-    return fetch('/api/generate/analyze-audio', { method: 'POST', body: form }).then((r) => json<RefineResult>(r));
+    return fetch('/api/generate/analyze-audio', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
   },
 
   refineInput: (params: { prompt: string; lyrics: string } & Record<string, unknown>): Promise<RefineResult> =>
@@ -113,8 +114,14 @@ export const generationApi = {
     fetch('/api/generate/models').then((r) => json<ModelInventory>(r)),
 
   jobStatus: (jobId: string): Promise<{
-    status: 'loading' | 'running' | 'done' | 'failed'; songId?: string; error?: string;
+    /** `queued`: waiting in the server's job queue, `queuePosition` (1 = next) in line. */
+    status: 'queued' | 'loading' | 'running' | 'done' | 'failed'; songId?: string; error?: string;
+    queuePosition?: number;
+    /** Set when the job left the queue without running (CANCEL, or its song was trashed). */
+    cancelled?: boolean;
     progress?: number; progressStage?: string; progressText?: string;
+    /** Only on a finished ANALYZE AUDIO job. */
+    analysis?: RefineResult;
     /** Only on a finished TRANSCRIBE job. */
     transcription?: Transcription;
     /** Only on a finished READ LYRICS job. */
@@ -122,7 +129,7 @@ export const generationApi = {
   }> =>
     fetch(`/api/generate/${jobId}`).then((r) => json(r)),
 
-  /** The server-wide generation lock, if any — used to rehydrate the library's
+  /** The server's running job, if any — used to rehydrate the library's
    * "generating" card after a page refresh mid-generation. */
   activeGeneration: (): Promise<{ active: ActiveGeneration | null }> =>
     fetch('/api/generate/active').then((r) => json(r)),

@@ -72,10 +72,11 @@ type LocalStage = 'idle' | 'running' | 'failed';
 /** TRANSCRIBE and READ LYRICS: their stores go back to `idle` on success. Their results land in
  * Create's cover draft, so OPEN goes there. */
 export function localSettled(
-  kind: 'transcribe' | 'lyrics', prev: { stage: LocalStage }, next: { stage: LocalStage; error?: string },
+  kind: 'transcribe' | 'lyrics', prev: { stage: LocalStage }, next: { stage: LocalStage; error?: string; cancelled?: boolean },
   retry: () => boolean, at = Date.now(),
 ): ActivityEntry | null {
-  if (prev.stage !== 'running' || next.stage === 'running') return null;
+  // A run cancelled from UP NEXT never ran: no DONE row, and nothing to retry.
+  if (prev.stage !== 'running' || next.stage === 'running' || next.cancelled) return null;
   const base = { id: nextId(kind), kind, at, opens: 'create' as const };
   return next.stage === 'idle'
     ? { ...base, status: 'done' }
@@ -88,7 +89,7 @@ export function timingsFailed(
   prev: Record<string, TimingsRun>, next: Record<string, TimingsRun>, retry: (versionId: string) => boolean, at = Date.now(),
 ): ActivityEntry[] {
   return Object.entries(next)
-    .filter(([v, run]) => run.stage === 'failed' && prev[v]?.stage === 'running')
+    .filter(([v, run]) => run.stage === 'failed' && !run.cancelled && prev[v]?.stage === 'running')
     .map(([v, run]) => ({
       id: nextId('timings'), kind: 'timings', status: 'failed', at, opens: null,
       error: run.error ?? 'reading word timings failed', retry: () => retry(v),

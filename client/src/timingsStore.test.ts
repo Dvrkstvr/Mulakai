@@ -40,7 +40,7 @@ describe('read', () => {
     jobStatus.mockResolvedValueOnce({ status: 'running' }).mockResolvedValueOnce({ status: 'done' });
     const done = useTimingsStore.getState().read('v1');
     await vi.advanceTimersByTimeAsync(0);
-    expect(run()).toEqual({ stage: 'running' });
+    expect(run()).toEqual({ stage: 'running', jobId: 'j1' });
     await tick();
     expect(run()?.stage).toBe('running');
     await tick();

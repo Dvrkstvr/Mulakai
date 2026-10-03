@@ -17,6 +17,8 @@ export interface GenerationJob {
   draft: CreateDraft;
   /** Set once the job finishes — the new song's id, so the caller can load it into the player. */
   songId?: string;
+  /** Set while the job waits in the server's queue (1 = next); the stage reads `loading`. */
+  queuePosition?: number;
   /** Live progress from ACE-Step's /query_result, refreshed each poll tick while running. */
   progress?: number;
   progressStage?: string;

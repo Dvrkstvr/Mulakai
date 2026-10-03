@@ -8,6 +8,8 @@ import { songTitle, useSongIndexStore } from './songIndexStore';
 import { useRunningRows } from './useRunningRows';
 import { RunningActivityRow, SettledActivityRow } from './ActivityRow';
 import { RETRY_BUSY, retryEntry } from './activityRetry';
+import { useQueueStore } from './queueStore';
+import { QueuedActivityRow } from './QueuedActivityRow';
 
 interface Props {
   openEditor: (songId: string) => void;
@@ -29,6 +31,8 @@ function Drawer({ openEditor, openCreate, retryGeneration }: Props) {
   const { setDrawerOpen, clear, remove, patch } = useActivityStore.getState();
   const songs = useSongIndexStore((s) => s.songs);
   const running = useRunningRows();
+  const queued = useQueueStore((s) => s.queued);
+  const queueError = useQueueStore((s) => s.error);
   const close = () => setDrawerOpen(false);
 
   useEffect(() => { void useSongIndexStore.getState().load(); }, []);
@@ -83,11 +87,14 @@ function Drawer({ openEditor, openCreate, retryGeneration }: Props) {
       </div>
       {running.length > 0 && <span className="activity-section">RUNNING</span>}
       {running.map((r) => <RunningActivityRow key={r.key} row={r} title={r.title ?? title(r.songId)} />)}
+      {queued.length > 0 && <span className="activity-section">UP NEXT</span>}
+      {queued.map((q) => <QueuedActivityRow key={q.jobId} entry={q} songTitle={title(q.songId)} />)}
+      {queueError && <span className="activity-note">{queueError}</span>}
       {done.length > 0 && <span className="activity-section">DONE</span>}
       {done.map((e) => <SettledActivityRow key={e.id} entry={e} title={title(e.songId)} onOpen={opener(e)} />)}
       {failed.length > 0 && <span className="activity-section">FAILED</span>}
       {failed.map((e) => <SettledActivityRow key={e.id} entry={e} title={title(e.songId)} onRetry={retrier(e)} />)}
-      {running.length + entries.length === 0 && (
+      {running.length + queued.length + entries.length === 0 && (
         <div className="activity-empty">Nothing running, and nothing finished yet this session.</div>
       )}
     </motion.aside>

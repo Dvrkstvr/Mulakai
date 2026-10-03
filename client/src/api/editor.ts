@@ -3,6 +3,13 @@ import { outputParams } from '../settings';
 import { json, appendParams } from './http';
 import type { SplitHealth, StemKind, StemResult } from './types';
 
+/** `queued` while the split waits in the server's job queue (its stems read running). */
+export interface SplitStatus {
+  status: 'queued' | 'running' | 'done';
+  queuePosition?: number;
+  stems: StemResult[];
+}
+
 export const editorApi = {
   repaint: (
     layerId: string,
@@ -82,7 +89,7 @@ export const editorApi = {
       body: JSON.stringify({ model, output: outputParams() }),
     }).then((r) => json<{ jobId: string }>(r)),
 
-  splitStatus: (jobId: string): Promise<{ status: 'running' | 'done'; stems: StemResult[] }> =>
+  splitStatus: (jobId: string): Promise<SplitStatus> =>
     fetch(`/api/split/${jobId}`).then((r) => json(r)),
 
   splitHealth: (): Promise<SplitHealth> =>
@@ -108,7 +115,7 @@ export const editorApi = {
     return fetch('/api/split/scratch', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
   },
 
-  scratchSplitStatus: (jobId: string): Promise<{ status: 'running' | 'done'; stems: StemResult[] }> =>
+  scratchSplitStatus: (jobId: string): Promise<SplitStatus> =>
     fetch(`/api/split/scratch/${jobId}`).then((r) => json(r)),
 
   scratchStemDownloadUrl: (jobId: string, kind: StemKind): string =>

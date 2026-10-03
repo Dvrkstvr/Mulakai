@@ -1,10 +1,11 @@
 import { create } from 'zustand';
 import { api, ApiError, type StemResult } from './api';
 import { useRemasterResult } from './remasterResult';
-import { isEditorBusy, type SingleEditorJob, type SplitJobState } from './editorJob';
-import { JOB_GONE } from './jobGone';
+import type { SingleEditorJob, SplitJobState } from './editorJob';
+import { POLL_MS, errMsg, runSingleJob, slotBusy } from './editorSingleJob';
 
 export { isEditorBusy, myEditorJob } from './editorJob';
+export { selectSplitRunning } from './editorSingleJob';
 
 interface EditorJobState {
   editorJob: SingleEditorJob | null;
@@ -24,70 +25,6 @@ interface EditorJobState {
   /** Merges a fresh stem (e.g. after RE-EXTRACT or a claim) into the split session in
    * the store, so SplitPanel doesn't need its own copy of `stems` to stay in sync. */
   patchSplitStem: (stem: StemResult) => void;
-}
-
-const POLL_MS = 2000;
-const DONE_LINGER_MS = 1500;
-
-const errMsg = (err: unknown): string => (err instanceof Error ? err.message : String(err));
-
-/** Shared shape for the five single-`jobId` kinds (split tracks 4 stems instead). `submit`
- * starts the ACE-Step job; `onDone` runs once, right as the job settles successfully
- * (remaster uses it to capture its one-shot result — see remasterResult.ts). */
-type Setter = (partial: Partial<EditorJobState> | ((s: EditorJobState) => Partial<EditorJobState>)) => void;
-
-async function runSingleJob(
-  set: Setter,
-  get: () => EditorJobState,
-  base: SingleEditorJob,
-  submit: () => Promise<{ jobId: string }>,
-  onDone?: (job: SingleEditorJob) => void,
-): Promise<void> {
-  // One editor job at a time — mirrors the server's genLock. A failed one is just replaced.
-  if (slotBusy(get())) return;
-  const provisional: SingleEditorJob = {
-    ...base,
-    retry: () => {
-      if (slotBusy(get())) return false;
-      void runSingleJob(set, get, { ...base, startedAt: Date.now() }, submit, onDone);
-      return true;
-    },
-  };
-  set({ editorJob: provisional });
-  let jobId: string;
-  try {
-    ({ jobId } = await submit());
-  } catch (err) {
-    set((s) => (s.editorJob === provisional ? { editorJob: { ...provisional, stage: 'failed', error: errMsg(err) } } : {}));
-    return;
-  }
-  const job = { ...provisional, jobId };
-  set((s) => (s.editorJob === provisional ? { editorJob: job } : {}));
-
-  for (;;) {
-    await new Promise((r) => setTimeout(r, POLL_MS));
-    if (get().editorJob?.jobId !== jobId) return; // superseded/cleared/cancelled between polls
-    let status: Awaited<ReturnType<typeof api.jobStatus>>;
-    try {
-      status = await api.jobStatus(jobId);
-    } catch (err) {
-      if (!(err instanceof ApiError && err.status === 404)) continue;
-      status = { status: 'failed', error: JOB_GONE };
-    }
-    if (status.status === 'loading' || status.status === 'running') {
-      set((s) => (s.editorJob?.jobId === jobId ? { editorJob: { ...s.editorJob, progress: status.progress, progressStage: status.progressStage, progressText: status.progressText } } : {}));
-      continue;
-    }
-    if (status.status === 'done') {
-      const doneJob = { ...job, stage: 'done' as const };
-      set((s) => (s.editorJob?.jobId === jobId ? { editorJob: doneJob } : {}));
-      onDone?.(doneJob);
-      setTimeout(() => set((s) => (s.editorJob?.jobId === jobId && s.editorJob.stage === 'done' ? { editorJob: null } : {})), DONE_LINGER_MS);
-    } else {
-      set((s) => (s.editorJob?.jobId === jobId ? { editorJob: { ...job, stage: 'failed', error: status.error ?? 'failed' } } : {}));
-    }
-    return;
-  }
 }
 
 export const useEditorJobStore = create<EditorJobState>((set, get) => ({
@@ -161,8 +98,8 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
       try {
         result = await api.splitStatus(splitJobId);
       } catch (err) {
-        // 404 = the job was force-stopped elsewhere (header's ABORT pill, or another
-        // tab) — stemSplit.ts's cancelSplit deletes it outright, so unlike other job
+        // 404 = the job was force-stopped or cancelled elsewhere (ABORT, CANCEL on its UP
+        // NEXT row, or another tab) — stemSplit.ts drops it outright, so unlike other job
         // kinds there's no "aborted" status to poll for. Any other error is transient.
         if (err instanceof ApiError && err.status === 404) {
           set((s) => (isThis(s) ? { splitJob: null } : {}));
@@ -170,8 +107,9 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
         }
         continue;
       }
+      // A queued split keeps its `running` stage (its stems read running) with queuePosition set.
       set((s) => (isThis(s) && s.splitJob
-        ? { splitJob: { ...s.splitJob, stems: result.stems, stage: result.status === 'done' ? 'done' : 'running' } }
+        ? { splitJob: { ...s.splitJob, stems: result.stems, stage: result.status === 'done' ? 'done' : 'running', queuePosition: result.queuePosition } }
         : {}));
       // Keeps polling indefinitely (not just until the first "done") so a later RE-EXTRACT — which
       // flips one stem back to 'running' server-side — is picked up too. The session only ends via
@@ -190,10 +128,3 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
     ? { splitJob: { ...s.splitJob, stems: s.splitJob.stems.map((x) => (x.kind === stem.kind ? stem : x)) } }
     : {})),
 }));
-
-/** Whether a split holds the server's lock: its first pass, or a RE-EXTRACT, is still running.
- * A settled split session blocks nothing — see PLAN.md "A Settled Split Blocks Nothing". */
-export const selectSplitRunning = (s: Pick<EditorJobState, 'splitJob'>): boolean => s.splitJob?.stage === 'running';
-
-/** Whether a new editor job would be refused: one already runs, or a split is extracting. */
-const slotBusy = (s: EditorJobState): boolean => isEditorBusy(s.editorJob) || selectSplitRunning(s);
