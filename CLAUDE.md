@@ -29,9 +29,12 @@ React + TypeScript + Vite (client) · Express + SQLite (server) · Zustand ·
 minimal Web Audio playback (layer versions summed to master — no
 synthesis/plugin layers, no Tone.js) · ACE-Step 1.5 (external process,
 Gradio API) for generation, repaint, and layer conditioning · optional
-extra song-creation engines for a new song's first take only (YuE2, then
+extra song-creation engines for a new song's first take (YuE2, then
 HeartMuLa; each its own process and venv behind `YUE_API_URL` /
-`HEARTMULA_API_URL`, speaking one shared job API, `engineClient.ts`) ·
+`HEARTMULA_API_URL`, speaking one shared job API, `engineClient.ts`); YuE2
+may also re-render a song it made from an edited copy of that song's score
+(the SCORE verb, PLAN.md "Score Agent"), and every audio edit (repaint, Add
+Layer, extract, remaster) still runs on ACE-Step ·
 optional Demucs microservice (`demucs-server/`, FastAPI) for stem splits.
 
 ## Commands
