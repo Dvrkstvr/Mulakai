@@ -52,13 +52,14 @@ export function ActionDock({ verb, onVerb, song, focusedLayer, selection, onClea
   const [opened, setOpened] = useState<Set<DockVerb>>(() => new Set(['repaint', 'addLayer']));
   if (!opened.has(verb)) setOpened(new Set([...opened, verb]));
   const layerName = focusedLayer?.name ?? 'base';
-  const target = dockTarget(verb, layerName, selection, sections);
-  const repaintTarget = verb === 'repaint' ? target : dockTarget('repaint', layerName, selection, sections);
+  const duration = song.duration ?? 0;
+  const target = dockTarget(verb, layerName, selection, sections, duration);
+  const repaintTarget = verb === 'repaint' ? target : dockTarget('repaint', layerName, selection, sections, duration);
 
   const body = (v: DockVerb) => {
     if (v === 'repaint') {
       return <DockRepaint target={repaintTarget} layerName={layerName} nextVersion={(focusedLayer?.versions.length ?? 0) + 1}
-        activeVersion={activeNumber(focusedLayer)} selection={selection} {...repaint} />;
+        activeVersion={activeNumber(focusedLayer)} selection={selection} duration={duration} {...repaint} />;
     }
     if (v === 'addLayer') return <DockAddLayer songId={song.id} layers={song.layers} songLyrics={song.lyrics} onDone={onChanged} />;
     if (v === 'split') return focusedLayer ? <DockSplit songId={song.id} layer={focusedLayer} onChanged={onChanged} /> : null;

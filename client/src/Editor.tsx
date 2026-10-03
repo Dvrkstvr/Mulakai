@@ -55,7 +55,7 @@ export function Editor({ songId, onBack }: Props) {
   useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
 
   const repaint = useRepaintSubmit({
-    songId, focusedLayer, selection, prompt, lyricsUnlocked, lyricsDraft, repaintSettings,
+    songId, focusedLayer, selection, duration, prompt, lyricsUnlocked, lyricsDraft, repaintSettings,
     startRepaint, dismissEditorJob, myRepaint, busyElsewhere, setSelection, setPrompt, reload,
   });
 

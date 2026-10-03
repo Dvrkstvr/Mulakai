@@ -1,7 +1,7 @@
 import type { Region } from './Waveform';
 import type { LyricsBlock } from './lyricsBlocks';
 import type { DockTarget } from './dockTarget';
-import { repaintCommitLabel, repaintConsequence } from './dockTarget';
+import { repaintCommitLabel, repaintConsequence, repaintWarnLine } from './dockTarget';
 import { maxCrossfadeSec, clampCrossfade } from './repaintLimits';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { waitLabel } from './generationJob';
@@ -27,6 +27,8 @@ interface Props {
   nextVersion: number;
   activeVersion: number | null;
   selection: Region | null;
+  /** The song's length (0 = unknown), which a whole-layer repaint covers. */
+  duration: number;
   prompt: string;
   onPromptChange: (prompt: string) => void;
   job: Pick<ReturnType<typeof useEditorRepaintJob>, 'job' | 'startedAt' | 'myRepaint' | 'busyBy' | 'error'>;
@@ -35,7 +37,7 @@ interface Props {
 }
 
 /** REPAINT: instruction, VARIANCE + CROSSFADE inline, the one-section lyrics editor, TUNE, commit. */
-export function DockRepaint({ target, layerName, nextVersion, activeVersion, selection, prompt, onPromptChange, job, onRepaint, lyrics }: Props) {
+export function DockRepaint({ target, layerName, nextVersion, activeVersion, selection, duration, prompt, onPromptChange, job, onRepaint, lyrics }: Props) {
   const { job: stage, startedAt, myRepaint, busyBy, error } = job;
   const running = stage === 'running';
   const elapsedMs = useElapsedMs(running, startedAt);
@@ -48,7 +50,7 @@ export function DockRepaint({ target, layerName, nextVersion, activeVersion, sel
     ? `REPAINTING… ${fmtElapsed(elapsedMs)}${fmtProgress(myRepaint?.progress) ? ` · ${fmtProgress(myRepaint?.progress)}` : ''}${stageDetail(myRepaint?.progressStage) ? ` · ${stageDetail(myRepaint?.progressStage)}` : ''}`
     : busyBy ? waitLabel(busyBy) : repaintCommitLabel(layerName, selection, target.section);
   const consequence = target.warn
-    ? 'pick a region within the repaint range, or ✕ WHOLE SONG to repaint the whole layer'
+    ? repaintWarnLine(selection, duration)
     : repaintConsequence(layerName, nextVersion, activeVersion, selection, target.section);
 
   return (

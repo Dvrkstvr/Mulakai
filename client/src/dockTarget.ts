@@ -1,6 +1,6 @@
 import type { Region } from './Waveform';
 import { findActiveSectionIndex, type Section } from './lyricSections';
-import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS } from './repaintLimits';
+import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS, repaintRangeValid } from './repaintLimits';
 
 export type DockVerb = 'repaint' | 'addLayer' | 'split' | 'export';
 
@@ -25,13 +25,18 @@ const HINTS: Record<DockVerb, string> = {
   export: 'what you hear is what you get',
 };
 
-/** The sky TARGET chip for a verb (PLAN.md "UI Redesign", S1 decision 2). */
-export function dockTarget(verb: DockVerb, layerName: string, selection: Region | null, sections: Section[]): DockTarget {
+/** The sky TARGET chip for a verb (PLAN.md "UI Redesign", S1 decision 2). `duration` is the
+ * song's length (0 = unknown): with no selection REPAINT covers all of it, under the same limit. */
+export function dockTarget(verb: DockVerb, layerName: string, selection: Region | null, sections: Section[], duration: number): DockTarget {
   const layer = layerName.toUpperCase();
   const base = { warn: false, clearable: false, hint: HINTS[verb], section: null };
   if (verb === 'split') return { ...base, label: `${layer} · WHOLE LAYER` };
   if (verb !== 'repaint') return { ...base, label: 'WHOLE SONG' };
-  if (!selection) return { ...base, label: `${layer} · WHOLE SONG` };
+  if (!selection) {
+    if (repaintRangeValid(null, duration)) return { ...base, label: `${layer} · WHOLE SONG` };
+    const limit = !duration ? 'LENGTH UNKNOWN' : duration < REPAINT_MIN_SECONDS ? `MIN ${REPAINT_MIN_SECONDS}s` : `MAX ${REPAINT_MAX_SECONDS}s`;
+    return { ...base, warn: true, label: `${layer} · WHOLE SONG · ${limit}` };
+  }
 
   const seconds = selection.end - selection.start;
   if (seconds < REPAINT_MIN_SECONDS) return { ...base, clearable: true, warn: true, label: `${fmtRange(selection)} · MIN ${REPAINT_MIN_SECONDS}s` };
@@ -44,6 +49,19 @@ export function dockTarget(verb: DockVerb, layerName: string, selection: Region 
     section,
     label: section ? `${layer} · ${section} · ${fmtRange(selection)}` : `${layer} · ${fmtRange(selection)}`,
   };
+}
+
+/** Why REPAINT's commit is off, for its consequence line (the chip is rust meanwhile). */
+export function repaintWarnLine(selection: Region | null, duration: number): string {
+  const range = `${REPAINT_MIN_SECONDS}–${REPAINT_MAX_SECONDS} s`;
+  if (selection) {
+    return repaintRangeValid(null, duration)
+      ? `pick a region of ${range}, or ✕ WHOLE SONG to repaint the whole layer`
+      : `pick a region of ${range}`;
+  }
+  if (!duration) return `this song's length isn't known, so the whole layer can't be repainted — select a region of ${range}`;
+  if (duration < REPAINT_MIN_SECONDS) return `the whole layer is under ${REPAINT_MIN_SECONDS} s, too short to repaint`;
+  return `the whole layer is ${fmtTime(duration)}, over the ${REPAINT_MAX_SECONDS} s repaint limit — select a region of ${range}`;
 }
 
 /** `REPAINT VERSE 2` / `REPAINT 1:32–2:07` / `REPAINT VOCALS` (no range = the whole layer). */
