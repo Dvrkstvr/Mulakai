@@ -7,6 +7,7 @@ import { useGenerationStore } from './generationStore';
 import { songTitle, useSongIndexStore } from './songIndexStore';
 import { useRunningRows } from './useRunningRows';
 import { RunningActivityRow, SettledActivityRow } from './ActivityRow';
+import { RETRY_BUSY, retryEntry } from './activityRetry';
 
 interface Props {
   openEditor: (songId: string) => void;
@@ -25,7 +26,7 @@ export function ActivityDrawer(props: Props) {
 
 function Drawer({ openEditor, openCreate, retryGeneration }: Props) {
   const entries = useActivityStore((s) => s.entries);
-  const { setDrawerOpen, clear, remove } = useActivityStore.getState();
+  const { setDrawerOpen, clear, remove, patch } = useActivityStore.getState();
   const songs = useSongIndexStore((s) => s.songs);
   const running = useRunningRows();
   const close = () => setDrawerOpen(false);
@@ -48,7 +49,13 @@ function Drawer({ openEditor, openCreate, retryGeneration }: Props) {
     return e.opens === 'create' ? () => { close(); openCreate(); } : undefined;
   };
   const retrier = (e: ActivityEntry) => {
-    if (e.retry) return () => { remove(e.id); e.retry?.(); };
+    // The row goes only once the job has really started again; a refused RETRY says why.
+    if (e.retry) {
+      return () => {
+        if (retryEntry(e, running.length > 0) === 'started') remove(e.id);
+        else patch(e.id, { note: RETRY_BUSY });
+      };
+    }
     if (!e.draft) return undefined;
     const draft = e.draft;
     return () => {

@@ -86,6 +86,7 @@ export function SettledActivityRow({ entry, title, onOpen, onRetry }: SettledPro
           <span className="activity-detail" title={entry.error}>{entry.error} · settings kept</span>
           {onRetry && <button type="button" className="activity-retry" onClick={onRetry}><span>RETRY</span></button>}
         </div>
+        {entry.note && <span className="activity-note">{entry.note}</span>}
       </div>
     );
   }

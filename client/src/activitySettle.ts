@@ -26,7 +26,10 @@ export interface ActivityEntry {
   opens: 'editor' | 'create' | null;
   /** A failed generation's RETRY reopens Create on this draft, as the Library card's does. */
   draft?: CreateDraft;
-  retry?: () => void;
+  /** Starts the job again; false when it couldn't start (its slot is taken). */
+  retry?: () => boolean;
+  /** Why the last RETRY didn't start, shown on the row. */
+  note?: string;
 }
 
 let seq = 0;
@@ -70,7 +73,7 @@ type LocalStage = 'idle' | 'running' | 'failed';
  * Create's cover draft, so OPEN goes there. */
 export function localSettled(
   kind: 'transcribe' | 'lyrics', prev: { stage: LocalStage }, next: { stage: LocalStage; error?: string },
-  retry: () => void, at = Date.now(),
+  retry: () => boolean, at = Date.now(),
 ): ActivityEntry | null {
   if (prev.stage !== 'running' || next.stage === 'running') return null;
   const base = { id: nextId(kind), kind, at, opens: 'create' as const };
@@ -82,7 +85,7 @@ export function localSettled(
 /** Word timings are read automatically when a song opens, so only a failure is worth a row:
  * it is the one outcome that needs a person (RETRY). */
 export function timingsFailed(
-  prev: Record<string, TimingsRun>, next: Record<string, TimingsRun>, retry: (versionId: string) => void, at = Date.now(),
+  prev: Record<string, TimingsRun>, next: Record<string, TimingsRun>, retry: (versionId: string) => boolean, at = Date.now(),
 ): ActivityEntry[] {
   return Object.entries(next)
     .filter(([v, run]) => run.stage === 'failed' && prev[v]?.stage === 'running')

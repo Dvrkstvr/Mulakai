@@ -391,6 +391,11 @@
   background: rgba(28, 29, 33, 0.6);
 }
 
+.activity-note {
+  font-size: 11px;
+  color: var(--rust-text);
+}
+
 .activity-empty {
   color: var(--text-mid);
   font-size: 12px;

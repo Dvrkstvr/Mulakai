@@ -34,14 +34,16 @@ export function trackActivity(): () => void {
       record(editorSettled(prev.editorJob, s.editorJob));
       record(splitSettled(prev.splitJob, s.splitJob));
     }),
-    useTranscribeStore.subscribe((s, prev) => record(localSettled('transcribe', prev, s, () => void s.retry()))),
-    useReadLyricsStore.subscribe((s, prev) => record(localSettled('lyrics', prev, s, () => void s.retry()))),
+    useTranscribeStore.subscribe((s, prev) => record(localSettled('transcribe', prev, s, s.retry))),
+    useReadLyricsStore.subscribe((s, prev) => record(localSettled('lyrics', prev, s, s.retry))),
     useTimingsStore.subscribe((s, prev) => {
       if (s.runs === prev.runs) return;
       timingsFailed(prev.runs, s.runs, (versionId) => {
         const timings = useTimingsStore.getState();
+        if (timings.runs[versionId]?.stage === 'running') return false;
         timings.retry(versionId);
         void timings.read(versionId);
+        return true;
       }).forEach(record);
     }),
   ];

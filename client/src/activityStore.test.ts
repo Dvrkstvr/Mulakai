@@ -70,7 +70,7 @@ describe('activity tracking', () => {
   });
 
   it("keeps a failed editor job's retry", () => {
-    const retry = vi.fn(async () => {});
+    const retry = vi.fn(() => true);
     useEditorJobStore.setState({ editorJob: repaint({}) });
     useEditorJobStore.setState({ editorJob: repaint({ stage: 'failed', error: 'boom', retry }) });
     entries()[0].retry?.();

@@ -28,8 +28,9 @@ interface TranscribeState {
    * all, or ANALYZE AUDIO's still untouched — so READ LYRICS may fill them unasked (PLAN.md
    * "READ LYRICS With TRANSCRIBE for Uploads", decision 3). */
   start: (engine: EngineId, srcAudio: Blob, label: string, seedLyrics: string) => Promise<boolean>;
-  /** Runs the last `start` again (Activity's RETRY on a failed transcription). */
-  retry: () => Promise<boolean>;
+  /** Runs the last `start` again (Activity's RETRY on a failed transcription). False when
+   * nothing started: one is already running, or there was no earlier run. */
+  retry: () => boolean;
   reset: () => void;
 }
 
@@ -42,7 +43,11 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
 
   reset: () => set({ stage: 'idle', progress: undefined, error: undefined, sourceKey: null, analyzedLyrics: null }),
 
-  retry: () => (lastStart ? get().start(...lastStart) : Promise.resolve(false)),
+  retry: () => {
+    if (!lastStart || get().stage === 'running') return false;
+    void get().start(...lastStart);
+    return true;
+  },
 
   start: async (engine, srcAudio, label, seedLyrics) => {
     if (get().stage === 'running') return false;
