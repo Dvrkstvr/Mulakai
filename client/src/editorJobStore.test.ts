@@ -142,4 +142,29 @@ describe('a failed editor job', () => {
     expect(retakeVersion).not.toHaveBeenCalled();
     expect(useEditorJobStore.getState().editorJob).toMatchObject({ kind: 'repaint', stage: 'running' });
   });
+
+  async function failedRepaint() {
+    repaint.mockRejectedValueOnce(new Error('CUDA out of memory'));
+    await useEditorJobStore.getState().startRepaint('l1', 's1', { prompt: 'p', start: 0, end: 1 });
+    const failed = useEditorJobStore.getState().editorJob!;
+    expect(failed).toMatchObject({ stage: 'failed', error: 'CUDA out of memory' });
+    return failed;
+  }
+
+  it('retries with the same arguments (Activity RETRY)', async () => {
+    const failed = await failedRepaint();
+    expect(failed.retry?.()).toBe(true);
+    expect(repaint).toHaveBeenCalledTimes(2);
+    expect(repaint).toHaveBeenLastCalledWith('l1', { prompt: 'p', start: 0, end: 1 });
+    expect(useEditorJobStore.getState().editorJob).toMatchObject({ kind: 'repaint', stage: 'running' });
+  });
+
+  it('refuses a retry while another editor job holds the slot, leaving it untouched', async () => {
+    const failed = await failedRepaint();
+    const other = { kind: 'retake', jobId: 'x', songId: 's1', layerId: 'l2', versionId: 'v1', startedAt: 9, stage: 'running' } as const;
+    useEditorJobStore.setState({ editorJob: other });
+    expect(failed.retry?.()).toBe(false);
+    expect(repaint).toHaveBeenCalledTimes(1);
+    expect(useEditorJobStore.getState().editorJob).toBe(other);
+  });
 });

@@ -6,8 +6,12 @@ import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { emptyTrashNow } from '../services/trashSweep.js';
 import { retagSong } from '../services/fileTags.js';
+import { songsRecentRouter } from './songsRecent.js';
 
 export const songsRouter = Router();
+
+// Before `/:id`, which would otherwise take `recent` as a song id.
+songsRouter.use(songsRecentRouter);
 
 const coverArtUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 

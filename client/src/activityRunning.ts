@@ -1,0 +1,94 @@
+/** Activity's RUNNING section (PLAN.md "UI Redesign", S3.5), read live from the stores that own
+ * each job, plus the server's lock (`/active`) for a job none of them track: ANALYZE AUDIO, a job
+ * started in another tab, or anything running before a reload. */
+import type { ActiveGeneration } from './api';
+import type { ActivityKind } from './activitySettle';
+import type { SingleEditorJob, SplitJobState } from './editorJob';
+import { EDITOR_STAGE_LABEL } from './genProgress';
+import type { GenerationJob } from './generationStore';
+import type { TimingsRun } from './timingsStore';
+
+export interface RunningRow {
+  key: string;
+  kind: ActivityKind;
+  jobId?: string;
+  label: string;
+  songId?: string;
+  title?: string;
+  startedAt?: number;
+  progress?: number;
+  /** Progress is a share of the current engine stage, not the whole job: no veil. */
+  stageProgress?: boolean;
+  /** A job that makes or describes audio wears the AI shader (DESIGN.md "AI states"). */
+  ai: boolean;
+  /** This row is what holds the server's lock, so ABORT stops it. */
+  abortable: boolean;
+}
+
+export interface RunningSources {
+  genJob: GenerationJob | null;
+  editorJob: SingleEditorJob | null;
+  splitJob: SplitJobState | null;
+  transcribe: { stage: string; progress?: number };
+  readLyrics: { stage: string };
+  timings: Record<string, TimingsRun>;
+  active: ActiveGeneration | null;
+}
+
+const AI_KINDS = new Set<ActivityKind>(['generate', 'repaint', 'regenerate', 'retake', 'addLayer', 'remaster', 'analyze']);
+
+export const RUNNING_LABEL: Record<ActivityKind, string> = {
+  generate: 'GENERATING', ...EDITOR_STAGE_LABEL,
+  transcribe: 'TRANSCRIBING', lyrics: 'READING LYRICS', timings: 'TIMING LYRICS', analyze: 'ANALYZING AUDIO',
+};
+
+type Draft = Omit<RunningRow, 'ai' | 'abortable' | 'label'> & { label?: string };
+
+export function runningRows(src: RunningSources, isEngineStage: (stage?: string) => boolean = () => false): RunningRow[] {
+  const drafts: Draft[] = [];
+  const { genJob, editorJob, splitJob, active } = src;
+  if (genJob && (genJob.stage === 'loading' || genJob.stage === 'running')) {
+    drafts.push({
+      key: `generate:${genJob.startedAt}`, kind: 'generate', jobId: genJob.jobId, title: genJob.title,
+      label: genJob.stage === 'loading' ? 'LOADING MODEL' : undefined, songId: genJob.songId,
+      startedAt: genJob.startedAt, progress: genJob.progress, stageProgress: isEngineStage(genJob.progressStage),
+    });
+  }
+  if (editorJob?.stage === 'running') {
+    drafts.push({
+      key: `${editorJob.kind}:${editorJob.startedAt}`, kind: editorJob.kind, jobId: editorJob.jobId,
+      songId: editorJob.songId, startedAt: editorJob.startedAt, progress: editorJob.progress,
+    });
+  }
+  if (splitJob?.stage === 'running') {
+    const done = splitJob.stems.filter((s) => s.status !== 'running').length;
+    drafts.push({
+      key: `split:${splitJob.startedAt}`, kind: 'split', jobId: splitJob.splitJobId, songId: splitJob.songId,
+      startedAt: splitJob.startedAt, progress: splitJob.stems.length ? done / splitJob.stems.length : undefined,
+    });
+  }
+  if (src.transcribe.stage === 'running') drafts.push({ key: 'transcribe', kind: 'transcribe', progress: src.transcribe.progress });
+  if (src.readLyrics.stage === 'running') drafts.push({ key: 'lyrics', kind: 'lyrics' });
+  for (const [versionId, run] of Object.entries(src.timings)) {
+    if (run.stage === 'running') drafts.push({ key: `timings:${versionId}`, kind: 'timings' });
+  }
+
+  // The lock names its job; one this tab tracks matches by id, or (no id kept) by kind.
+  const holder = active && (active.status === 'loading' || active.status === 'running') ? active : null;
+  const holderIndex = holder ? drafts.findIndex((d) => d.jobId === holder.jobId) : -1;
+  const matched = holderIndex >= 0 ? holderIndex : holder ? drafts.findIndex((d) => d.kind === holder.kind) : -1;
+  if (holder && matched < 0) {
+    drafts.push({
+      key: `active:${holder.jobId}`, kind: holder.kind, jobId: holder.jobId, songId: holder.songId,
+      title: holder.title, startedAt: holder.startedAt,
+    });
+  }
+  return drafts.map((d, i) => {
+    const row: RunningRow = { ...d, label: d.label ?? RUNNING_LABEL[d.kind], ai: AI_KINDS.has(d.kind), abortable: false };
+    if (holder) {
+      row.abortable = i === (matched >= 0 ? matched : drafts.length - 1);
+      if (row.abortable) { row.songId ??= holder.songId; row.title ??= holder.title; }
+    }
+    return row;
+  });
+}

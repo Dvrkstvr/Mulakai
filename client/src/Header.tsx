@@ -3,6 +3,8 @@ import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useApiStatusStore } from './apiStatusStore';
 import { ModelStatusBadge } from './ModelStatusBadge';
+import { ActivityButton } from './ActivityButton';
+import { useCommandStore } from './commandStore';
 
 interface Props {
   left: ReactNode;
@@ -16,14 +18,11 @@ const STATUS_POLL_MS = 2000;
 
 /** Persistent app header — logo glides via a shared layoutId as the back-button/title slots mount around it on view change. */
 export function Header({ left, right, forgeEnabled, onForge }: Props) {
-  const active = useApiStatusStore((s) => s.active);
-  const aborting = useApiStatusStore((s) => s.aborting);
   const poll = useApiStatusStore((s) => s.poll);
-  const abort = useApiStatusStore((s) => s.abort);
+  const openPalette = useCommandStore((s) => s.setOpen);
 
-  // Independent of generationStore/editorJobStore's own polling — this pill needs to
-  // reflect ANY job kind (generate/repaint/split/remaster/...), not just whichever one
-  // the current screen happens to be tracking in detail.
+  // Independent of generationStore/editorJobStore's own polling: Activity's RUNNING needs to
+  // see ANY job kind (analyze, another tab's job), not just the ones this tab tracks in detail.
   useEffect(() => {
     poll();
     const timer = setInterval(poll, STATUS_POLL_MS);
@@ -51,18 +50,15 @@ export function Header({ left, right, forgeEnabled, onForge }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
+      <button type="button" className="palette-trigger" onClick={() => openPalette(true)}>
+        <span className="palette-trigger-text">Search or run anything…</span>
+        <span className="kbd">CTRL K</span>
+      </button>
       {forgeEnabled && (
         <button className="forge-icon" onClick={onForge} aria-label="Forge" title="Forge (experimental)">F</button>
       )}
       <span className="header-status">
-        {active && (
-          <span className="job-status-pill" title={active.error ?? undefined}>
-            <span className="job-status-label">{active.kind.toUpperCase()} · {active.status.toUpperCase()}</span>
-            <button className="job-abort-btn" onClick={() => abort()} disabled={aborting}>
-              {aborting ? '…' : 'ABORT'}
-            </button>
-          </span>
-        )}
+        <ActivityButton />
         <ModelStatusBadge />
       </span>
     </motion.header>
