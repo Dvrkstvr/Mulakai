@@ -22,10 +22,15 @@ interface JobBase {
   retry?: () => boolean;
 }
 
-export interface RepaintJob extends JobBase { kind: 'repaint'; layerId: string }
+/** What a repaint or add layer was submitted with: once it lands, the dock clears only fields
+ * that still hold exactly this, never work the user started after committing it. */
+export interface RepaintSubmission { prompt: string; start: number; end: number }
+export interface AddLayerSubmission { prompt: string; trackName: string; lyrics: string }
+
+export interface RepaintJob extends JobBase { kind: 'repaint'; layerId: string; submitted?: RepaintSubmission }
 export interface RegenerateJob extends JobBase { kind: 'regenerate'; layerId: string; versionId: string }
 export interface RetakeJob extends JobBase { kind: 'retake'; layerId: string; versionId: string }
-export interface AddLayerJob extends JobBase { kind: 'addLayer' }
+export interface AddLayerJob extends JobBase { kind: 'addLayer'; submitted?: AddLayerSubmission }
 export interface RemasterJob extends JobBase { kind: 'remaster' }
 export interface SplitJobState extends JobBase { kind: 'split'; layerId: string; splitJobId: string; stems: StemResult[] }
 
@@ -53,13 +58,16 @@ export function myEditorJobs<K extends SingleEditorJob['kind']>(
 }
 
 /** What a commit shows about its own jobs: the one running now (not waiting), the ones still
- * in flight, the newest failure (for its error line), and the keys of those that landed. */
-export function jobView(mine: SingleEditorJob[]) {
+ * in flight, the newest failure (for its error line), and those that landed (with their keys
+ * as one comparable string, for an effect to key on). */
+export function jobView<J extends SingleEditorJob>(mine: J[]) {
   const inFlight = mine.filter((j) => j.stage === 'running');
+  const landedJobs = mine.filter((j) => j.stage === 'done');
   return {
     inFlight,
     running: inFlight.find((j) => !j.queuePosition) ?? null,
     failed: [...mine].reverse().find((j) => j.stage === 'failed') ?? null,
-    landed: mine.filter((j) => j.stage === 'done').map((j) => j.key).join(','),
+    landedJobs,
+    landed: landedJobs.map((j) => j.key).join(','),
   };
 }

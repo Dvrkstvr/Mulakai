@@ -15,6 +15,7 @@ import { DockCommit } from './DockCommit';
 import { DockAddLayerFields } from './DockAddLayerFields';
 import { addLayerName, addLayerCommitLabel, addLayerConsequence, sungTrack } from './addLayerCopy';
 import { useDockRequest } from './dockRequest';
+import { addLayerFieldsUnchanged } from './landedFields';
 
 interface Props {
   songId: string;
@@ -40,7 +41,7 @@ export function DockAddLayer({ songId, layers, songLyrics }: Props) {
   const dismiss = useEditorJobStore((s) => s.dismiss);
   const ahead = useJobsAhead();
   // Add Layer isn't tied to any one existing layer, so "mine" is every addLayer job for this song.
-  const { inFlight, failed, landed } = jobView(myEditorJobs(editorJobs, 'addLayer', { songId }));
+  const { inFlight, failed, landed, landedJobs } = jobView(myEditorJobs(editorJobs, 'addLayer', { songId }));
   const error = mixError || (failed ? (failed.error ?? 'add layer failed') : '');
 
   const legoModels = useLookup(() => modelsFor('lego').then((names) => {
@@ -56,10 +57,14 @@ export function DockAddLayer({ songId, layers, songLyrics }: Props) {
     useDockRequest.setState({ track: null });
   }, [trackPick]);
 
-  // Once the last of this song's add-layers lands (even while the Editor wasn't mounted), the
-  // fields start over; the Editor reloads the song itself (useLandedReload).
+  // Once an add-layer lands (even while the Editor wasn't mounted), the fields start over if they
+  // still hold what it was submitted with — never a next layer set up meanwhile. The Editor
+  // reloads the song itself (useLandedReload).
   useEffect(() => {
-    if (landed && inFlight.length === 0) { setPrompt(''); setTrackName(''); resetDraft(); }
+    const lyrics = sungTrack(trackName) ? useAddLayerDraft.getState().lyrics.trim() : '';
+    if (landedJobs.some((j) => j.kind === 'addLayer' && addLayerFieldsUnchanged(j.submitted, prompt, trackName, lyrics))) {
+      setPrompt(''); setTrackName(''); resetDraft();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [landed]);
 

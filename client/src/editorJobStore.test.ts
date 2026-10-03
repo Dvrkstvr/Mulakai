@@ -115,6 +115,8 @@ describe('several editor jobs at once (PLAN.md "UI Redesign", S4.7)', () => {
       { kind: 'repaint', jobId: 'r2', queuePosition: 1 },
       { kind: 'retake', jobId: 'j2', queuePosition: 1 },
     ]);
+    // Each remembers what it was submitted with, so landing clears only fields still holding it.
+    expect(jobs()[1]).toMatchObject({ submitted: { prompt: 'p', start: 4, end: 9 } });
     const view = jobView(myEditorJobs(jobs(), 'repaint', { layerId: 'l1' }));
     expect(view.inFlight.map((j) => j.jobId)).toEqual(['r1', 'r2']);
     expect(view.running?.jobId).toBe('r1');

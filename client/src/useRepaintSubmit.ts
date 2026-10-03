@@ -3,9 +3,10 @@ import type { Layer } from './api';
 import type { Region } from './Waveform';
 import { repaintParams, type RepaintSettings } from './settings';
 import { clampCrossfade, repaintRangeValid } from './repaintLimits';
+import { repaintFieldsUnchanged } from './landedFields';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
 
-type RepaintJob = Pick<ReturnType<typeof useEditorRepaintJob>, 'startRepaint' | 'dismiss' | 'failed' | 'inFlight' | 'landed'>;
+type RepaintJob = Pick<ReturnType<typeof useEditorRepaintJob>, 'startRepaint' | 'dismiss' | 'failed' | 'landedJobs' | 'landed'>;
 
 interface RequestInputs {
   selection: Region | null;
@@ -43,10 +44,10 @@ export function repaintRequest({ selection, duration, prompt, lyricsUnlocked, ly
 }
 
 /** Submits the Editor's repaint of the selected range — queued behind whatever runs, never
- * refused for a busy GPU — and clears the range and instruction once the last of this layer's
- * repaints lands (the Editor reloads the song itself, see useLandedReload). */
+ * refused for a busy GPU — and, once one lands, clears the range and instruction only if they
+ * still hold what it was submitted with (the Editor reloads the song itself, useLandedReload). */
 export function useRepaintSubmit({
-  songId, focusedLayer, startRepaint, dismiss, failed, inFlight, landed, setSelection, setPrompt, ...inputs
+  songId, focusedLayer, startRepaint, dismiss, failed, landedJobs, landed, setSelection, setPrompt, ...inputs
 }: Options) {
   const repaint = () => {
     const request = repaintRequest(inputs);
@@ -55,10 +56,11 @@ export function useRepaintSubmit({
     void startRepaint(focusedLayer.id, songId, request);
   };
 
-  // A repaint may have landed while this Editor was unmounted (it lingers as done). One still
-  // waiting keeps the range, which is likely what the user queued it on.
+  // A repaint may have landed while this Editor was unmounted (it lingers as done). A range or
+  // instruction set up after committing it is the user's next edit, and stays.
   useEffect(() => {
-    if (landed && inFlight.length === 0) {
+    const { selection, prompt } = inputs;
+    if (landedJobs.some((j) => j.kind === 'repaint' && repaintFieldsUnchanged(j.submitted, selection, prompt))) {
       setSelection(null);
       setPrompt('');
     }

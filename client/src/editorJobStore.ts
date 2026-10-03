@@ -39,7 +39,10 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
   dismiss: (key) => set((s) => ({ editorJobs: s.editorJobs.filter((j) => j.key !== key) })),
 
   startRepaint: (layerId, songId, params) => runSingleJob(
-    set, get, { kind: 'repaint', jobId: '', songId, layerId, startedAt: Date.now(), stage: 'running' },
+    set, get, {
+      kind: 'repaint', jobId: '', songId, layerId, startedAt: Date.now(), stage: 'running',
+      submitted: { prompt: params.prompt, start: params.start, end: params.end },
+    },
     () => api.repaint(layerId, params),
   ),
 
@@ -54,7 +57,10 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
   ),
 
   startAddLayer: (songId, mixAudio, params) => runSingleJob(
-    set, get, { kind: 'addLayer', jobId: '', songId, startedAt: Date.now(), stage: 'running' },
+    set, get, {
+      kind: 'addLayer', jobId: '', songId, startedAt: Date.now(), stage: 'running',
+      submitted: { prompt: params.prompt, trackName: String(params.track_name ?? ''), lyrics: String(params.lyrics ?? '') },
+    },
     () => api.addLayer(songId, mixAudio, params),
   ),
 
