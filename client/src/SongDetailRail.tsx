@@ -6,7 +6,7 @@ import { CustomSelect } from './CustomSelect';
 import { SongOutputTags } from './SongOutputTags';
 import { ReferenceAudioMeta } from './ReferenceAudioMeta';
 import { useVoiceStore } from './voiceStore';
-import { taskToGenType, GEN_TYPE_LABEL, START_FROM } from './createDraft';
+import { taskToGenType, generatedWithLabel, START_FROM } from './createDraft';
 
 interface Props {
   song: Song;
@@ -54,7 +54,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
   const origin = taskToGenType(song.gen_task);
   // Engine ids and their labels coincide ('yue2' -> 'YUE2'), so the rail needs no engine list.
   const engineLabel = song.engine ? song.engine.toUpperCase() : '';
-  const generatedWith = engineLabel ? `${GEN_TYPE_LABEL[origin]} · ${engineLabel}` : GEN_TYPE_LABEL[origin];
+  const generatedWith = generatedWithLabel(song.gen_task, song.engine);
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(song.title);
   const [comment, setComment] = useState(song.comment);

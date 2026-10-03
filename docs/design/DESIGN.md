@@ -239,17 +239,17 @@ requiring its own justification against a screen-count rule.
      `with-rail` column. The rail shows the song's caption, a METADATA block
      (GENERATED WITH, then BPM/KEY-SCALE/TIME SIGNATURE/DURATION, same labels
      as Create's SONG DETAILS; GENERATED WITH names the engine too when an
-     extra engine made the first take — `PROMPT · YUE2`), and LYRICS, plus two quick actions: **REUSE
+     extra engine made the first take — `AN IDEA · YUE2`), and LYRICS, plus two quick actions: **REUSE
      PROMPT** (acid-filled, the one primary commit action) opens Create
-     prefilled with this song's prompt/lyrics/metadata, **on the generation
-     tab that made it** — a cover's prompt describes a change to a source
-     track, so replaying it in PROMPT (from-scratch) reads as nonsense.
-     GENERATED WITH names that tab (PROMPT/COVER/ARRANGE) so the action's
-     destination is visible before the click, and a consequence line under
-     the two actions states it in words. For COVER/ARRANGE origins the
-     source track can't come along (uploads aren't kept, library mixes are
-     bounced on demand), so the reopened tab states the gap inline and waits
-     for a source rather than looking ready to generate.
+     prefilled with this song's prompt/lyrics/metadata, **on the START FROM
+     card that made it** — a cover's prompt describes a change to a source
+     track, so replaying it from AN IDEA (from-scratch) reads as nonsense.
+     GENERATED WITH names that card (AN IDEA / A SONG I HAVE / ONE TRACK) so
+     the action's destination is visible before the click, and a consequence
+     line under the two actions states it in words. For A SONG I HAVE / ONE
+     TRACK origins the source track can't come along (uploads aren't kept,
+     library mixes are bounced on demand), so the reopened flow states the
+     gap inline and waits for a source rather than looking ready to generate.
      Reuse restores the song's **reference audio** too — the saved voice it
      was conditioned on plus the audio/style influences it was rendered at —
      since the conditioning is the part hardest to re-guess from the result.

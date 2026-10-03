@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { taskToGenType, reusePromptDraft, draftHasIntent } from './createDraft';
+import { taskToGenType, reusePromptDraft, draftHasIntent, generatedWithLabel } from './createDraft';
 import type { Song } from './api';
 
 const song = (over: Partial<Song> = {}): Song => ({
@@ -40,6 +40,21 @@ describe('taskToGenType', () => {
     expect(taskToGenType(null)).toBe('prompt');
     expect(taskToGenType(undefined)).toBe('prompt');
     expect(taskToGenType('repaint')).toBe('prompt');
+  });
+});
+
+describe('generatedWithLabel', () => {
+  it('names the START FROM card that made the song', () => {
+    expect(generatedWithLabel('text2music')).toBe('AN IDEA');
+    expect(generatedWithLabel('cover')).toBe('A SONG I HAVE');
+    expect(generatedWithLabel('complete')).toBe('ONE TRACK');
+    expect(generatedWithLabel(null)).toBe('AN IDEA');
+  });
+
+  it('adds the extra engine that made the first take', () => {
+    expect(generatedWithLabel('text2music', 'yue2')).toBe('AN IDEA · YUE2');
+    expect(generatedWithLabel('cover', 'yue2')).toBe('A SONG I HAVE · YUE2');
+    expect(generatedWithLabel('text2music', null)).toBe('AN IDEA');
   });
 });
 
