@@ -196,8 +196,9 @@ requiring its own justification against a screen-count rule.
      navigates to the Create takeover (see below). This replaces the old
      inline create form that used to live in Library. It stays live while
      songs generate (a new one queues). Its FEELING LUCKY is a queued job
-     too: while it waits, a `text-mid` line under the bar reads "FEELING
-     LUCKY waits its turn · starts after 1 job".
+     too, and so is the Quick Start a typed idea starts in Create: while
+     either waits, a `text-mid` line says so ("FEELING LUCKY waits its turn
+     · starts after 1 job").
    - **Generating cards**: one full-width card pinned at the top of the
      grid per song generation in flight or failed, oldest first (2026-10-03,
      S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
@@ -906,9 +907,19 @@ never destroys the old one.
   listed in Activity's UP NEXT with CANCEL. A busy GPU never disables a
   commit, in Create or the Editor: the consequence line adds "· starts
   after N jobs", and several jobs can be queued from one tab — several
-  repaints of one layer chain, each working on the one before. FEELING
-  LUCKY (the LM's random sample) queues the same way and says "waits its
-  turn · starts after N jobs" under its button while it waits.
+  repaints of one layer chain, each working on the one before. Create's
+  LM helpers are queued jobs too, since the LM shares the GPU: FEELING
+  LUCKY (a random sample), Quick Start (the create bar's typed idea
+  expanded into a draft) and WRITE FOR ME (the rewrite preview). While one
+  waits, a `text-mid` line names it and says when it starts — "QUICK
+  START waits its turn · starts after 1 job" under the steps, the same
+  line in the WRITE FOR ME rail and under FEELING LUCKY — and UP NEXT lists
+  it as FEELING LUCKY / QUICK START / WRITE FOR ME with CANCEL. Leaving the
+  screen that asked takes a still-waiting one out of the queue.
+- Once a repaint or add layer lands, the dock clears its range,
+  instruction or track and description only while they still hold exactly
+  what that job was submitted with; anything set up after committing it is
+  the next edit and stays.
   What still waits on something other than the queue (2026-10-03):
   - **SPLIT** stays disabled while *another layer's* stems are still
     extracting: one split session is open at a time, and a new start
