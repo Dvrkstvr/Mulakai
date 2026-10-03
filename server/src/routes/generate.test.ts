@@ -36,7 +36,10 @@ vi.mock('../services/jobs.js', () => ({
   getActiveGeneration: vi.fn(() => ({ lock: null })),
   abortJob: vi.fn(),
 }));
-vi.mock('../services/sampleJobs.js', () => ({ startSample: vi.fn(() => ({ id: 'sample-job-1' })) }));
+// Runs the queued LM call at once, so a test sees what it asks ACE-Step for.
+vi.mock('../services/lmJobs.js', () => ({
+  startLmJob: vi.fn((_label: string, write: () => Promise<unknown>) => { void write(); return { id: 'lm-job-1' }; }),
+}));
 vi.mock('../services/coverGenJobs.js', () => ({ startCoverGeneration: vi.fn(() => ({ id: 'cover-job-1' })) }));
 vi.mock('../services/completeGenJobs.js', () => ({ startCompleteGeneration: vi.fn(() => ({ id: 'complete-job-1' })) }));
 vi.mock('../services/scratchSplitJobs.js', () => ({
@@ -52,7 +55,7 @@ vi.mock('../services/referenceAudioResolve.js', () => ({
 
 const acestep = await import('../services/acestep.js');
 const jobs = await import('../services/jobs.js');
-const sampleJobs = await import('../services/sampleJobs.js');
+const lmJobs = await import('../services/lmJobs.js');
 const { QueueFullError } = await import('../services/genQueue.js');
 const coverGenJobs = await import('../services/coverGenJobs.js');
 const completeGenJobs = await import('../services/completeGenJobs.js');
@@ -156,21 +159,22 @@ describe('POST /random-sample', () => {
     method: 'POST', headers: { 'Content-Type': 'application/json' }, body,
   });
 
-  it('queues a sample job (simple_mode by default) and answers its jobId', async () => {
-    vi.mocked(sampleJobs.startSample).mockClear();
+  it('queues an LM job (simple_mode by default) and answers its jobId', async () => {
+    vi.mocked(lmJobs.startLmJob).mockClear();
     const res = await post('{}');
     expect(res.status).toBe(202);
-    expect(await res.json()).toEqual({ jobId: 'sample-job-1' });
-    expect(sampleJobs.startSample).toHaveBeenCalledWith('simple_mode');
+    expect(await res.json()).toEqual({ jobId: 'lm-job-1' });
+    expect(lmJobs.startLmJob).toHaveBeenCalledWith('feeling lucky', expect.any(Function));
+    expect(acestep.createRandomSample).toHaveBeenLastCalledWith('simple_mode');
   });
 
   it('passes through custom_mode', async () => {
     await post(JSON.stringify({ sample_type: 'custom_mode' }));
-    expect(sampleJobs.startSample).toHaveBeenLastCalledWith('custom_mode');
+    expect(acestep.createRandomSample).toHaveBeenLastCalledWith('custom_mode');
   });
 
   it('answers 409 with the reason when the queue is full', async () => {
-    vi.mocked(sampleJobs.startSample).mockImplementationOnce(() => { throw new QueueFullError(); });
+    vi.mocked(lmJobs.startLmJob).mockImplementationOnce(() => { throw new QueueFullError(); });
     const res = await post('{}');
     expect(res.status).toBe(409);
     expect((await res.json()).error).toContain('the queue is full');
@@ -347,15 +351,16 @@ describe('GET /:jobId', () => {
 });
 
 describe('POST /sample-from-query', () => {
-  it('returns generated fields for a free-form query', async () => {
+  it('queues the Quick Start sample for a free-form query', async () => {
     const res = await fetch(`${baseUrl}/sample-from-query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: 'sad indie rock ballad with reverb' }),
     });
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.caption).toBe('about: sad indie rock ballad with reverb');
+    expect(res.status).toBe(202);
+    expect(await res.json()).toEqual({ jobId: 'lm-job-1' });
+    expect(lmJobs.startLmJob).toHaveBeenLastCalledWith('quick start', expect.any(Function));
+    expect(acestep.createSampleFromQuery).toHaveBeenLastCalledWith({ query: 'sad indie rock ballad with reverb', vocalLanguage: undefined });
   });
 
   it('rejects a missing query with 400', async () => {
@@ -367,14 +372,28 @@ describe('POST /sample-from-query', () => {
     expect(res.status).toBe(400);
   });
 
-  it('returns 502 when ACE-Step is unreachable', async () => {
-    vi.mocked(acestep.createSampleFromQuery).mockRejectedValueOnce(new Error('ACE-Step unreachable'));
+  it('answers 409 with the reason when the queue is full', async () => {
+    vi.mocked(lmJobs.startLmJob).mockImplementationOnce(() => { throw new QueueFullError(); });
     const res = await fetch(`${baseUrl}/sample-from-query`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query: 'anything' }),
     });
-    expect(res.status).toBe(502);
+    expect(res.status).toBe(409);
+  });
+});
+
+describe('POST /format', () => {
+  it('queues WRITE FOR ME with the draft as sent', async () => {
+    const draft = { prompt: 'indie pop', lyrics: '[verse] hi', bpm: 120 };
+    const res = await fetch(`${baseUrl}/format`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(draft),
+    });
+    expect(res.status).toBe(202);
+    expect(lmJobs.startLmJob).toHaveBeenLastCalledWith('write for me', expect.any(Function));
+    expect(acestep.formatInput).toHaveBeenLastCalledWith(draft);
   });
 });
 

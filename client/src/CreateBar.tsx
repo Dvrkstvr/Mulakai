@@ -1,5 +1,5 @@
 import { Fragment, useState } from 'react';
-import { useLuckyRoll } from './luckySample';
+import { useLuckyRoll } from './lmJob';
 import type { CreateDraft } from './createDraft';
 
 interface Props {

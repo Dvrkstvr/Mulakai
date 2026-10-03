@@ -1,42 +1,44 @@
-/** Thin ACE-Step passthroughs for the Create screen: format, samples, health, model list.
- * Mounted on generateRouter (generate.ts). */
-import { Router } from 'express';
+/** The Create screen's ACE-Step helpers: the LM's format and samples (queued jobs), health,
+ * model list. Mounted on generateRouter (generate.ts). */
+import { Router, type Response } from 'express';
 import { config } from '../config.js';
 import { getRunning, QueueFullError } from '../services/genQueue.js';
-import { healthState, listModels, formatInput, createSampleFromQuery } from '../services/acestep.js';
-import { startSample } from '../services/sampleJobs.js';
+import { healthState, listModels, formatInput, createRandomSample, createSampleFromQuery, type SampleResult } from '../services/acestep.js';
+import { startLmJob, type LmLabel } from '../services/lmJobs.js';
 
 export const generateHelpersRouter = Router();
 
-generateHelpersRouter.post('/format', async (req, res) => {
+/** Queues one LM call (lmJobs.ts) and answers 202 { jobId }: poll GET /:jobId for `sample`.
+ * A full queue answers 409 with the reason. */
+function queueLm(res: Response, label: LmLabel, write: () => Promise<SampleResult>) {
   try {
-    res.json(await formatInput(req.body ?? {}));
-  } catch (err) {
-    res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
-  }
-});
-
-/** FEELING LUCKY: queued like every LM/DiT job (sampleJobs.ts); poll GET /:jobId for `sample`. */
-generateHelpersRouter.post('/random-sample', (req, res) => {
-  const sampleType = req.body?.sample_type === 'custom_mode' ? 'custom_mode' : 'simple_mode';
-  try {
-    res.status(202).json({ jobId: startSample(sampleType).id });
+    res.status(202).json({ jobId: startLmJob(label, write).id });
   } catch (err) {
     if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
+}
+
+/** WRITE FOR ME. */
+generateHelpersRouter.post('/format', (req, res) => {
+  const params = req.body ?? {};
+  queueLm(res, 'write for me', () => formatInput(params));
 });
 
-generateHelpersRouter.post('/sample-from-query', async (req, res) => {
+/** FEELING LUCKY. */
+generateHelpersRouter.post('/random-sample', (req, res) => {
+  const sampleType = req.body?.sample_type === 'custom_mode' ? 'custom_mode' : 'simple_mode';
+  queueLm(res, 'feeling lucky', () => createRandomSample(sampleType));
+});
+
+/** Quick Start: the library create bar's typed idea, expanded into a draft. */
+generateHelpersRouter.post('/sample-from-query', (req, res) => {
   const query = req.body?.query;
   if (typeof query !== 'string' || !query.trim()) {
     return res.status(400).json({ error: 'query is required' });
   }
-  try {
-    res.json(await createSampleFromQuery({ query, vocalLanguage: req.body?.vocal_language }));
-  } catch (err) {
-    res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
-  }
+  const vocalLanguage = req.body?.vocal_language;
+  queueLm(res, 'quick start', () => createSampleFromQuery({ query, vocalLanguage }));
 });
 
 /** `busy`: ACE-Step went silent while a job holds the queue's slot — it answers nothing

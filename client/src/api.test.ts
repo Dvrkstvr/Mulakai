@@ -65,8 +65,8 @@ describe('api.importSong', () => {
 });
 
 describe('api.sampleFromQuery', () => {
-  it('posts the query and returns the parsed result', async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ caption: 'about rain', lyrics: '' }), { status: 200 }));
+  it('posts the query and returns the queued job', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ jobId: 'q1' }), { status: 202 }));
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await api.sampleFromQuery('a rainy day song');
@@ -75,7 +75,7 @@ describe('api.sampleFromQuery', () => {
       method: 'POST',
       body: JSON.stringify({ query: 'a rainy day song' }),
     }));
-    expect(result.caption).toBe('about rain');
+    expect(result).toEqual({ jobId: 'q1' });
   });
 
   it('surfaces the server error message on failure', async () => {

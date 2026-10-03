@@ -12,6 +12,7 @@ import { IdeaSteps } from './IdeaSteps';
 import { CoverSteps } from './CoverSteps';
 import { TrackSteps } from './TrackSteps';
 import { useEngineStore } from './engineStore';
+import { useLmJob } from './lmJob';
 
 /** Dedicated Create takeover — reached from the Library create bar or the Library detail
  * rail's REUSE PROMPT / CREATE COVER FROM AUDIO actions, per docs/design/DESIGN.md.
@@ -29,9 +30,10 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
   // One model list for every flow: TUNE's selects, and AUTO model's family for QUALITY.
   const inventory = useLookup(api.listModels);
 
-  const [refining, setRefining] = useState(false);
+  const write = useLmJob('WRITE FOR ME');
+  const refining = write.running;
+  const refineError = write.error;
   const [refinePreview, setRefinePreview] = useState<RefineResult | null>(null);
-  const [refineError, setRefineError] = useState('');
 
   // Prefills Title with "<Folder Name>" (or "<Folder Name> <n>" past the highest number
   // already used there) when Create was opened from/for a specific folder — still a plain
@@ -57,28 +59,19 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draft.referenceLabel, draft.referenceAudioInfluence, draft.referenceStyleInfluence]);
 
-  const refine = async () => {
-    setRefineError('');
-    setRefining(true);
-    try {
-      setRefinePreview(await api.refineInput({
-        prompt: draft.prompt, lyrics: draft.lyrics,
-        ...(draft.bpm > 0 ? { bpm: draft.bpm } : {}),
-        ...(draft.keyScale ? { key_scale: draft.keyScale } : {}),
-        ...(draft.timeSignature ? { time_signature: draft.timeSignature } : {}),
-        ...(draft.vocalLanguage ? { vocal_language: draft.vocalLanguage } : {}),
-        ...(draft.duration > 0 ? { audio_duration: draft.duration } : {}),
-      }));
-    } catch (err) {
-      setRefineError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setRefining(false);
-    }
-  };
+  // WRITE FOR ME is a queued LM job: it waits its turn behind whatever runs (lmJob.ts).
+  const refine = () => write.run(() => api.refineInput({
+    prompt: draft.prompt, lyrics: draft.lyrics,
+    ...(draft.bpm > 0 ? { bpm: draft.bpm } : {}),
+    ...(draft.keyScale ? { key_scale: draft.keyScale } : {}),
+    ...(draft.timeSignature ? { time_signature: draft.timeSignature } : {}),
+    ...(draft.vocalLanguage ? { vocal_language: draft.vocalLanguage } : {}),
+    ...(draft.duration > 0 ? { audio_duration: draft.duration } : {}),
+  }), setRefinePreview);
 
   const closeRefine = () => {
     setRefinePreview(null);
-    setRefineError('');
+    write.clearError();
   };
 
   const onBackRef = useRef(onBack);
@@ -88,7 +81,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
 
   const showRail = refining || !!refinePreview || !!refineError;
   const rail = showRail ? (
-    <RefineRail refining={refining} preview={refinePreview} error={refineError} current={draft}
+    <RefineRail refining={refining} waitNote={write.waitNote} preview={refinePreview} error={refineError} current={draft}
       onRefine={refine} onClose={closeRefine}
       onAccept={{
         prompt: (v) => patch({ prompt: v, formatted: true }),

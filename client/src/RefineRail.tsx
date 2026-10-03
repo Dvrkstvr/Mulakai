@@ -14,6 +14,8 @@ interface SongFields {
 
 interface Props {
   refining: boolean;
+  /** Set while WRITE FOR ME waits its turn in the queue ("… starts after 1 job"). */
+  waitNote?: string | null;
   preview: RefineResult | null;
   error: string;
   current: SongFields;
@@ -46,7 +48,7 @@ function AcceptButton({ applied, onClick }: { applied: boolean; onClick: () => v
  * autofill on generate. "Applied" is derived by comparing current vs. preview
  * values, so it stays correct if the user edits a field back afterward.
  */
-export function RefineRail({ refining, preview, error, current, onRefine, onClose, onAccept }: Props) {
+export function RefineRail({ refining, waitNote, preview, error, current, onRefine, onClose, onAccept }: Props) {
   if (!refining && !preview && !error) return null;
 
   return (
@@ -58,7 +60,7 @@ export function RefineRail({ refining, preview, error, current, onRefine, onClos
         </div>
 
         <ScrollArea className="refine-rail-body">
-        {refining && <div className="lm-note">Refining prompt &amp; lyrics with the LM…</div>}
+        {refining && <div className="lm-note">{waitNote ?? 'Refining prompt & lyrics with the LM…'}</div>}
         {error && <div className="error">{error} <button onClick={onRefine}>RETRY</button></div>}
 
         {preview && (

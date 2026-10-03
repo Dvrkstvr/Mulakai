@@ -77,7 +77,7 @@ generateStatusRouter.get('/:jobId', (req, res) => {
     ...(job.lyrics ? { lyrics: job.lyrics } : {}),
     // Only a finished ANALYZE AUDIO carries this: ACE-Step's description of the source.
     ...(job.analysis ? { analysis: job.analysis } : {}),
-    // Only a finished FEELING LUCKY carries this: the LM's random sample.
+    // Only a finished LM job carries this: FEELING LUCKY's, Quick Start's or WRITE FOR ME's text.
     ...(job.sample ? { sample: job.sample } : {}),
   });
 });

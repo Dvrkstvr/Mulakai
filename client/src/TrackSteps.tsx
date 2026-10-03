@@ -1,7 +1,7 @@
 import type { ModelInventory } from './api';
 import { ScratchSplitPicker } from './ScratchSplitPicker';
 import { useCreateDraftStore } from './createDraftStore';
-import { useLuckyRoll } from './luckySample';
+import { useLuckyRoll } from './lmJob';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';

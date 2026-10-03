@@ -44,7 +44,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
     : !inventory.data ? 'the model list is still loading' : 'ACE-Step names no default model, so pick a DIT MODEL in TUNE';
 
   const [pendingResult, setPendingResult] = useState<RefineResult | null>(null);
-  const { phase: thinkPhase, error: thinkError, retry: retryThink, finish: finishThink } =
+  const { phase: thinkPhase, error: thinkError, waitNote: thinkWait, retry: retryThink, finish: finishThink } =
     useThinkingQuery(pendingQuery, setPendingResult);
   const thinking = thinkPhase !== 'idle';
 
@@ -109,6 +109,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
           </CreateStep>
           <ThinkingWipe phase={thinkPhase} onSwept={finishReveal} />
         </div>
+        {thinkWait && <div className="hint">{thinkWait}</div>}
         {thinkError && <div className="error">{thinkError} <button onClick={retryThink}>RETRY</button></div>}
         <CreateStep n={3} optional title="DETAILS" sub="optional · AUTO lets the planner decide">
           <IdeaDetails />

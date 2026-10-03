@@ -8,20 +8,20 @@ import { fmtAgo } from './recentSongs';
 /** A row's name when no song names it: these jobs work on Create's cover draft or in the background. */
 const UNTITLED: Partial<Record<ActivityKind, string>> = {
   transcribe: 'Cover draft', lyrics: 'Cover draft', analyze: 'Source audio', timings: 'Lyric timing',
-  sample: 'Feeling lucky',
+  lm: 'Create draft',
 };
 const rowTitle = (kind: ActivityKind, title?: string) => title ?? UNTITLED[kind] ?? 'Untitled';
 
 const DONE_LABEL: Record<ActivityKind, string> = {
   generate: 'GENERATED', repaint: 'REPAINTED', regenerate: 'ALT TAKE', retake: 'SIMILAR TAKE', addLayer: 'ADDED A LAYER',
   remaster: 'REMASTERED', split: 'SPLIT', transcribe: 'TRANSCRIBED', lyrics: 'READ LYRICS', timings: 'TIMED LYRICS',
-  analyze: 'ANALYZED', sample: 'ROLLED A SAMPLE',
+  analyze: 'ANALYZED', lm: 'WROTE WITH THE LM',
 };
 
 const KIND_NAME: Record<ActivityKind, string> = {
   generate: 'generation', repaint: 'repaint', regenerate: 'alt take', retake: 'similar take', addLayer: 'add layer',
   remaster: 'remaster', split: 'split', transcribe: 'transcription', lyrics: 'read lyrics', timings: 'word timing',
-  analyze: 'analysis', sample: 'feeling lucky',
+  analyze: 'analysis', lm: 'LM writing',
 };
 
 /** RUNNING: audio-making jobs wear the AI shader (veiled by progress when it's whole-job

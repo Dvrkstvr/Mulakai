@@ -30,7 +30,7 @@ export interface Job {
   lyrics?: import('./lyricsJobs.js').LyricsOutcome;
   /** Set by analyzeJobs.ts on success: ACE-Step's description of the source. */
   analysis?: import('./acestep.js').FormatInputResult;
-  /** Set by sampleJobs.ts on success: FEELING LUCKY's random sample. */
+  /** Set by lmJobs.ts on success: what the LM wrote (FEELING LUCKY, Quick Start, WRITE FOR ME). */
   sample?: import('./acestep.js').SampleResult;
 }
 

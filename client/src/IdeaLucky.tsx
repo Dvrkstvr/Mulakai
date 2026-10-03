@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { RefineResult } from './api';
 import { useCreateDraftStore } from './createDraftStore';
-import { useLuckyRoll } from './luckySample';
+import { useLuckyRoll } from './lmJob';
 
 /** FEELING LUCKY on AN IDEA: overwrite the draft with an LM sample. Two-step once the draft
  * holds anything, since it replaces the prompt, lyrics and every song detail at once. */
