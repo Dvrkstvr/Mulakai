@@ -2236,7 +2236,8 @@ both spikes came back "go"; HeartMuLa was first in the original plan):
 1. **YuE2** first. It needs WSL2 on this machine. The spike measured RTF
    0.54 with no spill (see "YuE2 spike results"). Its weights are CC BY-NC
    4.0 with a creator permission, so the first engine to ship brings the
-   Settings card's license note with it.
+   Settings card's license note with it. **The default first-take engine
+   from 2026-10-03**, see "YuE2 Is the Default First-Take Engine".
 2. **HeartMuLa** next. Its code and weights are Apache-2.0, and it runs on
    native Windows. **Marked for removal 2026-10-03**, see "Remove the
    HeartMuLa Engine".
@@ -8392,4 +8393,92 @@ where the song came from, so there is no migration.
    `instrumental: false`, the CFG/TEMPERATURE/TOP-K controls) be removed
    too? Recommendation: keep it. It is small, it is engine-neutral, and the
    tests above keep it covered for the next engine that needs it.
+
+## YuE2 Is the Default First-Take Engine (planned 2026-10-03)
+
+**Decision (project owner, 2026-10-03): a new song's first take from a
+prompt is made by YuE2 by default. ACE-Step as a first-take engine becomes
+an optional setting, off by default.** This reverses two lines of "Engine
+picker UI decisions": the draft engine defaulting to `'acestep'`, and
+ACE-STEP always listed first in the ENGINE row. Every edit after the first
+take still runs on ACE-Step, so ACE-Step stays a required process.
+
+### Decisions
+
+1. **Scope: AN IDEA (PROMPT) only.** COVER keeps its current ENGINE row,
+   with ACE-STEP first and offered, because an ACE-Step cover does
+   something a YuE2 cover can't: it works from the source audio, not just
+   its melody. ARRANGE and ONE TRACK stay ACE-Step only. See open
+   question 1.
+2. **The setting** is a new Settings › Engines toggle, **ACE-STEP FOR NEW
+   SONGS**, off by default. It is a client preference, persisted in
+   `settings.ts` like the other generation settings. The Engines card stops
+   being read-only for this one control.
+   - Off: AN IDEA's ENGINE row shows YUE2 as a fixed chip, the way
+     `AceStepOnly` shows ACE-STEP today. There is nothing to pick.
+   - On: the row shows YUE2 first, then ACE-STEP.
+3. **The default resolves from what is running.** A new pure helper,
+   `defaultPromptEngine(engines, aceStepForNewSongs)` in `engineCaps.ts`:
+   - YuE2 configured: `yue2`.
+   - YuE2 not configured (`YUE_API_URL` unset): `acestep`, whatever the
+     setting says. A default install, and CI's e2e, behave exactly as
+     today, and the toggle shows as "YuE2 not configured — new songs use
+     ACE-Step".
+4. **The draft's engine means "default" until someone picks one.**
+   `createDraftStore`'s `engine` becomes `EngineId | null`. `null` (the
+   initial value, and what CLEAR DRAFT resets to) resolves through
+   `defaultPromptEngine` wherever it is read: the ENGINE row, GENERATE, and
+   the create bar's QUICK START. The engine list loads after the draft, so a
+   stored `'acestep'` default would be wrong for the first moment of every
+   session.
+5. **YuE2 configured but unreachable.** The existing `.warn-note` stays and
+   GENERATE stays off. With the setting off, ACE-STEP isn't on screen as the
+   way out, so the note ends "or turn on ACE-STEP FOR NEW SONGS in
+   Settings". It does not fall back to ACE-Step silently. The consequence
+   line under GENERATE names the engine, and that should stay true.
+6. **Reused drafts keep their engine.** START FROM / RETRY on an ACE-Step
+   song, with the setting off, still opens on ACE-STEP. `EngineChoice`
+   already keeps a draft's engine visible and selected when it isn't
+   offered. A reused draft asks for what made the song; the setting only
+   changes what a new draft starts on.
+7. **QUICK START, REFINE INPUT, FEELING LUCKY and WRITE FOR ME stay on
+   ACE-Step's LM.** They draft text; they don't make the take. What changes
+   is where the drafted song generates (YuE2). The consequence line under
+   GENERATE already names the engine.
+8. **What a person loses by default** (from `YUE2_CAPABILITIES`): DURATION
+   is N/A (YuE2 plans the length), VOCAL LANGUAGE offers only English and
+   Chinese, TAKES is 1, there is no reference audio and no LoRA. BPM, KEY /
+   SCALE and TIME SIGNATURE are sent as style text. The existing gating
+   already shows each of these in place; nothing new to build.
+
+### File-level plan (one PR, `feat/yue2-default-engine`)
+
+- `client/src/settings.ts` (+ `settingsTypes.ts` / `settingsPersist.ts` as
+  the existing settings do): `aceStepForNewSongs: boolean`, default
+  `false`, with a test.
+- `client/src/engineCaps.ts`: `defaultPromptEngine`, and `pickerEngines`
+  takes the setting. YUE2 is first; ACE-STEP is listed only when the
+  setting is on or YuE2 isn't configured. Tests for each case in decision
+  3, and for the unreachable case.
+- `client/src/createDraftStore.ts`: `engine: EngineId | null`, initial and
+  CLEAR `null`; `load` keeps setting the reused engine. A test that CLEAR
+  returns to the default, not to `'acestep'`.
+- `client/src/EngineChoice.tsx`: `PromptEngineChoice` resolves `null` and
+  shows the fixed chip when there is one choice. The warn-note gets the
+  Settings pointer (decision 5).
+- The GENERATE / QUICK START paths that read `draft.engine`
+  (`generationStore.ts`, the create bar): resolve through the helper.
+- `client/src/EnginesSection.tsx`: the ACE-STEP FOR NEW SONGS toggle.
+- `docs/design/DESIGN.md` (own commit): the ENGINE row's order and fixed
+  chip, and the Engines card's one control.
+- `CLAUDE.md`, `AGENTS.md` (scope: the first take now defaults to YuE2),
+  `README.md` (YuE2 setup moves from optional to recommended).
+- Browser-check: with `YUE_API_URL` set, a fresh draft generates on YUE2;
+  with it unset, on ACE-Step; toggling the setting adds and removes
+  ACE-STEP.
+
+### Open questions
+
+1. Should COVER default to YUE2 too? Recommendation: no, see decision 1.
+   Only the AN IDEA flow changes until the owner says otherwise.
 
