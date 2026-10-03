@@ -194,7 +194,13 @@ requiring its own justification against a screen-count rule.
    - **Create bar**: one slim row below the header — a single "what do you
      want to make?" prompt input + acid CREATE button (parallelogram) that
      navigates to the Create takeover (see below). This replaces the old
-     inline create form that used to live in Library.
+     inline create form that used to live in Library. It stays live while
+     songs generate (a new one queues); only its FEELING LUCKY, which asks
+     ACE-Step's LM directly, waits for a free GPU.
+   - **Generating cards**: one full-width card pinned at the top of the
+     grid per song generation in flight or failed, oldest first (2026-10-03,
+     S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
+     the shader; a failed one keeps its RETRY until pressed.
    - **CONTINUE** (added 2026-10-03): a row above the song grid with up to
      three cards, the songs edited most recently (by their newest version —
      songs have no `updated_at`, and versions are the edits), from
@@ -342,7 +348,11 @@ requiring its own justification against a screen-count rule.
        steps · seed 12"). See "Side panels" below for what it holds.
      - The commit: the card's **one filled acid button** (GENERATE /
        GENERATE COVER / ARRANGE), with its consequence copy, blockers and
-       a failed submit's RETRY under it.
+       a failed submit's RETRY under it (a full queue among them: the
+       server's reason in rust). Another job on the GPU is no blocker: while
+       anything runs or waits, a `text-mid` line reads "waits its turn ·
+       starts after 2 jobs", and the new song gets its own queued card in
+       the Library.
      WRITE FOR ME's preview takes the recipe's slot while open, with
      `← RECIPE` to go back (the rail-swap idiom).
      - *AN IDEA*: **1 DESCRIBE IT** — description field, FEELING LUCKY
@@ -380,9 +390,10 @@ requiring its own justification against a screen-count rule.
          follows it; on a cover, COT is replaced by a one-line hint, because
          a cover always follows its score's melody.
          It **holds still** (added 2026-10-02) while a job whose result
-         lands in that engine's draft runs: TRANSCRIBE, READ LYRICS (with
-         their PREPARING SOURCE step) or ANALYZE AUDIO on YUE2, ANALYZE
-         AUDIO on ACE-STEP. Every engine tab is disabled, the selected one
+         lands in that engine's draft is in flight — from its submit, so
+         while it waits in the queue too (2026-10-03): TRANSCRIBE, READ
+         LYRICS (with their PREPARING SOURCE step) or ANALYZE AUDIO on YUE2,
+         ANALYZE AUDIO on ACE-STEP. Every engine tab is disabled, the selected one
          included, and a hint under the row says why, in SOURCE's words:
          "ENGINE is locked while TRANSCRIBE runs — its result belongs to
          this engine's cover". A generation doesn't lock it; its result is
@@ -422,9 +433,11 @@ requiring its own justification against a screen-count rule.
        controls are hidden since `cover` skips the LM planner, same as
        Editor's repaint mode (`API.md` §4.2).
        The SOURCE picker **holds still** here too (added 2026-10-02), the
-       same way as on YUE2 below: while ANALYZE AUDIO or a generation
-       (GENERATE COVER's submit included) runs, with the same disabled
-       tabs, drop zone and rows and the same reason line.
+       same way as on YUE2 below: while ANALYZE AUDIO is in flight (queued
+       or running) or GENERATE COVER's submit is still sending the source,
+       with the same disabled tabs, drop zone and rows and the same reason
+       line. A generation already submitted holds nothing: its request
+       carries the source, so the next cover can be set up while it waits.
        - *A SONG I HAVE on an engine (YUE2)*: a melody cover sung from a
          score. The flow is SOURCE → TRANSCRIBE → review → GENERATE COVER.
          Step 1 holds everything that describes the source: the SOURCE
@@ -435,12 +448,13 @@ requiring its own justification against a screen-count rule.
          VOCAL LANGUAGE.
          - The SOURCE picker is unchanged, except that it **holds still**
            (added 2026-10-02) while a job reads the source: TRANSCRIBE, READ
-           LYRICS (with their PREPARING SOURCE step), ANALYZE AUDIO or a
-           generation. Its tabs, drop zone and library rows are disabled
-           (`text-low`, no acid hover); search and row previews stay live. A
-           hint under SOURCE says why: "SOURCE is locked while TRANSCRIBE
-           runs — its result belongs to this source". Another job's server
-           lock doesn't lock it. **TRANSCRIBE** is an acid
+           LYRICS (with their PREPARING SOURCE step) or ANALYZE AUDIO, from
+           its submit, so while it waits in the queue too. Its tabs, drop
+           zone and library rows are disabled (`text-low`, no acid hover);
+           search and row previews stay live. A hint under SOURCE says why:
+           "SOURCE is locked while TRANSCRIBE runs — its result belongs to
+           this source". Another job on the GPU doesn't lock it, and neither
+           does a submitted generation (GENERATE COVER sends the score). **TRANSCRIBE** is an acid
            *outline*, because GENERATE COVER stays the one filled acid CTA.
            While it runs it reads `TRANSCRIBING… n%`, with no shader: the AI
            shimmer stays on GENERATE / REPAINT. Beside it, **USE .ABC FILE**
@@ -661,7 +675,7 @@ requiring its own justification against a screen-count rule.
        element (never a top border stacked against a neighbor's bottom
        border) so boundaries stay one crisp hairline, not a doubled/thick
        line — the outer box edge comes from `.stack-scrub`'s own border.
-     - While ADD LAYER runs, a **ghost lane** (`NEW LAYER · generating…`
+     - While ADD LAYER runs (not while it waits in the queue), a **ghost lane** (`NEW LAYER · generating…`
        over the AI shader) trails the stack until the real layer lands.
    - **Shared transport**: `Player.tsx` sits below the lane stack in its
      **minimal** mode — play/pause hexagon + stop only, no time/volume/
@@ -738,10 +752,25 @@ requiring its own justification against a screen-count rule.
        commit: `REPAINT VERSE 2` / `REPAINT 1:32–2:07` / `REPAINT VOCALS`
        (no range = the whole layer), `ADD STRINGS`, `SPLIT BASE`, `DOWNLOAD
        MIX`, `REMASTER MIX`. A held remaster turns the commit into its
-       DOWNLOAD link, with RUN AGAIN as an acid-outline sibling. While a job
-       runs, the commit wears the AI shader with its progress veil; while
-       another job holds the GPU it is disabled and names it ("WAIT FOR A
-       GENERATION").
+       DOWNLOAD link, with RUN AGAIN as an acid-outline sibling. A busy GPU
+       never disables a commit (2026-10-03, S4 part b): the server queues
+       the job, and the consequence line ends with when it starts ("· starts
+       after 2 jobs") while anything runs or waits. Version numbers count the
+       takes of that layer already on their way — "Saves vocals v6" while v5
+       is still queued, from this tab or another. The commit stays the commit
+       (its label never turns into progress), so a second job can be queued
+       behind the first: each job a commit started is a line under its row
+       until it settles — `REPAINTING… 0:42 · 38%` on the AI shader with its
+       progress veil once the GPU works on it, or a plain dashed line,
+       `REPAINTING · QUEUED · STARTS AFTER 1 JOB`, while it waits. A refused
+       submit (the queue is full, at 10 waiting) is a rust error line under
+       the commit with the server's reason and RETRY. ALT and SIMILAR in
+       VERSIONS work the same way: always pressable, their tooltip names the
+       version they save, and a row's button reads `ALT · QUEUED` /
+       `ALT… 0:12` while its job is in flight. SPLIT is the one exception:
+       one split session is open at a time, so while another layer's stems
+       are still extracting SPLIT is off and its consequence line says why
+       (CANCEL SPLIT there first, or wait).
    - **Right rail** (~260–320px, carbon-panel surface, 1px border): the
      focused layer's **VERSIONS** only, headed `VERSIONS · <LAYER>` in
      lilac text. Persistent, beside the main column rather than under it,
@@ -871,10 +900,12 @@ never destroys the old one.
 - Actions always state the version they will create before commit.
 - One GPU job runs at a time; the server **queues** a second one instead of
   refusing it (2026-10-03, PLAN.md "UI Redesign" S4). Whatever waits is
-  listed in Activity's UP NEXT with CANCEL (a job submitted from another
-  tab, or just as the running one started, waits there). Until S4 part b
-  the commit buttons still read "WAIT FOR …" while a job runs; part b
-  enables them and adds "· starts after N jobs" to the consequence line.
+  listed in Activity's UP NEXT with CANCEL. A busy GPU never disables a
+  commit, in Create or the Editor: the consequence line adds "· starts
+  after N jobs", and several jobs can be queued from one tab — several
+  repaints of one layer chain, each working on the one before. Only LM
+  helpers that call ACE-Step directly, outside the queue (FEELING LUCKY),
+  wait for a free GPU.
 
 ## Motion
 
@@ -1084,9 +1115,9 @@ differently depending on how much of the element it would cover:
   `GeneratingCard.tsx`'s pinned library row — `AIGeneratingBackground` fills
   the whole card while `STAGE_LABEL`/elapsed-time text sits on top.
   Activity's RUNNING rows for those jobs do the same (`ActivityRow.tsx`). Also
-  used this way by the action dock's commit (`DockCommit.tsx`: REPAINT,
-  ADD LAYER, REMASTER MIX) while its job runs, LayerStack's ADD LAYER
-  ghost lane,
+  used this way by the action dock's job lines (`DockJobs.tsx`: a REPAINT,
+  ADD LAYER or REMASTER MIX the GPU is working on, under its commit),
+  LayerStack's ADD LAYER ghost lane,
   `LayerLane.tsx`'s focused-lane "processing" overlay, and
   `ThinkingWipe.tsx`'s full-block Quick Start reveal.
 - **Smaller elements** (a toggle, a chip, a badge) — full-fill would drown
@@ -1101,8 +1132,9 @@ differently depending on how much of the element it would cover:
   in DOM order (no `z-index` needed within the same stacking context), with
   the label/dot bumped above both via their own `z-index`.
 
-Applies **only** to: the GENERATE button, the action dock's commit while
-its REPAINT / ADD LAYER / REMASTER MIX job runs, and the waveform
+Applies **only** to: the GENERATE button while it submits, the action
+dock's line for a REPAINT / ADD LAYER / REMASTER MIX job the GPU is
+working on (never one still queued), and the waveform
 region it targets while a job is in flight; the "processing" placeholder
 over a waveform/lane awaiting AI output; the `AI ENHANCE` and `THINKING
 MODE` toggles while active; Create's Quick Start reveal (the library create
@@ -1115,8 +1147,9 @@ engine — it has worn the shader since it was added, and is listed here
 now so the list is complete); and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
 ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
-(UP NEXT, or the library card of a generation reading `QUEUED · STARTS
-AFTER 1 JOB`) stays plain, since nothing is working on it yet. TRANSCRIBE
+(UP NEXT, the library card of a generation reading `QUEUED · STARTS
+AFTER 1 JOB`, or a dock job line reading `QUEUED`) stays plain, since
+nothing is working on it yet. TRANSCRIBE
 and READ LYRICS stay plain: SheetSage2 reads
 notes and lyrics-server reads words; neither describes or generates. So do
 their Activity rows, and those for word timings and stem splits.
