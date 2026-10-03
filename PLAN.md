@@ -2238,7 +2238,8 @@ both spikes came back "go"; HeartMuLa was first in the original plan):
    4.0 with a creator permission, so the first engine to ship brings the
    Settings card's license note with it.
 2. **HeartMuLa** next. Its code and weights are Apache-2.0, and it runs on
-   native Windows.
+   native Windows. **Marked for removal 2026-10-03**, see "Remove the
+   HeartMuLa Engine".
 3. **MiniMax Music 3** is skipped. The reasons are recorded below.
 
 Nothing in design points 1–13 depends on the order. Engines are listed in
@@ -8327,3 +8328,68 @@ Rules for every stage:
    unreachable? S4 fails fast; revisit if a crash empties a long queue.
 4. Destination folder in the recipe stays read-only; a folder select
    there is a separate scope question.
+
+## Remove the HeartMuLa Engine (planned 2026-10-03)
+
+**Decision (project owner, 2026-10-03): HeartMuLa is marked for removal.**
+It only gives Mulakai a second way to generate a first take from a prompt,
+and it does that with fewer controls than either engine beside it:
+
+- It does nothing after the first take. Every edit runs on ACE-Step
+  ("Multiple Song-Creation Engines").
+- It cannot make covers. COVER lists only engines with a transcriber, and
+  `heartmula-server` has none. YuE2 does covers through SheetSage2.
+- Compared with ACE-Step it has no seed, one take per run, no instrumental
+  mode, no reference audio, no bpm/key/time signature, and no LM tools.
+  DURATION is a cap only. It returns no score, so there is no metadata to
+  read back.
+- It costs a separate venv, server, test suite and `start-all.bat` entry,
+  and it shares the 16 GB card with everything else.
+
+**Not affected:** READ LYRICS. HeartTranscriptor-oss comes from the
+HeartMuLa project, but it runs in `lyrics-server/`, which does not import
+or call `heartmula-server` ("Cover Lyrics From the Recording").
+
+### Existing HeartMuLa songs
+
+Songs already made with it keep `songs.engine = 'heartmula'`. That records
+where the song came from, so there is no migration.
+
+- GENERATED WITH keeps reading `START FROM PROMPT · HEARTMULA`.
+  `generatedWithLabel` takes the stored string, so it needs no change.
+- Regenerate is already refused for engine-made songs (`replayGuard.ts`).
+- START FROM on such a song must not send a draft to an engine that no
+  longer exists. `createDraft.ts` sets `engine` only when the stored id is
+  still a known engine. Otherwise the draft opens on ACE-Step, and the
+  START FROM hint says so before the person clicks.
+
+### File-level plan (one PR, `feat/remove-heartmula`)
+
+- Delete `heartmula-server/`, plus its `.gitignore` line and its
+  `start-all.bat` block.
+- Server: delete `services/engines/heartmula.ts` and its test. Drop it from
+  `registry.ts` and from `EngineId` in `types.ts`. Remove
+  `heartmulaUrl`/`heartmulaApiKey` from `config.ts`, and update the
+  `schema.ts` column comment to say old rows may hold `heartmula`. Update
+  `engineCovers.test.ts`, `engines.test.ts` and `registry.test.ts`.
+- Client: drop `heartmula` from `api/engineTypes.ts`, `engineSettings.ts`
+  and `EnginesSection.tsx`. Add the unknown-engine fallback in
+  `createDraft.ts`, with a test. Reword the HeartMuLa comments in
+  `engineCaps.ts` and `VersionHistory.tsx`. Move the tests that used
+  HeartMuLa as their "duration is a cap" or "no instrumental mode" example
+  (`engineCaps`, `engineRequest`, `instrumental`, `modelStatus`) to
+  synthetic capabilities, so those code paths stay covered.
+- e2e: drop `HEARTMULA_API_URL` from `playwright.config.ts`.
+- Docs: `README.md` (setup, env table), `CLAUDE.md` and `AGENTS.md` (tech
+  stack, scope), `yue-server/README.md`, and `pipeline/brief.md` /
+  `playbook.md`. `docs/design/DESIGN.md` loses its HeartMuLa examples in a
+  commit of its own. Earlier PLAN.md sections stay as written; this one
+  supersedes them.
+
+### Open questions
+
+1. Should the gating that only HeartMuLa uses (`duration: 'max'`,
+   `instrumental: false`, the CFG/TEMPERATURE/TOP-K controls) be removed
+   too? Recommendation: keep it. It is small, it is engine-neutral, and the
+   tests above keep it covered for the next engine that needs it.
+
