@@ -46,6 +46,22 @@ test('a job submitted while another runs waits in UP NEXT, then runs', async ({ 
   await expect(page.getByRole('complementary', { name: 'Activity' }).locator('.activity-job.queued')).toHaveCount(0);
 });
 
+test('FEELING LUCKY waits its turn behind a running job, then fills the create bar', async ({ page, request }) => {
+  await holdFake(request, true);
+  try {
+    const res = await request.post('/api/generate', { data: { title: `E2E Lucky ${Date.now().toString(36)}`, prompt: 'lofi piano' } });
+    expect(res.status()).toBe(202);
+    await page.goto('/');
+    await page.getByRole('button', { name: 'FEELING LUCKY' }).click();
+    await expect(page.getByText('FEELING LUCKY waits its turn · starts after 1 job')).toBeVisible();
+    await expect(page.getByPlaceholder('What do you want to make?')).toHaveValue('');
+  } finally {
+    await holdFake(request, false);
+  }
+  await expect(page.getByPlaceholder('What do you want to make?')).toHaveValue('fake caption', { timeout: 30_000 });
+  await expect(page.getByRole('button', { name: 'FEELING LUCKY' })).toBeEnabled();
+});
+
 test("Create's GENERATE stays live while a song generates, says when it starts, and queues", async ({ page, request }) => {
   const run = Date.now().toString(36);
   const [FIRST, SECOND] = ['Running', 'Queued'].map((n) => `E2E Create ${n} ${run}`);
