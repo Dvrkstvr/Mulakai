@@ -1,0 +1,1721 @@
+{
+ "A": {
+  "orig_vs_a0": {
+   "chord_lab_identical": true,
+   "melody_identical": true
+  },
+  "a_vs_a0": {
+   "audio_s_a0": 176.59866666666667,
+   "audio_s_a": 176.91866666666667,
+   "bars_a0": 65,
+   "bars_a": 65,
+   "vocal_instrumental": {
+    "exact": 0.8885077186963979,
+    "fold": 0.9159519725557461,
+    "n_ref": 293,
+    "n_est": 290
+   },
+   "vocal": {
+    "exact": 0.9714285714285714,
+    "fold": 0.9714285714285714,
+    "n_ref": 122,
+    "n_est": 123
+   },
+   "instrumental": {
+    "exact": 0.8284023668639053,
+    "fold": 0.875739644970414,
+    "n_ref": 171,
+    "n_est": 167
+   },
+   "chord_root_vs_score_a0": 1.0,
+   "chord_root_vs_score_a": 1.0,
+   "melody_vs_score_a0": {
+    "exact": 0.9128919860627178,
+    "fold": 0.9372822299651568,
+    "n_ref": 281,
+    "n_est": 293
+   },
+   "melody_vs_score_a": {
+    "exact": 0.956217162872154,
+    "fold": 0.956217162872154,
+    "n_ref": 281,
+    "n_est": 290
+   }
+  },
+  "a0": {
+   "audio_s": 176.59866666666667,
+   "nominal_s": 179.31034482758622,
+   "score_bars": 65,
+   "audio_bars": 65,
+   "Q_score": 87,
+   "Q_transcribed": 87,
+   "bpm_from_bars": 86.95652173913072,
+   "sections_transcribed": 5,
+   "sections_score": 4,
+   "tempo_from_duration": 88.33588777567216,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 64,
+   "U_tones": 0.95703125,
+   "melody_vs_score_all": {
+    "exact": 0.9128919860627178,
+    "fold": 0.9372822299651568,
+    "n_ref": 281,
+    "n_est": 293
+   }
+  },
+  "a": {
+   "audio_s": 176.91866666666667,
+   "nominal_s": 179.31034482758622,
+   "score_bars": 65,
+   "audio_bars": 65,
+   "Q_score": 87,
+   "Q_transcribed": 87,
+   "bpm_from_bars": 86.9565217391305,
+   "sections_transcribed": 6,
+   "sections_score": 4,
+   "tempo_from_duration": 88.17611105668142,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 64,
+   "U_tones": 0.95703125,
+   "melody_vs_score_all": {
+    "exact": 0.956217162872154,
+    "fold": 0.956217162872154,
+    "n_ref": 281,
+    "n_est": 290
+   }
+  },
+  "b": {
+   "audio_s": 176.71866666666668,
+   "nominal_s": 179.31034482758622,
+   "score_bars": 65,
+   "audio_bars": 66,
+   "Q_score": 87,
+   "Q_transcribed": 87,
+   "bpm_from_bars": 86.9565217391305,
+   "sections_transcribed": 6,
+   "sections_score": 4,
+   "tempo_from_duration": 88.27590369627055,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 56,
+   "U_tones": 0.9642857142857143,
+   "E_root": 1.0,
+   "E_rq": 0.75,
+   "E_n": 8,
+   "chance_root": 0.21033730158730155,
+   "chance_rq": 0.2061706349206349,
+   "chance_root_p95": 0.375,
+   "E_tones": 0.75625,
+   "chance_tones": 0.4078657407407408,
+   "chance_tones_p95": 0.5166666666666666,
+   "E_vs_old_root": 0.0,
+   "E_vs_old_rq": 0.0,
+   "E_vs_old_tones": 0.47291666666666665,
+   "E_audio_label_changed_vs_a": 1.0,
+   "E_audio_root_changed_vs_a": 1.0,
+   "E_bars": [
+    {
+     "bar": 46,
+     "old": "Dm",
+     "new": "Gm7",
+     "audio_a": "D:min",
+     "audio_b": "G:min7"
+    },
+    {
+     "bar": 47,
+     "old": "Dm",
+     "new": "A7",
+     "audio_a": "D:min",
+     "audio_b": "A:min"
+    },
+    {
+     "bar": 48,
+     "old": "Bbmaj7",
+     "new": "Dm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 49,
+     "old": "Bbmaj7",
+     "new": "Em7b5",
+     "audio_a": "Bb:maj",
+     "audio_b": "E:hdim7"
+    },
+    {
+     "bar": 50,
+     "old": "Dm",
+     "new": "Gm7",
+     "audio_a": "D:min",
+     "audio_b": "G:min7"
+    },
+    {
+     "bar": 51,
+     "old": "Dm",
+     "new": "A7",
+     "audio_a": "D:min",
+     "audio_b": "A:min"
+    },
+    {
+     "bar": 52,
+     "old": "Bbmaj7",
+     "new": "Dm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 53,
+     "old": "Bbmaj7",
+     "new": "Dm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "D:min"
+    }
+   ],
+   "control_a_audio_vs_NEW_intended_root": 0.0,
+   "control_a_audio_vs_NEW_intended_rq": 0.0,
+   "control_a_audio_vs_OLD_intended_root": 1.0,
+   "control_a_audio_vs_OLD_intended_rq": 1.0,
+   "control_a_offset": 0,
+   "melody_vs_score_outside": {
+    "exact": 0.9018181818181819,
+    "fold": 0.9199999999999999,
+    "n_ref": 261,
+    "n_est": 289
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.975609756097561,
+    "fold": 0.975609756097561,
+    "n_ref": 20,
+    "n_est": 21
+   },
+   "melody_vs_score_all": {
+    "exact": 0.9103214890016922,
+    "fold": 0.9272419627749576,
+    "n_ref": 281,
+    "n_est": 310
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9635627530364373,
+     "fold": 0.9635627530364373,
+     "n_ref": 123,
+     "n_est": 124
+    },
+    "instrumental": {
+     "exact": 0.8397435897435899,
+     "fold": 0.8717948717948717,
+     "n_ref": 147,
+     "n_est": 165
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.8944543828264759,
+    "fold": 0.9123434704830053,
+    "n_ref": 270,
+    "n_est": 289
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.975609756097561,
+    "fold": 0.975609756097561,
+    "n_ref": 20,
+    "n_est": 21
+   }
+  },
+  "bm": {
+   "audio_s": 176.75866666666667,
+   "nominal_s": 179.31034482758622,
+   "score_bars": 65,
+   "audio_bars": 65,
+   "Q_score": 87,
+   "Q_transcribed": 87,
+   "bpm_from_bars": 86.9565217391305,
+   "sections_transcribed": 8,
+   "sections_score": 4,
+   "tempo_from_duration": 88.25592710211288,
+   "offset": 0,
+   "U_root": 0.5714285714285714,
+   "U_rq": 0.5714285714285714,
+   "U_n": 56,
+   "U_tones": 0.8116071428571429,
+   "E_root": 0.375,
+   "E_rq": 0.375,
+   "E_n": 8,
+   "chance_root": 0.21208635996771588,
+   "chance_rq": 0.21208635996771588,
+   "chance_root_p95": 0.375,
+   "E_tones": 0.4886904761904762,
+   "chance_tones": 0.41539985203120794,
+   "chance_tones_p95": 0.5210416666666664,
+   "E_vs_old_root": 0.0,
+   "E_vs_old_rq": 0.0,
+   "E_vs_old_tones": 0.6875,
+   "E_audio_label_changed_vs_a": 1.0,
+   "E_audio_root_changed_vs_a": 1.0,
+   "E_bars": [
+    {
+     "bar": 46,
+     "old": "Dm",
+     "new": "Gm7",
+     "audio_a": "D:min",
+     "audio_b": "Bb:maj7"
+    },
+    {
+     "bar": 47,
+     "old": "Dm",
+     "new": "A7",
+     "audio_a": "D:min",
+     "audio_b": "Bb:maj7"
+    },
+    {
+     "bar": 48,
+     "old": "Bbmaj7",
+     "new": "Dm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 49,
+     "old": "Bbmaj7",
+     "new": "Em7b5",
+     "audio_a": "Bb:maj",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 50,
+     "old": "Dm",
+     "new": "Gm7",
+     "audio_a": "D:min",
+     "audio_b": "Bb:maj"
+    },
+    {
+     "bar": 51,
+     "old": "Dm",
+     "new": "A7",
+     "audio_a": "D:min",
+     "audio_b": "Bb:maj"
+    },
+    {
+     "bar": 52,
+     "old": "Bbmaj7",
+     "new": "Dm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 53,
+     "old": "Bbmaj7",
+     "new": "Dm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "D:min"
+    }
+   ],
+   "melody_vs_score_outside": {
+    "exact": 0.9565217391304347,
+    "fold": 0.9640831758034026,
+    "n_ref": 261,
+    "n_est": 268
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.975609756097561,
+    "fold": 0.975609756097561,
+    "n_ref": 20,
+    "n_est": 21
+   },
+   "melody_vs_score_all": {
+    "exact": 0.9614035087719298,
+    "fold": 0.968421052631579,
+    "n_ref": 281,
+    "n_est": 289
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9558232931726908,
+     "fold": 0.9558232931726908,
+     "n_ref": 123,
+     "n_est": 126
+    },
+    "instrumental": {
+     "exact": 0.8858131487889274,
+     "fold": 0.9065743944636678,
+     "n_ref": 147,
+     "n_est": 142
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.9182156133828997,
+    "fold": 0.929368029739777,
+    "n_ref": 270,
+    "n_est": 268
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.975609756097561,
+    "fold": 0.975609756097561,
+    "n_ref": 20,
+    "n_est": 21
+   }
+  },
+  "c": {
+   "audio_s": 153.91866666666667,
+   "nominal_s": 156.0,
+   "score_bars": 65,
+   "audio_bars": 66,
+   "Q_score": 100,
+   "Q_transcribed": 100,
+   "bpm_from_bars": 99.99999999999999,
+   "sections_transcribed": 5,
+   "sections_score": 4,
+   "tempo_from_duration": 101.35222931591576,
+   "offset": 0,
+   "U_root": 0.984375,
+   "U_rq": 0.984375,
+   "U_n": 64,
+   "U_tones": 0.95703125,
+   "melody_vs_score_all": {
+    "exact": 0.7903780068728522,
+    "fold": 0.9312714776632303,
+    "n_ref": 281,
+    "n_est": 301
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9677419354838709,
+     "fold": 0.9677419354838709,
+     "n_ref": 123,
+     "n_est": 125
+    },
+    "instrumental": {
+     "exact": 0.6180758017492711,
+     "fold": 0.8571428571428571,
+     "n_ref": 167,
+     "n_est": 176
+    }
+   },
+   "melody_vs_a_all": {
+    "exact": 0.7648054145516076,
+    "fold": 0.9035532994923857,
+    "n_ref": 290,
+    "n_est": 301
+   }
+  },
+  "d": {
+   "audio_s": 216.35866666666666,
+   "nominal_s": 223.44827586206895,
+   "score_bars": 81,
+   "audio_bars": 81,
+   "Q_score": 87,
+   "Q_transcribed": 89,
+   "bpm_from_bars": 88.5608856088563,
+   "sections_transcribed": 8,
+   "sections_score": 5,
+   "tempo_from_duration": 89.85080329576196,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 61,
+   "U_tones": 0.9549180327868853,
+   "offset_after_repeat": 0,
+   "U2_root": 1.0,
+   "U2_rq": 1.0,
+   "U2_n": 3,
+   "E_offset_used": 0,
+   "E_root": 1.0,
+   "E_rq": 1.0,
+   "E_n": 16,
+   "chance_root": 0.46455577755577765,
+   "chance_rq": 0.46455577755577765,
+   "chance_root_p95": 1.0,
+   "E_tones": 0.875,
+   "chance_tones": 0.7199407351907352,
+   "chance_tones_p95": 0.875,
+   "melody_vs_score_outside": {
+    "exact": 0.9283276450511946,
+    "fold": 0.931740614334471,
+    "n_ref": 281,
+    "n_est": 305
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.7708333333333333,
+    "fold": 0.7708333333333333,
+    "n_ref": 37,
+    "n_est": 59
+   },
+   "melody_vs_score_all": {
+    "exact": 0.9061583577712611,
+    "fold": 0.9090909090909091,
+    "n_ref": 318,
+    "n_est": 364
+   },
+   "repeat_copy_vs_first_chorus": {
+    "exact": 0.9655172413793103,
+    "fold": 0.9655172413793103,
+    "n_ref": 57,
+    "n_est": 59
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.8391608391608391,
+     "fold": 0.8391608391608391,
+     "n_ref": 123,
+     "n_est": 163
+    },
+    "instrumental": {
+     "exact": 0.7378640776699029,
+     "fold": 0.7443365695792881,
+     "n_ref": 167,
+     "n_est": 142
+    }
+   },
+   "melody_vs_a_all_after_shift": {
+    "exact": 0.9142857142857143,
+    "fold": 0.9176470588235295,
+    "n_ref": 290,
+    "n_est": 305
+   }
+  },
+  "e": {
+   "audio_s": 177.27866666666668,
+   "nominal_s": 179.31034482758622,
+   "score_bars": 65,
+   "audio_bars": 66,
+   "Q_score": 87,
+   "Q_transcribed": 87,
+   "bpm_from_bars": 86.9565217391305,
+   "sections_transcribed": 6,
+   "sections_score": 4,
+   "tempo_from_duration": 87.99705172271152,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 60,
+   "U_tones": 0.9625,
+   "melody_vs_score_outside": {
+    "exact": 0.6920415224913494,
+    "fold": 0.9204152249134949,
+    "n_ref": 271,
+    "n_est": 307
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.6829268292682926,
+    "fold": 0.9268292682926829,
+    "n_ref": 21,
+    "n_est": 20
+   },
+   "melody_vs_score_all": {
+    "exact": 0.691437802907916,
+    "fold": 0.9208400646203554,
+    "n_ref": 292,
+    "n_est": 327
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9596774193548387,
+     "fold": 0.9596774193548387,
+     "n_ref": 123,
+     "n_est": 125
+    },
+    "instrumental": {
+     "exact": 0.47337278106508873,
+     "fold": 0.8639053254437871,
+     "n_ref": 156,
+     "n_est": 182
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.6791808873720137,
+    "fold": 0.9044368600682594,
+    "n_ref": 279,
+    "n_est": 307
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.06451612903225806,
+    "fold": 0.12903225806451613,
+    "n_ref": 11,
+    "n_est": 20
+   },
+   "phrase_instrumental": {
+    "n_est": 20,
+    "F1_vs_new": 0.6829268292682926,
+    "F1_vs_new_fold": 0.9268292682926829,
+    "F1_vs_old": 0.06666666666666667,
+    "F1_vs_old_fold": 0.13333333333333333,
+    "recall_new": 0.6666666666666666
+   },
+   "phrase_vocal": {
+    "n_est": 0,
+    "F1_vs_new": 0.0,
+    "F1_vs_new_fold": 0.0,
+    "F1_vs_old": 0.0,
+    "F1_vs_old_fold": 0.0,
+    "recall_new": 0.0
+   },
+   "phrase_both": {
+    "n_est": 20,
+    "F1_vs_new": 0.6829268292682926,
+    "F1_vs_new_fold": 0.9268292682926829,
+    "F1_vs_old": 0.06666666666666667,
+    "F1_vs_old_fold": 0.13333333333333333,
+    "recall_new": 0.6666666666666666
+   },
+   "phrase_window_s": [
+    135.45,
+    146.48
+   ],
+   "phrase_n_new": 21,
+   "phrase_n_old": 10,
+   "phrase_chance_fold_F1_mean": 0.10391870679320597,
+   "phrase_chance_fold_F1_p95": 0.2066752246469833,
+   "phrase_chance_n": 26
+  }
+ },
+ "B": {
+  "orig_vs_a0": {
+   "chord_lab_identical": true,
+   "melody_identical": true
+  },
+  "a_vs_a0": {
+   "audio_s_a0": 157.59866666666667,
+   "audio_s_a": 158.03866666666667,
+   "bars_a0": 63,
+   "bars_a": 63,
+   "vocal_instrumental": {
+    "exact": 0.9341176470588234,
+    "fold": 0.9552941176470588,
+    "n_ref": 422,
+    "n_est": 428
+   },
+   "vocal": {
+    "exact": 0.9506849315068494,
+    "fold": 0.9506849315068494,
+    "n_ref": 361,
+    "n_est": 369
+   },
+   "instrumental": {
+    "exact": 0.8166666666666667,
+    "fold": 0.9666666666666667,
+    "n_ref": 61,
+    "n_est": 59
+   },
+   "chord_root_vs_score_a0": 0.9672131147540983,
+   "chord_root_vs_score_a": 0.9836065573770492,
+   "melody_vs_score_a0": {
+    "exact": 0.9821215733015495,
+    "fold": 0.9821215733015495,
+    "n_ref": 417,
+    "n_est": 422
+   },
+   "melody_vs_score_a": {
+    "exact": 0.9467455621301776,
+    "fold": 0.9680473372781067,
+    "n_ref": 417,
+    "n_est": 428
+   }
+  },
+  "a0": {
+   "audio_s": 157.59866666666667,
+   "nominal_s": 160.0,
+   "score_bars": 63,
+   "audio_bars": 63,
+   "Q_score": 93,
+   "Q_transcribed": 94,
+   "bpm_from_bars": 93.74999999999999,
+   "sections_transcribed": 13,
+   "sections_score": 6,
+   "tempo_from_duration": 94.41704244536756,
+   "offset": 0,
+   "U_root": 0.9672131147540983,
+   "U_rq": 0.9672131147540983,
+   "U_n": 61,
+   "U_tones": 0.9672131147540983,
+   "melody_vs_score_all": {
+    "exact": 0.9821215733015495,
+    "fold": 0.9821215733015495,
+    "n_ref": 417,
+    "n_est": 422
+   }
+  },
+  "a": {
+   "audio_s": 158.03866666666667,
+   "nominal_s": 160.0,
+   "score_bars": 63,
+   "audio_bars": 63,
+   "Q_score": 93,
+   "Q_transcribed": 93,
+   "bpm_from_bars": 93.02325581395355,
+   "sections_transcribed": 13,
+   "sections_score": 6,
+   "tempo_from_duration": 94.15417324030406,
+   "offset": 0,
+   "U_root": 0.9836065573770492,
+   "U_rq": 0.9836065573770492,
+   "U_n": 61,
+   "U_tones": 0.9836065573770492,
+   "melody_vs_score_all": {
+    "exact": 0.9467455621301776,
+    "fold": 0.9680473372781067,
+    "n_ref": 417,
+    "n_est": 428
+   }
+  },
+  "b": {
+   "audio_s": 157.87866666666667,
+   "nominal_s": 160.0,
+   "score_bars": 63,
+   "audio_bars": 63,
+   "Q_score": 93,
+   "Q_transcribed": 93,
+   "bpm_from_bars": 93.02325581395355,
+   "sections_transcribed": 11,
+   "sections_score": 6,
+   "tempo_from_duration": 94.24959251408254,
+   "offset": 0,
+   "U_root": 0.9811320754716981,
+   "U_rq": 0.9811320754716981,
+   "U_n": 53,
+   "U_tones": 0.9811320754716981,
+   "E_root": 0.375,
+   "E_rq": 0.375,
+   "E_n": 8,
+   "chance_root": 0.08834586466165413,
+   "chance_rq": 0.08834586466165413,
+   "chance_root_p95": 0.25,
+   "E_tones": 0.6354166666666666,
+   "chance_tones": 0.3366395154553049,
+   "chance_tones_p95": 0.44375,
+   "E_vs_old_root": 0.5,
+   "E_vs_old_rq": 0.375,
+   "E_vs_old_tones": 0.5791666666666666,
+   "E_audio_label_changed_vs_a": 0.75,
+   "E_audio_root_changed_vs_a": 0.5,
+   "E_bars": [
+    {
+     "bar": 22,
+     "old": "Gm",
+     "new": "Cm7",
+     "audio_a": "G:min",
+     "audio_b": "C:min7"
+    },
+    {
+     "bar": 23,
+     "old": "Eb",
+     "new": "F7",
+     "audio_a": "Eb:maj",
+     "audio_b": "Eb:maj"
+    },
+    {
+     "bar": 24,
+     "old": "Bb",
+     "new": "Dm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "Bb:maj/3"
+    },
+    {
+     "bar": 25,
+     "old": "F",
+     "new": "Gm7",
+     "audio_a": "F:maj",
+     "audio_b": "G:min7"
+    },
+    {
+     "bar": 26,
+     "old": "Gm",
+     "new": "Am7b5",
+     "audio_a": "G:min",
+     "audio_b": "C:min7"
+    },
+    {
+     "bar": 27,
+     "old": "Eb",
+     "new": "D7",
+     "audio_a": "Eb:maj",
+     "audio_b": "Eb:min"
+    },
+    {
+     "bar": 28,
+     "old": "Bb",
+     "new": "Gm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "Bb:maj"
+    },
+    {
+     "bar": 29,
+     "old": "F",
+     "new": "Cm7",
+     "audio_a": "F:maj",
+     "audio_b": "C:min7"
+    }
+   ],
+   "control_a_audio_vs_NEW_intended_root": 0.0,
+   "control_a_audio_vs_NEW_intended_rq": 0.0,
+   "control_a_audio_vs_OLD_intended_root": 1.0,
+   "control_a_audio_vs_OLD_intended_rq": 1.0,
+   "control_a_offset": 0,
+   "melody_vs_score_outside": {
+    "exact": 0.9538461538461538,
+    "fold": 0.9538461538461538,
+    "n_ref": 353,
+    "n_est": 362
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.9921259842519685,
+    "fold": 0.9921259842519685,
+    "n_ref": 64,
+    "n_est": 63
+   },
+   "melody_vs_score_all": {
+    "exact": 0.9619952494061758,
+    "fold": 0.9619952494061758,
+    "n_ref": 417,
+    "n_est": 425
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9470198675496689,
+     "fold": 0.9470198675496689,
+     "n_ref": 301,
+     "n_est": 303
+    },
+    "instrumental": {
+     "exact": 0.7627118644067796,
+     "fold": 0.8983050847457628,
+     "n_ref": 59,
+     "n_est": 59
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.9168975069252078,
+    "fold": 0.9390581717451523,
+    "n_ref": 360,
+    "n_est": 362
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.9465648854961831,
+    "fold": 0.9465648854961831,
+    "n_ref": 68,
+    "n_est": 63
+   }
+  },
+  "bm": {
+   "audio_s": 157.31866666666667,
+   "nominal_s": 160.0,
+   "score_bars": 63,
+   "audio_bars": 63,
+   "Q_score": 93,
+   "Q_transcribed": 93,
+   "bpm_from_bars": 93.02325581395355,
+   "sections_transcribed": 12,
+   "sections_score": 6,
+   "tempo_from_duration": 94.58508844044783,
+   "offset": 0,
+   "U_root": 0.9811320754716981,
+   "U_rq": 0.9811320754716981,
+   "U_n": 53,
+   "U_tones": 0.9849056603773585,
+   "E_root": 0.0,
+   "E_rq": 0.0,
+   "E_n": 8,
+   "chance_root": 0.08615288220551379,
+   "chance_rq": 0.08615288220551379,
+   "chance_root_p95": 0.25,
+   "E_tones": 0.27708333333333335,
+   "chance_tones": 0.33732873851294903,
+   "chance_tones_p95": 0.44375,
+   "E_vs_old_root": 1.0,
+   "E_vs_old_rq": 1.0,
+   "E_vs_old_tones": 1.0,
+   "E_audio_label_changed_vs_a": 0.0,
+   "E_audio_root_changed_vs_a": 0.0,
+   "E_bars": [
+    {
+     "bar": 22,
+     "old": "Gm",
+     "new": "Cm7",
+     "audio_a": "G:min",
+     "audio_b": "G:min"
+    },
+    {
+     "bar": 23,
+     "old": "Eb",
+     "new": "F7",
+     "audio_a": "Eb:maj",
+     "audio_b": "Eb:maj"
+    },
+    {
+     "bar": 24,
+     "old": "Bb",
+     "new": "Dm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "Bb:maj"
+    },
+    {
+     "bar": 25,
+     "old": "F",
+     "new": "Gm7",
+     "audio_a": "F:maj",
+     "audio_b": "F:maj"
+    },
+    {
+     "bar": 26,
+     "old": "Gm",
+     "new": "Am7b5",
+     "audio_a": "G:min",
+     "audio_b": "G:min"
+    },
+    {
+     "bar": 27,
+     "old": "Eb",
+     "new": "D7",
+     "audio_a": "Eb:maj",
+     "audio_b": "Eb:maj"
+    },
+    {
+     "bar": 28,
+     "old": "Bb",
+     "new": "Gm7",
+     "audio_a": "Bb:maj",
+     "audio_b": "Bb:maj"
+    },
+    {
+     "bar": 29,
+     "old": "F",
+     "new": "Cm7",
+     "audio_a": "F:maj",
+     "audio_b": "F:maj"
+    }
+   ],
+   "melody_vs_score_outside": {
+    "exact": 0.9662921348314606,
+    "fold": 0.9662921348314606,
+    "n_ref": 353,
+    "n_est": 359
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.9692307692307692,
+    "fold": 0.9692307692307692,
+    "n_ref": 64,
+    "n_est": 66
+   },
+   "melody_vs_score_all": {
+    "exact": 0.9691211401425177,
+    "fold": 0.9691211401425177,
+    "n_ref": 417,
+    "n_est": 425
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9419568822553898,
+     "fold": 0.9419568822553898,
+     "n_ref": 301,
+     "n_est": 302
+    },
+    "instrumental": {
+     "exact": 0.8275862068965518,
+     "fold": 0.9827586206896551,
+     "n_ref": 59,
+     "n_est": 57
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.9262865090403338,
+    "fold": 0.9513212795549374,
+    "n_ref": 360,
+    "n_est": 359
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.9253731343283583,
+    "fold": 0.9253731343283583,
+    "n_ref": 68,
+    "n_est": 66
+   }
+  },
+  "c": {
+   "audio_s": 137.35866666666666,
+   "nominal_s": 139.06542056074767,
+   "score_bars": 63,
+   "audio_bars": 63,
+   "Q_score": 107,
+   "Q_transcribed": 107,
+   "bpm_from_bars": 107.14285714285705,
+   "sections_transcribed": 15,
+   "sections_score": 6,
+   "tempo_from_duration": 108.32953144565566,
+   "offset": 0,
+   "U_root": 0.9672131147540983,
+   "U_rq": 0.9672131147540983,
+   "U_n": 61,
+   "U_tones": 0.9672131147540983,
+   "melody_vs_score_all": {
+    "exact": 0.9619047619047619,
+    "fold": 0.9619047619047619,
+    "n_ref": 417,
+    "n_est": 423
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9382716049382716,
+     "fold": 0.9382716049382716,
+     "n_ref": 369,
+     "n_est": 360
+    },
+    "instrumental": {
+     "exact": 0.8032786885245902,
+     "fold": 0.9508196721311476,
+     "n_ref": 59,
+     "n_est": 63
+    }
+   },
+   "melody_vs_a_all": {
+    "exact": 0.9189189189189189,
+    "fold": 0.9400705052878966,
+    "n_ref": 428,
+    "n_est": 423
+   }
+  },
+  "d": {
+   "audio_s": 179.51866666666666,
+   "nominal_s": 180.6451612903226,
+   "score_bars": 71,
+   "audio_bars": 71,
+   "Q_score": 93,
+   "Q_transcribed": 93,
+   "bpm_from_bars": 93.02325581395355,
+   "sections_transcribed": 15,
+   "sections_score": 7,
+   "tempo_from_duration": 93.58358276576625,
+   "offset": 0,
+   "U_root": 0.9642857142857143,
+   "U_rq": 0.9642857142857143,
+   "U_n": 28,
+   "U_tones": 0.9714285714285714,
+   "offset_after_repeat": 0,
+   "U2_root": 0.9696969696969697,
+   "U2_rq": 0.9696969696969697,
+   "U2_n": 33,
+   "E_offset_used": 0,
+   "E_root": 1.0,
+   "E_rq": 1.0,
+   "E_n": 8,
+   "chance_root": 0.25333333333333335,
+   "chance_rq": 0.25333333333333335,
+   "chance_root_p95": 1.0,
+   "E_tones": 1.0,
+   "chance_tones": 0.41887728937728935,
+   "chance_tones_p95": 1.0,
+   "melody_vs_score_outside": {
+    "exact": 0.9630512514898688,
+    "fold": 0.9630512514898688,
+    "n_ref": 417,
+    "n_est": 422
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.9846153846153847,
+    "fold": 0.9846153846153847,
+    "n_ref": 64,
+    "n_est": 66
+   },
+   "melody_vs_score_all": {
+    "exact": 0.9659442724458205,
+    "fold": 0.9659442724458205,
+    "n_ref": 481,
+    "n_est": 488
+   },
+   "repeat_copy_vs_first_chorus": {
+    "exact": 0.9923664122137404,
+    "fold": 0.9923664122137404,
+    "n_ref": 65,
+    "n_est": 66
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9521203830369357,
+     "fold": 0.9521203830369357,
+     "n_ref": 369,
+     "n_est": 362
+    },
+    "instrumental": {
+     "exact": 0.8067226890756303,
+     "fold": 0.957983193277311,
+     "n_ref": 59,
+     "n_est": 60
+    }
+   },
+   "melody_vs_a_all_after_shift": {
+    "exact": 0.9317647058823528,
+    "fold": 0.9529411764705882,
+    "n_ref": 428,
+    "n_est": 422
+   }
+  },
+  "e": {
+   "audio_s": 157.83866666666665,
+   "nominal_s": 160.0,
+   "score_bars": 63,
+   "audio_bars": 62,
+   "Q_score": 93,
+   "Q_transcribed": 93,
+   "bpm_from_bars": 92.6640926640927,
+   "sections_transcribed": 13,
+   "sections_score": 6,
+   "tempo_from_duration": 94.27347755936442,
+   "offset": -1,
+   "U_root": 0.9824561403508771,
+   "U_rq": 0.9824561403508771,
+   "U_n": 57,
+   "U_tones": 0.9736842105263158,
+   "melody_vs_score_outside": {
+    "exact": 0.951310861423221,
+    "fold": 0.9737827715355806,
+    "n_ref": 396,
+    "n_est": 405
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.8,
+    "fold": 0.8,
+    "n_ref": 22,
+    "n_est": 23
+   },
+   "melody_vs_score_all": {
+    "exact": 0.9432624113475176,
+    "fold": 0.9645390070921985,
+    "n_ref": 418,
+    "n_est": 428
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.958904109589041,
+     "fold": 0.958904109589041,
+     "n_ref": 369,
+     "n_est": 361
+    },
+    "instrumental": {
+     "exact": 0.7951807228915662,
+     "fold": 0.9156626506024097,
+     "n_ref": 39,
+     "n_est": 44
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.9421894218942188,
+    "fold": 0.9544895448954489,
+    "n_ref": 408,
+    "n_est": 405
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.09302325581395349,
+    "fold": 0.09302325581395349,
+    "n_ref": 20,
+    "n_est": 23
+   },
+   "phrase_instrumental": {
+    "n_est": 23,
+    "F1_vs_new": 0.8,
+    "F1_vs_new_fold": 0.8,
+    "F1_vs_old": 0.09302325581395349,
+    "F1_vs_old_fold": 0.09302325581395349,
+    "recall_new": 0.8181818181818182
+   },
+   "phrase_vocal": {
+    "n_est": 0,
+    "F1_vs_new": 0.0,
+    "F1_vs_new_fold": 0.0,
+    "F1_vs_old": 0.0,
+    "F1_vs_old_fold": 0.0,
+    "recall_new": 0.0
+   },
+   "phrase_both": {
+    "n_est": 23,
+    "F1_vs_new": 0.8,
+    "F1_vs_new_fold": 0.8,
+    "F1_vs_old": 0.09302325581395349,
+    "F1_vs_old_fold": 0.09302325581395349,
+    "recall_new": 0.8181818181818182
+   },
+   "phrase_window_s": [
+    136.03,
+    146.36
+   ],
+   "phrase_n_new": 22,
+   "phrase_n_old": 20,
+   "phrase_chance_fold_F1_mean": 0.015829046299960427,
+   "phrase_chance_fold_F1_p95": 0.14436090225563902,
+   "phrase_chance_n": 19
+  }
+ },
+ "C": {
+  "orig_vs_a0": {
+   "chord_lab_identical": true,
+   "melody_identical": true
+  },
+  "a_vs_a0": {
+   "audio_s_a0": 214.83866666666665,
+   "audio_s_a": 215.59866666666667,
+   "bars_a0": 77,
+   "bars_a": 77,
+   "vocal_instrumental": {
+    "exact": 0.9854096520763188,
+    "fold": 0.9854096520763188,
+    "n_ref": 443,
+    "n_est": 448
+   },
+   "vocal": {
+    "exact": 0.9834586466165414,
+    "fold": 0.9834586466165414,
+    "n_ref": 331,
+    "n_est": 334
+   },
+   "instrumental": {
+    "exact": 0.9911504424778761,
+    "fold": 0.9911504424778761,
+    "n_ref": 112,
+    "n_est": 114
+   },
+   "chord_root_vs_score_a0": 1.0,
+   "chord_root_vs_score_a": 1.0,
+   "melody_vs_score_a0": {
+    "exact": 0.8807134894091415,
+    "fold": 0.9743589743589745,
+    "n_ref": 454,
+    "n_est": 443
+   },
+   "melody_vs_score_a": {
+    "exact": 0.8758314855875832,
+    "fold": 0.9689578713968958,
+    "n_ref": 454,
+    "n_est": 448
+   }
+  },
+  "a0": {
+   "audio_s": 214.83866666666665,
+   "nominal_s": 217.41176470588235,
+   "score_bars": 77,
+   "audio_bars": 77,
+   "Q_score": 85,
+   "Q_transcribed": 85,
+   "bpm_from_bars": 85.1063829787234,
+   "sections_transcribed": 13,
+   "sections_score": 10,
+   "tempo_from_duration": 86.0180352388459,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 77,
+   "U_tones": 1.0,
+   "melody_vs_score_all": {
+    "exact": 0.8807134894091415,
+    "fold": 0.9743589743589745,
+    "n_ref": 454,
+    "n_est": 443
+   }
+  },
+  "a": {
+   "audio_s": 215.59866666666667,
+   "nominal_s": 217.41176470588235,
+   "score_bars": 77,
+   "audio_bars": 77,
+   "Q_score": 85,
+   "Q_transcribed": 84,
+   "bpm_from_bars": 84.21052631578964,
+   "sections_transcribed": 12,
+   "sections_score": 10,
+   "tempo_from_duration": 85.71481579972665,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 77,
+   "U_tones": 1.0,
+   "melody_vs_score_all": {
+    "exact": 0.8758314855875832,
+    "fold": 0.9689578713968958,
+    "n_ref": 454,
+    "n_est": 448
+   }
+  },
+  "b": {
+   "audio_s": 214.67866666666666,
+   "nominal_s": 217.41176470588235,
+   "score_bars": 77,
+   "audio_bars": 77,
+   "Q_score": 85,
+   "Q_transcribed": 85,
+   "bpm_from_bars": 85.10638297872329,
+   "sections_transcribed": 12,
+   "sections_score": 10,
+   "tempo_from_duration": 86.08214447639573,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 69,
+   "U_tones": 1.0,
+   "E_root": 1.0,
+   "E_rq": 0.625,
+   "E_n": 8,
+   "chance_root": 0.07201542588866533,
+   "chance_rq": 0.06673373574782025,
+   "chance_root_p95": 0.26785714285714285,
+   "E_tones": 0.70625,
+   "chance_tones": 0.3332771629778672,
+   "chance_tones_p95": 0.4520833333333333,
+   "E_vs_old_root": 0.0,
+   "E_vs_old_rq": 0.0,
+   "E_vs_old_tones": 0.21666666666666667,
+   "E_audio_label_changed_vs_a": 1.0,
+   "E_audio_root_changed_vs_a": 1.0,
+   "E_bars": [
+    {
+     "bar": 14,
+     "old": "Dm",
+     "new": "Gm7",
+     "audio_a": "D:min",
+     "audio_b": "G:min7"
+    },
+    {
+     "bar": 15,
+     "old": "Bb",
+     "new": "A7",
+     "audio_a": "Bb:maj",
+     "audio_b": "A:min"
+    },
+    {
+     "bar": 16,
+     "old": "F",
+     "new": "Dm7",
+     "audio_a": "F:maj",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 17,
+     "old": "C",
+     "new": "G7",
+     "audio_a": "C:maj",
+     "audio_b": "G:min7"
+    },
+    {
+     "bar": 18,
+     "old": "Dm",
+     "new": "Em7b5",
+     "audio_a": "D:min",
+     "audio_b": "E:dim"
+    },
+    {
+     "bar": 19,
+     "old": "Bb",
+     "new": "A7",
+     "audio_a": "Bb:maj",
+     "audio_b": "A:min"
+    },
+    {
+     "bar": 20,
+     "old": "F",
+     "new": "Dm7",
+     "audio_a": "F:maj",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 21,
+     "old": "C",
+     "new": "Gm7",
+     "audio_a": "C:maj",
+     "audio_b": "G:min7"
+    }
+   ],
+   "control_a_audio_vs_NEW_intended_root": 0.0,
+   "control_a_audio_vs_NEW_intended_rq": 0.0,
+   "control_a_audio_vs_OLD_intended_root": 1.0,
+   "control_a_audio_vs_OLD_intended_rq": 1.0,
+   "control_a_offset": 0,
+   "melody_vs_score_outside": {
+    "exact": 0.8717310087173102,
+    "fold": 0.9763387297633873,
+    "n_ref": 402,
+    "n_est": 401
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.9702970297029703,
+    "fold": 0.9702970297029703,
+    "n_ref": 52,
+    "n_est": 49
+   },
+   "melody_vs_score_all": {
+    "exact": 0.8849557522123893,
+    "fold": 0.9778761061946902,
+    "n_ref": 454,
+    "n_est": 450
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9601386481802426,
+     "fold": 0.9601386481802426,
+     "n_ref": 286,
+     "n_est": 291
+    },
+    "instrumental": {
+     "exact": 0.9954751131221719,
+     "fold": 0.9954751131221719,
+     "n_ref": 111,
+     "n_est": 110
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.9699248120300752,
+    "fold": 0.9699248120300752,
+    "n_ref": 397,
+    "n_est": 401
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.98,
+    "fold": 0.98,
+    "n_ref": 51,
+    "n_est": 49
+   }
+  },
+  "bm": {
+   "audio_s": 214.95866666666666,
+   "nominal_s": 217.41176470588235,
+   "score_bars": 77,
+   "audio_bars": 77,
+   "Q_score": 85,
+   "Q_transcribed": 85,
+   "bpm_from_bars": 85.10638297872318,
+   "sections_transcribed": 12,
+   "sections_score": 10,
+   "tempo_from_duration": 85.97001594104913,
+   "offset": 0,
+   "U_root": 0.9420289855072463,
+   "U_rq": 0.9420289855072463,
+   "U_n": 69,
+   "U_tones": 0.9710144927536232,
+   "E_root": 0.0,
+   "E_rq": 0.0,
+   "E_n": 8,
+   "chance_root": 0.059691482226693494,
+   "chance_rq": 0.059691482226693494,
+   "chance_root_p95": 0.25,
+   "E_tones": 0.3,
+   "chance_tones": 0.32910630449362843,
+   "chance_tones_p95": 0.4520833333333333,
+   "E_vs_old_root": 1.0,
+   "E_vs_old_rq": 1.0,
+   "E_vs_old_tones": 1.0,
+   "E_audio_label_changed_vs_a": 0.0,
+   "E_audio_root_changed_vs_a": 0.0,
+   "E_bars": [
+    {
+     "bar": 14,
+     "old": "Dm",
+     "new": "Gm7",
+     "audio_a": "D:min",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 15,
+     "old": "Bb",
+     "new": "A7",
+     "audio_a": "Bb:maj",
+     "audio_b": "Bb:maj"
+    },
+    {
+     "bar": 16,
+     "old": "F",
+     "new": "Dm7",
+     "audio_a": "F:maj",
+     "audio_b": "F:maj"
+    },
+    {
+     "bar": 17,
+     "old": "C",
+     "new": "G7",
+     "audio_a": "C:maj",
+     "audio_b": "C:maj"
+    },
+    {
+     "bar": 18,
+     "old": "Dm",
+     "new": "Em7b5",
+     "audio_a": "D:min",
+     "audio_b": "D:min"
+    },
+    {
+     "bar": 19,
+     "old": "Bb",
+     "new": "A7",
+     "audio_a": "Bb:maj",
+     "audio_b": "Bb:maj"
+    },
+    {
+     "bar": 20,
+     "old": "F",
+     "new": "Dm7",
+     "audio_a": "F:maj",
+     "audio_b": "F:maj"
+    },
+    {
+     "bar": 21,
+     "old": "C",
+     "new": "Gm7",
+     "audio_a": "C:maj",
+     "audio_b": "C:maj"
+    }
+   ],
+   "melody_vs_score_outside": {
+    "exact": 0.8656716417910447,
+    "fold": 0.972636815920398,
+    "n_ref": 402,
+    "n_est": 402
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.9811320754716981,
+    "fold": 0.9811320754716981,
+    "n_ref": 52,
+    "n_est": 54
+   },
+   "melody_vs_score_all": {
+    "exact": 0.8791208791208791,
+    "fold": 0.9736263736263737,
+    "n_ref": 454,
+    "n_est": 456
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9773123909249564,
+     "fold": 0.9773123909249564,
+     "n_ref": 286,
+     "n_est": 287
+    },
+    "instrumental": {
+     "exact": 0.9734513274336283,
+     "fold": 0.9734513274336283,
+     "n_ref": 111,
+     "n_est": 115
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.9762202753441803,
+    "fold": 0.9762202753441803,
+    "n_ref": 397,
+    "n_est": 402
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.9523809523809523,
+    "fold": 0.9523809523809523,
+    "n_ref": 51,
+    "n_est": 54
+   }
+  },
+  "c": {
+   "audio_s": 186.19866666666667,
+   "nominal_s": 188.57142857142858,
+   "score_bars": 77,
+   "audio_bars": 77,
+   "Q_score": 98,
+   "Q_transcribed": 98,
+   "bpm_from_bars": 97.95918367346938,
+   "sections_transcribed": 11,
+   "sections_score": 10,
+   "tempo_from_duration": 99.2488309977157,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 77,
+   "U_tones": 1.0,
+   "melody_vs_score_all": {
+    "exact": 0.8783185840707964,
+    "fold": 0.9623893805309734,
+    "n_ref": 454,
+    "n_est": 450
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9598811292719167,
+     "fold": 0.9598811292719167,
+     "n_ref": 334,
+     "n_est": 339
+    },
+    "instrumental": {
+     "exact": 0.9777777777777777,
+     "fold": 0.9777777777777777,
+     "n_ref": 114,
+     "n_est": 111
+    }
+   },
+   "melody_vs_a_all": {
+    "exact": 0.9643652561247216,
+    "fold": 0.9643652561247216,
+    "n_ref": 448,
+    "n_est": 450
+   }
+  },
+  "d": {
+   "audio_s": 235.87866666666667,
+   "nominal_s": 240.0,
+   "score_bars": 85,
+   "audio_bars": 85,
+   "Q_score": 85,
+   "Q_transcribed": 85,
+   "bpm_from_bars": 85.4092526690394,
+   "sections_transcribed": 12,
+   "sections_score": 11,
+   "tempo_from_duration": 86.48514207869582,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 22,
+   "U_tones": 1.0,
+   "offset_after_repeat": 0,
+   "U2_root": 1.0,
+   "U2_rq": 1.0,
+   "U2_n": 55,
+   "E_offset_used": 0,
+   "E_root": 1.0,
+   "E_rq": 1.0,
+   "E_n": 8,
+   "chance_root": 0.264873417721519,
+   "chance_rq": 0.264873417721519,
+   "chance_root_p95": 1.0,
+   "E_tones": 1.0,
+   "chance_tones": 0.433077154912598,
+   "chance_tones_p95": 1.0,
+   "melody_vs_score_outside": {
+    "exact": 0.8844444444444445,
+    "fold": 0.9777777777777777,
+    "n_ref": 454,
+    "n_est": 446
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.9807692307692307,
+    "fold": 0.9807692307692307,
+    "n_ref": 52,
+    "n_est": 52
+   },
+   "melody_vs_score_all": {
+    "exact": 0.8944223107569721,
+    "fold": 0.9780876494023905,
+    "n_ref": 506,
+    "n_est": 498
+   },
+   "repeat_copy_vs_first_chorus": {
+    "exact": 0.9504950495049506,
+    "fold": 0.9504950495049506,
+    "n_ref": 49,
+    "n_est": 52
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.9700598802395209,
+     "fold": 0.9700598802395209,
+     "n_ref": 334,
+     "n_est": 334
+    },
+    "instrumental": {
+     "exact": 0.9823008849557523,
+     "fold": 0.9823008849557523,
+     "n_ref": 114,
+     "n_est": 112
+    }
+   },
+   "melody_vs_a_all_after_shift": {
+    "exact": 0.9731543624161074,
+    "fold": 0.9731543624161074,
+    "n_ref": 448,
+    "n_est": 446
+   }
+  },
+  "e": {
+   "audio_s": 214.35866666666666,
+   "nominal_s": 217.41176470588235,
+   "score_bars": 77,
+   "audio_bars": 77,
+   "Q_score": 85,
+   "Q_transcribed": 85,
+   "bpm_from_bars": 85.10638297872318,
+   "sections_transcribed": 13,
+   "sections_score": 10,
+   "tempo_from_duration": 86.21065006313407,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_rq": 1.0,
+   "U_n": 73,
+   "U_tones": 1.0,
+   "melody_vs_score_outside": {
+    "exact": 0.8827586206896552,
+    "fold": 0.9793103448275863,
+    "n_ref": 438,
+    "n_est": 432
+   },
+   "melody_vs_score_inside": {
+    "exact": 0.8095238095238095,
+    "fold": 0.9523809523809523,
+    "n_ref": 21,
+    "n_est": 21
+   },
+   "melody_vs_score_all": {
+    "exact": 0.8793859649122807,
+    "fold": 0.9780701754385964,
+    "n_ref": 459,
+    "n_est": 453
+   },
+   "by_part_vs_a": {
+    "vocal": {
+     "exact": 0.96996996996997,
+     "fold": 0.96996996996997,
+     "n_ref": 333,
+     "n_est": 333
+    },
+    "instrumental": {
+     "exact": 1.0,
+     "fold": 1.0,
+     "n_ref": 99,
+     "n_est": 99
+    }
+   },
+   "melody_vs_a_outside": {
+    "exact": 0.9768518518518519,
+    "fold": 0.9768518518518519,
+    "n_ref": 432,
+    "n_est": 432
+   },
+   "melody_vs_a_inside": {
+    "exact": 0.1081081081081081,
+    "fold": 0.1081081081081081,
+    "n_ref": 16,
+    "n_est": 21
+   },
+   "phrase_instrumental": {
+    "n_est": 16,
+    "F1_vs_new": 0.6486486486486486,
+    "F1_vs_new_fold": 0.8108108108108109,
+    "F1_vs_old": 0.0625,
+    "F1_vs_old_fold": 0.0625,
+    "recall_new": 0.5714285714285714
+   },
+   "phrase_vocal": {
+    "n_est": 5,
+    "F1_vs_new": 0.3846153846153846,
+    "F1_vs_new_fold": 0.3846153846153846,
+    "F1_vs_old": 0.09523809523809523,
+    "F1_vs_old_fold": 0.09523809523809523,
+    "recall_new": 0.23809523809523808
+   },
+   "phrase_both": {
+    "n_est": 21,
+    "F1_vs_new": 0.8095238095238095,
+    "F1_vs_new_fold": 0.9523809523809523,
+    "F1_vs_old": 0.1081081081081081,
+    "F1_vs_old_fold": 0.1081081081081081,
+    "recall_new": 0.8095238095238095
+   },
+   "phrase_window_s": [
+    59.73,
+    71.03
+   ],
+   "phrase_n_new": 21,
+   "phrase_n_old": 16,
+   "phrase_chance_fold_F1_mean": 0.009460387928756408,
+   "phrase_chance_fold_F1_p95": 0.03333333333333313,
+   "phrase_chance_n": 34
+  }
+ }
+}

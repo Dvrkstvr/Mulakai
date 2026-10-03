@@ -1,0 +1,21 @@
+# Spike audio, renders and copies of library scores stay local (listen pages point at them).
+spikes/**/*.mp3
+spikes/**/*.wav
+spikes/**/*.flac
+spikes/**/*.npy
+spikes/**/jobs/
+spikes/**/scores/
+spikes/**/__pycache__/
+# Raw spike data can contain library lyrics and scores; the repo is public.
+spikes/**/*.jsonl
+spikes/**/*.csv
+spikes/**/golden.json
+spikes/**/edits.json
+spikes/**/listen/
+spikes/**/phrases/
+spikes/**/*.abc
+spikes/**/yue_request*.json
+spikes/**/planner_prompt.json
+spikes/**/overflow_*.json
+spikes/**/*pid*.txt
+spikes/**/logs/
