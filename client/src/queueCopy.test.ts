@@ -1,5 +1,22 @@
 import { describe, it, expect } from 'vitest';
-import { queuedLine, queuedTitle, startsAfter } from './queueCopy';
+import { queuedLine, queuedTitle, queueSuffix, startsAfter } from './queueCopy';
+import { selectJobsAhead } from './queueStore';
+
+describe("a commit's consequence line", () => {
+  it('says when the job starts while the queue is busy, and nothing when it would start at once', () => {
+    expect(queueSuffix(0)).toBe('');
+    expect(queueSuffix(1)).toBe(' · starts after 1 job');
+    expect(queueSuffix(3)).toBe(' · starts after 3 jobs');
+  });
+
+  it('counts the running job and every queued one ahead of a new commit', () => {
+    const running = { kind: 'generate' as const, jobId: 'g', startedAt: 1 };
+    const queued = { kind: 'repaint' as const, jobId: 'r', position: 1, queuedAt: 1 };
+    expect(selectJobsAhead({ running: null, queued: [] })).toBe(0);
+    expect(selectJobsAhead({ running, queued: [] })).toBe(1);
+    expect(selectJobsAhead({ running, queued: [queued, { ...queued, jobId: 'r2', position: 2 }] })).toBe(3);
+  });
+});
 
 describe('queue copy', () => {
   it('counts the jobs a queued one waits for', () => {

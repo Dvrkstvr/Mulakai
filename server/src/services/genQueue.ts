@@ -13,10 +13,11 @@ import type { EngineId } from './engines/types.js';
 /** `transcribe` is SheetSage2 reading a cover source's melody (transcribeJobs.ts), `lyrics`
  * is lyrics-server reading its words (lyricsJobs.ts), and `timings` is lyrics-server reading
  * a version's words for the Editor (timingsJobs.ts). `analyze` is ACE-Step describing a
- * source (analyzeJobs.ts), which loads a DiT and the LM. */
+ * source (analyzeJobs.ts), which loads a DiT and the LM. `lm` is the LM writing for Create:
+ * FEELING LUCKY, Quick Start and WRITE FOR ME (lmJobs.ts). */
 export type GenKind =
   | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster'
-  | 'transcribe' | 'lyrics' | 'timings' | 'analyze';
+  | 'transcribe' | 'lyrics' | 'timings' | 'analyze' | 'lm';
 
 /** The three ACE-Step tasks that create a whole new song — all held under the single
  * `generate` kind, so this is what tells them apart. Mirrors `songs.gen_task`. */

@@ -12,8 +12,8 @@ import { useActivityStore } from './activityStore';
 
 /** Activity's RUNNING rows, live. */
 export function useRunningRows(): RunningRow[] {
-  const genJob = useGenerationStore((s) => s.job);
-  const editorJob = useEditorJobStore((s) => s.editorJob);
+  const genJobs = useGenerationStore((s) => s.jobs);
+  const editorJobs = useEditorJobStore((s) => s.editorJobs);
   const splitJob = useEditorJobStore((s) => s.splitJob);
   const transcribeStage = useTranscribeStore((s) => s.stage);
   const transcribeProgress = useTranscribeStore((s) => s.progress);
@@ -25,13 +25,13 @@ export function useRunningRows(): RunningRow[] {
   const queued = useQueueStore((s) => s.queued);
   const entries = useActivityStore((s) => s.entries);
   return useMemo(() => runningRows({
-    genJob, editorJob, splitJob, timings, active,
+    genJobs, editorJobs, splitJob, timings, active,
     transcribe: { stage: transcribeStage, progress: transcribeProgress, jobId: transcribeJob },
     readLyrics: { stage: readLyricsStage, jobId: readLyricsJob },
     queuedIds: new Set(queued.map((q) => q.jobId)),
     settledIds: new Set(entries.flatMap((e) => (e.jobId ? [e.jobId] : []))),
   }, isEngineStage), [
-    genJob, editorJob, splitJob, timings, active, transcribeStage, transcribeProgress, transcribeJob,
+    genJobs, editorJobs, splitJob, timings, active, transcribeStage, transcribeProgress, transcribeJob,
     readLyricsStage, readLyricsJob, queued, entries,
   ]);
 }

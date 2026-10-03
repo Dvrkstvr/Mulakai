@@ -89,26 +89,30 @@ export const generationApi = {
     return fetch('/api/generate/analyze-audio', { method: 'POST', body: form }).then((r) => json<{ jobId: string }>(r));
   },
 
-  refineInput: (params: { prompt: string; lyrics: string } & Record<string, unknown>): Promise<RefineResult> =>
+  /** WRITE FOR ME: queues the LM's rewrite of the draft; poll `jobStatus` for its `sample`
+   * (lmJob.ts). A full queue answers 409 with the reason. */
+  refineInput: (params: { prompt: string; lyrics: string } & Record<string, unknown>): Promise<{ jobId: string }> =>
     fetch('/api/generate/format', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
-    }).then((r) => json<RefineResult>(r)),
+    }).then((r) => json<{ jobId: string }>(r)),
 
-  randomSample: (sampleType: 'simple_mode' | 'custom_mode' = 'custom_mode'): Promise<RefineResult> =>
+  /** FEELING LUCKY: queues the LM's random sample, followed like WRITE FOR ME. */
+  randomSample: (sampleType: 'simple_mode' | 'custom_mode' = 'custom_mode'): Promise<{ jobId: string }> =>
     fetch('/api/generate/random-sample', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sample_type: sampleType }),
-    }).then((r) => json<RefineResult>(r)),
+    }).then((r) => json<{ jobId: string }>(r)),
 
-  sampleFromQuery: (query: string): Promise<RefineResult> =>
+  /** Quick Start: queues the LM's sample from a typed idea, followed like WRITE FOR ME. */
+  sampleFromQuery: (query: string): Promise<{ jobId: string }> =>
     fetch('/api/generate/sample-from-query', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ query }),
-    }).then((r) => json<RefineResult>(r)),
+    }).then((r) => json<{ jobId: string }>(r)),
 
   listModels: (): Promise<ModelInventory> =>
     fetch('/api/generate/models').then((r) => json<ModelInventory>(r)),
@@ -122,6 +126,8 @@ export const generationApi = {
     progress?: number; progressStage?: string; progressText?: string;
     /** Only on a finished ANALYZE AUDIO job. */
     analysis?: RefineResult;
+    /** Only on a finished LM job: FEELING LUCKY, Quick Start or WRITE FOR ME. */
+    sample?: RefineResult;
     /** Only on a finished TRANSCRIBE job. */
     transcription?: Transcription;
     /** Only on a finished READ LYRICS job. */

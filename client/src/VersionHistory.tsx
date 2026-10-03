@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { api, type Version } from './api';
 import { attempt } from './actionError';
 import type { Region } from './Waveform';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { ScrollArea } from './ScrollArea';
-import { useGenerationStore } from './generationStore';
-import { isGenerating, lockHolder, waitLabel } from './generationJob';
-import { useEditorJobStore, isEditorBusy, selectSplitRunning } from './editorJobStore';
+import { useEditorJobStore, jobView } from './editorJobStore';
+import type { SingleEditorJob } from './editorJob';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
+import { queueSuffix } from './queueCopy';
+import { useJobsAhead } from './queueStore';
+import { useNextVersion } from './useLayerQueue';
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 const VISIBLE_COUNT = 4;
@@ -29,30 +31,26 @@ export function VersionHistory({ songId, layerId, layerName, versions, onSelectR
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [error, setError] = useState('');
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
-  const otherLock = useGenerationStore((s) => s.otherLock);
-  const editorJob = useEditorJobStore((s) => s.editorJob);
-  const splitRunning = useEditorJobStore(selectSplitRunning);
+  const editorJobs = useEditorJobStore((s) => s.editorJobs);
   const startRegenerate = useEditorJobStore((s) => s.startRegenerate);
   const startRetake = useEditorJobStore((s) => s.startRetake);
-  const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
+  const dismiss = useEditorJobStore((s) => s.dismiss);
+  const ahead = useJobsAhead();
+  const next = useNextVersion({ id: layerId, name: layerName, versions }, songId);
 
-  // At most one of these can be running for this layer at a time (the global genLock), so a
-  // single slot covers both ALT and SIMILAR across every version row.
-  const mine = (editorJob?.kind === 'regenerate' || editorJob?.kind === 'retake') && editorJob.layerId === layerId ? editorJob : null;
-  const elapsedMs = useElapsedMs(mine?.stage === 'running', mine?.startedAt ?? null);
-  const progressSuffix = `${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`;
-  const busyOtherKind = (isEditorBusy(editorJob) && !mine) || splitRunning;
-  const busy = genRunning || !!otherLock || busyOtherKind || mine?.stage === 'running';
-  const busyBy = mine?.stage !== 'running' && (genRunning || !!otherLock || busyOtherKind)
-    ? lockHolder({ generating: genRunning, otherLock, editorJob: mine ? null : editorJob, splitRunning }) : null;
-
-  // Runs once when *our* regenerate/retake finishes, even if it settled while this Editor/layer
-  // wasn't focused — reload picks up the newly appended history row.
-  useEffect(() => {
-    if (mine?.stage === 'done') void onChanged();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mine?.stage]);
+  // ALT and SIMILAR on this layer, from every version row: several may wait in the queue at once.
+  // The Editor reloads the song when one lands (useLandedReload).
+  const { inFlight, running, failed } = jobView(editorJobs.filter((j): j is SingleEditorJob & { versionId: string } =>
+    (j.kind === 'regenerate' || j.kind === 'retake') && j.layerId === layerId));
+  const elapsedMs = useElapsedMs(!!running, running?.startedAt ?? null);
+  const progressSuffix = `${fmtProgress(running?.progress) ? ` · ${fmtProgress(running?.progress)}` : ''}${stageDetail(running?.progressStage) ? ` · ${stageDetail(running?.progressStage)}` : ''}`;
+  /** A version row's ALT or SIMILAR label while a job it started is in flight. */
+  const jobLabel = (versionId: string, kind: 'regenerate' | 'retake', idle: string) => {
+    const job = inFlight.find((j) => 'versionId' in j && j.versionId === versionId && j.kind === kind);
+    if (!job) return idle;
+    return job === running ? `${idle}… ${fmtElapsed(elapsedMs)}${progressSuffix}` : `${idle} · QUEUED`;
+  };
+  const saves = `saved as ${layerName.toLowerCase()} v${next}${queueSuffix(ahead)}`;
 
   const del = async (id: string) => {
     if (confirmDelete !== id) { setConfirmDelete(id); return; }
@@ -67,16 +65,12 @@ export function VersionHistory({ songId, layerId, layerName, versions, onSelectR
   };
 
   const regenerate = (id: string) => {
-    if (busyOtherKind || genRunning || !!otherLock) return;
-    if (mine?.stage === 'running') return;
-    if (mine?.stage === 'failed') dismissEditorJob();
+    if (failed) dismiss(failed.key);
     void startRegenerate(layerId, songId, id);
   };
 
   const retake = (id: string) => {
-    if (busyOtherKind || genRunning || !!otherLock) return;
-    if (mine?.stage === 'running') return;
-    if (mine?.stage === 'failed') dismissEditorJob();
+    if (failed) dismiss(failed.key);
     void startRetake(layerId, songId, id);
   };
 
@@ -142,13 +136,12 @@ export function VersionHistory({ songId, layerId, layerName, versions, onSelectR
                 )}
                 {replayable && (
                   <>
-                    <button onClick={() => regenerate(v.id)} disabled={busy}
-                      title={busyBy ? waitLabel(busyBy) : 'regenerate as an alternate version'}>
-                      <span>{mine?.versionId === v.id && mine.kind === 'regenerate' && mine.stage === 'running' ? `ALT… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'ALT'}</span>
+                    <button onClick={() => regenerate(v.id)} title={`regenerate as an alternate version, ${saves}`}>
+                      <span>{jobLabel(v.id, 'regenerate', 'ALT')}</span>
                     </button>
-                    <button onClick={() => retake(v.id)} disabled={busy}
-                      title={busyBy ? waitLabel(busyBy) : "generate a similar take from this version's seed, appended to history"}>
-                      <span>{mine?.versionId === v.id && mine.kind === 'retake' && mine.stage === 'running' ? `SIMILAR… ${fmtElapsed(elapsedMs)}${progressSuffix}` : 'SIMILAR'}</span>
+                    <button onClick={() => retake(v.id)}
+                      title={`generate a similar take from this version's seed, ${saves}`}>
+                      <span>{jobLabel(v.id, 'retake', 'SIMILAR')}</span>
                     </button>
                   </>
                 )}
@@ -172,7 +165,7 @@ export function VersionHistory({ songId, layerId, layerName, versions, onSelectR
         </button>
       )}
       {error && <div className="error">{error}</div>}
-      {mine?.stage === 'failed' && <div className="error">{mine.error ?? 'generation failed'}</div>}
+      {failed && <div className="error">{failed.error ?? 'generation failed'}</div>}
       </ScrollArea>
     </div>
   );

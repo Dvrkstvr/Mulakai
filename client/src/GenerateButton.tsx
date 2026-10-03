@@ -3,9 +3,6 @@ import { AIGeneratingBackground } from './AIGeneratingBackground';
 
 interface Props {
   submitting: boolean;
-  /** Why the server's lock refuses a start right now (busyMessage), naming the job holding it —
-   * anywhere in the app, not just this tab. Null when free. */
-  blocked: string | null;
   label: string;
   disabled: boolean;
   onClick: () => void;
@@ -13,7 +10,7 @@ interface Props {
 
 /** The acid "commit" button both Create tabs end with — identical shape (skew-to-flat +
  * AIGeneratingBackground veil while submitting), only the idle label differs. */
-export function GenerateButton({ submitting, blocked, label, disabled, onClick }: Props) {
+export function GenerateButton({ submitting, label, disabled, onClick }: Props) {
   return (
     <div className="generate-row">
       <motion.button
@@ -29,7 +26,7 @@ export function GenerateButton({ submitting, blocked, label, disabled, onClick }
             <AIGeneratingBackground />
             <span style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>STARTING…</span>
           </>
-        ) : blocked ?? label}
+        ) : label}
       </motion.button>
     </div>
   );

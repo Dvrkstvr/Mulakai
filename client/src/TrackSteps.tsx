@@ -1,9 +1,7 @@
-import { useState } from 'react';
-import { api, type ModelInventory } from './api';
+import type { ModelInventory } from './api';
 import { ScratchSplitPicker } from './ScratchSplitPicker';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGenerationStore } from './generationStore';
-import { busyMessage } from './generationJob';
+import { useLuckyRoll } from './lmJob';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
@@ -35,16 +33,13 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
   const { prompt, lyrics, bpm, keyScale, duration } = draft;
 
   const uploadUrl = useObjectUrl(uploadFile);
-  const [luckyLoading, setLuckyLoading] = useState(false);
-  const [luckyError, setLuckyError] = useState('');
+  const lucky = useLuckyRoll();
   const flow = useFlowModel({
     task: 'complete', name: 'Arrange', model, setModel: (m) => patchArrange({ model: m }),
     prefer: (ms) => ms.find((n) => n.includes('xl-base')) ?? ms.find((n) => n.includes('base')) ?? ms[0] ?? '',
     none: 'no downloaded model supports arrange generation — requires a Base model',
   });
-  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const { submitting, error, generate } = useTrackGenerate(onBack);
-  const busy = submitting || !!blockedBy;
   const sourceReady = source === 'upload' ? !!uploadFile : !!scratchSource;
 
   const analyzeSource: AnalyzeSource = source === 'upload'
@@ -58,17 +53,7 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
     setDuration: (v) => patch({ duration: v }),
   }, { carried: draft.intentOrigin !== 'complete' });
 
-  const feelingLucky = async () => {
-    setLuckyError('');
-    setLuckyLoading(true);
-    try {
-      patch({ prompt: (await api.randomSample()).caption });
-    } catch (err) {
-      setLuckyError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLuckyLoading(false);
-    }
-  };
+  const feelingLucky = () => lucky.roll((sample) => patch({ prompt: sample.caption }));
 
   return (
     <>
@@ -96,13 +81,14 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
           <div className="query-row">
             <AutoTextarea placeholder="Optional — describe the accompaniment (style, mood, instruments)"
               value={prompt} onChange={(v) => patch({ prompt: v })} />
-            <button className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'} disabled={luckyLoading || busy} onClick={feelingLucky}>
-              {luckyLoading ? 'ROLLING…' : 'FEELING LUCKY'}
+            <button className={lucky.rolling ? 'lucky-btn loading' : 'lucky-btn'} disabled={lucky.rolling || submitting} onClick={feelingLucky}>
+              {lucky.rolling ? 'ROLLING…' : 'FEELING LUCKY'}
             </button>
           </div>
           <CarriedPromptNote />
-          {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
-          <AnalyzeAudioButton disabled={!canAnalyze(analyzeSource, model, busy || analysis.analyzing)}
+          {lucky.waitNote && <div className="hint">{lucky.waitNote}</div>}
+          {lucky.error && <div className="error">{lucky.error} <button onClick={feelingLucky}>RETRY</button></div>}
+          <AnalyzeAudioButton disabled={!canAnalyze(analyzeSource, model, submitting || analysis.analyzing)}
             analyzing={analysis.analyzing} onClick={() => analysis.analyze(analyzeSource, model)} />
         </CreateStep>
         <CreateStep n={3} optional title="LYRICS + DETAILS" sub="ANALYZE AUDIO fills these from your track · edit freely">
@@ -117,8 +103,8 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
       <RecipeCard stepsModel={model} engine={<AceStepOnly />}
         tune={<GenTune inventory={inventory} modelControl={flow.control} flowModel={model} modelDefault={flow.preferred} stepsModel={model} />}
         commit={(
-          <RecipeCommit label="ARRANGE" submitting={submitting} blocked={blockedBy} error={error} onClick={generate}
-            disabled={busy || !sourceReady || !flow.ready}>
+          <RecipeCommit label="ARRANGE" submitting={submitting} error={error} onClick={generate}
+            disabled={submitting || !sourceReady || !flow.ready}>
             {flow.problem}
             <div className="hint">Builds a whole new accompaniment around the source track — uses the BASE model, slower than Turbo — can take several minutes.</div>
           </RecipeCommit>

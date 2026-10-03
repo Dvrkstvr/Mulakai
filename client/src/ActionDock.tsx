@@ -8,6 +8,7 @@ import { DockAddLayer } from './DockAddLayer';
 import { DockSplit } from './DockSplit';
 import { DockExport } from './DockExport';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
+import { useNextVersion } from './useLayerQueue';
 
 const VERBS: { id: DockVerb; label: string; key: string }[] = [
   { id: 'repaint', label: 'REPAINT', key: 'R' },
@@ -45,8 +46,8 @@ function activeNumber(layer: Layer | undefined): number | null {
 /**
  * The Editor's one place to act (PLAN.md "UI Redesign", S1): TARGET chip → verb tabs → the
  * verb's body → consequence + commit. A verb's body stays mounted (hidden) once opened, so its
- * fields survive a switch and a job it started still settles; ADD LAYER is always mounted, as
- * its row used to be, so a layer that lands while the Editor shows another verb reloads the song.
+ * fields survive a switch; ADD LAYER is always mounted, as its row used to be, so its fields
+ * start over once its layers land even while another verb shows.
  */
 export function ActionDock({ verb, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint, onChanged }: Props) {
   const [opened, setOpened] = useState<Set<DockVerb>>(() => new Set(['repaint', 'addLayer']));
@@ -55,13 +56,14 @@ export function ActionDock({ verb, onVerb, song, focusedLayer, selection, onClea
   const duration = song.duration ?? 0;
   const target = dockTarget(verb, layerName, selection, sections, duration);
   const repaintTarget = verb === 'repaint' ? target : dockTarget('repaint', layerName, selection, sections, duration);
+  const nextVersion = useNextVersion(focusedLayer, song.id);
 
   const body = (v: DockVerb) => {
     if (v === 'repaint') {
-      return <DockRepaint target={repaintTarget} layerName={layerName} nextVersion={(focusedLayer?.versions.length ?? 0) + 1}
+      return <DockRepaint target={repaintTarget} layerName={layerName} nextVersion={nextVersion}
         activeVersion={activeNumber(focusedLayer)} selection={selection} duration={duration} {...repaint} />;
     }
-    if (v === 'addLayer') return <DockAddLayer songId={song.id} layers={song.layers} songLyrics={song.lyrics} onDone={onChanged} />;
+    if (v === 'addLayer') return <DockAddLayer songId={song.id} layers={song.layers} songLyrics={song.lyrics} />;
     if (v === 'split') return focusedLayer ? <DockSplit songId={song.id} layer={focusedLayer} onChanged={onChanged} /> : null;
     return <DockExport song={song} />;
   };

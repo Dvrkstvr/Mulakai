@@ -7,6 +7,7 @@ import { useTimingsStore, shouldAutoRead } from './timingsStore';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
 import { useEditorJobStore, isEditorBusy, selectSplitRunning } from './editorJobStore';
+import { useQueueStore } from './queueStore';
 
 export interface LyricTiming {
   sections: Section[];
@@ -31,9 +32,11 @@ export function useLyricTiming(
   const configured = useTimingsStore((s) => s.configured);
   const versionId = baseActive?.id;
   const run = useTimingsStore((s) => (versionId ? s.runs[versionId] : undefined));
-  const genBusy = useGenerationStore((s) => isGenerating(s.job) || !!s.otherLock);
-  const editorBusy = useEditorJobStore((s) => isEditorBusy(s.editorJob) || selectSplitRunning(s));
-  const lockFree = !genBusy && !editorBusy;
+  // The automatic read waits for an idle GPU rather than queueing ahead of the user's own edits.
+  const genBusy = useGenerationStore((s) => s.jobs.some(isGenerating) || !!s.otherLock);
+  const editorBusy = useEditorJobStore((s) => s.editorJobs.some(isEditorBusy) || selectSplitRunning(s));
+  const queueBusy = useQueueStore((s) => !!s.running || s.queued.length > 0);
+  const lockFree = !genBusy && !editorBusy && !queueBusy;
   const lyrics = song?.lyrics ?? '';
   const timings = baseActive?.wordTimings ?? null;
   const hasWords = useMemo(() => tokenize(lyrics).length > 0, [lyrics]);

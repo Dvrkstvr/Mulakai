@@ -4,7 +4,7 @@ import { api } from './api';
 import { useActivityStore, type ActivityEntry } from './activityStore';
 import { useApiStatusStore } from './apiStatusStore';
 import { useQueueStore } from './queueStore';
-import { editorSettled, genSettled, localSettled, splitSettled, timingsFailed } from './activitySettle';
+import { editorSettled, genSettled, localSettled, settledEach, splitSettled, timingsFailed } from './activitySettle';
 import { useEditorJobStore } from './editorJobStore';
 import { useGenerationStore } from './generationStore';
 import { useReadLyricsStore } from './readLyricsStore';
@@ -34,9 +34,9 @@ function record(entry: ActivityEntry | null): void {
 
 export function trackActivity(): () => void {
   const unsubs = [
-    useGenerationStore.subscribe((s, prev) => record(genSettled(prev.job, s.job))),
+    useGenerationStore.subscribe((s, prev) => settledEach(prev.jobs, s.jobs, genSettled).forEach(record)),
     useEditorJobStore.subscribe((s, prev) => {
-      record(editorSettled(prev.editorJob, s.editorJob));
+      settledEach(prev.editorJobs, s.editorJobs, editorSettled).forEach(record);
       record(splitSettled(prev.splitJob, s.splitJob));
     }),
     useTranscribeStore.subscribe((s, prev) => record(localSettled('transcribe', prev, s, s.retry))),

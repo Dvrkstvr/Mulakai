@@ -56,7 +56,7 @@ function Drawer({ openEditor, openCreate, retryGeneration }: Props) {
     // The row goes only once the job has really started again; a refused RETRY says why.
     if (e.retry) {
       return () => {
-        if (retryEntry(e, running.length > 0) === 'started') remove(e.id);
+        if (retryEntry(e) === 'started') remove(e.id);
         else patch(e.id, { note: RETRY_BUSY });
       };
     }
@@ -64,7 +64,7 @@ function Drawer({ openEditor, openCreate, retryGeneration }: Props) {
     const draft = e.draft;
     return () => {
       remove(e.id);
-      if (useGenerationStore.getState().job?.stage === 'failed') useGenerationStore.getState().dismiss();
+      if (e.jobKey) useGenerationStore.getState().dismiss(e.jobKey);
       close();
       retryGeneration(draft);
     };

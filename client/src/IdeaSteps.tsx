@@ -8,8 +8,6 @@ import { typewrite } from './typewriter';
 import { AiEnhanceBadge } from './Toggle';
 import { LyricTagGuidePopover } from './LyricTagGuidePopover';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGenerationStore } from './generationStore';
-import { busyMessage } from './generationJob';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { PromptEngineChoice } from './EngineChoice';
 import { useEngineCaps } from './useEngineCaps';
@@ -37,7 +35,6 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
   const { prompt, lyrics, formatted, pendingQuery } = useCreateDraftStore();
   const patch = useCreateDraftStore((s) => s.patch);
   const clearPendingQuery = useCreateDraftStore((s) => s.clearPendingQuery);
-  const busy = useGenerationStore((s) => !!busyMessage(s.job, s.otherLock));
   const { info: engine } = useEngineCaps();
   const caps = engine?.capabilities ?? null;
   // AI ENHANCE is ACE-Step's LM rewriting the request; an engine without LM tools gets the text as typed.
@@ -47,7 +44,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
     : !inventory.data ? 'the model list is still loading' : 'ACE-Step names no default model, so pick a DIT MODEL in TUNE';
 
   const [pendingResult, setPendingResult] = useState<RefineResult | null>(null);
-  const { phase: thinkPhase, error: thinkError, retry: retryThink, finish: finishThink } =
+  const { phase: thinkPhase, error: thinkError, waitNote: thinkWait, retry: retryThink, finish: finishThink } =
     useThinkingQuery(pendingQuery, setPendingResult);
   const thinking = thinkPhase !== 'idle';
 
@@ -90,7 +87,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
                   ? 'AI ENHANCE is on, but this draft is already LM-formatted — it will generate as-is, unformatted, to avoid re-enhancing it.'
                   : 'AI ENHANCE is on — prompt, lyrics, and any AUTO details below are refined and filled in by the LM.'}
             </div>}
-            <div className="step-tools"><IdeaLucky disabled={busy || thinking} /></div>
+            <div className="step-tools"><IdeaLucky disabled={thinking} /></div>
           </CreateStep>
           <CreateStep n={2} title="LYRICS" actions={<>
             {enhance && <AiEnhanceBadge />}
@@ -112,6 +109,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
           </CreateStep>
           <ThinkingWipe phase={thinkPhase} onSwept={finishReveal} />
         </div>
+        {thinkWait && <div className="hint">{thinkWait}</div>}
         {thinkError && <div className="error">{thinkError} <button onClick={retryThink}>RETRY</button></div>}
         <CreateStep n={3} optional title="DETAILS" sub="optional · AUTO lets the planner decide">
           <IdeaDetails />

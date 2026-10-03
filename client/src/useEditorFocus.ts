@@ -23,8 +23,8 @@ export function useEditorFocus(
   // is invisibly still there behind a verb the user isn't looking at. Runs once per song load,
   // not on every job tick (hence getState), so switching verbs afterward sticks.
   useEffect(() => {
-    const { editorJob: job, splitJob } = useEditorJobStore.getState();
-    if (song && job?.songId === song.id && job.kind === 'remaster') setVerb('export');
+    const { editorJobs, splitJob } = useEditorJobStore.getState();
+    if (song && editorJobs.some((j) => j.songId === song.id && j.kind === 'remaster')) setVerb('export');
     else if (song && splitJob?.songId === song.id) { setVerb('split'); setFocusedLayerId(splitJob.layerId); }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song?.id]);

@@ -30,6 +30,8 @@ export interface Job {
   lyrics?: import('./lyricsJobs.js').LyricsOutcome;
   /** Set by analyzeJobs.ts on success: ACE-Step's description of the source. */
   analysis?: import('./acestep.js').FormatInputResult;
+  /** Set by lmJobs.ts on success: what the LM wrote (FEELING LUCKY, Quick Start, WRITE FOR ME). */
+  sample?: import('./acestep.js').SampleResult;
 }
 
 /** Readers stop once a job settles (a remaster is downloaded right then), so an hour

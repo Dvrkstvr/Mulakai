@@ -3,9 +3,10 @@ import type { Layer } from './api';
 import type { Region } from './Waveform';
 import { repaintParams, type RepaintSettings } from './settings';
 import { clampCrossfade, repaintRangeValid } from './repaintLimits';
+import { repaintFieldsUnchanged } from './landedFields';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
 
-type RepaintJob = Pick<ReturnType<typeof useEditorRepaintJob>, 'startRepaint' | 'dismissEditorJob' | 'myRepaint' | 'busyElsewhere'>;
+type RepaintJob = Pick<ReturnType<typeof useEditorRepaintJob>, 'startRepaint' | 'dismiss' | 'failed' | 'landedJobs' | 'landed'>;
 
 interface RequestInputs {
   selection: Region | null;
@@ -22,7 +23,6 @@ interface Options extends RepaintJob, RequestInputs {
   focusedLayer: Layer | undefined;
   setSelection: (selection: Region | null) => void;
   setPrompt: (prompt: string) => void;
-  reload: () => Promise<void>;
 }
 
 /**
@@ -43,27 +43,29 @@ export function repaintRequest({ selection, duration, prompt, lyricsUnlocked, ly
   };
 }
 
-/** Submits the Editor's repaint of the selected range, and clears it once *our* repaint lands. */
+/** Submits the Editor's repaint of the selected range — queued behind whatever runs, never
+ * refused for a busy GPU — and, once one lands, clears the range and instruction only if they
+ * still hold what it was submitted with (the Editor reloads the song itself, useLandedReload). */
 export function useRepaintSubmit({
-  songId, focusedLayer, startRepaint, dismissEditorJob, myRepaint, busyElsewhere, setSelection, setPrompt, reload, ...inputs
+  songId, focusedLayer, startRepaint, dismiss, failed, landedJobs, landed, setSelection, setPrompt, ...inputs
 }: Options) {
   const repaint = () => {
     const request = repaintRequest(inputs);
-    if (!focusedLayer || !request || busyElsewhere) return;
-    if (myRepaint?.stage === 'failed') dismissEditorJob(); // clear the failed attempt before resubmitting
+    if (!focusedLayer || !request) return;
+    if (failed) dismiss(failed.key); // the new attempt replaces the failed one's error line
     void startRepaint(focusedLayer.id, songId, request);
   };
 
-  // Runs once when *our* repaint finishes — the job itself may have completed while this
-  // Editor was unmounted (e.g. user navigated to the Library and back to this song).
+  // A repaint may have landed while this Editor was unmounted (it lingers as done). A range or
+  // instruction set up after committing it is the user's next edit, and stays.
   useEffect(() => {
-    if (myRepaint?.stage === 'done') {
+    const { selection, prompt } = inputs;
+    if (landedJobs.some((j) => j.kind === 'repaint' && repaintFieldsUnchanged(j.submitted, selection, prompt))) {
       setSelection(null);
       setPrompt('');
-      void reload();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [myRepaint?.stage]);
+  }, [landed]);
 
   return repaint;
 }

@@ -6,8 +6,8 @@ afterEach(() => {
 });
 
 describe('api.randomSample', () => {
-  it('posts sample_type and returns the parsed result', async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ caption: 'c', lyrics: 'l' }), { status: 200 }));
+  it('posts sample_type and returns the queued job', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ jobId: 'j1' }), { status: 202 }));
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await api.randomSample('custom_mode');
@@ -16,7 +16,7 @@ describe('api.randomSample', () => {
       method: 'POST',
       body: JSON.stringify({ sample_type: 'custom_mode' }),
     }));
-    expect(result).toEqual({ caption: 'c', lyrics: 'l' });
+    expect(result).toEqual({ jobId: 'j1' });
   });
 
   it('defaults to custom_mode (the only mode with lyrics/bpm/key/duration)', async () => {
@@ -65,8 +65,8 @@ describe('api.importSong', () => {
 });
 
 describe('api.sampleFromQuery', () => {
-  it('posts the query and returns the parsed result', async () => {
-    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ caption: 'about rain', lyrics: '' }), { status: 200 }));
+  it('posts the query and returns the queued job', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({ jobId: 'q1' }), { status: 202 }));
     vi.stubGlobal('fetch', fetchMock);
 
     const result = await api.sampleFromQuery('a rainy day song');
@@ -75,7 +75,7 @@ describe('api.sampleFromQuery', () => {
       method: 'POST',
       body: JSON.stringify({ query: 'a rainy day song' }),
     }));
-    expect(result.caption).toBe('about rain');
+    expect(result).toEqual({ jobId: 'q1' });
   });
 
   it('surfaces the server error message on failure', async () => {

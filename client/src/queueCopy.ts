@@ -1,4 +1,5 @@
-/** What Activity's UP NEXT rows say about a queued job (PLAN.md "UI Redesign", S4.7). Pure. */
+/** What Activity's UP NEXT rows and the commits' consequence lines say about the queue (PLAN.md
+ * "UI Redesign", S4.7). Pure. */
 import type { QueueEntry } from './api';
 import type { ActivityKind } from './activitySettle';
 
@@ -6,7 +7,7 @@ import type { ActivityKind } from './activitySettle';
 const VERB: Record<ActivityKind, string> = {
   generate: 'GENERATE', repaint: 'REPAINT', regenerate: 'ALT TAKE', retake: 'SIMILAR TAKE', addLayer: 'ADD LAYER',
   split: 'SPLIT', remaster: 'REMASTER', transcribe: 'TRANSCRIBE', lyrics: 'READ LYRICS', timings: 'WORD TIMINGS',
-  analyze: 'ANALYZE AUDIO',
+  analyze: 'ANALYZE AUDIO', lm: 'LM WRITING',
 };
 
 /** "starts after 2 jobs": `ahead` counts the running job and every queued one before it, so a
@@ -14,6 +15,12 @@ const VERB: Record<ActivityKind, string> = {
 export function startsAfter(ahead: number): string {
   if (ahead <= 0) return 'starts now';
   return `starts after ${ahead} job${ahead === 1 ? '' : 's'}`;
+}
+
+/** What a commit's consequence line adds while the queue is busy: " · starts after 2 jobs", or
+ * nothing when the job would start at once (DESIGN.md's copy rule). */
+export function queueSuffix(ahead: number): string {
+  return ahead > 0 ? ` · ${startsAfter(ahead)}` : '';
 }
 
 /** The row's action line: "REPAINT 1:32–2:07 · starts after 1 job". */

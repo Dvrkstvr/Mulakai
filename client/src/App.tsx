@@ -51,11 +51,11 @@ export default function App() {
   }, []);
   const navValue = useMemo(() => ({ goToSettings: () => setView('settings'), openEditor }), [openEditor]);
   const isTakeover = view === 'create' || view === 'settings' || view === 'forge';
-  const genJob = useGenerationStore((s) => s.job);
+  const genJobs = useGenerationStore((s) => s.jobs);
   const dismissGenJob = useGenerationStore((s) => s.dismiss);
   const hydrateGenJob = useGenerationStore((s) => s.hydrate);
 
-  useAppSync({ library, genJob, hydrateGenJob, setPlaying });
+  useAppSync({ library, genJobs, hydrateGenJob, setPlaying });
 
   /** Every route into Create goes through here. A draft that actually asks for something
    * (a create-bar query, REUSE PROMPT, CREATE COVER FROM AUDIO, RETRY) replaces whatever was
@@ -126,7 +126,7 @@ export default function App() {
           <motion.div className="view-fill" key="library" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }}>
             <LibraryView
               library={library}
-              genJob={genJob}
+              genJobs={genJobs}
               dismissGenJob={dismissGenJob}
               detailSongId={detailSongId}
               setDetailSongId={setDetailSongId}

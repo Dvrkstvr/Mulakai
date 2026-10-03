@@ -13,16 +13,15 @@ interface Props {
   layerName: string;
   nextVersion: number;
   busy: boolean;
-  reextractBlocked: boolean;
   onClaim: (action: 'replace' | 'add-layer') => void;
   onReextract: () => void;
 }
 
 /** One stem's row in the dock's SPLIT — preview, status, and REPLACE/ADD LAYER/RE-EXTRACT. */
-export function SplitStemRow({ stem, layerName, nextVersion, busy, reextractBlocked, onClaim, onReextract }: Props) {
+export function SplitStemRow({ stem, layerName, nextVersion, busy, onClaim, onReextract }: Props) {
   const locked = !!stem.claimed;
   const ready = stem.status === 'done' && !locked && !busy;
-  const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy && !reextractBlocked;
+  const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy;
 
   return (
     <div className="stem-row">

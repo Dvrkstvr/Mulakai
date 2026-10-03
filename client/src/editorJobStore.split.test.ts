@@ -12,6 +12,7 @@ vi.mock('./api', () => ({
     startSplit: (...args: unknown[]) => startSplit(...args),
     splitStatus: (id: string) => splitStatus(id),
     cancelSplit: (id: string) => cancelSplit(id),
+    queue: async () => ({ running: null, queued: [] }),
   },
   ApiError: class ApiError extends Error {
     status: number;
@@ -32,7 +33,7 @@ const repaintParams = { prompt: 'p', start: 0, end: 1 };
 describe('the split slot', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    useEditorJobStore.setState({ editorJob: null, splitJob: null });
+    useEditorJobStore.setState({ editorJobs: [], splitJob: null });
     repaint.mockReset().mockResolvedValue({ jobId: 'r1' });
     jobStatus.mockReset().mockResolvedValue({ status: 'running' });
     startSplit.mockReset().mockResolvedValueOnce({ jobId: 's1' }).mockResolvedValueOnce({ jobId: 's2' });
@@ -54,19 +55,30 @@ describe('the split slot', () => {
     void store().startRepaint('l2', 'song', repaintParams);
     await vi.advanceTimersByTimeAsync(0);
     expect(repaint).toHaveBeenCalled();
-    expect(store().editorJob).toMatchObject({ kind: 'repaint', jobId: 'r1', stage: 'running' });
+    expect(store().editorJobs[0]).toMatchObject({ kind: 'repaint', jobId: 'r1', stage: 'running' });
     expect(store().splitJob).toMatchObject({ stage: 'done', splitJobId: 's1' });
   });
 
-  it('refuses a repaint while a split is still extracting', async () => {
+  it('starts a repaint while a split is still extracting: the server queues it', async () => {
     splitStatus.mockReset().mockResolvedValue({ status: 'running', stems: [] });
     void store().startSplit('l1', 'song', 'acestep');
     await vi.advanceTimersByTimeAsync(POLL_MS);
     expect(selectSplitRunning(store())).toBe(true);
 
     await store().startRepaint('l2', 'song', repaintParams);
-    expect(repaint).not.toHaveBeenCalled();
-    expect(store().editorJob).toBeNull();
+    expect(repaint).toHaveBeenCalled();
+    expect(store().editorJobs[0]).toMatchObject({ kind: 'repaint', jobId: 'r1' });
+    expect(selectSplitRunning(store())).toBe(true);
+  });
+
+  it("won't let RETRY of a failed split close another layer's open session", async () => {
+    startSplit.mockReset().mockRejectedValueOnce(new Error('ACE-Step down')).mockResolvedValueOnce({ jobId: 's2' });
+    await store().startSplit('l1', 'song', 'acestep');
+    const failed = store().splitJob!;
+    void store().startSplit('l2', 'song', 'acestep');
+    await vi.advanceTimersByTimeAsync(0);
+    expect(failed.retry?.()).toBe(false);
+    expect(store().splitJob).toMatchObject({ layerId: 'l2', splitJobId: 's2' });
   });
 
   it('replaces a settled split with a new one, closing the old one on the server', async () => {
@@ -87,6 +99,6 @@ describe('the split slot', () => {
 
     void store().startRepaint('l2', 'song', repaintParams);
     await vi.advanceTimersByTimeAsync(0);
-    expect(store().editorJob).toMatchObject({ kind: 'repaint', stage: 'running' });
+    expect(store().editorJobs[0]).toMatchObject({ kind: 'repaint', stage: 'running' });
   });
 });

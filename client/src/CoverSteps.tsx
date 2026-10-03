@@ -1,8 +1,6 @@
 import type { ModelInventory, Song } from './api';
 import { VarianceSlider } from './VarianceSlider';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGenerationStore } from './generationStore';
-import { busyMessage } from './generationJob';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
@@ -42,9 +40,7 @@ export function CoverSteps({ songs, onBack, inventory }: {
     prefer: (ms) => ms.find((n) => n.includes('xl-sft')) ?? ms[0] ?? '',
     none: 'no downloaded model supports cover generation',
   });
-  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const { submitting, error, generate } = useCoverGenerate(onBack);
-  const busy = submitting || !!blockedBy;
   const sourceReady = coverSourceReady(draft.audio);
 
   // Resolves lazily (the library branch bounces a full mix down client-side) so it's only
@@ -59,7 +55,7 @@ export function CoverSteps({ songs, onBack, inventory }: {
     setKeyScale: (v) => patch({ keyScale: v }),
     setDuration: (v) => patch({ duration: v }),
   }, { carried: draft.intentOrigin !== 'audio' });
-  const locks = aceCoverLocks({ analyzing: analysis.analyzing, generating: busy });
+  const locks = aceCoverLocks({ analyzing: analysis.analyzing, generating: submitting });
 
   // An engine cover transcribes the source and sings the score; ACE-Step's model and variance
   // don't apply, and its audio analysis only describes the source (PLAN.md "Client cover
@@ -83,7 +79,7 @@ export function CoverSteps({ songs, onBack, inventory }: {
             value={prompt} onChange={(v) => patch({ prompt: v })} />
           <CarriedPromptNote />
           <VarianceSlider value={Math.round(variance * 100)} onChange={(v) => patchAudio({ variance: v / 100 })} />
-          <AnalyzeAudioButton disabled={!canAnalyze(analyzeSource, model, busy || analysis.analyzing)}
+          <AnalyzeAudioButton disabled={!canAnalyze(analyzeSource, model, submitting || analysis.analyzing)}
             analyzing={analysis.analyzing} onClick={() => analysis.analyze(analyzeSource, model)} />
         </CreateStep>
         <CreateStep n={3} optional title="LYRICS" sub="from ANALYZE AUDIO, or your own · edit freely">
@@ -99,8 +95,8 @@ export function CoverSteps({ songs, onBack, inventory }: {
       <RecipeCard stepsModel={model} engine={<CoverEngineChoice lockedBy={locks.engine} />}
         tune={<GenTune inventory={inventory} modelControl={flow.control} flowModel={model} modelDefault={flow.preferred} stepsModel={model} />}
         commit={(
-          <RecipeCommit label="GENERATE COVER" submitting={submitting} blocked={blockedBy} error={error} onClick={generate}
-            disabled={busy || !sourceReady || !flow.ready}>
+          <RecipeCommit label="GENERATE COVER" submitting={submitting} error={error} onClick={generate}
+            disabled={submitting || !sourceReady || !flow.ready}>
             {flow.problem}
             <div className="hint">Renders a new song conditioned on the chosen source track — can take several minutes.</div>
           </RecipeCommit>

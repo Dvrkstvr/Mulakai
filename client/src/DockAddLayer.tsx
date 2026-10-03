@@ -4,11 +4,10 @@ import { useAddLayerDraft } from './addLayerStore';
 import { useSettings, addLayerParams } from './settings';
 import { bounceAudible } from './mixExport';
 import { useVoiceStore, voiceParams } from './voiceStore';
-import { useGenerationStore } from './generationStore';
-import { isGenerating, lockHolder, waitLabel } from './generationJob';
-import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
+import { useEditorJobStore, myEditorJobs, jobView } from './editorJobStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
-import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
+import { queueSuffix } from './queueCopy';
+import { useJobsAhead } from './queueStore';
 import { useLookup, modelsFor, checkingModels } from './lookup';
 import { VoicePicker } from './VoicePicker';
 import { AddLayerTune } from './AddLayerTune';
@@ -16,40 +15,34 @@ import { DockCommit } from './DockCommit';
 import { DockAddLayerFields } from './DockAddLayerFields';
 import { addLayerName, addLayerCommitLabel, addLayerConsequence, sungTrack } from './addLayerCopy';
 import { useDockRequest } from './dockRequest';
+import { addLayerFieldsUnchanged } from './landedFields';
 
 interface Props {
   songId: string;
   layers: Layer[];
   songLyrics: string;
-  onDone: () => Promise<void>;
 }
 
 /**
  * ADD LAYER: a new lane conditioned on the current mix (mute/solo-aware). Feature-gated to models
  * whose supportedTaskTypes include 'lego' (Base only, docs/ace-step-1.5/API.md#4.2); says why when
- * none is downloaded. Stays mounted while another verb is showing, so a layer that lands then
- * still reloads the song.
+ * none is downloaded. A busy GPU doesn't hold it: the server queues each ADD and its lines list
+ * under the commit.
  */
-export function DockAddLayer({ songId, layers, songLyrics, onDone }: Props) {
+export function DockAddLayer({ songId, layers, songLyrics }: Props) {
   const { addLayer, setAddLayer, repaint } = useSettings();
   const voice = useVoiceStore();
   const resetDraft = useAddLayerDraft((s) => s.reset);
   const [prompt, setPrompt] = useState('');
   const [trackName, setTrackName] = useState('');
   const [mixError, setMixError] = useState('');
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
-  const otherLock = useGenerationStore((s) => s.otherLock);
-  const editorJob = useEditorJobStore((s) => s.editorJob);
-  const splitRunning = useEditorJobStore(selectSplitRunning);
+  const editorJobs = useEditorJobStore((s) => s.editorJobs);
   const startAddLayer = useEditorJobStore((s) => s.startAddLayer);
-  const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
-  // Add Layer isn't tied to any one existing layer, so "mine" is just "an addLayer job for this song".
-  const mine = myEditorJob(editorJob, 'addLayer', { songId });
-  const running = mine?.stage === 'running';
-  const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'add layer failed') : '');
-  const busyElsewhere = splitRunning || (!mine && (genRunning || isEditorBusy(editorJob) || !!otherLock));
-  const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
-  const elapsedMs = useElapsedMs(running, mine?.startedAt ?? null);
+  const dismiss = useEditorJobStore((s) => s.dismiss);
+  const ahead = useJobsAhead();
+  // Add Layer isn't tied to any one existing layer, so "mine" is every addLayer job for this song.
+  const { inFlight, failed, landed, landedJobs } = jobView(myEditorJobs(editorJobs, 'addLayer', { songId }));
+  const error = mixError || (failed ? (failed.error ?? 'add layer failed') : '');
 
   const legoModels = useLookup(() => modelsFor('lego').then((names) => {
     if (names.length > 0 && !addLayer.model) setAddLayer({ model: names[0] });
@@ -64,13 +57,18 @@ export function DockAddLayer({ songId, layers, songLyrics, onDone }: Props) {
     useDockRequest.setState({ track: null });
   }, [trackPick]);
 
-  // Runs once when *our* add-layer finishes, even if it settled while the Editor wasn't mounted.
+  // Once an add-layer lands (even while the Editor wasn't mounted), the fields start over if they
+  // still hold what it was submitted with — never a next layer set up meanwhile. The Editor
+  // reloads the song itself (useLandedReload).
   useEffect(() => {
-    if (mine?.stage === 'done') { setPrompt(''); setTrackName(''); resetDraft(); void onDone(); }
+    const lyrics = sungTrack(trackName) ? useAddLayerDraft.getState().lyrics.trim() : '';
+    if (landedJobs.some((j) => j.kind === 'addLayer' && addLayerFieldsUnchanged(j.submitted, prompt, trackName, lyrics))) {
+      setPrompt(''); setTrackName(''); resetDraft();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mine?.stage]);
+  }, [landed]);
 
-  const canSubmit = !!legoModels.data?.length && prompt.trim().length > 0 && !running && !busyElsewhere;
+  const canSubmit = !!legoModels.data?.length && prompt.trim().length > 0;
   const layerName = addLayerName(prompt, trackName);
 
   const submit = async () => {
@@ -78,7 +76,7 @@ export function DockAddLayer({ songId, layers, songLyrics, onDone }: Props) {
     setMixError('');
     try {
       const mixAudio = await bounceAudible(layers);
-      if (mine?.stage === 'failed') dismissEditorJob();
+      if (failed) dismiss(failed.key);
       const lyrics = sungTrack(trackName) ? useAddLayerDraft.getState().lyrics.trim() : '';
       void startAddLayer(songId, mixAudio, {
         prompt,
@@ -107,25 +105,21 @@ export function DockAddLayer({ songId, layers, songLyrics, onDone }: Props) {
     );
   }
 
-  const progress = `${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`;
   return (
     <>
       <div className="dock-body">
         <DockAddLayerFields trackName={trackName} onTrackName={setTrackName} prompt={prompt} onPrompt={setPrompt}
-          disabled={running} songLyrics={songLyrics} />
+          songLyrics={songLyrics} />
         <VoicePicker />
         <AddLayerTune legoModels={legoModels.data} />
       </div>
       <DockCommit
-        consequence={addLayerConsequence(layerName)}
-        label={running ? `GENERATING… ${fmtElapsed(elapsedMs)}${progress}` : busyBy ? waitLabel(busyBy) : addLayerCommitLabel(trackName)}
+        consequence={addLayerConsequence(layerName) + queueSuffix(ahead)}
+        label={addLayerCommitLabel(trackName)}
         disabled={!canSubmit}
-        running={running}
-        progress={mine?.progress}
-        title={running ? mine?.progressText : undefined}
         onCommit={() => void submit()}
+        jobs={inFlight}
       />
-      {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
       <ActiveAdapterNote />
       {error && <div className="error">{error} <button onClick={() => void submit()}>RETRY</button></div>}
     </>

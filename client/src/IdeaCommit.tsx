@@ -1,7 +1,6 @@
 import { useSettings, genParams, outputParams } from './settings';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useGenerationStore } from './generationStore';
-import { busyMessage } from './generationJob';
 import { useCreateDraftStore } from './createDraftStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import type { CreateDraft } from './createDraft';
@@ -19,14 +18,12 @@ export function IdeaCommit({ thinking, onBack, stepsModel }: { thinking: boolean
   const gen = useSettings((s) => s.gen);
   const voice = useVoiceStore();
   const draft = useCreateDraftStore();
-  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const startGeneration = useGenerationStore((s) => s.start);
   const { id: engineId, info: engine } = useEngineCaps();
   const controls = useEngineSettings((s) => s.values[engineId]);
   const { submitting, error, submit } = useCreateSubmit(onBack, recipeEtaKey('prompt', engineId, stepsModel, gen.quality));
   // Also covers "not loaded yet": an extra engine's GENERATE waits for its descriptor.
   const engineBlocked = engineId !== 'acestep' && !engine?.ready;
-  const busy = submitting || !!blockedBy;
 
   const { title, prompt, lyrics, bpm, keyScale, timeSignature, vocalLanguage, duration, folderId, formatted } = draft;
 
@@ -57,8 +54,8 @@ export function IdeaCommit({ thinking, onBack, stepsModel }: { thinking: boolean
   });
 
   return (
-    <RecipeCommit label="GENERATE" submitting={submitting} blocked={blockedBy} error={error} onClick={generate}
-      disabled={busy || !prompt || thinking || engineBlocked}>
+    <RecipeCommit label="GENERATE" submitting={submitting} error={error} onClick={generate}
+      disabled={submitting || !prompt || thinking || engineBlocked}>
       {engine?.capabilities.consequence && <div className="hint">{engine.capabilities.consequence}</div>}
       <ActiveAdapterNote notAppliedBy={engine && !engine.capabilities.adapters ? engine.label : undefined} />
     </RecipeCommit>
