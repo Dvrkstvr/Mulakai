@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { DockVerb } from './dockTarget';
-
-export const VERB_KEYS: Record<string, DockVerb> = { r: 'repaint', l: 'addLayer', s: 'split', e: 'export' };
+import { BASE_VERBS, verbOfKey, type VerbSpec } from './dockVerbs';
 
 const NON_TEXT_INPUTS = new Set(['range', 'checkbox', 'radio', 'button', 'submit', 'reset', 'color', 'file']);
 
@@ -14,20 +13,25 @@ export function isTypingTarget(target: EventTarget | null): boolean {
   return !!el.closest('[role="dialog"], [role="listbox"], [role="combobox"]');
 }
 
-/** The verb a keydown picks, or null when it isn't a bare R/L/S/E outside a text field. */
-export function verbForKey(e: Pick<KeyboardEvent, 'key' | 'target' | 'ctrlKey' | 'metaKey' | 'altKey' | 'repeat'>): DockVerb | null {
+/** The verb a keydown picks among those on show, or null when it isn't a bare verb key (R/L/S/E,
+ * and C while SCORE is on show) outside a text field. */
+export function verbForKey(
+  e: Pick<KeyboardEvent, 'key' | 'target' | 'ctrlKey' | 'metaKey' | 'altKey' | 'repeat'>, verbs: readonly VerbSpec[] = BASE_VERBS,
+): DockVerb | null {
   if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return null;
   if (isTypingTarget(e.target)) return null;
-  return VERB_KEYS[e.key.toLowerCase()] ?? null;
+  return verbOfKey(verbs, e.key);
 }
 
-/** R/L/S/E switch the dock's verb (Space stays the transport's, see useSpaceTransport). */
-export function useDockKeys(setVerb: (verb: DockVerb) => void) {
+/** The verb keys switch the dock's verb (Space stays the transport's, see useSpaceTransport). */
+export function useDockKeys(setVerb: (verb: DockVerb) => void, verbs: readonly VerbSpec[] = BASE_VERBS) {
   const setRef = useRef(setVerb);
   setRef.current = setVerb;
+  const verbsRef = useRef(verbs);
+  verbsRef.current = verbs;
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
-      const verb = verbForKey(e);
+      const verb = verbForKey(e, verbsRef.current);
       if (!verb) return;
       e.preventDefault();
       setRef.current(verb);
