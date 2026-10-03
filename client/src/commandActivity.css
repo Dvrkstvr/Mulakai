@@ -1,0 +1,473 @@
+/* Command palette, ACTIVITY drawer and Library's CONTINUE row (PLAN.md "UI Redesign", S3;
+   DESIGN.md "Command palette", "Activity drawer", Library "CONTINUE"). Kept out of index.css so
+   the redesign's parallel stages don't collide in one file. */
+
+.kbd {
+  font: 700 9px ui-monospace, Consolas, monospace;
+  letter-spacing: 0;
+  color: var(--text-mid);
+  border: 1px solid var(--line-hi);
+  padding: 2px 5px;
+  white-space: nowrap;
+}
+
+/* Header trigger: a hairline field-shaped button, not a chip — it opens a search. */
+.palette-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 0 1 360px;
+  min-width: 140px;
+  margin-left: 24px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text-low);
+  font-weight: 400;
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+  text-align: left;
+}
+
+.palette-trigger-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Header ACTIVITY button: a plain outlined parallelogram (nothing here commits). */
+.activity-btn {
+  transform: skewX(-10deg);
+  padding: 4px 10px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  white-space: nowrap;
+}
+
+.activity-btn > span,
+.palette-scope > span,
+.activity-badge > span,
+.activity-open > span,
+.activity-retry > span,
+.activity-quiet > span,
+.continue-resume > span,
+.continue-badge > span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.activity-btn.open {
+  border-color: var(--text-hi);
+}
+
+/* ---- Palette: the one documented modal. Dimmed canvas, one centered panel. ---- */
+.palette-dim {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 14, 17, 0.72);
+  z-index: 100;
+}
+
+.palette {
+  position: absolute;
+  top: 72px;
+  left: 50%;
+  width: 660px;
+  margin-left: -330px;
+  background: var(--panel);
+  border: 1px solid var(--line-hi);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.palette-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.palette-search input {
+  flex: 1;
+  background: transparent;
+  border: 0;
+  color: var(--text-hi);
+  font-size: 15px;
+  padding: 2px 0;
+  outline: none;
+}
+
+.palette-search input:focus,
+.palette-search input:focus-visible {
+  border: 0;
+  outline: none;
+}
+
+.palette-scope {
+  background: var(--sky);
+  color: var(--on-sky);
+  border: 1px solid var(--sky);
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 4px 9px;
+  transform: skewX(-10deg);
+  white-space: nowrap;
+}
+
+.palette-scope.all {
+  background: transparent;
+  color: var(--sky);
+}
+
+.palette-list {
+  max-height: min(60vh, 520px);
+  overflow-y: auto;
+  padding: 6px 0;
+}
+
+.palette-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.palette-group-label {
+  padding: 8px 14px 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-low);
+}
+
+.palette-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 14px;
+  border: 0;
+  background: transparent;
+  color: var(--text-hi);
+  text-align: left;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* The highlighted row is the palette's selection: sky, as everywhere. */
+.palette-item.active {
+  background: var(--sky-tint);
+  box-shadow: inset 2px 0 0 var(--sky);
+}
+
+.palette-item.active .palette-label {
+  font-weight: 700;
+}
+
+.palette-label {
+  flex: 1;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette-sub {
+  font-size: 11px;
+  color: var(--text-low);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 45%;
+}
+
+.palette-empty {
+  padding: 12px 14px;
+  color: var(--text-mid);
+}
+
+.palette-foot {
+  display: flex;
+  gap: 16px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--line);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--text-low);
+}
+
+.palette-foot-note {
+  margin-left: auto;
+  letter-spacing: 0;
+}
+
+/* ---- Activity drawer: a right-edge panel over the content, not a modal. ---- */
+.activity-drawer {
+  position: fixed;
+  top: 64px;
+  right: 16px;
+  bottom: 16px;
+  width: 340px;
+  z-index: 40;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: -16px 0 40px rgba(0, 0, 0, 0.35);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow-y: auto;
+}
+
+/* Library's footer player stays reachable under the drawer. */
+.app:not(.app-editor) .activity-drawer {
+  bottom: 92px;
+}
+
+.activity-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.activity-heading {
+  flex: 1;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+}
+
+.activity-link {
+  border: 0;
+  padding: 2px 4px;
+  font-size: 10px;
+  color: var(--text-low);
+}
+
+.activity-link:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.activity-section {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-low);
+  margin-top: 4px;
+}
+
+.activity-job {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--carbon);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: none;
+}
+
+.activity-job.ai {
+  border-color: transparent;
+  min-height: 64px;
+}
+
+.activity-job.ai > .activity-job-head {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 3px var(--carbon);
+}
+
+.activity-job.failed {
+  border-color: var(--rust);
+  background: #2A1712; /* rust-tint */
+}
+
+.activity-job-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.activity-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-job.failed .activity-title {
+  color: var(--rust-text);
+}
+
+.activity-mono {
+  font: 11px ui-monospace, Consolas, monospace;
+  color: var(--text-mid);
+}
+
+.activity-job.ai .activity-mono {
+  color: var(--text-hi);
+}
+
+.activity-stage {
+  flex: 1;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+}
+
+.activity-stage.plain {
+  color: var(--text-mid);
+}
+
+.activity-bar {
+  height: 2px;
+  background: var(--line);
+}
+
+.activity-bar > div {
+  height: 2px;
+  background: var(--text-mid);
+}
+
+.activity-detail {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--text-mid);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.activity-job.failed .activity-detail {
+  color: #C9906F; /* rust-body */
+}
+
+.activity-badge,
+.continue-badge {
+  display: inline-block;
+  transform: skewX(-10deg);
+  border: 1px solid var(--lilac);
+  background: var(--lilac-tint);
+  color: var(--lilac-text);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  padding: 1px 6px;
+  white-space: nowrap;
+}
+
+.activity-open,
+.activity-retry,
+.activity-quiet {
+  transform: skewX(-10deg);
+  padding: 3px 9px;
+  font-size: 10px;
+}
+
+.activity-open {
+  border-color: var(--lilac);
+  color: var(--lilac-text);
+}
+
+.activity-retry {
+  border-color: var(--rust);
+  color: var(--rust-text);
+}
+
+.activity-quiet {
+  border-color: var(--line);
+  color: var(--text-mid);
+  background: rgba(28, 29, 33, 0.6);
+}
+
+.activity-empty {
+  color: var(--text-mid);
+  font-size: 12px;
+}
+
+/* ---- Library CONTINUE row ---- */
+.continue {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 6px;
+}
+
+.continue-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text-low);
+}
+
+.continue-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.continue-card {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+.continue-card-head,
+.continue-card-foot {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.continue-title {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.continue-draft-note {
+  height: 30px;
+  line-height: 28px;
+  border: 1px dashed var(--line);
+  padding: 0 10px;
+  font-size: 11px;
+  color: var(--text-low);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.continue-meta {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  color: var(--text-mid);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.continue-resume {
+  transform: skewX(-10deg);
+  padding: 4px 10px;
+  font-size: 10px;
+}

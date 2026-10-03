@@ -39,12 +39,15 @@ type Setter = (partial: Partial<EditorJobState> | ((s: EditorJobState) => Partia
 async function runSingleJob(
   set: Setter,
   get: () => EditorJobState,
-  provisional: SingleEditorJob,
+  base: SingleEditorJob,
   submit: () => Promise<{ jobId: string }>,
   onDone?: (job: SingleEditorJob) => void,
 ): Promise<void> {
   // One editor job at a time — mirrors the server's genLock. A failed one is just replaced.
   if (isEditorBusy(get().editorJob) || selectSplitRunning(get())) return;
+  const provisional: SingleEditorJob = {
+    ...base, retry: () => runSingleJob(set, get, { ...base, startedAt: Date.now() }, submit, onDone),
+  };
   set({ editorJob: provisional });
   let jobId: string;
   try {
@@ -124,7 +127,10 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
     const prev = get().splitJob;
     if (isEditorBusy(get().editorJob) || selectSplitRunning(get())) return;
     const stems: StemResult[] = (['vocals', 'drums', 'bass', 'other'] as const).map((kind) => ({ kind, status: 'running' }));
-    const provisional: SplitJobState = { kind: 'split', jobId: '', songId, layerId, splitJobId: '', stems, startedAt: Date.now(), stage: 'running' };
+    const provisional: SplitJobState = {
+      kind: 'split', jobId: '', songId, layerId, splitJobId: '', stems, startedAt: Date.now(), stage: 'running',
+      retry: () => get().startSplit(layerId, songId, model),
+    };
     set({ splitJob: provisional });
     // A settled session (SplitPanel said so first) is closed on the server; a failed one never started there.
     if (prev?.splitJobId) void api.cancelSplit(prev.splitJobId).catch(() => {});

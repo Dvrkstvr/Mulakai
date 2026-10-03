@@ -11,6 +11,8 @@ interface JobBase {
   progress?: number; // live progress from ACE-Step's /query_result, refreshed each poll tick
   progressStage?: string;
   progressText?: string;
+  /** Starts the same job again with the same arguments: Activity's RETRY on a failed row. */
+  retry?: () => Promise<void>;
 }
 
 export interface RepaintJob extends JobBase { kind: 'repaint'; layerId: string }

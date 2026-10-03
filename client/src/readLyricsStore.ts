@@ -29,10 +29,14 @@ interface ReadLyricsState {
   /** `language` '' = auto-detect. `sings` is the engine's languages: an AUTO VOCAL LANGUAGE takes
    * the one heard only when the engine sings it, as ANALYZE AUDIO does. */
   start: (srcAudio: Blob, label: string, language: string, sings: string[] | 'any') => Promise<void>;
+  /** Runs the last `start` again (Activity's RETRY on a failed read). */
+  retry: () => Promise<void>;
   /** Re-place the reading if LYRICS are still READ LYRICS' own; otherwise a no-op. */
   follow: () => void;
   reset: () => void;
 }
+
+let lastStart: Parameters<ReadLyricsState['start']> | null = null;
 
 const IDLE = {
   stage: 'idle', error: undefined, reading: null, sourceKey: null, placed: null, outcome: null, filledLanguage: null,
@@ -64,8 +68,11 @@ export const useReadLyricsStore = create<ReadLyricsState>((set, get) => ({
     set({ placed: outcome.lyrics, outcome });
   },
 
+  retry: () => (lastStart ? get().start(...lastStart) : Promise.resolve()),
+
   start: async (srcAudio, label, language, sings) => {
     if (get().stage === 'running') return;
+    lastStart = [srcAudio, label, language, sings];
     const sourceKey = coverSourceKey(useCreateDraftStore.getState().audio);
     set({ stage: 'running', error: undefined });
     if (language && language === get().filledLanguage) language = '';
