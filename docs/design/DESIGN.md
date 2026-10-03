@@ -299,6 +299,10 @@ requiring its own justification against a screen-count rule.
        model's family (turbo 4 / AUTO / 12, SFT 24 / AUTO / 80, base 16 /
        AUTO / 64); BALANCED sends nothing, leaving AUTO to the server.
        Moving STEPS in TUNE lights no chip ("custom steps, set in TUNE").
+       While the model isn't known (AUTO model with the list loading,
+       failed, or naming no default) DRAFT/BEST can only send AUTO, and the
+       hint says so and why: "DRAFT applies once the model is known — the
+       model list is still loading · AUTO steps until then".
        On an extra engine it reads N/A with "YUE2 has no step control".
      - **VOICE**: the reference audio as one bordered line (preview
        hexagon, "Mara · saved voice" / "clip.wav · uploaded clip" / "none")
@@ -332,7 +336,11 @@ requiring its own justification against a screen-count rule.
        preview, formerly REFINE INPUT), TAG GUIDE and **INSTRUMENTAL** on
        the label row. INSTRUMENTAL is a setting, so it lights sky (not acid)
        while LYRICS hold `[Instrumental]`; it never replaces typed words, so
-       it waits for an empty box. The Quick Start reveal covers steps 1–2.
+       it waits for an empty box. It follows the engine's descriptor: YuE2
+       is asked its own way (blank LYRICS, its instrumental skeleton);
+       HeartMuLa has no instrumental mode, so INSTRUMENTAL stays in place,
+       disabled, with a reason line under LYRICS ("INSTRUMENTAL — HEARTMULA
+       has no instrumental mode"). The Quick Start reveal covers steps 1–2.
        **3 DETAILS** (optional · AUTO lets the planner decide) — BPM,
        DURATION, KEY / SCALE, TIME SIGNATURE, VOCAL LANGUAGE.
      - **ENGINE** (AN IDEA and A SONG I HAVE): which model makes the song's
