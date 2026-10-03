@@ -47,6 +47,19 @@ describe('widenToMinimum', () => {
     expect(widenToMinimum({ start: 0.5, end: 1 }, 2)).toEqual({ start: 0, end: 2 });
     expect(widenToMinimum({ start: 100, end: 101 }, 0)).toEqual({ start: 99, end: 102 });
   });
+
+  // The repaint checks (client and server) compare end − start, so 2.9999… s or 2.99 s
+  // from rounding each edge on its own would make the line unrepaintable.
+  it(`always comes out at least ${REPAINT_MIN_SECONDS} s long as computed by end − start`, () => {
+    const lengthOf = (r: { start: number; end: number }) => r.end - r.start;
+    expect(lengthOf(widenToMinimum({ start: 2.065, end: 3.565 }, 140))).toBeGreaterThanOrEqual(REPAINT_MIN_SECONDS);
+    expect(lengthOf(widenToMinimum({ start: 2.06, end: 2.07 }, 140))).toBeGreaterThanOrEqual(REPAINT_MIN_SECONDS);
+    for (let i = 0; i < 20000; i++) {
+      const start = i / 1000;
+      const region = widenToMinimum({ start, end: start + 1.5 }, 140);
+      expect(lengthOf(region), `line at ${start} s`).toBeGreaterThanOrEqual(REPAINT_MIN_SECONDS);
+    }
+  });
 });
 
 describe('sameRegion', () => {

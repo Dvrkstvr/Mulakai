@@ -34,7 +34,21 @@ export function widenToMinimum(region: Region, duration: number, min = REPAINT_M
   let start = Math.max(0, region.start - (want - length) / 2);
   let end = start + want;
   if (end > limit) { end = limit; start = Math.max(0, limit - want); }
-  return { start: round2(start), end: round2(end) };
+  return roundCovering(start, end, want, limit);
+}
+
+/** Rounds both edges to 0.01 s, then steps them outward until `end - start` still reaches
+ * `want` as a float: rounding each edge on its own, or subtracting two decimals, can land
+ * at 2.99 or 2.9999… s, which the repaint minimum check (client and server) rejects. */
+function roundCovering(start: number, end: number, want: number, limit: number): Region {
+  let s = round2(start);
+  let e = round2(end);
+  while (e - s < want) {
+    if (round2(e + 0.01) <= limit) e = round2(e + 0.01);
+    else if (s > 0) s = Math.max(0, round2(s - 0.01));
+    else break;
+  }
+  return { start: s, end: e };
 }
 
 export function sameRegion(a: Region | null, b: Region | null): boolean {
