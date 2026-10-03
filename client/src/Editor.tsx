@@ -21,6 +21,7 @@ import { useEditorColumns } from './useEditorColumns';
 import { EditorTitleRow } from './EditorTitleRow';
 import { EditorRail } from './EditorRail';
 import { useEditorCommands } from './useEditorCommands';
+import { pickRange, shownRange } from './editorSelection';
 
 interface Props {
   songId: string;
@@ -60,10 +61,8 @@ export function Editor({ songId, onBack }: Props) {
   });
 
   const seek = (seconds: number) => engine.seek(seconds);
-  // A range is only ever REPAINT's target, so picking one opens REPAINT; under any other verb
-  // the kept range isn't painted, so it never reads as that verb's target.
-  const selectRegion = (region: Region | null) => { setSelection(region); if (region) setVerb('repaint'); };
-  const shownSelection = verb === 'repaint' ? selection : null;
+  const selectRegion = (region: Region | null) => pickRange(region, setSelection, setVerb);
+  const shownSelection = shownRange(verb, selection);
 
   useLibraryBackButton(onBack);
   const { railWidth, gridTemplateColumns } = useEditorColumns();
