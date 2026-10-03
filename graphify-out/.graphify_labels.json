@@ -368,5 +368,9 @@
   "366": "The Model List Waits Out a Busy ACE-Step (planned 2026-10-02)",
   "367": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)",
   "368": "layersRepaint.test.ts",
-  "369": "lmJobs.test.ts"
+  "369": "lmJobs.test.ts",
+  "370": "Runner",
+  "371": "FastAPI",
+  "372": "Path",
+  "373": "shared_sampler.ps1"
 }
