@@ -335,5 +335,22 @@
   "333": "Engine",
   "334": "Exception",
   "335": "JobStore",
-  "336": "Path"
+  "336": "Path",
+  "337": "Song",
+  "338": "previewPlayback.ts",
+  "339": "FakeAudio",
+  "340": "createPreviewPlayback",
+  "341": "lmJob.test.ts",
+  "342": "queuedJobs.test.ts",
+  "343": "generationJob.ts",
+  "344": "MoveToEditorAction.tsx",
+  "345": "PendingAudio",
+  "346": "FakeAudio",
+  "347": "backfillGenTask.test.ts",
+  "348": "queueKinds.test.ts",
+  "349": "generationStore.adopt.test.ts",
+  "350": "queueStore.test.ts",
+  "351": "generateQueue.test.ts",
+  "352": "layersRepaint.test.ts",
+  "353": "lmJobs.test.ts"
 }
