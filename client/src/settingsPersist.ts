@@ -1,5 +1,6 @@
 import { clampDepth, maxDepth, type BitDepth } from './formatCaps';
 import type { ExportSettings, SettingsState } from './settingsTypes';
+import { migrateQuality } from './qualitySteps';
 
 /**
  * Deep-merges a persisted (possibly stale) localStorage blob with the fresh default state.
@@ -13,7 +14,7 @@ export function mergeSettings(current: SettingsState, persisted: unknown): Setti
   return {
     ...current,
     ...p,
-    gen: { ...current.gen, ...p.gen },
+    gen: { ...current.gen, ...p.gen, quality: p.gen ? migrateQuality(p.gen) : current.gen.quality },
     repaint: { ...current.repaint, ...p.repaint },
     addLayer: { ...current.addLayer, ...p.addLayer },
     exportSettings: migrateExportSettings({ ...current.exportSettings, ...p.exportSettings }),

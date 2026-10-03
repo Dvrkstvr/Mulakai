@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { api, type Song, type RefineResult } from './api';
-import { SettingsPanel } from './SettingsPanel';
 import { RefineRail } from './RefineRail';
 import { useVoiceStore } from './voiceStore';
 import { useHeaderSlot } from './HeaderSlot';
@@ -8,31 +7,30 @@ import { ScrollArea } from './ScrollArea';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { isGenerating } from './generationJob';
+import { useLookup } from './lookup';
 import { ClearDraftButton } from './ClearDraftButton';
-import { CreateAudioTab } from './CreateAudioTab';
-import { CreateArrangeTab } from './CreateArrangeTab';
-import { CreatePromptTab } from './CreatePromptTab';
-import { AutoTextarea } from './AutoTextarea';
-import { useResizableWidth } from './useResizableWidth';
-import { ResizeHandle } from './ResizeHandle';
+import { StartFromCards } from './StartFromCards';
+import { IdeaSteps } from './IdeaSteps';
+import { CoverSteps } from './CoverSteps';
+import { TrackSteps } from './TrackSteps';
 import { useEngineStore } from './engineStore';
 
 /** Dedicated Create takeover — reached from the Library create bar or the Library detail
  * rail's REUSE PROMPT / CREATE COVER FROM AUDIO actions, per docs/design/DESIGN.md.
  * Submitting a generation hands it off to generationStore.ts and returns to the library
- * immediately — the library's GeneratingCard tracks it to completion from there, so only one
- * generation can ever be in flight globally.
+ * immediately — the library's GeneratingCard tracks it to completion from there.
  *
- * This is the shell only: tabs, title, destination, layout and the refine rail. The draft
- * itself lives in createDraftStore.ts (App.tsx loads it at navigation time), so the three
- * tabs — CreatePromptTab / CreateAudioTab / CreateArrangeTab — share one song intent and
- * switching between them no longer discards what you typed. */
+ * This is the shell only (PLAN.md "S2 — Guided Create"): the title row, the START FROM cards,
+ * and the chosen flow — IdeaSteps / CoverSteps / TrackSteps — which renders its numbered steps
+ * and its RECIPE card side by side. The draft lives in createDraftStore.ts (App.tsx loads it at
+ * navigation time), so the three flows share one song intent and switching loses nothing. */
 export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => void }) {
   const draft = useCreateDraftStore();
   const { genType, title, folderId, folderName } = draft;
   const patch = draft.patch;
-  const coverModel = draft.audio.model;
   const genRunning = useGenerationStore((s) => isGenerating(s.job));
+  // One model list for every flow: TUNE's selects, and AUTO model's family for QUALITY.
+  const inventory = useLookup(api.listModels);
 
   const [refining, setRefining] = useState(false);
   const [refinePreview, setRefinePreview] = useState<RefineResult | null>(null);
@@ -49,7 +47,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [folderId, draft.revision]);
 
-  // Fresh engine health each time Create opens: it gates the PROMPT tab's ENGINE row.
+  // Fresh engine health each time Create opens: it gates the RECIPE's ENGINE row.
   useEffect(() => { void useEngineStore.getState().load(); }, []);
 
   // Re-apply a reused song's reference audio (voice + the influences it was rendered at).
@@ -92,69 +90,36 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
   useHeaderSlot(headerLeft, null);
 
   const showRail = refining || !!refinePreview || !!refineError;
-  const referenceAudioTaskType = genType === 'audio' ? 'cover' : genType === 'complete' ? 'complete' : 'text2music';
-
-  const settingsWidth = useResizableWidth({ storageKey: 'mulakai:createSettingsWidth', default: 210, min: 180, max: 420, growsToward: 'right' });
-  const railWidth = useResizableWidth({ storageKey: 'mulakai:createRailWidth', default: 300, min: 240, max: 520, growsToward: 'left' });
-  const gridTemplateColumns = `${settingsWidth.width}px 1fr${showRail ? ` ${railWidth.width}px` : ''}`;
+  const rail = showRail ? (
+    <RefineRail refining={refining} preview={refinePreview} error={refineError} current={draft}
+      onRefine={refine} onClose={closeRefine}
+      onAccept={{
+        prompt: (v) => patch({ prompt: v, formatted: true }),
+        lyrics: (v) => patch({ lyrics: v, formatted: true }),
+        bpm: (v) => patch({ bpm: v }),
+        keyScale: (v) => patch({ keyScale: v }),
+        timeSignature: (v) => patch({ timeSignature: v }),
+        vocalLanguage: (v) => patch({ vocalLanguage: v }),
+        duration: (v) => patch({ duration: v }),
+      }} />
+  ) : null;
 
   return (
     <div className="create-shell">
-      <div className={showRail ? 'with-panel create-layout with-rail' : 'with-panel create-layout'} style={{ gridTemplateColumns }}>
-        <div className="resizable-col">
-          <SettingsPanel mode="generate" hideLmControls={genType === 'audio'} hideThinking={genType === 'complete'}
-            coverModel={genType === 'audio' ? coverModel : undefined} referenceAudioTaskType={referenceAudioTaskType} />
-          <ResizeHandle side="right" onPointerDown={settingsWidth.onPointerDown} />
+      <ScrollArea className="create-guided">
+        <div className="title-row create-title-row">
+          <input className="create-title" placeholder="New song" aria-label="Title" value={title}
+            onChange={(e) => patch({ title: e.target.value, titleSuggested: false })} />
+          <span className="meta">will appear in {folderName ? <span className="dest">{folderName}</span> : 'your library'} once generated</span>
+          <ClearDraftButton disabled={genRunning} />
         </div>
-        <div className="create-panel">
-          <ScrollArea className="create-content">
-            <div className="field-label-row">
-              <span className="section-label">GENERATION TYPE</span>
-              <ClearDraftButton disabled={genRunning} />
-            </div>
-            <div className="type-tabs">
-              <button className={genType === 'prompt' ? 'tab active' : 'tab'} onClick={() => patch({ genType: 'prompt' })}><span>PROMPT</span></button>
-              <button className={genType === 'audio' ? 'tab active' : 'tab'} onClick={() => patch({ genType: 'audio' })}><span>COVER</span></button>
-              <button className={genType === 'complete' ? 'tab active' : 'tab'} onClick={() => patch({ genType: 'complete' })}><span>ARRANGE</span></button>
-            </div>
-
-            {folderName && (
-              <div className="folder-dest">
-                <span className="section-label">Save To</span>
-                <span className="dest-chip"><span className="lbl">&#9656; {folderName}</span></span>
-              </div>
-            )}
-
-            <AutoTextarea placeholder="Title" value={title} onChange={(v) => patch({ title: v, titleSuggested: false })} />
-
-            {genType === 'prompt' && <CreatePromptTab refining={refining} onRefine={refine} onBack={onBack} />}
-            {genType === 'audio' && <CreateAudioTab songs={songs} onBack={onBack} />}
-            {genType === 'complete' && <CreateArrangeTab onBack={onBack} />}
-          </ScrollArea>
+        <StartFromCards />
+        <div className="create-body">
+          {genType === 'prompt' && <IdeaSteps refining={refining} onRefine={refine} onBack={onBack} rail={rail} inventory={inventory} />}
+          {genType === 'audio' && <CoverSteps songs={songs} onBack={onBack} inventory={inventory} />}
+          {genType === 'complete' && <TrackSteps onBack={onBack} inventory={inventory} />}
         </div>
-        {showRail && (
-          <div className="resizable-col">
-            <ResizeHandle side="left" onPointerDown={railWidth.onPointerDown} />
-            <RefineRail
-              refining={refining}
-              preview={refinePreview}
-              error={refineError}
-              current={draft}
-              onRefine={refine}
-              onClose={closeRefine}
-              onAccept={{
-                prompt: (v) => patch({ prompt: v, formatted: true }),
-                lyrics: (v) => patch({ lyrics: v, formatted: true }),
-                bpm: (v) => patch({ bpm: v }),
-                keyScale: (v) => patch({ keyScale: v }),
-                timeSignature: (v) => patch({ timeSignature: v }),
-                vocalLanguage: (v) => patch({ vocalLanguage: v }),
-                duration: (v) => patch({ duration: v }),
-              }}
-            />
-          </div>
-        )}
-      </div>
+      </ScrollArea>
     </div>
   );
 }

@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useCreateDraftStore, isDraftEmpty } from './createDraftStore';
 import { useVoiceStore } from './voiceStore';
 
-/** Start the draft over. Two-step, like FEELING LUCKY's overwrite confirm (PromptGenerateRow)
+/** Start the draft over. Two-step, like FEELING LUCKY's overwrite confirm (IdeaLucky)
  * and the Library's delete confirms — the armed state says what will go before it goes, per
  * DESIGN.md's rule that destructive actions state their consequence inline.
  *
- * One button for the whole draft rather than a per-field "clear prompt": the tabs share one
- * intent now, so clearing a single field would leave the rest of a half-abandoned draft behind
+ * One button for the whole draft rather than a per-field "clear prompt": the START FROM cards
+ * share one intent, so clearing a single field would leave the rest of a half-abandoned draft behind
  * for the user to hunt down. The destination folder survives — it came from where you were in
  * the Library, not from anything you typed. */
 export function ClearDraftButton({ disabled }: { disabled: boolean }) {
@@ -30,7 +30,7 @@ export function ClearDraftButton({ disabled }: { disabled: boolean }) {
     <div className="clear-draft">
       {armed && (
         <span className="hint">
-          Clears the prompt, lyrics, song details, each tab&#39;s source and the reference audio.
+          Clears the title, prompt, lyrics, song details, each START FROM card&#39;s source and the reference audio.
         </span>
       )}
       <button

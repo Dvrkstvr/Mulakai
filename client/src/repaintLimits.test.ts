@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { clampCrossfade, maxCrossfadeSec, REPAINT_MAX_SECONDS, REPAINT_MIN_SECONDS } from './repaintLimits';
+import { clampCrossfade, maxCrossfadeSec, repaintRangeValid, repaintSeconds, REPAINT_MAX_SECONDS, REPAINT_MIN_SECONDS } from './repaintLimits';
 
 describe('maxCrossfadeSec', () => {
   it('is half the region on a short region, half the 5 s ceiling on a long one', () => {
@@ -42,5 +42,24 @@ describe('clampCrossfade', () => {
 
   it('is 0 on a region that cannot be repainted', () => {
     expect(clampCrossfade(2, 1)).toBe(0);
+  });
+});
+
+describe('repaintRangeValid', () => {
+  it('holds a selection to 3–90 s', () => {
+    expect(repaintRangeValid({ start: 10, end: 40 }, 192)).toBe(true);
+    expect(repaintRangeValid({ start: 10, end: 11 }, 192)).toBe(false);
+    expect(repaintRangeValid({ start: 0, end: 100 }, 192)).toBe(false);
+  });
+
+  it('holds the whole layer (no selection) to the same limit, by the song length', () => {
+    expect(repaintSeconds(null, 60)).toBe(60);
+    expect(repaintRangeValid(null, 60)).toBe(true);
+    expect(repaintRangeValid(null, REPAINT_MAX_SECONDS)).toBe(true);
+    expect(repaintRangeValid(null, 192)).toBe(false);
+  });
+
+  it("refuses the whole layer while the song's length isn't known", () => {
+    expect(repaintRangeValid(null, 0)).toBe(false);
   });
 });

@@ -7,7 +7,7 @@ import { AudioPreviewPopover } from './AudioPreviewPopover';
 import { useObjectUrl } from './useObjectUrl';
 import { ReusedSourceNote } from './ReusedSourceNote';
 
-/** COVER's SOURCE block: UPLOAD or FROM LIBRARY, writing into the draft's audio slice.
+/** A SONG I HAVE's step 1, the SOURCE: UPLOAD or FROM LIBRARY, writing into the draft's audio slice.
  * `satisfied` says whether the draft already has what the tab needs to go on, so a reused
  * draft's "pick a new source" note clears. `lockedBy` names a job reading the source, which
  * holds it still until done (PLAN.md "COVER's Source Holds Still While a Job Reads It"). */
@@ -22,7 +22,6 @@ export function CoverSourcePicker({ songs, satisfied, lockedBy = null }: { songs
 
   return (
     <>
-      <div className="section-label">SOURCE</div>
       <ReusedSourceNote title={reusedFrom} satisfied={satisfied} />
       {locked && <div className="hint">SOURCE is locked while {lockedBy} runs — its result belongs to this source</div>}
       <div className="type-tabs">

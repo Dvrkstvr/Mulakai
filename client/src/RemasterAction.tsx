@@ -1,8 +1,6 @@
 import { useState } from 'react';
 import { type Layer } from './api';
-import { audibleTakes } from './mix/activeLayers';
-import { decodeLayers } from './mix/decodeLayers';
-import { bounceMix, encodeWav } from './mix/bounceMix';
+import { bounceAudible } from './mixExport';
 import { useSettings } from './settings';
 import { AudioPreview } from './AudioPreview';
 import { useGenerationStore } from './generationStore';
@@ -12,6 +10,7 @@ import { useRemasterResult } from './remasterResult';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
 import { useLookup, modelsFor, checkingModels } from './lookup';
+import { DockCommit } from './DockCommit';
 
 interface Props {
   songId: string;
@@ -19,14 +18,13 @@ interface Props {
 }
 
 /**
- * One-click ACE-Step `cover` pass over the currently audible mix (same
- * mute/solo-aware `activeLayers()` selection Add Layer uses) at the highest
- * quality ACE-Step can produce for this song. No settings form — model is
- * gated to `cover`-capable options (defaulting to xl-sft), steps are fixed,
- * and cover strength/CFG stay at ACE-Step's own defaults (closest to source,
- * auto guidance). The result is never saved to the song's history; it only
- * exists long enough to download — editorJobStore.ts fires that download
- * itself once the job settles, even if this component isn't mounted anymore.
+ * EXPORT › REMASTERED MIX: a one-click ACE-Step `cover` pass over the currently audible mix
+ * (the same mute/solo-aware bounce Add Layer uses) at the highest quality ACE-Step can
+ * produce for this song. No settings form — model is gated to `cover`-capable options
+ * (defaulting to xl-sft), steps and format come from Settings, and cover strength/CFG stay
+ * at ACE-Step's own defaults (closest to source, auto guidance). The result is never saved
+ * to the song's history; it only exists long enough to download — editorJobStore.ts fires
+ * that download itself once the job settles, even if this component isn't mounted anymore.
  */
 export function RemasterAction({ songId, layers }: Props) {
   const exportSettings = useSettings((s) => s.exportSettings);
@@ -58,18 +56,7 @@ export function RemasterAction({ songId, layers }: Props) {
     if (gated || job === 'running' || busyElsewhere) return;
     setMixError('');
     try {
-      const audible = audibleTakes(layers);
-      if (audible.length === 0) throw new Error('no audible layers to mix — unmute or un-solo at least one layer');
-
-      const mixCtx = new AudioContext();
-      const decoded = await decodeLayers(
-        audible.map((x, i) => ({ id: String(i), audioUrl: `/audio/${x.version.audio_file}`, volume: x.layer.volume })),
-        mixCtx,
-      );
-      const mixed = await bounceMix(decoded);
-      await mixCtx.close();
-      const mixAudio = encodeWav(mixed);
-
+      const mixAudio = await bounceAudible(layers);
       if (mine?.stage === 'failed') dismissEditorJob();
       void startRemaster(songId, mixAudio, model, {
         audioFormat: exportSettings.audioFormat,
@@ -80,59 +67,55 @@ export function RemasterAction({ songId, layers }: Props) {
     }
   };
 
+  const progress = `${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`;
+  const held = result && job === 'idle' ? result : null;
   return (
-    <div className="remaster-block">
-      <span className="section-label" style={{ margin: 0 }}>REMASTER</span>
-      <div className="hint">
-        one-shot ACE-Step cover of the current mix, aimed at max quality — not saved to history
-      </div>
-      {coverModels.error ? (
-        <div className="error">
-          couldn't check models for Remaster — {coverModels.error} <button onClick={coverModels.retry}>RETRY</button>
-        </div>
-      ) : coverModels.data === null ? (
-        <span className="meta">{checkingModels(coverModels)}</span>
-      ) : gated ? (
-        <span className="meta" style={{ color: 'var(--rust-text)' }}>
-          no downloaded model supports Remaster — requires a model with cover support
-        </span>
-      ) : (
-        <>
-          <div className="remaster-badges">
-            <span className="remaster-badge">{model.toUpperCase()}</span>
-            <span className="remaster-badge">{exportSettings.steps} STEPS</span>
-            <span className="remaster-badge">{exportSettings.audioFormat.toUpperCase()}</span>
-            <span className="remaster-badge">CLOSEST TO SOURCE</span>
+    <>
+      <div className="dock-body remaster-block">
+        {coverModels.error ? (
+          <div className="error">
+            couldn't check models for Remaster — {coverModels.error} <button onClick={coverModels.retry}>RETRY</button>
           </div>
-          <div className="hint">uses Settings &gt; Playback &amp; Export defaults for format/steps</div>
-          {result && job === 'idle' ? (
-            <>
-              <AudioPreview src={result.url} label="remaster result" height={24} />
-              <div className="remaster-actions">
-                <a className="acid" href={result.url} download={result.filename}><span>DOWNLOAD</span></a>
-                <button className="acid-outline" disabled={busyElsewhere} onClick={submit}>RUN AGAIN</button>
-              </div>
-              <div className="hint">not saved to history — download it or run again to discard</div>
-            </>
-          ) : (
-            <>
-              <div className="hint">renders the full mix at max quality — can take several minutes</div>
-              <ActiveAdapterNote />
-              <button className="acid" disabled={job === 'running' || busyElsewhere} onClick={submit} title={job === 'running' ? mine?.progressText : undefined}>
-                {job === 'running'
-                  ? `RENDERING… ${fmtElapsed(elapsedMs)}${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`
-                  : busyBy ? waitLabel(busyBy) : 'REMASTER SONG'}
-              </button>
-              {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
-            </>
-          )}
-        </>
-      )}
-      {error && (
-        <div className="error">
-          {error} <button onClick={submit}>RETRY</button>
-        </div>
-      )}
-    </div>
+        ) : coverModels.data === null ? (
+          <span className="meta">{checkingModels(coverModels)}</span>
+        ) : gated ? (
+          <span className="meta" style={{ color: 'var(--rust-text)' }}>
+            no downloaded model supports Remaster — requires a model with cover support
+          </span>
+        ) : (
+          <>
+            <div className="remaster-badges" aria-label="Format">
+              <span className="remaster-badge">{model.toUpperCase()}</span>
+              <span className="remaster-badge">{exportSettings.steps} STEPS</span>
+              <span className="remaster-badge">{exportSettings.audioFormat.toUpperCase()}</span>
+              <span className="remaster-badge">CLOSEST TO SOURCE</span>
+            </div>
+            <div className="hint">format and steps come from Settings › Playback &amp; Export</div>
+            {held && <AudioPreview src={held.url} label="remaster result" height={24} />}
+          </>
+        )}
+      </div>
+      {!gated && (held ? (
+        <DockCommit
+          consequence="not saved to history — download it, or run again to discard it"
+          label="DOWNLOAD"
+          download={{ href: held.url, filename: held.filename }}
+          siblings={<button className="acid-outline" disabled={busyElsewhere} onClick={() => void submit()}>RUN AGAIN</button>}
+        />
+      ) : (
+        <DockCommit
+          consequence="runs one ACE-Step pass over the mix first, about 90 s, and isn't kept"
+          label={job === 'running' ? `RENDERING… ${fmtElapsed(elapsedMs)}${progress}` : busyBy ? waitLabel(busyBy) : 'REMASTER MIX'}
+          disabled={busyElsewhere}
+          running={job === 'running'}
+          progress={mine?.progress}
+          title={job === 'running' ? mine?.progressText : undefined}
+          onCommit={() => void submit()}
+        />
+      ))}
+      {!gated && !held && <ActiveAdapterNote />}
+      {busyElsewhere && job !== 'running' && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
+      {error && <div className="error">{error} <button onClick={() => void submit()}>RETRY</button></div>}
+    </>
   );
 }

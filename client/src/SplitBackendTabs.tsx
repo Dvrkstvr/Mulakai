@@ -10,7 +10,7 @@ interface Props {
   onPick: (model: Backend) => void;
 }
 
-/** The ACE-STEP / UVR-or-DEMUCS picker shared by the Editor's SplitPanel and Create's
+/** The ACE-STEP / UVR-or-DEMUCS picker shared by the Editor's SPLIT verb (DockSplit) and Create's
  * ScratchSplitPicker. A backend the server couldn't ask gets its own rust line with
  * RETRY; the other backend stays pickable. */
 export function SplitBackendTabs({ lookup, model, onPick }: Props) {

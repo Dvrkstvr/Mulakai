@@ -33,8 +33,8 @@ export function fillable(value: string, carried?: boolean): boolean {
 
 /** Manually-triggered "analyze this source audio" job — `analyze()` queues it; the server loads
  * the given model (+ its LM) then runs ACE-Step's `/v1/analyze_audio`. `analyzing` holds while it
- * waits in the queue too. Shared by CreateAudioTab and
- * CreateArrangeTab via `AnalyzeAudioButton`. A request-token ref guards against a stale
+ * waits in the queue too. Shared by CoverSteps and TrackSteps via `AnalyzeAudioButton`. A
+ * request-token ref guards against a stale
  * in-flight response clobbering state if the source/model changes mid-request. */
 export function useAnalyzeSourceAudio(): AnalyzeState & { analyze: (source: AnalyzeSource, model: string) => void } {
   const [state, setState] = useState<AnalyzeState>(IDLE);

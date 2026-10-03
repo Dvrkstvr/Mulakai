@@ -9,7 +9,7 @@ const STYLE_INFLUENCE_INFO = 'How closely the generation follows the reference c
 
 /**
  * Voice-library reference-audio selector, shared by CreateView and
- * AddLayerTrigger. Sky-accented per docs/design/DESIGN.md — this is a scope
+ * the dock's ADD LAYER. Sky-accented per docs/design/DESIGN.md — this is a scope
  * choice ("which voice conditions this generation"), not a commit action.
  * Upload/rename/delete management lives in Settings > Voices, not here.
  */

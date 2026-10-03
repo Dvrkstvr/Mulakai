@@ -2,7 +2,10 @@ import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import type { Layer, SongDetail } from './api';
 import type { Region } from './Waveform';
 import type { Section } from './lyricSections';
-import type { RailMode } from './EditorRail';
+import type { DockVerb } from './dockTarget';
+import { fmtRange } from './dockTarget';
+import { useDockRequest, type ExportWhat } from './dockRequest';
+import { TRACK_NAMES } from './trackNames';
 import { useCommandStore, type Command } from './commandStore';
 
 /** What the palette's DO and layer items reach in the Editor. */
@@ -13,60 +16,70 @@ interface EditorVerbs {
   selection: Region | null;
   setSelection: (region: Region | null) => void;
   setFocusedLayerId: Dispatch<SetStateAction<string | null>>;
-  setRailMode: Dispatch<SetStateAction<RailMode>>;
+  setVerb: (verb: DockVerb) => void;
 }
 
-const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+const REPAINT_PROMPT = '.dock-panel[aria-label="REPAINT"] .dock-prompt';
+const ADD_LAYER_PROMPT = '.dock-panel[aria-label="ADD LAYER"] .dock-prompt';
 
-/** Today's entry points are the repaint prompt and the ADD LAYER row's prompt; whichever of
- * S1/S3 lands second rewires these to the Action Dock's verbs (PLAN.md "UI Redesign", S3.3). */
-const REPAINT_PROMPT = '.repaint input[placeholder^="Describe what should change"]';
-const ADD_LAYER_PROMPT = '.layer-add-row input[placeholder^="Describe what to add"]';
-
-function focusField(selector: string): void {
-  const el = document.querySelector<HTMLInputElement>(selector);
-  el?.scrollIntoView({ block: 'nearest' });
-  el?.focus();
+/** Focuses a dock field once the verb switch has rendered (a hidden panel can't take focus). */
+function focusSoon(selector: string): void {
+  setTimeout(() => {
+    const el = document.querySelector<HTMLInputElement>(selector);
+    el?.scrollIntoView({ block: 'nearest' });
+    el?.focus();
+  }, 0);
 }
 
-/** Pure, for the hook below: the open song's DO items and its layers under OPEN. Every item only
- * targets and focuses; the commit stays REPAINT REGION / GENERATE under its consequence line. */
+const EXPORTS: { what: ExportWhat; label: string; sub: (title: string) => string }[] = [
+  { what: 'mix', label: 'Export mix', sub: (title) => `${title}.wav · what you hear` },
+  { what: 'stems', label: 'Export stems', sub: () => "each layer's active take" },
+  { what: 'remaster', label: 'Export remastered mix', sub: () => 'one ACE-Step pass over the mix' },
+];
+
+/** Pure, for the hook below: the open song's DO items and its layers under OPEN. Every item
+ * opens a dock verb with its target and fields set (keys shown as R/L/S/E); the commit stays
+ * the dock's, under its consequence line. */
 export function editorCommands(v: EditorVerbs & { song: SongDetail }): Command[] {
-  const layer = v.focusedLayer;
-  const name = (layer?.name ?? 'base').toUpperCase();
-  const repaint = (region: Region) => () => { v.setSelection(region); focusField(REPAINT_PROMPT); };
+  const name = (v.focusedLayer?.name ?? 'base').toUpperCase();
+  const repaint = (region: Region) => () => { v.setSelection(region); v.setVerb('repaint'); focusSoon(REPAINT_PROMPT); };
   const named = v.sections.filter((s) => s.label.trim());
   const exact = (s: Section) => v.selection?.start === s.start && v.selection?.end === s.end;
   const items: Command[] = [];
   if (v.selection && !named.some(exact)) {
     items.push({
-      id: 'repaint:selection', group: 'DO', label: `Repaint ${fmt(v.selection.start)}–${fmt(v.selection.end)} · ${name}`,
-      sub: 'the current selection', run: repaint(v.selection),
+      id: 'repaint:selection', group: 'DO', label: `Repaint ${fmtRange(v.selection)} · ${name}`,
+      sub: 'the current selection', key: 'R', run: repaint(v.selection),
     });
   }
   named.forEach((s, i) => items.push({
     id: `repaint:section:${i}`, group: 'DO', label: `Repaint ${s.label.toUpperCase()} · ${name}`,
-    sub: `${fmt(s.start)}–${fmt(s.end)}`, run: repaint({ start: s.start, end: s.end }),
+    sub: fmtRange(s), key: 'R', run: repaint({ start: s.start, end: s.end }),
   }));
-  items.push({
-    id: 'add-layer', group: 'DO', label: 'Add a layer', sub: `to ${v.song.title}`,
-    run: () => focusField(ADD_LAYER_PROMPT),
-  });
-  for (const l of v.song.layers) {
+  for (const t of TRACK_NAMES) {
     items.push({
-      id: `split:${l.id}`, group: 'DO', label: `Split ${l.name.toUpperCase()} into stems`, sub: 'vocals, drums, bass, other',
-      run: () => { v.setFocusedLayerId(l.id); v.setRailMode('split'); },
+      id: `add-layer:${t.value || 'auto'}`, group: 'DO', label: `Add layer · ${t.label.toLowerCase()}`,
+      sub: t.value ? `a new ${t.label.toLowerCase()} lane, conditioned on the mix` : 'named from its description',
+      key: 'L',
+      run: () => { v.setVerb('addLayer'); useDockRequest.getState().pickTrack(t.value); focusSoon(ADD_LAYER_PROMPT); },
     });
   }
-  items.push({
-    id: 'export', group: 'DO', label: 'Export stems or a remastered mix', sub: v.song.title,
-    run: () => v.setRailMode('export'),
-  });
+  for (const l of v.song.layers) {
+    items.push({
+      id: `split:${l.id}`, group: 'DO', label: `Split ${l.name.toUpperCase()}`, sub: 'vocals, drums, bass and other as new stems',
+      key: 'S', run: () => { v.setFocusedLayerId(l.id); v.setVerb('split'); },
+    });
+  }
+  for (const e of EXPORTS) {
+    items.push({
+      id: `export:${e.what}`, group: 'DO', label: e.label, sub: e.sub(v.song.title), key: 'E',
+      run: () => { v.setVerb('export'); useDockRequest.getState().pickExport(e.what); },
+    });
+  }
   for (const l of v.song.layers) {
     items.push({
       id: `layer:${l.id}`, group: 'OPEN', label: `${v.song.title} › ${l.name.toUpperCase()}`,
-      sub: `layer · v${l.versions.length}`,
-      run: () => { v.setFocusedLayerId(l.id); v.setRailMode('history'); },
+      sub: `layer · v${l.versions.length}`, run: () => v.setFocusedLayerId(l.id),
     });
   }
   return items;
@@ -76,13 +89,13 @@ export function editorCommands(v: EditorVerbs & { song: SongDetail }): Command[]
 export function useEditorCommands(v: EditorVerbs): void {
   const publish = useCommandStore((s) => s.publish);
   const clear = useCommandStore((s) => s.clear);
-  const { song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setRailMode } = v;
+  const { song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb } = v;
 
   useEffect(() => {
     if (!song) return;
-    const items = editorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setRailMode });
+    const items = editorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
     publish('editor', items, song.title);
-  }, [publish, song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setRailMode]);
+  }, [publish, song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb]);
 
   useEffect(() => () => clear('editor'), [clear]);
 }

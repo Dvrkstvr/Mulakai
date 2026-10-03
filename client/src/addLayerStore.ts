@@ -1,8 +1,7 @@
 import { create } from 'zustand';
 
-/** Per-invocation Add Layer draft shared between the compact footer trigger
- * (AddLayerTrigger, which owns the prompt + GENERATE button) and the left-rail
- * settings panel (SettingsPanel, which hosts the lyrics editor). Lyrics live
+/** Per-invocation Add Layer lyrics, written by the dock's lyrics field
+ * (DockAddLayerFields) and read when ADD LAYER commits (DockAddLayer). Lyrics live
  * here — not in persisted settings — since they belong to one generation. */
 interface AddLayerDraft {
   lyrics: string;

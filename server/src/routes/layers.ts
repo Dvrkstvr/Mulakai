@@ -58,6 +58,18 @@ layersRouter.post('/:id/repaint', async (req, res) => {
     if (span < REPAINT_MIN_SECONDS || span > REPAINT_MAX_SECONDS) {
       return res.status(400).json({ error: `repaint region must be ${REPAINT_MIN_SECONDS}-${REPAINT_MAX_SECONDS}s (got ${span.toFixed(1)}s)` });
     }
+  } else {
+    // No end = the whole layer, which is held to the same range: the song's length is the span.
+    const song = db.prepare(`SELECT s.duration FROM layers l JOIN songs s ON s.id = l.song_id WHERE l.id = ?`)
+      .get(req.params.id) as { duration: number | null } | undefined;
+    if (!song) return res.status(404).json({ error: 'unknown layer' });
+    const span = (song.duration ?? 0) - regionStart;
+    if (!song.duration || span < REPAINT_MIN_SECONDS || span > REPAINT_MAX_SECONDS) {
+      const got = song.duration ? `this one is ${span.toFixed(1)}s` : "this song's length isn't known";
+      return res.status(400).json({
+        error: `repainting the whole layer needs ${REPAINT_MIN_SECONDS}-${REPAINT_MAX_SECONDS}s (${got}) — select a region instead`,
+      });
+    }
   }
   try {
     const job = await startRepaint(req.params.id, {

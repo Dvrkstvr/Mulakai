@@ -7,7 +7,7 @@ import {
 
 const BASE: EngineCapabilities = {
   duration: 'exact', musicalMeta: 'params', referenceAudio: true, adapters: true, seed: true, languages: 'any',
-  sectionTags: null, lmTools: true, advanced: true, takes: true, extraControls: [], consequence: '',
+  sectionTags: null, lmTools: true, advanced: true, takes: true, instrumental: true, extraControls: [], consequence: '',
 };
 // The two real descriptors (server/src/services/engines/yue2.ts, heartmula.ts), trimmed.
 const YUE2: EngineCapabilities = {
@@ -15,7 +15,7 @@ const YUE2: EngineCapabilities = {
   languages: ['en', 'zh'], lmTools: false, advanced: false, takes: false, extraControls: ['cfg', 'cot'],
 };
 const HEARTMULA: EngineCapabilities = {
-  ...YUE2, duration: 'max', musicalMeta: 'none', seed: false, languages: ['zh', 'en'],
+  ...YUE2, duration: 'max', musicalMeta: 'none', seed: false, languages: ['zh', 'en'], instrumental: false,
   extraControls: ['cfg', 'temperature', 'topK'],
 };
 
@@ -25,10 +25,15 @@ const info = (
 
 describe('unsupported', () => {
   it('gates nothing on ACE-Step', () => {
-    for (const f of ['duration', 'bpm', 'keyScale', 'timeSignature', 'vocalLanguage', 'takes'] as const) {
+    for (const f of ['duration', 'bpm', 'keyScale', 'timeSignature', 'vocalLanguage', 'takes', 'instrumental'] as const) {
       expect(unsupported(f, null)).toBe(false);
       expect(unsupported(f, BASE)).toBe(false);
     }
+  });
+
+  it('keeps INSTRUMENTAL live on YuE2 and N/A on HeartMuLa, which has no instrumental mode', () => {
+    expect(unsupported('instrumental', YUE2)).toBe(false);
+    expect(unsupported('instrumental', HEARTMULA)).toBe(true);
   });
 
   it('keeps YuE2\'s style-text details and language live, and gates duration and takes', () => {

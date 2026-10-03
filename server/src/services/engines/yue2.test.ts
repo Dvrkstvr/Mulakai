@@ -104,7 +104,7 @@ describe('YuE2 descriptor', () => {
   it('states what YuE2 cannot do, with the consequence line from the spec', () => {
     expect(YUE2_CAPABILITIES).toMatchObject({
       duration: 'none', musicalMeta: 'style-text', referenceAudio: false, adapters: false, seed: true,
-      languages: ['en', 'zh'], lmTools: false, advanced: false, takes: false, extraControls: ['cfg', 'cot'],
+      languages: ['en', 'zh'], lmTools: false, advanced: false, takes: false, instrumental: true, extraControls: ['cfg', 'cot'],
     });
     expect(YUE2_CAPABILITIES.consequence).toContain('no section strip');
     expect(yue2Engine.readMeta({ score: 'X:1\nQ:1/4=84\nK:Dm\n|A2|' }))

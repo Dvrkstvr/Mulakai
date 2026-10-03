@@ -17,7 +17,7 @@ const POLL_MS = 2000;
 /**
  * Standalone stem split: upload any song, run ACE-Step `extract` or Demucs, get back
  * downloadable stems — no song/library entry is ever created. Doubles as a source-picker
- * for Complete generation (CreateCompleteTab.tsx) via `onUseStem`, but is fully usable on
+ * for Create's ONE TRACK (TrackSteps.tsx) via `onUseStem`, but is fully usable on
  * its own (split, download, done) per the "bonus" utility request. Stem playback goes
  * through the shared previewPlayback slot via AudioPreview.
  */

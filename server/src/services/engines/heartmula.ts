@@ -26,6 +26,7 @@ export const HEARTMULA_CAPABILITIES: EngineCapabilities = {
   lmTools: false,
   advanced: false,
   takes: false,
+  instrumental: false, // no instrumental mode, and blank lyrics 422 (PLAN.md "Engine: HeartMuLa")
   // Not GUIDANCE: that slider is ACE-Step's (0.5-15) and persists across engines, so a
   // value tuned for ACE-Step would land far outside HeartMuLa's range (default 1.5).
   extraControls: ['cfg', 'temperature', 'topK'],
