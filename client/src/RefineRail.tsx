@@ -39,7 +39,8 @@ function AcceptButton({ applied, onClick }: { applied: boolean; onClick: () => v
 }
 
 /**
- * Right-side rail showing the LM's refined prompt/lyrics/metadata one field at a
+ * WRITE FOR ME's preview, in the RECIPE card's slot until ← RECIPE closes it, showing the LM's
+ * refined prompt/lyrics/metadata one field at a
  * time. Accepting a field always overwrites — even a manually-set value — since
  * the user is explicitly choosing that field here, unlike Feature 1's AUTO-only
  * autofill on generate. "Applied" is derived by comparing current vs. preview
@@ -52,8 +53,8 @@ export function RefineRail({ refining, preview, error, current, onRefine, onClos
     <aside className="rail refine-rail">
       <div className="refine-rail-panel">
         <div className="field-label-row">
-          <span className="section-label">REFINED PREVIEW</span>
-          <button className="rail-close" onClick={onClose}>&times;</button>
+          <button className="linkish" onClick={onClose}>&#8592; RECIPE</button>
+          <span className="section-label">WRITE FOR ME · PREVIEW</span>
         </div>
 
         <ScrollArea className="refine-rail-body">

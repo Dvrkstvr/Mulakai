@@ -8,7 +8,7 @@ const TURBO = 'acestep-v15-turbo';
 describe('coverParams', () => {
   it('sends the rail\'s steps, guidance, seed and DiT knobs on the tab\'s model', () => {
     const p = coverParams(gen({
-      model: 'prompt-tab-model', inferenceSteps: 60, guidanceScale: 7, randomSeed: false, seed: 1234,
+      model: 'prompt-tab-model', quality: 'custom', inferenceSteps: 60, guidanceScale: 7, randomSeed: false, seed: 1234,
       shift: 3, inferMethod: 'sde', useAdg: true, cfgIntervalStart: 0.1, cfgIntervalEnd: 0.9,
     }), SFT);
     expect(p).toMatchObject({
@@ -25,9 +25,14 @@ describe('coverParams', () => {
     expect(p.use_random_seed).toBe(true);
   });
 
-  it('clamps STEPS to the cover model, since PROMPT shares the value', () => {
-    expect(coverParams(gen({ inferenceSteps: 100 }), TURBO).inference_steps).toBe(20);
-    expect(coverParams(gen({ inferenceSteps: 100 }), SFT).inference_steps).toBe(100);
+  it('clamps a hand-set STEPS to the cover model, since PROMPT shares the value', () => {
+    expect(coverParams(gen({ quality: 'custom', inferenceSteps: 100 }), TURBO).inference_steps).toBe(20);
+    expect(coverParams(gen({ quality: 'custom', inferenceSteps: 100 }), SFT).inference_steps).toBe(100);
+  });
+
+  it('resolves QUALITY on the cover model, not the PROMPT model', () => {
+    expect(coverParams(gen({ model: TURBO, quality: 'best' }), SFT).inference_steps).toBe(80);
+    expect(coverParams(gen({ quality: 'balanced', inferenceSteps: 60 }), SFT)).not.toHaveProperty('inference_steps');
   });
 
   it('asks for the lossless master and carries the user format in the output block', () => {

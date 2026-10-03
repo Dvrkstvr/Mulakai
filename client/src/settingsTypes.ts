@@ -1,11 +1,14 @@
 import type { AudioFormat, SampleRate, BitDepth, Mp3Bitrate } from './formatCaps';
+import type { Quality } from './qualitySteps';
 
 export interface GenSettings {
   model: string; // '' = server default
   lmModel: string; // '' = server default
   thinking: boolean;
   useFormat: boolean; // AI enhance (LLM caption/lyrics)
-  inferenceSteps: number;
+  /** Create's QUALITY chip; steps resolve from it at submit unless it is `custom`. */
+  quality: Quality;
+  inferenceSteps: number; // read only while quality is 'custom'
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;

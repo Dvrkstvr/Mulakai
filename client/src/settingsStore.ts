@@ -11,6 +11,7 @@ export const useSettings = create<SettingsState>()(
         lmModel: '', // '' = AUTO
         thinking: false,
         useFormat: false,
+        quality: 'balanced',
         inferenceSteps: 0, // 0 = AUTO
         guidanceScale: 0, // 0 = AUTO
         randomSeed: true,

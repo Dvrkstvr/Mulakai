@@ -45,6 +45,17 @@ describe('genParams', () => {
     expect(p.lm_top_k).toBe(40);
   });
 
+  it('resolves steps from QUALITY on the model it is given, sending nothing for BALANCED', () => {
+    expect(genParams({ ...baseGen(), quality: 'draft' }, 'acestep-v15-turbo').inference_steps).toBe(4);
+    expect(genParams({ ...baseGen(), quality: 'best', model: 'acestep-v15-xl-sft' }).inference_steps).toBe(80);
+    expect(genParams({ ...baseGen(), quality: 'balanced', inferenceSteps: 40 }, 'acestep-v15-turbo')).not.toHaveProperty('inference_steps');
+    expect(genParams({ ...baseGen(), quality: 'best' }, '')).not.toHaveProperty('inference_steps');
+  });
+
+  it('sends the STEPS slider as-is once it was moved by hand (custom)', () => {
+    expect(genParams({ ...baseGen(), quality: 'custom', inferenceSteps: 40 }, 'acestep-v15-turbo').inference_steps).toBe(40);
+  });
+
   it('includes batch_size only when TAKES is raised above AUTO (0)', () => {
     expect(genParams({ ...baseGen(), batchSize: 0 })).not.toHaveProperty('batch_size');
     expect(genParams({ ...baseGen(), batchSize: 3 }).batch_size).toBe(3);
@@ -94,6 +105,12 @@ describe('mergeSettings', () => {
     expect(merged.gen.lmNegativePrompt).toBe(''); // backfilled from defaults, not undefined
     expect(merged.gen.cfgIntervalStart).toBe(0); // backfilled from defaults, not undefined
     expect(() => genParams(merged.gen)).not.toThrow();
+  });
+
+  it('migrates a blob saved before QUALITY: hand-set steps become custom, AUTO steps balanced', () => {
+    expect(mergeSettings(useSettings.getState(), { gen: { inferenceSteps: 40 } }).gen.quality).toBe('custom');
+    expect(mergeSettings(useSettings.getState(), { gen: { inferenceSteps: 0 } }).gen.quality).toBe('balanced');
+    expect(mergeSettings(useSettings.getState(), { gen: { inferenceSteps: 40, quality: 'draft' } }).gen.quality).toBe('draft');
   });
 
   it('treats a null/undefined persisted blob (first run, no localStorage yet) as a no-op', () => {

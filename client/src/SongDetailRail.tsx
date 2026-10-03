@@ -6,7 +6,7 @@ import { CustomSelect } from './CustomSelect';
 import { SongOutputTags } from './SongOutputTags';
 import { ReferenceAudioMeta } from './ReferenceAudioMeta';
 import { useVoiceStore } from './voiceStore';
-import { taskToGenType, GEN_TYPE_LABEL } from './createDraft';
+import { taskToGenType, GEN_TYPE_LABEL, START_FROM } from './createDraft';
 
 interface Props {
   song: Song;
@@ -155,10 +155,10 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
         </div>
         <div className="hint">
           {origin === 'prompt'
-            ? `Opens Create’s PROMPT tab${engineLabel ? ` on ${engineLabel}` : ''} with this prompt, lyrics and song details.`
+            ? `Opens Create on ${START_FROM.prompt.title}${engineLabel ? ` with ${engineLabel}` : ''} with this prompt, lyrics and song details.`
             : origin === 'audio' && engineLabel
-              ? `Opens Create’s COVER tab on ${engineLabel} with this cover’s score, prompt and lyrics — ready to cover the same melody again, no source needed.`
-              : `Opens Create’s ${GEN_TYPE_LABEL[origin]} tab — the tab this song was made with — with its prompt, lyrics and song details; you pick a new source track there.`}
+              ? `Opens Create on ${START_FROM.audio.title} with ${engineLabel} and this cover’s score, prompt and lyrics — ready to cover the same melody again, no source needed.`
+              : `Opens Create on ${START_FROM[origin].title} — the start this song was made from — with its prompt, lyrics and song details; you pick a new source track there.`}
         </div>
 
         <SongOutputTags song={song} onChanged={onRenamed} />

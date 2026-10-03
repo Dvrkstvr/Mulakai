@@ -55,7 +55,7 @@ interface AudioMethod {
   selectedSongId: string | null;
   uploadFile: File | null;
   model: string;
-  /** 0-1, inverse of audio_cover_strength — see CreateAudioTab.tsx. */
+  /** 0-1, inverse of audio_cover_strength — see useCoverGenerate.ts. */
   variance: number;
   /** Which engine makes the cover. Per tab, so COVER never changes what PROMPT generates on. */
   engine: EngineId;

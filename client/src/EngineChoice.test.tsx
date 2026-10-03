@@ -18,6 +18,12 @@ describe('EngineChoice lock', () => {
     expect(html).not.toContain('is locked');
   });
 
+  it('shows ACE-STEP fixed, with nothing to pick, until an extra engine can take the job', () => {
+    const html = renderToStaticMarkup(<EngineChoice choices={[]} value="acestep" onPick={() => {}} reasonFor={() => ''} />);
+    expect(html).toContain('ACE-STEP');
+    expect(html).not.toContain('<button');
+  });
+
   it('disables every engine and says which job holds the choice', () => {
     const html = render('TRANSCRIBE');
     expect(disabledTabs(html)).toBe(2);

@@ -2,6 +2,7 @@ import { clampDepth } from './formatCaps';
 import type { GenSettings, AdvancedSettings, RepaintSettings, AddLayerSettings, ExportSettings } from './settingsTypes';
 import { useSettings } from './settingsStore';
 import { stepsMax } from './modelInfo';
+import { resolveSteps } from './qualitySteps';
 
 /**
  * ACE-Step is always asked for its highest-fidelity container regardless of what
@@ -22,8 +23,11 @@ export function outputParams(e: ExportSettings = useSettings.getState().exportSe
   };
 }
 
-/** Map generation settings to ACE-Step request params. Empty/zero fields = AUTO (omitted). */
-export function genParams(g: GenSettings) {
+/** Map generation settings to ACE-Step request params. Empty/zero fields = AUTO (omitted).
+ * `stepsModel` is the model QUALITY resolves steps against: the one actually run, with AUTO
+ * already resolved to the inventory default by the caller (PLAN.md "S2 — Guided Create"). */
+export function genParams(g: GenSettings, stepsModel: string = g.model) {
+  const steps = resolveSteps(g, stepsModel);
   return {
     audio_format: MASTER_AUDIO_FORMAT,
     output: outputParams(),
@@ -37,7 +41,7 @@ export function genParams(g: GenSettings) {
     // defaults these to `true` unconditionally, which would enhance silently).
     use_cot_caption: g.useFormat,
     use_cot_language: g.useFormat,
-    ...(g.inferenceSteps > 0 ? { inference_steps: g.inferenceSteps } : {}),
+    ...(steps > 0 ? { inference_steps: steps } : {}),
     ...(g.guidanceScale > 0 ? { guidance_scale: g.guidanceScale } : {}),
     use_random_seed: g.randomSeed,
     ...(g.randomSeed ? {} : { seed: g.seed }),
@@ -84,12 +88,12 @@ function lmAdvancedParams(s: AdvancedSettings) {
 
 /**
  * Map the Create rail's settings to a COVER request. `model` is the COVER tab's own
- * picker (cover-capable models only), not `g.model`. STEPS is shared with PROMPT, so it
- * is clamped to this model's ceiling. `cover` skips the LM planner, and the server pins
+ * picker (cover-capable models only), not `g.model`. QUALITY resolves on this model, and a
+ * hand-set STEPS (shared with PROMPT) is clamped to its ceiling. `cover` skips the LM planner, and the server pins
  * batch_size to 1, so no LM knobs, THINKING/AI ENHANCE or TAKES.
  */
 export function coverParams(g: GenSettings, model: string) {
-  const steps = Math.min(g.inferenceSteps, stepsMax(model));
+  const steps = Math.min(resolveSteps(g, model), stepsMax(model));
   return {
     audio_format: MASTER_AUDIO_FORMAT,
     output: outputParams(),
