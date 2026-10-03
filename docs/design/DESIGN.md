@@ -195,8 +195,9 @@ requiring its own justification against a screen-count rule.
      want to make?" prompt input + acid CREATE button (parallelogram) that
      navigates to the Create takeover (see below). This replaces the old
      inline create form that used to live in Library. It stays live while
-     songs generate (a new one queues); only its FEELING LUCKY, which asks
-     ACE-Step's LM directly, waits for a free GPU.
+     songs generate (a new one queues). Its FEELING LUCKY is a queued job
+     too: while it waits, a `text-mid` line under the bar reads "FEELING
+     LUCKY waits its turn · starts after 1 job".
    - **Generating cards**: one full-width card pinned at the top of the
      grid per song generation in flight or failed, oldest first (2026-10-03,
      S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
@@ -341,7 +342,9 @@ requiring its own justification against a screen-count rule.
        engine, model family, quality), so the row is **hidden until one has
        finished** — never an invented number. An engine cover still missing
        its score reads "a few min · 3 steps" (TRANSCRIBE, READ LYRICS, the
-       cover). Lands in is the destination folder, read-only.
+       cover). The wait runs from submit to done, so time a generation
+       spent waiting in the queue counts too, and the estimate runs long
+       after a busy session. Lands in is the destination folder, read-only.
      - **TUNE ▸**: everything the old left settings panel held for the
        flow, collapsed to one `text-low` line — "model, steps, guidance, seed
        · all default", or just the non-defaults ("acestep-v15-xl-sft · 40
@@ -903,9 +906,24 @@ never destroys the old one.
   listed in Activity's UP NEXT with CANCEL. A busy GPU never disables a
   commit, in Create or the Editor: the consequence line adds "· starts
   after N jobs", and several jobs can be queued from one tab — several
-  repaints of one layer chain, each working on the one before. Only LM
-  helpers that call ACE-Step directly, outside the queue (FEELING LUCKY),
-  wait for a free GPU.
+  repaints of one layer chain, each working on the one before. FEELING
+  LUCKY (the LM's random sample) queues the same way and says "waits its
+  turn · starts after N jobs" under its button while it waits.
+  What still waits on something other than the queue (2026-10-03):
+  - **SPLIT** stays disabled while *another layer's* stems are still
+    extracting: one split session is open at a time, and a new start
+    would close that one. Its consequence line says so.
+  - **Word timings**, read automatically when a song opens, start only
+    while the GPU is idle and nothing is queued, so they never jump ahead
+    of the user's own edits.
+  - A **submitted generation no longer holds Create's SOURCE**: its request
+    already carries the source (or score), so the next one can be set up
+    while it waits. Only the submit itself (a library song bouncing and
+    uploading) and the source's own TRANSCRIBE / READ LYRICS / ANALYZE
+    AUDIO, queued or running, hold it.
+  - A generation started in **another tab** gets its Library card only once
+    it runs (adopted from the running job). While it only waits, it shows
+    in Activity's UP NEXT.
 
 ## Motion
 
@@ -975,7 +993,8 @@ the Library's footer player. Sections, each with a 9px `text-low` label:
 - **RUNNING** — every job in flight: song generation, the repaint family,
   add layer, remaster, split, TRANSCRIBE, READ LYRICS, word timings, and
   whatever the server says is running that this tab doesn't track (ANALYZE
-  AUDIO, another tab's job, a job from before a reload). Rows for jobs that
+  AUDIO, FEELING LUCKY's sample, another tab's job, a job from before a
+  reload). Rows for jobs that
   make or describe audio wear the AI shader (see AI states); the others are
   plain cards with `n%` and a 2px `text-mid` bar. The row holding the
   server's running slot carries ABORT, a quiet outline. ABORT drops the
