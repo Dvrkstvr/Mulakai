@@ -30,7 +30,20 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
     const row = page.locator('.library .row', { hasText: TITLE });
     await expect(row).toBeVisible({ timeout: 30_000 });
     expect((await lastTaskOfType(request, 'text2music')).params.prompt).toBe('lofi piano with soft drums');
-    await row.getByRole('button', { name: 'EDIT' }).click();
+  });
+
+  await test.step('Activity lists it as DONE; the Ctrl K palette opens it by title', async () => {
+    await page.getByRole('button', { name: /^ACTIVITY/ }).click();
+    const drawer = page.getByRole('complementary', { name: 'Activity' });
+    const done = drawer.locator('.activity-job', { hasText: TITLE });
+    await expect(done).toContainText('GENERATED');
+    await expect(done.getByRole('button', { name: 'OPEN' })).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(drawer).toBeHidden();
+
+    await page.keyboard.press('Control+k');
+    await page.getByRole('dialog', { name: 'Command palette' }).getByRole('textbox').fill(TITLE);
+    await page.keyboard.press('Enter');
     await expect(page.locator('.title-row .song-title')).toHaveText(TITLE);
     await expect(page.locator('.title-row .meta')).toContainText('1 layer');
   });

@@ -3,8 +3,8 @@ import { api, type ActiveGeneration } from './api';
 
 /**
  * Read-only mirror of the server's generation lock, polled independently of
- * generationStore/editorJobStore — this only feeds the header's dev status
- * pill (see Header.tsx) and has no side effects of its own beyond the abort call.
+ * generationStore/editorJobStore — it feeds Activity's RUNNING rows (a job no store
+ * here tracks, and which row ABORT belongs to) and has no side effects beyond the abort call.
  */
 interface ApiStatusState {
   active: ActiveGeneration | null;

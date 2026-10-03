@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react
 import type { Song } from './api';
 import { Editor } from './Editor';
 import { CreateView } from './CreateView';
-import { draftHasIntent, type CreateDraft } from './createDraft';
+import { createCoverDraft, draftHasIntent, type CreateDraft, type GenType } from './createDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSingleAudioPlayback } from './useSingleAudioPlayback';
@@ -20,6 +20,8 @@ import { useLibraryData } from './useLibraryData';
 import { useAppSync } from './useAppSync';
 import { LibraryView } from './LibraryView';
 import { PlayerFooter } from './PlayerFooter';
+import { CommandActivityLayer } from './CommandActivityLayer';
+import { scrollToSettingsSection } from './settingsSections';
 
 type View = 'library' | 'create' | 'settings' | 'forge';
 
@@ -65,6 +67,26 @@ export default function App() {
     setView('create');
   };
 
+  // Palette and Activity routes. Leaving the Editor this way refreshes the Library as BACK does.
+  const leaveEditor = () => {
+    if (!openSongId) return;
+    setOpenSongId(null);
+    refresh();
+    refreshFolders();
+  };
+  const showCreate = (genType?: GenType) => {
+    if (genType) useCreateDraftStore.getState().patch({ genType });
+    leaveEditor();
+    setView('create');
+  };
+  const loadCreate = (draft: CreateDraft) => { leaveEditor(); openCreate(draft); };
+  const remake = (s: Song) => {
+    const f = library.folders.find((x) => x.id === s.folder_id);
+    loadCreate({ ...createCoverDraft(s), ...(f ? { folderId: f.id, folderName: f.name } : {}) });
+  };
+  const openFolder = (id: string) => { leaveEditor(); setDetailSongId(null); setView('library'); library.setFolderScope(id); };
+  const openSettings = (id: string) => { leaveEditor(); setView('settings'); scrollToSettingsSection(id); };
+
   // library player stops (not pauses) when the editor or any takeover screen opens, per PLAN.md's Custom Player Controls section
   useEffect(() => {
     if (openSongId || isTakeover) footerEngine.stop();
@@ -83,7 +105,7 @@ export default function App() {
             <MaterializeSweep />
             {/* refreshFolders too: an import lands here directly, so leaving the editor is
                 the first moment the destination folder's song count can be re-read. */}
-            <Editor songId={openSongId} onBack={() => { setOpenSongId(null); refresh(); refreshFolders(); }} />
+            <Editor key={openSongId} songId={openSongId} onBack={() => { setOpenSongId(null); refresh(); refreshFolders(); }} />
           </motion.div>
         ) : view === 'create' ? (
           <motion.div className="view-fill" key="create" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
@@ -121,6 +143,10 @@ export default function App() {
       </div>
 
       <PlayerFooter playing={playing} engine={footerEngine} hidden={!!openSongId || isTakeover} />
+      <CommandActivityLayer
+        folders={library.folders} openEditor={openEditor} openFolder={openFolder} showCreate={showCreate}
+        loadCreate={loadCreate} remake={remake} openSettings={openSettings}
+      />
       </HeaderSlotContext.Provider>
       </NavigationContext.Provider>
     </div>

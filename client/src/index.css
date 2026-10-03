@@ -253,41 +253,6 @@ header {
   transition: color 0.2s ease;
 }
 
-.job-status-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.job-status-label {
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-  color: var(--rust-text);
-}
-
-.job-abort-btn {
-  transform: skewX(-10deg);
-  border: 1px solid var(--rust);
-  background: var(--rust-tint);
-  color: var(--rust-text);
-  font-weight: 700;
-  font-size: 10px;
-  letter-spacing: 1px;
-  padding: 3px 10px;
-  cursor: pointer;
-}
-
-.job-abort-btn:hover:not(:disabled) {
-  background: var(--rust);
-  color: var(--carbon);
-}
-
-.job-abort-btn:disabled {
-  opacity: 0.5;
-  cursor: default;
-}
-
 .health.ok {
   color: var(--acid);
   animation: health-blip 0.5s ease-out;

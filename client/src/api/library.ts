@@ -2,7 +2,25 @@
 import { json } from './http';
 import type { Song, SongDetail, Folder, FolderScope } from './types';
 
+/** GET /api/songs/recent: a song with its newest version, the edit Library's CONTINUE row names. */
+export interface RecentSong {
+  id: string;
+  title: string;
+  duration: number | null;
+  /** The base layer's current take, for the card's waveform. */
+  audio_file: string | null;
+  version_label: string;
+  edited_at: string;
+  layer_name: string;
+  layer_kind: string;
+  /** How many takes that layer has: the card's version badge. */
+  layer_versions: number;
+}
+
 export const libraryApi = {
+  recentSongs: (limit = 3): Promise<RecentSong[]> =>
+    fetch(`/api/songs/recent?limit=${limit}`).then((r) => json<RecentSong[]>(r)),
+
   listSongs: (q = '', folder?: FolderScope): Promise<Song[]> =>
     fetch(`/api/songs?q=${encodeURIComponent(q)}${folder ? `&folder=${encodeURIComponent(folder)}` : ''}`)
       .then((r) => json<Song[]>(r)),

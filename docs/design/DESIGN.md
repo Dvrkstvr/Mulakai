@@ -161,7 +161,9 @@ closes any popover. Previews are auditions, not a second mixer.
 ## App model — a flat set of top-level views, one page
 
 Single-page app. Top-level state is a flat, enumerable set of full-takeover
-views — no nested pages, no stacked modals. The set is allowed to grow as the
+views — no nested pages, no stacked modals (one documented exception: the
+Ctrl K command palette, see "Command palette" under Motion › Persistent
+header). The set is allowed to grow as the
 app grows (Mulakai is built iteratively); adding a view is a normal addition
 to the pattern below, not an exception to a fixed count. Each view:
 
@@ -184,12 +186,26 @@ requiring its own justification against a screen-count rule.
 1. **Library** (home) — full width is browsing surface; a right-hand detail
    rail opens only once a song is selected (see below), it does not reserve
    space up front.
-   - Header: brand + model status badge only. No search, no form — kept clean
-     since neither acts on the header itself.
+   - Header: the shared persistent header (brand, the `Search or run
+     anything… CTRL K` palette trigger, ACTIVITY, model status badge — see
+     Motion › Persistent header). No library search or create form there:
+     those act on the list, so they live with it.
    - **Create bar**: one slim row below the header — a single "what do you
      want to make?" prompt input + acid CREATE button (parallelogram) that
      navigates to the Create takeover (see below). This replaces the old
      inline create form that used to live in Library.
+   - **CONTINUE** (added 2026-10-03): a row above the song grid with up to
+     three cards, the songs edited most recently (by their newest version —
+     songs have no `updated_at`, and versions are the edits), from
+     `GET /api/songs/recent`. Each card: title, a lilac version badge (`v4`,
+     that layer's take count), the base take's waveform (`PlayerWaveform`,
+     no playhead; a click resumes rather than plays — the footer stays the
+     Library's one playback surface), the last action in words
+     ("Repainted 1:32–2:07 · VOCALS · 12 min ago") and **RESUME**, a plain
+     skewed outline like EDIT (it navigates; acid is for commits). A Create
+     draft that holds anything is prepended as "Draft in Create · AN IDEA"
+     with its description, RESUME reopening Create as it was left. Hidden on
+     an empty library.
    - **Browse toolbar**: search input, SORT select (newest/oldest/title/
      favorites), and filter chips (ALL/FAVORITES — acid-outlined
      parallelograms, active = acid-filled) — grouped together directly above
@@ -237,8 +253,9 @@ requiring its own justification against a screen-count rule.
      this song preselected — it is the action that seeds a source, which is
      why REUSE PROMPT never quietly does so, and it carries no voice either.
 2. **Create** — its own takeover screen, reached from Library's create bar.
-   Header stays back/brand/status only (same as Editor's — the header is a
-   single persistent element and doesn't carry per-screen content).
+   Header stays the shared persistent one plus the back button (same as
+   Editor's — the header is a single persistent element and doesn't carry
+   per-screen content).
    **Guided Create** (2026-10-03, PLAN.md "S2 — Guided Create"; mockup
    `GuidedCreate.dc.html`). One scrolling page, centered at ~1140px — a
    prompt/lyrics editor doesn't get more usable by being 3x wider, so extra
@@ -541,7 +558,8 @@ requiring its own justification against a screen-count rule.
      leaves a dead gap under a tall bordered card. The layer list caps at
      `55vh` and scrolls internally past that instead of growing the page.
    - Header (full width, persistent across all three screens): back-to-
-     library, brand wordmark, model status badge only. Song title, time/
+     library, brand wordmark, palette trigger, ACTIVITY, model status badge.
+     Song title, time/
      bpm/key metadata, and EXPORT live in the center column and right rail
      respectively (see below) — the header stays free of anything scoped to
      "this song," so it doesn't need to re-render per-song content.
@@ -560,7 +578,7 @@ requiring its own justification against a screen-count rule.
      history — see Lilac below).
      - **Timing** (added 2026-10-02): opening a song whose base version
        hasn't been read reads it in the background (a genLock job, shown in
-       the header). While it runs, the panel label reads `LYRICS · TIMING…`,
+       Activity). While it runs, the panel label reads `LYRICS · TIMING…`,
        the suffix in `text-low`. It stays plain, like TRANSCRIBE: reading
        words isn't generating. A failed read shows a `.warn-note` under the
        label, "couldn't time these lyrics" with RETRY, and the reason on one
@@ -814,13 +832,72 @@ progress states (see "AI states" below), which are allowed to feel alive.
 
 ### Persistent header
 
-The header (brand + model status) is a single persistent element, not
-re-mounted per view — it never fades with the rest of the screen. The
+The header (brand, palette trigger, ACTIVITY, model status) is a single
+persistent element, not re-mounted per view — it never fades with the rest
+of the screen. The
 `MULAKAI` wordmark uses a shared `layoutId` so it glides (not cuts) between
 its Library position (left, standalone) and its Editor/Create position
 (left, beside the back button/title), while the model status badge stays
 in place at the right. Only the content *below* the header crossfades on
 view change.
+
+Left to right (revised 2026-10-03): back button (on a takeover view) ·
+`MULAKAI` · the **palette trigger**, a hairline field-shaped button reading
+`Search or run anything…` with a `CTRL K` key hint (it opens a search, so
+it looks like a field, not a chip) · then, at the right, **ACTIVITY** (a
+plain outlined parallelogram, `ACTIVITY · 2 RUNNING` while jobs run) · the
+model status badge. The old job pill and its rust ABORT left the header:
+the running job and its ABORT live in Activity.
+
+**Command palette** (added 2026-10-03, PLAN.md "UI Redesign" S3) — the one
+documented exception to the no-modal rule. Ctrl K (⌘K) from anywhere, or the
+header trigger, opens one centered panel (~660px, `carbon-panel`, `line-hi`
+hairline) over a dimmed canvas. Never stacked; ESC, a click on the dim, or
+running an item closes it, and focus returns to where it was (an item that
+focuses a field keeps that focus). It **navigates and pre-fills, it never
+commits**: every generative or destructive action is still made at its own
+acid button under its consequence line.
+- Anatomy: the search row (a sky scope chip, the input, an `ESC` key hint),
+  grouped results, and a footer `↑↓ MOVE · ↵ RUN · TAB CHANGE SCOPE`.
+- Groups, in this order: **DO** (the open song's edit verbs: repaint a
+  section or the current selection, add a layer, split a layer, export —
+  each focuses its control with the target set), **OPEN** (songs, the open
+  song's layers, folders), **CREATE** (the three start points, and "Remake
+  <song>" = CREATE COVER FROM AUDIO), **SETTINGS** (each section; Forge only
+  while enabled). Group labels are 9px `text-low`.
+- Scope: while the Editor is open the chip reads `IN · COPPER SKY` (sky
+  fill) and only DO plus the song's layers show; TAB flips it to `ALL` (sky
+  outline) and back. No chip outside the Editor.
+- The highlighted row is the palette's selection: `sky-tint` with a 2px sky
+  inset edge and a bold label, never acid. Each row: label, a `text-low` sub
+  line, and a key hint when one exists.
+- Matching: case-insensitive subsequence on the label with word-start and
+  run bonuses; the sub line matches only as plain text, below any label
+  match. At most 8 rows per group.
+- Views publish their own items (the Editor its DO and layer items) and
+  clear them when they unmount; the palette imports no view.
+
+**Activity drawer** (added 2026-10-03) — a right-edge panel (~340px,
+`carbon-panel`, 1px hairline) over the content, **not** a modal: the canvas
+stays live and clickable, ESC or the header button closes it. It stops above
+the Library's footer player. Sections, each with a 9px `text-low` label:
+- **RUNNING** — every job in flight: song generation, the repaint family,
+  add layer, remaster, split, TRANSCRIBE, READ LYRICS, word timings, and
+  whatever the server's lock names that this tab doesn't track (ANALYZE
+  AUDIO, another tab's job, a job from before a reload). Rows for jobs that
+  make or describe audio wear the AI shader (see AI states); the others are
+  plain cards with `n%` and a 2px `text-mid` bar. The row holding the
+  server's lock carries ABORT, a quiet outline.
+- **DONE** — title, a lilac result badge (`VOCALS v5`, `+1 LANE`,
+  `4 STEMS`, `NEW SONG`), what happened and when, and OPEN (lilac outline)
+  to the Editor, or to Create for TRANSCRIBE / READ LYRICS.
+- **FAILED** — a rust card (`rust` border, `rust-tint` fill): "<song> ·
+  repaint failed", the reason in `rust-body` with "· settings kept", and
+  RETRY (rust outline), which starts the same job again through its store (a
+  failed generation reopens Create on its draft). Word timings record only
+  failures: they start on their own, so only a failure needs a person.
+- CLEAR DONE empties DONE and FAILED. The list is session-only, newest
+  first, capped at 30; a reload rebuilds RUNNING from the server's lock.
 
 **Model status badge** (2026-10-02): one hairline rectangle at the header's
 right — a square dot, `MODELS`, and a summary: `N READY`, `N DOWN`,
@@ -927,7 +1004,8 @@ differently depending on how much of the element it would cover:
   region) — the shader fills the **entire background**, with foreground
   content (labels, timers) layered above it at `z-index: 1`. Example:
   `GeneratingCard.tsx`'s pinned library row — `AIGeneratingBackground` fills
-  the whole card while `STAGE_LABEL`/elapsed-time text sits on top. Also
+  the whole card while `STAGE_LABEL`/elapsed-time text sits on top.
+  Activity's RUNNING rows for those jobs do the same (`ActivityRow.tsx`). Also
   used this way by `RepaintBar.tsx`'s REPAINT REGION button while running,
   `LayerLane.tsx`'s focused-lane "processing" overlay, and
   `ThinkingWipe.tsx`'s full-block Quick Start reveal.
@@ -953,8 +1031,11 @@ sweep as the result types in underneath, `ThinkingWipe.tsx` /
 `useThinkingQuery.ts`); and COVER/ARRANGE's ANALYZE AUDIO button while
 ACE-Step's LM describes the source (`AnalyzeAudioButton.tsx`, on every
 engine — it has worn the shader since it was added, and is listed here
-now so the list is complete). TRANSCRIBE and READ LYRICS stay plain: SheetSage2 reads
-notes and lyrics-server reads words; neither describes or generates.
+now so the list is complete); and Activity's RUNNING row for a song
+generation, a repaint/alt/similar take, an add layer, a remaster or an
+ANALYZE AUDIO. TRANSCRIBE and READ LYRICS stay plain: SheetSage2 reads
+notes and lyrics-server reads words; neither describes or generates. So do
+their Activity rows, and those for word timings and stem splits.
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
 keeps the strict one-hue-per-job rule — if a future feature wants to reuse

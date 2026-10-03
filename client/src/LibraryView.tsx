@@ -10,6 +10,7 @@ import type { GenerationJob } from './generationStore';
 import { isGenerating } from './generationJob';
 import { GeneratingCard } from './GeneratingCard';
 import { LibraryJobBadge } from './LibraryJobBadge';
+import { ContinueRow } from './ContinueRow';
 import type { PlaybackApi } from './mix/playerApi';
 import type { LibraryData } from './useLibraryData';
 
@@ -95,6 +96,7 @@ export function LibraryView({
           onCreateFolder={createFolder}
         />
         <div className="library-main">
+        <ContinueRow refreshKey={songs} openEditor={openEditor} resumeCreate={() => openCreate({})} />
         {(activeFolder || folderScope === 'unfiled') && (
           <div className="scope-crumb">
             <span className="name">{activeFolder ? activeFolder.name : 'Unfiled'}</span>
