@@ -38,6 +38,10 @@ export const config = {
    * (GPU wedge, dropped connection) stalls the poll loop forever and the global
    * queue's slot is never freed. Audio downloads get 5x this. */
   acestepTimeoutMs: Number(process.env.ACESTEP_TIMEOUT_MS ?? 60_000),
+  /** Deadline for the LM drafting calls (create_sample, format_input) (ms). ACE-Step only
+   * answers once the LM has finished writing, which can take 2-3 minutes, so 60s cut off
+   * drafts that would have arrived. */
+  acestepLmTimeoutMs: Number(process.env.ACESTEP_LM_TIMEOUT_MS ?? 180_000),
   /** After ABORT, how long the queue's slot may wait for the abandoned backend task to stop
    * (ms) before the next job starts anyway. ACE-Step has no cancel, so an aborted task runs on
    * until it finishes; starting the next job beside it could overrun a 16 GB card. */
