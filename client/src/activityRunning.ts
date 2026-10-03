@@ -36,6 +36,9 @@ export interface RunningSources {
   active: ActiveGeneration | null;
   /** Jobs still waiting in the server's queue: those are UP NEXT, not RUNNING. */
   queuedIds?: ReadonlySet<string>;
+  /** Jobs Activity already lists as DONE or FAILED: a `/active` snapshot taken before they
+   * settled (it is polled every 2 s) must not list them as RUNNING again. */
+  settledIds?: ReadonlySet<string>;
 }
 
 const AI_KINDS = new Set<ActivityKind>(['generate', 'repaint', 'regenerate', 'retake', 'addLayer', 'remaster', 'analyze']);
@@ -81,7 +84,8 @@ export function runningRows(src: RunningSources, isEngineStage: (stage?: string)
   if (queued?.size) drafts = drafts.filter((d) => !d.jobId || !queued.has(d.jobId));
 
   // The lock names its job; one this tab tracks matches by id, or (no id kept) by kind.
-  const holder = active && (active.status === 'loading' || active.status === 'running') ? active : null;
+  const live = active && (active.status === 'loading' || active.status === 'running');
+  const holder = live && !src.settledIds?.has(active.jobId) ? active : null;
   const holderIndex = holder ? drafts.findIndex((d) => d.jobId === holder.jobId) : -1;
   const matched = holderIndex >= 0 ? holderIndex : holder ? drafts.findIndex((d) => d.kind === holder.kind) : -1;
   if (holder && matched < 0) {
