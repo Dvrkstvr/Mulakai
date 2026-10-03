@@ -15,7 +15,7 @@ import { startTranscription } from '../services/transcribeJobs.js';
 import { fetchTranscriptionPreview, measureScore } from '../services/engineTranscribeClient.js';
 import { startEngineGeneration } from '../services/engineGenJobs.js';
 import { getJob } from '../services/jobs.js';
-import { GenLockError } from '../services/genLock.js';
+import { QueueFullError } from '../services/genQueue.js';
 import type { SongEngine } from '../services/engines/types.js';
 import { pickCreateFields } from './createFields.js';
 
@@ -61,7 +61,7 @@ const receiveSource: RequestHandler = (req, res, next) => {
 };
 
 function lockOrServerError(res: Response, err: unknown) {
-  if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+  if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
   res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
 }
 

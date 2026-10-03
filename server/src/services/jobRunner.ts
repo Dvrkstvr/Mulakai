@@ -1,7 +1,8 @@
 /** Job body execution and the ACE-Step /query_result poll loop shared by every job type. */
 import { config } from '../config.js';
 import { queryResult, type TaskResult } from './acestep.js';
-import { wasAborted, type Job } from './jobRegistry.js';
+import { registerJob, settleCancelled, wasAborted, type Job } from './jobRegistry.js';
+import { enqueue, type QueueInfo } from './genQueue.js';
 
 /** Wrap an async job body so any thrown error marks the job failed. Exported for coverGenJobs.ts's cover-from-audio flow. */
 export async function run(job: Job, body: () => Promise<void>): Promise<void> {
@@ -13,9 +14,28 @@ export async function run(job: Job, body: () => Promise<void>): Promise<void> {
   }
 }
 
+/**
+ * Queue `job` (genQueue.ts) and register it as `queued`. `body` runs once the slot frees,
+ * after the job flips to `startStatus`; whatever it throws fails the job, and its settling
+ * frees the slot. A cancel while queued settles it failed with `cancelled`. Throws
+ * QueueFullError before registering anything.
+ */
+export function queueJob(
+  info: Omit<QueueInfo, 'jobId'>, job: Job, body: () => Promise<void>, startStatus: 'loading' | 'running' = 'loading',
+): Job {
+  job.status = 'queued';
+  enqueue({ ...info, jobId: job.id }, () => {
+    if (wasAborted(job)) return undefined;
+    job.status = startStatus;
+    return run(job, body);
+  }, (reason) => settleCancelled(job, reason));
+  registerJob(job);
+  return job;
+}
+
 // A single failed status poll must not kill a long GPU run (the generation itself is
 // unaffected), but persistent failure — e.g. every request timing out against a wedged
-// backend — has to fail the job eventually or the genLock is held forever.
+// backend — has to fail the job eventually or the queue's slot is held forever.
 export const MAX_POLL_STRIKES = 3;
 
 /** An abort can't unsave a result that was already being saved (see poll), so it says so. */

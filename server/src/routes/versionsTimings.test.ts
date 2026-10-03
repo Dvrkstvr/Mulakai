@@ -13,7 +13,7 @@ vi.mock('../services/timingsJobs.js', () => ({
   startVersionTimings: (id: string) => startVersionTimings(id),
 }));
 
-const { GenLockError } = await import('../services/genLock.js');
+const { QueueFullError } = await import('../services/genQueue.js');
 const { versionsRouter } = await import('./versions.js');
 
 let server: Server;
@@ -42,7 +42,7 @@ describe('POST /versions/:versionId/timings', () => {
   it.each([
     [new Error('unknown version'), 404],
     [new Error('word timings are not set up: LYRICS_API_URL is unset'), 400],
-    [new GenLockError(), 409],
+    [new QueueFullError(), 409],
     [new Error('disk on fire'), 500],
   ])('maps %s to %i', async (err, status) => {
     startVersionTimings.mockImplementationOnce(() => { throw err; });

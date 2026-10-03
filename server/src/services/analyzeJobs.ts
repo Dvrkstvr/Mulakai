@@ -1,24 +1,21 @@
 /**
- * ANALYZE AUDIO under the genLock (PLAN.md "ANALYZE AUDIO Takes the genLock"): ACE-Step
- * loads a DiT and the LM to describe a source, so it may not run next to any other job on a
- * 16 GB card. The call is synchronous, so the request itself is the job: no Job record, and
- * the lock lives exactly as long as the call. A timeout is `call()`'s own leash
- * (acestepTimeoutMs) rejecting, so it releases through the same `finally`.
+ * ANALYZE AUDIO as a queued job (PLAN.md "UI Redesign", S4 decision 2): ACE-Step loads a DiT
+ * and the LM to describe a source, so it may not run next to any other job on a 16 GB card.
+ * It was one synchronous request holding the lock; a request can't wait out a queue, so it is
+ * now a polled Job like TRANSCRIBE, whose `analysis` carries the result. A timeout is
+ * `call()`'s own leash (acestepTimeoutMs) rejecting, which fails the job and frees the slot.
  */
 import crypto from 'node:crypto';
-import { analyzeAudio, type FormatInputResult } from './acestep.js';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { analyzeAudio } from './acestep.js';
+import { type Job, queueJob, wasAborted } from './jobs.js';
 
-/** Rejects with GenLockError, before ACE-Step is called, if another job holds the lock. */
-export async function analyzeUnderLock(
-  file: { data: Buffer; filename: string },
-  model?: string,
-): Promise<FormatInputResult> {
-  const jobId = crypto.randomUUID();
-  acquireGenLock({ kind: 'analyze', jobId, title: file.filename });
-  try {
-    return await analyzeAudio(file, model);
-  } finally {
-    releaseGenLock(jobId);
-  }
+/** Throws QueueFullError, before ACE-Step is called, when the queue is full. */
+export function startAnalyze(file: { data: Buffer; filename: string }, model?: string): Job {
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
+  return queueJob({ kind: 'analyze', title: file.filename, label: 'describe the source' }, job, async () => {
+    const analysis = await analyzeAudio(file, model);
+    if (wasAborted(job)) return; // ACE-Step has no cancel: an aborted analysis is just dropped
+    job.analysis = analysis;
+    job.status = 'done';
+  }, 'running');
 }

@@ -6,8 +6,8 @@ import { startCoverGeneration } from '../services/coverGenJobs.js';
 import { startCompleteGeneration, type CompleteSource } from '../services/completeGenJobs.js';
 import { getScratchSplitJob, scratchStemPath, SCRATCH_GONE } from '../services/scratchSplitJobs.js';
 import { resolveReferenceAudioFile } from '../services/referenceAudioResolve.js';
-import { GenLockError } from '../services/genLock.js';
-import { analyzeUnderLock } from '../services/analyzeJobs.js';
+import { QueueFullError } from '../services/genQueue.js';
+import { startAnalyze } from '../services/analyzeJobs.js';
 import { upload, pickMultipartParams, withCoverStrength, labelOnlyReferenceMeta } from './generateParams.js';
 
 export const generateAudioRouter = Router();
@@ -37,7 +37,7 @@ generateAudioRouter.post(
       );
       res.status(202).json({ jobId: job.id });
     } catch (err) {
-      if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+      if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
       res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
     }
   },
@@ -79,7 +79,7 @@ generateAudioRouter.post(
       );
       res.status(202).json({ jobId: job.id });
     } catch (err) {
-      if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+      if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
       res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
     }
   },
@@ -87,8 +87,8 @@ generateAudioRouter.post(
 
 /** "Describe this audio for me" — analyzes an uploaded source track (or a scratch stem,
  * same dual-source resolution `/complete` uses above) via ACE-Step's `/v1/analyze_audio`
- * and returns its caption/lyrics/metadata guess for the client to prefill Create fields.
- * Holds the genLock (`analyze`) for the call, so it 409s next to any other job. */
+ * and queues it as a job (`analyze`); its caption/lyrics/metadata guess arrives on the polled
+ * job's `analysis` for the client to prefill Create fields. */
 generateAudioRouter.post('/analyze-audio', upload.fields([{ name: 'src_audio', maxCount: 1 }]), async (req, res) => {
   const { scratch_job_id, scratch_stem_kind, model } = req.body ?? {};
   const files = (req.files ?? {}) as Record<string, Express.Multer.File[] | undefined>;
@@ -106,9 +106,9 @@ generateAudioRouter.post('/analyze-audio', upload.fields([{ name: 'src_audio', m
     }
     if (!file) return res.status(400).json({ error: 'src_audio or scratch_job_id/scratch_stem_kind is required' });
 
-    res.json(await analyzeUnderLock(file, model ? String(model) : undefined));
+    res.status(202).json({ jobId: startAnalyze(file, model ? String(model) : undefined).id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
   }
 });

@@ -114,7 +114,8 @@ describe('startAddLayer', () => {
 
     const job = await startAddLayer(songId, 'add strings', 'Strings', Buffer.from('mix'), {});
 
-    expect(job.status).toBe('failed');
+    // Queued, then run at once on a free slot: the abort lands inside the run.
+    await vi.waitFor(() => expect(job.status).toBe('failed'));
     expect(job.error).toBe('Aborted');
     await new Promise((r) => setTimeout(r, 30));
     const layer = db.prepare(`SELECT id FROM layers WHERE song_id = ? AND kind = 'instrument'`).get(songId);

@@ -21,7 +21,7 @@ export const config = {
   /** lyrics-server, for READ LYRICS (PLAN.md "Cover Lyrics From the Recording"). Empty = not set up. */
   lyricsUrl: process.env.LYRICS_API_URL ?? '',
   /** Ceiling on one synchronous /transcribe call: a warm job is seconds, the first one
-   * downloads the model, and a hung call would otherwise hold the genLock forever. */
+   * downloads the model, and a hung call would otherwise hold the queue's slot forever. */
   lyricsTimeoutMs: Number(process.env.LYRICS_TIMEOUT_MS ?? 15 * 60_000),
   /** Largest READ LYRICS upload. A library WAV is float32 stereo, about 23 MB a minute. */
   lyricsMaxUploadMb: Number(process.env.LYRICS_MAX_UPLOAD_MB ?? 300),
@@ -36,7 +36,7 @@ export const config = {
   pollIntervalMs: Number(process.env.POLL_INTERVAL_MS ?? 2000),
   /** Per-request ceiling on ACE-Step HTTP calls (ms). Without one, a hung socket
    * (GPU wedge, dropped connection) stalls the poll loop forever and the global
-   * generation lock is never released. Audio downloads get 5x this. */
+   * queue's slot is never freed. Audio downloads get 5x this. */
   acestepTimeoutMs: Number(process.env.ACESTEP_TIMEOUT_MS ?? 60_000),
   /** How long the model list, which a person is waiting on, waits for ACE-Step (ms). ACE-Step
    * answers nothing while it generates, so 60s is too short there. Node's fetch gives up waiting

@@ -100,7 +100,7 @@ export async function status(target: EngineTarget, id: string): Promise<EngineJo
     case 'cancelled':
       return { state: 'failed', truncated: false, error: `${target.label} cancelled the job` };
     default:
-      // Anything outside the contract fails rather than polls forever holding the genLock.
+      // Anything outside the contract fails rather than polls forever holding the queue's slot.
       return { state: 'failed', truncated: false, error: `${target.label} status -> unknown status ${JSON.stringify(job.status)}` };
   }
 }

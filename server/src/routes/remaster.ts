@@ -4,7 +4,7 @@ import { Router } from 'express';
 import multer from 'multer';
 import { getJob } from '../services/jobs.js';
 import { startRemaster } from '../services/remasterJobs.js';
-import { GenLockError } from '../services/genLock.js';
+import { QueueFullError } from '../services/genQueue.js';
 
 export const remasterRouter = Router();
 
@@ -29,7 +29,7 @@ remasterRouter.post('/:id/remaster', upload.single('mix_audio'), async (req, res
     const job = await startRemaster(String(req.params.id), req.file.buffer, model, { output, steps });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'remaster failed';
     res.status(msg === 'unknown song' ? 404 : 502).json({ error: msg });
   }

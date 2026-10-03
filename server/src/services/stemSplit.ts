@@ -10,8 +10,9 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { parseOutputSettings, type OutputSettings } from './audioOutput.js';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
-import { discardUnclaimedFile } from './stemFiles.js';
+import { cancelQueued, enqueue } from './genQueue.js';
+import { activeLayerSource, layerName } from './queueGuards.js';
+import { discardUnclaimedFile, failRunning } from './stemFiles.js';
 import {
   runAcestepStem, runDemucs, STEM_KINDS, INSTRUCTIONS,
   type StemKind, type SplitModel, type StemResult, type SourceAudio,
@@ -30,12 +31,14 @@ export interface SplitJob {
   stems: StemResult[];
   output: OutputSettings;
   createdAt: number;
-  /** Last status poll, claim or RE-EXTRACT — the idle clock evictIdleSplits reads. */
+  /** Last status poll, claim or RE-EXTRACT â€” the idle clock evictIdleSplits reads. */
   lastSeenAt: number;
+  /** Waiting in genQueue.ts; its stems read `running` meanwhile. */
+  queued?: boolean;
 }
 
 /** An open session is polled every 2 s (even outside the Editor), so an hour without a
- * touch means its tab is gone — see PLAN.md "Abandoned Splits Leave No Stems Behind". */
+ * touch means its tab is gone â€” see PLAN.md "Abandoned Splits Leave No Stems Behind". */
 export const SPLIT_IDLE_TTL_MS = 60 * 60 * 1000;
 
 const jobs = new Map<string, SplitJob>();
@@ -55,45 +58,51 @@ function readSource(file: string): Promise<SourceAudio> {
   return fs.readFile(path.join(config.audioDir, file)).then((data) => ({ data, filename: file }));
 }
 
-/** Start a split job: reads the layer's active audio and fans out the chosen backend's extraction. */
+/** Queue a split job. When its turn comes it reads the layer's active audio *then* and fans out
+ * the chosen backend's extraction, holding the queue's slot until every stem call settles (all 4
+ * for ACE-Step, the single batched call for Demucs). CANCEL while queued drops the session. */
 export async function startSplit(layerId: string, model: SplitModel, output?: unknown): Promise<SplitJob> {
-  const row = db
-    .prepare(
-      `SELECT v.audio_file, l.song_id FROM versions v
-       JOIN layers l ON v.layer_id = l.id
-       WHERE l.id = ? AND v.active = 1`,
-    )
-    .get(layerId) as { audio_file: string; song_id: string } | undefined;
-  if (!row) throw new Error('unknown layer');
-  const src = await readSource(row.audio_file);
+  const first = activeLayerSource(layerId, 'unknown layer');
   const jobId = crypto.randomUUID();
-  acquireGenLock({ kind: 'split', jobId, songId: row.song_id });
   const job: SplitJob = {
     id: jobId,
     layerId,
-    songId: row.song_id,
+    songId: first.song_id,
     model,
-    sourceFile: row.audio_file,
+    sourceFile: first.audio_file,
     stems: STEM_KINDS.map((kind) => ({ kind, status: 'running' })),
     output: parseOutputSettings(output),
     createdAt: Date.now(),
     lastSeenAt: Date.now(),
+    queued: true,
   };
-  jobs.set(job.id, job);
-
-  // Held until every stem call settles (all 4 for ACE-Step, the single batched call for Demucs) â€”
-  // reextractStem acquires its own lock for any stem re-run after this point.
   const isActive = () => jobs.has(jobId);
-  const settled = model === 'acestep'
-    ? Promise.all(STEM_KINDS.map((kind) => runAcestepStem(job, kind, src, config.audioDir, isActive)))
-    : runDemucs(job, src, config.audioDir, isActive);
-  void settled.finally(() => releaseGenLock(jobId));
-
+  const label = `split ${model === 'demucs' ? 'demucs' : 'ace-step'}`;
+  jobs.set(jobId, job);
+  try {
+    enqueue({ kind: 'split', jobId, songId: first.song_id, layer: layerName(layerId), label }, async () => {
+      job.queued = false;
+      if (!isActive()) return;
+      try {
+        const row = activeLayerSource(layerId);
+        job.sourceFile = row.audio_file;
+        const src = await readSource(row.audio_file);
+        await (model === 'acestep'
+          ? Promise.all(STEM_KINDS.map((kind) => runAcestepStem(job, kind, src, config.audioDir, isActive)))
+          : runDemucs(job, src, config.audioDir, isActive));
+      } catch (err) {
+        failRunning(job.stems, err);
+      }
+    }, () => { jobs.delete(jobId); });
+  } catch (err) {
+    jobs.delete(jobId);
+    throw err;
+  }
   return job;
 }
 
 /**
- * Re-run a single stem (fresh seed for ACE-Step) from the split's original source.
+ * Queue a re-run of a single stem (fresh seed for ACE-Step) from the split's original source.
  * Rejected once the stem is claimed. Demucs has no single-stem endpoint, so it re-runs
  * the full pass and keeps only this stem's output. The new audio lands under a new
  * filename; the superseded one (never claimed) is deleted once it's replaced.
@@ -105,22 +114,26 @@ export function reextractStem(jobId: string, kind: StemKind): StemResult {
   if (!stem) throw new Error('unknown stem');
   if (stem.claimed) throw new Error('stem already claimed');
   if (stem.status === 'running') throw new Error('stem is still running');
-  const lockId = crypto.randomUUID();
-  acquireGenLock({ kind: 'split', jobId: lockId, songId: job.songId });
   const previous = stem.audioFile;
+  const isActive = () => jobs.has(job.id);
+  const info = { kind: 'split' as const, jobId: crypto.randomUUID(), songId: job.songId, layer: layerName(job.layerId), label: `re-extract ${kind}` };
+  const prior = { status: stem.status, error: stem.error };
   stem.status = 'running';
   stem.error = undefined;
-  const isActive = () => jobs.has(job.id);
-  void readSource(job.sourceFile)
-    .then((src) => (job.model === 'acestep'
-      ? runAcestepStem(job, kind, src, config.audioDir, isActive)
-      : runDemucs(job, src, config.audioDir, isActive, [kind])))
-    .then(() => (stem.audioFile !== previous ? discardUnclaimedFile(previous) : undefined))
-    .catch((err) => {
-      stem.status = 'failed';
-      stem.error = err instanceof Error ? err.message : String(err);
-    })
-    .finally(() => releaseGenLock(lockId));
+  try {
+    enqueue(info, () => {
+      if (!isActive()) return undefined;
+      return readSource(job.sourceFile)
+        .then((src) => (job.model === 'acestep'
+          ? runAcestepStem(job, kind, src, config.audioDir, isActive)
+          : runDemucs(job, src, config.audioDir, isActive, [kind])))
+        .then(() => (stem.audioFile !== previous ? discardUnclaimedFile(previous) : undefined))
+        .catch((err) => failRunning([stem], err));
+    }, (reason) => failRunning([stem], new Error(reason)));
+  } catch (err) {
+    Object.assign(stem, prior); // the queue was full: the stem keeps its last result
+    throw err;
+  }
   return stem;
 }
 
@@ -166,11 +179,12 @@ export function claimStem(jobId: string, kind: StemKind, action: 'replace' | 'ad
 export async function cancelSplit(jobId: string): Promise<void> {
   const job = jobs.get(jobId);
   jobs.delete(jobId);
+  cancelQueued(jobId);
   if (!job) return;
   await Promise.all(job.stems.filter((s) => !s.claimed).map((s) => discardUnclaimedFile(s.audioFile)));
 }
 
-/** Cancel every split nobody has touched for SPLIT_IDLE_TTL_MS — a closed tab never sends
+/** Cancel every split nobody has touched for SPLIT_IDLE_TTL_MS â€” a closed tab never sends
  * CANCEL SPLIT, so this is what bounds the map and removes its unclaimed stems. */
 export async function evictIdleSplits(now = Date.now()): Promise<void> {
   const idle = [...jobs.values()].filter((j) => now - j.lastSeenAt > SPLIT_IDLE_TTL_MS);

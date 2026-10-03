@@ -9,40 +9,42 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
-import { type Job, registerJob, run, wasAborted } from './jobs.js';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { type Job, queueJob, wasAborted } from './jobs.js';
+import { abortable } from './lyricsJobs.js';
+import { assertVersionLive } from './queueGuards.js';
 import { transcribeLyrics } from './lyricsClient.js';
 
 export const TIMINGS_NOT_SET_UP = 'word timings are not set up: LYRICS_API_URL is unset';
 
-/** Throws 'unknown version', TIMINGS_NOT_SET_UP, or GenLockError, all before any work starts. */
+/** Unsettled reads by version: a second request for the same version gets the job already
+ * queued or running instead of a second place in line. */
+const pending = new Map<string, Job>();
+
+/** Throws 'unknown version', TIMINGS_NOT_SET_UP, or QueueFullError, all before any work starts. */
 export function startVersionTimings(versionId: string): Job {
   const row = db
     .prepare(
-      `SELECT v.audio_file, s.id AS song_id, s.title FROM versions v
+      `SELECT s.id AS song_id, s.title FROM versions v
        JOIN layers l ON l.id = v.layer_id JOIN songs s ON s.id = l.song_id WHERE v.id = ?`,
     )
-    .get(versionId) as { audio_file: string; song_id: string; title: string } | undefined;
+    .get(versionId) as { song_id: string; title: string } | undefined;
   if (!row) throw new Error('unknown version');
   if (!config.lyricsUrl) throw new Error(TIMINGS_NOT_SET_UP);
+  const existing = pending.get(versionId);
+  if (existing && (existing.status === 'queued' || existing.status === 'running')) return existing;
 
-  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'running', createdAt: Date.now() };
-  acquireGenLock({ kind: 'timings', jobId: job.id, songId: row.song_id, title: row.title });
-  registerJob(job);
-  // abortJob only marks the job failed; this turns that into cancelling the request.
-  const abort = new AbortController();
-  const watch = setInterval(() => wasAborted(job) && abort.abort(), config.pollIntervalMs);
-  void run(job, async () => {
-    const audio = await fs.readFile(path.join(config.audioDir, row.audio_file));
-    const reading = await transcribeLyrics(audio, row.audio_file, '', abort.signal);
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
+  queueJob({ kind: 'timings', songId: row.song_id, title: row.title, label: 'word timings' }, job, () => abortable(job, async (signal) => {
+    assertVersionLive(versionId);
+    const { audio_file } = db.prepare(`SELECT audio_file FROM versions WHERE id = ?`).get(versionId) as { audio_file: string };
+    const audio = await fs.readFile(path.join(config.audioDir, audio_file));
+    const reading = await transcribeLyrics(audio, audio_file, '', signal);
     if (wasAborted(job)) return;
     db.prepare(`UPDATE versions SET word_timings = ? WHERE id = ?`).run(JSON.stringify(reading), versionId);
     job.status = 'done';
   }).finally(() => {
-    clearInterval(watch);
-    // run() overwrote an abort's message with the cancelled request's error.
-    if (abort.signal.aborted) job.error = 'Aborted';
-    releaseGenLock(job.id);
-  });
+    if (pending.get(versionId) === job) pending.delete(versionId);
+  }), 'running');
+  pending.set(versionId, job);
   return job;
 }

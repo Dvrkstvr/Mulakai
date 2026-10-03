@@ -3,13 +3,17 @@
  * the Job record, lookup/registration, and the dev-facing abort.
  */
 import fs from 'node:fs/promises';
-import { releaseGenLock } from './genLock.js';
+import { cancelQueued, releaseSlot } from './genQueue.js';
 
 export interface Job {
   id: string;
   taskId: string;
-  status: 'loading' | 'running' | 'done' | 'failed';
+  /** `queued`: waiting in genQueue.ts for the running job to finish. */
+  status: 'queued' | 'loading' | 'running' | 'done' | 'failed';
   error?: string;
+  /** Set when the job left the queue without running (CANCEL, or its song was trashed):
+   * the client drops it rather than offering RETRY. */
+  cancelled?: boolean;
   songId?: string;
   createdAt: number;
   /** Last client read — the idle clock evictIdleJobs reads. Set by registerJob. */
@@ -24,6 +28,8 @@ export interface Job {
   transcription?: import('./transcribeJobs.js').TranscriptionOutcome;
   /** Set by lyricsJobs.ts on success: the words read from the source, with timings. */
   lyrics?: import('./lyricsJobs.js').LyricsOutcome;
+  /** Set by analyzeJobs.ts on success: ACE-Step's description of the source. */
+  analysis?: import('./acestep.js').FormatInputResult;
 }
 
 /** Readers stop once a job settles (a remaster is downloaded right then), so an hour
@@ -70,9 +76,17 @@ export function wasAborted(job: Job): boolean {
   return job.status === 'failed';
 }
 
+/** What a job that left the queue without running settles as (genQueue.ts's onCancel). */
+export function settleCancelled(job: Job, reason: string): void {
+  job.status = 'failed';
+  job.error = reason;
+  job.cancelled = true;
+}
+
 /**
  * Dev-facing abort: marks a job failed so `poll()` stops on its next tick and
- * releases the generation lock immediately, so the UI unblocks right away. Also
+ * frees the queue's slot immediately, so the next job starts right away. A job
+ * still waiting in the queue is simply taken out of it. Also
  * catches a job still in its pre-registration `run()` body (see repaintJobs.ts
  * etc.'s `wasAborted()` checks after each await) — every job-start function
  * registers its Job synchronously before its first await specifically so this
@@ -83,7 +97,8 @@ export function wasAborted(job: Job): boolean {
  */
 export function abortJob(jobId: string): boolean {
   const job = jobs.get(jobId);
-  releaseGenLock(jobId);
+  if (cancelQueued(jobId)) return true;
+  releaseSlot(jobId);
   if (!job || job.status === 'done' || job.status === 'failed') return false;
   job.status = 'failed';
   job.error = 'Aborted';

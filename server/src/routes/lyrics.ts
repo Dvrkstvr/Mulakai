@@ -7,7 +7,7 @@ import multer from 'multer';
 import { config } from '../config.js';
 import { lyricsHealth } from '../services/lyricsClient.js';
 import { startLyricsTranscription } from '../services/lyricsJobs.js';
-import { GenLockError } from '../services/genLock.js';
+import { QueueFullError } from '../services/genQueue.js';
 
 export const lyricsRouter = Router();
 
@@ -47,7 +47,7 @@ lyricsRouter.post('/transcribe', receiveSource, async (req, res) => {
     const job = startLyricsTranscription({ data: req.file.buffer, filename, label, language });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });

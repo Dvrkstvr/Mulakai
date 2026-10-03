@@ -33,7 +33,7 @@ vi.mock('../services/jobs.js', () => ({ getJob: (id: string) => jobs[id] }));
 const versionRow = vi.fn((_songId: string): { params_json: string } | undefined => undefined);
 vi.mock('../db/index.js', () => ({ db: { prepare: () => ({ get: (id: string) => versionRow(id) }) } }));
 
-const { GenLockError } = await import('../services/genLock.js');
+const { QueueFullError } = await import('../services/genQueue.js');
 const { coversRouter } = await import('./engineCovers.js');
 
 let server: Server;
@@ -86,7 +86,7 @@ describe('POST /api/engines/:id/transcribe', () => {
   });
 
   it('409s while another job holds the lock', async () => {
-    startTranscription.mockImplementationOnce(() => { throw new GenLockError(); });
+    startTranscription.mockImplementationOnce(() => { throw new QueueFullError(); });
     expect((await transcribe('yue2')).status).toBe(409);
   });
 

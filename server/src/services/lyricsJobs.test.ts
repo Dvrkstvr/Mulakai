@@ -15,14 +15,14 @@ const transcribeLyrics = vi.fn(async (..._a: unknown[]): Promise<LyricsReading> 
 vi.mock('./lyricsClient.js', () => ({ transcribeLyrics: (...a: unknown[]) => transcribeLyrics(...a) }));
 
 const { getJob, abortJob } = await import('./jobs.js');
-const { acquireGenLock, releaseGenLock, getGenLock, GenLockError } = await import('./genLock.js');
+const { enqueue, getRunning } = await import('./genQueue.js');
 const { startLyricsTranscription } = await import('./lyricsJobs.js');
 
 const source = { data: Buffer.from('audio'), filename: 'ellies.wav', label: 'Ellies City 2', language: 'en' };
 
 async function settle(jobId: string, status: 'done' | 'failed') {
   await vi.waitFor(() => expect(getJob(jobId)?.status).toBe(status));
-  await vi.waitFor(() => expect(getGenLock()).toBeNull());
+  await vi.waitFor(() => expect(getRunning()).toBeNull());
 }
 
 beforeEach(() => {
@@ -33,7 +33,7 @@ beforeEach(() => {
 describe('startLyricsTranscription', () => {
   it('holds the lock as lyrics, sends the source as-is and keeps the reading on the job', async () => {
     const job = startLyricsTranscription(source);
-    expect(getGenLock()).toMatchObject({ kind: 'lyrics', jobId: job.id, title: 'Ellies City 2' });
+    expect(getRunning()).toMatchObject({ kind: 'lyrics', jobId: job.id, title: 'Ellies City 2' });
     await settle(job.id, 'done');
 
     const [data, filename, language, signal] = transcribeLyrics.mock.calls[0];
@@ -57,20 +57,21 @@ describe('startLyricsTranscription', () => {
     }));
     const job = startLyricsTranscription(source);
     expect(abortJob(job.id)).toBe(true);
-    expect(getGenLock()).toBeNull();
+    expect(getRunning()).toBeNull();
 
     await vi.waitFor(() => expect((transcribeLyrics.mock.calls[0][3] as AbortSignal).aborted).toBe(true));
     await vi.waitFor(() => expect(getJob(job.id)?.error).toBe('Aborted'));
     expect(getJob(job.id)?.status).toBe('failed');
   });
 
-  it('refuses to start while another job holds the lock', () => {
-    acquireGenLock({ kind: 'generate', jobId: 'other' });
-    try {
-      expect(() => startLyricsTranscription(source)).toThrow(GenLockError);
-      expect(transcribeLyrics).not.toHaveBeenCalled();
-    } finally {
-      releaseGenLock('other');
-    }
+  it('waits in the queue behind a running job, then reads once it finishes', async () => {
+    let free!: () => void;
+    enqueue({ kind: 'generate', jobId: 'other' }, () => new Promise<void>((r) => { free = r; }));
+    const job = startLyricsTranscription(source);
+    expect(job.status).toBe('queued');
+    expect(transcribeLyrics).not.toHaveBeenCalled();
+    free();
+    await settle(job.id, 'done');
+    expect(transcribeLyrics).toHaveBeenCalledTimes(1);
   });
 });

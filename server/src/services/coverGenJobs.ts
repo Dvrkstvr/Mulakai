@@ -4,14 +4,13 @@
  * persisted as a brand-new song. Unlike remasterJobs.ts's scratch-only cover
  * pass (which re-renders a song's own current mix and is never saved), this
  * one goes through the same persistSong() path as a plain text2music
- * generation and shares its `generate` genLock kind, so the rest of the app
+ * generation and shares its `generate` queue kind, so the rest of the app
  * (library GeneratingCard, cross-tab hydration) treats it identically.
  */
 import crypto from 'node:crypto';
 import { releaseTask, type ReleaseTaskParams } from './acestep.js';
-import { type Job, type ReferenceAudioMeta, run, registerJob, persistSong, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { type Job, type ReferenceAudioMeta, queueJob, persistSong, poll, ensureModelLoaded, wasAborted } from './jobs.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
 
 export function startCoverGeneration(
   srcAudio: Buffer,
@@ -21,10 +20,8 @@ export function startCoverGeneration(
   folderId?: string | null,
   referenceMeta?: ReferenceAudioMeta | null,
 ): Job {
-  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
-  acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt, task: 'cover' });
-  registerJob(job);
-  void run(job, async () => {
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
+  return queueJob({ kind: 'generate', title, caption: params.prompt, task: 'cover' }, job, async () => {
     // ACE-Step defaults batch_size to 2 server-side when omitted, but poll() only ever
     // keeps one result — force 1 so cover generation doesn't pay for a discarded take.
     // Only the PROMPT tab's TAKES slider (jobs.ts's startGeneration) picks batch_size.
@@ -37,6 +34,5 @@ export function startCoverGeneration(
     if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
     job.taskId = task_id;
     await poll(job, (result) => persistSong(result.file, fullParams, result, title, folderId, referenceMeta));
-  }).finally(() => releaseGenLock(job.id));
-  return job;
+  });
 }

@@ -163,7 +163,8 @@ describe('startRepaint abort race', () => {
 
     const job = await startRepaint(layerId, { prompt: 'a song', repainting_start: 0, repainting_end: 10 });
 
-    expect(job.status).toBe('failed');
+    // Queued, then run at once on a free slot: the abort lands inside the run.
+    await vi.waitFor(() => expect(job.status).toBe('failed'));
     expect(job.error).toBe('Aborted');
     // give any errant poll() a moment to run — there should be none
     await new Promise((r) => setTimeout(r, 30));

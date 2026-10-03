@@ -5,6 +5,8 @@ import multer from 'multer';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { emptyTrashNow } from '../services/trashSweep.js';
+import { cancelQueuedForSong } from '../services/genQueue.js';
+import { SONG_TRASHED } from '../services/queueGuards.js';
 import { retagSong } from '../services/fileTags.js';
 import { songsRecentRouter } from './songsRecent.js';
 
@@ -168,12 +170,14 @@ songsRouter.patch('/:id/favorite', (req, res) => {
   res.json({ ok: true });
 });
 
-/** Dislike -> move to trash (deleted by sweep after 7 days). */
+/** Dislike -> move to trash (deleted by sweep after 7 days), cancelling its queued jobs. */
 songsRouter.patch('/:id/trash', (req, res) => {
   const restore = req.body?.restore === true;
   db.prepare(`UPDATE songs SET trashed_at = ? WHERE id = ?`).run(
     restore ? null : new Date().toISOString(),
     req.params.id,
   );
+  // Jobs still waiting to work on a trashed song never will (PLAN.md "UI Redesign", S4.5).
+  if (!restore) cancelQueuedForSong(req.params.id, SONG_TRASHED);
   res.json({ ok: true });
 });

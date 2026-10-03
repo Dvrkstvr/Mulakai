@@ -6,8 +6,7 @@
  */
 import crypto from 'node:crypto';
 import { config } from '../config.js';
-import { type Job, registerJob, run, wasAborted, MAX_POLL_STRIKES } from './jobs.js';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { type Job, queueJob, wasAborted, MAX_POLL_STRIKES } from './jobs.js';
 import {
   transcribe, transcriptionStatus, fetchTranscriptionScore, cancelTranscription,
   type TranscriptionFacts, type TranscriptionState,
@@ -54,12 +53,10 @@ async function poll(job: Job, engine: SongEngine): Promise<TranscriptionState | 
   }
 }
 
-/** Throws GenLockError synchronously if another generation holds the lock. */
+/** Throws QueueFullError synchronously when the queue is full. */
 export function startTranscription(engine: SongEngine, source: TranscribeSource): Job {
-  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
-  acquireGenLock({ kind: 'transcribe', jobId: job.id, title: source.label, engine: engine.id });
-  registerJob(job);
-  void run(job, async () => {
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
+  return queueJob({ kind: 'transcribe', title: source.label, engine: engine.id }, job, async () => {
     job.taskId = await transcribe(engine, source.data, source.filename, job.id);
     if (wasAborted(job)) {
       void cancelTranscription(engine, job.taskId);
@@ -71,6 +68,5 @@ export function startTranscription(engine: SongEngine, source: TranscribeSource)
     const score = await fetchTranscriptionScore(engine, job.taskId);
     job.transcription = { ...finished.facts, score, sourceLabel: source.label };
     job.status = 'done';
-  }).finally(() => releaseGenLock(job.id));
-  return job;
+  });
 }
