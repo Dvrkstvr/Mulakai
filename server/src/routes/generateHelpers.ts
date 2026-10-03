@@ -2,8 +2,9 @@
  * Mounted on generateRouter (generate.ts). */
 import { Router } from 'express';
 import { config } from '../config.js';
-import { getRunning } from '../services/genQueue.js';
-import { healthState, listModels, formatInput, createRandomSample, createSampleFromQuery } from '../services/acestep.js';
+import { getRunning, QueueFullError } from '../services/genQueue.js';
+import { healthState, listModels, formatInput, createSampleFromQuery } from '../services/acestep.js';
+import { startSample } from '../services/sampleJobs.js';
 
 export const generateHelpersRouter = Router();
 
@@ -15,12 +16,14 @@ generateHelpersRouter.post('/format', async (req, res) => {
   }
 });
 
-generateHelpersRouter.post('/random-sample', async (req, res) => {
+/** FEELING LUCKY: queued like every LM/DiT job (sampleJobs.ts); poll GET /:jobId for `sample`. */
+generateHelpersRouter.post('/random-sample', (req, res) => {
   const sampleType = req.body?.sample_type === 'custom_mode' ? 'custom_mode' : 'simple_mode';
   try {
-    res.json(await createRandomSample(sampleType));
+    res.status(202).json({ jobId: startSample(sampleType).id });
   } catch (err) {
-    res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
+    res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
   }
 });
 

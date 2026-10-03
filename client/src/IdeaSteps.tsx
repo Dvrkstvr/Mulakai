@@ -8,7 +8,6 @@ import { typewrite } from './typewriter';
 import { AiEnhanceBadge } from './Toggle';
 import { LyricTagGuidePopover } from './LyricTagGuidePopover';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGpuBusy } from './queueStore';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { PromptEngineChoice } from './EngineChoice';
 import { useEngineCaps } from './useEngineCaps';
@@ -36,8 +35,6 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
   const { prompt, lyrics, formatted, pendingQuery } = useCreateDraftStore();
   const patch = useCreateDraftStore((s) => s.patch);
   const clearPendingQuery = useCreateDraftStore((s) => s.clearPendingQuery);
-  // FEELING LUCKY asks ACE-Step's LM directly, outside the queue: it waits for a free GPU.
-  const busy = useGpuBusy();
   const { info: engine } = useEngineCaps();
   const caps = engine?.capabilities ?? null;
   // AI ENHANCE is ACE-Step's LM rewriting the request; an engine without LM tools gets the text as typed.
@@ -90,7 +87,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
                   ? 'AI ENHANCE is on, but this draft is already LM-formatted — it will generate as-is, unformatted, to avoid re-enhancing it.'
                   : 'AI ENHANCE is on — prompt, lyrics, and any AUTO details below are refined and filled in by the LM.'}
             </div>}
-            <div className="step-tools"><IdeaLucky disabled={busy || thinking} /></div>
+            <div className="step-tools"><IdeaLucky disabled={thinking} /></div>
           </CreateStep>
           <CreateStep n={2} title="LYRICS" actions={<>
             {enhance && <AiEnhanceBadge />}

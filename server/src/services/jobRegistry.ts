@@ -30,6 +30,8 @@ export interface Job {
   lyrics?: import('./lyricsJobs.js').LyricsOutcome;
   /** Set by analyzeJobs.ts on success: ACE-Step's description of the source. */
   analysis?: import('./acestep.js').FormatInputResult;
+  /** Set by sampleJobs.ts on success: FEELING LUCKY's random sample. */
+  sample?: import('./acestep.js').SampleResult;
 }
 
 /** Readers stop once a job settles (a remaster is downloaded right then), so an hour

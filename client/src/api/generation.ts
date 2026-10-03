@@ -96,12 +96,14 @@ export const generationApi = {
       body: JSON.stringify(params),
     }).then((r) => json<RefineResult>(r)),
 
-  randomSample: (sampleType: 'simple_mode' | 'custom_mode' = 'custom_mode'): Promise<RefineResult> =>
+  /** FEELING LUCKY: queues the LM's random sample; poll `jobStatus` for its `sample`
+   * (luckySample.ts). A full queue answers 409 with the reason. */
+  randomSample: (sampleType: 'simple_mode' | 'custom_mode' = 'custom_mode'): Promise<{ jobId: string }> =>
     fetch('/api/generate/random-sample', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ sample_type: sampleType }),
-    }).then((r) => json<RefineResult>(r)),
+    }).then((r) => json<{ jobId: string }>(r)),
 
   sampleFromQuery: (query: string): Promise<RefineResult> =>
     fetch('/api/generate/sample-from-query', {
@@ -122,6 +124,8 @@ export const generationApi = {
     progress?: number; progressStage?: string; progressText?: string;
     /** Only on a finished ANALYZE AUDIO job. */
     analysis?: RefineResult;
+    /** Only on a finished FEELING LUCKY job. */
+    sample?: RefineResult;
     /** Only on a finished TRANSCRIBE job. */
     transcription?: Transcription;
     /** Only on a finished READ LYRICS job. */

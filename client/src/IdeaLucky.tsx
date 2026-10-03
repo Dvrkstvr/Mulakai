@@ -1,15 +1,15 @@
 import { useState } from 'react';
-import { api, type RefineResult } from './api';
+import type { RefineResult } from './api';
 import { useCreateDraftStore } from './createDraftStore';
+import { useLuckyRoll } from './luckySample';
 
 /** FEELING LUCKY on AN IDEA: overwrite the draft with an LM sample. Two-step once the draft
  * holds anything, since it replaces the prompt, lyrics and every song detail at once. */
 export function IdeaLucky({ disabled }: { disabled: boolean }) {
   const draft = useCreateDraftStore();
   const patch = useCreateDraftStore((s) => s.patch);
-  const [loading, setLoading] = useState(false);
+  const { rolling: loading, waitNote, error, roll } = useLuckyRoll();
   const [confirm, setConfirm] = useState(false);
-  const [error, setError] = useState('');
   const { prompt, lyrics, bpm, keyScale, timeSignature, vocalLanguage, duration } = draft;
   const hasDraftContent = !!(prompt || lyrics || bpm || keyScale || timeSignature || vocalLanguage || duration);
 
@@ -25,15 +25,7 @@ export function IdeaLucky({ disabled }: { disabled: boolean }) {
   const run = async () => {
     if (hasDraftContent && !confirm) { setConfirm(true); return; }
     setConfirm(false);
-    setError('');
-    setLoading(true);
-    try {
-      applySample(await api.randomSample());
-    } catch (err) {
-      setError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLoading(false);
-    }
+    await roll(applySample);
   };
 
   return (
@@ -42,6 +34,7 @@ export function IdeaLucky({ disabled }: { disabled: boolean }) {
         {loading ? 'ROLLING…' : confirm ? 'OVERWRITE? CONFIRM' : 'FEELING LUCKY'}
       </button>
       {confirm && <span className="hint">This will overwrite your current prompt, lyrics, and song details.</span>}
+      {waitNote && <span className="hint">{waitNote}</span>}
       {error && <div className="error">{error} <button onClick={run}>RETRY</button></div>}
     </>
   );

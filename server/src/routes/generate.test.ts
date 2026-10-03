@@ -36,6 +36,7 @@ vi.mock('../services/jobs.js', () => ({
   getActiveGeneration: vi.fn(() => ({ lock: null })),
   abortJob: vi.fn(),
 }));
+vi.mock('../services/sampleJobs.js', () => ({ startSample: vi.fn(() => ({ id: 'sample-job-1' })) }));
 vi.mock('../services/coverGenJobs.js', () => ({ startCoverGeneration: vi.fn(() => ({ id: 'cover-job-1' })) }));
 vi.mock('../services/completeGenJobs.js', () => ({ startCompleteGeneration: vi.fn(() => ({ id: 'complete-job-1' })) }));
 vi.mock('../services/scratchSplitJobs.js', () => ({
@@ -51,6 +52,8 @@ vi.mock('../services/referenceAudioResolve.js', () => ({
 
 const acestep = await import('../services/acestep.js');
 const jobs = await import('../services/jobs.js');
+const sampleJobs = await import('../services/sampleJobs.js');
+const { QueueFullError } = await import('../services/genQueue.js');
 const coverGenJobs = await import('../services/coverGenJobs.js');
 const completeGenJobs = await import('../services/completeGenJobs.js');
 const scratchSplitJobs = await import('../services/scratchSplitJobs.js');
@@ -149,36 +152,28 @@ describe('POST /', () => {
 });
 
 describe('POST /random-sample', () => {
-  it('defaults to simple_mode and returns ACE-Step sample data', async () => {
-    const res = await fetch(`${baseUrl}/random-sample`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: '{}',
-    });
-    expect(res.status).toBe(200);
-    const body = await res.json();
-    expect(body.caption).toBe('Upbeat pop song with guitar accompaniment');
-    expect(body.__sampleType).toBe('simple_mode');
+  const post = (body: string) => fetch(`${baseUrl}/random-sample`, {
+    method: 'POST', headers: { 'Content-Type': 'application/json' }, body,
+  });
+
+  it('queues a sample job (simple_mode by default) and answers its jobId', async () => {
+    vi.mocked(sampleJobs.startSample).mockClear();
+    const res = await post('{}');
+    expect(res.status).toBe(202);
+    expect(await res.json()).toEqual({ jobId: 'sample-job-1' });
+    expect(sampleJobs.startSample).toHaveBeenCalledWith('simple_mode');
   });
 
   it('passes through custom_mode', async () => {
-    const res = await fetch(`${baseUrl}/random-sample`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sample_type: 'custom_mode' }),
-    });
-    const body = await res.json();
-    expect(body.__sampleType).toBe('custom_mode');
+    await post(JSON.stringify({ sample_type: 'custom_mode' }));
+    expect(sampleJobs.startSample).toHaveBeenLastCalledWith('custom_mode');
   });
 
-  it('returns 502 when ACE-Step is unreachable', async () => {
-    vi.mocked(acestep.createRandomSample).mockRejectedValueOnce(new Error('ACE-Step unreachable'));
-    const res = await fetch(`${baseUrl}/random-sample`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: '{}',
-    });
-    expect(res.status).toBe(502);
+  it('answers 409 with the reason when the queue is full', async () => {
+    vi.mocked(sampleJobs.startSample).mockImplementationOnce(() => { throw new QueueFullError(); });
+    const res = await post('{}');
+    expect(res.status).toBe(409);
+    expect((await res.json()).error).toContain('the queue is full');
   });
 });
 

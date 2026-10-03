@@ -1,8 +1,7 @@
-import { useState } from 'react';
-import { api, type ModelInventory } from './api';
+import type { ModelInventory } from './api';
 import { ScratchSplitPicker } from './ScratchSplitPicker';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGpuBusy } from './queueStore';
+import { useLuckyRoll } from './luckySample';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
@@ -34,16 +33,13 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
   const { prompt, lyrics, bpm, keyScale, duration } = draft;
 
   const uploadUrl = useObjectUrl(uploadFile);
-  const [luckyLoading, setLuckyLoading] = useState(false);
-  const [luckyError, setLuckyError] = useState('');
+  const lucky = useLuckyRoll();
   const flow = useFlowModel({
     task: 'complete', name: 'Arrange', model, setModel: (m) => patchArrange({ model: m }),
     prefer: (ms) => ms.find((n) => n.includes('xl-base')) ?? ms.find((n) => n.includes('base')) ?? ms[0] ?? '',
     none: 'no downloaded model supports arrange generation — requires a Base model',
   });
   const { submitting, error, generate } = useTrackGenerate(onBack);
-  // FEELING LUCKY asks ACE-Step's LM directly, outside the queue: it waits for a free GPU.
-  const gpuBusy = useGpuBusy();
   const sourceReady = source === 'upload' ? !!uploadFile : !!scratchSource;
 
   const analyzeSource: AnalyzeSource = source === 'upload'
@@ -57,17 +53,7 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
     setDuration: (v) => patch({ duration: v }),
   }, { carried: draft.intentOrigin !== 'complete' });
 
-  const feelingLucky = async () => {
-    setLuckyError('');
-    setLuckyLoading(true);
-    try {
-      patch({ prompt: (await api.randomSample()).caption });
-    } catch (err) {
-      setLuckyError(err instanceof Error ? err.message : String(err));
-    } finally {
-      setLuckyLoading(false);
-    }
-  };
+  const feelingLucky = () => lucky.roll((sample) => patch({ prompt: sample.caption }));
 
   return (
     <>
@@ -95,12 +81,13 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
           <div className="query-row">
             <AutoTextarea placeholder="Optional — describe the accompaniment (style, mood, instruments)"
               value={prompt} onChange={(v) => patch({ prompt: v })} />
-            <button className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'} disabled={luckyLoading || gpuBusy || submitting} onClick={feelingLucky}>
-              {luckyLoading ? 'ROLLING…' : 'FEELING LUCKY'}
+            <button className={lucky.rolling ? 'lucky-btn loading' : 'lucky-btn'} disabled={lucky.rolling || submitting} onClick={feelingLucky}>
+              {lucky.rolling ? 'ROLLING…' : 'FEELING LUCKY'}
             </button>
           </div>
           <CarriedPromptNote />
-          {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
+          {lucky.waitNote && <div className="hint">{lucky.waitNote}</div>}
+          {lucky.error && <div className="error">{lucky.error} <button onClick={feelingLucky}>RETRY</button></div>}
           <AnalyzeAudioButton disabled={!canAnalyze(analyzeSource, model, submitting || analysis.analyzing)}
             analyzing={analysis.analyzing} onClick={() => analysis.analyze(analyzeSource, model)} />
         </CreateStep>
