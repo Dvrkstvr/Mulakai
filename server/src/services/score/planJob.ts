@@ -16,18 +16,27 @@ import { MAX_ATTEMPTS, planAttempts, type AttemptsOutcome } from './planAttempts
 import { askPlanner } from './plannerClient.js';
 import { planMessages, promptChars } from './plannerPrompt.js';
 import { dropPlan, noteRun, setPlan } from './planStore.js';
-import type { ApplyResult, ChatMessage, Op, PlannerReply, ScoreFacts } from './planTypes.js';
+import type { ApplyResult, ChatMessage, Op, PlanCause, PlannerReply, ScoreFacts } from './planTypes.js';
+import { withLimits } from './scoreLimits.js';
 import { loadedModels, probePlanner, releasePlanner, type LoadedModel, type PlannerTarget } from './ollamaControl.js';
 import { scoreStatus, type ScoreStatus } from './scoreStatus.js';
 import { applyOps } from './yueScoreApply.js';
 
 export const CHECK_FAILED = 'check failed';
 
+/** A plan run that ended without a plan, and why: the dock picks its state from `kind`. An
+ * error of any other class (planner or yue-server unreachable, unload not confirmed) is `offline`. */
+export class PlanError extends Error {
+  constructor(readonly kind: PlanCause, message: string, readonly reasons?: string[]) {
+    super(message);
+  }
+}
+
 export interface PlanDeps {
   planner: PlannerTarget;
   status: (songId: string) => Promise<ScoreStatus>;
   probe: () => Promise<string | null>;
-  ask: (messages: ChatMessage[], schema: Record<string, unknown>) => Promise<PlannerReply>;
+  ask: (messages: ChatMessage[], schema: Record<string, unknown>, signal?: AbortSignal) => Promise<PlannerReply>;
   loaded: () => Promise<LoadedModel[]>;
   apply: (abc: string, style: string, ops: Op[]) => Promise<ApplyResult>;
   release: () => Promise<unknown>;
@@ -39,7 +48,7 @@ export function planDeps(over: Partial<PlanDeps> = {}): PlanDeps {
     planner,
     status: (songId) => scoreStatus(songId),
     probe: () => probePlanner(planner),
-    ask: (messages, schema) => askPlanner(planner, messages, schema, { timeoutMs: config.llmTimeoutMs }),
+    ask: (messages, schema, signal) => askPlanner(planner, messages, schema, { timeoutMs: config.llmTimeoutMs, signal }),
     loaded: () => loadedModels(planner),
     apply: (abc, style, ops) => applyOps(abc, style, ops),
     release: () => releasePlanner(planner),
@@ -49,11 +58,11 @@ export function planDeps(over: Partial<PlanDeps> = {}): PlanDeps {
 
 const reasonOf = (s: ScoreStatus) => ('reason' in s.eligibility ? s.eligibility.reason : 'SCORE is not available for this song');
 
-async function plan(job: Job, songId: string, request: string, deps: PlanDeps): Promise<void> {
+async function plan(job: Job, songId: string, request: string, deps: PlanDeps, signal: AbortSignal): Promise<void> {
   const status = await deps.status(songId);
   const { source, read } = status;
   if (status.eligibility.state !== 'eligible' || !source?.abc || !source.activeVersionId || !read?.facts) {
-    throw new Error(reasonOf(status));
+    throw new PlanError('refused', reasonOf(status));
   }
   const facts = read.facts as ScoreFacts;
   const { abc, activeVersionId } = source;
@@ -65,28 +74,25 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps): 
   try {
     const messages = planMessages(facts, style, request);
     const pre = contextPreflight({ promptChars: promptChars(messages), contextLength: await contextOf() });
-    if (pre) throw new Error(pre);
+    if (pre) throw new PlanError('check', pre);
     const schema = buildOpSchema(facts);
     outcome = await planAttempts(facts, messages, {
       ask: async (msgs) => {
-        if (wasAborted(job)) throw new Error('Aborted');
-        const reply = await deps.ask(msgs, schema);
+        if (wasAborted(job)) throw new PlanError('cancelled', 'Aborted');
+        const reply = await deps.ask(msgs, schema, signal);
         const cut = contextPostflight({ promptTokens: reply.promptTokens, promptChars: promptChars(msgs), contextLength: await contextOf() });
-        if (cut) throw new Error(cut);
+        if (cut) throw new PlanError('check', cut);
         return reply;
       },
-      apply: (ops) => deps.apply(abc, style, ops),
+      apply: async (ops) => withLimits(await deps.apply(abc, style, ops)),
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
     });
   } finally {
     job.progressText = 'unloading the planner';
     await deps.release();
   }
-  if (wasAborted(job)) return;
-  if (!outcome.ok) {
-    noteRun(songId, { jobId: job.id, request, reasons: outcome.reasons, planId: null });
-    throw new Error(`${CHECK_FAILED}: ${outcome.reasons.join('; ')}`);
-  }
+  if (wasAborted(job)) throw new PlanError('cancelled', 'Aborted');
+  if (!outcome.ok) throw new PlanError('check', `${CHECK_FAILED}: ${outcome.reasons.join('; ')}`, outcome.reasons);
   const { applied } = outcome;
   const planId = crypto.randomUUID();
   setPlan({
@@ -95,24 +101,32 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps): 
     checks: { bars: facts.header.bars, seconds: applied.seconds, tokens: applied.tokens, chordsPresent: applied.chords_present, changed: applied.changed },
     attempts: outcome.attempts, createdAt: Date.now(),
   });
-  noteRun(songId, { jobId: job.id, request, reasons: [], planId });
+  noteRun(songId, { jobId: job.id, request, reasons: [], planId, cause: null });
   job.progressText = undefined;
   job.status = 'done';
 }
 
 /** Queues a PLAN for the song (kind `plan`); the job settles `done` with the plan in planStore,
- * or `failed` with `check failed: <reasons>` / the refusal. Throws QueueFullError when full. */
+ * or `failed` with `check failed: <reasons>` / the refusal. ABORT on the running plan aborts the
+ * planner call at once (D-041); the body still unloads and confirms before the slot is released,
+ * and the job stays `Aborted`. Throws QueueFullError when full. */
 export function startPlan(songId: string, request: string, deps: PlanDeps = planDeps()): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now(), songId };
-  noteRun(songId, { jobId: job.id, request, reasons: [], planId: null });
+  const call = new AbortController();
+  noteRun(songId, { jobId: job.id, request, reasons: [], planId: null, cause: null });
   return queueJob({ kind: 'plan', songId, title: songTitle(songId), label: 'score plan' }, job, async () => {
     try {
-      await plan(job, songId, request, deps);
+      await plan(job, songId, request, deps, call.signal);
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
-      dropPlan(songId); // a failed re-plan drops the old plan (D-028)
-      if (!message.startsWith(CHECK_FAILED)) noteRun(songId, { jobId: job.id, request, reasons: [message], planId: null });
+      dropPlan(songId); // a failed or cancelled re-plan drops the old plan (D-028)
+      if (wasAborted(job)) {
+        noteRun(songId, { jobId: job.id, request, reasons: [], planId: null, cause: 'cancelled' });
+        return; // stays failed with 'Aborted', as markAborted left it
+      }
+      const kind = err instanceof PlanError ? err.kind : 'offline';
+      noteRun(songId, { jobId: job.id, request, reasons: (err instanceof PlanError && err.reasons) || [message], planId: null, cause: kind });
       throw err;
     }
-  }, 'running');
+  }, 'running', () => call.abort());
 }

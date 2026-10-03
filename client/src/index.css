@@ -3847,6 +3847,143 @@ a.dock-commit-link {
   z-index: 1;
 }
 
+/* SCORE (DockScore.tsx; pipeline/design/score-verb.html): tokens only. */
+.dock-commit button.acid-outline:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dock-prompt.score-locked {
+  opacity: 0.6;
+  border-color: var(--line);
+}
+
+.score-reading,
+.score-checks {
+  font: 10px ui-monospace, Consolas, monospace;
+  color: var(--text-low);
+}
+
+.score-checks {
+  color: var(--text-mid);
+}
+
+.score-checks .warn {
+  color: var(--rust-text);
+}
+
+.score-plan-label {
+  margin-bottom: -4px;
+}
+
+.score-ops {
+  border: 1px solid var(--line);
+}
+
+.score-op {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 30px;
+  padding: 6px 10px;
+  border-bottom: 1px solid var(--line);
+  font-size: 11px;
+}
+
+.score-op:last-child {
+  border-bottom: 0;
+}
+
+.score-op-name {
+  width: 112px;
+  flex: none;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.score-op-detail {
+  flex: 1;
+  color: var(--text-mid);
+}
+
+.score-op-tag {
+  font: 10px ui-monospace, Consolas, monospace;
+  color: var(--text-low);
+}
+
+.score-op.no .score-verdict,
+.score-op.no .score-op-name {
+  color: var(--rust-text);
+}
+
+/* The plan being replaced: dimmed, dashed (dashed = waiting), unpressable (DT-5). */
+.score-dimmed {
+  opacity: 0.4;
+  border: 1px dashed var(--line-hi);
+  padding: 8px;
+  pointer-events: none;
+}
+
+.score-dimmed .score-ops {
+  border: 0;
+}
+
+.score-reason {
+  color: var(--text-mid);
+}
+
+.score-error,
+.score-warn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  font-size: 11px;
+  color: var(--rust-text);
+}
+
+.score-error {
+  border: 1px solid var(--rust);
+}
+
+.score-warn {
+  border-left: 1px solid var(--rust);
+}
+
+.score-error > div,
+.score-warn > div {
+  flex: 1;
+}
+
+.score-error b,
+.score-warn b {
+  letter-spacing: 1px;
+}
+
+.score-done {
+  padding: 8px 10px;
+  border-left: 2px solid var(--lilac);
+  background: var(--lilac-tint);
+  color: var(--lilac-text);
+}
+
+.score-done.truncated {
+  border-left-color: var(--rust);
+  background: transparent;
+  color: var(--rust-text);
+}
+
+.score-job {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.score-job-cancel {
+  position: relative;
+  z-index: 1;
+}
+
 /* TUNE ▸ — the verb's full settings, collapsed to one summary line. */
 .tune-toggle {
   border: none;

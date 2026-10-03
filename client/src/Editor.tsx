@@ -13,6 +13,8 @@ import { useEditorRepaintJob } from './useEditorRepaintJob';
 import { useLandedReload } from './useLandedReload';
 import { useSpaceTransport } from './useSpaceTransport';
 import { useDockKeys } from './useDockKeys';
+import { dockVerbs } from './dockVerbs';
+import { scoreSongKey, useScoreVerb } from './scoreStore';
 import { useEditorFocus } from './useEditorFocus';
 import { useSectionLyrics } from './useSectionLyrics';
 import { useRepaintSubmit } from './useRepaintSubmit';
@@ -46,7 +48,9 @@ export function Editor({ songId, onBack }: Props) {
   useMainTransportGuard(engine);
   const playhead = engine.currentTime;
   useSpaceTransport(engine);
-  useDockKeys(setVerb);
+  const score = useScoreVerb(songId, scoreSongKey(song));
+  const verbs = dockVerbs(score.phase.kind !== 'hidden');
+  useDockKeys(setVerb, verbs);
   useEditorFocus(song, focusedLayerId, setFocusedLayerId, setVerb);
 
   const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
@@ -102,6 +106,8 @@ export function Editor({ songId, onBack }: Props) {
 
           <ActionDock
             verb={verb}
+            verbs={verbs}
+            score={score}
             onVerb={setVerb}
             song={song}
             focusedLayer={focusedLayer}
