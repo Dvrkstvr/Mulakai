@@ -327,13 +327,5 @@
   "325": "config.py",
   "326": "A Failed Editor Job Blocks Nothing (planned 2026-10-01)",
   "327": "Model Status Badge (planned 2026-10-02)",
-  "328": "generateHealth.test.ts",
-  "329": "Path",
-  "330": "Engine",
-  "331": "FastAPI",
-  "332": "Settings",
-  "333": "Engine",
-  "334": "Exception",
-  "335": "JobStore",
-  "336": "Path"
+  "328": "generateHealth.test.ts"
 }
