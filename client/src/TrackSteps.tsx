@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { api, type ModelInventory } from './api';
 import { ScratchSplitPicker } from './ScratchSplitPicker';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGenerationStore } from './generationStore';
-import { busyMessage } from './generationJob';
+import { useGpuBusy } from './queueStore';
 import { AutoTextarea } from './AutoTextarea';
 import { SongAnalysisFields } from './SongAnalysisFields';
 import { AnalyzeAudioButton } from './AnalyzeAudioButton';
@@ -42,9 +41,9 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
     prefer: (ms) => ms.find((n) => n.includes('xl-base')) ?? ms.find((n) => n.includes('base')) ?? ms[0] ?? '',
     none: 'no downloaded model supports arrange generation — requires a Base model',
   });
-  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const { submitting, error, generate } = useTrackGenerate(onBack);
-  const busy = submitting || !!blockedBy;
+  // FEELING LUCKY asks ACE-Step's LM directly, outside the queue: it waits for a free GPU.
+  const gpuBusy = useGpuBusy();
   const sourceReady = source === 'upload' ? !!uploadFile : !!scratchSource;
 
   const analyzeSource: AnalyzeSource = source === 'upload'
@@ -96,13 +95,13 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
           <div className="query-row">
             <AutoTextarea placeholder="Optional — describe the accompaniment (style, mood, instruments)"
               value={prompt} onChange={(v) => patch({ prompt: v })} />
-            <button className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'} disabled={luckyLoading || busy} onClick={feelingLucky}>
+            <button className={luckyLoading ? 'lucky-btn loading' : 'lucky-btn'} disabled={luckyLoading || gpuBusy || submitting} onClick={feelingLucky}>
               {luckyLoading ? 'ROLLING…' : 'FEELING LUCKY'}
             </button>
           </div>
           <CarriedPromptNote />
           {luckyError && <div className="error">{luckyError} <button onClick={feelingLucky}>RETRY</button></div>}
-          <AnalyzeAudioButton disabled={!canAnalyze(analyzeSource, model, busy || analysis.analyzing)}
+          <AnalyzeAudioButton disabled={!canAnalyze(analyzeSource, model, submitting || analysis.analyzing)}
             analyzing={analysis.analyzing} onClick={() => analysis.analyze(analyzeSource, model)} />
         </CreateStep>
         <CreateStep n={3} optional title="LYRICS + DETAILS" sub="ANALYZE AUDIO fills these from your track · edit freely">
@@ -117,8 +116,8 @@ export function TrackSteps({ onBack, inventory }: { onBack: () => void; inventor
       <RecipeCard stepsModel={model} engine={<AceStepOnly />}
         tune={<GenTune inventory={inventory} modelControl={flow.control} flowModel={model} modelDefault={flow.preferred} stepsModel={model} />}
         commit={(
-          <RecipeCommit label="ARRANGE" submitting={submitting} blocked={blockedBy} error={error} onClick={generate}
-            disabled={busy || !sourceReady || !flow.ready}>
+          <RecipeCommit label="ARRANGE" submitting={submitting} error={error} onClick={generate}
+            disabled={submitting || !sourceReady || !flow.ready}>
             {flow.problem}
             <div className="hint">Builds a whole new accompaniment around the source track — uses the BASE model, slower than Turbo — can take several minutes.</div>
           </RecipeCommit>

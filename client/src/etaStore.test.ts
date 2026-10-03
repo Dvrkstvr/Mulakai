@@ -4,7 +4,7 @@ import { useGenerationStore, type GenerationJob } from './generationStore';
 
 const KEY = etaKey({ task: 'text2music', engine: 'acestep', family: 'turbo', quality: 'balanced' });
 const job = (over: Partial<GenerationJob>): GenerationJob =>
-  ({ jobId: 'j1', title: 't', caption: '', stage: 'running', startedAt: 1_000, draft: {}, ...over });
+  ({ key: 'g1', jobId: 'j1', title: 't', caption: '', stage: 'running', startedAt: 1_000, draft: {}, ...over });
 
 describe('ETA averaging', () => {
   it('keeps only the last five samples', () => {
@@ -34,29 +34,29 @@ describe('ETA averaging', () => {
 describe('recording settled generations', () => {
   beforeEach(() => {
     useEtaStore.setState({ samples: {}, pending: null });
-    useGenerationStore.setState({ job: null });
+    useGenerationStore.setState({ jobs: [] });
   });
 
   it('records submit-to-done wall clock for the job Create submitted', () => {
-    useGenerationStore.setState({ job: job({}) });
+    useGenerationStore.setState({ jobs: [job({})] });
     useEtaStore.getState().expect(KEY, 1_000);
-    useGenerationStore.setState({ job: job({ stage: 'done' }) });
+    useGenerationStore.setState({ jobs: [job({ stage: 'done' })] });
     const [sample] = useEtaStore.getState().samples[KEY];
     expect(sample).toBeGreaterThan(0);
     expect(useEtaStore.getState().pending).toBeNull();
   });
 
   it('drops a failed job without a sample', () => {
-    useGenerationStore.setState({ job: job({}) });
+    useGenerationStore.setState({ jobs: [job({})] });
     useEtaStore.getState().expect(KEY, 1_000);
-    useGenerationStore.setState({ job: job({ stage: 'failed', error: 'x' }) });
+    useGenerationStore.setState({ jobs: [job({ stage: 'failed', error: 'x' })] });
     expect(useEtaStore.getState().samples[KEY]).toBeUndefined();
     expect(useEtaStore.getState().pending).toBeNull();
   });
 
   it('ignores a job it was not told to expect (adopted after a reload)', () => {
     useEtaStore.getState().expect(KEY, 5_000);
-    useGenerationStore.setState({ job: job({ stage: 'done' }) });
+    useGenerationStore.setState({ jobs: [job({ stage: 'done' })] });
     expect(useEtaStore.getState().samples[KEY]).toBeUndefined();
     expect(useEtaStore.getState().pending).not.toBeNull();
   });

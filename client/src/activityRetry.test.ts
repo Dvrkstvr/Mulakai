@@ -2,19 +2,17 @@ import { describe, it, expect, vi } from 'vitest';
 import { retryEntry } from './activityRetry';
 
 describe('retryEntry', () => {
-  it('starts the job when nothing runs', () => {
+  it('starts the job, whatever else runs: the server queues it', () => {
     const retry = vi.fn(() => true);
-    expect(retryEntry({ retry }, false)).toBe('started');
+    expect(retryEntry({ retry })).toBe('started');
     expect(retry).toHaveBeenCalledOnce();
   });
 
-  it("doesn't try while another job runs", () => {
-    const retry = vi.fn(() => true);
-    expect(retryEntry({ retry }, true)).toBe('busy');
-    expect(retry).not.toHaveBeenCalled();
+  it('reports busy when the owning store refuses to start', () => {
+    expect(retryEntry({ retry: () => false })).toBe('busy');
   });
 
-  it("reports busy when the owning store refuses to start", () => {
-    expect(retryEntry({ retry: () => false }, false)).toBe('busy');
+  it('reports busy with nothing to retry', () => {
+    expect(retryEntry({})).toBe('busy');
   });
 });

@@ -8,8 +8,7 @@ import { typewrite } from './typewriter';
 import { AiEnhanceBadge } from './Toggle';
 import { LyricTagGuidePopover } from './LyricTagGuidePopover';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGenerationStore } from './generationStore';
-import { busyMessage } from './generationJob';
+import { useGpuBusy } from './queueStore';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import { PromptEngineChoice } from './EngineChoice';
 import { useEngineCaps } from './useEngineCaps';
@@ -37,7 +36,8 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
   const { prompt, lyrics, formatted, pendingQuery } = useCreateDraftStore();
   const patch = useCreateDraftStore((s) => s.patch);
   const clearPendingQuery = useCreateDraftStore((s) => s.clearPendingQuery);
-  const busy = useGenerationStore((s) => !!busyMessage(s.job, s.otherLock));
+  // FEELING LUCKY asks ACE-Step's LM directly, outside the queue: it waits for a free GPU.
+  const busy = useGpuBusy();
   const { info: engine } = useEngineCaps();
   const caps = engine?.capabilities ?? null;
   // AI ENHANCE is ACE-Step's LM rewriting the request; an engine without LM tools gets the text as typed.

@@ -29,7 +29,7 @@ export function useTrackGenerate(onBack: () => void) {
       ? (uploadFile ? { file: uploadFile } : null)
       : (scratchSource ? { scratchJobId: scratchSource.jobId, scratchStemKind: scratchSource.kind } : null);
     if (!src) throw new Error(source === 'upload' ? 'choose an audio file to upload' : 'split a song and pick a stem to use as the source');
-    await startComplete(
+    return startComplete(
       {
         title: title || 'Untitled', prompt, lyrics, ...trackParams(gen, model),
         ...(bpm > 0 ? { bpm } : {}),

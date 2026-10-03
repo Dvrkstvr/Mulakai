@@ -19,17 +19,17 @@ import type { GenerationJob } from './generationStore';
 import type { SingleEditorJob, SplitJobState } from './editorJob';
 
 const gen = (over: Partial<GenerationJob>): GenerationJob =>
-  ({ jobId: 'g1', title: 'Copper Sky', caption: '', stage: 'running', startedAt: 1, draft: { prompt: 'p' }, ...over });
+  ({ key: 'g1', jobId: 'g1', title: 'Copper Sky', caption: '', stage: 'running', startedAt: 1, draft: { prompt: 'p' }, ...over });
 
 const repaint = (over: Partial<SingleEditorJob>): SingleEditorJob =>
-  ({ kind: 'repaint', jobId: 'r1', songId: 's1', layerId: 'l1', startedAt: 5, stage: 'running', ...over }) as SingleEditorJob;
+  ({ kind: 'repaint', key: 'r1', jobId: 'r1', songId: 's1', layerId: 'l1', startedAt: 5, stage: 'running', ...over }) as SingleEditorJob;
 
 let untrack: () => void;
 
 beforeEach(() => {
   useActivityStore.setState({ entries: [], drawerOpen: false });
-  useGenerationStore.setState({ job: null, otherLock: null });
-  useEditorJobStore.setState({ editorJob: null, splitJob: null });
+  useGenerationStore.setState({ jobs: [], otherLock: null });
+  useEditorJobStore.setState({ editorJobs: [], splitJob: null });
   useTranscribeStore.setState({ stage: 'idle', error: undefined });
   useTimingsStore.setState({ runs: {} });
   songDetail.mockReset();
@@ -42,44 +42,65 @@ const entries = () => useActivityStore.getState().entries;
 
 describe('activity tracking', () => {
   it('records a generation that finishes as DONE, opening the new song', () => {
-    useGenerationStore.setState({ job: gen({}) });
-    useGenerationStore.setState({ job: gen({ stage: 'done', songId: 's9' }) });
+    useGenerationStore.setState({ jobs: [gen({})] });
+    useGenerationStore.setState({ jobs: [gen({ stage: 'done', songId: 's9' })] });
     expect(entries()).toMatchObject([{ kind: 'generate', status: 'done', songId: 's9', title: 'Copper Sky', opens: 'editor', badge: 'NEW SONG' }]);
   });
 
   it('records a failed generation with its reason and the draft RETRY reopens', () => {
-    useGenerationStore.setState({ job: gen({ stage: 'loading' }) });
-    useGenerationStore.setState({ job: gen({ stage: 'failed', error: 'CUDA out of memory' }) });
+    useGenerationStore.setState({ jobs: [gen({ stage: 'loading' })] });
+    useGenerationStore.setState({ jobs: [gen({ stage: 'failed', error: 'CUDA out of memory' })] });
     expect(entries()).toMatchObject([{ status: 'failed', error: 'CUDA out of memory', draft: { prompt: 'p' } }]);
   });
 
   it('ignores a job that is only replaced, cleared or still running', () => {
-    useGenerationStore.setState({ job: gen({}) });
-    useGenerationStore.setState({ job: gen({ progress: 0.5 }) });
-    useGenerationStore.setState({ job: gen({ startedAt: 2, stage: 'failed' }) });
-    useGenerationStore.setState({ job: null });
+    useGenerationStore.setState({ jobs: [gen({})] });
+    useGenerationStore.setState({ jobs: [gen({ progress: 0.5 })] });
+    useGenerationStore.setState({ jobs: [gen({ startedAt: 2, stage: 'failed' })] });
+    useGenerationStore.setState({ jobs: [] });
     expect(entries()).toEqual([]);
+  });
+
+  it('records each of several generations as it settles, matched by its key', () => {
+    const second = gen({ key: 'g2', jobId: 'g2', title: 'Second' });
+    useGenerationStore.setState({ jobs: [gen({}), second] });
+    useGenerationStore.setState({ jobs: [gen({}), { ...second, stage: 'done', songId: 's2' }] });
+    useGenerationStore.setState({ jobs: [gen({ stage: 'failed', error: 'boom' }), { ...second, stage: 'done', songId: 's2' }] });
+    expect(entries()).toMatchObject([
+      { status: 'failed', title: 'Copper Sky', jobKey: 'g1' },
+      { status: 'done', title: 'Second', songId: 's2' },
+    ]);
+  });
+
+  it('records two editor jobs of one kind settling independently', () => {
+    songDetail.mockResolvedValue({ layers: [] });
+    const other = repaint({ key: 'r2', jobId: 'r2' });
+    useEditorJobStore.setState({ editorJobs: [repaint({}), other] });
+    useEditorJobStore.setState({ editorJobs: [repaint({ stage: 'done' }), other] });
+    useEditorJobStore.setState({ editorJobs: [other] });
+    useEditorJobStore.setState({ editorJobs: [{ ...other, stage: 'failed', error: 'boom' }] });
+    expect(entries().map((e) => e.status)).toEqual(['failed', 'done']);
   });
 
   it("badges a finished repaint with its layer's new take once the song is read", async () => {
     songDetail.mockResolvedValue({ layers: [{ id: 'l1', name: 'Vocals', versions: [{}, {}, {}, {}, {}] }] });
-    useEditorJobStore.setState({ editorJob: repaint({}) });
-    useEditorJobStore.setState({ editorJob: repaint({ stage: 'done' }) });
+    useEditorJobStore.setState({ editorJobs: [repaint({})] });
+    useEditorJobStore.setState({ editorJobs: [repaint({ stage: 'done' })] });
     expect(entries()[0]).toMatchObject({ kind: 'repaint', status: 'done', songId: 's1', badge: 'NEW TAKE' });
     await vi.waitFor(() => expect(entries()[0].badge).toBe('VOCALS v5'));
   });
 
   it("keeps a failed editor job's retry", () => {
     const retry = vi.fn(() => true);
-    useEditorJobStore.setState({ editorJob: repaint({}) });
-    useEditorJobStore.setState({ editorJob: repaint({ stage: 'failed', error: 'boom', retry }) });
+    useEditorJobStore.setState({ editorJobs: [repaint({})] });
+    useEditorJobStore.setState({ editorJobs: [repaint({ stage: 'failed', error: 'boom', retry })] });
     entries()[0].retry?.();
     expect(retry).toHaveBeenCalled();
   });
 
   it('counts the stems a split extracted', () => {
     const split = (over: Partial<SplitJobState>): SplitJobState => ({
-      kind: 'split', jobId: 'x', splitJobId: 'x', songId: 's1', layerId: 'l1', startedAt: 7, stage: 'running',
+      kind: 'split', key: 'x', jobId: 'x', splitJobId: 'x', songId: 's1', layerId: 'l1', startedAt: 7, stage: 'running',
       stems: [{ kind: 'vocals', status: 'running' }, { kind: 'drums', status: 'running' }], ...over,
     });
     useEditorJobStore.setState({ splitJob: split({}) });

@@ -7,7 +7,7 @@ import { Timeline } from './Timeline';
 import { ScrollArea } from './ScrollArea';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { LyricsLane, type LyricsLaneProps } from './LyricsLane';
-import { useEditorJobStore, myEditorJob } from './editorJobStore';
+import { useEditorJobStore, myEditorJobs } from './editorJobStore';
 
 interface Props {
   songId: string;
@@ -34,7 +34,8 @@ interface Props {
  */
 export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit, lyrics }: Props) {
   const playheadPct = duration > 0 ? Math.min(100, Math.max(0, (playhead / duration) * 100)) : 0;
-  const addingLayer = useEditorJobStore((s) => myEditorJob(s.editorJob, 'addLayer', { songId })?.stage === 'running');
+  // The ghost lane is for a layer the GPU is making now, not one still waiting in the queue.
+  const addingLayer = useEditorJobStore((s) => myEditorJobs(s.editorJobs, 'addLayer', { songId }).some((j) => j.stage === 'running' && !j.queuePosition));
 
   return (
     <div className="layer-stack">

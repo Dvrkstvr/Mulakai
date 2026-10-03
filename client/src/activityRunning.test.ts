@@ -5,14 +5,14 @@ import type { SingleEditorJob } from './editorJob';
 import { runningRows, type RunningSources } from './activityRunning';
 
 const idle = (over: Partial<RunningSources> = {}): RunningSources => ({
-  genJob: null, editorJob: null, splitJob: null,
+  genJobs: [], editorJobs: [], splitJob: null,
   transcribe: { stage: 'idle' }, readLyrics: { stage: 'idle' }, timings: {}, active: null, ...over,
 });
 
 const active = (over: Partial<ActiveGeneration>): ActiveGeneration =>
   ({ kind: 'analyze', jobId: 'a1', startedAt: 1, status: 'running', ...over });
 
-const gen = { jobId: 'g1', title: 'Neon Harbor', caption: '', stage: 'running', startedAt: 1, draft: {}, progress: 0.41 } as GenerationJob;
+const gen = { key: 'g1', jobId: 'g1', title: 'Neon Harbor', caption: '', stage: 'running', startedAt: 1, draft: {}, progress: 0.41 } as GenerationJob;
 
 describe('runningRows', () => {
   it('is empty when nothing runs', () => {
@@ -20,20 +20,20 @@ describe('runningRows', () => {
   });
 
   it('lists a generation with its progress, wearing the AI shader', () => {
-    expect(runningRows(idle({ genJob: gen }))).toMatchObject([
+    expect(runningRows(idle({ genJobs: [gen] }))).toMatchObject([
       { kind: 'generate', label: 'GENERATING', title: 'Neon Harbor', progress: 0.41, ai: true },
     ]);
   });
 
   it('leaves settled jobs out', () => {
-    expect(runningRows(idle({ genJob: { ...gen, stage: 'failed' } }))).toEqual([]);
+    expect(runningRows(idle({ genJobs: [{ ...gen, stage: 'failed' }] }))).toEqual([]);
   });
 
   it('keeps transcribe, read lyrics, timings and split plain', () => {
     const rows = runningRows(idle({
       transcribe: { stage: 'running', progress: 0.72 }, readLyrics: { stage: 'running' }, timings: { v1: { stage: 'running' } },
       splitJob: {
-        kind: 'split', jobId: 'x', splitJobId: 'x', songId: 's', layerId: 'l', startedAt: 3, stage: 'running',
+        kind: 'split', key: 'x', jobId: 'x', splitJobId: 'x', songId: 's', layerId: 'l', startedAt: 3, stage: 'running',
         stems: [{ kind: 'vocals', status: 'done' }, { kind: 'drums', status: 'running' }],
       },
     }));
@@ -44,7 +44,7 @@ describe('runningRows', () => {
 
   it("matches the server's lock to this tab's job instead of listing it twice, and marks it abortable", () => {
     const editorJob = { kind: 'repaint', jobId: 'r1', songId: 's1', layerId: 'l1', startedAt: 2, stage: 'running' } as SingleEditorJob;
-    const rows = runningRows(idle({ editorJob, active: active({ kind: 'repaint', jobId: 'r1', songId: 's1' }) }));
+    const rows = runningRows(idle({ editorJobs: [editorJob], active: active({ kind: 'repaint', jobId: 'r1', songId: 's1' }) }));
     expect(rows).toHaveLength(1);
     expect(rows[0]).toMatchObject({ kind: 'repaint', label: 'REPAINTING', abortable: true, ai: true });
   });
@@ -65,11 +65,21 @@ describe('runningRows', () => {
     expect(runningRows(idle({ active: active({ status: 'done' }) }))).toEqual([]);
   });
 
+  it('lists every generation and editor job this tab runs, one row each', () => {
+    const repaint = { kind: 'repaint', key: 'e1', jobId: 'e1', songId: 's1', layerId: 'l1', startedAt: 2, stage: 'running' } as SingleEditorJob;
+    const rows = runningRows(idle({
+      genJobs: [gen, { ...gen, key: 'g2', jobId: 'g2', title: 'Second' }],
+      editorJobs: [repaint, { ...repaint, key: 'e2', jobId: 'e2' }],
+    }));
+    expect(rows.map((r) => [r.kind, r.jobId])).toEqual([['generate', 'g1'], ['generate', 'g2'], ['repaint', 'e1'], ['repaint', 'e2']]);
+    expect(new Set(rows.map((r) => r.key)).size).toBe(4);
+  });
+
   it('leaves a job still waiting in the queue to UP NEXT, by its id or its queue position', () => {
     const repaint = { kind: 'repaint', jobId: 'e1', songId: 's1', layerId: 'l1', startedAt: 2, stage: 'running' } as SingleEditorJob;
     const rows = runningRows(idle({
-      genJob: { ...gen, queuePosition: 1 },
-      editorJob: repaint,
+      genJobs: [{ ...gen, queuePosition: 1 }],
+      editorJobs: [repaint],
       readLyrics: { stage: 'running', jobId: 'rl1' },
       transcribe: { stage: 'running', jobId: 't1' },
       timings: { v1: { stage: 'running', jobId: 'tm1' } },

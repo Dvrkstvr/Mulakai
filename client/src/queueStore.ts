@@ -18,6 +18,16 @@ interface QueueState {
   cancel: (jobId: string) => Promise<void>;
 }
 
+/** How many jobs a commit pressed now would wait for: the running one, and every queued one. */
+export const selectJobsAhead = (s: Pick<QueueState, 'running' | 'queued'>): number => (s.running ? 1 : 0) + s.queued.length;
+
+/** Whether ACE-Step's GPU slot is taken. FEELING LUCKY's LM sample goes straight to ACE-Step,
+ * not through the queue, so it waits for this to clear rather than stall behind a job. */
+export const useGpuBusy = (): boolean => useQueueStore((s) => !!s.running);
+
+/** The live count of jobs a new commit waits behind, for its consequence line. */
+export const useJobsAhead = (): number => useQueueStore(selectJobsAhead);
+
 export const useQueueStore = create<QueueState>((set, get) => ({
   running: null,
   queued: [],

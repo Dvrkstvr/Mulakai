@@ -10,14 +10,14 @@ import { useVoiceStore } from './voiceStore';
  * share one intent, so clearing a single field would leave the rest of a half-abandoned draft behind
  * for the user to hunt down. The destination folder survives — it came from where you were in
  * the Library, not from anything you typed. */
-export function ClearDraftButton({ disabled }: { disabled: boolean }) {
+export function ClearDraftButton() {
   const [confirm, setConfirm] = useState(false);
   const empty = useCreateDraftStore(isDraftEmpty);
   const clear = useCreateDraftStore((s) => s.clear);
   // Derived, not stored: an armed button whose draft empties by some other route (or while a
   // generation starts) must not stay armed, and adjusting state during render to fix that up
   // is worse than just not trusting the flag on its own.
-  const armed = confirm && !empty && !disabled;
+  const armed = confirm && !empty;
 
   const onClick = () => {
     if (!armed) { setConfirm(true); return; }
@@ -35,7 +35,7 @@ export function ClearDraftButton({ disabled }: { disabled: boolean }) {
       )}
       <button
         className={armed ? 'clear-draft-btn armed' : 'clear-draft-btn'}
-        disabled={disabled || empty}
+        disabled={empty}
         onClick={onClick}
         onBlur={() => setConfirm(false)}
       >

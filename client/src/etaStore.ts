@@ -63,8 +63,10 @@ export const useEta = (key: string): number | null => useEtaStore((s) => meanMs(
 
 // A generation settles in the Library, long after Create unmounted, so the watch lives here.
 useGenerationStore.subscribe((s, prev) => {
-  const job = s.job;
-  if (!job || job.stage === prev.job?.stage) return;
-  if (job.stage === 'done') useEtaStore.getState().settle(job.startedAt, Date.now());
-  else if (job.stage === 'failed') useEtaStore.getState().settle(job.startedAt, null);
+  if (s.jobs === prev.jobs) return;
+  for (const job of s.jobs) {
+    if (job.stage === prev.jobs.find((j) => j.key === job.key)?.stage) continue;
+    if (job.stage === 'done') useEtaStore.getState().settle(job.startedAt, Date.now());
+    else if (job.stage === 'failed') useEtaStore.getState().settle(job.startedAt, null);
+  }
 });

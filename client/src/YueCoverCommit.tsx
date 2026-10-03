@@ -3,7 +3,6 @@ import type { CreateDraft } from './createDraft';
 import type { CoverScore } from './coverDraft';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
-import { busyMessage } from './generationJob';
 import { useEngineCaps } from './useEngineCaps';
 import { useSettings, outputParams } from './settings';
 import { AUTO_CONTROLS, useEngineSettings } from './engineSettings';
@@ -25,7 +24,6 @@ export function YueCoverCommit({ onBack, blocked }: { onBack: () => void; blocke
   const { id: engine, info, unavailable } = useEngineCaps();
   const gen = useSettings((s) => s.gen);
   const controls = useEngineSettings((s) => s.values[engine]);
-  const blockedBy = useGenerationStore((s) => busyMessage(s.job, s.otherLock));
   const startCover = useGenerationStore((s) => s.startCover);
   const { submitting, error, submit } = useCreateSubmit(onBack, recipeEtaKey('audio', engine, '', gen.quality));
 
@@ -45,15 +43,15 @@ export function YueCoverCommit({ onBack, blocked }: { onBack: () => void; blocke
       source: draft.audio.source, selectedSongId: draft.audio.selectedSongId ?? undefined,
       ...(folderId ? { folderId, folderName: draft.folderName } : {}),
     };
-    await startCover(engine, coverParams(
+    return startCover(engine, coverParams(
       { title: title || 'Untitled', prompt, lyrics, vocalLanguage, folderId }, caps, gen,
       { ...AUTO_CONTROLS, ...controls }, outputParams(), { abc: sungScore(score), source: score.source },
     ) as { title: string; prompt: string }, retry);
   };
 
   return (
-    <RecipeCommit label="GENERATE COVER" submitting={submitting} blocked={blockedBy} error={error} onClick={generate}
-      disabled={submitting || !!blockedBy || blocked || unavailable || !score || !caps || overBudget}>
+    <RecipeCommit label="GENERATE COVER" submitting={submitting} error={error} onClick={generate}
+      disabled={submitting || blocked || unavailable || !score || !caps || overBudget}>
       <div className="hint">
         {info?.label ?? 'YUE2'} melody cover · keeps the source&apos;s melody, not its voice or sound
         {instrumental ? ' · no lyrics: an instrumental, where an instrument plays the melody, followed more loosely' : ''}

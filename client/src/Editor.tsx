@@ -10,6 +10,7 @@ import { useSettings } from './settings';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useMainTransportGuard } from './previewPlayback';
 import { useEditorRepaintJob } from './useEditorRepaintJob';
+import { useLandedReload } from './useLandedReload';
 import { useSpaceTransport } from './useSpaceTransport';
 import { useDockKeys } from './useDockKeys';
 import { useEditorFocus } from './useEditorFocus';
@@ -38,7 +39,7 @@ export function Editor({ songId, onBack }: Props) {
   // Per-session UI state, deliberately not persisted: every visit opens on REPAINT.
   const [verb, setVerb] = useState<DockVerb>('repaint');
   const repaintJob = useEditorRepaintJob(focusedLayerId);
-  const { startRepaint, dismissEditorJob, myRepaint, job, busyElsewhere } = repaintJob;
+  useLandedReload(songId, reload);
 
   useLyricsDraftSync(song, setLyricsDraft);
   const engine = usePlaybackEngine(song?.layers ?? []);
@@ -56,8 +57,8 @@ export function Editor({ songId, onBack }: Props) {
   useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
 
   const repaint = useRepaintSubmit({
-    songId, focusedLayer, selection, duration, prompt, lyricsUnlocked, lyricsDraft, repaintSettings,
-    startRepaint, dismissEditorJob, myRepaint, busyElsewhere, setSelection, setPrompt, reload,
+    songId, focusedLayer, selection, duration, prompt, lyricsUnlocked, lyricsDraft, repaintSettings, setSelection, setPrompt,
+    ...repaintJob,
   });
 
   const seek = (seconds: number) => engine.seek(seconds);
@@ -94,7 +95,7 @@ export function Editor({ songId, onBack }: Props) {
             selection={shownSelection}
             onSelect={selectRegion}
             onSeek={seek}
-            processing={job === 'running'}
+            processing={!!repaintJob.running}
             onSplit={(layerId) => { setFocusedLayerId(layerId); setVerb('split'); }}
             lyrics={{ draft: lyricsDraft, timings: timing.timings, timing }}
           />

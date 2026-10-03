@@ -7,7 +7,6 @@ import { reusePromptDraft, createCoverDraft, type CreateDraft } from './createDr
 import { LibraryToolbar } from './LibraryToolbar';
 import { ScrollArea } from './ScrollArea';
 import type { GenerationJob } from './generationStore';
-import { isGenerating } from './generationJob';
 import { GeneratingCard } from './GeneratingCard';
 import { LibraryJobBadge } from './LibraryJobBadge';
 import { ContinueRow } from './ContinueRow';
@@ -16,8 +15,9 @@ import type { LibraryData } from './useLibraryData';
 
 interface Props {
   library: LibraryData;
-  genJob: GenerationJob | null;
-  dismissGenJob: () => void;
+  /** One GeneratingCard per generation in flight or failed, oldest first. */
+  genJobs: GenerationJob[];
+  dismissGenJob: (key: string) => void;
   detailSongId: string | null;
   setDetailSongId: (id: string | null) => void;
   playing: Song | null;
@@ -31,17 +31,16 @@ interface Props {
 /** The library screen: the create bar, search/sort toolbar, folder rail, song list and the
  * selected song's detail rail. */
 export function LibraryView({
-  library, genJob, dismissGenJob, detailSongId, setDetailSongId, playing, setPlaying, footerEngine, openEditor, openCreate, onSettings,
+  library, genJobs, dismissGenJob, detailSongId, setDetailSongId, playing, setPlaying, footerEngine, openEditor, openCreate, onSettings,
 }: Props) {
   const {
     songs, query, search, sort, setSort, filter, setFilter, folders, folderScope, setFolderScope,
     totalSongCount, activeFolder, unfiledCount, refresh, refreshFolders, createFolder, visibleSongs,
   } = library;
 
-  const retryGeneration = () => {
-    if (!genJob) return;
-    dismissGenJob();
-    openCreate(genJob.draft);
+  const retryGeneration = (job: GenerationJob) => {
+    dismissGenJob(job.key);
+    openCreate(job.draft);
   };
 
   // Quick-preview from the library: re-clicking the row that's already loaded toggles
@@ -73,7 +72,6 @@ export function LibraryView({
     <>
       <CreateBar
         onCreate={(draft) => openCreate(activeFolder ? { ...draft, folderId: activeFolder.id, folderName: activeFolder.name } : draft)}
-        busy={isGenerating(genJob)}
       />
 
       <LibraryToolbar
@@ -104,7 +102,7 @@ export function LibraryView({
           </div>
         )}
         <section className="library">
-          {genJob && <GeneratingCard job={genJob} onRetry={retryGeneration} />}
+          {genJobs.map((job) => <GeneratingCard key={job.key} job={job} onRetry={() => retryGeneration(job)} />)}
           {visibleSongs.map((s, i) => (
             <motion.div
               key={s.id}
@@ -128,7 +126,7 @@ export function LibraryView({
               </div>
             </motion.div>
           ))}
-          {visibleSongs.length === 0 && !genJob && <div className="empty">No songs yet — generate your first one above.</div>}
+          {visibleSongs.length === 0 && genJobs.length === 0 && <div className="empty">No songs yet — generate your first one above.</div>}
         </section>
         </div>
         {detailSongId && (() => {

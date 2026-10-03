@@ -113,7 +113,7 @@ describe('editorCommands', () => {
     const v = verbs({ selection: { start: 10, end: 20 } });
     for (const c of editorCommands(v)) c.run();
     vi.runAllTimers();
-    expect(useEditorJobStore.getState().editorJob).toBeNull();
+    expect(useEditorJobStore.getState().editorJobs).toEqual([]);
     expect(useEditorJobStore.getState().splitJob).toBeNull();
   });
 });

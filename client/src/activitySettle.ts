@@ -26,6 +26,8 @@ export interface ActivityEntry {
   opens: 'editor' | 'create' | null;
   /** A failed generation's RETRY reopens Create on this draft, as the Library card's does. */
   draft?: CreateDraft;
+  /** That generation's key in generationStore, so its RETRY can clear the failed card too. */
+  jobKey?: string;
   /** Starts the job again; false when it couldn't start (its slot is taken). */
   retry?: () => boolean;
   /** Why the last RETRY didn't start, shown on the row. */
@@ -43,12 +45,21 @@ export function genSettled(prev: GenerationJob | null, next: GenerationJob | nul
   const base = { id: nextId('generate'), kind: 'generate' as const, at, title: next.title };
   return next.stage === 'done'
     ? { ...base, status: 'done', songId: next.songId, badge: 'NEW SONG', opens: next.songId ? 'editor' : null }
-    : { ...base, status: 'failed', error: next.error ?? 'generation failed', opens: null, draft: next.draft };
+    : { ...base, status: 'failed', error: next.error ?? 'generation failed', opens: null, draft: next.draft, jobKey: next.key };
+}
+
+/** Each job's settle event, matching jobs across the two states by `key`. */
+export function settledEach<J extends { key: string }>(
+  prev: J[], next: J[], settled: (p: J | null, n: J | null) => ActivityEntry | null,
+): ActivityEntry[] {
+  if (prev === next) return [];
+  const before = new Map(prev.map((j) => [j.key, j]));
+  return next.flatMap((j) => settled(before.get(j.key) ?? null, j) ?? []);
 }
 
 const EDITOR_BADGE: Partial<Record<ActivityKind, string>> = { addLayer: '+1 LANE', remaster: 'MIX READY' };
 
-/** Repaint, alt take, similar take, add layer and remaster: `editorJob`'s one slot. */
+/** Repaint, alt take, similar take, add layer and remaster: one of `editorJobs`. */
 export function editorSettled(prev: SingleEditorJob | null, next: SingleEditorJob | null, at = Date.now()): ActivityEntry | null {
   if (!prev || !next || prev.stage !== 'running' || prev.startedAt !== next.startedAt || next.stage === 'running') return null;
   const layerId = 'layerId' in next ? next.layerId : undefined;

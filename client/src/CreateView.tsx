@@ -5,8 +5,6 @@ import { useVoiceStore } from './voiceStore';
 import { useHeaderSlot } from './HeaderSlot';
 import { ScrollArea } from './ScrollArea';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGenerationStore } from './generationStore';
-import { isGenerating } from './generationJob';
 import { useLookup } from './lookup';
 import { ClearDraftButton } from './ClearDraftButton';
 import { StartFromCards } from './StartFromCards';
@@ -28,7 +26,6 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
   const draft = useCreateDraftStore();
   const { genType, title, folderId, folderName } = draft;
   const patch = draft.patch;
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
   // One model list for every flow: TUNE's selects, and AUTO model's family for QUALITY.
   const inventory = useLookup(api.listModels);
 
@@ -111,7 +108,7 @@ export function CreateView({ songs, onBack }: { songs: Song[]; onBack: () => voi
           <input className="create-title" placeholder="New song" aria-label="Title" value={title}
             onChange={(e) => patch({ title: e.target.value, titleSuggested: false })} />
           <span className="meta">will appear in {folderName ? <span className="dest">{folderName}</span> : 'your library'} once generated</span>
-          <ClearDraftButton disabled={genRunning} />
+          <ClearDraftButton />
         </div>
         <StartFromCards />
         <div className="create-body">

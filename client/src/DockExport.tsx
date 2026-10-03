@@ -3,7 +3,7 @@ import type { SongDetail } from './api';
 import { AudioPreview } from './AudioPreview';
 import { RemasterAction } from './RemasterAction';
 import { DockCommit } from './DockCommit';
-import { useEditorJobStore, myEditorJob } from './editorJobStore';
+import { useEditorJobStore, myEditorJobs } from './editorJobStore';
 import { useRemasterResult } from './remasterResult';
 import { audibleTakes } from './mix/activeLayers';
 import { bounceAudible, mixFilename, saveBlob } from './mixExport';
@@ -20,7 +20,7 @@ const WHATS: { id: ExportWhat; label: string }[] = [
  */
 export function DockExport({ song }: { song: SongDetail }) {
   const [what, setWhat] = useState<ExportWhat>(() => {
-    const remastering = !!myEditorJob(useEditorJobStore.getState().editorJob, 'remaster', { songId: song.id });
+    const remastering = myEditorJobs(useEditorJobStore.getState().editorJobs, 'remaster', { songId: song.id }).length > 0;
     return remastering || useRemasterResult.getState().result?.songId === song.id ? 'remaster' : 'mix';
   });
   // A WHAT picked from outside the dock (the palette's "Export stems").

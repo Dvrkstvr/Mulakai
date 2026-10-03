@@ -3,12 +3,11 @@ import { type Layer } from './api';
 import { bounceAudible } from './mixExport';
 import { useSettings } from './settings';
 import { AudioPreview } from './AudioPreview';
-import { useGenerationStore } from './generationStore';
-import { isGenerating, lockHolder, waitLabel } from './generationJob';
-import { useEditorJobStore, myEditorJob, isEditorBusy, selectSplitRunning } from './editorJobStore';
+import { useEditorJobStore, myEditorJobs, jobView } from './editorJobStore';
 import { useRemasterResult } from './remasterResult';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
-import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
+import { queueSuffix } from './queueCopy';
+import { useJobsAhead } from './queueStore';
 import { useLookup, modelsFor, checkingModels } from './lookup';
 import { DockCommit } from './DockCommit';
 
@@ -30,20 +29,14 @@ export function RemasterAction({ songId, layers }: Props) {
   const exportSettings = useSettings((s) => s.exportSettings);
   const [model, setModel] = useState('');
   const [mixError, setMixError] = useState('');
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
-  const otherLock = useGenerationStore((s) => s.otherLock);
-  const editorJob = useEditorJobStore((s) => s.editorJob);
-  const splitRunning = useEditorJobStore(selectSplitRunning);
+  const editorJobs = useEditorJobStore((s) => s.editorJobs);
   const remasterResult = useRemasterResult((s) => s.result);
   const startRemaster = useEditorJobStore((s) => s.startRemaster);
-  const dismissEditorJob = useEditorJobStore((s) => s.dismiss);
+  const dismiss = useEditorJobStore((s) => s.dismiss);
+  const ahead = useJobsAhead();
   const result = remasterResult?.songId === songId ? remasterResult : null;
-  const mine = myEditorJob(editorJob, 'remaster', { songId });
-  const job: 'idle' | 'running' = mine?.stage === 'running' ? 'running' : 'idle';
-  const error = mixError || (mine?.stage === 'failed' ? (mine.error ?? 'remaster failed') : '');
-  const busyElsewhere = splitRunning || (!mine && (genRunning || isEditorBusy(editorJob) || !!otherLock));
-  const busyBy = busyElsewhere ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning }) : null;
-  const elapsedMs = useElapsedMs(job === 'running', mine?.startedAt ?? null);
+  const { inFlight, failed } = jobView(myEditorJobs(editorJobs, 'remaster', { songId }));
+  const error = mixError || (failed ? (failed.error ?? 'remaster failed') : '');
 
   const coverModels = useLookup(() => modelsFor('cover').then((names) => {
     setModel(names.find((n) => n.includes('xl-sft')) ?? names[0] ?? '');
@@ -53,11 +46,11 @@ export function RemasterAction({ songId, layers }: Props) {
   const gated = !coverModels.data?.length;
 
   const submit = async () => {
-    if (gated || job === 'running' || busyElsewhere) return;
+    if (gated) return;
     setMixError('');
     try {
       const mixAudio = await bounceAudible(layers);
-      if (mine?.stage === 'failed') dismissEditorJob();
+      if (failed) dismiss(failed.key);
       void startRemaster(songId, mixAudio, model, {
         audioFormat: exportSettings.audioFormat,
         steps: exportSettings.steps,
@@ -67,8 +60,9 @@ export function RemasterAction({ songId, layers }: Props) {
     }
   };
 
-  const progress = `${fmtProgress(mine?.progress) ? ` · ${fmtProgress(mine?.progress)}` : ''}${stageDetail(mine?.progressStage) ? ` · ${stageDetail(mine?.progressStage)}` : ''}`;
-  const held = result && job === 'idle' ? result : null;
+  // A held result is offered until the next run starts; while one is on its way, the commit
+  // queues another and the lines under it say how far the first has got.
+  const held = result && inFlight.length === 0 ? result : null;
   return (
     <>
       <div className="dock-body remaster-block">
@@ -100,21 +94,17 @@ export function RemasterAction({ songId, layers }: Props) {
           consequence="not saved to history — download it, or run again to discard it"
           label="DOWNLOAD"
           download={{ href: held.url, filename: held.filename }}
-          siblings={<button className="acid-outline" disabled={busyElsewhere} onClick={() => void submit()}>RUN AGAIN</button>}
+          siblings={<button className="acid-outline" onClick={() => void submit()}>RUN AGAIN</button>}
         />
       ) : (
         <DockCommit
-          consequence="runs one ACE-Step pass over the mix first, about 90 s, and isn't kept"
-          label={job === 'running' ? `RENDERING… ${fmtElapsed(elapsedMs)}${progress}` : busyBy ? waitLabel(busyBy) : 'REMASTER MIX'}
-          disabled={busyElsewhere}
-          running={job === 'running'}
-          progress={mine?.progress}
-          title={job === 'running' ? mine?.progressText : undefined}
+          consequence={`runs one ACE-Step pass over the mix first, about 90 s, and isn't kept${queueSuffix(ahead)}`}
+          label="REMASTER MIX"
           onCommit={() => void submit()}
+          jobs={inFlight}
         />
       ))}
       {!gated && !held && <ActiveAdapterNote />}
-      {busyElsewhere && job !== 'running' && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
       {error && <div className="error">{error} <button onClick={() => void submit()}>RETRY</button></div>}
     </>
   );

@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { api, type Layer, type StemKind } from './api';
-import { useGenerationStore } from './generationStore';
-import { isGenerating, lockHolder, waitLabel } from './generationJob';
-import { useEditorJobStore, isEditorBusy } from './editorJobStore';
+import { useEditorJobStore } from './editorJobStore';
 import { fmtElapsed, useElapsedMs } from './genProgress';
+import { queueSuffix, startsAfter } from './queueCopy';
+import { useJobsAhead } from './queueStore';
 import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
 import { useLookup } from './lookup';
@@ -28,9 +28,7 @@ export function DockSplit({ songId, layer, onChanged }: Props) {
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [error, setError] = useState('');
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
-  const genRunning = useGenerationStore((s) => isGenerating(s.job));
-  const otherLock = useGenerationStore((s) => s.otherLock);
-  const editorJob = useEditorJobStore((s) => s.editorJob);
+  const ahead = useJobsAhead();
   const splitJob = useEditorJobStore((s) => s.splitJob);
   const startSplit = useEditorJobStore((s) => s.startSplit);
   const cancelSplitJob = useEditorJobStore((s) => s.cancelSplit);
@@ -39,11 +37,10 @@ export function DockSplit({ songId, layer, onChanged }: Props) {
   const stems = mine && mine.stage !== 'failed' ? mine.stems : null; // a failed start offers GENERATE STEMS again
   const extracting = mine?.stage === 'running';
   const otherSplit = splitJob && !mine ? splitJob : null;
-  // While extracting, the lock is this split's own; otherwise anything holding it blocks a start or RE-EXTRACT.
-  const busyElsewhere = !extracting && (genRunning || isEditorBusy(editorJob) || otherSplit?.stage === 'running' || !!otherLock);
-  const busyBy = busyElsewhere
-    ? lockHolder({ generating: genRunning, otherLock, editorJob, splitRunning: otherSplit?.stage === 'running' }) : null;
-  const elapsedMs = useElapsedMs(extracting, mine?.startedAt ?? null);
+  // A busy GPU doesn't hold SPLIT (the server queues it). The one open split session does: a
+  // start here would close another layer's session while its stems are still extracting.
+  const otherExtracting = otherSplit?.stage === 'running' ? otherSplit : null;
+  const elapsedMs = useElapsedMs(extracting && !mine?.queuePosition, mine?.startedAt ?? null);
 
   const healthLookup = useLookup(api.splitHealth);
   const health = healthLookup.data;
@@ -54,7 +51,7 @@ export function DockSplit({ songId, layer, onChanged }: Props) {
     else if (health.demucs) setModel('demucs');
   }, [health, model]);
 
-  const canSubmit = !!model && !!health?.[model] && !stems && !busyElsewhere;
+  const canSubmit = !!model && !!health?.[model] && !stems && !otherExtracting;
 
   const generate = async () => {
     if (!canSubmit || !model) return;
@@ -86,7 +83,7 @@ export function DockSplit({ songId, layer, onChanged }: Props) {
   };
 
   const reextract = async (kind: StemKind) => {
-    if (!mine || busyElsewhere) return;
+    if (!mine) return;
     setBusyKind(kind);
     setError('');
     try {
@@ -109,7 +106,9 @@ export function DockSplit({ songId, layer, onChanged }: Props) {
         ) : (
           <>
             <button className="link-btn" style={{ color: 'var(--rust-text)', alignSelf: 'flex-start' }} onClick={cancel}><span>CANCEL SPLIT</span></button>
-            {extracting && <div className="hint">{fmtElapsed(elapsedMs)} elapsed</div>}
+            {extracting && (
+              <div className="hint">{mine?.queuePosition ? `queued · ${startsAfter(mine.queuePosition)}` : `${fmtElapsed(elapsedMs)} elapsed`}</div>
+            )}
             {stems.map((stem) => (
               <SplitStemRow
                 key={stem.kind}
@@ -117,7 +116,6 @@ export function DockSplit({ songId, layer, onChanged }: Props) {
                 layerName={layer.name}
                 nextVersion={nextVersion}
                 busy={busyKind === stem.kind}
-                reextractBlocked={busyElsewhere}
                 onClaim={(action) => claim(stem.kind, action)}
                 onReextract={() => reextract(stem.kind)}
               />
@@ -129,13 +127,14 @@ export function DockSplit({ songId, layer, onChanged }: Props) {
       {!stems && (
         <>
           <DockCommit
-            consequence={`extracts vocals, drums, bass and other as new stems from ${layer.name.toUpperCase()}`}
-            label={busyBy ? waitLabel(busyBy) : `SPLIT ${layer.name.toUpperCase()}`}
+            consequence={otherExtracting
+              ? "one split is open at a time — another layer's stems are still extracting · CANCEL SPLIT there first, or wait for them"
+              : `extracts vocals, drums, bass and other as new stems from ${layer.name.toUpperCase()}${queueSuffix(ahead)}`}
+            label={`SPLIT ${layer.name.toUpperCase()}`}
             disabled={!canSubmit}
             onCommit={() => void generate()}
           />
-          {busyElsewhere && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
-          {!busyElsewhere && otherSplit?.stage === 'done' && <div className="hint">starting closes the open split on another layer — its unclaimed stems are discarded</div>}
+          {!otherExtracting && otherSplit?.stage === 'done' && <div className="hint">starting closes the open split on another layer — its unclaimed stems are discarded</div>}
         </>
       )}
     </>

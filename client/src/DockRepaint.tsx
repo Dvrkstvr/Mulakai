@@ -3,8 +3,8 @@ import type { LyricsBlock } from './lyricsBlocks';
 import type { DockTarget } from './dockTarget';
 import { repaintCommitLabel, repaintConsequence, repaintWarnLine } from './dockTarget';
 import { maxCrossfadeSec, clampCrossfade } from './repaintLimits';
-import { fmtElapsed, fmtProgress, stageDetail, useElapsedMs } from './genProgress';
-import { waitLabel } from './generationJob';
+import { queueSuffix } from './queueCopy';
+import { useJobsAhead } from './queueStore';
 import { useSettings } from './settings';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { VarianceSlider } from './VarianceSlider';
@@ -23,7 +23,8 @@ export interface SectionLyrics {
 interface Props {
   target: DockTarget;
   layerName: string;
-  /** The version this repaint will save, and the active one it keeps — stated before commit. */
+  /** The version this repaint will save (counting this layer's takes already on their way),
+   * and the active one it keeps — stated before commit. */
   nextVersion: number;
   activeVersion: number | null;
   selection: Region | null;
@@ -31,27 +32,23 @@ interface Props {
   duration: number;
   prompt: string;
   onPromptChange: (prompt: string) => void;
-  job: Pick<ReturnType<typeof useEditorRepaintJob>, 'job' | 'startedAt' | 'myRepaint' | 'busyBy' | 'error'>;
+  job: Pick<ReturnType<typeof useEditorRepaintJob>, 'inFlight' | 'failed' | 'error'>;
   onRepaint: () => void;
   lyrics: SectionLyrics;
 }
 
 /** REPAINT: instruction, VARIANCE + CROSSFADE inline, the one-section lyrics editor, TUNE, commit. */
 export function DockRepaint({ target, layerName, nextVersion, activeVersion, selection, duration, prompt, onPromptChange, job, onRepaint, lyrics }: Props) {
-  const { job: stage, startedAt, myRepaint, busyBy, error } = job;
-  const running = stage === 'running';
-  const elapsedMs = useElapsedMs(running, startedAt);
+  const { inFlight, failed, error } = job;
+  const ahead = useJobsAhead();
   const repaint = useSettings((s) => s.repaint);
   const setRepaint = useSettings((s) => s.setRepaint);
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const crossfadeOn = !!selection && !target.warn;
 
-  const label = running
-    ? `REPAINTING… ${fmtElapsed(elapsedMs)}${fmtProgress(myRepaint?.progress) ? ` · ${fmtProgress(myRepaint?.progress)}` : ''}${stageDetail(myRepaint?.progressStage) ? ` · ${stageDetail(myRepaint?.progressStage)}` : ''}`
-    : busyBy ? waitLabel(busyBy) : repaintCommitLabel(layerName, selection, target.section);
   const consequence = target.warn
     ? repaintWarnLine(selection, duration)
-    : repaintConsequence(layerName, nextVersion, activeVersion, selection, target.section);
+    : repaintConsequence(layerName, nextVersion, activeVersion, selection, target.section) + queueSuffix(ahead);
 
   return (
     <>
@@ -89,16 +86,13 @@ export function DockRepaint({ target, layerName, nextVersion, activeVersion, sel
       </div>
       <DockCommit
         consequence={consequence}
-        label={label}
-        disabled={target.warn || !!busyBy}
-        running={running}
-        progress={myRepaint?.progress}
-        title={running ? myRepaint?.progressText : undefined}
+        label={repaintCommitLabel(layerName, selection, target.section)}
+        disabled={target.warn}
         onCommit={onRepaint}
+        jobs={inFlight}
       />
       <ActiveAdapterNote />
-      {busyBy && !running && <div className="hint">only one job can use the GPU at a time — try again once it finishes</div>}
-      {error && <div className="error">{error} <button onClick={onRepaint}>RETRY</button></div>}
+      {error && <div className="error">{error} <button onClick={() => failed?.retry?.()}>RETRY</button></div>}
     </>
   );
 }

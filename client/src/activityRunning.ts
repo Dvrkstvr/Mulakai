@@ -27,8 +27,8 @@ export interface RunningRow {
 }
 
 export interface RunningSources {
-  genJob: GenerationJob | null;
-  editorJob: SingleEditorJob | null;
+  genJobs: GenerationJob[];
+  editorJobs: SingleEditorJob[];
   splitJob: SplitJobState | null;
   transcribe: { stage: string; progress?: number; jobId?: string };
   readLyrics: { stage: string; jobId?: string };
@@ -49,17 +49,19 @@ type Draft = Omit<RunningRow, 'ai' | 'abortable' | 'label'> & { label?: string }
 
 export function runningRows(src: RunningSources, isEngineStage: (stage?: string) => boolean = () => false): RunningRow[] {
   let drafts: Draft[] = [];
-  const { genJob, editorJob, splitJob, active } = src;
-  if (genJob && (genJob.stage === 'loading' || genJob.stage === 'running') && !genJob.queuePosition) {
+  const { splitJob, active } = src;
+  for (const genJob of src.genJobs) {
+    if ((genJob.stage !== 'loading' && genJob.stage !== 'running') || genJob.queuePosition) continue;
     drafts.push({
-      key: `generate:${genJob.startedAt}`, kind: 'generate', jobId: genJob.jobId, title: genJob.title,
+      key: `generate:${genJob.key}`, kind: 'generate', jobId: genJob.jobId, title: genJob.title,
       label: genJob.stage === 'loading' ? 'LOADING MODEL' : undefined, songId: genJob.songId,
       startedAt: genJob.startedAt, progress: genJob.progress, stageProgress: isEngineStage(genJob.progressStage),
     });
   }
-  if (editorJob?.stage === 'running' && !editorJob.queuePosition) {
+  for (const editorJob of src.editorJobs) {
+    if (editorJob.stage !== 'running' || editorJob.queuePosition) continue;
     drafts.push({
-      key: `${editorJob.kind}:${editorJob.startedAt}`, kind: editorJob.kind, jobId: editorJob.jobId,
+      key: `${editorJob.kind}:${editorJob.key}`, kind: editorJob.kind, jobId: editorJob.jobId,
       songId: editorJob.songId, startedAt: editorJob.startedAt, progress: editorJob.progress,
     });
   }

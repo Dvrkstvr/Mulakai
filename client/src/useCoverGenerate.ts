@@ -23,7 +23,7 @@ export function useCoverGenerate(onBack: () => void) {
       genType: 'audio', source, selectedSongId: selectedSongId ?? undefined, prompt, lyrics, bpm, keyScale, duration,
     };
     const srcAudio = await resolveCoverSource(draft.audio);
-    await startFromAudio(
+    return startFromAudio(
       {
         title: title || 'Untitled', prompt, lyrics, ...coverParams(gen, model), audio_cover_strength: 1 - variance,
         ...(bpm > 0 ? { bpm } : {}),

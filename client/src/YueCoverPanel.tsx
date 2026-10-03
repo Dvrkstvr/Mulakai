@@ -1,8 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { api, type ModelInventory, type Song } from './api';
 import { useCreateDraftStore } from './createDraftStore';
-import { useGenerationStore } from './generationStore';
-import { coverLocked, isGenerating } from './generationJob';
 import { useTranscribeStore } from './transcribeStore';
 import { useEngineCaps } from './useEngineCaps';
 import { coverSourceReady, resolveCoverSource } from './coverSource';
@@ -15,7 +13,6 @@ import { YueScoreReview } from './YueScoreReview';
 import { YueCoverAnalyze } from './YueCoverAnalyze';
 import { YueCoverLyrics } from './YueCoverLyrics';
 import { YueCoverCommit } from './YueCoverCommit';
-import { useReadLyricsStore } from './readLyricsStore';
 import { useReadLyrics } from './YueReadLyrics';
 import { AutoTextarea } from './AutoTextarea';
 import { CarriedPromptNote } from './CarriedPromptNote';
@@ -38,8 +35,6 @@ export function YueCoverPanel({ songs, onBack, noCoverModel, inventory }: {
   const patch = useCreateDraftStore((s) => s.patch);
   const patchAudio = useCreateDraftStore((s) => s.patchAudio);
   const tr = useTranscribeStore();
-  const genJob = useGenerationStore((s) => s.job);
-  const otherLock = useGenerationStore((s) => s.otherLock);
   const { id: engine, unavailable } = useEngineCaps();
   const [preparing, setPreparing] = useState(false);
   const [error, setError] = useState('');
@@ -60,15 +55,15 @@ export function YueCoverPanel({ songs, onBack, noCoverModel, inventory }: {
     return () => { live = false; };
   }, [reuse, score, reusedFrom, patchAudio]);
 
+  // Each store's `running` covers its job's wait in the server's queue too, so SOURCE and ENGINE
+  // hold still from submit to result. Another job on the GPU holds nothing here: these queue.
   const transcribing = tr.stage === 'running' || preparing;
-  // A READ LYRICS job holds the server's lock too: count it as this panel's own, not another's.
-  const reading = useReadLyricsStore((s) => s.stage === 'running');
-  const locked = coverLocked(genJob, otherLock, transcribing || reading);
-  const read = useReadLyrics(songs, transcribing || locked);
+  const read = useReadLyrics(songs, transcribing);
   const running = transcribing || read.running;
   const analysis = useAnalyzeSourceAudio();
   const jobs = { transcribing, reading: read.running, analyzing: analysis.analyzing };
-  const lockedBy = sourceLockedBy({ ...jobs, generating: isGenerating(genJob) });
+  // A generation doesn't hold it: GENERATE COVER sends the score, which the request carries.
+  const lockedBy = sourceLockedBy({ ...jobs, generating: false });
   const transcribe = async () => {
     setError('');
     setPreparing(true);
@@ -104,7 +99,7 @@ export function YueCoverPanel({ songs, onBack, noCoverModel, inventory }: {
           <CoverSourcePicker songs={songs} lockedBy={lockedBy}
             satisfied={coverSourceReady(audio) || !!score || !!audio.reuseScore} />
           <div className="score-actions">
-            <button className="acid-outline" disabled={!coverSourceReady(audio) || running || locked || unavailable} onClick={transcribe}>
+            <button className="acid-outline" disabled={!coverSourceReady(audio) || running || unavailable} onClick={transcribe}>
               <span>{label}</span>
             </button>
             {read.button}
@@ -128,14 +123,14 @@ export function YueCoverPanel({ songs, onBack, noCoverModel, inventory }: {
           <AutoTextarea placeholder="Describe the cover — style, mood, instruments, voice. The melody comes from the score."
             value={prompt} onChange={(v) => patch({ prompt: v })} />
           <CarriedPromptNote />
-          <YueCoverAnalyze analysis={analysis} blocked={running || locked} noModel={noCoverModel} />
+          <YueCoverAnalyze analysis={analysis} blocked={running} noModel={noCoverModel} />
         </CreateStep>
         <YueCoverLyrics />
       </div>
       <RecipeCard stepsModel="" coverStepsAhead={score ? 1 : autoRead ? 3 : 2}
         engine={<CoverEngineChoice lockedBy={engineLockedBy(jobs)} />}
         tune={<GenTune inventory={inventory} stepsModel="" />}
-        commit={<YueCoverCommit onBack={onBack} blocked={running || locked} />} />
+        commit={<YueCoverCommit onBack={onBack} blocked={running} />} />
     </>
   );
 }

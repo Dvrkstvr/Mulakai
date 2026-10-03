@@ -3819,6 +3819,34 @@ a.dock-commit-link {
   letter-spacing: 1px;
 }
 
+/* A commit's own jobs in flight, under its row: the commit stays free for the next one. */
+.dock-jobs {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 0 14px 10px;
+}
+
+.dock-job {
+  position: relative;
+  overflow: hidden;
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  font-size: 10px;
+  letter-spacing: 1px;
+  color: var(--acid);
+}
+
+.dock-job.waiting {
+  border: 1px dashed var(--line-hi);
+  color: var(--text-mid);
+}
+
+.dock-job-label {
+  position: relative;
+  z-index: 1;
+}
+
 /* TUNE ▸ — the verb's full settings, collapsed to one summary line. */
 .tune-toggle {
   border: none;

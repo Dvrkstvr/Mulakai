@@ -14,6 +14,7 @@ vi.mock('./api', () => ({
     readTimings: async () => submitted,
     analyzeSourceAudio: async () => submitted,
     cancelJob: (...a: unknown[]) => cancelJob(...a),
+    queue: async () => ({ running: null, queued: [] }),
     jobStatus: (...a: unknown[]) => jobStatus(...a),
   },
   ApiError: class ApiError extends Error {
@@ -32,6 +33,7 @@ const { useReadLyricsStore } = await import('./readLyricsStore');
 const { useTimingsStore } = await import('./timingsStore');
 const { analyzeAndWait, AnalyzeCancelled, ANALYZE_POLL_MS } = await import('./analyzeJob');
 const { localSettled, timingsFailed } = await import('./activitySettle');
+const { aceCoverLocks, engineLockedBy, sourceLockedBy } = await import('./coverDraft');
 
 const queued = (queuePosition: number) => ({ status: 'queued', queuePosition });
 const CANCELLED = { status: 'failed', error: 'cancelled', cancelled: true };
@@ -40,8 +42,8 @@ const tick = (ms = 2000) => vi.advanceTimersByTimeAsync(ms);
 beforeEach(() => {
   vi.useFakeTimers();
   jobStatus.mockReset();
-  useGenerationStore.setState({ job: null, otherLock: null });
-  useEditorJobStore.setState({ editorJob: null, splitJob: null });
+  useGenerationStore.setState({ jobs: [], otherLock: null });
+  useEditorJobStore.setState({ editorJobs: [], splitJob: null });
   useTranscribeStore.getState().reset();
   useReadLyricsStore.getState().reset();
   useTimingsStore.setState({ runs: {} });
@@ -54,13 +56,13 @@ describe('a queued generation', () => {
       .mockResolvedValueOnce({ status: 'running', progress: 0.3 }).mockResolvedValueOnce({ status: 'done', songId: 's1' });
     await useGenerationStore.getState().start({ title: 'T', prompt: 'p' }, { genType: 'prompt' });
     await tick();
-    expect(useGenerationStore.getState().job).toMatchObject({ stage: 'loading', queuePosition: 2 });
+    expect(useGenerationStore.getState().jobs[0]).toMatchObject({ stage: 'loading', queuePosition: 2 });
     await tick();
-    expect(useGenerationStore.getState().job?.queuePosition).toBe(1);
+    expect(useGenerationStore.getState().jobs[0]?.queuePosition).toBe(1);
     await tick();
-    expect(useGenerationStore.getState().job).toMatchObject({ stage: 'running', queuePosition: undefined, progress: 0.3 });
+    expect(useGenerationStore.getState().jobs[0]).toMatchObject({ stage: 'running', queuePosition: undefined, progress: 0.3 });
     await tick();
-    expect(useGenerationStore.getState().job).toMatchObject({ stage: 'done', songId: 's1' });
+    expect(useGenerationStore.getState().jobs[0]).toMatchObject({ stage: 'done', songId: 's1' });
   });
 
   it('is dropped, not failed, once cancelled from UP NEXT', async () => {
@@ -68,7 +70,7 @@ describe('a queued generation', () => {
     await useGenerationStore.getState().start({ title: 'T', prompt: 'p' }, { genType: 'prompt' });
     await tick();
     await tick();
-    expect(useGenerationStore.getState().job).toBeNull();
+    expect(useGenerationStore.getState().jobs).toEqual([]);
   });
 });
 
@@ -78,18 +80,18 @@ describe('a queued editor job', () => {
     void useEditorJobStore.getState().startRepaint('l1', 's1', { prompt: 'p', start: 0, end: 4 });
     await tick(0);
     await tick();
-    expect(useEditorJobStore.getState().editorJob).toMatchObject({ stage: 'running', queuePosition: 1 });
+    expect(useEditorJobStore.getState().editorJobs[0]).toMatchObject({ stage: 'running', queuePosition: 1 });
     await tick();
-    expect(useEditorJobStore.getState().editorJob).toMatchObject({ stage: 'running', queuePosition: undefined, progress: 0.5 });
+    expect(useEditorJobStore.getState().editorJobs[0]).toMatchObject({ stage: 'running', queuePosition: undefined, progress: 0.5 });
   });
 
-  it('is dropped once cancelled, leaving the slot free', async () => {
+  it('is dropped once cancelled', async () => {
     jobStatus.mockResolvedValueOnce(queued(1)).mockResolvedValueOnce(CANCELLED);
     void useEditorJobStore.getState().startRepaint('l1', 's1', { prompt: 'p', start: 0, end: 4 });
     await tick(0);
     await tick();
     await tick();
-    expect(useEditorJobStore.getState().editorJob).toBeNull();
+    expect(useEditorJobStore.getState().editorJobs).toEqual([]);
   });
 });
 
@@ -116,6 +118,32 @@ describe('TRANSCRIBE and READ LYRICS while queued', () => {
     await tick(1500);
     await run;
     expect(useReadLyricsStore.getState()).toMatchObject({ stage: 'idle', cancelled: true, error: undefined });
+  });
+});
+
+describe("Create's ENGINE and SOURCE locks while a source job waits", () => {
+  it('hold for a queued TRANSCRIBE or READ LYRICS, not only once it runs', async () => {
+    jobStatus.mockResolvedValue(queued(2));
+    void useTranscribeStore.getState().start('yue2', new Blob(['a']), 'x', '');
+    void useReadLyricsStore.getState().start(new Blob(['a']), 'x', '', 'any');
+    await tick(1500);
+    const reading = useReadLyricsStore.getState().stage === 'running';
+    const transcribing = useTranscribeStore.getState().stage === 'running';
+    expect(engineLockedBy({ transcribing, reading, analyzing: false })).toBe('TRANSCRIBE');
+    expect(sourceLockedBy({ transcribing: false, reading, analyzing: false, generating: false })).toBe('READ LYRICS');
+    jobStatus.mockResolvedValue(CANCELLED); // let both loops end
+    await tick(1500);
+  });
+
+  it('hold for a queued ANALYZE AUDIO: its wait is still in flight', async () => {
+    jobStatus.mockResolvedValue(queued(1));
+    let settled = false;
+    void analyzeAndWait({ file: new Blob(['a']) }, 'turbo').finally(() => { settled = true; }).catch(() => {});
+    await tick(ANALYZE_POLL_MS * 2);
+    expect(settled).toBe(false); // useAnalyzeSourceAudio's `analyzing` stays on until this settles
+    expect(aceCoverLocks({ analyzing: !settled, generating: false })).toEqual({ source: 'ANALYZE AUDIO', engine: 'ANALYZE AUDIO' });
+    jobStatus.mockResolvedValue(CANCELLED);
+    await tick(ANALYZE_POLL_MS);
   });
 });
 

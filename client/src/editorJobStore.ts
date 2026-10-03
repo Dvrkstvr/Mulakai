@@ -2,22 +2,28 @@ import { create } from 'zustand';
 import { api, ApiError, type StemResult } from './api';
 import { useRemasterResult } from './remasterResult';
 import type { SingleEditorJob, SplitJobState } from './editorJob';
-import { POLL_MS, errMsg, runSingleJob, slotBusy } from './editorSingleJob';
+import { POLL_MS, errMsg, newJobKey, runSingleJob } from './editorSingleJob';
 
-export { isEditorBusy, myEditorJob } from './editorJob';
+export { isEditorBusy, myEditorJobs, jobView } from './editorJob';
 export { selectSplitRunning } from './editorSingleJob';
 
+/** Each start resolves with the new job's key once its submit has answered. */
+type Start<A extends unknown[]> = (...args: A) => Promise<string>;
+
 interface EditorJobState {
-  editorJob: SingleEditorJob | null;
-  /** The open split session, if any. Its own slot, because it outlives its lock: once the
+  /** Every editor job this tab follows, oldest first: several can wait in the server's queue
+   * at once (PLAN.md "UI Redesign", S4.7). Done ones linger briefly; failed ones stay until
+   * dismissed or retried. */
+  editorJobs: SingleEditorJob[];
+  /** The open split session, if any. Its own slot, because it outlives its job: once the
    * stems settle the server is free, but the stems stay up for REPLACE/ADD LAYER. */
   splitJob: SplitJobState | null;
-  dismiss: () => void;
-  startRepaint: (layerId: string, songId: string, params: { prompt: string; start: number; end: number } & Record<string, unknown>) => Promise<void>;
-  startRegenerate: (layerId: string, songId: string, versionId: string) => Promise<void>;
-  startRetake: (layerId: string, songId: string, versionId: string) => Promise<void>;
-  startAddLayer: (songId: string, mixAudio: Blob, params: { prompt: string; layerName: string } & Record<string, unknown>) => Promise<void>;
-  startRemaster: (songId: string, mixAudio: Blob, model: string, opts: { audioFormat: string; steps: number }) => Promise<void>;
+  dismiss: (key: string) => void;
+  startRepaint: Start<[layerId: string, songId: string, params: { prompt: string; start: number; end: number } & Record<string, unknown>]>;
+  startRegenerate: Start<[layerId: string, songId: string, versionId: string]>;
+  startRetake: Start<[layerId: string, songId: string, versionId: string]>;
+  startAddLayer: Start<[songId: string, mixAudio: Blob, params: { prompt: string; layerName: string } & Record<string, unknown>]>;
+  startRemaster: Start<[songId: string, mixAudio: Blob, model: string, opts: { audioFormat: string; steps: number }]>;
   startSplit: (layerId: string, songId: string, model: 'acestep' | 'demucs') => Promise<void>;
   /** Abandons the current split session (CANCEL SPLIT) — releases the split slot and
    * tells the server to stop tracking it, same semantics as the old component-local flow. */
@@ -28,9 +34,9 @@ interface EditorJobState {
 }
 
 export const useEditorJobStore = create<EditorJobState>((set, get) => ({
-  editorJob: null,
+  editorJobs: [],
   splitJob: null,
-  dismiss: () => set({ editorJob: null }),
+  dismiss: (key) => set((s) => ({ editorJobs: s.editorJobs.filter((j) => j.key !== key) })),
 
   startRepaint: (layerId, songId, params) => runSingleJob(
     set, get, { kind: 'repaint', jobId: '', songId, layerId, startedAt: Date.now(), stage: 'running' },
@@ -59,26 +65,28 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
       () => api.remaster(songId, mixAudio, model, opts),
       (job) => void useRemasterResult.getState()
         .capture(songId, job.jobId, `remaster.${opts.audioFormat}`)
-        .catch((err) => set((s) => (s.editorJob?.jobId === job.jobId
-          ? { editorJob: { ...job, stage: 'failed', error: `remaster finished but couldn't be fetched — ${errMsg(err)}` } }
-          : {}))),
+        .catch((err) => set((s) => ({
+          editorJobs: s.editorJobs.map((j) => (j.key === job.key
+            ? { ...j, stage: 'failed', error: `remaster finished but couldn't be fetched — ${errMsg(err)}` } : j)),
+        }))),
     );
   },
 
   startSplit: async (layerId, songId, model) => {
     const prev = get().splitJob;
-    if (slotBusy(get())) return;
     const stems: StemResult[] = (['vocals', 'drums', 'bass', 'other'] as const).map((kind) => ({ kind, status: 'running' }));
     const provisional: SplitJobState = {
-      kind: 'split', jobId: '', songId, layerId, splitJobId: '', stems, startedAt: Date.now(), stage: 'running',
+      kind: 'split', key: newJobKey('split'), jobId: '', songId, layerId, splitJobId: '', stems, startedAt: Date.now(), stage: 'running',
       retry: () => {
-        if (slotBusy(get())) return false;
+        // Another layer's session would be closed by a new start, so RETRY only replaces its own.
+        const open = get().splitJob;
+        if (open && open.stage !== 'failed' && open.layerId !== layerId) return false;
         void get().startSplit(layerId, songId, model);
         return true;
       },
     };
     set({ splitJob: provisional });
-    // A settled session (DockSplit said so first) is closed on the server; a failed one never started there.
+    // The session it replaces is closed on the server (DockSplit said so first); a failed one never started there.
     if (prev?.splitJobId) void api.cancelSplit(prev.splitJobId).catch(() => {});
     let splitJobId: string;
     try {
