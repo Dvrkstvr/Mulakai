@@ -104,6 +104,16 @@ def wait_terminal(client, job_id, headers=None):
                     ["status"] in {"succeeded", "truncated", "failed", "cancelled"} and j)
 
 
+def pytest_addoption(parser):
+    parser.addoption("--record-contract", action="store_true",
+                     help="rewrite tests/data/contract/*.json from the live score routes (D-039)")
+
+
+@pytest.fixture
+def record_contract(request) -> bool:
+    return request.config.getoption("--record-contract")
+
+
 @pytest.fixture
 def make_client(tmp_path):
     clients = []
