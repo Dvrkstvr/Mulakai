@@ -14,10 +14,11 @@ import type { EngineId } from './engines/types.js';
  * is lyrics-server reading its words (lyricsJobs.ts), and `timings` is lyrics-server reading
  * a version's words for the Editor (timingsJobs.ts). `analyze` is ACE-Step describing a
  * source (analyzeJobs.ts), which loads a DiT and the LM. `lm` is the LM writing for Create:
- * FEELING LUCKY, Quick Start and WRITE FOR ME (lmJobs.ts). */
+ * FEELING LUCKY, Quick Start and WRITE FOR ME (lmJobs.ts). `plan` is the score planner, held
+ * through every attempt and the confirmed unload (score/planJob.ts). */
 export type GenKind =
   | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster'
-  | 'transcribe' | 'lyrics' | 'timings' | 'analyze' | 'lm';
+  | 'transcribe' | 'lyrics' | 'timings' | 'analyze' | 'lm' | 'plan';
 
 /** The three ACE-Step tasks that create a whole new song — all held under the single
  * `generate` kind, so this is what tells them apart. Mirrors `songs.gen_task`. */

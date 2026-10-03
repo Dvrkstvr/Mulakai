@@ -9,8 +9,8 @@
 - clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-031) · decisions to D-046
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · owed: user listens (SP-3 A/B, SP-2 phrases)
 - milestone: M0 (F-016..F-025) · features passing 6/39 · owed: user listens (SP-3, SP-2); R-012 red golden path
-- autopilot: M0 · round 8/12 · progress 7·W0 PR·6·0 · stall 0 · remote control on
-- next: W1 builder (test-first vs SP-2 golden cases) while #124 CI runs; ask user before merging #124
+- autopilot: stopped — round budget (11/12 used) after CP1 passed; next W3 dock verb
+- next: settle Q-034; open W2 PR (stacked on #125); W3 (F-021, F-022, F-024 dock verb) → W4 → W5; `/pipeline:auto M0` resumes
 
 ## Stages
 | # | Stage | State | Gate | Date |

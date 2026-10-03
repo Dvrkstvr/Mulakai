@@ -1,0 +1,52 @@
+/**
+ * One planner call (F-019 #1, D-002, D-012): `POST {LLM_API_URL}/v1/chat/completions` with a
+ * strict JSON-schema `response_format` built per song and `reasoning_effort: "none"` (a thinking
+ * model otherwise spends the whole budget reasoning and returns empty content, SP-1). Returns the
+ * content and `usage.prompt_tokens`, the only sign of a silently cut prompt (contextGuard.ts).
+ */
+import type { PlannerTarget } from './ollamaControl.js';
+import type { ChatMessage, PlannerReply } from './planTypes.js';
+
+export interface ChatOptions {
+  timeoutMs: number;
+  /** Aborts the call (CANCEL on a running plan, D-041). */
+  signal?: AbortSignal;
+}
+
+/** SP-2's settings: low temperature, room for 6 ops of chords. */
+const TEMPERATURE = 0.3;
+const MAX_TOKENS = 2000;
+
+export function chatBody(model: string, messages: ChatMessage[], schema: Record<string, unknown>) {
+  return {
+    model, messages, stream: false, temperature: TEMPERATURE, max_tokens: MAX_TOKENS,
+    reasoning_effort: 'none',
+    response_format: { type: 'json_schema', json_schema: { name: 'ops', strict: true, schema } },
+  };
+}
+
+export async function askPlanner(
+  t: PlannerTarget, messages: ChatMessage[], schema: Record<string, unknown>, o: ChatOptions,
+): Promise<PlannerReply> {
+  const signals = [AbortSignal.timeout(o.timeoutMs), ...(o.signal ? [o.signal] : [])];
+  let res: Response;
+  try {
+    res = await fetch(`${t.url}/v1/chat/completions`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(chatBody(t.model, messages, schema)), signal: AbortSignal.any(signals),
+    });
+  } catch (err) {
+    if (o.signal?.aborted) throw new Error('planner call cancelled');
+    if (err instanceof Error && err.name === 'TimeoutError') throw new Error(`planner -> no answer within ${Math.round(o.timeoutMs / 1000)}s`);
+    throw new Error(`planner offline: no answer from ${t.url} (${err instanceof Error ? err.message : String(err)})`);
+  }
+  if (res.status === 404) throw new Error(`planner model ${t.model} not found: run 'ollama pull ${t.model}'`);
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`planner -> HTTP ${res.status}${text ? `: ${text.slice(0, 200)}` : ''}`);
+  }
+  const body = (await res.json()) as { choices?: Array<{ message?: { content?: unknown } }>; usage?: { prompt_tokens?: unknown } };
+  const content = body.choices?.[0]?.message?.content;
+  const promptTokens = body.usage?.prompt_tokens;
+  return { content: typeof content === 'string' ? content : '', promptTokens: typeof promptTokens === 'number' ? promptTokens : null };
+}
