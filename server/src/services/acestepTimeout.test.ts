@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest';
 
 process.env.ACESTEP_API_URL = 'http://acestep.test';
 process.env.ACESTEP_TIMEOUT_MS = '100';
+process.env.ACESTEP_LM_TIMEOUT_MS = '1000';
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -51,6 +52,24 @@ describe('ACE-Step request timeouts', () => {
 
     await expect(listModels()).rejects.toThrow(/no response within/);
     await expect(listModels(1000)).resolves.toMatchObject({ models: [{ name: 'xl-base' }] });
+  });
+
+  it('waits past the control deadline for an LM draft (create_sample)', async () => {
+    const data = { caption: 'a slow ballad', lyrics: '[Verse]', keyscale: 'C major', timesignature: '4' };
+    vi.stubGlobal('fetch', vi.fn((_url: string, init?: RequestInit) => new Promise((resolve, reject) => {
+      setTimeout(() => resolve(Response.json({ data, code: 200, error: null })), 300);
+      init?.signal?.addEventListener('abort', () => reject(init.signal!.reason));
+    })));
+    const { createSampleFromQuery } = await import('./acestep.js');
+
+    await expect(createSampleFromQuery({ query: 'slow ballad' })).resolves.toMatchObject({ caption: 'a slow ballad' });
+  });
+
+  it('still fails a hung LM draft, at its own deadline', async () => {
+    stubHungFetch();
+    const { createSampleFromQuery } = await import('./acestep.js');
+
+    await expect(createSampleFromQuery({ query: 'x' })).rejects.toThrow('ACE-Step /v1/create_sample -> no response within 1s');
   });
 
   it('health() reports down rather than hanging on a dead socket', async () => {
