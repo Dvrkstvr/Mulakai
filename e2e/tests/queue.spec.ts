@@ -62,6 +62,22 @@ test('FEELING LUCKY waits its turn behind a running job, then fills the create b
   await expect(page.getByRole('button', { name: 'FEELING LUCKY' })).toBeEnabled();
 });
 
+test('Quick Start waits its turn behind a running job, then fills the draft', async ({ page, request }) => {
+  await holdFake(request, true);
+  try {
+    const res = await request.post('/api/generate', { data: { title: `E2E Quick ${Date.now().toString(36)}`, prompt: 'lofi piano' } });
+    expect(res.status()).toBe(202);
+    await page.goto('/');
+    await page.getByPlaceholder('What do you want to make?').fill('rainy synthwave');
+    await page.getByRole('button', { name: 'CREATE', exact: true }).click();
+    await expect(page.getByText('QUICK START waits its turn · starts after 1 job')).toBeVisible();
+  } finally {
+    await holdFake(request, false);
+  }
+  // The fake writes the query back as the caption.
+  await expect(page.getByPlaceholder('Describe it — style, mood, instruments')).toHaveValue('rainy synthwave', { timeout: 30_000 });
+});
+
 test("Create's GENERATE stays live while a song generates, says when it starts, and queues", async ({ page, request }) => {
   const run = Date.now().toString(36);
   const [FIRST, SECOND] = ['Running', 'Queued'].map((n) => `E2E Create ${n} ${run}`);
