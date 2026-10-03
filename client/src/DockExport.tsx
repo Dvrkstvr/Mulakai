@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { SongDetail } from './api';
 import { AudioPreview } from './AudioPreview';
 import { RemasterAction } from './RemasterAction';
@@ -7,9 +7,9 @@ import { useEditorJobStore, myEditorJob } from './editorJobStore';
 import { useRemasterResult } from './remasterResult';
 import { audibleTakes } from './mix/activeLayers';
 import { bounceAudible, mixFilename, saveBlob } from './mixExport';
+import { useDockRequest, type ExportWhat } from './dockRequest';
 
-type What = 'mix' | 'stems' | 'remaster';
-const WHATS: { id: What; label: string }[] = [
+const WHATS: { id: ExportWhat; label: string }[] = [
   { id: 'mix', label: 'MIX' }, { id: 'stems', label: 'STEMS' }, { id: 'remaster', label: 'REMASTERED MIX' },
 ];
 
@@ -19,10 +19,17 @@ const WHATS: { id: What; label: string }[] = [
  * REMASTERED MIX while this song has a remaster running or held, so it isn't hidden behind MIX.
  */
 export function DockExport({ song }: { song: SongDetail }) {
-  const [what, setWhat] = useState<What>(() => {
+  const [what, setWhat] = useState<ExportWhat>(() => {
     const remastering = !!myEditorJob(useEditorJobStore.getState().editorJob, 'remaster', { songId: song.id });
     return remastering || useRemasterResult.getState().result?.songId === song.id ? 'remaster' : 'mix';
   });
+  // A WHAT picked from outside the dock (the palette's "Export stems").
+  const whatPick = useDockRequest((s) => s.exportWhat);
+  useEffect(() => {
+    if (whatPick === null) return;
+    setWhat(whatPick);
+    useDockRequest.setState({ exportWhat: null });
+  }, [whatPick]);
   const [mixing, setMixing] = useState(false);
   const [mixError, setMixError] = useState('');
   const audible = audibleTakes(song.layers).length;

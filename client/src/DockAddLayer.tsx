@@ -15,6 +15,7 @@ import { AddLayerTune } from './AddLayerTune';
 import { DockCommit } from './DockCommit';
 import { DockAddLayerFields } from './DockAddLayerFields';
 import { addLayerName, addLayerCommitLabel, addLayerConsequence, sungTrack } from './addLayerCopy';
+import { useDockRequest } from './dockRequest';
 
 interface Props {
   songId: string;
@@ -54,6 +55,14 @@ export function DockAddLayer({ songId, layers, songLyrics, onDone }: Props) {
     if (names.length > 0 && !addLayer.model) setAddLayer({ model: names[0] });
     return names;
   }));
+
+  // A track picked from outside the dock (the palette's "Add layer · strings").
+  const trackPick = useDockRequest((s) => s.track);
+  useEffect(() => {
+    if (trackPick === null) return;
+    setTrackName(trackPick);
+    useDockRequest.setState({ track: null });
+  }, [trackPick]);
 
   // Runs once when *our* add-layer finishes, even if it settled while the Editor wasn't mounted.
   useEffect(() => {
