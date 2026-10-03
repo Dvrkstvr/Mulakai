@@ -12,3 +12,5 @@ R6 stage 6 · architect → architecture.md, playbook complete, checks green (cl
 ## Run 2026-10-03 (resumed, same session, remote control on) → M0
 R7 stage 7 M0/W0 · builder → 5 docs/ci commits + pipeline commit on docs/score-agent-w0; checks green (client 624, server 520, pytest 65), context-budget exit 0 · progress 7·W0 local·6·0 · waiting: user OK to push + PR
 R8 stage 7 M0/W1 · builder → yue-server score read/apply routes (F-017), pytest 163 pass (98 new), 37/37 golden match; #5 live VRAM check owed at CP1 · progress 7·W1 local·6·0
+R9 stage 7 M0 · #124 (W0) merged c8bb066 (user OK); W1 pushed as PR #125 (auto-fix on); W2a F-018 committed f7955e2; W2b running · progress 7·W0 merged·6·0
+R10 stage 7 M0/W2b · builder → planner client, plan job (kind 'plan'), unload hand-off, context guard (F-019, F-020); server 620 tests, client 627; live items owed to CP1 · progress 7·W2 local·6·0

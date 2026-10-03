@@ -141,3 +141,6 @@ Which Ollama does the score agent use on this machine? The user's server on :114
 ## Q-032 · assumable · stage 7 · assumed → D-048
 F-017 #1 says "the 39 golden cases ... (10 library sidecars, 29 mutations)", but `pipeline/spikes/SP-2-planner-quality/golden.json` holds 37 (10 + 27; golden.py has 27 `mutate` calls, golden.out.txt lists 37). Default: the bar is all 37, all matching upstream; fix the criterion text to 37. Alternative: add two mutations to reach 39 (no source says which). Reversal cost: two test cases.
 
+
+## Q-033 · assumable · stage 7 · assumed → D-050
+F-019 #3 says "an op naming bar 999 or a section that does not exist is rejected with a per-op reason". No M0 op (SET_TEMPO, REHARMONIZE, EDIT_STYLE; yue-server's strict apply route) has a section field, so only the bar case is testable; sections bound REHARMONIZE's bars. Default: the bar case (schema bound + per-op reason + yue-server verdict) meets the criterion; the section case lands with the first section op (M2 REPEAT/CUT). Alternative: add an optional `section` to REHARMONIZE in both yue-server and the schema. Reversal cost: one field on each side.
