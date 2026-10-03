@@ -19,3 +19,5 @@ R11 stage 7 M0/CP1 · live checkpoint PASS 7/7: plans 6/6 first try (p50 6.5 s),
 ## Run 2026-10-03 → M0 (new run, fresh 12-round budget; previous run stopped on budget after CP1)
 R1 stage 7 M0 · #125 (W1) merged (user OK); W2 pushed as PR #126 (auto-fix on); W3 builder dispatched on feat/score-w3-dock · progress 7·W1 merged·6·0
 R2 stage 7 M0/W3 · builder → SCORE dock verb (F-021, F-022, F-024): reducer 52-row table, status route, cancel, limits; client 705, server 640; browser-checked on fakes, dock 356 px at 1366×768 and 1080p · progress 7·W3 local·6·0
+R3 stage 7 M0/W3 committed (5 commits on feat/score-w3-dock); W4 builder dispatched on feat/score-w4-render · progress 7·W3 local·6·0
+R4 stage 7 M0/W4 · builder → APPLY & RENDER (F-023) 6/6 in tests + browser on fakes; server 677, client 717 · progress 7·W4 local·6·0

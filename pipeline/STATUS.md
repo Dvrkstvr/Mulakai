@@ -9,7 +9,7 @@
 - clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-031) · decisions to D-046
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · owed: user listens (SP-3 A/B, SP-2 phrases)
 - milestone: M0 (F-016..F-025) · features passing 6/39 · owed: user listens (SP-3, SP-2); R-012 red golden path
-- autopilot: M0 · round 1/12 · W3 dock verb · auto-fix on · remote on
+- autopilot: M0 · round 3/12 · W3 committed locally, W4 building · auto-fix on · remote on
 - next: settle Q-034; open W2 PR (stacked on #125); W3 (F-021, F-022, F-024 dock verb) → W4 → W5; `/pipeline:auto M0` resumes
 
 ## Stages
