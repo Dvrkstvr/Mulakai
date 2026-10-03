@@ -75,6 +75,12 @@ describe('runningRows', () => {
     expect(new Set(rows.map((r) => r.key)).size).toBe(4);
   });
 
+  it("drops a stale /active snapshot of a job Activity already lists as settled", () => {
+    const snapshot = active({ kind: 'generate', jobId: 'g1', title: 'Neon Harbor', status: 'loading' });
+    expect(runningRows(idle({ active: snapshot }))).toHaveLength(1);
+    expect(runningRows(idle({ active: snapshot, settledIds: new Set(['g1']) }))).toEqual([]);
+  });
+
   it('leaves a job still waiting in the queue to UP NEXT, by its id or its queue position', () => {
     const repaint = { kind: 'repaint', jobId: 'e1', songId: 's1', layerId: 'l1', startedAt: 2, stage: 'running' } as SingleEditorJob;
     const rows = runningRows(idle({

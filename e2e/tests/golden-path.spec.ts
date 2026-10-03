@@ -28,16 +28,21 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
     await page.getByPlaceholder('Describe it — style, mood, instruments').fill('lofi piano with soft drums');
     await page.getByRole('button', { name: 'GENERATE', exact: true }).click();
 
-    const row = page.locator('.library .row', { hasText: TITLE });
+    // The pinned GeneratingCard is a `.row` with the title too: wait for the saved song's row.
+    const row = page.locator('.library .row:not(.generating)', { hasText: TITLE });
     await expect(row).toBeVisible({ timeout: 30_000 });
+    await expect(page.locator('.library .row.generating')).toHaveCount(0, { timeout: 30_000 });
     expect((await lastTaskOfType(request, 'text2music')).params.prompt).toBe('lofi piano with soft drums');
   });
 
   await test.step('Activity lists it as DONE; the Ctrl K palette opens it by title', async () => {
     await page.getByRole('button', { name: /^ACTIVITY/ }).click();
     const drawer = page.getByRole('complementary', { name: 'Activity' });
-    const done = drawer.locator('.activity-job', { hasText: TITLE });
-    await expect(done).toContainText('GENERATED');
+    // One row for the song: DONE, with nothing for it left under RUNNING.
+    const rows = drawer.locator('.activity-job', { hasText: TITLE });
+    await expect(rows).toHaveCount(1);
+    const done = rows.filter({ hasText: 'GENERATED' });
+    await expect(done).toBeVisible();
     await expect(done.getByRole('button', { name: 'OPEN' })).toBeVisible();
     await page.keyboard.press('Escape');
     await expect(drawer).toBeHidden();

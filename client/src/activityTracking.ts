@@ -2,6 +2,8 @@
  * Started once by App; returns the unsubscribe. */
 import { api } from './api';
 import { useActivityStore, type ActivityEntry } from './activityStore';
+import { useApiStatusStore } from './apiStatusStore';
+import { useQueueStore } from './queueStore';
 import { editorSettled, genSettled, localSettled, settledEach, splitSettled, timingsFailed } from './activitySettle';
 import { useEditorJobStore } from './editorJobStore';
 import { useGenerationStore } from './generationStore';
@@ -14,6 +16,9 @@ function record(entry: ActivityEntry | null): void {
   if (!entry) return;
   const activity = useActivityStore.getState();
   activity.record(entry);
+  // The slot just changed hands: re-read RUNNING and UP NEXT now rather than at the next 2 s poll.
+  void useApiStatusStore.getState().poll();
+  void useQueueStore.getState().poll();
   if (entry.status !== 'done') return;
   void useSongIndexStore.getState().load(); // a new song, or a title the Activity row needs
   if (entry.layerId && entry.songId) {
