@@ -1,0 +1,1730 @@
+{
+ "run": {
+  "started": "2026-10-03T20:34:45.892Z",
+  "finished": "2026-10-03T20:43:15.655Z"
+ },
+ "plans": [
+  {
+   "index": 0,
+   "song": "29f8457d",
+   "request": "set it to 88 BPM",
+   "baseVersion": "2c944049",
+   "status": "done",
+   "latencyS": 6.09,
+   "attempts": 1,
+   "chatCalls": [
+    {
+     "ms": 5774,
+     "usage": {
+      "prompt_tokens": 2047,
+      "completion_tokens": 17,
+      "total_tokens": 2064
+     }
+    }
+   ],
+   "ops": [
+    {
+     "op": "SET_TEMPO",
+     "bpm": 88
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "checks": {
+    "bars": 65,
+    "seconds": 177.3,
+    "tokens": 1472,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true
+    }
+   },
+   "unload": {
+    "ackAt": 1791059693289,
+    "ackMs": 2,
+    "serverPsEmptyAfterAckMs": 109,
+    "directPsEmptyAfterAckMs": 110
+   },
+   "psWhileLoaded": [
+    [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   ],
+   "vramMiB": {
+    "beforeMiB": 1714,
+    "peakMiB": 13114,
+    "atEmptyMiB": 1710,
+    "plus1sMiB": 1710
+   }
+  },
+  {
+   "index": 1,
+   "song": "29f8457d",
+   "request": "jazz chords in the chorus",
+   "baseVersion": "29ffdc2f",
+   "status": "done",
+   "latencyS": 9.75,
+   "attempts": 1,
+   "chatCalls": [
+    {
+     "ms": 9346,
+     "usage": {
+      "prompt_tokens": 2045,
+      "completion_tokens": 405,
+      "total_tokens": 2450
+     }
+    }
+   ],
+   "ops": [
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 47,
+     "to_bar": 62,
+     "chords": [
+      {
+       "bar": 47,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 48,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 49,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 50,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 51,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 52,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 53,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 54,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 55,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 56,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 57,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 58,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 59,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 60,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 61,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 62,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      }
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "checks": {
+    "bars": 65,
+    "seconds": 177.3,
+    "tokens": 1496,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false
+    }
+   },
+   "unload": {
+    "ackAt": 1791059780827,
+    "ackMs": 1,
+    "serverPsEmptyAfterAckMs": 107,
+    "directPsEmptyAfterAckMs": 107
+   },
+   "psWhileLoaded": [
+    [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   ],
+   "vramMiB": {
+    "beforeMiB": 2373,
+    "peakMiB": 13785,
+    "atEmptyMiB": 2373,
+    "plus1sMiB": 2373
+   }
+  },
+  {
+   "index": 2,
+   "song": "a69541f2",
+   "request": "set it to 88 BPM",
+   "baseVersion": "c8144c53",
+   "status": "done",
+   "latencyS": 3.71,
+   "attempts": 1,
+   "chatCalls": [
+    {
+     "ms": 3508,
+     "usage": {
+      "prompt_tokens": 2327,
+      "completion_tokens": 17,
+      "total_tokens": 2344
+     }
+    }
+   ],
+   "ops": [
+    {
+     "op": "SET_TEMPO",
+     "bpm": 88
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "checks": {
+    "bars": 77,
+    "seconds": 210,
+    "tokens": 1780,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true
+    }
+   },
+   "unload": {
+    "ackAt": 1791059858641,
+    "ackMs": 2,
+    "serverPsEmptyAfterAckMs": 122,
+    "directPsEmptyAfterAckMs": 122
+   },
+   "psWhileLoaded": [
+    [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   ],
+   "vramMiB": {
+    "beforeMiB": 2477,
+    "peakMiB": 13880,
+    "atEmptyMiB": 2477,
+    "plus1sMiB": 2477
+   }
+  },
+  {
+   "index": 3,
+   "song": "a69541f2",
+   "request": "jazz chords in the chorus",
+   "baseVersion": "b9fc9d21",
+   "status": "done",
+   "latencyS": 13.72,
+   "attempts": 1,
+   "chatCalls": [
+    {
+     "ms": 13461,
+     "usage": {
+      "prompt_tokens": 2324,
+      "completion_tokens": 631,
+      "total_tokens": 2955
+     }
+    }
+   ],
+   "ops": [
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 15,
+     "to_bar": 22,
+     "chords": [
+      {
+       "bar": 15,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 16,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 17,
+       "beat": 1,
+       "root": "F",
+       "quality": "maj7",
+       "bass": "A"
+      },
+      {
+       "bar": 18,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "E"
+      },
+      {
+       "bar": 19,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 20,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 21,
+       "beat": 1,
+       "root": "F",
+       "quality": "maj7",
+       "bass": "A"
+      },
+      {
+       "bar": 22,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "E"
+      }
+     ]
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 36,
+     "to_bar": 43,
+     "chords": [
+      {
+       "bar": 36,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 37,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 38,
+       "beat": 1,
+       "root": "F",
+       "quality": "maj7",
+       "bass": "A"
+      },
+      {
+       "bar": 39,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "E"
+      },
+      {
+       "bar": 40,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 41,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 42,
+       "beat": 1,
+       "root": "F",
+       "quality": "maj7",
+       "bass": "A"
+      },
+      {
+       "bar": 43,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "E"
+      }
+     ]
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 53,
+     "to_bar": 60,
+     "chords": [
+      {
+       "bar": 53,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 54,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 55,
+       "beat": 1,
+       "root": "F",
+       "quality": "maj7",
+       "bass": "A"
+      },
+      {
+       "bar": 56,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "E"
+      },
+      {
+       "bar": 57,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 58,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 59,
+       "beat": 1,
+       "root": "F",
+       "quality": "maj7",
+       "bass": "A"
+      },
+      {
+       "bar": 60,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "E"
+      }
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 2,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 3,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "checks": {
+    "bars": 77,
+    "seconds": 210,
+    "tokens": 1840,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false
+    }
+   },
+   "unload": {
+    "ackAt": 1791059959360,
+    "ackMs": 1,
+    "serverPsEmptyAfterAckMs": 140,
+    "directPsEmptyAfterAckMs": 141
+   },
+   "psWhileLoaded": [
+    [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   ],
+   "vramMiB": {
+    "beforeMiB": 2479,
+    "peakMiB": 13882,
+    "atEmptyMiB": 2479,
+    "plus1sMiB": 2479
+   }
+  },
+  {
+   "index": 4,
+   "song": "ecf8eb5a",
+   "request": "set it to 88 BPM",
+   "baseVersion": "3c9e79de",
+   "status": "done",
+   "latencyS": 3.42,
+   "attempts": 1,
+   "chatCalls": [
+    {
+     "ms": 3137,
+     "usage": {
+      "prompt_tokens": 2005,
+      "completion_tokens": 17,
+      "total_tokens": 2022
+     }
+    }
+   ],
+   "ops": [
+    {
+     "op": "SET_TEMPO",
+     "bpm": 88
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "checks": {
+    "bars": 64,
+    "seconds": 174.5,
+    "tokens": 1163,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true
+    }
+   },
+   "unload": {
+    "ackAt": 1791060048879,
+    "ackMs": 2,
+    "serverPsEmptyAfterAckMs": 124,
+    "directPsEmptyAfterAckMs": 125
+   },
+   "psWhileLoaded": [
+    [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   ],
+   "vramMiB": {
+    "beforeMiB": 2545,
+    "peakMiB": 13948,
+    "atEmptyMiB": 2545,
+    "plus1sMiB": 2545
+   }
+  },
+  {
+   "index": 5,
+   "song": "ecf8eb5a",
+   "request": "jazz chords in the chorus",
+   "baseVersion": "97460aba",
+   "status": "done",
+   "latencyS": 6.86,
+   "attempts": 1,
+   "chatCalls": [
+    {
+     "ms": 6619,
+     "usage": {
+      "prompt_tokens": 2003,
+      "completion_tokens": 214,
+      "total_tokens": 2217
+     }
+    }
+   ],
+   "ops": [
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 23,
+     "to_bar": 30,
+     "chords": [
+      {
+       "bar": 23,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 24,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 25,
+       "beat": 1,
+       "root": "F",
+       "quality": "maj7",
+       "bass": "A"
+      },
+      {
+       "bar": 26,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "Eb"
+      },
+      {
+       "bar": 27,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 28,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 29,
+       "beat": 1,
+       "root": "F",
+       "quality": "maj7",
+       "bass": "A"
+      },
+      {
+       "bar": 30,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "Eb"
+      }
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "checks": {
+    "bars": 64,
+    "seconds": 174.5,
+    "tokens": 1185,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false
+    }
+   },
+   "unload": {
+    "ackAt": 1791060125651,
+    "ackMs": 1,
+    "serverPsEmptyAfterAckMs": 123,
+    "directPsEmptyAfterAckMs": 124
+   },
+   "psWhileLoaded": [
+    [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   ],
+   "vramMiB": {
+    "beforeMiB": 2539,
+    "peakMiB": 13942,
+    "atEmptyMiB": 2539,
+    "plus1sMiB": 2539
+   }
+  }
+ ],
+ "renders": [
+  {
+   "key": "tempo",
+   "planIndex": 0,
+   "jobId": "0bb797a751f14f2aa98524a625d4415f",
+   "status": "succeeded",
+   "wallS": 76.36,
+   "tokPerS": 90.37328094302555,
+   "yueTokens": {
+    "abc": 0,
+    "semantic": 4370
+   },
+   "timing": {
+    "planning_seconds": 0.001,
+    "semantic_seconds": 48.355,
+    "synthesis_seconds": 19.706,
+    "decode_seconds": 7.355,
+    "total_seconds": 75.417
+   },
+   "estSeconds": 177.3,
+   "audioSeconds": 174.759,
+   "truncated": {
+    "abc": false,
+    "semantic": false
+   },
+   "tokens": 1472,
+   "newQ": 88,
+   "reapplyMatchesPlan": {
+    "style": true,
+    "seconds": true,
+    "tokens": true
+   },
+   "scoreReturnedEqualsSent": true,
+   "vramBeforeMiB": 1710,
+   "peakMiB": 10713,
+   "probes": [
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 12,
+     "mibBefore": 10265,
+     "mibAfter": 10265,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 16,
+     "mibBefore": 10265,
+     "mibAfter": 10265,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 10,
+     "mibBefore": 10265,
+     "mibAfter": 10265,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 16,
+     "mibBefore": 10265,
+     "mibAfter": 10265,
+     "stage": "semantic"
+    }
+   ],
+   "versionId": "29ffdc2f-5003-4ca1-a3bc-e7d683c3a866",
+   "song": "29f8457d"
+  },
+  {
+   "key": "jazz",
+   "planIndex": 1,
+   "jobId": "a776300bad19461c96aacf071dd66b44",
+   "status": "succeeded",
+   "wallS": 72.365,
+   "tokPerS": 96.95553448998038,
+   "yueTokens": {
+    "abc": 0,
+    "semantic": 4398
+   },
+   "timing": {
+    "planning_seconds": 0.001,
+    "semantic_seconds": 45.361,
+    "synthesis_seconds": 19.803,
+    "decode_seconds": 6.077,
+    "total_seconds": 71.243
+   },
+   "estSeconds": 177.3,
+   "audioSeconds": 175.879,
+   "truncated": {
+    "abc": false,
+    "semantic": false
+   },
+   "tokens": 1496,
+   "newQ": 88,
+   "reapplyMatchesPlan": {
+    "style": true,
+    "seconds": true,
+    "tokens": true
+   },
+   "scoreReturnedEqualsSent": true,
+   "vramBeforeMiB": 2373,
+   "peakMiB": 10996,
+   "probes": [
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 13,
+     "mibBefore": 10552,
+     "mibAfter": 10552,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 17,
+     "mibBefore": 10552,
+     "mibAfter": 10552,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 12,
+     "mibBefore": 10547,
+     "mibAfter": 10547,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 17,
+     "mibBefore": 10547,
+     "mibAfter": 10547,
+     "stage": "semantic"
+    }
+   ],
+   "versionId": "b718d942-e0d8-402e-8bb2-99f5c6c8d5b5",
+   "song": "29f8457d"
+  },
+  {
+   "key": "tempo",
+   "planIndex": 2,
+   "jobId": "923b5d769b9f43428c1a46655faa2a9d",
+   "status": "succeeded",
+   "wallS": 85.503,
+   "tokPerS": 94.25446339199591,
+   "yueTokens": {
+    "abc": 0,
+    "semantic": 5179
+   },
+   "timing": {
+    "planning_seconds": 0.002,
+    "semantic_seconds": 54.947,
+    "synthesis_seconds": 24.416,
+    "decode_seconds": 5.43,
+    "total_seconds": 84.794
+   },
+   "estSeconds": 210,
+   "audioSeconds": 207.119,
+   "truncated": {
+    "abc": false,
+    "semantic": false
+   },
+   "tokens": 1780,
+   "newQ": 88,
+   "reapplyMatchesPlan": {
+    "style": true,
+    "seconds": true,
+    "tokens": true
+   },
+   "scoreReturnedEqualsSent": true,
+   "vramBeforeMiB": 2477,
+   "peakMiB": 11219,
+   "probes": [
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 14,
+     "mibBefore": 10679,
+     "mibAfter": 10679,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 21,
+     "mibBefore": 10679,
+     "mibAfter": 10679,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 14,
+     "mibBefore": 10679,
+     "mibAfter": 10679,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 22,
+     "mibBefore": 10679,
+     "mibAfter": 10679,
+     "stage": "semantic"
+    }
+   ],
+   "versionId": "b9fc9d21-4c4a-4cd0-a37c-a9c4c3a3a2ee",
+   "song": "a69541f2"
+  },
+  {
+   "key": "jazz",
+   "planIndex": 3,
+   "jobId": "63f952f22b244dd9884e7498080a7387",
+   "status": "succeeded",
+   "wallS": 84.483,
+   "tokPerS": 94.44333218062356,
+   "yueTokens": {
+    "abc": 0,
+    "semantic": 5189
+   },
+   "timing": {
+    "planning_seconds": 0.002,
+    "semantic_seconds": 54.943,
+    "synthesis_seconds": 24.517,
+    "decode_seconds": 4.25,
+    "total_seconds": 83.711
+   },
+   "estSeconds": 210,
+   "audioSeconds": 207.519,
+   "truncated": {
+    "abc": false,
+    "semantic": false
+   },
+   "tokens": 1840,
+   "newQ": 88,
+   "reapplyMatchesPlan": {
+    "style": true,
+    "seconds": true,
+    "tokens": true
+   },
+   "scoreReturnedEqualsSent": true,
+   "vramBeforeMiB": 2479,
+   "peakMiB": 11241,
+   "probes": [
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 13,
+     "mibBefore": 10701,
+     "mibAfter": 10701,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 19,
+     "mibBefore": 10701,
+     "mibAfter": 10701,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 14,
+     "mibBefore": 10701,
+     "mibAfter": 10701,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 20,
+     "mibBefore": 10701,
+     "mibAfter": 10701,
+     "stage": "semantic"
+    }
+   ],
+   "versionId": "1536cde2-58f1-46b0-bb4a-d67020f0d223",
+   "song": "a69541f2"
+  },
+  {
+   "key": "tempo",
+   "planIndex": 4,
+   "jobId": "52b56c16cdae48bf9330fbf0fd75699d",
+   "status": "succeeded",
+   "wallS": 68.327,
+   "tokPerS": 96.74640063484867,
+   "yueTokens": {
+    "abc": 0,
+    "semantic": 4267
+   },
+   "timing": {
+    "planning_seconds": 0.001,
+    "semantic_seconds": 44.105,
+    "synthesis_seconds": 19.029,
+    "decode_seconds": 3.793,
+    "total_seconds": 66.928
+   },
+   "estSeconds": 174.5,
+   "audioSeconds": 170.639,
+   "truncated": {
+    "abc": false,
+    "semantic": false
+   },
+   "tokens": 1163,
+   "newQ": 88,
+   "reapplyMatchesPlan": {
+    "style": true,
+    "seconds": true,
+    "tokens": true
+   },
+   "scoreReturnedEqualsSent": true,
+   "vramBeforeMiB": 2545,
+   "peakMiB": 11045,
+   "probes": [
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 12,
+     "mibBefore": 10613,
+     "mibAfter": 10613,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 19,
+     "mibBefore": 10613,
+     "mibAfter": 10613,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 12,
+     "mibBefore": 10613,
+     "mibAfter": 10613,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 19,
+     "mibBefore": 10613,
+     "mibAfter": 10613,
+     "stage": "semantic"
+    }
+   ],
+   "versionId": "97460aba-df13-4162-a86e-909a6f49911a",
+   "song": "ecf8eb5a"
+  },
+  {
+   "key": "jazz",
+   "planIndex": 5,
+   "jobId": "a9977ad905034c8cb0afb14081660363",
+   "status": "succeeded",
+   "wallS": 68.278,
+   "tokPerS": 96.18981095513846,
+   "yueTokens": {
+    "abc": 0,
+    "semantic": 4269
+   },
+   "timing": {
+    "planning_seconds": 0.001,
+    "semantic_seconds": 44.381,
+    "synthesis_seconds": 19.03,
+    "decode_seconds": 4.013,
+    "total_seconds": 67.426
+   },
+   "estSeconds": 174.5,
+   "audioSeconds": 170.719,
+   "truncated": {
+    "abc": false,
+    "semantic": false
+   },
+   "tokens": 1185,
+   "newQ": 88,
+   "reapplyMatchesPlan": {
+    "style": true,
+    "seconds": true,
+    "tokens": true
+   },
+   "scoreReturnedEqualsSent": true,
+   "vramBeforeMiB": 2539,
+   "peakMiB": 11064,
+   "probes": [
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 11,
+     "mibBefore": 10625,
+     "mibAfter": 10625,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 19,
+     "mibBefore": 10625,
+     "mibAfter": 10625,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/read",
+     "status": 200,
+     "ms": 12,
+     "mibBefore": 10625,
+     "mibAfter": 10625,
+     "stage": "semantic"
+    },
+    {
+     "route": "/v1/scores/apply",
+     "status": 200,
+     "ms": 18,
+     "mibBefore": 10625,
+     "mibAfter": 10625,
+     "stage": "semantic"
+    }
+   ],
+   "versionId": "650c45f1-a027-479e-b910-93ba6ff86b99",
+   "song": "ecf8eb5a"
+  }
+ ],
+ "analysis": [
+  {
+   "name": "29f8457d_tempo",
+   "Q": 88,
+   "bpm_from_bars": 87.91208791208824,
+   "tempo_err_pct": -0.09990009989972813,
+   "Q_transcribed": 88,
+   "audio_s": 174.75866666666667,
+   "score_bars": 65,
+   "audio_bars": 66,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_n": 65
+  },
+  {
+   "name": "29f8457d_jazz",
+   "Q": 88,
+   "bpm_from_bars": 87.59124087591212,
+   "tempo_err_pct": -0.4644990046453175,
+   "Q_transcribed": 88,
+   "audio_s": 175.87866666666667,
+   "score_bars": 65,
+   "audio_bars": 65,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_n": 49,
+   "E_bars": [
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62
+   ],
+   "E_root": 0.0,
+   "E_rq": 0.0,
+   "E_n": 16,
+   "E_vs_old_root": 0.0,
+   "E_root_changed_bars_only": null,
+   "E_changed_n": 0,
+   "chance_root_mean": 0.40525888894532963,
+   "chance_root_p95": 0.8057142857142854,
+   "chance_n": 59,
+   "E_tones_new": 0.7125,
+   "E_tones_old": 0.6,
+   "chance_tones_mean": 0.6223252391049001,
+   "chance_tones_p95": 0.7202727272727273,
+   "base_render_tones_old": 0.875,
+   "base_render_tones_new": 0.75,
+   "audio_label_changed_vs_base_render": 1.0,
+   "audio_label_changed_unedited": 0.02040816326530612,
+   "per_bar": [
+    {
+     "bar": 47,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 48,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj7"
+    },
+    {
+     "bar": 49,
+     "old": "Bbmaj7",
+     "new": "Bbmaj7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 50,
+     "old": "Bbmaj7",
+     "new": "Bbmaj7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 51,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 52,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj7"
+    },
+    {
+     "bar": 53,
+     "old": "Bbmaj7",
+     "new": "Bbmaj7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 54,
+     "old": "Bbmaj7",
+     "new": "Bbmaj7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 55,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 56,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj7"
+    },
+    {
+     "bar": 57,
+     "old": "Bbmaj7",
+     "new": "Bbmaj7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 58,
+     "old": "Bbmaj7",
+     "new": "Bbmaj7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 59,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 60,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj7"
+    },
+    {
+     "bar": 61,
+     "old": "Bbmaj7",
+     "new": "Bbmaj7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 62,
+     "old": "Bbmaj7",
+     "new": "Bbmaj7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    }
+   ]
+  },
+  {
+   "name": "a69541f2_tempo",
+   "Q": 88,
+   "bpm_from_bars": 87.91208791208824,
+   "tempo_err_pct": -0.09990009989972813,
+   "Q_transcribed": 88,
+   "audio_s": 207.11866666666666,
+   "score_bars": 77,
+   "audio_bars": 77,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_n": 77
+  },
+  {
+   "name": "a69541f2_jazz",
+   "Q": 88,
+   "bpm_from_bars": 87.91208791208824,
+   "tempo_err_pct": -0.09990009989972813,
+   "Q_transcribed": 88,
+   "audio_s": 207.51866666666666,
+   "score_bars": 77,
+   "audio_bars": 77,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_n": 53,
+   "E_bars": [
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60
+   ],
+   "E_root": 0.25,
+   "E_rq": 0.25,
+   "E_n": 24,
+   "E_vs_old_root": 0.25,
+   "E_root_changed_bars_only": null,
+   "E_changed_n": 0,
+   "chance_root_mean": 0.23758966313176685,
+   "chance_root_p95": 0.8020833333333333,
+   "chance_n": 71,
+   "E_tones_new": 0.725,
+   "E_tones_old": 0.6,
+   "chance_tones_mean": 0.3812257981433712,
+   "chance_tones_p95": 0.65625,
+   "base_render_tones_old": 1.0,
+   "base_render_tones_new": 0.6625,
+   "audio_label_changed_vs_base_render": 1.0,
+   "audio_label_changed_unedited": 0.0,
+   "per_bar": [
+    {
+     "bar": 15,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 16,
+     "old": "Bb",
+     "new": "Bb7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 17,
+     "old": "F",
+     "new": "Fmaj7/A",
+     "audio_base": "F:maj",
+     "audio": "F:maj/3"
+    },
+    {
+     "bar": 18,
+     "old": "C",
+     "new": "Cm7/E",
+     "audio_base": "C:maj",
+     "audio": "Eb:maj6"
+    },
+    {
+     "bar": 19,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 20,
+     "old": "Bb",
+     "new": "Bb7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 21,
+     "old": "F",
+     "new": "Fmaj7/A",
+     "audio_base": "F:maj",
+     "audio": "F:maj/3"
+    },
+    {
+     "bar": 22,
+     "old": "C",
+     "new": "Cm7/E",
+     "audio_base": "C:maj",
+     "audio": "Eb:maj6"
+    },
+    {
+     "bar": 36,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 37,
+     "old": "Bb",
+     "new": "Bb7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 38,
+     "old": "F",
+     "new": "Fmaj7/A",
+     "audio_base": "F:maj",
+     "audio": "F:maj/3"
+    },
+    {
+     "bar": 39,
+     "old": "C",
+     "new": "Cm7/E",
+     "audio_base": "C:maj",
+     "audio": "Eb:maj6"
+    },
+    {
+     "bar": 40,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 41,
+     "old": "Bb",
+     "new": "Bb7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 42,
+     "old": "F",
+     "new": "Fmaj7/A",
+     "audio_base": "F:maj",
+     "audio": "F:maj/3"
+    },
+    {
+     "bar": 43,
+     "old": "C",
+     "new": "Cm7/E",
+     "audio_base": "C:maj",
+     "audio": "Eb:maj6"
+    },
+    {
+     "bar": 53,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 54,
+     "old": "Bb",
+     "new": "Bb7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 55,
+     "old": "F",
+     "new": "Fmaj7/A",
+     "audio_base": "F:maj",
+     "audio": "F:maj/3"
+    },
+    {
+     "bar": 56,
+     "old": "C",
+     "new": "Cm7/E",
+     "audio_base": "C:maj",
+     "audio": "Eb:maj6"
+    },
+    {
+     "bar": 57,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "F:maj"
+    },
+    {
+     "bar": 58,
+     "old": "Bb",
+     "new": "Bb7/D",
+     "audio_base": "Bb:maj",
+     "audio": "D:min"
+    },
+    {
+     "bar": 59,
+     "old": "F",
+     "new": "Fmaj7/A",
+     "audio_base": "F:maj",
+     "audio": "F:maj/3"
+    },
+    {
+     "bar": 60,
+     "old": "C",
+     "new": "Cm7/E",
+     "audio_base": "C:maj",
+     "audio": "Eb:maj6"
+    }
+   ]
+  },
+  {
+   "name": "ecf8eb5a_tempo",
+   "Q": 88,
+   "bpm_from_bars": 87.91208791208824,
+   "tempo_err_pct": -0.09990009989972813,
+   "Q_transcribed": 88,
+   "audio_s": 170.63866666666667,
+   "score_bars": 64,
+   "audio_bars": 64,
+   "offset": 0,
+   "U_root": 1.0,
+   "U_n": 64
+  },
+  {
+   "name": "ecf8eb5a_jazz",
+   "Q": 88,
+   "bpm_from_bars": 87.91208791208824,
+   "tempo_err_pct": -0.09990009989972813,
+   "Q_transcribed": 88,
+   "audio_s": 170.71866666666668,
+   "score_bars": 64,
+   "audio_bars": 64,
+   "offset": 0,
+   "U_root": 0.9818181818181818,
+   "U_n": 56,
+   "E_bars": [
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30
+   ],
+   "E_root": 0.75,
+   "E_rq": 0.75,
+   "E_n": 8,
+   "E_vs_old_root": 0.75,
+   "E_root_changed_bars_only": null,
+   "E_changed_n": 0,
+   "chance_root_mean": 0.2581896551724138,
+   "chance_root_p95": 1.0,
+   "chance_n": 58,
+   "E_tones_new": 0.8125,
+   "E_tones_old": 0.85,
+   "chance_tones_mean": 0.3609722222222222,
+   "chance_tones_p95": 0.6625,
+   "base_render_tones_old": 1.0,
+   "base_render_tones_new": 0.6625,
+   "audio_label_changed_vs_base_render": 0.5,
+   "audio_label_changed_unedited": 0.017857142857142856,
+   "per_bar": [
+    {
+     "bar": 23,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "D:min"
+    },
+    {
+     "bar": 24,
+     "old": "Bb",
+     "new": "Bb7/D",
+     "audio_base": "Bb:maj",
+     "audio": "Bb:maj"
+    },
+    {
+     "bar": 25,
+     "old": "F",
+     "new": "Fmaj7/A",
+     "audio_base": "F:maj",
+     "audio": "F:maj/3"
+    },
+    {
+     "bar": 26,
+     "old": "C",
+     "new": "Cm7/Eb",
+     "audio_base": "C:maj",
+     "audio": "Eb:maj6"
+    },
+    {
+     "bar": 27,
+     "old": "Dm",
+     "new": "Dm7/F",
+     "audio_base": "D:min",
+     "audio": "D:min"
+    },
+    {
+     "bar": 28,
+     "old": "Bb",
+     "new": "Bb7/D",
+     "audio_base": "Bb:maj",
+     "audio": "Bb:maj"
+    },
+    {
+     "bar": 29,
+     "old": "F",
+     "new": "Fmaj7/A",
+     "audio_base": "F:maj",
+     "audio": "F:maj/3"
+    },
+    {
+     "bar": 30,
+     "old": "C",
+     "new": "Cm7/Eb",
+     "audio_base": "C:maj",
+     "audio": "Eb:maj6"
+    }
+   ]
+  }
+ ],
+ "aggregates": {
+  "planLatencyP50": 6.475,
+  "planLatencyMax": 13.72,
+  "unloadAckToEmptyMsMax": 140,
+  "tokPerSMin": 90.37328094302555
+ }
+}

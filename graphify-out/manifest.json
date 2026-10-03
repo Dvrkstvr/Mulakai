@@ -3290,8 +3290,8 @@
     "semantic_hash": ""
   },
   "pipeline/STATUS.md": {
-    "mtime": 1791056108.8664105,
-    "ast_hash": "bba193354a0a240fec73df108acace28",
+    "mtime": 1791056276.9285984,
+    "ast_hash": "90ad4a0e18a1c0fc2e98a6edc000a85a",
     "semantic_hash": ""
   },
   "pipeline/audit.md": {
@@ -3305,13 +3305,13 @@
     "semantic_hash": ""
   },
   "pipeline/decisions.md": {
-    "mtime": 1791056216.9824893,
-    "ast_hash": "a85a42eb011a8fe6457b6f7ae4f6df9b",
+    "mtime": 1791060510.6661685,
+    "ast_hash": "bc4cd48a8594bce02520be308b98f8df",
     "semantic_hash": ""
   },
   "pipeline/open-questions.md": {
-    "mtime": 1791056216.9824893,
-    "ast_hash": "bdea0271ee6ecb48fa2965d0198db1da",
+    "mtime": 1791060510.6476607,
+    "ast_hash": "411ca8af7ff689fa3663dc5a36b65ffd",
     "semantic_hash": ""
   },
   "pipeline/playbook.md": {
@@ -3755,8 +3755,8 @@
     "semantic_hash": ""
   },
   "pipeline/autopilot-log.md": {
-    "mtime": 1791056108.8452072,
-    "ast_hash": "3845aec04e48d6018cb011222217cdf4",
+    "mtime": 1791056276.9085886,
+    "ast_hash": "000d4293ac3e9899107953e83c68981f",
     "semantic_hash": ""
   },
   "pipeline/design/score-verb.html": {
@@ -4042,6 +4042,46 @@
   "server/test-fakes/fakeYue.ts": {
     "mtime": 1791055968.3028586,
     "ast_hash": "ef9e91dca9200a227ed236bba2a5b1f6",
+    "semantic_hash": ""
+  },
+  "pipeline/cp1/cp1-summary.json": {
+    "mtime": 1791060416.8028376,
+    "ast_hash": "87770e27589a61da51134f076b9662cc",
+    "semantic_hash": ""
+  },
+  "pipeline/cp1/cp1_analyze.py": {
+    "mtime": 1791060372.0107417,
+    "ast_hash": "c13ad8fe7859bd5018591d5bc82ea316",
+    "semantic_hash": ""
+  },
+  "pipeline/cp1/raw/analysis.json": {
+    "mtime": 1791060375.542056,
+    "ast_hash": "13ee18a2f249746809ec71eadb29d2c3",
+    "semantic_hash": ""
+  },
+  "pipeline/cp1/raw/log.json": {
+    "mtime": 1791060195.6566424,
+    "ast_hash": "6dbe5c0ef84b762836630a2a82ef86e2",
+    "semantic_hash": ""
+  },
+  "server/scripts/scoreCp1.ts": {
+    "mtime": 1791059620.385373,
+    "ast_hash": "0fbee060de3604a24fd22577a6663efb",
+    "semantic_hash": ""
+  },
+  "server/scripts/scoreCp1Lib.ts": {
+    "mtime": 1791059572.896932,
+    "ast_hash": "6933ca0b84336e28e5841ace8b402c73",
+    "semantic_hash": ""
+  },
+  "pipeline/cp1/CP1-LOG.md": {
+    "mtime": 1791060494.2988303,
+    "ast_hash": "ff532cabe44fbbe877d267d246c5992c",
+    "semantic_hash": ""
+  },
+  "pipeline/cp1/raw/stdout.txt": {
+    "mtime": 1791060195.6551373,
+    "ast_hash": "cca7cf412b24208a7ab19f82fb67e259",
     "semantic_hash": ""
   }
 }
