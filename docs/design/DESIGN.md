@@ -716,7 +716,8 @@ requiring its own justification against a screen-count rule.
        never reads as another verb's target; picking a range (drag, section,
        lyric line, a version's region) opens REPAINT.
      - **Verb tabs** REPAINT / ADD LAYER / SPLIT / EXPORT, each with its key
-       (`R` `L` `S` `E`, a mono hairline keycap). The keys are ignored while
+       (`R` `L` `S` `E`, a mono hairline keycap; SCORE `C` is planned, see
+       below). The keys are ignored while
        a text field, a select or a dialog has focus; Space stays the
        transport's. The active tab is an acid **outline** with acid text,
        never filled — the one filled acid control in the dock is the commit.
@@ -775,6 +776,52 @@ requiring its own justification against a screen-count rule.
        one split session is open at a time, so while another layer's stems
        are still extracting SPLIT is off and its consequence line says why
        (CANCEL SPLIT there first, or wait).
+     - **SCORE** (*planned for M0*, not built yet; PLAN.md "Score Agent",
+       signed-off spec `pipeline/design/score-verb.html`, D-027..D-032):
+       a 5th verb that has YuE2 re-render the song from an edited copy of
+       its score.
+       - **Tab and key**: appended last, after EXPORT, key `C`. The tab
+         exists only for a song whose base came from YuE2 while
+         `LLM_API_URL` is set; on any other song there is no tab and `C`
+         does nothing.
+       - **Chip**: `BASE · WHOLE SCORE`, sky, like SPLIT's. The version the
+         plan was made against sits in the checks and stale lines, not the
+         chip.
+       - **Body**: a `text-low` reading line (bars, duration, tempo, key),
+         the request field ("Describe the change, e.g. jazz chords in the
+         chorus, 88 BPM"), then, once planned, the change list (one row per
+         op with a ✓/✕ verdict and a `text-low` tag: `follows` or `a
+         request`; a rejected op is listed with its reason, never dropped)
+         and one always-visible mono checks line (`65 bars · est 183 s of
+         360 s · 1,520 of 4,096 tokens · chords valid`). The dock **grows
+         with the plan** (about 330 px for 3 ops, 390 px for 5); it does
+         not cap and scroll or fold the checks.
+       - **Commit**: PLAN is an acid **outline** sibling, always present,
+         so the two-step shape never moves; **APPLY & RENDER is the only
+         acid fill**, off until a plan passes every check and while its own
+         render runs. A busy GPU queues either job, as for the other verbs.
+       - **Consequence line**, composed from the ops in the plan: `Saves base
+         v3 · re-renders the whole song on YuE2, about 3 min · every bar will
+         sound different · tempo follows 88 BPM · harmony in bars 17–24 is a
+         request to YuE2, not a guarantee · v2 stays in VERSIONS`. SET TEMPO
+         (and later REPEAT / CUT / TRANSPOSE) say "follows"; REHARMONIZE,
+         EDIT STYLE (always) and WRITE PHRASE say "a request to YuE2, not a
+         guarantee"; a plan of only "follows" ops omits that clause. The
+         asking state reads "asks the planner · uses the GPU for ~10 s ·
+         changes nothing yet".
+       - **Rust**: a failed check (one line per cause with its number, e.g.
+         "estimated 458 s: over the 360 s limit; at least 112 BPM fits"; a
+         checks segment from 330 s turns rust), PLANNER OFFLINE with its
+         fix and RECHECK, RENDER FAILED with RETRY RENDER, a stale plan with
+         PLAN AGAIN, and a **truncated** render: saved and active, but it
+         reads `TRUNCATED at 6:00, the song is cut short` in rust, never
+         DONE. An ineligible song gets one plain reason line, not rust
+         (nothing is broken).
+       - **Re-plan**: the previous plan stays, dimmed (40%) with a dashed
+         hairline and unpressable, until the new one arrives; a failed
+         re-plan drops it.
+       - **Done**: "Saved base v3 · 88.1 BPM, 3:04" with a lilac version
+         badge; VERSIONS shows v3 current, v2 below; the field clears.
    - **Right rail** (~260–320px, carbon-panel surface, 1px border): the
      focused layer's **VERSIONS** only, headed `VERSIONS · <LAYER>` in
      lilac text. Persistent, beside the main column rather than under it,
@@ -1174,7 +1221,10 @@ sweep as the result types in underneath, `ThinkingWipe.tsx` /
 `useThinkingQuery.ts`); and COVER/ARRANGE's ANALYZE AUDIO button while
 ACE-Step's LM describes the source (`AnalyzeAudioButton.tsx`, on every
 engine — it has worn the shader since it was added, and is listed here
-now so the list is complete); and Activity's RUNNING row for a song
+now so the list is complete); the SCORE verb's planning line while the
+planner works on the GPU (*planned for M0*, D-029: an LM working, like
+Quick Start; still dashed and plain while queued), and its rendering line,
+which follows the YuE2 rule above (stage and its share, no veil); and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
 ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
 (UP NEXT, the library card of a generation reading `QUEUED · STARTS
