@@ -1,14 +1,15 @@
 /**
- * The SCORE verb per song (F-021, F-024): asks the server for the song's SCORE status, starts and
- * polls plan runs, CANCEL, and the APPLY & RENDER seam. Every change goes through the `scoreVerb`
+ * The SCORE verb per song (F-021, F-023, F-024): asks the server for the song's SCORE status, starts
+ * and polls plan runs and renders, and CANCELs either. Every change goes through the `scoreVerb`
  * reducer. Server-side jobs outlive the tab: reopening SCORE rehydrates from the song's last run.
  */
 import { useEffect } from 'react';
 import { create } from 'zustand';
 import { api, type ScorePlanRun, type SongDetail } from './api';
-import { canPlan, scoreVerb } from './scoreVerb';
+import { canPlan, canRender, scoreVerb } from './scoreVerb';
 import { INITIAL_SCORE, type ScoreEvent, type ScoreVerbState } from './scoreVerbTypes';
 import { PLAN_EXPIRED, SERVER_GONE } from './scoreCopy';
+import { followRender, renderEvent, renderInFlight } from './scoreRender';
 import { POLL_MS } from './transcribeStore';
 
 /** Failed polls in a row before the dock stops waiting on a server that is gone. */
@@ -23,11 +24,12 @@ interface ScoreStore {
   recheck: (songId: string) => Promise<void>;
   plan: (songId: string) => Promise<void>;
   cancel: (songId: string) => Promise<void>;
-  /** APPLY & RENDER. W3 checks the plan is still the server's (D-020); W4 starts the render. */
+  /** APPLY & RENDER (and RETRY RENDER): the server re-checks and queues the render, or names why not. */
   apply: (songId: string) => Promise<void>;
 }
 
 const polling = new Set<string>();
+const following = new Set<string>();
 const failedRun = (reason: string): ScorePlanRun =>
   ({ jobId: '', request: '', status: 'failed', reasons: [reason], planId: null, cause: 'check' });
 const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
@@ -35,6 +37,17 @@ const message = (err: unknown) => (err instanceof Error ? err.message : String(e
 export const useScoreStore = create<ScoreStore>((set, get) => {
   const state = (songId: string) => get().bySong[songId] ?? INITIAL_SCORE;
   const waiting = (songId: string) => ['queued', 'planning'].includes(state(songId).phase.kind);
+  const rendering = (songId: string) => ['renderQueued', 'rendering'].includes(state(songId).phase.kind);
+
+  async function follow(songId: string): Promise<void> {
+    if (following.has(songId)) return;
+    following.add(songId);
+    try {
+      await followRender(songId, (e) => get().dispatch(songId, e), () => rendering(songId));
+    } finally {
+      following.delete(songId);
+    }
+  }
 
   async function poll(songId: string): Promise<void> {
     if (polling.has(songId)) return;
@@ -75,6 +88,11 @@ export const useScoreStore = create<ScoreStore>((set, get) => {
         const { run, plan } = await api.scorePlanState(songId);
         get().dispatch(songId, { type: 'restore', run, plan });
         void poll(songId);
+        const render = state(songId).phase.kind === 'ready' ? await renderInFlight(songId) : null;
+        if (!render || render.planId !== plan?.id) return;
+        get().dispatch(songId, { type: 'renderSubmitted', ahead: render.queuePosition ?? 0 });
+        get().dispatch(songId, renderEvent(render));
+        void follow(songId);
       } catch {
         // nothing to restore
       }
@@ -95,6 +113,12 @@ export const useScoreStore = create<ScoreStore>((set, get) => {
     },
 
     cancel: async (songId) => {
+      if (rendering(songId)) {
+        // ABORT: YuE2 drains while the slot stays held; no version is made, the plan stays.
+        const ok = await api.cancelScoreRender(songId).then(() => true, () => false);
+        if (ok) get().dispatch(songId, { type: 'renderCancelled' }); // else it already settled: the poll says how
+        return;
+      }
       if (!waiting(songId)) return;
       get().dispatch(songId, { type: 'cancel' });
       await api.cancelScorePlan(songId).catch(() => undefined); // already settled: the poll says how
@@ -102,12 +126,14 @@ export const useScoreStore = create<ScoreStore>((set, get) => {
 
     apply: async (songId) => {
       const s = state(songId);
-      if (s.phase.kind !== 'ready' || !s.plan) return;
+      if (!canRender(s) || !s.plan) return;
       try {
-        const { plan } = await api.scorePlanState(songId);
-        if (plan?.id !== s.plan.id) get().dispatch(songId, { type: 'renderRefused', reason: PLAN_EXPIRED });
+        const started = await api.startScoreRender(songId, s.plan.id);
+        if ('refused' in started) return get().dispatch(songId, { type: 'renderRefused', reason: started.refused });
+        get().dispatch(songId, { type: 'renderSubmitted', ahead: started.queuePosition });
+        void follow(songId);
       } catch (err) {
-        get().dispatch(songId, { type: 'renderRefused', reason: message(err) });
+        get().dispatch(songId, { type: 'planRefused', error: message(err) }); // queue full, already rendering
       }
     },
   };
@@ -118,9 +144,14 @@ export function scoreSongKey(song: SongDetail | null | undefined): string {
   return song?.layers.map((l) => `${l.id}:${l.versions.map((v) => `${v.id}${v.active ? '*' : ''}`).join(',')}`).join('|') ?? '';
 }
 
-/** The song's SCORE state, (re)loaded whenever `songKey` says the song changed ('' = not loaded yet). */
-export function useScoreVerb(songId: string, songKey: string): ScoreVerbState {
+/** The song's SCORE state, (re)loaded whenever `songKey` says the song changed ('' = not loaded yet).
+ * `onSaved` runs once per render that saved a version, so the Editor shows it in VERSIONS. */
+export function useScoreVerb(songId: string, songKey: string, onSaved?: () => void): ScoreVerbState {
   const load = useScoreStore((s) => s.load);
   useEffect(() => { if (songKey) void load(songId); }, [load, songId, songKey]);
-  return useScoreStore((s) => s.bySong[songId] ?? INITIAL_SCORE);
+  const state = useScoreStore((s) => s.bySong[songId] ?? INITIAL_SCORE);
+  const saved = state.phase.kind === 'done' ? state.phase.saved : '';
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { if (saved) onSaved?.(); }, [saved]);
+  return state;
 }
