@@ -5,11 +5,11 @@
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
-- stage: 7 Build M0 — W0 = PR #124 (CI running, merge needs user OK); W1 (F-017 yue-server score routes) next on feat/score-w1-routes
+- stage: 7 Build M0 — W3 (F-021, F-022, F-024 SCORE dock verb) on feat/score-w3-dock (stacked on W2)
 - clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-031) · decisions to D-046
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · owed: user listens (SP-3 A/B, SP-2 phrases)
 - milestone: M0 (F-016..F-025) · features passing 6/39 · owed: user listens (SP-3, SP-2); R-012 red golden path
-- autopilot: stopped — round budget (11/12 used) after CP1 passed; next W3 dock verb
+- autopilot: M0 · round 1/12 · W3 dock verb · auto-fix on · remote on
 - next: settle Q-034; open W2 PR (stacked on #125); W3 (F-021, F-022, F-024 dock verb) → W4 → W5; `/pipeline:auto M0` resumes
 
 ## Stages
