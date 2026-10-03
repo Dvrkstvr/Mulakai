@@ -19,6 +19,7 @@ import { releaseTask, queryResult, downloadAudio, type ReleaseTaskParams } from 
 import { outputExt, MASTER_AUDIO_FORMAT, type OutputSettings } from './audioOutput.js';
 import { transcodeBuffer } from './transcode.js';
 import { ensureModelLoaded } from './jobs.js';
+import { drainTask } from './jobRunner.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
 
 export type StemKind = 'vocals' | 'drums' | 'bass' | 'other';
@@ -107,7 +108,9 @@ async function pollStem(
 ): Promise<void> {
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
-    if (!isActive()) return; // cancelled while waiting
+    // Cancelled or aborted: let the extract finish on ACE-Step (it has no cancel) before the
+    // queue's slot goes to the next job, and drop its result.
+    if (!isActive()) return drainTask(taskId);
     const [row] = await queryResult([taskId]);
     if (!row || row.status === 0) continue;
     if (row.status === 2) {

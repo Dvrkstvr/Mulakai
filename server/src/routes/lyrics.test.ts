@@ -11,7 +11,7 @@ vi.mock('../services/lyricsClient.js', () => ({ lyricsHealth: () => lyricsHealth
 vi.mock('../services/lyricsJobs.js', () => ({ startLyricsTranscription: (...a: unknown[]) => startLyricsTranscription(...a) }));
 
 const { config } = await import('../config.js');
-const { GenLockError } = await import('../services/genLock.js');
+const { QueueFullError } = await import('../services/genQueue.js');
 const { lyricsRouter } = await import('./lyrics.js');
 
 let server: Server;
@@ -101,7 +101,7 @@ describe('POST /api/lyrics/transcribe', () => {
   });
 
   it('409s while another job holds the lock', async () => {
-    startLyricsTranscription.mockImplementationOnce(() => { throw new GenLockError(); });
+    startLyricsTranscription.mockImplementationOnce(() => { throw new QueueFullError(); });
     expect((await post()).status).toBe(409);
   });
 });

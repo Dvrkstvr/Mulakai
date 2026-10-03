@@ -284,6 +284,12 @@
   text-shadow: 0 1px 3px var(--carbon);
 }
 
+/* UP NEXT: waiting, not working — a dashed hairline, no shader. */
+.activity-job.queued {
+  border-style: dashed;
+  border-color: var(--line-hi);
+}
+
 .activity-job.failed {
   border-color: var(--rust);
   background: #2A1712; /* rust-tint */

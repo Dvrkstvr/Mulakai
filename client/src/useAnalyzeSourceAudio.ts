@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { api, type RefineResult, type StemKind } from './api';
+import type { RefineResult, StemKind } from './api';
+import { analyzeAndWait, AnalyzeCancelled } from './analyzeJob';
 import { useGenerationStore } from './generationStore';
 
 export type AnalyzeSource =
@@ -30,9 +31,10 @@ export function fillable(value: string, carried?: boolean): boolean {
   return !value || !!carried;
 }
 
-/** Manually-triggered "analyze this source audio" call — `analyze()` loads the given model
- * (+ its LM) then runs ACE-Step's `/v1/analyze_audio`. Shared by CoverSteps and
- * TrackSteps via `AnalyzeAudioButton`. A request-token ref guards against a stale
+/** Manually-triggered "analyze this source audio" job — `analyze()` queues it; the server loads
+ * the given model (+ its LM) then runs ACE-Step's `/v1/analyze_audio`. `analyzing` holds while it
+ * waits in the queue too. Shared by CoverSteps and TrackSteps via `AnalyzeAudioButton`. A
+ * request-token ref guards against a stale
  * in-flight response clobbering state if the source/model changes mid-request. */
 export function useAnalyzeSourceAudio(): AnalyzeState & { analyze: (source: AnalyzeSource, model: string) => void } {
   const [state, setState] = useState<AnalyzeState>(IDLE);
@@ -47,14 +49,16 @@ export function useAnalyzeSourceAudio(): AnalyzeState & { analyze: (source: Anal
         const input = source.kind === 'file'
           ? { file: await source.resolve() }
           : { scratchJobId: source.jobId, scratchStemKind: source.stemKind };
-        const result = await api.analyzeSourceAudio(input, model);
-        if (tokenRef.current === token) setState({ analyzing: false, error: '', result });
+        const result = await analyzeAndWait(input, model, () => tokenRef.current === token);
+        if (result && tokenRef.current === token) setState({ analyzing: false, error: '', result });
       } catch (err) {
         if (tokenRef.current === token) {
-          setState({ analyzing: false, error: err instanceof Error ? err.message : String(err), result: null });
+          // Cancelled from UP NEXT: back to idle, no error to explain.
+          const error = err instanceof AnalyzeCancelled ? '' : err instanceof Error ? err.message : String(err);
+          setState({ analyzing: false, error, result: null });
         }
       } finally {
-        // The server held its lock (`analyze`) for the call: clear otherLock now, not a poll later.
+        // The server's slot was held by this job (`analyze`): clear otherLock now, not a poll later.
         void useGenerationStore.getState().refreshLock();
       }
     })();

@@ -13,9 +13,9 @@ import { db } from '../db/index.js';
 import { releaseTask, downloadAudio, type ReleaseTaskParams } from './acestep.js';
 import { parseOutputSettings, outputExt, MASTER_AUDIO_FORMAT, type OutputSettings } from './audioOutput.js';
 import { transcodeBuffer } from './transcode.js';
-import { type Job, registerJob, poll, ensureModelLoaded, wasAborted } from './jobs.js';
+import { type Job, queueJob, poll, ensureModelLoaded, wasAborted, drainTask } from './jobs.js';
 import { resolveInferenceSteps } from './inferenceSteps.js';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { assertSongLive } from './queueGuards.js';
 import { tagOutputFile } from './fileTags.js';
 
 /** Default steps if the caller doesn't pass one — matches modelInfo.ts's prior fixed value. */
@@ -57,11 +57,9 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
   const out = parseOutputSettings(opts.output);
   const steps = Math.min(opts.steps ?? DEFAULT_REMASTER_STEPS, MAX_REMASTER_STEPS);
 
-  const jobId = crypto.randomUUID();
-  acquireGenLock({ kind: 'remaster', jobId, songId });
-  const job: Job = { id: jobId, taskId: '', status: 'loading', songId, createdAt: Date.now() };
-  registerJob(job);
-  try {
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', songId, createdAt: Date.now() };
+  return queueJob({ kind: 'remaster', songId, label: 'remaster the mix' }, job, async () => {
+    assertSongLive(songId);
     const fullParams: ReleaseTaskParams = {
       audio_format: MASTER_AUDIO_FORMAT,
       task_type: 'cover',
@@ -78,27 +76,21 @@ export async function startRemaster(songId: string, mixAudio: Buffer, model: str
     };
     await ensureModelLoaded(fullParams);
     await resolveInferenceSteps(fullParams);
-    if (wasAborted(job)) return job; // aborted while the model was loading
+    if (wasAborted(job)) return; // aborted while the model was loading
     const { task_id } = await releaseTask(fullParams, { srcAudio: { data: mixAudio, filename: 'mix.wav' } });
-    if (wasAborted(job)) return job; // aborted while ACE-Step was accepting the submission
+    if (wasAborted(job)) return drainTask(task_id); // aborted while ACE-Step was accepting it
 
     job.taskId = task_id;
     job.status = 'running';
-    void poll(job, async (result) => {
+    await poll(job, async (result) => {
       job.resultPath = await downloadToScratch(result.file, out);
       await tagOutputFile(job.resultPath, {
         title: song.title, bpm: song.bpm, keyScale: song.key_scale, comment: song.comment,
         genre: song.genre, album: song.album, coverArtFile: song.cover_art_file,
       });
       return songId;
-    }).finally(() => releaseGenLock(jobId));
-    return job;
-  } catch (err) {
-    job.status = 'failed';
-    job.error = err instanceof Error ? err.message : String(err);
-    releaseGenLock(jobId);
-    throw err;
-  }
+    });
+  });
 }
 
 /** Download the cover result to the OS temp dir, not `config.audioDir` — this file is never part of the library. */

@@ -13,15 +13,15 @@ import { resolveInferenceSteps } from './inferenceSteps.js';
 import { MASTER_AUDIO_FORMAT } from './audioOutput.js';
 import { loadVoiceReference, applyStyleInfluence } from './voiceConditioning.js';
 import { insertGeneratedSong, type ReferenceAudioMeta } from './songPersist.js';
-import { acquireGenLock, releaseGenLock, getGenLock, type GenLockInfo } from './genLock.js';
-import { type Job, getJob, registerJob, wasAborted } from './jobRegistry.js';
+import { getRunning, type RunningInfo } from './genQueue.js';
+import { type Job, getJob, wasAborted } from './jobRegistry.js';
 import { ensureModelLoaded } from './modelLoad.js';
-import { run, poll } from './jobRunner.js';
+import { drainTask, poll, queueJob } from './jobRunner.js';
 import { fetchLyricTimestampsJson } from './lyricTimestamps.js';
 
 export { type Job, getJob, registerJob, wasAborted, abortJob } from './jobRegistry.js';
 export { ensureModelLoaded } from './modelLoad.js';
-export { run, MAX_POLL_STRIKES, poll } from './jobRunner.js';
+export { run, MAX_POLL_STRIKES, poll, queueJob, drainTask, drainWhile } from './jobRunner.js';
 export { fetchLyricTimestampsJson } from './lyricTimestamps.js';
 
 export type { ReferenceAudioMeta };
@@ -35,12 +35,10 @@ export interface VoiceOptions {
   referenceAudioFile?: { data: Buffer; filename: string };
 }
 
-/** Submit a text2music generation and persist the result as a new song with a base layer. */
+/** Queue a text2music generation and persist the result as a new song with a base layer. */
 export function startGeneration(params: ReleaseTaskParams, title: string, voice?: VoiceOptions, folderId?: string | null): Job {
-  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
-  acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: params.prompt, task: 'text2music' });
-  registerJob(job);
-  void run(job, async () => {
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
+  return queueJob({ kind: 'generate', title, caption: params.prompt, task: 'text2music' }, job, async () => {
     await ensureModelLoaded(params);
     // Resolve before fullParams is spread below — persistSong records fullParams into
     // versions.params_json, and resolving after would log AUTO for a run that used 50.
@@ -62,18 +60,17 @@ export function startGeneration(params: ReleaseTaskParams, title: string, voice?
       : null;
     if (wasAborted(job)) return; // aborted while resolving the voice reference
     const { task_id } = await releaseTask(fullParams, ref ? { referenceAudio: ref.referenceAudio } : undefined);
-    if (wasAborted(job)) return; // aborted while ACE-Step was accepting the submission
+    if (wasAborted(job)) return drainTask(task_id); // aborted while ACE-Step was accepting it
     job.taskId = task_id;
     await poll(job, (result) => persistSong(result.file, fullParams, result, title, folderId, referenceMeta));
-  }).finally(() => releaseGenLock(job.id));
-  return job;
+  });
 }
 
-/** The currently locked generation, if any, joined with its job record (kind `generate` only — other
- * kinds' jobs live in their own registries, e.g. stemSplit.ts's SplitJob map). Used to rehydrate the
- * client's library "generating" card across a page refresh. */
-export function getActiveGeneration(): { lock: GenLockInfo | null; job?: Job } {
-  const lock = getGenLock();
+/** The running job, if any, joined with its job record (absent for a split — those live in their
+ * own registries, e.g. stemSplit.ts's SplitJob map). Used to rehydrate the client's library
+ * "generating" card across a page refresh. */
+export function getActiveGeneration(): { lock: RunningInfo | null; job?: Job } {
+  const lock = getRunning();
   return { lock, job: lock ? getJob(lock.jobId) : undefined };
 }
 

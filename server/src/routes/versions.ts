@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../db/index.js';
 import { startRegenerate, startSimilarTake } from '../services/repaintJobs.js';
 import { NOT_REPLAYABLE_ERRORS } from '../services/replayGuard.js';
-import { GenLockError } from '../services/genLock.js';
+import { QueueFullError } from '../services/genQueue.js';
 import { startVersionTimings, TIMINGS_NOT_SET_UP } from '../services/timingsJobs.js';
 import { removeVersionFiles } from '../services/versionFiles.js';
 
@@ -70,7 +70,7 @@ versionsRouter.post('/versions/:versionId/regenerate', async (req, res) => {
     const job = await startRegenerate(req.params.versionId);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'regenerate failed';
     res.status(msg === 'unknown version' ? 404 : NOT_REPLAYABLE_ERRORS.has(msg) ? 400 : 502).json({ error: msg });
   }
@@ -82,7 +82,7 @@ versionsRouter.post('/versions/:versionId/retake', async (req, res) => {
     const job = await startSimilarTake(req.params.versionId);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'retake failed';
     res.status(msg === 'unknown version' ? 404 : NOT_REPLAYABLE_ERRORS.has(msg) ? 400 : 502).json({ error: msg });
   }
@@ -94,7 +94,7 @@ versionsRouter.post('/versions/:versionId/timings', (req, res) => {
     const job = startVersionTimings(req.params.versionId);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'timings failed';
     res.status(msg === 'unknown version' ? 404 : msg === TIMINGS_NOT_SET_UP ? 400 : 500).json({ error: msg });
   }

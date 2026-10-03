@@ -33,7 +33,7 @@ vi.mock('./jobs.js', () => ({ ensureModelLoaded: vi.fn(async () => {}) }));
 
 const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
-const { getGenLock } = await import('./genLock.js');
+const { getRunning } = await import('./genQueue.js');
 const { startSplit, claimStem, getSplitJob, isLiveSplit, evictIdleSplits, SPLIT_IDLE_TTL_MS } = await import('./stemSplit.js');
 
 function seedLayer(): string {
@@ -48,10 +48,10 @@ function seedLayer(): string {
 }
 
 async function settledSplit() {
-  await vi.waitFor(() => expect(getGenLock()).toBeNull());
+  await vi.waitFor(() => expect(getRunning()).toBeNull());
   const job = await startSplit(seedLayer(), 'acestep');
   await vi.waitFor(() => expect(job.stems.every((s) => s.status === 'done')).toBe(true));
-  await vi.waitFor(() => expect(getGenLock()).toBeNull());
+  await vi.waitFor(() => expect(getRunning()).toBeNull());
   return job;
 }
 

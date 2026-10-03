@@ -36,3 +36,12 @@ export async function sweepOrphanStems(isLive: (jobId: string) => boolean): Prom
   await Promise.all(orphans.map((f) => fs.rm(path.join(config.audioDir, f), { force: true }).catch(() => {})));
   return orphans.length;
 }
+
+/** Fail every stem still running: a split (or RE-EXTRACT) couldn't read its source when its
+ * turn in the queue came, or left the queue without running. */
+export function failRunning(stems: { status: string; error?: string }[], err: unknown): void {
+  for (const stem of stems.filter((s) => s.status === 'running')) {
+    stem.status = 'failed';
+    stem.error = err instanceof Error ? err.message : String(err);
+  }
+}

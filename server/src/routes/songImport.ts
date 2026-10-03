@@ -3,7 +3,7 @@
  * generated one (see PLAN.md's "Import a Song"). This is the only song-creation path
  * that doesn't come from a task result — `persistSong()` (services/jobs.ts) starts
  * from `downloadAudio(result.file)` and can't be reused — but it produces the exact
- * same shape: one song, one `base` layer, one active version. No genLock is taken:
+ * same shape: one song, one `base` layer, one active version. No queue slot is taken:
  * nothing is generated, so an import must neither contend with nor wait on ACE-Step.
  */
 import crypto from 'node:crypto';

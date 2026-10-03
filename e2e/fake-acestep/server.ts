@@ -4,7 +4,9 @@
  * and every task finishes a moment later with a canned tone. Nothing touches a GPU.
  *
  * GET /__fake/tasks is ours, not ACE-Step's: the spec reads it to check what actually went over
- * the wire (e.g. that a repaint carried the selected region).
+ * the wire (e.g. that a repaint carried the selected region). POST /__fake/hold `{ hold }` is
+ * ours too: while held, every task keeps reporting "running", so a spec can queue a second job
+ * behind it (PLAN.md "UI Redesign", S4).
  */
 import http from 'node:http';
 import { toneWav } from './wav.js';
@@ -29,6 +31,7 @@ interface FakeTask {
 }
 
 const tasks = new Map<string, FakeTask>();
+let held = false;
 
 function send(res: http.ServerResponse, status: number, body: unknown): void {
   res.writeHead(status, { 'Content-Type': 'application/json' });
@@ -73,8 +76,8 @@ function queryRow(id: string) {
   const task = tasks.get(id);
   if (!task) return { task_id: id, status: 2, result: '' };
   const elapsed = Date.now() - task.createdAt;
-  if (elapsed < PENDING_MS) {
-    const progress = elapsed / PENDING_MS;
+  if (held || elapsed < PENDING_MS) {
+    const progress = Math.min(elapsed / PENDING_MS, 0.99);
     return { task_id: id, status: 0, result: JSON.stringify([{ progress, stage: 'running' }]), progress_text: 'fake' };
   }
   return { task_id: id, status: 1, result: JSON.stringify([resultFor(task)]) };
@@ -131,6 +134,11 @@ async function route(req: http.IncomingMessage, res: http.ServerResponse): Promi
         caption: body.query ?? 'fake caption', lyrics: '[verse]\nfake words', bpm: 120,
         keyscale: 'C major', timesignature: '4', duration: DURATION_SEC, vocal_language: 'en', language: 'en',
       });
+    }
+    case 'POST /__fake/hold': {
+      const body = JSON.parse((await readBody(req)).toString('utf8') || '{}') as { hold?: boolean };
+      held = !!body.hold;
+      return send(res, 200, { held });
     }
     case 'GET /__fake/tasks':
       return send(res, 200, [...tasks.values()].map(({ id, params, hadSrcAudio }) => ({ id, params, hadSrcAudio })));

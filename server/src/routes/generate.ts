@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { startGeneration } from '../services/jobs.js';
-import { GenLockError } from '../services/genLock.js';
+import { QueueFullError } from '../services/genQueue.js';
 import { upload, pickParams, pickMultipartParams } from './generateParams.js';
 import { generateAudioRouter } from './generateAudio.js';
 import { generateHelpersRouter } from './generateHelpers.js';
@@ -26,7 +26,7 @@ generateRouter.post('/', upload.fields([{ name: 'reference_audio', maxCount: 1 }
     }, folder_id ? String(folder_id) : undefined);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
   }
 });

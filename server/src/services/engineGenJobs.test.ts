@@ -49,7 +49,7 @@ vi.mock('./engineClient.js', () => ({
 const { db } = await import('../db/index.js');
 const { config } = await import('../config.js');
 const { getJob, abortJob } = await import('./jobs.js');
-const { getGenLock, GenLockError } = await import('./genLock.js');
+const { getRunning } = await import('./genQueue.js');
 const { ACESTEP_CAPABILITIES } = await import('./engines/registry.js');
 const { startEngineGeneration, TRUNCATED_LABEL } = await import('./engineGenJobs.js');
 
@@ -65,7 +65,7 @@ const fields = { prompt: 'dreamy synth pop', lyrics: '[Verse]\nla la', bpm: 92, 
 
 async function settle(jobId: string, status: 'done' | 'failed') {
   await vi.waitFor(() => expect(getJob(jobId)?.status).toBe(status));
-  await vi.waitFor(() => expect(getGenLock()).toBeNull());
+  await vi.waitFor(() => expect(getRunning()).toBeNull());
 }
 
 function songOf(jobId: string) {
@@ -146,15 +146,17 @@ describe('startEngineGeneration happy path', () => {
 });
 
 describe('startEngineGeneration lock and polling', () => {
-  it('holds the generate genLock, tagged with the engine, until the job ends', async () => {
+  it('holds the queue slot as generate, tagged with the engine, until the job ends; a second waits', async () => {
     let release!: () => void;
     client.status.mockImplementationOnce(() => new Promise((r) => { release = () => r(DONE); }));
     const job = startEngineGeneration(engine, fields, 'Lock Song');
     await vi.waitFor(() => expect(client.status).toHaveBeenCalled());
-    expect(getGenLock()).toMatchObject({ kind: 'generate', jobId: job.id, task: 'text2music', engine: 'yue2', title: 'Lock Song' });
-    expect(() => startEngineGeneration(engine, fields, 'Second')).toThrow(GenLockError);
+    expect(getRunning()).toMatchObject({ kind: 'generate', jobId: job.id, task: 'text2music', engine: 'yue2', title: 'Lock Song' });
+    const second = startEngineGeneration(engine, fields, 'Second');
+    expect(second.status).toBe('queued');
     release();
-    await settle(job.id, 'done');
+    await vi.waitFor(() => expect(getJob(job.id)?.status).toBe('done'));
+    await settle(second.id, 'done');
   });
 
   it('copies progress and stage while the wrapper is running', async () => {
@@ -199,14 +201,23 @@ describe('startEngineGeneration lock and polling', () => {
 });
 
 describe('startEngineGeneration abort', () => {
-  it('sends cancel on the next tick and persists nothing', async () => {
+  it('sends cancel, holds the slot until the wrapper has stopped, and persists nothing', async () => {
     client.status.mockImplementation(async () => RUNNING);
+    let stop!: () => void;
+    client.cancel.mockImplementationOnce(async () => {
+      stop = () => client.status.mockImplementation(async () => ({ state: 'failed', truncated: false, error: 'cancelled' }));
+    });
     const job = startEngineGeneration(engine, fields, 'Aborted Song');
     await vi.waitFor(() => expect(client.status).toHaveBeenCalled());
     abortJob(job.id);
-    await vi.waitFor(() => expect(client.cancel).toHaveBeenCalledWith(engine, 'wrapper-1'));
     expect(getJob(job.id)).toMatchObject({ status: 'failed', error: 'Aborted' });
+    await vi.waitFor(() => expect(client.cancel).toHaveBeenCalledWith(engine, 'wrapper-1'));
+    await new Promise((r) => setTimeout(r, 30));
+    expect(getRunning()).toMatchObject({ jobId: job.id, draining: true }); // still on the GPU
+    stop();
+    await vi.waitFor(() => expect(getRunning()).toBeNull());
     expect(db.prepare(`SELECT COUNT(*) AS c FROM songs WHERE title = 'Aborted Song'`).get()).toEqual({ c: 0 });
+    client.status.mockImplementation(async () => DONE);
   });
 
   it('cancels a job aborted while the wrapper was still accepting it', async () => {
@@ -216,7 +227,9 @@ describe('startEngineGeneration abort', () => {
     abortJob(job.id);
     accept('wrapper-9');
     await vi.waitFor(() => expect(client.cancel).toHaveBeenCalledWith(engine, 'wrapper-9'));
-    expect(client.status).not.toHaveBeenCalled();
+    // Status is asked only to confirm the wrapper stopped (it says done here), then the slot frees.
+    await vi.waitFor(() => expect(getRunning()).toBeNull());
+    expect(db.prepare(`SELECT COUNT(*) AS c FROM songs WHERE title = 'Abort Submit Song'`).get()).toEqual({ c: 0 });
   });
 });
 
@@ -229,7 +242,7 @@ describe('startEngineGeneration cover', () => {
 
   it('sends the cover request and stores a cover song with its source and supplied score', async () => {
     const job = startEngineGeneration(coverEngine, fields, 'Cover Song', null, { abc: ABC, source: 'Ellies City 2' });
-    expect(getGenLock()).toMatchObject({ kind: 'generate', task: 'cover', engine: 'yue2' });
+    expect(getRunning()).toMatchObject({ kind: 'generate', task: 'cover', engine: 'yue2' });
     await settle(job.id, 'done');
 
     const request = { style: 'dreamy synth pop', lyrics: '[Verse]\nla la', seed: 42, cot: 'melody', abc: ABC };
@@ -241,6 +254,6 @@ describe('startEngineGeneration cover', () => {
 
   it('refuses a cover on an engine that cannot cover, before taking the lock', () => {
     expect(() => startEngineGeneration(engine, fields, 'No Cover', null, { abc: ABC, source: 's' })).toThrow(/cannot cover/);
-    expect(getGenLock()).toBeNull();
+    expect(getRunning()).toBeNull();
   });
 });

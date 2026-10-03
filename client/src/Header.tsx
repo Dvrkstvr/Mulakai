@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { useApiStatusStore } from './apiStatusStore';
+import { useQueueStore } from './queueStore';
 import { ModelStatusBadge } from './ModelStatusBadge';
 import { ActivityButton } from './ActivityButton';
 import { useCommandStore } from './commandStore';
@@ -23,9 +24,11 @@ export function Header({ left, right, forgeEnabled, onForge }: Props) {
 
   // Independent of generationStore/editorJobStore's own polling: Activity's RUNNING needs to
   // see ANY job kind (analyze, another tab's job), not just the ones this tab tracks in detail.
+  // The queue alongside it: Activity's UP NEXT, from any tab.
   useEffect(() => {
-    poll();
-    const timer = setInterval(poll, STATUS_POLL_MS);
+    const pollAll = () => { void poll(); void useQueueStore.getState().poll(); };
+    pollAll();
+    const timer = setInterval(pollAll, STATUS_POLL_MS);
     return () => clearInterval(timer);
   }, [poll]);
 

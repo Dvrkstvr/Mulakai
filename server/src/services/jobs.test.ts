@@ -197,8 +197,8 @@ describe('poll() failure tolerance', () => {
       expect(getJob(job.id)?.status).toBe('failed');
     });
     expect(getJob(job.id)?.error).toMatch(/no response within/);
-    const { getGenLock } = await import('./genLock.js');
-    expect(getGenLock()).toBeNull(); // the whole point: a wedged backend must not hold the lock forever
+    const { getRunning } = await import('./genQueue.js');
+    expect(getRunning()).toBeNull(); // the whole point: a wedged backend must not hold the lock forever
   });
 
   it('does not retry a failed persist — onSuccess errors are final', async () => {
@@ -214,17 +214,21 @@ describe('poll() failure tolerance', () => {
 });
 
 describe('abortJob', () => {
-  it('marks a running job failed and releases the gen lock so the header can force-unblock it', async () => {
+  it('marks a running job failed and drains its slot; a second ABORT frees it', async () => {
     const { registerJob, abortJob, getJob } = jobsModule;
-    const { acquireGenLock, getGenLock } = await import('./genLock.js');
-    acquireGenLock({ kind: 'generate', jobId: 'abort-1' });
+    const { enqueue, getRunning } = await import('./genQueue.js');
+    enqueue({ kind: 'generate', jobId: 'abort-1' }, () => new Promise(() => {}));
     registerJob({ id: 'abort-1', taskId: 't', status: 'running', createdAt: Date.now() });
 
     expect(abortJob('abort-1')).toBe(true);
 
     expect(getJob('abort-1')?.status).toBe('failed');
     expect(getJob('abort-1')?.error).toBe('Aborted');
-    expect(getGenLock()).toBeNull();
+    // Its backend body never settles here, so the slot drains; a second ABORT frees it now.
+    expect(getRunning()).toMatchObject({ jobId: 'abort-1', draining: true });
+    const { abortRunning } = await import('./genQueue.js');
+    expect(abortRunning()).toBe(true);
+    expect(getRunning()).toBeNull();
   });
 
   it('is a no-op for an unknown job id', () => {

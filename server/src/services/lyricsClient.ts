@@ -1,6 +1,6 @@
 /**
  * lyrics-server (PLAN.md "lyrics-server contract"): reads the words sung in a song into
- * timed segments. One synchronous call per job; Mulakai's genLock keeps it single-flight.
+ * timed segments. One synchronous call per job; Mulakai's job queue keeps it single-flight.
  */
 import { config } from '../config.js';
 

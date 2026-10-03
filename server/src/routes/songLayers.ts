@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import { startAddLayer } from '../services/addLayerJobs.js';
-import { GenLockError } from '../services/genLock.js';
+import { QueueFullError } from '../services/genQueue.js';
 
 export const songLayersRouter = Router();
 
@@ -61,7 +61,7 @@ songLayersRouter.post('/:id/layers', upload.single('mix_audio'), async (req, res
     });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'add layer failed';
     res.status(msg === 'unknown song' ? 404 : 502).json({ error: msg });
   }

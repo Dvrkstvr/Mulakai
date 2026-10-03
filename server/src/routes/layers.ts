@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { db } from '../db/index.js';
 import { startRepaint } from '../services/repaintJobs.js';
 import { startSplit, type SplitModel } from '../services/stemSplit.js';
-import { GenLockError } from '../services/genLock.js';
+import { QueueFullError } from '../services/genQueue.js';
 import { removeVersionFiles } from '../services/versionFiles.js';
 
 export const layersRouter = Router();
@@ -94,7 +94,7 @@ layersRouter.post('/:id/repaint', async (req, res) => {
     });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'repaint failed';
     res.status(msg === 'unknown layer' ? 404 : 502).json({ error: msg });
   }
@@ -108,7 +108,7 @@ layersRouter.post('/:id/split', async (req, res) => {
     const job = await startSplit(req.params.id, model, req.body?.output);
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     const msg = err instanceof Error ? err.message : 'split failed';
     res.status(msg === 'unknown layer' ? 404 : 502).json({ error: msg });
   }

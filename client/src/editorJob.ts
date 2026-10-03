@@ -8,6 +8,8 @@ interface JobBase {
   startedAt: number;
   stage: Stage;
   error?: string;
+  /** Set while the job waits in the server's queue (1 = next); the stage still reads `running`. */
+  queuePosition?: number;
   progress?: number; // live progress from ACE-Step's /query_result, refreshed each poll tick
   progressStage?: string;
   progressText?: string;

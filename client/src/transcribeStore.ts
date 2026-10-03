@@ -12,6 +12,10 @@ export const POLL_MS = 1500;
 
 interface TranscribeState {
   stage: 'idle' | 'running' | 'failed';
+  /** The server's job, once submitted: Activity tells a queued run apart by it. */
+  jobId?: string;
+  /** The last run left the server's queue without running (CANCEL): idle, but not done. */
+  cancelled?: boolean;
   /** SheetSage2's share of windows done, while running. */
   progress?: number;
   error?: string;
@@ -53,7 +57,7 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
     if (get().stage === 'running') return false;
     lastStart = [engine, srcAudio, label, seedLyrics];
     const sourceKey = coverSourceKey(useCreateDraftStore.getState().audio);
-    set({ stage: 'running', progress: undefined, error: undefined, sourceKey });
+    set({ stage: 'running', jobId: undefined, cancelled: false, progress: undefined, error: undefined, sourceKey });
     const fail = (err: unknown) => {
       set({ stage: 'failed', error: err instanceof Error ? err.message : String(err) });
       return false;
@@ -64,6 +68,7 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
     } catch (err) {
       return fail(err);
     }
+    set({ jobId });
     for (;;) {
       await new Promise((r) => setTimeout(r, POLL_MS));
       let s: Awaited<ReturnType<typeof api.jobStatus>>;
@@ -73,9 +78,13 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
         if (!(err instanceof ApiError && err.status === 404)) continue; // a network hiccup is not a failed transcription
         s = { status: 'failed', error: JOB_GONE };
       }
-      if (s.status === 'loading' || s.status === 'running') {
+      if (s.status === 'queued' || s.status === 'loading' || s.status === 'running') {
         set({ progress: s.progress });
         continue;
+      }
+      if (s.cancelled) {
+        set({ stage: 'idle', cancelled: true, progress: undefined, sourceKey: null });
+        return false;
       }
       if (s.status === 'failed' || !s.transcription) return fail(s.error ?? 'transcription failed');
       const draft = useCreateDraftStore.getState();

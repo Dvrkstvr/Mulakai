@@ -10,7 +10,7 @@ import crypto from 'node:crypto';
 import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { cancelQueued, enqueue } from './genQueue.js';
 import {
   runAcestepStem, runDemucs, type SourceAudio, type StemResult, type SplitModel,
 } from './stemRunners.js';
@@ -27,6 +27,8 @@ export interface ScratchSplitJob {
   createdAt: number;
   /** Last client read (poll, preview, download, ANALYZE, GENERATE) — the idle clock. */
   lastSeenAt: number;
+  /** Waiting in genQueue.ts; its stems read `running` meanwhile. */
+  queued?: boolean;
 }
 
 /** Far longer than a layer split's hour: the picked stem is ARRANGE's source for as long as
@@ -54,14 +56,13 @@ export function scratchStemPath(job: ScratchSplitJob, kind: string): string | un
   return stem?.audioFile ? path.join(job.outDir, stem.audioFile) : undefined;
 }
 
-/** Start a scratch split job. Unlike the layer-based startSplit(), there's no song to lock
- * against — the genLock entry exists only so this counts toward the single-flight generation
- * limit ACE-Step's own queue expects. */
+/** Queue a scratch split job. Unlike the layer-based startSplit(), there's no song to work
+ * on — the queue entry exists only so this waits its turn behind ACE-Step's other jobs, as
+ * ACE-Step's own single-worker queue expects. CANCEL while queued discards it. */
 export async function startScratchSplit(src: SourceAudio, model: SplitModel, output?: unknown): Promise<ScratchSplitJob> {
   const jobId = crypto.randomUUID();
   const outDir = path.join(os.tmpdir(), `mulakai-split-${jobId}`);
   await fs.mkdir(outDir, { recursive: true });
-  acquireGenLock({ kind: 'split', jobId });
   const job: ScratchSplitJob = {
     id: jobId,
     model,
@@ -70,15 +71,23 @@ export async function startScratchSplit(src: SourceAudio, model: SplitModel, out
     outDir,
     createdAt: Date.now(),
     lastSeenAt: Date.now(),
+    queued: true,
   };
   jobs.set(job.id, job);
 
   const isActive = () => jobs.has(jobId);
-  const settled = model === 'acestep'
-    ? Promise.all(STEM_KINDS.map((kind) => runAcestepStem(job, kind, src, outDir, isActive)))
-    : runDemucs(job, src, outDir, isActive);
-  void settled.finally(() => releaseGenLock(jobId));
-
+  try {
+    enqueue({ kind: 'split', jobId, title: src.filename, label: 'split a file' }, async () => {
+      job.queued = false;
+      if (!isActive()) return;
+      await (model === 'acestep'
+        ? Promise.all(STEM_KINDS.map((kind) => runAcestepStem(job, kind, src, outDir, isActive)))
+        : runDemucs(job, src, outDir, isActive));
+    }, () => void discardScratchSplit(jobId), () => void discardScratchSplit(jobId));
+  } catch (err) {
+    await discardScratchSplit(jobId);
+    throw err;
+  }
   return job;
 }
 
@@ -87,11 +96,12 @@ export async function startScratchSplit(src: SourceAudio, model: SplitModel, out
 export async function discardScratchSplit(jobId: string): Promise<void> {
   const job = jobs.get(jobId);
   jobs.delete(jobId);
+  cancelQueued(jobId);
   await fs.rm(job?.outDir ?? path.join(os.tmpdir(), `mulakai-split-${jobId}`), { recursive: true, force: true });
 }
 
 /** Discard every settled scratch split unread for SCRATCH_IDLE_TTL_MS. A running one is left
- * to settle: it holds the genLock until its last stem lands. */
+ * to settle: it holds the queue's slot until its last stem lands. */
 export async function evictIdleScratchSplits(now = Date.now()): Promise<void> {
   const idle = [...jobs.values()].filter((j) => j.stems.every((s) => s.status !== 'running')
     && now - j.lastSeenAt > SCRATCH_IDLE_TTL_MS);

@@ -30,16 +30,16 @@ vi.mock('./acestep.js', () => ({
 }));
 vi.mock('./jobs.js', () => ({ ensureModelLoaded: vi.fn(async () => {}) }));
 
-const { getGenLock } = await import('./genLock.js');
+const { getRunning } = await import('./genQueue.js');
 const {
   startScratchSplit, getScratchSplitJob, evictIdleScratchSplits, isLiveScratchDir, SCRATCH_IDLE_TTL_MS,
 } = await import('./scratchSplitJobs.js');
 
 async function settledSplit() {
-  await vi.waitFor(() => expect(getGenLock()).toBeNull());
+  await vi.waitFor(() => expect(getRunning()).toBeNull());
   const job = await startScratchSplit({ data: Buffer.from('a full song'), filename: 'song.wav' }, 'acestep');
   await vi.waitFor(() => expect(job.stems.every((s) => s.status === 'done')).toBe(true));
-  await vi.waitFor(() => expect(getGenLock()).toBeNull());
+  await vi.waitFor(() => expect(getRunning()).toBeNull());
   return job;
 }
 

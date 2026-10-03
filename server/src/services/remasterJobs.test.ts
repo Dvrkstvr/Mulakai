@@ -141,7 +141,8 @@ describe('startRemaster', () => {
 
     const job = await startRemaster(songId, Buffer.from('mix'), 'acestep-v15-xl-sft');
 
-    expect(job.status).toBe('failed');
+    // Queued, then run at once on a free slot: the abort lands inside the run.
+    await vi.waitFor(() => expect(job.status).toBe('failed'));
     expect(job.error).toBe('Aborted');
     await new Promise((r) => setTimeout(r, 30));
     expect(getJob(job.id)?.resultPath).toBeUndefined();

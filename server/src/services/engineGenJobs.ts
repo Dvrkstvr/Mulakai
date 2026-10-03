@@ -1,13 +1,13 @@
 /**
  * Song creation on an extra engine (PLAN.md "Multiple Song-Creation Engines", design
  * point 5): submit -> poll -> fetch audio + score -> insertGeneratedSong. Shares jobs.ts's
- * Job registry and the `generate` genLock with ACE-Step's own startGeneration, but polls
+ * Job registry and the `generate` queue kind with ACE-Step's own startGeneration, but polls
  * the shared wrapper contract (engineClient.ts) instead of ACE-Step's query_result.
  */
 import crypto from 'node:crypto';
 import { config } from '../config.js';
-import { type Job, registerJob, run, wasAborted, MAX_POLL_STRIKES } from './jobs.js';
-import { acquireGenLock, releaseGenLock, type GenTask } from './genLock.js';
+import { type Job, queueJob, wasAborted, drainWhile, MAX_POLL_STRIKES } from './jobs.js';
+import type { GenTask } from './genQueue.js';
 import { submit, status, fetchAudio, fetchScore, cancel, type EngineJobState } from './engineClient.js';
 import { insertGeneratedSong } from './songPersist.js';
 import type { CreateFields, SongEngine } from './engines/types.js';
@@ -22,6 +22,13 @@ export interface EngineCover {
   source: string;
 }
 
+/** Ask the wrapper to stop an aborted job, then hold the queue's slot until it has (drainWhile). */
+async function stopEngineJob(engine: SongEngine, taskId: string): Promise<undefined> {
+  await cancel(engine, taskId);
+  await drainWhile(async () => (await status(engine, taskId)).state === 'running');
+  return undefined;
+}
+
 /**
  * Polls until the wrapper reports a terminal state. Resolves with the finished state,
  * or undefined once the job was aborted on our side (see jobs.ts's abortJob) — in which
@@ -32,8 +39,7 @@ async function pollEngine(job: Job, engine: SongEngine): Promise<EngineJobState 
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
     if (job.status !== 'running') {
-      void cancel(engine, job.taskId);
-      return undefined;
+      return stopEngineJob(engine, job.taskId);
     }
     let state: EngineJobState;
     try {
@@ -41,13 +47,12 @@ async function pollEngine(job: Job, engine: SongEngine): Promise<EngineJobState 
       strikes = 0;
     } catch (err) {
       // Same 3-strike rule as jobs.ts's poll(): one flaky status call must not kill a long
-      // GPU run, but a wedged wrapper must not hold the genLock forever either.
+      // GPU run, but a wedged wrapper must not hold the queue's slot forever either.
       if (++strikes < MAX_POLL_STRIKES) continue;
       throw err;
     }
     if (wasAborted(job)) {
-      void cancel(engine, job.taskId);
-      return undefined;
+      return stopEngineJob(engine, job.taskId);
     }
     if (state.state === 'failed') throw new Error(state.error ?? `${engine.label} generation failed`);
     if (state.state === 'done') return state;
@@ -88,24 +93,22 @@ async function persistEngineSong(
   });
 }
 
-/** Submit a new-song generation to an extra engine and persist the result as a new song
- * with a base layer. Throws GenLockError synchronously if another generation is running;
- * throws before locking if `cover` is given to an engine that can't cover. */
+/** Queue a new-song generation on an extra engine and persist the result as a new song
+ * with a base layer. Throws QueueFullError synchronously when the queue is full; throws
+ * before queueing if `cover` is given to an engine that can't cover. */
 export function startEngineGeneration(
   engine: SongEngine, fields: CreateFields, title: string, folderId?: string | null, cover?: EngineCover,
 ): Job {
   if (cover && !engine.toCoverRequest) throw new Error(`${engine.label} cannot cover a score`);
-  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'loading', createdAt: Date.now() };
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
   const task: GenTask = cover ? 'cover' : 'text2music';
-  acquireGenLock({ kind: 'generate', jobId: job.id, title, caption: fields.prompt, task, engine: engine.id });
-  registerJob(job);
-  void run(job, async () => {
+  return queueJob({ kind: 'generate', title, caption: fields.prompt, task, engine: engine.id }, job, async () => {
     const request = cover ? engine.toCoverRequest!(fields, cover.abc) : engine.toRequest(fields);
     const taskId = await submit(engine, request, job.id);
     job.taskId = taskId;
     if (wasAborted(job)) {
       // aborted while the wrapper was accepting the submission
-      void cancel(engine, taskId);
+      await stopEngineJob(engine, taskId);
       return;
     }
     job.status = 'running';
@@ -113,6 +116,5 @@ export function startEngineGeneration(
     if (!finished) return;
     job.songId = await persistEngineSong(engine, taskId, fields, request, finished.truncated, title, folderId, cover);
     job.status = 'done';
-  }).finally(() => releaseGenLock(job.id));
-  return job;
+  });
 }

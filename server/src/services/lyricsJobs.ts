@@ -5,9 +5,7 @@
  * library; the reading stays on the job for the client to place into LYRICS.
  */
 import crypto from 'node:crypto';
-import { config } from '../config.js';
-import { type Job, registerJob, run, wasAborted } from './jobs.js';
-import { acquireGenLock, releaseGenLock } from './genLock.js';
+import { type Job, queueJob, wasAborted } from './jobs.js';
 import { transcribeLyrics, type LyricsReading } from './lyricsClient.js';
 
 export interface LyricsOutcome extends LyricsReading {
@@ -22,24 +20,24 @@ export interface LyricsSource {
   language: string;
 }
 
-/** Throws GenLockError synchronously if another generation holds the lock. */
+/** Throws QueueFullError synchronously when the queue is full. */
 export function startLyricsTranscription(source: LyricsSource): Job {
-  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'running', createdAt: Date.now() };
-  acquireGenLock({ kind: 'lyrics', jobId: job.id, title: source.label });
-  registerJob(job);
-  // abortJob only marks the job failed; this turns that into cancelling the request.
-  const abort = new AbortController();
-  const watch = setInterval(() => wasAborted(job) && abort.abort(), config.pollIntervalMs);
-  void run(job, async () => {
-    const reading = await transcribeLyrics(source.data, source.filename, source.language, abort.signal);
+  const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
+  return queueJob({ kind: 'lyrics', title: source.label }, job, () => abortable(job, async () => {
+    const reading = await transcribeLyrics(source.data, source.filename, source.language);
     if (wasAborted(job)) return;
     job.lyrics = { ...reading, sourceLabel: source.label };
     job.status = 'done';
-  }).finally(() => {
-    clearInterval(watch);
-    // run() overwrote an abort's message with the cancelled request's error.
-    if (abort.signal.aborted) job.error = 'Aborted';
-    releaseGenLock(job.id);
-  });
-  return job;
+  }), 'running');
+}
+
+/** An aborted read keeps the queue's slot until lyrics-server answers, or lyricsTimeoutMs fires:
+ * it has no cancel, and dropping the request wouldn't stop its work on the GPU. The reading is
+ * then ignored (the body checks wasAborted), and a late error keeps the abort's own message. */
+export async function abortable(job: Job, body: () => Promise<void>): Promise<void> {
+  try {
+    await body();
+  } catch (err) {
+    if (!wasAborted(job)) throw err;
+  }
 }

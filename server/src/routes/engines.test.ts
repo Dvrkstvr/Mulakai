@@ -13,7 +13,7 @@ vi.mock('../services/engines/registry.js', () => ({
 vi.mock('../services/engineGenJobs.js', () => ({ startEngineGeneration: vi.fn(() => ({ id: 'engine-job-1' })) }));
 
 const { startEngineGeneration } = await import('../services/engineGenJobs.js');
-const { GenLockError } = await import('../services/genLock.js');
+const { QueueFullError } = await import('../services/genQueue.js');
 const { enginesRouter, pickCreateFields } = await import('./engines.js');
 const start = vi.mocked(startEngineGeneration);
 
@@ -71,7 +71,7 @@ describe('POST /api/engines/:id/generate', () => {
   });
 
   it('409s while another generation holds the lock', async () => {
-    start.mockImplementationOnce(() => { throw new GenLockError(); });
+    start.mockImplementationOnce(() => { throw new QueueFullError(); });
     expect((await post('yue2', { prompt: 'pop' })).status).toBe(409);
   });
 });

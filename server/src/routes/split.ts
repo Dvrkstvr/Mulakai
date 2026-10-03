@@ -4,7 +4,7 @@ import multer from 'multer';
 import { splitHealth } from '../services/splitHealth.js';
 import { getSplitJob, claimStem, reextractStem, cancelSplit, type StemKind, type SplitModel } from '../services/stemSplit.js';
 import { startScratchSplit, getScratchSplitJob, discardScratchSplit, scratchStemPath } from '../services/scratchSplitJobs.js';
-import { GenLockError } from '../services/genLock.js';
+import { QueueFullError, queuePosition } from '../services/genQueue.js';
 
 export const splitRouter = Router();
 
@@ -24,6 +24,12 @@ function parseOutputBody(raw: unknown): unknown {
   } catch {
     return undefined;
   }
+}
+
+/** `queued` while the split waits its turn (genQueue.ts), then running until every stem settles. */
+function splitStatus(job: { id: string; queued?: boolean; stems: { status: string }[] }) {
+  if (job.queued) return { status: 'queued' as const, queuePosition: queuePosition(job.id) };
+  return { status: job.stems.every((s) => s.status !== 'running') ? 'done' as const : 'running' as const };
 }
 
 function isStemKind(v: unknown): v is StemKind {
@@ -46,7 +52,7 @@ splitRouter.post('/scratch', upload.single('audio'), async (req, res) => {
     );
     res.status(202).json({ jobId: job.id });
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     res.status(502).json({ error: err instanceof Error ? err.message : 'ACE-Step unreachable' });
   }
 });
@@ -54,8 +60,7 @@ splitRouter.post('/scratch', upload.single('audio'), async (req, res) => {
 splitRouter.get('/scratch/:jobId', (req, res) => {
   const job = getScratchSplitJob(req.params.jobId);
   if (!job) return res.status(404).json({ error: 'unknown split job' });
-  const status = job.stems.every((s) => s.status !== 'running') ? 'done' : 'running';
-  res.json({ status, stems: job.stems.map((s) => ({ kind: s.kind, status: s.status, error: s.error })) });
+  res.json({ ...splitStatus(job), stems: job.stems.map((s) => ({ kind: s.kind, status: s.status, error: s.error })) });
 });
 
 splitRouter.get('/scratch/:jobId/:kind/download', (req, res) => {
@@ -76,8 +81,7 @@ splitRouter.post('/scratch/:jobId/discard', async (req, res) => {
 splitRouter.get('/:jobId', (req, res) => {
   const job = getSplitJob(req.params.jobId);
   if (!job) return res.status(404).json({ error: 'unknown split job' });
-  const status = job.stems.every((s) => s.status !== 'running') ? 'done' : 'running';
-  res.json({ status, stems: job.stems });
+  res.json({ ...splitStatus(job), stems: job.stems });
 });
 
 splitRouter.post('/:jobId/stems/:kind/replace', (req, res) => {
@@ -103,7 +107,7 @@ splitRouter.post('/:jobId/stems/:kind/reextract', (req, res) => {
   try {
     res.json(reextractStem(req.params.jobId, req.params.kind));
   } catch (err) {
-    if (err instanceof GenLockError) return res.status(409).json({ error: err.message });
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     res.status(400).json({ error: err instanceof Error ? err.message : 're-extract failed' });
   }
 });

@@ -35,7 +35,7 @@ vi.mock('./jobs.js', () => ({ ensureModelLoaded: vi.fn(async () => {}) }));
 const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
 const acestep = await import('./acestep.js');
-const { getGenLock } = await import('./genLock.js');
+const { getRunning } = await import('./genQueue.js');
 const { startSplit, claimStem, getSplitJob, reextractStem, cancelSplit } = await import('./stemSplit.js');
 type StemKind = 'vocals' | 'drums' | 'bass' | 'other';
 
@@ -74,7 +74,7 @@ const bytes = (file: string) => fs.readFileSync(path.join(config.audioDir, file)
 const exists = (file: string) => fs.existsSync(path.join(config.audioDir, file));
 
 // Each split/re-extract holds the global lock until its last step, so wait for that too.
-const idle = () => vi.waitFor(() => expect(getGenLock()).toBeNull());
+const idle = () => vi.waitFor(() => expect(getRunning()).toBeNull());
 
 async function settledSplit(layerId: string, model: 'acestep' | 'demucs') {
   await idle();

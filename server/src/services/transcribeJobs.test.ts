@@ -26,7 +26,7 @@ vi.mock('./engineTranscribeClient.js', () => ({
 }));
 
 const { getJob, abortJob } = await import('./jobs.js');
-const { acquireGenLock, releaseGenLock, getGenLock, GenLockError } = await import('./genLock.js');
+const { enqueue, getRunning } = await import('./genQueue.js');
 const { startTranscription } = await import('./transcribeJobs.js');
 
 const engine = { id: 'yue2', label: 'YUE2', url: 'http://127.0.0.1:9000', apiKey: '' } as SongEngine;
@@ -34,7 +34,7 @@ const source = { data: Buffer.from('audio'), filename: 'ellies.wav', label: 'Ell
 
 async function settle(jobId: string, status: 'done' | 'failed') {
   await vi.waitFor(() => expect(getJob(jobId)?.status).toBe(status));
-  await vi.waitFor(() => expect(getGenLock()).toBeNull());
+  await vi.waitFor(() => expect(getRunning()).toBeNull());
 }
 
 beforeEach(() => {
@@ -48,7 +48,7 @@ describe('startTranscription', () => {
     client.transcriptionStatus.mockImplementation(async () =>
       (++calls < 3 ? { state: 'running', stage: 'transcribing', progress: 0.5 } : { state: 'done', facts: FACTS }));
     const job = startTranscription(engine, source);
-    expect(getGenLock()).toMatchObject({ kind: 'transcribe', jobId: job.id, title: 'Ellies City 2', engine: 'yue2' });
+    expect(getRunning()).toMatchObject({ kind: 'transcribe', jobId: job.id, title: 'Ellies City 2', engine: 'yue2' });
     await vi.waitFor(() => expect(getJob(job.id)?.progressStage).toBe('transcribing'));
     expect(getJob(job.id)?.progress).toBe(0.5);
     await settle(job.id, 'done');
@@ -71,18 +71,23 @@ describe('startTranscription', () => {
     client.transcriptionStatus.mockImplementation(async () => ({ state: 'running' }));
     const job = startTranscription(engine, source);
     await vi.waitFor(() => expect(getJob(job.id)?.status).toBe('running'));
+    client.cancelTranscription.mockImplementationOnce(async () => {
+      client.transcriptionStatus.mockImplementation(async () => ({ state: 'failed', error: 'cancelled' }));
+    });
     abortJob(job.id);
     await vi.waitFor(() => expect(client.cancelTranscription).toHaveBeenCalledWith(engine, 'remote-1'));
-    expect(getGenLock()).toBeNull();
+    await vi.waitFor(() => expect(getRunning()).toBeNull()); // freed once the engine says it stopped
     expect(client.fetchTranscriptionScore).not.toHaveBeenCalled();
   });
 
-  it('refuses to start while another job holds the lock', () => {
-    acquireGenLock({ kind: 'generate', jobId: 'other' });
-    try {
-      expect(() => startTranscription(engine, source)).toThrow(GenLockError);
-    } finally {
-      releaseGenLock('other');
-    }
+  it('waits in the queue behind a running job, then starts once it finishes', async () => {
+    let free!: () => void;
+    enqueue({ kind: 'generate', jobId: 'other' }, () => new Promise<void>((r) => { free = r; }));
+    const job = startTranscription(engine, source);
+    expect(job.status).toBe('queued');
+    expect(client.transcribe).not.toHaveBeenCalled();
+    free();
+    await vi.waitFor(() => expect(client.transcribe).toHaveBeenCalled());
+    await vi.waitFor(() => expect(getRunning()).toBeNull());
   });
 });

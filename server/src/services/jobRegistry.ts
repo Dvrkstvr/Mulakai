@@ -3,13 +3,17 @@
  * the Job record, lookup/registration, and the dev-facing abort.
  */
 import fs from 'node:fs/promises';
-import { releaseGenLock } from './genLock.js';
+import { abortRunning, cancelQueued, getRunning } from './genQueue.js';
 
 export interface Job {
   id: string;
   taskId: string;
-  status: 'loading' | 'running' | 'done' | 'failed';
+  /** `queued`: waiting in genQueue.ts for the running job to finish. */
+  status: 'queued' | 'loading' | 'running' | 'done' | 'failed';
   error?: string;
+  /** Set when the job left the queue without running (CANCEL, or its song was trashed):
+   * the client drops it rather than offering RETRY. */
+  cancelled?: boolean;
   songId?: string;
   createdAt: number;
   /** Last client read — the idle clock evictIdleJobs reads. Set by registerJob. */
@@ -24,6 +28,8 @@ export interface Job {
   transcription?: import('./transcribeJobs.js').TranscriptionOutcome;
   /** Set by lyricsJobs.ts on success: the words read from the source, with timings. */
   lyrics?: import('./lyricsJobs.js').LyricsOutcome;
+  /** Set by analyzeJobs.ts on success: ACE-Step's description of the source. */
+  analysis?: import('./acestep.js').FormatInputResult;
 }
 
 /** Readers stop once a job settles (a remaster is downloaded right then), so an hour
@@ -70,22 +76,32 @@ export function wasAborted(job: Job): boolean {
   return job.status === 'failed';
 }
 
-/**
- * Dev-facing abort: marks a job failed so `poll()` stops on its next tick and
- * releases the generation lock immediately, so the UI unblocks right away. Also
- * catches a job still in its pre-registration `run()` body (see repaintJobs.ts
- * etc.'s `wasAborted()` checks after each await) — every job-start function
- * registers its Job synchronously before its first await specifically so this
- * has something to mark right away, not just once polling begins.
- * The underlying ACE-Step task keeps running server-side (no cancel primitive
- * exists there, same caveat as stemSplit.ts's cancelSplit) — its eventual
- * result is simply ignored since `poll()` has already returned.
- */
-export function abortJob(jobId: string): boolean {
-  const job = jobs.get(jobId);
-  releaseGenLock(jobId);
-  if (!job || job.status === 'done' || job.status === 'failed') return false;
+/** What a job that left the queue without running settles as (genQueue.ts's onCancel). */
+export function settleCancelled(job: Job, reason: string): void {
+  job.status = 'failed';
+  job.error = reason;
+  job.cancelled = true;
+}
+
+/** Marks a job aborted unless it already settled — genQueue.ts's onAbort for a queued Job. */
+export function markAborted(job: Job): void {
+  if (job.status === 'done' || job.status === 'failed') return;
   job.status = 'failed';
   job.error = 'Aborted';
+}
+
+/**
+ * Dev-facing abort: marks a job failed so its body stops at its next `wasAborted()` check
+ * (every job-start function registers its Job before its first await, so this catches the
+ * model-load and submission window too). A queued job is simply taken out of the line. The
+ * running job's slot stays held while its backend task drains (genQueue.ts's abortRunning):
+ * ACE-Step has no cancel primitive, so the task keeps running there and its result is ignored.
+ */
+export function abortJob(jobId: string): boolean {
+  if (cancelQueued(jobId)) return true;
+  const job = jobs.get(jobId);
+  if (!job || job.status === 'done' || job.status === 'failed') return false;
+  markAborted(job);
+  if (getRunning()?.jobId === jobId) abortRunning();
   return true;
 }

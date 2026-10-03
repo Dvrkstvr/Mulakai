@@ -5,7 +5,7 @@ import type { Server } from 'node:http';
 vi.mock('../services/acestep.js', () => ({ healthState: vi.fn(async () => 'up') }));
 
 const acestep = await import('../services/acestep.js');
-const { acquireGenLock, releaseGenLock } = await import('../services/genLock.js');
+const { enqueue, resetQueue } = await import('../services/genQueue.js');
 const { generateHelpersRouter } = await import('./generateHelpers.js');
 
 let server: Server;
@@ -20,7 +20,8 @@ beforeAll(async () => {
 });
 
 afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));
-afterEach(() => releaseGenLock('job-1'));
+afterEach(() => resetQueue());
+const hold = () => enqueue({ kind: 'generate', jobId: 'job-1' }, () => new Promise(() => {}));
 
 const get = async () => (await fetch(url)).json();
 
@@ -30,8 +31,8 @@ describe('GET /health', () => {
     expect(await get()).toEqual({ acestep: true, busy: false });
   });
 
-  it('reads silence under a held generation lock as busy', async () => {
-    acquireGenLock({ kind: 'generate', jobId: 'job-1' });
+  it('reads silence while a job runs as busy', async () => {
+    hold();
     vi.mocked(acestep.healthState).mockResolvedValueOnce('silent');
     expect(await get()).toEqual({ acestep: false, busy: true });
   });
@@ -42,7 +43,7 @@ describe('GET /health', () => {
   });
 
   it('never calls a refused connection busy, even mid-job', async () => {
-    acquireGenLock({ kind: 'generate', jobId: 'job-1' });
+    hold();
     vi.mocked(acestep.healthState).mockResolvedValueOnce('down');
     expect(await get()).toEqual({ acestep: false, busy: false });
   });

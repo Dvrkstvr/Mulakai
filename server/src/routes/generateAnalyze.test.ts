@@ -5,8 +5,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-// The real genLock and the real startGeneration (jobs.ts): a refused generate has to be the
-// same 409 a second tab gets, not a mock's say-so. Only ACE-Step's analyze call is faked.
+// The real queue and the real startGeneration (jobs.ts): a generate queued behind an analysis
+// is what a second tab gets, not a mock's say-so. Only ACE-Step's analyze call is faked.
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-analyze-test-'));
 process.env.ACESTEP_API_URL = 'http://acestep.test';
 process.env.ACESTEP_TIMEOUT_MS = '100';
@@ -18,8 +18,7 @@ vi.mock('../services/acestep.js', async (importOriginal) => ({
 
 const acestep = await import('../services/acestep.js');
 const realAcestep = await vi.importActual<typeof import('../services/acestep.js')>('../services/acestep.js');
-const { acquireGenLock, releaseGenLock, getGenLock } = await import('../services/genLock.js');
-const { analyzeUnderLock } = await import('../services/analyzeJobs.js');
+const { enqueue, getRunning, resetQueue } = await import('../services/genQueue.js');
 const { generateRouter } = await import('./generate.js');
 
 const RESULT = { caption: 'a piano ballad', lyrics: '' };
@@ -41,15 +40,18 @@ afterAll(() => new Promise<void>((resolve) => server.close(() => resolve())));
 afterEach(() => {
   vi.mocked(acestep.analyzeAudio).mockReset();
   vi.unstubAllGlobals();
-  const lock = getGenLock();
-  if (lock) releaseGenLock(lock.jobId);
+  resetQueue();
 });
 
-function analyze(): Promise<Response> {
+async function analyze(): Promise<string> {
   const form = new FormData();
   form.append('src_audio', new Blob([new Uint8Array([1, 2, 3])]), 'song.wav');
-  return fetch(`${baseUrl}/analyze-audio`, { method: 'POST', body: form });
+  const res = await fetch(`${baseUrl}/analyze-audio`, { method: 'POST', body: form });
+  expect(res.status).toBe(202);
+  return ((await res.json()) as { jobId: string }).jobId;
 }
+
+const status = async (jobId: string) => (await fetch(`${baseUrl}/${jobId}`)).json();
 
 function generate(): Promise<Response> {
   return fetch(`${baseUrl}/`, {
@@ -58,62 +60,67 @@ function generate(): Promise<Response> {
   });
 }
 
-describe('POST /analyze-audio and the genLock', () => {
-  it('holds an `analyze` lock while ACE-Step listens, refuses a generate meanwhile, then releases it', async () => {
+describe('POST /analyze-audio as a queued job', () => {
+  it('runs as `analyze`, queues a generate behind it, and carries the analysis on the polled job', async () => {
     let finish!: (r: typeof RESULT) => void;
     vi.mocked(acestep.analyzeAudio).mockImplementation(() => new Promise((r) => { finish = r; }));
 
-    const pending = analyze();
+    const jobId = await analyze();
     await vi.waitFor(() => expect(acestep.analyzeAudio).toHaveBeenCalled());
-
-    expect(getGenLock()).toMatchObject({ kind: 'analyze', title: 'song.wav' });
+    expect(getRunning()).toMatchObject({ kind: 'analyze', title: 'song.wav', jobId });
     const active = await (await fetch(`${baseUrl}/active`)).json();
     expect(active.active).toMatchObject({ kind: 'analyze', status: 'running' });
 
-    const refused = await generate();
-    expect(refused.status).toBe(409);
-    expect((await refused.json()).error).toBe('an audio analysis is already in progress');
+    const queued = await generate();
+    expect(queued.status).toBe(202);
+    const genId = ((await queued.json()) as { jobId: string }).jobId;
+    expect(await status(genId)).toMatchObject({ status: 'queued', queuePosition: 1 });
+    // CANCEL the waiting generate so it never reaches the (unreachable) ACE-Step.
+    expect((await fetch(`${baseUrl}/${genId}/cancel`, { method: 'POST' })).status).toBe(200);
+    expect(await status(genId)).toMatchObject({ status: 'failed', error: 'cancelled', cancelled: true });
 
     finish(RESULT);
-    const res = await pending;
-    expect(res.status).toBe(200);
-    expect(await res.json()).toEqual(RESULT);
-    expect(getGenLock()).toBeNull();
+    await vi.waitFor(async () => expect(await status(jobId)).toMatchObject({ status: 'done', analysis: RESULT }));
+    expect(getRunning()).toBeNull();
   });
 
-  it('releases the lock when ACE-Step fails', async () => {
+  it('fails the job and frees the slot when ACE-Step fails', async () => {
     vi.mocked(acestep.analyzeAudio).mockRejectedValue(new Error('ACE-Step /v1/analyze_audio -> DiT not initialized'));
 
-    const res = await analyze();
-    expect(res.status).toBe(502);
-    expect((await res.json()).error).toMatch(/DiT not initialized/);
-    expect(getGenLock()).toBeNull();
+    const jobId = await analyze();
+    await vi.waitFor(async () => expect((await status(jobId)).status).toBe('failed'));
+    expect((await status(jobId)).error).toMatch(/DiT not initialized/);
+    expect(getRunning()).toBeNull();
   });
 
-  it('releases the lock when the ACE-Step call times out', async () => {
+  it('fails the job and frees the slot when the ACE-Step call times out', async () => {
     // The real analyzeAudio against a socket that never answers: call()'s own leash fires.
     vi.mocked(acestep.analyzeAudio).mockImplementation(realAcestep.analyzeAudio);
-    vi.stubGlobal('fetch', vi.fn((_url: string, init?: RequestInit) => new Promise((_resolve, reject) => {
-      init?.signal?.addEventListener('abort', () => reject(init.signal!.reason));
-    })));
+    const realFetch = globalThis.fetch;
+    vi.stubGlobal('fetch', vi.fn((url: string, init?: RequestInit) => (String(url).startsWith('http://acestep.test')
+      ? new Promise((_resolve, reject) => { init?.signal?.addEventListener('abort', () => reject(init.signal!.reason)); })
+      : realFetch(url, init))));
 
-    await expect(analyzeUnderLock({ data: Buffer.from([1]), filename: 'song.wav' })).rejects.toThrow(/no response within/);
-    expect(getGenLock()).toBeNull();
+    const jobId = await analyze();
+    await vi.waitFor(async () => expect((await status(jobId)).error).toMatch(/no response within/));
+    expect(getRunning()).toBeNull();
   });
 
-  it('is refused while another job holds the lock, without calling ACE-Step', async () => {
-    acquireGenLock({ kind: 'repaint', jobId: 'repaint-1', songId: 'song-1' });
+  it('waits behind another job without calling ACE-Step until it finishes', async () => {
+    vi.mocked(acestep.analyzeAudio).mockResolvedValue(RESULT);
+    let free!: () => void;
+    enqueue({ kind: 'repaint', jobId: 'repaint-1', songId: 'song-1' }, () => new Promise<void>((r) => { free = r; }));
 
-    const res = await analyze();
-    expect(res.status).toBe(409);
-    expect((await res.json()).error).toBe('a repaint is already in progress');
+    const jobId = await analyze();
+    expect(await status(jobId)).toMatchObject({ status: 'queued', queuePosition: 1 });
     expect(acestep.analyzeAudio).not.toHaveBeenCalled();
-    expect(getGenLock()?.jobId).toBe('repaint-1');
+    free();
+    await vi.waitFor(async () => expect(await status(jobId)).toMatchObject({ status: 'done', analysis: RESULT }));
   });
 
-  it('still answers 400 for a missing source without touching the lock', async () => {
+  it('still answers 400 for a missing source without queueing anything', async () => {
     const res = await fetch(`${baseUrl}/analyze-audio`, { method: 'POST', body: new FormData() });
     expect(res.status).toBe(400);
-    expect(getGenLock()).toBeNull();
+    expect(getRunning()).toBeNull();
   });
 });

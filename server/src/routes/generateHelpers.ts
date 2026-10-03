@@ -2,7 +2,7 @@
  * Mounted on generateRouter (generate.ts). */
 import { Router } from 'express';
 import { config } from '../config.js';
-import { getGenLock } from '../services/genLock.js';
+import { getRunning } from '../services/genQueue.js';
 import { healthState, listModels, formatInput, createRandomSample, createSampleFromQuery } from '../services/acestep.js';
 
 export const generateHelpersRouter = Router();
@@ -36,11 +36,11 @@ generateHelpersRouter.post('/sample-from-query', async (req, res) => {
   }
 });
 
-/** `busy`: ACE-Step went silent while a job holds the generation lock — it answers nothing
+/** `busy`: ACE-Step went silent while a job holds the queue's slot — it answers nothing
  * mid-generation, so that silence is work in progress, not an outage. */
 generateHelpersRouter.get('/health', async (_req, res) => {
   const state = await healthState();
-  res.json({ acestep: state === 'up', busy: state === 'silent' && getGenLock() !== null });
+  res.json({ acestep: state === 'up', busy: state === 'silent' && getRunning() !== null });
 });
 
 generateHelpersRouter.get('/models', async (_req, res) => {

@@ -9,6 +9,10 @@ import { api, ApiError } from './api';
 export interface TimingsRun {
   stage: 'running' | 'done' | 'failed';
   error?: string;
+  /** The server's job, once submitted: Activity tells a queued read apart by it. */
+  jobId?: string;
+  /** Failed because it was cancelled while queued. */
+  cancelled?: boolean;
 }
 
 interface TimingsState {
@@ -52,10 +56,11 @@ export const useTimingsStore = create<TimingsState>((set, get) => {
       try {
         ({ jobId } = await api.readTimings(versionId));
       } catch (err) {
-        // Another job took the lock first: not a failure, the auto-read tries again once it frees.
+        // The server's queue is full: not a failure, the auto-read tries again later.
         if (err instanceof ApiError && err.status === 409) return settle(versionId, null);
         return settle(versionId, { stage: 'failed', error: err instanceof Error ? err.message : String(err) });
       }
+      settle(versionId, { stage: 'running', jobId });
       for (;;) {
         await new Promise((r) => setTimeout(r, POLL_MS));
         let status: Awaited<ReturnType<typeof api.jobStatus>>;
@@ -67,6 +72,9 @@ export const useTimingsStore = create<TimingsState>((set, get) => {
           continue;
         }
         if (status.status === 'done') return settle(versionId, { stage: 'done' });
+        // CANCEL on its UP NEXT row: it sticks like a failure (so the auto-read doesn't queue it
+        // straight back), RETRY reads it, but Activity records no FAILED row for it.
+        if (status.status === 'failed' && status.cancelled) return settle(versionId, { stage: 'failed', error: 'cancelled', cancelled: true });
         if (status.status === 'failed') return settle(versionId, { stage: 'failed', error: status.error ?? 'failed' });
       }
     },

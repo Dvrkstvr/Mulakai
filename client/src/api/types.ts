@@ -169,7 +169,7 @@ export interface RefineResult {
   vocal_language?: string;
 }
 
-/** Mirrors server/src/services/genLock.ts's GenLockInfo, joined with the underlying job's status. */
+/** Mirrors server/src/services/genQueue.ts's RunningInfo, joined with the underlying job's status. */
 export interface ActiveGeneration {
   kind:
     | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster'

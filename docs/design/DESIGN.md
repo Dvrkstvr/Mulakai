@@ -583,7 +583,7 @@ requiring its own justification against a screen-count rule.
      ("1 line not heard"). The `LYRICS` label sits under the chips at the
      left; state sits over them at the right edge (`panel` background):
      - **Timing** (added 2026-10-02): opening a song whose base version
-       hasn't been read reads it in the background (a genLock job, shown in
+       hasn't been read reads it in the background (a queued job, shown in
        Activity). While it runs the state reads `TIMING…` in `text-low`.
        It stays plain, like TRANSCRIBE: reading words isn't generating. A
        failed read shows a `.warn-note`, "couldn't time these lyrics" with
@@ -869,6 +869,12 @@ never destroys the old one.
 - Empty selection = whole song scope (REPAINT repaints the whole layer when
   the song is within the 3–90 s repaint limit; a longer one takes a region).
 - Actions always state the version they will create before commit.
+- One GPU job runs at a time; the server **queues** a second one instead of
+  refusing it (2026-10-03, PLAN.md "UI Redesign" S4). Whatever waits is
+  listed in Activity's UP NEXT with CANCEL (a job submitted from another
+  tab, or just as the running one started, waits there). Until S4 part b
+  the commit buttons still read "WAIT FOR …" while a job runs; part b
+  enables them and adds "· starts after N jobs" to the consequence line.
 
 ## Motion
 
@@ -893,7 +899,8 @@ Left to right (revised 2026-10-03): back button (on a takeover view) ·
 `MULAKAI` · the **palette trigger**, a hairline field-shaped button reading
 `Search or run anything…` with a `CTRL K` key hint (it opens a search, so
 it looks like a field, not a chip) · then, at the right, **ACTIVITY** (a
-plain outlined parallelogram, `ACTIVITY · 2 RUNNING` while jobs run) · the
+plain outlined parallelogram, `ACTIVITY · 2 RUNNING` while jobs run, `· 1 NEXT`
+appended while jobs wait in the queue) · the
 model status badge. The old job pill and its rust ABORT left the header:
 the running job and its ABORT live in Activity.
 
@@ -936,11 +943,26 @@ stays live and clickable, ESC or the header button closes it. It stops above
 the Library's footer player. Sections, each with a 9px `text-low` label:
 - **RUNNING** — every job in flight: song generation, the repaint family,
   add layer, remaster, split, TRANSCRIBE, READ LYRICS, word timings, and
-  whatever the server's lock names that this tab doesn't track (ANALYZE
+  whatever the server says is running that this tab doesn't track (ANALYZE
   AUDIO, another tab's job, a job from before a reload). Rows for jobs that
   make or describe audio wear the AI shader (see AI states); the others are
   plain cards with `n%` and a 2px `text-mid` bar. The row holding the
-  server's lock carries ABORT, a quiet outline.
+  server's running slot carries ABORT, a quiet outline. ABORT drops the
+  result at once, but the next queued job waits until the abandoned task
+  has really stopped on its backend (ACE-Step can't cancel one), at most
+  10 minutes; pressing ABORT again starts the next job right away.
+- **UP NEXT** (added 2026-10-03, S4) — every job waiting in the server's
+  queue, this tab's or another's, in queue order: a plain card with a
+  **dashed** `line-hi` hairline (waiting, not working, so never the AI
+  shader), titled "<song> · <layer>" (or what it reads, e.g. the source
+  file), with the action and its place in line below in `text-mid`
+  ("REPAINT 1:32–2:07 · starts after 1 job"), and **CANCEL**, a quiet
+  outline. CANCEL takes it out of the queue: nothing was made yet, so the
+  row simply goes — no FAILED row, no RETRY. CANCEL only ever cancels a
+  waiting job: if it started since the row was drawn, it is left running,
+  moves to RUNNING, and a `rust-text` note under UP NEXT says so. A job this tab follows shows
+  here, not under RUNNING, until it starts. Trashing a song cancels its
+  waiting jobs the same way.
 - **DONE** — title, a lilac result badge (`VOCALS v5`, `+1 LANE`,
   `4 STEMS`, `NEW SONG`), what happened and when, and OPEN (lilac outline)
   to the Editor, or to Create for TRANSCRIBE / READ LYRICS.
@@ -950,7 +972,10 @@ the Library's footer player. Sections, each with a 9px `text-low` label:
   failed generation reopens Create on its draft). Word timings record only
   failures: they start on their own, so only a failure needs a person.
 - CLEAR DONE empties DONE and FAILED. The list is session-only, newest
-  first, capped at 30; a reload rebuilds RUNNING from the server's lock.
+  first, capped at 30; a reload rebuilds RUNNING from the server's running
+  job and UP NEXT from its queue. The queue lives in server memory: a
+  server restart loses it, and a job it lost fails as "the server no longer
+  has this job" with RETRY.
 
 **Model status badge** (2026-10-02): one hairline rectangle at the header's
 right — a square dot, `MODELS`, and a summary: `N READY`, `N DOWN`,
@@ -1089,7 +1114,10 @@ ACE-Step's LM describes the source (`AnalyzeAudioButton.tsx`, on every
 engine — it has worn the shader since it was added, and is listed here
 now so the list is complete); and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
-ANALYZE AUDIO. TRANSCRIBE and READ LYRICS stay plain: SheetSage2 reads
+ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
+(UP NEXT, or the library card of a generation reading `QUEUED · STARTS
+AFTER 1 JOB`) stays plain, since nothing is working on it yet. TRANSCRIBE
+and READ LYRICS stay plain: SheetSage2 reads
 notes and lyrics-server reads words; neither describes or generates. So do
 their Activity rows, and those for word timings and stem splits.
 
@@ -1102,6 +1130,8 @@ this shimmer outside these cases, that's a scope question, not a default.
 - Buttons/labels: uppercase, 1–3 words, verb-first for actions.
 - Every destructive or generative action states its consequence inline
   ("result will be saved as vocals v3", "deleted after 7 days").
+- A job that has to wait says when it starts relative to the queue, never
+  as a time: "starts after 1 job", "starts after 2 jobs".
 - Errors: what happened + what to do, in rust context, never blocking the
   canvas ("'Copper Sky' failed — CUDA out of memory · RETRY").
 
