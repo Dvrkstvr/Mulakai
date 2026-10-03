@@ -21,3 +21,5 @@ R1 stage 7 M0 · #125 (W1) merged (user OK); W2 pushed as PR #126 (auto-fix on);
 R2 stage 7 M0/W3 · builder → SCORE dock verb (F-021, F-022, F-024): reducer 52-row table, status route, cancel, limits; client 705, server 640; browser-checked on fakes, dock 356 px at 1366×768 and 1080p · progress 7·W3 local·6·0
 R3 stage 7 M0/W3 committed (5 commits on feat/score-w3-dock); W4 builder dispatched on feat/score-w4-render · progress 7·W3 local·6·0
 R4 stage 7 M0/W4 · builder → APPLY & RENDER (F-023) 6/6 in tests + browser on fakes; server 677, client 717 · progress 7·W4 local·6·0
+R5 stage 7 M0 · W4 committed; #126 (W2) merged (user OK); W3 PR #127, W4 PR #128 (stacked) with auto-fix; verifier dispatched for F-016..F-025 incl. W5 live run on a library copy (user choice) · progress 7·W4 local·6·0
+R6 stage 7 M0 verify · verifier → F-016..F-024 pass with evidence, F-025 false (A/B listen owed); live W5 on library copy: plans 8–15 s, unload 95–120 ms, YuE2 88–101 tok/s, tempo ≤1.2%; Ollama crash + ENOSPC once (C: full, now fixed by moving to E:) · progress 7·9/10·15·0

@@ -152,3 +152,10 @@ Default: F-025 reports root agreement as written, plus "audio chord changed vs t
 
 ## Q-035 · assumable · stage 7 (W3) · assumed → D-052
 The consequence line's "re-renders the whole song on YuE2, about 3 min" (scope.md, the mockup) does not say whether "3 min" is the song's new length or how long the render takes. Default: the estimated length of the re-rendered song (the plan's seconds, rounded to minutes), since render time is not known before a render and CP1 measured it per song. Alternative: a render-time estimate from YuE2 tokens/s (CP1's ~100 tok/s) and the plan's tokens. Reversal cost: one clause in `client/src/scoreCopy.ts` and its test.
+
+
+## Q-036 · deferred · stage 7 (verify M0) · open
+When the planner answers the 360 s feedback by changing the asked tempo, the dock shows only the result. Live 2026-10-04 on the 147-bar 2/4 song: request "set it to 40 BPM" (441 s) became SET TEMPO 70 -> 50 BPM (353 s) on attempt 2, and the review says "attempt 2 of 3" but not that 40 was refused. F-022 #1 wants the number and the answer ("estimated 441 s: over the 360 s limit; at least 49 BPM fits") when it cannot render whole. Decide: keep silent retry, or add one line "asked 40 BPM; 50 is the slowest that fits" to the review. Not blocking M0 (the change list is explicit). Evidence: pipeline/verify/M0/m0-summary.json.
+
+## Q-037 · deferred · stage 7 (verify M0) · open
+Two Mulakai servers can share one yue-server and one GPU (seen live: the user stack on :3001 ran two YuE2 jobs through the yue-server a verifier started for :3301, one of them overlapping a plan and slowing it from ~14 s to 24 s, VRAM peak 15.6 GB of 16.4). The plan to render hand-off is per Mulakai server, so it cannot see another server job. Also seen: after a real ACE-Step generation the ACE-Step process held about 22 GB of RAM and C: ran to 0 bytes free; Ollama llama-server crashed once (0xc0000409) and one render failed ENOSPC; killing ACE-Step freed about 12 GB on C:. Decide whether the M0 docs should say "one Mulakai server per GPU" and whether M1 should add a free-disk check before APPLY & RENDER. Evidence: pipeline/verify/M0/m0-summary.json, F-025 evidence.
