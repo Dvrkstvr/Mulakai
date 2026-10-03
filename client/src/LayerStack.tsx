@@ -1,12 +1,13 @@
-import { useState, type CSSProperties } from 'react';
+import type { CSSProperties } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Layer } from './api';
 import type { Region } from './Waveform';
-import { AddLayerTrigger } from './AddLayerTrigger';
 import { LayerLane, LANE_HEIGHT } from './LayerLane';
 import { Timeline } from './Timeline';
 import { ScrollArea } from './ScrollArea';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
+import { LyricsLane, type LyricsLaneProps } from './LyricsLane';
+import { useEditorJobStore, myEditorJob } from './editorJobStore';
 
 interface Props {
   songId: string;
@@ -21,20 +22,19 @@ interface Props {
   onSeek: (seconds: number) => void;
   processing?: boolean;
   onSplit: (layerId: string) => void;
-  onAddLayerExpandedChange?: (expanded: boolean) => void;
+  lyrics: Pick<LyricsLaneProps, 'draft' | 'timings' | 'timing'>;
 }
 
 /**
- * DAW-style multi-lane waveform stack: a shared scrub timeline on top, then
- * one lane per layer (control bar above its full waveform — every layer,
- * focused or not, renders its whole waveform so the stack reads as a solid
- * bank of tooling rather than collapsing unfocused rows to a summary line),
- * stacked vertically. A single playhead line spans from the timeline through
- * every lane, since both share the same x-axis (no left column offset).
+ * DAW-style multi-lane waveform stack: a shared scrub timeline on top, the LYRICS lane, then
+ * one lane per layer (control bar above its full waveform — every layer, focused or not,
+ * renders its whole waveform so the stack reads as a solid bank of tooling rather than
+ * collapsing unfocused rows to a summary line), stacked vertically. A single playhead line
+ * spans from the timeline through every lane, since all share the same x-axis.
  */
-export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit, onAddLayerExpandedChange }: Props) {
+export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit, lyrics }: Props) {
   const playheadPct = duration > 0 ? Math.min(100, Math.max(0, (playhead / duration) * 100)) : 0;
-  const [addingLayer, setAddingLayer] = useState(false);
+  const addingLayer = useEditorJobStore((s) => myEditorJob(s.editorJob, 'addLayer', { songId })?.stage === 'running');
 
   return (
     <div className="layer-stack">
@@ -42,6 +42,7 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
       <ScrollArea className="stack-scrub">
         <div className="stack-scrub-inner">
           <Timeline duration={duration} playhead={playhead} onSeek={onSeek} />
+          <LyricsLane {...lyrics} duration={duration} selection={selection} onSelect={onSelect} onSeek={onSeek} />
           <div className="lane-grid">
             {layers.map((layer) => (
               <LayerLane
@@ -89,13 +90,6 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
           )}
         </div>
       </ScrollArea>
-      <AddLayerTrigger
-        songId={songId}
-        layers={layers}
-        onDone={onChanged}
-        onGeneratingChange={setAddingLayer}
-        onExpandedChange={onAddLayerExpandedChange}
-      />
     </div>
   );
 }

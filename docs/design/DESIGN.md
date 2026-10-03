@@ -52,7 +52,8 @@ view region; sibling actions in the same group use acid outline + acid text.
 | `sky-tint`   | `#153543` | Selection region background wash on waveforms |
 
 Rule: selection must read as one continuous color everywhere it is echoed —
-waveform region, section strip, scope chip in the prompt bar. The layer
+waveform region, section strip, LYRICS lane, TARGET chip in the action
+dock. The layer
 stack's focused row is the same concept applied to "which layer" instead of
 "which time range" — it uses sky (left-border accent + `sky-tint`
 background), not lilac, because focus is scope/targeting, not a version/
@@ -99,7 +100,7 @@ an engine targets where the request goes, while GENERATE (acid) commits it.
   `clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%)` on a 10px square,
   riding a 2px track (`carbon-line-hi` track, semantic color for filled part).
 - **Parallelogram fader** (`Slider.tsx`, used for STEPS/GUIDANCE/VARIANCE in
-  the settings panels): not a reskinned native thumb — three plain divs
+  TUNE and the dock): not a reskinned native thumb — three plain divs
   (`.pgram-track`/`.pgram-fill`/`.pgram-handle`) layered under a fully
   transparent native `<input type="range">` (kept for real drag/keyboard/
   touch/a11y; the divs are purely decorative). Track and fill are `1px
@@ -541,63 +542,54 @@ requiring its own justification against a screen-count rule.
        runs. It never overwrites text the user already typed; all fields
        stay plain editable inputs afterward, same BPM/DURATION/KEY-SCALE
        trio as AN IDEA's DETAILS.
-3. **Editor** (the heart) — layout: a fixed-width **left settings panel** and
-     fixed-width **right version-history rail** flank a fluid center column
-     (timeline, layer stack, transport, prompt bar). The center column is the
-     only element that grows or shrinks with the viewport — the app has no
-     `max-width` cap on any screen, Library included (its card grid's
-     `auto-fill` columns are what absorb the extra width instead). Extra
-     width on wider screens is never wasted whitespace: it becomes more
-     visible timeline per lane (denser, more legible waveform) and the
-     version rail gets a little more room per card (params, not just a
-     name), while the side panels stay put — control/version cards have a
-     natural comfortable size and gain nothing from stretching. None of the
-     three columns stretch to fill the viewport's *height* either — each
-     sizes to its own content (settings controls, title/repaint bar/layer
-     list, version history), so a short layer list or history list never
-     leaves a dead gap under a tall bordered card. The layer list caps at
-     `55vh` and scrolls internally past that instead of growing the page.
+3. **Editor** (the heart) — layout (revised 2026-10-03, PLAN.md "UI
+     Redesign", S1): **two columns**, a fluid main column (title row,
+     section strip, layer stack with its LYRICS lane, action dock, minimal
+     transport) and a fixed-width **right VERSIONS rail**. There is no left
+     column: lyric editing lives in REPAINT (the only verb it feeds), lyric
+     reading in the LYRICS lane (the full text stays in the Library's detail
+     rail), and settings under each verb's TUNE, so its ~240px goes to the
+     timeline. The main column is the only element that grows or shrinks
+     with the viewport — the app has no `max-width` cap on any screen,
+     Library included (its card grid's `auto-fill` columns are what absorb
+     the extra width instead). Extra width on wider screens is never wasted
+     whitespace: it becomes more visible timeline per lane (denser, more
+     legible waveform) and the version rail gets a little more room per card
+     (params, not just a name), while the rail stays put — version cards have
+     a natural comfortable size and gain nothing from stretching. Neither
+     column stretches to fill the viewport's *height* either — each sizes to
+     its own content, so a short layer list or history list never leaves a
+     dead gap under a tall bordered card. The layer list caps at `55vh` and
+     scrolls internally past that instead of growing the page.
    - Header (full width, persistent across all three screens): back-to-
-     library, brand wordmark, palette trigger, ACTIVITY, model status badge.
-     Song title, time/
-     bpm/key metadata, and EXPORT live in the center column and right rail
-     respectively (see below) — the header stays free of anything scoped to
-     "this song," so it doesn't need to re-render per-song content.
-   - Left column (~210–240px, permanent, fixed width): a **lyrics panel**
-     stacked above the repaint settings panel (see below). Read-only by
-     default (plain text, tag lines in the structure typography voice);
-     unlocks into an editable textarea only while the current selection is
-     exactly one whole section (see Section strip below) on the base layer —
-     editing at any finer/coarser granularity isn't meaningful, since repaint
-     only re-renders the selected region regardless of what surrounding text
-     says. Selecting a section always highlights (locked) or native-selects
-     (unlocked) its matching lyrics block, so the two stay visually in sync.
-     Edited lyrics are sent as repaint conditioning and become the song's
-     canonical lyrics on success; reverting to an older version restores that
-     version's own lyrics alongside its audio (same "current" idiom as audio
-     history — see Lilac below).
+     library, brand wordmark, palette trigger, ACTIVITY, model status
+     badge. Song title and
+     time/bpm/key metadata live in the main column — the header stays free
+     of anything scoped to "this song," so it doesn't need to re-render
+     per-song content.
+   - **LYRICS lane** (`LyricsLane.tsx`): a ~24px lane between the scrub
+     ruler and the first layer, on the waveforms' x-axis, not focusable as a
+     lane. Each line that was heard is a chip at its sung span (one line of
+     text, ellipsized; full text and time on hover). Click selects when it's
+     sung as the region, shift-click extends from the last clicked line, and
+     double-click also moves the playhead to the line's start (the same
+     rhythm as the section strip). A line under the 3 s repaint minimum is
+     widened evenly to 3 s, so one line is always repaintable. The clicked
+     chips echo the selection in sky — `sky-tint` with a 2px sky inset edge
+     — only while the selection is still what they made, and only under
+     REPAINT; at rest a chip is `carbon-raised`, and hover brightens its
+     text, never sky (sky means selected, not pointed at). Tag lines and
+     lines that weren't heard have no time, so aren't drawn; a count says so
+     ("1 line not heard"). The `LYRICS` label sits under the chips at the
+     left; state sits over them at the right edge (`panel` background):
      - **Timing** (added 2026-10-02): opening a song whose base version
        hasn't been read reads it in the background (a genLock job, shown in
-       Activity). While it runs, the panel label reads `LYRICS · TIMING…`,
-       the suffix in `text-low`. It stays plain, like TRANSCRIBE: reading
-       words isn't generating. A failed read shows a `.warn-note` under the
-       label, "couldn't time these lyrics" with RETRY, and the reason on one
-       ellipsized line (full text on hover). Nothing else is blocked.
-     - **Lines** (added 2026-10-02): once read, a line that was heard is
-       clickable in the read-only view. Click selects when it's sung as the
-       region, shift-click extends from the last clicked line, and
-       double-click also moves the playhead to the line's start (the same
-       rhythm as the section strip). A line under the 3 s repaint minimum
-       is widened evenly to 3 s, so one line is always repaintable. The
-       clicked lines echo the selection in sky: `sky-tint` with a 2px sky
-       inset edge, one level below the active block's treatment, and only
-       while the selection is still what they made. Hover is
-       `carbon-raised`, never sky (sky means selected, not pointed at). A
-       line that wasn't heard is `text-low`, with "not heard in this take"
-       on hover. Tag lines aren't clickable. Selecting lines doesn't unlock
-       editing; that still takes one whole section.
-   - Left settings panel (~210–240px, see below): repaint parameters.
-     Permanent, fixed width.
+       Activity). While it runs the state reads `TIMING…` in `text-low`.
+       It stays plain, like TRANSCRIBE: reading words isn't generating. A
+       failed read shows a `.warn-note`, "couldn't time these lyrics" with
+       RETRY and the reason on hover. Nothing else is blocked.
+     - The lines align against the Editor's lyrics draft, so they stay right
+       after an edit that hasn't been repainted yet. No lyrics, no lane.
    - **Title row**: song title (bold, 16px) + time/bpm/key/layer-count
      metadata, directly above the shared scrub timeline — the one place this
      information lives now that the header doesn't carry it.
@@ -649,8 +641,9 @@ requiring its own justification against a screen-count rule.
      - Focus uses the sky idiom: left-border accent + sky-tint background on
        both the control bar and waveform of the focused lane (same concept
        as `.version.current`'s lilac accent, but sky — see the Sky section
-       below). Focusing re-targets the shared transport, prompt-bar, and
-       version-history to that layer.
+       below). Focusing re-targets the shared transport, the action dock's
+       REPAINT and SPLIT, and the VERSIONS rail to that layer. A lane's
+       SPLIT button focuses it and opens the dock on SPLIT.
      - The timeline itself (`Timeline.tsx`) is a ruler, not just start/end
        labels: ticks + `mm:ss` labels at a "nice" interval (5/10/15/30/60…
        seconds, auto-picked so ~5–10 ticks span any song length) run along
@@ -668,15 +661,13 @@ requiring its own justification against a screen-count rule.
        element (never a top border stacked against a neighbor's bottom
        border) so boundaries stay one crisp hairline, not a doubled/thick
        line — the outer box edge comes from `.stack-scrub`'s own border.
-     - A trailing **"+ ADD LAYER" row** stays compact (icon + label only)
-       until hovered or focused (`:hover`, `:focus-within`), at which point
-       it expands in place to the full form (prompt, DIT MODEL, submit) —
-       keeps the stack from defaulting to an always-open form.
+     - While ADD LAYER runs, a **ghost lane** (`NEW LAYER · generating…`
+       over the AI shader) trails the stack until the real layer lands.
    - **Shared transport**: `Player.tsx` sits below the lane stack in its
      **minimal** mode — play/pause hexagon + stop only, no time/volume/
      download — driving/reflecting whichever layer is focused. Time already
-     lives in the stack-scrub timeline above, and per-layer downloads live
-     in the Export rail view (see below), so the transport itself stays
+     lives in the stack-scrub timeline above, and downloads live under the
+     dock's EXPORT (see below), so the transport itself stays
      down to the two controls that are genuinely transport, not duplicated
      elsewhere. The Library footer player keeps the full control set (time,
      volume, download) — `minimal` is Editor-only.
@@ -688,28 +679,82 @@ requiring its own justification against a screen-count rule.
      song's LYRICS, or from ACE-Step's own stored timings when there is no
      good reading (added 2026-10-02, PLAN.md "Editor Word Timestamps"). So
      engine songs, imports and repaints get a strip too.
-   - Prompt bar: sky scope chip mirroring current selection, free-text
-     instruction, acid REPAINT REGION action.
-   - **Right rail** (~260–320px, carbon-panel surface, 1px border): persistent,
-     not stacked under the prompt bar. Putting it here (instead of at the
-     bottom of the vertical flow) keeps it on screen while repainting even on
-     shorter (1080p) displays, where vertical space is the tighter resource.
-     Two views share the slot, toggled in place (no navigation):
-     - **History** (default, lilac accents): current version gets a
-       lilac-tint card + lilac border; every entry gets SEL (set that
-       version's region as the current selection), ALT (regenerate as an
-       untracked alternate), and X (two-step rust delete-confirm); inactive
-       versions additionally get REVERT, which also selects that version's
-       region (reverting to a version implies you're about to work on it
-       again, so there's no reason to make that a second click). Each
-       entry's actions render as one connected button group (see "Connected
-       button groups" under Side panels). Branches A/B + Fork are future
-       work.
-     - **Export**: reached via an EXPORT button docked under the history
-       list; swaps the rail to a per-layer stem list (name + DOWNLOAD),
-       with a "← HISTORY" link back. A composited master-mix export is still
-       an open question (see `PLAN.md`'s Export phase note) — stems are the
-       current answer, not a placeholder for it.
+   - **Action dock** (`ActionDock.tsx`, added 2026-10-03): the Editor's one
+     place to act, a carbon-panel card under the layer stack and above the
+     transport. Top to bottom:
+     - **TARGET** row: the sky scope chip, the verb's hint in `text-low`
+       ("drag a waveform, click a section or a lyric line"), and the verb
+       tabs at the right. The chip reads per verb (`dockTarget.ts`): REPAINT
+       `VOCALS · VERSE 2 · 1:32–2:07` (the section only when the range is
+       exactly one), or `VOCALS · WHOLE SONG` with no selection (held to the
+       same 3–90 s limit by the song's length: a longer song reads `VOCALS ·
+       WHOLE SONG · MAX 90s` in rust, with the commit off and the
+       consequence line asking for a region), with a quiet
+       `✕ WHOLE SONG` that clears the range; a region under 3 s or over 90 s
+       turns the chip rust (`· MIN 3s` / `· MAX 90s`) and holds the commit.
+       ADD LAYER and EXPORT read `WHOLE SONG`, SPLIT `BASE · WHOLE LAYER`.
+       The selection survives a verb switch, but its sky wash, the active
+       section and the lyric echo paint only under REPAINT, so a kept range
+       never reads as another verb's target; picking a range (drag, section,
+       lyric line, a version's region) opens REPAINT.
+     - **Verb tabs** REPAINT / ADD LAYER / SPLIT / EXPORT, each with its key
+       (`R` `L` `S` `E`, a mono hairline keycap). The keys are ignored while
+       a text field, a select or a dialog has focus; Space stays the
+       transport's. The active tab is an acid **outline** with acid text,
+       never filled — the one filled acid control in the dock is the commit.
+       The verb is per-session state, REPAINT by default, never persisted. A
+       verb's body stays mounted once opened, so its fields survive a switch
+       and a job it started still settles.
+     - **Body**, per verb. Choices inside it (TRACK, WHAT) are sky when
+       picked, quiet hairline outlines otherwise:
+       - REPAINT: the instruction field; VARIANCE (its own risk-colored
+         fader) and CROSSFADE (clamped to half the region, off with no
+         range) on one row; when the range is exactly one whole section on
+         the base layer, an `EDIT VERSE 2 LYRICS ▸` disclosure opening a
+         mono textarea with that section's block selected — edited lyrics
+         are sent as conditioning and become the song's lyrics on success
+         (reverting a version restores its own); `TUNE ▸`.
+       - ADD LAYER: TRACK chips (AUTO first), the description, the voice
+         picker, lyrics (USE SONG LYRICS) only for VOCALS and BACKING
+         VOCALS, `TUNE ▸` with the Base-only DIT MODEL. A picked track names
+         the lane; under AUTO the description's first words do.
+       - SPLIT: the backend picker, then once extracted CANCEL SPLIT and one
+         row per stem (preview, REPLACE, ADD LAYER, RE-EXTRACT).
+       - EXPORT: WHAT = **MIX** (a client-side bounce of what you hear —
+         mute/solo, layer volumes — to an untagged 16-bit WAV named after
+         the song; no format choice), **STEMS** (each layer's active take,
+         preview + DOWNLOAD), or **REMASTERED MIX** (one ACE-Step cover pass
+         over the mix with the Settings › Playback & Export format/steps as
+         lilac badges; the result isn't kept).
+       `TUNE ▸` is the verb's full settings collapsed to one `text-low`
+       summary line ("turbo · steps auto · guidance n/a · seed random");
+       open, it lays them out in a grid: DIT MODEL, STEPS + AUTO, GUIDANCE
+       (N/A on Turbo), SEED, ADVANCED.
+     - **Commit row**: the consequence line (`text-mid`, stated before
+       commit: "Saves vocals v5 over VERSE 2 · v4 stays in VERSIONS · other
+       layers untouched", "Adds a STRINGS lane as strings v1, conditioned on
+       the current mix · nothing else changes", "Downloads Copper Sky.wav ·
+       2 layers mixed at their volumes · untagged 16-bit WAV") and the acid
+       commit: `REPAINT VERSE 2` / `REPAINT 1:32–2:07` / `REPAINT VOCALS`
+       (no range = the whole layer), `ADD STRINGS`, `SPLIT BASE`, `DOWNLOAD
+       MIX`, `REMASTER MIX`. A held remaster turns the commit into its
+       DOWNLOAD link, with RUN AGAIN as an acid-outline sibling. While a job
+       runs, the commit wears the AI shader with its progress veil; while
+       another job holds the GPU it is disabled and names it ("WAIT FOR A
+       GENERATION").
+   - **Right rail** (~260–320px, carbon-panel surface, 1px border): the
+     focused layer's **VERSIONS** only, headed `VERSIONS · <LAYER>` in
+     lilac text. Persistent, beside the main column rather than under it,
+     so it stays on screen while repainting even on shorter (1080p)
+     displays, where vertical space is the tighter resource. The current
+     version gets a lilac-tint card + lilac border; every entry gets SEL
+     (revert to that version and select its region), ALT (regenerate as an
+     untracked alternate), SIMILAR, and X (two-step rust delete-confirm).
+     A whole-layer repaint has no range, so it shows its label
+     ("repaint 0:00–end") instead of a time. Each entry's actions render as
+     one connected button group (see "Connected button groups" under Side
+     panels). A/B compare is future work (PLAN.md, "UI Redesign" open
+     question 1).
 4. **Settings** — a 4th peer screen (locked 2026-07-06), reached via a
    SETTINGS chip in Library's toolbar row (alongside ALL/FAVORITES, not the
    header — it acts on app-level config, not "this song"). Calm, table-like
@@ -770,12 +815,14 @@ requiring its own justification against a screen-count rule.
 
 ### Side panels (Create + Editor)
 
-**Persistent left settings panel** (~210–240px, carbon-panel surface, 1px
-border) holds generation/repaint parameters — it does NOT slide in
-per-action, so power controls are always visible without a selection. The
-**Editor** additionally has the persistent right version-history rail
-described above; **Create** has no right panel. Neither side panel scales
-with viewport width — see the Editor layout note above.
+Neither screen has a left settings panel any more (2026-10-03). Settings
+belong to what they tune, so they sit under a **`TUNE ▸`** disclosure next
+to the commit they feed: Create's in the RECIPE card, the Editor's under
+each action-dock verb. Collapsed, TUNE is one `text-low` summary line;
+open, it lays the controls out in place — no sheet, no modal, nothing
+slides in per action. The side columns that remain are the Editor's
+VERSIONS rail and Create's RECIPE card; neither scales with viewport
+width (see the layout notes above).
 
 - **Generate mode is gone from the side** (2026-10-03): Create has no left
   panel. Its settings live in the RECIPE card's **TUNE ▸** disclosure (see
@@ -787,18 +834,16 @@ with viewport width — see the Editor layout note above.
   seed field when off, and ADVANCED. STEPS reads the QUALITY preset's count
   ("BEST · 12") until moved; moving it makes QUALITY custom. TAKES and the
   reference audio moved to the recipe itself (TAKES, VOICE).
-- **Repaint mode**: DIT MODEL select, VARIANCE slider (the same
+- **Repaint knobs** (the dock's REPAINT and ADD LAYER): VARIANCE (the same
   `Slider.tsx` parallelogram fader as STEPS/GUIDANCE, passing a `color`
   prop that swaps the fill/handle live to sky/acid/rust depending on which
   third of the 0–100 range the value sits in, plus a dynamic label/note
-  reading SUBTLE, BALANCED, or BOLD), STEPS + GUIDANCE sliders, RANDOM SEED
-  toggle + seed field. No LM MODEL or MODE segmented control here: ACE-Step
-  skips the LM planner for repaint entirely (docs/ace-step-1.5/API.md#4.2),
-  and the mode presets were replaced by the self-explanatory VARIANCE scale.
-  The prompt bar (`RepaintBar.tsx`) additionally has a CROSSFADE stepper next
-  to its scope chip — seconds of waveform-level splice crossfade at the
-  region boundary (0 = hard cut), clamped to half the selected region,
-  reusing the same plain numeric-input styling as KEY/SCALE/TIMESTEPS.
+  reading SUBTLE, BALANCED, or BOLD) and CROSSFADE (seconds of
+  waveform-level splice crossfade at the region boundary, 0 = hard cut,
+  clamped to half the selected region, plain numeric input) sit in
+  REPAINT's body; DIT MODEL, STEPS + GUIDANCE, RANDOM SEED + seed field and
+  ADVANCED sit under TUNE, shared by both verbs. No LM MODEL here: ACE-Step
+  skips the LM planner for repaint entirely (docs/ace-step-1.5/API.md#4.2).
 - Controls: `Slider.tsx` parallelogram faders (see "Parallelogram fader"
   under Shape grammar) for STEPS/GUIDANCE/VARIANCE, acid-when-on toggles
   (parallelogram knob). Slider readouts in acid, except VARIANCE whose
@@ -816,10 +861,13 @@ The whole app is a two-step loop: **target** (sky) → **commit** (acid).
 Select where, then say what. Every commit produces a new version (lilac) and
 never destroys the old one.
 
-- Quick path: select region → type in prompt bar → REPAINT REGION.
-- Control path: adjust the always-visible left settings panel (mode, variance,
-  steps, guidance, seed) before committing — no per-action sheet.
-- Empty selection = whole song scope.
+- Quick path: select region → type in the dock's instruction field →
+  REPAINT (or press R/L/S/E to pick another verb first).
+- Control path: open the verb's `TUNE ▸` in the dock (model, steps,
+  guidance, seed, advanced) before committing — no per-action sheet, no
+  modal; VARIANCE and CROSSFADE stay inline.
+- Empty selection = whole song scope (REPAINT repaints the whole layer when
+  the song is within the 3–90 s repaint limit; a longer one takes a region).
 - Actions always state the version they will create before commit.
 
 ## Motion
@@ -859,9 +907,14 @@ commits**: every generative or destructive action is still made at its own
 acid button under its consequence line.
 - Anatomy: the search row (a sky scope chip, the input, an `ESC` key hint),
   grouped results, and a footer `↑↓ MOVE · ↵ RUN · TAB CHANGE SCOPE`.
-- Groups, in this order: **DO** (the open song's edit verbs: repaint a
-  section or the current selection, add a layer, split a layer, export —
-  each focuses its control with the target set), **OPEN** (songs, the open
+- Groups, in this order: **DO** (the open song's action-dock verbs, each
+  with its dock key as the hint: *Repaint <section>* / *Repaint <range>*
+  (R) selects that range and opens REPAINT with its instruction field
+  focused; one *Add layer · <track>* per TRACK option (L) opens ADD LAYER
+  with that track picked; *Split <layer>* (S) focuses the layer and opens
+  SPLIT; *Export mix* / *stems* / *remastered mix* (E) opens EXPORT on that
+  WHAT. Each sets the verb and target and never starts a job — the commit
+  stays the dock's), **OPEN** (songs, the open
   song's layers, folders), **CREATE** (the three start points, and "Remake
   <song>" = CREATE COVER FROM AUDIO), **SETTINGS** (each section; Forge only
   while enabled). Group labels are 9px `text-low`.
@@ -940,7 +993,7 @@ healthy model isn't an action.
   animating it would claim otherwise.
 - **Status blips**: the model status badge's dot pulses once whenever its
   overall state flips (ready/busy/down), so the change isn't silent.
-- **Commit actions**: GENERATE / REPAINT REGION give a brief acid glow/scale
+- **Commit actions**: GENERATE / the dock's commit give a brief acid glow/scale
   flash at the moment of commit, echoing "this just started something."
 
 ### Interactive feedback
@@ -1006,7 +1059,9 @@ differently depending on how much of the element it would cover:
   `GeneratingCard.tsx`'s pinned library row — `AIGeneratingBackground` fills
   the whole card while `STAGE_LABEL`/elapsed-time text sits on top.
   Activity's RUNNING rows for those jobs do the same (`ActivityRow.tsx`). Also
-  used this way by `RepaintBar.tsx`'s REPAINT REGION button while running,
+  used this way by the action dock's commit (`DockCommit.tsx`: REPAINT,
+  ADD LAYER, REMASTER MIX) while its job runs, LayerStack's ADD LAYER
+  ghost lane,
   `LayerLane.tsx`'s focused-lane "processing" overlay, and
   `ThinkingWipe.tsx`'s full-block Quick Start reveal.
 - **Smaller elements** (a toggle, a chip, a badge) — full-fill would drown
@@ -1021,7 +1076,8 @@ differently depending on how much of the element it would cover:
   in DOM order (no `z-index` needed within the same stacking context), with
   the label/dot bumped above both via their own `z-index`.
 
-Applies **only** to: the GENERATE / REPAINT REGION button and the waveform
+Applies **only** to: the GENERATE button, the action dock's commit while
+its REPAINT / ADD LAYER / REMASTER MIX job runs, and the waveform
 region it targets while a job is in flight; the "processing" placeholder
 over a waveform/lane awaiting AI output; the `AI ENHANCE` and `THINKING
 MODE` toggles while active; Create's Quick Start reveal (the library create

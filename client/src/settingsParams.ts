@@ -131,7 +131,7 @@ export function repaintParams(r: RepaintSettings) {
 /**
  * Map Add Layer settings to ACE-Step request params. `model` is Add-Layer-specific
  * (lego needs a Base model); steps/guidance/seed and all advanced knobs are shared
- * with repaint — the same left-rail panel edits both. `lego` runs the LM, so unlike
+ * with repaint — both verbs' TUNE edit the same knobs. `lego` runs the LM, so unlike
  * repaint this also emits the LM knobs.
  */
 export function addLayerParams(a: AddLayerSettings, r: RepaintSettings) {

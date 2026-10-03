@@ -22,7 +22,7 @@ interface EditorJobState {
    * tells the server to stop tracking it, same semantics as the old component-local flow. */
   cancelSplit: () => Promise<void>;
   /** Merges a fresh stem (e.g. after RE-EXTRACT or a claim) into the split session in
-   * the store, so SplitPanel doesn't need its own copy of `stems` to stay in sync. */
+   * the store, so DockSplit doesn't need its own copy of `stems` to stay in sync. */
   patchSplitStem: (stem: StemResult) => void;
 }
 
@@ -141,7 +141,7 @@ export const useEditorJobStore = create<EditorJobState>((set, get) => ({
       },
     };
     set({ splitJob: provisional });
-    // A settled session (SplitPanel said so first) is closed on the server; a failed one never started there.
+    // A settled session (DockSplit said so first) is closed on the server; a failed one never started there.
     if (prev?.splitJobId) void api.cancelSplit(prev.splitJobId).catch(() => {});
     let splitJobId: string;
     try {

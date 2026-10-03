@@ -4,23 +4,24 @@ import type { Region } from './Waveform';
 import { Player } from './Player';
 import { LayerStack } from './LayerStack';
 import { SectionStrip } from './SectionStrip';
-import { RepaintBar } from './RepaintBar';
+import { ActionDock } from './ActionDock';
+import type { DockVerb } from './dockTarget';
 import { useSettings } from './settings';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useMainTransportGuard } from './previewPlayback';
-import { useAddLayerExpanded } from './useAddLayerExpanded';
 import { useEditorRepaintJob } from './useEditorRepaintJob';
 import { useSpaceTransport } from './useSpaceTransport';
+import { useDockKeys } from './useDockKeys';
 import { useEditorFocus } from './useEditorFocus';
 import { useSectionLyrics } from './useSectionLyrics';
 import { useRepaintSubmit } from './useRepaintSubmit';
 import { useLyricsDraftSync } from './useLyricsDraftSync';
 import { useLibraryBackButton } from './useLibraryBackButton';
 import { useEditorColumns } from './useEditorColumns';
-import { EditorLeftRail } from './EditorLeftRail';
 import { EditorTitleRow } from './EditorTitleRow';
-import { EditorRail, type RailMode } from './EditorRail';
+import { EditorRail } from './EditorRail';
 import { useEditorCommands } from './useEditorCommands';
+import { pickRange, shownRange } from './editorSelection';
 
 interface Props {
   songId: string;
@@ -34,33 +35,37 @@ export function Editor({ songId, onBack }: Props) {
   const [selection, setSelection] = useState<Region | null>(null);
   const [prompt, setPrompt] = useState('');
   const [lyricsDraft, setLyricsDraft] = useState('');
-  const [railMode, setRailMode] = useState<RailMode>('history');
-  const { addingLayerExpanded, requestAddingLayerExpanded } = useAddLayerExpanded();
-  const { startRepaint, dismissEditorJob, myRepaint, job, startedAt, error, busyElsewhere, busyBy } = useEditorRepaintJob(focusedLayerId);
+  // Per-session UI state, deliberately not persisted: every visit opens on REPAINT.
+  const [verb, setVerb] = useState<DockVerb>('repaint');
+  const repaintJob = useEditorRepaintJob(focusedLayerId);
+  const { startRepaint, dismissEditorJob, myRepaint, job, busyElsewhere } = repaintJob;
 
   useLyricsDraftSync(song, setLyricsDraft);
   const engine = usePlaybackEngine(song?.layers ?? []);
   useMainTransportGuard(engine);
   const playhead = engine.currentTime;
   useSpaceTransport(engine);
-  useEditorFocus(song, focusedLayerId, setFocusedLayerId, setRailMode);
+  useDockKeys(setVerb);
+  useEditorFocus(song, focusedLayerId, setFocusedLayerId, setVerb);
 
   const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
   const activeVersion = focusedLayer?.versions.find((v) => v.active);
   const duration = song?.duration ?? 0;
-  const { timing, sections, activeSectionIndex, lyricsBlocks, activeLyricsBlock, lyricsUnlocked } =
+  const { timing, sections, activeSectionIndex, activeLyricsBlock, lyricsUnlocked } =
     useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer, reload);
-  useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setRailMode });
+  useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
 
   const repaint = useRepaintSubmit({
-    songId, focusedLayer, selection, prompt, lyricsUnlocked, lyricsDraft, repaintSettings,
+    songId, focusedLayer, selection, duration, prompt, lyricsUnlocked, lyricsDraft, repaintSettings,
     startRepaint, dismissEditorJob, myRepaint, busyElsewhere, setSelection, setPrompt, reload,
   });
 
   const seek = (seconds: number) => engine.seek(seconds);
+  const selectRegion = (region: Region | null) => pickRange(region, setSelection, setVerb);
+  const shownSelection = shownRange(verb, selection);
 
   useLibraryBackButton(onBack);
-  const { leftWidth, railWidth, gridTemplateColumns } = useEditorColumns();
+  const { railWidth, gridTemplateColumns } = useEditorColumns();
 
   const retryLoad = <button onClick={() => void reload()}>RETRY</button>;
   if (!song) {
@@ -72,77 +77,55 @@ export function Editor({ songId, onBack }: Props) {
   return (
     <div className="editor-shell">
       <div className="with-panel editor-layout" style={{ gridTemplateColumns }}>
-        <EditorLeftRail
-          addingLayerExpanded={addingLayerExpanded}
-          requestAddingLayerExpanded={requestAddingLayerExpanded}
-          lyricsBlocks={lyricsBlocks}
-          lyricsDraft={lyricsDraft}
-          onLyricsDraftChange={setLyricsDraft}
-          activeLyricsBlock={activeLyricsBlock}
-          lyricsUnlocked={lyricsUnlocked}
-          lyricsTiming={timing}
-          lyricsLines={{ timings: timing.timings, duration, selection, onSelect: setSelection, onSeek: seek }}
-          songLyrics={song.lyrics}
-          onResizePointerDown={leftWidth.onPointerDown}
-        />
         <div className="editor-main">
-      {loadError && <div className="error">couldn't refresh this song — {loadError} {retryLoad}</div>}
-      <EditorTitleRow song={song} duration={duration} />
+          {loadError && <div className="error">couldn't refresh this song — {loadError} {retryLoad}</div>}
+          <EditorTitleRow song={song} duration={duration} />
 
-      <RepaintBar
-        layerName={focusedLayer?.name ?? 'base'}
-        nextVersion={(focusedLayer?.versions.length ?? 0) + 1}
-        selection={selection}
-        prompt={prompt}
-        onPromptChange={setPrompt}
-        job={job}
-        startedAt={startedAt}
-        progress={myRepaint?.progress}
-        progressStage={myRepaint?.progressStage}
-        progressText={myRepaint?.progressText}
-        busyBy={busyBy}
-        onRepaint={repaint}
-        error={error}
-      />
+          <SectionStrip sections={sections} activeIndex={verb === 'repaint' ? activeSectionIndex : -1} onSelect={selectRegion} onSeek={seek} />
 
-      <SectionStrip sections={sections} activeIndex={activeSectionIndex} onSelect={setSelection} onSeek={seek} />
-
-      <LayerStack
-        songId={songId}
-        layers={song.layers}
-        focusedLayerId={focusedLayerId}
-        onFocus={setFocusedLayerId}
-        onChanged={reload}
-        duration={duration}
-        playhead={playhead}
-        selection={selection}
-        onSelect={setSelection}
-        onSeek={seek}
-        processing={job === 'running'}
-        onSplit={(layerId) => { setFocusedLayerId(layerId); setRailMode('split'); }}
-        onAddLayerExpandedChange={requestAddingLayerExpanded}
-      />
-
-      {activeVersion && (
-        <div className="canvas" style={{ marginTop: 12 }}>
-          <Player
-            engine={engine}
-            downloadSrc={`/audio/${activeVersion.audio_file}`}
-            downloadName={`${song.title}.wav`}
-            minimal
+          <LayerStack
+            songId={songId}
+            layers={song.layers}
+            focusedLayerId={focusedLayerId}
+            onFocus={setFocusedLayerId}
+            onChanged={reload}
+            duration={duration}
+            playhead={playhead}
+            selection={shownSelection}
+            onSelect={selectRegion}
+            onSeek={seek}
+            processing={job === 'running'}
+            onSplit={(layerId) => { setFocusedLayerId(layerId); setVerb('split'); }}
+            lyrics={{ draft: lyricsDraft, timings: timing.timings, timing }}
           />
-        </div>
-      )}
+
+          <ActionDock
+            verb={verb}
+            onVerb={setVerb}
+            song={song}
+            focusedLayer={focusedLayer}
+            selection={selection}
+            onClearSelection={() => setSelection(null)}
+            sections={sections}
+            repaint={{
+              prompt, onPromptChange: setPrompt, job: repaintJob, onRepaint: repaint,
+              lyrics: { unlocked: lyricsUnlocked, draft: lyricsDraft, onDraftChange: setLyricsDraft, activeBlock: activeLyricsBlock },
+            }}
+            onChanged={reload}
+          />
+
+          {activeVersion && (
+            <div className="canvas" style={{ marginTop: 12 }}>
+              <Player engine={engine} downloadSrc={`/audio/${activeVersion.audio_file}`} downloadName={`${song.title}.wav`} minimal />
+            </div>
+          )}
         </div>
         {focusedLayer && (
           <EditorRail
             songId={songId}
-            song={song}
             focusedLayer={focusedLayer}
-            railMode={railMode}
-            onRailModeChange={setRailMode}
-            onSelectRegion={setSelection}
-            onLoadPrompt={setPrompt}
+            onSelectRegion={selectRegion}
+            onLoadPrompt={(p) => { setPrompt(p); setVerb('repaint'); }}
             onChanged={reload}
             onResizePointerDown={railWidth.onPointerDown}
           />

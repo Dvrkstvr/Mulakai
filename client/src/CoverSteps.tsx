@@ -1,5 +1,5 @@
 import type { ModelInventory, Song } from './api';
-import { VarianceSlider } from './SettingsPanel';
+import { VarianceSlider } from './VarianceSlider';
 import { useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { busyMessage } from './generationJob';
