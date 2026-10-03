@@ -7960,3 +7960,370 @@ and the header flipped to OFFLINE during every long generation.
   `acestepTimeout.test.ts` (silent vs down); the golden path hovers the
   badge and reads ACE-Step's row.
 - DESIGN.md: header passages, the badge spec, status blips.
+
+## UI Redesign: Action Dock, Guided Create, Command + Activity, Job Queue (planned 2026-10-03)
+
+The Editor's edit entry points are scattered (REPAINT on a bar above the
+stack, `+ ADD LAYER` as a hover row under it, SPLIT in a lane that swaps
+the right rail, EXPORT/REMASTER behind a rail button, repaint knobs in a
+left panel). Create's tabs are named after ACE-Step tasks and sit beside
+a dense settings panel. Nothing lists what is running or done, and every
+second job is refused with "WAIT FOR …" while the genLock is held. Four
+stages, one PR each. Mockups (design review 2026-10-03):
+`ActionDock.dc.html`, `GuidedCreate.dc.html`, `CommandActivity.dc.html`.
+
+Rules for every stage:
+- Design language unchanged (zero radius, parallelogram choices, one hue
+  per job, desktop-only). Each PR updates DESIGN.md **as its own commit**,
+  rewriting the passages it supersedes (named per stage).
+- Modules <=150 LOC target, 200 cap; split by responsibility as listed.
+- Vitest for every behavior change. `e2e/tests/golden-path.spec.ts` is
+  updated in the same PR wherever a selector or label it uses changes.
+  Browser-check each stage on the dev stack before review.
+- Order: this spec merges first. **S1, S2, S3 branch independently off
+  `main`** (disjoint screens; S3 reaches Editor verbs through a registry,
+  S3.3). **S4 follows S3** (UP NEXT and CANCEL live in Activity).
+
+### S1 — Action Dock (Editor, client only)
+
+#### Decisions
+
+1. **One dock under the layer stack** (above the minimal transport), in
+   this order: TARGET chip → verb tabs → verb body → consequence line +
+   commit. `RepaintBar` above the stack, the `+ ADD LAYER` row, the lane's
+   SPLIT entry and the rail's EXPORT button all go; their content moves
+   into the dock. The section strip stays where it is.
+2. **TARGET** is the sky scope chip, computed per verb by a pure
+   `dockTarget(verb, focusedLayer, selection, sections)`:
+   - REPAINT: `VOCALS · VERSE 2 · 1:32–2:07` (section name only when the
+     range is exactly one section), or `VOCALS · WHOLE SONG` with no
+     selection (DESIGN's "empty selection = whole song scope"). A
+     `✕ WHOLE SONG` link clears the selection. Too-short/too-long regions
+     keep today's `.warn` chip (`repaintLimits.ts`).
+   - ADD LAYER: `WHOLE SONG` (a layer always spans the song), no clear.
+   - SPLIT: `BASE · WHOLE LAYER` (the focused layer), no clear.
+   - EXPORT: `WHOLE SONG`, no clear.
+   A hint beside the chip says how to change it. The selection survives a
+   verb switch, but its sky wash and active section paint only under
+   REPAINT, so a stale range never reads as another verb's target.
+3. **Verb tabs** REPAINT / ADD LAYER / SPLIT / EXPORT, keys **R/L/S/E**
+   (ignored while a text field, select or the palette has focus; Space
+   stays transport). Active tab = acid **outline** + acid text; the one
+   filled acid control in the dock is the commit button. The verb is
+   per-session UI state, default REPAINT; it is not persisted.
+4. **REPAINT body**: instruction; VARIANCE (risk color as today) and
+   CROSSFADE (clamped as today) inline; when the selection is exactly one
+   whole section, an `EDIT VERSE 2 LYRICS` disclosure (mono textarea,
+   today's unlock rule and conditioning/canonical-on-success behavior);
+   `TUNE ▸` with everything `SettingsPanel mode="repaint"` holds today
+   (DIT MODEL, STEPS + AUTO, GUIDANCE N/A on Turbo, SEED, advanced),
+   collapsed to one summary line ("turbo · steps auto · guidance 7 ·
+   seed random"). Commit `REPAINT VERSE 2` / `REPAINT 1:32–2:07` /
+   `REPAINT VOCALS`; consequence "Saves vocals v5 over VERSE 2 · v4 stays
+   in VERSIONS · other layers untouched". Running: AI shader + progress
+   veil on the commit, as REPAINT REGION today.
+5. **ADD LAYER body**: TRACK chips from `TRACK_NAMES` (AUTO first),
+   description, VOICE picker (from the left rail), lyrics only for
+   VOCALS/BACKING VOCALS (USE SONG LYRICS as today), TUNE ▸ with the
+   lego-gated DIT MODEL (lookup `.error`/RETRY unchanged) and the shared
+   knobs. Commit `ADD STRINGS`; consequence "Adds a STRINGS lane as
+   strings v1, conditioned on the current mix · nothing else changes".
+   The hover-expand row and its keep-alive logic are deleted.
+6. **SPLIT body**: `SplitPanel`'s content (backend tabs, stems, CANCEL
+   SPLIT, claim rows), behavior unchanged. Commit `SPLIT BASE`;
+   consequence = today's hint ("extracts vocals, drums, bass and other as
+   new stems from BASE"). A lane's SPLIT focuses it and selects the verb.
+7. **EXPORT body**: WHAT = **MIX / STEMS / REMASTERED MIX**.
+   - **MIX is decided**: a client-side bounce of what you hear —
+     `activeLayers` (mute/solo) → `decodeLayers` → `bounceMix` →
+     `encodeWav`, downloaded as `<title>.wav`. No server change, so no
+     tags and WAV only; FORMAT is hidden for MIX and the consequence line
+     says "untagged 16-bit WAV". This closes the composite-mix question
+     left open in "Export & Remaster — Phase 9 Design": stems remain the
+     handoff to a DAW, MIX is a quick listen-anywhere file.
+   - STEMS: today's per-layer list (AudioPreview + DOWNLOAD per layer).
+   - REMASTERED MIX: `RemasterAction` (FORMAT row from Playback & Export
+     defaults; consequence "runs one ACE-Step pass over the mix first,
+     about 90 s, and isn't kept"; DOWNLOAD link when done).
+8. **Lyrics become a LYRICS lane** between the scrub ruler and the first
+   layer (~22px, not focusable). Each heard line is a chip at its timing;
+   click / shift-click / double-click keep `LyricsLines`' rules
+   (`lineSelection.ts`, 3 s widening, sky echo). The lane label carries
+   `LYRICS · TIMING…` and the failed-read `.warn-note` + RETRY. Unheard
+   and tag lines have no time, so aren't drawn ("· 3 lines not heard" in
+   the label). No lyrics → no lane.
+9. **The left column goes entirely.** Lyric editing is only valid for one
+   whole section, which is exactly REPAINT's target, so the editor lives
+   beside the commit it feeds; reading is served by the lane (full text
+   stays in the Library detail rail); settings are verb-specific, so they
+   belong under TUNE. The ~240px returns to the timeline.
+10. **Right rail = VERSIONS only**, labelled `VERSIONS · <LAYER>`. The
+    `RailMode` union and EXPORT/SPLIT rail views are removed.
+    **A/B compare is deferred** (open question 1); the mockup's A/B row is
+    not built.
+11. **Busy** (until S4): the commit is disabled and labelled from
+    `busyMessage` ("WAIT FOR A GENERATION"), as today.
+
+#### File-level plan
+
+- New: `ActionDock.tsx` (target, tabs, body switch, commit row),
+  `dockTarget.ts` (+ test), `useDockKeys.ts` (+ test: text-field guard),
+  `DockRepaint.tsx`, `DockSectionLyrics.tsx`, `DockAddLayer.tsx` (from
+  `AddLayerTrigger.tsx`), `DockSplit.tsx`, `DockExport.tsx`,
+  `mixExport.ts` (+ test: mute/solo, filename), `TuneDisclosure.tsx`
+  (+ summary test), `RepaintTune.tsx`/`AddLayerTune.tsx` (the halves of
+  repaint-mode `SettingsPanel`), `LyricsLane.tsx` (from `LyricsLines.tsx`).
+- Edited: `Editor.tsx`, `LayerStack.tsx`, `LayerLane.tsx`, `EditorRail.tsx`,
+  `useEditorColumns.ts`, `useEditorFocus.ts`, `index.css`.
+- Removed: `RepaintBar.tsx`, `EditorLeftRail.tsx`, `LyricsPanel.tsx`,
+  `ExportPanel.tsx`, `useAddLayerExpanded.ts`, `AddLayerTrigger.tsx`,
+  `SettingsPanel`'s repaint mode.
+- E2E: scope chip → dock target text, `REPAINT REGION` → the dock commit,
+  `.layer-add-row` → ADD LAYER verb, rail EXPORT → EXPORT verb; add a MIX
+  download assertion (a `.wav` with a RIFF header).
+- DESIGN.md: Editor layout (two columns), left column/lyrics panel,
+  prompt bar, "+ ADD LAYER" row, right rail Export view, Side panels'
+  Repaint mode, Interaction rhythm's control path, AI-state call sites.
+
+### S2 — Guided Create (client only)
+
+#### Decisions
+
+1. **START FROM cards replace the GENERATION TYPE tabs**, mapping 1:1 to
+   the draft's `genType`: **AN IDEA** = `prompt`, **A SONG I HAVE** =
+   `audio` (cover), **ONE TRACK** = `complete` (arrange). Cards are sky
+   (picking one targets which flow the draft feeds; they commit nothing).
+   The draft model in `createDraftStore` does not change: shared fields,
+   per-tab sources/models/variance, survival across tab switch and
+   leaving Create, carried-over hints, CLEAR DRAFT (moves to the title row,
+   right-aligned, same two-step), engine and source locks, N/A rules,
+   REUSE PROMPT landing on the card that made the song.
+2. **Numbered steps** in the content column (~800px), one per card:
+   - AN IDEA: **1 DESCRIBE IT** (prompt, style-tag ADD chips, lilac
+     planner line, Quick Start reveal) · **2 LYRICS** (WRITE FOR ME =
+     today's REFINE INPUT, TAG GUIDE popover, INSTRUMENTAL) · **3
+     DETAILS** (`SongDetailsFields`: LENGTH/BPM/KEY/TIME/LANGUAGE, each
+     with AUTO; header "optional · AUTO lets the planner decide").
+   - A SONG I HAVE: **1 PICK THE SONG** (`CoverSourcePicker` FROM
+     LIBRARY/UPLOAD; on YUE2 this step also holds TRANSCRIBE / READ
+     LYRICS / USE .ABC FILE, the score review and SECTIONS, since they
+     describe the source) · **2 WHAT CHANGES?** (prompt + ANALYZE AUDIO)
+     · **3 LYRICS** ("read from the recording · edit freely", READ AGAIN
+     = READ LYRICS, FIT TO SCORE on YUE2, details trio on ACE-STEP).
+   - ONE TRACK: **1 YOUR TRACK** (UPLOAD A TRACK / PULL ONE FROM A SONG =
+     `ScratchSplitPicker`) · **2 DESCRIBE THE BAND AROUND IT** · **3
+     LYRICS + DETAILS** (auto-analyze fill line as today).
+   The title moves into the title row ("New song" placeholder input).
+3. **RECIPE card** (right, ~300px, carbon-panel) replaces the left
+   settings panel, top to bottom:
+   - ENGINE (sky; IDEA: ACE-STEP/YUE2/HEARTMULA, A SONG I HAVE:
+     ACE-STEP/YUE2, ONE TRACK: ACE-STEP fixed) + a note line. PROMPT and
+     COVER engine choices stay separate; availability, reasons and lock
+     hints unchanged.
+   - QUALITY DRAFT / BALANCED / BEST, see 4.
+   - VOICE (reference audio picker, CHANGE opens it in place; N/A line
+     for an engine without one).
+   - Takes (`batchSize`; N/A off ACE-Step text2music), Takes about (ETA,
+     see 5), Lands in (destination folder, read-only as today).
+   - `TUNE ▸`: today's whole settings panel for the flow, same gating
+     (LM hidden on COVER, THINKING on ARRANGE, cover MODEL gating
+     STEPS/GUIDANCE, engine controls). Collapsed summary: "model, steps,
+     guidance, seed · all default" or the non-defaults.
+   - The commit (GENERATE / GENERATE COVER / ARRANGE) with today's
+     consequence copy and blockers.
+   The refine preview (`RefineRail`) takes the recipe slot while open,
+   with `← RECIPE` back, the old rail-swap idiom.
+4. **QUALITY presets** are stored as `gen.quality: 'draft' | 'balanced' |
+   'best' | 'custom'`; steps resolve at submit by model family
+   (`modelInfo.modelFamily`, AUTO model = the inventory default):
+
+   | family | DRAFT | BALANCED | BEST |
+   |---|---|---|---|
+   | turbo | 4 | AUTO (8) | 12 |
+   | sft | 24 | AUTO (50) | 80 |
+   | base/other | 16 | AUTO (32) | 64 |
+
+   BALANCED sends no `inference_steps`, so the server's
+   `resolveInferenceSteps` stays the single AUTO authority. Moving the
+   STEPS slider in TUNE sets `custom` (no chip lit); picking a chip
+   overwrites it. Migration: stored `inferenceSteps > 0` → `custom`, 0 →
+   `balanced`. Guidance and seed are untouched by presets. On an extra
+   engine QUALITY is N/A ("YUE2 has no step control"). Pure
+   `qualitySteps(quality, family)` with a table test.
+5. **ETA** is a client-side rolling mean of the last 5 settled jobs per
+   (task, engine, model family, quality), wall-clock from submit to done,
+   kept in localStorage; the row is hidden until one sample exists (no
+   invented numbers). Multi-step covers read "a few min · 3 steps".
+
+#### Component map / file-level plan
+
+- `CreateView` → shell (title row, cards, steps, recipe).
+  `CreatePromptTab`/`CreateAudioTab`/`CreateArrangeTab` → step bodies,
+  renamed `IdeaSteps`/`CoverSteps`/`TrackSteps`.
+  `PromptGenerateRow`/`YueCoverGenerate`/`GenerateButton` → recipe commit.
+  `EngineChoice` → recipe ENGINE. `SettingsPanel` generate mode,
+  `AdvancedGenSettings`, `EngineGenSettings`, `Seed` → `GenTune.tsx`.
+  `VoicePicker`/`ReferenceAudioPicker` → recipe VOICE. `ClearDraftButton`
+  → title row. The Yue* panels, `ScoreSectionStrip`, `AnalyzeAudioButton`,
+  `CoverSourcePicker`, `ScratchSplitPicker`, `SongDetailsFields`,
+  `CarriedPromptNote` → unchanged, re-homed in steps.
+- New: `StartFromCards.tsx`, `CreateStep.tsx`, `RecipeCard.tsx`,
+  `RecipeQuality.tsx`, `qualitySteps.ts` (+ test), `etaStore.ts` (+ test).
+- Edited: `settings*.ts` (`quality` + migration, + test),
+  `settingsParams.ts` (steps from quality, + test), `index.css`.
+  `SettingsPanel.tsx` is deleted once both S1 and S2 have landed.
+- E2E: `CREATE` → card AN IDEA is preselected; GENERATE button name kept.
+- DESIGN.md: Create (layout, GENERATION TYPE → START FROM, CLEAR DRAFT
+  place, settings-panel references), Side panels' Generate mode.
+
+### S3 — Command + Activity (client only, plus one small server route)
+
+#### Decisions
+
+1. **Ctrl K palette** — a documented exception to DESIGN's no-modal rule:
+   one centered overlay over a dimmed canvas, never stacked, closed by ESC
+   or running an item, focus returned to where it was. It **navigates and
+   pre-fills; it never commits** a generative or destructive action, so
+   every commit is still made at its acid button under its consequence
+   line. Groups and what they index:
+   - DO (open song): each dock verb ("Repaint VERSE 2 vocals", "Add layer
+     · vocals" per TRACK, "Split vocals out of BASE", "Export mix"…),
+     opening that verb with target and fields set; keys shown.
+   - OPEN: songs, layers of the open song, folders.
+   - CREATE: the three START FROM cards, and "Remake <song>" (= CREATE
+     COVER FROM AUDIO).
+   - SETTINGS: each Settings section (Forge only when enabled).
+2. **Scope chip** `IN · COPPER SKY` (sky) while the Editor is open,
+   showing only DO + the song's layers; **TAB** toggles to ALL. Footer:
+   `↑↓ MOVE · ↵ RUN · TAB CHANGE SCOPE`. Matching: case-insensitive
+   subsequence with word-start bonus, pure and tested.
+3. **Registry, not imports**: the Editor publishes its DO items into
+   `commandStore` (`{id, group, label, sub, key?, run}`) on mount and
+   clears them on unmount; views publish their own. S3 publishes from
+   whatever entry points exist when it lands (today's RepaintBar, add
+   row, rail) and whichever of S1/S3 merges second rewires the publisher
+   to the dock.
+4. **Header**: brand · `Search or run anything… CTRL K` trigger (a
+   hairline field-shaped button) · `ACTIVITY · 2 RUNNING` button ·
+   model status badge. The job pill + ABORT leave the header; ABORT moves
+   to the running row in Activity (quiet outline).
+5. **Activity drawer**: a right-edge panel (~340px) over the content, not
+   a modal (canvas stays live, ESC or the button closes it). Sections:
+   - RUNNING — from `generationStore`, `editorJobStore` (repaint family,
+     add layer, remaster, split), `transcribeStore`, `readLyricsStore`,
+     `timingsStore`, and `apiStatusStore.active` (analyze, and any job
+     started in another tab).
+     Jobs that make audio or describe it (generate, repaint family, add
+     layer, remaster, analyze) wear the AI shader, with the progress veil
+     where progress exists; transcribe, read lyrics, timings and split
+     are plain with `n%`.
+   - DONE — OPEN (Editor, or Create for transcribe/read lyrics) and a
+     lilac result badge (`+3 LANES`, `2 TAKES`, `v5`).
+   - FAILED — rust row, reason, RETRY via the owning store (settings
+     kept). CLEAR DONE clears DONE and FAILED.
+   `activityStore` subscribes to those stores and records settle events
+   (session-only, newest first, cap 30). A reload rehydrates RUNNING from
+   `/active` only.
+6. **Library CONTINUE row** above the grid: up to 3 items (waveform,
+   version badge, last action, RESUME). Data, a **small server change**:
+   `GET /api/songs/recent?limit=3`, non-trashed songs ordered by their
+   newest version's `created_at`, with its layer name, label and time
+   ("Repainted VERSE 2 vocals · 12 min ago"); `songs` has no
+   `updated_at`, and versions are the edits. A non-empty Create draft is
+   prepended client-side ("Draft in Create"). Hidden on an empty library.
+
+#### File-level plan
+
+- New client: `CommandPalette.tsx`, `commandStore.ts`, `commandMatch.ts`
+  (+ test), `commandIndex.ts` (+ test), `useCommandKey.ts`,
+  `ActivityButton.tsx`, `ActivityDrawer.tsx`, `ActivityRow.tsx`,
+  `activityStore.ts` (+ test: settle recording, cap, clear),
+  `ContinueRow.tsx`.
+- New server: `routes/songsRecent.ts` (+ test: order, trash excluded,
+  limit), mounted on the songs router.
+- Edited: `Header.tsx`, `App.tsx`, `LibraryView.tsx`, `api/`,
+  `SettingsView.tsx` (section anchors), Editor publishers.
+- E2E: open the palette, type a song title, ↵ opens it; Activity lists
+  the generation as DONE with OPEN.
+- DESIGN.md: header (trigger, Activity), App model (palette exception),
+  Library (CONTINUE, header), AI-state call sites (Activity rows).
+
+### S4 — Server job queue (server + client)
+
+#### Decisions
+
+1. **`genLock.ts` becomes `genQueue.ts`**: one running slot plus a FIFO
+   of queued entries, **in memory**. `enqueue(info, run)` registers the
+   `Job` immediately with a new status `queued` and `queuePosition`, and
+   starts `run(job)` when the slot is free; the slot is released in
+   `run`'s `finally` (today's `poll().finally(release)` shape). Each
+   `start*` function splits into a synchronous **validate** (400s for a
+   bad layer/source happen before anything is queued) and an async
+   **run**. Sources are resolved at run time, so queued edits on one
+   layer chain (the second repaint works on the first one's result).
+2. **Every current genLock kind enters the queue**: generate (text2music,
+   cover, complete, extra-engine generate), repaint, regenerate, retake,
+   addLayer, split (`stemSplit` both backends, `scratchSplitJobs`),
+   remaster, transcribe, lyrics, timings, analyze. Two changes:
+   - `analyze` is synchronous today; it becomes a polled `Job` like
+     transcribe (`POST` returns `jobId`, `GET /:jobId` carries
+     `analysis`), because a request can't wait out a queue.
+   - `timings` is deduplicated per version (a queued read for the same
+     version is reused, not re-added).
+3. **Limits**: at most 10 queued jobs; the 11th gets 409 "the queue is
+   full". The 409 for "busy" is gone.
+4. **Routes**: `GET /api/generate/queue` → `{ running, queued: [...] }`
+   (kind, jobId, songId, title, layer, label, position, queuedAt);
+   `POST /api/generate/:jobId/cancel` removes a queued job (settles as
+   `failed`, `error: 'cancelled'`, `cancelled: true`; Activity drops it
+   instead of offering RETRY). Cancelling the running job stays the
+   existing best-effort ABORT. `/active` keeps its shape for the running
+   job.
+5. **Settlement at run time**: a queued job whose layer, version or song
+   was deleted or trashed meanwhile fails with that reason; trashing a
+   song cancels its queued jobs. If ACE-Step is down when a job starts it
+   fails as today and the queue moves on (open question 3).
+6. **Restart/crash**: the queue is in-memory, like the job registry —
+   a server restart loses running and queued jobs. The client already
+   treats a 404 job as gone (`jobGone.ts`); Activity shows such rows as
+   failed "lost when the server restarted" with RETRY. No persistence.
+7. **Client**: commits are no longer disabled for a busy GPU; the
+   "WAIT FOR …" labels (`busyMessage`) are deleted. The consequence line
+   gains "· starts after 2 jobs", and version numbers count queued jobs
+   on the same layer ("saves vocals v6" while v5 is queued). Activity
+   gets **UP NEXT** between RUNNING and DONE: one plain row per queued
+   job ("REPAINT VERSE 2 · starts when ACE-Step is free") with CANCEL
+   (quiet outline). `generationStore`/`editorJobStore` key jobs by id
+   (one GeneratingCard pin per running or queued generation). Create's
+   engine/source locks also hold for a *queued* TRANSCRIBE / READ LYRICS
+   / ANALYZE, whose result still belongs to that source.
+
+#### File-level plan
+
+- Server: `services/genQueue.ts` (+ test: FIFO, positions, cancel,
+  release on success/failure/abort, limit, timings dedupe) replaces
+  `genLock.ts`; every `*Jobs.ts` in 2 split into validate/run (tests:
+  submit while busy → `queued`, then runs); `analyzeJobs.ts` async (+
+  test); `routes/generateStatus.ts` (`/queue`, `/:jobId/cancel`, + test);
+  `jobRegistry.ts` (`queued`, `queuePosition`); song trash cancels.
+- Client: `api/`, `queueStore.ts` (+ test), multi-job
+  `generationStore.ts`/`editorJobStore.ts` (+ tests),
+  `useAnalyzeSourceAudio.ts`, `ActivityDrawer.tsx` (UP NEXT), consequence
+  helpers (+ test: "starts after N", version counting), `generationJob.ts`.
+- E2E: the fake ACE-Step gets a `hold` switch (e2e-only control route)
+  so the spec can queue a repaint behind a held generation, see UP NEXT,
+  CANCEL another, then watch the first one run.
+- DESIGN.md: Activity UP NEXT, consequence-line copy, Interaction rhythm
+  (busy no longer blocks), AI-state rules for queued rows.
+
+### Open questions
+
+1. **A/B compare** (mockup: `A/B v4 ↔ v3`, TAB flips while playing) is
+   deferred. It needs the playback engine to hold two decoded versions
+   of one layer; decide after S1 ships.
+2. MIX as FLAC/MP3 with tags needs a server transcode route for an
+   uploaded bounce (`transcode.ts`/`fileTags.ts` exist). Not in S1.
+3. Should the queue pause (instead of failing each job) while ACE-Step is
+   unreachable? S4 fails fast; revisit if a crash empties a long queue.
+4. Destination folder in the recipe stays read-only; a folder select
+   there is a separate scope question.
