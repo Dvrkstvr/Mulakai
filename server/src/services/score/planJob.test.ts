@@ -84,6 +84,18 @@ describe('plan job (F-019, F-020)', () => {
     expect(getPlan(SONG)).toBeUndefined();
   });
 
+  it("sends yue-server's same-root refusal back to the planner word for word (D-055)", async () => {
+    const recoloured = contract('apply-reharmonize-same-roots');
+    const refusal = (recoloured.response.body.checks as { problems: string[] }).problems[0];
+    expect(refusal).toMatch(/^REHARMONIZE 47-54 keeps the old root in 8 of 8 bars; change the root in at least one chord per 2 bars/);
+    ollama = await startFakeOllama();
+    ollama.chats.push({ content: JSON.stringify({ ops: (recoloured.request.body as { ops: unknown[] }).ops }) }, { content: TEMPO });
+    expect((await settled(startPlan(SONG, 'jazz chords in the chorus', deps()).id)).status).toBe('done');
+    const asks = ollama.requests.filter((r) => r.path === '/v1/chat/completions');
+    const retry = (asks[1].body as { messages: Array<{ role: string; content: string }> }).messages.at(-1)!;
+    expect(retry).toEqual({ role: 'user', content: `Your op list was rejected:\n- ${refusal}\nReturn a corrected, complete op list as JSON only.` });
+  });
+
   it('refuses a cut prompt with the F-020 message and shows no plan (F-020 #3)', async () => {
     ollama = await startFakeOllama({ contextLength: 2048 });
     ollama.chats.push({ content: TEMPO, promptTokens: 1027 });

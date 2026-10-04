@@ -18,6 +18,13 @@ describe('planMessages', () => {
     expect(system).toEqual({ role: 'system', content: PLANNER_RULES });
   });
 
+  it('tells the planner a reharmonization moves roots, not only colours (D-055)', () => {
+    expect(PLANNER_RULES).toContain('A reharmonization changes the harmony, not only the chord colour: in every 2 bars of the op, '
+      + "at least one chord's root differs from the old chord's root at that bar and beat in the BAR MAP");
+    expect(PLANNER_RULES).toContain('ii-V, tritone substitutes, relative minor/major, secondary dominants');
+    expect(PLANNER_RULES).toContain('Added 7ths or inversions (slash basses) on the same roots alone are not enough');
+  });
+
   it('tells the song through facts and the bar map, never the raw score', () => {
     expect(user.role).toBe('user');
     expect(user.content).toContain('HEADER: M:4/4 L:1/32 Q:1/4=87 K:Dm; 65 bars, about 179 s');
