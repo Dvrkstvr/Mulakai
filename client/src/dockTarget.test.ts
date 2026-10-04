@@ -50,6 +50,11 @@ describe('dockTarget', () => {
     expect(dockTarget('split', 'base', sel, SECTIONS, 60)).toMatchObject({ label: 'BASE · WHOLE LAYER', clearable: false });
     expect(dockTarget('export', 'base', sel, SECTIONS, 60)).toMatchObject({ label: 'WHOLE SONG', clearable: false });
   });
+
+  it('SCORE always targets the whole score of the base, whatever layer is focused (DT-3)', () => {
+    expect(dockTarget('score', 'vocals', { start: 92, end: 127 }, SECTIONS, 60))
+      .toEqual({ label: 'BASE · WHOLE SCORE', warn: false, clearable: false, hint: 'a score edit re-renders the whole song', section: null });
+  });
 });
 
 describe('repaint commit copy', () => {

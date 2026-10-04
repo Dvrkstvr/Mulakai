@@ -1,0 +1,11 @@
+{
+ "listened": "2026-10-05",
+ "by": "user, pipeline/verify/M0/listen/index.html (A/B with same-position switch and scrubber)",
+ "answers": {
+  "rain_v1_v2": {"tempo": "no", "chords": "no", "expected_tempo": "no", "plan": "SET TEMPO 88 (already 88) + REHARMONIZE 14-21, 34-41; 0 roots changed"},
+  "rain_v2_v3": {"tempo": "no", "chords": "clearly", "expected_tempo": "no", "plan": "REHARMONIZE 14-21; 0 roots changed"},
+  "rain_v3_v4": {"tempo": "no", "chords": "clearly", "expected_tempo": "no", "plan": "REHARMONIZE 14-21, 34-41 (slash chords); 0 roots changed"},
+  "tempo_v1_v2": {"tempo": "clearly", "chords": "no", "expected_tempo": "clearly", "plan": "SET TEMPO 128 -> 88 + REHARMONIZE 10-17, 30-37; 0 roots changed"}
+ },
+ "summary": "tempo 4/4 as expected (1 clear change, 3 correct no-change); chords heard 2/4 (both 'clearly'), 0 'slightly'. SP-3 / R-013 bar: change heard in >= 4 of 5 pairs. Chords miss it; tempo meets it. Measured audio chord movement did not predict the listen: tempo v2 moved 69% vs 0% yet heard 'no'; rain v3 62% vs 40% heard 'clearly'."
+}

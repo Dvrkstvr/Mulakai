@@ -17,18 +17,20 @@ export async function run(job: Job, body: () => Promise<void>): Promise<void> {
 /**
  * Queue `job` (genQueue.ts) and register it as `queued`. `body` runs once the slot frees,
  * after the job flips to `startStatus`; whatever it throws fails the job, and its settling
- * frees the slot. A cancel while queued settles it failed with `cancelled`. Throws
- * QueueFullError before registering anything.
+ * frees the slot. A cancel while queued settles it failed with `cancelled`. `onAbort` runs after
+ * ABORT marks the running job (a plan aborts its in-flight planner call, D-041); the slot still
+ * waits for `body` to settle. Throws QueueFullError before registering anything.
  */
 export function queueJob(
   info: Omit<QueueInfo, 'jobId'>, job: Job, body: () => Promise<void>, startStatus: 'loading' | 'running' = 'loading',
+  onAbort?: () => void,
 ): Job {
   job.status = 'queued';
   enqueue({ ...info, jobId: job.id }, () => {
     if (wasAborted(job)) return undefined;
     job.status = startStatus;
     return run(job, body);
-  }, (reason) => settleCancelled(job, reason), () => markAborted(job));
+  }, (reason) => settleCancelled(job, reason), () => { markAborted(job); onAbort?.(); });
   registerJob(job);
   return job;
 }

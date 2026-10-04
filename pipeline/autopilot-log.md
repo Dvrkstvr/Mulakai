@@ -15,3 +15,15 @@ R8 stage 7 M0/W1 · builder → yue-server score read/apply routes (F-017), pyte
 R9 stage 7 M0 · #124 (W0) merged c8bb066 (user OK); W1 pushed as PR #125 (auto-fix on); W2a F-018 committed f7955e2; W2b running · progress 7·W0 merged·6·0
 R10 stage 7 M0/W2b · builder → planner client, plan job (kind 'plan'), unload hand-off, context guard (F-019, F-020); server 620 tests, client 627; live items owed to CP1 · progress 7·W2 local·6·0
 R11 stage 7 M0/CP1 · live checkpoint PASS 7/7: plans 6/6 first try (p50 6.5 s), unload→/api/ps empty 107–140 ms, YuE2 90–97 tok/s, VRAM back 0–4 MiB, tempo within 0.5%, truncated 0/6; Q-034 (same-root jazz) assumed D-051 · progress 7·CP1 pass·6·0
+
+## Run 2026-10-03 → M0 (new run, fresh 12-round budget; previous run stopped on budget after CP1)
+R1 stage 7 M0 · #125 (W1) merged (user OK); W2 pushed as PR #126 (auto-fix on); W3 builder dispatched on feat/score-w3-dock · progress 7·W1 merged·6·0
+R2 stage 7 M0/W3 · builder → SCORE dock verb (F-021, F-022, F-024): reducer 52-row table, status route, cancel, limits; client 705, server 640; browser-checked on fakes, dock 356 px at 1366×768 and 1080p · progress 7·W3 local·6·0
+R3 stage 7 M0/W3 committed (5 commits on feat/score-w3-dock); W4 builder dispatched on feat/score-w4-render · progress 7·W3 local·6·0
+R4 stage 7 M0/W4 · builder → APPLY & RENDER (F-023) 6/6 in tests + browser on fakes; server 677, client 717 · progress 7·W4 local·6·0
+R5 stage 7 M0 · W4 committed; #126 (W2) merged (user OK); W3 PR #127, W4 PR #128 (stacked) with auto-fix; verifier dispatched for F-016..F-025 incl. W5 live run on a library copy (user choice) · progress 7·W4 local·6·0
+R6 stage 7 M0 verify · verifier → F-016..F-024 pass with evidence, F-025 false (A/B listen owed); live W5 on library copy: plans 8–15 s, unload 95–120 ms, YuE2 88–101 tok/s, tempo ≤1.2%; Ollama crash + ENOSPC once (C: full, now fixed by moving to E:) · progress 7·9/10·15·0
+R7 stage 8 M0 · reviewer (code lens) dispatched on 6426d5c...HEAD while the F-025 A/B listen is owed · progress 7·9/10·15·0
+R8 stage 8 M0 · reviewer → M0-code.md: 0 blocking, 3 should (verified in code), 4 nit; D-054 fix 1–3, defer 4–7 as Q-038; builder dispatched · progress 8·1/2·15·0
+R9 stage 8 M0 · builder fixed review 1–3 test-first; my checks: server 679 + tsc, client 717 + build + lint green; committed 43ecd71/fad8675/0dcf7ae; stage 8 gate 2/2 · progress 8·2/2·15·0 · waiting: listen, push, merges
+R10 stage 7 M0 · user A/B listen in: tempo 4/4 as expected, chords heard 2/4 (R-013 bar >= 4/5 missed for chords); pipeline/verify/M0/ab-answers.json · progress 8·2/2·15·0 · STOP: core-promise question to user

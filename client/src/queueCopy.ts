@@ -7,7 +7,7 @@ import type { ActivityKind } from './activitySettle';
 const VERB: Record<ActivityKind, string> = {
   generate: 'GENERATE', repaint: 'REPAINT', regenerate: 'ALT TAKE', retake: 'SIMILAR TAKE', addLayer: 'ADD LAYER',
   split: 'SPLIT', remaster: 'REMASTER', transcribe: 'TRANSCRIBE', lyrics: 'READ LYRICS', timings: 'WORD TIMINGS',
-  analyze: 'ANALYZE AUDIO', lm: 'LM WRITING',
+  analyze: 'ANALYZE AUDIO', lm: 'LM WRITING', plan: 'SCORE PLAN', scoreRender: 'SCORE RENDER',
 };
 
 /** "starts after 2 jobs": `ahead` counts the running job and every queued one before it, so a

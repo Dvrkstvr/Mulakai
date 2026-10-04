@@ -27,8 +27,8 @@ describe('planStore (D-035)', () => {
   });
 
   it("remembers each song's latest run", () => {
-    noteRun('s1', { jobId: 'j1', request: 'r', reasons: [], planId: null });
-    noteRun('s1', { jobId: 'j2', request: 'r', reasons: ['x'], planId: null });
-    expect(lastRun('s1')).toEqual({ jobId: 'j2', request: 'r', reasons: ['x'], planId: null });
+    noteRun('s1', { jobId: 'j1', request: 'r', reasons: [], planId: null, cause: null });
+    noteRun('s1', { jobId: 'j2', request: 'r', reasons: ['x'], planId: null, cause: 'check' });
+    expect(lastRun('s1')).toEqual({ jobId: 'j2', request: 'r', reasons: ['x'], planId: null, cause: 'check' });
   });
 });

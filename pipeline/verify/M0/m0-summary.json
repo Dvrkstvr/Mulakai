@@ -1,0 +1,36 @@
+{
+  "run": "W5 / F-025 live run, 2026-10-04 00:05-00:42 local, RTX 4080 16 GB, Windows 11 + WSL2; verifier agent",
+  "setup": {
+    "library": "throwaway copy under the session scratchpad (audio copied, DB via SQLite backup API); live library only read",
+    "ports": {"mulakai_server": 3301, "vite": 5301, "ollama": 11435, "ollama_proxy_timing": 11436, "yue_server": 8004, "acestep_api": 8201},
+    "ollama": "second ollama serve, OLLAMA_CONTEXT_LENGTH=16384, qwen3:14b (already pulled, no downloads)",
+    "acestep": "S:/AI Gen/ACE-Step-1.5/.venv/Scripts/acestep-api.exe --port 8201 with ACESTEP_OFFLOAD_TO_CPU / _DIT_ / LM_ = true; never modified",
+    "user_stack_untouched": "3001, 5173, 8001 (ACE-Step), 11434 left running and untouched"
+  },
+  "checks": {
+    "client build": "exit 0 (chunk size warning only)", "client lint": "exit 0 (1 existing warning, AudioPreview.tsx)",
+    "client test": "88 files / 717 tests passed", "server tsc --noEmit": "exit 0", "server test": "83 files / 677 tests passed",
+    "yue-server pytest": "163 passed, 1 Starlette deprecation warning", "e2e": "5 passed in 35.4 s (ports 8101/3101/5183 were free)"
+  },
+  "songs": {
+    "rain": {"id": "3d4dd80a", "first_take": "YuE2 text2music, cot full, 123.1 s, Q 88, 46 bars, 4/4", "versions": ["v1 first generation", "v2 run A", "v3 run B (ACE-Step process idle)", "v4 run C (after a real ACE-Step generation)"]},
+    "tempo": {"id": "0d077c13", "first_take": "YuE2 text2music, cot full, 86.2 s, Q 128, 47 bars", "versions": ["v1 first generation", "v2 SET TEMPO 128->88 + REHARMONIZE 10-17, 30-37"]}
+  },
+  "plans": [
+    {"run": "A cold (first Ollama load after start)", "request": "jazz chords in the chorus, 88 BPM", "wall_s": 11.4, "attempts": 1, "ops": "SET_TEMPO 88 (Q already 88, style 90->88), REHARMONIZE 14-21, 34-41", "model_listed_to_empty": "00:10:11.07 -> 00:10:19.66", "vram_before_peak_after_mib": [2465, 13847, 2467]},
+    {"run": "B warm, ACE-Step process up and idle (models_initialized false)", "wall_s": 8.05, "chat_s": 7.88, "prompt_tokens": 1702, "completion_tokens": 315, "attempts": 1, "ops": "REHARMONIZE 14-21", "unload_ack_ms": 3, "unload_to_first_empty_poll_ms": 95, "vram_before_peak_after_mib": [2759, 14157, 2772]},
+    {"run": "C after a real ACE-Step generation (parked, models+LM initialised), attempt 1", "result": "FAILED: Ollama HTTP 500, llama-server exit 0xc0000409 (GGML_ASSERT ctx->mem_buffer != NULL) after 5.3 s; dock showed PLANNER OFFLINE with the cause, nothing saved, GPU free; C: was at 0 bytes free at the time, ACE-Step process held ~22 GB RAM"},
+    {"run": "C retry same state", "wall_s": 14.7, "chat_s": 14.33, "prompt_tokens": 1722, "completion_tokens": 627, "attempts": 1, "ops": "REHARMONIZE 14-21, 34-41, SET_TEMPO 88", "unload_to_first_empty_poll_ms": 115, "vram_before_peak_after_mib": [3780, 15133, 3777], "peak_headroom_mib": 1243},
+    {"run": "tempo song (user's own YuE job started on the shared yue-server during it, slowed it)", "wall_s": 24.5, "chat_s": 23.31, "completion_tokens": 634, "attempts": 1, "ops": "SET_TEMPO 88, REHARMONIZE 10-17, 30-37", "vram_peak_mib": 15632},
+    {"run": "make it sadder (rain v4)", "wall_s": 4.3, "attempts": 1, "ops": "EDIT_STYLE only", "dock": "1 change, EDIT STYLE, 'the style change is a request to YuE2, not a guarantee'"},
+    {"run": "Rastafari, 'set it to 40 BPM' (147 bars 2/4)", "attempts": 2, "result": "plan shows SET TEMPO 70 -> 50 BPM (353 s of 360 s, estimate in the warn colour); the planner answered the 360 s feedback by changing the requested 40 to 50; dock does not say so"}
+  ],
+  "renders": [
+    {"run": "A rain v2", "wall_s": 50.6, "semantic_tok_s": 98.4, "est_s": 125.5, "actual_s": 124.24, "est_vs_actual_pct": 1.0, "truncated": false, "tempo_from_bars_bpm": 86.96, "tempo_err_pct": -1.19},
+    {"run": "B rain v3", "wall_s": 48.1, "semantic_tok_s": 101.1, "est_s": 125.5, "actual_s": 122.60, "est_vs_actual_pct": 2.4, "truncated": false, "tempo_from_bars_bpm": 87.91, "tempo_err_pct": -0.10},
+    {"run": "C rain v4 (second try; first try ENOSPC at save)", "wall_s": 53.1, "semantic_tok_s": 89.4, "est_s": 125.5, "actual_s": 123.84, "est_vs_actual_pct": 1.3, "truncated": false, "tempo_from_bars_bpm": 87.91, "tempo_err_pct": -0.10},
+    {"run": "tempo v2 (128 -> 88 BPM)", "wall_s": 53.0, "semantic_tok_s": 88.0, "est_s": 128.2, "actual_s": 123.80, "est_vs_actual_pct": 3.5, "truncated": false, "tempo_from_bars_bpm": 88.56, "tempo_err_pct": 0.64, "base_tempo_from_bars_bpm": 128.34}
+  ],
+  "chords": "see analysis.json; planner changed 0 roots in all four jazz plans (Q-034 again). Root agreement on edited bars 0.875 / 0.75 / 0.50 / 0.81 vs chance mean 0.25-0.27 (p95 0.89-1.0), identical vs the old chords. Audio chord moved vs the base render on edited vs unedited bars: tempo v2 69% vs 0% (clean); rain v2 31% vs 20%, v3 62% vs 40%, v4 75% vs 30% (rain's loop repeats 4 chords everywhere and the bar offset fit is unstable: 4, -4, 0, so its unedited baseline is inflated).",
+  "files": {"gpu_trace": "nvidia-smi.csv (250 ms, 9,003 rows)", "analysis": "analysis.json", "listen": "listen/index.html (gitignored with the audio)", "raw": "raw/ (gitignored: logs, ps trace, proxy trace, spec)"}
+}

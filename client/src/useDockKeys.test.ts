@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { isTypingTarget, verbForKey } from './useDockKeys';
+import { dockVerbs } from './dockVerbs';
 
 /** Enough of an element for the guard: no DOM in this test environment. */
 function el(tagName: string, opts: { type?: string; editable?: boolean; inDialog?: boolean } = {}) {
@@ -50,5 +51,21 @@ describe('verbForKey', () => {
 
   it('treats a non-element target as not typing', () => {
     expect(isTypingTarget({} as EventTarget)).toBe(false);
+  });
+});
+
+describe('verbForKey with SCORE (F-021 #5)', () => {
+  const press = (k: string, scoreShown: boolean, target: EventTarget | null = el('DIV')) =>
+    verbForKey({ key: k, target, ctrlKey: false, metaKey: false, altKey: false, repeat: false }, dockVerbs(scoreShown));
+
+  it('C opens SCORE only on a song that shows it; it does nothing on a four-verb song', () => {
+    expect(press('c', true)).toBe('score');
+    expect(press('C', true)).toBe('score');
+    expect(press('c', false)).toBeNull();
+  });
+
+  it('C types into the request field instead of switching', () => {
+    expect(press('c', true, el('INPUT'))).toBeNull();
+    expect(press('c', true, el('BUTTON', { inDialog: true }))).toBeNull();
   });
 });
