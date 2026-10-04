@@ -17,7 +17,8 @@ export type ScorePhase =
   /** Refused at APPLY & RENDER (plan expired, song changed): nothing started. */
   | { kind: 'stale'; reason: string }
   | { kind: 'renderQueued'; ahead: number }
-  | { kind: 'rendering'; line: string }
+  /** `line` is YuE2's stage and its share ("synthesizing audio 41%"); `startedAt` is when it took the slot. */
+  | { kind: 'rendering'; line: string; startedAt: number | null }
   | { kind: 'renderFailed'; error: string }
   | { kind: 'done'; saved: string; truncated: boolean };
 
@@ -48,7 +49,7 @@ export type ScoreEvent =
   | { type: 'cancel' }
   | { type: 'renderSubmitted'; ahead: number }
   | { type: 'renderRefused'; reason: string }
-  | { type: 'renderProgress'; ahead: number; line: string }
+  | { type: 'renderProgress'; ahead: number; line: string; startedAt: number | null }
   | { type: 'renderDone'; saved: string; truncated: boolean }
   | { type: 'renderFailed'; error: string }
   | { type: 'renderCancelled' };

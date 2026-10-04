@@ -5,6 +5,7 @@ import { NOT_REPLAYABLE_ERRORS } from '../services/replayGuard.js';
 import { QueueFullError } from '../services/genQueue.js';
 import { startVersionTimings, TIMINGS_NOT_SET_UP } from '../services/timingsJobs.js';
 import { removeVersionFiles } from '../services/versionFiles.js';
+import { restoreScoreMeta } from '../services/score/scoreVersion.js';
 
 export const versionsRouter = Router();
 
@@ -13,17 +14,18 @@ export const versionsRouter = Router();
  * restores the song's canonical lyrics to whatever this version was rendered
  * with (stored in its params_json since generation/repaint always send it) —
  * audio and lyrics move together on revert, mirroring how repaint updates
- * both together (see repaintVersion.ts's persistVersion).
+ * both together (see repaintVersion.ts's persistVersion). Its score, style and seed follow
+ * too (scoreSource reads the active version), and after a score edit so do bpm/key/meter.
  */
-versionsRouter.patch('/versions/:versionId/activate', (req, res) => {
+versionsRouter.patch('/versions/:versionId/activate', async (req, res) => {
   const version = db
     .prepare(
-      `SELECT v.id, v.layer_id, v.params_json, l.kind, l.song_id FROM versions v
+      `SELECT v.id, v.layer_id, v.audio_file, v.params_json, l.kind, l.song_id FROM versions v
        JOIN layers l ON v.layer_id = l.id
        WHERE v.id = ?`,
     )
     .get(req.params.versionId) as
-    { id: string; layer_id: string; params_json: string; kind: string; song_id: string } | undefined;
+    { id: string; layer_id: string; audio_file: string; params_json: string; kind: string; song_id: string } | undefined;
   if (!version) return res.status(404).json({ error: 'unknown version' });
   db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(version.layer_id);
   db.prepare(`UPDATE versions SET active = 1 WHERE id = ?`).run(version.id);
@@ -33,6 +35,7 @@ versionsRouter.patch('/versions/:versionId/activate', (req, res) => {
     if (typeof params.lyrics === 'string' && params.lyrics.trim()) {
       db.prepare(`UPDATE songs SET lyrics = ? WHERE id = ?`).run(params.lyrics, version.song_id);
     }
+    await restoreScoreMeta(version);
   }
   res.json({ ok: true });
 });
@@ -40,7 +43,8 @@ versionsRouter.patch('/versions/:versionId/activate', (req, res) => {
 /**
  * Delete a version, including the active one — deleting the active version
  * auto-reverts to the layer's next most recently created remaining version
- * (decided 2026-07-02, see PLAN.md). A layer must always keep >=1 version.
+ * (decided 2026-07-02, see PLAN.md), and the song's bpm/key/meter/length follow
+ * it as on activate. A layer must always keep >=1 version.
  */
 versionsRouter.delete('/versions/:versionId', async (req, res) => {
   const version = db
@@ -53,13 +57,23 @@ versionsRouter.delete('/versions/:versionId', async (req, res) => {
     .get(version.layer_id) as { count: number };
   if (count <= 1) return res.status(400).json({ error: 'cannot delete the only version of a layer' });
 
-  db.prepare(`DELETE FROM versions WHERE id = ?`).run(version.id);
   if (version.active) {
+    // Fall back before the row goes: restoreScoreMeta only restores a first take on a layer that has
+    // a score version, and the one being deleted may be the layer's only one (D-053 e).
     const next = db
-      .prepare(`SELECT id FROM versions WHERE layer_id = ? ORDER BY created_at DESC LIMIT 1`)
-      .get(version.layer_id) as { id: string } | undefined;
-    if (next) db.prepare(`UPDATE versions SET active = 1 WHERE id = ?`).run(next.id);
+      .prepare(
+        `SELECT v.id, v.layer_id, v.audio_file, v.params_json, l.kind, l.song_id FROM versions v
+         JOIN layers l ON v.layer_id = l.id
+         WHERE v.layer_id = ? AND v.id != ? ORDER BY v.created_at DESC LIMIT 1`,
+      )
+      .get(version.layer_id, version.id) as
+      { id: string; layer_id: string; audio_file: string; params_json: string; kind: string; song_id: string } | undefined;
+    if (next) {
+      db.prepare(`UPDATE versions SET active = (id = ?) WHERE layer_id = ?`).run(next.id, version.layer_id);
+      if (next.kind === 'base') await restoreScoreMeta(next);
+    }
   }
+  db.prepare(`DELETE FROM versions WHERE id = ?`).run(version.id);
   await removeVersionFiles(version);
   res.json({ ok: true });
 });

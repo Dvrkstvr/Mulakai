@@ -162,8 +162,8 @@
         "Edge: grep PLAN.md, AGENTS.md, CLAUDE.md and yue-server/README.md for 'out of scope' near 'score' and 'every edit after' finds no remaining line that contradicts the new section",
         "The PR is docs-only and merged to main before the first F-017 code PR"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Seen in files 2026-10-04: PLAN.md '## Score Agent (planned 2026-10-03)' (line 8548) states it supersedes the two out-of-scope lines and has Op set per milestone, SCORE verb states, plan->render hand-off, File-level plan; the old lines at PLAN.md 2226/2892/3859 each carry a dated Amended/Superseded pointer. AGENTS.md Scope Discipline, CLAUDE.md Tech Stack and yue-server/README.md line 6 carry the same sentence (YuE2 may re-render its own song from an edited score; every audio edit stays ACE-Step). grep for 'every edit after' / 'out of scope' over the four files finds no remaining contradicting line. Docs PR #124 merged on main (c8bb066) before the first code PR #125 (W1, 36d9d08)."
     },
     {
       "id": "F-017",
@@ -176,8 +176,8 @@
         "The token count is taken with chords kept (not /v1/scores/measure's stripped count); duration is bars x meter / Q:",
         "While a YuE2 job runs, a call to each route returns in under 1 s, loads no model and leaves nvidia-smi memory within 50 MB of before"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "yue-server python -m pytest: 163 passed (log pipeline/verify/M0/yue-pytest.log): test_score_golden.py (39 golden cases vs upstream, 0a7cff01 message, overfull bar unit sum), test_score_ops.py (SET_TEMPO/REHARMONIZE enums/EDIT_STYLE, melody unchanged), test_score_facts.py (duration = bars x meter / Q), test_score_edit_routes.py (tokens with chords kept; routes answer <1 s and load no model while a job runs). #5 live: CP1 pipeline/cp1/CP1-LOG.md (24 calls 10-22 ms during YuE2 jobs, 0 MiB delta, 6 loads for 6 jobs); this run's yue-server.log shows one 'Loading model' per YuE2 job while score reads and applies were served."
     },
     {
       "id": "F-018",
@@ -189,8 +189,8 @@
         "Edge: eligible at plan time, then a repaint is queued and lands before APPLY & RENDER: the commit is refused with 'this song changed since the plan', and no yue-server job is started",
         "Opening the SCORE verb on a YuE2 song with a repaint version shows the reason line in the app (manual)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Vitest scoreEligibility.test.ts / scoreStatus.test.ts pass in the 677-test server run (table: eligible, second layer, repaint, no sidecar, 0a7cff01 checker failure, chord-free, ACE-Step/import hidden; commit re-check refuses 'this song changed since the plan' with no yue-server call). Live (throwaway copy, in-app browser): ACE-Step song shows 4 dock tabs, YuE2 song shows 5 incl. SCORE; after a REAL ACE-Step repaint of 'M0 verify tempo' the SCORE body reads 'This song has a repaint version, so score editing ended when it was made.' (GET /score state ineligible, same text); the library sidecar failing the checker reads 'The saved score fails the checker: group 60, Ins: expected V: Ins.'. See pipeline/verify/M0/m0-summary.json."
     },
     {
       "id": "F-019",
@@ -203,8 +203,8 @@
         "The plan job holds one genQueue slot for all attempts and the unload: a repaint submitted meanwhile waits behind it and does not start between attempts (Vitest on genQueue order)",
         "A running plan with the new queue kind 'plan' does not break the Activity drawer or the Header's /active poll (it renders a generic row or none; unit test)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Vitest plannerClient.test.ts (strict per-song json_schema, reasoning_effort none, model), planJob.test.ts (slot held through attempts and unload; 3 attempts -> check failed with per-op reasons), activityPlanKind.test.ts all pass. Live on the wire (timing proxy, pipeline/verify/M0/raw/proxy-trace.jsonl, gitignored): POST /v1/chat/completions carried reasoning_effort none and json_schema; default model qwen3:14b. Live plans this run: valid on attempt 1 for jazz/88 BPM and make-it-sadder across 3 songs, plus CP1's 6/6 (pipeline/cp1/CP1-LOG.md); 'set it to 40 BPM' on a 147-bar song needed attempt 2 (360 s feedback). Misses: none; see the risk note that the 40 -> 50 BPM change is not named in the dock."
     },
     {
       "id": "F-020",
@@ -217,8 +217,8 @@
         "Edge: a model still listed after 10 s ends the plan in an error naming the model and 'ollama stop <model>', releases the slot, and APPLY & RENDER later refuses while /api/ps lists any model",
         "Edge: an LLM_API_URL that is not Ollama (no /api/ps) is reported as unsupported with the reason, not planned against"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Live: unload ack 2-3 ms, first /api/ps poll after it empty at 95-120 ms (proxy-trace.jsonl, ps-trace.jsonl); VRAM before -> after plan 2465->2467, 2759->2772, 3780->3777 MiB (pipeline/verify/M0/nvidia-smi.csv, 250 ms); next YuE2 renders 98.4, 101.1, 89.4, 88.0 tok/s (yue-server.log). Vitest contextGuard.test.ts (SP-2 2048 case), ollamaControl.test.ts (3-poll stub, 10 s 'ollama stop', no /api/ps), planJob.test.ts pass. Not driven live: the OLLAMA_CONTEXT_LENGTH=2048 refusal and the 10 s case (Vitest only). Observation, not a failure: CANCEL through a proxy that did not forward the abort left the model listed ~23 s; the server polled ~11 s then stopped, and I did not capture the final dock state (with a forwarding proxy, CANCEL emptied /api/ps in 0.1 s)."
     },
     {
       "id": "F-021",
@@ -231,8 +231,8 @@
         "Edge: editing the request and pressing PLAN again replaces the plan; the old plan is shown dimmed until the new one arrives; an invalid plan keeps APPLY & RENDER disabled",
         "DESIGN.md's Action dock section is updated in the same PR, as its own commit; keys R/L/S/E keep working and the new verb's key does not collide (stage 5 design tasks DT-1..DT-5)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Live in-app (browser pane on :5301): #1 ACE-Step song 4 tabs, YuE2 song 5 (REPAINT R, ADD LAYER L, SPLIT S, EXPORT E, SCORE C); #2 PLANNING attempt n of 3 then change list with checks line (46 bars - est 126 s of 360 s - 1,088 of 4,096 tokens - chords valid - attempt 1 of 3) and consequence line, VERSIONS unchanged after PLAN; #3 REHARMONIZE plan says 'every bar will sound different ... a request to YuE2, not a guarantee', SET TEMPO-only plan (Rastafari 70->50) says 'tempo follows 50 BPM' with no request clause; #4 'PREVIOUS PLAN - REPLACED WHEN THE NEW ONE ARRIVES' with APPLY & RENDER disabled while re-planning and with no plan; #5 DESIGN.md updated in its own commit 02bd27d. Vitest scoreVerb/scoreStore pass (hidden when LLM_API_URL unset). Not checked: that the old plan is visually dimmed (text and disabled state read, no pixel check)."
     },
     {
       "id": "F-022",
@@ -244,8 +244,8 @@
         "Edge: a request the three ops cannot express ('make it sadder') yields either an EDIT STYLE-only plan clearly labelled as a style change or 'this request did not change the score or the style' with APPLY & RENDER off; never an empty render",
         "On the M0 live run the estimate is within 5% of the rendered duration (SP-3: 0.6-3.2% short of nominal)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Live: estimates 125.5/125.5/125.5/128.2 s vs rendered 124.24/122.60/123.84/123.80 s = 1.0/2.4/1.3/3.5% long (all within 5%); est 353 s of 360 s shows in the warn colour (Rastafari 50 BPM); 'make it sadder' -> EDIT STYLE-only plan labelled as a style change, APPLY enabled. Vitest scoreLimits.test.ts (>=360 s refused with number and 'at least N BPM fits', 4,096 tokens, 'did not change the score or the style') pass. Not shown live: the refusal text itself, because the planner retry answered the over-limit feedback with a shorter tempo (see risk). The 145 BPM cover case was not run (that library cover is ineligible); Vitest has it."
     },
     {
       "id": "F-023",
@@ -259,8 +259,8 @@
         "Edge: a failed render (yue-server error) creates no version, leaves the base active, keeps the plan reviewable, and shows the error with RETRY RENDER",
         "Edge: CANCEL while rendering aborts, drains the slot as ABORT does today, and creates no version"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Live (throwaway copy): APPLY & RENDER saved base v2/v3/v4 on 'M0 verify rain' and v2 on 'M0 verify tempo', each with its own .abc sidecar (Q 1/4=88, K read), a lilac version row (border rgb(123,75,148)), active, previous versions still in VERSIONS, and it plays (timeline advanced 0:00->0:03 without reload). Stored params: cot full, seed 4116684544 unchanged, style bpm rewritten 90->88, lyrics identical, ops list. Revert (SEL on first generation, tempo song): score reading back to Q 128 / 88 s / 872 tokens, style back to 126 BPM, lyrics identical. Real failed render: ENOSPC at save -> 'RENDER FAILED - ENOSPC: no space left on device, write - nothing saved, the base is unchanged' + RETRY RENDER, plan still listed, no version created; the retry saved v4. Vitest scoreRenderJob/scoreVersion/yue2Score/scoreRender tests pass (truncated saved and marked, cancel drains the slot, re-checks). Not driven live: TRUNCATED display and CANCEL while rendering (Vitest only)."
     },
     {
       "id": "F-024",
@@ -272,8 +272,8 @@
         "Edge: killing the Ollama process mid-plan ends in the offline state with the cause; the GPU slot is released; the next song action is not blocked",
         "Edge: restarting the Mulakai server between plan and APPLY & RENDER gives 'plan expired, plan again' and starts no job (D-020)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Live: Ollama down -> SCORE body 'PLANNER OFFLINE - planner offline: no answer from http://127.0.0.1:11435 (fetch failed) / Start Ollama, then RECHECK. Request kept, nothing saved, GPU free.' with RECHECK; LLM_MODEL=qwen3:99b-not-pulled -> \"model qwen3:99b-not-pulled is not on the planner: run 'ollama pull qwen3:99b-not-pulled'\" (no model deleted); yue-server down -> 'Score checker unreachable ... Start yue-server, then RECHECK.' CANCEL while planning (model loaded, 7.5 s in): abort, unload POST 2 ms later, /api/ps empty 0.1 s after, text kept, no plan. Real mid-plan failure: llama-server crashed (0xc0000409) -> PLANNER OFFLINE with the cause, GPU free, RECHECK + PLAN + render then worked. Server restart between plan and APPLY -> 'PLAN OUT OF DATE - plan expired: the server restarted or a newer plan replaced it. Nothing was started.' (no job). Not live: CANCEL while queued (Vitest scoreStore.test.ts)."
     },
     {
       "id": "F-025",
@@ -287,7 +287,7 @@
         "OWED to the user (keeps passes false): A/B base vN-1 vs vN, tempo (expect clearly) and chords (clearly / slightly / no); report the answers"
       ],
       "passes": false,
-      "evidence": null
+      "evidence": "M0 exit run 2026-10-04, see pipeline/verify/M0/m0-summary.json, analysis.json, nvidia-smi.csv. #1 CP1 pass (pipeline/cp1). #2 in-app: fresh YuE2 AN IDEA 'M0 verify rain' (cot FULL, chords), SCORE 'jazz chords in the chorus, 88 BPM', PLAN (attempt 1, 3 changes), APPLY & RENDER -> lilac base v2 saved and played. #3 measured: plan cold 11.4 s / warm 8.1 s / 14.7 s (p50 well under 60 s), attempts 1, unload-to-empty 95-120 ms, VRAM delta <= 0.03 GB, YuE2 98.4/101.1/89.4/88.0 tok/s, estimate 1.0-3.5% long vs actual, truncated false x4, tempo from bars -1.19/-0.10/-0.10/+0.64% of Q (128 -> 88 BPM measured 88.56), root agreement on edited bars 0.875/0.75/0.50/0.81 vs chance mean 0.25-0.27 but the planner changed 0 roots (Q-034 again); audio chord moved vs base on edited vs unedited bars 69% vs 0% (tempo song), rain 31/20, 62/40, 75/30 (alignment unstable on a 4-chord loop). #4 ACE-Step process up and idle: plan 8.1 s, render ok (v3); after a real ACE-Step generation: first plan crashed Ollama's llama-server once (C: at 0 B free, ACE-Step process 22 GB RAM), retry planned in 14.7 s at 15.1 GB peak (1.2 GB headroom), render ok after an ENOSPC retry (v4). #5 OWED: the user's A/B listen, local page pipeline/verify/M0/listen/index.html (gitignored): pairs rain v1->v2, v2->v3, v3->v4 (88 -> 88, tempo should be 'no'), tempo v1->v2 (128 -> 88, tempo should be 'clearly'); chords clearly/slightly/no for each."
     },
     {
       "id": "F-026",

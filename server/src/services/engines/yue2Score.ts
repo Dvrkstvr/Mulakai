@@ -1,0 +1,24 @@
+/**
+ * The YuE2 job body for APPLY & RENDER (F-023, D-010, D-023): the edited score as `abc` with
+ * `cot: 'full'` (M0 scores always carry chords), the plan's style (yue-server already rewrote its
+ * bpm when the plan sets a tempo, D-047), the base version's lyrics exactly as stored, and the
+ * base version's seed. `buildYue2CoverRequest` (cot `melody`) is a different path and unchanged.
+ */
+
+export interface ScoreRenderInput {
+  /** The plan's edited score. */
+  abc: string;
+  /** The plan's style: the stored style after the ops. */
+  style: string;
+  /** The active base version's stored lyrics, never re-derived. */
+  lyrics: string;
+  seed: number;
+}
+
+export interface ScoreRenderRequest extends ScoreRenderInput {
+  cot: 'full';
+}
+
+export function buildYue2ScoreRequest(input: ScoreRenderInput): ScoreRenderRequest {
+  return { abc: input.abc, cot: 'full', style: input.style, lyrics: input.lyrics, seed: input.seed };
+}
