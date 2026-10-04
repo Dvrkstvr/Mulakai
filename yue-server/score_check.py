@@ -3,8 +3,9 @@ own ok/error text), the per-bar unit sums of every bar that does not fill its
 meter (upstream stops at the first, often with "event after the measure
 end", and SP-2 measured that retries only work with numbers), and an edit's
 checks: upstream compare (melody and bar grid unchanged, tempo only for
-SET_TEMPO), Q: as asked, and no chord changed outside the REHARMONIZE bars
-(compare does not look at chords).
+SET_TEMPO), Q: as asked, no chord changed outside the REHARMONIZE bars
+(compare does not look at chords), and each REHARMONIZE moves at least one
+root per 2 bars (score_roots.py, D-055).
 """
 from __future__ import annotations
 
@@ -15,6 +16,8 @@ from fractions import Fraction
 import scores  # noqa: F401  (puts the vendored upstream/ on sys.path)
 from abc_tools import TOKEN, VOICES, compare, parse_abc
 from score_bars import bars_text
+from score_model import Doc
+from score_roots import kept_roots
 
 
 def _units(body: str) -> int | None:
@@ -107,4 +110,7 @@ def check_edit(before_abc: str, after_abc: str, ops: list[dict]) -> dict:
     stray = sorted(n for n in old.keys() | new.keys() if n not in window and old.get(n) != new.get(n))
     if stray:
         problems.append(f"chords changed outside the REHARMONIZE bars: {bars_text(stray)}")
+    reharms = [op for op in ops if op["op"] == "REHARMONIZE"]
+    old_doc = Doc(before_abc) if reharms else None
+    problems += [text for op in reharms if (text := kept_roots(old_doc, op))]
     return {"ok": not problems and not differences, "problems": problems, "differences": differences}
