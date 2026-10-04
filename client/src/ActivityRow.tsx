@@ -15,13 +15,13 @@ const rowTitle = (kind: ActivityKind, title?: string) => title ?? UNTITLED[kind]
 const DONE_LABEL: Record<ActivityKind, string> = {
   generate: 'GENERATED', repaint: 'REPAINTED', regenerate: 'ALT TAKE', retake: 'SIMILAR TAKE', addLayer: 'ADDED A LAYER',
   remaster: 'REMASTERED', split: 'SPLIT', transcribe: 'TRANSCRIBED', lyrics: 'READ LYRICS', timings: 'TIMED LYRICS',
-  analyze: 'ANALYZED', lm: 'WROTE WITH THE LM', scoreRender: 'RE-RENDERED THE SCORE',
+  analyze: 'ANALYZED', lm: 'WROTE WITH THE LM', plan: 'PLANNED A SCORE EDIT', scoreRender: 'RE-RENDERED THE SCORE',
 };
 
 const KIND_NAME: Record<ActivityKind, string> = {
   generate: 'generation', repaint: 'repaint', regenerate: 'alt take', retake: 'similar take', addLayer: 'add layer',
   remaster: 'remaster', split: 'split', transcribe: 'transcription', lyrics: 'read lyrics', timings: 'word timing',
-  analyze: 'analysis', lm: 'LM writing', scoreRender: 'score render',
+  analyze: 'analysis', lm: 'LM writing', plan: 'score plan', scoreRender: 'score render',
 };
 
 /** RUNNING: audio-making jobs wear the AI shader (veiled by progress when it's whole-job

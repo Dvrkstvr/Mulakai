@@ -173,7 +173,7 @@ export interface RefineResult {
 export interface ActiveGeneration {
   kind:
     | 'generate' | 'repaint' | 'regenerate' | 'retake' | 'addLayer' | 'split' | 'remaster'
-    | 'transcribe' | 'lyrics' | 'timings' | 'analyze' | 'lm' | 'scoreRender';
+    | 'transcribe' | 'lyrics' | 'timings' | 'analyze' | 'lm' | 'plan' | 'scoreRender';
   jobId: string;
   songId?: string;
   title?: string;
