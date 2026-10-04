@@ -1,8 +1,9 @@
 /**
  * APPLY & RENDER on the SCORE verb (F-023, F-024):
  *   POST /api/songs/:id/score/render {planId}  → 202 {jobId, queuePosition}, or 409 {error, stale: true}
- *        naming the re-check that failed (nothing started), or 409 {error} when a render is already
- *        in flight or the queue is full
+ *        naming the plan re-check that failed (nothing started; the dock dims the plan), or 409 {error}
+ *        when the planner may still hold the GPU (a loaded model or an unreadable /api/ps: the plan is
+ *        fine, D-054), a render is already in flight or the queue is full (an error line with RETRY)
  *   GET  /api/songs/:id/score/render           → {run}: the song's latest render, for the dock's poll
  *   POST /api/songs/:id/score/render/cancel    → CANCEL: a queued render leaves the line; a running one
  *        is ABORTed (the slot waits for YuE2 to drain) and saves no version
@@ -31,7 +32,7 @@ export function makeScoreRenderRouter(deps: () => RenderDeps = () => renderDeps(
     const d = deps();
     try {
       const checked = await checkRender(songId, planId, d, true);
-      if ('refusal' in checked) return res.status(409).json({ error: checked.refusal, stale: true });
+      if ('refusal' in checked) return res.status(409).json(checked.stale ? { error: checked.refusal, stale: true } : { error: checked.refusal });
       const job = startScoreRender(songId, planId, d);
       res.status(202).json({ jobId: job.id, queuePosition: queuePosition(job.id) ?? 0 });
     } catch (err) {

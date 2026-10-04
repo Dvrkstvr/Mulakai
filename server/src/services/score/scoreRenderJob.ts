@@ -47,7 +47,8 @@ function pendingEdit(songId: string): string | null {
   return job ? job.label ?? job.kind : null;
 }
 
-export type Checked = { refusal: string } | { plan: Plan; source: ScoreSource };
+/** A refusal is `stale` when the plan is out of date; a GPU refusal is not (D-054). */
+export type Checked = { refusal: string; stale: boolean } | { plan: Plan; source: ScoreSource };
 
 /** The re-check's facts, gathered now. `atClick` adds "an edit was queued after this plan": once the
  * render waits its turn, an edit queued behind it runs after it, on the new version. */
@@ -58,7 +59,8 @@ export async function checkRender(songId: string, planId: string, deps: RenderDe
   const refusal = renderRefusal({
     songId, eligibility: status.eligibility, plan, source: status.source, pendingEdit: atClick ? pendingEdit(songId) : null, loaded,
   });
-  if (refusal !== null || !plan || !status.source) return { refusal: refusal ?? 'SCORE is not available for this song' };
+  if (refusal) return { refusal: refusal.reason, stale: refusal.kind === 'plan' };
+  if (!plan || !status.source) return { refusal: 'SCORE is not available for this song', stale: true };
   return { plan, source: status.source };
 }
 

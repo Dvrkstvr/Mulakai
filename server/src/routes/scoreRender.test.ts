@@ -1,5 +1,6 @@
 /** POST/GET /api/songs/:id/score/render and its cancel (F-023 #3, #6; F-024 #4): every click-time
- * refusal is a 409 naming its reason, and none of them reaches yue-server. */
+ * refusal is a 409 naming its reason, and none of them reaches yue-server. A plan refusal is
+ * `stale: true`; a GPU refusal is not (the plan is fine, D-054). */
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import express from 'express';
 import type { Server } from 'node:http';
@@ -14,7 +15,7 @@ const { enqueue, resetQueue } = await import('../services/genQueue.js');
 const { resetPlans, setPlan } = await import('../services/score/planStore.js');
 const { renderDeps } = await import('../services/score/scoreRenderJob.js');
 const { CHANGED_SINCE_PLAN } = await import('../services/score/scoreEligibility.js');
-const { PLAN_EXPIRED, editQueued, plannerLoaded } = await import('../services/score/scoreLimits.js');
+const { PLAN_EXPIRED, editQueued, plannerLoaded, plannerUnconfirmed } = await import('../services/score/scoreLimits.js');
 const { makeScoreRenderRouter, ALREADY_RENDERING, NOTHING_TO_CANCEL } = await import('./scoreRender.js');
 type ScoreStatus = import('../services/score/scoreStatus.js').ScoreStatus;
 type Plan = import('../services/score/planTypes.js').Plan;
@@ -23,6 +24,7 @@ type LoadedModel = import('../services/score/ollamaControl.js').LoadedModel;
 const source = { songId: 's1', activeVersionId: 'v1', fingerprint: 'L|v1|v1', seed: 831, lyrics: '[Verse]\nla\n' } as ScoreStatus['source'];
 let current: ScoreStatus;
 let loaded: LoadedModel[] = [];
+let psDown: string | null = null;
 const yue = await startFakeYue([]);
 let server: Server;
 let base: string;
@@ -31,7 +33,8 @@ beforeAll(async () => {
   const app = express();
   app.use(express.json());
   app.use('/api/songs', makeScoreRenderRouter(() => renderDeps({
-    target: { label: 'YUE2', url: yue.url, apiKey: '' }, status: async () => current, loaded: async () => loaded,
+    target: { label: 'YUE2', url: yue.url, apiKey: '' }, status: async () => current,
+    loaded: async () => { if (psDown) throw new Error(psDown); return loaded; },
   })));
   await new Promise<void>((resolve) => { server = app.listen(0, resolve); });
   const a = server.address();
@@ -39,7 +42,7 @@ beforeAll(async () => {
 });
 afterAll(async () => { await new Promise<void>((r) => server.close(() => r())); await yue.close(); });
 afterEach(() => {
-  resetQueue(); resetPlans(); loaded = []; yue.requests.length = 0;
+  resetQueue(); resetPlans(); loaded = []; psDown = null; yue.requests.length = 0;
   current = { eligibility: { state: 'eligible' }, source, read: null };
 });
 
@@ -58,14 +61,27 @@ describe('POST /api/songs/:id/score/render refusals (re-checked at the click)', 
     ['the base version changed', () => { current = { ...current, source: { ...source!, fingerprint: 'L|v1,v2|v2' } }; }, CHANGED_SINCE_PLAN],
     ['a repaint was queued after the plan', () => { hold(); enqueue({ kind: 'repaint', jobId: 'r', songId: 's1', label: 'repaint 1:32–2:07' }, () => {}); },
       editQueued('repaint 1:32–2:07')],
-    ['/api/ps still lists the planner', () => { loaded = [{ name: 'qwen3:14b', contextLength: 16384 }]; }, plannerLoaded(['qwen3:14b'])],
-  ])('%s: 409 with the reason, no engine job', async (_name, arrange, reason) => {
+  ])('%s: 409 stale with the reason, no engine job', async (_name, arrange, reason) => {
     current = { eligibility: { state: 'eligible' }, source, read: null };
     setPlan(plan);
     arrange();
     const res = await render();
     expect(res.status).toBe(409);
     expect(await res.json()).toEqual({ error: reason, stale: true });
+    expect(yue.submits()).toEqual([]);
+    expect((await state()).run).toBeNull();
+  });
+
+  it.each<[string, () => void, string]>([
+    ['/api/ps still lists the planner', () => { loaded = [{ name: 'qwen3:14b', contextLength: 16384 }]; }, plannerLoaded(['qwen3:14b'])],
+    ['the planner is stopped (/api/ps unreadable)', () => { psDown = 'planner http://x/api/ps -> fetch failed'; },
+      plannerUnconfirmed('planner http://x/api/ps -> fetch failed')],
+  ])('%s: 409 with the reason but not stale (the plan is fine, D-054), no engine job', async (_name, arrange, reason) => {
+    setPlan(plan);
+    arrange();
+    const res = await render();
+    expect(res.status).toBe(409);
+    expect(await res.json()).toEqual({ error: reason });
     expect(yue.submits()).toEqual([]);
     expect((await state()).run).toBeNull();
   });

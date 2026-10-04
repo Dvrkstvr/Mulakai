@@ -3,6 +3,9 @@
  * Pure: the caller gathers the facts at click time and again when the queued render's turn comes.
  * Order: eligibility, plan alive (the fingerprint lives on the plan), base version unchanged, no edit
  * queued after the plan (click time only), something to render with, the planner off the GPU.
+ * Each refusal names its kind (D-054): `plan` means the plan is out of date (the dock dims it and
+ * offers PLAN AGAIN); `gpu` means the plan is fine but the planner may still hold the GPU (a loaded
+ * model or an unreadable `/api/ps`), so the dock keeps the plan and shows an error line with RETRY.
  */
 import type { LoadedModel } from './ollamaControl.js';
 import type { Plan } from './planTypes.js';
@@ -22,15 +25,23 @@ export interface RenderFacts {
   loaded: LoadedModel[] | { error: string };
 }
 
-export function renderRefusal(f: RenderFacts): string | null {
+export interface RenderRefusal {
+  reason: string;
+  kind: 'plan' | 'gpu';
+}
+
+const planRefusal = (reason: string): RenderRefusal => ({ reason, kind: 'plan' });
+const gpuRefusal = (reason: string): RenderRefusal => ({ reason, kind: 'gpu' });
+
+export function renderRefusal(f: RenderFacts): RenderRefusal | null {
   const e = f.eligibility;
-  if (e.state !== 'eligible') return 'reason' in e ? e.reason : 'SCORE is not available for this song';
-  if (!f.plan || f.plan.songId !== f.songId) return PLAN_EXPIRED;
+  if (e.state !== 'eligible') return planRefusal('reason' in e ? e.reason : 'SCORE is not available for this song');
+  if (!f.plan || f.plan.songId !== f.songId) return planRefusal(PLAN_EXPIRED);
   const changed = recheckAtCommit(f.plan.fingerprint, f.source);
-  if (changed) return changed;
-  if (f.pendingEdit) return editQueued(f.pendingEdit);
-  if (f.source?.seed === null || f.source?.lyrics === null) return NO_SEED;
-  if ('error' in f.loaded) return plannerUnconfirmed(f.loaded.error);
-  if (f.loaded.length) return plannerLoaded(f.loaded.map((m) => m.name));
+  if (changed) return planRefusal(changed);
+  if (f.pendingEdit) return planRefusal(editQueued(f.pendingEdit));
+  if (f.source?.seed === null || f.source?.lyrics === null) return planRefusal(NO_SEED);
+  if ('error' in f.loaded) return gpuRefusal(plannerUnconfirmed(f.loaded.error));
+  if (f.loaded.length) return gpuRefusal(plannerLoaded(f.loaded.map((m) => m.name)));
   return null;
 }
