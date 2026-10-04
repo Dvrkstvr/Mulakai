@@ -23,3 +23,6 @@ R3 stage 7 M0/W3 committed (5 commits on feat/score-w3-dock); W4 builder dispatc
 R4 stage 7 M0/W4 · builder → APPLY & RENDER (F-023) 6/6 in tests + browser on fakes; server 677, client 717 · progress 7·W4 local·6·0
 R5 stage 7 M0 · W4 committed; #126 (W2) merged (user OK); W3 PR #127, W4 PR #128 (stacked) with auto-fix; verifier dispatched for F-016..F-025 incl. W5 live run on a library copy (user choice) · progress 7·W4 local·6·0
 R6 stage 7 M0 verify · verifier → F-016..F-024 pass with evidence, F-025 false (A/B listen owed); live W5 on library copy: plans 8–15 s, unload 95–120 ms, YuE2 88–101 tok/s, tempo ≤1.2%; Ollama crash + ENOSPC once (C: full, now fixed by moving to E:) · progress 7·9/10·15·0
+R7 stage 8 M0 · reviewer (code lens) dispatched on 6426d5c...HEAD while the F-025 A/B listen is owed · progress 7·9/10·15·0
+R8 stage 8 M0 · reviewer → M0-code.md: 0 blocking, 3 should (verified in code), 4 nit; D-054 fix 1–3, defer 4–7 as Q-038; builder dispatched · progress 8·1/2·15·0
+R9 stage 8 M0 · builder fixed review 1–3 test-first; my checks: server 679 + tsc, client 717 + build + lint green; committed 43ecd71/fad8675/0dcf7ae; stage 8 gate 2/2 · progress 8·2/2·15·0 · waiting: listen, push, merges

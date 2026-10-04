@@ -6,10 +6,10 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
 - stage: 7 Build M0 — verified 9/10 (F-016..F-024 pass); F-025 waits on the user A/B listen (pipeline/verify/M0/listen/index.html)
-- clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-031) · decisions to D-046
+- clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-038) · decisions to D-054
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · owed: user listens (SP-3 A/B, SP-2 phrases)
 - milestone: M0 · features passing 15/39 (F-016..F-024 + existing 6) · owed: M0 A/B listen; SP-3/SP-2 listens
-- autopilot: M0 · round 6/12 · waiting on user: A/B listen, merges of #127/#128 · auto-fix on · remote on
+- autopilot: M0 · round 9/12 · progress 8·2/2·15·0 · stall 0 · waiting on user: A/B listen (F-025), push, merges of #127/#128
 - next: user listen → F-025 passes → stage 8 review (code lens) → curate → merge #127/#128
 
 ## Stages
@@ -23,7 +23,7 @@
 | 5 | Design | done | 3/3 must; mockup signed off (D-032) | 2026-10-03 |
 | 6 | Architecture | done | 3/4 + context budget lands in W0 (D-046) | 2026-10-03 |
 | 7 | Build | active (M0: W0–W4 built, verify 9/10, F-025 owed listen) | — | — |
-| 8 | Review | todo | — | — |
+| 8 | Review | done for code (M0: 0 blocking; 3 should fixed 43ecd71, fad8675, 0dcf7ae; nits → Q-038) | 2/2 must | 2026-10-05 |
 | 9 | Release | n/a (local single-user app) | — | — |
 
 ## Notes
