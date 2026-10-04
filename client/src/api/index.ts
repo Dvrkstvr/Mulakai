@@ -9,6 +9,7 @@
  *   covers.ts      YuE2 melody covers: transcribe, preview, cover, stored score
  *   lyrics.ts      READ LYRICS: the words sung in a cover's source
  *   queue.ts       the GPU job queue: what runs, what waits, CANCEL
+ *   score.ts       the SCORE verb: status, PLAN, the plan run, CANCEL
  * The slices spread into one flat `api` object, so method names must stay unique
  * across slices (TypeScript won't flag a collision — the last spread would win).
  */
@@ -19,6 +20,7 @@ export type { ScoreSize, Transcription } from './covers';
 export type { RecentSong } from './library';
 export type { LyricSegment, LyricWord, LyricsReading, WordTimings } from './lyrics';
 export type { QueueEntry, QueueRunning, QueueSnapshot } from './queue';
+export type * from './score';
 
 import { libraryApi } from './library';
 import { generationApi } from './generation';
@@ -27,6 +29,7 @@ import { managementApi } from './management';
 import { coversApi } from './covers';
 import { lyricsApi } from './lyrics';
 import { queueApi } from './queue';
+import { scoreApi } from './score';
 
 export const api = {
   ...libraryApi,
@@ -36,4 +39,5 @@ export const api = {
   ...coversApi,
   ...lyricsApi,
   ...queueApi,
+  ...scoreApi,
 };

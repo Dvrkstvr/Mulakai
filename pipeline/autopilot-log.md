@@ -15,3 +15,7 @@ R8 stage 7 M0/W1 · builder → yue-server score read/apply routes (F-017), pyte
 R9 stage 7 M0 · #124 (W0) merged c8bb066 (user OK); W1 pushed as PR #125 (auto-fix on); W2a F-018 committed f7955e2; W2b running · progress 7·W0 merged·6·0
 R10 stage 7 M0/W2b · builder → planner client, plan job (kind 'plan'), unload hand-off, context guard (F-019, F-020); server 620 tests, client 627; live items owed to CP1 · progress 7·W2 local·6·0
 R11 stage 7 M0/CP1 · live checkpoint PASS 7/7: plans 6/6 first try (p50 6.5 s), unload→/api/ps empty 107–140 ms, YuE2 90–97 tok/s, VRAM back 0–4 MiB, tempo within 0.5%, truncated 0/6; Q-034 (same-root jazz) assumed D-051 · progress 7·CP1 pass·6·0
+
+## Run 2026-10-03 → M0 (new run, fresh 12-round budget; previous run stopped on budget after CP1)
+R1 stage 7 M0 · #125 (W1) merged (user OK); W2 pushed as PR #126 (auto-fix on); W3 builder dispatched on feat/score-w3-dock · progress 7·W1 merged·6·0
+R2 stage 7 M0/W3 · builder → SCORE dock verb (F-021, F-022, F-024): reducer 52-row table, status route, cancel, limits; client 705, server 640; browser-checked on fakes, dock 356 px at 1366×768 and 1080p · progress 7·W3 local·6·0

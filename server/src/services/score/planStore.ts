@@ -4,7 +4,7 @@
  * Also the song's latest plan run, so the route can answer "what happened to my PLAN" after a
  * reload without the client keeping the job id.
  */
-import type { Plan } from './planTypes.js';
+import type { Plan, PlanCause } from './planTypes.js';
 
 export interface PlanRun {
   jobId: string;
@@ -12,6 +12,8 @@ export interface PlanRun {
   /** Why the run ended without a plan: the last attempt's per-op reasons, or the error. */
   reasons: string[];
   planId: string | null;
+  /** Null while it runs or once it made a plan. */
+  cause: PlanCause | null;
 }
 
 const plans = new Map<string, Plan>();
