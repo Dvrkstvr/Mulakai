@@ -26,3 +26,4 @@ R6 stage 7 M0 verify · verifier → F-016..F-024 pass with evidence, F-025 fals
 R7 stage 8 M0 · reviewer (code lens) dispatched on 6426d5c...HEAD while the F-025 A/B listen is owed · progress 7·9/10·15·0
 R8 stage 8 M0 · reviewer → M0-code.md: 0 blocking, 3 should (verified in code), 4 nit; D-054 fix 1–3, defer 4–7 as Q-038; builder dispatched · progress 8·1/2·15·0
 R9 stage 8 M0 · builder fixed review 1–3 test-first; my checks: server 679 + tsc, client 717 + build + lint green; committed 43ecd71/fad8675/0dcf7ae; stage 8 gate 2/2 · progress 8·2/2·15·0 · waiting: listen, push, merges
+R10 stage 7 M0 · user A/B listen in: tempo 4/4 as expected, chords heard 2/4 (R-013 bar >= 4/5 missed for chords); pipeline/verify/M0/ab-answers.json · progress 8·2/2·15·0 · STOP: core-promise question to user
