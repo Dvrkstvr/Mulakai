@@ -1,6 +1,9 @@
 /** The SCORE verb's states and events (pipeline/scope.md "Interaction specs › SCORE verb";
  * pipeline/design/score-verb.html). Only `scoreVerb.ts` moves between them. */
-import type { ScorePlan, ScorePlanRun, ScoreStatusView } from './api';
+import type { ScorePlan, ScorePlanRun, ScoreReferentInput, ScoreStaleReferent, ScoreStatusView } from './api';
+
+/** The dock's live pick (F-032): a section or lyric line, or a strip section the score lacks (rust chip, PLAN held). */
+export type ScorePick = ScoreReferentInput | { kind: 'missing'; label: string };
 
 export type ScorePhase =
   /** No tab: not a YuE2 first take, or the feature is not set up (or not known yet). */
@@ -13,7 +16,8 @@ export type ScorePhase =
   /** `note` is the retry's reason or the unload; `cancelling` while CANCEL waits for the unload. */
   | { kind: 'planning'; attempt: number; note: string | null; cancelling: boolean }
   | { kind: 'ready' }
-  | { kind: 'checkFailed'; reasons: string[] }
+  /** `dropped`: a fresh PLAN started from a plan under review and dropped it (D-028; REVISE would have kept it). */
+  | { kind: 'checkFailed'; reasons: string[]; dropped?: boolean }
   /** Refused at APPLY & RENDER (plan expired, song changed): nothing started. */
   | { kind: 'stale'; reason: string }
   | { kind: 'renderQueued'; ahead: number }
@@ -34,13 +38,25 @@ export interface ScoreVerbState {
   previous: ScorePlan | null;
   /** A refused PLAN (409, queue full): a rust line under the commit. */
   error: string | null;
+  /** The live pick ("this"); it outlives plans and renders, and is pinned per press (M2-3). */
+  pick: ScorePick | null;
+  /** A pick the server refused as stale (409 or the run's turn): the rejected row and USE BARS; APPLY off (M2-4). */
+  stale: ScoreStaleReferent | null;
+  /** The plan job in flight is a REVISE of `previous` (F-033): a failure gives `previous` back (D-063). */
+  revising: boolean;
+  /** Why the last REVISE failed, shown over the kept plan (M2-7); null otherwise. */
+  reviseFailed: string[] | null;
 }
 
 export type ScoreEvent =
   | { type: 'status'; status: ScoreStatusView }
   | { type: 'edit'; request: string }
-  /** POST plan answered 202; `ahead` = its queue position (0 = started). */
-  | { type: 'planSubmitted'; ahead: number }
+  /** POST plan answered 202; `ahead` = its queue position (0 = started); `revise` for REVISE. */
+  | { type: 'planSubmitted'; ahead: number; revise?: boolean }
+  /** POST plan answered 409 stale: nothing was queued (F-032 edge). */
+  | { type: 'planStale'; stale: ScoreStaleReferent }
+  /** A strip section or lyric line picked under SCORE, USE BARS (the stale pick's `now`), or ✕ (null). */
+  | { type: 'pick'; pick: ScorePick | null }
   | { type: 'planRefused'; error: string }
   /** A poll of the plan run while queued or planning. */
   | { type: 'run'; run: ScorePlanRun; plan: ScorePlan | null }
@@ -54,4 +70,6 @@ export type ScoreEvent =
   | { type: 'renderFailed'; error: string }
   | { type: 'renderCancelled' };
 
-export const INITIAL_SCORE: ScoreVerbState = { phase: { kind: 'hidden' }, request: '', status: null, plan: null, previous: null, error: null };
+export const INITIAL_SCORE: ScoreVerbState = {
+  phase: { kind: 'hidden' }, request: '', status: null, plan: null, previous: null, error: null, pick: null, stale: null, revising: false, reviseFailed: null,
+};

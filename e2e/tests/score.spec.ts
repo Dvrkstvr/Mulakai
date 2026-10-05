@@ -83,6 +83,31 @@ test('a plan over 360 s is refused with the number and the tempo that fits', asy
   expect(chats.length).toBeGreaterThanOrEqual(3);
 });
 
+test('REVISE sees plan 1, replaces it and marks what changed since (F-033)', async ({ page, request }) => {
+  await scriptPlanner(request, { replies: [plannerReplyFor('apply-compound')] }); // the revision keeps every op
+  const { dock, panel } = await openScore(page);
+  const field = panel.getByRole('textbox', { name: 'Score change request' });
+  await field.fill(REQUEST);
+  await dock.getByRole('button', { name: 'PLAN', exact: true }).click();
+  await expect(panel.locator('.score-plan-label')).toHaveText('PLAN · 3 CHANGES · AGAINST BASE v1', { timeout: 30_000 });
+  const revise = dock.getByRole('button', { name: 'REVISE', exact: true });
+  await expect(revise).toBeDisabled(); // the request is still plan 1's (M2-5)
+
+  const plan1 = ((await (await request.get(`/api/songs/${songId}/score/plan`)).json()) as { plan: { id: string } }).plan.id;
+  await field.fill(`${REQUEST}, keep the rest as it is`);
+  const posted = page.waitForRequest((r) => r.method() === 'POST' && r.url().endsWith(`/api/songs/${songId}/score/plan`));
+  await revise.click();
+  expect((await posted).postDataJSON()).toEqual({ request: `${REQUEST}, keep the rest as it is`, referent: null, revise: plan1 });
+  await expect(panel.locator('.score-plan-label', { hasText: 'REVISED' }))
+    .toHaveText('PLAN 2 · REVISED FROM PLAN 1 · 3 CHANGES · AGAINST BASE v1', { timeout: 30_000 });
+  await expect(panel.locator('.score-since')).toHaveText('SINCE PLAN 1 · 3 SAME');
+  await expect(panel.locator('.score-op-mark')).toHaveText(['SAME', 'SAME', 'SAME']);
+  await expect(revise).toBeDisabled();
+  await expect(dock.getByRole('button', { name: 'APPLY & RENDER' })).toBeEnabled();
+  // The planner was asked with plan 1 in the prompt; the second chat is the REVISE's.
+  expect((await plannerLog(request)).seen.filter((r) => r.path === '/v1/chat/completions').length).toBeGreaterThanOrEqual(2);
+});
+
 test('plan → review → APPLY & RENDER saves a new base version', async ({ page, request }) => {
   const compound = contract('apply-compound').response.body as { abc: string; style: string };
   await scriptPlanner(request, { replies: [plannerReplyFor('apply-compound')] });

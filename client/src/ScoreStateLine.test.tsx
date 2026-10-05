@@ -16,6 +16,7 @@ const text = (html: string) => html.replace(/<[^>]+>/g, '|').replace(/\|+/g, '|'
 function buttons(node: ReactNode): ReactElement<{ onClick: () => void }>[] {
   if (Array.isArray(node)) return node.flatMap(buttons);
   if (!isValidElement<{ children?: ReactNode }>(node)) return [];
+  if (typeof node.type === 'function') return buttons((node.type as (p: unknown) => ReactNode)(node.props)); // ScoreFailure
   const own = node.type === 'button' ? [node as ReactElement<{ onClick: () => void }>] : [];
   return [...own, ...buttons(node.props.children)];
 }

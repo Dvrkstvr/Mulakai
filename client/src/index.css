@@ -3924,6 +3924,25 @@ a.dock-commit-link {
   color: var(--text-low);
 }
 
+/* A REVISE's marks against the plan it replaced (M2-6): text tiers, no hue. NEW / CHANGED bright, SAME low. */
+.score-op-mark {
+  width: 58px;
+  flex: none;
+  font: 9px ui-monospace, Consolas, monospace;
+  letter-spacing: 1px;
+  color: var(--text-low);
+}
+
+.score-op-mark.hi {
+  color: var(--text-hi);
+}
+
+/* SINCE PLAN 1 · …, REMOVED SINCE PLAN 1 · …, and the note when the pick moved on after PLAN (M2-3, M2-6). */
+.score-since {
+  font: 10px ui-monospace, Consolas, monospace;
+  color: var(--text-low);
+}
+
 /* Under a row (M2, pipeline/design/score-m2.html M2-8, M2-9): a section op's lyric note and the
    diff's summary in low text, then a REWRITE LYRICS's OLD / NEW columns, a changed line's new words at text tier. */
 .score-op-note {

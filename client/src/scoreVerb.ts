@@ -19,8 +19,13 @@ const SETTLED: Kind[] = ['hidden', 'ineligible', 'offline'];
 
 const is = (s: ScoreVerbState, kinds: Kind[]) => kinds.includes(s.phase.kind);
 
-export const canPlan = (s: ScoreVerbState) => is(s, CAN_PLAN) && s.request.trim().length > 0;
-export const canRender = (s: ScoreVerbState) => is(s, CAN_RENDER) && s.plan !== null;
+/** A strip section the score lacks holds PLAN and REVISE (M2-2); a stale pick holds APPLY & RENDER and REVISE (M2-4). */
+const held = (s: ScoreVerbState) => s.pick?.kind === 'missing';
+export const canPlan = (s: ScoreVerbState) => is(s, CAN_PLAN) && s.request.trim().length > 0 && !held(s);
+export const canRender = (s: ScoreVerbState) => is(s, CAN_RENDER) && s.plan !== null && !s.stale;
+/** REVISE (M2-5): a plan under review, and a request that is not the one it was made for. */
+export const canRevise = (s: ScoreVerbState) => s.phase.kind === 'ready' && s.plan !== null && !held(s) && !s.stale
+  && s.request.trim().length > 0 && s.request.trim() !== s.plan.request.trim();
 
 function fromStatus(s: ScoreVerbState, status: ScoreStatusView): ScoreVerbState {
   const next = { ...s, status };
@@ -39,19 +44,29 @@ function planningPhase(s: ScoreVerbState, text: string | undefined): ScorePhase 
   return { kind: 'planning', attempt: prev.attempt, note: text ?? null, cancelling: prev.cancelling };
 }
 
+/** A failed REVISE gives the plan it was revising back, appliable, with why (D-063, M2-7). */
+function reviseEnded(s: ScoreVerbState, run: ScorePlanRun): ScoreVerbState {
+  const kept: ScoreVerbState = { ...s, phase: { kind: 'ready' }, plan: s.previous, previous: null, revising: false };
+  if (run.cause === 'cancelled') return kept;
+  if (run.stale) return { ...kept, stale: run.stale };
+  return { ...kept, reviseFailed: run.reasons.length ? run.reasons : [run.error ?? 'the revise failed'] };
+}
+
 /** A plan run's latest answer, applied to a state that is waiting on it. */
 function fromRun(s: ScoreVerbState, run: ScorePlanRun, plan: ScoreVerbState['plan']): ScoreVerbState {
   if (run.status === 'queued') return { ...s, phase: { kind: 'queued', ahead: run.queuePosition ?? 1 } };
   if (run.status === 'loading' || run.status === 'running') return { ...s, phase: planningPhase(s, run.progressText) };
-  if (run.status === 'done') return plan ? { ...s, phase: { kind: 'ready' }, plan, previous: null } : s;
-  const cleared = { ...s, plan: null, previous: null };
+  if (run.status === 'done') return plan ? { ...s, phase: { kind: 'ready' }, plan, previous: null, revising: false } : s;
+  if (run.cause === null) return s; // aborted, but the slot is held until the unload is confirmed
+  if (s.revising && s.previous) return reviseEnded(s, run);
+  const cleared = { ...s, plan: null, previous: null, revising: false };
   const reason = run.reasons[0] ?? run.error ?? 'the plan failed';
+  if (run.stale) return { ...cleared, phase: { kind: 'asking' }, stale: run.stale };
   switch (run.cause) {
     case 'cancelled': return { ...cleared, phase: { kind: 'asking' } };
-    case 'check': return { ...cleared, phase: { kind: 'checkFailed', reasons: run.reasons.length ? run.reasons : [reason] } };
+    case 'check': return { ...cleared, phase: { kind: 'checkFailed', reasons: run.reasons.length ? run.reasons : [reason], ...(s.previous ? { dropped: true } : {}) } };
     case 'offline': return { ...cleared, phase: { kind: 'offline', reason, source: 'planner' } };
     case 'refused': return { ...cleared, phase: { kind: 'ineligible', reason } };
-    default: return s; // aborted, but the slot is held until the unload is confirmed
   }
 }
 
@@ -62,27 +77,36 @@ export function scoreVerb(s: ScoreVerbState, e: ScoreEvent): ScoreVerbState {
     case 'edit':
       return { ...s, request: e.request, error: null };
     case 'planSubmitted': {
-      if (!is(s, CAN_PLAN)) return s;
+      if (!is(s, CAN_PLAN) || (e.revise && (s.phase.kind !== 'ready' || !s.plan))) return s;
       const phase: ScorePhase = e.ahead > 0 ? { kind: 'queued', ahead: e.ahead } : { kind: 'planning', attempt: 1, note: null, cancelling: false };
-      return { ...s, phase, previous: s.plan, plan: null, error: null };
+      return { ...s, phase, previous: s.plan, plan: null, error: null, stale: null, revising: !!e.revise, reviseFailed: null };
     }
     case 'planRefused':
       return { ...s, error: e.error };
+    case 'planStale':
+      return { ...s, stale: e.stale, error: null };
+    case 'pick':
+      return { ...s, pick: e.pick, stale: null };
     case 'run':
       return is(s, PLANNING) ? fromRun(s, e.run, e.plan) : s;
     case 'restore': {
       if (s.phase.kind !== 'asking') return s;
       const inFlight = e.run && ['queued', 'loading', 'running'].includes(e.run.status);
-      if (inFlight && e.run) return fromRun({ ...s, request: e.run.request }, e.run, null);
-      return e.plan ? { ...s, phase: { kind: 'ready' }, plan: e.plan, request: e.plan.request } : s;
+      const pick = s.pick ?? e.plan?.referent ?? null; // the chip shows what the plan on screen was made for
+      if (inFlight && e.run) {
+        const revise = e.run.revise && e.plan ? { revising: true, previous: e.plan } : {};
+        return fromRun({ ...s, request: e.run.request, pick, ...revise }, e.run, null);
+      }
+      return e.plan ? { ...s, phase: { kind: 'ready' }, plan: e.plan, request: e.plan.request, pick } : s;
     }
     case 'cancel':
+      if (s.phase.kind === 'queued' && s.revising && s.previous) return { ...s, phase: { kind: 'ready' }, plan: s.previous, previous: null, revising: false };
       if (s.phase.kind === 'queued') return { ...s, phase: { kind: 'asking' }, previous: null };
       if (s.phase.kind === 'planning') return { ...s, phase: { ...s.phase, cancelling: true } };
       return s;
     case 'renderSubmitted':
       if (!is(s, CAN_RENDER) || !s.plan) return s;
-      return { ...s, error: null, phase: e.ahead > 0 ? { kind: 'renderQueued', ahead: e.ahead } : { kind: 'rendering', line: '', startedAt: null } };
+      return { ...s, error: null, reviseFailed: null, phase: e.ahead > 0 ? { kind: 'renderQueued', ahead: e.ahead } : { kind: 'rendering', line: '', startedAt: null } };
     case 'renderRefused': // at the click, or when the queued render's turn came
       return is(s, CAN_RENDER) || is(s, RENDERING) ? { ...s, phase: { kind: 'stale', reason: e.reason } } : s;
     case 'renderProgress':

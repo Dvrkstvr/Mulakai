@@ -22,7 +22,7 @@ interface Props {
   onSeek: (seconds: number) => void;
   processing?: boolean;
   onSplit: (layerId: string) => void;
-  lyrics: Pick<LyricsLaneProps, 'draft' | 'timings' | 'timing'>;
+  lyrics: Pick<LyricsLaneProps, 'draft' | 'timings' | 'timing' | 'onLine' | 'picked'>;
 }
 
 /**

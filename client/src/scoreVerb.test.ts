@@ -1,9 +1,9 @@
 /** Every transition of the SCORE verb (pipeline/scope.md "Interaction specs › SCORE verb"; F-021,
  * F-022, F-024): one row per transition, plus the events a state must ignore. */
 import { describe, it, expect } from 'vitest';
-import { scoreVerb } from './scoreVerb';
+import { canPlan, canRender, canRevise, scoreVerb } from './scoreVerb';
 import { INITIAL_SCORE, type ScoreEvent, type ScorePhase, type ScoreVerbState } from './scoreVerbTypes';
-import type { ScorePlan, ScorePlanRun, ScoreStatusView } from './api';
+import type { ScorePlan, ScorePlanRun, ScoreReferent, ScoreStaleReferent, ScoreStatusView } from './api';
 
 const plan = (id: string, request = 'jazz chords in the chorus, 88 BPM'): ScorePlan => ({
   id, songId: 's1', baseVersionId: 'v2', request, ops: [{ op: 'SET_TEMPO', bpm: 88 }],
@@ -23,6 +23,13 @@ const ready = at({ kind: 'ready' }, { plan: P1 });
 const replanning = at({ kind: 'planning', attempt: 1, note: null, cancelling: false }, { previous: P1 });
 const rendering = at({ kind: 'rendering', line: 'synthesizing audio 41%', startedAt: 5 }, { plan: P1 });
 const renderFailed = at({ kind: 'renderFailed', error: 'CUDA out of memory' }, { plan: P1 });
+
+// F-032 / F-033 (M2): the pick, a stale pick, REVISE
+const CHORUS2: ScoreReferent = { kind: 'section', section: 5, label: 'chorus', occurrence: 2, of: 3, bars: [29, 36] };
+const STALE: ScoreStaleReferent = { picked: CHORUS2, now: { ...CHORUS2, section: 6, bars: [37, 44] }, reason: 'chorus #2 was bars 29-36 and is now bars 37-44' };
+const R2: ScorePlan = { ...P2, revision: 2, since: { planId: 'p1', marks: [{ mark: 'CHANGED', was: P1.ops[0] }], removed: [] } };
+const PLANNING1: ScorePhase = { kind: 'planning', attempt: 1, note: null, cancelling: false };
+const revising = at(PLANNING1, { previous: P1, revising: true });
 
 type Row = [string, ScoreVerbState, ScoreEvent, Partial<ScoreVerbState>];
 
@@ -99,6 +106,42 @@ const ROWS: Row[] = [
     { phase: { kind: 'planning', attempt: 1, note: null, cancelling: false }, request: 'jazz chords' }],
   ['restore a queued plan', at({ kind: 'asking' }, { request: '' }), { type: 'restore', run: run({ status: 'queued', queuePosition: 2 }), plan: null }, { phase: { kind: 'queued', ahead: 2 } }],
   ['restore a stored plan', at({ kind: 'asking' }, { request: '' }), { type: 'restore', run: run({ status: 'done' }), plan: P1 }, { phase: { kind: 'ready' }, plan: P1, request: P1.request }],
+  // F-032: the pick ("this"), pinned per press; a stale pick is never planned (M2-1..M2-4)
+  ['asking → a strip section becomes the pick', asking, { type: 'pick', pick: CHORUS2 }, { phase: { kind: 'asking' }, pick: CHORUS2 }],
+  ['planning → a pick only moves the chip', planning, { type: 'pick', pick: CHORUS2 }, { phase: planning.phase, pick: CHORUS2 }],
+  ['ready → ✕ clears the pick, the plan stays', at({ kind: 'ready' }, { plan: P1, pick: CHORUS2 }), { type: 'pick', pick: null }, { pick: null, plan: P1 }],
+  ['asking → a 409 stale pick: the rejected row, nothing queued', at({ kind: 'asking' }, { pick: CHORUS2 }), { type: 'planStale', stale: STALE }, { phase: { kind: 'asking' }, stale: STALE }],
+  ['stale → USE BARS re-picks where it is now', at({ kind: 'asking' }, { pick: CHORUS2, stale: STALE }), { type: 'pick', pick: STALE.now }, { pick: STALE.now, stale: null }],
+  ['stale → WHOLE SCORE clears the pick', at({ kind: 'asking' }, { pick: CHORUS2, stale: STALE }), { type: 'pick', pick: null }, { pick: null, stale: null }],
+  ['planning → stale by the job turn (run.stale)', planning, { type: 'run', run: run({ status: 'failed', cause: 'refused', reasons: ['the selection is stale'], stale: STALE }), plan: null },
+    { phase: { kind: 'asking' }, stale: STALE, plan: null }],
+  ['a fresh PLAN that fails drops the plan and says so (D-028, frame 9)', replanning, { type: 'run', run: run({ status: 'failed', cause: 'check', reasons: ['x'] }), plan: null },
+    { phase: { kind: 'checkFailed', reasons: ['x'], dropped: true }, plan: null, previous: null }],
+  ['PLAN clears the stale row and a failed REVISE line', at({ kind: 'ready' }, { plan: P1, reviseFailed: ['x'], stale: STALE }), { type: 'planSubmitted', ahead: 0 },
+    { phase: PLANNING1, reviseFailed: null, stale: null, revising: false, previous: P1 }],
+  // F-033: REVISE keeps plan 1 until plan 2 arrives, and gives it back if it fails (M2-5..M2-7, D-063)
+  ['ready → REVISE → revising, plan 1 kept dimmed', ready, { type: 'planSubmitted', ahead: 0, revise: true }, { phase: PLANNING1, plan: null, previous: P1, revising: true }],
+  ['ready → REVISE queued', ready, { type: 'planSubmitted', ahead: 2, revise: true }, { phase: { kind: 'queued', ahead: 2 }, previous: P1, revising: true }],
+  ['revising → plan 2 replaces plan 1', revising, { type: 'run', run: run({ status: 'done' }), plan: R2 }, { phase: { kind: 'ready' }, plan: R2, previous: null, revising: false }],
+  ['revising → check failed keeps plan 1 appliable, with why', revising, { type: 'run', run: run({ status: 'failed', cause: 'check', reasons: ['bar 15 had 30/32 units'] }), plan: null },
+    { phase: { kind: 'ready' }, plan: P1, previous: null, revising: false, reviseFailed: ['bar 15 had 30/32 units'] }],
+  ['revising → refused (plan replaced) keeps plan 1', revising, { type: 'run', run: run({ status: 'failed', cause: 'refused', reasons: ['that plan was replaced'] }), plan: null },
+    { phase: { kind: 'ready' }, plan: P1, reviseFailed: ['that plan was replaced'] }],
+  ['revising → offline keeps plan 1', revising, { type: 'run', run: run({ status: 'failed', cause: 'offline', reasons: ['planner offline: no answer'] }), plan: null },
+    { phase: { kind: 'ready' }, plan: P1, reviseFailed: ['planner offline: no answer'] }],
+  ['revising → CANCEL settled: plan 1 back, no failure line', at({ kind: 'planning', attempt: 1, note: null, cancelling: true }, { previous: P1, revising: true }),
+    { type: 'run', run: run({ status: 'failed', cause: 'cancelled' }), plan: null }, { phase: { kind: 'ready' }, plan: P1, reviseFailed: null, revising: false }],
+  ['revising → stale by its turn keeps plan 1, the rejected row shown', revising,
+    { type: 'run', run: run({ status: 'failed', cause: 'refused', reasons: ['the selection is stale'], stale: STALE }), plan: null },
+    { phase: { kind: 'ready' }, plan: P1, stale: STALE, reviseFailed: null }],
+  ['REVISE queued → CANCEL → plan 1 under review again', at({ kind: 'queued', ahead: 1 }, { previous: P1, revising: true }), { type: 'cancel' },
+    { phase: { kind: 'ready' }, plan: P1, previous: null, revising: false }],
+  ['a failed REVISE → APPLY & RENDER plan 1 clears the failure line', at({ kind: 'ready' }, { plan: P1, reviseFailed: ['x'] }), { type: 'renderSubmitted', ahead: 0 },
+    { phase: { kind: 'rendering', line: '', startedAt: null }, plan: P1, reviseFailed: null }],
+  ['restore a REVISE in flight: plan 1 kept, revising', at({ kind: 'asking' }, { request: '' }), { type: 'restore', run: run({ revise: 'p1', progressText: 'attempt 1 of 3' }), plan: P1 },
+    { phase: PLANNING1, previous: P1, revising: true }],
+  ['restore a plan made for a pick: the chip shows it', at({ kind: 'asking' }, { request: '' }), { type: 'restore', run: run({ status: 'done' }), plan: { ...P1, referent: CHORUS2 } },
+    { phase: { kind: 'ready' }, pick: CHORUS2 }],
 ];
 
 const IGNORED: Row[] = [
@@ -111,6 +154,8 @@ const IGNORED: Row[] = [
   ['APPLY & RENDER while rendering', rendering, { type: 'renderSubmitted', ahead: 0 }, {}],
   ['a render poll after done', at({ kind: 'done', saved: 'v3', truncated: false }), { type: 'renderProgress', ahead: 0, line: 'x', startedAt: 1 }, {}],
   ['CANCEL while asking', asking, { type: 'cancel' }, {}],
+  ['REVISE with no plan under review', at({ kind: 'checkFailed', reasons: ['x'] }), { type: 'planSubmitted', ahead: 0, revise: true }, {}],
+  ['REVISE while revising', revising, { type: 'planSubmitted', ahead: 0, revise: true }, {}],
 ];
 
 describe('scoreVerb transitions', () => {
@@ -122,5 +167,27 @@ describe('scoreVerb transitions', () => {
 describe('scoreVerb ignores events a state has no transition for', () => {
   it.each(IGNORED)('%s', (_name, from, event) => {
     expect(scoreVerb(from, event)).toBe(from);
+  });
+});
+
+describe('scoreVerb guards (M2)', () => {
+  const plan1 = at({ kind: 'ready' }, { plan: P1, request: P1.request });
+  it('REVISE is off while the request is the plan one, on once it changes (FILL included)', () => {
+    expect(canRevise(plan1)).toBe(false);
+    expect(canRevise({ ...plan1, request: `${P1.request}, cut the outro` })).toBe(true);
+    expect(canRevise({ ...plan1, plan: null, request: 'other' })).toBe(false);
+  });
+  it('a strip section the score lacks holds PLAN and REVISE (rust chip, M2-2)', () => {
+    const missing: ScoreVerbState = { ...plan1, request: 'other', pick: { kind: 'missing', label: 'Spoken Intro' } };
+    expect(canPlan(missing)).toBe(false);
+    expect(canRevise(missing)).toBe(false);
+    expect(canPlan({ ...missing, pick: CHORUS2 })).toBe(true);
+  });
+  it('a stale pick holds APPLY & RENDER and REVISE, not PLAN (M2-4)', () => {
+    const stale = { ...plan1, request: 'other', stale: STALE };
+    expect(canRender(stale)).toBe(false);
+    expect(canRevise(stale)).toBe(false);
+    expect(canPlan(stale)).toBe(true);
+    expect(canRender(plan1)).toBe(true);
   });
 });
