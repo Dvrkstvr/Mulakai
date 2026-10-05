@@ -10,7 +10,7 @@
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · R-013 proven by the M0 listens · owed: SP-2 phrase listen
 - milestone: M2 (F-029..F-033) · features passing 24/39 · owed: M2 listen (pipeline/verify/M2/listen), M1 phrase listen
 - autopilot: stopped — round budget 12/12 (M2: verified + reviewed; left: REVISE live re-check, merges, curate)
-- next: GitHub Actions outage (2026-10-05) → when it recovers: reopen #138 for CI, merge #138, then #139-#141 in order (retarget to main, reopen for CI) → curate M2 → docs/m2-state PR
+- next: Actions outage → merge #138-#141, curate M2 · then SP-4 keep-unchanged spike (R-024, D-079 chat-first) before the chat feature (Q-054)
 
 ## Stages
 | # | Stage | State | Gate | Date |
