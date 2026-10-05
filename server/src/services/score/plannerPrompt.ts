@@ -6,7 +6,9 @@ import { phraseBarsOf, phraseLines } from './phraseRequest.js';
 import { PLANNER_RULES } from './plannerRules.js';
 import type { ChatMessage, ScoreFacts } from './planTypes.js';
 
-export function planMessages(facts: ScoreFacts, style: string, request: string): ChatMessage[] {
+/** `context`: lines told just before the REQUEST: what "this" means (planReferent) and a REVISE's pending
+ * plan (planRevise); none for a PLAN of the whole song. */
+export function planMessages(facts: ScoreFacts, style: string, request: string, context: string[] = []): ChatMessage[] {
   const h = facts.header;
   const sections = facts.sections.map((s) => `S${s.index} ${s.label}: bars ${s.from_bar}-${s.to_bar}`).join('\n');
   // "[Chorus] #2" with its number, so "the second chorus" resolves to one block (F-031 #2).
@@ -25,6 +27,7 @@ export function planMessages(facts: ScoreFacts, style: string, request: string):
     '',
     ...phraseLines(facts, phraseBarsOf(request)),
     '',
+    ...(context.length ? [...context, ''] : []),
     `REQUEST: ${request}`,
     'Reply with the JSON op list only.',
   ].join('\n');

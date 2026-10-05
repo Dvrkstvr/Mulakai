@@ -83,6 +83,15 @@ describe('the M2 ops in the prompt (F-029..F-031)', () => {
   });
 });
 
+describe('THIS and the pending plan in the prompt (F-032, F-033)', () => {
+  it('puts the context lines just before the REQUEST, and nothing for a whole-song PLAN', () => {
+    const [, ask] = planMessages(facts, 's', 'make this jazzier', ['THIS: chorus S2 (chorus #1), bars 47-65.', 'PENDING PLAN (plan 1):']);
+    expect(ask.content).toContain('THIS: chorus S2 (chorus #1), bars 47-65.\nPENDING PLAN (plan 1):\n\nREQUEST: make this jazzier');
+    expect(planMessages(facts, 's', 'r')[1].content).toBe(planMessages(facts, 's', 'r', [])[1].content);
+    expect(planMessages(facts, 's', 'r')[1].content).not.toContain('THIS:');
+  });
+});
+
 describe('retryMessages', () => {
   it('appends the reply and the per-op reasons, asking for a complete corrected list', () => {
     const base = planMessages(facts, 's', 'r');
