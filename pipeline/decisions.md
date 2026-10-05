@@ -293,3 +293,24 @@ Q-040 default: the SCORE review lists each earlier refused attempt's reason in o
 ## D-061 · 2026-10-05 · stage 8 (M1 code review) · by: assumed (autopilot)
 M1 code review (pipeline/reviews/M1-code.md): 0 blocking, 1 should, 3 nit. Fix #1 now (an in-bar accidental carries onto the next plain letter, so WRITE PHRASE can sound F# where the planner wrote the key's F) on fix/score-phrase-accidentals, test-first; defer #2-#4 as Q-041 next to Q-038 (W10).
 - instead of: shipping M1 with the pitch bug (the user's phrase listen would judge wrong notes).
+
+## D-062 · 2026-10-05 · stage 7 (M2 start) · by: assumed (autopilot)
+M2 runs as W11 (TRANSPOSE, yue-server), W12 (REPEAT / CUT / REWRITE LYRICS + the tag rule, yue-server), a stage 5 mockup for the M2 dock
+UI (Q-029), then W13 server, W14 client, W15 referent + REVISE, CP3 live, the verifier (scope.md M2 work packages). One PR per work
+package from origin/main, as M0 and M1. Pipeline state on `docs/m2-state`. W10 (Q-038/Q-041 nits) stays deferred unless rounds remain.
+- instead of: one M2 branch; building the dock UI before the mockup (design-first for the dock).
+
+## D-063 · 2026-10-05 · stage 7 (M2 start) · by: assumed (autopilot)
+A failed REVISE keeps the previous plan available (F-033 edge, signed-off scope D-026); D-028 (a failed re-plan drops the dimmed old
+plan) stays for a fresh PLAN from the base.
+- instead of: D-028 for both. revisit if: the mockup shows the two paths confuse.
+
+
+## D-064 · 2026-10-05 · stage 7 (M2/W11) · by: assumed (W11 builder, recorded by the conductor)
+TRANSPOSE on yue-server: (a) it runs after the other ops whatever its list position, once per plan; other ops are written in the old key the bar map shows (the planner is told so in W13); (b) a key named in the style is set to the score's new key, like SET_TEMPO's bpm (style "F minor" on a Dm score at -2 becomes "C minor"); (c) n=0 is a verdict refusal, |n| >= 12 and non-integers are a 422 from the schema; (d) its own fewest-marks speller, not score_phrase.spell_bar (which keeps every accidental it is given). The "leaves the 30-key table" refusal cannot fire (every tonic has both names upstream); the ±11 bound is what enforces F-029 #3. The REHARMONIZE stray-chord check now compares by pitch class (an enharmonic respelling passes).
+- instead of: list order with the planner writing later chords in the new key; shifting the style's own key by n; 422 for 0.
+
+## D-065 · 2026-10-05 · stage 5 (M2) · by: assumed (autopilot; user may overrule at sign-off)
+The M2 dock mockup pipeline/design/score-m2.html (M2-1..M2-9) is the spec for F-029..F-033's UI, on its defaults for Q-042..Q-049: REVISE is a second outline button beside PLAN; a stale referent is a rejected row with USE BARS, never remapped; the referent is pinned when PLAN is pressed. No choice in it is blocking (each reverses in under a day of client work), so W14/W15 build on it; Q-042 and Q-043 are the two put to the user.
+- instead of: waiting for sign-off before any M2 client code. owed: the dock height at 1366×768 for frame 10 (inferred ~500 px, R-006).
+

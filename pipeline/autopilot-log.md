@@ -48,3 +48,8 @@ R11 stage 7→8 M1 · verifier → F-026 #1-#5 pass (#6 listen owed), F-027 3/3,
 R12 stage 8 M1 · reviewer → M1-code.md: 0 blocking, 1 should (phrase accidental carries to the next plain letter: F# for F), 3 nit; D-061 fix #1, defer #2-#4 as Q-041; builder dispatched on fix/score-phrase-accidentals · progress 8·review 1/2·19·0
 R12+ builder → spell_bar fix, pytest 226 (6 new, red first); committed b1f2f76 on fix/score-phrase-accidentals (local, not pushed) · STOP: round budget 12/12; left: push/merge the fix, curate M1, phrase listen
 after run · user OK → #135 (review fix) merged 3fb39b1 (CI green on it and on main 38f022d); curate M1: 4 rules updated, pipeline/verify/.gitignore, budget 6.3 KB OK; graphify update · M1 DONE (W10 nits Q-038/Q-041 left for later; phrase listen owed)
+
+## Run 2026-10-05 → M2 (new run, 12-round budget)
+R1 stage 7 M2 · work packages W11-W15 + CP3 in scope.md (D-062), D-063 revise keeps the old plan; batch 1 dispatched in parallel: W11 TRANSPOSE (yue), W12 REPEAT/CUT/REWRITE LYRICS (yue), stage 5 mockup score-m2.html (Q-029) · progress 7·M2 planned·19·0
+R2 stage 7 M2/W11 · builder → TRANSPOSE on yue-server; my rerun pytest 318 (226 before); committed 80fbf78 on feat/score-w11-transpose-yue (local); assumptions → D-064; W12 + mockup running · progress 7·W11 local·19·0
+R3 stage 5 M2 · ux-mocker → design/score-m2.html (24.5 KB, 12 frames, renders, no console errors); no blocking choice; Q-042..Q-049 assumed → D-065; Q-042/Q-043 put to the user · progress 7·mockup·19·0

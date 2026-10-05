@@ -124,7 +124,7 @@ Q-015's REPAINT / ADD LAYER / extract / remaster clause is rust-body text inside
 ## Q-028 · assumable · stage 5 · assumed → D-031
 EDIT STYLE always states "a request to YuE2, not a guarantee" (the conductor's brief); scope.md line 158 says only when an instrument is named. Reversal cost: one condition.
 
-## Q-029 · deferred · stage 5 · open
+## Q-029 · deferred · stage 5 · M2 half assumed → D-065 (Q-044); M4 half open
 M2 referent (a selected section or lyric line as a sky suffix on the SCORE chip, no waveform wash) and where M4's bar map sits (collapsed `BARS ▸` under the checks line). Judge when M2 / M4 start.
 
 
@@ -171,3 +171,13 @@ CP2 live (pipeline/verify/M1/m1-summary.json): "a phrase in bars 20-23" (where t
 
 ## Q-041 · deferred · stage 8 (M1 code review) · open
 Three nits from pipeline/reviews/M1-code.md are left out of M1 (D-061): #2 the instrument is appended only when the style does not already contain it as a substring, so "organ" is not added to "organic folk" (score_phrase.py:112, and the same rule in client scoreCopy.ts `names`); #3 PITCH, BEATS, 8 bars, 16 notes and 40 chars live in both phraseSchema.ts and score_phrase.py and only the TS side is pinned by a test (drift = a 422 on the whole apply; a contract test could pin both); #4 the golden-path server in e2e/playwright.config.ts does not blank LLM_API_URL like its sibling URLs, so a developer shell with it set leaks into the golden path. Decide with Q-038 in W10: a small fix PR, or reject each with a reason.
+
+## Q-042 · assumable · stage 5 (M2) · assumed → D-065
+REVISE shape (design/score-m2.html frames 5-9). Default A: a second outline button REVISE beside PLAN, shown while a plan is ready. Alternatives B/C drawn in the mockup. Reversal cost: client only.
+
+## Q-043 · assumable · stage 5 (M2) · assumed → D-065
+A stale selection (the section count changed since the pick) becomes a rejected row with a `USE BARS 37–44` button, never a silent remap. Needs one server reply field (the shifted bars). Alternative: drop the referent and plan the whole song. Reversal cost: one field + one row.
+
+## Q-044..Q-049 · assumable · stage 5 (M2) · assumed → D-065
+Q-044 the referent is a sky suffix on the SCORE chip (`THIS: CHORUS 2 · BARS 29–36`, ✕ clears) and picks under SCORE stay on SCORE (closes Q-029's M2 half; its M4 bar-map half stays deferred); Q-045 a picked lyric line means its block; Q-046 REWRITE LYRICS is tagged "a request", new words saved with the new version; Q-047 the no-matching-block rule is W12's, the mockup fixes only its display; Q-048 the duration hint has a typing-only FILL button; Q-049 the lyric diff stays open, with a fold fallback if frame 10 fails the 1366×768 check.
+

@@ -8,8 +8,8 @@
 - stage: 7 Build — M1 DONE 2026-10-05 (verify 3/3, review, curate; #131–#135 merged); M2 next
 - clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-041) · decisions to D-061
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · R-013 proven by the M0 listens · owed: SP-2 phrase listen
-- milestone: M1 · features passing 19/39 · owed: phrase listen (pipeline/verify/M1/listen, F-026 #6)
-- autopilot: none running
+- milestone: M2 (F-029..F-033) · features passing 19/39 · owed: phrase listen (pipeline/verify/M1/listen, F-026 #6)
+- autopilot: M2 · round 3/12 · progress 7·W11+mockup·19·0 · stall 0
 - next: user phrase listen (pipeline/verify/M1/listen; renders predate #135); W10 nits Q-038/Q-041; fresh session → /pipeline:auto M2
 
 ## Stages
