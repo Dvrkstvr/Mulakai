@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { dockTarget, repaintCommitLabel, repaintConsequence, repaintWarnLine } from './dockTarget';
+import { dockTarget, repaintCommitLabel, repaintConsequence, repaintLine, repaintWarnLine } from './dockTarget';
+import { SCORE_ENDS } from './scoreCopy';
 
 const SECTIONS = [
   { label: '', start: 0, end: 12 },
@@ -81,5 +82,32 @@ describe('repaintWarnLine', () => {
   it('offers ✕ WHOLE SONG for a bad region only when the whole layer could be repainted', () => {
     expect(repaintWarnLine({ start: 0, end: 1 }, 60)).toBe('pick a region of 3–90 s, or ✕ WHOLE SONG to repaint the whole layer');
     expect(repaintWarnLine({ start: 0, end: 1 }, 192)).toBe('pick a region of 3–90 s');
+  });
+});
+
+describe('repaintLine (F-027)', () => {
+  const region = { start: 92, end: 127 };
+  const input = { layerName: 'base', nextVersion: 2, activeVersion: 1, selection: region, duration: 192, ahead: 1 };
+  const target = dockTarget('repaint', 'base', region, [], 192);
+
+  it('ends with the score clause while SCORE is open, after when the job starts', () => {
+    expect(repaintLine(target, { ...input, scoreOpen: true })).toEqual({
+      line: 'Saves base v2 over 1:32–2:07 · v1 stays in VERSIONS · other layers untouched · starts after 1 job',
+      scoreEnds: SCORE_ENDS,
+    });
+  });
+
+  it('leaves it out where SCORE is hidden or ineligible (after the first repaint lands)', () => {
+    expect(repaintLine(target, { ...input, ahead: 0, scoreOpen: false })).toEqual({
+      line: 'Saves base v2 over 1:32–2:07 · v1 stays in VERSIONS · other layers untouched',
+      scoreEnds: null,
+    });
+  });
+
+  it('leaves it out while the commit is off: the line says why, and nothing would run', () => {
+    const tooShort = { start: 0, end: 1 };
+    const off = dockTarget('repaint', 'base', tooShort, [], 192);
+    expect(repaintLine(off, { ...input, selection: tooShort, scoreOpen: true }))
+      .toEqual({ line: 'pick a region of 3–90 s', scoreEnds: null });
   });
 });

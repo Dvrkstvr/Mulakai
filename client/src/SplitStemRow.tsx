@@ -1,5 +1,7 @@
 import type { StemKind, StemResult } from './api';
 import { AudioPreview } from './AudioPreview';
+import { ScoreEndsClause } from './ScoreEndsClause';
+import { stemClaimLine } from './splitStemCopy';
 
 const STEM_LABELS: Record<StemKind, string> = {
   vocals: 'Vocals',
@@ -13,14 +15,17 @@ interface Props {
   layerName: string;
   nextVersion: number;
   busy: boolean;
+  /** SCORE is still open for the song: a claim would end score editing (F-027). */
+  scoreOpen: boolean;
   onClaim: (action: 'replace' | 'add-layer') => void;
   onReextract: () => void;
 }
 
 /** One stem's row in the dock's SPLIT — preview, status, and REPLACE/ADD LAYER/RE-EXTRACT. */
-export function SplitStemRow({ stem, layerName, nextVersion, busy, onClaim, onReextract }: Props) {
+export function SplitStemRow({ stem, layerName, nextVersion, busy, scoreOpen, onClaim, onReextract }: Props) {
   const locked = !!stem.claimed;
   const ready = stem.status === 'done' && !locked && !busy;
+  const claimLine = stemClaimLine(nextVersion, scoreOpen);
   const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy;
 
   return (
@@ -38,7 +43,7 @@ export function SplitStemRow({ stem, layerName, nextVersion, busy, onClaim, onRe
       ) : stem.status === 'failed' ? (
         <div className="error">{stem.error ?? 'extraction failed'}</div>
       ) : (
-        <div className="hint">replace will save as v{nextVersion} · add will create a new layer</div>
+        <div className="hint">{claimLine.line}<ScoreEndsClause clause={claimLine.scoreEnds} /></div>
       )}
       <span className="btn-row">
         <button disabled={!ready} onClick={() => onClaim('replace')}><span>REPLACE</span></button>

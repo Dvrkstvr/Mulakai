@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { addLayerCommitLabel, addLayerConsequence, addLayerName, sungTrack } from './addLayerCopy';
+import { addLayerCommitLabel, addLayerConsequence, addLayerLine, addLayerName, sungTrack } from './addLayerCopy';
+import { SCORE_ENDS } from './scoreCopy';
 
 describe('add layer copy', () => {
   it('names the lane after the picked track', () => {
@@ -28,5 +29,21 @@ describe('add layer copy', () => {
     expect(sungTrack('backing_vocals')).toBe(true);
     expect(sungTrack('strings')).toBe(false);
     expect(sungTrack('')).toBe(false);
+  });
+});
+
+describe('addLayerLine (F-027)', () => {
+  it('ends with the score clause while SCORE is open, after when the job starts', () => {
+    expect(addLayerLine('strings', 2, true)).toEqual({
+      line: 'Adds a STRINGS lane as strings v1, conditioned on the current mix · nothing else changes · starts after 2 jobs',
+      scoreEnds: SCORE_ENDS,
+    });
+  });
+
+  it('leaves it out where SCORE is hidden or already ineligible', () => {
+    expect(addLayerLine('strings', 0, false)).toEqual({
+      line: 'Adds a STRINGS lane as strings v1, conditioned on the current mix · nothing else changes',
+      scoreEnds: null,
+    });
   });
 });

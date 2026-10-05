@@ -6,14 +6,13 @@ import { bounceAudible } from './mixExport';
 import { useVoiceStore, voiceParams } from './voiceStore';
 import { useEditorJobStore, myEditorJobs, jobView } from './editorJobStore';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
-import { queueSuffix } from './queueCopy';
 import { useJobsAhead } from './queueStore';
 import { useLookup, modelsFor, checkingModels } from './lookup';
 import { VoicePicker } from './VoicePicker';
 import { AddLayerTune } from './AddLayerTune';
 import { DockCommit } from './DockCommit';
 import { DockAddLayerFields } from './DockAddLayerFields';
-import { addLayerName, addLayerCommitLabel, addLayerConsequence, sungTrack } from './addLayerCopy';
+import { addLayerName, addLayerCommitLabel, addLayerLine, sungTrack } from './addLayerCopy';
 import { useDockRequest } from './dockRequest';
 import { addLayerFieldsUnchanged } from './landedFields';
 
@@ -21,6 +20,8 @@ interface Props {
   songId: string;
   layers: Layer[];
   songLyrics: string;
+  /** SCORE is still open for the song: the line says this edit ends score editing (F-027). */
+  scoreOpen: boolean;
 }
 
 /**
@@ -29,7 +30,7 @@ interface Props {
  * none is downloaded. A busy GPU doesn't hold it: the server queues each ADD and its lines list
  * under the commit.
  */
-export function DockAddLayer({ songId, layers, songLyrics }: Props) {
+export function DockAddLayer({ songId, layers, songLyrics, scoreOpen }: Props) {
   const { addLayer, setAddLayer, repaint } = useSettings();
   const voice = useVoiceStore();
   const resetDraft = useAddLayerDraft((s) => s.reset);
@@ -70,6 +71,7 @@ export function DockAddLayer({ songId, layers, songLyrics }: Props) {
 
   const canSubmit = !!legoModels.data?.length && prompt.trim().length > 0;
   const layerName = addLayerName(prompt, trackName);
+  const consequence = addLayerLine(layerName, ahead, scoreOpen);
 
   const submit = async () => {
     if (!canSubmit) return;
@@ -114,7 +116,8 @@ export function DockAddLayer({ songId, layers, songLyrics }: Props) {
         <AddLayerTune legoModels={legoModels.data} />
       </div>
       <DockCommit
-        consequence={addLayerConsequence(layerName) + queueSuffix(ahead)}
+        consequence={consequence.line}
+        scoreEnds={consequence.scoreEnds}
         label={addLayerCommitLabel(trackName)}
         disabled={!canSubmit}
         onCommit={() => void submit()}
