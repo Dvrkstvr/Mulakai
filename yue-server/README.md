@@ -286,6 +286,67 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
     `the Ins note at bar N changes pitch once the tie into it is cut; end the
     phrase a bar earlier or later`. With a phrase, compare checks the Vocal
     only. Fixtures: `tests/data/contract/apply-write-phrase*.json`.
+- `POST /v1/scores/apply` also takes `lyrics` (optional, the song's lyrics
+  as sent to `/v1/jobs`) and the section ops `REPEAT` and `CUT` (F-030) and
+  `REWRITE_LYRICS` (F-031). The reply always has `lyrics` (the edited
+  lyrics; exactly the request's when no op changed them, null when none were
+  sent), `changed.lyrics`, and `sections`: `[{index, label, from_bar,
+  to_bar, seconds}]` of the edited score, each section's length as YuE2
+  plays it, for a hint like "cut the outro 0:08 to fit" (null when the
+  edited score does not parse).
+  - `{op: "REPEAT" | "CUT", section >= 1, label (1-40 chars)}`: `section`
+    is `/v1/scores/read`'s `facts.sections[].index` (the bar map's `S<n>`),
+    `label` its label as a cross-check (case, `[ ]` and `:` ignored).
+  - `{op: "REWRITE_LYRICS", block >= 1, tag (0-60 chars), occurrence >= 1,
+    lines: [1-32 strings of at most 200 chars]}`: `block` is
+    `facts.lyric_blocks[].index`; `tag` and `occurrence` are the cross-check
+    (`"chorus"` or `"[Chorus]"`; a block's kind is its tag's first word, so
+    `[Verse 2]` is verse 2).
+  - Numbers always mean the score and lyrics as read: the bar ops run first
+    in plan order, then the rewrites, then REPEAT/CUT from the last section
+    to the first. Verdicts stay in plan order.
+  - REPEAT copies the section's bars in every voice right after it, with its
+    `% label` comment, never with repeat signs; CUT removes both. A
+    repeated section ends un-tied (original and copy) and so does the
+    section before a cut; a meter or key the section changes is restated
+    after the seam. Code writes all of it; checks then allow exactly that
+    bar-count change and nothing else.
+  - Lyrics follow by one rule: the k-th section of a kind sings the k-th
+    block of that kind. REPEAT copies that block after it, CUT removes it;
+    a section with no block, or a block with no section (an extra second
+    `[Chorus]`, a `[Pre-Chorus]`), is left alone. Then every matched
+    block's tag is rewritten from its section, as instrumentals write tags
+    (`% pre-chorus` → `[Pre-Chorus]`, so `[Verse 1]` becomes `[Verse]`).
+    The verdict's `note` says what happened: `lyric block 3 [Chorus] is
+    repeated with it; block 5 [Chorus] matches no chorus in the score and
+    stays as it is`, or `no lyric block is tagged for this outro, so none
+    is cut`.
+  - REWRITE_LYRICS's verdict carries `diff: {block, tag, occurrence, old,
+    new}`; tags are not rewritten unless a section op also applied.
+  - `verdicts[i].reason` (op not applied): `section 9 does not exist
+    (sections: 1 intro, 2 verse, 3 chorus, 4 outro)`; `section 2 is verse,
+    not chorus; chorus is section 3` (or `there is no bridge section (...)`);
+    `section 2 has no bars`; `section 1 has no '% label' comment; only
+    labelled sections can be repeated or cut`; `section 3 is already cut
+    by op 1; a plan either repeats a section or cuts it` (or `already
+    repeated`); `cutting section 4 would leave no music; keep at least one
+    section`; `the request has no lyrics; REPEAT moves them with the score,
+    so send them ("" for none)`; and for REWRITE_LYRICS: `the request has
+    no lyrics to rewrite`, `the lyrics have no blocks`, `lyric block 9 does
+    not exist (blocks 1-7)`, `block 3 is [Chorus] occurrence 1, not chorus
+    2; chorus 2 is block 5` (or `there is no bridge 2`), `block 1 [Intro:
+    Piano] has no lyric lines to rewrite (a tag only)`, `block 5 [Chorus]
+    has 4 lines; 3 given. Keep the line count so the melody still fits`,
+    `line 2 contains the tag [Chorus]; write lyric text only, code writes
+    the tags`, `line 1 is empty or has a line break; give one lyric line
+    per entry`, `block 5 is already rewritten by op 1`.
+  - `checks.problems` (applied, plan not ok): `the first note of bar 3
+    changes pitch once the tie into it is cut; the section before it ends
+    on a tied note spelled by the tie`, and, as guards that should never
+    fire, `the sections are ...; expected ...`, `the score has N bars; the
+    section ops should leave M (from K)`, `bar N does not match the bar it
+    comes from`. Fixtures: `tests/data/contract/apply-repeat*.json`,
+    `apply-cut*.json`, `apply-rewrite-lyrics*.json`.
 - `GET /health/ready` — 200 `{"status": "ready"}`, else 503 with
   `"loading"` or `"failed"`. `GET /health/live` — 200 `{"status": "alive"}`.
 

@@ -6,12 +6,12 @@ meter changes. Duration is the bars' lengths over Q:, as YuE2 plays them.
 """
 from __future__ import annotations
 
-import re
 from fractions import Fraction
 
 import scores  # noqa: F401  (puts the vendored upstream/ on sys.path)
 from abc_tools import key_accidentals, parse_abc
 from score_bars import chord_offsets, note_count
+from score_lyrics import block_facts
 from score_model import Doc
 
 
@@ -29,20 +29,9 @@ def key_notes(key: str) -> str:
 
 
 def lyric_blocks(lyrics: str) -> list[dict]:
-    """Blocks split on blank lines; a block's tag is its `[...]` first line, and
-    its occurrence counts earlier blocks of the same tag word ([Verse 2] is a verse)."""
-    text = lyrics.replace("\r\n", "\n").strip("\n")
-    seen: dict[str, int] = {}
-    out = []
-    for index, block in enumerate((b for b in re.split(r"\n\s*\n", text) if b.strip()), 1):
-        rows = [row.strip() for row in block.split("\n")]
-        tag = rows[0] if rows[0].startswith("[") else ""
-        body = rows[1:] if tag else rows
-        word = tag.lower().split(" ")[0].strip("[]:")
-        seen[word] = seen.get(word, 0) + 1
-        out.append({"index": index, "tag": tag, "occurrence": seen[word], "lines": len(body),
-                    "first_line": body[0][:50] if body else ""})
-    return out
+    """Blocks split on blank lines, numbered, each with its tag and its
+    occurrence among blocks of its kind ([Verse 2] is a verse): score_lyrics.py."""
+    return block_facts(lyrics)
 
 
 def _number(value: Fraction) -> int | float:

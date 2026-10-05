@@ -14,10 +14,13 @@ from typing import Annotated, Literal, Union
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from score_check import check_edit, verdict
+from score_check import verdict
 from score_facts import read_facts, seconds
-from score_ops import QUALITIES, ROOTS, apply_ops
+from score_ops import QUALITIES, ROOTS
 from score_phrase import BEATS, MAX_BARS, MAX_NOTES, PITCH
+from score_plan import apply_plan, check_plan
+from score_section_models import Cut, Repeat, RewriteLyrics
+from score_sections import section_seconds
 from scores import parse_abc
 
 Root = Literal[ROOTS]
@@ -79,7 +82,8 @@ class WritePhrase(Strict):
         return value
 
 
-Op = Annotated[Union[SetTempo, Reharmonize, EditStyle, WritePhrase], Field(discriminator="op")]
+Op = Annotated[Union[SetTempo, Reharmonize, EditStyle, WritePhrase,
+                     Repeat, Cut, RewriteLyrics], Field(discriminator="op")]
 
 
 class ReadRequest(Strict):
@@ -90,6 +94,7 @@ class ReadRequest(Strict):
 class ApplyRequest(Strict):
     abc: str = Field(min_length=1, max_length=65536)
     style: str = Field(default="", max_length=2000)
+    lyrics: str | None = Field(default=None, max_length=65536)
     ops: list[Op] = Field(min_length=1, max_length=6)
 
 
@@ -117,11 +122,14 @@ def add_score_edit_routes(app: FastAPI, worker, authorize) -> None:
         if not base["ok"]:
             raise HTTPException(422, f"Not a score in YuE2's native two-voice ABC: {base['error']}")
         ops = [op.model_dump(exclude_none=True) for op in request.ops]
-        out = apply_ops(request.abc, request.style, ops)
-        checks = check_edit(request.abc, out["abc"], [op for op, v in zip(ops, out["verdicts"]) if v["ok"]])
+        out = apply_plan(request.abc, request.style, request.lyrics, ops)
+        checks = check_plan(request.abc, out, ops)
+        out.pop("mid")
         after = _parsed(out["abc"])
         return {"ok": checks["ok"] and all(v["ok"] for v in out["verdicts"]), **out, "checks": checks,
-                "changed": {"abc": out["abc"] != request.abc, "style": out["style"] != request.style},
+                "changed": {"abc": out["abc"] != request.abc, "style": out["style"] != request.style,
+                            "lyrics": out["lyrics"] != request.lyrics},
+                "sections": section_seconds(out["abc"]) if after else None,
                 "chords_present": bool(after.voices["Vocal"].chords) if after else None,
                 "bpm": after.bpm if after else None,
                 "seconds": seconds(after) if after else None,

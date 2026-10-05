@@ -50,14 +50,14 @@ def test_a_compound_plan_with_a_phrase_applies_and_names_the_instrument_in_the_s
     assert body["ok"] and [v["ok"] for v in body["verdicts"]] == [True, True, True]
     assert body["checks"] == {"ok": True, "problems": [], "differences": []}
     assert body["style"] == "dark pop, 88 bpm, F minor, female vocal, tenor saxophone"
-    assert body["changed"] == {"abc": True, "style": True} and body["bpm"] == 88
+    assert body["changed"] == {"abc": True, "style": True, "lyrics": False} and body["bpm"] == 88
 
 
 def test_refusals_come_back_as_a_verdict_reason_or_a_check_problem(make_client):
     client = make_client()
     busy = apply(client, [{**PHRASE, "start_bar": 9}])
     assert busy["ok"] is False and busy["verdicts"][0]["reason"] == "the Vocal sings in bars 11-12; free: 1-10, 47-65"
-    assert busy["changed"] == {"abc": False, "style": False}
+    assert busy["changed"] == {"abc": False, "style": False, "lyrics": False}
     short = apply(client, [SHORT])["verdicts"][0]["reason"]
     assert short == "bar 3 of the phrase (score bar 59) sums to 3.5 beats, the meter needs 4 (too short by 0.5)"
     thin = apply(client, [THIN])
