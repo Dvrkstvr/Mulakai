@@ -44,6 +44,15 @@ test('planner offline: SCORE says so, and RECHECK brings it back', async ({ page
   await expect(panel.locator('.score-reading')).toHaveText('65 bars · 4/4 · Q:87 · key Dm · est 179 s · 1,832 tokens');
 });
 
+test('GET /score carries the read sections and lyric blocks, numbered by yue-server, for a pick (F-032)', async ({ request }) => {
+  // The strip and the lyrics lane need lyric timings, which this stack has none of (LYRICS_API_URL is empty and a
+  // YuE2 take stores no timestamps), so the pick itself is covered by Vitest; this checks the wire a pick reads.
+  const facts = contract('read-ok').response.body.facts as { sections: Array<Record<string, unknown>>; lyric_blocks: unknown[] };
+  const status = (await (await request.get(`/api/songs/${songId}/score`)).json()) as { sections: unknown[]; blocks: unknown[] };
+  expect(status.sections).toEqual(facts.sections.map((x) => ({ ...x, occurrence: 1 })));
+  expect(status.blocks).toEqual(facts.lyric_blocks);
+});
+
 test('CANCEL while planning aborts the call, unloads the planner and keeps the request', async ({ page, request }) => {
   await scriptPlanner(request, { replies: [{ hang: true }] });
   const { dock, panel } = await openScore(page);

@@ -22,8 +22,9 @@ export function referentName(r: Named): string {
   return `LINE ${r.line} OF ${tagName(r.tag).toUpperCase()} #${r.occurrence}`;
 }
 
-/** The chip's words for a pick: a line by its quoted words, a section by its name. */
-const chipName = (r: Named) => (r.kind === 'line' && r.text ? `“${clip(r.text).toUpperCase()}”` : referentName(r));
+/** The chip's words for a pick: a line (or a line the score lacks) by its quoted words, a section by its name. */
+const quoted = (r: Named) => (r.kind === 'line' ? r.text : r.kind === 'missing' && r.line ? r.label : null);
+const chipName = (r: Named) => { const t = quoted(r); return t ? `“${clip(t).toUpperCase()}”` : referentName(r); };
 
 export const WHOLE_SCORE = 'BASE · WHOLE SCORE';
 export const CLEAR_PICK = '✕ WHOLE SCORE';
@@ -31,8 +32,8 @@ export const CLEAR_PICK = '✕ WHOLE SCORE';
 export const WHOLE_SCORE_PICK = 'WHOLE SCORE';
 const NO_PICK_HINT = 'click a section or a lyric line: it becomes “this” in your request';
 
-/** The SCORE chip (M2-1): `BASE · WHOLE SCORE · THIS: CHORUS 2 · BARS 29–36`, rust for a section the score lacks
- * or a stale pick; `clearable` offers ✕ WHOLE SCORE. A dragged range is not a pick: the hint says so (M2-2). */
+/** The SCORE chip (M2-1): `BASE · WHOLE SCORE · THIS: CHORUS 2 · BARS 29–36`, rust for a section or lyric line
+ * the score lacks, or a stale pick; `clearable` offers ✕ WHOLE SCORE. A dragged range is not a pick: the hint says so (M2-2). */
 export function scoreTarget(s: Pick<ScoreVerbState, 'pick' | 'stale'>, selection: Region | null): DockTarget {
   const pick = s.pick;
   if (!pick) {
@@ -43,7 +44,7 @@ export function scoreTarget(s: Pick<ScoreVerbState, 'pick' | 'stale'>, selection
   const name = chipName(pick);
   const bars = barsIn(pick);
   const suffix = pick.kind === 'missing' ? `${name} · NOT IN THE SCORE` : stale ? `${name} · STALE` : bars && pick.kind === 'section' ? `${name} · ${barsOf(bars).toUpperCase()}` : name;
-  const hint = pick.kind === 'missing' ? 'pick another section or ✕ clear it'
+  const hint = pick.kind === 'missing' ? (pick.line ? 'the score’s lyrics have no such line here · pick another or ✕ clear it' : 'pick another section or ✕ clear it')
     : stale ? 'the score changed since this was picked'
       : pick.kind === 'line' ? `line ${pick.line} of ${tagName(pick.tag)} #${pick.occurrence}${bars ? ` · ${barsOf(bars)}` : ''} · ✕ clears it`
         : `“this” means ${name} · ✕ clears it`;

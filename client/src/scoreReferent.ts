@@ -1,7 +1,7 @@
 /** "This one" for SCORE (F-032, pipeline/design/score-m2.html M2-1..M2-3): a click on the section strip or a
  * lyric line becomes the dock's pick, sent with PLAN (pinned at the press) and re-sent by REVISE. Pure.
- * Strip sections meet the score's by kind and occurrence (the k-th chorus of the strip is the score's k-th
- * chorus); lyric blocks are counted as yue-server counts them (blank-line blocks, score_lyrics.parse_blocks). */
+ * Strip sections meet GET /score's `sections` by kind and occurrence (the k-th chorus of the strip is the score's
+ * k-th chorus); a lyric line meets its `blocks` in scoreLinePick.ts. The score's numbering is the server's. */
 import type { ScoreReferent, ScoreReferentInput, ScoreSection } from './api';
 import type { Section } from './lyricSections';
 import type { ScorePick, ScoreVerbState } from './scoreVerbTypes';
@@ -19,7 +19,8 @@ export function sectionPick(strip: Section[], i: number, sections: ScoreSection[
   const at = kind ? sections.filter((x) => kindOf(x.label) === kind)[k - 1] : undefined;
   if (!at) return { kind: 'missing', label: s.label.trim() || 'this section' };
   const same = sections.filter((x) => x.label === at.label);
-  return { kind: 'section', section: at.index, label: at.label, occurrence: same.indexOf(at) + 1, of: same.length, bars: [at.from_bar, at.to_bar] };
+  const occurrence = at.occurrence ?? same.indexOf(at) + 1;
+  return { kind: 'section', section: at.index, label: at.label, occurrence, of: same.length, bars: [at.from_bar, at.to_bar] };
 }
 
 /** The strip segment a section pick stands on, for its sky echo; -1 for none. */
@@ -29,42 +30,6 @@ export function stripIndexOf(strip: Section[], sections: ScoreSection[] | undefi
     const p = sectionPick(strip, i, sections);
     return p?.kind === 'section' && p.section === pick.section && p.label === pick.label;
   });
-}
-
-interface DraftBlock { tag: string; lines: number[] }
-
-/** The draft's blocks: runs of non-blank lines; a `[...]` first row is the tag, the rest are its lines (as draft
- * line indexes). */
-export function draftBlocks(draft: string): DraftBlock[] {
-  const blocks: DraftBlock[] = [];
-  let open: DraftBlock | null = null;
-  draft.split('\n').forEach((row, index) => {
-    const text = row.trim();
-    if (!text) { open = null; return; }
-    if (!open) {
-      open = { tag: text.startsWith('[') ? text : '', lines: text.startsWith('[') ? [] : [index] };
-      blocks.push(open);
-    } else open.lines.push(index);
-  });
-  return blocks;
-}
-
-/** Draft line `index` as a pick: its block's number, tag and occurrence, the line within it. Null for a tag, a
- * blank line or an untagged block (the server needs a tag to find it again). */
-export function linePick(draft: string, index: number): ScoreReferentInput | null {
-  const blocks = draftBlocks(draft);
-  const at = blocks.findIndex((b) => b.lines.includes(index));
-  const b = blocks[at];
-  if (!b?.tag) return null;
-  const same = blocks.filter((x) => kindOf(x.tag) === kindOf(b.tag));
-  const text = draft.split('\n')[index].trim();
-  return { kind: 'line', block: at + 1, tag: b.tag, occurrence: same.indexOf(b) + 1, of: same.length, line: b.lines.indexOf(index) + 1, text };
-}
-
-/** The draft line a line pick stands on, for its sky echo; -1 for none. */
-export function lineIndexOf(draft: string, pick: ScorePick | null): number {
-  if (pick?.kind !== 'line') return -1;
-  return draftBlocks(draft)[pick.block - 1]?.lines[pick.line - 1] ?? -1;
 }
 
 /** One pick, whatever its numbering's extras: the same section or the same line of the same block. */

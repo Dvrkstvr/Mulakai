@@ -2,8 +2,9 @@
  * (ReferentInput, Referent, StaleReferent, Since), re-exported from routes/scorePlan.ts. */
 import type { ScoreOp } from './score';
 
-/** A section of the score as read: `index` is the bar map's S<n>, `label` its `% label` ("chorus"). */
-export interface ScoreSection { index: number; label: string; from_bar: number; to_bar: number }
+/** A section of the score as read: `index` is the bar map's S<n>, `label` its `% label` ("chorus"), `occurrence`
+ * its count among sections of that label (sent by GET /score). */
+export interface ScoreSection { index: number; label: string; occurrence?: number; from_bar: number; to_bar: number }
 
 /** A lyric block as yue-server numbers it (blank-line blocks, 1..N; occurrence among blocks of its kind). */
 export interface ScoreLyricBlock { index: number; tag: string; occurrence: number; lines: number; first_line: string }

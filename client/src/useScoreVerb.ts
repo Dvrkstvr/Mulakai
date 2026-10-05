@@ -4,7 +4,8 @@ import { useEffect } from 'react';
 import type { SongDetail } from './api';
 import type { DockVerb } from './dockTarget';
 import { findActiveSectionIndex, type Section } from './lyricSections';
-import { linePick, lineIndexOf, sectionPick, stripIndexOf } from './scoreReferent';
+import { lineIndexOf, linePick } from './scoreLinePick';
+import { sectionPick, stripIndexOf } from './scoreReferent';
 import { useScoreStore } from './scoreStore';
 import { INITIAL_SCORE, type ScoreVerbState } from './scoreVerbTypes';
 import type { Region } from './Waveform';
@@ -39,15 +40,16 @@ export function useScorePick(songId: string, verb: DockVerb, strip: Section[], d
   const dispatch = useScoreStore((s) => s.dispatch);
   if (verb !== 'score') return null;
   const sections = score.status?.sections;
+  const blocks = score.status?.blocks;
   return {
     stripIndex: stripIndexOf(strip, sections, score.pick),
-    lineIndex: lineIndexOf(draft, score.pick),
+    lineIndex: lineIndexOf(draft, score.pick, blocks),
     onStrip: (region) => {
       const pick = sectionPick(strip, findActiveSectionIndex(strip, region), sections);
       if (pick) dispatch(songId, { type: 'pick', pick });
     },
     onLine: (index) => {
-      const pick = linePick(draft, index);
+      const pick = linePick(draft, index, blocks);
       if (pick) dispatch(songId, { type: 'pick', pick });
     },
   };

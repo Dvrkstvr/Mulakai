@@ -2,8 +2,9 @@
  * pipeline/design/score-verb.html). Only `scoreVerb.ts` moves between them. */
 import type { ScorePlan, ScorePlanRun, ScoreReferentInput, ScoreStaleReferent, ScoreStatusView } from './api';
 
-/** The dock's live pick (F-032): a section or lyric line, or a strip section the score lacks (rust chip, PLAN held). */
-export type ScorePick = ScoreReferentInput | { kind: 'missing'; label: string };
+/** The dock's live pick (F-032): a section or lyric line, or one the score lacks (rust chip, PLAN held): a strip
+ * section by its label, or a lyric line (`line`) no block of the score's lyrics agrees with, by its words. */
+export type ScorePick = ScoreReferentInput | { kind: 'missing'; label: string; line?: true };
 
 export type ScorePhase =
   /** No tab: not a YuE2 first take, or the feature is not set up (or not known yet). */

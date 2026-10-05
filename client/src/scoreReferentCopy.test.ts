@@ -34,6 +34,11 @@ describe('the SCORE chip (M2-1)', () => {
       label: 'BASE · WHOLE SCORE · THIS: SPOKEN INTRO · NOT IN THE SCORE', warn: true, hint: 'pick another section or ✕ clear it' });
     expect(scoreTarget({ pick: CHORUS2, stale: STALE }, null)).toMatchObject({ label: 'BASE · WHOLE SCORE · THIS: CHORUS 2 · STALE', warn: true });
   });
+  it('rust for a lyric line no block of the score agrees with: its words, not addressable', () => {
+    expect(scoreTarget({ pick: { kind: 'missing', label: 'Hold the night', line: true }, stale: null }, null)).toEqual({
+      label: 'BASE · WHOLE SCORE · THIS: “HOLD THE NIGHT” · NOT IN THE SCORE', warn: true, clearable: true,
+      hint: 'the score’s lyrics have no such line here · pick another or ✕ clear it', section: null });
+  });
 });
 
 describe('asking with a pick (frame 2)', () => {
