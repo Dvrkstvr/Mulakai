@@ -1,9 +1,8 @@
 import type { Region } from './Waveform';
 import type { LyricsBlock } from './lyricsBlocks';
 import type { DockTarget } from './dockTarget';
-import { repaintCommitLabel, repaintConsequence, repaintWarnLine } from './dockTarget';
+import { repaintCommitLabel, repaintLine } from './dockTarget';
 import { maxCrossfadeSec, clampCrossfade } from './repaintLimits';
-import { queueSuffix } from './queueCopy';
 import { useJobsAhead } from './queueStore';
 import { useSettings } from './settings';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
@@ -35,10 +34,12 @@ interface Props {
   job: Pick<ReturnType<typeof useEditorRepaintJob>, 'inFlight' | 'failed' | 'error'>;
   onRepaint: () => void;
   lyrics: SectionLyrics;
+  /** SCORE is still open for the song: the line says this edit ends score editing (F-027). */
+  scoreOpen: boolean;
 }
 
 /** REPAINT: instruction, VARIANCE + CROSSFADE inline, the one-section lyrics editor, TUNE, commit. */
-export function DockRepaint({ target, layerName, nextVersion, activeVersion, selection, duration, prompt, onPromptChange, job, onRepaint, lyrics }: Props) {
+export function DockRepaint({ target, layerName, nextVersion, activeVersion, selection, duration, prompt, onPromptChange, job, onRepaint, lyrics, scoreOpen }: Props) {
   const { inFlight, failed, error } = job;
   const ahead = useJobsAhead();
   const repaint = useSettings((s) => s.repaint);
@@ -46,9 +47,7 @@ export function DockRepaint({ target, layerName, nextVersion, activeVersion, sel
   const regionSeconds = selection ? selection.end - selection.start : 0;
   const crossfadeOn = !!selection && !target.warn;
 
-  const consequence = target.warn
-    ? repaintWarnLine(selection, duration)
-    : repaintConsequence(layerName, nextVersion, activeVersion, selection, target.section) + queueSuffix(ahead);
+  const consequence = repaintLine(target, { layerName, nextVersion, activeVersion, selection, duration, ahead, scoreOpen });
 
   return (
     <>
@@ -85,7 +84,8 @@ export function DockRepaint({ target, layerName, nextVersion, activeVersion, sel
         <RepaintTune />
       </div>
       <DockCommit
-        consequence={consequence}
+        consequence={consequence.line}
+        scoreEnds={consequence.scoreEnds}
         label={repaintCommitLabel(layerName, selection, target.section)}
         disabled={target.warn}
         onCommit={onRepaint}

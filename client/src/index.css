@@ -3793,6 +3793,11 @@ footer .player {
   color: var(--text-mid);
 }
 
+/* F-027: "score editing ends after this edit…" ends an ACE-Step edit's line while SCORE is open. */
+.score-ends {
+  color: #C9906F; /* rust-body */
+}
+
 .dock-commit-btn {
   position: relative;
   overflow: hidden;

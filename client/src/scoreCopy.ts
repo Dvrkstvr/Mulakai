@@ -19,6 +19,8 @@ export const STALE_TAIL = 'Nothing was started.';
 export const RENDER_FAILED_TITLE = 'RENDER FAILED';
 export const RENDER_FAILED_TAIL = 'nothing saved, the base is unchanged';
 export const APPLY_OFF = 'a plan must pass every check first';
+/** Ends an ACE-Step edit's consequence line while SCORE is open (F-027, D-030; scoreEnds.ts). */
+export const SCORE_ENDS = 'score editing ends after this edit, SCORE will be off for this song';
 const LIMIT_SECONDS = 360;
 const WARN_SECONDS = 330;
 const TOKEN_LIMIT = 4096;

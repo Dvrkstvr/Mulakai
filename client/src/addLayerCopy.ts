@@ -1,4 +1,6 @@
 import { TRACK_NAMES } from './trackNames';
+import { queueSuffix } from './queueCopy';
+import { editConsequence, type EditConsequence } from './scoreEnds';
 
 /** Tracks that sing, the only ones ADD LAYER offers lyrics for. */
 export function sungTrack(trackName: string): boolean {
@@ -25,3 +27,8 @@ export function addLayerConsequence(layerName: string): string {
   const lane = layerName ? `a ${layerName.toUpperCase()} lane as ${layerName.toLowerCase()} v1` : 'a lane named from its description';
   return `Adds ${lane}, conditioned on the current mix · nothing else changes`;
 }
+
+/** ADD LAYER's whole consequence line: the lane, when the job starts, and (F-027) that score
+ * editing ends while SCORE is open. */
+export const addLayerLine = (layerName: string, ahead: number, scoreOpen: boolean): EditConsequence =>
+  editConsequence(addLayerConsequence(layerName) + queueSuffix(ahead), scoreOpen);
