@@ -1,9 +1,12 @@
 /** The planner's op contract (F-019 #1, SP-2 "The op schema"): a strict JSON schema built per
- * song (bars 1..N, beats 1..beats-per-bar) for `response_format`, and the same bounds checked
- * on a reply, one reason per op, so a retry can be told exactly what was wrong. Pure. */
+ * song (bars 1..N, beats 1..beats-per-bar) and per request (a WRITE_PHRASE has exactly the N bars
+ * the request asks for, F-026) for `response_format`, and the same bounds checked on a reply,
+ * one reason per op, so a retry can be told exactly what was wrong. Pure. */
+import { phraseOpSchema, phraseProblems } from './phraseSchema.js';
+import { DEFAULT_PHRASE_BARS } from './phraseRequest.js';
 import { QUALITIES, ROOTS, type Op, type ScoreFacts } from './planTypes.js';
 
-const OP_NAMES = ['SET_TEMPO', 'REHARMONIZE', 'EDIT_STYLE'] as const;
+const OP_NAMES = ['SET_TEMPO', 'REHARMONIZE', 'EDIT_STYLE', 'WRITE_PHRASE'] as const;
 export const MAX_OPS = 6;
 const BPM = { min: 40, max: 240 };
 const STYLE_MAX = 1000;
@@ -24,7 +27,7 @@ const op = (name: string, props: Record<string, unknown>) => ({
   properties: { op: { const: name }, ...props },
 });
 
-export function buildOpSchema(facts: ScoreFacts): Record<string, unknown> {
+export function buildOpSchema(facts: ScoreFacts, phraseBars = DEFAULT_PHRASE_BARS): Record<string, unknown> {
   const bars = facts.header.bars;
   const chord = {
     type: 'object', additionalProperties: false, required: ['bar', 'beat', 'root', 'quality'],
@@ -45,6 +48,7 @@ export function buildOpSchema(facts: ScoreFacts): Record<string, unknown> {
             chords: { type: 'array', items: chord, minItems: 1, maxItems: CHORDS_MAX },
           }),
           op('EDIT_STYLE', { style: { type: 'string', minLength: 1, maxLength: STYLE_MAX } }),
+          phraseOpSchema(bars, phraseBars),
         ] },
       },
     },
@@ -56,8 +60,9 @@ export type OpsCheck = { ok: true; ops: Op[] } | { ok: false; reasons: string[] 
 const isInt = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v);
 const obj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
 
-function opProblems(o: Record<string, unknown>, facts: ScoreFacts): string[] {
+function opProblems(o: Record<string, unknown>, facts: ScoreFacts, phraseBars: number): string[] {
   const bars = facts.header.bars;
+  if (o.op === 'WRITE_PHRASE') return phraseProblems(o, bars, phraseBars);
   const inScore = (field: string, v: unknown) => (isInt(v) && v >= 1 && v <= bars ? []
     : [`${field} ${String(v)} is outside the score (bars 1-${bars})`]);
   if (o.op === 'SET_TEMPO') {
@@ -82,14 +87,15 @@ function opProblems(o: Record<string, unknown>, facts: ScoreFacts): string[] {
   return [...new Set(out)];
 }
 
-/** Checks a parsed reply against the song's bounds; reasons read "op 2 (REHARMONIZE): ...". */
-export function checkOps(reply: unknown, facts: ScoreFacts): OpsCheck {
+/** Checks a parsed reply against the song's bounds and the request's phrase length; reasons read
+ * "op 2 (REHARMONIZE): ...". */
+export function checkOps(reply: unknown, facts: ScoreFacts, phraseBars = DEFAULT_PHRASE_BARS): OpsCheck {
   if (!obj(reply) || !Array.isArray(reply.ops)) return { ok: false, reasons: ['the reply is not a JSON object {"ops":[...]}'] };
   const ops = reply.ops as unknown[];
   if (ops.length < 1 || ops.length > MAX_OPS) return { ok: false, reasons: [`the reply has ${ops.length} ops; send 1 to ${MAX_OPS}`] };
   const reasons = ops.flatMap((o, i) => {
     if (!obj(o)) return [`op ${i + 1}: not an object`];
-    return opProblems(o, facts).map((p) => `op ${i + 1} (${String(o.op)}): ${p}`);
+    return opProblems(o, facts, phraseBars).map((p) => `op ${i + 1} (${String(o.op)}): ${p}`);
   });
   return reasons.length ? { ok: false, reasons } : { ok: true, ops: ops as Op[] };
 }

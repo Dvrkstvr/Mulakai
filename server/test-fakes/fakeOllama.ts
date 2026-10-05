@@ -6,6 +6,17 @@
  * every `/api/*` route 404, as an OpenAI-compatible server that is not Ollama would.
  */
 import http from 'node:http';
+import { contract } from './fakeYue.js';
+
+/** The yue-server contract fixtures a scripted WRITE_PHRASE plan replays (F-026). */
+export const PHRASE_FIXTURES = ['apply-write-phrase', 'apply-write-phrase-compound', 'apply-write-phrase-beat-sum',
+  'apply-write-phrase-sanity', 'apply-write-phrase-vocal-sings'] as const;
+
+/** A planner reply holding exactly the ops a recorded apply fixture sent, so fakeYue has its answer:
+ * `phrasePlan('apply-write-phrase-vocal-sings')` is a phrase over bars where the Vocal sings. */
+export function phrasePlan(fixture: (typeof PHRASE_FIXTURES)[number]): ChatScript {
+  return { content: JSON.stringify({ ops: (contract(fixture).request.body as { ops: unknown[] }).ops }) };
+}
 
 export interface ChatScript {
   /** The assistant message content (JSON text for a plan). */

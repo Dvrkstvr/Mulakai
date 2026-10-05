@@ -3793,6 +3793,11 @@ footer .player {
   color: var(--text-mid);
 }
 
+/* F-027: "score editing ends after this edit…" ends an ACE-Step edit's line while SCORE is open. */
+.score-ends {
+  color: #C9906F; /* rust-body */
+}
+
 .dock-commit-btn {
   position: relative;
   overflow: hidden;
@@ -3869,6 +3874,13 @@ a.dock-commit-link {
 }
 
 .score-checks .warn {
+  color: var(--rust-text);
+}
+
+/* An earlier attempt the checks refused (D-060): rust, like every refusal, under the checks line. */
+.score-refused {
+  margin-top: -4px;
+  font: 10px ui-monospace, Consolas, monospace;
   color: var(--rust-text);
 }
 

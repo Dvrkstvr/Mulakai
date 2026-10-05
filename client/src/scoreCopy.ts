@@ -1,8 +1,9 @@
-/** Every line the SCORE verb says (pipeline/design/score-verb.html, DESIGN.md "Action dock ›
- * SCORE"). Pure. Tempo "follows"; harmony and style are "a request to YuE2, not a guarantee". */
+/** Every line the SCORE verb says (pipeline/design/score-verb.html, DESIGN.md "Action dock › SCORE").
+ * Pure. Tempo "follows"; harmony, style and a phrase's instrument are "a request to YuE2, not a guarantee". */
 import type { ScoreChord, ScoreOp, ScorePlan, ScoreReading, ScoreRenderVersion } from './api';
 import { fmtElapsed, fmtProgress, stageDetail } from './genProgress';
 import { queueSuffix, startsAfter } from './queueCopy';
+import { MAX_ATTEMPTS } from './scoreAttemptCopy';
 import type { ScorePhase } from './scoreVerbTypes';
 
 export const REQUEST_PLACEHOLDER = 'Describe the change, e.g. jazz chords in the chorus, 88 BPM';
@@ -19,10 +20,10 @@ export const STALE_TAIL = 'Nothing was started.';
 export const RENDER_FAILED_TITLE = 'RENDER FAILED';
 export const RENDER_FAILED_TAIL = 'nothing saved, the base is unchanged';
 export const APPLY_OFF = 'a plan must pass every check first';
-const LIMIT_SECONDS = 360;
-const WARN_SECONDS = 330;
-const TOKEN_LIMIT = 4096;
-const MAX_ATTEMPTS = 3;
+export { checksSegments, refusedLines, type Segment } from './scoreAttemptCopy';
+const REQUEST = 'a request to YuE2, not a guarantee';
+/** Ends an ACE-Step edit's consequence line while SCORE is open (F-027, D-030; scoreEnds.ts). */
+export const SCORE_ENDS = 'score editing ends after this edit, SCORE will be off for this song';
 
 const n = (v: number) => Math.round(v).toLocaleString('en-US');
 const bars = (from: number, to: number) => (from === to ? `bar ${from}` : `bars ${from}–${to}`);
@@ -52,17 +53,30 @@ function styleDiff(before: string | null, after: string): string {
 }
 
 export interface OpRow { ok: boolean; name: string; detail: string; tag: 'follows' | 'a request'; reason: string | null }
+type Phrase = Extract<ScoreOp, { op: 'WRITE_PHRASE' }>;
+const phraseBars = (op: Phrase) => bars(op.start_bar, op.start_bar + op.bars.length - 1);
+const names = (style: string | null, what: string) => (style ?? '').toLowerCase().includes(what.toLowerCase());
 
-function opRow(op: ScoreOp, baseStyle: string | null, fromBpm: number | null): Omit<OpRow, 'ok' | 'reason'> {
+/** "sax · bars 57–60 · 4 bars · style + sax": yue-server appends the instrument once, after the ops, to `before`. */
+function phraseDetail(op: Phrase, before: string | null, after: string): string {
+  const added = !names(before, op.instrument) && names(after, op.instrument) ? ` · style + ${op.instrument}` : '';
+  return `${op.instrument} · ${phraseBars(op)} · ${op.bars.length} bar${op.bars.length === 1 ? '' : 's'}${added}`;
+}
+
+function opRow(op: ScoreOp, plan: ScorePlan, baseStyle: string | null, fromBpm: number | null): Omit<OpRow, 'ok' | 'reason'> {
   if (op.op === 'SET_TEMPO') return { name: 'SET TEMPO', detail: `${fromBpm ?? '?'} → ${op.bpm} BPM · whole song`, tag: 'follows' };
   if (op.op === 'REHARMONIZE') {
     return { name: 'REHARMONIZE', detail: `${bars(op.from_bar, op.to_bar)} · ${op.chords.map(chordName).join(' ')}`, tag: 'a request' };
+  }
+  if (op.op === 'WRITE_PHRASE') {
+    const edited = [...plan.ops].reverse().find((o) => o.op === 'EDIT_STYLE');
+    return { name: 'WRITE PHRASE', detail: phraseDetail(op, edited?.op === 'EDIT_STYLE' ? edited.style : baseStyle, plan.style), tag: 'a request' };
   }
   return { name: 'EDIT STYLE', detail: styleDiff(baseStyle, op.style), tag: 'a request' };
 }
 
 export const opRows = (plan: ScorePlan, baseStyle: string | null, fromBpm: number | null): OpRow[] =>
-  plan.ops.map((op, i) => ({ ok: plan.verdicts[i]?.ok !== false, ...opRow(op, baseStyle, fromBpm), reason: plan.verdicts[i]?.reason ?? null }));
+  plan.ops.map((op, i) => ({ ok: plan.verdicts[i]?.ok !== false, ...opRow(op, plan, baseStyle, fromBpm), reason: plan.verdicts[i]?.reason ?? null }));
 
 /** A rejected op stays in the list with its reason, never dropped. */
 export const rowDetail = (r: OpRow) => (r.ok || !r.reason ? r.detail : `${r.detail} · rejected: ${r.reason}`);
@@ -70,31 +84,22 @@ export const rowDetail = (r: OpRow) => (r.ok || !r.reason ? r.detail : `${r.deta
 export const planHeader = (plan: ScorePlan, baseVersion: number | null | undefined) =>
   `PLAN · ${plan.ops.length} CHANGE${plan.ops.length === 1 ? '' : 'S'}${baseVersion ? ` · AGAINST BASE v${baseVersion}` : ''}`;
 
-export interface Segment { text: string; warn: boolean }
-
-/** The one checks line; a segment past its limit (330 s and up, over 4,096 tokens) turns rust. */
-export function checksSegments(c: ScorePlan['checks'], attempts: number): Segment[] {
-  const out: Segment[] = [{ text: `${c.bars} bars`, warn: false }];
-  if (c.seconds !== null) out.push({ text: `est ${n(c.seconds)} s of ${LIMIT_SECONDS} s`, warn: c.seconds > WARN_SECONDS });
-  if (c.tokens !== null) out.push({ text: `${n(c.tokens)} of ${n(TOKEN_LIMIT)} tokens`, warn: c.tokens > TOKEN_LIMIT });
-  if (c.chordsPresent !== null) out.push({ text: c.chordsPresent ? 'chords valid' : 'chords invalid', warn: !c.chordsPresent });
-  out.push({ text: `attempt ${attempts} of ${MAX_ATTEMPTS}`, warn: false });
-  return out;
-}
-
 /** "Saves base v3 · re-renders the whole song on YuE2, about 3 min · every bar will sound different
  * · tempo follows 88 BPM · harmony in bars 17–24 is a request to YuE2, not a guarantee · v2 stays in VERSIONS". */
 export function consequenceLine(plan: ScorePlan, v: { baseVersion?: number | null; versions?: number }, ahead: number): string {
   const next = (v.versions ?? 0) + 1;
   const length = plan.checks.seconds === null ? '' : `, about ${Math.max(1, Math.round(plan.checks.seconds / 60))} min`;
   const parts = [`Saves base v${next}`, `re-renders the whole song on YuE2${length}`, 'every bar will sound different'];
-  const requests: string[] = [];
+  const requests: string[] = [], phrases: string[] = [];
   for (const op of plan.ops) {
     if (op.op === 'SET_TEMPO') parts.push(`tempo follows ${op.bpm} BPM`);
     if (op.op === 'REHARMONIZE') requests.push(`harmony in ${bars(op.from_bar, op.to_bar)}`);
     if (op.op === 'EDIT_STYLE' && !requests.includes('the style change')) requests.push('the style change');
+    if (op.op === 'WRITE_PHRASE') phrases.push(`the ${op.instrument} phrase replaces the instrument part in ${phraseBars(op)} and is ${REQUEST}`);
   }
-  if (requests.length) parts.push(`${requests.join(' and ')} ${requests.length === 1 ? 'is' : 'are'} a request to YuE2, not a guarantee`);
+  const listed = requests.length > 1 ? `${requests.slice(0, -1).join(', ')} and ${requests.at(-1)}` : requests[0];
+  if (listed) parts.push(`${listed} ${requests.length === 1 ? 'is' : 'are'} ${REQUEST}`);
+  parts.push(...phrases);
   if (v.baseVersion) parts.push(`v${v.baseVersion} stays in VERSIONS`);
   return parts.join(' · ') + queueSuffix(ahead);
 }

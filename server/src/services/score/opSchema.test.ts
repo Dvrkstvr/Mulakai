@@ -32,14 +32,29 @@ describe('buildOpSchema (F-019 #1)', () => {
     expect(opSchema(buildOpSchema(facts({ bars: 120 })), 'REHARMONIZE').properties.to_bar.maximum).toBe(120);
   });
 
-  it('allows 1-6 ops, SET_TEMPO 40-240, only the three M0 ops, nothing extra', () => {
+  it('allows 1-6 ops, SET_TEMPO 40-240, the M0 ops and WRITE_PHRASE, nothing extra', () => {
     const s = buildOpSchema(facts()) as Schema & { additionalProperties: boolean; required: string[] };
     expect(s.additionalProperties).toBe(false);
     expect(s.required).toEqual(['ops']);
     expect(s.properties.ops).toMatchObject({ minItems: 1, maxItems: 6 });
-    expect(s.properties.ops.items.anyOf.map((o) => o.properties.op.const)).toEqual(['SET_TEMPO', 'REHARMONIZE', 'EDIT_STYLE']);
+    expect(s.properties.ops.items.anyOf.map((o) => o.properties.op.const)).toEqual(['SET_TEMPO', 'REHARMONIZE', 'EDIT_STYLE', 'WRITE_PHRASE']);
     expect(opSchema(s, 'SET_TEMPO').properties.bpm).toMatchObject({ minimum: 40, maximum: 240 });
     for (const o of s.properties.ops.items.anyOf) expect(o.additionalProperties).toBe(false);
+  });
+});
+
+describe('buildOpSchema: WRITE_PHRASE (F-026 #1)', () => {
+  it('takes N bars from the request (default 4) and bounds start_bar by the song', () => {
+    const four = opSchema(buildOpSchema(facts()), 'WRITE_PHRASE');
+    expect(four.properties.bars).toMatchObject({ minItems: 4, maxItems: 4 });
+    expect(four.properties.start_bar).toMatchObject({ minimum: 1, maximum: 62 });
+    expect(opSchema(buildOpSchema(facts(), 2), 'WRITE_PHRASE').properties.bars).toMatchObject({ minItems: 2, maxItems: 2 });
+  });
+
+  it('accepts no string where a note goes', () => {
+    const json = JSON.stringify(opSchema(buildOpSchema(facts()), 'WRITE_PHRASE').properties.bars);
+    expect(json).not.toMatch(/"type":"string","minLength/);
+    expect(json).toContain('"required":["pitch","beats"]');
   });
 });
 
@@ -55,6 +70,15 @@ describe('checkOps', () => {
   it('accepts a valid op list', () => {
     const ops = [{ op: 'SET_TEMPO', bpm: 88 }, { op: 'REHARMONIZE', from_bar: 47, to_bar: 47, chords: [{ bar: 47, beat: 1, root: 'D', quality: 'm7' }] }];
     expect(checkOps({ ops }, facts())).toEqual({ ok: true, ops });
+  });
+
+  it('accepts a phrase of the requested length and names a wrong one', () => {
+    const bar = [{ pitch: 'D', beats: 2 }, { pitch: 'F', beats: 2 }];
+    const ops = [{ op: 'WRITE_PHRASE', start_bar: 57, instrument: 'tenor saxophone', bars: [bar, bar] }];
+    expect(checkOps({ ops }, facts(), 2)).toEqual({ ok: true, ops });
+    expect(checkOps({ ops }, facts())).toEqual({ ok: false, reasons: ['op 1 (WRITE_PHRASE): the phrase has 2 bars; the request asks for 4'] });
+    const abc = [{ op: 'WRITE_PHRASE', start_bar: 57, instrument: 'sax', bars: ['D4F4|', 'A8|'] }];
+    expect(checkOps({ ops: abc }, facts(), 2)).toEqual({ ok: false, reasons: ['op 1 (WRITE_PHRASE): bars are arrays of {pitch, beats} notes; ABC strings are not accepted'] });
   });
 
   it('rejects bar 999 with a per-op reason naming the bounds (F-019 #3)', () => {
@@ -77,7 +101,7 @@ describe('checkOps', () => {
       'op 1 (REHARMONIZE): to_bar 8 is before from_bar 10',
       'op 1 (REHARMONIZE): chord beat 5 is past the bar (beats 1-4)',
       'op 1 (REHARMONIZE): chord root H is not one of the 17 roots',
-      'op 2 (TRANSPOSE): not an op this editor knows (SET_TEMPO, REHARMONIZE, EDIT_STYLE)',
+      'op 2 (TRANSPOSE): not an op this editor knows (SET_TEMPO, REHARMONIZE, EDIT_STYLE, WRITE_PHRASE)',
       'op 3 (SET_TEMPO): bpm 400 is outside 40-240',
     ]);
     expect(checkOps('nope', facts())).toEqual({ ok: false, reasons: ['the reply is not a JSON object {"ops":[...]}'] });

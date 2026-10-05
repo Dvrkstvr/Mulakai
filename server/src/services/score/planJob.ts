@@ -15,6 +15,7 @@ import { buildOpSchema } from './opSchema.js';
 import { MAX_ATTEMPTS, planAttempts, type AttemptsOutcome } from './planAttempts.js';
 import { askPlanner } from './plannerClient.js';
 import { planMessages, promptChars } from './plannerPrompt.js';
+import { phraseBarsOf } from './phraseRequest.js';
 import { dropPlan, noteRun, setPlan } from './planStore.js';
 import type { ApplyResult, ChatMessage, Op, PlanCause, PlannerReply, ScoreFacts } from './planTypes.js';
 import { withLimits } from './scoreLimits.js';
@@ -75,7 +76,8 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
     const messages = planMessages(facts, style, request);
     const pre = contextPreflight({ promptChars: promptChars(messages), contextLength: await contextOf() });
     if (pre) throw new PlanError('check', pre);
-    const schema = buildOpSchema(facts);
+    const phraseBars = phraseBarsOf(request);
+    const schema = buildOpSchema(facts, phraseBars);
     outcome = await planAttempts(facts, messages, {
       ask: async (msgs) => {
         if (wasAborted(job)) throw new PlanError('cancelled', 'Aborted');
@@ -86,7 +88,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
       },
       apply: async (ops) => withLimits(await deps.apply(abc, style, ops)),
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
-    });
+    }, { phraseBars });
   } finally {
     job.progressText = 'unloading the planner';
     await deps.release();
@@ -99,7 +101,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
     id: planId, songId, baseVersionId: activeVersionId, fingerprint: source.fingerprint, request,
     ops: outcome.ops, verdicts: applied.verdicts, abc: applied.abc, style: applied.style,
     checks: { bars: facts.header.bars, seconds: applied.seconds, tokens: applied.tokens, chordsPresent: applied.chords_present, changed: applied.changed },
-    attempts: outcome.attempts, createdAt: Date.now(),
+    attempts: outcome.attempts, refusals: outcome.refusals, createdAt: Date.now(),
   });
   noteRun(songId, { jobId: job.id, request, reasons: [], planId, cause: null });
   job.progressText = undefined;

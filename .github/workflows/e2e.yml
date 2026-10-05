@@ -1,4 +1,6 @@
-# Playwright golden path against the fake ACE-Step — see PLAN.md "Playwright Golden-Path E2E".
+# Playwright golden path against the fake ACE-Step — see PLAN.md "Playwright Golden-Path E2E" —
+# plus the SCORE spec (F-028) against a fake Ollama and a fake yue-server, on its own server with
+# LLM_API_URL set (e2e/playwright.config.ts, project `score`). The fakes are Node; no Python here.
 name: E2E
 
 on:
@@ -55,7 +57,7 @@ jobs:
         working-directory: e2e
         run: npm run typecheck
 
-      - name: Run golden path
+      - name: Run golden path and SCORE spec
         working-directory: e2e
         run: npm run test:e2e
 
