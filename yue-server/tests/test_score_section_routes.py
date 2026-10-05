@@ -33,6 +33,9 @@ CONTRACT = [
     ("apply-rewrite-lyrics-wrong-block", CHORDS, LYRICS_2C, [{**REWRITE, "block": 3}]),
     ("apply-rewrite-lyrics-line-count", CHORDS, LYRICS_2C, [{**REWRITE, "lines": NEW[:3]}]),
     ("apply-rewrite-lyrics-tag", CHORDS, LYRICS_2C, [{**REWRITE, "lines": ["[Chorus]", *NEW[1:]]}]),
+    # The server's cut hint (F-030 #2): a repeated verse at 66 BPM passes 360 s; cutting the outro fits.
+    ("apply-repeat-over-limit", CHORDS, LYRICS_2C, [{"op": "SET_TEMPO", "bpm": 66},
+                                                     {"op": "REPEAT", "section": 2, "label": "verse"}]),
 ]
 
 
@@ -46,6 +49,14 @@ def test_contract_replies(name, abc, lyrics, ops, make_client, record_contract):
     reply = make_client().post("/v1/scores/apply", json=request)
     assert reply.status_code == 200
     check_contract(record_contract, name, "/v1/scores/apply", request, reply)
+
+
+def test_contract_read_of_the_section_song(make_client, record_contract):
+    """The facts the server's planner tests plan against: CHORDS with LYRICS_2C's seven blocks."""
+    request = {"abc": CHORDS, "lyrics": LYRICS_2C}
+    reply = make_client().post("/v1/scores/read", json=request)
+    assert reply.status_code == 200 and len(reply.json()["facts"]["lyric_blocks"]) == 7
+    check_contract(record_contract, "read-sections", "/v1/scores/read", request, reply)
 
 
 def test_a_repeat_returns_the_lyrics_and_seconds_per_section(make_client):
