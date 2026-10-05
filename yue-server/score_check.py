@@ -3,9 +3,10 @@ own ok/error text), the per-bar unit sums of every bar that does not fill its
 meter (upstream stops at the first, often with "event after the measure
 end", and SP-2 measured that retries only work with numbers), and an edit's
 checks: upstream compare (melody and bar grid unchanged, tempo only for
-SET_TEMPO; the Vocal only when a WRITE_PHRASE rewrote Ins bars), Q: as
+SET_TEMPO; the Vocal only when a WRITE_PHRASE rewrote Ins bars; after a
+TRANSPOSE against the old score moved by n, K: names included), Q: as
 asked, no chord changed outside the REHARMONIZE bars (compare does not look
-at chords), each REHARMONIZE moves at least one root per 2 bars
+at chords; chords compare by pitch class), each REHARMONIZE moves at least one root per 2 bars
 (score_roots.py, D-055), and, only once all of that holds (SP-2's order),
 each WRITE_PHRASE's sanity gates (score_phrase_gates.py).
 """
@@ -21,6 +22,7 @@ from score_bars import bars_text
 from score_model import Doc
 from score_phrase_gates import phrase_gates, seam_kept
 from score_roots import kept_roots
+from score_transpose import chord_class, shifted
 
 
 def _units(body: str) -> int | None:
@@ -90,7 +92,7 @@ def _chords_per_bar(score) -> dict[int, list]:
     starts = [start for start, _, _ in score.voices["Vocal"].bars]
     out: dict[int, list] = {}
     for onset, chord in score.voices["Vocal"].chords:
-        out.setdefault(bisect_right(starts, onset), []).append((onset, chord))
+        out.setdefault(bisect_right(starts, onset), []).append((onset, chord_class(chord)))
     return out
 
 
@@ -106,10 +108,15 @@ def check_edit(before_abc: str, after_abc: str, ops: list[dict]) -> dict:
     tempos = [op["bpm"] for op in ops if op["op"] == "SET_TEMPO"]
     phrases = [op for op in ops if op["op"] == "WRITE_PHRASE"]
     voices = ("Vocal",) if phrases else VOICES
+    shifts = [op["semitones"] for op in ops if op["op"] == "TRANSPOSE"]
+    before = shifted(before, shifts[0]) if shifts else before  # what every check below expects
     differences = compare(before, after, voices, allow_tempo_change=bool(tempos))["differences"]
     problems = []
     if tempos and after.bpm != tempos[-1]:
         problems.append(f"Q: is {after.bpm}, expected {tempos[-1]}")
+    if shifts and after.voices["Vocal"].keys != before.voices["Vocal"].keys:
+        named = [", ".join(k for _, k in s.voices["Vocal"].keys) for s in (after, before)]
+        problems.append(f"TRANSPOSE {shifts[0]:+d}: the K: lines name {named[0]}, expected {named[1]}")
     window = {n for op in ops if op["op"] == "REHARMONIZE" for n in range(op["from_bar"], op["to_bar"] + 1)}
     old, new = _chords_per_bar(before), _chords_per_bar(after)
     stray = sorted(n for n in old.keys() | new.keys() if n not in window and old.get(n) != new.get(n))

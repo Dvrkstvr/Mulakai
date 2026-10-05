@@ -5,7 +5,8 @@ a plan's ops and check the result. Neither touches the pipeline's GPU path:
 the only worker call is the tokenizer (under its lock, D-042), and tokens
 are null until the worker has loaded. Tokens are counted with chord symbols
 kept, as a `cot: full` render sends the score (unlike /v1/scores/measure).
-WRITE_PHRASE's contract (op shape, refusals) is in README "Score routes".
+WRITE_PHRASE's and TRANSPOSE's contracts (op shape, refusals) are in the
+README's API section.
 """
 from __future__ import annotations
 
@@ -82,7 +83,12 @@ class WritePhrase(Strict):
         return value
 
 
-Op = Annotated[Union[SetTempo, Reharmonize, EditStyle, WritePhrase,
+class Transpose(Strict):
+    op: Literal["TRANSPOSE"]
+    semitones: int = Field(ge=-11, le=11)  # 0 is a verdict refusal, not a shape error
+
+
+Op = Annotated[Union[SetTempo, Reharmonize, EditStyle, WritePhrase, Transpose,
                      Repeat, Cut, RewriteLyrics], Field(discriminator="op")]
 
 
@@ -124,7 +130,7 @@ def add_score_edit_routes(app: FastAPI, worker, authorize) -> None:
         ops = [op.model_dump(exclude_none=True) for op in request.ops]
         out = apply_plan(request.abc, request.style, request.lyrics, ops)
         checks = check_plan(request.abc, out, ops)
-        out.pop("mid")
+        out.pop("mid"), out.pop("sectioned")
         after = _parsed(out["abc"])
         return {"ok": checks["ok"] and all(v["ok"] for v in out["verdicts"]), **out, "checks": checks,
                 "changed": {"abc": out["abc"] != request.abc, "style": out["style"] != request.style,
