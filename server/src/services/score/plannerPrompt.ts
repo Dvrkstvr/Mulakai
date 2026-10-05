@@ -9,8 +9,9 @@ import type { ChatMessage, ScoreFacts } from './planTypes.js';
 export function planMessages(facts: ScoreFacts, style: string, request: string): ChatMessage[] {
   const h = facts.header;
   const sections = facts.sections.map((s) => `S${s.index} ${s.label}: bars ${s.from_bar}-${s.to_bar}`).join('\n');
-  const blocks = facts.lyric_blocks.map((b) => `${b.index}: ${b.tag} (occurrence ${b.occurrence} of this tag, ${b.lines} lines)`
-    + (b.first_line ? ` first line: ${b.first_line}` : '')).join('\n');
+  // "[Chorus] #2" with its number, so "the second chorus" resolves to one block (F-031 #2).
+  const blocks = facts.lyric_blocks.map((b) => `${b.index}: ${b.tag} #${b.occurrence}, ${b.lines} lines`
+    + (b.first_line ? `, first line: ${b.first_line}` : '')).join('\n');
   const user = [
     `HEADER: M:${h.meter} L:${h.unit} Q:1/4=${h.bpm} K:${h.key}; ${h.bars} bars, about ${Math.round(h.seconds)} s (the hard limit is 360 s)`,
     `KEY NOTES (${h.key}; the key signature already applies the sharps/flats): ${facts.key_notes}`,
@@ -18,7 +19,7 @@ export function planMessages(facts: ScoreFacts, style: string, request: string):
     '',
     `SECTIONS:\n${sections || '(none marked)'}`,
     '',
-    `LYRIC BLOCKS:\n${blocks || '(none)'}`,
+    `LYRIC BLOCKS (block: tag #occurrence):\n${blocks || '(none)'}`,
     '',
     `BAR MAP (bar: chords@beat | vocal | number of Ins notes):\n${facts.bar_map.join('\n')}`,
     '',

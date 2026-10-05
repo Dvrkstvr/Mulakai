@@ -1,5 +1,6 @@
-/** Types for the score planner (F-019, F-026): the M0 ops and WRITE_PHRASE, yue-server's facts and apply reply, and a
- * pending plan. Wire shapes keep yue-server's snake_case (yue-server/score_edit_routes.py). */
+/** Types for the score planner (F-019, F-026, F-029..F-031): the M0 ops, WRITE_PHRASE and the M2 section ops,
+ * yue-server's facts and apply reply, and a pending plan. Wire shapes keep yue-server's snake_case
+ * (yue-server/score_edit_routes.py, score_section_models.py). */
 
 export const ROOTS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'] as const;
 /** Upstream abc_tools' 15 native qualities; its major ("") is spelled `maj` in the op schema. */
@@ -17,7 +18,12 @@ export type Op =
   | { op: 'SET_TEMPO'; bpm: number }
   | { op: 'REHARMONIZE'; from_bar: number; to_bar: number; chords: ChordOp[] }
   | { op: 'EDIT_STYLE'; style: string }
-  | { op: 'WRITE_PHRASE'; start_bar: number; instrument: string; bars: PhraseNote[][] };
+  | { op: 'WRITE_PHRASE'; start_bar: number; instrument: string; bars: PhraseNote[][] }
+  | { op: 'TRANSPOSE'; semitones: number }
+  /** `section` is the read's S<n> (facts.sections[].index), `label` its label as a cross-check. */
+  | { op: 'REPEAT' | 'CUT'; section: number; label: string }
+  /** `block` is facts.lyric_blocks[].index; `tag` + `occurrence` the cross-check; same line count, no tags. */
+  | { op: 'REWRITE_LYRICS'; block: number; tag: string; occurrence: number; lines: string[] };
 
 export interface ScoreSection { index: number; label: string; from_bar: number; to_bar: number }
 
@@ -32,16 +38,27 @@ export interface ScoreFacts {
   bar_map: string[];
 }
 
-export interface OpVerdict { index: number; op: string; ok: boolean; reason: string | null }
+/** REWRITE_LYRICS's verdict detail: the block it changed and its lines before and after (F-031 #1). */
+export interface LyricDiff { block: number; tag: string; occurrence: number; old: string[]; new: string[] }
+
+/** `note`: what a section op did with the lyrics (the unmatched-block rule, F-030 #3); `diff`: REWRITE_LYRICS's. */
+export interface OpVerdict { index: number; op: string; ok: boolean; reason: string | null; note?: string | null; diff?: LyricDiff | null }
+
+/** A section of the edited score with its length as YuE2 plays it (edited numbering, D-066 g). */
+export interface AppliedSection extends ScoreSection { seconds: number }
 
 /** POST /v1/scores/apply's reply. */
 export interface ApplyResult {
   ok: boolean;
   abc: string;
   style: string;
+  /** The edited lyrics; exactly the request's when no op changed them; null when none were sent. */
+  lyrics?: string | null;
   verdicts: OpVerdict[];
   checks: { ok: boolean; problems: string[]; differences: string[] };
-  changed: { abc: boolean; style: boolean };
+  changed: { abc: boolean; style: boolean; lyrics?: boolean };
+  /** Null when the edited score does not parse. */
+  sections?: AppliedSection[] | null;
   chords_present: boolean | null;
   bpm: number | null;
   seconds: number | null;
@@ -65,6 +82,8 @@ export interface Plan {
   verdicts: OpVerdict[];
   abc: string;
   style: string;
+  /** The edited lyrics the render sends; null/absent = the base version's stored lyrics. */
+  lyrics?: string | null;
   checks: { bars: number; seconds: number | null; tokens: number | null; chordsPresent: boolean | null; changed: ApplyResult['changed'] };
   attempts: number;
   /** Each earlier refused attempt's reasons (planAttempts), shown in the review (D-060). */

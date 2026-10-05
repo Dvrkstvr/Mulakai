@@ -31,17 +31,17 @@ CONTRACT = [
     ("read-ok", "/v1/scores/read", {"abc": CHORDS, "lyrics": LYRICS}),
     ("read-invalid-sidecar", "/v1/scores/read", {"abc": BROKEN}),
     ("read-overfull-bar", "/v1/scores/read", {"abc": OVERFULL}),
-    ("apply-set-tempo", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [TEMPO]}),
-    ("apply-reharmonize", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [REHARM]}),
-    ("apply-edit-style", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [STYLE_OP]}),
-    ("apply-compound", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [TEMPO, CHORUS, STYLE_OP]}),
-    ("apply-bar-out-of-range", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [
+    ("apply-set-tempo", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [TEMPO]}),
+    ("apply-reharmonize", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [REHARM]}),
+    ("apply-edit-style", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [STYLE_OP]}),
+    ("apply-compound", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [TEMPO, CHORUS, STYLE_OP]}),
+    ("apply-bar-out-of-range", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [
         TEMPO, {**REHARM, "from_bar": 999, "to_bar": 999, "chords": [{**REHARM["chords"][0], "bar": 999}]}]}),
-    ("apply-reharmonize-same-roots", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [RECOLOURED]}),
-    ("apply-slow-cover", "/v1/scores/apply", {"abc": library("2a8cc1ca"), "style": "rock, 145 bpm", "ops": [TEMPO]}),
+    ("apply-reharmonize-same-roots", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [RECOLOURED]}),
+    ("apply-slow-cover", "/v1/scores/apply", {"abc": library("2a8cc1ca"), "style": "rock, 145 bpm", "lyrics": LYRICS, "ops": [TEMPO]}),
     # The e2e (F-028): a plan over 360 s (the slowest tempo the op schema allows), and the read of
     # the score a compound render saves, which the dock asks for once the new version is active.
-    ("apply-set-tempo-over-limit", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [{"op": "SET_TEMPO", "bpm": 40}]}),
+    ("apply-set-tempo-over-limit", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [{"op": "SET_TEMPO", "bpm": 40}]}),
     ("read-after-compound", "/v1/scores/read",
      {"abc": apply_ops(CHORDS, STYLE, [TEMPO, CHORUS, STYLE_OP])["abc"], "lyrics": LYRICS}),
 ]

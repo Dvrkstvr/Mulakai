@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { contract } from '../../../test-fakes/fakeYue.js';
 import { planMessages, retryMessages } from './plannerPrompt.js';
 import { PLANNER_RULES } from './plannerRules.js';
 import type { ScoreFacts } from './planTypes.js';
@@ -31,7 +32,7 @@ describe('planMessages', () => {
     expect(user.content).toContain('KEY NOTES (Dm; the key signature already applies the sharps/flats): D E F G A Bb C');
     expect(user.content).toContain('STYLE: dark pop, 90 bpm');
     expect(user.content).toContain('S2 chorus: bars 47-65');
-    expect(user.content).toContain('1: [Verse] (occurrence 1 of this tag, 2 lines) first line: walking out');
+    expect(user.content).toContain('LYRIC BLOCKS (block: tag #occurrence):\n1: [Verse] #1, 2 lines, first line: walking out');
     expect(user.content).toContain('2: Dm@1 A7@3 | V:sung | I:4');
     expect(user.content).toContain('REQUEST: jazz chords in the chorus');
     expect(user.content).not.toContain('X:1');
@@ -55,6 +56,30 @@ describe('WRITE_PHRASE in the prompt (F-026, SP-2 notes format)', () => {
     expect(ask.content).toContain('PHRASE LENGTH: a WRITE_PHRASE op has exactly 2 bars');
     expect(ask.content).toContain('FREE BARS (the Vocal rests 2 or more bars in a row; a phrase goes only here): none, no 2 bars in a row are free');
     expect(planMessages(facts, 's', 'a sax phrase')[1].content).toContain('PHRASE LENGTH: a WRITE_PHRASE op has exactly 4 bars');
+  });
+});
+
+describe('the M2 ops in the prompt (F-029..F-031)', () => {
+  it('gives the op reference for TRANSPOSE, REPEAT / CUT and REWRITE_LYRICS', () => {
+    expect(PLANNER_RULES).toContain('- TRANSPOSE {semitones}: move the whole song up (positive) or down (negative), -11..11 semitones, never 0');
+    expect(PLANNER_RULES).toContain('- REPEAT {section, label} / CUT {section, label}: play a whole section twice in a row / remove it. '
+      + 'section is its S number in SECTIONS');
+    expect(PLANNER_RULES).toContain('- REWRITE_LYRICS {block, tag, occurrence, lines}');
+    expect(PLANNER_RULES).toContain('lines: exactly as many lines as that block has');
+  });
+
+  it('never lets the planner write tags, and keeps every number as read, in the old key (D-064 a, D-066 b)', () => {
+    expect(PLANNER_RULES).toContain('Lyric tags such as [Chorus] are written by code: never put a tag in lines or in any other op.');
+    expect(PLANNER_RULES).toContain('Every number (bars, sections, blocks, chord and phrase pitches) means the song exactly as the BAR MAP, '
+      + 'SECTIONS, KEY NOTES and LYRIC BLOCKS show it now, in the old key, whatever the op order');
+  });
+
+  it('names each lyric block "[Chorus] #2" with its number, so "the second chorus" resolves (F-031 #2)', () => {
+    const song = contract('read-sections').response.body.facts as ScoreFacts;
+    const [, ask] = planMessages(song, 'dark pop', 'rewrite the second chorus about the sea');
+    expect(ask.content).toContain('3: [Chorus] #1, 4 lines, first line: chorus 3 line 1');
+    expect(ask.content).toContain('5: [Chorus] #2, 4 lines, first line: chorus 5 line 1');
+    expect(PLANNER_RULES).toContain('"the second chorus" is the block marked [Chorus] #2');
   });
 });
 

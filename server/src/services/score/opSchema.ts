@@ -1,12 +1,14 @@
 /** The planner's op contract (F-019 #1, SP-2 "The op schema"): a strict JSON schema built per
- * song (bars 1..N, beats 1..beats-per-bar) and per request (a WRITE_PHRASE has exactly the N bars
- * the request asks for, F-026) for `response_format`, and the same bounds checked on a reply,
- * one reason per op, so a retry can be told exactly what was wrong. Pure. */
+ * song (bars 1..N, beats 1..beats-per-bar, sections 1..N and blocks 1..B, sectionSchema.ts) and per
+ * request (a WRITE_PHRASE has exactly the N bars the request asks for, F-026) for `response_format`,
+ * and the same bounds checked on a reply, one reason per op, so a retry can be told exactly what was
+ * wrong. Pure. */
 import { phraseOpSchema, phraseProblems } from './phraseSchema.js';
 import { DEFAULT_PHRASE_BARS } from './phraseRequest.js';
+import { sectionOpProblems, sectionOpSchemas } from './sectionSchema.js';
 import { QUALITIES, ROOTS, type Op, type ScoreFacts } from './planTypes.js';
 
-const OP_NAMES = ['SET_TEMPO', 'REHARMONIZE', 'EDIT_STYLE', 'WRITE_PHRASE'] as const;
+const OP_NAMES = ['SET_TEMPO', 'REHARMONIZE', 'EDIT_STYLE', 'WRITE_PHRASE', 'TRANSPOSE', 'REPEAT', 'CUT', 'REWRITE_LYRICS'] as const;
 export const MAX_OPS = 6;
 const BPM = { min: 40, max: 240 };
 const STYLE_MAX = 1000;
@@ -49,6 +51,7 @@ export function buildOpSchema(facts: ScoreFacts, phraseBars = DEFAULT_PHRASE_BAR
           }),
           op('EDIT_STYLE', { style: { type: 'string', minLength: 1, maxLength: STYLE_MAX } }),
           phraseOpSchema(bars, phraseBars),
+          ...sectionOpSchemas(facts),
         ] },
       },
     },
@@ -63,6 +66,8 @@ const obj = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'o
 function opProblems(o: Record<string, unknown>, facts: ScoreFacts, phraseBars: number): string[] {
   const bars = facts.header.bars;
   if (o.op === 'WRITE_PHRASE') return phraseProblems(o, bars, phraseBars);
+  const sectionOp = sectionOpProblems(o, facts);
+  if (sectionOp) return sectionOp;
   const inScore = (field: string, v: unknown) => (isInt(v) && v >= 1 && v <= bars ? []
     : [`${field} ${String(v)} is outside the score (bars 1-${bars})`]);
   if (o.op === 'SET_TEMPO') {

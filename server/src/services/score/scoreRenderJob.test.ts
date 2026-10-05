@@ -88,6 +88,17 @@ describe('startScoreRender', () => {
     expect(getPlan(songId)).toBeUndefined();
   });
 
+  it("sends the plan's edited lyrics, not the stored ones, and the new version keeps them (F-030, F-031)", async () => {
+    const { songId, layerId, planId } = await seed();
+    const edited = `${LYRICS}\n[Chorus]\noh oh\n`;
+    setPlan({ ...getPlan(songId)!, lyrics: edited });
+    yue.job = { states: [{ status: 'succeeded', stage: 'done' }], score: EDITED };
+    await settled(startScoreRender(songId, planId, deps()).id);
+    expect(yue.submits()).toEqual([expect.objectContaining({ lyrics: edited })]);
+    const fresh = db.prepare(`SELECT params_json FROM versions WHERE layer_id = ? AND active = 1`).get(layerId) as { params_json: string };
+    expect(JSON.parse(fresh.params_json)).toMatchObject({ request: { lyrics: edited }, lyrics: edited });
+  });
+
   it('a truncated result is saved and marked, not done-as-usual (F-023 #4)', async () => {
     const { songId, layerId, planId } = await seed();
     yue.job = { states: [{ status: 'truncated', stage: 'done' }], score: EDITED };

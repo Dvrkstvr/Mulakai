@@ -6,7 +6,7 @@ from __future__ import annotations
 import pytest
 
 from contract import check_contract
-from score_fixtures import CHORDS, STYLE
+from score_fixtures import CHORDS, LYRICS, STYLE
 
 TEMPO = {"op": "SET_TEMPO", "bpm": 88}
 CHORUS = {"op": "REHARMONIZE", "from_bar": 47, "to_bar": 50, "chords": [
@@ -35,7 +35,7 @@ CONTRACT = [
 
 @pytest.mark.parametrize("name,ops", CONTRACT, ids=[c[0] for c in CONTRACT])
 def test_contract_replies(name, ops, make_client, record_contract):
-    body = {"abc": CHORDS, "style": STYLE, "ops": ops}
+    body = {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": ops}  # the server always sends the stored lyrics
     reply = make_client().post("/v1/scores/apply", json=body)
     assert reply.status_code == 200
     check_contract(record_contract, name, "/v1/scores/apply", body, reply)
