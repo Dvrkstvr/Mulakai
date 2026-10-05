@@ -8735,3 +8735,162 @@ with LOC estimates and tests is `pipeline/architecture.md` "Modules".
    generation, and the real queue in the loop, at the M0 live run.
 4. **Deferred**: the M2 referent and the M4 bar map placement (Q-029);
    A/B compare of two versions (Q-008).
+
+## Chat: Talk a Song Into Being (draft 2026-10-06, not signed off)
+
+**DRAFT for the owner's sign-off. It would amend the Grand Goal** (D-079,
+the owner's, 2026-10-05). Today the workflow is "generate, repaint, layer,
+version, export", with SCORE as the main edit path for YuE2 songs. With
+this section the **chat becomes the default way to create and edit a
+song**: describe one, or start from a reference song, get the first take,
+then improve it turn by turn in conversation with the local LLM. The
+Editor's verbs (REPAINT, ADD LAYER, SPLIT, EXPORT, SCORE) and Guided
+Create stay as the **scalpel** for precise work. The Grand Goal's
+non-goals stay: one user, local only, one song at a time, no DAW.
+
+Nothing here is built before two things land: the owner's answers to the
+open questions at the end, and **SP-4** (keep the unchanged parts of a song
+through an edit; `pipeline/spikes/SP-4-keep-unchanged/`, R-024). A chat
+that re-rolls the whole song on every turn does not converge, so how an
+edit turn renders is decided by SP-4's result (decision 6).
+
+What a person does:
+1. Opens Mulakai on **CHAT** and types "a slow Spanish ballad about the
+   sea, nylon guitar and a soft female voice", or drops an audio file or
+   picks a library song and types "like this, but in German and about
+   leaving".
+2. The assistant answers with a **proposal card**: title, style, tempo,
+   key, structure, the lyrics it wrote, the engine, and a consequence line
+   ("renders a new song on YuE2, about 3 min, nothing else changes"). The
+   person edits any field in the card or answers in the chat; nothing runs
+   until they press the card's commit (CREATE SONG).
+3. The first take appears in the thread as a **song card** (play,
+   waveform, version badge). "Bigger chorus, and slow it down a bit" gives
+   a new proposal card listing the changes (the SCORE change list), its
+   checks and its consequence line; APPLY makes a new version, shown in
+   the thread with an A/B switch against the one before.
+4. Any time: OPEN IN EDITOR for the scalpel. What is done there shows up
+   in the thread as a version card too, so the conversation keeps up.
+
+### Decisions (proposed; the ones marked **owner** need the owner's pick)
+
+1. **CHAT is the start screen; Create and Editor stay** (**owner**,
+   Q-054). Proposed: CHAT is the default route, and the Library's CONTINUE
+   row opens a song's thread. Guided Create stays reachable as FORM and the
+   Editor as OPEN IN EDITOR. Alternative: CHAT replaces Guided Create.
+2. **The LLM proposes, code acts, the person commits.** Each assistant
+   turn is one strict-JSON reply from a closed set, checked by code like
+   the SCORE planner (`docs/decisions/0001`): `ask` (one clarifying
+   question with choices, only when nothing can be proposed), `recipe` (a
+   new song), `edit` (SCORE ops, through the existing plan job), `scalpel`
+   (a REPAINT of a section with new words, an ADD LAYER, a SPLIT, an
+   EXPORT, through the existing jobs and their limits), `analyze` (read a
+   reference) and `say` (a plain answer, no action). Every action is a
+   proposal card with a consequence line and a commit button (DESIGN.md: a
+   consequence line before every generative or destructive commit).
+   Alternative: apply each turn as soon as it is planned (faster; breaks
+   the design rule and spends GPU minutes on misunderstandings).
+3. **Same local model, same GPU hand-off.** A chat turn is a `plan`-kind
+   job on `genQueue` under the SCORE planner's rules: `qwen3:14b` at 16k
+   context through Ollama, reasoning off, unloaded and `/api/ps` seen
+   empty before the slot is released (D-011). It never sits next to YuE2
+   or a loaded ACE-Step. A turn takes about 3-15 s (SP-2: plan p50 1.6 s
+   warm, cold load 2.5 s; M2: median 4.8 s); replies are not streamed in
+   C1. Alternative: a larger chat model (no room on 16 GB at 16k context;
+   revisit with SP-5's numbers).
+4. **One thread per song, kept** (**owner**). The thread lives in SQLite
+   (`chat_messages`: song, role, text, proposal JSON, the version it made),
+   survives reloads and is deleted with the song. Before the first take
+   the thread is a draft with no song; CREATE SONG attaches it. The LLM
+   does **not** see the whole transcript each turn (16k context): it sees
+   a song-state block built by code (yue-server's read facts: sections,
+   key, tempo, lyric blocks, style; the version list with labels), the
+   pending proposal if any, and the last few turns. Pending proposals stay
+   in memory like SCORE plans (`docs/decisions/0004`) and expire on
+   restart. Alternative: per-session memory only (lost on restart, against
+   "everything survives a reload").
+5. **The assistant writes lyrics; the score stays code's.** A `recipe`
+   carries lyrics with section tags and a structure; YuE2 writes the score
+   on the first take (its own planner, as today). The chat LLM never
+   writes ABC; edits go through SCORE's ops, which yue-server applies
+   (`docs/decisions/0002`). The language follows the request (the library
+   has German, Spanish and English songs).
+6. **How an edit turn renders depends on SP-4.** For a score-eligible
+   song:
+   - local edits (chords, a phrase, the words of one section): render,
+     then splice the changed bars into the current version, if SP-4
+     candidate A or B passes; the consequence line says "only bars 33-40
+     change";
+   - structure edits (repeat, cut): an audio-only edit with no render, if
+     candidate C passes;
+   - global edits (tempo, key, whole-song style): a whole-song re-render,
+     and the consequence line says so;
+   - if nothing passes: every edit re-renders the whole song, the card
+     says so, and the thread offers "keep the old take for these bars" as
+     an explicit splice the person listens to.
+   A song that is no longer score-eligible (it has ACE-Step edits) gets
+   `scalpel` proposals, or NEW SONG FROM THIS SCORE (M3, folded in here).
+7. **A reference song is analyzed, not copied** (**owner** for storage).
+   `analyze` runs what exists: lyrics-server's words, yue-server's
+   transcriber (audio to a score with melody and chords), and ACE-Step's
+   ANALYZE AUDIO (caption, tempo, key). The result is a reading card. The
+   assistant then proposes either a **cover** (YuE2 from the transcribed
+   score with new lyrics and style: the existing USE .ABC FILE path) or a
+   **fresh song** whose recipe borrows tempo, key, structure and
+   instrumentation words. The reference audio stays on this machine; the
+   person is responsible for its rights.
+8. **Every applied turn is a version.** The thread shows a version card
+   per applied turn (label = the turn's change list, as SCORE labels
+   today) with play, A/B against the previous version, and USE THIS
+   VERSION (activate). This pulls A/B compare (Q-008) into the chat.
+9. **The scalpel stays in step.** A repaint, layer or score edit made in
+   the Editor appends a version card to the thread ("you repainted the
+   bridge in the Editor"), so the next turn's song-state block is true.
+
+### Milestones (proposed)
+
+| | What a person can do when it is done |
+|---|---|
+| C0 (spikes) | SP-4's verdicts (edit rendering), and **SP-5 chat planner**: on about 40 scripted conversations, does `qwen3:14b` pick the right action, write usable lyrics and recipes, and ask only when it must? Same method as SP-2. |
+| C1 | The CHAT screen: describe a song, get a recipe card, edit it, CREATE SONG (YuE2 first take); the thread is kept with the song. |
+| C2 | Edit turns through SCORE (ops, checks, REVISE as a follow-up turn); version cards with A/B; rendering per decision 6. |
+| C3 | Reference songs: drop or pick, the reading card, cover or fresh-song proposals. |
+| C4 | Scalpel actions from the chat (repaint a section with new words, add a layer, split, export); Editor edits mirrored into the thread. |
+
+M3 (NEW SONG FROM THIS SCORE; chord-free, instrumental and cover scores)
+folds into C2 and C3. M4's bar map goes into the edit card; the Settings
+planner card and the Activity entries stay; the palette's "Edit score"
+becomes "Ask in chat".
+
+### Shape of the code (detailed at architecture)
+
+- Server: `server/src/services/chat/` beside `services/score/`: the thread
+  store (a `chat_messages` migration), the song-state block (from
+  `scoreSource` and yue-server's `/v1/scores/read`), the turn job (action
+  schema, prompt and attempts, reusing `plannerClient`, `ollamaControl`,
+  `contextGuard` and `planAttempts`), and an action dispatcher onto the
+  existing jobs (first take, cover, plan and render, repaint, add layer,
+  split). Routes in `routes/chat.ts`.
+- Client: a CHAT view with the thread, proposal cards (recipe, edit,
+  scalpel, reading) and song/version cards, reusing SCORE's change-list
+  rows and copy (`scoreCopy`, `scoreSectionCopy`). Design-first: a stage 5
+  mockup settles the layout and the cards before code.
+- yue-server: the splice or the audio-only structure edits, only if SP-4
+  passes; no change otherwise.
+- e2e: a chat spec against the fake Ollama with scripted turns, beside the
+  SCORE spec.
+
+### Open questions for the owner (Q-054)
+
+1. **CHAT replaces Guided Create, or sits beside it** (decision 1)?
+2. **Memory**: one kept thread per song (proposed), or per session?
+3. **Reference audio**: keep it with the song as its source, or delete it
+   after the analysis?
+4. **Ask or propose**: should the assistant mostly propose with stated
+   assumptions ("assuming the second chorus") and ask only when stuck
+   (proposed), or ask more before proposing?
+5. **Engine in the chat**: always YuE2 for first takes (D-015), with
+   ACE-Step only through the scalpel, or may the assistant propose
+   ACE-Step when a request fits it better?
+6. **Global edits** (tempo, key): accept a whole-song re-render, or spike
+   pitch-shift and time-stretch of the current take (SP-4's "later")?
