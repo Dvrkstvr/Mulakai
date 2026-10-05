@@ -6,11 +6,11 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
 - stage: 7 Build M0 — W0–W4 merged (#124–#128); verified 9/10; F-025: listen 1 heard chords 2/4 → D-055 fix (PR #129, CI green, held); chords-only listen 2 owed (pipeline/verify/M0/listen2/index.html, local)
-- clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-038) · decisions to D-054
+- clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-038) · decisions to D-055
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · owed: user listens (SP-3 A/B, SP-2 phrases)
 - milestone: M0 · features passing 15/39 (F-016..F-024 + existing 6) · owed: M0 chords-only listen 2; SP-2 phrase listen
-- autopilot: M0 · round 11/12 · progress 8·2/2·15·0 · stall 0 · waiting on user: chords-only listen 2, then merge #129
-- next: user listen 2 → (≥ 4/5 heard) F-025 passes → merge #129 → curate → M0 done
+- autopilot: stopped — round budget used (12/12); waiting on user: chords-only listen 2, then merge #129 and the curate PR (docs/m0-curate, local)
+- next: user listen 2 → (≥ 4/5 heard) F-025 passes → merge #129 + docs/m0-curate → M0 done; else tighten D-055 to the beat-1 chord
 
 ## Stages
 | # | Stage | State | Gate | Date |
@@ -22,7 +22,7 @@
 | 4 | Scope | done | 5/5 must; user signed off (D-026) | 2026-10-03 |
 | 5 | Design | done | 3/3 must; mockup signed off (D-032) | 2026-10-03 |
 | 6 | Architecture | done | 3/4 + context budget lands in W0 (D-046) | 2026-10-03 |
-| 7 | Build | active (M0: W0–W4 merged, verify 9/10, F-025 owed listen 2 after D-055) | — | — |
+| 7 | Build | active (M0: W0–W4 merged, verify 9/10, curate done d0bf84a, F-025 owed listen 2 after D-055) | — | — |
 | 8 | Review | done for code (M0: 0 blocking; 3 should fixed 43ecd71, fad8675, 0dcf7ae; nits → Q-038) | 2/2 must | 2026-10-05 |
 | 9 | Release | n/a (local single-user app) | — | — |
 
