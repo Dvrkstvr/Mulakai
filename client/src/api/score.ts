@@ -19,10 +19,14 @@ export interface ScoreStatusView {
 
 export interface ScoreChord { bar: number; beat: number; root: string; quality: string; bass?: string }
 
+/** One WRITE_PHRASE note: an ABC pitch (or z for a rest) and its length in quarter-note beats. */
+export interface ScorePhraseNote { pitch: string; beats: number }
+
 export type ScoreOp =
   | { op: 'SET_TEMPO'; bpm: number }
   | { op: 'REHARMONIZE'; from_bar: number; to_bar: number; chords: ScoreChord[] }
-  | { op: 'EDIT_STYLE'; style: string };
+  | { op: 'EDIT_STYLE'; style: string }
+  | { op: 'WRITE_PHRASE'; start_bar: number; instrument: string; bars: ScorePhraseNote[][] };
 
 export interface ScoreOpVerdict { index: number; op: string; ok: boolean; reason: string | null }
 

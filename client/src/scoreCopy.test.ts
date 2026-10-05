@@ -1,7 +1,7 @@
 /** SCORE's copy (design/score-verb.html; F-021 #2, #3, F-022 #1, F-024 #1). */
 import { describe, it, expect } from 'vitest';
 import {
-  checksSegments, consequenceLine, jobLine, offlineLines, opRows, planHeader, readingLine, chordName, ASKING_CONSEQUENCE,
+  checksSegments, consequenceLine, jobLine, offlineLines, opRows, planHeader, readingLine, rowDetail, chordName, ASKING_CONSEQUENCE,
 } from './scoreCopy';
 import type { ScoreOp, ScorePlan } from './api';
 
@@ -15,6 +15,8 @@ const REHARM: ScoreOp = { op: 'REHARMONIZE', from_bar: 17, to_bar: 24, chords: [
   { bar: 17, beat: 1, root: 'A', quality: 'm7' }, { bar: 19, beat: 1, root: 'D', quality: '7' },
   { bar: 21, beat: 1, root: 'G', quality: 'maj7' }, { bar: 23, beat: 1, root: 'C', quality: 'maj', bass: 'E' }] };
 const STYLE: ScoreOp = { op: 'EDIT_STYLE', style: 'pop, jazz, 87 bpm' };
+const BAR = [{ pitch: 'D', beats: 2 }, { pitch: 'F', beats: 2 }];
+const PHRASE: ScoreOp = { op: 'WRITE_PHRASE', start_bar: 57, instrument: 'tenor saxophone', bars: [BAR, BAR, BAR, BAR] };
 const versions = { baseVersion: 2, versions: 2 };
 
 describe('consequence line, composed from the plan (F-021 #3, D-031)', () => {
@@ -32,6 +34,13 @@ describe('consequence line, composed from the plan (F-021 #3, D-031)', () => {
     expect(consequenceLine(plan([STYLE]), versions, 0)).toContain('the style change is a request to YuE2, not a guarantee');
   });
 
+  it('WRITE PHRASE names the instrument and its bars as a request, not a guarantee (F-026 #2, D-031 wording)', () => {
+    expect(consequenceLine(plan([PHRASE]), versions, 0)).toBe('Saves base v3 · re-renders the whole song on YuE2, about 3 min · '
+      + 'every bar will sound different · the tenor saxophone phrase in bars 57–60 is a request to YuE2, not a guarantee · v2 stays in VERSIONS');
+    expect(consequenceLine(plan([TEMPO, REHARM, STYLE, PHRASE]), versions, 0)).toContain('tempo follows 88 BPM · harmony in bars 17–24, '
+      + 'the style change and the tenor saxophone phrase in bars 57–60 are a request to YuE2, not a guarantee');
+  });
+
   it('asking states that nothing changes yet, and when it starts on a busy GPU', () => {
     expect(ASKING_CONSEQUENCE).toBe('asks the planner · uses the GPU for ~10 s · changes nothing yet');
   });
@@ -46,6 +55,22 @@ describe('change list rows', () => {
       { ok: false, name: 'REHARMONIZE', detail: 'bars 17–24 · Am7 D7 Gmaj7 C/E', tag: 'a request', reason: 'bar 20 had 30/32 units' },
       { ok: true, name: 'EDIT STYLE', detail: '+ jazz · − dark', tag: 'a request', reason: null },
     ]);
+  });
+
+  it('WRITE PHRASE: instrument, bars and count, the style tag code added, and a refusal with its free bars (F-026)', () => {
+    const p = plan([PHRASE], { style: 'dark pop, 90 bpm, female vocal, tenor saxophone' });
+    expect(opRows(p, 'dark pop, 90 bpm, female vocal', 87)).toEqual([
+      { ok: true, name: 'WRITE PHRASE', detail: 'tenor saxophone · bars 57–60 · 4 bars · style + tenor saxophone', tag: 'a request', reason: null },
+    ]);
+    // the style already named it: nothing is added, so nothing is claimed
+    expect(opRows(plan([PHRASE], { style: 'jazz, tenor saxophone' }), 'jazz, tenor saxophone', 87)[0].detail).toBe('tenor saxophone · bars 57–60 · 4 bars');
+    // an EDIT STYLE in the same plan is what code appended to, not the stored style
+    const withStyle = plan([{ op: 'EDIT_STYLE', style: 'jazz, tenor saxophone' }, PHRASE], { style: 'jazz, tenor saxophone' });
+    expect(opRows(withStyle, 'pop', 87)[1].detail).toBe('tenor saxophone · bars 57–60 · 4 bars');
+    const refused = plan([{ ...PHRASE, start_bar: 9, bars: [BAR, BAR] }]);
+    refused.verdicts[0] = { index: 1, op: 'WRITE_PHRASE', ok: false, reason: 'the Vocal sings in bars 11-12; free: 1-10, 47-65' };
+    const [row] = opRows(refused, 'pop', 87);
+    expect(rowDetail(row)).toBe('tenor saxophone · bars 9–10 · 2 bars · rejected: the Vocal sings in bars 11-12; free: 1-10, 47-65');
   });
 
   it('a prose style or a rewrite reads as the new style, clipped, not a tag diff', () => {

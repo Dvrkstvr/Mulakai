@@ -1,4 +1,4 @@
-/** Types for the score planner (F-019): the M0 ops, yue-server's facts and apply reply, and a
+/** Types for the score planner (F-019, F-026): the M0 ops and WRITE_PHRASE, yue-server's facts and apply reply, and a
  * pending plan. Wire shapes keep yue-server's snake_case (yue-server/score_edit_routes.py). */
 
 export const ROOTS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'] as const;
@@ -10,10 +10,14 @@ export type Quality = (typeof QUALITIES)[number];
 
 export interface ChordOp { bar: number; beat: number; root: Root; quality: Quality; bass?: Root }
 
+/** One WRITE_PHRASE note: an ABC pitch (or z) and its length in quarter-note beats (F-026). */
+export interface PhraseNote { pitch: string; beats: number }
+
 export type Op =
   | { op: 'SET_TEMPO'; bpm: number }
   | { op: 'REHARMONIZE'; from_bar: number; to_bar: number; chords: ChordOp[] }
-  | { op: 'EDIT_STYLE'; style: string };
+  | { op: 'EDIT_STYLE'; style: string }
+  | { op: 'WRITE_PHRASE'; start_bar: number; instrument: string; bars: PhraseNote[][] };
 
 export interface ScoreSection { index: number; label: string; from_bar: number; to_bar: number }
 

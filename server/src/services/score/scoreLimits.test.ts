@@ -39,6 +39,13 @@ describe('scoreLimits (F-022)', () => {
     expect(withLimits(applied())).toEqual(applied());
   });
 
+  it('does not add "did not change" when an op was refused: the refusal already says why (F-026 retry)', () => {
+    const refused = applied({ ok: false, changed: { abc: false, style: false },
+      verdicts: [{ index: 1, op: 'WRITE_PHRASE', ok: false, reason: 'the Vocal sings in bars 11-12; free: 1-10, 47-65' }] });
+    expect(withLimits(refused).checks.problems).toEqual([]);
+    expect(withLimits(applied({ changed: { abc: false, style: false } })).checks.problems).toEqual([NO_CHANGE]);
+  });
+
   it('leaves unknown seconds or tokens unjudged (the tokenizer may still be loading)', () => {
     expect(limitReasons({ seconds: null, bpm: null, tokens: null, changed: { abc: true, style: false } })).toEqual([]);
   });

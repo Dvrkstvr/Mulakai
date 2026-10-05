@@ -72,6 +72,15 @@ describe('planAttempts (F-019 #3)', () => {
     });
   });
 
+  it('checks a phrase against the N bars the request asked for (F-026)', async () => {
+    const bar = [{ pitch: 'D', beats: 4 }];
+    const two = JSON.stringify({ ops: [{ op: 'WRITE_PHRASE', start_bar: 57, instrument: 'sax', bars: [bar, bar] }] });
+    const apply = vi.fn(async () => applied());
+    expect(await planAttempts(facts, start, { ask: stub(two), apply }, { phraseBars: 2 })).toMatchObject({ ok: true, attempts: 1 });
+    const out = await planAttempts(facts, start, { ask: stub(two, two, two), apply }, { maxAttempts: 2 });
+    expect(out).toEqual({ ok: false, attempts: 2, reasons: ['op 1 (WRITE_PHRASE): the phrase has 2 bars; the request asks for 4'] });
+  });
+
   it('treats a reply that is not JSON as a rejected attempt', async () => {
     const out = await planAttempts(facts, start, { ask: stub('sure! here', TEMPO), apply: async () => applied() });
     expect(out).toMatchObject({ ok: true, attempts: 2 });

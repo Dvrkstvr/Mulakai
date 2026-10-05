@@ -28,13 +28,33 @@ describe('planMessages', () => {
   it('tells the song through facts and the bar map, never the raw score', () => {
     expect(user.role).toBe('user');
     expect(user.content).toContain('HEADER: M:4/4 L:1/32 Q:1/4=87 K:Dm; 65 bars, about 179 s');
-    expect(user.content).toContain('KEY NOTES (Dm): D E F G A Bb C');
+    expect(user.content).toContain('KEY NOTES (Dm; the key signature already applies the sharps/flats): D E F G A Bb C');
     expect(user.content).toContain('STYLE: dark pop, 90 bpm');
     expect(user.content).toContain('S2 chorus: bars 47-65');
     expect(user.content).toContain('1: [Verse] (occurrence 1 of this tag, 2 lines) first line: walking out');
     expect(user.content).toContain('2: Dm@1 A7@3 | V:sung | I:4');
     expect(user.content).toContain('REQUEST: jazz chords in the chorus');
     expect(user.content).not.toContain('X:1');
+  });
+});
+
+describe('WRITE_PHRASE in the prompt (F-026, SP-2 notes format)', () => {
+  it('says when to use it, where it may go, and how to write a melody as notes', () => {
+    expect(PLANNER_RULES).toContain('- WRITE_PHRASE {start_bar, instrument, bars:[[{pitch, beats}, ...], ...]}: only when the user asks for');
+    expect(PLANNER_RULES).toContain('inside one range of FREE BARS');
+    expect(PLANNER_RULES).toContain('vary the bars');
+    expect(PLANNER_RULES).toContain('do not write scales up and down');
+    expect(PLANNER_RULES).toContain('KEY NOTES');
+    expect(PLANNER_RULES).toContain('beats: the note length in quarter-note beats, one of 0.5 1 1.5 2 3 4');
+    expect(PLANNER_RULES).toContain('code adds it to the style');
+    expect(PLANNER_RULES).not.toMatch(/ABC string|length is a whole number of units/);
+  });
+
+  it('gives N from the request and the free bars from the bar map', () => {
+    const [, ask] = planMessages({ ...facts, bar_map: [...facts.bar_map, '3: - | V:rest | I:0'] }, 's', 'add a 2-bar sax phrase');
+    expect(ask.content).toContain('PHRASE LENGTH: a WRITE_PHRASE op has exactly 2 bars');
+    expect(ask.content).toContain('FREE BARS (the Vocal rests 2 or more bars in a row; a phrase goes only here): none, no 2 bars in a row are free');
+    expect(planMessages(facts, 's', 'a sax phrase')[1].content).toContain('PHRASE LENGTH: a WRITE_PHRASE op has exactly 4 bars');
   });
 });
 

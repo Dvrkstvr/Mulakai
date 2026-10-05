@@ -44,6 +44,7 @@ const OP_NAME: Record<Op['op'], (op: never) => string> = {
   SET_TEMPO: (op: Extract<Op, { op: 'SET_TEMPO' }>) => `SET TEMPO ${op.bpm}`,
   REHARMONIZE: (op: Extract<Op, { op: 'REHARMONIZE' }>) => `REHARMONIZE ${op.from_bar === op.to_bar ? op.from_bar : `${op.from_bar}–${op.to_bar}`}`,
   EDIT_STYLE: () => 'EDIT STYLE',
+  WRITE_PHRASE: (op: Extract<Op, { op: 'WRITE_PHRASE' }>) => `WRITE PHRASE ${op.instrument} ${op.start_bar}–${op.start_bar + op.bars.length - 1}`,
 };
 
 /** "score edit · SET TEMPO 88 · REHARMONIZE 17–24", plus " (truncated)". */

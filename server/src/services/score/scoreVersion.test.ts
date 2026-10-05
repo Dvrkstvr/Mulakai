@@ -74,6 +74,9 @@ describe('scoreEditLabel', () => {
   it('names the ops, and a truncated render says so', () => {
     expect(scoreEditLabel(plan('s', 'v').ops, false)).toBe('score edit · SET TEMPO 88 · REHARMONIZE 17–24');
     expect(scoreEditLabel([{ op: 'EDIT_STYLE', style: 'x' }], true)).toBe('score edit · EDIT STYLE (truncated)');
+    const bar = [{ pitch: 'D', beats: 4 }];
+    expect(scoreEditLabel([{ op: 'WRITE_PHRASE', start_bar: 57, instrument: 'tenor saxophone', bars: [bar, bar, bar, bar] }], false))
+      .toBe('score edit · WRITE PHRASE tenor saxophone 57–60');
   });
 });
 

@@ -40,9 +40,11 @@ export function limitReasons(f: LimitFacts): string[] {
   return out;
 }
 
-/** An applied plan with the limits folded into its checks: over a limit = not ok. */
+/** An applied plan with the limits folded into its checks: over a limit = not ok. A refused op
+ * already says why nothing changed, so "did not change" is only added when every op applied. */
 export function withLimits(result: ApplyResult): ApplyResult {
-  const broken = limitReasons(result);
+  const refused = result.verdicts.some((v) => !v.ok);
+  const broken = limitReasons(result).filter((r) => r !== NO_CHANGE || !refused);
   if (broken.length === 0) return result;
   return { ...result, ok: false, checks: { ...result.checks, ok: false, problems: [...result.checks.problems, ...broken] } };
 }

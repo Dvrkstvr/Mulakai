@@ -37,8 +37,11 @@ function parse(content: string): unknown {
   }
 }
 
+/** `phraseBars`: the N bars a WRITE_PHRASE must have for this request (phraseRequest.ts). */
+export interface AttemptOptions { maxAttempts?: number; phraseBars?: number }
+
 export async function planAttempts(
-  facts: ScoreFacts, messages: ChatMessage[], deps: AttemptDeps, maxAttempts = MAX_ATTEMPTS,
+  facts: ScoreFacts, messages: ChatMessage[], deps: AttemptDeps, { maxAttempts = MAX_ATTEMPTS, phraseBars }: AttemptOptions = {},
 ): Promise<AttemptsOutcome> {
   let msgs = messages;
   let reasons: string[] = [];
@@ -46,7 +49,7 @@ export async function planAttempts(
     deps.onAttempt?.(n, reasons[0]);
     const reply = await deps.ask(msgs);
     const json = parse(reply.content);
-    const shape = json === undefined ? { ok: false as const, reasons: ['the reply is not valid JSON'] } : checkOps(json, facts);
+    const shape = json === undefined ? { ok: false as const, reasons: ['the reply is not valid JSON'] } : checkOps(json, facts, phraseBars);
     if (shape.ok) {
       const result = await deps.apply(shape.ops);
       if (result.ok) return { ok: true, ops: shape.ops, applied: result, attempts: n };
