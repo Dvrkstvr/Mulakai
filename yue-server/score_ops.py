@@ -1,5 +1,8 @@
-"""The score ops: M0's SET_TEMPO, REHARMONIZE and EDIT_STYLE (D-018) and M1's
-WRITE_PHRASE (F-026, score_phrase.py), applied in order to a score upstream has accepted. Each op is tried on a copy and kept
+"""The score ops: M0's SET_TEMPO, REHARMONIZE and EDIT_STYLE (D-018), M1's
+WRITE_PHRASE (F-026, score_phrase.py) and M2's TRANSPOSE (F-029,
+score_transpose.py), applied in order to a score upstream has accepted;
+TRANSPOSE runs after the others, whatever its place, and only once
+(score_plan.py calls it on its own, after the section ops too). Each op is tried on a copy and kept
 only when it applies, so one bad op never half-edits the score; every op gets
 a verdict whose reason goes back to the planner on its next attempt.
 
@@ -7,6 +10,7 @@ The style's "NNN bpm" follows the score's Q: (R-018: upstream wants the two
 changed together): SET_TEMPO rewrites it or appends one, and an EDIT_STYLE
 that names a bpm gets the score's. Each applied WRITE_PHRASE's instrument is
 appended to the style after every op has run, so a later EDIT_STYLE keeps it.
+After a TRANSPOSE, the style's "X major/minor" names the score's new key.
 """
 from __future__ import annotations
 
@@ -18,6 +22,7 @@ from abc_tools import QUALITIES as NATIVE_QUALITIES
 from score_bars import bars_text, split_at
 from score_model import Doc, OpError
 from score_phrase import add_instrument, write_phrase
+from score_transpose import sync_style_key, transpose
 
 ROOTS = ("C", "C#", "Db", "D", "D#", "Eb", "E", "F", "F#", "Gb", "G", "G#", "Ab", "A", "A#", "Bb", "B")
 # Upstream's 15 native qualities; its major ("") is spelled "maj" in the op schema.
@@ -96,17 +101,22 @@ def reharmonize(doc: Doc, style: str, op: dict) -> str:
     return style
 
 
-OPS = {"SET_TEMPO": set_tempo, "REHARMONIZE": reharmonize, "EDIT_STYLE": edit_style, "WRITE_PHRASE": write_phrase}
+OPS = {"SET_TEMPO": set_tempo, "REHARMONIZE": reharmonize, "EDIT_STYLE": edit_style, "WRITE_PHRASE": write_phrase,
+       "TRANSPOSE": transpose}
+ONCE = "only one TRANSPOSE per plan; give the whole shift in one op (-11..11)"
 
 
 def apply_ops(abc: str, style: str, ops: list[dict]) -> dict:
     """{abc, style, verdicts}: the edited score and style, one verdict per op."""
-    doc, verdicts, applied = Doc(abc), [], []
-    for index, op in enumerate(ops, 1):
-        verdict = {"index": index, "op": op["op"], "ok": False, "reason": None}
-        verdicts.append(verdict)
+    doc, applied = Doc(abc), []
+    verdicts = [{"index": index, "op": op["op"], "ok": False, "reason": None} for index, op in enumerate(ops, 1)]
+    for index in sorted(range(len(ops)), key=lambda i: ops[i]["op"] == "TRANSPOSE"):
+        op, verdict = ops[index], verdicts[index]
         if op["op"] not in OPS:
             verdict["reason"] = f"unknown op {op['op']!r}"
+            continue
+        if op["op"] == "TRANSPOSE" and any(a["op"] == "TRANSPOSE" for a in applied):
+            verdict["reason"] = ONCE
             continue
         trial = copy.deepcopy(doc)
         try:
@@ -119,6 +129,8 @@ def apply_ops(abc: str, style: str, ops: list[dict]) -> dict:
     kinds = {op["op"] for op in applied}
     if kinds & {"SET_TEMPO", "EDIT_STYLE"}:
         style = sync_style_bpm(style, doc.bpm, append="SET_TEMPO" in kinds)
+    if "TRANSPOSE" in kinds:
+        style = sync_style_key(style, doc.key)
     for op in (op for op in applied if op["op"] == "WRITE_PHRASE"):
         style = add_instrument(style, op["instrument"])
     return {"abc": doc.text(), "style": style, "verdicts": verdicts}

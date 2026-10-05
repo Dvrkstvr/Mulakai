@@ -25,7 +25,7 @@ CHORUS = {"op": "REHARMONIZE", "from_bar": 47, "to_bar": 50, "chords": [
     for b, r, q in [(47, "D", "m7"), (48, "G", "7"), (49, "Bb", "maj7"), (50, "A", "7sus4")]]}
 OVERFULL = CHORDS.replace("D4A4f4A4e4A4e4A4|", "D4A4f4A4e4A4e4A4A4|", 1)
 SCORE_MODULES = ["score_model", "score_ops", "score_check", "score_roots", "score_facts", "score_edit_routes",
-                 "score_phrase", "score_phrase_gates"]
+                 "score_phrase", "score_phrase_gates", "score_transpose"]
 
 CONTRACT = [
     ("read-ok", "/v1/scores/read", {"abc": CHORDS, "lyrics": LYRICS}),
@@ -86,7 +86,8 @@ def test_apply_refuses_a_reharmonize_that_keeps_every_old_root_with_numbers_the_
 
 
 @pytest.mark.parametrize("change", [
-    {"ops": []}, {"ops": [TEMPO] * 7}, {"ops": [{"op": "TRANSPOSE", "semitones": 2}]},
+    {"ops": []}, {"ops": [TEMPO] * 7}, {"ops": [{"op": "MODULATE", "semitones": 2}]},
+    {"ops": [{"op": "TRANSPOSE", "semitones": 12}]},
     {"ops": [{"op": "SET_TEMPO", "bpm": 300}]}, {"ops": [{**TEMPO, "extra": 1}]},
     {"ops": [{**REHARM, "chords": [{**REHARM["chords"][0], "quality": "maj9"}]}]},
     {"ops": [{**REHARM, "chords": [{**REHARM["chords"][0], "root": "H"}]}]},

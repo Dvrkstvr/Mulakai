@@ -302,9 +302,11 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
     `facts.lyric_blocks[].index`; `tag` and `occurrence` are the cross-check
     (`"chorus"` or `"[Chorus]"`; a block's kind is its tag's first word, so
     `[Verse 2]` is verse 2).
-  - Numbers always mean the score and lyrics as read: the bar ops run first
-    in plan order, then the rewrites, then REPEAT/CUT from the last section
-    to the first. Verdicts stay in plan order.
+  - Numbers always mean the score and lyrics as read. A plan runs in this
+    order, whatever the order of `ops`: the bar ops (SET_TEMPO,
+    REHARMONIZE, EDIT_STYLE, WRITE_PHRASE) in plan order, then the
+    REWRITE_LYRICS, then REPEAT/CUT from the last section to the first,
+    then TRANSPOSE (below) last of all. Verdicts stay in plan order.
   - REPEAT copies the section's bars in every voice right after it, with its
     `% label` comment, never with repeat signs; CUT removes both. A
     repeated section ends un-tied (original and copy) and so does the
@@ -347,6 +349,34 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
     section ops should leave M (from K)`, `bar N does not match the bar it
     comes from`. Fixtures: `tests/data/contract/apply-repeat*.json`,
     `apply-cut*.json`, `apply-rewrite-lyrics*.json`.
+- `POST /v1/scores/apply` also takes `TRANSPOSE` (F-029): `{op: "TRANSPOSE",
+  semitones: -11..11}` (an integer; negative is down). Every note of both
+  voices moves by exactly `semitones`, every `K:` line (header, group,
+  inline `[K:]`) names the moved key (one of upstream's 30 names, the one
+  with fewer accidentals: `F#` over `Gb`, `Db` over `C#`), and chord roots
+  and slash basses follow (`"Gm/Bb"` down a tone is `"Fm/Ab"`). Notes are
+  respelled in the new key with the fewest accidental marks; rhythm, bars,
+  ties and section comments are untouched. TRANSPOSE runs last, after every
+  other op of the plan (the section ops and REWRITE_LYRICS included)
+  whatever its place in `ops`, so those are written in the old key, the one
+  `/v1/scores/read`'s bar map shows; it never touches the lyrics. If the style names a key
+  (`F minor`, `Bb major`: a capital letter, optional `#`/`b`, then `major`
+  or `minor`), each such name becomes the score's new key (`C minor`), the
+  way SET_TEMPO keeps the style's bpm with `Q:`; a style without one is left
+  alone. Bounds and refusals:
+  - `|semitones| >= 12` or a non-integer is a 422 (schema bound), so a
+    shift never leaves the 30-name key table.
+  - `verdicts[i].reason` (op not applied): `semitones is 0, which changes
+    nothing; give -11..-1 (down) or 1..11 (up)`; `only one TRANSPOSE per
+    plan; give the whole shift in one op (-11..11)` (every TRANSPOSE after
+    the first); `a note would move to MIDI pitch -1, outside 0-127;
+    transpose the other way`.
+  - `checks`: compare runs against the score the other ops left, moved by
+    `semitones`
+    (pitches, chords by pitch class, and `K:` names), so a wrong pitch is a
+    `differences` line and a wrong key `TRANSPOSE -2: the K: lines name Dm,
+    expected Cm`. Fixtures: `tests/data/contract/apply-transpose*.json`
+    (`apply-transpose-sections` with REPEAT and REWRITE_LYRICS).
 - `GET /health/ready` — 200 `{"status": "ready"}`, else 503 with
   `"loading"` or `"failed"`. `GET /health/live` — 200 `{"status": "alive"}`.
 
