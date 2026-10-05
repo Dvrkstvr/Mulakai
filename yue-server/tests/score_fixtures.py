@@ -26,3 +26,13 @@ BROKEN = library("0a7cff01")
 
 LYRICS = "[Verse]\nwalking out\ninto the rain\n\n[Chorus]\nhold on\n\n[Chorus]\nhold on\nlet go\n"
 STYLE = "dark pop, 90 bpm, F minor, female vocal"
+
+# D-055: 2c944049's chorus (bars 47-54: Dm Dm Bbmaj7 Bbmaj7, twice) only recoloured, as every
+# plan in the M0 A/B did: 7ths, 6ths and slash basses on the old roots.
+RECOLOURED = {"op": "REHARMONIZE", "from_bar": 47, "to_bar": 54, "chords": [
+    {"bar": b, "beat": 1, "root": r, "quality": q, **({"bass": s} if s else {})}
+    for b, r, q, s in [(47, "D", "m7", None), (48, "D", "m7", "F"), (49, "Bb", "maj7", None), (50, "Bb", "6", None),
+                       (51, "D", "m7", None), (52, "D", "m6", None), (53, "Bb", "maj7", "D"), (54, "Bb", "maj7", None)]]}
+RECOLOURED_TEXT = ("REHARMONIZE 47-54 keeps the old root in 8 of 8 bars; change the root in at least one chord "
+                   "per 2 bars (bars 47-48, 49-50, 51-52, 53-54 keep every root; a 7th or a slash bass on the "
+                   "same root does not count)")

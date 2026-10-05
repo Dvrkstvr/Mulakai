@@ -12,7 +12,7 @@ import pytest
 
 from conftest import BODY, FakePipeline, wait_for, wait_terminal
 from contract import check_contract
-from score_fixtures import BROKEN, CHORDS, LYRICS, STYLE, library
+from score_fixtures import BROKEN, CHORDS, LYRICS, RECOLOURED, RECOLOURED_TEXT, STYLE, library
 from scores import strip_chords
 
 TEMPO = {"op": "SET_TEMPO", "bpm": 88}
@@ -23,7 +23,7 @@ CHORUS = {"op": "REHARMONIZE", "from_bar": 47, "to_bar": 50, "chords": [
     {"bar": b, "beat": 1, "root": r, "quality": q}
     for b, r, q in [(47, "D", "m7"), (48, "G", "7"), (49, "Bb", "maj7"), (50, "A", "7sus4")]]}
 OVERFULL = CHORDS.replace("D4A4f4A4e4A4e4A4|", "D4A4f4A4e4A4e4A4A4|", 1)
-SCORE_MODULES = ["score_model", "score_ops", "score_check", "score_facts", "score_edit_routes"]
+SCORE_MODULES = ["score_model", "score_ops", "score_check", "score_roots", "score_facts", "score_edit_routes"]
 
 CONTRACT = [
     ("read-ok", "/v1/scores/read", {"abc": CHORDS, "lyrics": LYRICS}),
@@ -35,6 +35,7 @@ CONTRACT = [
     ("apply-compound", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [TEMPO, CHORUS, STYLE_OP]}),
     ("apply-bar-out-of-range", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [
         TEMPO, {**REHARM, "from_bar": 999, "to_bar": 999, "chords": [{**REHARM["chords"][0], "bar": 999}]}]}),
+    ("apply-reharmonize-same-roots", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [RECOLOURED]}),
     ("apply-slow-cover", "/v1/scores/apply", {"abc": library("2a8cc1ca"), "style": "rock, 145 bpm", "ops": [TEMPO]}),
 ]
 
@@ -69,6 +70,12 @@ def test_apply_returns_the_edit_its_checks_and_what_changed(make_client):
     assert body["tokens"] == len(body["abc"]) and body["chords_present"] is True
     failed = make_client().post("/v1/scores/apply", json=CONTRACT[7][2]).json()
     assert failed["ok"] is False and failed["verdicts"][1]["reason"] == "bars 999-999 are outside the score (1-65)"
+
+
+def test_apply_refuses_a_reharmonize_that_keeps_every_old_root_with_numbers_the_planner_can_use(make_client):
+    body = make_client().post("/v1/scores/apply", json={"abc": CHORDS, "style": STYLE, "ops": [RECOLOURED]}).json()
+    assert body["ok"] is False and body["verdicts"][0]["ok"] is True
+    assert body["checks"] == {"ok": False, "problems": [RECOLOURED_TEXT], "differences": []}
 
 
 @pytest.mark.parametrize("change", [
