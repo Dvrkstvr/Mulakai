@@ -380,7 +380,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "client_src_acegentune_autostepslabel",
-      "community": 184,
+      "community": 61,
       "norm_label": "autostepslabel()"
     },
     {
@@ -390,7 +390,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "client_src_acegentune_acegentune",
-      "community": 184,
+      "community": 61,
       "norm_label": "acegentune()"
     },
     {
@@ -700,7 +700,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "client_src_advancedgensettings_advancedgensettings",
-      "community": 61,
+      "community": 17,
       "norm_label": "advancedgensettings()"
     },
     {
@@ -1350,7 +1350,7 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "client_src_dockscore_props",
-      "community": 203,
+      "community": 217,
       "norm_label": "props"
     },
     {
@@ -1690,7 +1690,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "client_src_enginegensettings_enginegensettings",
-      "community": 62,
+      "community": 61,
       "norm_label": "enginegensettings()"
     },
     {
@@ -1770,7 +1770,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_forgesection",
-      "community": 62,
+      "community": 61,
       "norm_label": "forgesection.tsx"
     },
     {
@@ -1780,7 +1780,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "client_src_forgesection_forgesection",
-      "community": 62,
+      "community": 61,
       "norm_label": "forgesection()"
     },
     {
@@ -1970,7 +1970,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_ideacommit",
-      "community": 236,
+      "community": 64,
       "norm_label": "ideacommit.tsx"
     },
     {
@@ -1980,7 +1980,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "client_src_ideacommit_ideacommit",
-      "community": 236,
+      "community": 64,
       "norm_label": "ideacommit()"
     },
     {
@@ -3020,7 +3020,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_repaintknobs",
-      "community": 61,
+      "community": 17,
       "norm_label": "repaintknobs.tsx"
     },
     {
@@ -4100,7 +4100,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_yuecovercommit",
-      "community": 236,
+      "community": 64,
       "norm_label": "yuecovercommit.tsx"
     },
     {
@@ -4110,7 +4110,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "client_src_yuecovercommit_yuecovercommit",
-      "community": 236,
+      "community": 64,
       "norm_label": "yuecovercommit()"
     },
     {
@@ -5490,7 +5490,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_api_score",
-      "community": 235,
+      "community": 223,
       "norm_label": "score.ts"
     },
     {
@@ -5500,7 +5500,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "client_src_api_score_scorereading",
-      "community": 235,
+      "community": 223,
       "norm_label": "scorereading"
     },
     {
@@ -5510,7 +5510,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "client_src_api_score_scorestatusview",
-      "community": 203,
+      "community": 217,
       "norm_label": "scorestatusview"
     },
     {
@@ -5520,7 +5520,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "client_src_api_score_scorechord",
-      "community": 235,
+      "community": 223,
       "norm_label": "scorechord"
     },
     {
@@ -5540,7 +5540,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "client_src_api_score_scoreopverdict",
-      "community": 235,
+      "community": 223,
       "norm_label": "scoreopverdict"
     },
     {
@@ -5560,7 +5560,7 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "client_src_api_score_plancause",
-      "community": 235,
+      "community": 223,
       "norm_label": "plancause"
     },
     {
@@ -5570,7 +5570,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "client_src_api_score_scoreplanrun",
-      "community": 203,
+      "community": 217,
       "norm_label": "scoreplanrun"
     },
     {
@@ -5590,7 +5590,7 @@
       "source_location": "L64",
       "_origin": "ast",
       "id": "client_src_api_score_scorerenderversion",
-      "community": 235,
+      "community": 223,
       "norm_label": "scorerenderversion"
     },
     {
@@ -5600,7 +5600,7 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "client_src_api_score_scorerenderrun",
-      "community": 235,
+      "community": 203,
       "norm_label": "scorerenderrun"
     },
     {
@@ -5610,7 +5610,7 @@
       "source_location": "L82",
       "_origin": "ast",
       "id": "client_src_api_score_scorerenderstart",
-      "community": 235,
+      "community": 223,
       "norm_label": "scorerenderstart"
     },
     {
@@ -5620,7 +5620,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "client_src_api_score_post",
-      "community": 235,
+      "community": 223,
       "norm_label": "post()"
     },
     {
@@ -5630,7 +5630,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "client_src_api_score_scoreapi",
-      "community": 235,
+      "community": 223,
       "norm_label": "scoreapi"
     },
     {
@@ -7800,7 +7800,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "client_src_enginerequest_coverparams",
-      "community": 236,
+      "community": 47,
       "norm_label": "coverparams()"
     },
     {
@@ -7860,7 +7860,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "client_src_enginesettings_auto_controls",
-      "community": 47,
+      "community": 64,
       "norm_label": "auto_controls"
     },
     {
@@ -7910,7 +7910,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "client_src_enginesettings_useenginesettings",
-      "community": 236,
+      "community": 64,
       "norm_label": "useenginesettings"
     },
     {
@@ -8680,7 +8680,7 @@
       "source_location": "L105",
       "_origin": "ast",
       "id": "client_src_generationstore_usegenerationstore",
-      "community": 236,
+      "community": 64,
       "norm_label": "usegenerationstore"
     },
     {
@@ -10520,7 +10520,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "client_src_modelinfo_hastoken",
-      "community": 184,
+      "community": 61,
       "norm_label": "hastoken()"
     },
     {
@@ -10560,7 +10560,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "client_src_modelinfo_guidanceeffective",
-      "community": 61,
+      "community": 17,
       "norm_label": "guidanceeffective()"
     },
     {
@@ -11860,7 +11860,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "client_src_recipecopy_recipeetakey",
-      "community": 236,
+      "community": 64,
       "norm_label": "recipeetakey()"
     },
     {
@@ -12350,7 +12350,7 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "client_src_scorecopy_clock",
-      "community": 6,
+      "community": 203,
       "norm_label": "clock()"
     },
     {
@@ -12360,7 +12360,7 @@
       "source_location": "L122",
       "_origin": "ast",
       "id": "client_src_scorecopy_savedline",
-      "community": 6,
+      "community": 203,
       "norm_label": "savedline()"
     },
     {
@@ -12820,7 +12820,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "client_src_scorestore_usescorestore",
-      "community": 186,
+      "community": 203,
       "norm_label": "usescorestore"
     },
     {
@@ -13150,7 +13150,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_scoreverbtypes",
-      "community": 203,
+      "community": 217,
       "norm_label": "scoreverbtypes.ts"
     },
     {
@@ -13170,7 +13170,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "client_src_scoreverbtypes_scoreverbstate",
-      "community": 203,
+      "community": 217,
       "norm_label": "scoreverbstate"
     },
     {
@@ -13190,7 +13190,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "client_src_scoreverbtypes_initial_score",
-      "community": 203,
+      "community": 217,
       "norm_label": "initial_score"
     },
     {
@@ -13410,7 +13410,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "client_src_settingsstore_usesettings",
-      "community": 62,
+      "community": 61,
       "norm_label": "usesettings"
     },
     {
@@ -15040,7 +15040,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_usecovergenerate",
-      "community": 236,
+      "community": 64,
       "norm_label": "usecovergenerate.ts"
     },
     {
@@ -15050,7 +15050,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "client_src_usecovergenerate_usecovergenerate",
-      "community": 236,
+      "community": 64,
       "norm_label": "usecovergenerate()"
     },
     {
@@ -15060,7 +15060,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_usecreatesubmit",
-      "community": 236,
+      "community": 64,
       "norm_label": "usecreatesubmit.ts"
     },
     {
@@ -15070,7 +15070,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "client_src_usecreatesubmit_usecreatesubmit",
-      "community": 236,
+      "community": 64,
       "norm_label": "usecreatesubmit()"
     },
     {
@@ -15960,7 +15960,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_usetrackgenerate",
-      "community": 236,
+      "community": 64,
       "norm_label": "usetrackgenerate.ts"
     },
     {
@@ -15980,7 +15980,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "client_src_usetrackgenerate_usetrackgenerate",
-      "community": 236,
+      "community": 64,
       "norm_label": "usetrackgenerate()"
     },
     {
@@ -16030,7 +16030,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "client_src_voicestore",
-      "community": 236,
+      "community": 64,
       "norm_label": "voicestore.ts"
     },
     {
@@ -16040,7 +16040,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "client_src_voicestore_refmode",
-      "community": 236,
+      "community": 64,
       "norm_label": "refmode"
     },
     {
@@ -16060,7 +16060,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "client_src_voicestore_usevoicestore",
-      "community": 236,
+      "community": 64,
       "norm_label": "usevoicestore"
     },
     {
@@ -16070,7 +16070,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "client_src_voicestore_voiceparams",
-      "community": 236,
+      "community": 64,
       "norm_label": "voiceparams()"
     },
     {
@@ -16850,7 +16850,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_main_py",
-      "community": 294,
+      "community": 143,
       "norm_label": "main.py"
     },
     {
@@ -16860,7 +16860,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_main_save_wav",
-      "community": 294,
+      "community": 143,
       "norm_label": "_save_wav()"
     },
     {
@@ -16870,7 +16870,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_main_separate",
-      "community": 294,
+      "community": 143,
       "norm_label": "_separate()"
     },
     {
@@ -16880,7 +16880,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_main_rationale_1",
-      "community": 294,
+      "community": 143,
       "norm_label": "thin http wrapper around demucs (https://github.com/adefossez/demucs) so mulakai"
     },
     {
@@ -16890,7 +16890,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_py",
-      "community": 282,
+      "community": 143,
       "norm_label": "test_api.py"
     },
     {
@@ -16900,7 +16900,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_fake_separate",
-      "community": 282,
+      "community": 143,
       "norm_label": "fake_separate()"
     },
     {
@@ -16910,7 +16910,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_client_for",
-      "community": 282,
+      "community": 143,
       "norm_label": "client_for()"
     },
     {
@@ -16920,7 +16920,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_post",
-      "community": 282,
+      "community": 143,
       "norm_label": "post()"
     },
     {
@@ -16930,7 +16930,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_test_health_names_the_model",
-      "community": 282,
+      "community": 143,
       "norm_label": "test_health_names_the_model()"
     },
     {
@@ -16940,7 +16940,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_test_split_returns_downloadable_urls_for_every_stem",
-      "community": 282,
+      "community": 143,
       "norm_label": "test_split_returns_downloadable_urls_for_every_stem()"
     },
     {
@@ -16950,7 +16950,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_test_source_is_removed_once_separated",
-      "community": 282,
+      "community": 143,
       "norm_label": "test_source_is_removed_once_separated()"
     },
     {
@@ -16960,7 +16960,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_test_downloading_every_stem_leaves_the_data_dir_empty",
-      "community": 282,
+      "community": 143,
       "norm_label": "test_downloading_every_stem_leaves_the_data_dir_empty()"
     },
     {
@@ -16970,7 +16970,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_test_undecodable_upload_is_a_500_and_leaves_nothing_behind",
-      "community": 282,
+      "community": 143,
       "norm_label": "test_undecodable_upload_is_a_500_and_leaves_nothing_behind()"
     },
     {
@@ -16980,7 +16980,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_test_no_stems_is_a_500",
-      "community": 282,
+      "community": 143,
       "norm_label": "test_no_stems_is_a_500()"
     },
     {
@@ -16990,7 +16990,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_test_health_answers_while_a_split_runs",
-      "community": 282,
+      "community": 143,
       "norm_label": "test_health_answers_while_a_split_runs()"
     },
     {
@@ -17000,7 +17000,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_rationale_13",
-      "community": 282,
+      "community": 143,
       "norm_label": "writes what demucs.separate.main() would: job_dir/<model>/<stem>.wav."
     },
     {
@@ -17830,7 +17830,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "heartmula_server_config",
-      "community": 409,
+      "community": 415,
       "norm_label": "config.py"
     },
     {
@@ -17840,7 +17840,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "heartmula_server_config_settings",
-      "community": 409,
+      "community": 415,
       "norm_label": "settings"
     },
     {
@@ -17850,7 +17850,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "heartmula_server_config_from_env",
-      "community": 409,
+      "community": 415,
       "norm_label": "from_env()"
     },
     {
@@ -17860,7 +17860,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "heartmula_server_config_rationale_1",
-      "community": 409,
+      "community": 415,
       "norm_label": "settings, read once from the environment."
     },
     {
@@ -18050,7 +18050,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "interruptederror",
-      "community": 214,
+      "community": 206,
       "norm_label": "interruptederror"
     },
     {
@@ -18390,7 +18390,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "heartmula_server_request",
-      "community": 407,
+      "community": 415,
       "norm_label": "request.py"
     },
     {
@@ -18400,7 +18400,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "heartmula_server_request_generaterequest",
-      "community": 407,
+      "community": 415,
       "norm_label": "generaterequest"
     },
     {
@@ -18410,7 +18410,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "basemodel",
-      "community": 407,
+      "community": 219,
       "norm_label": "basemodel"
     },
     {
@@ -18420,7 +18420,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "heartmula_server_request_generaterequest_lyrics_not_blank",
-      "community": 407,
+      "community": 415,
       "norm_label": ".lyrics_not_blank()"
     },
     {
@@ -18430,7 +18430,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "heartmula_server_request_generaterequest_not_a_file_path",
-      "community": 407,
+      "community": 415,
       "norm_label": ".not_a_file_path()"
     },
     {
@@ -18440,7 +18440,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "heartmula_server_request_rationale_1",
-      "community": 407,
+      "community": 415,
       "norm_label": "post /v1/jobs body. field names are heartlib's own, so mulakai's engines/heartm"
     },
     {
@@ -18490,7 +18490,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "heartmula_server_tests_conftest_fakeengine_generate",
-      "community": 214,
+      "community": 387,
       "norm_label": ".generate()"
     },
     {
@@ -19470,7 +19470,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_py",
-      "community": 294,
+      "community": 143,
       "norm_label": "main.py"
     },
     {
@@ -19480,7 +19480,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_add_cuda_dlls",
-      "community": 294,
+      "community": 143,
       "norm_label": "_add_cuda_dlls()"
     },
     {
@@ -19490,7 +19490,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_load_model",
-      "community": 294,
+      "community": 143,
       "norm_label": "_load_model()"
     },
     {
@@ -19500,7 +19500,7 @@
       "source_location": "L41",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_load_audio",
-      "community": 294,
+      "community": 143,
       "norm_label": "_load_audio()"
     },
     {
@@ -19520,7 +19520,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_rationale_1",
-      "community": 294,
+      "community": 143,
       "norm_label": "reads the words sung in a song (plan.md \"cover lyrics from the recording\"): fas"
     },
     {
@@ -19530,7 +19530,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_py",
-      "community": 384,
+      "community": 143,
       "norm_label": "test_api.py"
     },
     {
@@ -19540,7 +19540,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_seg",
-      "community": 384,
+      "community": 143,
       "norm_label": "seg()"
     },
     {
@@ -19550,7 +19550,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_calls",
-      "community": 384,
+      "community": 143,
       "norm_label": "calls()"
     },
     {
@@ -19560,7 +19560,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_client_for",
-      "community": 384,
+      "community": 143,
       "norm_label": "client_for()"
     },
     {
@@ -19570,7 +19570,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_post",
-      "community": 384,
+      "community": 143,
       "norm_label": "post()"
     },
     {
@@ -19580,7 +19580,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_test_health_names_the_model_without_running_a_job",
-      "community": 384,
+      "community": 143,
       "norm_label": "test_health_names_the_model_without_running_a_job()"
     },
     {
@@ -19590,7 +19590,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_test_transcribe_hands_over_the_upload_and_returns_segments",
-      "community": 384,
+      "community": 143,
       "norm_label": "test_transcribe_hands_over_the_upload_and_returns_segments()"
     },
     {
@@ -19600,7 +19600,7 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_test_language_is_passed_when_given",
-      "community": 384,
+      "community": 143,
       "norm_label": "test_language_is_passed_when_given()"
     },
     {
@@ -19610,7 +19610,7 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_test_hallucinated_segments_are_dropped",
-      "community": 384,
+      "community": 143,
       "norm_label": "test_hallucinated_segments_are_dropped()"
     },
     {
@@ -19620,7 +19620,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_test_failed_job_is_a_500_and_removes_the_upload",
-      "community": 384,
+      "community": 143,
       "norm_label": "test_failed_job_is_a_500_and_removes_the_upload()"
     },
     {
@@ -20336,7 +20336,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_measure",
-      "community": 291,
+      "community": 381,
       "norm_label": "measure.py"
     },
     {
@@ -20346,7 +20346,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_measure_http",
-      "community": 291,
+      "community": 381,
       "norm_label": "http()"
     },
     {
@@ -20356,7 +20356,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_measure_vram",
-      "community": 291,
+      "community": 381,
       "norm_label": "vram()"
     },
     {
@@ -20366,7 +20366,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_measure_ps",
-      "community": 291,
+      "community": 381,
       "norm_label": "ps()"
     },
     {
@@ -20376,7 +20376,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_measure_rationale_1",
-      "community": 291,
+      "community": 381,
       "norm_label": "per-model side measurements: cold load, tokens/s, gpu/cpu split, vram peak and r"
     },
     {
@@ -20386,7 +20386,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_phrase_wav",
-      "community": 413,
+      "community": 291,
       "norm_label": "phrase_wav.py"
     },
     {
@@ -20396,7 +20396,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_phrase_wav_hz",
-      "community": 413,
+      "community": 291,
       "norm_label": "hz()"
     },
     {
@@ -20406,7 +20406,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_phrase_wav_tone",
-      "community": 413,
+      "community": 291,
       "norm_label": "tone()"
     },
     {
@@ -20416,7 +20416,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_phrase_wav_chord_midi",
-      "community": 413,
+      "community": 291,
       "norm_label": "chord_midi()"
     },
     {
@@ -20426,7 +20426,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_phrase_wav_render",
-      "community": 413,
+      "community": 291,
       "norm_label": "render()"
     },
     {
@@ -20436,7 +20436,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_phrase_wav_main",
-      "community": 413,
+      "community": 291,
       "norm_label": "main()"
     },
     {
@@ -20446,7 +20446,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_phrase_wav_rationale_1",
-      "community": 413,
+      "community": 291,
       "norm_label": "cheap audio for the owed write phrase musicality listen: render llm-written phra"
     },
     {
@@ -20926,7 +20926,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "valueerror",
-      "community": 210,
+      "community": 154,
       "norm_label": "valueerror"
     },
     {
@@ -20946,7 +20946,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_parse_body",
-      "community": 48,
+      "community": 201,
       "norm_label": "parse_body()"
     },
     {
@@ -20956,7 +20956,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_emit_body",
-      "community": 48,
+      "community": 201,
       "norm_label": "emit_body()"
     },
     {
@@ -20976,7 +20976,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc",
-      "community": 48,
+      "community": 201,
       "norm_label": "doc"
     },
     {
@@ -20986,7 +20986,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_init",
-      "community": 48,
+      "community": 201,
       "norm_label": ".__init__()"
     },
     {
@@ -20996,7 +20996,7 @@
       "source_location": "L146",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_text",
-      "community": 48,
+      "community": 201,
       "norm_label": ".text()"
     },
     {
@@ -21006,7 +21006,7 @@
       "source_location": "L168",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_unit",
-      "community": 48,
+      "community": 201,
       "norm_label": ".unit()"
     },
     {
@@ -21016,7 +21016,7 @@
       "source_location": "L172",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_bpm",
-      "community": 48,
+      "community": 201,
       "norm_label": ".bpm()"
     },
     {
@@ -21026,7 +21026,7 @@
       "source_location": "L176",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_key",
-      "community": 48,
+      "community": 201,
       "norm_label": ".key()"
     },
     {
@@ -21036,7 +21036,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_bar_refs",
-      "community": 48,
+      "community": 201,
       "norm_label": ".bar_refs()"
     },
     {
@@ -21046,7 +21046,7 @@
       "source_location": "L188",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_nbars",
-      "community": 48,
+      "community": 201,
       "norm_label": ".nbars()"
     },
     {
@@ -21066,7 +21066,7 @@
       "source_location": "L195",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_section_range",
-      "community": 48,
+      "community": 201,
       "norm_label": ".section_range()"
     },
     {
@@ -21076,7 +21076,7 @@
       "source_location": "L200",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_bar",
-      "community": 48,
+      "community": 201,
       "norm_label": ".bar()"
     },
     {
@@ -21086,7 +21086,7 @@
       "source_location": "L207",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_seconds",
-      "community": 48,
+      "community": 201,
       "norm_label": ".seconds()"
     },
     {
@@ -21096,7 +21096,7 @@
       "source_location": "L211",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_chord_map",
-      "community": 48,
+      "community": 201,
       "norm_label": ".chord_map()"
     },
     {
@@ -21106,7 +21106,7 @@
       "source_location": "L224",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_doc_bar_flags",
-      "community": 48,
+      "community": 201,
       "norm_label": ".bar_flags()"
     },
     {
@@ -21216,7 +21216,7 @@
       "source_location": "L363",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_op_write_phrase",
-      "community": 48,
+      "community": 201,
       "norm_label": "op_write_phrase()"
     },
     {
@@ -21296,7 +21296,7 @@
       "source_location": "L540",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_apply_ops",
-      "community": 48,
+      "community": 201,
       "norm_label": "apply_ops()"
     },
     {
@@ -21336,7 +21336,7 @@
       "source_location": "L180",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_rationale_180",
-      "community": 48,
+      "community": 201,
       "norm_label": "[(section_index0, group, bar_index_in_group)] in global order"
     },
     {
@@ -21346,7 +21346,7 @@
       "source_location": "L196",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_rationale_196",
-      "community": 48,
+      "community": 201,
       "norm_label": "(first_bar, last_bar) 1-based inclusive; none when the section has no bars"
     },
     {
@@ -21356,7 +21356,7 @@
       "source_location": "L212",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_rationale_212",
-      "community": 48,
+      "community": 201,
       "norm_label": "bar -> [(beat_units_offset, chord)] for the vocal voice"
     },
     {
@@ -21396,7 +21396,7 @@
       "source_location": "L541",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_score_rationale_541",
-      "community": 48,
+      "community": 201,
       "norm_label": "apply in order on a copy. raises operror. returns (new_text, new_lyrics, new_sty"
     },
     {
@@ -21406,7 +21406,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pipeline_spikes_sp_2_planner_quality_selftest",
-      "community": 235,
+      "community": 48,
       "norm_label": "selftest.py"
     },
     {
@@ -22192,7 +22192,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pipeline_verify_m0_m0_analyze",
-      "community": 408,
+      "community": 384,
       "norm_label": "m0_analyze.py"
     },
     {
@@ -22202,7 +22202,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "pipeline_verify_m0_m0_analyze_wsl",
-      "community": 408,
+      "community": 384,
       "norm_label": "wsl()"
     },
     {
@@ -22212,7 +22212,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "pipeline_verify_m0_m0_analyze_transcribe",
-      "community": 408,
+      "community": 384,
       "norm_label": "transcribe()"
     },
     {
@@ -22222,7 +22222,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "pipeline_verify_m0_m0_analyze_main",
-      "community": 408,
+      "community": 384,
       "norm_label": "main()"
     },
     {
@@ -22232,7 +22232,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "pipeline_verify_m0_m0_analyze_rationale_1",
-      "community": 408,
+      "community": 384,
       "norm_label": "m0 w5 audible checks (run in wsl with ~/sheetsage2/.venv/bin/python), cp1's meth"
     },
     {
@@ -23092,7 +23092,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_config",
-      "community": 4,
+      "community": 32,
       "norm_label": "config.ts"
     },
     {
@@ -23102,7 +23102,7 @@
       "source_location": "L4",
       "_origin": "ast",
       "id": "server_src_config_dirname",
-      "community": 4,
+      "community": 32,
       "norm_label": "__dirname"
     },
     {
@@ -23112,7 +23112,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "server_src_config_config",
-      "community": 4,
+      "community": 32,
       "norm_label": "config"
     },
     {
@@ -23332,7 +23332,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "server_src_routes_adapters_adaptersrouter",
-      "community": 4,
+      "community": 72,
       "norm_label": "adaptersrouter"
     },
     {
@@ -23762,7 +23762,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "server_src_routes_generate_generaterouter",
-      "community": 4,
+      "community": 146,
       "norm_label": "generaterouter"
     },
     {
@@ -23822,7 +23822,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_routes_generateaudio",
-      "community": 146,
+      "community": 12,
       "norm_label": "generateaudio.ts"
     },
     {
@@ -23882,7 +23882,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "server_src_routes_generatehelpers_generatehelpersrouter",
-      "community": 32,
+      "community": 146,
       "norm_label": "generatehelpersrouter"
     },
     {
@@ -24052,7 +24052,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "server_src_routes_generatestatus_generatestatusrouter",
-      "community": 225,
+      "community": 146,
       "norm_label": "generatestatusrouter"
     },
     {
@@ -24252,7 +24252,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "server_src_routes_remaster_remasterrouter",
-      "community": 225,
+      "community": 4,
       "norm_label": "remasterrouter"
     },
     {
@@ -24362,7 +24362,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_routes_score",
-      "community": 60,
+      "community": 137,
       "norm_label": "score.ts"
     },
     {
@@ -24372,7 +24372,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "server_src_routes_score_scoreroutedeps",
-      "community": 60,
+      "community": 137,
       "norm_label": "scoreroutedeps"
     },
     {
@@ -24382,7 +24382,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "server_src_routes_score_defaults",
-      "community": 60,
+      "community": 137,
       "norm_label": "defaults()"
     },
     {
@@ -24392,7 +24392,7 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "server_src_routes_score_reading",
-      "community": 60,
+      "community": 137,
       "norm_label": "reading()"
     },
     {
@@ -24402,7 +24402,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "server_src_routes_score_makescorerouter",
-      "community": 60,
+      "community": 137,
       "norm_label": "makescorerouter()"
     },
     {
@@ -24412,7 +24412,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "server_src_routes_score_scorerouter",
-      "community": 60,
+      "community": 137,
       "norm_label": "scorerouter"
     },
     {
@@ -24782,7 +24782,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_routes_songlayers",
-      "community": 146,
+      "community": 4,
       "norm_label": "songlayers.ts"
     },
     {
@@ -24792,7 +24792,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "server_src_routes_songlayers_songlayersrouter",
-      "community": 146,
+      "community": 4,
       "norm_label": "songlayersrouter"
     },
     {
@@ -24802,7 +24802,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "server_src_routes_songlayers_upload",
-      "community": 146,
+      "community": 4,
       "norm_label": "upload"
     },
     {
@@ -24812,7 +24812,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "server_src_routes_songlayers_bool",
-      "community": 146,
+      "community": 4,
       "norm_label": "bool()"
     },
     {
@@ -24822,7 +24822,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "server_src_routes_songlayers_isfalse",
-      "community": 146,
+      "community": 4,
       "norm_label": "isfalse()"
     },
     {
@@ -25312,7 +25312,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "server_src_services_acestep_http_call",
-      "community": 72,
+      "community": 32,
       "norm_label": "call()"
     },
     {
@@ -25452,7 +25452,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "server_src_services_acestep_models_health",
-      "community": 13,
+      "community": 32,
       "norm_label": "health()"
     },
     {
@@ -25542,7 +25542,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "server_src_services_acestep_tasks_queryresult",
-      "community": 10,
+      "community": 12,
       "norm_label": "queryresult()"
     },
     {
@@ -26142,7 +26142,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "server_src_services_completegenjobs_completesource",
-      "community": 146,
+      "community": 12,
       "norm_label": "completesource"
     },
     {
@@ -26642,7 +26642,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "server_src_services_enginetranscribeclient_transcriptionstate",
-      "community": 180,
+      "community": 140,
       "norm_label": "transcriptionstate"
     },
     {
@@ -27142,7 +27142,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "server_src_services_engines_types_engineid",
-      "community": 140,
+      "community": 74,
       "norm_label": "engineid"
     },
     {
@@ -27502,7 +27502,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "server_src_services_filetags_iswavfooterversionerror",
-      "community": 74,
+      "community": 4,
       "norm_label": "iswavfooterversionerror()"
     },
     {
@@ -27512,7 +27512,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "server_src_services_filetags_writetagsatversion",
-      "community": 74,
+      "community": 4,
       "norm_label": "writetagsatversion()"
     },
     {
@@ -27522,7 +27522,7 @@
       "source_location": "L70",
       "_origin": "ast",
       "id": "server_src_services_filetags_tagoutputfile",
-      "community": 74,
+      "community": 4,
       "norm_label": "tagoutputfile()"
     },
     {
@@ -27662,7 +27662,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "server_src_services_genqueue_queuefullerror",
-      "community": 146,
+      "community": 225,
       "norm_label": "queuefullerror"
     },
     {
@@ -27672,7 +27672,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "server_src_services_genqueue_queuefullerror_constructor",
-      "community": 146,
+      "community": 225,
       "norm_label": ".constructor()"
     },
     {
@@ -27752,7 +27752,7 @@
       "source_location": "L156",
       "_origin": "ast",
       "id": "server_src_services_genqueue_cancelqueued",
-      "community": 10,
+      "community": 225,
       "norm_label": "cancelqueued()"
     },
     {
@@ -27792,7 +27792,7 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "server_src_services_genqueue_queueposition",
-      "community": 10,
+      "community": 225,
       "norm_label": "queueposition()"
     },
     {
@@ -27802,7 +27802,7 @@
       "source_location": "L179",
       "_origin": "ast",
       "id": "server_src_services_genqueue_isqueued",
-      "community": 10,
+      "community": 225,
       "norm_label": "isqueued()"
     },
     {
@@ -29062,7 +29062,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_referenceaudioresolve",
-      "community": 146,
+      "community": 12,
       "norm_label": "referenceaudioresolve.ts"
     },
     {
@@ -29072,7 +29072,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "server_src_services_referenceaudioresolve_refaudiofile",
-      "community": 146,
+      "community": 12,
       "norm_label": "refaudiofile"
     },
     {
@@ -29082,7 +29082,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "server_src_services_referenceaudioresolve_resolvereferenceaudiofile",
-      "community": 146,
+      "community": 12,
       "norm_label": "resolvereferenceaudiofile()"
     },
     {
@@ -29172,7 +29172,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "server_src_services_remasterjobs_downloadtoscratch",
-      "community": 74,
+      "community": 12,
       "norm_label": "downloadtoscratch()"
     },
     {
@@ -29322,7 +29322,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "server_src_services_replayguard_assertreplayable",
-      "community": 4,
+      "community": 12,
       "norm_label": "assertreplayable()"
     },
     {
@@ -29362,7 +29362,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "server_src_services_replayjobs_readversion",
-      "community": 4,
+      "community": 12,
       "norm_label": "readversion()"
     },
     {
@@ -29372,7 +29372,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "server_src_services_replayjobs_startregenerate",
-      "community": 4,
+      "community": 12,
       "norm_label": "startregenerate()"
     },
     {
@@ -29382,7 +29382,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "server_src_services_replayjobs_startsimilartake",
-      "community": 4,
+      "community": 12,
       "norm_label": "startsimilartake()"
     },
     {
@@ -29392,7 +29392,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_score_contextguard_test",
-      "community": 68,
+      "community": 282,
       "norm_label": "contextguard.test.ts"
     },
     {
@@ -29402,7 +29402,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_score_contextguard",
-      "community": 68,
+      "community": 282,
       "norm_label": "contextguard.ts"
     },
     {
@@ -29412,7 +29412,7 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "server_src_services_score_contextguard_minprompttokens",
-      "community": 68,
+      "community": 282,
       "norm_label": "minprompttokens()"
     },
     {
@@ -29422,7 +29422,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "server_src_services_score_contextguard_expectedprompttokens",
-      "community": 68,
+      "community": 282,
       "norm_label": "expectedprompttokens()"
     },
     {
@@ -29432,7 +29432,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "server_src_services_score_contextguard_refusal",
-      "community": 68,
+      "community": 282,
       "norm_label": "refusal()"
     },
     {
@@ -29442,7 +29442,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "server_src_services_score_contextguard_contextpreflight",
-      "community": 68,
+      "community": 282,
       "norm_label": "contextpreflight()"
     },
     {
@@ -29452,7 +29452,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "server_src_services_score_contextguard_contextpostflight",
-      "community": 68,
+      "community": 282,
       "norm_label": "contextpostflight()"
     },
     {
@@ -29502,7 +29502,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "server_src_services_score_ollamacontrol_plannertarget",
-      "community": 23,
+      "community": 60,
       "norm_label": "plannertarget"
     },
     {
@@ -29512,7 +29512,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "server_src_services_score_ollamacontrol_loadedmodel",
-      "community": 295,
+      "community": 60,
       "norm_label": "loadedmodel"
     },
     {
@@ -30142,7 +30142,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_score_planjob",
-      "community": 68,
+      "community": 23,
       "norm_label": "planjob.ts"
     },
     {
@@ -30172,7 +30172,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "server_src_services_score_planjob_plandeps",
-      "community": 23,
+      "community": 60,
       "norm_label": "plandeps"
     },
     {
@@ -30182,7 +30182,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "server_src_services_score_planjob_reasonof",
-      "community": 68,
+      "community": 23,
       "norm_label": "reasonof()"
     },
     {
@@ -30192,7 +30192,7 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "server_src_services_score_planjob_plan",
-      "community": 68,
+      "community": 23,
       "norm_label": "plan()"
     },
     {
@@ -30312,7 +30312,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "server_src_services_score_planstore_getplanbyid",
-      "community": 295,
+      "community": 68,
       "norm_label": "getplanbyid()"
     },
     {
@@ -30352,7 +30352,7 @@
       "source_location": "L58",
       "_origin": "ast",
       "id": "server_src_services_score_planstore_noterender",
-      "community": 295,
+      "community": 68,
       "norm_label": "noterender()"
     },
     {
@@ -30492,7 +30492,7 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "server_src_services_score_plantypes_applyresult",
-      "community": 295,
+      "community": 23,
       "norm_label": "applyresult"
     },
     {
@@ -30522,7 +30522,7 @@
       "source_location": "L53",
       "_origin": "ast",
       "id": "server_src_services_score_plantypes_plan",
-      "community": 295,
+      "community": 68,
       "norm_label": "plan"
     },
     {
@@ -30662,7 +30662,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "server_src_services_score_plannerprompt_promptchars",
-      "community": 68,
+      "community": 23,
       "norm_label": "promptchars()"
     },
     {
@@ -30732,7 +30732,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "server_src_services_score_scoreeligibility_eligibility",
-      "community": 295,
+      "community": 137,
       "norm_label": "eligibility"
     },
     {
@@ -30812,7 +30812,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_score_scorelimits_test",
-      "community": 295,
+      "community": 23,
       "norm_label": "scorelimits.test.ts"
     },
     {
@@ -30822,7 +30822,7 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "server_src_services_score_scorelimits_test_applied",
-      "community": 295,
+      "community": 23,
       "norm_label": "applied()"
     },
     {
@@ -30882,7 +30882,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "server_src_services_score_scorelimits_withlimits",
-      "community": 295,
+      "community": 23,
       "norm_label": "withlimits()"
     },
     {
@@ -31112,7 +31112,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_score_scorerenderjob",
-      "community": 295,
+      "community": 68,
       "norm_label": "scorerenderjob.ts"
     },
     {
@@ -31132,7 +31132,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "server_src_services_score_scorerenderjob_message",
-      "community": 295,
+      "community": 68,
       "norm_label": "message()"
     },
     {
@@ -31142,7 +31142,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "server_src_services_score_scorerenderjob_pendingedit",
-      "community": 295,
+      "community": 68,
       "norm_label": "pendingedit()"
     },
     {
@@ -31152,7 +31152,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "server_src_services_score_scorerenderjob_checked",
-      "community": 295,
+      "community": 68,
       "norm_label": "checked"
     },
     {
@@ -31162,7 +31162,7 @@
       "source_location": "L55",
       "_origin": "ast",
       "id": "server_src_services_score_scorerenderjob_checkrender",
-      "community": 295,
+      "community": 68,
       "norm_label": "checkrender()"
     },
     {
@@ -31462,7 +31462,7 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "server_src_services_score_scorestatus_scorestatus",
-      "community": 60,
+      "community": 137,
       "norm_label": "scorestatus"
     },
     {
@@ -32002,7 +32002,7 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "server_src_services_songpersist_generatedsong",
-      "community": 140,
+      "community": 74,
       "norm_label": "generatedsong"
     },
     {
@@ -32122,7 +32122,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_stemfiles",
-      "community": 4,
+      "community": 10,
       "norm_label": "stemfiles.ts"
     },
     {
@@ -32272,7 +32272,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "server_src_services_stemrunners_pollstem",
-      "community": 10,
+      "community": 12,
       "norm_label": "pollstem()"
     },
     {
@@ -32612,7 +32612,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_timingsjobs",
-      "community": 4,
+      "community": 70,
       "norm_label": "timingsjobs.ts"
     },
     {
@@ -32622,7 +32622,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "server_src_services_timingsjobs_pending",
-      "community": 4,
+      "community": 70,
       "norm_label": "pending"
     },
     {
@@ -32942,7 +32942,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_versionfiles",
-      "community": 4,
+      "community": 74,
       "norm_label": "versionfiles.ts"
     },
     {
@@ -33012,7 +33012,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_src_services_voiceconditioning",
-      "community": 4,
+      "community": 12,
       "norm_label": "voiceconditioning.ts"
     },
     {
@@ -33022,7 +33022,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "server_src_services_voiceconditioning_voicerow",
-      "community": 4,
+      "community": 12,
       "norm_label": "voicerow"
     },
     {
@@ -33032,7 +33032,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "server_src_services_voiceconditioning_voicereference",
-      "community": 4,
+      "community": 12,
       "norm_label": "voicereference"
     },
     {
@@ -33052,7 +33052,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "server_src_services_voiceconditioning_loadvoicereference",
-      "community": 146,
+      "community": 12,
       "norm_label": "loadvoicereference()"
     },
     {
@@ -33082,7 +33082,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "server_test_fakes_fakeollama",
-      "community": 23,
+      "community": 60,
       "norm_label": "fakeollama.ts"
     },
     {
@@ -33092,7 +33092,7 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "server_test_fakes_fakeollama_chatscript",
-      "community": 23,
+      "community": 60,
       "norm_label": "chatscript"
     },
     {
@@ -33102,7 +33102,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "server_test_fakes_fakeollama_fakeollamaoptions",
-      "community": 23,
+      "community": 60,
       "norm_label": "fakeollamaoptions"
     },
     {
@@ -33112,7 +33112,7 @@
       "source_location": "L28",
       "_origin": "ast",
       "id": "server_test_fakes_fakeollama_fakeollama",
-      "community": 23,
+      "community": 60,
       "norm_label": "fakeollama"
     },
     {
@@ -33122,7 +33122,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "server_test_fakes_fakeollama_startfakeollama",
-      "community": 23,
+      "community": 60,
       "norm_label": "startfakeollama()"
     },
     {
@@ -33382,7 +33382,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
-      "community": 406,
+      "community": 196,
       "norm_label": "api.py"
     },
     {
@@ -33392,7 +33392,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_create_app",
-      "community": 406,
+      "community": 196,
       "norm_label": "create_app()"
     },
     {
@@ -33432,7 +33432,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
-      "community": 406,
+      "community": 143,
       "norm_label": "http layer, built around injected runners so tests need no torch. speaks the co"
     },
     {
@@ -33602,7 +33602,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles_publish",
-      "community": 406,
+      "community": 155,
       "norm_label": ".publish()"
     },
     {
@@ -33702,7 +33702,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_rationale_45",
-      "community": 406,
+      "community": 155,
       "norm_label": "make the stems downloadable; returns kind -> path under /audio."
     },
     {
@@ -33762,7 +33762,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_py",
-      "community": 196,
+      "community": 294,
       "norm_label": "conftest.py"
     },
     {
@@ -33792,7 +33792,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners",
-      "community": 196,
+      "community": 294,
       "norm_label": "fakerunners"
     },
     {
@@ -33802,7 +33802,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_init",
-      "community": 196,
+      "community": 294,
       "norm_label": ".__init__()"
     },
     {
@@ -33812,7 +33812,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "community": 196,
+      "community": 294,
       "norm_label": "._emit()"
     },
     {
@@ -33822,7 +33822,7 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_mdx",
-      "community": 196,
+      "community": 294,
       "norm_label": ".mdx()"
     },
     {
@@ -33832,7 +33832,7 @@
       "source_location": "L36",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_demucs",
-      "community": 196,
+      "community": 294,
       "norm_label": ".demucs()"
     },
     {
@@ -33842,7 +33842,7 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_runners",
-      "community": 196,
+      "community": 294,
       "norm_label": "runners()"
     },
     {
@@ -33852,7 +33852,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_rationale_18",
-      "community": 196,
+      "community": 294,
       "norm_label": "stands in for run_mdx_headless / run_demucs_headless: records each call     and"
     },
     {
@@ -33872,7 +33872,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_api_setup",
-      "community": 196,
+      "community": 294,
       "norm_label": "setup()"
     },
     {
@@ -34542,7 +34542,7 @@
       "source_location": "L112",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
-      "community": 214,
+      "community": 211,
       "norm_label": ".cancelled()"
     },
     {
@@ -34812,7 +34812,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_score_bars",
-      "community": 174,
+      "community": 154,
       "norm_label": "score_bars.py"
     },
     {
@@ -34822,7 +34822,7 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "yue_server_score_bars_bars_text",
-      "community": 174,
+      "community": 163,
       "norm_label": "bars_text()"
     },
     {
@@ -34842,7 +34842,7 @@
       "source_location": "L29",
       "_origin": "ast",
       "id": "yue_server_score_bars_parse_bar",
-      "community": 174,
+      "community": 171,
       "norm_label": "parse_bar()"
     },
     {
@@ -34852,7 +34852,7 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "yue_server_score_bars_emit_bar",
-      "community": 174,
+      "community": 154,
       "norm_label": "emit_bar()"
     },
     {
@@ -34862,7 +34862,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "yue_server_score_bars_emit_line",
-      "community": 174,
+      "community": 154,
       "norm_label": "emit_line()"
     },
     {
@@ -34872,7 +34872,7 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "yue_server_score_bars_note_count",
-      "community": 174,
+      "community": 154,
       "norm_label": "note_count()"
     },
     {
@@ -34882,7 +34882,7 @@
       "source_location": "L75",
       "_origin": "ast",
       "id": "yue_server_score_bars_chord_offsets",
-      "community": 174,
+      "community": 154,
       "norm_label": "chord_offsets()"
     },
     {
@@ -34902,7 +34902,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_score_bars_rationale_1",
-      "community": 174,
+      "community": 154,
       "norm_label": "bar-level events of a native yue2 score, for the score model and ops.  an event"
     },
     {
@@ -34922,7 +34922,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "yue_server_score_bars_rationale_76",
-      "community": 174,
+      "community": 154,
       "norm_label": "(units from the bar start, chord) for each chord symbol in the bar."
     },
     {
@@ -35002,7 +35002,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "yue_server_score_check_chords_per_bar",
-      "community": 159,
+      "community": 163,
       "norm_label": "_chords_per_bar()"
     },
     {
@@ -35012,7 +35012,7 @@
       "source_location": "L94",
       "_origin": "ast",
       "id": "yue_server_score_check_check_edit",
-      "community": 159,
+      "community": 163,
       "norm_label": "check_edit()"
     },
     {
@@ -35026,14 +35026,14 @@
       "norm_label": "checks around upstream's parser and comparer: a score's verdict (upstream's own"
     },
     {
-      "label": "{bar, voice, units, expected} for each bar whose lengths do not add up to     it",
+      "label": "{bar, voice, units, expected} for each bar whose lengths do not add up to     i",
       "file_type": "rationale",
       "source_file": "yue-server/score_check.py",
       "source_location": "L42",
       "_origin": "ast",
       "id": "yue_server_score_check_rationale_42",
       "community": 159,
-      "norm_label": "{bar, voice, units, expected} for each bar whose lengths do not add up to     it"
+      "norm_label": "{bar, voice, units, expected} for each bar whose lengths do not add up to     i"
     },
     {
       "label": "{ok, error, bar_sums, messages, chords_present}; error is upstream's text.",
@@ -35046,14 +35046,14 @@
       "norm_label": "{ok, error, bar_sums, messages, chords_present}; error is upstream's text."
     },
     {
-      "label": "{ok, problems, differences} for an edit made by `ops` (the applied ones);     di",
+      "label": "{ok, problems, differences} for an edit made by `ops` (the applied ones);     d",
       "file_type": "rationale",
       "source_file": "yue-server/score_check.py",
       "source_location": "L95",
       "_origin": "ast",
       "id": "yue_server_score_check_rationale_95",
-      "community": 159,
-      "norm_label": "{ok, problems, differences} for an edit made by `ops` (the applied ones);     di"
+      "community": 163,
+      "norm_label": "{ok, problems, differences} for an edit made by `ops` (the applied ones);     d"
     },
     {
       "label": "score_edit_routes.py",
@@ -35302,7 +35302,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_score_model",
-      "community": 174,
+      "community": 154,
       "norm_label": "score_model.py"
     },
     {
@@ -35322,7 +35322,7 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "yue_server_score_model_doc",
-      "community": 201,
+      "community": 171,
       "norm_label": "doc"
     },
     {
@@ -35332,7 +35332,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_init",
-      "community": 201,
+      "community": 171,
       "norm_label": ".__init__()"
     },
     {
@@ -35342,7 +35342,7 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_meter",
-      "community": 201,
+      "community": 171,
       "norm_label": "._meter()"
     },
     {
@@ -35352,7 +35352,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_text",
-      "community": 174,
+      "community": 154,
       "norm_label": ".text()"
     },
     {
@@ -35362,7 +35362,7 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_bpm",
-      "community": 201,
+      "community": 171,
       "norm_label": ".bpm()"
     },
     {
@@ -35372,7 +35372,7 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_set_bpm",
-      "community": 201,
+      "community": 171,
       "norm_label": ".set_bpm()"
     },
     {
@@ -35382,7 +35382,7 @@
       "source_location": "L81",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_key",
-      "community": 201,
+      "community": 171,
       "norm_label": ".key()"
     },
     {
@@ -35392,7 +35392,7 @@
       "source_location": "L84",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_refs",
-      "community": 201,
+      "community": 171,
       "norm_label": "._refs()"
     },
     {
@@ -35402,7 +35402,7 @@
       "source_location": "L88",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_nbars",
-      "community": 201,
+      "community": 171,
       "norm_label": ".nbars()"
     },
     {
@@ -35412,7 +35412,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_ref",
-      "community": 201,
+      "community": 171,
       "norm_label": "._ref()"
     },
     {
@@ -35422,7 +35422,7 @@
       "source_location": "L97",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_bar",
-      "community": 201,
+      "community": 171,
       "norm_label": ".bar()"
     },
     {
@@ -35432,7 +35432,7 @@
       "source_location": "L101",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_edit",
-      "community": 201,
+      "community": 171,
       "norm_label": ".edit()"
     },
     {
@@ -35442,7 +35442,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_units_per_bar",
-      "community": 201,
+      "community": 171,
       "norm_label": ".units_per_bar()"
     },
     {
@@ -35452,7 +35452,7 @@
       "source_location": "L117",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_units_per_quarter",
-      "community": 201,
+      "community": 171,
       "norm_label": ".units_per_quarter()"
     },
     {
@@ -35462,7 +35462,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "yue_server_score_model_py_fraction",
-      "community": 201,
+      "community": 171,
       "norm_label": "fraction"
     },
     {
@@ -35472,7 +35472,7 @@
       "source_location": "L120",
       "_origin": "ast",
       "id": "yue_server_score_model_doc_section_ranges",
-      "community": 201,
+      "community": 171,
       "norm_label": ".section_ranges()"
     },
     {
@@ -35482,7 +35482,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_score_model_rationale_1",
-      "community": 174,
+      "community": 154,
       "norm_label": "a native yue2 score that upstream's parse_abc has already accepted, held as head"
     },
     {
@@ -35502,7 +35502,7 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "yue_server_score_model_rationale_102",
-      "community": 201,
+      "community": 171,
       "norm_label": "the bar's events to change in place; a full-bar rest becomes plain rests."
     },
     {
@@ -35512,7 +35512,7 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "yue_server_score_model_rationale_121",
-      "community": 201,
+      "community": 171,
       "norm_label": "(section number, label, first bar, last bar) for each section with bars."
     },
     {
@@ -35746,14 +35746,14 @@
       "norm_label": "(bar, beat, root) of every vocal chord symbol in score order."
     },
     {
-      "label": "The refusal for a REHARMONIZE `op` on the score `doc` (before the edit)     that",
+      "label": "The refusal for a REHARMONIZE `op` on the score `doc` (before the edit)     tha",
       "file_type": "rationale",
       "source_file": "yue-server/score_roots.py",
       "source_location": "L47",
       "_origin": "ast",
       "id": "yue_server_score_roots_rationale_47",
       "community": 171,
-      "norm_label": "the refusal for a reharmonize `op` on the score `doc` (before the edit)     that"
+      "norm_label": "the refusal for a reharmonize `op` on the score `doc` (before the edit)     tha"
     },
     {
       "label": "score_routes.py",
@@ -35772,7 +35772,7 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_measurerequest",
-      "community": 407,
+      "community": 219,
       "norm_label": "measurerequest"
     },
     {
@@ -35812,7 +35812,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_py",
-      "community": 210,
+      "community": 412,
       "norm_label": "scores.py"
     },
     {
@@ -35822,7 +35822,7 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_scoreerror",
-      "community": 210,
+      "community": 412,
       "norm_label": "scoreerror"
     },
     {
@@ -35832,7 +35832,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_prepare_score",
-      "community": 210,
+      "community": 412,
       "norm_label": "prepare_score()"
     },
     {
@@ -35852,7 +35852,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_1",
-      "community": 210,
+      "community": 412,
       "norm_label": "checks a supplied score (a cover's `abc`) before it is queued, so a bad one is"
     },
     {
@@ -35862,7 +35862,7 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
-      "community": 210,
+      "community": 412,
       "norm_label": "the score to generate from: validated, and chord-free for `melody`."
     },
     {
@@ -35872,7 +35872,7 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
-      "community": 174,
+      "community": 412,
       "norm_label": "the header (everything before the first `% name` line) and each section's     b"
     },
     {
@@ -35992,7 +35992,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_settings_py",
-      "community": 223,
+      "community": 402,
       "norm_label": "settings.py"
     },
     {
@@ -36002,7 +36002,7 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_settings_flag",
-      "community": 223,
+      "community": 402,
       "norm_label": "_flag()"
     },
     {
@@ -36022,7 +36022,7 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_settings_settings_from_env",
-      "community": 223,
+      "community": 18,
       "norm_label": ".from_env()"
     },
     {
@@ -36032,7 +36032,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_settings_rationale_1",
-      "community": 223,
+      "community": 402,
       "norm_label": "environment configuration for yue-server. every knob is optional; the defaults"
     },
     {
@@ -36042,7 +36042,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_tests_conftest",
-      "community": 142,
+      "community": 409,
       "norm_label": "conftest.py"
     },
     {
@@ -36102,7 +36102,7 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "yue_server_tests_conftest_fakepipeline_semantic",
-      "community": 214,
+      "community": 206,
       "norm_label": ".semantic()"
     },
     {
@@ -36172,7 +36172,7 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "yue_server_tests_conftest_pytest_addoption",
-      "community": 142,
+      "community": 409,
       "norm_label": "pytest_addoption()"
     },
     {
@@ -36182,7 +36182,7 @@
       "source_location": "L113",
       "_origin": "ast",
       "id": "yue_server_tests_conftest_record_contract",
-      "community": 142,
+      "community": 409,
       "norm_label": "record_contract()"
     },
     {
@@ -36202,7 +36202,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_tests_conftest_rationale_1",
-      "community": 142,
+      "community": 409,
       "norm_label": "a fake of the yue_pipeline.yuepipeline adapter, so tests run without torch, yue"
     },
     {
@@ -36422,7 +36422,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "yue_server_tests_test_cancel_and_failures_outofmemoryerror",
-      "community": 408,
+      "community": 142,
       "norm_label": "outofmemoryerror"
     },
     {
@@ -36432,7 +36432,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "runtimeerror",
-      "community": 408,
+      "community": 142,
       "norm_label": "runtimeerror"
     },
     {
@@ -36472,7 +36472,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "yue_server_tests_test_cancel_and_failures_test_queue_full_is_429",
-      "community": 148,
+      "community": 142,
       "norm_label": "test_queue_full_is_429()"
     },
     {
@@ -36502,7 +36502,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "yue_server_tests_test_cancel_and_failures_rationale_9",
-      "community": 408,
+      "community": 142,
       "norm_label": "stands in for torch.outofmemoryerror, which the worker matches by name."
     },
     {
@@ -37162,18 +37162,18 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "yue_server_tests_test_score_roots_test_check_edit_refuses_a_recoloured_reharmonize_and_keeps_the_other_checks",
-      "community": 159,
+      "community": 163,
       "norm_label": "test_check_edit_refuses_a_recoloured_reharmonize_and_keeps_the_other_checks()"
     },
     {
-      "label": "D-055: a REHARMONIZE must move the harmony, not only recolour it. In every 2-bar",
+      "label": "D-055: a REHARMONIZE must move the harmony, not only recolour it. In every 2-ba",
       "file_type": "rationale",
       "source_file": "yue-server/tests/test_score_roots.py",
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_tests_test_score_roots_rationale_1",
       "community": 171,
-      "norm_label": "d-055: a reharmonize must move the harmony, not only recolour it. in every 2-bar"
+      "norm_label": "d-055: a reharmonize must move the harmony, not only recolour it. in every 2-ba"
     },
     {
       "label": "test_scores.py",
@@ -37212,7 +37212,7 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_test_measure_counts_the_prepared_score_per_section",
-      "community": 210,
+      "community": 412,
       "norm_label": "test_measure_counts_the_prepared_score_per_section()"
     },
     {
@@ -37322,7 +37322,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker",
-      "community": 223,
+      "community": 18,
       "norm_label": "test_store_and_worker.py"
     },
     {
@@ -37332,7 +37332,7 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_clock",
-      "community": 223,
+      "community": 18,
       "norm_label": "clock"
     },
     {
@@ -37342,7 +37342,7 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_clock_init",
-      "community": 223,
+      "community": 18,
       "norm_label": ".__init__()"
     },
     {
@@ -37352,7 +37352,7 @@
       "source_location": "L17",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_clock_call",
-      "community": 223,
+      "community": 18,
       "norm_label": ".__call__()"
     },
     {
@@ -37362,7 +37362,7 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_test_progress_is_a_per_stage_fraction",
-      "community": 223,
+      "community": 18,
       "norm_label": "test_progress_is_a_per_stage_fraction()"
     },
     {
@@ -37372,7 +37372,7 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_test_sweep_drops_expired_jobs_and_their_artifacts",
-      "community": 223,
+      "community": 18,
       "norm_label": "test_sweep_drops_expired_jobs_and_their_artifacts()"
     },
     {
@@ -37382,7 +37382,7 @@
       "source_location": "L66",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_test_a_cancel_that_races_completion_wins",
-      "community": 223,
+      "community": 18,
       "norm_label": "test_a_cancel_that_races_completion_wins()"
     },
     {
@@ -37392,7 +37392,7 @@
       "source_location": "L76",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_test_purge_orphans_only_touches_job_directories",
-      "community": 223,
+      "community": 18,
       "norm_label": "test_purge_orphans_only_touches_job_directories()"
     },
     {
@@ -37402,7 +37402,7 @@
       "source_location": "L85",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_test_settings_defaults_match_the_spike",
-      "community": 223,
+      "community": 18,
       "norm_label": "test_settings_defaults_match_the_spike()"
     },
     {
@@ -37412,7 +37412,7 @@
       "source_location": "L91",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_test_settings_read_the_environment",
-      "community": 223,
+      "community": 18,
       "norm_label": "test_settings_read_the_environment()"
     },
     {
@@ -37422,7 +37422,7 @@
       "source_location": "L100",
       "_origin": "ast",
       "id": "yue_server_tests_test_store_and_worker_test_idempotency_keys_expire_with_their_job",
-      "community": 223,
+      "community": 18,
       "norm_label": "test_idempotency_keys_expire_with_their_job()"
     },
     {
@@ -37652,7 +37652,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_py",
-      "community": 71,
+      "community": 206,
       "norm_label": "transcriber.py"
     },
     {
@@ -37662,7 +37662,7 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_transcriptionerror",
-      "community": 71,
+      "community": 206,
       "norm_label": "transcriptionerror"
     },
     {
@@ -37672,7 +37672,7 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_transcriptionerror_init",
-      "community": 71,
+      "community": 206,
       "norm_label": ".__init__()"
     },
     {
@@ -37692,7 +37692,7 @@
       "source_location": "L37",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_transcriber_init",
-      "community": 71,
+      "community": 206,
       "norm_label": ".__init__()"
     },
     {
@@ -37712,7 +37712,7 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_transcriber_run",
-      "community": 71,
+      "community": 206,
       "norm_label": ".run()"
     },
     {
@@ -37732,7 +37732,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_read",
-      "community": 71,
+      "community": 206,
       "norm_label": "_read()"
     },
     {
@@ -37742,7 +37742,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_kill",
-      "community": 71,
+      "community": 206,
       "norm_label": "_kill()"
     },
     {
@@ -37752,7 +37752,7 @@
       "source_location": "L86",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_collect",
-      "community": 71,
+      "community": 206,
       "norm_label": "_collect()"
     },
     {
@@ -37762,7 +37762,7 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_run_transcription",
-      "community": 71,
+      "community": 206,
       "norm_label": "run_transcription()"
     },
     {
@@ -37772,7 +37772,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_rationale_1",
-      "community": 71,
+      "community": 206,
       "norm_label": "sheetsage2 transcription, the second job kind (plan.md, \"yue-server transcripti"
     },
     {
@@ -37792,7 +37792,7 @@
       "source_location": "L49",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_rationale_49",
-      "community": 71,
+      "community": 206,
       "norm_label": "transcribe into `out`; returns the result facts plus `preview` (bool)."
     },
     {
@@ -37972,7 +37972,7 @@
       "source_location": "L154",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
-      "community": 174,
+      "community": 210,
       "norm_label": "fail closed for unsupported tokens; resolve sounding notes, not token counts."
     },
     {
@@ -38182,7 +38182,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_worker",
-      "community": 135,
+      "community": 211,
       "norm_label": "worker.py"
     },
     {
@@ -38262,7 +38262,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "yue_server_worker_worker_main",
-      "community": 71,
+      "community": 206,
       "norm_label": "._main()"
     },
     {
@@ -38272,7 +38272,7 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "yue_server_worker_run_job",
-      "community": 135,
+      "community": 211,
       "norm_label": "run_job()"
     },
     {
@@ -38282,7 +38282,7 @@
       "source_location": "L128",
       "_origin": "ast",
       "id": "yue_server_worker_save",
-      "community": 135,
+      "community": 211,
       "norm_label": "_save()"
     },
     {
@@ -38292,7 +38292,7 @@
       "source_location": "L155",
       "_origin": "ast",
       "id": "yue_server_worker_error",
-      "community": 135,
+      "community": 211,
       "norm_label": "_error()"
     },
     {
@@ -38302,7 +38302,7 @@
       "source_location": "",
       "_origin": "ast",
       "id": "yue_server_worker_py_exception",
-      "community": 135,
+      "community": 211,
       "norm_label": "exception"
     },
     {
@@ -38312,7 +38312,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "yue_server_worker_rationale_1",
-      "community": 135,
+      "community": 211,
       "norm_label": "the single inference thread: loads the pipeline once, then runs queued jobs one"
     },
     {
@@ -38432,7 +38432,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_yue_pipeline_yuepipeline_plan",
-      "community": 402,
+      "community": 77,
       "norm_label": ".plan()"
     },
     {
@@ -38639,7 +38639,7 @@
       "label": "GPU job queue",
       "file_type": "document",
       "source_file": ".claude/rules/job-queue.md",
-      "source_location": "L12",
+      "source_location": "L13",
       "_origin": "ast",
       "id": "claude_rules_job_queue_gpu_job_queue",
       "community": 393,
@@ -40012,7 +40012,7 @@
       "source_location": "L3587",
       "_origin": "ast",
       "id": "plan_text2music_reference_audio_style_influence_only_planned_implemented_2026_09_30",
-      "community": 15,
+      "community": 419,
       "norm_label": "text2music reference audio: style influence only (planned + implemented 2026-09-30)"
     },
     {
@@ -40022,7 +40022,7 @@
       "source_location": "L3599",
       "_origin": "ast",
       "id": "plan_decisions_3599",
-      "community": 15,
+      "community": 419,
       "norm_label": "decisions"
     },
     {
@@ -40032,7 +40032,7 @@
       "source_location": "L3612",
       "_origin": "ast",
       "id": "plan_file_level_plan_3612",
-      "community": 15,
+      "community": 419,
       "norm_label": "file-level plan"
     },
     {
@@ -40042,7 +40042,7 @@
       "source_location": "L3622",
       "_origin": "ast",
       "id": "plan_cover_and_arrange_reference_audio_no_influence_sliders_planned_implemented_2026_09_30",
-      "community": 419,
+      "community": 15,
       "norm_label": "cover and arrange reference audio: no influence sliders (planned + implemented 2026-09-30)"
     },
     {
@@ -40052,7 +40052,7 @@
       "source_location": "L3634",
       "_origin": "ast",
       "id": "plan_decisions_3634",
-      "community": 419,
+      "community": 15,
       "norm_label": "decisions"
     },
     {
@@ -40062,7 +40062,7 @@
       "source_location": "L3652",
       "_origin": "ast",
       "id": "plan_file_level_plan_3652",
-      "community": 419,
+      "community": 15,
       "norm_label": "file-level plan"
     },
     {
@@ -42662,7 +42662,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "docs_ace_step_1_5_api",
-      "community": 294,
+      "community": 218,
       "norm_label": "api.md"
     },
     {
@@ -42692,7 +42692,7 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "docs_ace_step_1_5_api_1_authentication",
-      "community": 218,
+      "community": 413,
       "norm_label": "1. authentication"
     },
     {
@@ -42702,7 +42702,7 @@
       "source_location": "L44",
       "_origin": "ast",
       "id": "docs_ace_step_1_5_api_authentication_methods",
-      "community": 218,
+      "community": 413,
       "norm_label": "authentication methods"
     },
     {
@@ -42712,7 +42712,7 @@
       "source_location": "L67",
       "_origin": "ast",
       "id": "docs_ace_step_1_5_api_configuring_api_key",
-      "community": 218,
+      "community": 413,
       "norm_label": "configuring api key"
     },
     {
@@ -43142,7 +43142,7 @@
       "source_location": "L702",
       "_origin": "ast",
       "id": "docs_ace_step_1_5_api_12_health_check",
-      "community": 206,
+      "community": 218,
       "norm_label": "12. health check"
     },
     {
@@ -43152,7 +43152,7 @@
       "source_location": "L704",
       "_origin": "ast",
       "id": "docs_ace_step_1_5_api_12_1_api_definition",
-      "community": 206,
+      "community": 218,
       "norm_label": "12.1 api definition"
     },
     {
@@ -43162,7 +43162,7 @@
       "source_location": "L711",
       "_origin": "ast",
       "id": "docs_ace_step_1_5_api_12_2_response_example",
-      "community": 206,
+      "community": 218,
       "norm_label": "12.2 response example"
     },
     {
@@ -46696,14 +46696,14 @@
       "norm_label": "r-012 \u00b7 impact m \u00b7 evidence known"
     },
     {
-      "label": "R-013 \u00b7 impact H \u00b7 evidence measured (SP-3, 2026-10-03; machine side proven and qualified, user A/B listen OWED; see [RESULT](spikes/SP-3-cot-full-adherence/RESULT.md))",
+      "label": "R-013 \u00b7 impact H \u00b7 evidence proven, qualified (SP-3 2026-10-03; M0 listens 2026-10-05: tempo heard as asked, chords 2/4 before D-055, 5/5 after; see [RESULT](spikes/SP-3-cot-full-adherence/RESULT.md))",
       "file_type": "document",
       "source_file": "pipeline/risks.md",
       "source_location": "L140",
       "_origin": "ast",
-      "id": "pipeline_risks_r_013_impact_h_evidence_measured_sp_3_2026_10_03_machine_side_proven_and_qualified_user_a_b_listen_owed_see_result_spikes_sp_3_cot_full_adherence_result_md",
+      "id": "pipeline_risks_r_013_impact_h_evidence_proven_qualified_sp_3_2026_10_03_m0_listens_2026_10_05_tempo_heard_as_asked_chords_2_4_before_d_055_5_5_after_see_result_spikes_sp_3_cot_full_adherence_result_md",
       "community": 3,
-      "norm_label": "r-013 \u00b7 impact h \u00b7 evidence measured (sp-3, 2026-10-03; machine side proven and qualified, user a/b listen owed; see [result](spikes/sp-3-cot-full-adherence/result.md))"
+      "norm_label": "r-013 \u00b7 impact h \u00b7 evidence proven, qualified (sp-3 2026-10-03; m0 listens 2026-10-05: tempo heard as asked, chords 2/4 before d-055, 5/5 after; see [result](spikes/sp-3-cot-full-adherence/result.md))"
     },
     {
       "label": "R-014 \u00b7 impact M \u00b7 evidence measured (SP-3, 2026-10-03; see [RESULT](spikes/SP-3-cot-full-adherence/RESULT.md))",
@@ -79616,83 +79616,6 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "pipeline/spikes/SP-2-planner-quality/golden.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "pipeline_spikes_sp_2_planner_quality_golden",
-      "target": "client_src_api_score",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "pipeline/spikes/SP-2-planner-quality/measure.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "pipeline_spikes_sp_2_planner_quality_measure",
-      "target": "client_src_api_score",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "pipeline/spikes/SP-2-planner-quality/phrase_wav.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "pipeline_spikes_sp_2_planner_quality_phrase_wav",
-      "target": "client_src_api_score",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "pipeline/spikes/SP-2-planner-quality/planner.py",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "pipeline_spikes_sp_2_planner_quality_planner",
-      "target": "client_src_api_score",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "pipeline/spikes/SP-2-planner-quality/planner_v1.py",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "pipeline_spikes_sp_2_planner_quality_planner_v1",
-      "target": "client_src_api_score",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "pipeline/spikes/SP-2-planner-quality/run.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "pipeline_spikes_sp_2_planner_quality_run",
-      "target": "client_src_api_score",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "pipeline/spikes/SP-2-planner-quality/selftest.py",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "pipeline_spikes_sp_2_planner_quality_selftest",
-      "target": "client_src_api_score",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "client/src/scoreCopy.ts",
       "source_location": "L3",
       "weight": 1.0,
@@ -102785,7 +102708,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_rationale_45",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles_forget",
       "confidence_score": 1.0
     },
     {
@@ -103055,7 +102978,7 @@
       "source_location": "L27",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_main_py",
-      "target": "docs_ace_step_1_5_api",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -103097,7 +103020,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_api_py",
-      "target": "docs_ace_step_1_5_api",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -103471,7 +103394,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_demucs_server_tests_test_job_files_py",
-      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_rationale_45",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles_forget",
       "confidence_score": 1.0
     },
     {
@@ -104627,6 +104550,28 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "heartmula-server/main.py",
+      "source_location": "L23",
+      "weight": 1.0,
+      "source": "heartmula_server_main",
+      "target": "heartmula_server_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "heartmula-server/tests/test_api.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "heartmula_server_tests_test_api",
+      "target": "heartmula_server_config",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "context": "return_type",
       "confidence": "EXTRACTED",
@@ -105771,17 +105716,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "heartmula-server/main.py",
-      "source_location": "L23",
-      "weight": 1.0,
-      "source": "heartmula_server_main",
-      "target": "server_src_config",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "heartmula-server/main.py",
@@ -105810,7 +105744,7 @@
       "source_location": "L25",
       "weight": 1.0,
       "source": "heartmula_server_main",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
       "confidence_score": 1.0
     },
     {
@@ -105832,7 +105766,7 @@
       "source_location": "L27",
       "weight": 1.0,
       "source": "heartmula_server_main",
-      "target": "yue_server_worker",
+      "target": "heartmula_server_worker",
       "confidence_score": 1.0
     },
     {
@@ -106150,17 +106084,6 @@
       "target": "heartmula_server_tests_conftest_lyrics"
     },
     {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "heartmula-server/tests/test_api.py",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "heartmula_server_tests_test_api",
-      "target": "server_src_config",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
@@ -106168,7 +106091,7 @@
       "source_location": "L9",
       "weight": 1.0,
       "source": "heartmula_server_tests_test_api",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
       "confidence_score": 1.0
     },
     {
@@ -106319,7 +106242,7 @@
       "source_location": "L10",
       "weight": 1.0,
       "source": "heartmula_server_tests_test_api",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_load_audio",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -107256,7 +107179,7 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "heartmula_server_tests_test_jobs",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
       "confidence_score": 1.0
     },
     {
@@ -107267,7 +107190,7 @@
       "source_location": "L6",
       "weight": 1.0,
       "source": "heartmula_server_tests_test_jobs",
-      "target": "yue_server_worker",
+      "target": "heartmula_server_worker",
       "confidence_score": 1.0
     },
     {
@@ -107291,6 +107214,17 @@
       "weight": 1.0,
       "source": "heartmula_server_tests_test_jobs_test_classify",
       "target": "runtimeerror"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_instrumental.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
+      "target": "heartmula_server_worker",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -107320,7 +107254,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "heartmula_server_worker",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
       "confidence_score": 1.0
     },
     {
@@ -107330,6 +107264,28 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "heartmula_server_worker_rationale_1",
+      "target": "heartmula_server_worker",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/main.py",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "yue_server_main",
+      "target": "heartmula_server_worker",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_store_and_worker.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "yue_server_tests_test_store_and_worker",
       "target": "heartmula_server_worker",
       "confidence_score": 1.0
     },
@@ -107659,6 +107615,28 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "lyrics-server/main.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_py",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_segment",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "lyrics-server/tests/test_asr.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_asr_py",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_segment",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "context": "parameter_type",
       "confidence": "EXTRACTED",
@@ -107754,28 +107732,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_asr_transcriber",
       "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_make_transcriber"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "lyrics-server/main.py",
-      "source_location": "L13",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_rationale_1",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "lyrics-server/tests/test_asr.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_asr_py",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_asr_rationale_1",
-      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -107880,7 +107836,7 @@
       "source_location": "L12",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_py",
-      "target": "docs_ace_step_1_5_api",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -107931,7 +107887,7 @@
       "source_location": "L12",
       "weight": 1.0,
       "source": "yue_server_tests_conftest",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_load_audio",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_main_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -107942,7 +107898,7 @@
       "source_location": "L4",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_api_py",
-      "target": "docs_ace_step_1_5_api",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -108285,7 +108241,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_lyrics_server_tests_test_asr_py",
-      "target": "server_src_services_engines_types",
+      "target": "server_src_services_acestep_types",
       "confidence_score": 1.0
     },
     {
@@ -109202,6 +109158,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pipeline/spikes/SP-2-planner-quality/golden.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "pipeline_spikes_sp_2_planner_quality_golden",
+      "target": "pipeline_spikes_sp_2_planner_quality_score",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "pipeline/spikes/SP-2-planner-quality/golden.py",
@@ -109261,6 +109228,17 @@
       "weight": 1.0,
       "source": "pipeline_spikes_sp_2_planner_quality_measure",
       "target": "pipeline_spikes_sp_2_planner_quality_planner",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pipeline/spikes/SP-2-planner-quality/measure.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "pipeline_spikes_sp_2_planner_quality_measure",
+      "target": "pipeline_spikes_sp_2_planner_quality_score",
       "confidence_score": 1.0
     },
     {
@@ -109332,6 +109310,17 @@
       "weight": 1.0,
       "source": "pipeline_spikes_sp_2_planner_quality_phrase_wav",
       "target": "pipeline_spikes_sp_2_planner_quality_phrase_wav_tone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pipeline/spikes/SP-2-planner-quality/phrase_wav.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "pipeline_spikes_sp_2_planner_quality_phrase_wav",
+      "target": "pipeline_spikes_sp_2_planner_quality_score",
       "confidence_score": 1.0
     },
     {
@@ -109466,6 +109455,17 @@
       "weight": 1.0,
       "source": "pipeline_spikes_sp_2_planner_quality_planner",
       "target": "pipeline_spikes_sp_2_planner_quality_planner_user_prompt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pipeline/spikes/SP-2-planner-quality/planner.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "pipeline_spikes_sp_2_planner_quality_planner",
+      "target": "pipeline_spikes_sp_2_planner_quality_score",
       "confidence_score": 1.0
     },
     {
@@ -109613,6 +109613,17 @@
       "weight": 1.0,
       "source": "pipeline_spikes_sp_2_planner_quality_planner_v1",
       "target": "pipeline_spikes_sp_2_planner_quality_planner_v1_user_prompt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pipeline/spikes/SP-2-planner-quality/planner_v1.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "pipeline_spikes_sp_2_planner_quality_planner_v1",
+      "target": "pipeline_spikes_sp_2_planner_quality_score",
       "confidence_score": 1.0
     },
     {
@@ -109915,6 +109926,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pipeline/spikes/SP-2-planner-quality/run.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "pipeline_spikes_sp_2_planner_quality_run",
+      "target": "pipeline_spikes_sp_2_planner_quality_score",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "rationale_for",
       "confidence": "EXTRACTED",
       "source_file": "pipeline/spikes/SP-2-planner-quality/run.py",
@@ -110105,7 +110127,7 @@
       "source_location": "L10",
       "weight": 1.0,
       "source": "pipeline_spikes_sp_2_planner_quality_score",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -110373,6 +110395,17 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "pipeline_spikes_sp_2_planner_quality_score_rationale_1",
+      "target": "pipeline_spikes_sp_2_planner_quality_score",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "pipeline/spikes/SP-2-planner-quality/selftest.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "pipeline_spikes_sp_2_planner_quality_selftest",
       "target": "pipeline_spikes_sp_2_planner_quality_score",
       "confidence_score": 1.0
     },
@@ -111161,7 +111194,7 @@
       "source_location": "L21",
       "weight": 1.0,
       "source": "pipeline_spikes_sp_3_cot_full_adherence_analyze",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -112099,7 +112132,7 @@
       "source_location": "L9",
       "weight": 1.0,
       "source": "pipeline_spikes_sp_3_cot_full_adherence_build_variants",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -122547,6 +122580,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/conftest.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "yue_server_tests_conftest",
+      "target": "server_src_services_acestep_types",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "references",
       "context": "field",
       "confidence": "EXTRACTED",
@@ -127707,17 +127751,6 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "server_src_services_transcribejobs_test",
-      "target": "server_src_services_engines_types",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/conftest.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "yue_server_tests_conftest",
       "target": "server_src_services_engines_types",
       "confidence_score": 1.0
     },
@@ -141594,7 +141627,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_55",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -141615,7 +141648,7 @@
       "source_location": "L14",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_rationale_45",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles_forget",
       "confidence_score": 1.0
     },
     {
@@ -141626,6 +141659,28 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
       "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_py",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/main.py",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_main_py",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/tests/test_api.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_api_py",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_api_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -141793,7 +141848,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_55",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -141804,7 +141859,7 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_55",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_chain_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -142033,18 +142088,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_job_files_py",
-      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_rationale_45",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/main.py",
-      "source_location": "L19",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_main_py",
-      "target": "docs_ace_step_1_5_api",
+      "target": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_job_files_jobfiles_forget",
       "confidence_score": 1.0
     },
     {
@@ -142085,7 +142129,7 @@
       "source_location": "L20",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_main_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_uvr_models_rationale_52",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_uvr_models_fetch_json",
       "confidence_score": 1.0
     },
     {
@@ -142151,6 +142195,17 @@
       "confidence_score": 1.0
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_transcription.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_transcription_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -142158,6 +142213,17 @@
       "source_location": "L30",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/tests/test_chain.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_py",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
       "confidence_score": 1.0
     },
@@ -142171,6 +142237,83 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_test_mix_into_tolerates_a_length_mismatch",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_api.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_instrumental.py",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_scores.py",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "uvr-server/tests/test_api.py",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_api_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_cancel_and_failures.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "yue_server_tests_test_cancel_and_failures",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_score_edit_routes.py",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "yue_server_tests_test_score_edit_routes",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_store_and_worker.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "yue_server_tests_test_store_and_worker",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_write_tone",
+      "confidence_score": 1.0
     },
     {
       "relation": "method",
@@ -142267,17 +142410,6 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners"
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_transcription.py",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_transcription_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -142297,105 +142429,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_mdx",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/tests/test_chain.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_chain_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_api.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_instrumental.py",
-      "source_location": "L3",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_scores.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/tests/test_api.py",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_api_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_cancel_and_failures.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "yue_server_tests_test_cancel_and_failures",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_score_edit_routes.py",
-      "source_location": "L13",
-      "weight": 1.0,
-      "source": "yue_server_tests_test_score_edit_routes",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_store_and_worker.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "yue_server_tests_test_store_and_worker",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_conftest_fakerunners_emit",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "uvr-server/tests/test_api.py",
-      "source_location": "L7",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_objective_ramanujan_b9a611_uvr_server_tests_test_api_py",
-      "target": "docs_ace_step_1_5_api",
       "confidence_score": 1.0
     },
     {
@@ -142943,7 +142976,7 @@
       "source_location": "L5",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_tests_test_uvr_models_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_uvr_models_rationale_52",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_uvr_server_uvr_models_fetch_json",
       "confidence_score": 1.0
     },
     {
@@ -143133,7 +143166,7 @@
       "source_location": "L21",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -143174,7 +143207,7 @@
       "source_location": "L22",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_subtract_intervals",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
       "confidence_score": 1.0
     },
     {
@@ -143241,17 +143274,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_instrumental.py",
-      "source_location": "L4",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_section_tags",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -143261,17 +143283,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_test_section_tags_come_from_the_score_comments",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_section_tags"
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/worker.py",
-      "source_location": "L20",
-      "weight": 1.0,
-      "source": "yue_server_worker",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_section_tags",
-      "confidence_score": 1.0
     },
     {
       "relation": "calls",
@@ -143361,6 +143372,28 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_arrange"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_instrumental.py",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_rationale_46",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/worker.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "yue_server_worker",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_instrumental_rationale_46",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "yue-server/jobs.py",
@@ -143397,61 +143430,6 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_rationale_1",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_instrumental.py",
-      "source_location": "L5",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/transcribe_routes.py",
-      "source_location": "L18",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/main.py",
-      "source_location": "L30",
-      "weight": 1.0,
-      "source": "yue_server_main",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_store_and_worker.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "yue_server_tests_test_store_and_worker",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/worker.py",
-      "source_location": "L21",
-      "weight": 1.0,
-      "source": "yue_server_worker",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_py",
       "confidence_score": 1.0
     },
@@ -143780,6 +143758,39 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_instrumental.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/transcribe_routes.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/main.py",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "yue_server_main",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -143789,6 +143800,28 @@
       "weight": 1.0,
       "source": "yue_server_tests_conftest_fakepipeline_semantic",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/tests/test_store_and_worker.py",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "yue_server_tests_test_store_and_worker",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/worker.py",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "yue_server_worker",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_jobs_jobstore_cancelled",
+      "confidence_score": 1.0
     },
     {
       "relation": "indirect_call",
@@ -143862,7 +143895,7 @@
       "source_location": "L31",
       "weight": 1.0,
       "source": "yue_server_main",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_generaterequest",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_request_model_generaterequest_nonblank",
       "confidence_score": 1.0
     },
     {
@@ -143895,7 +143928,7 @@
       "source_location": "L32",
       "weight": 1.0,
       "source": "yue_server_main",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -143906,18 +143939,7 @@
       "source_location": "L36",
       "weight": 1.0,
       "source": "yue_server_main",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_py",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/main.py",
-      "source_location": "L38",
-      "weight": 1.0,
-      "source": "yue_server_main",
-      "target": "yue_server_worker",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_transcribe_routes_rationale_1",
       "confidence_score": 1.0
     },
     {
@@ -144150,7 +144172,7 @@
       "source_location": "L10",
       "weight": 1.0,
       "source": "yue_server_score_bars",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -144161,7 +144183,7 @@
       "source_location": "L9",
       "weight": 1.0,
       "source": "yue_server_score_bars",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -144468,7 +144490,7 @@
       "source_location": "L17",
       "weight": 1.0,
       "source": "yue_server_score_check",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -144501,7 +144523,7 @@
       "source_location": "L16",
       "weight": 1.0,
       "source": "yue_server_score_check",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -144930,7 +144952,7 @@
       "source_location": "L19",
       "weight": 1.0,
       "source": "yue_server_score_edit_routes",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -145156,7 +145178,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "yue_server_score_facts",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -145178,7 +145200,7 @@
       "source_location": "L12",
       "weight": 1.0,
       "source": "yue_server_score_facts",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -145466,7 +145488,7 @@
       "source_location": "L14",
       "weight": 1.0,
       "source": "yue_server_score_model",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -145477,7 +145499,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "yue_server_score_model",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -145941,7 +145963,7 @@
       "source_location": "L16",
       "weight": 1.0,
       "source": "yue_server_score_ops",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -145952,7 +145974,7 @@
       "source_location": "L15",
       "weight": 1.0,
       "source": "yue_server_score_ops",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -146616,7 +146638,7 @@
       "source_location": "L14",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -146627,7 +146649,7 @@
       "source_location": "L15",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_score_routes_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_yue_pipeline_yuepipeline_park",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_yue_pipeline_yuepipeline_plan",
       "confidence_score": 1.0
     },
     {
@@ -146658,7 +146680,7 @@
       "source_location": "L16",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
       "confidence_score": 1.0
     },
     {
@@ -146795,7 +146817,7 @@
       "source_location": "L8",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_scores_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -146806,7 +146828,7 @@
       "source_location": "L16",
       "weight": 1.0,
       "source": "yue_server_tests_test_score_edit_routes",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -146817,7 +146839,7 @@
       "source_location": "L7",
       "weight": 1.0,
       "source": "yue_server_tests_test_score_facts",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -146828,7 +146850,7 @@
       "source_location": "L10",
       "weight": 1.0,
       "source": "yue_server_tests_test_score_golden",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -146839,7 +146861,7 @@
       "source_location": "L8",
       "weight": 1.0,
       "source": "yue_server_tests_test_score_ops",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -146850,7 +146872,7 @@
       "source_location": "L13",
       "weight": 1.0,
       "source": "yue_server_tests_test_score_roots",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_35",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_scores_rationale_24",
       "confidence_score": 1.0
     },
     {
@@ -147017,7 +147039,7 @@
       "source_location": "L1",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_sections_py",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_21",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_56",
       "confidence_score": 1.0
     },
     {
@@ -147028,7 +147050,7 @@
       "source_location": "L22",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_transcriber_py",
-      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_21",
+      "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_sections_rationale_56",
       "confidence_score": 1.0
     },
     {
@@ -148306,17 +148328,6 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_instrumental.py",
-      "source_location": "L6",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_tests_test_instrumental_py",
-      "target": "yue_server_worker",
-      "confidence_score": 1.0
-    },
-    {
       "relation": "indirect_call",
       "context": "argument",
       "confidence": "INFERRED",
@@ -149404,17 +149415,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_sections_py",
       "target": "e_repos_mulakai_claude_worktrees_elegant_newton_b61f6a_yue_server_tests_test_sections_test_starts_come_from_the_downbeats_not_the_tempo_grid",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/tests/test_store_and_worker.py",
-      "source_location": "L8",
-      "weight": 1.0,
-      "source": "yue_server_tests_test_store_and_worker",
-      "target": "yue_server_worker",
       "confidence_score": 1.0
     },
     {
@@ -150582,6 +150582,28 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/upstream/compile_score.py",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/upstream/instrumentalize.py",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_report",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "EXTRACTED",
@@ -150612,28 +150634,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_main",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_strip_chords",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/compile_score.py",
-      "source_location": "L17",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/instrumentalize.py",
-      "source_location": "L10",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_abc_tools_rationale_154",
       "confidence_score": 1.0
     },
     {
@@ -150709,6 +150709,17 @@
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_write_json"
     },
     {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/upstream/compile_score.py",
+      "source_location": "L18",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_fresh_directory",
+      "confidence_score": 1.0
+    },
+    {
       "relation": "calls",
       "context": "call",
       "confidence": "INFERRED",
@@ -150723,22 +150734,11 @@
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/compile_score.py",
-      "source_location": "L18",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_rationale_1",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
       "source_file": "yue-server/upstream/instrumentalize.py",
       "source_location": "L11",
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_rationale_1",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_common_fresh_directory",
       "confidence_score": 1.0
     },
     {
@@ -150799,17 +150799,6 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_spelling",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "yue-server/upstream/instrumentalize.py",
-      "source_location": "L12",
-      "weight": 1.0,
-      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
-      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_py",
       "confidence_score": 1.0
     },
     {
@@ -150877,6 +150866,17 @@
       "weight": 1.0,
       "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_convert_score",
       "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_compile_events"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "yue-server/upstream/instrumentalize.py",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_instrumentalize_py",
+      "target": "e_repos_mulakai_claude_worktrees_festive_yonath_b4b377_yue_server_upstream_compile_score_main",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -151446,7 +151446,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": ".claude/rules/job-queue.md",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0,
       "source": "claude_rules_job_queue",
       "target": "claude_rules_job_queue_gpu_job_queue",
@@ -159179,7 +159179,7 @@
       "source_location": "L140",
       "weight": 1.0,
       "source": "pipeline_risks_risks_63",
-      "target": "pipeline_risks_r_013_impact_h_evidence_measured_sp_3_2026_10_03_machine_side_proven_and_qualified_user_a_b_listen_owed_see_result_spikes_sp_3_cot_full_adherence_result_md",
+      "target": "pipeline_risks_r_013_impact_h_evidence_proven_qualified_sp_3_2026_10_03_m0_listens_2026_10_05_tempo_heard_as_asked_chords_2_4_before_d_055_5_5_after_see_result_spikes_sp_3_cot_full_adherence_result_md",
       "confidence_score": 1.0
     },
     {
@@ -160244,5 +160244,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "4326e571e7c929b860773d441d8b5112f1f764b3"
+  "built_at_commit": "f7512cd01cc1b36775f35388c7edfda91efd241b"
 }
