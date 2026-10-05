@@ -1,0 +1,223 @@
+[
+ {
+  "tag": "s1_purple",
+  "Q": 88,
+  "base_Q": 87,
+  "bpm_from_bars": 87.91208791208824,
+  "tempo_err_pct": -0.09990009989972813,
+  "base_bpm_from_bars": 86.95652173913072,
+  "audio_s": 174.95866666666666,
+  "base_audio_s": 176.59866666666667,
+  "score_bars": 65,
+  "audio_bars": 65,
+  "offset": 0,
+  "base_offset": 0,
+  "E_bars": [
+   47,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   54,
+   55,
+   56,
+   57,
+   58,
+   59,
+   60,
+   61,
+   62
+  ],
+  "P_bars": [
+   62,
+   63,
+   64,
+   65
+  ],
+  "audio_label_changed_edited": 0.875,
+  "audio_label_changed_unedited": 0.0,
+  "audio_root_changed_edited": 0.875,
+  "audio_root_changed_unedited": 0.0,
+  "E_root_vs_new": 0.0,
+  "E_root_vs_old": 0.125,
+  "chance_root_mean": 0.22709298705061418,
+  "phrase_in_new_render": {
+   "window_s": [
+    164.01,
+    174.95866666666666
+   ],
+   "intended_notes": 16,
+   "transcribed_instrumental_notes": 13,
+   "transcribed_all_notes": 13,
+   "f1_exact_vs_instrumental": 0.6206896551724138,
+   "f1_fold_vs_instrumental": 0.8275862068965517,
+   "f1_fold_vs_all": 0.8275862068965517,
+   "median_pitch_transcribed_ins": 65.0
+  },
+  "phrase_intended_vs_base_render": {
+   "window_s": [
+    165.63,
+    176.59866666666667
+   ],
+   "intended_notes": 16,
+   "transcribed_instrumental_notes": 24,
+   "transcribed_all_notes": 24,
+   "f1_exact_vs_instrumental": 0.05,
+   "f1_fold_vs_instrumental": 0.15,
+   "f1_fold_vs_all": 0.15,
+   "median_pitch_transcribed_ins": 69.0
+  }
+ },
+ {
+  "tag": "s2_gertar",
+  "Q": 88,
+  "base_Q": 85,
+  "bpm_from_bars": 87.91208791208824,
+  "tempo_err_pct": -0.09990009989972813,
+  "base_bpm_from_bars": 85.1063829787234,
+  "audio_s": 207.15866666666668,
+  "base_audio_s": 214.83866666666665,
+  "score_bars": 77,
+  "audio_bars": 77,
+  "offset": 0,
+  "base_offset": 0,
+  "E_bars": [
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   22,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41,
+   42,
+   43,
+   53,
+   54,
+   55,
+   56,
+   57,
+   58,
+   59,
+   60
+  ],
+  "P_bars": [
+   61,
+   62,
+   63,
+   64
+  ],
+  "audio_label_changed_edited": 0.875,
+  "audio_label_changed_unedited": 0.0,
+  "audio_root_changed_edited": 0.875,
+  "audio_root_changed_unedited": 0.0,
+  "E_root_vs_new": 1.0,
+  "E_root_vs_old": 0.125,
+  "chance_root_mean": 0.16106561754382248,
+  "phrase_in_new_render": {
+   "window_s": [
+    161.25,
+    172.16
+   ],
+   "intended_notes": 16,
+   "transcribed_instrumental_notes": 17,
+   "transcribed_all_notes": 17,
+   "f1_exact_vs_instrumental": 0.06060606060606061,
+   "f1_fold_vs_instrumental": 0.9696969696969697,
+   "f1_fold_vs_all": 0.9696969696969697,
+   "median_pitch_transcribed_ins": 77.0
+  },
+  "phrase_intended_vs_base_render": {
+   "window_s": [
+    167.03,
+    178.33
+   ],
+   "intended_notes": 16,
+   "transcribed_instrumental_notes": 16,
+   "transcribed_all_notes": 16,
+   "f1_exact_vs_instrumental": 0.0,
+   "f1_fold_vs_instrumental": 0.0,
+   "f1_fold_vs_all": 0.0,
+   "median_pitch_transcribed_ins": 79.0
+  }
+ },
+ {
+  "tag": "s3_carinito",
+  "Q": 88,
+  "base_Q": 95,
+  "bpm_from_bars": 87.91208791208824,
+  "tempo_err_pct": -0.09990009989972813,
+  "base_bpm_from_bars": 95.23809523809486,
+  "audio_s": 171.15866666666668,
+  "base_audio_s": 161.07866666666666,
+  "score_bars": 64,
+  "audio_bars": 64,
+  "offset": 0,
+  "base_offset": 0,
+  "E_bars": [
+   23,
+   24,
+   25,
+   26,
+   27,
+   28,
+   29,
+   30,
+   48,
+   49,
+   50,
+   51,
+   52,
+   53,
+   54,
+   55
+  ],
+  "P_bars": [
+   56,
+   57,
+   58,
+   59
+  ],
+  "audio_label_changed_edited": 0.75,
+  "audio_label_changed_unedited": 0.022727272727272728,
+  "audio_root_changed_edited": 0.75,
+  "audio_root_changed_unedited": 0.022727272727272728,
+  "E_root_vs_new": 0.625,
+  "E_root_vs_old": 0.25,
+  "chance_root_mean": 0.15256092056092055,
+  "phrase_in_new_render": {
+   "window_s": [
+    147.98,
+    158.89
+   ],
+   "intended_notes": 16,
+   "transcribed_instrumental_notes": 22,
+   "transcribed_all_notes": 22,
+   "f1_exact_vs_instrumental": 0.2105263157894737,
+   "f1_fold_vs_instrumental": 0.6842105263157896,
+   "f1_fold_vs_all": 0.6842105263157896,
+   "median_pitch_transcribed_ins": 79.0
+  },
+  "phrase_intended_vs_base_render": {
+   "window_s": [
+    138.87,
+    148.97
+   ],
+   "intended_notes": 16,
+   "transcribed_instrumental_notes": 18,
+   "transcribed_all_notes": 18,
+   "f1_exact_vs_instrumental": 0.0,
+   "f1_fold_vs_instrumental": 0.058823529411764705,
+   "f1_fold_vs_all": 0.058823529411764705,
+   "median_pitch_transcribed_ins": 77.0
+  }
+ }
+]

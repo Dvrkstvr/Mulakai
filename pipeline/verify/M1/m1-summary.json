@@ -1,0 +1,14 @@
+{
+ "run": "M1/CP2 live criterion of F-026, 2026-10-05 17:45-18:00 local, RTX 4080 16 GB, Windows 11 + WSL2; verifier",
+ "code": "worktree agent-afa6c9ddb6db21a0a, feat/score-w8-phrase 27e0546 (W7 d2f76a8 yue-server, run from the worktree: WSL cwd verified)",
+ "setup": {"data": "E:/ai/tmp/m1/data (DB via SQLite backup, audio hard-linked); live library untouched", "ports": {"server": 3401, "yue_proxy": 8014, "yue": 8004, "ollama": 11435, "ollama_proxy": 11436}, "user_app_3001": "not running; nvidia-smi checked before each job (2.2 GB idle)"},
+ "request": "jazz chords in the chorus, 88 BPM, add a 4-bar sax phrase after it",
+ "songs": {
+  "s1_purple": {"id": "29f8457d", "attempts": 2, "valid": true, "plan_wall_s": 28.3, "chat_s": [16.9, 11.2], "prompt_tokens": [2669, 3404], "completion_tokens": [594, 582], "unload_ack_to_ps_empty_ms": 45, "phrase": "start 62, 4 bars, tenor saxophone, quarter notes", "render": {"wall_s": 90.4, "tok_s": 77.7, "audio_s": 174.96, "est_s": 177.3, "truncated": false, "tempo_from_bars": 87.91, "tempo_err_pct": -0.1}},
+  "s2_gertar": {"id": "a69541f2", "attempts": 1, "valid": true, "plan_wall_s": 27.8, "chat_s": [27.3], "prompt_tokens": [2962], "completion_tokens": [1322], "unload_ack_to_ps_empty_ms": 37, "phrase": "start 61, 4 bars", "render": {"wall_s": 96.6, "tok_s": 89.4, "audio_s": 207.16, "est_s": 210.0, "truncated": false, "tempo_from_bars": 87.91, "tempo_err_pct": -0.1}},
+  "s3_carinito": {"id": "ecf8eb5a", "attempts": 3, "valid": true, "plan_wall_s": 38.6, "chat_s": [14.4, 11.7, 12.1], "prompt_tokens": [2626, 3446, 4220], "completion_tokens": [624, 620, 618], "unload_ack_to_ps_empty_ms": 30, "phrase": "start 56, 4 bars, eighth runs", "render": {"wall_s": 80.4, "tok_s": 85.8, "audio_s": 171.16, "est_s": 174.5, "truncated": false, "tempo_from_bars": 87.91, "tempo_err_pct": -0.1}}
+ },
+ "retry_feedback": "all retries were the D-055 REHARMONIZE root rule (s1: 16 of 16 bars keep the root; s3: 8/8 then 3/8 bars), none about the phrase",
+ "audio": "analysis.json: chord label changed edited/unedited 88/0, 88/0, 75/2 %; phrase intended notes vs transcribed notes in the phrase window, pitch-class F1 new render vs base render at the same bars: 0.83 vs 0.15, 0.97 vs 0.00, 0.68 vs 0.06 (exact-octave F1 0.62, 0.06, 0.21: the transcribed notes sit about an octave high in s2)",
+ "edges": {"planner_vocal_bars": "e1/e2: request for bars 20-23 where the Vocal sings: attempt 1 refused with 'the Vocal sings in bars 20-23; free: 1-10, 47-65' (planner feedback), attempt 2 relocated the phrase to bar 47 (e1) / bar 60 (e2, despite 'do not move it'); plan ok, no user-visible refusal", "yue_apply_direct": "edges_apply.py / raw/edges_apply.json: vocal refusal text, bar sum 3.5, 3 notes, 2 distinct pitches, 25% in key, four identical bars, past the last bar, ABC string 422 all as the contract says"}
+}

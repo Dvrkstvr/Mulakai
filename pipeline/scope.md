@@ -78,6 +78,20 @@ the golden path, and CI has no Ollama or yue-server, so it needs two fakes. Feat
 - If the user's SP-2 phrase listen (owed) says the phrases are not musical, F-026 ships with an "EXPERIMENTAL" label and a Q is raised
   (D-005's revisit clause is about validity, not taste); it is not a reason to delay M1.
 
+Work packages (2026-10-05, autopilot), each one PR from `origin/main`, files named so batches stay disjoint:
+1. W6 F-027 first-ACE-Step-edit warning: client consequence builders of REPAINT, ADD LAYER, extract-to-layer, REMASTER MIX
+   (+ Vitests present/absent). Copy per D-030: "score editing ends after this edit, SCORE will be off for this song". Branch
+   `feat/score-w6-warning`. Batch 1.
+2. W7 F-026 yue-server half: phrase `{pitch, beats}` -> ABC writer (units, ties, bar sums), `Ins` overlay only where the Vocal rests,
+   refusal naming the free bars, sanity gates (>= 4 notes, >= 3 pitches, >= 70% in key, not 4 identical bars), beat-sum errors with
+   numbers; ported from SP-2 `score.py` `op_write_phrase`; pytest. Branch `feat/score-w7-phrase-yue`. Batch 1.
+3. W9 F-028 e2e: fake Ollama + fake yue-server score routes in `e2e/` beside fake-acestep, a SCORE spec (happy path, planner offline,
+   360 s refusal, cancel while planning), CI. The existing golden path unchanged, no LLM_API_URL. Branch `feat/score-w9-e2e`. Batch 1.
+4. W8 F-026 server + client half (after W7's route contract): op schema (N bars per request), planner prompt + retry feedback, style
+   append, change-list row, consequence clause "the instrument is a request, not a guarantee". Branch `feat/score-w8-phrase`. Batch 2.
+5. CP2 live: the compound request on 3 library songs (copies), attempts logged; then the verifier for F-026..F-028.
+6. W10 (if the round budget allows) Q-038 review nits, D-056. Branch `fix/score-m0-nits`. After W8 (shares server score files).
+
 ## M2 — Deterministic section ops, referents, revise
 
 TRANSPOSE, REPEAT / CUT, REWRITE LYRICS, and the lyric-tag rule they force (R-018: tags rewritten from the edited score's `% section`
