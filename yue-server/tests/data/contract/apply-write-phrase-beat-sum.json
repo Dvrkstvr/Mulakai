@@ -79,6 +79,7 @@
    "ok": false,
    "abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=87\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Dm\n% intro\nV: Vocal\nZ|z24\"Dm\"z8|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nZ2|D4A4f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Bb\"z32|\"Bb\"z32|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nB,4F4d4F4c4F4c4F4|B,4F4d4F4c4F4c4F4|D4A4f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Bb\"z32|\"Bb\"z32|\nV: Ins\nB,4F4d4F4c4F4c4F4|B,4F4d4F4c4F4c4F4|\n% verse\nV: Vocal\n\"Dm\"d8d8d2c6d4c2d2|\"Dm\"d2z12z2d2e6f6e2-|\"Bb\"e4e2d2d8z16|\"Bb\"z32|\nV: Ins\nZ3|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8d2c4d6c2d4c4d2-|\"Dm\"d6z8z2d4e4f4e2e2|\"Bb\"z4e4d4d8z12|\"Bb\"z32|\nV: Ins\nd8z24|Z2|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8a4a4a4g4g2f2f2f2-|\"Dm\"f6z6d4a4g4g4f4-|\"Bb\"f4d8z16z4|\"Bb\"z16d4e4f4g4-|\nV: Ins\nd8z24|Z3|\nV: Vocal\n\"Gm\"g4g8z16z4|\"Gm\"z8d2d4a6g4g4f2f2-|\"Dm\"f6z24z2|\"Dm\"z32|\nV: Ins\nZ2|z8f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Dm\"d8d8d4c2d4c4d2-|\"Dm\"d6z8z2d2e4f6e2e2-|\"Bb\"e6z2d4d8z12|\"Bb\"z32|\nV: Ins\nZ3|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8d2c4d4c4d4c4d2-|\"Dm\"d6z8z2d2e4f6e4-|\"Bb\"e4e8d2d8z8z2|\"Bb\"z32|\nV: Ins\nd8z24|Z2|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8a4a4a4g4g2f2f2f2-|\"Dm\"f6z2d2d4a6g4g4f2f2-|\"Bb\"f6z24z2|\"Bb\"z12d4d2e4f6g4-|\nV: Ins\nd8z24|Z3|\nV: Vocal\n\"Gm\"g4g12z16|\"Gm\"z8d2d4a6g2g2g4f4-|\"Dm\"f4d8z16z4|\"Dm\"z24z4d4|\nV: Ins\nZ2|z12A4e4A4e4A4|D4A4f4A4e4A4e4z4|\nV: Vocal\n\"Bbmaj7\"a8g8f4e8d4-|\"Gm\"d12z16d4|\"Bbmaj7\"a8g8f4e8d4-|\"Bbmaj7\"d16-d4z12|\nV: Ins\nZ3|z24d2e2f2g2|\n% chorus\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\na8z16z4f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd16z12f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd8z16z4f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd8z16z4f4|e16z4f4e4f4|d8z24|Z|\n% outro\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nA8f8e8e8|d8f8e8e8|d32|\n",
    "style": "dark pop, 90 bpm, F minor, female vocal",
+   "lyrics": null,
    "verdicts": [
     {
      "index": 1,
@@ -94,8 +95,39 @@
    },
    "changed": {
     "abc": false,
-    "style": false
+    "style": false,
+    "lyrics": false
    },
+   "sections": [
+    {
+     "index": 1,
+     "label": "intro",
+     "from_bar": 1,
+     "to_bar": 10,
+     "seconds": 27.6
+    },
+    {
+     "index": 2,
+     "label": "verse",
+     "from_bar": 11,
+     "to_bar": 46,
+     "seconds": 99.3
+    },
+    {
+     "index": 3,
+     "label": "chorus",
+     "from_bar": 47,
+     "to_bar": 62,
+     "seconds": 44.1
+    },
+    {
+     "index": 4,
+     "label": "outro",
+     "from_bar": 63,
+     "to_bar": 65,
+     "seconds": 8.3
+    }
+   ],
    "chords_present": true,
    "bpm": 87,
    "seconds": 179.3,

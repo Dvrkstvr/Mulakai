@@ -72,7 +72,7 @@ def test_apply_returns_the_edit_its_checks_and_what_changed(make_client):
     assert body["ok"] and [v["ok"] for v in body["verdicts"]] == [True, True, True]
     assert body["checks"] == {"ok": True, "problems": [], "differences": []}
     assert body["style"] == "jazz trio, brushed drums, 88 bpm"
-    assert body["changed"] == {"abc": True, "style": True}
+    assert body["changed"] == {"abc": True, "style": True, "lyrics": False}
     assert (body["bpm"], body["seconds"]) == (88, round(260 * 60 / 88, 1))
     assert body["tokens"] == len(body["abc"]) and body["chords_present"] is True
     failed = make_client().post("/v1/scores/apply", json=CONTRACT[7][2]).json()

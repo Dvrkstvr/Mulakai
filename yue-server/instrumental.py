@@ -20,6 +20,7 @@ if UPSTREAM not in sys.path:
     sys.path.insert(0, UPSTREAM)
 from abc_tools import parse_abc  # noqa: E402  (vendored; needs the path above)
 from instrumentalize import convert_score  # noqa: E402
+from score_lyrics import section_tag  # noqa: E402  (the one tag rule, R-018)
 
 log = logging.getLogger("yue-server")
 
@@ -39,7 +40,7 @@ def is_instrumental(request: dict) -> bool:
 def section_tags(abc: str) -> str:
     """`% pre-chorus` → `[Pre-Chorus]`, as upstream's `lyric_tags` writes them."""
     labels = [line[2:] for line in abc.splitlines() if line.startswith("% ")]
-    return "\n\n".join(f"[{label.title()}]" for label in labels) + ("\n" if labels else "")
+    return "\n\n".join(section_tag(label) for label in labels) + ("\n" if labels else "")
 
 
 def arrange(pipe, request: dict, plan, *, cancelled, on_token):

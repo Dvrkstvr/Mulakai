@@ -1,0 +1,116 @@
+{
+ "name": "apply-repeat-seam",
+ "request": {
+  "method": "POST",
+  "path": "/v1/scores/apply",
+  "body": {
+   "abc": "X:1\nT:\nM:4/4\nL:1/16\nQ:1/4=85\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Em\n% intro\nV: Vocal\nz12\"Em\"z4|\"Em\"z16|\"C\"z16|\"G\"z16|\nV: Ins\nZ|E,3G,2G,3GF3FE3|E3E2E3ED3DB,2B,|z3B,2B,3B,C2C2B,2A,|\nV: Vocal\n\"D\"z16|\"Em\"z16|\"C\"z16|\"G\"z16|\nV: Ins\nD,3A,2A,3A,B,2B,2A,G,F,|E,3G,2G,3GF3FE3|E3E2E3ED3DB,2B,-|B,3B,2B,3B,C2C2B,2A,|\nV: Vocal\n\"D\"z8z2E,E,G,2A,G,|\nV: Ins\nD,3A,2A,3A,B,z6|\n% verse\nV: Vocal\n\"Em\"B,2z6zE,E,E,G,A,2B,-|\"C\"B,z8zE,E,G,A,2B,-|\"G\"B,2z4B,B,B,2B,B,2A,A,2|\"D\"z6zE,A,2A,2A,2G,B,-|\nV: Ins\nZ4|\nV: Vocal\n\"Em\"B,2z4E,E,B,2B,A,2G,G,2|\"C\"z6zE,B,2B,A,2G,G,2|\"G\"z6B,B,B,B,2B,2A,A,2|\"D\"z16|\nV: Ins\nZ4|\nV: Vocal\n\"D\"z6D2B3A2G3|\nV: Ins\nZ|\n% chorus\nV: Vocal\n\"C\"AG3GG3G3A2BB2|\"G\"z6D2B3A2G3|\"Em\"A2G2G2EG2G3A2FF-|\"D\"F2z4D2B4A4|\nV: Ins\nZ4|\nV: Vocal\n\"C\"A2z2GG2G2G3AB2B-|\"G\"B2z8B2A2G2|\"D\"A3F3F2F2F2F2GF-|\"C\"FE3z12|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z8z2E,E,G,2A,B,-|\nV: Ins\nZ|\n% verse\nV: Vocal\n\"Em\"B,2z4E,E,B,2A,A,3G,2|\"C\"z8B,2A,2A,G,2A,-|\"G\"A,B,3B,B,2B,3B,2B,A,A,2|\"D\"z6zE,B,2A,2A,G,2A,-|\nV: Ins\nZ4|\nV: Vocal\n\"Em\"A,G,3z2E,E,B,3A,G,G,G,2|\"C\"z6zE,B,2A,A,2G,2G,-|\"G\"G,2z4zG,B,B,2B,A,A,A,2|\"D\"z6D2B3A2G3|\nV: Ins\nZ4|\n% chorus\nV: Vocal\n\"C\"A2GG3GG2G2A2BB2|\"G\"z6D2BA3AG3|\"Em\"AG2G3z4G2A2FF-|\"D\"F2z4D2BA4zA2|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z4GG3G2GA2BB2|\"G\"z8z2B2A2G2|\"D\"A3F3F2F2F2F2GF-|\"C\"FE3z12|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z12G2A2|\nV: Ins\nZ|\n% bridge\nV: Vocal\n\"Am\"BA3AG2G3z4G2|\"Em\"B2AAAG2G3z2GA3|\"G\"BA3AGGG3G2G2A2-|\"D\"A4AG2A3z6|\nV: Ins\nZ4|\nV: Vocal\n\"Am\"B2A2A2G2AG3GG2B|\"Em\"B2A2A2GG3z6|\"C\"BA3A2GG3E2z4|\"C\"z6GGG2GGA2A2|\nV: Ins\nZ4|\nV: Vocal\n\"D\"z16|\"D\"z6D2B3A3z2|\nV: Ins\nZ2|\n% chorus\nV: Vocal\n\"C\"z4GG3G2GA2B3|\"G\"B2AAAGG2z8|\"Em\"z3DG2G2G2GG2GG2|\"D\"GF2FE2F4B2A2G2|\nV: Ins\nZ4|\nV: Vocal\n\"C\"G2z2GG3G2GA2BB2|\"G\"z8z2B2A2G2|\"D\"A3F3F2F2F2F2GF-|\"C\"FE3z12|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z16|\nV: Ins\nz8B3A3G2|\n% outro\nV: Vocal\n\"C\"z16|\"G\"z16|\"Em\"z16|\"D\"z16|\nV: Ins\nG12B4|B8B3A3G2|G8G4A4|F8B3A3G2|\nV: Vocal\n\"C\"z16|\"G\"z16|\"D\"z16|\"C\"z16|\nV: Ins\nG8G4B4|B8B3A3G2|F8F4G4|E16|\nV: Vocal\n\"C\"z16|\"Em\"z16|\"C\"z16|\"G\"z16|\nV: Ins\nZ|E3G2G3GF3FE3|E3E2E3ED3DB,2B,|G,3B,2B,3B,C2C2B,2A,|\nV: Vocal\n\"D\"z16|\"Em\"z16|\nV: Ins\nD,3A,2A,3A,B,2B,2A,G,F,|E,16|\n",
+   "style": "dark pop, 90 bpm, F minor, female vocal",
+   "lyrics": "[Intro - Acoustic Guitar]\n\n[Verse 1]\nverse 2 line 1\nverse 2 line 2\nverse 2 line 3\nverse 2 line 4\nverse 2 line 5\nverse 2 line 6\nverse 2 line 7\n\n[Chorus]\nchorus 3 line 1\nchorus 3 line 2\nchorus 3 line 3\nchorus 3 line 4\n\n[Verse 2]\nverse 4 line 1\nverse 4 line 2\nverse 4 line 3\nverse 4 line 4\nverse 4 line 5\nverse 4 line 6\nverse 4 line 7\nverse 4 line 8\n\n[Chorus]\nchorus 5 line 1\nchorus 5 line 2\nchorus 5 line 3\nchorus 5 line 4\n\n[Bridge]\nbridge 6 line 1\nbridge 6 line 2\nbridge 6 line 3\nbridge 6 line 4\n\n[Outro]\noutro 7 line 1\noutro 7 line 2\noutro 7 line 3\noutro 7 line 4\noutro 7 line 5\n\n[Instrumental Outro - Acoustic Guitar]\n",
+   "ops": [
+    {
+     "op": "REPEAT",
+     "section": 3,
+     "label": "chorus"
+    }
+   ]
+  }
+ },
+ "response": {
+  "status": 200,
+  "body": {
+   "ok": true,
+   "abc": "X:1\nT:\nM:4/4\nL:1/16\nQ:1/4=85\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Em\n% intro\nV: Vocal\nz12\"Em\"z4|\"Em\"z16|\"C\"z16|\"G\"z16|\nV: Ins\nZ|E,3G,2G,3GF3FE3|E3E2E3ED3DB,2B,|z3B,2B,3B,C2C2B,2A,|\nV: Vocal\n\"D\"z16|\"Em\"z16|\"C\"z16|\"G\"z16|\nV: Ins\nD,3A,2A,3A,B,2B,2A,G,F,|E,3G,2G,3GF3FE3|E3E2E3ED3DB,2B,-|B,3B,2B,3B,C2C2B,2A,|\nV: Vocal\n\"D\"z8z2E,E,G,2A,G,|\nV: Ins\nD,3A,2A,3A,B,z6|\n% verse\nV: Vocal\n\"Em\"B,2z6zE,E,E,G,A,2B,-|\"C\"B,z8zE,E,G,A,2B,-|\"G\"B,2z4B,B,B,2B,B,2A,A,2|\"D\"z6zE,A,2A,2A,2G,B,-|\nV: Ins\nZ4|\nV: Vocal\n\"Em\"B,2z4E,E,B,2B,A,2G,G,2|\"C\"z6zE,B,2B,A,2G,G,2|\"G\"z6B,B,B,B,2B,2A,A,2|\"D\"z16|\nV: Ins\nZ4|\nV: Vocal\n\"D\"z6D2B3A2G3|\nV: Ins\nZ|\n% chorus\nV: Vocal\n\"C\"AG3GG3G3A2BB2|\"G\"z6D2B3A2G3|\"Em\"A2G2G2EG2G3A2FF-|\"D\"F2z4D2B4A4|\nV: Ins\nZ4|\nV: Vocal\n\"C\"A2z2GG2G2G3AB2B-|\"G\"B2z8B2A2G2|\"D\"A3F3F2F2F2F2GF-|\"C\"FE3z12|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z8z2E,E,G,2A,B,|\nV: Ins\nZ|\n% chorus\nV: Vocal\n\"C\"AG3GG3G3A2BB2|\"G\"z6D2B3A2G3|\"Em\"A2G2G2EG2G3A2FF-|\"D\"F2z4D2B4A4|\nV: Ins\nZ4|\nV: Vocal\n\"C\"A2z2GG2G2G3AB2B-|\"G\"B2z8B2A2G2|\"D\"A3F3F2F2F2F2GF-|\"C\"FE3z12|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z8z2E,E,G,2A,B,|\nV: Ins\nZ|\n% verse\nV: Vocal\n\"Em\"B,2z4E,E,B,2A,A,3G,2|\"C\"z8B,2A,2A,G,2A,-|\"G\"A,B,3B,B,2B,3B,2B,A,A,2|\"D\"z6zE,B,2A,2A,G,2A,-|\nV: Ins\nZ4|\nV: Vocal\n\"Em\"A,G,3z2E,E,B,3A,G,G,G,2|\"C\"z6zE,B,2A,A,2G,2G,-|\"G\"G,2z4zG,B,B,2B,A,A,A,2|\"D\"z6D2B3A2G3|\nV: Ins\nZ4|\n% chorus\nV: Vocal\n\"C\"A2GG3GG2G2A2BB2|\"G\"z6D2BA3AG3|\"Em\"AG2G3z4G2A2FF-|\"D\"F2z4D2BA4zA2|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z4GG3G2GA2BB2|\"G\"z8z2B2A2G2|\"D\"A3F3F2F2F2F2GF-|\"C\"FE3z12|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z12G2A2|\nV: Ins\nZ|\n% bridge\nV: Vocal\n\"Am\"BA3AG2G3z4G2|\"Em\"B2AAAG2G3z2GA3|\"G\"BA3AGGG3G2G2A2-|\"D\"A4AG2A3z6|\nV: Ins\nZ4|\nV: Vocal\n\"Am\"B2A2A2G2AG3GG2B|\"Em\"B2A2A2GG3z6|\"C\"BA3A2GG3E2z4|\"C\"z6GGG2GGA2A2|\nV: Ins\nZ4|\nV: Vocal\n\"D\"z16|\"D\"z6D2B3A3z2|\nV: Ins\nZ2|\n% chorus\nV: Vocal\n\"C\"z4GG3G2GA2B3|\"G\"B2AAAGG2z8|\"Em\"z3DG2G2G2GG2GG2|\"D\"GF2FE2F4B2A2G2|\nV: Ins\nZ4|\nV: Vocal\n\"C\"G2z2GG3G2GA2BB2|\"G\"z8z2B2A2G2|\"D\"A3F3F2F2F2F2GF-|\"C\"FE3z12|\nV: Ins\nZ4|\nV: Vocal\n\"C\"z16|\nV: Ins\nz8B3A3G2|\n% outro\nV: Vocal\n\"C\"z16|\"G\"z16|\"Em\"z16|\"D\"z16|\nV: Ins\nG12B4|B8B3A3G2|G8G4A4|F8B3A3G2|\nV: Vocal\n\"C\"z16|\"G\"z16|\"D\"z16|\"C\"z16|\nV: Ins\nG8G4B4|B8B3A3G2|F8F4G4|E16|\nV: Vocal\n\"C\"z16|\"Em\"z16|\"C\"z16|\"G\"z16|\nV: Ins\nZ|E3G2G3GF3FE3|E3E2E3ED3DB,2B,|G,3B,2B,3B,C2C2B,2A,|\nV: Vocal\n\"D\"z16|\"Em\"z16|\nV: Ins\nD,3A,2A,3A,B,2B,2A,G,F,|E,16|\n",
+   "style": "dark pop, 90 bpm, F minor, female vocal",
+   "lyrics": "[Intro]\n\n[Verse]\nverse 2 line 1\nverse 2 line 2\nverse 2 line 3\nverse 2 line 4\nverse 2 line 5\nverse 2 line 6\nverse 2 line 7\n\n[Chorus]\nchorus 3 line 1\nchorus 3 line 2\nchorus 3 line 3\nchorus 3 line 4\n\n[Chorus]\nchorus 3 line 1\nchorus 3 line 2\nchorus 3 line 3\nchorus 3 line 4\n\n[Verse]\nverse 4 line 1\nverse 4 line 2\nverse 4 line 3\nverse 4 line 4\nverse 4 line 5\nverse 4 line 6\nverse 4 line 7\nverse 4 line 8\n\n[Chorus]\nchorus 5 line 1\nchorus 5 line 2\nchorus 5 line 3\nchorus 5 line 4\n\n[Bridge]\nbridge 6 line 1\nbridge 6 line 2\nbridge 6 line 3\nbridge 6 line 4\n\n[Outro]\noutro 7 line 1\noutro 7 line 2\noutro 7 line 3\noutro 7 line 4\noutro 7 line 5\n\n[Instrumental Outro - Acoustic Guitar]\n",
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REPEAT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 3 [Chorus] is repeated with it"
+    }
+   ],
+   "checks": {
+    "ok": true,
+    "problems": [],
+    "differences": []
+   },
+   "changed": {
+    "abc": true,
+    "style": false,
+    "lyrics": true
+   },
+   "sections": [
+    {
+     "index": 1,
+     "label": "intro",
+     "from_bar": 1,
+     "to_bar": 9,
+     "seconds": 25.4
+    },
+    {
+     "index": 2,
+     "label": "verse",
+     "from_bar": 10,
+     "to_bar": 18,
+     "seconds": 25.4
+    },
+    {
+     "index": 3,
+     "label": "chorus",
+     "from_bar": 19,
+     "to_bar": 27,
+     "seconds": 25.4
+    },
+    {
+     "index": 4,
+     "label": "chorus",
+     "from_bar": 28,
+     "to_bar": 36,
+     "seconds": 25.4
+    },
+    {
+     "index": 5,
+     "label": "verse",
+     "from_bar": 37,
+     "to_bar": 44,
+     "seconds": 22.6
+    },
+    {
+     "index": 6,
+     "label": "chorus",
+     "from_bar": 45,
+     "to_bar": 53,
+     "seconds": 25.4
+    },
+    {
+     "index": 7,
+     "label": "bridge",
+     "from_bar": 54,
+     "to_bar": 63,
+     "seconds": 28.2
+    },
+    {
+     "index": 8,
+     "label": "chorus",
+     "from_bar": 64,
+     "to_bar": 72,
+     "seconds": 25.4
+    },
+    {
+     "index": 9,
+     "label": "outro",
+     "from_bar": 73,
+     "to_bar": 86,
+     "seconds": 39.5
+    }
+   ],
+   "chords_present": true,
+   "bpm": 85,
+   "seconds": 242.8,
+   "tokens": 2332
+  }
+ }
+}
