@@ -67,6 +67,8 @@ export interface Plan {
   style: string;
   checks: { bars: number; seconds: number | null; tokens: number | null; chordsPresent: boolean | null; changed: ApplyResult['changed'] };
   attempts: number;
+  /** Each earlier refused attempt's reasons (planAttempts), shown in the review (D-060). */
+  refusals: string[][];
   createdAt: number;
 }
 

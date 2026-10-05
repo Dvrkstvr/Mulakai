@@ -3,6 +3,7 @@
 import type { ScoreChord, ScoreOp, ScorePlan, ScoreReading, ScoreRenderVersion } from './api';
 import { fmtElapsed, fmtProgress, stageDetail } from './genProgress';
 import { queueSuffix, startsAfter } from './queueCopy';
+import { MAX_ATTEMPTS } from './scoreAttemptCopy';
 import type { ScorePhase } from './scoreVerbTypes';
 
 export const REQUEST_PLACEHOLDER = 'Describe the change, e.g. jazz chords in the chorus, 88 BPM';
@@ -19,10 +20,8 @@ export const STALE_TAIL = 'Nothing was started.';
 export const RENDER_FAILED_TITLE = 'RENDER FAILED';
 export const RENDER_FAILED_TAIL = 'nothing saved, the base is unchanged';
 export const APPLY_OFF = 'a plan must pass every check first';
-const LIMIT_SECONDS = 360;
-const WARN_SECONDS = 330;
-const TOKEN_LIMIT = 4096;
-const MAX_ATTEMPTS = 3;
+export { checksSegments, refusedLines, type Segment } from './scoreAttemptCopy';
+const REQUEST = 'a request to YuE2, not a guarantee';
 
 const n = (v: number) => Math.round(v).toLocaleString('en-US');
 const bars = (from: number, to: number) => (from === to ? `bar ${from}` : `bars ${from}–${to}`);
@@ -83,33 +82,22 @@ export const rowDetail = (r: OpRow) => (r.ok || !r.reason ? r.detail : `${r.deta
 export const planHeader = (plan: ScorePlan, baseVersion: number | null | undefined) =>
   `PLAN · ${plan.ops.length} CHANGE${plan.ops.length === 1 ? '' : 'S'}${baseVersion ? ` · AGAINST BASE v${baseVersion}` : ''}`;
 
-export interface Segment { text: string; warn: boolean }
-
-/** The one checks line; a segment past its limit (330 s and up, over 4,096 tokens) turns rust. */
-export function checksSegments(c: ScorePlan['checks'], attempts: number): Segment[] {
-  const out: Segment[] = [{ text: `${c.bars} bars`, warn: false }];
-  if (c.seconds !== null) out.push({ text: `est ${n(c.seconds)} s of ${LIMIT_SECONDS} s`, warn: c.seconds > WARN_SECONDS });
-  if (c.tokens !== null) out.push({ text: `${n(c.tokens)} of ${n(TOKEN_LIMIT)} tokens`, warn: c.tokens > TOKEN_LIMIT });
-  if (c.chordsPresent !== null) out.push({ text: c.chordsPresent ? 'chords valid' : 'chords invalid', warn: !c.chordsPresent });
-  out.push({ text: `attempt ${attempts} of ${MAX_ATTEMPTS}`, warn: false });
-  return out;
-}
-
 /** "Saves base v3 · re-renders the whole song on YuE2, about 3 min · every bar will sound different
  * · tempo follows 88 BPM · harmony in bars 17–24 is a request to YuE2, not a guarantee · v2 stays in VERSIONS". */
 export function consequenceLine(plan: ScorePlan, v: { baseVersion?: number | null; versions?: number }, ahead: number): string {
   const next = (v.versions ?? 0) + 1;
   const length = plan.checks.seconds === null ? '' : `, about ${Math.max(1, Math.round(plan.checks.seconds / 60))} min`;
   const parts = [`Saves base v${next}`, `re-renders the whole song on YuE2${length}`, 'every bar will sound different'];
-  const requests: string[] = [];
+  const requests: string[] = [], phrases: string[] = [];
   for (const op of plan.ops) {
     if (op.op === 'SET_TEMPO') parts.push(`tempo follows ${op.bpm} BPM`);
     if (op.op === 'REHARMONIZE') requests.push(`harmony in ${bars(op.from_bar, op.to_bar)}`);
     if (op.op === 'EDIT_STYLE' && !requests.includes('the style change')) requests.push('the style change');
-    if (op.op === 'WRITE_PHRASE') requests.push(`the ${op.instrument} phrase in ${phraseBars(op)}`);
+    if (op.op === 'WRITE_PHRASE') phrases.push(`the ${op.instrument} phrase replaces the instrument part in ${phraseBars(op)} and is ${REQUEST}`);
   }
   const listed = requests.length > 1 ? `${requests.slice(0, -1).join(', ')} and ${requests.at(-1)}` : requests[0];
-  if (listed) parts.push(`${listed} ${requests.length === 1 ? 'is' : 'are'} a request to YuE2, not a guarantee`);
+  if (listed) parts.push(`${listed} ${requests.length === 1 ? 'is' : 'are'} ${REQUEST}`);
+  parts.push(...phrases);
   if (v.baseVersion) parts.push(`v${v.baseVersion} stays in VERSIONS`);
   return parts.join(' · ') + queueSuffix(ahead);
 }

@@ -43,6 +43,8 @@ export interface ScorePlan {
     changed: { abc: boolean; style: boolean };
   };
   attempts: number;
+  /** Each earlier refused attempt's reasons, in order: empty when attempt 1 passed (D-060). */
+  refusals: string[][];
   createdAt: number;
 }
 

@@ -17,8 +17,9 @@ export interface AttemptDeps {
   onAttempt?: (n: number, reason?: string) => void;
 }
 
+/** `refusals`: each earlier refused attempt's reasons, in order, so the review can say a request was moved (D-060). */
 export type AttemptsOutcome =
-  | { ok: true; ops: Op[]; applied: ApplyResult; attempts: number }
+  | { ok: true; ops: Op[]; applied: ApplyResult; attempts: number; refusals: string[][] }
   | { ok: false; reasons: string[]; attempts: number };
 
 /** Why yue-server refused an applied plan: failed ops by index, then the edit's checks. */
@@ -45,6 +46,7 @@ export async function planAttempts(
 ): Promise<AttemptsOutcome> {
   let msgs = messages;
   let reasons: string[] = [];
+  const refusals: string[][] = [];
   for (let n = 1; n <= maxAttempts; n++) {
     deps.onAttempt?.(n, reasons[0]);
     const reply = await deps.ask(msgs);
@@ -52,12 +54,13 @@ export async function planAttempts(
     const shape = json === undefined ? { ok: false as const, reasons: ['the reply is not valid JSON'] } : checkOps(json, facts, phraseBars);
     if (shape.ok) {
       const result = await deps.apply(shape.ops);
-      if (result.ok) return { ok: true, ops: shape.ops, applied: result, attempts: n };
+      if (result.ok) return { ok: true, ops: shape.ops, applied: result, attempts: n, refusals };
       reasons = applyReasons(result);
     } else {
       reasons = shape.reasons;
     }
     reasons = reasons.slice(0, MAX_REASONS);
+    refusals.push(reasons);
     msgs = retryMessages(msgs, reply.content, reasons);
   }
   return { ok: false, reasons, attempts: maxAttempts };

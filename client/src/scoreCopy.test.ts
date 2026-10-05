@@ -8,7 +8,7 @@ import type { ScoreOp, ScorePlan } from './api';
 const plan = (ops: ScoreOp[], over: Partial<ScorePlan> = {}): ScorePlan => ({
   id: 'p', songId: 's', baseVersionId: 'v2', request: 'r', ops,
   verdicts: ops.map((o, i) => ({ index: i + 1, op: o.op, ok: true, reason: null })), style: 'dark pop, jazz, 88 bpm',
-  checks: { bars: 65, seconds: 183, tokens: 1520, chordsPresent: true, changed: { abc: true, style: true } }, attempts: 1, createdAt: 1, ...over,
+  checks: { bars: 65, seconds: 183, tokens: 1520, chordsPresent: true, changed: { abc: true, style: true } }, attempts: 1, refusals: [], createdAt: 1, ...over,
 });
 const TEMPO: ScoreOp = { op: 'SET_TEMPO', bpm: 88 };
 const REHARM: ScoreOp = { op: 'REHARMONIZE', from_bar: 17, to_bar: 24, chords: [
@@ -36,9 +36,11 @@ describe('consequence line, composed from the plan (F-021 #3, D-031)', () => {
 
   it('WRITE PHRASE names the instrument and its bars as a request, not a guarantee (F-026 #2, D-031 wording)', () => {
     expect(consequenceLine(plan([PHRASE]), versions, 0)).toBe('Saves base v3 · re-renders the whole song on YuE2, about 3 min · '
-      + 'every bar will sound different · the tenor saxophone phrase in bars 57–60 is a request to YuE2, not a guarantee · v2 stays in VERSIONS');
-    expect(consequenceLine(plan([TEMPO, REHARM, STYLE, PHRASE]), versions, 0)).toContain('tempo follows 88 BPM · harmony in bars 17–24, '
-      + 'the style change and the tenor saxophone phrase in bars 57–60 are a request to YuE2, not a guarantee');
+      + 'every bar will sound different · the tenor saxophone phrase replaces the instrument part in bars 57–60 and is a request to YuE2, '
+      + 'not a guarantee · v2 stays in VERSIONS');
+    expect(consequenceLine(plan([TEMPO, REHARM, STYLE, PHRASE]), versions, 0)).toContain('tempo follows 88 BPM · harmony in bars 17–24 '
+      + 'and the style change are a request to YuE2, not a guarantee · the tenor saxophone phrase replaces the instrument part in bars 57–60 '
+      + 'and is a request to YuE2, not a guarantee · v2 stays in VERSIONS');
   });
 
   it('asking states that nothing changes yet, and when it starts on a busy GPU', () => {

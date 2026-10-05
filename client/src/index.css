@@ -3872,6 +3872,13 @@ a.dock-commit-link {
   color: var(--rust-text);
 }
 
+/* An earlier attempt the checks refused (D-060): rust, like every refusal, under the checks line. */
+.score-refused {
+  margin-top: -4px;
+  font: 10px ui-monospace, Consolas, monospace;
+  color: var(--rust-text);
+}
+
 .score-plan-label {
   margin-bottom: -4px;
 }

@@ -61,6 +61,10 @@ describe('WRITE PHRASE plan (F-026)', () => {
     expect(feedback(2)).toContain('- op 1 (WRITE_PHRASE): bar 3 of the phrase (score bar 59) sums to 3.5 beats, the meter needs 4 (too short by 0.5)');
     const plan = getPlan(SONG)!;
     expect(plan.attempts).toBe(3);
+    expect(plan.refusals).toEqual([
+      ['op 1 (WRITE_PHRASE): the Vocal sings in bars 11-12; free: 1-10, 47-65'],
+      [expect.stringContaining('bar 3 of the phrase (score bar 59) sums to 3.5 beats')],
+    ]);
     expect(plan.ops.map((o) => o.op)).toEqual(['SET_TEMPO', 'REHARMONIZE', 'WRITE_PHRASE']);
     expect(plan.style).toBe('dark pop, 88 bpm, F minor, female vocal, tenor saxophone');
     expect(plan.style.match(/tenor saxophone/g)).toHaveLength(1);

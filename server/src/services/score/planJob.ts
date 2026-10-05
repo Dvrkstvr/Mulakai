@@ -101,7 +101,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
     id: planId, songId, baseVersionId: activeVersionId, fingerprint: source.fingerprint, request,
     ops: outcome.ops, verdicts: applied.verdicts, abc: applied.abc, style: applied.style,
     checks: { bars: facts.header.bars, seconds: applied.seconds, tokens: applied.tokens, chordsPresent: applied.chords_present, changed: applied.changed },
-    attempts: outcome.attempts, createdAt: Date.now(),
+    attempts: outcome.attempts, refusals: outcome.refusals, createdAt: Date.now(),
   });
   noteRun(songId, { jobId: job.id, request, reasons: [], planId, cause: null });
   job.progressText = undefined;
