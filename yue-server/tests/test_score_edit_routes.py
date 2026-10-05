@@ -13,6 +13,7 @@ import pytest
 from conftest import BODY, FakePipeline, wait_for, wait_terminal
 from contract import check_contract
 from score_fixtures import BROKEN, CHORDS, LYRICS, RECOLOURED, RECOLOURED_TEXT, STYLE, library
+from score_ops import apply_ops
 from scores import strip_chords
 
 TEMPO = {"op": "SET_TEMPO", "bpm": 88}
@@ -38,6 +39,11 @@ CONTRACT = [
         TEMPO, {**REHARM, "from_bar": 999, "to_bar": 999, "chords": [{**REHARM["chords"][0], "bar": 999}]}]}),
     ("apply-reharmonize-same-roots", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [RECOLOURED]}),
     ("apply-slow-cover", "/v1/scores/apply", {"abc": library("2a8cc1ca"), "style": "rock, 145 bpm", "ops": [TEMPO]}),
+    # The e2e (F-028): a plan over 360 s (the slowest tempo the op schema allows), and the read of
+    # the score a compound render saves, which the dock asks for once the new version is active.
+    ("apply-set-tempo-over-limit", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [{"op": "SET_TEMPO", "bpm": 40}]}),
+    ("read-after-compound", "/v1/scores/read",
+     {"abc": apply_ops(CHORDS, STYLE, [TEMPO, CHORUS, STYLE_OP])["abc"], "lyrics": LYRICS}),
 ]
 
 
