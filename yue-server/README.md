@@ -262,8 +262,10 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   `SET_TEMPO`, `REHARMONIZE` and `EDIT_STYLE`:
   `{op: "WRITE_PHRASE", start_bar >= 1, instrument (1-40 chars), bars: [[{pitch,
   beats}, ...], ...]}`, 1-8 bars of 1-16 notes. `pitch` matches
-  `^(?:z|(?:\^|_|=)?[A-Ga-g](?:,{1,2}|'{1,2})?)$` (ABC, key signature
-  applied, accidentals carry through the bar as upstream reads them; `z` is a
+  `^(?:z|(?:\^|_|=)?[A-Ga-g](?:,{1,2}|'{1,2})?)$` (ABC, but each note
+  stands alone: a plain letter is always the key signature's note, `^ _ =`
+  mark that note only; code writes the key's accidental or `=` where an
+  earlier one in the bar would carry onto a plain letter; `z` is a
   rest); `beats` is one of 0.5, 1, 1.5, 2, 3, 4 quarter notes. An ABC string
   anywhere in `bars` is a 422 ("ABC strings are not accepted"), as is any
   other shape error. Code writes the ABC into the Ins voice (score units, tied

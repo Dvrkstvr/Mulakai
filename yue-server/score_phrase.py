@@ -3,8 +3,10 @@ written by code into the Ins voice. The planner gives each bar as
 [{pitch, beats}]; code owns the ABC: lengths in the score's L: units (a
 length upstream cannot write in one piece becomes tied pieces), exact bar
 sums against each bar's meter, and the seam (a tie running into the phrase
-from the bar before is undone, since the phrase's first note is a new one).
-The phrase lands only where the Vocal rests (an overlay, the Vocal never
+from the bar before is undone, since the phrase's first note is a new one),
+and the spelling: a plain letter is the key signature's note, so where an
+earlier accidental in the bar would carry onto it (ABC, upstream's
+parse_bar) code writes the key's accidental or = out. The phrase lands only where the Vocal rests (an overlay, the Vocal never
 moves). SP-2 measured that retries only work with numbers, so a refusal
 names the beats a bar sums to, or the bars the Vocal sings in and the bars
 that are free. Free ABC strings are never accepted (the route's schema).
@@ -17,6 +19,8 @@ from __future__ import annotations
 import re
 from fractions import Fraction
 
+import scores  # noqa: F401  (puts the vendored upstream/ on sys.path)
+from abc_tools import key_accidentals
 from score_bars import decompose, note_count
 from score_model import Doc, OpError
 
@@ -26,6 +30,8 @@ BEATS = (0.5, 1, 1.5, 2, 3, 4)
 MAX_BARS = 8
 MAX_NOTES = 16
 _PARTS = re.compile(r"(\^|_|=)?([A-Ga-gz])([,']*)")
+_ALTER = {"^": 1, "_": -1, "=": 0}
+_MARK = {1: "^", -1: "_", 0: "="}
 
 
 def _runs(numbers: list[int]) -> list[tuple[int, int]]:
@@ -54,6 +60,41 @@ def note_events(note: dict, unit: int) -> list:
     tie = "" if letter == "z" else "-"
     return [["note", (acc or "") if k == 0 else "", letter, octave, u, tie if k < len(pieces) - 1 else "", str(u)]
             for k, u in enumerate(pieces)]
+
+
+def spell_bar(notes: list[dict], key: str) -> list[dict]:
+    """One bar's notes spelled so upstream parses the pitch each means: a
+    plain letter is `key`'s note, ^ _ = as given. An accidental lasts to the
+    bar's end by letter across octaves (upstream's parse_bar), so a plain
+    letter that would inherit a different one gets its accidental written."""
+    signature = key_accidentals(key)
+    in_force, out = dict(signature), []
+    for note in notes:
+        acc, letter, octave = _PARTS.fullmatch(note["pitch"]).groups()
+        if letter != "z":
+            name = letter.upper()
+            want = _ALTER[acc] if acc else signature[name]
+            if not acc and in_force[name] != want:
+                note = {**note, "pitch": f"{_MARK[want]}{letter}{octave}"}
+            in_force[name] = want
+        out.append(note)
+    return out
+
+
+def _key_before(doc: Doc, n: int) -> str:
+    """The Ins key in force where bar `n` starts: the header K:, a group's
+    K: line, or an inline [K:] in an earlier bar (upstream keeps each)."""
+    key, number = doc.key, 0
+    for section in doc.sections:
+        for group in section["groups"]:
+            line = group["Ins"]
+            key = next((p[2:] for p in reversed(line["pre"]) if p.startswith("K:")), key)
+            for events in line["bars"]:
+                number += 1
+                if number == n:
+                    return key
+                key = next((e[1] for e in reversed(events) if e[0] == "key"), key)
+    return key
 
 
 def _free_runs(doc: Doc, size: int) -> list[str]:
@@ -98,11 +139,14 @@ def write_phrase(doc: Doc, style: str, op: dict) -> str:
     problems = _problems(doc, start, bars)
     if problems:
         raise OpError("; ".join(problems))
-    written = [[e for note in notes for e in note_events(note, doc.unit)] for notes in bars]
+    key, written = _key_before(doc, start), []
+    for offset, notes in enumerate(bars):
+        keys = [e for e in doc.bar(start + offset, "Ins") if e[0] == "key"]  # kept, at the bar's start
+        key = keys[-1][1] if keys else key
+        written.append(keys + [e for note in spell_bar(notes, key) for e in note_events(note, doc.unit)])
     _untie_into(doc, start)
     for offset, events in enumerate(written):
-        bar = doc.edit(start + offset, "Ins")
-        bar[:] = [e for e in bar if e[0] == "key"] + events
+        doc.edit(start + offset, "Ins")[:] = events
     return style
 
 
