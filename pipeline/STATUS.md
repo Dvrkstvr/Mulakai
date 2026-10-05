@@ -5,12 +5,12 @@
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
-- stage: 7 Build — M2 built, verified (5/5 on criteria), reviewed (0 blocking; fixes 0629e20); merge + curate left
+- stage: 7 Build — M2 DONE 2026-10-06 (verify 5/5, review, curate; #137–#141 merged); next: SP-4 spike (running), then the chat feature (D-079, Q-054) before M3
 - clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-052) · decisions to D-076
-- feasibility: amber · H-open 0 · M-open 1 · spiked 4 · R-013 proven by the M0 listens · owed: SP-2 phrase listen
-- milestone: M2 (F-029..F-033) · features passing 24/39 · owed: M2 listen (pipeline/verify/M2/listen), M1 phrase listen
-- autopilot: stopped — round budget 12/12 (M2: verified + reviewed; left: REVISE live re-check, merges, curate)
-- next: Actions outage → merge #138-#141, curate M2 · then SP-4 keep-unchanged spike (R-024, D-079 chat-first) before the chat feature (Q-054)
+- feasibility: amber · H-open 1 (R-024 keep-unchanged, SP-4 running) · spiked 4 · owed: SP-4 listen
+- milestone: M2 done · features passing 24/39 · owed: M2 listen pair 2 (unjudged), M1 phrase listen
+- autopilot: none running
+- next: SP-4 RESULT.md + user listen → PLAN.md section for chat-first (Q-054, user sign-off) → scope; W10 nits Q-038/Q-041/Q-052
 
 ## Stages
 | # | Stage | State | Gate | Date |
@@ -22,7 +22,7 @@
 | 4 | Scope | done | 5/5 must; user signed off (D-026) | 2026-10-03 |
 | 5 | Design | done | 3/3 must; mockup signed off (D-032) | 2026-10-03 |
 | 6 | Architecture | done | 3/4 + context budget lands in W0 (D-046) | 2026-10-03 |
-| 7 | Build | active (M1 done 2026-10-05: 3/3, reviewed, curated; M2 next) | M1 gate met 4/4 | 2026-10-05 |
+| 7 | Build | active (M2 done 2026-10-06: 5/5, reviewed, curated) | M2 gate met 4/4 | 2026-10-06 |
 | 8 | Review | M2 code: 0 blocking, 2 should fixed (0629e20), 3 nit (1 fixed, 2 → Q-052) | 2/2 must | 2026-10-05 |
 | 9 | Release | n/a (local single-user app) | — | — |
 
