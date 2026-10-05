@@ -35,6 +35,12 @@ Spec: PLAN.md "Score Agent"; module table: `pipeline/architecture.md`.
 - A refusal the planner retries past is carried to the review
   (`Plan.refusals`, D-060): a retry never silently changes what the user
   asked (a moved phrase, a raised tempo).
-- WRITE_PHRASE limits in `phraseSchema.ts` mirror yue-server's
-  `score_phrase.py`: change both.
+- Limits mirrored from yue-server (`phraseSchema.ts`, `sectionSchema.ts`,
+  `MAX_OPS`) are pinned by tests that read the Python models: change both
+  sides; a drift is a 422 that the dock shows as PLANNER OFFLINE.
+- Never ask the planner to repeat what stays: it drops it (CP3: a REVISE
+  asked for a complete plan lost every other op). REVISE replies
+  `{drop, ops}` and code merges into the pending plan (D-073).
+- Every number in an op means the song as read (bars, sections, blocks,
+  old key), whatever the op order; yue-server orders the ops (D-066).
 - Pending plans live in `planStore` memory only (docs/decisions/0004).
