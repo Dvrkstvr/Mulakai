@@ -6,7 +6,7 @@ import { useJobsAhead } from './queueStore';
 import { ScorePlanList } from './ScorePlanList';
 import { ScoreStateLine } from './ScoreStateLine';
 import {
-  APPLY_OFF, ASKING_CONSEQUENCE, CHECK_FAILED_CONSEQUENCE, consequenceLine, jobLine, readingLine, REQUEST_PLACEHOLDER,
+  APPLY_OFF, ASKING_CONSEQUENCE, CHECK_FAILED_CONSEQUENCE, consequenceLine, fillRequest, jobLine, readingLine, REQUEST_PLACEHOLDER,
 } from './scoreCopy';
 import { useScoreStore } from './scoreStore';
 import { canPlan, canRender } from './scoreVerb';
@@ -62,12 +62,14 @@ export function DockScore({ songId, state }: Props) {
         {status?.reading && !waiting && <div className="score-reading">{readingLine(status.reading)}</div>}
         {shownPlan && state.plan && (
           <ScorePlanList plan={state.plan} baseStyle={status?.style ?? null} fromBpm={status?.reading?.bpm ?? null}
-            baseVersion={status?.baseVersion} dimmed={phase.kind === 'stale' ? 'stale' : undefined} />
+            fromKey={status?.reading?.key ?? null} baseVersion={status?.baseVersion} dimmed={phase.kind === 'stale' ? 'stale' : undefined} />
         )}
         {waiting && state.previous && (
-          <ScorePlanList plan={state.previous} baseStyle={status?.style ?? null} fromBpm={status?.reading?.bpm ?? null} baseVersion={status?.baseVersion} dimmed="replacing" />
+          <ScorePlanList plan={state.previous} baseStyle={status?.style ?? null} fromBpm={status?.reading?.bpm ?? null}
+            fromKey={status?.reading?.key ?? null} baseVersion={status?.baseVersion} dimmed="replacing" />
         )}
-        <ScoreStateLine phase={phase} onRecheck={onRecheck} onPlanAgain={onPlan} onRetryRender={() => void apply(songId)} />
+        <ScoreStateLine phase={phase} onRecheck={onRecheck} onPlanAgain={onPlan} onRetryRender={() => void apply(songId)}
+          onFill={(words) => dispatch(songId, { type: 'edit', request: fillRequest(request, words) })} />
       </div>
       <DockCommit
         consequence={consequence}

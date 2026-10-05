@@ -825,9 +825,32 @@ requiring its own justification against a screen-count rule.
          omits that clause. The
          asking state reads "asks the planner · uses the GPU for ~10 s ·
          changes nothing yet".
+       - **M2 rows** (added 2026-10-05, `pipeline/design/score-m2.html`
+         frames 10-12, M2-8/M2-9; `scoreSectionCopy.ts`): TRANSPOSE `down 2
+         semitones · Am → Gm · whole song`; REPEAT `CHORUS S7 ×2 · seam
+         un-tied` and CUT `OUTRO S8 · removed · seam un-tied` (the bar map's
+         S-number; the server's plan view has no section bars or seconds
+         yet, so the rows leave them out); REWRITE LYRICS names its block
+         before apply, `[Chorus] #2 · starts "Hold the light" · 4 lines`.
+         Under a row, full width and indented: a REPEAT / CUT's lyric note in
+         `text-low` mono (what happened to the matching block, never silent),
+         and a REWRITE LYRICS's OLD / NEW columns, always open, a changed
+         line marked `~` with its new words at `text-hi`, then a `text-low`
+         note: "2 of 4 lines change · line count and [Chorus] tag kept · New
+         words change what is sung, so YuE2 re-renders the whole song, not
+         just this chorus. v2 keeps its own words." Tags: TRANSPOSE, REPEAT,
+         CUT `follows`; REWRITE LYRICS `a request`. Their clauses join the
+         consequence line after the tempo: `the key follows Gm (down 2)`,
+         `structure follows: chorus S7 repeats once, outro S8 is cut`, and
+         after the requests `the new words in [Chorus] #2 are a request to
+         YuE2, not a guarantee`; a refused op adds no clause.
        - **Rust**: a failed check (`CHECK FAILED`, then one line per cause with its number, e.g.
          "estimated 458 s: over the 360 s limit; at least 112 BPM fits"; a
-         checks segment from 330 s turns rust), PLANNER OFFLINE with its
+         checks segment from 330 s turns rust; a limit line that names a
+         section to cut reads as `OVER THE 360 s LIMIT BY 7 s · est 367 s ·
+         cut the outro 0:11 to fit (section 4) · or at least 68 BPM fits`
+         with a quiet `FILL "cut the outro"` that only adds those words to
+         the request, never plans, Q-048), PLANNER OFFLINE with its
          fix and RECHECK, RENDER FAILED with RETRY RENDER, a stale plan with
          PLAN AGAIN, and a **truncated** render: saved and active, but it
          reads `TRUNCATED at 6:00, the song is cut short` in rust, never

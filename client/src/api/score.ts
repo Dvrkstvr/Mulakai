@@ -26,9 +26,21 @@ export type ScoreOp =
   | { op: 'SET_TEMPO'; bpm: number }
   | { op: 'REHARMONIZE'; from_bar: number; to_bar: number; chords: ScoreChord[] }
   | { op: 'EDIT_STYLE'; style: string }
-  | { op: 'WRITE_PHRASE'; start_bar: number; instrument: string; bars: ScorePhraseNote[][] };
+  | { op: 'WRITE_PHRASE'; start_bar: number; instrument: string; bars: ScorePhraseNote[][] }
+  /** M2 (F-029): every note and chord moves n semitones (-11..11); the key follows. */
+  | { op: 'TRANSPOSE'; semitones: number }
+  /** M2 (F-030): `section` is the read's S<n>, `label` its score label ("chorus") as a cross-check. */
+  | { op: 'REPEAT' | 'CUT'; section: number; label: string }
+  /** M2 (F-031): `block` is the lyric block's number, `tag` + `occurrence` ("[Chorus]", 2) the cross-check. */
+  | { op: 'REWRITE_LYRICS'; block: number; tag: string; occurrence: number; lines: string[] };
 
-export interface ScoreOpVerdict { index: number; op: string; ok: boolean; reason: string | null }
+/** REWRITE_LYRICS's verdict detail: the block it changed and its lines before and after (F-031 #1). */
+export interface ScoreLyricDiff { block: number; tag: string; occurrence: number; old: string[]; new: string[] }
+
+/** `note`: what a REPEAT / CUT did with the lyrics (F-030 #3); `diff`: a REWRITE_LYRICS's lines. */
+export interface ScoreOpVerdict {
+  index: number; op: string; ok: boolean; reason: string | null; note?: string | null; diff?: ScoreLyricDiff | null;
+}
 
 export interface ScorePlan {
   id: string;
@@ -40,7 +52,7 @@ export interface ScorePlan {
   style: string;
   checks: {
     bars: number; seconds: number | null; tokens: number | null; chordsPresent: boolean | null;
-    changed: { abc: boolean; style: boolean };
+    changed: { abc: boolean; style: boolean; lyrics?: boolean };
   };
   attempts: number;
   /** Each earlier refused attempt's reasons, in order: empty when attempt 1 passed (D-060). */
