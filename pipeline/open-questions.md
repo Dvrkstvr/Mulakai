@@ -187,3 +187,6 @@ REVISE (F-033) drops the pending ops on additive requests (D-068's own "revisit 
 
 ## Q-051 · deferred · stage 7 (verify M2/CP3) · half assumed → D-074; score-section strip open (M4)
 F-032's section strip exists on a YuE2 song only after the lyrics read has produced timings (D-072). Live: with LYRICS_API_URL unset the SCORE chip says "click a section or a lyric line: it becomes "this" in your request" and the editor shows an empty LYRICS lane and no strip (pipeline/verify/M2/shots/probe-Gertar.png); with lyrics-server running the Editor auto-reads timings in ~15 s and the strip appears (shots/timing-Gertar.png). The strip is cut from lyric tags (Gertar: 8 segments) not score sections (10), so a section with no lyric block (the third chorus) cannot be picked. Options: hide the hint when there is nothing to pick; build the strip from the score's sections for YuE2 songs. Reversal cost: client only.
+
+## Q-052 · deferred · stage 8 (M2 code review) · open
+Two nits from pipeline/reviews/M2-code.md (D-075): #1 a line pick survives a REWRITE LYRICS render with its old words in the chip and the planner prompt (planReferent.ts:159-163, `text` never re-checked); #3 the section-to-block pairing rule and `kindOf` exist in yue-server, server and client with no cross-test (no drift today). Decide with Q-038/Q-041 in W10.
