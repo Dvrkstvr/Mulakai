@@ -1,0 +1,261 @@
+{
+ "tag": "b14",
+ "songId": "781968b6-ada5-427a-b333-d4d96b9af7fd",
+ "request": "rewrite the second pre-chorus about the sea",
+ "flags": [],
+ "started": "2026-10-05T19:01:14.694Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1983,
+  "util": 0
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 123,
+   "seconds": 213.9,
+   "bpm": 138,
+   "key": "Am",
+   "meter": "4/4",
+   "tokens": 2635
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "Modern Polish polka, turbo folk-pop, high-energy party polka, fast accordion riffs, punchy electronic drums, driving 4/4 brass section, slap bass, upbeat synth hooks, festive stadium crowd claps, Polish folk vocal chants, anthemic, euphoric dancefloor, 135 BPM, 135 bpm",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 11
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 12,
+    "to_bar": 32
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 33,
+    "to_bar": 40
+   },
+   {
+    "index": 4,
+    "label": "interlude",
+    "occurrence": 1,
+    "from_bar": 41,
+    "to_bar": 48
+   },
+   {
+    "index": 5,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 49,
+    "to_bar": 69
+   },
+   {
+    "index": 6,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 70,
+    "to_bar": 77
+   },
+   {
+    "index": 7,
+    "label": "interlude",
+    "occurrence": 2,
+    "from_bar": 78,
+    "to_bar": 105
+   },
+   {
+    "index": 8,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 106,
+    "to_bar": 113
+   },
+   {
+    "index": 9,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 114,
+    "to_bar": 123
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "(Fast energetic accordion intro)"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 6,
+    "first_line": "Piątek wieczór, dym z grilla leci w dal"
+   },
+   {
+    "index": 3,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Akordeon głośno tnie (Opa!)"
+   },
+   {
+    "index": 4,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 6,
+    "first_line": "Zatańcz ze mną polkę, niech wiruje świat!"
+   },
+   {
+    "index": 5,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 6,
+    "first_line": "Staszek w trampkach kręci piruet na sto dwa"
+   },
+   {
+    "index": 6,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Akordeon głośno tnie (Opa!)"
+   },
+   {
+    "index": 7,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Zatańcz ze mną polkę, niech wiruje świat!"
+   },
+   {
+    "index": 8,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 6,
+    "first_line": "(Tempo quickens, clapping only)"
+   },
+   {
+    "index": 9,
+    "tag": "[Chorus]",
+    "occurrence": 3,
+    "lines": 4,
+    "first_line": "Zatańcz ze mną polkę, niech wiruje świat!"
+   },
+   {
+    "index": 10,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Jeszcze jeden, jeszcze raz!"
+   }
+  ]
+ },
+ "t0": 1791226874773,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "4a780465-82c1-44db-98c2-4302dbef00f5",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "rewrite the second pre-chorus about the sea"
+ },
+ "t1": 1791226881129,
+ "planWallS": 6.356,
+ "planGet": {
+  "run": {
+   "jobId": "4a780465-82c1-44db-98c2-4302dbef00f5",
+   "request": "rewrite the second pre-chorus about the sea",
+   "status": "done",
+   "reasons": [],
+   "planId": "70058999-8d89-4db5-8dba-64b48cc6a74d",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "70058999-8d89-4db5-8dba-64b48cc6a74d",
+   "songId": "781968b6-ada5-427a-b333-d4d96b9af7fd",
+   "baseVersionId": "3b51d3d9-3731-464a-b0ed-ce57a21616c6",
+   "request": "rewrite the second pre-chorus about the sea",
+   "ops": [
+    {
+     "op": "REWRITE_LYRICS",
+     "block": 6,
+     "tag": "[Pre-Chorus]",
+     "occurrence": 2,
+     "lines": [
+      "Akordeon głośno tnie (Opa!)",
+      "Morski wiatr w dali",
+      "Szybki rytm, jak fala",
+      "Zmienia się w tańcze"
+     ]
+    },
+    {
+     "op": "EDIT_STYLE",
+     "style": "Modern Polish polka, turbo folk-pop, high-energy party polka, fast accordion riffs, punchy electronic drums, driving 4/4 brass section, slap bass, upbeat synth hooks, festive stadium crowd claps, Polish folk vocal chants, anthemic, euphoric dancefloor, 135 BPM, 135 bpm"
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REWRITE_LYRICS",
+     "ok": true,
+     "reason": null,
+     "diff": {
+      "block": 6,
+      "tag": "[Pre-Chorus]",
+      "occurrence": 2,
+      "old": [
+       "Akordeon głośno tnie (Opa!)",
+       "Trąbka zaraz porwie cię (Hej, hej!)",
+       "Ręce w górę, w kółko krok",
+       "To najlepsza polska noc!"
+      ],
+      "new": [
+       "Akordeon głośno tnie (Opa!)",
+       "Morski wiatr w dali",
+       "Szybki rytm, jak fala",
+       "Zmienia się w tańcze"
+      ]
+     }
+    },
+    {
+     "index": 2,
+     "op": "EDIT_STYLE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "Modern Polish polka, turbo folk-pop, high-energy party polka, fast accordion riffs, punchy electronic drums, driving 4/4 brass section, slap bass, upbeat synth hooks, festive stadium crowd claps, Polish folk vocal chants, anthemic, euphoric dancefloor, 138 BPM, 138 bpm",
+   "checks": {
+    "bars": 123,
+    "seconds": 213.9,
+    "tokens": 2635,
+    "chordsPresent": true,
+    "changed": {
+     "abc": false,
+     "style": true,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791226881009,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ }
+}

@@ -1,0 +1,338 @@
+{
+ "tag": "t2_repeat",
+ "songId": "3f44f508-c08d-4d1c-b299-63235dd61e29",
+ "request": "repeat the chorus",
+ "flags": [
+  "render"
+ ],
+ "started": "2026-10-05T18:27:32.422Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1692,
+  "util": 1
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 63,
+   "seconds": 160,
+   "bpm": 93,
+   "key": "Gm",
+   "meter": "2/4",
+   "tokens": 1485
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 91 bpm, B♭ major, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 6
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 7,
+    "to_bar": 22
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 23,
+    "to_bar": 30
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 31,
+    "to_bar": 46
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 47,
+    "to_bar": 54
+   },
+   {
+    "index": 6,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 55,
+    "to_bar": 63
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro: Piano]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "¿Cómo te digo que olvidarte no he podido?"
+   },
+   {
+    "index": 3,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "¿Y qué más da?"
+   },
+   {
+    "index": 4,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 5,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 13,
+    "first_line": "Yo necesito que tú vuelvas conmigo"
+   },
+   {
+    "index": 6,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 7,
+    "tag": "[Instrumental Outro]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "[Piano, synth pads, and beat continue]"
+   }
+  ]
+ },
+ "t0": 1791224852507,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "5e516b25-d746-45ce-93aa-914d1b15031a",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "repeat the chorus"
+ },
+ "t1": 1791224856210,
+ "planWallS": 3.703,
+ "planGet": {
+  "run": {
+   "jobId": "5e516b25-d746-45ce-93aa-914d1b15031a",
+   "request": "repeat the chorus",
+   "status": "done",
+   "reasons": [],
+   "planId": "223d876d-c10a-4bd3-822f-e561e18975b0",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "223d876d-c10a-4bd3-822f-e561e18975b0",
+   "songId": "3f44f508-c08d-4d1c-b299-63235dd61e29",
+   "baseVersionId": "3820c535-b81f-4716-94c2-370f9272f4b7",
+   "request": "repeat the chorus",
+   "ops": [
+    {
+     "op": "REPEAT",
+     "section": 3,
+     "label": "chorus"
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REPEAT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 4 [Chorus] is repeated with it"
+    }
+   ],
+   "style": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 91 bpm, B♭ major, 4/4 time",
+   "checks": {
+    "bars": 63,
+    "seconds": 180.6,
+    "tokens": 1670,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791224856090,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ },
+ "render": {
+  "t0": 1791224857754,
+  "post": {
+   "status": 202,
+   "body": {
+    "jobId": "c4d36431-a1ba-472f-9798-808b764aa0aa",
+    "queuePosition": 0
+   }
+  },
+  "t1": 1791224934128,
+  "wallS": 76.374,
+  "run": {
+   "jobId": "c4d36431-a1ba-472f-9798-808b764aa0aa",
+   "planId": "223d876d-c10a-4bd3-822f-e561e18975b0",
+   "status": "done",
+   "stage": "decode",
+   "progress": 0.8,
+   "version": {
+    "id": "4b18bd24-6877-4d16-b35e-990be26125ef",
+    "number": 2,
+    "seconds": 178.47866666666667,
+    "bpm": 93,
+    "truncated": false
+   },
+   "cause": null
+  }
+ },
+ "scoreAfter": {
+  "state": "eligible",
+  "reading": {
+   "bars": 71,
+   "seconds": 180.6,
+   "bpm": 93,
+   "key": "Gm",
+   "meter": "2/4",
+   "tokens": 1670
+  },
+  "baseVersion": 2,
+  "versions": 2,
+  "style": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 91 bpm, B♭ major, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 6
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 7,
+    "to_bar": 22
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 23,
+    "to_bar": 30
+   },
+   {
+    "index": 4,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 31,
+    "to_bar": 38
+   },
+   {
+    "index": 5,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 39,
+    "to_bar": 54
+   },
+   {
+    "index": 6,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 55,
+    "to_bar": 62
+   },
+   {
+    "index": 7,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 63,
+    "to_bar": 71
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "¿Cómo te digo que olvidarte no he podido?"
+   },
+   {
+    "index": 3,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "¿Y qué más da?"
+   },
+   {
+    "index": 4,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 6,
+    "tag": "[Verse]",
+    "occurrence": 2,
+    "lines": 13,
+    "first_line": "Yo necesito que tú vuelvas conmigo"
+   },
+   {
+    "index": 7,
+    "tag": "[Chorus]",
+    "occurrence": 3,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 8,
+    "tag": "[Instrumental Outro]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "[Piano, synth pads, and beat continue]"
+   }
+  ]
+ }
+}

@@ -1,0 +1,36 @@
+{
+ "cut": {
+  "ok": true,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "CUT",
+    "ok": true,
+    "reason": null,
+    "note": "lyric block 6 [Bridge] is cut with it"
+   }
+  ],
+  "checks": {
+   "ok": true,
+   "problems": [],
+   "differences": []
+  }
+ },
+ "repeat": {
+  "ok": true,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "REPEAT",
+    "ok": true,
+    "reason": null,
+    "note": "lyric block 3 [Chorus] is repeated with it"
+   }
+  ],
+  "checks": {
+   "ok": true,
+   "problems": [],
+   "differences": []
+  }
+ }
+}

@@ -1,0 +1,408 @@
+{
+ "tag": "t7_repeat_gertar",
+ "songId": "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+ "request": "repeat the first chorus",
+ "flags": [
+  "render"
+ ],
+ "started": "2026-10-05T18:46:07.724Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1974,
+  "util": 1
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 77,
+   "seconds": 217.4,
+   "bpm": 85,
+   "key": "Dm",
+   "meter": "4/4",
+   "tokens": 1780
+  },
+  "baseVersion": 2,
+  "versions": 2,
+  "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive female vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 176 bpm, D major, 6/8 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 5
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 6,
+    "to_bar": 14
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 15,
+    "to_bar": 22
+   },
+   {
+    "index": 4,
+    "label": "interlude",
+    "occurrence": 1,
+    "from_bar": 23,
+    "to_bar": 26
+   },
+   {
+    "index": 5,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 27,
+    "to_bar": 35
+   },
+   {
+    "index": 6,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 36,
+    "to_bar": 43
+   },
+   {
+    "index": 7,
+    "label": "bridge",
+    "occurrence": 1,
+    "from_bar": 44,
+    "to_bar": 52
+   },
+   {
+    "index": 8,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 53,
+    "to_bar": 60
+   },
+   {
+    "index": 9,
+    "label": "interlude",
+    "occurrence": 2,
+    "from_bar": 61,
+    "to_bar": 68
+   },
+   {
+    "index": 10,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 69,
+    "to_bar": 77
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 7,
+    "first_line": "Nebel zieht über die Stadt"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Andreas, ich falle doch ich stehe irgendwie"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Lachen klingt so kühl"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Andreas, ich gehe doch ich bleibe irgendwie"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Manchmal spür ich, wie die Nacht mich nieder recon"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "Verloren"
+   },
+   {
+    "index": 8,
+    "tag": "[Instrumental Outro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   }
+  ]
+ },
+ "t0": 1791225967798,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "7c381824-276a-4a1c-8361-87d3b344c7f3",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "repeat the first chorus"
+ },
+ "t1": 1791225971522,
+ "planWallS": 3.724,
+ "planGet": {
+  "run": {
+   "jobId": "7c381824-276a-4a1c-8361-87d3b344c7f3",
+   "request": "repeat the first chorus",
+   "status": "done",
+   "reasons": [],
+   "planId": "5006215c-543a-489f-9a39-4ae5c2d2e735",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "5006215c-543a-489f-9a39-4ae5c2d2e735",
+   "songId": "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+   "baseVersionId": "fbdfc929-3c96-4da6-bd1c-d7853cbd8ac7",
+   "request": "repeat the first chorus",
+   "ops": [
+    {
+     "op": "REPEAT",
+     "section": 3,
+     "label": "chorus"
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REPEAT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 3 [Chorus] is repeated with it"
+    }
+   ],
+   "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive female vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 176 bpm, D major, 6/8 time",
+   "checks": {
+    "bars": 77,
+    "seconds": 240,
+    "tokens": 1955,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791225971464,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ },
+ "render": {
+  "t0": 1791225973066,
+  "post": {
+   "status": 202,
+   "body": {
+    "jobId": "8ef8ce1c-dfe8-47e7-b8fd-2ddd5dd840fc",
+    "queuePosition": 0
+   }
+  },
+  "t1": 1791226073613,
+  "wallS": 100.547,
+  "run": {
+   "jobId": "8ef8ce1c-dfe8-47e7-b8fd-2ddd5dd840fc",
+   "planId": "5006215c-543a-489f-9a39-4ae5c2d2e735",
+   "status": "done",
+   "stage": "decode",
+   "progress": 0.6667,
+   "version": {
+    "id": "805fa29c-6cda-467a-ae73-d974b59ce3b9",
+    "number": 3,
+    "seconds": 237.35866666666666,
+    "bpm": 85,
+    "truncated": false
+   },
+   "cause": null
+  }
+ },
+ "scoreAfter": {
+  "state": "eligible",
+  "reading": {
+   "bars": 85,
+   "seconds": 240,
+   "bpm": 85,
+   "key": "Dm",
+   "meter": "4/4",
+   "tokens": 1955
+  },
+  "baseVersion": 3,
+  "versions": 3,
+  "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive female vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 176 bpm, D major, 6/8 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 5
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 6,
+    "to_bar": 14
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 15,
+    "to_bar": 22
+   },
+   {
+    "index": 4,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 23,
+    "to_bar": 30
+   },
+   {
+    "index": 5,
+    "label": "interlude",
+    "occurrence": 1,
+    "from_bar": 31,
+    "to_bar": 34
+   },
+   {
+    "index": 6,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 35,
+    "to_bar": 43
+   },
+   {
+    "index": 7,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 44,
+    "to_bar": 51
+   },
+   {
+    "index": 8,
+    "label": "bridge",
+    "occurrence": 1,
+    "from_bar": 52,
+    "to_bar": 60
+   },
+   {
+    "index": 9,
+    "label": "chorus",
+    "occurrence": 4,
+    "from_bar": 61,
+    "to_bar": 68
+   },
+   {
+    "index": 10,
+    "label": "interlude",
+    "occurrence": 2,
+    "from_bar": 69,
+    "to_bar": 76
+   },
+   {
+    "index": 11,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 77,
+    "to_bar": 85
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse]",
+    "occurrence": 1,
+    "lines": 7,
+    "first_line": "Nebel zieht über die Stadt"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Andreas, ich falle doch ich stehe irgendwie"
+   },
+   {
+    "index": 4,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Andreas, ich falle doch ich stehe irgendwie"
+   },
+   {
+    "index": 5,
+    "tag": "[Verse]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Lachen klingt so kühl"
+   },
+   {
+    "index": 6,
+    "tag": "[Chorus]",
+    "occurrence": 3,
+    "lines": 4,
+    "first_line": "Andreas, ich gehe doch ich bleibe irgendwie"
+   },
+   {
+    "index": 7,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Manchmal spür ich, wie die Nacht mich nieder recon"
+   },
+   {
+    "index": 8,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "Verloren"
+   },
+   {
+    "index": 9,
+    "tag": "[Instrumental Outro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   }
+  ]
+ }
+}

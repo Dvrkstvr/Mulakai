@@ -1,0 +1,322 @@
+{
+ "tag": "t1_transpose",
+ "songId": "ecf8eb5a-734f-4b5f-a0ab-040b6645e75e",
+ "request": "down a tone",
+ "flags": [
+  "render"
+ ],
+ "started": "2026-10-05T18:25:32.181Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 858,
+  "util": 0
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 64,
+   "seconds": 161.7,
+   "bpm": 95,
+   "key": "Dm",
+   "meter": "4/4",
+   "tokens": 1163
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 93 bpm, G minor, 2/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 5
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 6,
+    "to_bar": 22
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 23,
+    "to_bar": 30
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 31,
+    "to_bar": 47
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 48,
+    "to_bar": 55
+   },
+   {
+    "index": 6,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 56,
+    "to_bar": 64
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro: Piano]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "¿Cómo te digo que olvidarte no he podido?"
+   },
+   {
+    "index": 3,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "¿Y qué más da?"
+   },
+   {
+    "index": 4,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 5,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 13,
+    "first_line": "Yo necesito que tú vuelvas conmigo"
+   },
+   {
+    "index": 6,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 7,
+    "tag": "[Instrumental Outro]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "[Piano, synth pads, and beat continue]"
+   }
+  ]
+ },
+ "t0": 1791224732262,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "650cb3ca-6e74-4171-8aef-a82035dd076c",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "down a tone"
+ },
+ "t1": 1791224735977,
+ "planWallS": 3.715,
+ "planGet": {
+  "run": {
+   "jobId": "650cb3ca-6e74-4171-8aef-a82035dd076c",
+   "request": "down a tone",
+   "status": "done",
+   "reasons": [],
+   "planId": "60cc70af-4c33-43f8-b2b5-8ee3d9080bc6",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "60cc70af-4c33-43f8-b2b5-8ee3d9080bc6",
+   "songId": "ecf8eb5a-734f-4b5f-a0ab-040b6645e75e",
+   "baseVersionId": "3c9e79de-0844-40dc-a89f-4c6864c8a23a",
+   "request": "down a tone",
+   "ops": [
+    {
+     "op": "TRANSPOSE",
+     "semitones": -2
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "TRANSPOSE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 93 bpm, C minor, 2/4 time",
+   "checks": {
+    "bars": 64,
+    "seconds": 161.7,
+    "tokens": 1164,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true,
+     "lyrics": false
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791224735724,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ },
+ "render": {
+  "t0": 1791224737520,
+  "post": {
+   "status": 202,
+   "body": {
+    "jobId": "1a4b5fbd-0737-4ee8-a110-6d41608ead42",
+    "queuePosition": 0
+   }
+  },
+  "t1": 1791224809876,
+  "wallS": 72.356,
+  "run": {
+   "jobId": "1a4b5fbd-0737-4ee8-a110-6d41608ead42",
+   "planId": "60cc70af-4c33-43f8-b2b5-8ee3d9080bc6",
+   "status": "done",
+   "stage": "decode",
+   "progress": 0.5,
+   "version": {
+    "id": "d32804b9-58f6-469d-ae12-70817f702c18",
+    "number": 2,
+    "seconds": 159.51866666666666,
+    "bpm": 95,
+    "truncated": false
+   },
+   "cause": null
+  }
+ },
+ "scoreAfter": {
+  "state": "eligible",
+  "reading": {
+   "bars": 64,
+   "seconds": 161.7,
+   "bpm": 95,
+   "key": "Cm",
+   "meter": "4/4",
+   "tokens": 1164
+  },
+  "baseVersion": 2,
+  "versions": 2,
+  "style": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 93 bpm, C minor, 2/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 5
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 6,
+    "to_bar": 22
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 23,
+    "to_bar": 30
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 31,
+    "to_bar": 47
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 48,
+    "to_bar": 55
+   },
+   {
+    "index": 6,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 56,
+    "to_bar": 64
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro: Piano]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "¿Cómo te digo que olvidarte no he podido?"
+   },
+   {
+    "index": 3,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "¿Y qué más da?"
+   },
+   {
+    "index": 4,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 5,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 13,
+    "first_line": "Yo necesito que tú vuelvas conmigo"
+   },
+   {
+    "index": 6,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Y dime, dime, dime"
+   },
+   {
+    "index": 7,
+    "tag": "[Instrumental Outro]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "[Piano, synth pads, and beat continue]"
+   }
+  ]
+ }
+}

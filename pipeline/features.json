@@ -337,8 +337,8 @@
         "Consequence line states 'follows' for the key",
         "Edge: a shift of 12 or more, or one that leaves the 30-name key table, is refused by the schema bounds (-11..11) with a reason"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: selftest 9 scores x 6 intervals 54 passed; edge 12/-12 422 with reason, 0 refused (raw/edges_transpose.json); dock 'the key follows Dm (down 2)'; live Carinito 'down a tone' TRANSPOSE -2, render 72 s, chord-root/melody shift 10 semitones (corr 0.999), tempo 95.2 vs Q95, bars 64 (transcriber 65, offset 1); checks at 27b457a green (client 835, server 795, pytest 422, e2e 11); listen owed (listen/index.html pair 1)"
     },
     {
       "id": "F-030",
@@ -350,8 +350,8 @@
         "Edge: a section with no matching lyric block (2c944049's one chorus vs two [Chorus] blocks) follows the stated rule, shown in the change list, not a silent guess",
         "Live: a repeated chorus renders with bar count equal to the score's and the copy matching the first (SP-3: 0.95-0.99)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: Romantica repeat render: duplicated [Chorus] block + rewritten tags in the lyrics sent, copy vs first F1 0.99, chords 97%, 70 half-bar-thinned downbeats vs 71 (offset -1), +8.1 bars of length; Gertar repeat render: 85 = 85 bars, copy F1 0.93 (SP-3 0.95-0.99; chance 0.23), chords 100%; no-block rule shown in the change list (3 cases); cut hint seen in refused attempts ('cut the intro 0:25 to fit (section 1)'), not reached as a final failure, no hint on token-limit failures; CUT checked by direct apply; listen owed (pairs 2, 4)"
     },
     {
       "id": "F-031",
@@ -362,8 +362,8 @@
         "Edge: a request naming 'the second chorus' resolves to the right block in the change list before it is applied (SP-2: qwen3 64% right block, so the row shows which block it will change)",
         "The review says the new words need a re-render of the whole song"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: 18 plan trials: block tag/occurrence right 18/18, planner picked the intended block 17/18 (SP-2 64%), same line count 18/18, tags written 0/18; diff + 'whole song re-renders' line in the dock; live render Gertar chorus 2: Whisper heard all four new lines, bars 77 = 77; listen owed (pair 3)"
     },
     {
       "id": "F-032",
@@ -374,8 +374,8 @@
         "Clearing the selection plans against the whole song",
         "Edge: a selection that no longer exists after a plan changes the section count shows as stale on the change list instead of applying to the wrong bars"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: Gertar with lyrics-server running: strip appears after the auto word-timings read (~15 s); pick CHORUS 2 -> chip 'THIS: CHORUS 2 · BARS 36–43', REHARMONIZE 36–43 only; clear -> whole song; after a REPEAT render the old BRIDGE pick -> STALE SELECTION 'now bars 52-60' + USE BARS 52–60 (shots/f032-stale-row.png); line pick works. Gap Q-051: with LYRICS_API_URL unset there is no strip and the hint has nothing to click"
     },
     {
       "id": "F-033",
@@ -385,8 +385,8 @@
         "The second plan is made against the first plan's result and replaces it; the change list shows what changed since the last plan",
         "Edge: a revision never exceeds 3 attempts per press and each press reloads and unloads the planner (hand-off unchanged); a revision that fails keeps the previous plan available"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: 10 REVISE presses: replace + SINCE PLAN marks (SAME/CHANGED/NEW/removed) seen in the dock; 44 presses all unload once (ack 1 ms, /api/ps empty 10-110 ms), max 3 attempts; failed REVISE keeps the plan (API + 'REVISE FAILED … Plan 3 is still here'). Finding Q-050: the planner dropped the pending ops in 4 of 4 one-op revisions ('also slow it down to 80 BPM'), 'not so many chords' returned the same plan twice"
     },
     {
       "id": "F-034",

@@ -1,0 +1,293 @@
+[
+ {
+  "tag": "b01",
+  "request": "rewrite the second chorus about leaving",
+  "intended": 5,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 5,
+  "chosen_tag": "[Chorus] #2",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b02",
+  "request": "rewrite the first chorus about the sea",
+  "intended": 3,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 3,
+  "chosen_tag": "[Chorus] #1",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b03",
+  "request": "rewrite the bridge about hope",
+  "intended": 6,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 6,
+  "chosen_tag": "[Bridge] #1",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b04",
+  "request": "rewrite the second verse about leaving",
+  "intended": 4,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 2,
+  "chosen_tag": "[Verse 1] #1",
+  "right": false,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b05",
+  "request": "rewrite the last chorus about leaving",
+  "intended": 8,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 8,
+  "chosen_tag": "[Chorus] #3",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b06",
+  "request": "rewrite the first chorus about the sea",
+  "intended": 3,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 3,
+  "chosen_tag": "[Chorus] #1",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b07",
+  "request": "rewrite the second chorus about leaving",
+  "intended": 5,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 5,
+  "chosen_tag": "[Chorus] #2",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b08",
+  "request": "rewrite the bridge about hope",
+  "intended": 7,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 7,
+  "chosen_tag": "[Bridge] #1",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b09",
+  "request": "rewrite the second chorus about leaving",
+  "intended": 5,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 5,
+  "chosen_tag": "[Chorus] #2",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b10",
+  "request": "rewrite the first chorus about the sea",
+  "intended": 3,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 3,
+  "chosen_tag": "[Chorus] #1",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b11",
+  "request": "rewrite the outro about hope",
+  "intended": 7,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 7,
+  "chosen_tag": "[Outro] #1",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 2
+ },
+ {
+  "tag": "b12",
+  "request": "rewrite the second chorus about leaving",
+  "intended": 7,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS",
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 7,
+  "chosen_tag": "[Chorus] #2",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 2
+ },
+ {
+  "tag": "b13",
+  "request": "rewrite the third chorus about leaving",
+  "intended": 9,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS",
+   "EDIT_STYLE"
+  ],
+  "chosen": 9,
+  "chosen_tag": "[Chorus] #3",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b14",
+  "request": "rewrite the second pre-chorus about the sea",
+  "intended": 6,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS",
+   "EDIT_STYLE"
+  ],
+  "chosen": 6,
+  "chosen_tag": "[Pre-Chorus] #2",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b15",
+  "request": "rewrite the second chorus about leaving",
+  "intended": 6,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 6,
+  "chosen_tag": "[Chorus] #2",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b16",
+  "request": "rewrite the second verse about the sea",
+  "intended": 5,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 5,
+  "chosen_tag": "[Verse 2] #2",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 3
+ },
+ {
+  "tag": "b17",
+  "request": "rewrite the outro about hope",
+  "intended": 8,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 8,
+  "chosen_tag": "[Outro] #1",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ },
+ {
+  "tag": "b18",
+  "request": "rewrite the second verse about leaving",
+  "intended": 4,
+  "status": "done",
+  "ops": [
+   "REWRITE_LYRICS"
+  ],
+  "chosen": 4,
+  "chosen_tag": "[Verse 2] #2",
+  "right": true,
+  "lines_same": true,
+  "tag_in_lines": false,
+  "tag_matches_block": true,
+  "attempts": 1
+ }
+]

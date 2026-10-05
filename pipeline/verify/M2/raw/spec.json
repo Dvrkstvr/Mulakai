@@ -1,0 +1,14 @@
+[
+ {"tag":"t1_transpose_carinito","kind":"transpose","semitones":-2,
+  "baseAudio":"E:/ai/tmp/m2v/data/audio/3c9e79de-0844-40dc-a89f-4c6864c8a23a.wav","baseAbc":"E:/ai/tmp/m2v/data/audio/3c9e79de-0844-40dc-a89f-4c6864c8a23a.abc",
+  "newAudio":"E:/ai/tmp/m2v/data/audio/d32804b9-58f6-469d-ae12-70817f702c18.wav","newAbc":"E:/ai/tmp/m2v/data/audio/d32804b9-58f6-469d-ae12-70817f702c18.abc"},
+ {"tag":"t2_repeat_romantica","kind":"repeat","section_bars_base":[23,30],
+  "baseAudio":"E:/ai/tmp/m2v/data/audio/3820c535-b81f-4716-94c2-370f9272f4b7.wav","baseAbc":"E:/ai/tmp/m2v/data/audio/3820c535-b81f-4716-94c2-370f9272f4b7.abc",
+  "newAudio":"E:/ai/tmp/m2v/data/audio/4b18bd24-6877-4d16-b35e-990be26125ef.wav","newAbc":"E:/ai/tmp/m2v/data/audio/4b18bd24-6877-4d16-b35e-990be26125ef.abc"},
+ {"tag":"t7_repeat_gertar","kind":"repeat","section_bars_base":[15,22],
+  "baseAudio":"E:/ai/tmp/m2v/data/audio/fbdfc929-3c96-4da6-bd1c-d7853cbd8ac7.wav","baseAbc":"E:/ai/tmp/m2v/data/audio/fbdfc929-3c96-4da6-bd1c-d7853cbd8ac7.abc",
+  "newAudio":"E:/ai/tmp/m2v/data/audio/805fa29c-6cda-467a-ae73-d974b59ce3b9.wav","newAbc":"E:/ai/tmp/m2v/data/audio/805fa29c-6cda-467a-ae73-d974b59ce3b9.abc"},
+ {"tag":"t4_rewrite_gertar","kind":"rewrite",
+  "baseAudio":"E:/ai/tmp/m2v/data/audio/c8144c53-6612-4efc-8a4c-da279f2e0307.wav","baseAbc":"E:/ai/tmp/m2v/data/audio/c8144c53-6612-4efc-8a4c-da279f2e0307.abc",
+  "newAudio":"E:/ai/tmp/m2v/data/audio/fbdfc929-3c96-4da6-bd1c-d7853cbd8ac7.wav","newAbc":"E:/ai/tmp/m2v/data/audio/fbdfc929-3c96-4da6-bd1c-d7853cbd8ac7.abc"}
+]

@@ -1,0 +1,352 @@
+{
+ "tag": "t5_r5",
+ "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+ "request": "make it 100 BPM instead",
+ "flags": [
+  "revise"
+ ],
+ "started": "2026-10-05T18:33:15.795Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1733,
+  "util": 1
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 65,
+   "seconds": 179.3,
+   "bpm": 87,
+   "key": "Dm",
+   "meter": "4/4",
+   "tokens": 1472
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 10
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 11,
+    "to_bar": 46
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 47,
+    "to_bar": 62
+   },
+   {
+    "index": 4,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 63,
+    "to_bar": 65
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 1,
+    "first_line": "[Rhodes piano melody]"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Midnight city streets are wet"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "In the shadows we exist"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Concrete jungle breathing slow"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Out of focus, out of sight"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "The city never sleeps"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "In the shadows"
+   }
+  ]
+ },
+ "priorPlan": {
+  "id": "64584bfc-efdc-4c14-a55a-779bb9535204",
+  "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+  "baseVersionId": "2c944049-75eb-4448-ac49-7f50f93be80d",
+  "request": "keep the jazz chords and also slow it down to 80 BPM",
+  "ops": [
+   {
+    "op": "SET_TEMPO",
+    "bpm": 80
+   }
+  ],
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "SET_TEMPO",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 80 bpm, F minor, 4/4 time",
+  "checks": {
+   "bars": 65,
+   "seconds": 195,
+   "tokens": 1472,
+   "chordsPresent": true,
+   "changed": {
+    "abc": true,
+    "style": true,
+    "lyrics": false
+   }
+  },
+  "attempts": 1,
+  "refusals": [],
+  "createdAt": 1791225193929,
+  "referent": null,
+  "revision": 2,
+  "since": {
+   "planId": "a719ad8e-d521-40e7-bc67-20924a8d6516",
+   "marks": [
+    {
+     "mark": "NEW",
+     "was": null
+    }
+   ],
+   "removed": [
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 47,
+     "to_bar": 62,
+     "chords": [
+      {
+       "bar": 47,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 48,
+       "beat": 1,
+       "root": "C",
+       "quality": "7",
+       "bass": "Bb"
+      },
+      {
+       "bar": 49,
+       "beat": 1,
+       "root": "F",
+       "quality": "7",
+       "bass": "A"
+      },
+      {
+       "bar": 50,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 51,
+       "beat": 1,
+       "root": "E",
+       "quality": "7",
+       "bass": "B"
+      },
+      {
+       "bar": 52,
+       "beat": 1,
+       "root": "A",
+       "quality": "7",
+       "bass": "E"
+      },
+      {
+       "bar": 53,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 54,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "B"
+      },
+      {
+       "bar": 55,
+       "beat": 1,
+       "root": "C",
+       "quality": "7",
+       "bass": "E"
+      },
+      {
+       "bar": 56,
+       "beat": 1,
+       "root": "F",
+       "quality": "7",
+       "bass": "A"
+      },
+      {
+       "bar": 57,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 58,
+       "beat": 1,
+       "root": "E",
+       "quality": "7",
+       "bass": "B"
+      },
+      {
+       "bar": 59,
+       "beat": 1,
+       "root": "A",
+       "quality": "7",
+       "bass": "E"
+      },
+      {
+       "bar": 60,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 61,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "B"
+      },
+      {
+       "bar": 62,
+       "beat": 1,
+       "root": "C",
+       "quality": "7",
+       "bass": "E"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "t0": 1791225195874,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "503da110-f847-4a76-879b-d4391052929c",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "make it 100 BPM instead",
+  "revise": "64584bfc-efdc-4c14-a55a-779bb9535204"
+ },
+ "t1": 1791225199581,
+ "planWallS": 3.707,
+ "planGet": {
+  "run": {
+   "jobId": "503da110-f847-4a76-879b-d4391052929c",
+   "request": "make it 100 BPM instead",
+   "status": "done",
+   "reasons": [],
+   "planId": "fa4c6ec7-0827-4a40-a266-9ea697117523",
+   "revise": "64584bfc-efdc-4c14-a55a-779bb9535204",
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "fa4c6ec7-0827-4a40-a266-9ea697117523",
+   "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "baseVersionId": "2c944049-75eb-4448-ac49-7f50f93be80d",
+   "request": "make it 100 BPM instead",
+   "ops": [
+    {
+     "op": "SET_TEMPO",
+     "bpm": 100
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 100 bpm, F minor, 4/4 time",
+   "checks": {
+    "bars": 65,
+    "seconds": 156,
+    "tokens": 1473,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true,
+     "lyrics": false
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791225199464,
+   "referent": null,
+   "revision": 3,
+   "since": {
+    "planId": "64584bfc-efdc-4c14-a55a-779bb9535204",
+    "marks": [
+     {
+      "mark": "CHANGED",
+      "was": {
+       "op": "SET_TEMPO",
+       "bpm": 80
+      }
+     }
+    ],
+    "removed": []
+   }
+  }
+ }
+}

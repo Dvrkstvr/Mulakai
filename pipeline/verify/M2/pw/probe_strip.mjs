@@ -1,0 +1,10 @@
+import { launch, openScore, dock, txt } from './lib.mjs';
+const [title, nth = '0'] = process.argv.slice(2);
+const { browser, page } = await launch();
+await openScore(page, title, Number(nth));
+console.log('dock:', await txt(dock(page)));
+const strip = await page.locator('.section-strip, [class*=section-strip], [class*=SectionStrip]').count();
+console.log('section-strip elements on page:', strip);
+console.log('editor head:', await page.locator('h1,h2,.editor-title, .song-meta').first().innerText().catch(() => '?'));
+await page.screenshot({ path: `../shots/probe-${title}.png` });
+await browser.close();

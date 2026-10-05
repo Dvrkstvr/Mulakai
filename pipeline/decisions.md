@@ -342,3 +342,11 @@ Dock pick and REVISE: (a) section picks read the score's sections from GET /scor
 ## D-072 · 2026-10-05 · stage 7 (M2/W15 follow-up) · by: assumed (builder, recorded by the conductor)
 GET /score sends `sections [{index, label, occurrence, from_bar, to_bar}]` and `blocks [{index, tag, occurrence, lines, first_line}]` straight from yue-server's read facts (no per-section seconds: the read has none). A line pick is matched by tag-row order and checked against tag, first line (50 chars) and line count; no client block counter, no fallback; an unmatched line is a rust "not in the score" pick that holds PLAN. The e2e has no UI pick step: the score stack has no lyric timings (YuE2 stores lyricTimestamps null, LYRICS_API_URL empty), so the strip is empty there — CP3 must check the strip on a real YuE2 song.
 - instead of: matching by tag kind + occurrence (a client copy of kindOf); a silent no-op for an unmatched line.
+
+## D-073 · 2026-10-05 · stage 7 (M2/CP3) · by: assumed (autopilot)
+Q-050 option (b), reversing D-068's "complete replacement": a REVISE reply is `{drop: [pending op numbers], ops: [...]}`: the planner returns only what changes plus the pending ops to drop, and code merges it into the pending plan (a returned op with the same target as a pending one replaces it, CHANGED; the rest of the pending ops stay, SAME; drops are listed REMOVED). The merged plan is applied to the base as read, as before. Fixed on W15 before #141 merges, then a short live re-check of the additive and "fewer chords" revisions.
+- instead of: (a) shipping with the loss shown under REMOVED (CP3: 4 of 4 additive revisions lost every other op, F-033's intent); (c) restating the ops in the prompt (the planner already saw them).
+
+## D-074 · 2026-10-05 · stage 7 (M2/CP3) · by: assumed (autopilot)
+Q-051, first half: the SCORE pick hint ("click a section or a lyric line") shows only when the dock has something to pick (a strip section or a timed lyric line); otherwise no hint. A strip cut from the score's sections for YuE2 songs (so a section with no lyric block, or a song without lyric timings, can be picked) is deferred to M4 with the bar map (F-036), Q-051 stays open for it.
+- instead of: building the score-section strip now (a new client view; M2's F-032 criteria pass with the lyrics-read strip).

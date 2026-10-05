@@ -1,0 +1,289 @@
+{
+ "tag": "t5_p1b",
+ "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+ "request": "jazz chords in the chorus",
+ "flags": [],
+ "started": "2026-10-05T18:32:51.998Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1735,
+  "util": 0
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 65,
+   "seconds": 179.3,
+   "bpm": 87,
+   "key": "Dm",
+   "meter": "4/4",
+   "tokens": 1472
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 10
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 11,
+    "to_bar": 46
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 47,
+    "to_bar": 62
+   },
+   {
+    "index": 4,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 63,
+    "to_bar": 65
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 1,
+    "first_line": "[Rhodes piano melody]"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Midnight city streets are wet"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "In the shadows we exist"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Concrete jungle breathing slow"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Out of focus, out of sight"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "The city never sleeps"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "In the shadows"
+   }
+  ]
+ },
+ "t0": 1791225172079,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "7e997f91-3ab5-453f-b43d-70fe598f04a1",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "jazz chords in the chorus"
+ },
+ "t1": 1791225188467,
+ "planWallS": 16.388,
+ "planGet": {
+  "run": {
+   "jobId": "7e997f91-3ab5-453f-b43d-70fe598f04a1",
+   "request": "jazz chords in the chorus",
+   "status": "done",
+   "reasons": [],
+   "planId": "a719ad8e-d521-40e7-bc67-20924a8d6516",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "a719ad8e-d521-40e7-bc67-20924a8d6516",
+   "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "baseVersionId": "2c944049-75eb-4448-ac49-7f50f93be80d",
+   "request": "jazz chords in the chorus",
+   "ops": [
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 47,
+     "to_bar": 62,
+     "chords": [
+      {
+       "bar": 47,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 48,
+       "beat": 1,
+       "root": "C",
+       "quality": "7",
+       "bass": "Bb"
+      },
+      {
+       "bar": 49,
+       "beat": 1,
+       "root": "F",
+       "quality": "7",
+       "bass": "A"
+      },
+      {
+       "bar": 50,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 51,
+       "beat": 1,
+       "root": "E",
+       "quality": "7",
+       "bass": "B"
+      },
+      {
+       "bar": 52,
+       "beat": 1,
+       "root": "A",
+       "quality": "7",
+       "bass": "E"
+      },
+      {
+       "bar": 53,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 54,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "B"
+      },
+      {
+       "bar": 55,
+       "beat": 1,
+       "root": "C",
+       "quality": "7",
+       "bass": "E"
+      },
+      {
+       "bar": 56,
+       "beat": 1,
+       "root": "F",
+       "quality": "7",
+       "bass": "A"
+      },
+      {
+       "bar": 57,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 58,
+       "beat": 1,
+       "root": "E",
+       "quality": "7",
+       "bass": "B"
+      },
+      {
+       "bar": 59,
+       "beat": 1,
+       "root": "A",
+       "quality": "7",
+       "bass": "E"
+      },
+      {
+       "bar": 60,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 61,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "B"
+      },
+      {
+       "bar": 62,
+       "beat": 1,
+       "root": "C",
+       "quality": "7",
+       "bass": "E"
+      }
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+   "checks": {
+    "bars": 65,
+    "seconds": 179.3,
+    "tokens": 1479,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false,
+     "lyrics": false
+    }
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 47-62 keeps the old root in 16 of 16 bars; change the root in at least one chord per 2 bars (bars 47-48, 49-50, 51-52, 53-54, 55-56, 57-58, 59-60, 61-62 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "createdAt": 1791225188304,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ }
+}

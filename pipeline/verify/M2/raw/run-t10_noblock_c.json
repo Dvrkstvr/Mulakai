@@ -1,0 +1,207 @@
+{
+ "tag": "t10_noblock_c",
+ "songId": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+ "request": "cut the bridge",
+ "flags": [],
+ "started": "2026-10-05T19:02:44.988Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 2035,
+  "util": 1
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 77,
+   "seconds": 217.4,
+   "bpm": 85,
+   "key": "Em",
+   "meter": "4/4",
+   "tokens": 1519
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive male vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 85 bpm, D minor, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 9
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 10,
+    "to_bar": 18
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 19,
+    "to_bar": 27
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 28,
+    "to_bar": 35
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 36,
+    "to_bar": 44
+   },
+   {
+    "index": 6,
+    "label": "bridge",
+    "occurrence": 1,
+    "from_bar": 45,
+    "to_bar": 54
+   },
+   {
+    "index": 7,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 55,
+    "to_bar": 63
+   },
+   {
+    "index": 8,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 64,
+    "to_bar": 77
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 7,
+    "first_line": "Nebel zieht über die Stadt"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Andreas, ich falle doch ich stehe irgendwie"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Lachen klingt so kühl"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Andreas, ich kämpfe auch wenn ich mich oft verlier"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Manchmal spür ich, wie die Nacht mich nieder recon"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "Verloren"
+   },
+   {
+    "index": 8,
+    "tag": "[Instrumental Outro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   }
+  ]
+ },
+ "t0": 1791226965068,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "3983911b-9da2-4cb4-aa76-7e0f2e89b5e1",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "cut the bridge"
+ },
+ "t1": 1791226968506,
+ "planWallS": 3.438,
+ "planGet": {
+  "run": {
+   "jobId": "3983911b-9da2-4cb4-aa76-7e0f2e89b5e1",
+   "request": "cut the bridge",
+   "status": "done",
+   "reasons": [],
+   "planId": "c4caa7f1-aef8-449b-9587-deb7ab7fd3a7",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "c4caa7f1-aef8-449b-9587-deb7ab7fd3a7",
+   "songId": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "baseVersionId": "f3e3bfdc-0594-4f67-9b57-6c5d68102983",
+   "request": "cut the bridge",
+   "ops": [
+    {
+     "op": "CUT",
+     "section": 6,
+     "label": "bridge"
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "CUT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 6 [Bridge] is cut with it"
+    }
+   ],
+   "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive male vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 85 bpm, D minor, 4/4 time",
+   "checks": {
+    "bars": 77,
+    "seconds": 189.2,
+    "tokens": 1358,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791226968443,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ }
+}

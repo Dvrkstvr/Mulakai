@@ -1,0 +1,226 @@
+{
+ "tag": "t9_big_plan",
+ "songId": "f71fb396-81da-40a8-89b3-58e9ad7ac01b",
+ "request": "set the tempo to 66 BPM",
+ "flags": [],
+ "started": "2026-10-05T19:02:05.396Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1955,
+  "util": 2
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 177,
+   "seconds": 303.4,
+   "bpm": 70,
+   "key": "D#m",
+   "meter": "2/4",
+   "tokens": 3527
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "English, A sensual, slow-jam R&B track built on a foundation of deep sub-bass and crisp trap-style drum machine percussion with prominent snaps and hi-hats. Smooth electric piano chords provide the harmonic bed for an intimate male vocal performance that shifts between smooth singing and melodic rapping. The chorus introduces layered harmonies and soaring falsetto ad-libs over atmospheric synth pads. A brief bridge features breathy female vocals before transitioning into a passionate saxophone solo accompanied by spoken word whispers, enhancing the romantic and immersive atmosphere., 69 bpm, E minor, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 17
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 18,
+    "to_bar": 49
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 50,
+    "to_bar": 65
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 66,
+    "to_bar": 97
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 98,
+    "to_bar": 113
+   },
+   {
+    "index": 6,
+    "label": "interlude",
+    "occurrence": 1,
+    "from_bar": 114,
+    "to_bar": 145
+   },
+   {
+    "index": 7,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 146,
+    "to_bar": 161
+   },
+   {
+    "index": 8,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 162,
+    "to_bar": 177
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 6,
+    "first_line": "(Deep sub-bass rumble, slow snap, warm Rhodes chor"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Candlelight a bounce off your silhouette"
+   },
+   {
+    "index": 3,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Dem seh beauty fade, a vanity dem preach"
+   },
+   {
+    "index": 4,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "God took Him time when He sculpt you, Empress"
+   },
+   {
+    "index": 5,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Skin pon skin, heavy chemistry"
+   },
+   {
+    "index": 6,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Dem seh beauty fade, a vanity dem preach"
+   },
+   {
+    "index": 7,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "God took Him time when He sculpt you, Empress"
+   },
+   {
+    "index": 8,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 7,
+    "first_line": "(808 drops low, vocal goes into a raw, whispered f"
+   },
+   {
+    "index": 9,
+    "tag": "[Guitar Solo]",
+    "occurrence": 1,
+    "lines": 1,
+    "first_line": "(Wet, moody electric guitar solo, slow vibrato, we"
+   },
+   {
+    "index": 10,
+    "tag": "[Chorus]",
+    "occurrence": 3,
+    "lines": 8,
+    "first_line": "God took Him time when He sculpt you, Empress (Yea"
+   },
+   {
+    "index": 11,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 7,
+    "first_line": "(Sub-bass pulse slowly fading out)"
+   }
+  ]
+ },
+ "t0": 1791226925490,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "144fa396-d713-4dd3-b687-b7beba6e2c44",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "set the tempo to 66 BPM"
+ },
+ "t1": 1791226930004,
+ "planWallS": 4.514,
+ "planGet": {
+  "run": {
+   "jobId": "144fa396-d713-4dd3-b687-b7beba6e2c44",
+   "request": "set the tempo to 66 BPM",
+   "status": "done",
+   "reasons": [],
+   "planId": "30ab91e7-f8f0-46d0-bda3-c810cf5905a2",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "30ab91e7-f8f0-46d0-bda3-c810cf5905a2",
+   "songId": "f71fb396-81da-40a8-89b3-58e9ad7ac01b",
+   "baseVersionId": "458d8f66-87b4-4218-84cf-24baf5169dcd",
+   "request": "set the tempo to 66 BPM",
+   "ops": [
+    {
+     "op": "SET_TEMPO",
+     "bpm": 66
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "English, A sensual, slow-jam R&B track built on a foundation of deep sub-bass and crisp trap-style drum machine percussion with prominent snaps and hi-hats. Smooth electric piano chords provide the harmonic bed for an intimate male vocal performance that shifts between smooth singing and melodic rapping. The chorus introduces layered harmonies and soaring falsetto ad-libs over atmospheric synth pads. A brief bridge features breathy female vocals before transitioning into a passionate saxophone solo accompanied by spoken word whispers, enhancing the romantic and immersive atmosphere., 66 bpm, E minor, 4/4 time",
+   "checks": {
+    "bars": 177,
+    "seconds": 321.8,
+    "tokens": 3527,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true,
+     "lyrics": false
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791226929796,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ }
+}
