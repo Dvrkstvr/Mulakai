@@ -182,7 +182,7 @@ A stale selection (the section count changed since the pick) becomes a rejected 
 Q-044 the referent is a sky suffix on the SCORE chip (`THIS: CHORUS 2 · BARS 29–36`, ✕ clears) and picks under SCORE stay on SCORE (closes Q-029's M2 half; its M4 bar-map half stays deferred); Q-045 a picked lyric line means its block; Q-046 REWRITE LYRICS is tagged "a request", new words saved with the new version; Q-047 the no-matching-block rule is W12's, the mockup fixes only its display; Q-048 the duration hint has a typing-only FILL button; Q-049 the lyric diff stays open, with a fold fallback if frame 10 fails the 1366×768 check.
 
 
-## Q-050 · deferred · stage 7 (verify M2/CP3) · assumed → D-073
+## Q-050 · deferred · stage 7 (verify M2/CP3) · D-073 fixed 2+ op plans; open for 1-op additive, fewer chords, 6-op growth (D-078)
 REVISE (F-033) drops the pending ops on additive requests (D-068's own "revisit if"). Live on qwen3:14b, pipeline/verify/M2/raw/run-t5_r4.json, run-t6_r1.json, f033_ui.log: "also slow it down to 80 BPM" and "keep the jazz chords and also slow it down to 80 BPM" came back with only SET_TEMPO (17 completion tokens), the REHARMONIZE / TRANSPOSE + REPEAT + REWRITE LYRICS listed under REMOVED SINCE PLAN 1 (4 of 4 trials that touch one op of several). "not so many chords" and "one chord every two bars" returned the identical plan twice (SAME): the halved chord list is refused by the D-055 root rule and the retry falls back to plan 1. The mechanism works (marks, replace, failed REVISE keeps plan 1); the planner does not copy unchanged ops. Options: (a) ship as is, the REMOVED line shows the loss; (b) the planner returns only what changes and code merges it into the pending plan; (c) a prompt change with the pending ops restated. Reversal cost: (b) is a server change in planRevise.ts plus tests.
 
 ## Q-051 · deferred · stage 7 (verify M2/CP3) · half assumed → D-074; score-section strip open (M4)
@@ -190,3 +190,6 @@ F-032's section strip exists on a YuE2 song only after the lyrics read has produ
 
 ## Q-052 · deferred · stage 8 (M2 code review) · open
 Two nits from pipeline/reviews/M2-code.md (D-075): #1 a line pick survives a REWRITE LYRICS render with its old words in the chip and the planner prompt (planReferent.ts:159-163, `text` never re-checked); #3 the section-to-block pairing rule and `kindOf` exist in yue-server, server and client with no cross-test (no drift today). Decide with Q-038/Q-041 in W10.
+
+## Q-053 · deferred · stage 7 (M2 listen) · open
+The user heard REPEAT's second seam (the copy into the next section) as audible on Gertar (D-077; seam 1 smooth). One pair only; p2 unjudged. Options: leave it (YuE2 re-renders the whole song, seams are its call); try un-tying only into the copy (D-066 c alternative) and A/B; a REPEAT note in the review that the seam after the copy may be audible. Revisit with more listens.

@@ -1,0 +1,460 @@
+{
+ "steps": [
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus"
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "also slow it down to 80 BPM",
+   "revise": true
+  }
+ ],
+ "out": [
+  {
+   "n": 1,
+   "tag": "t1",
+   "song": "5c8e6586",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791230542072,
+   "t1": 1791230557951,
+   "wallS": 15.879,
+   "idle": {
+    "user": "unreachable",
+    "mib": 913,
+    "util": 3
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 36-44 keeps the old root in 5 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37, 40-41, 44 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": {
+    "id": "315ef58f",
+    "ops": [
+     "SET_TEMPO 80"
+    ]
+   },
+   "plan": {
+    "id": "f594b41c",
+    "revision": 1,
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2"
+    ],
+    "verdictsOk": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "checks": {
+     "bars": 86,
+     "seconds": 242.8,
+     "tokens": 1741,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": true
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": {
+    "id": "f594b41c",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2"
+    ]
+   }
+  },
+  {
+   "n": 2,
+   "tag": "t1",
+   "song": "5c8e6586",
+   "req": "also slow it down to 80 BPM",
+   "revise": true,
+   "postStatus": 202,
+   "t0": 1791230558500,
+   "t1": 1791230562740,
+   "wallS": 4.24,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1122,
+    "util": 3
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 1,
+   "refusals": [],
+   "pendingBefore": {
+    "id": "f594b41c",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2"
+    ]
+   },
+   "plan": {
+    "id": "5552b3b1",
+    "revision": 2,
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2",
+     "SET_TEMPO 80"
+    ],
+    "marks": [
+     "SAME",
+     "SAME",
+     "SAME",
+     "SAME",
+     "NEW"
+    ],
+    "removed": [],
+    "verdictsOk": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "checks": {
+     "bars": 86,
+     "seconds": 258,
+     "tokens": 1741,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": true,
+      "lyrics": true
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": {
+    "id": "5552b3b1",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2",
+     "SET_TEMPO 80"
+    ]
+   }
+  }
+ ],
+ "full": {
+  "run": {
+   "jobId": "1e9196e6-d3df-4ec0-8d17-714ce14d8f39",
+   "request": "also slow it down to 80 BPM",
+   "status": "done",
+   "reasons": [],
+   "planId": "5552b3b1-f5e4-44fc-8840-c05ef09e8974",
+   "revise": "f594b41c-b3a1-48a4-a033-3a55d515bf79",
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "5552b3b1-f5e4-44fc-8840-c05ef09e8974",
+   "songId": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "baseVersionId": "f3e3bfdc-0594-4f67-9b57-6c5d68102983",
+   "request": "also slow it down to 80 BPM",
+   "ops": [
+    {
+     "op": "TRANSPOSE",
+     "semitones": -2
+    },
+    {
+     "op": "REPEAT",
+     "section": 3,
+     "label": "chorus"
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 36,
+     "to_bar": 44,
+     "chords": [
+      {
+       "bar": 36,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "A"
+      },
+      {
+       "bar": 37,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 38,
+       "beat": 1,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      },
+      {
+       "bar": 39,
+       "beat": 1,
+       "root": "A",
+       "quality": "m7",
+       "bass": "E"
+      },
+      {
+       "bar": 40,
+       "beat": 1,
+       "root": "D",
+       "quality": "7",
+       "bass": "A"
+      },
+      {
+       "bar": 41,
+       "beat": 1,
+       "root": "G",
+       "quality": "m7",
+       "bass": "D"
+      },
+      {
+       "bar": 42,
+       "beat": 1,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      },
+      {
+       "bar": 43,
+       "beat": 1,
+       "root": "A",
+       "quality": "7",
+       "bass": "E"
+      },
+      {
+       "bar": 44,
+       "beat": 1,
+       "root": "D",
+       "quality": "maj7",
+       "bass": "A"
+      }
+     ]
+    },
+    {
+     "op": "REWRITE_LYRICS",
+     "block": 5,
+     "tag": "[Chorus]",
+     "occurrence": 2,
+     "lines": [
+      "Andreas, ich verlasse dich, doch ich bin nicht allein",
+      "Ich trage deinen Namen, wie ein Licht in der Nacht",
+      "Jeder Schritt, der mich von dir entfernt",
+      "Bringt mich näher zu mir selbst"
+     ]
+    },
+    {
+     "op": "SET_TEMPO",
+     "bpm": 80
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "TRANSPOSE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 2,
+     "op": "REPEAT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 3 [Chorus] is repeated with it"
+    },
+    {
+     "index": 3,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 4,
+     "op": "REWRITE_LYRICS",
+     "ok": true,
+     "reason": null,
+     "diff": {
+      "block": 5,
+      "tag": "[Chorus]",
+      "occurrence": 2,
+      "old": [
+       "Andreas, ich kämpfe auch wenn ich mich oft verlier",
+       "Ein Blick aus einem Spiegel zeigt, ich bleib doch hier",
+       "Die Stille singt, doch ich schweige wie gebannt",
+       "Ein Held muss stark sein, um sich nach Halt zu finden"
+      ],
+      "new": [
+       "Andreas, ich verlasse dich, doch ich bin nicht allein",
+       "Ich trage deinen Namen, wie ein Licht in der Nacht",
+       "Jeder Schritt, der mich von dir entfernt",
+       "Bringt mich näher zu mir selbst"
+      ]
+     }
+    },
+    {
+     "index": 5,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive male vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 80 bpm, D minor, 4/4 time",
+   "checks": {
+    "bars": 86,
+    "seconds": 258,
+    "tokens": 1741,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791230562511,
+   "referent": null,
+   "revision": 2,
+   "since": {
+    "planId": "f594b41c-b3a1-48a4-a033-3a55d515bf79",
+    "marks": [
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "TRANSPOSE",
+       "semitones": -2
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REPEAT",
+       "section": 3,
+       "label": "chorus"
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REHARMONIZE",
+       "from_bar": 36,
+       "to_bar": 44,
+       "chords": [
+        {
+         "bar": 36,
+         "beat": 1,
+         "root": "D",
+         "quality": "m7",
+         "bass": "A"
+        },
+        {
+         "bar": 37,
+         "beat": 1,
+         "root": "G",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 38,
+         "beat": 1,
+         "root": "C",
+         "quality": "maj7",
+         "bass": "E"
+        },
+        {
+         "bar": 39,
+         "beat": 1,
+         "root": "A",
+         "quality": "m7",
+         "bass": "E"
+        },
+        {
+         "bar": 40,
+         "beat": 1,
+         "root": "D",
+         "quality": "7",
+         "bass": "A"
+        },
+        {
+         "bar": 41,
+         "beat": 1,
+         "root": "G",
+         "quality": "m7",
+         "bass": "D"
+        },
+        {
+         "bar": 42,
+         "beat": 1,
+         "root": "C",
+         "quality": "maj7",
+         "bass": "E"
+        },
+        {
+         "bar": 43,
+         "beat": 1,
+         "root": "A",
+         "quality": "7",
+         "bass": "E"
+        },
+        {
+         "bar": 44,
+         "beat": 1,
+         "root": "D",
+         "quality": "maj7",
+         "bass": "A"
+        }
+       ]
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REWRITE_LYRICS",
+       "block": 5,
+       "tag": "[Chorus]",
+       "occurrence": 2,
+       "lines": [
+        "Andreas, ich verlasse dich, doch ich bin nicht allein",
+        "Ich trage deinen Namen, wie ein Licht in der Nacht",
+        "Jeder Schritt, der mich von dir entfernt",
+        "Bringt mich näher zu mir selbst"
+       ]
+      }
+     },
+     {
+      "mark": "NEW",
+      "was": null
+     }
+    ],
+    "removed": []
+   }
+  }
+ }
+}
