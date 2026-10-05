@@ -5,12 +5,12 @@
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
-- stage: 7 Build — M1 built + verified 2026-10-05 (#131–#134 merged; F-026..F-028 pass); review done; curate owed
+- stage: 7 Build — M1 DONE 2026-10-05 (verify 3/3, review, curate; #131–#135 merged); M2 next
 - clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-041) · decisions to D-061
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · R-013 proven by the M0 listens · owed: SP-2 phrase listen
 - milestone: M1 · features passing 19/39 · owed: phrase listen (pipeline/verify/M1/listen, F-026 #6)
-- autopilot: stopped — round budget 12/12 (M1 gate: curate + merge of fix/score-phrase-accidentals left)
-- next: push + PR fix/score-phrase-accidentals (b1f2f76, review #1) → merge when green → curate M1 → M1 done; then the phrase listen
+- autopilot: none running
+- next: user phrase listen (pipeline/verify/M1/listen; renders predate #135); W10 nits Q-038/Q-041; fresh session → /pipeline:auto M2
 
 ## Stages
 | # | Stage | State | Gate | Date |
@@ -22,8 +22,8 @@
 | 4 | Scope | done | 5/5 must; user signed off (D-026) | 2026-10-03 |
 | 5 | Design | done | 3/3 must; mockup signed off (D-032) | 2026-10-03 |
 | 6 | Architecture | done | 3/4 + context budget lands in W0 (D-046) | 2026-10-03 |
-| 7 | Build | active (M1: 3/3 verified, merged #131–#134; curate owed) | M0 gate met; M1 2/4 must | 2026-10-05 |
-| 8 | Review | M1 code: 0 blocking, 1 should (fix b1f2f76, unmerged), 3 nit → Q-041 | 2/2 must | 2026-10-05 |
+| 7 | Build | active (M1 done 2026-10-05: 3/3, reviewed, curated; M2 next) | M1 gate met 4/4 | 2026-10-05 |
+| 8 | Review | M1 code: 0 blocking, 1 should fixed (#135), 3 nit → Q-041 | 2/2 must | 2026-10-05 |
 | 9 | Release | n/a (local single-user app) | — | — |
 
 ## Notes
