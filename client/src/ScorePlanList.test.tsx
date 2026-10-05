@@ -38,3 +38,63 @@ describe('ScorePlanList: WRITE PHRASE row', () => {
     expect(html).not.toContain('a request');
   });
 });
+
+const OLD = ['Hold the light', 'Copper skies are burning low'];
+const NEW = ['Hold the light', 'Amber skies are fading slow'];
+const M2: ScoreOp[] = [
+  { op: 'TRANSPOSE', semitones: -2 }, { op: 'REPEAT', section: 7, label: 'chorus' },
+  { op: 'REWRITE_LYRICS', block: 5, tag: '[Chorus]', occurrence: 2, lines: NEW },
+];
+const m2 = (): ScorePlan => ({
+  ...plan(M2),
+  verdicts: [
+    { index: 1, op: 'TRANSPOSE', ok: true, reason: null },
+    { index: 2, op: 'REPEAT', ok: true, reason: null, note: 'no lyric block is tagged for this chorus, so none is repeated' },
+    { index: 3, op: 'REWRITE_LYRICS', ok: true, reason: null, diff: { block: 5, tag: '[Chorus]', occurrence: 2, old: OLD, new: NEW } },
+  ],
+});
+
+describe('ScorePlanList: the M2 rows (F-029..F-031)', () => {
+  const html = renderToStaticMarkup(<ScorePlanList plan={m2()} baseStyle="dark pop" fromBpm={87} fromKey="Dm" baseVersion={2} />);
+
+  it('shows TRANSPOSE with the key, REPEAT with its section and its lyric note, never silent (F-030 #3)', () => {
+    expect(text(html)).toContain('|✓|TRANSPOSE|down 2 semitones · Dm → Cm · whole song|follows|');
+    expect(text(html)).toContain('|✓|REPEAT|CHORUS S7 ×2 · seam un-tied|follows|no lyric block is tagged for this chorus, so none is repeated|');
+    expect(html).toContain('class="score-op-note"');
+  });
+
+  it('shows REWRITE LYRICS naming its block, then the OLD / NEW diff with the changed line marked', () => {
+    expect(text(html)).toContain('|✓|REWRITE LYRICS|[Chorus] #2 · starts “Hold the light” · 2 lines|a request|');
+    expect(text(html)).toContain('|OLD|NEW|Hold the light|Hold the light|~|Copper skies are burning low|Amber skies are fading slow|');
+    expect(html).toContain('<b>Amber skies are fading slow</b>');
+    expect(text(html)).toContain('|1 of 2 lines change · line count and [Chorus] tag kept · New words change what is sung, so YuE2 re-renders the whole song');
+  });
+
+  it('has no note or diff for a row without them', () => {
+    const plain = renderToStaticMarkup(<ScorePlanList plan={plan([PHRASE])} baseStyle="dark pop" fromBpm={90} baseVersion={1} />);
+    expect(plain).not.toContain('score-op-note');
+    expect(plain).not.toContain('score-diff');
+  });
+});
+
+describe('ScorePlanList: a revised plan (F-033, M2-6) and the kept plan (M2-7)', () => {
+  const tempo: ScoreOp = { op: 'SET_TEMPO', bpm: 88 };
+  const revised: ScorePlan = {
+    ...plan([tempo, PHRASE]), revision: 2,
+    since: { planId: 'p1', marks: [{ mark: 'SAME', was: tempo }, { mark: 'NEW', was: null }], removed: [{ op: 'EDIT_STYLE', style: 'dark pop, jazz' }] },
+  };
+  it('marks each row between its name and detail, then says what changed and what was removed', () => {
+    const html = renderToStaticMarkup(<ScorePlanList plan={revised} baseStyle="dark pop" fromBpm={90} baseVersion={2} />);
+    expect(text(html)).toContain('|PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v2|SINCE PLAN 1 · 1 NEW · 1 SAME · 1 REMOVED|');
+    expect(text(html)).toContain('|✓|SET TEMPO|SAME|90 → 88 BPM · whole song|follows|');
+    expect(html).toContain('<span class="score-op-mark hi">NEW</span>');
+    expect(text(html)).toContain('|REMOVED SINCE PLAN 1 · EDIT STYLE + jazz|');
+  });
+  it('a PLAN has no marks; the plan a REVISE keeps is labelled so', () => {
+    expect(renderToStaticMarkup(<ScorePlanList plan={plan([tempo])} baseStyle={null} fromBpm={90} baseVersion={2} />)).not.toContain('score-op-mark');
+    const kept = renderToStaticMarkup(<ScorePlanList plan={plan([tempo])} baseStyle={null} fromBpm={90} baseVersion={2} dimmed="kept" />);
+    expect(text(kept)).toContain('|PLAN 1 · KEPT IF THE REVISE FAILS|');
+    expect(kept).not.toContain('SINCE');
+  });
+});
+

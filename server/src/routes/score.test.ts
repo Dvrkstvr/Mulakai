@@ -55,7 +55,38 @@ describe('GET /api/songs/:id/score', () => {
     expect(await get()).toEqual({
       state: 'eligible', reading: { bars: 65, seconds: 179.3, bpm: 87, key: expect.any(String), meter: '4/4', tokens: 1832 },
       baseVersion: 2, versions: 2, style: 'dark pop, 87 bpm',
+      sections: [
+        { index: 1, label: 'intro', occurrence: 1, from_bar: 1, to_bar: 10 }, { index: 2, label: 'verse', occurrence: 1, from_bar: 11, to_bar: 46 },
+        { index: 3, label: 'chorus', occurrence: 1, from_bar: 47, to_bar: 62 }, { index: 4, label: 'outro', occurrence: 1, from_bar: 63, to_bar: 65 },
+      ],
+      blocks: [
+        { index: 1, tag: '[Verse]', occurrence: 1, lines: 2, first_line: 'walking out' },
+        { index: 2, tag: '[Chorus]', occurrence: 1, lines: 1, first_line: 'hold on' },
+        { index: 3, tag: '[Chorus]', occurrence: 2, lines: 2, first_line: 'hold on' },
+      ],
     });
+  });
+
+  it('sends the sections and lyric blocks as yue-server read them (F-032): a repeated label counts its occurrence', async () => {
+    const sections = contract('read-sections').response.body.facts as never;
+    current = { ...eligible(), read: { ...eligible().read!, facts: { ...(sections as object), sections: [
+      { index: 1, label: 'verse', from_bar: 1, to_bar: 8 }, { index: 2, label: 'chorus', from_bar: 9, to_bar: 16 },
+      { index: 3, label: 'chorus', from_bar: 17, to_bar: 24 },
+    ] } as never } };
+    const body = await get();
+    expect(body.sections).toEqual([
+      { index: 1, label: 'verse', occurrence: 1, from_bar: 1, to_bar: 8 }, { index: 2, label: 'chorus', occurrence: 1, from_bar: 9, to_bar: 16 },
+      { index: 3, label: 'chorus', occurrence: 2, from_bar: 17, to_bar: 24 },
+    ]);
+    expect((body.blocks as Array<{ tag: string }>).map((b) => b.tag)).toEqual(['[Intro]', '[Verse 1]', '[Chorus]', '[Verse 2]', '[Chorus]', '[Bridge]', '[Outro]']);
+    expect(body.blocks).toContainEqual({ index: 4, tag: '[Verse 2]', occurrence: 2, lines: 8, first_line: 'verse 4 line 1' });
+  });
+
+  it('no facts (yue-server could not parse the score): no sections or blocks, so nothing is pickable', async () => {
+    current = { ...eligible(), read: { ...eligible().read!, facts: null } };
+    const body = await get();
+    expect(body).not.toHaveProperty('sections');
+    expect(body).not.toHaveProperty('blocks');
   });
 
   it('hidden and ineligible say only that, and never probe the planner', async () => {
@@ -72,7 +103,8 @@ describe('GET /api/songs/:id/score', () => {
     expect(await get()).toMatchObject({ state: 'offline', offline: 'checker', reason: expect.stringMatching(/^Score checker unreachable/) });
     current = eligible();
     planner = { url: ollama.url, model: 'qwen3:32b' };
-    expect(await get()).toMatchObject({ state: 'offline', offline: 'planner', reason: "model qwen3:32b is not on the planner: run 'ollama pull qwen3:32b'", baseVersion: 2 });
+    expect(await get()).toMatchObject({ state: 'offline', offline: 'planner', reason: "model qwen3:32b is not on the planner: run 'ollama pull qwen3:32b'", baseVersion: 2,
+      sections: expect.arrayContaining([expect.objectContaining({ index: 3, label: 'chorus' })]) });
     planner = { url: 'http://127.0.0.1:9', model: 'qwen3:14b' };
     expect(await get()).toMatchObject({ state: 'offline', offline: 'planner', reason: expect.stringMatching(/^planner offline/) });
   });

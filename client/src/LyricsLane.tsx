@@ -18,6 +18,10 @@ export interface LyricsLaneProps {
   selection: Region | null;
   onSelect: (region: Region) => void;
   onSeek: (seconds: number) => void;
+  /** Under SCORE: a click picks the line (its draft index) as "this" instead of selecting a range (F-032). */
+  onLine?: (index: number) => void;
+  /** The picked line's draft index under SCORE, for its sky echo; -1 for none. */
+  picked?: number;
 }
 
 const pct = (s: number, duration: number) => `${Math.min(100, Math.max(0, (s / duration) * 100))}%`;
@@ -28,7 +32,7 @@ const pct = (s: number, duration: number) => `${Math.min(100, Math.max(0, (s / d
  * from the last clicked line, double-click also moves the playhead there; a line under the
  * repaint minimum is widened (lineSelection.ts). No lyrics, no lane.
  */
-export function LyricsLane({ draft, timings, timing, duration, selection, onSelect, onSeek }: LyricsLaneProps) {
+export function LyricsLane({ draft, timings, timing, duration, selection, onSelect, onSeek, onLine, picked = -1 }: LyricsLaneProps) {
   const hasWords = useMemo(() => tokenize(draft).length > 0, [draft]);
   const spans = useMemo(() => (timings ? alignLyrics(draft, timings).lines : null), [draft, timings]);
   const { lines, unheard } = useMemo(() => laneLines(draft, spans ?? []), [draft, spans]);
@@ -40,6 +44,12 @@ export function LyricsLane({ draft, timings, timing, duration, selection, onSele
 
   const pick = (index: number, e: MouseEvent, seek: boolean) => {
     if (!spans) return;
+    if (onLine) {
+      onLine(index);
+      const at = spans[index];
+      if (seek && at) onSeek(at.start);
+      return;
+    }
     const from = e.shiftKey && range ? range.from : index;
     const region = lineRegion(spans, from, index, duration);
     if (!region) return;
@@ -66,7 +76,8 @@ export function LyricsLane({ draft, timings, timing, duration, selection, onSele
         </div>
       )}
       {duration > 0 && lines.map((line) => {
-        const selected = !!echo && line.index >= Math.min(echo.from, echo.to) && line.index <= Math.max(echo.from, echo.to);
+        const selected = onLine ? line.index === picked
+          : !!echo && line.index >= Math.min(echo.from, echo.to) && line.index <= Math.max(echo.from, echo.to);
         const style: CSSProperties = { left: pct(line.start, duration), width: pct(line.end - line.start, duration) };
         return (
           <button

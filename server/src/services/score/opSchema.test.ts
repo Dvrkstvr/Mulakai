@@ -32,12 +32,13 @@ describe('buildOpSchema (F-019 #1)', () => {
     expect(opSchema(buildOpSchema(facts({ bars: 120 })), 'REHARMONIZE').properties.to_bar.maximum).toBe(120);
   });
 
-  it('allows 1-6 ops, SET_TEMPO 40-240, the M0 ops and WRITE_PHRASE, nothing extra', () => {
+  it('allows 1-6 ops, SET_TEMPO 40-240, the M0 ops, WRITE_PHRASE and the section ops this song can take, nothing extra', () => {
     const s = buildOpSchema(facts()) as Schema & { additionalProperties: boolean; required: string[] };
     expect(s.additionalProperties).toBe(false);
     expect(s.required).toEqual(['ops']);
     expect(s.properties.ops).toMatchObject({ minItems: 1, maxItems: 6 });
-    expect(s.properties.ops.items.anyOf.map((o) => o.properties.op.const)).toEqual(['SET_TEMPO', 'REHARMONIZE', 'EDIT_STYLE', 'WRITE_PHRASE']);
+    expect(s.properties.ops.items.anyOf.map((o) => o.properties.op.const ?? (o.properties.op as { enum?: string[] }).enum?.join('|')))
+      .toEqual(['SET_TEMPO', 'REHARMONIZE', 'EDIT_STYLE', 'WRITE_PHRASE', 'TRANSPOSE', 'REPEAT|CUT']); // no lyric blocks: no REWRITE_LYRICS
     expect(opSchema(s, 'SET_TEMPO').properties.bpm).toMatchObject({ minimum: 40, maximum: 240 });
     for (const o of s.properties.ops.items.anyOf) expect(o.additionalProperties).toBe(false);
   });
@@ -94,14 +95,14 @@ describe('checkOps', () => {
   it('rejects a beat past the bar, a reversed range, unknown ops and bad shapes', () => {
     const r = checkOps({ ops: [
       { op: 'REHARMONIZE', from_bar: 10, to_bar: 8, chords: [{ bar: 9, beat: 5, root: 'H', quality: 'm7' }] },
-      { op: 'TRANSPOSE', semitones: 2 },
+      { op: 'MODULATE', semitones: 2 },
       { op: 'SET_TEMPO', bpm: 400 },
     ] }, facts());
     expect(!r.ok && r.reasons).toEqual([
       'op 1 (REHARMONIZE): to_bar 8 is before from_bar 10',
       'op 1 (REHARMONIZE): chord beat 5 is past the bar (beats 1-4)',
       'op 1 (REHARMONIZE): chord root H is not one of the 17 roots',
-      'op 2 (TRANSPOSE): not an op this editor knows (SET_TEMPO, REHARMONIZE, EDIT_STYLE, WRITE_PHRASE)',
+      'op 2 (MODULATE): not an op this editor knows (SET_TEMPO, REHARMONIZE, EDIT_STYLE, WRITE_PHRASE, TRANSPOSE, REPEAT, CUT, REWRITE_LYRICS)',
       'op 3 (SET_TEMPO): bpm 400 is outside 40-240',
     ]);
     expect(checkOps('nope', facts())).toEqual({ ok: false, reasons: ['the reply is not a JSON object {"ops":[...]}'] });

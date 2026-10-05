@@ -1,0 +1,89 @@
+{
+ "name": "apply-transpose-compound",
+ "request": {
+  "method": "POST",
+  "path": "/v1/scores/apply",
+  "body": {
+   "abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=87\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Dm\n% intro\nV: Vocal\nZ|z24\"Dm\"z8|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nZ2|D4A4f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Bb\"z32|\"Bb\"z32|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nB,4F4d4F4c4F4c4F4|B,4F4d4F4c4F4c4F4|D4A4f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Bb\"z32|\"Bb\"z32|\nV: Ins\nB,4F4d4F4c4F4c4F4|B,4F4d4F4c4F4c4F4|\n% verse\nV: Vocal\n\"Dm\"d8d8d2c6d4c2d2|\"Dm\"d2z12z2d2e6f6e2-|\"Bb\"e4e2d2d8z16|\"Bb\"z32|\nV: Ins\nZ3|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8d2c4d6c2d4c4d2-|\"Dm\"d6z8z2d4e4f4e2e2|\"Bb\"z4e4d4d8z12|\"Bb\"z32|\nV: Ins\nd8z24|Z2|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8a4a4a4g4g2f2f2f2-|\"Dm\"f6z6d4a4g4g4f4-|\"Bb\"f4d8z16z4|\"Bb\"z16d4e4f4g4-|\nV: Ins\nd8z24|Z3|\nV: Vocal\n\"Gm\"g4g8z16z4|\"Gm\"z8d2d4a6g4g4f2f2-|\"Dm\"f6z24z2|\"Dm\"z32|\nV: Ins\nZ2|z8f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Dm\"d8d8d4c2d4c4d2-|\"Dm\"d6z8z2d2e4f6e2e2-|\"Bb\"e6z2d4d8z12|\"Bb\"z32|\nV: Ins\nZ3|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8d2c4d4c4d4c4d2-|\"Dm\"d6z8z2d2e4f6e4-|\"Bb\"e4e8d2d8z8z2|\"Bb\"z32|\nV: Ins\nd8z24|Z2|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8a4a4a4g4g2f2f2f2-|\"Dm\"f6z2d2d4a6g4g4f2f2-|\"Bb\"f6z24z2|\"Bb\"z12d4d2e4f6g4-|\nV: Ins\nd8z24|Z3|\nV: Vocal\n\"Gm\"g4g12z16|\"Gm\"z8d2d4a6g2g2g4f4-|\"Dm\"f4d8z16z4|\"Dm\"z24z4d4|\nV: Ins\nZ2|z12A4e4A4e4A4|D4A4f4A4e4A4e4z4|\nV: Vocal\n\"Bbmaj7\"a8g8f4e8d4-|\"Gm\"d12z16d4|\"Bbmaj7\"a8g8f4e8d4-|\"Bbmaj7\"d16-d4z12|\nV: Ins\nZ3|z24d2e2f2g2|\n% chorus\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\na8z16z4f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd16z12f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd8z16z4f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd8z16z4f4|e16z4f4e4f4|d8z24|Z|\n% outro\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nA8f8e8e8|d8f8e8e8|d32|\n",
+   "style": "dark pop, 90 bpm, F minor, female vocal",
+   "lyrics": "[Verse]\nwalking out\ninto the rain\n\n[Chorus]\nhold on\n\n[Chorus]\nhold on\nlet go\n",
+   "ops": [
+    {
+     "op": "TRANSPOSE",
+     "semitones": -2
+    },
+    {
+     "op": "SET_TEMPO",
+     "bpm": 88
+    }
+   ]
+  }
+ },
+ "response": {
+  "status": 200,
+  "body": {
+   "ok": true,
+   "abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=88\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Cm\n% intro\nV: Vocal\nZ|z24\"Cm\"z8|\"Cm\"z32|\"Cm\"z32|\nV: Ins\nZ2|C4G4e4G4d4G4d4G4|C4G4e4G4d4G4d4G4|\nV: Vocal\n\"Ab\"z32|\"Ab\"z32|\"Cm\"z32|\"Cm\"z32|\nV: Ins\nA,4E4c4E4B4E4B4E4|A,4E4c4E4B4E4B4E4|C4G4e4G4d4G4d4G4|C4G4e4G4d4G4d4G4|\nV: Vocal\n\"Ab\"z32|\"Ab\"z32|\nV: Ins\nA,4E4c4E4B4E4B4E4|A,4E4c4E4B4E4B4E4|\n% verse\nV: Vocal\n\"Cm\"c8c8c2B6c4B2c2|\"Cm\"c2z12z2c2d6e6d2-|\"Ab\"d4d2c2c8z16|\"Ab\"z32|\nV: Ins\nZ3|z16z4e4d4e4|\nV: Vocal\n\"Cm\"z8c2B4c6B2c4B4c2-|\"Cm\"c6z8z2c4d4e4d2d2|\"Ab\"z4d4c4c8z12|\"Ab\"z32|\nV: Ins\nc8z24|Z2|z16z4e4d4e4|\nV: Vocal\n\"Cm\"z8g4g4g4f4f2e2e2e2-|\"Cm\"e6z6c4g4f4f4e4-|\"Ab\"e4c8z16z4|\"Ab\"z16c4d4e4f4-|\nV: Ins\nc8z24|Z3|\nV: Vocal\n\"Fm\"f4f8z16z4|\"Fm\"z8c2c4g6f4f4e2e2-|\"Cm\"e6z24z2|\"Cm\"z32|\nV: Ins\nZ2|z8e4G4d4G4d4G4|C4G4e4G4d4G4d4G4|\nV: Vocal\n\"Cm\"c8c8c4B2c4B4c2-|\"Cm\"c6z8z2c2d4e6d2d2-|\"Ab\"d6z2c4c8z12|\"Ab\"z32|\nV: Ins\nZ3|z16z4e4d4e4|\nV: Vocal\n\"Cm\"z8c2B4c4B4c4B4c2-|\"Cm\"c6z8z2c2d4e6d4-|\"Ab\"d4d8c2c8z8z2|\"Ab\"z32|\nV: Ins\nc8z24|Z2|z16z4e4d4e4|\nV: Vocal\n\"Cm\"z8g4g4g4f4f2e2e2e2-|\"Cm\"e6z2c2c4g6f4f4e2e2-|\"Ab\"e6z24z2|\"Ab\"z12c4c2d4e6f4-|\nV: Ins\nc8z24|Z3|\nV: Vocal\n\"Fm\"f4f12z16|\"Fm\"z8c2c4g6f2f2f4e4-|\"Cm\"e4c8z16z4|\"Cm\"z24z4c4|\nV: Ins\nZ2|z12G4d4G4d4G4|C4G4e4G4d4G4d4z4|\nV: Vocal\n\"Abmaj7\"g8f8e4d8c4-|\"Fm\"c12z16c4|\"Abmaj7\"g8f8e4d8c4-|\"Abmaj7\"c16-c4z12|\nV: Ins\nZ3|z24c2d2e2f2|\n% chorus\nV: Vocal\n\"Cm\"z32|\"Cm\"z32|\"Abmaj7\"z32|\"Abmaj7\"z32|\nV: Ins\ng8z16z4e4|d16z4e4d4e4|c16z16|z16z4e4d4e4|\nV: Vocal\n\"Cm\"z32|\"Cm\"z32|\"Abmaj7\"z32|\"Abmaj7\"z32|\nV: Ins\nc16z12e4|d16z4e4d4e4|c16z16|z16z4e4d4e4|\nV: Vocal\n\"Cm\"z32|\"Cm\"z32|\"Abmaj7\"z32|\"Abmaj7\"z32|\nV: Ins\nc8z16z4e4|d16z4e4d4e4|c16z16|z16z4e4d4e4|\nV: Vocal\n\"Cm\"z32|\"Cm\"z32|\"Abmaj7\"z32|\"Abmaj7\"z32|\nV: Ins\nc8z16z4e4|d16z4e4d4e4|c8z24|Z|\n% outro\nV: Vocal\n\"Cm\"z32|\"Cm\"z32|\"Cm\"z32|\nV: Ins\nG8e8d8d8|c8e8d8d8|c32|\n",
+   "style": "dark pop, 88 bpm, C minor, female vocal",
+   "lyrics": "[Verse]\nwalking out\ninto the rain\n\n[Chorus]\nhold on\n\n[Chorus]\nhold on\nlet go\n",
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "TRANSPOSE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 2,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "checks": {
+    "ok": true,
+    "problems": [],
+    "differences": []
+   },
+   "changed": {
+    "abc": true,
+    "style": true,
+    "lyrics": false
+   },
+   "sections": [
+    {
+     "index": 1,
+     "label": "intro",
+     "from_bar": 1,
+     "to_bar": 10,
+     "seconds": 27.3
+    },
+    {
+     "index": 2,
+     "label": "verse",
+     "from_bar": 11,
+     "to_bar": 46,
+     "seconds": 98.2
+    },
+    {
+     "index": 3,
+     "label": "chorus",
+     "from_bar": 47,
+     "to_bar": 62,
+     "seconds": 43.6
+    },
+    {
+     "index": 4,
+     "label": "outro",
+     "from_bar": 63,
+     "to_bar": 65,
+     "seconds": 8.2
+    }
+   ],
+   "chords_present": true,
+   "bpm": 88,
+   "seconds": 177.3,
+   "tokens": 1832
+  }
+ }
+}

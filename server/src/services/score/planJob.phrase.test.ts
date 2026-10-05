@@ -19,11 +19,11 @@ type FakeYue = Awaited<ReturnType<typeof startFakeYue>>;
 type ScoreStatus = import('./scoreStatus.js').ScoreStatus;
 
 const read = contract('read-ok');
-const base = contract('apply-write-phrase').request.body as { abc: string; style: string };
+const base = contract('apply-write-phrase').request.body as { abc: string; style: string; lyrics: string };
 const SONG = 'song-phrase';
 const status = (): ScoreStatus => ({
   eligibility: { state: 'eligible' },
-  source: { songId: SONG, activeVersionId: 'v1', abc: base.abc, style: base.style, lyrics: '', fingerprint: 'l1|v1|v1' } as ScoreStatus['source'],
+  source: { songId: SONG, activeVersionId: 'v1', abc: base.abc, style: base.style, lyrics: base.lyrics, fingerprint: 'l1|v1|v1' } as ScoreStatus['source'],
   read: { ok: true, error: null, messages: [], chordsPresent: true, bpm: 87, seconds: 179.3, tokens: 1832, facts: read.response.body.facts as never },
 });
 const COMPOUND = 'jazz chords in the chorus, 88 BPM, add a 4-bar sax phrase after it';
@@ -36,7 +36,7 @@ afterEach(async () => { await ollama?.close(); resetQueue(); resetPlans(); });
 
 const deps = () => planDeps({
   planner: { url: ollama.url, model: 'qwen3:14b' }, status: async () => status(),
-  apply: (abc, style, ops) => applyOps(abc, style, ops, { label: 'YUE2', url: yue.url, apiKey: '' }),
+  apply: (b, ops) => applyOps(b, ops, { label: 'YUE2', url: yue.url, apiKey: '' }),
 });
 const settled = async (id: string) => {
   await vi.waitFor(() => expect(['done', 'failed']).toContain(getJob(id)?.status), { timeout: 5000 });

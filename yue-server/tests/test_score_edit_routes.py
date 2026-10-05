@@ -25,23 +25,23 @@ CHORUS = {"op": "REHARMONIZE", "from_bar": 47, "to_bar": 50, "chords": [
     for b, r, q in [(47, "D", "m7"), (48, "G", "7"), (49, "Bb", "maj7"), (50, "A", "7sus4")]]}
 OVERFULL = CHORDS.replace("D4A4f4A4e4A4e4A4|", "D4A4f4A4e4A4e4A4A4|", 1)
 SCORE_MODULES = ["score_model", "score_ops", "score_check", "score_roots", "score_facts", "score_edit_routes",
-                 "score_phrase", "score_phrase_gates"]
+                 "score_phrase", "score_phrase_gates", "score_transpose"]
 
 CONTRACT = [
     ("read-ok", "/v1/scores/read", {"abc": CHORDS, "lyrics": LYRICS}),
     ("read-invalid-sidecar", "/v1/scores/read", {"abc": BROKEN}),
     ("read-overfull-bar", "/v1/scores/read", {"abc": OVERFULL}),
-    ("apply-set-tempo", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [TEMPO]}),
-    ("apply-reharmonize", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [REHARM]}),
-    ("apply-edit-style", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [STYLE_OP]}),
-    ("apply-compound", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [TEMPO, CHORUS, STYLE_OP]}),
-    ("apply-bar-out-of-range", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [
+    ("apply-set-tempo", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [TEMPO]}),
+    ("apply-reharmonize", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [REHARM]}),
+    ("apply-edit-style", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [STYLE_OP]}),
+    ("apply-compound", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [TEMPO, CHORUS, STYLE_OP]}),
+    ("apply-bar-out-of-range", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [
         TEMPO, {**REHARM, "from_bar": 999, "to_bar": 999, "chords": [{**REHARM["chords"][0], "bar": 999}]}]}),
-    ("apply-reharmonize-same-roots", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [RECOLOURED]}),
-    ("apply-slow-cover", "/v1/scores/apply", {"abc": library("2a8cc1ca"), "style": "rock, 145 bpm", "ops": [TEMPO]}),
+    ("apply-reharmonize-same-roots", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [RECOLOURED]}),
+    ("apply-slow-cover", "/v1/scores/apply", {"abc": library("2a8cc1ca"), "style": "rock, 145 bpm", "lyrics": LYRICS, "ops": [TEMPO]}),
     # The e2e (F-028): a plan over 360 s (the slowest tempo the op schema allows), and the read of
     # the score a compound render saves, which the dock asks for once the new version is active.
-    ("apply-set-tempo-over-limit", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "ops": [{"op": "SET_TEMPO", "bpm": 40}]}),
+    ("apply-set-tempo-over-limit", "/v1/scores/apply", {"abc": CHORDS, "style": STYLE, "lyrics": LYRICS, "ops": [{"op": "SET_TEMPO", "bpm": 40}]}),
     ("read-after-compound", "/v1/scores/read",
      {"abc": apply_ops(CHORDS, STYLE, [TEMPO, CHORUS, STYLE_OP])["abc"], "lyrics": LYRICS}),
 ]
@@ -72,7 +72,7 @@ def test_apply_returns_the_edit_its_checks_and_what_changed(make_client):
     assert body["ok"] and [v["ok"] for v in body["verdicts"]] == [True, True, True]
     assert body["checks"] == {"ok": True, "problems": [], "differences": []}
     assert body["style"] == "jazz trio, brushed drums, 88 bpm"
-    assert body["changed"] == {"abc": True, "style": True}
+    assert body["changed"] == {"abc": True, "style": True, "lyrics": False}
     assert (body["bpm"], body["seconds"]) == (88, round(260 * 60 / 88, 1))
     assert body["tokens"] == len(body["abc"]) and body["chords_present"] is True
     failed = make_client().post("/v1/scores/apply", json=CONTRACT[7][2]).json()
@@ -86,7 +86,8 @@ def test_apply_refuses_a_reharmonize_that_keeps_every_old_root_with_numbers_the_
 
 
 @pytest.mark.parametrize("change", [
-    {"ops": []}, {"ops": [TEMPO] * 7}, {"ops": [{"op": "TRANSPOSE", "semitones": 2}]},
+    {"ops": []}, {"ops": [TEMPO] * 7}, {"ops": [{"op": "MODULATE", "semitones": 2}]},
+    {"ops": [{"op": "TRANSPOSE", "semitones": 12}]},
     {"ops": [{"op": "SET_TEMPO", "bpm": 300}]}, {"ops": [{**TEMPO, "extra": 1}]},
     {"ops": [{**REHARM, "chords": [{**REHARM["chords"][0], "quality": "maj9"}]}]},
     {"ops": [{**REHARM, "chords": [{**REHARM["chords"][0], "root": "H"}]}]},

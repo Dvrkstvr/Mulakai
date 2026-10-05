@@ -77,6 +77,9 @@ describe('scoreEditLabel', () => {
     const bar = [{ pitch: 'D', beats: 4 }];
     expect(scoreEditLabel([{ op: 'WRITE_PHRASE', start_bar: 57, instrument: 'tenor saxophone', bars: [bar, bar, bar, bar] }], false))
       .toBe('score edit · WRITE PHRASE tenor saxophone 57–60');
+    expect(scoreEditLabel([{ op: 'TRANSPOSE', semitones: -2 }, { op: 'REPEAT', section: 3, label: 'chorus' }, { op: 'CUT', section: 4, label: 'outro' },
+      { op: 'REWRITE_LYRICS', block: 5, tag: '[Chorus]', occurrence: 2, lines: ['a'] }, { op: 'TRANSPOSE', semitones: 3 }], false))
+      .toBe('score edit · TRANSPOSE -2 · REPEAT chorus S3 · CUT outro S4 · REWRITE LYRICS [Chorus] #2 · TRANSPOSE +3');
   });
 });
 
@@ -140,6 +143,19 @@ describe('revert after a score render (F-023 #2)', () => {
     expect((await activate(saved.id)).status).toBe(200);
     expect(await loadScoreSource(songId)).toMatchObject({ activeVersionId: saved.id, abc: EDITED, style: request.style, scoreV: 1 });
     expect(song(songId)).toMatchObject({ bpm: 88 });
+  });
+
+  it('stores edited lyrics (F-030, F-031) and the song follows them on save and on activate, back and forth', async () => {
+    const { songId, layerId, versionId, source } = await seedSong();
+    const edited = `${LYRICS}\n[Chorus]\noh oh\n`;
+    const saved = await persistScoreVersion({ songId, plan: plan(songId, versionId), source, request: { ...request, lyrics: edited }, audio, score: EDITED, truncated: false });
+    expect(JSON.parse(rows(layerId)[1].params_json)).toMatchObject({ request: { lyrics: edited }, lyrics: edited });
+    expect(song(songId)).toMatchObject({ lyrics: edited });
+    expect(await loadScoreSource(songId)).toMatchObject({ lyrics: edited });
+    expect((await activate(versionId)).status).toBe(200);
+    expect(song(songId)).toMatchObject({ lyrics: LYRICS });
+    expect((await activate(saved.id)).status).toBe(200);
+    expect(song(songId)).toMatchObject({ lyrics: edited });
   });
 
   it('a song that never had a score edit keeps its own meta on activate', async () => {

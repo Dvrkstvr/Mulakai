@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { contract } from '../../../test-fakes/fakeYue.js';
 import { planMessages, retryMessages } from './plannerPrompt.js';
 import { PLANNER_RULES } from './plannerRules.js';
 import type { ScoreFacts } from './planTypes.js';
@@ -31,7 +32,7 @@ describe('planMessages', () => {
     expect(user.content).toContain('KEY NOTES (Dm; the key signature already applies the sharps/flats): D E F G A Bb C');
     expect(user.content).toContain('STYLE: dark pop, 90 bpm');
     expect(user.content).toContain('S2 chorus: bars 47-65');
-    expect(user.content).toContain('1: [Verse] (occurrence 1 of this tag, 2 lines) first line: walking out');
+    expect(user.content).toContain('LYRIC BLOCKS (block: tag #occurrence):\n1: [Verse] #1, 2 lines, first line: walking out');
     expect(user.content).toContain('2: Dm@1 A7@3 | V:sung | I:4');
     expect(user.content).toContain('REQUEST: jazz chords in the chorus');
     expect(user.content).not.toContain('X:1');
@@ -58,6 +59,44 @@ describe('WRITE_PHRASE in the prompt (F-026, SP-2 notes format)', () => {
   });
 });
 
+describe('the M2 ops in the prompt (F-029..F-031)', () => {
+  it('gives the op reference for TRANSPOSE, REPEAT / CUT and REWRITE_LYRICS', () => {
+    expect(PLANNER_RULES).toContain('- TRANSPOSE {semitones}: move the whole song up (positive) or down (negative), -11..11 semitones, never 0');
+    expect(PLANNER_RULES).toContain('- REPEAT {section, label} / CUT {section, label}: play a whole section twice in a row / remove it. '
+      + 'section is its S number in SECTIONS');
+    expect(PLANNER_RULES).toContain('- REWRITE_LYRICS {block, tag, occurrence, lines}');
+    expect(PLANNER_RULES).toContain('lines: exactly as many lines as that block has');
+  });
+
+  it('never lets the planner write tags, and keeps every number as read, in the old key (D-064 a, D-066 b)', () => {
+    expect(PLANNER_RULES).toContain('Lyric tags such as [Chorus] are written by code: never put a tag in lines or in any other op.');
+    expect(PLANNER_RULES).toContain('Every number (bars, sections, blocks, chord and phrase pitches) means the song exactly as the BAR MAP, '
+      + 'SECTIONS, KEY NOTES and LYRIC BLOCKS show it now, in the old key, whatever the op order');
+  });
+
+  it('names each lyric block "[Chorus] #2" with its number, so "the second chorus" resolves (F-031 #2)', () => {
+    const song = contract('read-sections').response.body.facts as ScoreFacts;
+    const [, ask] = planMessages(song, 'dark pop', 'rewrite the second chorus about the sea');
+    expect(ask.content).toContain('3: [Chorus] #1, 4 lines, first line: chorus 3 line 1');
+    expect(ask.content).toContain('5: [Chorus] #2, 4 lines, first line: chorus 5 line 1');
+    expect(PLANNER_RULES).toContain('"the second chorus" is the block marked [Chorus] #2');
+  });
+});
+
+describe('THIS and the pending plan in the prompt (F-032, F-033)', () => {
+  it('puts the context lines just before the REQUEST, and nothing for a whole-song PLAN', () => {
+    const [, ask] = planMessages(facts, 's', 'make this jazzier', ['THIS: chorus S2 (chorus #1), bars 47-65.', 'PENDING PLAN (plan 1):']);
+    expect(ask.content).toContain('THIS: chorus S2 (chorus #1), bars 47-65.\nPENDING PLAN (plan 1):\n\nREQUEST: make this jazzier');
+    expect(planMessages(facts, 's', 'r')[1].content).toBe(planMessages(facts, 's', 'r', [])[1].content);
+    expect(planMessages(facts, 's', 'r')[1].content).not.toContain('THIS:');
+  });
+
+  it('ends with the reply line it is given (a REVISE asks for {drop, ops})', () => {
+    expect(planMessages(facts, 's', 'r')[1].content.endsWith('REQUEST: r\nReply with the JSON op list only.')).toBe(true);
+    expect(planMessages(facts, 's', 'r', [], 'Reply with {drop, ops} only.')[1].content.endsWith('REQUEST: r\nReply with {drop, ops} only.')).toBe(true);
+  });
+});
+
 describe('retryMessages', () => {
   it('appends the reply and the per-op reasons, asking for a complete corrected list', () => {
     const base = planMessages(facts, 's', 'r');
@@ -67,5 +106,10 @@ describe('retryMessages', () => {
     expect(next[3].role).toBe('user');
     expect(next[3].content).toBe('Your op list was rejected:\n- op 2 (REHARMONIZE): bars 999-999 are outside the score (1-65)\n'
       + 'Return a corrected, complete op list as JSON only.');
+  });
+
+  it("puts a legend before the reasons and a closing line of the caller's (REVISE)", () => {
+    const next = retryMessages([], '{}', ['op 2 (SET_TEMPO): x'], { legend: 'Your reply made this plan: op 1 = pending op 1.', closing: 'Close.' });
+    expect(next[1].content).toBe('Your op list was rejected:\nYour reply made this plan: op 1 = pending op 1.\n- op 2 (SET_TEMPO): x\nClose.');
   });
 });

@@ -1,9 +1,10 @@
 /** Every line the SCORE verb says (pipeline/design/score-verb.html, DESIGN.md "Action dock › SCORE").
  * Pure. Tempo "follows"; harmony, style and a phrase's instrument are "a request to YuE2, not a guarantee". */
-import type { ScoreChord, ScoreOp, ScorePlan, ScoreReading, ScoreRenderVersion } from './api';
+import type { ScoreChord, ScoreLyricDiff, ScoreOp, ScorePlan, ScoreReading, ScoreRenderVersion } from './api';
 import { fmtElapsed, fmtProgress, stageDetail } from './genProgress';
 import { queueSuffix, startsAfter } from './queueCopy';
 import { MAX_ATTEMPTS } from './scoreAttemptCopy';
+import { followClauses, isSectionOp, REQUEST, sectionRow, wordClauses } from './scoreSectionCopy';
 import type { ScorePhase } from './scoreVerbTypes';
 
 export const REQUEST_PLACEHOLDER = 'Describe the change, e.g. jazz chords in the chorus, 88 BPM';
@@ -21,7 +22,9 @@ export const RENDER_FAILED_TITLE = 'RENDER FAILED';
 export const RENDER_FAILED_TAIL = 'nothing saved, the base is unchanged';
 export const APPLY_OFF = 'a plan must pass every check first';
 export { checksSegments, refusedLines, type Segment } from './scoreAttemptCopy';
-const REQUEST = 'a request to YuE2, not a guarantee';
+export { diffNote, diffRows, type DiffRow } from './scoreSectionCopy';
+export { fillLabel, fillRequest, limitHint, type LimitHint } from './scoreLimitHint';
+export * from './scoreReferentCopy'; export * from './scoreReviseCopy'; // F-032, F-033
 /** Ends an ACE-Step edit's consequence line while SCORE is open (F-027, D-030; scoreEnds.ts). */
 export const SCORE_ENDS = 'score editing ends after this edit, SCORE will be off for this song';
 
@@ -52,7 +55,11 @@ function styleDiff(before: string | null, after: string): string {
   return diff.join(' · ');
 }
 
-export interface OpRow { ok: boolean; name: string; detail: string; tag: 'follows' | 'a request'; reason: string | null }
+/** `note`: a section op's lyric note (F-030 #3); `diff`: a REWRITE LYRICS's OLD / NEW lines (F-031 #1). */
+export interface OpRow {
+  ok: boolean; name: string; detail: string; tag: 'follows' | 'a request'; reason: string | null; note: string | null; diff: ScoreLyricDiff | null;
+}
+type Row = Pick<OpRow, 'name' | 'detail' | 'tag'>;
 type Phrase = Extract<ScoreOp, { op: 'WRITE_PHRASE' }>;
 const phraseBars = (op: Phrase) => bars(op.start_bar, op.start_bar + op.bars.length - 1);
 const names = (style: string | null, what: string) => (style ?? '').toLowerCase().includes(what.toLowerCase());
@@ -63,7 +70,8 @@ function phraseDetail(op: Phrase, before: string | null, after: string): string 
   return `${op.instrument} · ${phraseBars(op)} · ${op.bars.length} bar${op.bars.length === 1 ? '' : 's'}${added}`;
 }
 
-function opRow(op: ScoreOp, plan: ScorePlan, baseStyle: string | null, fromBpm: number | null): Omit<OpRow, 'ok' | 'reason'> {
+function opRow(op: ScoreOp, i: number, plan: ScorePlan, baseStyle: string | null, fromBpm: number | null, key: string | null): Row {
+  if (isSectionOp(op)) return sectionRow(op, plan, i, key);
   if (op.op === 'SET_TEMPO') return { name: 'SET TEMPO', detail: `${fromBpm ?? '?'} → ${op.bpm} BPM · whole song`, tag: 'follows' };
   if (op.op === 'REHARMONIZE') {
     return { name: 'REHARMONIZE', detail: `${bars(op.from_bar, op.to_bar)} · ${op.chords.map(chordName).join(' ')}`, tag: 'a request' };
@@ -75,8 +83,11 @@ function opRow(op: ScoreOp, plan: ScorePlan, baseStyle: string | null, fromBpm: 
   return { name: 'EDIT STYLE', detail: styleDiff(baseStyle, op.style), tag: 'a request' };
 }
 
-export const opRows = (plan: ScorePlan, baseStyle: string | null, fromBpm: number | null): OpRow[] =>
-  plan.ops.map((op, i) => ({ ok: plan.verdicts[i]?.ok !== false, ...opRow(op, plan, baseStyle, fromBpm), reason: plan.verdicts[i]?.reason ?? null }));
+/** `fromKey` is the base's key, for TRANSPOSE's "Am → Gm". */
+export const opRows = (plan: ScorePlan, baseStyle: string | null, fromBpm: number | null, fromKey: string | null = null): OpRow[] =>
+  plan.ops.map((op, i, _, v = plan.verdicts[i]) => ({
+    ok: v?.ok !== false, ...opRow(op, i, plan, baseStyle, fromBpm, fromKey), reason: v?.reason ?? null, note: v?.note ?? null, diff: v?.diff ?? null,
+  }));
 
 /** A rejected op stays in the list with its reason, never dropped. */
 export const rowDetail = (r: OpRow) => (r.ok || !r.reason ? r.detail : `${r.detail} · rejected: ${r.reason}`);
@@ -86,7 +97,9 @@ export const planHeader = (plan: ScorePlan, baseVersion: number | null | undefin
 
 /** "Saves base v3 · re-renders the whole song on YuE2, about 3 min · every bar will sound different
  * · tempo follows 88 BPM · harmony in bars 17–24 is a request to YuE2, not a guarantee · v2 stays in VERSIONS". */
-export function consequenceLine(plan: ScorePlan, v: { baseVersion?: number | null; versions?: number }, ahead: number): string {
+export function consequenceLine(
+  plan: ScorePlan, v: { baseVersion?: number | null; versions?: number; reading?: { key: string } | null }, ahead: number,
+): string {
   const next = (v.versions ?? 0) + 1;
   const length = plan.checks.seconds === null ? '' : `, about ${Math.max(1, Math.round(plan.checks.seconds / 60))} min`;
   const parts = [`Saves base v${next}`, `re-renders the whole song on YuE2${length}`, 'every bar will sound different'];
@@ -97,9 +110,10 @@ export function consequenceLine(plan: ScorePlan, v: { baseVersion?: number | nul
     if (op.op === 'EDIT_STYLE' && !requests.includes('the style change')) requests.push('the style change');
     if (op.op === 'WRITE_PHRASE') phrases.push(`the ${op.instrument} phrase replaces the instrument part in ${phraseBars(op)} and is ${REQUEST}`);
   }
+  parts.push(...followClauses(plan, v.reading?.key ?? null));
   const listed = requests.length > 1 ? `${requests.slice(0, -1).join(', ')} and ${requests.at(-1)}` : requests[0];
   if (listed) parts.push(`${listed} ${requests.length === 1 ? 'is' : 'are'} ${REQUEST}`);
-  parts.push(...phrases);
+  parts.push(...phrases, ...wordClauses(plan));
   if (v.baseVersion) parts.push(`v${v.baseVersion} stays in VERSIONS`);
   return parts.join(' · ') + queueSuffix(ahead);
 }

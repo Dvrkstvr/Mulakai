@@ -5,7 +5,10 @@
  *   offline     `offline: 'checker'` (yue-server could not read the score) or `'planner'` (the
  *               Ollama probe failed: down, model not pulled, not Ollama); RECHECK asks again
  *   eligible    the reading (bars, seconds, tempo, key, tokens), the active base version's
- *               number and its stored style, for the dock's reading and consequence lines
+ *               number and its stored style, for the dock's reading and consequence lines; and the
+ *               score's `sections` and lyric `blocks` as yue-server read them (facts.sections /
+ *               facts.lyric_blocks, the numbering planReferent checks a pick against), for the
+ *               dock's pick (F-032). Absent when yue-server returned no facts.
  * The planner is probed only for an eligible song, so a hidden song costs no Ollama call.
  */
 import { Router } from 'express';
@@ -23,6 +26,20 @@ const defaults = (): ScoreRouteDeps => ({
   probe: () => probePlanner({ url: config.llmUrl, model: config.llmModel }),
 });
 
+type Facts = NonNullable<NonNullable<ScoreStatus['read']>['facts']>;
+
+/** The read's sections, each with its occurrence among sections of the same label (planReferent's
+ * `occurrence`), and its lyric blocks as read; yue-server's per-section facts carry no seconds. */
+function pickable(f: Facts | null | undefined) {
+  if (!f) return {};
+  const sections = f.sections.map((x, i) => ({
+    index: x.index, label: x.label, occurrence: f.sections.slice(0, i + 1).filter((y) => y.label === x.label).length,
+    from_bar: x.from_bar, to_bar: x.to_bar,
+  }));
+  const blocks = f.lyric_blocks.map((b) => ({ index: b.index, tag: b.tag, occurrence: b.occurrence, lines: b.lines, first_line: b.first_line }));
+  return { sections, blocks };
+}
+
 /** What the dock reads about an eligible song's score. */
 function reading(s: ScoreStatus) {
   const h = s.read?.facts?.header;
@@ -34,6 +51,7 @@ function reading(s: ScoreStatus) {
     baseVersion: index === -1 ? null : index + 1,
     versions: versions.length,
     style: source?.style ?? null,
+    ...pickable(s.read?.facts),
   };
 }
 

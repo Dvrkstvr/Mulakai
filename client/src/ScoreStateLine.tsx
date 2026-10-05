@@ -1,6 +1,7 @@
 import type { ScorePhase } from './scoreVerbTypes';
+import { ScoreFailure } from './ScoreFailure';
 import {
-  CHECK_FAILED_FIX, CHECK_FAILED_TITLE, offlineLines, RENDER_FAILED_TAIL, RENDER_FAILED_TITLE, STALE_TAIL, STALE_TITLE,
+  CHECK_FAILED_FIX, CHECK_FAILED_TITLE, DROPPED_BY_PLAN, offlineLines, RENDER_FAILED_TAIL, RENDER_FAILED_TITLE, STALE_TAIL, STALE_TITLE,
 } from './scoreCopy';
 
 interface Props {
@@ -8,12 +9,14 @@ interface Props {
   onRecheck: () => void;
   onPlanAgain: () => void;
   onRetryRender: () => void;
+  /** FILL: types the cut hint's words into the request field; sends nothing (Q-048). */
+  onFill?: (words: string) => void;
 }
 
 /** SCORE's one-line states: the plain ineligible reason, and the rust ones with their fix
- * (PLANNER OFFLINE + RECHECK, CHECK FAILED, a stale plan + PLAN AGAIN, RENDER FAILED + RETRY
+ * (PLANNER OFFLINE + RECHECK, CHECK FAILED with a cut hint's FILL, a stale plan + PLAN AGAIN, RENDER FAILED + RETRY
  * RENDER, TRUNCATED); a done render is a lilac line. */
-export function ScoreStateLine({ phase, onRecheck, onPlanAgain, onRetryRender }: Props) {
+export function ScoreStateLine({ phase, onRecheck, onPlanAgain, onRetryRender, onFill }: Props) {
   switch (phase.kind) {
     case 'ineligible':
       return <div className="score-reason">{phase.reason}</div>;
@@ -27,11 +30,8 @@ export function ScoreStateLine({ phase, onRecheck, onPlanAgain, onRetryRender }:
       );
     }
     case 'checkFailed':
-      return (
-        <div className="score-error" role="alert">
-          <div><b>{CHECK_FAILED_TITLE}</b>{phase.reasons.map((r, i) => <div key={i}>{r}</div>)}{CHECK_FAILED_FIX}</div>
-        </div>
-      );
+      return <ScoreFailure title={CHECK_FAILED_TITLE} reasons={phase.reasons} onFill={onFill}
+        tail={phase.dropped ? `${DROPPED_BY_PLAN} ${CHECK_FAILED_FIX}` : CHECK_FAILED_FIX} />;
     case 'stale':
       return (
         <div className="score-warn" role="alert">

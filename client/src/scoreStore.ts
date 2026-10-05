@@ -3,10 +3,10 @@
  * and polls plan runs and renders, and CANCELs either. Every change goes through the `scoreVerb`
  * reducer. Server-side jobs outlive the tab: reopening SCORE rehydrates from the song's last run.
  */
-import { useEffect } from 'react';
 import { create } from 'zustand';
-import { api, type ScorePlanRun, type SongDetail } from './api';
-import { canPlan, canRender, scoreVerb } from './scoreVerb';
+import { api, type ScorePlanPress, type ScorePlanRun } from './api';
+import { canPlan, canRender, canRevise, scoreVerb } from './scoreVerb';
+import { planReferent, reviseReferent } from './scoreReferent';
 import { INITIAL_SCORE, type ScoreEvent, type ScoreVerbState } from './scoreVerbTypes';
 import { PLAN_EXPIRED, SERVER_GONE } from './scoreCopy';
 import { followRender, renderEvent, renderInFlight } from './scoreRender';
@@ -22,7 +22,10 @@ interface ScoreStore {
   load: (songId: string) => Promise<void>;
   /** RECHECK: ask for the status again. */
   recheck: (songId: string) => Promise<void>;
+  /** PLAN from the song, with the pick pinned (F-032, M2-3). */
   plan: (songId: string) => Promise<void>;
+  /** REVISE the plan under review (F-033): its referent goes again unless the pick changed (D-070 c). */
+  revise: (songId: string) => Promise<void>;
   cancel: (songId: string) => Promise<void>;
   /** APPLY & RENDER (and RETRY RENDER): the server re-checks and queues the render, or names why not. */
   apply: (songId: string) => Promise<void>;
@@ -78,6 +81,18 @@ export const useScoreStore = create<ScoreStore>((set, get) => {
     }
   }
 
+  /** POST the plan: queued (poll it), a stale pick (nothing queued), or refused. */
+  async function press(songId: string, request: string, opts: ScorePlanPress): Promise<void> {
+    try {
+      const started = await api.startScorePlan(songId, request, opts);
+      if ('stale' in started) return get().dispatch(songId, { type: 'planStale', stale: started.stale });
+      get().dispatch(songId, { type: 'planSubmitted', ahead: started.queuePosition, revise: !!opts.revise });
+      void poll(songId);
+    } catch (err) {
+      get().dispatch(songId, { type: 'planRefused', error: message(err) });
+    }
+  }
+
   return {
     bySong: {},
     dispatch: (songId, event) => set((s) => ({ bySong: { ...s.bySong, [songId]: scoreVerb(s.bySong[songId] ?? INITIAL_SCORE, event) } })),
@@ -102,14 +117,12 @@ export const useScoreStore = create<ScoreStore>((set, get) => {
 
     plan: async (songId) => {
       const s = state(songId);
-      if (!canPlan(s)) return;
-      try {
-        const { queuePosition } = await api.startScorePlan(songId, s.request.trim());
-        get().dispatch(songId, { type: 'planSubmitted', ahead: queuePosition });
-        void poll(songId);
-      } catch (err) {
-        get().dispatch(songId, { type: 'planRefused', error: message(err) });
-      }
+      if (canPlan(s)) await press(songId, s.request.trim(), { referent: planReferent(s) });
+    },
+
+    revise: async (songId) => {
+      const s = state(songId);
+      if (canRevise(s) && s.plan) await press(songId, s.request.trim(), { referent: reviseReferent(s), revise: s.plan.id });
     },
 
     cancel: async (songId) => {
@@ -138,20 +151,3 @@ export const useScoreStore = create<ScoreStore>((set, get) => {
     },
   };
 });
-
-/** Changes whenever a layer or a version is added, removed or activated: SCORE re-evaluates then. */
-export function scoreSongKey(song: SongDetail | null | undefined): string {
-  return song?.layers.map((l) => `${l.id}:${l.versions.map((v) => `${v.id}${v.active ? '*' : ''}`).join(',')}`).join('|') ?? '';
-}
-
-/** The song's SCORE state, (re)loaded whenever `songKey` says the song changed ('' = not loaded yet).
- * `onSaved` runs once per render that saved a version, so the Editor shows it in VERSIONS. */
-export function useScoreVerb(songId: string, songKey: string, onSaved?: () => void): ScoreVerbState {
-  const load = useScoreStore((s) => s.load);
-  useEffect(() => { if (songKey) void load(songId); }, [load, songId, songKey]);
-  const state = useScoreStore((s) => s.bySong[songId] ?? INITIAL_SCORE);
-  const saved = state.phase.kind === 'done' ? state.phase.saved : '';
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => { if (saved) onSaved?.(); }, [saved]);
-  return state;
-}

@@ -6,6 +6,7 @@
   "body": {
    "abc": "X:1\nT:\nM:4/4\nL:1/16\nQ:1/4=145\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Eb\n% verse\nV: Vocal\nd4z6f4d2-|d2z6d2B4c2-|c2B4G4B4B2-|B2z4B2B2G4c2-|\nV: Ins\nZ4|\nV: Vocal\nc2B4B4G4F2-|F2G4F4G4D2-|D2z12z2|Z|\nV: Ins\nZ2|z2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nd4z6f4d2-|d2z6d2B4c2-|c2B4G4B4B2-|B2z4B2B2G4c2-|\nV: Ins\nZ4|\nV: Vocal\nc2B4B4G4F2-|F2G4F4B4B2-|B2z12z2|Z|\nV: Ins\nZ2|z2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nz8D2G4F2-|F2G4F4G4E2-|E2C4z8z2|Z|\nV: Ins\nf2d2f2b2z8|Z|z6g6f2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nz8D2G4F2-|F2G4F4G4E2-|E2C4z8z2|Z|\nV: Ins\nf2d2f2b2z8|Z|z6g6d4|e16|\n% chorus\nV: Vocal\nZ|e6d4e6|B4z12|e6d4e6|\nV: Ins\ne6b6e'4|Z3|\nV: Vocal\nB4z8G2G2|e2e4d4e4B2-|B2z12B2|c2B4c4B4B2|\nV: Ins\nZ4|\nV: Vocal\nG4z12|e6d4e6|B4z12|e6d4e6|\nV: Ins\nZ4|\nV: Vocal\nB4z8G2G2|e2e4d4e4B2-|B2z12B2|c2B4c4B4B2|\nV: Ins\nZ4|\n% interlude\nV: Vocal\nG4z12|Z3|\nV: Ins\nz4E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|\nV: Vocal\nZ4|\nV: Ins\nE2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|\nV: Vocal\nZ4|\nV: Ins\nF2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|f2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|f2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\ne2b2z2b2e'2z2e'2f'2|z2f'2e'2z8z2|e2b2z2b2e'2z2e'2f'2|z2f'2e'2z8z2|\nV: Vocal\nZ4|\nV: Ins\ne2b2z2b2e'2z2e'2f'2|z2f'2e'2z2e'2e2z2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\ne2b2z2b2e'2z2e'2f'2|z2f'2e'2z8z2|e2b2z2b2e'2z2e'2f'2|z2f'2e'2z8z2|\nV: Vocal\nZ4|\nV: Ins\ne2b2z2b2e'2z2e'2f'2|z2f'2e'2z2e'2e2z4|e2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2f2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\ng2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2B2|E2E2F2B2F2F2F2B2|F2F2F2B2F2F2F2B2|\n% bridge\nV: Vocal\nz8G2G4F2-|F2G4F4G4E2-|E2C4z8z2|Z|\nV: Ins\nG8z8|Z3|\nV: Vocal\nz8G2G4F2-|F2G4F4G4E2-|E2C4z8z2|Z|\nV: Ins\nZ2|z6G6D4|E16|\n% chorus\nV: Vocal\nZ|e6d4e6|B4z12|e6d4e6|\nV: Ins\ne6b6e'4|Z3|\nV: Vocal\nB4z8G2G2|e2e4d4e4B2-|B2z12B2|c2B4c4B4B2|\nV: Ins\nZ4|\nV: Vocal\nG4z12|e6d4e6|B4z12|e6d4e6|\nV: Ins\nZ4|\nV: Vocal\nB4z8G2G2|e2e4d4e4B2-|B2z12B2|c2B4c4B4B2|\nV: Ins\nZ4|\nV: Vocal\nG4z12|e6d4e6|B4z12|Z|\nV: Ins\nZ3|e2e2e2e2e2e2e2e2|\nV: Vocal\nZ|e6d4e6|B4z12|Z|\nV: Ins\ne2e2e2e2e2e2e2e2|Z2|e2e2e2e2e2e2e2e2|\nV: Vocal\ne6d4e6|B4z12|e6d4e6|B4z12|\nV: Ins\nZ4|\nV: Vocal\ne6d4e6|B4z12|e6d4e6|B4z12|\nV: Ins\nZ4|\nV: Vocal\ne6d4e6|B4z12|e6d4e6|B4z12|\nV: Ins\nZ4|\nV: Vocal\ne6d4e6|B4z12|e6d4e6|B4z12|\nV: Ins\nZ4|\n",
    "style": "rock, 145 bpm",
+   "lyrics": "[Verse]\nwalking out\ninto the rain\n\n[Chorus]\nhold on\n\n[Chorus]\nhold on\nlet go\n",
    "ops": [
     {
      "op": "SET_TEMPO",
@@ -20,6 +21,7 @@
    "ok": true,
    "abc": "X:1\nT:\nM:4/4\nL:1/16\nQ:1/4=88\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Eb\n% verse\nV: Vocal\nd4z6f4d2-|d2z6d2B4c2-|c2B4G4B4B2-|B2z4B2B2G4c2-|\nV: Ins\nZ4|\nV: Vocal\nc2B4B4G4F2-|F2G4F4G4D2-|D2z12z2|Z|\nV: Ins\nZ2|z2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nd4z6f4d2-|d2z6d2B4c2-|c2B4G4B4B2-|B2z4B2B2G4c2-|\nV: Ins\nZ4|\nV: Vocal\nc2B4B4G4F2-|F2G4F4B4B2-|B2z12z2|Z|\nV: Ins\nZ2|z2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nz8D2G4F2-|F2G4F4G4E2-|E2C4z8z2|Z|\nV: Ins\nf2d2f2b2z8|Z|z6g6f2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nz8D2G4F2-|F2G4F4G4E2-|E2C4z8z2|Z|\nV: Ins\nf2d2f2b2z8|Z|z6g6d4|e16|\n% chorus\nV: Vocal\nZ|e6d4e6|B4z12|e6d4e6|\nV: Ins\ne6b6e'4|Z3|\nV: Vocal\nB4z8G2G2|e2e4d4e4B2-|B2z12B2|c2B4c4B4B2|\nV: Ins\nZ4|\nV: Vocal\nG4z12|e6d4e6|B4z12|e6d4e6|\nV: Ins\nZ4|\nV: Vocal\nB4z8G2G2|e2e4d4e4B2-|B2z12B2|c2B4c4B4B2|\nV: Ins\nZ4|\n% interlude\nV: Vocal\nG4z12|Z3|\nV: Ins\nz4E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|\nV: Vocal\nZ4|\nV: Ins\nE2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|E2E2E2E2E2E2E2E2|\nV: Vocal\nZ4|\nV: Ins\nF2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|f2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|f2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2g2b2|f2b2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\ne2b2z2b2e'2z2e'2f'2|z2f'2e'2z8z2|e2b2z2b2e'2z2e'2f'2|z2f'2e'2z8z2|\nV: Vocal\nZ4|\nV: Ins\ne2b2z2b2e'2z2e'2f'2|z2f'2e'2z2e'2e2z2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\ne2b2z2b2e'2z2e'2f'2|z2f'2e'2z8z2|e2b2z2b2e'2z2e'2f'2|z2f'2e'2z8z2|\nV: Vocal\nZ4|\nV: Ins\ne2b2z2b2e'2z2e'2f'2|z2f'2e'2z2e'2e2z4|e2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2f2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\nf2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2b2|\nV: Vocal\nZ4|\nV: Ins\ng2d2f2b2d2f2d2b2|f2d2f2b2d2f2d2B2|E2E2F2B2F2F2F2B2|F2F2F2B2F2F2F2B2|\n% bridge\nV: Vocal\nz8G2G4F2-|F2G4F4G4E2-|E2C4z8z2|Z|\nV: Ins\nG8z8|Z3|\nV: Vocal\nz8G2G4F2-|F2G4F4G4E2-|E2C4z8z2|Z|\nV: Ins\nZ2|z6G6D4|E16|\n% chorus\nV: Vocal\nZ|e6d4e6|B4z12|e6d4e6|\nV: Ins\ne6b6e'4|Z3|\nV: Vocal\nB4z8G2G2|e2e4d4e4B2-|B2z12B2|c2B4c4B4B2|\nV: Ins\nZ4|\nV: Vocal\nG4z12|e6d4e6|B4z12|e6d4e6|\nV: Ins\nZ4|\nV: Vocal\nB4z8G2G2|e2e4d4e4B2-|B2z12B2|c2B4c4B4B2|\nV: Ins\nZ4|\nV: Vocal\nG4z12|e6d4e6|B4z12|Z|\nV: Ins\nZ3|e2e2e2e2e2e2e2e2|\nV: Vocal\nZ|e6d4e6|B4z12|Z|\nV: Ins\ne2e2e2e2e2e2e2e2|Z2|e2e2e2e2e2e2e2e2|\nV: Vocal\ne6d4e6|B4z12|e6d4e6|B4z12|\nV: Ins\nZ4|\nV: Vocal\ne6d4e6|B4z12|e6d4e6|B4z12|\nV: Ins\nZ4|\nV: Vocal\ne6d4e6|B4z12|e6d4e6|B4z12|\nV: Ins\nZ4|\nV: Vocal\ne6d4e6|B4z12|e6d4e6|B4z12|\nV: Ins\nZ4|\n",
    "style": "rock, 88 bpm",
+   "lyrics": "[Verse]\nwalking out\ninto the rain\n\n[Chorus]\nhold on\n\n[Chorus]\nhold on\nlet go\n",
    "verdicts": [
     {
      "index": 1,
@@ -35,8 +37,46 @@
    },
    "changed": {
     "abc": true,
-    "style": true
+    "style": true,
+    "lyrics": false
    },
+   "sections": [
+    {
+     "index": 1,
+     "label": "verse",
+     "from_bar": 1,
+     "to_bar": 24,
+     "seconds": 65.5
+    },
+    {
+     "index": 2,
+     "label": "chorus",
+     "from_bar": 25,
+     "to_bar": 40,
+     "seconds": 43.6
+    },
+    {
+     "index": 3,
+     "label": "interlude",
+     "from_bar": 41,
+     "to_bar": 120,
+     "seconds": 218.2
+    },
+    {
+     "index": 4,
+     "label": "bridge",
+     "from_bar": 121,
+     "to_bar": 128,
+     "seconds": 21.8
+    },
+    {
+     "index": 5,
+     "label": "chorus",
+     "from_bar": 129,
+     "to_bar": 168,
+     "seconds": 109.1
+    }
+   ],
    "chords_present": false,
    "bpm": 88,
    "seconds": 458.2,

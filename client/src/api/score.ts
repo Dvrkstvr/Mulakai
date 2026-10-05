@@ -2,6 +2,8 @@
  * run it polls, APPLY & RENDER and its render run, and CANCEL. The plan itself stays on the server;
  * only its view comes back. */
 import { json } from './http';
+import type { ScoreLyricBlock, ScorePlanPress, ScorePlanStart, ScoreReferent, ScoreSection, ScoreSince, ScoreStaleReferent } from './scoreReferent';
+export type * from './scoreReferent';
 
 export interface ScoreReading { bars: number; seconds: number; bpm: number; key: string; meter: string; tokens: number | null }
 
@@ -15,6 +17,9 @@ export interface ScoreStatusView {
   baseVersion?: number | null;
   versions?: number;
   style?: string | null;
+  /** The score's sections and lyric blocks as read, for a pick (F-032); absent from a server that does not send them. */
+  sections?: ScoreSection[];
+  blocks?: ScoreLyricBlock[];
 }
 
 export interface ScoreChord { bar: number; beat: number; root: string; quality: string; bass?: string }
@@ -26,9 +31,21 @@ export type ScoreOp =
   | { op: 'SET_TEMPO'; bpm: number }
   | { op: 'REHARMONIZE'; from_bar: number; to_bar: number; chords: ScoreChord[] }
   | { op: 'EDIT_STYLE'; style: string }
-  | { op: 'WRITE_PHRASE'; start_bar: number; instrument: string; bars: ScorePhraseNote[][] };
+  | { op: 'WRITE_PHRASE'; start_bar: number; instrument: string; bars: ScorePhraseNote[][] }
+  /** M2 (F-029): every note and chord moves n semitones (-11..11); the key follows. */
+  | { op: 'TRANSPOSE'; semitones: number }
+  /** M2 (F-030): `section` is the read's S<n>, `label` its score label ("chorus") as a cross-check. */
+  | { op: 'REPEAT' | 'CUT'; section: number; label: string }
+  /** M2 (F-031): `block` is the lyric block's number, `tag` + `occurrence` ("[Chorus]", 2) the cross-check. */
+  | { op: 'REWRITE_LYRICS'; block: number; tag: string; occurrence: number; lines: string[] };
 
-export interface ScoreOpVerdict { index: number; op: string; ok: boolean; reason: string | null }
+/** REWRITE_LYRICS's verdict detail: the block it changed and its lines before and after (F-031 #1). */
+export interface ScoreLyricDiff { block: number; tag: string; occurrence: number; old: string[]; new: string[] }
+
+/** `note`: what a REPEAT / CUT did with the lyrics (F-030 #3); `diff`: a REWRITE_LYRICS's lines. */
+export interface ScoreOpVerdict {
+  index: number; op: string; ok: boolean; reason: string | null; note?: string | null; diff?: ScoreLyricDiff | null;
+}
 
 export interface ScorePlan {
   id: string;
@@ -40,12 +57,18 @@ export interface ScorePlan {
   style: string;
   checks: {
     bars: number; seconds: number | null; tokens: number | null; chordsPresent: boolean | null;
-    changed: { abc: boolean; style: boolean };
+    changed: { abc: boolean; style: boolean; lyrics?: boolean };
   };
   attempts: number;
   /** Each earlier refused attempt's reasons, in order: empty when attempt 1 passed (D-060). */
   refusals: string[][];
   createdAt: number;
+  /** What "this" meant, pinned at PLAN / REVISE (F-032, M2-3); null = the whole song. */
+  referent?: ScoreReferent | null;
+  /** 1 for a PLAN, +1 per REVISE (F-033). */
+  revision?: number;
+  /** A REVISE's marks against the plan it replaced (M2-6); null for a PLAN. */
+  since?: ScoreSince | null;
 }
 
 /** Why a run ended without a plan; null while it runs (or holds the slot to unload) or once planned. */
@@ -62,6 +85,10 @@ export interface ScorePlanRun {
   planId: string | null;
   cancelled?: boolean;
   cause: PlanCause | null;
+  /** The plan id this run revises (F-033), null for a PLAN. */
+  revise?: string | null;
+  /** Set when the pick no longer matched the score by the job's turn (F-032 edge). */
+  stale?: ScoreStaleReferent | null;
 }
 
 export interface ScorePlanState { run: ScorePlanRun | null; plan: ScorePlan | null }
@@ -97,9 +124,16 @@ export const scoreApi = {
   scorePlanState: (songId: string): Promise<ScorePlanState> =>
     fetch(`/api/songs/${songId}/score/plan`).then((r) => json<ScorePlanState>(r)),
 
-  /** 202 with the job; 409 names why not (ineligible, a plan already running, queue full). */
-  startScorePlan: (songId: string, request: string): Promise<{ jobId: string; queuePosition: number }> =>
-    post(`/api/songs/${songId}/score/plan`, { request }).then((r) => json(r)),
+  /** 202 with the job; a 409 stale pick is `{stale}` (nothing queued); any other 409 throws (ineligible, a plan
+   * already running, a refused REVISE, queue full). `referent` is always sent: null = the whole song. */
+  startScorePlan: async (songId: string, request: string, press: ScorePlanPress = {}): Promise<ScorePlanStart> => {
+    const res = await post(`/api/songs/${songId}/score/plan`, { request, referent: press.referent ?? null, ...(press.revise ? { revise: press.revise } : {}) });
+    if (res.status === 409) {
+      const body = (await res.clone().json().catch(() => ({}))) as { error?: string; stale?: ScoreStaleReferent };
+      if (body.stale && typeof body.stale === 'object') return { stale: body.stale, error: body.error ?? 'the selection is stale' };
+    }
+    return json(res);
+  },
 
   /** Queued: leaves the line. Running: aborts the planner call; the slot frees after the unload. */
   cancelScorePlan: (songId: string): Promise<{ ok: true; cancelled?: true; aborted?: true }> =>

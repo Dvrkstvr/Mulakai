@@ -19,11 +19,11 @@ type ScoreStatus = import('./scoreStatus.js').ScoreStatus;
 type ApplyResult = import('./planTypes.js').ApplyResult;
 
 const read = contract('read-ok');
-const base = contract('apply-compound').request.body as { abc: string; style: string };
+const base = contract('apply-compound').request.body as { abc: string; style: string; lyrics: string };
 const SONG = 'song-1';
 const status = (): ScoreStatus => ({
   eligibility: { state: 'eligible' },
-  source: { songId: SONG, activeVersionId: 'v1', abc: base.abc, style: base.style, lyrics: '', fingerprint: 'f' } as ScoreStatus['source'],
+  source: { songId: SONG, activeVersionId: 'v1', abc: base.abc, style: base.style, lyrics: base.lyrics, fingerprint: 'f' } as ScoreStatus['source'],
   read: { ok: true, error: null, messages: [], chordsPresent: true, bpm: 145, seconds: 278, tokens: 1832, facts: read.response.body.facts as never },
 });
 const TEMPO = JSON.stringify({ ops: [{ op: 'SET_TEMPO', bpm: 88 }] });
@@ -90,11 +90,11 @@ describe('review limits inside the retry loop (F-022)', () => {
     expect(getPlan(SONG)).toBeUndefined();
   });
 
-  it("refuses a plan that changes nothing: 'this request did not change the score or the style'", async () => {
+  it("refuses a plan that changes nothing: 'this request did not change the score, the style or the lyrics'", async () => {
     ollama = await startFakeOllama();
     ollama.chats.push({ content: TEMPO });
     await settled(startPlan(SONG, 'make it sadder', deps({ apply: async () => applied({ changed: { abc: false, style: false } }) })).id);
-    expect(lastRun(SONG)).toMatchObject({ cause: 'check', reasons: ['this request did not change the score or the style'] });
+    expect(lastRun(SONG)).toMatchObject({ cause: 'check', reasons: ['this request did not change the score, the style or the lyrics'] });
   });
 });
 
