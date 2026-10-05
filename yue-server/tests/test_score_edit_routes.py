@@ -23,7 +23,8 @@ CHORUS = {"op": "REHARMONIZE", "from_bar": 47, "to_bar": 50, "chords": [
     {"bar": b, "beat": 1, "root": r, "quality": q}
     for b, r, q in [(47, "D", "m7"), (48, "G", "7"), (49, "Bb", "maj7"), (50, "A", "7sus4")]]}
 OVERFULL = CHORDS.replace("D4A4f4A4e4A4e4A4|", "D4A4f4A4e4A4e4A4A4|", 1)
-SCORE_MODULES = ["score_model", "score_ops", "score_check", "score_roots", "score_facts", "score_edit_routes"]
+SCORE_MODULES = ["score_model", "score_ops", "score_check", "score_roots", "score_facts", "score_edit_routes",
+                 "score_phrase", "score_phrase_gates"]
 
 CONTRACT = [
     ("read-ok", "/v1/scores/read", {"abc": CHORDS, "lyrics": LYRICS}),

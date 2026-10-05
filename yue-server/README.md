@@ -258,6 +258,32 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   everything before the first `% name` line, and each section is its block.
   The counts add up to the whole score's, so a client can sum any cut of
   whole sections. 503 until the worker is ready.
+- `POST /v1/scores/apply` takes the op `WRITE_PHRASE` (F-026) as well as
+  `SET_TEMPO`, `REHARMONIZE` and `EDIT_STYLE`:
+  `{op: "WRITE_PHRASE", start_bar >= 1, instrument (1-40 chars), bars: [[{pitch,
+  beats}, ...], ...]}`, 1-8 bars of 1-16 notes. `pitch` matches
+  `^(?:z|(?:\^|_|=)?[A-Ga-g](?:,{1,2}|'{1,2})?)$` (ABC, key signature
+  applied, accidentals carry through the bar as upstream reads them; `z` is a
+  rest); `beats` is one of 0.5, 1, 1.5, 2, 3, 4 quarter notes. An ABC string
+  anywhere in `bars` is a 422 ("ABC strings are not accepted"), as is any
+  other shape error. Code writes the ABC into the Ins voice (score units, tied
+  pieces where one length cannot hold a note, a tie into the phrase undone)
+  and appends `instrument` to the reply's `style` after all ops, unless the
+  style already names it. Refusals, same reply shape as the other ops:
+  - `verdicts[i].reason` (op not applied): `the Vocal sings in bars 11-12;
+    free: 1-10, 47-65` (runs of at least N free bars, or `no N bars in a
+    row`); `bar 3 of the phrase (score bar 59) sums to 3.5 beats, the meter
+    needs 4 (too short by 0.5)` (every bad bar, joined with `; `); `a 4-bar
+    phrase at bar 63 runs past the last bar (65)`; `a 0.5-beat note does not
+    fit the score's unit L:1/4`.
+  - `checks.problems` (applied, plan not ok): `WRITE_PHRASE bars 57-60:` +
+    `the phrase has 3 notes; write at least 4` / `the phrase uses 2 distinct
+    pitches; use at least 3` / `5 of 13 notes (38%) are in the key Dm; keep
+    at least 70% in the key` / `the same bar is written 4 times; vary the
+    bars` (the sanity gates, only once the edit parsed and compare held), or
+    `the Ins note at bar N changes pitch once the tie into it is cut; end the
+    phrase a bar earlier or later`. With a phrase, compare checks the Vocal
+    only. Fixtures: `tests/data/contract/apply-write-phrase*.json`.
 - `GET /health/ready` — 200 `{"status": "ready"}`, else 503 with
   `"loading"` or `"failed"`. `GET /health/live` — 200 `{"status": "alive"}`.
 

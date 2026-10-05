@@ -5,17 +5,19 @@ a plan's ops and check the result. Neither touches the pipeline's GPU path:
 the only worker call is the tokenizer (under its lock, D-042), and tokens
 are null until the worker has loaded. Tokens are counted with chord symbols
 kept, as a `cot: full` render sends the score (unlike /v1/scores/measure).
+WRITE_PHRASE's contract (op shape, refusals) is in README "Score routes".
 """
 from __future__ import annotations
 
 from typing import Annotated, Literal, Union
 
 from fastapi import Depends, FastAPI, HTTPException
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from score_check import check_edit, verdict
 from score_facts import read_facts, seconds
 from score_ops import QUALITIES, ROOTS, apply_ops
+from score_phrase import BEATS, MAX_BARS, MAX_NOTES, PITCH
 from scores import parse_abc
 
 Root = Literal[ROOTS]
@@ -50,7 +52,34 @@ class EditStyle(Strict):
     style: str = Field(min_length=1, max_length=1000)
 
 
-Op = Annotated[Union[SetTempo, Reharmonize, EditStyle], Field(discriminator="op")]
+class Note(Strict):
+    pitch: str = Field(pattern=PITCH)
+    beats: float
+
+    @field_validator("beats")
+    @classmethod
+    def _beats(cls, value: float) -> float:
+        if value not in BEATS:
+            raise ValueError("beats must be one of " + ", ".join(f"{b:g}" for b in BEATS))
+        return value
+
+
+class WritePhrase(Strict):
+    op: Literal["WRITE_PHRASE"]
+    start_bar: int = Field(ge=1)
+    instrument: str = Field(min_length=1, max_length=40)
+    bars: list[Annotated[list[Note], Field(min_length=1, max_length=MAX_NOTES)]] = Field(
+        min_length=1, max_length=MAX_BARS)
+
+    @field_validator("bars", mode="before")
+    @classmethod
+    def _no_abc(cls, value):
+        if isinstance(value, str) or (isinstance(value, list) and any(isinstance(b, str) for b in value)):
+            raise ValueError("bars are arrays of {pitch, beats} notes; ABC strings are not accepted")
+        return value
+
+
+Op = Annotated[Union[SetTempo, Reharmonize, EditStyle, WritePhrase], Field(discriminator="op")]
 
 
 class ReadRequest(Strict):

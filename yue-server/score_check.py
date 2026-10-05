@@ -3,9 +3,11 @@ own ok/error text), the per-bar unit sums of every bar that does not fill its
 meter (upstream stops at the first, often with "event after the measure
 end", and SP-2 measured that retries only work with numbers), and an edit's
 checks: upstream compare (melody and bar grid unchanged, tempo only for
-SET_TEMPO), Q: as asked, no chord changed outside the REHARMONIZE bars
-(compare does not look at chords), and each REHARMONIZE moves at least one
-root per 2 bars (score_roots.py, D-055).
+SET_TEMPO; the Vocal only when a WRITE_PHRASE rewrote Ins bars), Q: as
+asked, no chord changed outside the REHARMONIZE bars (compare does not look
+at chords), each REHARMONIZE moves at least one root per 2 bars
+(score_roots.py, D-055), and, only once all of that holds (SP-2's order),
+each WRITE_PHRASE's sanity gates (score_phrase_gates.py).
 """
 from __future__ import annotations
 
@@ -17,6 +19,7 @@ import scores  # noqa: F401  (puts the vendored upstream/ on sys.path)
 from abc_tools import TOKEN, VOICES, compare, parse_abc
 from score_bars import bars_text
 from score_model import Doc
+from score_phrase_gates import phrase_gates, seam_kept
 from score_roots import kept_roots
 
 
@@ -101,7 +104,9 @@ def check_edit(before_abc: str, after_abc: str, ops: list[dict]) -> dict:
         return {"ok": False, "problems": [f"ABC check failed: {error}", *map(message, bar_sums(after_abc))],
                 "differences": []}
     tempos = [op["bpm"] for op in ops if op["op"] == "SET_TEMPO"]
-    differences = compare(before, after, VOICES, allow_tempo_change=bool(tempos))["differences"]
+    phrases = [op for op in ops if op["op"] == "WRITE_PHRASE"]
+    voices = ("Vocal",) if phrases else VOICES
+    differences = compare(before, after, voices, allow_tempo_change=bool(tempos))["differences"]
     problems = []
     if tempos and after.bpm != tempos[-1]:
         problems.append(f"Q: is {after.bpm}, expected {tempos[-1]}")
@@ -113,4 +118,7 @@ def check_edit(before_abc: str, after_abc: str, ops: list[dict]) -> dict:
     reharms = [op for op in ops if op["op"] == "REHARMONIZE"]
     old_doc = Doc(before_abc) if reharms else None
     problems += [text for op in reharms if (text := kept_roots(old_doc, op))]
+    problems += [text for op in phrases if (text := seam_kept(before, after, op, phrases))]
+    if not problems and not differences:
+        problems += [text for op in phrases for text in phrase_gates(after, op)]
     return {"ok": not problems and not differences, "problems": problems, "differences": differences}
