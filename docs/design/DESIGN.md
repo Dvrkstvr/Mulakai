@@ -852,7 +852,8 @@ requiring its own justification against a screen-count rule.
          `BASE · WHOLE SCORE · THIS: CHORUS 2 · BARS 29–36` (a line by its
          words), with a quiet `✕ WHOLE SCORE`; the clicked segment or lyric
          chip echoes sky, never the waveform. A strip section the score
-         lacks turns the chip rust (`· NOT IN THE SCORE`) and holds PLAN.
+         lacks, or a lyric line no score block holds (an unsaved draft
+         edit), turns the chip rust (`· NOT IN THE SCORE`) and holds PLAN.
          The pick is pinned when PLAN is pressed: the header reads `… · FOR
          CHORUS 2 (BARS 29–36)`, and a later pick only adds a `text-low`
          note (`planned for CHORUS 2, the selection is now VERSE 2 · APPLY
