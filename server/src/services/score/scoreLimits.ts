@@ -7,7 +7,7 @@
  * with a REPEAT that passes 360 s also names the smallest section whose cut fits (F-030 #2), by the
  * read's section number, so a CUT built from the line addresses the right section (D-066 b).
  */
-import type { ApplyResult, Op, ScoreSection } from './planTypes.js';
+import type { ApplyResult, Op, ScoreFacts, ScoreSection } from './planTypes.js';
 
 export const LIMIT_SECONDS = 360;
 /** From here the review warns (the client turns the checks segment rust). */
@@ -95,3 +95,8 @@ export const editQueued = (what: string) => `a ${what} was queued after this pla
 export const plannerLoaded = (models: string[]) =>
   `the planner still holds the GPU (${models.join(', ')}): wait for it to unload, or run \`ollama stop ${models[0]}\``;
 export const plannerUnconfirmed = (why: string) => `can't confirm the planner let go of the GPU: ${why}`;
+
+/** The edited score's bar count for the review's checks line: its sections cover every bar in order (yue-server
+ * section_ranges), so the last one ends on the last bar; the read's count when the edited score did not parse. */
+export const editedBars = (result: Pick<ApplyResult, 'sections'>, facts: Pick<ScoreFacts, 'header'>): number =>
+  result.sections?.at(-1)?.to_bar ?? facts.header.bars;

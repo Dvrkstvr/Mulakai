@@ -1,10 +1,11 @@
 /**
- * Pending plans, in server memory only (D-020, D-035): one per song. A successful PLAN replaces
- * the song's plan, a failed one drops it (D-028); a render, a trash or a restart drops it too.
+ * Pending plans, in server memory only (D-020, D-035): one per song. A successful PLAN or REVISE
+ * replaces the song's plan; a failed PLAN drops it (D-028), a failed REVISE keeps it (D-063); a
+ * render, a trash or a restart drops it too.
  * Also the song's latest plan run, so the route can answer "what happened to my PLAN" after a
  * reload without the client keeping the job id. Likewise the song's latest render.
  */
-import type { Plan, PlanCause } from './planTypes.js';
+import type { Plan, PlanCause, StaleReferent } from './planTypes.js';
 import type { SavedScoreVersion } from './scoreVersion.js';
 
 export interface PlanRun {
@@ -15,6 +16,10 @@ export interface PlanRun {
   planId: string | null;
   /** Null while it runs or once it made a plan. */
   cause: PlanCause | null;
+  /** The plan a REVISE replaces (kept if the REVISE fails, D-063); null/absent for a PLAN. */
+  revise?: string | null;
+  /** Set when the run was refused because the pick no longer matches the score (F-032 edge, Q-043). */
+  stale?: StaleReferent | null;
 }
 
 /** APPLY & RENDER's latest job for a song; the job body fills in how it ended. */

@@ -1,6 +1,7 @@
 import type { ScorePhase } from './scoreVerbTypes';
+import { ScoreFailure } from './ScoreFailure';
 import {
-  CHECK_FAILED_FIX, CHECK_FAILED_TITLE, fillLabel, limitHint, offlineLines, RENDER_FAILED_TAIL, RENDER_FAILED_TITLE, STALE_TAIL, STALE_TITLE,
+  CHECK_FAILED_FIX, CHECK_FAILED_TITLE, DROPPED_BY_PLAN, offlineLines, RENDER_FAILED_TAIL, RENDER_FAILED_TITLE, STALE_TAIL, STALE_TITLE,
 } from './scoreCopy';
 
 interface Props {
@@ -28,25 +29,9 @@ export function ScoreStateLine({ phase, onRecheck, onPlanAgain, onRetryRender, o
         </div>
       );
     }
-    case 'checkFailed': {
-      const hints = phase.reasons.map(limitHint);
-      const fill = hints.find(Boolean)?.fill;
-      return (
-        <div className="score-error" role="alert">
-          <div>
-            <b>{CHECK_FAILED_TITLE}</b>
-            {phase.reasons.map((r, i) => {
-              const h = hints[i];
-              return <div key={i}>{h ? <><b>{h.title}</b> · {h.body}</> : r}</div>;
-            })}
-            {CHECK_FAILED_FIX}
-          </div>
-          {fill && onFill && (
-            <button type="button" className="tab dock-quiet" onClick={() => onFill(fill)}><span>{fillLabel(fill)}</span></button>
-          )}
-        </div>
-      );
-    }
+    case 'checkFailed':
+      return <ScoreFailure title={CHECK_FAILED_TITLE} reasons={phase.reasons} onFill={onFill}
+        tail={phase.dropped ? `${DROPPED_BY_PLAN} ${CHECK_FAILED_FIX}` : CHECK_FAILED_FIX} />;
     case 'stale':
       return (
         <div className="score-warn" role="alert">

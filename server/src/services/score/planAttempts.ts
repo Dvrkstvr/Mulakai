@@ -38,11 +38,15 @@ function parse(content: string): unknown {
   }
 }
 
-/** `phraseBars`: the N bars a WRITE_PHRASE must have for this request (phraseRequest.ts). */
-export interface AttemptOptions { maxAttempts?: number; phraseBars?: number }
+/** A reply as read: the ops to apply, and for a REVISE a legend of how the reply became them (reviseReply). */
+export type Reading = { ok: true; ops: Op[]; legend?: string } | { ok: false; reasons: string[] };
+
+/** `phraseBars`: the N bars a WRITE_PHRASE must have for this request (phraseRequest.ts); `read`: how a parsed
+ * reply becomes ops (default checkOps; a REVISE merges {drop, ops}, D-073); `retry`: the retry's closing line. */
+export interface AttemptOptions { maxAttempts?: number; phraseBars?: number; read?: (json: unknown) => Reading; retry?: string }
 
 export async function planAttempts(
-  facts: ScoreFacts, messages: ChatMessage[], deps: AttemptDeps, { maxAttempts = MAX_ATTEMPTS, phraseBars }: AttemptOptions = {},
+  facts: ScoreFacts, messages: ChatMessage[], deps: AttemptDeps, { maxAttempts = MAX_ATTEMPTS, phraseBars, read, retry }: AttemptOptions = {},
 ): Promise<AttemptsOutcome> {
   let msgs = messages;
   let reasons: string[] = [];
@@ -51,8 +55,11 @@ export async function planAttempts(
     deps.onAttempt?.(n, reasons[0]);
     const reply = await deps.ask(msgs);
     const json = parse(reply.content);
-    const shape = json === undefined ? { ok: false as const, reasons: ['the reply is not valid JSON'] } : checkOps(json, facts, phraseBars);
+    const shape: Reading = json === undefined ? { ok: false, reasons: ['the reply is not valid JSON'] }
+      : read ? read(json) : checkOps(json, facts, phraseBars);
+    let legend: string | undefined;
     if (shape.ok) {
+      legend = shape.legend;
       const result = await deps.apply(shape.ops);
       if (result.ok) return { ok: true, ops: shape.ops, applied: result, attempts: n, refusals };
       reasons = applyReasons(result);
@@ -61,7 +68,7 @@ export async function planAttempts(
     }
     reasons = reasons.slice(0, MAX_REASONS);
     refusals.push(reasons);
-    msgs = retryMessages(msgs, reply.content, reasons);
+    msgs = retryMessages(msgs, reply.content, reasons, { legend, closing: retry });
   }
   return { ok: false, reasons, attempts: maxAttempts };
 }

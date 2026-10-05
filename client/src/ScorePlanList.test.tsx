@@ -76,3 +76,25 @@ describe('ScorePlanList: the M2 rows (F-029..F-031)', () => {
     expect(plain).not.toContain('score-diff');
   });
 });
+
+describe('ScorePlanList: a revised plan (F-033, M2-6) and the kept plan (M2-7)', () => {
+  const tempo: ScoreOp = { op: 'SET_TEMPO', bpm: 88 };
+  const revised: ScorePlan = {
+    ...plan([tempo, PHRASE]), revision: 2,
+    since: { planId: 'p1', marks: [{ mark: 'SAME', was: tempo }, { mark: 'NEW', was: null }], removed: [{ op: 'EDIT_STYLE', style: 'dark pop, jazz' }] },
+  };
+  it('marks each row between its name and detail, then says what changed and what was removed', () => {
+    const html = renderToStaticMarkup(<ScorePlanList plan={revised} baseStyle="dark pop" fromBpm={90} baseVersion={2} />);
+    expect(text(html)).toContain('|PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v2|SINCE PLAN 1 · 1 NEW · 1 SAME · 1 REMOVED|');
+    expect(text(html)).toContain('|✓|SET TEMPO|SAME|90 → 88 BPM · whole song|follows|');
+    expect(html).toContain('<span class="score-op-mark hi">NEW</span>');
+    expect(text(html)).toContain('|REMOVED SINCE PLAN 1 · EDIT STYLE + jazz|');
+  });
+  it('a PLAN has no marks; the plan a REVISE keeps is labelled so', () => {
+    expect(renderToStaticMarkup(<ScorePlanList plan={plan([tempo])} baseStyle={null} fromBpm={90} baseVersion={2} />)).not.toContain('score-op-mark');
+    const kept = renderToStaticMarkup(<ScorePlanList plan={plan([tempo])} baseStyle={null} fromBpm={90} baseVersion={2} dimmed="kept" />);
+    expect(text(kept)).toContain('|PLAN 1 · KEPT IF THE REVISE FAILS|');
+    expect(kept).not.toContain('SINCE');
+  });
+});
+

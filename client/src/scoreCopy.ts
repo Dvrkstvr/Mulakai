@@ -24,6 +24,7 @@ export const APPLY_OFF = 'a plan must pass every check first';
 export { checksSegments, refusedLines, type Segment } from './scoreAttemptCopy';
 export { diffNote, diffRows, type DiffRow } from './scoreSectionCopy';
 export { fillLabel, fillRequest, limitHint, type LimitHint } from './scoreLimitHint';
+export * from './scoreReferentCopy'; export * from './scoreReviseCopy'; // F-032, F-033
 /** Ends an ACE-Step edit's consequence line while SCORE is open (F-027, D-030; scoreEnds.ts). */
 export const SCORE_ENDS = 'score editing ends after this edit, SCORE will be off for this song';
 

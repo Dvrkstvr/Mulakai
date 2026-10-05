@@ -1,16 +1,16 @@
 /** The SCORE store against a mocked server: load and rehydrate, PLAN → poll → plan ready, a refused
  * PLAN, CANCEL while queued and while planning, a lost run, and APPLY & RENDER's expiry check. */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import type { ScorePlan, ScorePlanRun, ScorePlanState, ScoreStatusView } from './api';
+import type { ScorePlan, ScorePlanPress, ScorePlanRun, ScorePlanStart, ScorePlanState, ScoreReferent, ScoreStatusView } from './api';
 
 const scoreStatus = vi.fn<(id: string) => Promise<ScoreStatusView>>();
 const scorePlanState = vi.fn<(id: string) => Promise<ScorePlanState>>();
-const startScorePlan = vi.fn<(id: string, request: string) => Promise<{ jobId: string; queuePosition: number }>>();
+const startScorePlan = vi.fn<(id: string, request: string, press?: ScorePlanPress) => Promise<ScorePlanStart>>();
 const cancelScorePlan = vi.fn<(id: string) => Promise<unknown>>();
 const startScoreRender = vi.fn<(id: string, planId: string) => Promise<unknown>>();
 vi.mock('./api', () => ({ api: {
   scoreStatus: (id: string) => scoreStatus(id), scorePlanState: (id: string) => scorePlanState(id),
-  startScorePlan: (id: string, r: string) => startScorePlan(id, r), cancelScorePlan: (id: string) => cancelScorePlan(id),
+  startScorePlan: (id: string, r: string, p?: ScorePlanPress) => startScorePlan(id, r, p), cancelScorePlan: (id: string) => cancelScorePlan(id),
   startScoreRender: (id: string, p: string) => startScoreRender(id, p), scoreRenderState: async () => ({ run: null }),
 } }));
 
@@ -60,7 +60,7 @@ describe('scoreStore', () => {
     store().dispatch(S, { type: 'edit', request: '  jazz chords in the chorus, 88 BPM ' });
     startScorePlan.mockResolvedValue({ jobId: 'j', queuePosition: 2 });
     await store().plan(S);
-    expect(startScorePlan).toHaveBeenCalledWith(S, 'jazz chords in the chorus, 88 BPM');
+    expect(startScorePlan).toHaveBeenCalledWith(S, 'jazz chords in the chorus, 88 BPM', { referent: null });
     expect(phase()).toEqual({ kind: 'queued', ahead: 2 });
     scorePlanState.mockResolvedValue({ run: run({ progressText: 'attempt 2 of 3 · bar 5 had 31/32 units' }), plan: null });
     await vi.advanceTimersByTimeAsync(POLL_MS);
@@ -119,5 +119,59 @@ describe('scoreStore', () => {
     await store().apply(S);
     expect(startScoreRender).toHaveBeenCalledWith(S, 'p1');
     expect(phase()).toEqual({ kind: 'stale', reason: 'plan expired: the server restarted or a newer plan replaced it' });
+  });
+
+  describe('the pick and REVISE (F-032, F-033)', () => {
+    const CHORUS2: ScoreReferent = { kind: 'section', section: 5, label: 'chorus', occurrence: 2, of: 3, bars: [29, 36] };
+    const PINNED = { ...P1, referent: { ...CHORUS2, section: 5 } } as ScorePlan;
+
+    it('PLAN sends the pick, pinned at the press', async () => {
+      await store().load(S);
+      store().dispatch(S, { type: 'pick', pick: CHORUS2 });
+      store().dispatch(S, { type: 'edit', request: 'make this jazzier' });
+      startScorePlan.mockResolvedValue({ jobId: 'j', queuePosition: 0 });
+      await store().plan(S);
+      expect(startScorePlan).toHaveBeenCalledWith(S, 'make this jazzier', { referent: CHORUS2 });
+      expect(store().bySong[S]).toMatchObject({ revising: false, phase: { kind: 'planning' } });
+      scorePlanState.mockResolvedValue({ run: run({ status: 'done' }), plan: P1 });
+      await vi.advanceTimersByTimeAsync(POLL_MS); // ends the poll, so the next test's poll can start
+    });
+
+    it('a 409 stale pick queues nothing and draws the stale row', async () => {
+      await store().load(S);
+      store().dispatch(S, { type: 'pick', pick: CHORUS2 });
+      store().dispatch(S, { type: 'edit', request: 'make this jazzier' });
+      const stale = { picked: CHORUS2, now: { ...CHORUS2, bars: [37, 44] as [number, number] }, reason: 'moved' };
+      startScorePlan.mockResolvedValue({ stale, error: 'the selection is stale: moved' });
+      await store().plan(S);
+      expect(store().bySong[S]).toMatchObject({ phase: { kind: 'asking' }, stale, error: null });
+    });
+
+    it('REVISE sends the plan id and its pinned referent, then polls to plan 2', async () => {
+      scorePlanState.mockResolvedValueOnce({ run: run({ status: 'done' }), plan: PINNED });
+      await store().load(S);
+      expect(store().bySong[S].pick).toEqual(PINNED.referent); // the chip shows what the plan was made for
+      store().dispatch(S, { type: 'edit', request: 'not so many chords' });
+      startScorePlan.mockResolvedValue({ jobId: 'j2', queuePosition: 0 });
+      await store().revise(S);
+      expect(startScorePlan).toHaveBeenCalledWith(S, 'not so many chords', { referent: PINNED.referent, revise: 'p1' });
+      expect(store().bySong[S]).toMatchObject({ revising: true, previous: PINNED, plan: null });
+      const P2 = { ...PINNED, id: 'p2', revision: 2 } as ScorePlan;
+      scorePlanState.mockResolvedValue({ run: run({ status: 'done', revise: 'p1' }), plan: P2 });
+      await vi.advanceTimersByTimeAsync(POLL_MS);
+      expect(store().bySong[S]).toMatchObject({ phase: { kind: 'ready' }, plan: P2, revising: false });
+    });
+
+    it('REVISE after ✕ plans the whole song; it does nothing while the request is unchanged', async () => {
+      scorePlanState.mockResolvedValueOnce({ run: run({ status: 'done' }), plan: PINNED });
+      await store().load(S);
+      await store().revise(S);
+      expect(startScorePlan).not.toHaveBeenCalled();
+      store().dispatch(S, { type: 'pick', pick: null });
+      store().dispatch(S, { type: 'edit', request: 'the whole song instead' });
+      startScorePlan.mockResolvedValue({ jobId: 'j3', queuePosition: 1 });
+      await store().revise(S);
+      expect(startScorePlan).toHaveBeenCalledWith(S, 'the whole song instead', { referent: null, revise: 'p1' });
+    });
   });
 });

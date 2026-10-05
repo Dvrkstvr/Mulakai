@@ -1,15 +1,16 @@
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { DockCommit } from './DockCommit';
 import { useElapsedMs } from './genProgress';
-import { queueSuffix } from './queueCopy';
 import { useJobsAhead } from './queueStore';
+import { ScoreFailure } from './ScoreFailure';
+import { ScorePlanButtons } from './ScorePlanButtons';
 import { ScorePlanList } from './ScorePlanList';
+import { ScoreStaleSelection } from './ScoreStaleSelection';
 import { ScoreStateLine } from './ScoreStateLine';
-import {
-  APPLY_OFF, ASKING_CONSEQUENCE, CHECK_FAILED_CONSEQUENCE, consequenceLine, fillRequest, jobLine, readingLine, REQUEST_PLACEHOLDER,
-} from './scoreCopy';
+import { APPLY_OFF, fillRequest, movedOnNote, readingLine, REVISE_FAILED_TITLE, reviseFailedTail } from './scoreCopy';
+import { dockLines, isRendering, isWaiting } from './scoreDockLines';
 import { useScoreStore } from './scoreStore';
-import { canPlan, canRender } from './scoreVerb';
+import { canPlan, canRender, canRevise } from './scoreVerb';
 import type { ScoreVerbState } from './scoreVerbTypes';
 
 interface Props {
@@ -18,15 +19,14 @@ interface Props {
 }
 
 /**
- * SCORE (pipeline/design/score-verb.html, DESIGN.md "Action dock › SCORE"): the reading, the
- * request field, the change list and checks once planned, then PLAN (acid outline) beside APPLY
- * & RENDER, the only acid fill. The plan and render jobs are a line under the commit: dashed while
- * queued, on the plain AI shader (no veil: YuE2 reports a stage's share) while the GPU works.
- * The dock grows with the plan (DT-1 A).
+ * SCORE (pipeline/design/score-verb.html, score-m2.html; DESIGN.md "Action dock › SCORE"): the reading, the
+ * request field, the change list and checks once planned, then PLAN and REVISE (acid outlines) beside APPLY &
+ * RENDER, the only acid fill. The plan and render jobs are a line under the commit: dashed while queued, on the
+ * plain AI shader (no veil: YuE2 reports a stage's share) while the GPU works. The dock grows with the plan (DT-1 A).
  */
 export function DockScore({ songId, state }: Props) {
   const ahead = useJobsAhead();
-  const { dispatch, plan, cancel, recheck, apply } = useScoreStore.getState();
+  const { dispatch, plan, revise, cancel, recheck, apply } = useScoreStore.getState();
   const { phase, status, request } = state;
   const elapsed = useElapsedMs(phase.kind === 'rendering', phase.kind === 'rendering' ? phase.startedAt : null);
   const onRecheck = () => void recheck(songId);
@@ -35,59 +35,58 @@ export function DockScore({ songId, state }: Props) {
     return <div className="dock-body"><ScoreStateLine phase={phase} onRecheck={onRecheck} onPlanAgain={() => {}} onRetryRender={() => {}} /></div>;
   }
 
-  const rendering = phase.kind === 'renderQueued' || phase.kind === 'rendering';
-  const waiting = phase.kind === 'queued' || phase.kind === 'planning';
-  const locked = waiting || rendering;
+  const rendering = isRendering(state);
+  const waiting = isWaiting(state);
   const ready = canRender(state);
   const shownPlan = state.plan && phase.kind !== 'done';
-  // Its own plan or render is not a job ahead of it.
-  const consequence = state.plan && (ready || rendering) ? consequenceLine(state.plan, status ?? {}, rendering ? 0 : ahead)
-    : phase.kind === 'checkFailed' ? CHECK_FAILED_CONSEQUENCE
-      : ASKING_CONSEQUENCE + (waiting ? '' : queueSuffix(ahead));
+  const lines = dockLines(state, ahead, elapsed);
   const onPlan = () => void plan(songId);
+  const onRevise = () => void revise(songId);
+  const onFill = (words: string) => dispatch(songId, { type: 'edit', request: fillRequest(request, words) });
   const working = (phase.kind === 'planning' && !phase.cancelling) || phase.kind === 'rendering';
+  const listProps = { baseStyle: status?.style ?? null, fromBpm: status?.reading?.bpm ?? null, fromKey: status?.reading?.key ?? null, baseVersion: status?.baseVersion };
+  const moved = shownPlan && state.plan ? movedOnNote(state.plan, state.pick) : null;
 
   return (
     <>
       <div className="dock-body">
         <input
-          className={locked ? 'dock-prompt score-locked' : 'dock-prompt'}
+          className={waiting || rendering ? 'dock-prompt score-locked' : 'dock-prompt'}
           aria-label="Score change request"
-          placeholder={REQUEST_PLACEHOLDER}
+          placeholder={lines.placeholder}
           value={request}
-          readOnly={locked}
+          readOnly={waiting || rendering}
           onChange={(e) => dispatch(songId, { type: 'edit', request: e.target.value })}
-          onKeyDown={(e) => { if (e.key === 'Enter' && canPlan(state)) onPlan(); }}
+          // Enter revises when REVISE is on, else plans (M2-5).
+          onKeyDown={(e) => { if (e.key === 'Enter') { if (canRevise(state)) onRevise(); else if (canPlan(state)) onPlan(); } }}
         />
         {status?.reading && !waiting && <div className="score-reading">{readingLine(status.reading)}</div>}
-        {shownPlan && state.plan && (
-          <ScorePlanList plan={state.plan} baseStyle={status?.style ?? null} fromBpm={status?.reading?.bpm ?? null}
-            fromKey={status?.reading?.key ?? null} baseVersion={status?.baseVersion} dimmed={phase.kind === 'stale' ? 'stale' : undefined} />
+        {shownPlan && state.plan && <ScorePlanList plan={state.plan} {...listProps} dimmed={phase.kind === 'stale' ? 'stale' : undefined} />}
+        {moved && <div className="score-since">{moved}</div>}
+        {waiting && state.previous && <ScorePlanList plan={state.previous} {...listProps} dimmed={state.revising ? 'kept' : 'replacing'} />}
+        {state.stale && !waiting && (
+          <ScoreStaleSelection stale={state.stale} onWhole={() => dispatch(songId, { type: 'pick', pick: null })}
+            onUse={() => dispatch(songId, { type: 'pick', pick: state.stale?.now ?? null })} />
         )}
-        {waiting && state.previous && (
-          <ScorePlanList plan={state.previous} baseStyle={status?.style ?? null} fromBpm={status?.reading?.bpm ?? null}
-            fromKey={status?.reading?.key ?? null} baseVersion={status?.baseVersion} dimmed="replacing" />
+        {state.reviseFailed && state.plan && (
+          <ScoreFailure title={REVISE_FAILED_TITLE} reasons={state.reviseFailed} tail={reviseFailedTail(state.plan)} onFill={onFill} />
         )}
-        <ScoreStateLine phase={phase} onRecheck={onRecheck} onPlanAgain={onPlan} onRetryRender={() => void apply(songId)}
-          onFill={(words) => dispatch(songId, { type: 'edit', request: fillRequest(request, words) })} />
+        <ScoreStateLine phase={phase} onRecheck={onRecheck} onPlanAgain={onPlan} onRetryRender={() => void apply(songId)} onFill={onFill} />
       </div>
       <DockCommit
-        consequence={consequence}
+        consequence={lines.consequence}
         label="APPLY & RENDER"
         disabled={!ready}
         title={ready ? undefined : APPLY_OFF}
         onCommit={() => void apply(songId)}
-        siblings={phase.kind === 'stale' ? undefined : ( // stale offers PLAN AGAIN on its own line (frame 14)
-          <button type="button" className="acid-outline dock-commit-btn" disabled={!canPlan(state)} onClick={onPlan}>
-            <span>PLAN</span>
-          </button>
-        )}
+        // stale offers PLAN AGAIN on its own line (frame 14)
+        siblings={phase.kind === 'stale' ? undefined : <ScorePlanButtons state={state} onPlan={onPlan} onRevise={onRevise} />}
       />
       {(waiting || rendering) && (
         <div className="dock-jobs">
           <div className={working ? 'dock-job score-job' : 'dock-job score-job waiting'}>
             {working && <AIGeneratingBackground />}
-            <span className="dock-job-label">{jobLine(phase, elapsed)}</span>
+            <span className="dock-job-label">{lines.job}</span>
             {!(phase.kind === 'planning' && phase.cancelling) && (
               <button type="button" className="tab dock-quiet score-job-cancel" onClick={() => void cancel(songId)}><span>CANCEL</span></button>
             )}

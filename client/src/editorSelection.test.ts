@@ -17,6 +17,14 @@ describe('pickRange', () => {
     expect(setSelection).toHaveBeenCalledWith(null);
     expect(setVerb).not.toHaveBeenCalled();
   });
+
+  it('under SCORE keeps the range for REPAINT but stays on SCORE (M2-2)', () => {
+    const setSelection = vi.fn();
+    const setVerb = vi.fn();
+    pickRange({ start: 2, end: 8 }, setSelection, setVerb, 'score');
+    expect(setSelection).toHaveBeenCalledWith({ start: 2, end: 8 });
+    expect(setVerb).not.toHaveBeenCalled();
+  });
 });
 
 describe('shownRange', () => {

@@ -44,6 +44,15 @@ test('planner offline: SCORE says so, and RECHECK brings it back', async ({ page
   await expect(panel.locator('.score-reading')).toHaveText('65 bars · 4/4 · Q:87 · key Dm · est 179 s · 1,832 tokens');
 });
 
+test('GET /score carries the read sections and lyric blocks, numbered by yue-server, for a pick (F-032)', async ({ request }) => {
+  // The strip and the lyrics lane need lyric timings, which this stack has none of (LYRICS_API_URL is empty and a
+  // YuE2 take stores no timestamps), so the pick itself is covered by Vitest; this checks the wire a pick reads.
+  const facts = contract('read-ok').response.body.facts as { sections: Array<Record<string, unknown>>; lyric_blocks: unknown[] };
+  const status = (await (await request.get(`/api/songs/${songId}/score`)).json()) as { sections: unknown[]; blocks: unknown[] };
+  expect(status.sections).toEqual(facts.sections.map((x) => ({ ...x, occurrence: 1 })));
+  expect(status.blocks).toEqual(facts.lyric_blocks);
+});
+
 test('CANCEL while planning aborts the call, unloads the planner and keeps the request', async ({ page, request }) => {
   await scriptPlanner(request, { replies: [{ hang: true }] });
   const { dock, panel } = await openScore(page);
@@ -81,6 +90,37 @@ test('a plan over 360 s is refused with the number and the tempo that fits', asy
   // Each of the three attempts was told why and refused again.
   const chats = (await plannerLog(request)).seen.filter((r) => r.path === '/v1/chat/completions');
   expect(chats.length).toBeGreaterThanOrEqual(3);
+});
+
+test('REVISE sees plan 1, merges what changes into it and marks what changed since (F-033, D-073)', async ({ page, request }) => {
+  // Plan 1 is the compound plan; the REVISE replies only what changes, {drop, ops} (D-073): drop ops 2 and 3, so the
+  // merged plan is plan 1's SET TEMPO alone, which yue-server's recorded apply-set-tempo reply answers.
+  const reviseReply = JSON.stringify({ drop: [2, 3], ops: [] });
+  expect(contract('apply-set-tempo').request.body.ops).toEqual([(contract('apply-compound').request.body.ops as unknown[])[0]]);
+  await scriptPlanner(request, { replies: [plannerReplyFor('apply-compound'), reviseReply] });
+  const { dock, panel } = await openScore(page);
+  const field = panel.getByRole('textbox', { name: 'Score change request' });
+  await field.fill(REQUEST);
+  await dock.getByRole('button', { name: 'PLAN', exact: true }).click();
+  await expect(panel.locator('.score-plan-label')).toHaveText('PLAN · 3 CHANGES · AGAINST BASE v1', { timeout: 30_000 });
+  const revise = dock.getByRole('button', { name: 'REVISE', exact: true });
+  await expect(revise).toBeDisabled(); // the request is still plan 1's (M2-5)
+
+  const plan1 = ((await (await request.get(`/api/songs/${songId}/score/plan`)).json()) as { plan: { id: string } }).plan.id;
+  await field.fill('only the tempo change, no chords or style');
+  const posted = page.waitForRequest((r) => r.method() === 'POST' && r.url().endsWith(`/api/songs/${songId}/score/plan`));
+  await revise.click();
+  expect((await posted).postDataJSON()).toEqual({ request: 'only the tempo change, no chords or style', referent: null, revise: plan1 });
+  await expect(panel.locator('.score-plan-label', { hasText: 'REVISED' }))
+    .toHaveText('PLAN 2 · REVISED FROM PLAN 1 · 1 CHANGE · AGAINST BASE v1', { timeout: 30_000 });
+  await expect(panel.locator('.score-since', { hasText: /^SINCE/ })).toHaveText('SINCE PLAN 1 · 1 SAME · 2 REMOVED');
+  await expect(panel.locator('.score-since', { hasText: /^REMOVED/ })).toHaveText(/^REMOVED SINCE PLAN 1 · REHARMONIZE .* · EDIT STYLE/);
+  await expect(panel.locator('.score-op-name')).toHaveText(['SET TEMPO']);
+  await expect(panel.locator('.score-op-mark')).toHaveText(['SAME']);
+  await expect(revise).toBeDisabled();
+  await expect(dock.getByRole('button', { name: 'APPLY & RENDER' })).toBeEnabled();
+  // The planner was asked with plan 1 in the prompt; the second chat is the REVISE's.
+  expect((await plannerLog(request)).seen.filter((r) => r.path === '/v1/chat/completions').length).toBeGreaterThanOrEqual(2);
 });
 
 test('plan → review → APPLY & RENDER saves a new base version', async ({ page, request }) => {

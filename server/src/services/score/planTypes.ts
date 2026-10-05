@@ -89,7 +89,40 @@ export interface Plan {
   /** Each earlier refused attempt's reasons (planAttempts), shown in the review (D-060). */
   refusals: string[][];
   createdAt: number;
+  /** What "this" meant, pinned when PLAN / REVISE was pressed (F-032, M2-3); null = the whole song. */
+  referent?: Referent | null;
+  /** 1 for a PLAN, the replaced plan's + 1 for a REVISE (F-033). */
+  revision?: number;
+  /** A REVISE's ops against the plan it replaced (F-033 #1, M2-6); null for a PLAN. */
+  since?: Since | null;
 }
+
+/** A pick sent with PLAN (F-032): a strip section (S<n> of the read, its label, which occurrence of that
+ * label, its bars) or a lyric line (block of the read, its tag and occurrence, the 1-based line). `of`: how
+ * many of that label / kind the song had at the pick, so a stale pick is found again counting from the end
+ * (a REPEAT or CUT before it shifts the count from the start, not from the end). */
+export type ReferentInput =
+  | { kind: 'section'; section: number; label: string; occurrence: number; of?: number; bars: [number, number] }
+  | { kind: 'line'; block: number; tag: string; occurrence: number; of?: number; line: number; text?: string | null };
+
+/** A pick checked against the score as read, numbered as it is now; a line carries the section that sings its
+ * block, if any (Q-045). It is a valid ReferentInput, so the client can send it back (USE BARS, REVISE). */
+export type Referent =
+  | { kind: 'section'; section: number; label: string; occurrence: number; of: number; bars: [number, number] }
+  | { kind: 'line'; block: number; tag: string; occurrence: number; of: number; line: number; text: string | null;
+      section: number | null; label: string | null; bars: [number, number] | null };
+
+/** A pick that no longer matches the score (Q-043, M2-4): `now` is where the same label + occurrence lives
+ * now (sent back as the referent by USE BARS), null when it is gone. Nothing is planned against it. */
+export interface StaleReferent { picked: ReferentInput; now: Referent | null; reason: string }
+
+/** One press of the dock (planJob): PLAN (the whole song, or a pick) or REVISE of the pending plan with this id. */
+export interface PlanPress { referent?: ReferentInput | null; revise?: string | null }
+
+export type OpMark = 'NEW' | 'CHANGED' | 'SAME';
+
+/** Per op of a revised plan, in order: its mark and the replaced plan's op it was matched to. */
+export interface Since { planId: string; marks: Array<{ mark: OpMark; was: Op | null }>; removed: Op[] }
 
 /** Why a plan run ended without a plan (planJob's PlanError): `check` = attempts spent, a limit
  * or a cut prompt; `offline` = the planner or yue-server could not be used; `refused` = the song

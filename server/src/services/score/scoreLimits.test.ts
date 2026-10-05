@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
-import { cutHint, limitReasons, minBpmThatFits, readNumbers, withLimits, NO_CHANGE, LIMIT_SECONDS, TOKEN_LIMIT } from './scoreLimits.js';
+import { cutHint, editedBars, limitReasons, minBpmThatFits, readNumbers, withLimits, NO_CHANGE, LIMIT_SECONDS, TOKEN_LIMIT } from './scoreLimits.js';
 import type { ApplyResult, Op, ScoreFacts } from './planTypes.js';
 
 const applied = (over: Partial<ApplyResult> = {}): ApplyResult => ({
@@ -90,5 +90,14 @@ describe('the cut hint (F-030 #2)', () => {
     expect(cutHint(sections, repeat, applied({ seconds: 370, sections: five.slice(1) }))).toBeNull();
     expect(withLimits(applied({ seconds: 400, bpm: 90, sections: five }), { ops: repeat, sections }).checks.problems)
       .toEqual(['estimated 400 s: over the 360 s limit; at least 101 BPM fits']);
+  });
+});
+
+describe('editedBars (review M2 should #1)', () => {
+  it("is the edited score's last section end, or the read's bar count when the edited score has no sections", () => {
+    const facts = { header: { bars: 65 } } as Pick<ScoreFacts, 'header'>;
+    expect(editedBars({ sections: [{ index: 1, label: 'a', from_bar: 1, to_bar: 40, seconds: 1 }, { index: 2, label: 'b', from_bar: 41, to_bar: 81, seconds: 1 }] }, facts)).toBe(81);
+    expect(editedBars({ sections: null }, facts)).toBe(65);
+    expect(editedBars({}, facts)).toBe(65);
   });
 });
