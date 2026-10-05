@@ -5,6 +5,7 @@ paths:
   - "server/src/services/jobRegistry.ts"
   - "server/src/services/queueGuards.ts"
   - "server/src/services/*Jobs.ts"
+  - "server/src/services/score/*Job.ts"
   - "server/src/services/enginePoll.ts"
   - "server/src/services/engineClient.ts"
 ---
@@ -21,6 +22,7 @@ paths:
   with that reason.
 - A busy GPU never disables a commit; the queue refuses at `QUEUE_LIMIT`
   (10 waiting) with a reason the client shows.
-- A new kind extends the kind unions on both sides, so the client's
-  `RUNNING_LABEL` (`client/src/activityRunning.ts`) must name it.
+- A new kind extends the kind unions on both sides in the same PR: the
+  client's `ActiveGeneration.kind` (`client/src/api/types.ts`), and so its
+  Activity label maps, `RUNNING_LABEL` first. M0's `plan` kind missed it.
 - First takes and score renders share one engine poll loop (D-036).

@@ -22,5 +22,6 @@ paths:
 - For a score version the sidecar is load-bearing: write it before the
   version row; a failed write fails the render and leaves no version
   (D-038). First takes keep their best-effort write.
-- Activating a score version restores the song's bpm, key and meter from
-  `params.meta`.
+- Every change of the active base version (activate, and deleting the
+  active one) restores the song's bpm, key, meter and length through
+  `restoreScoreMeta` (D-053 e); deleting falls back before the row goes.
