@@ -10,7 +10,7 @@
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · R-013 proven by the M0 listens · owed: SP-2 phrase listen
 - milestone: M2 (F-029..F-033) · features passing 24/39 · owed: M2 listen (pipeline/verify/M2/listen), M1 phrase listen
 - autopilot: stopped — round budget 12/12 (M2: verified + reviewed; left: REVISE live re-check, merges, curate)
-- next: REVISE live re-check on qwen3:14b (D-073) → merge #138 (CI), #139-#141 in order (retarget each to main, reopen for CI) → curate M2 → docs/m2-state PR; fresh session → /pipeline:auto M2
+- next: GitHub Actions outage (2026-10-05) → when it recovers: reopen #138 for CI, merge #138, then #139-#141 in order (retarget to main, reopen for CI) → curate M2 → docs/m2-state PR
 
 ## Stages
 | # | Stage | State | Gate | Date |
