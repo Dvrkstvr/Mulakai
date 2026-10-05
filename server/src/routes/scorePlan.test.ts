@@ -67,7 +67,7 @@ describe('POST /api/songs/:id/score/plan', () => {
     await vi.waitFor(async () => expect((await state()).run.status).toBe('done'), { timeout: 5000 });
     const body = await state();
     expect(body.run).toMatchObject({ jobId, request: 'set it to 88 BPM', status: 'done', reasons: [], planId: body.plan.id });
-    expect(body.plan).toMatchObject({ songId: 's1', baseVersionId: 'v1', attempts: 1, ops: [{ op: 'SET_TEMPO', bpm: 88 }],
+    expect(body.plan).toMatchObject({ songId: 's1', baseVersionId: 'v1', attempts: 1, refusals: [], ops: [{ op: 'SET_TEMPO', bpm: 88 }],
       style: 'dark pop, 88 bpm, F minor, female vocal', checks: { bars: 65, seconds: 177.3, tokens: 1832, chordsPresent: true } });
     expect(body.plan.abc).toBeUndefined();
     expect(body.plan.fingerprint).toBeUndefined();

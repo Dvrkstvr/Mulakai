@@ -1,5 +1,5 @@
 import type { ScorePlan } from './api';
-import { checksSegments, opRows, planHeader, PREVIOUS_PLAN, rowDetail } from './scoreCopy';
+import { checksSegments, opRows, planHeader, PREVIOUS_PLAN, refusedLines, rowDetail } from './scoreCopy';
 
 interface Props {
   plan: ScorePlan;
@@ -12,7 +12,8 @@ interface Props {
   dimmed?: 'replacing' | 'stale';
 }
 
-/** SCORE's change list (one row per op, its verdict and tag) and the one checks line. */
+/** SCORE's change list (one row per op, its verdict and tag), the one checks line, and a rust line
+ * per earlier refused attempt (D-060). */
 export function ScorePlanList({ plan, baseStyle, fromBpm, baseVersion, dimmed }: Props) {
   const list = (
     <div className="score-ops">
@@ -43,6 +44,7 @@ export function ScorePlanList({ plan, baseStyle, fromBpm, baseVersion, dimmed }:
           <span key={i}>{i > 0 && ' · '}<span className={seg.warn ? 'warn' : undefined}>{seg.text}</span></span>
         ))}
       </div>
+      {refusedLines(plan).map((line, i) => <div key={i} className="score-refused">{line}</div>)}
     </>
   );
 }

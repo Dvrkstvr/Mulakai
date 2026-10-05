@@ -793,7 +793,12 @@ requiring its own justification against a screen-count rule.
          op with a ✓/✕ verdict and a `text-low` tag: `follows` or `a
          request`; a rejected op is listed with its reason, never dropped)
          and one always-visible mono checks line (`65 bars · est 183 s of
-         360 s · 1,520 of 4,096 tokens · chords valid`). The dock **grows
+         360 s · 1,520 of 4,096 tokens · chords valid`). Under it, a plan
+         that passed only on a later attempt lists each earlier refused
+         attempt in one rust mono line (`attempt 1 refused: the Vocal sings
+         in bars 20-23; free: 1-10, 47-65`; first two reasons, then "and n
+         more"), so a moved phrase or a raised tempo is never silent (D-060,
+         added 2026-10-05). The dock **grows
          with the plan** (measured 356 px for 3 ops at 1366×768 and
          1920×1080, transport still on screen; about 390 px for 5); it does
          not cap and scroll or fold the checks. An ineligible or offline
@@ -814,7 +819,10 @@ requiring its own justification against a screen-count rule.
          request to YuE2, not a guarantee · v2 stays in VERSIONS`. SET TEMPO
          (and later REPEAT / CUT / TRANSPOSE) say "follows"; REHARMONIZE,
          EDIT STYLE (always) and WRITE PHRASE say "a request to YuE2, not a
-         guarantee"; a plan of only "follows" ops omits that clause. The
+         guarantee"; a WRITE PHRASE gets its own clause, `the tenor saxophone
+         phrase replaces the instrument part in bars 57–60 and is a request
+         to YuE2, not a guarantee` (D-060); a plan of only "follows" ops
+         omits that clause. The
          asking state reads "asks the planner · uses the GPU for ~10 s ·
          changes nothing yet".
        - **Rust**: a failed check (`CHECK FAILED`, then one line per cause with its number, e.g.

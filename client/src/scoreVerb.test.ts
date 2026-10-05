@@ -8,7 +8,7 @@ import type { ScorePlan, ScorePlanRun, ScoreStatusView } from './api';
 const plan = (id: string, request = 'jazz chords in the chorus, 88 BPM'): ScorePlan => ({
   id, songId: 's1', baseVersionId: 'v2', request, ops: [{ op: 'SET_TEMPO', bpm: 88 }],
   verdicts: [{ index: 1, op: 'SET_TEMPO', ok: true, reason: null }], style: 'pop, 88 bpm',
-  checks: { bars: 65, seconds: 183, tokens: 1520, chordsPresent: true, changed: { abc: true, style: true } }, attempts: 1, createdAt: 1,
+  checks: { bars: 65, seconds: 183, tokens: 1520, chordsPresent: true, changed: { abc: true, style: true } }, attempts: 1, refusals: [], createdAt: 1,
 });
 const P1 = plan('p1');
 const P2 = plan('p2', 'jazz chords in the chorus, 90 BPM');
