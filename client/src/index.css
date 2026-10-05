@@ -3894,6 +3894,7 @@ a.dock-commit-link {
 
 .score-op {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 12px;
   min-height: 30px;
@@ -3921,6 +3922,35 @@ a.dock-commit-link {
 .score-op-tag {
   font: 10px ui-monospace, Consolas, monospace;
   color: var(--text-low);
+}
+
+/* Under a row (M2, pipeline/design/score-m2.html M2-8, M2-9): a section op's lyric note and the
+   diff's summary in low text, then a REWRITE LYRICS's OLD / NEW columns, a changed line's new words at text tier. */
+.score-op-note {
+  flex-basis: 100%;
+  padding-left: 24px;
+  font: 10px ui-monospace, Consolas, monospace;
+  color: var(--text-low);
+}
+
+.score-diff {
+  flex-basis: 100%;
+  display: grid;
+  grid-template-columns: 20px 1fr 1fr;
+  gap: 2px 12px;
+  padding: 4px 0 2px 24px;
+  font: 11px/1.45 ui-monospace, Consolas, monospace;
+  color: var(--text-low);
+}
+
+.score-diff b {
+  font-weight: 400;
+  color: var(--text-hi);
+}
+
+.score-diff-head {
+  font-size: 9px;
+  letter-spacing: 2px;
 }
 
 .score-op.no .score-verdict,

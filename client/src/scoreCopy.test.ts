@@ -53,16 +53,16 @@ describe('change list rows', () => {
     const p = plan([TEMPO, REHARM, STYLE]);
     p.verdicts[1] = { index: 2, op: 'REHARMONIZE', ok: false, reason: 'bar 20 had 30/32 units' };
     expect(opRows(p, 'dark, pop, 87 bpm', 87)).toEqual([
-      { ok: true, name: 'SET TEMPO', detail: '87 → 88 BPM · whole song', tag: 'follows', reason: null },
-      { ok: false, name: 'REHARMONIZE', detail: 'bars 17–24 · Am7 D7 Gmaj7 C/E', tag: 'a request', reason: 'bar 20 had 30/32 units' },
-      { ok: true, name: 'EDIT STYLE', detail: '+ jazz · − dark', tag: 'a request', reason: null },
+      { ok: true, name: 'SET TEMPO', detail: '87 → 88 BPM · whole song', tag: 'follows', reason: null, note: null, diff: null },
+      { ok: false, name: 'REHARMONIZE', detail: 'bars 17–24 · Am7 D7 Gmaj7 C/E', tag: 'a request', reason: 'bar 20 had 30/32 units', note: null, diff: null },
+      { ok: true, name: 'EDIT STYLE', detail: '+ jazz · − dark', tag: 'a request', reason: null, note: null, diff: null },
     ]);
   });
 
   it('WRITE PHRASE: instrument, bars and count, the style tag code added, and a refusal with its free bars (F-026)', () => {
     const p = plan([PHRASE], { style: 'dark pop, 90 bpm, female vocal, tenor saxophone' });
     expect(opRows(p, 'dark pop, 90 bpm, female vocal', 87)).toEqual([
-      { ok: true, name: 'WRITE PHRASE', detail: 'tenor saxophone · bars 57–60 · 4 bars · style + tenor saxophone', tag: 'a request', reason: null },
+      { ok: true, name: 'WRITE PHRASE', detail: 'tenor saxophone · bars 57–60 · 4 bars · style + tenor saxophone', tag: 'a request', reason: null, note: null, diff: null },
     ]);
     // the style already named it: nothing is added, so nothing is claimed
     expect(opRows(plan([PHRASE], { style: 'jazz, tenor saxophone' }), 'jazz, tenor saxophone', 87)[0].detail).toBe('tenor saxophone · bars 57–60 · 4 bars');
