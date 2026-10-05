@@ -1,7 +1,10 @@
 import path from 'node:path';
 import { defineConfig, devices } from '@playwright/test';
-import { PORTS } from './ports';
+import { PORTS, SCORE_PORTS } from './ports';
 import { DATA_ROOT } from './data-dir';
+
+const SCORE_SPEC = /score\.spec\.ts$/;
+const SCORE_MODEL = 'qwen3:14b';
 
 // Workers re-evaluate this file; the env guard makes every one of them reuse the main
 // process's directory instead of minting their own.
@@ -29,7 +32,15 @@ export default defineConfig({
     trace: 'retain-on-failure',
     acceptDownloads: true,
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } }],
+  projects: [
+    { name: 'chromium', testIgnore: SCORE_SPEC, use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
+    // SCORE (F-028) runs against its own server + Vite, the only ones with LLM_API_URL set.
+    {
+      name: 'score',
+      testMatch: SCORE_SPEC,
+      use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 }, baseURL: `http://127.0.0.1:${SCORE_PORTS.client}` },
+    },
+  ],
   // Strict ports and no reuse: a process orphaned by a hard-killed earlier run fails this one
   // with "port in use" instead of quietly serving its stale database.
   webServer: [
@@ -64,6 +75,42 @@ export default defineConfig({
       cwd: '../client',
       url: `http://127.0.0.1:${PORTS.client}`,
       env: { MULAKAI_API_URL: `http://127.0.0.1:${PORTS.server}` },
+      reuseExistingServer: false,
+    },
+    // The SCORE stack: fake Ollama + fake yue-server, then a second server with its own DATA_DIR.
+    {
+      command: 'npx tsx fake-score/server.ts',
+      url: `http://127.0.0.1:${SCORE_PORTS.yue}/health`,
+      env: { LLM_MODEL: SCORE_MODEL },
+      reuseExistingServer: false,
+      stdout: 'pipe',
+    },
+    {
+      command: 'npx tsx src/index.ts',
+      cwd: '../server',
+      url: `http://127.0.0.1:${SCORE_PORTS.server}/api/generate/health`,
+      env: {
+        PORT: String(SCORE_PORTS.server),
+        HOST: '127.0.0.1',
+        DATA_DIR: path.join(dataDir, 'score'),
+        ACESTEP_API_URL: `http://127.0.0.1:${PORTS.fake}`,
+        POLL_INTERVAL_MS: '200',
+        YUE_API_URL: `http://127.0.0.1:${SCORE_PORTS.yue}`,
+        YUE_API_KEY: '',
+        LLM_API_URL: `http://127.0.0.1:${SCORE_PORTS.ollama}`,
+        LLM_MODEL: SCORE_MODEL,
+        HEARTMULA_API_URL: '',
+        DEMUCS_API_URL: '',
+        LYRICS_API_URL: '',
+      },
+      reuseExistingServer: false,
+      stdout: 'pipe',
+    },
+    {
+      command: `npx vite --host 127.0.0.1 --port ${SCORE_PORTS.client} --strictPort`,
+      cwd: '../client',
+      url: `http://127.0.0.1:${SCORE_PORTS.client}`,
+      env: { MULAKAI_API_URL: `http://127.0.0.1:${SCORE_PORTS.server}` },
       reuseExistingServer: false,
     },
   ],
