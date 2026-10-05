@@ -1,0 +1,1525 @@
+[
+ {
+  "file": "rr-t1.json",
+  "n": 2,
+  "song": "5c8e6586",
+  "req": "also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.24,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 2,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REHARMONIZE 36-44",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REHARMONIZE 36-44",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3685,
+    "ms": 3797,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 36-44 (9ch)",
+     "REWRITE b5"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t2.json",
+  "n": 10,
+  "song": "5c8e6586",
+  "req": "also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.241,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REHARMONIZE 36-44",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REHARMONIZE 36-44",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3689,
+    "ms": 3804,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 36-44 (9ch)",
+     "REWRITE b5"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t3.json",
+  "n": 2,
+  "song": "5c8e6586",
+  "req": "keep the jazz chords and also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.236,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 3,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REHARMONIZE 36-44",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REHARMONIZE 36-44",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3689,
+    "ms": 3823,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 36-44 (9ch)",
+     "REWRITE b5"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t3.json",
+  "n": 4,
+  "song": "5c8e6586",
+  "req": "forget the transpose",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.971,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "REPEAT S3 chorus",
+   "REHARMONIZE 36-44",
+   "REWRITE_LYRICS b5 [Chorus]#2"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME"
+  ],
+  "removed": [
+   "TRANSPOSE -2"
+  ],
+  "keptPlan": [
+   "REPEAT S3 chorus",
+   "REHARMONIZE 36-44",
+   "REWRITE_LYRICS b5 [Chorus]#2"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 9,
+    "pt": 3674,
+    "ms": 3553,
+    "drop": [
+     1
+    ],
+    "ops": [],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 36-44 (9ch)",
+     "REWRITE b5"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t3.json",
+  "n": 6,
+  "song": "5c8e6586",
+  "req": "not so many chords",
+  "status": "done",
+  "attempts": 3,
+  "wallS": 16.917,
+  "calls": 3,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "REHARMONIZE 36-44"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 36-44"
+  ],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "REHARMONIZE 36-44"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 237,
+    "pt": 3680,
+    "ms": 7670,
+    "drop": [
+     3
+    ],
+    "ops": [
+     "REHARMONIZE 36-44 (9ch)"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 36-44 (9ch)",
+     "REWRITE b5"
+    ],
+    "feedback": null
+   },
+   {
+    "ct": 237,
+    "pt": 4090,
+    "ms": 4411,
+    "drop": [
+     3
+    ],
+    "ops": [
+     "REHARMONIZE 36-44 (9ch)"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 36-44 (9ch)",
+     "REWRITE b5"
+    ],
+    "feedback": "Your op list was rejected: | Your reply made this plan: op 1 = pending op 1, op 2 = pending op 2, op 3 = pending op 4, op 4 = your op 1 (new); dropped: pending op 3. | - REHARMONIZE 36-44 keeps the old root in 7 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37, 40-41, 42-43 keep every root; a 7th or a slash bass on the same root does not count)"
+   },
+   {
+    "ct": 237,
+    "pt": 4486,
+    "ms": 4398,
+    "drop": [
+     3
+    ],
+    "ops": [
+     "REHARMONIZE 36-44 (9ch)"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 36-44 (9ch)",
+     "REWRITE b5"
+    ],
+    "feedback": "Your op list was rejected: | Your reply made this plan: op 1 = pending op 1, op 2 = pending op 2, op 3 = pending op 4, op 4 = your op 1 (new); dropped: pending op 3. | - REHARMONIZE 36-44 keeps the old root in 2 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37 keep every root; a 7th or a slash bass on the same root does not count)"
+   }
+  ]
+ },
+ {
+  "file": "rr-t3.json",
+  "n": 8,
+  "song": "5c8e6586",
+  "req": "one chord every two bars",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 7.945,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 0,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "REHARMONIZE 36-44"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 36-44"
+  ],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b5 [Chorus]#2",
+   "REHARMONIZE 36-44"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 235,
+    "pt": 3679,
+    "ms": 7552,
+    "drop": [
+     3
+    ],
+    "ops": [
+     "REHARMONIZE 36-44 (9ch)"
+    ],
+    "echo": true,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 36-44 (9ch)",
+     "REWRITE b5"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t4.json",
+  "n": 2,
+  "song": "29f8457d",
+  "req": "also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.977,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "keptPlan": [
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 21,
+    "pt": 3508,
+    "ms": 3759,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t4.json",
+  "n": 4,
+  "song": "29f8457d",
+  "req": "keep the jazz chords and also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.968,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "keptPlan": [
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 21,
+    "pt": 3513,
+    "ms": 3690,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t4.json",
+  "n": 6,
+  "song": "29f8457d",
+  "req": "not so many chords",
+  "status": "done",
+  "attempts": 2,
+  "wallS": 10.587,
+  "calls": 2,
+  "unloads": 1,
+  "psEmptyMs": 2,
+  "planOps": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "keptPlan": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 9,
+    "pt": 3503,
+    "ms": 3480,
+    "drop": [
+     1
+    ],
+    "ops": [],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "feedback": null
+   },
+   {
+    "ct": 397,
+    "pt": 3571,
+    "ms": 6901,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "echo": true,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "feedback": "Your op list was rejected: | - the revision drops every op: keep a pending op or return one | Return a corrected {\"drop\":[...],\"ops\":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes."
+   }
+  ]
+ },
+ {
+  "file": "rr-t4.json",
+  "n": 8,
+  "song": "29f8457d",
+  "req": "one chord every two bars",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 10.841,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "keptPlan": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 392,
+    "pt": 3499,
+    "ms": 10444,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "echo": true,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t4.json",
+  "n": 10,
+  "song": "29f8457d",
+  "req": "also slow it down to 80 BPM",
+  "status": "failed",
+  "attempts": 2,
+  "wallS": 4.773,
+  "calls": 3,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REHARMONIZE 11-12 (2 chords)",
+   "REHARMONIZE 13-14 (2 chords)",
+   "REHARMONIZE 15-16 (2 chords)",
+   "REHARMONIZE 17-18 (2 chords)"
+  ],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REHARMONIZE 11-12 (2 chords)",
+   "REHARMONIZE 13-14 (2 chords)",
+   "REHARMONIZE 15-16 (2 chords)",
+   "REHARMONIZE 17-18 (2 chords)"
+  ],
+  "reasons": [
+   "the revised plan has 7 ops; at most 6: drop pending ops or return fewer"
+  ],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3491,
+    "ms": 3717,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 11-12 (2ch)",
+     "REHARMONIZE 13-14 (2ch)",
+     "REHARMONIZE 15-16 (2ch)",
+     "REHARMONIZE 17-18 (2ch)"
+    ],
+    "feedback": null
+   },
+   {
+    "ct": 20,
+    "pt": 3576,
+    "ms": 405,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 11-12 (2ch)",
+     "REHARMONIZE 13-14 (2ch)",
+     "REHARMONIZE 15-16 (2ch)",
+     "REHARMONIZE 17-18 (2ch)"
+    ],
+    "feedback": "Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {\"drop\":[...],\"ops\":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes."
+   },
+   {
+    "ct": 20,
+    "pt": 3661,
+    "ms": 396,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 11-12 (2ch)",
+     "REHARMONIZE 13-14 (2ch)",
+     "REHARMONIZE 15-16 (2ch)",
+     "REHARMONIZE 17-18 (2ch)"
+    ],
+    "feedback": "Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {\"drop\":[...],\"ops\":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes."
+   }
+  ]
+ },
+ {
+  "file": "rr-t4.json",
+  "n": 12,
+  "song": "29f8457d",
+  "req": "forget the transpose",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.712,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "REPEAT S3 chorus",
+   "REHARMONIZE 11-12 (2 chords)",
+   "REHARMONIZE 13-14 (2 chords)",
+   "REHARMONIZE 15-16 (2 chords)",
+   "REHARMONIZE 17-18 (2 chords)"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME",
+   "SAME",
+   "SAME"
+  ],
+  "removed": [
+   "TRANSPOSE -2"
+  ],
+  "keptPlan": [
+   "REPEAT S3 chorus",
+   "REHARMONIZE 11-12 (2 chords)",
+   "REHARMONIZE 13-14 (2 chords)",
+   "REHARMONIZE 15-16 (2 chords)",
+   "REHARMONIZE 17-18 (2 chords)"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 9,
+    "pt": 3485,
+    "ms": 3466,
+    "drop": [
+     1
+    ],
+    "ops": [],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REHARMONIZE 11-12 (2ch)",
+     "REHARMONIZE 13-14 (2ch)",
+     "REHARMONIZE 15-16 (2ch)",
+     "REHARMONIZE 17-18 (2ch)"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 2,
+  "song": "78f305d6",
+  "req": "also slow it down to 60 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.504,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S5 chorus",
+   "SET_TEMPO 60"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S5 chorus",
+   "SET_TEMPO 60"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 4639,
+    "ms": 4115,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 60"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S5"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 4,
+  "song": "78f305d6",
+  "req": "keep the transpose and the repeat and also slow it down to 60 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.508,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S5 chorus",
+   "SET_TEMPO 60"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S5 chorus",
+   "SET_TEMPO 60"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 4646,
+    "ms": 4049,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 60"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S5"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 6,
+  "song": "78f305d6",
+  "req": "forget the repeat",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.254,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2"
+  ],
+  "marks": [
+   "SAME"
+  ],
+  "removed": [
+   "REPEAT S5 chorus"
+  ],
+  "keptPlan": [
+   "TRANSPOSE -2"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 9,
+    "pt": 4633,
+    "ms": 3846,
+    "drop": [
+     2
+    ],
+    "ops": [],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S5"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 8,
+  "song": "a69541f2",
+  "req": "also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.237,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b4 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b4 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3696,
+    "ms": 3782,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REWRITE b4"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 10,
+  "song": "a69541f2",
+  "req": "keep the jazz chords and also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.237,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 2,
+  "planOps": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b4 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "SAME",
+   "SAME",
+   "SAME",
+   "NEW"
+  ],
+  "removed": [],
+  "keptPlan": [
+   "TRANSPOSE -2",
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b4 [Chorus]#2",
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3697,
+    "ms": 3750,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REWRITE b4"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 12,
+  "song": "a69541f2",
+  "req": "forget the transpose",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.98,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b4 [Chorus]#2"
+  ],
+  "marks": [
+   "SAME",
+   "SAME"
+  ],
+  "removed": [
+   "TRANSPOSE -2"
+  ],
+  "keptPlan": [
+   "REPEAT S3 chorus",
+   "REWRITE_LYRICS b4 [Chorus]#2"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 9,
+    "pt": 3699,
+    "ms": 3550,
+    "drop": [
+     1
+    ],
+    "ops": [],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "TRANSPOSE -2",
+     "REPEAT S3",
+     "REWRITE b4"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 14,
+  "song": "ecf8eb5a",
+  "req": "also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 4.24,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 23-30 (8 chords)"
+  ],
+  "keptPlan": [
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 21,
+    "pt": 3287,
+    "ms": 3744,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 23-30 (8ch)"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 16,
+  "song": "ecf8eb5a",
+  "req": "keep the jazz chords and also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.973,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 2,
+  "planOps": [
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 23-30 (8 chords)"
+  ],
+  "keptPlan": [
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 21,
+    "pt": 3292,
+    "ms": 3680,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 23-30 (8ch)"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t5.json",
+  "n": 18,
+  "song": "ecf8eb5a",
+  "req": "not so many chords",
+  "status": "done",
+  "attempts": 3,
+  "wallS": 11.907,
+  "calls": 3,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "REHARMONIZE 23-30 (8 chords)"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 23-30 (8 chords)"
+  ],
+  "keptPlan": [
+   "REHARMONIZE 23-30 (8 chords)"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 9,
+    "pt": 3282,
+    "ms": 3514,
+    "drop": [
+     1
+    ],
+    "ops": [],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 23-30 (8ch)"
+    ],
+    "feedback": null
+   },
+   {
+    "ct": 217,
+    "pt": 3350,
+    "ms": 4021,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "REHARMONIZE 23-30 (8ch)"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 23-30 (8ch)"
+    ],
+    "feedback": "Your op list was rejected: | - the revision drops every op: keep a pending op or return one | Return a corrected {\"drop\":[...],\"ops\":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes."
+   },
+   {
+    "ct": 217,
+    "pt": 3720,
+    "ms": 4070,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "REHARMONIZE 23-30 (8ch)"
+    ],
+    "echo": true,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 23-30 (8ch)"
+    ],
+    "feedback": "Your op list was rejected: | Your reply made this plan: op 1 = your op 1 (new); dropped: pending op 1. | - REHARMONIZE 23-30 keeps the old root in 8 of 8 bars; change the root in at least one chord per 2 bars (bars 23-24, 25-26, 27-28, 29-30 keep every root; a 7th or a slash bass on the same root does not count)"
+   }
+  ]
+ },
+ {
+  "file": "rr-t6.json",
+  "n": 2,
+  "song": "29f8457d",
+  "req": "slow it down to 80 BPM too",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.973,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "keptPlan": [
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 21,
+    "pt": 3503,
+    "ms": 3753,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t6.json",
+  "n": 4,
+  "song": "29f8457d",
+  "req": "also slow it down to 80 BPM",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.979,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "SET_TEMPO 80"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "REHARMONIZE 47-62 (16 chords)"
+  ],
+  "keptPlan": [
+   "SET_TEMPO 80"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 21,
+    "pt": 3508,
+    "ms": 3783,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-62 (16ch)"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t6.json",
+  "n": 6,
+  "song": "29f8457d",
+  "req": "also slow it down to 80 BPM",
+  "status": "failed",
+  "attempts": 2,
+  "wallS": 5.034,
+  "calls": 3,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "REHARMONIZE 47-48 (2 chords)",
+   "REHARMONIZE 49-50 (2 chords)",
+   "REHARMONIZE 51-52 (2 chords)",
+   "REHARMONIZE 53-54 (2 chords)",
+   "REHARMONIZE 55-56 (2 chords)",
+   "REHARMONIZE 57-58 (2 chords)"
+  ],
+  "keptPlan": [
+   "REHARMONIZE 47-48 (2 chords)",
+   "REHARMONIZE 49-50 (2 chords)",
+   "REHARMONIZE 51-52 (2 chords)",
+   "REHARMONIZE 53-54 (2 chords)",
+   "REHARMONIZE 55-56 (2 chords)",
+   "REHARMONIZE 57-58 (2 chords)"
+  ],
+  "reasons": [
+   "the revised plan has 7 ops; at most 6: drop pending ops or return fewer"
+  ],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3561,
+    "ms": 4055,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-48 (2ch)",
+     "REHARMONIZE 49-50 (2ch)",
+     "REHARMONIZE 51-52 (2ch)",
+     "REHARMONIZE 53-54 (2ch)",
+     "REHARMONIZE 55-56 (2ch)",
+     "REHARMONIZE 57-58 (2ch)"
+    ],
+    "feedback": null
+   },
+   {
+    "ct": 20,
+    "pt": 3646,
+    "ms": 403,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-48 (2ch)",
+     "REHARMONIZE 49-50 (2ch)",
+     "REHARMONIZE 51-52 (2ch)",
+     "REHARMONIZE 53-54 (2ch)",
+     "REHARMONIZE 55-56 (2ch)",
+     "REHARMONIZE 57-58 (2ch)"
+    ],
+    "feedback": "Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {\"drop\":[...],\"ops\":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes."
+   },
+   {
+    "ct": 20,
+    "pt": 3731,
+    "ms": 398,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-48 (2ch)",
+     "REHARMONIZE 49-50 (2ch)",
+     "REHARMONIZE 51-52 (2ch)",
+     "REHARMONIZE 53-54 (2ch)",
+     "REHARMONIZE 55-56 (2ch)",
+     "REHARMONIZE 57-58 (2ch)"
+    ],
+    "feedback": "Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {\"drop\":[...],\"ops\":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes."
+   }
+  ]
+ },
+ {
+  "file": "rr-t6.json",
+  "n": 8,
+  "song": "29f8457d",
+  "req": "also slow it down to 80 BPM",
+  "status": "failed",
+  "attempts": 2,
+  "wallS": 4.768,
+  "calls": 3,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "REHARMONIZE 47-48 (2 chords)",
+   "REHARMONIZE 49-50 (2 chords)",
+   "REHARMONIZE 51-52 (2 chords)",
+   "REHARMONIZE 53-54 (2 chords)",
+   "REHARMONIZE 55-56 (2 chords)",
+   "REHARMONIZE 57-58 (2 chords)"
+  ],
+  "keptPlan": [
+   "REHARMONIZE 47-48 (2 chords)",
+   "REHARMONIZE 49-50 (2 chords)",
+   "REHARMONIZE 51-52 (2 chords)",
+   "REHARMONIZE 53-54 (2 chords)",
+   "REHARMONIZE 55-56 (2 chords)",
+   "REHARMONIZE 57-58 (2 chords)"
+  ],
+  "reasons": [
+   "the revised plan has 7 ops; at most 6: drop pending ops or return fewer"
+  ],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3561,
+    "ms": 3705,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-48 (2ch)",
+     "REHARMONIZE 49-50 (2ch)",
+     "REHARMONIZE 51-52 (2ch)",
+     "REHARMONIZE 53-54 (2ch)",
+     "REHARMONIZE 55-56 (2ch)",
+     "REHARMONIZE 57-58 (2ch)"
+    ],
+    "feedback": null
+   },
+   {
+    "ct": 20,
+    "pt": 3646,
+    "ms": 384,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-48 (2ch)",
+     "REHARMONIZE 49-50 (2ch)",
+     "REHARMONIZE 51-52 (2ch)",
+     "REHARMONIZE 53-54 (2ch)",
+     "REHARMONIZE 55-56 (2ch)",
+     "REHARMONIZE 57-58 (2ch)"
+    ],
+    "feedback": "Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {\"drop\":[...],\"ops\":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes."
+   },
+   {
+    "ct": 20,
+    "pt": 3731,
+    "ms": 380,
+    "drop": [],
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "REHARMONIZE 47-48 (2ch)",
+     "REHARMONIZE 49-50 (2ch)",
+     "REHARMONIZE 51-52 (2ch)",
+     "REHARMONIZE 53-54 (2ch)",
+     "REHARMONIZE 55-56 (2ch)",
+     "REHARMONIZE 57-58 (2ch)"
+    ],
+    "feedback": "Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {\"drop\":[...],\"ops\":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes."
+   }
+  ]
+ },
+ {
+  "file": "rr-t6.json",
+  "n": 10,
+  "song": "ecf8eb5a",
+  "req": "also move it down a tone",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.712,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "SET_TEMPO 100"
+  ],
+  "keptPlan": [
+   "TRANSPOSE -2"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3089,
+    "ms": 3526,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "TRANSPOSE -2"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "SET_TEMPO 100"
+    ],
+    "feedback": null
+   }
+  ]
+ },
+ {
+  "file": "rr-t6.json",
+  "n": 12,
+  "song": "ecf8eb5a",
+  "req": "also move it down a tone",
+  "status": "done",
+  "attempts": 1,
+  "wallS": 3.955,
+  "calls": 1,
+  "unloads": 1,
+  "psEmptyMs": 1,
+  "planOps": [
+   "TRANSPOSE -2"
+  ],
+  "marks": [
+   "NEW"
+  ],
+  "removed": [
+   "SET_TEMPO 100"
+  ],
+  "keptPlan": [
+   "TRANSPOSE -2"
+  ],
+  "reasons": [],
+  "att": [
+   {
+    "ct": 20,
+    "pt": 3089,
+    "ms": 3613,
+    "drop": [
+     1
+    ],
+    "ops": [
+     "TRANSPOSE -2"
+    ],
+    "echo": false,
+    "valid": true,
+    "pendingOps": [
+     "SET_TEMPO 100"
+    ],
+    "feedback": null
+   }
+  ]
+ }
+]

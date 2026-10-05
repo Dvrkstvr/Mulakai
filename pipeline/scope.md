@@ -99,6 +99,23 @@ comments, the planner never writes tags; REPEAT un-ties the seam, the finding fr
 line) goes with the request as the referent, since "which chorus" was the only intent failure in SP-2. REVISE: a follow-up request
 that sees the pending plan. The duration guard learns to name the section to cut. Features: F-029 .. F-033.
 
+Work packages (2026-10-05, autopilot, D-062), each one PR from `origin/main`:
+1. W11 F-029 yue-server TRANSPOSE: `score_transpose.py` (every pitch +n, every K: line incl. inline, chord roots, the 30-name key
+   table, refusal outside it), op on `/v1/scores/apply` (-11..11), selftest 9 library scores x 6 intervals, contract fixture.
+   Branch `feat/score-w11-transpose-yue`. Batch 1.
+2. W12 F-030 + F-031 yue-server: `score_sections.py` REPEAT / CUT (literal copy, seam un-tied, f3e3bfdc), `score_lyrics.py` (blocks,
+   tags rewritten from the edited score's `% section` comments, R-018; the rule for a section with no matching block; REWRITE_LYRICS by
+   block number + tag occurrence, same line count, no tags); apply takes and returns `lyrics`; seconds per section for the cut hint;
+   contract fixtures. Branch `feat/score-w12-sections-yue`. Batch 1 (shares the op dispatcher and README with W11: second to merge rebases).
+3. D-M2 mockup (stage 5 for M2, Q-029): referent on the chip (F-032), stale selection, REVISE and "changed since the last plan"
+   (F-033), lyric-diff row and block naming (F-031), the cut hint (F-030 #2). `pipeline/design/score-m2.html`. Batch 1.
+4. W13 server half (after W11/W12 contracts): op schema + planner rules for TRANSPOSE, REPEAT, CUT, REWRITE_LYRICS; render sends the
+   edited lyrics; duration guard names the section to cut. Branch `feat/score-w13-section-ops`. Batch 2.
+5. W14 client half (after W13's types + the mockup): change-list rows, consequence clauses (key "follows", lyric diff, whole-song
+   re-render), cut hint. Branch `feat/score-w14-section-dock`. Batch 2/3.
+6. W15 F-032 + F-033 referent and REVISE, server + client (after W13/W14). Branch `feat/score-w15-referent-revise`. Batch 3.
+7. CP3 live: a repeated chorus renders (F-030 #4), transpose + revise on library copies; then the verifier for F-029..F-033.
+
 ## M3 — More songs
 
 "New song from this score" for songs D-006 makes ineligible (the other half of D-006), and chord-free, instrumental and cover scores (the

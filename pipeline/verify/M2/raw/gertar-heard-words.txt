@@ -1,0 +1,27 @@
+## gertar v2 rewrite timings True
+de 23
+    28.6-  30.0 Nebel
+    30.0-  33.1 Kein Rhythmus mit dem Glück
+    34.8-  39.9 Andreas, ich falle, doch ich stehe irgendwie
+    41.0-  45.9 Inmitten der Ordnung gibt es manchmal Krieg in mir
+    45.9-  51.6 Die Welt schreit laut, doch ich flüster still und satt
+    51.6-  57.2 Ein Held muss stark sein, um sich nach Halt zu finden
+    70.5-  75.3 Lachen klingt so kühl an der Sorsewand
+    75.3-  81.1 Doch ich fühl das Zittern, das mich leise überwiegt
+    81.1-  86.7 Gesichter voller Hoffnung, doch ich greif nur die Hand
+    86.7-  92.5 Denn tief in mir brennt Licht, das niemand je erkennt
+    94.3-  99.1 Andreas, ich gehe, doch ich bleibe irgendwie
+    99.1- 104.8 Ich verlasse diesen Ort, doch nicht ohne dich
+   105.4- 110.7 Jeder Schritt ist schwer, doch ich muss es versuchen
+   111.7- 116.5 Ich träume von einem Leben, das uns beide
+   118.0- 123.4 Manchmal spür ich, wie die Nacht mich niederrekonnoziert
+   123.4- 129.2 Doch im Schatten meiner Angst wächst noch ein stilles Heer
+   130.1- 134.7 Manchmal ist Versteckung lieber als das Licht zu sehen
+   134.7- 147.9 Doch ich lerne langsam wie die Grenzen überstehen Verloren, doch im Schweigen nehm' ich einen neuen Lauf
+   147.9- 153.1 Ein Held braucht Zeit für sich und das nehm' ich gern in Kauf
+   153.7- 158.9 Die Welt dreht laut, doch ich bleibe wie im Traum
+   158.9- 164.5 Ein Held muss stark sein, um sich nach Halt zu finden
+   186.8- 193.0 Ein Lied schreit, schreit, doch ich bin in einem Lauf
+   193.0- 198.3 Ein Held muss stark sein, um sich nach Halt zu finden
+## gertar v1 base timings False
+## gertar v3 timings False

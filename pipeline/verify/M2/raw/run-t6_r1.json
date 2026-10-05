@@ -1,0 +1,298 @@
+{
+ "tag": "t6_r1",
+ "songId": "78f305d6-4f72-42c3-929e-a490c91a5ef2",
+ "request": "also slow it down to 60 BPM",
+ "flags": [
+  "revise"
+ ],
+ "started": "2026-10-05T18:33:40.846Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1743,
+  "util": 1
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 147,
+   "seconds": 252,
+   "bpm": 70,
+   "key": "Am",
+   "meter": "2/4",
+   "tokens": 2880
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "A chill, reggae-infused track built on a steady, laid-back drum machine groove and a deep, melodic bassline. Clean electric guitar plays classic off-beat reggae skanks, while subtle organ pads provide harmonic texture. The male lead vocal, delivered in a relaxed and melodic French Creole, is treated with spacious reverb and delay, with layered harmonies reinforcing the chorus. The song features a brief, melodic saxophone solo over the main groove before concluding with an instrumental section that highlights the core rhythm and fades out., 136 bpm, G major, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 17
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 18,
+    "to_bar": 33
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 34,
+    "to_bar": 49
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 50,
+    "to_bar": 75
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 76,
+    "to_bar": 89
+   },
+   {
+    "index": 6,
+    "label": "interlude",
+    "occurrence": 1,
+    "from_bar": 90,
+    "to_bar": 97
+   },
+   {
+    "index": 7,
+    "label": "bridge",
+    "occurrence": 1,
+    "from_bar": 98,
+    "to_bar": 105
+   },
+   {
+    "index": 8,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 106,
+    "to_bar": 121
+   },
+   {
+    "index": 9,
+    "label": "interlude",
+    "occurrence": 2,
+    "from_bar": 122,
+    "to_bar": 137
+   },
+   {
+    "index": 10,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 138,
+    "to_bar": 147
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Zoli, sèl, tèt"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Zoli, sèl, tèt"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Sa zoli kè ou la menm, zoli vè ou la menm"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 10,
+    "first_line": "Sa fè lontan, men li vè ou la"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Sa zoli kè ou la menm, zoli vè ou la menm"
+   },
+   {
+    "index": 6,
+    "tag": "[Instrumental Break - Guitar Solo]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 7,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "Sa zoli pa konprann, men li la epi ou byen lontan"
+   },
+   {
+    "index": 8,
+    "tag": "[Chorus]",
+    "occurrence": 3,
+    "lines": 4,
+    "first_line": "Sa zoli kè ou la menm, zoli vè ou la menm"
+   },
+   {
+    "index": 9,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 1,
+    "first_line": "[Instrumental fade out]"
+   }
+  ]
+ },
+ "priorPlan": {
+  "id": "132ac661-cdae-421f-86b5-71a62bb218d7",
+  "songId": "78f305d6-4f72-42c3-929e-a490c91a5ef2",
+  "baseVersionId": "84a51811-dc96-4d41-8d0d-7065d07b744b",
+  "request": "down a tone and repeat the second chorus",
+  "ops": [
+   {
+    "op": "TRANSPOSE",
+    "semitones": -2
+   },
+   {
+    "op": "REPEAT",
+    "section": 5,
+    "label": "chorus"
+   }
+  ],
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "TRANSPOSE",
+    "ok": true,
+    "reason": null
+   },
+   {
+    "index": 2,
+    "op": "REPEAT",
+    "ok": true,
+    "reason": null,
+    "note": "lyric block 5 [Chorus] is repeated with it"
+   }
+  ],
+  "style": "A chill, reggae-infused track built on a steady, laid-back drum machine groove and a deep, melodic bassline. Clean electric guitar plays classic off-beat reggae skanks, while subtle organ pads provide harmonic texture. The male lead vocal, delivered in a relaxed and melodic French Creole, is treated with spacious reverb and delay, with layered harmonies reinforcing the chorus. The song features a brief, melodic saxophone solo over the main groove before concluding with an instrumental section that highlights the core rhythm and fades out., 136 bpm, G minor, 4/4 time",
+  "checks": {
+   "bars": 147,
+   "seconds": 276,
+   "tokens": 3228,
+   "chordsPresent": true,
+   "changed": {
+    "abc": true,
+    "style": true,
+    "lyrics": true
+   }
+  },
+  "attempts": 1,
+  "refusals": [],
+  "createdAt": 1791225219205,
+  "referent": null,
+  "revision": 1,
+  "since": null
+ },
+ "t0": 1791225220934,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "775d5ea3-2c6a-41dd-8dd2-9da668b11200",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "also slow it down to 60 BPM",
+  "revise": "132ac661-cdae-421f-86b5-71a62bb218d7"
+ },
+ "t1": 1791225224910,
+ "planWallS": 3.976,
+ "planGet": {
+  "run": {
+   "jobId": "775d5ea3-2c6a-41dd-8dd2-9da668b11200",
+   "request": "also slow it down to 60 BPM",
+   "status": "done",
+   "reasons": [],
+   "planId": "15d0af44-4faf-48d8-9c2b-435869fc7c93",
+   "revise": "132ac661-cdae-421f-86b5-71a62bb218d7",
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "15d0af44-4faf-48d8-9c2b-435869fc7c93",
+   "songId": "78f305d6-4f72-42c3-929e-a490c91a5ef2",
+   "baseVersionId": "84a51811-dc96-4d41-8d0d-7065d07b744b",
+   "request": "also slow it down to 60 BPM",
+   "ops": [
+    {
+     "op": "SET_TEMPO",
+     "bpm": 60
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "A chill, reggae-infused track built on a steady, laid-back drum machine groove and a deep, melodic bassline. Clean electric guitar plays classic off-beat reggae skanks, while subtle organ pads provide harmonic texture. The male lead vocal, delivered in a relaxed and melodic French Creole, is treated with spacious reverb and delay, with layered harmonies reinforcing the chorus. The song features a brief, melodic saxophone solo over the main groove before concluding with an instrumental section that highlights the core rhythm and fades out., 60 bpm, G major, 4/4 time",
+   "checks": {
+    "bars": 147,
+    "seconds": 294,
+    "tokens": 2880,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true,
+     "lyrics": false
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791225224685,
+   "referent": null,
+   "revision": 2,
+   "since": {
+    "planId": "132ac661-cdae-421f-86b5-71a62bb218d7",
+    "marks": [
+     {
+      "mark": "NEW",
+      "was": null
+     }
+    ],
+    "removed": [
+     {
+      "op": "TRANSPOSE",
+      "semitones": -2
+     },
+     {
+      "op": "REPEAT",
+      "section": 5,
+      "label": "chorus"
+     }
+    ]
+   }
+  }
+ }
+}

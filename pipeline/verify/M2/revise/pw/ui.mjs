@@ -1,0 +1,33 @@
+import { launch, openScore, dock, txt, waitPlanDone } from './lib.mjs';
+const { browser, page } = await launch(1366, 900);
+await openScore(page, 'Untitled', 4);
+console.log('on open:', (await txt(dock(page))).slice(0, 200));
+const req = page.getByPlaceholder(/Describe the change/);
+const plan = page.getByRole('button', { name: /^PLAN$/ });
+const revise = page.getByRole('button', { name: /^REVISE$/ });
+const apply = page.getByRole('button', { name: /APPLY & RENDER/ });
+let base;
+for (let k = 1; k <= 4; k++) {
+  await req.fill('transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus');
+  await plan.click(); await waitPlanDone(page, 240000);
+  base = await txt(dock(page));
+  if (/PLAN · 4 CHANGES/.test(base)) break; console.log('plan try', k, 'did not give 4 changes:', base.slice(0, 300));
+}
+console.log('PLAN 1:', base.slice(0, 1500));
+await page.screenshot({ path: '../shots/ui-plan1.png', fullPage: true });
+await req.fill('also slow it down to 80 BPM');
+console.log('REVISE enabled after editing:', await revise.isEnabled());
+await revise.click(); await page.waitForTimeout(400);
+console.log('while revising:', (await txt(dock(page))).slice(-260));
+await waitPlanDone(page);
+const t1 = await txt(dock(page));
+console.log('after REVISE 1:', t1.slice(0, 1800));
+console.log('APPLY enabled:', await apply.isEnabled());
+await page.screenshot({ path: '../shots/ui-revise-additive.png', fullPage: true });
+await req.fill('forget the transpose');
+await revise.click(); await waitPlanDone(page);
+const t2 = await txt(dock(page));
+console.log('after REVISE 2:', t2.slice(0, 1800));
+console.log('APPLY enabled:', await apply.isEnabled());
+await page.screenshot({ path: '../shots/ui-revise-drop.png', fullPage: true });
+await browser.close();

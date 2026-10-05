@@ -1,0 +1,103 @@
+[rr-t1.json #2] 5c8e6586 "also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 2ms 4.24s
+   plan ["TRANSPOSE -2","REPEAT S3 chorus","REHARMONIZE 36-44","REWRITE_LYRICS b5 [Chorus]#2","SET_TEMPO 80"] marks ["SAME","SAME","SAME","SAME","NEW"] removed []
+   att1: 20tok 3797ms drop [] ops ["SET_TEMPO 80"] echo=false
+[rr-t2.json #10] 5c8e6586 "also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 4.241s
+   plan ["TRANSPOSE -2","REPEAT S3 chorus","REHARMONIZE 36-44","REWRITE_LYRICS b5 [Chorus]#2","SET_TEMPO 80"] marks ["SAME","SAME","SAME","SAME","NEW"] removed []
+   att1: 20tok 3804ms drop [] ops ["SET_TEMPO 80"] echo=false
+[rr-t3.json #2] 5c8e6586 "keep the jazz chords and also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 3ms 4.236s
+   plan ["TRANSPOSE -2","REPEAT S3 chorus","REHARMONIZE 36-44","REWRITE_LYRICS b5 [Chorus]#2","SET_TEMPO 80"] marks ["SAME","SAME","SAME","SAME","NEW"] removed []
+   att1: 20tok 3823ms drop [] ops ["SET_TEMPO 80"] echo=false
+[rr-t3.json #4] 5c8e6586 "forget the transpose" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.971s
+   plan ["REPEAT S3 chorus","REHARMONIZE 36-44","REWRITE_LYRICS b5 [Chorus]#2"] marks ["SAME","SAME","SAME"] removed ["TRANSPOSE -2"]
+   att1: 9tok 3553ms drop [1] ops [] echo=false
+[rr-t3.json #6] 5c8e6586 "not so many chords" -> done attempts 3 calls 3 unload 1 psEmpty 1ms 16.917s
+   plan ["TRANSPOSE -2","REPEAT S3 chorus","REWRITE_LYRICS b5 [Chorus]#2","REHARMONIZE 36-44"] marks ["SAME","SAME","SAME","NEW"] removed ["REHARMONIZE 36-44"]
+   att1: 237tok 7670ms drop [3] ops ["REHARMONIZE 36-44 (9ch)"] echo=false
+   att2: 237tok 4411ms drop [3] ops ["REHARMONIZE 36-44 (9ch)"] echo=false
+        feedback: Your op list was rejected: | Your reply made this plan: op 1 = pending op 1, op 2 = pending op 2, op 3 = pending op 4, op 4 = your op 1 (new); dropped: pending op 3. | - REHARMONIZE 36-44 keeps the old root in 7 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37, 40-41, 42-43 keep every root; a 7th or a slash bass on the same root does not count)
+   att3: 237tok 4398ms drop [3] ops ["REHARMONIZE 36-44 (9ch)"] echo=false
+        feedback: Your op list was rejected: | Your reply made this plan: op 1 = pending op 1, op 2 = pending op 2, op 3 = pending op 4, op 4 = your op 1 (new); dropped: pending op 3. | - REHARMONIZE 36-44 keeps the old root in 2 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37 keep every root; a 7th or a slash bass on the same root does not count)
+[rr-t3.json #8] 5c8e6586 "one chord every two bars" -> done attempts 1 calls 1 unload 1 psEmpty 0ms 7.945s
+   plan ["TRANSPOSE -2","REPEAT S3 chorus","REWRITE_LYRICS b5 [Chorus]#2","REHARMONIZE 36-44"] marks ["SAME","SAME","SAME","NEW"] removed ["REHARMONIZE 36-44"]
+   att1: 235tok 7552ms drop [3] ops ["REHARMONIZE 36-44 (9ch)"] echo=true
+[rr-t4.json #2] 29f8457d "also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.977s
+   plan ["SET_TEMPO 80"] marks ["NEW"] removed ["REHARMONIZE 47-62 (16 chords)"]
+   att1: 21tok 3759ms drop [1] ops ["SET_TEMPO 80"] echo=false
+[rr-t4.json #4] 29f8457d "keep the jazz chords and also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.968s
+   plan ["SET_TEMPO 80"] marks ["NEW"] removed ["REHARMONIZE 47-62 (16 chords)"]
+   att1: 21tok 3690ms drop [1] ops ["SET_TEMPO 80"] echo=false
+[rr-t4.json #6] 29f8457d "not so many chords" -> done attempts 2 calls 2 unload 1 psEmpty 2ms 10.587s
+   plan ["REHARMONIZE 47-62 (16 chords)"] marks ["NEW"] removed ["REHARMONIZE 47-62 (16 chords)"]
+   att1: 9tok 3480ms drop [1] ops [] echo=false
+   att2: 397tok 6901ms drop [1] ops ["REHARMONIZE 47-62 (16ch)"] echo=true
+        feedback: Your op list was rejected: | - the revision drops every op: keep a pending op or return one | Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes.
+[rr-t4.json #8] 29f8457d "one chord every two bars" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 10.841s
+   plan ["REHARMONIZE 47-62 (16 chords)"] marks ["NEW"] removed ["REHARMONIZE 47-62 (16 chords)"]
+   att1: 392tok 10444ms drop [1] ops ["REHARMONIZE 47-62 (16ch)"] echo=true
+[rr-t4.json #10] 29f8457d "also slow it down to 80 BPM" -> failed attempts 2 calls 3 unload 1 psEmpty 1ms 4.773s
+   plan ["TRANSPOSE -2","REPEAT S3 chorus","REHARMONIZE 11-12 (2 chords)","REHARMONIZE 13-14 (2 chords)","REHARMONIZE 15-16 (2 chords)","REHARMONIZE 17-18 (2 chords)"] marks undefined removed undefined FAILED ["the revised plan has 7 ops; at most 6: drop pending ops or return fewer"] kept ["TRANSPOSE -2","REPEAT S3 chorus","REHARMONIZE 11-12 (2 chords)","REHARMONIZE 13-14 (2 chords)","REHARMONIZE 15-16 (2 chords)","REHARMONIZE 17-18 (2 chords)"]
+   att1: 20tok 3717ms drop [] ops ["SET_TEMPO 80"] echo=false
+   att2: 20tok 405ms drop [] ops ["SET_TEMPO 80"] echo=false
+        feedback: Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes.
+   att3: 20tok 396ms drop [] ops ["SET_TEMPO 80"] echo=false
+        feedback: Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes.
+[rr-t4.json #12] 29f8457d "forget the transpose" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.712s
+   plan ["REPEAT S3 chorus","REHARMONIZE 11-12 (2 chords)","REHARMONIZE 13-14 (2 chords)","REHARMONIZE 15-16 (2 chords)","REHARMONIZE 17-18 (2 chords)"] marks ["SAME","SAME","SAME","SAME","SAME"] removed ["TRANSPOSE -2"]
+   att1: 9tok 3466ms drop [1] ops [] echo=false
+[rr-t5.json #2] 78f305d6 "also slow it down to 60 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 4.504s
+   plan ["TRANSPOSE -2","REPEAT S5 chorus","SET_TEMPO 60"] marks ["SAME","SAME","NEW"] removed []
+   att1: 20tok 4115ms drop [] ops ["SET_TEMPO 60"] echo=false
+[rr-t5.json #4] 78f305d6 "keep the transpose and the repeat and also slow it down to 60 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 4.508s
+   plan ["TRANSPOSE -2","REPEAT S5 chorus","SET_TEMPO 60"] marks ["SAME","SAME","NEW"] removed []
+   att1: 20tok 4049ms drop [] ops ["SET_TEMPO 60"] echo=false
+[rr-t5.json #6] 78f305d6 "forget the repeat" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 4.254s
+   plan ["TRANSPOSE -2"] marks ["SAME"] removed ["REPEAT S5 chorus"]
+   att1: 9tok 3846ms drop [2] ops [] echo=false
+[rr-t5.json #8] a69541f2 "also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 4.237s
+   plan ["TRANSPOSE -2","REPEAT S3 chorus","REWRITE_LYRICS b4 [Chorus]#2","SET_TEMPO 80"] marks ["SAME","SAME","SAME","NEW"] removed []
+   att1: 20tok 3782ms drop [] ops ["SET_TEMPO 80"] echo=false
+[rr-t5.json #10] a69541f2 "keep the jazz chords and also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 2ms 4.237s
+   plan ["TRANSPOSE -2","REPEAT S3 chorus","REWRITE_LYRICS b4 [Chorus]#2","SET_TEMPO 80"] marks ["SAME","SAME","SAME","NEW"] removed []
+   att1: 20tok 3750ms drop [] ops ["SET_TEMPO 80"] echo=false
+[rr-t5.json #12] a69541f2 "forget the transpose" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.98s
+   plan ["REPEAT S3 chorus","REWRITE_LYRICS b4 [Chorus]#2"] marks ["SAME","SAME"] removed ["TRANSPOSE -2"]
+   att1: 9tok 3550ms drop [1] ops [] echo=false
+[rr-t5.json #14] ecf8eb5a "also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 4.24s
+   plan ["SET_TEMPO 80"] marks ["NEW"] removed ["REHARMONIZE 23-30 (8 chords)"]
+   att1: 21tok 3744ms drop [1] ops ["SET_TEMPO 80"] echo=false
+[rr-t5.json #16] ecf8eb5a "keep the jazz chords and also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 2ms 3.973s
+   plan ["SET_TEMPO 80"] marks ["NEW"] removed ["REHARMONIZE 23-30 (8 chords)"]
+   att1: 21tok 3680ms drop [1] ops ["SET_TEMPO 80"] echo=false
+[rr-t5.json #18] ecf8eb5a "not so many chords" -> done attempts 3 calls 3 unload 1 psEmpty 1ms 11.907s
+   plan ["REHARMONIZE 23-30 (8 chords)"] marks ["NEW"] removed ["REHARMONIZE 23-30 (8 chords)"]
+   att1: 9tok 3514ms drop [1] ops [] echo=false
+   att2: 217tok 4021ms drop [1] ops ["REHARMONIZE 23-30 (8ch)"] echo=false
+        feedback: Your op list was rejected: | - the revision drops every op: keep a pending op or return one | Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes.
+   att3: 217tok 4070ms drop [1] ops ["REHARMONIZE 23-30 (8ch)"] echo=true
+        feedback: Your op list was rejected: | Your reply made this plan: op 1 = your op 1 (new); dropped: pending op 1. | - REHARMONIZE 23-30 keeps the old root in 8 of 8 bars; change the root in at least one chord per 2 bars (bars 23-24, 25-26, 27-28, 29-30 keep every root; a 7th or a slash bass on the same root does not count)
+[rr-t6.json #2] 29f8457d "slow it down to 80 BPM too" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.973s
+   plan ["SET_TEMPO 80"] marks ["NEW"] removed ["REHARMONIZE 47-62 (16 chords)"]
+   att1: 21tok 3753ms drop [1] ops ["SET_TEMPO 80"] echo=false
+[rr-t6.json #4] 29f8457d "also slow it down to 80 BPM" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.979s
+   plan ["SET_TEMPO 80"] marks ["NEW"] removed ["REHARMONIZE 47-62 (16 chords)"]
+   att1: 21tok 3783ms drop [1] ops ["SET_TEMPO 80"] echo=false
+[rr-t6.json #6] 29f8457d "also slow it down to 80 BPM" -> failed attempts 2 calls 3 unload 1 psEmpty 1ms 5.034s
+   plan ["REHARMONIZE 47-48 (2 chords)","REHARMONIZE 49-50 (2 chords)","REHARMONIZE 51-52 (2 chords)","REHARMONIZE 53-54 (2 chords)","REHARMONIZE 55-56 (2 chords)","REHARMONIZE 57-58 (2 chords)"] marks undefined removed undefined FAILED ["the revised plan has 7 ops; at most 6: drop pending ops or return fewer"] kept ["REHARMONIZE 47-48 (2 chords)","REHARMONIZE 49-50 (2 chords)","REHARMONIZE 51-52 (2 chords)","REHARMONIZE 53-54 (2 chords)","REHARMONIZE 55-56 (2 chords)","REHARMONIZE 57-58 (2 chords)"]
+   att1: 20tok 4055ms drop [] ops ["SET_TEMPO 80"] echo=false
+   att2: 20tok 403ms drop [] ops ["SET_TEMPO 80"] echo=false
+        feedback: Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes.
+   att3: 20tok 398ms drop [] ops ["SET_TEMPO 80"] echo=false
+        feedback: Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes.
+[rr-t6.json #8] 29f8457d "also slow it down to 80 BPM" -> failed attempts 2 calls 3 unload 1 psEmpty 1ms 4.768s
+   plan ["REHARMONIZE 47-48 (2 chords)","REHARMONIZE 49-50 (2 chords)","REHARMONIZE 51-52 (2 chords)","REHARMONIZE 53-54 (2 chords)","REHARMONIZE 55-56 (2 chords)","REHARMONIZE 57-58 (2 chords)"] marks undefined removed undefined FAILED ["the revised plan has 7 ops; at most 6: drop pending ops or return fewer"] kept ["REHARMONIZE 47-48 (2 chords)","REHARMONIZE 49-50 (2 chords)","REHARMONIZE 51-52 (2 chords)","REHARMONIZE 53-54 (2 chords)","REHARMONIZE 55-56 (2 chords)","REHARMONIZE 57-58 (2 chords)"]
+   att1: 20tok 3705ms drop [] ops ["SET_TEMPO 80"] echo=false
+   att2: 20tok 384ms drop [] ops ["SET_TEMPO 80"] echo=false
+        feedback: Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes.
+   att3: 20tok 380ms drop [] ops ["SET_TEMPO 80"] echo=false
+        feedback: Your op list was rejected: | - the revised plan has 7 ops; at most 6: drop pending ops or return fewer | Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN's op numbers: only what changes.
+[rr-t6.json #10] ecf8eb5a "also move it down a tone" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.712s
+   plan ["TRANSPOSE -2"] marks ["NEW"] removed ["SET_TEMPO 100"]
+   att1: 20tok 3526ms drop [1] ops ["TRANSPOSE -2"] echo=false
+[rr-t6.json #12] ecf8eb5a "also move it down a tone" -> done attempts 1 calls 1 unload 1 psEmpty 1ms 3.955s
+   plan ["TRANSPOSE -2"] marks ["NEW"] removed ["SET_TEMPO 100"]
+   att1: 20tok 3613ms drop [1] ops ["TRANSPOSE -2"] echo=false

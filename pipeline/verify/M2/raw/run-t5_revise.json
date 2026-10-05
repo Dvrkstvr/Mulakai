@@ -1,0 +1,572 @@
+{
+ "tag": "t5_revise",
+ "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+ "request": "not so many chords",
+ "flags": [
+  "revise"
+ ],
+ "started": "2026-10-05T18:31:41.006Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1734,
+  "util": 0
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 65,
+   "seconds": 179.3,
+   "bpm": 87,
+   "key": "Dm",
+   "meter": "4/4",
+   "tokens": 1472
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 10
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 11,
+    "to_bar": 46
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 47,
+    "to_bar": 62
+   },
+   {
+    "index": 4,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 63,
+    "to_bar": 65
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 1,
+    "first_line": "[Rhodes piano melody]"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Midnight city streets are wet"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "In the shadows we exist"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Concrete jungle breathing slow"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Out of focus, out of sight"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "The city never sleeps"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "In the shadows"
+   }
+  ]
+ },
+ "priorPlan": {
+  "id": "44defec6-89be-4e24-8018-c9edc24b94fc",
+  "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+  "baseVersionId": "2c944049-75eb-4448-ac49-7f50f93be80d",
+  "request": "jazz chords in the chorus",
+  "ops": [
+   {
+    "op": "REHARMONIZE",
+    "from_bar": 47,
+    "to_bar": 62,
+    "chords": [
+     {
+      "bar": 47,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 48,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 49,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "maj7",
+      "bass": "D"
+     },
+     {
+      "bar": 50,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 51,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 52,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 53,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "maj7",
+      "bass": "D"
+     },
+     {
+      "bar": 54,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 55,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 56,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 57,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "maj7",
+      "bass": "D"
+     },
+     {
+      "bar": 58,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 59,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 60,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 61,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "maj7",
+      "bass": "D"
+     },
+     {
+      "bar": 62,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     }
+    ]
+   }
+  ],
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "REHARMONIZE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "checks": {
+   "bars": 65,
+   "seconds": 179.3,
+   "tokens": 1484,
+   "chordsPresent": true,
+   "changed": {
+    "abc": true,
+    "style": false,
+    "lyrics": false
+   }
+  },
+  "attempts": 2,
+  "refusals": [
+   [
+    "REHARMONIZE 47-62 keeps the old root in 16 of 16 bars; change the root in at least one chord per 2 bars (bars 47-48, 49-50, 51-52, 53-54, 55-56, 57-58, 59-60, 61-62 keep every root; a 7th or a slash bass on the same root does not count)"
+   ]
+  ],
+  "createdAt": 1791225099272,
+  "referent": null,
+  "revision": 1,
+  "since": null
+ },
+ "t0": 1791225101082,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "6e7421f1-18a6-4aee-ba1e-4842d88c0822",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "not so many chords",
+  "revise": "44defec6-89be-4e24-8018-c9edc24b94fc"
+ },
+ "t1": 1791225111123,
+ "planWallS": 10.041,
+ "planGet": {
+  "run": {
+   "jobId": "6e7421f1-18a6-4aee-ba1e-4842d88c0822",
+   "request": "not so many chords",
+   "status": "done",
+   "reasons": [],
+   "planId": "a3f3eacb-8a88-4f7b-8494-f30e4fa6e028",
+   "revise": "44defec6-89be-4e24-8018-c9edc24b94fc",
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "a3f3eacb-8a88-4f7b-8494-f30e4fa6e028",
+   "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "baseVersionId": "2c944049-75eb-4448-ac49-7f50f93be80d",
+   "request": "not so many chords",
+   "ops": [
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 47,
+     "to_bar": 62,
+     "chords": [
+      {
+       "bar": 47,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 48,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 49,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 50,
+       "beat": 1,
+       "root": "F",
+       "quality": "7",
+       "bass": "A"
+      },
+      {
+       "bar": 51,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 52,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 53,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 54,
+       "beat": 1,
+       "root": "F",
+       "quality": "7",
+       "bass": "A"
+      },
+      {
+       "bar": 55,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 56,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 57,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 58,
+       "beat": 1,
+       "root": "F",
+       "quality": "7",
+       "bass": "A"
+      },
+      {
+       "bar": 59,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 60,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 61,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "maj7",
+       "bass": "D"
+      },
+      {
+       "bar": 62,
+       "beat": 1,
+       "root": "F",
+       "quality": "7",
+       "bass": "A"
+      }
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+   "checks": {
+    "bars": 65,
+    "seconds": 179.3,
+    "tokens": 1484,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false,
+     "lyrics": false
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791225110880,
+   "referent": null,
+   "revision": 2,
+   "since": {
+    "planId": "44defec6-89be-4e24-8018-c9edc24b94fc",
+    "marks": [
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REHARMONIZE",
+       "from_bar": 47,
+       "to_bar": 62,
+       "chords": [
+        {
+         "bar": 47,
+         "beat": 1,
+         "root": "D",
+         "quality": "m7",
+         "bass": "F"
+        },
+        {
+         "bar": 48,
+         "beat": 1,
+         "root": "G",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 49,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "maj7",
+         "bass": "D"
+        },
+        {
+         "bar": 50,
+         "beat": 1,
+         "root": "F",
+         "quality": "7",
+         "bass": "A"
+        },
+        {
+         "bar": 51,
+         "beat": 1,
+         "root": "D",
+         "quality": "m7",
+         "bass": "F"
+        },
+        {
+         "bar": 52,
+         "beat": 1,
+         "root": "G",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 53,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "maj7",
+         "bass": "D"
+        },
+        {
+         "bar": 54,
+         "beat": 1,
+         "root": "F",
+         "quality": "7",
+         "bass": "A"
+        },
+        {
+         "bar": 55,
+         "beat": 1,
+         "root": "D",
+         "quality": "m7",
+         "bass": "F"
+        },
+        {
+         "bar": 56,
+         "beat": 1,
+         "root": "G",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 57,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "maj7",
+         "bass": "D"
+        },
+        {
+         "bar": 58,
+         "beat": 1,
+         "root": "F",
+         "quality": "7",
+         "bass": "A"
+        },
+        {
+         "bar": 59,
+         "beat": 1,
+         "root": "D",
+         "quality": "m7",
+         "bass": "F"
+        },
+        {
+         "bar": 60,
+         "beat": 1,
+         "root": "G",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 61,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "maj7",
+         "bass": "D"
+        },
+        {
+         "bar": 62,
+         "beat": 1,
+         "root": "F",
+         "quality": "7",
+         "bass": "A"
+        }
+       ]
+      }
+     }
+    ],
+    "removed": []
+   }
+  }
+ }
+}

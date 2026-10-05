@@ -1,0 +1,172 @@
+{
+ "tag": "t10_noblock_b",
+ "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+ "request": "repeat the chorus",
+ "flags": [],
+ "started": "2026-10-05T19:02:39.565Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1980,
+  "util": 0
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 65,
+   "seconds": 179.3,
+   "bpm": 87,
+   "key": "Dm",
+   "meter": "4/4",
+   "tokens": 1472
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 10
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 11,
+    "to_bar": 46
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 47,
+    "to_bar": 62
+   },
+   {
+    "index": 4,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 63,
+    "to_bar": 65
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 1,
+    "first_line": "[Rhodes piano melody]"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Midnight city streets are wet"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "In the shadows we exist"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Concrete jungle breathing slow"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Out of focus, out of sight"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "The city never sleeps"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "In the shadows"
+   }
+  ]
+ },
+ "t0": 1791226959643,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "3a3a7475-293c-4c26-a3bf-fa15efc436a5",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "repeat the chorus"
+ },
+ "t1": 1791226963350,
+ "planWallS": 3.707,
+ "planGet": {
+  "run": {
+   "jobId": "3a3a7475-293c-4c26-a3bf-fa15efc436a5",
+   "request": "repeat the chorus",
+   "status": "done",
+   "reasons": [],
+   "planId": "e2fa4e42-d8e3-461e-95ce-67b4ae93dddb",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "e2fa4e42-d8e3-461e-95ce-67b4ae93dddb",
+   "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "baseVersionId": "2c944049-75eb-4448-ac49-7f50f93be80d",
+   "request": "repeat the chorus",
+   "ops": [
+    {
+     "op": "REPEAT",
+     "section": 3,
+     "label": "chorus"
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REPEAT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 3 [Chorus] is repeated with it; block 5 [Chorus] matches no chorus in the score and stays as it is"
+    }
+   ],
+   "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+   "checks": {
+    "bars": 65,
+    "seconds": 223.4,
+    "tokens": 1787,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791226963183,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ }
+}

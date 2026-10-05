@@ -1,0 +1,193 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>SCORE M2 - decision mockup</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}
+h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:30px 0 12px}
+p,li{max-width:1100px}.rd,.tg,.ck,.sn,.nt,.k{font-family:ui-monospace,monospace}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.f{width:880px}.f.n{width:580px}
+.f>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.f>h4 b{color:var(--t)}
+.rc>h4:after{content:" · RECOMMENDED";color:var(--t)}
+.d{border:1px solid var(--l);background:var(--p)}
+.hd{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--l);flex-wrap:wrap}
+.lb,.hn{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.hn{font-weight:400;letter-spacing:0}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}
+.p>span{display:inline-block;transform:skewX(10deg)}
+.ch{background:var(--s);color:var(--sk);padding:4px 10px;font-size:10px}.ch.no{background:var(--ru);color:var(--t)}
+.vs{margin-left:auto;display:flex;gap:6px}
+.t{border:1px solid var(--l);color:var(--m);padding:6px 12px;font-size:10px}.t.on{border-color:var(--a);color:var(--a)}
+.k{font-size:9px;color:var(--w);border:1px solid var(--l);padding:1px 4px;margin-left:8px}
+.bd{display:flex;flex-direction:column;gap:10px;padding:14px}
+.in{border:1px solid var(--h);background:var(--c);padding:8px 10px}.in.e{color:#55555C}.in.x{opacity:.6;border-color:var(--l)}
+.rd{font-size:10px;color:var(--w)}
+.ls{border:1px solid var(--l)}
+.ls>div{display:flex;flex-wrap:wrap;gap:12px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--l);min-height:30px}
+.ls>div:last-child{border:0}
+.o{font-size:11px;font-weight:700;letter-spacing:1px;width:112px}
+.sn{font-size:9px;letter-spacing:1px;width:58px;color:var(--w)}.sn.nw,.sn.cg{color:var(--t)}
+.dt{flex:1;color:var(--m)}.tg{font-size:10px;color:var(--w)}.no{color:var(--rt)}
+.nt{flex-basis:100%;font-size:10px;color:var(--w);padding-left:24px}
+.df{display:grid;grid-template-columns:20px 1fr 1fr;gap:2px 12px;flex-basis:100%;padding:4px 0 2px 24px;font:11px/1.45 ui-monospace,monospace;color:var(--w)}
+.df b{font-weight:400;color:var(--t)}.df .h{font-size:9px;letter-spacing:2px}
+.ck{font-size:10px;color:var(--m)}.ck i{font-style:normal;color:var(--rt)}
+.dm{opacity:.4;border:1px dashed var(--h);padding:8px;pointer-events:none}.dm .ls{border:0}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}
+.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}
+.ac,.ao,.q{font-size:11px;padding:11px 22px;border:1px solid}
+.ac{background:var(--a);border-color:var(--a);color:var(--c)}.z{opacity:.5}
+.ao{color:var(--a);border-color:var(--a)}.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}
+.j{margin:0 14px 10px;padding:7px 10px;border:1px solid var(--l);font-size:10px;letter-spacing:1px;color:var(--a);display:flex;justify-content:space-between;align-items:center;background:linear-gradient(110deg,#2A2133,#153543 45%,#44510F)}
+.j em{font-style:normal;letter-spacing:0;color:var(--m)}
+.er,.wn{margin:0 14px 14px;padding:8px 10px;color:var(--rt);font-size:11px;display:flex;gap:10px;align-items:center}
+.er{border:1px solid var(--ru);background:var(--rw)}.wn{border-left:1px solid var(--ru)}
+.er div,.wn div{flex:1;color:var(--rb)}.er b,.wn b{color:var(--rt);letter-spacing:1px}
+.sg{display:flex;gap:3px;padding:8px 14px 0}.sg i{font:normal 9px ui-monospace,monospace;color:var(--m);background:var(--r);padding:5px 0;text-align:center;overflow:hidden;white-space:nowrap;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.sg i.on{background:var(--s);color:var(--sk)}
+.lc{display:flex;gap:3px;padding:4px 14px 6px}.lc i{font:normal 9px ui-monospace,monospace;color:var(--m);background:var(--r);padding:3px 8px}.lc i.on{background:var(--sk);color:var(--s);box-shadow:inset 0 0 0 2px var(--s)}
+.wv{position:relative;height:34px;margin:6px 14px 8px;background:repeating-linear-gradient(90deg,var(--h) 0 2px,transparent 2px 5px)}
+.wv b{position:absolute;top:0;bottom:0;background:rgba(12,37,48,.85);border:solid var(--s);border-width:0 2px}
+.cap{font-size:10px;color:var(--w);margin:14px 0 4px}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:10px 0;max-width:1100px}
+</style></head><body>
+<h1>SCORE · M2 decision mockup</h1>
+<div class="rd">stage 5 · M2 · F-029..F-033 · extends score-verb.html (D-032, not redrawn) · D-027 D-028 D-063 · Q-029 · tokens: DESIGN.md, none added</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li><b>F-032</b> "this one" on the chip (Q-029), clearing it, an unresolvable pick, a stale selection (frames 1-4).</li>
+<li><b>F-033</b> REVISE beside PLAN (3 shapes), "since plan 1" marks, a failed REVISE keeping plan 1 (D-063) vs a failed PLAN dropping it (D-028) (frames 5-9).</li>
+<li><b>F-031 F-030 F-029</b> REWRITE LYRICS naming its block with a diff, REPEAT / CUT with the lyric note and the "cut the outro 0:32 to fit" hint, TRANSPOSE "the key follows" (frames 10-12).</li>
+<li>Not settled: the rule for a section with no lyric block (W12's; only its display is fixed), the M4 bar map.</li>
+<li>Evidence: dock and copy builders <i>seen in code</i>; strip behaviour <i>documented</i> (DESIGN.md); matching strip to score sections by name and occurrence, and heights, <i>inferred</i>.</li>
+</ul>
+
+<h2>STATES · F-032 THE REFERENT</h2>
+<div class="g"><div class="f" id="s1"></div><div class="f" id="s2"></div><div class="f" id="s3"></div><div class="f" id="s4"></div></div>
+<h2>STATES · F-033 REVISE</h2>
+<div class="g" id="o5"></div><div class="g" style="margin-top:22px"><div class="f" id="s7"></div><div class="f" id="s8"></div><div class="f" id="s9"></div><div class="f" id="s10"></div></div>
+<h2>STATES · F-029 F-030 F-031 THE ROWS</h2>
+<div class="g"><div class="f" id="s11"></div><div class="f" id="s12"></div><div class="f" id="s13"></div></div>
+
+<h2>CONSEQUENCE CLAUSES ADDED (inside the existing line)</h2>
+<ul><li>TRANSPOSE, tag <code>follows</code>: "the key follows Gm (down 2 semitones)".</li>
+<li>REPEAT / CUT, <code>follows</code>: "structure follows: CHORUS 3 repeats once, the outro is cut".</li>
+<li>REWRITE LYRICS, <code>a request</code>: "the new words in [Chorus] #2 are a request to YuE2, not a guarantee"; the review line under the diff says the whole song re-renders (frame 10).</li></ul>
+
+<h2>OPTIONS · F-032 CHIP (Q-029)</h2>
+<div class="g" id="o1"></div>
+
+<h2>DECISIONS</h2>
+<div class="dc"><b>M2-1 · chip A, suffix.</b> <code>BASE · WHOLE SCORE · THIS: CHORUS 2 · BARS 29–36</code> in sky, quiet <code>✕ WHOLE SCORE</code> as REPAINT. The clicked strip segment or lyric chip shows sky; no waveform wash. <i>Beat:</i> B, REPAINT's wash (a local-edit look; YuE2 re-renders all, R-014). <i>Cost:</i> a DESIGN.md SCORE clause.</div>
+<div class="dc"><b>M2-2 · a pick under SCORE stays on SCORE</b> (today a pick opens REPAINT). A dragged range is ignored (hint); a strip section the score lacks turns the chip rust and holds PLAN. <i>Beat:</i> switching verb on click; guessing bars from a drag.</div>
+<div class="dc"><b>M2-3 · pinned at PLAN.</b> Name, occurrence and bars are fixed when PLAN is pressed; the header says <code>FOR CHORUS 2 (BARS 29–36)</code>; a later pick only adds a note. <i>Beat:</i> following the live selection.</div>
+<div class="dc"><b>M2-4 · stale is a rejected row, never a remap.</b> If a plan moves or removes the pinned section, the op returns rejected with old and new bars; <code>USE BARS 37–44</code> re-pins, then REVISE. <i>Beat:</i> silent remap; blocking REVISE (the strip shows the base, so a moved section cannot be re-picked). <i>Cost:</i> one server field (shifted bars); ops address the base numbering.</div>
+<div class="dc"><b>M2-5 · REVISE is a second outline beside PLAN</b> (option A). PLAN drops plan 1 if it fails (D-028); REVISE keeps it (D-063). REVISE is off while the text equals the plan's request; Enter revises when enabled, else plans. <i>Beat:</i> B (D-028's path vanishes); C (+44 px, two Enters). <i>Cost:</i> three controls, one acid fill.</div>
+<div class="dc"><b>M2-6 · the revised list wears its diff</b> as text-tier marks (<code>NEW</code> <code>CHANGED</code> bright, <code>SAME</code> low), removed ops in one low line; no new hue. <i>Beat:</i> colour (hues are taken).</div>
+<div class="dc"><b>M2-7 · the two failures read differently.</b> Failed REVISE: plan 1 stays, appliable, a rust line says so. Failed PLAN: plan 1 is gone and the line says REVISE would have kept it. The dimmed plan reads <code>PLAN 1 · KEPT IF THE REVISE FAILS</code>, not DT-5's "REPLACED". <i>Beat:</i> one failure line for both.</div>
+<div class="dc"><b>M2-8 · REWRITE LYRICS names its block</b> before apply: <code>[Chorus] #2 of 3 · bars 29–36 · starts "Hold the light"</code> (the first line is a fingerprint; SP-2: 64% right block). Diff = aligned OLD / NEW columns, always open; tag <code>a request</code>. <i>Beat:</i> interleaved −/+ (double height); a collapsed ▸.</div>
+<div class="dc"><b>M2-9 · REPEAT / CUT / TRANSPOSE rows</b> give bars, the change in bars and seconds, "seam un-tied", the lyric effect; no matching block = a low note, a refusal = rust with where it landed. <b>Hint:</b> a rust line naming the section that frees enough (two if none does; the tempo that fits) plus a quiet <code>FILL "cut the outro"</code> that only types. <i>Beat:</i> text alone; a button that plans (a hidden GPU job).</div>
+
+<h2>OPEN QUESTIONS (ids provisional, renumber if taken; not yet in open-questions.md, the conductor owns it)</h2>
+<ul>
+<li><b>Q-042</b> assumable: REVISE shape A (M2-5). Reversal: client only. Worth a user pick.</li>
+<li><b>Q-043</b> assumable: stale = rejected row + <code>USE BARS n–m</code>, base numbering; alt silent remap. Reversal: one response field. Worth a user pick.</li>
+<li><b>Q-044</b> assumable: chip A, picks stay on SCORE, dragged range ignored. Closes Q-029's M2 half; the M4 bar-map half stays deferred.</li>
+<li><b>Q-045</b> assumable: a lyric line means its block, the line named to the planner; the diff shows only that line changed.</li>
+<li><b>Q-046</b> assumable: REWRITE LYRICS tagged <code>a request</code> (adherence unmeasured); new words saved with the new version, v2 keeps its own (as REPAINT).</li>
+<li><b>Q-047</b> assumable: the no-matching-block rule is W12's (default: copy or remove only matching blocks, name the rest); only its display is fixed here.</li>
+<li><b>Q-048</b> assumable: duration hint with a typing-only FILL button; alt text only.</li>
+<li><b>Q-049</b> assumable: the diff stays open; if frame 10 fails the 1366×768 check, fold after 2 changed pairs.</li>
+</ul>
+<p><b>None is blocking</b> (a wrong guess is under a day of client rework; Q-043 adds one server field). Sign-off of this mockup is still the gate item.</p>
+
+<h2>CHECK ON A REAL DEVICE (desktop only)</h2>
+<ul>
+<li>Dock height, frame 10 (5 ops + 4-line diff), at 1366×768 and 1920×1080: inferred ≈ 500 px (356 for 3 ops + 2 rows ≈ 60 + diff ≈ 90). Transport still on screen? If not, Q-049.</li>
+<li>Longest chip (a lyric line) at 1280 wide: does the head wrap and strand the tabs?</li>
+<li>Click a strip section and a lyric chip under SCORE: the verb stays; sky on what was clicked, never on the waveform.</li>
+<li>Enter with a plan ready: REVISE if the text changed, else PLAN. NEW / CHANGED / SAME readable at 10px low text.</li>
+<li>The consequence line with five clauses: still read before APPLY &amp; RENDER?</li>
+</ul>
+<script>
+const $=i=>document.getElementById(i);
+const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
+const tabs=()=>[["REPAINT","R"],["ADD LAYER","L"],["SPLIT","S"],["EXPORT","E"],["SCORE","C"]].map(([a,k])=>P("t"+(a=="SCORE"?" on":""),`${a}<i class="k">${k}</i>`)).join("");
+const PL=z=>P("ao"+(z?" z":""),"PLAN"),RV=z=>P("ao"+(z?" z":""),"REVISE"),AP=z=>P("ac"+(z?" z":""),"APPLY &amp; RENDER");
+const chip=(s,bad)=>`<span class="p ch${bad?" no":""}"><span>BASE · WHOLE SCORE${s?` · ${s}`:""}</span></span>`+(s?`<span class="hn">✕ WHOLE SCORE</span>`:"");
+const dock=o=>`<div class="d"><div class="hd"><span class="lb">TARGET</span>${chip(o.s,o.bad)}<span class="hn">${o.h||"a score edit re-renders the whole song"}</span><span class="vs">${tabs()}</span></div>${o.b?`<div class="bd">${o.b}</div>`:""}${o.e||""}${o.cs!=null?`<div class="cm"><span class="cs">${o.cs}</span>${o.btn||""}</div>`:""}${o.j||""}</div>`;
+const F=(id,t,h,html)=>$(id).innerHTML=`<h4><b>${t}</b>${h?" · "+h:""}</h4>${html}`;
+const rq=(v,c)=>`<div class="in ${c||""}">${v}</div>`;
+const READ=`<div class="rd">65 bars · 4/4 · Q:87 · key Am · est 183 s · 1,520 tokens</div>`;
+const row=(m,n,d,tg,sn,x)=>{const b=m=="x";return`<div><span${b?' class="no"':""}>${b?"✕":"✓"}</span><span class="o${b?" no":""}">${n}</span>${sn?`<span class="sn ${sn[0]=="N"?"nw":sn[0]=="C"?"cg":""}">${sn}</span>`:""}<span class="dt">${d}</span><span class="tg">${tg||""}</span>${x||""}</div>`};
+const ls=(...r)=>`<div class="ls">${r.join("")}</div>`;
+const lab=t=>`<div class="lb">${t}</div>`;
+const nt=t=>`<div class="nt">${t}</div>`;
+const SG=[["INTRO",4],["VERSE 1",8],["CHORUS 1",8],["VERSE 2",8],["CHORUS 2",8],["BRIDGE",8],["CHORUS 3",8],["OUTRO",13]];
+const strip=on=>`<div class="sg">${SG.map(([n,b])=>`<i class="${n==on?"on":""}" style="flex:${b}">${n}</i>`).join("")}</div>`;
+const lane=on=>`<div class="lc">${["Hold the light…","Copper skies are burning low","Carry me back…","Hold the light…"].map((t,i)=>`<i class="${i==on?"on":""}">${t}</i>`).join("")}</div>`;
+const mini=(cap,pre,o)=>`<div class="cap">${cap}</div><div class="d" style="border-bottom:0">${pre}</div>${dock(o)}`;
+const CK=c=>`<div class="ck">${c}</div>`;
+const RQ="a request to YuE2, not a guarantee",NS="Nothing was saved · APPLY &amp; RENDER stays off until a plan passes every check";
+const CONS="Saves base v3 · re-renders the whole song on YuE2, about 3 min · every bar will sound different · ";
+const ASK="asks the planner · uses the GPU for ~10 s · changes nothing yet";
+const OK="chords valid · attempt 1 of 3",LIM="65 bars · est 183 s of 360 s · 1,520 of 4,096 tokens · ";
+const HARM="harmony in bars 13–20",END=" · v2 stays in VERSIONS";
+const R3=ls(row("v","SET TEMPO","87 → 88 BPM · whole song","follows"),row("v","REHARMONIZE","bars 13–20 (CHORUS 1) · Am7 D7 Gmaj7 Cmaj7 Fmaj7 Dm7 G7 Cmaj7","a request"),row("v","EDIT STYLE","+ jazz","a request"));
+const SEL="THIS: CHORUS 2 · BARS 29–36";
+
+F("s1","1 THE CHIP · five referents","sky echo on the strip and lyric chips, none on the waveform",
+ mini("a · nothing picked: whole score",strip(),{h:"click a section or a lyric line: it becomes “this” in your request"})+
+ mini("b · a section",strip("CHORUS 2"),{s:SEL,h:"“this” means CHORUS 2 · ✕ clears it"})+
+ mini("c · a lyric line",lane(1),{s:"THIS: “COPPER SKIES ARE BURNING LOW”",h:"line 2 of [Chorus] #2 · bars 30–31"})+
+ mini("d · a dragged range, no section: ignored here (REPAINT keeps it)",strip(),{h:"SCORE takes a section or a lyric line · the range 1:32–2:07 is ignored"})+
+ mini("e · edge: a strip section the score lacks: chip rust, PLAN held",strip(),{s:"THIS: SPOKEN INTRO · NOT IN THE SCORE",bad:1,h:"pick another section or ✕ clear it"}));
+F("s2","2 ASKING · empty, with a referent","the placeholder and the asking line name it",
+ dock({s:SEL,h:"“this” means CHORUS 2 · ✕ clears it",b:rq("Describe the change to CHORUS 2, e.g. make this jazzier","e")+READ,cs:ASK+" · “this” means CHORUS 2, bars 29–36",btn:PL(1)+AP(1)}));
+F("s3","3 PLAN READY FOR A REFERENT","pinned when PLAN was pressed (M2-3); the chip has since moved on",
+ dock({s:"THIS: VERSE 2 · BARS 21–28",h:"“this” means VERSE 2",b:rq("make this jazzier")+lab("PLAN · 2 CHANGES · AGAINST BASE v2 · FOR CHORUS 2 (BARS 29–36)")+ls(row("v","REHARMONIZE","bars 29–36 (CHORUS 2) · Am7 D7 Gmaj7 Cmaj7 Fmaj7 Dm7 G7 Cmaj7","a request"),row("v","EDIT STYLE","+ jazz","a request"))+CK(LIM+OK)+nt("planned for CHORUS 2, the selection is now VERSE 2 · APPLY uses CHORUS 2"),
+ cs:CONS+`<b>harmony in bars 29–36 and the style change are ${RQ}</b>`+END,btn:PL()+RV(1)+AP()}));
+F("s4","4 STALE SELECTION · edge","REVISE after plan 1 repeated CHORUS 1",
+ dock({s:"THIS: CHORUS 2 · STALE",bad:1,h:"the plan changed the section count",b:rq("make this jazzier")+lab("PLAN 2 · REVISED · 2 CHANGES · AGAINST BASE v2 · FOR CHORUS 2")+ls(row("v","REPEAT","CHORUS 1 ×2 · bars 13–20 · +8 bars","follows","SAME"),row("x","REHARMONIZE","not planned: the selection is stale","","NEW"))+CK("73 bars · est 205 s of 360 s · 1,520 of 4,096 tokens · chords valid"),
+ e:`<div class="wn"><div><b>STALE SELECTION</b> · you picked CHORUS 2, bars 29–36. Plan 1 repeats CHORUS 1 before it, so it is now bars 37–44. Nothing was applied to either.</div>${P("ao","USE BARS 37–44")}${P("q","WHOLE SCORE")}</div>`,cs:NS,btn:PL()+RV(1)+AP(1)}));
+
+const mf=(v,btn,x)=>`<div class="d"><div class="bd">${rq(v)}${x||""}</div><div class="cm"><span class="cs"></span>${btn}</div></div>`;
+const FU="not so many chords, and drop the style change";
+$("o5").innerHTML=
+`<div class="f n rc"><h4><b>5A · TWO BUTTONS</b> · PLAN (from the song), REVISE (sees plan 1)</h4>${mf(FU,PL()+RV()+AP(),`<div class="rd">PLAN starts again from the song · REVISE changes the plan above · Enter revises</div>`)}</div>
+<div class="f n"><h4><b>5B · RELABEL</b> · PLAN reads REVISE while a plan is pending</h4>${mf(FU,RV()+AP(),`<div class="rd">ASKED: jazz chords in the chorus, 88 BPM · <u>START OVER</u></div>`)}</div>
+<div class="f n"><h4><b>5C · SECOND FIELD</b> · under the plan list</h4>${mf("jazz chords in the chorus, 88 BPM",PL()+AP(),`<div class="ls"><div><span class="dt">… plan 1 rows …</span></div></div>${rq("Change this plan, e.g. not so many chords","e")}${RV(1)}`)}</div>`;
+F("s7","6 REVISING","loading: attempts reset per press",
+ dock({b:rq(FU,"x")+`<div class="lb" style="color:var(--m)">PLAN 1 · KEPT IF THE REVISE FAILS</div><div class="dm">${R3}</div>`,cs:"asks the planner with the plan above · uses the GPU for ~10 s · changes nothing yet · plan 1 stays if this fails",btn:PL(1)+RV(1)+AP(1),j:`<div class="j"><span>REVISING… attempt 1 of 3 <em>· plan 1 is kept if it fails</em></span>${P("q","CANCEL")}</div>`}));
+const R3x=ls(row("v","SET TEMPO","87 → 88 BPM · whole song","follows","SAME"),row("v","REHARMONIZE","bars 13–20 · 4 chords, was 8 · Am7 Dm7 G7 Cmaj7","a request","CHANGED"));
+F("s8","7 PLAN 2 · REVISED","normal: changes since plan 1 marked, plan 1 gone",
+ dock({b:rq(FU)+lab("PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v2")+`<div class="rd">SINCE PLAN 1 · 1 CHANGED · 1 SAME · 1 REMOVED</div>`+R3x+nt("REMOVED SINCE PLAN 1 · EDIT STYLE + jazz")+CK("65 bars · est 183 s of 360 s · 1,380 of 4,096 tokens · "+OK),cs:CONS+`<b>${HARM} is ${RQ}</b>`+END,btn:PL()+RV(1)+AP()}));
+F("s9","8 REVISE FAILED","error: D-063, plan 1 stays appliable",
+ dock({b:rq(FU)+lab("PLAN 1 · 3 CHANGES · AGAINST BASE v2")+R3+CK(LIM+OK),e:`<div class="er"><div><b>REVISE FAILED · 3 OF 3 ATTEMPTS</b><br>bar 15 had 30/32 units on the last attempt. Plan 1 is still here: change the request and REVISE, or APPLY &amp; RENDER plan 1.</div></div>`,cs:CONS+`<b>${HARM} and the style change are ${RQ}</b>`+END,btn:PL()+RV()+AP()}));
+F("s10","9 FRESH PLAN FAILED","error: D-028, plan 1 dropped",
+ dock({b:rq("jazz chords in bars 13-20, 88 BPM, no style change")+ls(row("v","SET TEMPO","87 → 88 BPM · whole song","follows"),row("x","REHARMONIZE","bars 13–20 · rejected: bar 15 had 30/32 units on the last attempt"))+CK(LIM+"chords <i>invalid</i>"),e:`<div class="er"><div><b>CHECK FAILED · 3 OF 3 ATTEMPTS</b><br>Plan 1 was dropped when PLAN started again; REVISE would have kept it. Name fewer bars, then PLAN again.</div></div>`,cs:NS,btn:PL()+AP(1)}));
+
+const dfl=(a,b)=>a.map((x,i)=>`<span>${x==b[i]?"":"~"}</span><span>${x}</span>${x==b[i]?`<span>${x}</span>`:`<b>${b[i]}</b>`}`).join("");
+F("s11","10 FIVE OPS + A LYRIC DIFF","normal; the DT-1 stress case; ops use the base numbering",
+ dock({b:rq("down a tone, repeat the last chorus, cut the outro, new words for the second chorus, 88 BPM")+lab("PLAN · 5 CHANGES · AGAINST BASE v2")+ls(
+ row("v","SET TEMPO","87 → 88 BPM · whole song","follows"),
+ row("v","TRANSPOSE","down 2 semitones · Am → Gm · whole song","follows"),
+ row("v","REWRITE LYRICS","[Chorus] #2 of 3 · bars 29–36 · starts “Hold the light” · 4 lines","a request","",`<div class="df"><span></span><span class="h">OLD</span><span class="h">NEW</span>${dfl(["Hold the light, don’t let it go","Copper skies are burning low","Carry me back where the river flows","Hold the light, don’t let it go"],["Hold the light, don’t let it go","Amber skies are fading slow","Carry me home where the rivers run","Hold the light, don’t let it go"])}</div>`+nt("2 of 4 lines change · line count and [Chorus] tag kept · New words change what is sung, so YuE2 re-renders the whole song, not just this chorus. v2 keeps its own words.")),
+ row("v","REPEAT","CHORUS 3 ×2 · bars 45–52 · +8 bars, +0:22 · seam un-tied","follows","",nt("lyrics: [Chorus] #3 is copied")),
+ row("v","CUT","OUTRO · bars 53–65 · −13 bars, −0:36","follows","",nt("lyrics: [Outro] is removed")))+CK("60 bars · est 170 s of 360 s · 1,470 of 4,096 tokens · "+OK),
+ cs:CONS+`tempo follows 88 BPM · the key follows Gm (down 2) · structure follows: CHORUS 3 repeats once, the outro is cut · <b>the new words in [Chorus] #2 are ${RQ}</b>`+END,btn:PL()+RV(1)+AP()}));
+F("s12","11 REPEAT PASSES 360 s · edge","“Long Way Down”, 341 s base: the hint names the section, then the tempo",
+ dock({b:rq("play the last chorus three times")+lab("PLAN · 1 CHANGE · AGAINST BASE v4")+ls(row("v","REPEAT","CHORUS 3 ×3 · bars 45–52 · +16 bars, +0:44 · seam un-tied","follows","",nt("lyrics: [Chorus] #3 is copied twice")))+`<div class="ck">87 bars · est <i>385 s of 360 s</i> · 2,240 of 4,096 tokens · ${OK}</div>`,
+ e:`<div class="er"><div><b>OVER THE 360 s LIMIT BY 25 s</b><br>cut the outro 0:32 to fit · or raise the tempo to at least 95 BPM (now 88). If one section is not enough it names two.</div>${P("q","FILL “cut the outro”")}</div>`,cs:NS,btn:PL()+RV(1)+AP(1)}));
+F("s13","12 NO MATCHING BLOCK · REFUSALS · edge","a note is low text; a refusal is rust; this song is in E",
+ dock({b:rq("repeat the chorus, drop the bridge, up 4, new words for the bridge")+lab("PLAN · 4 CHANGES · AGAINST BASE v2")+ls(
+ row("v","REPEAT","CHORUS 1 ×2 · bars 13–20 · +8 bars","follows","",nt("lyrics: no [Chorus] block matches 1:1 (score 1 chorus, lyrics 2) · #1 is copied, the other stays")),
+ row("v","CUT","BRIDGE · bars 37–44 · −8 bars, −0:22","follows","",nt("lyrics: no block for this section · nothing to remove")),
+ row("x","TRANSPOSE","up 4 semitones · rejected: E up 4 is G♯ major (8 sharps), outside the 30 keys · try up 3 or up 5"),
+ row("x","REWRITE LYRICS","[Bridge] #1 · rejected: no such block, the lyrics have Verse ×2, Chorus ×3, Outro"))+CK(LIM+"chords valid"),e:`<div class="er"><div><b>CHECK FAILED · 2 OF 4 CHANGES REFUSED</b><br>Fix the request, or REVISE: plan 1 stays while you do.</div></div>`,cs:NS,btn:PL()+RV(1)+AP(1)}));
+
+const wv=w=>`<div class="wv">${w?'<b style="left:43%;width:12%"></b>':""}</div>`;
+const oc=w=>`<div class="d">${strip("CHORUS 2")}${wv(w)}${dock({s:SEL,h:"✕ clears it"}).replace('<div class="d">',"<div>")}</div>`;
+$("o1").innerHTML=`<div class="f n rc"><h4><b>A · SUFFIX + STRIP ECHO</b> · no waveform wash (Q-029 default)</h4>${oc(0)}<p class="rd">A wash still means "this audio is repainted". Cost: a DESIGN.md SCORE clause.</p></div>
+<div class="f n"><h4><b>B · SUFFIX + REPAINT WASH</b></h4>${oc(1)}<p class="rd">Reads as a local audio edit; YuE2 re-renders the whole song (R-014).</p></div>`;
+</script></body></html>

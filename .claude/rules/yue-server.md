@@ -19,6 +19,13 @@ paths:
   key's accidental where needed (`score_phrase.spell_bar`). Its limits
   (pitch pattern, beats, 8 bars, 16 notes, 40 chars) are mirrored in the
   server's `phraseSchema.ts`: change both (Q-041).
+- A plan runs bar ops in plan order, then REWRITE_LYRICS, then REPEAT/CUT
+  from the last section to the first, then TRANSPOSE; verdicts stay in
+  plan order (README "/v1/scores/apply").
+- Lyrics follow the score: the k-th section of a kind sings the k-th block
+  of that kind; tags are rewritten from `% section` comments, never by the
+  planner (R-018). Only this service counts sections and lyric blocks;
+  the server and client read them from `/read` facts (D-072).
 - Golden cases and the contract fixtures the server's fake replays live in
   `tests/data/`; regenerate fixtures from pytest, never by hand (D-039).
 - Tests use the fake pipeline: `pip install -r requirements-test.txt`,

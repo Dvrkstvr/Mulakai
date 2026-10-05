@@ -1,0 +1,16 @@
+{
+ "run": "M2/CP3 live + checks, 2026-10-05, RTX 4080 16 GB, Windows 11 + WSL2; verifier",
+ "code": "worktree agent-a15895f05108fb2b4, feat/score-w15-referent-revise 27b457a (unchanged, clean)",
+ "checks": {"client_build": "exit 0", "client_lint": "exit 0 (1 existing warning)", "client_vitest": "104 files / 835 tests", "server_tsc": "exit 0", "server_vitest": "92 files / 795 tests", "yue_pytest": "422 passed", "e2e": "11 passed in 59 s (chromium 5, score 6)"},
+ "setup": {"ports": {"server": 3402, "vite": 5190, "yue": 8024, "yue_proxy": 8034, "ollama": 11435, "ollama_proxy": 11436, "lyrics": 8035}, "data": "E:/ai/tmp/m2v/data (library backup + hard links; live library untouched)", "user_stack": "not running (3001/11434/8004 never listening)"},
+ "features": {
+  "F-029": {"passes": true, "selftest_9x6": "54 passed", "consequence": "the key follows Dm (down 2)", "edge": "12/-12/1.5/x 422 with reason, 0 verdict refusal", "live": {"song": "Carinito ecf8eb5a", "plan_s": 3.7, "render_s": 72, "key_shift_melody_semitones": 10, "key_shift_chord_roots_semitones": 10, "chord_root_corr": 0.999, "tempo_bpm": 95.2, "q": 95, "score_bars": 64, "audio_bars": 65, "offset": 1}},
+  "F-030": {"passes": true, "live_gertar": {"score_bars": 85, "audio_bars": 85, "tempo_bpm": 85.1, "copy_vs_first_f1": 0.93, "chance_mean": 0.23, "chord_root": 1.0}, "live_romantica": {"score_bars": 71, "audio_bars_thinned": 70, "offset": -1, "tempo_bpm": 93.0, "copy_vs_first_f1": 0.99, "chance_mean": 0.22, "chord_root": 0.97}, "lyrics_sent": "adjacent duplicate [Chorus] block, tags rewritten", "cut_hint": "seen in refused attempts; never reached a final failed plan; token-limit failures show no hint", "no_block_rule": "shown in the change list (3 cases)", "caveat": "Gertar copy 0.93 below SP-3 0.95-0.99; Romantica exact bar count rests on half-bar thinning"},
+  "F-031": {"passes": true, "trials": 18, "right_block": 17, "same_line_count": 18, "tags_written": 0, "wrong": "run-b04: second verse -> [Verse 1] #1", "live_render": "Gertar chorus 2, whisper heard all four new lines, bars 77=77, tempo 85.1"},
+  "F-032": {"passes": true, "strip_on_yue2": "only after lyric timings exist (lyrics-server); with LYRICS_API_URL unset: no strip, hint with nothing to click", "pick_chip": "THIS: CHORUS 2 · BARS 36–43", "plan_scoped": "REHARMONIZE 36-43 only", "clear": "whole song", "stale": "STALE SELECTION · bridge #1 was bars 44-52 and is now bars 52-60 · USE BARS 52–60", "line_pick": "works; block-level rewrite", "open_question": "Q-051"},
+  "F-033": {"passes": true, "presses": 44, "unload_ack_ms": 1, "ps_empty_after_ack_ms": [10, 110], "max_attempts": 3, "failed_revise_keeps_plan": "seen in API and UI", "finding": "planner drops pending ops on 4 of 4 one-op revisions; 'not so many chords' returns the same plan (D-055 root rule)", "open_question": "Q-050"}
+ },
+ "planner": {"plan_wall_s": {"min": 3.4, "median": 4.8, "max": 16.7}, "prompt_tokens_largest_song_177_bars": [5508, 5513, 5628, 5715], "context": 16384, "renders_s": {"transpose": 72, "repeat_romantica": 76, "rewrite": 88, "repeat_gertar": 101}},
+ "dock_height_1366x768_5op_4line_diff_px": 563,
+ "owed": "listen: pipeline/verify/M2/listen/index.html (4 A/B pairs)"
+}

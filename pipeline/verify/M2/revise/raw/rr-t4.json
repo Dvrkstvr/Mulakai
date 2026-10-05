@@ -1,0 +1,1159 @@
+{
+ "steps": [
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "jazz chords in the chorus",
+   "retry": 3
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "also slow it down to 80 BPM",
+   "revise": true
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "jazz chords in the chorus",
+   "retry": 3
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "keep the jazz chords and also slow it down to 80 BPM",
+   "revise": true
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "jazz chords in the chorus",
+   "retry": 3
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "not so many chords",
+   "revise": true
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "jazz chords in the chorus",
+   "retry": 3
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "one chord every two bars",
+   "revise": true
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "down a tone, repeat the chorus, rewrite the second verse about leaving, jazz chords in the first verse",
+   "retry": 3
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "also slow it down to 80 BPM",
+   "revise": true
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "down a tone, repeat the chorus, rewrite the second verse about leaving, jazz chords in the first verse",
+   "retry": 3
+  },
+  {
+   "song": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "req": "forget the transpose",
+   "revise": true
+  }
+ ],
+ "out": [
+  {
+   "n": 1,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "jazz chords in the chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791230957069,
+   "t1": 1791230975063,
+   "wallS": 17.994,
+   "idle": {
+    "user": "unreachable",
+    "mib": 920,
+    "util": 3
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 47-62 keeps the old root in 16 of 16 bars; change the root in at least one chord per 2 bars (bars 47-48, 49-50, 51-52, 53-54, 55-56, 57-58, 59-60, 61-62 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": null,
+   "plan": {
+    "id": "fddb040a",
+    "revision": 1,
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "verdictsOk": [
+     true
+    ],
+    "checks": {
+     "bars": 65,
+     "seconds": 179.3,
+     "tokens": 1484,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": false
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": {
+    "id": "fddb040a",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   }
+  },
+  {
+   "n": 2,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "also slow it down to 80 BPM",
+   "revise": true,
+   "postStatus": 202,
+   "t0": 1791230975613,
+   "t1": 1791230979590,
+   "wallS": 3.977,
+   "idle": {
+    "user": "unreachable",
+    "mib": 938,
+    "util": 2
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 1,
+   "refusals": [],
+   "pendingBefore": {
+    "id": "fddb040a",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   },
+   "plan": {
+    "id": "6242abb9",
+    "revision": 2,
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "marks": [
+     "NEW"
+    ],
+    "removed": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "verdictsOk": [
+     true
+    ],
+    "checks": {
+     "bars": 65,
+     "seconds": 195,
+     "tokens": 1472,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": true,
+      "lyrics": false
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "6242abb9",
+    "ops": [
+     "SET_TEMPO 80"
+    ]
+   }
+  },
+  {
+   "n": 3,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "jazz chords in the chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791230980143,
+   "t1": 1791230998119,
+   "wallS": 17.976,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1130,
+    "util": 4
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 47-62 keeps the old root in 16 of 16 bars; change the root in at least one chord per 2 bars (bars 47-48, 49-50, 51-52, 53-54, 55-56, 57-58, 59-60, 61-62 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": {
+    "id": "6242abb9",
+    "ops": [
+     "SET_TEMPO 80"
+    ]
+   },
+   "plan": {
+    "id": "7d2a11e4",
+    "revision": 1,
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "verdictsOk": [
+     true
+    ],
+    "checks": {
+     "bars": 65,
+     "seconds": 179.3,
+     "tokens": 1484,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": false
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "7d2a11e4",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   }
+  },
+  {
+   "n": 4,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "keep the jazz chords and also slow it down to 80 BPM",
+   "revise": true,
+   "postStatus": 202,
+   "t0": 1791230998683,
+   "t1": 1791231002651,
+   "wallS": 3.968,
+   "idle": {
+    "user": "unreachable",
+    "mib": 952,
+    "util": 1
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 1,
+   "refusals": [],
+   "pendingBefore": {
+    "id": "7d2a11e4",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   },
+   "plan": {
+    "id": "4906295a",
+    "revision": 2,
+    "ops": [
+     "SET_TEMPO 80"
+    ],
+    "marks": [
+     "NEW"
+    ],
+    "removed": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "verdictsOk": [
+     true
+    ],
+    "checks": {
+     "bars": 65,
+     "seconds": 195,
+     "tokens": 1472,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": true,
+      "lyrics": false
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "4906295a",
+    "ops": [
+     "SET_TEMPO 80"
+    ]
+   }
+  },
+  {
+   "n": 5,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "jazz chords in the chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791231003201,
+   "t1": 1791231020648,
+   "wallS": 17.447,
+   "idle": {
+    "user": "unreachable",
+    "mib": 917,
+    "util": 9
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 47-62 keeps the old root in 16 of 16 bars; change the root in at least one chord per 2 bars (bars 47-48, 49-50, 51-52, 53-54, 55-56, 57-58, 59-60, 61-62 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": {
+    "id": "4906295a",
+    "ops": [
+     "SET_TEMPO 80"
+    ]
+   },
+   "plan": {
+    "id": "262673b6",
+    "revision": 1,
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "verdictsOk": [
+     true
+    ],
+    "checks": {
+     "bars": 65,
+     "seconds": 179.3,
+     "tokens": 1484,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": false
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": {
+    "id": "262673b6",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   }
+  },
+  {
+   "n": 6,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "not so many chords",
+   "revise": true,
+   "postStatus": 202,
+   "t0": 1791231021198,
+   "t1": 1791231031785,
+   "wallS": 10.587,
+   "idle": {
+    "user": "unreachable",
+    "mib": 918,
+    "util": 1
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "the revision drops every op: keep a pending op or return one"
+    ]
+   ],
+   "pendingBefore": {
+    "id": "262673b6",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   },
+   "plan": {
+    "id": "e64c8d81",
+    "revision": 2,
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "marks": [
+     "NEW"
+    ],
+    "removed": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "verdictsOk": [
+     true
+    ],
+    "checks": {
+     "bars": 65,
+     "seconds": 179.3,
+     "tokens": 1484,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": false
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": {
+    "id": "e64c8d81",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   }
+  },
+  {
+   "n": 7,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "jazz chords in the chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791231032336,
+   "t1": 1791231050051,
+   "wallS": 17.715,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1125,
+    "util": 9
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 47-62 keeps the old root in 16 of 16 bars; change the root in at least one chord per 2 bars (bars 47-48, 49-50, 51-52, 53-54, 55-56, 57-58, 59-60, 61-62 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": {
+    "id": "e64c8d81",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   },
+   "plan": {
+    "id": "512987c9",
+    "revision": 1,
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "verdictsOk": [
+     true
+    ],
+    "checks": {
+     "bars": 65,
+     "seconds": 179.3,
+     "tokens": 1479,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": false
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "512987c9",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   }
+  },
+  {
+   "n": 8,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "one chord every two bars",
+   "revise": true,
+   "postStatus": 202,
+   "t0": 1791231050613,
+   "t1": 1791231061454,
+   "wallS": 10.841,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1077,
+    "util": 3
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 1,
+   "refusals": [],
+   "pendingBefore": {
+    "id": "512987c9",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   },
+   "plan": {
+    "id": "7f515e2b",
+    "revision": 2,
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "marks": [
+     "NEW"
+    ],
+    "removed": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ],
+    "verdictsOk": [
+     true
+    ],
+    "checks": {
+     "bars": 65,
+     "seconds": 179.3,
+     "tokens": 1479,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": false
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "7f515e2b",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   }
+  },
+  {
+   "n": 9,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "down a tone, repeat the chorus, rewrite the second verse about leaving, jazz chords in the first verse",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791231062001,
+   "t1": 1791231078661,
+   "wallS": 16.66,
+   "idle": {
+    "user": "unreachable",
+    "mib": 916,
+    "util": 15
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 11-22 keeps the old root in 12 of 12 bars; change the root in at least one chord per 2 bars (bars 11-12, 13-14, 15-16, 17-18, 19-20, 21-22 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": {
+    "id": "7f515e2b",
+    "ops": [
+     "REHARMONIZE 47-62 (16 chords)"
+    ]
+   },
+   "plan": {
+    "id": "cdadd64a",
+    "revision": 1,
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ],
+    "verdictsOk": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "checks": {
+     "bars": 81,
+     "seconds": 223.4,
+     "tokens": 1776,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": true,
+      "lyrics": true
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "cdadd64a",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ]
+   }
+  },
+  {
+   "n": 10,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "also slow it down to 80 BPM",
+   "revise": true,
+   "postStatus": 202,
+   "t0": 1791231079212,
+   "t1": 1791231083985,
+   "wallS": 4.773,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1122,
+    "util": 4
+   },
+   "run": {
+    "status": "failed",
+    "reasons": [
+     "the revised plan has 7 ops; at most 6: drop pending ops or return fewer"
+    ],
+    "cause": "check"
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 11-22 keeps the old root in 12 of 12 bars; change the root in at least one chord per 2 bars (bars 11-12, 13-14, 15-16, 17-18, 19-20, 21-22 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": {
+    "id": "cdadd64a",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ]
+   },
+   "plan": {
+    "id": "cdadd64a",
+    "revision": 1,
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ],
+    "verdictsOk": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "checks": {
+     "bars": 81,
+     "seconds": 223.4,
+     "tokens": 1776,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": true,
+      "lyrics": true
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "cdadd64a",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ]
+   }
+  },
+  {
+   "n": 11,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "down a tone, repeat the chorus, rewrite the second verse about leaving, jazz chords in the first verse",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791231084534,
+   "t1": 1791231101434,
+   "wallS": 16.9,
+   "idle": {
+    "user": "unreachable",
+    "mib": 914,
+    "util": 3
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 11-22 keeps the old root in 12 of 12 bars; change the root in at least one chord per 2 bars (bars 11-12, 13-14, 15-16, 17-18, 19-20, 21-22 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": {
+    "id": "cdadd64a",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ]
+   },
+   "plan": {
+    "id": "6c0d6b3b",
+    "revision": 1,
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ],
+    "verdictsOk": [
+     true,
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "checks": {
+     "bars": 81,
+     "seconds": 223.4,
+     "tokens": 1776,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": true,
+      "lyrics": true
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": {
+    "id": "6c0d6b3b",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ]
+   }
+  },
+  {
+   "n": 12,
+   "tag": "t4",
+   "song": "29f8457d",
+   "req": "forget the transpose",
+   "revise": true,
+   "postStatus": 202,
+   "t0": 1791231101984,
+   "t1": 1791231105696,
+   "wallS": 3.712,
+   "idle": {
+    "user": "unreachable",
+    "mib": 922,
+    "util": 3
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 1,
+   "refusals": [],
+   "pendingBefore": {
+    "id": "6c0d6b3b",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ]
+   },
+   "plan": {
+    "id": "7f91bd44",
+    "revision": 2,
+    "ops": [
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ],
+    "marks": [
+     "SAME",
+     "SAME",
+     "SAME",
+     "SAME",
+     "SAME"
+    ],
+    "removed": [
+     "TRANSPOSE -2"
+    ],
+    "verdictsOk": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "checks": {
+     "bars": 81,
+     "seconds": 223.4,
+     "tokens": 1801,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": true
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "7f91bd44",
+    "ops": [
+     "REPEAT S3 chorus",
+     "REHARMONIZE 11-12 (2 chords)",
+     "REHARMONIZE 13-14 (2 chords)",
+     "REHARMONIZE 15-16 (2 chords)",
+     "REHARMONIZE 17-18 (2 chords)"
+    ]
+   }
+  }
+ ],
+ "full": {
+  "run": {
+   "jobId": "dff4d96c-c5f3-48ca-a66a-d92047f9b851",
+   "request": "forget the transpose",
+   "status": "done",
+   "reasons": [],
+   "planId": "7f91bd44-6576-482a-8ee2-f4636d4e4acb",
+   "revise": "6c0d6b3b-a9f6-44bb-bf2c-b73ce367a69c",
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "7f91bd44-6576-482a-8ee2-f4636d4e4acb",
+   "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "baseVersionId": "2c944049-75eb-4448-ac49-7f50f93be80d",
+   "request": "forget the transpose",
+   "ops": [
+    {
+     "op": "REPEAT",
+     "section": 3,
+     "label": "chorus"
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 11,
+     "to_bar": 12,
+     "chords": [
+      {
+       "bar": 11,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 12,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      }
+     ]
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 13,
+     "to_bar": 14,
+     "chords": [
+      {
+       "bar": 13,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 14,
+       "beat": 1,
+       "root": "F",
+       "quality": "m7",
+       "bass": "A"
+      }
+     ]
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 15,
+     "to_bar": 16,
+     "chords": [
+      {
+       "bar": 15,
+       "beat": 1,
+       "root": "D",
+       "quality": "m7",
+       "bass": "F"
+      },
+      {
+       "bar": 16,
+       "beat": 1,
+       "root": "G",
+       "quality": "7",
+       "bass": "D"
+      }
+     ]
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 17,
+     "to_bar": 18,
+     "chords": [
+      {
+       "bar": 17,
+       "beat": 1,
+       "root": "Bb",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 18,
+       "beat": 1,
+       "root": "F",
+       "quality": "m7",
+       "bass": "A"
+      }
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REPEAT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 3 [Chorus] is repeated with it; block 5 [Chorus] matches no chorus in the score and stays as it is"
+    },
+    {
+     "index": 2,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 3,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 4,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 5,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+   "checks": {
+    "bars": 81,
+    "seconds": 223.4,
+    "tokens": 1801,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791231105649,
+   "referent": null,
+   "revision": 2,
+   "since": {
+    "planId": "6c0d6b3b-a9f6-44bb-bf2c-b73ce367a69c",
+    "marks": [
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REPEAT",
+       "section": 3,
+       "label": "chorus"
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REHARMONIZE",
+       "from_bar": 11,
+       "to_bar": 12,
+       "chords": [
+        {
+         "bar": 11,
+         "beat": 1,
+         "root": "D",
+         "quality": "m7",
+         "bass": "F"
+        },
+        {
+         "bar": 12,
+         "beat": 1,
+         "root": "G",
+         "quality": "7",
+         "bass": "D"
+        }
+       ]
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REHARMONIZE",
+       "from_bar": 13,
+       "to_bar": 14,
+       "chords": [
+        {
+         "bar": 13,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 14,
+         "beat": 1,
+         "root": "F",
+         "quality": "m7",
+         "bass": "A"
+        }
+       ]
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REHARMONIZE",
+       "from_bar": 15,
+       "to_bar": 16,
+       "chords": [
+        {
+         "bar": 15,
+         "beat": 1,
+         "root": "D",
+         "quality": "m7",
+         "bass": "F"
+        },
+        {
+         "bar": 16,
+         "beat": 1,
+         "root": "G",
+         "quality": "7",
+         "bass": "D"
+        }
+       ]
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REHARMONIZE",
+       "from_bar": 17,
+       "to_bar": 18,
+       "chords": [
+        {
+         "bar": 17,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 18,
+         "beat": 1,
+         "root": "F",
+         "quality": "m7",
+         "bass": "A"
+        }
+       ]
+      }
+     }
+    ],
+    "removed": [
+     {
+      "op": "TRANSPOSE",
+      "semitones": -2
+     }
+    ]
+   }
+  }
+ }
+}

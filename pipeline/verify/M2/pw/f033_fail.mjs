@@ -1,0 +1,14 @@
+import { launch, openScore, dock, txt, waitPlanDone } from './lib.mjs';
+const { browser, page } = await launch(1366, 900);
+await openScore(page, 'Untitled', 4);
+const before = await txt(dock(page));
+console.log('on open:', before.slice(0, 260));
+const req = page.getByPlaceholder(/Describe the change/);
+await req.fill(process.argv[2] ?? 'make it jazzier');
+await page.getByRole('button', { name: /^REVISE$/ }).click();
+await waitPlanDone(page, 240000);
+const t = await txt(dock(page));
+console.log('after REVISE:', t.slice(0, 2600));
+await page.screenshot({ path: '../shots/f033-revise-failed-2.png', fullPage: true });
+console.log('APPLY enabled:', await page.getByRole('button', { name: /APPLY & RENDER/ }).isEnabled());
+await browser.close();

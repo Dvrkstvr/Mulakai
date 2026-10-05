@@ -124,7 +124,7 @@ Q-015's REPAINT / ADD LAYER / extract / remaster clause is rust-body text inside
 ## Q-028 · assumable · stage 5 · assumed → D-031
 EDIT STYLE always states "a request to YuE2, not a guarantee" (the conductor's brief); scope.md line 158 says only when an instrument is named. Reversal cost: one condition.
 
-## Q-029 · deferred · stage 5 · open
+## Q-029 · deferred · stage 5 · M2 half assumed → D-065 (Q-044); M4 half open
 M2 referent (a selected section or lyric line as a sky suffix on the SCORE chip, no waveform wash) and where M4's bar map sits (collapsed `BARS ▸` under the checks line). Judge when M2 / M4 start.
 
 
@@ -171,3 +171,28 @@ CP2 live (pipeline/verify/M1/m1-summary.json): "a phrase in bars 20-23" (where t
 
 ## Q-041 · deferred · stage 8 (M1 code review) · open
 Three nits from pipeline/reviews/M1-code.md are left out of M1 (D-061): #2 the instrument is appended only when the style does not already contain it as a substring, so "organ" is not added to "organic folk" (score_phrase.py:112, and the same rule in client scoreCopy.ts `names`); #3 PITCH, BEATS, 8 bars, 16 notes and 40 chars live in both phraseSchema.ts and score_phrase.py and only the TS side is pinned by a test (drift = a 422 on the whole apply; a contract test could pin both); #4 the golden-path server in e2e/playwright.config.ts does not blank LLM_API_URL like its sibling URLs, so a developer shell with it set leaks into the golden path. Decide with Q-038 in W10: a small fix PR, or reject each with a reason.
+
+## Q-042 · assumable · stage 5 (M2) · assumed → D-065
+REVISE shape (design/score-m2.html frames 5-9). Default A: a second outline button REVISE beside PLAN, shown while a plan is ready. Alternatives B/C drawn in the mockup. Reversal cost: client only.
+
+## Q-043 · assumable · stage 5 (M2) · assumed → D-065
+A stale selection (the section count changed since the pick) becomes a rejected row with a `USE BARS 37–44` button, never a silent remap. Needs one server reply field (the shifted bars). Alternative: drop the referent and plan the whole song. Reversal cost: one field + one row.
+
+## Q-044..Q-049 · assumable · stage 5 (M2) · assumed → D-065
+Q-044 the referent is a sky suffix on the SCORE chip (`THIS: CHORUS 2 · BARS 29–36`, ✕ clears) and picks under SCORE stay on SCORE (closes Q-029's M2 half; its M4 bar-map half stays deferred); Q-045 a picked lyric line means its block; Q-046 REWRITE LYRICS is tagged "a request", new words saved with the new version; Q-047 the no-matching-block rule is W12's, the mockup fixes only its display; Q-048 the duration hint has a typing-only FILL button; Q-049 the lyric diff stays open, with a fold fallback if frame 10 fails the 1366×768 check.
+
+
+## Q-050 · deferred · stage 7 (verify M2/CP3) · D-073 fixed 2+ op plans; open for 1-op additive, fewer chords, 6-op growth (D-078)
+REVISE (F-033) drops the pending ops on additive requests (D-068's own "revisit if"). Live on qwen3:14b, pipeline/verify/M2/raw/run-t5_r4.json, run-t6_r1.json, f033_ui.log: "also slow it down to 80 BPM" and "keep the jazz chords and also slow it down to 80 BPM" came back with only SET_TEMPO (17 completion tokens), the REHARMONIZE / TRANSPOSE + REPEAT + REWRITE LYRICS listed under REMOVED SINCE PLAN 1 (4 of 4 trials that touch one op of several). "not so many chords" and "one chord every two bars" returned the identical plan twice (SAME): the halved chord list is refused by the D-055 root rule and the retry falls back to plan 1. The mechanism works (marks, replace, failed REVISE keeps plan 1); the planner does not copy unchanged ops. Options: (a) ship as is, the REMOVED line shows the loss; (b) the planner returns only what changes and code merges it into the pending plan; (c) a prompt change with the pending ops restated. Reversal cost: (b) is a server change in planRevise.ts plus tests.
+
+## Q-051 · deferred · stage 7 (verify M2/CP3) · half assumed → D-074; score-section strip open (M4)
+F-032's section strip exists on a YuE2 song only after the lyrics read has produced timings (D-072). Live: with LYRICS_API_URL unset the SCORE chip says "click a section or a lyric line: it becomes "this" in your request" and the editor shows an empty LYRICS lane and no strip (pipeline/verify/M2/shots/probe-Gertar.png); with lyrics-server running the Editor auto-reads timings in ~15 s and the strip appears (shots/timing-Gertar.png). The strip is cut from lyric tags (Gertar: 8 segments) not score sections (10), so a section with no lyric block (the third chorus) cannot be picked. Options: hide the hint when there is nothing to pick; build the strip from the score's sections for YuE2 songs. Reversal cost: client only.
+
+## Q-052 · deferred · stage 8 (M2 code review) · open
+Two nits from pipeline/reviews/M2-code.md (D-075): #1 a line pick survives a REWRITE LYRICS render with its old words in the chip and the planner prompt (planReferent.ts:159-163, `text` never re-checked); #3 the section-to-block pairing rule and `kindOf` exist in yue-server, server and client with no cross-test (no drift today). Decide with Q-038/Q-041 in W10.
+
+## Q-053 · deferred · stage 7 (M2 listen) · open
+The user heard REPEAT's second seam (the copy into the next section) as audible on Gertar (D-077; seam 1 smooth). One pair only; p2 unjudged. Options: leave it (YuE2 re-renders the whole song, seams are its call); try un-tying only into the copy (D-066 c alternative) and A/B; a REPEAT note in the review that the seam after the copy may be audible. Revisit with more listens.
+
+## Q-054 · blocking (for the chat feature, not for M2) · stage 1/4 · open
+Chat-first creation and editing (D-079). To settle with the user before scope: what the chat owns vs the scalpel tools; whether the chat replaces Guided Create or sits beside it; conversation memory across renders (per song? per session?); reference-song analysis path (transcribe to score → YuE2 cover) and its limits (licence of the reference, 360 s); what happens to M3/M4 (fold into the chat or keep). Depends on SP-4's result.

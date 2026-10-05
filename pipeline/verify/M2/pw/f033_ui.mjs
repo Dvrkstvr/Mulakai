@@ -1,0 +1,25 @@
+import { launch, openScore, dock, txt, waitPlanDone } from './lib.mjs';
+const { browser, page } = await launch(1366, 900);
+await openScore(page, 'Untitled', 4);
+console.log('on open:', (await txt(dock(page))).slice(0, 200));
+const req = page.getByPlaceholder(/Describe the change/);
+const revise = page.getByRole('button', { name: /^REVISE$/ });
+console.log('REVISE enabled before editing the request:', await revise.isEnabled());
+await req.fill('make it 90 BPM instead of 80');
+console.log('REVISE enabled after editing:', await revise.isEnabled());
+await revise.click();
+await page.waitForTimeout(500);
+console.log('while revising:', (await txt(dock(page))).slice(-300));
+await waitPlanDone(page);
+const t1 = await txt(dock(page));
+console.log('after REVISE 1:', t1.slice(0, 1800));
+await page.screenshot({ path: '../shots/f033-revise-marks.png', fullPage: true });
+// a REVISE that fails: asks for more than the limits allow
+await req.fill("repeat every chorus and the verses twice, don't touch the tempo");
+await revise.click();
+await waitPlanDone(page, 180000);
+const t2 = await txt(dock(page));
+console.log('after failing REVISE:', t2.slice(0, 2500));
+await page.screenshot({ path: '../shots/f033-revise-failed.png', fullPage: true });
+console.log('APPLY & RENDER enabled after failed revise:', await page.getByRole('button', { name: /APPLY & RENDER/ }).isEnabled());
+await browser.close();

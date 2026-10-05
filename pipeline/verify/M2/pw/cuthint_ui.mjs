@@ -1,0 +1,14 @@
+import { launch, openScore, dock, txt, waitPlanDone } from './lib.mjs';
+const { browser, page } = await launch(1366, 900);
+await openScore(page, 'Untitled', 4);
+const clr = page.locator('button', { hasText: /WHOLE SCORE/ }).filter({ hasText: /[✕×x]/ });
+if (await clr.count()) await clr.first().click();
+await page.getByPlaceholder(/Describe the change/).fill(process.argv[2]);
+await page.getByRole('button', { name: /^PLAN$/ }).click();
+await waitPlanDone(page, 240000);
+const t = await txt(dock(page));
+console.log(t.slice(0, 3000));
+await page.screenshot({ path: `../shots/cuthint-${process.argv[3] ?? 'a'}.png`, fullPage: true });
+const fill = page.getByRole('button', { name: /FILL/ });
+console.log('FILL buttons:', await fill.count());
+await browser.close();

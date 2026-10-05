@@ -1,0 +1,628 @@
+{
+ "steps": [
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus"
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "keep the jazz chords and also slow it down to 80 BPM",
+   "revise": true
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus"
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "forget the transpose",
+   "revise": true
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus"
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "not so many chords",
+   "revise": true
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus"
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "one chord every two bars",
+   "revise": true
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus"
+  },
+  {
+   "song": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "req": "also slow it down to 80 BPM",
+   "revise": true
+  }
+ ],
+ "out": [
+  {
+   "n": 1,
+   "tag": "t2",
+   "song": "5c8e6586",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791230571261,
+   "t1": 1791230593497,
+   "wallS": 22.236,
+   "idle": {
+    "user": "unreachable",
+    "mib": 913,
+    "util": 3
+   },
+   "run": {
+    "status": "failed",
+    "reasons": [
+     "REHARMONIZE 36-44 keeps the old root in 5 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37, 44 keep every root; a 7th or a slash bass on the same root does not count)"
+    ],
+    "cause": "check"
+   },
+   "pendingBefore": {
+    "id": "5552b3b1",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2",
+     "SET_TEMPO 80"
+    ]
+   },
+   "plan": null,
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": null
+  },
+  {
+   "n": 2,
+   "skipped": true,
+   "req": "keep the jazz chords and also slow it down to 80 BPM"
+  },
+  {
+   "n": 3,
+   "tag": "t2",
+   "song": "5c8e6586",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791230594093,
+   "t1": 1791230616568,
+   "wallS": 22.475,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1122,
+    "util": 2
+   },
+   "run": {
+    "status": "failed",
+    "reasons": [
+     "REHARMONIZE 36-44 keeps the old root in 4 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37, 44 keep every root; a 7th or a slash bass on the same root does not count)"
+    ],
+    "cause": "check"
+   },
+   "pendingBefore": null,
+   "plan": null,
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": null
+  },
+  {
+   "n": 4,
+   "skipped": true,
+   "req": "forget the transpose"
+  },
+  {
+   "n": 5,
+   "tag": "t2",
+   "song": "5c8e6586",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791230617167,
+   "t1": 1791230638317,
+   "wallS": 21.15,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1110,
+    "util": 16
+   },
+   "run": {
+    "status": "failed",
+    "reasons": [
+     "REHARMONIZE 36-44 keeps the old root in 3 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37 keep every root; a 7th or a slash bass on the same root does not count)"
+    ],
+    "cause": "check"
+   },
+   "pendingBefore": null,
+   "plan": null,
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": null
+  },
+  {
+   "n": 6,
+   "skipped": true,
+   "req": "not so many chords"
+  },
+  {
+   "n": 7,
+   "tag": "t2",
+   "song": "5c8e6586",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791230638916,
+   "t1": 1791230660599,
+   "wallS": 21.683,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1251,
+    "util": 1
+   },
+   "run": {
+    "status": "failed",
+    "reasons": [
+     "REHARMONIZE 36-44 keeps the old root in 4 of 9 bars; change the root in at least one chord per 2 bars (bar 44 keeps every root; a 7th or a slash bass on the same root does not count)"
+    ],
+    "cause": "check"
+   },
+   "pendingBefore": null,
+   "plan": null,
+   "psEmptyAfterDoneMs": 2,
+   "planStillPendingAfter": null
+  },
+  {
+   "n": 8,
+   "skipped": true,
+   "req": "one chord every two bars"
+  },
+  {
+   "n": 9,
+   "tag": "t2",
+   "song": "5c8e6586",
+   "req": "transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the second chorus",
+   "revise": false,
+   "postStatus": 202,
+   "t0": 1791230661180,
+   "t1": 1791230677047,
+   "wallS": 15.867,
+   "idle": {
+    "user": "unreachable",
+    "mib": 1004,
+    "util": 4
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 2,
+   "refusals": [
+    [
+     "REHARMONIZE 36-44 keeps the old root in 9 of 9 bars; change the root in at least one chord per 2 bars (bars 36-37, 38-39, 40-41, 42-43, 44 keep every root; a 7th or a slash bass on the same root does not count)"
+    ]
+   ],
+   "pendingBefore": null,
+   "plan": {
+    "id": "4ef07b97",
+    "revision": 1,
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2"
+    ],
+    "verdictsOk": [
+     true,
+     true,
+     true,
+     true
+    ],
+    "checks": {
+     "bars": 86,
+     "seconds": 242.8,
+     "tokens": 1738,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": false,
+      "lyrics": true
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "4ef07b97",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2"
+    ]
+   }
+  },
+  {
+   "n": 10,
+   "tag": "t2",
+   "song": "5c8e6586",
+   "req": "also slow it down to 80 BPM",
+   "revise": true,
+   "postStatus": 202,
+   "t0": 1791230677599,
+   "t1": 1791230681840,
+   "wallS": 4.241,
+   "idle": {
+    "user": "unreachable",
+    "mib": 908,
+    "util": 3
+   },
+   "run": {
+    "status": "done",
+    "reasons": [],
+    "cause": null
+   },
+   "attempts": 1,
+   "refusals": [],
+   "pendingBefore": {
+    "id": "4ef07b97",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2"
+    ]
+   },
+   "plan": {
+    "id": "97a5d255",
+    "revision": 2,
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2",
+     "SET_TEMPO 80"
+    ],
+    "marks": [
+     "SAME",
+     "SAME",
+     "SAME",
+     "SAME",
+     "NEW"
+    ],
+    "removed": [],
+    "verdictsOk": [
+     true,
+     true,
+     true,
+     true,
+     true
+    ],
+    "checks": {
+     "bars": 86,
+     "seconds": 258,
+     "tokens": 1738,
+     "chordsPresent": true,
+     "changed": {
+      "abc": true,
+      "style": true,
+      "lyrics": true
+     }
+    }
+   },
+   "psEmptyAfterDoneMs": 1,
+   "planStillPendingAfter": {
+    "id": "97a5d255",
+    "ops": [
+     "TRANSPOSE -2",
+     "REPEAT S3 chorus",
+     "REHARMONIZE 36-44",
+     "REWRITE_LYRICS b5 [Chorus]#2",
+     "SET_TEMPO 80"
+    ]
+   }
+  }
+ ],
+ "full": {
+  "run": {
+   "jobId": "11e77d7a-7ce1-4235-8e49-2f57bd108a02",
+   "request": "also slow it down to 80 BPM",
+   "status": "done",
+   "reasons": [],
+   "planId": "97a5d255-ffc0-452d-a662-c4f7da585ff9",
+   "revise": "4ef07b97-d529-4e8a-ac9d-5ebce699ab3f",
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "97a5d255-ffc0-452d-a662-c4f7da585ff9",
+   "songId": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "baseVersionId": "f3e3bfdc-0594-4f67-9b57-6c5d68102983",
+   "request": "also slow it down to 80 BPM",
+   "ops": [
+    {
+     "op": "TRANSPOSE",
+     "semitones": -2
+    },
+    {
+     "op": "REPEAT",
+     "section": 3,
+     "label": "chorus"
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 36,
+     "to_bar": 44,
+     "chords": [
+      {
+       "bar": 36,
+       "beat": 1,
+       "root": "D",
+       "quality": "7",
+       "bass": "F#"
+      },
+      {
+       "bar": 37,
+       "beat": 1,
+       "root": "A",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 38,
+       "beat": 1,
+       "root": "E",
+       "quality": "maj7",
+       "bass": "B"
+      },
+      {
+       "bar": 39,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "G"
+      },
+      {
+       "bar": 40,
+       "beat": 1,
+       "root": "D",
+       "quality": "7",
+       "bass": "F#"
+      },
+      {
+       "bar": 41,
+       "beat": 1,
+       "root": "A",
+       "quality": "7",
+       "bass": "D"
+      },
+      {
+       "bar": 42,
+       "beat": 1,
+       "root": "E",
+       "quality": "maj7",
+       "bass": "B"
+      },
+      {
+       "bar": 43,
+       "beat": 1,
+       "root": "C",
+       "quality": "m7",
+       "bass": "G"
+      },
+      {
+       "bar": 44,
+       "beat": 1,
+       "root": "D",
+       "quality": "maj7",
+       "bass": "F#"
+      }
+     ]
+    },
+    {
+     "op": "REWRITE_LYRICS",
+     "block": 5,
+     "tag": "[Chorus]",
+     "occurrence": 2,
+     "lines": [
+      "Andreas, ich verlasse doch ich bleibe irgendwie",
+      "Ich kämpfe nicht mehr, aber ich will nicht aufgeben",
+      "Jeder Schritt ist schwer, doch ich gehe weiter",
+      "Für dich, für uns, für das, was kommt"
+     ]
+    },
+    {
+     "op": "SET_TEMPO",
+     "bpm": 80
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "TRANSPOSE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 2,
+     "op": "REPEAT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 3 [Chorus] is repeated with it"
+    },
+    {
+     "index": 3,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 4,
+     "op": "REWRITE_LYRICS",
+     "ok": true,
+     "reason": null,
+     "diff": {
+      "block": 5,
+      "tag": "[Chorus]",
+      "occurrence": 2,
+      "old": [
+       "Andreas, ich kämpfe auch wenn ich mich oft verlier",
+       "Ein Blick aus einem Spiegel zeigt, ich bleib doch hier",
+       "Die Stille singt, doch ich schweige wie gebannt",
+       "Ein Held muss stark sein, um sich nach Halt zu finden"
+      ],
+      "new": [
+       "Andreas, ich verlasse doch ich bleibe irgendwie",
+       "Ich kämpfe nicht mehr, aber ich will nicht aufgeben",
+       "Jeder Schritt ist schwer, doch ich gehe weiter",
+       "Für dich, für uns, für das, was kommt"
+      ]
+     }
+    },
+    {
+     "index": 5,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive male vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 80 bpm, D minor, 4/4 time",
+   "checks": {
+    "bars": 86,
+    "seconds": 258,
+    "tokens": 1738,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791230681625,
+   "referent": null,
+   "revision": 2,
+   "since": {
+    "planId": "4ef07b97-d529-4e8a-ac9d-5ebce699ab3f",
+    "marks": [
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "TRANSPOSE",
+       "semitones": -2
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REPEAT",
+       "section": 3,
+       "label": "chorus"
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REHARMONIZE",
+       "from_bar": 36,
+       "to_bar": 44,
+       "chords": [
+        {
+         "bar": 36,
+         "beat": 1,
+         "root": "D",
+         "quality": "7",
+         "bass": "F#"
+        },
+        {
+         "bar": 37,
+         "beat": 1,
+         "root": "A",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 38,
+         "beat": 1,
+         "root": "E",
+         "quality": "maj7",
+         "bass": "B"
+        },
+        {
+         "bar": 39,
+         "beat": 1,
+         "root": "C",
+         "quality": "m7",
+         "bass": "G"
+        },
+        {
+         "bar": 40,
+         "beat": 1,
+         "root": "D",
+         "quality": "7",
+         "bass": "F#"
+        },
+        {
+         "bar": 41,
+         "beat": 1,
+         "root": "A",
+         "quality": "7",
+         "bass": "D"
+        },
+        {
+         "bar": 42,
+         "beat": 1,
+         "root": "E",
+         "quality": "maj7",
+         "bass": "B"
+        },
+        {
+         "bar": 43,
+         "beat": 1,
+         "root": "C",
+         "quality": "m7",
+         "bass": "G"
+        },
+        {
+         "bar": 44,
+         "beat": 1,
+         "root": "D",
+         "quality": "maj7",
+         "bass": "F#"
+        }
+       ]
+      }
+     },
+     {
+      "mark": "SAME",
+      "was": {
+       "op": "REWRITE_LYRICS",
+       "block": 5,
+       "tag": "[Chorus]",
+       "occurrence": 2,
+       "lines": [
+        "Andreas, ich verlasse doch ich bleibe irgendwie",
+        "Ich kämpfe nicht mehr, aber ich will nicht aufgeben",
+        "Jeder Schritt ist schwer, doch ich gehe weiter",
+        "Für dich, für uns, für das, was kommt"
+       ]
+      }
+     },
+     {
+      "mark": "NEW",
+      "was": null
+     }
+    ],
+    "removed": []
+   }
+  }
+ }
+}

@@ -1,0 +1,230 @@
+{
+ "tag": "b10",
+ "songId": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+ "request": "rewrite the first chorus about the sea",
+ "flags": [],
+ "started": "2026-10-05T19:00:39.729Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1957,
+  "util": 0
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 77,
+   "seconds": 217.4,
+   "bpm": 85,
+   "key": "Em",
+   "meter": "4/4",
+   "tokens": 1519
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive male vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 85 bpm, D minor, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 9
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 10,
+    "to_bar": 18
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 19,
+    "to_bar": 27
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 28,
+    "to_bar": 35
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 36,
+    "to_bar": 44
+   },
+   {
+    "index": 6,
+    "label": "bridge",
+    "occurrence": 1,
+    "from_bar": 45,
+    "to_bar": 54
+   },
+   {
+    "index": 7,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 55,
+    "to_bar": 63
+   },
+   {
+    "index": 8,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 64,
+    "to_bar": 77
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 7,
+    "first_line": "Nebel zieht über die Stadt"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Andreas, ich falle doch ich stehe irgendwie"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Lachen klingt so kühl"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Andreas, ich kämpfe auch wenn ich mich oft verlier"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Manchmal spür ich, wie die Nacht mich nieder recon"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "Verloren"
+   },
+   {
+    "index": 8,
+    "tag": "[Instrumental Outro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   }
+  ]
+ },
+ "t0": 1791226839816,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "860d0aee-d4f6-4ae5-8d57-6dc8448c6167",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "rewrite the first chorus about the sea"
+ },
+ "t1": 1791226844840,
+ "planWallS": 5.024,
+ "planGet": {
+  "run": {
+   "jobId": "860d0aee-d4f6-4ae5-8d57-6dc8448c6167",
+   "request": "rewrite the first chorus about the sea",
+   "status": "done",
+   "reasons": [],
+   "planId": "cf92f750-f6e7-4fa5-9391-16867fd90992",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "cf92f750-f6e7-4fa5-9391-16867fd90992",
+   "songId": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "baseVersionId": "f3e3bfdc-0594-4f67-9b57-6c5d68102983",
+   "request": "rewrite the first chorus about the sea",
+   "ops": [
+    {
+     "op": "REWRITE_LYRICS",
+     "block": 3,
+     "tag": "[Chorus]",
+     "occurrence": 1,
+     "lines": [
+      "Andreas, ich falle doch ich stehe irgendwie am Strand",
+      "Mit den Wellen im Herzen, das Meer ist mein Freund",
+      "Jeder Schritt, ein Lied, das die See erzählt",
+      "Ich träume von Horizonten, die niemals enden"
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REWRITE_LYRICS",
+     "ok": true,
+     "reason": null,
+     "diff": {
+      "block": 3,
+      "tag": "[Chorus]",
+      "occurrence": 1,
+      "old": [
+       "Andreas, ich falle doch ich stehe irgendwie",
+       "Inmitten der Ordnung gibt es manchmal Krieg in mir",
+       "Die Welt schreit laut, doch ich flüster still und sacht",
+       "Ein Held muss stark sein, um sich nach Halt zu finden"
+      ],
+      "new": [
+       "Andreas, ich falle doch ich stehe irgendwie am Strand",
+       "Mit den Wellen im Herzen, das Meer ist mein Freund",
+       "Jeder Schritt, ein Lied, das die See erzählt",
+       "Ich träume von Horizonten, die niemals enden"
+      ]
+     }
+    }
+   ],
+   "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive male vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 85 bpm, D minor, 4/4 time",
+   "checks": {
+    "bars": 77,
+    "seconds": 217.4,
+    "tokens": 1519,
+    "chordsPresent": true,
+    "changed": {
+     "abc": false,
+     "style": false,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791226844612,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ }
+}
