@@ -1,0 +1,118 @@
+{
+ "vocal_sings (start 20)": {
+  "ok": false,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "WRITE_PHRASE",
+    "ok": false,
+    "reason": "the Vocal sings in bars 20-21; free: 1-10, 47-65"
+   }
+  ],
+  "problems": [],
+  "style": "dream pop, 87 bpm"
+ },
+ "beat sum 3.5 (bar 3 of phrase)": {
+  "ok": false,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "WRITE_PHRASE",
+    "ok": false,
+    "reason": "the Vocal sings in bars 11-13; free: 1-10, 47-65; bar 3 of the phrase (score bar 13) sums to 3.5 beats, the meter needs 4 (too short by 0.5)"
+   }
+  ],
+  "problems": [],
+  "style": "dream pop, 87 bpm"
+ },
+ "3 notes only": {
+  "ok": false,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "WRITE_PHRASE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "problems": [
+   "WRITE_PHRASE bars 2-2: the phrase has 3 notes; write at least 4"
+  ],
+  "style": "dream pop, 87 bpm, tenor saxophone"
+ },
+ "2 distinct pitches": {
+  "ok": false,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "WRITE_PHRASE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "problems": [
+   "WRITE_PHRASE bars 2-3: the phrase uses 2 distinct pitches; use at least 3"
+  ],
+  "style": "dream pop, 87 bpm, tenor saxophone"
+ },
+ "off key (^C ^F ^G)": {
+  "ok": false,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "WRITE_PHRASE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "problems": [
+   "WRITE_PHRASE bars 2-3: 2 of 8 notes (25%) are in the key Dm; keep at least 70% in the key"
+  ],
+  "style": "dream pop, 87 bpm, tenor saxophone"
+ },
+ "four identical bars": {
+  "ok": false,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "WRITE_PHRASE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "problems": [
+   "WRITE_PHRASE bars 2-5: the same bar is written 4 times; vary the bars"
+  ],
+  "style": "dream pop, 87 bpm, tenor saxophone"
+ },
+ "runs past the end (start 63, 4 bars)": {
+  "ok": false,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "WRITE_PHRASE",
+    "ok": false,
+    "reason": "a 4-bar phrase at bar 63 runs past the last bar (65)"
+   }
+  ],
+  "problems": [],
+  "style": "dream pop, 87 bpm"
+ },
+ "ABC string": {
+  "http": 422,
+  "body": "{\"detail\":[{\"type\":\"value_error\",\"loc\":[\"body\",\"ops\",0,\"WRITE_PHRASE\",\"bars\"],\"msg\":\"Value error, bars are arrays of {pitch, beats} notes; ABC strings are not accepted\",\"input\":[\"D2 F2 A2 d2\"],\"ctx\":{\"error\":{}}}]}"
+ },
+ "good, bars 2-5": {
+  "ok": true,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "WRITE_PHRASE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "problems": [],
+  "style": "dream pop, 87 bpm, tenor saxophone"
+ }
+}

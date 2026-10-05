@@ -301,20 +301,20 @@
         "Edge: asking for a phrase where the Vocal does not rest is refused with the bars that are free",
         "OWED: the user's SP-2 phrase listen; if 'not musical' the verb ships the op labelled EXPERIMENTAL (Q to be raised)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/M1/m1-verify.md: #1-#5 pass at 1d73654 (merged #132 2f1d861, #134 38f022d); #3 live CP2 3/3 songs valid in 2/1/3 attempts (pipeline/verify/M1/m1-summary.json); #5 refusal + D-060 refused-attempt line seen in the real app on fakes. #6 OWED: user phrase listen (pipeline/verify/M1/listen/index.html); \"not musical\" -> EXPERIMENTAL label + Q"
     },
     {
       "id": "F-027",
       "milestone": "M1",
       "behaviour": "Before the first ACE-Step edit, the dock says score editing will end",
       "acceptance": [
-        "While SCORE is still open for a song, the consequence line of REPAINT, ADD LAYER, an extract-to-layer and REMASTER MIX ends with 'score editing ends after this edit: SCORE will offer a new song instead' (Q-015 default A)",
+        "While SCORE is still open for a song, the consequence line of REPAINT, ADD LAYER and an extract-to-layer ends with 'score editing ends after this edit, SCORE will be off for this song' (D-030; REMASTER MIX keeps no version, so no clause: D-058)",
         "Edge: on a song where SCORE is hidden (ACE-Step) or already ineligible, the line is absent; after the first repaint lands, the next one does not repeat it",
         "A Vitest on each verb's consequence builder covers present and absent"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/M1/m1-verify.md: clause seen live on REPAINT, ADD LAYER, 4 stem claim lines; absent on ACE-Step song, after a landed repaint, on REMASTER (D-058); Vitests present/absent; merged #131 47a1554"
     },
     {
       "id": "F-028",
@@ -325,8 +325,8 @@
         "Edge steps: planner offline state; a plan refused over 360 s; a cancel while planning",
         "CI (.github/workflows/e2e.yml) runs it green on a PR; the existing golden path is unchanged and does not set LLM_API_URL"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/M1/m1-verify.md: e2e 9/9 at 1d73654 (4 [score] tests: happy path, planner offline, 360 s refusal, cancel); CI green on #133 and main push 0c04ee1; golden path sets no LLM_API_URL; merged #133 0c04ee1"
     },
     {
       "id": "F-029",

@@ -268,3 +268,28 @@ M0 code review triage (pipeline/reviews/M0-code.md): fix 1–3 before merging #1
 The M0 A/B listen (pipeline/verify/M0/ab-answers.json) heard tempo as expected 4/4 but the chord edit only 2/4, under R-013's bar of 4 of 5. Every plan kept the old roots (Q-034). The user chose to fix it in M0 and reverse D-051 to Q-034 option B. (1) The planner rule says a reharmonization changes the harmony: at least one chord root per 2 bars of the op differs from the old chord there, not only added 7ths or inversions. (2) yue-server checks the same thing (it is the only ABC reader) and sends numeric retry feedback, e.g. "REHARMONIZE 14-21 keeps the old root in 8 of 8 bars". (3) Then re-plan and re-render 5 pairs (chords only, no tempo change) and the user does a chords-only listen; F-025 passes on ≥ 4 of 5 heard.
 - assumed with it: a request like "add sevenths, keep the chords" is not a REHARMONIZE and may fail after 3 attempts; the refusal says why.
 - instead of: passing M0 and fixing in M1; narrowing the promise to "chords are a request, not a guarantee"; option C (refusing a slash bass outside the chord), which stays open.
+
+## D-056 · 2026-10-05 · stage 7 (M1 start) · by: assumed (autopilot)
+M1 runs as W6 (F-027), W7 + W8 (F-026 split at the yue-server route contract), W9 (F-028), then CP2 live and the verifier (scope.md M1 work packages). Q-038's nits are decided as a small fix PR W10 after W8, if the round budget allows; otherwise they stay deferred to M2. Batch 1 (W6, W7, W9) runs in parallel worktrees branched from origin/main; the pipeline/ state stays on `docs/m0-done`.
+- instead of: one M1 branch (M0 shipped one PR per work package, which reviewed and merged cleanly); rejecting the nits now.
+
+## D-057 · 2026-10-05 · stage 7 (M1/W7) · by: assumed (W7 builder, recorded by the conductor)
+WRITE_PHRASE on yue-server (contract in yue-server/README.md): (1) a score without an Ins voice cannot reach the applier: upstream rejects a score without both voice lines and the apply route already answers 422; (2) "four identical bars" refuses one bar written 4 or more times anywhere in the phrase (SP-2 refused any all-identical phrase, even 2-3 bars; the spec wins); (3) a note no single allowed length holds is written as tied pieces, a tie running into the phrase from the bar before is undone, and no tie crosses phrase bars; (4) inline [K:] events in a replaced Ins bar are kept; (5) SP-2's pitch-range gate (C3-E6) is left out, not in the spec. Plus a seam check: a note after the phrase that would change pitch once the incoming tie is cut is flagged in checks.problems.
+- instead of: SP-2's all-identical rule and range gate. Reversal cost: one gate each in score_phrase_gates.py plus a pytest.
+
+## D-058 · 2026-10-05 · stage 7 (M1/W6) · by: assumed (W6 builder, recorded by the conductor)
+F-027's clause (D-030 wording) shows on REPAINT, ADD LAYER and the stem claim line (REPLACE / ADD LAYER from a split; that is "extract to layer", SPLIT itself saves nothing), not on REMASTER MIX, which keeps no version (Q-039). SCORE counts as open unless it is hidden or ineligible, so an offline checker still shows the clause.
+- instead of: the criterion's literal list including REMASTER MIX. Reversal cost: one prop.
+
+## D-059 · 2026-10-05 · stage 7 (M1/W8) · by: assumed (W8 builder, recorded by the conductor)
+WRITE PHRASE on the server and in the dock: (a) N comes from a count attached to a phrase word (phrase, line, solo, riff, lick, fill, melody, motif, hook, break), before or after it ("4-bar sax phrase", "a sax phrase of 6 bars"); no such count → 4; cap 8; a bare place ("the last 8 bars") is not a count; (b) WRITE_PHRASE is always in the schema, the prompt says to use it only when asked; (c) withLimits no longer adds "this request did not change the score or the style" when an op was refused (the refusal says why); (d) the beats enum stays exactly yue-server's even when the score's L: unit cannot hold 0.5 beats: yue-server refuses that note and the planner retries.
+- instead of: asking the planner for N; a schema per request with or without the op. Reversal cost: phraseRequest.ts and its test. Risk: wordings like "a sax bit for 2 bars" get 4 bars; CP2 watches prompt tokens (prompt +15 lines).
+
+## D-060 · 2026-10-05 · stage 7 (M1/CP2) · by: assumed (autopilot)
+Q-040 default: the SCORE review lists each earlier refused attempt's reason in one line, so a phrase moved off the asked bars (or a tempo raised to fit 360 s, Q-036) is never silent; the WRITE PHRASE consequence clause says the phrase replaces the instrument part in its bars. Built on W8 before its PR. Q-036 closes with it.
+- instead of: refusing a plan whose bars differ from the request's (needs request parsing of bar numbers; the planner already sees the refusal).
+- with it (W8 follow-up builder): each WRITE PHRASE in a mixed plan gets its own clause, harmony and style keep the joined "are a request" clause; a refused-attempt line shows at most 2 reasons then "and n more", in rust; only a passing plan carries refusals (CHECK FAILED still shows the last attempt's reasons).
+
+## D-061 · 2026-10-05 · stage 8 (M1 code review) · by: assumed (autopilot)
+M1 code review (pipeline/reviews/M1-code.md): 0 blocking, 1 should, 3 nit. Fix #1 now (an in-bar accidental carries onto the next plain letter, so WRITE PHRASE can sound F# where the planner wrote the key's F) on fix/score-phrase-accidentals, test-first; defer #2-#4 as Q-041 next to Q-038 (W10).
+- instead of: shipping M1 with the pitch bug (the user's phrase listen would judge wrong notes).

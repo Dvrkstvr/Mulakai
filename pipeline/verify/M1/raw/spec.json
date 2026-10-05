@@ -1,0 +1,694 @@
+[
+ {
+  "tag": "s1_purple",
+  "name": "Purple Shinings",
+  "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+  "newAudio": "E:/ai/tmp/m1/data/audio/1d405426-e297-4f87-a201-7b3d4fabb8ed.wav",
+  "newAbc": "E:/ai/tmp/m1/data/audio/1d405426-e297-4f87-a201-7b3d4fabb8ed.abc",
+  "baseAudio": "E:/ai/tmp/m1/data/audio/2c944049-75eb-4448-ac49-7f50f93be80d.wav",
+  "baseAbc": "E:/ai/tmp/m1/data/audio/2c944049-75eb-4448-ac49-7f50f93be80d.abc",
+  "ops": [
+   {
+    "op": "SET_TEMPO",
+    "bpm": 88
+   },
+   {
+    "op": "REHARMONIZE",
+    "from_bar": 47,
+    "to_bar": 62,
+    "chords": [
+     {
+      "bar": 47,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 48,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 49,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "maj7",
+      "bass": "D"
+     },
+     {
+      "bar": 50,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 51,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 52,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 53,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "maj7",
+      "bass": "D"
+     },
+     {
+      "bar": 54,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 55,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 56,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 57,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "maj7",
+      "bass": "D"
+     },
+     {
+      "bar": 58,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 59,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 60,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 61,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "maj7",
+      "bass": "D"
+     },
+     {
+      "bar": 62,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     }
+    ]
+   },
+   {
+    "op": "WRITE_PHRASE",
+    "start_bar": 62,
+    "instrument": "tenor saxophone",
+    "bars": [
+     [
+      {
+       "pitch": "B",
+       "beats": 1
+      },
+      {
+       "pitch": "D",
+       "beats": 1
+      },
+      {
+       "pitch": "F",
+       "beats": 1
+      },
+      {
+       "pitch": "B",
+       "beats": 1
+      }
+     ],
+     [
+      {
+       "pitch": "D",
+       "beats": 1
+      },
+      {
+       "pitch": "F",
+       "beats": 1
+      },
+      {
+       "pitch": "A",
+       "beats": 1
+      },
+      {
+       "pitch": "D",
+       "beats": 1
+      }
+     ],
+     [
+      {
+       "pitch": "F",
+       "beats": 1
+      },
+      {
+       "pitch": "A",
+       "beats": 1
+      },
+      {
+       "pitch": "C",
+       "beats": 1
+      },
+      {
+       "pitch": "F",
+       "beats": 1
+      }
+     ],
+     [
+      {
+       "pitch": "A",
+       "beats": 1
+      },
+      {
+       "pitch": "C",
+       "beats": 1
+      },
+      {
+       "pitch": "E",
+       "beats": 1
+      },
+      {
+       "pitch": "A",
+       "beats": 1
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "tag": "s2_gertar",
+  "name": "Gertar",
+  "songId": "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+  "newAudio": "E:/ai/tmp/m1/data/audio/94d25847-33da-4db2-a616-ac343f521752.wav",
+  "newAbc": "E:/ai/tmp/m1/data/audio/94d25847-33da-4db2-a616-ac343f521752.abc",
+  "baseAudio": "E:/ai/tmp/m1/data/audio/c8144c53-6612-4efc-8a4c-da279f2e0307.wav",
+  "baseAbc": "E:/ai/tmp/m1/data/audio/c8144c53-6612-4efc-8a4c-da279f2e0307.abc",
+  "ops": [
+   {
+    "op": "SET_TEMPO",
+    "bpm": 88
+   },
+   {
+    "op": "REHARMONIZE",
+    "from_bar": 15,
+    "to_bar": 22,
+    "chords": [
+     {
+      "bar": 15,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7"
+     },
+     {
+      "bar": 16,
+      "beat": 1,
+      "root": "G",
+      "quality": "7"
+     },
+     {
+      "bar": 17,
+      "beat": 1,
+      "root": "C",
+      "quality": "maj7"
+     },
+     {
+      "bar": 18,
+      "beat": 1,
+      "root": "F",
+      "quality": "7"
+     },
+     {
+      "bar": 19,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "m7"
+     },
+     {
+      "bar": 20,
+      "beat": 1,
+      "root": "E",
+      "quality": "7"
+     },
+     {
+      "bar": 21,
+      "beat": 1,
+      "root": "A",
+      "quality": "maj7"
+     },
+     {
+      "bar": 22,
+      "beat": 1,
+      "root": "D",
+      "quality": "7"
+     }
+    ]
+   },
+   {
+    "op": "REHARMONIZE",
+    "from_bar": 36,
+    "to_bar": 43,
+    "chords": [
+     {
+      "bar": 36,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7"
+     },
+     {
+      "bar": 37,
+      "beat": 1,
+      "root": "G",
+      "quality": "7"
+     },
+     {
+      "bar": 38,
+      "beat": 1,
+      "root": "C",
+      "quality": "maj7"
+     },
+     {
+      "bar": 39,
+      "beat": 1,
+      "root": "F",
+      "quality": "7"
+     },
+     {
+      "bar": 40,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "m7"
+     },
+     {
+      "bar": 41,
+      "beat": 1,
+      "root": "E",
+      "quality": "7"
+     },
+     {
+      "bar": 42,
+      "beat": 1,
+      "root": "A",
+      "quality": "maj7"
+     },
+     {
+      "bar": 43,
+      "beat": 1,
+      "root": "D",
+      "quality": "7"
+     }
+    ]
+   },
+   {
+    "op": "REHARMONIZE",
+    "from_bar": 53,
+    "to_bar": 60,
+    "chords": [
+     {
+      "bar": 53,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7"
+     },
+     {
+      "bar": 54,
+      "beat": 1,
+      "root": "G",
+      "quality": "7"
+     },
+     {
+      "bar": 55,
+      "beat": 1,
+      "root": "C",
+      "quality": "maj7"
+     },
+     {
+      "bar": 56,
+      "beat": 1,
+      "root": "F",
+      "quality": "7"
+     },
+     {
+      "bar": 57,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "m7"
+     },
+     {
+      "bar": 58,
+      "beat": 1,
+      "root": "E",
+      "quality": "7"
+     },
+     {
+      "bar": 59,
+      "beat": 1,
+      "root": "A",
+      "quality": "maj7"
+     },
+     {
+      "bar": 60,
+      "beat": 1,
+      "root": "D",
+      "quality": "7"
+     }
+    ]
+   },
+   {
+    "op": "WRITE_PHRASE",
+    "start_bar": 61,
+    "instrument": "tenor saxophone",
+    "bars": [
+     [
+      {
+       "pitch": "B",
+       "beats": 1
+      },
+      {
+       "pitch": "D",
+       "beats": 1
+      },
+      {
+       "pitch": "F",
+       "beats": 1
+      },
+      {
+       "pitch": "A",
+       "beats": 1
+      }
+     ],
+     [
+      {
+       "pitch": "D",
+       "beats": 1
+      },
+      {
+       "pitch": "F",
+       "beats": 1
+      },
+      {
+       "pitch": "A",
+       "beats": 1
+      },
+      {
+       "pitch": "C",
+       "beats": 1
+      }
+     ],
+     [
+      {
+       "pitch": "F",
+       "beats": 1
+      },
+      {
+       "pitch": "A",
+       "beats": 1
+      },
+      {
+       "pitch": "C",
+       "beats": 1
+      },
+      {
+       "pitch": "E",
+       "beats": 1
+      }
+     ],
+     [
+      {
+       "pitch": "A",
+       "beats": 1
+      },
+      {
+       "pitch": "C",
+       "beats": 1
+      },
+      {
+       "pitch": "E",
+       "beats": 1
+      },
+      {
+       "pitch": "G",
+       "beats": 1
+      }
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "tag": "s3_carinito",
+  "name": "Carinito",
+  "songId": "ecf8eb5a-734f-4b5f-a0ab-040b6645e75e",
+  "newAudio": "E:/ai/tmp/m1/data/audio/bf300bdc-c154-44f8-b9f7-c1c3f82c6401.wav",
+  "newAbc": "E:/ai/tmp/m1/data/audio/bf300bdc-c154-44f8-b9f7-c1c3f82c6401.abc",
+  "baseAudio": "E:/ai/tmp/m1/data/audio/3c9e79de-0844-40dc-a89f-4c6864c8a23a.wav",
+  "baseAbc": "E:/ai/tmp/m1/data/audio/3c9e79de-0844-40dc-a89f-4c6864c8a23a.abc",
+  "ops": [
+   {
+    "op": "SET_TEMPO",
+    "bpm": 88
+   },
+   {
+    "op": "REHARMONIZE",
+    "from_bar": 23,
+    "to_bar": 30,
+    "chords": [
+     {
+      "bar": 23,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 24,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 25,
+      "beat": 1,
+      "root": "C",
+      "quality": "maj7",
+      "bass": "E"
+     },
+     {
+      "bar": 26,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 27,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "m7",
+      "bass": "D"
+     },
+     {
+      "bar": 28,
+      "beat": 1,
+      "root": "E",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 29,
+      "beat": 1,
+      "root": "A",
+      "quality": "maj7",
+      "bass": "C"
+     },
+     {
+      "bar": 30,
+      "beat": 1,
+      "root": "D",
+      "quality": "7",
+      "bass": "F"
+     }
+    ]
+   },
+   {
+    "op": "REHARMONIZE",
+    "from_bar": 48,
+    "to_bar": 55,
+    "chords": [
+     {
+      "bar": 48,
+      "beat": 1,
+      "root": "D",
+      "quality": "m7",
+      "bass": "F"
+     },
+     {
+      "bar": 49,
+      "beat": 1,
+      "root": "G",
+      "quality": "7",
+      "bass": "D"
+     },
+     {
+      "bar": 50,
+      "beat": 1,
+      "root": "C",
+      "quality": "maj7",
+      "bass": "E"
+     },
+     {
+      "bar": 51,
+      "beat": 1,
+      "root": "F",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 52,
+      "beat": 1,
+      "root": "Bb",
+      "quality": "m7",
+      "bass": "D"
+     },
+     {
+      "bar": 53,
+      "beat": 1,
+      "root": "E",
+      "quality": "7",
+      "bass": "A"
+     },
+     {
+      "bar": 54,
+      "beat": 1,
+      "root": "A",
+      "quality": "maj7",
+      "bass": "C"
+     },
+     {
+      "bar": 55,
+      "beat": 1,
+      "root": "D",
+      "quality": "7",
+      "bass": "F"
+     }
+    ]
+   },
+   {
+    "op": "WRITE_PHRASE",
+    "start_bar": 56,
+    "instrument": "tenor saxophone",
+    "bars": [
+     [
+      {
+       "pitch": "D",
+       "beats": 1
+      },
+      {
+       "pitch": "F",
+       "beats": 0.5
+      },
+      {
+       "pitch": "A",
+       "beats": 0.5
+      },
+      {
+       "pitch": "d",
+       "beats": 2
+      }
+     ],
+     [
+      {
+       "pitch": "B",
+       "beats": 1
+      },
+      {
+       "pitch": "D",
+       "beats": 0.5
+      },
+      {
+       "pitch": "F",
+       "beats": 0.5
+      },
+      {
+       "pitch": "b",
+       "beats": 2
+      }
+     ],
+     [
+      {
+       "pitch": "F",
+       "beats": 1
+      },
+      {
+       "pitch": "A",
+       "beats": 0.5
+      },
+      {
+       "pitch": "C",
+       "beats": 0.5
+      },
+      {
+       "pitch": "f",
+       "beats": 2
+      }
+     ],
+     [
+      {
+       "pitch": "D",
+       "beats": 1
+      },
+      {
+       "pitch": "F",
+       "beats": 0.5
+      },
+      {
+       "pitch": "A",
+       "beats": 0.5
+      },
+      {
+       "pitch": "d",
+       "beats": 2
+      }
+     ]
+    ]
+   }
+  ]
+ }
+]
