@@ -22,6 +22,8 @@ export const RENDER_FAILED_TAIL = 'nothing saved, the base is unchanged';
 export const APPLY_OFF = 'a plan must pass every check first';
 export { checksSegments, refusedLines, type Segment } from './scoreAttemptCopy';
 const REQUEST = 'a request to YuE2, not a guarantee';
+/** Ends an ACE-Step edit's consequence line while SCORE is open (F-027, D-030; scoreEnds.ts). */
+export const SCORE_ENDS = 'score editing ends after this edit, SCORE will be off for this song';
 
 const n = (v: number) => Math.round(v).toLocaleString('en-US');
 const bars = (from: number, to: number) => (from === to ? `bar ${from}` : `bars ${from}–${to}`);

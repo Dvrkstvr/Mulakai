@@ -8,5 +8,5 @@
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["*.ts", "fake-acestep", "tests"]
+  "include": ["*.ts", "fake-acestep", "fake-score", "tests"]
 }

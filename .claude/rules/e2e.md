@@ -7,8 +7,10 @@ paths:
 # E2E and fakes
 
 - `npm run test:e2e` starts its own stack on 127.0.0.1: fake ACE-Step
-  8101, server 3101 with a throwaway `DATA_DIR`, Vite 5183 (M1 adds fake
-  Ollama and fake yue beside them, e.g. 8102 / 8103).
+  8101, server 3101 with a throwaway `DATA_DIR`, Vite 5183. The `score`
+  project (score.spec.ts) gets its own stack: fake Ollama 8102, fake
+  yue-server 8103 (`e2e/fake-score/`), server 3102 with `LLM_API_URL`
+  set and its own `DATA_DIR`, Vite 5184.
 - Before a run, check the ports (`Get-NetTCPConnection -LocalPort <port>
   -State Listen`). A hard-killed run can orphan one ("port in use"): stop
   only a process you started; if another session holds the ports, skip e2e

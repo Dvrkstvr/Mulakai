@@ -12,6 +12,7 @@ import type { VerbSpec } from './dockVerbs';
 import type { ScoreVerbState } from './scoreVerbTypes';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
 import { useNextVersion } from './useLayerQueue';
+import { scoreOpen } from './scoreEnds';
 
 export interface DockRepaintInputs {
   prompt: string;
@@ -57,14 +58,15 @@ export function ActionDock({ verb: picked, verbs, score, onVerb, song, focusedLa
   const target = dockTarget(verb, layerName, selection, sections, duration);
   const repaintTarget = verb === 'repaint' ? target : dockTarget('repaint', layerName, selection, sections, duration);
   const nextVersion = useNextVersion(focusedLayer, song.id);
+  const endsScore = scoreOpen(score); // F-027: an ACE-Step edit's line says it ends score editing
 
   const body = (v: DockVerb) => {
     if (v === 'repaint') {
       return <DockRepaint target={repaintTarget} layerName={layerName} nextVersion={nextVersion}
-        activeVersion={activeNumber(focusedLayer)} selection={selection} duration={duration} {...repaint} />;
+        activeVersion={activeNumber(focusedLayer)} selection={selection} duration={duration} scoreOpen={endsScore} {...repaint} />;
     }
-    if (v === 'addLayer') return <DockAddLayer songId={song.id} layers={song.layers} songLyrics={song.lyrics} />;
-    if (v === 'split') return focusedLayer ? <DockSplit songId={song.id} layer={focusedLayer} onChanged={onChanged} /> : null;
+    if (v === 'addLayer') return <DockAddLayer songId={song.id} layers={song.layers} songLyrics={song.lyrics} scoreOpen={endsScore} />;
+    if (v === 'split') return focusedLayer ? <DockSplit songId={song.id} layer={focusedLayer} onChanged={onChanged} scoreOpen={endsScore} /> : null;
     if (v === 'score') return <DockScore songId={song.id} state={score} />;
     return <DockExport song={song} />;
   };

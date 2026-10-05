@@ -14,6 +14,8 @@ interface Props {
   songId: string;
   layer: Layer;
   onChanged: () => Promise<void>;
+  /** SCORE is still open for the song (F-027): a stem's claim says it ends score editing. */
+  scoreOpen: boolean;
 }
 
 /**
@@ -24,7 +26,7 @@ interface Props {
  * blocks nothing else; only a new split elsewhere replaces it. Stem playback goes
  * through the shared previewPlayback slot via AudioPreview.
  */
-export function DockSplit({ songId, layer, onChanged }: Props) {
+export function DockSplit({ songId, layer, onChanged, scoreOpen }: Props) {
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [error, setError] = useState('');
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
@@ -116,6 +118,7 @@ export function DockSplit({ songId, layer, onChanged }: Props) {
                 layerName={layer.name}
                 nextVersion={nextVersion}
                 busy={busyKind === stem.kind}
+                scoreOpen={scoreOpen}
                 onClaim={(action) => claim(stem.kind, action)}
                 onReextract={() => reextract(stem.kind)}
               />
