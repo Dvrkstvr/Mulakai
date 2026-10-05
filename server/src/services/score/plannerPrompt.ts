@@ -8,7 +8,9 @@ import type { ChatMessage, ScoreFacts } from './planTypes.js';
 
 /** `context`: lines told just before the REQUEST: what "this" means (planReferent) and a REVISE's pending
  * plan (planRevise); none for a PLAN of the whole song. */
-export function planMessages(facts: ScoreFacts, style: string, request: string, context: string[] = []): ChatMessage[] {
+export function planMessages(
+  facts: ScoreFacts, style: string, request: string, context: string[] = [], replyLine = 'Reply with the JSON op list only.',
+): ChatMessage[] {
   const h = facts.header;
   const sections = facts.sections.map((s) => `S${s.index} ${s.label}: bars ${s.from_bar}-${s.to_bar}`).join('\n');
   // "[Chorus] #2" with its number, so "the second chorus" resolves to one block (F-031 #2).
@@ -29,14 +31,17 @@ export function planMessages(facts: ScoreFacts, style: string, request: string, 
     '',
     ...(context.length ? [...context, ''] : []),
     `REQUEST: ${request}`,
-    'Reply with the JSON op list only.',
+    replyLine,
   ].join('\n');
   return [{ role: 'system', content: PLANNER_RULES }, { role: 'user', content: user }];
 }
 
-export function retryMessages(messages: ChatMessage[], reply: string, reasons: string[]): ChatMessage[] {
-  const feedback = `Your op list was rejected:\n${reasons.map((r) => `- ${r}`).join('\n')}\n`
-    + 'Return a corrected, complete op list as JSON only.';
+/** `legend`: how a REVISE reply became the plan the reasons number (reviseReply); `closing`: the ask. */
+export function retryMessages(
+  messages: ChatMessage[], reply: string, reasons: string[], { legend, closing }: { legend?: string; closing?: string } = {},
+): ChatMessage[] {
+  const feedback = `Your op list was rejected:\n${legend ? `${legend}\n` : ''}${reasons.map((r) => `- ${r}`).join('\n')}\n`
+    + (closing ?? 'Return a corrected, complete op list as JSON only.');
   return [...messages, { role: 'assistant', content: reply }, { role: 'user', content: feedback }];
 }
 

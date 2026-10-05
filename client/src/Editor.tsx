@@ -59,7 +59,7 @@ export function Editor({ songId, onBack }: Props) {
   const { timing, sections, activeSectionIndex, activeLyricsBlock, lyricsUnlocked } =
     useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer, reload);
   useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
-  const scorePick = useScorePick(songId, verb, sections, lyricsDraft, score);
+  const scorePick = useScorePick(songId, verb, sections, lyricsDraft, score, timing.timings);
 
   const repaint = useRepaintSubmit({
     songId, focusedLayer, selection, duration, prompt, lyricsUnlocked, lyricsDraft, repaintSettings, setSelection, setPrompt,
@@ -110,6 +110,7 @@ export function Editor({ songId, onBack }: Props) {
             verb={verb}
             verbs={verbs}
             score={score}
+            scorePickable={scorePick?.pickable ?? false}
             onVerb={setVerb}
             song={song}
             focusedLayer={focusedLayer}

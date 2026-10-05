@@ -50,3 +50,8 @@ export function reviseReferent(s: Pick<ScoreVerbState, 'pick' | 'plan'>): ScoreR
   const pinned = s.plan?.referent ?? null;
   return pinned && samePick(s.pick, pinned) ? pinned : planReferent(s);
 }
+
+/** Whether SCORE's state can take a pick (review M2 should #2): the read's sections are known and the song is not
+ * ineligible. Otherwise a strip or lyric-line click under SCORE falls through to the Editor's range selection. */
+export const takesPick = (s: Pick<ScoreVerbState, 'phase' | 'status'>): boolean =>
+  !!s.status?.sections && s.phase.kind !== 'ineligible' && s.phase.kind !== 'hidden';

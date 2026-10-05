@@ -2,7 +2,7 @@
  * numbering), or not addressable when no block agrees; never counted by the client. */
 import { describe, expect, it } from 'vitest';
 import type { ScoreLyricBlock } from './api';
-import { lineIndexOf, linePick } from './scoreLinePick';
+import { canPick, lineIndexOf, linePick } from './scoreLinePick';
 
 const DRAFT = '[Verse 1]\nWalking down\nthe road\n\n[Chorus]\nHold the light\nCopper skies are burning low\n\n[Verse 2]\nAgain\n\n[Chorus]\nHold the light\nCarry me back';
 /** As yue-server reads DRAFT (block_facts). */
@@ -66,5 +66,17 @@ describe('lineIndexOf', () => {
     expect(lineIndexOf(DRAFT, { kind: 'missing', label: 'x', line: true }, BLOCKS)).toBe(-1);
     expect(lineIndexOf(DRAFT, { kind: 'section', section: 1, label: 'verse', occurrence: 1, bars: [1, 4] }, BLOCKS)).toBe(-1);
     expect(lineIndexOf(DRAFT, linePick(DRAFT, 13, BLOCKS), undefined)).toBe(-1);
+  });
+});
+
+describe('canPick (D-074)', () => {
+  const timed = (text: string, at: number) => ({ language: 'en', segments: [{ text, start: at, end: at + 2,
+    words: text.split(' ').map((t, i) => ({ text: t, start: at + i, end: at + i + 1 })) }] });
+  it('is true with a strip section or a timed lyric line, false with neither', () => {
+    expect(canPick([{ label: 'Chorus', start: 0, end: 10 }], '', null)).toBe(true);
+    expect(canPick([], DRAFT, timed('Walking down', 3))).toBe(true);
+    expect(canPick([], DRAFT, null)).toBe(false); // no lyric timings yet: nothing to click
+    expect(canPick([], DRAFT, { language: 'en', segments: [] })).toBe(false); // read, but no line was heard
+    expect(canPick([], '', timed('Walking down', 3))).toBe(false); // no lyrics
   });
 });

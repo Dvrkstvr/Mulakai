@@ -90,6 +90,11 @@ describe('THIS and the pending plan in the prompt (F-032, F-033)', () => {
     expect(planMessages(facts, 's', 'r')[1].content).toBe(planMessages(facts, 's', 'r', [])[1].content);
     expect(planMessages(facts, 's', 'r')[1].content).not.toContain('THIS:');
   });
+
+  it('ends with the reply line it is given (a REVISE asks for {drop, ops})', () => {
+    expect(planMessages(facts, 's', 'r')[1].content.endsWith('REQUEST: r\nReply with the JSON op list only.')).toBe(true);
+    expect(planMessages(facts, 's', 'r', [], 'Reply with {drop, ops} only.')[1].content.endsWith('REQUEST: r\nReply with {drop, ops} only.')).toBe(true);
+  });
 });
 
 describe('retryMessages', () => {
@@ -101,5 +106,10 @@ describe('retryMessages', () => {
     expect(next[3].role).toBe('user');
     expect(next[3].content).toBe('Your op list was rejected:\n- op 2 (REHARMONIZE): bars 999-999 are outside the score (1-65)\n'
       + 'Return a corrected, complete op list as JSON only.');
+  });
+
+  it("puts a legend before the reasons and a closing line of the caller's (REVISE)", () => {
+    const next = retryMessages([], '{}', ['op 2 (SET_TEMPO): x'], { legend: 'Your reply made this plan: op 1 = pending op 1.', closing: 'Close.' });
+    expect(next[1].content).toBe('Your op list was rejected:\nYour reply made this plan: op 1 = pending op 1.\n- op 2 (SET_TEMPO): x\nClose.');
   });
 });

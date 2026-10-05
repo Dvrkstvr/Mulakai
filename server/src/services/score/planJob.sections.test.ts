@@ -72,6 +72,11 @@ describe('section and lyric ops through the plan job (F-030, F-031)', () => {
     const plan = getPlan(SONG)!;
     expect(plan.verdicts[0].note).toBe('lyric block 3 [Chorus] is repeated with it; block 5 [Chorus] matches no chorus in the score and stays as it is');
     expect(plan.lyrics).toContain('chorus 3 line 4\n\n[Chorus]\nchorus 3 line 1'); // block 3 copied after itself
+    // The checks line counts the edited score's bars: the read's 65 plus the repeated chorus's 16 (review M2 should #1).
+    const facts = read.response.body.facts as { header: { bars: number }; sections: Array<{ index: number; from_bar: number; to_bar: number }> };
+    const chorus = facts.sections.find((x) => x.index === 3)!;
+    expect(plan.checks.bars).toBe(facts.header.bars + chorus.to_bar - chorus.from_bar + 1);
+    expect(plan.checks.bars).toBe(81);
   });
 
   it('names the section to cut when a repeat passes 360 s, by its read number, to the planner and the review (F-030 #2)', async () => {

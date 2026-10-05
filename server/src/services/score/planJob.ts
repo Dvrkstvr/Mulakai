@@ -21,9 +21,10 @@ import { planMessages, promptChars } from './plannerPrompt.js';
 import { phraseBarsOf } from './phraseRequest.js';
 import { dropPlan, getPlan, noteRun, setPlan } from './planStore.js';
 import { referentLines, resolveReferent, staleMessage } from './planReferent.js';
-import { markOps, pendingLines, reviseRefusal } from './planRevise.js';
+import { pendingLines, reviseRefusal } from './planRevise.js';
+import { reviseContract } from './reviseReply.js';
 import type { ApplyResult, ChatMessage, Op, PlanCause, PlannerReply, PlanPress, ScoreFacts, StaleReferent } from './planTypes.js';
-import { withLimits } from './scoreLimits.js';
+import { editedBars, withLimits } from './scoreLimits.js';
 import { loadedModels, probePlanner, releasePlanner, type LoadedModel, type PlannerTarget } from './ollamaControl.js';
 import { scoreStatus, type ScoreStatus } from './scoreStatus.js';
 import { applyOps, type ApplyBase } from './yueScoreApply.js';
@@ -82,13 +83,14 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
   const unsupported = await deps.probe();
   if (unsupported) throw new Error(unsupported);
   const contextOf = async () => (await deps.loaded()).find((m) => m.name === deps.planner.model)?.contextLength ?? null;
+  const phraseBars = phraseBarsOf(request);
+  const revising = pending ? reviseContract(pending, facts, phraseBars) : null; // D-073: a {drop, ops} reply, merged into the pending plan
   let outcome: AttemptsOutcome;
   try {
-    const messages = planMessages(facts, style, request, [...referentLines(referent), ...(pending ? pendingLines(pending) : [])]);
+    const messages = planMessages(facts, style, request, [...referentLines(referent), ...(pending ? pendingLines(pending) : [])], revising?.replyLine);
     const pre = contextPreflight({ promptChars: promptChars(messages), contextLength: await contextOf() });
     if (pre) throw new PlanError('check', pre);
-    const phraseBars = phraseBarsOf(request);
-    const schema = buildOpSchema(facts, phraseBars);
+    const schema = revising?.schema ?? buildOpSchema(facts, phraseBars);
     outcome = await planAttempts(facts, messages, {
       ask: async (msgs) => {
         if (wasAborted(job)) throw new PlanError('cancelled', 'Aborted');
@@ -99,7 +101,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
       },
       apply: async (ops) => withLimits(await deps.apply(base, ops), { ops, sections: facts.sections }),
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
-    }, { phraseBars });
+    }, { phraseBars, read: revising?.read, retry: revising?.retry });
   } finally {
     job.progressText = 'unloading the planner';
     await deps.release();
@@ -111,9 +113,9 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
   setPlan({
     id: planId, songId, baseVersionId: activeVersionId, fingerprint: source.fingerprint, request,
     ops: outcome.ops, verdicts: applied.verdicts, abc: applied.abc, style: applied.style, lyrics: applied.lyrics ?? null,
-    checks: { bars: facts.header.bars, seconds: applied.seconds, tokens: applied.tokens, chordsPresent: applied.chords_present, changed: applied.changed },
+    checks: { bars: editedBars(applied, facts), seconds: applied.seconds, tokens: applied.tokens, chordsPresent: applied.chords_present, changed: applied.changed },
     attempts: outcome.attempts, refusals: outcome.refusals, createdAt: Date.now(),
-    referent, revision: pending ? (pending.revision ?? 1) + 1 : 1, since: pending ? markOps(pending, outcome.ops) : null,
+    referent, revision: pending ? (pending.revision ?? 1) + 1 : 1, since: revising?.since() ?? null,
   });
   noteRun(songId, { jobId: job.id, request, reasons: [], planId, cause: null, revise: press.revise ?? null });
   job.progressText = undefined;

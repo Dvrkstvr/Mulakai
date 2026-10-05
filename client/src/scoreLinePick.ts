@@ -4,7 +4,10 @@
  * and first line and have the line; the block's number, occurrence and count come from the server. A line no block
  * agrees with (an edited draft, a line outside a tagged block) is `missing`: shown rust, never sent or guessed.
  * No `blocks` (not read yet, or an older server): no pick. Pure. */
-import type { ScoreLyricBlock } from './api';
+import type { ScoreLyricBlock, WordTimings } from './api';
+import { alignLyrics } from './lyricAlign';
+import type { Section } from './lyricSections';
+import { laneLines } from './lyricsLaneLines';
 import { kindOf, samePick } from './scoreReferent';
 import type { ScorePick } from './scoreVerbTypes';
 
@@ -38,4 +41,9 @@ export function lineIndexOf(draft: string, pick: ScorePick | null, blocks: Score
     const p = linePick(draft, i, blocks);
     return p?.kind === 'line' && samePick(p, pick);
   });
+}
+
+/** Whether SCORE has anything to pick (D-074): a section on the strip or a lyric line the lane shows at its time. */
+export function canPick(strip: Section[], draft: string, timings: WordTimings | null): boolean {
+  return strip.length > 0 || (!!timings && laneLines(draft, alignLyrics(draft, timings).lines).lines.length > 0);
 }

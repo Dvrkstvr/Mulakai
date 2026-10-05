@@ -106,6 +106,23 @@ describe('planAttempts (F-019 #3)', () => {
     expect(out).toMatchObject({ ok: true, attempts: 2 });
   });
 
+  it('reads a reply with the given reader, applies what it made, and tells a retry how it was read (REVISE, D-073)', async () => {
+    const read = vi.fn((json: unknown) => ((json as { drop?: unknown }).drop
+      ? { ok: true as const, ops: [{ op: 'SET_TEMPO' as const, bpm: 80 }], legend: 'Your reply made this plan: op 1 = your op 1 (new).' }
+      : { ok: false as const, reasons: ['the reply is not a JSON object {"drop":[...],"ops":[...]}'] }));
+    const results = [applied({ ok: false, checks: { ok: false, problems: ['estimated 441 s: over the 360 s limit'], differences: [] } }), applied()];
+    const apply = vi.fn(async () => results.shift()!);
+    const reply = JSON.stringify({ drop: [1], ops: [] });
+    const ask = stub(TEMPO, reply, reply);
+    const out = await planAttempts(facts, start, { ask, apply }, { read, retry: 'Return a corrected {drop, ops}.' });
+    expect(out).toMatchObject({ ok: true, attempts: 3, ops: [{ op: 'SET_TEMPO', bpm: 80 }] });
+    expect(apply).toHaveBeenCalledWith([{ op: 'SET_TEMPO', bpm: 80 }]);
+    expect(ask.mock.calls[1][0][3].content).toBe('Your op list was rejected:\n- the reply is not a JSON object {"drop":[...],"ops":[...]}\n'
+      + 'Return a corrected {drop, ops}.');
+    expect(ask.mock.calls[2][0][5].content).toBe('Your op list was rejected:\nYour reply made this plan: op 1 = your op 1 (new).\n'
+      + '- estimated 441 s: over the 360 s limit\nReturn a corrected {drop, ops}.');
+  });
+
   it('lets a planner error end the loop at once', async () => {
     const ask = vi.fn(async () => { throw new Error('planner context is 2048, needs about 7500'); });
     await expect(planAttempts(facts, start, { ask, apply: async () => applied() })).rejects.toThrow('planner context is 2048');

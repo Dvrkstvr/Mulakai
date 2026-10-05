@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { contract } from '../../../test-fakes/fakeYue.js';
-import { buildOpSchema, checkOps } from './opSchema.js';
+import { buildOpSchema, checkOps, MAX_OPS } from './opSchema.js';
 import type { ScoreFacts } from './planTypes.js';
 import { LABEL_MAX, LINE_CHARS, LINES_MAX, SEMITONES_MAX, TAG_MAX, sectionOpProblems, sectionOpSchemas } from './sectionSchema.js';
 
@@ -16,6 +16,10 @@ const schemaOf = (f: ScoreFacts, name: string) => (sectionOpSchemas(f) as Array<
   .find((s) => s.properties.op.const === name || s.properties.op.enum?.includes(name));
 
 describe('the mirrored limits match yue-server (score_edit_routes.py, score_section_models.py)', () => {
+  it('pins the ops per plan to the apply request model: a longer merged REVISE is refused in code, never a 422 (review M2 nit #4)', () => {
+    expect(source('score_edit_routes.py')).toContain(`ops: list[Op] = Field(min_length=1, max_length=${MAX_OPS})`);
+  });
+
   it('pins semitones, label, tag and lines to the Python models', () => {
     expect(source('score_edit_routes.py')).toContain(`semitones: int = Field(ge=-${SEMITONES_MAX}, le=${SEMITONES_MAX})`);
     const models = source('score_section_models.py');

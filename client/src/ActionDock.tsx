@@ -29,6 +29,8 @@ interface Props {
   /** The tabs on show (dockVerbs): SCORE only for a song the server says it applies to. */
   verbs: readonly VerbSpec[];
   score: ScoreVerbState;
+  /** SCORE has a strip section or a timed lyric line to pick (D-074): only then the chip hints at picking. */
+  scorePickable?: boolean;
   onVerb: (verb: DockVerb) => void;
   song: SongDetail;
   focusedLayer: Layer | undefined;
@@ -51,14 +53,14 @@ function activeNumber(layer: Layer | undefined): number | null {
  * fields survive a switch; ADD LAYER is always mounted, as its row used to be, so its fields
  * start over once its layers land even while another verb shows.
  */
-export function ActionDock({ verb: picked, verbs, score, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint, onChanged }: Props) {
+export function ActionDock({ verb: picked, verbs, score, scorePickable = false, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint, onChanged }: Props) {
   const verb = verbs.some((v) => v.id === picked) ? picked : 'repaint'; // SCORE went away (another song)
   const [opened, setOpened] = useState<Set<DockVerb>>(() => new Set(['repaint', 'addLayer']));
   if (!opened.has(verb)) setOpened(new Set([...opened, verb]));
   const layerName = focusedLayer?.name ?? 'base';
   const duration = song.duration ?? 0;
   // SCORE's chip names the pick ("this", F-032, M2-1); ✕ clears the pick, not the range REPAINT keeps.
-  const target = verb === 'score' ? scoreTarget(score, selection) : dockTarget(verb, layerName, selection, sections, duration);
+  const target = verb === 'score' ? scoreTarget(score, selection, scorePickable) : dockTarget(verb, layerName, selection, sections, duration);
   const clearPick = () => useScoreStore.getState().dispatch(song.id, { type: 'pick', pick: null });
   const repaintTarget = verb === 'repaint' ? target : dockTarget('repaint', layerName, selection, sections, duration);
   const nextVersion = useNextVersion(focusedLayer, song.id);

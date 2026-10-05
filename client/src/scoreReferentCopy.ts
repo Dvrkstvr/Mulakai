@@ -33,11 +33,12 @@ export const WHOLE_SCORE_PICK = 'WHOLE SCORE';
 const NO_PICK_HINT = 'click a section or a lyric line: it becomes “this” in your request';
 
 /** The SCORE chip (M2-1): `BASE · WHOLE SCORE · THIS: CHORUS 2 · BARS 29–36`, rust for a section or lyric line
- * the score lacks, or a stale pick; `clearable` offers ✕ WHOLE SCORE. A dragged range is not a pick: the hint says so (M2-2). */
-export function scoreTarget(s: Pick<ScoreVerbState, 'pick' | 'stale'>, selection: Region | null): DockTarget {
+ * the score lacks, or a stale pick; `clearable` offers ✕ WHOLE SCORE. A dragged range is not a pick: the hint says so (M2-2).
+ * `pickable`: the dock has a strip section or a timed lyric line to click; without one, no pick hint (D-074). */
+export function scoreTarget(s: Pick<ScoreVerbState, 'pick' | 'stale'>, selection: Region | null, pickable = true): DockTarget {
   const pick = s.pick;
   if (!pick) {
-    const hint = selection ? `SCORE takes a section or a lyric line · the range ${fmtRange(selection)} is ignored` : NO_PICK_HINT;
+    const hint = selection ? `SCORE takes a section or a lyric line · the range ${fmtRange(selection)} is ignored` : pickable ? NO_PICK_HINT : '';
     return { label: WHOLE_SCORE, warn: false, clearable: false, hint, section: null };
   }
   const stale = !!s.stale && samePick(pick, s.stale.picked);

@@ -3,7 +3,8 @@
 import { describe, expect, it } from 'vitest';
 import type { ScorePlan, ScoreReferent, ScoreSection } from './api';
 import type { Section } from './lyricSections';
-import { planReferent, reviseReferent, samePick, sectionPick, stripIndexOf } from './scoreReferent';
+import { planReferent, reviseReferent, samePick, sectionPick, stripIndexOf, takesPick } from './scoreReferent';
+import type { ScoreVerbState } from './scoreVerbTypes';
 
 const SECTIONS: ScoreSection[] = [
   { index: 1, label: 'intro', from_bar: 1, to_bar: 4 }, { index: 2, label: 'verse', from_bar: 5, to_bar: 12 },
@@ -60,5 +61,18 @@ describe('what PLAN and REVISE send', () => {
     expect(reviseReferent({ plan, pick: verse })).toBe(verse);
     expect(reviseReferent({ plan, pick: null })).toBeNull();
     expect(reviseReferent({ plan: { ...plan, referent: null }, pick: null })).toBeNull();
+  });
+});
+
+describe('takesPick (review M2 should #2)', () => {
+  const status = { sections: SECTIONS, blocks: [] } as unknown as ScoreVerbState['status'];
+  it('takes a pick once the sections are read, also with the planner offline', () => {
+    expect(takesPick({ phase: { kind: 'asking' }, status })).toBe(true);
+    expect(takesPick({ phase: { kind: 'offline', reason: 'x', source: 'planner' }, status })).toBe(true);
+  });
+  it('lets the click fall through when the song is ineligible or the checker is offline (no sections)', () => {
+    expect(takesPick({ phase: { kind: 'ineligible', reason: 'the song has layers' }, status })).toBe(false);
+    expect(takesPick({ phase: { kind: 'offline', reason: 'x', source: 'checker' }, status: null })).toBe(false);
+    expect(takesPick({ phase: { kind: 'asking' }, status: { ...status!, sections: undefined } })).toBe(false);
   });
 });

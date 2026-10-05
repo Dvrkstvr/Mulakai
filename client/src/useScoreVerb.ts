@@ -1,11 +1,11 @@
 /** The Editor's hooks into SCORE: its state per song, reloaded when the song changes, and the picks the section
  * strip and the lyrics lane make while SCORE is the verb (F-032, M2-2: a pick under SCORE stays on SCORE). */
-import { useEffect } from 'react';
-import type { SongDetail } from './api';
+import { useEffect, useMemo } from 'react';
+import type { SongDetail, WordTimings } from './api';
 import type { DockVerb } from './dockTarget';
 import { findActiveSectionIndex, type Section } from './lyricSections';
-import { lineIndexOf, linePick } from './scoreLinePick';
-import { sectionPick, stripIndexOf } from './scoreReferent';
+import { canPick, lineIndexOf, linePick } from './scoreLinePick';
+import { sectionPick, stripIndexOf, takesPick } from './scoreReferent';
 import { useScoreStore } from './scoreStore';
 import { INITIAL_SCORE, type ScoreVerbState } from './scoreVerbTypes';
 import type { Region } from './Waveform';
@@ -33,15 +33,22 @@ export interface ScorePickInputs {
   lineIndex: number;
   onStrip: (region: Region) => void;
   onLine: (index: number) => void;
+  /** A strip section or a timed lyric line exists to click (D-074): the chip's pick hint shows only then. */
+  pickable: boolean;
 }
 
-/** Under SCORE: a strip section or a lyric line becomes the pick, the verb stays; null under any other verb. */
-export function useScorePick(songId: string, verb: DockVerb, strip: Section[], draft: string, score: ScoreVerbState): ScorePickInputs | null {
+/** Under SCORE: a strip section or a lyric line becomes the pick, the verb stays; null under any other verb, or when
+ * SCORE cannot take a pick (ineligible, checker offline: no sections read), so the click falls through. */
+export function useScorePick(
+  songId: string, verb: DockVerb, strip: Section[], draft: string, score: ScoreVerbState, timings: WordTimings | null,
+): ScorePickInputs | null {
   const dispatch = useScoreStore((s) => s.dispatch);
-  if (verb !== 'score') return null;
+  const pickable = useMemo(() => canPick(strip, draft, timings), [strip, draft, timings]);
+  if (verb !== 'score' || !takesPick(score)) return null; // nothing can be picked: the click selects a range as usual
   const sections = score.status?.sections;
   const blocks = score.status?.blocks;
   return {
+    pickable,
     stripIndex: stripIndexOf(strip, sections, score.pick),
     lineIndex: lineIndexOf(draft, score.pick, blocks),
     onStrip: (region) => {

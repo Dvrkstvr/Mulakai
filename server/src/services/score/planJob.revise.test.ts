@@ -14,7 +14,8 @@ const { getRunning, resetQueue } = await import('../genQueue.js');
 const { abortJob, getJob } = await import('../jobRegistry.js');
 const { startPlan, planDeps, CHECK_FAILED } = await import('./planJob.js');
 const { getPlan, lastRun, resetPlans } = await import('./planStore.js');
-const { PLAN_REPLACED, PLAN_STALE } = await import('./planRevise.js');
+const { NOTHING_REVISED, PLAN_REPLACED, PLAN_STALE } = await import('./planRevise.js');
+const { buildReviseSchema, REVISE_REPLY, REVISE_RETRY } = await import('./reviseReply.js');
 type FakeOllama = Awaited<ReturnType<typeof startFakeOllama>>;
 type ScoreStatus = import('./scoreStatus.js').ScoreStatus;
 type ApplyResult = import('./planTypes.js').ApplyResult;
@@ -38,6 +39,11 @@ const applied = (ops: Op[]): ApplyResult => ({
   chords_present: true, bpm: 88, seconds: 183, tokens: 1520,
 });
 const BAD = plan({ op: 'SET_TEMPO', bpm: 999 });
+const revised = (drop: number[], ...ops: Op[]) => ({ content: JSON.stringify({ drop, ops }) });
+const HARM: Op = { op: 'REHARMONIZE', from_bar: 47, to_bar: 48, chords: [{ bar: 47, beat: 1, root: 'D', quality: 'm7' }, { bar: 48, beat: 1, root: 'G', quality: '7' }] };
+const UP_2: Op = { op: 'TRANSPOSE', semitones: 2 };
+const REPEAT_3: Op = { op: 'REPEAT', section: 3, label: 'chorus' };
+const LYRICS_2: Op = { op: 'REWRITE_LYRICS', block: 2, tag: '[Chorus]', occurrence: 1, lines: ['hold on to the sea'] };
 const CHORUS = { kind: 'section', section: 3, label: 'chorus', occurrence: 1, of: 1, bars: [47, 62] } as const;
 
 let ollama: FakeOllama;
@@ -57,6 +63,8 @@ const settled = async (id: string) => {
 };
 const asks = () => ollama.requests.filter((r) => r.path === '/v1/chat/completions')
   .map((r) => (r.body as { messages: Array<{ content: string }> }).messages[1].content);
+const schemas = () => ollama.requests.filter((r) => r.path === '/v1/chat/completions')
+  .map((r) => (r.body as { response_format: { json_schema: { schema: unknown } } }).response_format.json_schema.schema);
 async function plan1() {
   ollama.chats.splice(0, ollama.chats.length, plan(TEMPO, STYLE));
   expect((await settled(startPlan(SONG, 'make it jazzier', deps()).id)).status).toBe('done');
@@ -65,17 +73,20 @@ async function plan1() {
 }
 
 describe('REVISE (F-033)', () => {
-  it('shows the planner the pending plan, replaces it, and marks what changed since; each press loads and unloads', async () => {
+  it('shows the planner the pending plan, merges its {drop, ops} reply, and marks what changed since; each press loads and unloads', async () => {
     ollama = await startFakeOllama();
     const first = await plan1();
     expect(first).toMatchObject({ revision: 1, since: null, referent: null });
-    ollama.chats.splice(0, 1, plan({ op: 'SET_TEMPO', bpm: 92 }));
+    ollama.chats.splice(0, 1, revised([2], { op: 'SET_TEMPO', bpm: 92 }));
     const job = await settled(startPlan(SONG, 'a bit faster, and drop the style change', deps(), { revise: first.id }).id);
     expect(job.status).toBe('done');
     expect(asks()[1]).toContain('PENDING PLAN (plan 1, made for: "make it jazzier"):\nop 1 SET_TEMPO {"bpm":88}: applied\n'
       + 'op 2 EDIT_STYLE {"style":"dark pop, jazz"}: applied\n');
-    expect(asks()[1]).toMatch(/not as the pending plan would leave it\.\n\nREQUEST: a bit faster/);
+    expect(asks()[1]).toMatch(/not as the pending plan would leave it\.\n\nREQUEST: a bit faster, and drop the style change\n/);
+    expect(asks()[1].endsWith(`\n${REVISE_REPLY}`)).toBe(true);
+    expect(schemas()[1]).toEqual(buildReviseSchema(read.response.body.facts as never, 2));
     const second = getPlan(SONG)!;
+    expect(second.ops).toEqual([{ op: 'SET_TEMPO', bpm: 92 }]);
     expect(second.id).not.toBe(first.id);
     expect(second).toMatchObject({ revision: 2, request: 'a bit faster, and drop the style change',
       since: { planId: first.id, marks: [{ mark: 'CHANGED', was: TEMPO }], removed: [STYLE] } });
@@ -83,10 +94,39 @@ describe('REVISE (F-033)', () => {
     expect(events).toEqual(['ask', 'unload', 'empty']); // the hand-off is unchanged per press (D-011)
   });
 
+  it('keeps every pending op on an additive revision and applies the merged plan (CP3, Q-050)', async () => {
+    ollama = await startFakeOllama();
+    const sent: Op[][] = [];
+    ollama.chats.splice(0, ollama.chats.length, plan(HARM, UP_2, REPEAT_3, LYRICS_2));
+    const d = { ...deps(), apply: async (_b: unknown, ops: Op[]) => { sent.push(ops); return applied(ops); } };
+    await settled(startPlan(SONG, 'jazz chords, up a tone, repeat the chorus, new chorus words', d).id);
+    const first = getPlan(SONG)!;
+    ollama.chats.splice(0, 1, revised([], { op: 'SET_TEMPO', bpm: 80 }));
+    expect((await settled(startPlan(SONG, 'also slow it down to 80 BPM', d, { revise: first.id }).id)).status).toBe('done');
+    const merged = [HARM, UP_2, REPEAT_3, LYRICS_2, { op: 'SET_TEMPO', bpm: 80 }];
+    expect(sent.at(-1)).toEqual(merged);
+    expect(getPlan(SONG)).toMatchObject({ ops: merged, since: { planId: first.id, removed: [] } });
+    expect(getPlan(SONG)!.since!.marks.map((m) => m.mark)).toEqual(['SAME', 'SAME', 'SAME', 'SAME', 'NEW']);
+  });
+
+  it('retries a drop outside the pending plan and an empty reply with the reason, then takes a good reply', async () => {
+    ollama = await startFakeOllama();
+    const first = await plan1();
+    ollama.chats.splice(0, 1, revised([3]), revised([]), revised([1]));
+    const job = await settled(startPlan(SONG, 'no tempo change', deps(), { revise: first.id }).id);
+    expect(job.status).toBe('done');
+    expect(events).toEqual(['ask', 'ask', 'ask', 'unload', 'empty']);
+    const feedback = (n: number) => (ollama.requests.filter((r) => r.path === '/v1/chat/completions')[n].body as { messages: Array<{ content: string }> })
+      .messages.at(-1)!.content;
+    expect(feedback(2)).toBe(`Your op list was rejected:\n- drop 3 is not a pending op number (1-2)\n${REVISE_RETRY}`);
+    expect(feedback(3)).toBe(`Your op list was rejected:\n- ${NOTHING_REVISED}\n${REVISE_RETRY}`);
+    expect(getPlan(SONG)).toMatchObject({ ops: [STYLE], attempts: 3, since: { marks: [{ mark: 'SAME', was: STYLE }], removed: [TEMPO] } });
+  });
+
   it('keeps plan 1 available when the REVISE fails its 3 attempts, still unloading (D-063)', async () => {
     ollama = await startFakeOllama();
     const first = await plan1();
-    ollama.chats.splice(0, 1, BAD);
+    ollama.chats.splice(0, 1, revised([], { op: 'SET_TEMPO', bpm: 999 }));
     const job = await settled(startPlan(SONG, 'way faster', deps(), { revise: first.id }).id);
     expect(job.error).toMatch(new RegExp(`^${CHECK_FAILED}: op 1 \\(SET_TEMPO\\): bpm 999`));
     expect(events).toEqual(['ask', 'ask', 'ask', 'unload', 'empty']);

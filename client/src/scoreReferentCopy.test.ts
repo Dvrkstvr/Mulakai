@@ -18,6 +18,10 @@ describe('the SCORE chip (M2-1)', () => {
       hint: 'click a section or a lyric line: it becomes “this” in your request' });
     expect(scoreTarget({ pick: null, stale: null }, { start: 92, end: 127 }).hint).toBe('SCORE takes a section or a lyric line · the range 1:32–2:07 is ignored');
   });
+  it('no hint when the dock has nothing to pick: no strip section, no timed lyric line (D-074, Q-051)', () => {
+    expect(scoreTarget({ pick: null, stale: null }, null, false)).toEqual({ label: 'BASE · WHOLE SCORE', warn: false, clearable: false, hint: '', section: null });
+    expect(scoreTarget({ pick: null, stale: null }, null, true).hint).toBe('click a section or a lyric line: it becomes “this” in your request');
+  });
   it('a section: its name and bars in the sky suffix, ✕ clears it', () => {
     expect(scoreTarget({ pick: CHORUS2, stale: null }, null)).toEqual({ label: 'BASE · WHOLE SCORE · THIS: CHORUS 2 · BARS 29–36', warn: false,
       clearable: true, hint: '“this” means CHORUS 2 · ✕ clears it', section: null });

@@ -92,8 +92,12 @@ test('a plan over 360 s is refused with the number and the tempo that fits', asy
   expect(chats.length).toBeGreaterThanOrEqual(3);
 });
 
-test('REVISE sees plan 1, replaces it and marks what changed since (F-033)', async ({ page, request }) => {
-  await scriptPlanner(request, { replies: [plannerReplyFor('apply-compound')] }); // the revision keeps every op
+test('REVISE sees plan 1, merges what changes into it and marks what changed since (F-033, D-073)', async ({ page, request }) => {
+  // Plan 1 is the compound plan; the REVISE replies only what changes, {drop, ops} (D-073): drop ops 2 and 3, so the
+  // merged plan is plan 1's SET TEMPO alone, which yue-server's recorded apply-set-tempo reply answers.
+  const reviseReply = JSON.stringify({ drop: [2, 3], ops: [] });
+  expect(contract('apply-set-tempo').request.body.ops).toEqual([(contract('apply-compound').request.body.ops as unknown[])[0]]);
+  await scriptPlanner(request, { replies: [plannerReplyFor('apply-compound'), reviseReply] });
   const { dock, panel } = await openScore(page);
   const field = panel.getByRole('textbox', { name: 'Score change request' });
   await field.fill(REQUEST);
@@ -103,14 +107,16 @@ test('REVISE sees plan 1, replaces it and marks what changed since (F-033)', asy
   await expect(revise).toBeDisabled(); // the request is still plan 1's (M2-5)
 
   const plan1 = ((await (await request.get(`/api/songs/${songId}/score/plan`)).json()) as { plan: { id: string } }).plan.id;
-  await field.fill(`${REQUEST}, keep the rest as it is`);
+  await field.fill('only the tempo change, no chords or style');
   const posted = page.waitForRequest((r) => r.method() === 'POST' && r.url().endsWith(`/api/songs/${songId}/score/plan`));
   await revise.click();
-  expect((await posted).postDataJSON()).toEqual({ request: `${REQUEST}, keep the rest as it is`, referent: null, revise: plan1 });
+  expect((await posted).postDataJSON()).toEqual({ request: 'only the tempo change, no chords or style', referent: null, revise: plan1 });
   await expect(panel.locator('.score-plan-label', { hasText: 'REVISED' }))
-    .toHaveText('PLAN 2 · REVISED FROM PLAN 1 · 3 CHANGES · AGAINST BASE v1', { timeout: 30_000 });
-  await expect(panel.locator('.score-since')).toHaveText('SINCE PLAN 1 · 3 SAME');
-  await expect(panel.locator('.score-op-mark')).toHaveText(['SAME', 'SAME', 'SAME']);
+    .toHaveText('PLAN 2 · REVISED FROM PLAN 1 · 1 CHANGE · AGAINST BASE v1', { timeout: 30_000 });
+  await expect(panel.locator('.score-since', { hasText: /^SINCE/ })).toHaveText('SINCE PLAN 1 · 1 SAME · 2 REMOVED');
+  await expect(panel.locator('.score-since', { hasText: /^REMOVED/ })).toHaveText(/^REMOVED SINCE PLAN 1 · REHARMONIZE .* · EDIT STYLE/);
+  await expect(panel.locator('.score-op-name')).toHaveText(['SET TEMPO']);
+  await expect(panel.locator('.score-op-mark')).toHaveText(['SAME']);
   await expect(revise).toBeDisabled();
   await expect(dock.getByRole('button', { name: 'APPLY & RENDER' })).toBeEnabled();
   // The planner was asked with plan 1 in the prompt; the second chat is the REVISE's.

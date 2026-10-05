@@ -28,6 +28,8 @@ const eligible = (fingerprint = 'f'): ScoreStatus => ({
 });
 let current: ScoreStatus = eligible();
 const TEMPO = { content: JSON.stringify({ ops: [{ op: 'SET_TEMPO', bpm: 88 }] }) };
+/** A REVISE reply (D-073): only what changes; this one returns the pending tempo unchanged. */
+const SAME_TEMPO = { content: JSON.stringify({ drop: [], ops: [{ op: 'SET_TEMPO', bpm: 88 }] }) };
 const CHORUS = { kind: 'section', section: 3, label: 'chorus', occurrence: 1, of: 1, bars: [47, 62] };
 
 const ollama = await startFakeOllama();
@@ -61,8 +63,8 @@ const post = (body: unknown) => fetch(`${baseUrl}/s1/score/plan`, {
   method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body),
 });
 const state = async () => (await fetch(`${baseUrl}/s1/score/plan`)).json() as Promise<Record<string, any>>;
-async function planned(body: unknown) {
-  ollama.chats.splice(0, ollama.chats.length, TEMPO);
+async function planned(body: unknown, reply = TEMPO) {
+  ollama.chats.splice(0, ollama.chats.length, reply);
   expect((await post(body)).status).toBe(202);
   await vi.waitFor(async () => expect((await state()).run.status).toMatch(/done|failed/), { timeout: 5000 });
   await vi.waitFor(() => expect(getRunning()).toBeNull());
@@ -95,7 +97,7 @@ describe('POST /score/plan with a pick (F-032)', () => {
 describe('POST /score/plan with revise (F-033)', () => {
   it('replaces the pending plan with revision 2 and its marks', async () => {
     const first = (await planned({ request: 'set it to 88 BPM' })).plan;
-    const { plan, run } = await planned({ request: 'keep it at 88 BPM', revise: first.id, referent: CHORUS });
+    const { plan, run } = await planned({ request: 'keep it at 88 BPM', revise: first.id, referent: CHORUS }, SAME_TEMPO);
     expect(plan).toMatchObject({ revision: 2, referent: CHORUS, since: { planId: first.id, marks: [{ mark: 'SAME' }], removed: [] } });
     expect(run).toMatchObject({ status: 'done', revise: first.id, planId: plan.id });
   });
