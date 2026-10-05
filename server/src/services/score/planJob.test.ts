@@ -19,11 +19,11 @@ type FakeYue = Awaited<ReturnType<typeof startFakeYue>>;
 type ScoreStatus = import('./scoreStatus.js').ScoreStatus;
 
 const read = contract('read-ok');
-const base = contract('apply-compound').request.body as { abc: string; style: string };
+const base = contract('apply-compound').request.body as { abc: string; style: string; lyrics: string };
 const SONG = 'song-1';
 const status = (over: Partial<ScoreStatus> = {}): ScoreStatus => ({
   eligibility: { state: 'eligible' },
-  source: { songId: SONG, activeVersionId: 'v1', abc: base.abc, style: base.style, lyrics: '', fingerprint: 'l1|v1|v1' } as ScoreStatus['source'],
+  source: { songId: SONG, activeVersionId: 'v1', abc: base.abc, style: base.style, lyrics: base.lyrics, fingerprint: 'l1|v1|v1' } as ScoreStatus['source'],
   read: { ok: true, error: null, messages: [], chordsPresent: true, bpm: 87, seconds: 179.3, tokens: 1832, facts: read.response.body.facts as never },
   ...over,
 });
@@ -40,7 +40,7 @@ afterEach(async () => { await ollama?.close(); resetQueue(); resetPlans(); event
 
 function deps(over: Parameters<typeof planDeps>[0] = {}) {
   const planner = { url: ollama.url, model: 'qwen3:14b' };
-  const d = planDeps({ planner, status: async () => status(), apply: (abc, style, ops) => applyOps(abc, style, ops, { label: 'YUE2', url: yue.url, apiKey: '' }), ...over });
+  const d = planDeps({ planner, status: async () => status(), apply: (b, ops) => applyOps(b, ops, { label: 'YUE2', url: yue.url, apiKey: '' }), ...over });
   const { ask, release } = d;
   return { ...d, ask: async (...a: Parameters<typeof ask>) => { events.push('ask'); return ask(...a); },
     release: async () => { events.push('unload'); const r = await release(); events.push('empty'); return r; } };

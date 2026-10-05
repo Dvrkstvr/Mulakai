@@ -19,7 +19,10 @@ export const NOT_SET_UP = 'the score planner is not set up: set LLM_API_URL to a
 export const ALREADY_PLANNING = 'a plan is already queued or running for this song';
 export const NOTHING_TO_CANCEL = 'no plan is queued or running for this song';
 
-const planView = ({ abc: _abc, fingerprint: _fp, ...plan }: Plan) => plan;
+/** What the dock reads of a plan: its ops, verdicts (with a section op's lyric `note` and a
+ * REWRITE_LYRICS `diff`, F-030 #3, F-031 #1), checks and refusals; never the edited score or lyrics. */
+export type PlanView = Omit<Plan, 'abc' | 'fingerprint' | 'lyrics'>;
+const planView = ({ abc: _abc, fingerprint: _fp, lyrics: _lyrics, ...plan }: Plan): PlanView => plan;
 
 export function makeScorePlanRouter(deps: () => PlanDeps = () => planDeps()): Router {
   const router = Router();

@@ -17,10 +17,10 @@ const { applyOps } = await import('../services/score/yueScoreApply.js');
 const { makeScorePlanRouter, ALREADY_PLANNING, NOT_SET_UP } = await import('./scorePlan.js');
 type ScoreStatus = import('../services/score/scoreStatus.js').ScoreStatus;
 
-const base = contract('apply-compound').request.body as { abc: string; style: string };
+const base = contract('apply-compound').request.body as { abc: string; style: string; lyrics: string };
 const eligible = (): ScoreStatus => ({
   eligibility: { state: 'eligible' },
-  source: { songId: 's1', activeVersionId: 'v1', abc: base.abc, style: base.style, lyrics: '', fingerprint: 'f' } as ScoreStatus['source'],
+  source: { songId: 's1', activeVersionId: 'v1', abc: base.abc, style: base.style, lyrics: base.lyrics, fingerprint: 'f' } as ScoreStatus['source'],
   read: { ok: true, error: null, messages: [], chordsPresent: true, bpm: 87, seconds: 179.3, tokens: 1832, facts: contract('read-ok').response.body.facts as never },
 });
 let current: ScoreStatus = eligible();
@@ -36,7 +36,7 @@ beforeAll(async () => {
   app.use('/api/songs', makeScorePlanRouter(() => planDeps({
     planner: { url: ollama.url, model: 'qwen3:14b' },
     status: async () => current,
-    apply: (abc, style, ops) => applyOps(abc, style, ops, { label: 'YUE2', url: yue.url, apiKey: '' }),
+    apply: (b, ops) => applyOps(b, ops, { label: 'YUE2', url: yue.url, apiKey: '' }),
   })));
   await new Promise<void>((resolve) => { server = app.listen(0, resolve); });
   const address = server.address();
@@ -70,7 +70,9 @@ describe('POST /api/songs/:id/score/plan', () => {
     expect(body.plan).toMatchObject({ songId: 's1', baseVersionId: 'v1', attempts: 1, refusals: [], ops: [{ op: 'SET_TEMPO', bpm: 88 }],
       style: 'dark pop, 88 bpm, F minor, female vocal', checks: { bars: 65, seconds: 177.3, tokens: 1832, chordsPresent: true } });
     expect(body.plan.abc).toBeUndefined();
+    expect(body.plan.lyrics).toBeUndefined(); // the review reads a REWRITE_LYRICS diff from its verdict, not the whole text
     expect(body.plan.fingerprint).toBeUndefined();
+    expect(body.plan.verdicts).toEqual([{ index: 1, op: 'SET_TEMPO', ok: true, reason: null }]);
   });
 
   it('refuses a second plan for the song while one is queued', async () => {

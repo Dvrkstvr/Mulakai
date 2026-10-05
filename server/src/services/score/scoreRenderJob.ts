@@ -76,7 +76,9 @@ export function startScoreRender(songId: string, planId: string, deps: RenderDep
       throw new Error(checked.refusal);
     }
     const { plan, source } = checked;
-    const request = buildYue2ScoreRequest({ abc: plan.abc, style: plan.style, lyrics: source.lyrics ?? '', seed: source.seed ?? 0 });
+    // A plan's edited lyrics (REPEAT / CUT / REWRITE_LYRICS) when it has them, else the base's as stored.
+    const lyrics = plan.lyrics ?? source.lyrics ?? '';
+    const request = buildYue2ScoreRequest({ abc: plan.abc, style: plan.style, lyrics, seed: source.seed ?? 0 });
     const taskId = await submit(deps.target, { ...request }, job.id);
     job.taskId = taskId;
     if (wasAborted(job)) {

@@ -21,7 +21,7 @@ import type { ApplyResult, ChatMessage, Op, PlanCause, PlannerReply, ScoreFacts 
 import { withLimits } from './scoreLimits.js';
 import { loadedModels, probePlanner, releasePlanner, type LoadedModel, type PlannerTarget } from './ollamaControl.js';
 import { scoreStatus, type ScoreStatus } from './scoreStatus.js';
-import { applyOps } from './yueScoreApply.js';
+import { applyOps, type ApplyBase } from './yueScoreApply.js';
 
 export const CHECK_FAILED = 'check failed';
 
@@ -39,7 +39,7 @@ export interface PlanDeps {
   probe: () => Promise<string | null>;
   ask: (messages: ChatMessage[], schema: Record<string, unknown>, signal?: AbortSignal) => Promise<PlannerReply>;
   loaded: () => Promise<LoadedModel[]>;
-  apply: (abc: string, style: string, ops: Op[]) => Promise<ApplyResult>;
+  apply: (base: ApplyBase, ops: Op[]) => Promise<ApplyResult>;
   release: () => Promise<unknown>;
 }
 
@@ -51,7 +51,7 @@ export function planDeps(over: Partial<PlanDeps> = {}): PlanDeps {
     probe: () => probePlanner(planner),
     ask: (messages, schema, signal) => askPlanner(planner, messages, schema, { timeoutMs: config.llmTimeoutMs, signal }),
     loaded: () => loadedModels(planner),
-    apply: (abc, style, ops) => applyOps(abc, style, ops),
+    apply: (base, ops) => applyOps(base, ops),
     release: () => releasePlanner(planner),
     ...over,
   };
@@ -68,6 +68,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
   const facts = read.facts as ScoreFacts;
   const { abc, activeVersionId } = source;
   const style = source.style ?? '';
+  const base: ApplyBase = { abc, style, lyrics: source.lyrics };
   const unsupported = await deps.probe();
   if (unsupported) throw new Error(unsupported);
   const contextOf = async () => (await deps.loaded()).find((m) => m.name === deps.planner.model)?.contextLength ?? null;
@@ -86,7 +87,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
         if (cut) throw new PlanError('check', cut);
         return reply;
       },
-      apply: async (ops) => withLimits(await deps.apply(abc, style, ops)),
+      apply: async (ops) => withLimits(await deps.apply(base, ops), { ops, sections: facts.sections }),
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
     }, { phraseBars });
   } finally {
@@ -99,7 +100,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
   const planId = crypto.randomUUID();
   setPlan({
     id: planId, songId, baseVersionId: activeVersionId, fingerprint: source.fingerprint, request,
-    ops: outcome.ops, verdicts: applied.verdicts, abc: applied.abc, style: applied.style,
+    ops: outcome.ops, verdicts: applied.verdicts, abc: applied.abc, style: applied.style, lyrics: applied.lyrics ?? null,
     checks: { bars: facts.header.bars, seconds: applied.seconds, tokens: applied.tokens, chordsPresent: applied.chords_present, changed: applied.changed },
     attempts: outcome.attempts, refusals: outcome.refusals, createdAt: Date.now(),
   });

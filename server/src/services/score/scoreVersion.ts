@@ -45,6 +45,10 @@ const OP_NAME: Record<Op['op'], (op: never) => string> = {
   REHARMONIZE: (op: Extract<Op, { op: 'REHARMONIZE' }>) => `REHARMONIZE ${op.from_bar === op.to_bar ? op.from_bar : `${op.from_bar}–${op.to_bar}`}`,
   EDIT_STYLE: () => 'EDIT STYLE',
   WRITE_PHRASE: (op: Extract<Op, { op: 'WRITE_PHRASE' }>) => `WRITE PHRASE ${op.instrument} ${op.start_bar}–${op.start_bar + op.bars.length - 1}`,
+  TRANSPOSE: (op: Extract<Op, { op: 'TRANSPOSE' }>) => `TRANSPOSE ${op.semitones > 0 ? '+' : ''}${op.semitones}`,
+  REPEAT: (op: Extract<Op, { section: number }>) => `REPEAT ${op.label} S${op.section}`,
+  CUT: (op: Extract<Op, { section: number }>) => `CUT ${op.label} S${op.section}`,
+  REWRITE_LYRICS: (op: Extract<Op, { op: 'REWRITE_LYRICS' }>) => `REWRITE LYRICS ${op.tag} #${op.occurrence}`,
 };
 
 /** "score edit · SET TEMPO 88 · REHARMONIZE 17–24", plus " (truncated)". */
@@ -94,6 +98,8 @@ export async function persistScoreVersion(
     db.prepare(`INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, active) VALUES (?, ?, ?, ?, ?, ?, 1)`)
       .run(id, layerId, filename, scoreEditLabel(plan.ops, r.truncated), JSON.stringify(params), String(request.seed));
     writeSongMeta(songId, { ...meta, duration: seconds });
+    // The song's lyrics follow the version, as activate does (routes/versions.ts): edited ones included.
+    if (request.lyrics.trim()) db.prepare(`UPDATE songs SET lyrics = ? WHERE id = ?`).run(request.lyrics, songId);
   })();
   const { n } = db.prepare(`SELECT COUNT(*) AS n FROM versions WHERE layer_id = ?`).get(layerId) as { n: number };
   return { id, number: n, seconds, bpm: meta.bpm, truncated: r.truncated };
