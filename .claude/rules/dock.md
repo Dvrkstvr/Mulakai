@@ -24,4 +24,7 @@ Spec: DESIGN.md "Action dock"; SCORE: `pipeline/design/score-verb.html`
   field, select or dialog has focus.
 - SCORE state changes go only through the `scoreVerb` reducer; SCORE copy
   lives only in `scoreCopy.ts`.
+- While SCORE is open, ACE-Step edits that save a version (REPAINT, ADD
+  LAYER, a stem claim) end their consequence line with `SCORE_ENDS`
+  (F-027, D-058); REMASTER keeps no version and gets none.
 - Errors, refusals and TRUNCATED are rust; versions lilac; the chip sky.

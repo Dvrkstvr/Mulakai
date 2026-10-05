@@ -32,4 +32,9 @@ Spec: PLAN.md "Score Agent"; module table: `pipeline/architecture.md`.
   seed (always from the active base version).
 - Refusal and limit texts live in `scoreLimits` / `contextGuard`; the
   dock's copy lives in `client/src/scoreCopy.ts`.
+- A refusal the planner retries past is carried to the review
+  (`Plan.refusals`, D-060): a retry never silently changes what the user
+  asked (a moved phrase, a raised tempo).
+- WRITE_PHRASE limits in `phraseSchema.ts` mirror yue-server's
+  `score_phrase.py`: change both.
 - Pending plans live in `planStore` memory only (docs/decisions/0004).

@@ -17,6 +17,8 @@ paths:
   and say so.
 - CI runs the golden path on Ubuntu for every PR into `main`
   (`.github/workflows/e2e.yml`); failed runs upload the report and traces.
+- A CI job that times out inside `apt-get install ffmpeg` is the runner,
+  not the tests: `gh run rerun <run id> --failed`.
 - Fakes replay recorded replies (yue-server pytest writes the contract
   fixtures); never hand-edit a reply the real service would not send.
 - The golden path keeps `LLM_API_URL` empty, so SCORE stays hidden.
