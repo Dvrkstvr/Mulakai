@@ -6,7 +6,7 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
 - stage: 7 Build — M2 built, verified (5/5 on criteria), reviewed (0 blocking; fixes 0629e20); merge + curate left
-- clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-041) · decisions to D-061
+- clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-052) · decisions to D-076
 - feasibility: amber · H-open 0 · M-open 1 · spiked 4 · R-013 proven by the M0 listens · owed: SP-2 phrase listen
 - milestone: M2 (F-029..F-033) · features passing 24/39 · owed: M2 listen (pipeline/verify/M2/listen), M1 phrase listen
 - autopilot: stopped — round budget 12/12 (M2: verified + reviewed; left: REVISE live re-check, merges, curate)
