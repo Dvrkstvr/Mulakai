@@ -2,7 +2,9 @@
  * One parsed turn reply -> a checked TurnReply or the reasons a retry sends back. Shape per action;
  * a recipe against recipeRules; an edit through the SCORE planner's own checkOps, then (when `apply`
  * is given) yue-server's apply and withLimits, reasons by applyReasons (all reused from score/).
- * Actions this version answers as a plain say are checked for shape only. Pure (I/O injected).
+ * Actions this version answers as a plain say are checked for shape only. SP-5's three guards
+ * (replyGuards): an edit of a section the song lacks, a say naming another key than the HEADER's,
+ * a rewritten lyric block in another language (only after an apply). Pure (I/O injected).
  */
 import { applyReasons } from '../score/planAttempts.js';
 import { checkOps } from '../score/opSchema.js';
@@ -10,6 +12,7 @@ import { withLimits } from '../score/scoreLimits.js';
 import type { ApplyResult, Op, ScoreFacts } from '../score/planTypes.js';
 import { SCALPEL_KINDS } from './actionSchema.js';
 import { recipeProblems } from './recipeRules.js';
+import { lyricLanguageReasons, missingSectionReasons, sayKeyReasons, type DetectLanguage } from './replyGuards.js';
 import type { LyricSection, Recipe, ScalpelKind, TurnAction, TurnReply } from './chatTypes.js';
 
 export interface CheckContext {
@@ -18,8 +21,10 @@ export interface CheckContext {
   shapeOnly: TurnAction[];
   facts: ScoreFacts | null;
   phraseBars: number;
+  /** The person's request (the missing-section guard reads it). */
+  request: string;
 }
-export interface CheckDeps { apply?: (ops: Op[]) => Promise<ApplyResult> }
+export interface CheckDeps { apply?: (ops: Op[]) => Promise<ApplyResult>; language?: DetectLanguage }
 export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null } | { ok: false; reasons: string[] };
 
 type Obj = Record<string, unknown>;
@@ -44,13 +49,17 @@ function recipeOf(v: unknown): Recipe | string {
 async function checkEdit(json: Obj, message: string, assumptions: string[], ctx: CheckContext, deps: CheckDeps): Promise<Checked> {
   if (!Array.isArray(json.ops)) return fail('edit needs an ops list');
   const reply = (ops: Op[]): TurnReply => ({ action: 'edit', message, assumptions, ops });
+  const missing = ctx.facts ? missingSectionReasons(ctx.request, ctx.facts) : [];
+  if (missing.length) return fail(...missing);
   if (ctx.shapeOnly.includes('edit')) return { ok: true, reply: reply(json.ops as Op[]), applied: null };
   if (!ctx.facts) return fail('there is no song to edit yet: propose a recipe for a new song instead');
   const ops = checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
   if (!ops.ok) return fail(...ops.reasons);
   if (!deps.apply) return { ok: true, reply: reply(ops.ops), applied: null };
   const applied = withLimits(await deps.apply(ops.ops), { ops: ops.ops, sections: ctx.facts.sections });
-  return applied.ok ? { ok: true, reply: reply(ops.ops), applied } : fail(...applyReasons(applied));
+  if (!applied.ok) return fail(...applyReasons(applied));
+  const language = deps.language ? await lyricLanguageReasons(applied, deps.language) : [];
+  return language.length ? fail(...language) : { ok: true, reply: reply(ops.ops), applied };
 }
 
 export async function checkReply(json: unknown, ctx: CheckContext, deps: CheckDeps): Promise<Checked> {
@@ -62,7 +71,10 @@ export async function checkReply(json: unknown, ctx: CheckContext, deps: CheckDe
   const assumptions = strs(json.assumptions) ? [...json.assumptions] : [];
   const shapeOnly = ctx.shapeOnly.includes(action);
   switch (action) {
-    case 'say': return { ok: true, reply: { action, message }, applied: null };
+    case 'say': {
+      const key = ctx.facts ? sayKeyReasons(message, ctx.facts) : [];
+      return key.length ? fail(...key) : { ok: true, reply: { action, message }, applied: null };
+    }
     case 'ask':
       if (!strs(json.choices) || json.choices.length < 2 || json.choices.length > 4) return fail('ask needs 2-4 choices');
       return { ok: true, reply: { action, message, choices: [...json.choices] }, applied: null };

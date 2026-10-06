@@ -2,14 +2,14 @@
  * Gathers what a turn's song-state block needs (songState.ts): library titles, and for a song thread
  * its title, base versions with labels and yue-server's read of the active score (scoreStatus: the
  * sidecar + `/v1/scores/read`), or why the score cannot be read. The draft thread needs only the
- * library and its draft.
+ * library; its draft's fields go in as the pending proposal (songState.draftLines).
  */
 import { db } from '../../db/index.js';
 import { scoreStatus, type ScoreStatus } from '../score/scoreStatus.js';
 import type { ScoreFacts } from '../score/planTypes.js';
 import { LIBRARY_MAX, songStateLines, type SongInput, type VersionLine } from './songState.js';
 import type { TurnState } from './turnActions.js';
-import type { ChatThread } from './chatTypes.js';
+import type { ChatThread, DraftFields } from './chatTypes.js';
 
 export interface SourceDeps { status: (songId: string) => Promise<ScoreStatus> }
 export const sourceDeps = (over: Partial<SourceDeps> = {}): SourceDeps => ({ status: (songId) => scoreStatus(songId), ...over });
@@ -17,6 +17,8 @@ export const sourceDeps = (over: Partial<SourceDeps> = {}): SourceDeps => ({ sta
 export interface GatheredState {
   block: string[];
   facts: ScoreFacts | null;
+  /** The draft thread's fields (the pending card with the person's hand edits); null on a song thread. */
+  draft: DraftFields | null;
   state: TurnState;
   /** Why the song's score cannot be read; null on the draft thread or when it was read. */
   scoreReason: string | null;
@@ -44,7 +46,7 @@ function unreadable(s: ScoreStatus): string {
 export async function gatherTurnState(thread: ChatThread, deps: SourceDeps = sourceDeps()): Promise<GatheredState> {
   const library = libraryTitles();
   if (!thread.songId) {
-    return { block: songStateLines({ library, draft: thread.draft.fields, song: null }), facts: null, state: { hasSong: false, scoreReadable: false }, scoreReason: null };
+    return { block: songStateLines({ library, song: null }), facts: null, draft: thread.draft.fields, state: { hasSong: false, scoreReadable: false }, scoreReason: null };
   }
   const row = db.prepare(`SELECT title, caption FROM songs WHERE id = ?`).get(thread.songId) as { title: string; caption: string } | undefined;
   let status: ScoreStatus | null = null;
@@ -60,5 +62,5 @@ export async function gatherTurnState(thread: ChatThread, deps: SourceDeps = sou
     title: row?.title ?? 'Untitled', style: status?.source?.style ?? row?.caption ?? '',
     versions: baseVersions(thread.songId), facts, reason: facts ? null : reason,
   };
-  return { block: songStateLines({ library, draft: thread.draft.fields, song }), facts, state: { hasSong: true, scoreReadable: Boolean(facts) }, scoreReason: song.reason };
+  return { block: songStateLines({ library, song }), facts, draft: null, state: { hasSong: true, scoreReadable: Boolean(facts) }, scoreReason: song.reason };
 }

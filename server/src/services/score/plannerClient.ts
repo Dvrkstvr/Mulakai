@@ -11,15 +11,17 @@ export interface ChatOptions {
   timeoutMs: number;
   /** Aborts the call (CANCEL on a running plan, D-041). */
   signal?: AbortSignal;
+  /** Completion budget; default MAX_TOKENS (a chat turn that may edit asks 4000, SP-5). */
+  maxTokens?: number;
 }
 
 /** SP-2's settings: low temperature, room for 6 ops of chords. */
 const TEMPERATURE = 0.3;
 const MAX_TOKENS = 2000;
 
-export function chatBody(model: string, messages: ChatMessage[], schema: Record<string, unknown>) {
+export function chatBody(model: string, messages: ChatMessage[], schema: Record<string, unknown>, maxTokens = MAX_TOKENS) {
   return {
-    model, messages, stream: false, temperature: TEMPERATURE, max_tokens: MAX_TOKENS,
+    model, messages, stream: false, temperature: TEMPERATURE, max_tokens: maxTokens,
     reasoning_effort: 'none',
     response_format: { type: 'json_schema', json_schema: { name: 'ops', strict: true, schema } },
   };
@@ -33,7 +35,7 @@ export async function askPlanner(
   try {
     res = await fetch(`${t.url}/v1/chat/completions`, {
       method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(chatBody(t.model, messages, schema)), signal: AbortSignal.any(signals),
+      body: JSON.stringify(chatBody(t.model, messages, schema, o.maxTokens)), signal: AbortSignal.any(signals),
     });
   } catch (err) {
     if (o.signal?.aborted) throw new Error('planner call cancelled');

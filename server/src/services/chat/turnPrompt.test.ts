@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
 import { CHAT_RULES } from './chatRules.js';
-import { historyLines, turnMessages, turnRetry } from './turnPrompt.js';
+import { HISTORY_MAX, REPLY_LINE, historyLines, turnMessages, turnRetry } from './turnPrompt.js';
 import { songStateLines } from './songState.js';
-import { facts206 } from '../../../test-fakes/chatScripts.js';
+import { RECIPE, facts206 } from '../../../test-fakes/chatScripts.js';
 import type { ChatMessage } from './chatTypes.js';
 import type { ScoreFacts } from '../score/planTypes.js';
 
@@ -12,52 +12,73 @@ let seq = 0;
 const msg = (role: 'user' | 'assistant', kind: ChatMessage['kind'], text: string, body: ChatMessage['body'] = null): ChatMessage => ({
   id: `m${++seq}`, threadId: 't', seq, role, kind, text, body, proposalId: null, jobId: null, versionId: null, clientKey: null, createdAt: '',
 });
+const base = { rules: '', state: [], facts: null, request: 'x', pending: [], history: [] };
 
-describe('turn prompt (SP-5 build_messages)', () => {
-  it('system = the rules; user = state, pending, history, then the request and the reply line', () => {
-    const [system, user] = turnMessages({ rules: CHAT_RULES, state: ['SONG: none yet'], facts: null, request: 'faster please', pending: true, history: [msg('user', 'text', 'a ballad')] });
+describe('turn prompt (SP-5 build_messages, v3.1)', () => {
+  it('the reply line asks for compact one-line JSON', () => {
+    expect(REPLY_LINE).toBe('Reply with the JSON object only, compact on ONE line (no newlines, no indentation).');
+  });
+
+  it('system = the rules; user = state, phrase lines, pending proposal, conversation, REQUEST, the reply line, in that order', () => {
+    const [system, user] = turnMessages({
+      rules: CHAT_RULES, state: ['SONG: "X"'], facts, request: 'faster please',
+      pending: ['PENDING PROPOSAL (the new-song card the person is looking at; nothing has run):', 'title: Mar'], history: [msg('user', 'text', 'a ballad')],
+    });
     expect(system).toEqual({ role: 'system', content: CHAT_RULES });
-    const order = ['SONG: none yet', 'PENDING PROPOSAL', 'CONVERSATION (latest last):\nPERSON: a ballad', 'REQUEST: faster please', 'Reply with the JSON object only.'];
+    const order = ['SONG: "X"', 'PHRASE LENGTH:', 'FREE BARS', 'PENDING PROPOSAL', 'title: Mar', 'CONVERSATION (latest last):\nPERSON: a ballad',
+      'REQUEST: faster please', REPLY_LINE];
     const at = order.map((s) => user.content.indexOf(s));
     expect(at.every((n) => n >= 0)).toBe(true);
     expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(user.content.endsWith(`REQUEST: faster please\n${REPLY_LINE}`)).toBe(true);
   });
 
-  it('a song adds the phrase lines (reused phraseLines) and no pending line when nothing is pending', () => {
-    const [, user] = turnMessages({ rules: '', state: [], facts, request: 'add a 2-bar sax phrase', pending: false, history: [] });
-    expect(user.content).toContain('PHRASE LENGTH: a WRITE_PHRASE op has exactly 2 bars');
-    expect(user.content).not.toContain('PENDING PROPOSAL');
-    expect(user.content).not.toContain('CONVERSATION');
+  it('no song: no phrase lines; nothing pending or said: no such blocks', () => {
+    const [, user] = turnMessages({ ...base, state: ['SONG: none yet'], request: 'add a 2-bar sax phrase' });
+    expect(user.content).toBe(`SONG: none yet\n\nREQUEST: add a 2-bar sax phrase\n${REPLY_LINE}`);
   });
 
-  it('history names what each assistant message proposed and skips failed turns', () => {
+  it('history: one line per message, a one-line card summary from the fields after an assistant card, failed turns skipped', () => {
     const lines = historyLines([
       msg('user', 'text', 'a ballad'),
-      msg('assistant', 'recipe', 'Here it is.', { recipe: { title: 'Mar' } as never, assumptions: [], changed: [], skipped: [] }),
+      msg('assistant', 'recipe', 'Here it is.', { recipe: RECIPE, assumptions: [], changed: [], skipped: [] }),
       msg('user', 'text', 'hm'),
       msg('assistant', 'failed', 'planner offline'),
       msg('assistant', 'ask', 'Which?', { choices: ['a', 'b'] }),
       msg('assistant', 'song', 'Saved as v1'),
     ]);
     expect(lines).toEqual([
-      'PERSON: a ballad', 'ASSISTANT: Here it is. [proposed a new-song card: "Mar"]', 'PERSON: hm', 'ASSISTANT: Which? (choices: a / b)',
-      'ASSISTANT: [the song was created: Saved as v1]',
+      'PERSON: a ballad',
+      'ASSISTANT: Here it is. [new-song card: "Luz sobre el mar" · Spanish, slow ballad, nylon guitar, soft female voice · 68 bpm · Am · es]',
+      'PERSON: hm', 'ASSISTANT: Which? (choices: a / b)', 'ASSISTANT: [the song was created: Saved as v1]',
     ]);
   });
 
-  it('a retry appends the reply and the reasons (reused retryMessages)', () => {
-    const msgs = turnMessages({ rules: '', state: [], facts: null, request: 'x', pending: false, history: [] });
-    const next = turnRetry(msgs, '{"action":"x"}', ['action "x" is not one of ask, say']);
-    expect(next).toHaveLength(4);
-    expect(next[3].content).toContain('- action "x" is not one of ask, say');
-    expect(next[3].content).toContain('Return a corrected, complete reply as one JSON object only.');
+  it('history keeps the latest lines inside its budget (0.8k tokens)', () => {
+    const many = Array.from({ length: 8 }, (_, i) => msg(i % 2 ? 'assistant' : 'user', i % 2 ? 'say' : 'text', `${i} ${'w'.repeat(500)}`));
+    const lines = historyLines(many);
+    expect(lines.join('\n').length).toBeLessThanOrEqual(HISTORY_MAX);
+    expect(lines.at(-1)).toMatch(/^ASSISTANT: 7 w+/);
+    expect(lines[0]).not.toMatch(/^PERSON: 0 /);
   });
 
-  it('the whole prompt on the 206-bar song with 4 turns stays under 6k tokens at 3 characters a token (F-042 #2)', () => {
-    const f = facts206();
+  it('a retry appends the reply and the reasons with chat wording and the reply line, not "Your op list"', () => {
+    const msgs = turnMessages(base);
+    const next = turnRetry(msgs, '{"action":"x"}', ['action "x" is not one of ask, say']);
+    expect(next).toHaveLength(4);
+    expect(next[2]).toEqual({ role: 'assistant', content: '{"action":"x"}' });
+    expect(next[3].content).toBe(`Your reply was rejected:\n- action "x" is not one of ask, say\nReturn a corrected, complete reply. ${REPLY_LINE}`);
+  });
+
+  it('the whole prompt on a chord-free 206-bar song (the library cover F-042 #2 names) with a full history stays under 6k tokens at 3 characters a token', () => {
+    const chorded = facts206();
+    // SP-5's 206-bar song is a chord-free cover: runs of identical bars, which the run-length map collapses (3.25k -> 1.16k tokens there).
+    const bar_map = chorded.bar_map.map((l, i) => `${i + 1}: - | V:${Math.floor(i / 8) % 2 ? 'sung' : 'rest'} | I:0`);
+    const f = { ...chorded, bar_map };
     const song = { title: 'Long Song', style: 'rock', versions: [{ number: 1, label: 'first generation', active: true }], facts: f, reason: null };
-    const history = Array.from({ length: 4 }, () => [msg('user', 'text', 'x'.repeat(200)), msg('assistant', 'say', 'y'.repeat(300))]).flat();
-    const msgs = turnMessages({ rules: CHAT_RULES, state: songStateLines({ library: Array(50).fill('A library song title'), draft: {}, song }), facts: f, request: 'jazz chords in the chorus', pending: false, history });
+    const history = Array.from({ length: 4 }, () => [msg('user', 'text', 'x'.repeat(300)), msg('assistant', 'say', 'y'.repeat(300))]).flat();
+    const msgs = turnMessages({ rules: CHAT_RULES, state: songStateLines({ library: Array(50).fill('A library song title'), song }), facts: f, request: 'jazz chords in the chorus', pending: [], history });
     expect(msgs.reduce((n, m) => n + m.content.length, 0) / 3).toBeLessThan(6000);
+    expect(msgs[1].content).toContain('\n1-8: - | V:rest | I:0\n9-16: - | V:sung | I:0\n');
   });
 });

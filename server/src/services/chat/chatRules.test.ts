@@ -1,27 +1,28 @@
+import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { CHAT_RULES, chatRules } from './chatRules.js';
+import { CHAT_RULES, ENGINE_ADAPTATION, chatRules } from './chatRules.js';
 import { PLANNER_RULES } from '../score/plannerRules.js';
-import { BPM, KEYS, LINES } from './recipeRules.js';
 
-describe('chat rules (the system prompt, SP-5 CHAT_RULES)', () => {
-  it('names every action of the closed set and asks for one JSON object in the person\'s language', () => {
-    for (const a of ['recipe', 'edit', 'scalpel', 'analyze', 'say', 'ask']) expect(CHAT_RULES).toContain(`- ${a}: `);
-    expect(CHAT_RULES).toContain('ONE JSON object {"action": ...}');
-    expect(CHAT_RULES).toMatch(/in the person's language/);
+/** SP-5 prompt.py rules_for() with V3 and V31 on (= v3.1, the prompt that passed every bar), written by the spike's own code. */
+const V31 = readFileSync(new URL('../../../test-fakes/data/sp5-rules-v31.txt', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
+
+describe('chat rules (the system prompt = a snapshot of SP-5 v3.1 rules_for())', () => {
+  it('is the spike\'s v3.1 text, with one C0 adaptation: YuE2 is the only engine (D-112 e)', () => {
+    expect(V31).toContain(ENGINE_ADAPTATION.spike);
+    expect(CHAT_RULES).toBe(V31.replace(ENGINE_ADAPTATION.spike, ENGINE_ADAPTATION.c0));
   });
 
   it('carries the planner\'s op reference verbatim, not its "answer with {ops}" opening', () => {
     const ref = PLANNER_RULES.slice(PLANNER_RULES.indexOf('Ops (bars are numbered'));
-    expect(CHAT_RULES).toContain(ref);
+    expect(CHAT_RULES.endsWith(ref)).toBe(true);
     expect(CHAT_RULES).not.toContain('You answer with ONE JSON object {"ops":[...]}');
   });
 
-  it('states the recipe rules from recipeRules (bpm range, 4-8 lines, YuE2 only) and the language in the style (D-112)', () => {
-    expect(CHAT_RULES).toContain(`bpm ${BPM.min}-${BPM.max}`);
-    expect(CHAT_RULES).toContain(`${LINES.min} to ${LINES.max} lines`);
-    expect(CHAT_RULES).toContain('engine: "yue2"');
-    expect(CHAT_RULES).toMatch(/style: .*starts with the language the words are sung in, in English/);
-    expect(CHAT_RULES).toContain(KEYS.join(' '));
+  it('keeps the v3 fixes: no copyable assumption example, missing section -> say, the HEADER is quoted', () => {
+    expect(CHAT_RULES).not.toContain('assuming 4/4 and A minor');
+    expect(CHAT_RULES).toContain('do not substitute another place: answer say, tell what the song has instead');
+    expect(CHAT_RULES).toContain('exactly as the HEADER shows them NOW');
+    expect(CHAT_RULES).toContain('A REWRITE_LYRICS keeps the language of the song\'s own lyrics');
   });
 
   it('a narrower set drops the other actions, the recipe fields and the op reference (ladder rung 2)', () => {
@@ -30,5 +31,6 @@ describe('chat rules (the system prompt, SP-5 CHAT_RULES)', () => {
     expect(rules).not.toContain('Ops (bars are numbered');
     expect(rules).toContain('RECIPE FIELDS');
     expect(chatRules(['say'])).not.toContain('RECIPE FIELDS');
+    expect(chatRules(['say'])).toContain('- say: ');
   });
 });

@@ -1,7 +1,7 @@
 /**
  * Scripted chat-turn replies for fakeOllama (architecture.md "Seams and fakes (chat)"): one builder
  * per action of the closed set, plus the broken replies a turn must survive (invalid JSON, an action
- * outside the set, a bad recipe). SP-5's recorded replies join as data once SP-5 records its fixture.
+ * outside the set, a bad recipe). SP-5's recorded qwen3 replies are data in data/sp5-replies.json.
  */
 import type { ChatScript } from './fakeOllama.js';
 import { contract } from './fakeYue.js';
