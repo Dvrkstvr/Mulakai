@@ -531,3 +531,55 @@ fix/chat-c0a-review: (a) #1 server-only — cancelTurn sets job.cancelled on abo
 
 ## D-124 · 2026-10-07 · stage 7 (C0a verify) · by: conductor
 CA-4 live CP-C0a passes 3/3 stop lines; CA-7 live run passes F-041..F-045 on their C0a criteria (sub-criteria not run live are unit-tested; noted in features.json evidence); F-049 turn half and F-050 create half met, both stay false until C0b. Waveform on the chat player kept per D-115(a). Owner's "running in the Library" report not reproduced → Q-090; no speculative fix without a repro.
+
+## D-125 · 2026-10-07 · scope order · by: user
+"go ahead and quickly implement everything": C3 (reference songs: read a library song or dropped audio, cover proposal, fresh song borrowing from it, F-061..F-065) moves ahead of C1/C2 and runs now; C0b follows. C3 does not depend on the SP-4 listen.
+- instead of: the signed-off order C0b → C1 → C2 → C3.
+
+## D-126 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+A reference is read by one `transcribe`-kind job (label `chat reading`) that holds one queue slot through WORDS > SCORE > CAPTION (lyrics-server, yue-server SheetSage2 + `/v1/scores/read` + `/v1/scores/measure`, ACE-Step ANALYZE AUDIO); a pure `readingPlan` skips what the source already has (a YuE2 library song: its own score, words and style, no GPU; another library song: its own words/caption, a transcribed score). A part that fails or whose service is unset is `not read: <why>`; the job fails only when the file cannot be read. It starts only with no planner model loaded (`gpuGuard`, extracted from CREATE SONG's check). Result: a `Reading` (`reading_v: 1`) on the reference row and snapshotted in the reading card (docs/decisions/0008). Reversal: the three existing jobs, chained.
+- instead of: chaining the existing `transcribe`, `lyrics` and `analyze` jobs (three slots, three job ids for one card); a new `reading` queue kind (a two-union change in genQueue, 190/200 LOC, and the client).
+
+## D-127 · 2026-10-07 · stage 6 (chat C3, D-084, D-102) · by: assumed (architect)
+References are rows of `chat_references` per thread (FK cascade) with a copy of the audio in `audioDir/references/<id>.<ext>` (served by `/audio`); a library pick is copied too (its base layer's active take, D-137) with a snapshot of the song's own score, lyrics, caption, bpm, key and meter in `own_json`. The reference follows the draft thread to the song at CREATE; trash keeps it, permanent delete and NEW CHAT remove the rows, and `sweepFiles()` removes files without a row (start, trash sweep, NEW CHAT).
+- instead of: a link to the library song only (gone when that song is deleted or changed); a `songs` column (a draft thread has no song yet); keeping the file on yue-server.
+
+## D-128 · 2026-10-07 · stage 6 (chat C3, F-063/F-064) · by: assumed (architect)
+Cover vs fresh song is one `recipe` reply with `reference_use: cover | borrow | none` (in the schema only when a reading exists), not a new action. Code fills the borrowed fields from the reading (`referenceRecipe`): a cover takes tempo, key, meter and structure from the score (locked, FROM THE SCORE) and CREATE COVER runs createFromDraft with the reading's score as `cover` (USE .ABC FILE's request, cot `melody`); a borrow fills tempo, key, meter and structure (marked REFERENCE), leaves a missing value blank and says so; the model writes title, style (instrumentation words from the caption) and words. "Like this, but …" reads as a cover when the reading is coverable, said in assumptions (D-082); a cover on a non-coverable reading becomes a borrow with the reason. Measured in CP-C3 (`reference_use` right on 8 of 10). Reversal: a `cover` action (needs an SP-5-style re-measure).
+- instead of: a `cover` action in the closed set; the model copying tempo and key; two commit buttons on one card.
+
+## D-129 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+When a reading saves, the server queues the follow-up turn itself: the original request again, the REFERENCE block in the state, allowed actions ask / recipe / say; its line shows under the reading card. SEND stays off (409 `TURN_OPEN`) from READ until that turn settles; RE-ANALYZE writes a new reading card and queues no turn. Reversal: drop the `onRead` hook; the person types the next message.
+- instead of: the person asking again after every reading.
+
+## D-130 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+In C3 a reference is attached only in the draft thread (a new song). A song thread lists its references (RE-ANALYZE, A/B) and answers an `analyze` reply with a `say` pointing to NEW CHAT (D-110's shape). Reversal: allow ATTACH on a song thread once edits read a reference.
+- instead of: references that change an existing song (no edit turn exists before CB-2).
+
+## D-131 · 2026-10-07 · stage 6 (chat C3, F-061) · by: assumed (architect)
+A reading asks yue-server for a transcription with chords (`chords: true`: no `--melody-only`, no piano preview); Guided Create's COVER keeps melody-only (the default). A cover still renders cot `melody` (yue-server strips chord symbols, scores.py). CB-1's grid run reuses the flag. Inferred from transcriber.py's docstring that SheetSage2 then writes chord symbols; if not, the reading says "chords: not read".
+- instead of: melody-only readings (no chords for an audio reference, F-061 met only for YuE2 library songs).
+
+## D-132 · 2026-10-07 · stage 6 (chat C3, F-065, was F-035) · by: assumed (architect)
+F-065's score half lands in C3 on the dock: `scoreEligibility` admits covers, instrumentals and chord-free scores; a pure `renderMode` picks cot `full` when the score has chords or the plan has a REHARMONIZE, else `melody`; the plan carries it and the render uses it; REWRITE LYRICS on an instrumental is refused with the reason; the review names the render mode. The chat half (edit turns on such songs) arrives with CB-2 (D-110's redirect to SCORE until then), and CB-2's `spliceEligibility` sends a chord-free REHARMONIZE down the whole-song path. F-065 `passes` waits for the chat half.
+- instead of: holding all of F-065 until C0b.
+
+## D-133 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+No separate spike for transcription quality on arbitrary audio: the chat reuses today's COVER transcription unchanged, so the risk (R-029) is measured inside CP-C3 (score read ok, coverable, vocal-note density, reading time per step) with stop lines, and the owner hears 3 covers (owed, not blocking `passes`).
+- instead of: an SP-7 transcription spike before C3 code.
+
+## D-134 · 2026-10-07 · stage 6 (chat C3, Q-079) · by: assumed (architect)
+The rights line on the READ card, the reading card and the cover card: "Stays on this machine. You are responsible for the rights to this recording." Reversal: one string in `chatReferenceCopy.ts`.
+
+## D-135 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+The CAPTION step (caption, tempo, key, meter, F-061) calls ACE-Step ANALYZE AUDIO only when ACE-Step's health answers, loading its model as Guided Create's ANALYZE AUDIO does (the exact model choice is the builder's, unverified); otherwise a library song's own caption is used, else `not read: ACE-Step is not running` and tempo/key come from the score header. Tempo and key prefer ACE-Step's reading, then the score header; a cover always sings the score's own. Reversal: drop the step (the first cut if R-028 bites).
+
+## D-136 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+`client/src/chatStore.ts` is at the 200-LOC cap: CR-6 first moves job polling and rehydration into `chatPoll.ts` (own refactor commit). `chatCopy.ts` (183) and `chatTurn.ts` (185) are near it, so C3's copy lives in `chatReferenceCopy.ts` and the analyze/reading card states in the `chatReading.ts` reducer (chat-client rule amended).
+
+## D-137 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+A library song as a reference is its base layer's active take (as the chat player plays, D-120); extra layers are not read, and the reading card says so for a song with more than one layer.
+- instead of: the client bouncing the audible mix as Guided Create's COVER does (a WAV upload of up to ~65 MB per pick).
+
+## D-138 · 2026-10-07 · stage 6 (chat C3, F-061 edge) · by: assumed (architect)
+A reference longer than 360 s is kept whole (A/B plays all of it); the reading and a cover use its first 360 s through a temp trimmed copy, said on the reading card.

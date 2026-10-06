@@ -19,11 +19,15 @@ end to end"; modules in `pipeline/architecture.md` "Chat (C0)".
   the base layer's active take (D-120).
 - One draft store (`chatDraftStore`, D-086): C6's Guided Create reads it too.
   Never re-implement recipe rules here; show the server's `blockers`.
-- Message and turn states go only through the `chatTurn` reducer; chat copy
-  lives only in `chatCopy.ts`.
+- Message and turn states go only through the `chatTurn` reducer, the analyze
+  and reading cards' through `chatReading`; chat copy lives only in
+  `chatCopy.ts` and C3's in `chatReferenceCopy.ts` (both near the cap, D-136).
+- `chatStore.ts` is at the 200-LOC cap: polling lives in `chatPoll.ts`.
 - The send control is the outline text button `SEND ↵`, never a play-like
   glyph. CREATE SONG / APPLY live on the proposal card only, with the
   consequence line above them; their labels never turn into progress.
 - Fields stay editable while a turn runs.
 - Reuse the Editor's pieces (`Player`, `useSingleAudioPlayback`,
   `ScorePlanList`, `scoreCopy`) instead of copies.
+- A/B (reference now, versions in C0b) goes through `chatAb` and
+  `useChatPlayback`; never a second player or a second clamp.

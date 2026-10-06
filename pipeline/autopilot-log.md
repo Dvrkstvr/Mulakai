@@ -88,3 +88,9 @@ R6+ #157 merged 12f0b89 (CI green on it and on main c63c7b6); verifier still run
 R6+ CA-4 live: PASS (turn p50 11.5 s, unload max 104 ms, CREATE-to-running 6 ms, invalid-after-3 0; but 3/3 vague prompts got a recipe, not an ask); owner saw: chat take done but Library shows it running → sent to the verifier as a finding to root-cause
 R7 stage 7 C0a verify · verifier → c0a-live.md: CA-4 PASS 3/3, CA-7 live 3 takes; F-041..F-045 pass (29/81), F-049/F-050 C0a halves met; owner's Library-running report not reproduced in 3 paths → Q-090 (ask owner); Q-088 vague→recipe, Q-089 minor findings; D-124 · progress 7·C0a verified·29·0
 R8 curate C0a · chat-client.md (Library first D-119; check against the real server, D-120), chat-server.md (cancel sets job.cancelled + 409 until settled, D-121; TRUNCATED never DONE); budget 6.5 KB OK · C0a DONE · STOP: target reached
+
+## Run 2026-10-07 → C3 (new run, 12-round budget; D-125 moved C3 ahead of C0b/C1/C2)
+R1 stage 6 C3 · architect dispatched (work packages for F-061..F-065 on docs/chat-c3) · progress 6·C3 arch·29·0
+R1+ owner: standing OK for this C3 run — push, PR, merge when CI is green on the PR and on main; GPU free for live runs
+R1+ owner: after C3, continue with C0b in the same autopilot (target becomes C0b once C3 is done)
+R2 stage 6 C3 · architect → Chat (C3), CR-0..CR-9 + DT-C3, D-126..D-138, Q-091..Q-096 (0 blocking; Q-095 3 owner recordings before CR-8), R-028/R-029; checks green (client 974, server 1017, pytest 422, e2e 12); f443ba5; wave 1 dispatched: CR-0, CR-1, CR-5, CR-6, DT-C3 · progress 7·C3 planned·29·0

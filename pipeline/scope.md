@@ -134,7 +134,8 @@ card). Tokens from DESIGN.md, no new hue; the owner signs each off like the othe
   `splice_check.py` run in WSL on 3 library songs (4/4); log in `pipeline/cp-c0/<date>/`. Stop lines: turn p50 over 15 s, hand-off
   over 5 s, edit wall time over 4 min, a null test failing, join LUFS excess over 1 dB on 3 of 3 songs → stop and raise before CB-5.
 - **CB-5 · edit and version cards** (F-046, F-048, F-049 client), after CB-4 and DT-C0b: `client/src/{ChatEditCard,
-  ChatVersionCard}.tsx`, `client/src/{chatAb,useChatPlayback}.ts`, `client/src/{chatTurn,chatCopy}.ts` (commit phases),
+  ChatVersionCard}.tsx`, `client/src/{chatAb,useChatPlayback}.ts` (exist from C3's CR-7b: extend for versions),
+  `client/src/{chatTurn,chatCopy}.ts` (commit phases),
   `client/src/ChatPlayer.tsx` (BACK TO / USE), `client/src/api/chat.ts` (apply), `client/src/index.css`; DESIGN.md own commit.
 - **CB-6 · C0 live run, then the owner's listen** (F-050 #2, #3).
 
@@ -172,6 +173,71 @@ caption/tempo/key), keep it as the song's source (D-084), propose a cover (trans
 path) or a fresh song that borrows tempo, key, structure and instrumentation words. Folds in the score agent's M3 half "chord-free,
 instrumental and cover scores" (F-035) as F-065, because covers are exactly the chord-free scores. Risk: transcription quality on arbitrary
 audio and the rights line (the person's responsibility, said on the card). Q-060 arrives here.
+
+**Moved ahead of C0b/C1/C2 (D-125); work packages (stage 6, 2026-10-07; modules, data and tests in architecture.md "Chat (C3)").**
+What the person can do when C3 is done: in the draft thread, drop a song file (or ATTACH ▾ FROM LIBRARY…) and type "like this, but in
+German"; read the READ card ("uses the GPU about N s, changes nothing · stays on this machine, the rights are yours"), press READ, watch
+WORDS > SCORE > CAPTION, read the reading card, get a cover card (or, for "a song like this", a recipe with tempo/key/structure marked
+REFERENCE) without typing again, press CREATE COVER, hear it, and find the reference in the song's sidebar with RE-ANALYZE and A/B. A cover is
+SCORE-editable on the dock (F-065); asking the chat to edit it still points to SCORE in the Editor until C0b (D-110, D-132).
+
+The thin path (each choice reversible; D-126..D-138): one `transcribe`-kind reading job, no new queue kind or process; a YuE2 library song
+reads its own score and words (no GPU); the follow-up proposal is one `recipe` with `reference_use`, and code (not the model) fills the
+borrowed fields; CREATE COVER is CREATE SONG's own path with the reading's score (USE .ABC FILE's request); ATTACH in the draft thread only;
+no section picking for an over-long cover (Q-096), no references on existing songs' threads, no chat edit turns before CB-2.
+
+Each package is one PR from `origin/main`, owning the files named, so builder batches stay disjoint; "after" = waits for that one to merge.
+- **CR-0 · yue-server: transcription keeps chords on request** (F-061 score, D-131), needs nothing: `yue-server/{transcriber,
+  transcribe_routes}.py`, `yue-server/README.md` (transcription section), `yue-server/tests/test_transcri*.py`,
+  `yue-server/tests/data/contract/transcription-*.json` (recorded for the TS fake). `chords` defaults false: Guided Create's COVER is
+  unchanged. About 0.5 day.
+- **CR-1 · reference data and upload** (F-061 storage, F-062 lifecycle), needs nothing: `server/src/db/chatSchema.ts`,
+  `server/src/services/chat/{chatTypes,reading,referenceRules,referenceStore}.ts`, `server/src/routes/chatReferences.ts` (upload,
+  library pick, list), `server/src/routes/chat.ts` (`references` in the thread view, sweep on NEW CHAT), `server/src/services/
+  trashSweep.ts`, `server/src/index.ts` + tests. All C3 type additions land here so CR-2, CR-3 and CR-6 build on one contract. 1.5 days.
+- **CR-2 · the reading job** (F-061 core), after CR-1 (CR-0's fixtures, or a hand-written one until it merges):
+  `chat/{readingPlan,readingSteps,readingJob,gpuGuard}.ts`, `server/src/services/{transcribeJobs,engineTranscribeClient,
+  transcode}.ts`, `server/test-fakes/fakeYue.ts` (transcriptions) + tests. 2 days.
+- **CR-3 · the turn with a reference** (F-061 analyze card, F-063/F-064 proposals), after CR-1, parallel with CR-2:
+  `chat/{referenceResolve,referenceTurn,referenceRecipe,turnActions,actionSchema,chatRules,turnPrompt,songStateSource,turnDispatch,
+  draftModel,turnJob,proposalStore}.ts`, `server/src/routes/chatTurns.ts` (`attach`), `server/test-fakes/chatScripts.ts` + tests.
+  2.5 days.
+- **CR-4 · READ, RE-ANALYZE, CREATE COVER** (F-061 commit, F-062 re-read, F-063/F-064 commit), after CR-2 and CR-3:
+  `chat/{readCommit,createFromDraft,messageView}.ts`, `routes/chatReferences.ts` (read routes) + tests. 1.5 days.
+- **CR-5 · F-065 score half** (cover / instrumental / chord-free scores on the dock), needs nothing, parallel with all:
+  `score/{scoreEligibility,renderMode,scoreRenderJob,planTypes,planJob,scoreLimits}.ts`, `engines/yue2Score.ts`,
+  `client/src/{scoreCopy.ts,YueScoreReview.tsx}`, `yue-server/score_ops.py` + a chord-free pytest (code change only if that test fails)
+  + tests. Browser check on the dock with a cover song. 1.5 days. (C0b note: CB-2's `spliceEligibility` must send a REHARMONIZE on a
+  chord-free score down the whole-song path, F-065 edge.)
+- **CR-6 · client state** (F-061..F-064 logic), parallel from the start (the wire contract is in architecture.md):
+  `client/src/chatPoll.ts` (moved out of `chatStore.ts` first, own refactor commit, D-136), `client/src/{chatStore,chatAttachStore,
+  chatReading,chatReferenceCopy}.ts`, `client/src/api/{chat,chatReferences}.ts` + tests. 1.5 days.
+- **DT-C3 · design** (stage 5), parallel from the start, before CR-7a/b: `pipeline/design/chat-reference.html`: the drop zone and the
+  ATTACH ▾ menu with the library list, the chip (uploading / attached / failed), the READ card (pending, superseded, expired), the
+  reading card (queued, reading step k of 3, done, partial with not-read lines, failed, cancelled, a 360 s cut, an instrumental,
+  cover not possible), PROPOSING… under it, the cover recipe card (CREATE COVER, FROM THE SCORE fields) and the borrowed recipe card
+  (REFERENCE marks, a missing key), the song panel's reference with RE-ANALYZE and the REFERENCE ⇄ SONG pill, at 1366×768. Tokens
+  from DESIGN.md, no new hue; the owner signs it off.
+- **CR-7a · attach and reading UI** (F-061), after CR-6 and DT-C3: `client/src/{ChatAttach,ChatAnalyzeCard,ChatReadingCard,
+  ChatThread,ChatComposer}.tsx`, `client/src/chatReference.css`; `docs/design/DESIGN.md` (all C3 clauses, own commit). 1.5 days.
+- **CR-7b · cover card, borrowed fields, the reference panel, A/B** (F-062..F-064), after CR-6 and DT-C3, parallel with CR-7a:
+  `client/src/{ChatRecipeCard,ChatDraftFields,ChatReferencePanel,ChatSidebar,ChatPlayer}.tsx`, `client/src/{chatAb,
+  useChatPlayback}.ts`, `client/src/chatReferenceSong.css`; DESIGN.md only if it deviates, after CR-7a. 1.5 days. (CB-5 later extends
+  `chatAb` / `useChatPlayback` for versions instead of writing them.)
+- **CR-8 · CP-C3, headless checkpoint** (F-061..F-064 on the real machine; R-028, R-029), after CR-4, beside CR-7a/b (D-113's
+  rhythm): `server/scripts/chatCp3.ts`; evidence in `pipeline/cp-c3/<date>/`. Stop lines in architecture.md "Test strategy (C3)":
+  a reading over 4 min for a file of 4 min or less, follow-up turn p50 > 15 s or the planner off the GPU, the score read ok on < 2 of
+  3 audio files, `reference_use` right on < 8 of 10, hand-off > 5 s → stop and raise before CR-9. 0.5-1 day.
+- **CR-9 · C3 live run** (verifier), after CR-7a, CR-7b, CR-8 and CR-5: attach a file and a library song → READ → reading card →
+  cover card → CREATE COVER → hear it → reload → reference in the sidebar, RE-ANALYZE, A/B; a borrow recipe with a missing key; a
+  non-audio file; F-065 on the dock (SET TEMPO and REHARMONIZE on the cover, REWRITE LYRICS refused on an instrumental). Owed to
+  the owner: 3 covers listened (Q-095's recordings if he gives them).
+
+Parallel waves: (1) CR-0, CR-1, CR-5, CR-6, DT-C3 · (2) CR-2, CR-3 · (3) CR-4 · (4) CR-7a, CR-7b, CR-8 · (5) CR-9.
+Honest size: about 15 working days of package work; the critical path CR-1 → CR-3 → CR-4 → CR-7a/b → CR-9 is about 7.5 days.
+If the owner wants it sooner, cut in this order: the caption step (borrowed instrumentation then comes from the person's words; also
+removes R-028's ACE-Step half), FROM LIBRARY's list (a library song by title in words still works), the A/B pill (RE-ANALYZE stays),
+the automatic follow-up turn (the person types the next message).
 
 ## C4 — Structure edits and the rest of the splice (F-066 .. F-069), needs the owner's SP-4 listen
 
@@ -346,6 +412,7 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 ## Re-check of deferred questions
 
 - **Q-060** (START FROM A SONG I HAVE / ONE TRACK in chat-first): arrives with C3, a FORM link until then. Not blocking.
+  Stage 6 (2026-10-07): A SONG I HAVE = C3's ATTACH ▾ FILE… / FROM LIBRARY… (CR-7a); ONE TRACK stays a FORM link (Q-060 kept open for it).
 - **Q-061** (does form-first's DESCRIBE IT go to the thread): touches only C6. Not blocking; decided at C6's design pass (default: yes, as a
   user message marked "from the form").
 - **Q-070** (section names on transcribed songs, A/B by bar): the first half is verified inside F-052 (three non-YuE2 songs); the second is Later. Not blocking.
