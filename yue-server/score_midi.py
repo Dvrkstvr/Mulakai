@@ -4,7 +4,9 @@ Reads the native two-voice YuE2 dialect through upstream's `parse_abc`, so a
 score that the score agent accepts converts, and anything else fails with the
 same `AbcError` (decision 0002: only yue-server reads ABC). Track 0 carries
 tempo, meter and key changes; Vocal and Ins get a track and a channel each.
-Chord symbols are not rendered: they are labels, not sounding notes.
+Chord symbols are not rendered: they are labels, not sounding notes. A score
+cut off mid-group (the plan outran its token budget, so the audio stops there
+too) converts its complete groups.
 """
 from __future__ import annotations
 
@@ -17,7 +19,7 @@ from pathlib import Path
 UPSTREAM = str(Path(__file__).parent / "upstream")
 if UPSTREAM not in sys.path:
     sys.path.insert(0, UPSTREAM)
-from abc_tools import KEYS, VOICES, parse_abc  # noqa: E402  (vendored; needs the path above)
+from abc_tools import KEYS, VOICES, AbcError, parse_abc  # noqa: E402  (vendored; needs the path above)
 
 BASE_TICKS = 480
 MAX_TICKS = 0x7FFF  # the SMF header's ticks-per-quarter is 15 bits
@@ -90,10 +92,30 @@ def _voice_track(name: str, channel: int, notes, tick) -> bytes:
     return _track(events)
 
 
+def _parse_complete(abc: str):
+    """Parse `abc`; if it fails, retry once without its last group (from the
+    last `V: Vocal` and the section comments above it). The first error stands
+    when that doesn't parse either: the fault was not just a cut-off end."""
+    try:
+        return parse_abc(abc)
+    except AbcError as error:
+        lines = abc.splitlines(keepends=True)
+        starts = [i for i, line in enumerate(lines) if line.rstrip() == "V: Vocal"]
+        if not starts:
+            raise
+        cut = starts[-1]
+        while cut and lines[cut - 1].startswith("% "):
+            cut -= 1
+        try:
+            return parse_abc("".join(lines[:cut]))
+        except AbcError:
+            raise error from None
+
+
 def abc_to_midi(abc: str) -> bytes:
     """Convert a native two-voice ABC score to SMF bytes. Raises `AbcError`
     for a score the parser rejects."""
-    score = parse_abc(abc)
+    score = _parse_complete(abc)
     times = [t for v in score.voices.values() for onset, _, dur in v.notes for t in (onset, dur)]
     tpq = _ticks_per_quarter(times)
 

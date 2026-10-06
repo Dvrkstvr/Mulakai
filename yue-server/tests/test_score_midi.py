@@ -106,3 +106,17 @@ def test_route_needs_no_worker_but_does_need_the_token(make_client):
     reply = client.post("/v1/scores/midi", json={"abc": NATIVE}, headers={"Authorization": "Bearer secret"})
     loading.set()
     assert reply.status_code == 200
+
+
+def test_a_score_cut_off_mid_group_converts_its_complete_groups():
+    """The plan ran out of tokens: the audio stops there, and so does the MIDI."""
+    for tail in ("% verse\nV: Vocal\nG8B8d8B8|\nV:", "V: Vocal\n\"G\"G8B8d8B8|\nV: Ins\nG8B8d8"):
+        assert abc_to_midi(NATIVE + tail) == abc_to_midi(NATIVE)
+
+
+def test_an_error_before_the_last_group_is_still_refused():
+    broken = NATIVE.replace("G8B8d8B8|", "G8B8d8|", 1)
+    with pytest.raises(AbcError, match="group 1"):
+        abc_to_midi(broken)
+    with pytest.raises(AbcError, match="group 1"):
+        abc_to_midi(broken + "V: Vocal\nG8")
