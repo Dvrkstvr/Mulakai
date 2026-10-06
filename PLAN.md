@@ -8774,10 +8774,16 @@ What a person does:
 
 ### Decisions (proposed; the ones marked **owner** need the owner's pick)
 
-1. **CHAT is the start screen; Create and Editor stay** (**owner**,
-   Q-054). Proposed: CHAT is the default route, and the Library's CONTINUE
-   row opens a song's thread. Guided Create stays reachable as FORM and the
-   Editor as OPEN IN EDITOR. Alternative: CHAT replaces Guided Create.
+1. **Two ways in, one draft** (the owner's, D-086). **Chat-first** is the
+   start screen: the conversation is the main surface and the form is an
+   optional, collapsible sidebar showing the fields the LLM fills; the LLM
+   does almost all of the editing. **Form-first** is today's Guided Create
+   with the chat docked as a side assistant that helps and fills in the
+   form's fields. Both edit one shared draft, so switching keeps everything,
+   and either commits. The Library's CONTINUE row opens a song's thread.
+   Whether editing a song mirrors this (chat-first thread vs Editor-first
+   with the chat as a side assistant) is Q-055; the default is yes, which
+   makes the Editor-first mode the scalpel.
 2. **The LLM proposes, code acts, the person commits.** Each assistant
    turn is one strict-JSON reply from a closed set, checked by code like
    the SCORE planner (`docs/decisions/0001`): `ask` (one clarifying
@@ -8896,10 +8902,11 @@ becomes "Ask in chat".
 
 ### Open questions for the owner (Q-054)
 
-Answered 2026-10-06: memory (D-081), ask or propose (D-082), engine
+Answered 2026-10-06: two ways in (D-086), memory (D-081), ask or propose (D-082), engine
 (D-083), reference audio (D-084), tempo and key (D-085). Still open:
 
-1. **CHAT beside Guided Create, replacing it, or the form inside the
-   chat** (decision 1): mockup `pipeline/design/chat-create.html`.
+1. **The editing pairing** (Q-055, assumable): chat-first thread vs
+   Editor-first with the chat as a side assistant, shown in
+   `pipeline/design/chat-create.html`.
 2. **SP-4's listen**: do the splice joins and the audio-only REPEAT/CUT
    seams pass by ear (`pipeline/spikes/SP-4-keep-unchanged/listen`)?

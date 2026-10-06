@@ -394,3 +394,10 @@ A reference song's audio is kept with the song as its source after the analysis 
 ## D-085 · 2026-10-06 · stage 1/4 (chat, Q-054 #6) · by: user
 Tempo and key edits offer both per turn: RE-RENDER (whole-song YuE2 render, the consequence line says the whole song changes) and SHIFT/STRETCH (pitch-shift / time-stretch of the current take, same performance). SHIFT/STRETCH is built only if a spike passes (SP-6, scheduled before C2's tempo/key turns); until then the card offers RE-RENDER alone.
 - instead of: re-render only; waiting on the spike before any tempo/key turn.
+
+## D-086 · 2026-10-06 · stage 5 (chat, Q-054 #1) · by: user
+Two ways in, over one shared draft (the user, on seeing design/chat-create.html: "a chat where the form is only optional as the side bar or something (chat first, llm will do almost all of the editing). the form where the chat is like an assistant who will help and fill in the form"):
+1. **Chat-first** (the default, D-079): the conversation is the main surface; the form is an optional, collapsible sidebar showing the fields the LLM fills; the LLM does almost all of the editing.
+2. **Form-first**: today's Guided Create form is the main surface; the chat is a side assistant that helps and fills in the form's fields.
+Both write the same draft, so switching keeps everything; CREATE SONG / GENERATE commits from either. Assumed (conductor): chat-first is the start screen (D-079); the same pairing for editing an existing song (the conversation beside the Editor's dock) is the next question, Q-055.
+- instead of: A (chat with a FORM tab), B (chat only), C (form inside the chat).
