@@ -1,6 +1,6 @@
 @echo off
 REM Mulakai complete startup: ACE-Step API + server + client, plus the optional
-REM Demucs, lyrics, HeartMuLa and YuE2 services when they are installed
+REM Demucs, lyrics, HeartMuLa, YuE2 and Ollama (chat planner) services when installed
 setlocal
 
 echo ==================================
@@ -91,6 +91,24 @@ if not defined YUE_API_URL (
 )
 if defined YUE_READY set "YUE_API_URL=http://127.0.0.1:8004"
 
+REM The chat (CHAT start screen, SCORE) needs a local Ollama with a 16k context - see
+REM PLAN.md "Chat: Talk a Song Into Being". A LLM_API_URL that is already set is used as-is
+REM and nothing is started here. Otherwise an installed Ollama is started on 127.0.0.1:11434
+REM unless one already answers there. Override with: set LLM_MODEL=... / set OLLAMA_MODELS=...
+if "%LLM_MODEL%"=="" set "LLM_MODEL=qwen3:14b"
+set "OLLAMA_EXE="
+set "OLLAMA_READY="
+set "OLLAMA_RUNNING="
+REM One-line IFs: a path like "C:\Program Files (x86)\..." would end a ( ) block early.
+if not defined LLM_API_URL if exist "%LOCALAPPDATA%\Programs\Ollama\ollama.exe" set "OLLAMA_EXE=%LOCALAPPDATA%\Programs\Ollama\ollama.exe"
+if not defined LLM_API_URL if not defined OLLAMA_EXE for %%I in (ollama.exe) do if not "%%~$PATH:I"=="" set "OLLAMA_EXE=%%~$PATH:I"
+if not defined LLM_API_URL if defined OLLAMA_EXE curl -s -m 2 http://127.0.0.1:11434/api/version >nul 2>&1 && set "OLLAMA_RUNNING=1"
+if defined OLLAMA_EXE if not defined OLLAMA_RUNNING set "OLLAMA_READY=1"
+if defined OLLAMA_EXE set "LLM_API_URL=http://127.0.0.1:11434"
+if defined OLLAMA_READY if not defined OLLAMA_MODELS if exist "E:\ai\ollama\models" set "OLLAMA_MODELS=E:\ai\ollama\models"
+if defined OLLAMA_READY set "OLLAMA_CONTEXT_LENGTH=16384"
+if defined OLLAMA_READY set "OLLAMA_HOST=127.0.0.1:11434"
+
 REM Only one model fits in VRAM at a time. With any extra engine configured, ACE-Step
 REM must hand its GPU memory back when idle (PLAN.md, "Multiple Song-Creation Engines",
 REM point 10). All three flags, as measured; ACE-Step's .env never overrides these.
@@ -105,18 +123,24 @@ if defined ENGINE_CONFIGURED (
 )
 
 echo.
-echo [1/7] Starting ACE-Step API server...
+echo [1/8] Starting the chat planner (Ollama)...
+if defined OLLAMA_READY start "Ollama (chat, 16k)" cmd /k ""%OLLAMA_EXE%" serve"
+if defined OLLAMA_RUNNING echo   Using the Ollama already running on :11434 (fine if it was started with OLLAMA_CONTEXT_LENGTH=16384, as this script does; the chat says so if its context is too short)
+if not defined OLLAMA_EXE if defined LLM_API_URL echo   Not started - using LLM_API_URL=%LLM_API_URL%
+if not defined LLM_API_URL echo   Skipped - no Ollama installed, so CHAT and SCORE stay hidden. See PLAN.md "Score Agent".
+
+echo [2/8] Starting ACE-Step API server...
 start "ACE-Step API" cmd /k "cd /d "%ACESTEP_PATH%" && %API_COMMAND%"
 
 echo Waiting for API to initialize...
 timeout /t 5 /nobreak >nul
 
-echo [2/7] Starting Mulakai server...
+echo [3/8] Starting Mulakai server...
 start "Mulakai Server" cmd /k "cd /d "%~dp0server" && npm run dev"
 
 timeout /t 3 /nobreak >nul
 
-echo [3/7] Starting stem-separation service...
+echo [4/8] Starting stem-separation service...
 if defined UVR_READY (
     start "UVR Server" cmd /k "cd /d "%~dp0uvr-server" && venv\Scripts\python.exe -m uvicorn main:app --port 8002"
 ) else if defined DEMUCS_READY (
@@ -127,25 +151,25 @@ if defined UVR_READY (
 
 timeout /t 2 /nobreak >nul
 
-echo [4/7] Starting lyrics reader...
+echo [5/8] Starting lyrics reader...
 if defined LYRICS_READY start "Lyrics Server" cmd /k "cd /d "%~dp0lyrics-server" && venv\Scripts\python.exe -m uvicorn main:app --port 8005"
 if not defined LYRICS_READY echo   Skipped - no lyrics-server\venv. See lyrics-server\README.md.
 
-echo [5/7] Starting HeartMuLa engine...
+echo [6/8] Starting HeartMuLa engine...
 REM One-line IFs, not a ( ) block: cmd parses a whole block up front, and a HEARTMULA_PATH
 REM like "C:\Program Files (x86)\..." would end it early at its ")".
 if defined HEARTMULA_READY start "HeartMuLa Server" cmd /k "cd /d "%~dp0heartmula-server" && "%HEARTMULA_PATH%\.venv\Scripts\python.exe" main.py"
 if not defined HEARTMULA_READY if defined HEARTMULA_API_URL echo   Not started - using HEARTMULA_API_URL=%HEARTMULA_API_URL%
 if not defined HEARTMULA_API_URL echo   Skipped - no heartlib venv and weights under HEARTMULA_PATH. See heartmula-server\README.md.
 
-echo [6/7] Starting YuE2 engine...
+echo [7/8] Starting YuE2 engine...
 REM Launched through wsl.exe: WSL does not start on its own, and this process keeps the
 REM distro running. 127.0.0.1 inside WSL is reachable from Windows.
 if defined YUE_READY start "YuE2 Server" cmd /k wsl.exe -d %YUE_DISTRO% --cd "%~dp0yue-server" --exec bash -lc "if [ -x %YUE_SHEETSAGE_HOME%/.venv/bin/python ]; then export YUE_SHEETSAGE_PYTHON=%YUE_SHEETSAGE_HOME%/.venv/bin/python YUE_SHEETSAGE_DIR=%YUE_SHEETSAGE_HOME%/SheetSage2; fi; YUE_DATA_DIR=~/yue-data %YUE_VENV%/bin/python main.py"
 if not defined YUE_READY if defined YUE_API_URL echo   Not started - using YUE_API_URL=%YUE_API_URL%
 if not defined YUE_API_URL echo   Skipped - no YuE2 venv at %YUE_VENV% in WSL distro %YUE_DISTRO%. See yue-server\README.md.
 
-echo [7/7] Starting Mulakai client...
+echo [8/8] Starting Mulakai client...
 start "Mulakai Client" cmd /k "cd /d "%~dp0client" && npm run dev"
 
 timeout /t 2 /nobreak >nul
@@ -163,6 +187,7 @@ if defined DEMUCS_READY echo   Demucs:       http://localhost:8002
 if defined HEARTMULA_READY echo   HeartMuLa:    http://localhost:8003 (loads its weights into RAM, ~20 s)
 if defined LYRICS_READY echo   Lyrics:       http://localhost:8005 (loads its model per job)
 if defined YUE_READY echo   YuE2:         http://127.0.0.1:8004 (verifies its weights, ~6 s)
+if defined LLM_API_URL echo   Chat planner: %LLM_API_URL% (%LLM_MODEL%, loaded per turn)
 echo.
 echo   Close the terminal windows to stop all services.
 echo.

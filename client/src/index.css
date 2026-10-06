@@ -20,6 +20,8 @@
   --lilac-tint: #2A2133;
   --rust: #CC3F0C;
   --rust-text: #E8703F;
+  --rust-body: #C9906F;
+  --rust-tint: #2A1712;
   --on-rust: #2A0D02;
 
   /* Shared interaction timing — snappy/purposeful per DESIGN.md#Motion.
@@ -4376,3 +4378,129 @@ button.acid-outline:not(:disabled):hover {
 .score-sections .meta.over {
   color: var(--rust-text);
 }
+
+/* CHAT (ChatView and its parts; pipeline/design/chat-turn.html, chat-lyrics.html frame 3, chat-create.html
+   frames 1a/1b/5; DESIGN.md "Chat"): tokens only, zero radius, one hue per job. */
+.header-views { display: flex; gap: 8px; }
+.header-view, .chat-q, .chat-ao, .chat-danger {
+  transform: skewX(-10deg); padding: 6px 12px; font-size: 10px; letter-spacing: 1px; white-space: nowrap;
+}
+.header-view { font-size: 11px; padding: 6px 14px; border-color: var(--line); color: var(--text-mid); }
+.header-view.on { border-color: var(--acid); color: var(--acid); }
+.header-view > span, .chat-q > span, .chat-ao > span, .chat-danger > span, .chat-send > span, .chat-create > span, .chat-vp > span {
+  display: inline-block; transform: skewX(10deg);
+}
+.chat-q { border-color: var(--line-hi); color: var(--text-mid); }
+.chat-q:disabled, .chat-ao:disabled { opacity: 0.4; cursor: default; }
+.chat-ao { border-color: var(--acid); color: var(--acid); }
+.chat-danger { border-color: var(--rust); color: var(--rust-text); }
+.chat-link {
+  border: 0; padding: 0; background: none; font: 10px ui-monospace, monospace; letter-spacing: 1px;
+  color: var(--text-mid); text-decoration: underline; text-underline-offset: 3px;
+}
+.detail-open-chat { margin-left: auto; margin-right: 10px; padding: 4px 10px; font-size: 10px; transform: skewX(-10deg); }
+
+.chat-view { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.chat-title-row { flex: none; height: 49px; display: flex; align-items: center; gap: 14px; padding: 0 18px; border-bottom: 1px solid var(--line); }
+.chat-title { margin: 0; font-size: 20px; letter-spacing: 3px; text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-title-gap { flex: 1; }
+.chat-confirm { display: flex; align-items: center; gap: 10px; }
+.chat-refusal { flex: none; margin: 8px 18px 0; }
+.chat-body { flex: 1; min-height: 0; display: flex; }
+.chat-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.chat-thread { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; }
+.chat-thread-inner { margin: auto auto 0; width: min(760px, 94%); display: flex; flex-direction: column; gap: 10px; padding: 12px 0; }
+.chat-empty { color: var(--text-low); text-align: center; padding: 24px 40px; font-size: 12px; }
+.chat-um { align-self: flex-end; max-width: 560px; background: var(--carbon-raised); padding: 9px 12px; white-space: pre-wrap; }
+.chat-am { color: var(--text-mid); border-left: 2px solid var(--line-hi); padding: 2px 0 2px 12px; white-space: pre-wrap; }
+.chat-hn, .chat-tag, .chat-fk { font-family: ui-monospace, monospace; letter-spacing: 1px; }
+.chat-hn { font-size: 10px; color: var(--text-low); }
+.chat-changed { color: var(--sky); margin-top: 4px; }
+.chat-lb { font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--text-low); }
+.chat-choices { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+
+/* The turn and take lines (TU-1, TU-9): dashed and plain while waiting, the AI shader while the GPU works. */
+.chat-job {
+  position: relative; overflow: hidden; padding: 8px 10px; border: 1px solid var(--line); background: var(--panel);
+  font-size: 11px; display: flex; justify-content: space-between; align-items: center; gap: 10px; min-height: 38px;
+}
+.chat-job.waiting { border: 1px dashed var(--line-hi); background: none; color: var(--text-mid); }
+.chat-job-text, .chat-job > button { position: relative; z-index: 1; }
+.chat-job em { font-style: normal; color: var(--text-mid); }
+.chat-job.working em { color: var(--text-hi); }
+.chat-job.working .chat-job-text { text-shadow: 0 0 3px var(--carbon), 0 0 6px var(--carbon); } /* legible over the shader's acid */
+.chat-er {
+  padding: 8px 10px; color: var(--rust-body); font-size: 11px; display: flex; gap: 10px; align-items: center;
+  border: 1px solid var(--rust); background: var(--rust-tint);
+}
+.chat-er > div { flex: 1; }
+.chat-er b { color: var(--rust-text); }
+
+/* The recipe and song cards (TU-6, TU-7, TU-10). */
+.chat-card { border: 1px solid var(--line-hi); background: var(--panel); }
+.chat-card.sup { opacity: 0.45; }
+.chat-card-hd { display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--line); }
+.chat-card-hd:last-child { border-bottom: 0; }
+.chat-card-sum { padding: 10px 14px; display: flex; flex-direction: column; gap: 3px; align-items: flex-start; }
+.chat-card-title { font-size: 15px; letter-spacing: 1px; font-weight: 400; }
+.chat-card-style { color: var(--text-mid); }
+.chat-card-cm { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-top: 1px solid var(--line); }
+.chat-cs { flex: 1; font-size: 11px; color: var(--text-mid); }
+.chat-card .chat-er { margin: 8px 14px; }
+.chat-create { padding: 7px 18px; white-space: nowrap; }
+.chat-song-title { flex: 1; font-weight: 400; }
+.chat-vp {
+  display: inline-block; border: 1px solid var(--lilac); background: var(--lilac-tint); color: var(--lilac-text);
+  padding: 3px 10px; font-size: 11px; font-weight: 700; letter-spacing: 1px; transform: skewX(-10deg); white-space: nowrap;
+}
+.chat-tag { font-style: normal; font-size: 9px; color: var(--sky); margin-left: 6px; }
+.chat-tag.yours { color: var(--text-mid); }
+.chat-ly, .chat-ly-preview {
+  font: 11px/1.45 ui-monospace, monospace; color: var(--text-mid); border: 1px solid var(--line); background: var(--carbon);
+  padding: 6px 9px; white-space: pre-wrap;
+}
+.chat-ly { margin: 6px 0 0; max-height: 180px; overflow-y: auto; align-self: stretch; }
+.chat-ly-preview { width: 100%; text-align: left; font-weight: 400; letter-spacing: 0; cursor: pointer; }
+.chat-ly-preview span { color: var(--text-low); }
+
+/* The player above the composer (D-095) and the composer with SEND ↵ (never a play-like glyph). */
+.chat-player { flex: none; display: flex; align-items: center; gap: 12px; padding: 6px 24px; background: var(--panel); border-top: 1px solid var(--line); }
+.chat-player .player { flex: 1; min-width: 0; gap: 10px; }
+.chat-player .player-btn.play { width: 38px; height: 32px; }
+.chat-composer { flex: none; border-top: 1px solid var(--line); background: var(--panel); padding: 8px 0 12px; display: flex; flex-direction: column; gap: 7px; }
+.chat-composer > * { width: min(760px, 94%); margin: 0 auto; }
+.chat-composer-row { display: flex; gap: 12px; align-items: center; }
+.chat-input { flex: 1; min-height: 0; height: 38px; resize: none; background: var(--carbon); padding: 9px 11px; font-family: inherit; font-size: 13px; }
+.chat-input:disabled { opacity: 0.45; }
+.chat-send {
+  height: 32px; padding: 0 14px; border: 1px solid var(--acid); color: var(--acid); font-size: 11px; letter-spacing: 0.14em;
+  transform: skewX(-14deg); white-space: nowrap;
+}
+.chat-send > span { transform: skewX(14deg); }
+.chat-send:disabled { border-color: var(--line-hi); color: var(--text-low); opacity: 0.5; cursor: default; }
+
+/* The draft sidebar (CH-3, CH-4, TU-4, TU-8): 360 px, a 38 px rail when collapsed. */
+.chat-sidebar { width: 360px; flex: none; border-left: 1px solid var(--line); background: var(--panel); display: flex; flex-direction: column; min-height: 0; }
+.chat-sidebar-hd { flex: none; display: flex; justify-content: space-between; align-items: center; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+.chat-sidebar-body { flex: 1; min-height: 0; overflow-y: auto; }
+.chat-sidebar-ft { padding: 8px 14px; }
+.chat-rail {
+  width: 38px; flex: none; border: 0; border-left: 1px solid var(--line); background: var(--panel); writing-mode: vertical-rl;
+  padding: 16px 0; font: 10px ui-monospace, monospace; letter-spacing: 2px; color: var(--text-low); text-align: start;
+}
+.chat-fd { display: grid; grid-template-columns: 70px 1fr; gap: 8px; padding: 6px 14px; border-bottom: 1px solid var(--line); align-items: center; }
+/* Just filled by the assistant: the sky family's deepest shade as the wash, a sky edge and tag (Q-086, DESIGN.md "Chat"). */
+.chat-fd.assistant { background: var(--on-sky); box-shadow: inset 3px 0 var(--sky); }
+.chat-fd.filling { outline: 1px dashed var(--sky); outline-offset: -1px; }
+.chat-fd.locked { opacity: 0.55; }
+.chat-fk { font-weight: 700; font-size: 10px; color: var(--text-low); }
+.chat-fv { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; min-width: 0; }
+.chat-fd-in { width: 100%; min-width: 0; min-height: 0; background: var(--carbon); padding: 3px 9px; font-size: 12px; font-family: inherit; }
+textarea.chat-fd-in { font: 11px/1.45 ui-monospace, monospace; resize: vertical; }
+.chat-fd-in.narrow { width: 76px; }
+.chat-fd-in:disabled { opacity: 1; color: var(--text-mid); }
+.chat-fd-group { display: flex; gap: 6px; }
+.chat-fd-col { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+.chat-fd-problem { color: var(--rust-text); font-size: 10px; }
+.chat-old { color: var(--text-low); font-size: 11px; }
+.chat-ib { display: inline-block; border: 1px solid var(--line-hi); background: var(--carbon); padding: 3px 9px; font-size: 12px; }

@@ -28,6 +28,15 @@ describe('askPlanner (F-019 #1)', () => {
     expect(JSON.stringify(sent?.body)).toContain('"maximum":65');
   });
 
+  it('sends temperature 0.3 and max_tokens 2000 by default, a caller\'s max_tokens when given (a chat turn that may edit: 4000, SP-5)', async () => {
+    fake = await startFakeOllama();
+    fake.chats.push({ content: '{}', promptTokens: 10 }, { content: '{}', promptTokens: 10 });
+    await askPlanner({ url: fake.url, model: 'qwen3:14b' }, messages, {}, { timeoutMs: 5000 });
+    await askPlanner({ url: fake.url, model: 'qwen3:14b' }, messages, {}, { timeoutMs: 5000, maxTokens: 4000 });
+    const sent = fake.requests.filter((r) => r.path === '/v1/chat/completions').map((r) => r.body);
+    expect(sent).toMatchObject([{ temperature: 0.3, max_tokens: 2000 }, { temperature: 0.3, max_tokens: 4000 }]);
+  });
+
   it('reports a missing usage as null prompt tokens', async () => {
     fake = await startFakeOllama();
     fake.chats.push({ content: '{}', promptTokens: null });

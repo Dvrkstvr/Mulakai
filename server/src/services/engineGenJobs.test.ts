@@ -137,6 +137,19 @@ describe('startEngineGeneration happy path', () => {
     expect(readMeta).toHaveBeenCalledWith({});
   });
 
+  it('calls onSaved with the new song before the job reads done (the chat attaches its thread)', async () => {
+    const seen: Array<{ songId: string; status: string | undefined }> = [];
+    const job = startEngineGeneration(engine, fields, 'Hook Song', null, undefined, (songId) => { seen.push({ songId, status: getJob(job.id)?.status }); });
+    await settle(job.id, 'done');
+    expect(seen).toEqual([{ songId: getJob(job.id)!.songId, status: 'running' }]);
+  });
+
+  it('a failing onSaved never fails the take', async () => {
+    const job = startEngineGeneration(engine, fields, 'Hook Fail', null, undefined, () => { throw new Error('thread gone'); });
+    await settle(job.id, 'done');
+    expect(getJob(job.id)!.songId).toBeTruthy();
+  });
+
   it('keeps a truncated result under a labelled version', async () => {
     client.status.mockImplementation(async () => ({ state: 'done', truncated: true }));
     const job = startEngineGeneration(engine, fields, 'Truncated Song');

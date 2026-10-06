@@ -56,9 +56,11 @@ async function persistEngineSong(
 
 /** Queue a new-song generation on an extra engine and persist the result as a new song
  * with a base layer. Throws QueueFullError synchronously when the queue is full; throws
- * before queueing if `cover` is given to an engine that can't cover. */
+ * before queueing if `cover` is given to an engine that can't cover. `onSaved` runs right after the
+ * song is saved (the chat attaches its thread, chat/createFromDraft.ts); its failure never fails the take. */
 export function startEngineGeneration(
   engine: SongEngine, fields: CreateFields, title: string, folderId?: string | null, cover?: EngineCover,
+  onSaved?: (songId: string) => void | Promise<void>,
 ): Job {
   if (cover && !engine.toCoverRequest) throw new Error(`${engine.label} cannot cover a score`);
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
@@ -76,6 +78,8 @@ export function startEngineGeneration(
     const finished = await pollEngine(job, engine);
     if (!finished) return;
     job.songId = await persistEngineSong(engine, taskId, fields, request, finished.truncated, title, folderId, cover);
+    const songId = job.songId;
+    await (async () => onSaved?.(songId))().catch((err) => console.error('after-save hook failed:', err));
     job.status = 'done';
   });
 }

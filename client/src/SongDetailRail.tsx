@@ -7,6 +7,9 @@ import { SongOutputTags } from './SongOutputTags';
 import { ReferenceAudioMeta } from './ReferenceAudioMeta';
 import { useVoiceStore } from './voiceStore';
 import { taskToGenType, generatedWithLabel, START_FROM } from './createDraft';
+import { chatShown } from './chatEntry';
+import { useChatStore } from './chatStore';
+import { useNavigation } from './Navigation';
 
 interface Props {
   song: Song;
@@ -60,6 +63,9 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
   const [comment, setComment] = useState(song.comment);
   const [error, setError] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  // OPEN CHAT (D-099): only while the chat is configured, like the header's CHAT.
+  const chatOn = chatShown(useChatStore((s) => s.status));
+  const { openChat } = useNavigation();
 
   useEffect(() => setTitle(song.title), [song.title]);
   useEffect(() => setComment(song.comment), [song.comment]);
@@ -96,6 +102,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
       <div className="song-detail-panel">
         <div className="field-label-row">
           <span className="section-header">SONG DETAIL</span>
+          {chatOn && openChat && <button type="button" className="detail-open-chat" onClick={() => openChat(song.id)}>OPEN CHAT</button>}
           <button className="rail-close" onClick={onClose}>&times;</button>
         </div>
 

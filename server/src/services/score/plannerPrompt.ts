@@ -36,11 +36,13 @@ export function planMessages(
   return [{ role: 'system', content: PLANNER_RULES }, { role: 'user', content: user }];
 }
 
-/** `legend`: how a REVISE reply became the plan the reasons number (reviseReply); `closing`: the ask. */
+/** `legend`: how a REVISE reply became the plan the reasons number (reviseReply); `closing`: the ask;
+ * `heading`: the first line (a chat turn's reply is not an op list, D-114 i). */
 export function retryMessages(
-  messages: ChatMessage[], reply: string, reasons: string[], { legend, closing }: { legend?: string; closing?: string } = {},
+  messages: ChatMessage[], reply: string, reasons: string[],
+  { legend, closing, heading = 'Your op list was rejected:' }: { legend?: string; closing?: string; heading?: string } = {},
 ): ChatMessage[] {
-  const feedback = `Your op list was rejected:\n${legend ? `${legend}\n` : ''}${reasons.map((r) => `- ${r}`).join('\n')}\n`
+  const feedback = `${heading}\n${legend ? `${legend}\n` : ''}${reasons.map((r) => `- ${r}`).join('\n')}\n`
     + (closing ?? 'Return a corrected, complete op list as JSON only.');
   return [...messages, { role: 'assistant', content: reply }, { role: 'user', content: feedback }];
 }
