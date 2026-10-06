@@ -415,3 +415,7 @@ And "always analyze the song so lyrics, abc and sections are up to date": every 
 
 ## D-090 · 2026-10-06 · stage 5 (chat) · by: user
 The user marks a part of the song as context for the chat, like in the Editor: click a section (e.g. the chorus) to mark it, drag to extend it a bit; the chat turn gets the marked range as data alongside the prompt (bars, seconds, the sections and lyric lines it covers). Extends F-032's referent (section / lyric line) with a free bar range that may cross a section boundary.
+
+## D-091 · 2026-10-06 · stage 5 (chat mockup 2) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-song.html (CS-1..CS-11) is the spec for D-089/D-090 on the Q-063..Q-069 defaults: the player pinned at the top of the main column, in view with the sidebar collapsed; a new version swaps in place keeping position and play state, BACK TO v3 is an A/B and USE v3 activates; analysis failed → hatched strip, reason + RETRY, marking by raw time; an ACE-Step version gets a transcribed score for context and marking only (Q-062 b); marks snap to bars; the mark is sticky with a frozen echo on each sent message; "what the assistant sees" disclosure on the chip; Editor-first uses the Editor's own (unsnapped) selection; a stale mark is never remapped silently and holds SEND.
+- instead of: the player above the composer; resetting play on a new version; a one-shot mark cleared after sending.

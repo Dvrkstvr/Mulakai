@@ -1,0 +1,165 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CHAT SONG</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--wv:#55565F;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--li:#7B4B94;--lt:#A97FC1;--ln:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}
+h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:26px 0 12px}
+li{max-width:1100px}.rd,.hn,.tm,.an,pre,.sg i,.fk,.rr,.ov,.sl{font-family:ui-monospace,monospace}.rd,.hn{font-size:10px;color:var(--w)}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.nt{max-width:794px;margin-top:6px;font-size:12px;color:var(--m)}
+.fr{--z:.62;width:794px;height:447px;overflow:hidden;border:1px solid var(--h);cursor:zoom-in}.fr.t{--z:.5;width:642px;height:362px}.fr.big{width:1282px;height:722px;cursor:zoom-out}.fr.big .sc{transform:none}
+.sc{width:1280px;height:720px;background:var(--c);transform:scale(var(--z));transform-origin:0 0;position:relative;overflow:hidden;font-size:12px}
+.hdr{height:40px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--l);background:var(--p);font-size:10px;letter-spacing:2px;color:var(--m)}.hdr b{color:var(--t);font-size:13px;letter-spacing:4px;margin-right:auto}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}.p>span{display:inline-block;transform:skewX(10deg)}
+.t1{border:1px solid var(--l);color:var(--m);padding:6px 14px;font-size:11px}.t1.on{border-color:var(--a);color:var(--a)}
+.ch{background:var(--s);color:var(--sk);padding:4px 11px;font-size:10px}.ch.fz{background:var(--st);color:var(--s);border:1px solid var(--s)}.ch.bd2{background:var(--rw);color:var(--rt);border:1px solid var(--ru)}.ch.pd{background:none;color:var(--s);border:1px dashed var(--s)}
+.ac,.ao,.q{font-size:11px;padding:11px 22px;border:1px solid}.ac{background:var(--a);border-color:var(--a);color:var(--c)}.ao{color:var(--a);border-color:var(--a);padding:6px 12px;font-size:10px}.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}
+.ttl{height:49px;display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:1px solid var(--l)}.ttl h3{margin:0;font-size:20px;letter-spacing:3px}
+.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.bd{position:absolute;top:89px;bottom:0;left:0;right:0;display:flex}
+.mn{flex:1;min-width:0;position:relative;display:flex;flex-direction:column}.th{flex:1;min-height:0;overflow:hidden;padding:12px 0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:flex-end}.th>*{width:min(760px,94%);flex:none}
+.um{margin-left:auto;max-width:560px;background:var(--r);padding:9px 12px}.am{max-width:720px;color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}.cp{flex:none;border-top:1px solid var(--l);background:var(--p);padding:8px 0 12px;display:flex;flex-direction:column;gap:7px}.cp>*{width:min(760px,94%);margin:0 auto}.cl{display:flex;gap:12px;align-items:center}.cl .in{flex:1}
+.cr2{display:flex;align-items:center;gap:8px}.x{color:var(--w);padding:0 4px}
+.in{border:1px solid var(--h);background:var(--c);padding:9px 11px;color:var(--w)}.hx{width:46px;height:42px;background:var(--a);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);color:var(--c);display:flex;align-items:center;justify-content:center}
+.sb{width:360px;flex:none;border-left:1px solid var(--l);background:var(--p);overflow:hidden;display:flex;flex-direction:column}.sb.n{width:300px}.sbh{display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--l)}
+.pt{flex:1;padding:12px;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;overflow:hidden}.pc{display:flex;flex-direction:column;gap:6px;padding:10px;border-top:1px solid var(--l)}
+.fd{display:grid;grid-template-columns:70px 1fr;gap:8px;padding:6px 14px;border-bottom:1px solid var(--l);align-items:center}.fk{font-weight:700;font-size:10px;color:var(--w)}
+.cd{border:1px solid var(--h);background:var(--p)}.hd{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--l)}.vc>.hd{border:0}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}.cs{flex:1;font-size:11px;color:var(--m)}
+.er,.wn{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.er div,.wn div{flex:1}.er b,.wn b{color:var(--rt)}
+.pl{flex:none;padding:6px 24px;background:var(--p);border-bottom:1px solid var(--l)}.pr{display:flex;align-items:center;gap:10px;height:36px}.pr .hx{width:38px;height:32px}.tm{font-size:11px;color:var(--m)}
+.vp,.ab{border:1px solid var(--li);color:var(--lt);padding:3px 10px;font-size:11px}.vp{background:var(--ln)}
+.an{margin-left:auto;font-size:10px;color:var(--w);padding:4px 8px}.an.rn{color:var(--a);background:var(--st);border:1px solid var(--l)}
+.ms{padding:3px 10px;margin-bottom:5px;background:var(--ln);border-left:2px solid var(--li);color:var(--lt);font-size:11px}
+.sgw{position:relative}.sg{display:flex;gap:3px}.sg i{font-size:9px;font-style:normal;color:var(--m);background:var(--r);padding:4px 0;text-align:center;overflow:hidden;white-space:nowrap;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.sg i.on{background:var(--s);color:var(--sk)}.sg i.pt{background:var(--st);color:var(--s)}.sg i.up{opacity:.5}.sg i.hc{background:repeating-linear-gradient(135deg,var(--r) 0 4px,var(--l) 4px 5px)}
+.stk{position:relative;margin-top:3px}.rr{position:relative;height:13px;font-size:9px;line-height:13px;color:var(--w);background:linear-gradient(90deg,var(--l) 1px,transparent 1px) 0 100%/calc(100%/var(--n)) 5px repeat-x}.rr span{position:absolute;top:0;padding-left:2px;border-left:1px solid var(--h)}
+.wf{position:relative;display:flex;align-items:center;gap:1px}.wf i{flex:1;background:var(--wv)}.wf i.on{background:var(--s)}
+.ln2{position:relative;height:20px;margin-top:3px}.lc{position:absolute;top:0;bottom:0;background:var(--r);color:var(--m);font-size:9px;line-height:20px;padding:0 3px;overflow:hidden;white-space:nowrap;border-right:1px solid var(--p)}.lc.on{background:var(--st);box-shadow:inset 0 0 0 2px var(--s);color:var(--t)}
+.mk{position:absolute;top:0;bottom:0;background:var(--st);border:solid var(--s);border-width:0 1px}.mk.gh{background:var(--rw);border:dashed var(--ru);border-width:0 1px}.gp{position:absolute;top:0;width:7px;height:13px;background:var(--s);z-index:3}
+.ph{position:absolute;top:0;bottom:0;width:2px;background:var(--s);z-index:4}
+.sn{position:absolute;top:0;bottom:0;border-left:1px dashed var(--t);z-index:4}.sl{position:absolute;top:-22px;background:var(--s);color:var(--sk);font-size:9px;line-height:16px;padding:0 6px;white-space:nowrap;z-index:5}
+.cr{width:920px;border:1px solid var(--h);background:var(--c)}
+.pop{position:absolute;left:24px;bottom:104px;width:540px;border:1px solid var(--s);z-index:6}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:8px 0;max-width:1100px}
+</style></head><body>
+<h1>CHAT SONG · the player, the analysis, the mark</h1>
+<div class="rd">stage 5 · D-088..D-090 · Q-062 · tokens: DESIGN.md, none added · click a frame to zoom</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li><b>D-089 player</b>: where the latest version is always playable, what is on it, the swap to a new version, the way back.</li>
+<li><b>D-089 / Q-062 analysis</b>: queued, running, done, failed after every save; strip and marking while the reading is old; an ACE-Step version.</li>
+<li><b>D-090 marking</b>: click, extend with bar snap, the composer chip, a lyric line, the echo on a sent message, <b>what the assistant sees</b>, Editor-first, stale, clearing.</li>
+<li>Evidence: Editor drag (create, edge, move; a click under 0.2 s clears), section and lyric-chip clicks, REPAINT-only painting <i>seen in code</i> (Waveform.tsx, LyricsLane.tsx, editorSelection.ts); layouts and numbers <i>inferred</i>; transcriber section names <i>unverified</i>.</li>
+</ul>
+
+<h2>1 · THE PLAYER · where it lives (CS-1)</h2><div class="g" id="op"></div>
+<h2>2 · A NEW VERSION ARRIVES (CS-2)</h2><div class="g" id="nv"></div>
+<h2>3 · ANALYSIS (CS-3, CS-4; real size)</h2><div class="g" id="an"></div>
+<h2>4 · MARKING (CS-5 to CS-8)</h2><div class="g" id="mk"></div>
+<h2>5 · WHAT THE ASSISTANT SEES (CS-9)</h2><div class="g" id="se"></div>
+<h2>6 · EDITOR-FIRST (CS-10)</h2><div class="g" id="ed"></div>
+<h2>7 · A STALE MARK (CS-11)</h2><div class="g" id="sl"></div>
+
+<h2>DECISIONS</h2><div id="dec"></div>
+
+<h2>OPEN QUESTIONS (ids provisional)</h2>
+<ul>
+<li><b>Q-062</b> as drawn: (a) CS-3/4; (b) default kept, CS-4; (c) bars, Alt frees, CS-5. Owner to confirm.</li>
+<li><b>Q-063</b> assumable: player pinned at the top (A), not C; worth a pick.</li>
+<li><b>Q-064</b> assumable: a saved version swaps in at the same position and play state (CS-2); alt: stop, or wait for a pause.</li>
+<li><b>Q-065</b> assumable: the mark stays until cleared (CS-8); alt: one-shot.</li>
+<li><b>Q-066</b> assumable: a stale mark holds SEND (CS-11); alt: send without it.</li>
+<li><b>Q-067</b> assumable: the old reading stays clickable only if the edit moved no bars, as the plan's ops tell (CS-4).</li>
+<li><b>Q-068</b> assumable: edge grips, partial strip fill, shift-click on the strip: a DESIGN.md clause (CS-6).</li>
+<li><b>Q-069</b> assumable: a turn sent during analysis queues behind it, the composer says so; alt: send now.</li>
+<li><b>Q-070</b> deferred: section names on a transcribed song (PART n); A/B by bar after a REPEAT or CUT (default: same seconds).</li>
+</ul>
+
+<h2>CHECK ON A REAL DEVICE (desktop, 1366×768)</h2>
+<ul>
+<li>Main column 1006 px: an 8-bar section is 96 px, a 2-bar lyric chip 24 px. Legible? Are 7 px grips easy to catch?</li>
+<li>Edge drag with and without Alt: firm snap, readable tag? A version landing mid-play: no gap?</li>
+<li>Sky, lilac, rust read apart. The current version is lilac here; chat-create drew it acid, which DESIGN.md keeps for commits.</li>
+</ul>
+
+<script>
+const $=i=>document.getElementById(i);
+const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
+const f=s=>{s=Math.round(s);return(s/60|0)+":"+String(s%60).padStart(2,"0")};
+const rg=(a,b)=>f((a-1)*2.4)+"–"+f(b*2.4);
+const SEC=[["INTRO",8],["VERSE 1",8],["VERSE 2",8],["CHORUS 1",8],["VERSE 3",8],["CHORUS 2",8],["BRIDGE",8],["CHORUS 3",16],["OUTRO",8]];
+const S5=SEC.slice(0,3).concat([["VERSE 2B",8]],SEC.slice(3));
+const PT=[["PART 1",8],["PART 2",16],["PART 3",8],["PART 4",16],["PART 5",16],["PART 6",16]];
+const sum=S=>S.reduce((a,s)=>a+s[1],0);
+const amp=n=>/CHO|PART [24]/.test(n)?.9:/BRI/.test(n)?.5:/VER|PART 5/.test(n)?.62:.4;
+const PH=["take the long way","the long way down to you","light on the porch","I will wait for you"];
+const SG=(S,m,mo)=>{let c=1;return`<div class="sg">`+S.map(([k,l])=>{const a=c,b=c+l-1,o=mo=="hc"||!m?0:Math.max(0,Math.min(b,m[1])-Math.max(a,m[0])+1)/l;c+=l;
+return`<i style="flex:${l}" class="${o==1?"on":o>0?"pt":""} ${mo||""}">${mo=="hc"?"":k}</i>`}).join("")+`</div>`};
+const RU=(n,t)=>`<div class="rr">${Array.from({length:n/8|0},(_,i)=>`<span style="left:${i*800/n}%">${t?f(i*19.2):i*8+1}</span>`).join("")}</div>`;
+const WV=(S,m,h)=>{const n=sum(S),a=[];S.forEach(([k,l])=>{for(let i=0;i<l;i++)a.push(amp(k))});let o="";
+for(let i=0;i<n*2;i++){const b=(i>>1)+1;o+=`<i class="${m&&b>=m[0]&&b<=m[1]?"on":""}" style="height:${Math.max(8,a[b-1]*(.65+.35*Math.abs(Math.sin(i*1.9)))*100)}%"></i>`}
+return`<div class="wf" style="height:${h||40}px">${o}</div>`};
+const LANE=(S,mk)=>{const n=sum(S);let c=1,o="";S.forEach(([k,l])=>{if(/INTRO|OUTRO|PART [16]/.test(k)){c+=l;return}const ch=/CHO|PART [24]/.test(k),ln=ch?2:4;
+for(let b=c;b<c+l;b+=ln)o+=`<span class="lc${mk==b?" on":""}" style="left:${(b-1)/n*100}%;width:${ln/n*100}%">${PH[(b/ln|0)%4]}</span>`;c+=l});return`<div class="ln2">${o}</div>`};
+const MK=(n,a,b,g)=>`<div class="mk${g?" gh":""}" style="left:${(a-1)/n*100}%;width:${(b-a+1)/n*100}%">${g?"":'<b class="gp" style="left:-4px"></b><b class="gp" style="right:-4px"></b>'}</div>`;
+const AB=t=>P("ab",t);
+const PL=o=>{const S=o.S||SEC,n=sum(S),m=o.m;return`<div class="pl"><div class="pr"><span class="hx">❚❚</span><span class="tm">${o.tm||"1:12 / 3:12"}</span>${P("vp",o.v||"v4 · quieter bridge")}${o.ab||""}${o.an?`<span class="an ${o.ac||""}">${o.an}</span>`:""}</div>${o.ms?`<div class="ms">${o.ms}</div>`:""}<div class="sgw">${SG(S,m,o.mo)}</div><div class="stk" style="--n:${n}">${m?MK(n,m[0],m[1]):""}${o.gh?MK(n,o.gh[0],o.gh[1],1):""}${RU(n,o.rt)}${WV(S,m,o.h)}${o.nl?"":LANE(S,o.ln)}${o.x||""}<div class="ph" style="left:${(o.pos??30)/n*100}%"></div></div></div>`};
+const FR=(cl,i)=>`<div class="fr ${cl}" onclick="this.classList.toggle('big')"><div class="sc"><div class="hdr"><b>MULAKAI</b>MODELS READY</div>${i}</div></div>`;
+const O=(h,fr,n,x)=>`<div class="o ${x||""}"><h4>${h}</h4>${fr}${n?`<div class="nt">${n}</div>`:""}</div>`;
+const TTL=(m,x)=>`<div class="ttl"><h3>LONG WAY DOWN</h3>${P("t1"+(m?" on":""),"CHAT")+P("t1"+(m?"":" on"),"EDITOR")}<span class="hn">${x}</span></div>`;
+const um=(t,x)=>`<div class="um">${t}${x||""}</div>`,am=t=>`<div class="am">${t}</div>`;
+const head=(t,x)=>`<div class="hd"><span class="lb">${t}</span><span class="hn">${x}</span></div>`;
+const cm=(t,b)=>`<div class="cm"><span class="cs">${t}</span>${b}</div>`;
+const VC=(v,t,x,now)=>`<div class="cd vc"><div class="hd">${P("vp",v)}<b style="flex:1;font-weight:400">${t}</b>${now?'<span class="hn" style="color:var(--lt)">NOW PLAYING</span>':""}<span class="hn">${x}</span></div></div>`;
+const CX=(t,c)=>`${P("ch "+(c||""),t)}<span class="x">✕</span>`;
+const CHIP=(l,a,b)=>CX(`THIS: ${l} · BARS ${a}–${b} · ${rg(a,b)}`);
+const C34=CHIP("CHORUS 1 + 2 BARS",25,34);
+const SEE=`<span class="hn" style="margin-left:auto"><u>WHAT IT SEES ▾</u></span>`;
+const SENT=`<div style="margin-top:6px">${P("ch fz","MARKED · CHORUS 1 + 2 BARS · BARS 25–34 · 0:58–1:22")} <span class="hn">on v4 · <u>SEEN ▾</u></span></div>`;
+const MN=(th,o)=>`<div class="mn">${o.top||""}<div class="th">${th}</div>${o.bot||""}<div class="cp">${o.chip?`<div class="cr2">${o.chip}${SEE}</div>`:""}<div class="cl"><div class="in">${o.ph||"Say what to change, or click a section to talk about it…"}</div><div class="hx" style="${o.dis?"opacity:.35":""}">▶</div></div></div>${o.pop?`<div class="pop">${o.pop}</div>`:""}</div>`;
+const SBS=n=>`<div class="sb"><div class="sbh"><span class="lb">SONG · LONG WAY DOWN</span><span class="hn">HIDE ▸</span></div><div class="fd"><div class="fk">VERSIONS</div><div>v1 v2 v3 ${n>4?"v4 ":""}${P("vp","v"+n+" ●")}</div></div></div>`;
+const CV=(cl,o)=>FR(cl,TTL(1,o.t||"v4 · 3:12 · THREAD 16")+`<div class="bd">${MN(o.th,o)+(o.sb||SBS(o.n||4))}</div>`);
+const CR=(pl,chip)=>`<div class="cr">${pl}${chip?`<div class="cp"><div class="cr2">${chip}${SEE}</div></div>`:""}</div>`;
+const T0=um("make the bridge quieter")+am("Brought the <b>bridge</b> down about 6 dB. <b>Only bars 49–56 changed</b>.")+VC("v4","quieter bridge · bars 49–56","A/B v3",1);
+const P0={v:"v4 · quieter bridge",ab:AB("A/B v3"),an:"READ v4 · 9 SECTIONS · 22 LINES · 100 BPM"};
+$("op").innerHTML=
+O("<b>A · PINNED AT THE TOP</b> of the main column",CV("t",{th:T0,top:PL(P0)}),"In view always, also with the sidebar collapsed.")+
+O("<b>C · ABOVE THE COMPOSER</b>",CV("t",{th:T0,bot:PL(P0)}),"Nearest the chip, but between what you read and type.");
+$("nv").innerHTML=
+O("<b>2a · v4 JUST SAVED</b> · playing, position kept",CV("",{th:T0,top:PL({...P0,ms:"V4 · NOW PLAYING THE NEW VERSION · BARS 49–56 CHANGED · <u>◂ BACK TO v3</u>",mo:"up",an:"READING v4 · WORDS ▸ SCORE ▸ SECTIONS · 1 OF 3",ac:"rn"})}),"The lilac line stays until the next play, scrub, mark or send. v3's reading shows dimmed and still marks: this edit moved no bars. Queued reads a dashed \"READING v4 QUEUED · AFTER 1 JOB\"; done, the READ line.")+
+O("<b>2b · BACK TO v3</b> · an A/B listen",CR(PL({v:"v3 · bigger chorus",ab:`${P("ao","USE v3")} ${AB("◂ v4")}`,an:"LISTENING · v4 IS ACTIVE",ms:"A/B · SAME POSITION · NOTHING ACTIVATED UNTIL USE v3"})));
+const RAW=CX("THIS: 1:02–1:22 · BARS WHEN THE READING LANDS","pd");
+const V5={S:S5,v:"v5 · verse 2 repeated",tm:"1:12 / 3:31",ab:AB("A/B v4"),mo:"hc",nl:1,m:[26.8,34.2]};
+$("an").innerHTML=
+O("<b>3a · FAILED</b> · a REPEAT moved the bars",CR(PL(V5)+`<div class="er" style="margin:8px 24px"><div><b>COULDN'T READ v5</b> · lyrics-server did not answer in 60 s · v4's sections are hidden (this edit moved bars); the song still plays and marks by time</div>${P("ao","RETRY")}</div>`,RAW))+
+O("<b>3b · ACE-STEP VERSION</b> · transcribed score",CR(PL({S:PT,v:"v4 · repaint, ACE-STEP",ab:AB("A/B v3"),an:"TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY",m:[9,24]}),CHIP("PART 2",9,24)),"SCORE edits stay off; scalpel only (D-083).");
+const PRO=`<div class="cd">${head("PROPOSAL · REHARMONIZE · BARS 25–34","nothing runs yet")}${cm("Renders bars 25–34 on YuE2, about 40 s · makes <b>v5</b> · <b>only bars 25–34 change</b>",P("ac","APPLY"))}</div>`;
+const M34=PL({...P0,m:[25,34]});
+$("mk").innerHTML=
+O("<b>4a · CLICK A SECTION</b>",CV("",{th:T0,top:PL({...P0,m:[25,32]}),chip:CHIP("CHORUS 1",25,32)}),"Nothing is sent yet.")+
+O("<b>4b · DRAG AN EDGE</b> to extend",CR(PL({...P0,m:[25,34],h:44,x:`<div class="sn" style="left:${34.4/.8}%"></div><span class="sl" style="left:28%">SNAPS TO END OF BAR 34 · 1:22 · 10 BARS · 24 s</span>`}),C34),"2 bars into VERSE 3 (sky-tint: part). The dashed line is the pointer; the edge snaps to the nearest bar line.")+
+O("<b>4c · SENT</b> · and still marked",CV("",{th:um("make this jazzier",SENT)+am("Assuming <b>bars 25–34</b>, the chorus and 2 bars of verse 3. I planned one change; check it, then APPLY.")+PRO,top:M34,chip:C34,ph:"Say more about this part, or ✕ to talk about the whole song…"}),"The message keeps a frozen echo; the mark stays.")+
+O("<b>4d · A LYRIC LINE</b>",CR(PL({...P0,m:[27,28],ln:27,h:44}),CX("THIS: “THE LONG WAY DOWN TO YOU” · LINE 2 OF CHORUS 1 · BARS 27–28 · 1:02–1:07")),"The line's span is the mark, its chip sky with the inset edge (the Editor's).");
+const RW=(k,v)=>`<div class="fd"><div class="fk">${k}</div><div>${v}</div></div>`;
+const SEES=`<div class="cd">${head("WHAT THE ASSISTANT SEES","this turn only")}${RW("PROMPT","“make this jazzier”")}${RW("RANGE","bars <b>25–34</b> · <b>0:57.6–1:21.6</b> · 24.0 s · on v4")}${RW("SECTIONS","CHORUS 1 · bars 25–32 · whole<br>VERSE 3 · bars 33–34 · 2 of 8")}${RW("LINES","4 whole, incl. “the long way down to you”<br>1 cut: “take the long way” (2 of 4 bars)")}${RW("SCORE","A MINOR · 100 BPM · 4/4 · Am F C G | Am F C G | Am F")}${RW("READING","v4 · done · YuE2's own score")}${RW("NOT SENT","the audio; lyrics outside the range")}<div class="cm"><span class="cs">≈ 410 of 16,384 tokens</span><span class="hn"><u>AS SENT ▸</u></span></div></div>`;
+$("se").innerHTML=O("<b>5 · THE DISCLOSURE</b> open (zoom in to read)",CV("",{th:um("make this jazzier",SENT),top:M34,chip:C34,pop:SEES}),"A popover from WHAT IT SEES; AS SENT ▸ is the JSON. On a sent message the same link shows what that turn got.");
+const ES=`<div style="flex:1;min-width:0;padding:10px 24px;overflow:hidden">${SG(SEC,null)}<div class="stk" style="--n:80">${MK(80,25.58,33.75)}${RU(80,1)}${WV(SEC,[25.58,33.75],64)}</div>
+<div class="cd" style="margin-top:12px"><div class="hd">${P("ch","BASE · 0:59–1:21")}<span class="hn">REPAINT's target, from your drag</span></div>${cm("Re-renders <b>0:22 of BASE</b> on ACE-Step · makes <b>v5</b>",P("ac","REPAINT"))}</div></div>`;
+const PNL=`<div class="sb n"><div class="sbh"><span class="lb">ASSISTANT</span><span class="hn">HIDE ▸</span></div><div class="pt">${um("make this more intense, with strings")}${am("Assuming <b>your selection, 0:59–1:21</b> (bars 25–34, the last cut short). I set REPAINT's instruction; check it, then press it.")}</div><div class="pc"><div class="cr2">${CX("THIS: 0:59–1:21 · BARS 25–34")}</div><div class="hn">the Editor's selection · ✕ clears it there too</div><div class="cl"><div class="in">Ask for a change…</div><div class="hx" style="width:38px;height:34px">▶</div></div></div></div>`;
+$("ed").innerHTML=O("<b>6 · EDITOR-FIRST</b> · a free drag in the Editor",FR("",TTL(0,"v4 · 3:12")+`<div class="bd">${ES+PNL}</div>`),"One selection, not two; the chat also gets exact seconds and \"bar 34 partial\". None = WHOLE SONG, no chip.");
+$("sl").innerHTML=O("<b>7 · STALE</b> · v5 repeated verse 2 before the mark",CV("",{t:"v5 · 3:31 · THREAD 18",n:5,th:um("make this jazzier",SENT)+VC("v5","verse 2 repeated · bars 17–24","A/B v4",1)+`<div class="wn"><div><b>STALE MARK</b> · you marked bars 25–34 of v4. v5 repeats VERSE 2 before them, so they are now bars 33–42. Nothing was sent with the old bars.</div>${P("ao","USE BARS 33–42")}${P("q","CLEAR MARK")}</div>`,top:PL({S:S5,v:"v5 · verse 2 repeated",tm:"1:12 / 3:31",ab:AB("A/B v4"),an:"READ v5 · 10 SECTIONS · 24 LINES",gh:[25,34]}),chip:CX("THIS: CHORUS 1 + 2 BARS · STALE","bd2"),dis:1,ph:"Send is held until the mark is fixed"}),"Dashed: where the mark was. As score-m2's STALE SELECTION.");
+const D=[
+["CS-1 · Pinned at the top of the main column in every chat view (A): play hexagon, time, lilac version pill, A/B, reading state; strip, bar ruler, waveform, LYRICS lane. Space plays.","B sidebar only (gone when collapsed); C above the composer. <i>Cost:</i> 134 px of thread (435 px left at 768)."],
+["CS-2 · A saved version is active at once: the player swaps in place, same position and play state; a lilac line says NOW PLAYING THE NEW VERSION until the next play, scrub, mark or send. BACK TO v3 is an A/B listen; USE v3 activates.","a toast (missable, CH-4); stopping at the swap; a compare screen (Q-008)."],
+["CS-3 · One queued analyze job after every save (words, score, sections), in Activity: queued dashed, running with steps, failed rust with reason and RETRY. The song-state block names the version it reads.","analyzing when the Editor opens (D-089 says always); a blocking spinner."],
+["CS-4 · While the reading is old, an edit that moved no bars keeps it, dimmed and clickable; one that moved bars (repeat, cut, new take), or a failed reading, hatches the strip: mark by time, snapped to bars when a reading lands. An ACE-Step version shows its transcribed score the same way, SCORE edits off (Q-062 b, D-083).","old sections always (a mark on wrong bars sent as fact); locking marking."],
+["CS-5 · Click a section to mark it; drag an edge to extend, the body to move, empty waveform for a new mark (the Editor's drag). Edges snap to bar lines with a pointer line and a tag; Alt frees it. A lyric chip marks its line; shift-click extends. Clear: click empty waveform, ✕ or Esc.","beat snap (finer than SCORE's bars); free drag only."],
+["CS-6 · One sky everywhere: wash and bars, edge lines with a 7 px grip, strip sections sky when whole and sky-tint when part, lyric chips, the chip.","the Editor's exact-section-only highlight (a dragged mark lights nothing); a second hue. <i>Cost:</i> a DESIGN.md clause."],
+["CS-7 · Chip THIS: CHORUS 1 + 2 BARS · BARS 25–34 · 0:58–1:22 ✕ + WHAT IT SEES ▾. Label: a whole section = its name; plus n bars = NAME + n BARS (n BARS + NAME before); several = VERSE 3 – CHORUS 2; else bars.","seconds only; no chip."],
+["CS-8 · The mark stays until cleared, like the Editor's selection; each sent message keeps a frozen echo (MARKED · … on v4) that re-marks on click while valid.","one-shot (turns iterate on one part); no echo."],
+["CS-9 · WHAT IT SEES ▾: plain rows and AS SENT ▸ the JSON. A mark has no length limit, an action does: REPAINT from a 97 s mark says 3-90 s and proposes bars 25–62.","an invisible context; capping the mark at 90 s."],
+["CS-10 · Editor-first: the Editor's selection is the mark, unsnapped; the chat gets exact seconds, bars touched, a partial flag. The chip mirrors it, its ✕ clears the selection. Under another verb it is kept and sent, not painted (shownRange).","a second chat-only mark; snapping the Editor's drag."],
+["CS-11 · Stale (M2-4): a version that moves the marked bars turns the chip rust, outlines the old place, offers USE BARS 33–42 (only if the edit reported the shift) and CLEAR MARK; SEND is held.","a silent remap; sending without the mark."]];
+$("dec").innerHTML=D.map(d=>`<div class="dc"><b>${d[0]}</b> <i>Beat:</i> ${d[1]}</div>`).join("");
+</script></body></html>
