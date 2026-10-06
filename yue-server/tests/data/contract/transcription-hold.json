@@ -1,0 +1,50 @@
+{
+ "name": "transcription-hold",
+ "request": {
+  "method": "POST",
+  "path": "/v1/transcriptions",
+  "form": {
+   "chords": "true"
+  },
+  "file": "audio"
+ },
+ "response": {
+  "status": 202,
+  "body": {
+   "id": "tr-0001",
+   "kind": "transcription",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "queued",
+   "stage": "queued",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": null,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ },
+ "final": {
+  "status": 200,
+  "body": {
+   "id": "tr-0001",
+   "kind": "transcription",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "running",
+   "stage": "transcribing",
+   "progress": 0.0,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": 1.0,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ },
+ "score": null
+}
