@@ -91,3 +91,6 @@ R8 curate C0a · chat-client.md (Library first D-119; check against the real ser
 
 ## Run 2026-10-07 → C3 (new run, 12-round budget; D-125 moved C3 ahead of C0b/C1/C2)
 R1 stage 6 C3 · architect dispatched (work packages for F-061..F-065 on docs/chat-c3) · progress 6·C3 arch·29·0
+R1+ owner: standing OK for this C3 run — push, PR, merge when CI is green on the PR and on main; GPU free for live runs
+R1+ owner: after C3, continue with C0b in the same autopilot (target becomes C0b once C3 is done)
+R2 stage 6 C3 · architect → Chat (C3), CR-0..CR-9 + DT-C3, D-126..D-138, Q-091..Q-096 (0 blocking; Q-095 3 owner recordings before CR-8), R-028/R-029; checks green (client 974, server 1017, pytest 422, e2e 12); f443ba5; wave 1 dispatched: CR-0, CR-1, CR-5, CR-6, DT-C3 · progress 7·C3 planned·29·0
