@@ -4,6 +4,10 @@ import path from 'node:path';
 import { config } from '../config.js';
 import { db } from '../db/index.js';
 import { versionFileNames } from './versionFiles.js';
+import { sweepFiles } from './chat/referenceStore.js';
+
+/** A song's thread and its references cascade with the song; their files are orphans now. */
+const sweepReferenceFiles = () => void sweepFiles().catch((err) => console.error('Reference file sweep failed:', err));
 
 const TRASH_TTL_DAYS = 7;
 
@@ -34,6 +38,7 @@ export function sweepTrash(): void {
     .prepare(`SELECT id FROM songs WHERE trashed_at IS NOT NULL AND trashed_at < ?`)
     .all(cutoff) as Array<{ id: string }>;
   deleteSongsPermanently(expired.map((r) => r.id));
+  sweepReferenceFiles(); // also the start-up sweep: index.ts runs sweepTrash at start
 }
 
 /** Settings > Library Maintenance's "EMPTY TRASH NOW" — deletes every currently trashed
@@ -41,4 +46,5 @@ export function sweepTrash(): void {
 export function emptyTrashNow(): void {
   const trashed = db.prepare(`SELECT id FROM songs WHERE trashed_at IS NOT NULL`).all() as Array<{ id: string }>;
   deleteSongsPermanently(trashed.map((r) => r.id));
+  sweepReferenceFiles();
 }
