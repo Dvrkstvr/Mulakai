@@ -1,0 +1,1250 @@
+{
+ "meta": {
+  "server": "http://127.0.0.1:3201",
+  "started": "2026-10-06T21:57:16.265Z",
+  "date": "2026-10-06",
+  "proxy": "127.0.0.1:11436 -> http://127.0.0.1:11434",
+  "create": 1,
+  "note": ""
+ },
+ "summary": {
+  "turns": 10,
+  "byAction": {
+   "recipe": 10
+  },
+  "turnP50S": 11.5,
+  "turnP95S": 18.5,
+  "coldS": 10.8,
+  "warmP50S": 11.7,
+  "attemptsMax": 1,
+  "invalidAfter3": 0,
+  "expectMisses": [
+   "en-vague-song",
+   "de-vague",
+   "en-vague-nice"
+  ],
+  "unloadMaxMs": 104,
+  "createHandoffMs": [
+   6
+  ],
+  "takeS": [
+   95
+  ]
+ },
+ "stopLines": [
+  {
+   "verdict": "PASS",
+   "text": "turn p50 11.5 s (stop over 15 s)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "worst hand-off 0.1 s: unload-to-empty max 0.1 s, CREATE-to-running max 0.0 s (stop over 5 s)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "invalid after 3 attempts: 0 (stop when more than 1)"
+  }
+ ],
+ "results": [
+  {
+   "index": 0,
+   "id": "en-sea-ballad",
+   "lang": "en",
+   "expect": "recipe",
+   "prompt": "a slow Spanish ballad about the sea, nylon guitar, soft female voice",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 10764,
+   "queuedMs": 6,
+   "promptTokens": [
+    2727
+   ],
+   "unloadMs": 104,
+   "vram": {
+    "beforeMiB": 808,
+    "peakMiB": 12199,
+    "atEmptyMiB": 795
+   },
+   "create": {
+    "postStatus": 202,
+    "jobId": "7b3779ab-7acf-4a00-8170-205ccceeb69b",
+    "outcome": "saved",
+    "handoffMs": 6,
+    "takeMs": 95043,
+    "songId": "8c327321-0b63-4c10-bed4-9fa60a84497f",
+    "seconds": 180.95866666666666,
+    "plannerLoadedAtPress": false
+   }
+  },
+  {
+   "index": 1,
+   "id": "de-abschied",
+   "lang": "de",
+   "expect": "recipe",
+   "prompt": "Schreib mir einen langsamen deutschen Popsong über den Abschied, mit Klavier und weicher Frauenstimme",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 13916,
+   "queuedMs": 3,
+   "promptTokens": [
+    2741
+   ],
+   "unloadMs": 102,
+   "vram": {
+    "beforeMiB": 1554,
+    "peakMiB": 12957,
+    "atEmptyMiB": 1554
+   }
+  },
+  {
+   "index": 2,
+   "id": "es-cumbia",
+   "lang": "es",
+   "expect": "recipe",
+   "prompt": "Escríbeme una cumbia alegre sobre el verano en la ciudad, con acordeón y voz masculina, letra en español",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 11940,
+   "queuedMs": 1,
+   "promptTokens": [
+    2748
+   ],
+   "unloadMs": 104,
+   "vram": {
+    "beforeMiB": 1554,
+    "peakMiB": 12969,
+    "atEmptyMiB": 1566
+   }
+  },
+  {
+   "index": 3,
+   "id": "en-vague-song",
+   "lang": "en",
+   "expect": "ask",
+   "prompt": "make me a song",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 10855,
+   "queuedMs": 2,
+   "promptTokens": [
+    2721
+   ],
+   "unloadMs": 99,
+   "vram": {
+    "beforeMiB": 1566,
+    "peakMiB": 12962,
+    "atEmptyMiB": 1558
+   }
+  },
+  {
+   "index": 4,
+   "id": "en-synthpop",
+   "lang": "en",
+   "expect": "recipe",
+   "prompt": "an upbeat synth-pop song about driving at night, 120 BPM, male vocals, English lyrics",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 18464,
+   "queuedMs": 2,
+   "promptTokens": [
+    2738
+   ],
+   "unloadMs": 100,
+   "vram": {
+    "beforeMiB": 1558,
+    "peakMiB": 12962,
+    "atEmptyMiB": 1558
+   }
+  },
+  {
+   "index": 5,
+   "id": "de-vague",
+   "lang": "de",
+   "expect": "ask",
+   "prompt": "Mach mal was Schönes",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 9885,
+   "queuedMs": 2,
+   "promptTokens": [
+    2723
+   ],
+   "unloadMs": 101,
+   "vram": {
+    "beforeMiB": 1558,
+    "peakMiB": 12962,
+    "atEmptyMiB": 1558
+   }
+  },
+  {
+   "index": 6,
+   "id": "en-waltz",
+   "lang": "en",
+   "expect": "recipe",
+   "prompt": "a 6/8 folk waltz in D major about an old lighthouse keeper, fiddle and acoustic guitar",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 11729,
+   "queuedMs": 2,
+   "promptTokens": [
+    2741
+   ],
+   "unloadMs": 100,
+   "vram": {
+    "beforeMiB": 1558,
+    "peakMiB": 12962,
+    "atEmptyMiB": 1558
+   }
+  },
+  {
+   "index": 7,
+   "id": "es-lluvia",
+   "lang": "es",
+   "expect": "recipe",
+   "prompt": "Una balada lenta en español sobre la lluvia, piano y voz femenina suave, en re menor",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 11508,
+   "queuedMs": 1,
+   "promptTokens": [
+    2742
+   ],
+   "unloadMs": 98,
+   "vram": {
+    "beforeMiB": 1558,
+    "peakMiB": 12966,
+    "atEmptyMiB": 1554
+   }
+  },
+  {
+   "index": 8,
+   "id": "en-vague-nice",
+   "lang": "en",
+   "expect": "ask",
+   "prompt": "something nice",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 8465,
+   "queuedMs": 1,
+   "promptTokens": [
+    2719
+   ],
+   "unloadMs": 99,
+   "vram": {
+    "beforeMiB": 1554,
+    "peakMiB": 12957,
+    "atEmptyMiB": 1554
+   }
+  },
+  {
+   "index": 9,
+   "id": "de-rock",
+   "lang": "de",
+   "expect": "recipe",
+   "prompt": "Ein deutscher Rocksong über Freundschaft, 140 BPM, E-Gitarren, rauer Männergesang, deutscher Text",
+   "postStatus": 202,
+   "action": "recipe",
+   "cause": null,
+   "reasons": [],
+   "attempts": 1,
+   "calls": 1,
+   "turnMs": 13683,
+   "queuedMs": 2,
+   "promptTokens": [
+    2749
+   ],
+   "unloadMs": 104,
+   "vram": {
+    "beforeMiB": 1554,
+    "peakMiB": 12961,
+    "atEmptyMiB": 1558
+   }
+  }
+ ],
+ "proxyEvents": [
+  {
+   "t0": 1791323837785,
+   "t1": 1791323837790,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323837792,
+   "t1": 1791323837794,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791323837896,
+   "t1": 1791323837897,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323837898,
+   "t1": 1791323837900,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791323837902,
+   "t1": 1791323837904,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323837906,
+   "t1": 1791323848512,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10487,
+    "usage": {
+     "prompt_tokens": 2727,
+     "completion_tokens": 423,
+     "total_tokens": 3150
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Your slow Spanish ballad about the sea with a nylon guitar and soft female voice is being crafted. Let me know if you'd like to refine any details.\", \"assumptions\": [\"key: C minor (for a sad or dark mood)\", \"bpm: 60 (slow tempo)\", \"time_signature: 4/4\", \"language: Spanish\"], \"recipe\": {\"title\": \"Ballada del Mar\", \"style\": \"ballad, nylon guitar, soft female voice, melancholic, oceanic\", \"bpm\": 60, \"key\": \"Cm\", \"time_signature\": \"4/4\", \"language\": \"es\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"Sobre las olas del mar, tan lejos de ti\", \"Mi corazón late con nostalgia y dolor\", \"En cada brisa que sopla, tu nombre susurra\", \"Como un recuerdo que no puedo olvidar\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Ballada del mar, tu voz me llama\", \"En las profundidades de mi alma\", \"Con cada nota, con cada palabra\", \"Te llevo en mi corazón para siempre\"]}, {\"tag\": \"Bridge\", \"lines\": [\"A través de las tormentas y el tiempo que pasa\", \"Tu imagen permanece en mi mente\", \"Como una estrella que guía mi camino\", \"Hacia ti, mi amor, hacia el mar\"]}, {\"tag\": \"Outro\", \"lines\": [\"Hasta que el mar nos lleve a un nuevo amanecer\", \"Donde nuestros corazones se unirán de nuevo\", \"En la eternidad del mar, donde todo es posible\", \"Ballada del mar, mi amor eterno\"]}]}}"
+   }
+  },
+  {
+   "t0": 1791323848514,
+   "t1": 1791323848514,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791323848516,
+   "t1": 1791323848518,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T21:57:28.517809Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791323848518,
+   "t1": 1791323848616,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323848923,
+   "t1": 1791323848924,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323943972,
+   "t1": 1791323943973,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323943974,
+   "t1": 1791323943974,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791323943976,
+   "t1": 1791323943977,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323943979,
+   "t1": 1791323957704,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10537,
+    "usage": {
+     "prompt_tokens": 2741,
+     "completion_tokens": 594,
+     "total_tokens": 3335
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Ich habe einen langsamen deutschen Popsong über den Abschied mit Klavier und weicher Frauenstimme vorgeschlagen. Die Liedtexte sind in der Sprache der Anfrage geschrieben.\", \"assumptions\": [\"key: A minor\", \"bpm: 60\", \"time_signature: 4/4\", \"language: German\"], \"recipe\": {\"title\": \"Abschied am Meer\", \"style\": \"Pop, Klavier, traurig, weiche Frauenstimme\", \"bpm\": 60, \"key\": \"A\", \"time_signature\": \"4/4\", \"language\": \"de\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"Der Wind weht sanft am Ufer her\", \"Die Wellen brechen sanft und schwer\", \"Ein letzter Blick, ein letzter Schritt\", \"Ein Abschied, der mein Herz zerreißt\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Abschied am Meer, das Licht verblasst\", \"In deinen Augen seh' ich nur das Leid\", \"Ein Lied, das uns verbindet\", \"Ein Lied, das uns verliert\"]}, {\"tag\": \"Verse\", \"lines\": [\"Die Erinnerung bleibt im Herzen\", \"Ein Lachen, das ich nie vergesse\", \"Ein Moment, der nie mehr kommt\", \"Ein Abschied, der mein Leben verändert\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Abschied am Meer, das Licht verblasst\", \"In deinen Augen seh' ich nur das Leid\", \"Ein Lied, das uns verbindet\", \"Ein Lied, das uns verliert\"]}, {\"tag\": \"Bridge\", \"lines\": [\"Die Zeit vergeht, doch du bleibst in mir\", \"Ein Lied, das uns verbindet\", \"Ein Lied, das uns verliert\", \"Ein Lied, das uns verliert\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Abschied am Meer, das Licht verblasst\", \"In deinen Augen seh' ich nur das Leid\", \"Ein Lied, das uns verbindet\", \"Ein Lied, das uns verliert\"]}, {\"tag\": \"Outro\", \"lines\": [\"Der Wind weht sanft am Ufer her\", \"Die Wellen brechen sanft und schwer\", \"Ein letzter Blick, ein letzter Schritt\", \"Ein Abschied, der mein Herz zerreißt\"]}]} }"
+   }
+  },
+  {
+   "t0": 1791323957705,
+   "t1": 1791323957706,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791323957706,
+   "t1": 1791323957708,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T21:59:17.7072025Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791323957708,
+   "t1": 1791323957806,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323958153,
+   "t1": 1791323958153,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323958154,
+   "t1": 1791323958155,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791323958155,
+   "t1": 1791323958156,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323958156,
+   "t1": 1791323969892,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10540,
+    "usage": {
+     "prompt_tokens": 2748,
+     "completion_tokens": 459,
+     "total_tokens": 3207
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Propuesta de cumbia alegre sobre el verano en la ciudad, con acordeón y voz masculina. ¿Te gustaría escuchar una muestra antes de continuar?\", \"assumptions\": [\"key: C major (alegre and upbeat mood)\", \"bpm: 120 (typical for cumbia)\", \"time_signature: 4/4\", \"language: Spanish\"], \"recipe\": {\"title\": \"Verano en la Ciudad\", \"style\": \"cumbia, accordion, upbeat, male vocals\", \"bpm\": 120, \"key\": \"C\", \"time_signature\": \"4/4\", \"language\": \"es\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"El sol brilla en el cielo azul,\", \"La ciudad vive con alegría,\", \"El verano nos llama a bailar,\", \"Con el acordeón en la mano, vamos a cantar.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Verano en la ciudad, el ritmo nos guía,\", \"Bailamos bajo el sol, con el corazón abierto,\", \"El acordeón suena, la alegría no se detiene,\", \"Verano en la ciudad, el mejor momento de la vida.\"]}, {\"tag\": \"Bridge\", \"lines\": [\"La noche llega, pero no nos detenemos,\", \"La cumbia nos lleva a un mundo de sueños,\", \"Con cada nota, cada paso, cada risa,\", \"El verano en la ciudad, es nuestra fiesta.\"]}, {\"tag\": \"Outro\", \"lines\": [\"El verano en la ciudad, nos deja un recuerdo,\", \"Con el acordeón y el ritmo, siempre recordaremos,\", \"Que este verano fue especial, lleno de amor y alegría,\", \"Verano en la ciudad, nos vemos el próximo año.\"]}]}}"
+   }
+  },
+  {
+   "t0": 1791323969893,
+   "t1": 1791323969894,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791323969895,
+   "t1": 1791323969896,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T21:59:29.895865Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791323969896,
+   "t1": 1791323969996,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323970359,
+   "t1": 1791323970359,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323970360,
+   "t1": 1791323970361,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791323970362,
+   "t1": 1791323970362,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323970363,
+   "t1": 1791323981094,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10450,
+    "usage": {
+     "prompt_tokens": 2721,
+     "completion_tokens": 404,
+     "total_tokens": 3125
+    },
+    "content": "{\"action\":\"recipe\",\"message\":\"I've created a song titled 'Ocean's Whisper' with a style of acoustic, soft rock, melancholic mood, and a female voice. It has a tempo of 60 BPM, a key of C minor, and a 4/4 time signature. The song is in English and follows a typical structure with an intro, verse, pre-chorus, chorus, bridge, and outro. The lyrics are written in a poetic and emotional way, reflecting the title and style.\",\"assumptions\":[],\"recipe\":{\"title\":\"Ocean's Whisper\",\"style\":\"acoustic, soft rock, melancholic, female voice\",\"bpm\":60,\"key\":\"Cm\",\"time_signature\":\"4/4\",\"language\":\"en\",\"engine\":\"yue2\",\"structure\":[\"Intro\",\"Verse\",\"Pre-Chorus\",\"Chorus\",\"Verse\",\"Pre-Chorus\",\"Chorus\",\"Bridge\",\"Chorus\",\"Outro\"],\"lyrics\":[{\"tag\":\"Verse\",\"lines\":[\"Beneath the waves, where secrets hide\",\"In the depths of the ocean's embrace\",\"Whispers of the past, they call my name\",\"Echoes of a time long gone\"]},{\"tag\":\"Pre-Chorus\",\"lines\":[\"I search for answers in the tide\",\"But the ocean only speaks in riddles\",\"Of love and loss, of dreams unfulfilled\",\"Of moments that have slipped away\"]},{\"tag\":\"Chorus\",\"lines\":[\"Ocean's whisper, soft and low\",\"Carrying stories of the past\",\"In every wave, a memory flows\",\"Of a love that once was lost\"]},{\"tag\":\"Bridge\",\"lines\":[\"The moon above, it watches over\",\"The tides that rise and fall\",\"A silent witness to the sorrow\",\"Of a heart that's lost its way\"]},{\"tag\":\"Outro\",\"lines\":[\"So let the ocean's whisper guide\",\"Through the darkness, through the pain\",\"For in its depths, I'll find my peace\",\"And leave the past behind\"]}]}}"
+   }
+  },
+  {
+   "t0": 1791323981096,
+   "t1": 1791323981097,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791323981097,
+   "t1": 1791323981098,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T21:59:41.0985997Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791323981099,
+   "t1": 1791323981193,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323981479,
+   "t1": 1791323981480,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323981480,
+   "t1": 1791323981481,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791323981482,
+   "t1": 1791323981482,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791323981483,
+   "t1": 1791323999828,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10521,
+    "usage": {
+     "prompt_tokens": 2738,
+     "completion_tokens": 864,
+     "total_tokens": 3602
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"I'll create an upbeat synth-pop song about driving at night with male vocals and English lyrics. Let me know if you'd like to make any changes.\", \"assumptions\": [\"key: C major (common for upbeat songs)\", \"time_signature: 4/4 (standard for pop music)\", \"style: synth-pop, electronic, energetic, male vocals\", \"language: English\"], \"recipe\": {\"title\": \"Night Drive\", \"style\": \"synth-pop, electronic, energetic, male vocals\", \"bpm\": 120, \"key\": \"C\", \"time_signature\": \"4/4\", \"language\": \"en\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Pre-Chorus\", \"Chorus\", \"Verse\", \"Pre-Chorus\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"Headlights cutting through the dark, I'm feeling alive\", \"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\"]}, {\"tag\": \"Pre-Chorus\", \"lines\": [\"Speeding down the highway, the wind in my hair\", \"The world is fading, I'm losing control\", \"But I'm not afraid, I'm feeling so free\", \"This is my moment, I'm living it all\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Night drive, I'm feeling alive\", \"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\", \"Night drive, I'm feeling alive\", \"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\"]}, {\"tag\": \"Verse\", \"lines\": [\"The radio is playing, I'm singing along\", \"The music is loud, I'm feeling so strong\", \"The city is behind me, I'm moving forward\", \"I'm chasing the horizon, I'm feeling so right\"]}, {\"tag\": \"Pre-Chorus\", \"lines\": [\"Speeding down the highway, the wind in my hair\", \"The world is fading, I'm losing control\", \"But I'm not afraid, I'm feeling so free\", \"This is my moment, I'm living it all\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Night drive, I'm feeling alive\", \"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\", \"Night drive, I'm feeling alive\", \"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\"]}, {\"tag\": \"Bridge\", \"lines\": [\"The moon is shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\", \"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Night drive, I'm feeling alive\", \"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\", \"Night drive, I'm feeling alive\", \"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\"]}, {\"tag\": \"Outro\", \"lines\": [\"The road is calling, I'm ready to drive\", \"The stars are shining, it's a perfect night\", \"I'm chasing the horizon, I'm feeling so right\", \"Night drive, I'm feeling alive\"]}]}}"
+   }
+  },
+  {
+   "t0": 1791323999830,
+   "t1": 1791323999830,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791323999831,
+   "t1": 1791323999832,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T21:59:59.831814Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791323999832,
+   "t1": 1791323999928,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324000210,
+   "t1": 1791324000210,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324000211,
+   "t1": 1791324000212,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791324000213,
+   "t1": 1791324000213,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324000214,
+   "t1": 1791324009887,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10456,
+    "usage": {
+     "prompt_tokens": 2723,
+     "completion_tokens": 349,
+     "total_tokens": 3072
+    },
+    "content": "{\"action\":\"recipe\",\"message\":\"I've crafted a beautiful ballad for you. It's a romantic Spanish song with a gentle melody and a warm, emotional mood.\",\"assumptions\":[\"style: ballad, guitar, piano, emotional, female voice\",\"bpm: 72\",\"key: A minor\",\"time_signature: 4/4\"],\"recipe\":{\"title\":\"Romantica\",\"style\":\"ballad, guitar, piano, emotional, female voice\",\"bpm\":72,\"key\":\"A\",\"time_signature\":\"4/4\",\"language\":\"es\",\"engine\":\"yue2\",\"structure\":[\"Intro\",\"Verse\",\"Chorus\",\"Verse\",\"Chorus\",\"Bridge\",\"Chorus\",\"Outro\"],\"lyrics\":[{\"tag\":\"Verse\",\"lines\":[\"En la noche oscura, bajo la luna\",\"Tus ojos brillan, como estrellas en el cielo\",\"Caminamos juntos, por el camino de la vida\",\"Con cada paso, nuestro amor se fortalece\"]},{\"tag\":\"Chorus\",\"lines\":[\"Romantica, mi amor\",\"En cada beso, en cada palabra\",\"Nuestra historia, tan bella y profunda\",\"Nunca te dejaré, mi amor eterno\"]},{\"tag\":\"Bridge\",\"lines\":[\"A través de los años, nuestro amor no cambiará\",\"Juntos enfrentaremos cada desafío\",\"Con el corazón abierto, siempre estaré contigo\",\"En este viaje de amor, nunca estaré solo\"]},{\"tag\":\"Outro\",\"lines\":[\"Romantica, mi amor\",\"En cada beso, en cada palabra\",\"Nuestra historia, tan bella y profunda\",\"Nunca te dejaré, mi amor eterno\"]}]} }"
+   }
+  },
+  {
+   "t0": 1791324009888,
+   "t1": 1791324009888,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791324009889,
+   "t1": 1791324009891,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T22:00:09.890624Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791324009891,
+   "t1": 1791324009988,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324010360,
+   "t1": 1791324010361,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324010361,
+   "t1": 1791324010362,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791324010363,
+   "t1": 1791324010363,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324010364,
+   "t1": 1791324021949,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10522,
+    "usage": {
+     "prompt_tokens": 2741,
+     "completion_tokens": 469,
+     "total_tokens": 3210
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"I'll create a 6/8 folk waltz in D major about an old lighthouse keeper, featuring fiddle and acoustic guitar.\", \"assumptions\": [\"key: D major\", \"time_signature: 6/8\", \"style: folk waltz, fiddle, acoustic guitar\", \"mood: nostalgic, melancholic\"], \"recipe\": {\"title\": \"Lighthouse Keeper's Tale\", \"style\": \"folk waltz, fiddle, acoustic guitar, nostalgic, melancholic\", \"bpm\": 100, \"key\": \"D\", \"time_signature\": \"6/8\", \"language\": \"en\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"In the cold, the wind, the sea's embrace,\", \"An old lighthouse keeper stands in place.\", \"His eyes, they hold the tales of yore,\", \"Of ships that came, and never more.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Oh, lighthouse keeper, so brave and true,\", \"Guiding ships through the night's blue.\", \"With every flash, a story told,\", \"Of the sea's embrace, and the light's control.\"]}, {\"tag\": \"Verse\", \"lines\": [\"Through storms and calm, he never sways,\", \"His light, a beacon through the days.\", \"The waves may crash, the winds may howl,\", \"But his light will never fall or bow.\"]}, {\"tag\": \"Bridge\", \"lines\": [\"Now the years have passed, the fire's gone,\", \"But his spirit lives on, and on, and on.\", \"In every ship that sails the sea,\", \"His light still guides them, you and me.\"]}, {\"tag\": \"Outro\", \"lines\": [\"So here's to the keeper, so strong and wise,\", \"Whose light still shines through the night's disguise.\", \"May his tale be told, and never fade,\", \"In the lighthouse keeper's tale, we'll stay.\"]}]}}"
+   }
+  },
+  {
+   "t0": 1791324021951,
+   "t1": 1791324021951,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791324021952,
+   "t1": 1791324021953,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T22:00:21.9531757Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791324021953,
+   "t1": 1791324022049,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324022356,
+   "t1": 1791324022357,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324022357,
+   "t1": 1791324022358,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791324022359,
+   "t1": 1791324022359,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324022360,
+   "t1": 1791324033740,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10520,
+    "usage": {
+     "prompt_tokens": 2742,
+     "completion_tokens": 454,
+     "total_tokens": 3196
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Propuesta: Una balada lenta en español sobre la lluvia, con piano y voz femenina suave, en re menor. ¿Te gustaría escuchar una versión preliminar?\", \"assumptions\": [\"key: re menor\", \"bpm: 60\", \"time_signature: 4/4\", \"language: español\"], \"recipe\": {\"title\": \"Lluvia Suave\", \"style\": \"piano, voz femenina suave, lluvia, balada, re menor\", \"bpm\": 60, \"key\": \"Dm\", \"time_signature\": \"4/4\", \"language\": \"es\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"Bajo el cielo gris, la lluvia cae suave\", \"Cada gota un susurro, un beso en el alma\", \"En este momento, el mundo se detiene\", \"Solo tú y yo, bajo la lluvia\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Lluvia suave, en mi corazón\", \"Cada gota un recuerdo, un amor que no se va\", \"Bajo el cielo gris, te encuentro en mi mente\", \"Lluvia suave, en mi corazón\"]}, {\"tag\": \"Bridge\", \"lines\": [\"El tiempo se detiene, en este instante\", \"La lluvia nos abraza, como un abrazo de amor\", \"En este momento, el mundo se detiene\", \"Solo tú y yo, bajo la lluvia\"]}, {\"tag\": \"Outro\", \"lines\": [\"Lluvia suave, en mi corazón\", \"Cada gota un recuerdo, un amor que no se va\", \"Bajo el cielo gris, te encuentro en mi mente\", \"Lluvia suave, en mi corazón\"]}]} }"
+   }
+  },
+  {
+   "t0": 1791324033741,
+   "t1": 1791324033742,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791324033742,
+   "t1": 1791324033743,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T22:00:33.7433214Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791324033744,
+   "t1": 1791324033838,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324034131,
+   "t1": 1791324034131,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324034132,
+   "t1": 1791324034132,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791324034133,
+   "t1": 1791324034133,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324034134,
+   "t1": 1791324042468,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10450,
+    "usage": {
+     "prompt_tokens": 2719,
+     "completion_tokens": 271,
+     "total_tokens": 2990
+    },
+    "content": "{\"action\":\"recipe\",\"message\":\"I'll create a gentle, melodic song for you. It will have a soft acoustic feel with a warm and emotional mood.\",\"assumptions\":[\"style: acoustic, soft, emotional\",\"bpm: 70\",\"key: C major\",\"time_signature: 4/4\"],\"recipe\":{\"title\":\"Soft Acoustic Melody\",\"style\":\"acoustic, soft, emotional\",\"bpm\":70,\"key\":\"C\",\"time_signature\":\"4/4\",\"language\":\"en\",\"engine\":\"yue2\",\"structure\":[\"Intro\",\"Verse\",\"Chorus\",\"Verse\",\"Chorus\",\"Bridge\",\"Chorus\",\"Outro\"],\"lyrics\":[{\"tag\":\"Verse\",\"lines\":[\"In the quiet moments, I find my peace\",\"With the gentle breeze, I feel the grace\",\"Of the world around me, so vast and wide\",\"In the stillness, I find my guide\"]},{\"tag\":\"Chorus\",\"lines\":[\"Soft acoustic melody, playing on\",\"A gentle tune, so warm and true\",\"In every note, I find my way\",\"Through the night, I feel you near\"]},{\"tag\":\"Bridge\",\"lines\":[\"With every breath, I take it slow\",\"In the silence, I let it grow\",\"A melody that's soft and sweet\",\"In the stillness, I find my beat\"]}]} }"
+   }
+  },
+  {
+   "t0": 1791324042469,
+   "t1": 1791324042470,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791324042471,
+   "t1": 1791324042472,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T22:00:42.4719167Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791324042472,
+   "t1": 1791324042567,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324042863,
+   "t1": 1791324042864,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324042864,
+   "t1": 1791324042865,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791324042866,
+   "t1": 1791324042866,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791324042867,
+   "t1": 1791324056359,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10533,
+    "usage": {
+     "prompt_tokens": 2749,
+     "completion_tokens": 574,
+     "total_tokens": 3323
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"I've created a German rock song about friendship with rough male vocals and electric guitars, set at 140 BPM.\", \"assumptions\": [\"key: E major (common for rock songs)\", \"time_signature: 4/4 (standard for rock)\", \"structure: Intro, Verse, Chorus, Verse, Chorus, Bridge, Chorus, Outro (typical rock structure)\"], \"recipe\": {\"title\": \"Freundschaft im Rock\", \"style\": \"rock, electric guitars, rough male vocals, German text, intense mood\", \"bpm\": 140, \"key\": \"E\", \"time_signature\": \"4/4\", \"language\": \"de\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"In der Dunkelheit, da bin ich allein\", \"Doch du bist da, mein bester Freund\", \"Durch den Sturm, wir kämpfen gemeinsam\", \"Nie allein, wir sind immer dabei\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Freundschaft, das ist unser Band\", \"Im Leben, wir sind immer dabei\", \"Mit Herz und Seele, wir sind stark\", \"Freundschaft, das ist unser Weg\"]}, {\"tag\": \"Verse\", \"lines\": [\"Im Leben, es gibt viele Wege\", \"Doch mit dir, ich weiß, ich bin gut\", \"Durch die Zeit, wir bleiben zusammen\", \"Nie allein, wir sind immer dabei\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Freundschaft, das ist unser Band\", \"Im Leben, wir sind immer dabei\", \"Mit Herz und Seele, wir sind stark\", \"Freundschaft, das ist unser Weg\"]}, {\"tag\": \"Bridge\", \"lines\": [\"In den Momenten, da brauche ich dich\", \"Doch du bist da, mein bester Freund\", \"Durch den Sturm, wir kämpfen gemeinsam\", \"Nie allein, wir sind immer dabei\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Freundschaft, das ist unser Band\", \"Im Leben, wir sind immer dabei\", \"Mit Herz und Seele, wir sind stark\", \"Freundschaft, das ist unser Weg\"]}, {\"tag\": \"Outro\", \"lines\": [\"Freundschaft, das ist unser Band\", \"Im Leben, wir sind immer dabei\", \"Mit Herz und Seele, wir sind stark\", \"Freundschaft, das ist unser Weg\"]}]}}"
+   }
+  },
+  {
+   "t0": 1791324056360,
+   "t1": 1791324056361,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791324056361,
+   "t1": 1791324056363,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T22:00:56.3627358Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791324056363,
+   "t1": 1791324056463,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  }
+ ]
+}

@@ -1,0 +1,16 @@
+{
+  "reharmonize_first_try_experiments": {
+    "note": "exp_reharm.py / exp_was.py: 4 requests x 3 seeds = 12 calls each, qwen3:14b, first-try validity through yue-server /v1/scores/apply (the root-change rule D-055)",
+    "A_current_prompt": {"valid_first_try": "1/12", "mean_completion_tokens": 624},
+    "B_stronger_rule_text": {"valid_first_try": "3/12", "mean_completion_tokens": 526},
+    "BC_stronger_rule_plus_compact_json": {"valid_first_try": "3/12", "mean_completion_tokens": 673},
+    "E_every_second_bar_recipe": {"valid_first_try": "1/12", "mean_completion_tokens": 692},
+    "EC_E_plus_compact_json": {"valid_first_try": "1/12", "mean_completion_tokens": 675},
+    "was_helper_field": {"valid_first_try": "6/12", "mean_completion_tokens": 888, "full_run": "v2+was rep 1: edit first-try 68.8% (11/16) but p95 44.9 s: not adopted"}
+  },
+  "compact_json_instruction": {"note": "ED01 prompt, 3 seeds: pretty-printed replies 493-653 completion tokens (9.1-17.0 s), 'compact on one line' 416-423 (7.9-8.2 s)"},
+  "cap16_rule": {"note": "cap16_test.py, ED10 (40-bar chorus), 2 seeds: telling the model to write one 16-bar REHARMONIZE op had no effect (3 ops of 16/16/8 bars every time, 89-116 s)", "file": "results/cap16_test.json"},
+  "retry_wording": {"note": "exp_retry.py, ED06 marked 'make this part jazzier', 3 seeds: adding 'keep only the ops the person asked for' to the retry line changed nothing (accepted on attempt 2 in 3 of 3 with and without it); the one 3-attempt failure in v3 rep 2 (identical 1729-token replies on all three attempts) was not reproduced"},
+  "rung3_lyrics_as_their_own_call": {"note": "v31+rle+lyrics, the 10 recipe requests, one rep: recipe without lyrics, then one lyrics call (per-language system prompt, exactly one entry per sung section)", "language_ok": "10/10", "shape_ok": "10/10", "calls_per_turn": 2, "turn_wall_s": [10.9, 14.4], "outro_equal_to_chorus_sets": 0, "file": "results/v31+rle+lyrics_r1.jsonl"},
+  "check_runs": {"check_v31_r3.jsonl": "MT03, SY01, SY04 on v31+rle (key in words in the HEADER): MT03.t3 still said Gm (F minor is the key)", "check_v31b_r3.jsonl": "same with the say-guard: MT03.t3 corrected to Fm on attempt 2"}
+}

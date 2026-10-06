@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+*.log
+# scratch from the experiments (cap16_test.py and the dev one-offs), not evidence
+results/dev*.jsonl

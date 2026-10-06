@@ -1,0 +1,1296 @@
+[
+ {
+  "id": "RC01",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC01.t1",
+    "user": "An upbeat English indie-pop song about a road trip with friends, jangly guitars and a female singer",
+    "expect": {
+     "action": "recipe",
+     "lang": "en"
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC02",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC02.t1",
+    "user": "a dark synthwave track about driving through a city at night, male vocals, around 110 bpm",
+    "expect": {
+     "action": "recipe",
+     "lang": "en",
+     "bpm": [
+      95,
+      125
+     ],
+     "style_has": [
+      "synth"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC03",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC03.t1",
+    "user": "a gentle acoustic folk song about my grandmother's garden",
+    "expect": {
+     "action": "recipe",
+     "lang": "en",
+     "style_has": [
+      "acoustic"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC04",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC04.t1",
+    "user": "something sad",
+    "expect": {
+     "action": "recipe",
+     "lang": "en",
+     "vague": true,
+     "must_propose": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC05",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC05.t1",
+    "user": "Schreib mir einen langsamen deutschen Popsong über den Abschied, mit Klavier und weicher Frauenstimme",
+    "expect": {
+     "action": "recipe",
+     "lang": "de",
+     "bpm": [
+      40,
+      100
+     ],
+     "style_has": [
+      "piano|klavier"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC06",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC06.t1",
+    "user": "Ein fröhlicher Schlager über den Sommer am See",
+    "expect": {
+     "action": "recipe",
+     "lang": "de"
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC07",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC07.t1",
+    "user": "irgendwas Ruhiges zum Einschlafen",
+    "expect": {
+     "action": "recipe",
+     "lang": "de",
+     "vague": true,
+     "must_propose": true,
+     "bpm": [
+      40,
+      95
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC08",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC08.t1",
+    "user": "una balada lenta sobre el mar, guitarra de nailon y una voz femenina suave",
+    "expect": {
+     "action": "recipe",
+     "lang": "es",
+     "bpm": [
+      40,
+      100
+     ],
+     "style_has": [
+      "guitar"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC09",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC09.t1",
+    "user": "A fast reggaeton party song in Spanish about a summer night out",
+    "expect": {
+     "action": "recipe",
+     "lang": "es",
+     "bpm": [
+      85,
+      130
+     ],
+     "style_has": [
+      "reggaeton"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "RC10",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "RC10.t1",
+    "user": "algo romántico para mi novia",
+    "expect": {
+     "action": "recipe",
+     "lang": "es",
+     "vague": true,
+     "must_propose": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "AK01",
+  "group": "ask",
+  "song": null,
+  "turns": [
+   {
+    "id": "AK01.t1",
+    "user": "make it better",
+    "expect": {
+     "action": "ask",
+     "stuck": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "AK02",
+  "group": "ask",
+  "song": null,
+  "turns": [
+   {
+    "id": "AK02.t1",
+    "user": "yes, do that",
+    "expect": {
+     "action": "ask",
+     "stuck": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "AK03",
+  "group": "ask",
+  "song": null,
+  "turns": [
+   {
+    "id": "AK03.t1",
+    "user": "make it like that one",
+    "expect": {
+     "action": "ask",
+     "stuck": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "NM01",
+  "group": "near-miss",
+  "song": null,
+  "turns": [
+   {
+    "id": "NM01.t1",
+    "user": "something for my mom's birthday",
+    "expect": {
+     "action": "recipe",
+     "lang": "en",
+     "must_propose": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "NM02",
+  "group": "near-miss",
+  "song": "S3",
+  "turns": [
+   {
+    "id": "NM02.t1",
+    "user": "make the chorus hit harder",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "edit": {
+      "any": true
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "NM03",
+  "group": "near-miss",
+  "song": "S2",
+  "turns": [
+   {
+    "id": "NM03.t1",
+    "user": "the verses feel too busy to me",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "edit": {
+      "any": true
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "ED01",
+  "group": "edit",
+  "song": "S3",
+  "turns": [
+   {
+    "id": "ED01.t1",
+    "user": "give the chorus jazz chords",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "assumes": true,
+     "edit": {
+      "kind": "reharm",
+      "bars": [
+       47,
+       62
+      ],
+      "tol": 0,
+      "cover": 0.5
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "ED02",
+  "group": "edit",
+  "song": "S4",
+  "turns": [
+   {
+    "id": "ED02.t1",
+    "user": "change the words of the second chorus, make them more hopeful",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "edit": {
+      "kind": "lyrics",
+      "block": 5,
+      "lang": "de"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "ED03",
+  "group": "edit",
+  "song": "S2",
+  "turns": [
+   {
+    "id": "ED03.t1",
+    "user": "slow it down a little",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "edit": {
+      "kind": "tempo",
+      "bpm": [
+       70,
+       91
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "ED04",
+  "group": "edit",
+  "song": "S1",
+  "turns": [
+   {
+    "id": "ED04.t1",
+    "user": "put it in a different key",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "edit": {
+      "kind": "transpose"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "ED05",
+  "group": "edit",
+  "song": "S5",
+  "turns": [
+   {
+    "id": "ED05.t1",
+    "user": "make it sound more like a rock band",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "edit": {
+      "kind": "style",
+      "style_has": [
+       "rock"
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "ED06",
+  "group": "edit",
+  "song": "S3",
+  "turns": [
+   {
+    "id": "ED06.t1",
+    "user": "make this part jazzier",
+    "expect": {
+     "action": "edit",
+     "marked": true,
+     "edit": {
+      "kind": "reharm",
+      "bars": [
+       11,
+       18
+      ],
+      "tol": 2,
+      "cover": 0.5
+     }
+    },
+    "mark": "bars 11-18, inside S2 verse (bars 11-46); key Dm, 87 bpm there"
+   }
+  ]
+ },
+ {
+  "id": "ED07",
+  "group": "edit",
+  "song": "S4",
+  "turns": [
+   {
+    "id": "ED07.t1",
+    "user": "this line should rhyme with the one before it",
+    "expect": {
+     "action": "edit",
+     "marked": true,
+     "edit": {
+      "kind": "lyrics",
+      "block": 4,
+      "lang": "de"
+     }
+    },
+    "mark": "lyric line 3 of block 4 ([Verse 2] #2, bars 27-35 area): \"Doch ich fühl das Zittern\""
+   }
+  ]
+ },
+ {
+  "id": "ED08",
+  "group": "edit",
+  "song": "S5",
+  "turns": [
+   {
+    "id": "ED08.t1",
+    "user": "repeat this",
+    "expect": {
+     "action": "edit",
+     "marked": true,
+     "edit": {
+      "kind": "repeat",
+      "section": 6
+     }
+    },
+    "mark": "bars 70-77, S6 chorus (the second chorus); key Am, 138 bpm there"
+   }
+  ]
+ },
+ {
+  "id": "ED09",
+  "group": "edit",
+  "song": "S2",
+  "turns": [
+   {
+    "id": "ED09.t1",
+    "user": "repeat the bridge",
+    "expect": {
+     "action": "say",
+     "alt": [
+      "ask"
+     ],
+     "nonexistent": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "ED10",
+  "group": "edit",
+  "song": "S1",
+  "turns": [
+   {
+    "id": "ED10.t1",
+    "user": "give the second chorus a jazzier feel",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "assumes": true,
+     "edit": {
+      "kind": "reharm",
+      "bars": [
+       167,
+       206
+      ],
+      "tol": 0,
+      "cover": 0.5
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "SY01",
+  "group": "say",
+  "song": "S2",
+  "turns": [
+   {
+    "id": "SY01.t1",
+    "user": "what key is this song in?",
+    "expect": {
+     "action": "say",
+     "contains": "\\bG\\s?m\\b|G minor|g-moll|sol menor"
+    }
+   }
+  ]
+ },
+ {
+  "id": "SY02",
+  "group": "say",
+  "song": "S4",
+  "turns": [
+   {
+    "id": "SY02.t1",
+    "user": "how many choruses does it have?",
+    "expect": {
+     "action": "say",
+     "contains": "\\b(3|three|drei|tres)\\b"
+    }
+   }
+  ]
+ },
+ {
+  "id": "SY03",
+  "group": "say",
+  "song": "S5",
+  "turns": [
+   {
+    "id": "SY03.t1",
+    "user": "how long is the song?",
+    "expect": {
+     "action": "say",
+     "contains": "3[:.,]?\\s?[345]|3\\s*min|214|three"
+    }
+   }
+  ]
+ },
+ {
+  "id": "SY04",
+  "group": "say",
+  "song": null,
+  "turns": [
+   {
+    "id": "SY04.t1",
+    "user": "what can you do for me here?",
+    "expect": {
+     "action": "say"
+    }
+   }
+  ]
+ },
+ {
+  "id": "SC01",
+  "group": "scalpel",
+  "song": "S3",
+  "turns": [
+   {
+    "id": "SC01.t1",
+    "user": "repaint the chorus with new words about the rain",
+    "expect": {
+     "action": "scalpel",
+     "kind": "repaint"
+    }
+   }
+  ]
+ },
+ {
+  "id": "SC02",
+  "group": "scalpel",
+  "song": "S4",
+  "turns": [
+   {
+    "id": "SC02.t1",
+    "user": "add a string quartet layer under the second verse",
+    "expect": {
+     "action": "scalpel",
+     "kind": "add_layer"
+    }
+   }
+  ]
+ },
+ {
+  "id": "SC03",
+  "group": "scalpel",
+  "song": "S5",
+  "turns": [
+   {
+    "id": "SC03.t1",
+    "user": "split it into stems, I want the vocals on their own",
+    "expect": {
+     "action": "scalpel",
+     "kind": "split"
+    }
+   }
+  ]
+ },
+ {
+  "id": "SC04",
+  "group": "scalpel",
+  "song": "S2",
+  "turns": [
+   {
+    "id": "SC04.t1",
+    "user": "export it as a wav file",
+    "expect": {
+     "action": "scalpel",
+     "kind": "export"
+    }
+   }
+  ]
+ },
+ {
+  "id": "AN01",
+  "group": "analyze",
+  "song": null,
+  "turns": [
+   {
+    "id": "AN01.t1",
+    "user": "make a song like this one but in German and about leaving",
+    "expect": {
+     "action": "analyze"
+    },
+    "attachment": "audio file \"demo_take3.wav\", 2:41, not read yet"
+   }
+  ]
+ },
+ {
+  "id": "AN02",
+  "group": "analyze",
+  "song": null,
+  "turns": [
+   {
+    "id": "AN02.t1",
+    "user": "something like my Purple Shinings but sadder, and in Spanish",
+    "expect": {
+     "action": "analyze"
+    }
+   }
+  ]
+ },
+ {
+  "id": "MT01",
+  "group": "multi",
+  "song": null,
+  "turns": [
+   {
+    "id": "MT01.t1",
+    "user": "an upbeat English indie-pop song about a road trip with friends",
+    "expect": {
+     "action": "recipe",
+     "lang": "en"
+    },
+    "fixture": {
+     "action": "recipe",
+     "message": "An upbeat indie-pop road-trip song for four friends.",
+     "assumptions": [
+      "assuming 4/4 and G major",
+      "assuming about 3 minutes"
+     ],
+     "recipe": {
+      "title": "Open Road Summer",
+      "style": "indie pop, jangly electric guitars, bright drums, female vocal, upbeat, road trip",
+      "bpm": 118,
+      "key": "G",
+      "time_signature": "4/4",
+      "language": "en",
+      "engine": "yue2",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "Windows down on the morning highway",
+         "Four of us and a map we never read",
+         "Coffee cups and a borrowed playlist",
+         "Every mile is a song instead"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Take me down the open road",
+         "Sing it loud, we'll never slow",
+         "Wherever the sunlight goes",
+         "That's the only way we know"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Gas station stars and a midnight diner",
+         "Someone's asleep on a stranger's coat",
+         "Counting towns that we'll soon be leaving",
+         "Laughing at jokes that we all know by heart"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Take me down the open road",
+         "Sing it loud, we'll never slow",
+         "Wherever the sunlight goes",
+         "That's the only way we know"
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "id": "MT01.t2",
+    "user": "make it faster and add a bridge",
+    "expect": {
+     "action": "recipe",
+     "lang": "en",
+     "refine": {
+      "bpm_above_pending": true,
+      "structure_has": "Bridge",
+      "has_bridge_lyrics": true
+     }
+    },
+    "fixture": {
+     "action": "recipe",
+     "message": "Faster (132 bpm) and with a bridge before the last chorus.",
+     "assumptions": [
+      "assuming the bridge goes before the last chorus"
+     ],
+     "recipe": {
+      "title": "Open Road Summer",
+      "style": "indie pop, jangly electric guitars, bright drums, female vocal, upbeat, road trip",
+      "bpm": 132,
+      "key": "G",
+      "time_signature": "4/4",
+      "language": "en",
+      "engine": "yue2",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Bridge",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "Windows down on the morning highway",
+         "Four of us and a map we never read",
+         "Coffee cups and a borrowed playlist",
+         "Every mile is a song instead"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Take me down the open road",
+         "Sing it loud, we'll never slow",
+         "Wherever the sunlight goes",
+         "That's the only way we know"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Gas station stars and a midnight diner",
+         "Someone's asleep on a stranger's coat",
+         "Counting towns that we'll soon be leaving",
+         "Laughing at jokes that we all know by heart"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Take me down the open road",
+         "Sing it loud, we'll never slow",
+         "Wherever the sunlight goes",
+         "That's the only way we know"
+        ]
+       },
+       {
+        "tag": "Bridge",
+        "lines": [
+         "And if the engine dies tonight",
+         "We'll sit and watch the dawn arrive",
+         "Nothing here is lost or wrong",
+         "Just a little more of the song"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Take me down the open road",
+         "Sing it loud, we'll never slow",
+         "Wherever the sunlight goes",
+         "That's the only way we know"
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "id": "MT01.t3",
+    "user": "what key is it in?",
+    "expect": {
+     "action": "say",
+     "says_pending_key": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "MT02",
+  "group": "multi",
+  "song": "S4",
+  "turns": [
+   {
+    "id": "MT02.t1",
+    "user": "give the chorus jazz chords",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "assumes": true,
+     "edit": {
+      "kind": "reharm",
+      "one_of": [
+       [
+        15,
+        22
+       ],
+       [
+        36,
+        43
+       ],
+       [
+        53,
+        60
+       ]
+      ],
+      "cover": 0.5
+     }
+    },
+    "fixture": {
+     "action": "edit",
+     "message": "Jazz chords for the first chorus.",
+     "assumptions": [
+      "assuming the first chorus, bars 15-22"
+     ],
+     "ops": [
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 15,
+       "to_bar": 22,
+       "chords": [
+        {
+         "bar": 15,
+         "beat": 1,
+         "root": "G",
+         "quality": "maj7"
+        },
+        {
+         "bar": 16,
+         "beat": 1,
+         "root": "Eb",
+         "quality": "m7"
+        },
+        {
+         "bar": 17,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "7"
+        },
+        {
+         "bar": 18,
+         "beat": 1,
+         "root": "F",
+         "quality": "m7"
+        },
+        {
+         "bar": 19,
+         "beat": 1,
+         "root": "G",
+         "quality": "maj7"
+        },
+        {
+         "bar": 20,
+         "beat": 1,
+         "root": "Eb",
+         "quality": "m7"
+        },
+        {
+         "bar": 21,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "7"
+        },
+        {
+         "bar": 22,
+         "beat": 1,
+         "root": "F",
+         "quality": "m7"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "id": "MT02.t2",
+    "user": "no, the second chorus",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "reharm",
+      "bars": [
+       36,
+       43
+      ],
+      "tol": 0,
+      "cover": 0.5
+     }
+    },
+    "commit": true,
+    "fixture": {
+     "action": "edit",
+     "message": "Jazz chords for the second chorus instead.",
+     "assumptions": [
+      "the second chorus is bars 36-43"
+     ],
+     "ops": [
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 36,
+       "to_bar": 43,
+       "chords": [
+        {
+         "bar": 36,
+         "beat": 1,
+         "root": "G",
+         "quality": "maj7"
+        },
+        {
+         "bar": 37,
+         "beat": 1,
+         "root": "Eb",
+         "quality": "m7"
+        },
+        {
+         "bar": 38,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "7"
+        },
+        {
+         "bar": 39,
+         "beat": 1,
+         "root": "F",
+         "quality": "m7"
+        },
+        {
+         "bar": 40,
+         "beat": 1,
+         "root": "G",
+         "quality": "maj7"
+        },
+        {
+         "bar": 41,
+         "beat": 1,
+         "root": "Eb",
+         "quality": "m7"
+        },
+        {
+         "bar": 42,
+         "beat": 1,
+         "root": "Bb",
+         "quality": "7"
+        },
+        {
+         "bar": 43,
+         "beat": 1,
+         "root": "F",
+         "quality": "m7"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "id": "MT02.t3",
+    "user": "now slow it down a bit",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "tempo",
+      "bpm": [
+       60,
+       83
+      ]
+     }
+    },
+    "fixture": {
+     "action": "edit",
+     "message": "Slowed to 76 bpm.",
+     "assumptions": [
+      "a bit = about 10% slower"
+     ],
+     "ops": [
+      {
+       "op": "SET_TEMPO",
+       "bpm": 76
+      }
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "MT03",
+  "group": "multi",
+  "song": "S2",
+  "turns": [
+   {
+    "id": "MT03.t1",
+    "user": "make the words of the second chorus more hopeful",
+    "expect": {
+     "action": "edit",
+     "assumes": true,
+     "edit": {
+      "kind": "lyrics",
+      "block": 6,
+      "lang": "es"
+     }
+    },
+    "commit": true,
+    "fixture": {
+     "action": "edit",
+     "message": "A hopeful second chorus.",
+     "assumptions": [
+      "the second chorus is lyric block 6"
+     ],
+     "ops": [
+      {
+       "op": "REWRITE_LYRICS",
+       "block": 6,
+       "tag": "[Chorus]",
+       "occurrence": 2,
+       "lines": [
+        "Mañana el sol saldrá sin ti",
+        "y yo aprenderé a esperar",
+        "cada herida es una puerta",
+        "que me enseña a caminar",
+        "Hoy te dejo ir sin miedo",
+        "con el corazón en paz",
+        "porque lo que fue verdadero",
+        "volverá a florecer"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "id": "MT03.t2",
+    "user": "now put the whole song down a tone",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "transpose",
+      "semitones": -2
+     }
+    },
+    "commit": true,
+    "fixture": {
+     "action": "edit",
+     "message": "Down a whole tone.",
+     "assumptions": [],
+     "ops": [
+      {
+       "op": "TRANSPOSE",
+       "semitones": -2
+      }
+     ]
+    }
+   },
+   {
+    "id": "MT03.t3",
+    "user": "what key is it in now?",
+    "expect": {
+     "action": "say",
+     "says_current_key": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "MT04",
+  "group": "multi",
+  "song": null,
+  "turns": [
+   {
+    "id": "MT04.t1",
+    "user": "una balada lenta sobre el mar, con guitarra de nailon",
+    "expect": {
+     "action": "recipe",
+     "lang": "es",
+     "bpm": [
+      40,
+      100
+     ]
+    },
+    "fixture": {
+     "action": "recipe",
+     "message": "Una balada lenta sobre el mar, con guitarra de nailon.",
+     "assumptions": [
+      "suponiendo 4/4 y La menor",
+      "suponiendo unos 3 minutos"
+     ],
+     "recipe": {
+      "title": "Luz sobre el mar",
+      "style": "slow Spanish ballad, nylon guitar, soft female vocal, intimate",
+      "bpm": 68,
+      "key": "Am",
+      "time_signature": "4/4",
+      "language": "es",
+      "engine": "yue2",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "La sal en tu piel, el viento sin nombre",
+         "tu barca se aleja y yo no me muevo",
+         "el mar me devuelve lo que no dije",
+         "y todo lo quieto se vuelve eterno"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Luz sobre el mar, no te vayas aún",
+         "deja que el alba me hable de ti",
+         "luz sobre el mar, guárdame el azul",
+         "hasta que vuelvas a mí"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Cuento las olas que llegan sin prisa",
+         "cada una trae un pedazo de ayer",
+         "la arena guarda tu huella pequeña",
+         "y yo la sigo sin querer volver"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Luz sobre el mar, no te vayas aún",
+         "deja que el alba me hable de ti",
+         "luz sobre el mar, guárdame el azul",
+         "hasta que vuelvas a mí"
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "id": "MT04.t2",
+    "user": "hmm, no, I'd rather have a fast German rock song about the city",
+    "expect": {
+     "action": "recipe",
+     "lang": "de",
+     "bpm": [
+      110,
+      200
+     ],
+     "style_has": [
+      "rock"
+     ]
+    },
+    "fixture": {
+     "action": "recipe",
+     "message": "Ein schneller Deutschrock über die Stadt.",
+     "assumptions": [
+      "angenommen 4/4 und E-Moll"
+     ],
+     "recipe": {
+      "title": "Stadtlicht",
+      "style": "fast German rock, distorted electric guitars, driving drums, raw male vocal, energetic",
+      "bpm": 148,
+      "key": "Em",
+      "time_signature": "4/4",
+      "language": "de",
+      "engine": "yue2",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "Neonlicht auf nassem Asphalt",
+         "die Nacht hat nie Feierabend",
+         "wir rennen durch die Straßen",
+         "und keiner fragt wohin"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Stadtlicht, brenn für mich",
+         "Stadtlicht, ich seh dich",
+         "wir sind laut und wir sind jung",
+         "die Stadt gehört uns jetzt"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Hinterhöfe, Bässe, Rauch",
+         "ein Lied aus jedem Fenster",
+         "heute zählt nur dieser Moment",
+         "morgen ist noch weit"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Stadtlicht, brenn für mich",
+         "Stadtlicht, ich seh dich",
+         "wir sind laut und wir sind jung",
+         "die Stadt gehört uns jetzt"
+        ]
+       }
+      ]
+     }
+    }
+   },
+   {
+    "id": "MT04.t3",
+    "user": "what's the tempo?",
+    "expect": {
+     "action": "say",
+     "says_pending_bpm": true
+    }
+   },
+   {
+    "id": "MT04.t4",
+    "user": "ok, go back to the first idea, the sea ballad",
+    "expect": {
+     "action": "recipe",
+     "lang": "es",
+     "bpm": [
+      40,
+      100
+     ]
+    }
+   }
+  ]
+ }
+]

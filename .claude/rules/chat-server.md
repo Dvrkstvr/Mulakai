@@ -30,6 +30,10 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
   writes a score.
 - Recipe and CREATE SONG rules live only in `recipeRules.ts`; the client
   shows the server's `blockers`.
+- A cancel sets `job.cancelled` when it aborts; the cancelled reply is
+  written only after the unload, so SEND / RETRY stay refused (409
+  TURN_OPEN) while the turn is still in `turns` (D-121).
+- A take cut at the cap reads TRUNCATED on the song card, never DONE (D-025).
 - A failed turn changes nothing (no draft write, no proposal); a field the
   person touched after SEND is skipped and named.
 - Proposals live in memory (`proposalStore`, `planStore`); threads, messages
