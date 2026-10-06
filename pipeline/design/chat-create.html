@@ -46,13 +46,13 @@ table{border-collapse:collapse;font-size:12px;max-width:1260px}td,th{border:1px 
 <ul>
 <li><b>Q-054 #1</b>: does CHAT <b>sit beside</b> Guided Create (A), <b>replace</b> it (B), or <b>absorb</b> it as an expanding card (C)? Three frames at desktop size, each with what it gains, what it loses, and where TUNE, TAKES and QUALITY go.</li>
 <li>Also fixed by the choice: what the Library's CREATE bar and CONTINUE row open, and what a person gets when the assistant (local Ollama) is off or fails.</li>
-<li>Not settled: the card layouts for edit, scalpel and reading proposals (C2-C4 get their own mockup), A/B version cards, the Editor's "OPEN IN EDITOR" link.</li>
-<li>Evidence: today's screen from the brief plus a string check of RecipeCard, CreateBar and CreateView (<i>seen in code</i>); every layout, size and the chat copy are <i>inferred</i>; the assistant's turn time (3-15 s) is <i>measured</i> in SP-2/M2 (PLAN.md).</li>
+<li>Not settled: cards for edit, scalpel and reading proposals, version cards and OPEN IN EDITOR (C2-C4 get their own mockup).</li>
+<li>Evidence: today's screen from the brief and a string check of RecipeCard, CreateBar, CreateView (<i>seen in code</i>); layouts, sizes and chat copy <i>inferred</i>; turn time 3-15 s <i>measured</i> (SP-2, M2).</li>
 </ul>
 
 <h2>TODAY · FOR REFERENCE</h2>
 <div class="g"><div class="o"><h4><b>TODAY</b> · Guided Create, START FROM AN IDEA</h4><div id="today"></div></div>
-<div style="max-width:560px;color:var(--m)"><p>One full-screen form, reached from the Library's <code>FEELING LUCKY · What do you want to make? · CREATE</code> bar. It needs no LLM except for WRITE FOR ME and FEELING LUCKY. Every knob is on screen: the person fills three steps and reads a RECIPE before GENERATE.</p><p>What the chat adds: someone who does the filling-in and says what they assumed. What it must not cost: precise control, and a way to create when the assistant is off.</p></div></div>
+<div style="max-width:560px;color:var(--m)"><p>One full-screen form, reached from the Library's CREATE bar. It needs no LLM except for WRITE FOR ME and FEELING LUCKY. Every knob is on screen.</p><p>The chat adds someone who fills it in and states what they assumed. It must not cost precise control, or a way to create when the assistant is off.</p></div></div>
 
 <h2>OPTIONS</h2>
 <div class="g" id="opts"></div>
@@ -67,9 +67,9 @@ table{border-collapse:collapse;font-size:12px;max-width:1260px}td,th{border:1px 
 <div class="dc"><b>CH-1 · A, "chat beside, form as FORM" (recommended; the owner picks).</b> CHAT is the start screen, and FORM opens today's Guided Create unchanged. <i>Beat:</i> B (the chat only: precise knobs by words alone, START FROM A SONG I HAVE / ONE TRACK have no home until C3, and with the assistant off there is no way to make a song) and C (a full form inside a thread: every first-take card is 430 px tall, the form exists only before the first take, and the one place with the knobs becomes a scrolling message). <i>Cost:</i> two surfaces for the same first take (one draft behind both, CH-2), a DESIGN.md clause adding CHAT to the flat view set, and today's Guided Create keeping its maintenance.</div>
 <div class="dc"><b>CH-2 · one draft behind CHAT and FORM.</b> Switching tabs carries every field, both ways: the card's edits show in FORM, FORM's in the card. <i>Beat:</i> two separate drafts (a person loses work crossing over). <i>Cost:</i> one shared draft store; a field FORM has and the card lacks is kept, not shown.</div>
 <div class="dc"><b>CH-3 · the card carries ENGINE and QUALITY; TUNE, TAKES and VOICE stay in FORM.</b> ENGINE and QUALITY change the consequence line (time, GPU, score-eligibility), so they sit beside CREATE SONG. A link, <code>TUNE, TAKES, VOICE IN FORM ▸</code>, takes the draft across. <i>Beat:</i> the whole RECIPE in the card (that is C); nothing but engine (B).</div>
-<div class="dc"><b>CH-4 · a first take proposed on ACE-Step says so where it is read.</b> Sky engine chip, and a rust clause in the consequence line: "not score-editable; later turns use REPAINT, ADD LAYER, SPLIT" (D-083). <i>Beat:</i> a note in the message only.</div>
-<div class="dc"><b>CH-5 · assistant off is a different start screen.</b> <code>LLM_API_URL</code> unset: CHAT is hidden, as SCORE is, and FORM is the start screen. Set but not answering: CHAT is shown, rust, with the reason, and FORM one click away; a failed turn keeps the draft. <i>Beat:</i> a disabled CHAT with no reason.</div>
-<div class="dc"><b>CH-6 · the Library bar's CREATE opens CHAT with the typed idea as the first message</b> (FORM with it in DESCRIBE IT when the assistant is off, as today). FEELING LUCKY stays on the bar and in FORM: a queued job that makes a song, no card. CONTINUE opens that song's thread (D-081). <i>Beat:</i> the bar always opening FORM.</div>
+<div class="dc"><b>CH-4 · a first take proposed on ACE-Step says so where it is read.</b> Sky engine chip, and a rust clause in the consequence line: "not score-editable; later turns use REPAINT, ADD LAYER, SPLIT" (D-083).</div>
+<div class="dc"><b>CH-5 · assistant off is a different start screen.</b> <code>LLM_API_URL</code> unset: CHAT is hidden, as SCORE is, and FORM is the start screen. Set but not answering: CHAT is shown, rust, with the reason, and FORM one click away; a failed turn keeps the draft.</div>
+<div class="dc"><b>CH-6 · the Library bar's CREATE opens CHAT with the typed idea as the first message</b> (FORM with it in DESCRIBE IT when the assistant is off, as today). FEELING LUCKY stays on the bar and in FORM: a queued job that makes a song, no card. CONTINUE opens that song's thread (D-081).</div>
 
 <h2>OPEN QUESTIONS (ids provisional, renumber if taken; the conductor adds them to open-questions.md)</h2>
 <ul>
@@ -85,9 +85,9 @@ table{border-collapse:collapse;font-size:12px;max-width:1260px}td,th{border:1px 
 <ul>
 <li>1366×768: the proposal card, its consequence line and CREATE SONG fit above the composer without scrolling the thread. Inferred card height 330 px (A, B) and 430 px (C): C will not fit; is that a problem or just a scroll?</li>
 <li>Two acid fills on screen (CREATE SONG, and the SEND hexagon, which is the sanctioned exception). Does the eye go to the card's commit, not the composer?</li>
-<li>Type "a slow Spanish ballad" and press Enter: the thread must show the turn is in flight at once (3-15 s, no streaming).</li>
-<li>Switch CHAT to FORM and back with the card half edited: nothing is lost (CH-2).</li>
-<li>10-11px mono at 100% on the card's field labels and ASSUMED tags.</li>
+<li>Press Enter on an idea: the in-flight row shows at once (3-15 s, no streaming).</li>
+<li>CHAT to FORM and back with the card half edited: nothing is lost (CH-2).</li>
+<li>10-11px mono field labels and ASSUMED tags at 100%.</li>
 </ul>
 
 <script>
@@ -149,6 +149,6 @@ cr("3 · ASSISTANT OFF · refused",`<div style="display:flex;gap:8px">${TAB("FOR
 cr("4 · TURN FAILED · error",um+`<div class="er"><div><b>NO ANSWER IN 3 ATTEMPTS</b><br>Nothing changed and your draft is kept. Send again, or finish it in FORM.</div>${P("q","SEND AGAIN")}${P("ao","OPEN FORM")}</div>`)+
 cr("5 · EMPTY · first open",`<div class="am">Describe a song, or drop an audio file to start from one. I will propose a recipe and ask only if I cannot.</div><div class="in">Describe the song you want…</div><div class="hn">${P("ao","FEELING LUCKY")} no idea yet? that makes one directly</div>`);
 // table
-const rows=[["First take, by description","chat, then card","chat, then card","chat or card"],["Precise knobs (TUNE, TAKES, VOICE, BPM)","FORM","by words, or Settings","in the card"],["START FROM A SONG I HAVE / ONE TRACK","FORM now, chat at C3","chat at C3 only","chat at C3 only"],["Works with Ollama off","yes (FORM)","<b>no</b>","partly (card by hand)"],["Create screens to keep","2 (chat, form)","1","1"],["Shortest path to a first take","type, read card, CREATE SONG","same","same, card is taller"],["Risk","draft drift between views","power users lose knobs","long thread, heavy card"]];
+const rows=[["First take, by description","chat, then card","chat, then card","chat or card"],["Precise knobs (TUNE, TAKES, VOICE, BPM)","FORM","by words, or Settings","in the card"],["START FROM A SONG I HAVE / ONE TRACK","FORM now, chat at C3","chat at C3 only","chat at C3 only"],["Works with Ollama off","yes (FORM)","<b>no</b>","partly (card by hand)"],["Shortest path to a first take","type, read card, CREATE SONG","same","same, card is taller"],["Risk","draft drift between views","power users lose knobs","long thread, heavy card"]];
 $("cmp").innerHTML=`<tr><th></th><th>A · BESIDE</th><th>B · REPLACES</th><th>C · INSIDE</th></tr>`+rows.map(r=>`<tr><td><b>${r[0]}</b></td>${r.slice(1).map(x=>`<td>${x}</td>`).join("")}</tr>`).join("");
 </script></body></html>
