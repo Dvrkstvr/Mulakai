@@ -10,12 +10,12 @@ import {
 const READ: ReadingView = {
   reading_v: 1, readAt: '', seconds: 190, readTo: 190, cut: false, plan: { words: 'service', score: 'service', caption: 'service' },
   words: { language: 'en', lines: ['a'], instrumental: false },
-  score: { abc: 'X:1', source: 'transcribed', chords: true, facts: {}, warnings: [] },
+  score: { abc: 'X:1', source: 'transcribed', chords: true, facts: null, warnings: [], measure: null },
   caption: { caption: 'soft piano', bpm: 70, key: 'Am', meter: '4/4' },
 };
 const analyze = (over: Partial<ChatMessageView> = {}): ChatMessageView => ({
   id: 'a1', seq: 2, role: 'assistant', kind: 'analyze', text: '', proposalId: 'p1', jobId: null, versionId: null, state: 'pending', createdAt: '',
-  body: { chat_v: 1, referenceId: 'r1', name: 'demo.mp3', seconds: 190, cut: false, plan: READ.plan, gpuSeconds: 40 }, ...over,
+  body: { chat_v: 1, target: { referenceId: 'r1' }, name: 'demo.mp3', seconds: 190, readTo: 190, cut: false, estimate: { words: 10, score: 20, caption: 10, total: 40 } }, ...over,
 });
 const card = (over: Partial<ChatMessageView> = {}, reading: ReadingView | null = null): ChatMessageView => ({
   id: 'c1', seq: 3, role: 'assistant', kind: 'reading', text: '', proposalId: null, jobId: 'rj1', versionId: null, state: 'queued', createdAt: '',

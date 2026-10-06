@@ -25,6 +25,19 @@ describe('chatReferencesApi', () => {
     expect(lastCall()[0]).toBe('/api/chat/references/r1/read');
   });
 
+  it('a library pick answers `{reference}`; the list answers `{references}`', async () => {
+    answer(201, { reference: { id: 'r1', name: 'Luz' } });
+    expect(await chatReferencesApi.pickLibraryReference('t1', 's1')).toEqual({ id: 'r1', name: 'Luz' });
+    answer(200, { references: [{ id: 'r1' }] });
+    expect(await chatReferencesApi.listReferences('t1')).toEqual([{ id: 'r1' }]);
+    expect(lastCall()[0]).toBe('/api/chat/threads/t1/references');
+  });
+
+  it('a library pick on a song\'s thread (409) throws the server\'s reason', async () => {
+    answer(409, { reason: 'a reference starts a new song: press NEW CHAT and attach it there' });
+    await expect(chatReferencesApi.pickLibraryReference('t1', 's1')).rejects.toThrow('press NEW CHAT');
+  });
+
   it('a library pick refused throws the server\'s reason', async () => {
     answer(400, { reason: 'this song has no audio' });
     await expect(chatReferencesApi.pickLibraryReference('t1', 's1')).rejects.toThrow('this song has no audio');

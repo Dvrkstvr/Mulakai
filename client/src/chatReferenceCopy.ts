@@ -57,7 +57,7 @@ export function notReadLine(part: Part, why: string): string {
 export const cutNote = (seconds: number) => `${fmtTime(seconds)} long · reads the first ${fmtTime(READ_LIMIT_SECONDS)} only · A/B plays all of it`;
 
 /** D-137: a library song with more than one layer is read from its base layer only. */
-export function layersNote(layers: number | undefined): string | null {
+export function layersNote(layers: number | null | undefined): string | null {
   if (!layers || layers <= 1) return null;
   return `reads the base layer only · its other ${layers - 1} layer${layers === 2 ? ' is' : 's are'} not read`;
 }
@@ -100,7 +100,7 @@ export function coverConsequence(estSeconds: number | null | undefined, scoreSou
 
 /** A field filled from the reading: FROM THE SCORE (a cover, locked) or REFERENCE (a borrow); null otherwise. */
 export function fieldMark(draft: ChatDraft | null | undefined, key: ChatDraftKey): string | null {
-  if (!draft?.reference || draft.reference.use === 'none' || !draft.borrowed?.includes(key)) return null;
+  if (!draft?.reference || !draft.borrowed?.includes(key)) return null;
   return draft.reference.use === 'cover' ? SCORE_MARK : REFERENCE_MARK;
 }
 

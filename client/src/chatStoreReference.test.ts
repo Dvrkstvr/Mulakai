@@ -33,7 +33,7 @@ const draft = (rev: number, bpm: number | null = null): ChatDraft => ({
 });
 const READ: ReadingView = {
   reading_v: 1, readAt: '', seconds: 190, readTo: 190, cut: false, plan: { words: 'service', score: 'service', caption: 'service' },
-  words: { language: 'en', lines: [], instrumental: true }, score: { abc: 'X:1', source: 'transcribed', chords: true, facts: {}, warnings: [] },
+  words: { language: 'en', lines: [], instrumental: true }, score: { abc: 'X:1', source: 'transcribed', chords: true, facts: null, warnings: [], measure: null },
   caption: { caption: 'piano', bpm: 70, key: 'Am', meter: '4/4' },
 };
 const base: Omit<ChatMessageView, 'id' | 'kind'> = { seq: 1, role: 'assistant', text: '', body: null, proposalId: null, jobId: null, versionId: null, state: null, createdAt: '' };

@@ -30,46 +30,58 @@ export type ChatDraftKey = keyof ChatDraftFields;
 /** How a recipe uses the thread's reading (D-128): a cover sings the score; a borrow takes tempo, key, meter, structure. */
 export type ChatReferenceUse = 'cover' | 'borrow' | 'none';
 /** The draft's reference (C3, additive under `draft_v: 1`). */
-export interface ChatDraftReference { referenceId: string; use: ChatReferenceUse }
+export interface ChatDraftReference { referenceId: string; use: 'cover' | 'borrow' }
 
 /** `touched[field]` = the draft `rev` of the person's last hand edit of it; a reply skips fields touched after its SEND.
  * C3: `borrowed` = fields filled from the reading (REFERENCE, or FROM THE SCORE and locked on a cover); `missing` = fields
  * the reading has no value for, left blank and said so (F-064 edge). Absent = none. */
 export interface ChatDraft {
   draft_v: 1; rev: number; fields: ChatDraftFields; touched: Partial<Record<ChatDraftKey, number>>;
-  reference?: ChatDraftReference | null; borrowed?: ChatDraftKey[]; missing?: ChatDraftKey[];
+  reference?: ChatDraftReference; borrowed?: ChatDraftKey[]; missing?: ChatDraftKey[];
 }
 
 export type ChatMessageKind = 'text' | 'say' | 'ask' | 'recipe' | 'edit' | 'failed' | 'song' | 'version' | 'analyze' | 'reading';
-/** `chat/messageView.ts`'s state; null for a plain line that has no life of its own (say, a song card). C3 adds
- * `reading` (a reading card's job between its steps). */
+/** `chat/messageView.ts`'s state; null for a plain line that has no life of its own (say, a song card). C3:
+ * `reading` (a reading card's job between its steps) is this client's assumption until CR-4's messageView lands. */
 export type ChatMessageState =
   | 'queued' | 'thinking' | 'pending' | 'superseded' | 'expired' | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted'
   | 'reading';
 
 /** A recipe as the turn proposed it (SP-5's shape, camel-cased like the draft). */
-export interface ChatRecipe extends Omit<ChatDraftFields, 'engine'> { engine: 'yue2' | 'acestep' }
+export interface ChatRecipe extends Omit<ChatDraftFields, 'engine'> {
+  engine: 'yue2' | 'acestep';
+  /** C3: present only when the thread has a reading (the server's `Recipe.reference_use`). */
+  reference_use?: ChatReferenceUse;
+}
 
 /** `body_json` per kind (`chat_v: 1`; an additive field needs no bump, readers treat it as absent). */
 /** `attach`: the reference SEND carried (C3). */
-export interface ChatUserBody { chat_v: 1; sentRev: number; attach?: ChatAttach | null }
+export interface ChatUserBody { chat_v: 1; sentRev: number; attach?: ChatAttach }
 export interface ChatAttach { referenceId: string }
 export interface ChatRecipeBody {
   chat_v: 1; recipe: ChatRecipe; assumptions: string[]; changed: ChatDraftKey[]; skipped: ChatDraftKey[];
   /** The take's estimated length, for "about N min"; absent = the line names no length. */
   estSeconds?: number | null;
-  /** C3: the recipe built on a reading; `note` = why a cover became a borrow (F-063 edge). */
-  reference?: { referenceId: string; use: ChatReferenceUse; borrowed: ChatDraftKey[]; missing: ChatDraftKey[]; note?: string | null } | null;
+  /** C3: the reading this recipe was built on and what code filled from it. */
+  reference?: ChatRecipeReference;
 }
-/** The analyze card (proposal kind `analyze`): what READ will read and its GPU estimate; `cut` = longer than 360 s. */
+/** `note`: why a cover became a borrow, or another word for the card (F-063 edge); null when none. */
+export interface ChatRecipeReference {
+  referenceId: string; use: 'cover' | 'borrow'; borrowed: ChatDraftKey[]; missing: ChatDraftKey[]; note: string | null;
+}
+/** What an analyze card reads: an attached (copied) reference, or a library song named in words (copied at READ). */
+export type ChatAnalyzeTarget = { referenceId: string } | { songId: string };
+/** GPU seconds per step and in total (the server's referenceRules.readingEstimate). */
+export interface ChatReadingEstimate { words: number; score: number; caption: number; total: number }
+/** The READ card (proposal kind `analyze`). `seconds` null = unknown (a library song not copied yet); the reading
+ * reads `[0, readTo)` s, `cut` when the file is longer (D-138). */
 export interface ChatAnalyzeBody {
-  chat_v: 1; referenceId: string | null; songId?: string | null; name: string; seconds: number | null; cut: boolean;
-  plan: ReadingView['plan']; gpuSeconds: number | null;
-  /** A library song with more than one layer: only its base layer is read (D-137). */
-  layers?: number;
+  chat_v: 1; target: ChatAnalyzeTarget; name: string; seconds: number | null; readTo: number; cut: boolean;
+  estimate: ChatReadingEstimate;
 }
-/** The reading card: `reading` is null until the job saves it (then a snapshot); `followUp` = a turn runs after it. */
-export interface ChatReadingBody { chat_v: 1; referenceId: string; name: string; reading: ReadingView | null; followUp: boolean }
+/** The reading card: the job is the message's `jobId`; `reading` is the snapshot once saved. `followUp`: the server
+ * queues the follow-up turn when it saves (D-129); RE-ANALYZE does not. */
+export interface ChatReadingBody { chat_v: 1; referenceId: string; name: string; followUp: boolean; reading: ReadingView | null }
 export interface ChatAskBody { chat_v: 1; choices: string[] }
 /** `cause: 'offline'` = the planner did not answer (ASSISTANT OFF); anything else is a failed turn. */
 export interface ChatFailedBody { chat_v: 1; reasons: string[]; cause: string }
@@ -103,7 +115,7 @@ export interface ChatThreadView {
   blockers: string[];
   draftNote?: string | null;
   messages: ChatMessageView[];
-  /** C3: the thread's references (the song panel's list); absent on older servers. */
+  /** C3: the thread's references, oldest first (the song panel's list); absent on older servers. */
   references?: ReferenceView[];
 }
 

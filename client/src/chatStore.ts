@@ -7,12 +7,11 @@ import { create } from 'zustand';
 import {
   chatApi, type ChatAttach, type ChatMessageView, type ChatRecipeBody, type ChatStatus, type ChatThreadView,
 } from './api/chat';
-import { chatReferencesApi } from './api/chatReferences';
-import { attachBlocksSend, attachToSend, useChatAttachStore } from './chatAttachStore';
 import { assistantOffCause } from './chatEntry';
 import { useChatDraftStore } from './chatDraftStore';
 import { chatPoll } from './chatPoll';
-import { INITIAL_READING, chatReading, readingHoldsSend, replyAfter, type ReadingEvent, type ReadingState } from './chatReading';
+import { INITIAL_READING, chatReading, replyAfter, type ReadingEvent, type ReadingState } from './chatReading';
+import { chatReferenceActions } from './chatReferenceActions';
 import {
   INITIAL_TURN, canRetry, canSend, chatCommit, chatTurn, lastTurn,
   type CommitEvent, type CommitState, type TurnEvent, type TurnState,
@@ -78,9 +77,9 @@ export const useChatStore = create<ChatStore>((set, get) => {
   const { followTurn, followCommit, followCards, rehydrate } = chatPoll({
     turnState: () => get().turn, commitState: () => get().commit, readingState: () => get().reading, turn, commit, reading, refetch,
   });
-  /** SEND / RETRY are live: no reading or its follow-up running (D-129), no upload in flight. */
-  const free = () => !readingHoldsSend(get().reading) && !attachBlocksSend(attachment());
-  const attachment = () => useChatAttachStore.getState().byThread[get().thread?.id ?? ''];
+  const refs = chatReferenceActions({
+    thread: () => get().thread, readingState: () => get().reading, reading, refetch: () => refetch(), followCards,
+  });
 
   /** A thread opened: the turn and the take it left running carry on (a reload mid-turn, F-049). */
   async function open(load: () => Promise<ChatThreadView>): Promise<void> {
@@ -101,11 +100,9 @@ export const useChatStore = create<ChatStore>((set, get) => {
     const draft = useChatDraftStore.getState();
     await draft.flush(); // the rev the server notes at SEND covers every hand edit (CH-6)
     draft.clearFilled();
-    const attach = get().lastAttach;
     try {
-      const started = await chatApi.startChatTurn(thread.id, t.lastText, t.clientKey, ...(attach ? [attach] : []));
+      const started = await refs.startTurn(thread.id, t.lastText, t.clientKey, get().lastAttach);
       turn({ type: 'accepted', ...started });
-      if (attach) useChatAttachStore.getState().sent(thread.id);
       await refetch();
       void followTurn(started.jobId);
     } catch (err) {
@@ -130,13 +127,13 @@ export const useChatStore = create<ChatStore>((set, get) => {
     type: (text) => turn({ type: 'type', text }),
 
     send: async () => {
-      if (!canSend(get().turn, assistantOn()) || !free()) return;
-      set({ lastAttach: attachToSend(attachment()) });
+      if (!canSend(get().turn, assistantOn()) || !refs.free()) return;
+      set({ lastAttach: refs.attachToSend() });
       turn({ type: 'send', clientKey: newClientKey() });
       await post();
     },
     retry: async () => {
-      if (!canRetry(get().turn, assistantOn()) || !free()) return;
+      if (!canRetry(get().turn, assistantOn()) || !refs.free()) return;
       turn({ type: 'retry', clientKey: newClientKey() });
       await post();
     },
@@ -164,32 +161,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
       }
     },
 
-    read: async (proposalId) => {
-      const { thread, reading: before } = get();
-      const card = thread?.messages.find((m) => m.kind === 'analyze' && m.proposalId === proposalId);
-      if (!thread || !card) return;
-      reading({ type: 'read', messageId: card.id });
-      if (get().reading === before) return; // not live (superseded, expired, already read)
-      const fail = (reason: string) => reading({ type: 'refused', messageId: card.id, reason });
-      try {
-        const started = await chatReferencesApi.readReference(thread.id, proposalId);
-        if ('refused' in started) return fail(started.refused);
-        await refetch(); // the analyze card done, the reading card with its job
-        followCards();
-      } catch (err) {
-        fail(message(err));
-      }
-    },
-    reanalyze: async (referenceId) => {
-      try {
-        const started = await chatReferencesApi.rereadReference(referenceId);
-        if ('refused' in started) return started.refused;
-        await refetch();
-        followCards();
-        return null;
-      } catch (err) {
-        return message(err);
-      }
-    },
+    read: refs.read,
+    reanalyze: refs.reanalyze,
   };
 });
