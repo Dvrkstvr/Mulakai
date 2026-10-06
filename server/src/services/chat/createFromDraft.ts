@@ -65,7 +65,7 @@ function landed(threadId: string, songId: string, jobId: string): void {
   const v1 = baseVersions(songId)[0];
   const song = db.prepare(`SELECT duration FROM songs WHERE id = ?`).get(songId) as { duration: number | null } | undefined;
   appendMessage(threadId, {
-    role: 'assistant', kind: 'song', text: 'Saved as v1 in your Library. Press play above. To change it, use SCORE in the Editor.',
+    role: 'assistant', kind: 'song', text: 'Saved as v1 in your Library. Press play below. To change it, use SCORE in the Editor.',
     body: { seconds: song?.duration ?? null, label: v1?.label ?? '', number: 1 }, versionId: v1?.id ?? null, jobId,
   });
 }

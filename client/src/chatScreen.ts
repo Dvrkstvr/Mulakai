@@ -3,6 +3,7 @@
  * (blockers, message states); it only combines them with the client's turn and take. Pure. */
 import type { ChatDraftFields, ChatDraftKey, ChatMessageView, ChatSongBody, ChatThreadView } from './api/chat';
 import type { CommitPhase, CommitState, TurnState } from './chatTurn';
+import type { SongDetail } from './api';
 import { SIDEBAR_FOOT } from './chatCopy';
 
 export type CardView =
@@ -64,4 +65,11 @@ export function fillingKeys(fields: ChatDraftFields | null, turn: TurnState): Ch
 /** The recipe's fields the person changed since the proposal: the card's YOUR EDIT and the struck tempo (TU-7). */
 export function editedSinceProposal(recipe: Partial<Omit<ChatDraftFields, 'engine'>>, live: ChatDraftFields): ChatDraftKey[] {
   return (Object.keys(live) as ChatDraftKey[]).filter((k) => k !== 'engine' && k in recipe && JSON.stringify(recipe[k]) !== JSON.stringify(live[k]));
+}
+
+/** The take the player plays: the base layer's active version (as the Editor and the lyrics lane read it).
+ * GET /api/songs/:id carries no `audio_file`; only the Library list does. */
+export function playerTake(song: Pick<SongDetail, 'layers'> | null): string | null {
+  const base = song?.layers.find((l) => l.kind === 'base') ?? song?.layers[0];
+  return base?.versions.find((v) => v.active)?.audio_file ?? null;
 }

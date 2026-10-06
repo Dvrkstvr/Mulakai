@@ -8,7 +8,7 @@ import {
 } from './chatCopy';
 import { filledCount, liveFields, useChatDraftStore } from './chatDraftStore';
 import { assistantOffCause } from './chatEntry';
-import { committing, fillingKeys, fmtLength, latestSong, sidebarFoot, sidebarMode } from './chatScreen';
+import { committing, fillingKeys, fmtLength, latestSong, playerTake, sidebarFoot, sidebarMode } from './chatScreen';
 import { useChatStore } from './chatStore';
 import { ChatComposer } from './ChatComposer';
 import { ChatDraftFields } from './ChatDraftFields';
@@ -44,6 +44,7 @@ export function ChatView({ onForm, onLibrary }: Props) {
   const cards = thread?.messages.filter((m) => m.kind === 'song' || m.kind === 'version').length ?? 0;
   const song = useChatSong(thread?.songId, cards);
   const latest = latestSong(thread);
+  const take = playerTake(song);
   const [confirmNew, setConfirmNew] = useState(false);
   const assistantOn = assistantOffCause(status) === null;
   const mode = sidebarMode(thread, commit);
@@ -76,7 +77,7 @@ export function ChatView({ onForm, onLibrary }: Props) {
       <div className="chat-body">
         <div className="chat-main">
           <ChatThread songTitle={title} onForm={onForm} onLibrary={() => onLibrary(thread?.songId ?? null)} />
-          {song?.audio_file && <ChatPlayer key={song.audio_file} song={song} number={latest?.number ?? null} label={latest?.label ?? null} />}
+          {song && take && <ChatPlayer key={take} file={take} title={song.title} number={latest?.number ?? null} label={latest?.label ?? null} />}
           <ChatComposer turn={turn} assistantOn={assistantOn} committing={committing(thread, commit)} onType={chat.type} onSend={() => void chat.send()} />
         </div>
         <ChatSidebar
