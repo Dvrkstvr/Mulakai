@@ -8967,3 +8967,54 @@ the design (D-095), memory (D-081), ask or propose (D-082), engine
 
 1. **SP-4's listen**: do the splice joins and the audio-only REPEAT/CUT
    seams pass by ear (`pipeline/spikes/SP-4-keep-unchanged/listen`)?
+
+## Export a Score as MIDI (planned 2026-10-07)
+
+**Decision (project owner, 2026-10-07):** a YuE2 score (ABC) can be saved as
+a MIDI file. This is an export only. Mulakai still does not edit MIDI or
+play it back ("Why not just use the existing DAW", "No MIDI"); the `.mid`
+is for another tool (a DAW, notation software).
+
+**One converter.** `yue-server/score_midi.py` turns ABC into a type-1
+Standard MIDI File: track 0 has the tempo and every meter and key change,
+then one track and channel each for Vocal and Ins. Chord symbols are not
+rendered. It parses with upstream's `parse_abc`, so it accepts exactly the
+native two-voice dialect the score agent accepts, and rejects anything else
+with that parser's reason (decision 0002: only yue-server reads ABC).
+Standard library only; CPU only; it never waits for the worker.
+
+### Where a person gets one
+
+1. **The open song's score** (Editor): EXPORT gains a fourth WHAT,
+   **SCORE AS MIDI**, shown only for a song whose first take YuE2 made
+   (`songs.engine = 'yue2'`). Consequence line:
+   `Downloads <title>.mid · the score's Vocal and Ins melodies, not the
+   audio · chords left out`. The score is the active base version's
+   `.abc` sidecar (`loadScoreSource`); a take with none (an ACE-Step edit
+   replaced it) answers 404, said in the dock as "this take has no score".
+   The palette's DO list gets "Export score as MIDI" for those songs,
+   which opens EXPORT on that WHAT, like "Export stems".
+2. **A cover's score in Create** (transcribed, reused or USE .ABC FILE):
+   a **DOWNLOAD MIDI** button beside USE .ABC FILE once a score is there,
+   named `<source>.mid`.
+3. **Any .abc file**: the palette's DO item "Convert an .abc file to MIDI"
+   opens a file picker; the `.mid` downloads under the file's name. A file
+   in another ABC dialect shows the parser's reason.
+
+None of these generates or destroys anything, so the palette may run 3
+directly (the file picker is the confirmation).
+
+### File-level plan (one PR, `feat/abc-midi-export`)
+
+- yue-server: `score_midi.py` (+ `tests/test_score_midi.py`), and
+  `POST /v1/scores/midi` `{abc}` → `audio/midi`, 422 with the reason, in
+  `score_routes.py` (+ a route test).
+- Server: `services/score/yueScoreMidi.ts` (the client call),
+  `routes/scoreMidi.ts`: `POST /api/scores/midi` `{abc}` (64 KB cap, as
+  covers) and `GET /api/songs/:id/score/midi`; 422 passes yue-server's
+  reason through, an unreachable yue-server is 502 (+ tests).
+- Client: `api/` (`scoreMidi`, `songScoreMidi`), `dockRequest.ts`
+  (`'midi'`), `DockExportMidi.tsx` mounted by `DockExport.tsx`,
+  `useEditorCommands.ts`, `commandIndex.ts` / `useAppCommands.ts` (the
+  file item), `YueCoverPanel.tsx` (+ tests for the palette items).
+- DESIGN.md: EXPORT's fourth WHAT, in its own commit.
