@@ -374,3 +374,23 @@ The chat is to be the default way to create and edit songs: describe a song, or 
 ## D-080 · 2026-10-06 · stage 3 (SP-4) · by: assumed (conductor), pending the user's listen
 SP-4 machine verdicts (pipeline/spikes/SP-4-keep-unchanged/RESULT.md): the chat's default for local edits is A3, render then splice the changed bars back (groove-snapped downbeat cut, 1-beat equal-power crossfade, level-matched span); REPEAT/CUT become audio-only edits (C) with no YuE2 render; no ACE-Step seam healing (B disproven); D (YuE2 forced prefix) only if the listen finds the A3 joins. The PLAN.md chat draft's decision 6 now says so. Settled by the user's 20-pair listen (spikes/SP-4-keep-unchanged/listen); the cut points inside sung words (15 of 36) are the first thing to listen for.
 - instead of: whole-song re-renders for every turn (21-87% of untouched bars move > 1 dB today).
+
+## D-081 · 2026-10-06 · stage 1/4 (chat, Q-054 #2) · by: user
+The chat keeps one thread per song: stored in the database, survives reloads, deleted with the song; reopening a song continues its conversation (PLAN.md chat draft, decision 4).
+- instead of: per-session memory; one global thread.
+
+## D-082 · 2026-10-06 · stage 1/4 (chat, Q-054 #4) · by: user
+When a request is unclear the assistant proposes with its assumption stated ("assuming the second chorus") and asks only when it cannot propose anything.
+- instead of: asking before proposing; a follow-up question on every proposal.
+
+## D-083 · 2026-10-06 · stage 1/4 (chat, Q-054 #5) · by: user
+The assistant may propose ACE-Step instead of YuE2 for a first take when a request fits it better. Consequence: such a song is not score-eligible (D-006), so its later turns use the scalpel actions (repaint, add layer, split) and the SP-4 splice does not apply; the recipe card names the engine and says so in its consequence line. YuE2 stays the default (D-015).
+- instead of: YuE2 always; asking each time.
+
+## D-084 · 2026-10-06 · stage 1/4 (chat, Q-054 #3) · by: user
+A reference song's audio is kept with the song as its source after the analysis (re-analyze or A/B against it later); it stays on this machine.
+- instead of: deleting it after the analysis; referencing library songs only.
+
+## D-085 · 2026-10-06 · stage 1/4 (chat, Q-054 #6) · by: user
+Tempo and key edits offer both per turn: RE-RENDER (whole-song YuE2 render, the consequence line says the whole song changes) and SHIFT/STRETCH (pitch-shift / time-stretch of the current take, same performance). SHIFT/STRETCH is built only if a spike passes (SP-6, scheduled before C2's tempo/key turns); until then the card offers RE-RENDER alone.
+- instead of: re-render only; waiting on the spike before any tempo/key turn.

@@ -194,5 +194,5 @@ Two nits from pipeline/reviews/M2-code.md (D-075): #1 a line pick survives a REW
 ## Q-053 · deferred · stage 7 (M2 listen) · open
 The user heard REPEAT's second seam (the copy into the next section) as audible on Gertar (D-077; seam 1 smooth). One pair only; p2 unjudged. Options: leave it (YuE2 re-renders the whole song, seams are its call); try un-tying only into the copy (D-066 c alternative) and A/B; a REPEAT note in the review that the seam after the copy may be audible. Revisit with more listens.
 
-## Q-054 · blocking (for the chat feature, not for M2) · stage 1/4 · open
+## Q-054 · blocking (for the chat feature, not for M2) · stage 1/4 · partly answered: #2 → D-081, #3 → D-084, #4 → D-082, #5 → D-083, #6 → D-085; open: #1 Guided Create (mockup design/chat-create.html for the user's pick)
 Chat-first creation and editing (D-079). To settle with the user before scope: what the chat owns vs the scalpel tools; whether the chat replaces Guided Create or sits beside it; conversation memory across renders (per song? per session?); reference-song analysis path (transcribe to score → YuE2 cover) and its limits (licence of the reference, 360 s); what happens to M3/M4 (fold into the chat or keep). Depends on SP-4's result.

@@ -8798,7 +8798,7 @@ What a person does:
    warm, cold load 2.5 s; M2: median 4.8 s); replies are not streamed in
    C1. Alternative: a larger chat model (no room on 16 GB at 16k context;
    revisit with SP-5's numbers).
-4. **One thread per song, kept** (**owner**). The thread lives in SQLite
+4. **One thread per song, kept** (the owner's, D-081). The thread lives in SQLite
    (`chat_messages`: song, role, text, proposal JSON, the version it made),
    survives reloads and is deleted with the song. Before the first take
    the thread is a draft with no song; CREATE SONG attaches it. The LLM
@@ -8807,14 +8807,19 @@ What a person does:
    key, tempo, lyric blocks, style; the version list with labels), the
    pending proposal if any, and the last few turns. Pending proposals stay
    in memory like SCORE plans (`docs/decisions/0004`) and expire on
-   restart. Alternative: per-session memory only (lost on restart, against
-   "everything survives a reload").
+   restart.
 5. **The assistant writes lyrics; the score stays code's.** A `recipe`
    carries lyrics with section tags and a structure; YuE2 writes the score
    on the first take (its own planner, as today). The chat LLM never
    writes ABC; edits go through SCORE's ops, which yue-server applies
    (`docs/decisions/0002`). The language follows the request (the library
-   has German, Spanish and English songs).
+   has German, Spanish and English songs). When a request is unclear the
+   assistant proposes with its assumption stated ("assuming the second
+   chorus") and asks only when it cannot propose anything (the owner's,
+   D-082). **Engine** (the owner's, D-083): YuE2 by default; the assistant
+   may propose ACE-Step when a request fits it better, and the recipe card
+   then says the song will not be score-editable (scalpel turns only, no
+   splice).
 6. **How an edit turn renders depends on SP-4.** For a score-eligible
    song:
    - local edits (chords, a phrase, the words of one section): render,
@@ -8828,22 +8833,26 @@ What a person does:
    - structure edits (repeat, cut): an audio-only edit with no YuE2
      render (SP-4's C: sample-exact, about 0.2 s), if the listen accepts
      its seams;
-   - global edits (tempo, key, whole-song style): a whole-song re-render,
-     and the consequence line says so;
+   - tempo and key edits offer both (the owner's, D-085): RE-RENDER (a
+     whole-song YuE2 render; the consequence line says the whole song
+     changes) and SHIFT/STRETCH (pitch-shift or time-stretch of the current
+     take, same performance), the latter only if spike SP-6 passes (R-026);
+     whole-song style edits re-render;
    - if nothing passes: every edit re-renders the whole song, the card
      says so, and the thread offers "keep the old take for these bars" as
      an explicit splice the person listens to.
    A song that is no longer score-eligible (it has ACE-Step edits) gets
    `scalpel` proposals, or NEW SONG FROM THIS SCORE (M3, folded in here).
-7. **A reference song is analyzed, not copied** (**owner** for storage).
+7. **A reference song is analyzed, and kept** (the owner's, D-084).
    `analyze` runs what exists: lyrics-server's words, yue-server's
    transcriber (audio to a score with melody and chords), and ACE-Step's
    ANALYZE AUDIO (caption, tempo, key). The result is a reading card. The
    assistant then proposes either a **cover** (YuE2 from the transcribed
    score with new lyrics and style: the existing USE .ABC FILE path) or a
    **fresh song** whose recipe borrows tempo, key, structure and
-   instrumentation words. The reference audio stays on this machine; the
-   person is responsible for its rights.
+   instrumentation words. The reference audio is kept with the song as its
+   source (re-analyze it, or A/B the song against it) and never leaves this
+   machine; the person is responsible for its rights.
 8. **Every applied turn is a version.** The thread shows a version card
    per applied turn (label = the turn's change list, as SCORE labels
    today) with play, A/B against the previous version, and USE THIS
@@ -8856,7 +8865,7 @@ What a person does:
 
 | | What a person can do when it is done |
 |---|---|
-| C0 (spikes) | SP-4's verdicts (edit rendering), and **SP-5 chat planner**: on about 40 scripted conversations, does `qwen3:14b` pick the right action, write usable lyrics and recipes, and ask only when it must? Same method as SP-2. |
+| C0 (spikes) | SP-4's verdicts (edit rendering, machine half done; the owner's listen owed), **SP-6 shift/stretch** (D-085), and **SP-5 chat planner**: on about 40 scripted conversations, does `qwen3:14b` pick the right action, write usable lyrics and recipes, and ask only when it must? Same method as SP-2. |
 | C1 | The CHAT screen: describe a song, get a recipe card, edit it, CREATE SONG (YuE2 first take); the thread is kept with the song. |
 | C2 | Edit turns through SCORE (ops, checks, REVISE as a follow-up turn); version cards with A/B; rendering per decision 6. |
 | C3 | Reference songs: drop or pick, the reading card, cover or fresh-song proposals. |
@@ -8887,15 +8896,10 @@ becomes "Ask in chat".
 
 ### Open questions for the owner (Q-054)
 
-1. **CHAT replaces Guided Create, or sits beside it** (decision 1)?
-2. **Memory**: one kept thread per song (proposed), or per session?
-3. **Reference audio**: keep it with the song as its source, or delete it
-   after the analysis?
-4. **Ask or propose**: should the assistant mostly propose with stated
-   assumptions ("assuming the second chorus") and ask only when stuck
-   (proposed), or ask more before proposing?
-5. **Engine in the chat**: always YuE2 for first takes (D-015), with
-   ACE-Step only through the scalpel, or may the assistant propose
-   ACE-Step when a request fits it better?
-6. **Global edits** (tempo, key): accept a whole-song re-render, or spike
-   pitch-shift and time-stretch of the current take (SP-4's "later")?
+Answered 2026-10-06: memory (D-081), ask or propose (D-082), engine
+(D-083), reference audio (D-084), tempo and key (D-085). Still open:
+
+1. **CHAT beside Guided Create, replacing it, or the form inside the
+   chat** (decision 1): mockup `pipeline/design/chat-create.html`.
+2. **SP-4's listen**: do the splice joins and the audio-only REPEAT/CUT
+   seams pass by ear (`pipeline/spikes/SP-4-keep-unchanged/listen`)?

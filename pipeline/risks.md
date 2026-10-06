@@ -215,3 +215,8 @@ An edit changes parts of the song nobody asked to change: every SCORE apply re-r
 ### R-025 · impact M · evidence seen running (SP-4, 2026-10-06)
 ACE-Step repaint with an uploaded source works against the `acestep-api` server, not the `acestep --enable-api` launcher CLAUDE.md names: the launcher's `/release_task` ignores `src_audio` and answers 500 on a string `batch_size` (seen in code and running in SP-4). Which one the user's :8001 runs is unverified; the chat's scalpel (C4) and REPAINT rely on it.
 - check: confirm the :8001 launcher; fix CLAUDE.md's command or the client if they disagree.
+
+### R-026 · impact M · evidence hypothesis (2026-10-06)
+SHIFT/STRETCH (D-085): pitch-shifting a YuE2 take by up to ±2-3 semitones and time-stretching it by ±10-15% may sound processed (formants on the voice, transient smear on drums) next to a re-render.
+- check: SP-6, a short spike on 4 library songs with 2-3 DSP options (e.g. rubberband formant-preserving, a phase vocoder), measured key/tempo accuracy and an A/B listen vs the YuE2 re-render.
+- fallback: the card offers RE-RENDER only (D-085).
