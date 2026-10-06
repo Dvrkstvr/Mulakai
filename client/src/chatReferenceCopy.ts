@@ -1,7 +1,7 @@
 /** Every line C3's reference songs say (F-061..F-064, D-134, D-137, D-138; pipeline/design/chat-reference.html once
  * DT-C3 signs it off). C3's copy lives only here, beside `chatCopy.ts` (near its cap, D-136). Pure. */
 import type { ChatDraft, ChatDraftKey } from './api/chat';
-import type { ReadingPartSource } from './api/chatReferences';
+import { isNotRead, type ReadingPartSource, type ReadingView } from './api/chatReferences';
 import type { Attachment } from './chatAttachStore';
 import type { CardPhase } from './chatReading';
 import { fmtTime } from './dockTarget';
@@ -119,6 +119,51 @@ export function attachChipLine(a: Attachment): string {
   if (a.phase === 'uploading') return `UPLOADING ${Math.round(a.progress * 100)}%`;
   if (a.phase === 'failed') return a.reason;
   return a.seconds ? fmtTime(a.seconds) : 'ATTACHED';
+}
+
+/* CR-7a: ATTACH ▾, the drop target, the READ card and the reading card (design/chat-reference.html 1a-2g, D-141). */
+export const ATTACH_FILE_HINT = 'an audio file from this computer';
+export const ATTACH_LIBRARY_HINT = 'a song you made';
+export const LIBRARY_SEARCH = 'Search your library…';
+export const LIBRARY_EMPTY = 'no songs match';
+export const LIBRARY_LOADING = 'LOADING…';
+export const LIBRARY_FAILED = "COULDN'T LOAD THE LIBRARY · FILE… still works ·";
+export const ATTACH_OFF = 'references attach to a new song: start NEW CHAT and attach it there';
+export const DROP_TITLE = 'DROP A SONG TO WORK FROM';
+export const DROP_FORMATS = 'MP3 · WAV · FLAC · M4A · OGG · copied here, stays on this machine';
+export const ANALYZE_HEAD = 'READ · A SONG TO WORK FROM';
+export const ANALYZE_TAIL = 'nothing is saved to your library';
+export const READ_AGAIN = 'READ AGAIN';
+export const SEND_WAITS_READING = 'SEND waits for the reading and its proposal · your text stays';
+export const SEND_WAITS_UPLOAD = 'SEND waits for the upload · your text stays';
+export const PROPOSING_TAIL = '· the assistant proposes from the reading · nothing runs yet';
+export const NO_SCORE = 'no score was read';
+export const SCORE_TOO_LONG = 'the score is longer than YuE2 plans in one take';
+/** What READ will do with a library song, on its ATTACH ▾ row (D-137): a YuE2 song has its own score. */
+export const libraryRowHint = (engine: string | null | undefined) =>
+  engine === 'yue2' ? 'its own score and words, no GPU' : 'score transcribed on the GPU';
+export const libraryRowMeta = (seconds: number | null, engine: string | null | undefined) =>
+  [seconds ? fmtTime(seconds) : null, engine === 'yue2' ? 'YUE2' : 'ACE-STEP'].filter(Boolean).join(' · ');
+export const analyzeMeta = (seconds: number | null, origin: 'upload' | 'library') =>
+  [seconds ? fmtTime(seconds) : null, origin === 'library' ? 'library' : 'uploaded'].filter(Boolean).join(' · ');
+export const analyzeDone = (name: string) => `${READ} · ${name} · THE READING IS BELOW`;
+export const readingHead = (name: string) => `READING · ${name}`;
+export const sentAttach = (name: string) => `◉ ${name}`;
+export const wordsSummary = (lines: number, language: string | null, instrumental: boolean) =>
+  instrumental ? `none heard · ${INSTRUMENTAL}` : [`${lines} lines`, language?.toUpperCase(), 'sung'].filter(Boolean).join(' · ');
+export function scoreSummary(h: { bars: number; meter: string; key: string; bpm: number } | null, chords: boolean | null): string {
+  const c = chords === true ? 'chords read' : chords === false ? 'no chords' : 'chords not known';
+  return h ? `${h.bars} bars · ${h.meter} · ${h.key} · ${h.bpm} BPM · ${c}` : `read, its facts could not be parsed · ${c}`;
+}
+export const captionFacts = (c: { bpm: number | null; key: string | null; meter: string | null }) =>
+  [c.bpm ? `${c.bpm} BPM` : null, c.key, c.meter].filter(Boolean).join(' · ');
+/** Why a cover is not possible from this reading, as far as the card can tell (the server's `coverVerdict` decides at
+ * CREATE COVER): no score, or a measured score over YuE2's plan budget (D-140 e: unmeasured counts as fitting). */
+export function coverBlock(r: ReadingView): string | null {
+  if (isNotRead(r.score)) return NO_SCORE;
+  const m = r.score.measure;
+  if (m && m.header + m.sections.reduce((n, s) => n + s.tokens, 0) > m.budget) return SCORE_TOO_LONG;
+  return null;
 }
 
 /* CR-7b: the cover and borrow cards, a missing field, A/B (chat-reference.html 3a, 3b, 4a; D-141). */

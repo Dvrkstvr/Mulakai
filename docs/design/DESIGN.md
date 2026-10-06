@@ -1018,6 +1018,57 @@ requiring its own justification against a screen-count rule.
      VERSIONS row. Collapsed, it is a 38px rail counting the filled fields;
      the open/closed state is remembered per browser. The sidebar never
      commits: its foot points at the card.
+   - **Reference songs** (added 2026-10-07, chat C3; spec
+     `pipeline/design/chat-reference.html`, D-141). A song reaches the
+     draft thread three ways: dropped on the thread column (a 2px dashed
+     sky edge over the column only, the sky tint at 55%, "DROP A SONG TO
+     WORK FROM"), or **ATTACH ▾** left of the composer's field (an outlined
+     choice parallelogram) with FILE… and FROM LIBRARY…: a 420px menu above
+     the composer whose library rows say what READ will do before the
+     click ("its own score and words, no GPU" for a YuE2 song), the row
+     under the pointer in the sky selection wash. ATTACH ▾ is greyed on a
+     song's thread (D-130). One chip at a time sits above the field:
+     uploading (a 3px `text-mid` bar and its share), attached (name and
+     length), or failed in rust with the server's reason; ✕ removes it.
+     The sent message keeps a `text-low` ◉ mark with the name. SEND waits,
+     its reason above the field, while a file uploads and from READ until
+     the follow-up proposal lands.
+   - **The READ card** is a proposal card: the name, length and origin,
+     the 360 s note for a longer file, "reads the base layer only" for a
+     layered library song, the rights line in `text-low` ("Stays on this
+     machine. You are responsible for the rights to this recording."),
+     and the consequence line left of **READ**, the card's one acid fill.
+     The line names no GPU seconds until they are calibrated (it says
+     "uses the GPU", or "uses no GPU" when nothing runs there). Pressed,
+     READ keeps its label and turns off; a refusal is a rust line inside
+     the card and READ is live again. Superseded and expired dim to 45%
+     without a button; done folds to one dimmed header line above the
+     reading card.
+   - **The reading card** stays plain while it works (reading is not
+     generation, so no shader): a WORDS › SCORE › CAPTION strip of small
+     parallelograms (done in `text-mid`, the current one on `line-hi`),
+     one job line with CANCEL, dashed while queued. Done, it lists WORDS
+     (line count, language, or "instrumental: there are no words"),
+     SCORE (bars, meter, key, tempo, chords) with its sections as a row
+     of small parallelograms, and CAPTION, each with its source in
+     `text-low`. A part not read is a rust-bordered line naming its cause,
+     never an empty row; a file that could not be read is a rust box.
+     Then "COVER POSSIBLE" or "NO COVER · why", the rights line, and while
+     the follow-up turn runs, PROPOSING… under the card with CANCEL. After
+     a failure or a cancel, READ AGAIN is a plain choice button with its
+     consequence line beside it.
+   - **The cover and borrowed fields** (CR-7b): a cover card is the
+     recipe card with **CREATE COVER** (acid) and its consequence (melody
+     kept, YuE2, "the new words are fitted by YuE2, not guaranteed");
+     its tempo, key, meter and structure carry a neutral `▣ FROM THE
+     SCORE` tag and refuse a hand edit with the reason. A borrowed field
+     gets the assistant's sky wash when filled, then keeps a neutral
+     REFERENCE tag (`text-mid` hairline chip, no hue) until the person
+     edits it (option B); a value the reference lacks stays blank with
+     its note. On a song's thread the sidebar lists the reference (name,
+     length, read date, rights line) with RE-ANALYZE (plain, its own
+     consequence line), and the player's lilac pill swaps REFERENCE ⇄
+     SONG at the same seconds.
 
 ### Side panels (Create + Editor)
 
@@ -1360,7 +1411,11 @@ ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
 AFTER 1 JOB`, or a dock job line reading `QUEUED`) stays plain, since
 nothing is working on it yet. TRANSCRIBE
 and READ LYRICS stay plain: SheetSage2 reads
-notes and lyrics-server reads words; neither describes or generates. So do
+notes and lyrics-server reads words; neither describes or generates. The
+chat's reading card (WORDS › SCORE › CAPTION) stays plain for the same
+reason, also during its CAPTION step, and so does the PROPOSING… line
+under it (the follow-up turn; the card does not tell queued from
+thinking, so it never claims the GPU is working). So do
 their Activity rows, and those for word timings and stem splits.
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)
