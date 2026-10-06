@@ -36,6 +36,9 @@ e2e and say so; never stop a process you did not start.
 Run again at stage 6 (chat C0), 2026-10-06, on `docs/chat-c0` (code = `origin/main` ff69f2e; all exit 0): client build (chunk-size
 warning only), lint (the same 1 warning), client 104 files / 839 tests, server tsc clean, server 93 files / 812 tests, yue-server
 422 passed (Windows Python 3.14, 1 warning), e2e 11 passed in 1.1 min (golden path + queue + score projects; ports were free).
+Run again at stage 6 (chat C3), 2026-10-07, on `docs/chat-c3` (code = `origin/main` 98b9179; all exit 0): client build (chunk-size
+warning only), lint (the same 1 warning), client 117 files / 974 tests, server tsc clean, server 118 files / 1017 tests, yue-server
+422 passed (1 warning), e2e 12 passed in 1.1 min (ports were free).
 From CB-1 on, yue-server's pytest needs numpy and scipy: `pip install -r requirements-test.txt` again once.
 CI runs e2e (`.github/workflows/e2e.yml`) and the unit suites, typechecks, lint and pytest (`.github/workflows/checks.yml`, Python 3.12).
 
@@ -84,6 +87,18 @@ CI runs e2e (`.github/workflows/e2e.yml`) and the unit suites, typechecks, lint 
 - **Fakes:** `fakeOllama.ts` + `server/test-fakes/chatScripts.ts` (scripted turns), `fakeYue.ts` (+ splice replay in CB-3); pytest
   `FakeTracker` for SheetSage2. The chat e2e spec is F-051 (C1); C0 keeps the golden path unchanged.
 
+### Chat: run & verify (C3, reference songs)
+- **Environment:** as C0, plus SheetSage2 on yue-server (`GET /v1/transcriptions/health` 200), `LYRICS_API_URL` (lyrics-server;
+  unset = WORDS "not read") and ACE-Step on `ACESTEP_API_URL` with `ACESTEP_OFFLOAD_TO_CPU=true` (down = CAPTION "not read").
+  No new variable. Reference copies land in `<DATA_DIR>/audio/references/`.
+- **CP-C3 (after CR-4, beside CR-7a/b, headless):** copy `server/data` to a throwaway folder on E:; start the server with
+  `PORT=3201`, `DATA_DIR=<copy>`, `YUE_API_URL`, `LLM_API_URL`, `LYRICS_API_URL`; then `cd server && npx tsx scripts/chatCp3.ts
+  --server http://127.0.0.1:3201 [--refs <folder of the owner's recordings>]`. Without `--refs` it uploads ACE-Step library songs'
+  audio as stand-ins (Q-095). Evidence in `pipeline/cp-c3/<date>/` (log.json, nvidia-smi.csv). Stop lines: architecture.md
+  "Test strategy (C3)" item 6.
+- **Agent eyes:** the `server-chat` launch entry (+ `LYRICS_API_URL`) and the client; drop a file with the browser pane's file
+  input (read the ATTACH control with `find`), then READ, the reading card, the cover card; 1366×768 and 1920×1080.
+
 ## Quality bar (track: standard)
 - Vitest test for every behavior change (AGENTS.md); one Playwright golden path per phase
 - module target 150 LOC, hard cap 200
@@ -92,7 +107,7 @@ CI runs e2e (`.github/workflows/e2e.yml`) and the unit suites, typechecks, lint 
 - CI (`.github/workflows/e2e.yml`) green on the PR **and** on the push to main before the next merge (R-012)
 - score agent: every pure module (architecture.md) lands with its tests in the same PR, and each is broken on purpose once to see a test fail (spec-first)
 - the GPU hand-off is never weakened: a `plan` job releases its slot only after `/api/ps` is empty (F-020); CP1 numbers are logged before W3
-- stored data: score versions carry `score_v`, chat drafts `draft_v`, card bodies `chat_v`, grid sidecars `grid_v`, splices `splice_v`; shape changes bump it with a migration-named test (architecture.md "Data", "Data (chat)")
+- stored data: score versions carry `score_v`, chat drafts `draft_v`, card bodies `chat_v`, grid sidecars `grid_v`, splices `splice_v`, readings `reading_v`, library snapshots `own_v`; shape changes bump it with a migration-named test (architecture.md "Data", "Data (chat)", "Data (C3)")
 - chat: a turn holds one `plan` slot and unloads before release on every path; an edit splice never saves silently on a failed join (D-101)
 
 ## Voice & conventions

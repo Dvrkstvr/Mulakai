@@ -221,7 +221,7 @@ Q-073 a pending REWRITE LYRICS shows its diff twice: OLD | NEW on the proposal c
 ## Q-078 · assumable · stage 4 (chat C0) · assumed
 In C0 a request naming a section the song lacks ("the bridge" on a song without one) gets a `say` that lists the song's sections, not a proposal.
 
-## Q-079 · deferred · stage 5 (C3 design) · open
+## Q-079 · deferred · stage 5 (C3 design) · assumed → D-134 (stage 6, 2026-10-07; the owner may reword it on DT-C3)
 The reading card's wording on the rights of a reference song.
 
 ## Q-080 · assumable · stage 6 (chat C0, F-047) · assumed → D-109
@@ -241,3 +241,21 @@ Minor live findings (c0a-live.md): (a) the saved song reads 70 BPM / Eb major ag
 
 ## Q-090 · blocking-later · stage 7 (C0a live) · open
 The owner saw a chat-made song still shown as running in the Library. Not reproduced by the verifier in 3 paths (c0a-live.md section 3); suspect paths: adopt() skips while a provisional jobId '' card is loading (generationStore.ts:100), pollJob keeps polling on non-404 errors. Need from the owner: which screen/row showed "running", whether a reload cleared it, and `curl http://127.0.0.1:3001/api/generate/active` at that moment.
+
+## Q-091 · assumable · stage 6 (chat C3, F-063/F-064) · assumed → D-128
+"Like this, but in German": a cover (the same melody, new words) or a new song in its style? Default: a cover when the reading is coverable, the assumption stated; "a song like this" / "with this vibe" is a new song. The person says "no, a new song" to switch.
+
+## Q-092 · assumable · stage 6 (chat C3) · assumed → D-129
+After a reading, does the assistant propose on its own (a follow-up turn queued by the server) or wait for the next message? Default: on its own.
+
+## Q-093 · assumable · stage 6 (chat C3) · assumed → D-130
+May a reference be attached to an existing song's thread in C3? Default: no, the draft thread only; a song made from a reference keeps it (RE-ANALYZE, A/B).
+
+## Q-094 · assumable · stage 6 (chat C3, R-028) · assumed → D-135
+The caption step needs ACE-Step running and may leave its models on the GPU before the next turn. Default: run it when ACE-Step answers, measure the planner's residency in CP-C3; drop the step if it slows turns.
+
+## Q-095 · deferred · stage 6 (chat C3, CP-C3 / CR-9)
+Will the owner give 3 recordings he has the rights to (one sung pop song, one instrumental, one not in English) for CP-C3 and the live run? Until then CP-C3 uploads ACE-Step library songs' audio as stand-ins, which are cleaner than real recordings, so the transcription numbers flatter real use.
+
+## Q-096 · deferred · stage 6 (chat C3)
+A reading whose score is longer than YuE2 plans in one take offers no cover (the reason, and a new-song option). Guided Create's COVER lets the person pick sections instead (PLAN.md "YuE2 Covers: Pick the Score's Sections"); the chat's equivalent is Later unless CP-C3 shows most real songs hit it.

@@ -485,3 +485,239 @@ moves) → splice pytest goldens + CP-C0's null test and LUFS + the owner's list
      splice → version; then `splice_check.py` in WSL on each saved file. Stop lines (scope): edit wall time > 4 min, a null
      test failing, join LUFS excess > 1 dB on 3 of 3 songs.
 9. **Regression net**: every existing suite green on every PR; the golden path unchanged (run 2026-10-06, playbook).
+
+---
+
+# Chat (C3) — reference songs
+
+<!-- Stage 6, 2026-10-07. Scope: C3 = F-061..F-065 (scope.md "C3"), moved ahead of C0b/C1/C2 by the owner (D-125).
+     Builds on C0a as merged (#147-#157, main 12f0b89); C0b's modules above are not built yet and C3 does not need them.
+     Evidence labels: (code) seen in code on main, (run) seen running, (doc) documented, (inf) inferred. LOC are estimates;
+     target 150, cap 200. Decisions D-126..D-138, questions Q-091..Q-096, risks R-028/R-029. -->
+
+## Shape in one paragraph
+
+Nothing new runs anywhere: every service C3 calls already serves Guided Create's COVER (code). The person attaches a file or
+a library song in the **draft thread**; a turn answers `analyze` (SP-5's action, today redirected) with a READ card; READ
+queues **one `transcribe`-kind job, label `chat reading`**, that runs the reading plan WORDS > SCORE > CAPTION inside one
+queue slot (lyrics-server, yue-server SheetSage2, ACE-Step ANALYZE AUDIO; a YuE2 library song reads its own score and words
+with no GPU at all) and saves a versioned `Reading` (D-126, docs/decisions/0008). The server then queues the **follow-up
+turn** itself (D-129): the original request again, with a REFERENCE block in the state, allowed actions ask / recipe / say.
+The model answers one `recipe` with `reference_use: cover | borrow | none` (D-128); **code** fills the borrowed fields from
+the reading and marks them, the model writes title, style and words. CREATE COVER is CREATE SONG's own path with the
+reading's score as `cover` (today's USE .ABC FILE request, cot `melody`); CREATE SONG with borrowed fields is unchanged.
+The reference is a copy on disk in a `chat_references` row of the thread, so it follows the thread to the song (D-084,
+D-127). F-065 is the score agent's eligibility and render mode (D-132): covers, instrumentals and chord-free scores become
+SCORE-editable on the dock now; chat edit turns on them come with C0b's CB-2.
+
+## The flow, end to end
+
+1. **Attach** (draft thread only, D-130): drop a file on the thread or ATTACH ▾ FILE… / FROM LIBRARY…. A file uploads at
+   once (`POST …/references`, multipart, `config.coverMaxUploadMb`): probed with `readAudioDuration` (code); unreadable →
+   400 with a rust reason (F-061 edge), nothing stored. A library pick (`POST …/references/library {songId}`) copies the
+   base layer's active take (D-137) and snapshots the song's own score sidecar, lyrics, caption, bpm, key and meter. Either
+   way the composer shows a chip (name, length, ✕); SEND carries `attach: {referenceId}` on the user message.
+2. **Turn**: the prompt gains `ATTACHED: "<name>" (3:12, not read yet)` (SP-5's prompt already names an ATTACHED file,
+   code: chatRules.ts). A title named in words resolves against LIBRARY too (`referenceResolve`). Reply `analyze` →
+   an **analyze card** (proposal kind `analyze`): what will be read, "uses the GPU about N s, changes nothing", the rights
+   line, READ. Unresolvable reference → `say` naming what is attached and the ATTACH control. On a song thread → `say`
+   pointing to NEW CHAT (D-130).
+3. **READ** (`POST …/read {proposalId}`): proposal alive, a library target materialised (copy), `gpuGuard` (no planner
+   model loaded unless a `plan` job holds the slot, the check CREATE SONG makes today, extracted), then `startReading`.
+   The analyze card becomes `done`; a **reading card** is appended with the job id (queued "STARTS AFTER n", reading
+   "WORDS > SCORE > CAPTION" with the current step, CANCEL).
+4. **Reading job** (one slot): trim to the first 360 s into a temp file when longer (D-138) → WORDS (lyrics-server
+   `transcribeLyrics`, else the library song's own lyrics; `LYRICS_API_URL` unset → `not read: LYRICS_API_URL is not set`)
+   → SCORE (the YuE2 library song's own ABC, else yue-server transcription with `chords: true` (D-131), then
+   `/v1/scores/read` for facts and `/v1/scores/measure` for the cover budget) → CAPTION (ACE-Step `analyze_audio` when its
+   health answers (D-135), else the library song's own caption/bpm/key, else `not read: ACE-Step is not running`). A part
+   that fails is `not read: <why>`, never empty; the job fails only when the file cannot be read at all. CANCEL between
+   steps; a running transcription is cancelled through the existing `stopTranscription` drain. Temp files removed on
+   every exit. The `Reading` is written to the reference row and snapshotted into the reading card's body.
+5. **Follow-up turn** (D-129): `startChatTurn(thread, originUser, null, deps, {followUp: referenceId})`; the reading
+   card's `job_id` moves to the turn's job so a reload shows "PROPOSING…" under it. SEND stays off (409 `TURN_OPEN`) from
+   READ until this turn settles. The state block carries REFERENCE (≤ 1,800 chars): name, length read, tempo / key /
+   meter with their source, sections with bars and line counts, first sung line per section, caption, words' language,
+   instrumental or not, and `cover: possible` or `cover: not possible (<reason>)`.
+6. **Proposal**: `recipe` + `reference_use`. `referenceRecipe` (pure) applies it: **cover** → bpm, key, meter and
+   structure from the score (locked, "FROM THE SCORE"), lyrics one entry per score section, card CREATE COVER with
+   "keeps the melody, new words and style; renders on YuE2 from the transcribed score, about N min · the new words are
+   fitted by YuE2, not guaranteed" (F-063); **borrow** → bpm, key, meter, structure from `readingFacts` (marked
+   REFERENCE), a missing value left blank with "no key found in the reference" (F-064 edge), CREATE SONG as today;
+   `cover` on a non-coverable reading → `borrow` with the reason said (F-063 edge).
+7. **CREATE COVER**: `createFromDraft`'s cover branch: reference and reading alive, `coverVerdict` ok, `gpuGuard`, then
+   `startEngineGeneration(yue2Engine, fields, title, undefined, {abc: reading.score.abc, source: reference.name}, onSaved)`
+   (code: the `cover` argument exists and records `task_type: 'cover'` and `source`). `onSaved` attaches the thread as
+   today, so the reference rows follow it to the song.
+8. **Song thread afterwards** (F-062): the sidebar's song panel lists the reference (name, length, read date) with
+   RE-ANALYZE (its own consequence line, `POST /api/chat/references/:id/read`, no proposal) and A/B in the player
+   (REFERENCE ⇄ SONG at the same seconds, clamped). The REFERENCE block stays in the song thread's state for context.
+
+## Modules — server
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| **db/chatSchema.ts** (changed) | `chat_references` table + index (Data below) | — | +20 | Vitest: a C0a DB opens, the table appears; cascade from the thread |
+| **chat/chatTypes.ts** (changed; CR-1 owns all C3 type additions) | `MessageKind` + `analyze`, `reading`; `AnalyzeBody`, `ReadingBody`, `UserBody.attach`, `RecipeBody.reference`; `Proposal` kind `analyze`; `Recipe.reference_use?`; `Draft.reference?`, `Draft.borrowed?`, `Draft.missing?` (additive, `draft_v` stays 1) | yes | +30 | tsc |
+| **chat/reading.ts** | the `Reading` type (`reading_v: 1`), `readReading(raw)` (raw blob in; unknown version → null and "read again"), `readingFacts(reading)` → `{bpm, key, meter, structure, instrumentation, instrumental, sources, missing[]}` (rule: ACE-Step's tempo/key, else the score header; structure from the score's sections), `coverVerdict(reading)` → ok or reason (score read ok, every section inside the measure budget) | yes | 130 | Vitest: v0/unknown blob, every missing part, the cover verdicts |
+| **chat/referenceRules.ts** | what an upload must be (size, probed length > 0), `readSpan(seconds)` → `{to: min(s, 360), cut}`, `readingEstimate(plan, seconds)` → GPU seconds per step (constants calibrated in CP-C3) | yes | 60 | Vitest |
+| **chat/referenceStore.ts** | rows + files: `fromUpload`, `fromLibrary(songId)` (copy the base active take, snapshot `own_json`), `list(threadId)`, `get`, `setReading`, `sweepFiles()` (delete files in `references/` with no row) | no (DB, files) | 140 | Vitest on temp DATA_DIR |
+| **chat/readingPlan.ts** | source → the steps and where each runs: YuE2 library song: own words, own score, own caption (no GPU); other library song: own words/caption, transcribed score; upload: lyrics-server, transcription, ACE-Step; a service unset → that step `skip: <why>` | yes | 60 | Vitest table |
+| **chat/readingSteps.ts** | the three step runners over injected clients (`transcribeLyrics`, `runTranscription` + `readScore` + `measureScore`, `analyzeAudio`), each → its part or `{notRead}`; progress text per step | no (deps injected) | 120 | Vitest with stubs: each part failing alone |
+| **chat/readingJob.ts** | `startReading(referenceId, {threadId, onRead})`: `queueJob({kind: 'transcribe', label: 'chat reading'})`; trim temp (ffmpeg) → plan → steps → `setReading` + reading-card body → `onRead`; cancel between steps; temps removed in `finally` | no | 120 | Vitest with fakeYue transcriptions: done, partial, cancelled, unreadable file |
+| **chat/gpuGuard.ts** | the "no planner model loaded unless a `plan` job holds the slot" check, moved out of `createFromDraft` (one implementation for CREATE SONG, CREATE COVER, READ) | no | 30 | Vitest |
+| **chat/referenceResolve.ts** | `analyze.reference` + the user message's `attach` + library rows → `{referenceId}` / `{songId}` / `{reason}` (attach first; then exact, then case-insensitive title; two matches → reason) | yes | 50 | Vitest |
+| **chat/referenceTurn.ts** | prompt lines: `ATTACHED:` for an unread attach, the REFERENCE block from `readingFacts` + the reading (≤ 1,800 chars, cut per section) | yes | 90 | Vitest: the block of a 200-bar transcription stays ≤ 1,800 chars |
+| **chat/referenceRecipe.ts** | `recipe` + reading + `reference_use` → `{recipe, reference, borrowed, missing, note}`: overrides the borrowed fields, maps score sections to the closed tag list (`% label` → tag, unknown → Verse), cover lyrics one per section; `coverBlockers(draft, reading)` | yes | 120 | Vitest: the model's key never survives a missing key; cover on a non-coverable reading → borrow + reason |
+| chat/turnActions.ts (changed) | `TurnState` + `attached`, `referenceRead`, `followUp`; a follow-up allows ask / recipe / say only | yes | +12 | Vitest table |
+| chat/actionSchema.ts (changed) | `recipe.reference_use` enum, present only when a reading exists | yes | +10 | Vitest |
+| chat/chatRules.ts (changed) | the REFERENCE rule text: cover = the same song with new words or style ("like this, but in German", "sing it about…"); borrow = a new song in its style ("a song like this", "with this vibe"); unsure and a cover is possible → cover, said in assumptions (D-128) | yes | +8 | snapshot |
+| chat/turnPrompt.ts, chat/songStateSource.ts (changed) | ATTACHED / REFERENCE lines in the user message; `gatherTurnState(thread, deps, {attach, followUp})` reads the thread's references | — | +15 / +20 | Vitest |
+| chat/turnDispatch.ts (changed) | `analyze` → resolved: analyze card + proposal; else `say`; `recipe` with a reading → `referenceRecipe` then `applyRecipe` | yes | +30 | Vitest per branch |
+| chat/draftModel.ts (changed) | keeps `reference`, `borrowed`, `missing`; a hand edit of a borrowed field clears its mark (it becomes YOURS); a locked cover field refuses a hand edit with the reason | yes | +20 | Vitest |
+| chat/turnJob.ts (changed) | option `followUp` (no user message written; request = the origin's text); an `analyze` dispatch registers its proposal | no | +10 (→ ~182, under the cap) | Vitest with fakeOllama: the follow-up unloads like any turn |
+| chat/proposalStore.ts (changed) | proposal kind `analyze` (its own slot per thread, superseded by the next analyze) | no | +8 | Vitest |
+| **chat/readCommit.ts** | READ at the click (alive, resolve/materialise, `gpuGuard`, `startReading` with `onRead` = the follow-up turn) and RE-ANALYZE (`gpuGuard`, `startReading`, a new reading card, no follow-up turn) | no | 80 | Vitest |
+| chat/createFromDraft.ts (changed) | the cover branch (`coverBlockers`, `cover` argument), `gpuGuard` | no | +15 | Vitest with fakeYue jobs |
+| chat/messageView.ts (changed) | states for the analyze card (pending, superseded, expired, done) and the reading card (queued, reading, done, failed, cancelled, interrupted, then the follow-up's thinking) | yes | +20 | Vitest table |
+| **routes/chatReferences.ts** | `POST /api/chat/threads/:id/references` (multipart `audio`), `POST …/references/library {songId}`, `GET …/references`, `POST /api/chat/threads/:id/read {proposalId}` → 202 `{jobId}` or 409 `{reason}`, `POST /api/chat/references/:id/read` → 202 | no | 120 | supertest pattern |
+| routes/chat.ts, routes/chatTurns.ts (changed) | `ThreadView.references`; NEW CHAT sweeps files · the turn body's `attach` | — | +8 / +6 | existing route tests + cases |
+| services/transcribeJobs.ts (changed) | the poll loop exported as `runTranscription(job, engine, source, opts)` so the reading reuses it; `startTranscription` unchanged | — | ±0 | existing tests |
+| services/engineTranscribeClient.ts (changed) | `transcribe(…, {chords})` form field | — | +3 | existing tests + case |
+| services/transcode.ts (changed) | `trimAudio(src, dst, seconds)` (ffmpeg `-t`) if absent | — | +15 | Vitest on argv |
+| services/trashSweep.ts, index.ts (changed) | `sweepFiles()` after a permanent delete and at start; mount `chatReferencesRouter` | — | +3 / +3 | trashSweep test |
+| server/test-fakes/fakeYue.ts, chatScripts.ts (changed) | `/v1/transcriptions` replay from `yue-server/tests/data/contract/transcription-*.json` (done with chords, failed, hold); scripted analyze / cover / borrow replies | — | +40 / +30 | — |
+| **server/scripts/chatCp3.ts** | CP-C3 driver over the HTTP API (reuses `chatCp0Run.ts` / `scoreCp1Lib.ts`: Ollama proxy, GPU sampler) | no | 150 | it is the check |
+
+**F-065, score half (D-132)** — `score/`, `engines/`, the dock:
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| score/scoreEligibility.ts (changed) | admits `genTask: 'cover'`, instrumental lyrics and a chord-free read; keeps layers, repaint, no saved score | yes | −6 | Vitest: the three cases flip to eligible |
+| **score/renderMode.ts** | `{chordsPresent, ops}` → `{cot, reason}`: chords present or any REHARMONIZE → `full`, else `melody` | yes | 30 | Vitest table |
+| engines/yue2Score.ts, score/scoreRenderJob.ts, score/planTypes.ts, score/planJob.ts (changed) | the plan carries `renderMode` (computed where the plan is built); the render request uses its `cot` (was always `full`) | — | +12 | existing tests + cases |
+| score/scoreLimits.ts (changed) | REWRITE LYRICS on a song with no lyric blocks → refusal "this song is instrumental: there are no words to rewrite" | yes | +6 | Vitest |
+| client/src/scoreCopy.ts, client/src/YueScoreReview.tsx (changed) | the review names the render mode ("renders the melody only, no chords" / "adds chords: renders with chords") | — | +10 | Vitest on copy; browser check |
+| yue-server/score_ops.py (only if its new pytest fails) | REHARMONIZE writes chords into a chord-free score | yes | ? | pytest: apply on a chord-free fixture |
+
+**yue-server (D-131)**: `transcriber.py` `run(…, chords=False)` drops `--melody-only` when asked (and `--render-audio`: a
+reading needs no piano preview); `transcribe_routes.py` takes a `chords` form field (default false, so Guided Create's
+COVER is unchanged); pytest + recorded contract fixtures for the TS fake. CB-1's grid run reuses the same flag. That
+SheetSage2 writes chord symbols without `--melody-only` is read from the transcriber's docstring (inf); if the real run
+shows none, the reading says "chords: not read" and nothing else changes.
+
+## Modules — client (`client/src/`, flat)
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| **api/chatReferences.ts** | upload (FormData, progress), library pick, list, read, re-read; wire types `ReferenceView`, `ReadingView` | no | 80 | — |
+| api/chat.ts (changed) | `MessageKind` + analyze / reading, the new bodies, `ThreadView.references`, the turn body's `attach` | — | +15 | tsc |
+| **chatPoll.ts** | job polling and rehydration moved out of `chatStore.ts` (200/200 LOC today, D-136), first, as its own refactor commit | no | 70 | the existing chatStore tests, moved |
+| chatStore.ts (changed) | `send(text, attach?)` | no | −60 +5 | Vitest |
+| **chatAttachStore.ts** | the composer's pending attachment per thread: uploading (progress) → attached / failed with the reason; cleared on SEND or ✕ | no | 90 | Vitest with a mocked api |
+| **chatReading.ts** | the reducer for the analyze and reading cards (pending, superseded, expired, queued "STARTS AFTER n", reading step k "WORDS > SCORE > CAPTION", done, partial, failed, cancelled, interrupted, then "PROPOSING…") from `MessageView` + job polls | yes | 110 | Vitest: one test per transition |
+| **chatReferenceCopy.ts** | all C3 copy: READ's consequence, the rights line (D-134), not-read lines, the 360 s note, instrumental, CREATE COVER's consequence, REFERENCE / FROM THE SCORE marks, missing-field notes, RE-ANALYZE's consequence | yes | 110 | Vitest |
+| **chatAb.ts** | the A/B position clamp and which source plays (C0b's CB-5 adds versions to it) | yes | 40 | Vitest |
+| **useChatPlayback.ts** | a source swap that keeps position and play state (C0b reuses it for versions) | no | 70 | Vitest |
+| **ChatAttach.tsx** | ATTACH ▾ (FILE… / FROM LIBRARY… with the library list), the drop zone over the thread column, the chip | no | 120 | browser pane |
+| **ChatAnalyzeCard.tsx**, **ChatReadingCard.tsx** | the READ proposal card; the reading card (steps line; WORDS, SCORE with sections and chords, CAPTION; not-read lines; cover possible or why) | no | 80 / 130 | browser pane |
+| **ChatReferencePanel.tsx** | the sidebar's references: name, length, read date, RE-ANALYZE with its consequence line, A/B | no | 90 | browser pane |
+| ChatThread, ChatComposer, ChatRecipeCard, ChatDraftFields, ChatSidebar, ChatPlayer (changed) | render the new kinds; the chip slot and drop; the cover variant (CREATE COVER) and the borrowed marks; REFERENCE / FROM THE SCORE field marks and locked cover fields; the panel; the REFERENCE ⇄ SONG pill | — | +10..+25 each | browser pane |
+| chatReference.css, chatReferenceSong.css | styles from DESIGN.md tokens, imported by ChatAttach / ChatReferencePanel, so the two UI packages never share a stylesheet | — | — | review |
+
+### Feature → modules
+
+| Feature | Modules |
+|---|---|
+| F-061 read a file or a library song | chatSchema, referenceRules, referenceStore, routes/chatReferences, readingPlan, readingSteps, readingJob, reading, gpuGuard, referenceResolve, turnDispatch (analyze), readCommit, messageView, transcriber `chords`; api/chatReferences, chatAttachStore, chatReading, chatReferenceCopy, ChatAttach, ChatAnalyzeCard, ChatReadingCard |
+| F-062 kept as the song's source, RE-ANALYZE, A/B | chat_references (thread cascade), sweepFiles, readCommit (re-read), routes/chat (`references`); ChatReferencePanel, chatAb, useChatPlayback, ChatPlayer |
+| F-063 cover proposal | reading (`coverVerdict`), referenceTurn, chatRules, actionSchema, referenceRecipe, draftModel, turnJob (follow-up), createFromDraft (cover); ChatRecipeCard (cover), ChatDraftFields |
+| F-064 fresh song borrowing | reading (`readingFacts`), referenceRecipe (borrowed / missing), draftModel; ChatRecipeCard, ChatDraftFields |
+| F-065 cover / instrumental / chord-free scores | scoreEligibility, renderMode, yue2Score, scoreRenderJob, planTypes, scoreLimits, scoreCopy, YueScoreReview (dock, now); the chat edit turn with CB-2 |
+
+## Data (C3)
+
+```sql
+CREATE TABLE IF NOT EXISTS chat_references (
+  id             TEXT PRIMARY KEY,
+  thread_id      TEXT NOT NULL REFERENCES chat_threads(id) ON DELETE CASCADE,
+  origin         TEXT NOT NULL,                                  -- upload | library
+  name           TEXT NOT NULL,                                  -- the file's name or the library title
+  source_song_id TEXT REFERENCES songs(id) ON DELETE SET NULL,   -- a library pick; the copy stays when that song goes
+  file           TEXT NOT NULL,                                  -- 'references/<id>.<ext>' under audioDir, a copy
+  bytes          INTEGER NOT NULL,
+  sha256         TEXT NOT NULL,
+  seconds        REAL,                                           -- probed length of the whole file
+  own_json       TEXT,                                           -- library pick: {own_v: 1, abc, lyrics, caption, bpm, key, meter, engine}
+  reading_json   TEXT,                                           -- the latest Reading, reading_v
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_chat_references_thread ON chat_references(thread_id);
+```
+
+- **Migration:** additive (`CREATE TABLE IF NOT EXISTS` on every start, as `chat_threads`); songs, layers, versions,
+  threads and messages untouched. New message kinds, bodies and draft fields are additive under `chat_v: 1` / `draft_v: 1`
+  (the `score_v` rule, versions-data.md): readers treat an absent field as absent.
+- **Reading (`reading_v: 1`):** `{reading_v, readAt, seconds, readTo, cut, plan: {words, score, caption: own | service |
+  skip}, words: {language, lines[], instrumental} or {notRead}, score: {abc, source: own | transcribed, chords, facts
+  (header, sections, lyric_blocks, bars), warnings[], measure} or {notRead}, caption: {caption, bpm, key, meter} or
+  {notRead}}`. A shape change bumps `reading_v`; `readReading` handles both from the raw blob, and an unknown version
+  reads as "not read: read again" (never a crash). `own_v: 1` on `own_json`, same rule.
+- **Lifecycle:** rows cascade from the thread, the thread from the song (D-102): trash keeps them; permanent delete and
+  NEW CHAT remove the rows; `sweepFiles()` (at start, after `sweepTrash` / `emptyTrashNow`, after NEW CHAT) deletes every
+  file in `audioDir/references/` without a row. A reference attached but never sent stays in the draft thread until NEW
+  CHAT. The cover's version row records `source` and `request.abc` as today (code); nothing else changes on songs.
+- **Files:** `audioDir/references/<id>.<ext>`, served by the existing `/audio` static route (code: index.ts), so the
+  player's A/B needs no new route. Temp trims and yue-server's uploads are removed on every exit (yue-server's own
+  retention sweep covers a crash). Nothing leaves the machine: every service is local (D-084).
+
+## GPU and the queue
+
+No new queue kind: the reading is `transcribe` (SheetSage2's kind today, so Activity and the client's kind union already
+know it) and holds one slot through its steps, as C0b's splice render holds render + grid + splice. Before it starts,
+`gpuGuard` refuses while the planner is loaded (D-053's rule, today inline in `createFromDraft`). The turn before it
+released the planner with `/api/ps` empty (D-011) and the follow-up turn queues after it (FIFO), so the planner and the
+reading never overlap. SheetSage2 is a subprocess and frees its VRAM on exit (code); lyrics-server and ACE-Step keep their
+own models as they do for COVER today: whether that leaves room for the planner's 11.7 GB is **R-028**, measured in CP-C3
+(nvidia-smi before the follow-up turn, and its latency).
+
+## Seams and fakes (C3)
+
+| Seam | Real | Fake |
+|---|---|---|
+| yue transcription | `/v1/transcriptions` (+ `chords`) | `fakeYue.ts` replays contract fixtures recorded by CR-0's pytest (done with chords, failed, hold) |
+| yue score read / measure | `/v1/scores/read`, `/v1/scores/measure` | `fakeYue.ts` (existing fixtures) |
+| lyrics-server | `transcribeLyrics` | injected stub in `readingSteps` tests (as lyricsJobs.test) |
+| ACE-Step ANALYZE AUDIO | `analyzeAudio` | injected stub; health false → skip |
+| SheetSage2 | `infer.py` subprocess | the existing transcriber test doubles in pytest |
+| reference files | `audioDir/references` | temp `DATA_DIR` |
+| chat model | Ollama strict schema | `fakeOllama` + `chatScripts` (analyze, cover, borrow, a cover on a non-coverable reading) |
+| CI | — | no new e2e (the chat spec is F-051, C1); the golden path keeps `LLM_API_URL: ''` |
+
+## Test strategy (C3, by risk)
+
+1. **Outside input** (uploads, transcriptions, model output): `referenceRules` and the upload route reject non-audio and
+   oversize with the reason and store nothing; `readReading` from raw blobs (v1, unknown); `coverVerdict` on a failed
+   read and an over-budget score; `referenceRecipe` never lets the model's tempo or key stand in for a missing reading.
+2. **Atomicity and hand-off**: a reading part failing alone leaves the others; a cancel at every step leaves no reading
+   and no temp file; `gpuGuard` refuses READ / CREATE COVER while a model is loaded; the follow-up turn unloads like any
+   turn (fakeOllama `ps` sequences).
+3. **Stored data**: `chat_references` on a copy of a C0a DB; cascade on NEW CHAT and permanent delete; `sweepFiles`
+   removes only orphans; trash keeps everything.
+4. **F-065**: the eligibility table flips; the `renderMode` table; the render request's `cot`; the instrumental refusal.
+5. Client reducers and copy (one test per `chatReading` transition), `chatAb`'s clamp. Each pure module broken once.
+6. **On the real machine, headless (CP-C3, after CR-4)**. The named risk, transcription quality on arbitrary audio, is
+   measured here, not in a separate spike (D-133): `chatCp3.ts --server http://127.0.0.1:3201` against a `DATA_DIR` copy,
+   the real Ollama (16k), yue-server with SheetSage2, lyrics-server and ACE-Step when present. 8 references: 2 YuE2
+   library songs, 3 audio files (stand-ins: ACE-Step library songs' audio uploaded as files, one instrumental; the owner's
+   own recordings when he gives them, Q-095), 1 longer than 360 s, 1 non-audio file, 1 library song named in words; 10
+   scripted requests (5 cover-worded, 5 borrow-worded; EN / DE / ES). Logged to `pipeline/cp-c3/<date>/`: reading wall
+   time per step, transcription measures / vocal notes / warnings, read-ok and coverable per reference, prompt tokens
+   with REFERENCE, the follow-up turn's latency and the planner's GPU residency (nvidia-smi) after a reading,
+   `reference_use` right, recipe validity; then CREATE COVER on 2 and CREATE SONG (borrow) on 1 (YuE2 wall time).
+   **Stop lines:** a reading of a file of 4 min or less takes over 4 min; the follow-up turn p50 over 15 s or the planner
+   not fully on the GPU; the score read ok on fewer than 2 of the 3 audio files; `reference_use` right on fewer than 8 of
+   10; hand-off over 5 s → stop and raise before CR-9.
+7. **Owed to the owner** (not blocking `passes`, like SP-4's listen): 3 covers from audio references, "the melody is
+   recognisable" on 2 of 3.
+8. Regression net: every existing suite green on every PR; the golden path unchanged.

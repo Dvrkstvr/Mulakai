@@ -8959,6 +8959,22 @@ F-036..F-039 into C2 and C8).
 - e2e: a chat spec against the fake Ollama with scripted turns, beside the
   SCORE spec.
 
+### C3: reference songs (planned 2026-10-07, moved ahead of C0b by the owner, D-125)
+
+Spec: `pipeline/scope.md` "C3" (work packages CR-0..CR-9) and `pipeline/architecture.md` "Chat (C3)";
+decisions D-126..D-138, docs/decisions/0008. In short:
+
+- The person attaches a file or a library song in the draft thread; the turn answers `analyze` with a READ
+  card; READ queues one `transcribe`-kind job that reads WORDS > SCORE > CAPTION with the services COVER
+  already uses (a YuE2 library song reads its own score and words, no GPU).
+- The server then queues the follow-up turn: one `recipe` with `reference_use` cover / borrow; code fills
+  the borrowed fields from the reading. CREATE COVER is CREATE SONG with the reading's score (USE .ABC
+  FILE's request).
+- The reference is a copy in `chat_references`, per thread, so it goes with the song; RE-ANALYZE and A/B in
+  the song's sidebar.
+- F-065: covers, instrumentals and chord-free scores become SCORE-editable on the dock (`renderMode`); chat
+  edit turns on them come with C0b.
+
 ### Open questions for the owner (Q-054)
 
 Answered 2026-10-06: two ways in (D-086), editing mirrors it (D-088),
