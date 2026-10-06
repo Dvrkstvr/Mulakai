@@ -1,6 +1,6 @@
 # Playbook — Mulakai
 
-<!-- Written at adopt (2026-10-03) from what the repo already does; completed at stage 6 (2026-10-03) for the score agent.
+<!-- Written at adopt (2026-10-03) from what the repo already does; completed at stage 6 (2026-10-03) for the score agent, extended for the chat C0 (2026-10-06).
      Rationale goes to decisions.md; module map in architecture.md. -->
 
 ## Approach
@@ -33,7 +33,11 @@ warning, `AudioPreview.tsx` only-export-components), client 82 files / 624 tests
 yue-server 65 passed (Windows Python 3.14, fastapi 0.139, 1 Starlette deprecation warning), e2e 5 passed in 37 s (ports were free).
 Before e2e, check 8101/3101/5183 with `Get-NetTCPConnection -LocalPort <port> -State Listen`; if another session holds them, skip
 e2e and say so; never stop a process you did not start.
-CI today runs only e2e (`.github/workflows/e2e.yml`); `checks.yml` for the rest is proposed for W0 (D-033).
+Run again at stage 6 (chat C0), 2026-10-06, on `docs/chat-c0` (code = `origin/main` ff69f2e; all exit 0): client build (chunk-size
+warning only), lint (the same 1 warning), client 104 files / 839 tests, server tsc clean, server 93 files / 812 tests, yue-server
+422 passed (Windows Python 3.14, 1 warning), e2e 11 passed in 1.1 min (golden path + queue + score projects; ports were free).
+From CB-1 on, yue-server's pytest needs numpy and scipy: `pip install -r requirements-test.txt` again once.
+CI runs e2e (`.github/workflows/e2e.yml`) and the unit suites, typechecks, lint and pytest (`.github/workflows/checks.yml`, Python 3.12).
 
 ## Run & verify
 - run: `cd server && npm run dev` and `cd client && npm run dev`; ACE-Step: `uv run acestep --port 8001 --enable-api --backend pt --server-name 127.0.0.1`
@@ -60,6 +64,26 @@ CI today runs only e2e (`.github/workflows/e2e.yml`); `checks.yml` for the rest 
   (1920×1080 and 1366×768 for the owed dock-height check, D-032).
 - **Fakes for unit tests:** `server/test-fakes/fakeOllama.ts`, `server/test-fakes/fakeYue.ts` (W2); e2e wrappers in M1 (F-028).
 
+### Chat: run & verify (C0)
+- **Environment:** as the score agent (Ollama with `OLLAMA_CONTEXT_LENGTH=16384`, yue-server in WSL2); the chat adds no variable in
+  C0 except `CHAT_LADDER` (default 0; the SP-5 ladder rung, read only by `chat/turnCall.ts`). CHAT is the start screen only when
+  `LLM_API_URL` and `YUE_API_URL` are both set (D-099).
+- **yue-server for C0b:** once, `wsl.exe -d Ubuntu-24.04 --exec bash -lc "~/yue2/.venv/bin/pip install scipy==1.18.0"`; check
+  `~/yue2/.venv/bin/python -c "import scipy"`. The splice's grid run uses SheetSage2 through the existing `YUE_SHEETSAGE_PYTHON` /
+  `YUE_SHEETSAGE_DIR` (`GET /v1/transcriptions/health` 200 = ready).
+- **CP-C0a (after CA-3, before CA-6, headless):** copy `server/data` to a throwaway folder; start the server with `PORT=3201`,
+  `DATA_DIR=<copy>`, `YUE_API_URL`, `LLM_API_URL`; then `cd server && npx tsx scripts/chatCp0.ts --server http://127.0.0.1:3201
+  --leg create`. Evidence in `pipeline/cp-c0/<date>/` (log.json, nvidia-smi.csv). Stop lines: turn p50 > 15 s, hand-off > 5 s,
+  a recipe invalid after 3 attempts more than once.
+- **CP-C0 (after CB-3, before CB-5):** the same server, `--leg edit --song <id>` on 3 library songs (4/4); then in WSL
+  `~/yue2/.venv/bin/python /mnt/e/repos/Mulakai/yue-server/splice_check.py <base> <saved> <result.json>` per song (the script
+  prints the paths). Stop lines: edit wall time > 4 min, a null test failing, join LUFS excess > 1 dB on 3 of 3 songs.
+- **Agent eyes on the chat:** a `server-chat` launch entry with `YUE_API_URL` and `LLM_API_URL` (CA-6 adds it to
+  `.claude/launch.json`) and the client; the app opens on CHAT. Read the screen with `read_page` / `find` (composer `SEND ↵`,
+  the recipe card's CREATE SONG, the player) before screenshots; check 1366×768 (F-043) and 1920×1080.
+- **Fakes:** `fakeOllama.ts` + `server/test-fakes/chatScripts.ts` (scripted turns), `fakeYue.ts` (+ splice replay in CB-3); pytest
+  `FakeTracker` for SheetSage2. The chat e2e spec is F-051 (C1); C0 keeps the golden path unchanged.
+
 ## Quality bar (track: standard)
 - Vitest test for every behavior change (AGENTS.md); one Playwright golden path per phase
 - module target 150 LOC, hard cap 200
@@ -68,7 +92,8 @@ CI today runs only e2e (`.github/workflows/e2e.yml`); `checks.yml` for the rest 
 - CI (`.github/workflows/e2e.yml`) green on the PR **and** on the push to main before the next merge (R-012)
 - score agent: every pure module (architecture.md) lands with its tests in the same PR, and each is broken on purpose once to see a test fail (spec-first)
 - the GPU hand-off is never weakened: a `plan` job releases its slot only after `/api/ps` is empty (F-020); CP1 numbers are logged before W3
-- stored data: score versions carry `score_v`; shape changes bump it with a migration-named test (architecture.md "Data")
+- stored data: score versions carry `score_v`, chat drafts `draft_v`, card bodies `chat_v`, grid sidecars `grid_v`, splices `splice_v`; shape changes bump it with a migration-named test (architecture.md "Data", "Data (chat)")
+- chat: a turn holds one `plan` slot and unloads before release on every path; an edit splice never saves silently on a failed join (D-101)
 
 ## Voice & conventions
 - branches `feat/`, `fix/`, `test/`; commits `feat:`, `fix:`, `docs:`, `refactor:`, `test:`, `chore:`; never push to main; one problem per PR
