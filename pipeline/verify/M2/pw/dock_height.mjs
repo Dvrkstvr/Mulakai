@@ -1,0 +1,21 @@
+import { launch, openScore, dock, txt, waitPlanDone } from './lib.mjs';
+const [w = '1366', h = '768'] = process.argv.slice(2);
+const { browser, page } = await launch(Number(w), Number(h));
+await openScore(page, 'Untitled', 4);
+console.log('dock on open:', await txt(dock(page)));
+await page.getByPlaceholder(/Describe the change/).fill('80 BPM, transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the intro');
+await page.getByRole('button', { name: /^PLAN$/ }).click();
+await waitPlanDone(page);
+console.log('dock after plan:', (await txt(dock(page))).slice(0, 2500));
+const m = await page.evaluate(() => {
+  const d = document.querySelector('.action-dock, [class*=action-dock]') ?? [...document.querySelectorAll('[role=tabpanel]')].find((x) => x.getAttribute('aria-label') === 'SCORE');
+  const apply = [...document.querySelectorAll('button')].find((b) => /APPLY & RENDER/.test(b.textContent));
+  const tab = [...document.querySelectorAll('[role=tabpanel]')].find((x) => x.getAttribute('aria-label') === 'SCORE');
+  const r = (e) => { const b = e.getBoundingClientRect(); return { top: Math.round(b.top + scrollY), bottom: Math.round(b.bottom + scrollY), h: Math.round(b.height) }; };
+  const dockRoot = tab.closest('[class*=dock]') ?? tab;
+  return { innerHeight, scrollHeight: document.documentElement.scrollHeight, scrollY, dock: r(dockRoot), panel: r(tab), apply: r(apply), dockClass: dockRoot.className };
+});
+console.log(JSON.stringify(m));
+await page.screenshot({ path: `../shots/dock-5op-${w}x${h}.png` });
+await page.screenshot({ path: `../shots/dock-5op-${w}x${h}-full.png`, fullPage: true });
+await browser.close();

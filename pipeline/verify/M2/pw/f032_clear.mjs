@@ -1,0 +1,17 @@
+import { launch, openScore, dock, txt, waitPlanDone } from './lib.mjs';
+const { browser, page } = await launch();
+await openScore(page, 'Gertar', 0);
+await page.locator('.section-strip').first().waitFor({ timeout: 60000 });
+const chip = async () => (await page.locator('.dock-target').allInnerTexts()).join(' | ');
+console.log('chip on open (pick restored with the pending plan?):', await chip());
+console.log('dock on open:', await txt(dock(page)));
+const clr = page.locator('button', { hasText: /WHOLE SCORE/ }).filter({ hasText: /[✕×x]/ });
+if (await clr.count()) await clr.first().click();
+await page.waitForTimeout(500);
+console.log('chip after clear:', await chip());
+await page.getByPlaceholder(/Describe the change/).fill(process.argv[2] ?? 'make it jazzier');
+await page.getByRole('button', { name: /^PLAN$/ }).click();
+await waitPlanDone(page);
+console.log('dock after plan (no pick):', await txt(dock(page)));
+await page.screenshot({ path: '../shots/f032-plan-whole-' + (process.argv[3] ?? 'a') + '.png' });
+await browser.close();

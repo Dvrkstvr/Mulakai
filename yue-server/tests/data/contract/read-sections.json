@@ -1,0 +1,185 @@
+{
+ "name": "read-sections",
+ "request": {
+  "method": "POST",
+  "path": "/v1/scores/read",
+  "body": {
+   "abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=87\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Dm\n% intro\nV: Vocal\nZ|z24\"Dm\"z8|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nZ2|D4A4f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Bb\"z32|\"Bb\"z32|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nB,4F4d4F4c4F4c4F4|B,4F4d4F4c4F4c4F4|D4A4f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Bb\"z32|\"Bb\"z32|\nV: Ins\nB,4F4d4F4c4F4c4F4|B,4F4d4F4c4F4c4F4|\n% verse\nV: Vocal\n\"Dm\"d8d8d2c6d4c2d2|\"Dm\"d2z12z2d2e6f6e2-|\"Bb\"e4e2d2d8z16|\"Bb\"z32|\nV: Ins\nZ3|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8d2c4d6c2d4c4d2-|\"Dm\"d6z8z2d4e4f4e2e2|\"Bb\"z4e4d4d8z12|\"Bb\"z32|\nV: Ins\nd8z24|Z2|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8a4a4a4g4g2f2f2f2-|\"Dm\"f6z6d4a4g4g4f4-|\"Bb\"f4d8z16z4|\"Bb\"z16d4e4f4g4-|\nV: Ins\nd8z24|Z3|\nV: Vocal\n\"Gm\"g4g8z16z4|\"Gm\"z8d2d4a6g4g4f2f2-|\"Dm\"f6z24z2|\"Dm\"z32|\nV: Ins\nZ2|z8f4A4e4A4e4A4|D4A4f4A4e4A4e4A4|\nV: Vocal\n\"Dm\"d8d8d4c2d4c4d2-|\"Dm\"d6z8z2d2e4f6e2e2-|\"Bb\"e6z2d4d8z12|\"Bb\"z32|\nV: Ins\nZ3|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8d2c4d4c4d4c4d2-|\"Dm\"d6z8z2d2e4f6e4-|\"Bb\"e4e8d2d8z8z2|\"Bb\"z32|\nV: Ins\nd8z24|Z2|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z8a4a4a4g4g2f2f2f2-|\"Dm\"f6z2d2d4a6g4g4f2f2-|\"Bb\"f6z24z2|\"Bb\"z12d4d2e4f6g4-|\nV: Ins\nd8z24|Z3|\nV: Vocal\n\"Gm\"g4g12z16|\"Gm\"z8d2d4a6g2g2g4f4-|\"Dm\"f4d8z16z4|\"Dm\"z24z4d4|\nV: Ins\nZ2|z12A4e4A4e4A4|D4A4f4A4e4A4e4z4|\nV: Vocal\n\"Bbmaj7\"a8g8f4e8d4-|\"Gm\"d12z16d4|\"Bbmaj7\"a8g8f4e8d4-|\"Bbmaj7\"d16-d4z12|\nV: Ins\nZ3|z24d2e2f2g2|\n% chorus\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\na8z16z4f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd16z12f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd8z16z4f4|e16z4f4e4f4|d16z16|z16z4f4e4f4|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Bbmaj7\"z32|\"Bbmaj7\"z32|\nV: Ins\nd8z16z4f4|e16z4f4e4f4|d8z24|Z|\n% outro\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nA8f8e8e8|d8f8e8e8|d32|\n",
+   "lyrics": "[Intro]\nintro 1 line 1\n\n[Verse 1]\nverse 2 line 1\nverse 2 line 2\nverse 2 line 3\nverse 2 line 4\nverse 2 line 5\nverse 2 line 6\nverse 2 line 7\nverse 2 line 8\n\n[Chorus]\nchorus 3 line 1\nchorus 3 line 2\nchorus 3 line 3\nchorus 3 line 4\n\n[Verse 2]\nverse 4 line 1\nverse 4 line 2\nverse 4 line 3\nverse 4 line 4\nverse 4 line 5\nverse 4 line 6\nverse 4 line 7\nverse 4 line 8\n\n[Chorus]\nchorus 5 line 1\nchorus 5 line 2\nchorus 5 line 3\nchorus 5 line 4\n\n[Bridge]\nbridge 6 line 1\nbridge 6 line 2\n\n[Outro]\noutro 7 line 1\noutro 7 line 2\noutro 7 line 3\noutro 7 line 4\noutro 7 line 5\noutro 7 line 6\noutro 7 line 7\noutro 7 line 8\n"
+  }
+ },
+ "response": {
+  "status": 200,
+  "body": {
+   "ok": true,
+   "error": null,
+   "bar_sums": [],
+   "messages": [],
+   "chords_present": true,
+   "bpm": 87,
+   "seconds": 179.3,
+   "tokens": 1832,
+   "facts": {
+    "header": {
+     "meter": "4/4",
+     "unit": "1/32",
+     "bpm": 87,
+     "key": "Dm",
+     "bars": 65,
+     "seconds": 179.3,
+     "units_per_quarter": 8
+    },
+    "key_notes": "D E F G A Bb C",
+    "sections": [
+     {
+      "index": 1,
+      "label": "intro",
+      "from_bar": 1,
+      "to_bar": 10
+     },
+     {
+      "index": 2,
+      "label": "verse",
+      "from_bar": 11,
+      "to_bar": 46
+     },
+     {
+      "index": 3,
+      "label": "chorus",
+      "from_bar": 47,
+      "to_bar": 62
+     },
+     {
+      "index": 4,
+      "label": "outro",
+      "from_bar": 63,
+      "to_bar": 65
+     }
+    ],
+    "lyric_blocks": [
+     {
+      "index": 1,
+      "tag": "[Intro]",
+      "occurrence": 1,
+      "lines": 1,
+      "first_line": "intro 1 line 1"
+     },
+     {
+      "index": 2,
+      "tag": "[Verse 1]",
+      "occurrence": 1,
+      "lines": 8,
+      "first_line": "verse 2 line 1"
+     },
+     {
+      "index": 3,
+      "tag": "[Chorus]",
+      "occurrence": 1,
+      "lines": 4,
+      "first_line": "chorus 3 line 1"
+     },
+     {
+      "index": 4,
+      "tag": "[Verse 2]",
+      "occurrence": 2,
+      "lines": 8,
+      "first_line": "verse 4 line 1"
+     },
+     {
+      "index": 5,
+      "tag": "[Chorus]",
+      "occurrence": 2,
+      "lines": 4,
+      "first_line": "chorus 5 line 1"
+     },
+     {
+      "index": 6,
+      "tag": "[Bridge]",
+      "occurrence": 1,
+      "lines": 2,
+      "first_line": "bridge 6 line 1"
+     },
+     {
+      "index": 7,
+      "tag": "[Outro]",
+      "occurrence": 1,
+      "lines": 8,
+      "first_line": "outro 7 line 1"
+     }
+    ],
+    "bar_map": [
+     "-- S1 intro --",
+     "(meter M:4/4 from here: one bar = 32 units)",
+     "1: - | V:rest | I:0",
+     "2: Dm@4 | V:rest | I:0",
+     "3: Dm@1 | V:rest | I:8",
+     "4: Dm@1 | V:rest | I:8",
+     "5: Bb@1 | V:rest | I:8",
+     "6: Bb@1 | V:rest | I:8",
+     "7: Dm@1 | V:rest | I:8",
+     "8: Dm@1 | V:rest | I:8",
+     "9: Bb@1 | V:rest | I:8",
+     "10: Bb@1 | V:rest | I:8",
+     "-- S2 verse --",
+     "11: Dm@1 | V:sung | I:0",
+     "12: Dm@1 | V:sung | I:0",
+     "13: Bb@1 | V:sung | I:0",
+     "14: Bb@1 | V:rest | I:3",
+     "15: Dm@1 | V:sung | I:1",
+     "16: Dm@1 | V:sung | I:0",
+     "17: Bb@1 | V:sung | I:0",
+     "18: Bb@1 | V:rest | I:3",
+     "19: Dm@1 | V:sung | I:1",
+     "20: Dm@1 | V:sung | I:0",
+     "21: Bb@1 | V:sung | I:0",
+     "22: Bb@1 | V:sung | I:0",
+     "23: Gm@1 | V:sung | I:0",
+     "24: Gm@1 | V:sung | I:0",
+     "25: Dm@1 | V:sung | I:6",
+     "26: Dm@1 | V:rest | I:8",
+     "27: Dm@1 | V:sung | I:0",
+     "28: Dm@1 | V:sung | I:0",
+     "29: Bb@1 | V:sung | I:0",
+     "30: Bb@1 | V:rest | I:3",
+     "31: Dm@1 | V:sung | I:1",
+     "32: Dm@1 | V:sung | I:0",
+     "33: Bb@1 | V:sung | I:0",
+     "34: Bb@1 | V:rest | I:3",
+     "35: Dm@1 | V:sung | I:1",
+     "36: Dm@1 | V:sung | I:0",
+     "37: Bb@1 | V:sung | I:0",
+     "38: Bb@1 | V:sung | I:0",
+     "39: Gm@1 | V:sung | I:0",
+     "40: Gm@1 | V:sung | I:0",
+     "41: Dm@1 | V:sung | I:5",
+     "42: Dm@1 | V:sung | I:7",
+     "43: Bbmaj7@1 | V:sung | I:0",
+     "44: Gm@1 | V:sung | I:0",
+     "45: Bbmaj7@1 | V:sung | I:0",
+     "46: Bbmaj7@1 | V:sung | I:4",
+     "-- S3 chorus --",
+     "47: Dm@1 | V:rest | I:2",
+     "48: Dm@1 | V:rest | I:4",
+     "49: Bbmaj7@1 | V:rest | I:1",
+     "50: Bbmaj7@1 | V:rest | I:3",
+     "51: Dm@1 | V:rest | I:2",
+     "52: Dm@1 | V:rest | I:4",
+     "53: Bbmaj7@1 | V:rest | I:1",
+     "54: Bbmaj7@1 | V:rest | I:3",
+     "55: Dm@1 | V:rest | I:2",
+     "56: Dm@1 | V:rest | I:4",
+     "57: Bbmaj7@1 | V:rest | I:1",
+     "58: Bbmaj7@1 | V:rest | I:3",
+     "59: Dm@1 | V:rest | I:2",
+     "60: Dm@1 | V:rest | I:4",
+     "61: Bbmaj7@1 | V:rest | I:1",
+     "62: Bbmaj7@1 | V:rest | I:0",
+     "-- S4 outro --",
+     "63: Dm@1 | V:rest | I:4",
+     "64: Dm@1 | V:rest | I:4",
+     "65: Dm@1 | V:rest | I:1"
+    ]
+   }
+  }
+ }
+}

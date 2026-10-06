@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>M2 A/B listen (transpose, repeat, rewrite)</title>
+<style>
+body{background:#1c1d21;color:#ececec;font:15px/1.45 system-ui,sans-serif;margin:24px auto;max-width:920px;padding:0 16px}
+h1{font-size:20px} h2{font-size:16px;margin:0 0 4px} .pair{border:1px solid #33343b;padding:14px;margin:18px 0}
+.note{color:#9a9aa3;font-size:13px} button{background:#2a2b31;color:#ececec;border:1px solid #555;padding:6px 12px;cursor:pointer;margin:2px}
+button.on{border-color:#7b4b94;background:#2a2133} .row{margin:8px 0} fieldset{border:1px solid #33343b;margin:8px 0}
+legend{color:#9a9aa3} label{margin-right:12px} pre{background:#16171a;padding:10px;white-space:pre-wrap}
+.tl{position:relative;height:46px;margin:8px 0 4px;background:#24252b;border:1px solid #3a3b42;cursor:pointer;user-select:none;touch-action:none;overflow:hidden}
+.tl:focus{outline:1px solid #7b4b94}
+.tl .tick{position:absolute;bottom:0;width:1px;height:8px;background:#4a4b53}
+.tl .tick.major{height:16px;background:#6a6b73}
+.tl .num{position:absolute;bottom:17px;font-size:10px;color:#8a8a93;transform:translateX(-50%)}
+.tl .edit{position:absolute;top:0;bottom:0;background:rgba(123,75,148,.38);border-left:1px solid #b48ad0;border-right:1px solid #b48ad0}
+.tl .edit span{position:absolute;top:2px;left:4px;font-size:11px;color:#e3cdf2;white-space:nowrap}
+.tl .ins{position:absolute;top:0;bottom:0;background:rgba(214,160,60,.45);border-left:1px solid #e6b95a;border-right:1px solid #e6b95a}
+.tl .ins span{position:absolute;bottom:2px;left:4px;font-size:11px;color:#f6dfa8;white-space:nowrap}
+.tl .head{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;pointer-events:none}
+button.jump{border-color:#7b4b94;font-size:13px;padding:4px 10px}
+table.lyr{border-collapse:collapse;font-size:13px;margin:6px 0} table.lyr td{padding:2px 14px 2px 0;vertical-align:top} table.lyr td.new{color:#f6dfa8}
+</style></head><body>
+<h1>M2 listen: transpose, repeat a chorus, rewrite a chorus (4 pairs)</h1>
+<p class="note">Local files only, not published. Each B is the real server's render of a plan (YuE2, the edited score re-rendered, the edited lyrics sent). Press A or B while playing: the switch keeps the same <b>place in the music</b> (bar position; where B has an inserted copy, switching from B to A lands on the chorus the copy was taken from). The timeline numbers the bars; click or drag to scrub, focus it and use the arrow keys for one bar, or press a jump button to start two bars before a spot. Shaded lilac = bars the edit touches; amber = bars B added.</p>
+<div id="pairs"></div>
+<h2>Your answers</h2><pre id="out">(answer above)</pre><button onclick="copyOut()">copy answers</button>
+<script>
+// seg = [[aFrom,aTo,bFrom,bTo]...] 1-based bars; a=null means B-only (the inserted copy), mapped back to src (A bar) for the switch.
+const PAIRS=[
+ {id:'p1',title:'1. "down a tone" (Carinito, 64 bars, Dm to Cm)',a:'p1_carinito_A.flac',b:'p1_carinito_B.flac',barsA:64,barsB:64,
+  seg:[[1,64,1,64]],edits:[[1,64,'whole song, -2 semitones']],ins:[],jumps:[['start','A',1],['chorus 1','A',23],['chorus 2','A',48]],
+  hint:'B should be the same song, same speed, a whole tone lower (every note and chord). The key moved by 2 semitones in the measured audio (chord roots and melody); please judge it by ear. The voice is YuE2 re-singing, so the vocal timbre can differ.',
+  qs:[['k','B is the same tune a tone lower?',['yes','partly','no']],['t','Same speed as A?',['yes','a bit different','no']],['n','B sounds natural (no strange notes, voice in range)?',['yes','mostly','no']]]},
+ {id:'p2',title:'2. "repeat the chorus" (Romantica, 63 to 71 bars)',a:'p2_romantica_A.flac',b:'p2_romantica_B.flac',barsA:63,barsB:71,
+  seg:[[1,30,1,30],[null,null,31,38,23],[31,63,39,71]],edits:[],ins:[[31,38,'copy of chorus 1 (bars 23-30)']],jumps:[['chorus 1','A',23],['seam: end of chorus 1 into the copy','B',29],['seam: end of the copy into verse 2','B',37]],
+  hint:'B plays the first chorus twice in a row (bars 23-30, then the copy 31-38), then verse 2. The copy should be the same melody and words as the first chorus; the two seams should not click or jump. Measured: the copy matches the first chorus 0.99 (melody F1), chord roots 100%.',
+  qs:[['c','The copy sounds like the first chorus (same tune and words)?',['yes','partly','no']],['s','Seam 1 (chorus into copy) is smooth?',['yes','audible','bad']],['s2','Seam 2 (copy into verse 2) is smooth?',['yes','audible','bad']]]},
+ {id:'p3',title:'3. "rewrite the second chorus about leaving" (Gertar, 77 bars, German)',a:'p3_gertar_rewrite_A.flac',b:'p3_gertar_rewrite_B.flac',barsA:77,barsB:77,
+  seg:[[1,77,1,77]],edits:[[36,43,'chorus 2, new words']],ins:[],jumps:[['chorus 1 (unchanged)','A',15],['chorus 2 (new words)','A',36]],
+  hint:'Only the 4 lines of the second chorus changed; the music is the same score. The whole song is re-rendered, so other bars can differ a little. A speech-to-text read of B heard all four new lines being sung.',
+  lyr:[['Andreas, ich kämpfe auch wenn ich mich oft verlier','Andreas, ich gehe doch ich bleibe irgendwie'],['Ein Blick aus einem Spiegel zeigt, ich bleib doch hier','Ich verlasse diesen Ort, doch nicht ohne dich'],['Die Stille singt, doch ich schweige wie gebannt','Jeder Schritt ist schwer, doch ich muss es versuchen'],['Ein Held muss stark sein, um sich nach Halt zu finden','Ich träume von einem Leben, das uns beide erwartet']],
+  qs:[['w','You hear the NEW words in chorus 2 (right column)?',['clearly','partly','no']],['f','The new words fit the melody (rhythm, syllables)?',['yes','mostly','no']],['o','The rest of the song still sounds like A?',['yes','a bit different','no']]]},
+ {id:'p4',title:'4. "repeat the first chorus" (Gertar, 77 to 85 bars; A = the rewritten take of pair 3)',a:'p3_gertar_rewrite_B.flac',b:'p4_gertar_repeat_B.flac',barsA:77,barsB:85,
+  seg:[[1,22,1,22],[null,null,23,30,15],[23,77,31,85]],edits:[],ins:[[23,30,'copy of chorus 1 (bars 15-22)']],jumps:[['chorus 1','A',13],['seam: chorus 1 into the copy','B',21],['seam: copy into the interlude','B',29]],
+  hint:'B plays the first chorus twice. Measured: the copy matches the first chorus 0.93 (melody F1; pair 2 got 0.99), 85 bars equal the score\'s 85, chord roots 100%.',
+  qs:[['c','The copy sounds like the first chorus?',['yes','partly','no']],['s','Seam 1 is smooth?',['yes','audible','bad']],['s2','Seam 2 is smooth?',['yes','audible','bad']]]}
+];
+const root=document.getElementById('pairs');
+const pct=(x,D)=>(100*x/D).toFixed(3)+'%';
+// bar position mapping between takes
+function mapBar(p,fromK,bpos){ // bpos fractional bars from start (0-based), returns the other take's bpos
+  const bar=Math.floor(bpos+1e-6)+1,frac=bpos-(bar-1);
+  for(const s of p.seg){
+    if(fromK==='A'&&s[0]!==null&&bar>=s[0]&&bar<=s[1]) return (s[2]+(bar-s[0])-1)+frac;
+    if(fromK==='B'&&bar>=s[2]&&bar<=s[3]){ if(s[0]!==null) return (s[0]+(bar-s[2])-1)+frac; return (s[4]+(bar-s[2])-1)+frac; }
+  }
+  return bpos;
+}
+PAIRS.forEach(p=>{
+ const d=document.createElement('div');d.className='pair';
+ const radios=(k,legend,opts)=>`<fieldset><legend>${legend}</legend>${opts.map(v=>`<label><input type="radio" name="${k}_${p.id}" value="${v}">${v}</label>`).join('')}</fieldset>`;
+ const lyr=p.lyr?`<table class="lyr"><tr><td class="note">OLD (A)</td><td class="note">NEW (B)</td></tr>${p.lyr.map(([o,n])=>`<tr><td>${o}</td><td class="new">${n}</td></tr>`).join('')}</table>`:'';
+ d.innerHTML=`<h2>${p.title}</h2><div class="note">${p.hint}</div>${lyr}
+ <div class="row"><button id="A_${p.id}" class="on">A: before</button><button id="B_${p.id}">B: edited</button>
+ <button id="P_${p.id}">play / pause</button> <span id="T_${p.id}" class="note"></span></div>
+ <div class="tl" id="S_${p.id}" tabindex="0" role="slider" aria-label="playhead in bars"></div>
+ <div class="row">${p.jumps.map(([n,t,b],i)=>`<button class="jump" id="J${i}_${p.id}">${n} (${t} bar ${b}) &#9656;</button>`).join('')}</div>
+ <audio id="au_${p.id}_A" src="${p.a}" preload="metadata"></audio><audio id="au_${p.id}_B" src="${p.b}" preload="metadata"></audio>
+ ${p.qs.map(([k,l,o])=>radios(k,l,o)).join('')}
+ <input type="text" id="n_${p.id}" placeholder="what you hear (optional)" style="width:90%">`;
+ root.appendChild(d);
+ let cur='A';const au=k=>document.getElementById(`au_${p.id}_${k}`);
+ const bars=k=>k==='A'?p.barsA:p.barsB;
+ const dur=k=>{const v=au(k).duration;return isFinite(v)?v:0;};
+ const spb=k=>dur(k)/bars(k);
+ const barT=(k,n)=>(n-1)*spb(k),barAt=(k,t)=>Math.floor(t/spb(k)+1e-6)+1;
+ const tl=document.getElementById('S_'+p.id);let drawnFor='',head=null;
+ const draw=()=>{const D=dur(cur);drawnFor=cur+D;let h='';
+  if(cur==='B'){p.edits.forEach(([f,t,l])=>{const x=barT(cur,f);h+=`<div class="edit" style="left:${pct(x,D)};width:${pct(Math.min(barT(cur,t+1),D)-x,D)}"><span>${l}</span></div>`;});
+   p.ins.forEach(([f,t,l])=>{const x=barT(cur,f);h+=`<div class="ins" style="left:${pct(x,D)};width:${pct(Math.min(barT(cur,t+1),D)-x,D)}"><span>${l}</span></div>`;});}
+  else p.edits.forEach(([f,t,l])=>{const x=barT(cur,f);h+=`<div class="edit" style="left:${pct(x,D)};width:${pct(Math.min(barT(cur,t+1),D)-x,D)}"><span>${l}</span></div>`;});
+  for(let n=1;n<=bars(cur)+1&&barT(cur,n)<=D+0.01;n++){const x=pct(barT(cur,n),D),major=(n-1)%4===0;
+   h+=`<div class="tick${major?' major':''}" style="left:${x}"></div>`;if(major&&n<=bars(cur))h+=`<div class="num" style="left:${x}${n===1?';transform:none;margin-left:3px':''}">${n}</div>`;}
+  tl.innerHTML=h+'<div class="head"></div>';head=tl.querySelector('.head');};
+ const sync=()=>{const D=dur(cur);if(!D)return;if(cur+D!==drawnFor)draw();const t=au(cur).currentTime,b=Math.min(barAt(cur,t),bars(cur));
+  head.style.left=pct(t,D);tl.setAttribute('aria-valuetext','bar '+b);
+  document.getElementById('T_'+p.id).textContent=`${cur} ${t.toFixed(1)} / ${D.toFixed(1)} s · bar ${b}`;};
+ const seekBar=bpos=>{const t=Math.max(0,Math.min(dur(cur),bpos*spb(cur)));au(cur).currentTime=t;sync();};
+ const sw=k=>{if(k===cur)return;const bpos=au(cur).currentTime/spb(cur),pl=!au(cur).paused,to=mapBar(p,cur,bpos);au(cur).pause();cur=k;au(k).currentTime=Math.max(0,Math.min(dur(k),to*spb(k)));if(pl)au(k).play();sync();
+  document.getElementById('A_'+p.id).className=k==='A'?'on':'';document.getElementById('B_'+p.id).className=k==='B'?'on':'';};
+ document.getElementById('A_'+p.id).onclick=()=>sw('A');document.getElementById('B_'+p.id).onclick=()=>sw('B');
+ document.getElementById('P_'+p.id).onclick=()=>{const a=au(cur);a.paused?a.play():a.pause();};
+ const atX=e=>{const r=tl.getBoundingClientRect();return (e.clientX-r.left)/r.width*dur(cur)/spb(cur);};
+ let drag=false;
+ tl.addEventListener('pointerdown',e=>{drag=true;tl.setPointerCapture(e.pointerId);seekBar(atX(e));});
+ tl.addEventListener('pointermove',e=>{if(drag)seekBar(atX(e));});
+ ['pointerup','pointercancel'].forEach(ev=>tl.addEventListener(ev,()=>drag=false));
+ tl.addEventListener('keydown',e=>{const bp=au(cur).currentTime/spb(cur),b=Math.floor(bp+1e-6);
+  if(e.key==='ArrowRight'){seekBar(b+1);e.preventDefault();}
+  if(e.key==='ArrowLeft'){seekBar(bp-b>0.3?b:Math.max(0,b-1));e.preventDefault();}});
+ // a jump names the take its bar number belongs to; it starts two bars before, in whichever take is playing
+ p.jumps.forEach(([n,t,b],i)=>{document.getElementById(`J${i}_${p.id}`).onclick=()=>{const bpos=Math.max(0,b-3);seekBar(cur===t?bpos:mapBar(p,t,bpos));au(cur).play();};});
+ ['A','B'].forEach(k=>au(k).addEventListener('loadedmetadata',sync));
+ setInterval(sync,100);
+ d.addEventListener('change',upd);d.addEventListener('input',upd);
+});
+function upd(){const o={};PAIRS.forEach(p=>{o[p.id]={};p.qs.forEach(([k])=>{o[p.id][k]=(document.querySelector(`input[name="${k}_${p.id}"]:checked`)||{}).value||'?';});o[p.id].note=document.getElementById('n_'+p.id).value;});
+ document.getElementById('out').textContent=JSON.stringify(o,null,1);}
+function copyOut(){navigator.clipboard.writeText(document.getElementById('out').textContent);}
+upd();
+</script></body></html>

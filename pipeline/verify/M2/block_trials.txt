@@ -1,0 +1,18 @@
+b01|29f8457d-97d2-48a3-8f2e-255e2dc90549|rewrite the second chorus about leaving|5
+b02|29f8457d-97d2-48a3-8f2e-255e2dc90549|rewrite the first chorus about the sea|3
+b03|29f8457d-97d2-48a3-8f2e-255e2dc90549|rewrite the bridge about hope|6
+b04|29f8457d-97d2-48a3-8f2e-255e2dc90549|rewrite the second verse about leaving|4
+b05|78f305d6-4f72-42c3-929e-a490c91a5ef2|rewrite the last chorus about leaving|8
+b06|78f305d6-4f72-42c3-929e-a490c91a5ef2|rewrite the first chorus about the sea|3
+b07|78f305d6-4f72-42c3-929e-a490c91a5ef2|rewrite the second chorus about leaving|5
+b08|78f305d6-4f72-42c3-929e-a490c91a5ef2|rewrite the bridge about hope|7
+b09|5c8e6586-9ac0-4a5f-a087-da17656c7639|rewrite the second chorus about leaving|5
+b10|5c8e6586-9ac0-4a5f-a087-da17656c7639|rewrite the first chorus about the sea|3
+b11|5c8e6586-9ac0-4a5f-a087-da17656c7639|rewrite the outro about hope|7
+b12|781968b6-ada5-427a-b333-d4d96b9af7fd|rewrite the second chorus about leaving|7
+b13|781968b6-ada5-427a-b333-d4d96b9af7fd|rewrite the third chorus about leaving|9
+b14|781968b6-ada5-427a-b333-d4d96b9af7fd|rewrite the second pre-chorus about the sea|6
+b15|ecf8eb5a-734f-4b5f-a0ab-040b6645e75e|rewrite the second chorus about leaving|6
+b16|ecf8eb5a-734f-4b5f-a0ab-040b6645e75e|rewrite the second verse about the sea|5
+b17|a69541f2-1904-4ac6-bc3e-56afaa94e89f|rewrite the outro about hope|8
+b18|78f305d6-4f72-42c3-929e-a490c91a5ef2|rewrite the second verse about leaving|4

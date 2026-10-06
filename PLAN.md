@@ -12,6 +12,10 @@ arrangement DAW. One song open at a time.
 Think: "open a generated song, click-drag a region on its waveform, tell the
 model what to change there" — not a DAW, not a social music platform.
 
+> Amended 2026-10-06 (D-079, D-096): the chat is the default way to create
+> and edit a song; the editing tools stay as the scalpel. See "Chat: Talk a
+> Song Into Being".
+
 ## Why not just use the existing DAW or ace-step-ui as-is?
 
 - `ACE-Step-DAW` is a full Tauri desktop DAW built around arranging many
@@ -2225,6 +2229,9 @@ come from another local model, called an *engine* here. Nothing else changes.
 
 - Every edit after the first take still runs on ACE-Step: repaint, Add Layer
   (`lego`), complete, extract, remaster, and regenerate.
+  - *Amended 2026-10-03*: YuE2 may also re-render its own song from an
+    edited score (SCORE); every audio edit stays ACE-Step's. See "Score
+    Agent".
 - ACE-Step accepts any `src_audio`, so it edits an engine-made song the same
   way it edits an imported one (see "Import a Song").
 - The earlier lines stay as written. This section supersedes them, the same
@@ -2236,9 +2243,11 @@ both spikes came back "go"; HeartMuLa was first in the original plan):
 1. **YuE2** first. It needs WSL2 on this machine. The spike measured RTF
    0.54 with no spill (see "YuE2 spike results"). Its weights are CC BY-NC
    4.0 with a creator permission, so the first engine to ship brings the
-   Settings card's license note with it.
+   Settings card's license note with it. **The default first-take engine
+   from 2026-10-03**, see "YuE2 Is the Default First-Take Engine".
 2. **HeartMuLa** next. Its code and weights are Apache-2.0, and it runs on
-   native Windows.
+   native Windows. **Marked for removal 2026-10-03**, see "Remove the
+   HeartMuLa Engine".
 3. **MiniMax Music 3** is skipped. The reasons are recorded below.
 
 Nothing in design points 1–13 depends on the order. Engines are listed in
@@ -2887,6 +2896,8 @@ results" below.
 - **ABC score editing ("agentic editing") is out of scope.** It is
   score-level editing, which this plan excludes along with MIDI editing. The
   returned ABC is read once, for metadata. `abc` is never sent.
+  - *Superseded 2026-10-03* by "Score Agent": a planner edits the saved
+    score and YuE2 re-renders the song from it.
 - **Covers via SheetSage2 transcription are deferred.** They are an open
   question and are not built. *Planned 2026-09-30*: see "YuE2 Melody
   Covers via SheetSage2".
@@ -3539,6 +3550,8 @@ YuE2:
   score-aware in the future needs it. Against: nothing reads it yet, and
   ABC editing is out of scope.
   - **Answered (2026-09-30): yes, from PR 1.** See "Framework decisions".
+  - *2026-10-03*: ABC editing is no longer out of scope, and the score
+    agent reads this sidecar. See "Score Agent".
 - **Covers via SheetSage2**: this needs its own dated section if it is ever
   wanted.
   - **Answered (2026-09-30):** it has one, "YuE2 Melody Covers via
@@ -3847,6 +3860,8 @@ or use a reference voice. What upstream offers, checked 2026-09-30:
       on it reopens COVER on YUE2 with the stored ABC, so another cover of
       the same melody needs no new transcription.
     - Every edit afterwards is ACE-Step's, as for any YuE2 song.
+      *2026-10-03*: except a score re-render on YuE2 once "Score Agent"
+      M3 accepts covers; audio edits stay ACE-Step's.
 11. **Consequence line** (DESIGN.md: stated before commit):
     - TRANSCRIBE: "reads the source's melody into a score · nothing is
       saved to your library".
@@ -4453,6 +4468,10 @@ checked.
 edit is a full regeneration from a revised score, with no inpainting, so it
 is not a repaint either. The benchmark tooling (`YuE2-Vae-legacy`,
 SongBench, PER) is for reproducing papers, not for an app.
+
+*Superseded 2026-10-03* for score editing, reharmonization and agentic
+editing by "Score Agent" (upstream's full regeneration from a revised
+score is exactly what SCORE does); the benchmark tooling stays out.
 
 ### Decisions
 
@@ -5610,7 +5629,8 @@ early warning only, a warning plus section picking, and an automatic trim,
 the user chose **section picking**. That walks back, for whole sections
 only, "Review is listen-and-read, not edit" (covers point 3) and "ABC score
 editing stays out of scope". Note-level editing stays out; USE .ABC FILE
-stays the way to correct notes.
+stays the way to correct notes. (*2026-10-03*: "Score Agent" brings
+planner-made score edits to YuE2 songs; hand editing of notes stays out.)
 
 ### Decisions
 
@@ -8327,3 +8347,623 @@ Rules for every stage:
    unreachable? S4 fails fast; revisit if a crash empties a long queue.
 4. Destination folder in the recipe stays read-only; a folder select
    there is a separate scope question.
+
+## Remove the HeartMuLa Engine (planned 2026-10-03)
+
+**Decision (project owner, 2026-10-03): HeartMuLa is marked for removal.**
+It only gives Mulakai a second way to generate a first take from a prompt,
+and it does that with fewer controls than either engine beside it:
+
+- It does nothing after the first take. Every edit runs on ACE-Step
+  ("Multiple Song-Creation Engines").
+- It cannot make covers. COVER lists only engines with a transcriber, and
+  `heartmula-server` has none. YuE2 does covers through SheetSage2.
+- Compared with ACE-Step it has no seed, one take per run, no instrumental
+  mode, no reference audio, no bpm/key/time signature, and no LM tools.
+  DURATION is a cap only. It returns no score, so there is no metadata to
+  read back.
+- It costs a separate venv, server, test suite and `start-all.bat` entry,
+  and it shares the 16 GB card with everything else.
+
+**Not affected:** READ LYRICS. HeartTranscriptor-oss comes from the
+HeartMuLa project, but it runs in `lyrics-server/`, which does not import
+or call `heartmula-server` ("Cover Lyrics From the Recording").
+
+### Existing HeartMuLa songs
+
+Songs already made with it keep `songs.engine = 'heartmula'`. That records
+where the song came from, so there is no migration.
+
+- GENERATED WITH keeps reading `START FROM PROMPT · HEARTMULA`.
+  `generatedWithLabel` takes the stored string, so it needs no change.
+- Regenerate is already refused for engine-made songs (`replayGuard.ts`).
+- START FROM on such a song must not send a draft to an engine that no
+  longer exists. `createDraft.ts` sets `engine` only when the stored id is
+  still a known engine. Otherwise the draft opens on ACE-Step, and the
+  START FROM hint says so before the person clicks.
+
+### File-level plan (one PR, `feat/remove-heartmula`)
+
+- Delete `heartmula-server/`, plus its `.gitignore` line and its
+  `start-all.bat` block.
+- Server: delete `services/engines/heartmula.ts` and its test. Drop it from
+  `registry.ts` and from `EngineId` in `types.ts`. Remove
+  `heartmulaUrl`/`heartmulaApiKey` from `config.ts`, and update the
+  `schema.ts` column comment to say old rows may hold `heartmula`. Update
+  `engineCovers.test.ts`, `engines.test.ts` and `registry.test.ts`.
+- Client: drop `heartmula` from `api/engineTypes.ts`, `engineSettings.ts`
+  and `EnginesSection.tsx`. Add the unknown-engine fallback in
+  `createDraft.ts`, with a test. Reword the HeartMuLa comments in
+  `engineCaps.ts` and `VersionHistory.tsx`. Move the tests that used
+  HeartMuLa as their "duration is a cap" or "no instrumental mode" example
+  (`engineCaps`, `engineRequest`, `instrumental`, `modelStatus`) to
+  synthetic capabilities, so those code paths stay covered.
+- e2e: drop `HEARTMULA_API_URL` from `playwright.config.ts`.
+- Docs: `README.md` (setup, env table), `CLAUDE.md` and `AGENTS.md` (tech
+  stack, scope), `yue-server/README.md`, and `pipeline/brief.md` /
+  `playbook.md`. `docs/design/DESIGN.md` loses its HeartMuLa examples in a
+  commit of its own. Earlier PLAN.md sections stay as written; this one
+  supersedes them.
+
+### Open questions
+
+1. Should the gating that only HeartMuLa uses (`duration: 'max'`,
+   `instrumental: false`, the CFG/TEMPERATURE/TOP-K controls) be removed
+   too? Recommendation: keep it. It is small, it is engine-neutral, and the
+   tests above keep it covered for the next engine that needs it.
+
+## YuE2 Is the Default First-Take Engine (planned 2026-10-03)
+
+**Decision (project owner, 2026-10-03): a new song's first take from a
+prompt is made by YuE2 by default. ACE-Step as a first-take engine becomes
+an optional setting, off by default.** This reverses two lines of "Engine
+picker UI decisions": the draft engine defaulting to `'acestep'`, and
+ACE-STEP always listed first in the ENGINE row. Every edit after the first
+take still runs on ACE-Step, so ACE-Step stays a required process.
+(*Amended 2026-10-03* by "Score Agent": YuE2 may re-render its own song
+from an edited score; every audio edit stays ACE-Step's.)
+
+### Decisions
+
+1. **Scope: AN IDEA (PROMPT) only.** COVER keeps its current ENGINE row,
+   with ACE-STEP first and offered, because an ACE-Step cover does
+   something a YuE2 cover can't: it works from the source audio, not just
+   its melody. ARRANGE and ONE TRACK stay ACE-Step only. See open
+   question 1.
+2. **The setting** is a new Settings › Engines toggle, **ACE-STEP FOR NEW
+   SONGS**, off by default. It is a client preference, persisted in
+   `settings.ts` like the other generation settings. The Engines card stops
+   being read-only for this one control.
+   - Off: AN IDEA's ENGINE row shows YUE2 as a fixed chip, the way
+     `AceStepOnly` shows ACE-STEP today. There is nothing to pick.
+   - On: the row shows YUE2 first, then ACE-STEP.
+3. **The default resolves from what is running.** A new pure helper,
+   `defaultPromptEngine(engines, aceStepForNewSongs)` in `engineCaps.ts`:
+   - YuE2 configured: `yue2`.
+   - YuE2 not configured (`YUE_API_URL` unset): `acestep`, whatever the
+     setting says. A default install, and CI's e2e, behave exactly as
+     today, and the toggle shows as "YuE2 not configured — new songs use
+     ACE-Step".
+4. **The draft's engine means "default" until someone picks one.**
+   `createDraftStore`'s `engine` becomes `EngineId | null`. `null` (the
+   initial value, and what CLEAR DRAFT resets to) resolves through
+   `defaultPromptEngine` wherever it is read: the ENGINE row, GENERATE, and
+   the create bar's QUICK START. The engine list loads after the draft, so a
+   stored `'acestep'` default would be wrong for the first moment of every
+   session.
+5. **YuE2 configured but unreachable.** The existing `.warn-note` stays and
+   GENERATE stays off. With the setting off, ACE-STEP isn't on screen as the
+   way out, so the note ends "or turn on ACE-STEP FOR NEW SONGS in
+   Settings". It does not fall back to ACE-Step silently. The consequence
+   line under GENERATE names the engine, and that should stay true.
+6. **Reused drafts keep their engine.** START FROM / RETRY on an ACE-Step
+   song, with the setting off, still opens on ACE-STEP. `EngineChoice`
+   already keeps a draft's engine visible and selected when it isn't
+   offered. A reused draft asks for what made the song; the setting only
+   changes what a new draft starts on.
+7. **QUICK START, REFINE INPUT, FEELING LUCKY and WRITE FOR ME stay on
+   ACE-Step's LM.** They draft text; they don't make the take. What changes
+   is where the drafted song generates (YuE2). The consequence line under
+   GENERATE already names the engine.
+8. **What a person loses by default** (from `YUE2_CAPABILITIES`): DURATION
+   is N/A (YuE2 plans the length), VOCAL LANGUAGE offers only English and
+   Chinese, TAKES is 1, there is no reference audio and no LoRA. BPM, KEY /
+   SCALE and TIME SIGNATURE are sent as style text. The existing gating
+   already shows each of these in place; nothing new to build.
+
+### File-level plan (one PR, `feat/yue2-default-engine`)
+
+- `client/src/settings.ts` (+ `settingsTypes.ts` / `settingsPersist.ts` as
+  the existing settings do): `aceStepForNewSongs: boolean`, default
+  `false`, with a test.
+- `client/src/engineCaps.ts`: `defaultPromptEngine`, and `pickerEngines`
+  takes the setting. YUE2 is first; ACE-STEP is listed only when the
+  setting is on or YuE2 isn't configured. Tests for each case in decision
+  3, and for the unreachable case.
+- `client/src/createDraftStore.ts`: `engine: EngineId | null`, initial and
+  CLEAR `null`; `load` keeps setting the reused engine. A test that CLEAR
+  returns to the default, not to `'acestep'`.
+- `client/src/EngineChoice.tsx`: `PromptEngineChoice` resolves `null` and
+  shows the fixed chip when there is one choice. The warn-note gets the
+  Settings pointer (decision 5).
+- The GENERATE / QUICK START paths that read `draft.engine`
+  (`generationStore.ts`, the create bar): resolve through the helper.
+- `client/src/EnginesSection.tsx`: the ACE-STEP FOR NEW SONGS toggle.
+- `docs/design/DESIGN.md` (own commit): the ENGINE row's order and fixed
+  chip, and the Engines card's one control.
+- `CLAUDE.md`, `AGENTS.md` (scope: the first take now defaults to YuE2),
+  `README.md` (YuE2 setup moves from optional to recommended).
+- Browser-check: with `YUE_API_URL` set, a fresh draft generates on YUE2;
+  with it unset, on ACE-Step; toggling the setting adds and removes
+  ACE-STEP.
+
+### With the score agent (agentic editing, planned)
+
+*Specified 2026-10-03 in "Score Agent", which this paragraph pointed to.*
+
+A score agent for YuE2 songs is planned but not yet specified here. It
+gets its own dated section after its spikes, and that section supersedes
+"ABC score editing is out of scope" ("Engine: YuE2", "YuE2: Align With
+Upstream"). What is decided so far:
+
+- A local LLM turns a request ("jazz choruses, 88 BPM, add a sax solo")
+  into score operations on the song's saved `score.abc` sidecar.
+- Mulakai applies the operations and checks the result. The person reviews
+  the change list, and APPLY & RENDER re-renders the whole song on YuE2 as
+  a new base version.
+- It is a 5th Action Dock verb, **SCORE**, shown only for songs whose first
+  take came from YuE2.
+- SCORE is available only while the song has no ACE-Step edits (one layer,
+  no repaint versions). After that it offers "new song from this score"
+  instead.
+
+How this section changes that agent:
+
+1. **SCORE becomes the main edit path for a new song, not a side path.**
+   Every song made on the default engine carries a `score.abc` sidecar, so
+   SCORE is available from the first take. That sets the editing order:
+   first whole-song score edits on YuE2, then ACE-Step audio edits
+   (repaint, ADD LAYER, extract, remaster). The first ACE-Step edit ends
+   score editing for that song. The score agent's section must state this
+   in the dock before it happens. For example, REPAINT and ADD LAYER on a
+   song that still has SCORE carry the consequence line "score editing
+   ends after this edit — SCORE will offer a new song instead".
+2. **Songs made on ACE-Step never show SCORE.** That covers songs made
+   with ACE-STEP FOR NEW SONGS on, and every song on an install without
+   YuE2. ACE-Step returns no score.
+3. **AGENTS.md is amended once per rule.** This section's PR changes only
+   the first-take default. The score agent's PR amends "every edit after
+   the first take runs on ACE-Step", so that YuE2 may re-render its own
+   song from an edited score.
+4. **GPU.** YuE2 now loads for every default new song, and the agent adds
+   a planner LLM. All three share the 16 GB card one at a time. The
+   planner hand-off was measured on this machine on 2026-10-03: released
+   in about 0.1 s, then YuE2 ran at full speed. This section needs nothing
+   new for the GPU.
+5. **Removing HeartMuLa loses nothing here.** HeartMuLa returns no score,
+   so SCORE never applied to its songs.
+
+### Open questions
+
+1. Should COVER default to YUE2 too? Recommendation: no, see decision 1.
+   Only the AN IDEA flow changes until the owner says otherwise.
+
+
+## Score Agent (planned 2026-10-03)
+
+**This amends a locked decision (the project owner's, 2026-10-03, D-005).**
+It supersedes "ABC score editing ("agentic editing") is out of scope" in
+"Engine: YuE2" and "Still out of scope: score editing, reharmonization ..."
+in "YuE2: Align With Upstream", and it fills in "With the score agent" under
+"YuE2 Is the Default First-Take Engine". The earlier lines stay as written,
+each with a pointer here. A song YuE2 made may be re-rendered **by YuE2**
+from an edited copy of its own score (the SCORE verb). Every audio edit
+(repaint, Add Layer, extract, remaster, regenerate) still runs on ACE-Step.
+
+The full spec lives in the pipeline files and is not copied here:
+`pipeline/scope.md` (milestones, interaction specs, Later, Not doing),
+`pipeline/architecture.md` (modules, data, seams, test strategy),
+`pipeline/decisions.md` (D-005..D-046), `pipeline/features.json`
+(F-016..F-039, acceptance criteria), `pipeline/design/score-verb.html`
+(the signed-off dock spec) and the spikes in `pipeline/spikes/` (SP-1
+VRAM hand-off, SP-2 planner quality, SP-3 `cot` full adherence).
+
+What a person does (M0): open a library song YuE2 made, pick SCORE in the
+Action Dock, type "jazz chords in the chorus, 88 BPM", press PLAN, read the
+change list, its checks and the consequence line, press APPLY & RENDER, and
+get a new lilac base version rendered by YuE2, with the previous version one
+click away in VERSIONS.
+
+### Decisions
+
+1. **The full agent, local only** (D-005, the owner's). A local LLM plans
+   score operations; code applies and checks them. No cloud planner.
+2. **Eligibility** (D-006 the owner's, D-021, D-043). SCORE only while the
+   song is a YuE2 text2music first take (or a score edit of one), has one
+   layer and no ACE-Step versions (every base version's
+   `params_json.engine` is `yue2`), and its `.abc` sidecar passes the
+   checker. M0 also needs chords in the score. Otherwise the dock names the
+   reason. The first ACE-Step edit ends score editing for that song.
+3. **A 5th dock verb, SCORE** (D-007 and D-032 the owner's, D-027..D-031).
+   Appended last, key C, chip `BASE · WHOLE SCORE`, hidden when the song
+   has no score or `LLM_API_URL` is unset. See DESIGN.md's Action Dock.
+4. **Planner transport** (D-002, D-012). Ollama first, through the
+   OpenAI-compatible `/v1/chat/completions` with a strict JSON-schema
+   `response_format` and `reasoning_effort: "none"`, plus Ollama-native
+   `keep_alive: 0` and `/api/ps` for release and context checks
+   (`docs/decisions/0001`). Default model `qwen3:14b` Q4_K_M at 16k
+   context (D-024); the 26B MoE is a supported value, not a tested one.
+5. **The GPU is handed over, never shared** (D-011). The planner is
+   unloaded and `/api/ps` seen empty before the plan's queue slot is
+   released. Two queue kinds, `plan` and `scoreRender`, on `genQueue`
+   (D-003, D-022), each with its own slot: the review holds nothing.
+6. **Render request** (D-010, D-023). The edited score as `abc`, `cot`
+   full, the stored style and lyrics **as stored** except what an op
+   changes, the base version's seed. No op rewrites lyric section tags
+   before M2 (SP-3: normalizing one tag moved 2-8% of the notes).
+7. **Only yue-server reads or writes ABC** (D-019, `docs/decisions/0002`).
+   Apply, validate, bar map, duration and token count are CPU-only routes
+   next to the vendored upstream `abc_tools.py`. No TypeScript port.
+8. **Plans live in server memory**, one per song (D-020, D-035,
+   `docs/decisions/0004`). A restart loses it; APPLY & RENDER then says
+   "plan expired".
+9. **A score version is an ordinary `versions` row** (D-037, D-038).
+   `params_json` carries `score_v: 1`; the `.abc` sidecar is written
+   before the row, and a failed write fails the render. Reverting restores
+   score, style, lyrics and song meta.
+10. **A `truncated` render is saved and active** but reads TRUNCATED in
+    rust, never DONE (D-025).
+11. **One poll loop, honest fakes, a safe checkpoint** (D-036, D-039,
+    D-040, D-041, D-042): `enginePoll.ts` is shared with first takes; the
+    fake yue serves replies recorded by pytest; CP1 runs on a throwaway
+    `DATA_DIR`; CANCEL aborts the planner call at once and still unloads;
+    the tokenizer takes a lock.
+12. **Server code in `server/src/services/score/`** (D-034); the client
+    stays flat.
+13. **This docs PR also lands** `checks.yml` in CI (D-033) and the context
+    skeleton: CLAUDE.md digest, `.claude/rules/`, `docs/decisions/`
+    (D-044, D-046 the owner's).
+
+### Op set per milestone
+
+| Milestone | Ops and features |
+|---|---|
+| M0 (F-016..F-025) | SET TEMPO, REHARMONIZE (`root` + `quality` enums), EDIT STYLE (D-018); at most 3 attempts with numeric feedback; headless checkpoint CP1 before any UI |
+| M1 (F-026..F-028) | WRITE PHRASE as `{pitch, beats}` notes, code writes the ABC (`docs/decisions/0003`); the first-ACE-Step-edit warning (Q-015); the SCORE e2e against fake Ollama and fake yue |
+| M2 (F-029..F-033) | TRANSPOSE, REPEAT / CUT, REWRITE LYRICS; lyric tags derived by code from `% section` comments; a selected section or lyric line as the referent; REVISE |
+| M3 (F-034, F-035) | NEW SONG FROM THIS SCORE for ineligible songs; chord-free, instrumental and cover scores (the `melody` path) |
+| M4 (F-036..F-039) | bar map in the review, Settings planner card, Activity entry, palette pre-fill |
+
+### SCORE verb states
+
+Transitions, cancel and error rules: `pipeline/scope.md` "Interaction
+specs"; copy and layout: `pipeline/design/score-verb.html`.
+
+| State | When | The dock shows |
+|---|---|---|
+| hidden | no YuE2 score, or `LLM_API_URL` unset | no tab; key C does nothing |
+| ineligible | fails decision 2 | one plain reason line |
+| offline | probe failed, model not pulled, or not an Ollama server | rust cause and fix, RECHECK |
+| asking | ready | reading line, request field, PLAN, "changes nothing yet" |
+| queued | PLAN while the GPU is busy | `PLANNING · QUEUED · STARTS AFTER n JOBS`, CANCEL |
+| planning | slot held across attempts and the unload | `PLANNING… attempt n of 3` on the AI shader, CANCEL |
+| plan ready | a valid plan | change list, checks line, consequence line, APPLY & RENDER on |
+| check failed | 3 attempts spent, a limit, a truncated context, or no change | one rust line per cause with its number, APPLY & RENDER off |
+| render queued / rendering | APPLY & RENDER pressed | a job line under the commit, CANCEL |
+| done | render saved | "Saved base v3 · 88.1 BPM, 3:04", lilac badge, field cleared |
+| truncated | the render hit YuE2's cap | rust TRUNCATED line; the version is saved and active |
+| render failed | engine error | rust error, RETRY RENDER, plan kept |
+| stale | the commit-time re-check fails (base changed, repaint queued, plan expired) | the reason, PLAN AGAIN; no engine job |
+
+### The plan → render hand-off
+
+1. PLAN enqueues a `plan` job. Holding the slot: context preflight
+   (`/api/ps` `context_length` ≥ prompt + 2,500) → planner call →
+   yue-server apply + check, up to 3 attempts with the errors fed back
+   ("bar 5 had 31/32 units") → postflight (`usage.prompt_tokens` not
+   truncated) → **always**, in `finally`: `keep_alive: 0`, then poll
+   `/api/ps` every 250 ms until empty (10 s bound) → plan stored → slot
+   released.
+2. The person reviews. Nothing holds the GPU.
+3. APPLY & RENDER re-checks eligibility, the base version, that the plan is
+   alive and that `/api/ps` is empty (refused with the reason otherwise),
+   then enqueues a `scoreRender` job with its own slot: yue-server
+   `POST /v1/jobs` → shared poll → new base version + sidecar → slot
+   released.
+
+### Limits the spikes set
+
+- **Duration, not tokens, binds.** YuE2 stops at 9,000 semantic tokens,
+  i.e. 360 s, and returns `truncated` (SP-1: a 4,055-token score hit it).
+  The review warns from **330 s** and refuses at **360 s**, naming the
+  slowest tempo that fits ("at least 112 BPM fits"); the 4,096-token score
+  budget is checked too.
+- **Unload before release.** SP-1 measured the unload confirmed and VRAM
+  back at baseline in ~0.1 s, then YuE2 at full speed (86.7-92.8 tok/s).
+  The 14B planner holds 10.9 GiB at 16k context and leaves ~2 GiB of the
+  card, so the planner never co-resides with YuE2 or a loaded ACE-Step.
+- **Reasoning off.** With thinking on, SP-1's planner spent 1,500 tokens
+  reasoning, returned empty content and took 71 s.
+- **Context.** A short Ollama context truncates the prompt silently (HTTP
+  200, a plan for half the song); the server needs
+  `OLLAMA_CONTEXT_LENGTH=16384`, and the guard refuses a short context.
+- **Speed.** Plan p50 1.6 s warm, p95 14 s (SP-2); cold load 2.5 s.
+- **CP1 stop lines** (after W2): unload-to-empty over 5 s, YuE2 under 80
+  tok/s or plan p50 over 60 s stops the build before any UI.
+
+Environment: `LLM_API_URL` (empty hides SCORE), `LLM_MODEL` (default
+`qwen3:14b`), `OLLAMA_CONTEXT_LENGTH=16384` on the Ollama server,
+`ACESTEP_OFFLOAD_TO_CPU=true` for ACE-Step. Agents and CP1 use a second
+`ollama serve` on 127.0.0.1:11435 and leave the user's :11434 alone (D-045).
+
+### File-level plan
+
+One PR per work package, in this order (risk first). The full module table
+with LOC estimates and tests is `pipeline/architecture.md` "Modules".
+
+- **W0 (F-016, docs)**: this section; the AGENTS.md Scope Discipline,
+  CLAUDE.md and `yue-server/README.md` wording; DESIGN.md's SCORE verb
+  (own commit); the context skeleton; `.github/workflows/checks.yml`.
+- **W1 (F-017, yue-server)**: `score_model.py`, `score_ops.py`,
+  `score_check.py`, `score_facts.py`, `score_edit_routes.py`
+  (`POST /v1/scores/read`, `POST /v1/scores/apply`); the `worker.py`
+  tokenizer lock; the `main.py` mount; golden tests from SP-2's 39 cases
+  and contract fixtures for the TypeScript fake.
+- **W2 (F-018..F-020, server)**: `server/src/services/score/`
+  (`scoreTypes`, `opSchema`, `plannerRules`, `plannerPrompt`,
+  `planAttempts`, `contextGuard`, `scoreLimits`, `scoreEligibility`,
+  `planStore`, `plannerClient`, `ollamaControl`, `yueScoreClient`,
+  `scoreSource`, `scoreStatus`, `planJob`, `scoreRenderJob`,
+  `scoreVersion`); `engines/yue2Score.ts`; `services/enginePoll.ts`;
+  `routes/score.ts`; small changes to `genQueue`, `jobRunner`,
+  `jobRegistry`, `generateStatus`, `versions` and `config`; fakes in
+  `server/test-fakes/`; `server/scripts/scoreCp1.ts`. Then CP1.
+- **W3 (F-021, F-022, F-024, client)**: `scoreVerbTypes`, `scoreVerb`
+  (the reducer), `scoreCopy`, `dockVerbs`, `scoreStore`, `api/score`,
+  `DockScore`, `ScorePlanList`, `ScoreStateLine`; changes to `ActionDock`,
+  `useDockKeys`, `dockTarget`, `api/types`, `activityRunning` and
+  `index.css`.
+- **W4 (F-023)**: APPLY & RENDER through to the new version.
+- **W5 (F-025)**: the live run in the real app (the M0 exit).
+
+### Open questions
+
+1. **Owed listens** (not blockers): the SP-3 A/B pairs (does the chord
+   change come through?) and the SP-2 WRITE PHRASE listen (are the phrases
+   musical?). If the chord change is heard in fewer than 4 of 5 pairs,
+   REHARMONIZE ships with "a request, not a guarantee" only and the
+   deterministic-ops fallback is raised before M1.
+2. **Dock height** (D-032): measure the plan-ready dock at 1366×768 and
+   1920×1080 in the real app.
+3. **SP-1's owed repeats** (Q-021): ACE-Step parked after a real
+   generation, and the real queue in the loop, at the M0 live run.
+4. **Deferred**: the M2 referent and the M4 bar map placement (Q-029);
+   A/B compare of two versions (Q-008).
+
+## Chat: Talk a Song Into Being (planned 2026-10-06)
+
+**Signed off by the owner 2026-10-06 (D-096). This amends the Grand Goal**
+(D-079, the owner's, 2026-10-05). Today the workflow is "generate, repaint, layer,
+version, export", with SCORE as the main edit path for YuE2 songs. With
+this section the **chat becomes the default way to create and edit a
+song**: describe one, or start from a reference song, get the first take,
+then improve it turn by turn in conversation with the local LLM. The
+Editor's verbs (REPAINT, ADD LAYER, SPLIT, EXPORT, SCORE) and Guided
+Create stay as the **scalpel** for precise work. The Grand Goal's
+non-goals stay: one user, local only, one song at a time, no DAW.
+
+The owner's answers are in (D-081..D-095). Decision 6 stays pending the
+owner's listen of **SP-4** (keep the unchanged parts of a song
+through an edit; `pipeline/spikes/SP-4-keep-unchanged/`, R-024). A chat
+that re-rolls the whole song on every turn does not converge, so how an
+edit turn renders is decided by SP-4's result (decision 6).
+
+What a person does:
+1. Opens Mulakai on **CHAT** and types "a slow Spanish ballad about the
+   sea, nylon guitar and a soft female voice", or drops an audio file or
+   picks a library song and types "like this, but in German and about
+   leaving".
+2. The assistant answers with a **proposal card**: title, style, tempo,
+   key, structure, the lyrics it wrote, the engine, and a consequence line
+   ("renders a new song on YuE2, about 3 min, nothing else changes"). The
+   person edits any field in the card or answers in the chat; nothing runs
+   until they press the card's commit (CREATE SONG).
+3. The first take appears in the thread as a **song card** (play,
+   waveform, version badge). "Bigger chorus, and slow it down a bit" gives
+   a new proposal card listing the changes (the SCORE change list), its
+   checks and its consequence line; APPLY makes a new version, shown in
+   the thread with an A/B switch against the one before.
+4. Any time: OPEN IN EDITOR for the scalpel. What is done there shows up
+   in the thread as a version card too, so the conversation keeps up.
+
+### Decisions (proposed; the ones marked **owner** need the owner's pick)
+
+1. **Two ways in, one draft** (the owner's, D-086). **Chat-first** is the
+   start screen: the conversation is the main surface and the form is an
+   optional, collapsible sidebar showing the fields the LLM fills; the LLM
+   does almost all of the editing. **Form-first** is today's Guided Create
+   with the chat docked as a side assistant that helps and fills in the
+   form's fields. Both edit one shared draft, so switching keeps everything,
+   and either commits. The Library's CONTINUE row opens a song's thread.
+   Whether editing a song mirrors this (chat-first thread vs Editor-first
+   with the chat as a side assistant) is Q-055; the default is yes, which
+   makes the Editor-first mode the scalpel.
+2. **The LLM proposes, code acts, the person commits.** Each assistant
+   turn is one strict-JSON reply from a closed set, checked by code like
+   the SCORE planner (`docs/decisions/0001`): `ask` (one clarifying
+   question with choices, only when nothing can be proposed), `recipe` (a
+   new song), `edit` (SCORE ops, through the existing plan job), `scalpel`
+   (a REPAINT of a section with new words, an ADD LAYER, a SPLIT, an
+   EXPORT, through the existing jobs and their limits), `analyze` (read a
+   reference) and `say` (a plain answer, no action). Every action is a
+   proposal card with a consequence line and a commit button (DESIGN.md: a
+   consequence line before every generative or destructive commit).
+   Alternative: apply each turn as soon as it is planned (faster; breaks
+   the design rule and spends GPU minutes on misunderstandings).
+3. **Same local model, same GPU hand-off.** A chat turn is a `plan`-kind
+   job on `genQueue` under the SCORE planner's rules: `qwen3:14b` at 16k
+   context through Ollama, reasoning off, unloaded and `/api/ps` seen
+   empty before the slot is released (D-011). It never sits next to YuE2
+   or a loaded ACE-Step. A turn takes about 3-15 s (SP-2: plan p50 1.6 s
+   warm, cold load 2.5 s; M2: median 4.8 s); replies are not streamed in
+   C1. Alternative: a larger chat model (no room on 16 GB at 16k context;
+   revisit with SP-5's numbers).
+4. **One thread per song, kept** (the owner's, D-081). The thread lives in SQLite
+   (`chat_messages`: song, role, text, proposal JSON, the version it made),
+   survives reloads and is deleted with the song. Before the first take
+   the thread is a draft with no song; CREATE SONG attaches it. The LLM
+   does **not** see the whole transcript each turn (16k context): it sees
+   a song-state block built by code (yue-server's read facts: sections,
+   key, tempo, lyric blocks, style; the version list with labels), the
+   pending proposal if any, and the last few turns. Pending proposals stay
+   in memory like SCORE plans (`docs/decisions/0004`) and expire on
+   restart.
+5. **The assistant writes lyrics; the score stays code's.** A `recipe`
+   carries lyrics with section tags and a structure; YuE2 writes the score
+   on the first take (its own planner, as today). The chat LLM never
+   writes ABC; edits go through SCORE's ops, which yue-server applies
+   (`docs/decisions/0002`). The language follows the request (the library
+   has German, Spanish and English songs). When a request is unclear the
+   assistant proposes with its assumption stated ("assuming the second
+   chorus") and asks only when it cannot propose anything (the owner's,
+   D-082). **Engine** (the owner's, D-083): YuE2 by default; the assistant
+   may propose ACE-Step when a request fits it better, and the recipe card
+   then says the song will not be score-editable (scalpel turns only, no
+   splice).
+6. **How an edit turn renders depends on SP-4** (pending the owner's
+   SP-4 listen; the machine half is in, D-080). For a score-eligible
+   song:
+   - local edits (chords, a phrase, the words of one section): render,
+     then splice the changed bars into the current version (SP-4's A3:
+     cut snapped to the groove at the downbeats, 1-beat equal-power
+     crossfade, the new span level-matched to the old audio at both ends;
+     machine half proven for chords 4/4 and phrases 3/4, lyrics
+     inconclusive, the listen decides). The consequence line says "only
+     bars 33-40 change". Seam healing with ACE-Step repaint is not used
+     (SP-4: it made adherence and level worse);
+   - structure edits (repeat, cut): an audio-only edit with no YuE2
+     render (SP-4's C: sample-exact, about 0.2 s), if the listen accepts
+     its seams;
+   - tempo and key edits offer both (the owner's, D-085): RE-RENDER (a
+     whole-song YuE2 render; the consequence line says the whole song
+     changes) and SHIFT/STRETCH (pitch-shift or time-stretch of the current
+     take, same performance), the latter only if spike SP-6 passes (R-026);
+     whole-song style edits re-render;
+   - if nothing passes: every edit re-renders the whole song, the card
+     says so, and the thread offers "keep the old take for these bars" as
+     an explicit splice the person listens to.
+   A song that is no longer score-eligible (it has ACE-Step edits) gets
+   `scalpel` proposals, or NEW SONG FROM THIS SCORE (M3, folded in here).
+7. **A reference song is analyzed, and kept** (the owner's, D-084).
+   `analyze` runs what exists: lyrics-server's words, yue-server's
+   transcriber (audio to a score with melody and chords), and ACE-Step's
+   ANALYZE AUDIO (caption, tempo, key). The result is a reading card. The
+   assistant then proposes either a **cover** (YuE2 from the transcribed
+   score with new lyrics and style: the existing USE .ABC FILE path) or a
+   **fresh song** whose recipe borrows tempo, key, structure and
+   instrumentation words. The reference audio is kept with the song as its
+   source (re-analyze it, or A/B the song against it) and never leaves this
+   machine; the person is responsible for its rights.
+8. **Every applied turn is a version.** The thread shows a version card
+   per applied turn (label = the turn's change list, as SCORE labels
+   today) with play, A/B against the previous version, and USE THIS
+   VERSION (activate). This pulls A/B compare (Q-008) into the chat.
+9. **The scalpel stays in step.** A repaint, layer or score edit made in
+   the Editor appends a version card to the thread ("you repainted the
+   bridge in the Editor"), so the next turn's song-state block is true.
+
+10. **The latest version is always playable** (the owner's, D-089). The
+    chat view keeps a player for the song's active version in view, above
+    the composer (D-095), with its waveform and section strip; a saved version replaces it at once,
+    and the previous one is a click away (A/B, decision 8).
+11. **Every version is analyzed** (the owner's, D-089). After each save,
+    whatever made it, a queued `analyze` job refreshes word timings
+    (lyrics-server), the score and its sections (YuE2's own score for a
+    YuE2 version, yue-server's transcriber otherwise), so the song-state
+    block, the strip and the marking always match what plays. While it
+    runs the strip shows the previous analysis as "updating". A transcribed
+    score feeds context and marking only; score editing on a transcription
+    stays M3/C3 scope (Q-062).
+12. **The marked range is the chat's "this"** (the owner's, D-090). Click a
+    section to mark it, drag to extend it a bit (bars by default), or mark
+    a lyric line, as in the Editor; the composer shows the mark as a chip
+    and the turn sends it with the prompt: bars, seconds, the sections and
+    lyric lines it covers, the key and tempo there. In Editor-first mode
+    the Editor's selection is the mark. A mark the new version no longer
+    matches is stale (F-032's USE BARS). Mockup: `pipeline/design/chat-song.html`.
+
+### Design (signed off by the owner, 2026-10-06)
+
+Three mockups are the spec; when code and a mockup disagree it is a bug
+unless a decision says otherwise (D-086..D-095):
+- `pipeline/design/chat-create.html`: two ways in over one draft. Chat-first
+  (the start screen: thread and composer, the form as a collapsible 360 px
+  sidebar whose fields the assistant fills, marked sky with an ASSISTANT tag
+  and the old value struck; CREATE SONG on the proposal card) and
+  form-first (today's Guided Create with a 300 px assistant that fills
+  fields and never commits). A CHAT | FORM toggle; editing a song mirrors
+  it (thread vs Editor with the side assistant). UNDO TURN; fields stay
+  editable during a turn and the assistant skips touched ones; assistant off
+  or failing falls back to form-first with the reason and RETRY.
+- `pipeline/design/chat-song.html`: the player, a new version swapping in
+  place (position kept, A/B to the previous one), the analysis states
+  (updating, failed with RETRY and marking by time, transcribed scores for
+  ACE-Step versions), and the mark: click a section, drag to extend (snaps
+  to bars), mark a lyric line; a chip in the composer with "what it sees";
+  each sent message keeps a frozen echo; a stale mark holds SEND until USE
+  BARS or CLEAR MARK.
+- `pipeline/design/chat-lyrics.html` (final layout = frame 3): the player
+  above the composer; lyrics in a sidebar panel showing only the marked
+  part (no mark: the section list), no playback follow; a lyric rewrite's
+  OLD | NEW diff on the proposal card and inline in the panel; the send
+  control is the outline text button `SEND ↵`, never a play-like glyph.
+
+### Milestones (cut 2026-10-06, `pipeline/scope.md`, features F-040..F-081)
+
+Before any chat code: spike **SP-5** (does `qwen3:14b` run the chat: right
+action, usable recipes and lyrics, asks only when stuck; 40 scripted
+conversations, pass bars and a fallback ladder in scope.md, D-097); the
+owner's SP-4 listen (gates the splice and C4); the R-025 launcher check
+(gates C7); **SP-6** shift/stretch (gates C5 only).
+
+| | What a person can do when it is done |
+|---|---|
+| C0 | The core path, thin: CHAT is the start screen (when the planner and YuE2 are set up, D-099), describe a song, recipe card, CREATE SONG (YuE2), song card and player above the composer, one edit turn (a REHARMONIZE plan is spliced, A3; every other plan re-renders the whole song and says so), version card with A/B, the thread survives a reload. Headless checkpoint CP-C0 before the UI. |
+| C1 | Every version analyzed; the waveform and section strip; marking (click, extend, lyric line) sent with the turn; stale marks; the chat e2e. |
+| C2 | The lyrics sidebar panel; OLD / NEW diffs; REVISE; UNDO TURN; the bar map on the edit card. |
+| C3 | Reference songs: analyze, kept as the source, cover or fresh-song proposals; chord-free scores. |
+| C4 | REPEAT / CUT as audio-only edits; the splice for phrases and lyrics; several spans in one turn. |
+| C5 | SHIFT / STRETCH for tempo and key, only if SP-6 passes. |
+| C6 | Form-first and the shared draft toggle; the Editor-first mirror; CREATE opens the remembered mode. |
+| C7 | Scalpel actions from the chat; Editor edits mirrored into the thread; ACE-Step first takes; new song from this score. |
+| C8 | Settings planner card, Activity entries, the palette's "Ask in chat". |
+
+The score agent's M3 and M4 fold in here (F-034, F-035 into C3 and C7;
+F-036..F-039 into C2 and C8).
+
+### Shape of the code (detailed at architecture)
+
+- Server: `server/src/services/chat/` beside `services/score/`: the thread
+  store (a `chat_messages` migration), the song-state block (from
+  `scoreSource` and yue-server's `/v1/scores/read`), the turn job (action
+  schema, prompt and attempts, reusing `plannerClient`, `ollamaControl`,
+  `contextGuard` and `planAttempts`), and an action dispatcher onto the
+  existing jobs (first take, cover, plan and render, repaint, add layer,
+  split). Routes in `routes/chat.ts`.
+- Client: a CHAT view with the thread, proposal cards (recipe, edit,
+  scalpel, reading) and song/version cards, reusing SCORE's change-list
+  rows and copy (`scoreCopy`, `scoreSectionCopy`). Design-first: a stage 5
+  mockup settles the layout and the cards before code.
+- yue-server: the splice or the audio-only structure edits, only if SP-4
+  passes; no change otherwise.
+- e2e: a chat spec against the fake Ollama with scripted turns, beside the
+  SCORE spec.
+
+### Open questions for the owner (Q-054)
+
+Answered 2026-10-06: two ways in (D-086), editing mirrors it (D-088),
+the design (D-095), memory (D-081), ask or propose (D-082), engine
+(D-083), reference audio (D-084), tempo and key (D-085). Still open:
+
+1. **SP-4's listen**: do the splice joins and the audio-only REPEAT/CUT
+   seams pass by ear (`pipeline/spikes/SP-4-keep-unchanged/listen`)?

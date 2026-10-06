@@ -1,0 +1,261 @@
+{
+ "tag": "b13",
+ "songId": "781968b6-ada5-427a-b333-d4d96b9af7fd",
+ "request": "rewrite the third chorus about leaving",
+ "flags": [],
+ "started": "2026-10-05T19:01:06.586Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1979,
+  "util": 0
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 123,
+   "seconds": 213.9,
+   "bpm": 138,
+   "key": "Am",
+   "meter": "4/4",
+   "tokens": 2635
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "Modern Polish polka, turbo folk-pop, high-energy party polka, fast accordion riffs, punchy electronic drums, driving 4/4 brass section, slap bass, upbeat synth hooks, festive stadium crowd claps, Polish folk vocal chants, anthemic, euphoric dancefloor, 135 BPM, 135 bpm",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 11
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 12,
+    "to_bar": 32
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 33,
+    "to_bar": 40
+   },
+   {
+    "index": 4,
+    "label": "interlude",
+    "occurrence": 1,
+    "from_bar": 41,
+    "to_bar": 48
+   },
+   {
+    "index": 5,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 49,
+    "to_bar": 69
+   },
+   {
+    "index": 6,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 70,
+    "to_bar": 77
+   },
+   {
+    "index": 7,
+    "label": "interlude",
+    "occurrence": 2,
+    "from_bar": 78,
+    "to_bar": 105
+   },
+   {
+    "index": 8,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 106,
+    "to_bar": 113
+   },
+   {
+    "index": 9,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 114,
+    "to_bar": 123
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "(Fast energetic accordion intro)"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 6,
+    "first_line": "Piątek wieczór, dym z grilla leci w dal"
+   },
+   {
+    "index": 3,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Akordeon głośno tnie (Opa!)"
+   },
+   {
+    "index": 4,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 6,
+    "first_line": "Zatańcz ze mną polkę, niech wiruje świat!"
+   },
+   {
+    "index": 5,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 6,
+    "first_line": "Staszek w trampkach kręci piruet na sto dwa"
+   },
+   {
+    "index": 6,
+    "tag": "[Pre-Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Akordeon głośno tnie (Opa!)"
+   },
+   {
+    "index": 7,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Zatańcz ze mną polkę, niech wiruje świat!"
+   },
+   {
+    "index": 8,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 6,
+    "first_line": "(Tempo quickens, clapping only)"
+   },
+   {
+    "index": 9,
+    "tag": "[Chorus]",
+    "occurrence": 3,
+    "lines": 4,
+    "first_line": "Zatańcz ze mną polkę, niech wiruje świat!"
+   },
+   {
+    "index": 10,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Jeszcze jeden, jeszcze raz!"
+   }
+  ]
+ },
+ "t0": 1791226866783,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "81e2ca46-a033-4941-ab0d-19d70252b8a3",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "rewrite the third chorus about leaving"
+ },
+ "t1": 1791226873138,
+ "planWallS": 6.355,
+ "planGet": {
+  "run": {
+   "jobId": "81e2ca46-a033-4941-ab0d-19d70252b8a3",
+   "request": "rewrite the third chorus about leaving",
+   "status": "done",
+   "reasons": [],
+   "planId": "27f58349-d756-452e-ab49-52d22a3a6325",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "27f58349-d756-452e-ab49-52d22a3a6325",
+   "songId": "781968b6-ada5-427a-b333-d4d96b9af7fd",
+   "baseVersionId": "3b51d3d9-3731-464a-b0ed-ce57a21616c6",
+   "request": "rewrite the third chorus about leaving",
+   "ops": [
+    {
+     "op": "REWRITE_LYRICS",
+     "block": 9,
+     "tag": "[Chorus]",
+     "occurrence": 3,
+     "lines": [
+      "Zatańcz ze mną polkę, niech wiruje świat!",
+      "Odejdź teraz, niech zostanie tylko cień",
+      "W tej chwili, gdy serca się rozdzielają",
+      "Za dnia, gdy nie ma już powrotu"
+     ]
+    },
+    {
+     "op": "EDIT_STYLE",
+     "style": "Modern Polish polka, turbo folk-pop, high-energy party polka, fast accordion riffs, punchy electronic drums, driving 4/4 brass section, slap bass, upbeat synth hooks, festive stadium crowd claps, Polish folk vocal chants, anthemic, euphoric dancefloor, 135 BPM, 135 bpm, leaving theme"
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "REWRITE_LYRICS",
+     "ok": true,
+     "reason": null,
+     "diff": {
+      "block": 9,
+      "tag": "[Chorus]",
+      "occurrence": 3,
+      "old": [
+       "Zatańcz ze mną polkę, niech wiruje świat!",
+       "Nalej do kieliszka, zapomnij ile masz lat!",
+       "Tupią buty, parkiet drży, bas po klatce gra",
+       "Baw się z nami do białego dnia!"
+      ],
+      "new": [
+       "Zatańcz ze mną polkę, niech wiruje świat!",
+       "Odejdź teraz, niech zostanie tylko cień",
+       "W tej chwili, gdy serca się rozdzielają",
+       "Za dnia, gdy nie ma już powrotu"
+      ]
+     }
+    },
+    {
+     "index": 2,
+     "op": "EDIT_STYLE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "Modern Polish polka, turbo folk-pop, high-energy party polka, fast accordion riffs, punchy electronic drums, driving 4/4 brass section, slap bass, upbeat synth hooks, festive stadium crowd claps, Polish folk vocal chants, anthemic, euphoric dancefloor, 138 BPM, 138 bpm, leaving theme",
+   "checks": {
+    "bars": 123,
+    "seconds": 213.9,
+    "tokens": 2635,
+    "chordsPresent": true,
+    "changed": {
+     "abc": false,
+     "style": true,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791226873064,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ }
+}

@@ -1,0 +1,139 @@
+{
+ "tag": "e2_vocal_only",
+ "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+ "request": "add a 4-bar sax phrase in bars 20-23 and nowhere else, do not move it",
+ "started": "2026-10-05T15:57:15.800Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 2436,
+  "util": 8
+ },
+ "t0": 1791215835865,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "9a8d2259-10bc-480a-b71b-303bc8ebd9e1",
+   "queuePosition": 0
+  }
+ },
+ "t1": 1791215847248,
+ "planWallS": 11.383,
+ "planGet": {
+  "run": {
+   "jobId": "9a8d2259-10bc-480a-b71b-303bc8ebd9e1",
+   "request": "add a 4-bar sax phrase in bars 20-23 and nowhere else, do not move it",
+   "status": "done",
+   "reasons": [],
+   "planId": "e68b1959-5bdf-49fa-bf08-d7e8eefdd2b4",
+   "cause": null
+  },
+  "plan": {
+   "id": "e68b1959-5bdf-49fa-bf08-d7e8eefdd2b4",
+   "songId": "29f8457d-97d2-48a3-8f2e-255e2dc90549",
+   "baseVersionId": "1d405426-e297-4f87-a201-7b3d4fabb8ed",
+   "request": "add a 4-bar sax phrase in bars 20-23 and nowhere else, do not move it",
+   "ops": [
+    {
+     "op": "WRITE_PHRASE",
+     "start_bar": 60,
+     "instrument": "tenor saxophone",
+     "bars": [
+      [
+       {
+        "pitch": "F",
+        "beats": 1
+       },
+       {
+        "pitch": "G",
+        "beats": 1
+       },
+       {
+        "pitch": "A",
+        "beats": 1
+       },
+       {
+        "pitch": "z",
+        "beats": 1
+       }
+      ],
+      [
+       {
+        "pitch": "B",
+        "beats": 1
+       },
+       {
+        "pitch": "C",
+        "beats": 1
+       },
+       {
+        "pitch": "D",
+        "beats": 1
+       },
+       {
+        "pitch": "z",
+        "beats": 1
+       }
+      ],
+      [
+       {
+        "pitch": "E",
+        "beats": 1
+       },
+       {
+        "pitch": "F",
+        "beats": 1
+       },
+       {
+        "pitch": "G",
+        "beats": 1
+       },
+       {
+        "pitch": "z",
+        "beats": 1
+       }
+      ],
+      [
+       {
+        "pitch": "A",
+        "beats": 1
+       },
+       {
+        "pitch": "B",
+        "beats": 1
+       },
+       {
+        "pitch": "C",
+        "beats": 1
+       },
+       {
+        "pitch": "z",
+        "beats": 1
+       }
+      ]
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "WRITE_PHRASE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 88 bpm, F minor, 4/4 time, tenor saxophone",
+   "checks": {
+    "bars": 65,
+    "seconds": 177.3,
+    "tokens": 1496,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": false
+    }
+   },
+   "attempts": 2,
+   "createdAt": 1791215847068
+  }
+ }
+}

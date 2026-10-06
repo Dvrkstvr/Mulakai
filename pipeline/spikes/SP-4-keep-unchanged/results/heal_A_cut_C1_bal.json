@@ -1,0 +1,18 @@
+{
+ "id": "A_cut_C1_bal",
+ "mode": "balanced",
+ "strength": 0.5,
+ "steps": [
+  {
+   "task_id": "512d2853-cb0e-42ad-8403-f2045569f133",
+   "seconds": 8.23261308670044,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C1a48296f-f3a6-a3a5-a832-721b3f7cc22d.wav",
+   "bytes": 29690968,
+   "window": [
+    23.58,
+    26.58
+   ]
+  }
+ ],
+ "seconds_total": 8.23261308670044
+}

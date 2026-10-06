@@ -1,4 +1,5 @@
 /** LM prompt tooling: refine, sample, or describe caption/lyrics/metadata. */
+import { config } from '../../config.js';
 import { call } from './http.js';
 import { initModel } from './models.js';
 import type { FormatInputParams, FormatInputResult, SampleResult } from './types.js';
@@ -22,7 +23,7 @@ export async function formatInput(params: FormatInputParams): Promise<FormatInpu
     lyrics: params.lyrics ?? '',
     temperature: params.temperature ?? 0.85,
     param_obj: JSON.stringify(paramObj),
-  });
+  }, undefined, config.acestepLmTimeoutMs);
 }
 
 /**
@@ -89,7 +90,7 @@ export async function createSampleFromQuery(params: {
     instrumental: params.instrumental,
     vocal_language: params.vocalLanguage,
     temperature: params.temperature,
-  });
+  }, undefined, config.acestepLmTimeoutMs);
   return {
     caption: raw.caption,
     lyrics: raw.lyrics,

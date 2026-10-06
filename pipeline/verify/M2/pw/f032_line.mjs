@@ -1,0 +1,25 @@
+import { launch, openScore, dock, txt, waitPlanDone } from './lib.mjs';
+const { browser, page } = await launch(1366, 900);
+await openScore(page, 'Gertar', 0);
+await page.locator('.lyrics-chip').first().waitFor({ timeout: 60000 });
+const chips = page.locator('.lyrics-chip');
+const n = await chips.count();
+console.log('lyric chips:', n);
+const texts = await chips.allInnerTexts();
+const title = await chips.evaluateAll((els) => els.map((e) => e.getAttribute('title') || e.getAttribute('aria-label') || ''));
+// pick a line from the second chorus: find chip whose title says "Ich verlasse"
+let idx = title.findIndex((t) => /Ich verlasse/.test(t));
+if (idx < 0) idx = Math.min(16, n - 1);
+console.log('picking chip', idx, JSON.stringify(title[idx]));
+await chips.nth(idx).click();
+await page.waitForTimeout(500);
+const chip = async () => (await page.locator('.dock-target').allInnerTexts()).join(' | ');
+console.log('chip after line pick:', await chip());
+console.log('dock hint:', (await txt(dock(page))).slice(0, 400));
+await page.screenshot({ path: '../shots/f032-line-pick.png' });
+await page.getByPlaceholder(/Describe the change/).fill('rewrite this about the sea');
+await page.getByRole('button', { name: /^PLAN$/ }).click();
+await waitPlanDone(page);
+console.log('dock after plan:', (await txt(dock(page))).slice(0, 1800));
+await page.screenshot({ path: '../shots/f032-line-plan.png', fullPage: true });
+await browser.close();

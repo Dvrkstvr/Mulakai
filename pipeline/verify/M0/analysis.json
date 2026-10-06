@@ -1,0 +1,586 @@
+[
+ {
+  "name": "rain_v2",
+  "Q": 88,
+  "bpm_from_bars": 86.95652173913047,
+  "tempo_err_pct": -1.1857707509881072,
+  "Q_transcribed": 88,
+  "audio_s": 124.23866666666666,
+  "base_audio_s": 123.11866666666667,
+  "base_Q": 88,
+  "base_bpm_from_bars": 87.91208791208796,
+  "score_bars": 46,
+  "audio_bars": 46,
+  "offset": 4,
+  "U_root": 0.8461538461538461,
+  "U_n": 30,
+  "E_bars": [
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41
+  ],
+  "E_root": 0.875,
+  "E_rq": 0.875,
+  "E_n": 16,
+  "E_vs_old_root": 0.875,
+  "E_roots_changed_by_plan": 0,
+  "chance_root_mean": 0.2617084037757115,
+  "chance_root_p95": 1.0,
+  "chance_n": 52,
+  "E_tones_new": 0.7083333333333333,
+  "E_tones_old": 0.7416666666666667,
+  "chance_tones_mean": 0.45070304072707923,
+  "chance_tones_p95": 0.72625,
+  "audio_label_changed_vs_base_render_edited": 0.3125,
+  "audio_label_changed_unedited": 0.2,
+  "per_bar": [
+   {
+    "bar": 14,
+    "old": "Eb",
+    "new": "Ebmaj7",
+    "audio_base": "Eb:maj",
+    "audio": "Bb:7"
+   },
+   {
+    "bar": 15,
+    "old": "Cm7",
+    "new": "Cm7",
+    "audio_base": "C:min7",
+    "audio": "C:min7"
+   },
+   {
+    "bar": 16,
+    "old": "Ab",
+    "new": "Ab7",
+    "audio_base": "Ab:sus2",
+    "audio": "Ab:sus2"
+   },
+   {
+    "bar": 17,
+    "old": "Bbsus4",
+    "new": "Bbsus4",
+    "audio_base": "Bb:maj",
+    "audio": "Bb:maj"
+   },
+   {
+    "bar": 18,
+    "old": "Eb",
+    "new": "Ebmaj7",
+    "audio_base": "Bb:maj",
+    "audio": "Bb:maj/3"
+   },
+   {
+    "bar": 19,
+    "old": "Cm7",
+    "new": "Cm7",
+    "audio_base": "C:min7",
+    "audio": "C:min7"
+   },
+   {
+    "bar": 20,
+    "old": "Ab",
+    "new": "Ab7",
+    "audio_base": "Ab:sus2",
+    "audio": "Ab:sus2"
+   },
+   {
+    "bar": 21,
+    "old": "Bbsus4",
+    "new": "Bbsus4",
+    "audio_base": "Bb:sus4",
+    "audio": "Bb:sus4"
+   },
+   {
+    "bar": 34,
+    "old": "Eb",
+    "new": "Ebmaj7",
+    "audio_base": "Bb:maj",
+    "audio": "Eb:maj"
+   },
+   {
+    "bar": 35,
+    "old": "Cm7",
+    "new": "Cm7",
+    "audio_base": "C:min7",
+    "audio": "C:min7"
+   },
+   {
+    "bar": 36,
+    "old": "Ab",
+    "new": "Ab7",
+    "audio_base": "Ab:sus2",
+    "audio": "Ab:sus2"
+   },
+   {
+    "bar": 37,
+    "old": "Bbsus4",
+    "new": "Bbsus4",
+    "audio_base": "Bb:maj",
+    "audio": "Bb:sus4"
+   },
+   {
+    "bar": 38,
+    "old": "Eb",
+    "new": "Ebmaj7",
+    "audio_base": "Bb:maj",
+    "audio": "Eb:maj"
+   },
+   {
+    "bar": 39,
+    "old": "Cm7",
+    "new": "Cm7",
+    "audio_base": "C:min7",
+    "audio": "C:min7"
+   },
+   {
+    "bar": 40,
+    "old": "Ab",
+    "new": "Ab7",
+    "audio_base": "Ab:sus2",
+    "audio": "Ab:sus2"
+   },
+   {
+    "bar": 41,
+    "old": "Bbsus4",
+    "new": "Bbsus4",
+    "audio_base": "Bb:sus4",
+    "audio": "Bb:sus4"
+   }
+  ]
+ },
+ {
+  "name": "rain_v3",
+  "Q": 88,
+  "bpm_from_bars": 87.91208791208801,
+  "tempo_err_pct": -0.09990009989998651,
+  "Q_transcribed": 88,
+  "audio_s": 122.59866666666667,
+  "base_audio_s": 124.23866666666666,
+  "base_Q": 88,
+  "base_bpm_from_bars": 86.95652173913047,
+  "score_bars": 46,
+  "audio_bars": 46,
+  "offset": -4,
+  "U_root": 0.8235294117647058,
+  "U_n": 38,
+  "E_bars": [
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21
+  ],
+  "E_root": 0.75,
+  "E_rq": 0.75,
+  "E_n": 8,
+  "E_vs_old_root": 0.75,
+  "E_roots_changed_by_plan": 0,
+  "chance_root_mean": 0.2673214285714286,
+  "chance_root_p95": 1.0,
+  "chance_n": 40,
+  "E_tones_new": 0.7124999999999999,
+  "E_tones_old": 0.7124999999999999,
+  "chance_tones_mean": 0.47286160714285713,
+  "chance_tones_p95": 0.780375,
+  "audio_label_changed_vs_base_render_edited": 0.625,
+  "audio_label_changed_unedited": 0.39473684210526316,
+  "per_bar": [
+   {
+    "bar": 14,
+    "old": "Ebmaj7",
+    "new": "Ebmaj7/Bb",
+    "audio_base": "Bb:7",
+    "audio": "Bb:maj/3"
+   },
+   {
+    "bar": 15,
+    "old": "Cm7",
+    "new": "Cm7/Eb",
+    "audio_base": "C:min7",
+    "audio": "C:min7"
+   },
+   {
+    "bar": 16,
+    "old": "Ab7",
+    "new": "Ab7/Eb",
+    "audio_base": "Ab:sus2",
+    "audio": "Ab:sus2"
+   },
+   {
+    "bar": 17,
+    "old": "Bbsus4",
+    "new": "Bbsus4/Bb",
+    "audio_base": "Bb:maj",
+    "audio": "Bb:sus4"
+   },
+   {
+    "bar": 18,
+    "old": "Ebmaj7",
+    "new": "Ebmaj7/Bb",
+    "audio_base": "Bb:maj/3",
+    "audio": "Bb:maj/3"
+   },
+   {
+    "bar": 19,
+    "old": "Cm7",
+    "new": "Cm7/Eb",
+    "audio_base": "C:min7",
+    "audio": "C:min7/b3"
+   },
+   {
+    "bar": 20,
+    "old": "Ab7",
+    "new": "Ab7/Eb",
+    "audio_base": "Ab:sus2",
+    "audio": "Ab:7/5"
+   },
+   {
+    "bar": 21,
+    "old": "Bbsus4",
+    "new": "Bbsus4/Bb",
+    "audio_base": "Bb:sus4",
+    "audio": "Bb:maj"
+   }
+  ]
+ },
+ {
+  "name": "rain_v4",
+  "Q": 88,
+  "bpm_from_bars": 87.91208791208791,
+  "tempo_err_pct": -0.09990009990009954,
+  "Q_transcribed": 88,
+  "audio_s": 123.83866666666667,
+  "base_audio_s": 122.59866666666667,
+  "base_Q": 88,
+  "base_bpm_from_bars": 87.91208791208801,
+  "score_bars": 46,
+  "audio_bars": 47,
+  "offset": 0,
+  "U_root": 0.9,
+  "U_n": 30,
+  "E_bars": [
+   14,
+   15,
+   16,
+   17,
+   18,
+   19,
+   20,
+   21,
+   34,
+   35,
+   36,
+   37,
+   38,
+   39,
+   40,
+   41
+  ],
+  "E_root": 0.5,
+  "E_rq": 0.5,
+  "E_n": 16,
+  "E_vs_old_root": 0.5,
+  "E_roots_changed_by_plan": 0,
+  "chance_root_mean": 0.25253061927590226,
+  "chance_root_p95": 0.885,
+  "chance_n": 53,
+  "E_tones_new": 0.7020833333333334,
+  "E_tones_old": 0.7020833333333334,
+  "chance_tones_mean": 0.4757809075969452,
+  "chance_tones_p95": 0.7554807692307691,
+  "audio_label_changed_vs_base_render_edited": 0.75,
+  "audio_label_changed_unedited": 0.3,
+  "per_bar": [
+   {
+    "bar": 14,
+    "old": "Ebmaj7/Bb",
+    "new": "Ebmaj7/Bb",
+    "audio_base": "Bb:maj/3",
+    "audio": "Eb:maj/5"
+   },
+   {
+    "bar": 15,
+    "old": "Cm7/Eb",
+    "new": "Cm7/Eb",
+    "audio_base": "C:min7/b3",
+    "audio": "Eb:maj6"
+   },
+   {
+    "bar": 16,
+    "old": "Ab7/Eb",
+    "new": "Ab7/Eb",
+    "audio_base": "Ab:7/5",
+    "audio": "Eb:maj6"
+   },
+   {
+    "bar": 17,
+    "old": "Bbsus4/Bb",
+    "new": "Bbsus4/Bb",
+    "audio_base": "Bb:maj",
+    "audio": "Bb:sus4"
+   },
+   {
+    "bar": 18,
+    "old": "Ebmaj7/Bb",
+    "new": "Ebmaj7/Bb",
+    "audio_base": "Eb:maj/5",
+    "audio": "Eb:maj/5"
+   },
+   {
+    "bar": 19,
+    "old": "Cm7/Eb",
+    "new": "Cm7/Eb",
+    "audio_base": "C:min7/b3",
+    "audio": "Eb:maj6"
+   },
+   {
+    "bar": 20,
+    "old": "Ab7/Eb",
+    "new": "Ab7/Eb",
+    "audio_base": "Ab:maj/5",
+    "audio": "Eb:maj6"
+   },
+   {
+    "bar": 21,
+    "old": "Bbsus4/Bb",
+    "new": "Bbsus4/Bb",
+    "audio_base": "Bb:maj",
+    "audio": "Bb:sus4"
+   },
+   {
+    "bar": 34,
+    "old": "Ebmaj7",
+    "new": "Ebmaj7/Bb",
+    "audio_base": "Eb:maj",
+    "audio": "Eb:maj/5"
+   },
+   {
+    "bar": 35,
+    "old": "Cm7",
+    "new": "Cm7/Eb",
+    "audio_base": "Eb:maj",
+    "audio": "Eb:maj"
+   },
+   {
+    "bar": 36,
+    "old": "Ab7",
+    "new": "Ab7/Eb",
+    "audio_base": "Eb:min",
+    "audio": "Eb:min"
+   },
+   {
+    "bar": 37,
+    "old": "Bbsus4",
+    "new": "Bbsus4/Bb",
+    "audio_base": "Bb:maj",
+    "audio": "Bb:maj/3"
+   },
+   {
+    "bar": 38,
+    "old": "Ebmaj7",
+    "new": "Ebmaj7/Bb",
+    "audio_base": "Bb:maj/3",
+    "audio": "Eb:maj/5"
+   },
+   {
+    "bar": 39,
+    "old": "Cm7",
+    "new": "Cm7/Eb",
+    "audio_base": "Eb:maj",
+    "audio": "Eb:maj"
+   },
+   {
+    "bar": 40,
+    "old": "Ab7",
+    "new": "Ab7/Eb",
+    "audio_base": "Eb:min",
+    "audio": "Eb:maj"
+   },
+   {
+    "bar": 41,
+    "old": "Bbsus4",
+    "new": "Bbsus4/Bb",
+    "audio_base": "Bb:maj",
+    "audio": "Bb:sus4"
+   }
+  ]
+ },
+ {
+  "name": "tempo_v2",
+  "Q": 88,
+  "bpm_from_bars": 88.56088560885615,
+  "tempo_err_pct": 0.6373700100638111,
+  "Q_transcribed": 89,
+  "audio_s": 123.79866666666666,
+  "base_audio_s": 86.15866666666666,
+  "base_Q": 128,
+  "base_bpm_from_bars": 128.3422459893045,
+  "score_bars": 47,
+  "audio_bars": 47,
+  "offset": 0,
+  "U_root": 0.967741935483871,
+  "U_n": 31,
+  "E_bars": [
+   10,
+   11,
+   12,
+   13,
+   14,
+   15,
+   16,
+   17,
+   30,
+   31,
+   32,
+   33,
+   34,
+   35,
+   36,
+   37
+  ],
+  "E_root": 0.8125,
+  "E_rq": 0.8125,
+  "E_n": 16,
+  "E_vs_old_root": 0.8125,
+  "E_roots_changed_by_plan": 0,
+  "chance_root_mean": 0.25266172506738543,
+  "chance_root_p95": 1.0,
+  "chance_n": 53,
+  "E_tones_new": 0.765625,
+  "E_tones_old": 0.6375,
+  "chance_tones_mean": 0.4145350356317338,
+  "chance_tones_p95": 0.7156666666666668,
+  "audio_label_changed_vs_base_render_edited": 0.6875,
+  "audio_label_changed_unedited": 0.0,
+  "per_bar": [
+   {
+    "bar": 10,
+    "old": "A",
+    "new": "Amaj7",
+    "audio_base": "A:maj",
+    "audio": "A:maj"
+   },
+   {
+    "bar": 11,
+    "old": "E",
+    "new": "Em7",
+    "audio_base": "E:maj",
+    "audio": "E:min7"
+   },
+   {
+    "bar": 12,
+    "old": "F#m",
+    "new": "F#m7",
+    "audio_base": "F#:min",
+    "audio": "F#:min7"
+   },
+   {
+    "bar": 13,
+    "old": "D",
+    "new": "Dmaj7",
+    "audio_base": "D:maj",
+    "audio": "G:maj"
+   },
+   {
+    "bar": 14,
+    "old": "A",
+    "new": "Amaj7",
+    "audio_base": "A:maj",
+    "audio": "D:sus4(b7)"
+   },
+   {
+    "bar": 15,
+    "old": "E",
+    "new": "Em7",
+    "audio_base": "E:maj",
+    "audio": "E:min7"
+   },
+   {
+    "bar": 16,
+    "old": "F#m",
+    "new": "F#m7",
+    "audio_base": "F#:min",
+    "audio": "F#:min7"
+   },
+   {
+    "bar": 17,
+    "old": "D",
+    "new": "Dmaj7",
+    "audio_base": "D:maj",
+    "audio": "D:maj"
+   },
+   {
+    "bar": 30,
+    "old": "A",
+    "new": "Amaj7",
+    "audio_base": "A:maj",
+    "audio": "A:maj"
+   },
+   {
+    "bar": 31,
+    "old": "E",
+    "new": "Em7",
+    "audio_base": "E:maj",
+    "audio": "E:min7"
+   },
+   {
+    "bar": 32,
+    "old": "F#m",
+    "new": "F#m7",
+    "audio_base": "F#:min",
+    "audio": "F#:min7"
+   },
+   {
+    "bar": 33,
+    "old": "D",
+    "new": "Dmaj7",
+    "audio_base": "D:maj",
+    "audio": "D:maj"
+   },
+   {
+    "bar": 34,
+    "old": "A",
+    "new": "Amaj7",
+    "audio_base": "A:maj",
+    "audio": "D:sus4(b7)"
+   },
+   {
+    "bar": 35,
+    "old": "E",
+    "new": "Em7",
+    "audio_base": "E:maj",
+    "audio": "E:min7"
+   },
+   {
+    "bar": 36,
+    "old": "F#m",
+    "new": "F#m7",
+    "audio_base": "F#:min",
+    "audio": "F#:min7"
+   },
+   {
+    "bar": 37,
+    "old": "D",
+    "new": "Dmaj7",
+    "audio_base": "D:maj",
+    "audio": "D:maj"
+   }
+  ]
+ }
+]

@@ -1,0 +1,242 @@
+{
+ "A": {
+  "nbars": 65,
+  "meter": "4/4",
+  "bpm": 87,
+  "vid": "2c944049-75eb-4448-ac49-7f50f93be80d",
+  "base_score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/base/A.abc",
+  "base_ss": "A_orig",
+  "edits": {
+   "reharm": {
+    "kind": "local",
+    "span": [
+     46,
+     54
+    ],
+    "render": "A_b",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/A_b.abc",
+    "label": "REHARMONIZE 8 bars of the first chorus"
+   },
+   "phrase": {
+    "kind": "local",
+    "span": [
+     50,
+     54
+    ],
+    "render": "A_e",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/A_e.abc",
+    "label": "WRITE PHRASE 4 bars"
+   },
+   "lyrics": {
+    "kind": "local",
+    "span": [
+     46,
+     62
+    ],
+    "render": "A_L",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/A_L.abc",
+    "label": "REWRITE LYRICS first chorus"
+   },
+   "repeat": {
+    "kind": "repeat",
+    "span": [
+     46,
+     62
+    ],
+    "render": "A_d",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/A_d.abc",
+    "label": "REPEAT first chorus"
+   },
+   "cut": {
+    "kind": "cut",
+    "span": [
+     10,
+     46
+    ],
+    "render": "A_K",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/A_K.abc",
+    "label": "CUT verse (section 2)"
+   }
+  }
+ },
+ "B": {
+  "nbars": 63,
+  "meter": "2/4",
+  "bpm": 93,
+  "vid": "3820c535-b81f-4716-94c2-370f9272f4b7",
+  "base_score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/base/B.abc",
+  "base_ss": "B_orig",
+  "edits": {
+   "reharm": {
+    "kind": "local",
+    "span": [
+     22,
+     30
+    ],
+    "render": "B_b",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/B_b.abc",
+    "label": "REHARMONIZE 8 bars of the first chorus"
+   },
+   "phrase": {
+    "kind": "local",
+    "span": [
+     54,
+     58
+    ],
+    "render": "B_e",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/B_e.abc",
+    "label": "WRITE PHRASE 4 bars"
+   },
+   "lyrics": {
+    "kind": "local",
+    "span": [
+     22,
+     30
+    ],
+    "render": "B_L",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/B_L.abc",
+    "label": "REWRITE LYRICS first chorus"
+   },
+   "repeat": {
+    "kind": "repeat",
+    "span": [
+     22,
+     30
+    ],
+    "render": "B_d",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/B_d.abc",
+    "label": "REPEAT first chorus"
+   },
+   "cut": {
+    "kind": "cut",
+    "span": [
+     30,
+     46
+    ],
+    "render": "B_K",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/B_K.abc",
+    "label": "CUT verse (section 4)"
+   }
+  }
+ },
+ "C": {
+  "nbars": 77,
+  "meter": "4/4",
+  "bpm": 85,
+  "vid": "c8144c53-6612-4efc-8a4c-da279f2e0307",
+  "base_score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/base/C.abc",
+  "base_ss": "C_orig",
+  "edits": {
+   "reharm": {
+    "kind": "local",
+    "span": [
+     14,
+     22
+    ],
+    "render": "C_b",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/C_b.abc",
+    "label": "REHARMONIZE 8 bars of the first chorus"
+   },
+   "phrase": {
+    "kind": "local",
+    "span": [
+     22,
+     26
+    ],
+    "render": "C_e",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/C_e.abc",
+    "label": "WRITE PHRASE 4 bars"
+   },
+   "lyrics": {
+    "kind": "local",
+    "span": [
+     14,
+     22
+    ],
+    "render": "C_L",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/C_L.abc",
+    "label": "REWRITE LYRICS first chorus"
+   },
+   "repeat": {
+    "kind": "repeat",
+    "span": [
+     14,
+     22
+    ],
+    "render": "C_d",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-3-cot-full-adherence/scores/C_d.abc",
+    "label": "REPEAT first chorus"
+   },
+   "cut": {
+    "kind": "cut",
+    "span": [
+     26,
+     35
+    ],
+    "render": "C_K",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/C_K.abc",
+    "label": "CUT verse (section 5)"
+   }
+  }
+ },
+ "D": {
+  "nbars": 64,
+  "meter": "4/4",
+  "bpm": 95,
+  "vid": "3c9e79de-0844-40dc-a89f-4c6864c8a23a",
+  "base_score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/base/D.abc",
+  "base_ss": "D_orig",
+  "edits": {
+   "reharm": {
+    "kind": "local",
+    "span": [
+     22,
+     30
+    ],
+    "render": "D_b",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/D_b.abc",
+    "label": "REHARMONIZE 8 bars of the first chorus"
+   },
+   "phrase": {
+    "kind": "local",
+    "span": [
+     56,
+     60
+    ],
+    "render": "D_e",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/D_e.abc",
+    "label": "WRITE PHRASE 4 bars"
+   },
+   "lyrics": {
+    "kind": "local",
+    "span": [
+     22,
+     30
+    ],
+    "render": "D_L",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/D_L.abc",
+    "label": "REWRITE LYRICS first chorus"
+   },
+   "repeat": {
+    "kind": "repeat",
+    "span": [
+     22,
+     30
+    ],
+    "render": "D_d",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/D_d.abc",
+    "label": "REPEAT first chorus"
+   },
+   "cut": {
+    "kind": "cut",
+    "span": [
+     30,
+     47
+    ],
+    "render": "D_K",
+    "score": "/mnt/e/repos/Mulakai/pipeline/spikes/SP-4-keep-unchanged/scores/D_K.abc",
+    "label": "CUT verse (section 4)"
+   }
+  }
+ }
+}

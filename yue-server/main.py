@@ -10,8 +10,9 @@ same client can point at either: POST /v1/jobs -> 202 job, GET /v1/jobs/{id},
 POST /v1/jobs/{id}/cancel, GET /v1/jobs/{id}/audio (FLAC), GET
 /v1/jobs/{id}/score (ABC), GET /health/ready. One job runs at a time.
 SheetSage2 transcription for covers adds /v1/transcriptions
-(transcribe_routes.py), and POST /v1/scores/measure sizes a cover's score
-(score_routes.py).
+(transcribe_routes.py), POST /v1/scores/measure sizes a cover's score
+(score_routes.py), and POST /v1/scores/read and /apply serve the score agent
+(score_edit_routes.py).
 
 Run (inside WSL, in the yue2 venv): python main.py
 """
@@ -30,6 +31,7 @@ from jobs import IdempotencyConflict, JobStore, QueueFull
 from request_model import GenerateRequest
 from scores import ScoreError, prepare_score
 from settings import Settings
+from score_edit_routes import add_score_edit_routes
 from score_routes import add_score_routes
 from transcribe_routes import add_transcription_routes
 from transcriber import Transcriber
@@ -138,6 +140,7 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
 
     add_transcription_routes(app, settings, store, worker, authorize)
     add_score_routes(app, worker, authorize)
+    add_score_edit_routes(app, worker, authorize)
     return app
 
 

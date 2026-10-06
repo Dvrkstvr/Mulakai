@@ -1,0 +1,401 @@
+{
+ "tag": "t8_five",
+ "songId": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+ "request": "80 BPM, transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the intro",
+ "flags": [],
+ "started": "2026-10-05T18:48:22.530Z",
+ "idleCheck": {
+  "user": "unreachable",
+  "mib": 1947,
+  "util": 0
+ },
+ "scoreBefore": {
+  "state": "eligible",
+  "reading": {
+   "bars": 77,
+   "seconds": 217.4,
+   "bpm": 85,
+   "key": "Em",
+   "meter": "4/4",
+   "tokens": 1519
+  },
+  "baseVersion": 1,
+  "versions": 1,
+  "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive male vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 85 bpm, D minor, 4/4 time",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "occurrence": 1,
+    "from_bar": 1,
+    "to_bar": 9
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "occurrence": 1,
+    "from_bar": 10,
+    "to_bar": 18
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "occurrence": 1,
+    "from_bar": 19,
+    "to_bar": 27
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "occurrence": 2,
+    "from_bar": 28,
+    "to_bar": 35
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "occurrence": 2,
+    "from_bar": 36,
+    "to_bar": 44
+   },
+   {
+    "index": 6,
+    "label": "bridge",
+    "occurrence": 1,
+    "from_bar": 45,
+    "to_bar": 54
+   },
+   {
+    "index": 7,
+    "label": "chorus",
+    "occurrence": 3,
+    "from_bar": 55,
+    "to_bar": 63
+   },
+   {
+    "index": 8,
+    "label": "outro",
+    "occurrence": 1,
+    "from_bar": 64,
+    "to_bar": 77
+   }
+  ],
+  "blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 7,
+    "first_line": "Nebel zieht über die Stadt"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Andreas, ich falle doch ich stehe irgendwie"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Lachen klingt so kühl"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Andreas, ich kämpfe auch wenn ich mich oft verlier"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Manchmal spür ich, wie die Nacht mich nieder recon"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "Verloren"
+   },
+   {
+    "index": 8,
+    "tag": "[Instrumental Outro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   }
+  ]
+ },
+ "t0": 1791226102611,
+ "post": {
+  "status": 202,
+  "body": {
+   "jobId": "74b8f960-9c62-4a97-bfb8-5014c441e28c",
+   "queuePosition": 0
+  }
+ },
+ "postBody": {
+  "request": "80 BPM, transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the intro"
+ },
+ "t1": 1791226115025,
+ "planWallS": 12.414,
+ "planGet": {
+  "run": {
+   "jobId": "74b8f960-9c62-4a97-bfb8-5014c441e28c",
+   "request": "80 BPM, transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the intro",
+   "status": "done",
+   "reasons": [],
+   "planId": "75b02bf7-9ef2-4a25-b219-a09a58f874ce",
+   "revise": null,
+   "stale": null,
+   "cause": null
+  },
+  "plan": {
+   "id": "75b02bf7-9ef2-4a25-b219-a09a58f874ce",
+   "songId": "5c8e6586-9ac0-4a5f-a087-da17656c7639",
+   "baseVersionId": "f3e3bfdc-0594-4f67-9b57-6c5d68102983",
+   "request": "80 BPM, transpose down 2 semitones, repeat the first chorus, rewrite the second chorus about leaving, jazz chords in the intro",
+   "ops": [
+    {
+     "op": "SET_TEMPO",
+     "bpm": 80
+    },
+    {
+     "op": "TRANSPOSE",
+     "semitones": -2
+    },
+    {
+     "op": "REPEAT",
+     "section": 3,
+     "label": "chorus"
+    },
+    {
+     "op": "REWRITE_LYRICS",
+     "block": 5,
+     "tag": "[Chorus]",
+     "occurrence": 2,
+     "lines": [
+      "Andreas, ich gehe doch ich bleibe irgendwie",
+      "Ich verlasse dich, doch ich kann nicht mehr",
+      "Ich suche einen Weg, der mir nicht mehr gehört",
+      "Ich trage dich in mir, doch ich muss gehen"
+     ]
+    },
+    {
+     "op": "REHARMONIZE",
+     "from_bar": 1,
+     "to_bar": 9,
+     "chords": [
+      {
+       "bar": 1,
+       "beat": 1,
+       "root": "G",
+       "quality": "m7",
+       "bass": "D"
+      },
+      {
+       "bar": 1,
+       "beat": 4,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      },
+      {
+       "bar": 2,
+       "beat": 1,
+       "root": "G",
+       "quality": "m7",
+       "bass": "D"
+      },
+      {
+       "bar": 2,
+       "beat": 4,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      },
+      {
+       "bar": 3,
+       "beat": 1,
+       "root": "D",
+       "quality": "7",
+       "bass": "F"
+      },
+      {
+       "bar": 3,
+       "beat": 4,
+       "root": "G",
+       "quality": "m7",
+       "bass": "D"
+      },
+      {
+       "bar": 4,
+       "beat": 1,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      },
+      {
+       "bar": 4,
+       "beat": 4,
+       "root": "G",
+       "quality": "m7",
+       "bass": "D"
+      },
+      {
+       "bar": 5,
+       "beat": 1,
+       "root": "D",
+       "quality": "7",
+       "bass": "F"
+      },
+      {
+       "bar": 5,
+       "beat": 4,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      },
+      {
+       "bar": 6,
+       "beat": 1,
+       "root": "G",
+       "quality": "m7",
+       "bass": "D"
+      },
+      {
+       "bar": 6,
+       "beat": 4,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      },
+      {
+       "bar": 7,
+       "beat": 1,
+       "root": "D",
+       "quality": "7",
+       "bass": "F"
+      },
+      {
+       "bar": 7,
+       "beat": 4,
+       "root": "G",
+       "quality": "m7",
+       "bass": "D"
+      },
+      {
+       "bar": 8,
+       "beat": 1,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      },
+      {
+       "bar": 8,
+       "beat": 4,
+       "root": "G",
+       "quality": "m7",
+       "bass": "D"
+      },
+      {
+       "bar": 9,
+       "beat": 1,
+       "root": "D",
+       "quality": "7",
+       "bass": "F"
+      },
+      {
+       "bar": 9,
+       "beat": 4,
+       "root": "C",
+       "quality": "maj7",
+       "bass": "E"
+      }
+     ]
+    }
+   ],
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "SET_TEMPO",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 2,
+     "op": "TRANSPOSE",
+     "ok": true,
+     "reason": null
+    },
+    {
+     "index": 3,
+     "op": "REPEAT",
+     "ok": true,
+     "reason": null,
+     "note": "lyric block 3 [Chorus] is repeated with it"
+    },
+    {
+     "index": 4,
+     "op": "REWRITE_LYRICS",
+     "ok": true,
+     "reason": null,
+     "diff": {
+      "block": 5,
+      "tag": "[Chorus]",
+      "occurrence": 2,
+      "old": [
+       "Andreas, ich kämpfe auch wenn ich mich oft verlier",
+       "Ein Blick aus einem Spiegel zeigt, ich bleib doch hier",
+       "Die Stille singt, doch ich schweige wie gebannt",
+       "Ein Held muss stark sein, um sich nach Halt zu finden"
+      ],
+      "new": [
+       "Andreas, ich gehe doch ich bleibe irgendwie",
+       "Ich verlasse dich, doch ich kann nicht mehr",
+       "Ich suche einen Weg, der mir nicht mehr gehört",
+       "Ich trage dich in mir, doch ich muss gehen"
+      ]
+     }
+    },
+    {
+     "index": 5,
+     "op": "REHARMONIZE",
+     "ok": true,
+     "reason": null
+    }
+   ],
+   "style": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive male vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 80 bpm, D minor, 4/4 time",
+   "checks": {
+    "bars": 77,
+    "seconds": 258,
+    "tokens": 1808,
+    "chordsPresent": true,
+    "changed": {
+     "abc": true,
+     "style": true,
+     "lyrics": true
+    }
+   },
+   "attempts": 1,
+   "refusals": [],
+   "createdAt": 1791226114790,
+   "referent": null,
+   "revision": 1,
+   "since": null
+  }
+ }
+}

@@ -1,8 +1,10 @@
 import type { Region } from './Waveform';
 import { findActiveSectionIndex, type Section } from './lyricSections';
 import { REPAINT_MIN_SECONDS, REPAINT_MAX_SECONDS, repaintRangeValid } from './repaintLimits';
+import { queueSuffix } from './queueCopy';
+import { editConsequence, type EditConsequence } from './scoreEnds';
 
-export type DockVerb = 'repaint' | 'addLayer' | 'split' | 'export';
+export type DockVerb = 'repaint' | 'addLayer' | 'split' | 'export' | 'score';
 
 export interface DockTarget {
   label: string;
@@ -23,6 +25,7 @@ const HINTS: Record<DockVerb, string> = {
   addLayer: 'a new layer always spans the full length',
   split: 'split acts on the focused layer',
   export: 'what you hear is what you get',
+  score: 'a score edit re-renders the whole song',
 };
 
 /** The sky TARGET chip for a verb (PLAN.md "UI Redesign", S1 decision 2). `duration` is the
@@ -31,6 +34,7 @@ export function dockTarget(verb: DockVerb, layerName: string, selection: Region 
   const layer = layerName.toUpperCase();
   const base = { warn: false, clearable: false, hint: HINTS[verb], section: null };
   if (verb === 'split') return { ...base, label: `${layer} · WHOLE LAYER` };
+  if (verb === 'score') return { ...base, label: 'BASE · WHOLE SCORE' };
   if (verb !== 'repaint') return { ...base, label: 'WHOLE SONG' };
   if (!selection) {
     if (repaintRangeValid(null, duration)) return { ...base, label: `${layer} · WHOLE SONG` };
@@ -77,4 +81,17 @@ export function repaintConsequence(layerName: string, nextVersion: number, activ
   const over = !selection ? 'the whole layer' : section ?? fmtRange(selection);
   const kept = activeVersion ? ` · v${activeVersion} stays in VERSIONS` : '';
   return `Saves ${layer} v${nextVersion} over ${over}${kept} · other layers untouched`;
+}
+
+export interface RepaintLineInput {
+  layerName: string; nextVersion: number; activeVersion: number | null;
+  selection: Region | null; duration: number; ahead: number; scoreOpen: boolean;
+}
+
+/** REPAINT's whole consequence line: why the commit is off, or what it saves, when it starts and
+ * (F-027) that score editing ends while SCORE is open. An off commit runs nothing, so no clause. */
+export function repaintLine(target: DockTarget, i: RepaintLineInput): EditConsequence {
+  if (target.warn) return { line: repaintWarnLine(i.selection, i.duration), scoreEnds: null };
+  const line = repaintConsequence(i.layerName, i.nextVersion, i.activeVersion, i.selection, target.section) + queueSuffix(i.ahead);
+  return editConsequence(line, i.scoreOpen);
 }

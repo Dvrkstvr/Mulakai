@@ -1,0 +1,13 @@
+{
+ "listened": "2026-10-05",
+ "by": "user, local pipeline/verify/M0/listen2/index.html (chords only, bar timeline with edited bars shaded)",
+ "code": "fix/score-reharm-roots (PR #129, D-055)",
+ "answers": {
+  "pair1": {"tempo": "no", "chords": "clearly", "edited_bars": "14-21", "roots_moved": "7/8"},
+  "pair2": {"tempo": "no", "chords": "slightly", "edited_bars": "10-17", "roots_moved": "8/8", "audio_chord_changed_edited_vs_unedited_pct": "0/8"},
+  "pair3": {"tempo": "no", "chords": "clearly", "edited_bars": "47-62", "roots_moved": "8/16"},
+  "pair4": {"tempo": "no", "chords": "clearly", "edited_bars": "15-22", "roots_moved": "8/8"},
+  "pair5": {"tempo": "no", "chords": "clearly", "edited_bars": "23-30, 48-55", "roots_moved": "12/16"}
+ },
+ "summary": "chords heard 5/5 (4 clearly, 1 slightly), tempo 'no' 5/5 as expected. Bar >= 4 of 5: PASS. Listen 1 before D-055: chords 2/4. Pair 2 was predicted 'no' (transcription saw no change) and was heard 'slightly'; the transcription proxy under-reads again."
+}

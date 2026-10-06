@@ -57,8 +57,13 @@ export const START_FROM: Record<GenType, { title: string; sub: string }> = {
   complete: { title: 'ONE TRACK', sub: 'Build a full arrangement around a single part' },
 };
 
-/** ACE-Step task names as the Library rail's GENERATED WITH row spells them. */
-export const GEN_TYPE_LABEL: Record<GenType, string> = { prompt: 'PROMPT', audio: 'COVER', complete: 'ARRANGE' };
+/** The Library rail's GENERATED WITH row: the START FROM card that made the song, plus the
+ * extra engine when one made the first take (`AN IDEA · YUE2`). Engine ids and their labels
+ * coincide ('yue2' -> 'YUE2'), so no engine list is needed. */
+export const generatedWithLabel = (task: string | null | undefined, engine?: string | null): string => {
+  const card = START_FROM[taskToGenType(task)].title;
+  return engine ? `${card} · ${engine.toUpperCase()}` : card;
+};
 
 /** Whether a draft actually asks for something, as opposed to "just open Create" (the create
  * bar's CREATE on an empty box). Only the former replaces a draft already in progress — see
@@ -67,7 +72,7 @@ export const draftHasIntent = (d: CreateDraft): boolean =>
   !!(d.genType || d.prompt || d.lyrics || d.pendingQuery || d.selectedSongId);
 
 /** The ACE-Step task a song was made with (`songs.gen_task`, or the generation lock's
- * `task`) -> the Create tab that produces it. Anything unrecognized — including the null
+ * `task`) -> the START FROM card that produces it. Anything unrecognized — including the null
  * left on songs whose origin couldn't be backfilled — falls back to PROMPT, which is how
  * every song behaved before the task was recorded. */
 export const taskToGenType = (task: string | null | undefined): GenType =>

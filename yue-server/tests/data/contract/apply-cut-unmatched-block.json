@@ -1,0 +1,88 @@
+{
+ "name": "apply-cut-unmatched-block",
+ "request": {
+  "method": "POST",
+  "path": "/v1/scores/apply",
+  "body": {
+   "abc": "X:1\nT:\nM:2/4\nL:1/32\nQ:1/4=93\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Gm\n% intro\nV: Vocal\nZ2|\nV: Ins\nz12z3B|B4A4G4F4|\nV: Vocal\nM:4/4\n\"Gm\"z32|\"Eb\"z32|\"Bb\"z32|\"F\"z16z2B2B2A2B2A2B2A2|\nV: Ins\nM:4/4\nG16b4a4g4f4|g16z4f4e4d4|d8d2z6d4e4d4c4|c16z16|\n% verse\nV: Vocal\n\"Gm\"B4A2B4A2B4z16|\"Eb\"z16z2B2B2B2B2c2B2c2|\"Bb\"d4c2d4c2d4z16|\"F\"z16z2B2B2A2B2A2B2A2|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"B4A2G6z6B4A2B4A2B2-|\"Eb\"B2B4A2B4A4z8z2B2B2c2|\"Bb\"d4c2d4c2d8f8c4-|\"F\"c4B4z12z2B2B4f4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d8z6B2d2d2d2d2d4f4|\"Eb\"e8z12z2B2B4f4|\"Bb\"d8z8d2d2d2d2d4c2c2-|\"F\"c4A4z16B4f4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d8z8d2d2d4d4f4|\"Eb\"e8z16z4B2B2|\"Bb\"d2c2d2c2d2c2d4d6B4z6|z2B2c2B2c2B2c2B2c4B4z6B2|\nV: Ins\nZ4|\n% chorus\nV: Vocal\n\"Gm\"d4B4d4B4d4B4z8|\"Eb\"e4B2B2e2e2B4e4z12|\"Bb\"d4B2B2d2d2B4d4d4f8|\"F\"c6c2c2c2c2c2d4c4B4A4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d4B4d4B4d4B4z8|\"Eb\"e4B2B2e2e2B4e4z12|\"Bb\"d4B2B2d2d2B4d4d4f8|\"F\"c6c2c2c2c2c2d4c4B4A4|\nV: Ins\nZ4|\n% verse\nV: Vocal\n\"Gm\"B2B2B2B2B2B2B2A2B4B2A2B4z4|\"Eb\"z2B2B2A2B2A2B2A2B4B2A2B4z4|\"Bb\"z2d2d2c2d2c2d2c2d4d2c2d4c4|\"F\"z2c2c2B2c2B2c2B2c4c2B2d4c4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"B4f4d6c6z6B4B2|\"Eb\"B4f4d4e8z8z2B2|\"Bb\"B4f4d6c6z6B2B2B2|\"F\"c4B2c4B2d12d4c4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"B8c8d8f8|\"Eb\"e16z8e4d4|\"Bb\"d16z8d4c4|\"F\"c8z12z2B2c2d2d2d2|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d4c2c2c2B2B6B2B2B2d2d2d2d2|\"Eb\"d4c2c2c2B2B6B4B2B2B2e4|\"Bb\"d16z4d2d2d2c2c4-|\"F\"c4B4z16z6B2|\nV: Ins\nZ4|\n% chorus\nV: Vocal\n\"Gm\"d4B4d4B4d4B4z8|\"Eb\"e4B2B2e2e2B4e4z12|\"Bb\"d4B2B2d2d2B4d4d4f8|\"F\"c6c2c2c2c2c2d4c4B4A4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d4B4d4B4d4B4z8|\"Eb\"e4B2B2e2e2B4e4z12|\"Bb\"d4B2B2d2d2B4d4d4f8|\"F\"c6c2c2c2c2c2d4c4B4A4|\nV: Ins\nZ4|\n% outro\nV: Vocal\n\"Gm\"z32|\"Eb\"z32|\"Bb\"z32|\"F\"z32|\nV: Ins\nG16b4a4g4f4|g16g4f4e4d4|d16d4e4d4c4|c16B4A4G4F4|\nV: Vocal\n\"Gm\"z32|\"Eb\"z32|\"Bb\"z32|\"F\"z32|\nV: Ins\nG16b4a4g4f4|g16g4f4e4d4|d16d4e4d4c4|c16B4A4G4F4|\nV: Vocal\nZ|\nV: Ins\nZ|\n",
+   "style": "dark pop, 90 bpm, F minor, female vocal",
+   "lyrics": "[Intro: Piano]\n\n[Verse 1]\nverse 2 line 1\nverse 2 line 2\nverse 2 line 3\nverse 2 line 4\nverse 2 line 5\n\n[Pre-Chorus]\npre-chorus 3 line 1\npre-chorus 3 line 2\npre-chorus 3 line 3\npre-chorus 3 line 4\npre-chorus 3 line 5\npre-chorus 3 line 6\npre-chorus 3 line 7\npre-chorus 3 line 8\n\n[Chorus]\nchorus 4 line 1\nchorus 4 line 2\nchorus 4 line 3\nchorus 4 line 4\nchorus 4 line 5\nchorus 4 line 6\nchorus 4 line 7\nchorus 4 line 8\n\n[Verse 2]\nverse 5 line 1\nverse 5 line 2\nverse 5 line 3\nverse 5 line 4\nverse 5 line 5\nverse 5 line 6\nverse 5 line 7\nverse 5 line 8\nverse 5 line 9\nverse 5 line 10\nverse 5 line 11\nverse 5 line 12\nverse 5 line 13\n\n[Chorus]\nchorus 6 line 1\nchorus 6 line 2\nchorus 6 line 3\nchorus 6 line 4\nchorus 6 line 5\nchorus 6 line 6\nchorus 6 line 7\nchorus 6 line 8\n\n[Instrumental Outro]\ninstrumental 7 line 1\ninstrumental 7 line 2\n",
+   "ops": [
+    {
+     "op": "CUT",
+     "section": 6,
+     "label": "outro"
+    }
+   ]
+  }
+ },
+ "response": {
+  "status": 200,
+  "body": {
+   "ok": true,
+   "abc": "X:1\nT:\nM:2/4\nL:1/32\nQ:1/4=93\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:Gm\n% intro\nV: Vocal\nZ2|\nV: Ins\nz12z3B|B4A4G4F4|\nV: Vocal\nM:4/4\n\"Gm\"z32|\"Eb\"z32|\"Bb\"z32|\"F\"z16z2B2B2A2B2A2B2A2|\nV: Ins\nM:4/4\nG16b4a4g4f4|g16z4f4e4d4|d8d2z6d4e4d4c4|c16z16|\n% verse\nV: Vocal\n\"Gm\"B4A2B4A2B4z16|\"Eb\"z16z2B2B2B2B2c2B2c2|\"Bb\"d4c2d4c2d4z16|\"F\"z16z2B2B2A2B2A2B2A2|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"B4A2G6z6B4A2B4A2B2-|\"Eb\"B2B4A2B4A4z8z2B2B2c2|\"Bb\"d4c2d4c2d8f8c4-|\"F\"c4B4z12z2B2B4f4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d8z6B2d2d2d2d2d4f4|\"Eb\"e8z12z2B2B4f4|\"Bb\"d8z8d2d2d2d2d4c2c2-|\"F\"c4A4z16B4f4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d8z8d2d2d4d4f4|\"Eb\"e8z16z4B2B2|\"Bb\"d2c2d2c2d2c2d4d6B4z6|z2B2c2B2c2B2c2B2c4B4z6B2|\nV: Ins\nZ4|\n% chorus\nV: Vocal\n\"Gm\"d4B4d4B4d4B4z8|\"Eb\"e4B2B2e2e2B4e4z12|\"Bb\"d4B2B2d2d2B4d4d4f8|\"F\"c6c2c2c2c2c2d4c4B4A4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d4B4d4B4d4B4z8|\"Eb\"e4B2B2e2e2B4e4z12|\"Bb\"d4B2B2d2d2B4d4d4f8|\"F\"c6c2c2c2c2c2d4c4B4A4|\nV: Ins\nZ4|\n% verse\nV: Vocal\n\"Gm\"B2B2B2B2B2B2B2A2B4B2A2B4z4|\"Eb\"z2B2B2A2B2A2B2A2B4B2A2B4z4|\"Bb\"z2d2d2c2d2c2d2c2d4d2c2d4c4|\"F\"z2c2c2B2c2B2c2B2c4c2B2d4c4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"B4f4d6c6z6B4B2|\"Eb\"B4f4d4e8z8z2B2|\"Bb\"B4f4d6c6z6B2B2B2|\"F\"c4B2c4B2d12d4c4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"B8c8d8f8|\"Eb\"e16z8e4d4|\"Bb\"d16z8d4c4|\"F\"c8z12z2B2c2d2d2d2|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d4c2c2c2B2B6B2B2B2d2d2d2d2|\"Eb\"d4c2c2c2B2B6B4B2B2B2e4|\"Bb\"d16z4d2d2d2c2c4-|\"F\"c4B4z16z6B2|\nV: Ins\nZ4|\n% chorus\nV: Vocal\n\"Gm\"d4B4d4B4d4B4z8|\"Eb\"e4B2B2e2e2B4e4z12|\"Bb\"d4B2B2d2d2B4d4d4f8|\"F\"c6c2c2c2c2c2d4c4B4A4|\nV: Ins\nZ4|\nV: Vocal\n\"Gm\"d4B4d4B4d4B4z8|\"Eb\"e4B2B2e2e2B4e4z12|\"Bb\"d4B2B2d2d2B4d4d4f8|\"F\"c6c2c2c2c2c2d4c4B4A4|\nV: Ins\nZ4|\n",
+   "style": "dark pop, 90 bpm, F minor, female vocal",
+   "lyrics": "[Intro]\n\n[Verse]\nverse 2 line 1\nverse 2 line 2\nverse 2 line 3\nverse 2 line 4\nverse 2 line 5\n\n[Pre-Chorus]\npre-chorus 3 line 1\npre-chorus 3 line 2\npre-chorus 3 line 3\npre-chorus 3 line 4\npre-chorus 3 line 5\npre-chorus 3 line 6\npre-chorus 3 line 7\npre-chorus 3 line 8\n\n[Chorus]\nchorus 4 line 1\nchorus 4 line 2\nchorus 4 line 3\nchorus 4 line 4\nchorus 4 line 5\nchorus 4 line 6\nchorus 4 line 7\nchorus 4 line 8\n\n[Verse]\nverse 5 line 1\nverse 5 line 2\nverse 5 line 3\nverse 5 line 4\nverse 5 line 5\nverse 5 line 6\nverse 5 line 7\nverse 5 line 8\nverse 5 line 9\nverse 5 line 10\nverse 5 line 11\nverse 5 line 12\nverse 5 line 13\n\n[Chorus]\nchorus 6 line 1\nchorus 6 line 2\nchorus 6 line 3\nchorus 6 line 4\nchorus 6 line 5\nchorus 6 line 6\nchorus 6 line 7\nchorus 6 line 8\n\n[Instrumental Outro]\ninstrumental 7 line 1\ninstrumental 7 line 2\n",
+   "verdicts": [
+    {
+     "index": 1,
+     "op": "CUT",
+     "ok": true,
+     "reason": null,
+     "note": "no lyric block is tagged for this outro, so none is cut"
+    }
+   ],
+   "checks": {
+    "ok": true,
+    "problems": [],
+    "differences": []
+   },
+   "changed": {
+    "abc": true,
+    "style": false,
+    "lyrics": true
+   },
+   "sections": [
+    {
+     "index": 1,
+     "label": "intro",
+     "from_bar": 1,
+     "to_bar": 6,
+     "seconds": 12.9
+    },
+    {
+     "index": 2,
+     "label": "verse",
+     "from_bar": 7,
+     "to_bar": 22,
+     "seconds": 41.3
+    },
+    {
+     "index": 3,
+     "label": "chorus",
+     "from_bar": 23,
+     "to_bar": 30,
+     "seconds": 20.6
+    },
+    {
+     "index": 4,
+     "label": "verse",
+     "from_bar": 31,
+     "to_bar": 46,
+     "seconds": 41.3
+    },
+    {
+     "index": 5,
+     "label": "chorus",
+     "from_bar": 47,
+     "to_bar": 54,
+     "seconds": 20.6
+    }
+   ],
+   "chords_present": true,
+   "bpm": 93,
+   "seconds": 136.8,
+   "tokens": 1635
+  }
+ }
+}

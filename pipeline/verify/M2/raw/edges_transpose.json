@@ -1,0 +1,82 @@
+{
+ "-2": {
+  "http": 200,
+  "ok": true,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "TRANSPOSE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "style": "pop, 95 bpm, C minor",
+  "K": [
+   "K:Cm"
+  ]
+ },
+ "11": {
+  "http": 200,
+  "ok": true,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "TRANSPOSE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "style": "pop, 95 bpm, C# minor",
+  "K": [
+   "K:C#m"
+  ]
+ },
+ "-11": {
+  "http": 200,
+  "ok": true,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "TRANSPOSE",
+    "ok": true,
+    "reason": null
+   }
+  ],
+  "style": "pop, 95 bpm, D# minor",
+  "K": [
+   "K:D#m"
+  ]
+ },
+ "12": {
+  "http": 422,
+  "body": "{\"detail\":[{\"type\":\"less_than_equal\",\"loc\":[\"body\",\"ops\",0,\"TRANSPOSE\",\"semitones\"],\"msg\":\"Input should be less than or equal to 11\",\"input\":12,\"ctx\":{\"le\":11}}]}"
+ },
+ "-12": {
+  "http": 422,
+  "body": "{\"detail\":[{\"type\":\"greater_than_equal\",\"loc\":[\"body\",\"ops\",0,\"TRANSPOSE\",\"semitones\"],\"msg\":\"Input should be greater than or equal to -11\",\"input\":-12,\"ctx\":{\"ge\":-11}}]}"
+ },
+ "0": {
+  "http": 200,
+  "ok": false,
+  "verdicts": [
+   {
+    "index": 1,
+    "op": "TRANSPOSE",
+    "ok": false,
+    "reason": "semitones is 0, which changes nothing; give -11..-1 (down) or 1..11 (up)"
+   }
+  ],
+  "style": "pop, 95 bpm, D minor",
+  "K": [
+   "K:Dm"
+  ]
+ },
+ "1.5": {
+  "http": 422,
+  "body": "{\"detail\":[{\"type\":\"int_from_float\",\"loc\":[\"body\",\"ops\",0,\"TRANSPOSE\",\"semitones\"],\"msg\":\"Input should be a valid integer, got a number with a fractional part\",\"input\":1.5}]}"
+ },
+ "x": {
+  "http": 422,
+  "body": "{\"detail\":[{\"type\":\"int_parsing\",\"loc\":[\"body\",\"ops\",0,\"TRANSPOSE\",\"semitones\"],\"msg\":\"Input should be a valid integer, unable to parse string as an integer\",\"input\":\"x\"}]}"
+ }
+}

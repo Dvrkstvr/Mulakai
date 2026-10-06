@@ -20,7 +20,7 @@ export async function fetchWithTimeout(url: string, init: RequestInit, timeoutMs
   }
 }
 
-export async function call<T>(endpoint: string, body?: unknown, init?: RequestInit): Promise<T> {
+export async function call<T>(endpoint: string, body?: unknown, init?: RequestInit, timeoutMs = config.acestepTimeoutMs): Promise<T> {
   const headers: Record<string, string> = {};
   if (config.acestepApiKey) headers['Authorization'] = `Bearer ${config.acestepApiKey}`;
   let opts: RequestInit;
@@ -31,7 +31,7 @@ export async function call<T>(endpoint: string, body?: unknown, init?: RequestIn
       ? { method: 'POST', headers: { ...headers, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }
       : { headers };
   }
-  const res = await fetchWithTimeout(`${config.acestepUrl}${endpoint}`, opts, config.acestepTimeoutMs, endpoint);
+  const res = await fetchWithTimeout(`${config.acestepUrl}${endpoint}`, opts, timeoutMs, endpoint);
   if (!res.ok) {
     // Most ACE-Step failures come back as HTTP 200 with a {data,code,error} envelope (handled
     // below), but some routes (e.g. analyze_audio's "DiT/LLM not initialized") raise a real

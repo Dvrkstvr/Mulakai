@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>M1 A/B listen (tempo, jazz chords, sax phrase)</title>
+<style>
+body{background:#1c1d21;color:#ececec;font:15px/1.45 system-ui,sans-serif;margin:24px auto;max-width:900px;padding:0 16px}
+h1{font-size:20px} h2{font-size:16px;margin:0 0 4px} .pair{border:1px solid #33343b;padding:14px;margin:18px 0}
+.note{color:#9a9aa3;font-size:13px} button{background:#2a2b31;color:#ececec;border:1px solid #555;padding:6px 12px;cursor:pointer;margin:2px}
+button.on{border-color:#7b4b94;background:#2a2133} .row{margin:8px 0} fieldset{border:1px solid #33343b;margin:8px 0}
+legend{color:#9a9aa3} label{margin-right:12px} pre{background:#16171a;padding:10px;white-space:pre-wrap}
+.tl{position:relative;height:46px;margin:8px 0 4px;background:#24252b;border:1px solid #3a3b42;cursor:pointer;user-select:none;touch-action:none;overflow:hidden}
+.tl:focus{outline:1px solid #7b4b94}
+.tl .tick{position:absolute;bottom:0;width:1px;height:8px;background:#4a4b53}
+.tl .tick.major{height:16px;background:#6a6b73}
+.tl .num{position:absolute;bottom:17px;font-size:10px;color:#8a8a93;transform:translateX(-50%)}
+.tl .edit{position:absolute;top:0;bottom:0;background:rgba(123,75,148,.38);border-left:1px solid #b48ad0;border-right:1px solid #b48ad0}
+.tl .edit span{position:absolute;top:2px;left:4px;font-size:11px;color:#e3cdf2;white-space:nowrap}
+.tl .phr{position:absolute;top:0;bottom:0;background:rgba(214,160,60,.45);border-left:1px solid #e6b95a;border-right:1px solid #e6b95a}
+.tl .phr span{position:absolute;bottom:2px;left:4px;font-size:11px;color:#f6dfa8;white-space:nowrap}
+.tl .head{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;pointer-events:none}
+button.jump{border-color:#7b4b94;font-size:13px;padding:4px 10px}
+button.jump.phrb{border-color:#e6b95a}
+</style></head><body>
+<h1>M1 listen: original (A) against "jazz chords in the chorus, 88 BPM, add a 4-bar sax phrase after it" (B), 3 songs</h1>
+<p class="note">Local files only, not published. Each B is the real server's render of the plan (YuE2, score re-rendered): the new tempo (88 BPM), jazz chords on the chorus bars (lilac) and a 4-bar "tenor saxophone" phrase written into the Ins voice (amber). Press A or B while playing: the switch keeps the same <b>bar position</b> (the two takes run at different speeds, so the same seconds would not be the same music). The timeline shows the bars (numbered every 4); click or drag it to scrub, focus it and use the arrow keys to step one bar, or press a jump button to start one bar before a section. The phrase REPLACES whatever the original Ins line played in those bars. The instrument is a request to YuE2 (it is appended to the style), not a guarantee, so please also say what you actually hear in the amber bars.</p>
+<div id="pairs"></div>
+<h2>Your answers</h2><pre id="out">(answer above)</pre><button onclick="copyOut()">copy answers</button>
+<script>
+const PAIRS=[
+ {id:'pair1_purple',title:'Pair 1: Purple Shinings (4/4, 87 to 88 BPM, 65 bars)',a:'pair1_purple_A.flac',b:'pair1_purple_B.flac',bars:65,
+  edits:[[47,62]],phr:[[62,65]],
+  hint:'Tempo: 87 to 88 BPM, expect NO audible change. Chords: jazz chords (m7 / 7 / maj7 with slash basses) on chorus bars 47-62. Sax phrase: bars 62-65 (the last chorus bar plus the 3-bar outro), four rising arpeggio bars in quarter notes (B D F B / D F A D / F A C F / A C E A in Dm). Note: the planner put the phrase on bar 62 because the outro has only 3 bars; the original Ins line in those bars is replaced.'},
+ {id:'pair2_gertar',title:'Pair 2: Gertar (4/4, 85 to 88 BPM, 77 bars)',a:'pair2_gertar_A.flac',b:'pair2_gertar_B.flac',bars:77,
+  edits:[[15,22],[36,43],[53,60]],phr:[[61,64]],
+  hint:'Tempo: 85 to 88 BPM, expect slightly faster (about 3.5 %). Chords: all three chorus sections (bars 15-22, 36-43, 53-60). Sax phrase: bars 61-64 (right after the last chorus, the interlude), four ascending bars in quarter notes (B D F A / D F A C / F A C E / A C E G); the original Ins line there is replaced.'},
+ {id:'pair3_carinito',title:'Pair 3: Cariñito (4/4, 95 to 88 BPM, 64 bars)',a:'pair3_carinito_A.flac',b:'pair3_carinito_B.flac',bars:64,
+  edits:[[23,30],[48,55]],phr:[[56,59]],
+  hint:'Tempo: 95 to 88 BPM, expect clearly slower (about 7 %). Chords: both choruses (bars 23-30, 48-55). Sax phrase: bars 56-59 (right after the last chorus), a repeating arpeggio figure with an eighth-note run into a long top note each bar (D F A d / B D F b / F A C f / D F A d); the original Ins line there is replaced.'}
+];
+const root=document.getElementById('pairs');
+const pct=(t,d)=>(100*t/d).toFixed(3)+'%';
+PAIRS.forEach(p=>{
+ const d=document.createElement('div');d.className='pair';
+ const radios=(k,legend)=>`<fieldset><legend>${legend}</legend>${(k==='m'?['yes','meh','no']:['clearly','slightly','no']).map(v=>`<label><input type="radio" name="${k}_${p.id}" value="${v}">${v}</label>`).join('')}</fieldset>`;
+ d.innerHTML=`<h2>${p.title}</h2><div class="note">${p.hint}</div>
+ <div class="row"><button id="A_${p.id}" class="on">A: original</button><button id="B_${p.id}">B: edited</button>
+ <button id="P_${p.id}">play / pause</button> <span id="T_${p.id}" class="note"></span></div>
+ <div class="tl" id="S_${p.id}" tabindex="0" role="slider" aria-label="playhead in bars"></div>
+ <div class="row">${p.edits.map(([f,t],i)=>`<button class="jump" id="J${i}_${p.id}">chords: bars ${f}-${t} &#9656;</button>`).join('')}${p.phr.map(([f,t],i)=>`<button class="jump phrb" id="X${i}_${p.id}">sax phrase: bars ${f}-${t} &#9656;</button>`).join('')}</div>
+ <audio id="au_${p.id}_A" src="${p.a}" preload="metadata"></audio><audio id="au_${p.id}_B" src="${p.b}" preload="metadata"></audio>
+ ${radios('t','Tempo changed A to B?')}${radios('c','Jazz chords heard in the chorus bars (lilac)?')}${radios('s','Sax phrase heard where expected (amber bars)?')}${radios('m','Is the phrase musical (does it fit the song)?')}
+ <input type="text" id="n_${p.id}" placeholder="instrument you actually hear in the phrase / what sounds wrong or good (optional)" style="width:90%">`;
+ root.appendChild(d);
+ let cur='A';const au=k=>document.getElementById(`au_${p.id}_${k}`);
+ const dur=k=>{const v=au(k).duration;return isFinite(v)?v:0;};
+ const spb=k=>dur(k)/p.bars;                      // seconds per bar of that take (measured, not nominal)
+ const barT=(k,n)=>(n-1)*spb(k),barAt=(k,t)=>Math.floor(t/spb(k)+1e-6)+1;
+ const tl=document.getElementById('S_'+p.id);let drawnFor='',head=null;
+ const draw=()=>{const D=dur(cur);drawnFor=cur+D;let h='';
+  p.edits.forEach(([f,t])=>{const x=barT(cur,f);h+=`<div class="edit" style="left:${pct(x,D)};width:${pct(Math.min(barT(cur,t+1),D)-x,D)}"><span>chords ${f}-${t}</span></div>`;});
+  p.phr.forEach(([f,t])=>{const x=barT(cur,f);h+=`<div class="phr" style="left:${pct(x,D)};width:${pct(Math.min(barT(cur,t+1),D)-x,D)}"><span>sax ${f}-${t}</span></div>`;});
+  for(let n=1;n<=p.bars+1&&barT(cur,n)<=D;n++){const x=pct(barT(cur,n),D),major=(n-1)%4===0;
+   h+=`<div class="tick${major?' major':''}" style="left:${x}"></div>`;if(major&&n<=p.bars)h+=`<div class="num" style="left:${x}${n===1?';transform:none;margin-left:3px':''}">${n}</div>`;}
+  tl.innerHTML=h+'<div class="head"></div>';head=tl.querySelector('.head');};
+ const sync=()=>{const D=dur(cur);if(!D)return;if(cur+D!==drawnFor)draw();const t=au(cur).currentTime,b=Math.min(barAt(cur,t),p.bars);
+  head.style.left=pct(t,D);tl.setAttribute('aria-valuetext','bar '+b);
+  document.getElementById('T_'+p.id).textContent=`${cur} ${t.toFixed(1)} / ${D.toFixed(1)} s · bar ${b}`;};
+ const seekBar=bpos=>{const t=Math.max(0,Math.min(dur(cur),bpos*spb(cur)));au(cur).currentTime=t;sync();};  // bpos = fractional bars from the start
+ const sw=k=>{if(k===cur)return;const bpos=au(cur).currentTime/spb(cur),pl=!au(cur).paused;au(cur).pause();cur=k;au(k).currentTime=Math.min(dur(k),bpos*spb(k));if(pl)au(k).play();sync();
+  document.getElementById('A_'+p.id).className=k==='A'?'on':'';document.getElementById('B_'+p.id).className=k==='B'?'on':'';};
+ document.getElementById('A_'+p.id).onclick=()=>sw('A');document.getElementById('B_'+p.id).onclick=()=>sw('B');
+ document.getElementById('P_'+p.id).onclick=()=>{const a=au(cur);a.paused?a.play():a.pause();};
+ const atX=e=>{const r=tl.getBoundingClientRect();return (e.clientX-r.left)/r.width*dur(cur)/spb(cur);};
+ let drag=false;
+ tl.addEventListener('pointerdown',e=>{drag=true;tl.setPointerCapture(e.pointerId);seekBar(atX(e));});
+ tl.addEventListener('pointermove',e=>{if(drag)seekBar(atX(e));});
+ ['pointerup','pointercancel'].forEach(ev=>tl.addEventListener(ev,()=>drag=false));
+ tl.addEventListener('keydown',e=>{const bp=au(cur).currentTime/spb(cur),b=Math.floor(bp+1e-6);
+  if(e.key==='ArrowRight'){seekBar(b+1);e.preventDefault();}
+  if(e.key==='ArrowLeft'){seekBar(bp-b>0.3?b:Math.max(0,b-1));e.preventDefault();}});
+ p.edits.forEach(([f],i)=>{document.getElementById(`J${i}_${p.id}`).onclick=()=>{seekBar(Math.max(0,f-2));au(cur).play();};});
+ p.phr.forEach(([f],i)=>{document.getElementById(`X${i}_${p.id}`).onclick=()=>{seekBar(Math.max(0,f-2));au(cur).play();};});
+ ['A','B'].forEach(k=>au(k).addEventListener('loadedmetadata',sync));
+ setInterval(sync,100);
+ d.addEventListener('change',upd);d.addEventListener('input',upd);
+});
+function upd(){const o={};PAIRS.forEach(p=>{const g=n=>(document.querySelector(`input[name="${n}_${p.id}"]:checked`)||{}).value||'?';
+ o[p.id]={tempo:g('t'),chords:g('c'),sax_phrase_heard:g('s'),phrase_musical:g('m'),note:document.getElementById('n_'+p.id).value};});
+ document.getElementById('out').textContent=JSON.stringify(o,null,1);}
+function copyOut(){navigator.clipboard.writeText(document.getElementById('out').textContent);}
+upd();
+</script></body></html>

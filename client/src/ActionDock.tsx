@@ -7,15 +7,14 @@ import { DockRepaint, type SectionLyrics } from './DockRepaint';
 import { DockAddLayer } from './DockAddLayer';
 import { DockSplit } from './DockSplit';
 import { DockExport } from './DockExport';
+import { DockScore } from './DockScore';
+import type { VerbSpec } from './dockVerbs';
+import type { ScoreVerbState } from './scoreVerbTypes';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
 import { useNextVersion } from './useLayerQueue';
-
-const VERBS: { id: DockVerb; label: string; key: string }[] = [
-  { id: 'repaint', label: 'REPAINT', key: 'R' },
-  { id: 'addLayer', label: 'ADD LAYER', key: 'L' },
-  { id: 'split', label: 'SPLIT', key: 'S' },
-  { id: 'export', label: 'EXPORT', key: 'E' },
-];
+import { scoreOpen } from './scoreEnds';
+import { CLEAR_PICK, scoreTarget } from './scoreCopy';
+import { useScoreStore } from './scoreStore';
 
 export interface DockRepaintInputs {
   prompt: string;
@@ -27,6 +26,11 @@ export interface DockRepaintInputs {
 
 interface Props {
   verb: DockVerb;
+  /** The tabs on show (dockVerbs): SCORE only for a song the server says it applies to. */
+  verbs: readonly VerbSpec[];
+  score: ScoreVerbState;
+  /** SCORE has a strip section or a timed lyric line to pick (D-074): only then the chip hints at picking. */
+  scorePickable?: boolean;
   onVerb: (verb: DockVerb) => void;
   song: SongDetail;
   focusedLayer: Layer | undefined;
@@ -49,22 +53,27 @@ function activeNumber(layer: Layer | undefined): number | null {
  * fields survive a switch; ADD LAYER is always mounted, as its row used to be, so its fields
  * start over once its layers land even while another verb shows.
  */
-export function ActionDock({ verb, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint, onChanged }: Props) {
+export function ActionDock({ verb: picked, verbs, score, scorePickable = false, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint, onChanged }: Props) {
+  const verb = verbs.some((v) => v.id === picked) ? picked : 'repaint'; // SCORE went away (another song)
   const [opened, setOpened] = useState<Set<DockVerb>>(() => new Set(['repaint', 'addLayer']));
   if (!opened.has(verb)) setOpened(new Set([...opened, verb]));
   const layerName = focusedLayer?.name ?? 'base';
   const duration = song.duration ?? 0;
-  const target = dockTarget(verb, layerName, selection, sections, duration);
+  // SCORE's chip names the pick ("this", F-032, M2-1); ✕ clears the pick, not the range REPAINT keeps.
+  const target = verb === 'score' ? scoreTarget(score, selection, scorePickable) : dockTarget(verb, layerName, selection, sections, duration);
+  const clearPick = () => useScoreStore.getState().dispatch(song.id, { type: 'pick', pick: null });
   const repaintTarget = verb === 'repaint' ? target : dockTarget('repaint', layerName, selection, sections, duration);
   const nextVersion = useNextVersion(focusedLayer, song.id);
+  const endsScore = scoreOpen(score); // F-027: an ACE-Step edit's line says it ends score editing
 
   const body = (v: DockVerb) => {
     if (v === 'repaint') {
       return <DockRepaint target={repaintTarget} layerName={layerName} nextVersion={nextVersion}
-        activeVersion={activeNumber(focusedLayer)} selection={selection} duration={duration} {...repaint} />;
+        activeVersion={activeNumber(focusedLayer)} selection={selection} duration={duration} scoreOpen={endsScore} {...repaint} />;
     }
-    if (v === 'addLayer') return <DockAddLayer songId={song.id} layers={song.layers} songLyrics={song.lyrics} />;
-    if (v === 'split') return focusedLayer ? <DockSplit songId={song.id} layer={focusedLayer} onChanged={onChanged} /> : null;
+    if (v === 'addLayer') return <DockAddLayer songId={song.id} layers={song.layers} songLyrics={song.lyrics} scoreOpen={endsScore} />;
+    if (v === 'split') return focusedLayer ? <DockSplit songId={song.id} layer={focusedLayer} onChanged={onChanged} scoreOpen={endsScore} /> : null;
+    if (v === 'score') return <DockScore songId={song.id} state={score} />;
     return <DockExport song={song} />;
   };
 
@@ -74,11 +83,13 @@ export function ActionDock({ verb, onVerb, song, focusedLayer, selection, onClea
         <span className="dock-row-label">TARGET</span>
         <span className={`scope-chip dock-target${target.warn ? ' warn' : ''}`}>{target.label}</span>
         {target.clearable && (
-          <button type="button" className="tab dock-quiet" onClick={onClearSelection}><span>✕ WHOLE SONG</span></button>
+          <button type="button" className="tab dock-quiet" onClick={verb === 'score' ? clearPick : onClearSelection}>
+            <span>{verb === 'score' ? CLEAR_PICK : '✕ WHOLE SONG'}</span>
+          </button>
         )}
         <span className="dock-hint">{target.hint}</span>
         <div className="dock-verbs" role="tablist" aria-label="Verb">
-          {VERBS.map((v) => (
+          {verbs.map((v) => (
             <button key={v.id} type="button" role="tab" aria-selected={v.id === verb} aria-keyshortcuts={v.key}
               className={`tab dock-verb${v.id === verb ? ' active' : ''}`} onClick={() => onVerb(v.id)}>
               <span>{v.label}</span><span className="kbd" aria-hidden="true">{v.key}</span>
@@ -86,7 +97,7 @@ export function ActionDock({ verb, onVerb, song, focusedLayer, selection, onClea
           ))}
         </div>
       </div>
-      {VERBS.filter((v) => opened.has(v.id)).map((v) => (
+      {verbs.filter((v) => opened.has(v.id)).map((v) => (
         <div key={v.id} role="tabpanel" aria-label={v.label} className="dock-panel" hidden={v.id !== verb}>
           {body(v.id)}
         </div>

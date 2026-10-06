@@ -1,0 +1,38 @@
+library:0a7cff01                                 ERR group 60, Ins: expected V: Ins 11.52 ms
+library:2a8cc1ca                                 ok   7.42 ms
+library:2c944049                                 ok   3.28 ms
+library:3820c535                                 ok   3.5 ms
+library:3c9e79de                                 ok   3.67 ms
+library:691aa438                                 ok   9.44 ms
+library:83921775                                 ok   2.44 ms
+library:84a51811                                 ok   6.13 ms
+library:c8144c53                                 ok   5.16 ms
+library:f3e3bfdc                                 ok   3.98 ms
+mut:bar one unit short (message prints a Fraction) ERR group 1, Ins, bar 3: duration 31/8 quarter notes != meter duration 4 0.13 ms
+mut:bar one unit long (duration 5 hit first)     ERR group 1, Ins, bar 3: unsupported duration 5; split it into tied supported lengths 0.12 ms
+mut:duration 5 not allowed                       ERR group 2, Vocal, bar 5: unsupported duration 27; split it into tied supported lengths 0.17 ms
+mut:unsupported chord Cmaj9                      ERR group 2, Vocal, bar 5: unsupported chord 'Cmaj9' 0.17 ms
+mut:chord Dm7b5 ok (m7b5 is native)              ok   3.04 ms
+mut:chord C/E ok                                 ok   3.02 ms
+mut:chord Bbbm7 ok                               ok   3.06 ms
+mut:chord in Ins                                 ERR Native chord symbols belong in Vocal, not Ins 3.33 ms
+mut:tuplet                                       ERR group 1, Ins, bar 3: unsupported token at '(3D4A4f4A4e4A4e4A4' 0.07 ms
+mut:repeat sign                                  ERR group 1, Ins: empty measure or unsupported double/repeat barline 0.07 ms
+mut:w: lyrics line                               ERR group 1, Vocal: expected V: Vocal 0.01 ms
+mut:tie across pitches                           ERR group 1, Ins, bar 3: tie changes pitch from 62 to 69 0.07 ms
+mut:tie into rest                                ok   3.17 ms
+mut:empty bar                                    ERR group 2, Vocal: empty measure or unsupported double/repeat barline 0.17 ms
+mut:five bars in a group                         ERR group 2, Vocal: expected 1–4 measures after expanding Z rests 0.18 ms
+mut:voices differ in bar count                   ERR group 2: voices have different measure counts 0.36 ms
+mut:Q: with text                                 ERR Expected integer quarter-note tempo Q:1/4=<BPM> 0.01 ms
+mut:missing final barline                        ERR group 17, Ins: music line must end with a plain barline 2.93 ms
+mut:unknown key                                  ERR Unsupported key 'Ddor'; use a standard major or minor K: field 0.01 ms
+mut:accidental propagates across octaves (valid) ok   3.02 ms
+mut:lowercase z with accidental                  ERR group 1, Vocal, bar 2: a rest cannot have accidentals, octave marks or ties 0.02 ms
+mut:Z with chord                                 ERR group 1, Vocal, bar 1: unsupported token at 'Z' 0.01 ms
+mut:trailing spaces in a music line              ok   3.02 ms
+mut:T: not blank                                 ERR Expected native X:1 and blank T: header 0.0 ms
+mut:section comment without music at end         ERR Dangling section comment without music 3.0 ms
+mut:note beyond meter end by a chord at end      ERR group 2, Vocal, bar 8: event after the measure end 0.21 ms
+mut:CRLF line endings                            ok   3.16 ms
+parse ms over library scores: 2.44 9.44

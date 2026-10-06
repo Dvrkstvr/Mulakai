@@ -13,6 +13,8 @@ import { useEditorRepaintJob } from './useEditorRepaintJob';
 import { useLandedReload } from './useLandedReload';
 import { useSpaceTransport } from './useSpaceTransport';
 import { useDockKeys } from './useDockKeys';
+import { dockVerbs } from './dockVerbs';
+import { scoreSongKey, useScorePick, useScoreVerb } from './useScoreVerb';
 import { useEditorFocus } from './useEditorFocus';
 import { useSectionLyrics } from './useSectionLyrics';
 import { useRepaintSubmit } from './useRepaintSubmit';
@@ -46,7 +48,9 @@ export function Editor({ songId, onBack }: Props) {
   useMainTransportGuard(engine);
   const playhead = engine.currentTime;
   useSpaceTransport(engine);
-  useDockKeys(setVerb);
+  const score = useScoreVerb(songId, scoreSongKey(song), reload);
+  const verbs = dockVerbs(score.phase.kind !== 'hidden');
+  useDockKeys(setVerb, verbs);
   useEditorFocus(song, focusedLayerId, setFocusedLayerId, setVerb);
 
   const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
@@ -55,6 +59,7 @@ export function Editor({ songId, onBack }: Props) {
   const { timing, sections, activeSectionIndex, activeLyricsBlock, lyricsUnlocked } =
     useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer, reload);
   useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
+  const scorePick = useScorePick(songId, verb, sections, lyricsDraft, score, timing.timings);
 
   const repaint = useRepaintSubmit({
     songId, focusedLayer, selection, duration, prompt, lyricsUnlocked, lyricsDraft, repaintSettings, setSelection, setPrompt,
@@ -62,7 +67,7 @@ export function Editor({ songId, onBack }: Props) {
   });
 
   const seek = (seconds: number) => engine.seek(seconds);
-  const selectRegion = (region: Region | null) => pickRange(region, setSelection, setVerb);
+  const selectRegion = (region: Region | null) => pickRange(region, setSelection, setVerb, verb);
   const shownSelection = shownRange(verb, selection);
 
   useLibraryBackButton(onBack);
@@ -82,7 +87,8 @@ export function Editor({ songId, onBack }: Props) {
           {loadError && <div className="error">couldn't refresh this song — {loadError} {retryLoad}</div>}
           <EditorTitleRow song={song} duration={duration} />
 
-          <SectionStrip sections={sections} activeIndex={verb === 'repaint' ? activeSectionIndex : -1} onSelect={selectRegion} onSeek={seek} />
+          <SectionStrip sections={sections} activeIndex={verb === 'repaint' ? activeSectionIndex : scorePick?.stripIndex ?? -1}
+            onSelect={scorePick?.onStrip ?? selectRegion} onSeek={seek} />
 
           <LayerStack
             songId={songId}
@@ -97,11 +103,14 @@ export function Editor({ songId, onBack }: Props) {
             onSeek={seek}
             processing={!!repaintJob.running}
             onSplit={(layerId) => { setFocusedLayerId(layerId); setVerb('split'); }}
-            lyrics={{ draft: lyricsDraft, timings: timing.timings, timing }}
+            lyrics={{ draft: lyricsDraft, timings: timing.timings, timing, onLine: scorePick?.onLine, picked: scorePick?.lineIndex }}
           />
 
           <ActionDock
             verb={verb}
+            verbs={verbs}
+            score={score}
+            scorePickable={scorePick?.pickable ?? false}
             onVerb={setVerb}
             song={song}
             focusedLayer={focusedLayer}

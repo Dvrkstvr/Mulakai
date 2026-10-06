@@ -1,0 +1,112 @@
+## romantica v2 repeat chorus timings True
+es 45
+    10.2-  13.3 Cómo te digo que olvidarte no he podido
+    15.2-  18.4 Me acostumbré tanto a que estés al lado mío
+    20.5-  22.6 Y tu mirada, tu sonrisa
+    22.6-  26.0 Tan perfecta, tú eres mi niña
+    26.0-  30.5 Y tu carita, tu carita, niña
+    30.5-  35.4 ¿Y qué más da si tú eres mi debilidad?
+    36.9-  40.6 Es que eres tú la que cura mis heridas
+    41.6-  45.6 Y yo aquí esperando por ti
+    47.5-  49.7 Esperando que tú vuelvas conmigo
+    49.7-  52.3 Y que me des tu cariñito
+    52.3-  54.6 Y dime, dime, dime
+    55.3-  57.3 ¿Qué es lo que tengo que hacer?
+    58.0-  60.0 Para que vuelvas conmigo
+    60.7-  62.9 Y me des tu cariñito
+    62.9-  65.0 Y dime, dime, dime
+    65.0-  67.6 ¿Qué es lo que tengo que hacer?
+    68.4-  70.3 Para que quedes conmigo
+    71.2-  73.2 Y me des tu cariñito
+    73.2-  75.4 Y dime, dime, dime
+    75.4-  77.9 ¿Qué es lo que tengo que hacer?
+    78.7-  80.6 Para que vuelvas conmigo
+    81.4-  83.5 Y me des tu cariñito
+    83.5-  85.6 Y dime, dime, dime
+    85.6-  88.2 Qué es lo que tengo que hacer
+    88.2-  90.9 Para que quedes conmigo
+    90.9-  93.9 Y me des tu cariñito
+    93.9-  96.7 Yo necesito que tú vuelvas conmigo
+    96.7-  99.4 Yo necesito que tú seas mi destino
+    99.4- 101.8 Yo necesito que tú vuelvas conmigo
+   101.8- 104.6 Yo necesito que tú seas mi destino
+   104.6- 105.9 Tú lo sabes
+   105.9- 108.5 Que esto no fue un error
+   109.3- 111.2 Y tú lo sabes
+   111.2- 115.3 Que nadie te va a dar amor como yo
+   116.2- 117.9 No, no, no
+   119.3- 120.4 Como yo
+   124.0- 127.0 Te canto esta canción pa' que me recuerdes
+   127.0- 129.4 Que por más que tú me niegues sé que me quieres
+   129.4- 131.0 Que tú me quieres
+   131.8- 133.3 Y que tú me quieres
+   135.2- 137.2 Y dime, dime, dime
+   137.2- 142.6 Dime qué es lo que tengo que hacer para que vuelvas conmigo
+   142.6- 145.5 Y me des tu cariñito
+   145.5- 152.9 Dime, dime, dime qué es lo que tengo que hacer para que quedes conmigo
+   153.7- 155.8 Y me des tu cariñito
+## romantica v1 base timings True
+es 35
+     9.6-  13.2 Cómo te digo que olvidarte no he podido
+    15.0-  18.4 Me acostumbré tanto a que estés al lado mío
+    20.4-  22.7 Y tu mirada, tu sonrisa
+    22.7-  26.0 Tan perfecta, tú eres mi niña
+    26.0-  30.5 Y tu carita, tu carita, niña
+    30.5-  35.3 ¿Y qué más da si tú eres mi debilidad?
+    36.2-  40.7 Es que eres tú la que cura mis heridas
+    40.7-  45.6 Y yo aquí esperando por ti
+    47.4-  49.7 Esperando que tú vuelvas conmigo
+    49.7-  52.2 Y que me des tu cariñito
+    52.2-  57.1 Y dime, dime, dime, ¿Qué es lo que tengo que hacer?
+    57.9-  62.8 Para que vuelvas conmigo y me des tu cariñito
+    62.8-  67.4 Y dime, dime, dime, ¿Qué es lo que tengo que hacer?
+    68.2-  73.0 Para que quedes conmigo y me des tu cariñito
+    73.8-  78.4 Yo necesito que tú vuelvas conmigo Yo necesito que tú seas mi destino
+    78.4-  81.0 Yo necesito que tú vuelvas conmigo
+    81.0-  83.6 Yo necesito que tú seas mi destino
+    83.6-  87.5 Tú lo sabes, que esto no fue un error
+    88.2-  94.2 Y tú lo sabes, que nadie te va a dar amor como yo
+    94.2-  96.7 No, no, no
+    97.6-  99.2 No, no, yo
+   100.1- 101.9 No, no, yo
+   102.8- 105.8 Te canto esta canción pa' que me recuerdes
+   105.8- 108.3 Es que por más que tú me niegues, sé que me quieres
+   108.3- 112.4 Que tú me quieres, sí que tú me quieres
+   113.9- 115.9 Y dime, dime, dime
+   116.7- 118.6 ¿Qué es lo que tengo que hacer?
+   119.4- 121.3 Para que vuelvas conmigo
+   122.0- 124.1 Y me des tu cariñito
+   124.1- 126.2 Y dime, dime, dime
+   126.9- 128.8 ¿Qué es lo que tengo que hacer?
+   129.6- 131.5 Para que quedes conmigo
+   132.2- 134.3 Y me des tu cariñito
+   134.3- 140.7 Oh, oh, oh, oh, oh
+   143.4- 150.7 Oh, oh, oh, oh, oh
+## gertar v3 repeat chorus 1 timings True
+de 26
+    28.6-  30.0 Nebel
+    30.0-  33.0 Stumm, kein Rhythmus mit dem Glück
+    34.9-  39.8 Andreas, ich falle, doch ich stehe irgendwie
+    40.9-  45.8 Inmitten der Ordnung gibt es manchmal Krieg in mir
+    45.8-  51.5 Die Welt schreit laut, doch ich flüster still und zart
+    51.5-  57.0 Ein Held muss stark sein, um sich nach Halt zu finden
+    59.0-  68.4 Dreh, als ich falle, doch ich steh irgendwie Inmitten der Ordnung gibt es manchmal Krieg in mir
+    68.4-  73.9 Die Welt schreit laut, doch ich flüster still und sach
+    73.9-  79.6 Ein Held muss stark sein, um sich nach Halt zu finden
+    93.0-  97.8 Lachen klingt so kühl an der Sesewand
+    97.8- 103.7 Doch ich fühl das Zittern, das mich leise überwiegt
+   103.7- 109.2 Gesichter voller Hoffnung, doch ich greif nur die Hand
+   109.2- 114.8 Denn tief in mir brennt Licht, das niemand je erkennt
+   117.1- 127.3 Andreas, ich geh' doch, ich bleibe irgendwie Ich verlasse die Sinne dort, doch nicht ohne dich
+   127.3- 133.1 Jeder Schritt ist schwer, doch ich muss es versuchen
+   134.1- 138.9 Ich träume von einem Leben, das uns beide
+   140.3- 145.7 Manchmal spür ich, wie die Nacht mich niederrekonnauziert
+   145.7- 151.7 Doch im Schatten meiner Angst wächst noch ein stilles Heer
+   151.7- 157.2 Manchmal ist Versteckung lieber als das Licht zu sehen
+   157.9- 163.3 Doch ich lerne langsam, wie die Grenzen überstehen
+   165.4- 172.7 Verlorene Fragen nehm ich ein, neun im Lauf Ein Held braucht Zeit für sich
+   172.7- 178.3 Und das nehm ich gern in Kauf Die Welt dreht laut
+   178.3- 184.7 Doch ich bleibe wie im Traum Ein Held muss stark sein,
+   184.8- 186.9 um sich nach Halt zu finden
+   209.8- 215.1 Ein Held muss stark sein, um sich nach Halt zu finden
+   215.9- 220.8 Ein Held muss stark sein, um sich nach Halt zu finden
