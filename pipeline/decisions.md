@@ -459,3 +459,10 @@ thread lifecycle follows the song: kept through trash and restore, deleted at pe
 
 ## D-103 · 2026-10-06 · stage 4 (chat scope) · by: user
 The chat cut is signed off: preconditions (SP-5, the SP-4 listen, R-025, SP-6), C0..C8, F-040..F-081, with D-097, D-098 (in C0 only a REHARMONIZE plan is spliced; every other edit re-renders the whole song and says so until C4), D-099 (CHAT is the start screen from C0), D-100..D-102. Next: SP-5.
+
+## D-104 · 2026-10-06 · stage 6/7 (chat C0) · by: user
+"Getting the chat working quickly": C0's architecture starts now, in parallel with SP-5 (small rework risk if SP-5 needs its fallback ladder), and C0 ships in two halves: **C0a create-first** (CHAT start screen, describe → recipe card + sidebar → CREATE SONG on YuE2 → song card and player above the composer, the thread kept), then **C0b** (the edit turn, the REHARMONIZE splice, the version card with A/B). C0a is usable in the real app on its own.
+- instead of: full C0 before the owner sees it; strict order SP-5 → architecture → C0.
+
+## D-105 · 2026-10-06 · housekeeping · by: user
+Repo cleanup: the 10 merged agent worktrees and 25 merged local branches removed, 14 merged remote branches deleted (open-PR branches kept), old verify/spike temp data under E:\ai\tmp deleted (sp4, sp5 kept); the stale PRs #118 and #121 rebased and merged if still valid, else closed.
