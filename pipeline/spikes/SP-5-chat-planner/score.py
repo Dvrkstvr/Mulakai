@@ -65,8 +65,18 @@ def judge_turn(rec, turn, case):
                 lines = [ln for s in obj['recipe']['lyrics'] for ln in s['lines']]
                 j['n_lines'] = len(lines)
                 j['dup_lines'] = len(lines) - len(set(lines))
+                j['max_line_repeat'] = max((lines.count(x) for x in set(lines)), default=0)
+                j['max_repeat_in_section'] = max((sec['lines'].count(x) for sec in obj['recipe']['lyrics'] for x in set(sec['lines'])), default=0)
                 j['paren_lines'] = sum(1 for ln in lines if re.search(r"\([^)]*\)", ln))
                 r = obj['recipe']
+                secs = [(x['tag'], tuple(x['lines'])) for x in r['lyrics']]
+                pairs = [(secs[a][0], secs[b][0]) for a in range(len(secs)) for b in range(a + 1, len(secs)) if secs[a][1] == secs[b][1] and secs[a][0] != secs[b][0]]
+                j['cross_tag_identical'] = len(pairs)
+                j['verse_equals_other'] = sum(1 for p in pairs if 'Verse' in p)           # a verse that is a copy of a chorus / outro / bridge: weak lyrics
+                j['chorus_equals_outro'] = sum(1 for p in pairs if set(p) == {'Chorus', 'Outro'})   # an outro that repeats the chorus: normal
+                joined = ' '.join(obj.get('assumptions', []) + [obj.get('message', '')]).lower()
+                said_minor = bool(re.search(r'\bminor\b|\bmoll\b|\bmenor\b', joined))
+                j['key_minor_mismatch'] = (said_minor and not r['key'].endswith('m')) or ((not said_minor) and bool(re.search(r'\bmajor\b|\bdur\b|\bmayor\b', joined)) and r['key'].endswith('m'))
                 if ex.get('bpm'):
                     j['bpm_intent'] = ex['bpm'][0] <= r['bpm'] <= ex['bpm'][1]
                 if ex.get('style_has'):
@@ -126,7 +136,7 @@ def judge_turn(rec, turn, case):
 
 
 def load_rows(mode):
-    cases = {c['id']: c for c in json.load(open(os.path.join(HERE, 'cases.json'), encoding='utf8'))}
+    cases = {c['id']: c for f in ('cases.json', 'cases_long.json', 'cases_holdout.json') for c in json.load(open(os.path.join(HERE, f), encoding='utf8'))}
     turn_case = {t['id']: (t, c) for c in cases.values() for t in c['turns']}
     recs = []
     for f in sorted(glob.glob(os.path.join(HERE, 'results', f'{mode}_r*.jsonl'))):
@@ -143,7 +153,7 @@ def bars(mode):
     recs, turn_case = load_rows(mode)
     rows = [judge_turn(r, *turn_case[r['turn']]) for r in recs]
     reps = sorted({r['rep'] for r in rows})
-    single = [r for r in rows if r['group'] != 'multi']
+    single = [r for r in rows if r['group'] not in ('multi', 'long')]
     out = {'mode': mode, 'reps': reps, 'turns': len(rows), 'single_turn_cases': len(single) // max(1, len(reps))}
     # (a)
     out['a'] = {'first_try_schema_valid': rate(r['schema_first'] for r in rows), 'within_3_attempts_schema_valid': rate(r['schema_any'] for r in rows),
@@ -176,7 +186,11 @@ def bars(mode):
                 'language_sections_final': rate(x for r in rc for x in r.get('lang_sections_ok_final', [])),
                 'langdetect_agrees_final': rate((r.get('lang_ld_final') == r.get('lang_final')) for r in rc),
                 'structure_follows': rate(r.get('structure_ok') for r in rc), 'dup_lines_total': sum(r.get('dup_lines', 0) for r in rc),
-                'paren_lines_total': sum(r.get('paren_lines', 0) for r in rc), 'lines_total': sum(r.get('n_lines', 0) for r in rc)}
+                'paren_lines_total': sum(r.get('paren_lines', 0) for r in rc), 'lines_total': sum(r.get('n_lines', 0) for r in rc),
+                'sections_with_a_line_3x_or_more': sum(1 for r in rc if r.get('max_repeat_in_section', 0) >= 3),
+                'sets_with_a_verse_copied_from_another_section': sum(1 for r in rc if r.get('verse_equals_other', 0) > 0),
+                'sets_with_an_outro_equal_to_the_chorus': sum(1 for r in rc if r.get('chorus_equals_outro', 0) > 0),
+                'key_field_contradicts_the_text': sum(1 for r in rc if r.get('key_minor_mismatch'))}
     # (e)
     ed = [r for r in rows if r['expected'] == 'edit']
     out['e'] = {'edit_turns': len(ed), 'valid_within_3': rate(r.get('edit_valid') for r in ed), 'valid_first_try': rate(r.get('edit_valid_first') for r in ed),

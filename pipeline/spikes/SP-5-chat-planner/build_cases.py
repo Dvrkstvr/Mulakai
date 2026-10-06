@@ -186,6 +186,42 @@ def main():
     res, err = songs.apply_ops(s2v2, [{'op': 'TRANSPOSE', 'semitones': -2}])
     assert res and res['ok'], (err, res and (res['verdicts'], res['checks']))
 
+
+    # ---- extra: long-song state probes for bar (g) (the 206-bar song with a pending plan and history); not part of the 40
+    fx1 = reharm_ops(s1, 167, 182) + reharm_ops(s1, 183, 198) + reharm_ops(s1, 199, 206)
+    long_cases = [
+        {'id': 'LG01', 'group': 'long', 'song': 'S1', 'turns': [
+            T('LG01.t1', "give the second chorus a jazzier feel", E(must_propose=True, edit={'kind': 'reharm', 'bars': [167, 206], 'tol': 0, 'cover': 0.5}),
+              fixture={'action': 'edit', 'message': "Jazz chords for the second chorus.", 'assumptions': ["assuming the second chorus, bars 167-206"], 'ops': fx1}),
+            T('LG01.t2', "make it a bit slower too", E(edit={'any': True}),
+              fixture={'action': 'edit', 'message': "Jazz chords for the second chorus, and 130 bpm.", 'assumptions': [], 'ops': fx1 + [{'op': 'SET_TEMPO', 'bpm': 130}]}),
+            T('LG01.t3', "no, only the first chorus", E(edit={'kind': 'reharm', 'bars': [63, 78], 'tol': 0, 'cover': 0.5}), commit=True,
+              fixture={'action': 'edit', 'message': "Jazz chords for the first chorus only.", 'assumptions': ["the first chorus is bars 63-78"], 'ops': reharm_ops(s1, 63, 78)}),
+            T('LG01.t4', "which sections does it have now?", {'action': 'say'}),
+        ]},
+        {'id': 'LG02', 'group': 'long', 'song': 'S1', 'turns': [
+            T('LG02.t1', "change the words of the last chorus to be about leaving", E(assumes=True, edit={'kind': 'lyrics', 'block': 6, 'lang': 'de'}), commit=True,
+              fixture={'action': 'edit', 'message': "New words about leaving.", 'assumptions': ["the last chorus is [Chorus] #2"], 'ops': [{'op': 'REWRITE_LYRICS', 'block': 6, 'tag': '[Chorus]', 'occurrence': 2,
+                       'lines': ["Ich pack mein Herz in einen Koffer", "und lass dich leise hinter mir", "der Weg ist lang, doch ich geh weiter", "bis ich mich selbst wiederfind"]}]}),
+            T('LG02.t2', "now repeat the first chorus", E(edit={'kind': 'repeat', 'section': 3}), commit=True,
+              fixture={'action': 'edit', 'message': "The first chorus twice.", 'assumptions': [], 'ops': [{'op': 'REPEAT', 'section': 3, 'label': 'chorus'}]}),
+            T('LG02.t3', "how long is it now?", {'action': 'say'}),
+            T('LG02.t4', "put it down three semitones", E(edit={'kind': 'transpose', 'semitones': -3})),
+        ]},
+        {'id': 'LG03', 'group': 'long', 'song': 'S1', 'turns': [
+            T('LG03.t1', "what key is this in?", {'action': 'say'}),
+            T('LG03.t2', "make it a different key", E(edit={'kind': 'transpose'}),
+              fixture={'action': 'edit', 'message': "Up a whole tone.", 'assumptions': ["assuming up two semitones"], 'ops': [{'op': 'TRANSPOSE', 'semitones': 2}]}),
+            T('LG03.t3', "and slower, around 120", E(edit={'any': True}),
+              fixture={'action': 'edit', 'message': "Up a whole tone and 120 bpm.", 'assumptions': [], 'ops': [{'op': 'TRANSPOSE', 'semitones': 2}, {'op': 'SET_TEMPO', 'bpm': 120}]}),
+            T('LG03.t4', "export it as an mp3", {'action': 'scalpel', 'kind': 'export'}),
+        ]},
+    ]
+    for _k, _ops in (('S1', fx1), ('S1', reharm_ops(s1, 63, 78))):
+        _res, _err = songs.apply_ops(S[_k], _ops)
+        assert _res and _res['ok'], (_k, _err, _res and (_res['verdicts'], _res['checks']))
+    json.dump(long_cases, open(os.path.join(HERE, 'cases_long.json'), 'w', encoding='utf8'), ensure_ascii=False, indent=1)
+
     n_single = sum(1 for c in cases if c['group'] != 'multi')
     n_turns = sum(len(c['turns']) for c in cases)
     must = sum(1 for c in cases if c['group'] != 'multi' and c['turns'][0]['expect'].get('must_propose'))

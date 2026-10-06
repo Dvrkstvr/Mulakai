@@ -23,11 +23,22 @@ def allowed_actions(state):
 
 
 # ---------------------------------------------------------------- rung 1: the router
-ROUTER_RULES = (P.INTRO.replace('Every turn you answer with ONE JSON object {"action": ...} and nothing else, in the person\'s language for message and assumptions.',
-                                'Here you only ROUTE the turn: answer with {"action": ...}, the single best action for the request, nothing else.')
-                + "\n\nACTIONS:\n" + "\n".join(P.ACTION_TEXT[a] for a in P.TEXT_ORDER)
-                + "\n\nA request that changes THIS song's score (chords, words, tempo, key, style, repeat/cut) is edit; a request that needs audio work (repaint, a new layer, stems, a file) is scalpel; "
-                  "a request for a different new song is recipe; a vague wish with nothing to act on is ask; a question is say.")
+ROUTE_TAIL = ("\n\nA request that changes THIS song's score (chords, words, tempo, key, style, repeat/cut) is edit; a request that needs audio work (repaint, a new layer, stems, a file) "
+              "is scalpel; a request for a different new song is recipe; a vague wish with nothing to act on is ask; a question is say.")
+
+
+def router_rules():
+    """The router's system prompt: the action texts of the one-call prompt (v3 wording when P.V3), without the ops reference or the recipe fields."""
+    old_tail = 'Every turn you answer with ONE JSON object {"action": ...} and nothing else, in the person\'s language for message and assumptions.'
+    intro = P.INTRO.replace(old_tail, 'Here you only ROUTE the turn: answer with {"action": ...}, the single best action for the request, nothing else.')
+    texts = [P.ACTION_TEXT[a] for a in P.TEXT_ORDER]
+    if P.V3:
+        texts = [P._v3(t) for t in texts]
+    texts = [t.split(' Answer with ops')[0] + '.' if t.startswith('- edit') else t for t in texts]
+    return intro + "\n\nACTIONS:\n" + "\n".join(texts) + ROUTE_TAIL
+
+
+ROUTER_RULES = router_rules()
 
 
 def compact_pending(p):
@@ -50,7 +61,7 @@ def router_messages(state, text, allowed):
     if state.get('mark'):
         parts.append(P.mark_line(state['mark']))
     parts += ['', f"REQUEST: {text}", f"Reply with {{\"action\": one of {', '.join(allowed)}}}."]
-    return [{'role': 'system', 'content': ROUTER_RULES}, {'role': 'user', 'content': '\n'.join(parts)}]
+    return [{'role': 'system', 'content': router_rules()}, {'role': 'user', 'content': '\n'.join(parts)}]
 
 
 def router_schema(allowed):
@@ -68,14 +79,14 @@ def route(state, text, allowed, seed):
 
 
 # ---------------------------------------------------------------- per-action calls
-def action_messages(action, state, text, with_lyrics=True):
-    rules = P.rules_for([action], with_lyrics)
+def action_messages(action, state, text, with_lyrics=True, was=False):
+    rules = P.rules_for([action], with_lyrics, was)
     return P.build_messages(state, text, rules=rules, bar_map=(action == 'edit'))
 
 
-def action_schema(action, state, text, with_lyrics=True):
+def action_schema(action, state, text, with_lyrics=True, was=False):
     song = state.get('song')
-    return S.action_schema(action, song['facts'] if song else None, P.phrase_bars_of(text), with_lyrics=with_lyrics)
+    return S.action_schema(action, song['facts'] if song else None, P.phrase_bars_of(text), with_lyrics=with_lyrics, was=was)
 
 
 # ---------------------------------------------------------------- rung 3: lyrics as their own call

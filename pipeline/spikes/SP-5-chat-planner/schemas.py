@@ -68,10 +68,13 @@ def phrase_op(song_bars, n):
                 'bars': {'type': 'array', 'minItems': n, 'maxItems': n, 'items': arr(note, 1, 16)}})
 
 
-def ops_array_schema(facts, phrase_bars=4, min_items=1):
+def ops_array_schema(facts, phrase_bars=4, min_items=1, was=False):
     bars = facts['header']['bars']
-    chord = obj({'bar': i(1, bars), 'beat': i(1, beats_per_bar(facts)), 'root': {'enum': ROOTS}, 'quality': {'enum': QUALITIES},
-                 'bass': {'enum': ROOTS}}, required=['bar', 'beat', 'root', 'quality'])
+    props = {'bar': i(1, bars)}
+    if was:   # helper field (code strips it before apply): the old chord's root at that bar, copied from the BAR MAP, so the model compares before it writes the new root
+        props['was'] = {'type': 'string', 'maxLength': 4}
+    props.update({'beat': i(1, beats_per_bar(facts)), 'root': {'enum': ROOTS}, 'quality': {'enum': QUALITIES}, 'bass': {'enum': ROOTS}})
+    chord = obj(props, required=['bar'] + (['was'] if was else []) + ['beat', 'root', 'quality'])
     labels = list(dict.fromkeys(x['label'] for x in facts['sections'] if x['label'] and len(x['label']) <= 40))
     tags = list(dict.fromkeys(b['tag'] for b in facts['lyric_blocks'] if len(b['tag']) <= 60))
     occ = max([1] + [b['occurrence'] for b in facts['lyric_blocks']])
@@ -105,7 +108,7 @@ def recipe_schema(with_lyrics=True):
     return obj({'action': {'const': 'recipe'}, 'message': s(1, 400), 'assumptions': arr(s(1, 160), 0, 4), 'recipe': recipe})
 
 
-def turn_schema(facts, phrase_bars=4, allowed=None, with_lyrics=True):
+def turn_schema(facts, phrase_bars=4, allowed=None, with_lyrics=True, was=False):
     """One reply: anyOf the allowed actions. `facts` None = no song yet (an edit then has the dummy 300-bar bounds)."""
     allowed = allowed or ACTIONS
     f = facts or NO_SONG_FACTS
@@ -113,7 +116,7 @@ def turn_schema(facts, phrase_bars=4, allowed=None, with_lyrics=True):
         'ask': obj({'action': {'const': 'ask'}, 'message': s(1, 400), 'choices': arr(s(1, 80), 2, 4)}),
         'recipe': recipe_schema(with_lyrics),
         'edit': obj({'action': {'const': 'edit'}, 'message': s(1, 400), 'assumptions': arr(s(1, 160), 0, 4),
-                     'ops': ops_array_schema(f, phrase_bars)}),
+                     'ops': ops_array_schema(f, phrase_bars, was=was)}),
         'scalpel': obj({'action': {'const': 'scalpel'}, 'message': s(1, 400), 'kind': {'enum': SCALPEL_KINDS},
                         'target': s(1, 80), 'details': s(0, 300)}),
         'analyze': obj({'action': {'const': 'analyze'}, 'message': s(1, 400), 'reference': s(1, 120), 'plan': s(1, 300)}),
@@ -123,5 +126,5 @@ def turn_schema(facts, phrase_bars=4, allowed=None, with_lyrics=True):
     return ps[0] if len(ps) == 1 else {'anyOf': ps}
 
 
-def action_schema(action, facts, phrase_bars=4, with_lyrics=True):
-    return turn_schema(facts, phrase_bars, [action], with_lyrics)
+def action_schema(action, facts, phrase_bars=4, with_lyrics=True, was=False):
+    return turn_schema(facts, phrase_bars, [action], with_lyrics, was)

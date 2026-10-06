@@ -1,0 +1,343 @@
+[
+ {
+  "id": "HO01",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO01.t1",
+    "user": "Quiero una canción alegre sobre el verano en la playa, con ukelele",
+    "expect": {
+     "action": "recipe",
+     "lang": "es",
+     "style_has": [
+      "ukulele|ukelele"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO02",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO02.t1",
+    "user": "a gritty blues-rock song about losing a job, raspy male voice",
+    "expect": {
+     "action": "recipe",
+     "lang": "en",
+     "style_has": [
+      "blues"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO03",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO03.t1",
+    "user": "Mach mir bitte einen düsteren Techno-Song über die Nacht in Berlin",
+    "expect": {
+     "action": "recipe",
+     "lang": "de",
+     "bpm": [
+      115,
+      160
+     ],
+     "style_has": [
+      "techno"
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO04",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO04.t1",
+    "user": "make a lullaby",
+    "expect": {
+     "action": "recipe",
+     "lang": "en",
+     "vague": true,
+     "must_propose": true,
+     "bpm": [
+      40,
+      90
+     ]
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO05",
+  "group": "recipe",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO05.t1",
+    "user": "une chanson douce en français sur la pluie",
+    "expect": {
+     "action": "recipe",
+     "lang": "fr"
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO06",
+  "group": "edit",
+  "song": "S2",
+  "turns": [
+   {
+    "id": "HO06.t1",
+    "user": "raise the whole song by a minor third",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "transpose",
+      "semitones": 3
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO07",
+  "group": "edit",
+  "song": "S5",
+  "turns": [
+   {
+    "id": "HO07.t1",
+    "user": "make it quicker, around 150",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "tempo",
+      "bpm": [
+       142,
+       158
+      ]
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO08",
+  "group": "edit",
+  "song": "S4",
+  "turns": [
+   {
+    "id": "HO08.t1",
+    "user": "the first verse should end more hopefully, rewrite its words",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "edit": {
+      "kind": "lyrics",
+      "block": 2,
+      "lang": "de"
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO09",
+  "group": "edit",
+  "song": "S3",
+  "turns": [
+   {
+    "id": "HO09.t1",
+    "user": "cut the outro",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "cut",
+      "section": 4
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO10",
+  "group": "edit",
+  "song": "S3",
+  "turns": [
+   {
+    "id": "HO10.t1",
+    "user": "give the bridge a sadder harmony",
+    "expect": {
+     "action": "say",
+     "alt": [
+      "ask"
+     ],
+     "nonexistent": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO11",
+  "group": "edit",
+  "song": "S2",
+  "turns": [
+   {
+    "id": "HO11.t1",
+    "user": "play the first chorus again right after itself",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "repeat",
+      "section": 3
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO12",
+  "group": "say",
+  "song": "S1",
+  "turns": [
+   {
+    "id": "HO12.t1",
+    "user": "how many bars is it?",
+    "expect": {
+     "action": "say",
+     "contains": "\\b206\\b"
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO13",
+  "group": "say",
+  "song": "S3",
+  "turns": [
+   {
+    "id": "HO13.t1",
+    "user": "what is the style of this song?",
+    "expect": {
+     "action": "say",
+     "contains": "dream|trip|lo-?fi|moody|atmospheric"
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO14",
+  "group": "say",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO14.t1",
+    "user": "can you make instrumental music too?",
+    "expect": {
+     "action": "say"
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO15",
+  "group": "scalpel",
+  "song": "S5",
+  "turns": [
+   {
+    "id": "HO15.t1",
+    "user": "re-sing the second verse in a darker way",
+    "expect": {
+     "action": "scalpel",
+     "kind": "repaint"
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO16",
+  "group": "scalpel",
+  "song": "S1",
+  "turns": [
+   {
+    "id": "HO16.t1",
+    "user": "add a choir layer over the last chorus",
+    "expect": {
+     "action": "scalpel",
+     "kind": "add_layer"
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO17",
+  "group": "scalpel",
+  "song": "S3",
+  "turns": [
+   {
+    "id": "HO17.t1",
+    "user": "save a copy as flac",
+    "expect": {
+     "action": "scalpel",
+     "kind": "export"
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO18",
+  "group": "ask",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO18.t1",
+    "user": "change it",
+    "expect": {
+     "action": "ask",
+     "stuck": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO19",
+  "group": "ask",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO19.t1",
+    "user": "go on",
+    "expect": {
+     "action": "ask",
+     "stuck": true
+    }
+   }
+  ]
+ },
+ {
+  "id": "HO20",
+  "group": "analyze",
+  "song": null,
+  "turns": [
+   {
+    "id": "HO20.t1",
+    "user": "use this riff as the base for a song",
+    "expect": {
+     "action": "analyze"
+    },
+    "attachment": "audio file \"riff_demo.mp3\", 0:52, not read yet"
+   }
+  ]
+ }
+]

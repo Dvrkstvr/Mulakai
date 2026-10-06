@@ -189,6 +189,9 @@ def edit_intent(ops, ex, song):
             return False, 'no EDIT_STYLE'
         ok = all(re.search(t, ss[0]['style'], re.I) for t in ex.get('style_has', []))
         return ok, 'style has ' + str(ex.get('style_has'))
+    if k == 'cut':
+        rs = ops_by(ops, 'CUT')
+        return (bool(rs) and rs[0]['section'] == ex['section']), f"CUT sections {[o['section'] for o in rs]} want {ex['section']}"
     if k == 'repeat':
         rs = ops_by(ops, 'REPEAT')
         return (bool(rs) and rs[0]['section'] == ex['section']), f"REPEAT sections {[o['section'] for o in rs]} want {ex['section']}"

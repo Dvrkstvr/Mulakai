@@ -10,7 +10,7 @@ import requests
 URL = os.environ.get("LLM_URL", "http://127.0.0.1:11435")
 MODEL = os.environ.get("LLM_MODEL", "qwen3:14b")
 TEMPERATURE = float(os.environ.get("SP5_TEMP", "0.3"))
-MAX_TOKENS = int(os.environ.get("SP5_MAX_TOKENS", "2000"))
+MAX_TOKENS = int(os.environ.get("SP5_MAX_TOKENS", "4000"))   # plannerClient.ts uses 2000; a 40-bar REHARMONIZE needs more (ED10, base run)
 
 
 def chat(messages, schema, seed=None, model=None, temperature=None, max_tokens=None, timeout=300):

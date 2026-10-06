@@ -7,11 +7,15 @@ Sg = songs.load()
 CASES = [('S3', 'give the chorus jazz chords'), ('S3', 'make the chorus hit harder'), ('S2', 'the verses feel too busy to me'), ('S4', 'give the chorus jazz chords')]
 EXTRA_B = (" REHARMONIZE needs NEW ROOTS, not new colours: Dm7 over a Dm does not count. In every 2 bars at least one chord must have a different root "
            "than the old chord at that bar in the BAR MAP (for example old Dm: use Gm7, Bb maj7 or A7; old Bb: use Eb7 or Gm7).")
+EXTRA_E = (" REHARMONIZE rule, simply: in every SECOND bar of the op (the 2nd, 4th, 6th ...) the chord's root must differ from the old chord's root in the BAR MAP "
+           "(old Dm -> Gm7 or Bb maj7; old Bb -> Eb7 or Gm7; old F -> Bb maj7 or Dm7; old C -> F maj7 or Am7; old Gm -> Cm7 or Eb maj7); the other bars may keep the root with a richer quality.")
 def variant(name):
     rules = P.CHAT_RULES
     line = 'Reply with the JSON object only.'
     if 'B' in name:
         rules = rules.replace('A follow-up edit while an edit card is pending', EXTRA_B.strip() + ' A follow-up edit while an edit card is pending')
+    if 'E' in name:
+        rules = rules.replace('A follow-up edit while an edit card is pending', EXTRA_E.strip() + ' A follow-up edit while an edit card is pending')
     if 'C' in name:
         line += ' Write it compactly on ONE line: no newlines, no indentation.'
     return rules, line

@@ -18,6 +18,8 @@ SPARE = 'RC03'
 
 def main():
     src = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, 'results', 'base_r1.jsonl')
+    alt_src = sys.argv[2] if len(sys.argv) > 2 else None   # optional: the same 10 requests with the lyrics written in a second call (ladder rung 3), shown folded as B
+    alt = {json.loads(l)['turn']: json.loads(l) for l in open(alt_src, encoding='utf8')} if alt_src else {}
     cases = {c['id']: c for c in json.load(open(os.path.join(HERE, 'cases.json'), encoding='utf8'))}
     recs = {json.loads(l)['turn']: json.loads(l) for l in open(src, encoding='utf8')}
     sets = []
@@ -31,6 +33,10 @@ def main():
             a, b, per = C.lyrics_language(r)
             sets.append({'id': cid, 'request': cases[cid]['turns'][0]['user'], 'want': ex['lang'], 'vague': bool(ex.get('vague')), 'spare': cid == SPARE,
                          'lingua': a, 'langdetect': b, 'per': per, 'assumptions': rp.get('assumptions', []), 'message': rp['message'], 'recipe': r})
+            ar = (alt.get(cid + '.t1') or {}).get('reply')
+            if ar and ar.get('action') == 'recipe':
+                aa, ab, _ = C.lyrics_language(ar['recipe'])
+                sets[-1]['alt'] = {'lyrics': ar['recipe']['lyrics'], 'lingua': aa, 'langdetect': ab}
         else:
             sets.append({'id': cid, 'request': cases[cid]['turns'][0]['user'], 'want': ex['lang'], 'vague': bool(ex.get('vague')), 'spare': cid == SPARE,
                          'missing': True})
@@ -84,7 +90,7 @@ SETS.forEach((s,i)=>{
     body=`<div class="meta"><b>${esc(r.title)}</b> · ${esc(r.style)} · ${r.bpm} bpm · ${esc(r.key)} · ${esc(r.time_signature)} · engine ${esc(r.engine)}</div>
     <div class="chips">${r.structure.map(t=>`<span>${esc(t)}</span>`).join('')}</div>
     <div class="meta">assistant: ${esc(s.message)}${s.assumptions.length?`<br>assumptions: ${s.assumptions.map(esc).join(' · ')}`:''}</div>
-    <pre>${lyr}</pre>
+    <pre>${lyr}</pre>${s.alt?`<details><summary class="note">B: the same song idea with the lyrics written in a second call (ladder rung 3), language-ID ${LN[s.alt.lingua]||s.alt.lingua}</summary><pre>${s.alt.lyrics.map(x=>`<span class="tag">[${esc(x.tag)}]</span>\n${x.lines.map(esc).join('\n')}`).join('\n\n')}</pre></details>`:''}
     <div class="meta">language-ID: lingua <b class="${ok?'good':'warn'}">${LN[s.lingua]||s.lingua}</b> · langdetect ${LN[s.langdetect]||s.langdetect} · asked for ${LN[s.want]}${ok?'':' <b class="warn">(mismatch)</b>'}</div>`;
   }
   d.innerHTML=`<h2>${i+1}. ${esc(s.request)}</h2><div class="meta">${s.id} · ${LN[s.want]} lyrics expected${s.vague?' · a deliberately vague request':''}${s.spare?' · <b>spare</b>':''}</div>${body}

@@ -7,6 +7,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 
@@ -21,6 +22,8 @@ import ladder  # noqa: E402
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 MAX_ATTEMPTS = 3
+SECTION_WORDS = ['intro', 'verse', 'pre-chorus', 'chorus', 'bridge', 'outro', 'interlude']
+CUR_REQ = ''
 MAX_REASONS = 8
 
 
@@ -34,12 +37,41 @@ def edit_reasons(reply, song):
     """The existing validators: yue-server /v1/scores/apply (CPU). Returns (reasons, seconds)."""
     if not song:
         return ['there is no song yet: an edit needs a SONG block; answer with recipe, ask or say instead'], 0.0
+    if P.V3:   # v3 guard: the request names a section the song does not have -> no silent substitution
+        have = {s['label'].lower() for s in song['facts']['sections'] if s['label']}
+        asked = [w for w in SECTION_WORDS if re.search(rf"\b{w}\b", CUR_REQ, re.I) and w not in have]
+        if asked:
+            return [f"the request names the {asked[0]}, but this song has no {asked[0]} (its sections: {', '.join(sorted(have)) or 'none marked'}): do not substitute another place; answer with action say and tell the person what the song has instead"], 0.0
     t0 = time.time()
-    res, err = songs.apply_ops(song, reply['ops'])
+    ops = [dict(o, chords=[{k: v for k, v in c.items() if k != 'was'} for c in o['chords']]) if o.get('op') == 'REHARMONIZE' else o for o in reply['ops']]
+    res, err = songs.apply_ops(song, ops)
     dt = time.time() - t0
     if res is None:
         return [err], dt
-    return ([] if res['ok'] else apply_reasons(res)), dt
+    if not res['ok']:
+        return apply_reasons(res), dt
+    out = []
+    if P.V3:   # v3 guard: a rewritten block keeps the language of the block it replaces (the verdict's diff carries old and new lines)
+        for v in res['verdicts']:
+            d = v.get('diff')
+            if v.get('op') == 'REWRITE_LYRICS' and d and len(' '.join(d['old'])) > 40:
+                new_l, old_l = C.lid(' '.join(d['new']))[0], C.lid(' '.join(d['old']))[0]
+                if new_l and old_l and new_l != old_l:
+                    out.append(f"op {v['index']} (REWRITE_LYRICS): the new lines read as '{new_l}' but the block they replace reads as '{old_l}': write them in the song's own language ('{old_l}')")
+    return out, dt
+
+
+def say_reasons(message, song):
+    """v3.1 guard: a `say` that names a key must name the HEADER's key (a 14B model answered Gm after a TRANSPOSE to Fm, 6 of 6 runs)."""
+    key = song['facts']['header']['key']
+    named = re.findall(r"\b([A-G][#b♭♯]?)\s?(minor|major|m\b)", message)
+    if not named:
+        return []
+    want = C.key_regex(key)
+    if want.search(message):
+        return []
+    root = key.rstrip('m')
+    return [f"you named the key {named[0][0]}{' minor' if named[0][1].startswith('m') else ' major'}, but the HEADER says K:{key} ({root} {'minor' if key.endswith('m') else 'major'}) for the active version: quote the HEADER"]
 
 
 def history_text(reply):
@@ -80,6 +112,8 @@ def call_loop(messages, schema, song, seed, loop_checks=True, check_recipe=True)
                     rec['apply_ok'] = not reasons
                 elif obj['action'] == 'recipe' and check_recipe:
                     reasons = C.recipe_loop_problems(obj['recipe'])
+                elif obj['action'] == 'say' and P.V31 and song:
+                    reasons = say_reasons(obj['message'], song)
         else:
             rec['schema_ok'] = False
         rec['reasons'] = reasons[:MAX_REASONS]
@@ -95,8 +129,15 @@ def call_loop(messages, schema, song, seed, loop_checks=True, check_recipe=True)
 def do_turn(mode, state, text, seed):
     """One turn under a ladder mode. Returns attempts (all calls), reply, accepted, apply seconds, extra info."""
     flags = set(mode.split('+'))
+    P.RLE = 'rle' in flags
+    P.V3 = 'v3' in flags or 'v31' in flags
+    P.V31 = 'v31' in flags
+    P.CAP16 = 'cap16' in flags
+    global CUR_REQ
+    CUR_REQ = text
     song = state.get('song')
     with_lyrics = 'lyrics' not in flags
+    was = 'was' in flags
     allowed = ladder.allowed_actions(state) if 'allowed' in flags else list(S.ACTIONS)
     extra = {'allowed': allowed}
     if 'router' in flags:
@@ -105,13 +146,15 @@ def do_turn(mode, state, text, seed):
         if action is None:
             action = 'say'
         extra['routed'] = action
-        msgs = ladder.action_messages(action, state, text, with_lyrics)
-        schema = ladder.action_schema(action, state, text, with_lyrics)
+        msgs = ladder.action_messages(action, state, text, with_lyrics, was)
+        schema = ladder.action_schema(action, state, text, with_lyrics, was)
     else:
-        rules = P.rules_for(allowed, with_lyrics)
+        rules = P.rules_for(allowed, with_lyrics, was)
         msgs = P.build_messages(state, text, rules=rules)
-        schema = S.turn_schema(song['facts'] if song else None, P.phrase_bars_of(text), allowed, with_lyrics)
+        schema = S.turn_schema(song['facts'] if song else None, P.phrase_bars_of(text), allowed, with_lyrics, was)
     attempts, reply, accepted, apply_s = call_loop(msgs, schema, song, seed, check_recipe=with_lyrics)
+    if reply and reply.get('action') == 'edit':   # code strips the helper field: nothing downstream (history, pending, commit) ever sees `was`
+        reply = dict(reply, ops=[dict(o, chords=[{k: v for k, v in c.items() if k != 'was'} for c in o['chords']]) if o.get('op') == 'REHARMONIZE' else o for o in reply['ops']])
     if accepted and reply and reply['action'] == 'recipe' and not with_lyrics:
         lyr, latts, ok = ladder.lyrics_call(text, reply['recipe'], seed + 100)
         attempts += latts
@@ -133,11 +176,12 @@ def run_conversation(conv, library_songs, mode, rep, release=True, log=print):
         attempts, reply, accepted, apply_s, extra = do_turn(mode, state, turn['user'], seed=1000 * rep + 10 * ti + 1)
         wall = time.time() - t0
         cur = state.get('song')
+        ps_now = [{'size': m.get('size'), 'size_vram': m.get('size_vram'), 'ctx': m.get('context_length')} for m in llm.ps()]
         unload_ms, polls, ok = (llm.release() if release else (None, 0, None))
         first_ok = bool(attempts and attempts[0].get('schema_ok'))
         rec = {'conv': conv['id'], 'turn': turn['id'], 'ti': ti, 'mode': mode, 'rep': rep, 'user': turn['user'], 'song': conv['song'],
                'accepted': accepted, 'attempts': attempts, 'reply': reply, 'wall': round(wall, 2), 'model_s': round(sum(a['wall'] for a in attempts) + (extra['router']['wall'] if 'router' in extra else 0), 2),
-               'apply_s': round(apply_s, 2), 'extra': extra, 'ps_before_empty': not ps_before, 'unload_ms': unload_ms, 'unload_polls': polls, 'unload_ok': ok,
+               'apply_s': round(apply_s, 2), 'extra': extra, 'ps_before_empty': not ps_before, 'ps_loaded': ps_now, 'unload_ms': unload_ms, 'unload_polls': polls, 'unload_ok': ok,
                'prompt_tokens_first': max([attempts[0]['prompt_tokens']] + ([extra['router']['prompt_tokens']] if 'router' in extra else [])),
                'first_schema_ok': first_ok,
                'ctx_state': {'bars': cur['facts']['header']['bars'] if cur else None, 'versions': len(cur['versions']) if cur else 0,
@@ -180,8 +224,9 @@ def main():
     ap.add_argument('--only', default='')
     ap.add_argument('--no-release', action='store_true')
     ap.add_argument('--out', default='')
+    ap.add_argument('--cases', default='cases.json')
     a = ap.parse_args()
-    cases = json.load(open(os.path.join(HERE, 'cases.json'), encoding='utf8'))
+    cases = json.load(open(os.path.join(HERE, a.cases), encoding='utf8'))
     if a.only:
         want = set(a.only.split(','))
         cases = [c for c in cases if c['id'] in want]
