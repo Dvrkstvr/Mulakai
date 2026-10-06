@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ChatDraftFields, ChatMessageView, ChatThreadView } from './api/chat';
 import { SIDEBAR_FOOT, cardHeader, songSubtitle, thinkingTail, touchedSinceSend } from './chatCopy';
-import { cardView, editedSinceProposal, fillingKeys, fmtLength, latestSong, sidebarFoot, sidebarMode } from './chatScreen';
+import { cardView, editedSinceProposal, fillingKeys, fmtLength, latestSong, playerTake, sidebarFoot, sidebarMode } from './chatScreen';
 import { INITIAL_TURN, type CommitState } from './chatTurn';
 
 const msg = (over: Partial<ChatMessageView>): ChatMessageView => ({
@@ -96,5 +96,21 @@ describe('screen copy', () => {
     expect(cardHeader('expired')).toBe('PROPOSAL · NEW SONG · EXPIRED');
     expect(cardHeader('done', 'Luz')).toBe('PROPOSAL · NEW SONG · LUZ');
     expect(cardHeader('pending')).toBe('PROPOSAL · NEW SONG');
+  });
+});
+
+describe('the player take (GET /api/songs/:id carries no audio_file; the take is on the base layer)', () => {
+  const v = (audio_file: string, active: 0 | 1) => ({ audio_file, active }) as never;
+  const layer = (kind: string, versions: unknown[]) => ({ kind, versions }) as never;
+  it("plays the base layer's active version", () => {
+    expect(playerTake({ audio_file: null, layers: [layer('base', [v('a.flac', 0), v('b.flac', 1)])] } as never)).toBe('b.flac');
+  });
+  it('prefers the base layer over an added layer listed first', () => {
+    expect(playerTake({ layers: [layer('strings', [v('s.flac', 1)]), layer('base', [v('b.flac', 1)])] } as never)).toBe('b.flac');
+  });
+  it('has nothing to play without a song or an active take', () => {
+    expect(playerTake(null)).toBeNull();
+    expect(playerTake({ layers: [layer('base', [v('a.flac', 0)])] } as never)).toBeNull();
+    expect(playerTake({ layers: [] } as never)).toBeNull();
   });
 });
