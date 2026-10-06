@@ -1,0 +1,27 @@
+/** The chat's edit types (C0b, CB-2; architecture.md "Data (chat)": the edit card's body). Types only. */
+import type { Op, OpVerdict, Plan, ScoreFacts } from '../score/planTypes.js';
+import type { RenderMode } from '../score/renderMode.js';
+import type { Splice } from './spliceEligibility.js';
+
+/** The edit card (C0b, F-046): a planStore plan's snapshot. `splice` says whether APPLY splices the bars
+ * (spliceEligibility) or re-renders the whole song, and why; `renderMode` names the render's cot (F-065). */
+export interface EditBody {
+  planId: string;
+  ops: Op[];
+  verdicts: OpVerdict[];
+  checks: Plan['checks'];
+  splice: Splice;
+  renderMode: RenderMode;
+  /** What the reply assumed ("assuming chorus 1, bars 25-32"). */
+  assumptions: string[];
+  attempts: number;
+  /** Each earlier refused attempt's reasons (D-060). */
+  refusals: string[][];
+}
+/** What an edit turn plans on (songStateSource): an eligible song's score as read and its source. */
+export interface EditBase {
+  songId: string;
+  source: { abc: string; style: string; lyrics: string | null; activeVersionId: string; fingerprint: string };
+  facts: ScoreFacts;
+  chordsPresent: boolean | null;
+}

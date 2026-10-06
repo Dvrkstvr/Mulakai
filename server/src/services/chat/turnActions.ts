@@ -1,15 +1,16 @@
 /**
  * Which actions a turn may answer with (SP-5's closed set) and which of them C0a answers as a plain
- * `say` (D-098, D-110). Pure. SP-5's ladder rung 2 ("offer only the actions the state allows") lives
- * here; the number of calls lives in turnCall.ts. CB-2 turns edits on (EDITS_ON). C3: the draft thread
+ * `say` (D-098). Pure. SP-5's ladder rung 2 ("offer only the actions the state allows") lives
+ * here; the number of calls lives in turnCall.ts. CB-2 turned edits on (EDITS_ON, D-110 reversed): an
+ * edit on a song whose score was read is a real plan, else a say with the reason. C3: the draft thread
  * answers `analyze` with a READ card; the follow-up turn after a reading proposes or asks (D-129).
  */
 import type { TurnAction } from './chatTypes.js';
 
 export const ACTIONS: TurnAction[] = ['ask', 'recipe', 'edit', 'scalpel', 'analyze', 'say'];
 
-/** C0a: an edit turn is answered by pointing to SCORE in the Editor (D-110). */
-export const EDITS_ON = false;
+/** C0b (CB-2): an edit turn on a song is planned and shown as an edit card (F-046). */
+export const EDITS_ON = true;
 
 export interface TurnState {
   /** The thread belongs to a song (else it is the draft thread). */
@@ -40,7 +41,7 @@ export function allowedActions(s: TurnState, rung = 0): TurnAction[] {
 export function redirected(s: TurnState, editsOn = EDITS_ON): TurnAction[] {
   const out: TurnAction[] = ['scalpel'];
   if (s.hasSong) out.push('analyze');
-  if (!editsOn || !s.hasSong) out.push('edit');
+  if (!editsOn || !s.hasSong || !s.scoreReadable) out.push('edit');
   if (s.hasSong) out.push('recipe');
   return out;
 }

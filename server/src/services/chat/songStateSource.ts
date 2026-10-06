@@ -16,7 +16,7 @@ import { resolveReference, type LibrarySong } from './referenceResolve.js';
 import { analyzeBody, attachedLine, referenceBlock } from './referenceTurn.js';
 import type { AnalyzeResolved } from './turnDispatch.js';
 import type { Reading, ReadingPlanSources } from './reading.js';
-import type { AnalyzeTarget, ChatThread, DraftFields } from './chatTypes.js';
+import type { AnalyzeTarget, ChatThread, DraftFields, EditBase } from './chatTypes.js';
 
 export interface SourceDeps { status: (songId: string) => Promise<ScoreStatus> }
 export const sourceDeps = (over: Partial<SourceDeps> = {}): SourceDeps => ({ status: (songId) => scoreStatus(songId), ...over });
@@ -31,6 +31,8 @@ export interface GatheredState {
   scoreReason: string | null;
   /** C3: the thread's references, the library (for an analyze reply) and the reading a recipe builds on. */
   refs: TurnRefs;
+  /** C0b: what an edit turn plans on (an eligible song), or why it cannot be edited; null on the draft thread. */
+  edit: EditBase | { reason: string } | null;
 }
 export interface TurnRefs {
   references: Reference[];
@@ -83,6 +85,16 @@ function unreadable(s: ScoreStatus): string {
   return s.read?.error ?? 'yue-server did not return the score facts';
 }
 
+/** An eligible song's score and source for the plan (planJob's own conditions), else null. */
+function editBase(songId: string, status: ScoreStatus | null, facts: ScoreFacts | null): EditBase | null {
+  const src = status?.source;
+  if (status?.eligibility.state !== 'eligible' || !facts || !src?.abc || !src.activeVersionId) return null;
+  return {
+    songId, facts, chordsPresent: status.read?.chordsPresent ?? null,
+    source: { abc: src.abc, style: src.style ?? '', lyrics: src.lyrics, activeVersionId: src.activeVersionId, fingerprint: src.fingerprint },
+  };
+}
+
 export async function gatherTurnState(thread: ChatThread, deps: SourceDeps = sourceDeps(), opts: GatherOptions = {}): Promise<GatheredState> {
   const songs = librarySongs();
   const library = songs.map((s) => s.title);
@@ -91,7 +103,7 @@ export async function gatherTurnState(thread: ChatThread, deps: SourceDeps = sou
   const c3 = Object.fromEntries(Object.entries(flags).filter(([, on]) => on)); // only what is set: a C0 state stays as it was
   if (!thread.songId) {
     const block = [...songStateLines({ library, song: null }), ...lines];
-    return { block, facts: null, draft: thread.draft.fields, state: { hasSong: false, scoreReadable: false, ...c3 }, scoreReason: null, refs };
+    return { block, facts: null, draft: thread.draft.fields, state: { hasSong: false, scoreReadable: false, ...c3 }, scoreReason: null, refs, edit: null };
   }
   const row = db.prepare(`SELECT title, caption FROM songs WHERE id = ?`).get(thread.songId) as { title: string; caption: string } | undefined;
   let status: ScoreStatus | null = null;
@@ -108,5 +120,6 @@ export async function gatherTurnState(thread: ChatThread, deps: SourceDeps = sou
     versions: baseVersions(thread.songId), facts, reason: facts ? null : reason,
   };
   const block = [...songStateLines({ library, song }), ...lines];
-  return { block, facts, draft: null, state: { hasSong: true, scoreReadable: Boolean(facts), ...c3 }, scoreReason: song.reason, refs };
+  const edit = editBase(thread.songId, status, facts) ?? { reason: (status ? unreadable(status) : reason) ?? 'its score could not be read' };
+  return { block, facts, draft: null, state: { hasSong: true, scoreReadable: Boolean(facts), ...c3 }, scoreReason: song.reason, refs, edit };
 }

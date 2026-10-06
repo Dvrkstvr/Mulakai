@@ -56,6 +56,15 @@ describe('message view (the states the client shows)', () => {
     expect(estSeconds({})).toBeNull();
   });
 
+  it('an edit card (CB-2): pending, REPLACED by the next plan, expired when its plan is gone; committing and done follow its APPLY job', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'edit', { proposalId: 'e', ...over });
+    expect(states([card()], ctx({}, { e: 'live' }))).toEqual(['pending']);
+    expect(states([card()], ctx({}, { e: 'superseded' }))).toEqual(['superseded']);
+    expect(states([card()], ctx())).toEqual(['expired']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'running' } }, { e: 'live' }))).toEqual(['committing']);
+    expect(states([card({ jobId: 'r' }), msg('assistant', 'version', { jobId: 'r' })], ctx())).toEqual(['done', null]);
+  });
+
   it('an analyze card: pending, superseded, expired; committing while its READ job runs, then done (C3)', () => {
     const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'analyze', { proposalId: 'a', ...over });
     expect(states([card()], ctx({}, { a: 'live' }))).toEqual(['pending']);

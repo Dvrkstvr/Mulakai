@@ -80,4 +80,12 @@ describe('reply check', () => {
     const out = await reasons(edit, song, { apply: async () => applied, language });
     expect(out).toEqual([`op 1 (REWRITE_LYRICS): the new lines read as 'en' but the block they replace reads as 'de': write them in the song's own language ('de')`]);
   });
+
+  it('F-065 edge: REWRITE LYRICS on an instrumental is refused with the reason (scoreLimits.wordsRefusal, D-144)', async () => {
+    const applied = contract('apply-rewrite-lyrics').response.body as unknown as ApplyResult;
+    const instrumental = { ...facts, lyric_blocks: facts.lyric_blocks.map((b) => ({ ...b, lines: 0 })) };
+    const edit = { action: 'edit', message: 'x', assumptions: [], ops: [{ op: 'REWRITE_LYRICS', block: 2, tag: '[Chorus]', occurrence: 1, lines: ['a'] }] };
+    const out = await reasons(edit, { ...song, facts: instrumental }, { apply: async () => applied });
+    expect(out).toContain('this song is instrumental: there are no words to rewrite');
+  });
 });

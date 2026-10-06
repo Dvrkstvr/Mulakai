@@ -5,7 +5,7 @@
  * message is queued / thinking while its turn job lives, then done / failed / cancelled from the reply
  * after it, or interrupted when the job vanished with no reply (a restart). A recipe card is pending,
  * superseded, expired (the server forgot it), committing (its CREATE SONG job runs) or done (a song
- * card from that job follows). Pure: the caller passes the job and proposal lookups.
+ * card from that job follows); an edit card likewise, with APPLY and a version card (C0b). Pure: the caller passes the job and proposal lookups.
  */
 import { recipeFields } from './draftModel.js';
 import type { ChatMessage, Draft, DraftFields, FailedBody, MessageState, ReadingBody, RecipeBody } from './chatTypes.js';
@@ -72,8 +72,9 @@ function userState(messages: ChatMessage[], i: number, ctx: ViewContext): Messag
   return job?.status === 'failed' ? 'failed' : 'interrupted';
 }
 
-function recipeState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext): MessageState {
-  if (m.jobId && messages.some((s) => s.kind === 'song' && s.jobId === m.jobId)) return 'done';
+/** A recipe card (its commit makes a song card) or, C0b, an edit card (its APPLY makes a version card). */
+function cardState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext, made: 'song' | 'version'): MessageState {
+  if (m.jobId && messages.some((s) => s.kind === made && s.jobId === m.jobId)) return 'done';
   const life = m.proposalId ? ctx.proposal(m.proposalId) : null;
   if (!life) return 'expired';
   if (life === 'superseded') return 'superseded';
@@ -101,7 +102,8 @@ export function messageViews(messages: ChatMessage[], ctx: ViewContext) {
     let state: MessageState | null = null;
     if (m.role === 'user') state = userState(messages, i, ctx);
     else if (m.kind === 'failed') state = failedState(m);
-    else if (m.kind === 'recipe') state = recipeState(messages, m, ctx);
+    else if (m.kind === 'recipe') state = cardState(messages, m, ctx, 'song');
+    else if (m.kind === 'edit') state = cardState(messages, m, ctx, 'version');
     else if (m.kind === 'analyze') state = analyzeState(m, ctx);
     else if (m.kind === 'reading') state = readingState(m, ctx);
     const job = m.jobId ? ctx.job(m.jobId) ?? null : null;
