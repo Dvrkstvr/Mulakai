@@ -49,10 +49,14 @@ export async function transcriptionHealth(target: EngineTarget): Promise<boolean
   }
 }
 
-/** Returns yue-server's transcription id. Our job id rides along as the Idempotency-Key. */
-export async function transcribe(target: EngineTarget, audio: Buffer, filename: string, jobId: string): Promise<string> {
+/** Returns yue-server's transcription id. Our job id rides along as the Idempotency-Key.
+ * `chords`: keep chord symbols (a chat reading, D-131); unset = melody-only, as COVER always was. */
+export async function transcribe(
+  target: EngineTarget, audio: Buffer, filename: string, jobId: string, opts: { chords?: boolean } = {},
+): Promise<string> {
   const form = new FormData();
   form.append('audio', new Blob([new Uint8Array(audio)]), filename);
+  if (opts.chords) form.append('chords', 'true');
   const res = await request(target, '/v1/transcriptions', {
     method: 'POST', headers: headers(target, { 'Idempotency-Key': jobId }), body: form,
   }, 'transcribe');
