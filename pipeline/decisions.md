@@ -437,3 +437,21 @@ The chat design is signed off with two changes: the player sits above the compos
 ## D-096 · 2026-10-06 · stage 1/4 (chat) · by: user
 The PLAN.md section "Chat: Talk a Song Into Being" is signed off now ("sign off now and start scoping"), with decision 6 (how an edit turn renders) pending the owner's SP-4 listen. The Grand Goal and brief.md's core promise carry a pointer to it. Scope (stage 4) starts for C0..C4.
 - instead of: signing off after the SP-4 listen.
+
+## D-097 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter, filed by the conductor), pending the owner's sign-off of the cut
+SP-5's pass bars as listed under Preconditions, and its ladder. Reversal: re-read the numbers.
+
+## D-098 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter, filed by the conductor), pending the owner's sign-off of the cut
+the C0 cut as above (4 actions, one spliced edit kind, no mark, no analyze, no panel). Reversal: each is a later milestone already; moving one into C0 costs its milestone's share.
+
+## D-099 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter, filed by the conductor), pending the owner's sign-off of the cut
+TALK A SONG entry from the Library and OPEN CHAT on a song until C6 makes CHAT the start screen.
+
+## D-100 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter, filed by the conductor), pending the owner's sign-off of the cut
+an `edit` turn runs the existing plan call inside the turn's queue slot (one hand-off); architecture may prefer two jobs.
+
+## D-101 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter, filed by the conductor), pending the owner's sign-off of the cut
+when the join cannot be aligned the whole-song re-render is saved as the version and labelled; the alternative (save nothing, offer the render as a button) loses GPU minutes.
+
+## D-102 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter, filed by the conductor), pending the owner's sign-off of the cut
+thread lifecycle follows the song: kept through trash and restore, deleted at permanent delete; a reference file is stored as a copy with the song (C3).

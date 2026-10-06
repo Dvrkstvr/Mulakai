@@ -8918,20 +8918,28 @@ unless a decision says otherwise (D-086..D-095):
   OLD | NEW diff on the proposal card and inline in the panel; the send
   control is the outline text button `SEND ↵`, never a play-like glyph.
 
-### Milestones (proposed)
+### Milestones (cut 2026-10-06, `pipeline/scope.md`, features F-040..F-081)
+
+Before any chat code: spike **SP-5** (does `qwen3:14b` run the chat: right
+action, usable recipes and lyrics, asks only when stuck; 40 scripted
+conversations, pass bars and a fallback ladder in scope.md, D-097); the
+owner's SP-4 listen (gates the splice and C4); the R-025 launcher check
+(gates C7); **SP-6** shift/stretch (gates C5 only).
 
 | | What a person can do when it is done |
 |---|---|
-| C0 (spikes) | SP-4's verdicts (edit rendering, machine half done; the owner's listen owed), **SP-6 shift/stretch** (D-085), and **SP-5 chat planner**: on about 40 scripted conversations, does `qwen3:14b` pick the right action, write usable lyrics and recipes, and ask only when it must? Same method as SP-2. |
-| C1 | The CHAT screen: describe a song, get a recipe card, edit it, CREATE SONG (YuE2 first take); the thread is kept with the song. |
-| C2 | Edit turns through SCORE (ops, checks, REVISE as a follow-up turn); version cards with A/B; rendering per decision 6. |
-| C3 | Reference songs: drop or pick, the reading card, cover or fresh-song proposals. |
-| C4 | Scalpel actions from the chat (repaint a section with new words, add a layer, split, export); Editor edits mirrored into the thread. |
+| C0 | The core path, thin: TALK A SONG from the Library, describe a song, recipe card, CREATE SONG (YuE2), song card and player above the composer, one edit turn (a REHARMONIZE plan is spliced, A3; every other plan re-renders the whole song and says so), version card with A/B, the thread survives a reload. Headless checkpoint CP-C0 before the UI. |
+| C1 | Every version analyzed; the waveform and section strip; marking (click, extend, lyric line) sent with the turn; stale marks; the chat e2e. |
+| C2 | The lyrics sidebar panel; OLD / NEW diffs; REVISE; UNDO TURN; the bar map on the edit card. |
+| C3 | Reference songs: analyze, kept as the source, cover or fresh-song proposals; chord-free scores. |
+| C4 | REPEAT / CUT as audio-only edits; the splice for phrases and lyrics; several spans in one turn. |
+| C5 | SHIFT / STRETCH for tempo and key, only if SP-6 passes. |
+| C6 | Form-first and the shared draft toggle; the Editor-first mirror; CHAT becomes the start screen. |
+| C7 | Scalpel actions from the chat; Editor edits mirrored into the thread; ACE-Step first takes; new song from this score. |
+| C8 | Settings planner card, Activity entries, the palette's "Ask in chat". |
 
-M3 (NEW SONG FROM THIS SCORE; chord-free, instrumental and cover scores)
-folds into C2 and C3. M4's bar map goes into the edit card; the Settings
-planner card and the Activity entries stay; the palette's "Edit score"
-becomes "Ask in chat".
+The score agent's M3 and M4 fold in here (F-034, F-035 into C3 and C7;
+F-036..F-039 into C2 and C8).
 
 ### Shape of the code (detailed at architecture)
 

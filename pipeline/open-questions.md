@@ -217,3 +217,9 @@ The sidebar lyric sheet with no mark: a compact list of section names with line 
 
 ## Q-073..Q-077 · stage 5 (chat, design/chat-lyrics.html) · assumed → D-094 unless the owner overrules
 Q-073 a pending REWRITE LYRICS shows its diff twice: OLD | NEW on the proposal card (the commit view, survives a collapsed sidebar) and inline in the panel, old struck above new. Q-074 a proposal for an unmarked section shows that section in the panel tagged PROPOSED and leaves the mark alone. Q-075 the panel reads and marks only; words change by chat or in the Editor. Q-076 click marks a line, shift-click extends, double-click plays from it (as the Editor lane). Q-077 deferred: the collapsed-sidebar rail text; the chip's WHAT IT SEES showing the words.
+
+## Q-078 · assumable · stage 4 (chat C0) · assumed
+In C0 a request naming a section the song lacks ("the bridge" on a song without one) gets a `say` that lists the song's sections, not a proposal.
+
+## Q-079 · deferred · stage 5 (C3 design) · open
+The reading card's wording on the rights of a reference song.
