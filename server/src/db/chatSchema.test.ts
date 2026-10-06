@@ -30,7 +30,7 @@ function seedThread(id: string, songId: string | null, versionId: string | null 
 
 describe('chat schema migration', () => {
   it('a pre-chat library opens with the chat tables added and its songs untouched', () => {
-    expect(tables()).toEqual(['chat_messages', 'chat_threads']);
+    expect(tables()).toEqual(['chat_messages', 'chat_references', 'chat_threads']);
     // Every column the song had is unchanged (index.ts's older ensureColumn migrations may add more).
     const songsAfter = db.prepare(`SELECT * FROM songs`).all() as object[];
     expect(songsAfter).toHaveLength(songsBefore.length);
@@ -62,6 +62,20 @@ describe('chat lifecycle follows the song (D-102)', () => {
     db.prepare(`DELETE FROM songs WHERE id = 'old'`).run();
     expect(count(`SELECT COUNT(*) AS n FROM chat_threads WHERE id = 't-old'`)).toBe(0);
     expect(count(`SELECT COUNT(*) AS n FROM chat_messages WHERE thread_id = 't-old'`)).toBe(0);
+  });
+
+  it('references go with their thread (cascade); a library pick may outlive its source song (SET NULL)', () => {
+    db.prepare(`INSERT INTO songs (id, title) VALUES ('src', 'Source'), ('owner', 'Owner')`).run();
+    seedThread('t-ref', 'owner');
+    const ref = db.prepare(`INSERT INTO chat_references (id, thread_id, origin, name, source_song_id, file, bytes, sha256) VALUES (?, 't-ref', ?, ?, ?, ?, 1, 'h')`);
+    ref.run('r1', 'library', 'Source', 'src', 'references/r1.wav');
+    ref.run('r2', 'upload', 'a.mp3', null, 'references/r2.mp3');
+    db.prepare(`UPDATE songs SET trashed_at = datetime('now') WHERE id = 'owner'`).run();
+    expect(count(`SELECT COUNT(*) AS n FROM chat_references WHERE thread_id = 't-ref'`)).toBe(2); // trash keeps them
+    db.prepare(`DELETE FROM songs WHERE id = 'src'`).run();
+    expect(db.prepare(`SELECT source_song_id FROM chat_references WHERE id = 'r1'`).get()).toEqual({ source_song_id: null });
+    db.prepare(`DELETE FROM songs WHERE id = 'owner'`).run(); // permanent delete -> thread -> references
+    expect(count(`SELECT COUNT(*) AS n FROM chat_references WHERE thread_id = 't-ref'`)).toBe(0);
   });
 
   it('there is at most one draft thread (song_id NULL)', () => {
