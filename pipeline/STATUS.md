@@ -6,12 +6,12 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C0a DONE 2026-10-07 (built, reviewed, verified live, curated); C0b next (CB-1 waits for the owner's SP-4 listen)
-- clarity: blocking 0 · latest Q-090 · decisions to D-124
+- clarity: blocking 0 · latest Q-090 · decisions to D-125
 - feasibility: amber · H-open 1 (R-024: SP-4 ear half owed) · R-025 repaint launcher unverified · R-027 edit tail · spiked 6
 - milestone: C0a done (#147-#157) · features passing 29/81 (C0a: F-041..F-045; F-049/F-050 halves)
-- autopilot: stopped — C0a target reached (8/12 rounds)
+- autopilot: C3 · round 1/12 · progress 6·C3 arch·29·0 · stall 0
 - owed: SP-5 lyric read (10 sets), SP-4 listen, M2 listen pair 2, M1 phrase listen
-- next: owner answers Q-090 (Library 'running') · SP-4 listen → CB-1 splice · CB-2 edit turn can start (after CA-3) · small fix Q-089 (b)(c)
+- next: C3 moved up (D-125): architecture → build → verify → review → curate; then C0b
 
 ## Stages
 | # | Stage | State | Gate | Date |

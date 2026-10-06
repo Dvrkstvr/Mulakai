@@ -531,3 +531,7 @@ fix/chat-c0a-review: (a) #1 server-only — cancelTurn sets job.cancelled on abo
 
 ## D-124 · 2026-10-07 · stage 7 (C0a verify) · by: conductor
 CA-4 live CP-C0a passes 3/3 stop lines; CA-7 live run passes F-041..F-045 on their C0a criteria (sub-criteria not run live are unit-tested; noted in features.json evidence); F-049 turn half and F-050 create half met, both stay false until C0b. Waveform on the chat player kept per D-115(a). Owner's "running in the Library" report not reproduced → Q-090; no speculative fix without a repro.
+
+## D-125 · 2026-10-07 · scope order · by: user
+"go ahead and quickly implement everything": C3 (reference songs: read a library song or dropped audio, cover proposal, fresh song borrowing from it, F-061..F-065) moves ahead of C1/C2 and runs now; C0b follows. C3 does not depend on the SP-4 listen.
+- instead of: the signed-off order C0b → C1 → C2 → C3.
