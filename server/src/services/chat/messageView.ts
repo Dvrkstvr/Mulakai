@@ -1,0 +1,92 @@
+/**
+ * What the client shows for a thread (F-041 #2, F-049 #3): each message row + its live job + the
+ * proposal store -> a state, on the wire shape `client/src/api/chat.ts` reads (draft fields filled
+ * with null / [], a recipe card's recipe camel-cased like the draft, bodies with `chat_v`). A user
+ * message is queued / thinking while its turn job lives, then done / failed / cancelled from the reply
+ * after it, or interrupted when the job vanished with no reply (a restart). A recipe card is pending,
+ * superseded, expired (the server forgot it), committing (its CREATE SONG job runs) or done (a song
+ * card from that job follows). Pure: the caller passes the job and proposal lookups.
+ */
+import { recipeFields } from './draftModel.js';
+import type { ChatMessage, Draft, DraftFields, FailedBody, MessageState, RecipeBody } from './chatTypes.js';
+
+export interface JobView { status: 'queued' | 'loading' | 'running' | 'done' | 'failed'; error?: string; progressText?: string; queuePosition?: number; cancelled?: boolean }
+export interface ViewContext {
+  job: (jobId: string) => JobView | undefined;
+  proposal: (proposalId: string) => 'live' | 'superseded' | null;
+}
+
+const live = (j: JobView | undefined) => Boolean(j && (j.status === 'queued' || j.status === 'loading' || j.status === 'running'));
+
+/** The draft's fields with every key present: null or [] when not filled (the client's shape). */
+export function wireFields(f: DraftFields) {
+  return {
+    title: f.title ?? null, style: f.style ?? null, bpm: f.bpm ?? null, key: f.key ?? null, timeSignature: f.timeSignature ?? null,
+    language: f.language ?? null, structure: f.structure ?? [], lyrics: f.lyrics ?? [], engine: f.engine ?? 'yue2',
+  };
+}
+export const wireDraft = (d: Draft) => ({ ...d, fields: wireFields(d.fields) });
+
+const QUARTERS: Record<string, number> = { '2/4': 2, '3/4': 3, '4/4': 4, '6/8': 3 };
+/** About how long YuE2's take of these fields runs (inferred: 2 bars per sung line, 8 bars per
+ * section with no lines), for the card's "about N min"; null without a structure. Capped at 360 s. */
+export function estSeconds(f: DraftFields): number | null {
+  if (!f.structure?.length) return null;
+  const lyrics = [...(f.lyrics ?? [])];
+  const bars = f.structure.reduce((n, tag) => {
+    const i = lyrics.findIndex((s) => s.tag === tag);
+    const lines = i < 0 ? 0 : lyrics.splice(i, 1)[0].lines.length;
+    return n + (lines ? lines * 2 : 8);
+  }, 0);
+  const seconds = (bars * (QUARTERS[f.timeSignature ?? ''] ?? 4) * 60) / (f.bpm && f.bpm > 0 ? f.bpm : 100);
+  return Math.min(360, Math.round(seconds));
+}
+
+function wireBody(m: ChatMessage): Record<string, unknown> | null {
+  if (!m.body) return null;
+  if (m.kind !== 'recipe') return { chat_v: 1, ...m.body };
+  const b = m.body as RecipeBody;
+  const fields = recipeFields(b.recipe);
+  return { chat_v: 1, ...b, recipe: wireFields(fields), estSeconds: estSeconds(fields) };
+}
+
+/** The turn's reply: the first assistant message after the user's that is not a commit's card. */
+function replyOf(messages: ChatMessage[], i: number): ChatMessage | null {
+  for (const m of messages.slice(i + 1)) {
+    if (m.role === 'user') return null;
+    if (m.kind !== 'song' && m.kind !== 'version') return m;
+  }
+  return null;
+}
+
+const failedState = (m: ChatMessage): MessageState => ((m.body as FailedBody | null)?.cause === 'cancelled' ? 'cancelled' : 'failed');
+
+function userState(messages: ChatMessage[], i: number, ctx: ViewContext): MessageState | null {
+  const m = messages[i];
+  const reply = replyOf(messages, i);
+  if (reply) return reply.kind === 'failed' ? failedState(reply) : 'done';
+  const job = m.jobId ? ctx.job(m.jobId) : undefined;
+  if (job?.status === 'queued') return 'queued';
+  if (live(job)) return 'thinking';
+  if (job?.cancelled) return 'cancelled';
+  return job?.status === 'failed' ? 'failed' : 'interrupted';
+}
+
+function recipeState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext): MessageState {
+  if (m.jobId && messages.some((s) => s.kind === 'song' && s.jobId === m.jobId)) return 'done';
+  const life = m.proposalId ? ctx.proposal(m.proposalId) : null;
+  if (!life) return 'expired';
+  if (life === 'superseded') return 'superseded';
+  return m.jobId && live(ctx.job(m.jobId)) ? 'committing' : 'pending';
+}
+
+export function messageViews(messages: ChatMessage[], ctx: ViewContext) {
+  return messages.map((m, i) => {
+    let state: MessageState | null = null;
+    if (m.role === 'user') state = userState(messages, i, ctx);
+    else if (m.kind === 'failed') state = failedState(m);
+    else if (m.kind === 'recipe') state = recipeState(messages, m, ctx);
+    const job = m.jobId ? ctx.job(m.jobId) ?? null : null;
+    return { ...m, body: wireBody(m), state, job };
+  });
+}

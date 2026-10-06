@@ -18,6 +18,8 @@ import { lyricsRouter } from './routes/lyrics.js';
 import { scorePlanRouter } from './routes/scorePlan.js';
 import { scoreRouter } from './routes/score.js';
 import { scoreRenderRouter } from './routes/scoreRender.js';
+import { chatRouter } from './routes/chat.js';
+import { chatTurnsRouter } from './routes/chatTurns.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 import { sweepOrphanStems } from './services/stemFiles.js';
@@ -45,6 +47,8 @@ app.use('/api/lyrics', lyricsRouter);
 app.use('/api/songs', scorePlanRouter);
 app.use('/api/songs', scoreRouter);
 app.use('/api/songs', scoreRenderRouter);
+app.use('/api/chat', chatRouter);
+app.use('/api/chat', chatTurnsRouter);
 app.use('/audio', express.static(config.audioDir));
 
 sweepTrash();
