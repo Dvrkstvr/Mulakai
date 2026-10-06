@@ -7,6 +7,7 @@ import type { ChatDraftFields as Fields, ChatDraftKey } from './api/chat';
 import { ASSISTANT_TAG, ENGINE_FIXED, FILLING_TAG, FOLD, LYRICS_HINT, YOURS_TAG } from './chatCopy';
 import { fieldMark, liveFields, useChatDraftStore } from './chatDraftStore';
 import { lyricsPreview, parseStructure, sectionsToText, structureText, textToSections } from './chatLyricsText';
+import { LOCKED_HINT, SCORE_MARK, autoValue, fieldMark as referenceMark, missingNote } from './chatReferenceCopy';
 
 type RowMark = 'assistant' | 'yours' | 'filling' | 'plain';
 const show = (v: unknown) => (v === null || v === undefined || v === '' ? null : String(v));
@@ -41,6 +42,11 @@ export function ChatDraftFields({ filling, locked }: { filling: ChatDraftKey[]; 
   if (!f) return null;
   const edit = s.edit;
 
+  // C3: a cover's FROM THE SCORE fields are locked; a borrow's carry REFERENCE until edited; a missing one reads AUTO.
+  const scoreLocked = (k: ChatDraftKey) => s.draft?.reference?.use === 'cover' && !!s.draft.borrowed?.includes(k);
+  const off = (k: ChatDraftKey) => locked || scoreLocked(k);
+  const missing = (k: ChatDraftKey) => !!s.draft?.missing?.includes(k) && (f[k] === null || f[k] === '');
+  const refTag = (keys: ChatDraftKey[]) => (locked ? null : keys.map((k) => (k in s.pending ? null : referenceMark(s.draft, k))).find(Boolean));
   const mark = (keys: ChatDraftKey[]): RowMark => {
     const marks = keys.map((k) => fieldMark(s, k));
     if (marks.includes('assistant')) return 'assistant';
@@ -51,6 +57,8 @@ export function ChatDraftFields({ filling, locked }: { filling: ChatDraftKey[]; 
   const row = (label: string, keys: ChatDraftKey[], children: React.ReactNode) => {
     const m = locked ? 'plain' : mark(keys);
     const struck = m === 'assistant' ? keys.map(old).filter(Boolean).join(' · ') : '';
+    const ref = refTag(keys);
+    const lost = locked ? [] : keys.filter(missing);
     return (
       <div className={`chat-fd ${m}${locked ? ' locked' : ''}`}>
         <div className="chat-fk">{label}</div>
@@ -60,12 +68,18 @@ export function ChatDraftFields({ filling, locked }: { filling: ChatDraftKey[]; 
           {m === 'assistant' && <em className="chat-tag">{ASSISTANT_TAG}</em>}
           {m === 'yours' && <em className="chat-tag yours">{YOURS_TAG}</em>}
           {m === 'filling' && <em className="chat-tag">{FILLING_TAG}</em>}
+          {ref && <em className={`chat-tag ref${ref === SCORE_MARK ? ' score' : ''}`}>{ref}</em>}
+          {!locked && ref === SCORE_MARK && keys.includes('bpm') && <div className="chat-hn">{LOCKED_HINT}</div>}
+          {lost.map((k) => <div key={k} className="chat-fd-problem">{missingNote(k)}</div>)}
         </div>
       </div>
     );
   };
   const text = <K extends 'title' | 'style' | 'key' | 'timeSignature' | 'language'>(k: K, label: string, cls = '') => (
-    <input className={`chat-fd-in ${cls}`} aria-label={label} disabled={locked} value={f[k] ?? ''} onChange={(e) => edit(k, e.target.value as Fields[K])} />
+    <input
+      className={`chat-fd-in ${cls}${missing(k) ? ' auto' : ''}`} aria-label={label} disabled={off(k)}
+      placeholder={missing(k) ? autoValue(k) : undefined} value={f[k] ?? ''} onChange={(e) => edit(k, e.target.value as Fields[K])}
+    />
   );
   const preview = lyricsPreview(f.lyrics);
 
@@ -75,7 +89,8 @@ export function ChatDraftFields({ filling, locked }: { filling: ChatDraftKey[]; 
       {row('STYLE', ['style'], text('style', 'Style'))}
       {row('TEMPO · KEY', ['bpm', 'key', 'timeSignature'], (
         <span className="chat-fd-group">
-          <input className="chat-fd-in narrow" aria-label="Tempo (BPM)" type="number" disabled={locked} value={f.bpm ?? ''}
+          <input className={`chat-fd-in narrow${missing('bpm') ? ' auto' : ''}`} aria-label="Tempo (BPM)" type="number" disabled={off('bpm')}
+            placeholder={missing('bpm') ? autoValue('bpm') : undefined} value={f.bpm ?? ''}
             onChange={(e) => edit('bpm', e.target.value === '' ? null : Number(e.target.value))} />
           {text('key', 'Key', 'narrow')}
           {text('timeSignature', 'Meter', 'narrow')}
@@ -83,7 +98,7 @@ export function ChatDraftFields({ filling, locked }: { filling: ChatDraftKey[]; 
       ))}
       {row('LANGUAGE', ['language'], text('language', 'Language', 'narrow'))}
       {row('STRUCTURE', ['structure'], (
-        <ParsedText text={structureText(f.structure)} rows={2} disabled={locked} label="Structure"
+        <ParsedText text={structureText(f.structure)} rows={2} disabled={off('structure')} label="Structure"
           onCommit={(t) => { const r = parseStructure(t); if (!r.problems.length) edit('structure', r.tags); return r.problems; }} />
       ))}
       {row('LYRICS', ['lyrics'], lyricsOpen || !preview ? (
