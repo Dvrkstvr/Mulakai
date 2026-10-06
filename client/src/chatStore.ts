@@ -24,6 +24,8 @@ interface ChatStore {
   commit: CommitState | null;
   /** Opening a thread failed: what to say over the empty thread. */
   error: string | null;
+  /** NEW CHAT refused (409: a turn or take still runs): the server's reason; the thread stays. */
+  refusal: string | null;
   loadStatus: () => Promise<ChatStatus | null>;
   openDraft: () => Promise<void>;
   openSong: (songId: string) => Promise<void>;
@@ -31,7 +33,7 @@ interface ChatStore {
   newChat: () => Promise<void>;
   type: (text: string) => void;
   send: () => Promise<void>;
-  /** RETRY / SEND AGAIN after a failed, offline or interrupted turn. */
+  /** RETRY / SEND AGAIN after a failed, offline, cancelled or interrupted turn. */
   retry: () => Promise<void>;
   cancel: () => Promise<void>;
   create: (proposalId: string) => Promise<void>;
@@ -49,7 +51,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
 
   /** Show a thread; `changed` = the fields a reply that just landed filled (sky marks, CH-4). */
   function show(thread: ChatThreadView, changed?: ChatRecipeBody['changed']) {
-    set({ thread, error: null });
+    set({ thread, error: null, refusal: null });
     useChatDraftStore.getState().hydrate(thread.id, thread, changed);
   }
 
@@ -116,9 +118,14 @@ export const useChatStore = create<ChatStore>((set, get) => {
       const t = lastTurn(thread.messages);
       if (t) turn({ type: 'settled', ...t });
       const { jobId } = get().turn;
+      if (t?.user.job && turnRunning(get().turn)) turn({ type: 'poll', job: t.user.job }); // its queue place / attempt now
       if (jobId && turnRunning(get().turn)) void followTurn(jobId);
       const card = thread.messages.find((m) => m.state === 'committing' && m.jobId && m.proposalId);
-      if (card) { commit({ type: 'restore', proposalId: card.proposalId!, jobId: card.jobId! }); void followCommit(card.jobId!); }
+      if (card) {
+        commit({ type: 'restore', proposalId: card.proposalId!, jobId: card.jobId! });
+        if (card.job && card.job.status !== 'done' && card.job.status !== 'failed') commit({ type: 'poll', job: card.job });
+        void followCommit(card.jobId!);
+      }
     } catch (err) {
       set({ thread: null, error: message(err) });
     }
@@ -141,7 +148,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
   }
 
   return {
-    status: null, thread: null, turn: INITIAL_TURN, commit: null, error: null,
+    status: null, thread: null, turn: INITIAL_TURN, commit: null, error: null, refusal: null,
 
     loadStatus: async () => {
       const status = await chatApi.chatStatus().catch(() => null);
@@ -150,7 +157,10 @@ export const useChatStore = create<ChatStore>((set, get) => {
     },
     openDraft: () => open(chatApi.chatDraftThread),
     openSong: (songId) => open(() => chatApi.songChatThread(songId)),
-    newChat: () => open(chatApi.resetChatDraft),
+    newChat: async () => {
+      const fresh = await chatApi.resetChatDraft().catch((err: unknown) => void set({ refusal: message(err) }));
+      if (fresh) await open(async () => fresh); // refused: the thread stays as it is, with the reason
+    },
     type: (text) => turn({ type: 'type', text }),
 
     send: async () => {

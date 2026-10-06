@@ -63,6 +63,8 @@ export interface ChatMessageView {
   versionId: string | null;
   state: ChatMessageState | null;
   createdAt: string;
+  /** The message's job as the server last saw it (turn or take), for rehydration; absent on older servers. */
+  job?: { status: 'queued' | 'loading' | 'running' | 'done' | 'failed'; queuePosition?: number; progressText?: string; cancelled?: boolean; error?: string } | null;
 }
 
 /** A thread with its draft: `songId` null = the one draft thread (no song yet). */
@@ -99,7 +101,14 @@ export const chatApi = {
   chatStatus: () => get<ChatStatus>('/api/chat/status'),
   chatDraftThread: () => get<ChatThreadView>('/api/chat/draft'),
   /** NEW CHAT: drops the draft thread and its messages; answers the fresh, empty one. */
-  resetChatDraft: () => send('/api/chat/draft/reset', 'POST').then((r) => json<ChatThreadView>(r)),
+  resetChatDraft: async () => {
+    const res = await send('/api/chat/draft/reset', 'POST');
+    if (res.status === 409) { // a turn or a take still runs in this chat: the server says which
+      const reason = (await conflictBody(res)).reason;
+      if (typeof reason === 'string') throw new ApiError(reason, 409);
+    }
+    return json<ChatThreadView>(res);
+  },
   chatThread: (threadId: string) => get<ChatThreadView>(`/api/chat/threads/${threadId}`),
   /** OPEN CHAT on a song: its thread, created empty when it has none. */
   songChatThread: (songId: string) => get<ChatThreadView>(`/api/chat/songs/${songId}/thread`),

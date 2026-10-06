@@ -162,4 +162,19 @@ describe('chatStore', () => {
     expect(store().thread?.id).toBe('t2');
     expect(store().turn.phase).toEqual({ kind: 'composing' });
   });
+
+  it('NEW CHAT refused (409, a take still runs): the thread stays and the reason is shown', async () => {
+    chatApi.chatDraftThread.mockResolvedValue(thread([msg({})]));
+    await store().openDraft();
+    chatApi.resetChatDraft.mockRejectedValue(new Error('CANCEL it first'));
+    await store().newChat();
+    expect(store().thread?.id).toBe('t1');
+    expect(store().refusal).toBe('CANCEL it first');
+  });
+
+  it('a reload mid-turn reads the queue place from the message job view at once', async () => {
+    chatApi.chatDraftThread.mockResolvedValue(thread([msg({ state: 'queued', jobId: 'j1', job: { status: 'queued', queuePosition: 2 } })]));
+    await store().openDraft();
+    expect(store().turn.phase).toEqual({ kind: 'queued', ahead: 2 });
+  });
 });
