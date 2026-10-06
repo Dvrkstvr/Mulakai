@@ -51,7 +51,7 @@ export function ScorePlanList({ plan, baseStyle, fromBpm, fromKey = null, baseVe
       {list}
       {removed && <div className="score-since">{removed}</div>}
       <div className="score-checks">
-        {checksSegments(plan.checks, plan.attempts).map((seg, i) => (
+        {checksSegments(plan.checks, plan.attempts, plan.renderMode).map((seg, i) => (
           <span key={i}>{i > 0 && ' · '}<span className={seg.warn ? 'warn' : undefined}>{seg.text}</span></span>
         ))}
       </div>

@@ -1,6 +1,7 @@
 /** Types for the score planner (F-019, F-026, F-029..F-031): the M0 ops, WRITE_PHRASE and the M2 section ops,
  * yue-server's facts and apply reply, and a pending plan. Wire shapes keep yue-server's snake_case
  * (yue-server/score_edit_routes.py, score_section_models.py). */
+import type { RenderMode } from './renderMode.js';
 
 export const ROOTS = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'] as const;
 /** Upstream abc_tools' 15 native qualities; its major ("") is spelled `maj` in the op schema. */
@@ -95,6 +96,8 @@ export interface Plan {
   revision?: number;
   /** A REVISE's ops against the plan it replaced (F-033 #1, M2-6); null for a PLAN. */
   since?: Since | null;
+  /** The render's cot and why (renderMode, F-065/D-132): the review names it, the render sends it. */
+  renderMode: RenderMode;
 }
 
 /** A pick sent with PLAN (F-032): a strip section (S<n> of the read, its label, which occurrence of that

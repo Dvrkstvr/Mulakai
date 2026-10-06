@@ -75,10 +75,9 @@ describe('scoreStatus (DB + recorded yue read)', () => {
       .toEqual({ state: 'ineligible', reason: 'The saved score fails the checker: group 60, Ins: expected V: Ins.' });
   });
 
-  it('a chord-free score is ineligible', async () => {
+  it('a chord-free score is eligible (F-065, D-132)', async () => {
     const { songId } = await seedYueSong(CHORD_FREE_ABC);
-    expect((await scoreStatus(songId, deps())).eligibility)
-      .toEqual({ state: 'ineligible', reason: 'This score has no chords; not supported yet.' });
+    expect((await scoreStatus(songId, deps())).eligibility).toEqual({ state: 'eligible' });
   });
 
   it('no sidecar, a repaint version or a second layer is decided without asking yue-server', async () => {

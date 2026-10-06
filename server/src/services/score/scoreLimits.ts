@@ -7,7 +7,7 @@
  * with a REPEAT that passes 360 s also names the smallest section whose cut fits (F-030 #2), by the
  * read's section number, so a CUT built from the line addresses the right section (D-066 b).
  */
-import type { ApplyResult, Op, ScoreFacts, ScoreSection } from './planTypes.js';
+import type { ApplyResult, LyricBlock, Op, ScoreFacts, ScoreSection } from './planTypes.js';
 
 export const LIMIT_SECONDS = 360;
 /** From here the review warns (the client turns the checks segment rust). */
@@ -77,13 +77,20 @@ export function cutHint(read: ScoreSection[], ops: Op[], result: ApplyResult): C
   return fits[0] ?? null;
 }
 
+/** REWRITE LYRICS on an instrumental (tags-only lyrics: no block has a line) has nothing to rewrite
+ * (F-065 edge, D-132); yue-server's read counts the blocks. */
+export const NO_WORDS = 'this song is instrumental: there are no words to rewrite';
+export const wordsRefusal = (ops: Op[], blocks: LyricBlock[]): string | null =>
+  ops.some((o) => o.op === 'REWRITE_LYRICS') && blocks.every((b) => b.lines === 0) ? NO_WORDS : null;
+
 /** An applied plan with the limits folded into its checks: over a limit = not ok. A refused op
  * already says why nothing changed, so "did not change" is only added when every op applied.
  * `plan` (the ops and the read's sections) lets a plan with a REPEAT name the section to cut. */
-export function withLimits(result: ApplyResult, plan?: { ops: Op[]; sections: ScoreSection[] }): ApplyResult {
+export function withLimits(result: ApplyResult, plan?: { ops: Op[]; sections: ScoreSection[]; blocks?: LyricBlock[] }): ApplyResult {
   const refused = result.verdicts.some((v) => !v.ok);
   const cut = plan ? cutHint(plan.sections, plan.ops, result) : null;
-  const broken = limitReasons({ ...result, cut }).filter((r) => r !== NO_CHANGE || !refused);
+  const words = plan?.blocks ? wordsRefusal(plan.ops, plan.blocks) : null;
+  const broken = [...limitReasons({ ...result, cut }).filter((r) => r !== NO_CHANGE || !refused), ...(words ? [words] : [])];
   if (broken.length === 0) return result;
   return { ...result, ok: false, checks: { ...result.checks, ok: false, problems: [...result.checks.problems, ...broken] } };
 }
