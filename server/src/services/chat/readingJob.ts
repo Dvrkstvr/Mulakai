@@ -139,17 +139,23 @@ export function startReading(referenceId: string, opts: ReadingOptions, deps: Re
   const body = async () => {
     const temps: string[] = [];
     let out: Awaited<ReturnType<typeof read>>;
+    let unsettled: unknown = null;
     try {
       out = await read(job, referenceId, deps, call.signal, temps);
     } finally {
-      await Promise.all(temps.map((t) => fs.promises.rm(t, { force: true })));
-      job.progressText = undefined;
-      await deps.settle();
-      readings.delete(job.id);
+      try {
+        await Promise.all(temps.map((t) => fs.promises.rm(t, { force: true })));
+        job.progressText = undefined;
+        await deps.settle().catch((err: unknown) => { unsettled = err; });
+      } finally {
+        readings.delete(job.id); // never a thread left BUSY by a reading that ended
+      }
     }
+    if (wasAborted(job)) throw aborted(job); // a CANCEL during the settle wins: no save, no follow-up
     if (!setReading(referenceId, out.reading)) throw new Error('this reference no longer exists');
     const card = opts.cardId ? messageById(opts.cardId) : null;
     if (card?.kind === 'reading') updateMessage(card.id, { body: { ...(card.body as ReadingBody), reading: out.reading } });
+    if (unsettled) throw unsettled; // the reading is kept; no follow-up turn while the planner may be on the GPU
     job.status = 'done';
     try {
       opts.onRead?.(out.reading, out.ref);
