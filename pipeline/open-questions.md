@@ -223,3 +223,9 @@ In C0 a request naming a section the song lacks ("the bridge" on a song without 
 
 ## Q-079 · deferred · stage 5 (C3 design) · open
 The reading card's wording on the rights of a reference song.
+
+## Q-080 · assumable · stage 6 (chat C0, F-047) · assumed → D-109
+When is a splice join "unresolved" so that the whole re-render is saved instead (F-047 edge)? Default: when the snap finds no usable groove at both joins (correlation < 0.15); SP-4's independent 2-12 kHz check left 18 of 32 good seams "unresolved" and would reject song D's reharmonization, so it is logged, not acted on.
+
+## Q-081 · assumable · stage 6 (chat C0a, D-104) · assumed → D-110
+C0a ships before the edit turn: what does a song thread answer to "give the chorus jazz chords" meanwhile? Default: a `say` pointing to SCORE in the Editor; a new-song description on a song thread gets a `say` suggesting NEW CHAT.

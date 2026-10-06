@@ -1,4 +1,4 @@
-# Architecture — Mulakai score agent (M0 on top of the existing app)
+# Architecture — Mulakai score agent (M0 on top of the existing app); the chat (C0) follows below
 
 <!-- Stage 6, 2026-10-03. Scope: M0 = F-016..F-025 (scope.md, signed off D-026; dock spec design/score-verb.html, D-032).
      Evidence labels: (code) seen in code today, (run) seen running today, (doc) documented, (inf) inferred.
@@ -217,3 +217,271 @@ until W0 lands (run 2026-10-03).
 
 On PRs into main and pushes to main: `client: npm ci && npm run build && npm run lint && npm test`; `server: npm ci && npx tsc --noEmit &&
 npm test`; `yue-server: pip install -r requirements-test.txt && python -m pytest` (Ubuntu). Today CI runs only e2e.
+
+---
+
+# Chat (C0) — talk a song into being, thin
+
+<!-- Stage 6, 2026-10-06. Scope: chat C0 = F-041..F-050 (scope.md "Scope — Chat", signed off D-103), shipped in two halves (D-104):
+     C0a create-first (F-041..F-045, F-049 turn half), C0b edit + splice + versions (F-046..F-048, F-049 commit half), F-050 over both.
+     Specs: design/chat-create.html, chat-song.html, chat-lyrics.html (frame 3 final, D-095); SP-4 RESULT (A3 splice); SP-5 runs in
+     parallel (pipeline/spikes/SP-5-chat-planner/schemas.py and prompt.py are the turn shape copied here).
+     Evidence labels as above: (code) (run) (doc) (inf). New-module LOC are estimates; target 150, cap 200. -->
+
+## Shape in one paragraph
+
+No new process and no new GPU-queue kind. A chat turn is one `plan`-kind job (D-106, decisions/0006): one load, the turn's
+≤ 3 strict-JSON attempts, one confirmed unload (D-011), whatever the action. An `edit` reply carries SCORE ops inline (SP-5's
+shape) and is checked by the score agent's own machinery (`opsArraySchema`, `checkOps`, yue-server `/v1/scores/apply`,
+`withLimits`) inside that same slot, so an edit turn is one hand-off (D-100). CREATE SONG is today's YuE2 first take
+(`startEngineGeneration`); APPLY is today's score render (`scoreRender` kind) plus, for a single REHARMONIZE on a 4/4 song, a
+splice job on yue-server (D-107, decisions/0005). The thread, its messages and the draft live in SQLite (D-108,
+decisions/0007); live proposals stay in memory like plans (decisions/0004). Deciding logic is pure: reply schema, reply
+checks, draft merge, song-state block, prompt, dispatch, splice eligibility, message states, and on yue-server the DSP, grid
+fit and splice plan. **`chat/turnCall.ts` is the one module the SP-5 fallback ladder changes** (router + per-action call;
+state-allowed actions only; lyrics as their own call): it returns a checked reply whatever number of calls it made.
+
+## Modules — server, `server/src/services/chat/` (new folder beside `score/`)
+
+### C0a
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| **db/chatSchema.ts** | `CREATE TABLE IF NOT EXISTS chat_threads, chat_messages` + index (Data below); exec'd from `db/index.ts` after `SCHEMA` | — | 40 | Vitest: a copy of a pre-chat DB opens, tables appear, songs untouched; cascade on permanent delete |
+| **chat/chatTypes.ts** | types only: `Draft` (v1), `DraftFields`, `Recipe`, `TurnReply` (ask, recipe, edit, say, scalpel, analyze), `Proposal`, `MessageKind`, `MessageView`, `ThreadView` | yes | 100 | tsc |
+| **chat/threadStore.ts** | threads: the draft thread (get or create; NEW CHAT drops it and its messages), a song's thread (get or create), `attach(threadId, songId)`, draft read/write with a `rev` check | no (DB) | 110 | Vitest on temp DATA_DIR |
+| **chat/messageStore.ts** | messages: append with the next `seq` (idempotent on `client_key`), list, `lastTurns(n)`, set `job_id` / `version_id` / outcome | no (DB) | 100 | Vitest: double SEND = one row (F-042 edge) |
+| **chat/draftModel.ts** | the one draft (D-086): `readDraft(raw)` (version key, raw blob in), `handEdit(draft, patch)` (bumps `rev`, records touched fields), `applyRecipe(draft, recipe, sentRev)` → `{draft, changed, skipped}` (a field touched after `sentRev` is skipped, CH-6) | yes | 110 | Vitest: "skipped TITLE, you changed it"; v0 / unknown blob |
+| **chat/recipeRules.ts** | the recipe and CREATE SONG rules in one place: 30 keys (yue-server upstream `KEYS`), section tags (`YUE2_CAPABILITIES.sectionTags`), meters, bpm 40-240, style ≤ 2,000 (yue `request_model.py`), 4-8 lines per section, no tags inside lines, Guided Create's lyrics rule (moved here if it is client-only today); `recipeProblems(recipe)` (retry reasons) and `createBlockers(draft)` (why CREATE SONG is disabled) | yes | 110 | Vitest per rule; a test reads `request_model.py`'s limit (as `phraseSchema` does) |
+| **chat/draftFields.ts** | draft → `CreateFields` + title for `buildYue2Request`: style → `prompt`, `Am` → `A minor`, meter, language, lyrics text built in `structure` order (instrumental sections as bare tags) | yes | 70 | Vitest |
+| **chat/chatRules.ts** | the system prompt: SP-5's `CHAT_RULES` + the planner's op reference (`plannerRules`), a constant | yes | 60 | snapshot |
+| **chat/songState.ts** | the song-state block (SP-5 `song_block`): draft thread → library titles (≤ 50) + "SONG: none yet" + the draft's filled fields; song thread → title, versions with labels, header, key notes, sections, lyric blocks, bar map, style, or the eligibility reason when the score cannot be read | yes | 120 | Vitest: the 206-bar fixture stays ≤ 6k tokens at 3 chars/token (F-042 #2) |
+| **chat/songStateSource.ts** | gathers what `songState` needs: thread + draft, library titles, `scoreStatus(songId)` (`scoreSource` + `/v1/scores/read`), the version list | no | 70 | Vitest with fakeYue |
+| **chat/turnPrompt.ts** | messages: system rules; user = state block + phrase lines (`phraseLines`, `phraseBarsOf`, reused) + pending proposal + last 4 turns + REQUEST | yes | 80 | Vitest |
+| **chat/turnActions.ts** | which actions a turn may answer with, from the state (C0 default: SP-5's whole set; ladder rung 2: only what the state allows) | yes | 40 | Vitest table |
+| **chat/actionSchema.ts** | the strict JSON schema of one reply: `anyOf` the allowed actions; recipe enums from `recipeRules`; `edit.ops` = `opsArraySchema(facts, phraseBars)` (reused; dummy 300-bar bounds without a song, as SP-5) | yes | 100 | Vitest: bounds per song, no ABC field anywhere |
+| **chat/replyCheck.ts** | one parsed reply → checked reply or reasons: shape per action, `recipeProblems`, and for `edit` `checkOps` → injected `apply` (yue `/v1/scores/apply`) → `withLimits` → `applyReasons` (all reused from `score/`) | yes (deps injected) | 100 | Vitest: out-of-set action, bar 999, a 458 s plan, a bad key |
+| **chat/turnAttempts.ts** | ≤ 3 attempts over an injected `ask`: parse, `replyCheck`, feed the reasons back with the reused `retryMessages`; progress "attempt n of 3 · reason" | yes (deps injected) | 70 | Vitest with a stub planner |
+| **chat/turnCall.ts** | **the ladder seam**: `decideReply(ctx, deps)` → `{reply, attempts, promptTokens[], calls}`. Rung 0 (default): one call with the full schema. Rung 1: a router call (one enum), then the per-action call; rung 3: a recipe's lyrics as their own call. `CHAT_LADDER` (env, default 0) picks; nothing outside this file knows | yes (deps injected) | 120 | Vitest per rung with a stub `ask` |
+| **chat/turnDispatch.ts** | checked reply → outcome: `say` / `ask` → assistant message; `recipe` → proposal + `applyRecipe`; `scalpel` / `analyze` → a `say` naming where it can be done (Editor / Guided Create); `edit` → C0a: a `say` pointing to SCORE in the Editor (D-110); C0b: plan + edit card | yes | 100 | Vitest per action |
+| **chat/proposalStore.ts** | live proposals in memory, one recipe proposal per thread (a newer one supersedes), `alive(id)`, dropped on restart (decisions/0004). Edit proposals are `planStore` plans, referenced by `planId` | no (state) | 60 | Vitest |
+| **chat/turnJob.ts** | `startChatTurn`: `queueJob({kind: 'plan', label: 'chat turn'})`; body: state → probe → `contextPreflight` → `decideReply` (each call `contextPostflight`) → **`finally` `releasePlanner`** (keep_alive 0 + `/api/ps` empty) → `turnDispatch` → write the assistant message and draft. CANCEL: queued `cancelQueued`; thinking: `onAbort` aborts the call and the `finally` still unloads (D-041). Failure → a `failed` message with the reason, draft untouched | no | 140 | Vitest with fakeOllama: unload on success, check-failed, offline, cancel; a repaint queued meanwhile waits for the unload (F-042 #1, F-049 #1) |
+| **chat/messageView.ts** | message row + live job + `proposalStore` / `planStore` → the state the client shows (`queued`, `thinking`, `pending`, `superseded`, `expired`, `committing`, `done`, `failed`, `cancelled`, `interrupted` after a restart) | yes | 90 | Vitest table (F-041 #2, F-049 #3) |
+| **chat/createFromDraft.ts** | CREATE SONG: proposal alive, `createBlockers` empty → `draftFields` → `startEngineGeneration(yue2Engine, …, onSaved)`; `onSaved(songId)` attaches the thread and appends the song card (v1's version id) | no | 70 | Vitest with fakeYue jobs |
+| **chat/chatStatus.ts** | `{configured: LLM_API_URL and YUE_API_URL set, assistant: 'ok' or 'off', cause}` (`probePlanner`, yue `/health/ready`) | no | 40 | Vitest |
+| **routes/chat.ts** | `GET /api/chat/status`; `GET /api/chat/draft`; `POST /api/chat/draft/reset`; `GET /api/chat/threads/:id`; `GET /api/chat/songs/:songId/thread`; `PUT /api/chat/threads/:id/draft {fields, rev}` → `{draft, blockers}` or 409 with the current draft | no | 110 | supertest pattern |
+| **routes/chatTurns.ts** | `POST /api/chat/threads/:id/turns {text, clientKey}` → 202 `{jobId, messageId, position}` (200 on a replayed key); `POST /api/chat/jobs/:jobId/cancel`; `POST /api/chat/threads/:id/create {proposalId}` → 202 `{jobId}` or 409 `{reason}`; C0b adds `POST …/apply {proposalId}` | no | 120 | supertest pattern |
+| engineGenJobs.ts (changed) | `startEngineGeneration(…, onSaved?)`, called right after `persistEngineSong` | — | +4 | engineGenJobs.test |
+| db/index.ts, index.ts (changed) | exec `CHAT_SCHEMA`; mount `chatRouter`, `chatTurnsRouter` | — | +4 | — |
+| **server/test-fakes/chatScripts.ts** | reply builders for fakeOllama (`recipe(...)`, `ask`, `say`, `edit(fixture)`, `scalpel`, invalid JSON, out-of-set) + SP-5's recorded replies as data (`test-fakes/data/sp5-replies.json`, copied from SP-5's fixture when it lands) | no | 90 | used by Vitest; e2e in C1 (F-051) |
+| **server/scripts/chatCp0.ts** | CP-C0a / CP-C0 driver over the HTTP API (reuses `scoreCp1Lib`: Ollama proxy, GPU sampler) | no | 150 | it is the check |
+
+Job status needs no new route: the client polls `GET /api/generate/:jobId` (existing; it carries `progressText`).
+`genQueue.ts` (190/200) is not touched: chat uses the `plan` and `scoreRender` kinds, so the client kind union and
+`RUNNING_LABEL` do not move (Activity entries for chat turns are F-080, C8).
+
+### C0b (server)
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| **score/planBuild.ts** | applied result + attempts + source + request → `Plan` (moved out of `planJob.ts`, which then calls it). The chat's edit turn calls the same function, so a chat plan *is* a SCORE plan (dock and chat agree) | yes | 50 | existing planJob tests + Vitest |
+| **chat/spliceEligibility.ts** | `Plan` + facts → `{splice: true, from_bar, to_bar}` or `{splice: false, reason}`: exactly one op, REHARMONIZE, meter 4/4 with no `M:` change in the bar map (SP-4 tested 4/4 only), span inside the song | yes | 50 | Vitest (F-047 edge: 3/4 → whole song, with the reason) |
+| chat/turnDispatch.ts (changed) | `edit` → `planBuild` → `setPlan` → edit card snapshot `{planId, ops, verdicts, checks, splice}`; a pending edit card is superseded by the next plan (D-028) | — | +30 | Vitest |
+| **score/scoreRenderRun.ts** | the YuE2 leg of a score render, moved out of `scoreRenderJob.ts`: request → submit → poll → `{taskId, truncated}` or null on abort; the caller fetches audio when it needs it | no | 60 | existing scoreRenderJob tests |
+| **chat/yueSpliceClient.ts** | `/v1/splices` on yue-server through the `engineClient` helpers: submit (multipart: base audio + spec JSON, `Idempotency-Key` = job id), status, audio, cancel | no (HTTP) | 90 | Vitest against fakeYue's recorded splice replies |
+| **chat/gridCache.ts** | `${versionId}.grid.json` sidecar (`grid_v: 1`, tracker downbeats + chord rows, `source: tracked` or `mapped`): read, write; `versionFiles.versionFileNames` gains it, so it goes with the version | no (file) | 40 | Vitest on temp DATA_DIR |
+| **chat/spliceRenderJob.ts** | kind `scoreRender`, label `chat edit`: `checkRender` (reused) → `scoreRenderRun` → splice submit (base audio file, base sidecar, plan ABC, render job id, span, cached base grid) → poll (`progressText` `splicing`) → `ok`: fetch the spliced audio, save via `persistScoreVersion` with `splice`; `not_aligned` / no grid / truncated before the span: fetch the whole render and save it labelled (D-101). Grids to `gridCache`. Every exit cancels the yue splice job (its temp files go with it) and logs temp bytes | no | 140 | Vitest with fakeYue: ok, not aligned, truncated, cancel while rendering / splicing → no version |
+| **chat/editCommit.ts** | APPLY at the click: proposal alive, `checkRender` (stale → 409 "this song changed since the proposal"), `spliceEligibility` → `startSpliceRender` or the existing `startScoreRender` | no | 60 | Vitest |
+| **chat/versionCard.ts** | version row (+ `params.splice`) → card data: label, pill vN, seconds, "bars 25-32 changed", the previous version for A/B (none if deleted) | yes | 50 | Vitest (F-048 edge) |
+| score/scoreVersion.ts (changed) | optional `splice` record in `params_json` and a label suffix (`· bars 25–32 spliced`, `· whole song re-rendered: the join could not be aligned`) | — | +12 | scoreVersion.test |
+| score/scoreRenderJob.ts, score/planJob.ts (changed) | call `scoreRenderRun` / `planBuild` | — | −40 | existing tests unchanged |
+| versionFiles.ts (changed) | the grid sidecar's name in `versionFileNames` | — | +3 | versionFiles.test |
+| server/test-fakes/fakeYue.ts (changed) | `/v1/splices` replaying `yue-server/tests/data/contract/splice-*.json` (ok, not aligned, failed, hold) | — | +40 | — |
+
+### C0b (yue-server) — the splice, next to the score code (D-107, decisions/0005)
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| **yue-server/splice_dsp.py** | numpy/scipy only (from SP-4 `sp4lib.py`): BS.1770 K-weighted short-term LUFS, 40-5000 Hz onset envelope, `pattern_lag` (normalised cross-correlation, ±150 ms, parabolic peak), equal-power fades, `assemble(parts, w)` → audio, joins, map | yes | 130 | pytest on synthetic audio: equal power, a known lag found, the assemble map |
+| **yue-server/splice_grid.py** | tracker rows (downbeats, chord rows) + the score's per-bar chords (`score_model`) → bar → seconds: offset −4..4 fitted on bars **outside** the span, half-bar thinning (SP-4 `thin_if_double`), end of song | yes | 120 | pytest on SP-4's recorded `downbeat.lab` / `chord.lab` + scores (copied to `tests/data/splice/`): offsets equal SP-4's |
+| **yue-server/splice_plan.py** | grids + span + audio → the cut (first / last downbeat of the span; one join at bar 1 or the last bar), snap (corr ≥ 0.15, cap 80 ms), 3 s gain ramp at both ends, verdict `ok` or `not_aligned(reason)` (D-109), the output grid by mapping, the null test | yes | 140 | pytest: SP-4's snap deltas and gains on the recorded cases; one-join edges; both joins without groove → not aligned |
+| **yue-server/splice_job.py** | the `splice` job body on the worker thread: ffmpeg decode to 48 kHz float32 stereo (as SP-4), grids via `Transcriber` (the base only when no cached grid came with the request), plan, assemble, write WAV float32, decode it again and null-test the file; cancellable between steps; result JSON | no | 130 | pytest with a `FakeTracker` (recorded lab rows) |
+| **yue-server/splice_routes.py** | `POST /v1/splices` (multipart `audio` = base, `spec` JSON: base ABC, edited ABC, `render_job`, span, cached grid), `GET /v1/splices/{id}`, `/audio`, `/grid`, `POST …/cancel`; auth, queue, Idempotency-Key and upload sweep as `/v1/transcriptions` | no | 110 | pytest + contract fixtures recorded for the TS fake (D-039) |
+| **yue-server/splice_check.py** | CLI for CP-C0: `python splice_check.py <base> <saved> <result.json>` → null test outside the crossfades and LUFS step excess at each join over the base's own step, on the *saved library file* | no | 70 | run by hand in WSL at CP-C0 |
+| worker.py, transcriber.py, main.py (changed) | dispatch kind `splice`; `Transcriber.run(…, flags)` so the grid run uses SP-4's flags (`--local-files-only`, chords kept, no render); mount the routes | — | +12 | existing pytest |
+| requirements.txt / requirements-test.txt (changed) | `scipy==1.18.0` (needs numpy ≥ 2.0 and Python ≥ 3.12; cp312 manylinux and cp314 win_amd64 wheels exist: PyPI JSON, read 2026-10-06; the yue2 venv has numpy 2.2.6 and no scipy, seen running 2026-10-06); tests also pin `numpy==2.4.4` | — | +2 | CI on 3.12, local 3.14 |
+
+### Client (`client/src/`, flat)
+
+C0a:
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| **api/chat.ts** | HTTP for the routes above; the wire types in one place | no | 100 | — |
+| **chatEntry.ts** | the start screen from `/api/chat/status`: `chat` when configured, else `library` (D-099; config, not reachability: an unreachable planner is ASSISTANT OFF inside the chat) | yes | 25 | Vitest |
+| **chatTurn.ts** | the reducer for one message's life (scope "A turn, end to end": composing, queued "STARTS AFTER n", thinking "attempt n of 3", outcome, failed, offline, cancelled, interrupted) from the server's `MessageView` + job polls | yes | 130 | Vitest: one test per transition |
+| **chatCopy.ts** | all chat copy: consequence lines (recipe: "renders a new song on YuE2, about N min, nothing else changes"), the queue line, ASSISTANT OFF, CHANGED / skipped fields, NEW CHAT's "drops this draft and its N messages", the scalpel / analyze redirects | yes | 120 | Vitest |
+| **chatStore.ts** | zustand: the open thread, messages, send (a `clientKey` per message), cancel, CREATE SONG, job polling with the existing `POLL_MS`, rehydrate from job ids after a reload | no | 150 | Vitest with a mocked api |
+| **chatDraftStore.ts** | zustand: **the one draft store** (D-086; C6 adds Guided Create as a second reader): fields, `rev`, touched, debounced PUT, `blockers` from the server (rules are never re-implemented on the client) | no | 100 | Vitest |
+| **ChatView.tsx** | layout: thread column, player above the composer (D-095), 360 px sidebar / 38 px rail | no | 100 | browser pane at 1366×768 |
+| **ChatThread.tsx**, **ChatTurnLine.tsx** | the message list; the running / failed / offline line under a message | no | 90 / 70 | browser pane |
+| **ChatComposer.tsx** | textarea + the outline text button `SEND ↵` (never a play glyph) + CANCEL | no | 70 | browser pane |
+| **ChatRecipeCard.tsx** | the recipe card (title, style, tempo, key, structure, lyrics collapsed with the line count, engine YuE2), consequence line, CREATE SONG (acid, the card's only commit), superseded / expired states | no | 110 | browser pane |
+| **ChatSongCard.tsx** | the song card (title, v1 pill, length) | no | 50 | browser pane |
+| **ChatSidebar.tsx**, **ChatDraftFields.tsx** | sidebar frame + rail (filled-field count); the fields, editable while a turn runs | no | 80 / 120 | browser pane |
+| **ChatPlayer.tsx** | `Player` + `useSingleAudioPlayback` (reused) on the active version's audio, the version pill; Space via `useSpaceTransport` | no | 60 | browser pane |
+| App.tsx, Header.tsx, SongDetailRail.tsx (changed) | view `chat` (start view from `chatEntry`); CHAT ⇄ LIBRARY in the header; OPEN CHAT on a song | — | +20 | browser pane; golden-path e2e unchanged |
+| index.css, docs/design/DESIGN.md (own commit) | chat classes from tokens; DESIGN.md clauses for the chat screen, SEND ↵ and the recipe card (DT-C2's first part) | — | — | review |
+
+C0b: **ChatEditCard.tsx** (reuses `ScorePlanList` rows and `scoreCopy`'s consequence plus the splice clause, 100),
+**ChatVersionCard.tsx** (label, pill, length, "bars 25-32 changed", BACK TO vN / USE vN, 80), **chatAb.ts** (pure: the
+previous version, the A/B position clamp, the NOW PLAYING line's lifetime, 60, Vitest), **useChatPlayback.ts** (a source swap
+keeps position and play state, 70, Vitest), and additions to `chatTurn.ts` (commit phases: render queued, rendering, splicing,
+saved, commit failed, stale, WAITING FOR v2) and `chatCopy.ts`. USE vN calls the existing version activate route.
+
+### Feature → modules
+
+| Feature | Half | Modules |
+|---|---|---|
+| F-041 thread kept | C0a | chatSchema, threadStore, messageStore, draftModel, messageView, routes/chat, createFromDraft (attach), chatStore, chatDraftStore |
+| F-042 one checked turn | C0a | chatRules, songState, songStateSource, turnPrompt, turnActions, actionSchema, replyCheck, turnAttempts, turnCall, turnDispatch, turnJob, routes/chatTurns, chatScripts |
+| F-043 CHAT screen + sidebar | C0a | chatStatus, chatEntry, ChatView, ChatThread, ChatComposer, ChatSidebar, ChatDraftFields, App / Header / SongDetailRail, chatDraftStore, draftModel (skip rule) |
+| F-044 recipe card → CREATE SONG | C0a | recipeRules, draftFields, proposalStore, createFromDraft, engineGenJobs `onSaved`, ChatRecipeCard, chatCopy |
+| F-045 song card + player | C0a | createFromDraft (song card), ChatSongCard, ChatPlayer |
+| F-046 edit card | C0b | replyCheck (edit), planBuild, turnDispatch (edit), spliceEligibility, ChatEditCard, chatCopy |
+| F-047 render, then splice | C0b | splice_dsp, splice_grid, splice_plan, splice_job, splice_routes, splice_check, yueSpliceClient, gridCache, spliceRenderJob, editCommit, scoreRenderRun, scoreVersion (splice record) |
+| F-048 version card + A/B | C0b | versionCard, ChatVersionCard, chatAb, useChatPlayback, ChatPlayer (BACK TO) |
+| F-049 cancel / fail / reload | C0a turn half; C0b commit half | turnJob, messageView, routes/chatTurns (cancel), chatTurn, ChatTurnLine; spliceRenderJob, editCommit (stale), chatTurn commit phases |
+| F-050 the whole path | both | chatCp0.ts (CP-C0a, CP-C0), splice_check.py, the live run, the owner's listen |
+
+## Data (chat)
+
+```sql
+CREATE TABLE IF NOT EXISTS chat_threads (
+  id         TEXT PRIMARY KEY,
+  song_id    TEXT UNIQUE REFERENCES songs(id) ON DELETE CASCADE, -- NULL = the draft thread (no song yet)
+  draft_json TEXT NOT NULL DEFAULT '{}',                         -- Draft, versioned by draft_v
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id          TEXT PRIMARY KEY,
+  thread_id   TEXT NOT NULL REFERENCES chat_threads(id) ON DELETE CASCADE,
+  seq         INTEGER NOT NULL,                                  -- order in the thread
+  role        TEXT NOT NULL,                                     -- user | assistant
+  kind        TEXT NOT NULL,                                     -- text | say | ask | recipe | edit | failed | song | version
+  text        TEXT NOT NULL DEFAULT '',
+  body_json   TEXT,                                              -- card snapshot / turn facts, versioned by chat_v
+  proposal_id TEXT,                                              -- live only while proposalStore / planStore holds it
+  job_id      TEXT,                                              -- the turn or commit job, for rehydration
+  version_id  TEXT REFERENCES versions(id) ON DELETE SET NULL,   -- the version a card shows / a commit made
+  client_key  TEXT,                                              -- a user message's idempotency key
+  created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE (thread_id, seq), UNIQUE (thread_id, client_key)
+);
+CREATE INDEX IF NOT EXISTS idx_chat_messages_thread ON chat_messages(thread_id, seq);
+```
+
+- **Migration:** additive only. `CREATE TABLE IF NOT EXISTS` runs on every start, so an existing library gets the tables
+  with no rewrite; later columns via `ensureColumn`. Songs, layers and versions are untouched (F-041 #1).
+- **Lifecycle (D-102):** trash keeps the thread (no row changes); permanent delete removes the song row and the FK cascade
+  removes the thread and its messages (`foreign_keys = ON`, code). A deleted version leaves its card with `version_id` NULL
+  (no A/B, F-048 edge). Exactly one draft thread: NEW CHAT deletes it (messages cascade) and creates an empty one.
+- **Draft (SQLite, the sidebar's source of truth):** `{draft_v: 1, rev, fields: {title, style, bpm, key, timeSignature,
+  language, structure[], lyrics, engine: 'yue2'}, touched: {field: rev}}`. The user message stores `sentRev` in its
+  `body_json`; `applyRecipe` skips a field touched after it.
+- **Message bodies:** `body_json = {chat_v: 1, …}` per kind: recipe card `{recipe, assumptions, changed, skipped}`; edit card
+  `{planId, ops, verdicts, checks, splice: {from_bar, to_bar} or {reason}}`; song / version card `{seconds, label, number}`;
+  failed `{reasons, cause}`; user `{sentRev}`.
+- **Version keys and the migration rule:** `draft_v` and `chat_v` follow the `score_v` rule (versions-data.md): an additive
+  field needs no bump and readers treat it as absent; a shape change bumps, the reader handles both shapes from the **raw**
+  stored blob, and a Vitest named for the trap proves it. An unknown `draft_v` reads as an empty draft and says so (never a
+  crash at start). `grid_v: 1` on grid sidecars, same rule. Version rows: `params_json.splice = {splice_v: 1, bars: [25, 32],
+  joins_s, gain_db, snap_ms, length_diff_s, null_test: {samples, different}}` or `{splice_v: 1, fallback: '<reason>'}`,
+  additive to `score_v: 1`.
+- **Memory, not SQLite (decisions/0004, D-081, D-102):** live proposals (`proposalStore`; edit proposals are `planStore`
+  plans), jobs and their progress. A restart shows every proposal card `expired` and every message whose job vanished
+  `interrupted`; the thread, draft and versions are intact.
+- **Files:** grid sidecars `${versionId}.grid.json` in `audioDir`, deleted with the version. yue-server keeps the uploaded
+  base audio and the splice temps in its own job store, removed by cancel and its retention sweep; nothing new on the
+  server's disk except the version itself. Nothing leaves the machine.
+
+## The turn job (C0a; C0b adds the edit branch)
+
+1. `POST …/turns {text, clientKey}`: the user message is inserted (a replayed key returns the first one's job), then
+   `startChatTurn` queues kind `plan`, label `chat turn`, with `songId` when the thread has one (so trash cancels it).
+2. At its turn: `songStateSource` → `probePlanner` (offline → `failed` with ASSISTANT OFF's cause) → `contextPreflight`.
+3. `turnCall.decideReply`: `turnPrompt` + `actionSchema` → `turnAttempts` (≤ 3; each reply `contextPostflight`-checked; for
+   `edit`, `replyCheck` applies the ops on yue-server and runs `withLimits`, so the retry hears "bar 5 had 31/32 units").
+4. **`finally`: `releasePlanner`** — `keep_alive: 0`, then `/api/ps` polled until empty (10 s bound; past it the turn fails
+   naming `ollama stop <model>`). The slot is released only when the body settles: one hand-off per turn, whatever the action
+   or the number of calls (D-011, D-100).
+5. `turnDispatch` → assistant message + proposal + draft merge, written in one transaction. A failed turn writes a `failed`
+   message and changes nothing else (atomic).
+
+A message sent while a commit runs is queued behind it (FIFO), so it reads the new version (F-049 #4); the composer shows
+WAITING FOR v2 from the queue position.
+
+## The commit paths
+
+- **CREATE SONG (C0a):** `createFromDraft` → `startEngineGeneration(yue2Engine, draftFields(draft))`, kind `generate`, UP NEXT
+  and CANCEL as today; truncated takes keep `TRUNCATED_LABEL` (D-025); `onSaved` attaches the thread and appends the song card.
+- **APPLY (C0b):** `editCommit` → not splice-eligible: the existing `startScoreRender` (whole song; the card already said so);
+  eligible: `spliceRenderJob` in one `scoreRender` slot: YuE2 render (44-92 s), SheetSage2 grid of the new render (~17 s; the
+  base grid from cache, else ~17 s more once), splice (~0.2 s CPU; SP-4's numbers), save. Wall-time budget 4 min (CP-C0).
+
+## Splice placement — decided (D-107, decisions/0005)
+
+The splice runs **on yue-server as a `splice` job kind**, not in the Mulakai server. Its grid fit reads the score (per-bar
+chords and bar count of the base and the edited ABC) and decisions/0002 keeps all ABC reading there; the SheetSage2 tracker
+that writes `downbeat.lab` / `chord.lab` already runs there as a subprocess (`transcriber.py`); and SP-4's DSP is numpy/scipy
+code that ports as is, where a TypeScript port would re-implement K-weighting, STFT onset envelopes and cross-correlation.
+Inputs: the base version's audio (uploaded, cached by sha256 like transcriptions), the base sidecar ABC, the plan's edited
+ABC, the YuE2 render job id (its audio stays on yue-server, no round trip), the span, and the base grid from the server's
+sidecar cache when present. Outputs: the spliced float32 WAV, joins, gains, snaps, both grids, the null test, and `ok` or
+`not_aligned` with a reason. The server transcodes it to the library format like any render, so the null test holds on the
+saved file for WAV and FLAC outputs; MP3 is lossy (the splice is exact before encoding; CP-C0 reports it per format).
+
+## Seams and fakes (chat)
+
+| Seam | Real | Fake |
+|---|---|---|
+| Chat model (OpenAI-compatible) | Ollama `/v1/chat/completions`, strict schema (decisions/0001) | `fakeOllama.ts` (existing) + `chatScripts.ts`: scripted replies per turn, SP-5's recorded replies as data; hang, HTTP error, model missing |
+| Planner control | `/api/ps`, `keep_alive: 0` (existing) | fakeOllama `ps` sequences (existing) |
+| yue score read / apply | `/v1/scores/read`, `/v1/scores/apply` | `fakeYue.ts` contract fixtures (existing) |
+| yue first take | `/v1/jobs` | `fakeYue.ts` jobs (existing) |
+| yue splice (C0b) | `/v1/splices` | `fakeYue.ts` replays `tests/data/contract/splice-*.json` recorded by pytest (ok, not aligned, failed, hold) |
+| SheetSage2 tracker | `infer.py` subprocess | pytest `FakeTracker` returning SP-4's recorded lab rows |
+| GPU queue | `genQueue.ts` | the real module with a held job |
+| Storage / clock | SQLite + audioDir; timers | temp `DATA_DIR`; Vitest fake timers |
+| Client ↔ server | `api/chat.ts` | `vi.mock` in store tests; reducers and copy need none |
+| CI | — | C0 adds no e2e spec (the chat spec is F-051, C1); the golden path keeps `LLM_API_URL: ''`, so it still opens on the Library (D-099) |
+
+Chat seams in risks.md: R-003 / R-015 (hand-off, context) → fakeOllama sequences + CP-C0a live; R-024 (the rest of the song
+moves) → splice pytest goldens + CP-C0's null test and LUFS + the owner's listen; R-025 and R-026 are not on the C0 path.
+
+## Test strategy (chat, by risk)
+
+1. **Turn hand-off and atomicity** (R-003): `turnJob` unloads and sees `/api/ps` empty on success, check-failed, offline and
+   cancel; a repaint queued during a turn starts only after the unload; a failed turn leaves draft and proposals untouched.
+2. **Model output is outside input**: `actionSchema` / `replyCheck` / `recipeRules` reject an out-of-set action, a bad key, a
+   tag inside a line, bar 999 and a 458 s plan with the reasons the retry sends; scalpel / analyze become a `say`.
+3. **Stored data**: `chatSchema` on a copy of a pre-chat DB; cascade on permanent delete, nothing on trash; `readDraft` from
+   the raw blob (v0, v1, unknown); `client_key` makes a double SEND one turn.
+4. **Splice (C0b, silent and costly)**: pytest on synthetic audio (equal-power sum, a known lag recovered within 1 ms, the gain
+   ramp's ends matched, the null test exact) and on SP-4's recorded tracker rows (grid offsets and snaps equal SP-4's results);
+   `spliceRenderJob`'s fallbacks save the whole render labelled, never a silent splice; every cancel leaves no version.
+5. **Draft merge**: the hand-edit skip rule; CREATE SONG sends the live draft, not the proposal.
+6. **Client reducers and copy**: one test per `chatTurn` transition; `chatEntry`; `chatAb`'s clamp.
+7. Each pure module is broken once on purpose (spec-first, as the score agent).
+8. **On the real machine, headless, before any UI:**
+   - **CP-C0a** (after the C0a server packages, before the chat UI): `chatCp0.ts --server http://127.0.0.1:3201 --leg create`
+     against a server on :3201 with `DATA_DIR` = a copy of `server/data` (D-040), the real Ollama (16k) and the real
+     yue-server: 10 scripted descriptions (EN / DE / ES, 3 vague) as turns, then CREATE SONG on one. Log to
+     `pipeline/cp-c0/<date>/`: turn latency cold / warm, attempts, prompt tokens, unload-to-empty, recipe validity, YuE2 wall
+     time and tok/s, thread attached. Stop lines: turn p50 > 15 s, hand-off > 5 s, a recipe invalid after 3 attempts more
+     than once → stop and raise.
+   - **CP-C0** (after the C0b server packages, before the edit UI): `--leg edit` on 3 library songs (4/4): edit turn → APPLY →
+     splice → version; then `splice_check.py` in WSL on each saved file. Stop lines (scope): edit wall time > 4 min, a null
+     test failing, join LUFS excess > 1 dB on 3 of 3 songs.
+9. **Regression net**: every existing suite green on every PR; the golden path unchanged (run 2026-10-06, playbook).
