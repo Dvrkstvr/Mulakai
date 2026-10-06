@@ -12,6 +12,10 @@ arrangement DAW. One song open at a time.
 Think: "open a generated song, click-drag a region on its waveform, tell the
 model what to change there" — not a DAW, not a social music platform.
 
+> Amended 2026-10-06 (D-079, D-096): the chat is the default way to create
+> and edit a song; the editing tools stay as the scalpel. See "Chat: Talk a
+> Song Into Being".
+
 ## Why not just use the existing DAW or ace-step-ui as-is?
 
 - `ACE-Step-DAW` is a full Tauri desktop DAW built around arranging many
@@ -8736,10 +8740,10 @@ with LOC estimates and tests is `pipeline/architecture.md` "Modules".
 4. **Deferred**: the M2 referent and the M4 bar map placement (Q-029);
    A/B compare of two versions (Q-008).
 
-## Chat: Talk a Song Into Being (draft 2026-10-06, not signed off)
+## Chat: Talk a Song Into Being (planned 2026-10-06)
 
-**DRAFT for the owner's sign-off. It would amend the Grand Goal** (D-079,
-the owner's, 2026-10-05). Today the workflow is "generate, repaint, layer,
+**Signed off by the owner 2026-10-06 (D-096). This amends the Grand Goal**
+(D-079, the owner's, 2026-10-05). Today the workflow is "generate, repaint, layer,
 version, export", with SCORE as the main edit path for YuE2 songs. With
 this section the **chat becomes the default way to create and edit a
 song**: describe one, or start from a reference song, get the first take,
@@ -8748,8 +8752,8 @@ Editor's verbs (REPAINT, ADD LAYER, SPLIT, EXPORT, SCORE) and Guided
 Create stay as the **scalpel** for precise work. The Grand Goal's
 non-goals stay: one user, local only, one song at a time, no DAW.
 
-Nothing here is built before two things land: the owner's answers to the
-open questions at the end, and **SP-4** (keep the unchanged parts of a song
+The owner's answers are in (D-081..D-095). Decision 6 stays pending the
+owner's listen of **SP-4** (keep the unchanged parts of a song
 through an edit; `pipeline/spikes/SP-4-keep-unchanged/`, R-024). A chat
 that re-rolls the whole song on every turn does not converge, so how an
 edit turn renders is decided by SP-4's result (decision 6).
@@ -8826,7 +8830,8 @@ What a person does:
    may propose ACE-Step when a request fits it better, and the recipe card
    then says the song will not be score-editable (scalpel turns only, no
    splice).
-6. **How an edit turn renders depends on SP-4.** For a score-eligible
+6. **How an edit turn renders depends on SP-4** (pending the owner's
+   SP-4 listen; the machine half is in, D-080). For a score-eligible
    song:
    - local edits (chords, a phrase, the words of one section): render,
      then splice the changed bars into the current version (SP-4's A3:

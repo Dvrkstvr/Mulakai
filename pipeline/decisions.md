@@ -433,3 +433,7 @@ design/chat-lyrics.html (LY-1..LY-6) is the spec for D-093: the sidebar lyrics p
 ## D-095 · 2026-10-06 · stage 5 (chat design sign-off) · by: user
 The chat design is signed off with two changes: the player sits above the composer (design/chat-lyrics.html frame 3, not frame 1); the chat's send control must not resemble play/pause, so it is the outline text button `SEND ↵` (all three chat mockups updated). The specs are design/chat-create.html, chat-song.html and chat-lyrics.html, with D-086..D-094 as recorded, Q-063 closed (C).
 - instead of: the player pinned at the top; an acid hexagon ▶ send next to the player's ❚❚.
+
+## D-096 · 2026-10-06 · stage 1/4 (chat) · by: user
+The PLAN.md section "Chat: Talk a Song Into Being" is signed off now ("sign off now and start scoping"), with decision 6 (how an edit turn renders) pending the owner's SP-4 listen. The Grand Goal and brief.md's core promise carry a pointer to it. Scope (stage 4) starts for C0..C4.
+- instead of: signing off after the SP-4 listen.

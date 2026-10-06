@@ -3,7 +3,9 @@
 > Reconstructed from README.md, CLAUDE.md, AGENTS.md, PLAN.md headings and the code. Every guess is marked (inferred). Not yet signed off by the user.
 
 ## Core promise
-A single user can generate a song locally, then edit it in place without leaving one editor: repaint a time range, layer a new instrument or vocal over the mix, keep every iteration as a version they can revert to, and export the result. (README: "generate → repaint → layer → version → export".)
+**Amended 2026-10-06 (D-079, D-096):** talk a song into being. Describe it, or start from a reference song, get the first take, then improve it turn by turn in a chat with the local LLM, each turn changing only what was asked; the editor tools below stay as the scalpel. (PLAN.md "Chat: Talk a Song Into Being".)
+
+Original promise: A single user can generate a song locally, then edit it in place without leaving one editor: repaint a time range, layer a new instrument or vocal over the mix, keep every iteration as a version they can revert to, and export the result. (README: "generate → repaint → layer → version → export".)
 
 ## For whom
 One person on one Windows machine with a local GPU (16 GB VRAM, inferred from PLAN.md YuE2 notes), running ACE-Step 1.5 and optional extra engines as separate local processes. Today they would use ACE-Step's own Gradio UI or a full DAW; neither keeps per-layer version history around region-level AI edits (inferred).
