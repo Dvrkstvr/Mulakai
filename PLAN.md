@@ -8981,6 +8981,9 @@ then one track and channel each for Vocal and Ins. Chord symbols are not
 rendered. It parses with upstream's `parse_abc`, so it accepts exactly the
 native two-voice dialect the score agent accepts, and rejects anything else
 with that parser's reason (decision 0002: only yue-server reads ABC).
+A score cut off mid-group (its plan outran the token budget, so the audio
+stops there too; 2 of the 27 stored scores on 2026-10-07) converts its
+complete groups; an error anywhere earlier is still refused.
 Standard library only; CPU only; it never waits for the worker.
 
 ### Where a person gets one
