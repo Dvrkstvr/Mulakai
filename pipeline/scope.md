@@ -49,7 +49,7 @@ Each blocks the work package named; the first two block everything because they 
 
 ## C0 — The core-promise path, thin (F-041 .. F-050)
 
-What the person can do when C0 is done: on a machine with Ollama and YuE2 set up, open TALK A SONG from the Library, type "a slow Spanish ballad
+What the person can do when C0 is done: on a machine with Ollama and YuE2 set up, open Mulakai (CHAT is the start screen), type "a slow Spanish ballad
 about the sea, nylon guitar, soft female voice", read the recipe card, change the tempo in the sidebar by hand, press CREATE SONG, hear the first
 take in the player above the composer, type "give the chorus jazz chords", read the edit card ("assuming chorus 1, bars 25-32 · only those bars
 change"), press APPLY, hear v2 (bars 25-32 changed, everything else the old take), press BACK TO v1 to compare, reload the page and find the
@@ -77,8 +77,9 @@ whole conversation, both versions and the song.
   is the draft's fields only. A follow-up message while an edit card is pending replaces the card (D-028's rule). The hand-edit rule (skip
   touched fields, say so) stays: it protects the person's typing and is a few lines. Fallback when the assistant is off: the reason, RETRY and
   a FORM link to today's Guided Create (no draft carry-over until C6).
-- **Entry:** a TALK A SONG button in the Library and OPEN CHAT on a song, both shown only when `LLM_API_URL` and `YUE_API_URL` are set. CHAT does
-  not become the start screen until C6 (D-099), so the golden-path e2e and every existing flow stay as they are.
+- **Entry** (the owner's, D-099): CHAT is the start screen from C0 when `LLM_API_URL` and `YUE_API_URL` are set; the Library stays one click
+  away in the header and gets OPEN CHAT on a song. With either unset the app opens on the Library as today, so the golden-path e2e (which
+  leaves `LLM_API_URL` empty) does not move; the chat e2e (C1) covers the chat start screen.
 - **One draft store from day one** (the single shared draft of D-086) even though only the chat reads it in C0, so C6 adds a reader, not a rewrite.
 - **The `edit` action** hands the request text to the existing plan machinery (op schema, validators, retry feedback, limits) inside the same
   queue slot as the turn, so there is one hand-off per turn, not two (D-100, architecture confirms).
@@ -149,7 +150,7 @@ the whole-song path); this milestone is one option on one card and is about thre
 
 Form-first with the 300 px assistant that fills fields and never commits; the one shared draft and the CHAT | FORM toggle (Guided Create reads the
 draft C0 already built); the Editor-first mirror (CHAT | EDITOR; the Editor's selection is the mark); the Library's CREATE and CONTINUE rows
-open the remembered mode and the song's thread; CHAT becomes the start screen. UI-heavy, low risk, after the engine paths are proven.
+open the remembered mode and the song's thread. UI-heavy, low risk, after the engine paths are proven.
 Q-061 and Q-077 are decided at its design pass.
 
 ## C7 — The scalpel from the chat and ACE-Step first takes (F-075 .. F-078), needs R-025
@@ -270,7 +271,7 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 | reference songs, cover vs fresh | C3 | the other entry to the promise, not the one the thin path needs |
 | REPEAT/CUT audio-only, splice of phrase and lyrics, multi-span | C4 | gated by the owner's listen and its ears-only items |
 | tempo/key SHIFT/STRETCH | C5 | gated by SP-6; RE-RENDER works from C0 |
-| form-first, shared-draft toggle, Editor-first mirror, start screen | C6 | one draft store exists from C0; the second view is UI |
+| form-first, shared-draft toggle, Editor-first mirror | C6 | one draft store exists from C0; the second view is UI |
 | scalpel actions, Editor edits in the thread, ACE-Step first takes, new song from this score | C7 | R-025, and ineligible songs get a plain reason in C0 |
 | Settings card, Activity entries, palette | C8 | small remnants |
 
@@ -303,7 +304,6 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 - **Reference songs from a URL or a streaming service**: local files and library songs only; rights stay the person's (D-084).
 - **A larger or cloud chat model** (no room at 16k on 16 GB; local-only): the MoE stays an env value.
 - **SHIFT/STRETCH if SP-6 fails** (R-026): RE-RENDER stays the only tempo/key path, D-085's reversal is recorded.
-- **A chat-first start screen before C6**: the golden path must not move under an unfinished flow (feature-gating rule).
 
 ## Re-check of deferred questions
 

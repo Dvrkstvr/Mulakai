@@ -8928,13 +8928,13 @@ owner's SP-4 listen (gates the splice and C4); the R-025 launcher check
 
 | | What a person can do when it is done |
 |---|---|
-| C0 | The core path, thin: TALK A SONG from the Library, describe a song, recipe card, CREATE SONG (YuE2), song card and player above the composer, one edit turn (a REHARMONIZE plan is spliced, A3; every other plan re-renders the whole song and says so), version card with A/B, the thread survives a reload. Headless checkpoint CP-C0 before the UI. |
+| C0 | The core path, thin: CHAT is the start screen (when the planner and YuE2 are set up, D-099), describe a song, recipe card, CREATE SONG (YuE2), song card and player above the composer, one edit turn (a REHARMONIZE plan is spliced, A3; every other plan re-renders the whole song and says so), version card with A/B, the thread survives a reload. Headless checkpoint CP-C0 before the UI. |
 | C1 | Every version analyzed; the waveform and section strip; marking (click, extend, lyric line) sent with the turn; stale marks; the chat e2e. |
 | C2 | The lyrics sidebar panel; OLD / NEW diffs; REVISE; UNDO TURN; the bar map on the edit card. |
 | C3 | Reference songs: analyze, kept as the source, cover or fresh-song proposals; chord-free scores. |
 | C4 | REPEAT / CUT as audio-only edits; the splice for phrases and lyrics; several spans in one turn. |
 | C5 | SHIFT / STRETCH for tempo and key, only if SP-6 passes. |
-| C6 | Form-first and the shared draft toggle; the Editor-first mirror; CHAT becomes the start screen. |
+| C6 | Form-first and the shared draft toggle; the Editor-first mirror; CREATE opens the remembered mode. |
 | C7 | Scalpel actions from the chat; Editor edits mirrored into the thread; ACE-Step first takes; new song from this score. |
 | C8 | Settings planner card, Activity entries, the palette's "Ask in chat". |
 
