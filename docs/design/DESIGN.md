@@ -997,7 +997,10 @@ requiring its own justification against a screen-count rule.
      share, the plain shader, no veil; dashed while queued). Superseded dims
      to 45% with no button; expired is a rust line with ASK AGAIN; done folds
      to one header line, followed by the song card (lilac version pill,
-     length, `LIBRARY ▸`).
+     length, `LIBRARY ▸`). A take cut at the length cap is saved but never
+     DONE (D-025): the header reads `TRUNCATED · v1 SAVED` in rust-text and
+     the song card adds a rust left-rule line, `TRUNCATED at 6:00, the song
+     is cut short`, saying the version is saved and where to fix it.
    - **The sidebar** is the one draft's fields (TITLE, STYLE, TEMPO · KEY,
      LANGUAGE, STRUCTURE, LYRICS as `[Verse]` blocks, ENGINE YUE2 · FIXED),
      editable at any time, also while a turn runs. A field the last reply

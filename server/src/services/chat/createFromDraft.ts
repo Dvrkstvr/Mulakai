@@ -7,7 +7,7 @@
  */
 import { config } from '../../config.js';
 import { db } from '../../db/index.js';
-import { startEngineGeneration } from '../engineGenJobs.js';
+import { startEngineGeneration, TRUNCATED_LABEL } from '../engineGenJobs.js';
 import { YUE2_CAPABILITIES, yue2Engine } from '../engines/yue2.js';
 import type { CreateFields, SongEngine } from '../engines/types.js';
 import { getRunning, QueueFullError } from '../genQueue.js';
@@ -20,6 +20,7 @@ import { proposalById, proposalLife } from './proposalStore.js';
 import { createBlockers } from './recipeRules.js';
 import { baseVersions } from './songStateSource.js';
 import { attach, threadById } from './threadStore.js';
+import type { CardBody } from './chatTypes.js';
 
 export interface CreateDeps {
   engine: SongEngine;
@@ -64,9 +65,11 @@ function landed(threadId: string, songId: string, jobId: string): void {
   attach(threadId, songId);
   const v1 = baseVersions(songId)[0];
   const song = db.prepare(`SELECT duration FROM songs WHERE id = ?`).get(songId) as { duration: number | null } | undefined;
+  const label = v1?.label ?? '';
+  const body: CardBody = { seconds: song?.duration ?? null, label, number: 1, truncated: label === TRUNCATED_LABEL };
   appendMessage(threadId, {
     role: 'assistant', kind: 'song', text: 'Saved as v1 in your Library. Press play below. To change it, use SCORE in the Editor.',
-    body: { seconds: song?.duration ?? null, label: v1?.label ?? '', number: 1 }, versionId: v1?.id ?? null, jobId,
+    body, versionId: v1?.id ?? null, jobId,
   });
 }
 

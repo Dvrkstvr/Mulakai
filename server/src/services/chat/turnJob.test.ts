@@ -10,13 +10,13 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-chatturn-t
 
 const { startFakeOllama } = await import('../../../test-fakes/fakeOllama.js');
 const { RECIPE, outOfSet, recipeReply, sayReply } = await import('../../../test-fakes/chatScripts.js');
-const { enqueue, getQueued, getRunning, resetQueue } = await import('../genQueue.js');
+const { enqueue, getQueued, getRunning, QUEUE_LIMIT, QueueFullError, resetQueue } = await import('../genQueue.js');
 const { getJob } = await import('../jobRegistry.js');
 const { draftThread, resetDraftThread, threadById, writeDraft } = await import('./threadStore.js');
 const { appendMessage, listMessages } = await import('./messageStore.js');
 const { handEdit } = await import('./draftModel.js');
 const { liveProposal, proposalLife, resetProposals } = await import('./proposalStore.js');
-const { cancelTurn, startChatTurn, turnDeps } = await import('./turnJob.js');
+const { cancelTurn, startChatTurn, turnDeps, turnOf } = await import('./turnJob.js');
 type FakeOllama = Awaited<ReturnType<typeof startFakeOllama>>;
 
 let ollama: FakeOllama;
@@ -104,6 +104,8 @@ describe('chat turn job', () => {
     const { thread, job } = send('a song');
     await vi.waitFor(() => expect(events).toEqual(['ask']));
     expect(cancelTurn(job.id)).toEqual({ aborted: true });
+    // Marked cancelled at once: a poll during the unload reads CANCELLED, not a plain failure (C0a review #1).
+    expect(getJob(job.id)).toMatchObject({ status: 'failed', cancelled: true });
     expect((await settled(job.id)).error).toBe('Aborted');
     expect(events).toEqual(['ask', 'unload', 'empty']);
     expect(reply(thread.id)).toMatchObject({ kind: 'failed', body: { cause: 'cancelled' } });
@@ -121,6 +123,16 @@ describe('chat turn job', () => {
     expect(reply(thread.id)).toMatchObject({ kind: 'failed', body: { cause: 'cancelled' } });
     release();
     expect(events).toEqual([]);
+  });
+
+  it('a full queue refuses the turn and leaves no live-turn entry behind (C0a review #3)', async () => {
+    ollama = await startFakeOllama();
+    enqueue({ kind: 'repaint', jobId: 'held' }, () => new Promise<void>(() => {}));
+    for (let i = 0; i < QUEUE_LIMIT; i += 1) enqueue({ kind: 'repaint', jobId: `q${i}` }, () => {});
+    const spy = vi.spyOn(crypto, 'randomUUID').mockReturnValue('0000-full-0000-0000-000000000000');
+    expect(() => send('a song')).toThrow(QueueFullError);
+    spy.mockRestore();
+    expect(turnOf('0000-full-0000-0000-000000000000')).toBeUndefined();
   });
 
   it('a field typed during the turn is kept and named (CH-6)', async () => {
