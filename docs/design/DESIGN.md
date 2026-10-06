@@ -964,9 +964,9 @@ requiring its own justification against a screen-count rule.
      button.
 5. **Chat** (added 2026-10-06, chat C0a; specs `pipeline/design/chat-turn.html`,
    `chat-lyrics.html` frame 3, `chat-create.html` frames 1a/1b/5) — a peer of
-   the Library, and the start screen when the server says the chat is
-   configured (`LLM_API_URL` and `YUE_API_URL` set, D-099); otherwise the app
-   opens on the Library as before and nothing below shows. The header carries
+   the Library, shown when the server says the chat is configured
+   (`LLM_API_URL` and `YUE_API_URL` set, D-099); otherwise nothing below shows.
+   The app always opens on the Library (D-119); CHAT is one click away. The header carries
    **CHAT | LIBRARY** (outlined parallelograms, the open one in acid outline,
    like an active toolbar tab) while either is up; the Library's song detail
    rail gets a plain **OPEN CHAT** (the song's thread). Layout, top to bottom:
