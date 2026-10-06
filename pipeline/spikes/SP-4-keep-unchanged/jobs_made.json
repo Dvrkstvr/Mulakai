@@ -1,0 +1,537 @@
+{
+ "A_L": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 10,
+    "seconds": 27.6
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 11,
+    "to_bar": 46,
+    "seconds": 99.3
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 47,
+    "to_bar": 62,
+    "seconds": 44.1
+   },
+   {
+    "index": 4,
+    "label": "outro",
+    "from_bar": 63,
+    "to_bar": 65,
+    "seconds": 8.3
+   }
+  ],
+  "bpm": 87,
+  "lyrics_changed": true
+ },
+ "A_K": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 10,
+    "seconds": 27.6
+   },
+   {
+    "index": 2,
+    "label": "chorus",
+    "from_bar": 11,
+    "to_bar": 26,
+    "seconds": 44.1
+   },
+   {
+    "index": 3,
+    "label": "outro",
+    "from_bar": 27,
+    "to_bar": 29,
+    "seconds": 8.3
+   }
+  ],
+  "bpm": 87,
+  "lyrics_changed": true
+ },
+ "B_L": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 6,
+    "seconds": 12.9
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 7,
+    "to_bar": 22,
+    "seconds": 41.3
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 23,
+    "to_bar": 30,
+    "seconds": 20.6
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "from_bar": 31,
+    "to_bar": 46,
+    "seconds": 41.3
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "from_bar": 47,
+    "to_bar": 54,
+    "seconds": 20.6
+   },
+   {
+    "index": 6,
+    "label": "outro",
+    "from_bar": 55,
+    "to_bar": 63,
+    "seconds": 23.2
+   }
+  ],
+  "bpm": 93,
+  "lyrics_changed": true
+ },
+ "B_K": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 6,
+    "seconds": 12.9
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 7,
+    "to_bar": 22,
+    "seconds": 41.3
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 23,
+    "to_bar": 30,
+    "seconds": 20.6
+   },
+   {
+    "index": 4,
+    "label": "chorus",
+    "from_bar": 31,
+    "to_bar": 38,
+    "seconds": 20.6
+   },
+   {
+    "index": 5,
+    "label": "outro",
+    "from_bar": 39,
+    "to_bar": 47,
+    "seconds": 23.2
+   }
+  ],
+  "bpm": 93,
+  "lyrics_changed": true
+ },
+ "C_L": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 5,
+    "seconds": 14.1
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 6,
+    "to_bar": 14,
+    "seconds": 25.4
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 15,
+    "to_bar": 22,
+    "seconds": 22.6
+   },
+   {
+    "index": 4,
+    "label": "interlude",
+    "from_bar": 23,
+    "to_bar": 26,
+    "seconds": 11.3
+   },
+   {
+    "index": 5,
+    "label": "verse",
+    "from_bar": 27,
+    "to_bar": 35,
+    "seconds": 25.4
+   },
+   {
+    "index": 6,
+    "label": "chorus",
+    "from_bar": 36,
+    "to_bar": 43,
+    "seconds": 22.6
+   },
+   {
+    "index": 7,
+    "label": "bridge",
+    "from_bar": 44,
+    "to_bar": 52,
+    "seconds": 25.4
+   },
+   {
+    "index": 8,
+    "label": "chorus",
+    "from_bar": 53,
+    "to_bar": 60,
+    "seconds": 22.6
+   },
+   {
+    "index": 9,
+    "label": "interlude",
+    "from_bar": 61,
+    "to_bar": 68,
+    "seconds": 22.6
+   },
+   {
+    "index": 10,
+    "label": "outro",
+    "from_bar": 69,
+    "to_bar": 77,
+    "seconds": 25.4
+   }
+  ],
+  "bpm": 85,
+  "lyrics_changed": true
+ },
+ "C_K": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 5,
+    "seconds": 14.1
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 6,
+    "to_bar": 14,
+    "seconds": 25.4
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 15,
+    "to_bar": 22,
+    "seconds": 22.6
+   },
+   {
+    "index": 4,
+    "label": "interlude",
+    "from_bar": 23,
+    "to_bar": 26,
+    "seconds": 11.3
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "from_bar": 27,
+    "to_bar": 34,
+    "seconds": 22.6
+   },
+   {
+    "index": 6,
+    "label": "bridge",
+    "from_bar": 35,
+    "to_bar": 43,
+    "seconds": 25.4
+   },
+   {
+    "index": 7,
+    "label": "chorus",
+    "from_bar": 44,
+    "to_bar": 51,
+    "seconds": 22.6
+   },
+   {
+    "index": 8,
+    "label": "interlude",
+    "from_bar": 52,
+    "to_bar": 59,
+    "seconds": 22.6
+   },
+   {
+    "index": 9,
+    "label": "outro",
+    "from_bar": 60,
+    "to_bar": 68,
+    "seconds": 25.4
+   }
+  ],
+  "bpm": 85,
+  "lyrics_changed": true
+ },
+ "D_L": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 5,
+    "seconds": 12.6
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 6,
+    "to_bar": 22,
+    "seconds": 42.9
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 23,
+    "to_bar": 30,
+    "seconds": 20.2
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "from_bar": 31,
+    "to_bar": 47,
+    "seconds": 42.9
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "from_bar": 48,
+    "to_bar": 55,
+    "seconds": 20.2
+   },
+   {
+    "index": 6,
+    "label": "outro",
+    "from_bar": 56,
+    "to_bar": 64,
+    "seconds": 22.7
+   }
+  ],
+  "bpm": 95,
+  "lyrics_changed": true
+ },
+ "D_K": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 5,
+    "seconds": 12.6
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 6,
+    "to_bar": 22,
+    "seconds": 42.9
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 23,
+    "to_bar": 30,
+    "seconds": 20.2
+   },
+   {
+    "index": 4,
+    "label": "chorus",
+    "from_bar": 31,
+    "to_bar": 38,
+    "seconds": 20.2
+   },
+   {
+    "index": 5,
+    "label": "outro",
+    "from_bar": 39,
+    "to_bar": 47,
+    "seconds": 22.7
+   }
+  ],
+  "bpm": 95,
+  "lyrics_changed": true
+ },
+ "D_b": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 5,
+    "seconds": 12.6
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 6,
+    "to_bar": 22,
+    "seconds": 42.9
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 23,
+    "to_bar": 30,
+    "seconds": 20.2
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "from_bar": 31,
+    "to_bar": 47,
+    "seconds": 42.9
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "from_bar": 48,
+    "to_bar": 55,
+    "seconds": 20.2
+   },
+   {
+    "index": 6,
+    "label": "outro",
+    "from_bar": 56,
+    "to_bar": 64,
+    "seconds": 22.7
+   }
+  ],
+  "bpm": 95,
+  "lyrics_changed": false
+ },
+ "D_e": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 5,
+    "seconds": 12.6
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 6,
+    "to_bar": 22,
+    "seconds": 42.9
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 23,
+    "to_bar": 30,
+    "seconds": 20.2
+   },
+   {
+    "index": 4,
+    "label": "verse",
+    "from_bar": 31,
+    "to_bar": 47,
+    "seconds": 42.9
+   },
+   {
+    "index": 5,
+    "label": "chorus",
+    "from_bar": 48,
+    "to_bar": 55,
+    "seconds": 20.2
+   },
+   {
+    "index": 6,
+    "label": "outro",
+    "from_bar": 56,
+    "to_bar": 64,
+    "seconds": 22.7
+   }
+  ],
+  "bpm": 95,
+  "lyrics_changed": false
+ },
+ "D_d": {
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 5,
+    "seconds": 12.6
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 6,
+    "to_bar": 22,
+    "seconds": 42.9
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 23,
+    "to_bar": 30,
+    "seconds": 20.2
+   },
+   {
+    "index": 4,
+    "label": "chorus",
+    "from_bar": 31,
+    "to_bar": 38,
+    "seconds": 20.2
+   },
+   {
+    "index": 5,
+    "label": "verse",
+    "from_bar": 39,
+    "to_bar": 55,
+    "seconds": 42.9
+   },
+   {
+    "index": 6,
+    "label": "chorus",
+    "from_bar": 56,
+    "to_bar": 63,
+    "seconds": 20.2
+   },
+   {
+    "index": 7,
+    "label": "outro",
+    "from_bar": 64,
+    "to_bar": 72,
+    "seconds": 22.7
+   }
+  ],
+  "bpm": 95,
+  "lyrics_changed": true
+ }
+}

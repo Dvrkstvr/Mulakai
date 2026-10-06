@@ -1,0 +1,32 @@
+{
+ "id": "A_phrase_A3_bal",
+ "gain_applied_by_acestep": 0.8912508322388604,
+ "gain_db": -1.000001032022858,
+ "len_in": 8477852,
+ "len_out_raw": 8476800,
+ "tail_restored_samples": 1052,
+ "max_abs_residual_outside": 0.2401726245880127,
+ "samples_different_outside": 671,
+ "of_which_not_where_src_exceeds_full_scale": 0,
+ "src_peak": 1.3012666702270508,
+ "windows": [
+  {
+   "window_s": [
+    133.85,
+    136.85
+   ],
+   "lufs_in": -12.57452023925827,
+   "lufs_out": -14.812362025116196,
+   "lufs_delta": -2.237841785857926
+  },
+  {
+   "window_s": [
+    144.893,
+    147.893
+   ],
+   "lufs_in": -11.584725047864884,
+   "lufs_out": -25.01801384535408,
+   "lufs_delta": -13.433288797489196
+  }
+ ]
+}

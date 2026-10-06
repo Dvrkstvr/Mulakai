@@ -1,0 +1,18 @@
+{
+ "id": "C_repeat_C1_con",
+ "mode": "conservative",
+ "strength": 0.5,
+ "steps": [
+  {
+   "task_id": "56e8713f-af75-48d2-ac9a-e037b430150c",
+   "seconds": 14.672275304794312,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Cc90b9ab1-ada0-309c-9c65-49ee8d424a18.wav",
+   "bytes": 91161688,
+   "window": [
+    58.25,
+    61.25
+   ]
+  }
+ ],
+ "seconds_total": 14.672275304794312
+}

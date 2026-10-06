@@ -1,0 +1,390 @@
+[
+ {
+  "id": "A_reharm_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\A_reharm_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\A_reharm_A3_bal.wav",
+  "windows": [
+   [
+    122.83,
+    125.83
+   ],
+   [
+    144.904,
+    147.904
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "lyrics": "[Intro]\n[Rhodes piano melody]\n\n[Verse]\nMidnight city streets are wet\nNeon signs and silhouettes\n[Humming]\n(Mmm Mmm Mmm)\nWading through the urban maze\nLost inside thick purple haze\n[Humming]\n(Mmm Mmm Mmm)\n\n[Chorus]\nIn the shadows we exist\nLike smoke we twist and drift\nClandestine and free\nThis is where I need to be\n\n[Outro]\nIn the shadows\nIn the shadows\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[repeat]\n",
+  "lang": "en",
+  "steps": 8
+ },
+ {
+  "id": "A_phrase_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\A_phrase_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\A_phrase_A3_bal.wav",
+  "windows": [
+   [
+    133.85,
+    136.85
+   ],
+   [
+    144.893,
+    147.893
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., tenor saxophone solo phrase, 90 bpm, F minor, 4/4 time",
+  "lyrics": "[Intro]\n[Rhodes piano melody]\n\n[Verse]\nMidnight city streets are wet\nNeon signs and silhouettes\n[Humming]\n(Mmm Mmm Mmm)\nWading through the urban maze\nLost inside thick purple haze\n[Humming]\n(Mmm Mmm Mmm)\n\n[Chorus]\nIn the shadows we exist\nLike smoke we twist and drift\nClandestine and free\nThis is where I need to be\n\n[Outro]\nIn the shadows\nIn the shadows\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[repeat]\n",
+  "lang": "en",
+  "steps": 8
+ },
+ {
+  "id": "A_lyrics_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\A_lyrics_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\A_lyrics_A3_bal.wav",
+  "windows": [
+   [
+    122.83,
+    125.83
+   ],
+   [
+    166.984,
+    169.984
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "lyrics": "[Intro]\n[Rhodes piano melody]\n\n[Verse 1]\nMidnight city streets are wet\nNeon signs and silhouettes\n[Humming]\n(Mmm Mmm Mmm)\nWading through the urban maze\nLost inside thick purple haze\n[Humming]\n(Mmm Mmm Mmm)\n\n[Chorus]\nMorning light is breaking through\nWashing all the grey away\nOpen windows, open skies\nNothing left for me to hide\n\n[Verse 2]\nConcrete jungle breathing slow\nSecrets only night will show\n[Humming]\n(Mmm Mmm Mmm)\nEvery corner tells a tale\nBeauty hiding behind the veil\n[Humming]\n(Mmm Mmm Mmm)\n\n[Chorus]\nOut of focus, out of sight\nWe are phantoms in the night\nUntethered and unseen\nLiving in the in-between\n\n[Bridge]\nThe city never sleeps\nIts heart forever beats\n\n[Outro]\nIn the shadows\nIn the shadows\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[repeat]\n",
+  "lang": "en",
+  "steps": 8
+ },
+ {
+  "id": "A_repeat_C1_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\A_repeat_C1.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\A_repeat_C1_bal.wav",
+  "windows": [
+   [
+    166.89,
+    169.89
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "lyrics": "[Intro]\n[Rhodes piano melody]\n\n[Verse]\nMidnight city streets are wet\nNeon signs and silhouettes\n[Humming]\n(Mmm Mmm Mmm)\nWading through the urban maze\nLost inside thick purple haze\n[Humming]\n(Mmm Mmm Mmm)\n\n[Chorus]\nIn the shadows we exist\nLike smoke we twist and drift\nClandestine and free\nThis is where I need to be\n\n[Chorus]\nIn the shadows we exist\nLike smoke we twist and drift\nClandestine and free\nThis is where I need to be\n\n[Outro]\nIn the shadows\nIn the shadows\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[repeat]\n",
+  "lang": "en",
+  "steps": 8
+ },
+ {
+  "id": "A_cut_C1_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\A_cut_C1.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\A_cut_C1_bal.wav",
+  "windows": [
+   [
+    23.58,
+    26.58
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A moody, atmospheric dream-pop trip-hop track built on a foundation of a deep sub-bass and a crisp, lo-fi drum machine beat with a prominent snap. A breathy, sultry and ethereal female vocal, saturated in reverb, whispers and sings softly over hazy, melancholic synth pads The verses start off in a grounded, lower register. The arrangement is spacious and nocturnal, with layered vocal harmonies adding depth to the chorus which moves from a sulty and nostalgic atmosphere to an intense and soaring chorus. The track concludes with a section of wordless, humming vocalizations that fade out alongside the atmospheric textures, leaving a lingering sense of introspection and satisfaction., 90 bpm, F minor, 4/4 time",
+  "lyrics": "[Intro]\n[Rhodes piano melody]\n\n[Chorus]\nIn the shadows we exist\nLike smoke we twist and drift\nClandestine and free\nThis is where I need to be\n\n[Verse 2]\nConcrete jungle breathing slow\nSecrets only night will show\n[Humming]\n(Mmm Mmm Mmm)\nEvery corner tells a tale\nBeauty hiding behind the veil\n[Humming]\n(Mmm Mmm Mmm)\n\n[Chorus]\nOut of focus, out of sight\nWe are phantoms in the night\nUntethered and unseen\nLiving in the in-between\n\n[Bridge]\nThe city never sleeps\nIts heart forever beats\n\n[Outro]\nIn the shadows\nIn the shadows\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[Humming]\n[repeat]\n",
+  "lang": "en",
+  "steps": 8
+ },
+ {
+  "id": "B_reharm_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\B_reharm_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\B_reharm_A3_bal.wav",
+  "windows": [
+   [
+    51.76,
+    54.76
+   ],
+   [
+    72.407,
+    75.407
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 91 bpm, B♭ major, 4/4 time",
+  "lyrics": "[Intro]\n\n[Verse]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi niña\nY tu carita, tu carita, niña\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Verse]\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nTú lo sabes, que esto no fue un error\nY tú lo sabes, que nadie te va a dar amor\nComo yo, no, no, no, no, no\nComo yo\nTe canto esta canción pa' que me recuerdes\nQue por más que tú me niegues sé que me quieres\nQue tú me quieres\nY que tú me quieres\n[Vocalizing: ooh]\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]\n",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "B_phrase_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\B_phrase_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\B_phrase_A3_bal.wav",
+  "windows": [
+   [
+    133.52,
+    136.52
+   ],
+   [
+    143.947,
+    146.947
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., tenor saxophone solo phrase, 91 bpm, B♭ major, 4/4 time",
+  "lyrics": "[Intro]\n\n[Verse]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi niña\nY tu carita, tu carita, niña\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Verse]\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nTú lo sabes, que esto no fue un error\nY tú lo sabes, que nadie te va a dar amor\nComo yo, no, no, no, no, no\nComo yo\nTe canto esta canción pa' que me recuerdes\nQue por más que tú me niegues sé que me quieres\nQue tú me quieres\nY que tú me quieres\n[Vocalizing: ooh]\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]\n",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "B_lyrics_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\B_lyrics_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\B_lyrics_A3_bal.wav",
+  "windows": [
+   [
+    51.76,
+    54.76
+   ],
+   [
+    72.368,
+    75.368
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 91 bpm, B♭ major, 4/4 time",
+  "lyrics": "[Intro: Piano]\n\n[Verse 1]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi niña\nY tu carita, tu carita, niña\n\n[Pre-Chorus]\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nYa vete, vete, vete\nNo quiero verte sufrir\nQue el viento se lleve todo\nY me dejes el silencio\nYa vete, vete, vete\nNo quiero verte sufrir\nQue la noche te dé paz\nY me dejes el silencio\n\n[Verse 2]\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nTú lo sabes, que esto no fue un error\nY tú lo sabes, que nadie te va a dar amor\nComo yo, no, no, no, no, no\nComo yo\nTe canto esta canción pa' que me recuerdes\nQue por más que tú me niegues sé que me quieres\nQue tú me quieres\nY que tú me quieres\n[Vocalizing: ooh]\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Instrumental Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]\n",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "B_repeat_C1_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\B_repeat_C1.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\B_repeat_C1_bal.wav",
+  "windows": [
+   [
+    72.21,
+    75.21
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 91 bpm, B♭ major, 4/4 time",
+  "lyrics": "[Intro]\n\n[Verse]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi niña\nY tu carita, tu carita, niña\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Verse]\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nTú lo sabes, que esto no fue un error\nY tú lo sabes, que nadie te va a dar amor\nComo yo, no, no, no, no, no\nComo yo\nTe canto esta canción pa' que me recuerdes\nQue por más que tú me niegues sé que me quieres\nQue tú me quieres\nY que tú me quieres\n[Vocalizing: ooh]\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]\n",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "B_cut_C1_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\B_cut_C1.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\B_cut_C1_bal.wav",
+  "windows": [
+   [
+    72.21,
+    75.21
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 91 bpm, B♭ major, 4/4 time",
+  "lyrics": "[Intro]\n\n[Verse]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi niña\nY tu carita, tu carita, niña\n\n[Pre-Chorus]\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito\n\n[Instrumental Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]\n",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "C_reharm_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\C_reharm_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\C_reharm_A3_bal.wav",
+  "windows": [
+   [
+    35.66,
+    38.66
+   ],
+   [
+    58.24,
+    61.24
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive female vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 176 bpm, D major, 6/8 time",
+  "lyrics": "[Intro]\n\n[Verse]\nNebel zieht über die Stadt\nIch seh mich nicht mehr klar\nJeder Schritt wie Blei, jeder Tag so sonderbar\nDie Flammen brennen tief in mir\nDoch ich halt sie bald zurück\nMein Herz es schlägt so stumm\nKein Rhythmus mit dem Glück\n\n[Chorus]\nAndreas, ich falle doch ich stehe irgendwie\nInmitten der Ordnung gibt es manchmal Krieg in mir\nDie Welt schreit laut, doch ich flüster still und sacht\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Interlude]\n\n[Verse]\nLachen klingt so kühl\nAn der[Intense Wand]\nDoch ich fühl das Zittern\nDas mich leise überwiegt\nGesichter voller Hoffnung\nDoch ich greif nur die Hand\nDenn tief in mir brennt Licht\nDas niemand je erkennt\n\n[Chorus]\nAndreas, ich kämpfe auch wenn ich mich oft verlier\nEin Blick aus einem Spiegel zeigt, ich bleib doch hier\nDie Stille singt, doch ich schweige wie gebannt\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Bridge]\nManchmal spür ich, wie die Nacht mich nieder reconociert\nDoch im Schatten meiner Angst wächst noch ein stilles Heer\nManchmal ist Versteckung lieber als das Licht zu sehen\nDoch ich lerne langsam, wie die Grenzen überstehen\n\n[Chorus]\nAndreas, ich falle doch ich stehe irgendwie\nInmitten der Ordnung gibt es manchmal Krieg in mir\nDie Welt schreit laut, doch ich flüster still und sacht\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Interlude]\n\n[Outro]\nVerloren\nDoch im Schweigen nehm ich einen neuen Lauf\nEin Held braucht Zeit für sich und das nimm ich gern in Kauf\nDie Welt dreht laut, doch ich bleibe wie im Traum\nEin Held muss stark sein, um sich nach Halt zu finden\n",
+  "lang": "de",
+  "steps": 8
+ },
+ {
+  "id": "C_phrase_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\C_phrase_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\C_phrase_A3_bal.wav",
+  "windows": [
+   [
+    58.25,
+    61.25
+   ],
+   [
+    69.55,
+    72.55
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive female vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., tenor saxophone solo phrase, 176 bpm, D major, 6/8 time",
+  "lyrics": "[Intro]\n\n[Verse]\nNebel zieht über die Stadt\nIch seh mich nicht mehr klar\nJeder Schritt wie Blei, jeder Tag so sonderbar\nDie Flammen brennen tief in mir\nDoch ich halt sie bald zurück\nMein Herz es schlägt so stumm\nKein Rhythmus mit dem Glück\n\n[Chorus]\nAndreas, ich falle doch ich stehe irgendwie\nInmitten der Ordnung gibt es manchmal Krieg in mir\nDie Welt schreit laut, doch ich flüster still und sacht\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Interlude]\n\n[Verse]\nLachen klingt so kühl\nAn der[Intense Wand]\nDoch ich fühl das Zittern\nDas mich leise überwiegt\nGesichter voller Hoffnung\nDoch ich greif nur die Hand\nDenn tief in mir brennt Licht\nDas niemand je erkennt\n\n[Chorus]\nAndreas, ich kämpfe auch wenn ich mich oft verlier\nEin Blick aus einem Spiegel zeigt, ich bleib doch hier\nDie Stille singt, doch ich schweige wie gebannt\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Bridge]\nManchmal spür ich, wie die Nacht mich nieder reconociert\nDoch im Schatten meiner Angst wächst noch ein stilles Heer\nManchmal ist Versteckung lieber als das Licht zu sehen\nDoch ich lerne langsam, wie die Grenzen überstehen\n\n[Chorus]\nAndreas, ich falle doch ich stehe irgendwie\nInmitten der Ordnung gibt es manchmal Krieg in mir\nDie Welt schreit laut, doch ich flüster still und sacht\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Interlude]\n\n[Outro]\nVerloren\nDoch im Schweigen nehm ich einen neuen Lauf\nEin Held braucht Zeit für sich und das nimm ich gern in Kauf\nDie Welt dreht laut, doch ich bleibe wie im Traum\nEin Held muss stark sein, um sich nach Halt zu finden\n",
+  "lang": "de",
+  "steps": 8
+ },
+ {
+  "id": "C_lyrics_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\C_lyrics_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\C_lyrics_A3_bal.wav",
+  "windows": [
+   [
+    35.66,
+    38.66
+   ],
+   [
+    58.228,
+    61.228
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive female vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 176 bpm, D major, 6/8 time",
+  "lyrics": "[Intro - Acoustic Guitar]\n\n[Verse 1]\nNebel zieht über die Stadt\nIch seh mich nicht mehr klar\nJeder Schritt wie Blei, jeder Tag so sonderbar\nDie Flammen brennen tief in mir\nDoch ich halt sie bald zurück\nMein Herz es schlägt so stumm\nKein Rhythmus mit dem Glück\n\n[Chorus]\nHeute lasse ich dich los\nDer Morgen kommt ganz leise an\nDie Straße ruft mich weit hinaus\nIch gehe fort und schaue nicht zurück\n\n[Verse 2]\nLachen klingt so kühl\nAn der[Intense Wand]\nDoch ich fühl das Zittern\nDas mich leise überwiegt\nGesichter voller Hoffnung\nDoch ich greif nur die Hand\nDenn tief in mir brennt Licht\nDas niemand je erkennt\n\n[Chorus]\nAndreas, ich kämpfe auch wenn ich mich oft verlier\nEin Blick aus einem Spiegel zeigt, ich bleib doch hier\nDie Stille singt, doch ich schweige wie gebannt\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Bridge]\nManchmal spür ich, wie die Nacht mich nieder reconociert\nDoch im Schatten meiner Angst wächst noch ein stilles Heer\nManchmal ist Versteckung lieber als das Licht zu sehen\nDoch ich lerne langsam, wie die Grenzen überstehen\n\n[Outro]\nVerloren\nDoch im Schweigen nehm ich einen neuen Lauf\nEin Held braucht Zeit für sich und das nimm ich gern in Kauf\nDie Welt dreht laut, doch ich bleibe wie im Traum\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Instrumental Outro - Acoustic Guitar]\n",
+  "lang": "de",
+  "steps": 8
+ },
+ {
+  "id": "C_repeat_C1_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\C_repeat_C1.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\C_repeat_C1_bal.wav",
+  "windows": [
+   [
+    58.25,
+    61.25
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive female vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 176 bpm, D major, 6/8 time",
+  "lyrics": "[Intro]\n\n[Verse]\nNebel zieht über die Stadt\nIch seh mich nicht mehr klar\nJeder Schritt wie Blei, jeder Tag so sonderbar\nDie Flammen brennen tief in mir\nDoch ich halt sie bald zurück\nMein Herz es schlägt so stumm\nKein Rhythmus mit dem Glück\n\n[Chorus]\nAndreas, ich falle doch ich stehe irgendwie\nInmitten der Ordnung gibt es manchmal Krieg in mir\nDie Welt schreit laut, doch ich flüster still und sacht\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Chorus]\nAndreas, ich falle doch ich stehe irgendwie\nInmitten der Ordnung gibt es manchmal Krieg in mir\nDie Welt schreit laut, doch ich flüster still und sacht\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Interlude]\n\n[Verse]\nLachen klingt so kühl\nAn der[Intense Wand]\nDoch ich fühl das Zittern\nDas mich leise überwiegt\nGesichter voller Hoffnung\nDoch ich greif nur die Hand\nDenn tief in mir brennt Licht\nDas niemand je erkennt\n\n[Chorus]\nAndreas, ich kämpfe auch wenn ich mich oft verlier\nEin Blick aus einem Spiegel zeigt, ich bleib doch hier\nDie Stille singt, doch ich schweige wie gebannt\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Bridge]\nManchmal spür ich, wie die Nacht mich nieder reconociert\nDoch im Schatten meiner Angst wächst noch ein stilles Heer\nManchmal ist Versteckung lieber als das Licht zu sehen\nDoch ich lerne langsam, wie die Grenzen überstehen\n\n[Chorus]\nAndreas, ich falle doch ich stehe irgendwie\nInmitten der Ordnung gibt es manchmal Krieg in mir\nDie Welt schreit laut, doch ich flüster still und sacht\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Interlude]\n\n[Outro]\nVerloren\nDoch im Schweigen nehm ich einen neuen Lauf\nEin Held braucht Zeit für sich und das nimm ich gern in Kauf\nDie Welt dreht laut, doch ich bleibe wie im Traum\nEin Held muss stark sein, um sich nach Halt zu finden\n",
+  "lang": "de",
+  "steps": 8
+ },
+ {
+  "id": "C_cut_C1_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\C_cut_C1.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\C_cut_C1_bal.wav",
+  "windows": [
+   [
+    69.55,
+    72.55
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "An intimate and melancholic singer-songwriter piece led by a clean, fingerpicked acoustic guitar and an earnest, emotive female vocal. The arrangement begins sparsely, establishing a somber and introspective mood. As the song progresses into the chorus, it gently builds with the addition of a subtle bassline, a simple drum machine beat, and atmospheric synth pads that add a layer of warmth and depth. The vocal performance is central, conveying a sense of vulnerability and quiet strength. The track follows a traditional verse-chorus structure, with a brief instrumental interlude featuring the acoustic guitar before a final, reflective outro., 176 bpm, D major, 6/8 time",
+  "lyrics": "[Intro]\n\n[Verse]\nNebel zieht über die Stadt\nIch seh mich nicht mehr klar\nJeder Schritt wie Blei, jeder Tag so sonderbar\nDie Flammen brennen tief in mir\nDoch ich halt sie bald zurück\nMein Herz es schlägt so stumm\nKein Rhythmus mit dem Glück\n\n[Chorus]\nAndreas, ich falle doch ich stehe irgendwie\nInmitten der Ordnung gibt es manchmal Krieg in mir\nDie Welt schreit laut, doch ich flüster still und sacht\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Chorus]\nAndreas, ich kämpfe auch wenn ich mich oft verlier\nEin Blick aus einem Spiegel zeigt, ich bleib doch hier\nDie Stille singt, doch ich schweige wie gebannt\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Bridge]\nManchmal spür ich, wie die Nacht mich nieder reconociert\nDoch im Schatten meiner Angst wächst noch ein stilles Heer\nManchmal ist Versteckung lieber als das Licht zu sehen\nDoch ich lerne langsam, wie die Grenzen überstehen\n\n[Outro]\nVerloren\nDoch im Schweigen nehm ich einen neuen Lauf\nEin Held braucht Zeit für sich und das nimm ich gern in Kauf\nDie Welt dreht laut, doch ich bleibe wie im Traum\nEin Held muss stark sein, um sich nach Halt zu finden\n\n[Instrumental Outro - Acoustic Guitar]\n",
+  "lang": "de",
+  "steps": 8
+ },
+ {
+  "id": "D_reharm_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\D_reharm_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\D_reharm_A3_bal.wav",
+  "windows": [
+   [
+    54.01,
+    57.01
+   ],
+   [
+    74.211,
+    77.211
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 93 bpm, G minor, 2/4 time",
+  "lyrics": "[Intro: Piano]\n\n[Verse 1]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi Nina\nY tu carita, tu carita, Nina\n\n[Pre-Chorus]\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina\n\n[Verse 2]\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nTú lo sabes, que esto no fue un error\nY tú lo sabes, que nadie te va a dar amor\nComo yo, no, no, no, no, no\nComo yo\nTe canto esta canción pa' que me recuerdes\nQue por más que tú me niegues sé que me quieres\nQue tú me quieres\nY que tú me quieres\n[Vocalizing: ooh]\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina~\n\n[Instrumental Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "D_phrase_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\D_phrase_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\D_phrase_A3_bal.wav",
+  "windows": [
+   [
+    139.89,
+    142.89
+   ],
+   [
+    149.991,
+    152.991
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 93 bpm, G minor, 2/4 time, tenor saxophone",
+  "lyrics": "[Intro: Piano]\n\n[Verse 1]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi Nina\nY tu carita, tu carita, Nina\n\n[Pre-Chorus]\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina\n\n[Verse 2]\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nTú lo sabes, que esto no fue un error\nY tú lo sabes, que nadie te va a dar amor\nComo yo, no, no, no, no, no\nComo yo\nTe canto esta canción pa' que me recuerdes\nQue por más que tú me niegues sé que me quieres\nQue tú me quieres\nY que tú me quieres\n[Vocalizing: ooh]\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina~\n\n[Instrumental Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "D_lyrics_A3_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\D_lyrics_A3.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\D_lyrics_A3_bal.wav",
+  "windows": [
+   [
+    54.01,
+    57.01
+   ],
+   [
+    74.215,
+    77.215
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 93 bpm, G minor, 2/4 time",
+  "lyrics": "[Intro: Piano]\n\n[Verse 1]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi Nina\nY tu carita, tu carita, Nina\n\n[Pre-Chorus]\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nYa vete, vete, vete\nNo quiero verte sufrir\nQue el viento se lleve todo\nY me dejes el silencio\nYa vete, vete, vete\nNo quiero verte sufrir\nQue la noche te dé paz\nY me dejes el silencio\n\n[Verse 2]\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nTú lo sabes, que esto no fue un error\nY tú lo sabes, que nadie te va a dar amor\nComo yo, no, no, no, no, no\nComo yo\nTe canto esta canción pa' que me recuerdes\nQue por más que tú me niegues sé que me quieres\nQue tú me quieres\nY que tú me quieres\n[Vocalizing: ooh]\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina~\n\n[Instrumental Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]\n",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "D_repeat_C1_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\D_repeat_C1.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\D_repeat_C1_bal.wav",
+  "windows": [
+   [
+    74.21,
+    77.21
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 93 bpm, G minor, 2/4 time",
+  "lyrics": "[Intro]\n\n[Verse]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi Nina\nY tu carita, tu carita, Nina\n\n[Pre-Chorus]\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina\n\n[Verse]\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nYo necesito que tú vuelvas conmigo\nYo necesito que tú seas mi destino\nTú lo sabes, que esto no fue un error\nY tú lo sabes, que nadie te va a dar amor\nComo yo, no, no, no, no, no\nComo yo\nTe canto esta canción pa' que me recuerdes\nQue por más que tú me niegues sé que me quieres\nQue tú me quieres\nY que tú me quieres\n[Vocalizing: ooh]\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina~\n\n[Instrumental Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]\n",
+  "lang": "es",
+  "steps": 8
+ },
+ {
+  "id": "D_cut_C1_bal",
+  "src": "E:\\ai\\tmp\\sp4\\out\\D_cut_C1.wav",
+  "out": "E:\\ai\\tmp\\sp4\\heal_raw\\D_cut_C1_bal.wav",
+  "windows": [
+   [
+    74.21,
+    77.21
+   ]
+  ],
+  "mode": "balanced",
+  "strength": 0.5,
+  "prompt": "A romantic Latin pop track opens with a clean, arpeggiated piano melody that forms the song's harmonic core. A heartfelt male vocal enters, singing in Spanish with an earnest and emotional delivery. The arrangement builds as a steady, mid-tempo reggaeton-style drum machine beat and a subtle synth bassline kick in, transforming the ballad into a danceable yet tender piece. The chorus is memorable and features layered vocal harmonies for emphasis. The track includes an instrumental break highlighting the piano and synth melody before concluding with a final chorus and a brief, atmospheric piano-led outro., 93 bpm, G minor, 2/4 time",
+  "lyrics": "[Intro]\n\n[Verse]\n¿Cómo te digo que olvidarte no he podido?\nMe acostumbré tanto a que estés al lado mío\nY tu mirada, tu sonrisa\nTan perfecta, tú eres mi Nina\nY tu carita, tu carita, Nina\n\n[Pre-Chorus]\n¿Y qué más da?\nSi tú eres mi debilidad\nEs que eres tú\nLa que cura mis heridas\nY yo aquí\nEsperando por ti\nEsperando que tú vuelvas conmigo\nY que me des tu cariñito\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina\n\n[Chorus]\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que vuelvas conmigo?\nY me des tu cariñito Nina\nY dime, dime, dime\n¿Qué es lo que tengo que hacer\nPara que quedes conmigo?\nY me des tu cariñito Nina~\n\n[Instrumental Outro]\n[Piano, synth pads, and beat continue]\n[Music fades out]\n",
+  "lang": "es",
+  "steps": 8
+ }
+]

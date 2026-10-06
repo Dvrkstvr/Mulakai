@@ -194,5 +194,26 @@ Two nits from pipeline/reviews/M2-code.md (D-075): #1 a line pick survives a REW
 ## Q-053 · deferred · stage 7 (M2 listen) · open
 The user heard REPEAT's second seam (the copy into the next section) as audible on Gertar (D-077; seam 1 smooth). One pair only; p2 unjudged. Options: leave it (YuE2 re-renders the whole song, seams are its call); try un-tying only into the copy (D-066 c alternative) and A/B; a REPEAT note in the review that the seam after the copy may be audible. Revisit with more listens.
 
-## Q-054 · blocking (for the chat feature, not for M2) · stage 1/4 · open
+## Q-054 · blocking (for the chat feature, not for M2) · stage 1/4 · answered → D-081..D-086, D-096 (signed off)
 Chat-first creation and editing (D-079). To settle with the user before scope: what the chat owns vs the scalpel tools; whether the chat replaces Guided Create or sits beside it; conversation memory across renders (per song? per session?); reference-song analysis path (transcribe to score → YuE2 cover) and its limits (licence of the reference, 360 s); what happens to M3/M4 (fold into the chat or keep). Depends on SP-4's result.
+
+## Q-055 · assumable · stage 5 (chat) · open
+D-086 pairs chat and form for creating. Does the same pairing hold for editing a song: chat-first (the thread, with the Editor's dock or a compact version panel as the sidebar) and Editor-first (today's Editor with the chat as a side assistant that fills the dock's verbs)? Default: yes, mirrored, so the scalpel (D-079) is the Editor-first mode. The revised mockup shows it for the owner to confirm.
+
+## Q-056..Q-061 · stage 5 (chat, design/chat-create.html) · assumed → D-087 unless the owner overrules
+Q-056 assumable: the start screen and the sidebar remember their last state; the first open is chat-first with the sidebar open. Q-057 assumable: a hand edit during a turn wins, the assistant skips that field and says so (alternative: lock fields while a turn runs). Q-058 assumable: assistant off or failing falls back to form-first at full width with the reason and RETRY; a failed turn changes nothing; an unset LLM_API_URL hides the toggle and the panel. Q-059 assumable: sky marks "the assistant just filled this" (reuses the scope hue; one DESIGN.md token if it reads as a target). Q-060 deferred: START FROM A SONG I HAVE / ONE TRACK in chat-first arrive with C3, with a FORM ▸ link until then. Q-061 deferred: does form-first's DESCRIBE IT text also go to the thread?
+
+## Q-062 · assumable · stage 5 (chat, D-089) · open
+Always analyzing every version costs GPU time and has a side effect. (a) Analysis is a queued job (`analyze` kind) after each save, so it waits behind renders and never runs beside the planner or YuE2; until it finishes, the strip and marking show the previous analysis marked "updating". (b) A version ACE-Step made gets a *transcribed* score (yue-server transcriber), not YuE2's own: is such a song score-editable again (SCORE ops on the transcription, re-rendered by YuE2 as a cover, M3's `melody` path), or does the transcription only feed sections, context and marking? Default: context and marking only; score editing on transcriptions is M3/C3 scope. (c) The marked range snaps to bars (default) or to beats?
+
+## Q-063..Q-070 · stage 5 (chat, design/chat-song.html) · assumed → D-091 unless the owner overrules
+Q-063 player placement: answered → D-095, above the composer (C). Q-064 a saved version swaps in place, keeping position and play state. Q-065 the mark is sticky across turns; each sent message keeps a frozen echo of the mark it carried. Q-066 a stale mark holds SEND until USE BARS or CLEAR MARK. Q-067 while a new version's analysis runs, the old reading stays (dimmed) only if the edit moved no bars; otherwise the strip is hatched and marking works by raw time. Q-068 the mark's grips, partial fill and shift-click need one DESIGN.md clause. Q-069 a turn sent during analysis queues behind it. Q-070 deferred: section names on transcribed songs (PART n, unverified); A/B by bar after REPEAT/CUT.
+
+## Q-071 · blocking (chat design) · stage 5 · answered → D-093
+How the chat shows lyrics: the chat-song.html chip text is too small to read. Approaches compared in design/chat-lyrics.html; the owner picks.
+
+## Q-072 · assumable · stage 5 (chat, D-093) · assumed → D-093
+The sidebar lyric sheet with no mark: a compact list of section names with line counts, click one to mark it (vs the whole sheet, or nothing). A mark across two sections shows both parts with a divider.
+
+## Q-073..Q-077 · stage 5 (chat, design/chat-lyrics.html) · assumed → D-094 unless the owner overrules
+Q-073 a pending REWRITE LYRICS shows its diff twice: OLD | NEW on the proposal card (the commit view, survives a collapsed sidebar) and inline in the panel, old struck above new. Q-074 a proposal for an unmarked section shows that section in the panel tagged PROPOSED and leaves the mark alone. Q-075 the panel reads and marks only; words change by chat or in the Editor. Q-076 click marks a line, shift-click extends, double-click plays from it (as the Editor lane). Q-077 deferred: the collapsed-sidebar rail text; the chip's WHAT IT SEES showing the words.

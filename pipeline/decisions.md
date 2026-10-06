@@ -370,3 +370,70 @@ REVISE re-check on 0629e20 (pipeline/verify/M2/revise/revise-recheck.md, 27 pres
 ## D-079 · 2026-10-05 · direction (after M2) · by: user
 The chat is to be the default way to create and edit songs: describe a song, or analyze an existing/reference song, go from nothing or the reference to the first generation, then iterate on the song progressively by talking with the LLM. The direct tools (verbs, prompts, repaint, add layer, SCORE) stay as the "scalpel" for specific edits. Training ACE-Step to YuE2's quality was raised and is not the path (conductor's advice: a dataset- and GPU-scale project; LoRA teaches style, not overall quality; LoRA stays post-1.0).
 - consequence: a core-promise change (brief "generate → repaint → layer → version → export" becomes "talk a song into being, scalpel when needed"); needs a dated PLAN.md section and a scope pass before code (Q-054). The keep-unchanged-parts spike (SP-4) comes first, because a chat that re-rolls the whole song on every turn does not converge.
+
+## D-080 · 2026-10-06 · stage 3 (SP-4) · by: assumed (conductor), pending the user's listen
+SP-4 machine verdicts (pipeline/spikes/SP-4-keep-unchanged/RESULT.md): the chat's default for local edits is A3, render then splice the changed bars back (groove-snapped downbeat cut, 1-beat equal-power crossfade, level-matched span); REPEAT/CUT become audio-only edits (C) with no YuE2 render; no ACE-Step seam healing (B disproven); D (YuE2 forced prefix) only if the listen finds the A3 joins. The PLAN.md chat draft's decision 6 now says so. Settled by the user's 20-pair listen (spikes/SP-4-keep-unchanged/listen); the cut points inside sung words (15 of 36) are the first thing to listen for.
+- instead of: whole-song re-renders for every turn (21-87% of untouched bars move > 1 dB today).
+
+## D-081 · 2026-10-06 · stage 1/4 (chat, Q-054 #2) · by: user
+The chat keeps one thread per song: stored in the database, survives reloads, deleted with the song; reopening a song continues its conversation (PLAN.md chat draft, decision 4).
+- instead of: per-session memory; one global thread.
+
+## D-082 · 2026-10-06 · stage 1/4 (chat, Q-054 #4) · by: user
+When a request is unclear the assistant proposes with its assumption stated ("assuming the second chorus") and asks only when it cannot propose anything.
+- instead of: asking before proposing; a follow-up question on every proposal.
+
+## D-083 · 2026-10-06 · stage 1/4 (chat, Q-054 #5) · by: user
+The assistant may propose ACE-Step instead of YuE2 for a first take when a request fits it better. Consequence: such a song is not score-eligible (D-006), so its later turns use the scalpel actions (repaint, add layer, split) and the SP-4 splice does not apply; the recipe card names the engine and says so in its consequence line. YuE2 stays the default (D-015).
+- instead of: YuE2 always; asking each time.
+
+## D-084 · 2026-10-06 · stage 1/4 (chat, Q-054 #3) · by: user
+A reference song's audio is kept with the song as its source after the analysis (re-analyze or A/B against it later); it stays on this machine.
+- instead of: deleting it after the analysis; referencing library songs only.
+
+## D-085 · 2026-10-06 · stage 1/4 (chat, Q-054 #6) · by: user
+Tempo and key edits offer both per turn: RE-RENDER (whole-song YuE2 render, the consequence line says the whole song changes) and SHIFT/STRETCH (pitch-shift / time-stretch of the current take, same performance). SHIFT/STRETCH is built only if a spike passes (SP-6, scheduled before C2's tempo/key turns); until then the card offers RE-RENDER alone.
+- instead of: re-render only; waiting on the spike before any tempo/key turn.
+
+## D-086 · 2026-10-06 · stage 5 (chat, Q-054 #1) · by: user
+Two ways in, over one shared draft (the user, on seeing design/chat-create.html: "a chat where the form is only optional as the side bar or something (chat first, llm will do almost all of the editing). the form where the chat is like an assistant who will help and fill in the form"):
+1. **Chat-first** (the default, D-079): the conversation is the main surface; the form is an optional, collapsible sidebar showing the fields the LLM fills; the LLM does almost all of the editing.
+2. **Form-first**: today's Guided Create form is the main surface; the chat is a side assistant that helps and fills in the form's fields.
+Both write the same draft, so switching keeps everything; CREATE SONG / GENERATE commits from either. Assumed (conductor): chat-first is the start screen (D-079); the same pairing for editing an existing song (the conversation beside the Editor's dock) is the next question, Q-055.
+- instead of: A (chat with a FORM tab), B (chat only), C (form inside the chat).
+
+## D-087 · 2026-10-06 · stage 5 (chat mockup) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-create.html (CH-1..CH-10) is the layout spec for D-086 on these defaults: CREATE SONG and its consequence line live on the proposal card only (CH-2); sidebar 360 px, open on first use then remembered, a 38 px rail when collapsed (CH-3); "just filled" = sky wash + ASSISTANT tag + the old value struck, cleared on the next message or a hand edit (CH-4); UNDO TURN (CH-5); fields stay editable during a turn and the assistant skips touched fields (CH-6, Q-057); the form-first assistant panel is 300 px and never commits (CH-7); the fallbacks of Q-058 (CH-8); editing mirrors creating (CH-9, Q-055 default); Library CREATE opens the remembered mode (CH-10, Q-056).
+- instead of: commit on the sidebar foot or in both places; locking fields during a turn; expanding the sidebar in place when the assistant is off.
+
+## D-088 · 2026-10-06 · stage 5 (chat, Q-055) · by: user
+Editing mirrors creating: chat-first (the song's thread, versions and the dock as the sidebar) and Editor-first (today's Editor with the chat as a side assistant that fills the dock's verbs). The chat-create.html layout is signed off ("layout is awesome").
+
+## D-089 · 2026-10-06 · stage 5 (chat) · by: user
+"Always have the latest version of the song playable": the chat view keeps a player for the song's active version in view at all times; a new version replaces it the moment it is saved.
+And "always analyze the song so lyrics, abc and sections are up to date": every new version (first take, score edit, splice, repaint, add layer, any engine) is analyzed after it is saved: word timings (lyrics-server), a score with sections (YuE2's own score when YuE2 made the version, otherwise yue-server's transcriber), so the thread's song-state block, the section strip and the marking (D-090) always match what plays. Consequences in Q-062.
+
+## D-090 · 2026-10-06 · stage 5 (chat) · by: user
+The user marks a part of the song as context for the chat, like in the Editor: click a section (e.g. the chorus) to mark it, drag to extend it a bit; the chat turn gets the marked range as data alongside the prompt (bars, seconds, the sections and lyric lines it covers). Extends F-032's referent (section / lyric line) with a free bar range that may cross a section boundary.
+
+## D-091 · 2026-10-06 · stage 5 (chat mockup 2) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-song.html (CS-1..CS-11) is the spec for D-089/D-090 on the Q-063..Q-069 defaults: the player pinned at the top of the main column, in view with the sidebar collapsed; a new version swaps in place keeping position and play state, BACK TO v3 is an A/B and USE v3 activates; analysis failed → hatched strip, reason + RETRY, marking by raw time; an ACE-Step version gets a transcribed score for context and marking only (Q-062 b); marks snap to bars; the mark is sticky with a frozen echo on each sent message; "what the assistant sees" disclosure on the chip; Editor-first uses the Editor's own (unsnapped) selection; a stale mark is never remapped silently and holds SEND.
+- instead of: the player above the composer; resetting play on a new version; a one-shot mark cleared after sending.
+
+## D-092 · 2026-10-06 · stage 5 (chat mockup 2) · by: user
+design/chat-song.html is signed off except the lyrics ("everything else looks great as is"). Player: "either pinned at the top or above the composer" — both acceptable to the owner; the full chat mockup (design/chat-lyrics.html) draws the final layout with A (top) as the default unless that page shows C reads better. Lyrics as a small chip text "are looking a little confusing": a new mockup compares lyric approaches in the fully designed chat (Q-071).
+
+## D-093 · 2026-10-06 · stage 5 (chat, Q-071) · by: user
+Lyrics live in a sheet in the sidebar. No active playback of lyrics (no current-line follow or karaoke). The sheet shows only the lyrics of the selected (marked) section, to reduce clutter. Assumed (conductor, Q-072): with no mark the panel lists the section names with line counts, click one to mark it; a mark across two sections shows both parts with a divider.
+- instead of: a lyric lane under the waveform, a WAVE | LYRICS toggle in the player, lyrics inside the thread only, or the whole sheet always.
+
+## D-094 · 2026-10-06 · stage 5 (chat mockup 3) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-lyrics.html (LY-1..LY-6) is the spec for D-093: the sidebar lyrics panel with no mark lists sections (name, bars, line count, first line; click marks), with a mark shows that part only (a two-section mark with a dashed break and "n more lines not marked"), dims while a new version is read, shows a rust RETRY on a failed read; Q-073..Q-076 defaults. Player A (top) stays. DESIGN.md gets a clause for the panel in the chat's first UI PR.
+
+## D-095 · 2026-10-06 · stage 5 (chat design sign-off) · by: user
+The chat design is signed off with two changes: the player sits above the composer (design/chat-lyrics.html frame 3, not frame 1); the chat's send control must not resemble play/pause, so it is the outline text button `SEND ↵` (all three chat mockups updated). The specs are design/chat-create.html, chat-song.html and chat-lyrics.html, with D-086..D-094 as recorded, Q-063 closed (C).
+- instead of: the player pinned at the top; an acid hexagon ▶ send next to the player's ❚❚.
+
+## D-096 · 2026-10-06 · stage 1/4 (chat) · by: user
+The PLAN.md section "Chat: Talk a Song Into Being" is signed off now ("sign off now and start scoping"), with decision 6 (how an edit turn renders) pending the owner's SP-4 listen. The Grand Goal and brief.md's core promise carry a pointer to it. Scope (stage 4) starts for C0..C4.
+- instead of: signing off after the SP-4 listen.

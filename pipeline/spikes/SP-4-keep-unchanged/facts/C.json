@@ -1,0 +1,232 @@
+{
+ "ok": true,
+ "error": null,
+ "bar_sums": [],
+ "messages": [],
+ "chords_present": true,
+ "bpm": 85,
+ "seconds": 217.4,
+ "tokens": 1780,
+ "facts": {
+  "header": {
+   "meter": "4/4",
+   "unit": "1/32",
+   "bpm": 85,
+   "key": "Dm",
+   "bars": 77,
+   "seconds": 217.4,
+   "units_per_quarter": 8
+  },
+  "key_notes": "D E F G A Bb C",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 5
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 6,
+    "to_bar": 14
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 15,
+    "to_bar": 22
+   },
+   {
+    "index": 4,
+    "label": "interlude",
+    "from_bar": 23,
+    "to_bar": 26
+   },
+   {
+    "index": 5,
+    "label": "verse",
+    "from_bar": 27,
+    "to_bar": 35
+   },
+   {
+    "index": 6,
+    "label": "chorus",
+    "from_bar": 36,
+    "to_bar": 43
+   },
+   {
+    "index": 7,
+    "label": "bridge",
+    "from_bar": 44,
+    "to_bar": 52
+   },
+   {
+    "index": 8,
+    "label": "chorus",
+    "from_bar": 53,
+    "to_bar": 60
+   },
+   {
+    "index": 9,
+    "label": "interlude",
+    "from_bar": 61,
+    "to_bar": 68
+   },
+   {
+    "index": 10,
+    "label": "outro",
+    "from_bar": 69,
+    "to_bar": 77
+   }
+  ],
+  "lyric_blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 7,
+    "first_line": "Nebel zieht über die Stadt"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Andreas, ich falle doch ich stehe irgendwie"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Lachen klingt so kühl"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Andreas, ich kämpfe auch wenn ich mich oft verlier"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "Manchmal spür ich, wie die Nacht mich nieder recon"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 5,
+    "first_line": "Verloren"
+   },
+   {
+    "index": 8,
+    "tag": "[Instrumental Outro - Acoustic Guitar]",
+    "occurrence": 1,
+    "lines": 0,
+    "first_line": ""
+   }
+  ],
+  "bar_map": [
+   "-- S1 intro --",
+   "(meter M:4/4 from here: one bar = 32 units)",
+   "1: Dm@4.5 | V:rest | I:0",
+   "2: Dm@1 | V:rest | I:12",
+   "3: Bb@1 | V:rest | I:12",
+   "4: F@1 | V:rest | I:11",
+   "5: C@1 | V:rest | I:9",
+   "-- S2 verse --",
+   "6: Dm@1 | V:sung | I:0",
+   "7: Bb@1 | V:sung | I:0",
+   "8: F@1 | V:sung | I:0",
+   "9: C@1 | V:sung | I:0",
+   "10: Dm@1 | V:sung | I:0",
+   "11: Bb@1 | V:sung | I:0",
+   "12: F@1 | V:sung | I:0",
+   "13: C@1 | V:sung | I:0",
+   "14: C@1 | V:sung | I:0",
+   "-- S3 chorus --",
+   "15: Dm@1 | V:sung | I:0",
+   "16: Bb@1 | V:sung | I:0",
+   "17: F@1 | V:sung | I:0",
+   "18: C@1 | V:sung | I:0",
+   "19: Dm@1 | V:sung | I:0",
+   "20: Bb@1 | V:sung | I:0",
+   "21: F@1 | V:sung | I:0",
+   "22: C@1 | V:sung | I:3",
+   "-- S4 interlude --",
+   "23: Dm@1 | V:rest | I:5",
+   "24: Bb@1 | V:rest | I:4",
+   "25: F@1 | V:rest | I:4",
+   "26: C@1 | V:rest | I:3",
+   "-- S5 verse --",
+   "27: Dm@1 | V:sung | I:0",
+   "28: Bb@1 | V:sung | I:0",
+   "29: F@1 | V:sung | I:0",
+   "30: C@1 | V:sung | I:0",
+   "31: Dm@1 | V:sung | I:0",
+   "32: Bb@1 | V:sung | I:0",
+   "33: F@1 | V:sung | I:0",
+   "34: C@1 | V:sung | I:0",
+   "35: C@1 | V:sung | I:0",
+   "-- S6 chorus --",
+   "36: Dm@1 | V:sung | I:0",
+   "37: Bb@1 | V:sung | I:0",
+   "38: F@1 | V:sung | I:0",
+   "39: C@1 | V:sung | I:0",
+   "40: Dm@1 | V:sung | I:0",
+   "41: Bb@1 | V:sung | I:0",
+   "42: F@1 | V:sung | I:0",
+   "43: C@1 | V:sung | I:0",
+   "-- S7 bridge --",
+   "44: Bb@1 | V:sung | I:0",
+   "45: Dm@1 | V:sung | I:0",
+   "46: F@1 | V:sung | I:0",
+   "47: C@1 | V:sung | I:0",
+   "48: Bb@1 | V:sung | I:0",
+   "49: Dm@1 | V:sung | I:0",
+   "50: F@1 | V:sung | I:0",
+   "51: C@1 | V:sung | I:0",
+   "52: C@1 | V:sung | I:0",
+   "-- S8 chorus --",
+   "53: Dm@1 | V:sung | I:0",
+   "54: Bb@1 | V:sung | I:0",
+   "55: F@1 | V:sung | I:0",
+   "56: C@1 | V:sung | I:0",
+   "57: Dm@1 | V:sung | I:0",
+   "58: Bb@1 | V:sung | I:0",
+   "59: F@1 | V:sung | I:0",
+   "60: C@1 | V:sung | I:3",
+   "-- S9 interlude --",
+   "61: Dm@1 | V:rest | I:4",
+   "62: Bb@1 | V:rest | I:4",
+   "63: F@1 | V:rest | I:4",
+   "64: C@1 | V:rest | I:4",
+   "65: Dm@1 | V:rest | I:4",
+   "66: Bb@1 | V:rest | I:4",
+   "67: F@1 | V:rest | I:4",
+   "68: C@1 | V:sung | I:1",
+   "-- S10 outro --",
+   "69: Dm@1 | V:sung | I:0",
+   "70: Bb@1 | V:sung | I:0",
+   "71: F@1 | V:sung | I:0",
+   "72: C@1 | V:sung | I:3",
+   "73: Dm@1 | V:rest | I:4",
+   "74: Bb@1 | V:rest | I:4",
+   "75: F@1 | V:rest | I:4",
+   "76: C@1 | V:rest | I:3",
+   "77: Dm@1 | V:rest | I:1"
+  ]
+ }
+}
