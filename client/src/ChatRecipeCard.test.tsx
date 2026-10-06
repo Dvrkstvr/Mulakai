@@ -83,4 +83,55 @@ describe('ChatRecipeCard', () => {
     expect(out).toContain('DONE · v1 SAVED');
     expect(out).not.toContain('CREATE SONG');
   });
+  it('Q-101: a card that shows the proposal as it was reads the meter from the wire recipe (camel-cased by the server)', () => {
+    const out = html({ kind: 'superseded' }, { live: { ...RECIPE, timeSignature: '3/4' } });
+    expect(out).toContain('68 BPM · A MINOR · 4/4');
+  });
+});
+
+describe('ChatRecipeCard with a reference (F-063, F-064; chat-reference.html 3a, 3b)', () => {
+  const ref = (use: 'cover' | 'borrow', o: Partial<NonNullable<ChatRecipeBody['reference']>> = {}) => ({
+    referenceId: 'ref1', use, borrowed: ['bpm', 'key', 'timeSignature', 'structure'] as ChatRecipeBody['changed'], missing: [], note: null, ...o,
+  });
+  const card = (b: ChatRecipeBody, view: CardView = PENDING, o: { live?: ChatDraftFields; blockers?: string[] } = {}) => renderToStaticMarkup(
+    <ChatRecipeCard
+      message={{ ...M, body: b }} view={view} live={o.live ?? RECIPE} blockers={o.blockers ?? []} ahead={0} doneNumber={1} canAsk
+      onCreate={vi.fn()} onAskAgain={vi.fn()} onCancelQueued={vi.fn()}
+    />,
+  );
+
+  it('a cover: PROPOSAL · COVER, the rights line, CREATE COVER (acid) with its consequence, never CREATE SONG', () => {
+    const out = card({ ...body, reference: ref('cover') });
+    expect(out).toContain('PROPOSAL · COVER');
+    expect(out).toContain('nothing runs yet');
+    expect(out).toContain('Stays on this machine. You are responsible for the rights to this recording.');
+    expect(out).toContain('keeps the melody, new words and style; renders on YuE2 from the transcribed score, about 3 min · the new words are fitted by YuE2, not guaranteed');
+    expect(out).toMatch(/<button type="button" class="acid chat-create"><span>CREATE COVER/);
+    expect(out).not.toContain('CREATE SONG');
+  });
+  it('a cover with a server blocker: CREATE COVER off with the reason', () => {
+    const out = card({ ...body, reference: ref('cover') }, PENDING, { blockers: ['the reading is gone: read it again'] });
+    expect(out).toMatch(/class="acid chat-create" disabled=""><span>CREATE COVER/);
+    expect(out).toContain('the reading is gone: read it again');
+  });
+  it('a cover done folds to one line under its own header', () => {
+    expect(card({ ...body, reference: ref('cover') }, { kind: 'done' })).toContain('PROPOSAL · COVER · LUZ SOBRE EL MAR');
+  });
+  it('a borrow with no key: NEW SONG that borrows, NO KEY FOUND in rust, CREATE SONG names what was borrowed', () => {
+    const out = card({ ...body, reference: ref('borrow', { borrowed: ['bpm', 'timeSignature', 'structure'], missing: ['key'] }) }, PENDING, { live: { ...RECIPE, key: null } });
+    expect(out).toContain('PROPOSAL · NEW SONG');
+    expect(out).toContain('borrows from the reference');
+    expect(out).toContain('68 BPM · KEY · AUTO · 4/4');
+    expect(out).toMatch(/chat-er[^"]*"><div><b>NO KEY FOUND<\/b> in the reference · left blank, YuE2 decides when it renders/);
+    expect(out).toContain('Renders a new song on YuE2, about 3 min · tempo, meter and structure from the reference, words and melody are new · lands in Library');
+    expect(out).toMatch(/<span>CREATE SONG/);
+  });
+  it('a missing value the person filled since is no longer said missing', () => {
+    const out = card({ ...body, reference: ref('borrow', { missing: ['key'] }) });
+    expect(out).not.toContain('NO KEY FOUND');
+  });
+  it('a cover that became a borrow says why (F-063 edge)', () => {
+    const out = card({ ...body, reference: ref('borrow', { note: 'no cover: the score is longer than YuE2 plans in one take' }) });
+    expect(out).toContain('no cover: the score is longer than YuE2 plans in one take');
+  });
 });
