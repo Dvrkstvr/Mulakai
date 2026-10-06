@@ -2,8 +2,8 @@
 import { describe, it, expect } from 'vitest';
 import type { ChatDraftFields } from './api/chat';
 import {
-  assistantOffLine, blockersLine, cardStateLine, changedLine, createFailedLine, createJobLine, failedTitle, keyName,
-  newChatConsequence, railLine, recipeConsequence, recipeSummary, skippedLine, turnLine, turnNote,
+  assistantOffLine, blockersLine, cardStateLine, changedLine, createFailedLine, createJobLine, doneLine, failedTitle, keyName,
+  newChatConsequence, railLine, recipeConsequence, recipeSummary, skippedLine, truncatedLine, turnLine, turnNote,
 } from './chatCopy';
 import { INITIAL_TURN, type TurnState } from './chatTurn';
 
@@ -73,5 +73,11 @@ describe('chatCopy', () => {
     expect(newChatConsequence(3)).toBe('Drops this draft and its 3 messages · the Library is untouched');
     expect(newChatConsequence(1)).toBe('Drops this draft and its 1 message · the Library is untouched');
     expect(newChatConsequence(0)).toBe('Drops this draft · the Library is untouched');
+  });
+  it('a take cut at the length cap reads TRUNCATED in the card header and the song card, never DONE (F-044, D-025)', () => {
+    expect(doneLine(1)).toBe('DONE · v1 SAVED');
+    expect(doneLine(1, true)).toBe('TRUNCATED · v1 SAVED');
+    expect(truncatedLine('6:00', 1)).toBe('TRUNCATED at 6:00, the song is cut short · v1 is saved; open it in the Editor to shorten and re-render');
+    expect(truncatedLine(null, 1)).toBe('TRUNCATED, the song is cut short · v1 is saved; open it in the Editor to shorten and re-render');
   });
 });

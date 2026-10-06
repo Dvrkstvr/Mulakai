@@ -165,7 +165,10 @@ export const SUPERSEDED_BODY ='A newer proposal is below and its fields are in t
 export const EXPIRED_BODY = 'when the server restarted. Your fields are still in the sidebar; ask again for a new card.';
 export const ASK_AGAIN = 'ASK AGAIN';
 export const ASK_AGAIN_TEXT = 'propose this again from the form as it is now';
-export const doneLine = (number: number | null) => `DONE · v${number ?? 1} SAVED`;
+/** A take cut at the length cap is saved, but never DONE (D-025): the header says TRUNCATED, the song card says why. */
+export const doneLine = (number: number | null, truncated = false) => `${truncated ? 'TRUNCATED' : 'DONE'} · v${number ?? 1} SAVED`;
+export const truncatedLine = (length: string | null, number: number) =>
+  `TRUNCATED${length ? ` at ${length}` : ''}, the song is cut short · v${number} is saved; open it in the Editor to shorten and re-render`;
 export const songCardMeta = (length: string | null) => [length, 'YUE2 · IN LIBRARY'].filter(Boolean).join(' · ');
 export const OPEN_FAILED = "COULDN'T OPEN THE CHAT";
 export const DROP_DRAFT = 'DROP DRAFT';

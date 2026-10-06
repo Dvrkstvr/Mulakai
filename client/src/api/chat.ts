@@ -47,7 +47,7 @@ export interface ChatRecipeBody {
 export interface ChatAskBody { chat_v: 1; choices: string[] }
 /** `cause: 'offline'` = the planner did not answer (ASSISTANT OFF); anything else is a failed turn. */
 export interface ChatFailedBody { chat_v: 1; reasons: string[]; cause: string }
-export interface ChatSongBody { chat_v: 1; seconds: number | null; label: string; number: number }
+export interface ChatSongBody { chat_v: 1; seconds: number | null; label: string; number: number; truncated?: boolean }
 export type ChatMessageBody = ChatUserBody | ChatRecipeBody | ChatAskBody | ChatFailedBody | ChatSongBody;
 
 export interface ChatMessageView {

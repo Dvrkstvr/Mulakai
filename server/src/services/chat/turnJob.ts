@@ -11,7 +11,7 @@ import { config } from '../../config.js';
 import { db } from '../../db/index.js';
 import { cancelQueued } from '../genQueue.js';
 import { queueJob } from '../jobRunner.js';
-import { abortJob, wasAborted, type Job } from '../jobRegistry.js';
+import { abortJob, getJob, wasAborted, type Job } from '../jobRegistry.js';
 import { songTitle } from '../queueGuards.js';
 import { contextPostflight, contextPreflight } from '../score/contextGuard.js';
 import { askPlanner } from '../score/plannerClient.js';
@@ -133,20 +133,25 @@ function causeOf(job: Job, err: unknown): TurnCause {
 export function startChatTurn(threadId: string, user: ChatMessage, songId: string | null, deps: TurnDeps = turnDeps()): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
   const call = new AbortController();
-  turns.set(job.id, { threadId, messageId: user.id });
   const info = { kind: 'plan' as const, label: 'chat turn', title: songId ? songTitle(songId) : 'new song chat', ...(songId ? { songId } : {}) };
-  return queueJob(info, job, async () => {
-    try {
-      await runTurn(job, threadId, user, deps, call.signal);
-    } catch (err) {
-      const cause = causeOf(job, err);
-      const reasons = err instanceof TurnError && cause !== 'cancelled' ? err.reasons : [cause === 'cancelled' ? 'cancelled' : (err instanceof Error ? err.message : String(err))];
-      writeFailed(threadId, reasons, cause);
-      if (!wasAborted(job)) throw err; // an aborted turn stays failed with 'Aborted', as markAborted left it
-    } finally {
-      turns.delete(job.id);
-    }
-  }, 'running', () => call.abort());
+  turns.set(job.id, { threadId, messageId: user.id }); // before queueJob: the body may start (and settle) inside it
+  try {
+    return queueJob(info, job, async () => {
+      try {
+        await runTurn(job, threadId, user, deps, call.signal);
+      } catch (err) {
+        const cause = causeOf(job, err);
+        const reasons = err instanceof TurnError && cause !== 'cancelled' ? err.reasons : [cause === 'cancelled' ? 'cancelled' : (err instanceof Error ? err.message : String(err))];
+        writeFailed(threadId, reasons, cause);
+        if (!wasAborted(job)) throw err; // an aborted turn stays failed with 'Aborted', as markAborted left it
+      } finally {
+        turns.delete(job.id);
+      }
+    }, 'running', () => call.abort());
+  } catch (err) {
+    turns.delete(job.id); // QueueFullError: nothing was queued
+    throw err;
+  }
 }
 
 /** CANCEL: queued -> out of the line, with a `cancelled` reply; thinking -> abort the call, the body
@@ -159,5 +164,9 @@ export function cancelTurn(jobId: string): { cancelled: true } | { aborted: true
     writeFailed(turn.threadId, ['cancelled before it started'], 'cancelled');
     return { cancelled: true };
   }
-  return abortJob(jobId) ? { aborted: true } : null;
+  if (!abortJob(jobId)) return null;
+  // Cancelled now, so a poll during the unload reads CANCELLED, not a plain failure (D-116).
+  const job = getJob(jobId);
+  if (job) job.cancelled = true;
+  return { aborted: true };
 }

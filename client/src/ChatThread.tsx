@@ -43,7 +43,8 @@ export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
   const sentRev = (msgs.find((m) => m.id === turn.messageId)?.body as ChatUserBody | null)?.sentRev;
   const touched = turnRunning(turn) && sentRev !== undefined
     ? touchedSinceSend(KEYS.filter((k) => k !== 'engine' && skipsAtReply({ draft, pending, filled: {}, assistantRev: {} }, k, sentRev))) : null;
-  const doneNumber = latestSong(thread)?.number ?? null;
+  const done = latestSong(thread);
+  const doneNumber = done?.number ?? null;
   const retry = async () => { await chat.loadStatus(); await chat.retry(); };
   const askAgain = () => { chat.type(ASK_AGAIN_TEXT); void chat.send(); };
 
@@ -77,7 +78,7 @@ export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
             {b && skippedLine(b.skipped) && <div className="chat-hn">{skippedLine(b.skipped)}</div>}
           </div>
           <ChatRecipeCard
-            message={m} view={cardView(m, commit)} live={live} blockers={blockers} ahead={ahead} doneNumber={doneNumber}
+            message={m} view={cardView(m, commit)} live={live} blockers={blockers} ahead={ahead} doneNumber={doneNumber} doneTruncated={Boolean(done?.truncated)}
             canAsk={!turnRunning(turn) && !offCause} onCreate={(id) => void chat.create(id)} onAskAgain={askAgain}
             onCancelQueued={() => commit?.jobId && void api.cancelJob(commit.jobId).catch(() => undefined)}
           />
