@@ -214,3 +214,6 @@ How the chat shows lyrics: the chat-song.html chip text is too small to read. Ap
 
 ## Q-072 · assumable · stage 5 (chat, D-093) · assumed → D-093
 The sidebar lyric sheet with no mark: a compact list of section names with line counts, click one to mark it (vs the whole sheet, or nothing). A mark across two sections shows both parts with a divider.
+
+## Q-073..Q-077 · stage 5 (chat, design/chat-lyrics.html) · assumed → D-094 unless the owner overrules
+Q-073 a pending REWRITE LYRICS shows its diff twice: OLD | NEW on the proposal card (the commit view, survives a collapsed sidebar) and inline in the panel, old struck above new. Q-074 a proposal for an unmarked section shows that section in the panel tagged PROPOSED and leaves the mark alone. Q-075 the panel reads and marks only; words change by chat or in the Editor. Q-076 click marks a line, shift-click extends, double-click plays from it (as the Editor lane). Q-077 deferred: the collapsed-sidebar rail text; the chip's WHAT IT SEES showing the words.

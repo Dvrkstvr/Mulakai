@@ -426,3 +426,6 @@ design/chat-song.html is signed off except the lyrics ("everything else looks gr
 ## D-093 · 2026-10-06 · stage 5 (chat, Q-071) · by: user
 Lyrics live in a sheet in the sidebar. No active playback of lyrics (no current-line follow or karaoke). The sheet shows only the lyrics of the selected (marked) section, to reduce clutter. Assumed (conductor, Q-072): with no mark the panel lists the section names with line counts, click one to mark it; a mark across two sections shows both parts with a divider.
 - instead of: a lyric lane under the waveform, a WAVE | LYRICS toggle in the player, lyrics inside the thread only, or the whole sheet always.
+
+## D-094 · 2026-10-06 · stage 5 (chat mockup 3) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-lyrics.html (LY-1..LY-6) is the spec for D-093: the sidebar lyrics panel with no mark lists sections (name, bars, line count, first line; click marks), with a mark shows that part only (a two-section mark with a dashed break and "n more lines not marked"), dims while a new version is read, shows a rust RETRY on a failed read; Q-073..Q-076 defaults. Player A (top) stays. DESIGN.md gets a clause for the panel in the chat's first UI PR.
