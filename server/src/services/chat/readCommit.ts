@@ -5,16 +5,18 @@
  * appends the reading card and queues the reading; the analyze card holds the reading's job id
  * (committing while it runs). When the reading saves, the follow-up turn re-asks the person's request
  * that led to the card and the reading card's job id moves to it (D-129); a follow-up that cannot
- * queue is a `failed` line. RE-ANALYZE: the same checks on a reference, a new reading card, no turn.
+ * queue is a `failed` line. A READ whose reading saved nothing (failed, cancelled, lost) can be pressed again: the
+ * same reference, a new reading card, the follow-up turn (C3 review 3). RE-ANALYZE: the same checks on a reference, a new reading card, no turn.
  */
 import { db } from '../../db/index.js';
 import { QueueFullError } from '../genQueue.js';
-import type { Job } from '../jobRegistry.js';
+import { getJob, type Job } from '../jobRegistry.js';
 import { takeRunning } from './createFromDraft.js';
 import { gpuGuard } from './gpuGuard.js';
 import { appendMessage, listMessages, messageById, updateMessage } from './messageStore.js';
 import { analyzeById, proposalLife } from './proposalStore.js';
 import { readingOf, startReading, type ReadingOptions } from './readingJob.js';
+import { unreadCard } from './messageView.js';
 import { materialise } from './readTarget.js';
 import { fromLibrary, getReference, type Reference } from './referenceStore.js';
 import { threadById } from './threadStore.js';
@@ -89,14 +91,18 @@ export async function readFromCard(threadId: string, proposalId: string, deps: R
   if (life === 'superseded') return { reason: 'a newer proposal replaced this one' };
   const card = messageById(proposal.messageId);
   if (!card) return { reason: 'this proposal expired: ask again' };
-  if (card.jobId) return { reason: 'this card was already read' };
+  const messages = listMessages(threadId);
+  const unread = card.jobId ? unreadCard(card, messages, getJob(card.jobId)) : null;
+  if (card.jobId && !unread) return { reason: 'this card was already read' };
   if (thread.songId) return { reason: ON_SONG };
-  const origin = listMessages(threadId).filter((m) => m.role === 'user' && m.seq < card.seq).at(-1);
+  const origin = messages.filter((m) => m.role === 'user' && m.seq < card.seq).at(-1);
   if (!origin) return { reason: 'the request behind this card is gone: ask again' };
   if (deps.busy(threadId)) return { reason: BUSY };
   const refused = await deps.guard();
   if (refused) return { reason: refused };
-  const target = await materialise(threadId, proposal.target, deps.library);
+  // READ again after a reading that saved nothing: the same reference (a library song is not copied twice).
+  const again = unread ? getReference((unread.body as ReadingBody).referenceId) : null;
+  const target = again?.threadId === threadId ? { reference: again } : await materialise(threadId, proposal.target, deps.library);
   if ('reason' in target) return target;
   return begin(threadId, target.reference, deps, { analyzeId: card.id, origin });
 }

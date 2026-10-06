@@ -16,6 +16,7 @@ const { attach, draftThread, resetDraftThread } = await import('./threadStore.js
 const store = await import('./referenceStore.js');
 const { readCommitDeps, readFromCard, reread } = await import('./readCommit.js');
 const { db } = await import('../../db/index.js');
+const { getJob, registerJob } = await import('../jobRegistry.js');
 type Job = import('../jobRegistry.js').Job;
 type ReadingOptions = import('./readingJob.js').ReadingOptions;
 type ReadCommitDeps = import('./readCommit.js').ReadCommitDeps;
@@ -45,7 +46,7 @@ function analyzeCard() {
   return { threadId: t.id, proposalId, ref: added.reference, user, card };
 }
 
-const job = (id: string): Job => ({ id, taskId: '', status: 'queued', createdAt: 0 });
+const job = (id: string): Job => { const j: Job = { id, taskId: '', status: 'queued', createdAt: 0 }; registerJob(j); return j; };
 function fakes(over: Partial<ReadCommitDeps> = {}) {
   const started: Array<{ referenceId: string; opts: ReadingOptions }> = [];
   const turns: Array<{ threadId: string; origin: string; referenceId: string }> = [];
@@ -105,6 +106,22 @@ describe('READ (F-061 commit)', () => {
     db.prepare(`INSERT INTO songs (id, title) VALUES (?, 'x')`).run(songId);
     attach(b.threadId, songId);
     expect((await readFromCard(b.threadId, 'newer', deps) as { reason: string }).reason).toContain('NEW CHAT');
+  });
+
+  it('a reading that ended with nothing saved: READ again reads the same reference, with the follow-up (C3 review 3)', async () => {
+    const { threadId, proposalId, ref, user, card } = analyzeCard();
+    const library = vi.fn(async () => ({ ok: true as const, reference: ref }));
+    propose({ id: proposalId, threadId, messageId: card.id, createdAt: 0, kind: 'analyze', target: { songId: 'lib-song' } });
+    const { deps, started, turns } = fakes({ library });
+    await readFromCard(threadId, proposalId, deps);
+    Object.assign(getJob('read-1')!, { status: 'failed', cancelled: true });
+    expect(await readFromCard(threadId, proposalId, deps)).toEqual({ job: expect.objectContaining({ id: 'read-2' }) });
+    expect(started[1].referenceId).toBe(ref.id);
+    expect(library).toHaveBeenCalledTimes(1); // the library copy is made once, not again
+    expect(messageById(card.id)?.jobId).toBe('read-2');
+    started[1].opts.onRead!(readingFixture(), ref);
+    expect(turns).toEqual([{ threadId, origin: user.id, referenceId: ref.id }]);
+    expect(await readFromCard(threadId, proposalId, deps)).toEqual({ reason: 'this card was already read' });
   });
 
   it('refused while a reading or a turn of this thread is still open', async () => {
