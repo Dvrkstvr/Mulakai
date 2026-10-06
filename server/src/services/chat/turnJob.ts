@@ -23,6 +23,7 @@ import { loadedModels, probePlanner, releasePlanner, type LoadedModel, type Plan
 import type { ChatMessage as PromptMessage, PlannerReply } from '../score/planTypes.js';
 import { appendMessage, lastTurns } from './messageStore.js';
 import { liveProposal, propose } from './proposalStore.js';
+import { planFor } from './readTarget.js';
 import { analyzeFor, gatherTurnState, sourceDeps, type SourceDeps, type TurnRefs } from './songStateSource.js';
 import { threadById, writeDraft } from './threadStore.js';
 import { decideReply, ladderRung } from './turnCall.js';
@@ -46,7 +47,7 @@ export interface TurnDeps {
   loaded: () => Promise<LoadedModel[]>;
   release: () => Promise<unknown>;
   rung: number;
-  /** C3: where each reading step would run, for the READ card's estimate (CR-2's readingPlan; default: every service). */
+  /** C3: where each reading step would run, for the READ card's estimate (readTarget.planFor over CR-2's readingPlan). */
   plan: (target: AnalyzeTarget) => ReadingPlanSources;
 }
 
@@ -58,7 +59,7 @@ export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
     ask: (messages, schema, signal, maxTokens) => askPlanner(planner, messages, schema, { timeoutMs: config.llmTimeoutMs, signal, maxTokens }),
     loaded: () => loadedModels(planner),
     release: () => releasePlanner(planner),
-    plan: () => ({ words: 'service', score: 'service', caption: 'service' }),
+    plan: (target) => planFor(target),
     ...over,
   };
 }

@@ -158,7 +158,9 @@ export interface ChatThread {
 /** What the client shows for a message (messageView.ts, CA-3). */
 export type MessageState =
   | 'queued' | 'thinking' | 'pending' | 'superseded' | 'expired'
-  | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted';
+  | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted'
+  /** C3: a reading card while its reading job runs (before the follow-up turn). */
+  | 'reading';
 export interface MessageView extends ChatMessage { state: MessageState | null }
 
 export interface ThreadView {

@@ -2,7 +2,8 @@
  * The chat's threads and draft (F-041, F-043; architecture.md "Chat (C0)", wire shapes in
  * client/src/api/chat.ts): status, the draft thread, NEW CHAT, a thread, a song's thread, and the
  * sidebar's hand edits with a rev check (a stale rev is 409 `{ok: false, current}`). C3: the view
- * lists the thread's references; NEW CHAT's dropped references lose their files (sweepFiles).
+ * lists the thread's references; NEW CHAT's dropped references lose their files (sweepFiles); a cover
+ * draft's blockers add coverBlockers; a hand edit names the locked cover fields it refused (D-148 c).
  */
 import { Router } from 'express';
 import { db } from '../db/index.js';
@@ -16,7 +17,8 @@ import { listMessages } from '../services/chat/messageStore.js';
 import { messageViews, wireDraft, type JobView } from '../services/chat/messageView.js';
 import { dropProposals, proposalLife } from '../services/chat/proposalStore.js';
 import { createBlockers } from '../services/chat/recipeRules.js';
-import { listReferences, sweepFiles, toView } from '../services/chat/referenceStore.js';
+import { coverBlockers } from '../services/chat/referenceRecipe.js';
+import { getReference, listReferences, sweepFiles, toView } from '../services/chat/referenceStore.js';
 import { draftThread, resetDraftThread, songThread, threadById, writeDraft } from '../services/chat/threadStore.js';
 import type { ChatThread } from '../services/chat/chatTypes.js';
 
@@ -37,10 +39,17 @@ const isLive = (jobId: string | null) => ['queued', 'loading', 'running'].includ
 /** A turn or a take of this thread is queued or running. */
 export const threadBusy = (threadId: string): boolean => takeRunning(threadId) || listMessages(threadId).some((m) => isLive(m.jobId));
 
+/** Why CREATE SONG / CREATE COVER is off: the recipe rules, then a cover's reference and reading. */
+export function draftBlockers(thread: ChatThread, yueConfigured: boolean): string[] {
+  const id = thread.draft.reference?.referenceId;
+  const ref = id ? getReference(id) : null;
+  return [...createBlockers(thread.draft.fields, { yueConfigured }), ...coverBlockers(thread.draft, ref?.threadId === thread.id ? ref : null)];
+}
+
 export function threadView(thread: ChatThread, yueConfigured: boolean) {
   return {
     id: thread.id, songId: thread.songId, draft: wireDraft(thread.draft), draftNote: thread.draftNote,
-    blockers: createBlockers(thread.draft.fields, { yueConfigured }),
+    blockers: draftBlockers(thread, yueConfigured),
     messages: messageViews(listMessages(thread.id), { job: jobView, proposal: proposalLife }),
     references: listReferences(thread.id).map(toView),
   };
@@ -82,12 +91,12 @@ export function makeChatRouter(deps: ChatRouteDeps = defaults): Router {
     }
     const thread = threadById(req.params.id);
     if (!thread) return res.status(404).json({ error: 'unknown chat' });
-    const blockers = (t: ChatThread) => createBlockers(t.draft.fields, { yueConfigured: deps.yueConfigured() });
+    const blockers = (t: ChatThread) => draftBlockers(t, deps.yueConfigured());
     if (thread.draft.rev !== rev) return res.status(409).json({ ok: false, current: wireDraft(thread.draft), blockers: blockers(thread) });
-    const next = handEdit(thread.draft, fields as Record<string, unknown>).draft;
+    const { draft: next, refused } = handEdit(thread.draft, fields as Record<string, unknown>);
     const written = writeDraft(thread.id, thread.draft.rev, next);
     if (!written.ok) return res.status(409).json({ ok: false, current: wireDraft(written.current) });
-    res.json({ draft: wireDraft(written.thread.draft), blockers: blockers(written.thread), draftNote: written.thread.draftNote });
+    res.json({ draft: wireDraft(written.thread.draft), blockers: blockers(written.thread), draftNote: written.thread.draftNote, refused });
   });
 
   return router;
