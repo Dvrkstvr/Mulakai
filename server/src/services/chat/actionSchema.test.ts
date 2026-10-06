@@ -27,6 +27,14 @@ describe('turn reply schema (SP-5 turn_schema)', () => {
     expect(recipe.properties.lyrics.items.properties.lines).toMatchObject({ minItems: 4, maxItems: 8 });
   });
 
+  it('C3: reference_use (cover / borrow / none) is in the recipe only when the thread has a reading (D-128)', () => {
+    const recipe = (reference?: boolean) => part(turnSchema({ facts: null, phraseBars: 4, allowed: ['recipe', 'say'], reference }), 'recipe').properties.recipe;
+    expect(recipe().properties.reference_use).toBeUndefined();
+    expect(recipe(false).required).not.toContain('reference_use');
+    expect(recipe(true).properties.reference_use).toEqual({ enum: ['cover', 'borrow', 'none'] });
+    expect(recipe(true).required).toContain('reference_use');
+  });
+
   it('edit ops are bounded by the song, and by dummy 300-bar bounds without one', () => {
     const bars = (s: Schema) => part(s, 'edit').properties.ops.items.anyOf.find((o: Schema) => o.properties.op.const === 'REHARMONIZE').properties.from_bar.maximum;
     expect(bars(turnSchema({ facts, phraseBars: 4, allowed: ['edit', 'say'] }))).toBe(facts.header.bars);

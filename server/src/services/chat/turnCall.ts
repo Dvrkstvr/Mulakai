@@ -56,9 +56,10 @@ export type Decision = TurnOutcome & { calls: number; messages: PromptMessage[] 
 export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Decision> {
   const allowed = allowedActions(ctx.state, deps.rung ?? 0);
   const phraseBars = phraseBarsOf(ctx.request);
-  const schema = turnSchema({ facts: ctx.facts, phraseBars, allowed });
+  const reference = Boolean(ctx.state.referenceRead); // C3: reference_use and its rule only with a reading (D-128)
+  const schema = turnSchema({ facts: ctx.facts, phraseBars, allowed, reference });
   const pending = draftLines(ctx.draft, ctx.pending);
-  const messages = turnMessages({ rules: chatRules(allowed), state: ctx.block, facts: ctx.facts, request: ctx.request, pending, history: ctx.history });
+  const messages = turnMessages({ rules: chatRules(allowed, { reference }), state: ctx.block, facts: ctx.facts, request: ctx.request, pending, history: ctx.history });
   const checkCtx = { allowed, shapeOnly: redirected(ctx.state), facts: ctx.facts, phraseBars, request: ctx.request };
   const maxTokens = allowed.includes('edit') ? MAX_TOKENS.edit : MAX_TOKENS.other;
   let calls = 0;
