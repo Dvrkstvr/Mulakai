@@ -271,3 +271,6 @@ READ's "uses the GPU about N s" needs calibrated constants (`readingEstimate`, C
 
 ## Q-100 · deferred · stage 5 (DT-C3, chat-reference.html 4a)
 REFERENCE ⇄ SONG plays at the same seconds: exact for a cover, loose for a borrowed song (different structure and timing). Default: the pill shows on both and says "same seconds"; a per-section jump is Later (Q-070).
+
+## Q-101 · assumable · stage 7 (C3 CR-6) · open
+The server's recipe body is the model's snake_case form (`time_signature`) while the client's ChatRecipe type says camelCase `timeSignature` (pre-C3). If the recipe card reads the meter from the recipe, it shows nothing. Default: check in CR-7b / the C3 live run and fix in the client mapping.
