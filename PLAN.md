@@ -8867,6 +8867,26 @@ What a person does:
    the Editor appends a version card to the thread ("you repainted the
    bridge in the Editor"), so the next turn's song-state block is true.
 
+10. **The latest version is always playable** (the owner's, D-089). The
+    chat view keeps a player for the song's active version in view, with
+    its waveform and section strip; a saved version replaces it at once,
+    and the previous one is a click away (A/B, decision 8).
+11. **Every version is analyzed** (the owner's, D-089). After each save,
+    whatever made it, a queued `analyze` job refreshes word timings
+    (lyrics-server), the score and its sections (YuE2's own score for a
+    YuE2 version, yue-server's transcriber otherwise), so the song-state
+    block, the strip and the marking always match what plays. While it
+    runs the strip shows the previous analysis as "updating". A transcribed
+    score feeds context and marking only; score editing on a transcription
+    stays M3/C3 scope (Q-062).
+12. **The marked range is the chat's "this"** (the owner's, D-090). Click a
+    section to mark it, drag to extend it a bit (bars by default), or mark
+    a lyric line, as in the Editor; the composer shows the mark as a chip
+    and the turn sends it with the prompt: bars, seconds, the sections and
+    lyric lines it covers, the key and tempo there. In Editor-first mode
+    the Editor's selection is the mark. A mark the new version no longer
+    matches is stale (F-032's USE BARS). Mockup: `pipeline/design/chat-song.html`.
+
 ### Milestones (proposed)
 
 | | What a person can do when it is done |
@@ -8902,11 +8922,11 @@ becomes "Ask in chat".
 
 ### Open questions for the owner (Q-054)
 
-Answered 2026-10-06: two ways in (D-086), memory (D-081), ask or propose (D-082), engine
+Answered 2026-10-06: two ways in (D-086), editing mirrors it (D-088), memory (D-081), ask or propose (D-082), engine
 (D-083), reference audio (D-084), tempo and key (D-085). Still open:
 
-1. **The editing pairing** (Q-055, assumable): chat-first thread vs
-   Editor-first with the chat as a side assistant, shown in
-   `pipeline/design/chat-create.html`.
+1. **The mark, the player and the analysis** (D-089, D-090): layout in
+   `pipeline/design/chat-song.html`; Q-062 on analysis cost and
+   transcribed scores.
 2. **SP-4's listen**: do the splice joins and the audio-only REPEAT/CUT
    seams pass by ear (`pipeline/spikes/SP-4-keep-unchanged/listen`)?
