@@ -39,7 +39,7 @@ export interface TurnDeps {
   planner: PlannerTarget;
   source: SourceDeps;
   probe: () => Promise<string | null>;
-  ask: (messages: PromptMessage[], schema: Record<string, unknown>, signal?: AbortSignal) => Promise<PlannerReply>;
+  ask: (messages: PromptMessage[], schema: Record<string, unknown>, signal?: AbortSignal, maxTokens?: number) => Promise<PlannerReply>;
   loaded: () => Promise<LoadedModel[]>;
   release: () => Promise<unknown>;
   rung: number;
@@ -50,7 +50,7 @@ export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
   return {
     planner, source: sourceDeps(), rung: ladderRung(),
     probe: () => probePlanner(planner),
-    ask: (messages, schema, signal) => askPlanner(planner, messages, schema, { timeoutMs: config.llmTimeoutMs, signal }),
+    ask: (messages, schema, signal, maxTokens) => askPlanner(planner, messages, schema, { timeoutMs: config.llmTimeoutMs, signal, maxTokens }),
     loaded: () => loadedModels(planner),
     release: () => releasePlanner(planner),
     ...over,
@@ -92,17 +92,17 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   let decision: Awaited<ReturnType<typeof decideReply>>;
   try {
     decision = await decideReply({
-      state: gathered.state, block: gathered.block, facts: gathered.facts, request: user.text,
+      state: gathered.state, block: gathered.block, facts: gathered.facts, draft: gathered.draft, request: user.text,
       pending: !thread.songId && Boolean(liveProposal(threadId)), history,
     }, {
       rung: deps.rung,
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
-      ask: async (msgs, schema) => {
+      ask: async (msgs, schema, { maxTokens }) => {
         if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted');
         const chars = promptChars(msgs);
         const pre = contextPreflight({ promptChars: chars, contextLength: await contextOf() });
         if (pre) throw new TurnError('context', pre);
-        const reply = await deps.ask(msgs, schema, signal);
+        const reply = await deps.ask(msgs, schema, signal, maxTokens);
         const cut = contextPostflight({ promptTokens: reply.promptTokens, promptChars: chars, contextLength: await contextOf() });
         if (cut) throw new TurnError('context', cut);
         return reply;

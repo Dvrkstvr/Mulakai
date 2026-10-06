@@ -1,0 +1,72 @@
+{
+ "source": "pipeline/spikes/SP-5-chat-planner/results/v31+rle_r1.jsonl (qwen3:14b, v3.1 prompt + run-length bar map, 2026-10-06); attempts verbatim, reasons = what the spike sent back",
+ "turns": [
+  {
+   "turn": "RC05.t1",
+   "request": "Schreib mir einen langsamen deutschen Popsong über den Abschied, mit Klavier und weicher Frauenstimme",
+   "song_key": null,
+   "attempts": [
+    {
+     "content": "{\"action\": \"recipe\", \"message\": \"Ich habe einen langsamen deutschen Popsong über den Abschied mit Klavier und weicher Frauenstimme erstellt.\", \"assumptions\": [\"key: A minor\", \"bpm: 60\", \"time_signature: 4/4\", \"language: German\"], \"recipe\": {\"title\": \"Abschied\", \"style\": \"pop, piano, melancholic, soft female voice\", \"bpm\": 60, \"key\": \"A\", \"time_signature\": \"4/4\", \"language\": \"de\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"Der Tag ist still, das Licht so schwach,\", \"Die Worte fehlen mir, ich kann nicht sprechen.\", \"In deinen Augen sehe ich den Schmerz,\", \"Der mich verlässt, doch ich muss gehen.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Abschied, du bist so schwer zu tragen,\", \"In meinem Herzen bleibt ein Leere.\", \"Jeder Schritt, der uns trennt,\", \"Bringt uns weiter von einander.\"]}, {\"tag\": \"Verse\", \"lines\": [\"Die Erinnerungen sind so klar,\", \"Doch die Zukunft ist uns fremd.\", \"In diesem Moment fühle ich,\", \"Wie sehr ich dich vermissen werde.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Abschied, du bist so schwer zu tragen,\", \"In meinem Herzen bleibt ein Leere.\", \"Jeder Schritt, der uns trennt,\", \"Bringt uns weiter von einander.\"]}, {\"tag\": \"Bridge\", \"lines\": [\"Es ist nicht leicht, dich zu verlassen,\", \"Doch ich muss gehen, um zu leben.\", \"In deinem Herzen bleibe ich,\", \"Und in deinen Träumen werde ich bleiben.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Abschied, du bist so schwer zu tragen,\", \"In meinem Herzen bleibt ein Leere.\", \"Jeder Schritt, der uns trennt,\", \"Bringt uns weiter von einander.\"]}, {\"tag\": \"Outro\", \"lines\": [\"Abschied, du bist so schwer zu tragen,\", \"Doch ich muss gehen, um zu leben.\",\"In deinem Herzen bleibe ich,\", \"Und in deinen Träumen werde ich bleiben.\"]}]}}",
+     "reasons": []
+    }
+   ]
+  },
+  {
+   "turn": "AK02.t1",
+   "request": "yes, do that",
+   "song_key": null,
+   "attempts": [
+    {
+     "content": "{\"action\": \"ask\", \"message\": \"What kind of song would you like to create? For example, would you like a romantic ballad, an upbeat pop song, or something else?\",\"choices\": [\"A romantic ballad\", \"An upbeat pop song\", \"A folk song\", \"A jazz piece\"]}",
+     "reasons": []
+    }
+   ]
+  },
+  {
+   "turn": "MT03.t3",
+   "request": "what key is it in now?",
+   "song_key": "Fm",
+   "attempts": [
+    {
+     "content": "{\"action\": \"say\", \"message\": \"The song is now in the key of Gm (G minor).\"}",
+     "reasons": [
+      "you named the key G minor, but the HEADER says K:Fm (F minor) for the active version: quote the HEADER"
+     ]
+    },
+    {
+     "content": "{\"action\": \"say\", \"message\": \"The song is now in the key of Fm (F minor), as stated in the HEADER.\"}",
+     "reasons": []
+    }
+   ]
+  },
+  {
+   "turn": "ED09.t1",
+   "request": "repeat the bridge",
+   "song_key": "Gm",
+   "attempts": [
+    {
+     "content": "{\"action\": \"edit\", \"message\": \"The song 'Romantica' does not have a bridge section. However, it has an instrumental outro. Would you like me to repeat the instrumental outro instead?\", \"assumptions\": [\"assuming the instrumental outro, bars 55-63\"], \"ops\": [{\"op\": \"REPEAT\", \"section\": 6, \"label\": \"outro\"}]}",
+     "reasons": [
+      "the request names the bridge, but this song has no bridge (its sections: chorus, intro, outro, verse): do not substitute another place; answer with action say and tell the person what the song has instead"
+     ]
+    },
+    {
+     "content": "{\"action\": \"say\", \"message\": \"The song 'Romantica' does not have a bridge section. It has an instrumental outro instead.\"}",
+     "reasons": []
+    }
+   ]
+  },
+  {
+   "turn": "ED03.t1",
+   "request": "slow it down a little",
+   "song_key": "Gm",
+   "attempts": [
+    {
+     "content": "{\"action\": \"edit\", \"message\": \"The tempo has been slowed down slightly to 85 BPM, giving the song a more mellow and reflective feel.\", \"assumptions\": [\"assuming the whole song\", \"slowed down to 85 BPM\"], \"ops\": [{\"op\": \"SET_TEMPO\", \"bpm\": 85}]}",
+     "reasons": []
+    }
+   ]
+  }
+ ]
+}

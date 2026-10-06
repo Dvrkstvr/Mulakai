@@ -1,12 +1,13 @@
 import { describe, it, expect, vi } from 'vitest';
-import { badKeyRecipe, notJson, outOfSet, recipeReply, sayReply } from '../../../test-fakes/chatScripts.js';
-import { decideReply, ladderRung, type TurnContext } from './turnCall.js';
+import { RECIPE, badKeyRecipe, notJson, outOfSet, recipeReply, sayReply } from '../../../test-fakes/chatScripts.js';
+import { recipeFields } from './draftModel.js';
+import { MAX_TOKENS, decideReply, ladderRung, type TurnContext } from './turnCall.js';
 import { turnAttempts } from './turnAttempts.js';
 import type { ChatScript } from '../../../test-fakes/fakeOllama.js';
 
-const ctx: TurnContext = { state: { hasSong: false, scoreReadable: false }, block: ['SONG: none yet'], facts: null, request: 'a sad song', pending: false, history: [] };
+const ctx: TurnContext = { state: { hasSong: false, scoreReadable: false }, block: ['SONG: none yet'], facts: null, request: 'a sad song', pending: false, draft: {}, history: [] };
 const scripted = (...replies: ChatScript[]) => {
-  const ask = vi.fn(async (_m: unknown, _s?: unknown) => {
+  const ask = vi.fn(async (_m: unknown, _s?: unknown, _o?: { maxTokens: number }) => {
     const r = replies.length > 1 ? replies.shift()! : replies[0];
     return { content: r.content ?? '', promptTokens: r.promptTokens ?? null };
   });
@@ -47,6 +48,22 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     await decideReply(ctx, { ask, rung: 2 });
     const schema = ask.mock.calls[0][1] as { anyOf: Array<{ properties: { action: { const: string } } }> };
     expect(schema.anyOf.map((p) => p.properties.action.const)).toEqual(['ask', 'recipe', 'analyze', 'say']);
+  });
+
+  it('asks 4000 completion tokens when the reply may be an edit, 2000 when it cannot (rung 2, no song)', async () => {
+    const ask = scripted(sayReply());
+    await decideReply(ctx, { ask });
+    await decideReply(ctx, { ask, rung: 2 });
+    expect(ask.mock.calls.map((c) => c[2])).toEqual([{ maxTokens: MAX_TOKENS.edit }, { maxTokens: MAX_TOKENS.other }]);
+    expect(MAX_TOKENS).toEqual({ edit: 4000, other: 2000 });
+  });
+
+  it('a live card goes in as the PENDING PROPOSAL with the draft fields; no live card, the sidebar', async () => {
+    const ask = scripted(recipeReply());
+    const d = await decideReply({ ...ctx, pending: true, draft: recipeFields(RECIPE) }, { ask });
+    expect(d.messages[1].content).toContain('PENDING PROPOSAL (the new-song card the person is looking at; nothing has run):\ntitle: Luz sobre el mar');
+    const e = await decideReply({ ...ctx, pending: false, draft: { title: 'Mar' } }, { ask });
+    expect(e.messages[1].content).toContain('SIDEBAR (the new-song fields as they are now; the person may have edited them by hand):\ntitle: Mar');
   });
 
   it('CHAT_LADDER picks a built rung; anything else is rung 0', () => {
