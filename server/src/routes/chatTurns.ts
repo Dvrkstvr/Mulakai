@@ -3,7 +3,7 @@
  * answers the first message's job, 200), CANCEL a turn or a take, and CREATE SONG from a recipe card
  * (409 `{reason}` when the re-check refuses). Job progress is the existing GET /api/generate/:jobId.
  * C3: SEND may carry `attach: {referenceId}` (one of the draft thread's references, D-130); a reading
- * that will queue the follow-up turn keeps SEND off like an open turn (D-129).
+ * that will queue the follow-up turn keeps SEND off like an open turn (D-129); CANCEL stops a reading too.
  */
 import { Router } from 'express';
 import { config } from '../config.js';
@@ -12,6 +12,7 @@ import { QueueFullError, queuePosition } from '../services/genQueue.js';
 import { abortJob, getJob } from '../services/jobRegistry.js';
 import { createDeps, createFromDraft, type CreateDeps } from '../services/chat/createFromDraft.js';
 import { appendMessage, listMessages, updateMessage } from '../services/chat/messageStore.js';
+import { cancelReading, readingOf } from '../services/chat/readingJob.js';
 import { getReference } from '../services/chat/referenceStore.js';
 import { threadById } from '../services/chat/threadStore.js';
 import { cancelTurn, startChatTurn, turnDeps, turnOf, type TurnDeps } from '../services/chat/turnJob.js';
@@ -68,14 +69,20 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
     }
   });
 
-  /** CANCEL a chat job: a turn (queued: out of the line; thinking: abort, then the unload) or a take (the existing abort). */
+  /** CANCEL a chat job: a turn (queued: out of the line; thinking: abort, then the unload), a reading (it stops at
+   * its next step and reads CANCELLED, not failed) or a take (the existing abort). */
   router.post('/jobs/:jobId/cancel', (req, res) => {
     const { jobId } = req.params;
     const turn = cancelTurn(jobId);
     if (turn) return res.json({ ok: true, ...turn });
+    const queued = getJob(jobId)?.status === 'queued';
+    if (readingOf(jobId) && cancelReading(jobId)) {
+      const job = getJob(jobId);
+      if (job) job.cancelled = true;
+      return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
+    }
     const isChatJob = db.prepare(`SELECT 1 FROM chat_messages WHERE job_id = ?`).get(jobId);
     if (isChatJob && live(jobId)) {
-      const queued = getJob(jobId)?.status === 'queued';
       if (abortJob(jobId)) return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
     }
     res.status(404).json({ error: 'this job is not running' });
