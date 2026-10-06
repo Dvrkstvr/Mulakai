@@ -1,0 +1,22 @@
+/* C3 on the song (CR-7b; pipeline/design/chat-reference.html 3a, 3b, 4a; D-141): the borrowed-field tags, a missing
+   field's AUTO, the song panel's reference and the REFERENCE ⇄ SONG pill. Tokens only, zero radius; lilac is A/B (as
+   the version pill), the REFERENCE tag is neutral (option B), a missing value warns in rust. */
+.chat-tag.ref { color: var(--text-mid); border: 1px solid var(--line-hi); padding: 0 4px; }
+.chat-tag.ref.score::before { content: '▣ '; }
+.chat-fd-in.auto { border: 1px dashed var(--line-hi); }
+.chat-fd-in.auto::placeholder { color: var(--text-low); font: 9px ui-monospace, monospace; letter-spacing: 0; }
+.chat-card .chat-er.chat-ref-warn { margin: 0 14px 8px; }
+
+.chat-fd.chat-ref-panel { grid-template-columns: 1fr; gap: 4px; }
+.chat-ref-name { font-weight: 400; overflow-wrap: anywhere; }
+.chat-ref-actions { display: flex; gap: 8px; margin-top: 4px; }
+.chat-ref-panel .chat-er { margin-top: 4px; }
+
+.chat-ab {
+  transform: skewX(-10deg); padding: 6px 12px; font-size: 10px; font-weight: 700; letter-spacing: 1px; white-space: nowrap;
+  border: 1px solid var(--lilac); background: var(--lilac-tint); color: var(--lilac-text);
+}
+.chat-ab > span { display: inline-block; transform: skewX(10deg); }
+.chat-ab.on { background: var(--lilac); color: var(--text-hi); }
+.chat-player .chat-ab, .chat-ab-status { flex: none; }
+.chat-ab-status { white-space: nowrap; }
