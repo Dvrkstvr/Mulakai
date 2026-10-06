@@ -18,6 +18,7 @@ const { resetProposals } = await import('../services/chat/proposalStore.js');
 const { resetDraftThread } = await import('../services/chat/threadStore.js');
 const { turnDeps } = await import('../services/chat/turnJob.js');
 const { createDeps } = await import('../services/chat/createFromDraft.js');
+const { TRUNCATED_LABEL } = await import('../services/engineGenJobs.js');
 const { makeChatRouter } = await import('./chat.js');
 const { makeChatTurnsRouter } = await import('./chatTurns.js');
 type Job = import('../services/jobRegistry.js').Job;
@@ -29,17 +30,17 @@ const takes: Array<{ job: Job; fields: Record<string, unknown>; title: string; o
 let server: Server;
 let base: string;
 
-function insertSong(title: string): string {
+function insertSong(title: string, label = 'first generation'): string {
   const songId = crypto.randomUUID();
   const layerId = crypto.randomUUID();
   db.prepare(`INSERT INTO songs (id, title, duration, engine) VALUES (?, ?, 192, 'yue2')`).run(songId, title);
   db.prepare(`INSERT INTO layers (id, song_id, name, kind) VALUES (?, ?, 'Base', 'base')`).run(layerId, songId);
-  db.prepare(`INSERT INTO versions (id, layer_id, audio_file, label) VALUES (?, ?, 'a.wav', 'first generation')`).run(crypto.randomUUID(), layerId);
+  db.prepare(`INSERT INTO versions (id, layer_id, audio_file, label) VALUES (?, ?, 'a.wav', ?)`).run(crypto.randomUUID(), layerId, label);
   return songId;
 }
-async function land(i = 0) {
+async function land(i = 0, label?: string) {
   const take = takes[i];
-  const songId = insertSong(take.title);
+  const songId = insertSong(take.title, label);
   await take.onSaved?.(songId);
   take.job.status = 'done';
   take.job.songId = songId;
@@ -159,9 +160,17 @@ describe('chat routes', () => {
     const after = (await call('GET', `/threads/${draft.id}`)).body;
     expect(after.songId).toBe(songId);
     expect(after.messages.map((m: any) => [m.kind, m.state])).toEqual([['text', 'done'], ['recipe', 'done'], ['song', null]]);
-    expect(after.messages[2]).toMatchObject({ body: { chat_v: 1, seconds: 192, label: 'first generation', number: 1 }, versionId: expect.any(String) });
+    expect(after.messages[2]).toMatchObject({ body: { chat_v: 1, seconds: 192, label: 'first generation', number: 1, truncated: false }, versionId: expect.any(String) });
     expect((await call('GET', `/songs/${songId}/thread`)).body.id).toBe(draft.id);
     expect((await call('GET', '/draft')).body).toMatchObject({ songId: null, messages: [] });
+  });
+
+  it('a take cut at the length cap: the song card says truncated (F-044, D-025)', async () => {
+    const { draft, thread } = await recipeTurn();
+    expect((await call('POST', `/threads/${draft.id}/create`, { proposalId: thread.messages[1].proposalId })).status).toBe(202);
+    await land(0, TRUNCATED_LABEL);
+    const card = (await call('GET', `/threads/${draft.id}`)).body.messages[2];
+    expect(card).toMatchObject({ kind: 'song', body: { label: TRUNCATED_LABEL, truncated: true } });
   });
 
   it('CREATE SONG refuses an expired card (a restart) and a superseded one, with the reason', async () => {

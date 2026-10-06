@@ -4449,6 +4449,9 @@ button.acid-outline:not(:disabled):hover {
 .chat-card .chat-er { margin: 8px 14px; }
 .chat-create { padding: 7px 18px; white-space: nowrap; }
 .chat-song-title { flex: 1; font-weight: 400; }
+/* A take cut at the length cap: saved, never DONE (D-025), in rust like the SCORE dock's TRUNCATED line. */
+.chat-song-truncated { margin: 8px 14px; padding: 6px 10px; border-left: 2px solid var(--rust); color: var(--rust-text); font-size: 11px; }
+.chat-hn.truncated { color: var(--rust-text); }
 .chat-vp {
   display: inline-block; border: 1px solid var(--lilac); background: var(--lilac-tint); color: var(--lilac-text);
   padding: 3px 10px; font-size: 11px; font-weight: 700; letter-spacing: 1px; transform: skewX(-10deg); white-space: nowrap;

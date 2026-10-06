@@ -90,6 +90,14 @@ describe('ChatView', () => {
     expect(out).toContain('VERSIONS');
     expect(out).toMatch(/aria-label="Title" disabled=""/);
   });
+  it('a take cut at the length cap: TRUNCATED in the folded card and a rust line on the song card, never DONE', () => {
+    const song = msg({ id: 'm3', seq: 3, role: 'assistant', kind: 'song', text: 'Saved as v1.', state: null, body: { chat_v: 1, seconds: 360, label: 'first generation (truncated)', number: 1, truncated: true } });
+    setup([msg({}), { ...RECIPE, state: 'done' }, song], FULL, 's1');
+    const out = view();
+    expect(out).toContain('TRUNCATED · v1 SAVED');
+    expect(out).not.toContain('DONE · v1 SAVED');
+    expect(out).toContain('<div class="chat-song-truncated">TRUNCATED at 6:00, the song is cut short');
+  });
 });
 
 describe('ChatDraftFields marks', () => {

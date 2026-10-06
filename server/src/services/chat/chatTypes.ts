@@ -78,7 +78,8 @@ export interface EditBody {
   checks: unknown;
   splice: { from_bar: number; to_bar: number } | { reason: string };
 }
-export interface CardBody { seconds: number | null; label: string; number: number }
+/** A song / version card. `truncated`: the take hit the length cap; saved, but never DONE (D-025). */
+export interface CardBody { seconds: number | null; label: string; number: number; truncated?: boolean }
 export interface FailedBody { reasons: string[]; cause: string }
 export type MessageBody = UserBody | AskBody | RecipeBody | EditBody | CardBody | FailedBody;
 

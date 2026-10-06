@@ -21,6 +21,8 @@ interface Props {
   /** Jobs ahead in the GPU queue: a busy GPU never disables CREATE SONG, it queues (fragment e). */
   ahead: number;
   doneNumber: number | null;
+  /** The song card says the take was cut at the length cap (D-025). */
+  doneTruncated?: boolean;
   /** Another turn is open: ASK AGAIN waits for it. */
   canAsk: boolean;
   onCreate: (proposalId: string) => void;
@@ -28,7 +30,7 @@ interface Props {
   onCancelQueued: () => void;
 }
 
-export function ChatRecipeCard({ message, view, live, blockers, ahead, doneNumber, canAsk, onCreate, onAskAgain, onCancelQueued }: Props) {
+export function ChatRecipeCard({ message, view, live, blockers, ahead, doneNumber, doneTruncated, canAsk, onCreate, onAskAgain, onCancelQueued }: Props) {
   const [lyricsOpen, setLyricsOpen] = useState(false);
   const body = message.body as ChatRecipeBody | null;
   if (!body) return null;
@@ -40,7 +42,7 @@ export function ChatRecipeCard({ message, view, live, blockers, ahead, doneNumbe
   if (view.kind === 'done') {
     return (
       <div className="chat-card">
-        <div className="chat-card-hd"><span className="chat-lb">{cardHeader('done', f.title)}</span><span className="chat-hn">{doneLine(doneNumber)}</span></div>
+        <div className="chat-card-hd"><span className="chat-lb">{cardHeader('done', f.title)}</span><span className={doneTruncated ? 'chat-hn truncated' : 'chat-hn'}>{doneLine(doneNumber, doneTruncated)}</span></div>
       </div>
     );
   }
