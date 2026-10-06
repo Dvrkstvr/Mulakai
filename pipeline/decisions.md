@@ -422,3 +422,7 @@ design/chat-song.html (CS-1..CS-11) is the spec for D-089/D-090 on the Q-063..Q-
 
 ## D-092 · 2026-10-06 · stage 5 (chat mockup 2) · by: user
 design/chat-song.html is signed off except the lyrics ("everything else looks great as is"). Player: "either pinned at the top or above the composer" — both acceptable to the owner; the full chat mockup (design/chat-lyrics.html) draws the final layout with A (top) as the default unless that page shows C reads better. Lyrics as a small chip text "are looking a little confusing": a new mockup compares lyric approaches in the fully designed chat (Q-071).
+
+## D-093 · 2026-10-06 · stage 5 (chat, Q-071) · by: user
+Lyrics live in a sheet in the sidebar. No active playback of lyrics (no current-line follow or karaoke). The sheet shows only the lyrics of the selected (marked) section, to reduce clutter. Assumed (conductor, Q-072): with no mark the panel lists the section names with line counts, click one to mark it; a mark across two sections shows both parts with a divider.
+- instead of: a lyric lane under the waveform, a WAVE | LYRICS toggle in the player, lyrics inside the thread only, or the whole sheet always.
