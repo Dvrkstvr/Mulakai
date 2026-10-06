@@ -593,3 +593,13 @@ D-131's premise is *seen in code*: SheetSage2's `infer.py` passes `melody_only` 
 
 ## D-141 · 2026-10-07 · stage 5 (DT-C3, design/chat-reference.html) · by: assumed (conductor; owner may overrule)
 No blocking choice in DT-C3, so the build proceeds on the mockup's defaults: option B (a neutral REFERENCE tag on borrowed fields, Q-097), one attach chip per thread (Q-098), no invented GPU seconds on the READ card until CP-C3 calibrates them (Q-099); Q-100 (A/B at the same seconds) deferred. RF-1..RF-6 as drawn. The page is 25.5 KB (cap 25 KB; accepted). A stray absolute-positioned "TEMPO 92 BPM REFERENCE" sample shows at the page's top-left: mockup artifact only.
+
+## D-142 · 2026-10-07 · stage 7 (chat C3, CR-5, F-065) · by: assumed (builder, recorded by the conductor; the branch's commits call it D-139)
+The dock names the render mode only when it is not the usual one: the consequence line adds "renders the melody only, no chords" (cot melody) or "adds chords: the whole song renders with chords" (REHARMONIZE on a chord-free score); the checks line reads `no chords · melody render` (plain, not rust) instead of `chords invalid` for a melody render.
+- instead of: naming "renders with chords" on every plan.
+
+## D-143 · 2026-10-07 · stage 7 (chat C3, CR-5) · by: assumed (builder, recorded by the conductor; branch: D-140)
+`YueScoreReview.tsx` is Guided Create's COVER review, not the dock's, so it is unchanged; the dock's review copy is `scoreCopy.ts` + `scoreAttemptCopy.ts`, rendered by `ScorePlanList.tsx`; `api/score.ts` gains optional `ScorePlan.renderMode`.
+
+## D-144 · 2026-10-07 · stage 7 (chat C3, CR-5, F-065 edge) · by: assumed (builder, recorded by the conductor; branch: D-141)
+"Instrumental" for REWRITE LYRICS = every lyric block has 0 lines or there are none (yue-server facts). The refusal "this song is instrumental: there are no words to rewrite" is a plan check (`scoreLimits.wordsRefusal` via `withLimits`); the song stays eligible for every other op. REPEAT/TRANSPOSE on chord-free scores covered by the renderMode unit table only.
