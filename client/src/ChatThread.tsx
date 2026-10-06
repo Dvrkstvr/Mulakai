@@ -1,8 +1,16 @@
 /** The thread (F-041, F-043, chat-turn.html): messages oldest first, newest by the composer; the turn line under
  * the message it belongs to; a recipe reply with its CHANGED line and its card; song cards. A failed reply of
- * the open turn is drawn by its turn line (with RETRY); older ones stay as plain rust lines. */
+ * the open turn is drawn by its turn line (with RETRY); older ones stay as plain rust lines. C3 (F-061): the column
+ * is the drop target on the draft thread, a message that carried a reference keeps its ◉ mark, and the analyze
+ * (READ) and reading cards. */
 import { Fragment, useEffect, useMemo, useRef } from 'react';
-import type { ChatAskBody, ChatDraftKey, ChatFailedBody, ChatMessageView, ChatRecipeBody, ChatUserBody } from './api/chat';
+import type { ChatAskBody, ChatDraftKey, ChatFailedBody, ChatMessageView, ChatReadingBody, ChatRecipeBody, ChatUserBody } from './api/chat';
+import { chatApi } from './api/chat';
+import { ChatAnalyzeCard } from './ChatAnalyzeCard';
+import { ChatDropZone } from './ChatAttach';
+import { ChatReadingCard } from './ChatReadingCard';
+import type { CardState } from './chatReading';
+import { sentAttach } from './chatReferenceCopy';
 import { assistantOffCause } from './chatEntry';
 import { ASK_AGAIN_TEXT, ASSISTANT_OFF, CANCELLED_LINE, EMPTY_THREAD, FIELD_LABEL, INTERRUPTED_LINE, OPEN_FAILED, changedLine, failedTitle, offBody, skippedLine, touchedSinceSend } from './chatCopy';
 import { liveFields, skipsAtReply, useChatDraftStore } from './chatDraftStore';
@@ -47,12 +55,23 @@ export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
   const doneNumber = done?.number ?? null;
   const retry = async () => { await chat.loadStatus(); await chat.retry(); };
   const askAgain = () => { chat.type(ASK_AGAIN_TEXT); void chat.send(); };
+  const refOf = (id: string | undefined) => thread?.references?.find((r) => r.id === id);
+  /** A reading card's CANCEL: the reading job (the queue's), or the follow-up turn (the chat's). */
+  const cancelCard = (c: CardState) => {
+    if (!c.jobId) return;
+    void (c.stage === 'followUp' ? chatApi.cancelChatJob(c.jobId) : api.cancelJob(c.jobId)).catch(() => undefined);
+  };
 
   const item = (m: ChatMessageView) => {
     if (m.role === 'user') {
       return (
         <Fragment key={m.id}>
-          <div className="chat-um">{m.text}</div>
+          <div className="chat-um">
+            {m.text}
+            {(m.body as ChatUserBody | null)?.attach && (
+              <div className="chat-hn chat-um-attach">{sentAttach(refOf((m.body as ChatUserBody).attach?.referenceId)?.name ?? 'a reference')}</div>
+            )}
+          </div>
           {m.id === turn.messageId && turn.phase.kind !== 'sending'
             ? <ChatTurnLine turn={turn} touchedLine={touched} onCancel={() => void chat.cancel()} onRetry={() => void retry()} onForm={onForm} />
             : m.state === 'cancelled' ? <div className="chat-hn">{CANCELLED_LINE}</div>
@@ -93,6 +112,26 @@ export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
         </Fragment>
       );
     }
+    if (m.kind === 'analyze') {
+      const target = (m.body as { target?: { referenceId?: string } } | null)?.target;
+      return (
+        <Fragment key={m.id}>
+          {m.text && <div className="chat-am">{m.text}</div>}
+          <ChatAnalyzeCard
+            message={m} card={chat.reading.cards[m.id]} reference={refOf(target?.referenceId)} ahead={ahead}
+            onRead={() => m.proposalId && void chat.read(m.proposalId)}
+          />
+        </Fragment>
+      );
+    }
+    if (m.kind === 'reading') {
+      return (
+        <ChatReadingCard
+          key={m.id} message={m} card={chat.reading.cards[m.id]} reference={refOf((m.body as ChatReadingBody | null)?.referenceId)}
+          onCancel={cancelCard} onReadAgain={(id) => void chat.reanalyze(id)}
+        />
+      );
+    }
     const choices = m.kind === 'ask' ? (m.body as ChatAskBody | null)?.choices ?? [] : [];
     return (
       <div key={m.id} className="chat-am">
@@ -107,23 +146,25 @@ export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
   };
 
   return (
-    <div className="chat-thread" ref={scroller}>
-      <div className="chat-thread-inner">
-        {error && <ChatErrorLine title={OPEN_FAILED} body={error}><RetryButton onClick={() => void chat.openDraft()} /></ChatErrorLine>}
-        {!error && msgs.length === 0 && turn.phase.kind !== 'sending' && <div className="chat-empty">{EMPTY_THREAD}</div>}
-        {msgs.map(item)}
-        {turn.phase.kind === 'sending' && (
-          <>
-            <div className="chat-um">{turn.lastText}</div>
-            <ChatTurnLine turn={turn} onCancel={() => undefined} onRetry={() => undefined} onForm={onForm} />
-          </>
-        )}
-        {offCause && turn.phase.kind !== 'offline' && (
-          <ChatErrorLine title={ASSISTANT_OFF} body={offBody(offCause)}>
-            <RetryButton onClick={() => void chat.loadStatus()} /><FormButton onClick={onForm} />
-          </ChatErrorLine>
-        )}
+    <ChatDropZone threadId={thread?.id ?? null} off={Boolean(thread?.songId)}>
+      <div className="chat-thread" ref={scroller}>
+        <div className="chat-thread-inner">
+          {error && <ChatErrorLine title={OPEN_FAILED} body={error}><RetryButton onClick={() => void chat.openDraft()} /></ChatErrorLine>}
+          {!error && msgs.length === 0 && turn.phase.kind !== 'sending' && <div className="chat-empty">{EMPTY_THREAD}</div>}
+          {msgs.map(item)}
+          {turn.phase.kind === 'sending' && (
+            <>
+              <div className="chat-um">{turn.lastText}</div>
+              <ChatTurnLine turn={turn} onCancel={() => undefined} onRetry={() => undefined} onForm={onForm} />
+            </>
+          )}
+          {offCause && turn.phase.kind !== 'offline' && (
+            <ChatErrorLine title={ASSISTANT_OFF} body={offBody(offCause)}>
+              <RetryButton onClick={() => void chat.loadStatus()} /><FormButton onClick={onForm} />
+            </ChatErrorLine>
+          )}
+        </div>
       </div>
-    </div>
+    </ChatDropZone>
   );
 }

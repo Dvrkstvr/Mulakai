@@ -1,0 +1,62 @@
+/* CHAT C3, attach and reading (ChatAttach, ChatAnalyzeCard, ChatReadingCard; pipeline/design/chat-reference.html
+   1a-2g, DESIGN.md "Chat"): tokens only, zero radius. Sky = where a file lands and the row pointed at; rust = a part
+   not read or a failed file; acid stays READ's alone. CR-7b's song-side styles live in chatReferenceSong.css. */
+
+/* ATTACH ▾ and its menu (1b): above the composer, 420 px, the library list scrolling inside. */
+.chat-attach { position: relative; flex: none; }
+.chat-attach-btn { height: 32px; }
+.chat-attach-menu {
+  position: absolute; bottom: calc(100% + 10px); left: 0; z-index: 20; width: 420px; max-height: 420px;
+  display: flex; flex-direction: column; border: 1px solid var(--line-hi); background: var(--panel);
+}
+.chat-attach-it {
+  display: flex; gap: 10px; align-items: center; width: 100%; padding: 7px 14px; border: 0; border-bottom: 1px solid var(--line);
+  background: none; color: var(--text-hi); text-align: left; font: inherit; font-size: 12px; letter-spacing: 0; transform: none;
+}
+.chat-attach-it.head { color: var(--text-mid); }
+button.chat-attach-it:hover, button.chat-attach-it:focus-visible { background: var(--sky-tint); box-shadow: inset 3px 0 var(--sky); outline: none; }
+.chat-attach-it.song { justify-content: space-between; }
+.chat-attach-song { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.chat-attach-search { flex: 1; min-width: 0; height: 28px; background: var(--carbon); padding: 4px 9px; font-size: 12px; }
+.chat-attach-list { flex: 1; min-height: 0; overflow-y: auto; }
+.chat-attach-note { padding: 10px 14px; }
+.chat-attach-err { padding: 8px 14px; color: var(--rust-body); background: var(--rust-tint); border-left: 2px solid var(--rust); font-size: 11px; }
+
+/* The one chip above the composer (1c): uploading with its bar, attached, failed in rust (nothing stored). */
+.chat-attach-chip { display: flex; gap: 10px; align-items: center; border: 1px solid var(--line-hi); background: var(--carbon-raised); padding: 5px 10px; font-size: 12px; }
+.chat-attach-chip > b { font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+.chat-attach-chip.failed { border-color: var(--rust); background: var(--rust-tint); }
+.chat-attach-chip.failed .chat-hn { color: var(--rust-text); }
+.chat-attach-bar { width: 90px; height: 3px; background: var(--line); flex: none; }
+.chat-attach-bar > i { display: block; height: 3px; background: var(--text-mid); }
+.chat-attach-x { margin-left: auto; border: 0; background: none; padding: 0 2px; color: var(--text-mid); font-size: 12px; }
+.chat-attach-x:hover { color: var(--text-hi); }
+.chat-um-attach { margin-top: 4px; }
+
+/* The thread column as the drop target (1a): a sky dashed edge over the column only. */
+.chat-drop { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.chat-drop-zone {
+  position: absolute; inset: 8px; z-index: 5; pointer-events: none; display: flex; flex-direction: column; gap: 6px;
+  align-items: center; justify-content: center; border: 2px dashed var(--sky);
+  background: color-mix(in srgb, var(--sky-tint) 55%, transparent);
+}
+.chat-drop-zone > b { font-size: 16px; letter-spacing: 3px; }
+
+/* The reading card (2c-2g): the step strip, the parts, sections as small parallelograms. */
+.chat-ref-body { gap: 6px; align-items: stretch; }
+.chat-ref-steps { display: flex; gap: 3px; }
+.chat-ref-steps > i {
+  flex: 1; font: 10px ui-monospace, monospace; font-style: normal; letter-spacing: 1px; padding: 5px 8px; background: var(--carbon-raised); color: var(--text-low);
+  clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+}
+.chat-ref-steps > i.dn { color: var(--text-mid); }
+.chat-ref-steps > i.on { background: var(--line-hi); color: var(--text-hi); }
+.chat-ref-part { font-size: 12px; }
+.chat-ref-sections { display: flex; gap: 3px; }
+.chat-ref-sections > i {
+  font: 9px ui-monospace, monospace; font-style: normal; color: var(--text-mid); background: var(--carbon-raised); padding: 4px 0;
+  text-align: center; overflow: hidden; white-space: nowrap; clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+.chat-ref-warn { padding: 6px 10px; border: 1px solid var(--rust); background: var(--rust-tint); color: var(--rust-body); font-size: 11px; }
+.chat-ref-end { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.chat-ref-card > .chat-job { margin: 0 14px 10px; }
