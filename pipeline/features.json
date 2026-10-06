@@ -513,7 +513,7 @@
     "Edge: collapsing the sidebar leaves a rail with the filled-field count; reload keeps the draft",
     "Edge: planner unreachable or model missing shows ASSISTANT OFF with the cause, RETRY and a FORM link to Guided Create, and no turn can be sent; LLM_API_URL unset shows no entry at all",
     "Check at 1366x768: thread, composer, sidebar and (from F-045) the player all fit without the page scrolling",
-    "CHAT is the start screen when LLM_API_URL and YUE_API_URL are set (the owner's, D-099); with either unset the app opens on the Library as today, and the Library is one click away in the header"
+    "CHAT shows in the header and as OPEN CHAT on a song when LLM_API_URL and YUE_API_URL are set; the app always starts on the Library (D-119, reversing D-099)"
    ],
    "passes": false,
    "evidence": null
@@ -908,7 +908,7 @@
    "id": "F-074",
    "scope": "chat",
    "milestone": "C6",
-   "behaviour": "The Library's CREATE opens the remembered mode (chat or form) and CONTINUE opens a song's thread",
+   "behaviour": "CONTINUE opens a song's thread; the Library stays the start screen (D-119)",
    "acceptance": [
     "First open lands on CHAT with the sidebar open; afterwards the start screen and the sidebar state are remembered; CREATE with a typed idea opens the remembered mode with the idea; CONTINUE opens the song's thread",
     "Edge: with LLM_API_URL or YUE_API_URL unset the app opens on the Library as today (D-099); the golden-path e2e still passes unchanged"

@@ -512,3 +512,10 @@ SP-5 is proven at rung 0 (one call per turn): all bars (a)-(g) pass on the v3.1 
 
 ## D-118 · 2026-10-06 · stage 7 (chat turn, SP-5 port) · by: assumed (builder, recorded by the conductor)
 (a) the "style starts with the language" prompt rule (D-112) is dropped because v3.1 was measured without it; CREATE SONG's `withLanguage` still adds the language; (b) `eld` (pure JS, Apache-2.0, no deps; 529/531 on SP-5's recorded lyric sections) is a new server dependency for the lyric-language guard, loaded on first use, skipping text ≤ 40 chars; (c) history budget 2400 characters, pending card 3600; (d) the missing-section guard also runs on edits C0a only redirects; the key list is enforced by the schema enum, not written in the prompt; two bugs in the spike's key guard fixed (every key read as minor; sharp majors never matched).
+
+## D-119 · 2026-10-06 · stage 7 (chat C0a live) · by: user
+"Default to the library view when launching Mulakai": the app always starts on the Library; CHAT is one click away in the header (and OPEN CHAT on a song) when the chat is configured. Reverses D-099's CHAT start screen (and F-043's start-screen criterion, F-074's "remembered mode"). Shipped in #154.
+- instead of: CHAT as the start screen when configured.
+
+## D-120 · 2026-10-06 · stage 7 (chat C0a live) · by: conductor (bugs found in the owner's first live use)
+The chat player read `song.audio_file`, which GET /api/songs/:id never sends, so no player appeared after a real CREATE SONG (#153: it plays the base layer's active take). The CA-6 screenshots ran against a stub that sent the field: a live run against the real server belongs before handing the screen over (CA-7). start-all.bat now starts Ollama with the 16k context and passes LLM_API_URL / LLM_MODEL (#152, #155). ACE-Step on :8001 runs `acestep\api_server.py` (start-all's portable path), which bears on R-025.
