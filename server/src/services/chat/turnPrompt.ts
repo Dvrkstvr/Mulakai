@@ -3,13 +3,14 @@
  * message of the song-state block, the phrase lines when there is a song (reused phraseLines), the
  * pending proposal (songState.draftLines), the last turns as PERSON / ASSISTANT lines with a one-line
  * card summary built from the card's fields (never the whole transcript), the REQUEST and the
- * compact-JSON reply line. C0a has no mark and no attachment. A retry reuses the planner's
+ * compact-JSON reply line. C3: the ATTACHED / REFERENCE lines come in the state block (songStateSource);
+ * a READ card and a reading card are one history line each. A retry reuses the planner's
  * retryMessages with the chat's own wording (D-114 i). Budgets: SP-5 RESULT item 5. Pure.
  */
 import { phraseBarsOf, phraseLines } from '../score/phraseRequest.js';
 import { retryMessages } from '../score/plannerPrompt.js';
 import type { ChatMessage as PromptMessage, ScoreFacts } from '../score/planTypes.js';
-import type { AskBody, ChatMessage, RecipeBody } from './chatTypes.js';
+import type { AnalyzeBody, AskBody, ChatMessage, ReadingBody, RecipeBody } from './chatTypes.js';
 
 /** SP-5 v2: one compact line cuts 20-35% of the completion tokens. */
 export const REPLY_LINE = 'Reply with the JSON object only, compact on ONE line (no newlines, no indentation).';
@@ -26,7 +27,9 @@ const cut = (s: string, n = TEXT_MAX) => (s.length > n ? `${s.slice(0, n)}…` :
 function cardSummary(body: RecipeBody | null): string {
   const r = body?.recipe;
   if (!r) return '[new-song card]';
-  return `[new-song card: "${r.title}" · ${cut(r.style, STYLE_MAX)} · ${r.bpm} bpm · ${r.key} · ${r.language}]`;
+  const use = body?.reference ? (body.reference.use === 'cover' ? 'a cover of the reference' : 'borrows from the reference') : '';
+  const parts = [`"${r.title}"`, cut(r.style, STYLE_MAX), r.bpm !== undefined ? `${r.bpm} bpm` : '', r.key ?? '', r.language, use];
+  return `[new-song card: ${parts.filter(Boolean).join(' · ')}]`;
 }
 
 function line(m: ChatMessage): string | null {
@@ -35,6 +38,11 @@ function line(m: ChatMessage): string | null {
     case 'failed': return null;
     case 'ask': return `ASSISTANT: ${cut(m.text)} (choices: ${((m.body as AskBody | null)?.choices ?? []).join(' / ')})`;
     case 'recipe': return `ASSISTANT: ${cut(m.text)} ${cardSummary(m.body as RecipeBody | null)}`;
+    case 'analyze': return `ASSISTANT: ${cut(m.text)} [READ card for "${(m.body as AnalyzeBody | null)?.name ?? 'a reference'}"]`;
+    case 'reading': {
+      const r = m.body as ReadingBody | null;
+      return `ASSISTANT: [the reference "${r?.name ?? ''}" ${r?.reading ? 'was read' : `is not read: ${cut(m.text)}`}]`;
+    }
     case 'song': return `ASSISTANT: [the song was created: ${cut(m.text)}]`;
     case 'version': return `ASSISTANT: [a new version was saved: ${cut(m.text)}]`;
     default: return `ASSISTANT: ${cut(m.text)}`;
