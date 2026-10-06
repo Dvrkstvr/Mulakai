@@ -1,0 +1,2094 @@
+{
+ "song": "C",
+ "context": {
+  "base_abs_phase_err_ms_bar_lines": {
+   "median": 26.365391964964665,
+   "p95": 150.0,
+   "max": 150.0
+  },
+  "base_abs_lufs_step_bar_lines": {
+   "median": 1.2845842817816102,
+   "p95": 4.937806974217462
+  },
+  "beat_s": 0.7058823529411765,
+  "bar_s": 2.823529411764706,
+  "base_grid_offset": 0,
+  "base_root_agree": 1.0,
+  "base_thinned": false
+ },
+ "edits": {
+  "reharm": {
+   "label": "REHARMONIZE 8 bars of the first chorus",
+   "kind": "local",
+   "span": [
+    14,
+    22
+   ],
+   "control": {
+    "audio_bars": 77,
+    "score_bars": 77,
+    "offset": 0,
+    "root_unedited": 1.0,
+    "bpm_from_bars": 85.10638297872329,
+    "Q": 85,
+    "dur_s": 214.67866666666666,
+    "rest_melody_vs_base": {
+     "exact": 0.9773299748110832,
+     "fold": 0.9773299748110832,
+     "n_ref": 393,
+     "n_est": 401
+    },
+    "span": {
+     "root_new": 1.0,
+     "root_old": 0.0
+    }
+   },
+   "variants": {
+    "A1": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.82839583333333,
+     "rest_melody_vs_base": {
+      "exact": 0.9949109414758269,
+      "fold": 0.9949109414758269,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "span": {
+      "root_new": 1.0,
+      "root_old": 0.0
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_reharm_A1.wav",
+     "joins": [
+      37.16,
+      59.73972916666666
+     ],
+     "base_audio_changed_s": 0.7040416666666667,
+     "base_changed_ranges_out_s": [
+      [
+       36.81,
+       37.16
+      ],
+      [
+       59.74,
+       60.09
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": 146.04744879927057,
+       "phase_corr": 0.051867540392296116,
+       "lufs_before": -13.180942373188824,
+       "lufs_after": -13.015391752935335,
+       "lufs_step": 0.1655506202534891,
+       "centroid_before": 3042.1669242447924,
+       "centroid_after": 3791.920657285741,
+       "centroid_step": 749.7537330409486,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": 76.72263378682558,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": -1.0276545713227083,
+       "centroid_step_excess": 904.823636286696
+      },
+      {
+       "join": 1,
+       "out_s": 59.73972916666666,
+       "phase_err_ms": -0.21860222125224854,
+       "phase_corr": 0.26514505442574043,
+       "lufs_before": -15.262316780426339,
+       "lufs_after": -13.36926158808072,
+       "lufs_step": 1.893055192345619,
+       "centroid_before": 1824.6292508188355,
+       "centroid_after": 1173.224657029287,
+       "centroid_step": -651.4045937895485,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -68.78200069516757,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": -0.09251803694700556,
+       "centroid_step_excess": -614.525954371132
+      }
+     ],
+     "splice_seconds": 0.07931900024414062
+    },
+    "A2": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.82839583333333,
+     "rest_melody_vs_base": {
+      "exact": 0.9949109414758269,
+      "fold": 0.9949109414758269,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "span": {
+      "root_new": 1.0,
+      "root_old": 0.0
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_reharm_A2.wav",
+     "joins": [
+      37.16,
+      59.73972916666666
+     ],
+     "base_audio_changed_s": 2.813270833333333,
+     "base_changed_ranges_out_s": [
+      [
+       35.75,
+       37.16
+      ],
+      [
+       59.74,
+       61.15
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": 146.85977557698644,
+       "phase_corr": 0.03773026081755727,
+       "lufs_before": -13.331657440041612,
+       "lufs_after": -12.835666070935337,
+       "lufs_step": 0.4959913691062745,
+       "centroid_before": 3319.1129889586527,
+       "centroid_after": 3703.6021597727026,
+       "centroid_step": 384.4891708140499,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": 77.53496056454145,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": -0.6972138224699229,
+       "centroid_step_excess": 539.5590740597972
+      },
+      {
+       "join": 1,
+       "out_s": 59.73972916666666,
+       "phase_err_ms": 0.2852964086089205,
+       "phase_corr": 0.32132860410322245,
+       "lufs_before": -15.291171928228414,
+       "lufs_after": -13.399264153059688,
+       "lufs_step": 1.8919077751687254,
+       "centroid_before": 1782.2739254589778,
+       "centroid_after": 1200.532275617604,
+       "centroid_step": -581.7416498413738,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -68.2781020653064,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": -0.09366545412389904,
+       "centroid_step_excess": -544.8630104229574
+      }
+     ],
+     "splice_seconds": 0.08095264434814453
+    },
+    "A3": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.82839583333333,
+     "rest_melody_vs_base": {
+      "exact": 0.9949109414758269,
+      "fold": 0.9949109414758269,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "span": {
+      "root_new": 1.0,
+      "root_old": 0.0
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_reharm_A3.wav",
+     "joins": [
+      37.16,
+      59.73972916666666
+     ],
+     "base_audio_changed_s": 0.7041666666666667,
+     "base_changed_ranges_out_s": [
+      [
+       36.81,
+       37.16
+      ],
+      [
+       59.74,
+       60.09
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": 146.05493490432332,
+       "phase_corr": 0.0476802547161454,
+       "lufs_before": -13.171700074490122,
+       "lufs_after": -11.992960278762329,
+       "lufs_step": 1.1787397957277932,
+       "centroid_before": 3085.8937773734665,
+       "centroid_after": 3800.992009444021,
+       "centroid_step": 715.0982320705543,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": 76.73011989187833,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": -0.014465395848404228,
+       "centroid_step_excess": 870.1681353163017
+      },
+      {
+       "join": 1,
+       "out_s": 59.73972916666666,
+       "phase_err_ms": -0.21392208114206307,
+       "phase_corr": 0.26431100498376725,
+       "lufs_before": -15.24753554188781,
+       "lufs_after": -13.372586471270898,
+       "lufs_step": 1.8749490706169123,
+       "centroid_before": 1828.1114192853113,
+       "centroid_after": 1173.3583334798354,
+       "centroid_step": -654.7530858054758,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -68.77732055505737,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": -0.11062415867571218,
+       "centroid_step_excess": -617.8744463870594
+      }
+     ],
+     "splice_seconds": 0.33445143699645996,
+     "gain_db": {
+      "in": 1.19040570892086,
+      "out": -0.07010505286462632
+     }
+    },
+    "A3_bal": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 0.9855072463768116,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.82839583333333,
+     "rest_melody_vs_base": {
+      "exact": 1.0,
+      "fold": 1.0,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "span": {
+      "root_new": 0.875,
+      "root_old": 0.125
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_reharm_A3_bal.wav",
+     "joins": [
+      37.16,
+      59.73972916666666
+     ],
+     "base_audio_changed_s": 3.05025,
+     "base_changed_ranges_out_s": [
+      [
+       35.64,
+       37.16
+      ],
+      [
+       59.74,
+       61.26
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": 4.276541236109869,
+       "phase_corr": 0.13104277705432113,
+       "lufs_before": -15.422259870429853,
+       "lufs_after": -12.73913490462149,
+       "lufs_step": 2.6831249658083625,
+       "centroid_before": 2732.354187728193,
+       "centroid_after": 3924.0205081275694,
+       "centroid_step": 1191.6663203993762,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": -65.04827377633512,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": 1.489919774232165,
+       "centroid_step_excess": 1346.7362236451236
+      },
+      {
+       "join": 1,
+       "out_s": 59.73972916666666,
+       "phase_err_ms": -0.07508837225353363,
+       "phase_corr": 0.1946732426194928,
+       "lufs_before": -17.986481439651094,
+       "lufs_after": -12.861968570543551,
+       "lufs_step": 5.124512869107543,
+       "centroid_before": 2176.421540592961,
+       "centroid_after": 1226.1909270421077,
+       "centroid_step": -950.2306135508531,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -68.63848684616885,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": 3.138939639814918,
+       "centroid_step_excess": -913.3519741324367
+      }
+     ],
+     "splice_seconds": 0.33445143699645996,
+     "gain_db": {
+      "in": 1.19040570892086,
+      "out": -0.07010505286462632
+     },
+     "heal": {
+      "id": "C_reharm_A3_bal",
+      "mode": "balanced",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "53548d88-ab20-4d13-ad83-31f280c61dc8",
+        "seconds": 20.46131706237793,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C58312b35-fce0-9867-268e-466a21cbeb98.wav",
+        "bytes": 82483288,
+        "window": [
+         35.66,
+         38.66
+        ]
+       },
+       {
+        "task_id": "c74de652-3790-4854-bc50-d5c4cced3233",
+        "seconds": 14.479794979095459,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C66f3f4c6-fb40-693e-704e-fceea899f08a.wav",
+        "bytes": 82483288,
+        "window": [
+         58.24,
+         61.24
+        ]
+       }
+      ],
+      "seconds_total": 34.94111204147339
+     }
+    },
+    "A3_con": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 0.9855072463768116,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.82839583333333,
+     "rest_melody_vs_base": {
+      "exact": 0.9949109414758269,
+      "fold": 0.9949109414758269,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "span": {
+      "root_new": 0.875,
+      "root_old": 0.125
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_reharm_A3_con.wav",
+     "joins": [
+      37.16,
+      59.73972916666666
+     ],
+     "base_audio_changed_s": 3.1000833333333335,
+     "base_changed_ranges_out_s": [
+      [
+       35.61,
+       37.16
+      ],
+      [
+       59.74,
+       61.29
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": 4.034018167010646,
+       "phase_corr": 0.11980446299502648,
+       "lufs_before": -15.39301772044623,
+       "lufs_after": -12.783094346821896,
+       "lufs_step": 2.6099233736243335,
+       "centroid_before": 2761.2778197033226,
+       "centroid_after": 3962.07067541815,
+       "centroid_step": 1200.7928557148275,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": -65.29079684543434,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": 1.416718182048136,
+       "centroid_step_excess": 1355.8627589605749
+      },
+      {
+       "join": 1,
+       "out_s": 59.73972916666666,
+       "phase_err_ms": -0.10589796706362972,
+       "phase_corr": 0.19218278188992188,
+       "lufs_before": -18.13137320995219,
+       "lufs_after": -12.975557413333242,
+       "lufs_step": 5.155815796618949,
+       "centroid_before": 2204.23490972368,
+       "centroid_after": 1237.239057270675,
+       "centroid_step": -966.9958524530052,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -68.66929644097894,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": 3.1702425673263246,
+       "centroid_step_excess": -930.1172130345888
+      }
+     ],
+     "splice_seconds": 0.33445143699645996,
+     "gain_db": {
+      "in": 1.19040570892086,
+      "out": -0.07010505286462632
+     },
+     "heal": {
+      "id": "C_reharm_A3_con",
+      "mode": "conservative",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "a7097c74-0966-4241-952f-19e5b6bca9a8",
+        "seconds": 23.12902021408081,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C926975ab-5555-66b9-dc58-1075e0d35ca3.wav",
+        "bytes": 82483288,
+        "window": [
+         35.66,
+         38.66
+        ]
+       },
+       {
+        "task_id": "a76db91d-3160-4a90-86ee-f75366ec0e11",
+        "seconds": 12.470800399780273,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Cc6c6a768-6c11-3b7a-cbd4-48b5a7392621.wav",
+        "bytes": 82483288,
+        "window": [
+         58.24,
+         61.24
+        ]
+       }
+      ],
+      "seconds_total": 35.599820613861084
+     }
+    }
+   }
+  },
+  "phrase": {
+   "label": "WRITE PHRASE 4 bars",
+   "kind": "local",
+   "span": [
+    22,
+    26
+   ],
+   "control": {
+    "audio_bars": 77,
+    "score_bars": 77,
+    "offset": 0,
+    "root_unedited": 1.0,
+    "bpm_from_bars": 85.10638297872318,
+    "Q": 85,
+    "dur_s": 214.35866666666666,
+    "rest_melody_vs_base": {
+     "exact": 0.986046511627907,
+     "fold": 0.986046511627907,
+     "n_ref": 428,
+     "n_est": 432
+    },
+    "span": {
+     "instrumental": {
+      "n_est": 16,
+      "F1_new_fold": 0.8108108108108109,
+      "F1_new": 0.6486486486486486,
+      "F1_old_fold": 0.0625
+     },
+     "both": {
+      "n_est": 21,
+      "F1_new_fold": 0.9523809523809523,
+      "F1_new": 0.8095238095238095,
+      "F1_old_fold": 0.1081081081081081
+     }
+    }
+   },
+   "variants": {
+    "A1": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.83904166666667,
+     "rest_melody_vs_base": {
+      "exact": 0.9976580796252927,
+      "fold": 0.9976580796252927,
+      "n_ref": 428,
+      "n_est": 426
+     },
+     "span": {
+      "instrumental": {
+       "n_est": 21,
+       "F1_new_fold": 0.9047619047619048,
+       "F1_new": 0.7619047619047619,
+       "F1_old_fold": 0.1081081081081081
+      },
+      "both": {
+       "n_est": 22,
+       "F1_new_fold": 0.8837209302325582,
+       "F1_new": 0.7441860465116279,
+       "F1_old_fold": 0.10526315789473685
+      }
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_phrase_A1.wav",
+     "joins": [
+      59.75,
+      71.050375
+     ],
+     "base_audio_changed_s": 0.7049375,
+     "base_changed_ranges_out_s": [
+      [
+       59.4,
+       59.75
+      ],
+      [
+       71.05,
+       71.4
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": 6.348997188279348,
+       "phase_corr": 0.04918667675644361,
+       "lufs_before": -15.366826500492293,
+       "lufs_after": -12.360943836902655,
+       "lufs_step": 3.005882663589638,
+       "centroid_before": 1211.2045529620075,
+       "centroid_after": 1553.4648694516818,
+       "centroid_step": 342.2603164896743,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -62.214401285635965,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": 1.0203094342970136,
+       "centroid_step_excess": 379.1389559080908
+      },
+      {
+       "join": 1,
+       "out_s": 71.050375,
+       "phase_err_ms": -6.869465442733401,
+       "phase_corr": 0.03007727398243285,
+       "lufs_before": -15.269964794739197,
+       "lufs_after": -12.08785943076935,
+       "lufs_step": 3.1821053639698462,
+       "centroid_before": 1448.9005554385753,
+       "centroid_after": 2525.658898410191,
+       "centroid_step": 1076.7583429716155,
+       "base_phase_err_ms": -26.365391964964665,
+       "phase_err_excess_ms": 19.495926522231265,
+       "base_lufs_step": 3.237557235734341,
+       "base_centroid_step": 1382.0733521488191,
+       "lufs_step_excess": -0.05545187176449495,
+       "centroid_step_excess": -305.3150091772036
+      }
+     ],
+     "splice_seconds": 0.07819509506225586
+    },
+    "A2": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.83904166666667,
+     "rest_melody_vs_base": {
+      "exact": 0.9976580796252927,
+      "fold": 0.9976580796252927,
+      "n_ref": 428,
+      "n_est": 426
+     },
+     "span": {
+      "instrumental": {
+       "n_est": 21,
+       "F1_new_fold": 0.9523809523809523,
+       "F1_new": 0.8095238095238095,
+       "F1_old_fold": 0.1081081081081081
+      },
+      "both": {
+       "n_est": 22,
+       "F1_new_fold": 0.9302325581395349,
+       "F1_new": 0.7906976744186046,
+       "F1_old_fold": 0.10526315789473685
+      }
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_phrase_A2.wav",
+     "joins": [
+      59.75,
+      71.050375
+     ],
+     "base_audio_changed_s": 2.8148541666666667,
+     "base_changed_ranges_out_s": [
+      [
+       58.34,
+       59.75
+      ],
+      [
+       71.05,
+       72.46
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": 0.9385656816588924,
+       "phase_corr": 0.14691026749410818,
+       "lufs_before": -15.414240409495697,
+       "lufs_after": -12.353639514004445,
+       "lufs_step": 3.060600895491252,
+       "centroid_before": 1289.286382166631,
+       "centroid_after": 1522.0688265886834,
+       "centroid_step": 232.78244442205232,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -67.62483279225643,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": 1.0750276661986273,
+       "centroid_step_excess": 269.6610838404688
+      },
+      {
+       "join": 1,
+       "out_s": 71.050375,
+       "phase_err_ms": -7.110196972519375,
+       "phase_corr": 0.030323405816297437,
+       "lufs_before": -15.348722804597815,
+       "lufs_after": -12.431529494702888,
+       "lufs_step": 2.9171933098949268,
+       "centroid_before": 1437.343100596075,
+       "centroid_after": 2584.5907624774745,
+       "centroid_step": 1147.2476618813996,
+       "base_phase_err_ms": -26.365391964964665,
+       "phase_err_excess_ms": 19.25519499244529,
+       "base_lufs_step": 3.237557235734341,
+       "base_centroid_step": 1382.0733521488191,
+       "lufs_step_excess": -0.3203639258394144,
+       "centroid_step_excess": -234.82569026741953
+      }
+     ],
+     "splice_seconds": 0.08575057983398438
+    },
+    "A3": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.83904166666667,
+     "rest_melody_vs_base": {
+      "exact": 0.9976580796252927,
+      "fold": 0.9976580796252927,
+      "n_ref": 428,
+      "n_est": 426
+     },
+     "span": {
+      "instrumental": {
+       "n_est": 21,
+       "F1_new_fold": 0.9523809523809523,
+       "F1_new": 0.8095238095238095,
+       "F1_old_fold": 0.1081081081081081
+      },
+      "both": {
+       "n_est": 22,
+       "F1_new_fold": 0.9302325581395349,
+       "F1_new": 0.7906976744186046,
+       "F1_old_fold": 0.10526315789473685
+      }
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_phrase_A3.wav",
+     "joins": [
+      59.75,
+      71.050375
+     ],
+     "base_audio_changed_s": 0.7048541666666667,
+     "base_changed_ranges_out_s": [
+      [
+       59.4,
+       59.75
+      ],
+      [
+       71.05,
+       71.4
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": 6.37427964304407,
+       "phase_corr": 0.047848306525630505,
+       "lufs_before": -15.369971024086988,
+       "lufs_after": -13.034903924361078,
+       "lufs_step": 2.3350670997259098,
+       "centroid_before": 1211.0728151645935,
+       "centroid_after": 1552.0276172440592,
+       "centroid_step": 340.9548020794657,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -62.189118830871244,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": 0.3494938704332853,
+       "centroid_step_excess": 377.8334414978822
+      },
+      {
+       "join": 1,
+       "out_s": 71.050375,
+       "phase_err_ms": -6.8685436435059986,
+       "phase_corr": 0.029574167374724982,
+       "lufs_before": -15.447847310824256,
+       "lufs_after": -12.088935382905474,
+       "lufs_step": 3.3589119279187827,
+       "centroid_before": 1451.0588096491579,
+       "centroid_after": 2525.5248518152007,
+       "centroid_step": 1074.4660421660428,
+       "base_phase_err_ms": -26.365391964964665,
+       "phase_err_excess_ms": 19.496848321458668,
+       "base_lufs_step": 3.237557235734341,
+       "base_centroid_step": 1382.0733521488191,
+       "lufs_step_excess": 0.1213546921844415,
+       "centroid_step_excess": -307.6073099827763
+      }
+     ],
+     "splice_seconds": 0.30726146697998047,
+     "gain_db": {
+      "in": -0.822085532849453,
+      "out": -0.06032144302180242
+     }
+    },
+    "A3_bal": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.83904166666667,
+     "rest_melody_vs_base": {
+      "exact": 0.9917550058892814,
+      "fold": 0.9917550058892814,
+      "n_ref": 428,
+      "n_est": 421
+     },
+     "span": {
+      "instrumental": {
+       "n_est": 18,
+       "F1_new_fold": 0.717948717948718,
+       "F1_new": 0.5641025641025642,
+       "F1_old_fold": 0.11764705882352941
+      },
+      "both": {
+       "n_est": 18,
+       "F1_new_fold": 0.717948717948718,
+       "F1_new": 0.5641025641025642,
+       "F1_old_fold": 0.11764705882352941
+      }
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_phrase_A3_bal.wav",
+     "joins": [
+      59.75,
+      71.050375
+     ],
+     "base_audio_changed_s": 3.0495625,
+     "base_changed_ranges_out_s": [
+      [
+       58.23,
+       59.75
+      ],
+      [
+       71.05,
+       72.57
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": 5.349218080226742,
+       "phase_corr": 0.16683974156612671,
+       "lufs_before": -15.62824983076833,
+       "lufs_after": -14.237530356614542,
+       "lufs_step": 1.390719474153789,
+       "centroid_before": 1470.580042324801,
+       "centroid_after": 1709.628246720056,
+       "centroid_step": 239.04820439525497,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -63.21418039368857,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": -0.5948537551388355,
+       "centroid_step_excess": 275.92684381367144
+      },
+      {
+       "join": 1,
+       "out_s": 71.050375,
+       "phase_err_ms": -8.690743660012913,
+       "phase_corr": 0.0438308719356554,
+       "lufs_before": -15.39590248457785,
+       "lufs_after": -12.97063055172415,
+       "lufs_step": 2.4252719328536987,
+       "centroid_before": 1644.8840484218854,
+       "centroid_after": 1741.1946460482043,
+       "centroid_step": 96.3105976263189,
+       "base_phase_err_ms": -26.365391964964665,
+       "phase_err_excess_ms": 17.674648304951752,
+       "base_lufs_step": 3.237557235734341,
+       "base_centroid_step": 1382.0733521488191,
+       "lufs_step_excess": -0.8122853028806425,
+       "centroid_step_excess": -1285.7627545225002
+      }
+     ],
+     "splice_seconds": 0.30726146697998047,
+     "gain_db": {
+      "in": -0.822085532849453,
+      "out": -0.06032144302180242
+     },
+     "heal": {
+      "id": "C_phrase_A3_bal",
+      "mode": "balanced",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "a708b8c9-a855-42f6-acee-9fe54c1d2d11",
+        "seconds": 14.693495750427246,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Ce2341d6b-53b2-c8f6-ec2d-84db41ba5c9f.wav",
+        "bytes": 82483288,
+        "window": [
+         58.25,
+         61.25
+        ]
+       },
+       {
+        "task_id": "d249a0c7-fc36-42f0-8d4f-2585af581281",
+        "seconds": 14.614021062850952,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C7842999b-c0e7-9994-de47-955bf22b287d.wav",
+        "bytes": 82483288,
+        "window": [
+         69.55,
+         72.55
+        ]
+       }
+      ],
+      "seconds_total": 29.3075168132782
+     }
+    },
+    "A3_con": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.83904166666667,
+     "rest_melody_vs_base": {
+      "exact": 0.9917550058892814,
+      "fold": 0.9917550058892814,
+      "n_ref": 428,
+      "n_est": 421
+     },
+     "span": {
+      "instrumental": {
+       "n_est": 18,
+       "F1_new_fold": 0.717948717948718,
+       "F1_new": 0.5641025641025642,
+       "F1_old_fold": 0.11764705882352941
+      },
+      "both": {
+       "n_est": 18,
+       "F1_new_fold": 0.717948717948718,
+       "F1_new": 0.5641025641025642,
+       "F1_old_fold": 0.11764705882352941
+      }
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_phrase_A3_con.wav",
+     "joins": [
+      59.75,
+      71.050375
+     ],
+     "base_audio_changed_s": 3.0993125,
+     "base_changed_ranges_out_s": [
+      [
+       58.2,
+       59.75
+      ],
+      [
+       71.05,
+       72.6
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": 5.7498238584934125,
+       "phase_corr": 0.16935944899534788,
+       "lufs_before": -15.30432103668983,
+       "lufs_after": -14.192540818468279,
+       "lufs_step": 1.1117802182215506,
+       "centroid_before": 1459.3497071512818,
+       "centroid_after": 1723.5001725944633,
+       "centroid_step": 264.1504654431815,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -62.8135746154219,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": -0.8737930110710739,
+       "centroid_step_excess": 301.02910486159794
+      },
+      {
+       "join": 1,
+       "out_s": 71.050375,
+       "phase_err_ms": 126.30412028003582,
+       "phase_corr": 0.09737497700639487,
+       "lufs_before": -15.30497772091419,
+       "lufs_after": -12.936048287058973,
+       "lufs_step": 2.3689294338552163,
+       "centroid_before": 1721.3894662284556,
+       "centroid_after": 1710.2985488821805,
+       "centroid_step": -11.090917346275091,
+       "base_phase_err_ms": -26.365391964964665,
+       "phase_err_excess_ms": 152.66951224500048,
+       "base_lufs_step": 3.237557235734341,
+       "base_centroid_step": 1382.0733521488191,
+       "lufs_step_excess": -0.8686278018791249,
+       "centroid_step_excess": -1393.1642694950942
+      }
+     ],
+     "splice_seconds": 0.30726146697998047,
+     "gain_db": {
+      "in": -0.822085532849453,
+      "out": -0.06032144302180242
+     },
+     "heal": {
+      "id": "C_phrase_A3_con",
+      "mode": "conservative",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "dc0cd47e-d48f-4e61-b087-3d768c33724a",
+        "seconds": 12.59326720237732,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C5d94e1b2-f756-ee5c-b41c-56679f01be38.wav",
+        "bytes": 82483288,
+        "window": [
+         58.25,
+         61.25
+        ]
+       },
+       {
+        "task_id": "ad0baebb-c818-456b-a4bd-3b5abfce6a19",
+        "seconds": 12.597068548202515,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Cb7e007df-f875-8475-81cb-745581eb6aa2.wav",
+        "bytes": 82483288,
+        "window": [
+         69.55,
+         72.55
+        ]
+       }
+      ],
+      "seconds_total": 25.190335750579834
+     }
+    }
+   }
+  },
+  "lyrics": {
+   "label": "REWRITE LYRICS first chorus",
+   "kind": "local",
+   "span": [
+    14,
+    22
+   ],
+   "control": {
+    "audio_bars": 77,
+    "score_bars": 77,
+    "offset": 0,
+    "root_unedited": 1.0,
+    "bpm_from_bars": 85.1063829787234,
+    "Q": 85,
+    "dur_s": 214.83866666666665,
+    "rest_melody_vs_base": {
+     "exact": 0.9810366624525917,
+     "fold": 0.9810366624525917,
+     "n_ref": 393,
+     "n_est": 398
+    }
+   },
+   "variants": {
+    "A1": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.81702083333334,
+     "rest_melody_vs_base": {
+      "exact": 0.9974554707379135,
+      "fold": 0.9974554707379135,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_lyrics_A1.wav",
+     "joins": [
+      37.16,
+      59.72835416666667
+     ],
+     "base_audio_changed_s": 0.7040208333333333,
+     "base_changed_ranges_out_s": [
+      [
+       36.81,
+       37.16
+      ],
+      [
+       59.73,
+       60.08
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": -150.0,
+       "phase_corr": 0.3024882564162078,
+       "lufs_before": -13.197105943370161,
+       "lufs_after": -12.188747692307567,
+       "lufs_step": 1.0083582510625941,
+       "centroid_before": 2900.946868374358,
+       "centroid_after": 2816.8971353339334,
+       "centroid_step": -84.0497330404246,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": -219.324815012445,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": -0.1848469405136033,
+       "centroid_step_excess": 71.02017020532276
+      },
+      {
+       "join": 1,
+       "out_s": 59.72835416666667,
+       "phase_err_ms": -3.1045629949787537,
+       "phase_corr": 0.22922840101537986,
+       "lufs_before": -12.752582120376413,
+       "lufs_after": -13.334947964645249,
+       "lufs_step": -0.5823658442688355,
+       "centroid_before": 1696.241041404181,
+       "centroid_after": 1192.4693698532449,
+       "centroid_step": -503.77167155093616,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -71.66796146889406,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": -2.56793907356146,
+       "centroid_step_excess": -466.8930321325197
+      }
+     ],
+     "splice_seconds": 0.07392573356628418,
+     "words_heard": "Der Moor kommt ganz leise an, die Stra\u00dfe ruft mich weit hinaus Ich gehe fort und schaue nicht zur\u00fcck nach Entkammern leis Doch ich f\u00fchl das Zittern, das mich leise \u00fcbernimmt"
+    },
+    "A2": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.81702083333334,
+     "rest_melody_vs_base": {
+      "exact": 0.9949109414758269,
+      "fold": 0.9949109414758269,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_lyrics_A2.wav",
+     "joins": [
+      37.16,
+      59.72835416666667
+     ],
+     "base_audio_changed_s": 2.81625,
+     "base_changed_ranges_out_s": [
+      [
+       35.75,
+       37.16
+      ],
+      [
+       59.73,
+       61.14
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": -150.0,
+       "phase_corr": 0.2823079124512441,
+       "lufs_before": -13.374955401146181,
+       "lufs_after": -12.236003676799223,
+       "lufs_step": 1.138951724346958,
+       "centroid_before": 3071.8508132601974,
+       "centroid_after": 2790.9296398215183,
+       "centroid_step": -280.92117343867903,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": -219.324815012445,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": -0.054253467229239405,
+       "centroid_step_excess": -125.85127019293168
+      },
+      {
+       "join": 1,
+       "out_s": 59.72835416666667,
+       "phase_err_ms": -1.3691681393860247,
+       "phase_corr": 0.33645722092592417,
+       "lufs_before": -12.983585642915042,
+       "lufs_after": -13.114147410469254,
+       "lufs_step": -0.13056176755421234,
+       "centroid_before": 1704.1250412476488,
+       "centroid_after": 1236.006936610682,
+       "centroid_step": -468.1181046369668,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -69.93256661330133,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": -2.116134996846837,
+       "centroid_step_excess": -431.2394652185503
+      }
+     ],
+     "splice_seconds": 0.06015777587890625,
+     "words_heard": "Ich wei\u00df, der Moor kommt ganz leise an, die Stra\u00dfe ruft mich weit hinaus Ich gehe fort und schaue nicht zur\u00fcck nach Entkammern leis Doch ich f\u00fchl das Zittern, das mich leise \u00fcber"
+    },
+    "A3": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.81702083333334,
+     "rest_melody_vs_base": {
+      "exact": 0.9974554707379135,
+      "fold": 0.9974554707379135,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_lyrics_A3.wav",
+     "joins": [
+      37.16,
+      59.72835416666667
+     ],
+     "base_audio_changed_s": 0.7039375,
+     "base_changed_ranges_out_s": [
+      [
+       36.81,
+       37.16
+      ],
+      [
+       59.73,
+       60.08
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": -150.0,
+       "phase_corr": 0.2975681318196357,
+       "lufs_before": -13.19666422305369,
+       "lufs_after": -12.25308537238399,
+       "lufs_step": 0.9435788506696987,
+       "centroid_before": 2902.203610350055,
+       "centroid_after": 2815.561259464319,
+       "centroid_step": -86.64235088573605,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": -219.324815012445,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": -0.2496263409064987,
+       "centroid_step_excess": 68.4275523600113
+      },
+      {
+       "join": 1,
+       "out_s": 59.72835416666667,
+       "phase_err_ms": -3.190060041967831,
+       "phase_corr": 0.23001518434161294,
+       "lufs_before": -15.079885816975002,
+       "lufs_after": -13.426712956399939,
+       "lufs_step": 1.6531728605750633,
+       "centroid_before": 1700.409224220598,
+       "centroid_after": 1188.1176225762713,
+       "centroid_step": -512.2916016443266,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -71.75345851588314,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": -0.3324003687175612,
+       "centroid_step_excess": -475.4129622259102
+      }
+     ],
+     "splice_seconds": 0.30789995193481445,
+     "gain_db": {
+      "in": 0.10404611209690984,
+      "out": -2.5543704818867248
+     },
+     "words_heard": "Der Moor kommt ganz leise an, die Stra\u00dfe ruft mich weit hinaus Ich gehe fort und schaue nicht zur\u00fcck nach Entkammern leis Doch ich f\u00fchl das Zittern, das mich leise \u00fcbernimmt"
+    },
+    "A3_bal": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.81702083333334,
+     "rest_melody_vs_base": {
+      "exact": 1.0,
+      "fold": 1.0,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_lyrics_A3_bal.wav",
+     "joins": [
+      37.16,
+      59.72835416666667
+     ],
+     "base_audio_changed_s": 3.0495833333333335,
+     "base_changed_ranges_out_s": [
+      [
+       35.64,
+       37.16
+      ],
+      [
+       59.73,
+       61.25
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": 0.5041067870686649,
+       "phase_corr": 0.15920425834348875,
+       "lufs_before": -15.511790885261515,
+       "lufs_after": -13.129874461620698,
+       "lufs_step": 2.381916423640817,
+       "centroid_before": 2787.3079921100925,
+       "centroid_after": 3173.6647780958274,
+       "centroid_step": 386.35678598573486,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": -68.82070822537632,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": 1.1887112320646196,
+       "centroid_step_excess": 541.4266892314822
+      },
+      {
+       "join": 1,
+       "out_s": 59.72835416666667,
+       "phase_err_ms": -4.137835941413976,
+       "phase_corr": 0.22038666648789026,
+       "lufs_before": -16.133054409885805,
+       "lufs_after": -13.928999165011353,
+       "lufs_step": 2.2040552448744517,
+       "centroid_before": 2140.8367239968047,
+       "centroid_after": 1423.523192578706,
+       "centroid_step": -717.3135314180988,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -72.7012344153293,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": 0.21848201558182723,
+       "centroid_step_excess": -680.4348919996823
+      }
+     ],
+     "splice_seconds": 0.30789995193481445,
+     "gain_db": {
+      "in": 0.10404611209690984,
+      "out": -2.5543704818867248
+     },
+     "heal": {
+      "id": "C_lyrics_A3_bal",
+      "mode": "balanced",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "69845de5-9a22-4044-9790-0d815a288691",
+        "seconds": 14.697397470474243,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Cf021a182-1407-6b4a-d9c5-09bd8d7f29bf.wav",
+        "bytes": 82483288,
+        "window": [
+         35.66,
+         38.66
+        ]
+       },
+       {
+        "task_id": "91b13383-916f-46e7-a814-236b03c20270",
+        "seconds": 14.564566135406494,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C6da7cbd2-be32-a9e6-99d4-3bef87af1a6f.wav",
+        "bytes": 82483288,
+        "window": [
+         58.228,
+         61.228
+        ]
+       }
+      ],
+      "seconds_total": 29.261963605880737
+     },
+     "words_heard": "Die Stra\u00dfe ruft mich weit hinaus, ich gehe fort Und schaue nicht zur\u00fcck nach Entkammern leis Doch ich f\u00fchl das Zittern, das mich leise \u00fcber"
+    },
+    "A3_con": {
+     "audio_bars": 77,
+     "score_bars": 77,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 214.81702083333334,
+     "rest_melody_vs_base": {
+      "exact": 1.0,
+      "fold": 1.0,
+      "n_ref": 393,
+      "n_est": 393
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_lyrics_A3_con.wav",
+     "joins": [
+      37.16,
+      59.72835416666667
+     ],
+     "base_audio_changed_s": 3.0993958333333333,
+     "base_changed_ranges_out_s": [
+      [
+       35.61,
+       37.16
+      ],
+      [
+       59.73,
+       61.28
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 37.16,
+       "phase_err_ms": 0.4195247994854993,
+       "phase_corr": 0.15693841954510815,
+       "lufs_before": -15.492679782731999,
+       "lufs_after": -13.133433171133305,
+       "lufs_step": 2.359246611598694,
+       "centroid_before": 2813.3958407342398,
+       "centroid_after": 3193.716562599948,
+       "centroid_step": 380.32072186570804,
+       "base_phase_err_ms": 69.32481501244499,
+       "phase_err_excess_ms": -68.90529021295949,
+       "base_lufs_step": 1.1932051915761974,
+       "base_centroid_step": -155.06990324574735,
+       "lufs_step_excess": 1.1660414200224967,
+       "centroid_step_excess": 535.3906251114554
+      },
+      {
+       "join": 1,
+       "out_s": 59.72835416666667,
+       "phase_err_ms": -3.9861753820840056,
+       "phase_corr": 0.21216864692103096,
+       "lufs_before": -16.20622269548671,
+       "lufs_after": -14.137609269744987,
+       "lufs_step": 2.068613425741722,
+       "centroid_before": 2135.7527249745117,
+       "centroid_after": 1403.8520022268226,
+       "centroid_step": -731.9007227476891,
+       "base_phase_err_ms": 68.56339847391531,
+       "phase_err_excess_ms": -72.54957385599931,
+       "base_lufs_step": 1.9855732292926245,
+       "base_centroid_step": -36.87863941841647,
+       "lufs_step_excess": 0.08304019644909744,
+       "centroid_step_excess": -695.0220833292726
+      }
+     ],
+     "splice_seconds": 0.30789995193481445,
+     "gain_db": {
+      "in": 0.10404611209690984,
+      "out": -2.5543704818867248
+     },
+     "heal": {
+      "id": "C_lyrics_A3_con",
+      "mode": "conservative",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "f9236d4a-8b25-4d42-8cbc-757241a18e9f",
+        "seconds": 12.58863091468811,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C91adf0ec-b1fa-0cce-28bc-803b39278188.wav",
+        "bytes": 82483288,
+        "window": [
+         35.66,
+         38.66
+        ]
+       },
+       {
+        "task_id": "8fbf7e3f-1b0a-4798-9370-e3e883f237f4",
+        "seconds": 12.643977403640747,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C217bb9e9-4857-8fae-5b93-f56c3d716a86.wav",
+        "bytes": 82483288,
+        "window": [
+         58.228,
+         61.228
+        ]
+       }
+      ],
+      "seconds_total": 25.232608318328857
+     }
+    }
+   }
+  },
+  "repeat": {
+   "label": "REPEAT first chorus",
+   "kind": "repeat",
+   "span": [
+    14,
+    22
+   ],
+   "control": {
+    "audio_bars": 85,
+    "score_bars": 85,
+    "offset": 0,
+    "root_unedited": 1.0,
+    "bpm_from_bars": 85.4092526690394,
+    "Q": 85,
+    "dur_s": 235.87866666666667,
+    "rest_melody_vs_base": {
+     "exact": 0.9808773903262092,
+     "fold": 0.9808773903262092,
+     "n_ref": 443,
+     "n_est": 446
+    },
+    "span": {
+     "copy_vs_first": {
+      "exact": 0.9504950495049506,
+      "fold": 0.9504950495049506,
+      "n_ref": 49,
+      "n_est": 52
+     },
+     "copy_root": 1.0,
+     "first_root": 1.0
+    }
+   },
+   "variants": {
+    "C1": {
+     "audio_bars": 85,
+     "score_bars": 85,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 237.42825,
+     "rest_melody_vs_base": {
+      "exact": 0.9920544835414302,
+      "fold": 0.9920544835414302,
+      "n_ref": 443,
+      "n_est": 438
+     },
+     "span": {
+      "copy_vs_first": {
+       "exact": 0.9583333333333334,
+       "fold": 0.9583333333333334,
+       "n_ref": 46,
+       "n_est": 50
+      },
+      "copy_root": 1.0,
+      "first_root": 1.0
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_repeat_C1.wav",
+     "joins": [
+      59.75,
+      82.33958333333334
+     ],
+     "base_audio_changed_s": 0.7043125,
+     "base_changed_ranges_out_s": [
+      [
+       59.4,
+       59.75
+      ],
+      [
+       82.34,
+       82.69
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": -143.45949275261754,
+       "phase_corr": 0.16126417871172116,
+       "lufs_before": -15.353270360964187,
+       "lufs_after": -11.83153447613223,
+       "lufs_step": 3.5217358848319567,
+       "centroid_before": 1492.8437891123594,
+       "centroid_after": 2680.394528867487,
+       "centroid_step": 1187.5507397551278
+      },
+      {
+       "join": 1,
+       "out_s": 82.33958333333334,
+       "phase_err_ms": 68.54736898477859,
+       "phase_corr": 0.20024314502409069,
+       "lufs_before": -15.125669264884555,
+       "lufs_after": -12.710362891468716,
+       "lufs_step": 2.4153063734158398,
+       "centroid_before": 1217.5932535567201,
+       "centroid_after": 1172.346613414161,
+       "centroid_step": -45.246640142559045
+      }
+     ],
+     "splice_seconds": 0.05508565902709961
+    },
+    "C1_bal": {
+     "audio_bars": 85,
+     "score_bars": 85,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 237.42825,
+     "rest_melody_vs_base": {
+      "exact": 0.9943502824858758,
+      "fold": 0.9943502824858758,
+      "n_ref": 443,
+      "n_est": 442
+     },
+     "span": {
+      "copy_vs_first": {
+       "exact": 0.9199999999999999,
+       "fold": 0.9199999999999999,
+       "n_ref": 48,
+       "n_est": 52
+      },
+      "copy_root": 1.0,
+      "first_root": 1.0
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_repeat_C1_bal.wav",
+     "joins": [
+      59.75,
+      82.33958333333334
+     ],
+     "base_audio_changed_s": 1.8776041666666667,
+     "base_changed_ranges_out_s": [
+      [
+       58.23,
+       59.75
+      ],
+      [
+       82.34,
+       82.69
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": -61.344822571116644,
+       "phase_corr": 0.06124370162131544,
+       "lufs_before": -16.07572458238221,
+       "lufs_after": -13.126356373817169,
+       "lufs_step": 2.9493682085650423,
+       "centroid_before": 1468.6083923727986,
+       "centroid_after": 2568.951775307354,
+       "centroid_step": 1100.3433829345556
+      },
+      {
+       "join": 1,
+       "out_s": 82.33958333333334,
+       "phase_err_ms": 68.5473175879317,
+       "phase_corr": 0.20019593921261244,
+       "lufs_before": -15.125669264643268,
+       "lufs_after": -12.717495127023474,
+       "lufs_step": 2.4081741376197936,
+       "centroid_before": 1217.5932623111198,
+       "centroid_after": 1172.8296666360404,
+       "centroid_step": -44.76359567507939
+      }
+     ],
+     "splice_seconds": 0.05508565902709961,
+     "heal": {
+      "id": "C_repeat_C1_bal",
+      "mode": "balanced",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "a981bb52-6d3a-4654-ad3f-63015814786a",
+        "seconds": 17.11362648010254,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C85d08fbe-5b7c-35eb-3716-0ef0ec8d62c1.wav",
+        "bytes": 91161688,
+        "window": [
+         58.25,
+         61.25
+        ]
+       }
+      ],
+      "seconds_total": 17.11362648010254
+     }
+    },
+    "C1_con": {
+     "audio_bars": 85,
+     "score_bars": 85,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 237.42825,
+     "rest_melody_vs_base": {
+      "exact": 0.9943502824858758,
+      "fold": 0.9943502824858758,
+      "n_ref": 443,
+      "n_est": 442
+     },
+     "span": {
+      "copy_vs_first": {
+       "exact": 0.9199999999999999,
+       "fold": 0.9199999999999999,
+       "n_ref": 48,
+       "n_est": 52
+      },
+      "copy_root": 1.0,
+      "first_root": 1.0
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_repeat_C1_con.wav",
+     "joins": [
+      59.75,
+      82.33958333333334
+     ],
+     "base_audio_changed_s": 1.9024583333333334,
+     "base_changed_ranges_out_s": [
+      [
+       58.2,
+       59.75
+      ],
+      [
+       82.34,
+       82.69
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": -41.62654528288853,
+       "phase_corr": 0.03277333772710891,
+       "lufs_before": -16.136742719476562,
+       "lufs_after": -13.233522101973834,
+       "lufs_step": 2.9032206175027273,
+       "centroid_before": 1441.4393959685926,
+       "centroid_after": 2495.5488066754538,
+       "centroid_step": 1054.1094107068611
+      },
+      {
+       "join": 1,
+       "out_s": 82.33958333333334,
+       "phase_err_ms": 68.5473175879317,
+       "phase_corr": 0.20019593921261244,
+       "lufs_before": -15.125669264643268,
+       "lufs_after": -12.717495127023474,
+       "lufs_step": 2.4081741376197936,
+       "centroid_before": 1217.5932623111198,
+       "centroid_after": 1172.8296666360404,
+       "centroid_step": -44.76359567507939
+      }
+     ],
+     "splice_seconds": 0.05508565902709961,
+     "heal": {
+      "id": "C_repeat_C1_con",
+      "mode": "conservative",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "56e8713f-af75-48d2-ac9a-e037b430150c",
+        "seconds": 14.672275304794312,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Cc90b9ab1-ada0-309c-9c65-49ee8d424a18.wav",
+        "bytes": 91161688,
+        "window": [
+         58.25,
+         61.25
+        ]
+       }
+      ],
+      "seconds_total": 14.672275304794312
+     }
+    },
+    "C2": {
+     "audio_bars": 85,
+     "score_bars": 85,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 237.42825,
+     "rest_melody_vs_base": {
+      "exact": 0.9887387387387387,
+      "fold": 0.9887387387387387,
+      "n_ref": 443,
+      "n_est": 445
+     },
+     "span": {
+      "copy_vs_first": {
+       "exact": 0.9306930693069307,
+       "fold": 0.9306930693069307,
+       "n_ref": 50,
+       "n_est": 51
+      },
+      "copy_root": 1.0,
+      "first_root": 1.0
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_repeat_C2.wav",
+     "joins": [
+      59.75,
+      82.33958333333334
+     ],
+     "base_audio_changed_s": 2.8191875,
+     "base_changed_ranges_out_s": [
+      [
+       58.34,
+       59.75
+      ],
+      [
+       82.34,
+       83.75
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 59.75,
+       "phase_err_ms": -142.61466980861888,
+       "phase_corr": 0.1595986775802368,
+       "lufs_before": -15.276119199932465,
+       "lufs_after": -11.6435366116202,
+       "lufs_step": 3.632582588312264,
+       "centroid_before": 1826.5178245924672,
+       "centroid_after": 2615.1087053084034,
+       "centroid_step": 788.5908807159362
+      },
+      {
+       "join": 1,
+       "out_s": 82.33958333333334,
+       "phase_err_ms": 68.71029651287999,
+       "phase_corr": 0.21117782344232489,
+       "lufs_before": -14.378121427429322,
+       "lufs_after": -12.050981951835512,
+       "lufs_step": 2.3271394755938104,
+       "centroid_before": 1203.644114497502,
+       "centroid_after": 1156.0213108653154,
+       "centroid_step": -47.62280363218656
+      }
+     ],
+     "splice_seconds": 0.0521998405456543
+    }
+   }
+  },
+  "cut": {
+   "label": "CUT verse (section 5)",
+   "kind": "cut",
+   "span": [
+    26,
+    35
+   ],
+   "control": {
+    "audio_bars": 68,
+    "score_bars": 68,
+    "offset": 0,
+    "root_unedited": 1.0,
+    "bpm_from_bars": 85.1063829787234,
+    "Q": 85,
+    "dur_s": 189.19866666666667,
+    "rest_melody_vs_base": {
+     "exact": 0.9600997506234414,
+     "fold": 0.9600997506234414,
+     "n_ref": 391,
+     "n_est": 411
+    },
+    "span": {
+     "root_8_bars_after_seam": 1.0,
+     "bars_expected": 68,
+     "bars_audio": 68
+    }
+   },
+   "variants": {
+    "C1": {
+     "audio_bars": 68,
+     "score_bars": 68,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 189.43577083333332,
+     "rest_melody_vs_base": {
+      "exact": 0.9936143039591314,
+      "fold": 0.9936143039591314,
+      "n_ref": 391,
+      "n_est": 392
+     },
+     "span": {
+      "root_8_bars_after_seam": 1.0,
+      "bars_expected": 68,
+      "bars_audio": 68
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_cut_C1.wav",
+     "joins": [
+      71.05
+     ],
+     "base_audio_changed_s": 0.7049791666666667,
+     "base_changed_ranges_out_s": [
+      [
+       70.7,
+       71.05
+      ],
+      [
+       71.05,
+       71.4
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 71.05,
+       "phase_err_ms": 1.3177706015938948,
+       "phase_corr": 0.19510141597189468,
+       "lufs_before": -15.268656805865424,
+       "lufs_after": -11.850382510540772,
+       "lufs_step": 3.418274295324652,
+       "centroid_before": 1293.852300853896,
+       "centroid_after": 2758.0215083065254,
+       "centroid_step": 1464.1692074526295
+      }
+     ],
+     "splice_seconds": 0.04523825645446777
+    },
+    "C1_bal": {
+     "audio_bars": 68,
+     "score_bars": 68,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 189.43577083333332,
+     "rest_melody_vs_base": {
+      "exact": 0.993581514762516,
+      "fold": 0.993581514762516,
+      "n_ref": 391,
+      "n_est": 388
+     },
+     "span": {
+      "root_8_bars_after_seam": 1.0,
+      "bars_expected": 68,
+      "bars_audio": 68
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_cut_C1_bal.wav",
+     "joins": [
+      71.05
+     ],
+     "base_audio_changed_s": 3.049916666666667,
+     "base_changed_ranges_out_s": [
+      [
+       69.53,
+       71.05
+      ],
+      [
+       71.05,
+       72.57
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 71.05,
+       "phase_err_ms": 1.1461913180607282,
+       "phase_corr": 0.1854060017453589,
+       "lufs_before": -15.27937144025587,
+       "lufs_after": -12.996835112210738,
+       "lufs_step": 2.2825363280451327,
+       "centroid_before": 1456.5292209907464,
+       "centroid_after": 2533.8961559253585,
+       "centroid_step": 1077.3669349346121
+      }
+     ],
+     "splice_seconds": 0.04523825645446777,
+     "heal": {
+      "id": "C_cut_C1_bal",
+      "mode": "balanced",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "11f47b10-3395-4b64-9e47-990cedc61bb4",
+        "seconds": 21.031399488449097,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Ca2fc990b-971c-2f69-5c29-2ccb2d324dcf.wav",
+        "bytes": 72729688,
+        "window": [
+         69.55,
+         72.55
+        ]
+       }
+      ],
+      "seconds_total": 21.031399488449097
+     }
+    },
+    "C1_con": {
+     "audio_bars": 68,
+     "score_bars": 68,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 189.43577083333332,
+     "rest_melody_vs_base": {
+      "exact": 0.993581514762516,
+      "fold": 0.993581514762516,
+      "n_ref": 391,
+      "n_est": 388
+     },
+     "span": {
+      "root_8_bars_after_seam": 1.0,
+      "bars_expected": 68,
+      "bars_audio": 68
+     },
+     "path": "/mnt/e/ai/tmp/sp4/heal/C_cut_C1_con.wav",
+     "joins": [
+      71.05
+     ],
+     "base_audio_changed_s": 3.0997708333333334,
+     "base_changed_ranges_out_s": [
+      [
+       69.5,
+       71.05
+      ],
+      [
+       71.05,
+       72.6
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 71.05,
+       "phase_err_ms": 1.1141575326035096,
+       "phase_corr": 0.18043654462969655,
+       "lufs_before": -15.309589552112305,
+       "lufs_after": -13.160382261622795,
+       "lufs_step": 2.1492072904895103,
+       "centroid_before": 1466.6232295211153,
+       "centroid_after": 2518.533364061247,
+       "centroid_step": 1051.9101345401318
+      }
+     ],
+     "splice_seconds": 0.04523825645446777,
+     "heal": {
+      "id": "C_cut_C1_con",
+      "mode": "conservative",
+      "strength": 0.5,
+      "steps": [
+       {
+        "task_id": "b8e30be0-5987-49ab-81f3-fc81ce8a6bfc",
+        "seconds": 12.477176189422607,
+        "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C29695bda-6375-6300-c605-ab3deab85676.wav",
+        "bytes": 72729688,
+        "window": [
+         69.55,
+         72.55
+        ]
+       }
+      ],
+      "seconds_total": 12.477176189422607
+     }
+    },
+    "C2": {
+     "audio_bars": 68,
+     "score_bars": 68,
+     "offset": 0,
+     "root_unedited": 1.0,
+     "bpm_from_bars": 85.1063829787234,
+     "Q": 85,
+     "dur_s": 189.43577083333332,
+     "rest_melody_vs_base": {
+      "exact": 0.9948979591836734,
+      "fold": 0.9948979591836734,
+      "n_ref": 391,
+      "n_est": 393
+     },
+     "span": {
+      "root_8_bars_after_seam": 1.0,
+      "bars_expected": 68,
+      "bars_audio": 68
+     },
+     "path": "/mnt/e/ai/tmp/sp4/out/C_cut_C2.wav",
+     "joins": [
+      71.05
+     ],
+     "base_audio_changed_s": 2.8185208333333334,
+     "base_changed_ranges_out_s": [
+      [
+       69.64,
+       71.05
+      ],
+      [
+       71.05,
+       72.46
+      ]
+     ],
+     "null_exact": true,
+     "seams": [
+      {
+       "join": 0,
+       "out_s": 71.05,
+       "phase_err_ms": 40.786139994220456,
+       "phase_corr": 0.1995966896710239,
+       "lufs_before": -15.059961956398235,
+       "lufs_after": -11.828807994582094,
+       "lufs_step": 3.2311539618161405,
+       "centroid_before": 1681.4352475104788,
+       "centroid_after": 2778.178144956638,
+       "centroid_step": 1096.742897446159
+      }
+     ],
+     "splice_seconds": 0.043326377868652344
+    }
+   }
+  }
+ }
+}

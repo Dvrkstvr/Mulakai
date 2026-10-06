@@ -1,0 +1,1793 @@
+{
+ "song": "C",
+ "context": {
+  "base_abs_phase_err_ms_bar_lines": {
+   "median": 26.365391964964665,
+   "p95": 150.0,
+   "max": 150.0
+  },
+  "base_abs_lufs_step_bar_lines": {
+   "median": 1.2845842817816102,
+   "p95": 4.937806974217462
+  },
+  "beat_s": 0.7058823529411765,
+  "bar_s": 2.823529411764706,
+  "base_grid_offset": 0,
+  "base_root_agree": 1.0,
+  "base_thinned": false
+ },
+ "variants": {
+  "reharm_A1": {
+   "edit": "reharm",
+   "variant": "A1",
+   "crossfade_s": 0.7058823529411765,
+   "span_bars_0based": [
+    14,
+    22
+   ],
+   "base_span_s": [
+    37.16,
+    59.75
+   ],
+   "new_span_s": [
+    37.06,
+    59.65
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": -7.105427357601002e-12,
+   "snap": [
+    {
+     "delta_ms": 6.784958568603244,
+     "applied": false,
+     "corr": 0.08689940292541616
+    },
+    {
+     "delta_ms": -10.276715140724084,
+     "applied": true,
+     "corr": 0.5203185903153696
+    }
+   ],
+   "join_out_s": [
+    37.16,
+    59.73972916666666
+   ],
+   "splice_seconds": 0.07931900024414062,
+   "out_seconds": 214.82839583333333,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_reharm_A1.wav",
+   "map": [
+    [
+     0.0,
+     37.16,
+     0,
+     0.0
+    ],
+    [
+     37.16,
+     59.73972916666666,
+     1,
+     37.06
+    ],
+    [
+     59.73972916666666,
+     214.82839583333333,
+     2,
+     59.75
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    37.16,
+    59.75
+   ],
+   "half_xfade_s": 0.35294117647058826,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       36.80703799019607
+      ],
+      "base_s": [
+       0.0,
+       36.80703799019607
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       60.09269117647059,
+       214.82839583333333
+      ],
+      "base_s": [
+       60.10296200980393,
+       214.83866666666665
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9194052,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    37.16,
+    59.73972916666666
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 37.16,
+     "phase_err_ms": 146.04744879927057,
+     "phase_corr": 0.051867540392296116,
+     "lufs_before": -13.180942373188824,
+     "lufs_after": -13.015391752935335,
+     "lufs_step": 0.1655506202534891,
+     "centroid_before": 3042.1669242447924,
+     "centroid_after": 3791.920657285741,
+     "centroid_step": 749.7537330409486,
+     "base_phase_err_ms": 69.32481501244499,
+     "phase_err_excess_ms": 76.72263378682558,
+     "base_lufs_step": 1.1932051915761974,
+     "base_centroid_step": -155.06990324574735,
+     "lufs_step_excess": -1.0276545713227083,
+     "centroid_step_excess": 904.823636286696
+    },
+    {
+     "join": 1,
+     "out_s": 59.73972916666666,
+     "phase_err_ms": -0.21860222125224854,
+     "phase_corr": 0.26514505442574043,
+     "lufs_before": -15.262316780426339,
+     "lufs_after": -13.36926158808072,
+     "lufs_step": 1.893055192345619,
+     "centroid_before": 1824.6292508188355,
+     "centroid_after": 1173.224657029287,
+     "centroid_step": -651.4045937895485,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -68.78200069516757,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": -0.09251803694700556,
+     "centroid_step_excess": -614.525954371132
+    }
+   ]
+  },
+  "reharm_A2": {
+   "edit": "reharm",
+   "variant": "A2",
+   "crossfade_s": 2.823529411764706,
+   "span_bars_0based": [
+    14,
+    22
+   ],
+   "base_span_s": [
+    37.16,
+    59.75
+   ],
+   "new_span_s": [
+    37.06,
+    59.65
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": -7.105427357601002e-12,
+   "snap": [
+    {
+     "delta_ms": 6.784958568603244,
+     "applied": false,
+     "corr": 0.08689940292541616
+    },
+    {
+     "delta_ms": -10.276715140724084,
+     "applied": true,
+     "corr": 0.5203185903153696
+    }
+   ],
+   "join_out_s": [
+    37.16,
+    59.73972916666666
+   ],
+   "splice_seconds": 0.08095264434814453,
+   "out_seconds": 214.82839583333333,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_reharm_A2.wav",
+   "map": [
+    [
+     0.0,
+     37.16,
+     0,
+     0.0
+    ],
+    [
+     37.16,
+     59.73972916666666,
+     1,
+     37.06
+    ],
+    [
+     59.73972916666666,
+     214.82839583333333,
+     2,
+     59.75
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    37.16,
+    59.75
+   ],
+   "half_xfade_s": 1.411764705882353,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       35.74821446078431
+      ],
+      "base_s": [
+       0.0,
+       35.74821446078431
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       61.15151470588235,
+       214.82839583333333
+      ],
+      "base_s": [
+       61.161785539215686,
+       214.83866666666665
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9092404,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    37.16,
+    59.73972916666666
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 37.16,
+     "phase_err_ms": 146.85977557698644,
+     "phase_corr": 0.03773026081755727,
+     "lufs_before": -13.331657440041612,
+     "lufs_after": -12.835666070935337,
+     "lufs_step": 0.4959913691062745,
+     "centroid_before": 3319.1129889586527,
+     "centroid_after": 3703.6021597727026,
+     "centroid_step": 384.4891708140499,
+     "base_phase_err_ms": 69.32481501244499,
+     "phase_err_excess_ms": 77.53496056454145,
+     "base_lufs_step": 1.1932051915761974,
+     "base_centroid_step": -155.06990324574735,
+     "lufs_step_excess": -0.6972138224699229,
+     "centroid_step_excess": 539.5590740597972
+    },
+    {
+     "join": 1,
+     "out_s": 59.73972916666666,
+     "phase_err_ms": 0.2852964086089205,
+     "phase_corr": 0.32132860410322245,
+     "lufs_before": -15.291171928228414,
+     "lufs_after": -13.399264153059688,
+     "lufs_step": 1.8919077751687254,
+     "centroid_before": 1782.2739254589778,
+     "centroid_after": 1200.532275617604,
+     "centroid_step": -581.7416498413738,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -68.2781020653064,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": -0.09366545412389904,
+     "centroid_step_excess": -544.8630104229574
+    }
+   ]
+  },
+  "reharm_A3": {
+   "edit": "reharm",
+   "variant": "A3",
+   "crossfade_s": 0.7058823529411765,
+   "span_bars_0based": [
+    14,
+    22
+   ],
+   "base_span_s": [
+    37.16,
+    59.75
+   ],
+   "new_span_s": [
+    37.06,
+    59.65
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": -7.105427357601002e-12,
+   "gain_db": {
+    "in": 1.19040570892086,
+    "out": -0.07010505286462632
+   },
+   "snap": [
+    {
+     "delta_ms": 6.784958568603244,
+     "applied": false,
+     "corr": 0.08689940292541616
+    },
+    {
+     "delta_ms": -10.276715140724084,
+     "applied": true,
+     "corr": 0.5203185903153696
+    }
+   ],
+   "join_out_s": [
+    37.16,
+    59.73972916666666
+   ],
+   "splice_seconds": 0.33445143699645996,
+   "out_seconds": 214.82839583333333,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_reharm_A3.wav",
+   "map": [
+    [
+     0.0,
+     37.16,
+     0,
+     0.0
+    ],
+    [
+     37.16,
+     59.73972916666666,
+     1,
+     37.06
+    ],
+    [
+     59.73972916666666,
+     214.82839583333333,
+     2,
+     59.75
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    37.16,
+    59.75
+   ],
+   "half_xfade_s": 0.35294117647058826,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       36.80703799019607
+      ],
+      "base_s": [
+       0.0,
+       36.80703799019607
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       60.09269117647059,
+       214.82839583333333
+      ],
+      "base_s": [
+       60.10296200980393,
+       214.83866666666665
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9194052,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    37.16,
+    59.73972916666666
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 37.16,
+     "phase_err_ms": 146.05493490432332,
+     "phase_corr": 0.0476802547161454,
+     "lufs_before": -13.171700074490122,
+     "lufs_after": -11.992960278762329,
+     "lufs_step": 1.1787397957277932,
+     "centroid_before": 3085.8937773734665,
+     "centroid_after": 3800.992009444021,
+     "centroid_step": 715.0982320705543,
+     "base_phase_err_ms": 69.32481501244499,
+     "phase_err_excess_ms": 76.73011989187833,
+     "base_lufs_step": 1.1932051915761974,
+     "base_centroid_step": -155.06990324574735,
+     "lufs_step_excess": -0.014465395848404228,
+     "centroid_step_excess": 870.1681353163017
+    },
+    {
+     "join": 1,
+     "out_s": 59.73972916666666,
+     "phase_err_ms": -0.21392208114206307,
+     "phase_corr": 0.26431100498376725,
+     "lufs_before": -15.24753554188781,
+     "lufs_after": -13.372586471270898,
+     "lufs_step": 1.8749490706169123,
+     "centroid_before": 1828.1114192853113,
+     "centroid_after": 1173.3583334798354,
+     "centroid_step": -654.7530858054758,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -68.77732055505737,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": -0.11062415867571218,
+     "centroid_step_excess": -617.8744463870594
+    }
+   ]
+  },
+  "phrase_A1": {
+   "edit": "phrase",
+   "variant": "A1",
+   "crossfade_s": 0.7058823529411765,
+   "span_bars_0based": [
+    22,
+    26
+   ],
+   "base_span_s": [
+    59.75,
+    71.05
+   ],
+   "new_span_s": [
+    59.73,
+    71.03
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": 7.105427357601002e-12,
+   "snap": [
+    {
+     "delta_ms": -8.905413676726624,
+     "applied": true,
+     "corr": 0.24917667198608748
+    },
+    {
+     "delta_ms": -8.512368250240423,
+     "applied": true,
+     "corr": 0.2664258831914009
+    }
+   ],
+   "join_out_s": [
+    59.75,
+    71.050375
+   ],
+   "splice_seconds": 0.07819509506225586,
+   "out_seconds": 214.83904166666667,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_phrase_A1.wav",
+   "map": [
+    [
+     0.0,
+     59.75,
+     0,
+     0.0
+    ],
+    [
+     59.75,
+     71.050375,
+     1,
+     59.72110416666667
+    ],
+    [
+     71.050375,
+     214.83904166666667,
+     2,
+     71.05
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    59.75,
+    71.05
+   ],
+   "half_xfade_s": 0.35294117647058826,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       59.397037990196075
+      ],
+      "base_s": [
+       0.0,
+       59.397037990196075
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       71.40333700980392,
+       214.83904166666667
+      ],
+      "base_s": [
+       71.40296200980393,
+       214.83866666666668
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9735972,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    59.75,
+    71.050375
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 59.75,
+     "phase_err_ms": 6.348997188279348,
+     "phase_corr": 0.04918667675644361,
+     "lufs_before": -15.366826500492293,
+     "lufs_after": -12.360943836902655,
+     "lufs_step": 3.005882663589638,
+     "centroid_before": 1211.2045529620075,
+     "centroid_after": 1553.4648694516818,
+     "centroid_step": 342.2603164896743,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -62.214401285635965,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": 1.0203094342970136,
+     "centroid_step_excess": 379.1389559080908
+    },
+    {
+     "join": 1,
+     "out_s": 71.050375,
+     "phase_err_ms": -6.869465442733401,
+     "phase_corr": 0.03007727398243285,
+     "lufs_before": -15.269964794739197,
+     "lufs_after": -12.08785943076935,
+     "lufs_step": 3.1821053639698462,
+     "centroid_before": 1448.9005554385753,
+     "centroid_after": 2525.658898410191,
+     "centroid_step": 1076.7583429716155,
+     "base_phase_err_ms": -26.365391964964665,
+     "phase_err_excess_ms": 19.495926522231265,
+     "base_lufs_step": 3.237557235734341,
+     "base_centroid_step": 1382.0733521488191,
+     "lufs_step_excess": -0.05545187176449495,
+     "centroid_step_excess": -305.3150091772036
+    }
+   ]
+  },
+  "phrase_A2": {
+   "edit": "phrase",
+   "variant": "A2",
+   "crossfade_s": 2.823529411764706,
+   "span_bars_0based": [
+    22,
+    26
+   ],
+   "base_span_s": [
+    59.75,
+    71.05
+   ],
+   "new_span_s": [
+    59.73,
+    71.03
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": 7.105427357601002e-12,
+   "snap": [
+    {
+     "delta_ms": -8.905413676726624,
+     "applied": true,
+     "corr": 0.24917667198608748
+    },
+    {
+     "delta_ms": -8.512368250240423,
+     "applied": true,
+     "corr": 0.2664258831914009
+    }
+   ],
+   "join_out_s": [
+    59.75,
+    71.050375
+   ],
+   "splice_seconds": 0.08575057983398438,
+   "out_seconds": 214.83904166666667,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_phrase_A2.wav",
+   "map": [
+    [
+     0.0,
+     59.75,
+     0,
+     0.0
+    ],
+    [
+     59.75,
+     71.050375,
+     1,
+     59.72110416666667
+    ],
+    [
+     71.050375,
+     214.83904166666667,
+     2,
+     71.05
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    59.75,
+    71.05
+   ],
+   "half_xfade_s": 1.411764705882353,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       58.338214460784314
+      ],
+      "base_s": [
+       0.0,
+       58.338214460784314
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       72.46216053921569,
+       214.83904166666667
+      ],
+      "base_s": [
+       72.4617855392157,
+       214.83866666666668
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9634324,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    59.75,
+    71.050375
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 59.75,
+     "phase_err_ms": 0.9385656816588924,
+     "phase_corr": 0.14691026749410818,
+     "lufs_before": -15.414240409495697,
+     "lufs_after": -12.353639514004445,
+     "lufs_step": 3.060600895491252,
+     "centroid_before": 1289.286382166631,
+     "centroid_after": 1522.0688265886834,
+     "centroid_step": 232.78244442205232,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -67.62483279225643,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": 1.0750276661986273,
+     "centroid_step_excess": 269.6610838404688
+    },
+    {
+     "join": 1,
+     "out_s": 71.050375,
+     "phase_err_ms": -7.110196972519375,
+     "phase_corr": 0.030323405816297437,
+     "lufs_before": -15.348722804597815,
+     "lufs_after": -12.431529494702888,
+     "lufs_step": 2.9171933098949268,
+     "centroid_before": 1437.343100596075,
+     "centroid_after": 2584.5907624774745,
+     "centroid_step": 1147.2476618813996,
+     "base_phase_err_ms": -26.365391964964665,
+     "phase_err_excess_ms": 19.25519499244529,
+     "base_lufs_step": 3.237557235734341,
+     "base_centroid_step": 1382.0733521488191,
+     "lufs_step_excess": -0.3203639258394144,
+     "centroid_step_excess": -234.82569026741953
+    }
+   ]
+  },
+  "phrase_A3": {
+   "edit": "phrase",
+   "variant": "A3",
+   "crossfade_s": 0.7058823529411765,
+   "span_bars_0based": [
+    22,
+    26
+   ],
+   "base_span_s": [
+    59.75,
+    71.05
+   ],
+   "new_span_s": [
+    59.73,
+    71.03
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": 7.105427357601002e-12,
+   "gain_db": {
+    "in": -0.822085532849453,
+    "out": -0.06032144302180242
+   },
+   "snap": [
+    {
+     "delta_ms": -8.905413676726624,
+     "applied": true,
+     "corr": 0.24917667198608748
+    },
+    {
+     "delta_ms": -8.512368250240423,
+     "applied": true,
+     "corr": 0.2664258831914009
+    }
+   ],
+   "join_out_s": [
+    59.75,
+    71.050375
+   ],
+   "splice_seconds": 0.30726146697998047,
+   "out_seconds": 214.83904166666667,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_phrase_A3.wav",
+   "map": [
+    [
+     0.0,
+     59.75,
+     0,
+     0.0
+    ],
+    [
+     59.75,
+     71.050375,
+     1,
+     59.72110416666667
+    ],
+    [
+     71.050375,
+     214.83904166666667,
+     2,
+     71.05
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    59.75,
+    71.05
+   ],
+   "half_xfade_s": 0.35294117647058826,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       59.397037990196075
+      ],
+      "base_s": [
+       0.0,
+       59.397037990196075
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       71.40333700980392,
+       214.83904166666667
+      ],
+      "base_s": [
+       71.40296200980393,
+       214.83866666666668
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9735972,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    59.75,
+    71.050375
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 59.75,
+     "phase_err_ms": 6.37427964304407,
+     "phase_corr": 0.047848306525630505,
+     "lufs_before": -15.369971024086988,
+     "lufs_after": -13.034903924361078,
+     "lufs_step": 2.3350670997259098,
+     "centroid_before": 1211.0728151645935,
+     "centroid_after": 1552.0276172440592,
+     "centroid_step": 340.9548020794657,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -62.189118830871244,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": 0.3494938704332853,
+     "centroid_step_excess": 377.8334414978822
+    },
+    {
+     "join": 1,
+     "out_s": 71.050375,
+     "phase_err_ms": -6.8685436435059986,
+     "phase_corr": 0.029574167374724982,
+     "lufs_before": -15.447847310824256,
+     "lufs_after": -12.088935382905474,
+     "lufs_step": 3.3589119279187827,
+     "centroid_before": 1451.0588096491579,
+     "centroid_after": 2525.5248518152007,
+     "centroid_step": 1074.4660421660428,
+     "base_phase_err_ms": -26.365391964964665,
+     "phase_err_excess_ms": 19.496848321458668,
+     "base_lufs_step": 3.237557235734341,
+     "base_centroid_step": 1382.0733521488191,
+     "lufs_step_excess": 0.1213546921844415,
+     "centroid_step_excess": -307.6073099827763
+    }
+   ]
+  },
+  "lyrics_A1": {
+   "edit": "lyrics",
+   "variant": "A1",
+   "crossfade_s": 0.7058823529411765,
+   "span_bars_0based": [
+    14,
+    22
+   ],
+   "base_span_s": [
+    37.16,
+    59.75
+   ],
+   "new_span_s": [
+    37.16,
+    59.74
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": -9.99999999999801,
+   "snap": [
+    {
+     "delta_ms": 1.794742383520932,
+     "applied": true,
+     "corr": 0.23484646569791592
+    },
+    {
+     "delta_ms": -9.854253054759358,
+     "applied": true,
+     "corr": 0.38431046676339714
+    }
+   ],
+   "join_out_s": [
+    37.16,
+    59.72835416666667
+   ],
+   "splice_seconds": 0.07392573356628418,
+   "out_seconds": 214.81702083333334,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_lyrics_A1.wav",
+   "map": [
+    [
+     0.0,
+     37.16,
+     0,
+     0.0
+    ],
+    [
+     37.16,
+     59.72835416666667,
+     1,
+     37.161791666666666
+    ],
+    [
+     59.72835416666667,
+     214.81702083333334,
+     2,
+     59.75
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    37.16,
+    59.75
+   ],
+   "half_xfade_s": 0.35294117647058826,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       36.80703799019607
+      ],
+      "base_s": [
+       0.0,
+       36.80703799019607
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       60.081316176470594,
+       214.81702083333334
+      ],
+      "base_s": [
+       60.102962009803925,
+       214.83866666666668
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9194052,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    37.16,
+    59.72835416666667
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 37.16,
+     "phase_err_ms": -150.0,
+     "phase_corr": 0.3024882564162078,
+     "lufs_before": -13.197105943370161,
+     "lufs_after": -12.188747692307567,
+     "lufs_step": 1.0083582510625941,
+     "centroid_before": 2900.946868374358,
+     "centroid_after": 2816.8971353339334,
+     "centroid_step": -84.0497330404246,
+     "base_phase_err_ms": 69.32481501244499,
+     "phase_err_excess_ms": -219.324815012445,
+     "base_lufs_step": 1.1932051915761974,
+     "base_centroid_step": -155.06990324574735,
+     "lufs_step_excess": -0.1848469405136033,
+     "centroid_step_excess": 71.02017020532276
+    },
+    {
+     "join": 1,
+     "out_s": 59.72835416666667,
+     "phase_err_ms": -3.1045629949787537,
+     "phase_corr": 0.22922840101537986,
+     "lufs_before": -12.752582120376413,
+     "lufs_after": -13.334947964645249,
+     "lufs_step": -0.5823658442688355,
+     "centroid_before": 1696.241041404181,
+     "centroid_after": 1192.4693698532449,
+     "centroid_step": -503.77167155093616,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -71.66796146889406,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": -2.56793907356146,
+     "centroid_step_excess": -466.8930321325197
+    }
+   ]
+  },
+  "lyrics_A2": {
+   "edit": "lyrics",
+   "variant": "A2",
+   "crossfade_s": 2.823529411764706,
+   "span_bars_0based": [
+    14,
+    22
+   ],
+   "base_span_s": [
+    37.16,
+    59.75
+   ],
+   "new_span_s": [
+    37.16,
+    59.74
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": -9.99999999999801,
+   "snap": [
+    {
+     "delta_ms": 1.794742383520932,
+     "applied": true,
+     "corr": 0.23484646569791592
+    },
+    {
+     "delta_ms": -9.854253054759358,
+     "applied": true,
+     "corr": 0.38431046676339714
+    }
+   ],
+   "join_out_s": [
+    37.16,
+    59.72835416666667
+   ],
+   "splice_seconds": 0.06015777587890625,
+   "out_seconds": 214.81702083333334,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_lyrics_A2.wav",
+   "map": [
+    [
+     0.0,
+     37.16,
+     0,
+     0.0
+    ],
+    [
+     37.16,
+     59.72835416666667,
+     1,
+     37.161791666666666
+    ],
+    [
+     59.72835416666667,
+     214.81702083333334,
+     2,
+     59.75
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    37.16,
+    59.75
+   ],
+   "half_xfade_s": 1.411764705882353,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       35.74821446078431
+      ],
+      "base_s": [
+       0.0,
+       35.74821446078431
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       61.140139705882355,
+       214.81702083333334
+      ],
+      "base_s": [
+       61.16178553921568,
+       214.83866666666668
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9092404,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    37.16,
+    59.72835416666667
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 37.16,
+     "phase_err_ms": -150.0,
+     "phase_corr": 0.2823079124512441,
+     "lufs_before": -13.374955401146181,
+     "lufs_after": -12.236003676799223,
+     "lufs_step": 1.138951724346958,
+     "centroid_before": 3071.8508132601974,
+     "centroid_after": 2790.9296398215183,
+     "centroid_step": -280.92117343867903,
+     "base_phase_err_ms": 69.32481501244499,
+     "phase_err_excess_ms": -219.324815012445,
+     "base_lufs_step": 1.1932051915761974,
+     "base_centroid_step": -155.06990324574735,
+     "lufs_step_excess": -0.054253467229239405,
+     "centroid_step_excess": -125.85127019293168
+    },
+    {
+     "join": 1,
+     "out_s": 59.72835416666667,
+     "phase_err_ms": -1.3691681393860247,
+     "phase_corr": 0.33645722092592417,
+     "lufs_before": -12.983585642915042,
+     "lufs_after": -13.114147410469254,
+     "lufs_step": -0.13056176755421234,
+     "centroid_before": 1704.1250412476488,
+     "centroid_after": 1236.006936610682,
+     "centroid_step": -468.1181046369668,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -69.93256661330133,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": -2.116134996846837,
+     "centroid_step_excess": -431.2394652185503
+    }
+   ]
+  },
+  "lyrics_A3": {
+   "edit": "lyrics",
+   "variant": "A3",
+   "crossfade_s": 0.7058823529411765,
+   "span_bars_0based": [
+    14,
+    22
+   ],
+   "base_span_s": [
+    37.16,
+    59.75
+   ],
+   "new_span_s": [
+    37.16,
+    59.74
+   ],
+   "offsets": {
+    "base": 0,
+    "new_pre": 0,
+    "new_post": 0
+   },
+   "root_agree_unedited": {
+    "pre": 1.0,
+    "post": 1.0
+   },
+   "span_len_diff_ms": -9.99999999999801,
+   "gain_db": {
+    "in": 0.10404611209690984,
+    "out": -2.5543704818867248
+   },
+   "snap": [
+    {
+     "delta_ms": 1.794742383520932,
+     "applied": true,
+     "corr": 0.23484646569791592
+    },
+    {
+     "delta_ms": -9.854253054759358,
+     "applied": true,
+     "corr": 0.38431046676339714
+    }
+   ],
+   "join_out_s": [
+    37.16,
+    59.72835416666667
+   ],
+   "splice_seconds": 0.30789995193481445,
+   "out_seconds": 214.81702083333334,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_lyrics_A3.wav",
+   "map": [
+    [
+     0.0,
+     37.16,
+     0,
+     0.0
+    ],
+    [
+     37.16,
+     59.72835416666667,
+     1,
+     37.161791666666666
+    ],
+    [
+     59.72835416666667,
+     214.81702083333334,
+     2,
+     59.75
+    ]
+   ],
+   "src": [
+    "base",
+    "new",
+    "base"
+   ],
+   "base_pts": [
+    37.16,
+    59.75
+   ],
+   "half_xfade_s": 0.35294117647058826,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       36.80703799019607
+      ],
+      "base_s": [
+       0.0,
+       36.80703799019607
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       60.081316176470594,
+       214.81702083333334
+      ],
+      "base_s": [
+       60.102962009803925,
+       214.83866666666668
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9194052,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    37.16,
+    59.72835416666667
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 37.16,
+     "phase_err_ms": -150.0,
+     "phase_corr": 0.2975681318196357,
+     "lufs_before": -13.19666422305369,
+     "lufs_after": -12.25308537238399,
+     "lufs_step": 0.9435788506696987,
+     "centroid_before": 2902.203610350055,
+     "centroid_after": 2815.561259464319,
+     "centroid_step": -86.64235088573605,
+     "base_phase_err_ms": 69.32481501244499,
+     "phase_err_excess_ms": -219.324815012445,
+     "base_lufs_step": 1.1932051915761974,
+     "base_centroid_step": -155.06990324574735,
+     "lufs_step_excess": -0.2496263409064987,
+     "centroid_step_excess": 68.4275523600113
+    },
+    {
+     "join": 1,
+     "out_s": 59.72835416666667,
+     "phase_err_ms": -3.190060041967831,
+     "phase_corr": 0.23001518434161294,
+     "lufs_before": -15.079885816975002,
+     "lufs_after": -13.426712956399939,
+     "lufs_step": 1.6531728605750633,
+     "centroid_before": 1700.409224220598,
+     "centroid_after": 1188.1176225762713,
+     "centroid_step": -512.2916016443266,
+     "base_phase_err_ms": 68.56339847391531,
+     "phase_err_excess_ms": -71.75345851588314,
+     "base_lufs_step": 1.9855732292926245,
+     "base_centroid_step": -36.87863941841647,
+     "lufs_step_excess": -0.3324003687175612,
+     "centroid_step_excess": -475.4129622259102
+    }
+   ]
+  },
+  "repeat_C1": {
+   "edit": "repeat",
+   "variant": "C1",
+   "crossfade_s": 0.7058823529411765,
+   "span_bars_0based": [
+    14,
+    22
+   ],
+   "base_span_s": [
+    37.16,
+    59.75
+   ],
+   "snap": [
+    {
+     "delta_ms": 0.4234701939055588,
+     "applied": true,
+     "corr": 0.37644372710491014
+    },
+    {
+     "delta_ms": 0.0,
+     "applied": false,
+     "note": "the copy ends where the chorus ended, so the audio after it is what followed anyway"
+    }
+   ],
+   "join_out_s": [
+    59.75,
+    82.33958333333334
+   ],
+   "splice_seconds": 0.05508565902709961,
+   "out_seconds": 237.42825,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_repeat_C1.wav",
+   "map": [
+    [
+     0.0,
+     59.75,
+     0,
+     0.0
+    ],
+    [
+     59.75,
+     82.33958333333334,
+     1,
+     37.16041666666667
+    ],
+    [
+     82.33958333333334,
+     237.42825,
+     2,
+     59.75
+    ]
+   ],
+   "src": [
+    "base",
+    "copy",
+    "base"
+   ],
+   "base_pts": [
+    null,
+    null
+   ],
+   "half_xfade_s": 0.35294117647058826,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       59.397037990196075
+      ],
+      "base_s": [
+       0.0,
+       59.397037990196075
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       82.69254534313725,
+       237.42825
+      ],
+      "base_s": [
+       60.10296200980392,
+       214.83866666666665
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 10278372,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    59.75,
+    82.33958333333334
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 59.75,
+     "phase_err_ms": -143.45949275261754,
+     "phase_corr": 0.16126417871172116,
+     "lufs_before": -15.353270360964187,
+     "lufs_after": -11.83153447613223,
+     "lufs_step": 3.5217358848319567,
+     "centroid_before": 1492.8437891123594,
+     "centroid_after": 2680.394528867487,
+     "centroid_step": 1187.5507397551278
+    },
+    {
+     "join": 1,
+     "out_s": 82.33958333333334,
+     "phase_err_ms": 68.54736898477859,
+     "phase_corr": 0.20024314502409069,
+     "lufs_before": -15.125669264884555,
+     "lufs_after": -12.710362891468716,
+     "lufs_step": 2.4153063734158398,
+     "centroid_before": 1217.5932535567201,
+     "centroid_after": 1172.346613414161,
+     "centroid_step": -45.246640142559045
+    }
+   ]
+  },
+  "repeat_C2": {
+   "edit": "repeat",
+   "variant": "C2",
+   "crossfade_s": 2.823529411764706,
+   "span_bars_0based": [
+    14,
+    22
+   ],
+   "base_span_s": [
+    37.16,
+    59.75
+   ],
+   "snap": [
+    {
+     "delta_ms": 0.4234701939055588,
+     "applied": true,
+     "corr": 0.37644372710491014
+    },
+    {
+     "delta_ms": 0.0,
+     "applied": false,
+     "note": "the copy ends where the chorus ended, so the audio after it is what followed anyway"
+    }
+   ],
+   "join_out_s": [
+    59.75,
+    82.33958333333334
+   ],
+   "splice_seconds": 0.0521998405456543,
+   "out_seconds": 237.42825,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_repeat_C2.wav",
+   "map": [
+    [
+     0.0,
+     59.75,
+     0,
+     0.0
+    ],
+    [
+     59.75,
+     82.33958333333334,
+     1,
+     37.16041666666667
+    ],
+    [
+     82.33958333333334,
+     237.42825,
+     2,
+     59.75
+    ]
+   ],
+   "src": [
+    "base",
+    "copy",
+    "base"
+   ],
+   "base_pts": [
+    null,
+    null
+   ],
+   "half_xfade_s": 1.411764705882353,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       58.338214460784314
+      ],
+      "base_s": [
+       0.0,
+       58.338214460784314
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       83.75136887254902,
+       237.42825
+      ],
+      "base_s": [
+       61.161785539215686,
+       214.83866666666665
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 10176724,
+    "samples_different": 0,
+    "identical": true
+   },
+   "edit_out_s": [
+    59.75,
+    82.33958333333334
+   ],
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 59.75,
+     "phase_err_ms": -142.61466980861888,
+     "phase_corr": 0.1595986775802368,
+     "lufs_before": -15.276119199932465,
+     "lufs_after": -11.6435366116202,
+     "lufs_step": 3.632582588312264,
+     "centroid_before": 1826.5178245924672,
+     "centroid_after": 2615.1087053084034,
+     "centroid_step": 788.5908807159362
+    },
+    {
+     "join": 1,
+     "out_s": 82.33958333333334,
+     "phase_err_ms": 68.71029651287999,
+     "phase_corr": 0.21117782344232489,
+     "lufs_before": -14.378121427429322,
+     "lufs_after": -12.050981951835512,
+     "lufs_step": 2.3271394755938104,
+     "centroid_before": 1203.644114497502,
+     "centroid_after": 1156.0213108653154,
+     "centroid_step": -47.62280363218656
+    }
+   ]
+  },
+  "cut_C1": {
+   "edit": "cut",
+   "variant": "C1",
+   "crossfade_s": 0.7058823529411765,
+   "span_bars_0based": [
+    26,
+    35
+   ],
+   "base_span_s": [
+    71.05,
+    96.45
+   ],
+   "snap": [
+    {
+     "delta_ms": 2.8929442560674477,
+     "applied": true,
+     "corr": 0.25231538494642747
+    }
+   ],
+   "join_out_s": [
+    71.05
+   ],
+   "splice_seconds": 0.04523825645446777,
+   "out_seconds": 189.43577083333332,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_cut_C1.wav",
+   "map": [
+    [
+     0.0,
+     71.05,
+     0,
+     0.0
+    ],
+    [
+     71.05,
+     189.43577083333332,
+     1,
+     96.45289583333333
+    ]
+   ],
+   "src": [
+    "base",
+    "base"
+   ],
+   "base_pts": [
+    null
+   ],
+   "half_xfade_s": 0.35294117647058826,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       70.69703799019608
+      ],
+      "base_s": [
+       0.0,
+       70.69703799019608
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       71.40296200980391,
+       189.43577083333332
+      ],
+      "base_s": [
+       96.80585784313725,
+       214.83866666666665
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 9059033,
+    "samples_different": 0,
+    "identical": true
+   },
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 71.05,
+     "phase_err_ms": 1.3177706015938948,
+     "phase_corr": 0.19510141597189468,
+     "lufs_before": -15.268656805865424,
+     "lufs_after": -11.850382510540772,
+     "lufs_step": 3.418274295324652,
+     "centroid_before": 1293.852300853896,
+     "centroid_after": 2758.0215083065254,
+     "centroid_step": 1464.1692074526295
+    }
+   ]
+  },
+  "cut_C2": {
+   "edit": "cut",
+   "variant": "C2",
+   "crossfade_s": 2.823529411764706,
+   "span_bars_0based": [
+    26,
+    35
+   ],
+   "base_span_s": [
+    71.05,
+    96.45
+   ],
+   "snap": [
+    {
+     "delta_ms": 2.8929442560674477,
+     "applied": true,
+     "corr": 0.25231538494642747
+    }
+   ],
+   "join_out_s": [
+    71.05
+   ],
+   "splice_seconds": 0.043326377868652344,
+   "out_seconds": 189.43577083333332,
+   "base_seconds": 214.83866666666665,
+   "path": "/mnt/e/ai/tmp/sp4/out/C_cut_C2.wav",
+   "map": [
+    [
+     0.0,
+     71.05,
+     0,
+     0.0
+    ],
+    [
+     71.05,
+     189.43577083333332,
+     1,
+     96.45289583333333
+    ]
+   ],
+   "src": [
+    "base",
+    "base"
+   ],
+   "base_pts": [
+    null
+   ],
+   "half_xfade_s": 1.411764705882353,
+   "null_test": {
+    "base_parts": [
+     {
+      "out_s": [
+       0.0,
+       69.63821446078431
+      ],
+      "base_s": [
+       0.0,
+       69.63821446078431
+      ],
+      "max_abs_diff": 0.0
+     },
+     {
+      "out_s": [
+       72.46178553921568,
+       189.43577083333332
+      ],
+      "base_s": [
+       97.86468137254901,
+       214.83866666666665
+      ],
+      "max_abs_diff": 0.0
+     }
+    ],
+    "samples_checked": 8957385,
+    "samples_different": 0,
+    "identical": true
+   },
+   "seams": [
+    {
+     "join": 0,
+     "out_s": 71.05,
+     "phase_err_ms": 40.786139994220456,
+     "phase_corr": 0.1995966896710239,
+     "lufs_before": -15.059961956398235,
+     "lufs_after": -11.828807994582094,
+     "lufs_step": 3.2311539618161405,
+     "centroid_before": 1681.4352475104788,
+     "centroid_after": 2778.178144956638,
+     "centroid_step": 1096.742897446159
+    }
+   ]
+  }
+ }
+}

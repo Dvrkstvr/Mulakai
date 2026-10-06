@@ -1,0 +1,32 @@
+{
+ "id": "C_lyrics_A3_con",
+ "gain_applied_by_acestep": 0.8912508308980651,
+ "gain_db": -1.0000010450898862,
+ "len_in": 10311217,
+ "len_out_raw": 10310400,
+ "tail_restored_samples": 817,
+ "max_abs_residual_outside": 5.960464477539063e-08,
+ "samples_different_outside": 0,
+ "of_which_not_where_src_exceeds_full_scale": 0,
+ "src_peak": 1.0,
+ "windows": [
+  {
+   "window_s": [
+    35.66,
+    38.66
+   ],
+   "lufs_in": -11.652186497502674,
+   "lufs_out": -14.119871379436605,
+   "lufs_delta": -2.4676848819339305
+  },
+  {
+   "window_s": [
+    58.228,
+    61.228
+   ],
+   "lufs_in": -14.337228513158822,
+   "lufs_out": -16.38184418227728,
+   "lufs_delta": -2.0446156691184587
+  }
+ ]
+}

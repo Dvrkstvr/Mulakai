@@ -206,7 +206,12 @@ CI runs only the Playwright golden path: no unit tests, typecheck, lint or yue-s
 - check: `checks.yml` in W0 (D-033).
 - fallback: the playbook's local check commands before every commit.
 
-### R-024 · impact H · evidence known (2026-10-05)
+### R-024 · impact H · evidence measured, machine half (SP-4, 2026-10-06; ear half owed)
 An edit changes parts of the song nobody asked to change: every SCORE apply re-renders the whole song on YuE2 and the rest drifts (melody F1 0.92-0.98 on an unchanged score, SP-3; the M2 listen heard mood shift and an audible repeat seam, D-077). For the chat-first direction (D-079) each turn would re-roll the song, so iteration may not converge. YuE2 has no inpainting (upstream editing-workflows.md:3); ACE-Step repaint keeps the rest sample-exact but does not read the score.
 - check: SP-4 (pipeline/spikes/SP-4-keep-unchanged/SPIKE.md): bar-aligned splice, splice + repaint healing, audio-only REPEAT/CUT, YuE2 forced-prefix continuation; pass bar there.
 - fallback: the chat says every turn re-renders the whole song and offers an explicit "keep the old take for these bars" splice.
+- SP-4 (machine half, RESULT.md): today a full re-render moves 21-87% of untouched bars by more than 1 dB. A3 = render, then splice the changed bars back with a groove-snapped 1-beat crossfade and a level-matched span: 0 differing samples outside the crossfades, seam excess over the base median 0.16 dB (96% within 1 dB); REHARMONIZE proven 4/4, WRITE PHRASE 3/4, REWRITE LYRICS inconclusive (Whisper). Plain splice disproven (seams up to 5.4 dB), ACE-Step seam healing disproven (worse adherence, quieter windows). REPEAT/CUT as audio-only edits: plumbing proven, acceptability is the listen. 15 of 36 cuts fall inside a sung word. Owed: the user's 20-pair listen (spikes/SP-4-keep-unchanged/listen).
+
+### R-025 · impact M · evidence seen running (SP-4, 2026-10-06)
+ACE-Step repaint with an uploaded source works against the `acestep-api` server, not the `acestep --enable-api` launcher CLAUDE.md names: the launcher's `/release_task` ignores `src_audio` and answers 500 on a string `batch_size` (seen in code and running in SP-4). Which one the user's :8001 runs is unverified; the chat's scalpel (C4) and REPAINT rely on it.
+- check: confirm the :8001 launcher; fix CLAUDE.md's command or the client if they disagree.

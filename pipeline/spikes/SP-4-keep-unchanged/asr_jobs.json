@@ -1,0 +1,310 @@
+[
+ {
+  "id": "A_full_base",
+  "wav": "E:/repos/Mulakai/server/data/audio/2c944049-75eb-4448-ac49-7f50f93be80d.wav",
+  "start": 0,
+  "end": 400,
+  "lang": "en"
+ },
+ {
+  "id": "A_full_ctrl_reharm",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/A_b/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "en"
+ },
+ {
+  "id": "A_full_ctrl_phrase",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/A_e/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "en"
+ },
+ {
+  "id": "A_full_ctrl_lyrics",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/A_L/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "en"
+ },
+ {
+  "id": "A_base",
+  "wav": "E:/repos/Mulakai/server/data/audio/2c944049-75eb-4448-ac49-7f50f93be80d.wav",
+  "start": 123.83,
+  "end": 168.89,
+  "lang": "en"
+ },
+ {
+  "id": "A_ctrl",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/A_L/audio.flac",
+  "start": 123.88,
+  "end": 169.02,
+  "lang": "en"
+ },
+ {
+  "id": "A_lyrics_A1",
+  "wav": "E:/ai/tmp/sp4/out/A_lyrics_A1.wav",
+  "start": 123.83,
+  "end": 168.98414583333334,
+  "lang": "en"
+ },
+ {
+  "id": "A_lyrics_A2",
+  "wav": "E:/ai/tmp/sp4/out/A_lyrics_A2.wav",
+  "start": 123.83,
+  "end": 168.98414583333334,
+  "lang": "en"
+ },
+ {
+  "id": "A_lyrics_A3",
+  "wav": "E:/ai/tmp/sp4/out/A_lyrics_A3.wav",
+  "start": 123.83,
+  "end": 168.98414583333334,
+  "lang": "en"
+ },
+ {
+  "id": "A_lyrics_A3_bal",
+  "wav": "E:/ai/tmp/sp4/heal/A_lyrics_A3_bal.wav",
+  "start": 123.83,
+  "end": 168.98414583333334,
+  "lang": "en"
+ },
+ {
+  "id": "A_lyrics_A3_con",
+  "wav": "E:/ai/tmp/sp4/heal/A_lyrics_A3_con.wav",
+  "start": 123.83,
+  "end": 168.98414583333334,
+  "lang": "en"
+ },
+ {
+  "id": "B_full_base",
+  "wav": "E:/repos/Mulakai/server/data/audio/3820c535-b81f-4716-94c2-370f9272f4b7.wav",
+  "start": 0,
+  "end": 400,
+  "lang": "es"
+ },
+ {
+  "id": "B_full_ctrl_reharm",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/B_b/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "es"
+ },
+ {
+  "id": "B_full_ctrl_phrase",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/B_e/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "es"
+ },
+ {
+  "id": "B_full_ctrl_lyrics",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/B_L/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "es"
+ },
+ {
+  "id": "B_base",
+  "wav": "E:/repos/Mulakai/server/data/audio/3820c535-b81f-4716-94c2-370f9272f4b7.wav",
+  "start": 52.76,
+  "end": 74.21,
+  "lang": "es"
+ },
+ {
+  "id": "B_ctrl",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/B_L/audio.flac",
+  "start": 52.69,
+  "end": 74.29,
+  "lang": "es"
+ },
+ {
+  "id": "B_lyrics_A1",
+  "wav": "E:/ai/tmp/sp4/out/B_lyrics_A1.wav",
+  "start": 52.76,
+  "end": 74.36791666666667,
+  "lang": "es"
+ },
+ {
+  "id": "B_lyrics_A2",
+  "wav": "E:/ai/tmp/sp4/out/B_lyrics_A2.wav",
+  "start": 52.76,
+  "end": 74.36791666666667,
+  "lang": "es"
+ },
+ {
+  "id": "B_lyrics_A3",
+  "wav": "E:/ai/tmp/sp4/out/B_lyrics_A3.wav",
+  "start": 52.76,
+  "end": 74.36791666666667,
+  "lang": "es"
+ },
+ {
+  "id": "B_lyrics_A3_bal",
+  "wav": "E:/ai/tmp/sp4/heal/B_lyrics_A3_bal.wav",
+  "start": 52.76,
+  "end": 74.36791666666667,
+  "lang": "es"
+ },
+ {
+  "id": "B_lyrics_A3_con",
+  "wav": "E:/ai/tmp/sp4/heal/B_lyrics_A3_con.wav",
+  "start": 52.76,
+  "end": 74.36791666666667,
+  "lang": "es"
+ },
+ {
+  "id": "C_full_base",
+  "wav": "E:/repos/Mulakai/server/data/audio/c8144c53-6612-4efc-8a4c-da279f2e0307.wav",
+  "start": 0,
+  "end": 400,
+  "lang": "de"
+ },
+ {
+  "id": "C_full_ctrl_reharm",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/C_b/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "de"
+ },
+ {
+  "id": "C_full_ctrl_phrase",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/C_e/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "de"
+ },
+ {
+  "id": "C_full_ctrl_lyrics",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/C_L/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "de"
+ },
+ {
+  "id": "C_base",
+  "wav": "E:/repos/Mulakai/server/data/audio/c8144c53-6612-4efc-8a4c-da279f2e0307.wav",
+  "start": 36.66,
+  "end": 60.25,
+  "lang": "de"
+ },
+ {
+  "id": "C_ctrl",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/C_L/audio.flac",
+  "start": 36.66,
+  "end": 60.24,
+  "lang": "de"
+ },
+ {
+  "id": "C_lyrics_A1",
+  "wav": "E:/ai/tmp/sp4/out/C_lyrics_A1.wav",
+  "start": 36.66,
+  "end": 60.22835416666667,
+  "lang": "de"
+ },
+ {
+  "id": "C_lyrics_A2",
+  "wav": "E:/ai/tmp/sp4/out/C_lyrics_A2.wav",
+  "start": 36.66,
+  "end": 60.22835416666667,
+  "lang": "de"
+ },
+ {
+  "id": "C_lyrics_A3",
+  "wav": "E:/ai/tmp/sp4/out/C_lyrics_A3.wav",
+  "start": 36.66,
+  "end": 60.22835416666667,
+  "lang": "de"
+ },
+ {
+  "id": "C_lyrics_A3_bal",
+  "wav": "E:/ai/tmp/sp4/heal/C_lyrics_A3_bal.wav",
+  "start": 36.66,
+  "end": 60.22835416666667,
+  "lang": "de"
+ },
+ {
+  "id": "C_lyrics_A3_con",
+  "wav": "E:/ai/tmp/sp4/heal/C_lyrics_A3_con.wav",
+  "start": 36.66,
+  "end": 60.22835416666667,
+  "lang": "de"
+ },
+ {
+  "id": "D_full_base",
+  "wav": "E:/repos/Mulakai/server/data/audio/3c9e79de-0844-40dc-a89f-4c6864c8a23a.wav",
+  "start": 0,
+  "end": 400,
+  "lang": "es"
+ },
+ {
+  "id": "D_full_ctrl_reharm",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/D_b/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "es"
+ },
+ {
+  "id": "D_full_ctrl_phrase",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/D_e/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "es"
+ },
+ {
+  "id": "D_full_ctrl_lyrics",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/D_L/audio.flac",
+  "start": 0,
+  "end": 400,
+  "lang": "es"
+ },
+ {
+  "id": "D_base",
+  "wav": "E:/repos/Mulakai/server/data/audio/3c9e79de-0844-40dc-a89f-4c6864c8a23a.wav",
+  "start": 55.01,
+  "end": 76.21,
+  "lang": "es"
+ },
+ {
+  "id": "D_ctrl",
+  "wav": "//wsl.localhost/Ubuntu-24.04/home/calvin/sp4/render/D_L/audio.flac",
+  "start": 55.17,
+  "end": 76.38,
+  "lang": "es"
+ },
+ {
+  "id": "D_lyrics_A1",
+  "wav": "E:/ai/tmp/sp4/out/D_lyrics_A1.wav",
+  "start": 55.01,
+  "end": 76.21477083333333,
+  "lang": "es"
+ },
+ {
+  "id": "D_lyrics_A2",
+  "wav": "E:/ai/tmp/sp4/out/D_lyrics_A2.wav",
+  "start": 55.01,
+  "end": 76.21477083333333,
+  "lang": "es"
+ },
+ {
+  "id": "D_lyrics_A3",
+  "wav": "E:/ai/tmp/sp4/out/D_lyrics_A3.wav",
+  "start": 55.01,
+  "end": 76.21477083333333,
+  "lang": "es"
+ },
+ {
+  "id": "D_lyrics_A3_bal",
+  "wav": "E:/ai/tmp/sp4/heal/D_lyrics_A3_bal.wav",
+  "start": 55.01,
+  "end": 76.21477083333333,
+  "lang": "es"
+ },
+ {
+  "id": "D_lyrics_A3_con",
+  "wav": "E:/ai/tmp/sp4/heal/D_lyrics_A3_con.wav",
+  "start": 55.01,
+  "end": 76.21477083333333,
+  "lang": "es"
+ }
+]

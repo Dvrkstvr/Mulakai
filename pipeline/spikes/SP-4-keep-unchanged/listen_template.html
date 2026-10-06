@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>SP-4 listen: keep the unchanged parts</title>
+<style>
+body{background:#1c1d21;color:#ececec;font:15px/1.45 system-ui,sans-serif;margin:24px auto;max-width:960px;padding:0 16px}
+h1{font-size:20px} h2{font-size:16px;margin:0 0 4px} .pair{border:1px solid #33343b;padding:14px;margin:18px 0}
+.note{color:#9a9aa3;font-size:13px} button{background:#2a2b31;color:#ececec;border:1px solid #555;padding:6px 12px;cursor:pointer;margin:2px}
+button.on{border-color:#7b4b94;background:#2a2133} .row{margin:8px 0} fieldset{border:1px solid #33343b;margin:8px 0}
+legend{color:#9a9aa3} label{margin-right:12px} pre{background:#16171a;padding:10px;white-space:pre-wrap}
+.tl{position:relative;height:50px;margin:8px 0 4px;background:#24252b;border:1px solid #3a3b42;cursor:pointer;user-select:none;touch-action:none;overflow:hidden}
+.tl:focus{outline:1px solid #7b4b94}
+.tl .tick{position:absolute;bottom:0;width:1px;height:8px;background:#4a4b53}
+.tl .tick.major{height:16px;background:#6a6b73}
+.tl .num{position:absolute;bottom:17px;font-size:10px;color:#8a8a93;transform:translateX(-50%)}
+.tl .edit{position:absolute;top:0;bottom:0;background:rgba(123,75,148,.38);border-left:1px solid #b48ad0;border-right:1px solid #b48ad0}
+.tl .edit span{position:absolute;top:2px;left:4px;font-size:11px;color:#e3cdf2;white-space:nowrap}
+.tl .seam{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:#ff5a5a;pointer-events:none}
+.tl .head{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;pointer-events:none}
+button.jump{border-color:#7b4b94;font-size:13px;padding:4px 10px}
+input[type=number]{width:70px;background:#16171a;color:#ececec;border:1px solid #555;padding:3px}
+.rev{color:#f6dfa8;font-size:13px;margin-top:6px}
+</style></head><body>
+<h1>SP-4 listen: does an edit keep everything else? (<span id="npairs"></span> pairs)</h1>
+<p class="note">Local files only, not published. Serve this folder (<code>npx http-server . -p 8077</code>, then open http://localhost:8077/index.html): a plain file open or Python's http.server cannot seek in the audio. Pairs 1-20 are the real test; 21-28 are optional extras (healed variants, and two full re-renders for comparison). For each pair, A and B are the song before an edit and after it, in a random order (you are not told which). The after-version was made by keeping the old audio for every bar the edit did not touch and putting the new audio in the changed bars (shaded lilac on the timeline), or, for repeat / cut, by copying or removing bars of the old audio. Press A or B while playing: the switch keeps the same <b>place in the music</b> (where the after-version has an inserted copy, it lands on the bar the copy was taken from). Click or drag the timeline to scrub, focus it and use the arrow keys for one bar, or press a jump button (starts one bar before the spot). Answer, then press <b>reveal</b> to see which one was edited and where the joins are (red marks).</p>
+<div id="pairs"></div>
+<h2>Your answers</h2><pre id="out">(answer above)</pre><button onclick="copyOut()">copy answers</button> <button onclick="saveOut()">download answers.json</button>
+<script>
+const PAIRS=/*PAIRS*/[];
+document.getElementById('npairs').textContent=PAIRS.length;
+const root=document.getElementById('pairs');
+const pct=(x,D)=>(100*x/D).toFixed(3)+'%';
+// piecewise-linear time mapping [[from0,from1,to0,to1],...]
+function mapT(segs,t){for(const s of segs){if(t>=s[0]-1e-6&&t<=s[1]+1e-6){const w=s[1]-s[0];return w<=0?s[2]:s[2]+(t-s[0])/w*(s[3]-s[2]);}}
+ let best=segs[0],d=1e9;for(const s of segs){const dd=Math.min(Math.abs(t-s[0]),Math.abs(t-s[1]));if(dd<d){d=dd;best=s;}}return t<best[0]?best[2]:best[3];}
+const barAt=(bt,t)=>{let i=0;while(i+1<bt.length&&bt[i+1]<=t+1e-6)i++;return i+1;};
+PAIRS.forEach(p=>{
+ // take X shown as A or B; "orig" is the base, "edit" the after-version
+ const isEdA=p.edited==='A';
+ const take={A:isEdA?'edit':'orig',B:isEdA?'orig':'edit'};
+ const file={orig:p.orig,edit:p.edit};
+ const bt={orig:p.barsOrig,edit:p.barsEdit};          // bar start times (s), last entry = end
+ const shade={orig:p.shadeOrig,edit:p.shadeEdit};      // [[bar from,bar to,label]] 1-based inclusive
+ const toEdit=p.fwd, toOrig=p.bwd;
+ const d=document.createElement('div');d.className='pair';
+ d.innerHTML=`<h2>${p.n}. ${p.title}</h2><div class="note">${p.hint}</div>
+ <div class="row"><button id="A_${p.id}" class="on">A</button><button id="B_${p.id}">B</button>
+ <button id="P_${p.id}">play / pause</button> <span id="T_${p.id}" class="note"></span></div>
+ <div class="tl" id="S_${p.id}" tabindex="0" role="slider" aria-label="playhead in bars"></div>
+ <div class="row">${p.jumps.map((j,i)=>`<button class="jump" id="J${i}_${p.id}">${j[0]} &#9656;</button>`).join('')}</div>
+ <audio id="au_${p.id}_A" src="${file[take.A]}" preload="metadata"></audio><audio id="au_${p.id}_B" src="${file[take.B]}" preload="metadata"></audio>
+ <fieldset><legend>Which one has a join, a place where old and new music were stuck together?</legend>
+  <label><input type="radio" name="j_${p.id}" value="A">A</label><label><input type="radio" name="j_${p.id}" value="B">B</label><label><input type="radio" name="j_${p.id}" value="neither">neither / cannot tell</label>
+  <label>at bar <input type="number" id="jb_${p.id}" min="1" max="200" placeholder="bar"></label></fieldset>
+ <fieldset><legend>Outside the shaded bars, does the edited one sound like the original (same performance, same mix)?</legend>
+  ${['identical','tiny difference','a bit different','different'].map(v=>`<label><input type="radio" name="r_${p.id}" value="${v}">${v}</label>`).join('')}</fieldset>
+ <fieldset><legend>${p.qEdit}</legend>
+  ${['clearly','partly','no'].map(v=>`<label><input type="radio" name="e_${p.id}" value="${v}">${v}</label>`).join('')}</fieldset>
+ <input type="text" id="n_${p.id}" placeholder="what you hear (optional)" style="width:90%">
+ <div class="row"><button id="R_${p.id}">reveal</button> <span class="rev" id="V_${p.id}"></span></div>`;
+ root.appendChild(d);
+ let cur='A',revealed=false;
+ const au=k=>document.getElementById(`au_${p.id}_${k}`);
+ const dur=k=>{const v=au(k).duration;return isFinite(v)?v:0;};
+ const tl=document.getElementById('S_'+p.id);let drawnFor='',head=null;
+ const kind=k=>take[k];
+ const draw=()=>{const D=dur(cur),w=kind(cur);drawnFor=cur+D+revealed;let h='';
+  shade[w].forEach(([f,t,l])=>{const x=bt[w][f-1],y=bt[w][t];h+=`<div class="edit" style="left:${pct(x,D)};width:${pct(Math.min(y,D)-x,D)}"><span>${l}</span></div>`;});
+  if(revealed&&w==='edit')p.seams.forEach(s=>{h+=`<div class="seam" style="left:${pct(s,D)}"></div>`;});
+  const nb=bt[w].length-1;
+  for(let n=1;n<=nb;n++){const x=pct(bt[w][n-1],D),major=(n-1)%4===0;h+=`<div class="tick${major?' major':''}" style="left:${x}"></div>`;if(major)h+=`<div class="num" style="left:${x}${n===1?';transform:none;margin-left:3px':''}">${n}</div>`;}
+  tl.innerHTML=h+'<div class="head"></div>';head=tl.querySelector('.head');};
+ const sync=()=>{const D=dur(cur);if(!D)return;if(cur+D+revealed!==drawnFor)draw();const t=au(cur).currentTime;
+  head.style.left=pct(t,D);const b=barAt(bt[kind(cur)],t);
+  document.getElementById('T_'+p.id).textContent=`${cur} ${t.toFixed(1)} / ${D.toFixed(1)} s · bar ${b}`;};
+ const seek=t=>{au(cur).currentTime=Math.max(0,Math.min(dur(cur),t));sync();};
+ const other=k=>k==='A'?'B':'A';
+ const mapTo=(from,to,t)=>{const a=kind(from),b=kind(to);if(a===b)return t;return a==='orig'?mapT(toEdit,t):mapT(toOrig,t);};
+ const sw=k=>{if(k===cur)return;const pl=!au(cur).paused,t=mapTo(cur,k,au(cur).currentTime);au(cur).pause();cur=k;au(k).currentTime=Math.max(0,Math.min(dur(k),t));if(pl)au(k).play();sync();
+  document.getElementById('A_'+p.id).className=k==='A'?'on':'';document.getElementById('B_'+p.id).className=k==='B'?'on':'';};
+ document.getElementById('A_'+p.id).onclick=()=>sw('A');document.getElementById('B_'+p.id).onclick=()=>sw('B');
+ document.getElementById('P_'+p.id).onclick=()=>{const a=au(cur);a.paused?a.play():a.pause();};
+ const atX=e=>{const r=tl.getBoundingClientRect();return (e.clientX-r.left)/r.width*dur(cur);};
+ let drag=false;
+ tl.addEventListener('pointerdown',e=>{drag=true;tl.setPointerCapture(e.pointerId);seek(atX(e));});
+ tl.addEventListener('pointermove',e=>{if(drag)seek(atX(e));});
+ ['pointerup','pointercancel'].forEach(ev=>tl.addEventListener(ev,()=>drag=false));
+ tl.addEventListener('keydown',e=>{const B=bt[kind(cur)],t=au(cur).currentTime,b=barAt(B,t)-1;
+  if(e.key==='ArrowRight'){seek(B[Math.min(b+1,B.length-1)]);e.preventDefault();}
+  if(e.key==='ArrowLeft'){seek(t-B[b]>0.3?B[b]:B[Math.max(0,b-1)]);e.preventDefault();}});
+ // a jump names a bar of the ORIGINAL; it starts one bar before, in whichever take is playing
+ p.jumps.forEach(([n,tOrig,tEdit],i)=>{document.getElementById(`J${i}_${p.id}`).onclick=()=>{const w=kind(cur);seek(w==='orig'?tOrig:tEdit);au(cur).play();};});
+ document.getElementById('R_'+p.id).onclick=()=>{revealed=true;document.getElementById('V_'+p.id).textContent=`${p.edited} is the edited one. ${p.revealText}`;draw();upd();};
+ ['A','B'].forEach(k=>au(k).addEventListener('loadedmetadata',sync));
+ setInterval(sync,100);
+ d.addEventListener('change',upd);d.addEventListener('input',upd);
+});
+function upd(){const o={};PAIRS.forEach(p=>{const g=n=>(document.querySelector(`input[name="${n}_${p.id}"]:checked`)||{}).value||'?';
+ o[p.id]={desc:p.title,candidate:p.candidate,edited_is:p.edited,join_in:g('j'),join_bar:document.getElementById('jb_'+p.id).value||'',rest_same:g('r'),edit_came_through:g('e'),note:document.getElementById('n_'+p.id).value};});
+ document.getElementById('out').textContent=JSON.stringify(o,null,1);}
+function copyOut(){navigator.clipboard.writeText(document.getElementById('out').textContent);}
+function saveOut(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([document.getElementById('out').textContent],{type:'application/json'}));a.download='sp4-answers.json';a.click();}
+upd();
+</script></body></html>

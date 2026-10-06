@@ -1,0 +1,28 @@
+{
+ "id": "B_reharm_A3_con",
+ "mode": "conservative",
+ "strength": 0.5,
+ "steps": [
+  {
+   "task_id": "27e8cce6-cf2a-4bc5-ab8b-26f673ccd769",
+   "seconds": 12.570807218551636,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C0912f4a0-8607-e65a-6fab-d853a07ccb7e.wav",
+   "bytes": 60564568,
+   "window": [
+    51.76,
+    54.76
+   ]
+  },
+  {
+   "task_id": "99799c7f-a533-4233-a0f1-c54fddf2a5c9",
+   "seconds": 10.420400381088257,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C97cda9cc-6cc3-b33b-4912-2d4e2646329c.wav",
+   "bytes": 60564568,
+   "window": [
+    72.407,
+    75.407
+   ]
+  }
+ ],
+ "seconds_total": 22.991207599639893
+}

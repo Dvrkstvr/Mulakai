@@ -8818,11 +8818,16 @@ What a person does:
 6. **How an edit turn renders depends on SP-4.** For a score-eligible
    song:
    - local edits (chords, a phrase, the words of one section): render,
-     then splice the changed bars into the current version, if SP-4
-     candidate A or B passes; the consequence line says "only bars 33-40
-     change";
-   - structure edits (repeat, cut): an audio-only edit with no render, if
-     candidate C passes;
+     then splice the changed bars into the current version (SP-4's A3:
+     cut snapped to the groove at the downbeats, 1-beat equal-power
+     crossfade, the new span level-matched to the old audio at both ends;
+     machine half proven for chords 4/4 and phrases 3/4, lyrics
+     inconclusive, the listen decides). The consequence line says "only
+     bars 33-40 change". Seam healing with ACE-Step repaint is not used
+     (SP-4: it made adherence and level worse);
+   - structure edits (repeat, cut): an audio-only edit with no YuE2
+     render (SP-4's C: sample-exact, about 0.2 s), if the listen accepts
+     its seams;
    - global edits (tempo, key, whole-song style): a whole-song re-render,
      and the consequence line says so;
    - if nothing passes: every edit re-renders the whole song, the card
