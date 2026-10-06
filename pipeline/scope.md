@@ -36,10 +36,10 @@ Each blocks the work package named; the first two block everything because they 
    206-bar song, so 16k holds it with the completion. **Ladder if a bar is missed** (shown to the owner before C0 code, as D-005 did): split the
    turn into a router call (one enum) and a per-action call; offer only the actions the state allows; move lyrics to their own call; the MoE
    as an env value (D-024); last, the assistant only fills the form and never routes (the form-first pairing of D-086 becomes the only mode).
-2. **The owner's SP-4 listen** (`pipeline/spikes/SP-4-keep-unchanged/listen`, 20 pairs; Q-054 #1; blocks W-C0b, the splice, and all of C4).
+2. **The owner's SP-4 listen** (`pipeline/spikes/SP-4-keep-unchanged/listen`, 20 pairs; Q-054 #1; blocks CB-1 (the splice, was W-C0b), and all of C4).
    Outcome goes into decisions.md and PLAN.md decision 6 is cut down to one branch in a docs commit. If the A3 joins are rejected, F-047 is
-   re-cut before W-C0b (whole-song re-render plus the explicit "keep the old take for these bars" splice the person listens to). The
-   thread/turn/recipe packages (W-C0a) do not depend on it and may overlap the owner's listening.
+   re-cut before CB-1 (whole-song re-render plus the explicit "keep the old take for these bars" splice the person listens to). The
+   thread/turn/recipe packages (C0a, CA-1..CA-7) do not depend on it and may overlap the owner's listening.
 3. **R-025, which ACE-Step launcher `:8001` runs** (five minutes; blocks only C7's scalpel and ACE-Step first takes, F-075 to F-077). Seen
    in SP-4: the `acestep --enable-api` launcher ignores `src_audio`. Check by route or process command line; fix CLAUDE.md's command or the client.
 4. **SP-6, shift/stretch** (R-026; blocks only C5/F-070, D-085). Four library songs, 2-3 DSP options, key/tempo accuracy measured and an A/B
@@ -81,29 +81,67 @@ whole conversation, both versions and the song.
   away in the header and gets OPEN CHAT on a song. With either unset the app opens on the Library as today, so the golden-path e2e (which
   leaves `LLM_API_URL` empty) does not move; the chat e2e (C1) covers the chat start screen.
 - **One draft store from day one** (the single shared draft of D-086) even though only the chat reads it in C0, so C6 adds a reader, not a rewrite.
-- **The `edit` action** hands the request text to the existing plan machinery (op schema, validators, retry feedback, limits) inside the same
-  queue slot as the turn, so there is one hand-off per turn, not two (D-100, architecture confirms).
+- **The `edit` action** carries SCORE ops in the turn's reply (SP-5's shape) and is checked by the existing plan machinery (op schema,
+  yue-server apply, retry feedback, limits) inside the same queue slot as the turn, so there is one hand-off per turn, not two (D-100;
+  architecture confirmed it, D-106, docs/decisions/0006).
 
-Work packages, risk first; each is one PR from `origin/main` (the stage-7 style of M0..M2). A design task precedes the UI packages:
-- **DT-C0 (stage 5, small):** `pipeline/design/chat-turn.html`, the frames the three signed mockups do not draw: a turn queued / thinking /
-  cancelling; the proposal card pending / superseded / expired / committing (RENDERING..., SPLICING...) / failed; the edit card with and
-  without a splice consequence line; the join-failed and TRUNCATED lines; "waiting for v2". Tokens from DESIGN.md; no new hue. The owner
-  signs it off like the others (a frame set, not a redesign).
-- **W-C0a** F-041, F-042: `chat_messages` migration and store, the turn job and action schema, prompt and song-state block, dispatcher stubs.
-  Headless, Vitest with the fake Ollama; reuses `plannerClient`, `ollamaControl`, `contextGuard`, `planAttempts`.
-- **W-C0b** F-047 yue-server half: `/v1/splices` (grid, snap, crossfade, level match, null-test helper) ported from SP-4's `sp4lib.py` /
-  `splice_all.py`, pytest golden cases from SP-4's recorded outputs, contract fixtures for the fake. Parallel with W-C0a. Needs P2.
-- **W-C0c** F-046, F-047 server half, F-049 (server states): edit proposal, commit, render-then-splice job, version row with `params_json.splice`,
-  cancel and stale paths. **Checkpoint CP-C0** (like CP1): a script, not the UI, runs recipe -> CREATE -> edit turn -> APPLY -> splice -> version
-  against the real Ollama and the real yue-server on this machine through the Mulakai HTTP API on :3201 with a throwaway `DATA_DIR` (D-040); log
-  kept in `pipeline/cp-c0/`. If it misses a number (turn p50 over 15 s, hand-off over 5 s, edit wall time over 4 min, a null test failing,
-  join LUFS excess over 1 dB on 3 of 3 songs) stop and raise it before the UI.
-- **W-C0d** F-043, F-044, F-045 (after DT-C0): chat screen, sidebar draft, recipe card, song card, player above the composer (SEND ↵).
-- **W-C0e** F-048, F-049 (client states): version card, A/B, lifecycle states.
-- **W-C0f** F-050: the live run in the real app, then the owner's listen.
-Honest size: about two weeks (W-C0a/b about 3 days each in parallel, W-C0c 3 days, W-C0d/e about 5 days). It cannot be cut further without
-removing a step of the promise: CP-C0 is where to re-plan. If the owner wants a one-week C0, the first thing to drop is the spliced edit
-(whole-song edit turns only, decision 6's fallback), and the promise loses "only the asked bars change".
+Work packages (stage 6, 2026-10-06; replaces the stage-4 list W-C0a..W-C0f). C0 ships in two halves (D-104): **C0a create-first**,
+usable in the real app on its own, then **C0b** (edit turn, splice, version card). Each package is one PR from `origin/main`, risk
+first, with the files it owns named so builder batches stay disjoint; modules, LOC and tests are in architecture.md "Chat (C0)".
+A package that changes a file another package owns waits for that one to merge (marked "after"). Server packages are headless and
+land with their Vitest/pytest tests; UI packages are browser-checked at 1366×768.
+
+Design tasks (stage 5): **DT-C0a** before CA-6 (`pipeline/design/chat-turn.html`, the C0a frames: a turn queued / thinking /
+cancelling / failed; the recipe card pending / superseded / expired / committing; ASSISTANT OFF), **DT-C0b** before CB-5 (the edit
+card with and without the splice clause, RENDERING / SPLICING lines, join-failed and TRUNCATED lines, WAITING FOR v2, the version
+card). Tokens from DESIGN.md, no new hue; the owner signs each off like the others.
+
+**C0a — create-first (F-041..F-045, F-049 turn half)**
+- **CA-1 · chat data** (F-041 server, F-044 rules): `server/src/db/chatSchema.ts`, `server/src/db/index.ts`,
+  `server/src/services/chat/{chatTypes,threadStore,messageStore,draftModel,recipeRules,draftFields}.ts` + tests. Needs nothing.
+- **CA-2 · the turn job** (F-042, F-049 cancel/offline), after CA-1: `chat/{chatRules,songState,songStateSource,turnPrompt,
+  turnActions,actionSchema,replyCheck,turnAttempts,turnCall,turnDispatch,proposalStore,turnJob}.ts`,
+  `server/test-fakes/chatScripts.ts` (+ `test-fakes/data/sp5-replies.json` once SP-5 records its fixture) + tests. SP-5's ladder,
+  if it is needed, changes only `turnCall.ts` (and `turnActions.ts` for rung 2).
+- **CA-3 · routes and CREATE SONG** (F-041 rest, F-044 server, F-045 song card, F-049 states), after CA-2:
+  `chat/{createFromDraft,chatStatus,messageView}.ts`, `server/src/routes/{chat,chatTurns}.ts`, `server/src/index.ts`,
+  `server/src/services/engineGenJobs.ts` (`onSaved`) + tests.
+- **CA-4 · CP-C0a, headless checkpoint** (F-050 #1, create leg), after CA-3: `server/scripts/chatCp0.ts`; evidence in
+  `pipeline/cp-c0/<date>/`. Stop lines: turn p50 > 15 s, hand-off > 5 s, a recipe still invalid after 3 attempts more than once →
+  stop and raise before CA-6. If SP-5 named a ladder rung by then, CA-4 runs with it.
+- **CA-5 · client chat state** (F-041, F-043, F-044 logic), parallel with CA-3 (client only; the route contract is in
+  architecture.md): `client/src/api/chat.ts`, `client/src/{chatEntry,chatTurn,chatCopy,chatStore,chatDraftStore}.ts` + tests.
+- **CA-6 · the CHAT screen** (F-043, F-044, F-045), after CA-4, CA-5 and DT-C0a: `client/src/{ChatView,ChatThread,ChatTurnLine,
+  ChatComposer,ChatRecipeCard,ChatSongCard,ChatSidebar,ChatDraftFields,ChatPlayer}.tsx`, `client/src/App.tsx`,
+  `client/src/Header.tsx`, `client/src/SongDetailRail.tsx` (OPEN CHAT), `client/src/index.css`; `docs/design/DESIGN.md` as its own
+  commit. The golden-path e2e must pass unchanged (it opens on the Library: `LLM_API_URL` empty).
+- **CA-7 · C0a live run** (F-050 #2, create half): describe → card → sidebar edit → CREATE SONG → hear it → reload, in the real
+  app (verifier). The owner can use C0a from here.
+
+**C0b — edit, splice, versions (F-046..F-048, F-049 commit half)**
+- **CB-1 · yue-server splice** (F-047 yue half), parallel with all of C0a, **after the owner's SP-4 listen** (precondition 2):
+  `yue-server/{splice_dsp,splice_grid,splice_plan,splice_job,splice_routes,splice_check}.py`, `yue-server/{worker,transcriber,
+  main}.py`, `yue-server/requirements.txt`, `yue-server/requirements-test.txt`, `yue-server/README.md` (splice section),
+  `yue-server/tests/test_splice_*.py`, `yue-server/tests/data/splice/` (SP-4's recorded lab rows + scores),
+  `yue-server/tests/data/contract/splice-*.json`. Setup step for the real service: `~/yue2/.venv/bin/pip install scipy==1.18.0`.
+- **CB-2 · the edit turn** (F-046), after CA-3: `server/src/services/score/{planBuild,planJob}.ts`,
+  `chat/{spliceEligibility,turnDispatch}.ts`, `chat/turnActions.ts` (edit on) + tests.
+- **CB-3 · APPLY, render then splice** (F-047 server, F-048 server, F-049 commit states), after CB-1 and CB-2:
+  `score/{scoreRenderRun,scoreRenderJob,scoreVersion}.ts`, `services/versionFiles.ts`, `chat/{yueSpliceClient,gridCache,
+  spliceRenderJob,editCommit,versionCard}.ts`, `routes/chatTurns.ts` (apply), `chat/messageView.ts` (commit states),
+  `server/test-fakes/fakeYue.ts` (splice replay) + tests.
+- **CB-4 · CP-C0, headless checkpoint** (F-050 #1, edit leg), after CB-3: `server/scripts/chatCp0.ts` (`--leg edit`) + the
+  `splice_check.py` run in WSL on 3 library songs (4/4); log in `pipeline/cp-c0/<date>/`. Stop lines: turn p50 over 15 s, hand-off
+  over 5 s, edit wall time over 4 min, a null test failing, join LUFS excess over 1 dB on 3 of 3 songs → stop and raise before CB-5.
+- **CB-5 · edit and version cards** (F-046, F-048, F-049 client), after CB-4 and DT-C0b: `client/src/{ChatEditCard,
+  ChatVersionCard}.tsx`, `client/src/{chatAb,useChatPlayback}.ts`, `client/src/{chatTurn,chatCopy}.ts` (commit phases),
+  `client/src/ChatPlayer.tsx` (BACK TO / USE), `client/src/api/chat.ts` (apply), `client/src/index.css`; DESIGN.md own commit.
+- **CB-6 · C0 live run, then the owner's listen** (F-050 #2, #3).
+
+Honest size: C0a about 8 working days (CA-1 1, CA-2 3, CA-3 1.5, CA-4 0.5, CA-5 1 in parallel, CA-6 2.5), C0b about 7 (CB-1 3 in
+parallel with C0a, CB-2 1, CB-3 2.5, CB-4 0.5, CB-5 2.5). CP-C0a and CP-C0 are where to re-plan. If the owner wants C0b sooner,
+the first thing to drop is the spliced edit (whole-song edit turns only, decision 6's fallback: CB-1 and most of CB-3 go), and the
+promise loses "only the asked bars change".
 
 C0 exit evidence: one real run on the real card, logged: turn latencies (cold, warm), attempts, unload-to-empty, YuE2 tokens/s and wall time,
 transcription seconds (base and new), splice wall time, bytes of temp audio and their removal, null-test result on the saved file, join LUFS
@@ -257,7 +295,7 @@ acceptance criteria quote these; nothing is added here.
 
 ### Design tasks
 
-DT-C0 above (turn and card states, before W-C0d). DT-C1 (before C1's client work): the strip and mark on the real waveform at 1366x768 with
+DT-C0a and DT-C0b above (turn and card states, before CA-6 and CB-5). DT-C1 (before C1's client work): the strip and mark on the real waveform at 1366x768 with
 the player above the composer (chat-song.html drew the player at the top: the 134 px cost moves; re-check thread height). DT-C2: DESIGN.md
 clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, each in the first UI PR that uses it as its own commit (AGENTS.md).
 
@@ -317,7 +355,7 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
   criterion says an analyze job never refuses a commit. **Q-038 #6** (double POST) is a C0 criterion on the turn route (F-042).
 - **Q-050** (REVISE drops ops on 1-op plans, "fewer chords"): not blocking; F-058 shows the loss as REMOVED, never silent. **Q-053**: judged in C4.
   **Q-062 a/c, Q-063..Q-069, Q-072..Q-076**: assumed in D-091/D-094, built as drawn. **Q-051**: strip half closed by F-053; the hint half stays D-074.
-- **No question became blocking for the cut.** The one owner-gated item is the SP-4 listen (Q-054 #1), which blocks W-C0b and C4 only; the SP-5 numbers
+- **No question became blocking for the cut.** The one owner-gated item is the SP-4 listen (Q-054 #1), which blocks CB-1 and C4 only; the SP-5 numbers
   are a spike result, not a question.
 
 ## Assumed defaults (filed as D-097..D-102, Q-078, Q-079)

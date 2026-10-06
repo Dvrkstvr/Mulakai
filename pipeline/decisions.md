@@ -459,3 +459,28 @@ thread lifecycle follows the song: kept through trash and restore, deleted at pe
 
 ## D-103 · 2026-10-06 · stage 4 (chat scope) · by: user
 The chat cut is signed off: preconditions (SP-5, the SP-4 listen, R-025, SP-6), C0..C8, F-040..F-081, with D-097, D-098 (in C0 only a REHARMONIZE plan is spliced; every other edit re-renders the whole song and says so until C4), D-099 (CHAT is the start screen from C0), D-100..D-102. Next: SP-5.
+
+## D-104 · 2026-10-06 · stage 6/7 (chat C0) · by: user
+"Getting the chat working quickly": C0's architecture starts now, in parallel with SP-5 (small rework risk if SP-5 needs its fallback ladder), and C0 ships in two halves: **C0a create-first** (CHAT start screen, describe → recipe card + sidebar → CREATE SONG on YuE2 → song card and player above the composer, the thread kept), then **C0b** (the edit turn, the REHARMONIZE splice, the version card with A/B). C0a is usable in the real app on its own.
+- instead of: full C0 before the owner sees it; strict order SP-5 → architecture → C0.
+
+## D-105 · 2026-10-06 · housekeeping · by: user
+Repo cleanup: the 10 merged agent worktrees and 25 merged local branches removed, 14 merged remote branches deleted (open-PR branches kept), old verify/spike temp data under E:\ai\tmp deleted (sp4, sp5 kept); the stale PRs #118 and #121 rebased and merged if still valid, else closed.
+
+## D-106 · 2026-10-06 · stage 6 (chat C0) · by: assumed (architect)
+A chat turn is one `plan`-kind job (label `chat turn`): one load, ≤ 3 attempts, `finally` unload with `/api/ps` empty (D-011); an `edit` reply carries SCORE ops inline (SP-5's schema) checked in the same slot by `checkOps`, yue `/v1/scores/apply` and `withLimits`, so D-100's one hand-off holds; the number of model calls (SP-5's ladder) lives only in `chat/turnCall.ts` (docs/decisions/0006). Reversal: a `chatTurn` kind is a two-union change.
+- instead of: a new `chatTurn` kind; a turn job followed by a separate `plan` job.
+
+## D-107 · 2026-10-06 · stage 6 (chat C0) · by: assumed (architect)
+The A3 splice runs on yue-server as a `splice` job kind (`/v1/splices`), next to the score parser (docs/decisions/0002) and the SheetSage2 tracker; the server holds one `scoreRender` slot for render + grids + splice; base grids are cached as `${versionId}.grid.json` sidecars; `scipy==1.18.0` joins yue-server's requirements (docs/decisions/0005).
+- instead of: TypeScript + ffmpeg in the server; a separate process in the SheetSage2 venv.
+
+## D-108 · 2026-10-06 · stage 6 (chat C0) · by: assumed (architect)
+Threads, messages and the draft live in SQLite (`chat_threads`, `chat_messages`, versioned JSON `draft_v` / `chat_v`, cascade from songs); live proposals stay in memory and read EXPIRED after a restart (docs/decisions/0007).
+- instead of: files per thread; persisted proposals; the draft in client storage.
+
+## D-109 · 2026-10-06 · stage 6 (chat C0, Q-080) · by: assumed (architect)
+F-047's "an unresolved join on both sides" means: at both joins the snap found no usable groove (pattern correlation < 0.15 between the 8 beats before and after the cut). The 2-12 kHz verification of SP-4 is measured and logged, not a reason to fall back: read literally it would have rejected SP-4's song D reharmonization (both seams "unres.", LUFS excess +0.2 / -0.1 dB). Reversal: one constant in `splice_plan.py`.
+
+## D-110 · 2026-10-06 · stage 6 (chat C0, Q-081) · by: assumed (architect)
+Until C0b lands, an `edit` reply on a song thread is answered as a `say` that points to SCORE in the Editor (as scalpel and analyze replies point to their tools), and a `recipe` on a song thread is answered as a `say` that suggests NEW CHAT; nothing is silently dropped. Reversal: C0b's CB-2 turns edit on.

@@ -6,6 +6,7 @@ paths:
   - "server/src/services/queueGuards.ts"
   - "server/src/services/*Jobs.ts"
   - "server/src/services/score/*Job.ts"
+  - "server/src/services/chat/*Job.ts"
   - "server/src/services/enginePoll.ts"
   - "server/src/services/engineClient.ts"
 ---
@@ -26,3 +27,5 @@ paths:
   client's `ActiveGeneration.kind` (`client/src/api/types.ts`), and so its
   Activity label maps, `RUNNING_LABEL` first. M0's `plan` kind missed it.
 - First takes and score renders share one engine poll loop (D-036).
+- Chat adds no kind: a turn is `plan` (label `chat turn`), an APPLY is
+  `scoreRender` (label `chat edit`) (docs/decisions/0006).
