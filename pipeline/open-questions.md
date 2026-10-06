@@ -277,3 +277,15 @@ The server's recipe body is the model's snake_case form (`time_signature`) while
 
 ## Q-102 · deferred · stage 7 (C3 CR-7b) · open
 A reference whose file is gone (deleted from disk) has no "FILE MISSING" state: ReferenceView carries no missing flag. Default: add a server-side `missing` flag (stat at thread load) with the reading card's rust line, after C3's live run.
+
+## Q-103 · assumable · stage 5 (DT-C0b, chat-edit.html 1a)
+The edit card's consequence line needs a time for render + grids + splice (44-92 s render, ~17 s per grid, 4 min budget). Default: "a few minutes" until CP-C0 calibrates; every number in the mockup is an example.
+
+## Q-104 · assumable · stage 5 (DT-C0b, chat-edit.html 3c, 3d)
+A splice that cannot be aligned (D-109), has no usable grid, or meets a truncated render saves the whole re-render as v2 without asking first. Default: saved with a rust-bordered label on the version card (a result, not an error); v1 is one click away. Reversal: ask before saving.
+
+## Q-105 · deferred · stage 5 (DT-C0b, chat-edit.html 1c, 3e)
+After an audio-only CUT or REPEAT "same seconds" in BACK TO v1 is wrong after the cut (Q-070). Default: the card says "bars after the cut are earlier"; A/B by bar is Later.
+
+## Q-106 · assumable · stage 5 (DT-C0b, chat-edit.html 3g, 4c)
+USE v1 after v2 exists. Default: v1 becomes active, v2 stays in the Editor's rail, a thread line says so; the next edit plans against v1, so an edit card made on v2 goes stale (STALE, ASK AGAIN).
