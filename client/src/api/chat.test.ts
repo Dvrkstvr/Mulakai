@@ -29,4 +29,9 @@ describe('chatApi', () => {
     answer(500, { error: 'boom' });
     await expect(chatApi.createChatSong('t1', 'p1')).rejects.toThrow('boom');
   });
+
+  it("NEW CHAT refused (a turn or take still runs): the server's reason is the error", async () => {
+    answer(409, { reason: 'the assistant or CREATE SONG is still working in this chat: CANCEL it first' });
+    await expect(chatApi.resetChatDraft()).rejects.toThrow('CANCEL it first');
+  });
 });

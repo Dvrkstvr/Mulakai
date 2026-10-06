@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { Song } from './api';
 import { Editor } from './Editor';
 import { CreateView } from './CreateView';
@@ -22,11 +22,18 @@ import { LibraryView } from './LibraryView';
 import { PlayerFooter } from './PlayerFooter';
 import { CommandActivityLayer } from './CommandActivityLayer';
 import { scrollToSettingsSection } from './settingsSections';
+import { ChatView } from './ChatView';
+import { chatShown } from './chatEntry';
+import { useChatStore } from './chatStore';
+import { useChatBoot } from './useChatBoot';
 
-type View = 'library' | 'create' | 'settings' | 'forge';
+type View = 'library' | 'chat' | 'create' | 'settings' | 'forge';
 
 export default function App() {
   const [view, setView] = useState<View>('library');
+  /** Where Create's BACK returns: CHAT when FORM ▸ opened it there. */
+  const [createBack, setCreateBack] = useState<View>('library');
+  const chatOn = chatShown(useChatStore((s) => s.status));
   const [openSongId, setOpenSongId] = useState<string | null>(null);
   const [detailSongId, setDetailSongId] = useState<string | null>(null);
   const library = useLibraryData();
@@ -49,8 +56,21 @@ export default function App() {
     setView('library');
     setOpenSongId(id);
   }, []);
-  const navValue = useMemo(() => ({ goToSettings: () => setView('settings'), openEditor }), [openEditor]);
-  const isTakeover = view === 'create' || view === 'settings' || view === 'forge';
+  /** CHAT (D-099): a song's thread from OPEN CHAT, else the thread already open, else the draft thread. */
+  const openChat = useCallback((songId?: string) => {
+    setOpenSongId(null);
+    setDetailSongId(null);
+    setView('chat');
+    const chat = useChatStore.getState();
+    if (songId) void chat.openSong(songId);
+    else if (!chat.thread) void chat.openDraft();
+  }, []);
+  const home = useRef(true);
+  home.current = view === 'library' && !openSongId;
+  const booted = useChatBoot(() => openChat(), () => home.current);
+  const navValue = useMemo(() => ({ goToSettings: () => setView('settings'), openEditor, openChat }), [openEditor, openChat]);
+  const isTakeover = view === 'create' || view === 'settings' || view === 'forge' || view === 'chat';
+  const showLibrary = (songId: string | null = null) => { setView('library'); setDetailSongId(songId); refresh(); };
   const genJobs = useGenerationStore((s) => s.jobs);
   const dismissGenJob = useGenerationStore((s) => s.dismiss);
   const hydrateGenJob = useGenerationStore((s) => s.hydrate);
@@ -64,6 +84,7 @@ export default function App() {
   const openCreate = (draft: CreateDraft) => {
     const store = useCreateDraftStore.getState();
     if (draftHasIntent(draft)) store.load(draft); else store.resume(draft.folderId, draft.folderName);
+    setCreateBack('library');
     setView('create');
   };
 
@@ -97,10 +118,14 @@ export default function App() {
     <div className={openSongId || isTakeover ? 'app app-editor' : 'app'}>
       <NavigationContext.Provider value={navValue}>
       <HeaderSlotContext.Provider value={setHeaderSlot}>
-      <Header left={headerLeft} right={headerRight} forgeEnabled={forgeEnabled} onForge={() => setView('forge')} />
+      <Header
+        left={headerLeft} right={headerRight} forgeEnabled={forgeEnabled} onForge={() => setView('forge')}
+        views={chatOn && !openSongId && (view === 'chat' || view === 'library')
+          ? { active: view, onChat: () => openChat(), onLibrary: () => showLibrary() } : null}
+      />
       <div className="app-body">
       <AnimatePresence mode="wait">
-        {openSongId ? (
+        {!booted ? null : openSongId ? (
           <motion.div className="view-fill" key="editor" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
             <MaterializeSweep />
             {/* refreshFolders too: an import lands here directly, so leaving the editor is
@@ -110,7 +135,11 @@ export default function App() {
         ) : view === 'create' ? (
           <motion.div className="view-fill" key="create" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
             <MaterializeSweep />
-            <CreateView songs={songs} onBack={() => setView('library')} />
+            <CreateView songs={songs} onBack={() => setView(createBack)} />
+          </motion.div>
+        ) : view === 'chat' ? (
+          <motion.div className="view-fill" key="chat" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }}>
+            <ChatView onForm={() => { setCreateBack('chat'); setView('create'); }} onLibrary={showLibrary} />
           </motion.div>
         ) : view === 'settings' ? (
           <motion.div className="view-fill" key="settings" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>

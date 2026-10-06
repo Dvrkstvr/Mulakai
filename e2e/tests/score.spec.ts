@@ -8,7 +8,7 @@
 import { test, expect } from './fixtures';
 import { activeVersion, songByTitle } from './helpers';
 import { contract, plannerReplyFor, recordedSong } from '../fake-score/contracts';
-import { openSong, plannerLog, scriptPlanner, seedYue2Song, yueJobs } from './scoreFakes';
+import { openSong, plannerLog, scriptPlanner, seedYue2Song, viewButton, yueJobs } from './scoreFakes';
 
 const TITLE = `E2E Score ${Date.now().toString(36)}`;
 const REQUEST = 'jazz chords in the chorus, 88 BPM';
@@ -29,6 +29,12 @@ async function openScore(page: import('@playwright/test').Page) {
   await dock.getByRole('tab', { name: 'SCORE' }).click();
   return { dock, panel: dock.getByRole('tabpanel', { name: 'SCORE' }) };
 }
+
+test('with LLM_API_URL and YUE_API_URL set, the app opens on CHAT, on the draft thread (D-099)', async ({ page }) => {
+  await page.goto('/');
+  await expect(viewButton(page, 'CHAT')).toHaveAttribute('aria-current', 'page');
+  await expect(page.getByRole('textbox', { name: 'Message' })).toBeVisible();
+});
 
 test('planner offline: SCORE says so, and RECHECK brings it back', async ({ page, request }) => {
   await scriptPlanner(request, { down: true });

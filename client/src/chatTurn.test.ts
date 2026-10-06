@@ -90,6 +90,16 @@ describe('chatTurn', () => {
     expect(run(INITIAL_TURN, { type: 'cancel' })).toBe(INITIAL_TURN);
   });
 
+  it('cancelled → RETRY resends the same text as a new message (TU-2: every ending without an answer has one RETRY)', () => {
+    const s = run(queued, { type: 'cancel' }, { type: 'poll', job: { status: 'failed', cancelled: true } });
+    expect(canRetry(s, true)).toBe(true);
+    expect(canRetry(s, false)).toBe(false);
+    expect(run(s, { type: 'retry', clientKey: 'k3' })).toMatchObject({ phase: { kind: 'sending' }, clientKey: 'k3', lastText: s.lastText });
+    // A reload restores a cancelled message with its text: RETRY works from there too.
+    const restored = run(INITIAL_TURN, { type: 'settled', user: msg({ state: 'cancelled', text: 'slower, in Spanish' }), reply: null });
+    expect(canRetry(restored, true)).toBe(true);
+  });
+
   it('queued / thinking → interrupted when the job is lost; nothing else is', () => {
     expect(run(thinking, { type: 'lost' }).phase).toEqual({ kind: 'interrupted' });
     expect(run(INITIAL_TURN, { type: 'lost' })).toBe(INITIAL_TURN);
@@ -122,6 +132,11 @@ describe('chatTurn', () => {
     expect(lastTurn(msgs)).toEqual({ user: msgs[2], reply: null });
     expect(lastTurn(msgs, 'a')).toEqual({ user: msgs[0], reply: msgs[1] });
     expect(lastTurn([])).toBeNull();
+  });
+  it('lastTurn skips a song card that landed between the message and its reply (a turn sent while a take ran)', () => {
+    const msgs = [msg({ id: 'a' }), msg({ id: 's', role: 'assistant', kind: 'song' }), msg({ id: 'r', role: 'assistant', kind: 'say' })];
+    expect(lastTurn(msgs, 'a')?.reply?.id).toBe('r');
+    expect(lastTurn(msgs.slice(0, 2), 'a')?.reply).toBeNull();
   });
 });
 

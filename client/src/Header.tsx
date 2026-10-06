@@ -13,12 +13,14 @@ interface Props {
   /** FORGE is feature-gated (Settings > Forge) — its header icon only renders when enabled, per FORGE_PLAN.md. */
   forgeEnabled?: boolean;
   onForge?: () => void;
+  /** CHAT ⇄ LIBRARY (D-099): only while the chat is configured and one of the two is up. */
+  views?: { active: 'chat' | 'library'; onChat: () => void; onLibrary: () => void } | null;
 }
 
 const STATUS_POLL_MS = 2000;
 
 /** Persistent app header — logo glides via a shared layoutId as the back-button/title slots mount around it on view change. */
-export function Header({ left, right, forgeEnabled, onForge }: Props) {
+export function Header({ left, right, forgeEnabled, onForge, views }: Props) {
   const poll = useApiStatusStore((s) => s.poll);
   const openPalette = useCommandStore((s) => s.setOpen);
 
@@ -53,6 +55,12 @@ export function Header({ left, right, forgeEnabled, onForge }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
+      {views && (
+        <nav className="header-views" aria-label="Views">
+          <button type="button" className={views.active === 'chat' ? 'header-view on' : 'header-view'} aria-current={views.active === 'chat' ? 'page' : undefined} onClick={views.onChat}><span>CHAT</span></button>
+          <button type="button" className={views.active === 'library' ? 'header-view on' : 'header-view'} aria-current={views.active === 'library' ? 'page' : undefined} onClick={views.onLibrary}><span>LIBRARY</span></button>
+        </nav>
+      )}
       <button type="button" className="palette-trigger" onClick={() => openPalette(true)}>
         <span className="palette-trigger-text">Search or run anything…</span>
         <span className="kbd">CTRL K</span>

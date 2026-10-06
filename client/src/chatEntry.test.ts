@@ -1,6 +1,6 @@
 /** The start-screen gate (D-099): configured → CHAT, anything else → the Library; ASSISTANT OFF's cause. */
 import { describe, it, expect } from 'vitest';
-import { assistantOffCause, chatShown, startView } from './chatEntry';
+import { assistantOffCause, bootToChat, chatShown, startView } from './chatEntry';
 
 describe('chatEntry', () => {
   it('opens on CHAT only when the server says the chat is configured', () => {
@@ -23,5 +23,13 @@ describe('chatEntry', () => {
     expect(assistantOffCause({ configured: true, assistant: 'ok' })).toBeNull();
     expect(assistantOffCause({ configured: false, assistant: 'off', cause: 'x' })).toBeNull();
     expect(assistantOffCause({ configured: true, assistant: 'off', cause: ' ' })).toBe('the assistant did not answer');
+  });
+
+  it('the boot opens CHAT only if the person has not gone anywhere while the status was read', () => {
+    const on = { configured: true, assistant: 'ok' } as const;
+    expect(bootToChat(on, true)).toBe(true);
+    expect(bootToChat(on, false)).toBe(false); // a song opened from Ctrl K meanwhile stays open
+    expect(bootToChat({ configured: false, assistant: 'off' }, true)).toBe(false);
+    expect(bootToChat(null, true)).toBe(false);
   });
 });

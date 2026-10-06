@@ -10,6 +10,10 @@ export function startView(status: ChatStatus | null): StartView {
   return status?.configured === true ? 'chat' : 'library';
 }
 
+/** The boot's switch to CHAT: only while the person is still where the app started (the Library, no song open);
+ * a song opened from Ctrl K before the status came back stays open. */
+export const bootToChat = (status: ChatStatus | null, stillHome: boolean): boolean => stillHome && startView(status) === 'chat';
+
 /** Whether CHAT shows at all (the header entry, OPEN CHAT on a song): only when configured. */
 export const chatShown = (status: ChatStatus | null): boolean => startView(status) === 'chat';
 

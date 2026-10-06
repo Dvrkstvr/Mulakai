@@ -962,6 +962,55 @@ requiring its own justification against a screen-count rule.
      sensible global defaults — and live in `SongDetailRail.tsx` (Library's
      song detail rail), grouped directly under the CREATE COVER FROM AUDIO
      button.
+5. **Chat** (added 2026-10-06, chat C0a; specs `pipeline/design/chat-turn.html`,
+   `chat-lyrics.html` frame 3, `chat-create.html` frames 1a/1b/5) — a peer of
+   the Library, and the start screen when the server says the chat is
+   configured (`LLM_API_URL` and `YUE_API_URL` set, D-099); otherwise the app
+   opens on the Library as before and nothing below shows. The header carries
+   **CHAT | LIBRARY** (outlined parallelograms, the open one in acid outline,
+   like an active toolbar tab) while either is up; the Library's song detail
+   rail gets a plain **OPEN CHAT** (the song's thread). Layout, top to bottom:
+   a title row (NEW SONG or the song's title, its `text-low` subline, `FORM ▸`
+   to Guided Create, NEW CHAT), then the thread column beside a 360px draft
+   sidebar. The column is the thread (messages capped at 760px, newest by the
+   composer, scrolling inside), the player (the shared `Player`, the version's
+   lilac pill) **above** the composer once the thread has a song, and the
+   composer.
+   - **SEND ↵** is an outline text button (acid hairline, skewed), never a
+     hexagon or any play-like glyph, so it can't be read as transport. It is
+     off while a turn is queued or thinking (the typed text stays, the reason
+     sits above the field) and while the assistant is off.
+   - **One line per turn**, under the message it answers: dashed and plain
+     while QUEUED ("THINKING · QUEUED · STARTS AFTER 2 JOBS" + what it costs),
+     the AI shader while THINKING ("attempt 2 of 3" and the refused attempt's
+     reason in the server's words), plain while CANCELLING. Every ending
+     without an answer has one shape: a rust line saying what happened and
+     "nothing changed", with one RETRY (and `FORM ▸` when the assistant is
+     off or failed). Text on the shader carries a carbon text-shadow.
+   - **The recipe card** (`carbon-panel`, `line-hi` hairline) is the chat's
+     only commit place: its summary mirrors the live draft (a hand edit reads
+     YOUR EDIT, the proposed tempo struck), its consequence line sits left of
+     **CREATE SONG** (acid fill, the card's one acid CTA; a busy GPU appends
+     "· starts after N jobs", only a server blocker disables it, with the
+     reason in the line). Committing keeps the label and turns the button off;
+     the take's line under the card follows the YuE2 rule (stage and its
+     share, the plain shader, no veil; dashed while queued). Superseded dims
+     to 45% with no button; expired is a rust line with ASK AGAIN; done folds
+     to one header line, followed by the song card (lilac version pill,
+     length, `LIBRARY ▸`).
+   - **The sidebar** is the one draft's fields (TITLE, STYLE, TEMPO · KEY,
+     LANGUAGE, STRUCTURE, LYRICS as `[Verse]` blocks, ENGINE YUE2 · FIXED),
+     editable at any time, also while a turn runs. A field the last reply
+     filled reads in the sky family: the deepest shade (`on-sky`) as its wash,
+     a 3px sky edge, a sky ASSISTANT tag and its old value struck in
+     `text-low` — "the assistant pointed here", the scope meaning of sky, not
+     a new hue; a field the person touched reads YOURS in `text-mid`; while
+     the assistant thinks, the empty fields are outlined in dashed sky with
+     FILLING…. A take rendering locks the fields (55% opacity) and the foot
+     says so; on a song's thread the sidebar is a read-only song panel with a
+     VERSIONS row. Collapsed, it is a 38px rail counting the filled fields;
+     the open/closed state is remembered per browser. The sidebar never
+     commits: its foot points at the card.
 
 ### Side panels (Create + Editor)
 
@@ -1294,7 +1343,10 @@ engine — it has worn the shader since it was added, and is listed here
 now so the list is complete); the SCORE verb's planning line while the
 planner works on the GPU (D-029: an LM working, like
 Quick Start; still dashed and plain while queued), and its rendering line,
-which follows the YuE2 rule above (stage and its share, no veil); and Activity's RUNNING row for a song
+which follows the YuE2 rule above (stage and its share, no veil); the
+CHAT screen's turn line while the planner thinks (still dashed and plain
+while queued, plain while cancelling) and its CREATE SONG take line under
+the recipe card, which follows the YuE2 rule; and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
 ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
 (UP NEXT, the library card of a generation reading `QUEUED · STARTS

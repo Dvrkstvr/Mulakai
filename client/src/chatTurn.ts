@@ -65,7 +65,8 @@ export const INITIAL_TURN: TurnState = {
 
 export const MAX_TURN_ATTEMPTS = 3;
 const ACTIVE = new Set<TurnPhase['kind']>(['sending', 'queued', 'thinking']);
-const RETRYABLE = new Set<TurnPhase['kind']>(['failed', 'offline', 'interrupted']);
+/** TU-2: every ending without an answer offers one RETRY, a cancel included. */
+const RETRYABLE = new Set<TurnPhase['kind']>(['failed', 'offline', 'cancelled', 'interrupted']);
 export const turnRunning = (s: TurnState): boolean => ACTIVE.has(s.phase.kind);
 /** SEND is live: no turn running, text typed, the assistant on (F-043: no turn while ASSISTANT OFF). */
 export const canSend = (s: TurnState, assistantOn: boolean): boolean => assistantOn && !turnRunning(s) && s.text.trim() !== '';
@@ -144,8 +145,11 @@ export function chatTurn(s: TurnState, e: TurnEvent): TurnState {
 export function lastTurn(messages: ChatMessageView[], messageId?: string | null): { user: ChatMessageView; reply: ChatMessageView | null } | null {
   const i = messageId ? messages.findIndex((m) => m.id === messageId) : messages.findLastIndex((m) => m.role === 'user');
   if (i < 0) return null;
-  const next = messages[i + 1];
-  return { user: messages[i], reply: next?.role === 'assistant' ? next : null };
+  // A take's song card can land between a message and its reply (sent while a take ran): it is not the reply.
+  const after = messages.slice(i + 1);
+  const end = after.findIndex((m) => m.role === 'user');
+  const reply = (end < 0 ? after : after.slice(0, end)).find((m) => m.kind !== 'song' && m.kind !== 'version');
+  return { user: messages[i], reply: reply ?? null };
 }
 
 /** CREATE SONG's take (F-044): the line under the card, whose button never turns into progress. C0b adds APPLY's

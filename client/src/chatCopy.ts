@@ -115,3 +115,66 @@ export const railLine = (filled: number) => (filled ? `${plural(filled, 'FIELD')
 export function newChatConsequence(messages: number): string {
   return `Drops this draft${messages ? ` and its ${plural(messages, 'message')}` : ''} · the Library is untouched`;
 }
+
+// The CHAT screen (CA-6; pipeline/design/chat-turn.html TU-1..TU-10, chat-create frames 1a/1b/5).
+export const NEW_SONG = 'NEW SONG';
+export const DRAFT_SUBTITLE = 'DRAFT · NOT A SONG YET · LANDS IN LIBRARY';
+export const songSubtitle = (number: number | null, length: string | null) =>
+  [number ? `v${number}` : null, length, 'IN LIBRARY'].filter(Boolean).join(' · ');
+export const EMPTY_THREAD = 'Describe a song: a mood, a style, a language, what it is about. The assistant fills the form beside the thread; nothing runs until CREATE SONG.';
+export const QUEUED_TAIL = '· uses the GPU, about 10 s once it starts · nothing else changes';
+export const CANCELLING = 'CANCELLING…';
+export const CANCELLING_TAIL ='· unloading the planner so the GPU is free · nothing changes';
+/** Under THINKING: the refused attempt's reason in the server's words, or the unload. */
+export const thinkingTail = (attempt: number, note: string | null) =>
+  note ? (attempt > 1 && !/^unloading\b/.test(note) ? `· attempt ${attempt - 1} refused: ${note}` : `· ${note}`) : null;
+export const SEND_WAITS = 'SEND waits until the assistant answers · your text stays';
+export const WAITING_FOR_V1 = 'WAITING FOR v1 · a message sent now is read after it saves';
+export const WAITING_PLACEHOLDER = 'Waiting for the assistant…';
+export const OFF_PLACEHOLDER = 'Assistant off · RETRY above, or use the form';
+export const INTERRUPTED_LINE = 'The server restarted while this ran. Nothing changed.';
+export const CANCELLED_LINE = 'CANCELLED · no reply · nothing changed';
+/** The open turn's cancel (TU-2): the rust line's body beside its RETRY. */
+export const CANCELLED_BODY = 'No reply. Nothing changed.';
+export const offBody = (cause: string) => `${cause}. Guided Create works without it (FORM ▸); nothing carries over yet.`;
+/** Frame 6: a field touched while the turn runs. */
+export const touchedSinceSend = (keys: ChatDraftKey[]) =>
+  keys.length ? `you changed ${and(labels(keys))} since sending · the assistant will skip ${keys.length === 1 ? 'it' : 'them'} and say so` : null;
+export const SIDEBAR_HEAD = 'FORM · THE DRAFT';
+export const SIDEBAR_RENDERING = 'FORM · RENDERING FROM THESE';
+export const sidebarSongHead = (title: string) => `SONG · ${title.toUpperCase()}`;
+export const SIDEBAR_FOOT = {
+  empty: 'the assistant fills these from your message · nothing commits here',
+  card: 'edit any · CREATE SONG is on the card ◂',
+  /** The take waits behind another job: its line offers CANCEL. Once it starts nothing in the chat stops it. */
+  lockedQueued: 'locked until v1 is saved or you CANCEL',
+  locked: 'locked until v1 is saved',
+  song: 'fields as rendered · read-only',
+  off: 'nothing commits here · the form does',
+} as const;
+export const FILLING_TAG = 'FILLING…';
+export const YOUR_EDIT = 'YOUR EDIT';
+export const ENGINE_FIXED = 'YUE2 · FIXED';
+export const COMMITTING_HINT = 'creating · the render is in the line below';
+export const cardHeader = (kind: string, title?: string | null) =>
+  kind === 'superseded' || kind === 'expired' ? `${RECIPE_HEADER} · ${kind.toUpperCase()}`
+    : kind === 'done' && title ? `${RECIPE_HEADER} · ${title.toUpperCase()}` : RECIPE_HEADER;
+export const EXPIRED_TITLE = 'THIS PROPOSAL EXPIRED';
+export const LYRICS_TOGGLE = 'LYRICS';
+export const SUPERSEDED_BODY ='A newer proposal is below and its fields are in the sidebar. This one cannot be created.';
+export const EXPIRED_BODY = 'when the server restarted. Your fields are still in the sidebar; ask again for a new card.';
+export const ASK_AGAIN = 'ASK AGAIN';
+export const ASK_AGAIN_TEXT = 'propose this again from the form as it is now';
+export const doneLine = (number: number | null) => `DONE · v${number ?? 1} SAVED`;
+export const songCardMeta = (length: string | null) => [length, 'YUE2 · IN LIBRARY'].filter(Boolean).join(' · ');
+export const OPEN_FAILED = "COULDN'T OPEN THE CHAT";
+export const DROP_DRAFT = 'DROP DRAFT';
+export const NEW_CHAT_REFUSED = 'NEW CHAT REFUSED · this chat is kept:';
+export const KEEP = 'KEEP';
+export const HIDE_SIDEBAR = 'HIDE ▸';
+export const LIBRARY_LINK = 'LIBRARY ▸';
+export const FOLD = 'FOLD ▴';
+export const VERSIONS = 'VERSIONS';
+export const NOT_SENT = 'NOT SENT';
+export const notSentBody = (error: string) => `${error}. Your text is kept; SEND again.`;
+export const LYRICS_HINT ='one [Verse] / [Chorus] header per section · saved when you leave the field';
