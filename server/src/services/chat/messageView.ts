@@ -80,8 +80,17 @@ function recipeState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext):
   return m.jobId && live(ctx.job(m.jobId)) ? 'committing' : 'pending';
 }
 
-function analyzeState(m: ChatMessage, ctx: ViewContext): MessageState {
-  if (m.jobId) return live(ctx.job(m.jobId)) ? 'committing' : 'done';
+/** The reading card of an analyze card's READ whose reading ended with nothing saved (failed, cancelled, lost):
+ * READ is open again on the analyze card (C3 review 3). A saved reading hands the card's job id to the follow-up
+ * turn, so a matching card with no reading is one that never read. */
+export function unreadCard(analyze: ChatMessage, messages: ChatMessage[], job: JobView | undefined): ChatMessage | null {
+  if (!analyze.jobId || live(job)) return null;
+  const card = messages.find((c) => c.kind === 'reading' && c.jobId === analyze.jobId);
+  return card && !(card.body as ReadingBody | null)?.reading ? card : null;
+}
+
+function analyzeState(m: ChatMessage, messages: ChatMessage[], ctx: ViewContext): MessageState {
+  if (m.jobId && !unreadCard(m, messages, ctx.job(m.jobId))) return live(ctx.job(m.jobId)) ? 'committing' : 'done';
   const life = m.proposalId ? ctx.proposal(m.proposalId) : null;
   return life === 'live' ? 'pending' : life ?? 'expired';
 }
@@ -102,7 +111,7 @@ export function messageViews(messages: ChatMessage[], ctx: ViewContext) {
     if (m.role === 'user') state = userState(messages, i, ctx);
     else if (m.kind === 'failed') state = failedState(m);
     else if (m.kind === 'recipe') state = recipeState(messages, m, ctx);
-    else if (m.kind === 'analyze') state = analyzeState(m, ctx);
+    else if (m.kind === 'analyze') state = analyzeState(m, messages, ctx);
     else if (m.kind === 'reading') state = readingState(m, ctx);
     const job = m.jobId ? ctx.job(m.jobId) ?? null : null;
     return { ...m, body: wireBody(m), state, job };
