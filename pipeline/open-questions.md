@@ -208,3 +208,6 @@ Always analyzing every version costs GPU time and has a side effect. (a) Analysi
 
 ## Q-063..Q-070 · stage 5 (chat, design/chat-song.html) · assumed → D-091 unless the owner overrules
 Q-063 player placement: pinned at the top of the main column (A) vs above the composer (C); default A. Q-064 a saved version swaps in place, keeping position and play state. Q-065 the mark is sticky across turns; each sent message keeps a frozen echo of the mark it carried. Q-066 a stale mark holds SEND until USE BARS or CLEAR MARK. Q-067 while a new version's analysis runs, the old reading stays (dimmed) only if the edit moved no bars; otherwise the strip is hatched and marking works by raw time. Q-068 the mark's grips, partial fill and shift-click need one DESIGN.md clause. Q-069 a turn sent during analysis queues behind it. Q-070 deferred: section names on transcribed songs (PART n, unverified); A/B by bar after REPEAT/CUT.
+
+## Q-071 · blocking (chat design) · stage 5 · open
+How the chat shows lyrics: the chat-song.html chip text is too small to read. Approaches compared in design/chat-lyrics.html; the owner picks.
