@@ -229,3 +229,6 @@ When is a splice join "unresolved" so that the whole re-render is saved instead 
 
 ## Q-081 · assumable · stage 6 (chat C0a, D-104) · assumed → D-110
 C0a ships before the edit turn: what does a song thread answer to "give the chorus jazz chords" meanwhile? Default: a `say` pointing to SCORE in the Editor; a new-song description on a song thread gets a `say` suggesting NEW CHAT.
+
+## Q-082..Q-087 · stage 5 (DT-C0a, design/chat-turn.html) · assumed → D-111 unless the owner overrules
+Q-082 SEND is off while a turn is queued or thinking (alternative: queue a second turn). Q-083 an expired recipe card gets ASK AGAIN, which sends one visible message (changes scope.md's "no button" for expired cards). Q-084 with the assistant off, C0 has no CREATE SONG in the sidebar: RETRY and FORM ▸ (alternative: commit from the sidebar). Q-085 after CREATE SONG the sidebar becomes a read-only song panel (alternative: the draft stays editable). Q-086 the sidebar's ASSISTANT / YOURS / FILLING… field marks ship in C0 without UNDO TURN (D-098 had put the marks in C2; the sidebar needs them now). Q-087 deferred: a "jump to latest" chip when a reply lands while scrolled up.
