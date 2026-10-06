@@ -259,3 +259,15 @@ Will the owner give 3 recordings he has the rights to (one sung pop song, one in
 
 ## Q-096 · deferred · stage 6 (chat C3)
 A reading whose score is longer than YuE2 plans in one take offers no cover (the reason, and a new-song option). Guided Create's COVER lets the person pick sections instead (PLAN.md "YuE2 Covers: Pick the Score's Sections"); the chat's equivalent is Later unless CP-C3 shows most real songs hit it.
+
+## Q-097 · assumable · stage 5 (DT-C3, design/chat-reference.html RF-5)
+How are fields borrowed from a reference marked? Default (option B): the sky "just filled" wash, then a neutral text-mid REFERENCE hairline tag until the person edits the field. Alternatives: sky only (A, the origin is forgotten), lilac (C, rejected: lilac means what the AI made before).
+
+## Q-098 · assumable · stage 5 (DT-C3, chat-reference.html 1c)
+Several references in one draft? Default: one chip at a time; a second attach replaces the unsent chip.
+
+## Q-099 · assumable · stage 5 (DT-C3, chat-reference.html 2a)
+READ's "uses the GPU about N s" needs calibrated constants (`readingEstimate`, CP-C3). Default: until calibrated the card says "a few minutes" and never an invented number; every number in the mockup is an example.
+
+## Q-100 · deferred · stage 5 (DT-C3, chat-reference.html 4a)
+REFERENCE ⇄ SONG plays at the same seconds: exact for a cover, loose for a borrowed song (different structure and timing). Default: the pill shows on both and says "same seconds"; a per-section jump is Later (Q-070).
