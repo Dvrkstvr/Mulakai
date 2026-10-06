@@ -4,10 +4,15 @@
  * goes through `chatTurn` / `chatCommit`; the draft is `chatDraftStore`. Jobs outlive the tab: opening a thread rehydrates them.
  */
 import { create } from 'zustand';
-import { chatApi, type ChatRecipeBody, type ChatStatus, type ChatThreadView } from './api/chat';
+import {
+  chatApi, type ChatAttach, type ChatMessageView, type ChatRecipeBody, type ChatStatus, type ChatThreadView,
+} from './api/chat';
+import { chatReferencesApi } from './api/chatReferences';
+import { attachBlocksSend, attachToSend, useChatAttachStore } from './chatAttachStore';
 import { assistantOffCause } from './chatEntry';
 import { useChatDraftStore } from './chatDraftStore';
 import { chatPoll } from './chatPoll';
+import { INITIAL_READING, chatReading, readingHoldsSend, replyAfter, type ReadingEvent, type ReadingState } from './chatReading';
 import {
   INITIAL_TURN, canRetry, canSend, chatCommit, chatTurn, lastTurn,
   type CommitEvent, type CommitState, type TurnEvent, type TurnState,
@@ -22,6 +27,9 @@ interface ChatStore {
   error: string | null;
   /** NEW CHAT refused (409: a turn or take still runs): the server's reason; the thread stays. */
   refusal: string | null;
+  /** C3: the analyze and reading cards (`chatReading`); `lastAttach` = what the last SEND carried, for RETRY. */
+  reading: ReadingState;
+  lastAttach: ChatAttach | null;
   loadStatus: () => Promise<ChatStatus | null>;
   openDraft: () => Promise<void>;
   openSong: (songId: string) => Promise<void>;
@@ -33,6 +41,10 @@ interface ChatStore {
   retry: () => Promise<void>;
   cancel: () => Promise<void>;
   create: (proposalId: string) => Promise<void>;
+  /** READ on an analyze card: the reading job, then the follow-up turn (D-129). */
+  read: (proposalId: string) => Promise<void>;
+  /** RE-ANALYZE from the song panel: null when it started, else the server's reason. */
+  reanalyze: (referenceId: string) => Promise<string | null>;
 }
 
 const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
@@ -41,32 +53,39 @@ const newClientKey = () => globalThis.crypto?.randomUUID?.() ?? `ck-${Date.now()
 export const useChatStore = create<ChatStore>((set, get) => {
   const turn = (e: TurnEvent) => set((s) => ({ turn: chatTurn(s.turn, e) }));
   const commit = (e: CommitEvent) => set((s) => ({ commit: chatCommit(s.commit, e) }));
+  const reading = (e: ReadingEvent) => set((s) => ({ reading: chatReading(s.reading, e) }));
   const assistantOn = () => assistantOffCause(get().status) === null;
+  const changedBy = (m: ChatMessageView | null | undefined) => (m?.kind === 'recipe' ? (m.body as ChatRecipeBody | null)?.changed : undefined);
 
   /** Show a thread; `changed` = the fields a reply that just landed filled (sky marks, CH-4). */
   function show(thread: ChatThreadView, changed?: ChatRecipeBody['changed']) {
     set({ thread, error: null, refusal: null });
+    reading({ type: 'thread', messages: thread.messages });
     useChatDraftStore.getState().hydrate(thread.id, thread, changed);
   }
 
-  /** Read the open thread again; `settling` = the turn ended: a reply's filled fields get their marks. */
-  async function refetch(settling = false): Promise<void> {
+  /** Read the open thread again; `settling` = the turn ended, `afterCard` = a reading card's job ended: the
+   * reply's filled fields get their marks. */
+  async function refetch(settling = false, afterCard?: string): Promise<void> {
     const id = get().thread?.id;
     const thread = id ? await chatApi.chatThread(id).catch(() => null) : null;
     if (!thread || get().thread?.id !== id) return;
     const t = settling ? lastTurn(thread.messages, get().turn.messageId) : null;
-    show(thread, t?.reply?.kind === 'recipe' ? (t.reply.body as ChatRecipeBody | null)?.changed : undefined);
+    show(thread, changedBy(afterCard ? replyAfter(thread.messages, afterCard) : t?.reply));
     if (t) turn({ type: 'settled', ...t });
   }
 
-  const { followTurn, followCommit, rehydrate } = chatPoll({
-    turnState: () => get().turn, commitState: () => get().commit, turn, commit, refetch,
+  const { followTurn, followCommit, followCards, rehydrate } = chatPoll({
+    turnState: () => get().turn, commitState: () => get().commit, readingState: () => get().reading, turn, commit, reading, refetch,
   });
+  /** SEND / RETRY are live: no reading or its follow-up running (D-129), no upload in flight. */
+  const free = () => !readingHoldsSend(get().reading) && !attachBlocksSend(attachment());
+  const attachment = () => useChatAttachStore.getState().byThread[get().thread?.id ?? ''];
 
   /** A thread opened: the turn and the take it left running carry on (a reload mid-turn, F-049). */
   async function open(load: () => Promise<ChatThreadView>): Promise<void> {
     await useChatDraftStore.getState().flush();
-    set({ turn: INITIAL_TURN, commit: null });
+    set({ turn: INITIAL_TURN, commit: null, reading: INITIAL_READING, lastAttach: null });
     try {
       const thread = await load();
       show(thread);
@@ -82,9 +101,11 @@ export const useChatStore = create<ChatStore>((set, get) => {
     const draft = useChatDraftStore.getState();
     await draft.flush(); // the rev the server notes at SEND covers every hand edit (CH-6)
     draft.clearFilled();
+    const attach = get().lastAttach;
     try {
-      const started = await chatApi.startChatTurn(thread.id, t.lastText, t.clientKey);
+      const started = await chatApi.startChatTurn(thread.id, t.lastText, t.clientKey, ...(attach ? [attach] : []));
       turn({ type: 'accepted', ...started });
+      if (attach) useChatAttachStore.getState().sent(thread.id);
       await refetch();
       void followTurn(started.jobId);
     } catch (err) {
@@ -93,7 +114,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
   }
 
   return {
-    status: null, thread: null, turn: INITIAL_TURN, commit: null, error: null, refusal: null,
+    status: null, thread: null, turn: INITIAL_TURN, commit: null, error: null, refusal: null, reading: INITIAL_READING, lastAttach: null,
 
     loadStatus: async () => {
       const status = await chatApi.chatStatus().catch(() => null);
@@ -109,12 +130,13 @@ export const useChatStore = create<ChatStore>((set, get) => {
     type: (text) => turn({ type: 'type', text }),
 
     send: async () => {
-      if (!canSend(get().turn, assistantOn())) return;
+      if (!canSend(get().turn, assistantOn()) || !free()) return;
+      set({ lastAttach: attachToSend(attachment()) });
       turn({ type: 'send', clientKey: newClientKey() });
       await post();
     },
     retry: async () => {
-      if (!canRetry(get().turn, assistantOn())) return;
+      if (!canRetry(get().turn, assistantOn()) || !free()) return;
       turn({ type: 'retry', clientKey: newClientKey() });
       await post();
     },
@@ -139,6 +161,34 @@ export const useChatStore = create<ChatStore>((set, get) => {
         void followCommit(started.jobId);
       } catch (err) {
         commit({ type: 'refused', error: message(err) });
+      }
+    },
+
+    read: async (proposalId) => {
+      const { thread, reading: before } = get();
+      const card = thread?.messages.find((m) => m.kind === 'analyze' && m.proposalId === proposalId);
+      if (!thread || !card) return;
+      reading({ type: 'read', messageId: card.id });
+      if (get().reading === before) return; // not live (superseded, expired, already read)
+      const fail = (reason: string) => reading({ type: 'refused', messageId: card.id, reason });
+      try {
+        const started = await chatReferencesApi.readReference(thread.id, proposalId);
+        if ('refused' in started) return fail(started.refused);
+        await refetch(); // the analyze card done, the reading card with its job
+        followCards();
+      } catch (err) {
+        fail(message(err));
+      }
+    },
+    reanalyze: async (referenceId) => {
+      try {
+        const started = await chatReferencesApi.rereadReference(referenceId);
+        if ('refused' in started) return started.refused;
+        await refetch();
+        followCards();
+        return null;
+      } catch (err) {
+        return message(err);
       }
     },
   };

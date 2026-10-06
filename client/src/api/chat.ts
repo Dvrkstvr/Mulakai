@@ -1,6 +1,7 @@
 /** Chat slice (C0a, F-041..F-045): the wire types and HTTP for `routes/chat.ts` and `routes/chatTurns.ts`.
  * Mirrored by hand from pipeline/architecture.md "Chat (C0)" (routes, "Data (chat)") and the server's
  * `chat/chatTypes.ts`; reconcile both when either moves. Job progress is the existing `jobStatus` poll. */
+import type { ReadingView, ReferenceView } from './chatReferences';
 import { ApiError, json } from './http';
 
 /** GET /api/chat/status: `configured` = LLM_API_URL and YUE_API_URL are set (D-099); `assistant` = the planner answers. */
@@ -26,29 +27,55 @@ export interface ChatDraftFields {
 }
 export type ChatDraftKey = keyof ChatDraftFields;
 
-/** `touched[field]` = the draft `rev` of the person's last hand edit of it; a reply skips fields touched after its SEND. */
-export interface ChatDraft { draft_v: 1; rev: number; fields: ChatDraftFields; touched: Partial<Record<ChatDraftKey, number>> }
+/** How a recipe uses the thread's reading (D-128): a cover sings the score; a borrow takes tempo, key, meter, structure. */
+export type ChatReferenceUse = 'cover' | 'borrow' | 'none';
+/** The draft's reference (C3, additive under `draft_v: 1`). */
+export interface ChatDraftReference { referenceId: string; use: ChatReferenceUse }
 
-export type ChatMessageKind = 'text' | 'say' | 'ask' | 'recipe' | 'edit' | 'failed' | 'song' | 'version';
-/** `chat/messageView.ts`'s state; null for a plain line that has no life of its own (say, a song card). */
+/** `touched[field]` = the draft `rev` of the person's last hand edit of it; a reply skips fields touched after its SEND.
+ * C3: `borrowed` = fields filled from the reading (REFERENCE, or FROM THE SCORE and locked on a cover); `missing` = fields
+ * the reading has no value for, left blank and said so (F-064 edge). Absent = none. */
+export interface ChatDraft {
+  draft_v: 1; rev: number; fields: ChatDraftFields; touched: Partial<Record<ChatDraftKey, number>>;
+  reference?: ChatDraftReference | null; borrowed?: ChatDraftKey[]; missing?: ChatDraftKey[];
+}
+
+export type ChatMessageKind = 'text' | 'say' | 'ask' | 'recipe' | 'edit' | 'failed' | 'song' | 'version' | 'analyze' | 'reading';
+/** `chat/messageView.ts`'s state; null for a plain line that has no life of its own (say, a song card). C3 adds
+ * `reading` (a reading card's job between its steps). */
 export type ChatMessageState =
-  | 'queued' | 'thinking' | 'pending' | 'superseded' | 'expired' | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted';
+  | 'queued' | 'thinking' | 'pending' | 'superseded' | 'expired' | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted'
+  | 'reading';
 
 /** A recipe as the turn proposed it (SP-5's shape, camel-cased like the draft). */
 export interface ChatRecipe extends Omit<ChatDraftFields, 'engine'> { engine: 'yue2' | 'acestep' }
 
 /** `body_json` per kind (`chat_v: 1`; an additive field needs no bump, readers treat it as absent). */
-export interface ChatUserBody { chat_v: 1; sentRev: number }
+/** `attach`: the reference SEND carried (C3). */
+export interface ChatUserBody { chat_v: 1; sentRev: number; attach?: ChatAttach | null }
+export interface ChatAttach { referenceId: string }
 export interface ChatRecipeBody {
   chat_v: 1; recipe: ChatRecipe; assumptions: string[]; changed: ChatDraftKey[]; skipped: ChatDraftKey[];
   /** The take's estimated length, for "about N min"; absent = the line names no length. */
   estSeconds?: number | null;
+  /** C3: the recipe built on a reading; `note` = why a cover became a borrow (F-063 edge). */
+  reference?: { referenceId: string; use: ChatReferenceUse; borrowed: ChatDraftKey[]; missing: ChatDraftKey[]; note?: string | null } | null;
 }
+/** The analyze card (proposal kind `analyze`): what READ will read and its GPU estimate; `cut` = longer than 360 s. */
+export interface ChatAnalyzeBody {
+  chat_v: 1; referenceId: string | null; songId?: string | null; name: string; seconds: number | null; cut: boolean;
+  plan: ReadingView['plan']; gpuSeconds: number | null;
+  /** A library song with more than one layer: only its base layer is read (D-137). */
+  layers?: number;
+}
+/** The reading card: `reading` is null until the job saves it (then a snapshot); `followUp` = a turn runs after it. */
+export interface ChatReadingBody { chat_v: 1; referenceId: string; name: string; reading: ReadingView | null; followUp: boolean }
 export interface ChatAskBody { chat_v: 1; choices: string[] }
 /** `cause: 'offline'` = the planner did not answer (ASSISTANT OFF); anything else is a failed turn. */
 export interface ChatFailedBody { chat_v: 1; reasons: string[]; cause: string }
 export interface ChatSongBody { chat_v: 1; seconds: number | null; label: string; number: number; truncated?: boolean }
-export type ChatMessageBody = ChatUserBody | ChatRecipeBody | ChatAskBody | ChatFailedBody | ChatSongBody;
+export type ChatMessageBody =
+  | ChatUserBody | ChatRecipeBody | ChatAskBody | ChatFailedBody | ChatSongBody | ChatAnalyzeBody | ChatReadingBody;
 
 export interface ChatMessageView {
   id: string;
@@ -76,6 +103,8 @@ export interface ChatThreadView {
   blockers: string[];
   draftNote?: string | null;
   messages: ChatMessageView[];
+  /** C3: the thread's references (the song panel's list); absent on older servers. */
+  references?: ReferenceView[];
 }
 
 /** A hand edit: only the fields changed; `null` clears a field. */
@@ -124,8 +153,16 @@ export const chatApi = {
     return json<ChatDraftSaved>(res);
   },
 
-  startChatTurn: (threadId: string, text: string, clientKey: string) =>
-    send(`/api/chat/threads/${threadId}/turns`, 'POST', { text, clientKey }).then((r) => json<ChatTurnStart>(r)),
+  /** `attach` (C3): the composer's attached reference rides on the user message. A 409 `TURN_OPEN` (a reading or
+   * its follow-up turn still runs) is an error carrying the server's reason. */
+  startChatTurn: async (threadId: string, text: string, clientKey: string, attach?: ChatAttach | null) => {
+    const res = await send(`/api/chat/threads/${threadId}/turns`, 'POST', attach ? { text, clientKey, attach } : { text, clientKey });
+    if (res.status === 409) {
+      const reason = (await conflictBody(res)).reason;
+      if (typeof reason === 'string') throw new ApiError(reason, 409);
+    }
+    return json<ChatTurnStart>(res);
+  },
 
   /** Queued: leaves the line. Thinking: aborts the planner call; the slot frees after the unload. */
   cancelChatJob: (jobId: string) =>
