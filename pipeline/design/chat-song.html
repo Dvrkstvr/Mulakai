@@ -41,7 +41,7 @@ li{max-width:1100px}.rd,.hn,.tm,.an,pre,.sg i,.fk,.rr,.ov,.sl{font-family:ui-mon
 .cr{width:920px;border:1px solid var(--h);background:var(--c)}
 .pop{position:absolute;left:24px;bottom:104px;width:540px;border:1px solid var(--s);z-index:6}
 .dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:8px 0;max-width:1100px}
-</style></head><body>
+.snd{padding:7px 12px;border:1px solid var(--a);color:var(--a);font-weight:700;font-size:11px}</style></head><body>
 <h1>CHAT SONG · the player, the analysis, the mark</h1>
 <div class="rd">stage 5 · D-088..D-090 · Q-062 · tokens: DESIGN.md, none added · click a frame to zoom</div>
 
@@ -117,7 +117,7 @@ const CHIP=(l,a,b)=>CX(`THIS: ${l} · BARS ${a}–${b} · ${rg(a,b)}`);
 const C34=CHIP("CHORUS 1 + 2 BARS",25,34);
 const SEE=`<span class="hn" style="margin-left:auto"><u>WHAT IT SEES ▾</u></span>`;
 const SENT=`<div style="margin-top:6px">${P("ch fz","MARKED · CHORUS 1 + 2 BARS · BARS 25–34 · 0:58–1:22")} <span class="hn">on v4 · <u>SEEN ▾</u></span></div>`;
-const MN=(th,o)=>`<div class="mn">${o.top||""}<div class="th">${th}</div>${o.bot||""}<div class="cp">${o.chip?`<div class="cr2">${o.chip}${SEE}</div>`:""}<div class="cl"><div class="in">${o.ph||"Say what to change, or click a section to talk about it…"}</div><div class="hx" style="${o.dis?"opacity:.35":""}">▶</div></div></div>${o.pop?`<div class="pop">${o.pop}</div>`:""}</div>`;
+const MN=(th,o)=>`<div class="mn">${o.top||""}<div class="th">${th}</div>${o.bot||""}<div class="cp">${o.chip?`<div class="cr2">${o.chip}${SEE}</div>`:""}<div class="cl"><div class="in">${o.ph||"Say what to change, or click a section to talk about it…"}</div><div class="snd" style="${o.dis?"opacity:.35":""}">SEND ↵</div></div></div>${o.pop?`<div class="pop">${o.pop}</div>`:""}</div>`;
 const SBS=n=>`<div class="sb"><div class="sbh"><span class="lb">SONG · LONG WAY DOWN</span><span class="hn">HIDE ▸</span></div><div class="fd"><div class="fk">VERSIONS</div><div>v1 v2 v3 ${n>4?"v4 ":""}${P("vp","v"+n+" ●")}</div></div></div>`;
 const CV=(cl,o)=>FR(cl,TTL(1,o.t||"v4 · 3:12 · THREAD 16")+`<div class="bd">${MN(o.th,o)+(o.sb||SBS(o.n||4))}</div>`);
 const CR=(pl,chip)=>`<div class="cr">${pl}${chip?`<div class="cp"><div class="cr2">${chip}${SEE}</div></div>`:""}</div>`;

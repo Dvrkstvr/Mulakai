@@ -8868,8 +8868,8 @@ What a person does:
    bridge in the Editor"), so the next turn's song-state block is true.
 
 10. **The latest version is always playable** (the owner's, D-089). The
-    chat view keeps a player for the song's active version in view, with
-    its waveform and section strip; a saved version replaces it at once,
+    chat view keeps a player for the song's active version in view, above
+    the composer (D-095), with its waveform and section strip; a saved version replaces it at once,
     and the previous one is a click away (A/B, decision 8).
 11. **Every version is analyzed** (the owner's, D-089). After each save,
     whatever made it, a queued `analyze` job refreshes word timings
@@ -8886,6 +8886,32 @@ What a person does:
     lyric lines it covers, the key and tempo there. In Editor-first mode
     the Editor's selection is the mark. A mark the new version no longer
     matches is stale (F-032's USE BARS). Mockup: `pipeline/design/chat-song.html`.
+
+### Design (signed off by the owner, 2026-10-06)
+
+Three mockups are the spec; when code and a mockup disagree it is a bug
+unless a decision says otherwise (D-086..D-095):
+- `pipeline/design/chat-create.html`: two ways in over one draft. Chat-first
+  (the start screen: thread and composer, the form as a collapsible 360 px
+  sidebar whose fields the assistant fills, marked sky with an ASSISTANT tag
+  and the old value struck; CREATE SONG on the proposal card) and
+  form-first (today's Guided Create with a 300 px assistant that fills
+  fields and never commits). A CHAT | FORM toggle; editing a song mirrors
+  it (thread vs Editor with the side assistant). UNDO TURN; fields stay
+  editable during a turn and the assistant skips touched ones; assistant off
+  or failing falls back to form-first with the reason and RETRY.
+- `pipeline/design/chat-song.html`: the player, a new version swapping in
+  place (position kept, A/B to the previous one), the analysis states
+  (updating, failed with RETRY and marking by time, transcribed scores for
+  ACE-Step versions), and the mark: click a section, drag to extend (snaps
+  to bars), mark a lyric line; a chip in the composer with "what it sees";
+  each sent message keeps a frozen echo; a stale mark holds SEND until USE
+  BARS or CLEAR MARK.
+- `pipeline/design/chat-lyrics.html` (final layout = frame 3): the player
+  above the composer; lyrics in a sidebar panel showing only the marked
+  part (no mark: the section list), no playback follow; a lyric rewrite's
+  OLD | NEW diff on the proposal card and inline in the panel; the send
+  control is the outline text button `SEND ↵`, never a play-like glyph.
 
 ### Milestones (proposed)
 
@@ -8922,11 +8948,9 @@ becomes "Ask in chat".
 
 ### Open questions for the owner (Q-054)
 
-Answered 2026-10-06: two ways in (D-086), editing mirrors it (D-088), memory (D-081), ask or propose (D-082), engine
+Answered 2026-10-06: two ways in (D-086), editing mirrors it (D-088),
+the design (D-095), memory (D-081), ask or propose (D-082), engine
 (D-083), reference audio (D-084), tempo and key (D-085). Still open:
 
-1. **The mark, the player and the analysis** (D-089, D-090): layout in
-   `pipeline/design/chat-song.html`; Q-062 on analysis cost and
-   transcribed scores.
-2. **SP-4's listen**: do the splice joins and the audio-only REPEAT/CUT
+1. **SP-4's listen**: do the splice joins and the audio-only REPEAT/CUT
    seams pass by ear (`pipeline/spikes/SP-4-keep-unchanged/listen`)?

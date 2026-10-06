@@ -40,11 +40,11 @@ li{max-width:1100px}.rd,.hn,.an,.sg i,.rr,.df,.sx,.ls i,.tg,.ft,.sr span{font-fa
 .rw{display:flex;gap:10px;align-items:baseline;padding:6px 14px;font-size:11px;color:var(--m)}.rw>b{color:var(--t);letter-spacing:1px}.rw .tg{margin-left:auto;font-size:9px;color:var(--w)}
 .df{display:grid;grid-template-columns:20px 1fr 1fr;gap:1px 12px;padding:2px 14px 2px 38px;font:11px/16px ui-monospace,monospace;color:var(--w)}.df b{font-weight:400;color:var(--t)}.df .h{font-size:9px;letter-spacing:2px}
 .dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:8px 0;max-width:1100px}
-</style></head><body>
+.snd{height:32px;padding:0 14px;border:1px solid var(--a);color:var(--a);font-weight:700;font-size:11px;letter-spacing:.14em;display:flex;align-items:center;transform:skewX(-14deg);white-space:nowrap}.snd>b{transform:skewX(14deg);font-weight:700}</style></head><body>
 <h1>CHAT SONG · lyrics in the sidebar, for the marked part</h1>
 <div class="rd">stage 5 · D-092 · Q-071 · after chat-create.html and chat-song.html · tokens: DESIGN.md, none added · frames at real size 1280×720</div>
 
-<h2>WHAT THIS SETTLES</h2>
+<p style="border:1px solid var(--a);padding:8px 12px;margin:8px 0">SIGNED OFF by the owner 2026-10-06 (D-095): the final layout is frame 3, <b>the player above the composer</b>; the chat send control is the outline text button <b>SEND ↵</b>, so it never reads as play/pause. Everything else as drawn.</p><h2>WHAT THIS SETTLES</h2>
 <ul>
 <li><b>Q-071 answered by the owner</b> (via the conductor): the lyrics are a <b>sidebar panel</b>; <b>nothing follows playback</b> (no current line, no auto-scroll); the panel shows <b>only the marked part</b> (D-090) to cut clutter. This page draws that: the final view, the panel with no mark, a section, a line, two sections, a pending rewrite, and its reading, failed and empty states.</li>
 <li>Also fixes the player (D-092): A top in the final view, C in one comparison frame.</li>
@@ -116,7 +116,7 @@ const DF=`<div class="df"><span></span><span class="h">OLD · v4</span><span cla
 const CARD=`<div class="cd">${hd("PROPOSAL · 2 CHANGES · AGAINST v4","nothing runs yet")}${RW("REWRITE LYRICS","[Chorus] #2 of 3 · bars 41–48 · starts “Ich nehm den langen Weg” · 4 lines","a request")}${DF}${RW("REHARMONIZE","bars 43–44 · F → Dm · Am Dm C G","follows")}${cm("Renders bars 41–48 on YuE2, about 40 s · makes <b>v5</b> · <b>only bars 41–48 change</b>",P("ac","APPLY"))}</div>`;
 const TT=`<div class="ttl"><h3>LONG WAY DOWN</h3>${P("t1 on","CHAT")}${P("t1","EDITOR")}<span class="hn">v4 · 3:12</span></div>`;
 const CHP=`<div class="cr2">${CX("THIS: CHORUS 2 · BARS 41–48 · 1:36–1:55")}<span class="hn" style="margin-left:auto"><u>WHAT IT SEES ▾</u></span></div>`;
-const V=c=>FR(TT+`<div class="bd"><div class="mn">${c?"":PL({})}<div class="th">${VC+UM+am("Assuming <b>chorus 2, bars 41–48</b>: 2 of 4 lines reworded, one chord moved. Check the diff, then APPLY.")+CARD}</div>${c?PL({c:1}):""}<div class="cp">${CHP}<div class="cl"><div class="in">Say more about this part, or ✕ to talk about the whole song…</div><div class="hx">▶</div></div></div></div>${SB(PAN("LYRICS · CHORUS 2","◂ ALL SECTIONS",PN(C2(1,[],1)),"CLEAR THE MARK ✕ to see the section list"))}</div>`);
+const V=c=>FR(TT+`<div class="bd"><div class="mn">${c?"":PL({})}<div class="th">${VC+UM+am("Assuming <b>chorus 2, bars 41–48</b>: 2 of 4 lines reworded, one chord moved. Check the diff, then APPLY.")+CARD}</div>${c?PL({c:1}):""}<div class="cp">${CHP}<div class="cl"><div class="in">Say more about this part, or ✕ to talk about the whole song…</div><div class="snd"><b>SEND ↵</b></div></div></div></div>${SB(PAN("LYRICS · CHORUS 2","◂ ALL SECTIONS",PN(C2(1,[],1)),"CLEAR THE MARK ✕ to see the section list"))}</div>`);
 $("r").innerHTML=O("<b>FINAL VIEW</b> · A: player pinned at the top",V(0),`<div class="nt w"><b>READ IT</b> one sky on the strip, the wave, the chip and the panel's section name. The panel holds only chorus 2: its four lines with their start bars; the two lines the proposal changes show the old struck and the new under it (~). The card keeps the OLD | NEW diff, the chord row and APPLY. Nothing in the panel moves with playback.</div>`);
 const FM=(h,t,r,b,n,ft)=>`<div class="o"><h4>${h}</h4><div class="fm">${PAN(t,r,b,ft)}</div><div class="nt">${n}</div></div>`;
 $("st").innerHTML=

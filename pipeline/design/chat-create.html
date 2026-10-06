@@ -41,7 +41,7 @@ p,li{max-width:1100px}code,.rd,.hn{font-family:ui-monospace,monospace}.rd{font-s
 .lane{display:flex;gap:10px;align-items:center;margin-top:6px}.lane .fk{width:56px}
 .dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:9px 0}
 details{color:var(--m)}summary{color:var(--t)}.bx{border:1px solid var(--h);padding:8px 12px;background:var(--p)}.bx.d{border-color:var(--a);color:var(--a)}
-</style></head><body>
+.snd{padding:7px 12px;border:1px solid var(--a);color:var(--a);font-weight:700;font-size:11px;letter-spacing:.1em}</style></head><body>
 <h1>CHAT AND FORM · two ways in, one draft</h1>
 <div class="rd hn">stage 5 · D-086 · Q-055 · PLAN.md "Chat: Talk a Song Into Being" · tokens: DESIGN.md, none added · click a frame to zoom</div>
 
@@ -97,7 +97,7 @@ const BD=x=>`<div class="bd">${x}</div>`;
 const UM="a slow Spanish ballad about the sea, nylon guitar and a soft female voice";
 const um=t=>`<div class="um">${t}</div>`,am=t=>`<div class="am">${t}</div>`;
 const CHG=l=>`<div class="hn" style="margin-top:4px"><span style="color:var(--s)">CHANGED · ${l}</span> &nbsp; <u>UNDO TURN</u></div>`;
-const COMP=(ph,ref)=>`<div class="cp">${ref?'<span class="p cq"><span>＋ REFERENCE</span></span>':""}<div class="in">${ph}</div><div class="hx">▶</div></div>`;
+const COMP=(ph,ref)=>`<div class="cp">${ref?'<span class="p cq"><span>＋ REFERENCE</span></span>':""}<div class="in">${ph}</div><div class="snd">SEND ↵</div></div>`;
 const MN=(th,ph)=>`<div class="mn"><div class="th">${th}</div>${COMP(ph||"Say what to change, or describe another song…",1)}</div>`;
 const head=(t,x)=>`<div class="hd"><span class="lb">${t}</span><span class="hn">${x}</span></div>`;
 const STR=`<div class="sg">${[["INTRO",3],["VERSE",6],["VERSE",6],["CHORUS",6],["VERSE",6],["CHORUS",6],["OUTRO",4]].map(([n,b])=>`<i style="flex:${b}">${n}</i>`).join("")}</div>`;

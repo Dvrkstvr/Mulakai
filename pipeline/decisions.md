@@ -429,3 +429,7 @@ Lyrics live in a sheet in the sidebar. No active playback of lyrics (no current-
 
 ## D-094 · 2026-10-06 · stage 5 (chat mockup 3) · by: assumed (conductor), the owner may overrule on the mockup
 design/chat-lyrics.html (LY-1..LY-6) is the spec for D-093: the sidebar lyrics panel with no mark lists sections (name, bars, line count, first line; click marks), with a mark shows that part only (a two-section mark with a dashed break and "n more lines not marked"), dims while a new version is read, shows a rust RETRY on a failed read; Q-073..Q-076 defaults. Player A (top) stays. DESIGN.md gets a clause for the panel in the chat's first UI PR.
+
+## D-095 · 2026-10-06 · stage 5 (chat design sign-off) · by: user
+The chat design is signed off with two changes: the player sits above the composer (design/chat-lyrics.html frame 3, not frame 1); the chat's send control must not resemble play/pause, so it is the outline text button `SEND ↵` (all three chat mockups updated). The specs are design/chat-create.html, chat-song.html and chat-lyrics.html, with D-086..D-094 as recorded, Q-063 closed (C).
+- instead of: the player pinned at the top; an acid hexagon ▶ send next to the player's ❚❚.

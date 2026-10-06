@@ -5,12 +5,12 @@
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
-- stage: 7 Build — M2 DONE 2026-10-06; chat-first direction (D-079) in clarify: PLAN.md draft on docs/chat-plan (local), Q-054 open
-- clarity: blocking 1 (Q-054, chat scope) · latest Q-054 · decisions to D-080
+- stage: 7 Build — M2 DONE; chat-first (D-079): owner's answers D-081..D-086, D-088..D-095; design signed off (chat-create/-song/-lyrics.html); PLAN.md section on docs/chat-plan (local)
+- clarity: blocking 0 for the chat design (Q-054, Q-071 answered) · latest Q-077 · decisions to D-095
 - feasibility: amber · H-open 1 (R-024: SP-4 machine half done, A3 splice + audio-only REPEAT/CUT; ear half owed) · R-025 repaint launcher unverified · spiked 5
 - milestone: M2 done · features passing 24/39 · owed: M2 listen pair 2 (unjudged), M1 phrase listen
 - autopilot: none running
-- next: clarify Q-054 with the user → fold into the PLAN.md draft → user's SP-4 listen (spikes/SP-4-keep-unchanged/listen, serve on :8077) → sign-off → scope; W10 nits Q-038/Q-041/Q-052
+- next: owner's SP-4 listen (serve spikes/SP-4-keep-unchanged/listen on :8077) → owner signs off the PLAN.md chat section → docs PR → stage 4 scope for C0..C4 (SP-5 chat planner, SP-6 shift/stretch)
 
 ## Stages
 | # | Stage | State | Gate | Date |
