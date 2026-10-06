@@ -76,3 +76,15 @@ after run · #138 fresh CI run: client, server, golden-path cancelled at 15 min 
 2026-10-06 · chat C0a · CA-1 #147 merged ac4e648, CA-5 #148 merged (CI green on each and on main); DT-C0a signed off (D-111); CA-2+CA-3 server builder and CA-6 screen builder running (D-113); note: PR CI starts late (a few minutes after create), close/reopen only duplicates it
 2026-10-06 · chat C0a · CA-2+3 #149 merged f515062, CA-6 #150 merged (CI green on each and on main); C0a code complete behind the D-099 gate; next: live try (CA-7) after SP-5 frees the GPU
 2026-10-06 · chat C0a · SP-5 proven (D-117), prompt port #151 merged (CI green on it and on main); C0a ready for the owner's live try (CA-7) once the owner approves switching the stack
+
+## Run 2026-10-06 → C0a (new run, 12-round budget)
+R1 stage 7+8 C0a · GPU busy (owner's game, 8.9 GB) → no live runs; dispatched in parallel: CA-4 builder (chatCp0.ts, fakes only, feat/chat-ca4-cp) + reviewer code lens on 41fa159...0ab70e1 · progress 7·C0a code·24·0
+R2 stage 8 C0a · reviewer → C0a-code.md: 0 blocking, 2 should (cancel-while-thinking reads as failed + resend slips in; truncated take shows DONE), 1 nit; D-121 fix all, builder on fix/chat-c0a-review; CA-4 builder running · progress 8·review 1/2·24·0
+R3 stage 7 C0a/CA-4 · builder → chatCp0.ts + Run + Stats (10 tests); my rerun server tsc + vitest 1014; fake run PASS 3/3 stop lines; committed eb3adc0 on feat/chat-ca4-cp (local); D-122; live pass owed (GPU) · progress 7·CA-4 local·24·0
+R4 stage 8 C0a fix · builder → dd3f4a9 (#1+#3), c2f4052 (#2), fd76777 DESIGN.md on fix/chat-c0a-review (local); my rerun server tsc + vitest 1007, client build + lint + vitest 974; D-123; stage 8 gate 2/2 · progress 8·2/2·24·0 · waiting: GPU free + push OK
+R5 stage 7 C0a · user OK → pushed: CA-4 PR #156 (auto-merge on, main green at 0ab70e1), review fix PR #157 (merge after #156 lands and main is green again); auto-fix on both · progress 8·2/2·24·0 · waiting: CI, GPU free
+R6 stage 7 C0a · #156 merged c63c7b6 (auto-merge, CI green); #157 PR CI green, held for main's E2E on c63c7b6; owner freed the GPU → verifier dispatched: CA-4 live pass + CA-7 live run on a library copy (server 3201, main + #157 merged locally), services started by the verifier (owner's stack was down) · progress 8·2/2·24·0
+R6+ #157 merged 12f0b89 (CI green on it and on main c63c7b6); verifier still running
+R6+ CA-4 live: PASS (turn p50 11.5 s, unload max 104 ms, CREATE-to-running 6 ms, invalid-after-3 0; but 3/3 vague prompts got a recipe, not an ask); owner saw: chat take done but Library shows it running → sent to the verifier as a finding to root-cause
+R7 stage 7 C0a verify · verifier → c0a-live.md: CA-4 PASS 3/3, CA-7 live 3 takes; F-041..F-045 pass (29/81), F-049/F-050 C0a halves met; owner's Library-running report not reproduced in 3 paths → Q-090 (ask owner); Q-088 vague→recipe, Q-089 minor findings; D-124 · progress 7·C0a verified·29·0
+R8 curate C0a · chat-client.md (Library first D-119; check against the real server, D-120), chat-server.md (cancel sets job.cancelled + 409 until settled, D-121; TRUNCATED never DONE); budget 6.5 KB OK · C0a DONE · STOP: target reached

@@ -12,8 +12,11 @@ Spec: `pipeline/design/chat-create.html`, `chat-song.html`, `chat-lyrics.html`
 (frame 3 is final: the player above the composer, D-095), scope.md "A turn,
 end to end"; modules in `pipeline/architecture.md` "Chat (C0)".
 
-- CHAT is the start screen only when the server says the chat is configured
-  (`chatEntry`, D-099); otherwise the Library, as the golden path expects.
+- The app starts on the Library (D-119); CHAT is one click away only when
+  the server says the chat is configured (`chatEntry`).
+- Check a chat screen against the real server's responses before handing it
+  over, not a stub: GET /api/songs/:id sends no `audio_file`, the player plays
+  the base layer's active take (D-120).
 - One draft store (`chatDraftStore`, D-086): C6's Guided Create reads it too.
   Never re-implement recipe rules here; show the server's `blockers`.
 - Message and turn states go only through the `chatTurn` reducer; chat copy

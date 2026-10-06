@@ -519,3 +519,15 @@ SP-5 is proven at rung 0 (one call per turn): all bars (a)-(g) pass on the v3.1 
 
 ## D-120 · 2026-10-06 · stage 7 (chat C0a live) · by: conductor (bugs found in the owner's first live use)
 The chat player read `song.audio_file`, which GET /api/songs/:id never sends, so no player appeared after a real CREATE SONG (#153: it plays the base layer's active take). The CA-6 screenshots ran against a stub that sent the field: a live run against the real server belongs before handing the screen over (CA-7). start-all.bat now starts Ollama with the 16k context and passes LLM_API_URL / LLM_MODEL (#152, #155). ACE-Step on :8001 runs `acestep\api_server.py` (start-all's portable path), which bears on R-025.
+
+## D-121 · 2026-10-06 · stage 8 (C0a code review) · by: conductor
+C0a-code.md: 0 blocking, 2 should, 1 nit, all checked in code. Fix all three before CA-7 (fix/chat-c0a-review): #1 CANCEL while thinking reads as a failure and lets a resend in during the unload (F-049 #1); #2 a truncated take shows DONE instead of the rust TRUNCATED line (F-044, D-025); #3 turns Map entry left on QueueFullError (trivial, same file).
+
+## D-122 · 2026-10-06 · stage 7 (chat CA-4) · by: assumed (builder, recorded by the conductor)
+chatCp0.ts: (a) hand-off = the worse of last planner answer → first empty /api/ps after the unload ack, and CREATE → take leaves `queued` (no human think time); (b) "invalid after 3" counts failed replies with cause `check` (a draft change during the reply would count too); (c) attempts = proxy call count (exact at rung 0); (d) YuE2 tok/s not recorded (the API does not expose it); (e) `--create` runs against a server on a DATA_DIR copy, never the owner's library.
+
+## D-123 · 2026-10-06 · stage 8 fix (C0a review) · by: assumed (builder, recorded by the conductor)
+fix/chat-c0a-review: (a) #1 server-only — cancelTurn sets job.cancelled on abort (the client's poll already reads that as CANCELLED, D-116 shape); POST refuses 409 TURN_OPEN while the turn is still settling, including a RETRY in the unload window, with the existing wording; (b) #2 the chat song card's rust line "TRUNCATED at 6:00, the song is cut short · v1 is saved; open it in the Editor to shorten and re-render" (no VERSIONS hint: the chat has no revert); truncated is read from the v1 label (TRUNCATED_LABEL); (c) #3 the turns entry is deleted on throw (enqueue may start the body synchronously). UI browser check of the truncated line is owed to CA-7 (needs a truncated take).
+
+## D-124 · 2026-10-07 · stage 7 (C0a verify) · by: conductor
+CA-4 live CP-C0a passes 3/3 stop lines; CA-7 live run passes F-041..F-045 on their C0a criteria (sub-criteria not run live are unit-tested; noted in features.json evidence); F-049 turn half and F-050 create half met, both stay false until C0b. Waveform on the chat player kept per D-115(a). Owner's "running in the Library" report not reproduced → Q-090; no speculative fix without a repro.

@@ -1,1004 +1,1004 @@
 {
- "_note": "Adopt audit 2026-10-03. passes=true only where I ran the check and it passed. Run: client `npm test` (75 files / 585 tests pass), server `npm test` (58 files / 493 tests pass), client `npm run build` ok, `npm run lint` 1 warning, e2e `npm run test:e2e` 1 passed (golden-path.spec.ts, 14.8 s, fake ACE-Step). Nothing was run against real ACE-Step, YuE2, HeartMuLa, Demucs or UVR. Stage 4 (2026-10-03) appended the score agent as F-016..F-039 (M0..M4, all passes false, evidence null); F-001..F-015 unchanged except F-015's evidence note. Stage 4 (2026-10-06) appended the chat scope as F-040..F-081 (milestones C-pre, C0..C8, field \"scope\": \"chat\", all passes false, evidence null); F-034..F-039 (score-agent M3/M4, unbuilt) stay as written and are folded into the chat: F-034 -> F-078, F-035 -> F-065, F-036 -> F-060, F-037 -> F-079, F-038 -> F-080, F-039 -> F-081; when the chat feature passes the conductor sets the old entry the same way. Local main is 3 commits behind origin/main (#116 merged); I tested the local checkout (2eacef5).",
- "features": [
-  {
-   "id": "F-001",
-   "milestone": "existing",
-   "behaviour": "Generate a song from AN IDEA (ACE-Step text2music) and see it in Library",
-   "acceptance": [
-    "Create > AN IDEA > GENERATE; row appears; ACE-Step receives the typed prompt"
-   ],
-   "passes": true,
-   "evidence": "e2e golden-path.spec.ts step 'generate a song from AN IDEA' passed 2026-10-03 (fake ACE-Step, asserts params.prompt). Real ACE-Step not exercised."
-  },
-  {
-   "id": "F-002",
-   "milestone": "existing",
-   "behaviour": "Repaint a selected range of a layer; result is a new version",
-   "acceptance": [
-    "Select 0:02-0:08 on base; dock shows 'Saves base v2 over 0:02-0:08'; commit; version list shows it; ACE-Step gets src audio and repainting_start/end"
-   ],
-   "passes": true,
-   "evidence": "e2e golden-path step 'repaint 0:02-0:08 of the base layer' passed; server repaintJobs.test.ts + layersRepaint.test.ts in the 493-test server run. Fake ACE-Step only."
-  },
-  {
-   "id": "F-003",
-   "milestone": "existing",
-   "behaviour": "Add a layer from a description (lego), conditioned on the current mix",
-   "acceptance": [
-    "ADD LAYER verb; commit; song shows 2 layers; lego request carries src audio and the prompt"
-   ],
-   "passes": true,
-   "evidence": "e2e golden-path step 'add a layer' passed; addLayerJobs.test.ts passed."
-  },
-  {
-   "id": "F-004",
-   "milestone": "existing",
-   "behaviour": "Revert a layer to an earlier version",
-   "acceptance": [
-    "Click first take in VERSIONS; it becomes current; server state shows 2 versions, active label 'first generation'"
-   ],
-   "passes": true,
-   "evidence": "e2e golden-path step 'revert the base layer to its first take' passed; versions.test.ts passed."
-  },
-  {
-   "id": "F-005",
-   "milestone": "existing",
-   "behaviour": "Export MIX (client WAV bounce), STEMS, REMASTERED MIX",
-   "acceptance": [
-    "EXPORT verb; MIX downloads <title>.wav with RIFF header; stems list; remaster runs"
-   ],
-   "passes": true,
-   "evidence": "e2e golden-path step 'export: the mix, stems, then a remaster' passed (RIFF header asserted); mixExport.test.ts, remasterJobs.test.ts passed."
-  },
-  {
-   "id": "F-006",
-   "milestone": "existing",
-   "behaviour": "Ctrl K command palette opens a song by title; Activity drawer lists the job as DONE with OPEN",
-   "acceptance": [
-    "After a generation Activity shows it GENERATED with OPEN; palette + title + Enter opens the song"
-   ],
-   "passes": false,
-   "evidence": "Mixed. Local e2e passed 2026-10-03 (step 'Activity lists it as DONE; palette opens it'). But CI on main failed twice on exactly this step: runs 37112819399 (merge #113) and 37113963147 (merge #116): strict-mode violation, 2 .activity-job rows for the same title at once (a RUNNING 'ai' row still present beside the DONE 'GENERATED' row). PR-branch runs of the same code passed. Treat as an unresolved Activity bug or flaky test; unit tests (commandMatch, commandIndex, activityStore) pass."
-  },
-  {
-   "id": "F-007",
-   "milestone": "existing",
-   "behaviour": "Guided Create: START FROM cards, numbered steps, RECIPE card with QUALITY presets and ETA",
-   "acceptance": [
-    "AN IDEA card preselected; QUALITY chips map to steps per model family; ETA hidden until one sample"
-   ],
-   "passes": false,
-   "evidence": "Partial: e2e asserts AN IDEA card is aria-pressed; qualitySteps.test.ts, etaStore.test.ts, StartFromCards.test.tsx pass. A and B card flows (cover, arrange) and RECIPE layout not exercised in a browser by me; DESIGN conformance unchecked."
-  },
-  {
-   "id": "F-008",
-   "milestone": "existing",
-   "behaviour": "Editor action dock: TARGET chip, verb tabs R/L/S/E, LYRICS lane, versions-only right rail",
-   "acceptance": [
-    "Target text per verb; keys ignored in text fields; no left column; rail says VERSIONS"
-   ],
-   "passes": false,
-   "evidence": "Partial: dockTarget.test.ts, useDockKeys.test.ts, lyricsLaneLines.test.ts pass; e2e asserts target text for REPAINT and ADD LAYER and the EXPORT tab. SPLIT verb and LYRICS lane click behaviour not run end to end."
-  },
-  {
-   "id": "F-009",
-   "milestone": "existing",
-   "behaviour": "Library: folders, search, favourites, trash with 7-day sweep, CONTINUE row (GET /api/songs/recent)",
-   "acceptance": [
-    "Recent songs ordered by newest version, trashed excluded, limit honoured; trash sweep removes after 7 days"
-   ],
-   "passes": true,
-   "evidence": "Server songsRecent.test.ts, trashSweep.test.ts, songs.test.ts, folders.test.ts passed in the 493-test run. UI of CONTINUE row not driven by e2e."
-  },
-  {
-   "id": "F-010",
-   "milestone": "existing",
-   "behaviour": "COVER (ACE-Step cover / YuE2 melody cover) and ARRANGE (complete)",
-   "acceptance": [
-    "Cover from library or upload; settings shown are sent; engine and source lock while a job reads them"
-   ],
-   "passes": false,
-   "evidence": "Unit tests with mocked engines only (coverGenJobs.test.ts, completeGenJobs.test.ts, engineCovers.test.ts, coverParams.test.ts). No e2e, no real engine run."
-  },
-  {
-   "id": "F-011",
-   "milestone": "existing",
-   "behaviour": "Extra first-take engines YuE2 and HeartMuLa behind YUE_API_URL / HEARTMULA_API_URL, with score.abc sidecar",
-   "acceptance": [
-    "Engine chosen on Create; job via engineClient; score.abc stored as version sidecar; Q/K/M read into song metadata"
-   ],
-   "passes": false,
-   "evidence": "Mocked unit tests only (engineClient.test.ts, engineGenJobs.test.ts, yue2.test.ts, heartmula.test.ts, abcMeta.test.ts, versionFiles.test.ts). Fake engines are not in e2e; PLAN.md cites a real spike, which is a claim I did not reproduce. Python servers have their own tests (heartmula-server/tests) not run."
-  },
-  {
-   "id": "F-012",
-   "milestone": "existing",
-   "behaviour": "SPLIT a layer into stems (Demucs / UVR), claim stems as versions or layers",
-   "acceptance": [
-    "Split job runs on chosen backend; stems claimable; abandoned splits clean up"
-   ],
-   "passes": false,
-   "evidence": "stemSplit*.test.ts, scratchSplitJobs*.test.ts, splitHealth.test.ts, split.test.ts pass with mocks; no e2e, no real Demucs/UVR run."
-  },
-  {
-   "id": "F-013",
-   "milestone": "existing",
-   "behaviour": "Transcribe / READ LYRICS / word timestamps (click a lyric line in the Editor)",
-   "acceptance": [
-    "Lyrics read from a recording; clicking a lyric chip selects its time range"
-   ],
-   "passes": false,
-   "evidence": "Unit tests (transcribeJobs, lyricsJobs, timingsJobs, lineSelection, lyricAlign) pass; real transcription backend unverified."
-  },
-  {
-   "id": "F-014",
-   "milestone": "existing",
-   "behaviour": "Import a song file; adapters (LoRA/LoKr) loaded at inference; voices (reference audio)",
-   "acceptance": [
-    "Import creates a song; adapter selection forwarded; voice conditioning applied"
-   ],
-   "passes": false,
-   "evidence": "songImport.test.ts, adapters.test.ts, voices.test.ts, voiceConditioning.test.ts pass with mocks. Not e2e."
-  },
-  {
-   "id": "F-015",
-   "milestone": "existing",
-   "behaviour": "Server job queue: runs overlapping jobs FIFO instead of refusing with WAIT FOR (redesign S4)",
-   "acceptance": [
-    "Submit while busy -> queued; UP NEXT with CANCEL in Activity; 11th queued job refused"
-   ],
-   "passes": false,
-   "evidence": "Not on main (main still has genLock.ts). Branch feat/job-queue has 'S4 part a' commits 9d76767, 0d0976b, 1514a8c; not reviewed or run by me. UPDATE 2026-10-03 (stage 4): server/src/services/genQueue.ts exists in the working tree of branch docs/engine-lineup and genLock.ts is gone (seen in code, Glob/Grep); DESIGN.md describes 'S4 part b'. Likely merged since the audit; verify with git before flipping. Not run."
-  },
-  {
-   "id": "F-016",
-   "milestone": "M0",
-   "behaviour": "Precondition: the score agent is written into the project rules before any code (PLAN.md section, AGENTS.md, yue-server README)",
-   "acceptance": [
-    "PLAN.md has a dated 'Score Agent' section that states it supersedes 'ABC score editing / agentic editing is out of scope' in 'Engine: YuE2' and 'YuE2: Align With Upstream', and contains the op set per milestone, the SCORE verb state table, the plan-then-render two-slot hand-off and the file-level plan",
-    "AGENTS.md Scope Discipline no longer says every edit after the first take runs on ACE-Step: it says YuE2 may re-render its own song from an edited score and ACE-Step still does all audio edits; no other rule is touched",
-    "yue-server/README.md line 6 and CLAUDE.md's matching sentence carry the same wording",
-    "Edge: grep PLAN.md, AGENTS.md, CLAUDE.md and yue-server/README.md for 'out of scope' near 'score' and 'every edit after' finds no remaining line that contradicts the new section",
-    "The PR is docs-only and merged to main before the first F-017 code PR"
-   ],
-   "passes": true,
-   "evidence": "Seen in files 2026-10-04: PLAN.md '## Score Agent (planned 2026-10-03)' (line 8548) states it supersedes the two out-of-scope lines and has Op set per milestone, SCORE verb states, plan->render hand-off, File-level plan; the old lines at PLAN.md 2226/2892/3859 each carry a dated Amended/Superseded pointer. AGENTS.md Scope Discipline, CLAUDE.md Tech Stack and yue-server/README.md line 6 carry the same sentence (YuE2 may re-render its own song from an edited score; every audio edit stays ACE-Step). grep for 'every edit after' / 'out of scope' over the four files finds no remaining contradicting line. Docs PR #124 merged on main (c8bb066) before the first code PR #125 (W1, 36d9d08)."
-  },
-  {
-   "id": "F-017",
-   "milestone": "M0",
-   "behaviour": "yue-server answers GPU-free score questions: apply ops, validate, measure tokens and duration, return a bar map",
-   "acceptance": [
-    "The 39 golden cases in pipeline/spikes/SP-2-planner-quality/golden.json (10 library sidecars, 29 mutations) give the same ok/error text from the route as from upstream parse_abc/compare (pytest in yue-server)",
-    "Edge: library sidecar 0a7cff01 returns ok false with the upstream message ('group 60, Ins: expected V: Ins'); an overfull bar returns the per-bar unit sum with numbers, not only 'event after the measure end'",
-    "Applying SET_TEMPO, REHARMONIZE (root + quality enums, 15 native qualities) and EDIT_STYLE returns the edited ABC, per-op verdicts and a style text with the bpm rewritten together with Q: (R-018); the Vocal melody is unchanged per upstream compare",
-    "The token count is taken with chords kept (not /v1/scores/measure's stripped count); duration is bars x meter / Q:",
-    "While a YuE2 job runs, a call to each route returns in under 1 s, loads no model and leaves nvidia-smi memory within 50 MB of before"
-   ],
-   "passes": true,
-   "evidence": "yue-server python -m pytest: 163 passed (log pipeline/verify/M0/yue-pytest.log): test_score_golden.py (39 golden cases vs upstream, 0a7cff01 message, overfull bar unit sum), test_score_ops.py (SET_TEMPO/REHARMONIZE enums/EDIT_STYLE, melody unchanged), test_score_facts.py (duration = bars x meter / Q), test_score_edit_routes.py (tokens with chords kept; routes answer <1 s and load no model while a job runs). #5 live: CP1 pipeline/cp1/CP1-LOG.md (24 calls 10-22 ms during YuE2 jobs, 0 MiB delta, 6 loads for 6 jobs); this run's yue-server.log shows one 'Loading model' per YuE2 job while score reads and applies were served."
-  },
-  {
-   "id": "F-018",
-   "milestone": "M0",
-   "behaviour": "The server decides whether a song can be score-edited, and says why not; the check is repeated at commit",
-   "acceptance": [
-    "Vitest table: YuE2 first take + one layer + no repaint version + sidecar passing the validator + chords present = eligible",
-    "Each of these is ineligible with its own reason: second layer, a repaint version, no sidecar, sidecar failing parse_abc (0a7cff01), chord-free score; an ACE-Step or import song is hidden, not ineligible",
-    "Edge: eligible at plan time, then a repaint is queued and lands before APPLY & RENDER: the commit is refused with 'this song changed since the plan', and no yue-server job is started",
-    "Opening the SCORE verb on a YuE2 song with a repaint version shows the reason line in the app (manual)"
-   ],
-   "passes": true,
-   "evidence": "Vitest scoreEligibility.test.ts / scoreStatus.test.ts pass in the 677-test server run (table: eligible, second layer, repaint, no sidecar, 0a7cff01 checker failure, chord-free, ACE-Step/import hidden; commit re-check refuses 'this song changed since the plan' with no yue-server call). Live (throwaway copy, in-app browser): ACE-Step song shows 4 dock tabs, YuE2 song shows 5 incl. SCORE; after a REAL ACE-Step repaint of 'M0 verify tempo' the SCORE body reads 'This song has a repaint version, so score editing ended when it was made.' (GET /score state ineligible, same text); the library sidecar failing the checker reads 'The saved score fails the checker: group 60, Ins: expected V: Ins.'. See pipeline/verify/M0/m0-summary.json."
-  },
-  {
-   "id": "F-019",
-   "milestone": "M0",
-   "behaviour": "A typed request becomes a validated plan of SET TEMPO / REHARMONIZE / EDIT STYLE ops, planned by a local Ollama model",
-   "acceptance": [
-    "Request body to Ollama carries a strict JSON-schema response_format built per request (bar and section bounds from the song) and reasoning_effort 'none' (Vitest on the client module); default model qwen3:14b, overridable by LLM_MODEL",
-    "Live: for 3 library songs, 'set it to 88 BPM' and 'jazz chords in the chorus' each yield a plan whose ops apply and pass the validator within 3 attempts; first-try and attempt counts are logged (SP-2 saw 97% and 100%); any miss is reported, not hidden",
-    "Edge: an op naming bar 999 or a section that does not exist is rejected with a per-op reason, fed back to the planner on the next attempt, and after 3 attempts the job ends in 'check failed' with those reasons (Vitest with a stub planner)",
-    "The plan job holds one genQueue slot for all attempts and the unload: a repaint submitted meanwhile waits behind it and does not start between attempts (Vitest on genQueue order)",
-    "A running plan with the new queue kind 'plan' does not break the Activity drawer or the Header's /active poll (it renders a generic row or none; unit test)"
-   ],
-   "passes": true,
-   "evidence": "Vitest plannerClient.test.ts (strict per-song json_schema, reasoning_effort none, model), planJob.test.ts (slot held through attempts and unload; 3 attempts -> check failed with per-op reasons), activityPlanKind.test.ts all pass. Live on the wire (timing proxy, pipeline/verify/M0/raw/proxy-trace.jsonl, gitignored): POST /v1/chat/completions carried reasoning_effort none and json_schema; default model qwen3:14b. Live plans this run: valid on attempt 1 for jazz/88 BPM and make-it-sadder across 3 songs, plus CP1's 6/6 (pipeline/cp1/CP1-LOG.md); 'set it to 40 BPM' on a 147-bar song needed attempt 2 (360 s feedback). Misses: none; see the risk note that the 40 -> 50 BPM change is not named in the dock."
-  },
-  {
-   "id": "F-020",
-   "milestone": "M0",
-   "behaviour": "The planner is unloaded and the GPU confirmed free before YuE2 can start; a truncated prompt is never planned against",
-   "acceptance": [
-    "After the last attempt (success or failure) the server calls Ollama keep_alive 0, polls /api/ps every 250 ms until models is empty, and only then releases the slot (Vitest with a stub that keeps the model listed for 3 polls)",
-    "Live on this machine: /api/ps empty within 5 s of the unload ack (SP-1: 0.1 s); VRAM within 0.3 GB of a baseline read just before the plan call; the next YuE2 render runs at 80 tok/s or more (SP-1: 86-95)",
-    "Edge: with OLLAMA_CONTEXT_LENGTH=2048 and a long song, the plan is refused with 'planner context is 2048, needs about N: set OLLAMA_CONTEXT_LENGTH=16384' and no plan is shown (the SP-2 silent-truncation case: HTTP 200, normal reply, prompt_eval_count about half the context)",
-    "Edge: a model still listed after 10 s ends the plan in an error naming the model and 'ollama stop <model>', releases the slot, and APPLY & RENDER later refuses while /api/ps lists any model",
-    "Edge: an LLM_API_URL that is not Ollama (no /api/ps) is reported as unsupported with the reason, not planned against"
-   ],
-   "passes": true,
-   "evidence": "Live: unload ack 2-3 ms, first /api/ps poll after it empty at 95-120 ms (proxy-trace.jsonl, ps-trace.jsonl); VRAM before -> after plan 2465->2467, 2759->2772, 3780->3777 MiB (pipeline/verify/M0/nvidia-smi.csv, 250 ms); next YuE2 renders 98.4, 101.1, 89.4, 88.0 tok/s (yue-server.log). Vitest contextGuard.test.ts (SP-2 2048 case), ollamaControl.test.ts (3-poll stub, 10 s 'ollama stop', no /api/ps), planJob.test.ts pass. Not driven live: the OLLAMA_CONTEXT_LENGTH=2048 refusal and the 10 s case (Vitest only). Observation, not a failure: CANCEL through a proxy that did not forward the abort left the model listed ~23 s; the server polled ~11 s then stopped, and I did not capture the final dock state (with a forwarding proxy, CANCEL emptied /api/ps in 0.1 s)."
-  },
-  {
-   "id": "F-021",
-   "milestone": "M0",
-   "behaviour": "A SCORE verb in the Editor action dock: type a request, see the plan as a change list with checks and a consequence line",
-   "acceptance": [
-    "The dock shows a fifth verb tab SCORE only for a song whose base came from YuE2 and only when LLM_API_URL is set; an ACE-Step song and an install without LLM_API_URL show four tabs as today (manual + Vitest on the verb list)",
-    "Asking 'jazz chords in the chorus, 88 BPM' shows states queued/planning (attempt n of 3) then a change list with one row per op (e.g. 'SET TEMPO 87 to 88 BPM', 'REHARMONIZE bars 17-24'), a checks line (bars, estimated seconds of 360, tokens of 4,096, chords valid) and the consequence line; nothing is saved at this point (manual: VERSIONS unchanged)",
-    "The consequence line is composed from the plan: a SET TEMPO-only plan has no 'request, not a guarantee' clause; a plan with REHARMONIZE says harmony is a request to YuE2, not a guarantee, and says every bar will sound different (manual, two plans)",
-    "Edge: editing the request and pressing PLAN again replaces the plan; the old plan is shown dimmed until the new one arrives; an invalid plan keeps APPLY & RENDER disabled",
-    "DESIGN.md's Action dock section is updated in the same PR, as its own commit; keys R/L/S/E keep working and the new verb's key does not collide (stage 5 design tasks DT-1..DT-5)"
-   ],
-   "passes": true,
-   "evidence": "Live in-app (browser pane on :5301): #1 ACE-Step song 4 tabs, YuE2 song 5 (REPAINT R, ADD LAYER L, SPLIT S, EXPORT E, SCORE C); #2 PLANNING attempt n of 3 then change list with checks line (46 bars - est 126 s of 360 s - 1,088 of 4,096 tokens - chords valid - attempt 1 of 3) and consequence line, VERSIONS unchanged after PLAN; #3 REHARMONIZE plan says 'every bar will sound different ... a request to YuE2, not a guarantee', SET TEMPO-only plan (Rastafari 70->50) says 'tempo follows 50 BPM' with no request clause; #4 'PREVIOUS PLAN - REPLACED WHEN THE NEW ONE ARRIVES' with APPLY & RENDER disabled while re-planning and with no plan; #5 DESIGN.md updated in its own commit 02bd27d. Vitest scoreVerb/scoreStore pass (hidden when LLM_API_URL unset). Not checked: that the old plan is visually dimmed (text and disabled state read, no pixel check)."
-  },
-  {
-   "id": "F-022",
-   "milestone": "M0",
-   "behaviour": "The review refuses plans that cannot render whole: too long, too many tokens, or no change",
-   "acceptance": [
-    "Estimated duration from bars x meter / Q: is shown; above 330 s a rust warning, at 360 s or more the APPLY & RENDER commit is off with the number and the answer ('estimated 458 s: over the 360 s limit; at least 112 BPM fits'), checked with 88 BPM on the 145 BPM library cover (SP-2 saw 458 s)",
-    "The token check counts with chords kept and refuses above 4,096",
-    "Edge: a request the three ops cannot express ('make it sadder') yields either an EDIT STYLE-only plan clearly labelled as a style change or 'this request did not change the score or the style' with APPLY & RENDER off; never an empty render",
-    "On the M0 live run the estimate is within 5% of the rendered duration (SP-3: 0.6-3.2% short of nominal)"
-   ],
-   "passes": true,
-   "evidence": "Live: estimates 125.5/125.5/125.5/128.2 s vs rendered 124.24/122.60/123.84/123.80 s = 1.0/2.4/1.3/3.5% long (all within 5%); est 353 s of 360 s shows in the warn colour (Rastafari 50 BPM); 'make it sadder' -> EDIT STYLE-only plan labelled as a style change, APPLY enabled. Vitest scoreLimits.test.ts (>=360 s refused with number and 'at least N BPM fits', 4,096 tokens, 'did not change the score or the style') pass. Not shown live: the refusal text itself, because the planner retry answered the over-limit feedback with a shorter tempo (see risk). The 145 BPM cover case was not run (that library cover is ineligible); Vitest has it."
-  },
-  {
-   "id": "F-023",
-   "milestone": "M0",
-   "behaviour": "APPLY & RENDER re-renders the whole song on YuE2 from the edited score and saves it as a new base version",
-   "acceptance": [
-    "The YuE2 job body has abc = the edited score, cot 'full', the stored style (bpm rewritten if SET TEMPO), the stored lyrics untouched, and the base version's seed (Vitest on the request builder; the existing buildYue2CoverRequest and its cot 'melody' stay unchanged)",
-    "The result is a new base version with its own .abc sidecar, Q/K/M read into metadata, the layer's previous version still in VERSIONS; reverting to it restores the previous sidecar, lyrics and style (server test + manual)",
-    "Re-checks at click time: eligibility, base version unchanged, plan alive, /api/ps empty; each refusal names its reason and starts no engine job",
-    "Edge: a 'truncated' job result is shown in rust as TRUNCATED with the length, not as DONE; the version is saved and revertible",
-    "Edge: a failed render (yue-server error) creates no version, leaves the base active, keeps the plan reviewable, and shows the error with RETRY RENDER",
-    "Edge: CANCEL while rendering aborts, drains the slot as ABORT does today, and creates no version"
-   ],
-   "passes": true,
-   "evidence": "Live (throwaway copy): APPLY & RENDER saved base v2/v3/v4 on 'M0 verify rain' and v2 on 'M0 verify tempo', each with its own .abc sidecar (Q 1/4=88, K read), a lilac version row (border rgb(123,75,148)), active, previous versions still in VERSIONS, and it plays (timeline advanced 0:00->0:03 without reload). Stored params: cot full, seed 4116684544 unchanged, style bpm rewritten 90->88, lyrics identical, ops list. Revert (SEL on first generation, tempo song): score reading back to Q 128 / 88 s / 872 tokens, style back to 126 BPM, lyrics identical. Real failed render: ENOSPC at save -> 'RENDER FAILED - ENOSPC: no space left on device, write - nothing saved, the base is unchanged' + RETRY RENDER, plan still listed, no version created; the retry saved v4. Vitest scoreRenderJob/scoreVersion/yue2Score/scoreRender tests pass (truncated saved and marked, cancel drains the slot, re-checks). Not driven live: TRUNCATED display and CANCEL while rendering (Vitest only)."
-  },
-  {
-   "id": "F-024",
-   "milestone": "M0",
-   "behaviour": "Planner problems and cancels read as what happened and what to do",
-   "acceptance": [
-    "LLM_API_URL set but Ollama down: the SCORE body reads PLANNER OFFLINE with RECHECK; model not pulled names 'ollama pull <model>' (stop Ollama and delete the model to check)",
-    "CANCEL while queued removes the job and keeps the typed text; CANCEL while planning aborts the call, still unloads and confirms before releasing the slot, and shows no plan (check /api/ps afterwards)",
-    "Edge: killing the Ollama process mid-plan ends in the offline state with the cause; the GPU slot is released; the next song action is not blocked",
-    "Edge: restarting the Mulakai server between plan and APPLY & RENDER gives 'plan expired, plan again' and starts no job (D-020)"
-   ],
-   "passes": true,
-   "evidence": "Live: Ollama down -> SCORE body 'PLANNER OFFLINE - planner offline: no answer from http://127.0.0.1:11435 (fetch failed) / Start Ollama, then RECHECK. Request kept, nothing saved, GPU free.' with RECHECK; LLM_MODEL=qwen3:99b-not-pulled -> \"model qwen3:99b-not-pulled is not on the planner: run 'ollama pull qwen3:99b-not-pulled'\" (no model deleted); yue-server down -> 'Score checker unreachable ... Start yue-server, then RECHECK.' CANCEL while planning (model loaded, 7.5 s in): abort, unload POST 2 ms later, /api/ps empty 0.1 s after, text kept, no plan. Real mid-plan failure: llama-server crashed (0xc0000409) -> PLANNER OFFLINE with the cause, GPU free, RECHECK + PLAN + render then worked. Server restart between plan and APPLY -> 'PLAN OUT OF DATE - plan expired: the server restarted or a newer plan replaced it. Nothing was started.' (no job). Not live: CANCEL while queued (Vitest scoreStore.test.ts)."
-  },
-  {
-   "id": "F-025",
-   "milestone": "M0",
-   "behaviour": "The M0 exit: the whole promise runs on the real machine and the user hears it",
-   "acceptance": [
-    "Checkpoint CP1 (before the dock UI): a script runs request, plan, apply, render, new version against real Ollama + real yue-server, log kept under pipeline/",
-    "In the app: a fresh AN IDEA song on YuE2 (cot full, with chords), SCORE, 'jazz chords in the chorus, 88 BPM', APPLY & RENDER, a new lilac base version appears and plays",
-    "Measured and logged: plan latency cold and warm (p50 <= 60 s), attempts, unload-to-empty, VRAM vs pre-plan baseline, YuE2 tok/s >= 80, estimate vs actual duration, truncated flag, tempo from median bar length within 4% of the new Q:, root agreement on the edited bars next to the SP-3 chance level",
-    "Edge: repeat once with ACE-Step loaded and idle (offload flags on) and once after a real ACE-Step generation, the SP-1 owed cases",
-    "OWED to the user (keeps passes false): A/B base vN-1 vs vN, tempo (expect clearly) and chords (clearly / slightly / no); report the answers"
-   ],
-   "passes": true,
-   "evidence": "M0 exit run 2026-10-04, see pipeline/verify/M0/m0-summary.json, analysis.json, nvidia-smi.csv. #1 CP1 pass (pipeline/cp1). #2 in-app: fresh YuE2 AN IDEA 'M0 verify rain' (cot FULL, chords), SCORE 'jazz chords in the chorus, 88 BPM', PLAN (attempt 1, 3 changes), APPLY & RENDER -> lilac base v2 saved and played. #3 measured: plan cold 11.4 s / warm 8.1 s / 14.7 s (p50 well under 60 s), attempts 1, unload-to-empty 95-120 ms, VRAM delta <= 0.03 GB, YuE2 98.4/101.1/89.4/88.0 tok/s, estimate 1.0-3.5% long vs actual, truncated false x4, tempo from bars -1.19/-0.10/-0.10/+0.64% of Q (128 -> 88 BPM measured 88.56), root agreement on edited bars 0.875/0.75/0.50/0.81 vs chance mean 0.25-0.27 but the planner changed 0 roots (Q-034 again); audio chord moved vs base on edited vs unedited bars 69% vs 0% (tempo song), rain 31/20, 62/40, 75/30 (alignment unstable on a 4-chord loop). #4 ACE-Step process up and idle: plan 8.1 s, render ok (v3); after a real ACE-Step generation: first plan crashed Ollama's llama-server once (C: at 0 B free, ACE-Step process 22 GB RAM), retry planned in 14.7 s at 15.1 GB peak (1.2 GB headroom), render ok after an ENOSPC retry (v4). #5 OWED: the user's A/B listen, local page pipeline/verify/M0/listen/index.html (gitignored): pairs rain v1->v2, v2->v3, v3->v4 (88 -> 88, tempo should be 'no'), tempo v1->v2 (128 -> 88, tempo should be 'clearly'); chords clearly/slightly/no for each. #5 LISTEN 1 (2026-10-05, pipeline/verify/M0/ab-answers.json): tempo 4/4 as expected, chords heard 2/4 (bar 4/5) -> D-055 root-change rule (PR #129). RERUN on #129 (2026-10-05, local m0-rerun-summary.json, 5 chords-only pairs on 4 songs): 0 plans failed, attempts 3/1/2/1/3 (retries carried the root feedback), roots moved on 7/8, 8/8, 8/16, 8/8, 12/16 edited bars; audio chord changed edited vs unedited bars 62/26, 0/8, 94/0, 50/0, 100/6 %; unload 118-147 ms, YuE2 80.6-88.6 tok/s, truncated 0/5, tempo error <= 0.15%. LISTEN 2 (2026-10-05, pipeline/verify/M0/ab-answers-2.json): chords heard 5/5 (4 clearly, 1 slightly), tempo no 5/5 as expected: >= 4/5 PASS."
-  },
-  {
-   "id": "F-026",
-   "milestone": "M1",
-   "behaviour": "WRITE PHRASE: 'add a 4-bar sax phrase after it' writes a short instrument line the planner composed as notes",
-   "acceptance": [
-    "The schema takes bars as arrays of {pitch, beats} (beats 0.5/1/1.5/2/3/4), N bars set per request; code writes the ABC and owns units, ties and bar sums; free ABC strings are not accepted anywhere",
-    "The phrase lands in Ins only where the Vocal rests; the instrument name is appended to the style; the consequence line says the instrument is a request, not a guarantee",
-    "Live on 3 library songs: compound request 'jazz chords in the chorus, 88 BPM, add a 4-bar sax phrase after it' plans valid within 3 attempts (SP-2: 86% qwen3, 100% MoE); attempts logged",
-    "Edge: a phrase with fewer than 4 notes, fewer than 3 distinct pitches, under 70% in key or four identical bars is rejected with the reason and retried; beat sums that do not fill a bar are fed back with the numbers",
-    "Edge: asking for a phrase where the Vocal does not rest is refused with the bars that are free",
-    "OWED: the user's SP-2 phrase listen; if 'not musical' the verb ships the op labelled EXPERIMENTAL (Q to be raised)"
-   ],
-   "passes": true,
-   "evidence": "pipeline/verify/M1/m1-verify.md: #1-#5 pass at 1d73654 (merged #132 2f1d861, #134 38f022d); #3 live CP2 3/3 songs valid in 2/1/3 attempts (pipeline/verify/M1/m1-summary.json); #5 refusal + D-060 refused-attempt line seen in the real app on fakes. #6 OWED: user phrase listen (pipeline/verify/M1/listen/index.html); \"not musical\" -> EXPERIMENTAL label + Q"
-  },
-  {
-   "id": "F-027",
-   "milestone": "M1",
-   "behaviour": "Before the first ACE-Step edit, the dock says score editing will end",
-   "acceptance": [
-    "While SCORE is still open for a song, the consequence line of REPAINT, ADD LAYER and an extract-to-layer ends with 'score editing ends after this edit, SCORE will be off for this song' (D-030; REMASTER MIX keeps no version, so no clause: D-058)",
-    "Edge: on a song where SCORE is hidden (ACE-Step) or already ineligible, the line is absent; after the first repaint lands, the next one does not repeat it",
-    "A Vitest on each verb's consequence builder covers present and absent"
-   ],
-   "passes": true,
-   "evidence": "pipeline/verify/M1/m1-verify.md: clause seen live on REPAINT, ADD LAYER, 4 stem claim lines; absent on ACE-Step song, after a landed repaint, on REMASTER (D-058); Vitests present/absent; merged #131 47a1554"
-  },
-  {
-   "id": "F-028",
-   "milestone": "M1",
-   "behaviour": "The SCORE flow has a golden-path e2e in CI against fake Ollama and fake yue-server score routes",
-   "acceptance": [
-    "e2e spec: open a fake-YuE2 song, SCORE, plan, review, APPLY & RENDER, new version appears; fakes live in e2e/ beside fake-acestep",
-    "Edge steps: planner offline state; a plan refused over 360 s; a cancel while planning",
-    "CI (.github/workflows/e2e.yml) runs it green on a PR; the existing golden path is unchanged and does not set LLM_API_URL"
-   ],
-   "passes": true,
-   "evidence": "pipeline/verify/M1/m1-verify.md: e2e 9/9 at 1d73654 (4 [score] tests: happy path, planner offline, 360 s refusal, cancel); CI green on #133 and main push 0c04ee1; golden path sets no LLM_API_URL; merged #133 0c04ee1"
-  },
-  {
-   "id": "F-029",
-   "milestone": "M2",
-   "behaviour": "TRANSPOSE: 'down a tone' shifts every note and chord and re-renders in the new key",
-   "acceptance": [
-    "Every pitch is exactly +n semitones and every K: line (header, groups, inline) is rewritten; chord roots follow (selftest on the 9 library scores x 6 intervals, as SP-2's selftest.py)",
-    "Consequence line states 'follows' for the key",
-    "Edge: a shift of 12 or more, or one that leaves the 30-name key table, is refused by the schema bounds (-11..11) with a reason"
-   ],
-   "passes": true,
-   "evidence": "pipeline/verify/M2/m2-verify.md: selftest 9 scores x 6 intervals 54 passed; edge 12/-12 422 with reason, 0 refused (raw/edges_transpose.json); dock 'the key follows Dm (down 2)'; live Carinito 'down a tone' TRANSPOSE -2, render 72 s, chord-root/melody shift 10 semitones (corr 0.999), tempo 95.2 vs Q95, bars 64 (transcriber 65, offset 1); checks at 27b457a green (client 835, server 795, pytest 422, e2e 11); listen owed (listen/index.html pair 1)"
-  },
-  {
-   "id": "F-030",
-   "milestone": "M2",
-   "behaviour": "REPEAT and CUT a section; lyrics and section tags follow the score",
-   "acceptance": [
-    "REPEAT copies the section literally (no repeat signs), un-ties the seam (library f3e3bfdc), duplicates the matching lyric block; CUT removes both; tags are rewritten from the edited score's '% section' comments, the planner never writes tags (R-018)",
-    "The review names the section to cut when a repeat would pass the duration limit ('cut the outro 0:32 to fit')",
-    "Edge: a section with no matching lyric block (2c944049's one chorus vs two [Chorus] blocks) follows the stated rule, shown in the change list, not a silent guess",
-    "Live: a repeated chorus renders with bar count equal to the score's and the copy matching the first (SP-3: 0.95-0.99)"
-   ],
-   "passes": true,
-   "evidence": "pipeline/verify/M2/m2-verify.md: Romantica repeat render: duplicated [Chorus] block + rewritten tags in the lyrics sent, copy vs first F1 0.99, chords 97%, 70 half-bar-thinned downbeats vs 71 (offset -1), +8.1 bars of length; Gertar repeat render: 85 = 85 bars, copy F1 0.93 (SP-3 0.95-0.99; chance 0.23), chords 100%; no-block rule shown in the change list (3 cases); cut hint seen in refused attempts ('cut the intro 0:25 to fit (section 1)'), not reached as a final failure, no hint on token-limit failures; CUT checked by direct apply; listen owed (pairs 2, 4)"
-  },
-  {
-   "id": "F-031",
-   "milestone": "M2",
-   "behaviour": "REWRITE LYRICS for one block, keeping the line count and the tags",
-   "acceptance": [
-    "Addressed by block number and tag occurrence; same number of lines, no tags written by the planner; the diff of the lyrics is shown in the change list",
-    "Edge: a request naming 'the second chorus' resolves to the right block in the change list before it is applied (SP-2: qwen3 64% right block, so the row shows which block it will change)",
-    "The review says the new words need a re-render of the whole song"
-   ],
-   "passes": true,
-   "evidence": "pipeline/verify/M2/m2-verify.md: 18 plan trials: block tag/occurrence right 18/18, planner picked the intended block 17/18 (SP-2 64%), same line count 18/18, tags written 0/18; diff + 'whole song re-renders' line in the dock; live render Gertar chorus 2: Whisper heard all four new lines, bars 77 = 77; listen owed (pair 3)"
-  },
-  {
-   "id": "F-032",
-   "milestone": "M2",
-   "behaviour": "The dock's selection (a section, a lyric line) goes with the request as 'this one'",
-   "acceptance": [
-    "With a section selected in the section strip, 'make this jazzier' plans against that section's bars, and the TARGET chip shows it",
-    "Clearing the selection plans against the whole song",
-    "Edge: a selection that no longer exists after a plan changes the section count shows as stale on the change list instead of applying to the wrong bars"
-   ],
-   "passes": true,
-   "evidence": "pipeline/verify/M2/m2-verify.md: Gertar with lyrics-server running: strip appears after the auto word-timings read (~15 s); pick CHORUS 2 -> chip 'THIS: CHORUS 2 · BARS 36–43', REHARMONIZE 36–43 only; clear -> whole song; after a REPEAT render the old BRIDGE pick -> STALE SELECTION 'now bars 52-60' + USE BARS 52–60 (shots/f032-stale-row.png); line pick works. Gap Q-051: with LYRICS_API_URL unset there is no strip and the hint has nothing to click"
-  },
-  {
-   "id": "F-033",
-   "milestone": "M2",
-   "behaviour": "REVISE: a follow-up request ('not so many chords') sees the pending plan",
-   "acceptance": [
-    "The second plan is made against the first plan's result and replaces it; the change list shows what changed since the last plan",
-    "Edge: a revision never exceeds 3 attempts per press and each press reloads and unloads the planner (hand-off unchanged); a revision that fails keeps the previous plan available"
-   ],
-   "passes": true,
-   "evidence": "pipeline/verify/M2/m2-verify.md: 10 REVISE presses: replace + SINCE PLAN marks (SAME/CHANGED/NEW/removed) seen in the dock; 44 presses all unload once (ack 1 ms, /api/ps empty 10-110 ms), max 3 attempts; failed REVISE keeps the plan (API + 'REVISE FAILED … Plan 3 is still here'). Finding Q-050: the planner dropped the pending ops in 4 of 4 one-op revisions ('also slow it down to 80 BPM'), 'not so many chords' returned the same plan twice"
-  },
-  {
-   "id": "F-034",
-   "milestone": "M3",
-   "behaviour": "NEW SONG FROM THIS SCORE for a song that can no longer be score-edited",
-   "acceptance": [
-    "On an ineligible YuE2 song, an action plans and renders the edited score as a new song, leaving the original song and all its layers untouched",
-    "The consequence line says it makes a new song",
-    "Edge: from a song whose sidecar fails the validator the action is unavailable and says why"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-035",
-   "milestone": "M3",
-   "behaviour": "SCORE works on chord-free, instrumental and cover scores",
-   "acceptance": [
-    "A chord-free score is eligible; SET TEMPO, REPEAT and TRANSPOSE render with cot 'melody'; REHARMONIZE writes chords for the whole range and the render switches to cot 'full' (D-010)",
-    "The review says which render mode will be used",
-    "Edge: an instrumental's score (Vocal notes moved to Ins) refuses REWRITE LYRICS with the reason"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-036",
-   "milestone": "M4",
-   "behaviour": "A bar map in the review shows which bars change",
-   "acceptance": [
-    "Edited bars are marked on a bar map built from the same data the planner saw; hovering a change-list row highlights its bars",
-    "Edge: on a 200-bar cover the map stays one screen high and legible (stage 5 design task)"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-037",
-   "milestone": "M4",
-   "behaviour": "Settings shows the planner: URL, model, reachable, context",
-   "acceptance": [
-    "A planner card in Settings reads LLM_API_URL, the model, 'reachable', the loaded context from /api/ps, and tells how to set OLLAMA_CONTEXT_LENGTH",
-    "Edge: unset shows 'not set up' with the setup pointer; a context below 16,384 shows a rust warning"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-038",
-   "milestone": "M4",
-   "behaviour": "The Activity drawer lists plan and render jobs",
-   "acceptance": [
-    "A plan shows as a RUNNING row (and UP NEXT with CANCEL while queued) and settles to DONE with an OPEN to the song; the render shows as a layer version job",
-    "Edge: a failed plan shows FAILED with its reason; no phantom RUNNING row remains after settle (R-012's fix must hold)"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-039",
-   "milestone": "M4",
-   "behaviour": "Ctrl K offers 'Edit score: <request>' that opens SCORE with the text filled in",
-   "acceptance": [
-    "Palette item pre-fills the SCORE request and never commits (the palette's rule)",
-    "Edge: the item is absent when the open song's SCORE is hidden or ineligible, and for the Library with no song open"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-040",
-   "scope": "chat",
-   "milestone": "C-pre",
-   "behaviour": "The preconditions are cleared and written down before any chat code: SP-5 (chat planner), the owner's SP-4 listen, R-025 (which ACE-Step launcher :8001 runs)",
-   "acceptance": [
-    "pipeline/spikes/SP-5-chat-planner/RESULT.md exists with one row per pass bar in scope.md (action, ask discipline, recipe validity, lyrics language and structure, edit validity, latency and unload, prompt size) and the 40 scripted conversations saved as a fixture; a missed bar names the ladder step taken and the owner has seen it",
-    "The owner's SP-4 listen answers are recorded as a D-### and PLAN.md decision 6 is cut down to the outcome in a docs-only commit",
-    "R-025 closed: the server on :8001 is identified (route check for src_audio or the process command line); CLAUDE.md's launcher line or the client is fixed if they disagree",
-    "Edge: if the owner's listen rejects the A3 joins, F-047 is re-cut (whole-song re-render plus an explicit 'keep the old take for these bars' splice the person listens to) before W-C0b starts",
-    "Edge: if SP-6 (tempo/key shift/stretch) has not passed, F-070 stays unbuilt and nothing else changes; if SP-5's lyrics read is below 8 of 10 usable, the lyrics step moves to its own call before F-042 is accepted"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-041",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "A conversation is kept: messages, proposal cards and the versions they made survive reloads and restarts; a draft chat becomes the song's thread when the song is created",
-   "acceptance": [
-    "A chat_messages migration (song, role, text, proposal JSON, version id) is additive; the existing server tests and the golden-path e2e pass unchanged",
-    "Send three messages, reload the page and restart the server: the three messages are back in order; a proposal card that lived only in memory shows EXPIRED with no live button",
-    "Before the first take the thread is a draft with no song; CREATE SONG attaches it to the new song (order kept, nothing duplicated); a second song's thread never shows the first's messages",
-    "Edge: NEW CHAT shows a consequence line ('drops this draft and its N messages') before it clears; permanently deleting a song deletes its thread, trashing and restoring keeps it",
-    "Edge: a song made before the chat opens an empty thread whose first turn still sees the song's state"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-042",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "A chat turn is one checked reply from a closed set (ask, recipe, edit, say) made by the local model under the SCORE planner's GPU rules",
-   "acceptance": [
-    "One turn is one queue job: probe, context guard, up to 3 attempts of strict JSON, then unload with /api/ps seen empty before the slot is released (D-011); a test and the CP-C0 log show the unload on every path",
-    "The prompt is the song-state block (sections, key, tempo, lyric blocks, style, version list with labels), the pending proposal and the last 4 turns, never the whole transcript; prompt tokens are logged and p95 is 6k or less on the 206-bar library song",
-    "The reply language follows the request (a German request gets a German reply and German lyrics); the schema has no ABC field; a vague request ('a sad song') gets a recipe with its assumption stated, and ask appears only when nothing can be proposed",
-    "Edge: a reply outside the set or failing the schema 3 times ends the turn with the reason, changes nothing and offers RETRY; a double click on SEND runs one turn; scalpel and analyze replies become a plain say that names where the request can be done",
-    "Edge: context shorter than prompt + 2,500 or a truncated prompt refuses naming OLLAMA_CONTEXT_LENGTH=16384; no proposal is ever made from a truncated prompt"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-043",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "The CHAT screen: a thread and composer with a draft sidebar whose fields the assistant fills and the person can edit at any time",
-   "acceptance": [
-    "TALK A SONG in the Library (shown only with LLM_API_URL and YUE_API_URL set) and OPEN CHAT on a song open the screen: thread, composer with the outline text button SEND ↵ (no play-like glyph), a 360 px sidebar with title, style, tempo, key, structure, lyrics and engine (YuE2, read-only), open on first use",
-    "Type a request: the fields fill and the reply line lists which fields CHANGED; every field stays editable while the turn runs",
-    "Edge: a field edited by hand after SEND is not overwritten by that turn and the reply says 'skipped TITLE, you changed it'",
-    "Edge: collapsing the sidebar leaves a rail with the filled-field count; reload keeps the draft",
-    "Edge: planner unreachable or model missing shows ASSISTANT OFF with the cause, RETRY and a FORM link to Guided Create, and no turn can be sent; LLM_API_URL unset shows no entry at all",
-    "Check at 1366x768: thread, composer, sidebar and (from F-045) the player all fit without the page scrolling",
-    "CHAT shows in the header and as OPEN CHAT on a song when LLM_API_URL and YUE_API_URL are set; the app always starts on the Library (D-119, reversing D-099)"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-044",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "A recipe proposal card with its consequence line; CREATE SONG makes the first take on YuE2",
-   "acceptance": [
-    "The card shows title, style, tempo, key, structure, lyrics (collapsed with the line count), engine and a consequence line ('renders a new song on YuE2, about N min, nothing else changes'); CREATE SONG (acid) exists on the card only",
-    "Editing a sidebar field updates the card's summary; CREATE SONG sends the current values, not the proposed ones; a newer recipe card greys out the older",
-    "Press CREATE SONG: a first-take job is queued on the existing YuE2 path (UP NEXT and CANCEL as today) and the song appears in the Library when it lands",
-    "Edge: YUE_API_URL unset, or lyrics failing Guided Create's own validity rule: CREATE SONG is disabled with the reason; the take failing shows a rust error on the card with RETRY and keeps the draft and thread",
-    "Edge: a take truncated at 360 s is saved with a rust TRUNCATED line, not DONE (D-025)"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-045",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "The first take appears as a song card and the latest version is always playable in a player above the composer",
-   "acceptance": [
-    "When the take is saved the thread gets a song card (title, v1 pill, length), the draft thread becomes the song's thread and a player sits above the composer with play/pause, time, seek and the active version's pill; it stays in view with the sidebar collapsed; Space plays unless a text field has focus",
-    "Reload on the song's thread restores the player on the active version (position reset to 0) and the whole thread",
-    "Edge: opening the song from the Library (OPEN CHAT) shows its thread; a song with no thread starts an empty one",
-    "Edge: the waveform and section strip are not in C0 (F-053); the player says nothing about a reading"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-046",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "An edit request on a score-eligible YuE2 song becomes an edit proposal card with its change list, checks and a consequence line naming what changes",
-   "acceptance": [
-    "'Give the chorus jazz chords' yields an edit card: the existing SCORE change-list rows, the checks line and APPLY; an ambiguity is stated ('assuming chorus 1, bars 25-32') and the bars are on the card",
-    "For a single REHARMONIZE the consequence line says only those bars change and the rest is the old take; any other plan says the whole song is re-rendered and every bar will sound different (the existing clause)",
-    "A follow-up message while the card is pending makes a new plan and the old card greys as REPLACED (the merge of REVISE is F-058)",
-    "Edge: a song that is not score-eligible (repaint or ACE-Step version, cover, instrumental, chord-free) gets the eligibility reason as a say and no APPLY; a request naming a section the song lacks gets a say listing its sections",
-    "Edge: a plan failing its checks (3 attempts, over 360 s, no change) shows the rust lines with numbers, no APPLY, and stores nothing"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-047",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "APPLY on a single-REHARMONIZE plan renders, then splices only the changed bars into the current version",
-   "acceptance": [
-    "APPLY runs the existing score render into a temp file, takes the downbeat grids of the base (cached by version id) and the new render, and saves a new version whose audio is the base with the span replaced: a cut snapped to the groove at the downbeats, a 1-beat equal-power crossfade, the new span level-matched to the old audio at both ends; params_json records the bars, join times and gain ramp",
-    "A script checks the saved file on 3 library songs (4/4): every sample outside the two crossfade windows equals the base's, the LUFS step at each join is within 1 dB of the base's own step there, and chord roots on the edited bars are at least the temp re-render's minus 0.05",
-    "The sidecar of the new version is the edited score, so the next turn reads the true state; the version's length may differ from the base by under 0.25 s and the card says so",
-    "Edge: an edit touching bar 1 or the last bar has one join; a meter SP-4 did not test (not 4/4) takes the whole-song path with the reason on the card",
-    "Edge: no usable grid, an unresolved join on both sides, or a render truncated before the span ends: the whole-song re-render is saved as the version, labelled as such, with a rust line, never a silent splice",
-    "Edge: cancel or failure at any step deletes the temp render and leaves no version; OWED to the owner: 5 A/B pairs, join not found in 4 of 5"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-048",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "Every saved version shows as a version card in the thread with play, an A/B switch against the one before, and USE THIS VERSION",
-   "acceptance": [
-    "The card shows the label (the change list), the version pill, the length and, after a splice, 'bars 25-32 changed'; the player swaps to it at the same position and play state and a lilac line says NOW PLAYING THE NEW VERSION until the next play, scrub or send",
-    "BACK TO v1 plays the previous version at the same seconds without activating it; USE v1 activates it (song meta restored as the existing activate does) and the Editor's version rail agrees",
-    "Edge: the previous version was deleted in the Editor: the card has no A/B; a position past the shorter version's end clamps to it"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-049",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "A turn can be cancelled at every phase and fails visibly; the thread survives a reload in the middle of one",
-   "acceptance": [
-    "CANCEL while queued leaves the queue; while thinking it aborts the planner call and still unloads and confirms /api/ps empty before the slot is released; while rendering it is the existing ABORT; while splicing it deletes the temp render; in none of them is a version saved, and an edit card returns to pending",
-    "Planner offline or model missing shows ASSISTANT OFF with the cause and fix; an unload not confirmed in 10 s ends the turn naming `ollama stop <model>` and every commit refuses while /api/ps lists a model",
-    "Reload during a running turn shows the running phase from the job; a server restart ends it as interrupted and expires pending cards",
-    "A message sent while a render or splice runs shows 'WAITING FOR v2' and is read after the version saves, so it sees the new version",
-    "Edge: the song changed since the proposal (a repaint queued in the Editor): APPLY refuses 'this song changed since the proposal', starts no job and offers ASK AGAIN"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-050",
-   "scope": "chat",
-   "milestone": "C0",
-   "behaviour": "The whole C0 path runs on the real machine: describe, CREATE, listen, edit one chorus, A/B, reload",
-   "acceptance": [
-    "CP-C0 (headless, Mulakai API on :3201, throwaway DATA_DIR) runs recipe -> CREATE -> edit turn -> APPLY -> splice -> version against the real Ollama and yue-server; the log in pipeline/cp-c0/ has turn latencies, attempts, unload-to-empty, YuE2 tokens/s, grid and splice seconds, temp bytes removed, the null-test result and join LUFS excess; a miss (turn p50 over 15 s, hand-off over 5 s, edit wall time over 4 min) stops work before the UI",
-    "The same path done by hand in the real app: the thread, both versions and the song survive a reload; the Library shows the song",
-    "OWED to the owner (passes stays false until it is in): 5 A/B pairs of v1 against v2 from chat edits: join not found in 4 of 5, 'the rest sounds the same' yes, 'the chords changed' yes"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-051",
-   "scope": "chat",
-   "milestone": "C1",
-   "behaviour": "The chat has a golden-path e2e in CI against a scripted fake Ollama and fake yue-server routes",
-   "acceptance": [
-    "An e2e spec runs recipe -> CREATE -> edit -> APPLY -> new version in the thread against fakes in e2e/ whose yue-server replies are recorded from pytest contract fixtures (D-039)",
-    "Edge steps: assistant offline, a cancel while thinking, a stale proposal; the existing golden path is unchanged and sets no LLM_API_URL; CI runs green on a PR"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-052",
-   "scope": "chat",
-   "milestone": "C1",
-   "behaviour": "Every saved version is analyzed (words, score, sections, downbeat grid) by one queued job so the strip, the marking and the song-state block match what plays",
-   "acceptance": [
-    "After any save (first take, spliced or re-rendered version, repaint, add layer, any engine) one analyze job is queued; Activity-less states show in the player's reading line: queued, running with steps WORDS > SCORE > SECTIONS, done, failed with the reason and RETRY",
-    "The score is YuE2's own for a YuE2 version and yue-server's transcription otherwise (context and marking only, SCORE edits stay off); the downbeat grid is cached and the splice (F-047) reads it instead of computing it",
-    "A queued or running analyze job never makes APPLY or CREATE refuse (Q-038 #4 fixed): the commit goes behind it in the queue; analyze never runs beside the planner or YuE2",
-    "Edge: LYRICS_API_URL unset skips the words step with 'no word timings' and is not a failure; the transcription's section names are checked on 3 non-YuE2 songs (Q-070) and the result recorded; a failed analysis leaves marking by time working"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-053",
-   "scope": "chat",
-   "milestone": "C1",
-   "behaviour": "The player shows a waveform, a bar ruler and a section strip from the latest reading, with honest states while a new reading runs",
-   "acceptance": [
-    "The strip's sections are the score's (a section with no lyric block, like a third chorus, is on it: Q-051's strip half) and the reading line says 'READ v4 · 9 SECTIONS · 22 LINES'",
-    "While v4 is read, v3's reading stays dimmed and clickable only if the edit moved no bars (the plan's ops say so); an edit that moved bars (repeat, cut, new take) or a failed reading hatches the strip and marking works by raw time",
-    "Edge: an ACE-Step version shows its transcribed score the same way with the line 'TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY'",
-    "Check at 1366x768 with the player above the composer: the thread keeps at least 400 px"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-054",
-   "scope": "chat",
-   "milestone": "C1",
-   "behaviour": "The person marks a part of the song: click a section, drag its edge, drag on the waveform; the mark is a chip in the composer",
-   "acceptance": [
-    "Click a section marks it; drag an edge extends, drag the body moves, drag on empty waveform makes a new mark; edges snap to bar lines with a pointer tag (Alt frees); the chip reads 'THIS: CHORUS 1 + 2 BARS · BARS 25-34 · 0:58-1:22'",
-    "The mark stays until cleared (empty click, ✕ or Esc); a mark across two sections reads 'VERSE 3 - CHORUS 2'",
-    "Edge: a mark cannot pass the song's ends; a drag during a hatched strip marks by time and snaps to bars when the reading lands"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-055",
-   "scope": "chat",
-   "milestone": "C1",
-   "behaviour": "The mark goes with the turn as data; a mark the new version no longer matches is stale and holds SEND",
-   "acceptance": [
-    "'Make this jazzier' with a mark on chorus 2 plans against those bars only (bars, seconds, sections, key and tempo there are in the turn's input); WHAT IT SEES shows plain rows and AS SENT the JSON; each sent message keeps a frozen echo that re-marks on click while valid",
-    "A version that moves the marked bars turns the chip rust, outlines the old place and offers USE BARS (only if the edit reported the shift) or CLEAR MARK; SEND is held until one is pressed; nothing is remapped silently",
-    "A message sent while an analyze job runs queues behind it and the composer says so (Q-069)",
-    "Edge: with no mark the whole song is the scope and no chip shows; a mark reaching outside a plan's allowed range is clamped with the reason on the card"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-056",
-   "scope": "chat",
-   "milestone": "C2",
-   "behaviour": "A song sidebar with a lyrics panel that shows only the marked part",
-   "acceptance": [
-    "The sidebar shows versions, style, tempo and key and the lyrics panel; with no mark the panel lists the sections (name, bars, line count, first line) and a click marks one; with a mark it shows only that part; two sections show both under their headers with a dashed break and 'n more lines not marked'",
-    "Nothing follows playback (no current line, no auto-scroll); click marks a line, shift-click extends, double-click plays from it; the panel never edits words",
-    "Edge: while a new version is read the panel dims; a failed read shows RETRY; a song with no words says how to get them"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-057",
-   "scope": "chat",
-   "milestone": "C2",
-   "behaviour": "A pending lyric rewrite shows its OLD and NEW words on the card and inline in the panel",
-   "acceptance": [
-    "The edit card shows OLD | NEW for the rewritten block and the panel shows the old words struck above the new until APPLY or dismiss; the consequence line says the whole song re-renders (or, after F-068, which bars change)",
-    "Edge: a proposal for a section that is not marked shows that section in the panel tagged PROPOSED and leaves the mark alone"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-058",
-   "scope": "chat",
-   "milestone": "C2",
-   "behaviour": "A follow-up message revises the pending edit card instead of replacing it",
-   "acceptance": [
-    "With an edit card pending, 'and slow it down a bit' returns a merged plan marked NEW / CHANGED / SAME with removed ops listed, applied to the base as read (D-073, D-076)",
-    "Edge: a failed or refused revision keeps the pending card; the known losses of Q-050 (an additive request on a one-op plan, 'fewer chords') show under REMOVED and are never silent; a merge over 6 ops is a named refusal"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-059",
-   "scope": "chat",
-   "milestone": "C2",
-   "behaviour": "UNDO TURN restores the fields a turn filled; just-filled fields are marked until the next message or a hand edit",
-   "acceptance": [
-    "A filled field shows a sky wash, an ASSISTANT tag and the old value struck; UNDO TURN restores exactly the fields that turn filled and leaves hand-edited ones alone; the marks clear on the next message or a hand edit (then a grey YOURS)",
-    "Edge: undoing a turn whose recipe card already created a song is not offered; a turn that filled nothing has no UNDO TURN"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-060",
-   "scope": "chat",
-   "milestone": "C2",
-   "behaviour": "A bar map inside the edit card shows which bars change (was F-036)",
-   "acceptance": [
-    "Edited bars are marked on a bar map built from the data the planner saw; hovering a change-list row highlights its bars",
-    "Edge: on a 200-bar cover the map stays one screen high and legible at 1366x768"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-061",
-   "scope": "chat",
-   "milestone": "C3",
-   "behaviour": "Drop an audio file or pick a library song and the assistant reads it: words, a score with chords, caption, tempo and key",
-   "acceptance": [
-    "A dropped file or picked library song with 'like this, but in German' gives an analyze proposal ('uses the GPU about N s, changes nothing'); on commit a reading card shows words (lyrics-server), the score with sections (yue-server transcriber) and caption, tempo, key (ACE-Step ANALYZE AUDIO)",
-    "Edge: longer than 360 s reads the first 360 s and says so; a non-audio or unreadable file shows a rust reason; a service that is down leaves its part marked 'not read: <why>', never an empty section; an instrumental says there are no words"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-062",
-   "scope": "chat",
-   "milestone": "C3",
-   "behaviour": "The reference audio is kept with the song as its source: re-analyze it or A/B the song against it",
-   "acceptance": [
-    "After CREATE the reference is stored with the song as a copy on this machine; the song's sidebar lists it; RE-ANALYZE reruns the reading; the player can A/B the song against it",
-    "Edge: deleting the song deletes the reference; the card says the file never leaves this machine and the rights are the person's"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-063",
-   "scope": "chat",
-   "milestone": "C3",
-   "behaviour": "A cover proposal: the transcribed score with new words and style, rendered by YuE2",
-   "acceptance": [
-    "The card says 'keeps the melody, new words and style; renders on YuE2 from the transcribed score, about N min'; CREATE COVER runs the existing USE .ABC FILE path (cot melody) and the song is a cover with its reference attached",
-    "Edge: a transcription that fails the validator offers no cover and says why with a fresh-song option; the card says the new words are fitted by YuE2, not guaranteed"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-064",
-   "scope": "chat",
-   "milestone": "C3",
-   "behaviour": "A fresh-song proposal that borrows tempo, key, structure and instrumentation words from the reading",
-   "acceptance": [
-    "The recipe card is filled from the reading (tempo, key, structure, instrumentation in the style) with the borrowed fields marked, and CREATE SONG makes a new song with the reference attached",
-    "Edge: a missing value in the reading (no key found) leaves the field blank and says so; the model's guess never fills it silently"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-065",
-   "scope": "chat",
-   "milestone": "C3",
-   "behaviour": "Edit turns work on cover, instrumental and chord-free scores (was F-035)",
-   "acceptance": [
-    "A chord-free score is eligible; SET TEMPO, REPEAT and TRANSPOSE render with cot melody; REHARMONIZE writes chords for its range and the render switches to cot full; the card says which render mode will be used",
-    "Edge: REHARMONIZE on a chord-free song takes the whole-song path (the render mode changes for the whole song, no splice); an instrumental's score refuses REWRITE LYRICS with the reason"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-066",
-   "scope": "chat",
-   "milestone": "C4",
-   "behaviour": "REPEAT and CUT a section as an audio-only edit with no render",
-   "acceptance": [
-    "The card says 'no render: the audio is copied or removed at the section edges, bars after the cut come earlier'; the saved version's audio outside the 1-beat crossfades equals the base (null test); the score and lyrics edit are saved as the record; it takes seconds, not a render",
-    "A RE-RENDER WHOLE SONG button sits next to it for when the seam is heard",
-    "Edge: after an audio-only REPEAT a later whole-song re-render of the longer score refuses over 360 s with the existing line and the card says so; a cut leaving no section is refused; the owner's listen decides whether this ships or the kind stays whole-song (OWED, Q-053)"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-067",
-   "scope": "chat",
-   "milestone": "C4",
-   "behaviour": "A WRITE PHRASE edit is spliced into the current version",
-   "acceptance": [
-    "A single WRITE PHRASE plan is rendered then spliced as in F-047; the Ins F1 of the new span is at least the temp re-render's minus 0.05 on 3 of 4 songs",
-    "Edge: a join more than 1 dB beyond the base's step (SP-4 song A, 1.3 dB) is reported on the card, not hidden; where the listen rejects it the kind stays whole-song"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-068",
-   "scope": "chat",
-   "milestone": "C4",
-   "behaviour": "A REWRITE LYRICS edit of one section is spliced into the current version, if the owner's listen accepts it",
-   "acceptance": [
-    "A single REWRITE LYRICS plan is rendered then spliced; the consequence line says which bars change and the diff is shown (F-057); the new words are heard in the edited bars (WER of the span no worse than the re-render's plus 0.05 where the transcriber can read the song)",
-    "Edge: a song whose words cannot be read by the checker (SP-4 song A) is reported 'not machine-checked' and left to the owner's ear; a cut point inside a held word is flagged on the card"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-069",
-   "scope": "chat",
-   "milestone": "C4",
-   "behaviour": "Several local edits in one plan become one version with each span spliced",
-   "acceptance": [
-    "A plan of two REHARMONIZE or phrase ops on separate bar spans yields one version with both spans changed and the rest the old take; the card names every span",
-    "Edge: overlapping or adjacent spans merge into one; if any join cannot be aligned the whole plan falls back to the whole-song re-render with the reason"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-070",
-   "scope": "chat",
-   "milestone": "C5",
-   "behaviour": "A tempo or key turn offers SHIFT/STRETCH next to RE-RENDER, only if SP-6 passed (D-085)",
-   "acceptance": [
-    "The card offers both: RE-RENDER ('the whole song changes') and SHIFT/STRETCH ('same performance, processed'); SHIFT/STRETCH saves a version from the current take with the new key or tempo within the spike's measured accuracy",
-    "Edge: a shift or stretch beyond SP-6's tested range offers RE-RENDER only; with SP-6 failed the feature is not built and the card offers RE-RENDER alone"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-071",
-   "scope": "chat",
-   "milestone": "C6",
-   "behaviour": "Form-first: Guided Create with the chat as a 300 px side assistant that fills the form's fields and never commits",
-   "acceptance": [
-    "The assistant panel fills fields on request, marks them as assistant-filled and lists the changed ones; GENERATE stays the form's own button",
-    "Edge: assistant off or failing shows the reason and RETRY inside the panel and the form keeps working; LLM_API_URL unset hides the panel and the toggle"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-072",
-   "scope": "chat",
-   "milestone": "C6",
-   "behaviour": "One draft shared by both ways in: a CHAT | FORM toggle that keeps everything, either side commits",
-   "acceptance": [
-    "Fill fields in the chat, switch to FORM: the same values; edit in the form, switch back: the chat's sidebar shows them and the assistant sees them; CREATE SONG and GENERATE both commit the one draft",
-    "Edge: a turn running while the person switches finishes into the same draft; the thread is shared and the old recipe cards stay greyed"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-073",
-   "scope": "chat",
-   "milestone": "C6",
-   "behaviour": "Editor-first: today's Editor with the chat as a side assistant that fills the dock's verbs; the Editor's selection is the mark",
-   "acceptance": [
-    "A CHAT | EDITOR toggle on a song; in Editor mode the assistant fills a verb's fields (never commits) and the Editor's own unsnapped selection goes with the turn as exact seconds, bars touched and a partial flag; its chip mirrors the selection and clearing it clears the selection",
-    "Edge: under a verb other than SCORE the selection is kept and sent but not painted; the thread is the same thread in both modes"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-074",
-   "scope": "chat",
-   "milestone": "C6",
-   "behaviour": "CONTINUE opens a song's thread; the Library stays the start screen (D-119)",
-   "acceptance": [
-    "First open lands on CHAT with the sidebar open; afterwards the start screen and the sidebar state are remembered; CREATE with a typed idea opens the remembered mode with the idea; CONTINUE opens the song's thread",
-    "Edge: with LLM_API_URL or YUE_API_URL unset the app opens on the Library as today (D-099); the golden-path e2e still passes unchanged"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-075",
-   "scope": "chat",
-   "milestone": "C7",
-   "behaviour": "Scalpel proposals from the chat: repaint a section with new words, add a layer, split, export, through the existing jobs and limits",
-   "acceptance": [
-    "'Repaint the bridge with these words' gives a card with the existing consequence line and limits (a mark over 90 s says 3-90 s and proposes bars 25-62); commit runs the existing repaint job and the result appears as a version card",
-    "Edge: a request the Editor's limits refuse shows the refusal on the card, no job starts; the card for a REPAINT on a score-eligible song carries the 'score editing ends after this edit' clause (D-030); needs R-025 closed"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-076",
-   "scope": "chat",
-   "milestone": "C7",
-   "behaviour": "What is done in the Editor appears in the thread as a version card",
-   "acceptance": [
-    "A repaint, layer or score edit made in the Editor appends a version card ('you repainted the bridge in the Editor') and the next turn's song-state block includes it",
-    "Edge: edits made while the chat is closed appear when it opens; a deleted version's card is marked removed"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-077",
-   "scope": "chat",
-   "milestone": "C7",
-   "behaviour": "The assistant may propose ACE-Step for a first take; the card says the song will not be score-editable",
-   "acceptance": [
-    "A recipe naming ACE-Step shows the engine and a consequence line 'not score-editable: later turns are scalpel only, no splice'; CREATE SONG makes the take on ACE-Step",
-    "Edge: later edit turns on that song answer with scalpel proposals or a say, never a SCORE plan; YuE2 stays the default (D-015); needs R-025 closed"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-078",
-   "scope": "chat",
-   "milestone": "C7",
-   "behaviour": "NEW SONG FROM THIS SCORE as the chat's answer for a song that can no longer be score-edited (was F-034)",
-   "acceptance": [
-    "On an ineligible YuE2 song the assistant offers it; commit plans and renders the edited score as a new song leaving the original and its layers untouched; the consequence line says it makes a new song",
-    "Edge: a song whose sidecar fails the validator does not get the offer and the reply says why"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-079",
-   "scope": "chat",
-   "milestone": "C8",
-   "behaviour": "Settings shows the planner: URL, model, reachable, context (was F-037)",
-   "acceptance": [
-    "A planner card reads LLM_API_URL, the model, 'reachable', the loaded context from /api/ps and tells how to set OLLAMA_CONTEXT_LENGTH",
-    "Edge: unset shows 'not set up' with the setup pointer; a context below 16,384 shows a rust warning"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-080",
-   "scope": "chat",
-   "milestone": "C8",
-   "behaviour": "The Activity drawer lists chat turns, plans, renders, analyses and splices (was F-038)",
-   "acceptance": [
-    "A turn, an analyze job and a splice show as RUNNING rows (UP NEXT with CANCEL while queued), settle to DONE with an OPEN to the song's thread, and a failure shows FAILED with its reason",
-    "Edge: no phantom RUNNING row remains after settle; an unknown queue kind never breaks the drawer"
-   ],
-   "passes": false,
-   "evidence": null
-  },
-  {
-   "id": "F-081",
-   "scope": "chat",
-   "milestone": "C8",
-   "behaviour": "Ctrl K offers 'Ask in chat: <text>' that opens the song's thread with the text in the composer (was F-039)",
-   "acceptance": [
-    "The palette item fills the composer and never sends (the palette's rule)",
-    "Edge: absent in the Library with no song open and when the assistant is off; it replaces the old 'Edit score' item"
-   ],
-   "passes": false,
-   "evidence": null
-  }
- ]
+  "_note": "Adopt audit 2026-10-03. passes=true only where I ran the check and it passed. Run: client `npm test` (75 files / 585 tests pass), server `npm test` (58 files / 493 tests pass), client `npm run build` ok, `npm run lint` 1 warning, e2e `npm run test:e2e` 1 passed (golden-path.spec.ts, 14.8 s, fake ACE-Step). Nothing was run against real ACE-Step, YuE2, HeartMuLa, Demucs or UVR. Stage 4 (2026-10-03) appended the score agent as F-016..F-039 (M0..M4, all passes false, evidence null); F-001..F-015 unchanged except F-015's evidence note. Stage 4 (2026-10-06) appended the chat scope as F-040..F-081 (milestones C-pre, C0..C8, field \"scope\": \"chat\", all passes false, evidence null); F-034..F-039 (score-agent M3/M4, unbuilt) stay as written and are folded into the chat: F-034 -> F-078, F-035 -> F-065, F-036 -> F-060, F-037 -> F-079, F-038 -> F-080, F-039 -> F-081; when the chat feature passes the conductor sets the old entry the same way. Local main is 3 commits behind origin/main (#116 merged); I tested the local checkout (2eacef5).",
+  "features": [
+    {
+      "id": "F-001",
+      "milestone": "existing",
+      "behaviour": "Generate a song from AN IDEA (ACE-Step text2music) and see it in Library",
+      "acceptance": [
+        "Create > AN IDEA > GENERATE; row appears; ACE-Step receives the typed prompt"
+      ],
+      "passes": true,
+      "evidence": "e2e golden-path.spec.ts step 'generate a song from AN IDEA' passed 2026-10-03 (fake ACE-Step, asserts params.prompt). Real ACE-Step not exercised."
+    },
+    {
+      "id": "F-002",
+      "milestone": "existing",
+      "behaviour": "Repaint a selected range of a layer; result is a new version",
+      "acceptance": [
+        "Select 0:02-0:08 on base; dock shows 'Saves base v2 over 0:02-0:08'; commit; version list shows it; ACE-Step gets src audio and repainting_start/end"
+      ],
+      "passes": true,
+      "evidence": "e2e golden-path step 'repaint 0:02-0:08 of the base layer' passed; server repaintJobs.test.ts + layersRepaint.test.ts in the 493-test server run. Fake ACE-Step only."
+    },
+    {
+      "id": "F-003",
+      "milestone": "existing",
+      "behaviour": "Add a layer from a description (lego), conditioned on the current mix",
+      "acceptance": [
+        "ADD LAYER verb; commit; song shows 2 layers; lego request carries src audio and the prompt"
+      ],
+      "passes": true,
+      "evidence": "e2e golden-path step 'add a layer' passed; addLayerJobs.test.ts passed."
+    },
+    {
+      "id": "F-004",
+      "milestone": "existing",
+      "behaviour": "Revert a layer to an earlier version",
+      "acceptance": [
+        "Click first take in VERSIONS; it becomes current; server state shows 2 versions, active label 'first generation'"
+      ],
+      "passes": true,
+      "evidence": "e2e golden-path step 'revert the base layer to its first take' passed; versions.test.ts passed."
+    },
+    {
+      "id": "F-005",
+      "milestone": "existing",
+      "behaviour": "Export MIX (client WAV bounce), STEMS, REMASTERED MIX",
+      "acceptance": [
+        "EXPORT verb; MIX downloads <title>.wav with RIFF header; stems list; remaster runs"
+      ],
+      "passes": true,
+      "evidence": "e2e golden-path step 'export: the mix, stems, then a remaster' passed (RIFF header asserted); mixExport.test.ts, remasterJobs.test.ts passed."
+    },
+    {
+      "id": "F-006",
+      "milestone": "existing",
+      "behaviour": "Ctrl K command palette opens a song by title; Activity drawer lists the job as DONE with OPEN",
+      "acceptance": [
+        "After a generation Activity shows it GENERATED with OPEN; palette + title + Enter opens the song"
+      ],
+      "passes": false,
+      "evidence": "Mixed. Local e2e passed 2026-10-03 (step 'Activity lists it as DONE; palette opens it'). But CI on main failed twice on exactly this step: runs 37112819399 (merge #113) and 37113963147 (merge #116): strict-mode violation, 2 .activity-job rows for the same title at once (a RUNNING 'ai' row still present beside the DONE 'GENERATED' row). PR-branch runs of the same code passed. Treat as an unresolved Activity bug or flaky test; unit tests (commandMatch, commandIndex, activityStore) pass."
+    },
+    {
+      "id": "F-007",
+      "milestone": "existing",
+      "behaviour": "Guided Create: START FROM cards, numbered steps, RECIPE card with QUALITY presets and ETA",
+      "acceptance": [
+        "AN IDEA card preselected; QUALITY chips map to steps per model family; ETA hidden until one sample"
+      ],
+      "passes": false,
+      "evidence": "Partial: e2e asserts AN IDEA card is aria-pressed; qualitySteps.test.ts, etaStore.test.ts, StartFromCards.test.tsx pass. A and B card flows (cover, arrange) and RECIPE layout not exercised in a browser by me; DESIGN conformance unchecked."
+    },
+    {
+      "id": "F-008",
+      "milestone": "existing",
+      "behaviour": "Editor action dock: TARGET chip, verb tabs R/L/S/E, LYRICS lane, versions-only right rail",
+      "acceptance": [
+        "Target text per verb; keys ignored in text fields; no left column; rail says VERSIONS"
+      ],
+      "passes": false,
+      "evidence": "Partial: dockTarget.test.ts, useDockKeys.test.ts, lyricsLaneLines.test.ts pass; e2e asserts target text for REPAINT and ADD LAYER and the EXPORT tab. SPLIT verb and LYRICS lane click behaviour not run end to end."
+    },
+    {
+      "id": "F-009",
+      "milestone": "existing",
+      "behaviour": "Library: folders, search, favourites, trash with 7-day sweep, CONTINUE row (GET /api/songs/recent)",
+      "acceptance": [
+        "Recent songs ordered by newest version, trashed excluded, limit honoured; trash sweep removes after 7 days"
+      ],
+      "passes": true,
+      "evidence": "Server songsRecent.test.ts, trashSweep.test.ts, songs.test.ts, folders.test.ts passed in the 493-test run. UI of CONTINUE row not driven by e2e."
+    },
+    {
+      "id": "F-010",
+      "milestone": "existing",
+      "behaviour": "COVER (ACE-Step cover / YuE2 melody cover) and ARRANGE (complete)",
+      "acceptance": [
+        "Cover from library or upload; settings shown are sent; engine and source lock while a job reads them"
+      ],
+      "passes": false,
+      "evidence": "Unit tests with mocked engines only (coverGenJobs.test.ts, completeGenJobs.test.ts, engineCovers.test.ts, coverParams.test.ts). No e2e, no real engine run."
+    },
+    {
+      "id": "F-011",
+      "milestone": "existing",
+      "behaviour": "Extra first-take engines YuE2 and HeartMuLa behind YUE_API_URL / HEARTMULA_API_URL, with score.abc sidecar",
+      "acceptance": [
+        "Engine chosen on Create; job via engineClient; score.abc stored as version sidecar; Q/K/M read into song metadata"
+      ],
+      "passes": false,
+      "evidence": "Mocked unit tests only (engineClient.test.ts, engineGenJobs.test.ts, yue2.test.ts, heartmula.test.ts, abcMeta.test.ts, versionFiles.test.ts). Fake engines are not in e2e; PLAN.md cites a real spike, which is a claim I did not reproduce. Python servers have their own tests (heartmula-server/tests) not run."
+    },
+    {
+      "id": "F-012",
+      "milestone": "existing",
+      "behaviour": "SPLIT a layer into stems (Demucs / UVR), claim stems as versions or layers",
+      "acceptance": [
+        "Split job runs on chosen backend; stems claimable; abandoned splits clean up"
+      ],
+      "passes": false,
+      "evidence": "stemSplit*.test.ts, scratchSplitJobs*.test.ts, splitHealth.test.ts, split.test.ts pass with mocks; no e2e, no real Demucs/UVR run."
+    },
+    {
+      "id": "F-013",
+      "milestone": "existing",
+      "behaviour": "Transcribe / READ LYRICS / word timestamps (click a lyric line in the Editor)",
+      "acceptance": [
+        "Lyrics read from a recording; clicking a lyric chip selects its time range"
+      ],
+      "passes": false,
+      "evidence": "Unit tests (transcribeJobs, lyricsJobs, timingsJobs, lineSelection, lyricAlign) pass; real transcription backend unverified."
+    },
+    {
+      "id": "F-014",
+      "milestone": "existing",
+      "behaviour": "Import a song file; adapters (LoRA/LoKr) loaded at inference; voices (reference audio)",
+      "acceptance": [
+        "Import creates a song; adapter selection forwarded; voice conditioning applied"
+      ],
+      "passes": false,
+      "evidence": "songImport.test.ts, adapters.test.ts, voices.test.ts, voiceConditioning.test.ts pass with mocks. Not e2e."
+    },
+    {
+      "id": "F-015",
+      "milestone": "existing",
+      "behaviour": "Server job queue: runs overlapping jobs FIFO instead of refusing with WAIT FOR (redesign S4)",
+      "acceptance": [
+        "Submit while busy -> queued; UP NEXT with CANCEL in Activity; 11th queued job refused"
+      ],
+      "passes": false,
+      "evidence": "Not on main (main still has genLock.ts). Branch feat/job-queue has 'S4 part a' commits 9d76767, 0d0976b, 1514a8c; not reviewed or run by me. UPDATE 2026-10-03 (stage 4): server/src/services/genQueue.ts exists in the working tree of branch docs/engine-lineup and genLock.ts is gone (seen in code, Glob/Grep); DESIGN.md describes 'S4 part b'. Likely merged since the audit; verify with git before flipping. Not run."
+    },
+    {
+      "id": "F-016",
+      "milestone": "M0",
+      "behaviour": "Precondition: the score agent is written into the project rules before any code (PLAN.md section, AGENTS.md, yue-server README)",
+      "acceptance": [
+        "PLAN.md has a dated 'Score Agent' section that states it supersedes 'ABC score editing / agentic editing is out of scope' in 'Engine: YuE2' and 'YuE2: Align With Upstream', and contains the op set per milestone, the SCORE verb state table, the plan-then-render two-slot hand-off and the file-level plan",
+        "AGENTS.md Scope Discipline no longer says every edit after the first take runs on ACE-Step: it says YuE2 may re-render its own song from an edited score and ACE-Step still does all audio edits; no other rule is touched",
+        "yue-server/README.md line 6 and CLAUDE.md's matching sentence carry the same wording",
+        "Edge: grep PLAN.md, AGENTS.md, CLAUDE.md and yue-server/README.md for 'out of scope' near 'score' and 'every edit after' finds no remaining line that contradicts the new section",
+        "The PR is docs-only and merged to main before the first F-017 code PR"
+      ],
+      "passes": true,
+      "evidence": "Seen in files 2026-10-04: PLAN.md '## Score Agent (planned 2026-10-03)' (line 8548) states it supersedes the two out-of-scope lines and has Op set per milestone, SCORE verb states, plan->render hand-off, File-level plan; the old lines at PLAN.md 2226/2892/3859 each carry a dated Amended/Superseded pointer. AGENTS.md Scope Discipline, CLAUDE.md Tech Stack and yue-server/README.md line 6 carry the same sentence (YuE2 may re-render its own song from an edited score; every audio edit stays ACE-Step). grep for 'every edit after' / 'out of scope' over the four files finds no remaining contradicting line. Docs PR #124 merged on main (c8bb066) before the first code PR #125 (W1, 36d9d08)."
+    },
+    {
+      "id": "F-017",
+      "milestone": "M0",
+      "behaviour": "yue-server answers GPU-free score questions: apply ops, validate, measure tokens and duration, return a bar map",
+      "acceptance": [
+        "The 39 golden cases in pipeline/spikes/SP-2-planner-quality/golden.json (10 library sidecars, 29 mutations) give the same ok/error text from the route as from upstream parse_abc/compare (pytest in yue-server)",
+        "Edge: library sidecar 0a7cff01 returns ok false with the upstream message ('group 60, Ins: expected V: Ins'); an overfull bar returns the per-bar unit sum with numbers, not only 'event after the measure end'",
+        "Applying SET_TEMPO, REHARMONIZE (root + quality enums, 15 native qualities) and EDIT_STYLE returns the edited ABC, per-op verdicts and a style text with the bpm rewritten together with Q: (R-018); the Vocal melody is unchanged per upstream compare",
+        "The token count is taken with chords kept (not /v1/scores/measure's stripped count); duration is bars x meter / Q:",
+        "While a YuE2 job runs, a call to each route returns in under 1 s, loads no model and leaves nvidia-smi memory within 50 MB of before"
+      ],
+      "passes": true,
+      "evidence": "yue-server python -m pytest: 163 passed (log pipeline/verify/M0/yue-pytest.log): test_score_golden.py (39 golden cases vs upstream, 0a7cff01 message, overfull bar unit sum), test_score_ops.py (SET_TEMPO/REHARMONIZE enums/EDIT_STYLE, melody unchanged), test_score_facts.py (duration = bars x meter / Q), test_score_edit_routes.py (tokens with chords kept; routes answer <1 s and load no model while a job runs). #5 live: CP1 pipeline/cp1/CP1-LOG.md (24 calls 10-22 ms during YuE2 jobs, 0 MiB delta, 6 loads for 6 jobs); this run's yue-server.log shows one 'Loading model' per YuE2 job while score reads and applies were served."
+    },
+    {
+      "id": "F-018",
+      "milestone": "M0",
+      "behaviour": "The server decides whether a song can be score-edited, and says why not; the check is repeated at commit",
+      "acceptance": [
+        "Vitest table: YuE2 first take + one layer + no repaint version + sidecar passing the validator + chords present = eligible",
+        "Each of these is ineligible with its own reason: second layer, a repaint version, no sidecar, sidecar failing parse_abc (0a7cff01), chord-free score; an ACE-Step or import song is hidden, not ineligible",
+        "Edge: eligible at plan time, then a repaint is queued and lands before APPLY & RENDER: the commit is refused with 'this song changed since the plan', and no yue-server job is started",
+        "Opening the SCORE verb on a YuE2 song with a repaint version shows the reason line in the app (manual)"
+      ],
+      "passes": true,
+      "evidence": "Vitest scoreEligibility.test.ts / scoreStatus.test.ts pass in the 677-test server run (table: eligible, second layer, repaint, no sidecar, 0a7cff01 checker failure, chord-free, ACE-Step/import hidden; commit re-check refuses 'this song changed since the plan' with no yue-server call). Live (throwaway copy, in-app browser): ACE-Step song shows 4 dock tabs, YuE2 song shows 5 incl. SCORE; after a REAL ACE-Step repaint of 'M0 verify tempo' the SCORE body reads 'This song has a repaint version, so score editing ended when it was made.' (GET /score state ineligible, same text); the library sidecar failing the checker reads 'The saved score fails the checker: group 60, Ins: expected V: Ins.'. See pipeline/verify/M0/m0-summary.json."
+    },
+    {
+      "id": "F-019",
+      "milestone": "M0",
+      "behaviour": "A typed request becomes a validated plan of SET TEMPO / REHARMONIZE / EDIT STYLE ops, planned by a local Ollama model",
+      "acceptance": [
+        "Request body to Ollama carries a strict JSON-schema response_format built per request (bar and section bounds from the song) and reasoning_effort 'none' (Vitest on the client module); default model qwen3:14b, overridable by LLM_MODEL",
+        "Live: for 3 library songs, 'set it to 88 BPM' and 'jazz chords in the chorus' each yield a plan whose ops apply and pass the validator within 3 attempts; first-try and attempt counts are logged (SP-2 saw 97% and 100%); any miss is reported, not hidden",
+        "Edge: an op naming bar 999 or a section that does not exist is rejected with a per-op reason, fed back to the planner on the next attempt, and after 3 attempts the job ends in 'check failed' with those reasons (Vitest with a stub planner)",
+        "The plan job holds one genQueue slot for all attempts and the unload: a repaint submitted meanwhile waits behind it and does not start between attempts (Vitest on genQueue order)",
+        "A running plan with the new queue kind 'plan' does not break the Activity drawer or the Header's /active poll (it renders a generic row or none; unit test)"
+      ],
+      "passes": true,
+      "evidence": "Vitest plannerClient.test.ts (strict per-song json_schema, reasoning_effort none, model), planJob.test.ts (slot held through attempts and unload; 3 attempts -> check failed with per-op reasons), activityPlanKind.test.ts all pass. Live on the wire (timing proxy, pipeline/verify/M0/raw/proxy-trace.jsonl, gitignored): POST /v1/chat/completions carried reasoning_effort none and json_schema; default model qwen3:14b. Live plans this run: valid on attempt 1 for jazz/88 BPM and make-it-sadder across 3 songs, plus CP1's 6/6 (pipeline/cp1/CP1-LOG.md); 'set it to 40 BPM' on a 147-bar song needed attempt 2 (360 s feedback). Misses: none; see the risk note that the 40 -> 50 BPM change is not named in the dock."
+    },
+    {
+      "id": "F-020",
+      "milestone": "M0",
+      "behaviour": "The planner is unloaded and the GPU confirmed free before YuE2 can start; a truncated prompt is never planned against",
+      "acceptance": [
+        "After the last attempt (success or failure) the server calls Ollama keep_alive 0, polls /api/ps every 250 ms until models is empty, and only then releases the slot (Vitest with a stub that keeps the model listed for 3 polls)",
+        "Live on this machine: /api/ps empty within 5 s of the unload ack (SP-1: 0.1 s); VRAM within 0.3 GB of a baseline read just before the plan call; the next YuE2 render runs at 80 tok/s or more (SP-1: 86-95)",
+        "Edge: with OLLAMA_CONTEXT_LENGTH=2048 and a long song, the plan is refused with 'planner context is 2048, needs about N: set OLLAMA_CONTEXT_LENGTH=16384' and no plan is shown (the SP-2 silent-truncation case: HTTP 200, normal reply, prompt_eval_count about half the context)",
+        "Edge: a model still listed after 10 s ends the plan in an error naming the model and 'ollama stop <model>', releases the slot, and APPLY & RENDER later refuses while /api/ps lists any model",
+        "Edge: an LLM_API_URL that is not Ollama (no /api/ps) is reported as unsupported with the reason, not planned against"
+      ],
+      "passes": true,
+      "evidence": "Live: unload ack 2-3 ms, first /api/ps poll after it empty at 95-120 ms (proxy-trace.jsonl, ps-trace.jsonl); VRAM before -> after plan 2465->2467, 2759->2772, 3780->3777 MiB (pipeline/verify/M0/nvidia-smi.csv, 250 ms); next YuE2 renders 98.4, 101.1, 89.4, 88.0 tok/s (yue-server.log). Vitest contextGuard.test.ts (SP-2 2048 case), ollamaControl.test.ts (3-poll stub, 10 s 'ollama stop', no /api/ps), planJob.test.ts pass. Not driven live: the OLLAMA_CONTEXT_LENGTH=2048 refusal and the 10 s case (Vitest only). Observation, not a failure: CANCEL through a proxy that did not forward the abort left the model listed ~23 s; the server polled ~11 s then stopped, and I did not capture the final dock state (with a forwarding proxy, CANCEL emptied /api/ps in 0.1 s)."
+    },
+    {
+      "id": "F-021",
+      "milestone": "M0",
+      "behaviour": "A SCORE verb in the Editor action dock: type a request, see the plan as a change list with checks and a consequence line",
+      "acceptance": [
+        "The dock shows a fifth verb tab SCORE only for a song whose base came from YuE2 and only when LLM_API_URL is set; an ACE-Step song and an install without LLM_API_URL show four tabs as today (manual + Vitest on the verb list)",
+        "Asking 'jazz chords in the chorus, 88 BPM' shows states queued/planning (attempt n of 3) then a change list with one row per op (e.g. 'SET TEMPO 87 to 88 BPM', 'REHARMONIZE bars 17-24'), a checks line (bars, estimated seconds of 360, tokens of 4,096, chords valid) and the consequence line; nothing is saved at this point (manual: VERSIONS unchanged)",
+        "The consequence line is composed from the plan: a SET TEMPO-only plan has no 'request, not a guarantee' clause; a plan with REHARMONIZE says harmony is a request to YuE2, not a guarantee, and says every bar will sound different (manual, two plans)",
+        "Edge: editing the request and pressing PLAN again replaces the plan; the old plan is shown dimmed until the new one arrives; an invalid plan keeps APPLY & RENDER disabled",
+        "DESIGN.md's Action dock section is updated in the same PR, as its own commit; keys R/L/S/E keep working and the new verb's key does not collide (stage 5 design tasks DT-1..DT-5)"
+      ],
+      "passes": true,
+      "evidence": "Live in-app (browser pane on :5301): #1 ACE-Step song 4 tabs, YuE2 song 5 (REPAINT R, ADD LAYER L, SPLIT S, EXPORT E, SCORE C); #2 PLANNING attempt n of 3 then change list with checks line (46 bars - est 126 s of 360 s - 1,088 of 4,096 tokens - chords valid - attempt 1 of 3) and consequence line, VERSIONS unchanged after PLAN; #3 REHARMONIZE plan says 'every bar will sound different ... a request to YuE2, not a guarantee', SET TEMPO-only plan (Rastafari 70->50) says 'tempo follows 50 BPM' with no request clause; #4 'PREVIOUS PLAN - REPLACED WHEN THE NEW ONE ARRIVES' with APPLY & RENDER disabled while re-planning and with no plan; #5 DESIGN.md updated in its own commit 02bd27d. Vitest scoreVerb/scoreStore pass (hidden when LLM_API_URL unset). Not checked: that the old plan is visually dimmed (text and disabled state read, no pixel check)."
+    },
+    {
+      "id": "F-022",
+      "milestone": "M0",
+      "behaviour": "The review refuses plans that cannot render whole: too long, too many tokens, or no change",
+      "acceptance": [
+        "Estimated duration from bars x meter / Q: is shown; above 330 s a rust warning, at 360 s or more the APPLY & RENDER commit is off with the number and the answer ('estimated 458 s: over the 360 s limit; at least 112 BPM fits'), checked with 88 BPM on the 145 BPM library cover (SP-2 saw 458 s)",
+        "The token check counts with chords kept and refuses above 4,096",
+        "Edge: a request the three ops cannot express ('make it sadder') yields either an EDIT STYLE-only plan clearly labelled as a style change or 'this request did not change the score or the style' with APPLY & RENDER off; never an empty render",
+        "On the M0 live run the estimate is within 5% of the rendered duration (SP-3: 0.6-3.2% short of nominal)"
+      ],
+      "passes": true,
+      "evidence": "Live: estimates 125.5/125.5/125.5/128.2 s vs rendered 124.24/122.60/123.84/123.80 s = 1.0/2.4/1.3/3.5% long (all within 5%); est 353 s of 360 s shows in the warn colour (Rastafari 50 BPM); 'make it sadder' -> EDIT STYLE-only plan labelled as a style change, APPLY enabled. Vitest scoreLimits.test.ts (>=360 s refused with number and 'at least N BPM fits', 4,096 tokens, 'did not change the score or the style') pass. Not shown live: the refusal text itself, because the planner retry answered the over-limit feedback with a shorter tempo (see risk). The 145 BPM cover case was not run (that library cover is ineligible); Vitest has it."
+    },
+    {
+      "id": "F-023",
+      "milestone": "M0",
+      "behaviour": "APPLY & RENDER re-renders the whole song on YuE2 from the edited score and saves it as a new base version",
+      "acceptance": [
+        "The YuE2 job body has abc = the edited score, cot 'full', the stored style (bpm rewritten if SET TEMPO), the stored lyrics untouched, and the base version's seed (Vitest on the request builder; the existing buildYue2CoverRequest and its cot 'melody' stay unchanged)",
+        "The result is a new base version with its own .abc sidecar, Q/K/M read into metadata, the layer's previous version still in VERSIONS; reverting to it restores the previous sidecar, lyrics and style (server test + manual)",
+        "Re-checks at click time: eligibility, base version unchanged, plan alive, /api/ps empty; each refusal names its reason and starts no engine job",
+        "Edge: a 'truncated' job result is shown in rust as TRUNCATED with the length, not as DONE; the version is saved and revertible",
+        "Edge: a failed render (yue-server error) creates no version, leaves the base active, keeps the plan reviewable, and shows the error with RETRY RENDER",
+        "Edge: CANCEL while rendering aborts, drains the slot as ABORT does today, and creates no version"
+      ],
+      "passes": true,
+      "evidence": "Live (throwaway copy): APPLY & RENDER saved base v2/v3/v4 on 'M0 verify rain' and v2 on 'M0 verify tempo', each with its own .abc sidecar (Q 1/4=88, K read), a lilac version row (border rgb(123,75,148)), active, previous versions still in VERSIONS, and it plays (timeline advanced 0:00->0:03 without reload). Stored params: cot full, seed 4116684544 unchanged, style bpm rewritten 90->88, lyrics identical, ops list. Revert (SEL on first generation, tempo song): score reading back to Q 128 / 88 s / 872 tokens, style back to 126 BPM, lyrics identical. Real failed render: ENOSPC at save -> 'RENDER FAILED - ENOSPC: no space left on device, write - nothing saved, the base is unchanged' + RETRY RENDER, plan still listed, no version created; the retry saved v4. Vitest scoreRenderJob/scoreVersion/yue2Score/scoreRender tests pass (truncated saved and marked, cancel drains the slot, re-checks). Not driven live: TRUNCATED display and CANCEL while rendering (Vitest only)."
+    },
+    {
+      "id": "F-024",
+      "milestone": "M0",
+      "behaviour": "Planner problems and cancels read as what happened and what to do",
+      "acceptance": [
+        "LLM_API_URL set but Ollama down: the SCORE body reads PLANNER OFFLINE with RECHECK; model not pulled names 'ollama pull <model>' (stop Ollama and delete the model to check)",
+        "CANCEL while queued removes the job and keeps the typed text; CANCEL while planning aborts the call, still unloads and confirms before releasing the slot, and shows no plan (check /api/ps afterwards)",
+        "Edge: killing the Ollama process mid-plan ends in the offline state with the cause; the GPU slot is released; the next song action is not blocked",
+        "Edge: restarting the Mulakai server between plan and APPLY & RENDER gives 'plan expired, plan again' and starts no job (D-020)"
+      ],
+      "passes": true,
+      "evidence": "Live: Ollama down -> SCORE body 'PLANNER OFFLINE - planner offline: no answer from http://127.0.0.1:11435 (fetch failed) / Start Ollama, then RECHECK. Request kept, nothing saved, GPU free.' with RECHECK; LLM_MODEL=qwen3:99b-not-pulled -> \"model qwen3:99b-not-pulled is not on the planner: run 'ollama pull qwen3:99b-not-pulled'\" (no model deleted); yue-server down -> 'Score checker unreachable ... Start yue-server, then RECHECK.' CANCEL while planning (model loaded, 7.5 s in): abort, unload POST 2 ms later, /api/ps empty 0.1 s after, text kept, no plan. Real mid-plan failure: llama-server crashed (0xc0000409) -> PLANNER OFFLINE with the cause, GPU free, RECHECK + PLAN + render then worked. Server restart between plan and APPLY -> 'PLAN OUT OF DATE - plan expired: the server restarted or a newer plan replaced it. Nothing was started.' (no job). Not live: CANCEL while queued (Vitest scoreStore.test.ts)."
+    },
+    {
+      "id": "F-025",
+      "milestone": "M0",
+      "behaviour": "The M0 exit: the whole promise runs on the real machine and the user hears it",
+      "acceptance": [
+        "Checkpoint CP1 (before the dock UI): a script runs request, plan, apply, render, new version against real Ollama + real yue-server, log kept under pipeline/",
+        "In the app: a fresh AN IDEA song on YuE2 (cot full, with chords), SCORE, 'jazz chords in the chorus, 88 BPM', APPLY & RENDER, a new lilac base version appears and plays",
+        "Measured and logged: plan latency cold and warm (p50 <= 60 s), attempts, unload-to-empty, VRAM vs pre-plan baseline, YuE2 tok/s >= 80, estimate vs actual duration, truncated flag, tempo from median bar length within 4% of the new Q:, root agreement on the edited bars next to the SP-3 chance level",
+        "Edge: repeat once with ACE-Step loaded and idle (offload flags on) and once after a real ACE-Step generation, the SP-1 owed cases",
+        "OWED to the user (keeps passes false): A/B base vN-1 vs vN, tempo (expect clearly) and chords (clearly / slightly / no); report the answers"
+      ],
+      "passes": true,
+      "evidence": "M0 exit run 2026-10-04, see pipeline/verify/M0/m0-summary.json, analysis.json, nvidia-smi.csv. #1 CP1 pass (pipeline/cp1). #2 in-app: fresh YuE2 AN IDEA 'M0 verify rain' (cot FULL, chords), SCORE 'jazz chords in the chorus, 88 BPM', PLAN (attempt 1, 3 changes), APPLY & RENDER -> lilac base v2 saved and played. #3 measured: plan cold 11.4 s / warm 8.1 s / 14.7 s (p50 well under 60 s), attempts 1, unload-to-empty 95-120 ms, VRAM delta <= 0.03 GB, YuE2 98.4/101.1/89.4/88.0 tok/s, estimate 1.0-3.5% long vs actual, truncated false x4, tempo from bars -1.19/-0.10/-0.10/+0.64% of Q (128 -> 88 BPM measured 88.56), root agreement on edited bars 0.875/0.75/0.50/0.81 vs chance mean 0.25-0.27 but the planner changed 0 roots (Q-034 again); audio chord moved vs base on edited vs unedited bars 69% vs 0% (tempo song), rain 31/20, 62/40, 75/30 (alignment unstable on a 4-chord loop). #4 ACE-Step process up and idle: plan 8.1 s, render ok (v3); after a real ACE-Step generation: first plan crashed Ollama's llama-server once (C: at 0 B free, ACE-Step process 22 GB RAM), retry planned in 14.7 s at 15.1 GB peak (1.2 GB headroom), render ok after an ENOSPC retry (v4). #5 OWED: the user's A/B listen, local page pipeline/verify/M0/listen/index.html (gitignored): pairs rain v1->v2, v2->v3, v3->v4 (88 -> 88, tempo should be 'no'), tempo v1->v2 (128 -> 88, tempo should be 'clearly'); chords clearly/slightly/no for each. #5 LISTEN 1 (2026-10-05, pipeline/verify/M0/ab-answers.json): tempo 4/4 as expected, chords heard 2/4 (bar 4/5) -> D-055 root-change rule (PR #129). RERUN on #129 (2026-10-05, local m0-rerun-summary.json, 5 chords-only pairs on 4 songs): 0 plans failed, attempts 3/1/2/1/3 (retries carried the root feedback), roots moved on 7/8, 8/8, 8/16, 8/8, 12/16 edited bars; audio chord changed edited vs unedited bars 62/26, 0/8, 94/0, 50/0, 100/6 %; unload 118-147 ms, YuE2 80.6-88.6 tok/s, truncated 0/5, tempo error <= 0.15%. LISTEN 2 (2026-10-05, pipeline/verify/M0/ab-answers-2.json): chords heard 5/5 (4 clearly, 1 slightly), tempo no 5/5 as expected: >= 4/5 PASS."
+    },
+    {
+      "id": "F-026",
+      "milestone": "M1",
+      "behaviour": "WRITE PHRASE: 'add a 4-bar sax phrase after it' writes a short instrument line the planner composed as notes",
+      "acceptance": [
+        "The schema takes bars as arrays of {pitch, beats} (beats 0.5/1/1.5/2/3/4), N bars set per request; code writes the ABC and owns units, ties and bar sums; free ABC strings are not accepted anywhere",
+        "The phrase lands in Ins only where the Vocal rests; the instrument name is appended to the style; the consequence line says the instrument is a request, not a guarantee",
+        "Live on 3 library songs: compound request 'jazz chords in the chorus, 88 BPM, add a 4-bar sax phrase after it' plans valid within 3 attempts (SP-2: 86% qwen3, 100% MoE); attempts logged",
+        "Edge: a phrase with fewer than 4 notes, fewer than 3 distinct pitches, under 70% in key or four identical bars is rejected with the reason and retried; beat sums that do not fill a bar are fed back with the numbers",
+        "Edge: asking for a phrase where the Vocal does not rest is refused with the bars that are free",
+        "OWED: the user's SP-2 phrase listen; if 'not musical' the verb ships the op labelled EXPERIMENTAL (Q to be raised)"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/M1/m1-verify.md: #1-#5 pass at 1d73654 (merged #132 2f1d861, #134 38f022d); #3 live CP2 3/3 songs valid in 2/1/3 attempts (pipeline/verify/M1/m1-summary.json); #5 refusal + D-060 refused-attempt line seen in the real app on fakes. #6 OWED: user phrase listen (pipeline/verify/M1/listen/index.html); \"not musical\" -> EXPERIMENTAL label + Q"
+    },
+    {
+      "id": "F-027",
+      "milestone": "M1",
+      "behaviour": "Before the first ACE-Step edit, the dock says score editing will end",
+      "acceptance": [
+        "While SCORE is still open for a song, the consequence line of REPAINT, ADD LAYER and an extract-to-layer ends with 'score editing ends after this edit, SCORE will be off for this song' (D-030; REMASTER MIX keeps no version, so no clause: D-058)",
+        "Edge: on a song where SCORE is hidden (ACE-Step) or already ineligible, the line is absent; after the first repaint lands, the next one does not repeat it",
+        "A Vitest on each verb's consequence builder covers present and absent"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/M1/m1-verify.md: clause seen live on REPAINT, ADD LAYER, 4 stem claim lines; absent on ACE-Step song, after a landed repaint, on REMASTER (D-058); Vitests present/absent; merged #131 47a1554"
+    },
+    {
+      "id": "F-028",
+      "milestone": "M1",
+      "behaviour": "The SCORE flow has a golden-path e2e in CI against fake Ollama and fake yue-server score routes",
+      "acceptance": [
+        "e2e spec: open a fake-YuE2 song, SCORE, plan, review, APPLY & RENDER, new version appears; fakes live in e2e/ beside fake-acestep",
+        "Edge steps: planner offline state; a plan refused over 360 s; a cancel while planning",
+        "CI (.github/workflows/e2e.yml) runs it green on a PR; the existing golden path is unchanged and does not set LLM_API_URL"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/M1/m1-verify.md: e2e 9/9 at 1d73654 (4 [score] tests: happy path, planner offline, 360 s refusal, cancel); CI green on #133 and main push 0c04ee1; golden path sets no LLM_API_URL; merged #133 0c04ee1"
+    },
+    {
+      "id": "F-029",
+      "milestone": "M2",
+      "behaviour": "TRANSPOSE: 'down a tone' shifts every note and chord and re-renders in the new key",
+      "acceptance": [
+        "Every pitch is exactly +n semitones and every K: line (header, groups, inline) is rewritten; chord roots follow (selftest on the 9 library scores x 6 intervals, as SP-2's selftest.py)",
+        "Consequence line states 'follows' for the key",
+        "Edge: a shift of 12 or more, or one that leaves the 30-name key table, is refused by the schema bounds (-11..11) with a reason"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: selftest 9 scores x 6 intervals 54 passed; edge 12/-12 422 with reason, 0 refused (raw/edges_transpose.json); dock 'the key follows Dm (down 2)'; live Carinito 'down a tone' TRANSPOSE -2, render 72 s, chord-root/melody shift 10 semitones (corr 0.999), tempo 95.2 vs Q95, bars 64 (transcriber 65, offset 1); checks at 27b457a green (client 835, server 795, pytest 422, e2e 11); listen owed (listen/index.html pair 1)"
+    },
+    {
+      "id": "F-030",
+      "milestone": "M2",
+      "behaviour": "REPEAT and CUT a section; lyrics and section tags follow the score",
+      "acceptance": [
+        "REPEAT copies the section literally (no repeat signs), un-ties the seam (library f3e3bfdc), duplicates the matching lyric block; CUT removes both; tags are rewritten from the edited score's '% section' comments, the planner never writes tags (R-018)",
+        "The review names the section to cut when a repeat would pass the duration limit ('cut the outro 0:32 to fit')",
+        "Edge: a section with no matching lyric block (2c944049's one chorus vs two [Chorus] blocks) follows the stated rule, shown in the change list, not a silent guess",
+        "Live: a repeated chorus renders with bar count equal to the score's and the copy matching the first (SP-3: 0.95-0.99)"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: Romantica repeat render: duplicated [Chorus] block + rewritten tags in the lyrics sent, copy vs first F1 0.99, chords 97%, 70 half-bar-thinned downbeats vs 71 (offset -1), +8.1 bars of length; Gertar repeat render: 85 = 85 bars, copy F1 0.93 (SP-3 0.95-0.99; chance 0.23), chords 100%; no-block rule shown in the change list (3 cases); cut hint seen in refused attempts ('cut the intro 0:25 to fit (section 1)'), not reached as a final failure, no hint on token-limit failures; CUT checked by direct apply; listen owed (pairs 2, 4)"
+    },
+    {
+      "id": "F-031",
+      "milestone": "M2",
+      "behaviour": "REWRITE LYRICS for one block, keeping the line count and the tags",
+      "acceptance": [
+        "Addressed by block number and tag occurrence; same number of lines, no tags written by the planner; the diff of the lyrics is shown in the change list",
+        "Edge: a request naming 'the second chorus' resolves to the right block in the change list before it is applied (SP-2: qwen3 64% right block, so the row shows which block it will change)",
+        "The review says the new words need a re-render of the whole song"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: 18 plan trials: block tag/occurrence right 18/18, planner picked the intended block 17/18 (SP-2 64%), same line count 18/18, tags written 0/18; diff + 'whole song re-renders' line in the dock; live render Gertar chorus 2: Whisper heard all four new lines, bars 77 = 77; listen owed (pair 3)"
+    },
+    {
+      "id": "F-032",
+      "milestone": "M2",
+      "behaviour": "The dock's selection (a section, a lyric line) goes with the request as 'this one'",
+      "acceptance": [
+        "With a section selected in the section strip, 'make this jazzier' plans against that section's bars, and the TARGET chip shows it",
+        "Clearing the selection plans against the whole song",
+        "Edge: a selection that no longer exists after a plan changes the section count shows as stale on the change list instead of applying to the wrong bars"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: Gertar with lyrics-server running: strip appears after the auto word-timings read (~15 s); pick CHORUS 2 -> chip 'THIS: CHORUS 2 · BARS 36–43', REHARMONIZE 36–43 only; clear -> whole song; after a REPEAT render the old BRIDGE pick -> STALE SELECTION 'now bars 52-60' + USE BARS 52–60 (shots/f032-stale-row.png); line pick works. Gap Q-051: with LYRICS_API_URL unset there is no strip and the hint has nothing to click"
+    },
+    {
+      "id": "F-033",
+      "milestone": "M2",
+      "behaviour": "REVISE: a follow-up request ('not so many chords') sees the pending plan",
+      "acceptance": [
+        "The second plan is made against the first plan's result and replaces it; the change list shows what changed since the last plan",
+        "Edge: a revision never exceeds 3 attempts per press and each press reloads and unloads the planner (hand-off unchanged); a revision that fails keeps the previous plan available"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/M2/m2-verify.md: 10 REVISE presses: replace + SINCE PLAN marks (SAME/CHANGED/NEW/removed) seen in the dock; 44 presses all unload once (ack 1 ms, /api/ps empty 10-110 ms), max 3 attempts; failed REVISE keeps the plan (API + 'REVISE FAILED … Plan 3 is still here'). Finding Q-050: the planner dropped the pending ops in 4 of 4 one-op revisions ('also slow it down to 80 BPM'), 'not so many chords' returned the same plan twice"
+    },
+    {
+      "id": "F-034",
+      "milestone": "M3",
+      "behaviour": "NEW SONG FROM THIS SCORE for a song that can no longer be score-edited",
+      "acceptance": [
+        "On an ineligible YuE2 song, an action plans and renders the edited score as a new song, leaving the original song and all its layers untouched",
+        "The consequence line says it makes a new song",
+        "Edge: from a song whose sidecar fails the validator the action is unavailable and says why"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-035",
+      "milestone": "M3",
+      "behaviour": "SCORE works on chord-free, instrumental and cover scores",
+      "acceptance": [
+        "A chord-free score is eligible; SET TEMPO, REPEAT and TRANSPOSE render with cot 'melody'; REHARMONIZE writes chords for the whole range and the render switches to cot 'full' (D-010)",
+        "The review says which render mode will be used",
+        "Edge: an instrumental's score (Vocal notes moved to Ins) refuses REWRITE LYRICS with the reason"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-036",
+      "milestone": "M4",
+      "behaviour": "A bar map in the review shows which bars change",
+      "acceptance": [
+        "Edited bars are marked on a bar map built from the same data the planner saw; hovering a change-list row highlights its bars",
+        "Edge: on a 200-bar cover the map stays one screen high and legible (stage 5 design task)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-037",
+      "milestone": "M4",
+      "behaviour": "Settings shows the planner: URL, model, reachable, context",
+      "acceptance": [
+        "A planner card in Settings reads LLM_API_URL, the model, 'reachable', the loaded context from /api/ps, and tells how to set OLLAMA_CONTEXT_LENGTH",
+        "Edge: unset shows 'not set up' with the setup pointer; a context below 16,384 shows a rust warning"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-038",
+      "milestone": "M4",
+      "behaviour": "The Activity drawer lists plan and render jobs",
+      "acceptance": [
+        "A plan shows as a RUNNING row (and UP NEXT with CANCEL while queued) and settles to DONE with an OPEN to the song; the render shows as a layer version job",
+        "Edge: a failed plan shows FAILED with its reason; no phantom RUNNING row remains after settle (R-012's fix must hold)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-039",
+      "milestone": "M4",
+      "behaviour": "Ctrl K offers 'Edit score: <request>' that opens SCORE with the text filled in",
+      "acceptance": [
+        "Palette item pre-fills the SCORE request and never commits (the palette's rule)",
+        "Edge: the item is absent when the open song's SCORE is hidden or ineligible, and for the Library with no song open"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-040",
+      "scope": "chat",
+      "milestone": "C-pre",
+      "behaviour": "The preconditions are cleared and written down before any chat code: SP-5 (chat planner), the owner's SP-4 listen, R-025 (which ACE-Step launcher :8001 runs)",
+      "acceptance": [
+        "pipeline/spikes/SP-5-chat-planner/RESULT.md exists with one row per pass bar in scope.md (action, ask discipline, recipe validity, lyrics language and structure, edit validity, latency and unload, prompt size) and the 40 scripted conversations saved as a fixture; a missed bar names the ladder step taken and the owner has seen it",
+        "The owner's SP-4 listen answers are recorded as a D-### and PLAN.md decision 6 is cut down to the outcome in a docs-only commit",
+        "R-025 closed: the server on :8001 is identified (route check for src_audio or the process command line); CLAUDE.md's launcher line or the client is fixed if they disagree",
+        "Edge: if the owner's listen rejects the A3 joins, F-047 is re-cut (whole-song re-render plus an explicit 'keep the old take for these bars' splice the person listens to) before W-C0b starts",
+        "Edge: if SP-6 (tempo/key shift/stretch) has not passed, F-070 stays unbuilt and nothing else changes; if SP-5's lyrics read is below 8 of 10 usable, the lyrics step moves to its own call before F-042 is accepted"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-041",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "A conversation is kept: messages, proposal cards and the versions they made survive reloads and restarts; a draft chat becomes the song's thread when the song is created",
+      "acceptance": [
+        "A chat_messages migration (song, role, text, proposal JSON, version id) is additive; the existing server tests and the golden-path e2e pass unchanged",
+        "Send three messages, reload the page and restart the server: the three messages are back in order; a proposal card that lived only in memory shows EXPIRED with no live button",
+        "Before the first take the thread is a draft with no song; CREATE SONG attaches it to the new song (order kept, nothing duplicated); a second song's thread never shows the first's messages",
+        "Edge: NEW CHAT shows a consequence line ('drops this draft and its N messages') before it clears; permanently deleting a song deletes its thread, trashing and restoring keeps it",
+        "Edge: a song made before the chat opens an empty thread whose first turn still sees the song's state"
+      ],
+      "passes": true,
+      "evidence": "pipeline/verify/C0a/c0a-live.md (CA-7, 2026-10-07, main+#157): thread, card, song and player back after reload and server restart; draft attaches on CREATE SONG; NEW CHAT consequence line; EXPIRED card. Delete/trash cascade and the pre-chat song's empty thread covered by unit tests only (C0a-code.md checked in code)"
+    },
+    {
+      "id": "F-042",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "A chat turn is one checked reply from a closed set (ask, recipe, edit, say) made by the local model under the SCORE planner's GPU rules",
+      "acceptance": [
+        "One turn is one queue job: probe, context guard, up to 3 attempts of strict JSON, then unload with /api/ps seen empty before the slot is released (D-011); a test and the CP-C0 log show the unload on every path",
+        "The prompt is the song-state block (sections, key, tempo, lyric blocks, style, version list with labels), the pending proposal and the last 4 turns, never the whole transcript; prompt tokens are logged and p95 is 6k or less on the 206-bar library song",
+        "The reply language follows the request (a German request gets a German reply and German lyrics); the schema has no ABC field; a vague request ('a sad song') gets a recipe with its assumption stated, and ask appears only when nothing can be proposed",
+        "Edge: a reply outside the set or failing the schema 3 times ends the turn with the reason, changes nothing and offers RETRY; a double click on SEND runs one turn; scalpel and analyze replies become a plain say that names where the request can be done",
+        "Edge: context shorter than prompt + 2,500 or a truncated prompt refuses naming OLLAMA_CONTEXT_LENGTH=16384; no proposal is ever made from a truncated prompt"
+      ],
+      "passes": true,
+      "evidence": "c0a-live.md + pipeline/cp-c0/2026-10-06/summary.md: 10 live turns, p50 11.5 s, p95 18.5 s, attempts max 1, unload 98-104 ms each turn, prompt <= 2.75k tok. 3-failure RETRY, scalpel/analyze -> say, context refusal: unit tests only. Finding: 3/3 vague prompts got a recipe, not an ask (Q-088)"
+    },
+    {
+      "id": "F-043",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "The CHAT screen: a thread and composer with a draft sidebar whose fields the assistant fills and the person can edit at any time",
+      "acceptance": [
+        "TALK A SONG in the Library (shown only with LLM_API_URL and YUE_API_URL set) and OPEN CHAT on a song open the screen: thread, composer with the outline text button SEND ↵ (no play-like glyph), a 360 px sidebar with title, style, tempo, key, structure, lyrics and engine (YuE2, read-only), open on first use",
+        "Type a request: the fields fill and the reply line lists which fields CHANGED; every field stays editable while the turn runs",
+        "Edge: a field edited by hand after SEND is not overwritten by that turn and the reply says 'skipped TITLE, you changed it'",
+        "Edge: collapsing the sidebar leaves a rail with the filled-field count; reload keeps the draft",
+        "Edge: planner unreachable or model missing shows ASSISTANT OFF with the cause, RETRY and a FORM link to Guided Create, and no turn can be sent; LLM_API_URL unset shows no entry at all",
+        "Check at 1366x768: thread, composer, sidebar and (from F-045) the player all fit without the page scrolling",
+        "CHAT shows in the header and as OPEN CHAT on a song when LLM_API_URL and YUE_API_URL are set; the app always starts on the Library (D-119, reversing D-099)"
+      ],
+      "passes": true,
+      "evidence": "c0a-live.md: CHAT entry from the Library (D-119), ASSISTANT OFF with cause, no entry when LLM_API_URL unset, hand-edit skip line, collapsed rail, 1366x768 fit, zero radius"
+    },
+    {
+      "id": "F-044",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "A recipe proposal card with its consequence line; CREATE SONG makes the first take on YuE2",
+      "acceptance": [
+        "The card shows title, style, tempo, key, structure, lyrics (collapsed with the line count), engine and a consequence line ('renders a new song on YuE2, about N min, nothing else changes'); CREATE SONG (acid) exists on the card only",
+        "Editing a sidebar field updates the card's summary; CREATE SONG sends the current values, not the proposed ones; a newer recipe card greys out the older",
+        "Press CREATE SONG: a first-take job is queued on the existing YuE2 path (UP NEXT and CANCEL as today) and the song appears in the Library when it lands",
+        "Edge: YUE_API_URL unset, or lyrics failing Guided Create's own validity rule: CREATE SONG is disabled with the reason; the take failing shows a rust error on the card with RETRY and keeps the draft and thread",
+        "Edge: a take truncated at 360 s is saved with a rust TRUNCATED line, not DONE (D-025)"
+      ],
+      "passes": true,
+      "evidence": "c0a-live.md: CREATE SONG sent the hand-edited 68 BPM (yue request '68 bpm, A major'); 3 takes created live. Failed-take RETRY, disabled-CREATE reasons and the TRUNCATED line (#157) unit-tested only"
+    },
+    {
+      "id": "F-045",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "The first take appears as a song card and the latest version is always playable in a player above the composer",
+      "acceptance": [
+        "When the take is saved the thread gets a song card (title, v1 pill, length), the draft thread becomes the song's thread and a player sits above the composer with play/pause, time, seek and the active version's pill; it stays in view with the sidebar collapsed; Space plays unless a text field has focus",
+        "Reload on the song's thread restores the player on the active version (position reset to 0) and the whole thread",
+        "Edge: opening the song from the Library (OPEN CHAT) shows its thread; a song with no thread starts an empty one",
+        "Edge: the waveform and section strip are not in C0 (F-053); the player says nothing about a reading"
+      ],
+      "passes": true,
+      "evidence": "c0a-live.md: song card + player appear in place, plays, back at 0:00 after reload; waveform kept per D-115(a). Click-to-seek and OPEN CHAT on a thread-less song not run live"
+    },
+    {
+      "id": "F-046",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "An edit request on a score-eligible YuE2 song becomes an edit proposal card with its change list, checks and a consequence line naming what changes",
+      "acceptance": [
+        "'Give the chorus jazz chords' yields an edit card: the existing SCORE change-list rows, the checks line and APPLY; an ambiguity is stated ('assuming chorus 1, bars 25-32') and the bars are on the card",
+        "For a single REHARMONIZE the consequence line says only those bars change and the rest is the old take; any other plan says the whole song is re-rendered and every bar will sound different (the existing clause)",
+        "A follow-up message while the card is pending makes a new plan and the old card greys as REPLACED (the merge of REVISE is F-058)",
+        "Edge: a song that is not score-eligible (repaint or ACE-Step version, cover, instrumental, chord-free) gets the eligibility reason as a say and no APPLY; a request naming a section the song lacks gets a say listing its sections",
+        "Edge: a plan failing its checks (3 attempts, over 360 s, no change) shows the rust lines with numbers, no APPLY, and stores nothing"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-047",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "APPLY on a single-REHARMONIZE plan renders, then splices only the changed bars into the current version",
+      "acceptance": [
+        "APPLY runs the existing score render into a temp file, takes the downbeat grids of the base (cached by version id) and the new render, and saves a new version whose audio is the base with the span replaced: a cut snapped to the groove at the downbeats, a 1-beat equal-power crossfade, the new span level-matched to the old audio at both ends; params_json records the bars, join times and gain ramp",
+        "A script checks the saved file on 3 library songs (4/4): every sample outside the two crossfade windows equals the base's, the LUFS step at each join is within 1 dB of the base's own step there, and chord roots on the edited bars are at least the temp re-render's minus 0.05",
+        "The sidecar of the new version is the edited score, so the next turn reads the true state; the version's length may differ from the base by under 0.25 s and the card says so",
+        "Edge: an edit touching bar 1 or the last bar has one join; a meter SP-4 did not test (not 4/4) takes the whole-song path with the reason on the card",
+        "Edge: no usable grid, an unresolved join on both sides, or a render truncated before the span ends: the whole-song re-render is saved as the version, labelled as such, with a rust line, never a silent splice",
+        "Edge: cancel or failure at any step deletes the temp render and leaves no version; OWED to the owner: 5 A/B pairs, join not found in 4 of 5"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-048",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "Every saved version shows as a version card in the thread with play, an A/B switch against the one before, and USE THIS VERSION",
+      "acceptance": [
+        "The card shows the label (the change list), the version pill, the length and, after a splice, 'bars 25-32 changed'; the player swaps to it at the same position and play state and a lilac line says NOW PLAYING THE NEW VERSION until the next play, scrub or send",
+        "BACK TO v1 plays the previous version at the same seconds without activating it; USE v1 activates it (song meta restored as the existing activate does) and the Editor's version rail agrees",
+        "Edge: the previous version was deleted in the Editor: the card has no A/B; a position past the shorter version's end clamps to it"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-049",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "A turn can be cancelled at every phase and fails visibly; the thread survives a reload in the middle of one",
+      "acceptance": [
+        "CANCEL while queued leaves the queue; while thinking it aborts the planner call and still unloads and confirms /api/ps empty before the slot is released; while rendering it is the existing ABORT; while splicing it deletes the temp render; in none of them is a version saved, and an edit card returns to pending",
+        "Planner offline or model missing shows ASSISTANT OFF with the cause and fix; an unload not confirmed in 10 s ends the turn naming `ollama stop <model>` and every commit refuses while /api/ps lists a model",
+        "Reload during a running turn shows the running phase from the job; a server restart ends it as interrupted and expires pending cards",
+        "A message sent while a render or splice runs shows 'WAITING FOR v2' and is read after the version saves, so it sees the new version",
+        "Edge: the song changed since the proposal (a repaint queued in the Editor): APPLY refuses 'this song changed since the proposal', starts no job and offers ASK AGAIN"
+      ],
+      "passes": false,
+      "evidence": "Turn half only (C0a, c0a-live.md): CANCEL while thinking reads CANCELLED, resend gets 409, restart -> INTERRUPTED + RETRY and EXPIRED, reload mid-take restores RENDERING. Commit half is C0b"
+    },
+    {
+      "id": "F-050",
+      "scope": "chat",
+      "milestone": "C0",
+      "behaviour": "The whole C0 path runs on the real machine: describe, CREATE, listen, edit one chorus, A/B, reload",
+      "acceptance": [
+        "CP-C0 (headless, Mulakai API on :3201, throwaway DATA_DIR) runs recipe -> CREATE -> edit turn -> APPLY -> splice -> version against the real Ollama and yue-server; the log in pipeline/cp-c0/ has turn latencies, attempts, unload-to-empty, YuE2 tokens/s, grid and splice seconds, temp bytes removed, the null-test result and join LUFS excess; a miss (turn p50 over 15 s, hand-off over 5 s, edit wall time over 4 min) stops work before the UI",
+        "The same path done by hand in the real app: the thread, both versions and the song survive a reload; the Library shows the song",
+        "OWED to the owner (passes stays false until it is in): 5 A/B pairs of v1 against v2 from chat edits: join not found in 4 of 5, 'the rest sounds the same' yes, 'the chords changed' yes"
+      ],
+      "passes": false,
+      "evidence": "Create half (C0a): CP-C0a PASS 3/3 stop lines (pipeline/cp-c0/2026-10-06) and CA-7 live run (c0a-live.md). Edit leg + owner's A/B listen are C0b"
+    },
+    {
+      "id": "F-051",
+      "scope": "chat",
+      "milestone": "C1",
+      "behaviour": "The chat has a golden-path e2e in CI against a scripted fake Ollama and fake yue-server routes",
+      "acceptance": [
+        "An e2e spec runs recipe -> CREATE -> edit -> APPLY -> new version in the thread against fakes in e2e/ whose yue-server replies are recorded from pytest contract fixtures (D-039)",
+        "Edge steps: assistant offline, a cancel while thinking, a stale proposal; the existing golden path is unchanged and sets no LLM_API_URL; CI runs green on a PR"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-052",
+      "scope": "chat",
+      "milestone": "C1",
+      "behaviour": "Every saved version is analyzed (words, score, sections, downbeat grid) by one queued job so the strip, the marking and the song-state block match what plays",
+      "acceptance": [
+        "After any save (first take, spliced or re-rendered version, repaint, add layer, any engine) one analyze job is queued; Activity-less states show in the player's reading line: queued, running with steps WORDS > SCORE > SECTIONS, done, failed with the reason and RETRY",
+        "The score is YuE2's own for a YuE2 version and yue-server's transcription otherwise (context and marking only, SCORE edits stay off); the downbeat grid is cached and the splice (F-047) reads it instead of computing it",
+        "A queued or running analyze job never makes APPLY or CREATE refuse (Q-038 #4 fixed): the commit goes behind it in the queue; analyze never runs beside the planner or YuE2",
+        "Edge: LYRICS_API_URL unset skips the words step with 'no word timings' and is not a failure; the transcription's section names are checked on 3 non-YuE2 songs (Q-070) and the result recorded; a failed analysis leaves marking by time working"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-053",
+      "scope": "chat",
+      "milestone": "C1",
+      "behaviour": "The player shows a waveform, a bar ruler and a section strip from the latest reading, with honest states while a new reading runs",
+      "acceptance": [
+        "The strip's sections are the score's (a section with no lyric block, like a third chorus, is on it: Q-051's strip half) and the reading line says 'READ v4 · 9 SECTIONS · 22 LINES'",
+        "While v4 is read, v3's reading stays dimmed and clickable only if the edit moved no bars (the plan's ops say so); an edit that moved bars (repeat, cut, new take) or a failed reading hatches the strip and marking works by raw time",
+        "Edge: an ACE-Step version shows its transcribed score the same way with the line 'TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY'",
+        "Check at 1366x768 with the player above the composer: the thread keeps at least 400 px"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-054",
+      "scope": "chat",
+      "milestone": "C1",
+      "behaviour": "The person marks a part of the song: click a section, drag its edge, drag on the waveform; the mark is a chip in the composer",
+      "acceptance": [
+        "Click a section marks it; drag an edge extends, drag the body moves, drag on empty waveform makes a new mark; edges snap to bar lines with a pointer tag (Alt frees); the chip reads 'THIS: CHORUS 1 + 2 BARS · BARS 25-34 · 0:58-1:22'",
+        "The mark stays until cleared (empty click, ✕ or Esc); a mark across two sections reads 'VERSE 3 - CHORUS 2'",
+        "Edge: a mark cannot pass the song's ends; a drag during a hatched strip marks by time and snaps to bars when the reading lands"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-055",
+      "scope": "chat",
+      "milestone": "C1",
+      "behaviour": "The mark goes with the turn as data; a mark the new version no longer matches is stale and holds SEND",
+      "acceptance": [
+        "'Make this jazzier' with a mark on chorus 2 plans against those bars only (bars, seconds, sections, key and tempo there are in the turn's input); WHAT IT SEES shows plain rows and AS SENT the JSON; each sent message keeps a frozen echo that re-marks on click while valid",
+        "A version that moves the marked bars turns the chip rust, outlines the old place and offers USE BARS (only if the edit reported the shift) or CLEAR MARK; SEND is held until one is pressed; nothing is remapped silently",
+        "A message sent while an analyze job runs queues behind it and the composer says so (Q-069)",
+        "Edge: with no mark the whole song is the scope and no chip shows; a mark reaching outside a plan's allowed range is clamped with the reason on the card"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-056",
+      "scope": "chat",
+      "milestone": "C2",
+      "behaviour": "A song sidebar with a lyrics panel that shows only the marked part",
+      "acceptance": [
+        "The sidebar shows versions, style, tempo and key and the lyrics panel; with no mark the panel lists the sections (name, bars, line count, first line) and a click marks one; with a mark it shows only that part; two sections show both under their headers with a dashed break and 'n more lines not marked'",
+        "Nothing follows playback (no current line, no auto-scroll); click marks a line, shift-click extends, double-click plays from it; the panel never edits words",
+        "Edge: while a new version is read the panel dims; a failed read shows RETRY; a song with no words says how to get them"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-057",
+      "scope": "chat",
+      "milestone": "C2",
+      "behaviour": "A pending lyric rewrite shows its OLD and NEW words on the card and inline in the panel",
+      "acceptance": [
+        "The edit card shows OLD | NEW for the rewritten block and the panel shows the old words struck above the new until APPLY or dismiss; the consequence line says the whole song re-renders (or, after F-068, which bars change)",
+        "Edge: a proposal for a section that is not marked shows that section in the panel tagged PROPOSED and leaves the mark alone"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-058",
+      "scope": "chat",
+      "milestone": "C2",
+      "behaviour": "A follow-up message revises the pending edit card instead of replacing it",
+      "acceptance": [
+        "With an edit card pending, 'and slow it down a bit' returns a merged plan marked NEW / CHANGED / SAME with removed ops listed, applied to the base as read (D-073, D-076)",
+        "Edge: a failed or refused revision keeps the pending card; the known losses of Q-050 (an additive request on a one-op plan, 'fewer chords') show under REMOVED and are never silent; a merge over 6 ops is a named refusal"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-059",
+      "scope": "chat",
+      "milestone": "C2",
+      "behaviour": "UNDO TURN restores the fields a turn filled; just-filled fields are marked until the next message or a hand edit",
+      "acceptance": [
+        "A filled field shows a sky wash, an ASSISTANT tag and the old value struck; UNDO TURN restores exactly the fields that turn filled and leaves hand-edited ones alone; the marks clear on the next message or a hand edit (then a grey YOURS)",
+        "Edge: undoing a turn whose recipe card already created a song is not offered; a turn that filled nothing has no UNDO TURN"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-060",
+      "scope": "chat",
+      "milestone": "C2",
+      "behaviour": "A bar map inside the edit card shows which bars change (was F-036)",
+      "acceptance": [
+        "Edited bars are marked on a bar map built from the data the planner saw; hovering a change-list row highlights its bars",
+        "Edge: on a 200-bar cover the map stays one screen high and legible at 1366x768"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-061",
+      "scope": "chat",
+      "milestone": "C3",
+      "behaviour": "Drop an audio file or pick a library song and the assistant reads it: words, a score with chords, caption, tempo and key",
+      "acceptance": [
+        "A dropped file or picked library song with 'like this, but in German' gives an analyze proposal ('uses the GPU about N s, changes nothing'); on commit a reading card shows words (lyrics-server), the score with sections (yue-server transcriber) and caption, tempo, key (ACE-Step ANALYZE AUDIO)",
+        "Edge: longer than 360 s reads the first 360 s and says so; a non-audio or unreadable file shows a rust reason; a service that is down leaves its part marked 'not read: <why>', never an empty section; an instrumental says there are no words"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-062",
+      "scope": "chat",
+      "milestone": "C3",
+      "behaviour": "The reference audio is kept with the song as its source: re-analyze it or A/B the song against it",
+      "acceptance": [
+        "After CREATE the reference is stored with the song as a copy on this machine; the song's sidebar lists it; RE-ANALYZE reruns the reading; the player can A/B the song against it",
+        "Edge: deleting the song deletes the reference; the card says the file never leaves this machine and the rights are the person's"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-063",
+      "scope": "chat",
+      "milestone": "C3",
+      "behaviour": "A cover proposal: the transcribed score with new words and style, rendered by YuE2",
+      "acceptance": [
+        "The card says 'keeps the melody, new words and style; renders on YuE2 from the transcribed score, about N min'; CREATE COVER runs the existing USE .ABC FILE path (cot melody) and the song is a cover with its reference attached",
+        "Edge: a transcription that fails the validator offers no cover and says why with a fresh-song option; the card says the new words are fitted by YuE2, not guaranteed"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-064",
+      "scope": "chat",
+      "milestone": "C3",
+      "behaviour": "A fresh-song proposal that borrows tempo, key, structure and instrumentation words from the reading",
+      "acceptance": [
+        "The recipe card is filled from the reading (tempo, key, structure, instrumentation in the style) with the borrowed fields marked, and CREATE SONG makes a new song with the reference attached",
+        "Edge: a missing value in the reading (no key found) leaves the field blank and says so; the model's guess never fills it silently"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-065",
+      "scope": "chat",
+      "milestone": "C3",
+      "behaviour": "Edit turns work on cover, instrumental and chord-free scores (was F-035)",
+      "acceptance": [
+        "A chord-free score is eligible; SET TEMPO, REPEAT and TRANSPOSE render with cot melody; REHARMONIZE writes chords for its range and the render switches to cot full; the card says which render mode will be used",
+        "Edge: REHARMONIZE on a chord-free song takes the whole-song path (the render mode changes for the whole song, no splice); an instrumental's score refuses REWRITE LYRICS with the reason"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-066",
+      "scope": "chat",
+      "milestone": "C4",
+      "behaviour": "REPEAT and CUT a section as an audio-only edit with no render",
+      "acceptance": [
+        "The card says 'no render: the audio is copied or removed at the section edges, bars after the cut come earlier'; the saved version's audio outside the 1-beat crossfades equals the base (null test); the score and lyrics edit are saved as the record; it takes seconds, not a render",
+        "A RE-RENDER WHOLE SONG button sits next to it for when the seam is heard",
+        "Edge: after an audio-only REPEAT a later whole-song re-render of the longer score refuses over 360 s with the existing line and the card says so; a cut leaving no section is refused; the owner's listen decides whether this ships or the kind stays whole-song (OWED, Q-053)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-067",
+      "scope": "chat",
+      "milestone": "C4",
+      "behaviour": "A WRITE PHRASE edit is spliced into the current version",
+      "acceptance": [
+        "A single WRITE PHRASE plan is rendered then spliced as in F-047; the Ins F1 of the new span is at least the temp re-render's minus 0.05 on 3 of 4 songs",
+        "Edge: a join more than 1 dB beyond the base's step (SP-4 song A, 1.3 dB) is reported on the card, not hidden; where the listen rejects it the kind stays whole-song"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-068",
+      "scope": "chat",
+      "milestone": "C4",
+      "behaviour": "A REWRITE LYRICS edit of one section is spliced into the current version, if the owner's listen accepts it",
+      "acceptance": [
+        "A single REWRITE LYRICS plan is rendered then spliced; the consequence line says which bars change and the diff is shown (F-057); the new words are heard in the edited bars (WER of the span no worse than the re-render's plus 0.05 where the transcriber can read the song)",
+        "Edge: a song whose words cannot be read by the checker (SP-4 song A) is reported 'not machine-checked' and left to the owner's ear; a cut point inside a held word is flagged on the card"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-069",
+      "scope": "chat",
+      "milestone": "C4",
+      "behaviour": "Several local edits in one plan become one version with each span spliced",
+      "acceptance": [
+        "A plan of two REHARMONIZE or phrase ops on separate bar spans yields one version with both spans changed and the rest the old take; the card names every span",
+        "Edge: overlapping or adjacent spans merge into one; if any join cannot be aligned the whole plan falls back to the whole-song re-render with the reason"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-070",
+      "scope": "chat",
+      "milestone": "C5",
+      "behaviour": "A tempo or key turn offers SHIFT/STRETCH next to RE-RENDER, only if SP-6 passed (D-085)",
+      "acceptance": [
+        "The card offers both: RE-RENDER ('the whole song changes') and SHIFT/STRETCH ('same performance, processed'); SHIFT/STRETCH saves a version from the current take with the new key or tempo within the spike's measured accuracy",
+        "Edge: a shift or stretch beyond SP-6's tested range offers RE-RENDER only; with SP-6 failed the feature is not built and the card offers RE-RENDER alone"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-071",
+      "scope": "chat",
+      "milestone": "C6",
+      "behaviour": "Form-first: Guided Create with the chat as a 300 px side assistant that fills the form's fields and never commits",
+      "acceptance": [
+        "The assistant panel fills fields on request, marks them as assistant-filled and lists the changed ones; GENERATE stays the form's own button",
+        "Edge: assistant off or failing shows the reason and RETRY inside the panel and the form keeps working; LLM_API_URL unset hides the panel and the toggle"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-072",
+      "scope": "chat",
+      "milestone": "C6",
+      "behaviour": "One draft shared by both ways in: a CHAT | FORM toggle that keeps everything, either side commits",
+      "acceptance": [
+        "Fill fields in the chat, switch to FORM: the same values; edit in the form, switch back: the chat's sidebar shows them and the assistant sees them; CREATE SONG and GENERATE both commit the one draft",
+        "Edge: a turn running while the person switches finishes into the same draft; the thread is shared and the old recipe cards stay greyed"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-073",
+      "scope": "chat",
+      "milestone": "C6",
+      "behaviour": "Editor-first: today's Editor with the chat as a side assistant that fills the dock's verbs; the Editor's selection is the mark",
+      "acceptance": [
+        "A CHAT | EDITOR toggle on a song; in Editor mode the assistant fills a verb's fields (never commits) and the Editor's own unsnapped selection goes with the turn as exact seconds, bars touched and a partial flag; its chip mirrors the selection and clearing it clears the selection",
+        "Edge: under a verb other than SCORE the selection is kept and sent but not painted; the thread is the same thread in both modes"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-074",
+      "scope": "chat",
+      "milestone": "C6",
+      "behaviour": "CONTINUE opens a song's thread; the Library stays the start screen (D-119)",
+      "acceptance": [
+        "First open lands on CHAT with the sidebar open; afterwards the start screen and the sidebar state are remembered; CREATE with a typed idea opens the remembered mode with the idea; CONTINUE opens the song's thread",
+        "Edge: with LLM_API_URL or YUE_API_URL unset the app opens on the Library as today (D-099); the golden-path e2e still passes unchanged"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-075",
+      "scope": "chat",
+      "milestone": "C7",
+      "behaviour": "Scalpel proposals from the chat: repaint a section with new words, add a layer, split, export, through the existing jobs and limits",
+      "acceptance": [
+        "'Repaint the bridge with these words' gives a card with the existing consequence line and limits (a mark over 90 s says 3-90 s and proposes bars 25-62); commit runs the existing repaint job and the result appears as a version card",
+        "Edge: a request the Editor's limits refuse shows the refusal on the card, no job starts; the card for a REPAINT on a score-eligible song carries the 'score editing ends after this edit' clause (D-030); needs R-025 closed"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-076",
+      "scope": "chat",
+      "milestone": "C7",
+      "behaviour": "What is done in the Editor appears in the thread as a version card",
+      "acceptance": [
+        "A repaint, layer or score edit made in the Editor appends a version card ('you repainted the bridge in the Editor') and the next turn's song-state block includes it",
+        "Edge: edits made while the chat is closed appear when it opens; a deleted version's card is marked removed"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-077",
+      "scope": "chat",
+      "milestone": "C7",
+      "behaviour": "The assistant may propose ACE-Step for a first take; the card says the song will not be score-editable",
+      "acceptance": [
+        "A recipe naming ACE-Step shows the engine and a consequence line 'not score-editable: later turns are scalpel only, no splice'; CREATE SONG makes the take on ACE-Step",
+        "Edge: later edit turns on that song answer with scalpel proposals or a say, never a SCORE plan; YuE2 stays the default (D-015); needs R-025 closed"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-078",
+      "scope": "chat",
+      "milestone": "C7",
+      "behaviour": "NEW SONG FROM THIS SCORE as the chat's answer for a song that can no longer be score-edited (was F-034)",
+      "acceptance": [
+        "On an ineligible YuE2 song the assistant offers it; commit plans and renders the edited score as a new song leaving the original and its layers untouched; the consequence line says it makes a new song",
+        "Edge: a song whose sidecar fails the validator does not get the offer and the reply says why"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-079",
+      "scope": "chat",
+      "milestone": "C8",
+      "behaviour": "Settings shows the planner: URL, model, reachable, context (was F-037)",
+      "acceptance": [
+        "A planner card reads LLM_API_URL, the model, 'reachable', the loaded context from /api/ps and tells how to set OLLAMA_CONTEXT_LENGTH",
+        "Edge: unset shows 'not set up' with the setup pointer; a context below 16,384 shows a rust warning"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-080",
+      "scope": "chat",
+      "milestone": "C8",
+      "behaviour": "The Activity drawer lists chat turns, plans, renders, analyses and splices (was F-038)",
+      "acceptance": [
+        "A turn, an analyze job and a splice show as RUNNING rows (UP NEXT with CANCEL while queued), settle to DONE with an OPEN to the song's thread, and a failure shows FAILED with its reason",
+        "Edge: no phantom RUNNING row remains after settle; an unknown queue kind never breaks the drawer"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-081",
+      "scope": "chat",
+      "milestone": "C8",
+      "behaviour": "Ctrl K offers 'Ask in chat: <text>' that opens the song's thread with the text in the composer (was F-039)",
+      "acceptance": [
+        "The palette item fills the composer and never sends (the palette's rule)",
+        "Edge: absent in the Library with no song open and when the assistant is off; it replaces the old 'Edit score' item"
+      ],
+      "passes": false,
+      "evidence": null
+    }
+  ]
 }

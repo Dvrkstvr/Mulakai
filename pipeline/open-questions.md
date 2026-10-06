@@ -232,3 +232,12 @@ C0a ships before the edit turn: what does a song thread answer to "give the chor
 
 ## Q-082..Q-087 · stage 5 (DT-C0a, design/chat-turn.html) · answered → D-111 (owner signed off the defaults)
 Q-082 SEND is off while a turn is queued or thinking (alternative: queue a second turn). Q-083 an expired recipe card gets ASK AGAIN, which sends one visible message (changes scope.md's "no button" for expired cards). Q-084 with the assistant off, C0 has no CREATE SONG in the sidebar: RETRY and FORM ▸ (alternative: commit from the sidebar). Q-085 after CREATE SONG the sidebar becomes a read-only song panel (alternative: the draft stays editable). Q-086 the sidebar's ASSISTANT / YOURS / FILLING… field marks ship in C0 without UNDO TURN (D-098 had put the marks in C2; the sidebar needs them now). Q-087 deferred: a "jump to latest" chip when a reply lands while scrolled up.
+
+## Q-088 · assumable · stage 7 (C0a live, F-042) · open
+Vague describe prompts ("make me a song", "etwas Schönes", "something nice") got a full recipe in 3 of 3 live CP-C0a turns, not an `ask`. Tighten the prompt's ask rule, or accept it (a recipe is editable in the sidebar)? Default: accept for C0a, revisit with C1's prompt work.
+
+## Q-089 · assumable · stage 7 (C0a live) · open
+Minor live findings (c0a-live.md): (a) the saved song reads 70 BPM / Eb major against a 68 BPM / A major request, because bpm/key come from YuE2's own ABC; (b) "starts after 1 job" stays on the card while it already says RENDERING; (c) a cancelled earlier user message leaks into the next turn's reply. Default: fix (b) and (c) as one small fix PR before C0b, show (a) as YuE2's reading in C1.
+
+## Q-090 · blocking-later · stage 7 (C0a live) · open
+The owner saw a chat-made song still shown as running in the Library. Not reproduced by the verifier in 3 paths (c0a-live.md section 3); suspect paths: adopt() skips while a provisional jobId '' card is loading (generationStore.ts:100), pollJob keeps polling on non-404 errors. Need from the owner: which screen/row showed "running", whether a reload cleared it, and `curl http://127.0.0.1:3001/api/generate/active` at that moment.
