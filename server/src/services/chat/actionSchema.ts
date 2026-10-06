@@ -26,23 +26,28 @@ export const NO_SONG_FACTS: ScoreFacts = {
   key_notes: '', sections: [], lyric_blocks: [], bar_map: [],
 };
 
-export function recipeSchema(): Schema {
+/** C3 (D-128): how a recipe uses the read reference. */
+export const REFERENCE_USES = ['cover', 'borrow', 'none'];
+
+/** `reference`: the thread has a reading, so the recipe also says how it uses it. */
+export function recipeSchema(reference = false): Schema {
   const section = obj({ tag: { enum: SUNG_TAGS }, lines: arr(str(1, RECIPE_LIMITS.line), LINES.min, LINES.max) });
   return obj({
     title: str(1, RECIPE_LIMITS.title), style: str(3, RECIPE_LIMITS.style), bpm: int(BPM.min, BPM.max), key: { enum: KEYS },
     time_signature: { enum: TIME_SIGNATURES }, language: { enum: LANGUAGES }, engine: { enum: ENGINES },
     structure: arr({ enum: SECTION_TAGS }, RECIPE_LIMITS.structure.min, RECIPE_LIMITS.structure.max),
     lyrics: arr(section, 1, RECIPE_LIMITS.sections),
+    ...(reference ? { reference_use: { enum: REFERENCE_USES } } : {}),
   });
 }
 
-export interface SchemaInput { facts: ScoreFacts | null; phraseBars: number; allowed: TurnAction[] }
+export interface SchemaInput { facts: ScoreFacts | null; phraseBars: number; allowed: TurnAction[]; reference?: boolean }
 
-export function turnSchema({ facts, phraseBars, allowed }: SchemaInput): Schema {
+export function turnSchema({ facts, phraseBars, allowed, reference = false }: SchemaInput): Schema {
   const assumptions = arr(str(1, 160), 0, 4);
   const parts: Record<TurnAction, () => Schema> = {
     ask: () => action('ask', { message: str(1, MESSAGE_MAX), choices: arr(str(1, 80), 2, 4) }),
-    recipe: () => action('recipe', { message: str(1, MESSAGE_MAX), assumptions, recipe: recipeSchema() }),
+    recipe: () => action('recipe', { message: str(1, MESSAGE_MAX), assumptions, recipe: recipeSchema(reference) }),
     edit: () => action('edit', { message: str(1, MESSAGE_MAX), assumptions, ops: opsArraySchema(facts ?? NO_SONG_FACTS, phraseBars) }),
     scalpel: () => action('scalpel', { message: str(1, MESSAGE_MAX), kind: { enum: SCALPEL_KINDS }, target: str(1, 80), details: str(0, 300) }),
     analyze: () => action('analyze', { message: str(1, MESSAGE_MAX), reference: str(1, 120), plan: str(1, 300) }),

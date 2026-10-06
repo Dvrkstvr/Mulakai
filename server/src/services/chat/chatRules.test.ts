@@ -1,6 +1,6 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { CHAT_RULES, ENGINE_ADAPTATION, chatRules } from './chatRules.js';
+import { CHAT_RULES, ENGINE_ADAPTATION, REFERENCE_RULE, chatRules } from './chatRules.js';
 import { PLANNER_RULES } from '../score/plannerRules.js';
 
 /** SP-5 prompt.py rules_for() with V3 and V31 on (= v3.1, the prompt that passed every bar), written by the spike's own code. */
@@ -32,5 +32,13 @@ describe('chat rules (the system prompt = a snapshot of SP-5 v3.1 rules_for())',
     expect(rules).toContain('RECIPE FIELDS');
     expect(chatRules(['say'])).not.toContain('RECIPE FIELDS');
     expect(chatRules(['say'])).toContain('- say: ');
+  });
+
+  it('C3: the REFERENCE rule is added only when a reading is in the state, after the recipe fields (D-128)', () => {
+    expect(chatRules(['ask', 'recipe', 'say'], { reference: false })).not.toContain(REFERENCE_RULE);
+    const rules = chatRules(['ask', 'recipe', 'say'], { reference: true });
+    expect(rules.indexOf(REFERENCE_RULE)).toBeGreaterThan(rules.indexOf('RECIPE FIELDS'));
+    expect(REFERENCE_RULE).toContain('reference_use');
+    expect(chatRules(['say'], { reference: true })).not.toContain(REFERENCE_RULE);
   });
 });

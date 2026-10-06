@@ -66,6 +66,17 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(e.messages[1].content).toContain('SIDEBAR (the new-song fields as they are now; the person may have edited them by hand):\ntitle: Mar');
   });
 
+  it('C3: a reading in the state brings reference_use and the REFERENCE rule; a follow-up offers ask, recipe, say (D-128, D-129)', async () => {
+    const ask = scripted(recipeReply());
+    const d = await decideReply({ ...ctx, state: { ...ctx.state, referenceRead: true, followUp: true } }, { ask });
+    const schema = ask.mock.calls[0][1] as { anyOf: Array<{ properties: { action: { const: string }; recipe?: { properties: Record<string, unknown> } } }> };
+    expect(schema.anyOf.map((p) => p.properties.action.const)).toEqual(['ask', 'recipe', 'say']);
+    expect(schema.anyOf[1].properties.recipe!.properties).toHaveProperty('reference_use');
+    expect(d.messages[0].content).toContain('reference_use');
+    await decideReply(ctx, { ask });
+    expect(ask.mock.calls[1][0][0].content).not.toContain('reference_use');
+  });
+
   it('CHAT_LADDER picks a built rung; anything else is rung 0', () => {
     expect(ladderRung(undefined)).toBe(0);
     expect(ladderRung('2')).toBe(2);

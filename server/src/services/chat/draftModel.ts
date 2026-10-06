@@ -1,9 +1,11 @@
 /**
  * The one draft (D-086), pure: read it from the raw stored blob, apply a hand edit, merge a
  * recipe. A field the person touched after SEND is skipped and named (CH-6, Q-057).
- * Shape only here; the rules a field must meet are recipeRules.ts.
+ * Shape only here; the rules a field must meet are recipeRules.ts. C3: the draft's reference marks
+ * (`reference`, `borrowed`, `missing`): a reference recipe sets them and clears a missing field; a hand
+ * edit of a borrowed field clears its mark, and a cover's score fields refuse a hand edit.
  */
-import type { Draft, DraftField, DraftFields, LyricSection, Recipe } from './chatTypes.js';
+import type { Draft, DraftField, DraftFields, DraftReference, LyricSection, Recipe, RecipeReference } from './chatTypes.js';
 
 export const DRAFT_V = 1;
 export const DRAFT_FIELDS: DraftField[] = ['title', 'style', 'bpm', 'key', 'timeSignature', 'language', 'structure', 'lyrics', 'engine'];
@@ -35,6 +37,17 @@ function readFields(raw: unknown): DraftFields {
 }
 
 const isRev = (v: unknown): v is number => Number.isInteger(v) && (v as number) >= 0;
+const fieldList = (v: unknown): DraftField[] | undefined =>
+  (Array.isArray(v) ? DRAFT_FIELDS.filter((f) => v.includes(f)) : undefined);
+
+/** The C3 marks of a stored draft; a malformed one is dropped. */
+function readMarks(blob: Record<string, unknown>): Pick<Draft, 'reference' | 'borrowed' | 'missing'> {
+  const r = blob.reference;
+  const reference: DraftReference | undefined = isObject(r) && typeof r.referenceId === 'string' && (r.use === 'cover' || r.use === 'borrow')
+    ? { referenceId: r.referenceId, use: r.use } : undefined;
+  const marks = { reference, borrowed: fieldList(blob.borrowed), missing: fieldList(blob.missing) };
+  return Object.fromEntries(Object.entries(marks).filter(([, v]) => v !== undefined));
+}
 
 /** draft_json -> Draft. The column default '{}' (v0) is an empty draft. An unknown `draft_v` or
  * unreadable JSON is an empty draft with a note saying so (versions-data.md). */
@@ -53,7 +66,7 @@ export function readDraft(raw: string | null | undefined): { draft: Draft; note:
   if (isObject(blob.touched)) {
     for (const name of DRAFT_FIELDS) if (isRev(blob.touched[name])) touched[name] = blob.touched[name] as number;
   }
-  return { draft: { draft_v: DRAFT_V, rev: isRev(blob.rev) ? blob.rev : 0, fields: readFields(blob.fields), touched }, note: null };
+  return { draft: { draft_v: DRAFT_V, rev: isRev(blob.rev) ? blob.rev : 0, fields: readFields(blob.fields), touched, ...readMarks(blob) }, note: null };
 }
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
@@ -71,24 +84,35 @@ function merge(fields: DraftFields, next: Partial<Record<DraftField, unknown>>, 
   return { fields: out as DraftFields, changed };
 }
 
+export const COVER_LOCKED = 'this is a cover: tempo, key, meter and structure come FROM THE SCORE of the reference; ask for a new song in its style to change them';
+const locked = (draft: Draft, name: DraftField) => draft.reference?.use === 'cover' && (draft.borrowed ?? []).includes(name);
+const without = (list: DraftField[] | undefined, names: DraftField[]) => list && list.filter((f) => !names.includes(f));
+
 /** A sidebar edit. `patch` comes from the client: a key absent or undefined is unchanged, null
- * clears it, a mistyped value is ignored. Rev grows once when anything changed. */
-export function handEdit(draft: Draft, patch: Record<string, unknown>): { draft: Draft; touched: DraftField[] } {
+ * clears it, a mistyped value is ignored. Rev grows once when anything changed. A cover's locked
+ * field is refused with the reason; an edited borrowed or missing field loses its mark. */
+export function handEdit(draft: Draft, patch: Record<string, unknown>): { draft: Draft; touched: DraftField[]; refused: Array<{ field: DraftField; reason: string }> } {
   const next: Partial<Record<DraftField, unknown>> = {};
   const names: DraftField[] = [];
+  const refused: Array<{ field: DraftField; reason: string }> = [];
   for (const name of DRAFT_FIELDS) {
     if (!(name in patch) || patch[name] === undefined) continue;
+    if (locked(draft, name)) {
+      refused.push({ field: name, reason: COVER_LOCKED });
+      continue;
+    }
     const v = patch[name] === null ? undefined : fieldValue(name, patch[name]);
     if (patch[name] !== null && v === undefined) continue;
     next[name] = v;
     names.push(name);
   }
   const { fields, changed } = merge(draft.fields, next, names);
-  if (changed.length === 0) return { draft, touched: [] };
+  if (changed.length === 0) return { draft, touched: [], refused };
   const rev = draft.rev + 1;
   const touched = { ...draft.touched };
   for (const name of changed) touched[name] = rev;
-  return { draft: { ...draft, rev, fields, touched }, touched: changed };
+  const marks = draft.reference ? { borrowed: without(draft.borrowed, changed), missing: without(draft.missing, changed) } : {};
+  return { draft: { ...draft, rev, fields, touched, ...marks }, touched: changed, refused };
 }
 
 /** A recipe's values under the draft's field names. */
@@ -100,17 +124,25 @@ export function recipeFields(r: Recipe): DraftFields {
 }
 
 /** Merge a checked recipe into the draft. `sentRev` is the draft's rev when the person sent the
- * message: a field touched by hand after it keeps the hand edit and is named in `skipped`. */
-export function applyRecipe(draft: Draft, recipe: Recipe, sentRev: number): { draft: Draft; changed: DraftField[]; skipped: DraftField[] } {
+ * message: a field touched by hand after it keeps the hand edit and is named in `skipped`. With a
+ * `reference` (referenceRecipe), its missing fields are cleared and the marks set; without one, the
+ * marks of an earlier card go. */
+export function applyRecipe(draft: Draft, recipe: Recipe, sentRev: number, reference?: RecipeReference | null): { draft: Draft; changed: DraftField[]; skipped: DraftField[] } {
   const wanted = recipeFields(recipe) as Record<string, unknown>;
+  const clear = reference?.missing ?? [];
   const skipped: DraftField[] = [];
   const names: DraftField[] = [];
   for (const name of DRAFT_FIELDS) {
-    if (wanted[name] === undefined || same(draft.fields[name], wanted[name])) continue;
+    if ((wanted[name] === undefined && !clear.includes(name)) || same(draft.fields[name], wanted[name])) continue;
     if ((draft.touched[name] ?? -1) > sentRev) skipped.push(name);
     else names.push(name);
   }
   const { fields, changed } = merge(draft.fields, wanted, names);
-  if (changed.length === 0) return { draft, changed, skipped };
-  return { draft: { ...draft, rev: draft.rev + 1, fields }, changed, skipped };
+  const { reference: _r, borrowed: _b, missing: _m, ...rest } = draft;
+  const marked: Draft = reference
+    ? { ...rest, reference: { referenceId: reference.referenceId, use: reference.use }, borrowed: without(reference.borrowed, skipped), missing: without(reference.missing, skipped) }
+    : rest;
+  const marksSame = same([draft.reference, draft.borrowed, draft.missing], [marked.reference, marked.borrowed, marked.missing]);
+  if (changed.length === 0 && marksSame) return { draft, changed, skipped };
+  return { draft: { ...marked, rev: draft.rev + 1, fields }, changed, skipped };
 }

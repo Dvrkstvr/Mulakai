@@ -3,7 +3,7 @@ import { contract } from '../../../test-fakes/fakeYue.js';
 import { CHAT_RULES } from './chatRules.js';
 import { HISTORY_MAX, REPLY_LINE, historyLines, turnMessages, turnRetry } from './turnPrompt.js';
 import { songStateLines } from './songState.js';
-import { RECIPE, facts206 } from '../../../test-fakes/chatScripts.js';
+import { RECIPE, facts206, readingFixture } from '../../../test-fakes/chatScripts.js';
 import type { ChatMessage } from './chatTypes.js';
 import type { ScoreFacts } from '../score/planTypes.js';
 
@@ -31,6 +31,23 @@ describe('turn prompt (SP-5 build_messages, v3.1)', () => {
     expect(at.every((n) => n >= 0)).toBe(true);
     expect([...at].sort((a, b) => a - b)).toEqual(at);
     expect(user.content.endsWith(`REQUEST: faster please\n${REPLY_LINE}`)).toBe(true);
+  });
+
+  it('C3: a reference card says what it built on and never prints a missing key; READ and reading cards are one line each', () => {
+    const { key: _k, ...noKey } = RECIPE;
+    const body = { recipe: noKey, assumptions: [], changed: [], skipped: [], reference: { referenceId: 'r1', use: 'borrow', borrowed: ['bpm'], missing: ['key'], note: null } };
+    const reading = { referenceId: 'r1', name: 'demo.mp3', followUp: true, reading: readingFixture() };
+    const analyze = { target: { referenceId: 'r1' }, name: 'demo.mp3', seconds: 200, readTo: 200, cut: false, estimate: { words: 0, score: 0, caption: 0, total: 0 } };
+    const lines = historyLines([
+      msg('assistant', 'analyze', 'I will read it first.', analyze as ChatMessage['body']),
+      msg('assistant', 'reading', 'Read.', reading as ChatMessage['body']),
+      msg('assistant', 'recipe', 'A new song in its style.', body as ChatMessage['body']),
+    ]);
+    expect(lines[0]).toBe('ASSISTANT: I will read it first. [READ card for "demo.mp3"]');
+    expect(lines[1]).toBe('ASSISTANT: [the reference "demo.mp3" was read]');
+    expect(historyLines([msg('assistant', 'reading', 'cancelled', { ...reading, reading: null } as ChatMessage['body'])])).toEqual(['ASSISTANT: [the reference "demo.mp3" is not read: cancelled]']);
+    expect(lines[2]).toContain('68 bpm · es · borrows from the reference]');
+    expect(lines[2]).not.toContain('undefined');
   });
 
   it('no song: no phrase lines; nothing pending or said: no such blocks', () => {

@@ -15,6 +15,13 @@ const reasons = async (json: unknown, ctx = draft, deps = {}) => {
 };
 
 describe('reply check', () => {
+  it('C3: keeps a valid reference_use, drops an unknown one (D-128)', async () => {
+    const kept = await checkReply(recipe({ reference_use: 'cover' }), draft, {});
+    expect(kept.ok && kept.reply.action === 'recipe' && kept.reply.recipe.reference_use).toBe('cover');
+    const dropped = await checkReply(recipe({ reference_use: 'steal' }), draft, {});
+    expect(dropped.ok && dropped.reply.action === 'recipe' && 'reference_use' in dropped.reply.recipe).toBe(false);
+  });
+
   it('passes a valid recipe and keeps only the known fields', async () => {
     const r = await checkReply({ ...recipe(), extra: 1 }, draft, {});
     expect(r).toEqual({ ok: true, reply: { action: 'recipe', message: 'ok', assumptions: [], recipe: RECIPE }, applied: null });
