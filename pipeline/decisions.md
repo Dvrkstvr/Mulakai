@@ -583,3 +583,14 @@ A library song as a reference is its base layer's active take (as the chat playe
 
 ## D-138 · 2026-10-07 · stage 6 (chat C3, F-061 edge) · by: assumed (architect)
 A reference longer than 360 s is kept whole (A/B plays all of it); the reading and a cover use its first 360 s through a temp trimmed copy, said on the reading card.
+
+## D-139 · 2026-10-07 · stage 7 (chat C3, CR-5, F-065) · by: assumed (builder)
+The dock names the render mode only when it is not the usual one: the consequence line adds "renders the melody only, no chords" (cot melody) or "adds chords: the whole song renders with chords" (a REHARMONIZE on a chord-free score), and the checks line reads `no chords · melody render` (plain, not rust) instead of `chords invalid` for a melody render. A score with chords keeps its line unchanged.
+- instead of: naming "renders with chords" on every plan (changes every existing review line for no new information).
+
+## D-140 · 2026-10-07 · stage 7 (chat C3, CR-5, F-065) · by: assumed (builder)
+`YueScoreReview.tsx` (named in CR-5's file list) is Guided Create's COVER score review, not the dock's plan review, so it is unchanged; the dock's review copy is `scoreCopy.ts` + its split `scoreAttemptCopy.ts` (checks line), rendered by `ScorePlanList.tsx` (one argument added), and `api/score.ts` gains the optional `renderMode` on `ScorePlan`.
+- instead of: putting render-mode copy on the create-time cover review, where no plan exists.
+
+## D-141 · 2026-10-07 · stage 7 (chat C3, CR-5, F-065 edge) · by: assumed (builder)
+"Instrumental" for REWRITE LYRICS is read from yue-server's facts: every lyric block has 0 lines (tags only) or there are none. The refusal "this song is instrumental: there are no words to rewrite" is a plan check (`scoreLimits.wordsRefusal` via `withLimits`), so the planner hears it on a retry and CHECK FAILED shows it; the song itself stays eligible for every other op.

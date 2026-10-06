@@ -69,7 +69,11 @@ export interface ScorePlan {
   revision?: number;
   /** A REVISE's marks against the plan it replaced (M2-6); null for a PLAN. */
   since?: ScoreSince | null;
+  /** The render's YuE2 mode (F-065, D-132): chords read or added by a REHARMONIZE → full, else melody. */
+  renderMode?: ScoreRenderMode;
 }
+
+export interface ScoreRenderMode { cot: 'full' | 'melody'; reason: 'chords' | 'reharmonize' | 'melody' }
 
 /** Why a run ended without a plan; null while it runs (or holds the slot to unload) or once planned. */
 export type PlanCause = 'check' | 'offline' | 'refused' | 'cancelled';

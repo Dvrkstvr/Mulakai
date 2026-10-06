@@ -11,12 +11,14 @@ const n = (v: number) => Math.round(v).toLocaleString('en-US');
 
 export interface Segment { text: string; warn: boolean }
 
-/** The one checks line; a segment past its limit (330 s and up, over 4,096 tokens) turns rust. */
-export function checksSegments(c: ScorePlan['checks'], attempts: number): Segment[] {
+/** The one checks line; a segment past its limit (330 s and up, over 4,096 tokens) turns rust. A
+ * chord-free score rendered as a melody (F-065, D-132) has no chords by design: "no chords", plain. */
+export function checksSegments(c: ScorePlan['checks'], attempts: number, mode?: ScorePlan['renderMode']): Segment[] {
   const out: Segment[] = [{ text: `${c.bars} bars`, warn: false }];
   if (c.seconds !== null) out.push({ text: `est ${n(c.seconds)} s of ${LIMIT_SECONDS} s`, warn: c.seconds > WARN_SECONDS });
   if (c.tokens !== null) out.push({ text: `${n(c.tokens)} of ${n(TOKEN_LIMIT)} tokens`, warn: c.tokens > TOKEN_LIMIT });
-  if (c.chordsPresent !== null) out.push({ text: c.chordsPresent ? 'chords valid' : 'chords invalid', warn: !c.chordsPresent });
+  if (c.chordsPresent === false && mode?.cot === 'melody') out.push({ text: 'no chords · melody render', warn: false });
+  else if (c.chordsPresent !== null) out.push({ text: c.chordsPresent ? 'chords valid' : 'chords invalid', warn: !c.chordsPresent });
   out.push({ text: `attempt ${attempts} of ${MAX_ATTEMPTS}`, warn: false });
   return out;
 }

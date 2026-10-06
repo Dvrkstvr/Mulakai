@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
-import { cutHint, editedBars, limitReasons, minBpmThatFits, readNumbers, withLimits, NO_CHANGE, LIMIT_SECONDS, TOKEN_LIMIT } from './scoreLimits.js';
+import { cutHint, editedBars, limitReasons, minBpmThatFits, readNumbers, withLimits, wordsRefusal, NO_CHANGE, NO_WORDS, LIMIT_SECONDS, TOKEN_LIMIT } from './scoreLimits.js';
 import type { ApplyResult, Op, ScoreFacts } from './planTypes.js';
 
 const applied = (over: Partial<ApplyResult> = {}): ApplyResult => ({
@@ -99,5 +99,27 @@ describe('editedBars (review M2 should #1)', () => {
     expect(editedBars({ sections: [{ index: 1, label: 'a', from_bar: 1, to_bar: 40, seconds: 1 }, { index: 2, label: 'b', from_bar: 41, to_bar: 81, seconds: 1 }] }, facts)).toBe(81);
     expect(editedBars({ sections: null }, facts)).toBe(65);
     expect(editedBars({}, facts)).toBe(65);
+  });
+});
+
+describe('REWRITE LYRICS on an instrumental (F-065 edge, D-132)', () => {
+  const rewrite: Op[] = [{ op: 'REWRITE_LYRICS', block: 1, tag: '[Verse]', occurrence: 1, lines: ['new words'] }];
+  const block = (lines: number) => ({ index: 1, tag: '[Verse]', occurrence: 1, lines, first_line: lines ? 'walking out' : '' });
+
+  it('refuses it with the reason when no lyric block has a line (tags-only lyrics)', () => {
+    expect(wordsRefusal(rewrite, [block(0), { ...block(0), index: 2, tag: '[Chorus]' }])).toBe(NO_WORDS);
+    expect(wordsRefusal(rewrite, [])).toBe(NO_WORDS);
+    expect(NO_WORDS).toBe('this song is instrumental: there are no words to rewrite');
+  });
+
+  it('lets it through on a song with words, and other ops through on an instrumental', () => {
+    expect(wordsRefusal(rewrite, [block(2)])).toBeNull();
+    expect(wordsRefusal([{ op: 'SET_TEMPO', bpm: 90 }], [block(0)])).toBeNull();
+  });
+
+  it('withLimits folds the refusal into the checks, so the planner hears it and the review shows it', () => {
+    const out = withLimits(applied(), { ops: rewrite, sections: [], blocks: [block(0)] });
+    expect(out.ok).toBe(false);
+    expect(out.checks.problems).toContain(NO_WORDS);
   });
 });

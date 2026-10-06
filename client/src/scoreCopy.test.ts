@@ -1,7 +1,7 @@
 /** SCORE's copy (design/score-verb.html; F-021 #2, #3, F-022 #1, F-024 #1). */
 import { describe, it, expect } from 'vitest';
 import {
-  checksSegments, consequenceLine, jobLine, offlineLines, opRows, planHeader, readingLine, rowDetail, chordName, ASKING_CONSEQUENCE,
+  checksSegments, consequenceLine, jobLine, offlineLines, opRows, planHeader, readingLine, rowDetail, chordName, renderModeClause, ASKING_CONSEQUENCE,
 } from './scoreCopy';
 import type { ScoreOp, ScorePlan } from './api';
 
@@ -32,6 +32,17 @@ describe('consequence line, composed from the plan (F-021 #3, D-031)', () => {
       + 'not a guarantee · v2 stays in VERSIONS');
     expect(consequenceLine(plan([REHARM]), versions, 2)).toContain('harmony in bars 17–24 is a request to YuE2, not a guarantee · v2 stays in VERSIONS · starts after 2 jobs');
     expect(consequenceLine(plan([STYLE]), versions, 0)).toContain('the style change is a request to YuE2, not a guarantee');
+  });
+
+  it('names the render mode on a chord-free score; a score with chords keeps its line (F-065, D-132)', () => {
+    const melody = consequenceLine(plan([TEMPO], { renderMode: { cot: 'melody', reason: 'melody' } }), versions, 0);
+    expect(melody).toBe('Saves base v3 · re-renders the whole song on YuE2, about 3 min · renders the melody only, no chords · '
+      + 'every bar will sound different · tempo follows 88 BPM · v2 stays in VERSIONS');
+    const adds = consequenceLine(plan([REHARM], { renderMode: { cot: 'full', reason: 'reharmonize' } }), versions, 0);
+    expect(adds).toContain('about 3 min · adds chords: the whole song renders with chords · every bar');
+    expect(renderModeClause({ cot: 'full', reason: 'chords' })).toBeNull();
+    expect(consequenceLine(plan([TEMPO], { renderMode: { cot: 'full', reason: 'chords' } }), versions, 0))
+      .toBe(consequenceLine(plan([TEMPO]), versions, 0));
   });
 
   it('WRITE PHRASE names the instrument and its bars as a request, not a guarantee (F-026 #2, D-031 wording)', () => {
@@ -103,6 +114,13 @@ describe('checks line (F-021 #2, F-022 #1)', () => {
     const segs = checksSegments({ ...plan([TEMPO]).checks, seconds: 340.4, chordsPresent: false }, 2);
     expect(segs.filter((s) => s.warn).map((s) => s.text)).toEqual(['est 340 s of 360 s', 'chords invalid']);
     expect(checksSegments({ ...plan([TEMPO]).checks, seconds: 330 }, 1).some((s) => s.warn)).toBe(false);
+  });
+
+  it('a chord-free plan that renders the melody reads "no chords", not rust (F-065, D-132)', () => {
+    const free = { ...plan([TEMPO]).checks, chordsPresent: false };
+    const segs = checksSegments(free, 1, { cot: 'melody', reason: 'melody' });
+    expect(segs.find((s) => s.text.startsWith('no chords'))).toEqual({ text: 'no chords · melody render', warn: false });
+    expect(checksSegments(free, 1, { cot: 'full', reason: 'chords' }).find((s) => s.warn)?.text).toBe('chords invalid');
   });
 });
 
