@@ -5,12 +5,12 @@
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
-- stage: 7 Build — M2 DONE; chat-first (D-079): owner's answers D-081..D-086, D-088..D-095; design signed off (chat-create/-song/-lyrics.html); PLAN.md section on docs/chat-plan (local)
-- clarity: blocking 0 for the chat design (Q-054, Q-071 answered) · latest Q-077 · decisions to D-095
+- stage: 3 Spike (chat preconditions) — chat cut signed off (D-103: C0..C8, F-040..F-081); SP-5 chat planner next · score agent M0-M2 done
+- clarity: blocking 0 · latest Q-079 · decisions to D-103
 - feasibility: amber · H-open 1 (R-024: SP-4 machine half done, A3 splice + audio-only REPEAT/CUT; ear half owed) · R-025 repaint launcher unverified · spiked 5
 - milestone: M2 done · features passing 24/39 · owed: M2 listen pair 2 (unjudged), M1 phrase listen
 - autopilot: none running
-- next: owner's SP-4 listen (serve spikes/SP-4-keep-unchanged/listen on :8077) → owner signs off the PLAN.md chat section → docs PR → stage 4 scope for C0..C4 (SP-5 chat planner, SP-6 shift/stretch)
+- next: SP-5 chat planner spike → owner's SP-4 listen (gates the splice) → R-025 launcher check → stage 6 architecture for C0
 
 ## Stages
 | # | Stage | State | Gate | Date |

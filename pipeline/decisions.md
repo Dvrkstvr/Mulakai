@@ -437,3 +437,25 @@ The chat design is signed off with two changes: the player sits above the compos
 ## D-096 · 2026-10-06 · stage 1/4 (chat) · by: user
 The PLAN.md section "Chat: Talk a Song Into Being" is signed off now ("sign off now and start scoping"), with decision 6 (how an edit turn renders) pending the owner's SP-4 listen. The Grand Goal and brief.md's core promise carry a pointer to it. Scope (stage 4) starts for C0..C4.
 - instead of: signing off after the SP-4 listen.
+
+## D-097 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+SP-5's pass bars as listed under Preconditions, and its ladder. Reversal: re-read the numbers.
+
+## D-098 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+the C0 cut as above (4 actions, one spliced edit kind, no mark, no analyze, no panel). Reversal: each is a later milestone already; moving one into C0 costs its milestone's share.
+
+## D-099 · 2026-10-06 · stage 4 (chat scope) · by: user
+CHAT is the start screen from C0 (the owner reversed the cut's proposal to wait for C6), when `LLM_API_URL` and `YUE_API_URL` are set; otherwise the app opens on the Library as today, so the golden-path e2e does not move. The Library stays one click away and gets OPEN CHAT on a song.
+- instead of: a TALK A SONG button in the Library until C6.
+
+## D-100 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+an `edit` turn runs the existing plan call inside the turn's queue slot (one hand-off); architecture may prefer two jobs.
+
+## D-101 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+when the join cannot be aligned the whole-song re-render is saved as the version and labelled; the alternative (save nothing, offer the render as a button) loses GPU minutes.
+
+## D-102 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+thread lifecycle follows the song: kept through trash and restore, deleted at permanent delete; a reference file is stored as a copy with the song (C3).
+
+## D-103 · 2026-10-06 · stage 4 (chat scope) · by: user
+The chat cut is signed off: preconditions (SP-5, the SP-4 listen, R-025, SP-6), C0..C8, F-040..F-081, with D-097, D-098 (in C0 only a REHARMONIZE plan is spliced; every other edit re-renders the whole song and says so until C4), D-099 (CHAT is the start screen from C0), D-100..D-102. Next: SP-5.
