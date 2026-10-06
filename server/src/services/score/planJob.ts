@@ -22,6 +22,7 @@ import { phraseBarsOf } from './phraseRequest.js';
 import { dropPlan, getPlan, noteRun, setPlan } from './planStore.js';
 import { referentLines, resolveReferent, staleMessage } from './planReferent.js';
 import { pendingLines, reviseRefusal } from './planRevise.js';
+import { renderMode } from './renderMode.js';
 import { reviseContract } from './reviseReply.js';
 import type { ApplyResult, ChatMessage, Op, PlanCause, PlannerReply, PlanPress, ScoreFacts, StaleReferent } from './planTypes.js';
 import { editedBars, withLimits } from './scoreLimits.js';
@@ -99,7 +100,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
         if (cut) throw new PlanError('check', cut);
         return reply;
       },
-      apply: async (ops) => withLimits(await deps.apply(base, ops), { ops, sections: facts.sections }),
+      apply: async (ops) => withLimits(await deps.apply(base, ops), { ops, sections: facts.sections, blocks: facts.lyric_blocks }),
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
     }, { phraseBars, read: revising?.read, retry: revising?.retry });
   } finally {
@@ -116,6 +117,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
     checks: { bars: editedBars(applied, facts), seconds: applied.seconds, tokens: applied.tokens, chordsPresent: applied.chords_present, changed: applied.changed },
     attempts: outcome.attempts, refusals: outcome.refusals, createdAt: Date.now(),
     referent, revision: pending ? (pending.revision ?? 1) + 1 : 1, since: revising?.since() ?? null,
+    renderMode: renderMode({ chordsPresent: read.chordsPresent, ops: outcome.ops }), // F-065: the render's cot
   });
   noteRun(songId, { jobId: job.id, request, reasons: [], planId, cause: null, revise: press.revise ?? null });
   job.progressText = undefined;
