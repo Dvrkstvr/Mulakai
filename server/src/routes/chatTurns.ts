@@ -11,7 +11,7 @@ import { abortJob, getJob } from '../services/jobRegistry.js';
 import { createDeps, createFromDraft, type CreateDeps } from '../services/chat/createFromDraft.js';
 import { appendMessage, listMessages, updateMessage } from '../services/chat/messageStore.js';
 import { threadById } from '../services/chat/threadStore.js';
-import { cancelTurn, startChatTurn, turnDeps, type TurnDeps } from '../services/chat/turnJob.js';
+import { cancelTurn, startChatTurn, turnDeps, turnOf, type TurnDeps } from '../services/chat/turnJob.js';
 
 export const TEXT_MAX = 4000;
 export const TURN_OPEN = 'the assistant is still answering in this chat: wait for it or CANCEL';
@@ -25,6 +25,8 @@ export interface TurnRouteDeps {
 const defaults: TurnRouteDeps = { turn: () => turnDeps(), create: () => createDeps(), llmConfigured: () => Boolean(config.llmUrl) };
 
 const live = (jobId: string | null) => ['queued', 'loading', 'running'].includes(jobId ? getJob(jobId)?.status ?? '' : '');
+/** A turn is open until its body has settled: a cancelled one still unloads, then writes its reply. */
+const turnOpen = (jobId: string | null) => live(jobId) || Boolean(jobId && turnOf(jobId));
 
 export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
   const router = Router();
@@ -39,7 +41,7 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
     const first = key ? messages.find((m) => m.role === 'user' && m.clientKey === key) : undefined;
     if (first) return res.json({ jobId: first.jobId, messageId: first.id, position: (first.jobId && queuePosition(first.jobId)) || 0 });
     if (!deps.llmConfigured()) return res.status(409).json({ error: NO_ASSISTANT, reason: NO_ASSISTANT });
-    if (messages.some((m) => m.role === 'user' && live(m.jobId))) return res.status(409).json({ error: TURN_OPEN, reason: TURN_OPEN });
+    if (messages.some((m) => m.role === 'user' && turnOpen(m.jobId))) return res.status(409).json({ error: TURN_OPEN, reason: TURN_OPEN });
     try {
       // One transaction: a refused queue leaves no message behind, so the resend with the same key is one turn.
       const started = db.transaction(() => {
