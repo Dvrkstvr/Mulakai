@@ -12,7 +12,7 @@ import shutil
 import time
 from pathlib import Path
 
-from fastapi import Depends, FastAPI, Header, HTTPException, UploadFile
+from fastapi import Depends, FastAPI, Form, Header, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 
 from jobs import IdempotencyConflict, QueueFull
@@ -46,7 +46,7 @@ def add_transcription_routes(app: FastAPI, settings, store, worker, authorize) -
         return {"status": "ready"}
 
     @app.post("/v1/transcriptions", status_code=202, dependencies=[Depends(authorize)])
-    async def submit(audio: UploadFile,
+    async def submit(audio: UploadFile, chords: bool = Form(False),
                      idempotency_key: str | None = Header(default=None, min_length=1, max_length=128),
                      x_admission_id: str | None = Header(default=None, max_length=128)):
         status, detail = availability()
@@ -60,7 +60,7 @@ def add_transcription_routes(app: FastAPI, settings, store, worker, authorize) -
         _sweep(uploads, store.retention_seconds)
         if not path.is_file():
             path.write_bytes(data)
-        request = {"source": str(path), "filename": audio.filename or "audio", "sha256": digest}
+        request = {"source": str(path), "filename": audio.filename or "audio", "sha256": digest, "chords": chords}
         try:
             job, created = store.submit(request, admission_id=x_admission_id,
                                         idempotency_key=idempotency_key, kind="transcription")

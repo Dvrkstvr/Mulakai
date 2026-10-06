@@ -1,0 +1,164 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CHAT REFERENCE - DT-C3 decision mockup</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--li:#7B4B94;--lt:#A97FC1;--ln:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:26px 0 12px}
+li{max-width:1100px}.hn,.mo{font-family:ui-monospace,monospace}.hn{font-size:10px;letter-spacing:1px;color:var(--w)}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.nt{margin:6px 0 0;font-size:12px;color:var(--m);max-width:760px}
+.fr{--z:.62;width:847px;height:476px;overflow:hidden;border:1px solid var(--h);cursor:zoom-in}.fr.big{width:1368px;height:770px;cursor:zoom-out}.fr.big .sc{transform:none}
+.sc{width:1366px;height:768px;background:var(--c);transform:scale(var(--z));transform-origin:0 0;position:relative;overflow:hidden;font-size:12px}
+.sh{width:760px;display:flex;flex-direction:column;gap:10px}
+.hdr{height:40px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--l);background:var(--p);font-size:10px;letter-spacing:2px;color:var(--m)}.hdr b{color:var(--t);margin-right:auto}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}.p>span{display:inline-block;transform:skewX(10deg)}
+.t1{border:1px solid var(--l);color:var(--m);padding:6px 14px;font-size:11px}.t1.on{border-color:var(--a);color:var(--a)}
+.ac,.q,.ab{font-size:11px;padding:11px 22px;border:1px solid}.ac{background:var(--a);border-color:var(--a);color:var(--c)}.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}.ab{color:var(--lt);border-color:var(--li);background:var(--ln);padding:6px 12px;font-size:10px}.ab.on{background:var(--li);color:var(--t)}.off{opacity:.4}
+.ttl{height:49px;display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:1px solid var(--l)}.ttl h3{margin:0;font-size:20px;letter-spacing:3px}
+.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.bd{position:absolute;top:89px;bottom:0;left:0;right:0;display:flex}.mn{flex:1;position:relative;min-width:0}
+.th{position:absolute;top:0;bottom:104px;left:0;right:0;overflow:hidden;padding:14px 0;display:flex;flex-direction:column;gap:12px;align-items:center}.th>*{width:760px;flex:none}.th.pt{top:48px}
+.um{margin-left:auto;max-width:560px;background:var(--r);padding:9px 12px}.am{color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}.am b{color:var(--t);font-weight:400}
+.cp{position:absolute;bottom:0;left:0;right:0;height:104px;border-top:1px solid var(--l);background:var(--p);padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:8px}.cr{display:flex;gap:12px;align-items:center;width:760px}.cr .in{flex:1}
+.in{border:1px solid var(--h);background:var(--c);padding:9px 11px;color:var(--w)}.snd{padding:9px 14px;border:1px solid var(--a);color:var(--a);font-weight:700;font-size:11px;letter-spacing:.1em}
+.chip{display:flex;gap:10px;align-items:center;border:1px solid var(--h);background:var(--r);padding:5px 10px;width:760px}.chip .x{margin-left:auto;color:var(--m)}.bar{height:3px;background:var(--l);width:90px}.bar i{display:block;height:3px;width:42%;background:var(--m)}
+.sb{width:360px;flex:none;border-left:1px solid var(--l);background:var(--p);overflow:hidden}.sbh{display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--l)}
+.fd{display:grid;grid-template-columns:78px 1fr;gap:8px;padding:6px 14px;border-bottom:1px solid var(--l);align-items:center}.fk{font:700 10px ui-monospace,monospace;letter-spacing:1px;color:var(--w)}
+.fa{background:var(--sk);box-shadow:inset 3px 0 var(--s)}.fa.pl{background:none;box-shadow:none}.tg{font:9px ui-monospace,monospace;letter-spacing:1px;color:var(--s);margin-left:6px}.tg.n{color:var(--m);border:1px solid var(--h);padding:0 4px}
+.cd{border:1px solid var(--h);background:var(--p)}.cd.dn{border-color:var(--l);opacity:.55}.cd>.hd{display:flex;gap:10px;padding:8px 14px;border-bottom:1px solid var(--l)}
+.bdy{padding:10px 14px;display:flex;flex-direction:column;gap:6px}.bdy b.n{font-size:15px;font-weight:400;letter-spacing:1px}
+.ib{display:inline-block;border:1px solid var(--h);background:var(--c);padding:3px 9px;margin:0 6px 3px 0}
+.ly2{font:11px/1.45 ui-monospace,monospace;color:var(--m);border:1px solid var(--l);padding:6px 9px}
+.sg{display:flex;gap:3px}.sg i{font:9px ui-monospace,monospace;color:var(--m);background:var(--r);padding:4px 0;text-align:center;overflow:hidden;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}.cs{flex:1;font-size:11px;color:var(--m)}.cs b,.k{color:var(--t);font-weight:400}
+.er,.wn{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.er div,.wn div{flex:1}.er b,.wn b{color:var(--rt)}
+.j{padding:7px 10px;border:1px solid var(--h);font-size:10px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}.j.d{border-style:dashed;color:var(--m)}.j em{font-style:normal;letter-spacing:0;color:var(--m)}
+.stp{display:flex;gap:3px}.stp i{flex:1;font:10px ui-monospace,monospace;letter-spacing:1px;padding:5px 8px;background:var(--r);color:var(--w);clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}.stp i.dn{color:var(--m)}.stp i.on{background:var(--h);color:var(--t)}
+.dz{position:absolute;inset:8px;border:2px dashed var(--s);background:rgba(21,53,67,.55);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;z-index:3}
+.mu{position:absolute;bottom:92px;left:calc(50% - 380px);width:420px;border:1px solid var(--h);background:var(--p);z-index:4}.mu .it{padding:7px 14px;border-bottom:1px solid var(--l);display:flex;gap:10px;align-items:center}.mu .it.s{background:var(--st);box-shadow:inset 3px 0 var(--s)}
+.pl{position:absolute;top:0;left:0;right:0;background:var(--p);border-bottom:1px solid var(--l);padding:8px 24px;display:flex;gap:12px;align-items:center}.hx{width:34px;height:30px;background:var(--a);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);color:var(--c);font-weight:700;display:flex;align-items:center;justify-content:center}
+.wv{height:26px;flex:1;background:repeating-linear-gradient(90deg,var(--li) 0 2px,transparent 2px 4px);position:relative}.wv:after{content:"";position:absolute;left:38%;top:-3px;bottom:-3px;width:2px;background:var(--s)}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:9px 0}.opt{width:392px;border:1px solid var(--l)}.opt.rec{border-color:var(--a)}</style></head><body>
+<h1>CHAT REFERENCE · drop a song, read it, cover it or borrow from it</h1>
+<div class="hn">stage 5 · DT-C3 · F-061..F-065 · tokens: DESIGN.md, none added · frames 1366×768 (click to zoom), sheets 1:1</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li>How a song reaches the chat, what the chip, READ card and reading card say in each state, and how a reading becomes a <b>cover</b> or a <b>borrowed-fields</b> card without typing again (D-128, D-129); where the rights line sits (D-134); where the reference lives afterwards.</li>
+<li>One hue per job: <b>acid</b> only on READ and CREATE COVER / CREATE SONG; <b>sky</b> the drop target, picked row, field just filled; <b>lilac</b> the A/B pill (as DESIGN.md); <b>rust</b> a failure or part not read. Zero radius.</li>
+<li>Evidence: flow <i>seen in</i> architecture.md; layout and copy <i>inferred</i>; every duration is an example (Q-099).</li>
+</ul>
+
+<h2>1 · ATTACHING</h2><div class="g" id="s1"></div>
+<h2>2 · THE CARDS · every state, 1:1</h2><div class="g" id="s2"></div>
+<h2>3 · THE PROPOSAL · cover vs a new song that borrows</h2><div class="g" id="s3"></div>
+<h2>3b · OPTIONS · how a borrowed field is marked (the one real choice)</h2><div class="g" id="s3b"></div>
+<h2>4 · AFTERWARDS · the song panel, RE-ANALYZE, A/B</h2><div class="g" id="s4"></div>
+<h2>5 · REFUSALS AND FAILURES</h2><div class="g" id="s5"></div>
+
+<h2>DECISIONS (RF-n provisional; the owner signs off, the conductor records D-ids)</h2><div id="dec"></div>
+
+<h2>OPEN QUESTIONS (also in open-questions.md as Q-097..Q-100)</h2>
+<ul>
+<li><b>Q-097</b> assumable, default option B: borrowed fields keep a neutral REFERENCE tag after the sky wash clears (RF-5).</li>
+<li><b>Q-098</b> assumable: one chip at a time; a second attach replaces it.</li>
+<li><b>Q-099</b> assumable: READ says "about N s" only from calibrated constants; until CP-C3 it says "a few minutes".</li>
+<li><b>Q-100</b> deferred: same-seconds A/B is exact for a cover, loose for a borrowed song; the pill says "same seconds" on both.</li>
+<li><b>Blocking: none.</b> Q-091/Q-092 are drawn as assumed (3a, 2f); Q-093 is 5a; Q-096 is 2h.</li>
+</ul>
+
+<h2>CHECK ON A REAL DEVICE (desktop, 1366×768)</h2>
+<ul>
+<li>Drop zone covers only the thread column; an Explorer drag lights it.</li>
+<li>ATTACH ▾ with 8+ songs scrolls inside 420 px; a cover card with 9 sections keeps its commit row above the composer.</li>
+<li>Rust warn lines vs failure boxes read as different severities; sky and lilac never read as acid.</li>
+</ul>
+
+<script>
+const $=i=>document.getElementById(i);
+const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
+const FR=i=>`<div class="fr" onclick="this.classList.toggle('big')"><div class="sc"><div class="hdr"><b>MULAKAI</b>MODELS READY</div>${i}</div></div>`;
+const O=(h,f,n)=>`<div class="o"><h4>${h}</h4>${f}${n?`<div class="nt">${n}</div>`:""}</div>`;
+const SH=h=>`<div class="sh">${h}</div>`;
+const TTL=(t,x)=>`<div class="ttl"><h3>${t||"NEW SONG"}</h3>${P("t1 on","CHAT")+P("t1","FORM")}<span class="hn">${x||"DRAFT · NOT A SONG YET · LANDS IN LIBRARY"}</span></div>`;
+const um=t=>`<div class="um">${t}</div>`,am=t=>`<div class="am">${t}</div>`;
+const RIGHTS="Stays on this machine. You are responsible for the rights to this recording.";
+const head=(t,x)=>`<div class="hd"><span class="lb">${t}</span><span class="hn">${x||""}</span></div>`;
+const cm=(t,b)=>`<div class="cm"><span class="cs">${t}</span>${b}</div>`;
+const CH=(n,s,st)=>`<div class="chip">${st=="u"?'<span class="hn">UPLOADING</span>':""}<b style="font-weight:400">${n}</b><span class="hn" style="${st=="f"?"color:var(--rt)":""}">${s}</span>${st=="u"?'<span class="bar"><i></i></span><span class="hn">42%</span>':""}<span class="x">${st=="f"?"RETRY &nbsp; ":""}✕</span></div>`;
+const COMP=o=>{o=o||{};return `<div class="cp"><div class="cr">${P("q"+(o.off?" off":""),"ATTACH ▾")}<div class="in">${o.ph||"Describe a song, or attach one to work from…"}</div><div class="snd">SEND ↵</div></div></div>`};
+const MN=(th,o,x)=>`<div class="mn"><div class="th">${th}</div>${COMP(o)}${x||""}</div>`;
+const STR=k=>`<div class="sg">${["INTRO","VERSE","CHORUS","VERSE","CHORUS","BRIDGE","CHORUS","OUTRO"].map((s,i)=>`<i style="flex:${[3,6,6,6,6,4,6,3][i]}">${s}</i>`).join("")}</div>`;
+const SBH=t=>`<div class="sbh"><span class="lb">${t}</span><span class="hn">HIDE ▸</span></div>`;
+const FD=(k,v,m,c)=>`<div class="fd ${c||""}"><div class="fk">${k}</div><div>${v}${m||""}</div></div>`;
+const TA='<em class="tg">ASSISTANT</em>',TR='<em class="tg n">REFERENCE</em>',TL='<em class="tg n">▣ FROM THE SCORE</em>';
+const LYS=a=>`<div class="ly2" style="height:50px">[Verse 1]<br>${a}<br><span class="hn">▸ 38 lines</span></div>`;
+const SB0=`<div class="sb">${SBH("FORM · THE DRAFT")}${FD("TITLE",'<span class="hn">empty</span>')}${FD("STYLE",'<span class="hn">empty</span>')}${FD("LYRICS",'<span class="hn">empty</span>')}</div>`;
+
+/* 1 */
+const dz=`<div class="dz"><b style="font-size:16px;letter-spacing:3px">DROP A SONG TO WORK FROM</b><span class="hn">MP3 · WAV · FLAC · M4A · OGG · copied here, stays on this machine</span></div>`;
+const LIB=[["Luz sobre el mar","3:12 · YUE2","own score and words, no GPU"],["Long Way Down","4:00 · ACE-STEP","score transcribed, about 2 min",1]];
+const MENU=`<div class="mu"><div class="it"><b>FILE…</b><span class="hn">an audio file from this computer</span></div><div class="it"><b>FROM LIBRARY…</b><span class="hn">a song you made</span></div><div class="it"><div class="in" style="flex:1;padding:4px 9px">Search your library…</div></div>${LIB.map(l=>`<div class="it ${l[3]?"s":""}"><span style="flex:1">${l[0]}<br><span class="hn">${l[1]}</span></span><span class="hn">${l[2]}</span></div>`).join("")}</div>`;
+$("s1").innerHTML=
+O("<b>1a · DRAG OVER</b>",FR(TTL()+`<div class="bd">${MN(um("like this, but in German"),{},dz)}${SB0}</div>`),"Sky dashed edge: where the file lands. Dropping uploads at once; a bad file fails on the chip (1c).")+
+O("<b>1b · ATTACH ▾</b> FILE… and FROM LIBRARY…",FR(TTL()+`<div class="bd">${MN(um("like this, but in German")+am("Nothing to read yet. Attach the song with <b>ATTACH ▾</b>, or drop a file, and ask again."),{},MENU)}${SB0}</div>`),"Each row says what READ will do, before the click (D-137).")+
+O("<b>1c · THE CHIP</b> and the sent message",SH(CH("slow_dance_demo.mp3","3:12 · 7.4 MB","u")+CH("Long Way Down","from library · 4:00 · attached")+CH("notes.txt","not audio: no length could be read","f")),"Uploading, attached, failed (nothing stored). After SEND the chip empties and the message keeps a ◉ mark.");
+
+/* 2 */
+const RB=`<div class="hn">${RIGHTS}</div>`;
+const W=(a,b,c)=>`Will read: <b class="k">WORDS</b> ${a} › <b class="k">SCORE</b> ${b} › <b class="k">CAPTION</b> ${c}`;
+const AN=(nm,wh,cs,x,dn)=>`<div class="cd ${dn?"dn":""}">${head("READ · A SONG TO WORK FROM",x||"nothing is saved to your library")}<div class="bdy"><b class="n">${nm}</b><span style="color:var(--m)">${wh}</span>${RB}</div>${cm(cs,dn?'<span class="hn">NO LONGER ACTIVE</span>':P("ac","READ"))}</div>`;
+const CS1=`Uses the GPU about <b>2 min</b>, changes <b>nothing</b> in your library`;
+const RD=(l,k)=>`<div class="cd">${head("READING · slow_dance_demo.mp3",k)}<div class="bdy">${l}</div></div>`;
+const STP=(a,b,c)=>`<div class="stp"><i class="${a}">WORDS</i><i class="${b}">SCORE</i><i class="${c}">CAPTION</i></div>`;
+const wd='<div><span class="lb">WORDS</span> &nbsp; 38 lines · German · sung</div>';
+const sc='<div><span class="lb">SCORE</span> &nbsp; 66 bars · 4/4 · A MINOR · 92 BPM · chords ';
+const cv=t=>`<div style="color:var(--m)">Cover: <b class="k">${t}</b></div>`;
+const DONE=STP("dn","dn","dn")+wd+sc+'read</div>'+STR()+'<div><span class="lb">CAPTION</span> &nbsp; slow pop ballad, warm female voice, nylon guitar</div>'+cv("possible")+RB;
+$("s2").innerHTML=
+O("<b>2a · READ card</b> upload · YuE2 song · 360 s cut",SH(AN("slow_dance_demo.mp3 · 3:12 · uploaded",W("(lyrics-server)","(melody, chords)","(ACE-Step)"),CS1)+AN("Luz sobre el mar · 3:12 · library","Reads its own score, words and caption","<b>No GPU</b> · a few seconds · changes nothing")+AN("live_take.wav · 7:41 · uploaded","Reads the <b class='k'>first 6:00</b>; the whole file stays for A/B (D-138)",CS1.replace("2","3"))),"READ is the one acid fill. A library song with 3 layers says \"reads the BASE layer only\" (D-137).")+
+O("<b>2b · superseded</b> (expired: same, \"from before a restart\")",SH(AN("slow_dance_demo.mp3 · 3:12","A newer READ card is below.","","REPLACED BY A NEWER READ",1)),"A card the server no longer holds loses its button.")+
+O("<b>2c · QUEUED · READING step 2 of 3</b>",SH(RD(`<div class="j d"><span>QUEUED · STARTS AFTER 1 JOB</span>${P("q","CANCEL")}</div>`)+RD(STP("dn","on","")+`<div class="j"><span>STEP 2 OF 3 · SCORE · transcribing <em>41%</em></span>${P("q","CANCEL")}</div>`+wd)),"Plain lines, no shader (reading is not generation). CANCEL works between steps.")+
+O("<b>2d · DONE</b>, then PROPOSING…",SH(RD(DONE)+`<div class="j"><span>PROPOSING… <em>· uses the GPU ~10 s · nothing runs yet</em></span>${P("q","CANCEL")}</div>`),"The proposal arrives below (section 3); SEND is off until it lands (D-129).")+
+O("<b>2e · PARTIAL</b>",SH(RD(STP("dn","dn","dn")+wd+sc+'not read</div>'+'<div class="wn"><div><b>CAPTION NOT READ</b> · ACE-Step is not running. Tempo and key come from the score.</div></div>'+cv("possible")+RB)),"A failed part names its cause in a rust warn line, never an empty row.")+
+O("<b>2f · INSTRUMENTAL · COVER NOT POSSIBLE</b>",SH(RD(STP("dn","dn","dn")+'<div><span class="lb">WORDS</span> &nbsp; none heard · <b class="k">instrumental</b></div>'+cv("possible · an instrumental cover, no words to write"))+RD(sc.replace("66","140")+'read</div><div class="wn"><div><b>COVER NOT POSSIBLE</b> · the score is longer than YuE2 plans in one take (9 of 6 sections). A new song borrowing its tempo, key and structure is offered instead.</div></div>')),"Q-096: no section picking in the chat; the reason is said, the borrow follows.")+
+O("<b>2g · FAILED · CANCELLED</b>",SH(`<div class="er"><div><b>COULDN'T READ THIS FILE</b> · no notes found in it. Nothing is saved.</div>${P("q","READ AGAIN")}</div><div class="hn">CANCELLED at step 2 of 3 · nothing saved · the file stays attached</div>`));
+
+/* 3 */
+const SRC=`<div class="hn">${RIGHTS}</div>`;
+const COVER=`<div class="cd">${head("PROPOSAL · COVER","nothing runs yet")}<div class="bdy"><b class="n">Die Tür steht offen</b><span style="color:var(--m)">slow pop ballad, warm female voice, nylon guitar</span><div class="hn">92 BPM · A MINOR · 4/4 · 66 BARS · 8 SECTIONS · 38 LINES · GERMAN · YUE2</div>${SRC}</div>${cm("Keeps the <b>melody</b>, new words and style · renders on YuE2 from the transcribed score, about <b>4 min</b> · the words are fitted by YuE2, <b>not guaranteed</b> · lands in Library",P("ac","CREATE COVER"))}</div>`;
+const LINE=t=>`<div class="cd" style="border-color:var(--l)"><div class="bdy" style="padding:6px 14px"><span class="hn">${t}</span></div></div>`;
+const CHG=n=>`<div class="hn" style="margin-top:4px"><span style="color:var(--s)">CHANGED · ${n} FIELDS</span> &nbsp; <u>UNDO TURN</u></div>`;
+const FDC=FD("TITLE",'<span class="ib">Die Tür steht offen</span>',TA,"fa")+FD("STYLE",'<span class="ib">slow pop ballad, warm female voice</span>',TA,"fa")+FD("TEMPO·KEY",'<span class="ib">92 BPM</span><span class="ib">A MINOR</span><span class="ib">4/4</span>',TL)+FD("SECTIONS",STR(),TL)+FD("LYRICS",LYS("Die Tür steht offen, und du gehst,"),TA,"fa");
+const BF=FD("TITLE",'<span class="ib">Salt Road</span>',TA,"fa")+FD("STYLE",'<span class="ib">slow pop ballad, strings</span>',TA,"fa")+FD("TEMPO·KEY",'<span class="ib">92 BPM</span><span class="ib" style="border-style:dashed;color:var(--w)">KEY · AUTO</span><span class="ib">4/4</span>',TR,"fa")+FD("SECTIONS",STR(),TR,"fa");
+const BC=`<div class="cd">${head("PROPOSAL · NEW SONG","borrows from the reference")}<div class="bdy"><b class="n">Salt Road</b><div class="hn">92 BPM · KEY AUTO · 4/4 · 8 SECTIONS · 24 LINES · ENGLISH · YUE2</div><div class="wn"><div><b>NO KEY FOUND</b> in the reference · the planner picks one</div></div></div>${cm("Renders a <b>new song</b> on YuE2, about 3 min · tempo and structure from the reference, <b>words and melody are new</b> · lands in Library",P("ac","CREATE SONG"))}</div>`;
+$("s3").innerHTML=
+O("<b>3a · COVER</b> · same melody, new words (Q-091 assumed, said in the reply)",FR(TTL("DIE TÜR STEHT OFFEN")+`<div class="bd">${MN(um("like this, but in German")+LINE("READING · slow_dance_demo.mp3 · DONE")+am("Assuming <b>a cover</b>: the same melody and chords with German words. Say <b>a new song</b> if you only want its feel."+CHG(9))+COVER,{ph:"Say what to change, or ask for a new song instead…"})}<div class="sb">${SBH("FORM · THE DRAFT")}${FDC}</div></div>`),"The consequence line names melody kept, engine, time and the YuE2 caveat before the press (F-063). A hand edit of a locked field changes nothing and says why.")+
+O("<b>3b · BORROW</b> · a song like this, key missing",FR(TTL("SALT ROAD")+`<div class="bd">${MN(um("a song like this about a long drive")+LINE("READING · slow_dance_demo.mp3 · DONE")+am("A <b>new song</b> in its spirit: I borrowed <b>92 BPM, 4/4 and the 8-section structure</b>. <b>No key was found</b>, so KEY stays AUTO."+CHG(7))+BC,{ph:"Say what to change…"})}<div class="sb">${SBH("FORM · THE DRAFT")}${BF}</div></div>`),"CREATE SONG is today's button and path; only the fields differ. A missing value stays blank with its note, the model never fills it (F-064). A non-coverable reading (2f) lands here too.");
+
+/* 3b options */
+const OPT=(h,rec,r,n)=>`<div class="o"><h4>${h}</h4><div class="opt ${rec?"rec":""}">${r}</div><div class="nt" style="width:392px">${n}</div></div>`;
+const T=(c,t)=>FD("TEMPO",'<span class="ib">92 BPM</span>',t,c);
+$("s3b").innerHTML=
+OPT("<b>B</b> · sky wash, then a neutral REFERENCE tag (recommended)",1,T("fa",TA+TR)+T("fa pl",TR),"Wash is CH-4; the persistent tag is a text-mid hairline chip, no hue. Cost: one more tag per row and a clear-on-edit rule (the field becomes the person's).")+
+`<div class="nt" style="width:392px"><b>A</b> · sky and ASSISTANT only: the tag vanishes with the wash, so nothing says where the tempo came from. <b>C</b> · lilac wash: rejected, lilac means what the AI made before; a reference is a source.</div>`;
+
+/* 4 */
+const RP=st=>`<div class="fd" style="grid-template-columns:1fr;gap:4px"><div class="lb">REFERENCE</div><b style="font-weight:400">slow_dance_demo.mp3</b><div class="hn">3:12 · read 7 Oct 2026 · upload</div><div class="hn">${RIGHTS}</div><div style="display:flex;gap:8px;margin-top:4px">${P("q","RE-ANALYZE")}${P("ab","A/B")}</div><div class="hn">RE-ANALYZE reads it again with today's models · uses the GPU about 2 min · changes nothing in the song</div></div>`;
+const PLY=`<div class="pl"><span class="hx">▶</span><b style="font-weight:400">Die Tür steht offen · v1</b><span class="hn mo">1:12 / 3:12</span><div class="wv"></div>${P("ab","SONG")}${P("ab on","◂ REFERENCE")}<span class="hn">LISTENING · REFERENCE · SAME SECONDS</span></div>`;
+const T4=um("make it a little slower")+am("Not in this version of chat: to edit this song use <b>SCORE in the Editor</b>; it works on a cover now.");
+$("s4").innerHTML=
+O("<b>4a · SONG PANEL and A/B</b> · listening to the reference",FR(TTL("DIE TÜR STEHT OFFEN","v1 · 3:12 · THREAD 3")+`<div class="bd"><div class="mn"><div class="th pt">${T4}</div>${PLY}${COMP({ph:"Say what to change…",off:1})}</div><div class="sb">${SBH("SONG · DIE TÜR STEHT OFFEN")}${FD("VERSIONS",'<span class="ib" style="border-color:var(--li);color:var(--lt)">v1 ●</span>')}${RP("")}</div></div>`),"The pill swaps source at the same second and keeps play state; the filled segment is what plays. ATTACH ▾ is greyed on a song thread (D-130, 5a). RE-ANALYZE shows the same reading line as 2c and appends a reading card, no proposal (D-129); a swept file says FILE MISSING in rust and turns both buttons off.");
+
+/* 5 */
+$("s5").innerHTML=
+O("<b>5a · ATTACH ON A SONG THREAD</b> (D-130)",SH(um("here is another song to match")+am("References attach to a <b>new song</b>. To use this one as a source, start <b>NEW CHAT</b> and attach it there. This song's own reference is in the sidebar.")),"A plain line, not an error.")+
+O("<b>5b · READ or CREATE COVER REFUSED</b>",SH(`<div class="er"><div><b>THE GPU IS BUSY</b> · the assistant is unloading. Try again in a few seconds. Nothing started.</div>${P("q","TRY AGAIN")}</div>`),"One gpuGuard answers READ, CREATE COVER and CREATE SONG; the button stays. A turn still open says so (D-129).")+
+O("<b>5c · A SERVICE IS OFF</b>",SH(`<div class="wn"><div><b>SCORE NOT READ</b> · yue-server is not answering. No cover without a score; a borrowed song still works.</div>${P("q","READ AGAIN")}</div>`),"Each missing part names its cause. A failed follow-up keeps the reading: NO ANSWER IN 3 ATTEMPTS · PROPOSE AGAIN, no re-read.");
+
+const D=[["RF-1 · a file arrives by drop (sky dashed target), ATTACH ▾ FILE… or FROM LIBRARY…; one chip above the composer.","a modal picker. <i>Cost:</i> a menu with its own list."],
+["RF-2 · READ is its own card (the only acid fill); progress is a plain line plus a WORDS › SCORE › CAPTION strip, no shader.","reading on attach (an unasked GPU job). <i>Cost:</i> one extra press."],
+["RF-3 · a failed part is a rust warn line with its cause, a failed file a rust box with READ AGAIN; refusals are plain assistant lines.","toasts. <i>Cost:</i> per-part state on the card."],
+["RF-4 · a cover card is the recipe card with CREATE COVER and locked FROM THE SCORE fields; the model never fills a missing value.","editable tempo on a cover. <i>Cost:</i> a refused-edit reason line."],
+["RF-5 · borrowed fields: sky wash when just filled, then a neutral REFERENCE tag until edited (option B).","A or C above. <i>Cost:</i> a clear-on-edit rule."],
+["RF-6 · the reference lives in the song panel (RE-ANALYZE, A/B); the player's pill swaps REFERENCE ⇄ SONG at the same seconds.","a reference page. <i>Cost:</i> one control in the player row."]];
+$("dec").innerHTML=D.map(d=>`<div class="dc"><b>${d[0]}</b> <i>Beat:</i> ${d[1]}</div>`).join("");
+</script></body></html>

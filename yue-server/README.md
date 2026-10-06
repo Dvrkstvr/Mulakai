@@ -223,17 +223,26 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   replay as `/v1/jobs`. A record has `kind: "transcription"`, where a
   song's has `kind: "song"`, and has no `seed`, `tokens` or `request_id`.
   Each route family 404s the other kind's ids.
-  - `POST /v1/transcriptions` takes a multipart `audio` field. It returns
-    **202** with the record and `Location`. 400 for empty audio, 413 over
-    `YUE_MAX_UPLOAD_MB`, 503 when transcription isn't available.
+  - `POST /v1/transcriptions` takes a multipart `audio` field and an
+    optional `chords` form field (`true`/`false`, default `false`; anything
+    else is 422). It returns **202** with the record and `Location`. 400 for
+    empty audio, 413 over `YUE_MAX_UPLOAD_MB`, 503 when transcription isn't
+    available. A replayed `Idempotency-Key` with another `chords` is 409.
+    - Default (Guided Create's COVER): `infer.py --melody-only
+      --render-audio`, a melody-only score with a piano preview.
+    - `chords: true` (a chat reading, D-131): neither flag, so SheetSage2
+      writes its chord labels as chord symbols in the `Vocal` voice and
+      renders no preview (`preview_url` null, no warning). A song where
+      SheetSage2 hears no chord gets none.
   - `GET /v1/transcriptions/{id}`: the record. `stage` is `transcribing`,
     and `progress` is the fraction of SheetSage2's windows.
   - `POST /v1/transcriptions/{id}/cancel` kills the SheetSage2 process.
-  - `GET /v1/transcriptions/{id}/score`: the melody-only score, in both
-    voices with no chords, as `text/plain`.
+  - `GET /v1/transcriptions/{id}/score`: the score in both voices, as
+    `text/plain`; chord symbols only when `chords` was true.
   - `GET /v1/transcriptions/{id}/preview`: SheetSage2's piano rendering of
-    it, as `audio/wav`. 404 when the render failed.
-  - `result` on success has `score_url`, `preview_url` (or null),
+    it, as `audio/wav`. 404 when the render failed or `chords` was true.
+  - `result` on success has `score_url`, `chords` (as requested),
+    `preview_url` (or null),
     `warnings` (SheetSage2's own, plus a render failure), `measures`,
     `vocal_notes`, `instrumental_notes`, `duration_seconds`,
     `section_starts` and `timing`.

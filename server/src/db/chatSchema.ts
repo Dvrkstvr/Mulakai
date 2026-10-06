@@ -4,6 +4,8 @@
  * rewrite; later columns go through ensureColumn. Lifecycle (D-102): trash keeps a thread,
  * permanently deleting the song cascades to its thread and messages; a deleted version leaves
  * its card with version_id NULL. Exactly one draft thread (song_id NULL), by the partial index.
+ * C3 (D-127, docs/decisions/0008): `chat_references` hang off a thread; their files under
+ * audioDir/references are removed by referenceStore.sweepFiles (orphans by id), not by a trigger.
  */
 export const CHAT_SCHEMA = `
 CREATE TABLE IF NOT EXISTS chat_threads (
@@ -31,4 +33,20 @@ CREATE TABLE IF NOT EXISTS chat_messages (
   UNIQUE (thread_id, seq), UNIQUE (thread_id, client_key)
 );
 CREATE INDEX IF NOT EXISTS idx_chat_messages_thread ON chat_messages(thread_id, seq);
+
+CREATE TABLE IF NOT EXISTS chat_references (
+  id             TEXT PRIMARY KEY,
+  thread_id      TEXT NOT NULL REFERENCES chat_threads(id) ON DELETE CASCADE,
+  origin         TEXT NOT NULL,                                  -- upload | library
+  name           TEXT NOT NULL,                                  -- the file's name or the library title
+  source_song_id TEXT REFERENCES songs(id) ON DELETE SET NULL,   -- a library pick; the copy stays when that song goes
+  file           TEXT NOT NULL,                                  -- 'references/<id>.<ext>' under audioDir, a copy
+  bytes          INTEGER NOT NULL,
+  sha256         TEXT NOT NULL,
+  seconds        REAL,                                           -- probed length of the whole file
+  own_json       TEXT,                                           -- library pick: the song's own data, own_v
+  reading_json   TEXT,                                           -- the latest Reading, reading_v
+  created_at     TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_chat_references_thread ON chat_references(thread_id);
 `;

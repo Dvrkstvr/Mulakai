@@ -1,7 +1,8 @@
 /**
  * The chat's threads and draft (F-041, F-043; architecture.md "Chat (C0)", wire shapes in
  * client/src/api/chat.ts): status, the draft thread, NEW CHAT, a thread, a song's thread, and the
- * sidebar's hand edits with a rev check (a stale rev is 409 `{ok: false, current}`).
+ * sidebar's hand edits with a rev check (a stale rev is 409 `{ok: false, current}`). C3: the view
+ * lists the thread's references; NEW CHAT's dropped references lose their files (sweepFiles).
  */
 import { Router } from 'express';
 import { db } from '../db/index.js';
@@ -15,6 +16,7 @@ import { listMessages } from '../services/chat/messageStore.js';
 import { messageViews, wireDraft, type JobView } from '../services/chat/messageView.js';
 import { dropProposals, proposalLife } from '../services/chat/proposalStore.js';
 import { createBlockers } from '../services/chat/recipeRules.js';
+import { listReferences, sweepFiles, toView } from '../services/chat/referenceStore.js';
 import { draftThread, resetDraftThread, songThread, threadById, writeDraft } from '../services/chat/threadStore.js';
 import type { ChatThread } from '../services/chat/chatTypes.js';
 
@@ -40,6 +42,7 @@ export function threadView(thread: ChatThread, yueConfigured: boolean) {
     id: thread.id, songId: thread.songId, draft: wireDraft(thread.draft), draftNote: thread.draftNote,
     blockers: createBlockers(thread.draft.fields, { yueConfigured }),
     messages: messageViews(listMessages(thread.id), { job: jobView, proposal: proposalLife }),
+    references: listReferences(thread.id).map(toView),
   };
 }
 
@@ -55,7 +58,9 @@ export function makeChatRouter(deps: ChatRouteDeps = defaults): Router {
     const old = draftThread();
     if (threadBusy(old.id)) return res.status(409).json({ reason: 'the assistant or CREATE SONG is still working in this chat: CANCEL it first' });
     dropProposals(old.id);
-    res.json(view(resetDraftThread()));
+    const fresh = resetDraftThread(); // its references cascade; their files go with the sweep
+    void sweepFiles().catch((err) => console.error('Reference file sweep failed:', err));
+    res.json(view(fresh));
   });
 
   router.get('/threads/:id', (req, res) => {
