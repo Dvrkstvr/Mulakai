@@ -401,3 +401,7 @@ Two ways in, over one shared draft (the user, on seeing design/chat-create.html:
 2. **Form-first**: today's Guided Create form is the main surface; the chat is a side assistant that helps and fills in the form's fields.
 Both write the same draft, so switching keeps everything; CREATE SONG / GENERATE commits from either. Assumed (conductor): chat-first is the start screen (D-079); the same pairing for editing an existing song (the conversation beside the Editor's dock) is the next question, Q-055.
 - instead of: A (chat with a FORM tab), B (chat only), C (form inside the chat).
+
+## D-087 · 2026-10-06 · stage 5 (chat mockup) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-create.html (CH-1..CH-10) is the layout spec for D-086 on these defaults: CREATE SONG and its consequence line live on the proposal card only (CH-2); sidebar 360 px, open on first use then remembered, a 38 px rail when collapsed (CH-3); "just filled" = sky wash + ASSISTANT tag + the old value struck, cleared on the next message or a hand edit (CH-4); UNDO TURN (CH-5); fields stay editable during a turn and the assistant skips touched fields (CH-6, Q-057); the form-first assistant panel is 300 px and never commits (CH-7); the fallbacks of Q-058 (CH-8); editing mirrors creating (CH-9, Q-055 default); Library CREATE opens the remembered mode (CH-10, Q-056).
+- instead of: commit on the sidebar foot or in both places; locking fields during a turn; expanding the sidebar in place when the assistant is off.

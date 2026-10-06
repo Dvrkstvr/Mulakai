@@ -1,154 +1,159 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CHAT vs Guided Create - decision mockup</title>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CHAT and FORM, two ways in - decision mockup</title>
 <style>
-:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--g:#55555C;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--li:#7B4B94;--lt:#A97FC1;--lw:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
 *{box-sizing:border-box;border-radius:0}
 body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
 h1{font-size:20px;letter-spacing:3px;margin:0}
-h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:30px 0 12px}
-p,li{max-width:1100px}code,.rd,.mo{font-family:ui-monospace,monospace}.rd{font-size:10px;color:var(--w)}
-.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}
-.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.rec>h4:after{content:" · RECOMMENDED";color:var(--a)}
+h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:28px 0 12px}
+p,li{max-width:1100px}code,.rd,.hn{font-family:ui-monospace,monospace}.rd{font-size:10px}.dg{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.nt{width:794px;margin:6px 0 0;font-size:12px;color:var(--m)}.as>h4:after{content:" · ASSUMABLE, Q-055";color:var(--a)}
 .fr{--z:.62;width:794px;height:447px;overflow:hidden;border:1px solid var(--h);cursor:zoom-in}
 .fr.t{--z:.5;width:642px;height:362px}.fr.big{width:1282px;height:722px;cursor:zoom-out}.fr.big .sc{transform:none}
 .sc{width:1280px;height:720px;background:var(--c);transform:scale(var(--z));transform-origin:0 0;position:relative;overflow:hidden;font-size:12px}
-.ov{width:794px;margin:8px 0 0;font-size:12px;display:grid;grid-template-columns:78px 1fr;gap:3px 10px}.ov dt{font:700 10px ui-monospace,monospace;letter-spacing:1px;color:var(--w);padding-top:2px}.ov dd{margin:0;color:var(--m)}.ov dd b{color:var(--t);font-weight:400}
 .hdr{height:40px;display:flex;align-items:center;gap:16px;padding:0 20px;border-bottom:1px solid var(--l);background:var(--p);font-size:10px;letter-spacing:2px;color:var(--m)}
-.hdr b{color:var(--t);font-size:13px;letter-spacing:4px}.pal{flex:1;max-width:420px;border:1px solid var(--l);padding:5px 10px;color:var(--w);font:11px ui-monospace,monospace;letter-spacing:0}
-.mb{margin-left:auto;color:var(--w)}
+.hdr b{color:var(--t);font-size:13px;letter-spacing:4px}.mb{margin-left:auto}
 .p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}.p>span{display:inline-block;transform:skewX(10deg)}
-.t1{border:1px solid var(--l);color:var(--m);padding:6px 14px;font-size:11px}.t1.on{border-color:var(--a);color:var(--a)}.t1.off{opacity:.45}
+.t1{border:1px solid var(--l);color:var(--m);padding:6px 14px;font-size:11px}.t1.on{border-color:var(--a);color:var(--a)}
 .ch{background:var(--s);color:var(--sk);padding:4px 11px;font-size:10px}.cq{border:1px solid var(--h);color:var(--m);padding:4px 11px;font-size:10px}
 .ac,.ao,.q{font-size:11px;padding:11px 22px;border:1px solid}.ac{background:var(--a);border-color:var(--a);color:var(--c)}.ao{color:var(--a);border-color:var(--a)}.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}
-.ttl{display:flex;align-items:center;gap:14px;padding:12px 28px;border-bottom:1px solid var(--l)}.ttl h3{margin:0;font-size:20px;letter-spacing:3px}.hn{font-size:10px;letter-spacing:1px;color:var(--w)}
-.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}
-.th{position:absolute;top:93px;bottom:92px;left:0;right:0;overflow:hidden;padding:16px 0;display:flex;flex-direction:column;gap:12px;align-items:center}.th>*{width:860px;flex:none}
-.um{margin-left:auto;max-width:560px;background:var(--r);padding:9px 12px;color:var(--t)}.am{max-width:720px;color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}.am b{color:var(--t);font-weight:400}
-.cp{position:absolute;bottom:0;left:0;right:0;height:92px;border-top:1px solid var(--l);background:var(--p);display:flex;justify-content:center;align-items:center;gap:12px}
-.cp>.in{width:700px}.in{border:1px solid var(--h);background:var(--c);padding:9px 11px;color:var(--w)}.hx{width:46px;height:42px;background:var(--a);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);color:var(--c);font-weight:700;display:flex;align-items:center;justify-content:center}
+.ttl{height:49px;display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:1px solid var(--l)}.ttl h3{margin:0;font-size:20px;letter-spacing:3px}.hn{font-size:10px;letter-spacing:1px;color:var(--w)}
+.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.bd{position:absolute;top:89px;bottom:0;left:0;right:0;display:flex}.mn{flex:1;position:relative;min-width:0}
+.th{position:absolute;top:0;bottom:76px;left:0;right:0;overflow:hidden;padding:14px 0;display:flex;flex-direction:column;gap:12px;align-items:center}.th>*{width:min(760px,94%);flex:none}
+.um{margin-left:auto;max-width:560px;background:var(--r);padding:9px 12px}.am{max-width:720px;color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}.am b{color:var(--t);font-weight:400}
+.cp{position:absolute;bottom:0;left:0;right:0;height:76px;border-top:1px solid var(--l);background:var(--p);display:flex;justify-content:center;align-items:center;gap:12px}.cp>.in{width:min(560px,60%)}
+.in{border:1px solid var(--h);background:var(--c);padding:9px 11px;color:var(--w)}.hx{width:46px;height:42px;background:var(--a);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);color:var(--c);font-weight:700;display:flex;align-items:center;justify-content:center}
+.sb{width:360px;flex:none;border-left:1px solid var(--l);background:var(--p);overflow:hidden;display:flex;flex-direction:column}.sb.n{width:300px}
+.sbh{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--l)}
+.rl{width:38px;flex:none;border-left:1px solid var(--l);background:var(--p);writing-mode:vertical-rl;padding:16px 0;font:10px ui-monospace,monospace;letter-spacing:2px;color:var(--w)}.rl b{color:var(--s);font-weight:400}
+.pt{flex:1;padding:12px;display:flex;flex-direction:column;gap:10px;overflow:hidden}.pc{display:flex;gap:8px;padding:10px;border-top:1px solid var(--l);align-items:center}.pc .in{flex:1}
+.fd{display:grid;grid-template-columns:70px 1fr;gap:8px;padding:6px 14px;border-bottom:1px solid var(--l);align-items:center}.fk{font:700 10px ui-monospace,monospace;letter-spacing:1px;color:var(--w)}
+.fa,.fl{background:var(--sk);box-shadow:inset 3px 0 var(--s)}.fl{outline:1px dashed var(--s);outline-offset:-1px}.hl{background:var(--sk);outline:1px solid var(--s);outline-offset:1px}
+.tg{font:normal 9px ui-monospace,monospace;letter-spacing:1px;color:var(--s);margin-left:6px}.tg.y{color:var(--m)}s{color:var(--w)}
 .cd{border:1px solid var(--h);background:var(--p)}.cd>.hd{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--l)}
-.fg{display:grid;grid-template-columns:96px 1fr;gap:7px 12px;padding:12px 14px;align-items:center}.fk{font:700 10px ui-monospace,monospace;letter-spacing:1px;color:var(--w)}
-.ib{display:inline-block;border:1px solid var(--h);background:var(--c);padding:3px 9px;margin-right:6px;color:var(--t)}.fv em{font:normal 9px ui-monospace,monospace;color:var(--w);border-bottom:1px dotted var(--w);margin-left:2px}
+.fg{display:grid;grid-template-columns:70px 1fr;gap:7px 12px;padding:10px 14px;align-items:center}
+.ib{display:inline-block;border:1px solid var(--h);background:var(--c);padding:3px 9px;margin:0 6px 3px 0;color:var(--t)}
 .ly{font:11px/1.45 ui-monospace,monospace;color:var(--m);border:1px solid var(--l);padding:6px 9px;background:var(--c)}.ly span{color:var(--w)}
-.sg{display:flex;gap:3px}.sg i{font:normal 9px ui-monospace,monospace;color:var(--m);background:var(--r);padding:4px 0;text-align:center;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
-.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}.cs i{font-style:normal;color:var(--rt)}
-.lk{padding:0 14px 10px;font-size:10px;letter-spacing:1px;color:var(--s)}
-.er,.wn{margin:10px 0;padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.er div,.wn div{flex:1}.er b,.wn b{color:var(--rt);letter-spacing:1px}
-.j{padding:7px 10px;border:1px solid var(--l);font-size:10px;letter-spacing:1px;color:var(--a);display:flex;justify-content:space-between;align-items:center;background:linear-gradient(110deg,#2A2133,#153543 45%,#44510F)}.j em{font-style:normal;letter-spacing:0;color:var(--m)}
-.cr{width:520px;border:1px solid var(--l);background:var(--c);padding:12px;display:flex;flex-direction:column;gap:10px}.cr>h5{margin:0;font:700 10px ui-monospace,monospace;letter-spacing:2px;color:var(--w)}
-.sf{border:1px solid var(--l);background:var(--p);padding:12px 14px;flex:1}.sf.on{border-color:var(--s)}.sf b{display:block;font-size:12px;letter-spacing:2px;margin-bottom:4px}.sf span{color:var(--m)}
-.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:10px 0;max-width:1100px}.bk{display:inline-block;background:var(--ru);color:var(--t);font:700 10px ui-monospace,monospace;letter-spacing:2px;padding:2px 8px;margin-left:8px;vertical-align:middle}
-table{border-collapse:collapse;font-size:12px;max-width:1260px}td,th{border:1px solid var(--l);padding:5px 9px;text-align:left;vertical-align:top;color:var(--m)}th{font:700 10px ui-monospace,monospace;letter-spacing:1px;color:var(--w)}td b{color:var(--t);font-weight:400}
+.sg{display:flex;gap:3px}.sg i{font:normal 9px ui-monospace,monospace;color:var(--m);background:var(--r);padding:4px 0;text-align:center;overflow:hidden;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}.sg i.on{background:var(--st);color:var(--s)}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}.er,.wn{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.er div,.wn div{flex:1}.er b,.wn b{color:var(--rt)}
+.j{padding:7px 10px;border:1px solid var(--l);font-size:10px;letter-spacing:1px;color:var(--a);display:flex;justify-content:space-between;align-items:center;background:var(--st)}.j em{font-style:normal;letter-spacing:0;color:var(--m)}
+.sf{border:1px solid var(--l);background:var(--p);padding:8px 12px;flex:1}.sf.on{border-color:var(--s)}.sf b{font-size:12px;letter-spacing:2px}
+.wv{height:30px;position:relative;background:repeating-linear-gradient(90deg,var(--h) 0 2px,transparent 2px 4px)}.rg{position:absolute;top:0;bottom:0;background:var(--st);border:1px solid var(--s);border-width:0 1px;opacity:.8}
+.lane{display:flex;gap:10px;align-items:center;margin-top:6px}.lane .fk{width:56px}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:9px 0}
+details{color:var(--m)}summary{color:var(--t)}.bx{border:1px solid var(--h);padding:8px 12px;background:var(--p)}.bx.d{border-color:var(--a);color:var(--a)}
 </style></head><body>
-<h1>CHAT · where it sits relative to Guided Create <span class="bk">BLOCKING · THE OWNER PICKS</span></h1>
-<div class="rd">stage 5 · Q-054 #1 · PLAN.md "Chat: Talk a Song Into Being" decision 1 · D-079 D-081 D-082 D-083 · tokens: DESIGN.md, none added · click any frame to see it at 100%</div>
+<h1>CHAT AND FORM · two ways in, one draft</h1>
+<div class="rd hn">stage 5 · D-086 · Q-055 · PLAN.md "Chat: Talk a Song Into Being" · tokens: DESIGN.md, none added · click a frame to zoom</div>
 
 <h2>WHAT THIS SETTLES</h2>
 <ul>
-<li><b>Q-054 #1</b>: does CHAT <b>sit beside</b> Guided Create (A), <b>replace</b> it (B), or <b>absorb</b> it as an expanding card (C)? Three frames at desktop size, each with what it gains, what it loses, and where TUNE, TAKES and QUALITY go.</li>
-<li>Also fixed by the choice: what the Library's CREATE bar and CONTINUE row open, and what a person gets when the assistant (local Ollama) is off or fails.</li>
-<li>Not settled: cards for edit, scalpel and reading proposals, version cards and OPEN IN EDITOR (C2-C4 get their own mockup).</li>
-<li>Evidence: today's screen from the brief and a string check of RecipeCard, CreateBar, CreateView (<i>seen in code</i>); layouts, sizes and chat copy <i>inferred</i>; turn time 3-15 s <i>measured</i> (SP-2, M2).</li>
+<li><b>D-086 drawn</b>: <b>chat-first</b> (default; a thread with a collapsible form sidebar the assistant fills) and <b>form-first</b> (today's Guided Create plus a narrow assistant). One draft, so a switch keeps everything.</li>
+<li>Where the commit lives, how a filled field looks, and the off, in-progress and failed states. <b>Q-055</b>: the same pairing for an existing song (section 4).</li>
+<li>Evidence: today's screen <i>seen in code</i> (DESIGN.md); layouts and copy <i>inferred</i>; turn time 3-15 s <i>measured</i> (SP-2, M2).</li>
 </ul>
 
-<h2>TODAY · FOR REFERENCE</h2>
+<h2>TODAY · THE REFERENCE FRAME</h2>
 <div class="g"><div class="o"><h4><b>TODAY</b> · Guided Create, START FROM AN IDEA</h4><div id="today"></div></div>
-<div style="max-width:560px;color:var(--m)"><p>One full-screen form, reached from the Library's CREATE bar. It needs no LLM except for WRITE FOR ME and FEELING LUCKY. Every knob is on screen.</p><p>The chat adds someone who fills it in and states what they assumed. It must not cost precise control, or a way to create when the assistant is off.</p></div></div>
+<p style="max-width:520px;color:var(--m)">No LLM except WRITE FOR ME and FEELING LUCKY. Form-first keeps it; chat-first moves its fields into a sidebar.</p></div>
 
-<h2>OPTIONS</h2>
-<div class="g" id="opts"></div>
+<h2>1 · CHAT-FIRST · the default start screen</h2><div class="g" id="c1"></div>
+<h2>2 · FORM-FIRST · today's form, an assistant beside it</h2><div class="g" id="c2"></div>
+<h2>3 · THE SWITCH · one draft, one thread</h2><div class="dg" id="sw"></div>
+<h2>4 · EDITING A SONG · Q-055, the pairing mirrored</h2><div class="g" id="c4"></div>
+<h2>5 · STATES · a turn in progress, a failed turn, assistant off</h2><div class="g" id="c5"></div>
 
-<h2>STATES · OPTION A (recommended)</h2>
-<div class="g" id="sts"></div>
+<h2>DECISIONS</h2><div id="dec"></div>
 
-<h2>THE THREE SIDE BY SIDE</h2>
-<table id="cmp"></table>
-
-<h2>DECISIONS</h2>
-<div class="dc"><b>CH-1 · A, "chat beside, form as FORM" (recommended; the owner picks).</b> CHAT is the start screen, and FORM opens today's Guided Create unchanged. <i>Beat:</i> B (the chat only: precise knobs by words alone, START FROM A SONG I HAVE / ONE TRACK have no home until C3, and with the assistant off there is no way to make a song) and C (a full form inside a thread: every first-take card is 430 px tall, the form exists only before the first take, and the one place with the knobs becomes a scrolling message). <i>Cost:</i> two surfaces for the same first take (one draft behind both, CH-2), a DESIGN.md clause adding CHAT to the flat view set, and today's Guided Create keeping its maintenance.</div>
-<div class="dc"><b>CH-2 · one draft behind CHAT and FORM.</b> Switching tabs carries every field, both ways: the card's edits show in FORM, FORM's in the card. <i>Beat:</i> two separate drafts (a person loses work crossing over). <i>Cost:</i> one shared draft store; a field FORM has and the card lacks is kept, not shown.</div>
-<div class="dc"><b>CH-3 · the card carries ENGINE and QUALITY; TUNE, TAKES and VOICE stay in FORM.</b> ENGINE and QUALITY change the consequence line (time, GPU, score-eligibility), so they sit beside CREATE SONG. A link, <code>TUNE, TAKES, VOICE IN FORM ▸</code>, takes the draft across. <i>Beat:</i> the whole RECIPE in the card (that is C); nothing but engine (B).</div>
-<div class="dc"><b>CH-4 · a first take proposed on ACE-Step says so where it is read.</b> Sky engine chip, and a rust clause in the consequence line: "not score-editable; later turns use REPAINT, ADD LAYER, SPLIT" (D-083).</div>
-<div class="dc"><b>CH-5 · assistant off is a different start screen.</b> <code>LLM_API_URL</code> unset: CHAT is hidden, as SCORE is, and FORM is the start screen. Set but not answering: CHAT is shown, rust, with the reason, and FORM one click away; a failed turn keeps the draft.</div>
-<div class="dc"><b>CH-6 · the Library bar's CREATE opens CHAT with the typed idea as the first message</b> (FORM with it in DESCRIBE IT when the assistant is off, as today). FEELING LUCKY stays on the bar and in FORM: a queued job that makes a song, no card. CONTINUE opens that song's thread (D-081).</div>
-
-<h2>OPEN QUESTIONS (ids provisional, renumber if taken; the conductor adds them to open-questions.md)</h2>
+<h2>OPEN QUESTIONS (ids provisional; the conductor adds them to open-questions.md)</h2>
 <ul>
-<li><b>Q-054 #1</b> <b>blocking</b>: A, B or C. The owner picks; this mockup is the visual they asked for.</li>
-<li><b>Q-055</b> assumable: one shared draft behind CHAT and FORM (CH-2). Reversal: client only.</li>
-<li><b>Q-056</b> assumable: assistant-off rules (CH-5): unset hides CHAT, unanswering shows it rust. Reversal: one visibility check.</li>
-<li><b>Q-057</b> assumable: Library CREATE sends the typed idea to CHAT; FEELING LUCKY stays a job outside the chat (CH-6).</li>
-<li><b>Q-058</b> deferred: START FROM A SONG I HAVE and ONE TRACK in the chat (drop or pick a reference) arrive with C3; until then they start in FORM only. Revisit at C3.</li>
-<li><b>Q-059</b> deferred: whether FORM is kept long term once the chat covers it, a question for after C4 and some use.</li>
+<li><b>Q-055</b> assumable: editing pairing, default mirrored (CH-9).</li>
+<li><b>Q-056</b> assumable: start screen and sidebar remember their last state; first open is chat-first, sidebar open (CH-1, CH-3, CH-10).</li>
+<li><b>Q-057</b> assumable: a hand edit during a turn wins and the assistant says so (CH-6); alternative: lock fields.</li>
+<li><b>Q-058</b> assumable: assistant off or failing falls back to form-first; unset <code>LLM_API_URL</code> hides toggle and panel (CH-8).</li>
+<li><b>Q-059</b> assumable: sky marks "just changed by the assistant", reusing the scope colour (CH-4); if it reads as a target on a real screen, add a DESIGN.md token.</li>
+<li><b>Q-060</b> deferred: START FROM A SONG / ONE TRACK in chat-first arrive with C3 (until then a "FORM ▸" link); FEELING LUCKY stays on the Library bar and in form-first.</li>
+<li><b>Q-061</b> deferred: does form-first's DESCRIBE IT text also go to the thread? Settle at the C1 build.</li>
 </ul>
 
-<h2>CHECK ON A REAL DEVICE (desktop only)</h2>
+<h2>CHECK ON A REAL DEVICE (desktop, 1366×768)</h2>
 <ul>
-<li>1366×768: the proposal card, its consequence line and CREATE SONG fit above the composer without scrolling the thread. Inferred card height 330 px (A, B) and 430 px (C): C will not fit; is that a problem or just a scroll?</li>
-<li>Two acid fills on screen (CREATE SONG, and the SEND hexagon, which is the sanctioned exception). Does the eye go to the card's commit, not the composer?</li>
-<li>Press Enter on an idea: the in-flight row shows at once (3-15 s, no streaming).</li>
-<li>CHAT to FORM and back with the card half edited: nothing is lost (CH-2).</li>
-<li>10-11px mono field labels and ASSUMED tags at 100%.</li>
+<li>Chat-first: thread 1006 px beside the open sidebar (1328 px with the rail), messages capped at 760 px. Do the card and CREATE SONG fit above the composer?</li>
+<li>The open sidebar (inferred about 440 px) fits in 679 px; in form-first the 300 px panel leaves 1066 px and RECIPE still sits beside the steps.</li>
+<li>Sky wash and ASSISTANT tag read at 100%; CHAT to FORM and back loses nothing.</li>
 </ul>
+
+<h2>CONSIDERED, AND WHY IT LOST (D-086)</h2>
+<details><summary>A, B, C of the first draft</summary>
+<p><b>A · chat beside, FORM as a tab</b>: the assistant could not fill a form you cannot see. <b>B · chat replaces the form</b>: knobs by words only, nothing when Ollama is off. <b>C · form inside a proposal card</b>: a 430 px card in a scrolling thread.</p></details>
 
 <script>
 const $=i=>document.getElementById(i);
 const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
-const HDR=`<div class="hdr"><b>MULAKAI</b><span class="pal">Search or run anything…  CTRL K</span><span>ACTIVITY</span><span class="mb">MODELS READY</span></div>`;
+const HDR=`<div class="hdr"><b>MULAKAI</b><span class="mb">MODELS READY</span></div>`;
 const FR=(cl,i)=>`<div class="fr ${cl}" onclick="this.classList.toggle('big')"><div class="sc">${HDR}${i}</div></div>`;
-const TAB=(on,off)=>P("t1"+(on=="CHAT"?" on":off?" off":""),"CHAT")+P("t1"+(on=="FORM"?" on":""),"FORM");
-const TTL=(on,x)=>`<div class="ttl"><h3>NEW SONG</h3>${TAB(on)}<span class="hn">${x||"DRAFT · NOT A SONG YET · LANDS IN LIBRARY"}</span></div>`;
+const O=(h,f,n,x)=>`<div class="o ${x||""}"><h4>${h}</h4>${f}${n?`<div class="nt">${n}</div>`:""}</div>`;
+const TTL=(m,t,x,b)=>`<div class="ttl"><h3>${t||"NEW SONG"}</h3>${P("t1"+(m=="C"?" on":""),"CHAT")+P("t1"+(m=="F"?" on":""),b||"FORM")}<span class="hn">${x||"DRAFT · NOT A SONG YET · LANDS IN LIBRARY"}</span></div>`;
+const BD=x=>`<div class="bd">${x}</div>`;
 const UM="a slow Spanish ballad about the sea, nylon guitar and a soft female voice";
-const AM=`<div class="am">Assuming <b>about 3 minutes, 4/4 and A minor</b>, with a quiet first verse. I wrote the lyrics in Spanish. Change anything in the card, or tell me.</div>`;
-const SEC=[["INTRO",3],["VERSE",6],["VERSE",6],["CHORUS",6],["VERSE",6],["CHORUS",6],["OUTRO",4]];
-const STR=`<div class="sg">${SEC.map(([n,b])=>`<i style="flex:${b}">${n}</i>`).join("")}</div>`;
-const LY=`<div class="ly">[Verse 1]<br>La sal en tu piel, el viento sin nombre,<br>tu barca se aleja y yo no me muevo…<br><span>▸ 38 lines · intro, 3 verses, 2 choruses, outro</span></div>`;
-const ENG=(ace)=>P(ace?"cq":"ch","YUE2")+P(ace?"ch":"cq","ACE-STEP");
-const QL=P("cq","DRAFT")+P("ch","BALANCED")+P("cq","BEST");
-const fg=(k,v,a)=>`<div class="fk">${k}</div><div class="fv">${v}${a?'<em>ASSUMED</em>':""}</div>`;
-const TEMPO=`<span class="ib">68 BPM</span><span class="ib">A MINOR</span><span class="ib">~3:10</span>`;
-const CONS=(ace)=>ace?`Renders a new song on ACE-Step, about 40 s · lands in Library · <i>not score-editable: later turns use REPAINT, ADD LAYER, SPLIT</i>`:`Renders a new song on YuE2, about 3 min · uses the GPU · lands in Library · <b>nothing else changes</b>`;
-const cm=(ace,btn)=>`<div class="cm"><span class="cs">${CONS(ace)}</span>${btn||P("ac","CREATE SONG")}</div>`;
+const um=t=>`<div class="um">${t}</div>`,am=t=>`<div class="am">${t}</div>`;
+const CHG=l=>`<div class="hn" style="margin-top:4px"><span style="color:var(--s)">CHANGED · ${l}</span> &nbsp; <u>UNDO TURN</u></div>`;
+const COMP=(ph,ref)=>`<div class="cp">${ref?'<span class="p cq"><span>＋ REFERENCE</span></span>':""}<div class="in">${ph}</div><div class="hx">▶</div></div>`;
+const MN=(th,ph)=>`<div class="mn"><div class="th">${th}</div>${COMP(ph||"Say what to change, or describe another song…",1)}</div>`;
 const head=(t,x)=>`<div class="hd"><span class="lb">${t}</span><span class="hn">${x}</span></div>`;
-const COMP=(ph)=>`<div class="cp"><span class="p cq"><span>＋ REFERENCE</span></span><div class="in">${ph||"Say what to change, or describe another song…"}</div><div class="hx">▶</div></div>`;
-const cardA=(ace)=>`<div class="cd">${head("PROPOSAL · NEW SONG","edit any field, or answer in the chat · nothing runs yet")}<div class="fg">${fg("TITLE",`<span class="ib">Luz sobre el mar</span>`)}${fg("STYLE",`<span class="ib">slow Spanish ballad, nylon guitar, soft female voice</span>`)}${fg("TEMPO · KEY",TEMPO,1)}${fg("STRUCTURE",STR)}${fg("LYRICS",LY)}${fg("ENGINE",ENG(ace))}${fg("QUALITY",QL)}</div><div class="lk">TUNE, TAKES, VOICE IN FORM ▸</div>${cm(ace)}</div>`;
-const cardB=`<div class="cd">${head("PROPOSAL · NEW SONG","say what to change · nothing runs yet")}<div class="fg">${fg("TITLE",`<span class="ib">Luz sobre el mar</span>`)}${fg("STYLE",`<span class="ib">slow Spanish ballad, nylon guitar, soft female voice</span>`)}${fg("TEMPO · KEY",TEMPO,1)}${fg("LYRICS",LY)}${fg("ENGINE",`<span class="ib">YUE2</span> <span class="hn">say "use ACE-Step" to change it</span>`)}</div>${cm(0)}</div>`;
-const thread=(card,top)=>`<div class="th">${top||""}<div class="um">${UM}</div>${AM}${card}</div>`;
-const A=FR("",TTL("CHAT")+thread(cardA())+COMP());
-const B=FR("",`<div class="ttl"><h3>NEW SONG</h3><span class="hn">DRAFT · NOT A SONG YET · LANDS IN LIBRARY</span></div>`+thread(cardB)+COMP("Say what to change, or describe another song…"));
-// C: the card expands to the form
-const step=(n,t,b)=>`<div class="lb" style="margin:10px 0 5px">${n} ${t}</div>${b}`;
-const cardC=`<div class="cd">${head("PROPOSAL · NEW SONG · EDIT IN PLACE","every field of Guided Create · ⌃ COLLAPSE")}
-<div style="display:flex;gap:18px;padding:0 14px 6px"><div style="flex:1.5">
-${step("①","DESCRIBE IT",`<div class="in" style="color:var(--t)">${UM}</div>`)}
-${step("②","LYRICS",`<div class="ly" style="height:62px">[Verse 1]<br>La sal en tu piel, el viento sin nombre,<br>tu barca se aleja y yo no me muevo…</div><div style="margin-top:6px">${P("q","WRITE FOR ME")} ${P("q","TAG GUIDE")} ${P("q","INSTRUMENTAL")}</div>`)}
-${step("③","DETAILS",`<div class="fg" style="padding:0;grid-template-columns:96px 1fr 96px 1fr">${fg("BPM",`<span class="ib">68</span>`)}${fg("KEY · SCALE",`<span class="ib">A MINOR</span>`)}${fg("DURATION",`<span class="ib">AUTO</span>`)}${fg("TIME SIG",`<span class="ib">4/4</span>`)}${fg("LANGUAGE",`<span class="ib">ES</span>`)}</div>`)}
-</div><div style="flex:1;border-left:1px solid var(--l);padding-left:16px">
-${step("","RECIPE",`<div class="fg" style="padding:0;grid-template-columns:70px 1fr">${fg("ENGINE",ENG())}${fg("QUALITY",QL)}${fg("VOICE",`<span class="ib">NONE</span>`)}${fg("TAKES",`<span class="ib">1</span>`)}${fg("TUNE",`<span class="ib">TUNE ▸</span>`)}</div><div class="hn" style="margin-top:8px">LANDS IN LIBRARY</div>`)}
-</div></div>${cm(0)}</div>`;
-const C=FR("",TTL("CHAT")+`<div class="th"><div class="hn" style="text-align:center">▲ 2 EARLIER MESSAGES</div>${AM}${cardC}</div>`+COMP("Say what to change, or edit the fields above…"));
-// today
-const TOD=FR("t",`<div class="ttl"><h3>NEW SONG</h3><span class="hn">← LIBRARY</span></div><div style="padding:14px 28px"><div class="lb" style="margin-bottom:6px">START FROM</div><div style="display:flex;gap:12px"><div class="sf on"><b>AN IDEA</b><span>Describe it, we write and render</span></div><div class="sf"><b>A SONG I HAVE</b><span>Cover, remaster or extend</span></div><div class="sf"><b>ONE TRACK</b><span>Make a single stem</span></div></div></div>
-<div style="display:flex;gap:22px;padding:0 28px"><div style="flex:1.6">${step("①","DESCRIBE IT",`<div class="in" style="height:70px;color:var(--t)">${UM}</div><div style="margin-top:6px">${P("ao","FEELING LUCKY")}</div>`)}${step("②","LYRICS",`<div class="ly" style="height:80px">[Verse 1]</div><div style="margin-top:6px">${P("q","WRITE FOR ME")} ${P("q","TAG GUIDE")} ${P("q","INSTRUMENTAL")}</div>`)}${step("③","DETAILS",`<div>${["BPM","DURATION","KEY / SCALE","TIME SIGNATURE","VOCAL LANGUAGE"].map(x=>`<span class="ib">${x} · AUTO</span>`).join("")}</div>`)}</div>
-<div class="cd" style="flex:1;align-self:flex-start;margin-top:10px">${head("RECIPE","")}<div class="fg" style="grid-template-columns:70px 1fr">${fg("ENGINE",ENG())}${fg("QUALITY",QL)}${fg("VOICE",`<span class="ib">NONE</span>`)}${fg("TAKES",`<span class="ib">1</span>`)}${fg("TUNE",`<span class="ib">TUNE ▸</span>`)}</div><div class="hn" style="padding:0 14px 8px">LANDS IN LIBRARY</div>${cm(0,P("ac","GENERATE"))}</div></div>`);
-$("today").innerHTML=TOD;
-// A mini: library routes
-const LIB=FR("t",`<div style="display:flex;align-items:center;gap:12px;padding:12px 28px;border-bottom:1px solid var(--l)">${P("ao","FEELING LUCKY")}<div class="in" style="flex:1">What do you want to make?</div>${P("ac","CREATE")}</div><div style="padding:14px 28px"><div class="lb" style="margin-bottom:6px">CONTINUE</div><div style="display:flex;gap:12px">${["Luz sobre el mar","Long Way Down","Gertar"].map((n,i)=>`<div class="sf"><b style="letter-spacing:0">${n}</b><span>v${i+2} · </span>${P("ch",i?"THREAD · 14":"THREAD · 6")}</div>`).join("")}</div><div class="hn" style="margin-top:12px">CREATE → CHAT with the typed idea · CONTINUE → that song's thread · FORM tab → today's screen</div></div>`);
-const dl=(g,l,w,r,n)=>`<dl class="ov"><dt>GAIN</dt><dd>${g}</dd><dt>LOSE</dt><dd>${l}</dd><dt>KNOBS</dt><dd>${w}</dd><dt>ROUTES</dt><dd>${r}</dd><dt>NO ASSISTANT</dt><dd>${n}</dd></dl>`;
-$("opts").innerHTML=
-`<div class="o rec"><h4><b>A · CHAT BESIDE, FORM AS FORM</b></h4>${A}${dl("the chat is the way in, and every precise knob survives untouched in FORM.","two surfaces make the same first take, held together by one draft.","<b>QUALITY and ENGINE in the card; TUNE, TAKES, VOICE in FORM</b> via the link, draft carried over.","Library CREATE and CONTINUE open the chat; FORM tab opens today's screen.","FORM is the start screen; CHAT is hidden or shows why (CH-5).")}</div>
-<div class="o"><h4><b>B · CHAT REPLACES THE FORM</b></h4>${B}${dl("the simplest app: one way to make a song, and one language for everything after.","every knob except by asking in words; no START FROM SONG I HAVE / ONE TRACK until C3; no fallback.","<b>no TUNE; TAKES and QUALITY come from Settings defaults</b>; \"best quality\", \"three takes\" are said in the chat.","CREATE and CONTINUE open the chat; there is no Create screen.","<i style='color:var(--rt)'>nothing</i>: no song can be made while Ollama is off or the model is not pulled.")}</div>
-<div class="o"><h4><b>C · FORM INSIDE THE CHAT</b></h4>${C}${dl("one surface, nothing duplicated, and the form still works when the assistant does not.","a 430 px card inside a scrolling thread; the form only exists before the first take, then edit cards differ.","<b>the whole RECIPE in the expanded card</b>: ENGINE, QUALITY, VOICE, TAKES, TUNE ▸ as today.","CREATE and CONTINUE open the chat; there is no Create screen. ⌃ collapses the card to A's.","the composer is off, the card still works by hand; no one-click START FROM.")}</div>
-<div class="o"><h4><b>A · THE LIBRARY ENTRANCES</b></h4>${LIB}</div>`;
-// states
-const um=`<div class="um" style="align-self:flex-end;max-width:420px">${UM}</div>`;
-const cr=(t,i)=>`<div class="cr"><h5>${t}</h5>${i}</div>`;
-$("sts").innerHTML=
-cr("1 · A TURN IN FLIGHT · loading",um+`<div class="j"><span>ASSISTANT IS WRITING… <em>· uses the GPU, ~10 s · nothing changes yet</em></span>${P("q","CANCEL")}</div>`)+
-cr("2 · ACE-STEP PROPOSED · edge, D-083",`<div class="am">This one is mostly texture and a long build, which ACE-Step does better. <b>Proposing it instead of YuE2.</b></div><div class="cd"><div class="fg">${fg("ENGINE",ENG(1))}${fg("QUALITY",QL)}</div>${cm(1)}</div>`)+
-cr("3 · ASSISTANT OFF · refused",`<div style="display:flex;gap:8px">${TAB("FORM",1)}</div><div class="wn"><div><b>THE ASSISTANT IS OFF</b><br>Ollama did not answer at LLM_API_URL. CHAT needs it; FORM does not.</div>${P("ao","OPEN FORM")}</div>`)+
-cr("4 · TURN FAILED · error",um+`<div class="er"><div><b>NO ANSWER IN 3 ATTEMPTS</b><br>Nothing changed and your draft is kept. Send again, or finish it in FORM.</div>${P("q","SEND AGAIN")}${P("ao","OPEN FORM")}</div>`)+
-cr("5 · EMPTY · first open",`<div class="am">Describe a song, or drop an audio file to start from one. I will propose a recipe and ask only if I cannot.</div><div class="in">Describe the song you want…</div><div class="hn">${P("ao","FEELING LUCKY")} no idea yet? that makes one directly</div>`);
-// table
-const rows=[["First take, by description","chat, then card","chat, then card","chat or card"],["Precise knobs (TUNE, TAKES, VOICE, BPM)","FORM","by words, or Settings","in the card"],["START FROM A SONG I HAVE / ONE TRACK","FORM now, chat at C3","chat at C3 only","chat at C3 only"],["Works with Ollama off","yes (FORM)","<b>no</b>","partly (card by hand)"],["Shortest path to a first take","type, read card, CREATE SONG","same","same, card is taller"],["Risk","draft drift between views","power users lose knobs","long thread, heavy card"]];
-$("cmp").innerHTML=`<tr><th></th><th>A · BESIDE</th><th>B · REPLACES</th><th>C · INSIDE</th></tr>`+rows.map(r=>`<tr><td><b>${r[0]}</b></td>${r.slice(1).map(x=>`<td>${x}</td>`).join("")}</tr>`).join("");
+const STR=`<div class="sg">${[["INTRO",3],["VERSE",6],["VERSE",6],["CHORUS",6],["VERSE",6],["CHORUS",6],["OUTRO",4]].map(([n,b])=>`<i style="flex:${b}">${n}</i>`).join("")}</div>`;
+const LYS=`<div class="ly" style="height:62px">[Verse 1]<br>La sal en tu piel, el viento sin nombre,<br>tu barca se aleja y yo no me muevo…<br><span>▸ 38 lines</span></div>`;
+const ENG=P("ch","YUE2")+P("cq","ACE-STEP"),QL=P("cq","DRAFT")+P("ch","BALANCED")+P("cq","BEST");
+const CONS=`Renders a new song on YuE2, about 3 min · uses the GPU · lands in Library · <b>nothing else changes</b>`;
+const cm=(t,b)=>`<div class="cm"><span class="cs">${t}</span>${b}</div>`;
+const FD=(k,v,s,old)=>`<div class="fd ${s=="a"?"fa":s=="f"?"fl":""}"><div class="fk">${k}</div><div>${old?`<s>${old}</s> `:""}${v}${s=="a"?'<em class="tg">ASSISTANT</em>':s=="y"?'<em class="tg y">YOURS</em>':s=="f"?'<em class="tg">FILLING…</em>':""}</div></div>`;
+const FIELDS=o=>{o=o||{};return FD("TITLE",`<span class="ib">Luz sobre el mar</span>`,o.ti)+FD("STYLE",`<span class="ib">${o.st||"slow Spanish ballad, nylon guitar, soft female voice"}</span>`,o.s)+FD("TEMPO · KEY",`<span class="ib">${o.tp||"68 BPM"}</span><span class="ib">A MINOR</span><span class="ib">~3:10</span>`,o.t,o.old)+FD("STRUCTURE",STR)+FD("LYRICS",LYS)+FD("ENGINE",ENG)+FD("QUALITY",QL)+FD("VOICE",`<span class="ib">NONE</span><span class="ib">TAKES 1</span><span class="ib">TUNE ▸</span>`)};
+const SB=f=>`<div class="sb"><div class="sbh"><span class="lb">FORM · THE DRAFT</span><span class="hn">HIDE ▸</span></div>${f}<div class="hn" style="padding:8px 14px">edit any · commit is on the card ◂</div></div>`;
+const RAIL=`<div class="rl">◂ FORM · <b>8 FIELDS FILLED</b></div>`;
+const CARD=t=>`<div class="cd">${head("PROPOSAL · NEW SONG","fields are in the FORM sidebar · nothing runs yet")}<div style="padding:10px 14px"><b style="font-size:15px;letter-spacing:1px;font-weight:400">Luz sobre el mar</b><div style="color:var(--m)">slow Spanish ballad, nylon guitar, soft female voice</div><div class="hn" style="margin-top:4px">${t||"68 BPM"} · A MINOR · ~3:10 · 38 LINES · YUE2 · BALANCED</div></div>${cm(CONS,P("ac","CREATE SONG"))}</div>`;
+const AM1=am(`Assuming <b>about 3 minutes, 4/4 and A minor</b>, lyrics in Spanish. I filled the FORM sidebar; change any of it, or tell me.${CHG("8 FIELDS")}`);
+const step=(n,t,b)=>`<div class="lb" style="margin:8px 0 4px">${n} ${t}</div>${b}`;
+const RC=`<div class="cd" style="flex:1;align-self:flex-start;margin-top:8px">${head("RECIPE","")}<div class="fg">${[["ENGINE",ENG],["QUALITY",QL],["VOICE",`<span class="ib">NONE</span>`],["TAKES",`<span class="ib">1</span>`],["TUNE",`<span class="ib">TUNE ▸</span>`]].map(([k,v])=>`<div class="fk">${k}</div><div>${v}</div>`).join("")}</div><div class="hn" style="padding:0 14px 8px">LANDS IN LIBRARY</div>${cm(`Renders a new song on YuE2, about 3 min · <b>nothing else changes</b>`,P("ac","GENERATE"))}</div>`;
+const FM=hl=>`<div style="flex:1;min-width:0;padding:8px 24px;overflow:hidden"><div class="lb" style="margin-bottom:4px">START FROM</div><div style="display:flex;gap:10px"><div class="sf on"><b>AN IDEA</b></div><div class="sf"><b>A SONG I HAVE</b></div><div class="sf"><b>ONE TRACK</b></div></div><div style="display:flex;gap:20px"><div style="flex:1.5;min-width:0">
+${step("①","DESCRIBE IT",`<div class="in" style="height:46px;color:var(--t)">${hl?"a slow, dark ballad about leaving, nylon guitar, soft female voice":""}</div><div style="margin-top:5px">${P("ao","FEELING LUCKY")}</div>`)}
+${step("②","LYRICS",`<div class="ly ${hl?"hl":""}" style="height:100px">${hl?"[Verse 1]<br>Der Koffer steht schon an der Tür,<br>ich such noch einmal deinen Blick,<br><span>▸ 14 lines · German</span>":"[Verse 1]"}</div><div style="margin-top:5px">${P("q","WRITE FOR ME")} ${P("q","TAG GUIDE")} ${P("q","INSTRUMENTAL")}</div>`)}
+${step("③","DETAILS",`<span class="ib">BPM · ${hl?60:"AUTO"}</span><span class="ib">DURATION · AUTO</span><span class="ib">KEY / SCALE · AUTO</span><span class="ib ${hl?"hl":""}">VOCAL LANGUAGE · ${hl?"DE":"AUTO"}</span>`)}</div>${RC}</div></div>`;
+const PANEL=(th,pc)=>`<div class="sb n"><div class="sbh"><span class="lb">ASSISTANT</span><span class="hn">HIDE ▸</span></div><div class="pt">${th}</div><div class="pc">${pc}</div></div>`;
+const PIN=`<div class="in">Ask for words, a mood, a tempo…</div><div class="hx" style="width:38px;height:34px">▶</div>`;
+$("today").innerHTML=FR("t",`<div class="ttl"><h3>NEW SONG</h3><span class="hn">← LIBRARY</span></div>`+BD(FM(0)));
+const T2=`<div class="hn" style="text-align:center">▲ 2 EARLIER MESSAGES</div>`+um("make it slower and darker")+am(`Slowed it to <b>60 BPM</b> and added <b>dark, sparse</b> to the style. The lyrics stay as they were.${CHG("TEMPO, STYLE")}`)+CARD("<s>68</s> 60 BPM");
+$("c1").innerHTML=
+O("<b>1a · SIDEBAR COLLAPSED</b> · after the first message",FR("",TTL("C")+BD(MN(um(UM)+AM1+CARD())+RAIL)),"The card is the commit; the rail counts the fields filled.")+
+O("<b>1b · SIDEBAR OPEN</b> · after \"make it slower and darker\"",FR("",TTL("C")+BD(MN(T2)+SB(FIELDS({s:"a",t:"a",tp:"60 BPM",old:"68",ti:"y",st:"slow, dark, sparse Spanish ballad, nylon guitar, soft female voice"})))),"STYLE and TEMPO in sky, old value struck; TITLE is YOURS. The sidebar commits nothing.");
+const TH3=um("write me German lyrics about leaving")+am(`Wrote a verse and a chorus in German, 14 lines. Edit anything; I will not overwrite what you touch.${CHG("LYRICS, LANGUAGE")}`);
+$("c2").innerHTML=O("<b>2a · FORM-FIRST</b> · after \"write me German lyrics about leaving\"",FR("",TTL("F")+BD(FM(1)+PANEL(TH3,PIN))),"Today's form; LYRICS and VOCAL LANGUAGE in sky. <b>GENERATE</b> keeps today's consequence line. The assistant fills fields and answers questions; it never presses GENERATE or FEELING LUCKY. Same thread as chat-first.");
+$("sw").innerHTML=`<div class="bx"><b>CHAT-FIRST</b><br>thread + composer<br>FORM sidebar, 360 px<br>commit: CREATE SONG on the card<br>START FROM A SONG: FORM ▸ link, until C3</div><span>⇄</span><div class="bx d"><b>ONE DRAFT + ONE THREAD</b><br>title, style, tempo, key, structure,<br>lyrics, engine, quality, voice, takes, TUNE</div><span>⇄</span><div class="bx"><b>FORM-FIRST</b><br>Guided Create<br>ASSISTANT panel, 300 px<br>commit: GENERATE in RECIPE<br>START FROM: as today</div><span class="hn" style="flex-basis:100%">the CHAT | FORM toggle is in every title row (CHAT | EDITOR on a song)</span>`;
+const ES=[["INTRO",3],["VERSE",6],["CHORUS",6],["VERSE",6],["CHORUS",6],["BRIDGE",4],["CHORUS",6],["OUTRO",3]].map(([n,b])=>`<i style="flex:${b}" class="${n=="BRIDGE"?"on":""}">${n}</i>`).join("");
+const TGT=`<span class="ch p"><span>BASE · BRIDGE · 2:42–3:06</span></span>`;
+const VB=["REPAINT","ADD LAYER","SPLIT","EXPORT","SCORE"].map((v,i)=>`<span class="ib" style="font-size:10px;padding:3px 6px;${i?"":"border-color:var(--a);color:var(--a)"}">${v}</span>`).join("");
+const TG=`<em class="tg">ASSISTANT</em>`;
+const RP=noT=>`${noT?"":`<div class="fd fa"><div class="fk">TARGET</div><div>${TGT}${TG}</div></div>`}<div class="fd fa"><div class="fk">INSTRUCT</div><div><span class="ib">more drums, keep the nylon guitar</span>${TG}</div></div><div class="fd"><div class="fk">VARIANCE</div><div><span class="ib">MEDIUM</span><span class="ib">CROSSFADE 2s</span><span class="ib">TUNE ▸</span></div></div>`;
+const RCONS=`Re-renders <b>0:24 of BASE</b> on ACE-Step, about 30 s · makes <b>v4</b> · the rest of the song stays`;
+const T4=`<div class="cd" style="display:flex;gap:12px;align-items:center;padding:9px 14px"><span class="hx" style="width:34px;height:30px">▶</span><b style="flex:1;font-weight:400">v3 · slower, bigger bridge</b><span class="hn">A/B v2 · 4:00</span></div>`+um("repaint the bridge with more drums")+am(`Assuming <b>the bridge (2:42–3:06)</b> on the base track. I filled REPAINT in the dock; check it, then press it.${CHG("TARGET, INSTRUCTION")}`)+`<div class="cd">${head("PROPOSAL · REPAINT","nothing runs yet")}${cm(RCONS,P("ac","REPAINT"))}</div>`;
+const SB4=`<div class="sb"><div class="sbh"><span class="lb">SONG · LONG WAY DOWN</span><span class="hn">HIDE ▸</span></div><div class="fd"><div class="fk">VERSIONS</div><div><span class="ib">v1</span><span class="ib">v2</span><span class="ib" style="border-color:var(--a);color:var(--a)">v3 ●</span></div></div><div class="fd"><div class="fk">THE DOCK</div><div>${VB}</div></div>${RP()}</div>`;
+const LANES=["BASE"].map(n=>`<div class="lane"><span class="fk">${n}</span><div class="wv" style="flex:1"><div class="rg" style="left:67.5%;width:10%"></div></div></div>`).join("");
+const EF=`<div style="flex:1;min-width:0;padding:10px 24px;overflow:hidden"><div class="sg">${ES}</div>${LANES}<div class="cd" style="margin-top:12px"><div style="display:flex;gap:10px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--l)">${TGT}${TG}<span class="hn" style="flex:1"></span>${VB}</div>${RP(1)}${cm(RCONS,P("ac","REPAINT"))}</div></div>`;
+const TH5=um("repaint the bridge with more drums")+am(`Assuming <b>the bridge</b> on the base track. I set REPAINT's target and instruction; check them, then press REPAINT.${CHG("TARGET, INSTRUCTION")}`);
+$("c4").innerHTML=
+O("<b>4a · CHAT-FIRST ON A SONG</b>",FR("",TTL("C","LONG WAY DOWN","v3 · 4:00 · THREAD 14","EDITOR")+BD(MN(T4,"Say what to change…")+SB4)),"The sidebar is a song panel and the dock, which the assistant fills. REPAINT on the card commits.","as")+
+O("<b>4b · EDITOR-FIRST</b> · the scalpel",FR("",TTL("F","LONG WAY DOWN","v3 · 4:00","EDITOR")+BD(EF+PANEL(TH5,PIN))),"Today's Editor; the assistant fills the dock's target and instruction. The dock's REPAINT commits.","as");
+const S1=FR("t",TTL("C")+BD(MN(um("make it slower and darker")+`<div class="j"><span>ASSISTANT IS WRITING… <em>· uses the GPU, ~10 s · nothing runs yet</em></span>${P("q","CANCEL")}</div>`)+SB(FIELDS({s:"f",t:"f",ti:"y"}))));
+const S2=FR("t",TTL("C")+BD(MN(um("make it slower and darker")+`<div class="er"><div><b>NO ANSWER IN 3 ATTEMPTS</b><br>Nothing changed; your draft and message are kept.</div>${P("q","SEND AGAIN")}${P("ao","OPEN FORM")}</div>`)+SB(FIELDS({ti:"y"}))));
+const S3=FR("t",TTL("F")+BD(FM(0)+PANEL(`<div class="wn"><div><b>THE ASSISTANT IS OFF</b><br>Ollama did not answer at LLM_API_URL. The form works without it.</div>${P("q","RETRY")}</div>`,`<div class="in" style="flex:1;opacity:.45">Assistant off</div>`)));
+$("c5").innerHTML=O("<b>5a · A TURN IN PROGRESS</b>",S1,"FILLING…; TITLE was touched, so it is skipped (CH-6).")+O("<b>5b · A FAILED TURN</b>",S2,"Turns are atomic: a failed reply fills nothing; draft kept.")+O("<b>5c · ASSISTANT OFF</b> · chat-first falls back",S3,"Form-first, full width; the panel says why. Unset <code>LLM_API_URL</code>: no toggle, no panel.");
+const D=[["CH-1 · two ways in over one draft and one thread; CHAT | FORM toggle in the title row; chat-first is the start screen (D-086).","two drafts (work lost crossing over); a Settings switch. <i>Cost:</i> one draft store."],
+["CH-2 · CREATE SONG and its consequence line live on the proposal card only; the sidebar's foot points at it.","commit at the sidebar's foot (unseen when collapsed); both (two acid fills to sync). <i>Cost:</i> the card repeats a live summary; older cards grey out."],
+["CH-3 · sidebar 360 px, open on first use then remembered; collapsed, a 38 px rail counts the fields filled.","hidden until asked; wider (squeezes the thread at 1366)."],
+["CH-4 · a field just filled: sky wash, left bar, ASSISTANT tag, old value struck; clears on the next message or a hand edit (then grey YOURS). The chat line lists CHANGED fields.","a timed fade (missable); a log only. <i>Cost:</i> reuses sky, scope's colour (Q-059)."],
+["CH-5 · UNDO TURN on every turn that filled fields: one click, those fields only.","editing back by hand."],
+["CH-6 · fields stay editable during a turn; the assistant skips a field you touched since sending, and says which.","locking the form for 3-15 s."],
+["CH-7 · form-first: panel 300 px, collapsible, fills fields, never commits.","a wider panel (the form's columns collapse at 1366)."],
+["CH-8 · assistant off or failing: chat-first falls back to form-first at full width, the panel explains and offers RETRY; a failed turn changes nothing; unset <code>LLM_API_URL</code> hides toggle and panel.","expanding the 360 px sidebar in place (a cramped form); disabling the app."],
+["CH-9 · editing mirrors (Q-055, assumable): chat-first = thread + song panel + dock as sidebar; Editor-first = today's Editor + a 300 px assistant filling the dock (the scalpel, D-079); toggle reads CHAT | EDITOR.","an assistant that only answers in the Editor."],
+["CH-10 · the Library's CREATE opens the remembered mode with the typed idea; CONTINUE opens the song's thread (D-081).","CREATE always opens chat (Q-056)."]];
+$("dec").innerHTML=D.map(d=>`<div class="dc"><b>${d[0]}</b> <i>Beat:</i> ${d[1]}</div>`).join("");
 </script></body></html>
