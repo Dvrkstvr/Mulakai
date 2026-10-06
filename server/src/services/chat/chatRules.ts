@@ -2,7 +2,8 @@
  * The chat turn's system prompt: a snapshot of SP-5 prompt.py `rules_for()` with V3 and V31 on (the
  * v3.1 prompt that passed every bar, D-117), pinned by chatRules.test.ts against the spike's own
  * output. One C0 adaptation: YuE2 is the only engine (D-112 e), so the engine clause does not offer
- * ACE-Step. The op reference is the SCORE planner's, reused verbatim (plannerRules). Pure.
+ * ACE-Step. The op reference is the SCORE planner's, reused verbatim (plannerRules). C3 adds one rule,
+ * only on a turn whose state has a reading (D-128), so every other turn keeps v3.1's measured text. Pure.
  */
 import { PLANNER_RULES } from '../score/plannerRules.js';
 import { ACTIONS } from './turnActions.js';
@@ -63,14 +64,24 @@ const RECIPE_FIELDS = 'RECIPE FIELDS: title (short); style: comma-separated genr
   + 'has its own new lines, no verse shares a line with a chorus, and a chorus repeats its own idea (not a line more than twice). '
   + 'key: a minor key (a name ending in m) for a sad or dark song, a major key otherwise, and it must match what you say in assumptions.';
 
+/** C3 (D-128): cover vs borrow, said once, only when a REFERENCE block is in the state. */
+export const REFERENCE_RULE = 'REFERENCE (a song the person gave, already read; its block is above the request): every recipe sets '
+  + 'reference_use. cover = the same song with new words or a new style ("like this, but in German", "sing it about my dog"); borrow '
+  + '= a new song in its style ("a song like this", "with this vibe"); none = the request does not build on it. Unsure and the block '
+  + 'says COVER: possible: cover, and say so in assumptions. Code copies bpm, key, time_signature and structure from the reference, so '
+  + 'take them from the block; you write title, style (its instrumentation words from the CAPTION) and lyrics (a cover: one entry '
+  + 'per sung section of its SECTIONS, in order).';
+
 /** The planner's op list without its own "answer with {ops}" opening: here the ops live inside an edit reply. */
 const OPS_BLOCK = 'OPS REFERENCE (for action edit; the ops go in the reply\'s "ops" list, 1-6 ops):\n'
   + PLANNER_RULES.slice(PLANNER_RULES.indexOf('Ops (bars are numbered'));
 
-/** The system prompt for the allowed actions: only an allowed recipe brings the fields, only an edit the op reference. */
-export function chatRules(allowed: TurnAction[] = ACTIONS): string {
+/** The system prompt for the allowed actions: only an allowed recipe brings the fields (and with a reading, the
+ * REFERENCE rule), only an edit the op reference. */
+export function chatRules(allowed: TurnAction[] = ACTIONS, opts: { reference?: boolean } = {}): string {
   const parts = [INTRO, `ACTIONS (exactly one per turn):\n${TEXT_ORDER.filter((a) => allowed.includes(a)).map((a) => ACTION_TEXT[a]).join('\n')}`];
   if (allowed.includes('recipe')) parts.push(RECIPE_FIELDS);
+  if (allowed.includes('recipe') && opts.reference) parts.push(REFERENCE_RULE);
   if (allowed.includes('edit')) parts.push(OPS_BLOCK);
   return parts.join('\n\n');
 }

@@ -13,8 +13,13 @@ describe('turn actions', () => {
     expect(allowedActions({ hasSong: true, scoreReadable: true }, 2)).toEqual(ACTIONS);
   });
 
-  it('C0a answers scalpel, analyze and edit as a say everywhere, and a recipe on a song thread (D-098, D-110)', () => {
-    expect(redirected({ hasSong: false, scoreReadable: false })).toEqual(['scalpel', 'analyze', 'edit']);
+  it('a follow-up turn after a reading allows ask, recipe and say only, at every rung (D-129)', () => {
+    expect(allowedActions({ hasSong: false, scoreReadable: false, followUp: true })).toEqual(['ask', 'recipe', 'say']);
+    expect(allowedActions({ hasSong: false, scoreReadable: false, followUp: true }, 2)).toEqual(['ask', 'recipe', 'say']);
+  });
+
+  it('C3 answers analyze on the draft thread; scalpel and edit stay a say everywhere, analyze and a recipe on a song thread (D-098, D-110, D-130)', () => {
+    expect(redirected({ hasSong: false, scoreReadable: false })).toEqual(['scalpel', 'edit']);
     expect(redirected({ hasSong: true, scoreReadable: true })).toEqual(['scalpel', 'analyze', 'edit', 'recipe']);
     expect(redirected({ hasSong: true, scoreReadable: true }, true)).toEqual(['scalpel', 'analyze', 'recipe']);
   });

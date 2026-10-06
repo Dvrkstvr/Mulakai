@@ -55,4 +55,32 @@ describe('message view (the states the client shows)', () => {
     expect(estSeconds(recipeFields(RECIPE))).toBe(Math.round((48 * 4 * 60) / 68));
     expect(estSeconds({})).toBeNull();
   });
+
+  it('an analyze card: pending, superseded, expired; committing while its READ job runs, then done (C3)', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'analyze', { proposalId: 'a', ...over });
+    expect(states([card()], ctx({}, { a: 'live' }))).toEqual(['pending']);
+    expect(states([card()], ctx({}, { a: 'superseded' }))).toEqual(['superseded']);
+    expect(states([card()], ctx())).toEqual(['expired']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'queued' } }, { a: 'live' }))).toEqual(['committing']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'running' } }))).toEqual(['committing']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'failed', error: 'x' } }, { a: 'live' }))).toEqual(['done']);
+    expect(states([card({ jobId: 'r' })], ctx())).toEqual(['done']);
+  });
+
+  it('a reading card: queued, reading, then the follow-up turn (queued / thinking), done; failed, cancelled, interrupted', () => {
+    const body = (reading: unknown) => ({ referenceId: 'ref', name: 'take.wav', followUp: true, reading }) as never;
+    const card = (reading: unknown, jobId = 'j') => msg('assistant', 'reading', { body: body(reading), jobId });
+    const read = { reading_v: 1 };
+    expect(states([card(null)], ctx({ j: { status: 'queued', queuePosition: 1 } }))).toEqual(['queued']);
+    expect(states([card(null)], ctx({ j: { status: 'loading' } }))).toEqual(['reading']);
+    expect(states([card(null)], ctx({ j: { status: 'running' } }))).toEqual(['reading']);
+    expect(states([card(null)], ctx({ j: { status: 'failed', error: 'the file is gone' } }))).toEqual(['failed']);
+    expect(states([card(null)], ctx({ j: { status: 'failed', error: 'cancelled', cancelled: true } }))).toEqual(['cancelled']);
+    expect(states([card(null)], ctx())).toEqual(['interrupted']);
+    expect(states([card(read, 't')], ctx({ t: { status: 'queued' } }))).toEqual(['queued']);
+    expect(states([card(read, 't')], ctx({ t: { status: 'running' } }))).toEqual(['thinking']);
+    expect(states([card(read, 't')], ctx({ t: { status: 'done' } }))).toEqual(['done']);
+    expect(states([card(read, 't')], ctx({ t: { status: 'failed', error: 'x' } }))).toEqual(['done']);
+    expect(states([card(read, 't')], ctx())).toEqual(['done']);
+  });
 });

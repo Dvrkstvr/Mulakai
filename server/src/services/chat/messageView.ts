@@ -8,7 +8,7 @@
  * card from that job follows). Pure: the caller passes the job and proposal lookups.
  */
 import { recipeFields } from './draftModel.js';
-import type { ChatMessage, Draft, DraftFields, FailedBody, MessageState, RecipeBody } from './chatTypes.js';
+import type { ChatMessage, Draft, DraftFields, FailedBody, MessageState, ReadingBody, RecipeBody } from './chatTypes.js';
 
 export interface JobView { status: 'queued' | 'loading' | 'running' | 'done' | 'failed'; error?: string; progressText?: string; queuePosition?: number; cancelled?: boolean }
 export interface ViewContext {
@@ -80,12 +80,30 @@ function recipeState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext):
   return m.jobId && live(ctx.job(m.jobId)) ? 'committing' : 'pending';
 }
 
+function analyzeState(m: ChatMessage, ctx: ViewContext): MessageState {
+  if (m.jobId) return live(ctx.job(m.jobId)) ? 'committing' : 'done';
+  const life = m.proposalId ? ctx.proposal(m.proposalId) : null;
+  return life === 'live' ? 'pending' : life ?? 'expired';
+}
+
+function readingState(m: ChatMessage, ctx: ViewContext): MessageState {
+  const job = m.jobId ? ctx.job(m.jobId) : undefined;
+  if (job?.status === 'queued') return 'queued';
+  const saved = Boolean((m.body as ReadingBody | null)?.reading);
+  if (live(job)) return saved ? 'thinking' : 'reading';
+  if (saved || job?.status === 'done') return 'done';
+  if (job?.cancelled) return 'cancelled';
+  return job ? 'failed' : 'interrupted';
+}
+
 export function messageViews(messages: ChatMessage[], ctx: ViewContext) {
   return messages.map((m, i) => {
     let state: MessageState | null = null;
     if (m.role === 'user') state = userState(messages, i, ctx);
     else if (m.kind === 'failed') state = failedState(m);
     else if (m.kind === 'recipe') state = recipeState(messages, m, ctx);
+    else if (m.kind === 'analyze') state = analyzeState(m, ctx);
+    else if (m.kind === 'reading') state = readingState(m, ctx);
     const job = m.jobId ? ctx.job(m.jobId) ?? null : null;
     return { ...m, body: wireBody(m), state, job };
   });

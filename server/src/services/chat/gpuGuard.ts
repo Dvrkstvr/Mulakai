@@ -1,8 +1,8 @@
 /**
  * The GPU check before a chat job that needs the card (READ, CREATE SONG, CREATE COVER; D-053,
  * docs/decisions/0008): refused while a planner model is loaded, unless a `plan` job holds the slot
- * (it unloads before the next job starts, D-011). One implementation; CREATE SONG's inline copy in
- * createFromDraft moves here with CR-4.
+ * (it unloads before the next job starts, D-011). One implementation: createFromDraft (CREATE SONG,
+ * CREATE COVER) and readCommit (READ, RE-ANALYZE) call it.
  */
 import { config } from '../../config.js';
 import { getRunning } from '../genQueue.js';

@@ -4,41 +4,45 @@
  * job holding the slot will unload it), then today's YuE2 first take with the LIVE draft, not the
  * proposal. When the take is saved, `onSaved` attaches the draft thread to the new song and appends
  * the song card. The card's message keeps the take's job id, so a reload finds it committing.
+ * CREATE COVER (F-063, D-128) is the same path: a cover draft re-checks its reference and reading
+ * (coverBlockers) and passes the reading's score to the take as `cover` (cot `melody`, task `cover`).
  */
-import { config } from '../../config.js';
 import { db } from '../../db/index.js';
-import { startEngineGeneration, TRUNCATED_LABEL } from '../engineGenJobs.js';
+import { startEngineGeneration, TRUNCATED_LABEL, type EngineCover } from '../engineGenJobs.js';
 import { YUE2_CAPABILITIES, yue2Engine } from '../engines/yue2.js';
 import type { CreateFields, SongEngine } from '../engines/types.js';
-import { getRunning, QueueFullError } from '../genQueue.js';
+import { QueueFullError } from '../genQueue.js';
 import { getJob, type Job } from '../jobRegistry.js';
-import { loadedModels, type LoadedModel } from '../score/ollamaControl.js';
-import { plannerLoaded } from '../score/scoreLimits.js';
 import { draftFields } from './draftFields.js';
+import { gpuGuard, gpuGuardDeps, type GpuGuardDeps } from './gpuGuard.js';
 import { appendMessage, updateMessage } from './messageStore.js';
 import { proposalById, proposalLife } from './proposalStore.js';
 import { createBlockers } from './recipeRules.js';
+import { isRead } from './reading.js';
+import { coverBlockers } from './referenceRecipe.js';
+import { getReference } from './referenceStore.js';
 import { baseVersions } from './songStateSource.js';
 import { attach, threadById } from './threadStore.js';
-import type { CardBody } from './chatTypes.js';
+import type { CardBody, ChatThread } from './chatTypes.js';
 
-export interface CreateDeps {
+/** The engine, the take's start, and gpuGuard's checks (no planner on the GPU unless a `plan` job holds the slot). */
+export interface CreateDeps extends GpuGuardDeps {
   engine: SongEngine;
   start: typeof startEngineGeneration;
-  /** The planner's `/api/ps`. */
-  loaded: () => Promise<LoadedModel[]>;
-  plannerConfigured: boolean;
-  /** A `plan` job holds the slot: it unloads before the take can start (D-011). */
-  planRunning: () => boolean;
 }
 
 export function createDeps(over: Partial<CreateDeps> = {}): CreateDeps {
-  return {
-    engine: yue2Engine, start: startEngineGeneration, plannerConfigured: Boolean(config.llmUrl),
-    loaded: () => loadedModels({ url: config.llmUrl, model: config.llmModel }),
-    planRunning: () => getRunning()?.kind === 'plan',
-    ...over,
-  };
+  return { engine: yue2Engine, start: startEngineGeneration, ...gpuGuardDeps(), ...over };
+}
+
+/** A cover draft's score and source, or why CREATE COVER cannot run; `{}` for a draft that is not a cover. */
+function coverOf(thread: ChatThread): { cover?: EngineCover; reason?: string } {
+  const use = thread.draft.reference;
+  if (use?.use !== 'cover') return {};
+  const ref = getReference(use.referenceId);
+  const blocked = coverBlockers(thread.draft, ref && ref.threadId === thread.id ? ref : null);
+  if (blocked.length || !ref?.reading || !isRead(ref.reading.score)) return { reason: blocked.join('; ') || 'the reference has not been read: press READ first' };
+  return { cover: { abc: ref.reading.score.abc, source: ref.name } };
 }
 
 const LANGUAGE_WORD: Record<string, string> = { en: 'English', de: 'German', es: 'Spanish', fr: 'French', it: 'Italian', pt: 'Portuguese' };
@@ -83,15 +87,15 @@ export async function createFromDraft(threadId: string, proposalId: string, deps
   if (takeRunning(threadId)) return { reason: 'CREATE SONG is already running for this chat' };
   const blockers = createBlockers(thread.draft.fields, { yueConfigured: Boolean(deps.engine.url) });
   if (blockers.length) return { reason: blockers.join('; ') };
-  if (deps.plannerConfigured && !deps.planRunning()) {
-    const models = await deps.loaded().catch(() => [] as LoadedModel[]);
-    if (models.length) return { reason: plannerLoaded(models.map((m) => m.name)) };
-  }
+  const { cover, reason } = coverOf(thread);
+  if (reason) return { reason };
+  const refused = await gpuGuard(deps);
+  if (refused) return { reason: refused };
   const { title, fields } = draftFields(thread.draft.fields);
   let jobId = '';
   let job: Job;
   try {
-    job = deps.start(deps.engine, withLanguage(fields, thread.draft.fields.language), title, undefined, undefined,
+    job = deps.start(deps.engine, withLanguage(fields, thread.draft.fields.language), title, undefined, cover,
       (songId) => landed(threadId, songId, jobId));
   } catch (err) {
     if (err instanceof QueueFullError) return { reason: err.message };
