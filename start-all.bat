@@ -125,7 +125,7 @@ if defined ENGINE_CONFIGURED (
 echo.
 echo [1/8] Starting the chat planner (Ollama)...
 if defined OLLAMA_READY start "Ollama (chat, 16k)" cmd /k ""%OLLAMA_EXE%" serve"
-if defined OLLAMA_RUNNING echo   Not started - an Ollama already answers on :11434; the chat needs OLLAMA_CONTEXT_LENGTH=16384 on it
+if defined OLLAMA_RUNNING echo   Using the Ollama already running on :11434 (fine if it was started with OLLAMA_CONTEXT_LENGTH=16384, as this script does; the chat says so if its context is too short)
 if not defined OLLAMA_EXE if defined LLM_API_URL echo   Not started - using LLM_API_URL=%LLM_API_URL%
 if not defined LLM_API_URL echo   Skipped - no Ollama installed, so CHAT and SCORE stay hidden. See PLAN.md "Score Agent".
 
