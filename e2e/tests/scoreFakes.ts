@@ -39,21 +39,19 @@ export async function seedYue2Song(request: APIRequestContext, title: string): P
   return (await find())!.id;
 }
 
-/** The header's CHAT / LIBRARY switch, shown while the chat is configured (D-099). */
+/** The header's CHAT / LIBRARY switch, shown while the chat is configured (D-099; the app starts on LIBRARY, D-119). */
 export const viewButton = (page: Page, name: 'CHAT' | 'LIBRARY') =>
   page.getByRole('navigation', { name: 'Views' }).getByRole('button', { name, exact: true });
 
-/** Opens a song in the Editor by title, as a person would: this stack sets LLM_API_URL and YUE_API_URL, so the
- * app opens on CHAT (D-099); LIBRARY in the header, then the Ctrl K palette. */
+/** Opens a song in the Editor by title, as a person would: the app starts on the Library (D-119), then the
+ * Ctrl K palette. */
 export async function openSong(page: Page, title: string): Promise<void> {
   await page.goto('/');
-  await expect(viewButton(page, 'CHAT')).toHaveAttribute('aria-current', 'page');
-  await viewButton(page, 'LIBRARY').click();
   await expect(viewButton(page, 'LIBRARY')).toHaveAttribute('aria-current', 'page');
   await page.keyboard.press('Control+k');
   const palette = page.getByRole('dialog', { name: 'Command palette' });
   await palette.getByRole('textbox').fill(title);
-  // Click the song's row once it is listed, not Enter: arriving from CHAT, the songs can land after the typed text.
+  // Click the song's row once it is listed, not Enter: the songs can land after the typed text.
   await palette.getByRole('button', { name: `${title} song`, exact: true }).click();
   await expect(page.locator('.title-row .song-title')).toHaveText(title);
 }

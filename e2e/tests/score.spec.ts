@@ -30,9 +30,10 @@ async function openScore(page: import('@playwright/test').Page) {
   return { dock, panel: dock.getByRole('tabpanel', { name: 'SCORE' }) };
 }
 
-test('with LLM_API_URL and YUE_API_URL set, the app opens on CHAT, on the draft thread (D-099)', async ({ page }) => {
+test('with LLM_API_URL and YUE_API_URL set, the app opens on the Library and CHAT is one click away (D-119)', async ({ page }) => {
   await page.goto('/');
-  await expect(viewButton(page, 'CHAT')).toHaveAttribute('aria-current', 'page');
+  await expect(viewButton(page, 'LIBRARY')).toHaveAttribute('aria-current', 'page');
+  await viewButton(page, 'CHAT').click();
   await expect(page.getByRole('textbox', { name: 'Message' })).toBeVisible();
 });
 
