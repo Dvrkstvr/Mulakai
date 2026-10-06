@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { Song } from './api';
 import { Editor } from './Editor';
 import { CreateView } from './CreateView';
@@ -65,9 +65,7 @@ export default function App() {
     if (songId) void chat.openSong(songId);
     else if (!chat.thread) void chat.openDraft();
   }, []);
-  const home = useRef(true);
-  home.current = view === 'library' && !openSongId;
-  const booted = useChatBoot(() => openChat(), () => home.current);
+  useChatBoot();
   const navValue = useMemo(() => ({ goToSettings: () => setView('settings'), openEditor, openChat }), [openEditor, openChat]);
   const isTakeover = view === 'create' || view === 'settings' || view === 'forge' || view === 'chat';
   const showLibrary = (songId: string | null = null) => { setView('library'); setDetailSongId(songId); refresh(); };
@@ -125,7 +123,7 @@ export default function App() {
       />
       <div className="app-body">
       <AnimatePresence mode="wait">
-        {!booted ? null : openSongId ? (
+        {openSongId ? (
           <motion.div className="view-fill" key="editor" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
             <MaterializeSweep />
             {/* refreshFolders too: an import lands here directly, so leaving the editor is
