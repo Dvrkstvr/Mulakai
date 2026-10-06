@@ -405,3 +405,13 @@ Both write the same draft, so switching keeps everything; CREATE SONG / GENERATE
 ## D-087 · 2026-10-06 · stage 5 (chat mockup) · by: assumed (conductor), the owner may overrule on the mockup
 design/chat-create.html (CH-1..CH-10) is the layout spec for D-086 on these defaults: CREATE SONG and its consequence line live on the proposal card only (CH-2); sidebar 360 px, open on first use then remembered, a 38 px rail when collapsed (CH-3); "just filled" = sky wash + ASSISTANT tag + the old value struck, cleared on the next message or a hand edit (CH-4); UNDO TURN (CH-5); fields stay editable during a turn and the assistant skips touched fields (CH-6, Q-057); the form-first assistant panel is 300 px and never commits (CH-7); the fallbacks of Q-058 (CH-8); editing mirrors creating (CH-9, Q-055 default); Library CREATE opens the remembered mode (CH-10, Q-056).
 - instead of: commit on the sidebar foot or in both places; locking fields during a turn; expanding the sidebar in place when the assistant is off.
+
+## D-088 · 2026-10-06 · stage 5 (chat, Q-055) · by: user
+Editing mirrors creating: chat-first (the song's thread, versions and the dock as the sidebar) and Editor-first (today's Editor with the chat as a side assistant that fills the dock's verbs). The chat-create.html layout is signed off ("layout is awesome").
+
+## D-089 · 2026-10-06 · stage 5 (chat) · by: user
+"Always have the latest version of the song playable": the chat view keeps a player for the song's active version in view at all times; a new version replaces it the moment it is saved.
+And "always analyze the song so lyrics, abc and sections are up to date": every new version (first take, score edit, splice, repaint, add layer, any engine) is analyzed after it is saved: word timings (lyrics-server), a score with sections (YuE2's own score when YuE2 made the version, otherwise yue-server's transcriber), so the thread's song-state block, the section strip and the marking (D-090) always match what plays. Consequences in Q-062.
+
+## D-090 · 2026-10-06 · stage 5 (chat) · by: user
+The user marks a part of the song as context for the chat, like in the Editor: click a section (e.g. the chorus) to mark it, drag to extend it a bit; the chat turn gets the marked range as data alongside the prompt (bars, seconds, the sections and lyric lines it covers). Extends F-032's referent (section / lyric line) with a free bar range that may cross a section boundary.
