@@ -793,7 +793,11 @@ requiring its own justification against a screen-count rule.
          op with a ✓/✕ verdict and a `text-low` tag: `follows` or `a
          request`; a rejected op is listed with its reason, never dropped)
          and one always-visible mono checks line (`65 bars · est 183 s of
-         360 s · 1,520 of 4,096 tokens · chords valid`). Under it, a plan
+         360 s · 1,520 of 4,096 tokens · chords valid`; on a chord-free
+         score that renders the melody, `no chords · melody render`, plain,
+         and the consequence line names the mode: "renders the melody only,
+         no chords" or "adds chords: the whole song renders with chords",
+         F-065, D-132, D-139, added 2026-10-07). Under it, a plan
          that passed only on a later attempt lists each earlier refused
          attempt in one rust mono line (`attempt 1 refused: the Vocal sings
          in bars 20-23; free: 1-10, 47-65`; first two reasons, then "and n

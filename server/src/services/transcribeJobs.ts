@@ -33,7 +33,7 @@ async function stopTranscription(engine: SongEngine, taskId: string): Promise<un
 
 /** Resolves with the finished state, or undefined once aborted on our side (the engine is
  * then asked to stop too). Throws on a failed transcription. */
-async function poll(job: Job, engine: SongEngine): Promise<TranscriptionState | undefined> {
+async function poll(job: Job, engine: SongEngine, onProgress?: (p: number | undefined) => void): Promise<TranscriptionState | undefined> {
   let strikes = 0;
   for (;;) {
     await new Promise((r) => setTimeout(r, config.pollIntervalMs));
@@ -55,23 +55,33 @@ async function poll(job: Job, engine: SongEngine): Promise<TranscriptionState | 
     if (state.state === 'done') return state;
     job.progress = state.progress;
     job.progressStage = state.stage;
+    onProgress?.(state.progress);
   }
+}
+
+/** Submit, poll and fetch the score inside a slot `job` already holds (TRANSCRIBE's own job, or
+ * a chat reading's, CR-2). Undefined once aborted: the engine was asked to stop and has drained.
+ * Throws on a failed transcription. The caller settles `job`. */
+export async function runTranscription(
+  job: Job, engine: SongEngine, source: TranscribeSource, opts?: { chords?: boolean },
+  onProgress?: (p: number | undefined) => void,
+): Promise<TranscriptionOutcome | undefined> {
+  job.taskId = await transcribe(engine, source.data, source.filename, job.id, ...(opts ? [opts] : []));
+  if (wasAborted(job)) return stopTranscription(engine, job.taskId);
+  job.status = 'running';
+  const finished = await poll(job, engine, onProgress);
+  if (!finished?.facts) return undefined;
+  const score = await fetchTranscriptionScore(engine, job.taskId);
+  return { ...finished.facts, score, sourceLabel: source.label };
 }
 
 /** Throws QueueFullError synchronously when the queue is full. */
 export function startTranscription(engine: SongEngine, source: TranscribeSource): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
   return queueJob({ kind: 'transcribe', title: source.label, engine: engine.id }, job, async () => {
-    job.taskId = await transcribe(engine, source.data, source.filename, job.id);
-    if (wasAborted(job)) {
-      await stopTranscription(engine, job.taskId);
-      return;
-    }
-    job.status = 'running';
-    const finished = await poll(job, engine);
-    if (!finished?.facts) return;
-    const score = await fetchTranscriptionScore(engine, job.taskId);
-    job.transcription = { ...finished.facts, score, sourceLabel: source.label };
+    const outcome = await runTranscription(job, engine, source);
+    if (!outcome) return;
+    job.transcription = outcome;
     job.status = 'done';
   });
 }

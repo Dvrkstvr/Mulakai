@@ -2,6 +2,9 @@
 transcription decisions"). SheetSage2 pins its own torch/Transformers/NumPy,
 so it runs as a subprocess from its own venv: `infer.py <audio> --melody-only
 --render-audio`, which keeps both melody voices and drops chord symbols.
+A request with `chords` (a chat reading, D-131) drops both flags: SheetSage2
+then writes its chord labels into the Vocal voice (seen in its
+notation_sheetsage2.py) and renders no piano preview.
 
 Success is decided by the score, not the exit code: a failed piano render
 exits 1 but still writes score.abc (the spike hit exactly this).
@@ -45,10 +48,11 @@ class Transcriber:
         missing = [str(path) for path in needed if not path.is_file()]
         return ("missing_files", "not found: " + ", ".join(missing)) if missing else ("ready", "")
 
-    def run(self, source: Path, out: Path, *, cancelled, on_progress) -> dict:
+    def run(self, source: Path, out: Path, *, cancelled, on_progress, chords: bool = False) -> dict:
         """Transcribe into `out`; returns the result facts plus `preview` (bool)."""
+        flags = [] if chords else ["--melody-only", "--render-audio"]
         command = [self.python, str(self.dir / "infer.py"), str(source), "--output", str(out),
-                   "--melody-only", "--render-audio", "--local-files-only"]
+                   *flags, "--local-files-only"]
         tail: collections.deque[str] = collections.deque(maxlen=12)
         with (out / "sheetsage.log").open("w", encoding="utf-8") as log_file:
             proc = subprocess.Popen(command, cwd=self.dir, stdout=subprocess.PIPE,
@@ -109,13 +113,15 @@ def run_transcription(transcriber: Transcriber, store, job_id: str, request: dic
     started = time.monotonic()
     out = store.artifact_dir(job_id)
     out.mkdir(parents=True, exist_ok=True)
+    chords = bool(request.get("chords"))
     store.progress(job_id, stage="transcribing", progress=None)
     log.info("transcription %s started (%s)", job_id, request["filename"])
     try:
         facts = transcriber.run(Path(request["source"]), out, cancelled=lambda: store.cancelled(job_id),
-                                on_progress=lambda fraction: store.progress(job_id, progress=fraction))
+                                on_progress=lambda fraction: store.progress(job_id, progress=fraction),
+                                chords=chords)
         preview = facts.pop("preview")
-        result = {"score_url": f"/v1/transcriptions/{job_id}/score",
+        result = {"score_url": f"/v1/transcriptions/{job_id}/score", "chords": chords,
                   "preview_url": f"/v1/transcriptions/{job_id}/preview" if preview else None,
                   "measures": facts.pop("abc_measures"), **facts,
                   "timing": {"total_seconds": round(time.monotonic() - started, 3)}}

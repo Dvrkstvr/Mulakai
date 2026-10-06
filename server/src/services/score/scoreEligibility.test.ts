@@ -42,6 +42,16 @@ describe('decideEligibility (F-018 #1, #2)', () => {
   });
 
   it.each([
+    ['a cover (gen_task cover, a YuE2 take from a score)', { source: source({ genTask: 'cover' }) }],
+    ['an instrumental take (tags-only lyrics)', { source: source({ lyrics: '[Intro]\n\n[Verse]\n\n[Chorus]\n' }) }],
+    ['a chord-free score', { read: read({ chordsPresent: false }) }],
+    ['a score whose chords the checker did not report', { read: read({ chordsPresent: null }) }],
+    ['a chord-free instrumental cover', { source: source({ genTask: 'cover', lyrics: '[Intro]\n' }), read: read({ chordsPresent: false }) }],
+  ])('%s is eligible (F-065, D-132)', (_name, over) => {
+    expect(decideEligibility(facts(over as Partial<EligibilityFacts>))).toEqual({ state: 'eligible' });
+  });
+
+  it.each([
     ['an ACE-Step song', { source: source({ engine: null, genTask: 'text2music' }) }],
     ['an imported song', { source: source({ engine: null, genTask: 'import' }) }],
     ['a HeartMuLa song', { source: source({ engine: 'heartmula' }) }],
@@ -58,10 +68,6 @@ describe('decideEligibility (F-018 #1, #2)', () => {
       'This song has 2 layers; a re-render would drop the extra one.'],
     ['a repaint version', { source: source({ baseVersions: [source().baseVersions[0], repaint] }) },
       'This song has a repaint version, so score editing ended when it was made.'],
-    ['a cover', { source: source({ genTask: 'cover' }) },
-      'This song is a cover of another score; not supported yet.'],
-    ['an instrumental take (tags-only lyrics)', { source: source({ lyrics: '[Intro]\n\n[Verse]\n\n[Chorus]\n' }) },
-      'This song is instrumental; not supported yet.'],
     ['no sidecar', { source: source({ abc: null }), read: null },
       'This song has no saved score.'],
     ['a sidecar failing parse_abc', { read: read({ ok: false, error: 'group 1, Ins, bar 3: event after the measure end',
@@ -69,8 +75,6 @@ describe('decideEligibility (F-018 #1, #2)', () => {
       'The saved score fails the checker: bar 3 (Ins): 36 of 32 units, too long by 4.'],
     ['a sidecar failing with no bar message', { read: read({ ok: false, error: 'group 60, Ins: expected V: Ins', chordsPresent: null }) },
       'The saved score fails the checker: group 60, Ins: expected V: Ins.'],
-    ['a chord-free score', { read: read({ chordsPresent: false }) },
-      'This score has no chords; not supported yet.'],
   ])('%s is ineligible with its own reason', (_name, over, reason) => {
     expect(decideEligibility(facts(over as Partial<EligibilityFacts>))).toEqual({ state: 'ineligible', reason });
   });
@@ -79,13 +83,10 @@ describe('decideEligibility (F-018 #1, #2)', () => {
     const reasons = new Set([
       facts({ source: source({ layerCount: 3 }) }),
       facts({ source: source({ baseVersions: [repaint] }) }),
-      facts({ source: source({ genTask: 'cover' }) }),
-      facts({ source: source({ lyrics: '[Verse]\n' }) }),
       facts({ source: source({ abc: null }), read: null }),
       facts({ read: read({ ok: false, error: 'x' }) }),
-      facts({ read: read({ chordsPresent: false }) }),
     ].map((f) => { const e = decideEligibility(f); return e.state === 'ineligible' ? e.reason : e.state; }));
-    expect(reasons.size).toBe(7);
+    expect(reasons.size).toBe(4);
   });
 
   it('a song-row reason wins over the sidecar verdict', () => {

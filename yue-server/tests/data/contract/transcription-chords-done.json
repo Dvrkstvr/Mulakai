@@ -1,0 +1,71 @@
+{
+ "name": "transcription-chords-done",
+ "request": {
+  "method": "POST",
+  "path": "/v1/transcriptions",
+  "form": {
+   "chords": "true"
+  },
+  "file": "audio"
+ },
+ "response": {
+  "status": 202,
+  "body": {
+   "id": "tr-0001",
+   "kind": "transcription",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "queued",
+   "stage": "queued",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": null,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ },
+ "final": {
+  "status": 200,
+  "body": {
+   "id": "tr-0001",
+   "kind": "transcription",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "succeeded",
+   "stage": "finished",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": 1.0,
+   "finished_at": 1.0,
+   "cancel_requested": false,
+   "result": {
+    "score_url": "/v1/transcriptions/tr-0001/score",
+    "chords": true,
+    "preview_url": null,
+    "measures": 3,
+    "warnings": [
+     "short clip"
+    ],
+    "vocal_notes": 6,
+    "instrumental_notes": 5,
+    "duration_seconds": 8.2,
+    "section_starts": [
+     {
+      "label": "verse",
+      "bar": 0,
+      "seconds": 0.5
+     }
+    ],
+    "timing": {
+     "total_seconds": 1.0
+    }
+   },
+   "error": null
+  }
+ },
+ "score": "X:1\nK:C\n% verse\nV: Vocal\n\"Am\"C8|\n"
+}

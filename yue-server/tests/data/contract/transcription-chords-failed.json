@@ -1,0 +1,53 @@
+{
+ "name": "transcription-chords-failed",
+ "request": {
+  "method": "POST",
+  "path": "/v1/transcriptions",
+  "form": {
+   "chords": "true"
+  },
+  "file": "audio"
+ },
+ "response": {
+  "status": 202,
+  "body": {
+   "id": "tr-0001",
+   "kind": "transcription",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "queued",
+   "stage": "queued",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": null,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ },
+ "final": {
+  "status": 200,
+  "body": {
+   "id": "tr-0001",
+   "kind": "transcription",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "failed",
+   "stage": "finished",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": 1.0,
+   "finished_at": 1.0,
+   "cancel_requested": false,
+   "result": null,
+   "error": {
+    "code": "no_score",
+    "message": "SheetSage2 built no score: no beats decoded"
+   }
+  }
+ },
+ "score": null
+}

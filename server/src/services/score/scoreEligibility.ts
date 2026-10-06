@@ -30,13 +30,12 @@ export const CHANGED_SINCE_PLAN = 'this song changed since the plan';
 
 const ineligible = (reason: string): Eligibility => ({ state: 'ineligible', reason });
 
-/** A tags-only lyric sheet (`INSTRUMENTAL_LYRICS` or the user's own blank sections). */
-function isInstrumental(lyrics: string | null): boolean {
-  if (lyrics === null) return false;
-  return lyrics.split('\n').every((line) => !line.trim() || /^\s*\[[^\]]*\]\s*$/.test(line));
-}
+/** YuE2 songs made from a style and words, or from a score (a cover); both render from their saved score. */
+const SCORED_TASKS = new Set(['text2music', 'cover']);
 
-/** Everything decidable from the DB alone; null = only the sidecar's verdict is left. */
+/** Everything decidable from the DB alone; null = only the sidecar's verdict is left. Covers,
+ * instrumentals (tags-only lyrics) and chord-free scores are eligible from C3 (F-065, D-132): the
+ * render's cot follows the score (renderMode) and REWRITE LYRICS on no words is refused (scoreLimits). */
 export function decideBeforeRead(facts: Omit<EligibilityFacts, 'read'>): Eligibility | null {
   const s = facts.source;
   if (!facts.plannerConfigured || !facts.yueConfigured || !s || s.engine !== 'yue2') return { state: 'hidden' };
@@ -44,9 +43,7 @@ export function decideBeforeRead(facts: Omit<EligibilityFacts, 'read'>): Eligibi
   if (s.baseVersions.some((v) => v.engine !== 'yue2')) {
     return ineligible('This song has a repaint version, so score editing ended when it was made.');
   }
-  if (s.genTask === 'cover') return ineligible('This song is a cover of another score; not supported yet.');
-  if (s.genTask !== 'text2music') return { state: 'hidden' };
-  if (isInstrumental(s.lyrics)) return ineligible('This song is instrumental; not supported yet.');
+  if (!SCORED_TASKS.has(s.genTask ?? '')) return { state: 'hidden' };
   if (s.abc === null) return ineligible('This song has no saved score.');
   return null;
 }
@@ -58,7 +55,6 @@ export function decideEligibility(facts: EligibilityFacts): Eligibility {
   if (!r) return { state: 'offline', reason: 'The saved score has not been checked yet. RECHECK.' };
   if ('unreachable' in r) return { state: 'offline', reason: `Score checker unreachable: ${r.unreachable}. Start yue-server, then RECHECK.` };
   if (!r.ok) return ineligible(`The saved score fails the checker: ${r.messages[0] ?? r.error ?? 'unknown error'}.`);
-  if (r.chordsPresent !== true) return ineligible('This score has no chords; not supported yet.');
   return { state: 'eligible' };
 }
 
