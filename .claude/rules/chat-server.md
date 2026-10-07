@@ -59,3 +59,8 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
   (D-162); measure any change to it with `chatCp3` before merging.
 - `Reading` (`reading_v`) and `own_json` (`own_v`) are read from the raw blob;
   reference files are removed only by `sweepFiles()` (orphans by id).
+- C1 (architecture.md "Chat (C1)", docs/decisions/0009): a version analysis
+  reuses `readingSteps`; `analysis_json` (`analysis_v`) is read from the raw
+  blob. One rule (`barShift`) says whether bars moved; the mark is a
+  `planReferent` `range`, resolved at SEND and at the turn's start, never
+  remapped (stale → 409 or a failed line before the planner loads).
