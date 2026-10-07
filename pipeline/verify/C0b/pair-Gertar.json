@@ -1,0 +1,80 @@
+{
+ "song": {
+  "id": "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+  "name": "Gertar",
+  "text": "reharmonize the first chorus with jazz chords, changing the root of the chords"
+ },
+ "v1": "c8144c53-6612-4efc-8a4c-da279f2e0307",
+ "v2": "ba3c7f98-1734-4e2e-806a-aa0940e405a9",
+ "label": "score edit · REHARMONIZE 15–22 · bars 15–22 spliced",
+ "splice": {
+  "kind": "reharmonize",
+  "bars": [
+   15,
+   22
+  ],
+  "lengthDiffS": 0.0111
+ },
+ "whole": false,
+ "fallback": null,
+ "ops": [
+  {
+   "op": "REHARMONIZE",
+   "from_bar": 15,
+   "to_bar": 22,
+   "chords": [
+    {
+     "bar": 15,
+     "beat": 1,
+     "root": "G",
+     "quality": "7"
+    },
+    {
+     "bar": 16,
+     "beat": 1,
+     "root": "C",
+     "quality": "m7"
+    },
+    {
+     "bar": 17,
+     "beat": 1,
+     "root": "F",
+     "quality": "7"
+    },
+    {
+     "bar": 18,
+     "beat": 1,
+     "root": "Bb",
+     "quality": "maj7"
+    },
+    {
+     "bar": 19,
+     "beat": 1,
+     "root": "D",
+     "quality": "m7b5"
+    },
+    {
+     "bar": 20,
+     "beat": 1,
+     "root": "G",
+     "quality": "7"
+    },
+    {
+     "bar": 21,
+     "beat": 1,
+     "root": "C",
+     "quality": "m7"
+    },
+    {
+     "bar": 22,
+     "beat": 1,
+     "root": "F",
+     "quality": "7"
+    }
+   ]
+  }
+ ],
+ "seconds": 214.8498125,
+ "duration": 214.8498125,
+ "editText": "reharmonize the first chorus with jazz chords, changing the root of the chords"
+}

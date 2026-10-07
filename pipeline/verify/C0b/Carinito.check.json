@@ -1,0 +1,22 @@
+{
+ "null_test": {
+  "samples": 6730898,
+  "different": 0,
+  "max_abs_diff": 0.0
+ },
+ "seams": [
+  {
+   "out_s": 118.65,
+   "lufs_step": 4.56,
+   "base_lufs_step": 4.138,
+   "lufs_step_excess": 0.422
+  },
+  {
+   "out_s": 138.868,
+   "lufs_step": -0.064,
+   "base_lufs_step": 0.147,
+   "lufs_step_excess": -0.211
+  }
+ ],
+ "length_diff_s": -0.002
+}
