@@ -91,8 +91,9 @@ describe('ChatView', () => {
     expect(out).toMatch(/aria-label="Title" disabled=""/);
   });
   it('a take cut at the length cap: TRUNCATED in the folded card and a rust line on the song card, never DONE', () => {
-    const song = msg({ id: 'm3', seq: 3, role: 'assistant', kind: 'song', text: 'Saved as v1.', state: null, body: { chat_v: 1, seconds: 360, label: 'first generation (truncated)', number: 1, truncated: true } });
-    setup([msg({}), { ...RECIPE, state: 'done' }, song], FULL, 's1');
+    // The server marks a recipe card done by the song card sharing its take's job id (messageView cardState).
+    const song = msg({ id: 'm3', seq: 3, role: 'assistant', kind: 'song', text: 'Saved as v1.', state: null, jobId: 'take1', body: { chat_v: 1, seconds: 360, label: 'first generation (truncated)', number: 1, truncated: true } });
+    setup([msg({}), { ...RECIPE, state: 'done', jobId: 'take1' }, song], FULL, 's1');
     const out = view();
     expect(out).toContain('TRUNCATED · v1 SAVED');
     expect(out).not.toContain('DONE · v1 SAVED');

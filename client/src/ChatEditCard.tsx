@@ -75,7 +75,7 @@ export function ChatEditCard({ message, view, base, next, ahead, canAsk, onApply
       </div>
       <div className="chat-edit-body">
         {body.assumptions.length > 0 && <div className="chat-card-style">{body.assumptions.join(' · ')}</div>}
-        <ScorePlanList plan={asPlan(body)} baseStyle={null} fromBpm={null} baseVersion={base} />
+        <ScorePlanList plan={asPlan(body)} baseStyle={null} fromBpm={body.from?.bpm ?? null} fromKey={body.from?.key ?? null} baseVersion={base} />
         {view.kind !== 'superseded' && <BarStrip splice={body.splice} total={stripTotal(body)} base={base} />}
         {!body.splice.splice && <div className="chat-hn">{WHY_WHOLE} {body.splice.reason}</div>}
       </div>
