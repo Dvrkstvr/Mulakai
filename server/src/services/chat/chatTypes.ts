@@ -155,7 +155,9 @@ export type MessageState =
   | 'queued' | 'thinking' | 'pending' | 'superseded' | 'expired'
   | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted'
   /** C3: a reading card while its reading job runs (before the follow-up turn). */
-  | 'reading';
+  | 'reading'
+  /** C0b: an edit card whose APPLY was refused because the song changed since the plan (ASK AGAIN). */
+  | 'stale';
 export interface MessageView extends ChatMessage { state: MessageState | null }
 
 export interface ThreadView {

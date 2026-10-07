@@ -17,6 +17,8 @@ export interface EditBody {
   attempts: number;
   /** Each earlier refused attempt's reasons (D-060). */
   refusals: string[][];
+  /** C0b (CB-3, additive): APPLY's refusal once the song changed since the plan; the card reads STALE. */
+  stale?: string;
 }
 /** What an edit turn plans on (songStateSource): an eligible song's score as read and its source. */
 export interface EditBase {
