@@ -1,16 +1,19 @@
 import { Fragment, useState } from 'react';
 import { useLuckyRoll } from './lmJob';
 import type { CreateDraft } from './createDraft';
+import { CreateBarChips } from './CreateBarChips';
 
 interface Props {
   onCreate: (draft: CreateDraft) => void;
+  /** RESUME on the draft chip: opens Create on the draft as it stands. */
+  onResume: () => void;
 }
 
 /** Slim capture row — hands off to the Create takeover screen immediately rather than
  * generating inline. A typed idea is carried over as `pendingQuery`; CreateView expands
  * it into a full draft via the LM and plays the "AI thinking" reveal there
  * (useThinkingQuery.ts) so the library never blocks on the LM call. */
-export function CreateBar({ onCreate }: Props) {
+export function CreateBar({ onCreate, onResume }: Props) {
   const [draft, setDraft] = useState('');
   const lucky = useLuckyRoll();
 
@@ -30,6 +33,7 @@ export function CreateBar({ onCreate }: Props) {
         >
           {lucky.rolling ? 'ROLLING…' : 'FEELING LUCKY'}
         </button>
+        <CreateBarChips onResume={onResume} />
         <input
           placeholder="What do you want to make?"
           value={draft}

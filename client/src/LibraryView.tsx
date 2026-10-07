@@ -72,6 +72,7 @@ export function LibraryView({
     <>
       <CreateBar
         onCreate={(draft) => openCreate(activeFolder ? { ...draft, folderId: activeFolder.id, folderName: activeFolder.name } : draft)}
+        onResume={() => openCreate({})}
       />
 
       <LibraryToolbar
