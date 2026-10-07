@@ -208,32 +208,31 @@ requiring its own justification against a screen-count rule.
      fallback) and `42%` once progress is known. A running one wears the AI
      shader with its progress veil (see AI states); a queued one stays plain
      with a dashed hairline, as UP NEXT does. Two at most, then a `+N` chip.
-     A **draft chip** while Create's draft holds anything: `DRAFT`
-     (`text-mid`, tracked small caps), the typed title or else the prompt
-     (`text-hi`) and CLEAR. Each quick
-     action is confirmed in place: the chip becomes its consequence line on
-     `rust-tint` with a `rust` hairline, a filled rust confirm and a quiet
-     KEEP (focused, so Enter or Escape keeps). CLEAR: "Clear this draft? Its
-     prompt, lyrics, settings and reference audio are discarded." CANCEL on
-     a queued chip: "Take it out of the queue? Nothing has been made yet,
-     so nothing is lost." ABORT, only on the running chip that holds the
-     server's lock (the same row Activity gives ABORT): "Abort this
+     Each generation chip's quick action is confirmed in place: the chip
+     becomes its consequence line on `rust-tint` with a `rust` hairline, a
+     filled rust confirm and a quiet KEEP (focused, so Enter or Escape
+     keeps). CANCEL on a queued chip: "Take it out of the queue? Nothing has
+     been made yet, so nothing is lost." ABORT, only on the running chip that
+     holds the server's lock (the same row Activity gives ABORT): "Abort this
      generation? The take in progress is lost." The buttons then read
      CANCELLING… / ABORTING… as in Activity.
-     A **thinking chip** (2026-10-07) mirrors Quick Start writing a draft
-     from an idea, which carries on when Create is closed: `THINKING` on the
-     AI shader (no veil — the LM reports no progress), or `QUEUED · #2` plain
-     and dashed while it waits; the idea as its title; STOP, confirmed as "Stop writing this draft? Your
-     idea is dropped." If the LM fails it reads `COULDN'T WRITE` in rust
-     (`rust-tint`, `rust` hairline, `rust-text` label) until RETRY in Create
-     or STOP. Once written, the draft chip takes its place.
-     **Busy Create** (2026-10-07): while Create holds a draft or is writing
-     one (a draft or thinking chip shows), FEELING LUCKY and the input hide —
-     a new idea would clash with the one in Create — the chips stretch across
-     the row, titles no longer capped at 180px, and CREATE becomes TO CREATE
-     (same acid button), which opens Create on it; the chips therefore carry
-     no RESUME/OPEN of their own. Songs generating alone don't make Create
-     busy: the input stays so another idea can queue.
+     **Create card** (2026-10-07): while Create is busy — it holds a draft,
+     or Quick Start is writing one from an idea (which carries on when Create
+     is closed) — FEELING LUCKY, the input and CREATE give way to one 58px
+     card filling the row after any generation chips (a new idea would clash
+     with the one in Create; songs generating alone don't make Create busy).
+     Line 1: the state (`text-mid`, tracked small caps) and the title
+     (`text-hi`, 700 — the typed title, else the prompt, else the idea).
+     Line 2: for a **draft**, outlined `line` hairline tags of only what it
+     sets (`143 BPM · A MINOR · 4/4 · 3:40 · POLISH VOCALS · LYRICS · 50
+     LINES · ACE-STEP`); for **THINKING**, the AI shader (no veil — the LM
+     reports no progress) and a note ("QUICK START is writing the prompt,
+     lyrics and details…"); `QUEUED · #2` plain while it waits its turn;
+     `COULDN'T WRITE` in rust (`rust-tint`, `rust` hairline) with the error
+     and "RETRY in Create". Its right end is TO CREATE: a 150px acid fill,
+     left edge cut at the parallelogram angle, opening Create. The card has
+     no clear or stop: Create's CLEAR DRAFT and Activity's CANCEL / ABORT do
+     that, away from the button that opens it.
    - **Generating cards**: one full-width card pinned at the top of the
      grid per song generation in flight or failed, oldest first (2026-10-03,
      S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
