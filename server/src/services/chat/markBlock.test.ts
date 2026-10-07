@@ -74,6 +74,12 @@ describe('markBlock', () => {
     expect(out.preview.rows[1]).toEqual({ name: 'BARS', value: 'not read' });
   });
 
+  it('bars sent from a strip whose version has no bar times now: no bars are sent (D-179)', () => {
+    const out = markBlock({ mark, number: 4, analysis: analysis({ bars: { notRead: 'no grid' } }), words: null });
+    expect(out.bars).toBeNull();
+    expect(out.sent.bars).toBeNull();
+  });
+
   it('no analysis at all: bars as marked, sections and key not read', () => {
     const out = markBlock({ mark, number: 4, analysis: null, words: null });
     expect(out.lines).toContain('AT THE MARK: key and tempo not read');
