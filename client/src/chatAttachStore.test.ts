@@ -13,7 +13,8 @@ const { useChatAttachStore, attachBlocksSend, attachToSend } = await import('./c
 
 const ref = (over: Partial<ReferenceView> = {}): ReferenceView => ({
   id: 'r1', origin: 'upload', name: 'demo.mp3', sourceSongId: null, url: '/audio/references/r1.mp3', readTo: 192, cut: false, layers: null,
-  seconds: 192, readAt: null, readingNote: null, createdAt: '', ...over,
+  seconds: 192, readAt: null, readingNote: null, createdAt: '',
+  estimate: { words: 16, score: 34, caption: 16, total: 66 }, ...over,
 });
 const file = new File(['x'], 'demo.mp3', { type: 'audio/mpeg' });
 const store = () => useChatAttachStore.getState();

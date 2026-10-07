@@ -9,9 +9,10 @@ import { config } from '../../config.js';
 import { db } from '../../db/index.js';
 import { yue2Engine } from '../engines/yue2.js';
 import { planSources, readingPlan, type Services } from './readingPlan.js';
-import { fromLibrary, getReference, OWN_V, type OwnSnapshot, type Reference } from './referenceStore.js';
+import { fromLibrary, getReference, OWN_V, toView, type OwnSnapshot, type Reference } from './referenceStore.js';
+import { readingEstimate } from './referenceRules.js';
 import type { ReadingPlanSources } from './reading.js';
-import type { AnalyzeTarget } from './chatTypes.js';
+import type { AnalyzeTarget, ReferenceView } from './chatTypes.js';
 
 /** The services as configured (ACE-Step's health is not asked here: the card is an estimate). */
 export const configuredServices = (): Services => ({ lyrics: Boolean(config.lyricsUrl), yue: Boolean(yue2Engine.url), acestep: Boolean(config.acestepUrl) });
@@ -30,6 +31,12 @@ function ownOf(target: AnalyzeTarget): OwnSnapshot | null {
 
 export function planFor(target: AnalyzeTarget, services: Services = configuredServices()): ReadingPlanSources {
   return planSources(readingPlan(ownOf(target), services));
+}
+
+/** A reference on the wire with what reading it again costs, priced like the READ card (RE-ANALYZE's
+ * line: a YuE2 library song with its own parts reads with no GPU, C3 live B). */
+export function referenceView(r: Reference, services: Services = configuredServices()): ReferenceView {
+  return { ...toView(r), estimate: readingEstimate(planSources(readingPlan(r.own, services)), r.seconds) };
 }
 
 export const NOT_ATTACHED = 'this reference is no longer attached: attach it again';

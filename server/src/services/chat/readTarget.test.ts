@@ -11,7 +11,7 @@ const { config } = await import('../../config.js');
 const { db } = await import('../../db/index.js');
 const { draftThread, resetDraftThread } = await import('./threadStore.js');
 const store = await import('./referenceStore.js');
-const { materialise, planFor } = await import('./readTarget.js');
+const { materialise, planFor, referenceView } = await import('./readTarget.js');
 
 afterEach(() => { resetDraftThread(); });
 
@@ -68,5 +68,17 @@ describe('materialise (READ makes the copy)', () => {
     const out = await materialise(t.id, { songId: id });
     expect(out).toMatchObject({ reference: { origin: 'library', sourceSongId: id, threadId: t.id } });
     expect(await materialise(t.id, { songId: 'nope' })).toEqual({ reason: 'that song is not in the library' });
+  });
+});
+
+describe('referenceView (RE-ANALYZE prices its reading like READ, C3 live B)', () => {
+  it('an upload reads on the GPU; a YuE2 library song with its own words and caption reads with none', async () => {
+    const t = draftThread();
+    const added = store.fromUpload(t.id, { data: wav(), filename: 'c.wav' });
+    if (!added.ok) throw new Error(added.reason);
+    expect(referenceView(added.reference, ALL).estimate.total).toBeGreaterThan(0);
+    const own = { own_v: 1 as const, abc: 'X:1', lyrics: 'la la', caption: 'pop', bpm: 70, key: 'Am', meter: '4/4', engine: 'yue2', layers: 1 };
+    const library = { ...added.reference, origin: 'library' as const, own };
+    expect(referenceView(library, ALL)).toMatchObject({ origin: 'library', estimate: { total: 0 } });
   });
 });
