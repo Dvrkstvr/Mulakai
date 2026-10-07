@@ -3,13 +3,19 @@
 import { describe, it, expect } from 'vitest';
 import type { ChatDraft } from './api/chat';
 import {
-  CREATE_COVER, RIGHTS_LINE, STEPS_LINE, analyzeLine, attachChipLine, coverConsequence, coverVerdictLine, cutNote, fieldMark,
+  CREATE_COVER, RIGHTS_LINE, analyzeMeta, libraryRowMeta, STEPS_LINE, analyzeLine, attachChipLine, coverConsequence, coverVerdictLine, cutNote, fieldMark,
   layersNote, missingNote, notReadLine, partLine, readConsequence, readingLine, reanalyzeConsequence, referenceMeta,
 } from './chatReferenceCopy';
 
 const draft = (over: Partial<ChatDraft>): ChatDraft => ({ draft_v: 1, rev: 1, touched: {}, fields: {} as ChatDraft['fields'], ...over });
 
 describe('chatReferenceCopy', () => {
+  it('a library row with no usable length shows none, never NaN:NaN (a stored "N/A", C3 live C)', () => {
+    expect(libraryRowMeta('N/A' as unknown as number, 'yue2')).toBe('YUE2');
+    expect(libraryRowMeta(null, null)).toBe('ACE-STEP');
+    expect(libraryRowMeta(192, null)).toBe('3:12 · ACE-STEP');
+    expect(analyzeMeta('N/A' as unknown as number, 'library')).toBe('library');
+  });
   it('READ says the steps, the GPU estimate and that nothing changes (F-061); a YuE2 song uses no GPU', () => {
     expect(readConsequence(40)).toBe('Reads WORDS > SCORE > CAPTION · uses the GPU about 40 s, changes nothing');
     expect(readConsequence(40, 2)).toBe('Reads WORDS > SCORE > CAPTION · uses the GPU about 40 s, changes nothing · starts after 2 jobs');
