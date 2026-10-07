@@ -10,7 +10,8 @@
  *
  *   npx tsx scripts/chatCp1.ts --server http://127.0.0.1:3221 --out <dir> --ollama http://127.0.0.1:11535 --data <DATA_DIR>
  *     --yue2 <id>,<id>,<id> --trans <id>,<id>,<id> [--proxy-port 11536] [--owner http://127.0.0.1:3001]
- *     [--merge --marks "<song>:<one|cross|secs>@<section pick>/<text index>,...;..."] (more marked turns, added to results.json)
+ *     [--merge] [--marks "<song>[/<yue2|acestep|transcribed>]:<one|cross|secs>@<section pick>/<text index>,...;..."]
+ *     (more marked turns: the song is OPENed and its analysis waited for first; --merge adds them to results.json)
  */
 import { execFileSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -126,13 +127,19 @@ async function main() {
       const facts = factsOf(ctx, song);
       log(`${title}: done; score sections ${facts ? facts.sections.map((s: { label: string }) => s.label).join(' ') : '-'}`);
     }
-    for (const spec of arg('marks').split(';').filter(Boolean)) { // <song>:<kind>@<pick>/<text index>,...: more marked turns on an analyzed song
-      const [song, list] = spec.split(':');
-      const t = await json('GET', `${server}/api/chat/songs/${song}/thread`);
+    // <song>[/<source>]:<kind>@<pick>/<text index>,...: more marked turns; OPEN first and wait for the analysis it starts
+    for (const spec of arg('marks').split(';').filter(Boolean)) {
+      const [head, list] = spec.split(':');
+      const [song, source = 'yue2'] = head.split('/') as [string, AnalysisRecord['source'] | undefined];
+      await gpuIdle(owner, log);
+      const { threadId, title } = await open(song, source);
+      const sh = (await view(ctx, song)).shown;
+      log(`${title} (${song}): strip ${sh?.mode ?? 'none'}, bar times ${sh?.bars ? `${sh.bars.starts.length} ordered ${sh.bars.starts.every((s, i, a) => i === 0 || s > a[i - 1])}` : 'none'}, sections ${(sh?.sections ?? []).map((s) => `${s.label} ${s.bars[0]}-${s.bars[1]} ${s.lines}L`).join(', ')}`);
+      save();
       for (const item of list.split(',')) {
         const [, kind, pick, ti] = /^(one|cross|secs)@(\d+)\/(\d+)$/.exec(item) ?? [];
         if (!kind) throw new Error(`--marks item ${item}: want <kind>@<pick>/<text index>`);
-        await (await turn(song, t.body.id, `x-${song.slice(0, 4)}-${item}`, 'marked', false, TEXT[kind as MarkKind][Number(ti)], kind as MarkKind, Number(pick))).done();
+        await (await turn(song, threadId, `x-${song.slice(0, 4)}-${item}`, 'marked', false, TEXT[kind as MarkKind][Number(ti)], kind as MarkKind, Number(pick))).done();
       }
     }
     for (const [k, song] of arg('trans').split(',').filter(Boolean).entries()) {

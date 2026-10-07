@@ -13,11 +13,11 @@ interface Facts { sections: Array<{ index: number; label: string; from_bar: numb
 export interface MarkSent { bars?: Bars; seconds: Bars }
 
 export interface AnalysisRecord {
-  song: string; title: string; source: 'yue2' | 'transcribed'; trigger: 'open' | 'save'; jobId: string;
+  song: string; title: string; source: 'yue2' | 'transcribed' | 'acestep'; trigger: 'open' | 'save'; jobId: string;
   versionId: string | null; number: number | null; audioS: number | null; status: string; error: string | null;
   queuedMs: number | null; runMs: number | null; steps: Record<Step, number | null>; plan: Record<string, string> | null;
   notRead: Record<string, string | null> | null;
-  sections: Array<{ label: string; occurrence: number; bars: Bars; seconds: Bars | null }>; mibPeak: number | null; mibEnd: number | null;
+  sections: Array<{ label: string; occurrence: number; bars: Bars; seconds: Bars | null; lines?: number; partialLines?: number }>; mibPeak: number | null; mibEnd: number | null;
   endAt: number | null;
 }
 export interface TurnRecord {
@@ -82,7 +82,7 @@ export function analysisSteps(samples: Progress[], end: number): Record<Step, nu
 export function summarize(r: Run) {
   const short = r.analyses.filter((a) => a.runMs !== null && (a.audioS ?? 0) <= 240);
   const after = r.turns.filter((t) => t.afterAnalysis);
-  const marked = r.turns.filter((t) => t.role === 'marked');
+  const marked = r.turns.filter((t) => t.role === 'marked' && t.postStatus === 202); // a mark refused at SEND never ran
   const tokens = (ts: TurnRecord[]) => ts.flatMap((t) => t.promptTokens).filter((n): n is number => n !== null);
   return {
     refused: r.applies.filter((a) => a.postStatus !== 202 || (a.outcome !== 'saved' && /analysis|stale/i.test(a.reason ?? ''))),
@@ -91,7 +91,7 @@ export function summarize(r: Run) {
     afterRunP50: percentile(after.map((t) => t.runMs).filter((n): n is number => n !== null), 50),
     afterTotalP50: percentile(after.map((t) => t.totalMs).filter((n): n is number => n !== null), 50),
     spilled: after.filter((t) => t.plannerOnGpu === false), seen: after.filter((t) => t.plannerOnGpu !== null).length, after: after.length,
-    markedCards: marked.filter((t) => t.action === 'edit').length, marked: marked.length, outside: marked.filter((t) => t.outside.length > 0),
+    markedCards: marked.filter((t) => t.action === 'edit').length, marked: marked.length, markRefused: r.turns.filter((t) => t.role === 'marked' && t.postStatus !== 202), outside: marked.filter((t) => t.outside.length > 0),
     promptP95Marked: percentile(tokens(marked), 95), promptP95All: percentile(tokens(r.turns), 95), promptMax: Math.max(0, ...tokens(r.turns)),
   };
 }
@@ -105,7 +105,7 @@ export function stopLines(s: Summary): StopLine[] {
     { verdict: v(s.refused.length > 0, s.behind.length === 0), text: `commits refused because of an analysis: ${s.refused.length} of ${s.behind.length} APPLYs behind an analysis (stop on any)` },
     { verdict: v((s.slowest ?? 0) > 90_000, s.slowest === null), text: `slowest analysis of a version of 4 min or less: ${s1(s.slowest)} (stop over 90 s)` },
     { verdict: v(s.spilled.length > 0 || (s.afterRunP50 ?? 0) > 15_000, s.afterRunP50 === null), text: `planner not fully on the GPU after an analysis in ${s.spilled.length} of ${s.seen} seen; next turn p50 ${s1(s.afterRunP50)} running (${s1(s.afterTotalP50)} from SEND) (stop on any, or over 15 s)` },
-    { verdict: v(s.outside.length > 1, s.marked === 0), text: `marked turns with an op outside the mark: ${s.outside.length} of ${s.marked} (${s.markedCards} edit cards) (stop over 1)` },
+    { verdict: v(s.outside.length > 1, s.marked === 0), text: `marked turns with an op outside the mark: ${s.outside.length} of ${s.marked} (${s.markedCards} edit cards${s.markRefused.length ? `; ${s.markRefused.length} mark refused at SEND` : ''}) (stop over 1)` },
     { verdict: v((s.promptP95Marked ?? 0) > 6000, s.promptP95Marked === null), text: `prompt tokens p95: ${s.promptP95Marked ?? '-'} on marked turns, ${s.promptP95All ?? '-'} on all, max ${s.promptMax} (stop over 6000)` },
   ];
 }
@@ -122,7 +122,7 @@ export function summaryMarkdown(r: Run, meta: { server: string; date: string; no
     row(Array(15).fill('---')),
     ...r.analyses.map((a) => row([a.title, a.source, a.trigger, a.number, a.audioS?.toFixed(0), a.status + (a.error ? `: ${a.error}` : ''), sec(a.queuedMs), sec(a.runMs), sec(a.steps.WORDS), sec(a.steps.SCORE), sec(a.steps.SECTIONS),
       a.plan ? Object.values(a.plan).join('/') : '-', Object.entries(a.notRead ?? {}).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join('; '), `${a.mibPeak ?? '-'} / ${a.mibEnd ?? '-'}`,
-      a.sections.map((x) => `${x.label}${x.occurrence > 1 ? ` ${x.occurrence}` : ''} ${x.bars[0]}-${x.bars[1]}${x.seconds ? ` @${x.seconds[0].toFixed(0)}s` : ''}`).join(', ')])),
+      a.sections.map((x) => `${x.label}${x.occurrence > 1 ? ` ${x.occurrence}` : ''} ${x.bars[0]}-${x.bars[1]}${x.seconds ? ` @${x.seconds[0].toFixed(0)}s` : ''}${x.lines === undefined ? '' : ` ${x.lines}L${x.partialLines ? `+${x.partialLines}p` : ''}`}`).join(', ')])),
     '', '## Turns', '',
     row(['song', 'turn', 'role', 'after analysis', 'mark (bars)', 'reply', 'wait s', 'run s', 'from SEND s', 'prompt tok', 'planner', 'VRAM before', 'ops', 'outside', 'note']),
     row(Array(15).fill('---')),
