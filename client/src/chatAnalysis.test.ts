@@ -23,6 +23,12 @@ describe('readingLine', () => {
       .toBe('READ v4 · 5 SECTIONS · 8 LINES · NO WORD TIMINGS');
   });
 
+  it('a score longer than its audio says how many bars the strip leaves out (D-197)', () => {
+    expect(readingLine(withView(view({ shown: { ...READING, transcribed: true, barsNotShown: 39 } })))!.text)
+      .toBe('READ v4 · 5 SECTIONS · 8 LINES · SCORE LONGER THAN THE AUDIO · 39 BARS NOT SHOWN');
+    expect(readingLine(withView(view({ shown: { ...READING, barsNotShown: 1 } })))!.text).toMatch(/· 1 BAR NOT SHOWN$/);
+  });
+
   it('a transcribed score gets its second line', () => {
     expect(readingLine(withView(view({ shown: { ...READING, transcribed: true } })))!.transcribed).toBe(TRANSCRIBED_LINE);
   });

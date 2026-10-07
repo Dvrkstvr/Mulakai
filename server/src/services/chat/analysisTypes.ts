@@ -91,6 +91,8 @@ export interface ShownReading {
   readAt: string;
   bars: { starts: number[]; end: number } | null;
   sections: StripSection[];
+  /** Score bars past the last bar the audio holds, left off the strip (D-197); 0 when the score fits. */
+  barsNotShown: number;
   lines: number;
   /** "TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY". */
   transcribed: boolean;

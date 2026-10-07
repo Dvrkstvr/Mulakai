@@ -41,6 +41,8 @@ export interface ShownReading {
   readAt: string;
   bars: ShownBars | null;
   sections: StripSection[];
+  /** Score bars past the last bar the audio holds; the server leaves them off `sections` (D-197). 0 when it fits. */
+  barsNotShown: number;
   lines: number;
   /** A transcribed score (not YuE2's own): context and marking only, SCORE stays off (Q-062 b). */
   transcribed: boolean;
