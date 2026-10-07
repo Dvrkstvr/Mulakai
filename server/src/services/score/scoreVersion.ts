@@ -29,6 +29,22 @@ export interface ScoreRender {
   /** The score the engine says it sang; null = the one that was sent. */
   score: string | null;
   truncated: boolean;
+  /** A chat edit (C0b): what the splice did, or why the whole re-render was saved instead (D-101). */
+  splice?: SpliceRecord;
+}
+
+/** `params_json.splice`, additive to `score_v: 1` (architecture "Data (chat)"): a splice's bars, joins,
+ * gains, snaps and null test (yue-server's result), or the reason the whole song was saved. */
+export type SpliceRecord =
+  | { splice_v: 1; kind: 'reharmonize' | 'cut' | 'repeat'; bars: [number, number]; joins_s: number[]; crossfade_s: number[];
+      gain_db: unknown; snap_ms: number[]; length_diff_s: number | null; null_test: { samples: number; different: number } | null }
+  | { splice_v: 1; fallback: string };
+
+const SPLICED_WORD = { reharmonize: 'spliced', cut: 'cut', repeat: 'repeated' } as const;
+
+/** " · bars 25–32 spliced" or " · whole song re-rendered: <reason>". */
+export function spliceSuffix(s: SpliceRecord): string {
+  return 'fallback' in s ? ` · whole song re-rendered: ${s.fallback}` : ` · bars ${s.bars[0]}–${s.bars[1]} ${SPLICED_WORD[s.kind]}`;
 }
 
 export interface SavedScoreVersion {
@@ -90,13 +106,14 @@ export async function persistScoreVersion(
     score_v: 1, engine: 'yue2', task_type: 'score', ...(output === undefined ? {} : { output }),
     request: { style: request.style, lyrics: request.lyrics, seed: request.seed, cot: request.cot }, lyrics: request.lyrics,
     ops: plan.ops, planRequest: plan.request, meta: { ...meta, ...(seconds === null ? {} : { duration: seconds }) },
-    basedOn: plan.baseVersionId, ...(r.truncated ? { truncated: true } : {}),
+    basedOn: plan.baseVersionId, ...(r.truncated ? { truncated: true } : {}), ...(r.splice ? { splice: r.splice } : {}),
   };
+  const label = scoreEditLabel(plan.ops, r.truncated) + (r.splice ? spliceSuffix(r.splice) : '');
   const layerId = source.baseLayerId;
   db.transaction(() => {
     db.prepare(`UPDATE versions SET active = 0 WHERE layer_id = ?`).run(layerId);
     db.prepare(`INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, active) VALUES (?, ?, ?, ?, ?, ?, 1)`)
-      .run(id, layerId, filename, scoreEditLabel(plan.ops, r.truncated), JSON.stringify(params), String(request.seed));
+      .run(id, layerId, filename, label, JSON.stringify(params), String(request.seed));
     writeSongMeta(songId, { ...meta, duration: seconds });
     // The song's lyrics follow the version, as activate does (routes/versions.ts): edited ones included.
     if (request.lyrics.trim()) db.prepare(`UPDATE songs SET lyrics = ? WHERE id = ?`).run(request.lyrics, songId);

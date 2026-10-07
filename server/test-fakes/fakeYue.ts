@@ -9,6 +9,7 @@ import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadSplice, spliceRoute, type SpliceName, type SpliceScript } from './fakeYueSplice.js';
 
 export const CONTRACT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../yue-server/tests/data/contract');
 
@@ -51,6 +52,9 @@ export interface TranscriptionFixture {
 export const transcriptionContract = (name: 'transcription-chords-done' | 'transcription-chords-failed' | 'transcription-hold') =>
   JSON.parse(fs.readFileSync(path.join(CONTRACT_DIR, `${name}.json`), 'utf8')) as TranscriptionFixture;
 
+/** A recorded splice (CB-1's pytest): the submit's spec, its reply, the record once settled. */
+export const spliceContract = (name: SpliceName) => loadSplice(CONTRACT_DIR, name);
+
 export interface FakeYue {
   url: string;
   requests: Array<{ method?: string; path: string; body: unknown }>;
@@ -58,6 +62,8 @@ export interface FakeYue {
   job: JobScript;
   /** How a transcription plays out: one of CR-0's recorded fixtures (default: done with chords). */
   transcription: TranscriptionFixture;
+  /** How a splice plays out: one of CB-1's recorded fixtures (default: ok) and what was sent. */
+  splice: SpliceScript;
   /** Bodies of every POST /v1/jobs, in order. */
   submits: () => unknown[];
   close: () => Promise<void>;
@@ -139,6 +145,7 @@ export async function startFakeYue(fixtures: ContractFixture[] = allContracts())
   const fake: FakeYue = {
     url: '', requests: [], job: { states: [{ status: 'succeeded', stage: 'done' }] },
     transcription: transcriptionContract('transcription-chords-done'),
+    splice: { fixture: spliceContract('splice-ok'), specs: [], cancelled: new Set() },
     submits: () => fake.requests.filter((r) => r.method === 'POST' && r.path === '/v1/jobs').map((r) => r.body),
     close: () => new Promise((resolve) => { server.closeAllConnections(); server.close(() => resolve()); }),
   };
@@ -152,6 +159,7 @@ export async function startFakeYue(fixtures: ContractFixture[] = allContracts())
       fake.requests.push({ method: req.method, path: route, body });
       if (jobRoute(fake, polls, req, res, route)) return;
       if (transcriptionRoute(fake, cancelled, req, res, route, raw)) return;
+      if (spliceRoute(fake.splice, req, res, route, raw, send, same)) return;
       const hit = fixtures.find((f) => f.request.path === route && f.request.method === req.method && same(f.request.body, body));
       const reply = hit?.response ?? { status: 500, body: { detail: `fakeYue: no recorded reply for ${req.method} ${route}` } };
       send(res, reply.status, reply.body);
