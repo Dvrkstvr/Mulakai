@@ -1,0 +1,40 @@
+/* The chat player's strip, ruler, waveform and reading line (C1, F-052/F-053; pipeline/design/chat-mark.html MK-1..MK-3,
+   DESIGN.md "Chat"): the player above the composer grows to ~134 px. Tokens only, zero radius; sky is the playhead (and
+   CL-8b's mark), rust only a failed reading; no acid but RETRY's outline. */
+.chat-player.has-strip { flex-direction: column; align-items: stretch; gap: 3px; padding: 5px 24px; }
+.chat-player-row { display: flex; align-items: center; gap: 12px; height: 32px; min-width: 0; }
+.chat-player-row .player { flex: none; }
+
+.chat-strip { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+
+/* Section strip: clip-path parallelograms (DESIGN.md "Section strip"), 3 px gaps. */
+.chat-sg { position: relative; display: flex; gap: 3px; height: 20px; }
+.chat-sg-cell {
+  display: block; min-width: 0; height: 20px; padding: 0 8px; border: 0; background: var(--carbon-raised);
+  font: 9px/20px ui-monospace, monospace; font-style: normal; letter-spacing: 1px; color: var(--text-mid);
+  text-align: center; white-space: nowrap; overflow: hidden; text-overflow: clip;
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+.chat-sg.pos .chat-sg-cell { position: absolute; top: 0; }
+button.chat-sg-cell { cursor: pointer; transition: background var(--dur) var(--ease), color var(--dur) var(--ease); }
+button.chat-sg-cell:hover { background: var(--line); color: var(--text-hi); }
+.chat-strip.dim .chat-sg-cell { opacity: 0.5; }
+.chat-sg-cell.hc { background: repeating-linear-gradient(135deg, var(--carbon-raised) 0 4px, var(--line) 4px 5px); }
+
+/* Ruler + waveform share one x axis; the playhead spans both. */
+.chat-stk { position: relative; }
+.chat-rr { position: relative; height: 13px; font: 9px/13px ui-monospace, monospace; color: var(--text-low); overflow: hidden; }
+.chat-rr i { position: absolute; bottom: 0; width: 1px; height: 5px; background: var(--line); }
+.chat-rr span { position: absolute; top: 0; padding-left: 2px; border-left: 1px solid var(--line-hi); white-space: nowrap; }
+.chat-stk .player-waveform { display: block; }
+.chat-ph { position: absolute; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: var(--sky); pointer-events: none; z-index: 4; }
+
+/* The reading line: its own 16 px row (Q-114 B), neutral, rust only on failure. */
+.chat-rl {
+  height: 16px; display: flex; align-items: center; gap: 10px; min-width: 0; white-space: nowrap; overflow: hidden;
+  font: 10px/16px ui-monospace, monospace; letter-spacing: 1px; color: var(--text-mid);
+}
+.chat-rl-text { overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.chat-rl-tr { color: var(--text-low); flex: none; }
+.chat-rl.failed { color: var(--rust-text); }
+.chat-rl .chat-rl-retry { flex: none; padding: 0 8px; font-size: 9px; line-height: 14px; }
