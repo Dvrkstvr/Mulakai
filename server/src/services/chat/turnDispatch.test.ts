@@ -64,12 +64,12 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(dispatchReply({ ...base, hasSong: true, reply: analyze, analyze: { body: card } })).toEqual({ kind: 'say', text: REDIRECT.analyzeOnSong, body: null });
   });
 
-  it('C3: a recipe with reference_use on a reading: code fills the borrowed fields and the card names them (D-128)', () => {
+  it('C3: a recipe with reference_use on a reading: code fills the borrowed fields and the card names them (D-128; the score first, C3 live D)', () => {
     const reply: TurnReply = { ...recipe, recipe: { ...RECIPE, bpm: 140, key: 'E', reference_use: 'borrow' } };
     const out = dispatchReply({ ...base, reply, reference: { id: 'r1', reading: readingFixture() } });
     if (out.kind !== 'recipe') throw new Error('not a recipe');
-    expect(out.draft.fields).toMatchObject({ bpm: 120, key: 'Dm' });
-    expect(out.body.recipe).toMatchObject({ bpm: 120, key: 'Dm', reference_use: 'borrow' });
+    expect(out.draft.fields).toMatchObject({ bpm: 96, key: 'Am' });
+    expect(out.body.recipe).toMatchObject({ bpm: 96, key: 'Am', reference_use: 'borrow' });
     expect(out.body.reference).toMatchObject({ referenceId: 'r1', use: 'borrow', borrowed: ['bpm', 'key', 'timeSignature', 'structure'] });
     expect(out.draft.reference).toEqual({ referenceId: 'r1', use: 'borrow' });
   });

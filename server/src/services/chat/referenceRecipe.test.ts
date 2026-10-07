@@ -21,9 +21,9 @@ describe('referenceRecipe', () => {
     expect(referenceRecipe(RECIPE, readingFixture(), 'r1').reference).toBeNull();
   });
 
-  it('borrow: tempo, key, meter (the caption first) and structure from the reading, marked; the model keeps title, style, words', () => {
+  it('borrow: tempo, key, meter (the score first, C3 live D) and structure from the reading, marked; the model keeps title, style, words', () => {
     const { recipe, reference } = referenceRecipe(model('borrow'), readingFixture(), 'r1');
-    expect(recipe).toMatchObject({ bpm: 120, key: 'Dm', time_signature: '4/4', title: RECIPE.title, style: RECIPE.style });
+    expect(recipe).toMatchObject({ bpm: 96, key: 'Am', time_signature: '4/4', title: RECIPE.title, style: RECIPE.style });
     expect(recipe.structure).toEqual(['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus']);
     expect(recipe.lyrics.map((s) => s.tag)).toEqual(['Verse', 'Chorus', 'Verse', 'Chorus']);
     expect(recipe.lyrics[2].lines).toEqual(RECIPE.lyrics[2].lines); // the second verse is the model's second verse
@@ -37,6 +37,11 @@ describe('referenceRecipe', () => {
     const { recipe, reference } = referenceRecipe(model('borrow'), noKey, 'r1');
     expect('key' in recipe).toBe(false);
     expect(reference).toMatchObject({ borrowed: ['bpm', 'timeSignature', 'structure'], missing: ['key'] });
+  });
+
+  it('borrow with no score read: the caption gives tempo, key and meter (code still fills them, F-064)', () => {
+    const { recipe } = referenceRecipe(model('borrow'), readingFixture({ score: { notRead: 'yue-server is not running' } }), 'r1');
+    expect(recipe).toMatchObject({ bpm: 120, key: 'Dm', time_signature: '4/4' });
   });
 
   it('no sections read: the structure stays the model\'s and the note says so', () => {

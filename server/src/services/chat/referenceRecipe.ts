@@ -2,8 +2,8 @@
  * A recipe built on a read reference (D-128, F-063, F-064), pure: code, never the model, fills the
  * borrowed fields. `cover` takes tempo, key, meter and structure from the score itself (a cover sings
  * the score's own; locked, FROM THE SCORE) and lays the model's words out one entry per sung score
- * section; `borrow` takes them from `readingFacts` (ACE-Step first, then the score header; marked
- * REFERENCE). A value the reading lacks is removed from the recipe and named in `missing`: the
+ * section; `borrow` takes them from `readingFacts` (the score header first, ACE-Step's caption only
+ * for what it lacks, C3 live D; marked REFERENCE). A value the reading lacks is removed from the recipe and named in `missing`: the
  * model's guess never stands in for it. A cover of a reading that cannot be covered becomes a borrow
  * with the reason. Score labels map to the closed tag list (unknown -> Verse).
  */
@@ -42,7 +42,7 @@ export function referenceRecipe(model: Recipe, reading: Reading, referenceId: st
   const verdict = coverVerdict(reading);
   const use = asked === 'cover' && verdict.ok ? 'cover' : 'borrow';
   const notes = asked === 'cover' && !verdict.ok ? [`a cover is not possible: ${verdict.reason}; this is a new song in its style instead`] : [];
-  const facts = readingFacts(reading, use === 'cover' ? 'score' : 'caption');
+  const facts = readingFacts(reading, use === 'cover' ? 'score only' : 'score');
   const out: Record<string, unknown> = { ...model, reference_use: use };
   const borrowed: DraftField[] = [];
   const missing: DraftField[] = [];

@@ -18,7 +18,7 @@ describe('referenceBlock', () => {
   it('tempo, key, meter with their source, caption, words, sections with bars and cover possible', () => {
     const text = referenceBlock('demo.mp3', readingFixture()).join('\n');
     expect(text).toContain('REFERENCE: "demo.mp3", read 0:00-3:20 of 3:20');
-    expect(text).toContain('tempo 120 bpm (caption) · key Dm (caption) · meter 4/4 (caption)');
+    expect(text).toContain('tempo 96 bpm (score) · key Am (score) · meter 4/4 (score)');
     expect(text).toContain('CAPTION: dark synthpop, analog bass, male voice');
     expect(text).toContain('WORDS: language de, 2 lines; first: Hey du, was ist los');
     expect(text).toContain('S2 verse: bars 5-16');
