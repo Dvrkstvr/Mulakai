@@ -1099,9 +1099,10 @@ requiring its own justification against a screen-count rule.
      whole song re-renders, the full width hatched `on-sky`/`sky-tint`,
      with `1 · BARS 25-32 CHANGE · THE OTHER 68 ARE v1 · 76` under it
      (`ALL 76 BARS CHANGE`) and a grey `WHY THE WHOLE SONG:` line. The
-     consequence line names the clause ("re-sings bars 25-32, every other
-     bar stays v1's audio" or "the whole song is re-rendered: every bar
-     will sound different"; "a few minutes" until calibrated) left of
+     consequence line names the clause ("re-sings bars 25-32, instruments
+     there may change, every other bar stays v1's audio" or "the whole
+     song is re-rendered: every bar will sound different … instruments
+     may change"; "a few minutes" until calibrated) left of
      **APPLY**, the card's one acid; ASK AGAIN is neutral. While APPLY runs
      the label stays and the button is off; inside the card a plain
      RENDERING › SPLICING › SAVING strip of small parallelograms (two steps
