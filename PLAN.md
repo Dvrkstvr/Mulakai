@@ -8377,6 +8377,27 @@ File-level plan (one PR, `feat/create-bar-chips`, client only):
 (+ test of the API each confirm calls), `createBarChips.css`, `CreateBar.tsx` and
 `LibraryView.tsx` (the RESUME prop), DESIGN.md's create bar and AI states.
 
+## Create Bar Mirrors Create (planned 2026-10-07)
+
+Follow-up to "Create Bar Status Chips", from the owner's live check: FEELING
+LUCKY, CREATE, then back to the Library showed no chip — Quick Start's
+expansion lived in Create's component and stopped when Create closed, so the
+idea was dropped and the draft stayed empty. The bar must mirror what Create
+is doing: thinking, drafting, generating.
+
+- `client/src/quickStartStore.ts` — Quick Start's LM job moves out of
+  Create into a store that outlives it (replaces `useThinkingQuery.ts`). With
+  Create open the result plays its reveal; closed, it lands in the draft at
+  once; leaving mid-reveal lands it whole. STOP drops the idea; a failure
+  keeps it for RETRY.
+- `client/src/IdeaSteps.tsx`, `ThinkingWipe.tsx` — read the store.
+- The create bar gains a **thinking chip**: `THINKING` on the AI shader (or
+  `QUEUED · #n`, plain), the idea, OPEN and a confirmed STOP;
+  `COULDN'T WRITE` (rust) while a failed idea waits for RETRY
+  (`createBarStatus.ts`, `CreateBarChip.tsx`, `CreateBarChips.tsx`,
+  `createBarActions.ts`).
+- DESIGN.md: the thinking chip, in its own commit.
+
 ## Remove the HeartMuLa Engine (planned 2026-10-03)
 
 **Decision (project owner, 2026-10-03): HeartMuLa is marked for removal.**
