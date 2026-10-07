@@ -52,6 +52,8 @@ describe('chat turn with a reference', () => {
     const { user } = send('like this, but in German', ref);
     expect((await settled(startChatTurn(thread.id, user, null, deps()).id)).status).toBe('done');
     expect(lastChat().messages[1].content).toContain('ATTACHED: "demo.mp3" (3:20, not read yet)');
+    expect(lastChat().response_format.json_schema.schema.anyOf.map((p) => p.properties.action.const)).toEqual(['ask', 'analyze', 'say']);
+    expect(lastChat().messages[0].content).not.toContain('- scalpel: ');
     const card = listMessages(thread.id).at(-1)!;
     expect(card).toMatchObject({ kind: 'analyze', body: { target: { referenceId: ref }, name: 'demo.mp3', seconds: 200, cut: false } });
     expect(proposalLife(card.proposalId!)).toBe('live');
