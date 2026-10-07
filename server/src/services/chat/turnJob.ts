@@ -12,7 +12,6 @@
  */
 import crypto from 'node:crypto';
 import { config } from '../../config.js';
-import { db } from '../../db/index.js';
 import { cancelQueued } from '../genQueue.js';
 import { queueJob } from '../jobRunner.js';
 import { abortJob, getJob, wasAborted, type Job } from '../jobRegistry.js';
@@ -22,27 +21,22 @@ import { askPlanner } from '../score/plannerClient.js';
 import { promptChars } from '../score/plannerPrompt.js';
 import { MAX_ATTEMPTS } from '../score/planAttempts.js';
 import { loadedModels, probePlanner, releasePlanner, type LoadedModel, type PlannerTarget } from '../score/ollamaControl.js';
-import { setPlan } from '../score/planStore.js';
 import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply } from '../score/planTypes.js';
 import { applyOps, type ApplyBase } from '../score/yueScoreApply.js';
-import { appendMessage, lastTurns } from './messageStore.js';
-import { liveProposal, propose } from './proposalStore.js';
+import { lastTurns } from './messageStore.js';
+import { liveProposal } from './proposalStore.js';
 import { planFor } from './readTarget.js';
-import { analyzeFor, gatherTurnState, sourceDeps, type SourceDeps, type TurnRefs } from './songStateSource.js';
-import { threadById, writeDraft } from './threadStore.js';
+import { analyzeFor, gatherTurnState, sourceDeps, type SourceDeps } from './songStateSource.js';
+import { threadById } from './threadStore.js';
 import { decideReply, ladderRung } from './turnCall.js';
-import { dispatchReply, type AnalyzeResolved, type EditResolved } from './turnDispatch.js';
+import type { EditResolved } from './turnDispatch.js';
+import { causeOf, commitReply, TurnError, writeFailed } from './turnOutcome.js';
 import type { ReadingPlanSources } from './reading.js';
-import type { AnalyzeTarget, ChatMessage, EditBase, FailedBody, TurnReply, UserBody } from './chatTypes.js';
+import type { AnalyzeTarget, ChatMessage, EditBase, UserBody } from './chatTypes.js';
 
 /** Turns of conversation in the prompt (F-042 #2). */
 export const HISTORY_TURNS = 4;
-export type TurnCause = 'offline' | 'check' | 'context' | 'unload' | 'cancelled' | 'gone';
-
-export class TurnError extends Error {
-  constructor(readonly cause: TurnCause, message: string, readonly reasons: string[] = [message]) { super(message); }
-}
-
+export { TurnError, type TurnCause } from './turnOutcome.js';
 export interface TurnDeps {
   planner: PlannerTarget;
   source: SourceDeps;
@@ -75,28 +69,7 @@ export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
 const turns = new Map<string, { threadId: string; messageId: string }>();
 export const turnOf = (jobId: string) => turns.get(jobId);
 
-function writeFailed(threadId: string, reasons: string[], cause: TurnCause): void {
-  const body: FailedBody = { reasons, cause };
-  try {
-    appendMessage(threadId, { role: 'assistant', kind: 'failed', text: reasons[0] ?? cause, body });
-  } catch { /* the thread is gone (NEW CHAT): nothing to write to */ }
-}
-
 const isBase = (e: EditBase | { reason: string } | null): e is EditBase => Boolean(e && 'songId' in e);
-type Resolved = { analyze: AnalyzeResolved | null; edit: EditResolved | null; request: string };
-
-/** The reply, the draft merge and the proposal: all or nothing. */
-const writeReply = db.transaction((threadId: string, reply: TurnReply, sentRev: number, scoreReason: string | null, refs: TurnRefs, r: Resolved) => {
-  const now = threadById(threadId);
-  if (!now) throw new TurnError('gone', 'this chat was cleared while the assistant was thinking');
-  const out = dispatchReply({ reply, hasSong: Boolean(now.songId), draft: now.draft, sentRev, scoreReason, reference: refs.reading, ...r });
-  if (out.kind === 'recipe' && out.draft !== now.draft && !writeDraft(threadId, now.draft.rev, out.draft).ok) {
-    throw new TurnError('check', 'the draft changed while the reply was written');
-  }
-  const proposalId = out.kind === 'recipe' || out.kind === 'analyze' || out.kind === 'edit' ? crypto.randomUUID() : null;
-  const { message } = appendMessage(threadId, { role: 'assistant', kind: out.kind, text: out.text, body: out.body, proposalId });
-  return { message, proposalId, out };
-});
 
 async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: TurnDeps, signal: AbortSignal, followUp: string | null): Promise<void> {
   const thread = threadById(threadId);
@@ -140,19 +113,9 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   const edit: EditResolved | null = r.action !== 'edit' || !gathered.edit ? null
     : !base || !decision.applied ? { reason: 'reason' in gathered.edit ? gathered.edit.reason : 'the edit was not checked against the score' }
       : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now() };
-  const { message, proposalId, out } = writeReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text });
-  const at = { threadId, messageId: message.id, createdAt: Date.now() };
-  if (proposalId && out.kind === 'recipe') propose({ id: proposalId, ...at, kind: 'recipe', recipe: out.body.recipe });
-  if (proposalId && out.kind === 'analyze') propose({ id: proposalId, ...at, kind: 'analyze', target: out.body.target });
-  if (proposalId && out.kind === 'edit') { setPlan(out.plan); propose({ id: proposalId, ...at, kind: 'edit', planId: out.plan.id }); } // replaces the song's plan (D-028)
+  commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text });
   job.progressText = undefined;
   job.status = 'done';
-}
-
-function causeOf(job: Job, err: unknown): TurnCause {
-  if (wasAborted(job)) return 'cancelled';
-  if (err instanceof TurnError) return err.cause;
-  return /still loaded|ollama stop/.test(err instanceof Error ? err.message : String(err)) ? 'unload' : 'offline';
 }
 
 /** Queues the turn for `user` (already stored, body `{sentRev}`). Throws QueueFullError when full.
