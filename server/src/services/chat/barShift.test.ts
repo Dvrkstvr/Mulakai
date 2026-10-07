@@ -66,8 +66,14 @@ describe('barShift', () => {
     expect(barShift({ params: score('nope' as unknown as unknown[]) })).toEqual({ moved: true, shift: null });
   });
 
-  it('a repaint keeps the timeline', () => {
-    expect(barShift({ params: { task_type: 'repaint', repainting_start: 10, repainting_end: 20 } })).toEqual(KEEP);
+  it('a repaint keeps the timeline of the version it names (basedOn)', () => {
+    expect(barShift({ params: { task_type: 'repaint', repainting_start: 10, repainting_end: 20, basedOn: 'v1' } })).toEqual(KEEP);
+  });
+
+  it('a repaint or score edit that names no basedOn proves no parent: moved with no shift', () => {
+    expect(barShift({ params: { task_type: 'repaint', repainting_start: 10, repainting_end: 20 } })).toEqual({ moved: true, shift: null });
+    const { basedOn: _b, ...unnamed } = score([{ op: 'TRANSPOSE', semitones: 2 }]);
+    expect(barShift({ params: unnamed })).toEqual({ moved: true, shift: null });
   });
 
   it.each([

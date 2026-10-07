@@ -4,8 +4,10 @@
  * PHRASE keeps every bar's number (seconds may change: they are re-timed when the new reading lands); one CUT or
  * REPEAT moves the bars after its section by the section's length (REPEAT copies a section right after itself,
  * yue-server score_sections.py), its span from the splice record or the base's sections; a repaint keeps the
- * timeline. A retake, regenerate, new take, ACE-Step take, import, truncated render or anything unknown moves
- * the bars by an unknown amount (`shift: null`, no USE BARS).
+ * timeline. Only `basedOn` proves which version an edit started from: a version without it (a repaint from before
+ * C1 review fix 1, which may have repainted an older active take) moves by an unknown amount. A retake,
+ * regenerate, new take, ACE-Step take, import, truncated render or anything unknown moves the bars by an unknown
+ * amount (`shift: null`, no USE BARS).
  */
 import type { ScoreSection } from '../score/planTypes.js';
 import type { BarShift, Shift } from './analysisTypes.js';
@@ -38,7 +40,7 @@ function moveSpan(op: Record<string, unknown>, splice: unknown, base: ScoreSecti
 }
 
 export function barShift({ params, baseSections }: ShiftInput): BarShift {
-  if (!isObject(params)) return UNKNOWN;
+  if (!isObject(params) || typeof params.basedOn !== 'string') return UNKNOWN;
   if (params.task_type === 'repaint') return KEPT;
   if (params.score_v === undefined || !Array.isArray(params.ops) || params.truncated === true) return UNKNOWN;
   const ops = params.ops.filter(isObject);

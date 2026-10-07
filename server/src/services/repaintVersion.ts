@@ -17,7 +17,9 @@ export function repaintLabel(prefix: string, params: ReleaseTaskParams): string 
     params.repainting_end && params.repainting_end > 0 ? fmtTime(params.repainting_end) : 'end'}`;
 }
 
-/** Store a repaint/regenerate result as a version. `activate` (default true) makes it the layer's current version. */
+/** Store a repaint/regenerate result as a version. `activate` (default true) makes it the layer's current version.
+ * `basedOn`: the version whose audio the job edited (the layer's active one when it started), stored in
+ * `params_json` only, never sent to ACE-Step: the chat's lineage reads it (analysisStore, D-180). */
 export async function persistVersion(
   layerId: string,
   fileUrl: string,
@@ -25,6 +27,7 @@ export async function persistVersion(
   result: TaskResult,
   label: string,
   activate = true,
+  basedOn?: string,
 ): Promise<string> {
   const audio = await downloadAudio(fileUrl);
   const lyricTimestamps = await fetchLyricTimestampsJson(result, params);
@@ -46,7 +49,7 @@ export async function persistVersion(
   db.prepare(
     `INSERT INTO versions (id, layer_id, audio_file, label, params_json, seed, active, lyric_timestamps)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).run(versionId, layerId, filename, label, JSON.stringify(params), result.seed_value, activate ? 1 : 0, lyricTimestamps);
+  ).run(versionId, layerId, filename, label, JSON.stringify(basedOn ? { ...params, basedOn } : params), result.seed_value, activate ? 1 : 0, lyricTimestamps);
 
   // A repaint that edited lyrics for the base layer becomes the song's canonical
   // lyrics going forward (search, section-strip alignment, future repaints) —
