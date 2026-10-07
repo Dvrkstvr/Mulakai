@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>SP-6 listen: do the instruments stay?</title>
+<style>
+body{background:#1c1d21;color:#ececec;font:15px/1.45 system-ui,sans-serif;margin:24px auto;max-width:980px;padding:0 16px}
+h1{font-size:20px} h2{font-size:16px;margin:0 0 4px} .set{border:1px solid #33343b;padding:14px;margin:18px 0}
+.note{color:#9a9aa3;font-size:13px} button{background:#2a2b31;color:#ececec;border:1px solid #555;padding:6px 12px;cursor:pointer;margin:2px}
+button.on{border-color:#7b4b94;background:#2a2133} button.ref.on{border-color:#4b9468;background:#1f2d25} .row{margin:8px 0}
+.tl{position:relative;height:50px;margin:8px 0 4px;background:#24252b;border:1px solid #3a3b42;cursor:pointer;user-select:none;touch-action:none;overflow:hidden}
+.tl:focus{outline:1px solid #7b4b94}
+.tl .tick{position:absolute;bottom:0;width:1px;height:8px;background:#4a4b53}
+.tl .tick.major{height:16px;background:#6a6b73}
+.tl .num{position:absolute;bottom:17px;font-size:10px;color:#8a8a93;transform:translateX(-50%)}
+.tl .edit{position:absolute;top:0;bottom:0;background:rgba(123,75,148,.38);border-left:1px solid #b48ad0;border-right:1px solid #b48ad0}
+.tl .edit span{position:absolute;top:2px;left:4px;font-size:11px;color:#e3cdf2;white-space:nowrap}
+.tl .seam{position:absolute;top:0;bottom:0;width:3px;margin-left:-1px;background:#ff5a5a;pointer-events:none}
+.tl .head{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:#fff;pointer-events:none}
+button.jump{border-color:#7b4b94;font-size:13px;padding:4px 10px}
+table{border-collapse:collapse;width:100%;margin:8px 0} td,th{border-top:1px solid #33343b;padding:4px 6px;text-align:left;font-size:13px;vertical-align:top}
+select,input[type=text]{background:#16171a;color:#ececec;border:1px solid #555;padding:3px}
+.rev{color:#f6dfa8;font-size:13px} pre{background:#16171a;padding:10px;white-space:pre-wrap}
+</style></head><body>
+<h1>SP-6 listen: when a chat edit re-sings the chorus, do the instruments stay? (<span id="nsets"></span> songs)</h1>
+<p class="note">Serve this folder (<code>cd E:/ai/tmp/sp6-listen &amp;&amp; node serve.mjs 8079</code>, open http://localhost:8079/index.html); a plain file open cannot seek.
+Each song is the same excerpt in 5-6 versions plus the original v1 (green button, always known). The numbered versions are each v1 with the shaded chorus bars re-sung after a chat edit
+(&quot;reharmonize the first chorus with jazz chords&quot;), made in different ways and shuffled; you are not told which is which until you press reveal.
+Press v1 or a number while playing: the switch keeps the same place in the music. Click or drag the timeline; arrow keys move one bar; the jump buttons start at the spot.
+For every numbered version answer two things <b>inside the shaded bars, against v1</b>: do the <b>instruments</b> stay the same (the bass, lead, drums, guitar, voice colour), and did the <b>chords</b> change.
+Outside the shaded bars every version is v1's own audio, sample for sample. Bar lines are even (approximate).</p>
+<div id="sets"></div>
+<h2>Your answers</h2><pre id="out">(answer above)</pre><button onclick="copyOut()">copy answers</button> <button onclick="saveOut()">download answers.json</button>
+<script>
+/*SETS*/
+document.getElementById('nsets').textContent=SETS.length;
+const root=document.getElementById('sets');
+const pct=(x,D)=>(100*x/D).toFixed(3)+'%';
+const INSTR=['?','same','tiny difference','a bit different','different'],CH=['?','clearly','partly','no'],JOIN=['?','no','yes','unsure'];
+SETS.forEach(S=>{
+ const id=S.key, tracks=['v1',...S.cands.map((c,i)=>i)], file=t=>t==='v1'?S.v1:S.cands[t].file;
+ const d=document.createElement('div');d.className='set';
+ d.innerHTML=`<h2>${S.n}. ${S.title}</h2><div class="note">${S.key==='Acid'?'Instrumental acid house (a TB-303 bass line, lead synth, drum machine). The worst case.':S.key==='Gertar'?'Singer-songwriter: fingerpicked guitar, soft bass and drums, female voice.':'Funky jazz: saxophone, bass, drums, male voice.'}</div>
+ <div class="row"><button class="ref on" id="b_${id}_v1">v1 (original)</button>${S.cands.map((c,i)=>`<button id="b_${id}_${i}">${i+1}</button>`).join('')}
+ <button id="P_${id}">play / pause</button> <span id="T_${id}" class="note"></span></div>
+ <div class="tl" id="S_${id}" tabindex="0" role="slider" aria-label="playhead in bars"></div>
+ <div class="row">${S.jumps.map((j,i)=>`<button class="jump" id="J${i}_${id}">${j[0]} &#9656;</button>`).join('')}</div>
+ ${tracks.map(t=>`<audio id="au_${id}_${t}" src="${file(t)}" preload="auto"></audio>`).join('')}
+ <table><tr><th>version</th><th>instruments vs v1 (shaded bars)</th><th>chords changed (shaded bars)</th><th>hear a join?</th><th>note</th></tr>
+ ${S.cands.map((c,i)=>`<tr><td><b>${i+1}</b> <span class="rev" id="V_${id}_${i}"></span></td>
+  <td><select id="i_${id}_${i}">${INSTR.map(v=>`<option>${v}</option>`).join('')}</select></td>
+  <td><select id="c_${id}_${i}">${CH.map(v=>`<option>${v}</option>`).join('')}</select></td>
+  <td><select id="j_${id}_${i}">${JOIN.map(v=>`<option>${v}</option>`).join('')}</select></td>
+  <td><input type="text" id="n_${id}_${i}" style="width:95%"></td></tr>`).join('')}</table>
+ <div class="row"><button id="R_${id}">reveal which is which</button></div>`;
+ root.appendChild(d);
+ let cur='v1',revealed=false;
+ const au=t=>document.getElementById(`au_${id}_${t}`);
+ const dur=()=>S.dur;
+ const tl=document.getElementById('S_'+id);let drawn='',head=null;
+ const draw=()=>{const D=dur();let h=`<div class="edit" style="left:${pct(S.jumps[0][1],D)};width:${pct(S.seams[1]-S.seams[0],D)}"><span>re-sung bars ${S.edit[0]}-${S.edit[1]}</span></div>`;
+  if(revealed)S.seams.forEach(s=>{h+=`<div class="seam" style="left:${pct(s,D)}"></div>`;});
+  S.bars.forEach((x,k)=>{const n=S.first_bar+k,major=n%4===0||n===S.edit[0];h+=`<div class="tick${major?' major':''}" style="left:${pct(x,D)}"></div>`;if(major)h+=`<div class="num" style="left:${pct(x,D)}">${n}</div>`;});
+  tl.innerHTML=h+'<div class="head"></div>';head=tl.querySelector('.head');drawn=''+revealed;};
+ const barAt=t=>{let k=0;while(k+1<S.bars.length&&S.bars[k+1]<=t+1e-6)k++;return S.first_bar+k;};
+ const sync=()=>{if(drawn!==''+revealed)draw();const t=au(cur).currentTime;head.style.left=pct(t,dur());
+  document.getElementById('T_'+id).textContent=`${cur==='v1'?'v1':'version '+(cur+1)}  ${t.toFixed(1)} / ${dur().toFixed(1)} s  bar ${barAt(t)}`;};
+ const seek=t=>{au(cur).currentTime=Math.max(0,Math.min(dur(),t));sync();};
+ const sw=k=>{if(k===cur)return;const pl=!au(cur).paused,t=au(cur).currentTime;au(cur).pause();cur=k;au(k).currentTime=t;if(pl)au(k).play();sync();
+  tracks.forEach(x=>document.getElementById(`b_${id}_${x}`).classList.toggle('on',x===k));};
+ tracks.forEach(t=>document.getElementById(`b_${id}_${t}`).onclick=()=>sw(t));
+ document.getElementById('P_'+id).onclick=()=>{const a=au(cur);a.paused?a.play():a.pause();};
+ const atX=e=>{const r=tl.getBoundingClientRect();return (e.clientX-r.left)/r.width*dur();};
+ let drag=false;
+ tl.addEventListener('pointerdown',e=>{drag=true;tl.setPointerCapture(e.pointerId);seek(atX(e));});
+ tl.addEventListener('pointermove',e=>{if(drag)seek(atX(e));});
+ ['pointerup','pointercancel'].forEach(ev=>tl.addEventListener(ev,()=>drag=false));
+ tl.addEventListener('keydown',e=>{const t=au(cur).currentTime;let k=0;while(k+1<S.bars.length&&S.bars[k+1]<=t+1e-6)k++;
+  if(e.key==='ArrowRight'){seek(S.bars[Math.min(k+1,S.bars.length-1)]);e.preventDefault();}
+  if(e.key==='ArrowLeft'){seek(t-S.bars[k]>0.3?S.bars[k]:S.bars[Math.max(0,k-1)]);e.preventDefault();}});
+ S.jumps.forEach(([n,t],i)=>{document.getElementById(`J${i}_${id}`).onclick=()=>{seek(Math.max(0,t-(S.bars[1]-S.bars[0])));au(cur).play();};});
+ document.getElementById('R_'+id).onclick=()=>{revealed=true;S.cands.forEach((c,i)=>document.getElementById(`V_${id}_${i}`).textContent=`= ${c.arm}: ${c.text}`);draw();upd();};
+ tracks.forEach(t=>au(t).addEventListener('loadedmetadata',sync));
+ setInterval(sync,100);d.addEventListener('change',upd);d.addEventListener('input',upd);
+});
+function answers(withArms){const o={};SETS.forEach(S=>{o[S.key]={};S.cands.forEach((c,i)=>{const g=p=>document.getElementById(`${p}_${S.key}_${i}`).value;
+ o[S.key]['version '+(i+1)]={...(withArms?{arm:c.arm}:{}),instruments:g('i'),chords_changed:g('c'),join:g('j'),note:g('n')};});});return o;}
+function upd(){document.getElementById('out').textContent=JSON.stringify(answers(false),null,1);}
+function copyOut(){navigator.clipboard.writeText(JSON.stringify(answers(true),null,1));}
+function saveOut(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(answers(true),null,1)],{type:'application/json'}));a.download='sp6-answers.json';a.click();}
+upd();
+</script></body></html>
