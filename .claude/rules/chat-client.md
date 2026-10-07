@@ -34,3 +34,6 @@ end to end"; modules in `pipeline/architecture.md` "Chat (C0)".
   `ScorePlanList`, `scoreCopy`) instead of copies.
 - A/B (reference now, versions in C0b) goes through `chatAb` and
   `useChatPlayback`; never a second player or a second clamp.
+- C1: the reading line and strip states go only through `chatAnalysis`, mark
+  geometry and `markStale` through `chatMark`, mark copy in `chatMarkLabel`.
+  WHAT IT SEES shows the server's preview, never a client-built prompt.

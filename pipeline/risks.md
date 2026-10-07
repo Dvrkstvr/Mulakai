@@ -236,3 +236,13 @@ A reading leaves models on the GPU (ACE-Step's DiT and LM after ANALYZE AUDIO, l
 Transcription of arbitrary audio (SheetSage2) fails the score checker, overruns YuE2's plan budget, or yields a melody a cover does not make recognisable; then F-063 works only for YuE2 library songs. The COVER path it reuses works on library songs today (PLAN.md "YuE2 Melody Covers via SheetSage2"); real recordings are untested here.
 - check: CP-C3 (score read ok on at least 2 of 3 audio files, coverable rate, vocal-note density, warnings) and the owner's 3-cover listen (D-133).
 - fallback: covers only from YuE2 library songs (their own score) and Guided Create's USE .ABC FILE; an audio reference offers a new song in its style only.
+
+### R-031 · impact M · evidence hypothesis (stage 6, chat C1, 2026-10-07)
+The automatic analysis's WORDS step runs lyrics-server's faster-whisper large-v3 (seen in code: `lyrics-server/main.py`, no unload route), which stays resident after the read; the next turn's planner (11.7 GB; SP-5: 15.4 of 16.4 GB used) may split to the CPU and the turn slow from about 8-14 s to minutes. CP-C3 (D-159) measured ACE-Step's residency, not lyrics-server's. (R-030 is SP-6's id.)
+- check: CP-C1 logs nvidia-smi and the planner's `size_vram` on the turn after an analysis; stop line: not fully on the GPU, or next-turn p50 over 15 s.
+- fallback: drop WORDS from the automatic analysis (D-182; the Editor reads timings on demand), or an unload route on lyrics-server.
+
+### R-032 · impact M · evidence hypothesis (stage 6, chat C1, 2026-10-07)
+Every save queues 0-60 s of analysis ahead of the person's next message or APPLY (FIFO, Q-069): a quick "now the verse" after a version waits for its reading, and iteration feels slower than C0b.
+- check: CP-C1 logs the queue wait of a turn sent right after a save, per version source (spliced YuE2, whole re-render, ACE-Step); stop line: an analysis of a version of 4 min or less over 90 s.
+- fallback: a turn or commit queued behind a *queued* (not yet running) analysis goes ahead of it (a priority rule in its own module; `genQueue.ts` is at its cap), or WORDS leaves the automatic analysis.

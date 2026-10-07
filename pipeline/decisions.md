@@ -687,3 +687,47 @@ fix/chat-c0b-live: an edit card keeps its APPLY job id only while the APPLY can 
 
 ## D-170 · 2026-10-07 · stage 7 (C0b, F-050 #3 owner listen) · by: conductor
 Owner's A/B listen of 5 chat edits (pipeline/verify/C0b/owner-listen.json): no join bar named in 5/5 (join not found: pass), the edit came through clearly 5/5 (chords changed: pass), "the rest sounds the same" not met — tiny/tiny/a bit/a bit on the 4 splices, "different" on the whole re-render. Outside the span the splices are sample-identical to v1 (null test 0 differing samples), so what is heard is the re-sung span's instruments drifting (Acid: TB-303 bass → jazz bass), which colours the song around it. The render already reuses v1's seed and its style text, and those styles already name the instruments (tb 303; saxophone, bass; arpeggiated piano; fingerpicked guitar); yue-server takes no audio reference. F-050 stays false. Next: an instrument-hold spike (SP-6) before more chat edit work — owner's idea (instruments named, first and explicit) against a YuE2 audio reference if the model supports one.
+
+## D-171 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+A saved version is analyzed by C3's reading machinery reused: one `transcribe`-kind job, label `chat analysis`, one slot through WORDS > SCORE > SECTIONS (`readingSteps.runStep` for words and score; a new sections step for grid + bar times), stored as `versions.analysis_json` (`analysis_v: 1`, additive column); word timings go to the existing `versions.word_timings`, the grid to the existing `gridCache` sidecar (docs/decisions/0009).
+- why: docs/decisions/0008 already chose this; no new queue kind (genQueue 190/200, two kind unions); the splice and the Editor read what it writes.
+- instead of: a new `analyze` queue kind; chaining the timings, transcribe and splice-grid jobs; a separate analysis table.
+- revisit if: CP-C1 shows the single slot makes the next turn wait past its stop line (R-032).
+
+## D-172 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+What is analyzed: the chat's playable version (the base layer's active take, D-120) of a song **with a chat thread**; triggered when any job that can change audio settles `done` on that song (`jobEvents`, emitted by `jobRunner.queueJob`), and by `ensureAnalysis` on GET of a song's thread (imports, songs older than C1). One pending analysis per song; it re-resolves its target when it starts, so a newer version wins and no second job is queued. Songs without a thread are not analyzed (Q-109).
+- instead of: hooking the six version-insert sites; analyzing every song in the library.
+
+## D-173 · 2026-10-07 · stage 6 (chat C1, Q-038 #4) · by: assumed (architect)
+`scoreRenderJob.pendingEdit` lists only edit kinds (repaint, regenerate, retake, addLayer, split) instead of "anything but plan / scoreRender": a queued or running `timings`, `transcribe` (READ, the version analysis), `lyrics`, `analyze` or `lm` job never refuses APPLY. CREATE SONG / COVER already pass only `gpuGuard`. Built first (CL-1).
+- why: today a waiting analysis would refuse APPLY with "a chat analysis was queued after this plan" (seen in code); F-052 #3.
+
+## D-174 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+Bar times come from yue-server: `GET /v1/transcriptions/{id}/grid` (the chords run's `downbeat.lab` / `chord.lab` through `splice_grid.read_grid`) and `POST /v1/scores/bars {abc, grid}` (`splice_grid.fit`), CPU only. One SheetSage2 run gives a non-YuE2 version its transcribed score and its grid; a YuE2 version tracks only when no grid is cached; a spliced version's `mapped` grid is cached already (spliceRenderJob), so it needs no GPU step but WORDS.
+- why: decisions/0002 keeps ABC reading on yue-server; the strip and the splice use one fit, so their bars cannot disagree.
+- instead of: a TypeScript bar-time fit; a separate grid job.
+
+## D-175 · 2026-10-07 · stage 6 (chat C1, F-055) · by: assumed (architect)
+The mark is a third `planReferent` kind, `range {versionId, bars?, seconds}` (D-090 extends F-032's referent). The server resolves it at SEND and again at the turn's start against the playable version and its lineage (`barShift`): same version → pinned; the parent of a version whose edit moved no bars → carried, seconds re-timed; else stale. Stale at SEND → 409 `MARK_STALE`, nothing written; stale at the turn's start (it queued behind an APPLY) → a `failed` message "nothing changed · mark again", before the planner loads (Q-111). Never remapped.
+- instead of: a chat-only mark module; trusting the client's bars; planning the whole song when the mark went stale.
+
+## D-176 · 2026-10-07 · stage 6 (chat C1, F-055) · by: assumed (architect)
+A mark limits the plan in code: bar-valued op fields are bounded to the mark in the strict schema (`opsArraySchema(…, barRange)`); a section-referenced op outside the mark is a retry reason (`markFit`); a whole-song op (tempo, key, style) stays allowed and the edit card says "changes the whole song, not only the marked bars"; where an op's own limit is shorter than the mark the bound is the intersection and the card names it (F-055's "clamped with the reason").
+
+## D-177 · 2026-10-07 · stage 6 (chat C1, CS-9) · by: assumed (architect)
+WHAT IT SEES's rows and AS SENT JSON come from the server (`markBlock` through `POST …/mark/preview`), fetched when the disclosure opens, so the chip shows exactly what the turn sends; the chip's own label is computed on the client (display only).
+
+## D-178 · 2026-10-07 · stage 6 (chat C1, F-051) · by: assumed (architect)
+The chat e2e (`chat.spec.ts`) runs on the `score` project's stack (fake Ollama 8102, fake yue-server 8103, server 3102, Vite 5184), where `LLM_API_URL` and `YUE_API_URL` are already set: no new ports. The fake Ollama gains chat replies read from `server/test-fakes/data/sp5-replies.json` plus hold and offline switches; the fake yue-server replays `/v1/splices` from the recorded splice contract fixtures. The golden path is unchanged.
+
+## D-179 · 2026-10-07 · stage 6 (chat C1, F-052) · by: assumed (architect)
+A failed analysis is stored (`{analysis_v, versionId, failed, at}`) so FAILED + RETRY survive a reload; RETRY queues a new job (`POST …/analysis/retry`). With no reading of the current version's bars the strip is hatched and a mark is seconds only; such a turn's MARK block says "bars not read" and sends no bars.
+
+## D-180 · 2026-10-07 · stage 6 (chat C1, CS-4, CS-11) · by: assumed (architect)
+One rule, `barShift`, decides whether a version moved bars relative to its base: REHARMONIZE, SET TEMPO, TRANSPOSE, EDIT STYLE, REWRITE LYRICS and WRITE PHRASE keep them; a spliced or score CUT / REPEAT moves them with a known shift (USE BARS offered); a repaint keeps them; a retake, regenerate, new take, ACE-Step or unknown version moves them with no shift. It drives both the strip's dim-vs-hatched state and stale marks.
+
+## D-181 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+DT-C1 is `pipeline/design/chat-mark.html` (the strip and mark on the real player above the composer at 1366×768, thread ≥ 400 px), before CL-8a/b. C1 can split after F-053: C1a (analysis, strip, e2e), then C1b (the mark).
+
+## D-182 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+WORDS in the automatic analysis is skipped when `versions.word_timings` already holds a reading, and runs otherwise; `LYRICS_API_URL` unset skips it with "no word timings" (not a failure). If CP-C1 shows lyrics-server's model pushing the planner off the GPU (R-031), the automatic analysis drops WORDS and the Editor keeps reading timings on demand.
