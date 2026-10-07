@@ -9,7 +9,10 @@ loudness in the base minus in the new take) between the 3 s end anchors.
 
 A span at bar 1 or at the last bar has one join. The verdict is `rerender`
 (the server keeps the whole re-render, D-101) when a grid is unusable, the new
-take ends inside the span, or no join has a groove to snap to (D-109).
+take ends inside the span, no join has a groove to snap to (D-109), or the
+spliced song would differ from the base by more than 0.25 s (`length`, R-033:
+the new take's span is taken whole, so a span that runs short shortens the
+song and moves every later bar; SP-6 saw 1.9-7.6 s pass as `ok`).
 """
 from __future__ import annotations
 
@@ -23,12 +26,13 @@ CORR_MIN = 0.15      # pattern correlation below this: no snap, and no groove at
 SNAP_CAP = 0.08      # never move a cut by more than 80 ms
 LEVEL_WINDOW = 3.0   # s of audio matched at each end of the span
 MAX_GAIN_DB = 12.0   # a bar's match is clamped here (an outlier bar must not pump the span)
+MAX_LENGTH_DIFF = 0.25  # s; F-047: the spliced song stays within this of the base's length
 
 
 @dataclass
 class Splice:
     verdict: str                      # "ok" | "rerender"
-    reason: str | None = None         # not_aligned | no_grid | render_truncated | level_step | meter
+    reason: str | None = None         # not_aligned | no_grid | render_truncated | level_step | meter | length
     detail: str | None = None
     out: np.ndarray | None = None
     parts: list = field(default_factory=list)    # [(source, t0, t1)], source "base" | "render" | "copy"
@@ -121,6 +125,12 @@ def splice_reharmonize(base, new, gb, g_pre, g_post, s: int, e: int) -> Splice:
     parts = [("base", 0.0, tb_s), ("render", tn_s, tn_e), ("base", tb_e, len(base) / SR)]
     gain = {"in": round(g_in, 3) if first else None, "out": round(g_out, 3) if last else None,
             "bars": [round(g, 3) for _, g in anchors]}
-    return build(parts, {"base": base, "render": leveled}, [beat, beat], [tb_s, tb_e],
-                 snap=snaps, gain_db=gain, span_s={"base": [tb_s, tb_e], "render": [tn_s, tn_e]},
+    facts = dict(snap=snaps, gain_db=gain, span_s={"base": [tb_s, tb_e], "render": [tn_s, tn_e]},
                  offsets={"base": gb.offset, "render_pre": g_pre.offset, "render_post": g_post.offset})
+    spliced = build(parts, {"base": base, "render": leveled}, [beat, beat], [tb_s, tb_e], **facts)
+    diff = (len(spliced.out) - len(base)) / SR
+    if abs(diff) > MAX_LENGTH_DIFF:  # R-033: the new span is taken whole, so its length is the song's
+        detail = (f"the new take's bars {s + 1}-{e} run {abs(diff):.2f} s {'shorter' if diff < 0 else 'longer'} "
+                  f"than the current version's (a splice keeps the length within {MAX_LENGTH_DIFF} s)")
+        return rerender("length", detail, length_diff_s=round(diff, 4), **facts)
+    return spliced

@@ -6,6 +6,7 @@ import { useCommandStore } from './commandStore';
 import { useSongIndexStore } from './songIndexStore';
 import { SETTINGS_SECTIONS } from './settingsSections';
 import { useSettings } from './settings';
+import { convertAbcFile } from './scoreMidi';
 
 interface Nav {
   folders: Folder[];
@@ -41,6 +42,7 @@ export function useAppCommands(nav: Nav): void {
       startCreate: (genType) => go.current.startCreate(genType),
       remake: (song) => go.current.remake(song),
       openSettings: (id) => go.current.openSettings(id),
+      convertAbcFile,
     }));
   }, [publish, songs, folders, forgeEnabled]);
 }

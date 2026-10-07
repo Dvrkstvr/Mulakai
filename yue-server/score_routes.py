@@ -5,12 +5,17 @@ Sections"). The score is prepared exactly as POST /v1/jobs prepares it.
 
 Section counts add up to the whole score's: the tokenizer never joins text
 across a line break, and every section starts on its own line.
+
+POST /v1/scores/midi: the score as a MIDI file (PLAN.md "Export a Score as
+MIDI"). CPU only, so it never waits for the worker.
 """
 from __future__ import annotations
 
-from fastapi import Depends, FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Response
 from pydantic import BaseModel, Field
 
+from score_midi import abc_to_midi  # puts upstream/ on the path
+from abc_tools import AbcError  # noqa: E402
 from scores import ScoreError, prepare_score, split_sections
 from yue_pipeline import PLAN_TOKEN_BUDGET
 
@@ -34,3 +39,11 @@ def add_score_routes(app: FastAPI, worker, authorize) -> None:
             "header": worker.count_tokens(header) if header else 0,
             "sections": [{"name": name, "tokens": worker.count_tokens(body)} for name, body in sections],
         }
+
+    @app.post("/v1/scores/midi", dependencies=[Depends(authorize)])
+    def midi(request: MeasureRequest):
+        try:
+            data = abc_to_midi(request.abc)
+        except (AbcError, ValueError) as error:
+            raise HTTPException(422, str(error)) from None
+        return Response(data, media_type="audio/midi")

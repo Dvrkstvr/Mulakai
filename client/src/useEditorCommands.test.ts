@@ -67,6 +67,16 @@ describe('editorCommands', () => {
     expect(items.find((c) => c.id === 'export:mix')?.sub).toBe('Copper Sky.wav · what you hear');
   });
 
+  it('offers Export score as MIDI only for a song YuE2 made, opening EXPORT on it', () => {
+    expect(editorCommands(verbs()).some((c) => c.id === 'export:midi')).toBe(false);
+    const v = verbs({ song: { ...song, engine: 'yue2' } });
+    const item = editorCommands(v).find((c) => c.id === 'export:midi');
+    expect(item?.sub).toBe('Copper Sky.mid · the score, not the audio');
+    run(v, 'export:midi');
+    expect(v.setVerb).toHaveBeenLastCalledWith('export');
+    expect(useDockRequest.getState().exportWhat).toBe('midi');
+  });
+
   it('offers the current selection unless it is exactly a named section', () => {
     const custom = editorCommands(verbs({ selection: { start: 10, end: 20 } }));
     expect(custom[0]).toMatchObject({ id: 'repaint:selection', label: 'Repaint 0:10–0:20 · VOCALS', key: 'R' });

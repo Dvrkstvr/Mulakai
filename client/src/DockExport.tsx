@@ -3,19 +3,18 @@ import type { SongDetail } from './api';
 import { AudioPreview } from './AudioPreview';
 import { RemasterAction } from './RemasterAction';
 import { DockCommit } from './DockCommit';
+import { DockExportMidi } from './DockExportMidi';
 import { useEditorJobStore, myEditorJobs } from './editorJobStore';
 import { useRemasterResult } from './remasterResult';
 import { audibleTakes } from './mix/activeLayers';
 import { bounceAudible, mixFilename, saveBlob } from './mixExport';
 import { useDockRequest, type ExportWhat } from './dockRequest';
-
-const WHATS: { id: ExportWhat; label: string }[] = [
-  { id: 'mix', label: 'MIX' }, { id: 'stems', label: 'STEMS' }, { id: 'remaster', label: 'REMASTERED MIX' },
-];
+import { exportWhats } from './exportWhats';
 
 /**
  * EXPORT: MIX (a client-side bounce of what you hear, untagged WAV), STEMS (each layer's active
- * take as stored), or REMASTERED MIX (one ACE-Step pass over the mix, never kept). Opens on
+ * take as stored), REMASTERED MIX (one ACE-Step pass over the mix, never kept), or, for a YuE2
+ * song, SCORE AS MIDI. Opens on
  * REMASTERED MIX while this song has a remaster running or held, so it isn't hidden behind MIX.
  */
 export function DockExport({ song }: { song: SongDetail }) {
@@ -51,7 +50,7 @@ export function DockExport({ song }: { song: SongDetail }) {
       <div className="dock-body dock-export">
         <div className="dock-chips" role="radiogroup" aria-label="What to export">
           <span className="dock-row-label">WHAT</span>
-          {WHATS.map((w) => (
+          {exportWhats(song).map((w) => (
             <button key={w.id} type="button" role="radio" aria-checked={w.id === what}
               className={`tab dock-chip${w.id === what ? ' active' : ''}`} onClick={() => setWhat(w.id)}>
               <span>{w.label}</span>
@@ -59,6 +58,7 @@ export function DockExport({ song }: { song: SongDetail }) {
           ))}
         </div>
         {what === 'mix' && <div className="hint">MIX follows mute/solo — what you hear is what you get</div>}
+        {what === 'midi' && <div className="hint">the score the active take was sung from, for a DAW or notation app</div>}
         {what === 'stems' && (
           <>
             <div className="hint">audition or download each layer's active version as a separate stem</div>
@@ -93,6 +93,7 @@ export function DockExport({ song }: { song: SongDetail }) {
         </>
       )}
       {what === 'remaster' && <RemasterAction songId={song.id} layers={song.layers} />}
+      {what === 'midi' && <DockExportMidi song={song} />}
     </>
   );
 }

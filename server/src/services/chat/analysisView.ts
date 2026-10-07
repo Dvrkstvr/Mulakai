@@ -41,11 +41,18 @@ function secondsOf(from: number, to: number, bars: Bars | null): [number, number
   return end === null ? null : [bars.starts[from - 1], end];
 }
 
+/** A label's or tag's kind: `[Verse 2]` and `verse` are a verse (yue-server's `tag_word`). */
+const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
+
 export function stripSections(facts: ScoreFacts, bars: Bars | null, words: LyricsReading | null): StripSection[] {
   const seen = new Map<string, number>();
+  const kinds = new Map<string, number>();
   return facts.sections.map((s) => {
     const occurrence = (seen.get(s.label) ?? 0) + 1;
     seen.set(s.label, occurrence);
+    const kind = kindOf(s.label);
+    const nth = (kinds.get(kind) ?? 0) + 1;
+    kinds.set(kind, nth);
     const seconds = secondsOf(s.from_bar, s.to_bar, bars);
     let lines = 0;
     let partialLines = 0;
@@ -57,8 +64,8 @@ export function stripSections(facts: ScoreFacts, bars: Bars | null, words: Lyric
         partialLines = touching.filter((w) => w.start < a || w.end > b).length;
       }
     } else {
-      const block = facts.lyric_blocks.find((l) => l.tag.toLowerCase() === s.label.toLowerCase() && l.occurrence === occurrence);
-      lines = block?.lines ?? 0;
+      // D-066 d: the k-th section of a kind sings the k-th block of it (tags are `[Verse]`, labels `verse`; CP-C1)
+      lines = facts.lyric_blocks.filter((l) => kindOf(l.tag) === kind)[nth - 1]?.lines ?? 0;
     }
     return { index: s.index, label: s.label, occurrence, bars: [s.from_bar, s.to_bar], seconds, lines, partialLines };
   });

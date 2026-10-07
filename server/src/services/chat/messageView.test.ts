@@ -24,6 +24,15 @@ describe('message view (the states the client shows)', () => {
     expect(states([u, msg('assistant', 'failed', { body: { reasons: ['x'], cause: 'cancelled' } })], ctx())).toEqual(['cancelled', 'cancelled']);
   });
 
+  it('C1: a sent mark (the frozen echo) is on the wire; a stale-mark turn reads failed (F-055)', () => {
+    const mark = { kind: 'range' as const, versionId: 'v4', bars: [49, 58] as [number, number], seconds: [118, 142] as [number, number], label: 'CHORUS 2 + 2 BARS' };
+    const u = msg('user', 'text', { body: { sentRev: 0, mark } });
+    const failed = msg('assistant', 'failed', { body: { reasons: ['your mark was on v3; v4 moved those bars · nothing changed · mark again'], cause: 'stale' } });
+    const [view] = messageViews([u, failed], ctx());
+    expect(view.body).toEqual({ chat_v: 1, sentRev: 0, mark });
+    expect(states([u, failed], ctx())).toEqual(['failed', 'failed']);
+  });
+
   it('a job that vanished with no reply (a restart) is interrupted; a trashed-song cancel reads cancelled', () => {
     expect(states([msg('user', 'text', { jobId: 'gone' })], ctx())).toEqual(['interrupted']);
     expect(states([msg('user', 'text', { jobId: 'j' })], ctx({ j: { status: 'failed', cancelled: true } }))).toEqual(['cancelled']);
