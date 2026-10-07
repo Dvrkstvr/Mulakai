@@ -37,7 +37,22 @@ describe('chatReading', () => {
     expect(readingHoldsSend(s)).toBe(true);
   });
 
-  it('a READ whose reading saved nothing: the server says pending again and READ can be pressed again', () => {
+  it('CANCEL after the server said committing (in session): the server\'s pending wins, READ and SEND are back (C3 live A)', () => {
+    const s = run({ type: 'thread', messages: [analyze()] }, { type: 'read', messageId: 'a1' },
+      { type: 'thread', messages: [analyze({ state: 'committing', jobId: 'rj1' }), card({ state: 'reading' })] },
+      { type: 'thread', messages: [analyze({ state: 'pending', jobId: 'rj1' }), card({ state: 'cancelled' })] });
+    expect(phase(s, 'a1')).toEqual({ kind: 'pending' });
+    expect(readingHoldsSend(s)).toBe(false);
+  });
+
+  it('CANCEL on a reading started before a reload: the server\'s pending wins over the restored starting (C3 live A)', () => {
+    const s = run({ type: 'thread', messages: [analyze({ state: 'committing', jobId: 'rj1' }), card({ state: 'reading' })] },
+      { type: 'thread', messages: [analyze({ state: 'pending', jobId: 'rj1' }), card({ state: 'cancelled' })] });
+    expect(phase(s, 'a1')).toEqual({ kind: 'pending' });
+    expect(readingHoldsSend(s)).toBe(false);
+  });
+
+  it('a READ whose reading saved nothing:the server says pending again and READ can be pressed again', () => {
     const s = run({ type: 'thread', messages: [analyze({ state: 'done', jobId: 'rj1' }), card({ state: 'cancelled' })] },
       { type: 'thread', messages: [analyze({ state: 'pending', jobId: 'rj1' }), card({ state: 'cancelled' })] }, { type: 'read', messageId: 'a1' });
     expect(phase(s, 'a1')).toEqual({ kind: 'starting' });
