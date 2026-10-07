@@ -27,3 +27,6 @@ paths:
 - Fakes replay recorded replies (yue-server pytest writes the contract
   fixtures); never hand-edit a reply the real service would not send.
 - The golden path keeps `LLM_API_URL` empty, so SCORE stays hidden.
+- chat.spec.ts runs on the `score` stack, no new ports (D-178): the fake
+  Ollama answers with SP-5's recorded replies (`fake-score/chatReplies.ts`)
+  and the chat song is the contract song, so its score fixtures answer.
