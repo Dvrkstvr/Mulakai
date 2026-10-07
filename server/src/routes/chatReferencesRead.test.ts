@@ -79,7 +79,7 @@ describe('POST /threads/:id/read and /references/:id/read', () => {
     jobs[0].status = 'running';
     expect(await states(threadId)).toEqual(['analyze:committing', 'reading:reading']);
     jobs[0].status = 'failed'; jobs[0].error = 'take.wav could not be read: the file is gone';
-    expect(await states(threadId)).toEqual(['analyze:done', 'reading:failed']);
+    expect(await states(threadId)).toEqual(['analyze:pending', 'reading:failed']); // nothing saved: READ is open again (C3 review 3)
   });
 
   it('409 {reason} on a refused re-check; 400 without a proposal id; 404 an unknown chat', async () => {

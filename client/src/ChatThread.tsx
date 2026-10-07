@@ -56,10 +56,10 @@ export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
   const retry = async () => { await chat.loadStatus(); await chat.retry(); };
   const askAgain = () => { chat.type(ASK_AGAIN_TEXT); void chat.send(); };
   const refOf = (id: string | undefined) => thread?.references?.find((r) => r.id === id);
-  /** A reading card's CANCEL: the reading job (the queue's), or the follow-up turn (the chat's). */
+  /** A reading card's CANCEL, the reading or its follow-up turn: always the chat's route (it stops a running
+   * reading between steps and frees the thread); the queue-only /api/generate cancel does neither. */
   const cancelCard = (c: CardState) => {
-    if (!c.jobId) return;
-    void (c.stage === 'followUp' ? chatApi.cancelChatJob(c.jobId) : api.cancelJob(c.jobId)).catch(() => undefined);
+    if (c.jobId) void chatApi.cancelChatJob(c.jobId).catch(() => undefined);
   };
 
   const item = (m: ChatMessageView) => {

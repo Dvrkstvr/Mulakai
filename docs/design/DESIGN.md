@@ -1065,10 +1065,16 @@ requiring its own justification against a screen-count rule.
      gets the assistant's sky wash when filled, then keeps a neutral
      REFERENCE tag (`text-mid` hairline chip, no hue) until the person
      edits it (option B); a value the reference lacks stays blank with
-     its note. On a song's thread the sidebar lists the reference (name,
-     length, read date, rights line) with RE-ANALYZE (plain, its own
-     consequence line), and the player's lilac pill swaps REFERENCE ⇄
-     SONG at the same seconds.
+     its note, shown as a dashed `KEY · AUTO` placeholder with a rust
+     `NO KEY FOUND` line ("left blank, YuE2 decides when it renders"). On
+     a song's thread the sidebar lists the reference (name, length, read
+     date, rights line) with RE-ANALYZE (plain, its own consequence line),
+     and the player has **one** `REFERENCE ⇄ SONG` pill (filled lilac
+     while the reference plays) that swaps at the same seconds; while the
+     reference plays the status reads `LISTENING · SAME SECONDS` and the
+     version pill hides (the mockup's two pills and longer line overlapped
+     DOWNLOAD at 1366). Past the reference's end the player waits there,
+     paused.
 
 ### Side panels (Create + Editor)
 
