@@ -8983,3 +8983,190 @@ the design (D-095), memory (D-081), ask or propose (D-082), engine
 
 1. **SP-4's listen**: do the splice joins and the audio-only REPEAT/CUT
    seams pass by ear (`pipeline/spikes/SP-4-keep-unchanged/listen`)?
+
+## Studio Network: Server on home.lan, GPU PC Wakes on Demand (planned 2026-10-06)
+
+**Decision (project owner, 2026-10-06): Mulakai is used from the studio
+computer over the home LAN.** The server, the library and the built client
+move to an always-on Proxmox box (`home.lan`). The PC with the GPU becomes
+a processing unit: `home.lan` wakes it over the LAN when a job needs the
+GPU. **Windows stays the GPU PC's main OS**, and everything keeps working
+when it runs Mulakai locally. A Linux boot is optional and comes later.
+
+This changes where processes run, not who uses the app. It stays one user
+with no accounts, and it stays on the LAN only, never port-forwarded.
+
+### Decisions
+
+1. **The server and library live on `home.lan`.** Express, SQLite, the
+   audio and the built client run in one Proxmox LXC (Debian, Node, ffmpeg)
+   with `HOST=0.0.0.0`. Express serves `client/dist` when `CLIENT_DIST` is
+   set, and any path that isn't `/api` or `/audio` falls back to
+   `index.html`. The library can be browsed and played while the GPU PC is
+   off. The Vite dev server stays a development tool only.
+2. **Engines are reached by URL only, as today.** `home.lan`'s
+   `ACESTEP_API_URL`, `YUE_API_URL`, `LLM_API_URL`, `DEMUCS_API_URL` and
+   `LYRICS_API_URL` point at `gpu-pc.lan`. A router DHCP reservation keyed
+   to the network card's MAC gives the PC the same IP from either OS, and
+   each engine keeps its port on every OS. Engines bind to the LAN. Windows
+   Firewall admits those ports only from `home.lan`'s IP and `127.0.0.1`.
+   Ollama, Demucs and lyrics-server have no key, so that firewall scope is
+   the guard. `ACESTEP_API_KEY` and `YUE_API_KEY` are set as well.
+3. **A GPU agent on the GPU PC decides what to start.** The new
+   `gpu-agent/` is Python and FastAPI, like `demucs-server/`, on port 8100,
+   behind a bearer `AGENT_KEY`. It reads one config file per machine
+   (`agent.windows.toml`, and `agent.linux.toml` later). Each service in it
+   has an id, port, start command, health URL, ready timeout and idle-stop
+   minutes. Mulakai never knows which OS answered; the agent's config does.
+   Its API:
+   - `GET /status`: each service's `stopped | starting | ready | failed`
+     state, plus the current lease.
+   - `POST /services/{id}/start` (idempotent) and `POST /services/{id}/stop`.
+   - `POST /lease`, `POST /lease/{id}/renew`, `DELETE /lease/{id}`
+     (decision 5).
+4. **Services start on demand and stop when idle.** A service starts when a
+   job needs it. It stops after its idle-stop minutes (default 15) once no
+   lease names it, so VRAM is free while the owner uses Windows. The agent
+   never stops a service a held lease names. On Windows the agent runs from
+   Task Scheduler as the owner's account, "at startup, whether logged on or
+   not". It can't be a SYSTEM service, because YuE2's WSL distro belongs to
+   that account.
+5. **A GPU lease lets only one Mulakai server use the GPU at a time.** The
+   `home.lan` server and a Windows dev stack can both drive the same
+   engines. Each has its own `genQueue`, so without a lease two jobs could
+   load models at once on the 16 GB card, and the planner's unload rule
+   would see only its own queue. The `genQueue` slot takes a lease before
+   the job body runs and returns it when the slot frees. A `plan` job's
+   unload and its wait for an empty `/api/ps` stay inside the slot, so that
+   invariant (`score/planJob.ts`) holds unchanged.
+   - The lease lasts 60 s and is renewed every 20 s while held, so a
+     crashed server frees the GPU within a minute.
+   - If another server holds the lease, the request gets a 409 with the
+     holder's name. The job waits, checks again every 5 s, and reads
+     `WAITING FOR GPU · <holder>`.
+6. **The GPU PC is woken before the lease is taken.** When the slot starts
+   a job and the agent doesn't answer, the server sends a Wake-on-LAN magic
+   packet (`GPU_WAKE_MAC`; `GPU_WAKE_BROADCAST` defaults to
+   `255.255.255.255:9`). It then waits up to `GPU_WAKE_TIMEOUT_S` (default
+   180) for `/status`. Next it asks the agent to start the services the job
+   needs (table below), waits until they are ready, and runs the body. If
+   any step fails, the job fails with the step's name: "GPU PC did not wake
+   in 3 min", or "<service> did not start". The GPU PC sleeps (S3) rather
+   than shutting down, so a wake takes seconds, not a full boot.
+7. **Feature gate.** Decisions 5 and 6 apply only when `GPU_AGENT_URL` is
+   set. When it is unset, Mulakai behaves exactly as it does today: engines
+   are assumed to be running, and there is no lease and no wake. The e2e
+   golden path runs with it unset. A fake agent covers the gated path in
+   unit tests.
+8. **Asleep is not down** (this extends "Model Status Badge" decision 3).
+   With an agent configured, a service the agent lists as stopped reads
+   `ASLEEP`, in `text-mid` like busy, and never counts toward `N DOWN`.
+   While the PC is asleep, every agent service reads `ASLEEP`. The badge
+   gains a `GPU PC` row: `ASLEEP`, `WAKING`, `READY`, or `HELD BY <holder>`.
+   The server keeps the agent's last `/status` in memory and in
+   `DATA_DIR/gpuAgent.json`. While the agent is configured, `listEngines`
+   takes `ready` from that list, not from a live probe, so Create's engine
+   picker and COVER still offer YuE2 while it sleeps.
+9. **A consequence line before waking.** A generative commit made while the
+   GPU PC is asleep says so before the click: `WAKES THE GPU PC FIRST
+   (ABOUT A MINUTE)`. The wording goes into DESIGN.md in a commit of its
+   own. Every chat turn runs on the planner, so a chat SEND made while the
+   PC is asleep shows the same line.
+10. **Audio has its own path; the database stays local.** `AUDIO_DIR`
+    overrides `config.audioDir`. `DATA_DIR` keeps `mulakai.db` and
+    `lyricTags.json` on the LXC's own disk, because SQLite must never sit
+    on a network filesystem. `AUDIO_DIR` may be the folder copyparty
+    serves, bind-mounted into the LXC. copyparty shares that folder
+    **read-only**, because the database refers to every file by name.
+    Files keep their UUID names, with title, BPM and key embedded in the
+    file's tags. A folder with human-readable names is Later.
+11. **The Windows dev stack uses the agent when it's running.** If the agent
+    answers on `127.0.0.1:8100`, `start-all.bat` starts only the server and
+    client. It sets `GPU_AGENT_URL` to the agent and the engine URLs to
+    `127.0.0.1`, and leaves the engines to the agent (otherwise both would
+    try to bind the same ports). Without the agent, it behaves as today.
+
+### What each job kind starts
+
+| `GenKind` | Services |
+|---|---|
+| `generate` (ACE-Step), `repaint`, `regenerate`, `retake`, `addLayer`, `remaster`, `analyze`, `lm` | `acestep` |
+| `generate` on YuE2, `transcribe` (SheetSage2, and the chat's reading in `chat/readingJob.ts`), `scoreRender` | `yue2` |
+| `split` | the configured split backend: `demucs`/`uvr`, or `acestep` for EXTRACT |
+| `lyrics`, `timings` | `lyrics` |
+| `plan` (the score planner, and every chat turn in `chat/turnJob.ts`) | `ollama` |
+
+### File-level plan
+
+**PR 1 — `feat/serve-built-client` (server only).**
+- `config.ts`: `clientDist` (`CLIENT_DIST`), plus an `AUDIO_DIR` override
+  for `audioDir`. `index.ts`: static `client/dist` and the SPA fallback,
+  registered after the routers.
+- Tests: the fallback serves `index.html` for `/song/x`, and `/api/x`
+  still 404s as JSON. `audioDir` follows `AUDIO_DIR`.
+- `deploy/home-lan/`: `README.md` (LXC setup, bind mount, copyparty
+  read-only volume, firewall scope, env table) and `mulakai.service`
+  (systemd). `README.md` gets the new env vars.
+
+**PR 2 — `feat/gpu-agent` (new `gpu-agent/`).**
+- `app.py` (routes), `services.py` (start, health-wait, idle stop, process
+  tree kill), `lease.py` (TTL and renew), `agentConfig.py` (TOML loader).
+- `agent.windows.toml.example`, which mirrors `start-all.bat`'s engine
+  commands, with ACE-Step on `--server-name 0.0.0.0` and YuE2 through
+  `wsl`. Add `install-agent.bat` (`schtasks`, run as the owner) and
+  `README.md`.
+- pytest with fake child processes. `checks.yml` gets a `gpu-agent` pytest
+  job.
+
+**PR 3 — `feat/gpu-wake-lease` (server).**
+- `services/gpuAgent/`: `agentClient.ts`, `wake.ts` (the magic packet over
+  `dgram`), `lease.ts` (take, renew, release), `needs.ts` (the table
+  above), `agentCache.ts` (decision 8).
+- `genQueue.ts`: `start()` awaits an injected gate (wake, then services,
+  then lease) before the body. The gate is a no-op without `GPU_AGENT_URL`.
+  `QueueInfo` gains `gate?: 'waking' | 'starting' | 'waitingLease'` for
+  Activity. The lease is returned in `releaseSlot`.
+- `config.ts`: `GPU_AGENT_URL`, `GPU_AGENT_KEY`, `GPU_WAKE_MAC`,
+  `GPU_WAKE_BROADCAST`, `GPU_WAKE_TIMEOUT_S`.
+- `engines/registry.ts`: when the agent is configured, `ready` comes from
+  `agentCache`. `GET /api/gpu` returns the GPU PC row's state.
+- Tests: the gate's order and its failures, lease renew and 409 waits, the
+  plan unload still finishing inside a held lease, and a cached `ready`
+  while asleep.
+
+**PR 4 — `feat/gpu-status-ui` (client, plus DESIGN.md).**
+- `modelStatus.ts` (`ASLEEP`, the `GPU PC` row), `modelStatusStore.ts`
+  (polls `/api/gpu`), the Activity row label for `gate`, and the
+  consequence line. A separate commit adds the badge rows and the wake
+  line to DESIGN.md.
+
+**PR 5 — `chore/start-all-agent-mode`.** Decision 11 in `start-all.bat`.
+
+### Later
+
+- **A Linux boot on the GPU PC**, only if Windows proves slow or unreliable
+  as a headless worker. It would need `agent.linux.toml` with systemd
+  units, an `ntfs3` mount of `E:\ai` for shared weights (Windows Fast
+  Startup off), and Linux as the GRUB default, with `grub-reboot` to pick
+  Windows. `home.lan` would not change.
+- **Auto-sleep**: the agent suspends the PC after N idle minutes with no
+  lease. This belongs to the agent, not to Mulakai.
+- **A readable-name export folder** for copyparty
+  (`Song Title/v3 – remaster.wav`).
+- **Auth on the LAN server.**
+
+### Open questions
+
+1. **Does an idle engine process hold VRAM?** If ACE-Step keeps its DiT
+   resident between jobs, starting `yue2` beside it could run out of
+   memory. Measure with `nvidia-smi` before PR 2. If it does, a service can
+   be marked `exclusive = true`, and the agent stops the others before
+   starting it.
+2. **Does the PC wake reliably from sleep?** Check in the BIOS whether the
+   board offers S3 or only Modern Standby (S0ix), and enable "Wake on Magic
+   Packet" in the network driver, before PR 3. Recommendation: with S0ix
+   only, use hibernate or shutdown plus Wake-on-LAN (S5) and accept the
+   boot time.
+3. **Owner priority.** Should `home.lan` jobs wait while the owner games or
+   runs other GPU work on Windows? Recommendation: the owner takes a manual
+   lease (`gpu-agent lease --hold`) for v1. A tray toggle is Later.
