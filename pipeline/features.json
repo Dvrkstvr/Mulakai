@@ -756,8 +756,8 @@
         "A dropped file or picked library song with 'like this, but in German' gives an analyze proposal ('uses the GPU about N s, changes nothing'); on commit a reading card shows words (lyrics-server), the score with sections (yue-server transcriber) and caption, tempo, key (ACE-Step ANALYZE AUDIO)",
         "Edge: longer than 360 s reads the first 360 s and says so; a non-audio or unreadable file shows a rust reason; a service that is down leaves its part marked 'not read: <why>', never an empty section; an instrumental says there are no words"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/verify/C3/live/c3-live.md (CR-9, 2026-10-07): library YuE2 song reads its own parts (~2 s, no GPU), a dropped ACE-Step song ~65 s (WORDS/SCORE/CAPTION); 6:24 reads 6:00 and says so; non-audio (.txt, .pdf) refused with the reason; noise → SCORE 'not read' with why; CANCEL/READ AGAIN; reload restores. CP-C3 (pipeline/cp-c3/2026-10-07) 5/5 stop lines after D-162. Stuck-STARTING after reload+cancel fixed in #182 (D-164, unit-tested)"
     },
     {
       "id": "F-062",
@@ -768,8 +768,8 @@
         "After CREATE the reference is stored with the song as a copy on this machine; the song's sidebar lists it; RE-ANALYZE reruns the reading; the player can A/B the song against it",
         "Edge: deleting the song deletes the reference; the card says the file never leaves this machine and the rights are the person's"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "c3-live.md: reference panel with RE-ANALYZE and A/B at the same seconds (0:07 → 0:09 → 0:13); reference kept after reload and OPEN CHAT; trash + empty removed the upload file"
     },
     {
       "id": "F-063",
@@ -780,8 +780,8 @@
         "The card says 'keeps the melody, new words and style; renders on YuE2 from the transcribed score, about N min'; CREATE COVER runs the existing USE .ABC FILE path (cot melody) and the song is a cover with its reference attached",
         "Edge: a transcription that fails the validator offers no cover and says why with a fresh-song option; the card says the new words are fitted by YuE2, not guaranteed"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "c3-live.md + CP-C3: CREATE COVER rendered (75 s live; CP-C3 two covers 69-91 s), v1 gen_task=cover with its reference; FROM THE SCORE locked fields + rights line; 'NO COVER · why' on a failed transcription or a too-long score. Owner's listen owed"
     },
     {
       "id": "F-064",
@@ -792,8 +792,8 @@
         "The recipe card is filled from the reading (tempo, key, structure, instrumentation in the style) with the borrowed fields marked, and CREATE SONG makes a new song with the reference attached",
         "Edge: a missing value in the reading (no key found) leaves the field blank and says so; the model's guess never fills it silently"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "c3-live.md: borrow proposal with REFERENCE tags, CREATE SONG 77 s; nothing read → KEY · AUTO and NO TEMPO/KEY/METER FOUND, the planner asked instead of guessing; reference_use right 9/10 (CP-C3, D-162); borrow facts now prefer the score (D-165)"
     },
     {
       "id": "F-065",
@@ -805,7 +805,7 @@
         "Edge: REHARMONIZE on a chord-free song takes the whole-song path (the render mode changes for the whole song, no splice); an instrumental's score refuses REWRITE LYRICS with the reason"
       ],
       "passes": false,
-      "evidence": null
+      "evidence": "Score half (dock) passes live (c3-live.md: SET TEMPO melody render v2, REHARMONIZE adds chords v3, REWRITE LYRICS refused on an instrumental). Chat half = C0b (#181)"
     },
     {
       "id": "F-066",

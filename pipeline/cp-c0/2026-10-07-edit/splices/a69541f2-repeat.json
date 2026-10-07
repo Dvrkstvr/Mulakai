@@ -1,0 +1,112 @@
+{
+ "id": "c4b2e7e9a7404bf7bc1227cb0b3ba62b",
+ "kind": "splice",
+ "idempotency_key": "splice-3867dc36-31df-4ae2-b9a1-c9d4faf38b1a",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791336175.2142885,
+ "updated_at": 1791336175.6500492,
+ "started_at": 1791336175.2173362,
+ "finished_at": 1791336175.6500492,
+ "cancel_requested": false,
+ "result": {
+  "verdict": "ok",
+  "reason": null,
+  "detail": null,
+  "kind": "REPEAT",
+  "bars": [
+   15,
+   22
+  ],
+  "audio_url": "/v1/splices/c4b2e7e9a7404bf7bc1227cb0b3ba62b/audio",
+  "audio_seconds": 237.4283,
+  "length_diff_s": 22.5896,
+  "joins_s": [
+   59.75,
+   82.3396
+  ],
+  "crossfade_s": [
+   0.705882,
+   0
+  ],
+  "base_points_s": [
+   null,
+   null
+  ],
+  "parts": [
+   {
+    "source": "base",
+    "out_s": [
+     0,
+     59.75
+    ],
+    "src_s": [
+     0,
+     59.75
+    ]
+   },
+   {
+    "source": "copy",
+    "out_s": [
+     59.75,
+     82.3396042
+    ],
+    "src_s": [
+     37.1603958,
+     59.75
+    ]
+   },
+   {
+    "source": "base",
+    "out_s": [
+     82.3396042,
+     237.4282708
+    ],
+    "src_s": [
+     59.75,
+     214.8386667
+    ]
+   }
+  ],
+  "edges": [],
+  "snap": [
+   {
+    "delta_ms": 0.4,
+    "applied": true,
+    "corr": 0.3767
+   }
+  ],
+  "gain_db": null,
+  "level_step_db": 3.52,
+  "gap_shift_s": null,
+  "seams": [
+   {
+    "out_s": 59.75,
+    "lufs_step": 3.52,
+    "base_lufs_step": null,
+    "lufs_step_excess": null
+   },
+   {
+    "out_s": 82.3396,
+    "lufs_step": 1.986,
+    "base_lufs_step": null,
+    "lufs_step_excess": null
+   }
+  ],
+  "null_test": {
+   "samples": 10295313,
+   "different": 0
+  },
+  "grid_urls": {
+   "base": "/v1/splices/c4b2e7e9a7404bf7bc1227cb0b3ba62b/grid/base",
+   "render": null,
+   "out": "/v1/splices/c4b2e7e9a7404bf7bc1227cb0b3ba62b/grid/out"
+  },
+  "timing": {
+   "total_seconds": 0.433
+  }
+ },
+ "error": null
+}
