@@ -6,6 +6,9 @@
  * yue-server's job records: running for a moment, then succeeded, with a canned tone as audio and,
  * as its score, the one it was sent (a render) or the recorded song's (a first take).
  *
+ * `/v1/transcriptions` (a chat analysis's chords run for the beat) replays the recorded chords run and the
+ * contract song's grid (transcriptions.ts); `/v1/scores/bars` is a score route like the others.
+ *
  * `/v1/splices` (the chat's APPLY of a spliced edit) replays the recorded `splice-*.json` the same way
  * (splices.ts): a spec nothing recorded gets a 500 naming the field.
  *
@@ -14,12 +17,16 @@
  */
 import http from 'node:http';
 import { toneWav } from '../fake-acestep/wav.js';
-import { allContracts, recordedSong, same } from './contracts.js';
+import { allContracts, contract, recordedSong, same } from './contracts.js';
 import { spliceRoute, spliceState } from './splices.js';
+import { transcriptionRoute } from './transcriptions.js';
 
 /** How long a job reports "running" before it succeeds, so the dock's render line is exercised. */
 const PENDING_MS = Number(process.env.FAKE_YUE_PENDING_MS ?? 1500);
-const DURATION_SEC = 12;
+/** A take lasts as long as the recorded score says (179.3 s), so its analysis's bar times fit the audio (CL-8b);
+ * mono 8 kHz keeps it under 3 MB. */
+const DURATION_SEC = (contract('read-ok').response.body.facts as { header: { seconds: number } }).header.seconds;
+const TAKE_FORMAT = { sampleRate: 8000, channels: 1 };
 
 interface FakeJob { id: string; body: Record<string, unknown>; createdAt: number; cancelled: boolean }
 
@@ -53,7 +60,7 @@ export function startFakeYue(port: number): http.Server {
       job.cancelled = true;
       return (send(200, jobRecord(job)), true);
     }
-    if (sub === 'audio') return (send(200, toneWav(DURATION_SEC, 330 + 55 * jobs.size), 'audio/wav'), true);
+    if (sub === 'audio') return (send(200, toneWav(DURATION_SEC, 330 + 55 * jobs.size, TAKE_FORMAT), 'audio/wav'), true);
     if (sub === 'score') {
       const sent = job.body.abc;
       return (send(200, typeof sent === 'string' ? sent : recordedSong().abc, 'text/plain; charset=utf-8'), true);
@@ -73,6 +80,7 @@ export function startFakeYue(port: number): http.Server {
       const method = req.method ?? 'GET';
       const route = (req.url ?? '').split('?')[0];
       if (spliceRoute(splices, method, route, raw, send)) return; // multipart, before the JSON parse
+      if (transcriptionRoute(method, route, raw, send)) return; // the analysis's chords run (multipart too)
       let body: unknown = null;
       try {
         body = raw ? JSON.parse(raw) : null;
