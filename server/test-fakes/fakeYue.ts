@@ -10,6 +10,11 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadSplice, spliceRoute, type SpliceName, type SpliceScript } from './fakeYueSplice.js';
+import {
+  loadGrid, loadTranscription, transcriptionRoute, type GridFixture, type GridName, type TranscriptionFixture, type TranscriptionName,
+} from './fakeYueTranscribe.js';
+
+export type { TranscriptionFixture };
 
 export const CONTRACT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../yue-server/tests/data/contract');
 
@@ -40,17 +45,10 @@ export interface JobScript {
   score?: string | null;
 }
 
-/** A recorded transcription (CR-0's pytest): the submit's form and reply, the record once settled, the score. */
-export interface TranscriptionFixture {
-  name: string;
-  request: { method: string; path: string; form: Record<string, string>; file: string };
-  response: { status: number; body: Record<string, unknown> };
-  final: { status: number; body: Record<string, unknown> };
-  score: string | null;
-}
-
-export const transcriptionContract = (name: 'transcription-chords-done' | 'transcription-chords-failed' | 'transcription-hold') =>
-  JSON.parse(fs.readFileSync(path.join(CONTRACT_DIR, `${name}.json`), 'utf8')) as TranscriptionFixture;
+/** A recorded transcription (CR-0's pytest): fakeYueTranscribe.ts replays it. */
+export const transcriptionContract = (name: TranscriptionName) => loadTranscription(CONTRACT_DIR, name);
+/** A recorded `/grid` reply of that transcription (CL-2's pytest). */
+export const gridContract = (name: GridName) => loadGrid(CONTRACT_DIR, name);
 
 /** A recorded splice (CB-1's pytest): the submit's spec, its reply, the record once settled. */
 export const spliceContract = (name: SpliceName) => loadSplice(CONTRACT_DIR, name);
@@ -62,6 +60,8 @@ export interface FakeYue {
   job: JobScript;
   /** How a transcription plays out: one of CR-0's recorded fixtures (default: done with chords). */
   transcription: TranscriptionFixture;
+  /** What its `/grid` answers (default: CL-2's ok grid). */
+  transcriptionGrid: GridFixture;
   /** How a splice plays out: one of CB-1's recorded fixtures (default: ok) and what was sent. */
   splice: SpliceScript;
   /** Bodies of every POST /v1/jobs, in order. */
@@ -98,34 +98,6 @@ function jobRoute(fake: FakeYue, polls: Map<string, number>, req: http.IncomingM
   return (send(res, 200, { id, ...script.states[Math.min(n, script.states.length - 1)] }), true);
 }
 
-/** A multipart form's text fields (the file part is skipped). */
-function formFields(raw: string): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const m of raw.matchAll(/name="([^"]+)"\r\n\r\n([^\r]*)\r\n/g)) out[m[1]] = m[2];
-  return out;
-}
-
-/** `/v1/transcriptions`, replayed from the recorded fixture: true when it answered. A submit whose
- * form fields differ from the recording gets a 500; a cancel makes the record `cancelled`. */
-function transcriptionRoute(fake: FakeYue, cancelled: Set<string>, req: http.IncomingMessage, res: http.ServerResponse, route: string, raw: string): boolean {
-  const m = /^\/v1\/transcriptions(?:\/([^/]+)(?:\/(score|cancel))?)?$/.exec(route);
-  if (!m) return false;
-  const [, id, sub] = m;
-  const fx = fake.transcription;
-  if (id === 'health') return (send(res, 200, { ok: true }), true);
-  if (!id && req.method === 'POST') {
-    const form = formFields(raw);
-    fake.requests[fake.requests.length - 1].body = { form };
-    if (!same(fx.request.form, form)) return (send(res, 500, { detail: `fakeYue: no recorded transcription for form ${JSON.stringify(form)}` }), true);
-    cancelled.delete(String(fx.response.body.id));
-    return (send(res, fx.response.status, fx.response.body), true);
-  }
-  if (id !== fx.response.body.id) return (send(res, 404, { detail: 'Job not found' }), true);
-  if (sub === 'cancel') return (cancelled.add(id), send(res, 200, { ...fx.final.body, status: 'cancelled' }), true);
-  if (sub === 'score') return (fx.score === null ? send(res, 404, { detail: 'Artifact not found' }) : send(res, 200, fx.score, 'text/plain'), true);
-  return (send(res, fx.final.status, cancelled.has(id) ? { ...fx.final.body, status: 'cancelled', stage: 'cancelled' } : fx.final.body), true);
-}
-
 /** Key-order-free equality for JSON values. */
 function same(a: unknown, b: unknown): boolean {
   if (Array.isArray(a) || Array.isArray(b)) {
@@ -146,6 +118,7 @@ export async function startFakeYue(fixtures: ContractFixture[] = allContracts())
   const fake: FakeYue = {
     url: '', requests: [], job: { states: [{ status: 'succeeded', stage: 'done' }] },
     transcription: transcriptionContract('transcription-chords-done'),
+    transcriptionGrid: gridContract('transcription-grid-ok'),
     splice: { fixture: spliceContract('splice-ok'), specs: [], cancelled: new Set() },
     submits: () => fake.requests.filter((r) => r.method === 'POST' && r.path === '/v1/jobs').map((r) => r.body),
     close: () => new Promise((resolve) => { server.closeAllConnections(); server.close(() => resolve()); }),
@@ -167,7 +140,7 @@ export async function startFakeYue(fixtures: ContractFixture[] = allContracts())
         keys.set(key, route);
       }
       if (jobRoute(fake, polls, req, res, route)) return;
-      if (transcriptionRoute(fake, cancelled, req, res, route, raw)) return;
+      if (transcriptionRoute({ fixture: fake.transcription, grid: fake.transcriptionGrid, cancelled }, fake.requests, req, res, route, raw, send, same)) return;
       if (spliceRoute(fake.splice, req, res, route, raw, send, same)) return;
       const hit = fixtures.find((f) => f.request.path === route && f.request.method === req.method && same(f.request.body, body));
       const reply = hit?.response ?? { status: 500, body: { detail: `fakeYue: no recorded reply for ${req.method} ${route}` } };

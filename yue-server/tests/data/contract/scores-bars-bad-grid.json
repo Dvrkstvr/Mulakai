@@ -1,0 +1,28 @@
+{
+ "name": "scores-bars-bad-grid",
+ "request": {
+  "method": "POST",
+  "path": "/v1/scores/bars",
+  "body": {
+   "abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=120\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:C\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% chorus\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n",
+   "grid": {
+    "grid_v": 1,
+    "downbeats": [
+     2.0,
+     1.0
+    ],
+    "chords": [],
+    "duration": 3.0
+   }
+  }
+ },
+ "response": {
+  "status": 422,
+  "body": {
+   "detail": {
+    "code": "bad_grid",
+    "message": "not a grid_v 1 grid (increasing downbeats, chord rows [t0, t1, label], duration)"
+   }
+  }
+ }
+}

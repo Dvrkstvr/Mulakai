@@ -39,6 +39,9 @@ warning only), lint (the same 1 warning), client 104 files / 839 tests, server t
 Run again at stage 6 (chat C3), 2026-10-07, on `docs/chat-c3` (code = `origin/main` 98b9179; all exit 0): client build (chunk-size
 warning only), lint (the same 1 warning), client 117 files / 974 tests, server tsc clean, server 118 files / 1017 tests, yue-server
 422 passed (1 warning), e2e 12 passed in 1.1 min (ports were free).
+Run again at stage 6 (chat C1), 2026-10-07, on `docs/chat-c1` (code = `origin/main` d964d0b; all exit 0, fresh `npm ci` in a worktree):
+client build (chunk-size warning only), lint (the same 1 warning), client 140 files / 1150 tests, server tsc clean, server 152 files /
+1282 tests. yue-server pytest and e2e were not run (task scope: client and server checks; no code changed).
 From CB-1 on, yue-server's pytest needs numpy and scipy: `pip install -r requirements-test.txt` again once.
 CI runs e2e (`.github/workflows/e2e.yml`) and the unit suites, typechecks, lint and pytest (`.github/workflows/checks.yml`, Python 3.12).
 

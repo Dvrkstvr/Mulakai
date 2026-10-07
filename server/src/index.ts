@@ -22,6 +22,8 @@ import { chatRouter } from './routes/chat.js';
 import { chatTurnsRouter } from './routes/chatTurns.js';
 import { chatReferencesRouter } from './routes/chatReferences.js';
 import { chatMarkRouter } from './routes/chatMark.js';
+import { chatAnalysisRouter } from './routes/chatAnalysis.js';
+import { startAnalysisTrigger } from './services/chat/analysisTrigger.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 import { sweepOrphanStems } from './services/stemFiles.js';
@@ -53,8 +55,10 @@ app.use('/api/chat', chatRouter);
 app.use('/api/chat', chatTurnsRouter);
 app.use('/api/chat', chatReferencesRouter);
 app.use('/api/chat', chatMarkRouter);
+app.use('/api/chat', chatAnalysisRouter);
 app.use('/audio', express.static(config.audioDir));
 
+startAnalysisTrigger(); // a save on a chat song queues its version analysis (F-052, D-172)
 sweepTrash(); // and the orphaned chat reference files (trashSweep.ts)
 setInterval(sweepTrash, 60 * 60 * 1000);
 // Jobs live only in memory: a restart strands the files they own, and a closed tab

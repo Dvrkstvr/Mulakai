@@ -159,6 +159,76 @@ handling). Chat e2e first (F-051) so the new screen has a CI net before it grows
 placement (above the composer). Honest size: 1.5 weeks; split after F-053 if it runs long. Q-051's half "a strip cut from the score's
 sections" is closed by F-053 (the strip comes from the reading).
 
+**Work packages (stage 6, 2026-10-07; modules, data and tests in architecture.md "Chat (C1)"; D-171..D-182).**
+What the person can do when C1 is done: on a song's thread, see the waveform, the bar ruler and the section strip above the composer,
+with a reading line ("READ v4 · 9 SECTIONS · 22 LINES"); after APPLY the new version plays at once and its reading follows ("READING v5 ·
+SCORE"), never blocking the next message or APPLY; click CHORUS 2, drag its edge two bars on, read the chip "THIS: CHORUS 2 + 2 BARS ·
+BARS 49-58 · 1:58-2:22", open WHAT IT SEES, type "make this jazzier", get an edit card planned on those bars only; after a version that
+moved those bars, find the chip rust with USE BARS / CLEAR MARK and SEND held.
+
+The thin path (each reversible; D-171..D-182): the C3 reading job reused for versions (one `transcribe`-kind slot, label `chat analysis`,
+no new kind, docs/decisions/0009); only songs with a chat thread are analyzed (D-172); the grid comes from the splice's cache or the
+same SheetSage2 run, and bar times from yue-server (D-174); the mark is a `planReferent` kind (D-175), resolved by the server at SEND and
+at the turn's start, never remapped; Editor-first's selection as the mark (CS-10) stays C6.
+
+Each package is one PR from `origin/main`, owning the files named so builder batches stay disjoint; "after" = waits for that one to merge.
+None touches the render request (`engines/yue2Score.ts`, `score/scoreRenderRun.ts`, yue-server render code), so SP-6 (instrument hold,
+R-030) runs beside C1 without a shared file.
+- **CL-0 · the chat e2e** (F-051), **first**, needs nothing: `e2e/tests/chat.spec.ts`, `e2e/tests/chatFakes.ts`,
+  `e2e/fake-score/{ollama,yue,chatReplies}.ts` (chat replies from `server/test-fakes/data/sp5-replies.json` read as data; hold and
+  offline switches; `/v1/splices` replayed from `yue-server/tests/data/contract/splice-*.json`), `e2e/playwright.config.ts` (the spec in
+  the `score` project's stack, no new ports, D-178), `.claude/rules/e2e.md` (one line). Recipe → CREATE SONG → edit turn → APPLY → v2;
+  ASSISTANT OFF; CANCEL while thinking; a stale card. Golden path and score spec unchanged; CI green on the PR. 1.5-2 days.
+- **CL-1 · a reading never stales a commit; settle events** (F-052 #3, Q-038 #4), needs nothing: `server/src/services/score/
+  scoreRenderJob.ts` (`EDIT_KINDS`), `server/src/services/{jobEvents,jobRunner}.ts` + tests (queued `timings`, `transcribe`, `lyrics`,
+  `chat analysis` jobs leave APPLY clean; a repaint still refuses). 0.5 day.
+- **CL-2 · yue-server grid and bar times** (F-052 yue half, D-174), needs nothing: `yue-server/{transcribe_routes,score_edit_routes}.py`,
+  `yue-server/README.md` (two routes), `yue-server/tests/test_{transcribe_grid,scores_bars}.py`, `yue-server/tests/data/contract/
+  {transcription-grid,scores-bars}-*.json`. 1 day.
+- **CL-3 · analysis data, plan and view** (F-052 storage, F-053 logic), needs nothing: `server/src/db/index.ts` (column),
+  `server/src/services/chat/{analysisTypes,analysisStore,analysisPlan,barShift,analysisView}.ts` + tests. All C1 server types land here
+  (`chatTypes.ts` gets only `UserBody.mark`), so CL-4, CL-5 and CL-7 build on one contract. 1.5 days.
+- **CL-4 · the analysis job and trigger** (F-052 core), after CL-1, CL-2 (or a hand-written fixture until it merges), CL-3:
+  `chat/{analysisSteps,analysisJob,analysisTrigger}.ts`, `server/src/services/{engineTranscribeClient,transcribeJobs}.ts`,
+  `score/yueScoreBars.ts`, `server/test-fakes/{fakeYue,fakeYueTranscribe}.ts` (split first, own commit), `server/src/routes/
+  chatAnalysis.ts` (view, retry), `server/src/routes/chat.ts` (`ensureAnalysis`), `server/src/index.ts` + tests. 2 days.
+- **CL-5 · the mark on the server** (F-055 server), after CL-3, parallel with CL-4: `score/{planReferent,opSchema}.ts`,
+  `chat/{markBlock,markFit,turnOutcome,turnJob,songStateSource,turnPrompt,actionSchema,replyCheck,turnDispatch,messageView,chatTypes}.ts`
+  (`turnOutcome` split out of `turnJob` first, own refactor commit), `server/src/routes/chatTurns.ts` (`mark`, 409 `MARK_STALE`), the
+  preview route in `routes/chatAnalysis.ts` (after CL-4 merges, or a separate `chatMark.ts` router if CL-4 is still open),
+  `server/test-fakes/chatScripts.ts` + tests. 2 days.
+- **CL-6 · CP-C1, headless checkpoint** (F-052 on the real machine, R-031, R-032), after CL-4 and CL-5: `server/scripts/chatCp1.ts`;
+  evidence in `pipeline/cp-c1/<date>/`. Stop lines (architecture.md "Test strategy (C1)" #9): any commit refused because of an
+  analysis; an analysis of a ≤ 4 min version over 90 s; the planner not fully on the GPU after an analysis or the next turn p50 over
+  15 s; an op outside the mark on more than 1 of 10; prompt p95 over 6k → stop and raise before CL-8a. Records Q-070's section names
+  on 3 transcribed songs. 0.5-1 day.
+- **CL-7 · client state** (F-052..F-055 logic), parallel from the start (the wire contract is in architecture.md):
+  `client/src/api/chatAnalysis.ts`, `client/src/api/chat.ts` (`mark?` only), `client/src/{chatAnalysis,chatMark,chatMarkLabel,
+  chatMarkStore}.ts`, `client/src/chatStore.ts` (`send(…, mark?)`) + tests. 2 days.
+- **DT-C1 · design** (stage 5), parallel from the start, before CL-8a/b: `pipeline/design/chat-mark.html` on the real player above
+  the composer at 1366×768 (chat-song.html drew it at the top: the strip's height comes out of the thread, which keeps ≥ 400 px,
+  F-053 #4): strip live / dim / hatched, the reading line's states (queued, reading step, done, failed + RETRY, transcribed), a mark
+  whole-section / + n bars / across two sections / seconds-only, the snap pointer and tag, the chip with WHAT IT SEES open, the frozen
+  echo, the stale chip with and without USE BARS and SEND held, the composer line while an analysis runs. Tokens from DESIGN.md, one
+  sky (CS-6), no new hue; the owner signs it off.
+- **CL-8a · player: waveform, ruler, strip, reading line** (F-053, F-052 states), after CL-4, CL-7, DT-C1 and CL-6's stop lines:
+  `client/src/{ChatStrip,ChatReadingLine,ChatPlayer}.tsx`, `client/src/chatStrip.css`, `e2e/tests/chat.spec.ts` (strip + reading line);
+  `docs/design/DESIGN.md` (strip, ruler, reading line; own commit). Browser check at 1366×768: the thread keeps ≥ 400 px. 1.5 days.
+- **CL-8b · marking, chip, echo, stale** (F-054, F-055 client), after CL-8a and CL-5: `client/src/{ChatMarkLayer,ChatMarkChip,
+  ChatMarkEcho,ChatComposer,ChatThread}.tsx`, `client/src/chatMark.css`, `e2e/tests/chat.spec.ts` (a marked turn whose prompt carries
+  MARK; a stale chip); `docs/design/DESIGN.md` (the sky mark, grips, chip: Q-068's clause; own commit). 2 days.
+- **CL-9 · C1 live run** (verifier), after CL-8b: on the real machine, a YuE2 song and an ACE-Step song: save → reading line → strip;
+  APPLY clicked during a reading (queued, not refused); a mark by click, by edge drag, across two sections, by time on a hatched strip;
+  "make this jazzier" → edit card inside the mark; a CUT that moves the marked bars → stale chip, USE BARS; reload: the echo re-marks;
+  `LYRICS_API_URL` unset → "no word timings" and no failure.
+
+Parallel waves: (1) CL-0, CL-1, CL-2, CL-3, CL-7, DT-C1 · (2) CL-4, CL-5 · (3) CL-6 · (4) CL-8a · (5) CL-8b · (6) CL-9.
+Honest size: about 15 working days of package work; the critical path CL-3 → CL-4 → CL-6 → CL-8a → CL-8b → CL-9 is about 8 days.
+Split point (the scope's "after F-053"): **C1a** = CL-0..CL-4, CL-6 (analysis half), CL-7 (analysis half), DT-C1, CL-8a; **C1b** = CL-5,
+CL-7 (mark half), CL-8b. If the owner wants it sooner, cut in this order: WHAT IT SEES's preview route (the chip shows bars and seconds
+only), the frozen echo's re-mark on click (the echo stays text), the WORDS step in the automatic analysis (R-031's fallback; the Editor
+still reads timings on demand), seconds-only marks on a hatched strip (marking waits for the reading).
+
 ## C2 — Converging turns: lyrics panel, REVISE, UNDO TURN, the bar map (F-056 .. F-060)
 
 The things that make a conversation converge instead of restarting: the lyrics panel in the sidebar (chat-lyrics.html LY-1..LY-6), a lyric rewrite
@@ -419,7 +489,8 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 - **Q-077** (collapsed-sidebar rail text, WHAT IT SEES showing the words): C2/C6 polish. Not blocking.
 - **Q-008** (A/B): answered in effect by the chat (decision 8, CS-2); remainder is Later. **Q-037**: not blocking, see Later (disk). **Q-009**: unchanged.
 - **Q-038 #4** (a queued word-timings job refuses the render): not blocking C0 (no analyze job exists), **blocking for C1**: F-052's
-  criterion says an analyze job never refuses a commit. **Q-038 #6** (double POST) is a C0 criterion on the turn route (F-042).
+  criterion says an analyze job never refuses a commit. Stage 6 (C1, 2026-10-07): fixed in CL-1 by an allowlist of edit kinds in
+  `pendingEdit` (D-173), no longer blocking. **Q-038 #6** (double POST) is a C0 criterion on the turn route (F-042).
 - **Q-050** (REVISE drops ops on 1-op plans, "fewer chords"): not blocking; F-058 shows the loss as REMOVED, never silent. **Q-053**: judged in C4.
   **Q-062 a/c, Q-063..Q-069, Q-072..Q-076**: assumed in D-091/D-094, built as drawn. **Q-051**: strip half closed by F-053; the hint half stays D-074.
 - **No question became blocking for the cut.** The one owner-gated item is the SP-4 listen (Q-054 #1), which blocks CB-1 and C4 only; the SP-5 numbers

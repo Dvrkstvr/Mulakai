@@ -1,0 +1,76 @@
+{
+ "name": "scores-bars-bad-score",
+ "request": {
+  "method": "POST",
+  "path": "/v1/scores/bars",
+  "body": {
+   "abc": "X:1\nK:C\n|C8|\n",
+   "grid": {
+    "grid_v": 1,
+    "source": "tracked",
+    "downbeats": [
+     0.0,
+     2.0,
+     4.0,
+     6.0,
+     8.0,
+     10.0,
+     12.0,
+     14.0
+    ],
+    "chords": [
+     [
+      0.0,
+      2.0,
+      "C:maj"
+     ],
+     [
+      2.0,
+      4.0,
+      "A:min"
+     ],
+     [
+      4.0,
+      6.0,
+      "F:maj"
+     ],
+     [
+      6.0,
+      8.0,
+      "G:maj"
+     ],
+     [
+      8.0,
+      10.0,
+      "C:maj"
+     ],
+     [
+      10.0,
+      12.0,
+      "A:min"
+     ],
+     [
+      12.0,
+      14.0,
+      "F:maj"
+     ],
+     [
+      14.0,
+      17.0,
+      "G:maj"
+     ]
+    ],
+    "duration": 17.0
+   }
+  }
+ },
+ "response": {
+  "status": 422,
+  "body": {
+   "detail": {
+    "code": "bad_score",
+    "message": "not a native two-voice score: Incomplete native two-voice ABC"
+   }
+  }
+ }
+}

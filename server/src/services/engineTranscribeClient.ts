@@ -115,6 +115,22 @@ export async function fetchTranscriptionScore(target: EngineTarget, id: string):
   return res.text();
 }
 
+/** A `chords: true` run's downbeat grid (chat C1, D-174), in the `grid_v: 1` sidecar shape, as sent (the caller
+ * checks it: gridCache, yue-server's `/v1/scores/bars`). Null for 404 `no_grid` (a melody-only run, or labs that
+ * make no valid grid); any other refusal throws with yue-server's `detail.message`. */
+export async function transcriptionGrid(target: EngineTarget, id: string): Promise<Record<string, unknown> | null> {
+  const res = await request(target, path(id, '/grid'), { headers: headers(target) }, 'transcription grid');
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { detail?: unknown };
+    const why = errorMessage(body.detail);
+    throw new Error(`${target.label} transcription grid -> HTTP ${res.status}${why ? `: ${why}` : ''}`);
+  }
+  const grid = (await res.json()) as unknown;
+  if (!grid || typeof grid !== 'object' || Array.isArray(grid)) throw new Error(`${target.label} transcription grid -> unreadable reply`);
+  return grid as Record<string, unknown>;
+}
+
 /** The raw preview response, for the route to stream on. `range` is forwarded so the player
  * can seek; the caller relays status (200/206/404) and headers as they come. Deliberately not
  * `request()`: its timeout would cut the body off mid-stream while a paused player holds the

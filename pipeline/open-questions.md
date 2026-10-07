@@ -162,6 +162,7 @@ Two Mulakai servers can share one yue-server and one GPU (seen live: the user st
 
 ## Q-038 · deferred · stage 8 (M0 code review) · open
 Four nits from pipeline/reviews/M0-code.md are left out of M0 (D-054): #4 a queued word-timings job refuses the render (exclude `timings` from pendingEdit in scoreRenderJob.ts:45); #5 an untagged LLM_MODEL (`qwen3`) never matches Ollama's `:latest` name (ollamaControl.ts:37, planJob.ts:72); #6 a double POST can queue two plan or render jobs, because the in-flight guard runs before an await (routes/scorePlan.ts:33, routes/scoreRender.ts:28); #7 restoreScoreMeta (scoreVersion.ts:113) is a second reader of the sidecar, against the rule that scoreSource is the only reader. Also from the fix: a GPU refusal when a queued render reaches its turn still fails the job with `cause: 'refused'`, which the dock shows as a stale plan (D-054 covered only the click-time 409); and deleting the active version restores meta but, unlike activate, not `songs.lyrics`. Decide in M1: a small fix PR, or reject each with a reason. Each is a few lines plus a test.
+- 2026-10-07 (stage 6, C1): #4 is fixed in C1's CL-1 by an allowlist of edit kinds (D-173); the others stay open.
 
 ## Q-039 · assumable · stage 7 (M1/W6) · assumed → D-058
 F-027 #1 lists REMASTER MIX among the verbs whose consequence line says score editing ends. remasterJobs.ts never writes a DB row and its line already says the result "isn't kept", so SCORE stays open after a remaster and the clause would be false. Default: no clause on REMASTER MIX. Alternative: add it if a kept remaster ever lands. Reversal cost: one prop.
@@ -203,7 +204,7 @@ D-086 pairs chat and form for creating. Does the same pairing hold for editing a
 ## Q-056..Q-061 · stage 5 (chat, design/chat-create.html) · assumed → D-087 unless the owner overrules
 Q-056 assumable: the start screen and the sidebar remember their last state; the first open is chat-first with the sidebar open. Q-057 assumable: a hand edit during a turn wins, the assistant skips that field and says so (alternative: lock fields while a turn runs). Q-058 assumable: assistant off or failing falls back to form-first at full width with the reason and RETRY; a failed turn changes nothing; an unset LLM_API_URL hides the toggle and the panel. Q-059 assumable: sky marks "the assistant just filled this" (reuses the scope hue; one DESIGN.md token if it reads as a target). Q-060 deferred: START FROM A SONG I HAVE / ONE TRACK in chat-first arrive with C3, with a FORM ▸ link until then. Q-061 deferred: does form-first's DESCRIBE IT text also go to the thread?
 
-## Q-062 · assumable · stage 5 (chat, D-089) · open
+## Q-062 · assumable · stage 5 (chat, D-089) · assumed → D-091; built as (a) D-171/D-180, (b) context and marking only, (c) bars (stage 6 C1)
 Always analyzing every version costs GPU time and has a side effect. (a) Analysis is a queued job (`analyze` kind) after each save, so it waits behind renders and never runs beside the planner or YuE2; until it finishes, the strip and marking show the previous analysis marked "updating". (b) A version ACE-Step made gets a *transcribed* score (yue-server transcriber), not YuE2's own: is such a song score-editable again (SCORE ops on the transcription, re-rendered by YuE2 as a cover, M3's `melody` path), or does the transcription only feed sections, context and marking? Default: context and marking only; score editing on transcriptions is M3/C3 scope. (c) The marked range snaps to bars (default) or to beats?
 
 ## Q-063..Q-070 · stage 5 (chat, design/chat-song.html) · assumed → D-091 unless the owner overrules
@@ -295,3 +296,33 @@ A library song named in words on a draft thread ("make a cover of Cariñito") wi
 
 ## Q-108 · deferred · stage 7 (C0b CB-4) · open
 House in der Halle: the REHARMONIZE plan fails the root check 3 times ("keeps the old root in 4 of 12 bars") and its CUT finds no groove at the joins (`not_aligned`). Both fall back correctly (no card / whole render, labelled). Look at its score and grid before C0b review closes: a planner prompt gap for dense house chords, or a grid-fit limit on four-on-the-floor without onsets between kicks?
+
+## Q-109 · assumable · stage 6 (chat C1) · assumed → D-172
+Analyze every song's new versions, or only songs with a chat thread? Default: only songs with a thread (made in the chat or opened with OPEN CHAT), so Editor-only work spends no GPU on readings nobody is shown. Alternative: every song (D-089's "every new version" read literally). Reversal: drop one condition in `shouldAnalyze`.
+
+## Q-110 · assumable · stage 6 (chat C1)
+A song with added layers plays a mix in the Editor, but the chat plays the base layer's active take (D-120). Default: the strip, the reading and the mark are the base take's; an add-layer save that leaves the base take unchanged starts no analysis. Alternative: analyze a bounced mix (needs a mixdown job). Revisit if the chat ever plays the mix.
+
+## Q-111 · assumable · stage 6 (chat C1) · assumed → D-175
+A message with a mark waits behind an APPLY whose new version moves the marked bars. Default: the turn fails before the planner loads ("your mark was on v3; v4 moved those bars · nothing changed · mark again"). Alternative: plan on the whole song and say so (risks an edit the person did not mean).
+
+## Q-112 · deferred · stage 6 (chat C1)
+Editor-first's selection as the mark (CS-10: unsnapped seconds, a partial flag) lands with C6, not C1; C1's `range` referent already carries seconds, so C6 adds a reader, not a rewrite.
+
+## Q-113 · assumable · stage 6 (chat C1) · assumed → D-182
+The Editor's auto word-timings read (`timings` job) and the analysis's WORDS step can both queue for one version. Default: WORDS skips a version whose `word_timings` is set and checks `timingsJobs`' pending map first; a double read at worst costs one lyrics-server pass. Alternative: route the Editor's auto-read through the analysis.
+
+## Q-114 · assumable · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
+Reading line on its own 16 px row under the waveform (B) or right-aligned in the player's top row (A). Default: B (room for a failure reason + RETRY; costs 19 px, thread about 431 px at 1366x768 in the worst case). Alternative: A. Owner may pick at sign-off.
+
+## Q-115 · deferred · stage 5 (DT-C1)
+The lyric-line lane under the waveform (chat-song CS-4d: click a lyric line to mark it) is in neither F-053 nor F-054 and is not drawn; it lands with C2's lyrics panel (21 px more player).
+
+## Q-116 · assumable · stage 5 (DT-C1) · assumed → D-185
+A click under 0.2 s on empty waveform both seeks and clears the mark; a drag marks; Esc and the chip's x clear. Alternative: seek only from the ruler.
+
+## Q-117 · assumable · stage 5 (DT-C1) · assumed → D-185
+A seconds-only mark snaps to bars when the reading lands: the chip turns solid and the reading line says so for 6 s. Alternative: it stays seconds-only until dragged again.
+
+## Q-118 · assumable · stage 5 (DT-C1) · assumed → D-185
+An Alt-freed edge reads in seconds plus the bars it touches ("BARS 25-35, 35 PART"); the server fits it. Alternative: no Alt in C1 (snap always).

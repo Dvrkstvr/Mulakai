@@ -5,10 +5,12 @@
  * `POST /api/generate {keep_alive: 0}` (the unload: the next `/api/ps` is empty). No model, no GPU.
  *
  * Ours, not Ollama's:
- *   POST /__fake/planner {replies?, down?}  `replies`: the content of successive chat answers (the
+ *   POST /__fake/planner {replies?, down?, hold?}  `replies`: the content of successive chat answers (the
  *        last one repeats), or `{hang: true}` to never answer (CANCEL while planning); `down`: every
- *        Ollama route drops the connection, as a stopped Ollama would refuse it (PLANNER OFFLINE)
- *   GET  /__fake/planner                    what was asked so far, and what is loaded
+ *        Ollama route drops the connection, as a stopped Ollama would refuse it (PLANNER OFFLINE,
+ *        ASSISTANT OFF); `hold`: chat calls wait unanswered until it is set false again (THINKING)
+ *   GET  /__fake/planner                    what was asked so far (a chat's last message as `prompt`),
+ *        and what is loaded
  */
 import http from 'node:http';
 
@@ -17,11 +19,13 @@ const CONTEXT_LENGTH = 16_384;
 
 type Reply = string | { hang: true };
 
-interface Seen { method: string; path: string; keepAlive?: unknown; at: number }
+interface Seen { method: string; path: string; keepAlive?: unknown; prompt?: string; at: number }
 
 export function startFakeOllama(port: number): http.Server {
   let replies: Reply[] = [];
   let down = false;
+  let hold = false;
+  let held: Array<() => void> = [];
   let loaded: string | null = null;
   let unloading = false;
   const seen: Seen[] = [];
@@ -60,11 +64,15 @@ export function startFakeOllama(port: number): http.Server {
         if (method === 'POST') {
           if (Array.isArray(body.replies)) replies = body.replies as Reply[];
           if (typeof body.down === 'boolean') down = body.down;
-          return send(200, { down, replies: replies.length });
+          if (typeof body.hold === 'boolean') hold = body.hold;
+          if (!hold) for (const answer of held.splice(0)) answer();
+          return send(200, { down, hold, replies: replies.length });
         }
-        return send(200, { down, loaded, seen });
+        return send(200, { down, hold, loaded, seen });
       }
-      seen.push({ method, path, ...(path === '/api/generate' ? { keepAlive: body.keep_alive } : {}), at: Date.now() });
+      const messages = Array.isArray(body.messages) ? body.messages as Array<{ content?: unknown }> : [];
+      const prompt = path === '/v1/chat/completions' ? String(messages.at(-1)?.content ?? '') : undefined;
+      seen.push({ method, path, ...(path === '/api/generate' ? { keepAlive: body.keep_alive } : {}), ...(prompt === undefined ? {} : { prompt }), at: Date.now() });
       if (down) return void req.socket.destroy();
       if (method === 'GET' && path === '/api/tags') return send(200, { models: [{ name: MODEL, model: MODEL }] });
       if (method === 'GET' && path === '/api/ps') {
@@ -76,7 +84,14 @@ export function startFakeOllama(port: number): http.Server {
         if (body.keep_alive === 0) unloading = loaded !== null;
         return send(200, { model: body.model, created_at: new Date().toISOString(), response: '', done: true, done_reason: 'unload' });
       }
-      if (method === 'POST' && path === '/v1/chat/completions') return chat(body, send);
+      if (method === 'POST' && path === '/v1/chat/completions') {
+        // Held: answered on release, unless the caller gave up (CANCEL) in between.
+        if (hold) {
+          if (body.model === MODEL) loaded = MODEL; // Ollama loads the model on receipt, before it answers
+          return void held.push(() => { if (!res.writableEnded && !req.socket.destroyed) chat(body, send); });
+        }
+        return chat(body, send);
+      }
       send(404, { error: 'not found' });
     });
   });
