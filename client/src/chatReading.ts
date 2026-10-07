@@ -26,7 +26,11 @@ export type CardPhase =
   | { kind: 'interrupted' };
 
 /** `stage`: whose job `jobId` is, the reading's or the follow-up turn's (the card's job id moves to it). */
-export interface CardState { phase: CardPhase; jobId: string | null; stage: 'read' | 'followUp' | null }
+export interface CardState {
+  phase: CardPhase; jobId: string | null; stage: 'read' | 'followUp' | null;
+  /** READ's POST is in flight (set by `read` only): the thread still saying pending must not undo it. */
+  posting?: boolean;
+}
 export interface ReadingState { cards: Record<string, CardState> }
 export const INITIAL_READING: ReadingState = { cards: {} };
 
@@ -100,7 +104,9 @@ function fromThread(prev: CardState | undefined, m: ChatMessageView): CardState 
   if (m.kind === 'analyze') {
     const phase = fromAnalyze(m);
     if (!phase) return null;
-    const waiting = prev && (prev.phase.kind === 'starting' || prev.phase.kind === 'refused');
+    // Only a local phase outlives the server's pending: READ's POST in flight, or its refusal. A `starting` the
+    // server said (committing) yields: pending after it means the reading ended with nothing saved (CANCEL).
+    const waiting = prev && ((prev.phase.kind === 'starting' && prev.posting) || prev.phase.kind === 'refused');
     return waiting && phase.kind === 'pending' ? prev : { phase, jobId: null, stage: null };
   }
   const next = fromReadingCard(m);
@@ -135,8 +141,8 @@ export function chatReading(s: ReadingState, e: ReadingEvent): ReadingState {
   if (!c) return s;
   const put = (next: CardState): ReadingState => (next === c ? s : { cards: { ...s.cards, [e.messageId]: next } });
   switch (e.type) {
-    case 'read': return c.phase.kind === 'pending' || c.phase.kind === 'refused' ? put({ ...c, phase: { kind: 'starting' } }) : s;
-    case 'refused': return c.phase.kind === 'starting' ? put({ ...c, phase: { kind: 'refused', reason: e.reason } }) : s;
+    case 'read': return c.phase.kind === 'pending' || c.phase.kind === 'refused' ? put({ ...c, phase: { kind: 'starting' }, posting: true }) : s;
+    case 'refused': return c.phase.kind === 'starting' ? put({ ...c, phase: { kind: 'refused', reason: e.reason }, posting: false }) : s;
     case 'poll': return cardRunning(c) ? put(onPoll(c, e.job)) : s;
     case 'lost': return cardRunning(c) && c.jobId ? put({ ...c, phase: { kind: 'interrupted' }, stage: null }) : s;
   }

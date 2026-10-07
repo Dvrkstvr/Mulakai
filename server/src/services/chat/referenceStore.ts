@@ -131,7 +131,8 @@ export async function fromLibrary(threadId: string, songId: string): Promise<Add
 export const setReading = (id: string, reading: Reading): boolean =>
   db.prepare(`UPDATE chat_references SET reading_json = ? WHERE id = ?`).run(JSON.stringify(reading), id).changes > 0;
 
-export function toView(r: Reference): ReferenceView {
+/** The wire view without its GPU estimate (readTarget.referenceView adds it from the configured services). */
+export function toView(r: Reference): Omit<ReferenceView, 'estimate'> {
   const span = readSpan(r.seconds);
   return {
     id: r.id, origin: r.origin, name: r.name, sourceSongId: r.sourceSongId, url: `/audio/${r.file}`, seconds: r.seconds,

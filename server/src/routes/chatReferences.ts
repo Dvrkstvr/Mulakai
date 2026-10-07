@@ -8,7 +8,8 @@ import { Router, type RequestHandler, type Response } from 'express';
 import multer from 'multer';
 import { config } from '../config.js';
 import { readCommitDeps, readFromCard, reread, type ReadCommitDeps } from '../services/chat/readCommit.js';
-import { fromLibrary, fromUpload, listReferences, toView, type AddResult } from '../services/chat/referenceStore.js';
+import { fromLibrary, fromUpload, listReferences, type AddResult } from '../services/chat/referenceStore.js';
+import { referenceView } from '../services/chat/readTarget.js';
 import { threadById } from '../services/chat/threadStore.js';
 import type { ChatThread } from '../services/chat/chatTypes.js';
 
@@ -44,7 +45,7 @@ function draftOnly(id: string, res: Response): ChatThread | undefined {
 
 function answer(res: Response, result: AddResult) {
   if (!result.ok) return res.status(400).json({ reason: result.reason });
-  res.status(result.existing ? 200 : 201).json({ reference: toView(result.reference) });
+  res.status(result.existing ? 200 : 201).json({ reference: referenceView(result.reference) });
 }
 
 const checkThread: RequestHandler = (req, res, next) => {
@@ -70,7 +71,7 @@ export function makeChatReferencesRouter(deps: () => ReadCommitDeps = () => read
   router.get('/threads/:id/references', (req, res) => {
     const thread = threadById(String(req.params.id));
     if (!thread) return res.status(404).json({ error: 'unknown chat' });
-    res.json({ references: listReferences(thread.id).map(toView) });
+    res.json({ references: listReferences(thread.id).map((r) => referenceView(r)) });
   });
 
   /** READ on an analyze card: the reading, then the follow-up turn (D-129). */

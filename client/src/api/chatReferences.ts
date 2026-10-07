@@ -2,6 +2,7 @@
  * `routes/chatReferences.ts`. Mirrored by hand from the server's `chat/{chatTypes,reading}.ts` (`ReferenceView`,
  * `Reading` v1) as CR-1 shipped them; reconcile both when either moves. READ / RE-ANALYZE are CR-4's routes, built here
  * from pipeline/architecture.md "Chat (C3)" until they land. */
+import type { ChatReadingEstimate } from './chat';
 import type { ScoreSection } from './scoreReferent';
 import { ApiError, json } from './http';
 
@@ -58,6 +59,8 @@ export interface ReferenceView {
   readAt: string | null;
   readingNote: string | null;
   createdAt: string;
+  /** What reading it again costs, priced like the READ card: `total` 0 → no GPU (RE-ANALYZE's line). */
+  estimate: ChatReadingEstimate;
 }
 
 /** 202 a reading job, or the server's re-check reason (proposal gone, a model loaded, a turn open). */

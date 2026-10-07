@@ -119,17 +119,21 @@ function draftKey(raw: string | null): string | null {
 const draftBpm = (v: number | null) => (v !== null && v >= BPM.min && v <= BPM.max ? Math.round(v) : null);
 const draftMeter = (v: string | null) => (v && TIME_SIGNATURES.includes(v.replace(/\s+/g, '')) ? v.replace(/\s+/g, '') : null);
 
-/** What a recipe may borrow. `prefer: 'score'` (a cover sings the score's own) skips the caption's
- * tempo, key and meter. A value neither source gives in the draft's terms is missing, never guessed. */
-export function readingFacts(reading: Reading, prefer: 'caption' | 'score' = 'caption'): ReadingFacts {
+/** What a recipe may borrow. `score` (a borrow): the read score's tempo, key and meter first, the
+ * caption only fills what the score lacks (ACE-Step's guess varies between runs, C3 live D);
+ * `score only` (a cover sings the score's own) never takes the caption's; `caption` puts ACE-Step
+ * first (D-135). A value no allowed source gives in the draft's terms is missing, never guessed. */
+export function readingFacts(reading: Reading, prefer: 'score' | 'score only' | 'caption' = 'score'): ReadingFacts {
   const caption = isRead(reading.caption) ? reading.caption : null;
   const header = isRead(reading.score) ? reading.score.facts?.header ?? null : null;
   const sections = isRead(reading.score) ? reading.score.facts?.sections ?? [] : [];
   const sources: ReadingFacts['sources'] = { bpm: null, key: null, meter: null, structure: sections.length ? 'score' : null };
   const pick = <T>(field: FactField, fromCaption: T | null, fromScore: T | null): T | null => {
-    const first = prefer === 'caption' ? fromCaption : null;
-    sources[field] = first !== null ? 'caption' : fromScore !== null ? 'score' : null;
-    return first ?? fromScore;
+    const order: ['caption' | 'score', T | null][] = prefer === 'caption' ? [['caption', fromCaption], ['score', fromScore]]
+      : prefer === 'score' ? [['score', fromScore], ['caption', fromCaption]] : [['score', fromScore]];
+    const hit = order.find(([, v]) => v !== null);
+    sources[field] = hit?.[0] ?? null;
+    return hit?.[1] ?? null;
   };
   const bpm = pick('bpm', draftBpm(caption?.bpm ?? null), draftBpm(header?.bpm ?? null));
   const key = pick('key', draftKey(caption?.key ?? null), draftKey(header?.key ?? null));

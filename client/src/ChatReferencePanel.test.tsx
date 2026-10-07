@@ -14,6 +14,7 @@ vi.mock('zustand', () => import('./zustandServerSnapshot'));
 const REF: ReferenceView = {
   id: 'ref1', origin: 'upload', name: 'slow_dance_demo.mp3', sourceSongId: null, url: '/audio/references/ref1.mp3', seconds: 192,
   readTo: 192, cut: false, layers: null, readAt: '2026-10-07T10:00:00Z', readingNote: null, createdAt: '2026-10-07T09:58:00Z',
+  estimate: { words: 16, score: 34, caption: 16, total: 66 },
 };
 const panel = (refs: ReferenceView[], side: 'song' | 'reference' = 'song') => renderToStaticMarkup(
   <ChatReferencePanel references={refs} side={side} onAb={vi.fn()} onReanalyze={vi.fn()} />,
@@ -44,6 +45,10 @@ describe('ChatReferencePanel', () => {
   });
   it('a library pick says so', () => {
     expect(panel([{ ...REF, origin: 'library', name: 'Long Way Down' }])).toContain('· library');
+  });
+  it('RE-ANALYZE prices its reading like READ: a reference whose estimate is 0 (a YuE2 library song) uses no GPU (C3 live B)', () => {
+    const out = panel([{ ...REF, origin: 'library', estimate: { words: 0, score: 0, caption: 0, total: 0 } }]);
+    expect(out).toContain('Reads the reference again · uses no GPU · a new reading card lands in this chat');
   });
 });
 
