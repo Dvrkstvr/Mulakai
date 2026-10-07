@@ -8391,12 +8391,15 @@ is doing: thinking, drafting, generating.
   once; leaving mid-reveal lands it whole. STOP drops the idea; a failure
   keeps it for RETRY.
 - `client/src/IdeaSteps.tsx`, `ThinkingWipe.tsx` — read the store.
-- The create bar gains a **thinking chip**: `THINKING` on the AI shader (or
-  `QUEUED · #n`, plain), the idea, OPEN and a confirmed STOP;
-  `COULDN'T WRITE` (rust) while a failed idea waits for RETRY
-  (`createBarStatus.ts`, `CreateBarChip.tsx`, `CreateBarChips.tsx`,
-  `createBarActions.ts`).
-- DESIGN.md: the thinking chip, in its own commit.
+- The create bar shows Create's work as one **Create card** (owner's call,
+  2026-10-08, settled on a live mock): while Create holds a draft or Quick
+  Start is writing one, FEELING LUCKY, the input and CREATE give way to a
+  two-line card — state and title, then the draft's fact tags or Quick
+  Start's note (THINKING / QUEUED / COULDN'T WRITE) — with TO CREATE as its
+  acid end. No clear or stop on it: Create's CLEAR DRAFT and Activity's
+  CANCEL / ABORT cover that (`CreateCard.tsx`, `draftFacts.ts`,
+  `createBarStatus.ts`, `useCreateBusy.ts`).
+- DESIGN.md: the Create card, in its own commit.
 
 ## Remove the HeartMuLa Engine (planned 2026-10-03)
 
