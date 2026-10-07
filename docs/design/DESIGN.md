@@ -1113,6 +1113,29 @@ requiring its own justification against a screen-count rule.
      `NOW PLAYING THE NEW VERSION` until the next play, scrub or send; the
      player's pill shows only `v2` after a chat edit (the version label is
      the card's).
+   - **The strip, ruler and reading line** (added 2026-10-07, chat C1; spec
+     `pipeline/design/chat-mark.html` MK-1..MK-3, Q-114 option B). The
+     player above the composer grows to about 134px and has no lyric lane:
+     the transport row (play, time, volume, DOWNLOAD, the lilac pill), then
+     the **section strip** (the Section strip recipe, 20px, names in
+     `text-mid` 9px mono, placed on the waveform's time axis when the
+     reading has bar times, else weighted by bars), a 13px **bar ruler**
+     (a `line` tick per bar, a `line-hi` hairline and the bar number every
+     8 bars), the 36px waveform, and a 2px sky playhead through ruler and
+     waveform. Three strip states: **live** (the playable version's
+     reading, names clickable), **dim** (an older reading whose edit moved
+     no bars, 50%, still clickable), **hatched** (bars moved, the reading
+     failed, or no bar times: `carbon-raised`/`line` 135° hatching, no
+     names, and the ruler counts seconds instead of bars, since marking
+     works by time). While A/B plays the reference or the version before,
+     the strip is blank (its bars are the playable version's). Under the
+     waveform, the **reading line** sits on its own 16px row: 10px mono in
+     `text-mid` for every state (`READING v5 · QUEUED · STARTS AFTER 1
+     JOB`, `READING v5 · SCORE · 2 OF 3`, `READ v4 · 9 SECTIONS · 22 LINES`,
+     `· NO WORD TIMINGS` when words were skipped), `TRANSCRIBED SCORE ·
+     CONTEXT AND MARKING ONLY` after it in `text-low`, and rust only for a
+     failed reading (`COULDN'T READ v5 · <reason>`) with a small acid
+     outline **RETRY**. No spinner and no shader: reading is not a commit.
 
 ### Side panels (Create + Editor)
 
