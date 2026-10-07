@@ -1,0 +1,28 @@
+{
+ "id": "A_lyrics_A3_bal",
+ "mode": "balanced",
+ "strength": 0.5,
+ "steps": [
+  {
+   "task_id": "5263b2e5-650e-4490-8c56-80e375637d3f",
+   "seconds": 10.404805660247803,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Cf99af525-ec27-aa34-b5c1-64ed5ee3a852.wav",
+   "bytes": 67845208,
+   "window": [
+    122.83,
+    125.83
+   ]
+  },
+  {
+   "task_id": "f2cc8bea-c233-4cd1-8bcc-6bb0032c767b",
+   "seconds": 10.528586387634277,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C73bc1183-8a9e-25c9-fb08-29d467d6cc8a.wav",
+   "bytes": 67845208,
+   "window": [
+    166.984,
+    169.984
+   ]
+  }
+ ],
+ "seconds_total": 20.93339204788208
+}

@@ -22,12 +22,13 @@ const { abortJob, getJob } = await import('../jobRegistry.js');
 const { writeScoreSidecar } = await import('../versionFiles.js');
 const { getPlan, lastRender, resetPlans, setPlan } = await import('./planStore.js');
 const { CHANGED_SINCE_PLAN } = await import('./scoreEligibility.js');
-const { plannerLoaded } = await import('./scoreLimits.js');
+const { editQueued, plannerLoaded } = await import('./scoreLimits.js');
 const { loadScoreSource } = await import('./scoreSource.js');
 const { scoreStatus } = await import('./scoreStatus.js');
-const { renderDeps, startScoreRender } = await import('./scoreRenderJob.js');
+const { checkRender, renderDeps, startScoreRender } = await import('./scoreRenderJob.js');
 type FakeYue = Awaited<ReturnType<typeof startFakeYue>>;
 type LoadedModel = import('./ollamaControl.js').LoadedModel;
+type RenderMode = import('./renderMode.js').RenderMode;
 
 const LYRICS = '[Verse 1]\nwalking out \n\n[Chorus]\noh oh\n';
 const BASE_ABC = 'X:1\nM:4/4\nL:1/8\nQ:1/4=87\nK:Dm\n"Dm"D2 F2 A2 d2 |\n';
@@ -47,7 +48,7 @@ const deps = () => renderDeps({
   loaded: async () => loaded,
 });
 
-async function seed() {
+async function seed(renderMode: RenderMode = { cot: 'full', reason: 'chords' }) {
   const songId = crypto.randomUUID();
   const layerId = crypto.randomUUID();
   const versionId = crypto.randomUUID();
@@ -60,7 +61,7 @@ async function seed() {
   setPlan({
     id: `plan-${songId}`, songId, baseVersionId: versionId, fingerprint: source.fingerprint, request: '88 BPM', ops: [{ op: 'SET_TEMPO', bpm: 88 }],
     verdicts: [], abc: EDITED, style: 'English, dark pop, 88 bpm', checks: { bars: 1, seconds: 3, tokens: 10, chordsPresent: true, changed: { abc: true, style: true } },
-    attempts: 1, createdAt: 0,
+    attempts: 1, createdAt: 0, renderMode,
   });
   return { songId, layerId, versionId, planId: `plan-${songId}` };
 }
@@ -73,6 +74,13 @@ const settled = async (id: string) => {
 };
 
 describe('startScoreRender', () => {
+  it("sends the plan's render mode: a chord-free plan renders with cot melody (F-065, D-132)", async () => {
+    const { songId, planId } = await seed({ cot: 'melody', reason: 'melody' });
+    yue.job = { states: [{ status: 'succeeded', stage: 'done' }], score: EDITED };
+    await settled(startScoreRender(songId, planId, deps()).id);
+    expect(yue.submits()).toMatchObject([{ cot: 'melody', abc: EDITED }]);
+  });
+
   it('renders the edited score and saves it as the active base version; the plan is used up', async () => {
     const { songId, layerId, versionId, planId } = await seed();
     yue.job = { states: [{ status: 'running', stage: 'semantic', progress: 0.2 }, { status: 'succeeded', stage: 'done' }], score: EDITED };
@@ -152,5 +160,34 @@ describe('startScoreRender', () => {
     await settled(job.id);
     expect(getJob(job.id)?.error).toBe(plannerLoaded(['qwen3:14b']));
     expect(yue.submits()).toEqual([]);
+  });
+});
+
+describe('checkRender at the click: only an edit stales a plan (Q-038 #4, D-173)', () => {
+  const hold = () => new Promise<void>(() => {});
+  it('a running timings job and queued chat analysis, transcribe, lyrics, analyze and lm jobs leave APPLY clean', async () => {
+    const { songId, planId } = await seed();
+    enqueue({ kind: 'timings', jobId: 'r-timings', songId, label: 'word timings' }, hold);
+    enqueue({ kind: 'transcribe', jobId: 'q-analysis', songId, label: 'chat analysis' }, hold);
+    enqueue({ kind: 'transcribe', jobId: 'q-read', songId, label: 'read the melody' }, hold);
+    enqueue({ kind: 'lyrics', jobId: 'q-lyrics', songId }, hold);
+    enqueue({ kind: 'analyze', jobId: 'q-analyze', songId }, hold);
+    enqueue({ kind: 'lm', jobId: 'q-lm', songId }, hold);
+    expect(await checkRender(songId, planId, deps(), true)).toMatchObject({ plan: { id: planId } });
+  });
+
+  it.each([
+    ['repaint', 'repaint 1:32–2:07'], ['regenerate', undefined], ['retake', undefined], ['addLayer', 'add a layer'], ['split', undefined],
+  ] as const)('a queued %s still refuses, stale, by what it does', async (kind, label) => {
+    const { songId, planId } = await seed();
+    enqueue({ kind: 'timings', jobId: 'r-timings', songId }, hold);
+    enqueue({ kind, jobId: `q-${kind}`, songId, label }, hold);
+    expect(await checkRender(songId, planId, deps(), true)).toEqual({ refusal: editQueued(label ?? kind), stale: true });
+  });
+
+  it('an edit on another song does not refuse', async () => {
+    const { songId, planId } = await seed();
+    enqueue({ kind: 'repaint', jobId: 'r-other', songId: 'other-song' }, hold);
+    expect(await checkRender(songId, planId, deps(), true)).toMatchObject({ plan: { id: planId } });
   });
 });

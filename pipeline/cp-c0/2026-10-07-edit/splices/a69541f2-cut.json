@@ -1,0 +1,92 @@
+{
+ "id": "fea6dd30f0504edc8d821cd027a8d835",
+ "kind": "splice",
+ "idempotency_key": "splice-cca93aa2-27fa-4e57-bce0-dd6b33fcf539",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791336164.3897429,
+ "updated_at": 1791336164.9163027,
+ "started_at": 1791336164.393095,
+ "finished_at": 1791336164.9163027,
+ "cancel_requested": false,
+ "result": {
+  "verdict": "ok",
+  "reason": null,
+  "detail": null,
+  "kind": "CUT",
+  "bars": [
+   27,
+   35
+  ],
+  "audio_url": "/v1/splices/fea6dd30f0504edc8d821cd027a8d835/audio",
+  "audio_seconds": 189.4358,
+  "length_diff_s": -25.4029,
+  "joins_s": [
+   70.928
+  ],
+  "crossfade_s": [
+   0.176471
+  ],
+  "base_points_s": [
+   null
+  ],
+  "parts": [
+   {
+    "source": "base",
+    "out_s": [
+     0,
+     70.928
+    ],
+    "src_s": [
+     0,
+     70.928
+    ]
+   },
+   {
+    "source": "base",
+    "out_s": [
+     70.928,
+     189.4357917
+    ],
+    "src_s": [
+     96.330875,
+     214.8386667
+    ]
+   }
+  ],
+  "edges": [],
+  "snap": [
+   {
+    "delta_ms": 2.867,
+    "applied": true,
+    "corr": 0.2521
+   }
+  ],
+  "gain_db": null,
+  "level_step_db": null,
+  "gap_shift_s": -0.122,
+  "seams": [
+   {
+    "out_s": 70.928,
+    "lufs_step": 3.259,
+    "base_lufs_step": null,
+    "lufs_step_excess": null
+   }
+  ],
+  "null_test": {
+   "samples": 9084446,
+   "different": 0
+  },
+  "grid_urls": {
+   "base": "/v1/splices/fea6dd30f0504edc8d821cd027a8d835/grid/base",
+   "render": null,
+   "out": "/v1/splices/fea6dd30f0504edc8d821cd027a8d835/grid/out"
+  },
+  "timing": {
+   "total_seconds": 0.523
+  }
+ },
+ "error": null
+}

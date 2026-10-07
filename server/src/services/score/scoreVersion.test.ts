@@ -129,6 +129,40 @@ describe('persistScoreVersion', () => {
   });
 });
 
+describe('a chat edit\'s splice record (C0b, F-047 #1, D-101)', () => {
+  const reharm = (songId: string, versionId: string): Plan => ({ ...plan(songId, versionId), ops: [{ op: 'REHARMONIZE', from_bar: 9, to_bar: 16, chords: [] }] });
+  const spliced = {
+    splice_v: 1 as const, kind: 'reharmonize' as const, bars: [9, 16] as [number, number], joins_s: [16.2, 32.2], crossfade_s: [0.5, 0.5],
+    gain_db: { in: 0, out: 0, bars: [0, 0] }, snap_ms: [30, 30], length_diff_s: 0.04, null_test: { samples: 1570000, different: 0 },
+  };
+
+  it('a spliced version records the bars, joins, gains and null test in params_json.splice and says so in its label', async () => {
+    const { songId, layerId, versionId, source } = await seedSong();
+    const saved = await persistScoreVersion({ songId, plan: reharm(songId, versionId), source, request, audio, score: EDITED, truncated: false, splice: spliced });
+    const fresh = rows(layerId)[1];
+    expect(fresh).toMatchObject({ id: saved.id, active: 1, label: 'score edit · REHARMONIZE 9–16 · bars 9–16 spliced' });
+    expect(JSON.parse(fresh.params_json)).toMatchObject({ score_v: 1, splice: spliced, basedOn: versionId });
+    // The sidecar is the edited score, so the next turn reads the true state (F-047 #3).
+    expect(fs.readFileSync(path.join(config.audioDir, `${saved.id}.abc`), 'utf8')).toBe(EDITED);
+  });
+
+  it('a whole-song fallback is labelled with its reason, never a silent splice (D-101, D-109)', async () => {
+    const { songId, layerId, versionId, source } = await seedSong();
+    const fallback = { splice_v: 1 as const, fallback: 'the join could not be aligned' };
+    await persistScoreVersion({ songId, plan: reharm(songId, versionId), source, request, audio, score: EDITED, truncated: false, splice: fallback });
+    const fresh = rows(layerId)[1];
+    expect(fresh.label).toBe('score edit · REHARMONIZE 9–16 · whole song re-rendered: the join could not be aligned');
+    expect(JSON.parse(fresh.params_json)).toMatchObject({ splice: fallback });
+  });
+
+  it('a CUT spliced from the old audio says the bars it removed', async () => {
+    const { songId, layerId, versionId, source } = await seedSong();
+    const cut = { ...plan(songId, versionId), ops: [{ op: 'CUT' as const, section: 4, label: 'bridge' }] };
+    await persistScoreVersion({ songId, plan: cut, source, request, audio, score: EDITED, truncated: false, splice: { ...spliced, kind: 'cut', bars: [57, 64] } });
+    expect(rows(layerId)[1].label).toBe('score edit · CUT bridge S4 · bars 57–64 cut');
+  });
+});
+
 describe('revert after a score render (F-023 #2)', () => {
   const activate = (id: string) => fetch(`${base}/api/layers/versions/${id}/activate`, { method: 'PATCH' });
 

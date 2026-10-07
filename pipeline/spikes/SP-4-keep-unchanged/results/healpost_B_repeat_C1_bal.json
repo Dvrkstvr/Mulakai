@@ -1,0 +1,23 @@
+{
+ "id": "B_repeat_C1_bal",
+ "gain_applied_by_acestep": 0.8948222398726042,
+ "gain_db": -0.9652646101062503,
+ "len_in": 8548741,
+ "len_out_raw": 8547840,
+ "tail_restored_samples": 901,
+ "max_abs_residual_outside": 5.960464477539063e-08,
+ "samples_different_outside": 0,
+ "of_which_not_where_src_exceeds_full_scale": 0,
+ "src_peak": 0.9960088729858398,
+ "windows": [
+  {
+   "window_s": [
+    72.21,
+    75.21
+   ],
+   "lufs_in": -11.974842639486448,
+   "lufs_out": -13.689914516308265,
+   "lufs_delta": -1.715071876821817
+  }
+ ]
+}

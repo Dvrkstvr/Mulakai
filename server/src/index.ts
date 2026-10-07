@@ -18,6 +18,9 @@ import { lyricsRouter } from './routes/lyrics.js';
 import { scorePlanRouter } from './routes/scorePlan.js';
 import { scoreRouter } from './routes/score.js';
 import { scoreRenderRouter } from './routes/scoreRender.js';
+import { chatRouter } from './routes/chat.js';
+import { chatTurnsRouter } from './routes/chatTurns.js';
+import { chatReferencesRouter } from './routes/chatReferences.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 import { sweepOrphanStems } from './services/stemFiles.js';
@@ -45,9 +48,12 @@ app.use('/api/lyrics', lyricsRouter);
 app.use('/api/songs', scorePlanRouter);
 app.use('/api/songs', scoreRouter);
 app.use('/api/songs', scoreRenderRouter);
+app.use('/api/chat', chatRouter);
+app.use('/api/chat', chatTurnsRouter);
+app.use('/api/chat', chatReferencesRouter);
 app.use('/audio', express.static(config.audioDir));
 
-sweepTrash();
+sweepTrash(); // and the orphaned chat reference files (trashSweep.ts)
 setInterval(sweepTrash, 60 * 60 * 1000);
 // Jobs live only in memory: a restart strands the files they own, and a closed tab
 // never cancels or discards its job.

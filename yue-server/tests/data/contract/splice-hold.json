@@ -1,0 +1,58 @@
+{
+ "name": "splice-hold",
+ "request": {
+  "method": "POST",
+  "path": "/v1/splices",
+  "form": {
+   "spec": {
+    "op": {
+     "op": "REHARMONIZE",
+     "from_bar": 9,
+     "to_bar": 16,
+     "chords": []
+    },
+    "base_abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=120\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:C\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% chorus\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n",
+    "render_job": "job-0001"
+   }
+  },
+  "file": "audio"
+ },
+ "response": {
+  "status": 202,
+  "body": {
+   "id": "sp-0001",
+   "kind": "splice",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "queued",
+   "stage": "queued",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": null,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ },
+ "final": {
+  "status": 200,
+  "body": {
+   "id": "sp-0001",
+   "kind": "splice",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "running",
+   "stage": "tracking_base",
+   "progress": 0.5,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": 1.0,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ }
+}

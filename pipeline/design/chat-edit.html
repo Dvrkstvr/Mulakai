@@ -1,0 +1,162 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CHAT EDIT - DT-C0b decision mockup</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--li:#7B4B94;--lt:#A97FC1;--ln:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:26px 0 12px}
+li{max-width:1100px}.hn,.mo{font-family:ui-monospace,monospace}.hn{font-size:10px;letter-spacing:1px;color:var(--w)}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.nt{margin:6px 0 0;font-size:12px;color:var(--m);max-width:760px}
+.fr{--z:.62;width:847px;height:476px;overflow:hidden;border:1px solid var(--h);cursor:zoom-in}.fr.big{width:1368px;height:770px;cursor:zoom-out}.fr.big .sc{transform:none}
+.sc{width:1366px;height:768px;background:var(--c);transform:scale(var(--z));transform-origin:0 0;position:relative;overflow:hidden;font-size:12px}
+.sh{width:760px;display:flex;flex-direction:column;gap:10px}
+.hdr{height:40px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--l);background:var(--p);font-size:10px;letter-spacing:2px;color:var(--m)}.hdr b{color:var(--t);margin-right:auto}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}.p>span{display:inline-block;transform:skewX(10deg)}
+.t1{border:1px solid var(--l);color:var(--m);padding:6px 14px;font-size:11px}.t1.on{border-color:var(--a);color:var(--a)}
+.ac,.q,.ab{font-size:11px;padding:11px 22px;border:1px solid}.ac{background:var(--a);border-color:var(--a);color:var(--c)}.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}.ab{color:var(--lt);border-color:var(--li);background:var(--ln);padding:6px 12px;font-size:10px}.ab.on{background:var(--li);color:var(--t)}.off{opacity:.4}
+.ttl{height:49px;display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:1px solid var(--l)}.ttl h3{margin:0;font-size:20px;letter-spacing:3px}
+.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.bd{position:absolute;top:89px;bottom:0;left:0;right:0;display:flex}.mn{flex:1;position:relative;min-width:0}
+.th{position:absolute;top:0;bottom:152px;left:0;right:0;overflow:hidden;padding:14px 0;display:flex;flex-direction:column;gap:12px;align-items:center}.th>*{width:760px;flex:none}
+.um{margin-left:auto;max-width:560px;background:var(--r);padding:9px 12px}.am{color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}.am b,.k{color:var(--t);font-weight:400}
+.cp{position:absolute;bottom:0;left:0;right:0;height:104px;border-top:1px solid var(--l);background:var(--p);padding:10px 0;display:flex;flex-direction:column;align-items:center;gap:6px}.cr{display:flex;gap:12px;align-items:center;width:760px}.cr .in{flex:1}
+.in{border:1px solid var(--h);background:var(--c);padding:9px 11px;color:var(--w)}.snd{padding:9px 14px;border:1px solid var(--a);color:var(--a);font-weight:700;font-size:11px;letter-spacing:.1em}
+.sb{width:360px;flex:none;border-left:1px solid var(--l);background:var(--p)}.sbh{display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--l)}
+.fd{display:grid;grid-template-columns:78px 1fr;gap:8px;padding:6px 14px;align-items:center}.fk{font:700 10px ui-monospace,monospace;color:var(--w)}
+.ib{display:inline-block;border:1px solid var(--h);background:var(--c);padding:3px 9px;margin:0 6px 3px 0}.ibl{border-color:var(--li);color:var(--lt)}
+.cd{border:1px solid var(--h);background:var(--p)}.cd.dn{border-color:var(--l);opacity:.55}.cd>.hd{display:flex;gap:10px;padding:8px 14px;border-bottom:1px solid var(--l)}
+.bdy{padding:10px 14px;display:flex;flex-direction:column;gap:6px}.bdy b.n{font-size:15px;font-weight:400;letter-spacing:1px}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}
+.er,.wn{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.er div,.wn div{flex:1}.er b,.wn b{color:var(--rt)}
+.j{padding:7px 10px;border:1px solid var(--h);font-size:10px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}.j em{font-style:normal;letter-spacing:0;color:var(--m)}
+.stp{display:flex;gap:3px}.stp i{flex:1;font:10px ui-monospace,monospace;letter-spacing:1px;padding:5px 8px;background:var(--r);color:var(--w);clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}.stp i.dn{color:var(--m)}.stp i.on{background:var(--h);color:var(--t)}
+.op{display:grid;grid-template-columns:118px 1fr;gap:8px;border:1px solid var(--l);padding:5px 9px}.op span:first-child{font:700 10px ui-monospace,monospace;letter-spacing:1px;color:var(--m);padding-top:2px}
+.bs{height:16px;background:var(--r);position:relative;border:1px solid var(--l)}.bs i{position:absolute;top:0;bottom:0;background:var(--sk);border:1px solid var(--s)}.bs.all i{left:0;width:100%;background:repeating-linear-gradient(135deg,var(--sk) 0 6px,var(--st) 6px 12px)}
+.bn{display:flex;justify-content:space-between;font:9px ui-monospace,monospace;color:var(--w)}
+.pr{position:absolute;bottom:104px;left:0;right:0;height:48px;background:var(--p);border-top:1px solid var(--l);padding:0 24px;display:flex;gap:12px;align-items:center}.hx{width:30px;height:27px;background:var(--a);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);color:var(--c);font-weight:700;display:flex;align-items:center;justify-content:center}
+.wv{height:20px;flex:1;background:repeating-linear-gradient(90deg,var(--li) 0 2px,transparent 2px 4px);position:relative}.wv:after{content:"";position:absolute;left:38%;top:-3px;bottom:-3px;width:2px;background:var(--s)}
+.np{color:var(--lt);font:10px ui-monospace,monospace;letter-spacing:1px}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:9px 0}.opt{width:392px}</style></head><body>
+<h1>CHAT EDIT · say what to change, apply it, hear v2, go back</h1>
+<div class="hn">stage 5 · DT-C0b · F-046..F-049 · tokens: DESIGN.md, none added · frames 1366×768 (click to zoom), sheets 1:1 · example song: Luz sobre el mar, 76 bars, 4/4, 95 BPM, 3:12</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li>The edit card in both shapes, said before APPLY: <b>only bars 25-32 change</b> (REHARMONIZE, CUT, small-step REPEAT: D-154) or <b>the whole song is re-rendered</b> (everything else, with the reason). Every state of the commit (rendering, splicing, saving, WAITING FOR v2), the version card, BACK TO v1 / USE v1 in the player, and each way it can end other than success.</li>
+<li>One hue per job: <b>acid</b> only on APPLY; <b>sky</b> the bars that change; <b>lilac</b> the version pill and A/B (as DESIGN.md); <b>rust</b> a failure, a refusal, or a result the person should not take for what they asked. Zero radius.</li>
+<li>Evidence: card body, phases <i>seen in</i> D-156 and architecture.md; layout, copy, durations <i>inferred</i> (Q-103).</li>
+</ul>
+
+<h2>1 · THE EDIT CARD · pending</h2><div class="g" id="s1"></div>
+<h2>1b · OPTIONS · how "only these bars" is shown (the one real choice)</h2><div class="g" id="s1b"></div>
+<h2>2 · APPLY, in the thread · normal path</h2><div class="g" id="s2"></div>
+<h2>3 · THE VERSION CARD · every ending that saves</h2><div class="g" id="s3"></div>
+<h2>4 · NOTHING SAVED · refused, failed, stale, superseded, expired</h2><div class="g" id="s4"></div>
+
+<h2>DECISIONS (EC-n provisional; the owner signs off, the conductor records D-ids)</h2><div id="dec"></div>
+
+<h2>OPEN QUESTIONS (also in open-questions.md as Q-103..Q-106)</h2>
+<ul>
+<li><b>Q-103</b> assumable, default: "a few minutes" on the consequence line until CP-C0 calibrates render + grid + splice; the mockup's "about 2 min" is an example.</li>
+<li><b>Q-104</b> assumable, default: a splice that fell back to the whole re-render is saved as v2 with a rust-bordered label on the card (a result, not an error), per F-047 and D-101; no ask-first.</li>
+<li><b>Q-105</b> deferred: after an audio-only CUT or REPEAT "same seconds" in BACK TO v1 is wrong after the cut (Q-070); the card says "bars after the cut are earlier". A/B by bar is Later.</li>
+<li><b>Q-106</b> assumable, default: USE v1 activates v1 and keeps v2 in the rail (nothing deleted); a thread line says so; the next edit plans against v1, so a card made on v2 goes stale (4c).</li>
+<li><b>Blocking: none.</b> The 1b choice is the owner's sign-off, with B as the default.</li>
+</ul>
+
+<h2>CHECK ON A REAL DEVICE (desktop, 1366×768)</h2>
+<ul>
+<li>A card with 3 change rows, a 2-line consequence and the strip keeps APPLY above the player.</li>
+<li>Reload during SPLICING restores the phase; CANCEL leaves no v2.</li>
+<li>Play v2 across both joins (bars 24/25, 32/33) on headphones; BACK TO v1 keeps position and play state.</li>
+</ul>
+
+<script>
+const $=i=>document.getElementById(i);
+const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
+const O=(h,f,n)=>`<div class="o"><h4>${h}</h4>${f}${n?`<div class="nt">${n}</div>`:""}</div>`;
+const SH=h=>`<div class="sh">${h}</div>`;
+const um=t=>`<div class="um">${t}</div>`,am=t=>`<div class="am">${t}</div>`;
+const head=(t,x)=>`<div class="hd"><span class="lb">${t}</span><span class="hn">${x||""}</span></div>`;
+const cm=(t,b)=>`<div class="cm"><span class="cs">${t}</span>${b}</div>`;
+const TTL=(v)=>`<div class="ttl"><h3>LUZ SOBRE EL MAR</h3>${P("t1 on","CHAT")+P("t1","FORM")}<span class="hn">${v} · 3:12 · THREAD 3</span></div>`;
+const FR=(i,v)=>`<div class="fr" onclick="this.classList.toggle('big')"><div class="sc"><div class="hdr"><b>MULAKAI</b>MODELS READY</div>${TTL(v)}${i}</div></div>`;
+const SBS=v=>`<div class="sb"><div class="sbh"><span class="lb">SONG · LUZ SOBRE EL MAR</span><span class="hn">HIDE ▸</span></div><div class="fd"><div class="fk">VERSIONS</div><div>${v}</div></div></div>`;
+const V1='<span class="ib ibl">v1 ●</span>',V12='<span class="ib ibl">v1</span><span class="ib ibl">v2 ●</span>';
+const PLR=(pv,mid,btn)=>`<div class="pr"><span class="hx">▶</span><b style="font-weight:400">Luz sobre el mar</b><span class="ib ibl" style="margin:0">${pv}</span><span class="hn mo">1:12 / 3:12</span><div class="wv"></div>${mid||""}${btn||""}</div>`;
+const COMP=(ph,off)=>`<div class="cp"><div class="cr"><div class="in">${ph||"Say what to change…"}</div><div class="snd ${off?"off":""}">SEND ↵</div></div>${off?`<div class="hn">${off}</div>`:""}</div>`;
+const MN=(th,pl,cp)=>`<div class="mn"><div class="th">${th}</div>${pl}${cp}</div>`;
+
+/* the card */
+const OP=(a,b)=>`<div class="op"><span>${a}</span><span>${b}</span></div>`;
+const STRIP=(all)=>`<div><div class="bs ${all?"all":""}">${all?"<i></i>":'<i style="left:31.6%;width:10.5%"></i>'}</div><div class="bn"><span>1</span><span>${all?"ALL 76 BARS CHANGE":"BARS 25-32 CHANGE · THE OTHER 68 ARE v1"}</span><span>76</span></div></div>`;
+const CHK=(t)=>`<div class="hn">CHECKS · ${t||"every bar 4/4 · 76 bars kept · under 360 s · one change"}</div>`;
+const SPL="Uses the GPU about <b>2 min</b> · re-sings <b>bars 25-32</b>, every other bar stays <b>v1's audio</b> · length may differ by under 0.25 s · saves <b>v2</b>, v1 is kept";
+const WHL="Uses the GPU about <b>2 min</b> · <b>the whole song is re-rendered</b>: every bar will sound different, not only the listed ones · saves <b>v2</b>, v1 is kept";
+const EC=(o)=>`<div class="cd ${o.dn?"dn":""}">${head("EDIT · SCORE"+(o.st?" · "+o.st:""),o.hx||"nothing runs yet")}<div class="bdy">${o.as?`<div style="color:var(--m)">${o.as}</div>`:""}${o.ops}${o.strip===undefined?"":STRIP(o.strip)}${o.why?`<div class="hn">WHY THE WHOLE SONG: ${o.why}</div>`:""}${CHK(o.chk)}${o.x||""}</div>${o.cm===undefined?cm(o.sp?SPL:WHL,P("ac","APPLY")):o.cm}</div>`;
+const ASM='Assuming <b class="k">chorus 1, bars 25-32</b> (the song has 3 choruses) · attempt 1 of 3';
+const E1=EC({sp:1,as:ASM,ops:OP("REHARMONIZE","bars 25-32 · jazz chords (maj7, ii-V) under the same melody"),strip:0});
+const E2=EC({as:"Assuming <b class='k'>verse 2</b> · attempt 2 of 3",ops:OP("REWRITE LYRICS","verse 2 · 16 lines · about the sea instead of the road"),strip:1,why:"a new voice sung into a span is heard as a join; the whole song is rendered once instead"});
+const E3=EC({sp:1,as:'Assuming <b class="k">the bridge</b>',ops:OP("CUT","bridge · bars 57-64 · 8 bars removed")+OP("","the song gets 8 bars shorter, about 20 s"),strip:0,chk:"every bar 4/4 · 68 bars left · whole sections cut",cm:cm("Cuts <b>bars 57-64</b> from v1's audio, every other bar is <b>v1's audio</b> · <b>bars after the cut are earlier</b> by about 20 s, so BACK TO v1 will not line up there · saves <b>v2</b>",P("ac","APPLY"))});
+const E5=EC({as:"",ops:OP("REHARMONIZE","bars 25-32 · jazz chords"),strip:1,why:"this song is in 3/4; the splice is tested on 4/4 only (D-156: also a score with no chords)"});
+const ER=`<div class="cd"><div class="bdy"><div class="er"><div><b>THIS EDIT DOES NOT FIT</b> · bar 28 would hold 33/32 units; 4 bars past the 360 s limit; attempt 3 of 3 failed. Nothing is stored.</div>${P("q","ASK AGAIN")}</div><div class="hn">NO APPLY ON THIS CARD · the numbers are the checks' own</div></div></div>`;
+$("s1").innerHTML=
+O("<b>1a · splice</b> · REHARMONIZE (the same card for CUT and a small-step REPEAT)",SH(E1),"Ambiguity is stated, not asked. Sky strip: the bars that change. APPLY is the only acid; the consequence line sits left of it.")+
+O("<b>1b · whole song</b> · REWRITE LYRICS",SH(E2),"The strip is the full sky hatch: everything changes. The reason is one grey line (D-101).")+
+O("<b>1c · CUT</b> · splice, but bars move",SH(E3),"The length change and the A/B caveat are said before APPLY (Q-105).")+
+O("<b>1d · other whole-song reasons</b>",SH(E5),"Other reasons, same line: more than one change, no chords in the score, WRITE PHRASE.")+
+O("<b>1e · the plan fails its checks</b>",SH(ER),"No APPLY, nothing stored (F-046 edge). A not-eligible song gets a plain assistant line, no card.");
+
+/* 1b options */
+const OPT=(h,rec,f,n)=>`<div class="o"><h4>${h}</h4><div class="opt" style="${rec?"outline:1px solid var(--a)":""}">${f}</div><div class="nt" style="width:392px">${n}</div></div>`;
+$("s1b").innerHTML=
+OPT("<b>A</b> · words only",0,`<div class="hn" style="padding:8px;border:1px solid var(--l)">REHARMONIZE · bars 25-32 · only those bars change, the rest is v1</div>`,"Cheapest. Cost: no picture of where 25-32 is.")+
+OPT("<b>B</b> · words plus the bar strip (recommended)",1,`<div style="padding:8px;border:1px solid var(--l)">${STRIP(0)}</div>`,"Cost: 24 px of height. \"Only these bars\" versus \"all\" is a shape before it is a sentence.")+
+`<div class="nt" style="width:392px"><b>C</b> · a link that plays bars 25-32 of v1: needs C1's bar ruler; later.</div>`;
+
+/* 2 commit */
+const PHS=(a,b,c)=>`<div class="stp"><i class="${a}">RENDERING</i><i class="${b}">SPLICING</i><i class="${c}">SAVING</i></div>`;
+const RC=(st,body,h)=>`<div class="cd"><div class="hd"><span class="lb">EDIT · SCORE · APPLYING</span><span class="hn">${h||"v1 is untouched until v2 is saved"}</span></div><div class="bdy">${body}</div></div>`;
+const CX=P("q","CANCEL");
+const F2=FR(`<div class="bd">${MN(um("give the chorus jazz chords")+am("Assuming <b>chorus 1, bars 25-32</b>. Re-harmonizing them with jazz chords under the same melody.")+RC("",PHS("dn","on","")+`<div class="j"><span>SPLICING · matching the join at bar 25 <em>· step 2 of 3</em></span>${CX}</div>`),PLR("v1",'<span class="hn">PLAYING v1</span>'),COMP("",`WAITING FOR v2 · a message sent now is read after v2 is saved`))}${SBS(V1)}</div>`,"v1");
+$("s2").innerHTML=
+O("<b>2a · SPLICING</b> · composer says WAITING FOR v2",F2,"A message typed now queues behind the commit (F-049 #4) and shows WAITING FOR v2. The sidebar is read-only meanwhile.")+
+O("<b>2b · the phase lines</b> · splice path, whole-song path, queued",SH(
+RC("",PHS("on","","")+`<div class="j"><span>RENDERING · YuE2 <em>· 62%</em></span>${CX}</div>`,"uses the GPU")+
+RC("",PHS("dn","dn","on")+`<div class="j"><span>SAVING · writing v2 and its score <em>· step 3 of 3</em></span><span class="hn">CANCEL OFF</span></div>`,"almost done")+
+RC("",`<div class="stp"><i class="on">RENDERING</i><i>SAVING</i></div><div class="j"><span>RENDERING · whole song · YuE2 <em>· 31%</em></span>${CX}</div>`,"no splice step")+
+`<div class="cd"><div class="bdy"><div class="wn"><div><b>CANCELLED WHILE SPLICING</b> · no v2 saved</div>${P("q","APPLY AGAIN")}</div></div></div>`),"Plain lines, no shader. A whole-song edit has two phases. CANCEL greys in SAVING; after a cancel the card returns to pending (F-049 #1).");
+
+/* 3 version cards */
+const VC=(o)=>`<div class="cd"><div class="hd"><span class="lb">VERSION</span><span class="ib ibl" style="margin:0">v2</span><span class="hn">${o.h||"SAVED · ACTIVE NOW"}</span></div><div class="bdy"><b class="n">${o.t}</b><div style="color:var(--m)">${o.d}</div>${o.w||""}</div><div class="cm"><span class="cs">${o.cs||""}</span>${P("q","▶ PLAY")}${o.nb?"":P("ab","BACK TO v1")}</div></div>`;
+$("s3").innerHTML=
+O("<b>3a · splice saved</b>",SH(VC({t:"Jazz chords in chorus 1",d:"3:12 · <b class='k'>bars 25-32 changed</b> · the rest is v1's audio · 0.04 s longer than v1",cs:"v2 is the active version. v1 is kept."})),"The label is the change list in the person's words. The pill is lilac as in the player.")+
+O("<b>3b · whole song, as the card said</b>",SH(VC({t:"Verse 2 about the sea",d:"3:12 · <b class='k'>the whole song was re-rendered</b> · every bar sounds different from v1",cs:"v2 is the active version. v1 is kept."})),"No warning styling: the person was told before APPLY.")+
+O("<b>3c · the join could not be aligned</b> (D-101, D-109)",SH(VC({t:"Jazz chords in chorus 1",d:"3:12 · saved as <b class='k'>the whole re-render, not a splice</b>",h:"SAVED · WHOLE SONG",w:`<div class="wn"><div><b>THE JOIN COULD NOT BE ALIGNED</b> · no usable groove at either end of bars 25-32. Every bar sounds different from v1, not only the ones you asked for. Nothing was spliced silently.</div></div>`,cs:"Not what the card promised: BACK TO v1 and USE v1 if you prefer."})),"Rust, because the result is not what the card promised. No grid says \"no usable beat grid\"; same card.")+
+O("<b>3d · TRUNCATED</b> · the render stopped early",SH(VC({t:"Jazz chords in chorus 1",d:"2:41 of 3:12 · <b class='k'>TRUNCATED</b>",h:"SAVED · WHOLE SONG",w:`<div class="wn"><div><b>THE TAKE ENDED AT 2:41</b> · YuE2 stopped before bar 32, so the whole short render was saved, not a splice (the existing TRUNCATED label, D-025).</div></div>`,cs:"v1 is kept and is the full-length take."})),"Reuses TRUNCATED_LABEL; the splice never runs on a short render.")+
+O("<b>3e · CUT, and v1 deleted in the Editor</b>",SH(VC({t:"Bridge cut",d:"2:52 · <b class='k'>bars 57-64 removed</b> · 0:20 shorter · <b class='k'>bars after the cut are earlier</b>",cs:"BACK TO v1 plays the same seconds, which no longer line up after bar 56."})+VC({t:"Jazz chords in chorus 1",d:"3:12 · bars 25-32 changed",nb:1,cs:"v1 was deleted in the Editor: no A/B"})),"Edge in F-048: no A/B when the previous version is gone.");
+
+/* player frames */
+const F3=FR(`<div class="bd">${MN(um("give the chorus jazz chords")+`<div class="cd dn"><div class="bdy"><span class="hn">EDIT · SCORE · DONE · bars 25-32</span></div></div>`+VC({t:"Jazz chords in chorus 1",d:"3:12 · <b class='k'>bars 25-32 changed</b> · the rest is v1's audio",cs:"v2 is the active version. v1 is kept."}),PLR("v2",'<span class="np">NOW PLAYING THE NEW VERSION</span>',P("ab","BACK TO v1")),COMP())}${SBS(V12)}</div>`,"v2");
+const F4=FR(`<div class="bd">${MN(um("give the chorus jazz chords")+`<div class="cd dn"><div class="bdy"><span class="hn">EDIT · SCORE · DONE · bars 25-32</span></div></div>`+VC({t:"Jazz chords in chorus 1",d:"3:12 · <b class='k'>bars 25-32 changed</b>",cs:"Listening to v1 · v2 is still the active version"}),PLR("v1",'<span class="np">LISTENING · v1 · SAME SECONDS · NOT ACTIVE UNTIL USE v1</span>',P("ab on","◂ v1 · BACK TO v2")+P("q","USE v1")),COMP())}${SBS(V12.replace("●","").replace("v2","v2 ●"))}</div>`,"v2");
+$("s3").innerHTML+=
+O("<b>3f · the player after v2 saves</b>",F3,"Audio swaps in place, same position and play state. The lilac line lasts until the next play, scrub, mark or send.")+
+O("<b>3g · BACK TO v1 · A/B</b>",F4,"One pill, the REFERENCE ⇄ SONG pattern: unfilled = go to the other, filled lilac = you are on it. Nothing activates until USE v1 (neutral outline, not acid). Past the shorter version's end the position clamps. After USE v1 a thread line says v2 is kept (Q-106).");
+
+/* 4 nothing saved */
+const NS=(b)=>SH(`<div class="cd"><div class="bdy">${b}</div></div>`);
+$("s4").innerHTML=
+O("<b>4a · REFUSED</b> · the planner is still loaded, or the GPU is busy",NS(`<div class="er"><div><b>A MODEL IS STILL LOADED</b> · the assistant did not unload (<span class="mo">ollama stop qwen3:14b</span>). Nothing started; v1 is untouched.</div>${P("q","TRY AGAIN")}</div>`),"A busy GPU reads the same with its own first words.")+
+O("<b>4b · FAILED</b> · the render or the splice stopped",NS(`<div class="er"><div><b>THE RENDER FAILED</b> · YuE2 stopped at 41%: out of memory. Nothing was saved, v1 is untouched, the temporary render is gone.</div>${P("q","RETRY")}</div>`),"One shape for every ending without a version, as chat-turn.html: cause, \"nothing saved\", one RETRY; the card returns to pending.")+
+O("<b>4c · STALE</b> · the song changed since the plan",SH(EC({sp:1,as:ASM,ops:OP("REHARMONIZE","bars 25-32 · jazz chords"),strip:0,cm:`<div class="cm" style="padding:0;border:0"><div class="er" style="flex:1"><div><b>THIS SONG CHANGED SINCE THE PROPOSAL</b> · a repaint was queued in the Editor, or you chose v1. Nothing started.</div>${P("q","ASK AGAIN")}</div></div>`})),"APPLY is gone, the plan stays readable; ASK AGAIN re-asks the last message against the song as it is now (F-049 edge).")+
+O("<b>4d · SUPERSEDED and EXPIRED</b>",SH(EC({dn:1,st:"SUPERSEDED",hx:"REPLACED BY A NEWER PLAN",sp:1,ops:OP("REHARMONIZE","bars 25-32 · jazz chords"),cm:cm("A newer edit card is below. This one cannot be applied.","")})+`<div class="cd"><div class="hd"><span class="lb">EDIT · SCORE · EXPIRED</span></div><div class="bdy"><div class="er"><div><b>THIS EDIT EXPIRED</b> when the server restarted. Ask again for a new card.</div>${P("q","ASK AGAIN")}</div></div></div>`),"As the recipe card (D-111): a new plan greys the old card; a restart ends the plan.");
+
+const D=[
+["EC-1 · one card, two clauses: \"only bars X-Y change, the rest is v1's audio\" (REHARMONIZE, CUT, small-step REPEAT) or \"the whole song is re-rendered, every bar will sound different\" (all else), plus a grey reason (D-150, D-154, D-156).","a footnote for the whole-song case. <i>Cost:</i> a reason string per kind."],
+["EC-2 · the bar strip (1b option B): sky span, or full hatch for whole-song.","words only. <i>Cost:</i> 24 px and a mapping."],
+["EC-3 · APPLY is the only acid; the consequence line sits left of it, as on the recipe card.","a confirm dialog. <i>Cost:</i> a long line."],
+["EC-4 · commit phases are plain stepped lines (RENDERING, SPLICING, SAVING; two steps whole-song), CANCEL until SAVING; WAITING FOR v2 in the composer.","a shader. <i>Cost:</i> less motion."],
+["EC-5 · a splice that could not be aligned saves the whole re-render as v2 with a rust label, never silent (D-101, D-109).","saving nothing. <i>Cost:</i> a spent render is kept; v1 is one click away."],
+["EC-6 · the version card says what changed (bars, whole song, TRUNCATED) with PLAY and BACK TO v1.","a generic \"v2 saved\". <i>Cost:</i> a label per save path."],
+["EC-7 · BACK TO v1 reuses the one REFERENCE ⇄ SONG pill; USE v1 is a neutral outline; only USE activates.","two pills; acid USE. <i>Cost:</i> none."],
+["EC-8 · every ending without a version has one shape: cause, \"nothing saved, v1 untouched\", one button; stale and superseded drop APPLY.","toasts. <i>Cost:</i> one line."]];
+$("dec").innerHTML=D.map(d=>`<div class="dc"><b>${d[0]}</b> <i>Beat:</i> ${d[1]}</div>`).join("");
+</script></body></html>

@@ -1,8 +1,9 @@
 /**
  * A version's files inside audioDir: its audio, plus an optional `${versionId}.abc`
  * score sidecar that an extra engine may return (YuE2's plan — see PLAN.md "Framework
- * decisions"). Every path that deletes a version's audio goes through here so the
- * sidecar never outlives it.
+ * decisions"), and an optional `${versionId}.grid.json` beat grid (the chat's splice,
+ * chat/gridCache.ts). Every path that deletes a version's audio goes through here so no
+ * sidecar outlives it.
  */
 import fs from 'node:fs/promises';
 import path from 'node:path';
@@ -16,9 +17,14 @@ export async function writeScoreSidecar(versionId: string, score: string): Promi
   await fs.writeFile(path.join(config.audioDir, scoreSidecarName(versionId)), score, 'utf8');
 }
 
-/** Every file a version may own, sidecar included whether or not it exists. */
+/** The beat grid a splice fitted on this version (grid_v 1), cached for the next splice. */
+export function gridSidecarName(versionId: string): string {
+  return `${versionId}.grid.json`;
+}
+
+/** Every file a version may own, sidecars included whether or not they exist. */
 export function versionFileNames(version: { id: string; audio_file: string }): string[] {
-  return [version.audio_file, scoreSidecarName(version.id)];
+  return [version.audio_file, scoreSidecarName(version.id), gridSidecarName(version.id)];
 }
 
 /** Best-effort removal: a missing file is fine, and an in-use one (Windows EBUSY while

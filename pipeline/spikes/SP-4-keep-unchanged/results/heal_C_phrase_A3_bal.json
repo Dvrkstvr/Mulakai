@@ -1,0 +1,28 @@
+{
+ "id": "C_phrase_A3_bal",
+ "mode": "balanced",
+ "strength": 0.5,
+ "steps": [
+  {
+   "task_id": "a708b8c9-a855-42f6-acee-9fe54c1d2d11",
+   "seconds": 14.693495750427246,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5Ce2341d6b-53b2-c8f6-ec2d-84db41ba5c9f.wav",
+   "bytes": 82483288,
+   "window": [
+    58.25,
+    61.25
+   ]
+  },
+  {
+   "task_id": "d249a0c7-fc36-42f0-8d4f-2585af581281",
+   "seconds": 14.614021062850952,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C7842999b-c0e7-9994-de47-955bf22b287d.wav",
+   "bytes": 82483288,
+   "window": [
+    69.55,
+    72.55
+   ]
+  }
+ ],
+ "seconds_total": 29.3075168132782
+}

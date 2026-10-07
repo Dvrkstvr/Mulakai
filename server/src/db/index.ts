@@ -2,6 +2,7 @@ import Database from 'better-sqlite3';
 import fs from 'node:fs';
 import { config } from '../config.js';
 import { SCHEMA } from './schema.js';
+import { CHAT_SCHEMA } from './chatSchema.js';
 import { backfillGenTask } from './backfillGenTask.js';
 
 fs.mkdirSync(config.dataDir, { recursive: true });
@@ -11,6 +12,7 @@ export const db = new Database(config.dbPath);
 db.pragma('journal_mode = WAL');
 db.pragma('foreign_keys = ON');
 db.exec(SCHEMA);
+db.exec(CHAT_SCHEMA); // after SCHEMA: chat tables reference songs and versions
 
 /** Additive migrations for DBs created before a column existed (CREATE TABLE IF NOT EXISTS won't alter them). */
 function ensureColumn(table: string, column: string, ddl: string): void {
@@ -20,6 +22,8 @@ function ensureColumn(table: string, column: string, ddl: string): void {
 
 ensureColumn('versions', 'lyric_timestamps', 'lyric_timestamps TEXT');
 ensureColumn('versions', 'word_timings', 'word_timings TEXT');
+// C1 (F-052): the version's analysis (`analysis_v`, chat/analysisTypes.ts); null = not analyzed.
+ensureColumn('versions', 'analysis_json', 'analysis_json TEXT');
 ensureColumn('songs', 'comment', "comment TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'genre', "genre TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'album', "album TEXT NOT NULL DEFAULT ''");

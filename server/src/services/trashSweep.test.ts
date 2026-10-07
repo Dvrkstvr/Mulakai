@@ -7,7 +7,7 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-test-'));
 
 const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
-const { sweepTrash } = await import('./trashSweep.js');
+const { emptyTrashNow, sweepTrash } = await import('./trashSweep.js');
 
 const daysAgo = (n: number) => new Date(Date.now() - n * 24 * 60 * 60 * 1000).toISOString();
 
@@ -58,5 +58,28 @@ describe('sweepTrash', () => {
 
     expect(() => sweepTrash()).not.toThrow();
     expect(db.prepare(`SELECT id FROM songs WHERE id = 'ghost'`).get()).toBeUndefined();
+  });
+});
+
+describe('chat reference files follow the song (D-127, F-062)', () => {
+  it("a permanent delete removes the song thread's reference files; trash and other files stay", async () => {
+    const refDir = path.join(config.audioDir, 'references');
+    fs.mkdirSync(refDir, { recursive: true });
+    seedSong('withref', daysAgo(1));
+    seedSong('other', null);
+    db.prepare(`INSERT INTO chat_threads (id, song_id) VALUES ('t-withref', 'withref'), ('t-other', 'other')`).run();
+    const ref = db.prepare(`INSERT INTO chat_references (id, thread_id, origin, name, file, bytes, sha256) VALUES (?, ?, 'upload', 'a.wav', ?, 1, 'h')`);
+    ref.run('ref-gone', 't-withref', 'references/ref-gone.wav');
+    ref.run('ref-kept', 't-other', 'references/ref-kept.wav');
+    fs.writeFileSync(path.join(refDir, 'ref-gone.wav'), 'x');
+    fs.writeFileSync(path.join(refDir, 'ref-kept.wav'), 'x');
+
+    sweepTrash(); // trashed a day ago: kept, with its reference
+    await new Promise((r) => setTimeout(r, 20));
+    expect(fs.existsSync(path.join(refDir, 'ref-gone.wav'))).toBe(true);
+
+    emptyTrashNow();
+    await vi.waitFor(() => expect(fs.existsSync(path.join(refDir, 'ref-gone.wav'))).toBe(false));
+    expect(fs.existsSync(path.join(refDir, 'ref-kept.wav'))).toBe(true);
   });
 });

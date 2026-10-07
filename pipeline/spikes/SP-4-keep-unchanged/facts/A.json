@@ -1,0 +1,171 @@
+{
+ "ok": true,
+ "error": null,
+ "bar_sums": [],
+ "messages": [],
+ "chords_present": true,
+ "bpm": 87,
+ "seconds": 179.3,
+ "tokens": 1472,
+ "facts": {
+  "header": {
+   "meter": "4/4",
+   "unit": "1/32",
+   "bpm": 87,
+   "key": "Dm",
+   "bars": 65,
+   "seconds": 179.3,
+   "units_per_quarter": 8
+  },
+  "key_notes": "D E F G A Bb C",
+  "sections": [
+   {
+    "index": 1,
+    "label": "intro",
+    "from_bar": 1,
+    "to_bar": 10
+   },
+   {
+    "index": 2,
+    "label": "verse",
+    "from_bar": 11,
+    "to_bar": 46
+   },
+   {
+    "index": 3,
+    "label": "chorus",
+    "from_bar": 47,
+    "to_bar": 62
+   },
+   {
+    "index": 4,
+    "label": "outro",
+    "from_bar": 63,
+    "to_bar": 65
+   }
+  ],
+  "lyric_blocks": [
+   {
+    "index": 1,
+    "tag": "[Intro]",
+    "occurrence": 1,
+    "lines": 1,
+    "first_line": "[Rhodes piano melody]"
+   },
+   {
+    "index": 2,
+    "tag": "[Verse 1]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "Midnight city streets are wet"
+   },
+   {
+    "index": 3,
+    "tag": "[Chorus]",
+    "occurrence": 1,
+    "lines": 4,
+    "first_line": "In the shadows we exist"
+   },
+   {
+    "index": 4,
+    "tag": "[Verse 2]",
+    "occurrence": 2,
+    "lines": 8,
+    "first_line": "Concrete jungle breathing slow"
+   },
+   {
+    "index": 5,
+    "tag": "[Chorus]",
+    "occurrence": 2,
+    "lines": 4,
+    "first_line": "Out of focus, out of sight"
+   },
+   {
+    "index": 6,
+    "tag": "[Bridge]",
+    "occurrence": 1,
+    "lines": 2,
+    "first_line": "The city never sleeps"
+   },
+   {
+    "index": 7,
+    "tag": "[Outro]",
+    "occurrence": 1,
+    "lines": 8,
+    "first_line": "In the shadows"
+   }
+  ],
+  "bar_map": [
+   "-- S1 intro --",
+   "(meter M:4/4 from here: one bar = 32 units)",
+   "1: - | V:rest | I:0",
+   "2: Dm@4 | V:rest | I:0",
+   "3: Dm@1 | V:rest | I:8",
+   "4: Dm@1 | V:rest | I:8",
+   "5: Bb@1 | V:rest | I:8",
+   "6: Bb@1 | V:rest | I:8",
+   "7: Dm@1 | V:rest | I:8",
+   "8: Dm@1 | V:rest | I:8",
+   "9: Bb@1 | V:rest | I:8",
+   "10: Bb@1 | V:rest | I:8",
+   "-- S2 verse --",
+   "11: Dm@1 | V:sung | I:0",
+   "12: Dm@1 | V:sung | I:0",
+   "13: Bb@1 | V:sung | I:0",
+   "14: Bb@1 | V:rest | I:3",
+   "15: Dm@1 | V:sung | I:1",
+   "16: Dm@1 | V:sung | I:0",
+   "17: Bb@1 | V:sung | I:0",
+   "18: Bb@1 | V:rest | I:3",
+   "19: Dm@1 | V:sung | I:1",
+   "20: Dm@1 | V:sung | I:0",
+   "21: Bb@1 | V:sung | I:0",
+   "22: Bb@1 | V:sung | I:0",
+   "23: Gm@1 | V:sung | I:0",
+   "24: Gm@1 | V:sung | I:0",
+   "25: Dm@1 | V:sung | I:6",
+   "26: Dm@1 | V:rest | I:8",
+   "27: Dm@1 | V:sung | I:0",
+   "28: Dm@1 | V:sung | I:0",
+   "29: Bb@1 | V:sung | I:0",
+   "30: Bb@1 | V:rest | I:3",
+   "31: Dm@1 | V:sung | I:1",
+   "32: Dm@1 | V:sung | I:0",
+   "33: Bb@1 | V:sung | I:0",
+   "34: Bb@1 | V:rest | I:3",
+   "35: Dm@1 | V:sung | I:1",
+   "36: Dm@1 | V:sung | I:0",
+   "37: Bb@1 | V:sung | I:0",
+   "38: Bb@1 | V:sung | I:0",
+   "39: Gm@1 | V:sung | I:0",
+   "40: Gm@1 | V:sung | I:0",
+   "41: Dm@1 | V:sung | I:5",
+   "42: Dm@1 | V:sung | I:7",
+   "43: Bbmaj7@1 | V:sung | I:0",
+   "44: Gm@1 | V:sung | I:0",
+   "45: Bbmaj7@1 | V:sung | I:0",
+   "46: Bbmaj7@1 | V:sung | I:4",
+   "-- S3 chorus --",
+   "47: Dm@1 | V:rest | I:2",
+   "48: Dm@1 | V:rest | I:4",
+   "49: Bbmaj7@1 | V:rest | I:1",
+   "50: Bbmaj7@1 | V:rest | I:3",
+   "51: Dm@1 | V:rest | I:2",
+   "52: Dm@1 | V:rest | I:4",
+   "53: Bbmaj7@1 | V:rest | I:1",
+   "54: Bbmaj7@1 | V:rest | I:3",
+   "55: Dm@1 | V:rest | I:2",
+   "56: Dm@1 | V:rest | I:4",
+   "57: Bbmaj7@1 | V:rest | I:1",
+   "58: Bbmaj7@1 | V:rest | I:3",
+   "59: Dm@1 | V:rest | I:2",
+   "60: Dm@1 | V:rest | I:4",
+   "61: Bbmaj7@1 | V:rest | I:1",
+   "62: Bbmaj7@1 | V:rest | I:0",
+   "-- S4 outro --",
+   "63: Dm@1 | V:rest | I:4",
+   "64: Dm@1 | V:rest | I:4",
+   "65: Dm@1 | V:rest | I:1"
+  ]
+ }
+}

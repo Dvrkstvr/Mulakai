@@ -1,0 +1,224 @@
+{
+ "song": {
+  "id": "95c93e3d-b9e4-483e-931e-8e0dbde17f24",
+  "name": "Acid Houzzzz",
+  "text": "reharmonize the first chorus with jazz chords, changing the root of the chords"
+ },
+ "v1": "83921775-d3d3-4bd6-b598-0e56d0b01d7c",
+ "v2": "f0cef09a-1e0f-4de7-b108-c4c3ef7f0499",
+ "label": "score edit · REHARMONIZE 18–33 · bars 18–33 spliced",
+ "splice": {
+  "kind": "reharmonize",
+  "bars": [
+   18,
+   33
+  ],
+  "lengthDiffS": -0.0001
+ },
+ "whole": false,
+ "fallback": null,
+ "ops": [
+  {
+   "op": "REHARMONIZE",
+   "from_bar": 18,
+   "to_bar": 33,
+   "chords": [
+    {
+     "bar": 18,
+     "beat": 1,
+     "root": "B",
+     "quality": "m7"
+    },
+    {
+     "bar": 18,
+     "beat": 3,
+     "root": "D",
+     "quality": "7"
+    },
+    {
+     "bar": 18,
+     "beat": 4,
+     "root": "F#",
+     "quality": "maj7"
+    },
+    {
+     "bar": 19,
+     "beat": 1,
+     "root": "D",
+     "quality": "m7"
+    },
+    {
+     "bar": 20,
+     "beat": 1,
+     "root": "B",
+     "quality": "7"
+    },
+    {
+     "bar": 20,
+     "beat": 3,
+     "root": "D",
+     "quality": "maj7"
+    },
+    {
+     "bar": 20,
+     "beat": 4,
+     "root": "F#",
+     "quality": "m7"
+    },
+    {
+     "bar": 21,
+     "beat": 1,
+     "root": "B",
+     "quality": "m7"
+    },
+    {
+     "bar": 22,
+     "beat": 1,
+     "root": "D",
+     "quality": "7"
+    },
+    {
+     "bar": 22,
+     "beat": 3,
+     "root": "F#",
+     "quality": "maj7"
+    },
+    {
+     "bar": 22,
+     "beat": 4,
+     "root": "B",
+     "quality": "m7"
+    },
+    {
+     "bar": 23,
+     "beat": 1,
+     "root": "D",
+     "quality": "m7"
+    },
+    {
+     "bar": 24,
+     "beat": 1,
+     "root": "B",
+     "quality": "7"
+    },
+    {
+     "bar": 24,
+     "beat": 3,
+     "root": "D",
+     "quality": "maj7"
+    },
+    {
+     "bar": 24,
+     "beat": 4,
+     "root": "F#",
+     "quality": "m7"
+    },
+    {
+     "bar": 25,
+     "beat": 1,
+     "root": "B",
+     "quality": "m7"
+    },
+    {
+     "bar": 26,
+     "beat": 1,
+     "root": "D",
+     "quality": "7"
+    },
+    {
+     "bar": 26,
+     "beat": 3,
+     "root": "F#",
+     "quality": "maj7"
+    },
+    {
+     "bar": 26,
+     "beat": 4,
+     "root": "B",
+     "quality": "m7"
+    },
+    {
+     "bar": 27,
+     "beat": 1,
+     "root": "D",
+     "quality": "m7"
+    },
+    {
+     "bar": 28,
+     "beat": 1,
+     "root": "B",
+     "quality": "7"
+    },
+    {
+     "bar": 28,
+     "beat": 3,
+     "root": "D",
+     "quality": "maj7"
+    },
+    {
+     "bar": 28,
+     "beat": 4,
+     "root": "F#",
+     "quality": "m7"
+    },
+    {
+     "bar": 29,
+     "beat": 1,
+     "root": "B",
+     "quality": "m7"
+    },
+    {
+     "bar": 30,
+     "beat": 1,
+     "root": "D",
+     "quality": "7"
+    },
+    {
+     "bar": 30,
+     "beat": 3,
+     "root": "F#",
+     "quality": "maj7"
+    },
+    {
+     "bar": 30,
+     "beat": 4,
+     "root": "B",
+     "quality": "m7"
+    },
+    {
+     "bar": 31,
+     "beat": 1,
+     "root": "D",
+     "quality": "m7"
+    },
+    {
+     "bar": 32,
+     "beat": 1,
+     "root": "B",
+     "quality": "7"
+    },
+    {
+     "bar": 32,
+     "beat": 3,
+     "root": "D",
+     "quality": "maj7"
+    },
+    {
+     "bar": 32,
+     "beat": 4,
+     "root": "F#",
+     "quality": "m7"
+    },
+    {
+     "bar": 33,
+     "beat": 1,
+     "root": "B",
+     "quality": "m7"
+    }
+   ]
+  }
+ ],
+ "seconds": 78.87860416666668,
+ "duration": 78.87860416666668,
+ "editText": "reharmonize the first chorus with jazz chords, changing the root of the chords"
+}

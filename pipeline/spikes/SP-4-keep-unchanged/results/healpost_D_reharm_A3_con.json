@@ -1,0 +1,32 @@
+{
+ "id": "D_reharm_A3_con",
+ "gain_applied_by_acestep": 0.8905185961458253,
+ "gain_db": -1.0071401400913205,
+ "len_in": 7731814,
+ "len_out_raw": 7729920,
+ "tail_restored_samples": 1894,
+ "max_abs_residual_outside": 5.960464477539063e-08,
+ "samples_different_outside": 0,
+ "of_which_not_where_src_exceeds_full_scale": 0,
+ "src_peak": 0.994342565536499,
+ "windows": [
+  {
+   "window_s": [
+    54.01,
+    57.01
+   ],
+   "lufs_in": -13.179280978789599,
+   "lufs_out": -16.38535611232744,
+   "lufs_delta": -3.2060751335378406
+  },
+  {
+   "window_s": [
+    74.211,
+    77.211
+   ],
+   "lufs_in": -13.577131108204247,
+   "lufs_out": -13.886950425020187,
+   "lufs_delta": -0.30981931681593977
+  }
+ ]
+}

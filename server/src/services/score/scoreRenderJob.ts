@@ -1,17 +1,15 @@
 /**
  * APPLY & RENDER (F-023): queue kind `scoreRender`, its own GPU slot (the review never holds one).
  * When its turn comes it re-checks the song (scoreRenderCheck; a refusal starts no engine job), then
- * sends the edited score to YuE2 (yue2Score), polls like a first take (enginePoll, D-036), and saves
+ * sends the edited score to YuE2 and polls like a first take (scoreRenderRun, D-036), and saves
  * the result as a new base version (scoreVersion). A failed render saves nothing and keeps the plan
  * for RETRY RENDER; CANCEL is ABORT: the slot is held while YuE2 drains, and no version is made.
  */
 import crypto from 'node:crypto';
 import { config } from '../../config.js';
-import { fetchAudio, fetchScore, submit, type EngineTarget } from '../engineClient.js';
-import { pollEngine, stopEngineJob } from '../enginePoll.js';
+import { fetchAudio, fetchScore, type EngineTarget } from '../engineClient.js';
 import { yue2Engine } from '../engines/yue2.js';
-import { buildYue2ScoreRequest } from '../engines/yue2Score.js';
-import { getQueued, getRunning } from '../genQueue.js';
+import { getQueued, getRunning, type GenKind } from '../genQueue.js';
 import { ABORTED_AFTER_SAVE, queueJob } from '../jobRunner.js';
 import { wasAborted, type Job } from '../jobRegistry.js';
 import { songTitle } from '../queueGuards.js';
@@ -19,6 +17,7 @@ import { loadedModels, type LoadedModel } from './ollamaControl.js';
 import type { Plan } from './planTypes.js';
 import { dropPlan, getPlanById, noteRender, type RenderRun } from './planStore.js';
 import { renderRefusal } from './scoreRenderCheck.js';
+import { runScoreRender } from './scoreRenderRun.js';
 import type { ScoreSource } from './scoreSource.js';
 import { scoreStatus, type ScoreStatus } from './scoreStatus.js';
 import { persistScoreVersion } from './scoreVersion.js';
@@ -41,9 +40,13 @@ export function renderDeps(over: Partial<RenderDeps> = {}): RenderDeps {
 
 const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
-/** An edit on this song that is queued or running (SCORE's own jobs aside), by what it does. */
+/** The kinds that change a song's audio under a plan. Readings (timings, transcribe incl. the chat
+ * analysis, lyrics, analyze, lm) and SCORE's own jobs never stale one (Q-038 #4, D-173). */
+const EDIT_KINDS: ReadonlySet<GenKind> = new Set<GenKind>(['repaint', 'regenerate', 'retake', 'addLayer', 'split']);
+
+/** An edit on this song that is queued or running, by what it does. */
 function pendingEdit(songId: string): string | null {
-  const job = [getRunning(), ...getQueued()].find((j) => j?.songId === songId && j.kind !== 'plan' && j.kind !== 'scoreRender');
+  const job = [getRunning(), ...getQueued()].find((j) => j?.songId === songId && EDIT_KINDS.has(j.kind));
   return job ? job.label ?? job.kind : null;
 }
 
@@ -76,22 +79,13 @@ export function startScoreRender(songId: string, planId: string, deps: RenderDep
       throw new Error(checked.refusal);
     }
     const { plan, source } = checked;
-    // A plan's edited lyrics (REPEAT / CUT / REWRITE_LYRICS) when it has them, else the base's as stored.
-    const lyrics = plan.lyrics ?? source.lyrics ?? '';
-    const request = buildYue2ScoreRequest({ abc: plan.abc, style: plan.style, lyrics, seed: source.seed ?? 0 });
-    const taskId = await submit(deps.target, { ...request }, job.id);
-    job.taskId = taskId;
-    if (wasAborted(job)) {
-      await stopEngineJob(deps.target, taskId); // CANCEL landed while YuE2 was accepting the job
-      return;
-    }
-    job.status = 'running';
-    const finished = await pollEngine(job, deps.target);
-    if (!finished) return;
+    const take = await runScoreRender(job, deps.target, plan, source);
+    if (!take) return;
+    const { taskId, request } = take;
     const audio = await fetchAudio(deps.target, taskId);
     const score = await fetchScore(deps.target, taskId).catch(() => null);
     if (wasAborted(job)) return; // CANCEL after YuE2 finished but before the save: still no version
-    run.version = await persistScoreVersion({ songId, plan, source, request, audio, score, truncated: finished.truncated });
+    run.version = await persistScoreVersion({ songId, plan, source, request, audio, score, truncated: take.truncated });
     dropPlan(songId);
     if (wasAborted(job)) {
       job.error = ABORTED_AFTER_SAVE; // a save in progress cannot be taken back

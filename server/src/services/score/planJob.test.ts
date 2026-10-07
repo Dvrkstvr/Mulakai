@@ -65,9 +65,19 @@ describe('plan job (F-019, F-020)', () => {
     expect(events).toEqual(['ask', 'ask', 'ask', 'unload', 'empty', `repaint (ps polls: ${polls})`]);
     expect(ollama.loaded).toBeNull();
     const plan = getPlan(SONG)!;
-    expect(plan).toMatchObject({ songId: SONG, baseVersionId: 'v1', fingerprint: 'l1|v1|v1', attempts: 3, ops: [{ op: 'SET_TEMPO', bpm: 88 }] });
+    expect(plan).toMatchObject({ songId: SONG, baseVersionId: 'v1', fingerprint: 'l1|v1|v1', attempts: 3, ops: [{ op: 'SET_TEMPO', bpm: 88 }],
+      renderMode: { cot: 'full', reason: 'chords' } });
     expect(plan.abc).toContain('Q:1/4=88');
     expect(lastRun(SONG)).toMatchObject({ jobId: job.id, planId: plan.id, reasons: [] });
+  });
+
+  it('a chord-free score plans with render mode melody (F-065, D-132)', async () => {
+    ollama = await startFakeOllama();
+    ollama.chats.push({ content: TEMPO });
+    const chordFree = status({ read: { ...status().read!, chordsPresent: false } });
+    const job = await settled(startPlan(SONG, 'set it to 88 BPM', deps({ status: async () => chordFree })).id);
+    expect(job.status).toBe('done');
+    expect(getPlan(SONG)?.renderMode).toEqual({ cot: 'melody', reason: 'melody' });
   });
 
   it("feeds per-op reasons back and, after 3 attempts, ends in 'check failed' with them, still unloading (F-019 #3)", async () => {

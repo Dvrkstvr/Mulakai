@@ -4,13 +4,14 @@
 
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
-- focus: score agent for YuE2 songs (D-005..D-007); existing app adopted at stage 7 verify-only
-- stage: 7 Build — M2 DONE 2026-10-06 (verify 5/5, review, curate; #137–#141 merged); next: SP-4 spike (running), then the chat feature (D-079, Q-054) before M3
-- clarity: blocking 0 · open assumable/deferred listed in open-questions.md (latest Q-052) · decisions to D-076
-- feasibility: amber · H-open 1 (R-024 keep-unchanged, SP-4 running) · spiked 4 · owed: SP-4 listen
-- milestone: M2 done · features passing 24/39 · owed: M2 listen pair 2 (unjudged), M1 phrase listen
-- autopilot: none running
-- next: SP-4 RESULT.md + user listen → PLAN.md section for chat-first (Q-054, user sign-off) → scope; W10 nits Q-038/Q-041/Q-052
+- focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
+- stage: 7 build — C3 DONE · C0b DONE 2026-10-07 (built #177 #181, reviewed #185, live-verified + fixed #186, curated); F-050 waits on the owner's listen
+- clarity: blocking 0 · latest Q-108 · decisions to D-170
+- feasibility: amber · H-open 1 (R-024: SP-4 ear half owed) · R-025 repaint launcher unverified · R-027 edit tail · spiked 6
+- milestone: C0a + C3 + C0b done · features passing 37/81 (C0b: F-046..F-049; F-050 held by instrument drift, D-170)
+- autopilot: stopped — C0b reached (run 3, 7/12 rounds); listen in (D-170)
+- owed: cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase (C0b listen done: D-170)
+- next: SP-6 instrument hold (D-170: re-sung span drifts instruments) → F-050; then the next milestone
 
 ## Stages
 | # | Stage | State | Gate | Date |
@@ -22,8 +23,8 @@
 | 4 | Scope | done | 5/5 must; user signed off (D-026) | 2026-10-03 |
 | 5 | Design | done | 3/3 must; mockup signed off (D-032) | 2026-10-03 |
 | 6 | Architecture | done | 3/4 + context budget lands in W0 (D-046) | 2026-10-03 |
-| 7 | Build | active (M2 done 2026-10-06: 5/5, reviewed, curated) | M2 gate met 4/4 | 2026-10-06 |
-| 8 | Review | M2 code: 0 blocking, 2 should fixed (0629e20), 3 nit (1 fixed, 2 → Q-052) | 2/2 must | 2026-10-05 |
+| 7 | Build | active (C0b done 2026-10-07: CB-6 live, fixes #186, curated) | C0b gate met (F-050 #3 owed) | 2026-10-07 |
+| 8 | Review | C0b code: 0 blocking, 0 should, 3 nits (2 fixed #185, 1 deferred) | 2/2 must | 2026-10-07 |
 | 9 | Release | n/a (local single-user app) | — | — |
 
 ## Notes

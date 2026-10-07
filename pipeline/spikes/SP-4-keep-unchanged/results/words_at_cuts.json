@@ -1,0 +1,709 @@
+{
+ "A_reharm_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 124.33,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 124.296,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 146.371,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 146.37,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "A_phrase_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 135.35,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 135.442,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 146.485,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 146.37,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "A_lyrics_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 124.33,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 124.384,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 168.538,
+   "straddles": [
+    "watching!"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 168.39,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "A_repeat_C1": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 168.39,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "copy",
+   "src_t": 124.32,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "copy",
+   "src_t": 168.39,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 168.39,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "A_cut_C1": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 25.08,
+   "straddles": [
+    "Midnight"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "base",
+   "src_t": 124.328,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "B_reharm_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 53.26,
+   "straddles": [
+    "dime,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 53.305,
+   "straddles": [
+    "dime,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 73.952,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 73.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "B_phrase_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 135.02,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 135.991,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 146.418,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 145.15,
+   "straddles": [
+    "Uh,"
+   ],
+   "words_within_80ms_of_cut": [
+    "Uh,"
+   ]
+  }
+ ],
+ "B_lyrics_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 53.26,
+   "straddles": [
+    "dime,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 53.182,
+   "straddles": [
+    "vete,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 73.79,
+   "straddles": [
+    "necesito"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 73.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "B_repeat_C1": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 73.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "copy",
+   "src_t": 53.21,
+   "straddles": [
+    "dime,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "copy",
+   "src_t": 73.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 73.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "B_cut_C1": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 73.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "base",
+   "src_t": 114.586,
+   "straddles": [
+    "dime,"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "C_reharm_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 37.16,
+   "straddles": [
+    "falle,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 37.06,
+   "straddles": [
+    "falle,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 59.64,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 59.75,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "C_phrase_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 59.75,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 59.721,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 71.021,
+   "straddles": [
+    "Lachen"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 71.05,
+   "straddles": [
+    "Lachen"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "C_lyrics_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 37.16,
+   "straddles": [
+    "falle,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 37.162,
+   "straddles": [
+    "los,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 59.73,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 59.75,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "C_repeat_C1": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 59.75,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "copy",
+   "src_t": 37.16,
+   "straddles": [
+    "falle,"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "copy",
+   "src_t": 59.75,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 59.75,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "C_cut_C1": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 71.05,
+   "straddles": [
+    "Lachen"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "base",
+   "src_t": 96.453,
+   "straddles": [
+    "kämpfe"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "D_reharm_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 55.51,
+   "straddles": [],
+   "words_within_80ms_of_cut": [
+    "dime",
+    "¿Qué"
+   ]
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 55.69,
+   "straddles": [
+    "¿Qué"
+   ],
+   "words_within_80ms_of_cut": [
+    "dime",
+    "¿Qué"
+   ]
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 75.891,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 75.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "D_phrase_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 141.39,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 139.662,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 149.763,
+   "straddles": [],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 151.49,
+   "straddles": [
+    "oh,"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "D_lyrics_A3": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 55.51,
+   "straddles": [],
+   "words_within_80ms_of_cut": [
+    "dime",
+    "¿Qué"
+   ]
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "new",
+   "src_t": 55.667,
+   "straddles": [],
+   "words_within_80ms_of_cut": [
+    "no",
+    "Quiero"
+   ]
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "new",
+   "src_t": 75.871,
+   "straddles": [
+    "necesito"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 75.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "D_repeat_C1": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 75.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "copy",
+   "src_t": 55.502,
+   "straddles": [],
+   "words_within_80ms_of_cut": [
+    "dime",
+    "¿Qué"
+   ]
+  },
+  {
+   "join": 1,
+   "side": "before",
+   "piece": "copy",
+   "src_t": 75.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 1,
+   "side": "after",
+   "piece": "base",
+   "src_t": 75.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ],
+ "D_cut_C1": [
+  {
+   "join": 0,
+   "side": "before",
+   "piece": "base",
+   "src_t": 75.71,
+   "straddles": [
+    "Yo"
+   ],
+   "words_within_80ms_of_cut": []
+  },
+  {
+   "join": 0,
+   "side": "after",
+   "piece": "base",
+   "src_t": 118.653,
+   "straddles": [
+    "¿Qué"
+   ],
+   "words_within_80ms_of_cut": []
+  }
+ ]
+}

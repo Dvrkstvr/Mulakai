@@ -1,0 +1,18 @@
+{
+ "id": "B_cut_C1_con",
+ "mode": "conservative",
+ "strength": 0.5,
+ "steps": [
+  {
+   "task_id": "d731b722-ebf3-47af-bfb1-ec19f819cb9a",
+   "seconds": 10.47101092338562,
+   "file": "/v1/audio?path=S%3A%5CAI%20Gen%5CACE-Step-1.5%5C.cache%5Cacestep%5Ctmp%5Capi_audio%5C5691a4b6-e6c7-56d7-35f6-ac7b03e195dc.wav",
+   "bytes": 44820568,
+   "window": [
+    72.21,
+    75.21
+   ]
+  }
+ ],
+ "seconds_total": 10.47101092338562
+}

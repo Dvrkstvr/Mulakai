@@ -1,0 +1,16 @@
+{
+ "name": "transcription-grid-melody-only",
+ "request": {
+  "method": "GET",
+  "path": "/v1/transcriptions/tr-0001/grid"
+ },
+ "response": {
+  "status": 404,
+  "body": {
+   "detail": {
+    "code": "no_grid",
+    "message": "a melody-only transcription keeps no chords"
+   }
+  }
+ }
+}

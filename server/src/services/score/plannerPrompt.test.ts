@@ -112,4 +112,8 @@ describe('retryMessages', () => {
     const next = retryMessages([], '{}', ['op 2 (SET_TEMPO): x'], { legend: 'Your reply made this plan: op 1 = pending op 1.', closing: 'Close.' });
     expect(next[1].content).toBe('Your op list was rejected:\nYour reply made this plan: op 1 = pending op 1.\n- op 2 (SET_TEMPO): x\nClose.');
   });
+
+  it('takes a caller\'s heading (a chat turn\'s reply is not an op list)', () => {
+    expect(retryMessages([], '{}', ['x'], { heading: 'Your reply was rejected:', closing: 'Close.' })[1].content).toBe('Your reply was rejected:\n- x\nClose.');
+  });
 });

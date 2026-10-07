@@ -19,12 +19,13 @@ import { MAX_ATTEMPTS, planAttempts, type AttemptsOutcome } from './planAttempts
 import { askPlanner } from './plannerClient.js';
 import { planMessages, promptChars } from './plannerPrompt.js';
 import { phraseBarsOf } from './phraseRequest.js';
+import { buildPlan } from './planBuild.js';
 import { dropPlan, getPlan, noteRun, setPlan } from './planStore.js';
 import { referentLines, resolveReferent, staleMessage } from './planReferent.js';
 import { pendingLines, reviseRefusal } from './planRevise.js';
 import { reviseContract } from './reviseReply.js';
 import type { ApplyResult, ChatMessage, Op, PlanCause, PlannerReply, PlanPress, ScoreFacts, StaleReferent } from './planTypes.js';
-import { editedBars, withLimits } from './scoreLimits.js';
+import { withLimits } from './scoreLimits.js';
 import { loadedModels, probePlanner, releasePlanner, type LoadedModel, type PlannerTarget } from './ollamaControl.js';
 import { scoreStatus, type ScoreStatus } from './scoreStatus.js';
 import { applyOps, type ApplyBase } from './yueScoreApply.js';
@@ -99,7 +100,7 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
         if (cut) throw new PlanError('check', cut);
         return reply;
       },
-      apply: async (ops) => withLimits(await deps.apply(base, ops), { ops, sections: facts.sections }),
+      apply: async (ops) => withLimits(await deps.apply(base, ops), { ops, sections: facts.sections, blocks: facts.lyric_blocks }),
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
     }, { phraseBars, read: revising?.read, retry: revising?.retry });
   } finally {
@@ -108,15 +109,12 @@ async function plan(job: Job, songId: string, request: string, deps: PlanDeps, s
   }
   if (wasAborted(job)) throw new PlanError('cancelled', 'Aborted');
   if (!outcome.ok) throw new PlanError('check', `${CHECK_FAILED}: ${outcome.reasons.join('; ')}`, outcome.reasons);
-  const { applied } = outcome;
   const planId = crypto.randomUUID();
-  setPlan({
-    id: planId, songId, baseVersionId: activeVersionId, fingerprint: source.fingerprint, request,
-    ops: outcome.ops, verdicts: applied.verdicts, abc: applied.abc, style: applied.style, lyrics: applied.lyrics ?? null,
-    checks: { bars: editedBars(applied, facts), seconds: applied.seconds, tokens: applied.tokens, chordsPresent: applied.chords_present, changed: applied.changed },
-    attempts: outcome.attempts, refusals: outcome.refusals, createdAt: Date.now(),
+  setPlan(buildPlan({
+    id: planId, createdAt: Date.now(), songId, source: { activeVersionId, fingerprint: source.fingerprint }, request, facts,
+    chordsPresent: read.chordsPresent, ops: outcome.ops, applied: outcome.applied, attempts: outcome.attempts, refusals: outcome.refusals,
     referent, revision: pending ? (pending.revision ?? 1) + 1 : 1, since: revising?.since() ?? null,
-  });
+  }));
   noteRun(songId, { jobId: job.id, request, reasons: [], planId, cause: null, revise: press.revise ?? null });
   job.progressText = undefined;
   job.status = 'done';

@@ -1,0 +1,6904 @@
+{
+ "songs": {
+  "A": {
+   "context": {
+    "base_abs_phase_err_ms_bar_lines": {
+     "median": 4.338796127194257,
+     "p95": 109.94591947796738,
+     "max": 150.0
+    },
+    "base_abs_lufs_step_bar_lines": {
+     "median": 0.525525376543003,
+     "p95": 4.6521378703231555
+    },
+    "beat_s": 0.6896551724137931,
+    "bar_s": 2.7586206896551726,
+    "base_grid_offset": 0,
+    "base_root_agree": 1.0,
+    "base_thinned": false
+   },
+   "edits": {
+    "reharm": {
+     "label": "REHARMONIZE 8 bars of the first chorus",
+     "kind": "local",
+     "span_bars_0based": [
+      46,
+      54
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9376114081996436,
+      "span": 1.0,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6889791666666667,
+       "changed_ranges_s": [
+        [
+         123.99,
+         124.33
+        ],
+        [
+         146.4,
+         146.75
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9644128113879004,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": 0.8272434046802485,
+         "corr": 0.3606184531115449,
+         "state": "ok",
+         "raw_misalign_ms": -3.6528741307924384,
+         "raw_corr": 0.35274501896292415,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 6.040551137379472,
+         "lufs_excess": 0.6212037596201121,
+         "centroid_excess_hz": 962.1938617175767,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 146.40445833333334,
+         "lag_ms": -1.0003953181763106,
+         "corr": 0.5448921278775145,
+         "state": "ok",
+         "raw_misalign_ms": 0.8184200591921489,
+         "raw_corr": 0.5277642278294408,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.297521161467225,
+         "lufs_excess": 3.806714598474091,
+         "centroid_excess_hz": -269.6816026002964,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.056336402893066406,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.7557916666666666,
+       "changed_ranges_s": [
+        [
+         122.95,
+         124.33
+        ],
+        [
+         146.4,
+         147.78
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9644128113879004,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": 0.7547630244652402,
+         "corr": 0.3606218862863267,
+         "state": "ok",
+         "raw_misalign_ms": -3.6528741307924384,
+         "raw_corr": 0.35274501896292415,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 5.728988920669325,
+         "lufs_excess": 0.30964154290996504,
+         "centroid_excess_hz": 1000.6150622377515,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 146.40445833333334,
+         "lag_ms": -1.1112325305766342,
+         "corr": 0.5938513221511614,
+         "state": "ok",
+         "raw_misalign_ms": 0.8184200591921489,
+         "raw_corr": 0.5277642278294408,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.617037935557747,
+         "lufs_excess": 4.126231372564613,
+         "centroid_excess_hz": -224.460272635072,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.06237387657165527,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6890833333333334,
+       "changed_ranges_s": [
+        [
+         123.99,
+         124.33
+        ],
+        [
+         146.4,
+         146.75
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9644128113879004,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": 0.8120826959189609,
+         "corr": 0.37518322799781567,
+         "state": "ok",
+         "raw_misalign_ms": -3.6528741307924384,
+         "raw_corr": 0.35274501896292415,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 5.832198259600107,
+         "lufs_excess": 0.4128508818407468,
+         "centroid_excess_hz": 960.7450670147421,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 146.40445833333334,
+         "lag_ms": -0.9373014412829855,
+         "corr": 0.5409323642735889,
+         "state": "ok",
+         "raw_misalign_ms": 0.8184200591921489,
+         "raw_corr": 0.5277642278294408,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.1248288633160168,
+         "lufs_excess": 0.6340223003228829,
+         "centroid_excess_hz": -272.521438819527,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.2671213150024414,
+       "gain_db": {
+        "in": -0.5290221995638404,
+        "out": 3.691131389875734
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0494583333333334,
+       "changed_ranges_s": [
+        [
+         122.81,
+         124.33
+        ],
+        [
+         146.4,
+         147.93
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9870609981515711,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 1.0
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": 150.0,
+         "corr": 0.06696955142415961,
+         "state": "unresolved",
+         "raw_misalign_ms": -3.6528741307924384,
+         "raw_corr": 0.35274501896292415,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": 2.7812576096087493,
+         "lufs_excess": -2.6380897681506106,
+         "centroid_excess_hz": 1490.9555344804437,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 146.40445833333334,
+         "lag_ms": -3.525384841046111,
+         "corr": 0.29877766179371906,
+         "state": "ok",
+         "raw_misalign_ms": 0.8184200591921489,
+         "raw_corr": 0.5277642278294408,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.5920617604045635,
+         "lufs_excess": 3.1012551974114295,
+         "centroid_excess_hz": 429.8982632879648,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010350378747,
+        "samples_different_outside_windows": 240,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         0.19016751924658237,
+         -7.800679099326869
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 23.430423498153687,
+       "gain_db": {
+        "in": -0.5290221995638404,
+        "out": 3.691131389875734
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0991875,
+       "changed_ranges_s": [
+        [
+         122.78,
+         124.33
+        ],
+        [
+         146.4,
+         147.95
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9569892473118278,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 1.0
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": -1.6936760725233049,
+         "corr": 0.08451552209783267,
+         "state": "unresolved",
+         "raw_misalign_ms": -3.6528741307924384,
+         "raw_corr": 0.35274501896292415,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.2775349824742754,
+         "lufs_excess": -2.1418123952850845,
+         "centroid_excess_hz": 1398.8001860155648,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 146.40445833333334,
+         "lag_ms": -3.4789503631094774,
+         "corr": 0.28930410991322963,
+         "state": "ok",
+         "raw_misalign_ms": 0.8184200591921489,
+         "raw_corr": 0.5277642278294408,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.4310357250378143,
+         "lufs_excess": 2.9402291620446803,
+         "centroid_excess_hz": 466.62369697937163,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010350378747,
+        "samples_different_outside_windows": 240,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.1297982681134844,
+         -7.992722472163392
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 23.805052995681763,
+       "gain_db": {
+        "in": -0.5290221995638404,
+        "out": 3.691131389875734
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "phrase": {
+     "label": "WRITE PHRASE 4 bars",
+     "kind": "local",
+     "span_bars_0based": [
+      50,
+      54
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9235993208828522,
+      "span": 0.9268292682926829,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6887083333333334,
+       "changed_ranges_s": [
+        [
+         135.01,
+         135.35
+        ],
+        [
+         146.39,
+         146.74
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9656357388316151,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.8292682926829269,
+        "control": 0.9268292682926829
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 135.35,
+         "lag_ms": -0.27571156793231494,
+         "corr": 0.8906518858738013,
+         "state": "ok",
+         "raw_misalign_ms": -8.13835936294493,
+         "raw_corr": 0.7765394004576788,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.9068113555510156,
+         "lufs_excess": 0.28611458707352,
+         "centroid_excess_hz": 367.96042022744064,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 146.39325,
+         "lag_ms": 0.457153276889957,
+         "corr": 0.5998395082721714,
+         "state": "ok",
+         "raw_misalign_ms": 5.093963440431102,
+         "raw_corr": 0.5034110766966117,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.733894069119879,
+         "lufs_excess": 4.243087506126745,
+         "centroid_excess_hz": 427.03970600638286,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.05203819274902344,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.7527083333333335,
+       "changed_ranges_s": [
+        [
+         133.97,
+         135.35
+        ],
+        [
+         146.39,
+         147.77
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9690346083788707,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.8095238095238095,
+        "control": 0.9268292682926829
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 135.35,
+         "lag_ms": -0.42341927694560944,
+         "corr": 0.8897864401005406,
+         "state": "ok",
+         "raw_misalign_ms": -8.13835936294493,
+         "raw_corr": 0.7765394004576788,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.7231816652369467,
+         "lufs_excess": 0.10248489675945116,
+         "centroid_excess_hz": 144.84661668210651,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 146.39325,
+         "lag_ms": 0.16750612048398694,
+         "corr": 0.6477785866605291,
+         "state": "ok",
+         "raw_misalign_ms": 5.093963440431102,
+         "raw_corr": 0.5034110766966117,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.295815636516108,
+         "lufs_excess": 3.8050090735229745,
+         "centroid_excess_hz": 323.5659850595323,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.06493330001831055,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6888125,
+       "changed_ranges_s": [
+        [
+         135.01,
+         135.35
+        ],
+        [
+         146.39,
+         146.74
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9656357388316151,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.8780487804878048,
+        "control": 0.9268292682926829
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 135.35,
+         "lag_ms": -0.14174883866373092,
+         "corr": 0.893059415770702,
+         "state": "ok",
+         "raw_misalign_ms": -8.13835936294493,
+         "raw_corr": 0.7765394004576788,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.9710989538766661,
+         "lufs_excess": 0.35040218539917056,
+         "centroid_excess_hz": 369.6425467990987,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 146.39325,
+         "lag_ms": 0.46391563651253226,
+         "corr": 0.5992456337396869,
+         "state": "ok",
+         "raw_misalign_ms": 5.093963440431102,
+         "raw_corr": 0.5034110766966117,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.8038535915062575,
+         "lufs_excess": 1.3130470285131235,
+         "centroid_excess_hz": 443.8585280503553,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.24488401412963867,
+       "gain_db": {
+        "in": -0.6382582734508233,
+        "out": 4.120390705467029
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0496875,
+       "changed_ranges_s": [
+        [
+         133.83,
+         135.35
+        ],
+        [
+         146.39,
+         147.92
+        ]
+       ],
+       "rest_melody_F1_fold": 0.965391621129326,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.8500000000000001,
+        "control": 0.9268292682926829
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 135.35,
+         "lag_ms": -0.6320005280689229,
+         "corr": 0.7592006041983238,
+         "state": "ok",
+         "raw_misalign_ms": -8.13835936294493,
+         "raw_corr": 0.7765394004576788,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.9212702034404767,
+         "lufs_excess": 1.3005734349629812,
+         "centroid_excess_hz": 153.71257282981674,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 146.39325,
+         "lag_ms": -1.7093550726140398,
+         "corr": 0.28842682411574366,
+         "state": "ok",
+         "raw_misalign_ms": 5.093963440431102,
+         "raw_corr": 0.5034110766966117,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.075487148350046,
+         "lufs_excess": 1.584680585356912,
+         "centroid_excess_hz": 377.71415268472856,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.000001032022858,
+        "samples_different_outside_windows": 671,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.237841785857926,
+         -13.433288797489196
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.172162771224976,
+       "gain_db": {
+        "in": -0.6382582734508233,
+        "out": 4.120390705467029
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0996041666666665,
+       "changed_ranges_s": [
+        [
+         133.8,
+         135.35
+        ],
+        [
+         146.39,
+         147.94
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9946902654867257,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.8500000000000001,
+        "control": 0.9268292682926829
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 135.35,
+         "lag_ms": -0.6857942307108837,
+         "corr": 0.772903709765327,
+         "state": "ok",
+         "raw_misalign_ms": -8.13835936294493,
+         "raw_corr": 0.7765394004576788,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.9701024190063805,
+         "lufs_excess": 1.349405650528885,
+         "centroid_excess_hz": 143.34343186131196,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 146.39325,
+         "lag_ms": -1.7078435268871046,
+         "corr": 0.2870162349912068,
+         "state": "ok",
+         "raw_misalign_ms": 5.093963440431102,
+         "raw_corr": 0.5034110766966117,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.0804021313343384,
+         "lufs_excess": 1.5895955683412044,
+         "centroid_excess_hz": 436.7264800402104,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.000001032022858,
+        "samples_different_outside_windows": 671,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.811388855047353,
+         -14.748905554513323
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 23.219508409500122,
+       "gain_db": {
+        "in": -0.6382582734508233,
+        "out": 4.120390705467029
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "lyrics": {
+     "label": "REWRITE LYRICS first chorus",
+     "kind": "local",
+     "span_bars_0based": [
+      46,
+      62
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9579158316633267,
+      "span": null,
+      "root_unedited": 0.9791666666666666
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6886041666666667,
+       "changed_ranges_s": [
+        [
+         123.99,
+         124.33
+        ],
+        [
+         168.48,
+         168.83
+        ]
+       ],
+       "rest_melody_F1_fold": 0.975103734439834,
+       "wer_vs_old": 1.0,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.95,
+        "control": 0.95
+       },
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": -0.2775341033858798,
+         "corr": 0.359532811547232,
+         "state": "ok",
+         "raw_misalign_ms": 3.8313507765767016,
+         "raw_corr": 0.290176187016824,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 5.623214372663536,
+         "lufs_excess": 0.20386699490417648,
+         "centroid_excess_hz": 376.7558404694996,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 168.48414583333334,
+         "lag_ms": 140.1346541948238,
+         "corr": 0.33507004951352715,
+         "state": "unresolved",
+         "raw_misalign_ms": 17.975909205115002,
+         "raw_corr": 0.39689504382541624,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -3.754398252740476,
+         "lufs_excess": -2.431773711762915,
+         "centroid_excess_hz": -178.80437546130736,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.05346322059631348,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.7474583333333333,
+       "changed_ranges_s": [
+        [
+         122.95,
+         124.33
+        ],
+        [
+         168.48,
+         169.86
+        ]
+       ],
+       "rest_melody_F1_fold": 0.975103734439834,
+       "wer_vs_old": 0.9523809523809523,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.95,
+        "control": 0.95
+       },
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": -0.4764789059446253,
+         "corr": 0.35668213222338174,
+         "state": "ok",
+         "raw_misalign_ms": 3.8313507765767016,
+         "raw_corr": 0.290176187016824,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 5.902388461258775,
+         "lufs_excess": 0.48304108349941544,
+         "centroid_excess_hz": 398.4053541457574,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 168.48414583333334,
+         "lag_ms": 140.41694332093135,
+         "corr": 0.2985204926275743,
+         "state": "unresolved",
+         "raw_misalign_ms": 17.975909205115002,
+         "raw_corr": 0.39689504382541624,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -3.5077084192575043,
+         "lufs_excess": -2.1850838782799435,
+         "centroid_excess_hz": -199.86522287236926,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.052237749099731445,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.68825,
+       "changed_ranges_s": [
+        [
+         123.99,
+         124.33
+        ],
+        [
+         168.48,
+         168.83
+        ]
+       ],
+       "rest_melody_F1_fold": 0.975103734439834,
+       "wer_vs_old": 1.0,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.95,
+        "control": 0.95
+       },
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": -0.26807239205932165,
+         "corr": 0.35566688793261375,
+         "state": "ok",
+         "raw_misalign_ms": 3.8313507765767016,
+         "raw_corr": 0.290176187016824,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 5.296001082022814,
+         "lufs_excess": -0.1233462957365461,
+         "centroid_excess_hz": 371.7429299763098,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 168.48414583333334,
+         "lag_ms": 140.1074907368281,
+         "corr": 0.3335614251445319,
+         "state": "unresolved",
+         "raw_misalign_ms": 17.975909205115002,
+         "raw_corr": 0.39689504382541624,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -1.3966299843787695,
+         "lufs_excess": -0.07400544340120874,
+         "centroid_excess_hz": -181.06644692026765,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.2398216724395752,
+       "gain_db": {
+        "in": -0.27688705431888216,
+        "out": -2.612578202230665
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": false
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0494375,
+       "changed_ranges_s": [
+        [
+         122.81,
+         124.33
+        ],
+        [
+         168.48,
+         170.01
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9856850715746421,
+       "wer_vs_old": 0.9523809523809523,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 1.0,
+        "control": 0.95
+       },
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": 150.0,
+         "corr": 0.08974225150222523,
+         "state": "unresolved",
+         "raw_misalign_ms": 3.8313507765767016,
+         "raw_corr": 0.290176187016824,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": 2.708065098311865,
+         "lufs_excess": -2.711282279447495,
+         "centroid_excess_hz": 1067.4536870709162,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 168.48414583333334,
+         "lag_ms": 0.02457704857144563,
+         "corr": 0.6399396682693358,
+         "state": "ok",
+         "raw_misalign_ms": 17.975909205115002,
+         "raw_corr": 0.39689504382541624,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -3.3563926789909218,
+         "lufs_excess": -2.033768138013361,
+         "centroid_excess_hz": -178.66052315512115,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.6135053534180418,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -0.8574889880802896,
+         -4.479634265673571
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.173213720321655,
+       "gain_db": {
+        "in": -0.27688705431888216,
+        "out": -2.612578202230665
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0983958333333335,
+       "changed_ranges_s": [
+        [
+         122.78,
+         124.33
+        ],
+        [
+         168.48,
+         170.03
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9877049180327869,
+       "wer_vs_old": 0.9523809523809523,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 1.0,
+        "control": 0.95
+       },
+       "seams": [
+        {
+         "at_s": 124.33,
+         "lag_ms": 150.0,
+         "corr": 0.08271036807833361,
+         "state": "unresolved",
+         "raw_misalign_ms": 3.8313507765767016,
+         "raw_corr": 0.290176187016824,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": 3.261918713569816,
+         "lufs_excess": -2.1574286641895437,
+         "centroid_excess_hz": 1007.3670292622851,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 168.48414583333334,
+         "lag_ms": -4.271475832372123,
+         "corr": 0.6976209083978815,
+         "state": "ok",
+         "raw_misalign_ms": 17.975909205115002,
+         "raw_corr": 0.39689504382541624,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -4.131653028818157,
+         "lufs_excess": -2.809028487840596,
+         "centroid_excess_hz": -168.08470765226298,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.6135053534180418,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.420384067340539,
+         -6.6365253997086775
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 25.564486503601074,
+       "gain_db": {
+        "in": -0.27688705431888216,
+        "out": -2.612578202230665
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "repeat": {
+     "label": "REPEAT first chorus",
+     "kind": "repeat",
+     "span_bars_0based": [
+      46,
+      62
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9264214046822743,
+      "span": 0.9655172413793103,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "C1": {
+       "variant": "C1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.688125,
+       "changed_ranges_s": [
+        [
+         168.05,
+         168.39
+        ],
+        [
+         212.46,
+         212.8
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9668411867364746,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9285714285714285,
+        "control": 0.9655172413793103
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 168.39,
+         "lag_ms": -0.9769922397209448,
+         "corr": 0.6227470302192406,
+         "state": "ok",
+         "raw_misalign_ms": -10.360624390080872,
+         "raw_corr": 0.5699088089753823,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 8.4806495937303,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 212.46035416666666,
+         "lag_ms": -15.634883438569434,
+         "corr": 0.5431418216738462,
+         "state": "ok",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.9278802536463502,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.04519033432006836,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_bal": {
+       "variant": "C1_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 1.8686875,
+       "changed_ranges_s": [
+        [
+         166.87,
+         168.39
+        ],
+        [
+         212.46,
+         212.8
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9931740614334471,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.5340909090909091,
+        "control": 0.9655172413793103
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 168.39,
+         "lag_ms": 1.0119311302192717,
+         "corr": 0.31052096856182115,
+         "state": "ok",
+         "raw_misalign_ms": -10.360624390080872,
+         "raw_corr": 0.5699088089753823,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 7.9031614010956925,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 212.46035416666666,
+         "lag_ms": -15.6348873527902,
+         "corr": 0.5431418470478095,
+         "state": "ok",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.9278802530793229,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.46662805899070026,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -4.321198593769962
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 12.549238681793213,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_con": {
+       "variant": "C1_con",
+       "null_exact": true,
+       "base_audio_changed_s": 1.8930625,
+       "changed_ranges_s": [
+        [
+         166.84,
+         168.39
+        ],
+        [
+         212.46,
+         212.8
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9931740614334471,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.5227272727272727,
+        "control": 0.9655172413793103
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 168.39,
+         "lag_ms": 1.0326597734005039,
+         "corr": 0.30822260174399113,
+         "state": "ok",
+         "raw_misalign_ms": -10.360624390080872,
+         "raw_corr": 0.5699088089753823,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 7.9569792546381635,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 212.46035416666666,
+         "lag_ms": -15.6348873527902,
+         "corr": 0.5431418470478095,
+         "state": "ok",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.9278802530793229,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.46662805899070026,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -5.598332787971147
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 12.50594162940979,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C2": {
+       "variant": "C2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.7454375,
+       "changed_ranges_s": [
+        [
+         167.01,
+         168.39
+        ],
+        [
+         212.46,
+         213.84
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9598603839441535,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9047619047619048,
+        "control": 0.9655172413793103
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 168.39,
+         "lag_ms": -1.5891687656847717,
+         "corr": 0.6955021097673755,
+         "state": "ok",
+         "raw_misalign_ms": -10.360624390080872,
+         "raw_corr": 0.5699088089753823,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 7.401840828649634,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 212.46035416666666,
+         "lag_ms": -17.00236762239563,
+         "corr": 0.5606907988703459,
+         "state": "ok",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.5507929345891895,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.04802513122558594,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "cut": {
+     "label": "CUT verse (section 2)",
+     "kind": "cut",
+     "span_bars_0based": [
+      10,
+      46
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.7012195121951219,
+      "span": 1.0,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "C1": {
+       "variant": "C1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6891666666666667,
+       "changed_ranges_s": [
+        [
+         24.74,
+         25.08
+        ],
+        [
+         25.08,
+         25.42
+        ]
+       ],
+       "rest_melody_F1_fold": 0.8,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 25.08,
+         "lag_ms": 0.044753821510919556,
+         "corr": 0.9296143766336085,
+         "state": "ok",
+         "raw_misalign_ms": -2.5101796802580028,
+         "raw_corr": 0.7940686059629609,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.7757826413642039,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.027170181274414062,
+       "pass_machine_literal": true,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "C1_bal": {
+       "variant": "C1_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0499791666666667,
+       "changed_ranges_s": [
+        [
+         23.56,
+         25.08
+        ],
+        [
+         25.08,
+         26.6
+        ]
+       ],
+       "rest_melody_F1_fold": 0.744047619047619,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 25.08,
+         "lag_ms": 0.3859754241588632,
+         "corr": 0.5396306314076245,
+         "state": "ok",
+         "raw_misalign_ms": -2.5101796802580028,
+         "raw_corr": 0.7940686059629609,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.317960394367887,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.7347616156707069,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.549621265350062
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 8.259783267974854,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_con": {
+       "variant": "C1_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0994166666666665,
+       "changed_ranges_s": [
+        [
+         23.53,
+         25.08
+        ],
+        [
+         25.08,
+         26.63
+        ]
+       ],
+       "rest_melody_F1_fold": 0.7402985074626866,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 25.08,
+         "lag_ms": 0.4514932896746614,
+         "corr": 0.6044525452800372,
+         "state": "ok",
+         "raw_misalign_ms": -2.5101796802580028,
+         "raw_corr": 0.7940686059629609,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.5767946399771429,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.46662805888592923,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.115820297799873
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 10.475282192230225,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C2": {
+       "variant": "C2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.7504583333333334,
+       "changed_ranges_s": [
+        [
+         23.7,
+         25.08
+        ],
+        [
+         25.08,
+         26.46
+        ]
+       ],
+       "rest_melody_F1_fold": 0.902127659574468,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 25.08,
+         "lag_ms": -0.03214242284963965,
+         "corr": 0.926625656362965,
+         "state": "ok",
+         "raw_misalign_ms": -2.5101796802580028,
+         "raw_corr": 0.7940686059629609,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.5002325869395552,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.0166318416595459,
+       "pass_machine_literal": true,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      }
+     }
+    }
+   }
+  },
+  "B": {
+   "context": {
+    "base_abs_phase_err_ms_bar_lines": {
+     "median": 61.63817067905488,
+     "p95": 138.26981947105378,
+     "max": 150.0
+    },
+    "base_abs_lufs_step_bar_lines": {
+     "median": 1.404941987618705,
+     "p95": 3.3127839606462985
+    },
+    "beat_s": 0.6451612903225806,
+    "bar_s": 2.5806451612903225,
+    "base_grid_offset": 0,
+    "base_root_agree": 0.9672131147540983,
+    "base_thinned": false
+   },
+   "edits": {
+    "reharm": {
+     "label": "REHARMONIZE 8 bars of the first chorus",
+     "kind": "local",
+     "span_bars_0based": [
+      22,
+      30
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9416666666666668,
+      "span": 0.375,
+      "root_unedited": 0.9811320754716981
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6391458333333333,
+       "changed_ranges_s": [
+        [
+         52.94,
+         53.26
+        ],
+        [
+         73.91,
+         74.23
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9943977591036415,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.375,
+        "control": 0.375
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -1.6234136143997924,
+         "corr": 0.32653378255008175,
+         "state": "ok",
+         "raw_misalign_ms": -4.62295556782907,
+         "raw_corr": 0.46610287064186967,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.319680464606494,
+         "lufs_excess": 0.3462781366335346,
+         "centroid_excess_hz": -238.1380716613453,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 73.906625,
+         "lag_ms": -145.55792275782747,
+         "corr": 0.19253416844246157,
+         "state": "unresolved",
+         "raw_misalign_ms": 12.005788721683436,
+         "raw_corr": 0.17868313930723148,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -1.7942183761440393,
+         "lufs_excess": 1.0380865596948379,
+         "centroid_excess_hz": -344.2832834585961,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.04601478576660156,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.5747708333333335,
+       "changed_ranges_s": [
+        [
+         51.97,
+         53.26
+        ],
+        [
+         73.91,
+         75.2
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9915730337078652,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.375,
+        "control": 0.375
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -1.6205020270731127,
+         "corr": 0.32532697556178675,
+         "state": "ok",
+         "raw_misalign_ms": -4.62295556782907,
+         "raw_corr": 0.46610287064186967,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.06451384213579,
+         "lufs_excess": 0.09111151416283114,
+         "centroid_excess_hz": -206.89023049569232,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 73.906625,
+         "lag_ms": -144.8800970630949,
+         "corr": 0.18435105551651287,
+         "state": "unresolved",
+         "raw_misalign_ms": 12.005788721683436,
+         "raw_corr": 0.17868313930723148,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -1.769926475467713,
+         "lufs_excess": 1.0623784603711641,
+         "centroid_excess_hz": -301.8530117869477,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.04854917526245117,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6389791666666667,
+       "changed_ranges_s": [
+        [
+         52.94,
+         53.26
+        ],
+        [
+         73.91,
+         74.23
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9915730337078652,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.375,
+        "control": 0.375
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -1.6211970165734153,
+         "corr": 0.3253140331248713,
+         "state": "ok",
+         "raw_misalign_ms": -4.62295556782907,
+         "raw_corr": 0.46610287064186967,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.078166657537894,
+         "lufs_excess": 0.10476432956493476,
+         "centroid_excess_hz": -238.1470875833229,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 73.906625,
+         "lag_ms": -145.5338889506217,
+         "corr": 0.19352483656438318,
+         "state": "unresolved",
+         "raw_misalign_ms": 12.005788721683436,
+         "raw_corr": 0.17868313930723148,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -2.440799762601973,
+         "lufs_excess": 0.39150517323690437,
+         "centroid_excess_hz": -345.2435043083983,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.240678071975708,
+       "gain_db": {
+        "in": -0.3345325321275201,
+        "out": 0.7943935973826601
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": false
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.050125,
+       "changed_ranges_s": [
+        [
+         51.74,
+         53.26
+        ],
+        [
+         73.91,
+         75.43
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9691011235955057,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.125,
+        "control": 0.375
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -1.297330954809368,
+         "corr": 0.3156173572149181,
+         "state": "ok",
+         "raw_misalign_ms": -4.62295556782907,
+         "raw_corr": 0.46610287064186967,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.045833679756113,
+         "lufs_excess": 0.07243135178315363,
+         "centroid_excess_hz": -521.4446863677344,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 73.906625,
+         "lag_ms": -135.94558216345243,
+         "corr": 0.26678694434781214,
+         "state": "fail",
+         "raw_misalign_ms": 12.005788721683436,
+         "raw_corr": 0.17868313930723148,
+         "snap_applied": true,
+         "lag_ok_20ms": false,
+         "lag_within_floor": true,
+         "lufs_step": -2.852358592502034,
+         "lufs_excess": -0.020053656663156616,
+         "centroid_excess_hz": -256.2995465835397,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010344371866,
+        "samples_different_outside_windows": 8,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.23026141876227,
+         -1.8971095124229862
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.39029574394226,
+       "gain_db": {
+        "in": -0.3345325321275201,
+        "out": 0.7943935973826601
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.1,
+       "changed_ranges_s": [
+        [
+         51.71,
+         53.26
+        ],
+        [
+         73.91,
+         75.46
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9691011235955057,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.125,
+        "control": 0.375
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -1.0758982400362203,
+         "corr": 0.3031877538365106,
+         "state": "ok",
+         "raw_misalign_ms": -4.62295556782907,
+         "raw_corr": 0.46610287064186967,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.7760052507715134,
+         "lufs_excess": -0.19739707720144573,
+         "centroid_excess_hz": -520.4629266685597,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 73.906625,
+         "lag_ms": -135.94213156301493,
+         "corr": 0.25343814196848796,
+         "state": "fail",
+         "raw_misalign_ms": 12.005788721683436,
+         "raw_corr": 0.17868313930723148,
+         "snap_applied": true,
+         "lag_ok_20ms": false,
+         "lag_within_floor": true,
+         "lufs_step": -2.9031122856851947,
+         "lufs_excess": -0.07080734984631754,
+         "centroid_excess_hz": -298.9752950969387,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010344371866,
+        "samples_different_outside_windows": 8,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.9766480440274137,
+         -2.2666143599484307
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 23.2318856716156,
+       "gain_db": {
+        "in": -0.3345325321275201,
+        "out": 0.7943935973826601
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "phrase": {
+     "label": "WRITE PHRASE 4 bars",
+     "kind": "local",
+     "span_bars_0based": [
+      54,
+      58
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9603960396039604,
+      "span": 0.8,
+      "root_unedited": 0.9824561403508771
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6432708333333333,
+       "changed_ranges_s": [
+        [
+         134.7,
+         135.02
+        ],
+        [
+         145.45,
+         145.77
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9950372208436724,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.888888888888889,
+        "control": 0.8
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 135.02,
+         "lag_ms": -0.29210362964125647,
+         "corr": 0.24305095663155066,
+         "state": "unresolved",
+         "raw_misalign_ms": -39.32274824481451,
+         "raw_corr": 0.25171637850172,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.4347643850580525,
+         "lufs_excess": -1.5795886257392624,
+         "centroid_excess_hz": 338.6435208319044,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 145.44735416666666,
+         "lag_ms": 26.213760759713065,
+         "corr": 0.2262617005246433,
+         "state": "unresolved",
+         "raw_misalign_ms": 58.049694564649705,
+         "raw_corr": 0.19915365768697213,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.5390814216805992,
+         "lufs_excess": 2.076776767335261,
+         "centroid_excess_hz": 153.44307899625665,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.04994559288024902,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.5733125,
+       "changed_ranges_s": [
+        [
+         133.73,
+         135.02
+        ],
+        [
+         145.45,
+         146.73
+        ]
+       ],
+       "rest_melody_F1_fold": 0.991282689912827,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.8636363636363636,
+        "control": 0.8
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 135.02,
+         "lag_ms": -0.521748166137496,
+         "corr": 0.2858943186257268,
+         "state": "ok",
+         "raw_misalign_ms": -39.32274824481451,
+         "raw_corr": 0.25171637850172,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.1583577927815387,
+         "lufs_excess": -1.3031820334627486,
+         "centroid_excess_hz": 259.01455138738584,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 145.44735416666666,
+         "lag_ms": 26.30005770505223,
+         "corr": 0.233600967947568,
+         "state": "unresolved",
+         "raw_misalign_ms": 58.049694564649705,
+         "raw_corr": 0.19915365768697213,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.0374199681889493,
+         "lufs_excess": 1.575115313843611,
+         "centroid_excess_hz": 53.00354419318819,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.05072736740112305,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.644125,
+       "changed_ranges_s": [
+        [
+         134.7,
+         135.02
+        ],
+        [
+         145.45,
+         145.77
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9938042131350682,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.888888888888889,
+        "control": 0.8
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 135.02,
+         "lag_ms": -0.29853496224463116,
+         "corr": 0.24316549919812752,
+         "state": "unresolved",
+         "raw_misalign_ms": -39.32274824481451,
+         "raw_corr": 0.25171637850172,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.7581154131690404,
+         "lufs_excess": 0.09706034614974968,
+         "centroid_excess_hz": 346.26094957858413,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 145.44735416666666,
+         "lag_ms": 26.193357974538348,
+         "corr": 0.22628029957782886,
+         "state": "unresolved",
+         "raw_misalign_ms": 58.049694564649705,
+         "raw_corr": 0.19915365768697213,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.4365685888059456,
+         "lufs_excess": -0.025736065539392783,
+         "centroid_excess_hz": 153.35352964277627,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.25980663299560547,
+       "gain_db": {
+        "in": 1.7193006782875777,
+        "out": 2.1993725098890256
+       },
+       "pass_machine_literal": true,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.049625,
+       "changed_ranges_s": [
+        [
+         133.5,
+         135.02
+        ],
+        [
+         145.45,
+         146.97
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9900249376558603,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.7692307692307693,
+        "control": 0.8
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 135.02,
+         "lag_ms": -2.167453458107038,
+         "corr": 0.3063120121673636,
+         "state": "ok",
+         "raw_misalign_ms": -39.32274824481451,
+         "raw_corr": 0.25171637850172,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.2877611060475402,
+         "lufs_excess": -0.43258534672875015,
+         "centroid_excess_hz": -36.345651539082155,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 145.44735416666666,
+         "lag_ms": -0.07619887402359274,
+         "corr": 0.25609403018245963,
+         "state": "ok",
+         "raw_misalign_ms": 58.049694564649705,
+         "raw_corr": 0.19915365768697213,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.766187743612008,
+         "lufs_excess": -3.2284923979573463,
+         "centroid_excess_hz": -175.89522841376038,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.965265354616725,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.9281843168119384,
+         -0.7228909323886512
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.238128900527954,
+       "gain_db": {
+        "in": 1.7193006782875777,
+        "out": 2.1993725098890256
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.099458333333333,
+       "changed_ranges_s": [
+        [
+         133.47,
+         135.02
+        ],
+        [
+         145.45,
+         147.0
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9950248756218906,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.7499999999999999,
+        "control": 0.8
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 135.02,
+         "lag_ms": -0.08556922898956545,
+         "corr": 0.30367597196675683,
+         "state": "ok",
+         "raw_misalign_ms": -39.32274824481451,
+         "raw_corr": 0.25171637850172,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.2635501106541653,
+         "lufs_excess": -0.40837435133537525,
+         "centroid_excess_hz": -48.026726983139724,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 145.44735416666666,
+         "lag_ms": 0.1516663886912347,
+         "corr": 0.25399156145562046,
+         "state": "ok",
+         "raw_misalign_ms": 58.049694564649705,
+         "raw_corr": 0.19915365768697213,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.7885247979097763,
+         "lufs_excess": -3.2508294522551147,
+         "centroid_excess_hz": -86.44408808219032,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.965265354616725,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.9939445615720643,
+         -0.7703994760862365
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 27.455353021621704,
+       "gain_db": {
+        "in": 1.7193006782875777,
+        "out": 2.1993725098890256
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "lyrics": {
+     "label": "REWRITE LYRICS first chorus",
+     "kind": "local",
+     "span_bars_0based": [
+      22,
+      30
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9610027855153204,
+      "span": null,
+      "root_unedited": 0.9622641509433962
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6418125,
+       "changed_ranges_s": [
+        [
+         52.94,
+         53.26
+        ],
+        [
+         73.87,
+         74.19
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9929873772791025,
+       "wer_vs_old": 0.825,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.13157894736842105,
+        "control": 0.10526315789473684
+       },
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -1.5021319623085594,
+         "corr": 0.2588366916898389,
+         "state": "ok",
+         "raw_misalign_ms": -7.906590725832359,
+         "raw_corr": 0.39276007030877313,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.976852923606449,
+         "lufs_excess": -0.99654940436651,
+         "centroid_excess_hz": -683.7982594293312,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 73.86791666666667,
+         "lag_ms": 144.77872331137021,
+         "corr": 0.10646247670688573,
+         "state": "unresolved",
+         "raw_misalign_ms": 12.22402712384687,
+         "raw_corr": 0.14326993769081955,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -2.4417836323780424,
+         "lufs_excess": 0.3905213034608348,
+         "centroid_excess_hz": 626.5355982413193,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.05307793617248535,
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.573875,
+       "changed_ranges_s": [
+        [
+         51.97,
+         53.26
+        ],
+        [
+         73.87,
+         75.16
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9943977591036415,
+       "wer_vs_old": 0.8,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.15789473684210525,
+        "control": 0.10526315789473684
+       },
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -1.6649699261893218,
+         "corr": 0.2577481731084289,
+         "state": "ok",
+         "raw_misalign_ms": -7.906590725832359,
+         "raw_corr": 0.39276007030877313,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.0006271826207076,
+         "lufs_excess": -0.9727751453522515,
+         "centroid_excess_hz": -554.9328975282947,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 73.86791666666667,
+         "lag_ms": -11.317033450731918,
+         "corr": 0.10211112269552264,
+         "state": "unresolved",
+         "raw_misalign_ms": 12.22402712384687,
+         "raw_corr": 0.14326993769081955,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.7803393612242697,
+         "lufs_excess": 0.05196557461460749,
+         "centroid_excess_hz": 537.9887621928738,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.05435609817504883,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6420833333333333,
+       "changed_ranges_s": [
+        [
+         52.94,
+         53.26
+        ],
+        [
+         73.87,
+         74.19
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9929873772791025,
+       "wer_vs_old": 0.825,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.13157894736842105,
+        "control": 0.10526315789473684
+       },
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -1.510972728979258,
+         "corr": 0.25999853426163144,
+         "state": "ok",
+         "raw_misalign_ms": -7.906590725832359,
+         "raw_corr": 0.39276007030877313,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.801406626513426,
+         "lufs_excess": -0.17199570145953302,
+         "centroid_excess_hz": -682.8040739668049,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 73.86791666666667,
+         "lag_ms": 144.80424576673954,
+         "corr": 0.1071299127992143,
+         "state": "unresolved",
+         "raw_misalign_ms": 12.22402712384687,
+         "raw_corr": 0.14326993769081955,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -2.976784967290733,
+         "lufs_excess": -0.14448003145185595,
+         "centroid_excess_hz": 626.5983137634435,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.20723628997802734,
+       "gain_db": {
+        "in": 0.910401975086037,
+        "out": 0.5186044558058533
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": false
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0498541666666665,
+       "changed_ranges_s": [
+        [
+         51.74,
+         53.26
+        ],
+        [
+         73.87,
+         75.39
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9635854341736695,
+       "wer_vs_old": 0.85,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.3157894736842105,
+        "control": 0.10526315789473684
+       },
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -0.817090990424082,
+         "corr": 0.26513657020964493,
+         "state": "ok",
+         "raw_misalign_ms": -7.906590725832359,
+         "raw_corr": 0.39276007030877313,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.50195948768463,
+         "lufs_excess": -1.4714428402883293,
+         "centroid_excess_hz": -640.5574347036863,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 73.86791666666667,
+         "lag_ms": -150.0,
+         "corr": 0.14942248905582073,
+         "state": "unresolved",
+         "raw_misalign_ms": 12.22402712384687,
+         "raw_corr": 0.14326993769081955,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": false,
+         "lufs_step": -3.030364482294548,
+         "lufs_excess": -0.1980595464556707,
+         "centroid_excess_hz": 460.76143795297685,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.6185235828675404,
+        "samples_different_outside_windows": 4,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.6143785388332894,
+         -0.41308275813580764
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 23.26888370513916,
+       "gain_db": {
+        "in": 0.910401975086037,
+        "out": 0.5186044558058533
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0996875,
+       "changed_ranges_s": [
+        [
+         51.71,
+         53.26
+        ],
+        [
+         73.87,
+         75.42
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9664804469273743,
+       "wer_vs_old": 0.85,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.21052631578947367,
+        "control": 0.10526315789473684
+       },
+       "seams": [
+        {
+         "at_s": 53.26,
+         "lag_ms": -0.8169463661198209,
+         "corr": 0.2485229796742414,
+         "state": "unresolved",
+         "raw_misalign_ms": -7.906590725832359,
+         "raw_corr": 0.39276007030877313,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.3658582262521186,
+         "lufs_excess": -1.6075441017208405,
+         "centroid_excess_hz": -573.7614865222677,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 73.86791666666667,
+         "lag_ms": 5.694565714775175,
+         "corr": 0.1470664766547569,
+         "state": "unresolved",
+         "raw_misalign_ms": 12.22402712384687,
+         "raw_corr": 0.14326993769081955,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -3.2191733608511033,
+         "lufs_excess": -0.38686842501222607,
+         "centroid_excess_hz": 427.15382616744364,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010341842676,
+        "samples_different_outside_windows": 4,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.7120766046566906,
+         -0.4716038604955042
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 31.09979796409607,
+       "gain_db": {
+        "in": 0.910401975086037,
+        "out": 0.5186044558058533
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "repeat": {
+     "label": "REPEAT first chorus",
+     "kind": "repeat",
+     "span_bars_0based": [
+      22,
+      30
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9597156398104265,
+      "span": 1.0,
+      "root_unedited": 0.9672131147540983
+     },
+     "variants": {
+      "C1": {
+       "variant": "C1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.641875,
+       "changed_ranges_s": [
+        [
+         73.39,
+         73.71
+        ],
+        [
+         94.21,
+         94.53
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9881796690307328,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9921259842519685,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 73.71,
+         "lag_ms": -4.4803334166826385,
+         "corr": 0.4563855333176334,
+         "state": "ok",
+         "raw_misalign_ms": -50.110731237480245,
+         "raw_corr": 0.5073247932801795,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.06129709032387787,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 94.21010416666667,
+         "lag_ms": 116.35321473841721,
+         "corr": 0.18016857167401296,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.5549259880593205,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.04167008399963379,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_bal": {
+       "variant": "C1_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 1.8468541666666667,
+       "changed_ranges_s": [
+        [
+         72.18,
+         73.71
+        ],
+        [
+         94.21,
+         94.53
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9881796690307328,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9921259842519685,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 73.71,
+         "lag_ms": -4.117307809742517,
+         "corr": 0.5336783509572182,
+         "state": "ok",
+         "raw_misalign_ms": -50.110731237480245,
+         "raw_corr": 0.5073247932801795,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.10369342398610293,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 94.21010416666667,
+         "lag_ms": 116.35321511156724,
+         "corr": 0.18016856080466237,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.5549259880203614,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.9652646101062503,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.715071876821817
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 12.536564350128174,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_con": {
+       "variant": "C1_con",
+       "null_exact": true,
+       "base_audio_changed_s": 1.8717916666666667,
+       "changed_ranges_s": [
+        [
+         72.16,
+         73.71
+        ],
+        [
+         94.21,
+         94.53
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9881796690307328,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9921259842519685,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 73.71,
+         "lag_ms": -4.100973169594312,
+         "corr": 0.5317514486905902,
+         "state": "ok",
+         "raw_misalign_ms": -50.110731237480245,
+         "raw_corr": 0.5073247932801795,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.024639479236871153,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 94.21010416666667,
+         "lag_ms": 116.35321511156724,
+         "corr": 0.18016856080466237,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.5549259880203614,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.9652646101062503,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.4933993837711217
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 26.56716513633728,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C2": {
+       "variant": "C2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.577166666666667,
+       "changed_ranges_s": [
+        [
+         72.42,
+         73.71
+        ],
+        [
+         94.21,
+         95.5
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9893742621015348,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9843749999999999,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 73.71,
+         "lag_ms": -4.437465090633348,
+         "corr": 0.4570857222661783,
+         "state": "ok",
+         "raw_misalign_ms": -50.110731237480245,
+         "raw_corr": 0.5073247932801795,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.06701911281522399,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 94.21010416666667,
+         "lag_ms": 115.96414710923241,
+         "corr": 0.15153587069760363,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.457937865354994,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.04480600357055664,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "cut": {
+     "label": "CUT verse (section 4)",
+     "kind": "cut",
+     "span_bars_0based": [
+      30,
+      46
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9662162162162162,
+      "span": 1.0,
+      "root_unedited": 0.9555555555555556
+     },
+     "variants": {
+      "C1": {
+       "variant": "C1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6423333333333333,
+       "changed_ranges_s": [
+        [
+         73.39,
+         73.71
+        ],
+        [
+         73.71,
+         74.03
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9832214765100671,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 73.71,
+         "lag_ms": 0.7587535706060236,
+         "corr": 0.48980665605091755,
+         "state": "ok",
+         "raw_misalign_ms": -64.30319278915115,
+         "raw_corr": 0.4003248769722454,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.9136805736145437,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.018494367599487305,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_bal": {
+       "variant": "C1_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0499791666666667,
+       "changed_ranges_s": [
+        [
+         72.18,
+         73.71
+        ],
+        [
+         73.71,
+         75.23
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9832214765100671,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 73.71,
+         "lag_ms": 7.881734369070565,
+         "corr": 0.21000367150159463,
+         "state": "unresolved",
+         "raw_misalign_ms": -64.30319278915115,
+         "raw_corr": 0.4003248769722454,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.8775628621451155,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.9652646099869345,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -0.7842325642423322
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 10.350842714309692,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_con": {
+       "variant": "C1_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.099645833333333,
+       "changed_ranges_s": [
+        [
+         72.16,
+         73.71
+        ],
+        [
+         73.71,
+         75.26
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9832214765100671,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 73.71,
+         "lag_ms": 8.33788940839769,
+         "corr": 0.20229575978878525,
+         "state": "unresolved",
+         "raw_misalign_ms": -64.30319278915115,
+         "raw_corr": 0.4003248769722454,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.114565493616544,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.9652646099869345,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -0.8487028786980595
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 10.489505290985107,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C2": {
+       "variant": "C2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.5741875,
+       "changed_ranges_s": [
+        [
+         72.42,
+         73.71
+        ],
+        [
+         73.71,
+         75.0
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9815126050420168,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 73.71,
+         "lag_ms": 0.7034289260087802,
+         "corr": 0.4604634026342565,
+         "state": "ok",
+         "raw_misalign_ms": -64.30319278915115,
+         "raw_corr": 0.4003248769722454,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.6737160530281407,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.01674818992614746,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    }
+   }
+  },
+  "C": {
+   "context": {
+    "base_abs_phase_err_ms_bar_lines": {
+     "median": 26.365391964964665,
+     "p95": 150.0,
+     "max": 150.0
+    },
+    "base_abs_lufs_step_bar_lines": {
+     "median": 1.2845842817816102,
+     "p95": 4.937806974217462
+    },
+    "beat_s": 0.7058823529411765,
+    "bar_s": 2.823529411764706,
+    "base_grid_offset": 0,
+    "base_root_agree": 1.0,
+    "base_thinned": false
+   },
+   "edits": {
+    "reharm": {
+     "label": "REHARMONIZE 8 bars of the first chorus",
+     "kind": "local",
+     "span_bars_0based": [
+      14,
+      22
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9773299748110832,
+      "span": 1.0,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.7040416666666667,
+       "changed_ranges_s": [
+        [
+         36.81,
+         37.16
+        ],
+        [
+         59.74,
+         60.09
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9949109414758269,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": 146.04744879927057,
+         "corr": 0.051867540392296116,
+         "state": "unresolved",
+         "raw_misalign_ms": 6.784958568603244,
+         "raw_corr": 0.08689940292541616,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.1655506202534891,
+         "lufs_excess": -1.0276545713227083,
+         "centroid_excess_hz": 904.823636286696,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 59.73972916666666,
+         "lag_ms": -0.21860222125224854,
+         "corr": 0.26514505442574043,
+         "state": "ok",
+         "raw_misalign_ms": -10.276715140724084,
+         "raw_corr": 0.5203185903153696,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.893055192345619,
+         "lufs_excess": -0.09251803694700556,
+         "centroid_excess_hz": -614.525954371132,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.07931900024414062,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.813270833333333,
+       "changed_ranges_s": [
+        [
+         35.75,
+         37.16
+        ],
+        [
+         59.74,
+         61.15
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9949109414758269,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": 146.85977557698644,
+         "corr": 0.03773026081755727,
+         "state": "unresolved",
+         "raw_misalign_ms": 6.784958568603244,
+         "raw_corr": 0.08689940292541616,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.4959913691062745,
+         "lufs_excess": -0.6972138224699229,
+         "centroid_excess_hz": 539.5590740597972,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 59.73972916666666,
+         "lag_ms": 0.2852964086089205,
+         "corr": 0.32132860410322245,
+         "state": "ok",
+         "raw_misalign_ms": -10.276715140724084,
+         "raw_corr": 0.5203185903153696,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.8919077751687254,
+         "lufs_excess": -0.09366545412389904,
+         "centroid_excess_hz": -544.8630104229574,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.08095264434814453,
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.7041666666666667,
+       "changed_ranges_s": [
+        [
+         36.81,
+         37.16
+        ],
+        [
+         59.74,
+         60.09
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9949109414758269,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": 146.05493490432332,
+         "corr": 0.0476802547161454,
+         "state": "unresolved",
+         "raw_misalign_ms": 6.784958568603244,
+         "raw_corr": 0.08689940292541616,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.1787397957277932,
+         "lufs_excess": -0.014465395848404228,
+         "centroid_excess_hz": 870.1681353163017,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 59.73972916666666,
+         "lag_ms": -0.21392208114206307,
+         "corr": 0.26431100498376725,
+         "state": "ok",
+         "raw_misalign_ms": -10.276715140724084,
+         "raw_corr": 0.5203185903153696,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.8749490706169123,
+         "lufs_excess": -0.11062415867571218,
+         "centroid_excess_hz": -617.8744463870594,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.33445143699645996,
+       "gain_db": {
+        "in": 1.19040570892086,
+        "out": -0.07010505286462632
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.05025,
+       "changed_ranges_s": [
+        [
+         35.64,
+         37.16
+        ],
+        [
+         59.74,
+         61.26
+        ]
+       ],
+       "rest_melody_F1_fold": 1.0,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 1.0
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": 4.276541236109869,
+         "corr": 0.13104277705432113,
+         "state": "unresolved",
+         "raw_misalign_ms": 6.784958568603244,
+         "raw_corr": 0.08689940292541616,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.6831249658083625,
+         "lufs_excess": 1.489919774232165,
+         "centroid_excess_hz": 1346.7362236451236,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 59.73972916666666,
+         "lag_ms": -0.07508837225353363,
+         "corr": 0.1946732426194928,
+         "state": "unresolved",
+         "raw_misalign_ms": -10.276715140724084,
+         "raw_corr": 0.5203185903153696,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 5.124512869107543,
+         "lufs_excess": 3.138939639814918,
+         "centroid_excess_hz": -913.3519741324367,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010460500643,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.7299910527280584,
+         -0.9597344427172576
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 35.27556347846985,
+       "gain_db": {
+        "in": 1.19040570892086,
+        "out": -0.07010505286462632
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.1000833333333335,
+       "changed_ranges_s": [
+        [
+         35.61,
+         37.16
+        ],
+        [
+         59.74,
+         61.29
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9949109414758269,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 1.0
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": 4.034018167010646,
+         "corr": 0.11980446299502648,
+         "state": "unresolved",
+         "raw_misalign_ms": 6.784958568603244,
+         "raw_corr": 0.08689940292541616,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.6099233736243335,
+         "lufs_excess": 1.416718182048136,
+         "centroid_excess_hz": 1355.8627589605749,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 59.73972916666666,
+         "lag_ms": -0.10589796706362972,
+         "corr": 0.19218278188992188,
+         "state": "unresolved",
+         "raw_misalign_ms": -10.276715140724084,
+         "raw_corr": 0.5203185903153696,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 5.155815796618949,
+         "lufs_excess": 3.1702425673263246,
+         "centroid_excess_hz": -930.1172130345888,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.430778737003707,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.695418003177995,
+         -1.2053103636057756
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 35.934272050857544,
+       "gain_db": {
+        "in": 1.19040570892086,
+        "out": -0.07010505286462632
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "phrase": {
+     "label": "WRITE PHRASE 4 bars",
+     "kind": "local",
+     "span_bars_0based": [
+      22,
+      26
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.986046511627907,
+      "span": 0.8108108108108109,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.7049375,
+       "changed_ranges_s": [
+        [
+         59.4,
+         59.75
+        ],
+        [
+         71.05,
+         71.4
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9976580796252927,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.9047619047619048,
+        "control": 0.8108108108108109
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": 6.348997188279348,
+         "corr": 0.04918667675644361,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.905413676726624,
+         "raw_corr": 0.24917667198608748,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.005882663589638,
+         "lufs_excess": 1.0203094342970136,
+         "centroid_excess_hz": 379.1389559080908,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 71.050375,
+         "lag_ms": -6.869465442733401,
+         "corr": 0.03007727398243285,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.512368250240423,
+         "raw_corr": 0.2664258831914009,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.1821053639698462,
+         "lufs_excess": -0.05545187176449495,
+         "centroid_excess_hz": -305.3150091772036,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.07819509506225586,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.8148541666666667,
+       "changed_ranges_s": [
+        [
+         58.34,
+         59.75
+        ],
+        [
+         71.05,
+         72.46
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9976580796252927,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.9523809523809523,
+        "control": 0.8108108108108109
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": 0.9385656816588924,
+         "corr": 0.14691026749410818,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.905413676726624,
+         "raw_corr": 0.24917667198608748,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.060600895491252,
+         "lufs_excess": 1.0750276661986273,
+         "centroid_excess_hz": 269.6610838404688,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 71.050375,
+         "lag_ms": -7.110196972519375,
+         "corr": 0.030323405816297437,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.512368250240423,
+         "raw_corr": 0.2664258831914009,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.9171933098949268,
+         "lufs_excess": -0.3203639258394144,
+         "centroid_excess_hz": -234.82569026741953,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.08575057983398438,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.7048541666666667,
+       "changed_ranges_s": [
+        [
+         59.4,
+         59.75
+        ],
+        [
+         71.05,
+         71.4
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9976580796252927,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.9523809523809523,
+        "control": 0.8108108108108109
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": 6.37427964304407,
+         "corr": 0.047848306525630505,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.905413676726624,
+         "raw_corr": 0.24917667198608748,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.3350670997259098,
+         "lufs_excess": 0.3494938704332853,
+         "centroid_excess_hz": 377.8334414978822,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 71.050375,
+         "lag_ms": -6.8685436435059986,
+         "corr": 0.029574167374724982,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.512368250240423,
+         "raw_corr": 0.2664258831914009,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.3589119279187827,
+         "lufs_excess": 0.1213546921844415,
+         "centroid_excess_hz": -307.6073099827763,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.30726146697998047,
+       "gain_db": {
+        "in": -0.822085532849453,
+        "out": -0.06032144302180242
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0495625,
+       "changed_ranges_s": [
+        [
+         58.23,
+         59.75
+        ],
+        [
+         71.05,
+         72.57
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9917550058892814,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.717948717948718,
+        "control": 0.8108108108108109
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": 5.349218080226742,
+         "corr": 0.16683974156612671,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.905413676726624,
+         "raw_corr": 0.24917667198608748,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.390719474153789,
+         "lufs_excess": -0.5948537551388355,
+         "centroid_excess_hz": 275.92684381367144,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 71.050375,
+         "lag_ms": -8.690743660012913,
+         "corr": 0.0438308719356554,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.512368250240423,
+         "raw_corr": 0.2664258831914009,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.4252719328536987,
+         "lufs_excess": -0.8122853028806425,
+         "centroid_excess_hz": -1285.7627545225002,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -2.0000005803375753,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.8805390652181,
+         -1.228892197486605
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 29.61477828025818,
+       "gain_db": {
+        "in": -0.822085532849453,
+        "out": -0.06032144302180242
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0993125,
+       "changed_ranges_s": [
+        [
+         58.2,
+         59.75
+        ],
+        [
+         71.05,
+         72.6
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9917550058892814,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.717948717948718,
+        "control": 0.8108108108108109
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": 5.7498238584934125,
+         "corr": 0.16935944899534788,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.905413676726624,
+         "raw_corr": 0.24917667198608748,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.1117802182215506,
+         "lufs_excess": -0.8737930110710739,
+         "centroid_excess_hz": 301.02910486159794,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 71.050375,
+         "lag_ms": 126.30412028003582,
+         "corr": 0.09737497700639487,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.512368250240423,
+         "raw_corr": 0.2664258831914009,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.3689294338552163,
+         "lufs_excess": -0.8686278018791249,
+         "centroid_excess_hz": -1393.1642694950942,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -2.0000005803375753,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.4338935678153213,
+         -1.0599216503650197
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 25.497597217559814,
+       "gain_db": {
+        "in": -0.822085532849453,
+        "out": -0.06032144302180242
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "lyrics": {
+     "label": "REWRITE LYRICS first chorus",
+     "kind": "local",
+     "span_bars_0based": [
+      14,
+      22
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9810366624525917,
+      "span": null,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.7040208333333333,
+       "changed_ranges_s": [
+        [
+         36.81,
+         37.16
+        ],
+        [
+         59.73,
+         60.08
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9974554707379135,
+       "wer_vs_old": 1.0,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.75,
+        "control": 0.75
+       },
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": -150.0,
+         "corr": 0.3024882564162078,
+         "state": "unresolved",
+         "raw_misalign_ms": 1.794742383520932,
+         "raw_corr": 0.23484646569791592,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.0083582510625941,
+         "lufs_excess": -0.1848469405136033,
+         "centroid_excess_hz": 71.02017020532276,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 59.72835416666667,
+         "lag_ms": -3.1045629949787537,
+         "corr": 0.22922840101537986,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.854253054759358,
+         "raw_corr": 0.38431046676339714,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.5823658442688355,
+         "lufs_excess": -2.56793907356146,
+         "centroid_excess_hz": -466.8930321325197,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.07392573356628418,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.81625,
+       "changed_ranges_s": [
+        [
+         35.75,
+         37.16
+        ],
+        [
+         59.73,
+         61.14
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9949109414758269,
+       "wer_vs_old": 0.972972972972973,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.7083333333333334,
+        "control": 0.75
+       },
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": -150.0,
+         "corr": 0.2823079124512441,
+         "state": "unresolved",
+         "raw_misalign_ms": 1.794742383520932,
+         "raw_corr": 0.23484646569791592,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.138951724346958,
+         "lufs_excess": -0.054253467229239405,
+         "centroid_excess_hz": -125.85127019293168,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 59.72835416666667,
+         "lag_ms": -1.3691681393860247,
+         "corr": 0.33645722092592417,
+         "state": "ok",
+         "raw_misalign_ms": -9.854253054759358,
+         "raw_corr": 0.38431046676339714,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.13056176755421234,
+         "lufs_excess": -2.116134996846837,
+         "centroid_excess_hz": -431.2394652185503,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.06015777587890625,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.7039375,
+       "changed_ranges_s": [
+        [
+         36.81,
+         37.16
+        ],
+        [
+         59.73,
+         60.08
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9974554707379135,
+       "wer_vs_old": 1.0,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.75,
+        "control": 0.75
+       },
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": -150.0,
+         "corr": 0.2975681318196357,
+         "state": "unresolved",
+         "raw_misalign_ms": 1.794742383520932,
+         "raw_corr": 0.23484646569791592,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.9435788506696987,
+         "lufs_excess": -0.2496263409064987,
+         "centroid_excess_hz": 68.4275523600113,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 59.72835416666667,
+         "lag_ms": -3.190060041967831,
+         "corr": 0.23001518434161294,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.854253054759358,
+         "raw_corr": 0.38431046676339714,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.6531728605750633,
+         "lufs_excess": -0.3324003687175612,
+         "centroid_excess_hz": -475.4129622259102,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.30789995193481445,
+       "gain_db": {
+        "in": 0.10404611209690984,
+        "out": -2.5543704818867248
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0495833333333335,
+       "changed_ranges_s": [
+        [
+         35.64,
+         37.16
+        ],
+        [
+         59.73,
+         61.25
+        ]
+       ],
+       "rest_melody_F1_fold": 1.0,
+       "wer_vs_old": 0.9459459459459459,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.9583333333333334,
+        "control": 0.75
+       },
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": 0.5041067870686649,
+         "corr": 0.15920425834348875,
+         "state": "unresolved",
+         "raw_misalign_ms": 1.794742383520932,
+         "raw_corr": 0.23484646569791592,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.381916423640817,
+         "lufs_excess": 1.1887112320646196,
+         "centroid_excess_hz": 541.4266892314822,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 59.72835416666667,
+         "lag_ms": -4.137835941413976,
+         "corr": 0.22038666648789026,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.854253054759358,
+         "raw_corr": 0.38431046676339714,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.2040552448744517,
+         "lufs_excess": 0.21848201558182723,
+         "centroid_excess_hz": -680.4348919996823,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010450898862,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.5326826646119045,
+         -1.6416955194208427
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 29.56986355781555,
+       "gain_db": {
+        "in": 0.10404611209690984,
+        "out": -2.5543704818867248
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0993958333333333,
+       "changed_ranges_s": [
+        [
+         35.61,
+         37.16
+        ],
+        [
+         59.73,
+         61.28
+        ]
+       ],
+       "rest_melody_F1_fold": 1.0,
+       "wer_vs_old": 0.972972972972973,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.8333333333333334,
+        "control": 0.75
+       },
+       "seams": [
+        {
+         "at_s": 37.16,
+         "lag_ms": 0.4195247994854993,
+         "corr": 0.15693841954510815,
+         "state": "unresolved",
+         "raw_misalign_ms": 1.794742383520932,
+         "raw_corr": 0.23484646569791592,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.359246611598694,
+         "lufs_excess": 1.1660414200224967,
+         "centroid_excess_hz": 535.3906251114554,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 59.72835416666667,
+         "lag_ms": -3.9861753820840056,
+         "corr": 0.21216864692103096,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.854253054759358,
+         "raw_corr": 0.38431046676339714,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.068613425741722,
+         "lufs_excess": 0.08304019644909744,
+         "centroid_excess_hz": -695.0220833292726,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010450898862,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.4676848819339305,
+         -2.0446156691184587
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 25.540508270263672,
+       "gain_db": {
+        "in": 0.10404611209690984,
+        "out": -2.5543704818867248
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "repeat": {
+     "label": "REPEAT first chorus",
+     "kind": "repeat",
+     "span_bars_0based": [
+      14,
+      22
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9808773903262092,
+      "span": 0.9504950495049506,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "C1": {
+       "variant": "C1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.7043125,
+       "changed_ranges_s": [
+        [
+         59.4,
+         59.75
+        ],
+        [
+         82.34,
+         82.69
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9920544835414302,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9583333333333334,
+        "control": 0.9504950495049506
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": -143.45949275261754,
+         "corr": 0.16126417871172116,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.4234701939055588,
+         "raw_corr": 0.37644372710491014,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.5217358848319567,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 82.33958333333334,
+         "lag_ms": 68.54736898477859,
+         "corr": 0.20024314502409069,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.4153063734158398,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.05508565902709961,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_bal": {
+       "variant": "C1_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 1.8776041666666667,
+       "changed_ranges_s": [
+        [
+         58.23,
+         59.75
+        ],
+        [
+         82.34,
+         82.69
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9943502824858758,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9199999999999999,
+        "control": 0.9504950495049506
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": -61.344822571116644,
+         "corr": 0.06124370162131544,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.4234701939055588,
+         "raw_corr": 0.37644372710491014,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.9493682085650423,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 82.33958333333334,
+         "lag_ms": 68.5473175879317,
+         "corr": 0.20019593921261244,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.4081741376197936,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000002903046439,
+        "samples_different_outside_windows": 140,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.8194609709026697
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 17.16871213912964,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_con": {
+       "variant": "C1_con",
+       "null_exact": true,
+       "base_audio_changed_s": 1.9024583333333334,
+       "changed_ranges_s": [
+        [
+         58.2,
+         59.75
+        ],
+        [
+         82.34,
+         82.69
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9943502824858758,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9199999999999999,
+        "control": 0.9504950495049506
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": -41.62654528288853,
+         "corr": 0.03277333772710891,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.4234701939055588,
+         "raw_corr": 0.37644372710491014,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.9032206175027273,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 82.33958333333334,
+         "lag_ms": 68.5473175879317,
+         "corr": 0.20019593921261244,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.4081741376197936,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000002903046439,
+        "samples_different_outside_windows": 140,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -3.061159723734873
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 14.727360963821411,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C2": {
+       "variant": "C2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.8191875,
+       "changed_ranges_s": [
+        [
+         58.34,
+         59.75
+        ],
+        [
+         82.34,
+         83.75
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9887387387387387,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9306930693069307,
+        "control": 0.9504950495049506
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 59.75,
+         "lag_ms": -142.61466980861888,
+         "corr": 0.1595986775802368,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.4234701939055588,
+         "raw_corr": 0.37644372710491014,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.632582588312264,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 82.33958333333334,
+         "lag_ms": 68.71029651287999,
+         "corr": 0.21117782344232489,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.3271394755938104,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.0521998405456543,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "cut": {
+     "label": "CUT verse (section 5)",
+     "kind": "cut",
+     "span_bars_0based": [
+      26,
+      35
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9600997506234414,
+      "span": 1.0,
+      "root_unedited": 1.0
+     },
+     "variants": {
+      "C1": {
+       "variant": "C1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.7049791666666667,
+       "changed_ranges_s": [
+        [
+         70.7,
+         71.05
+        ],
+        [
+         71.05,
+         71.4
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9936143039591314,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 71.05,
+         "lag_ms": 1.3177706015938948,
+         "corr": 0.19510141597189468,
+         "state": "unresolved",
+         "raw_misalign_ms": 2.8929442560674477,
+         "raw_corr": 0.25231538494642747,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.418274295324652,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.04523825645446777,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_bal": {
+       "variant": "C1_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.049916666666667,
+       "changed_ranges_s": [
+        [
+         69.53,
+         71.05
+        ],
+        [
+         71.05,
+         72.57
+        ]
+       ],
+       "rest_melody_F1_fold": 0.993581514762516,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 71.05,
+         "lag_ms": 1.1461913180607282,
+         "corr": 0.1854060017453589,
+         "state": "unresolved",
+         "raw_misalign_ms": 2.8929442560674477,
+         "raw_corr": 0.25231538494642747,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.2825363280451327,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.000000290284812,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.681842292497679
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 21.076637744903564,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_con": {
+       "variant": "C1_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0997708333333334,
+       "changed_ranges_s": [
+        [
+         69.5,
+         71.05
+        ],
+        [
+         71.05,
+         72.6
+        ]
+       ],
+       "rest_melody_F1_fold": 0.993581514762516,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 71.05,
+         "lag_ms": 1.1141575326035096,
+         "corr": 0.18043654462969655,
+         "state": "unresolved",
+         "raw_misalign_ms": 2.8929442560674477,
+         "raw_corr": 0.25231538494642747,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 2.1492072904895103,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.000000290284812,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -1.95233874536971
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 12.522414445877075,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C2": {
+       "variant": "C2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.8185208333333334,
+       "changed_ranges_s": [
+        [
+         69.64,
+         71.05
+        ],
+        [
+         71.05,
+         72.46
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9948979591836734,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 71.05,
+         "lag_ms": 40.786139994220456,
+         "corr": 0.1995966896710239,
+         "state": "unresolved",
+         "raw_misalign_ms": 2.8929442560674477,
+         "raw_corr": 0.25231538494642747,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.2311539618161405,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.043326377868652344,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    }
+   }
+  },
+  "D": {
+   "context": {
+    "base_abs_phase_err_ms_bar_lines": {
+     "median": 2.5525040762324673,
+     "p95": 150.0,
+     "max": 150.0
+    },
+    "base_abs_lufs_step_bar_lines": {
+     "median": 1.1294519507147491,
+     "p95": 3.663026657361836
+    },
+    "beat_s": 0.631578947368421,
+    "bar_s": 2.526315789473684,
+    "base_grid_offset": 0,
+    "base_root_agree": 1.0,
+    "base_thinned": false
+   },
+   "edits": {
+    "reharm": {
+     "label": "REHARMONIZE 8 bars of the first chorus",
+     "kind": "local",
+     "span_bars_0based": [
+      22,
+      30
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9530386740331491,
+      "span": 0.875,
+      "root_unedited": 0.9636363636363636
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6306458333333333,
+       "changed_ranges_s": [
+        [
+         55.19,
+         55.51
+        ],
+        [
+         75.71,
+         76.03
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9875862068965517,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 0.875
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": -3.8508780949534156,
+         "corr": 0.13452480260034974,
+         "state": "unresolved",
+         "raw_misalign_ms": -1.9858972580145042,
+         "raw_corr": 0.12149464753510761,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.8204102706437713,
+         "lufs_excess": -0.037854002143774323,
+         "centroid_excess_hz": -158.75883997702522,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 75.71079166666667,
+         "lag_ms": 144.993213548104,
+         "corr": 0.1752155720683744,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.212571512738183,
+         "raw_corr": 0.241917513479896,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.4317657392791414,
+         "lufs_excess": 0.33903136231286446,
+         "centroid_excess_hz": 224.94535401614712,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.052194833755493164,
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.5199166666666666,
+       "changed_ranges_s": [
+        [
+         54.25,
+         55.51
+        ],
+        [
+         75.71,
+         76.97
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9958620689655172,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 0.875
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": -4.51872792006101,
+         "corr": 0.12370211671052471,
+         "state": "unresolved",
+         "raw_misalign_ms": -1.9858972580145042,
+         "raw_corr": 0.12149464753510761,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.66957100097609,
+         "lufs_excess": -0.1886932718114558,
+         "centroid_excess_hz": -113.22829781804103,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 75.71079166666667,
+         "lag_ms": 145.00575857801581,
+         "corr": 0.17972361782415422,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.212571512738183,
+         "raw_corr": 0.241917513479896,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.334339478650609,
+         "lufs_excess": 0.436457622941397,
+         "centroid_excess_hz": 101.34988685173766,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.05690503120422363,
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6306458333333333,
+       "changed_ranges_s": [
+        [
+         55.19,
+         55.51
+        ],
+        [
+         75.71,
+         76.03
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9861878453038674,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 0.875
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": -3.8452621685904353,
+         "corr": 0.13516934120919533,
+         "state": "unresolved",
+         "raw_misalign_ms": -1.9858972580145042,
+         "raw_corr": 0.12149464753510761,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.7188537086742866,
+         "lufs_excess": -0.13941056411325903,
+         "centroid_excess_hz": -159.40508976871843,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 75.71079166666667,
+         "lag_ms": 145.009881986399,
+         "corr": 0.175149389836363,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.212571512738183,
+         "raw_corr": 0.241917513479896,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.605341991788679,
+         "lufs_excess": 0.165455109803327,
+         "centroid_excess_hz": 224.48596457056283,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.277524471282959,
+       "gain_db": {
+        "in": -0.13779337492360355,
+        "out": 0.21440355775680864
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.05,
+       "changed_ranges_s": [
+        [
+         53.99,
+         55.51
+        ],
+        [
+         75.71,
+         77.24
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9903181189488243,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 0.875
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": -34.85694196381401,
+         "corr": 0.1253028262182411,
+         "state": "unresolved",
+         "raw_misalign_ms": -1.9858972580145042,
+         "raw_corr": 0.12149464753510761,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 8.471643481250423,
+         "lufs_excess": 4.613379208462877,
+         "centroid_excess_hz": -435.60728530918595,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 75.71079166666667,
+         "lag_ms": 147.11306543872075,
+         "corr": 0.13804941987116584,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.212571512738183,
+         "raw_corr": 0.241917513479896,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -5.417175894706338,
+         "lufs_excess": -2.646378793114332,
+         "centroid_excess_hz": 397.77467760993704,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -0.9507218168139417,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -3.0796891886754203,
+         -0.17951242655656507
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.46687150001526,
+       "gain_db": {
+        "in": -0.13779337492360355,
+        "out": 0.21440355775680864
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0995208333333335,
+       "changed_ranges_s": [
+        [
+         53.96,
+         55.51
+        ],
+        [
+         75.71,
+         77.26
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9903181189488243,
+       "span": {
+        "metric": "chord roots on edited bars vs new score",
+        "variant": 0.875,
+        "control": 0.875
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": -33.5141004184103,
+         "corr": 0.11573325002151703,
+         "state": "unresolved",
+         "raw_misalign_ms": -1.9858972580145042,
+         "raw_corr": 0.12149464753510761,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 8.5921013059903,
+         "lufs_excess": 4.733837033202754,
+         "centroid_excess_hz": -415.6257902953889,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 75.71079166666667,
+         "lag_ms": 147.1134743635142,
+         "corr": 0.1446494352963285,
+         "state": "unresolved",
+         "raw_misalign_ms": -9.212571512738183,
+         "raw_corr": 0.241917513479896,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -5.85808127956639,
+         "lufs_excess": -3.087284177974384,
+         "centroid_excess_hz": 378.5283449739036,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0071401400913205,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -3.2060751335378406,
+         -0.30981931681593977
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.66613245010376,
+       "gain_db": {
+        "in": -0.13779337492360355,
+        "out": 0.21440355775680864
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "phrase": {
+     "label": "WRITE PHRASE 4 bars",
+     "kind": "local",
+     "span_bars_0based": [
+      56,
+      60
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9334975369458128,
+      "span": 0.5,
+      "root_unedited": 0.9830508474576272
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6285625,
+       "changed_ranges_s": [
+        [
+         141.08,
+         141.39
+        ],
+        [
+         151.49,
+         151.81
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9912609238451936,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.5555555555555556,
+        "control": 0.5
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 141.39,
+         "lag_ms": 20.654289853406816,
+         "corr": 0.08462161883745638,
+         "state": "unresolved",
+         "raw_misalign_ms": 2.0733733480915024,
+         "raw_corr": 0.2977671415924445,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -5.401002349145061,
+         "lufs_excess": -5.38543435572157,
+         "centroid_excess_hz": -796.9128076010279,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 151.49054166666667,
+         "lag_ms": 150.0,
+         "corr": -0.061827079912446035,
+         "state": "unresolved",
+         "raw_misalign_ms": -7.372675206508566,
+         "raw_corr": 0.3404126398689723,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 1.190557184493489,
+         "lufs_excess": 3.8315520888048464,
+         "centroid_excess_hz": -498.88139624544374,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.04771733283996582,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.5145833333333334,
+       "changed_ranges_s": [
+        [
+         140.13,
+         141.39
+        ],
+        [
+         151.49,
+         152.75
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9912609238451936,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.5,
+        "control": 0.5
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 141.39,
+         "lag_ms": -0.38260497292600265,
+         "corr": 0.3991187933973814,
+         "state": "ok",
+         "raw_misalign_ms": 2.0733733480915024,
+         "raw_corr": 0.2977671415924445,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -4.05033060605817,
+         "lufs_excess": -4.034762612634678,
+         "centroid_excess_hz": -612.8574854176841,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 151.49054166666667,
+         "lag_ms": -1.5888651611470874,
+         "corr": -0.000321502044979594,
+         "state": "unresolved",
+         "raw_misalign_ms": -7.372675206508566,
+         "raw_corr": 0.3404126398689723,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 0.6048648720055034,
+         "lufs_excess": 3.245859776316861,
+         "centroid_excess_hz": -451.99961213744245,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.049480438232421875,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6299583333333333,
+       "changed_ranges_s": [
+        [
+         141.07,
+         141.39
+        ],
+        [
+         151.49,
+         151.81
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9912609238451936,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.5555555555555556,
+        "control": 0.5
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 141.39,
+         "lag_ms": 20.611154320333004,
+         "corr": 0.09705739189599724,
+         "state": "unresolved",
+         "raw_misalign_ms": 2.0733733480915024,
+         "raw_corr": 0.2977671415924445,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.16663888805189409,
+         "lufs_excess": -0.15107089462840229,
+         "centroid_excess_hz": -863.4172102566067,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 151.49054166666667,
+         "lag_ms": 150.0,
+         "corr": -0.07054504122591033,
+         "state": "unresolved",
+         "raw_misalign_ms": -7.372675206508566,
+         "raw_corr": 0.3404126398689723,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.913758022490569,
+         "lufs_excess": -0.2727631181792116,
+         "centroid_excess_hz": -530.4052069171389,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.20882749557495117,
+       "gain_db": {
+        "in": 6.012857185469457,
+        "out": 3.9935758592399946
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0503541666666667,
+       "changed_ranges_s": [
+        [
+         139.86,
+         141.39
+        ],
+        [
+         151.49,
+         153.02
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9912609238451936,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.6451612903225806,
+        "control": 0.5
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 141.39,
+         "lag_ms": 8.788483789631778,
+         "corr": 0.1544523251736173,
+         "state": "unresolved",
+         "raw_misalign_ms": 2.0733733480915024,
+         "raw_corr": 0.2977671415924445,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.06171742721735285,
+         "lufs_excess": -0.04614943379386105,
+         "centroid_excess_hz": -509.4273331061099,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 151.49054166666667,
+         "lag_ms": 9.77671520066471,
+         "corr": 0.13570036423142892,
+         "state": "unresolved",
+         "raw_misalign_ms": -7.372675206508566,
+         "raw_corr": 0.3404126398689723,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.2693022937688756,
+         "lufs_excess": 0.3716926105424818,
+         "centroid_excess_hz": -710.0008636024143,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010363835325,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.8774481707496484,
+         -2.163624620528335
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.49886417388916,
+       "gain_db": {
+        "in": 6.012857185469457,
+        "out": 3.9935758592399946
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.1002708333333335,
+       "changed_ranges_s": [
+        [
+         139.84,
+         141.39
+        ],
+        [
+         151.49,
+         153.04
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9825,
+       "span": {
+        "metric": "Ins phrase F1 (octave-folded) vs written notes",
+        "variant": 0.6451612903225806,
+        "control": 0.5
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 141.39,
+         "lag_ms": 9.069098914548801,
+         "corr": 0.17279659431227043,
+         "state": "unresolved",
+         "raw_misalign_ms": 2.0733733480915024,
+         "raw_corr": 0.2977671415924445,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.12247945295593432,
+         "lufs_excess": -0.10691145953244252,
+         "centroid_excess_hz": -492.17722383670844,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 151.49054166666667,
+         "lag_ms": 10.639580961038316,
+         "corr": 0.0693570799501617,
+         "state": "unresolved",
+         "raw_misalign_ms": -7.372675206508566,
+         "raw_corr": 0.3404126398689723,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.7147615902664928,
+         "lufs_excess": -0.07376668595513536,
+         "centroid_excess_hz": -692.1578034145373,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000010363835325,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -2.946776143534855,
+         -3.3789094057489315
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 27.610883951187134,
+       "gain_db": {
+        "in": 6.012857185469457,
+        "out": 3.9935758592399946
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": true,
+       "pass_machine_floor": true
+      }
+     }
+    },
+    "lyrics": {
+     "label": "REWRITE LYRICS first chorus",
+     "kind": "local",
+     "span_bars_0based": [
+      22,
+      30
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9559228650137742,
+      "span": null,
+      "root_unedited": 0.9818181818181818
+     },
+     "variants": {
+      "A1": {
+       "variant": "A1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6302708333333333,
+       "changed_ranges_s": [
+        [
+         55.19,
+         55.51
+        ],
+        [
+         75.71,
+         76.03
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9875862068965517,
+       "wer_vs_old": 0.9047619047619048,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.21052631578947367,
+        "control": 0.15789473684210525
+       },
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": 0.03457728902788041,
+         "corr": 0.142478430752667,
+         "state": "unresolved",
+         "raw_misalign_ms": -3.485953856527253,
+         "raw_corr": 0.18600185815229126,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.64307569123776,
+         "lufs_excess": 0.7848114184502144,
+         "centroid_excess_hz": -173.01503924807275,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 75.71477083333333,
+         "lag_ms": 147.32243143437762,
+         "corr": 0.16019654162371805,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.710125438304678,
+         "raw_corr": 0.2666424198595218,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.9981926543808335,
+         "lufs_excess": -0.22739555278882762,
+         "centroid_excess_hz": 444.96994047774615,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.04774188995361328,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A2": {
+       "variant": "A2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.518895833333333,
+       "changed_ranges_s": [
+        [
+         54.25,
+         55.51
+        ],
+        [
+         75.71,
+         76.98
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9875862068965517,
+       "wer_vs_old": 0.9047619047619048,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.21052631578947367,
+        "control": 0.15789473684210525
+       },
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": 1.1107085846156308,
+         "corr": 0.12912420054361853,
+         "state": "unresolved",
+         "raw_misalign_ms": -3.485953856527253,
+         "raw_corr": 0.18600185815229126,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 4.605846306861393,
+         "lufs_excess": 0.7475820340738473,
+         "centroid_excess_hz": -52.21332845808911,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 75.71477083333333,
+         "lag_ms": 146.5174691403271,
+         "corr": 0.15486839145497208,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.710125438304678,
+         "raw_corr": 0.2666424198595218,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.9441351740101336,
+         "lufs_excess": -0.1733380724181277,
+         "centroid_excess_hz": 312.99857402933185,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.05044889450073242,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3": {
+       "variant": "A3",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6300833333333333,
+       "changed_ranges_s": [
+        [
+         55.19,
+         55.51
+        ],
+        [
+         75.71,
+         76.03
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9875862068965517,
+       "wer_vs_old": 0.9047619047619048,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.21052631578947367,
+        "control": 0.15789473684210525
+       },
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": 0.050943899386266166,
+         "corr": 0.14290472837938212,
+         "state": "unresolved",
+         "raw_misalign_ms": -3.485953856527253,
+         "raw_corr": 0.18600185815229126,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 3.771023360347275,
+         "lufs_excess": -0.08724091244027044,
+         "centroid_excess_hz": -178.77763805432687,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 75.71477083333333,
+         "lag_ms": 147.37286657145836,
+         "corr": 0.15948793187216323,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.710125438304678,
+         "raw_corr": 0.2666424198595218,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.585169057562968,
+         "lufs_excess": 0.18562804402903765,
+         "centroid_excess_hz": 445.9746906211908,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": true
+        }
+       ],
+       "extra_seconds": 0.20284557342529297,
+       "gain_db": {
+        "in": -0.9950137059233644,
+        "out": -0.3922469532227062
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_bal": {
+       "variant": "A3_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0499791666666667,
+       "changed_ranges_s": [
+        [
+         53.99,
+         55.51
+        ],
+        [
+         75.71,
+         77.24
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9820193637621024,
+       "wer_vs_old": 0.9047619047619048,
+       "span_ok": true,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.15789473684210525,
+        "control": 0.15789473684210525
+       },
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": -0.30080788301079875,
+         "corr": 0.11350506087922782,
+         "state": "unresolved",
+         "raw_misalign_ms": -3.485953856527253,
+         "raw_corr": 0.18600185815229126,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 9.680051912432765,
+         "lufs_excess": 5.821787639645219,
+         "centroid_excess_hz": -536.2462911254052,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 75.71477083333333,
+         "lag_ms": 150.0,
+         "corr": 0.15875292702481913,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.710125438304678,
+         "raw_corr": 0.2666424198595218,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -5.153435189502714,
+         "lufs_excess": -2.382638087910708,
+         "centroid_excess_hz": 380.16303074966345,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.2124802232800493,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -3.580750446177573,
+         -0.5918573167489107
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.60348653793335,
+       "gain_db": {
+        "in": -0.9950137059233644,
+        "out": -0.3922469532227062
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "A3_con": {
+       "variant": "A3_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.0995625,
+       "changed_ranges_s": [
+        [
+         53.96,
+         55.51
+        ],
+        [
+         75.71,
+         77.26
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9804469273743017,
+       "wer_vs_old": 0.9047619047619048,
+       "span_ok": false,
+       "span": {
+        "metric": "WER vs the new lines (lower is better)",
+        "variant": 0.21052631578947367,
+        "control": 0.15789473684210525
+       },
+       "seams": [
+        {
+         "at_s": 55.51,
+         "lag_ms": 10.489163767125538,
+         "corr": 0.0809566240134846,
+         "state": "unresolved",
+         "raw_misalign_ms": -3.485953856527253,
+         "raw_corr": 0.18600185815229126,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": 11.037380325204984,
+         "lufs_excess": 7.179116052417438,
+         "centroid_excess_hz": -742.6340807490178,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        },
+        {
+         "at_s": 75.71477083333333,
+         "lag_ms": 150.0,
+         "corr": 0.1709480341355716,
+         "state": "unresolved",
+         "raw_misalign_ms": -8.710125438304678,
+         "raw_corr": 0.2666424198595218,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -5.547987470324241,
+         "lufs_excess": -2.777190368732235,
+         "centroid_excess_hz": 373.58687070191536,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.950721360943666,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -3.870713856936801,
+         -0.6436883351700757
+        ],
+        "repaint_seconds": 6.0
+       },
+       "extra_seconds": 21.343908548355103,
+       "gain_db": {
+        "in": -0.9950137059233644,
+        "out": -0.3922469532227062
+       },
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "repeat": {
+     "label": "REPEAT first chorus",
+     "kind": "repeat",
+     "span_bars_0based": [
+      22,
+      30
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9432624113475176,
+      "span": 0.9917355371900827,
+      "root_unedited": 0.9841269841269841
+     },
+     "variants": {
+      "C1": {
+       "variant": "C1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.6301041666666667,
+       "changed_ranges_s": [
+        [
+         75.39,
+         75.71
+        ],
+        [
+         95.92,
+         96.23
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9845053635280095,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9913043478260869,
+        "control": 0.9917355371900827
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 75.71,
+         "lag_ms": 0.320202127729891,
+         "corr": 0.7777095394863396,
+         "state": "ok",
+         "raw_misalign_ms": -7.833127561900126,
+         "raw_corr": 0.7393941253316086,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.26049990606489715,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 95.91783333333333,
+         "lag_ms": 147.01966087699915,
+         "corr": 0.15701387424372834,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.6500335995682427,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.039739131927490234,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_bal": {
+       "variant": "C1_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 1.8399375,
+       "changed_ranges_s": [
+        [
+         74.18,
+         75.71
+        ],
+        [
+         95.92,
+         96.23
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9763593380614658,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9344262295081968,
+        "control": 0.9917355371900827
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 75.71,
+         "lag_ms": 0.48697232056563183,
+         "corr": 0.7394863199537405,
+         "state": "ok",
+         "raw_misalign_ms": -7.833127561900126,
+         "raw_corr": 0.7393941253316086,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.3824217919944761,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 95.91783333333333,
+         "lag_ms": 147.01966122611495,
+         "corr": 0.15701386936152048,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.650033600061999,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000002899929996,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -0.9164080711795624
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 12.571899890899658,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_con": {
+       "variant": "C1_con",
+       "null_exact": true,
+       "base_audio_changed_s": 1.8649166666666666,
+       "changed_ranges_s": [
+        [
+         74.16,
+         75.71
+        ],
+        [
+         95.92,
+         96.23
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9763593380614658,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9344262295081968,
+        "control": 0.9917355371900827
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 75.71,
+         "lag_ms": 0.48183283353039075,
+         "corr": 0.7518667903031488,
+         "state": "ok",
+         "raw_misalign_ms": -7.833127561900126,
+         "raw_corr": 0.7393941253316086,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.4485872218396523,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 95.91783333333333,
+         "lag_ms": 147.01966122611495,
+         "corr": 0.15701386936152048,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.650033600061999,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000002899929996,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -0.6843624497115872
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 10.538674354553223,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C2": {
+       "variant": "C2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.5208541666666666,
+       "changed_ranges_s": [
+        [
+         74.45,
+         75.71
+        ],
+        [
+         95.92,
+         97.18
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9775147928994082,
+       "span": {
+        "metric": "copy vs first chorus melody F1",
+        "variant": 0.9279999999999999,
+        "control": 0.9917355371900827
+       },
+       "span_ok": false,
+       "seams": [
+        {
+         "at_s": 75.71,
+         "lag_ms": 0.3138882812602103,
+         "corr": 0.7699307231260154,
+         "state": "ok",
+         "raw_misalign_ms": -7.833127561900126,
+         "raw_corr": 0.7393941253316086,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -0.30360770686264793,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": true,
+         "lufs_ok_excess": true
+        },
+        {
+         "at_s": 95.91783333333333,
+         "lag_ms": 146.61223172283408,
+         "corr": 0.12926518773548548,
+         "state": "unresolved",
+         "raw_misalign_ms": 0.0,
+         "raw_corr": null,
+         "snap_applied": false,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -2.4513793385333607,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.04372906684875488,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    },
+    "cut": {
+     "label": "CUT verse (section 4)",
+     "kind": "cut",
+     "span_bars_0based": [
+      30,
+      47
+     ],
+     "control": {
+      "rest_melody_F1_fold": 0.9536878216123498,
+      "span": 1.0,
+      "root_unedited": 0.9782608695652174
+     },
+     "variants": {
+      "C1": {
+       "variant": "C1",
+       "null_exact": true,
+       "base_audio_changed_s": 0.630125,
+       "changed_ranges_s": [
+        [
+         75.39,
+         75.71
+        ],
+        [
+         75.71,
+         76.02
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9948186528497409,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 75.71,
+         "lag_ms": 0.171655472437901,
+         "corr": 0.5998276716215011,
+         "state": "ok",
+         "raw_misalign_ms": 2.4988386585794564,
+         "raw_corr": 0.5565498757796421,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.0694920560044583,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.018109798431396484,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_bal": {
+       "variant": "C1_bal",
+       "null_exact": true,
+       "base_audio_changed_s": 3.049875,
+       "changed_ranges_s": [
+        [
+         74.18,
+         75.71
+        ],
+        [
+         75.71,
+         77.23
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9829351535836178,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 75.71,
+         "lag_ms": 0.7536388881489811,
+         "corr": 0.567917519413788,
+         "state": "ok",
+         "raw_misalign_ms": 2.4988386585794564,
+         "raw_corr": 0.5565498757796421,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.3105804994586894,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000002900077265,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -0.39168258849590565
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 10.602376461029053,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C1_con": {
+       "variant": "C1_con",
+       "null_exact": true,
+       "base_audio_changed_s": 3.099854166666667,
+       "changed_ranges_s": [
+        [
+         74.16,
+         75.71
+        ],
+        [
+         75.71,
+         77.26
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9829351535836178,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 75.71,
+         "lag_ms": 0.8777230950150098,
+         "corr": 0.5749153689814436,
+         "state": "ok",
+         "raw_misalign_ms": 2.4988386585794564,
+         "raw_corr": 0.5565498757796421,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.3214311606396372,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "heal_post": {
+        "acestep_gain_db": -1.0000002900077265,
+        "samples_different_outside_windows": 0,
+        "of_which_not_clipped_samples": 0,
+        "window_lufs_delta_db": [
+         -0.3223704803007461
+        ],
+        "repaint_seconds": 3.0
+       },
+       "extra_seconds": 10.670453548431396,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      },
+      "C2": {
+       "variant": "C2",
+       "null_exact": true,
+       "base_audio_changed_s": 2.52025,
+       "changed_ranges_s": [
+        [
+         74.45,
+         75.71
+        ],
+        [
+         75.71,
+         76.97
+        ]
+       ],
+       "rest_melody_F1_fold": 0.9779286926994907,
+       "span": {
+        "metric": "chord roots, 8 bars after the seam",
+        "variant": 1.0,
+        "control": 1.0
+       },
+       "span_ok": true,
+       "seams": [
+        {
+         "at_s": 75.71,
+         "lag_ms": 0.14007009364009282,
+         "corr": 0.5903537496481962,
+         "state": "ok",
+         "raw_misalign_ms": 2.4988386585794564,
+         "raw_corr": 0.5565498757796421,
+         "snap_applied": true,
+         "lag_ok_20ms": true,
+         "lag_within_floor": true,
+         "lufs_step": -1.0349414660601273,
+         "lufs_excess": null,
+         "centroid_excess_hz": null,
+         "lufs_ok_literal": false,
+         "lufs_ok_excess": false
+        }
+       ],
+       "extra_seconds": 0.015716552734375,
+       "pass_machine_literal": false,
+       "pass_machine_excess": false,
+       "pass_machine_floor": false
+      }
+     }
+    }
+   }
+  }
+ },
+ "tally": {
+  "cut/C1": {
+   "literal": "1/4",
+   "excess": "1/4",
+   "floor": "1/4"
+  },
+  "cut/C1_bal": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "cut/C1_con": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "cut/C2": {
+   "literal": "1/4",
+   "excess": "1/4",
+   "floor": "1/4"
+  },
+  "lyrics/A1": {
+   "literal": "0/4",
+   "excess": "1/4",
+   "floor": "0/4"
+  },
+  "lyrics/A2": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "lyrics/A3": {
+   "literal": "0/4",
+   "excess": "3/4",
+   "floor": "1/4"
+  },
+  "lyrics/A3_bal": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "lyrics/A3_con": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "phrase/A1": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "phrase/A2": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "phrase/A3": {
+   "literal": "1/4",
+   "excess": "3/4",
+   "floor": "3/4"
+  },
+  "phrase/A3_bal": {
+   "literal": "0/4",
+   "excess": "1/4",
+   "floor": "1/4"
+  },
+  "phrase/A3_con": {
+   "literal": "0/4",
+   "excess": "1/4",
+   "floor": "1/4"
+  },
+  "reharm/A1": {
+   "literal": "0/4",
+   "excess": "1/4",
+   "floor": "1/4"
+  },
+  "reharm/A2": {
+   "literal": "0/4",
+   "excess": "2/4",
+   "floor": "2/4"
+  },
+  "reharm/A3": {
+   "literal": "0/4",
+   "excess": "4/4",
+   "floor": "3/4"
+  },
+  "reharm/A3_bal": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "reharm/A3_con": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "repeat/C1": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "repeat/C1_bal": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "repeat/C1_con": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  },
+  "repeat/C2": {
+   "literal": "0/4",
+   "excess": "0/4",
+   "floor": "0/4"
+  }
+ },
+ "aggregate": {
+  "raw_misalignment_ms": {
+   "n": 23,
+   "median": 7.833127561900126,
+   "share_over_20ms": 0.13043478260869565,
+   "max": 64.30319278915115
+  },
+  "verified_residual_seams_A3_C1": {
+   "ok": 14,
+   "fail": 0,
+   "unresolved": 18
+  },
+  "lufs_excess_abs": {
+   "A1": {
+    "n": 24,
+    "median": 0.8906804114083622,
+    "max": 5.38543435572157,
+    "share_le_1dB": 0.5416666666666666
+   },
+   "A2": {
+    "n": 24,
+    "median": 0.7223979282718851,
+    "max": 4.126231372564613,
+    "share_le_1dB": 0.5833333333333334
+   },
+   "A3": {
+    "n": 24,
+    "median": 0.15826300221586465,
+    "max": 1.3130470285131235,
+    "share_le_1dB": 0.9583333333333334
+   },
+   "A3_bal": {
+    "n": 24,
+    "median": 1.4806813072602472,
+    "max": 5.821787639645219,
+    "share_le_1dB": 0.375
+   },
+   "A3_con": {
+    "n": 24,
+    "median": 1.5031568751946702,
+    "max": 7.179116052417438,
+    "share_le_1dB": 0.375
+   }
+  },
+  "heal_window_lufs_delta_db": {
+   "bal": {
+    "n": 32,
+    "median": -1.7978054710199585,
+    "min": -13.433288797489196,
+    "share_below_minus_1dB": 0.6875,
+    "share_below_minus_3dB": 0.1875
+   },
+   "con": {
+    "n": 32,
+    "median": -2.080217983459166,
+    "min": -14.748905554513323,
+    "share_below_minus_1dB": 0.78125,
+    "share_below_minus_3dB": 0.25
+   }
+  },
+  "heal_seconds_per_window": {
+   "bal": {
+    "n": 32,
+    "median": 10.641608834266663,
+    "max": 21.031399488449097
+   },
+   "con": {
+    "n": 32,
+    "median": 12.553171515464783,
+    "max": 26.525495052337646
+   }
+  },
+  "span_delta_vs_control_points": {
+   "cut/C1": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "cut/C1_bal": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "cut/C1_con": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "lyrics/A3": [
+    -0.0,
+    -0.026,
+    -0.0,
+    -0.053
+   ],
+   "lyrics/A3_bal": [
+    -0.05,
+    -0.211,
+    -0.208,
+    -0.0
+   ],
+   "phrase/A3": [
+    -0.049,
+    0.089,
+    0.142,
+    0.056
+   ],
+   "phrase/A3_bal": [
+    -0.077,
+    -0.031,
+    -0.093,
+    0.145
+   ],
+   "phrase/A3_con": [
+    -0.077,
+    -0.05,
+    -0.093,
+    0.145
+   ],
+   "reharm/A3": [
+    0.0,
+    0.0,
+    0.0,
+    0.0
+   ],
+   "reharm/A3_bal": [
+    -0.125,
+    -0.25,
+    -0.125,
+    0.0
+   ],
+   "reharm/A3_con": [
+    -0.125,
+    -0.25,
+    -0.125,
+    0.0
+   ],
+   "repeat/C1": [
+    -0.037,
+    -0.008,
+    0.008,
+    -0.0
+   ],
+   "repeat/C1_bal": [
+    -0.431,
+    -0.008,
+    -0.03,
+    -0.057
+   ],
+   "repeat/C1_con": [
+    -0.443,
+    -0.008,
+    -0.03,
+    -0.057
+   ]
+  },
+  "splice_seconds": {
+   "median": 0.20803189277648926,
+   "max": 0.33445143699645996
+  },
+  "base_audio_changed_s_A3_C1": {
+   "median": 0.666125,
+   "max": 0.7049791666666667
+  }
+ },
+ "drift_of_a_full_rerender_vs_base_unedited_bars": {
+  "A_reharm": {
+   "bars": 51,
+   "lufs_delta_mean": 0.3432446631828081,
+   "lufs_abs_median": 0.8777252903801234,
+   "lufs_abs_p95": 4.286888932042116,
+   "lufs_abs_max": 8.928272018300774,
+   "share_over_1dB": 0.47058823529411764,
+   "centroid_abs_median_hz": 280.74941853046425,
+   "centroid_abs_p95_hz": 729.3783684388275
+  },
+  "A_phrase": {
+   "bars": 55,
+   "lufs_delta_mean": 1.1105555406964527,
+   "lufs_abs_median": 1.472383089275155,
+   "lufs_abs_p95": 6.1727714668031375,
+   "lufs_abs_max": 10.018277907999542,
+   "share_over_1dB": 0.8727272727272727,
+   "centroid_abs_median_hz": 666.2082823725461,
+   "centroid_abs_p95_hz": 1249.9347175223143
+  },
+  "A_lyrics": {
+   "bars": 43,
+   "lufs_delta_mean": 0.6917586573245408,
+   "lufs_abs_median": 0.6790979752628203,
+   "lufs_abs_p95": 3.4419898973512897,
+   "lufs_abs_max": 6.766539494142476,
+   "share_over_1dB": 0.3953488372093023,
+   "centroid_abs_median_hz": 279.4511008500424,
+   "centroid_abs_p95_hz": 910.8381880215803
+  },
+  "B_reharm": {
+   "bars": 49,
+   "lufs_delta_mean": 0.23569620594994292,
+   "lufs_abs_median": 0.5609542095490649,
+   "lufs_abs_p95": 3.743090616270479,
+   "lufs_abs_max": 4.348143662422045,
+   "share_over_1dB": 0.3469387755102041,
+   "centroid_abs_median_hz": 295.02226747642817,
+   "centroid_abs_p95_hz": 938.6080664212625
+  },
+  "B_phrase": {
+   "bars": 53,
+   "lufs_delta_mean": -0.9420319294479969,
+   "lufs_abs_median": 0.8983794949280206,
+   "lufs_abs_p95": 4.3002376870519345,
+   "lufs_abs_max": 9.05977103213533,
+   "share_over_1dB": 0.4716981132075472,
+   "centroid_abs_median_hz": 178.83325189127208,
+   "centroid_abs_p95_hz": 1854.5333501662012
+  },
+  "B_lyrics": {
+   "bars": 49,
+   "lufs_delta_mean": -0.5657988371336511,
+   "lufs_abs_median": 0.909339872385269,
+   "lufs_abs_p95": 4.673412655037063,
+   "lufs_abs_max": 6.72044916447903,
+   "share_over_1dB": 0.4489795918367347,
+   "centroid_abs_median_hz": 570.1462210257573,
+   "centroid_abs_p95_hz": 1378.909302481375
+  },
+  "C_reharm": {
+   "bars": 63,
+   "lufs_delta_mean": -0.10149716537525914,
+   "lufs_abs_median": 0.4996572264832331,
+   "lufs_abs_p95": 1.6270352878883234,
+   "lufs_abs_max": 3.763418343440655,
+   "share_over_1dB": 0.20634920634920634,
+   "centroid_abs_median_hz": 1080.9973039114097,
+   "centroid_abs_p95_hz": 1840.5000320984032
+  },
+  "C_phrase": {
+   "bars": 67,
+   "lufs_delta_mean": -0.8092030311889072,
+   "lufs_abs_median": 1.0980197041896211,
+   "lufs_abs_p95": 3.1355916474333076,
+   "lufs_abs_max": 3.6915216743980857,
+   "share_over_1dB": 0.5671641791044776,
+   "centroid_abs_median_hz": 446.4801919314982,
+   "centroid_abs_p95_hz": 889.6356880677683
+  },
+  "C_lyrics": {
+   "bars": 63,
+   "lufs_delta_mean": 0.18086001233781152,
+   "lufs_abs_median": 0.7466158940140168,
+   "lufs_abs_p95": 3.1568325695369017,
+   "lufs_abs_max": 6.4585976775817215,
+   "share_over_1dB": 0.36507936507936506,
+   "centroid_abs_median_hz": 339.49981963074083,
+   "centroid_abs_p95_hz": 1302.0386281100407
+  },
+  "D_reharm": {
+   "bars": 50,
+   "lufs_delta_mean": -0.4810998173220203,
+   "lufs_abs_median": 0.883774137632007,
+   "lufs_abs_p95": 5.278413852456967,
+   "lufs_abs_max": 6.844979234013289,
+   "share_over_1dB": 0.48,
+   "centroid_abs_median_hz": 326.9838579058014,
+   "centroid_abs_p95_hz": 1419.3795693490563
+  },
+  "D_phrase": {
+   "bars": 54,
+   "lufs_delta_mean": -0.5344173608616392,
+   "lufs_abs_median": 0.6847422955616302,
+   "lufs_abs_p95": 6.975157397332408,
+   "lufs_abs_max": 11.128100566378626,
+   "share_over_1dB": 0.4444444444444444,
+   "centroid_abs_median_hz": 752.8762120168867,
+   "centroid_abs_p95_hz": 1449.5653457039055
+  },
+  "D_lyrics": {
+   "bars": 50,
+   "lufs_delta_mean": -0.22179449051458858,
+   "lufs_abs_median": 0.8779845136394009,
+   "lufs_abs_p95": 6.624944483859275,
+   "lufs_abs_max": 10.910589267541566,
+   "share_over_1dB": 0.46,
+   "centroid_abs_median_hz": 668.0149625191036,
+   "centroid_abs_p95_hz": 1416.2290325287345
+  }
+ },
+ "words_at_cut_points": {
+  "cut_points": 36,
+  "no_word_straddles": 14,
+  "word_straddles_one_side": 7,
+  "word_straddles_both_sides": 15,
+  "of_which_same_word": 7
+ },
+ "whisper_wer_first_chorus": {
+  "A": {
+   "base_vs_old_lines": 1.0,
+   "control_vs_new_lines": 0.95,
+   "control_vs_old_lines": 0.952,
+   "A1_vs_new": 0.95,
+   "A2_vs_new": 0.95,
+   "A3_vs_new": 0.95,
+   "A3_bal_vs_new": 1.0,
+   "A3_con_vs_new": 1.0
+  },
+  "B": {
+   "base_vs_old_lines": 0.0,
+   "control_vs_new_lines": 0.105,
+   "control_vs_old_lines": 0.85,
+   "A1_vs_new": 0.132,
+   "A2_vs_new": 0.158,
+   "A3_vs_new": 0.132,
+   "A3_bal_vs_new": 0.316,
+   "A3_con_vs_new": 0.211
+  },
+  "C": {
+   "base_vs_old_lines": 0.108,
+   "control_vs_new_lines": 0.75,
+   "control_vs_old_lines": 1.0,
+   "A1_vs_new": 0.75,
+   "A2_vs_new": 0.708,
+   "A3_vs_new": 0.75,
+   "A3_bal_vs_new": 0.958,
+   "A3_con_vs_new": 0.833
+  },
+  "D": {
+   "base_vs_old_lines": 0.048,
+   "control_vs_new_lines": 0.158,
+   "control_vs_old_lines": 0.905,
+   "A1_vs_new": 0.211,
+   "A2_vs_new": 0.211,
+   "A3_vs_new": 0.211,
+   "A3_bal_vs_new": 0.158,
+   "A3_con_vs_new": 0.211
+  }
+ },
+ "listen": {
+  "page": "listen/index.html",
+  "pairs": [
+   {
+    "id": "p1",
+    "n": 1,
+    "title": "Purple Shinings (4/4, 87 BPM) \u00b7 REHARMONIZE 8 bars of the first chorus",
+    "candidate": "reharm/A3",
+    "edited": "A"
+   },
+   {
+    "id": "p2",
+    "n": 2,
+    "title": "Romantica (Latin pop, 93 BPM) \u00b7 REHARMONIZE 8 bars of the first chorus",
+    "candidate": "reharm/A3",
+    "edited": "A"
+   },
+   {
+    "id": "p3",
+    "n": 3,
+    "title": "Gertar (German, 85 BPM) \u00b7 REHARMONIZE 8 bars of the first chorus",
+    "candidate": "reharm/A3",
+    "edited": "A"
+   },
+   {
+    "id": "p4",
+    "n": 4,
+    "title": "Carinito (Latin pop, 95 BPM) \u00b7 REHARMONIZE 8 bars of the first chorus",
+    "candidate": "reharm/A3",
+    "edited": "A"
+   },
+   {
+    "id": "p5",
+    "n": 5,
+    "title": "Purple Shinings (4/4, 87 BPM) \u00b7 REWRITE LYRICS first chorus",
+    "candidate": "lyrics/A3",
+    "edited": "A"
+   },
+   {
+    "id": "p6",
+    "n": 6,
+    "title": "Romantica (Latin pop, 93 BPM) \u00b7 REWRITE LYRICS first chorus",
+    "candidate": "lyrics/A3",
+    "edited": "A"
+   },
+   {
+    "id": "p7",
+    "n": 7,
+    "title": "Gertar (German, 85 BPM) \u00b7 REWRITE LYRICS first chorus",
+    "candidate": "lyrics/A3",
+    "edited": "B"
+   },
+   {
+    "id": "p8",
+    "n": 8,
+    "title": "Carinito (Latin pop, 95 BPM) \u00b7 REWRITE LYRICS first chorus",
+    "candidate": "lyrics/A3",
+    "edited": "B"
+   },
+   {
+    "id": "p9",
+    "n": 9,
+    "title": "Purple Shinings (4/4, 87 BPM) \u00b7 WRITE PHRASE 4 bars",
+    "candidate": "phrase/A3",
+    "edited": "B"
+   },
+   {
+    "id": "p10",
+    "n": 10,
+    "title": "Romantica (Latin pop, 93 BPM) \u00b7 WRITE PHRASE 4 bars",
+    "candidate": "phrase/A3",
+    "edited": "A"
+   },
+   {
+    "id": "p11",
+    "n": 11,
+    "title": "Gertar (German, 85 BPM) \u00b7 WRITE PHRASE 4 bars",
+    "candidate": "phrase/A3",
+    "edited": "B"
+   },
+   {
+    "id": "p12",
+    "n": 12,
+    "title": "Carinito (Latin pop, 95 BPM) \u00b7 WRITE PHRASE 4 bars",
+    "candidate": "phrase/A3",
+    "edited": "A"
+   },
+   {
+    "id": "p13",
+    "n": 13,
+    "title": "Purple Shinings (4/4, 87 BPM) \u00b7 REPEAT first chorus",
+    "candidate": "repeat/C1",
+    "edited": "A"
+   },
+   {
+    "id": "p14",
+    "n": 14,
+    "title": "Romantica (Latin pop, 93 BPM) \u00b7 REPEAT first chorus",
+    "candidate": "repeat/C1",
+    "edited": "A"
+   },
+   {
+    "id": "p15",
+    "n": 15,
+    "title": "Gertar (German, 85 BPM) \u00b7 REPEAT first chorus",
+    "candidate": "repeat/C1",
+    "edited": "A"
+   },
+   {
+    "id": "p16",
+    "n": 16,
+    "title": "Carinito (Latin pop, 95 BPM) \u00b7 REPEAT first chorus",
+    "candidate": "repeat/C1",
+    "edited": "B"
+   },
+   {
+    "id": "p17",
+    "n": 17,
+    "title": "Purple Shinings (4/4, 87 BPM) \u00b7 CUT verse (section 2)",
+    "candidate": "cut/C1",
+    "edited": "B"
+   },
+   {
+    "id": "p18",
+    "n": 18,
+    "title": "Romantica (Latin pop, 93 BPM) \u00b7 CUT verse (section 4)",
+    "candidate": "cut/C1",
+    "edited": "B"
+   },
+   {
+    "id": "p19",
+    "n": 19,
+    "title": "Gertar (German, 85 BPM) \u00b7 CUT verse (section 5)",
+    "candidate": "cut/C1",
+    "edited": "B"
+   },
+   {
+    "id": "p20",
+    "n": 20,
+    "title": "Carinito (Latin pop, 95 BPM) \u00b7 CUT verse (section 4)",
+    "candidate": "cut/C1",
+    "edited": "A"
+   },
+   {
+    "id": "p21",
+    "n": 21,
+    "title": "Purple Shinings (4/4, 87 BPM) \u00b7 REHARMONIZE 8 bars of the first chorus (optional extra)",
+    "candidate": "reharm/A3_bal",
+    "edited": "A"
+   },
+   {
+    "id": "p22",
+    "n": 22,
+    "title": "Gertar (German, 85 BPM) \u00b7 REHARMONIZE 8 bars of the first chorus (optional extra)",
+    "candidate": "reharm/A3_con",
+    "edited": "B"
+   },
+   {
+    "id": "p23",
+    "n": 23,
+    "title": "Romantica (Latin pop, 93 BPM) \u00b7 WRITE PHRASE 4 bars (optional extra)",
+    "candidate": "phrase/A3_bal",
+    "edited": "B"
+   },
+   {
+    "id": "p24",
+    "n": 24,
+    "title": "Purple Shinings (4/4, 87 BPM) \u00b7 REPEAT first chorus (optional extra)",
+    "candidate": "repeat/C1_bal",
+    "edited": "B"
+   },
+   {
+    "id": "p25",
+    "n": 25,
+    "title": "Gertar (German, 85 BPM) \u00b7 CUT verse (section 5) (optional extra)",
+    "candidate": "cut/C1_con",
+    "edited": "B"
+   },
+   {
+    "id": "p26",
+    "n": 26,
+    "title": "Carinito (Latin pop, 95 BPM) \u00b7 REWRITE LYRICS first chorus (optional extra)",
+    "candidate": "lyrics/A3_bal",
+    "edited": "A"
+   },
+   {
+    "id": "p27",
+    "n": 27,
+    "title": "Gertar (German, 85 BPM) \u00b7 REHARMONIZE 8 bars of the first chorus \u00b7 whole song re-rendered (what happens today) (optional extra)",
+    "candidate": "reharm/control",
+    "edited": "B"
+   },
+   {
+    "id": "p28",
+    "n": 28,
+    "title": "Romantica (Latin pop, 93 BPM) \u00b7 REWRITE LYRICS first chorus \u00b7 whole song re-rendered (what happens today) (optional extra)",
+    "candidate": "lyrics/control",
+    "edited": "B"
+   }
+  ],
+  "owed": "user's ear half of the pass bar (pairs 1-20 required, 21-28 optional)"
+ },
+ "verdicts": {
+  "note": "machine half of SPIKE.md's pass bar only; the ear half (join not found in >= 4 of 5 pairs) is OWED to the user (listen/index.html, pairs 1-20).",
+  "A_plain_splice_A1_A2": {
+   "all_local_kinds": "disproven as sufficient: 11 of 24 (A1) and 10 of 24 (A2) seams step more than 1 dB beyond what the base itself does there (max 5.4 dB); the new take sits 3.7-6.0 dB off the old audio at one end of the span in 3 of 12 edits (2.6 dB in 2 more)"
+  },
+  "A_level_matched_splice_A3": {
+   "REHARMONIZE": {
+    "verdict": "proven (machine)",
+    "songs_passing": "4/4",
+    "detail": "span chord roots equal to the full re-render on all 4; every seam within 0.6 dB of the base's own step; 0 differing samples outside the 1-beat crossfades"
+   },
+   "WRITE_PHRASE": {
+    "verdict": "proven (machine)",
+    "songs_passing": "3/4",
+    "detail": "Ins-phrase F1 vs written notes -4.9 / +8.9 / +14.2 / +5.6 points vs the re-render; song A's exit seam is 1.3 dB beyond the base (fails the 1 dB excess clause)"
+   },
+   "REWRITE_LYRICS": {
+    "verdict": "inconclusive",
+    "songs_passing": "2/3 measurable",
+    "detail": "Whisper WER on the new chorus vs the re-render: B +2.6 pt, C 0.0, D +5.3 pt (misses the 5 pt bar by 0.3); song A cannot be read by Whisper at all (WER 1.0 on the base)"
+   },
+   "ear": "OWED"
+  },
+  "B_splice_plus_ACE_Step_repaint": {
+   "local_edits": {
+    "verdict": "disproven (machine) as an improvement over A3",
+    "detail": "span adherence worse than A3 in 8 of 11 measurable cases (up to -25 points of chord roots, -23 points of phrase F1, words smeared: B lyrics WER 0.13 -> 0.32), seam level step beyond the base grows from median 0.16 to 1.5 dB, repainted windows come back median 1.8 dB quieter (min -13.4 dB)"
+   },
+   "structure_seams": {
+    "verdict": "inconclusive",
+    "detail": "REPEAT seam: copy-vs-first F1 falls on 3 of 4 songs (song A 0.93 -> 0.53); CUT seam unchanged in every measure; ear decides"
+   },
+   "ear": "OWED (optional pairs 21-26)"
+  },
+  "C_audio_only_REPEAT_CUT": {
+   "plumbing": "proven (machine): 0 differing samples outside the crossfades; REPEAT copy-vs-first F1 0.93-0.99 (re-render 0.95-1.00, within 5 points on 4/4); no YuE2 render, 0.2 s of CPU",
+   "REPEAT": {
+    "verdict": "inconclusive",
+    "detail": "the level step at the chorus-into-copy seam is +8.5 / -0.1 / +3.5 / -0.3 dB (literal 1 dB bar met by 2 of 4); alignment verified OK on 3 of 4 (1 unresolved)"
+   },
+   "CUT": {
+    "verdict": "inconclusive",
+    "detail": "level step +0.8 / -1.9 / +3.4 / -1.1 dB (1 of 4 within 1 dB); the step is the song's own section-to-section change, not an artefact; alignment verified OK on 3 of 4"
+   },
+   "ear": "OWED"
+  },
+  "D_forced_prefix_continuation": {
+   "verdict": "inconclusive (not run)",
+   "detail": "stretch candidate, gated on A/B failing the machine half for local edits; A3 did not fail it. Revisit only if the owed listen finds the A3 joins."
+  }
+ }
+}

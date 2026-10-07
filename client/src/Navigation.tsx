@@ -5,6 +5,8 @@ interface Nav {
   /** Opens the editor on a song from anywhere, closing whichever takeover view is up —
    * used by Create's MOVE TO EDITOR, which lands you on the song it just imported. */
   openEditor: (songId: string) => void;
+  /** OPEN CHAT on a song (D-099): the CHAT screen on that song's thread. */
+  openChat?: (songId: string) => void;
 }
 
 /** Lets deeply-nested components (e.g. VoicePicker's "MANAGE VOICES" link) navigate to a

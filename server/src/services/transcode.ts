@@ -68,6 +68,22 @@ function runFfmpeg(args: string[]): Promise<void> {
   });
 }
 
+/** The first `seconds` of the audio as FLAC (lossless, about half a WAV's size): a chat reading
+ * reads at most 360 s of a longer reference (D-138). */
+export function trimArgs(inPath: string, outPath: string, seconds: number): string[] {
+  return [
+    '-hide_banner', '-loglevel', 'error', '-nostdin',
+    '-i', inPath, '-t', String(seconds), '-map', 'a',
+    '-c:a', 'flac',
+    '-y', outPath,
+  ];
+}
+
+/** Write the first `seconds` of `inPath` to `outPath` (a `.flac`). Both paths are absolute. */
+export async function trimAudio(inPath: string, outPath: string, seconds: number): Promise<void> {
+  await runFfmpeg(trimArgs(inPath, outPath, seconds));
+}
+
 /** Transcode `inPath` to `outPath` per `out`. Both paths are absolute. */
 export async function transcodeFile(inPath: string, outPath: string, out: OutputSettings): Promise<void> {
   await runFfmpeg(ffmpegArgs(inPath, outPath, out));

@@ -27,7 +27,7 @@ vi.mock('./engineTranscribeClient.js', () => ({
 
 const { getJob, abortJob } = await import('./jobs.js');
 const { enqueue, getRunning } = await import('./genQueue.js');
-const { startTranscription } = await import('./transcribeJobs.js');
+const { startTranscription, runTranscription } = await import('./transcribeJobs.js');
 
 const engine = { id: 'yue2', label: 'YUE2', url: 'http://127.0.0.1:9000', apiKey: '' } as SongEngine;
 const source = { data: Buffer.from('audio'), filename: 'ellies.wav', label: 'Ellies City 2' };
@@ -89,5 +89,32 @@ describe('startTranscription', () => {
     free();
     await vi.waitFor(() => expect(client.transcribe).toHaveBeenCalled());
     await vi.waitFor(() => expect(getRunning()).toBeNull());
+  });
+});
+
+describe('runTranscription (a chat reading inside its own slot, CR-2)', () => {
+  const held = () => ({ id: 'reading-1', taskId: '', status: 'running' as const, createdAt: 0 });
+
+  it('returns the score with chords asked for, and queues nothing of its own', async () => {
+    const job = held();
+    const out = await runTranscription(job, engine, source, { chords: true });
+    expect(client.transcribe).toHaveBeenCalledWith(engine, source.data, 'ellies.wav', 'reading-1', { chords: true });
+    expect(out).toEqual({ ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2' });
+    expect(getRunning()).toBeNull();
+    expect(job.status).toBe('running'); // the caller settles its own job
+  });
+
+  it('throws the engine\'s failure and returns undefined once aborted (the engine asked to stop)', async () => {
+    client.transcriptionStatus.mockImplementation(async () => ({ state: 'failed', error: 'SheetSage2 built no score' }));
+    await expect(runTranscription(held(), engine, source)).rejects.toThrow('SheetSage2 built no score');
+    const job = held();
+    let polls = 0;
+    client.transcriptionStatus.mockImplementation(async () => {
+      if (++polls === 2) Object.assign(job, { status: 'failed', error: 'Aborted' });
+      return polls > 3 ? { state: 'failed', error: 'cancelled' } : { state: 'running' };
+    });
+    expect(await runTranscription(job, engine, source)).toBeUndefined();
+    expect(client.cancelTranscription).toHaveBeenCalledWith(engine, 'remote-1');
+    expect(client.fetchTranscriptionScore).not.toHaveBeenCalled();
   });
 });

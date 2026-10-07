@@ -1,0 +1,190 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CHAT MARK</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--wv:#55565F;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--li:#7B4B94;--lt:#A97FC1;--ln:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}
+h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:26px 0 12px}
+li{max-width:1100px}.rd,.hn,.tm,.sg i,.fk,.rr,.sl,.rl,.cxl{font-family:ui-monospace,monospace}.rd,.hn{font-size:10px;color:var(--w)}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.nt{max-width:1006px;margin-top:6px;font-size:12px;color:var(--m)}
+.fr{--z:.6;width:820px;height:461px;overflow:hidden;border:1px solid var(--h);cursor:zoom-in}.fr.big{width:1368px;height:770px;cursor:zoom-out}.fr.big .sc{transform:none}
+.sc{width:1366px;height:768px;background:var(--c);transform:scale(var(--z));transform-origin:0 0;position:relative;overflow:hidden;font-size:12px}
+.hdr{height:40px;display:flex;align-items:center;padding:0 20px;border-bottom:1px solid var(--l);background:var(--p);font-size:10px;letter-spacing:2px;color:var(--m)}.hdr b{color:var(--t);font-size:13px;margin-right:auto}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}.p>span{display:inline-block;transform:skewX(10deg)}
+.t1{border:1px solid var(--l);color:var(--m);padding:6px 14px;font-size:11px}.t1.on{border-color:var(--a);color:var(--a)}
+.ch{background:var(--s);color:var(--sk);padding:4px 11px;font-size:10px}.ch.fz{background:var(--st);color:var(--s);border:1px solid var(--s)}.ch.fz.dd{opacity:.45;border-style:dashed}.ch.bd2{background:var(--rw);color:var(--rt);border:1px solid var(--ru)}.ch.pd{background:none;color:var(--s);border:1px dashed var(--s)}
+.ao,.q{font-size:11px;border:1px solid}.ao{color:var(--a);border-color:var(--a);padding:6px 12px;font-size:10px}.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}
+.ttl{height:49px;display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:1px solid var(--l)}.ttl h3{margin:0;font-size:20px;letter-spacing:3px}
+.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.bd{position:absolute;top:89px;bottom:0;left:0;right:0;display:flex}
+.mn{flex:1;min-width:0;position:relative;display:flex;flex-direction:column}.th{flex:1;min-height:0;overflow:hidden;padding:12px 0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:flex-end}.th>*{width:min(760px,94%);flex:none}
+.um{margin-left:auto;max-width:560px;background:var(--r);padding:9px 12px}.am{max-width:720px;color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}
+.cp{flex:none;border-top:1px solid var(--l);background:var(--p);padding:8px 0 12px;display:flex;flex-direction:column;gap:7px}.cp>*{width:min(760px,94%);margin:0 auto}.cl{display:flex;gap:12px;align-items:center}.cl .in{flex:1}
+.cr2{display:flex;align-items:center;gap:8px;height:26px}.x{color:var(--w);padding:0 4px}
+.cxl{height:14px;font-size:10px;line-height:14px;color:var(--m)}.cxl.bad{color:var(--rt)}
+.in{border:1px solid var(--h);background:var(--c);padding:9px 11px;color:var(--w);height:40px}.hx{width:38px;height:32px;background:var(--a);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);color:var(--c);display:flex;align-items:center;justify-content:center}
+.sb{width:360px;flex:none;border-left:1px solid var(--l);background:var(--p)}.sbh{display:flex;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--l)}
+.fd{display:grid;grid-template-columns:90px 1fr;gap:8px;padding:6px 14px;border-bottom:1px solid var(--l);align-items:center}.fk{font-weight:700;font-size:10px;color:var(--w)}
+.cd{border:1px solid var(--h);background:var(--p)}.hd{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--l)}.vc>.hd{border:0}
+.cm{display:flex;gap:14px;padding:10px 14px;border-top:1px solid var(--l);font-size:11px;color:var(--m)}.cs{flex:1}
+.wn{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.wn div{flex:1}.wn b{color:var(--rt)}
+.pl{flex:none;padding:5px 24px;background:var(--p);border-bottom:1px solid var(--l)}.pr{display:flex;align-items:center;gap:10px;height:32px}.tm{font-size:11px;color:var(--m)}
+.vp,.ab{border:1px solid var(--li);color:var(--lt);padding:3px 10px;font-size:11px}.vp{background:var(--ln)}
+.rl{height:16px;margin-top:3px;font-size:10px;color:var(--m);display:flex;gap:10px;align-items:center;white-space:nowrap;overflow:hidden}.rl.q2{color:var(--w)}.rl.bad{color:var(--rt)}.rl u{color:var(--t)}.rl .ao{padding:0 8px;font-size:9px;line-height:14px}.rl.in2{margin:0 0 0 auto}
+.sg{display:flex;gap:3px}.sg i{font-size:9px;font-style:normal;color:var(--m);background:var(--r);padding:4px 0;height:20px;text-align:center;overflow:hidden;white-space:nowrap;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.sg i.on{background:var(--s);color:var(--sk)}.sg i.pt{background:var(--st);color:var(--s)}.sg i.up{opacity:.5}.sg i.hc{background:repeating-linear-gradient(135deg,var(--r) 0 4px,var(--l) 4px 5px)}
+.stk{position:relative;margin-top:3px}.rr{position:relative;height:13px;font-size:9px;line-height:13px;color:var(--w);background:linear-gradient(90deg,var(--l) 1px,transparent 1px) 0 100%/calc(100%/var(--n)) 5px repeat-x}.rr span{position:absolute;top:0;padding-left:2px;border-left:1px solid var(--h)}
+.wf{position:relative;display:flex;align-items:center;gap:1px}.wf i{flex:1;background:var(--wv)}.wf i.on{background:var(--s)}
+.mk{position:absolute;top:0;bottom:0;background:var(--st);border:solid var(--s);border-width:0 1px}.mk.gh{background:var(--rw);border:dashed var(--ru);border-width:0 1px}.mk.sc2{border-style:dashed}.gp{position:absolute;top:0;width:7px;height:13px;background:var(--s);z-index:3}
+.ph{position:absolute;top:0;bottom:0;width:2px;background:var(--s);z-index:4}
+.sn{position:absolute;top:0;bottom:0;border-left:1px dashed var(--t);z-index:4}.sl{position:absolute;top:16px;background:var(--s);color:var(--sk);font-size:9px;line-height:16px;padding:0 6px;white-space:nowrap;z-index:5}
+.cr{width:1006px;border:1px solid var(--h);background:var(--c)}.cr.mc{display:flex}.cr .pl{padding:5px 24px}
+.pop{position:absolute;left:24px;bottom:130px;width:540px;border:1px solid var(--s);z-index:6;background:var(--p)}
+.rw2{display:grid;grid-template-columns:150px 1fr;gap:8px;padding:6px 24px;border-bottom:1px solid var(--l);background:var(--p)}.rw2 .rl{margin:0}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:8px 0;max-width:1100px}
+.snd{padding:7px 12px;border:1px solid var(--a);color:var(--a);font-weight:700;font-size:11px}.snd.hold{opacity:.35;border-color:var(--h);color:var(--m)}
+</style></head><body>
+<h1>CHAT MARK · the player above the composer, the strip, the mark</h1>
+<div class="rd">stage 5 · DT-C1 · F-052..F-055 · D-095, D-171..D-182 · tokens: DESIGN.md, none added · click a frame to zoom</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li><b>Budget.</b> The player sits above the composer (D-095), not at the top as chat-song.html drew it. Waveform, ruler, strip and reading line cost 134 px; the thread must keep 400 px at 1366×768 (measured below from each full frame's DOM).</li>
+<li>Strip modes (F-053), reading-line copy per state (F-052), the mark in four kinds, snap pointer and tag, WHAT IT SEES, frozen echo, stale with and without USE BARS, the composer line during an analysis (F-054, F-055, Q-069).</li>
+<li>Layout numbers <i>inferred</i> from this page's DOM; drag, 0.2 s click, Esc <i>seen in code</i> (chat-song.html's evidence). One sky for the mark (CS-6); lilac the version; rust for failure and stale; acid for commits.</li>
+</ul>
+
+<h2>1 · THE FRAME · real size 1366×768, thread measured</h2><div class="g" id="fm"></div>
+<h2>2 · THE STRIP · live, dim, hatched (main column 1006 px)</h2><div class="g" id="st"></div>
+<h2>3 · THE READING LINE · every state</h2><div class="g" id="rs"></div>
+<h2>4 · THE MARK · four kinds</h2><div class="g" id="mk"></div>
+<h2>5 · SNAP · pointer and tag</h2><div class="g" id="sn"></div>
+<h2>6 · THE CHIP · WHAT IT SEES open</h2><div class="g" id="se"></div>
+<h2>7 · THE FROZEN ECHO</h2><div class="g" id="ec"></div>
+<h2>8 · A STALE MARK · with and without USE BARS</h2><div class="g" id="sl"></div>
+<h2>9 · THE COMPOSER LINE · while an analysis runs</h2><div class="g" id="cx"></div>
+<h2>OPTIONS · where the reading line lives</h2><div class="g" id="op"></div>
+
+<h2>DECISIONS (assumed until the owner signs off)</h2><div id="dec"></div>
+
+<h2>OPEN QUESTIONS (new ones also in pipeline/open-questions.md)</h2>
+<ul>
+<li><b>Q-114</b> assumable: reading line on its own row (B), not in the top row (A); 19 px. Owner may pick A at sign-off.</li>
+<li><b>Q-115</b> deferred: the lyric-line lane (CS-4d) is in neither F-053 nor F-054; not drawn; lands with C2's lyrics panel (21 px).</li>
+<li><b>Q-116</b> assumable: a click under 0.2 s on empty waveform seeks and clears; a drag marks. Alternative: seek only from the ruler.</li>
+<li><b>Q-117</b> assumable: a seconds-only mark snaps to bars when the reading lands, the chip turns solid, the reading line says so for 6 s. Alternative: stays seconds-only.</li>
+<li><b>Q-118</b> assumable: an Alt-freed edge reads in seconds plus the bars it touches. Alternative: no Alt in C1.</li>
+<li>Blocking: none. The page needs the owner's sign-off before CL-8a (DT-C1).</li>
+</ul>
+
+<h2>CHECK ON A REAL DEVICE (desktop, 1366×768)</h2>
+<ul>
+<li>With the browser toolbar (viewport under 768): thread still 400 px with chip and line?</li>
+<li>Is the 7 px grip easy to catch on a 24 px (2-bar) edge? Is the 10 px reading line legible? Are dim, hatched, sky, sky-tint, lilac, rust apart?</li>
+<li>Does Alt-free work (Alt focuses the Windows menu bar)? A save mid-play: no gap?</li>
+</ul>
+
+<script>
+const $=i=>document.getElementById(i);
+const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
+const f=s=>{s=Math.round(s);return(s/60|0)+":"+String(s%60).padStart(2,"0")};
+const rg=(a,b)=>f((a-1)*2.4)+"–"+f(b*2.4);
+const SEC=[["INTRO",8],["VERSE 1",8],["VERSE 2",8],["CHORUS 1",8],["VERSE 3",8],["CHORUS 2",8],["BRIDGE",8],["CHORUS 3",16],["OUTRO",8]];
+const S5=SEC.slice(0,3).concat([["VERSE 2B",8]],SEC.slice(3));
+const PT=[["PART 1",8],["PART 2",16],["PART 3",8],["PART 4",16],["PART 5",16],["PART 6",16]];
+const sum=S=>S.reduce((a,s)=>a+s[1],0);
+const amp=n=>/CHO|PART [24]/.test(n)?.9:/BRI/.test(n)?.5:/VER|PART 5/.test(n)?.62:.4;
+const SG=(S,m,mo)=>{let c=1;return`<div class="sg">`+S.map(([k,l])=>{const a=c,b=c+l-1,o=mo=="hc"||!m?0:Math.max(0,Math.min(b,m[1])-Math.max(a,m[0])+1)/l;c+=l;
+return`<i style="flex:${l}" class="${o>=1?"on":o>0?"pt":""} ${mo||""}">${mo=="hc"?"":k}</i>`}).join("")+`</div>`};
+const RU=n=>`<div class="rr">${Array.from({length:n/8|0},(_,i)=>`<span style="left:${i*800/n}%">${i*8+1}</span>`).join("")}</div>`;
+const WV=(S,m)=>{const n=sum(S),a=[];S.forEach(([k,l])=>{for(let i=0;i<l;i++)a.push(amp(k))});let o="";
+for(let i=0;i<n*2;i++){const b=(i>>1)+1;o+=`<i class="${m&&b>=m[0]&&b<=m[1]?"on":""}" style="height:${Math.max(8,a[b-1]*(.65+.35*Math.abs(Math.sin(i*1.9)))*100)}%"></i>`}
+return`<div class="wf" style="height:36px">${o}</div>`};
+const MK=(n,a,b,g,s)=>`<div class="mk${g?" gh":""}${s?" sc2":""}" style="left:${(a-1)/n*100}%;width:${(b-a+1)/n*100}%">${g?"":'<b class="gp" style="left:-4px"></b><b class="gp" style="right:-4px"></b>'}</div>`;
+const RL=(t,c,b)=>`<div class="rl ${c||""}">${t}${b?P("ao",b):""}</div>`;
+const DONE="READ v4 · 9 SECTIONS · 22 LINES · 100 BPM";
+const PL=o=>{const S=o.S||SEC,n=sum(S),m=o.m,rl=o.rl||[DONE];return`<div class="pl"><div class="pr"><span class="hx">❚❚</span><span class="tm">${o.tm||"1:12 / 3:12"}</span>${P("vp",o.v||"v4 · quieter bridge")}${P("ab","A/B v3")}${o.inrow?RL(rl[0],(rl[1]||"")+" in2"):""}</div><div>${SG(S,m,o.mo)}</div><div class="stk" style="--n:${n}">${m?MK(n,m[0],m[1],0,o.sec):""}${o.gh?MK(n,o.gh[0],o.gh[1],1):""}${RU(n)}${WV(S,m)}${o.x||""}<div class="ph" style="left:${(o.pos??30)/n*100}%"></div></div>${o.inrow?"":RL(rl[0],rl[1],rl[2])}</div>`};
+const FR=(cl,i)=>`<div class="fr ${cl}" onclick="this.classList.toggle('big')"><div class="sc"><div class="hdr"><b>MULAKAI</b>MODELS READY</div>${i}</div></div>`;
+const O=(h,fr,n)=>`<div class="o"><h4>${h}<span class="mz"></span></h4>${fr}${n?`<div class="nt">${n}</div>`:""}</div>`;
+const TTL=x=>`<div class="ttl"><h3>LONG WAY DOWN</h3>${P("t1 on","CHAT")+P("t1","EDITOR")}<span class="hn">${x}</span></div>`;
+const um=(t,x)=>`<div class="um">${t}${x||""}</div>`,am=t=>`<div class="am">${t}</div>`;
+const VC=(v,t,x)=>`<div class="cd vc"><div class="hd">${P("vp",v)}<b style="flex:1;font-weight:400">${t}</b><span class="hn">${x}</span></div></div>`;
+const CX=(t,c)=>`${P("ch "+(c||""),t)}<span class="x">✕</span>`;
+const SEE=`<span class="hn" style="margin-left:auto"><u>WHAT IT SEES ▾</u></span>`;
+const CC=(l,a,b)=>CX(`THIS: ${l} · BARS ${a}–${b} · ${rg(a,b)}`);
+const CP=o=>`<div class="cp">${o.chip?`<div class="cr2">${o.chip}${SEE}</div>`:""}${o.cx?`<div class="cxl ${o.cc||""}">${o.cx}</div>`:""}<div class="cl"><div class="in">${o.ph||"Say what to change, or click a section to talk about it…"}</div><div class="snd${o.hold?" hold":""}">SEND ↵</div></div></div>`;
+const MN=(th,o)=>`<div class="mn"><div class="th">${th}</div>${o.pl||""}${CP(o)}${o.pop?`<div class="pop">${o.pop}</div>`:""}</div>`;
+const SBS=`<div class="sb"><div class="sbh"><span class="lb">SONG · LONG WAY DOWN</span><span class="hn">HIDE ▸</span></div><div class="fd"><div class="fk">VERSIONS</div><div>v1 v2 v3 v4 ${P("vp","v5 ●")}</div></div></div>`;
+const FM=(th,o)=>FR("",TTL(o.t||"v5 · 3:12 · THREAD 18")+`<div class="bd">${MN(th,o)+SBS}</div>`);
+const CR=(pl,chip)=>`<div class="cr">${pl}${chip?`<div class="cp"><div class="cr2">${chip}${SEE}</div></div>`:""}</div>`;
+const MC=(th,o,h)=>`<div class="cr mc" style="height:${h}px">${MN(th,o)}</div>`;
+const T4=um("make the bridge quieter")+am("Brought the <b>bridge</b> down about 6 dB. <b>Only bars 49–56 changed</b>.")+VC("v4","quieter bridge · bars 49–56","A/B v3");
+const T5=T4+um("reharmonize chorus 2")+VC("v5","chorus 2 reharmonized · bars 41–48","A/B v4");
+const C2={v:"v5 · chorus 2 reharmonized",m:[41,48]};
+const DIMRL=["READING v5 · SCORE · 2 OF 3 · v4's SECTIONS SHOWN, THEY STILL FIT"];
+const HCRL=["READING v5 · SCORE · 2 OF 3 · v5 MOVED BARS: SECTIONS HIDDEN, MARK BY TIME"];
+const SAFE="Say what to change, or click a section to talk about it…";
+
+$("fm").innerHTML=
+O("<b>1a · NO MARK</b> · v4 read, nothing running",FM(T4,{t:"v4 · 3:12 · THREAD 16",pl:PL({})}),"No chip, no line: the whole song is the scope.")+
+O("<b>1b · WORST CASE</b> · mark + dim strip + composer line",FM(T5,{pl:PL({...C2,mo:"up",rl:DIMRL}),chip:CC("CHORUS 2",41,48),cx:"SENDS AFTER v5's READING · about 30 s · it will see v5"}),"The tightest the thread gets.");
+
+$("st").innerHTML=
+O("<b>2a · LIVE</b> · v4 read",CR(PL({}),null),"Names shown, clickable.")+
+O("<b>2b · DIM</b> · v5 reading, edit moved no bars",CR(PL({v:"v5 · chorus 2 reharmonized",mo:"up",rl:DIMRL})),"v4's sections at 50 %, clickable: a REHARMONIZE keeps every bar (D-180).")+
+O("<b>2c · HATCHED</b> · v5 repeated verse 2",CR(PL({S:S5,v:"v5 · verse 2 repeated",tm:"1:12 / 3:31",mo:"hc",rl:HCRL})),"A REPEAT moved the bars: mark by time. A failed read looks the same.");
+
+const RLS=[["QUEUED","READING v5 QUEUED · STARTS AFTER 1 JOB","q2"],["READING · STEP","READING v5 · WORDS ▸ <u>SCORE</u> ▸ SECTIONS · 2 OF 3"],["DONE",DONE],["DONE · NO WORDS","READ v4 · 9 SECTIONS · NO WORD TIMINGS (not a failure)"],["FAILED + RETRY","COULDN'T READ v5 · lyrics-server did not answer in 60 s","bad","RETRY"],["TRANSCRIBED","TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY · 6 PARTS"],["OLD · DIM",DIMRL[0]],["OLD · HATCHED",HCRL[0]],["LANDED · SNAPPED","READ v5 · MARK SNAPPED TO BARS 27–34 · 1:02–1:22 (6 s)"]];
+$("rs").innerHTML=O("<b>3 · ONE 16 px LINE UNDER THE WAVEFORM</b>",`<div class="cr">${RLS.map(r=>`<div class="rw2"><span class="hn">${r[0]}</span>${RL(r[1],r[2],r[3])}</div>`).join("")}</div>`,"Neutral text; only a failure is rust. No spinner, no acid: the job is not a commit.");
+
+const E=(h,pl,chip,n)=>O(h,CR(pl,chip),n);
+$("mk").innerHTML=
+E("<b>4a · WHOLE SECTION</b> · one click on CHORUS 2",PL(C2),CC("CHORUS 2",41,48),"Section name only.")+
+E("<b>4b · + n BARS</b> · CHORUS 1 dragged 2 bars on",PL({m:[25,34]}),CC("CHORUS 1 + 2 BARS",25,34),"VERSE 3 sky-tint: part.")+
+E("<b>4c · ACROSS TWO SECTIONS</b>",PL({m:[37,44]}),CC("VERSE 3 – CHORUS 2",37,44),"Both cells sky-tint: neither is whole.")+
+E("<b>4d · SECONDS ONLY</b> · hatched strip, dragged on the waveform",PL({S:S5,v:"v5 · verse 2 repeated",tm:"1:12 / 3:31",mo:"hc",m:[26.83,34.17],sec:1,rl:HCRL}),CX("THIS: 1:02–1:22 · BARS WHEN THE READING LANDS","pd"),"Dashed edges and chip: no bar claim. Sent as seconds, \"bars not read\" (D-179); snaps on landing (Q-117).");
+
+const SNP=(x,l,tag)=>`<div class="sn" style="left:${x}%"></div><span class="sl" style="left:calc(${x}% + 6px)">${tag}</span>`;
+$("sn").innerHTML=
+E("<b>5a · SNAPPED</b> · dragging the right edge",PL({m:[25,34],x:SNP(42.5,0,"SNAPS TO END OF BAR 34 · 1:22 · 10 BARS · 24 s")}),CC("CHORUS 1 + 2 BARS",25,34),"Dashed pointer; the edge sits on the nearest bar line.")+
+E("<b>5b · ALT HELD</b> · free",PL({m:[25,34.4],x:SNP(43,0,"FREE · 1:22.6 · BAR 34 + 0.4 · SNAP OFF (ALT)")}),CX("THIS: 0:58–1:22.6 · BARS 25–35, 35 PART"),"Q-118.")+
+E("<b>5c · THE SONG'S END</b> · clamped",PL({m:[73,80],x:`<div class="sn" style="left:100%;border-left-style:solid"></div><span class="sl" style="right:0">END OF SONG · BAR 80 · 3:12</span>`}),CC("OUTRO",73,80),"A mark cannot pass either end (F-054).");
+
+const SEES=`<div class="cd"><div class="hd"><span class="lb">WHAT THE ASSISTANT SEES</span><span class="hn">this turn only</span></div>${[["PROMPT","“make this jazzier”"],["RANGE","bars <b>41–48</b> · <b>1:36–1:55</b> · 19.2 s · on v5"],["SECTIONS","CHORUS 2 · bars 41–48 · whole"],["SCORE","A MINOR · 100 BPM · 4/4 · Am F C G | Am F C G"],["NOT SENT","the audio; lyrics outside the range"]].map(r=>`<div class="fd"><div class="fk">${r[0]}</div><div>${r[1]}</div></div>`).join("")}<div class="cm"><span class="cs">≈ 380 of 16,384 tokens · fetched from the server (D-177)</span><span class="hn"><u>AS SENT ▸</u></span></div></div>`;
+$("se").innerHTML=O("<b>6 · THE DISCLOSURE</b> open (zoom in to read)",FM(T5+um("make this jazzier"),{pl:PL({...C2,rl:[DONE.replace("v4","v5")]}),chip:CC("CHORUS 2",41,48),cx:"plans on these bars only · nothing runs until you press APPLY",pop:SEES}),"A popover above the chip; AS SENT ▸ is the JSON. The composer line is the consequence line.");
+
+const ECHO=(c,x)=>`<div style="margin-top:6px">${P("ch fz "+c,"MARKED · CHORUS 2 · BARS 41–48 · 1:36–1:55")} <span class="hn">${x}</span></div>`;
+$("ec").innerHTML=
+O("<b>7a · VALID</b> · v5 is still the version it was marked on",`<div class="cr" style="padding:12px 24px">${um("make this jazzier",ECHO("","on v5 · <u>SEEN ▾</u> · click to mark it again"))}${am("Assuming <b>bars 41–48</b>. I planned one change; check it, then APPLY.")}</div>`,"Click re-marks while the bars mean the same music.")+
+O("<b>7b · NO LONGER VALID</b> · v6 moved those bars",`<div class="cr" style="padding:12px 24px">${um("make this jazzier",ECHO("dd","on v5 · <u>SEEN ▾</u> · v6 MOVED THESE BARS · text only"))}${am("Assuming <b>bars 41–48</b>. I planned one change; check it, then APPLY.")}</div>`,"Dashed, not clickable; SEEN ▾ still works. Never remapped (D-175).");
+
+const STW=(t,b)=>`<div class="wn"><div>${t}</div>${b}</div>`;
+$("sl").innerHTML=
+O("<b>8a · WITH USE BARS</b> · v5 repeated verse 2 before the mark",FM(um("make this jazzier",ECHO("","on v4"))+VC("v5","verse 2 repeated · bars 17–24","A/B v4")+STW("<b>STALE MARK</b> · you marked bars 25–34 of v4. v5 repeats VERSE 2 before them: now bars 33–42. Nothing was sent.",P("ao","USE BARS 33–42")+P("q","CLEAR MARK")),{pl:PL({S:S5,v:"v5 · verse 2 repeated",tm:"1:12 / 3:31",gh:[25,34],rl:["READ v5 · 10 SECTIONS · 24 LINES"]}),chip:CX("THIS: CHORUS 1 + 2 BARS · STALE","bd2"),cx:"SEND IS HELD · press USE BARS or CLEAR MARK","cc":"bad",hold:1,ph:"Send is held until the mark is fixed"}),"Dashed rust: where the mark was. A score REPEAT reports its shift, so USE BARS is offered.")+
+O("<b>8b · WITHOUT USE BARS</b> · v5 is a new take",MC(um("make this jazzier",ECHO("","on v4"))+VC("v5","new take · whole song","A/B v4")+STW("<b>STALE MARK</b> · you marked bars 25–34 of v4. v5 is a new take: those bars are not the same music. Nothing was sent.",P("q","CLEAR MARK")),{pl:PL({S:S5,v:"v5 · new take",mo:"hc",gh:[25,34],rl:HCRL}),chip:CX("THIS: CHORUS 1 + 2 BARS · STALE","bd2"),cx:"SEND IS HELD · press CLEAR MARK, then mark again","cc":"bad",hold:1,ph:"Send is held until the mark is fixed"},560),"A new take has no shift: only CLEAR MARK. The strip is hatched until v5 is read.");
+
+const CXS=(h,th,o,n)=>O(h,MC(th,o,290),n);
+$("cx").innerHTML=
+CXS("<b>9a · TYPING</b> during v5's reading",am("Reharmonized <b>chorus 2</b> in v5. Reading it now."),{chip:CC("CHORUS 2",41,48),cx:"SENDS AFTER v5's READING · about 30 s · it will see v5",ph:"make this jazzier"},"SEND stays live; the turn queues (Q-069).")+
+CXS("<b>9b · SENT</b> · waiting",um("make this jazzier")+`<div class="am">WAITING FOR v5's READING · starts after it · ${P("q","CANCEL")}</div>`,{chip:CC("CHORUS 2",41,48),ph:SAFE},"Like a commit's WAITING FOR v2.")+
+CXS("<b>9c · MARK STALE AT THE TURN'S START</b>",um("make this jazzier")+`<div class="wn"><div><b>NOTHING CHANGED</b> · your mark was on v3; v4 moved those bars · mark again</div>${P("q","CLEAR MARK")}</div>`,{ph:SAFE},"Q-111: fails before the planner loads.");
+
+const PR=(i)=>PL({v:"v4 · quieter bridge",inrow:i,rl:[DONE]});
+$("op").innerHTML=
+O("<b>A · IN THE PLAYER'S TOP ROW</b> · right-aligned",CR(PR(1)),"0 px (thread about 450 at 1b); a failure and RETRY must squeeze beside the pill.")+
+O("<b>B · OWN ROW UNDER THE WAVEFORM</b> · recommended",CR(PR(0)),"Costs 19 px (about 431). Room for the failure text; reads as the strip's caption (F-053 #1).");
+
+const D=[
+["MK-1 · Player above the composer, 134 px, no lyric lane (Q-115). Thread at 768: about 485 px unmarked, about 431 with chip and composer line.","the player at the top (D-095 moved it); a lyric lane (+21 px, no acceptance needs it)."],
+["MK-2 · Reading line on its own row (B): neutral text, rust only on failure, RETRY as the outline button.","top row (A, drawn); acid or sky while running."],
+["MK-3 · Strip: live; dim at 50 % while the old reading fits; hatched when bars moved or the read failed.","hiding the strip; old names always (wrong bars as fact)."],
+["MK-4 · One sky for every mark (wash, edges, 7 px grips, the chip); seconds-only is the same sky, dashed.","a second hue for time marks."],
+["MK-5 · A dashed pointer and a tag on the waveform while dragging; Alt frees it; the ends clamp.","tag on the ruler (hides bar numbers)."],
+["MK-6 · Chip row above the input. One composer line carries the consequence (\"plans on these bars only · nothing runs until you press APPLY\"), giving way to the analysis and stale lines.","a line per case (-14 px)."],
+["MK-7 · A sent message keeps a frozen echo; click re-marks while valid; after a bar move it is dashed and text only.","remapping it (D-175: never)."],
+["MK-8 · Stale: rust chip, dashed rust outline of the old place, a thread card with USE BARS only if the edit reported a shift, always CLEAR MARK; SEND held with its reason.","a silent remap; sending without the mark (Q-066)."],
+["MK-9 · During an analysis SEND stays live and queues; the sent message shows WAITING with CANCEL (Q-069).","holding SEND."],
+["MK-10 · Click a section, drag an edge or the body, drag empty waveform; a click under 0.2 s on empty waveform seeks and clears (Q-116); Esc and ✕ clear. Commit buttons and consequence lines stay on the cards (chat-edit.html).","a modal mark mode; a one-shot mark (CS-8)."]];
+$("dec").innerHTML=D.map(d=>`<div class="dc"><b>${d[0]}</b> <i>Beat:</i> ${d[1]}</div>`).join("");
+
+document.querySelectorAll(".o").forEach(o=>{const t=o.querySelector(".th"),z=o.querySelector(".mz");if(t&&z&&o.querySelector(".fr"))z.textContent="  ·  THREAD "+t.offsetHeight+" px"});
+</script></body></html>

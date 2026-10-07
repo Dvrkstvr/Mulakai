@@ -27,6 +27,14 @@ describe('engine transcription client', () => {
     expect(Buffer.from(await file.arrayBuffer()).toString()).toBe('RIFF');
   });
 
+  it("asks for chords only when told to (D-131): Guided Create's COVER sends no field", async () => {
+    fetchMock.mockImplementation(async () => json({ id: 'remote-2' }, 202));
+    await transcribe(target, Buffer.from('x'), 'a.wav', 'j1');
+    expect((fetchMock.mock.calls[0][1]?.body as FormData).has('chords')).toBe(false);
+    await transcribe(target, Buffer.from('x'), 'a.wav', 'j2', { chords: true });
+    expect((fetchMock.mock.calls[1][1]?.body as FormData).get('chords')).toBe('true');
+  });
+
   it('reports the wrapper\'s refusal with its detail', async () => {
     fetchMock.mockResolvedValueOnce(json({ detail: 'Transcription is not available: not_configured.' }, 503));
     await expect(transcribe(target, Buffer.from('x'), 'a.wav', 'j')).rejects.toThrow(

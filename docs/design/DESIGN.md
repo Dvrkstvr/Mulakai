@@ -793,7 +793,11 @@ requiring its own justification against a screen-count rule.
          op with a ✓/✕ verdict and a `text-low` tag: `follows` or `a
          request`; a rejected op is listed with its reason, never dropped)
          and one always-visible mono checks line (`65 bars · est 183 s of
-         360 s · 1,520 of 4,096 tokens · chords valid`). Under it, a plan
+         360 s · 1,520 of 4,096 tokens · chords valid`; on a chord-free
+         score that renders the melody, `no chords · melody render`, plain,
+         and the consequence line names the mode: "renders the melody only,
+         no chords" or "adds chords: the whole song renders with chords",
+         F-065, D-132, D-139, added 2026-10-07). Under it, a plan
          that passed only on a later attempt lists each earlier refused
          attempt in one rust mono line (`attempt 1 refused: the Vocal sings
          in bars 20-23; free: 1-10, 47-65`; first two reasons, then "and n
@@ -962,6 +966,153 @@ requiring its own justification against a screen-count rule.
      sensible global defaults — and live in `SongDetailRail.tsx` (Library's
      song detail rail), grouped directly under the CREATE COVER FROM AUDIO
      button.
+5. **Chat** (added 2026-10-06, chat C0a; specs `pipeline/design/chat-turn.html`,
+   `chat-lyrics.html` frame 3, `chat-create.html` frames 1a/1b/5) — a peer of
+   the Library, shown when the server says the chat is configured
+   (`LLM_API_URL` and `YUE_API_URL` set, D-099); otherwise nothing below shows.
+   The app always opens on the Library (D-119); CHAT is one click away. The header carries
+   **CHAT | LIBRARY** (outlined parallelograms, the open one in acid outline,
+   like an active toolbar tab) while either is up; the Library's song detail
+   rail gets a plain **OPEN CHAT** (the song's thread). Layout, top to bottom:
+   a title row (NEW SONG or the song's title, its `text-low` subline, `FORM ▸`
+   to Guided Create, NEW CHAT), then the thread column beside a 360px draft
+   sidebar. The column is the thread (messages capped at 760px, newest by the
+   composer, scrolling inside), the player (the shared `Player`, the version's
+   lilac pill) **above** the composer once the thread has a song, and the
+   composer.
+   - **SEND ↵** is an outline text button (acid hairline, skewed), never a
+     hexagon or any play-like glyph, so it can't be read as transport. It is
+     off while a turn is queued or thinking (the typed text stays, the reason
+     sits above the field) and while the assistant is off.
+   - **One line per turn**, under the message it answers: dashed and plain
+     while QUEUED ("THINKING · QUEUED · STARTS AFTER 2 JOBS" + what it costs),
+     the AI shader while THINKING ("attempt 2 of 3" and the refused attempt's
+     reason in the server's words), plain while CANCELLING. Every ending
+     without an answer has one shape: a rust line saying what happened and
+     "nothing changed", with one RETRY (and `FORM ▸` when the assistant is
+     off or failed). Text on the shader carries a carbon text-shadow.
+   - **The recipe card** (`carbon-panel`, `line-hi` hairline) is the chat's
+     only commit place: its summary mirrors the live draft (a hand edit reads
+     YOUR EDIT, the proposed tempo struck), its consequence line sits left of
+     **CREATE SONG** (acid fill, the card's one acid CTA; a busy GPU appends
+     "· starts after N jobs", only a server blocker disables it, with the
+     reason in the line). Committing keeps the label and turns the button off;
+     the take's line under the card follows the YuE2 rule (stage and its
+     share, the plain shader, no veil; dashed while queued). Superseded dims
+     to 45% with no button; expired is a rust line with ASK AGAIN; done folds
+     to one header line, followed by the song card (lilac version pill,
+     length, `LIBRARY ▸`). A take cut at the length cap is saved but never
+     DONE (D-025): the header reads `TRUNCATED · v1 SAVED` in rust-text and
+     the song card adds a rust left-rule line, `TRUNCATED at 6:00, the song
+     is cut short`, saying the version is saved and where to fix it.
+   - **The sidebar** is the one draft's fields (TITLE, STYLE, TEMPO · KEY,
+     LANGUAGE, STRUCTURE, LYRICS as `[Verse]` blocks, ENGINE YUE2 · FIXED),
+     editable at any time, also while a turn runs. A field the last reply
+     filled reads in the sky family: the deepest shade (`on-sky`) as its wash,
+     a 3px sky edge, a sky ASSISTANT tag and its old value struck in
+     `text-low` — "the assistant pointed here", the scope meaning of sky, not
+     a new hue; a field the person touched reads YOURS in `text-mid`; while
+     the assistant thinks, the empty fields are outlined in dashed sky with
+     FILLING…. A take rendering locks the fields (55% opacity) and the foot
+     says so; on a song's thread the sidebar is a read-only song panel with a
+     VERSIONS row. Collapsed, it is a 38px rail counting the filled fields;
+     the open/closed state is remembered per browser. The sidebar never
+     commits: its foot points at the card.
+   - **Reference songs** (added 2026-10-07, chat C3; spec
+     `pipeline/design/chat-reference.html`, D-141). A song reaches the
+     draft thread three ways: dropped on the thread column (a 2px dashed
+     sky edge over the column only, the sky tint at 55%, "DROP A SONG TO
+     WORK FROM"), or **ATTACH ▾** left of the composer's field (an outlined
+     choice parallelogram) with FILE… and FROM LIBRARY…: a 420px menu above
+     the composer whose library rows say what READ will do before the
+     click ("its own score and words, no GPU" for a YuE2 song), the row
+     under the pointer in the sky selection wash. ATTACH ▾ is greyed on a
+     song's thread (D-130). One chip at a time sits above the field:
+     uploading (a 3px `text-mid` bar and its share), attached (name and
+     length), or failed in rust with the server's reason; ✕ removes it.
+     The sent message keeps a `text-low` ◉ mark with the name. SEND waits,
+     its reason above the field, while a file uploads and from READ until
+     the follow-up proposal lands.
+   - **The READ card** is a proposal card: the name, length and origin,
+     the 360 s note for a longer file, "reads the base layer only" for a
+     layered library song, the rights line in `text-low` ("Stays on this
+     machine. You are responsible for the rights to this recording."),
+     and the consequence line left of **READ**, the card's one acid fill.
+     The line names no GPU seconds until they are calibrated (it says
+     "uses the GPU", or "uses no GPU" when nothing runs there). Pressed,
+     READ keeps its label and turns off; a refusal is a rust line inside
+     the card and READ is live again. Superseded and expired dim to 45%
+     without a button; done folds to one dimmed header line above the
+     reading card.
+   - **The reading card** stays plain while it works (reading is not
+     generation, so no shader): a WORDS › SCORE › CAPTION strip of small
+     parallelograms (done in `text-mid`, the current one on `line-hi`),
+     one job line with CANCEL, dashed while queued. Done, it lists WORDS
+     (line count, language, or "instrumental: there are no words"),
+     SCORE (bars, meter, key, tempo, chords) with its sections as a row
+     of small parallelograms, and CAPTION, each with its source in
+     `text-low`. A part not read is a rust-bordered line naming its cause,
+     never an empty row; a file that could not be read is a rust box.
+     Then "COVER POSSIBLE" or "NO COVER · why", the rights line, and while
+     the follow-up turn runs, PROPOSING… under the card with CANCEL. After
+     a failure or a cancel, READ AGAIN is a plain choice button with its
+     consequence line beside it.
+   - **The cover and borrowed fields** (CR-7b): a cover card is the
+     recipe card with **CREATE COVER** (acid) and its consequence (melody
+     kept, YuE2, "the new words are fitted by YuE2, not guaranteed");
+     its tempo, key, meter and structure carry a neutral `▣ FROM THE
+     SCORE` tag and refuse a hand edit with the reason. A borrowed field
+     gets the assistant's sky wash when filled, then keeps a neutral
+     REFERENCE tag (`text-mid` hairline chip, no hue) until the person
+     edits it (option B); a value the reference lacks stays blank with
+     its note, shown as a dashed `KEY · AUTO` placeholder with a rust
+     `NO KEY FOUND` line ("left blank, YuE2 decides when it renders"). On
+     a song's thread the sidebar lists the reference (name, length, read
+     date, rights line) with RE-ANALYZE (plain, its own consequence line),
+     and the player has **one** `REFERENCE ⇄ SONG` pill (filled lilac
+     while the reference plays) that swaps at the same seconds; while the
+     reference plays the status reads `LISTENING · SAME SECONDS` and the
+     version pill hides (the mockup's two pills and longer line overlapped
+     DOWNLOAD at 1366). Past the reference's end the player waits there,
+     paused.
+   - **The edit card** (added 2026-10-07, chat C0b; spec
+     `pipeline/design/chat-edit.html`, D-158 EC-1..EC-8) is the recipe
+     card's shape headed `EDIT · SCORE`: the assumption in `text-mid`, the
+     SCORE change list (`ScorePlanList`, the dock's rows and checks line),
+     then the **bar strip** (option B): a 16px `carbon-raised` bar with the
+     bars that change as an `on-sky` span on a sky hairline, or, when the
+     whole song re-renders, the full width hatched `on-sky`/`sky-tint`,
+     with `1 · BARS 25-32 CHANGE · THE OTHER 68 ARE v1 · 76` under it
+     (`ALL 76 BARS CHANGE`) and a grey `WHY THE WHOLE SONG:` line. The
+     consequence line names the clause ("re-sings bars 25-32, every other
+     bar stays v1's audio" or "the whole song is re-rendered: every bar
+     will sound different"; "a few minutes" until calibrated) left of
+     **APPLY**, the card's one acid; ASK AGAIN is neutral. While APPLY runs
+     the label stays and the button is off; inside the card a plain
+     RENDERING › SPLICING › SAVING strip of small parallelograms (two steps
+     for a whole song or an audio-only CUT/REPEAT) and one plain line, no
+     shader, with CANCEL until SAVING; the composer reads WAITING FOR v2.
+     Cancelled, failed, refused and STALE are one rust line in the card
+     ("nothing saved, v1 is untouched"); stale and expired drop APPLY for
+     ASK AGAIN, superseded dims to 45%; done folds to one header line.
+   - **The version card** follows a saved edit: `VERSION`, the lilac pill,
+     the label (the version's change list), the length and what changed
+     ("bar 43 changed · the rest is v1's audio · 0.03 s longer than v1",
+     or "the whole song was re-rendered"); a splice that fell back to the
+     whole render or a TRUNCATED render adds a rust line (not what the card
+     promised, D-101). Its foot holds ▶ PLAY (neutral) and the BACK TO v1
+     pill; no A/B once v1 was deleted in the Editor.
+   - **BACK TO v1** is the REFERENCE ⇄ SONG pill (one pill, replacing the
+     reference's while a version A/B exists): `BACK TO v1` unfilled,
+     `◂ v1 · BACK TO v2` filled lilac while v1 plays at the same seconds;
+     then a neutral **USE v1** and the status `v1 · NOT ACTIVE` (shorter
+     than the mockup's line, which overlapped DOWNLOAD at 1366), the
+     version pill hidden. USE activates v1 as the Editor's revert does and
+     the player says `v1 IS ACTIVE · v2 is kept in VERSIONS`. A new version
+     swaps in at the same position and play state with a lilac
+     `NOW PLAYING THE NEW VERSION` until the next play, scrub or send; the
+     player's pill shows only `v2` after a chat edit (the version label is
+     the card's).
 
 ### Side panels (Create + Editor)
 
@@ -1294,14 +1445,21 @@ engine — it has worn the shader since it was added, and is listed here
 now so the list is complete); the SCORE verb's planning line while the
 planner works on the GPU (D-029: an LM working, like
 Quick Start; still dashed and plain while queued), and its rendering line,
-which follows the YuE2 rule above (stage and its share, no veil); and Activity's RUNNING row for a song
+which follows the YuE2 rule above (stage and its share, no veil); the
+CHAT screen's turn line while the planner thinks (still dashed and plain
+while queued, plain while cancelling) and its CREATE SONG take line under
+the recipe card, which follows the YuE2 rule; and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
 ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
 (UP NEXT, the library card of a generation reading `QUEUED · STARTS
 AFTER 1 JOB`, or a dock job line reading `QUEUED`) stays plain, since
 nothing is working on it yet. TRANSCRIBE
 and READ LYRICS stay plain: SheetSage2 reads
-notes and lyrics-server reads words; neither describes or generates. So do
+notes and lyrics-server reads words; neither describes or generates. The
+chat's reading card (WORDS › SCORE › CAPTION) stays plain for the same
+reason, also during its CAPTION step, and so does the PROPOSING… line
+under it (the follow-up turn; the card does not tell queued from
+thinking, so it never claims the GPU is working). So do
 their Activity rows, and those for word timings and stem splits.
 
 Nowhere else. Steady-state UI (idle buttons, static panels, non-AI toggles)

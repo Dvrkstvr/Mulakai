@@ -1,0 +1,172 @@
+{
+ "name": "splice-ok",
+ "request": {
+  "method": "POST",
+  "path": "/v1/splices",
+  "form": {
+   "spec": {
+    "op": {
+     "op": "REHARMONIZE",
+     "from_bar": 9,
+     "to_bar": 16,
+     "chords": []
+    },
+    "base_abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=120\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:C\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% chorus\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n",
+    "render_job": "job-0001"
+   }
+  },
+  "file": "audio"
+ },
+ "response": {
+  "status": 202,
+  "body": {
+   "id": "sp-0001",
+   "kind": "splice",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "queued",
+   "stage": "queued",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": null,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ },
+ "final": {
+  "status": 200,
+  "body": {
+   "id": "sp-0001",
+   "kind": "splice",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "succeeded",
+   "stage": "finished",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": 1.0,
+   "finished_at": 1.0,
+   "cancel_requested": false,
+   "result": {
+    "verdict": "ok",
+    "reason": null,
+    "detail": null,
+    "kind": "REHARMONIZE",
+    "bars": [
+     9,
+     16
+    ],
+    "audio_url": "/v1/splices/sp-0001/audio",
+    "audio_seconds": 49.2,
+    "length_diff_s": 0.0,
+    "joins_s": [
+     16.2,
+     32.2
+    ],
+    "crossfade_s": [
+     0.5,
+     0.5
+    ],
+    "base_points_s": [
+     16.2,
+     32.2
+    ],
+    "parts": [
+     {
+      "source": "base",
+      "out_s": [
+       0.0,
+       16.2
+      ],
+      "src_s": [
+       0.0,
+       16.2
+      ]
+     },
+     {
+      "source": "render",
+      "out_s": [
+       16.2,
+       32.2
+      ],
+      "src_s": [
+       16.3,
+       32.3
+      ]
+     },
+     {
+      "source": "base",
+      "out_s": [
+       32.2,
+       49.2
+      ],
+      "src_s": [
+       32.2,
+       49.2
+      ]
+     }
+    ],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": 30.0,
+      "applied": true,
+      "corr": 1.0
+     },
+     {
+      "delta_ms": 30.0,
+      "applied": true,
+      "corr": 1.0
+     }
+    ],
+    "gain_db": {
+     "in": -0.0,
+     "out": -0.0,
+     "bars": [
+      -0.0,
+      -0.0,
+      -0.0,
+      -0.0,
+      -0.0,
+      -0.0,
+      -0.0,
+      -0.0
+     ]
+    },
+    "level_step_db": null,
+    "gap_shift_s": null,
+    "seams": [
+     {
+      "out_s": 16.2,
+      "lufs_step": 0.5,
+      "base_lufs_step": 0.2,
+      "lufs_step_excess": 0.2
+     },
+     {
+      "out_s": 32.2,
+      "lufs_step": 0.5,
+      "base_lufs_step": 0.2,
+      "lufs_step_excess": 0.2
+     }
+    ],
+    "null_test": {
+     "samples": 1570000,
+     "different": 0
+    },
+    "grid_urls": {
+     "base": "/v1/splices/sp-0001/grid/base",
+     "render": "/v1/splices/sp-0001/grid/render",
+     "out": "/v1/splices/sp-0001/grid/out"
+    },
+    "timing": {
+     "total_seconds": 1.0
+    }
+   },
+   "error": null
+  }
+ }
+}

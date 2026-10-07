@@ -1,6 +1,6 @@
 /** Every line the SCORE verb says (pipeline/design/score-verb.html, DESIGN.md "Action dock › SCORE").
  * Pure. Tempo "follows"; harmony, style and a phrase's instrument are "a request to YuE2, not a guarantee". */
-import type { ScoreChord, ScoreLyricDiff, ScoreOp, ScorePlan, ScoreReading, ScoreRenderVersion } from './api';
+import type { ScoreChord, ScoreLyricDiff, ScoreOp, ScorePlan, ScoreReading, ScoreRenderMode, ScoreRenderVersion } from './api';
 import { fmtElapsed, fmtProgress, stageDetail } from './genProgress';
 import { queueSuffix, startsAfter } from './queueCopy';
 import { MAX_ATTEMPTS } from './scoreAttemptCopy';
@@ -95,6 +95,11 @@ export const rowDetail = (r: OpRow) => (r.ok || !r.reason ? r.detail : `${r.deta
 export const planHeader = (plan: ScorePlan, baseVersion: number | null | undefined) =>
   `PLAN · ${plan.ops.length} CHANGE${plan.ops.length === 1 ? '' : 'S'}${baseVersion ? ` · AGAINST BASE v${baseVersion}` : ''}`;
 
+/** The render mode on a chord-free score (F-065, D-132); a score with chords renders as it always did. */
+export const renderModeClause = (m: ScoreRenderMode): string | null =>
+  m.reason === 'melody' ? 'renders the melody only, no chords'
+    : m.reason === 'reharmonize' ? 'adds chords: the whole song renders with chords' : null;
+
 /** "Saves base v3 · re-renders the whole song on YuE2, about 3 min · every bar will sound different
  * · tempo follows 88 BPM · harmony in bars 17–24 is a request to YuE2, not a guarantee · v2 stays in VERSIONS". */
 export function consequenceLine(
@@ -102,7 +107,8 @@ export function consequenceLine(
 ): string {
   const next = (v.versions ?? 0) + 1;
   const length = plan.checks.seconds === null ? '' : `, about ${Math.max(1, Math.round(plan.checks.seconds / 60))} min`;
-  const parts = [`Saves base v${next}`, `re-renders the whole song on YuE2${length}`, 'every bar will sound different'];
+  const mode = plan.renderMode ? renderModeClause(plan.renderMode) : null;
+  const parts = [`Saves base v${next}`, `re-renders the whole song on YuE2${length}`, ...(mode ? [mode] : []), 'every bar will sound different'];
   const requests: string[] = [], phrases: string[] = [];
   for (const op of plan.ops) {
     if (op.op === 'SET_TEMPO') parts.push(`tempo follows ${op.bpm} BPM`);

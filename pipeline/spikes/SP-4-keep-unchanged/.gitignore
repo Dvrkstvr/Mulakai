@@ -1,0 +1,5 @@
+# audio stays out of git (see pipeline/verify/.gitignore)
+*.flac
+*.wav
+*.mp3
+__pycache__/

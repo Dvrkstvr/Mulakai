@@ -370,3 +370,369 @@ REVISE re-check on 0629e20 (pipeline/verify/M2/revise/revise-recheck.md, 27 pres
 ## D-079 · 2026-10-05 · direction (after M2) · by: user
 The chat is to be the default way to create and edit songs: describe a song, or analyze an existing/reference song, go from nothing or the reference to the first generation, then iterate on the song progressively by talking with the LLM. The direct tools (verbs, prompts, repaint, add layer, SCORE) stay as the "scalpel" for specific edits. Training ACE-Step to YuE2's quality was raised and is not the path (conductor's advice: a dataset- and GPU-scale project; LoRA teaches style, not overall quality; LoRA stays post-1.0).
 - consequence: a core-promise change (brief "generate → repaint → layer → version → export" becomes "talk a song into being, scalpel when needed"); needs a dated PLAN.md section and a scope pass before code (Q-054). The keep-unchanged-parts spike (SP-4) comes first, because a chat that re-rolls the whole song on every turn does not converge.
+
+## D-080 · 2026-10-06 · stage 3 (SP-4) · by: assumed (conductor), pending the user's listen
+SP-4 machine verdicts (pipeline/spikes/SP-4-keep-unchanged/RESULT.md): the chat's default for local edits is A3, render then splice the changed bars back (groove-snapped downbeat cut, 1-beat equal-power crossfade, level-matched span); REPEAT/CUT become audio-only edits (C) with no YuE2 render; no ACE-Step seam healing (B disproven); D (YuE2 forced prefix) only if the listen finds the A3 joins. The PLAN.md chat draft's decision 6 now says so. Settled by the user's 20-pair listen (spikes/SP-4-keep-unchanged/listen); the cut points inside sung words (15 of 36) are the first thing to listen for.
+- instead of: whole-song re-renders for every turn (21-87% of untouched bars move > 1 dB today).
+
+## D-081 · 2026-10-06 · stage 1/4 (chat, Q-054 #2) · by: user
+The chat keeps one thread per song: stored in the database, survives reloads, deleted with the song; reopening a song continues its conversation (PLAN.md chat draft, decision 4).
+- instead of: per-session memory; one global thread.
+
+## D-082 · 2026-10-06 · stage 1/4 (chat, Q-054 #4) · by: user
+When a request is unclear the assistant proposes with its assumption stated ("assuming the second chorus") and asks only when it cannot propose anything.
+- instead of: asking before proposing; a follow-up question on every proposal.
+
+## D-083 · 2026-10-06 · stage 1/4 (chat, Q-054 #5) · by: user
+The assistant may propose ACE-Step instead of YuE2 for a first take when a request fits it better. Consequence: such a song is not score-eligible (D-006), so its later turns use the scalpel actions (repaint, add layer, split) and the SP-4 splice does not apply; the recipe card names the engine and says so in its consequence line. YuE2 stays the default (D-015).
+- instead of: YuE2 always; asking each time.
+
+## D-084 · 2026-10-06 · stage 1/4 (chat, Q-054 #3) · by: user
+A reference song's audio is kept with the song as its source after the analysis (re-analyze or A/B against it later); it stays on this machine.
+- instead of: deleting it after the analysis; referencing library songs only.
+
+## D-085 · 2026-10-06 · stage 1/4 (chat, Q-054 #6) · by: user
+Tempo and key edits offer both per turn: RE-RENDER (whole-song YuE2 render, the consequence line says the whole song changes) and SHIFT/STRETCH (pitch-shift / time-stretch of the current take, same performance). SHIFT/STRETCH is built only if a spike passes (SP-6, scheduled before C2's tempo/key turns); until then the card offers RE-RENDER alone.
+- instead of: re-render only; waiting on the spike before any tempo/key turn.
+
+## D-086 · 2026-10-06 · stage 5 (chat, Q-054 #1) · by: user
+Two ways in, over one shared draft (the user, on seeing design/chat-create.html: "a chat where the form is only optional as the side bar or something (chat first, llm will do almost all of the editing). the form where the chat is like an assistant who will help and fill in the form"):
+1. **Chat-first** (the default, D-079): the conversation is the main surface; the form is an optional, collapsible sidebar showing the fields the LLM fills; the LLM does almost all of the editing.
+2. **Form-first**: today's Guided Create form is the main surface; the chat is a side assistant that helps and fills in the form's fields.
+Both write the same draft, so switching keeps everything; CREATE SONG / GENERATE commits from either. Assumed (conductor): chat-first is the start screen (D-079); the same pairing for editing an existing song (the conversation beside the Editor's dock) is the next question, Q-055.
+- instead of: A (chat with a FORM tab), B (chat only), C (form inside the chat).
+
+## D-087 · 2026-10-06 · stage 5 (chat mockup) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-create.html (CH-1..CH-10) is the layout spec for D-086 on these defaults: CREATE SONG and its consequence line live on the proposal card only (CH-2); sidebar 360 px, open on first use then remembered, a 38 px rail when collapsed (CH-3); "just filled" = sky wash + ASSISTANT tag + the old value struck, cleared on the next message or a hand edit (CH-4); UNDO TURN (CH-5); fields stay editable during a turn and the assistant skips touched fields (CH-6, Q-057); the form-first assistant panel is 300 px and never commits (CH-7); the fallbacks of Q-058 (CH-8); editing mirrors creating (CH-9, Q-055 default); Library CREATE opens the remembered mode (CH-10, Q-056).
+- instead of: commit on the sidebar foot or in both places; locking fields during a turn; expanding the sidebar in place when the assistant is off.
+
+## D-088 · 2026-10-06 · stage 5 (chat, Q-055) · by: user
+Editing mirrors creating: chat-first (the song's thread, versions and the dock as the sidebar) and Editor-first (today's Editor with the chat as a side assistant that fills the dock's verbs). The chat-create.html layout is signed off ("layout is awesome").
+
+## D-089 · 2026-10-06 · stage 5 (chat) · by: user
+"Always have the latest version of the song playable": the chat view keeps a player for the song's active version in view at all times; a new version replaces it the moment it is saved.
+And "always analyze the song so lyrics, abc and sections are up to date": every new version (first take, score edit, splice, repaint, add layer, any engine) is analyzed after it is saved: word timings (lyrics-server), a score with sections (YuE2's own score when YuE2 made the version, otherwise yue-server's transcriber), so the thread's song-state block, the section strip and the marking (D-090) always match what plays. Consequences in Q-062.
+
+## D-090 · 2026-10-06 · stage 5 (chat) · by: user
+The user marks a part of the song as context for the chat, like in the Editor: click a section (e.g. the chorus) to mark it, drag to extend it a bit; the chat turn gets the marked range as data alongside the prompt (bars, seconds, the sections and lyric lines it covers). Extends F-032's referent (section / lyric line) with a free bar range that may cross a section boundary.
+
+## D-091 · 2026-10-06 · stage 5 (chat mockup 2) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-song.html (CS-1..CS-11) is the spec for D-089/D-090 on the Q-063..Q-069 defaults: the player pinned at the top of the main column, in view with the sidebar collapsed; a new version swaps in place keeping position and play state, BACK TO v3 is an A/B and USE v3 activates; analysis failed → hatched strip, reason + RETRY, marking by raw time; an ACE-Step version gets a transcribed score for context and marking only (Q-062 b); marks snap to bars; the mark is sticky with a frozen echo on each sent message; "what the assistant sees" disclosure on the chip; Editor-first uses the Editor's own (unsnapped) selection; a stale mark is never remapped silently and holds SEND.
+- instead of: the player above the composer; resetting play on a new version; a one-shot mark cleared after sending.
+
+## D-092 · 2026-10-06 · stage 5 (chat mockup 2) · by: user
+design/chat-song.html is signed off except the lyrics ("everything else looks great as is"). Player: "either pinned at the top or above the composer" — both acceptable to the owner; the full chat mockup (design/chat-lyrics.html) draws the final layout with A (top) as the default unless that page shows C reads better. Lyrics as a small chip text "are looking a little confusing": a new mockup compares lyric approaches in the fully designed chat (Q-071).
+
+## D-093 · 2026-10-06 · stage 5 (chat, Q-071) · by: user
+Lyrics live in a sheet in the sidebar. No active playback of lyrics (no current-line follow or karaoke). The sheet shows only the lyrics of the selected (marked) section, to reduce clutter. Assumed (conductor, Q-072): with no mark the panel lists the section names with line counts, click one to mark it; a mark across two sections shows both parts with a divider.
+- instead of: a lyric lane under the waveform, a WAVE | LYRICS toggle in the player, lyrics inside the thread only, or the whole sheet always.
+
+## D-094 · 2026-10-06 · stage 5 (chat mockup 3) · by: assumed (conductor), the owner may overrule on the mockup
+design/chat-lyrics.html (LY-1..LY-6) is the spec for D-093: the sidebar lyrics panel with no mark lists sections (name, bars, line count, first line; click marks), with a mark shows that part only (a two-section mark with a dashed break and "n more lines not marked"), dims while a new version is read, shows a rust RETRY on a failed read; Q-073..Q-076 defaults. Player A (top) stays. DESIGN.md gets a clause for the panel in the chat's first UI PR.
+
+## D-095 · 2026-10-06 · stage 5 (chat design sign-off) · by: user
+The chat design is signed off with two changes: the player sits above the composer (design/chat-lyrics.html frame 3, not frame 1); the chat's send control must not resemble play/pause, so it is the outline text button `SEND ↵` (all three chat mockups updated). The specs are design/chat-create.html, chat-song.html and chat-lyrics.html, with D-086..D-094 as recorded, Q-063 closed (C).
+- instead of: the player pinned at the top; an acid hexagon ▶ send next to the player's ❚❚.
+
+## D-096 · 2026-10-06 · stage 1/4 (chat) · by: user
+The PLAN.md section "Chat: Talk a Song Into Being" is signed off now ("sign off now and start scoping"), with decision 6 (how an edit turn renders) pending the owner's SP-4 listen. The Grand Goal and brief.md's core promise carry a pointer to it. Scope (stage 4) starts for C0..C4.
+- instead of: signing off after the SP-4 listen.
+
+## D-097 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+SP-5's pass bars as listed under Preconditions, and its ladder. Reversal: re-read the numbers.
+
+## D-098 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+the C0 cut as above (4 actions, one spliced edit kind, no mark, no analyze, no panel). Reversal: each is a later milestone already; moving one into C0 costs its milestone's share.
+
+## D-099 · 2026-10-06 · stage 4 (chat scope) · by: user
+CHAT is the start screen from C0 (the owner reversed the cut's proposal to wait for C6), when `LLM_API_URL` and `YUE_API_URL` are set; otherwise the app opens on the Library as today, so the golden-path e2e does not move. The Library stays one click away and gets OPEN CHAT on a song.
+- instead of: a TALK A SONG button in the Library until C6.
+
+## D-100 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+an `edit` turn runs the existing plan call inside the turn's queue slot (one hand-off); architecture may prefer two jobs.
+
+## D-101 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+when the join cannot be aligned the whole-song re-render is saved as the version and labelled; the alternative (save nothing, offer the render as a button) loses GPU minutes.
+
+## D-102 · 2026-10-06 · stage 4 (chat scope) · by: assumed (scope-cutter), signed off with the cut (D-103)
+thread lifecycle follows the song: kept through trash and restore, deleted at permanent delete; a reference file is stored as a copy with the song (C3).
+
+## D-103 · 2026-10-06 · stage 4 (chat scope) · by: user
+The chat cut is signed off: preconditions (SP-5, the SP-4 listen, R-025, SP-6), C0..C8, F-040..F-081, with D-097, D-098 (in C0 only a REHARMONIZE plan is spliced; every other edit re-renders the whole song and says so until C4), D-099 (CHAT is the start screen from C0), D-100..D-102. Next: SP-5.
+
+## D-104 · 2026-10-06 · stage 6/7 (chat C0) · by: user
+"Getting the chat working quickly": C0's architecture starts now, in parallel with SP-5 (small rework risk if SP-5 needs its fallback ladder), and C0 ships in two halves: **C0a create-first** (CHAT start screen, describe → recipe card + sidebar → CREATE SONG on YuE2 → song card and player above the composer, the thread kept), then **C0b** (the edit turn, the REHARMONIZE splice, the version card with A/B). C0a is usable in the real app on its own.
+- instead of: full C0 before the owner sees it; strict order SP-5 → architecture → C0.
+
+## D-105 · 2026-10-06 · housekeeping · by: user
+Repo cleanup: the 10 merged agent worktrees and 25 merged local branches removed, 14 merged remote branches deleted (open-PR branches kept), old verify/spike temp data under E:\ai\tmp deleted (sp4, sp5 kept); the stale PRs #118 and #121 rebased and merged if still valid, else closed.
+
+## D-106 · 2026-10-06 · stage 6 (chat C0) · by: assumed (architect)
+A chat turn is one `plan`-kind job (label `chat turn`): one load, ≤ 3 attempts, `finally` unload with `/api/ps` empty (D-011); an `edit` reply carries SCORE ops inline (SP-5's schema) checked in the same slot by `checkOps`, yue `/v1/scores/apply` and `withLimits`, so D-100's one hand-off holds; the number of model calls (SP-5's ladder) lives only in `chat/turnCall.ts` (docs/decisions/0006). Reversal: a `chatTurn` kind is a two-union change.
+- instead of: a new `chatTurn` kind; a turn job followed by a separate `plan` job.
+
+## D-107 · 2026-10-06 · stage 6 (chat C0) · by: assumed (architect)
+The A3 splice runs on yue-server as a `splice` job kind (`/v1/splices`), next to the score parser (docs/decisions/0002) and the SheetSage2 tracker; the server holds one `scoreRender` slot for render + grids + splice; base grids are cached as `${versionId}.grid.json` sidecars; `scipy==1.18.0` joins yue-server's requirements (docs/decisions/0005).
+- instead of: TypeScript + ffmpeg in the server; a separate process in the SheetSage2 venv.
+
+## D-108 · 2026-10-06 · stage 6 (chat C0) · by: assumed (architect)
+Threads, messages and the draft live in SQLite (`chat_threads`, `chat_messages`, versioned JSON `draft_v` / `chat_v`, cascade from songs); live proposals stay in memory and read EXPIRED after a restart (docs/decisions/0007).
+- instead of: files per thread; persisted proposals; the draft in client storage.
+
+## D-109 · 2026-10-06 · stage 6 (chat C0, Q-080) · by: assumed (architect)
+F-047's "an unresolved join on both sides" means: at both joins the snap found no usable groove (pattern correlation < 0.15 between the 8 beats before and after the cut). The 2-12 kHz verification of SP-4 is measured and logged, not a reason to fall back: read literally it would have rejected SP-4's song D reharmonization (both seams "unres.", LUFS excess +0.2 / -0.1 dB). Reversal: one constant in `splice_plan.py`.
+
+## D-110 · 2026-10-06 · stage 6 (chat C0, Q-081) · by: assumed (architect)
+Until C0b lands, an `edit` reply on a song thread is answered as a `say` that points to SCORE in the Editor (as scalpel and analyze replies point to their tools), and a `recipe` on a song thread is answered as a `say` that suggests NEW CHAT; nothing is silently dropped. Reversal: C0b's CB-2 turns edit on.
+
+## D-111 · 2026-10-06 · stage 5 (DT-C0a) · by: user (signed off: "looks great"), defaults assumed by the conductor
+design/chat-turn.html (TU-1..TU-10) is the spec for C0a's turn and recipe-card states on the Q-082..Q-086 defaults: one turn line under the message, CANCEL while queued or thinking; every ending without an answer has one shape (message stays, rust line, "nothing changed", one RETRY); SEND off while a turn is open; fields stay editable during a turn (FILLING… / YOURS / ASSISTANT; the reply names a skipped field); assistant off → RETRY and FORM ▸; card states pending / superseded / expired (ASK AGAIN) / committing / done; the pending card mirrors the live draft and CREATE SONG sends it; a commit locks the sidebar; the first take follows DESIGN.md's YuE2 rule; done folds the card, appends the song card, and the sidebar becomes a read-only song panel. The field marks move from C2 into C0 (Q-086).
+
+## D-112 · 2026-10-06 · stage 7 (chat CA-1) · by: assumed (CA-1 builder, recorded by the conductor)
+Chat data: (a) `fields.lyrics` is an array of sections `{tag, lines[]}`; the sung text is built in structure order, sections the structure doesn't place go last, no sung line = '' (YuE2 instrumental); (b) one draft thread enforced by a partial unique index; (c) a language YuE2 doesn't list (de/es/fr/it/pt) is dropped from vocal_language, as Guided Create does; (d) CREATE SONG blockers are hard rules only (YuE2 configured, style present and ≤ 2000, lyrics ≤ 16000, field values, no bracket inside a line); 4-8 lines per section and structure order are retry reasons (recipeProblems); (e) engines = ['yue2'] in C0, an 'acestep' recipe is a retry reason; (f) createBlockers(fields, {yueConfigured}) stays pure.
+- risk noted: German and Spanish recipes reach YuE2 with no language word in the style (yue2.ts LANGUAGE_NAMES has en and zh only): CA-2's prompt puts the language into the style.
+
+## D-113 · 2026-10-06 · stage 7 (chat C0a) · by: user
+"Create the chat screen too and push it so that I can see it in action": C0a is compressed. CA-2 and CA-3 (turn job, routes, CREATE SONG) run as one server package stacked on CA-1; CA-6 (the screen) starts as soon as CA-5 lands; CA-4 (headless checkpoint) runs beside the screen instead of gating it. Everything merges behind the D-099 gate (CHAT shows only with LLM_API_URL and YUE_API_URL set), so the golden path and the owner's normal use don't move.
+- instead of: CA-4 gating CA-6.
+
+## D-114 · 2026-10-06 · stage 7 (chat CA-2 + CA-3) · by: assumed (builder, recorded by the conductor)
+(a) C0a checks edit / scalpel / analyze and recipe-on-a-song replies for shape only, since they become a `say` (D-110); (b) SP-5 ladder rung 2 (state-allowed actions) is built, rungs 1 and 3 are not (CHAT_LADDER=1/3 runs as rung 0); (c) a cancel is a failed message with cause `cancelled`; (d) NEW CHAT is refused while a turn or take runs; (e) CREATE SONG skips the /api/ps check while a `plan` job holds the slot (it unloads before the take starts) and an unreadable /api/ps does not refuse; (f) German/Spanish/French/Italian/Portuguese go at the front of the style at CREATE SONG (`withLanguage`) plus a prompt rule (D-112's risk); (g) a second SEND while a turn is open gets 409 (Q-082); (h) estSeconds guesses 2 bars per sung line and 8 bars per section without lines; (i) the retry reuses retryMessages ("Your op list was rejected") even for a recipe.
+- revisit: (e) if a take ever starts beside a loaded planner; (h) at CA-7's live run; (i) chat-specific retry wording if SP-5 shows it confuses the model.
+
+## D-115 · 2026-10-06 · stage 7 (chat CA-6) · by: assumed (builder, recorded by the conductor)
+The CHAT screen: (a) the player reuses the app's `Player` (waveform seek, volume, DOWNLOAD), not a bare seek bar (F-045 "no waveform in C0" is relaxed: the mockups show one); (b) "just filled" uses `on-sky` (#0C2530) as the mockup's --sk; DESIGN.md says why; (c) NEW CHAT asks first (DROP DRAFT / KEEP) when the thread has messages; (d) lyrics and structure parse when the field loses focus, a parse problem keeps the text and saves nothing; (e) the first frame waits up to 2.5 s for /api/chat/status so neither screen flashes; (f) FORM ▸ → Create → BACK returns to CHAT.
+- follow-up in flight: RETRY after CANCELLED (TU-2), truthful cancel copy while a take renders, the score e2e under the D-099 gate.
+
+## D-116 · 2026-10-06 · stage 7 (chat CA-6 follow-up) · by: assumed (builder, recorded by the conductor)
+CANCELLED has the TU-2 shape (rust line "No reply. Nothing changed." + one RETRY, also after a reload); while a take renders the sidebar foot says only "locked until v1 is saved" (CANCEL is offered only while the take is queued; ACTIVITY's running rows have no stop); the boot switches to CHAT only while the person is still on the Library with no song open. The SCORE e2e reaches the Library via the header and asserts CHAT opens first when configured.
+
+## D-117 · 2026-10-06 · stage 3 (SP-5) · by: assumed (conductor)
+SP-5 is proven at rung 0 (one call per turn): all bars (a)-(g) pass on the v3.1 prompt (action right 97.2% scripted, 90% on a 20-turn hold-out; recipes 32/32; lyric language 32/32; edits valid within 3 attempts 31/32; turn p50 8 s, p95 27 s; prompt p95 5.3k, 206-bar worst 5.5k). The ladder is not needed. C0a's turn job (merged in #149, built from an earlier prompt) is brought to SP-5's "What C0's turn job should copy": the v3.1 prompt and schema, the run-length bar map, STYLE without the app's tempo/key hints, max_tokens 4000 for edit-capable calls, the compact-JSON reply line, the three guards. Owed: the owner's read of 10 lyric sets (spikes/SP-5-chat-planner/lyrics.html; 8 of 10 usable, below that rung 3 = lyrics as their own call, built). R-027 (added by the spike) tracks the 40-bar edit tail and ~90% routing on unseen wording.
+
+## D-118 · 2026-10-06 · stage 7 (chat turn, SP-5 port) · by: assumed (builder, recorded by the conductor)
+(a) the "style starts with the language" prompt rule (D-112) is dropped because v3.1 was measured without it; CREATE SONG's `withLanguage` still adds the language; (b) `eld` (pure JS, Apache-2.0, no deps; 529/531 on SP-5's recorded lyric sections) is a new server dependency for the lyric-language guard, loaded on first use, skipping text ≤ 40 chars; (c) history budget 2400 characters, pending card 3600; (d) the missing-section guard also runs on edits C0a only redirects; the key list is enforced by the schema enum, not written in the prompt; two bugs in the spike's key guard fixed (every key read as minor; sharp majors never matched).
+
+## D-119 · 2026-10-06 · stage 7 (chat C0a live) · by: user
+"Default to the library view when launching Mulakai": the app always starts on the Library; CHAT is one click away in the header (and OPEN CHAT on a song) when the chat is configured. Reverses D-099's CHAT start screen (and F-043's start-screen criterion, F-074's "remembered mode"). Shipped in #154.
+- instead of: CHAT as the start screen when configured.
+
+## D-120 · 2026-10-06 · stage 7 (chat C0a live) · by: conductor (bugs found in the owner's first live use)
+The chat player read `song.audio_file`, which GET /api/songs/:id never sends, so no player appeared after a real CREATE SONG (#153: it plays the base layer's active take). The CA-6 screenshots ran against a stub that sent the field: a live run against the real server belongs before handing the screen over (CA-7). start-all.bat now starts Ollama with the 16k context and passes LLM_API_URL / LLM_MODEL (#152, #155). ACE-Step on :8001 runs `acestep\api_server.py` (start-all's portable path), which bears on R-025.
+
+## D-121 · 2026-10-06 · stage 8 (C0a code review) · by: conductor
+C0a-code.md: 0 blocking, 2 should, 1 nit, all checked in code. Fix all three before CA-7 (fix/chat-c0a-review): #1 CANCEL while thinking reads as a failure and lets a resend in during the unload (F-049 #1); #2 a truncated take shows DONE instead of the rust TRUNCATED line (F-044, D-025); #3 turns Map entry left on QueueFullError (trivial, same file).
+
+## D-122 · 2026-10-06 · stage 7 (chat CA-4) · by: assumed (builder, recorded by the conductor)
+chatCp0.ts: (a) hand-off = the worse of last planner answer → first empty /api/ps after the unload ack, and CREATE → take leaves `queued` (no human think time); (b) "invalid after 3" counts failed replies with cause `check` (a draft change during the reply would count too); (c) attempts = proxy call count (exact at rung 0); (d) YuE2 tok/s not recorded (the API does not expose it); (e) `--create` runs against a server on a DATA_DIR copy, never the owner's library.
+
+## D-123 · 2026-10-06 · stage 8 fix (C0a review) · by: assumed (builder, recorded by the conductor)
+fix/chat-c0a-review: (a) #1 server-only — cancelTurn sets job.cancelled on abort (the client's poll already reads that as CANCELLED, D-116 shape); POST refuses 409 TURN_OPEN while the turn is still settling, including a RETRY in the unload window, with the existing wording; (b) #2 the chat song card's rust line "TRUNCATED at 6:00, the song is cut short · v1 is saved; open it in the Editor to shorten and re-render" (no VERSIONS hint: the chat has no revert); truncated is read from the v1 label (TRUNCATED_LABEL); (c) #3 the turns entry is deleted on throw (enqueue may start the body synchronously). UI browser check of the truncated line is owed to CA-7 (needs a truncated take).
+
+## D-124 · 2026-10-07 · stage 7 (C0a verify) · by: conductor
+CA-4 live CP-C0a passes 3/3 stop lines; CA-7 live run passes F-041..F-045 on their C0a criteria (sub-criteria not run live are unit-tested; noted in features.json evidence); F-049 turn half and F-050 create half met, both stay false until C0b. Waveform on the chat player kept per D-115(a). Owner's "running in the Library" report not reproduced → Q-090; no speculative fix without a repro.
+
+## D-125 · 2026-10-07 · scope order · by: user
+"go ahead and quickly implement everything": C3 (reference songs: read a library song or dropped audio, cover proposal, fresh song borrowing from it, F-061..F-065) moves ahead of C1/C2 and runs now; C0b follows. C3 does not depend on the SP-4 listen.
+- instead of: the signed-off order C0b → C1 → C2 → C3.
+
+## D-126 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+A reference is read by one `transcribe`-kind job (label `chat reading`) that holds one queue slot through WORDS > SCORE > CAPTION (lyrics-server, yue-server SheetSage2 + `/v1/scores/read` + `/v1/scores/measure`, ACE-Step ANALYZE AUDIO); a pure `readingPlan` skips what the source already has (a YuE2 library song: its own score, words and style, no GPU; another library song: its own words/caption, a transcribed score). A part that fails or whose service is unset is `not read: <why>`; the job fails only when the file cannot be read. It starts only with no planner model loaded (`gpuGuard`, extracted from CREATE SONG's check). Result: a `Reading` (`reading_v: 1`) on the reference row and snapshotted in the reading card (docs/decisions/0008). Reversal: the three existing jobs, chained.
+- instead of: chaining the existing `transcribe`, `lyrics` and `analyze` jobs (three slots, three job ids for one card); a new `reading` queue kind (a two-union change in genQueue, 190/200 LOC, and the client).
+
+## D-127 · 2026-10-07 · stage 6 (chat C3, D-084, D-102) · by: assumed (architect)
+References are rows of `chat_references` per thread (FK cascade) with a copy of the audio in `audioDir/references/<id>.<ext>` (served by `/audio`); a library pick is copied too (its base layer's active take, D-137) with a snapshot of the song's own score, lyrics, caption, bpm, key and meter in `own_json`. The reference follows the draft thread to the song at CREATE; trash keeps it, permanent delete and NEW CHAT remove the rows, and `sweepFiles()` removes files without a row (start, trash sweep, NEW CHAT).
+- instead of: a link to the library song only (gone when that song is deleted or changed); a `songs` column (a draft thread has no song yet); keeping the file on yue-server.
+
+## D-128 · 2026-10-07 · stage 6 (chat C3, F-063/F-064) · by: assumed (architect)
+Cover vs fresh song is one `recipe` reply with `reference_use: cover | borrow | none` (in the schema only when a reading exists), not a new action. Code fills the borrowed fields from the reading (`referenceRecipe`): a cover takes tempo, key, meter and structure from the score (locked, FROM THE SCORE) and CREATE COVER runs createFromDraft with the reading's score as `cover` (USE .ABC FILE's request, cot `melody`); a borrow fills tempo, key, meter and structure (marked REFERENCE), leaves a missing value blank and says so; the model writes title, style (instrumentation words from the caption) and words. "Like this, but …" reads as a cover when the reading is coverable, said in assumptions (D-082); a cover on a non-coverable reading becomes a borrow with the reason. Measured in CP-C3 (`reference_use` right on 8 of 10). Reversal: a `cover` action (needs an SP-5-style re-measure).
+- instead of: a `cover` action in the closed set; the model copying tempo and key; two commit buttons on one card.
+
+## D-129 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+When a reading saves, the server queues the follow-up turn itself: the original request again, the REFERENCE block in the state, allowed actions ask / recipe / say; its line shows under the reading card. SEND stays off (409 `TURN_OPEN`) from READ until that turn settles; RE-ANALYZE writes a new reading card and queues no turn. Reversal: drop the `onRead` hook; the person types the next message.
+- instead of: the person asking again after every reading.
+
+## D-130 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+In C3 a reference is attached only in the draft thread (a new song). A song thread lists its references (RE-ANALYZE, A/B) and answers an `analyze` reply with a `say` pointing to NEW CHAT (D-110's shape). Reversal: allow ATTACH on a song thread once edits read a reference.
+- instead of: references that change an existing song (no edit turn exists before CB-2).
+
+## D-131 · 2026-10-07 · stage 6 (chat C3, F-061) · by: assumed (architect)
+A reading asks yue-server for a transcription with chords (`chords: true`: no `--melody-only`, no piano preview); Guided Create's COVER keeps melody-only (the default). A cover still renders cot `melody` (yue-server strips chord symbols, scores.py). CB-1's grid run reuses the flag. Inferred from transcriber.py's docstring that SheetSage2 then writes chord symbols; if not, the reading says "chords: not read".
+- instead of: melody-only readings (no chords for an audio reference, F-061 met only for YuE2 library songs).
+
+## D-132 · 2026-10-07 · stage 6 (chat C3, F-065, was F-035) · by: assumed (architect)
+F-065's score half lands in C3 on the dock: `scoreEligibility` admits covers, instrumentals and chord-free scores; a pure `renderMode` picks cot `full` when the score has chords or the plan has a REHARMONIZE, else `melody`; the plan carries it and the render uses it; REWRITE LYRICS on an instrumental is refused with the reason; the review names the render mode. The chat half (edit turns on such songs) arrives with CB-2 (D-110's redirect to SCORE until then), and CB-2's `spliceEligibility` sends a chord-free REHARMONIZE down the whole-song path. F-065 `passes` waits for the chat half.
+- instead of: holding all of F-065 until C0b.
+
+## D-133 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+No separate spike for transcription quality on arbitrary audio: the chat reuses today's COVER transcription unchanged, so the risk (R-029) is measured inside CP-C3 (score read ok, coverable, vocal-note density, reading time per step) with stop lines, and the owner hears 3 covers (owed, not blocking `passes`).
+- instead of: an SP-7 transcription spike before C3 code.
+
+## D-134 · 2026-10-07 · stage 6 (chat C3, Q-079) · by: assumed (architect)
+The rights line on the READ card, the reading card and the cover card: "Stays on this machine. You are responsible for the rights to this recording." Reversal: one string in `chatReferenceCopy.ts`.
+
+## D-135 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+The CAPTION step (caption, tempo, key, meter, F-061) calls ACE-Step ANALYZE AUDIO only when ACE-Step's health answers, loading its model as Guided Create's ANALYZE AUDIO does (the exact model choice is the builder's, unverified); otherwise a library song's own caption is used, else `not read: ACE-Step is not running` and tempo/key come from the score header. Tempo and key prefer ACE-Step's reading, then the score header; a cover always sings the score's own. Reversal: drop the step (the first cut if R-028 bites).
+
+## D-136 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+`client/src/chatStore.ts` is at the 200-LOC cap: CR-6 first moves job polling and rehydration into `chatPoll.ts` (own refactor commit). `chatCopy.ts` (183) and `chatTurn.ts` (185) are near it, so C3's copy lives in `chatReferenceCopy.ts` and the analyze/reading card states in the `chatReading.ts` reducer (chat-client rule amended).
+
+## D-137 · 2026-10-07 · stage 6 (chat C3) · by: assumed (architect)
+A library song as a reference is its base layer's active take (as the chat player plays, D-120); extra layers are not read, and the reading card says so for a song with more than one layer.
+- instead of: the client bouncing the audible mix as Guided Create's COVER does (a WAV upload of up to ~65 MB per pick).
+
+## D-138 · 2026-10-07 · stage 6 (chat C3, F-061 edge) · by: assumed (architect)
+A reference longer than 360 s is kept whole (A/B plays all of it); the reading and a cover use its first 360 s through a temp trimmed copy, said on the reading card.
+
+## D-139 · 2026-10-07 · stage 7 (chat C3, CR-0, D-131) · by: assumed (builder)
+D-131's premise is *seen in code*: SheetSage2's `infer.py` passes `melody_only` through, and `notation_sheetsage2.py` (`_assemble_abc_score`) fills the ABC's chord timeline from `chord.lab` unless `melody_only`, so a run without `--melody-only` writes chord symbols (none where it hears no chord, "N"). CR-0 defaults: `chords` is a multipart form bool (`true`/`false`, else 422); the result echoes `chords` as requested (chord presence in the ABC stays a `/v1/scores/read` fact, decisions/0002); with `chords` the job gets no piano preview and no warning for it; a replayed key with another `chords` is 409. Contract fixtures `transcription-{chords-done,chords-failed,hold}.json` carry `request` (form + file field), `response` (the 202 record), `final` (the record the fake answers when done or held) and `score` (what GET …/score serves), with id `tr-0001` and clock values pinned to 1.0.
+- instead of: a `chords_present` flag computed on the transcription route (a second ABC reader path), or keeping the preview on readings.
+
+## D-140 · 2026-10-07 · stage 7 (chat C3, CR-1) · by: assumed (builder, recorded by the conductor)
+(a) a `notRead` part stores only the reason, the client prefixes "not read: "; (b) an upload needs an audio file extension; refusals 400 `{reason}`, 413 over `coverMaxUploadMb`; (c) the same file (sha256) attached twice in one thread returns the existing reference (200); (d) `own_json` also keeps `layers` (own_v 1) so the card can say "only the base layer was read" (D-137); (e) a cover is possible when the whole score fits the token budget; unmeasured → ok, GENERATE's own check is the backstop; (f) `readingFacts` uses the draft's 30-key spelling, modes and out-of-range bpm/meter count as missing; (g) GPU estimate constants are placeholders until CP-C3. Copies are written synchronously so the sweep never sees a file before its row.
+
+## D-141 · 2026-10-07 · stage 5 (DT-C3, design/chat-reference.html) · by: assumed (conductor; owner may overrule)
+No blocking choice in DT-C3, so the build proceeds on the mockup's defaults: option B (a neutral REFERENCE tag on borrowed fields, Q-097), one attach chip per thread (Q-098), no invented GPU seconds on the READ card until CP-C3 calibrates them (Q-099); Q-100 (A/B at the same seconds) deferred. RF-1..RF-6 as drawn. The page is 25.5 KB (cap 25 KB; accepted). A stray absolute-positioned "TEMPO 92 BPM REFERENCE" sample shows at the page's top-left: mockup artifact only.
+
+## D-142 · 2026-10-07 · stage 7 (chat C3, CR-5, F-065) · by: assumed (builder, recorded by the conductor; the branch's commits call it D-139)
+The dock names the render mode only when it is not the usual one: the consequence line adds "renders the melody only, no chords" (cot melody) or "adds chords: the whole song renders with chords" (REHARMONIZE on a chord-free score); the checks line reads `no chords · melody render` (plain, not rust) instead of `chords invalid` for a melody render.
+- instead of: naming "renders with chords" on every plan.
+
+## D-143 · 2026-10-07 · stage 7 (chat C3, CR-5) · by: assumed (builder, recorded by the conductor; branch: D-140)
+`YueScoreReview.tsx` is Guided Create's COVER review, not the dock's, so it is unchanged; the dock's review copy is `scoreCopy.ts` + `scoreAttemptCopy.ts`, rendered by `ScorePlanList.tsx`; `api/score.ts` gains optional `ScorePlan.renderMode`.
+
+## D-144 · 2026-10-07 · stage 7 (chat C3, CR-5, F-065 edge) · by: assumed (builder, recorded by the conductor; branch: D-141)
+"Instrumental" for REWRITE LYRICS = every lyric block has 0 lines or there are none (yue-server facts). The refusal "this song is instrumental: there are no words to rewrite" is a plan check (`scoreLimits.wordsRefusal` via `withLimits`); the song stays eligible for every other op. REPEAT/TRANSPOSE on chord-free scores covered by the renderMode unit table only.
+
+## D-145 · 2026-10-07 · stage 7 (chat C3, CR-2) · by: assumed (builder, recorded by the conductor)
+(a) CAPTION calls ANALYZE AUDIO without a model first; only on "not initialized" it loads the inventory's `defaultModel` and tries once more (D-135); (b) the >360 s trim is FLAC at DATA_DIR/tmp/reading-<jobId>.flac; (c) WORDS takes the language from lyrics-server, a library song's own words use detectLanguage; no sung lines → `instrumental: true`; (d) a failed score read/measure is a warning with null facts/measure, the score part is kept; (e) a library song uses its own part when non-empty, a missing part goes to the service; (f) an exception in onRead is swallowed (the reading is already saved). ACE-Step has no unload route: its model stays loaded after CAPTION (R-028, measured in CP-C3).
+
+## D-146 · 2026-10-07 · stage 3 (SP-4 ear half) · by: user ("can't listen to 28 songs"), pair choice by the conductor
+SP-4's ear half shrinks to 10 of the 20 required pairs, the riskiest two per kind (listen/short.html): REHARMONIZE B, D (a word held across the cut / words within 80 ms); REWRITE LYRICS B, C (different words across the cut); WRITE PHRASE A, D (song A's level gap; D's moved cut); REPEAT A (+8.5 dB), C (+3.5 dB); CUT C (+3.4 dB, word across), B (-1.9 dB). Bar: a kind passes when the join is not found in either of its 2 pairs; found in 1 → that kind ships only with the fix the finding points to; found in both → that kind falls back to the whole re-render (D-101). The 8 optional extras are dropped.
+- instead of: 20 pairs with "not found in 4 of 5" per kind.
+
+## D-147 · 2026-10-07 · stage 3 (SP-4 ear half, REHARMONIZE) · by: conductor, from the owner's answers (spikes/SP-4-keep-unchanged/listen/answers-part1.json)
+The owner judged all 4 REHARMONIZE pairs (p1-p4, the full page). The edited take was picked as the joined one in 2 of 4 (p1, p2), missed in p3 (picked the unedited one) and p4 ("neither"). The giveaways: p1 "side A becomes a bit louder" (a level step: song A is the one whose base already steps +5.4 dB at the chorus, and the new take sat 3.7-6.0 dB off the old audio); p2 "the chords do not fit the melody" (the edit's own quality, which a whole re-render would share, not a seam). Reading: no seam was heard as a cut or click; the A3 splice passes for REHARMONIZE with one fix pointed to: the level match must hold over the whole new span, not only at the seams (p1). The remaining kinds use listen/short.html (8 pairs, D-146).
+
+## D-148 · 2026-10-07 · stage 7 (chat C3, CR-3) · by: assumed (builder, recorded by the conductor)
+(a) a READ card with no target named uses the thread's only attached file; with 2+ and no match the turn lists them instead of guessing; (b) a reading with no sections keeps the model's structure, the card says so, structure is not listed as missing (tempo/key/meter still blank and named, F-064); (c) a cover locks bpm, key, timeSignature and structure; `handEdit` returns `refused[{field, reason}]` (routes/chat.ts shows it in CR-4); (d) the READ card's GPU estimate assumes every step uses its service until CR-4 swaps in CR-2's readingPlan; (e) attach on a song thread 409 ATTACH_ON_SONG, malformed / other chat's 400; (f) SEND is 409 TURN_OPEN while a follow-up reading card still has a live job or open turn. Prompt: REFERENCE rule ~220 tok + block ≤600 tok only when a reading is in the state; follow-up turns carry ask/recipe/say only (~2k tok smaller).
+
+## D-149 · 2026-10-07 · stage 7 (chat C3, CR-4) · by: assumed (builder, recorded by the conductor)
+(a) the analyze card is 'committing' while its reading job is live, then 'done' whatever the outcome; a card already read refuses a second READ; (b) READ and RE-ANALYZE are refused while a turn, a reading or CREATE SONG of that thread runs; (c) the follow-up turn re-asks the last user message before the analyze card; if it cannot queue, a failed line (cause offline) appears; (d) the READ estimate treats a YuE2 library song's score as its own and assumes ACE-Step is up when ACESTEP_API_URL is set. CANCEL on a reading calls cancelReading and sets job.cancelled (reads cancelled, not failed).
+
+## D-150 · 2026-10-07 · stage 3 (SP-4 ear half, the other kinds) · by: owner confirmed 2026-10-07 ("whole re-render is fine"); reading by the conductor
+Owner's answers: spikes/SP-4-keep-unchanged/listen/answers-part2.json. Join found in both pairs: REWRITE LYRICS (p6, p7: "the voice changed"), WRITE PHRASE (p9, p12: "song changed completely"), REPEAT (p13 "cross fade very obvious" = song A's +8.5 dB step; p15 "barely noticeable, sounds really good"). CUT: p18 not found but "a small hitch right at the cut"; p19 found only because "the lyrics do not make sense" (content, not seam). Proposed reading:
+- REHARMONIZE: A3 splice ships (+ level match over the whole span, D-147).
+- CUT: audio-only cut ships, with a fix for the hitch at the seam; the planner cuts whole sections/line groups so the words still make sense.
+- REPEAT: audio-only copy ships when the seam's level step is small (p15); above a measured threshold (song A, +8.5 dB) it falls back to the score REPEAT re-render (M2).
+- REWRITE LYRICS, WRITE PHRASE: the splice is heard (the new take's voice/timbre differs inside the span) → whole re-render (D-101), labelled.
+
+## D-151 · 2026-10-07 · stage 7 (chat C3, CR-7a) · by: assumed (builder, recorded by the conductor)
+(a) READ's line says "uses the GPU", or "uses no GPU" when estimate.total is 0 (D-141, Q-099); (b) the card shows a cover as not possible when the score was not read or its measured tokens exceed the budget (unmeasured fits, D-140e); the server's coverVerdict decides; (c) READ AGAIN on a failed / cancelled / interrupted card uses RE-ANALYZE's route (no follow-up turn); (d) a failed chip has only ✕, no RETRY (the store does not keep the file); (e) PROPOSING… stays plain (the phase does not tell queued from thinking). C3 copy additions live in chatReferenceCopy.ts.
+
+## D-152 · 2026-10-07 · stage 7 (chat C3, CR-7b) · by: assumed (builder, recorded by the conductor)
+(a) a missing value's warn body reads "in the reference · left blank, YuE2 decides when it renders" (no planner fills it at CREATE); (b) the player status while the reference plays is "LISTENING · SAME SECONDS" and the version pill hides; (c) one REFERENCE ⇄ SONG pill (filled lilac on the reference) instead of the mockup's two; (d) past the reference's end the player waits at its end, paused; (e) RE-ANALYZE names no GPU seconds (Q-099); (f) the reference panel shows only on a song thread. No "FILE MISSING" state yet (ReferenceView has no missing flag → Q-102). DESIGN.md updated in its own commit on the branch.
+
+## D-153 · 2026-10-07 · stage 7 (C3 CR-8) · by: assumed (conductor; owner has not sent Q-095's recordings)
+CP-C3 runs on 3 library songs on a DATA_DIR copy: 1 YuE2 song (its own score, no GPU) and 2 ACE-Step songs (real non-YuE2 audio, so transcription runs). The owner's own recordings are added later; until then R-029 (transcription on arbitrary recordings) stays a hypothesis for outside audio.
+
+## D-154 · 2026-10-07 · stage 7 (C0b plan after SP-4) · by: conductor, from D-147/D-150
+C0b's splice (CB-1, CB-3) covers REHARMONIZE (A3 with the level match held over the whole new span), CUT (audio-only, fix the seam hitch; the planner cuts whole sections / line groups) and REPEAT (audio-only when the seam's level step over the base is under a threshold, measured on SP-4's rows; above it the score REPEAT re-render). REWRITE LYRICS, WRITE PHRASE and anything else render the whole song (D-101), labelled on the edit card ("the whole song is re-rendered").
+
+## D-155 · 2026-10-07 · stage 8 (C3 code review) · by: conductor
+C3-code.md: 1 blocking (a reading card's CANCEL goes to /api/generate/:id/cancel, not the chat's cancelReading: a running reading does not stop, a queued one leaves the thread BUSY until restart), 2 should (settle-before-delete leaves BUSY on throw; a failed/cancelled READ can only be retried without the follow-up turn), 2 nit (cancel during the final settle ignored; REFERENCE block by row order). Blocking confirmed in code (ChatThread.tsx cancelCard). Fix all five on fix/chat-c3-review before CR-9; #171 may merge first, the fix follows immediately.
+
+## D-156 · 2026-10-07 · stage 7 (chat C0b, CB-2) · by: assumed (builder, recorded by the conductor)
+(a) CUT and REPEAT are splice-eligible like REHARMONIZE (D-154; splice.md updated at curate); (b) a chord-free score re-renders the whole song for CUT and REPEAT too (the grid fit reads chords); (c) a chat edit plan replaces the dock's pending plan for that song (one planStore plan per song) and the dock shows it; (d) the dock's lastRun is not noted for chat plans. Edit card body: {chat_v, planId, ops, verdicts, checks, splice: {splice:true, kind, from_bar, to_bar} | {splice:false, reason}, renderMode, assumptions, attempts, refusals}; states pending / superseded / expired / committing / done. PR #173 is a draft until CB-3 + CB-5 (feature gate: no APPLY in the client yet).
+
+## D-157 · 2026-10-07 · stage 8 fix (C3 review) · by: assumed (builder, recorded by the conductor)
+D-151 (c) now reads: READ AGAIN on a failed / cancelled / interrupted reading card still uses RE-ANALYZE's route (no follow-up); separately, a READ whose reading saved nothing puts its analyze card back to READ while its proposal lives, and that READ re-reads the same reference with the follow-up turn. When settle throws after a complete reading, the reading is kept, the job fails with the settle's reason and no follow-up is queued (the planner may still be on the GPU).
+
+## D-158 · 2026-10-07 · stage 5 (DT-C0b) · by: assumed (ux-mocker, awaiting the owner's sign-off)
+design/chat-edit.html (EC-1..EC-8) is the proposed spec for CB-5 on the Q-103..Q-106 defaults: one edit card with a splice clause ("only bars X-Y change, the rest is v1's audio") or a whole-song clause with a grey reason; a sky bar strip (option B); APPLY the only acid; phases RENDERING → SPLICING → SAVING as plain lines (two steps for a whole-song edit), WAITING FOR v2 in the composer; version cards for splice, whole song, join not aligned and TRUNCATED; BACK TO v1 as the one REFERENCE ⇄ SONG pill pattern with a neutral USE v1; refused / failed / stale / superseded / expired as one shape with no APPLY.
+- instead of: words only (A); a play-bars link (C); a shader on the commit; asking before saving a whole fallback.
+
+## D-159 · 2026-10-07 · stage 7 (C3 CR-8, CP-C3 run 1) · by: conductor
+CP-C3 (pipeline/cp-c3/2026-10-07): 4/5 stop lines pass — slowest reading 90.8 s (CAPTION 66.9 s with ACE-Step cold), follow-up p50 14.0 s with the planner fully on the GPU 10/10 (R-028 holds: ACE-Step adds ~1 GB and stays), score read 3/3 (44-92 bars, chords, all coverable), hand-off 0.2 s; 2 covers saved (Cariñito → "Farewell Melody", purple trails → "Herbstlicher Traum"; owner's listen owed). STOP: reference_use right 5/10 (the model says `cover` 10/10). Also: a cover-worded SEND with an attachment never got an analyze card (0/5; scalpel or recipe instead). Re-dispatched with both causes named (schema key order + the cover tie-break; turnActions allows every action when attached) and a live re-run of the 10 wording legs before CR-9. CR-8 defaults: "score read ok" = score part read and its facts parse; the follow-up is timed from reading done to reply written; "right" = the model's own reference_use from the proxy log.
+
+## D-160 · 2026-10-07 · stage 7 (chat C0b, CB-1) · by: assumed (builder, recorded by the conductor)
+yue-server splice: REPEAT re-renders when |seam LUFS step (3 s each side)| > 4.0 dB (heard: +8.48 "very obvious", +3.52 "sounds really good"; raw step, a REPEAT seam has no base counterpart); a 4/4 check runs on yue too, so a 2/4-header song (Romantica) answers `rerender`; CUT shifts the cut only on a dip ≥ 6 dB and then narrows the crossfade to 1/4 beat (the p18 hitch: B now cuts before "Yo"/"Y dime"; not yet listened); an edge CUT fades over one beat; REPEAT's copy-end join has no crossfade (equal-power on identical audio would add +3 dB); REPEAT/CUT `not_aligned` → rerender. REHARMONIZE holds the span's gain per bar (every bar within 0.75 dB of the base on song A). Owed: a short listen of the new CUT joins (E:\ai\tmp\cb1).
+
+## D-161 · 2026-10-07 · stage 7 (chat C0b, CB-3) · by: assumed (builder, recorded by the conductor)
+(a) a whole-song APPLY also runs through spliceRenderJob (label `chat edit`, phases rendering → saving) so it gets the version card; (b) a failed splice job saves nothing and the card returns to pending; a 422/409 refusal or a `rerender` verdict saves the whole render, labelled (a CUT/REPEAT renders it first); (c) a truncated REHARMONIZE render still goes to the splice, which answers `render_truncated`, and the whole render is saved marked truncated; (d) a spliced version's sidecar is plan.abc; (e) stale is additive `EditBody.stale` + MessageState 'stale'; (f) a GPU refusal at the click is not stale. Label suffix "· bars 9–16 spliced/cut/repeated" or "· whole song re-rendered: <reason>". Routes: POST /api/chat/threads/:id/apply {proposalId} → 202 {jobId} | 409 {reason, stale}. Draft PR #178 (with #173) until CB-5.
+
+## D-162 · 2026-10-07 · stage 7 (C3 CP-C3 re-run) · by: conductor, from the fix builder's run
+CP-C3 run 4 passes 5/5 stop lines: reference_use right 9/10 (5/10 before), follow-up p50 11.8 s with the planner fully on the GPU 9/9, score read 3/3, hand-off 0.2 s, CREATE COVER saved twice. Fixes: reference_use first in the recipe schema; tie-break "unsure: borrow"; the REFERENCE rule defines cover as "ONLY this same song again" and borrow as "a different song in its style" (+11 tokens) — this reverses D-128's "'like this, but …' reads as a cover when coverable"; an attached file on a draft thread with no reading allows only ask / analyze / say (attached cover requests get the READ card 4/4 on the first SEND). Run 4 ran with ACE-Step unreachable (the owner's :8001 untouched), so CAPTION was "not read": the honest slowest reading stays run 1's 90.8 s. A library song named in words without an attachment still gets a recipe (named-cover-en) → Q-107.
+
+## D-163 · 2026-10-07 · stage 7 (chat C0b, CB-5) · by: assumed (builder, recorded by the conductor)
+(a) a song with both a reference and a previous version shows only the BACK TO pill in the player; (b) while v1 plays the status reads "v1 · NOT ACTIVE" (the mockup's longer line hit DOWNLOAD at 1366); (c) after USE v1 the "v2 is kept" note (Q-106) shows in the player as a lilac note, not a thread message; (d) the player pill shows only "v2" (the server label is too long); (e) the client treats a failed job with error 'Aborted' as a cancel — CB-4 makes the chat cancel set job.cancelled; (f) after a CUT or REPEAT, BACK TO lines up by seconds, not by bar (Q-105). The commit reducer lives in chatCommit.ts (chatTurn at its cap). C0b's whole flow is draft PR #181 (supersedes #173, #178) until CB-4 passes.
+
+## D-164 · 2026-10-07 · stage 7 (C3 CR-9 live run) · by: conductor
+pipeline/verify/C3/live/c3-live.md: F-061..F-064 and F-065's score half pass live (47 screenshots; covers rendered in ~75 s, borrow CREATE SONG 77 s; the 6:24 song reads 6:00 and says so; non-audio and noise refused with reasons; A/B same seconds; trash + empty removes the upload file). Bugs: A (blocking for done) a cancelled reading after a reload leaves the analyze card STARTING and SEND disabled (chatReading.ts keeps a stale phase); B RE-ANALYZE says "uses the GPU" for a no-GPU YuE2 reference; C "NaN:NaN" for songs with no duration; D borrowed tempo taken from ACE-Step's caption (79/47 BPM) over the score's 70 → borrow now prefers the score's facts, the caption fills only what the score lacks (refines D-140 f). All four fixed on fix/chat-c3-live before F-061..F-064 are marked passing. Owed: the owner's cover listen.
+
+## D-165 · 2026-10-07 · stage 7 (C3 live fixes) · by: assumed (builder, recorded by the conductor)
+fix/chat-c3-live (#182): borrowed tempo/key/meter prefer the transcribed score, the caption fills only gaps (reverses D-135's caption-first order for borrows); the REFERENCE facts line given to the planner also puts the score first; a cover stays score-only (the caption never fills what a cover's score lacks); ReferenceView carries a required `estimate` so RE-ANALYZE says "uses no GPU" when nothing runs on it. Bug C's cause: two covers store duration as the text 'N/A'. A, B, C unit-tested only (no browser re-run).
+
+## D-166 · 2026-10-07 · stage 7 (C0b CB-4, CP-C0 edit leg) · by: conductor
+pipeline/cp-c0/2026-10-07-edit: 5/5 stop lines pass on 3 library songs — edit turn p50 6.3 s (REHARMONIZE alone 20-25 s, over 15 s for that kind), hand-off 0.3 s, slowest edit 118 s, null test 0 different on all 6 splices (splice_check.py in WSL agrees), join LUFS excess 0.2-0.3 dB. Gertar and Cariñito: REHARMONIZE, CUT, REPEAT spliced, REWRITE LYRICS whole song. House in der Halle: REHARMONIZE plan failed the root check 3 times (no card); CUT `not_aligned` and REPEAT +6.6 dB → whole render, labelled (as designed) → Q-108. Live bugs fixed in #181: the splice reused the render's Idempotency-Key (yue 409 → every REHARMONIZE fell back to a whole render); the chat cancel now sets job.cancelled for a running APPLY. Defaults: each kind edits v1 again; hand-off = worst of unload-to-empty and APPLY-to-running; join excess counts REHARMONIZE seams only. Setup note: scipy 1.18.0 was installed into the owner's ~/yue2/.venv (C0b's playbook step) — the owner's yue-server needs the new code (pull main) for /v1/splices. Owed: the owner's A/B listen (E:/ai/tmp/cb4/listen; Gertar's real splice is -v4).
+
+## D-167 · 2026-10-07 · stage 7 (C0b CB-6, F-046 edge) · by: conductor
+The live run gave a YuE2 cover a normal edit card, against F-046's edge wording ("cover ... gets the eligibility reason and no APPLY"). That wording predates D-132: F-065 admits covers, instrumentals and chord-free scores, and its chat half lands with CB-2. Covers stay eligible; F-046's edge line is read without "cover, instrumental, chord-free". F-065 passes once instrumental and chord-free edit turns are seen live. Reversal: re-add covers to the ineligible list in `scoreEligibility`.
+
+## D-168 · 2026-10-07 · stage 7 (C0b CB-6) · by: conductor
+CB-6 live (c0b-live.md): F-046..F-048 pass, F-050 #2 passes. Fixed on fix/chat-c0b-live: the false "temporary render is deleted" copy after a splice cancel, and a restart mid-APPLY reading EXPIRED instead of INTERRUPTED (F-049 #3). Deferred, low: a stale card relabelled against the active version after USE v1; after USE v1 the v2 card has no PLAY or A/B; stale vN after an Editor delete (review nit 3). Kept: successful edits leave 30-80 MB on yue-server until its 24 h sweep.
+
+## D-169 · 2026-10-07 · stage 7 (C0b live fixes, F-049 #3) · by: assumed (builder, recorded by the conductor)
+fix/chat-c0b-live: an edit card keeps its APPLY job id only while the APPLY can still save; a failed, refused or cancelled APPLY clears it (queued cancels in the cancel route). After a restart, a card with a job id the server no longer knows and no saved version reads INTERRUPTED with ASK AGAIN — not APPLY again, since the plan and proposal live in memory and are gone. The splice-cancel line no longer claims the render was deleted (yue-server has no delete for a finished job). Known edge: a queued APPLY cancelled by trashing the song keeps its id and would read INTERRUPTED after a later restart.
+
+## D-170 · 2026-10-07 · stage 7 (C0b, F-050 #3 owner listen) · by: conductor
+Owner's A/B listen of 5 chat edits (pipeline/verify/C0b/owner-listen.json): no join bar named in 5/5 (join not found: pass), the edit came through clearly 5/5 (chords changed: pass), "the rest sounds the same" not met — tiny/tiny/a bit/a bit on the 4 splices, "different" on the whole re-render. Outside the span the splices are sample-identical to v1 (null test 0 differing samples), so what is heard is the re-sung span's instruments drifting (Acid: TB-303 bass → jazz bass), which colours the song around it. The render already reuses v1's seed and its style text, and those styles already name the instruments (tb 303; saxophone, bass; arpeggiated piano; fingerpicked guitar); yue-server takes no audio reference. F-050 stays false. Next: an instrument-hold spike (SP-6) before more chat edit work — owner's idea (instruments named, first and explicit) against a YuE2 audio reference if the model supports one.
+
+## D-171 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+A saved version is analyzed by C3's reading machinery reused: one `transcribe`-kind job, label `chat analysis`, one slot through WORDS > SCORE > SECTIONS (`readingSteps.runStep` for words and score; a new sections step for grid + bar times), stored as `versions.analysis_json` (`analysis_v: 1`, additive column); word timings go to the existing `versions.word_timings`, the grid to the existing `gridCache` sidecar (docs/decisions/0009).
+- why: docs/decisions/0008 already chose this; no new queue kind (genQueue 190/200, two kind unions); the splice and the Editor read what it writes.
+- instead of: a new `analyze` queue kind; chaining the timings, transcribe and splice-grid jobs; a separate analysis table.
+- revisit if: CP-C1 shows the single slot makes the next turn wait past its stop line (R-032).
+
+## D-172 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+What is analyzed: the chat's playable version (the base layer's active take, D-120) of a song **with a chat thread**; triggered when any job that can change audio settles `done` on that song (`jobEvents`, emitted by `jobRunner.queueJob`), and by `ensureAnalysis` on GET of a song's thread (imports, songs older than C1). One pending analysis per song; it re-resolves its target when it starts, so a newer version wins and no second job is queued. Songs without a thread are not analyzed (Q-109).
+- instead of: hooking the six version-insert sites; analyzing every song in the library.
+
+## D-173 · 2026-10-07 · stage 6 (chat C1, Q-038 #4) · by: assumed (architect)
+`scoreRenderJob.pendingEdit` lists only edit kinds (repaint, regenerate, retake, addLayer, split) instead of "anything but plan / scoreRender": a queued or running `timings`, `transcribe` (READ, the version analysis), `lyrics`, `analyze` or `lm` job never refuses APPLY. CREATE SONG / COVER already pass only `gpuGuard`. Built first (CL-1).
+- why: today a waiting analysis would refuse APPLY with "a chat analysis was queued after this plan" (seen in code); F-052 #3.
+
+## D-174 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+Bar times come from yue-server: `GET /v1/transcriptions/{id}/grid` (the chords run's `downbeat.lab` / `chord.lab` through `splice_grid.read_grid`) and `POST /v1/scores/bars {abc, grid}` (`splice_grid.fit`), CPU only. One SheetSage2 run gives a non-YuE2 version its transcribed score and its grid; a YuE2 version tracks only when no grid is cached; a spliced version's `mapped` grid is cached already (spliceRenderJob), so it needs no GPU step but WORDS.
+- why: decisions/0002 keeps ABC reading on yue-server; the strip and the splice use one fit, so their bars cannot disagree.
+- instead of: a TypeScript bar-time fit; a separate grid job.
+
+## D-175 · 2026-10-07 · stage 6 (chat C1, F-055) · by: assumed (architect)
+The mark is a third `planReferent` kind, `range {versionId, bars?, seconds}` (D-090 extends F-032's referent). The server resolves it at SEND and again at the turn's start against the playable version and its lineage (`barShift`): same version → pinned; the parent of a version whose edit moved no bars → carried, seconds re-timed; else stale. Stale at SEND → 409 `MARK_STALE`, nothing written; stale at the turn's start (it queued behind an APPLY) → a `failed` message "nothing changed · mark again", before the planner loads (Q-111). Never remapped.
+- instead of: a chat-only mark module; trusting the client's bars; planning the whole song when the mark went stale.
+
+## D-176 · 2026-10-07 · stage 6 (chat C1, F-055) · by: assumed (architect)
+A mark limits the plan in code: bar-valued op fields are bounded to the mark in the strict schema (`opsArraySchema(…, barRange)`); a section-referenced op outside the mark is a retry reason (`markFit`); a whole-song op (tempo, key, style) stays allowed and the edit card says "changes the whole song, not only the marked bars"; where an op's own limit is shorter than the mark the bound is the intersection and the card names it (F-055's "clamped with the reason").
+
+## D-177 · 2026-10-07 · stage 6 (chat C1, CS-9) · by: assumed (architect)
+WHAT IT SEES's rows and AS SENT JSON come from the server (`markBlock` through `POST …/mark/preview`), fetched when the disclosure opens, so the chip shows exactly what the turn sends; the chip's own label is computed on the client (display only).
+
+## D-178 · 2026-10-07 · stage 6 (chat C1, F-051) · by: assumed (architect)
+The chat e2e (`chat.spec.ts`) runs on the `score` project's stack (fake Ollama 8102, fake yue-server 8103, server 3102, Vite 5184), where `LLM_API_URL` and `YUE_API_URL` are already set: no new ports. The fake Ollama gains chat replies read from `server/test-fakes/data/sp5-replies.json` plus hold and offline switches; the fake yue-server replays `/v1/splices` from the recorded splice contract fixtures. The golden path is unchanged.
+
+## D-179 · 2026-10-07 · stage 6 (chat C1, F-052) · by: assumed (architect)
+A failed analysis is stored (`{analysis_v, versionId, failed, at}`) so FAILED + RETRY survive a reload; RETRY queues a new job (`POST …/analysis/retry`). With no reading of the current version's bars the strip is hatched and a mark is seconds only; such a turn's MARK block says "bars not read" and sends no bars.
+
+## D-180 · 2026-10-07 · stage 6 (chat C1, CS-4, CS-11) · by: assumed (architect)
+One rule, `barShift`, decides whether a version moved bars relative to its base: REHARMONIZE, SET TEMPO, TRANSPOSE, EDIT STYLE, REWRITE LYRICS and WRITE PHRASE keep them; a spliced or score CUT / REPEAT moves them with a known shift (USE BARS offered); a repaint keeps them; a retake, regenerate, new take, ACE-Step or unknown version moves them with no shift. It drives both the strip's dim-vs-hatched state and stale marks.
+
+## D-181 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+DT-C1 is `pipeline/design/chat-mark.html` (the strip and mark on the real player above the composer at 1366×768, thread ≥ 400 px), before CL-8a/b. C1 can split after F-053: C1a (analysis, strip, e2e), then C1b (the mark).
+
+## D-182 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
+WORDS in the automatic analysis is skipped when `versions.word_timings` already holds a reading, and runs otherwise; `LYRICS_API_URL` unset skips it with "no word timings" (not a failure). If CP-C1 shows lyrics-server's model pushing the planner off the GPU (R-031), the automatic analysis drops WORDS and the Editor keeps reading timings on demand.
+
+## D-185 · 2026-10-07 · stage 5 (DT-C1, chat-mark.html) · by: assumed (ux-mocker), owner sign-off pending
+The defaults of design/chat-mark.html MK-1..MK-10: player above the composer at 134 px with no lyric lane; reading line on its own row (Q-114); neutral reading text, rust only on failure; strip live / dim / hatched; one sky mark, seconds-only dashed; click on empty waveform seeks and clears (Q-116); snap on landing (Q-117); Alt-free edge reads in seconds (Q-118); one composer line (consequence, analysis wait, stale) under the chip; SEND live during an analysis.
+- instead of: the options listed per decision in the page.
+- revisit if: the owner's sign-off or a 1366x768 browser check shows the thread under 400 px.
