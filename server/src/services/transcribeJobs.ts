@@ -16,6 +16,8 @@ import type { SongEngine } from './engines/types.js';
 export interface TranscriptionOutcome extends TranscriptionFacts {
   score: string;
   sourceLabel: string;
+  /** yue-server's transcription id: a chords run's `/grid` is read by it (chat C1, D-174). */
+  yueJobId: string;
 }
 
 export interface TranscribeSource {
@@ -72,7 +74,7 @@ export async function runTranscription(
   const finished = await poll(job, engine, onProgress);
   if (!finished?.facts) return undefined;
   const score = await fetchTranscriptionScore(engine, job.taskId);
-  return { ...finished.facts, score, sourceLabel: source.label };
+  return { ...finished.facts, score, sourceLabel: source.label, yueJobId: job.taskId };
 }
 
 /** Throws QueueFullError synchronously when the queue is full. */
