@@ -4,6 +4,7 @@ paths:
   - "client/src/chat*.ts"
   - "client/src/useChat*.ts"
   - "client/src/api/chat.ts"
+  - "client/src/api/chatEdit.ts"
 ---
 
 # Chat — client
@@ -21,7 +22,9 @@ end to end"; modules in `pipeline/architecture.md` "Chat (C0)".
   Never re-implement recipe rules here; show the server's `blockers`.
 - Message and turn states go only through the `chatTurn` reducer, the analyze
   and reading cards' through `chatReading`; chat copy lives only in
-  `chatCopy.ts` and C3's in `chatReferenceCopy.ts` (both near the cap, D-136).
+  `chatCopy.ts`, C3's in `chatReferenceCopy.ts` (both near the cap, D-136)
+  and C0b's edit and version cards' in `chatEditCopy.ts`. A card's commit
+  (CREATE SONG, APPLY) goes through `chatCommit` (re-exported by `chatTurn`).
 - `chatStore.ts` is at the 200-LOC cap: polling lives in `chatPoll.ts`.
 - The send control is the outline text button `SEND ↵`, never a play-like
   glyph. CREATE SONG / APPLY live on the proposal card only, with the
