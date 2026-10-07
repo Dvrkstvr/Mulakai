@@ -8,6 +8,7 @@ import { contract } from './fakeYue.js';
 import type { ScoreFacts } from '../src/services/score/planTypes.js';
 import type { Recipe, ReferenceUse } from '../src/services/chat/chatTypes.js';
 import type { Reading } from '../src/services/chat/reading.js';
+import type { VersionAnalysis } from '../src/services/chat/analysisTypes.js';
 
 /** A complete, valid recipe (the scope's example: a slow Spanish ballad about the sea). */
 export const RECIPE: Recipe = {
@@ -50,6 +51,21 @@ export const borrowReply = (over: Partial<Recipe> = {}) => referenceReply('borro
 export const notJson = (): ChatScript => ({ content: 'Sure! Here is a song: ...', promptTokens: 2000 });
 export const outOfSet = () => reply({ action: 'dance', message: 'no' });
 export const badKeyRecipe = () => recipeReply({ key: 'Aminor' });
+
+/** C1: a version's analysis of read-ok's score (65 bars, YuE2's own sidecar), each bar 2.75 s, for marked turns. */
+export function markAnalysis(versionId: string): VersionAnalysis {
+  const facts = contract('read-ok').response.body.facts as ScoreFacts;
+  return {
+    analysis_v: 1, versionId, readAt: '2026-10-07T10:00:00.000Z', plan: { words: 'skip', score: 'own', sections: 'cached' },
+    words: { notRead: 'LYRICS_API_URL is not set' },
+    score: { abc: 'X:1', source: 'own', chords: true, facts, warnings: [], measure: null },
+    bars: { source: 'cached', offset: 0, starts: Array.from({ length: 65 }, (_, i) => i * 2.75), end: 179.3, agreement: 1 },
+  };
+}
+
+/** C1: a marked edit reply: one REHARMONIZE over `[from, to]` (the MARK block makes the prompt longer: 6k tokens). */
+export const markedEditReply = (from: number, to: number, message = 'Jazzier.') => reply({ action: 'edit', message, assumptions: [],
+  ops: [{ op: 'REHARMONIZE', from_bar: from, to_bar: to, chords: [{ bar: from, beat: 1, root: 'G', quality: 'm7' }] }] }, 6000);
 
 /** read-ok's 65 bars repeated to the 206-bar library song (F-042 #2's yardstick for prompt size). */
 export function facts206(): ScoreFacts {

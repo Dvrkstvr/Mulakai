@@ -19,6 +19,9 @@ export interface EditBody {
   refusals: string[][];
   /** C0b (CB-3, additive): APPLY's refusal once the song changed since the plan; the card reads STALE. */
   stale?: string;
+  /** C1 (F-055, additive): the mark this plan was bounded to (null bars: a time only), and the card's notes: a
+   * whole-song op, a mark clamped to the score, a phrase longer than the mark (D-176). */
+  mark?: { versionId: string; bars: [number, number] | null; seconds: [number, number]; notes: string[] };
 }
 /** What an edit turn plans on (songStateSource): an eligible song's score as read and its source. */
 export interface EditBase {

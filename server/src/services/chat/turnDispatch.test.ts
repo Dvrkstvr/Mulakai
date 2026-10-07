@@ -77,6 +77,16 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(free.body.renderMode).toEqual({ cot: 'full', reason: 'reharmonize' });
   });
 
+  it('C1: a marked edit card carries the mark and its notes: a clamp and a whole-song op (D-176, F-055 edge)', () => {
+    const two: Op[] = [...reharm, { op: 'SET_TEMPO', bpm: 90 }];
+    const mark = { versionId: 'v1', bars: [47, 65] as [number, number], seconds: [100, 179] as [number, number], notes: ['the mark reaches bar 70 but the score ends at bar 65: planned on bars 47-65'] };
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(two), edit: planned(two), mark });
+    if (out.kind !== 'edit') throw new Error('not an edit card');
+    expect(out.body.mark).toEqual({ ...mark, notes: [mark.notes[0], 'SET TEMPO changes the whole song, not only the marked bars'] });
+    const plain = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: planned(reharm) });
+    expect(plain.kind === 'edit' && 'mark' in plain.body).toBe(false);
+  });
+
   it('F-046 edge: a song that is not score-eligible gets the reason as a say, no card', () => {
     const reason = 'This song has a repaint version, so score editing ended when it was made.';
     const out = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: { reason } });

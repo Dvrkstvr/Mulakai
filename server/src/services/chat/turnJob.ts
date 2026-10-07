@@ -74,8 +74,11 @@ const isBase = (e: EditBase | { reason: string } | null): e is EditBase => Boole
 async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: TurnDeps, signal: AbortSignal, followUp: string | null): Promise<void> {
   const thread = threadById(threadId);
   if (!thread) throw new TurnError('gone', 'this chat was cleared before the turn started');
-  const attach = (user.body as UserBody | null)?.attach?.referenceId ?? null;
-  const gathered = await gatherTurnState(thread, deps.source, { attach, followUp });
+  const body = user.body as UserBody | null;
+  const gathered = await gatherTurnState(thread, deps.source, { attach: body?.attach?.referenceId ?? null, followUp, mark: body?.mark ?? null });
+  const mark = gathered.mark && 'stale' in gathered.mark ? null : gathered.mark;
+  // C1 (D-175): a mark that went stale while the turn queued ends it here, before the planner loads.
+  if (gathered.mark && 'stale' in gathered.mark) throw new TurnError('stale', `${gathered.mark.stale} · nothing changed · mark again`);
   const unsupported = await deps.probe();
   if (unsupported) throw new TurnError('offline', unsupported);
   const contextOf = async () => (await deps.loaded()).find((m) => m.name === deps.planner.model)?.contextLength ?? null;
@@ -85,7 +88,7 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   try {
     decision = await decideReply({
       state: gathered.state, block: gathered.block, facts: gathered.facts, draft: gathered.draft, request: user.text,
-      pending: !thread.songId && Boolean(liveProposal(threadId)), history,
+      pending: !thread.songId && Boolean(liveProposal(threadId)), history, mark,
     }, {
       rung: deps.rung,
       apply: base ? (ops) => deps.applyEdit({ abc: base.source.abc, style: base.source.style, lyrics: base.source.lyrics }, ops) : undefined,
@@ -113,7 +116,7 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   const edit: EditResolved | null = r.action !== 'edit' || !gathered.edit ? null
     : !base || !decision.applied ? { reason: 'reason' in gathered.edit ? gathered.edit.reason : 'the edit was not checked against the score' }
       : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now() };
-  commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text });
+  commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text, mark: mark?.edit ?? null });
   job.progressText = undefined;
   job.status = 'done';
 }

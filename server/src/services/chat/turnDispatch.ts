@@ -13,6 +13,7 @@ import { buildPlan } from '../score/planBuild.js';
 import type { ApplyResult, Plan } from '../score/planTypes.js';
 import { applyRecipe } from './draftModel.js';
 import { spliceEligibility } from './spliceEligibility.js';
+import { markFit } from './markFit.js';
 import { referenceRecipe } from './referenceRecipe.js';
 import type { Reading } from './reading.js';
 import type { AnalyzeBody, AskBody, Draft, EditBase, EditBody, RecipeBody, ScalpelKind, TurnReply } from './chatTypes.js';
@@ -54,7 +55,10 @@ export interface DispatchInput {
   edit?: EditResolved | null;
   /** The person's words, kept on the plan (the dock shows them). */
   request?: string;
+  /** C1 (F-055): the turn's pinned mark (bars clamped to the score, null = a time only) and the clamp's notes. */
+  mark?: EditMark | null;
 }
+export type EditMark = NonNullable<EditBody['mark']>;
 
 export type Dispatch =
   | { kind: 'say'; text: string; body: null }
@@ -73,7 +77,7 @@ function analyzeCard(message: string, hasSong: boolean, analyze: AnalyzeResolved
   return { kind: 'analyze', text: message, body: analyze.body };
 }
 
-function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string, edit: EditResolved | null | undefined, scoreReason: string | null): Dispatch {
+function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string, edit: EditResolved | null | undefined, scoreReason: string | null, mark?: EditMark | null): Dispatch {
   if (!edit || 'reason' in edit) return say(REDIRECT.editRefused(edit?.reason ?? scoreReason ?? 'its score could not be read'));
   const { base, applied } = edit;
   const plan = buildPlan({
@@ -84,11 +88,12 @@ function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string
     planId: plan.id, ops: plan.ops, verdicts: plan.verdicts, checks: plan.checks,
     splice: spliceEligibility(plan.ops, base), renderMode: plan.renderMode,
     assumptions: reply.assumptions, attempts: plan.attempts, refusals: plan.refusals,
+    ...(mark ? { mark: { ...mark, notes: [...mark.notes, ...(mark.bars ? markFit(plan.ops, mark.bars, base.facts).notes : [])] } } : {}),
   };
   return { kind: 'edit', text: reply.message, body, plan };
 }
 
-export function dispatchReply({ reply, hasSong, draft, sentRev, scoreReason, reference, analyze, edit, request = '' }: DispatchInput): Dispatch {
+export function dispatchReply({ reply, hasSong, draft, sentRev, scoreReason, reference, analyze, edit, request = '', mark }: DispatchInput): Dispatch {
   switch (reply.action) {
     case 'say': return say(reply.message);
     case 'ask': return { kind: 'ask', text: reply.message, body: { choices: reply.choices } };
@@ -96,7 +101,7 @@ export function dispatchReply({ reply, hasSong, draft, sentRev, scoreReason, ref
     case 'analyze': return analyzeCard(reply.message, hasSong, analyze);
     case 'edit':
       if (!hasSong) return say(REDIRECT.noSong);
-      return editCard(reply, request, edit, scoreReason);
+      return editCard(reply, request, edit, scoreReason, mark);
     case 'recipe': {
       if (hasSong) return say(REDIRECT.recipeOnSong);
       const built = reference ? referenceRecipe(reply.recipe, reference.reading, reference.id) : { recipe: reply.recipe, reference: null };

@@ -11,11 +11,12 @@ import { setPlan } from '../score/planStore.js';
 import { appendMessage } from './messageStore.js';
 import { propose } from './proposalStore.js';
 import { threadById, writeDraft } from './threadStore.js';
-import { dispatchReply, type AnalyzeResolved, type EditResolved } from './turnDispatch.js';
+import { dispatchReply, type AnalyzeResolved, type EditMark, type EditResolved } from './turnDispatch.js';
 import type { TurnRefs } from './songStateSource.js';
 import type { FailedBody, TurnReply } from './chatTypes.js';
 
-export type TurnCause = 'offline' | 'check' | 'context' | 'unload' | 'cancelled' | 'gone';
+/** `stale` (C1, D-175): the turn's mark went stale while it queued; it ended before the planner loaded. */
+export type TurnCause = 'offline' | 'check' | 'context' | 'unload' | 'cancelled' | 'gone' | 'stale';
 
 export class TurnError extends Error {
   constructor(readonly cause: TurnCause, message: string, readonly reasons: string[] = [message]) { super(message); }
@@ -28,7 +29,7 @@ export function writeFailed(threadId: string, reasons: string[], cause: TurnCaus
   } catch { /* the thread is gone (NEW CHAT): nothing to write to */ }
 }
 
-export type Resolved = { analyze: AnalyzeResolved | null; edit: EditResolved | null; request: string };
+export type Resolved = { analyze: AnalyzeResolved | null; edit: EditResolved | null; request: string; mark?: EditMark | null };
 
 /** The reply, the draft merge and the proposal: all or nothing. */
 const writeReply = db.transaction((threadId: string, reply: TurnReply, sentRev: number, scoreReason: string | null, refs: TurnRefs, r: Resolved) => {
