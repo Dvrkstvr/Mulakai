@@ -7,3 +7,6 @@ fastapi==0.142.1
 uvicorn==0.54.0
 # FastAPI's multipart parser, for POST /v1/transcriptions uploads.
 python-multipart==0.0.32
+# The chat's splice (splice_*.py, D-107): K-weighting, STFT onsets, WAV IO.
+# numpy comes with yue2-infer (2.2.6); scipy 1.18 needs numpy >= 2.0.
+scipy==1.18.0

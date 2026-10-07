@@ -1,0 +1,7356 @@
+{
+ "meta": {
+  "server": "http://127.0.0.1:3401",
+  "started": "2026-10-06T23:56:01.680Z",
+  "date": "2026-10-06",
+  "idleMiB": 2223,
+  "note": "Run 2 (--retry --merge): the 5 cover-worded legs again; a non-analyze first reply is asked again with 'Read the attached song first.' prefixed."
+ },
+ "priorMeta": {
+  "server": "http://127.0.0.1:3401",
+  "started": "2026-10-06T23:50:33.306Z",
+  "date": "2026-10-06",
+  "idleMiB": 1280,
+  "note": "D-153: 3 library songs (Cariñito YuE2; purple trails, JapJazz ACE-Step) + Ellies City 2's take uploaded as a file; DATA_DIR copy E:/ai/tmp/cr8/data; server = feat/chat-cr8-cp3 at origin/main 5b2268a."
+ },
+ "summary": {
+  "legs": 11,
+  "readingMaxShortS": 90.791,
+  "followP50S": 13.271,
+  "plannerOff": [],
+  "plannerSeen": 6,
+  "scoreOk": 2,
+  "audioFiles": 3,
+  "useRight": 1,
+  "useJudged": 10,
+  "handoffs": {
+   "unload": 191,
+   "read": 7,
+   "followUp": 6,
+   "create": 4
+  }
+ },
+ "stopLines": [
+  {
+   "verdict": "PASS",
+   "text": "slowest reading of a file of 4 min or less: 90.8 s (stop over 240 s)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "follow-up turn p50 13.3 s; planner not fully on the GPU in 0 of 6 seen (stop over 15 s or any)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "score read ok on 2 of 3 audio files (stop under 2)"
+  },
+  {
+   "verdict": "STOP",
+   "text": "reference_use right on 1 of 10 (stop under 8 of 10)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "worst hand-off 0.2 s: unload-to-empty 0.2 s, READ-to-reading 0.0 s, reading-to-follow-up 0.0 s, CREATE-to-take 0.0 s (stop over 5 s)"
+  }
+ ],
+ "legs": [
+  {
+   "id": "yue2-cover-en",
+   "source": "yue2",
+   "name": "Cariñito",
+   "lang": "en",
+   "expect": "cover",
+   "text": "Make a cover of this song: keep the melody, but new English words about leaving home.",
+   "attach": {
+    "status": 201,
+    "ms": 82,
+    "reason": null
+   },
+   "ask": {
+    "action": "analyze",
+    "turnMs": 5220,
+    "reasons": []
+   },
+   "reading": {
+    "jobId": "eb4d4a65-3c4d-4771-9be3-aaa2f451f977",
+    "status": "done",
+    "error": null,
+    "handoffMs": 6,
+    "readingMs": 112,
+    "steps": {
+     "WORDS": null,
+     "SCORE": null,
+     "CAPTION": null
+    },
+    "seconds": 161.07866666666666,
+    "readTo": 161.07866666666666,
+    "plan": {
+     "words": "own",
+     "score": "own",
+     "caption": "own"
+    },
+    "words": "es, 41 lines",
+    "score": "own, 64 bars, 6 sections, 95 bpm Dm 4/4, chords true, 0 warnings, 1042/4096 tok",
+    "caption": "95 bpm, D minor, 4: A romantic Latin pop track opens with a clean, arpeggiated p",
+    "scoreOk": true,
+    "coverable": "yes"
+   },
+   "followUp": {
+    "jobId": "b48645d6-2eb7-4fae-a0bf-bf77410b5f2a",
+    "action": "recipe",
+    "cause": null,
+    "reasons": [],
+    "handoffMs": 2,
+    "turnMs": 11962,
+    "promptTokens": [
+     1428
+    ],
+    "unloadMs": 105,
+    "vramBeforeMiB": 2224,
+    "plannerOnGpu": true,
+    "plannerVram": "10.9 of 10.9 GiB on the GPU",
+    "referenceUse": "cover",
+    "finalUse": "cover",
+    "borrowed": [
+     "bpm",
+     "key",
+     "timeSignature",
+     "structure"
+    ],
+    "missing": [],
+    "note": null
+   },
+   "firstAsk": {
+    "action": "say",
+    "turnMs": 5009,
+    "reasons": [
+     "The chat cannot do that yet: open the song in the Editor and use REPAINT there."
+    ]
+   },
+   "create": {
+    "postStatus": 202,
+    "jobId": "0d327c20-254e-49f3-8083-5be3299c4807",
+    "outcome": "saved",
+    "handoffMs": 4,
+    "takeMs": 85137,
+    "songId": "7ba4e489-8724-4987-ba8b-c49231040ccf",
+    "seconds": 159.79866666666666,
+    "plannerLoadedAtPress": false
+   }
+  },
+  {
+   "id": "ace1-cover-de",
+   "source": "acestep",
+   "name": "purple trails",
+   "lang": "de",
+   "expect": "cover",
+   "text": "Mach daraus eine Coverversion auf Deutsch: gleiche Melodie, neuer Text über den Herbst.",
+   "attach": {
+    "status": 201,
+    "ms": 111,
+    "reason": null
+   },
+   "ask": {
+    "action": "say",
+    "turnMs": 5885,
+    "reasons": [
+     "The chat cannot do that yet: open the song in the Editor and use REPAINT there."
+    ]
+   },
+   "reading": null,
+   "followUp": null
+  },
+  {
+   "id": "ace2-borrow-en",
+   "source": "acestep",
+   "name": "JapJazz",
+   "lang": "en",
+   "expect": "borrow",
+   "text": "Write me a brand-new song with the vibe of this one, about city lights at night.",
+   "attach": {
+    "status": 201,
+    "ms": 127,
+    "reason": null
+   },
+   "ask": {
+    "action": "analyze",
+    "turnMs": 5779,
+    "reasons": []
+   },
+   "reading": {
+    "jobId": "79b94f6f-8016-4bb1-83d7-ef7b7e84e4c3",
+    "status": "done",
+    "error": null,
+    "handoffMs": 7,
+    "readingMs": 26699,
+    "steps": {
+     "WORDS": null,
+     "SCORE": 26570,
+     "CAPTION": null
+    },
+    "seconds": 240,
+    "readTo": 240,
+    "plan": {
+     "words": "own",
+     "score": "service",
+     "caption": "own"
+    },
+    "words": "?, 22 lines",
+    "score": "transcribed, 92 bars, 8 sections, 91 bpm D#m 4/4, chords true, 0 warnings, 1600/4096 tok",
+    "caption": "92 bpm, Eb major, 4: A sophisticated lounge jazz arrangement opens with a crisp, ",
+    "scoreOk": true,
+    "coverable": "yes"
+   },
+   "followUp": {
+    "jobId": "fdb107c7-75e5-45c7-9311-70aba32adeb0",
+    "action": "recipe",
+    "cause": null,
+    "reasons": [],
+    "handoffMs": 6,
+    "turnMs": 13271,
+    "promptTokens": [
+     1345
+    ],
+    "unloadMs": 191,
+    "vramBeforeMiB": 1335,
+    "plannerOnGpu": true,
+    "plannerVram": "10.9 of 10.9 GiB on the GPU",
+    "referenceUse": "cover",
+    "finalUse": "cover",
+    "borrowed": [
+     "bpm",
+     "key",
+     "timeSignature",
+     "structure"
+    ],
+    "missing": [],
+    "note": null
+   }
+  },
+  {
+   "id": "upload-borrow-es",
+   "source": "upload",
+   "name": "ellies-city-2.wav",
+   "lang": "es",
+   "expect": "borrow",
+   "text": "Escríbeme una canción nueva con el estilo de esta, sobre el mar.",
+   "attach": {
+    "status": 201,
+    "ms": 199,
+    "reason": null
+   },
+   "ask": {
+    "action": "analyze",
+    "turnMs": 5546,
+    "reasons": []
+   },
+   "reading": {
+    "jobId": "cbbe626e-cd79-4743-ac8c-a46b8fbf677b",
+    "status": "done",
+    "error": null,
+    "handoffMs": 6,
+    "readingMs": 90791,
+    "steps": {
+     "WORDS": 11435,
+     "SCORE": 12339,
+     "CAPTION": 66905
+    },
+    "seconds": 140,
+    "readTo": 140,
+    "plan": {
+     "words": "service",
+     "score": "service",
+     "caption": "service"
+    },
+    "words": "en, 21 lines",
+    "score": "transcribed, 44 bars, 6 sections, 75 bpm Fm 4/4, chords true, 0 warnings, 727/4096 tok",
+    "caption": "75 bpm, F minor, 4: A moody and atmospheric downtempo track opens with spacious ",
+    "scoreOk": true,
+    "coverable": "yes"
+   },
+   "followUp": {
+    "jobId": "4b9bbb68-a87f-4d86-9081-8ab08e3ecdec",
+    "action": "recipe",
+    "cause": null,
+    "reasons": [],
+    "handoffMs": 3,
+    "turnMs": 12845,
+    "promptTokens": [
+     1314
+    ],
+    "unloadMs": 161,
+    "vramBeforeMiB": 2192,
+    "plannerOnGpu": true,
+    "plannerVram": "10.9 of 10.9 GiB on the GPU",
+    "referenceUse": "cover",
+    "finalUse": "cover",
+    "borrowed": [
+     "bpm",
+     "key",
+     "timeSignature",
+     "structure"
+    ],
+    "missing": [],
+    "note": null
+   }
+  },
+  {
+   "id": "non-audio",
+   "source": "non-audio",
+   "name": "notes.txt",
+   "lang": "en",
+   "expect": "refuse",
+   "text": "",
+   "attach": {
+    "status": 400,
+    "ms": 4,
+    "reason": "notes.txt is not an audio file (MP3, WAV, FLAC, OGG, M4A, AAC, OPUS, AIFF, WEBM)"
+   },
+   "ask": null,
+   "reading": null,
+   "followUp": null
+  },
+  {
+   "id": "yue2-cover-es",
+   "source": "yue2",
+   "name": "Cariñito",
+   "lang": "es",
+   "expect": "cover",
+   "text": "Quiero esta misma canción, con la misma melodía, pero cantada sobre mi perro.",
+   "attach": {
+    "status": 201,
+    "ms": 79,
+    "reason": null
+   },
+   "ask": {
+    "action": "recipe",
+    "turnMs": 15981,
+    "reasons": []
+   },
+   "reading": null,
+   "followUp": null
+  },
+  {
+   "id": "yue2-borrow-de",
+   "source": "yue2",
+   "name": "Cariñito",
+   "lang": "de",
+   "expect": "borrow",
+   "text": "Ein ganz neuer Song im Stil von diesem, aber über Freundschaft.",
+   "attach": {
+    "status": 201,
+    "ms": 78,
+    "reason": null
+   },
+   "ask": {
+    "action": "analyze",
+    "turnMs": 5758,
+    "reasons": []
+   },
+   "reading": {
+    "jobId": "ff4bb032-1aee-4997-a51f-293f6aabf8eb",
+    "status": "done",
+    "error": null,
+    "handoffMs": 6,
+    "readingMs": 112,
+    "steps": {
+     "WORDS": null,
+     "SCORE": null,
+     "CAPTION": null
+    },
+    "seconds": 161.07866666666666,
+    "readTo": 161.07866666666666,
+    "plan": {
+     "words": "own",
+     "score": "own",
+     "caption": "own"
+    },
+    "words": "es, 41 lines",
+    "score": "own, 64 bars, 6 sections, 95 bpm Dm 4/4, chords true, 0 warnings, 1042/4096 tok",
+    "caption": "95 bpm, D minor, 4: A romantic Latin pop track opens with a clean, arpeggiated p",
+    "scoreOk": true,
+    "coverable": "yes"
+   },
+   "followUp": {
+    "jobId": "03682ef2-36b8-4430-adc9-a1b94ccb3794",
+    "action": "recipe",
+    "cause": null,
+    "reasons": [],
+    "handoffMs": 2,
+    "turnMs": 14136,
+    "promptTokens": [
+     1368
+    ],
+    "unloadMs": 108,
+    "vramBeforeMiB": 2200,
+    "plannerOnGpu": true,
+    "plannerVram": "10.9 of 10.9 GiB on the GPU",
+    "referenceUse": "cover",
+    "finalUse": "cover",
+    "borrowed": [
+     "bpm",
+     "key",
+     "timeSignature",
+     "structure"
+    ],
+    "missing": [],
+    "note": null
+   }
+  },
+  {
+   "id": "yue2-borrow-en",
+   "source": "yue2",
+   "name": "Cariñito",
+   "lang": "en",
+   "expect": "borrow",
+   "text": "A new song like this one, same vibe, about summer road trips.",
+   "attach": {
+    "status": 201,
+    "ms": 79,
+    "reason": null
+   },
+   "ask": {
+    "action": "analyze",
+    "turnMs": 5541,
+    "reasons": []
+   },
+   "reading": {
+    "jobId": "4889581f-20bf-4e2c-9c32-a2818e297ce6",
+    "status": "done",
+    "error": null,
+    "handoffMs": 6,
+    "readingMs": 112,
+    "steps": {
+     "WORDS": null,
+     "SCORE": null,
+     "CAPTION": null
+    },
+    "seconds": 161.07866666666666,
+    "readTo": 161.07866666666666,
+    "plan": {
+     "words": "own",
+     "score": "own",
+     "caption": "own"
+    },
+    "words": "es, 41 lines",
+    "score": "own, 64 bars, 6 sections, 95 bpm Dm 4/4, chords true, 0 warnings, 1042/4096 tok",
+    "caption": "95 bpm, D minor, 4: A romantic Latin pop track opens with a clean, arpeggiated p",
+    "scoreOk": true,
+    "coverable": "yes"
+   },
+   "followUp": {
+    "jobId": "67774d3d-81dc-4028-b67d-70b6427c6896",
+    "action": "recipe",
+    "cause": null,
+    "reasons": [],
+    "handoffMs": 2,
+    "turnMs": 26876,
+    "promptTokens": [
+     1366,
+     2135
+    ],
+    "unloadMs": 108,
+    "vramBeforeMiB": 2190,
+    "plannerOnGpu": true,
+    "plannerVram": "10.9 of 10.9 GiB on the GPU",
+    "referenceUse": "cover",
+    "finalUse": "cover",
+    "borrowed": [
+     "bpm",
+     "key",
+     "timeSignature",
+     "structure"
+    ],
+    "missing": [],
+    "note": null
+   }
+  },
+  {
+   "id": "named-cover-en",
+   "source": "named",
+   "name": "Cariñito",
+   "lang": "en",
+   "expect": "cover",
+   "text": "Do a cover of Cariñito from my library in English, keep its melody.",
+   "attach": {
+    "status": 0,
+    "ms": 0,
+    "reason": null
+   },
+   "ask": {
+    "action": "recipe",
+    "turnMs": 14886,
+    "reasons": []
+   },
+   "reading": null,
+   "followUp": null
+  },
+  {
+   "id": "yue2-borrow-es",
+   "source": "yue2",
+   "name": "Cariñito",
+   "lang": "es",
+   "expect": "borrow",
+   "text": "Hazme una canción nueva con este ambiente, pero sobre la lluvia.",
+   "attach": {
+    "status": 201,
+    "ms": 74,
+    "reason": null
+   },
+   "ask": {
+    "action": "analyze",
+    "turnMs": 5122,
+    "reasons": []
+   },
+   "reading": {
+    "jobId": "692033b9-b4dd-4bbc-9918-b7a36523e380",
+    "status": "done",
+    "error": null,
+    "handoffMs": 5,
+    "readingMs": 113,
+    "steps": {
+     "WORDS": null,
+     "SCORE": null,
+     "CAPTION": null
+    },
+    "seconds": 161.07866666666666,
+    "readTo": 161.07866666666666,
+    "plan": {
+     "words": "own",
+     "score": "own",
+     "caption": "own"
+    },
+    "words": "es, 41 lines",
+    "score": "own, 64 bars, 6 sections, 95 bpm Dm 4/4, chords true, 0 warnings, 1042/4096 tok",
+    "caption": "95 bpm, D minor, 4: A romantic Latin pop track opens with a clean, arpeggiated p",
+    "scoreOk": true,
+    "coverable": "yes"
+   },
+   "followUp": {
+    "jobId": "6fa5639f-a94f-438f-9072-9d07f74d9c79",
+    "action": "recipe",
+    "cause": null,
+    "reasons": [],
+    "handoffMs": 2,
+    "turnMs": 14030,
+    "promptTokens": [
+     1368
+    ],
+    "unloadMs": 160,
+    "vramBeforeMiB": 2223,
+    "plannerOnGpu": true,
+    "plannerVram": "10.9 of 10.9 GiB on the GPU",
+    "referenceUse": "cover",
+    "finalUse": "cover",
+    "borrowed": [
+     "bpm",
+     "key",
+     "timeSignature",
+     "structure"
+    ],
+    "missing": [],
+    "note": null
+   }
+  },
+  {
+   "id": "yue2-cover-de",
+   "source": "yue2",
+   "name": "Cariñito",
+   "lang": "de",
+   "expect": "cover",
+   "text": "Genau dieses Lied, aber auf Deutsch gesungen.",
+   "attach": {
+    "status": 201,
+    "ms": 85,
+    "reason": null
+   },
+   "ask": {
+    "action": "recipe",
+    "turnMs": 16864,
+    "reasons": []
+   },
+   "reading": null,
+   "followUp": null
+  }
+ ],
+ "proxyEvents": [
+  {
+   "t0": 1791330634818,
+   "t1": 1791330634819,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330634821,
+   "t1": 1791330634831,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330634985,
+   "t1": 1791330634985,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330634986,
+   "t1": 1791330634987,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330634989,
+   "t1": 1791330634989,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330634990,
+   "t1": 1791330643369,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10549,
+    "usage": {
+     "prompt_tokens": 2749,
+     "completion_tokens": 73,
+     "total_tokens": 2822
+    },
+    "content": "{\"action\": \"scalpel\", \"message\": \"I will create a new English version of 'Cariñito' with the same melody but lyrics about leaving home. I will keep the original melody and add new English lyrics.\", \"kind\": \"repaint\", \"target\": \"whole song\", \"details\": \"new English lyrics about leaving home\"}"
+   }
+  },
+  {
+   "t0": 1791330643370,
+   "t1": 1791330643371,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330643372,
+   "t1": 1791330643373,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:50:43.3733661Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330643375,
+   "t1": 1791330643549,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330643706,
+   "t1": 1791330643707,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330643707,
+   "t1": 1791330643709,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330643710,
+   "t1": 1791330643710,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330643712,
+   "t1": 1791330649373,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10556,
+    "usage": {
+     "prompt_tokens": 2750,
+     "completion_tokens": 65,
+     "total_tokens": 2815
+    },
+    "content": "{\"action\": \"scalpel\", \"message\": \"I will create a new German lyrics version of 'purple trails' focusing on autumn themes, keeping the original melody intact.\", \"kind\": \"repaint\", \"target\": \"whole song\", \"details\": \"New German lyrics about autumn, same melody as original\"}"
+   }
+  },
+  {
+   "t0": 1791330649374,
+   "t1": 1791330649375,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330649375,
+   "t1": 1791330649377,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:50:49.3771048Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330649377,
+   "t1": 1791330649481,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330649723,
+   "t1": 1791330649723,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330649724,
+   "t1": 1791330649725,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330649725,
+   "t1": 1791330649726,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330649727,
+   "t1": 1791330655329,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10543,
+    "usage": {
+     "prompt_tokens": 2749,
+     "completion_tokens": 78,
+     "total_tokens": 2827
+    },
+    "content": "{\"action\": \"analyze\", \"message\": \"I'll analyze the attached 'JapJazz' to understand its vibe and structure, then create a new song inspired by it.\", \"reference\": \"JapJazz\", \"plan\": \"After analyzing 'JapJazz', I'll propose a new song with a similar vibe, focusing on city lights at night.\"}"
+   }
+  },
+  {
+   "t0": 1791330655331,
+   "t1": 1791330655331,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330655332,
+   "t1": 1791330655333,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:50:55.3334423Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330655334,
+   "t1": 1791330655446,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330658725,
+   "t1": 1791330658725,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330658727,
+   "t1": 1791330658728,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330685380,
+   "t1": 1791330685381,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330685387,
+   "t1": 1791330685388,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330685389,
+   "t1": 1791330685391,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330685392,
+   "t1": 1791330685393,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330685394,
+   "t1": 1791330698451,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 5122,
+    "usage": {
+     "prompt_tokens": 1345,
+     "completion_tokens": 469,
+     "total_tokens": 1814
+    },
+    "content": "{\"action\":\"recipe\",\"message\":\"Your new song, inspired by 'JapJazz', will have a sophisticated lounge jazz vibe with city lights at night as its theme. The lyrics will be in English, capturing the mood and atmosphere of the city at night.\",\"assumptions\":[\"language: English\",\"key: C major\",\"bpm: 92\",\"time_signature: 4/4\"],\"recipe\":{\"title\":\"City Lights at Night\",\"style\":\"lounge jazz, upright bass, piano, brushed snares, ride cymbal, warm and sophisticated mood\",\"bpm\":92,\"key\":\"C\",\"time_signature\":\"4/4\",\"language\":\"en\",\"engine\":\"yue2\",\"structure\":[\"Intro\",\"Verse\",\"Chorus\",\"Verse\",\"Chorus\",\"Bridge\",\"Chorus\",\"Outro\"],\"lyrics\":[{\"tag\":\"Verse\",\"lines\":[\"Neon lights flicker in the dark,\",\"A city alive, a world apart.\",\"Shadows dance on every street,\",\"Whispers of dreams that we complete.\"]},{\"tag\":\"Chorus\",\"lines\":[\"City lights at night, shining so bright,\",\"Guiding us through the endless night.\",\"Every corner holds a story,\",\"Of love, of dreams, of glory.\"]},{\"tag\":\"Verse\",\"lines\":[\"Skyscrapers tower, lights so bold,\",\"A symphony of stories told.\",\"Footsteps echo in the rain,\",\"A rhythm that won't ever cease.\"]},{\"tag\":\"Chorus\",\"lines\":[\"City lights at night, shining so bright,\",\"Guiding us through the endless night.\",\"Every corner holds a story,\",\"Of love, of dreams, of glory.\"]},{\"tag\":\"Bridge\",\"lines\":[\"In the silence, we find our way,\",\"Through the chaos, we don't stray.\",\"City lights, our silent guide,\",\"In their glow, we feel inside.\"]},{\"tag\":\"Chorus\",\"lines\":[\"City lights at night, shining so bright,\",\"Guiding us through the endless night.\",\"Every corner holds a story,\",\"Of love, of dreams, of glory.\"]},{\"tag\":\"Outro\",\"lines\":[\"As the night fades into dawn,\",\"City lights still shine on.\",\"A memory of the night,\",\"In the heart, it will stay bright.\"]}],\"reference_use\":\"cover\"}}"
+   }
+  },
+  {
+   "t0": 1791330698453,
+   "t1": 1791330698454,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330698456,
+   "t1": 1791330698459,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:51:38.4583947Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330698460,
+   "t1": 1791330698642,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330699170,
+   "t1": 1791330699171,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330699172,
+   "t1": 1791330699173,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330699174,
+   "t1": 1791330699174,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330699175,
+   "t1": 1791330704569,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10537,
+    "usage": {
+     "prompt_tokens": 2750,
+     "completion_tokens": 84,
+     "total_tokens": 2834
+    },
+    "content": "{\"action\": \"analyze\", \"message\": \"I'll analyze the attached song 'ellies-city-2.wav' to understand its style and then propose a new song about the sea in a similar style.\", \"reference\": \"ellies-city-2.wav\", \"plan\": \"After analyzing the reference song, I'll propose a new song with a similar style, focusing on the sea as the theme.\"}"
+   }
+  },
+  {
+   "t0": 1791330704571,
+   "t1": 1791330704571,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330704572,
+   "t1": 1791330704573,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:51:44.5732903Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330704574,
+   "t1": 1791330704687,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330707895,
+   "t1": 1791330707896,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330707898,
+   "t1": 1791330707898,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330798584,
+   "t1": 1791330798585,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330798589,
+   "t1": 1791330798589,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330798590,
+   "t1": 1791330798591,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330798592,
+   "t1": 1791330798592,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330798593,
+   "t1": 1791330811283,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 5083,
+    "usage": {
+     "prompt_tokens": 1314,
+     "completion_tokens": 438,
+     "total_tokens": 1752
+    },
+    "content": "{\"action\":\"recipe\",\"message\":\"He creado una canción nueva inspirada en el estilo de la canción que me proporcionaste, con un tema sobre el mar.\",\"assumptions\":[\"style: downtempo, piano, ambient synth, trip-hop, moody, atmospheric\",\"key: Fm\",\"bpm: 75\",\"time_signature: 4/4\"],\"recipe\":{\"title\":\"Mar de Sueños\",\"style\":\"downtempo, piano, ambient synth, trip-hop, moody, atmospheric\",\"bpm\":75,\"key\":\"Fm\",\"time_signature\":\"4/4\",\"language\":\"es\",\"engine\":\"yue2\",\"structure\":[\"Intro\",\"Verse\",\"Chorus\",\"Verse\",\"Chorus\",\"Outro\"],\"lyrics\":[{\"tag\":\"Verse\",\"lines\":[\"Bajo el cielo nocturno, el mar susurra en silencio\",\"Las olas se acercan, como un beso en la piel\",\"La luna mira desde lejos, iluminando el camino\",\"Cada paso que doy, es un nuevo comienzo\"]},{\"tag\":\"Chorus\",\"lines\":[\"Mar de sueños, donde todo es posible\",\"En tus aguas, encuentro mi refugio\",\"Con cada respiro, siento tu fuerza\",\"En tus profundidades, encuentro mi paz\"]},{\"tag\":\"Verse\",\"lines\":[\"El viento lleva el aroma de la sal\",\"Las estrellas brillan sobre el horizonte\",\"Cada latido, es un eco en el aire\",\"En este lugar, encuentro mi alma\"]},{\"tag\":\"Chorus\",\"lines\":[\"Mar de sueños, donde todo es posible\",\"En tus aguas, encuentro mi refugio\",\"Con cada respiro, siento tu fuerza\",\"En tus profundidades, encuentro mi paz\"]},{\"tag\":\"Outro\",\"lines\":[\"El mar me llama, con su voz suave\",\"En sus aguas, encuentro mi paz\",\"Con cada respiro, siento tu fuerza\",\"En tus profundidades, encuentro mi alma\"]}],\"reference_use\":\"cover\"}}"
+   }
+  },
+  {
+   "t0": 1791330811285,
+   "t1": 1791330811285,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330811286,
+   "t1": 1791330811288,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:53:31.2876995Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330811288,
+   "t1": 1791330811444,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330811892,
+   "t1": 1791330811892,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330811893,
+   "t1": 1791330811894,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330811895,
+   "t1": 1791330811895,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330811896,
+   "t1": 1791330827656,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10541,
+    "usage": {
+     "prompt_tokens": 2751,
+     "completion_tokens": 616,
+     "total_tokens": 3367
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Proposing a new song with the same melody as 'Cariñito' but with lyrics about your dog. Please review and confirm.\", \"assumptions\": [\"title: Cariñito - My Dog\", \"style: Spanish, ballad, acoustic guitar, soft vocals\", \"bpm: 70\", \"key: C major (assuming the original key of 'Cariñito')”, \" ], \"recipe\": {\"title\": \"Cariñito - My Dog\", \"style\": \"Spanish, ballad, acoustic guitar, soft vocals\", \"bpm\": 70, \"key\": \"C\", \"time_signature\": \"4/4\", \"language\": \"es\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"Mi fiel compañero, en mi vida me acompaña\", \"Con sus ojos brillantes, me mira con cariño\", \"En cada paseo, en cada rincón\", \"Siempre a mi lado, sin importar el momento\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Cariñito, mi perro tan lindo\", \"Con su cola feliz, me hace reír\", \"En mi corazón, siempre tendrá un lugar\", \"Mi mejor amigo, mi amor de cada día\"]}, {\"tag\": \"Verse\", \"lines\": [\"A través de la vida, juntos nos hemos ido\", \"Con sus ladridos, me despierta cada mañana\", \"En cada momento, en cada desafío\", \"Siempre me apoya, sin importar el camino\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Cariñito, mi perro tan lindo\", \"Con su cola feliz, me hace reír\", \"En mi corazón, siempre tendrá un lugar\", \"Mi mejor amigo, mi amor de cada día\"]}, {\"tag\": \"Bridge\", \"lines\": [\"En la oscuridad, su presencia me guía\", \"Con su amor incondicional, me da fuerza\", \"En cada momento, en cada desafío\", \"Siempre me apoya, sin importar el camino\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Cariñito, mi perro tan lindo\", \"Con su cola feliz, me hace reír\", \"En mi corazón, siempre tendrá un lugar\", \"Mi mejor amigo, mi amor de cada día\"]}, {\"tag\": \"Outro\", \"lines\": [\"Cariñito, mi perro tan lindo\", \"Con su cola feliz, me hace reír\", \"En mi corazón, siempre tendrá un lugar\", \"Mi mejor amigo, mi amor de cada día\"]}]} }"
+   }
+  },
+  {
+   "t0": 1791330827658,
+   "t1": 1791330827658,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330827659,
+   "t1": 1791330827660,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:53:47.6602925Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330827660,
+   "t1": 1791330827787,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330827953,
+   "t1": 1791330827953,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330827953,
+   "t1": 1791330827954,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330827955,
+   "t1": 1791330827955,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330827956,
+   "t1": 1791330833585,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10527,
+    "usage": {
+     "prompt_tokens": 2747,
+     "completion_tokens": 77,
+     "total_tokens": 2824
+    },
+    "content": "{\"action\": \"analyze\", \"message\": \"I'll analyze the attached song 'Cariñito' to understand its style and structure, then propose a new song about friendship in a similar style.\", \"reference\": \"Cariñito\", \"plan\": \"Propose a new song about friendship in the style of 'Cariñito' after analyzing it.\"}"
+   }
+  },
+  {
+   "t0": 1791330833587,
+   "t1": 1791330833587,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330833587,
+   "t1": 1791330833588,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:53:53.5886154Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330833589,
+   "t1": 1791330833690,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330836924,
+   "t1": 1791330836924,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330836926,
+   "t1": 1791330836927,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330836977,
+   "t1": 1791330836977,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330836978,
+   "t1": 1791330836979,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330836979,
+   "t1": 1791330836980,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330836980,
+   "t1": 1791330836981,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330836981,
+   "t1": 1791330850993,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 5224,
+    "usage": {
+     "prompt_tokens": 1368,
+     "completion_tokens": 585,
+     "total_tokens": 1953
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Ein neuer Song im Stil von 'Cariñito', aber über Freundschaft, mit spanischen Texten und einer romantischen, aber freundschaftlichen Note.\", \"assumptions\": [\"key Dm\", \"bpm 95\", \"time_signature 4/4\", \"language es\"], \"recipe\": {\"title\": \"Amigo Corazón\", \"style\": \"pop, piano, romantic, male voice\", \"bpm\": 95, \"key\": \"Dm\", \"time_signature\": \"4/4\", \"language\": \"es\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"¿Cómo puedo expresar lo que siento por ti?\", \"En cada momento, en cada paso que doy.\",\"Juntos somos más fuertes, aunque a veces no lo veas.\", \"Con tu apoyo, puedo alcanzar cualquier meta.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que sin ti, no podría seguir.\", \"Amigo corazón, siempre estaré contigo.\", \"En cada risa, en cada lamento, siempre estaré contigo.\"]}, {\"tag\": \"Verse\", \"lines\": [\"Cuando el mundo se pone contra mí,\", \"Tú eres mi refugio, mi luz en la oscuridad.\",\"Con tu voz, me recuerdas que no estoy solo.\", \"Juntos somos un equipo, siempre lo seremos.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que sin ti, no podría seguir.\", \"Amigo corazón, siempre estaré contigo.\", \"En cada risa, en cada lamento, siempre estaré contigo.\"]}, {\"tag\": \"Bridge\", \"lines\": [\"A veces la vida nos separa,\", \"Pero el tiempo nos volverá a unir.\",\"Nunca olvidaré tus palabras,\", \"Que me han guiado en cada paso.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que sin ti, no podría seguir.\", \"Amigo corazón, siempre estaré contigo.\", \"En cada risa, en cada lamento, siempre estaré contigo.\"]}, {\"tag\": \"Outro\", \"lines\": [\"Amigo corazón, gracias por estar.\", \"En cada momento, siempre estaré contigo.\",\"Hasta el final, siempre serás mi amigo.\",\"Amigo corazón, gracias por estar.\"]}], \"reference_use\": \"cover\"}}"
+   }
+  },
+  {
+   "t0": 1791330850995,
+   "t1": 1791330850995,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330850996,
+   "t1": 1791330850997,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:54:10.9970419Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330850997,
+   "t1": 1791330851101,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330851524,
+   "t1": 1791330851524,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330851524,
+   "t1": 1791330851525,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330851526,
+   "t1": 1791330851526,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330851527,
+   "t1": 1791330856956,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10525,
+    "usage": {
+     "prompt_tokens": 2745,
+     "completion_tokens": 82,
+     "total_tokens": 2827
+    },
+    "content": "{\"action\": \"analyze\", \"message\": \"I'll analyze the attached song 'Cariñito' to understand its vibe and structure, then propose a new song with a similar feel but about summer road trips.\", \"reference\": \"Cariñito\", \"plan\": \"Propose a new song with a similar vibe but about summer road trips after analyzing 'Cariñito'.\"}"
+   }
+  },
+  {
+   "t0": 1791330856957,
+   "t1": 1791330856958,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330856958,
+   "t1": 1791330856959,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:54:16.9595019Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330856960,
+   "t1": 1791330857062,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330860251,
+   "t1": 1791330860252,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330860254,
+   "t1": 1791330860254,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330860302,
+   "t1": 1791330860303,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330860304,
+   "t1": 1791330860305,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330860305,
+   "t1": 1791330860306,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330860307,
+   "t1": 1791330860307,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330860307,
+   "t1": 1791330875735,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 5222,
+    "usage": {
+     "prompt_tokens": 1366,
+     "completion_tokens": 670,
+     "total_tokens": 2036
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Your new song, inspired by 'Cariñito', is a romantic Latin pop track with a clean piano melody and heartfelt vocals, now themed around summer road trips. The lyrics are in Spanish, capturing the joy and adventure of the journey.\", \"assumptions\": [\"key Dm\", \"bpm 95\", \"time_signature 4/4\", \"style piano, romantic, Latin pop, emotional voice\"], \"recipe\": {\"title\": \"Verano en la Carretera\", \"style\": \"piano, romantic, Latin pop, emotional voice\", \"bpm\": 95, \"key\": \"Dm\", \"time_signature\": \"4/4\", \"language\": \"es\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"El sol brilla en el cielo, el viento nos guía\", \"Con cada curva de la carretera, sentimos la vida\", \"La música del viaje, nos lleva a soñar\", \"Con destinos lejanos, y el corazón en llamas\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que este verano no se va\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\"]}, {\"tag\": \"Verse\", \"lines\": [\"La carretera nos llama, con promesas de amor\", \"Cada kilómetro, un nuevo recuerdo\", \"Con el sol en la cara, y la risa en el aire\", \"Vamos a escribir nuestra historia\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que este verano no se va\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\"]}, {\"tag\": \"Bridge\", \"lines\": [\"El mapa nos guía, pero el corazón nos lleva\", \"A donde el sol se pone, y el cielo se ilumina\", \"Con cada paso, con cada risa\", \"Vamos a encontrar nuestro destino\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que este verano no se va\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\"]}, {\"tag\": \"Outro\", \"lines\": [\"El verano nos espera, con sus promesas de amor\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\", \"Y este verano no se va\"]}, {\"tag\": \"Outro\", \"lines\": [\"El verano nos espera, con sus promesas de amor\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\", \"Y este verano no se va\"]}],\"reference_use\": \"cover\"}}"
+   }
+  },
+  {
+   "t0": 1791330875736,
+   "t1": 1791330875737,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330875737,
+   "t1": 1791330875738,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330875738,
+   "t1": 1791330887092,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 4,
+    "promptChars": 7933,
+    "usage": {
+     "prompt_tokens": 2135,
+     "completion_tokens": 612,
+     "total_tokens": 2747
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Your new song, inspired by 'Cariñito', is a romantic Latin pop track with a clean piano melody and heartfelt vocals, now themed around summer road trips. The lyrics are in Spanish, capturing the joy and adventure of the journey.\", \"assumptions\": [\"key Dm\", \"bpm 95\", \"time_signature 4/4\", \"style piano, romantic, Latin pop, emotional voice\"], \"recipe\": {\"title\": \"Verano en la Carretera\", \"style\": \"piano, romantic, Latin pop, emotional voice\", \"bpm\": 95, \"key\": \"Dm\", \"time_signature\": \"4/4\", \"language\": \"es\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"El sol brilla en el cielo, el viento nos guía\", \"Con cada curva de la carretera, sentimos la vida\", \"La música del viaje, nos lleva a soñar\", \"Con destinos lejanos, y el corazón en llamas\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que este verano no se va\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\"]}, {\"tag\": \"Verse\", \"lines\": [\"La carretera nos llama, con promesas de amor\", \"Cada kilómetro, un nuevo recuerdo\", \"Con el sol en la cara, y la risa en el aire\", \"Vamos a escribir nuestra historia\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que este verano no se va\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\"]}, {\"tag\": \"Bridge\", \"lines\": [\"El mapa nos guía, pero el corazón nos lleva\", \"A donde el sol se pone, y el cielo se ilumina\", \"Con cada paso, con cada risa\", \"Vamos a encontrar nuestro destino\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que este verano no se va\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\"]}, {\"tag\": \"Outro\", \"lines\": [\"El verano nos espera, con sus promesas de amor\", \"Por las carreteras, por los caminos\", \"Vamos a vivir cada instante\", \"Y este verano no se va\"]}],\"reference_use\": \"cover\"}}"
+   }
+  },
+  {
+   "t0": 1791330887093,
+   "t1": 1791330887093,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330887094,
+   "t1": 1791330887095,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:54:47.0943745Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330887095,
+   "t1": 1791330887200,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330887513,
+   "t1": 1791330887514,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330887515,
+   "t1": 1791330887516,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330887517,
+   "t1": 1791330887517,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330887518,
+   "t1": 1791330902294,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10486,
+    "usage": {
+     "prompt_tokens": 2729,
+     "completion_tokens": 597,
+     "total_tokens": 3326
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"I will create an English cover of 'Cariñito' while keeping its melody. Let me know if you'd like any changes.\", \"assumptions\": [\"assuming the key is C major\", \"assuming the tempo is 120 BPM\", \"assuming the style is a romantic ballad with acoustic guitar and soft vocals\"], \"recipe\": {\"title\": \"Cariñito (English Cover)\", \"style\": \"romantic ballad, acoustic guitar, soft vocals\", \"bpm\": 120, \"key\": \"C\", \"time_signature\": \"4/4\", \"language\": \"en\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"In the quiet of the night, I think of you\", \"Your smile lights up my soul, I can't deny\", \"Every moment with you feels so right\", \"I know I'm lucky to have you by my side\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Cariñito, my love, you're my heart\", \"With every beat, I know you're my start\", \"Through every storm, I'll always be there\", \"Cariñito, my love, you're my heart\"]}, {\"tag\": \"Verse\", \"lines\": [\"The world may change, but my love won't fade\", \"Your touch is gentle, like a soft embrace\", \"I'll hold you close, through every trial\", \"Together we'll face whatever comes our way\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Cariñito, my love, you're my heart\", \"With every beat, I know you're my start\", \"Through every storm, I'll always be there\", \"Cariñito, my love, you're my heart\"]}, {\"tag\": \"Bridge\", \"lines\": [\"I'll sing this song, forever and always\", \"My love for you, will never decay\", \"No matter where life may take us\", \"I'll always be here, my love, for you\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Cariñito, my love, you're my heart\", \"With every beat, I know you're my start\", \"Through every storm, I'll always be there\", \"Cariñito, my love, you're my heart\"]}, {\"tag\": \"Outro\", \"lines\": [\"Cariñito, my love, you're my heart\", \"With every beat, I know you're my start\", \"Through every storm, I'll always be there\", \"Cariñito, my love, you're my heart\"]}]}}"
+   }
+  },
+  {
+   "t0": 1791330902295,
+   "t1": 1791330902296,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330902296,
+   "t1": 1791330902297,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:55:02.2976921Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330902298,
+   "t1": 1791330902397,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330902479,
+   "t1": 1791330902480,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330902480,
+   "t1": 1791330902481,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330902482,
+   "t1": 1791330902482,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330902483,
+   "t1": 1791330907453,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10528,
+    "usage": {
+     "prompt_tokens": 2747,
+     "completion_tokens": 68,
+     "total_tokens": 2815
+    },
+    "content": "{\"action\": \"analyze\", \"message\": \"I'll analyze the attached song 'Cariñito' to understand its atmosphere and then propose a new song inspired by it but focused on rain.\", \"reference\": \"Cariñito\", \"plan\": \"Propose a new song with a similar atmosphere but about rain.\"}"
+   }
+  },
+  {
+   "t0": 1791330907455,
+   "t1": 1791330907455,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330907456,
+   "t1": 1791330907457,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:55:07.457067Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330907457,
+   "t1": 1791330907561,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330910815,
+   "t1": 1791330910816,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330910817,
+   "t1": 1791330910817,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330910868,
+   "t1": 1791330910869,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330910870,
+   "t1": 1791330910870,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330910871,
+   "t1": 1791330910871,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330910872,
+   "t1": 1791330910872,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330910873,
+   "t1": 1791330924717,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 5225,
+    "usage": {
+     "prompt_tokens": 1368,
+     "completion_tokens": 589,
+     "total_tokens": 1957
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"Your new song, inspired by 'Cariñito', will focus on rain with a romantic Latin pop vibe. The lyrics will be in Spanish, and the structure will follow a typical song format.\", \"assumptions\": [\"key Dm\", \"bpm 95\", \"time_signature 4/4\", \"language es\"], \"recipe\": {\"title\": \"Lluvia de Amor\", \"style\": \"Latin pop, piano, emotional vocal, romantic\", \"bpm\": 95, \"key\": \"Dm\", \"time_signature\": \"4/4\", \"language\": \"es\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"Bajo la lluvia, te busco en cada gota\", \"El cielo llora, y yo te canto\", \"Cada sonido, un suspiro de amor\", \"En este momento, solo somos nosotros\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que en esta lluvia, tu amor me encuentra\", \"Y dime, dime, dime\", \"Que en cada gota, tu voz me guía\"]}, {\"tag\": \"Verse\", \"lines\": [\"La tormenta, un beso en el aire\", \"El viento, un susurro de deseo\", \"En este rincón, donde el mundo se detiene\", \"Solo tú y yo, bajo la lluvia\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que en esta lluvia, tu amor me encuentra\", \"Y dime, dime, dime\", \"Que en cada gota, tu voz me guía\"]}, {\"tag\": \"Bridge\", \"lines\": [\"El cielo, un manto de amor\", \"La tierra, un refugio de paz\", \"En este instante, el tiempo se detiene\", \"Solo tú y yo, bajo la lluvia\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Y dime, dime, dime\", \"Que en esta lluvia, tu amor me encuentra\", \"Y dime, dime, dime\", \"Que en cada gota, tu voz me guía\"]}, {\"tag\": \"Outro\", \"lines\": [\"La lluvia, un beso en el aire\", \"El viento, un susurro de deseo\", \"En este rincón, donde el mundo se detiene\", \"Solo tú y yo, bajo la lluvia\"]}],\"reference_use\": \"cover\"}}"
+   }
+  },
+  {
+   "t0": 1791330924718,
+   "t1": 1791330924718,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330924719,
+   "t1": 1791330924720,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:55:24.7199037Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330924720,
+   "t1": 1791330924877,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330925317,
+   "t1": 1791330925317,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330925318,
+   "t1": 1791330925319,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330925319,
+   "t1": 1791330925320,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330925320,
+   "t1": 1791330942005,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10509,
+    "usage": {
+     "prompt_tokens": 2742,
+     "completion_tokens": 714,
+     "total_tokens": 3456
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"I will create a new song in German, inspired by 'Cariñito', with a similar style and structure.\", \"assumptions\": [\"assuming the key is C major\", \"assuming the tempo is 120 bpm\", \"assuming the style is a romantic ballad with acoustic guitar and soft vocals\"], \"recipe\": {\"title\": \"Genau dieses Lied\", \"style\": \"romantic ballad, acoustic guitar, soft vocals, emotional and heartfelt\", \"bpm\": 120, \"key\": \"C\", \"time_signature\": \"4/4\", \"language\": \"de\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Bridge\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"In deinen Augen sehe ich Liebe, so tief und so wahr\", \"Jede Sekunde mit dir ist ein Geschenk, das ich nicht vergesse\", \"Deine Stimme, sie berührt mein Herz, so sanft und so klar\", \"In deinen Armen fühle ich Sicherheit, wie nie zuvor\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Genau dieses Lied, das ich für dich singe\", \"Es trägt die Liebe, die in mir brennt\", \"Mit jedem Wort, das ich sage, spüre ich, wie sehr ich dich liebe\", \"Genau dieses Lied, das ich für dich singe\"]}, {\"tag\": \"Verse\", \"lines\": [\"Die Erinnerungen, die wir teilen, sind wie ein Lied, das niemals endet\", \"Jeder Moment, den wir miteinander verbringen, ist ein Schatz, den ich bewahre\", \"Deine Lachen, es ist das Lied, das mein Herz erfreut\", \"In deinen Armen fühle ich, wie sehr ich dich liebe\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Genau dieses Lied, das ich für dich singe\", \"Es trägt die Liebe, die in mir brennt\", \"Mit jedem Wort, das ich sage, spüre ich, wie sehr ich dich liebe\", \"Genau dieses Lied, das ich für dich singe\"]}, {\"tag\": \"Bridge\", \"lines\": [\"Wenn die Zeit vergeht und wir uns trennen\", \"Wird dieses Lied immer in meinem Herzen bleiben\", \"Es ist das Lied, das uns verbindet\", \"Es ist das Lied, das uns immer wieder zusammenbringt\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Genau dieses Lied, das ich für dich singe\", \"Es trägt die Liebe, die in mir brennt\", \"Mit jedem Wort, das ich sage, spüre ich, wie sehr ich dich liebe\", \"Genau dieses Lied, das ich für dich singe\"]}, {\"tag\": \"Outro\", \"lines\": [\"Genau dieses Lied, das ich für dich singe\", \"Es trägt die Liebe, die in mir brennt\", \"Mit jedem Wort, das ich sage, spüre ich, wie sehr ich dich liebe\", \"Genau dieses Lied, das ich für dich singe\"]}]}}"
+   }
+  },
+  {
+   "t0": 1791330942006,
+   "t1": 1791330942006,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330942007,
+   "t1": 1791330942008,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:55:42.0076146Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330942008,
+   "t1": 1791330942135,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330963201,
+   "t1": 1791330963203,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330963204,
+   "t1": 1791330963206,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330963334,
+   "t1": 1791330963335,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330963336,
+   "t1": 1791330963337,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330963341,
+   "t1": 1791330963342,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330963343,
+   "t1": 1791330968158,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10549,
+    "usage": {
+     "prompt_tokens": 2749,
+     "completion_tokens": 73,
+     "total_tokens": 2822
+    },
+    "content": "{\"action\": \"scalpel\", \"message\": \"I'll create a new English version of 'Cariñito' with lyrics about leaving home. The melody will stay the same, but the words will be rewritten in English.\", \"kind\": \"repaint\", \"target\": \"whole song\", \"details\": \"New English lyrics about leaving home\"}"
+   }
+  },
+  {
+   "t0": 1791330968160,
+   "t1": 1791330968160,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330968161,
+   "t1": 1791330968162,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:56:08.1624747Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330968162,
+   "t1": 1791330968261,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330968344,
+   "t1": 1791330968344,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330968344,
+   "t1": 1791330968345,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330968346,
+   "t1": 1791330968346,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330968347,
+   "t1": 1791330973425,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 10797,
+    "usage": {
+     "prompt_tokens": 2807,
+     "completion_tokens": 71,
+     "total_tokens": 2878
+    },
+    "content": "{\"action\": \"analyze\", \"message\": \"I'll read the attached song 'Cariñito' first and then propose a cover with new English lyrics about leaving home.\", \"reference\": \"Cariñito\", \"plan\": \"Propose a cover with new English lyrics about leaving home after analyzing 'Cariñito'.\"}"
+   }
+  },
+  {
+   "t0": 1791330973426,
+   "t1": 1791330973427,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330973427,
+   "t1": 1791330973429,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:56:13.4287998Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330973429,
+   "t1": 1791330973527,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330976752,
+   "t1": 1791330976753,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330976755,
+   "t1": 1791330976755,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330976804,
+   "t1": 1791330976805,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330976806,
+   "t1": 1791330976807,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330976807,
+   "t1": 1791330976808,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791330976808,
+   "t1": 1791330976808,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330976809,
+   "t1": 1791330988722,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 5494,
+    "usage": {
+     "prompt_tokens": 1428,
+     "completion_tokens": 471,
+     "total_tokens": 1899
+    },
+    "content": "{\"action\": \"recipe\", \"message\": \"I've created a cover of 'Cariñito' with new English lyrics about leaving home, keeping the original melody and structure.\", \"assumptions\": [\"reference_use: cover\", \"language: en\", \"title: Farewell Melody\", \"style: Latin pop, piano, emotional vocals, romantic mood, male voice\"], \"recipe\": {\"title\": \"Farewell Melody\", \"style\": \"Latin pop, piano, emotional vocals, romantic mood, male voice\", \"bpm\": 95, \"key\": \"Dm\", \"time_signature\": \"4/4\", \"language\": \"en\", \"engine\": \"yue2\", \"structure\": [\"Intro\", \"Verse\", \"Chorus\", \"Verse\", \"Chorus\", \"Outro\"], \"lyrics\": [{\"tag\": \"Verse\", \"lines\": [\"How can I tell you I've never been able to forget you?\", \"The memories of our time together still haunt me.\",\"Every step I take feels like a piece of my heart is left behind.\",\"I need to find my way, but I'm lost without you.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Tell me, tell me, tell me\", \"How can I leave this home behind?\", \"Tell me, tell me, tell me\", \"How can I let go of the love we knew?\"]}, {\"tag\": \"Verse\", \"lines\": [\"I need you to come back to me\", \"But I know I can't hold you forever.\",\"The road ahead is uncertain, but I must find my way.\",\"I'll carry your memory with me, wherever I go.\"]}, {\"tag\": \"Chorus\", \"lines\": [\"Tell me, tell me, tell me\", \"How can I leave this home behind?\", \"Tell me, tell me, tell me\", \"How can I let go of the love we knew?\"]}, {\"tag\": \"Outro\", \"lines\": [\"As I walk away, I'll remember you\", \"The love we shared will never fade.\",\"Though I'm leaving home, my heart stays with you.\",\"Until we meet again, I'll carry you in my soul.\"]}],\"reference_use\": \"cover\"}}"
+   }
+  },
+  {
+   "t0": 1791330988724,
+   "t1": 1791330988724,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791330988725,
+   "t1": 1791330988726,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-06T23:56:28.726485Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791330988726,
+   "t1": 1791330988827,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791330991213,
+   "t1": 1791330991213,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  }
+ ],
+ "ollamaPs": [
+  {
+   "t": 1791330633313,
+   "models": []
+  },
+  {
+   "t": 1791330633817,
+   "models": []
+  },
+  {
+   "t": 1791330634330,
+   "models": []
+  },
+  {
+   "t": 1791330634833,
+   "models": []
+  },
+  {
+   "t": 1791330635343,
+   "models": []
+  },
+  {
+   "t": 1791330635856,
+   "models": []
+  },
+  {
+   "t": 1791330636369,
+   "models": []
+  },
+  {
+   "t": 1791330636882,
+   "models": []
+  },
+  {
+   "t": 1791330637451,
+   "models": []
+  },
+  {
+   "t": 1791330637955,
+   "models": []
+  },
+  {
+   "t": 1791330638467,
+   "models": []
+  },
+  {
+   "t": 1791330638982,
+   "models": []
+  },
+  {
+   "t": 1791330639496,
+   "models": []
+  },
+  {
+   "t": 1791330640000,
+   "models": []
+  },
+  {
+   "t": 1791330640506,
+   "models": []
+  },
+  {
+   "t": 1791330641020,
+   "models": []
+  },
+  {
+   "t": 1791330641532,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330642046,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330642560,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330643073,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330643586,
+   "models": []
+  },
+  {
+   "t": 1791330644100,
+   "models": []
+  },
+  {
+   "t": 1791330644613,
+   "models": []
+  },
+  {
+   "t": 1791330645124,
+   "models": []
+  },
+  {
+   "t": 1791330645638,
+   "models": []
+  },
+  {
+   "t": 1791330646151,
+   "models": []
+  },
+  {
+   "t": 1791330646664,
+   "models": []
+  },
+  {
+   "t": 1791330647176,
+   "models": []
+  },
+  {
+   "t": 1791330647690,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330648205,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330648716,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330649230,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330649744,
+   "models": []
+  },
+  {
+   "t": 1791330650258,
+   "models": []
+  },
+  {
+   "t": 1791330650770,
+   "models": []
+  },
+  {
+   "t": 1791330651283,
+   "models": []
+  },
+  {
+   "t": 1791330651796,
+   "models": []
+  },
+  {
+   "t": 1791330652310,
+   "models": []
+  },
+  {
+   "t": 1791330652824,
+   "models": []
+  },
+  {
+   "t": 1791330653337,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330653849,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330654363,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330654876,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330655446,
+   "models": []
+  },
+  {
+   "t": 1791330655949,
+   "models": []
+  },
+  {
+   "t": 1791330656461,
+   "models": []
+  },
+  {
+   "t": 1791330656975,
+   "models": []
+  },
+  {
+   "t": 1791330657488,
+   "models": []
+  },
+  {
+   "t": 1791330658001,
+   "models": []
+  },
+  {
+   "t": 1791330658515,
+   "models": []
+  },
+  {
+   "t": 1791330659028,
+   "models": []
+  },
+  {
+   "t": 1791330659539,
+   "models": []
+  },
+  {
+   "t": 1791330660049,
+   "models": []
+  },
+  {
+   "t": 1791330660560,
+   "models": []
+  },
+  {
+   "t": 1791330661074,
+   "models": []
+  },
+  {
+   "t": 1791330661589,
+   "models": []
+  },
+  {
+   "t": 1791330662102,
+   "models": []
+  },
+  {
+   "t": 1791330662613,
+   "models": []
+  },
+  {
+   "t": 1791330663126,
+   "models": []
+  },
+  {
+   "t": 1791330663640,
+   "models": []
+  },
+  {
+   "t": 1791330664154,
+   "models": []
+  },
+  {
+   "t": 1791330664667,
+   "models": []
+  },
+  {
+   "t": 1791330665181,
+   "models": []
+  },
+  {
+   "t": 1791330665695,
+   "models": []
+  },
+  {
+   "t": 1791330666208,
+   "models": []
+  },
+  {
+   "t": 1791330666722,
+   "models": []
+  },
+  {
+   "t": 1791330667236,
+   "models": []
+  },
+  {
+   "t": 1791330667750,
+   "models": []
+  },
+  {
+   "t": 1791330668263,
+   "models": []
+  },
+  {
+   "t": 1791330668776,
+   "models": []
+  },
+  {
+   "t": 1791330669290,
+   "models": []
+  },
+  {
+   "t": 1791330669802,
+   "models": []
+  },
+  {
+   "t": 1791330670316,
+   "models": []
+  },
+  {
+   "t": 1791330670830,
+   "models": []
+  },
+  {
+   "t": 1791330671344,
+   "models": []
+  },
+  {
+   "t": 1791330671857,
+   "models": []
+  },
+  {
+   "t": 1791330672357,
+   "models": []
+  },
+  {
+   "t": 1791330672871,
+   "models": []
+  },
+  {
+   "t": 1791330673385,
+   "models": []
+  },
+  {
+   "t": 1791330673902,
+   "models": []
+  },
+  {
+   "t": 1791330674412,
+   "models": []
+  },
+  {
+   "t": 1791330674927,
+   "models": []
+  },
+  {
+   "t": 1791330675440,
+   "models": []
+  },
+  {
+   "t": 1791330675953,
+   "models": []
+  },
+  {
+   "t": 1791330676466,
+   "models": []
+  },
+  {
+   "t": 1791330676979,
+   "models": []
+  },
+  {
+   "t": 1791330677493,
+   "models": []
+  },
+  {
+   "t": 1791330678005,
+   "models": []
+  },
+  {
+   "t": 1791330678519,
+   "models": []
+  },
+  {
+   "t": 1791330679032,
+   "models": []
+  },
+  {
+   "t": 1791330679534,
+   "models": []
+  },
+  {
+   "t": 1791330680044,
+   "models": []
+  },
+  {
+   "t": 1791330680560,
+   "models": []
+  },
+  {
+   "t": 1791330681072,
+   "models": []
+  },
+  {
+   "t": 1791330681586,
+   "models": []
+  },
+  {
+   "t": 1791330682100,
+   "models": []
+  },
+  {
+   "t": 1791330682612,
+   "models": []
+  },
+  {
+   "t": 1791330683125,
+   "models": []
+  },
+  {
+   "t": 1791330683638,
+   "models": []
+  },
+  {
+   "t": 1791330684152,
+   "models": []
+  },
+  {
+   "t": 1791330684664,
+   "models": []
+  },
+  {
+   "t": 1791330685178,
+   "models": []
+  },
+  {
+   "t": 1791330685691,
+   "models": []
+  },
+  {
+   "t": 1791330686203,
+   "models": []
+  },
+  {
+   "t": 1791330686718,
+   "models": []
+  },
+  {
+   "t": 1791330687235,
+   "models": []
+  },
+  {
+   "t": 1791330687745,
+   "models": []
+  },
+  {
+   "t": 1791330688258,
+   "models": []
+  },
+  {
+   "t": 1791330688771,
+   "models": []
+  },
+  {
+   "t": 1791330689285,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330689798,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330690309,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330690822,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330691334,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330691846,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330692358,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330692870,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330693370,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330693882,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330694395,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330694907,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330695420,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330695932,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330696444,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330696957,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330697471,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330697984,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330698642,
+   "models": []
+  },
+  {
+   "t": 1791330699149,
+   "models": []
+  },
+  {
+   "t": 1791330699663,
+   "models": []
+  },
+  {
+   "t": 1791330700176,
+   "models": []
+  },
+  {
+   "t": 1791330700688,
+   "models": []
+  },
+  {
+   "t": 1791330701201,
+   "models": []
+  },
+  {
+   "t": 1791330701716,
+   "models": []
+  },
+  {
+   "t": 1791330702230,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330702742,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330703255,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330703767,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330704280,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330704792,
+   "models": []
+  },
+  {
+   "t": 1791330705306,
+   "models": []
+  },
+  {
+   "t": 1791330705809,
+   "models": []
+  },
+  {
+   "t": 1791330706315,
+   "models": []
+  },
+  {
+   "t": 1791330706851,
+   "models": []
+  },
+  {
+   "t": 1791330707357,
+   "models": []
+  },
+  {
+   "t": 1791330707893,
+   "models": []
+  },
+  {
+   "t": 1791330708399,
+   "models": []
+  },
+  {
+   "t": 1791330708914,
+   "models": []
+  },
+  {
+   "t": 1791330709426,
+   "models": []
+  },
+  {
+   "t": 1791330709940,
+   "models": []
+  },
+  {
+   "t": 1791330710452,
+   "models": []
+  },
+  {
+   "t": 1791330710963,
+   "models": []
+  },
+  {
+   "t": 1791330711476,
+   "models": []
+  },
+  {
+   "t": 1791330711990,
+   "models": []
+  },
+  {
+   "t": 1791330712501,
+   "models": []
+  },
+  {
+   "t": 1791330713014,
+   "models": []
+  },
+  {
+   "t": 1791330713530,
+   "models": []
+  },
+  {
+   "t": 1791330714043,
+   "models": []
+  },
+  {
+   "t": 1791330714556,
+   "models": []
+  },
+  {
+   "t": 1791330715070,
+   "models": []
+  },
+  {
+   "t": 1791330715570,
+   "models": []
+  },
+  {
+   "t": 1791330716084,
+   "models": []
+  },
+  {
+   "t": 1791330716598,
+   "models": []
+  },
+  {
+   "t": 1791330717111,
+   "models": []
+  },
+  {
+   "t": 1791330717624,
+   "models": []
+  },
+  {
+   "t": 1791330718138,
+   "models": []
+  },
+  {
+   "t": 1791330718651,
+   "models": []
+  },
+  {
+   "t": 1791330719164,
+   "models": []
+  },
+  {
+   "t": 1791330719678,
+   "models": []
+  },
+  {
+   "t": 1791330720193,
+   "models": []
+  },
+  {
+   "t": 1791330720707,
+   "models": []
+  },
+  {
+   "t": 1791330721222,
+   "models": []
+  },
+  {
+   "t": 1791330721723,
+   "models": []
+  },
+  {
+   "t": 1791330722237,
+   "models": []
+  },
+  {
+   "t": 1791330722751,
+   "models": []
+  },
+  {
+   "t": 1791330723266,
+   "models": []
+  },
+  {
+   "t": 1791330723781,
+   "models": []
+  },
+  {
+   "t": 1791330724296,
+   "models": []
+  },
+  {
+   "t": 1791330724809,
+   "models": []
+  },
+  {
+   "t": 1791330725324,
+   "models": []
+  },
+  {
+   "t": 1791330725838,
+   "models": []
+  },
+  {
+   "t": 1791330726352,
+   "models": []
+  },
+  {
+   "t": 1791330726867,
+   "models": []
+  },
+  {
+   "t": 1791330727380,
+   "models": []
+  },
+  {
+   "t": 1791330727897,
+   "models": []
+  },
+  {
+   "t": 1791330728410,
+   "models": []
+  },
+  {
+   "t": 1791330728925,
+   "models": []
+  },
+  {
+   "t": 1791330729439,
+   "models": []
+  },
+  {
+   "t": 1791330729953,
+   "models": []
+  },
+  {
+   "t": 1791330730467,
+   "models": []
+  },
+  {
+   "t": 1791330730981,
+   "models": []
+  },
+  {
+   "t": 1791330731494,
+   "models": []
+  },
+  {
+   "t": 1791330732009,
+   "models": []
+  },
+  {
+   "t": 1791330732524,
+   "models": []
+  },
+  {
+   "t": 1791330733039,
+   "models": []
+  },
+  {
+   "t": 1791330733552,
+   "models": []
+  },
+  {
+   "t": 1791330734067,
+   "models": []
+  },
+  {
+   "t": 1791330734581,
+   "models": []
+  },
+  {
+   "t": 1791330735094,
+   "models": []
+  },
+  {
+   "t": 1791330735610,
+   "models": []
+  },
+  {
+   "t": 1791330736121,
+   "models": []
+  },
+  {
+   "t": 1791330736635,
+   "models": []
+  },
+  {
+   "t": 1791330737148,
+   "models": []
+  },
+  {
+   "t": 1791330737662,
+   "models": []
+  },
+  {
+   "t": 1791330738175,
+   "models": []
+  },
+  {
+   "t": 1791330738688,
+   "models": []
+  },
+  {
+   "t": 1791330739201,
+   "models": []
+  },
+  {
+   "t": 1791330739714,
+   "models": []
+  },
+  {
+   "t": 1791330740227,
+   "models": []
+  },
+  {
+   "t": 1791330740741,
+   "models": []
+  },
+  {
+   "t": 1791330741254,
+   "models": []
+  },
+  {
+   "t": 1791330741768,
+   "models": []
+  },
+  {
+   "t": 1791330742281,
+   "models": []
+  },
+  {
+   "t": 1791330742796,
+   "models": []
+  },
+  {
+   "t": 1791330743309,
+   "models": []
+  },
+  {
+   "t": 1791330743822,
+   "models": []
+  },
+  {
+   "t": 1791330744336,
+   "models": []
+  },
+  {
+   "t": 1791330744849,
+   "models": []
+  },
+  {
+   "t": 1791330745363,
+   "models": []
+  },
+  {
+   "t": 1791330745877,
+   "models": []
+  },
+  {
+   "t": 1791330746391,
+   "models": []
+  },
+  {
+   "t": 1791330746904,
+   "models": []
+  },
+  {
+   "t": 1791330747417,
+   "models": []
+  },
+  {
+   "t": 1791330747931,
+   "models": []
+  },
+  {
+   "t": 1791330748443,
+   "models": []
+  },
+  {
+   "t": 1791330748957,
+   "models": []
+  },
+  {
+   "t": 1791330749470,
+   "models": []
+  },
+  {
+   "t": 1791330749984,
+   "models": []
+  },
+  {
+   "t": 1791330750499,
+   "models": []
+  },
+  {
+   "t": 1791330751012,
+   "models": []
+  },
+  {
+   "t": 1791330751525,
+   "models": []
+  },
+  {
+   "t": 1791330752038,
+   "models": []
+  },
+  {
+   "t": 1791330752552,
+   "models": []
+  },
+  {
+   "t": 1791330753067,
+   "models": []
+  },
+  {
+   "t": 1791330753581,
+   "models": []
+  },
+  {
+   "t": 1791330754095,
+   "models": []
+  },
+  {
+   "t": 1791330754608,
+   "models": []
+  },
+  {
+   "t": 1791330755122,
+   "models": []
+  },
+  {
+   "t": 1791330755634,
+   "models": []
+  },
+  {
+   "t": 1791330756148,
+   "models": []
+  },
+  {
+   "t": 1791330756660,
+   "models": []
+  },
+  {
+   "t": 1791330757172,
+   "models": []
+  },
+  {
+   "t": 1791330757688,
+   "models": []
+  },
+  {
+   "t": 1791330758200,
+   "models": []
+  },
+  {
+   "t": 1791330758712,
+   "models": []
+  },
+  {
+   "t": 1791330759225,
+   "models": []
+  },
+  {
+   "t": 1791330759740,
+   "models": []
+  },
+  {
+   "t": 1791330760246,
+   "models": []
+  },
+  {
+   "t": 1791330760758,
+   "models": []
+  },
+  {
+   "t": 1791330761271,
+   "models": []
+  },
+  {
+   "t": 1791330761783,
+   "models": []
+  },
+  {
+   "t": 1791330762298,
+   "models": []
+  },
+  {
+   "t": 1791330762812,
+   "models": []
+  },
+  {
+   "t": 1791330763326,
+   "models": []
+  },
+  {
+   "t": 1791330763838,
+   "models": []
+  },
+  {
+   "t": 1791330764352,
+   "models": []
+  },
+  {
+   "t": 1791330764864,
+   "models": []
+  },
+  {
+   "t": 1791330765378,
+   "models": []
+  },
+  {
+   "t": 1791330765891,
+   "models": []
+  },
+  {
+   "t": 1791330766405,
+   "models": []
+  },
+  {
+   "t": 1791330766918,
+   "models": []
+  },
+  {
+   "t": 1791330767432,
+   "models": []
+  },
+  {
+   "t": 1791330767945,
+   "models": []
+  },
+  {
+   "t": 1791330768459,
+   "models": []
+  },
+  {
+   "t": 1791330768973,
+   "models": []
+  },
+  {
+   "t": 1791330769486,
+   "models": []
+  },
+  {
+   "t": 1791330769999,
+   "models": []
+  },
+  {
+   "t": 1791330770510,
+   "models": []
+  },
+  {
+   "t": 1791330771011,
+   "models": []
+  },
+  {
+   "t": 1791330771523,
+   "models": []
+  },
+  {
+   "t": 1791330772035,
+   "models": []
+  },
+  {
+   "t": 1791330772550,
+   "models": []
+  },
+  {
+   "t": 1791330773063,
+   "models": []
+  },
+  {
+   "t": 1791330773577,
+   "models": []
+  },
+  {
+   "t": 1791330774090,
+   "models": []
+  },
+  {
+   "t": 1791330774604,
+   "models": []
+  },
+  {
+   "t": 1791330775118,
+   "models": []
+  },
+  {
+   "t": 1791330775632,
+   "models": []
+  },
+  {
+   "t": 1791330776145,
+   "models": []
+  },
+  {
+   "t": 1791330776659,
+   "models": []
+  },
+  {
+   "t": 1791330777174,
+   "models": []
+  },
+  {
+   "t": 1791330777689,
+   "models": []
+  },
+  {
+   "t": 1791330778202,
+   "models": []
+  },
+  {
+   "t": 1791330778715,
+   "models": []
+  },
+  {
+   "t": 1791330779229,
+   "models": []
+  },
+  {
+   "t": 1791330779742,
+   "models": []
+  },
+  {
+   "t": 1791330780256,
+   "models": []
+  },
+  {
+   "t": 1791330780770,
+   "models": []
+  },
+  {
+   "t": 1791330781285,
+   "models": []
+  },
+  {
+   "t": 1791330781799,
+   "models": []
+  },
+  {
+   "t": 1791330782313,
+   "models": []
+  },
+  {
+   "t": 1791330782828,
+   "models": []
+  },
+  {
+   "t": 1791330783341,
+   "models": []
+  },
+  {
+   "t": 1791330783854,
+   "models": []
+  },
+  {
+   "t": 1791330784368,
+   "models": []
+  },
+  {
+   "t": 1791330784882,
+   "models": []
+  },
+  {
+   "t": 1791330785396,
+   "models": []
+  },
+  {
+   "t": 1791330785910,
+   "models": []
+  },
+  {
+   "t": 1791330786424,
+   "models": []
+  },
+  {
+   "t": 1791330786938,
+   "models": []
+  },
+  {
+   "t": 1791330787452,
+   "models": []
+  },
+  {
+   "t": 1791330787966,
+   "models": []
+  },
+  {
+   "t": 1791330788479,
+   "models": []
+  },
+  {
+   "t": 1791330788993,
+   "models": []
+  },
+  {
+   "t": 1791330789508,
+   "models": []
+  },
+  {
+   "t": 1791330790022,
+   "models": []
+  },
+  {
+   "t": 1791330790534,
+   "models": []
+  },
+  {
+   "t": 1791330791047,
+   "models": []
+  },
+  {
+   "t": 1791330791560,
+   "models": []
+  },
+  {
+   "t": 1791330792074,
+   "models": []
+  },
+  {
+   "t": 1791330792589,
+   "models": []
+  },
+  {
+   "t": 1791330793100,
+   "models": []
+  },
+  {
+   "t": 1791330793615,
+   "models": []
+  },
+  {
+   "t": 1791330794129,
+   "models": []
+  },
+  {
+   "t": 1791330794642,
+   "models": []
+  },
+  {
+   "t": 1791330795157,
+   "models": []
+  },
+  {
+   "t": 1791330795671,
+   "models": []
+  },
+  {
+   "t": 1791330796185,
+   "models": []
+  },
+  {
+   "t": 1791330796699,
+   "models": []
+  },
+  {
+   "t": 1791330797213,
+   "models": []
+  },
+  {
+   "t": 1791330797726,
+   "models": []
+  },
+  {
+   "t": 1791330798239,
+   "models": []
+  },
+  {
+   "t": 1791330798753,
+   "models": []
+  },
+  {
+   "t": 1791330799273,
+   "models": []
+  },
+  {
+   "t": 1791330799781,
+   "models": []
+  },
+  {
+   "t": 1791330800295,
+   "models": []
+  },
+  {
+   "t": 1791330800809,
+   "models": []
+  },
+  {
+   "t": 1791330801310,
+   "models": []
+  },
+  {
+   "t": 1791330801820,
+   "models": []
+  },
+  {
+   "t": 1791330802334,
+   "models": []
+  },
+  {
+   "t": 1791330802845,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330803360,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330803873,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330804385,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330804898,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330805411,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330805923,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330806435,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330806949,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330807460,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330807970,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330808485,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330808998,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330809512,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330810024,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330810538,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330811052,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330811565,
+   "models": []
+  },
+  {
+   "t": 1791330812076,
+   "models": []
+  },
+  {
+   "t": 1791330812590,
+   "models": []
+  },
+  {
+   "t": 1791330813103,
+   "models": []
+  },
+  {
+   "t": 1791330813617,
+   "models": []
+  },
+  {
+   "t": 1791330814130,
+   "models": []
+  },
+  {
+   "t": 1791330814643,
+   "models": []
+  },
+  {
+   "t": 1791330815156,
+   "models": []
+  },
+  {
+   "t": 1791330815669,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330816182,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330816695,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330817207,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330817722,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330818235,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330818745,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330819257,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330819769,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330820281,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330820794,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330821308,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330821821,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330822332,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330822843,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330823358,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330823871,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330824386,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330824898,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330825412,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330825924,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330826439,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330826951,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330827465,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330827976,
+   "models": []
+  },
+  {
+   "t": 1791330828489,
+   "models": []
+  },
+  {
+   "t": 1791330829016,
+   "models": []
+  },
+  {
+   "t": 1791330829528,
+   "models": []
+  },
+  {
+   "t": 1791330830042,
+   "models": []
+  },
+  {
+   "t": 1791330830555,
+   "models": []
+  },
+  {
+   "t": 1791330831068,
+   "models": []
+  },
+  {
+   "t": 1791330831581,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330832093,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330832605,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330833118,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330833690,
+   "models": []
+  },
+  {
+   "t": 1791330834191,
+   "models": []
+  },
+  {
+   "t": 1791330834702,
+   "models": []
+  },
+  {
+   "t": 1791330835214,
+   "models": []
+  },
+  {
+   "t": 1791330835723,
+   "models": []
+  },
+  {
+   "t": 1791330836233,
+   "models": []
+  },
+  {
+   "t": 1791330836745,
+   "models": []
+  },
+  {
+   "t": 1791330837257,
+   "models": []
+  },
+  {
+   "t": 1791330837769,
+   "models": []
+  },
+  {
+   "t": 1791330838281,
+   "models": []
+  },
+  {
+   "t": 1791330838795,
+   "models": []
+  },
+  {
+   "t": 1791330839308,
+   "models": []
+  },
+  {
+   "t": 1791330839818,
+   "models": []
+  },
+  {
+   "t": 1791330840331,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330840843,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330841355,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330841869,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330842381,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330842894,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330843406,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330843918,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330844431,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330844944,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330845457,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330845970,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330846481,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330846993,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330847504,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330848017,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330848528,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330849041,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330849555,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330850069,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330850583,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330851101,
+   "models": []
+  },
+  {
+   "t": 1791330851610,
+   "models": []
+  },
+  {
+   "t": 1791330852123,
+   "models": []
+  },
+  {
+   "t": 1791330852636,
+   "models": []
+  },
+  {
+   "t": 1791330853147,
+   "models": []
+  },
+  {
+   "t": 1791330853661,
+   "models": []
+  },
+  {
+   "t": 1791330854174,
+   "models": []
+  },
+  {
+   "t": 1791330854686,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330855200,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330855713,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330856226,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330856740,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330857251,
+   "models": []
+  },
+  {
+   "t": 1791330857765,
+   "models": []
+  },
+  {
+   "t": 1791330858277,
+   "models": []
+  },
+  {
+   "t": 1791330858787,
+   "models": []
+  },
+  {
+   "t": 1791330859299,
+   "models": []
+  },
+  {
+   "t": 1791330859808,
+   "models": []
+  },
+  {
+   "t": 1791330860308,
+   "models": []
+  },
+  {
+   "t": 1791330860818,
+   "models": []
+  },
+  {
+   "t": 1791330861331,
+   "models": []
+  },
+  {
+   "t": 1791330861845,
+   "models": []
+  },
+  {
+   "t": 1791330862358,
+   "models": []
+  },
+  {
+   "t": 1791330862870,
+   "models": []
+  },
+  {
+   "t": 1791330863384,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330863896,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330864409,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330864924,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330865436,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330865949,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330866463,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330866978,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330867489,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330868003,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330868516,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330869029,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330869541,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330870055,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330870568,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330871080,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330871591,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330872104,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330872616,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330873129,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330873643,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330874154,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330874668,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330875180,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330875695,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330876209,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330876722,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330877233,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330877747,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330878261,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330878774,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330879287,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330879801,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330880313,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330880826,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330881338,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330881852,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330882364,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330882878,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330883389,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330883901,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330884414,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330884927,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330885439,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330885951,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330886466,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330886979,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330887492,
+   "models": []
+  },
+  {
+   "t": 1791330888003,
+   "models": []
+  },
+  {
+   "t": 1791330888514,
+   "models": []
+  },
+  {
+   "t": 1791330889027,
+   "models": []
+  },
+  {
+   "t": 1791330889541,
+   "models": []
+  },
+  {
+   "t": 1791330890055,
+   "models": []
+  },
+  {
+   "t": 1791330890568,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330891082,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330891595,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330892108,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330892622,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330893135,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330893645,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330894157,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330894670,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330895182,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330895694,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330896209,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330896722,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330897234,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330897747,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330898260,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330898773,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330899285,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330899796,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330900309,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330900820,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330901333,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330901846,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330902397,
+   "models": []
+  },
+  {
+   "t": 1791330902903,
+   "models": []
+  },
+  {
+   "t": 1791330903416,
+   "models": []
+  },
+  {
+   "t": 1791330903927,
+   "models": []
+  },
+  {
+   "t": 1791330904441,
+   "models": []
+  },
+  {
+   "t": 1791330904953,
+   "models": []
+  },
+  {
+   "t": 1791330905466,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330905979,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330906492,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330907007,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330907561,
+   "models": []
+  },
+  {
+   "t": 1791330908066,
+   "models": []
+  },
+  {
+   "t": 1791330908579,
+   "models": []
+  },
+  {
+   "t": 1791330909090,
+   "models": []
+  },
+  {
+   "t": 1791330909600,
+   "models": []
+  },
+  {
+   "t": 1791330910110,
+   "models": []
+  },
+  {
+   "t": 1791330910621,
+   "models": []
+  },
+  {
+   "t": 1791330911133,
+   "models": []
+  },
+  {
+   "t": 1791330911646,
+   "models": []
+  },
+  {
+   "t": 1791330912158,
+   "models": []
+  },
+  {
+   "t": 1791330912671,
+   "models": []
+  },
+  {
+   "t": 1791330913185,
+   "models": []
+  },
+  {
+   "t": 1791330913699,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330914212,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330914723,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330915235,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330915749,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330916263,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330916775,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330917286,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330917801,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330918314,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330918828,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330919341,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330919853,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330920366,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330920877,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330921390,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330921901,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330922414,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330922926,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330923437,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330923951,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330924464,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330924976,
+   "models": []
+  },
+  {
+   "t": 1791330925491,
+   "models": []
+  },
+  {
+   "t": 1791330926022,
+   "models": []
+  },
+  {
+   "t": 1791330926533,
+   "models": []
+  },
+  {
+   "t": 1791330927046,
+   "models": []
+  },
+  {
+   "t": 1791330927561,
+   "models": []
+  },
+  {
+   "t": 1791330928074,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330928587,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330929100,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330929613,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330930124,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330930635,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330931148,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330931661,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330932173,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330932685,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330933196,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330933710,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330934223,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330934736,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330935250,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330935761,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330936274,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330936786,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330937298,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330937812,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330938324,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330938837,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330939350,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330939865,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330940376,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330940890,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330941402,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330941916,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330961687,
+   "models": []
+  },
+  {
+   "t": 1791330962189,
+   "models": []
+  },
+  {
+   "t": 1791330962700,
+   "models": []
+  },
+  {
+   "t": 1791330963205,
+   "models": []
+  },
+  {
+   "t": 1791330963708,
+   "models": []
+  },
+  {
+   "t": 1791330964222,
+   "models": []
+  },
+  {
+   "t": 1791330964735,
+   "models": []
+  },
+  {
+   "t": 1791330965248,
+   "models": []
+  },
+  {
+   "t": 1791330965761,
+   "models": []
+  },
+  {
+   "t": 1791330966274,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330966787,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330967299,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330967813,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330968325,
+   "models": []
+  },
+  {
+   "t": 1791330968838,
+   "models": []
+  },
+  {
+   "t": 1791330969350,
+   "models": []
+  },
+  {
+   "t": 1791330969863,
+   "models": []
+  },
+  {
+   "t": 1791330970376,
+   "models": []
+  },
+  {
+   "t": 1791330970889,
+   "models": []
+  },
+  {
+   "t": 1791330971400,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330971914,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330972427,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330972938,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330973528,
+   "models": []
+  },
+  {
+   "t": 1791330974043,
+   "models": []
+  },
+  {
+   "t": 1791330974554,
+   "models": []
+  },
+  {
+   "t": 1791330975068,
+   "models": []
+  },
+  {
+   "t": 1791330975580,
+   "models": []
+  },
+  {
+   "t": 1791330976092,
+   "models": []
+  },
+  {
+   "t": 1791330976603,
+   "models": []
+  },
+  {
+   "t": 1791330977115,
+   "models": []
+  },
+  {
+   "t": 1791330977627,
+   "models": []
+  },
+  {
+   "t": 1791330978142,
+   "models": []
+  },
+  {
+   "t": 1791330978655,
+   "models": []
+  },
+  {
+   "t": 1791330979168,
+   "models": []
+  },
+  {
+   "t": 1791330979682,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330980196,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330980708,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330981221,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330981735,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330982249,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330982763,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330983277,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330983791,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330984303,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330984815,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330985330,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330985843,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330986355,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330986867,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330987379,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330987892,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330988406,
+   "models": [
+    {
+     "name": "qwen3:14b",
+     "size": 11672202771,
+     "size_vram": 11672202771
+    }
+   ]
+  },
+  {
+   "t": 1791330988919,
+   "models": []
+  },
+  {
+   "t": 1791330989432,
+   "models": []
+  },
+  {
+   "t": 1791330989946,
+   "models": []
+  },
+  {
+   "t": 1791330990459,
+   "models": []
+  },
+  {
+   "t": 1791330990972,
+   "models": []
+  },
+  {
+   "t": 1791330991486,
+   "models": []
+  },
+  {
+   "t": 1791330991997,
+   "models": []
+  },
+  {
+   "t": 1791330992508,
+   "models": []
+  },
+  {
+   "t": 1791330993021,
+   "models": []
+  },
+  {
+   "t": 1791330993534,
+   "models": []
+  },
+  {
+   "t": 1791330994045,
+   "models": []
+  },
+  {
+   "t": 1791330994556,
+   "models": []
+  },
+  {
+   "t": 1791330995069,
+   "models": []
+  },
+  {
+   "t": 1791330995579,
+   "models": []
+  },
+  {
+   "t": 1791330996092,
+   "models": []
+  },
+  {
+   "t": 1791330996602,
+   "models": []
+  },
+  {
+   "t": 1791330997113,
+   "models": []
+  },
+  {
+   "t": 1791330997630,
+   "models": []
+  },
+  {
+   "t": 1791330998145,
+   "models": []
+  },
+  {
+   "t": 1791330998657,
+   "models": []
+  },
+  {
+   "t": 1791330999170,
+   "models": []
+  },
+  {
+   "t": 1791330999684,
+   "models": []
+  },
+  {
+   "t": 1791331000195,
+   "models": []
+  },
+  {
+   "t": 1791331000710,
+   "models": []
+  },
+  {
+   "t": 1791331001226,
+   "models": []
+  },
+  {
+   "t": 1791331001726,
+   "models": []
+  },
+  {
+   "t": 1791331002239,
+   "models": []
+  },
+  {
+   "t": 1791331002752,
+   "models": []
+  },
+  {
+   "t": 1791331003267,
+   "models": []
+  },
+  {
+   "t": 1791331003781,
+   "models": []
+  },
+  {
+   "t": 1791331004295,
+   "models": []
+  },
+  {
+   "t": 1791331004808,
+   "models": []
+  },
+  {
+   "t": 1791331005322,
+   "models": []
+  },
+  {
+   "t": 1791331005837,
+   "models": []
+  },
+  {
+   "t": 1791331006339,
+   "models": []
+  },
+  {
+   "t": 1791331006840,
+   "models": []
+  },
+  {
+   "t": 1791331007354,
+   "models": []
+  },
+  {
+   "t": 1791331007869,
+   "models": []
+  },
+  {
+   "t": 1791331008384,
+   "models": []
+  },
+  {
+   "t": 1791331008900,
+   "models": []
+  },
+  {
+   "t": 1791331009415,
+   "models": []
+  },
+  {
+   "t": 1791331009929,
+   "models": []
+  },
+  {
+   "t": 1791331010444,
+   "models": []
+  },
+  {
+   "t": 1791331010957,
+   "models": []
+  },
+  {
+   "t": 1791331011461,
+   "models": []
+  },
+  {
+   "t": 1791331011976,
+   "models": []
+  },
+  {
+   "t": 1791331012489,
+   "models": []
+  },
+  {
+   "t": 1791331013002,
+   "models": []
+  },
+  {
+   "t": 1791331013514,
+   "models": []
+  },
+  {
+   "t": 1791331014028,
+   "models": []
+  },
+  {
+   "t": 1791331014544,
+   "models": []
+  },
+  {
+   "t": 1791331015045,
+   "models": []
+  },
+  {
+   "t": 1791331015560,
+   "models": []
+  },
+  {
+   "t": 1791331016075,
+   "models": []
+  },
+  {
+   "t": 1791331016590,
+   "models": []
+  },
+  {
+   "t": 1791331017094,
+   "models": []
+  },
+  {
+   "t": 1791331017594,
+   "models": []
+  },
+  {
+   "t": 1791331018096,
+   "models": []
+  },
+  {
+   "t": 1791331018597,
+   "models": []
+  },
+  {
+   "t": 1791331019110,
+   "models": []
+  },
+  {
+   "t": 1791331019625,
+   "models": []
+  },
+  {
+   "t": 1791331020125,
+   "models": []
+  },
+  {
+   "t": 1791331020627,
+   "models": []
+  },
+  {
+   "t": 1791331021127,
+   "models": []
+  },
+  {
+   "t": 1791331021641,
+   "models": []
+  },
+  {
+   "t": 1791331022154,
+   "models": []
+  },
+  {
+   "t": 1791331022660,
+   "models": []
+  },
+  {
+   "t": 1791331023172,
+   "models": []
+  },
+  {
+   "t": 1791331023674,
+   "models": []
+  },
+  {
+   "t": 1791331024178,
+   "models": []
+  },
+  {
+   "t": 1791331024690,
+   "models": []
+  },
+  {
+   "t": 1791331025206,
+   "models": []
+  },
+  {
+   "t": 1791331025720,
+   "models": []
+  },
+  {
+   "t": 1791331026222,
+   "models": []
+  },
+  {
+   "t": 1791331026736,
+   "models": []
+  },
+  {
+   "t": 1791331027237,
+   "models": []
+  },
+  {
+   "t": 1791331027739,
+   "models": []
+  },
+  {
+   "t": 1791331028254,
+   "models": []
+  },
+  {
+   "t": 1791331028769,
+   "models": []
+  },
+  {
+   "t": 1791331029284,
+   "models": []
+  },
+  {
+   "t": 1791331029798,
+   "models": []
+  },
+  {
+   "t": 1791331030314,
+   "models": []
+  },
+  {
+   "t": 1791331030827,
+   "models": []
+  },
+  {
+   "t": 1791331031341,
+   "models": []
+  },
+  {
+   "t": 1791331031855,
+   "models": []
+  },
+  {
+   "t": 1791331032369,
+   "models": []
+  },
+  {
+   "t": 1791331032882,
+   "models": []
+  },
+  {
+   "t": 1791331033382,
+   "models": []
+  },
+  {
+   "t": 1791331033885,
+   "models": []
+  },
+  {
+   "t": 1791331034400,
+   "models": []
+  },
+  {
+   "t": 1791331034900,
+   "models": []
+  },
+  {
+   "t": 1791331035416,
+   "models": []
+  },
+  {
+   "t": 1791331035930,
+   "models": []
+  },
+  {
+   "t": 1791331036445,
+   "models": []
+  },
+  {
+   "t": 1791331036947,
+   "models": []
+  },
+  {
+   "t": 1791331037462,
+   "models": []
+  },
+  {
+   "t": 1791331037977,
+   "models": []
+  },
+  {
+   "t": 1791331038491,
+   "models": []
+  },
+  {
+   "t": 1791331039006,
+   "models": []
+  },
+  {
+   "t": 1791331039520,
+   "models": []
+  },
+  {
+   "t": 1791331040023,
+   "models": []
+  },
+  {
+   "t": 1791331040538,
+   "models": []
+  },
+  {
+   "t": 1791331041053,
+   "models": []
+  },
+  {
+   "t": 1791331041567,
+   "models": []
+  },
+  {
+   "t": 1791331042081,
+   "models": []
+  },
+  {
+   "t": 1791331042594,
+   "models": []
+  },
+  {
+   "t": 1791331043094,
+   "models": []
+  },
+  {
+   "t": 1791331043596,
+   "models": []
+  },
+  {
+   "t": 1791331044109,
+   "models": []
+  },
+  {
+   "t": 1791331044622,
+   "models": []
+  },
+  {
+   "t": 1791331045137,
+   "models": []
+  },
+  {
+   "t": 1791331045651,
+   "models": []
+  },
+  {
+   "t": 1791331046164,
+   "models": []
+  },
+  {
+   "t": 1791331046666,
+   "models": []
+  },
+  {
+   "t": 1791331047180,
+   "models": []
+  },
+  {
+   "t": 1791331047695,
+   "models": []
+  },
+  {
+   "t": 1791331048209,
+   "models": []
+  },
+  {
+   "t": 1791331048724,
+   "models": []
+  },
+  {
+   "t": 1791331049237,
+   "models": []
+  },
+  {
+   "t": 1791331049737,
+   "models": []
+  },
+  {
+   "t": 1791331050250,
+   "models": []
+  },
+  {
+   "t": 1791331050766,
+   "models": []
+  },
+  {
+   "t": 1791331051266,
+   "models": []
+  },
+  {
+   "t": 1791331051781,
+   "models": []
+  },
+  {
+   "t": 1791331052295,
+   "models": []
+  },
+  {
+   "t": 1791331052809,
+   "models": []
+  },
+  {
+   "t": 1791331053324,
+   "models": []
+  },
+  {
+   "t": 1791331053840,
+   "models": []
+  },
+  {
+   "t": 1791331054355,
+   "models": []
+  },
+  {
+   "t": 1791331054870,
+   "models": []
+  },
+  {
+   "t": 1791331055384,
+   "models": []
+  },
+  {
+   "t": 1791331055884,
+   "models": []
+  },
+  {
+   "t": 1791331056399,
+   "models": []
+  },
+  {
+   "t": 1791331056900,
+   "models": []
+  },
+  {
+   "t": 1791331057400,
+   "models": []
+  },
+  {
+   "t": 1791331057901,
+   "models": []
+  },
+  {
+   "t": 1791331058402,
+   "models": []
+  },
+  {
+   "t": 1791331058917,
+   "models": []
+  },
+  {
+   "t": 1791331059430,
+   "models": []
+  },
+  {
+   "t": 1791331059930,
+   "models": []
+  },
+  {
+   "t": 1791331060445,
+   "models": []
+  },
+  {
+   "t": 1791331060960,
+   "models": []
+  },
+  {
+   "t": 1791331061461,
+   "models": []
+  },
+  {
+   "t": 1791331061976,
+   "models": []
+  },
+  {
+   "t": 1791331062491,
+   "models": []
+  },
+  {
+   "t": 1791331063005,
+   "models": []
+  },
+  {
+   "t": 1791331063508,
+   "models": []
+  },
+  {
+   "t": 1791331064023,
+   "models": []
+  },
+  {
+   "t": 1791331064524,
+   "models": []
+  },
+  {
+   "t": 1791331065027,
+   "models": []
+  },
+  {
+   "t": 1791331065531,
+   "models": []
+  },
+  {
+   "t": 1791331066044,
+   "models": []
+  },
+  {
+   "t": 1791331066558,
+   "models": []
+  },
+  {
+   "t": 1791331067072,
+   "models": []
+  },
+  {
+   "t": 1791331067586,
+   "models": []
+  },
+  {
+   "t": 1791331068099,
+   "models": []
+  },
+  {
+   "t": 1791331068613,
+   "models": []
+  },
+  {
+   "t": 1791331069126,
+   "models": []
+  },
+  {
+   "t": 1791331069640,
+   "models": []
+  },
+  {
+   "t": 1791331070155,
+   "models": []
+  },
+  {
+   "t": 1791331070672,
+   "models": []
+  },
+  {
+   "t": 1791331071187,
+   "models": []
+  },
+  {
+   "t": 1791331071701,
+   "models": []
+  },
+  {
+   "t": 1791331072215,
+   "models": []
+  },
+  {
+   "t": 1791331072728,
+   "models": []
+  },
+  {
+   "t": 1791331073240,
+   "models": []
+  },
+  {
+   "t": 1791331073755,
+   "models": []
+  },
+  {
+   "t": 1791331074260,
+   "models": []
+  },
+  {
+   "t": 1791331074763,
+   "models": []
+  },
+  {
+   "t": 1791331075278,
+   "models": []
+  },
+  {
+   "t": 1791331075790,
+   "models": []
+  },
+  {
+   "t": 1791331076303,
+   "models": []
+  }
+ ]
+}
