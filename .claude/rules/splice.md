@@ -15,11 +15,15 @@ should copy"; placement: docs/decisions/0005.
   next to the score parser (docs/decisions/0002).
 - Cut at the span's first/last downbeat (grid fitted on unedited bars), snap
   by the 40-5000 Hz onset-pattern lag (corr ≥ 0.15, cap 80 ms), 1-beat
-  equal-power crossfade centred on the cut, linear-in-dB gain ramp matched
-  over 3 s at both ends. Level matching is not optional.
+  equal-power crossfade centred on the cut; the new span's gain is held per
+  bar to the base (D-147: a two-end ramp left song A's chorus 1-2 dB loud).
+  Level matching is not optional.
 - Every base sample outside the crossfades must equal the base (null test on
   the written file). No usable groove at both joins = `not_aligned` (D-109).
 - 48 kHz float32 stereo throughout; the server transcodes the result.
-- Only single-REHARMONIZE plans on 4/4 songs are spliced in C0
-  (`spliceEligibility`); everything else re-renders the whole song.
+- Spliced (D-154, `spliceEligibility`): REHARMONIZE (render + splice), CUT
+  and REPEAT (audio only, no render) on 4/4 songs with chords. REPEAT with a
+  seam step over 4.0 dB, and every `not_aligned`, answers `rerender`. REWRITE
+  LYRICS, WRITE PHRASE and everything else re-render the whole song (D-150:
+  the new take's voice is heard).
 - Tests: synthetic audio + SP-4's recorded lab rows; never real model calls.
