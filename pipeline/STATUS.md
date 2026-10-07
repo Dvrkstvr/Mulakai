@@ -9,7 +9,7 @@
 - clarity: blocking 0 · latest Q-108 · decisions to D-197
 - feasibility: amber · H-open 2 (R-024 SP-4 ear owed; R-030 SP-6 ear owed) · R-033 splice length gate · R-031/R-032 measured in CP-C1 · spiked 7
 - milestone: C0a + C3 + C0b done · features passing 37/81 (C0b: F-046..F-049; F-050 held by instrument drift, D-170)
-- autopilot: C1 · round 2/12 (run 5) · progress 7·CP-C1 5/5, 8a/8b merging·37·0 · stall 0
+- autopilot: C1 · round 3/12 (run 5) · progress 8·C1 review, fixes running·37·0 · stall 0
 - owed: SP-6 listen (arm F, :8079), cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase
 - next: #210 (CP-C1 fixes) → re-run chatCp1 --merge --marks (mark stop line) → un-draft #199 + #203 → CL-9 live → C1 review → curate; owner: SP-6 listen (:8079)
 
