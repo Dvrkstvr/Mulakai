@@ -8399,6 +8399,13 @@ is doing: thinking, drafting, generating.
   acid end. No clear or stop on it: Create's CLEAR DRAFT and Activity's
   CANCEL / ABORT cover that (`CreateCard.tsx`, `draftFacts.ts`,
   `createBarStatus.ts`, `useCreateBusy.ts`).
+- A generating song shows in that card too (owner's call, 2026-10-08):
+  GENERATING / LOADING MODEL / QUEUED with elapsed, progress and stage, in
+  place of the draft and of the grid's in-flight cards (a failed one stays on
+  the grid with RETRY). Generating makes Create busy, so the bar is the card
+  only; the small generation chips and their CANCEL/ABORT are retired
+  (Activity has them). e2e `queue.spec.ts` follows: FEELING LUCKY's wait from
+  Create's button, and Quick Start outliving Create.
 - DESIGN.md: the Create card, in its own commit.
 
 ## Remove the HeartMuLa Engine (planned 2026-10-03)
