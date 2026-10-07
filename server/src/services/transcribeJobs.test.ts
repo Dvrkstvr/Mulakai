@@ -55,7 +55,7 @@ describe('startTranscription', () => {
 
     expect(client.transcribe).toHaveBeenCalledWith(engine, source.data, 'ellies.wav', job.id);
     expect(client.fetchTranscriptionScore).toHaveBeenCalledWith(engine, 'remote-1');
-    expect(getJob(job.id)?.transcription).toEqual({ ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2' });
+    expect(getJob(job.id)?.transcription).toEqual({ ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2', yueJobId: 'remote-1' });
     expect(getJob(job.id)?.songId).toBeUndefined(); // nothing reaches the library
   });
 
@@ -99,7 +99,7 @@ describe('runTranscription (a chat reading inside its own slot, CR-2)', () => {
     const job = held();
     const out = await runTranscription(job, engine, source, { chords: true });
     expect(client.transcribe).toHaveBeenCalledWith(engine, source.data, 'ellies.wav', 'reading-1', { chords: true });
-    expect(out).toEqual({ ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2' });
+    expect(out).toEqual({ ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2', yueJobId: 'remote-1' });
     expect(getRunning()).toBeNull();
     expect(job.status).toBe('running'); // the caller settles its own job
   });
