@@ -66,11 +66,11 @@ const RECIPE_FIELDS = 'RECIPE FIELDS: title (short); style: comma-separated genr
 
 /** C3 (D-128): cover vs borrow, said once, only when a REFERENCE block is in the state. */
 export const REFERENCE_RULE = 'REFERENCE (a song the person gave, already read; its block is above the request): every recipe sets '
-  + 'reference_use. cover = the same song with new words or a new style ("like this, but in German", "sing it about my dog"); borrow '
-  + '= a new song in its style ("a song like this", "with this vibe"); none = the request does not build on it. Unsure: borrow, and '
-  + 'say so in assumptions. Code copies bpm, key, time_signature and structure from the reference, so '
-  + 'take them from the block; you write title, style (its instrumentation words from the CAPTION) and lyrics (a cover: one entry '
-  + 'per sung section of its SECTIONS, in order).';
+  + 'reference_use. cover = ONLY when the person asks for THIS SAME song again, with new words or a new style ("a cover", "the same '
+  + 'melody", "like this, but in German", "sing it about my dog"); borrow = a different song in its style ("a new song like this", '
+  + '"with this vibe"); none = the request does not build on it. Unsure: borrow, and say so in assumptions. Code copies bpm, key, '
+  + 'time_signature and structure from the reference, so take them from the block; you write title, style (its instrumentation words '
+  + 'from the CAPTION) and lyrics (a cover: one entry per sung section of its SECTIONS, in order).';
 
 /** The planner's op list without its own "answer with {ops}" opening: here the ops live inside an edit reply. */
 const OPS_BLOCK = 'OPS REFERENCE (for action edit; the ops go in the reply\'s "ops" list, 1-6 ops):\n'
