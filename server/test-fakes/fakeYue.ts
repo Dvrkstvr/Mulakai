@@ -10,7 +10,9 @@ import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { loadSplice, spliceRoute, type SpliceName, type SpliceScript } from './fakeYueSplice.js';
-import { loadTranscription, transcriptionRoute, type TranscriptionFixture, type TranscriptionName } from './fakeYueTranscribe.js';
+import {
+  loadGrid, loadTranscription, transcriptionRoute, type GridFixture, type GridName, type TranscriptionFixture, type TranscriptionName,
+} from './fakeYueTranscribe.js';
 
 export type { TranscriptionFixture };
 
@@ -45,6 +47,8 @@ export interface JobScript {
 
 /** A recorded transcription (CR-0's pytest): fakeYueTranscribe.ts replays it. */
 export const transcriptionContract = (name: TranscriptionName) => loadTranscription(CONTRACT_DIR, name);
+/** A recorded `/grid` reply of that transcription (CL-2's pytest). */
+export const gridContract = (name: GridName) => loadGrid(CONTRACT_DIR, name);
 
 /** A recorded splice (CB-1's pytest): the submit's spec, its reply, the record once settled. */
 export const spliceContract = (name: SpliceName) => loadSplice(CONTRACT_DIR, name);
@@ -56,6 +60,8 @@ export interface FakeYue {
   job: JobScript;
   /** How a transcription plays out: one of CR-0's recorded fixtures (default: done with chords). */
   transcription: TranscriptionFixture;
+  /** What its `/grid` answers (default: CL-2's ok grid). */
+  transcriptionGrid: GridFixture;
   /** How a splice plays out: one of CB-1's recorded fixtures (default: ok) and what was sent. */
   splice: SpliceScript;
   /** Bodies of every POST /v1/jobs, in order. */
@@ -112,6 +118,7 @@ export async function startFakeYue(fixtures: ContractFixture[] = allContracts())
   const fake: FakeYue = {
     url: '', requests: [], job: { states: [{ status: 'succeeded', stage: 'done' }] },
     transcription: transcriptionContract('transcription-chords-done'),
+    transcriptionGrid: gridContract('transcription-grid-ok'),
     splice: { fixture: spliceContract('splice-ok'), specs: [], cancelled: new Set() },
     submits: () => fake.requests.filter((r) => r.method === 'POST' && r.path === '/v1/jobs').map((r) => r.body),
     close: () => new Promise((resolve) => { server.closeAllConnections(); server.close(() => resolve()); }),
@@ -133,7 +140,7 @@ export async function startFakeYue(fixtures: ContractFixture[] = allContracts())
         keys.set(key, route);
       }
       if (jobRoute(fake, polls, req, res, route)) return;
-      if (transcriptionRoute({ fixture: fake.transcription, cancelled }, fake.requests, req, res, route, raw, send, same)) return;
+      if (transcriptionRoute({ fixture: fake.transcription, grid: fake.transcriptionGrid, cancelled }, fake.requests, req, res, route, raw, send, same)) return;
       if (spliceRoute(fake.splice, req, res, route, raw, send, same)) return;
       const hit = fixtures.find((f) => f.request.path === route && f.request.method === req.method && same(f.request.body, body));
       const reply = hit?.response ?? { status: 500, body: { detail: `fakeYue: no recorded reply for ${req.method} ${route}` } };
