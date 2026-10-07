@@ -17,6 +17,13 @@ import { analyzeBody, attachedLine, referenceBlock } from './referenceTurn.js';
 import type { AnalyzeResolved } from './turnDispatch.js';
 import type { Reading, ReadingPlanSources } from './reading.js';
 import type { AnalyzeTarget, ChatThread, DraftFields, EditBase } from './chatTypes.js';
+import { rangeOutside, resolveRange } from '../score/planReferent.js';
+import { isRead } from './reading.js';
+import { playableVersion, readingChain, readVersionAnalysis, wordTimings } from './analysisStore.js';
+import { isFailed, type RangeMark, type RangeResolution } from './analysisTypes.js';
+import { markBlock, type MarkBlock } from './markBlock.js';
+import { markBars } from './markFit.js';
+import type { EditMark } from './turnDispatch.js';
 
 export interface SourceDeps { status: (songId: string) => Promise<ScoreStatus> }
 export const sourceDeps = (over: Partial<SourceDeps> = {}): SourceDeps => ({ status: (songId) => scoreStatus(songId), ...over });
@@ -33,6 +40,8 @@ export interface GatheredState {
   refs: TurnRefs;
   /** C0b: what an edit turn plans on (an eligible song), or why it cannot be edited; null on the draft thread. */
   edit: EditBase | { reason: string } | null;
+  /** C1: the user message's mark resolved at the turn's start; null without one. */
+  mark: TurnMark | null;
 }
 export interface TurnRefs {
   references: Reference[];
@@ -42,8 +51,37 @@ export interface TurnRefs {
   /** Null on a song thread (a recipe there is a NEW CHAT redirect) and before any reading. */
   reading: { id: string; reading: Reading } | null;
 }
-/** C3: this message's attach; `followUp`: the reference whose reading queued this turn (D-129). */
-export interface GatherOptions { attach?: string | null; followUp?: string | null }
+/** C3: this message's attach; `followUp`: the reference whose reading queued this turn (D-129). C1: the mark SEND
+ * carried, resolved again here (it may have gone stale while the turn queued behind an APPLY, D-175). */
+export interface GatherOptions { attach?: string | null; followUp?: string | null; mark?: RangeMark | null }
+
+/** A mark resolved now against the playable version (D-175): pinned with its MARK block, or stale. */
+export type MarkAt = { ok: true; mark: RangeMark; block: MarkBlock; outside: string | null }
+  | { ok: false; stale: Extract<RangeResolution, { pinned: false }> };
+/** The turn's mark: stale, or its lines and bars clamped to the score the edit plans on, for the schema and card. */
+export type TurnMark = { stale: string } | { lines: string[]; range: [number, number] | null; edit: EditMark };
+
+export function markAt(songId: string, mark: RangeMark): MarkAt {
+  const playable = playableVersion(songId);
+  if (!playable) return { ok: false, stale: { pinned: false, was: mark, shift: null, reason: 'this song has no version to mark' } };
+  const analysis = readVersionAnalysis(playable.id);
+  const done = analysis && !isFailed(analysis) ? analysis : null;
+  const parent = readingChain(playable.id).parent;
+  const number = (id: string) => baseVersions(songId).find((v) => v.id === id)?.number ?? null;
+  const bars = done && isRead(done.bars) ? { starts: done.bars.starts, end: done.bars.end } : null;
+  const r = resolveRange(mark, { playable, parent: parent && { ...parent, number: number(parent.versionId) }, bars });
+  if (!r.pinned) return { ok: false, stale: r };
+  const block = markBlock({ mark: r.mark, number: playable.number, analysis: done, words: wordTimings(playable.id) });
+  return { ok: true, mark: r.mark, block, outside: rangeOutside(r.mark, bars) };
+}
+
+function turnMark(songId: string, mark: RangeMark, facts: ScoreFacts | null): TurnMark {
+  const at = markAt(songId, mark);
+  if (!at.ok) return { stale: at.stale.reason };
+  const { bars } = at.block;
+  const clamp = bars && facts ? markBars(bars, facts.header.bars) : { range: bars, notes: [] };
+  return { lines: at.block.lines, range: clamp.range, edit: { versionId: at.mark.versionId, bars: clamp.range, seconds: at.mark.seconds, notes: clamp.notes } };
+}
 
 export const librarySongs = (): LibrarySong[] =>
   db.prepare(`SELECT id, title FROM songs WHERE trashed_at IS NULL ORDER BY created_at DESC LIMIT ?`).all(LIBRARY_MAX) as LibrarySong[];
@@ -104,7 +142,7 @@ export async function gatherTurnState(thread: ChatThread, deps: SourceDeps = sou
   const c3 = Object.fromEntries(Object.entries(flags).filter(([, on]) => on)); // only what is set: a C0 state stays as it was
   if (!thread.songId) {
     const block = [...songStateLines({ library, song: null }), ...lines];
-    return { block, facts: null, draft: thread.draft.fields, state: { hasSong: false, scoreReadable: false, ...c3 }, scoreReason: null, refs, edit: null };
+    return { block, facts: null, draft: thread.draft.fields, state: { hasSong: false, scoreReadable: false, ...c3 }, scoreReason: null, refs, edit: null, mark: null };
   }
   const row = db.prepare(`SELECT title, caption FROM songs WHERE id = ?`).get(thread.songId) as { title: string; caption: string } | undefined;
   let status: ScoreStatus | null = null;
@@ -122,5 +160,6 @@ export async function gatherTurnState(thread: ChatThread, deps: SourceDeps = sou
   };
   const block = [...songStateLines({ library, song }), ...lines];
   const edit = editBase(thread.songId, status, facts) ?? { reason: (status ? unreadable(status) : reason) ?? 'its score could not be read' };
-  return { block, facts, draft: null, state: { hasSong: true, scoreReadable: Boolean(facts), ...c3 }, scoreReason: song.reason, refs, edit };
+  const mark = opts.mark ? turnMark(thread.songId, opts.mark, facts) : null;
+  return { block, facts, draft: null, state: { hasSong: true, scoreReadable: Boolean(facts), ...c3 }, scoreReason: song.reason, refs, edit, mark };
 }

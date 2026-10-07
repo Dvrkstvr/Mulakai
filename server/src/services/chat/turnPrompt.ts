@@ -68,13 +68,16 @@ export interface PromptInput {
   pending: string[];
   /** The last turns before this request. */
   history: ChatMessage[];
+  /** C1 (F-055): markBlock's MARK lines, after the song state; absent = the whole song. */
+  mark?: string[];
 }
 
-export function turnMessages({ rules, state, facts, request, pending, history }: PromptInput): PromptMessage[] {
+export function turnMessages({ rules, state, facts, request, pending, history, mark = [] }: PromptInput): PromptMessage[] {
   const convo = historyLines(history);
   const user = [
     ...state,
     ...(facts ? phraseLines(facts, phraseBarsOf(request)) : []),
+    ...(mark.length ? ['', ...mark] : []),
     '',
     ...(pending.length ? [...pending, ''] : []),
     ...(convo.length ? [`CONVERSATION (latest last):\n${convo.join('\n')}`, ''] : []),

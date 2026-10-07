@@ -22,6 +22,7 @@ import { scoreRenderRouter } from './routes/scoreRender.js';
 import { chatRouter } from './routes/chat.js';
 import { chatTurnsRouter } from './routes/chatTurns.js';
 import { chatReferencesRouter } from './routes/chatReferences.js';
+import { chatMarkRouter } from './routes/chatMark.js';
 import { chatAnalysisRouter } from './routes/chatAnalysis.js';
 import { startAnalysisTrigger } from './services/chat/analysisTrigger.js';
 import { probeFfmpeg } from './services/transcode.js';
@@ -55,6 +56,7 @@ app.use('/api', scoreMidiRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/chat', chatTurnsRouter);
 app.use('/api/chat', chatReferencesRouter);
+app.use('/api/chat', chatMarkRouter);
 app.use('/api/chat', chatAnalysisRouter);
 app.use('/audio', express.static(config.audioDir));
 

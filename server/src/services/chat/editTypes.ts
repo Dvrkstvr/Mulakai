@@ -19,6 +19,9 @@ export interface EditBody {
   refusals: string[][];
   /** C0b (CB-3, additive): APPLY's refusal once the song changed since the plan; the card reads STALE. */
   stale?: string;
+  /** C1 (F-055, additive): the mark this plan was bounded to (null bars: a time only), and the card's notes: a
+   * whole-song op, a mark clamped to the score, a phrase longer than the mark (D-176). */
+  mark?: { versionId: string; bars: [number, number] | null; seconds: [number, number]; notes: string[] };
   /** The tempo and key the plan was read at (the SCORE dock's "from" values: 87 → 88 BPM). Additive: older cards lack it. */
   from?: { bpm: number; key: string };
 }
