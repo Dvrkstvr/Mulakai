@@ -2,7 +2,8 @@
  * SCORE change list (`ScorePlanList`), the sky bar strip (option B: the span, or the full hatch for a whole song), the
  * consequence line left of APPLY (the card's one acid; its label never turns into progress). While APPLY runs: the
  * RENDERING › SPLICING › SAVING steps and one plain line with CANCEL until SAVING. Every ending without a version is
- * one rust line; stale, superseded, expired and interrupted (a restart cut APPLY) drop APPLY; done folds to one header line. */
+ * one rust line; stale, superseded, expired and interrupted (a restart cut APPLY) drop APPLY; done folds to one header line.
+ * C1 (F-055): a plan bounded to a mark names it and the server's notes on it (clamped, whole-song op). */
 import type { ChatMessageView } from './api/chat';
 import type { ChatEditBody, ChatSplice } from './api/chatEdit';
 import type { ScorePlan } from './api/score';
@@ -12,6 +13,7 @@ import {
   stripLine,
 } from './chatEditCopy';
 import { stripTotal } from './chatEditView';
+import { planMarkLine } from './chatMarkLabel';
 import { ASK_AGAIN } from './chatCopy';
 import type { CardView } from './chatScreen';
 import { ChatErrorLine, ChatJobLine, RetryButton } from './ChatTurnLine';
@@ -75,6 +77,7 @@ export function ChatEditCard({ message, view, base, next, ahead, canAsk, onApply
       </div>
       <div className="chat-edit-body">
         {body.assumptions.length > 0 && <div className="chat-card-style">{body.assumptions.join(' · ')}</div>}
+        {body.mark && <div className="chat-hn chat-edit-mark">{planMarkLine(body.mark)}</div>}
         <ScorePlanList plan={asPlan(body)} baseStyle={null} fromBpm={body.from?.bpm ?? null} fromKey={body.from?.key ?? null} baseVersion={base} />
         {view.kind !== 'superseded' && <BarStrip splice={body.splice} total={stripTotal(body)} base={base} />}
         {!body.splice.splice && <div className="chat-hn">{WHY_WHOLE} {body.splice.reason}</div>}

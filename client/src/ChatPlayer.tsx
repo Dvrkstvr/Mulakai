@@ -3,9 +3,20 @@
  * C0 (F-053). C3 (F-062, RF-6): a song with a reference gets the REFERENCE ⇄ SONG pill; the swap keeps the seconds
  * and the play state (`useChatPlayback`). C0b (F-048, EC-7): after a chat edit the same pill reads BACK TO v1 and plays
  * the version before at the same seconds without activating it; USE v1 activates it. A new version swaps in at the
- * same position and play state, and a lilac NOW PLAYING THE NEW VERSION lasts until the next play, scrub or send. */
+ * same position and play state, and a lilac NOW PLAYING THE NEW VERSION lasts until the next play, scrub or send.
+ * C1 (F-052, F-053; chat-mark.html MK-1..MK-3): under the transport row the section strip, bar ruler and waveform
+ * (`ChatStrip`) and the reading line (`ChatReadingLine`), from `chatAnalysisStore`; read again when the take changes.
+ * While A/B plays the reference or the version before, the strip is blank: its bars are the playable version's.
+ * CL-8b (F-054): the mark layer over the ruler and waveform (`ChatMarkLayer`), a section click marks that section. */
 import { useEffect, useRef, useState } from 'react';
 import { abReference } from './chatAb';
+import { readingLine, stripMode } from './chatAnalysis';
+import { useChatAnalysisStore } from './chatAnalysisStore';
+import { markSection } from './chatMark';
+import { ChatMarkLayer } from './ChatMarkLayer';
+import { useChatMarkStore } from './chatMarkStore';
+import { ChatReadingLine } from './ChatReadingLine';
+import { ChatStrip } from './ChatStrip';
 import { NOW_PLAYING_NEW, USE_FAILED, abListening, abOnLabel, backTo, labelForUse } from './chatEditCopy';
 import { AB_LISTENING, AB_PILL } from './chatReferenceCopy';
 import { useChatStore } from './chatStore';
@@ -44,6 +55,12 @@ export function ChatPlayer({ file, title, number, label, previous = null, newest
   });
   const engine = clearing(raw, () => { if (useChatAb.getState().note) setNote(null); });
   const [useError, setUseError] = useState<string | null>(null);
+  const songId = useChatStore((s) => s.thread?.songId ?? null);
+  const threadId = useChatStore((s) => s.thread?.id ?? null);
+  const analysis = useChatAnalysisStore((s) => s.analysis);
+  const mark = useChatMarkStore((s) => (threadId ? s.byThread[threadId] : undefined));
+  useEffect(() => { void useChatAnalysisStore.getState().open(songId, threadId); }, [songId, threadId, file]);
+  useEffect(() => () => void useChatAnalysisStore.getState().open(null), []);
   useSpaceTransport(engine);
   useMainTransportGuard(engine);
   useEffect(() => () => useChatAb.getState().reset(), []); // another thread starts on the song
@@ -60,22 +77,38 @@ export function ChatPlayer({ file, title, number, label, previous = null, newest
     setUseError(null);
     await onUse(previous.versionId).catch((err: unknown) => setUseError(err instanceof Error ? err.message : String(err)));
   };
+  const onSong = side === 'song';
+  const view = onSong ? analysis.view : null;
+  const markable = !!(view?.versionId && threadId && engine.duration > 0);
+  const onSection = view && threadId && !mark?.stale ? (sec: Parameters<typeof markSection>[1]) => {
+    const m = markSection(view, sec);
+    if (m) useChatMarkStore.getState().set(threadId, m);
+  } : undefined;
   return (
-    <div className="chat-player">
-      <Player engine={engine} downloadSrc={src} downloadName={onRef ? reference!.name : `${title}.wav`} />
-      {number !== null && !onRef && !onPrev && <span className="chat-vp" aria-label="Active version"><span>v{number}{label ? ` · ${label}` : ''}</span></span>}
-      {previous ? (
-        <button type="button" className={`chat-ab${onPrev ? ' on' : ''}`} aria-pressed={!!onPrev} onClick={() => toggle('previous')}>
-          <span>{onPrev ? abOnLabel(previous.number, previous.current) : backTo(previous.number)}</span>
-        </button>
-      ) : reference && (
-        <button type="button" className={`chat-ab${onRef ? ' on' : ''}`} aria-pressed={onRef} onClick={() => toggle()}><span>{AB_PILL}</span></button>
-      )}
-      {onPrev && <button type="button" className="chat-q" onClick={() => void use()}><span>{labelForUse(previous.number)}</span></button>}
-      {onRef && <span className="chat-hn chat-ab-status">{AB_LISTENING}</span>}
-      {onPrev && <span className="chat-hn chat-ab-status">{abListening(previous.number)}</span>}
-      {note && !onRef && !onPrev && <span className="chat-hn chat-ab-note">{note}</span>}
-      {useError && <span className="chat-hn chat-use-failed">{USE_FAILED} · {useError}</span>}
+    <div className="chat-player has-strip">
+      <div className="chat-player-row">
+        <Player engine={engine} downloadSrc={src} downloadName={onRef ? reference!.name : `${title}.wav`} showProgress={false} />
+        {number !== null && !onRef && !onPrev && <span className="chat-vp" aria-label="Active version"><span>v{number}{label ? ` · ${label}` : ''}</span></span>}
+        {previous ? (
+          <button type="button" className={`chat-ab${onPrev ? ' on' : ''}`} aria-pressed={!!onPrev} onClick={() => toggle('previous')}>
+            <span>{onPrev ? abOnLabel(previous.number, previous.current) : backTo(previous.number)}</span>
+          </button>
+        ) : reference && (
+          <button type="button" className={`chat-ab${onRef ? ' on' : ''}`} aria-pressed={onRef} onClick={() => toggle()}><span>{AB_PILL}</span></button>
+        )}
+        {onPrev && <button type="button" className="chat-q" onClick={() => void use()}><span>{labelForUse(previous.number)}</span></button>}
+        {onRef && <span className="chat-hn chat-ab-status">{AB_LISTENING}</span>}
+        {onPrev && <span className="chat-hn chat-ab-status">{abListening(previous.number)}</span>}
+        {note && !onRef && !onPrev && <span className="chat-hn chat-ab-note">{note}</span>}
+        {useError && <span className="chat-hn chat-use-failed">{USE_FAILED} · {useError}</span>}
+      </div>
+      <ChatStrip
+        view={view} mode={onSong ? stripMode(analysis) : 'none'} audioUrl={src}
+        duration={engine.duration} playhead={engine.currentTime} onSeek={engine.seek} onSection={onSection}
+        marked={mark && !mark.stale ? mark.mark.bars ?? null : null}
+        overlay={markable ? <ChatMarkLayer threadId={threadId!} view={view!} duration={engine.duration} onSeek={engine.seek} /> : null}
+      />
+      <ChatReadingLine line={readingLine(analysis)} onRetry={() => void useChatAnalysisStore.getState().retry()} />
     </div>
   );
 }

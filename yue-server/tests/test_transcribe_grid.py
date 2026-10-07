@@ -5,6 +5,7 @@ its transcribed score and its bar grid. Records the transcription-grid-*
 contract fixtures the server's fake yue replays (D-039)."""
 import json
 
+import contract_song
 from conftest import wait_for
 from contract import DIR
 from test_transcription import sheetsage, transcribe, wait_done  # noqa: F401 (fixture)
@@ -47,6 +48,20 @@ def test_a_chords_run_answers_its_grid_in_the_sidecar_shape(make_client, sheetsa
     assert reply.json() == {"grid_v": 1, "source": "tracked", "downbeats": [0.5, 2.5],
                             "chords": [[0.5, 2.5, "A:min"], [2.5, 8.2, "C:maj"]], "duration": 8.2}
     _contract(record_contract, "transcription-grid-ok", done["id"], reply)
+
+
+def test_a_chords_run_of_the_contract_song_answers_one_downbeat_per_bar(make_client, sheetsage, record_contract):
+    """The chat e2e's take of the contract song (CL-8b): its grid gives the strip 65 bars to mark."""
+    client = make_client(**sheetsage)
+    down, chords, end = contract_song.labs()
+    done = chords_run(client, chord_lab=chords)
+    out = client.app.state.store.artifact_dir(done["id"])
+    (out / "downbeat.lab").write_text(down, encoding="utf-8")
+    report = json.loads((out / "result.json").read_text(encoding="utf-8"))
+    (out / "result.json").write_text(json.dumps({**report, "duration_seconds": end}), encoding="utf-8")
+    reply = grid_of(client, done["id"])
+    assert reply.status_code == 200 and reply.json() == contract_song.grid()
+    _contract(record_contract, "transcription-grid-contract", done["id"], reply)
 
 
 def test_a_melody_only_run_has_no_grid(make_client, sheetsage, record_contract):

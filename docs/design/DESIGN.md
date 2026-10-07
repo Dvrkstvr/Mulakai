@@ -1128,6 +1128,64 @@ requiring its own justification against a screen-count rule.
      `NOW PLAYING THE NEW VERSION` until the next play, scrub or send; the
      player's pill shows only `v2` after a chat edit (the version label is
      the card's).
+   - **The strip, ruler and reading line** (added 2026-10-07, chat C1; spec
+     `pipeline/design/chat-mark.html` MK-1..MK-3, Q-114 option B). The
+     player above the composer grows to about 134px and has no lyric lane:
+     the transport row (play, time, volume, DOWNLOAD, the lilac pill), then
+     the **section strip** (the Section strip recipe, 20px, names in
+     `text-mid` 9px mono, placed on the waveform's time axis when the
+     reading has bar times, else weighted by bars), a 13px **bar ruler**
+     (a `line` tick per bar, a `line-hi` hairline and the bar number every
+     8 bars), the 36px waveform, and a 2px sky playhead through ruler and
+     waveform. Three strip states: **live** (the playable version's
+     reading, names clickable), **dim** (an older reading whose edit moved
+     no bars, 50%, still clickable), **hatched** (bars moved, the reading
+     failed, or no bar times: `carbon-raised`/`line` 135° hatching, no
+     names, and the ruler counts seconds instead of bars, since marking
+     works by time). While A/B plays the reference or the version before,
+     the strip is blank (its bars are the playable version's). Under the
+     waveform, the **reading line** sits on its own 16px row: 10px mono in
+     `text-mid` for every state (`READING v5 · QUEUED · STARTS AFTER 1
+     JOB`, `READING v5 · SCORE · 2 OF 3`, `READ v4 · 9 SECTIONS · 22 LINES`,
+     `· NO WORD TIMINGS` when words were skipped), `TRANSCRIBED SCORE ·
+     CONTEXT AND MARKING ONLY` after it in `text-low`, and rust only for a
+     failed reading (`COULDN'T READ v5 · <reason>`) with a small acid
+     outline **RETRY**. No spinner and no shader: reading is not a commit.
+   - **The mark** (added 2026-10-07, chat C1; spec `pipeline/design/chat-mark.html`
+     MK-4..MK-10, Q-068's clause). One sky for every mark, no second hue for
+     time: over the ruler and waveform a `sky-tint` wash (70%, so the
+     waveform still reads) between 1px sky edge lines, with a 7×13px sky
+     **grip** on each edge at the ruler's height; the strip's sections under
+     it fill sky with `on-sky` names when whole and `sky-tint` with sky
+     names when the mark covers part of them (the **partial fill**). A
+     seconds-only mark (a hatched strip) is the same sky with dashed edges.
+     Click a section to mark it; drag an edge's grip, the body, or empty
+     waveform (no modal mark mode); a click under 0.2 s on empty waveform
+     seeks and clears; Esc and ✕ clear. While an edge moves, a 1px dashed
+     `text-hi` pointer line and a sky tag with `on-sky` 9px mono text say
+     where it lands (`SNAPS TO END OF BAR 34 · 1:22 · 10 BARS · 24 s`,
+     `FREE · 1:22.6 · SNAP OFF (ALT)`, `END OF SONG · 3:12`); the tag flips
+     to the pointer's left in the strip's last 30%. Shift-click is not used.
+     The **chip** sits above the composer's field: a sky parallelogram
+     (`THIS: CHORUS 1 + 2 BARS · BARS 25-34 · 0:58-1:22`), dashed sky for a
+     seconds-only mark (`· BARS WHEN THE READING LANDS`), ✕, and the
+     underlined `WHAT IT SEES ▾` at the right, which opens a 540px popover
+     above it with a sky hairline: the server's rows and `AS SENT ▸` with the
+     JSON. Under the chip **one** 10px mono composer line in `text-mid`: the
+     consequence ("plans on these bars only · nothing runs until you press
+     APPLY"), giving way to the analysis wait while a reading runs (SEND stays
+     live and queues) and to the stale line. A sent message keeps a frozen
+     **echo**: a `sky-tint` chip with sky text and `on v1 · click to mark it
+     again`; once a version moved its bars it is dashed at 45% and text only.
+     **Stale** is rust: the chip `· STALE` in `rust-tint`/`rust-text`, the
+     old place as a dashed rust outline on the waveform (no grips, new marks
+     held), a rust card at the thread's end with **USE BARS n-m** (acid
+     outline, only when the edit reported the shift, off until the new
+     version's bars are read) and **CLEAR MARK**, the composer line in
+     `rust-text` saying which to press, and SEND off with "Send is held until
+     the mark is fixed" as the placeholder. An edit card planned on a mark
+     names it in `text-low` (`PLANNED ON THE MARK · BARS 47-64 · 2:07-2:57`)
+     with the server's notes (a whole-song op, a mark clamped to the score).
 
 ### Side panels (Create + Editor)
 

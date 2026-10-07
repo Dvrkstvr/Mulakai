@@ -23,6 +23,9 @@ export interface ChatEditBody {
   stale?: string;
   /** The tempo and key the plan was read at (the dock's "from": 87 → 88 BPM); absent on cards made before it. */
   from?: { bpm: number; key: string };
+  /** C1 (F-055): the mark the plan was bounded to (null bars: a time only) and the server's notes on it (a whole-song op,
+   * a mark clamped to the score, D-176). Mirrors the server's `EditBody.mark`. */
+  mark?: { versionId: string; bars: [number, number] | null; seconds: [number, number]; notes: string[] };
 }
 
 /** A saved chat edit (message kind `version`; the message's `versionId` is the version). `previous` is null when there

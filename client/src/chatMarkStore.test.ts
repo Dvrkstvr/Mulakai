@@ -17,6 +17,7 @@ describe('chatMarkStore', () => {
     store().set('t1', CHORUS);
     expect(markToSend('t1')).toEqual(CHORUS);
     expect(markToSend('t2')).toBeNull();
+    expect(markToSend('t1', READING.sections)).toEqual({ ...CHORUS, label: 'CHORUS 1' }); // the echo keeps the chip's label
     store().clear('t1');
     expect(entry()).toBeUndefined();
   });
