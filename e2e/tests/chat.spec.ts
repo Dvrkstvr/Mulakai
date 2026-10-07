@@ -90,6 +90,26 @@ test('recipe → CREATE SONG: the take renders the draft as edited and lands as 
   expect((await songByTitle(request, TITLE)).layers[0].versions).toHaveLength(1);
 });
 
+test('the player reads v1: the reading line, the strip and the ruler; the thread keeps 400 px at 1366×768', async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 768 });
+  await openSongThread(page);
+  const player = page.locator('.chat-player');
+  // The save queued one analysis (F-052): WORDS is skipped with LYRICS_API_URL unset (not a failure), the score is
+  // YuE2's own. The fake yue-server records no transcription, so no downbeat grid: bars not read, the strip hatched.
+  const line = player.getByRole('status', { name: 'Reading' });
+  await expect(line).toHaveText(/^READ v1 · \d+ SECTIONS? · \d+ LINES? · NO WORD TIMINGS$/, { timeout: 30_000 });
+  await expect(line).not.toHaveClass(/failed/);
+  await expect(line.getByRole('button', { name: 'RETRY' })).toHaveCount(0);
+  const strip = player.locator('.chat-strip');
+  await expect(strip).toHaveAttribute('data-mode', 'hatched'); // mark by time (F-053 #2)
+  await expect(strip.locator('.chat-sg-cell.hc').first()).toBeVisible();
+  await expect(strip.getByRole('group', { name: 'Sections' })).toHaveCount(0); // no names on a hatched strip
+  await expect(strip.getByLabel('Time ruler')).toContainText('0:00');
+  // F-053 #4: the player above the composer leaves the thread at least 400 px.
+  const thread = await page.locator('.chat-thread').boundingBox();
+  expect(thread!.height).toBeGreaterThanOrEqual(400);
+});
+
 test('an edit turn plans on v1, APPLY re-renders the whole song and v2 lands in the thread', async ({ page, request }) => {
   await scriptChat(request, { replies: [EDIT_REPLY] });
   await openSongThread(page);
