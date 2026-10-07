@@ -1,0 +1,130 @@
+{
+ "id": "b2abf6a3044d418e9aab33578344cee2",
+ "kind": "splice",
+ "idempotency_key": "splice-5dd3bd13-d8bb-4c4d-b66f-87453e9f35f2",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791336133.6055188,
+ "updated_at": 1791336153.1228106,
+ "started_at": 1791336133.6085865,
+ "finished_at": 1791336153.1228106,
+ "cancel_requested": false,
+ "result": {
+  "verdict": "ok",
+  "reason": null,
+  "detail": null,
+  "kind": "REHARMONIZE",
+  "bars": [
+   15,
+   22
+  ],
+  "audio_url": "/v1/splices/b2abf6a3044d418e9aab33578344cee2/audio",
+  "audio_seconds": 214.8287,
+  "length_diff_s": -0.01,
+  "joins_s": [
+   37.16,
+   59.74
+  ],
+  "crossfade_s": [
+   0.705882,
+   0.705882
+  ],
+  "base_points_s": [
+   37.16,
+   59.75
+  ],
+  "parts": [
+   {
+    "source": "base",
+    "out_s": [
+     0,
+     37.16
+    ],
+    "src_s": [
+     0,
+     37.16
+    ]
+   },
+   {
+    "source": "render",
+    "out_s": [
+     37.16,
+     59.7400417
+    ],
+    "src_s": [
+     37.14,
+     59.7200417
+    ]
+   },
+   {
+    "source": "base",
+    "out_s": [
+     59.7400417,
+     214.8287083
+    ],
+    "src_s": [
+     59.75,
+     214.8386667
+    ]
+   }
+  ],
+  "edges": [],
+  "snap": [
+   {
+    "delta_ms": 14.546,
+    "applied": false,
+    "corr": 0.0632
+   },
+   {
+    "delta_ms": -9.966,
+    "applied": true,
+    "corr": 0.4487
+   }
+  ],
+  "gain_db": {
+   "in": -1.555,
+   "out": -1.217,
+   "bars": [
+    -1.555,
+    -0.364,
+    -1.149,
+    -1.169,
+    -2.147,
+    -0.067,
+    -0.892,
+    -1.217
+   ]
+  },
+  "level_step_db": null,
+  "gap_shift_s": null,
+  "seams": [
+   {
+    "out_s": 37.16,
+    "lufs_step": 1.511,
+    "base_lufs_step": 1.193,
+    "lufs_step_excess": 0.318
+   },
+   {
+    "out_s": 59.74,
+    "lufs_step": 1.861,
+    "base_lufs_step": 1.986,
+    "lufs_step_excess": -0.125
+   }
+  ],
+  "null_test": {
+   "samples": 9194052,
+   "different": 0
+  },
+  "grid_urls": {
+   "base": "/v1/splices/b2abf6a3044d418e9aab33578344cee2/grid/base",
+   "render": "/v1/splices/b2abf6a3044d418e9aab33578344cee2/grid/render",
+   "out": "/v1/splices/b2abf6a3044d418e9aab33578344cee2/grid/out"
+  },
+  "timing": {
+   "total_seconds": 19.514
+  }
+ },
+ "error": null
+}
