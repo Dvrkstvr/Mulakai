@@ -6,6 +6,7 @@
 import type { Op } from '../score/planTypes.js';
 import type { EditBody } from './editTypes.js';
 import type { Reading } from './reading.js';
+import type { RangeMark } from './analysisTypes.js';
 
 /** One sung section of the lyrics: a closed-list tag and its lines (no tags inside lines). */
 export interface LyricSection { tag: string; lines: string[] }
@@ -88,8 +89,9 @@ export type Proposal = { id: string; threadId: string; messageId: string; create
 export type MessageRole = 'user' | 'assistant';
 export type MessageKind = 'text' | 'say' | 'ask' | 'recipe' | 'edit' | 'failed' | 'song' | 'version' | 'analyze' | 'reading';
 
-/** body_json per kind, each with `chat_v: 1` when stored. `attach`: the reference SEND carried (C3). */
-export interface UserBody { sentRev: number; attach?: { referenceId: string } }
+/** body_json per kind, each with `chat_v: 1` when stored. `attach`: the reference SEND carried (C3); `mark`: the
+ * mark SEND carried, frozen with its label (C1, the echo). */
+export interface UserBody { sentRev: number; attach?: { referenceId: string }; mark?: RangeMark }
 export interface AskBody { choices: string[] }
 /** `reference` (C3): the reading this recipe was built on and what code filled from it. */
 export interface RecipeReference {
