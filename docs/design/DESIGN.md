@@ -194,49 +194,37 @@ requiring its own justification against a screen-count rule.
    - **Create bar**: one slim row below the header — a single "what do you
      want to make?" prompt input + acid CREATE button (parallelogram) that
      navigates to the Create takeover (see below). This replaces the old
-     inline create form that used to live in Library. It stays live while
-     songs generate (a new one queues). Its FEELING LUCKY is a queued job
-     too, and so is the Quick Start a typed idea starts in Create: while
-     either waits, a `text-mid` line says so ("FEELING LUCKY waits its turn
-     · starts after 1 job").
-     **Status chips** (2026-10-07, `CreateBarChips.tsx`) sit between
-     FEELING LUCKY and the input, which keeps its place and shrinks no
-     narrower than 180px. Neutral look: `carbon-raised`, a 1px `line-hi`
-     hairline, zero radius, the input's height; titles truncate with an
-     ellipsis at 180px. A **generation chip** per song generation in flight,
-     oldest first: `GENERATING` (or `QUEUED · #2`), the title (caption as a
-     fallback) and `42%` once progress is known. A running one wears the AI
-     shader with its progress veil (see AI states); a queued one stays plain
-     with a dashed hairline, as UP NEXT does. Two at most, then a `+N` chip.
-     Each generation chip's quick action is confirmed in place: the chip
-     becomes its consequence line on `rust-tint` with a `rust` hairline, a
-     filled rust confirm and a quiet KEEP (focused, so Enter or Escape
-     keeps). CANCEL on a queued chip: "Take it out of the queue? Nothing has
-     been made yet, so nothing is lost." ABORT, only on the running chip that
-     holds the server's lock (the same row Activity gives ABORT): "Abort this
-     generation? The take in progress is lost." The buttons then read
-     CANCELLING… / ABORTING… as in Activity.
-     **Create card** (2026-10-07): while Create is busy — it holds a draft,
-     or Quick Start is writing one from an idea (which carries on when Create
-     is closed) — FEELING LUCKY, the input and CREATE give way to one 58px
-     card filling the row after any generation chips (a new idea would clash
-     with the one in Create; songs generating alone don't make Create busy).
-     Line 1: the state (`text-mid`, tracked small caps) and the title
-     (`text-hi`, 700 — the typed title, else the prompt, else the idea).
-     Line 2: for a **draft**, outlined `line` hairline tags of only what it
-     sets (`143 BPM · A MINOR · 4/4 · 3:40 · POLISH VOCALS · LYRICS · 50
-     LINES · ACE-STEP`); for **THINKING**, the AI shader (no veil — the LM
-     reports no progress) and a note ("QUICK START is writing the prompt,
-     lyrics and details…"); `QUEUED · #2` plain while it waits its turn;
-     `COULDN'T WRITE` in rust (`rust-tint`, `rust` hairline) with the error
-     and "RETRY in Create". Its right end is TO CREATE: a 150px acid fill,
-     left edge cut at the parallelogram angle, opening Create. The card has
-     no clear or stop: Create's CLEAR DRAFT and Activity's CANCEL / ABORT do
-     that, away from the button that opens it.
+     inline create form that used to live in Library. Its FEELING LUCKY is a
+     queued job too, and so is the Quick Start a typed idea starts in
+     Create: while either waits, a `text-mid` line says so ("FEELING LUCKY
+     waits its turn · starts after 1 job").
+     **Create card** (2026-10-07, `CreateCard.tsx`): while Create is busy —
+     Quick Start writing a draft from an idea (which carries on when Create
+     is closed), a song generating, or a draft held — FEELING LUCKY, the
+     input and CREATE give way to one 58px card filling the row (owner's
+     call: a new idea starts in Create then). It shows the first of these,
+     in that order. Line 1: the state (`text-mid`, tracked small caps) and
+     the title (`text-hi`, 700). Line 2:
+     - **THINKING**: the AI shader (no veil — the LM reports no progress)
+       and "QUICK START is writing the prompt, lyrics and details…";
+       `QUEUED · #2` plain while it waits; `COULDN'T WRITE` in rust
+       (`rust-tint`, `rust` hairline) with the error and "RETRY in Create".
+     - **GENERATING** (or `LOADING MODEL`, or `QUEUED · #2` plain): the
+       oldest generation in flight, the AI shader veiled by its progress
+       (none for an engine's per-stage share), and "1:05 elapsed · 42% ·
+       stage", plus "+1 more in Activity" for the others. This replaces the
+       grid's in-flight cards.
+     - **DRAFT**: outlined `line` hairline tags of only what it sets
+       (`143 BPM · A MINOR · 4/4 · 3:40 · POLISH VOCALS · LYRICS · 50 LINES
+       · ACE-STEP`).
+     Its right end is TO CREATE: a 150px acid fill, left edge cut at the
+     parallelogram angle, opening Create. The card has no clear, stop or
+     abort: Create's CLEAR DRAFT and Activity's CANCEL / ABORT do that, away
+     from the button that opens it.
    - **Generating cards**: one full-width card pinned at the top of the
-     grid per song generation in flight or failed, oldest first (2026-10-03,
-     S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
-     the shader; a failed one keeps its RETRY until pressed.
+     grid per **failed** song generation, keeping its error and RETRY until
+     pressed (2026-10-03, S4 part b). Generations in flight show in the
+     create bar's Create card instead (2026-10-07).
    - **CONTINUE** (added 2026-10-03): a row above the song grid with up to
      three cards, the songs edited most recently (by their newest version —
      songs have no `updated_at`, and versions are the edits), from
