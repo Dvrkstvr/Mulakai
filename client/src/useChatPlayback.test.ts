@@ -12,6 +12,19 @@ describe('useChatAb', () => {
     useChatAb.getState().toggle();
     expect(useChatAb.getState().side).toBe('song');
   });
+  it('BACK TO v1 flips to the previous version (CB-5); PLAY on a version card goes back to the song and asks to play', () => {
+    useChatAb.getState().toggle('previous');
+    expect(useChatAb.getState().side).toBe('previous');
+    const nonce = useChatAb.getState().playNonce;
+    useChatAb.getState().playSong();
+    expect(useChatAb.getState()).toMatchObject({ side: 'song', playNonce: nonce + 1 });
+  });
+  it('the lilac note (NOW PLAYING THE NEW VERSION) lasts until cleared; reset clears it', () => {
+    useChatAb.getState().setNote('NOW PLAYING THE NEW VERSION');
+    expect(useChatAb.getState().note).toBe('NOW PLAYING THE NEW VERSION');
+    useChatAb.getState().reset();
+    expect(useChatAb.getState().note).toBeNull();
+  });
   it('reset goes back to the song (a new take, another thread)', () => {
     useChatAb.getState().toggle();
     useChatAb.getState().reset();

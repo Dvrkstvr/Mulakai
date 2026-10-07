@@ -17,11 +17,13 @@ interface Props {
   assistantOn: boolean;
   /** A take is rendering: a message sent now is read after v1 saves (TU-9). */
   committing: boolean;
+  /** C0b: what the wait says on a song's thread while APPLY runs ("WAITING FOR v2 …"); absent = WAITING FOR v1. */
+  waitingLine?: string | null;
   onType: (text: string) => void;
   onSend: () => void;
 }
 
-export function ChatComposer({ turn, assistantOn, committing, onType, onSend }: Props) {
+export function ChatComposer({ turn, assistantOn, committing, waitingLine, onType, onSend }: Props) {
   const threadId = useChatStore((s) => s.thread?.id ?? null);
   const songThread = useChatStore((s) => Boolean(s.thread?.songId));
   const reading = useChatStore((s) => readingHoldsSend(s.reading));
@@ -30,7 +32,7 @@ export function ChatComposer({ turn, assistantOn, committing, onType, onSend }: 
   const running = turnRunning(turn);
   const uploading = attachBlocksSend(attachment);
   const live = canSend(turn, assistantOn) && !reading && !uploading;
-  const note = running ? SEND_WAITS : reading ? SEND_WAITS_READING : uploading ? SEND_WAITS_UPLOAD : committing ? WAITING_FOR_V1 : null;
+  const note = running ? SEND_WAITS : reading ? SEND_WAITS_READING : uploading ? SEND_WAITS_UPLOAD : committing ? waitingLine ?? WAITING_FOR_V1 : null;
   const placeholder = !assistantOn ? OFF_PLACEHOLDER : running ? WAITING_PLACEHOLDER : COMPOSER_PLACEHOLDER;
   return (
     <div className="chat-composer">

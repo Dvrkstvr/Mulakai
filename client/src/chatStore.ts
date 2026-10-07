@@ -11,6 +11,7 @@ import { assistantOffCause } from './chatEntry';
 import { useChatDraftStore } from './chatDraftStore';
 import { chatPoll } from './chatPoll';
 import { INITIAL_READING, chatReading, replyAfter, type ReadingEvent, type ReadingState } from './chatReading';
+import { chatEditActions } from './chatEditActions';
 import { chatReferenceActions } from './chatReferenceActions';
 import {
   INITIAL_TURN, canRetry, canSend, chatCommit, chatTurn, lastTurn,
@@ -44,6 +45,9 @@ interface ChatStore {
   read: (proposalId: string) => Promise<void>;
   /** RE-ANALYZE from the song panel: null when it started, else the server's reason. */
   reanalyze: (referenceId: string) => Promise<string | null>;
+  /** C0b: APPLY on an edit card and CANCEL of its job (`chatEditActions`). */
+  apply: (proposalId: string) => Promise<void>;
+  cancelApply: () => Promise<void>;
 }
 
 const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
@@ -77,6 +81,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
   const { followTurn, followCommit, followCards, rehydrate } = chatPoll({
     turnState: () => get().turn, commitState: () => get().commit, readingState: () => get().reading, turn, commit, reading, refetch,
   });
+  const edits = chatEditActions({ thread: () => get().thread, commitState: () => get().commit, commit, refetch: () => refetch(), followCommit });
   const refs = chatReferenceActions({
     thread: () => get().thread, readingState: () => get().reading, reading, refetch: () => refetch(), followCards,
   });
@@ -163,5 +168,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
 
     read: refs.read,
     reanalyze: refs.reanalyze,
+    apply: edits.apply,
+    cancelApply: edits.cancelApply,
   };
 });

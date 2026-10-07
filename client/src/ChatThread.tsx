@@ -2,12 +2,15 @@
  * the message it belongs to; a recipe reply with its CHANGED line and its card; song cards. A failed reply of
  * the open turn is drawn by its turn line (with RETRY); older ones stay as plain rust lines. C3 (F-061): the column
  * is the drop target on the draft thread, a message that carried a reference keeps its ◉ mark, and the analyze
- * (READ) and reading cards. */
+ * (READ) and reading cards. C0b (CB-5): the edit card (APPLY) and the version card (PLAY, BACK TO vN). */
 import { Fragment, useEffect, useMemo, useRef } from 'react';
 import type { ChatAskBody, ChatDraftKey, ChatFailedBody, ChatMessageView, ChatReadingBody, ChatRecipeBody, ChatUserBody } from './api/chat';
 import { chatApi } from './api/chat';
 import { ChatAnalyzeCard } from './ChatAnalyzeCard';
 import { ChatDropZone } from './ChatAttach';
+import { ChatEditCard } from './ChatEditCard';
+import { askAgainText } from './chatEditView';
+import { ChatVersionCard } from './ChatVersionCard';
 import { ChatReadingCard } from './ChatReadingCard';
 import type { CardState } from './chatReading';
 import { sentAttach } from './chatReferenceCopy';
@@ -22,6 +25,7 @@ import { ChatSongCard } from './ChatSongCard';
 import { ChatErrorLine, ChatTurnLine, FormButton, RetryButton } from './ChatTurnLine';
 import { api } from './api';
 import { useJobsAhead } from './queueStore';
+import { useChatAb } from './useChatPlayback';
 
 const KEYS = Object.keys(FIELD_LABEL) as ChatDraftKey[];
 
@@ -29,9 +33,12 @@ interface Props {
   songTitle: string;
   onForm: () => void;
   onLibrary: () => void;
+  /** The song's active version (vN, its id) and the number APPLY saves; `abCardId` = the version card the player A/Bs. */
+  versions?: { active: number | null; activeId: string | null; next: number };
+  abCardId?: string | null;
 }
 
-export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
+export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = null }: Props) {
   const chat = useChatStore();
   const { thread, turn, commit, status, error } = chat;
   const draft = useChatDraftStore((s) => s.draft);
@@ -54,7 +61,8 @@ export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
   const done = latestSong(thread);
   const doneNumber = done?.number ?? null;
   const retry = async () => { await chat.loadStatus(); await chat.retry(); };
-  const askAgain = () => { chat.type(ASK_AGAIN_TEXT); void chat.send(); };
+  const askAgain = (text: string | null = ASK_AGAIN_TEXT) => { chat.type(text ?? ASK_AGAIN_TEXT); void chat.send(); };
+  const abSide = useChatAb((s) => s.side);
   const refOf = (id: string | undefined) => thread?.references?.find((r) => r.id === id);
   /** A reading card's CANCEL, the reading or its follow-up turn: always the chat's route (it stops a running
    * reading between steps and frees the thread); the queue-only /api/generate cancel does neither. */
@@ -98,13 +106,34 @@ export function ChatThread({ songTitle, onForm, onLibrary }: Props) {
           </div>
           <ChatRecipeCard
             message={m} view={cardView(m, commit)} live={live} blockers={blockers} ahead={ahead} doneNumber={doneNumber} doneTruncated={Boolean(done?.truncated)}
-            canAsk={!turnRunning(turn) && !offCause} onCreate={(id) => void chat.create(id)} onAskAgain={askAgain}
+            canAsk={!turnRunning(turn) && !offCause} onCreate={(id) => void chat.create(id)} onAskAgain={() => askAgain()}
             onCancelQueued={() => commit?.jobId && void api.cancelJob(commit.jobId).catch(() => undefined)}
           />
         </Fragment>
       );
     }
-    if (m.kind === 'song' || m.kind === 'version') {
+    if (m.kind === 'edit') {
+      return (
+        <Fragment key={m.id}>
+          {m.text && <div className="chat-am">{m.text}</div>}
+          <ChatEditCard
+            message={m} view={cardView(m, commit)} base={versions?.active ?? 1} next={versions?.next ?? 2} ahead={ahead}
+            canAsk={!turnRunning(turn) && !offCause} onApply={(id) => void chat.apply(id)} onCancel={() => void chat.cancelApply()}
+            onAskAgain={() => askAgain(askAgainText(msgs, m.id))}
+          />
+        </Fragment>
+      );
+    }
+    if (m.kind === 'version') {
+      return (
+        <ChatVersionCard
+          key={m.id} message={m} active={!!m.versionId && m.versionId === versions?.activeId} ab={m.id === abCardId}
+          onPrevious={m.id === abCardId && abSide === 'previous'} onPlay={() => useChatAb.getState().playSong()}
+          onBack={() => useChatAb.getState().toggle('previous')}
+        />
+      );
+    }
+    if (m.kind === 'song') {
       return (
         <Fragment key={m.id}>
           {m.text && <div className="chat-am">{m.text}</div>}

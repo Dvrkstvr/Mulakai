@@ -99,7 +99,7 @@ export function cardStateLine(state: ChatMessageState | null): string | null {
 
 /** The take's job line under the card (its button never turns into progress); a failure is `createFailedLine`. */
 export function createJobLine(phase: CommitPhase | null): string | null {
-  if (!phase || phase.kind === 'failed') return null;
+  if (!phase || phase.kind === 'failed' || phase.kind === 'cancelled') return null;
   if (phase.kind === 'starting' || (phase.kind === 'queued' && phase.ahead <= 0)) return `${CREATE_SONG} · STARTING…`;
   if (phase.kind === 'queued') return `${CREATE_SONG} · QUEUED · ${startsAfter(phase.ahead).toUpperCase()}`;
   return `RENDERING ON YUE2${phase.progressText ? ` · ${phase.progressText}` : ''}`;

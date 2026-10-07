@@ -152,34 +152,5 @@ export function lastTurn(messages: ChatMessageView[], messageId?: string | null)
   return { user: messages[i], reply: reply ?? null };
 }
 
-/** CREATE SONG's take (F-044): the line under the card, whose button never turns into progress. C0b adds APPLY's
- * render / splice phases here. Done → null: the song card that lands says the rest (TRUNCATED included). */
-export type CommitPhase =
-  | { kind: 'starting' } | { kind: 'queued'; ahead: number } | { kind: 'running'; progressText: string | null }
-  /** The server refused (proposal gone, blockers, a model still loaded) or the take failed: the card is live again. */
-  | { kind: 'failed'; error: string };
-export interface CommitState { proposalId: string; jobId: string | null; phase: CommitPhase }
-export type CommitEvent =
-  | { type: 'start'; proposalId: string }
-  | { type: 'started'; jobId: string }
-  /** A reload found the card `committing` with its job. */
-  | { type: 'restore'; proposalId: string; jobId: string }
-  | { type: 'refused'; error: string }
-  | { type: 'poll'; job: TurnJobPoll & { error?: string } };
-
-export function chatCommit(s: CommitState | null, e: CommitEvent): CommitState | null {
-  if (e.type === 'start') return s && s.phase.kind !== 'failed' ? s : { proposalId: e.proposalId, jobId: null, phase: { kind: 'starting' } };
-  if (e.type === 'restore') return { proposalId: e.proposalId, jobId: e.jobId, phase: { kind: 'running', progressText: null } };
-  if (!s) return s;
-  switch (e.type) {
-    case 'started': return { ...s, jobId: e.jobId, phase: { kind: 'queued', ahead: 0 } };
-    case 'refused': return { ...s, jobId: null, phase: { kind: 'failed', error: e.error } };
-    case 'poll': {
-      const { job } = e;
-      if (job.status === 'queued') return { ...s, phase: { kind: 'queued', ahead: job.queuePosition ?? 0 } };
-      if (job.status === 'loading' || job.status === 'running') return { ...s, phase: { kind: 'running', progressText: job.progressText ?? null } };
-      if (job.status === 'done' || job.cancelled) return null;
-      return { ...s, jobId: null, phase: { kind: 'failed', error: job.error || 'the take failed' } };
-    }
-  }
-}
+/** CREATE SONG's take and, C0b, APPLY's edit job: the commit reducer lives in `chatCommit.ts` (the cap). */
+export { chatCommit, type CommitEvent, type CommitPhase, type CommitState } from './chatCommit';

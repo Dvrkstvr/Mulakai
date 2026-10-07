@@ -102,7 +102,7 @@ export function chatPoll(d: ChatPollDeps) {
     if (jobId && turnRunning(d.turnState())) void followTurn(jobId);
     const card = thread.messages.find((m) => m.state === 'committing' && m.jobId && m.proposalId);
     if (card) {
-      d.commit({ type: 'restore', proposalId: card.proposalId!, jobId: card.jobId! });
+      d.commit({ type: 'restore', proposalId: card.proposalId!, jobId: card.jobId!, apply: card.kind === 'edit', phase: card.phase });
       if (card.job && card.job.status !== 'done' && card.job.status !== 'failed') d.commit({ type: 'poll', job: card.job });
       void followCommit(card.jobId!);
     }
