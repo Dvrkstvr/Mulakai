@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DIM_WINDOW_MS, footerMode, type FooterInputs } from './footerMode';
+import { DIM_WINDOW_MS, PAUSE_GRACE_MS, footerMode, type FooterInputs } from './footerMode';
 
 const base: FooterInputs = {
   hasSong: true, isPlaying: true, msSinceStopped: 0, generating: false, onLibrary: true, peeking: false,
@@ -11,8 +11,13 @@ describe('footerMode', () => {
     expect(mode({})).toBe('shown');
   });
 
-  it('dims a paused or ended song for under 60 s', () => {
-    expect(mode({ isPlaying: false, msSinceStopped: 0 })).toBe('dimmed');
+  it('stays up for a few seconds after a pause, so the play button is still there', () => {
+    expect(mode({ isPlaying: false, msSinceStopped: 0 })).toBe('shown');
+    expect(mode({ isPlaying: false, msSinceStopped: PAUSE_GRACE_MS - 1 })).toBe('shown');
+  });
+
+  it('then dims a paused or ended song for under 60 s', () => {
+    expect(mode({ isPlaying: false, msSinceStopped: PAUSE_GRACE_MS })).toBe('dimmed');
     expect(mode({ isPlaying: false, msSinceStopped: DIM_WINDOW_MS - 1 })).toBe('dimmed');
   });
 

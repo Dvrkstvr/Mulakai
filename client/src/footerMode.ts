@@ -1,6 +1,10 @@
 /** How the Library's docked footer player sits: fully up, half down and dimmed, or slid away. */
 export type FooterMode = 'shown' | 'dimmed' | 'hidden';
 
+/** How long the footer stays fully up after a pause or end, so the play button is still where
+ * the pointer left it. */
+export const PAUSE_GRACE_MS = 4_000;
+
 /** How long a paused or ended song keeps the footer dimmed before it slides away. */
 export const DIM_WINDOW_MS = 60_000;
 
@@ -24,6 +28,6 @@ export function footerMode(i: FooterInputs): FooterMode {
   if (!i.hasSong || !i.onLibrary) return 'hidden';
   if (i.peeking) return 'shown';
   if (i.generating) return 'hidden';
-  if (i.isPlaying) return 'shown';
+  if (i.isPlaying || i.msSinceStopped < PAUSE_GRACE_MS) return 'shown';
   return i.msSinceStopped < DIM_WINDOW_MS ? 'dimmed' : 'hidden';
 }

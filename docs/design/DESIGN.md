@@ -232,9 +232,11 @@ requiring its own justification against a screen-count rule.
      docked to the window's bottom edge **over** the content — it reserves
      no strip. It follows playback, sliding with the 0.3 s easeOut
      (instant under `prefers-reduced-motion`):
-     - **Shown** (fully up, opacity 1) — a song is loaded and playing.
-     - **Dimmed** (slid half down, opacity 0.5) — paused or ended less than
-       60 s ago; hovering it shows it fully while hovered.
+     - **Shown** (fully up, opacity 1) — a song is loaded and playing, or
+       paused/ended less than 4 s ago (the play button stays where the
+       pointer left it).
+     - **Dimmed** (slid half down, opacity 0.5) — paused or ended 4–60 s
+       ago; hovering it shows it fully while hovered.
      - **Hidden** (slid fully away) — 60 s without playing, a song
        generation in flight, or any view but the Library. Hiding never
        pauses audio.
