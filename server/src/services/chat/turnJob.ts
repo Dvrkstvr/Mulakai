@@ -4,7 +4,11 @@
  * and after, contextGuard) -> `finally` releasePlanner (keep_alive 0, then `/api/ps` empty, D-011):
  * the slot is released only when the body settles, whatever the action or the number of calls. Then
  * the reply, the draft merge and the proposal are written in one transaction. A failed or cancelled
- * turn writes one `failed` message ({reasons, cause}) and changes nothing else.
+ * turn writes one `failed` message ({reasons, cause}) and changes nothing else. C3: an `analyze` reply
+ * is a READ card with its proposal; `followUp` (D-129) re-runs the origin's request after a reading,
+ * writing no user message, with the REFERENCE block in the state and ask / recipe / say allowed.
+ * C0b (CB-2): on an eligible song an edit's ops are applied on yue-server inside the same slot
+ * (replyCheck), and the card's plan goes to planStore only after the card is written.
  */
 import crypto from 'node:crypto';
 import { config } from '../../config.js';
@@ -18,14 +22,18 @@ import { askPlanner } from '../score/plannerClient.js';
 import { promptChars } from '../score/plannerPrompt.js';
 import { MAX_ATTEMPTS } from '../score/planAttempts.js';
 import { loadedModels, probePlanner, releasePlanner, type LoadedModel, type PlannerTarget } from '../score/ollamaControl.js';
-import type { ChatMessage as PromptMessage, PlannerReply } from '../score/planTypes.js';
+import { setPlan } from '../score/planStore.js';
+import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply } from '../score/planTypes.js';
+import { applyOps, type ApplyBase } from '../score/yueScoreApply.js';
 import { appendMessage, lastTurns } from './messageStore.js';
 import { liveProposal, propose } from './proposalStore.js';
-import { gatherTurnState, sourceDeps, type SourceDeps } from './songStateSource.js';
+import { planFor } from './readTarget.js';
+import { analyzeFor, gatherTurnState, sourceDeps, type SourceDeps, type TurnRefs } from './songStateSource.js';
 import { threadById, writeDraft } from './threadStore.js';
 import { decideReply, ladderRung } from './turnCall.js';
-import { dispatchReply } from './turnDispatch.js';
-import type { ChatMessage, FailedBody, TurnReply, UserBody } from './chatTypes.js';
+import { dispatchReply, type AnalyzeResolved, type EditResolved } from './turnDispatch.js';
+import type { ReadingPlanSources } from './reading.js';
+import type { AnalyzeTarget, ChatMessage, EditBase, FailedBody, TurnReply, UserBody } from './chatTypes.js';
 
 /** Turns of conversation in the prompt (F-042 #2). */
 export const HISTORY_TURNS = 4;
@@ -43,6 +51,10 @@ export interface TurnDeps {
   loaded: () => Promise<LoadedModel[]>;
   release: () => Promise<unknown>;
   rung: number;
+  /** C3: where each reading step would run, for the READ card's estimate (readTarget.planFor over CR-2's readingPlan). */
+  plan: (target: AnalyzeTarget) => ReadingPlanSources;
+  /** C0b: yue-server's apply of an edit's ops to the song's score (the score agent's own). */
+  applyEdit: (base: ApplyBase, ops: Op[]) => Promise<ApplyResult>;
 }
 
 export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
@@ -53,6 +65,8 @@ export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
     ask: (messages, schema, signal, maxTokens) => askPlanner(planner, messages, schema, { timeoutMs: config.llmTimeoutMs, signal, maxTokens }),
     loaded: () => loadedModels(planner),
     release: () => releasePlanner(planner),
+    plan: (target) => planFor(target),
+    applyEdit: (base, ops) => applyOps(base, ops),
     ...over,
   };
 }
@@ -68,27 +82,32 @@ function writeFailed(threadId: string, reasons: string[], cause: TurnCause): voi
   } catch { /* the thread is gone (NEW CHAT): nothing to write to */ }
 }
 
+const isBase = (e: EditBase | { reason: string } | null): e is EditBase => Boolean(e && 'songId' in e);
+type Resolved = { analyze: AnalyzeResolved | null; edit: EditResolved | null; request: string };
+
 /** The reply, the draft merge and the proposal: all or nothing. */
-const writeReply = db.transaction((threadId: string, reply: TurnReply, sentRev: number, scoreReason: string | null) => {
+const writeReply = db.transaction((threadId: string, reply: TurnReply, sentRev: number, scoreReason: string | null, refs: TurnRefs, r: Resolved) => {
   const now = threadById(threadId);
   if (!now) throw new TurnError('gone', 'this chat was cleared while the assistant was thinking');
-  const out = dispatchReply({ reply, hasSong: Boolean(now.songId), draft: now.draft, sentRev, scoreReason });
+  const out = dispatchReply({ reply, hasSong: Boolean(now.songId), draft: now.draft, sentRev, scoreReason, reference: refs.reading, ...r });
   if (out.kind === 'recipe' && out.draft !== now.draft && !writeDraft(threadId, now.draft.rev, out.draft).ok) {
     throw new TurnError('check', 'the draft changed while the reply was written');
   }
-  const proposalId = out.kind === 'recipe' ? crypto.randomUUID() : null;
+  const proposalId = out.kind === 'recipe' || out.kind === 'analyze' || out.kind === 'edit' ? crypto.randomUUID() : null;
   const { message } = appendMessage(threadId, { role: 'assistant', kind: out.kind, text: out.text, body: out.body, proposalId });
-  return { message, proposalId };
+  return { message, proposalId, out };
 });
 
-async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: TurnDeps, signal: AbortSignal): Promise<void> {
+async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: TurnDeps, signal: AbortSignal, followUp: string | null): Promise<void> {
   const thread = threadById(threadId);
   if (!thread) throw new TurnError('gone', 'this chat was cleared before the turn started');
-  const gathered = await gatherTurnState(thread, deps.source);
+  const attach = (user.body as UserBody | null)?.attach?.referenceId ?? null;
+  const gathered = await gatherTurnState(thread, deps.source, { attach, followUp });
   const unsupported = await deps.probe();
   if (unsupported) throw new TurnError('offline', unsupported);
   const contextOf = async () => (await deps.loaded()).find((m) => m.name === deps.planner.model)?.contextLength ?? null;
   const history = lastTurns(threadId, HISTORY_TURNS + 1).filter((m) => m.seq < user.seq);
+  const base = isBase(gathered.edit) ? gathered.edit : null;
   let decision: Awaited<ReturnType<typeof decideReply>>;
   try {
     decision = await decideReply({
@@ -96,6 +115,7 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
       pending: !thread.songId && Boolean(liveProposal(threadId)), history,
     }, {
       rung: deps.rung,
+      apply: base ? (ops) => deps.applyEdit({ abc: base.source.abc, style: base.source.style, lyrics: base.source.lyrics }, ops) : undefined,
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
       ask: async (msgs, schema, { maxTokens }) => {
         if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted');
@@ -115,10 +135,16 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted');
   if (!decision.ok) throw new TurnError('check', `no answer in ${decision.attempts} attempts: ${decision.reasons[0] ?? ''}`, decision.reasons);
   const sentRev = (user.body as UserBody | null)?.sentRev ?? thread.draft.rev;
-  const { message, proposalId } = writeReply(threadId, decision.reply, sentRev, gathered.scoreReason);
-  if (proposalId && decision.reply.action === 'recipe') {
-    propose({ id: proposalId, threadId, messageId: message.id, createdAt: Date.now(), kind: 'recipe', recipe: decision.reply.recipe });
-  }
+  const r = decision.reply;
+  const analyze = r.action === 'analyze' && !thread.songId ? analyzeFor(r.reference, gathered.refs, deps.plan) : null;
+  const edit: EditResolved | null = r.action !== 'edit' || !gathered.edit ? null
+    : !base || !decision.applied ? { reason: 'reason' in gathered.edit ? gathered.edit.reason : 'the edit was not checked against the score' }
+      : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now() };
+  const { message, proposalId, out } = writeReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text });
+  const at = { threadId, messageId: message.id, createdAt: Date.now() };
+  if (proposalId && out.kind === 'recipe') propose({ id: proposalId, ...at, kind: 'recipe', recipe: out.body.recipe });
+  if (proposalId && out.kind === 'analyze') propose({ id: proposalId, ...at, kind: 'analyze', target: out.body.target });
+  if (proposalId && out.kind === 'edit') { setPlan(out.plan); propose({ id: proposalId, ...at, kind: 'edit', planId: out.plan.id }); } // replaces the song's plan (D-028)
   job.progressText = undefined;
   job.status = 'done';
 }
@@ -129,8 +155,9 @@ function causeOf(job: Job, err: unknown): TurnCause {
   return /still loaded|ollama stop/.test(err instanceof Error ? err.message : String(err)) ? 'unload' : 'offline';
 }
 
-/** Queues the turn for `user` (already stored, body `{sentRev}`). Throws QueueFullError when full. */
-export function startChatTurn(threadId: string, user: ChatMessage, songId: string | null, deps: TurnDeps = turnDeps()): Job {
+/** Queues the turn for `user` (already stored, body `{sentRev}`). Throws QueueFullError when full.
+ * `followUp` (C3): `user` is the origin message, asked again after the reading of that reference. */
+export function startChatTurn(threadId: string, user: ChatMessage, songId: string | null, deps: TurnDeps = turnDeps(), opts: { followUp?: string } = {}): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
   const call = new AbortController();
   const info = { kind: 'plan' as const, label: 'chat turn', title: songId ? songTitle(songId) : 'new song chat', ...(songId ? { songId } : {}) };
@@ -138,7 +165,7 @@ export function startChatTurn(threadId: string, user: ChatMessage, songId: strin
   try {
     return queueJob(info, job, async () => {
       try {
-        await runTurn(job, threadId, user, deps, call.signal);
+        await runTurn(job, threadId, user, deps, call.signal, opts.followUp ?? null);
       } catch (err) {
         const cause = causeOf(job, err);
         const reasons = err instanceof TurnError && cause !== 'cancelled' ? err.reasons : [cause === 'cancelled' ? 'cancelled' : (err instanceof Error ? err.message : String(err))];

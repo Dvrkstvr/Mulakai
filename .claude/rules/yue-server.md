@@ -32,3 +32,6 @@ paths:
   then `python -m pytest` (no GPU, torch or yue2; runs on Windows too).
 - The real service runs in WSL2 (`~/yue2/.venv`, README section 4); use
   `127.0.0.1`, not `localhost`, in `YUE_API_URL`.
+- A transcription's `chords` flag (C3 readings, CB-1's grid run) defaults
+  false, so Guided Create's COVER stays melody-only (D-131); record a
+  contract fixture for the TS fake whenever the reply shape changes.

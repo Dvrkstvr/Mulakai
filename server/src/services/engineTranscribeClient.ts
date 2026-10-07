@@ -49,10 +49,14 @@ export async function transcriptionHealth(target: EngineTarget): Promise<boolean
   }
 }
 
-/** Returns yue-server's transcription id. Our job id rides along as the Idempotency-Key. */
-export async function transcribe(target: EngineTarget, audio: Buffer, filename: string, jobId: string): Promise<string> {
+/** Returns yue-server's transcription id. Our job id rides along as the Idempotency-Key.
+ * `chords`: keep chord symbols (a chat reading, D-131); unset = melody-only, as COVER always was. */
+export async function transcribe(
+  target: EngineTarget, audio: Buffer, filename: string, jobId: string, opts: { chords?: boolean } = {},
+): Promise<string> {
   const form = new FormData();
   form.append('audio', new Blob([new Uint8Array(audio)]), filename);
+  if (opts.chords) form.append('chords', 'true');
   const res = await request(target, '/v1/transcriptions', {
     method: 'POST', headers: headers(target, { 'Idempotency-Key': jobId }), body: form,
   }, 'transcribe');
@@ -109,6 +113,22 @@ export async function fetchTranscriptionScore(target: EngineTarget, id: string):
   const res = await request(target, path(id, '/score'), { headers: headers(target) }, 'score download');
   if (!res.ok) throw await failure(target, 'score download', res);
   return res.text();
+}
+
+/** A `chords: true` run's downbeat grid (chat C1, D-174), in the `grid_v: 1` sidecar shape, as sent (the caller
+ * checks it: gridCache, yue-server's `/v1/scores/bars`). Null for 404 `no_grid` (a melody-only run, or labs that
+ * make no valid grid); any other refusal throws with yue-server's `detail.message`. */
+export async function transcriptionGrid(target: EngineTarget, id: string): Promise<Record<string, unknown> | null> {
+  const res = await request(target, path(id, '/grid'), { headers: headers(target) }, 'transcription grid');
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    const body = (await res.json().catch(() => ({}))) as { detail?: unknown };
+    const why = errorMessage(body.detail);
+    throw new Error(`${target.label} transcription grid -> HTTP ${res.status}${why ? `: ${why}` : ''}`);
+  }
+  const grid = (await res.json()) as unknown;
+  if (!grid || typeof grid !== 'object' || Array.isArray(grid)) throw new Error(`${target.label} transcription grid -> unreadable reply`);
+  return grid as Record<string, unknown>;
 }
 
 /** The raw preview response, for the route to stream on. `range` is forwarded so the player

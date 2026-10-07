@@ -6,8 +6,9 @@ afterAll(() => vi.unstubAllGlobals());
 
 const {
   transcribe, transcriptionStatus, transcriptionHealth, fetchTranscriptionScore, fetchTranscriptionPreview,
-  cancelTranscription, measureScore,
+  cancelTranscription, measureScore, transcriptionGrid,
 } = await import('./engineTranscribeClient.js');
+const { contract } = await import('../../test-fakes/fakeYue.js');
 
 const target = { label: 'YUE2', url: 'http://127.0.0.1:8004', apiKey: 'secret' };
 const json = (body: unknown, status = 200) =>
@@ -25,6 +26,14 @@ describe('engine transcription client', () => {
     const file = (init?.body as FormData).get('audio') as File;
     expect(file.name).toBe('ellies.wav');
     expect(Buffer.from(await file.arrayBuffer()).toString()).toBe('RIFF');
+  });
+
+  it("asks for chords only when told to (D-131): Guided Create's COVER sends no field", async () => {
+    fetchMock.mockImplementation(async () => json({ id: 'remote-2' }, 202));
+    await transcribe(target, Buffer.from('x'), 'a.wav', 'j1');
+    expect((fetchMock.mock.calls[0][1]?.body as FormData).has('chords')).toBe(false);
+    await transcribe(target, Buffer.from('x'), 'a.wav', 'j2', { chords: true });
+    expect((fetchMock.mock.calls[1][1]?.body as FormData).get('chords')).toBe('true');
   });
 
   it('reports the wrapper\'s refusal with its detail', async () => {
@@ -108,5 +117,22 @@ describe('engine transcription client', () => {
     await expect(measureScore(target, 'junk')).rejects.toThrow('YUE2 score size -> HTTP 422: Not a score');
     fetchMock.mockResolvedValueOnce(json({ budget: 4096, header: 1, sections: [{ name: 'intro' }] }));
     await expect(measureScore(target, 'X:1\n')).rejects.toThrow('unreadable reply');
+  });
+
+  it("reads a chords run's grid (D-174): CL-2's recorded replies; no_grid is null, a dict detail names its message", async () => {
+    const ok = contract('transcription-grid-ok');
+    fetchMock.mockResolvedValueOnce(json(ok.response.body));
+    expect(await transcriptionGrid(target, 'tr-0001')).toEqual(ok.response.body);
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(url).toBe(`http://127.0.0.1:8004${ok.request.path}`);
+    expect(init?.headers).toMatchObject({ Authorization: 'Bearer secret' });
+
+    const melody = contract('transcription-grid-melody-only');
+    fetchMock.mockResolvedValueOnce(json(melody.response.body, melody.response.status));
+    expect(await transcriptionGrid(target, 'tr-0001')).toBeNull();
+    fetchMock.mockResolvedValueOnce(json({ detail: { code: 'x', message: 'Artifact is not ready' } }, 409));
+    await expect(transcriptionGrid(target, 'tr-0001')).rejects.toThrow('YUE2 transcription grid -> HTTP 409: Artifact is not ready');
+    fetchMock.mockResolvedValueOnce(json([1, 2]));
+    await expect(transcriptionGrid(target, 'tr-0001')).rejects.toThrow('unreadable reply');
   });
 });

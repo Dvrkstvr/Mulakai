@@ -4,3 +4,6 @@ httpx==0.28.1
 pytest==9.1.1
 # FastAPI's multipart parser, for POST /v1/transcriptions uploads.
 python-multipart==0.0.32
+# The splice's signal code (splice_dsp.py) and its WAV IO.
+numpy==2.4.4
+scipy==1.18.0

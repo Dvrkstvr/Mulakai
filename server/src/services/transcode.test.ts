@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { ffmpegArgs } from './transcode.js';
+import { ffmpegArgs, trimArgs } from './transcode.js';
+
+describe('trimArgs', () => {
+  it('keeps the first N seconds of the audio as FLAC (a reading reads at most 360 s, D-138)', () => {
+    const a = trimArgs('in.mp3', 'out.flac', 360);
+    expect(a.join(' ')).toContain('-i in.mp3 -t 360 -map a');
+    expect(a).toContain('flac');
+    expect(a.slice(-2)).toEqual(['-y', 'out.flac']);
+  });
+});
 import { parseOutputSettings, DEFAULT_OUTPUT, outputExt } from './audioOutput.js';
 
 /** The arg table is where the format rules live, so it's asserted directly —

@@ -8,7 +8,7 @@ const LYRICS = '[Verse 1]\r\nwalking out \r\n\r\n[Chorus]\r\noh oh';
 const EDITED = 'X:1\nM:4/4\nL:1/8\nQ:1/4=88\nK:Dm\n"Dm7"D2 F2 A2 c2 |\n';
 
 describe('buildYue2ScoreRequest', () => {
-  const body = buildYue2ScoreRequest({ abc: EDITED, style: 'English, jazz pop, 88 bpm', lyrics: LYRICS, seed: 2_147_483_901 });
+  const body = buildYue2ScoreRequest({ abc: EDITED, style: 'English, jazz pop, 88 bpm', lyrics: LYRICS, seed: 2_147_483_901, cot: 'full' });
 
   it('sends the edited score with cot full, the plan style, the stored lyrics and the base seed', () => {
     expect(body).toEqual({ abc: EDITED, cot: 'full', style: 'English, jazz pop, 88 bpm', lyrics: LYRICS, seed: 2_147_483_901 });
@@ -21,6 +21,11 @@ describe('buildYue2ScoreRequest', () => {
 
   it('sends nothing the base request had beyond those five fields (no cfg, no id)', () => {
     expect(Object.keys(body).sort()).toEqual(['abc', 'cot', 'lyrics', 'seed', 'style']);
+  });
+
+  it('sends the plan render mode: a chord-free score renders with cot melody (F-065, D-132)', () => {
+    const melody = buildYue2ScoreRequest({ abc: EDITED, style: 'pop', lyrics: LYRICS, seed: 1, cot: 'melody' });
+    expect(melody.cot).toBe('melody');
   });
 
   it('leaves the cover builder on cot melody', () => {

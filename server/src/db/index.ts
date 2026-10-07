@@ -22,6 +22,8 @@ function ensureColumn(table: string, column: string, ddl: string): void {
 
 ensureColumn('versions', 'lyric_timestamps', 'lyric_timestamps TEXT');
 ensureColumn('versions', 'word_timings', 'word_timings TEXT');
+// C1 (F-052): the version's analysis (`analysis_v`, chat/analysisTypes.ts); null = not analyzed.
+ensureColumn('versions', 'analysis_json', 'analysis_json TEXT');
 ensureColumn('songs', 'comment', "comment TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'genre', "genre TEXT NOT NULL DEFAULT ''");
 ensureColumn('songs', 'album', "album TEXT NOT NULL DEFAULT ''");

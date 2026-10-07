@@ -15,6 +15,13 @@ const reasons = async (json: unknown, ctx = draft, deps = {}) => {
 };
 
 describe('reply check', () => {
+  it('C3: keeps a valid reference_use, drops an unknown one (D-128)', async () => {
+    const kept = await checkReply(recipe({ reference_use: 'cover' }), draft, {});
+    expect(kept.ok && kept.reply.action === 'recipe' && kept.reply.recipe.reference_use).toBe('cover');
+    const dropped = await checkReply(recipe({ reference_use: 'steal' }), draft, {});
+    expect(dropped.ok && dropped.reply.action === 'recipe' && 'reference_use' in dropped.reply.recipe).toBe(false);
+  });
+
   it('passes a valid recipe and keeps only the known fields', async () => {
     const r = await checkReply({ ...recipe(), extra: 1 }, draft, {});
     expect(r).toEqual({ ok: true, reply: { action: 'recipe', message: 'ok', assumptions: [], recipe: RECIPE }, applied: null });
@@ -72,5 +79,13 @@ describe('reply check', () => {
     const language = vi.fn(async (t: string) => (t.startsWith('chorus 5') ? 'de' : 'en'));
     const out = await reasons(edit, song, { apply: async () => applied, language });
     expect(out).toEqual([`op 1 (REWRITE_LYRICS): the new lines read as 'en' but the block they replace reads as 'de': write them in the song's own language ('de')`]);
+  });
+
+  it('F-065 edge: REWRITE LYRICS on an instrumental is refused with the reason (scoreLimits.wordsRefusal, D-144)', async () => {
+    const applied = contract('apply-rewrite-lyrics').response.body as unknown as ApplyResult;
+    const instrumental = { ...facts, lyric_blocks: facts.lyric_blocks.map((b) => ({ ...b, lines: 0 })) };
+    const edit = { action: 'edit', message: 'x', assumptions: [], ops: [{ op: 'REWRITE_LYRICS', block: 2, tag: '[Chorus]', occurrence: 1, lines: ['a'] }] };
+    const out = await reasons(edit, { ...song, facts: instrumental }, { apply: async () => applied });
+    expect(out).toContain('this song is instrumental: there are no words to rewrite');
   });
 });

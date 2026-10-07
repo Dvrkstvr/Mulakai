@@ -1,0 +1,146 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CHAT TURN and RECIPE CARD states - decision mockup</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--li:#7B4B94;--lt:#A97FC1;--ln:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}
+h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:28px 0 12px}
+p,li{max-width:1100px}.rd,.hn,.tg,.fk{font-family:ui-monospace,monospace}.rd{font-size:10px;color:var(--w)}.hn{font-size:10px;letter-spacing:1px;color:var(--w)}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.nt{width:794px;margin-top:6px;font-size:12px;color:var(--m)}
+.fr{--z:.62;width:794px;height:447px;overflow:hidden;border:1px solid var(--h);cursor:zoom-in}.fr.big{width:1282px;height:722px;cursor:zoom-out}.fr.big .sc{transform:none}
+.sc{width:1280px;height:720px;background:var(--c);transform:scale(var(--z));transform-origin:0 0;position:relative;overflow:hidden;font-size:12px}
+.hdr{height:40px;display:flex;align-items:center;gap:12px;padding:0 20px;border-bottom:1px solid var(--l);background:var(--p);font-size:10px;letter-spacing:2px;color:var(--m)}.hdr b{color:var(--t);font-size:13px;letter-spacing:4px;margin-right:14px}.mb{margin-left:auto}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}.p>span{display:inline-block;transform:skewX(10deg)}
+.t1{border:1px solid var(--l);color:var(--m);padding:6px 14px;font-size:11px}.t1.on{border-color:var(--a);color:var(--a)}
+.ac,.ao,.q{font-size:11px;padding:11px 22px;border:1px solid}.ac{background:var(--a);border-color:var(--a);color:var(--c)}.ac.off{background:var(--r);border-color:var(--h);color:var(--w)}.ao{color:var(--a);border-color:var(--a);padding:6px 12px;font-size:10px}.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}.q.off{opacity:.4}.cm .ac{padding:7px 18px}
+.ttl{height:49px;display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:1px solid var(--l)}.ttl h3{margin:0;font-size:20px;letter-spacing:3px}
+.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.bd{position:absolute;top:89px;bottom:0;left:0;right:0;display:flex}
+.mn{flex:1;min-width:0;display:flex;flex-direction:column}.th{flex:1;min-height:0;overflow:hidden;padding:6px 0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:flex-end}.th>*{width:min(760px,94%);flex:none}
+.um{margin-left:auto;max-width:560px;background:var(--r);padding:9px 12px}.am{color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}.am b{color:var(--t);font-weight:400}
+.cp{flex:none;border-top:1px solid var(--l);background:var(--p);padding:8px 0 12px;display:flex;flex-direction:column;gap:7px}.cp>*{width:min(760px,94%);margin:0 auto}.cl{display:flex;gap:12px;align-items:center}.cl .in{flex:1}
+.in{border:1px solid var(--h);background:var(--c);padding:9px 11px;color:var(--w)}.in.ty{color:var(--t)}.in.off{opacity:.45}
+.snd{height:32px;padding:0 14px;border:1px solid var(--a);color:var(--a);font-weight:700;font-size:11px;letter-spacing:.14em;display:flex;align-items:center;transform:skewX(-14deg);white-space:nowrap}.snd>b{transform:skewX(14deg)}.snd.off{border-color:var(--h);color:var(--w);opacity:.5}
+.sb{width:360px;flex:none;border-left:1px solid var(--l);background:var(--p);overflow:hidden;display:flex;flex-direction:column}.sbh{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:1px solid var(--l)}.ft{padding:8px 14px}
+.fd{display:grid;grid-template-columns:70px 1fr;gap:8px;padding:6px 14px;border-bottom:1px solid var(--l);align-items:center}.fk{font-weight:700;font-size:10px;letter-spacing:1px;color:var(--w)}
+.fa{background:var(--sk);box-shadow:inset 3px 0 var(--s)}.fl{outline:1px dashed var(--s);outline-offset:-1px}.lk{opacity:.55}.em{color:var(--w)}
+.tg{font-style:normal;font-size:9px;letter-spacing:1px;color:var(--s);margin-left:6px}.tg.y{color:var(--m)}s{color:var(--w)}
+.ib{display:inline-block;border:1px solid var(--h);background:var(--c);padding:3px 9px;margin:0 6px 3px 0;color:var(--t)}
+.sg{display:flex;gap:3px}.sg i{font:normal 9px ui-monospace,monospace;color:var(--m);background:var(--r);padding:4px 0;text-align:center;overflow:hidden;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}
+.ly{font:11px/1.45 ui-monospace,monospace;color:var(--m);border:1px solid var(--l);padding:6px 9px;background:var(--c)}.ly span{color:var(--w)}
+.cd{border:1px solid var(--h);background:var(--p)}.cd.sup{opacity:.45}.hd{display:flex;align-items:center;gap:10px;padding:8px 14px;border-bottom:1px solid var(--l)}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}
+.er{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.er div{flex:1}.er b{color:var(--rt)}
+.j{padding:8px 10px;border:1px solid var(--l);font-size:11px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--st)}.j em{font-style:normal;color:var(--m)}.j.q{border:1px dashed var(--h);background:none;color:var(--m)}
+.j.sh{background:linear-gradient(110deg,var(--ln),var(--st) 45%,rgba(212,255,0,.2))}.j.sh em{color:var(--t)}
+.pl{flex:none;padding:6px 24px;background:var(--p);border-top:1px solid var(--l)}.pr{display:flex;align-items:center;gap:10px;height:36px}.hx{width:38px;height:32px;background:var(--a);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%);color:var(--c);display:flex;align-items:center;justify-content:center}
+.vp{border:1px solid var(--li);background:var(--ln);color:var(--lt);padding:3px 10px;font-size:11px}.sk{flex:1;height:4px;background:var(--l)}.sk i{display:block;width:0;height:4px;background:var(--s)}
+.fg{width:600px;border:1px solid var(--h);padding:10px;background:var(--c);display:flex;flex-direction:column;gap:8px}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:9px 0}
+</style></head><body>
+<h1>CHAT TURN and RECIPE CARD · every state, new song</h1>
+<div class="rd">stage 5 · DT-C0a · D-086..D-110 · tokens: DESIGN.md, none added · click a frame to zoom to 1280×720</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li><b>DT-C0a</b>, the gate before CA-6: what a <b>new-song thread</b> shows for a turn (queued, thinking, cancelling, failed, assistant off, a hand edit meanwhile) and for the <b>recipe card</b> (pending, superseded, expired, committing, done), in D-095's layout: player above the composer, outline <b>SEND ↵</b>, 360 px sidebar. C0a only: no mark, strip, lyrics panel, UNDO TURN, edit card (DT-C0b).</li>
+<li>Evidence: states from scope.md and architecture.md <i>read</i>; CSS from chat-create / chat-lyrics. Heights are arithmetic, <b>not rendered in a browser</b> (<i>inferred</i>); the shader is a <b>static stand-in</b> (ln, st, acid at 20%, no new hue); copy is invented.</li>
+</ul>
+
+<h2>1 · A TURN, ONE STATE EACH</h2><div class="g" id="t"></div>
+<h2>2 · THE RECIPE CARD, ONE STATE EACH</h2><div class="g" id="c"></div>
+<h2>3 · FRAGMENTS AT REAL SIZE, AND THE ONE OPTION</h2><div class="g" id="f"></div>
+
+<h2>DECISIONS</h2><div id="dec"></div>
+
+<h2>OPEN QUESTIONS (ids provisional; the conductor files them in open-questions.md)</h2>
+<ul>
+<li><b>Q-082</b> assumable: while a turn is queued or thinking SEND is off, typed text stays (TU-3); alt: queue a second turn.</li>
+<li><b>Q-083</b> assumable: an expired card gets ASK AGAIN, sending one visible message ("propose this again from the form as it is now"); scope.md says "no button", updated if this stands (TU-6).</li>
+<li><b>Q-084</b> assumable: assistant off, C0 has no CREATE SONG in the sidebar, FORM ▸ is the way (TU-5); alt: option B.</li>
+<li><b>Q-085</b> assumable: after CREATE SONG the sidebar is a read-only song panel (TU-10); alt: keep the draft editable for a second song.</li>
+<li><b>Q-086</b> assumable: D-098 leaves the sky "just filled" marks to C2, but YOURS beside ASSISTANT needs them now; drawn here without UNDO TURN. Alt: plain fields until C2.</li>
+<li><b>Q-087</b> deferred: a "jump to latest" chip for a reply landing while scrolled up.</li>
+</ul>
+
+<h2>CHECK ON A REAL DEVICE (desktop, 1366×768)</h2>
+<ul>
+<li>Thread is about 530 px at 1366×768 with the player: do done (message, reply, DONE line, song card) and pending (message, reply, card) fit with CREATE SONG whole?</li>
+<li>A 90-character reason in the thinking line: one line or two, and does it read over the real shader?</li>
+<li>Do dashed FILLING…, sky ASSISTANT and grey YOURS read side by side in 360 px? Does the 55% locked sidebar look disabled or just dim?</li>
+</ul>
+
+<script>
+const $=i=>document.getElementById(i);
+const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
+const TG=(t,c)=>`<em class="tg ${c||""}">${t}</em>`,ib=t=>`<span class="ib">${t}</span>`;
+const STR=`<div class="sg">${[["INTRO",3],["VERSE",6],["CHORUS",6],["VERSE",6],["CHORUS",6],["OUTRO",4]].map(([n,b])=>`<i style="flex:${b}">${n}</i>`).join("")}</div>`;
+const FK=["TITLE","STYLE","TEMPO · KEY","LANGUAGE","STRUCTURE","LYRICS"];
+const STY="slow Spanish ballad, nylon guitar, soft female voice",TT="Luz sobre el mar",KT=ib("A MINOR")+ib("4/4"),UMT="a slow Spanish ballad about the sea, nylon guitar and a soft female voice";
+const FV=[ib(TT),ib(STY),ib("68 BPM")+KT,ib("ES"),STR,`<div class="ly">[Verse 1]<br>La sal en tu piel…<br><span>▸ 38 lines · Spanish</span></div>`];
+const FS=(b,o)=>{o=o||{};return FK.map((k,i)=>{const[s,v]=o[k]||[b,FV[i]],e=s=="e"||s=="f";return`<div class="fd ${s=="a"?"fa":s=="f"?"fl":s=="l"?"lk":""}"><div class="fk">${k}</div><div>${e?'<span class="em">—</span>':v}${s=="a"?TG("ASSISTANT"):s=="y"?TG("YOURS","y"):s=="f"?TG("FILLING…"):""}</div></div>`}).join("")+`<div class="fd ${b=="l"?"lk":""}"><div class="fk">ENGINE</div><div>${ib("YUE2 · FIXED")}</div></div>`};
+const SB=(f,ft,h)=>`<div class="sb"><div class="sbh"><span class="lb">${h||"FORM · THE DRAFT"}</span><span class="hn">HIDE ▸</span></div>${f}<div class="hn ft">${ft}</div></div>`;
+const F0="the assistant fills these from your message · nothing commits here",F1="edit any · CREATE SONG is on the card ◂";
+const HDR=`<div class="hdr"><b>MULAKAI</b>${P("t1 on","CHAT")}${P("t1","LIBRARY")}<span class="mb">MODELS READY</span></div>`;
+const TTL=(t,x,nf)=>`<div class="ttl"><h3>${t}</h3><span class="hn">${x||"DRAFT · NOT A SONG YET · LANDS IN LIBRARY"}</span><span class="hn" style="margin-left:auto">${nf?"":"<u>FORM ▸</u>"}</span>${P("q","NEW CHAT")}</div>`;
+const um=(t,x)=>`<div class="um">${t}${x||""}</div>`,am=t=>`<div class="am">${t}</div>`;
+const EAR=`<div class="hn" style="text-align:center">▲ 2 EARLIER MESSAGES</div>`;
+const CHG=l=>`<div class="hn" style="margin-top:4px;color:var(--s)">CHANGED · ${l}</div>`;
+const AM1=am(`Assuming <b>about 3 minutes, 4/4 and A minor</b>, lyrics in Spanish. I filled the sidebar; change any of it, or tell me.${CHG("TITLE, STYLE, TEMPO, KEY, LANGUAGE, STRUCTURE, LYRICS")}`);
+const hd=(t,x)=>`<div class="hd"><span class="lb">${t}</span><span class="hn">${x}</span></div>`;
+const cm=(t,b)=>`<div class="cm"><span class="cs">${t}</span>${b||""}</div>`;
+const CONS=s=>`Renders a new song on YuE2, about 3 min · uses the GPU · lands in Library${s||""} · <b>nothing else changes</b>`;
+const SUM=(tp,own)=>`<div style="padding:10px 14px"><b style="font-size:15px;letter-spacing:1px;font-weight:400">${TT}</b><div style="color:var(--m)">${STY}</div><div class="hn" style="margin-top:4px">${tp||"68 BPM"}${own?TG("YOUR EDIT","y"):""} · A MINOR · 4/4 · ~3:10 · ES · 38 LINES · YUE2</div></div>`;
+const CARD=(st,o)=>{o=o||{};const b=SUM(o.tp,o.own);
+ return st=="sup"?`<div class="cd sup">${hd("PROPOSAL · NEW SONG · SUPERSEDED","")}${b}${cm("A newer proposal is below and its fields are in the sidebar. This one cannot be created.")}</div>`
+ :st=="exp"?`<div class="cd">${hd("PROPOSAL · NEW SONG · EXPIRED","")}${b}<div class="er" style="margin:8px 14px"><div><b>THIS PROPOSAL EXPIRED</b> when the server restarted. Your fields are still in the sidebar; ask again for a new card.</div>${P("ao","ASK AGAIN")}</div></div>`
+ :`<div class="cd">${hd("PROPOSAL · NEW SONG",st=="com"?"creating · the render is in the line below":"fields are in the FORM sidebar · nothing runs yet")}${b}${cm(o.bl?`CREATE SONG is off: <b>${o.bl}</b>`:CONS(o.af),P(st=="com"||o.bl?"ac off":"ac","CREATE SONG"))}</div>`};
+const DONE=`<div class="cd">${hd("PROPOSAL · NEW SONG · "+TT.toUpperCase(),"DONE · v1 SAVED")}</div>`;
+const SONG=`<div class="cd"><div class="hd">${P("vp","v1")}<b style="flex:1;font-weight:400">${TT} · first take</b><span class="hn">3:12 · YUE2 · IN LIBRARY</span><span class="hn"><u>LIBRARY ▸</u></span></div></div>`;
+const jl=(c,t,e,b)=>`<div class="j ${c}"><span><b>${t}</b>${e?` <em>${e}</em>`:""}</span>${b||""}</div>`;
+const CX=P("q","CANCEL"),RT=P("ao","RETRY"),FM=P("q","FORM ▸");
+const QL=jl("q","THINKING · QUEUED · STARTS AFTER 2 JOBS","· uses the GPU, about 10 s once it starts · nothing else changes",CX);
+const TL=(n,r)=>jl("sh","THINKING… attempt "+n+" of 3","· attempt "+(n-1)+" refused: "+r,CX);
+const RL=jl("sh","RENDERING… synthesizing audio 41%","· YuE2 · 1:12 elapsed · uses the GPU",CX);
+const er=(h,t,b)=>`<div class="er"><div><b>${h}</b> ${t}</div>${b||""}</div>`;
+const DP="Describe a song, or say what to change…";
+const CP=(ph,on,note,ty)=>`<div class="cp">${note?`<div class="hn">${note}</div>`:""}<div class="cl"><div class="in${on?"":" off"}${ty?" ty":""}">${ph}</div><div class="snd${on?"":" off"}"><b>SEND ↵</b></div></div></div>`;
+const MN=(th,cp,pl)=>`<div class="mn"><div class="th">${th}</div>${pl||""}${cp}</div>`;
+const SC=(t,x,mn,sb,nf)=>`<div class="fr" onclick="this.classList.toggle('big')"><div class="sc">${HDR}${TTL(t,x,nf)}<div class="bd">${mn}${sb}</div></div></div>`;
+const O=(h,f,n)=>`<div class="o"><h4>${h}</h4>${f}${n?`<div class="nt">${n}</div>`:""}</div>`;
+const FG=(h,it,n)=>`<div class="o"><h4>${h}</h4><div class="fg">${it.join("")}</div>${n?`<div class="nt" style="width:600px">${n}</div>`:""}</div>`;
+const PL=`<div class="pl"><div class="pr"><span class="hx">▶</span><span>0:00 / 3:12</span><div class="sk"><i></i></div>${P("vp","v1 · first take")}</div></div>`;
+const U0=um(UMT),T=(th,cp,sb)=>SC("NEW SONG","",MN(th,cp),sb),WT=CP("Waiting for the assistant…",0),RS="key “Aminor” is not one of the 30 key names",CS=ib("72 BPM")+KT;
+$("t").innerHTML=
+O("<b>1 · QUEUED</b> behind another GPU job",T(U0+QL,CP("make the chorus shorter",0,"SEND waits until the assistant answers · your text stays",1),SB(FS("e"),F0)),"Dashed, plain: nothing works on it yet. CANCEL removes it; the message stays, CANCELLED.")+
+O("<b>2 · THINKING</b> attempt 2 of 3",T(U0+TL(2,RS),WT,SB(FS("f"),F0)),"Planner shader, the retry's reason, CANCEL. Empty fields are dashed FILLING…: all this turn can fill.")+
+O("<b>3 · CANCELLING</b> while the planner unloads",T(U0+jl("","CANCELLING…","· unloading the planner so the GPU is free · nothing changes",P("q off","CANCEL")),WT,SB(FS("e"),F0)),"Plain, no shader (DESIGN.md). No proposal; the draft is as it was. Then the message reads CANCELLED.")+
+O("<b>4 · FAILED</b> 3 attempts spent",T(U0+er("NO PROPOSAL IN 3 ATTEMPTS","Attempt 3 refused: "+RS+". Nothing changed: your message and draft are kept.",RT+FM),CP(DP,1),SB(FS("e"),F0)),"Rust: what happened, what to do. RETRY resends the message; FORM ▸ opens Guided Create.")+
+O("<b>5 · ASSISTANT OFF</b> the turn could not start",T(U0+er("ASSISTANT OFF","Ollama did not answer at LLM_API_URL (127.0.0.1:11434). Start Ollama, then RETRY. FORM ▸ opens Guided Create, which works without it; nothing carries over yet.",RT+FM),CP("Assistant off · RETRY above, or use the form",0),SB(FS("e"),"nothing commits here · the form does")),"CH-8's fallback, C0 form. With the planner down at app open: the same line over an empty thread.")+
+O("<b>6 · A HAND EDIT</b> during a thinking turn",T(U0+TL(2,RS)+`<div class="hn">you changed <b style="color:var(--t)">TEMPO</b> since sending · the assistant will skip it and say so</div>`,WT,SB(FS("f",{"TEMPO · KEY":["y",ib("72 BPM")]}),F0)),"TEMPO is YOURS; the reply names it (fragment c).");
+$("c").innerHTML=
+O("<b>7 · PENDING</b> with a hand edit",T(U0+AM1+CARD("pend",{tp:"<s>68</s> 72 BPM",own:1}),CP(DP,1),SB(FS("a",{"TEMPO · KEY":["y",CS]}),F1)),"The card mirrors the live draft; CREATE SONG sends the draft, not the proposal.")+
+O("<b>8 · SUPERSEDED</b> by a newer proposal",T(EAR+CARD("sup")+um("make it slower and darker")+am(`Slowed it to <b>60 BPM</b> and added <b>dark, sparse</b> to the style.${CHG("STYLE, TEMPO")}`)+CARD("pend",{tp:"<s>68</s> 60 BPM"}),CP(DP,1),SB(FS("p",{STYLE:["a",`<s>${STY}</s> `+ib("dark, sparse "+STY)],"TEMPO · KEY":["a",`<s>68 BPM</s> `+ib("60 BPM")+KT]}),F1)),"Old card dims, no button; its fields live on in the sidebar.")+
+O("<b>9 · EXPIRED</b> after a server restart",T(U0+AM1+CARD("exp"),CP(DP,1),SB(FS("p"),"your fields are kept · a new card comes when you ask again")),"Thread and draft survive; the proposal does not (decisions/0007). Q-083.")+
+O("<b>10 · COMMITTING</b> CREATE SONG pressed, rendering",T(U0+AM1+CARD("com")+RL,CP(DP,1,"WAITING FOR v1 · a message sent now is read after it saves"),SB(FS("l"),"locked until v1 is saved or you CANCEL","FORM · RENDERING FROM THESE")),"Card keeps its label, button off; the line names YuE2's stage, shader, no veil.")+
+O("<b>11 · DONE</b> v1 saved, the player above the composer",SC("LUZ SOBRE EL MAR","v1 · 3:12 · IN LIBRARY",MN(U0+am("Saved as <b>v1</b> in your Library. Press play above. To change it, use SCORE in the Editor.")+DONE+SONG,CP(DP,1),PL),SB(`<div class="fd"><div class="fk">VERSIONS</div><div>${P("vp","v1 ●")}</div></div>`+FS("l"),"fields as rendered · read-only","SONG · LUZ SOBRE EL MAR"),1),"The card folds, a song card is appended, the thread belongs to the song (Q-085).");
+const CH=`<div class="cd">${cm(CONS(" · starts after 1 job"),P("ac","CREATE SONG"))}</div>`;
+$("f").innerHTML=
+FG("<b>a · CANCELLED, INTERRUPTED</b>",[um(UMT,`<div class="hn" style="margin-top:4px">CANCELLED · no reply · ${RT}</div>`),er("INTERRUPTED","The server restarted while this ran. Nothing changed.",RT)],"A message with no answer stays and offers one RETRY.")+
+FG("<b>b · FAILED, OTHER REASONS</b>",[er("CONTEXT TOO SHORT","The chat needs 16,384 tokens; Ollama gave 4,096. Set OLLAMA_CONTEXT_LENGTH=16384, restart Ollama, then RETRY.",RT),er("MODEL STAYED LOADED","qwen3:14b did not unload in 10 s. Run ollama stop qwen3:14b, then RETRY.",RT)],"Named cause and fix (D-050, D-053).")+
+FG("<b>c · THE REPLY AFTER STATE 6</b>",[am(`Filled <b>5 fields</b> and wrote 38 lines in Spanish. Skipped <b>TEMPO</b>: you changed it. I assumed <b>about 3 min, 4/4 and A minor</b>.${CHG("TITLE, STYLE, LANGUAGE, STRUCTURE, LYRICS")}`)],"The card then shows 72 BPM (state 7).")+
+FG("<b>d · COMMIT LINES</b> queued, rendering, failed",[jl("q","RENDER QUEUED · STARTS AFTER 1 JOB","· YuE2",CX),RL,er("‘"+TT.toUpperCase()+"’ FAILED","YuE2 ran out of memory. Nothing was saved; the card is back to pending.",RT)],"Queued dashed; running on the shader. A failed commit returns the card to pending.")+
+FG("<b>e · THE COMMIT ROW</b> busy GPU, blocked",[CH,`<div class="cd">${cm("CREATE SONG is off: <b>STYLE is empty</b> · fill it in the sidebar",P("ac off","CREATE SONG"))}</div>`],"A busy GPU never disables it (it queues); only a server rule does, with the reason.");
+$("f").innerHTML+=FG("<b>OPTIONS</b> assistant off: where is the commit",[`<div class="hn">A · RETRY and FORM ▸ (recommended): the line of state 5, no commit in the sidebar</div>`,`<div class="hn">B · the sidebar's foot carries a commit, so the hand-filled draft can be created without Ollama</div><div class="cd">${cm("Renders a new song on YuE2, about 3 min · <b>nothing else changes</b>",P("ac","CREATE SONG"))}</div>`],"A keeps CH-2 (the card commits); cost: re-typing in the form until C6. B works offline, but is a second commit place.");
+const D=[
+["TU-1 · One line under the message carries the turn: dashed, plain while QUEUED; planner shader while THINKING (attempt n of 3, the retry's reason in the server's words); plain CANCELLING. CANCEL on the first two.","a header spinner; plain text while thinking (3-15 s looks hung); a bare 'attempt 2 of 3'."],
+["TU-2 · Every ending without an answer (failed, off, cancelled, interrupted) has one shape: the message stays, one rust line says what happened, what to do and 'nothing changed', one RETRY.","deleting the message; auto-retry; a modal."],
+["TU-3 · SEND is off while a turn is queued or thinking; typed text stays, the reason is above the input (Q-082).","a second queued turn (it reads an unanswered first); losing the text."],
+["TU-4 · Fields stay editable during a turn: empty ones dashed FILLING…, a touched one YOURS, and the reply says 'Skipped TEMPO: you changed it' (CH-6).","locking the form for 3-15 s."],
+["TU-5 · Assistant off in C0: the line, RETRY, FORM ▸, composer off, no commit in the sidebar (Q-084).","option B; opening the form unasked (the typed message is lost)."],
+["TU-6 · Card states: pending live; superseded dims, no button; expired rust with ASK AGAIN (Q-083); committing keeps the label, button off; done folds to one line.","a button that turns into progress; deleting old cards; an expired card with nothing to press."],
+["TU-7 · The pending card mirrors the live draft, a hand edit reads YOUR EDIT, and CREATE SONG sends the draft, not the proposal.","a frozen proposal that disagrees with the sidebar."],
+["TU-8 · A commit locks the sidebar fields until v1 saves or CANCEL, and says so in the foot.","editable but 'applies to the next song' (surprising)."],
+["TU-9 · The first take follows DESIGN.md's YuE2 rule: stage and share, shader, no veil; queued is dashed; a message sent now says WAITING FOR v1.","a progress bar; hiding the wait."],
+["TU-10 · Done: the card folds, a song card is appended, the player sits above the composer, the reply points to SCORE for changes (D-110), the sidebar is a read-only song panel (Q-085).","jumping to the Library on save; keeping the draft editable."]];
+$("dec").innerHTML=D.map(d=>`<div class="dc"><b>${d[0]}</b> <i>Beat:</i> ${d[1]}</div>`).join("");
+</script></body></html>

@@ -1,0 +1,868 @@
+[
+ {
+  "id": "LG01",
+  "group": "long",
+  "song": "S1",
+  "turns": [
+   {
+    "id": "LG01.t1",
+    "user": "give the second chorus a jazzier feel",
+    "expect": {
+     "action": "edit",
+     "must_propose": true,
+     "edit": {
+      "kind": "reharm",
+      "bars": [
+       167,
+       206
+      ],
+      "tol": 0,
+      "cover": 0.5
+     }
+    },
+    "fixture": {
+     "action": "edit",
+     "message": "Jazz chords for the second chorus.",
+     "assumptions": [
+      "assuming the second chorus, bars 167-206"
+     ],
+     "ops": [
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 167,
+       "to_bar": 182,
+       "chords": [
+        {
+         "bar": 167,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 168,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 169,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 170,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 171,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 172,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 173,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 174,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 175,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 176,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 177,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 178,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 179,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 180,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 181,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 182,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        }
+       ]
+      },
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 183,
+       "to_bar": 198,
+       "chords": [
+        {
+         "bar": 183,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 184,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 185,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 186,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 187,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 188,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 189,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 190,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 191,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 192,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 193,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 194,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 195,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 196,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 197,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 198,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        }
+       ]
+      },
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 199,
+       "to_bar": 206,
+       "chords": [
+        {
+         "bar": 199,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 200,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 201,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 202,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 203,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 204,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 205,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 206,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "id": "LG01.t2",
+    "user": "make it a bit slower too",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "any": true
+     }
+    },
+    "fixture": {
+     "action": "edit",
+     "message": "Jazz chords for the second chorus, and 130 bpm.",
+     "assumptions": [],
+     "ops": [
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 167,
+       "to_bar": 182,
+       "chords": [
+        {
+         "bar": 167,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 168,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 169,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 170,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 171,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 172,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 173,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 174,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 175,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 176,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 177,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 178,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 179,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 180,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 181,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 182,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        }
+       ]
+      },
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 183,
+       "to_bar": 198,
+       "chords": [
+        {
+         "bar": 183,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 184,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 185,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 186,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 187,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 188,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 189,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 190,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 191,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 192,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 193,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 194,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 195,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 196,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 197,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 198,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        }
+       ]
+      },
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 199,
+       "to_bar": 206,
+       "chords": [
+        {
+         "bar": 199,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 200,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 201,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 202,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 203,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 204,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 205,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 206,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        }
+       ]
+      },
+      {
+       "op": "SET_TEMPO",
+       "bpm": 130
+      }
+     ]
+    }
+   },
+   {
+    "id": "LG01.t3",
+    "user": "no, only the first chorus",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "reharm",
+      "bars": [
+       63,
+       78
+      ],
+      "tol": 0,
+      "cover": 0.5
+     }
+    },
+    "commit": true,
+    "fixture": {
+     "action": "edit",
+     "message": "Jazz chords for the first chorus only.",
+     "assumptions": [
+      "the first chorus is bars 63-78"
+     ],
+     "ops": [
+      {
+       "op": "REHARMONIZE",
+       "from_bar": 63,
+       "to_bar": 78,
+       "chords": [
+        {
+         "bar": 63,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 64,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 65,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 66,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 67,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 68,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 69,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 70,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 71,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 72,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 73,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 74,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 75,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "maj7"
+        },
+        {
+         "bar": 76,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        },
+        {
+         "bar": 77,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "7"
+        },
+        {
+         "bar": 78,
+         "beat": 1,
+         "root": "Ab",
+         "quality": "m7"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "id": "LG01.t4",
+    "user": "which sections does it have now?",
+    "expect": {
+     "action": "say"
+    }
+   }
+  ]
+ },
+ {
+  "id": "LG02",
+  "group": "long",
+  "song": "S1",
+  "turns": [
+   {
+    "id": "LG02.t1",
+    "user": "change the words of the last chorus to be about leaving",
+    "expect": {
+     "action": "edit",
+     "assumes": true,
+     "edit": {
+      "kind": "lyrics",
+      "block": 6,
+      "lang": "de"
+     }
+    },
+    "commit": true,
+    "fixture": {
+     "action": "edit",
+     "message": "New words about leaving.",
+     "assumptions": [
+      "the last chorus is [Chorus] #2"
+     ],
+     "ops": [
+      {
+       "op": "REWRITE_LYRICS",
+       "block": 6,
+       "tag": "[Chorus]",
+       "occurrence": 2,
+       "lines": [
+        "Ich pack mein Herz in einen Koffer",
+        "und lass dich leise hinter mir",
+        "der Weg ist lang, doch ich geh weiter",
+        "bis ich mich selbst wiederfind"
+       ]
+      }
+     ]
+    }
+   },
+   {
+    "id": "LG02.t2",
+    "user": "now repeat the first chorus",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "repeat",
+      "section": 3
+     }
+    },
+    "commit": true,
+    "fixture": {
+     "action": "edit",
+     "message": "The first chorus twice.",
+     "assumptions": [],
+     "ops": [
+      {
+       "op": "REPEAT",
+       "section": 3,
+       "label": "chorus"
+      }
+     ]
+    }
+   },
+   {
+    "id": "LG02.t3",
+    "user": "how long is it now?",
+    "expect": {
+     "action": "say"
+    }
+   },
+   {
+    "id": "LG02.t4",
+    "user": "put it down three semitones",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "transpose",
+      "semitones": -3
+     }
+    }
+   }
+  ]
+ },
+ {
+  "id": "LG03",
+  "group": "long",
+  "song": "S1",
+  "turns": [
+   {
+    "id": "LG03.t1",
+    "user": "what key is this in?",
+    "expect": {
+     "action": "say"
+    }
+   },
+   {
+    "id": "LG03.t2",
+    "user": "make it a different key",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "kind": "transpose"
+     }
+    },
+    "fixture": {
+     "action": "edit",
+     "message": "Up a whole tone.",
+     "assumptions": [
+      "assuming up two semitones"
+     ],
+     "ops": [
+      {
+       "op": "TRANSPOSE",
+       "semitones": 2
+      }
+     ]
+    }
+   },
+   {
+    "id": "LG03.t3",
+    "user": "and slower, around 120",
+    "expect": {
+     "action": "edit",
+     "edit": {
+      "any": true
+     }
+    },
+    "fixture": {
+     "action": "edit",
+     "message": "Up a whole tone and 120 bpm.",
+     "assumptions": [],
+     "ops": [
+      {
+       "op": "TRANSPOSE",
+       "semitones": 2
+      },
+      {
+       "op": "SET_TEMPO",
+       "bpm": 120
+      }
+     ]
+    }
+   },
+   {
+    "id": "LG03.t4",
+    "user": "export it as an mp3",
+    "expect": {
+     "action": "scalpel",
+     "kind": "export"
+    }
+   }
+  ]
+ }
+]

@@ -1,0 +1,136 @@
+{
+ "cap16=False seed=21": {
+  "accepted": true,
+  "attempts": 3,
+  "wall": 115.8,
+  "completion_tokens": [
+   2277,
+   1488,
+   2342
+  ],
+  "ops": [
+   [
+    "EDIT_STYLE",
+    null,
+    null
+   ],
+   [
+    "REHARMONIZE",
+    167,
+    182
+   ],
+   [
+    "REHARMONIZE",
+    183,
+    198
+   ],
+   [
+    "REHARMONIZE",
+    199,
+    206
+   ]
+  ],
+  "assumptions": [
+   "assuming the second chorus, bars 167-206"
+  ]
+ },
+ "cap16=False seed=22": {
+  "accepted": true,
+  "attempts": 3,
+  "wall": 116.1,
+  "completion_tokens": [
+   2277,
+   1488,
+   2342
+  ],
+  "ops": [
+   [
+    "EDIT_STYLE",
+    null,
+    null
+   ],
+   [
+    "REHARMONIZE",
+    167,
+    182
+   ],
+   [
+    "REHARMONIZE",
+    183,
+    198
+   ],
+   [
+    "REHARMONIZE",
+    199,
+    206
+   ]
+  ],
+  "assumptions": [
+   "assuming the second chorus, bars 167-206"
+  ]
+ },
+ "cap16=True seed=21": {
+  "accepted": true,
+  "attempts": 2,
+  "wall": 89.5,
+  "completion_tokens": [
+   2330,
+   2396
+  ],
+  "ops": [
+   [
+    "EDIT_STYLE",
+    null,
+    null
+   ],
+   [
+    "REHARMONIZE",
+    167,
+    182
+   ],
+   [
+    "REHARMONIZE",
+    183,
+    198
+   ],
+   [
+    "REHARMONIZE",
+    199,
+    206
+   ]
+  ],
+  "assumptions": [
+   "assuming the second chorus, bars 167-206"
+  ]
+ },
+ "cap16=True seed=22": {
+  "accepted": true,
+  "attempts": 3,
+  "wall": 113.8,
+  "completion_tokens": [
+   2219,
+   1449,
+   2314
+  ],
+  "ops": [
+   [
+    "REHARMONIZE",
+    167,
+    182
+   ],
+   [
+    "REHARMONIZE",
+    183,
+    198
+   ],
+   [
+    "REHARMONIZE",
+    199,
+    206
+   ]
+  ],
+  "assumptions": [
+   "assuming the second chorus, bars 167-206"
+  ]
+ }
+}

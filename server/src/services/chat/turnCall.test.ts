@@ -27,6 +27,8 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     const progress: string[] = [];
     const d = await decideReply(ctx, { ask, onAttempt: (n, r) => progress.push(`${n}${r ? ` · ${r}` : ''}`) });
     expect(d).toMatchObject({ ok: true, attempts: 3, calls: 3 });
+    // CB-2: the refused attempts travel with the reply, so an edit card says what a retry moved (D-060).
+    expect(d.ok && d.refusals).toEqual([['the reply is not valid JSON'], ['key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']]);
     expect(progress).toEqual(['1', '2 · the reply is not valid JSON', '3 · key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']);
     const last = ask.mock.calls[2][0] as Array<{ content: string }>;
     expect(last.at(-1)!.content).toContain('- key "Aminor" is not one of the 30 key names');
@@ -64,6 +66,17 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(d.messages[1].content).toContain('PENDING PROPOSAL (the new-song card the person is looking at; nothing has run):\ntitle: Luz sobre el mar');
     const e = await decideReply({ ...ctx, pending: false, draft: { title: 'Mar' } }, { ask });
     expect(e.messages[1].content).toContain('SIDEBAR (the new-song fields as they are now; the person may have edited them by hand):\ntitle: Mar');
+  });
+
+  it('C3: a reading in the state brings reference_use and the REFERENCE rule; a follow-up offers ask, recipe, say (D-128, D-129)', async () => {
+    const ask = scripted(recipeReply());
+    const d = await decideReply({ ...ctx, state: { ...ctx.state, referenceRead: true, followUp: true } }, { ask });
+    const schema = ask.mock.calls[0][1] as { anyOf: Array<{ properties: { action: { const: string }; recipe?: { properties: Record<string, unknown> } } }> };
+    expect(schema.anyOf.map((p) => p.properties.action.const)).toEqual(['ask', 'recipe', 'say']);
+    expect(schema.anyOf[1].properties.recipe!.properties).toHaveProperty('reference_use');
+    expect(d.messages[0].content).toContain('reference_use');
+    await decideReply(ctx, { ask });
+    expect(ask.mock.calls[1][0][0].content).not.toContain('reference_use');
   });
 
   it('CHAT_LADDER picks a built rung; anything else is rung 0', () => {

@@ -1,0 +1,21 @@
+/* C0b edit and version cards (CB-5; pipeline/design/chat-edit.html, D-158 EC-1..EC-8). Tokens only, zero radius; sky
+   is the bars that change (scope), lilac the version pill and BACK TO (versions), rust what saved nothing or is not what
+   the card promised; the commit steps are plain (no shader, EC-4). */
+.chat-edit-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 6px; }
+.chat-edit-body .score-plan-label { margin: 0; }
+
+.chat-strip-bar { height: 16px; position: relative; background: var(--carbon-raised); border: 1px solid var(--line); }
+.chat-strip-bar > i { position: absolute; top: 0; bottom: 0; background: var(--on-sky); border: 1px solid var(--sky); }
+.chat-strip-bar.all > i { left: 0; width: 100%; background: repeating-linear-gradient(135deg, var(--on-sky) 0 6px, var(--sky-tint) 6px 12px); }
+.chat-strip-nums { display: flex; justify-content: space-between; font: 9px ui-monospace, monospace; letter-spacing: 1px; color: var(--text-low); margin-top: 2px; }
+
+.chat-edit-run { padding: 0 14px 10px; display: flex; flex-direction: column; gap: 6px; }
+.chat-edit-run .chat-job { margin: 0; }
+
+.chat-version-body { padding: 10px 14px; display: flex; flex-direction: column; gap: 4px; }
+.chat-version-body .chat-er { margin: 4px 0 0; }
+.chat-version-meta b { color: var(--text-hi); font-weight: 400; }
+
+.chat-ab-note { color: var(--lilac-text); white-space: nowrap; flex: none; }
+.chat-player .chat-q { flex: none; }
+.chat-use-failed { color: var(--rust-text); white-space: nowrap; flex: none; }

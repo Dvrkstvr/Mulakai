@@ -7,16 +7,16 @@
 import { gpuAfter, gpuAt, json, now, sleep, type GpuSample, type ProxyEvent } from './scoreCp1Lib.js';
 import { plannerWindow, type CreateResult, type TurnResult } from './chatCp0Stats.js';
 
-export interface Prompt { id: string; lang: string; expect: 'recipe' | 'ask'; text: string }
+export interface Prompt { id: string; lang: string; expect: TurnResult['expect']; text: string }
 export interface RunCtx { server: string; proxied: boolean; events: ProxyEvent[]; gpu: GpuSample[]; log: (m: string) => void; turnTimeoutMs: number; takeTimeoutMs: number }
-interface Msg { id: string; role: string; kind: string; text: string; body: Record<string, unknown> | null; proposalId: string | null; jobId: string | null }
-interface Thread { id: string; songId: string | null; messages: Msg[] }
+export interface Msg { id: string; role: string; kind: string; text: string; body: Record<string, unknown> | null; proposalId: string | null; jobId: string | null }
+export interface Thread { id: string; songId: string | null; messages: Msg[] }
 
 const LIVE = ['queued', 'loading', 'running'];
 export const attemptOf = (progressText: unknown) => Number(/attempt (\d+) of/.exec(String(progressText ?? ''))?.[1]) || null;
 
 /** Polls the job until it leaves queued / loading / running (a 404 = the registry forgot it). */
-async function follow(ctx: RunCtx, jobId: string, timeoutMs: number, onPoll: (j: Record<string, unknown>) => void = () => {}) {
+export async function follow(ctx: RunCtx, jobId: string, timeoutMs: number, onPoll: (j: Record<string, unknown>) => void = () => {}) {
   const t0 = now();
   let runningAt: number | null = null;
   let last: Record<string, unknown> | null = null;
@@ -33,20 +33,26 @@ async function follow(ctx: RunCtx, jobId: string, timeoutMs: number, onPoll: (j:
   return { last, runningAt, endAt: now(), timedOut: false };
 }
 
-const thread = async (ctx: RunCtx, id: string) => (await json('GET', `${ctx.server}/api/chat/threads/${id}`)).body as Thread;
+export const thread = async (ctx: RunCtx, id: string) => (await json('GET', `${ctx.server}/api/chat/threads/${id}`)).body as Thread;
 
 export async function runTurn(ctx: RunCtx, p: Prompt, index: number): Promise<{ result: TurnResult; threadId: string; proposalId: string | null }> {
   const reset = await json('POST', `${ctx.server}/api/chat/draft/reset`);
   if (reset.status !== 200) throw new Error(`NEW CHAT refused ${reset.status}: ${JSON.stringify(reset.body)}`);
   const threadId = (reset.body as Thread).id;
+  const { result, reply } = await turnOn(ctx, threadId, { index, id: p.id, lang: p.lang, expect: p.expect }, p.text);
+  return { result, threadId, proposalId: reply?.kind === 'recipe' ? reply.proposalId : null };
+}
+
+/** One SEND on an existing thread, followed to its reply: turn time, attempts and the proxy's planner window. */
+export async function turnOn(ctx: RunCtx, threadId: string, who: Pick<TurnResult, 'index' | 'id' | 'lang' | 'expect'>, text: string): Promise<{ result: TurnResult; reply: Msg | null }> {
   const base: TurnResult = {
-    index, id: p.id, lang: p.lang, expect: p.expect, prompt: p.text, postStatus: 0, action: null, cause: null, reasons: [],
+    ...who, prompt: text, postStatus: 0, action: null, cause: null, reasons: [],
     attempts: null, calls: null, turnMs: null, queuedMs: null, promptTokens: [], unloadMs: null, vram: null,
   };
   const t0 = now();
-  const post = await json('POST', `${ctx.server}/api/chat/threads/${threadId}/turns`, { text: p.text, clientKey: `cp0-${index}-${t0}` });
+  const post = await json('POST', `${ctx.server}/api/chat/threads/${threadId}/turns`, { text, clientKey: `cp0-${who.id}-${who.index}-${t0}` });
   base.postStatus = post.status;
-  if (post.status !== 202) return { result: { ...base, reasons: [JSON.stringify(post.body)] }, threadId, proposalId: null };
+  if (post.status !== 202) return { result: { ...base, reasons: [JSON.stringify(post.body)] }, reply: null };
   const { jobId, messageId } = post.body as { jobId: string; messageId: string };
   let attempts = 0;
   const f = await follow(ctx, jobId, ctx.turnTimeoutMs, (j) => { attempts = Math.max(attempts, attemptOf(j.progressText) ?? 0); });
@@ -66,7 +72,7 @@ export async function runTurn(ctx: RunCtx, p: Prompt, index: number): Promise<{ 
     queuedMs: f.runningAt === null ? null : f.runningAt - t0, promptTokens: win.promptTokens, unloadMs: win.unloadMs,
     vram: ctx.gpu.length ? { beforeMiB: gpuAt(ctx.gpu, t0)?.mib ?? null, peakMiB: during.length ? Math.max(...during) : null, atEmptyMiB: emptyAt ? gpuAfter(ctx.gpu, emptyAt)?.mib ?? null : null } : null,
   };
-  return { result, threadId, proposalId: reply?.kind === 'recipe' ? reply.proposalId : null };
+  return { result, reply };
 }
 
 /** CREATE SONG on the recipe card, then the take until saved: hand-off = press -> the take's job running. */

@@ -7,27 +7,38 @@ import type { SongDetail } from './api';
 import { SIDEBAR_FOOT } from './chatCopy';
 
 export type CardView =
-  | { kind: 'pending'; error: string | null }
+  /** `cancelled` (an edit card, C0b): its APPLY was cancelled while that step ran; nothing was saved. */
+  | { kind: 'pending'; error: string | null; cancelled?: string | null }
   | { kind: 'committing'; phase: CommitPhase | null }
-  | { kind: 'superseded' } | { kind: 'expired' } | { kind: 'done' };
+  /** An edit card whose APPLY was refused because the song changed since the plan (ASK AGAIN). */
+  | { kind: 'stale'; reason: string }
+  | { kind: 'superseded' } | { kind: 'expired' } | { kind: 'done' }
+  /** An edit card whose APPLY a server restart cut (F-049 #3): nothing saved, ASK AGAIN. */
+  | { kind: 'interrupted' };
 
-/** The server's state, with this tab's take over it: a failed take puts the card back to pending with the error. */
+/** The server's state, with this tab's take over it while the server still has the card live: a failed take (or a
+ * cancelled APPLY) puts the card back to pending saying so. A card the server says is done stays done. */
 export function cardView(m: ChatMessageView, commit: CommitState | null): CardView {
-  if (commit && m.proposalId && commit.proposalId === m.proposalId) {
-    return commit.phase.kind === 'failed' ? { kind: 'pending', error: commit.phase.error } : { kind: 'committing', phase: commit.phase };
+  const live = m.state === null || m.state === 'pending' || m.state === 'committing';
+  if (live && commit && m.proposalId && commit.proposalId === m.proposalId) {
+    const p = commit.phase;
+    if (p.kind === 'failed') return { kind: 'pending', error: p.error };
+    return p.kind === 'cancelled' ? { kind: 'pending', error: null, cancelled: p.during } : { kind: 'committing', phase: p };
   }
   switch (m.state) {
     case 'superseded': return { kind: 'superseded' };
     case 'expired': return { kind: 'expired' };
+    case 'interrupted': return { kind: 'interrupted' };
     case 'done': return { kind: 'done' };
+    case 'stale': return { kind: 'stale', reason: (m.body as { stale?: string } | null)?.stale ?? '' };
     case 'committing': return { kind: 'committing', phase: null };
     default: return { kind: 'pending', error: null };
   }
 }
 
-/** A take is running from a card of this thread (the sidebar locks, TU-8; the composer says WAITING FOR v1). */
+/** A take or an APPLY is running from a card of this thread (the sidebar locks, TU-8; the composer says WAITING FOR vN). */
 export const committing = (t: ChatThreadView | null, commit: CommitState | null): boolean =>
-  !!t && t.messages.some((m) => m.kind === 'recipe' && cardView(m, commit).kind === 'committing');
+  !!t && t.messages.some((m) => (m.kind === 'recipe' || m.kind === 'edit') && cardView(m, commit).kind === 'committing');
 
 export type SidebarMode = 'draft' | 'locked' | 'song';
 export const sidebarMode = (t: ChatThreadView | null, commit: CommitState | null): SidebarMode =>
@@ -48,6 +59,14 @@ export function sidebarFoot(t: ChatThreadView | null, commit: CommitState | null
 /** The newest song card's version: the player's pill and the title row (F-045). */
 export function latestSong(t: ChatThreadView | null): ChatSongBody | null {
   const m = t?.messages.findLast((x) => x.kind === 'song' || x.kind === 'version');
+  return (m?.body as ChatSongBody | null | undefined) ?? null;
+}
+
+/** The song or version card a recipe or edit card's own job saved (the server marks the card done by that same job
+ * id): a done card names its own version, never the thread's newest one. */
+export function madeBy(messages: ChatMessageView[], card: ChatMessageView): ChatSongBody | null {
+  if (!card.jobId) return null;
+  const m = messages.find((x) => (x.kind === 'song' || x.kind === 'version') && x.jobId === card.jobId);
   return (m?.body as ChatSongBody | null | undefined) ?? null;
 }
 

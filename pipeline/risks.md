@@ -220,3 +220,29 @@ ACE-Step repaint with an uploaded source works against the `acestep-api` server,
 SHIFT/STRETCH (D-085): pitch-shifting a YuE2 take by up to ±2-3 semitones and time-stretching it by ±10-15% may sound processed (formants on the voice, transient smear on drums) next to a re-render.
 - check: SP-6, a short spike on 4 library songs with 2-3 DSP options (e.g. rubberband formant-preserving, a phase vocoder), measured key/tempo accuracy and an A/B listen vs the YuE2 re-render.
 - fallback: the card offers RE-RENDER only (D-085).
+
+### R-027 · impact H · evidence measured (SP-5, 2026-10-06; owner's lyric read owed)
+The chat turn (D-079, D-097) needs one local call of `qwen3:14b` (16k, reasoning off, strict schema) to pick the right action from the closed set, write recipes and lyrics in the request's language, ask only when stuck, and produce SCORE ops that pass the existing validators, in 15 s p50 / 30 s p95 and 6k tokens on the 206-bar song.
+- SP-5 (`pipeline/spikes/SP-5-chat-planner/RESULT.md`): bars (a)..(g) all pass on the final prompt (action 97.2% on the 36 scripted single turns and 90.0% on 20 fresh hold-out turns, `ask` on 0 of 12 must-propose, recipes 100% valid with the right language on 32/32, edit plans valid within 3 attempts 31/32, p50 8 s / p95 27 s, unload and empty `/api/ps` every turn, prompt p95 5.3k and 5.4k on the 206-bar song). The first prompt missed three bars; the fixes are prompt, state-block and loop-guard changes (RESULT.md "What C0's turn job should copy"), not the ladder.
+- still open: (1) the owner's read of 10 lyric sets (`lyrics.html`; below 8 usable, lyrics move to their own call, built and measured); (2) the tail: a REHARMONIZE of a 40-bar section takes 82-143 s (the root-change rule fails on the first try in 8 of 10 cases and the model cannot write fewer than a chord per bar); (3) unseen wording routes about 90%, not 97%; (4) the card must be built from the fields, not from the model's `message`; (5) the model's GPU residency depends on the owner's other stack staying under about 4 GB.
+- fallback: the ladder (router + per-action call: prompt p95 3.8k, no accuracy gain; state-allowed actions; lyrics as their own call) and, last, form-first only (D-086).
+
+### R-028 · impact M · evidence hypothesis (stage 6, chat C3, 2026-10-07)
+A reading leaves models on the GPU (ACE-Step's DiT and LM after ANALYZE AUDIO, lyrics-server's speech model), so the follow-up turn's planner (11.7 GB, SP-5: 15.4 of 16.4 GB used with the owner's 3-4 GB) splits to the CPU and the turn slows from about 8-14 s to minutes. SheetSage2 runs as a subprocess and frees its memory on exit (seen in code).
+- check: CP-C3 logs nvidia-smi before and during the follow-up turn and the planner's `size_vram` from `/api/ps`; stop line: follow-up p50 > 15 s or the planner not fully on the GPU.
+- fallback: drop the caption step (D-135 reversed; instrumentation words come from the person); `ACESTEP_OFFLOAD_TO_CPU=true` (P3) must hold.
+
+### R-029 · impact M · evidence hypothesis (stage 6, chat C3, 2026-10-07)
+Transcription of arbitrary audio (SheetSage2) fails the score checker, overruns YuE2's plan budget, or yields a melody a cover does not make recognisable; then F-063 works only for YuE2 library songs. The COVER path it reuses works on library songs today (PLAN.md "YuE2 Melody Covers via SheetSage2"); real recordings are untested here.
+- check: CP-C3 (score read ok on at least 2 of 3 audio files, coverable rate, vocal-note density, warnings) and the owner's 3-cover listen (D-133).
+- fallback: covers only from YuE2 library songs (their own score) and Guided Create's USE .ABC FILE; an audio reference offers a new song in its style only.
+
+### R-031 · impact M · evidence hypothesis (stage 6, chat C1, 2026-10-07)
+The automatic analysis's WORDS step runs lyrics-server's faster-whisper large-v3 (seen in code: `lyrics-server/main.py`, no unload route), which stays resident after the read; the next turn's planner (11.7 GB; SP-5: 15.4 of 16.4 GB used) may split to the CPU and the turn slow from about 8-14 s to minutes. CP-C3 (D-159) measured ACE-Step's residency, not lyrics-server's. (R-030 is SP-6's id.)
+- check: CP-C1 logs nvidia-smi and the planner's `size_vram` on the turn after an analysis; stop line: not fully on the GPU, or next-turn p50 over 15 s.
+- fallback: drop WORDS from the automatic analysis (D-182; the Editor reads timings on demand), or an unload route on lyrics-server.
+
+### R-032 · impact M · evidence hypothesis (stage 6, chat C1, 2026-10-07)
+Every save queues 0-60 s of analysis ahead of the person's next message or APPLY (FIFO, Q-069): a quick "now the verse" after a version waits for its reading, and iteration feels slower than C0b.
+- check: CP-C1 logs the queue wait of a turn sent right after a save, per version source (spliced YuE2, whole re-render, ACE-Step); stop line: an analysis of a version of 4 min or less over 90 s.
+- fallback: a turn or commit queued behind a *queued* (not yet running) analysis goes ahead of it (a priority rule in its own module; `genQueue.ts` is at its cap), or WORDS leaves the automatic analysis.

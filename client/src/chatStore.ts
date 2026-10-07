@@ -1,21 +1,24 @@
 /**
  * The open chat thread (F-041, F-042, F-044, F-049): its messages, the turn being sent (a `clientKey` per message),
- * CANCEL, CREATE SONG, and polling both jobs with the existing POLL_MS. Every turn and take change goes through
- * `chatTurn` / `chatCommit`; the draft is `chatDraftStore`. Jobs outlive the tab: opening a thread rehydrates them.
+ * CANCEL and CREATE SONG; polling both jobs and a reopen's rehydration live in `chatPoll`. Every turn and take change
+ * goes through `chatTurn` / `chatCommit`; the draft is `chatDraftStore`. Jobs outlive the tab: opening a thread rehydrates them.
  */
 import { create } from 'zustand';
-import { api, ApiError } from './api';
-import { chatApi, type ChatRecipeBody, type ChatStatus, type ChatThreadView } from './api/chat';
-import { assistantOffCause } from './chatEntry';
-import { useChatDraftStore } from './chatDraftStore';
 import {
-  INITIAL_TURN, canRetry, canSend, chatCommit, chatTurn, lastTurn, turnRunning,
+  chatApi, type ChatAttach, type ChatMessageView, type ChatRecipeBody, type ChatStatus, type ChatThreadView,
+} from './api/chat';
+import { MarkStaleError, type RangeMark } from './api/chatAnalysis';
+import { assistantOffCause } from './chatEntry';
+import { markHoldsSend, useChatMarkStore } from './chatMarkStore';
+import { useChatDraftStore } from './chatDraftStore';
+import { chatPoll } from './chatPoll';
+import { INITIAL_READING, chatReading, replyAfter, type ReadingEvent, type ReadingState } from './chatReading';
+import { chatEditActions } from './chatEditActions';
+import { chatReferenceActions } from './chatReferenceActions';
+import {
+  INITIAL_TURN, canRetry, canSend, chatCommit, chatTurn, lastTurn,
   type CommitEvent, type CommitState, type TurnEvent, type TurnState,
 } from './chatTurn';
-import { POLL_MS } from './transcribeStore';
-
-/** Failed polls in a row before a turn reads as interrupted (the server stopped answering). */
-const MAX_POLL_STRIKES = 5;
 
 interface ChatStore {
   status: ChatStatus | null;
@@ -26,106 +29,76 @@ interface ChatStore {
   error: string | null;
   /** NEW CHAT refused (409: a turn or take still runs): the server's reason; the thread stays. */
   refusal: string | null;
+  /** C3: the analyze and reading cards (`chatReading`); `lastAttach` = what the last SEND carried, for RETRY. */
+  reading: ReadingState;
+  lastAttach: ChatAttach | null;
+  /** C1: the mark the last SEND carried (RETRY resends it; a stale one is refused by the server, never remapped). */
+  lastMark: RangeMark | null;
   loadStatus: () => Promise<ChatStatus | null>;
   openDraft: () => Promise<void>;
   openSong: (songId: string) => Promise<void>;
   /** NEW CHAT: drops the draft thread and its messages (the consequence line said so). */
   newChat: () => Promise<void>;
   type: (text: string) => void;
-  send: () => Promise<void>;
+  /** `mark` (C1): the composer's mark, sent with the turn; a stale mark holds SEND (CS-11). */
+  send: (mark?: RangeMark | null) => Promise<void>;
   /** RETRY / SEND AGAIN after a failed, offline, cancelled or interrupted turn. */
   retry: () => Promise<void>;
   cancel: () => Promise<void>;
   create: (proposalId: string) => Promise<void>;
+  /** READ on an analyze card: the reading job, then the follow-up turn (D-129). */
+  read: (proposalId: string) => Promise<void>;
+  /** RE-ANALYZE from the song panel: null when it started, else the server's reason. */
+  reanalyze: (referenceId: string) => Promise<string | null>;
+  /** C0b: APPLY on an edit card and CANCEL of its job (`chatEditActions`). */
+  apply: (proposalId: string) => Promise<void>;
+  cancelApply: () => Promise<void>;
 }
 
 const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
-const sleep = () => new Promise((r) => setTimeout(r, POLL_MS));
 const newClientKey = () => globalThis.crypto?.randomUUID?.() ?? `ck-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
-const following = new Map<string, symbol>();
 
 export const useChatStore = create<ChatStore>((set, get) => {
   const turn = (e: TurnEvent) => set((s) => ({ turn: chatTurn(s.turn, e) }));
   const commit = (e: CommitEvent) => set((s) => ({ commit: chatCommit(s.commit, e) }));
+  const reading = (e: ReadingEvent) => set((s) => ({ reading: chatReading(s.reading, e) }));
   const assistantOn = () => assistantOffCause(get().status) === null;
+  const changedBy = (m: ChatMessageView | null | undefined) => (m?.kind === 'recipe' ? (m.body as ChatRecipeBody | null)?.changed : undefined);
 
   /** Show a thread; `changed` = the fields a reply that just landed filled (sky marks, CH-4). */
   function show(thread: ChatThreadView, changed?: ChatRecipeBody['changed']) {
     set({ thread, error: null, refusal: null });
+    reading({ type: 'thread', messages: thread.messages });
     useChatDraftStore.getState().hydrate(thread.id, thread, changed);
   }
 
-  /** Read the open thread again; `settling` = the turn ended: a reply's filled fields get their marks. */
-  async function refetch(settling = false): Promise<void> {
+  /** Read the open thread again; `settling` = the turn ended, `afterCard` = a reading card's job ended: the
+   * reply's filled fields get their marks. */
+  async function refetch(settling = false, afterCard?: string): Promise<void> {
     const id = get().thread?.id;
     const thread = id ? await chatApi.chatThread(id).catch(() => null) : null;
     if (!thread || get().thread?.id !== id) return;
     const t = settling ? lastTurn(thread.messages, get().turn.messageId) : null;
-    show(thread, t?.reply?.kind === 'recipe' ? (t.reply.body as ChatRecipeBody | null)?.changed : undefined);
+    show(thread, changedBy(afterCard ? replyAfter(thread.messages, afterCard) : t?.reply));
     if (t) turn({ type: 'settled', ...t });
   }
 
-  /** The turn's job ended (or vanished): the thread says how. */
-  async function settle(lost: boolean): Promise<void> {
-    await refetch(true);
-    if (lost && turnRunning(get().turn)) turn({ type: 'lost' });
-  }
-
-  /** Poll one job until `alive` says it is no longer followed; `onPoll` returns true once it has ended. */
-  async function follow(jobId: string, alive: () => boolean, onPoll: (job: Awaited<ReturnType<typeof api.jobStatus>>) => Promise<boolean>, onLost: () => Promise<void>) {
-    const token = Symbol(jobId); // a newer follow of the same job (a reopen) takes over; this loop then ends
-    following.set(jobId, token);
-    const mine = () => following.get(jobId) === token && alive();
-    let strikes = 0;
-    try {
-      while (mine()) {
-        await sleep();
-        if (!mine()) return;
-        try {
-          const job = await api.jobStatus(jobId);
-          strikes = 0;
-          if (await onPoll(job)) return;
-        } catch (err) {
-          if ((err instanceof ApiError && err.status === 404) || ++strikes >= MAX_POLL_STRIKES) return void (await onLost());
-        }
-      }
-    } finally {
-      if (following.get(jobId) === token) following.delete(jobId);
-    }
-  }
-
-  const followTurn = (jobId: string) => follow(jobId, () => turnRunning(get().turn) && get().turn.jobId === jobId, async (job) => {
-    turn({ type: 'poll', job });
-    if (job.status !== 'done' && job.status !== 'failed') return false;
-    await settle(false);
-    return true;
-  }, () => settle(true));
-
-  const followCommit = (jobId: string) => follow(jobId, () => get().commit?.jobId === jobId, async (job) => {
-    commit({ type: 'poll', job });
-    if (job.status !== 'done' && job.status !== 'failed') return false;
-    await refetch(); // the song card, and the draft thread is now the song's
-    return true;
-  }, async () => { commit({ type: 'poll', job: { status: 'failed', error: 'the server lost the take: look in the Library' } }); });
+  const { followTurn, followCommit, followCards, rehydrate } = chatPoll({
+    turnState: () => get().turn, commitState: () => get().commit, readingState: () => get().reading, turn, commit, reading, refetch,
+  });
+  const edits = chatEditActions({ thread: () => get().thread, commitState: () => get().commit, commit, refetch: () => refetch(), followCommit });
+  const refs = chatReferenceActions({
+    thread: () => get().thread, readingState: () => get().reading, reading, refetch: () => refetch(), followCards,
+  });
 
   /** A thread opened: the turn and the take it left running carry on (a reload mid-turn, F-049). */
   async function open(load: () => Promise<ChatThreadView>): Promise<void> {
     await useChatDraftStore.getState().flush();
-    set({ turn: INITIAL_TURN, commit: null });
+    set({ turn: INITIAL_TURN, commit: null, reading: INITIAL_READING, lastAttach: null, lastMark: null });
     try {
       const thread = await load();
       show(thread);
-      const t = lastTurn(thread.messages);
-      if (t) turn({ type: 'settled', ...t });
-      const { jobId } = get().turn;
-      if (t?.user.job && turnRunning(get().turn)) turn({ type: 'poll', job: t.user.job }); // its queue place / attempt now
-      if (jobId && turnRunning(get().turn)) void followTurn(jobId);
-      const card = thread.messages.find((m) => m.state === 'committing' && m.jobId && m.proposalId);
-      if (card) {
-        commit({ type: 'restore', proposalId: card.proposalId!, jobId: card.jobId! });
-        if (card.job && card.job.status !== 'done' && card.job.status !== 'failed') commit({ type: 'poll', job: card.job });
-        void followCommit(card.jobId!);
-      }
+      rehydrate(thread);
     } catch (err) {
       set({ thread: null, error: message(err) });
     }
@@ -138,17 +111,19 @@ export const useChatStore = create<ChatStore>((set, get) => {
     await draft.flush(); // the rev the server notes at SEND covers every hand edit (CH-6)
     draft.clearFilled();
     try {
-      const started = await chatApi.startChatTurn(thread.id, t.lastText, t.clientKey);
+      const started = await refs.startTurn(thread.id, t.lastText, t.clientKey, get().lastAttach, get().lastMark);
       turn({ type: 'accepted', ...started });
       await refetch();
       void followTurn(started.jobId);
     } catch (err) {
+      if (err instanceof MarkStaleError) useChatMarkStore.getState().refused(thread.id, err.shift); // nothing was written
       turn({ type: 'refused', error: message(err) });
     }
   }
 
   return {
-    status: null, thread: null, turn: INITIAL_TURN, commit: null, error: null, refusal: null,
+    status: null, thread: null, turn: INITIAL_TURN, commit: null, error: null, refusal: null, reading: INITIAL_READING,
+    lastAttach: null, lastMark: null,
 
     loadStatus: async () => {
       const status = await chatApi.chatStatus().catch(() => null);
@@ -163,13 +138,14 @@ export const useChatStore = create<ChatStore>((set, get) => {
     },
     type: (text) => turn({ type: 'type', text }),
 
-    send: async () => {
-      if (!canSend(get().turn, assistantOn())) return;
+    send: async (mark) => {
+      if (!canSend(get().turn, assistantOn()) || !refs.free() || markHoldsSend(get().thread?.id)) return;
+      set({ lastAttach: refs.attachToSend(), lastMark: mark ?? null });
       turn({ type: 'send', clientKey: newClientKey() });
       await post();
     },
     retry: async () => {
-      if (!canRetry(get().turn, assistantOn())) return;
+      if (!canRetry(get().turn, assistantOn()) || !refs.free() || markHoldsSend(get().thread?.id)) return;
       turn({ type: 'retry', clientKey: newClientKey() });
       await post();
     },
@@ -196,5 +172,10 @@ export const useChatStore = create<ChatStore>((set, get) => {
         commit({ type: 'refused', error: message(err) });
       }
     },
+
+    read: refs.read,
+    reanalyze: refs.reanalyze,
+    apply: edits.apply,
+    cancelApply: edits.cancelApply,
   };
 });

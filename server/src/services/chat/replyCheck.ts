@@ -43,7 +43,8 @@ function recipeOf(v: unknown): Recipe | string {
   if (bad.length) return `recipe fields missing or mistyped: ${bad.join(', ')}`;
   const { title, style, bpm, key, time_signature, language, engine, structure } = v as unknown as Recipe;
   const sections = (v.lyrics as LyricSection[]).map((s) => ({ tag: s.tag, lines: [...s.lines] }));
-  return { title, style, bpm, key, time_signature, language, engine, structure: [...structure], lyrics: sections };
+  const use = (['cover', 'borrow', 'none'] as const).find((u) => u === v.reference_use); // C3 (D-128): kept when valid
+  return { title, style, bpm, key, time_signature, language, engine, structure: [...structure], lyrics: sections, ...(use ? { reference_use: use } : {}) };
 }
 
 async function checkEdit(json: Obj, message: string, assumptions: string[], ctx: CheckContext, deps: CheckDeps): Promise<Checked> {
@@ -56,7 +57,7 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   const ops = checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
   if (!ops.ok) return fail(...ops.reasons);
   if (!deps.apply) return { ok: true, reply: reply(ops.ops), applied: null };
-  const applied = withLimits(await deps.apply(ops.ops), { ops: ops.ops, sections: ctx.facts.sections });
+  const applied = withLimits(await deps.apply(ops.ops), { ops: ops.ops, sections: ctx.facts.sections, blocks: ctx.facts.lyric_blocks });
   if (!applied.ok) return fail(...applyReasons(applied));
   const language = deps.language ? await lyricLanguageReasons(applied, deps.language) : [];
   return language.length ? fail(...language) : { ok: true, reply: reply(ops.ops), applied };

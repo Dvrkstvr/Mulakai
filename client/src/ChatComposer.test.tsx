@@ -26,6 +26,13 @@ describe('ChatComposer', () => {
     expect(out).toContain('WAITING FOR v1');
     expect(out).not.toMatch(/class="chat-send" disabled/);
   });
+  it('an APPLY running on a song: the wait names the version it saves (CB-5)', () => {
+    const out = renderToStaticMarkup(
+      <ChatComposer turn={{ ...INITIAL_TURN, text: 'x' }} assistantOn committing waitingLine="WAITING FOR v2 · a message sent now is read after v2 is saved" onType={vi.fn()} onSend={vi.fn()} />,
+    );
+    expect(out).toContain('WAITING FOR v2');
+    expect(out).not.toContain('WAITING FOR v1');
+  });
   it('assistant off: the field and SEND are off, the placeholder points at RETRY and the form', () => {
     const out = html({ text: 'x' }, false);
     expect(out).toContain('Assistant off · RETRY above, or use the form');

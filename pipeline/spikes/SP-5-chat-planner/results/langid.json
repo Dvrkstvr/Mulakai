@@ -1,0 +1,68 @@
+{
+ "4-line chunks": {
+  "n": 47,
+  "lingua": {
+   "de": [
+    14,
+    14
+   ],
+   "es": [
+    20,
+    20
+   ],
+   "en": [
+    13,
+    13
+   ]
+  },
+  "langdetect": {
+   "de": [
+    14,
+    14
+   ],
+   "es": [
+    20,
+    20
+   ],
+   "en": [
+    13,
+    13
+   ]
+  },
+  "bad_lingua": [],
+  "bad_langdetect": []
+ },
+ "whole songs": {
+  "n": 7,
+  "lingua": {
+   "de": [
+    3,
+    3
+   ],
+   "es": [
+    2,
+    2
+   ],
+   "en": [
+    2,
+    2
+   ]
+  },
+  "langdetect": {
+   "de": [
+    3,
+    3
+   ],
+   "es": [
+    2,
+    2
+   ],
+   "en": [
+    2,
+    2
+   ]
+  },
+  "bad_lingua": [],
+  "bad_langdetect": []
+ }
+}

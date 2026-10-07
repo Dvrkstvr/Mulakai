@@ -55,4 +55,82 @@ describe('message view (the states the client shows)', () => {
     expect(estSeconds(recipeFields(RECIPE))).toBe(Math.round((48 * 4 * 60) / 68));
     expect(estSeconds({})).toBeNull();
   });
+
+  it('an edit card (CB-2): pending, REPLACED by the next plan, expired when its plan is gone; committing and done follow its APPLY job', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'edit', { proposalId: 'e', ...over });
+    expect(states([card()], ctx({}, { e: 'live' }))).toEqual(['pending']);
+    expect(states([card()], ctx({}, { e: 'superseded' }))).toEqual(['superseded']);
+    expect(states([card()], ctx())).toEqual(['expired']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'running' } }, { e: 'live' }))).toEqual(['committing']);
+    expect(states([card({ jobId: 'r' }), msg('assistant', 'version', { jobId: 'r' })], ctx())).toEqual(['done', null]);
+  });
+
+  it('an edit card whose APPLY a restart cut (its job id kept, the job unknown, no version) is interrupted, not expired (F-049 #3)', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'edit', { proposalId: 'e', ...over });
+    expect(states([card({ jobId: 'r' })], ctx())).toEqual(['interrupted']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'failed', error: 'x' } }))).toEqual(['expired']);
+    expect(states([msg('assistant', 'recipe', { proposalId: 'e', jobId: 'r', body: recipeBody as never })], ctx())).toEqual(['expired']);
+  });
+
+  it('an edit card\'s APPLY (CB-3, F-049): the phase while committing, back to pending when it ended with no version, stale when refused', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'edit', { proposalId: 'e', jobId: 'r', ...over });
+    const phase = (job: JobView) => messageViews([card()], ctx({ r: job }, { e: 'live' }))[0].phase;
+    expect(phase({ status: 'queued', queuePosition: 2 })).toBe('queued');
+    expect(phase({ status: 'loading' })).toBe('queued');
+    expect(phase({ status: 'running', progressText: 'rendering' })).toBe('rendering');
+    expect(phase({ status: 'running', progressText: 'splicing' })).toBe('splicing');
+    expect(phase({ status: 'running', progressText: 'saving' })).toBe('saving');
+    expect(phase({ status: 'failed', error: 'YuE2 out of memory' })).toBeNull();
+    expect(states([card()], ctx({ r: { status: 'failed', error: 'Aborted' } }, { e: 'live' }))).toEqual(['pending']);
+    expect(messageViews([msg('assistant', 'recipe', { body: recipeBody as never })], ctx())[0].phase).toBeNull();
+    const stale = card({ jobId: null, body: { planId: 'p', stale: 'this song changed since the proposal' } as never });
+    expect(states([stale], ctx({}, { e: 'live' }))).toEqual(['stale']);
+    expect(states([stale], ctx({}, { e: 'superseded' }))).toEqual(['superseded']);
+  });
+
+  it('a version card offers A/B only while the version before it exists (F-048 edge)', () => {
+    const body = { seconds: 192, label: 'x', number: 2, truncated: false, whole: false, splice: null, fallback: null, previous: { versionId: 'v1', number: 1 } };
+    const v = msg('assistant', 'version', { body: body as never, versionId: 'v2' });
+    expect((messageViews([v], ctx())[0].body as typeof body).previous).toEqual({ versionId: 'v1', number: 1 });
+    expect((messageViews([v], { ...ctx(), versionExists: (id) => id !== 'v1' })[0].body as typeof body).previous).toBeNull();
+  });
+
+  it('an analyze card: pending, superseded, expired; committing while its READ job runs, then done (C3)', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'analyze', { proposalId: 'a', ...over });
+    expect(states([card()], ctx({}, { a: 'live' }))).toEqual(['pending']);
+    expect(states([card()], ctx({}, { a: 'superseded' }))).toEqual(['superseded']);
+    expect(states([card()], ctx())).toEqual(['expired']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'queued' } }, { a: 'live' }))).toEqual(['committing']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'running' } }))).toEqual(['committing']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'failed', error: 'x' } }, { a: 'live' }))).toEqual(['done']);
+    expect(states([card({ jobId: 'r' })], ctx())).toEqual(['done']);
+  });
+
+  it('an analyze card whose reading ended with nothing saved is readable again while its proposal lives (C3 review 3)', () => {
+    const card = msg('assistant', 'analyze', { proposalId: 'a', jobId: 'r' });
+    const reading = (saved: unknown, jobId = 'r') => msg('assistant', 'reading', { jobId, body: { referenceId: 'ref', name: 'x', followUp: true, reading: saved } as never });
+    expect(states([card, reading(null)], ctx({ r: { status: 'failed', error: 'the file is gone' } }, { a: 'live' }))).toEqual(['pending', 'failed']);
+    expect(states([card, reading(null)], ctx({ r: { status: 'failed', cancelled: true } }, { a: 'live' }))).toEqual(['pending', 'cancelled']);
+    expect(states([card, reading(null)], ctx({ r: { status: 'failed' } }))).toEqual(['expired', 'failed']);
+    expect(states([card, reading(null)], ctx({ r: { status: 'running' } }, { a: 'live' }))[0]).toBe('committing');
+    expect(states([card, reading({ reading_v: 1 })], ctx({ r: { status: 'failed', error: 'still loaded' } }, { a: 'live' }))[0]).toBe('done');
+    expect(states([card, reading({ reading_v: 1 }, 't')], ctx({ r: { status: 'done' }, t: { status: 'done' } }, { a: 'live' }))[0]).toBe('done');
+  });
+
+  it('a reading card: queued, reading, then the follow-up turn (queued / thinking), done; failed, cancelled, interrupted', () => {
+    const body = (reading: unknown) => ({ referenceId: 'ref', name: 'take.wav', followUp: true, reading }) as never;
+    const card = (reading: unknown, jobId = 'j') => msg('assistant', 'reading', { body: body(reading), jobId });
+    const read = { reading_v: 1 };
+    expect(states([card(null)], ctx({ j: { status: 'queued', queuePosition: 1 } }))).toEqual(['queued']);
+    expect(states([card(null)], ctx({ j: { status: 'loading' } }))).toEqual(['reading']);
+    expect(states([card(null)], ctx({ j: { status: 'running' } }))).toEqual(['reading']);
+    expect(states([card(null)], ctx({ j: { status: 'failed', error: 'the file is gone' } }))).toEqual(['failed']);
+    expect(states([card(null)], ctx({ j: { status: 'failed', error: 'cancelled', cancelled: true } }))).toEqual(['cancelled']);
+    expect(states([card(null)], ctx())).toEqual(['interrupted']);
+    expect(states([card(read, 't')], ctx({ t: { status: 'queued' } }))).toEqual(['queued']);
+    expect(states([card(read, 't')], ctx({ t: { status: 'running' } }))).toEqual(['thinking']);
+    expect(states([card(read, 't')], ctx({ t: { status: 'done' } }))).toEqual(['done']);
+    expect(states([card(read, 't')], ctx({ t: { status: 'failed', error: 'x' } }))).toEqual(['done']);
+    expect(states([card(read, 't')], ctx())).toEqual(['done']);
+  });
 });

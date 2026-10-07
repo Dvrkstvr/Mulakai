@@ -44,3 +44,6 @@ Spec: PLAN.md "Score Agent"; module table: `pipeline/architecture.md`.
 - Every number in an op means the song as read (bars, sections, blocks,
   old key), whatever the op order; yue-server orders the ops (D-066).
 - Pending plans live in `planStore` memory only (docs/decisions/0004).
+- The render's `cot` comes only from `renderMode` (chords present or a
+  REHARMONIZE → `full`, else `melody`); covers, instrumentals and chord-free
+  scores are eligible from C3 (D-132). Never hard-code `cot: 'full'` again.

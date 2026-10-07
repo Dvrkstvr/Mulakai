@@ -22,7 +22,8 @@ export interface TurnAttemptDeps {
 }
 
 export type TurnOutcome =
-  | { ok: true; reply: TurnReply; applied: ApplyResult | null; attempts: number; promptTokens: Array<number | null> }
+  /** `refusals`: each earlier refused attempt's reasons, so an edit card says what a retry moved (D-060). */
+  | { ok: true; reply: TurnReply; applied: ApplyResult | null; attempts: number; promptTokens: Array<number | null>; refusals: string[][] }
   | { ok: false; reasons: string[]; attempts: number; promptTokens: Array<number | null> };
 
 function parse(content: string): unknown {
@@ -37,14 +38,16 @@ export async function turnAttempts(messages: PromptMessage[], deps: TurnAttemptD
   let msgs = messages;
   let reasons: string[] = [];
   const promptTokens: Array<number | null> = [];
+  const refusals: string[][] = [];
   for (let n = 1; n <= maxAttempts; n++) {
     deps.onAttempt?.(n, reasons[0]);
     const answer = await deps.ask(msgs);
     promptTokens.push(answer.promptTokens);
     const json = parse(answer.content);
     const checked: Checked = json === undefined ? { ok: false, reasons: ['the reply is not valid JSON'] } : await deps.check(json);
-    if (checked.ok) return { ok: true, reply: checked.reply, applied: checked.applied, attempts: n, promptTokens };
+    if (checked.ok) return { ok: true, reply: checked.reply, applied: checked.applied, attempts: n, promptTokens, refusals };
     reasons = checked.reasons.slice(0, MAX_REASONS);
+    refusals.push(reasons);
     msgs = turnRetry(msgs, answer.content, reasons);
   }
   return { ok: false, reasons, attempts: maxAttempts, promptTokens };

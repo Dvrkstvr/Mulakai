@@ -162,6 +162,7 @@ Two Mulakai servers can share one yue-server and one GPU (seen live: the user st
 
 ## Q-038 · deferred · stage 8 (M0 code review) · open
 Four nits from pipeline/reviews/M0-code.md are left out of M0 (D-054): #4 a queued word-timings job refuses the render (exclude `timings` from pendingEdit in scoreRenderJob.ts:45); #5 an untagged LLM_MODEL (`qwen3`) never matches Ollama's `:latest` name (ollamaControl.ts:37, planJob.ts:72); #6 a double POST can queue two plan or render jobs, because the in-flight guard runs before an await (routes/scorePlan.ts:33, routes/scoreRender.ts:28); #7 restoreScoreMeta (scoreVersion.ts:113) is a second reader of the sidecar, against the rule that scoreSource is the only reader. Also from the fix: a GPU refusal when a queued render reaches its turn still fails the job with `cause: 'refused'`, which the dock shows as a stale plan (D-054 covered only the click-time 409); and deleting the active version restores meta but, unlike activate, not `songs.lyrics`. Decide in M1: a small fix PR, or reject each with a reason. Each is a few lines plus a test.
+- 2026-10-07 (stage 6, C1): #4 is fixed in C1's CL-1 by an allowlist of edit kinds (D-173); the others stay open.
 
 ## Q-039 · assumable · stage 7 (M1/W6) · assumed → D-058
 F-027 #1 lists REMASTER MIX among the verbs whose consequence line says score editing ends. remasterJobs.ts never writes a DB row and its line already says the result "isn't kept", so SCORE stays open after a remaster and the clause would be false. Default: no clause on REMASTER MIX. Alternative: add it if a kept remaster ever lands. Reversal cost: one prop.
@@ -203,7 +204,7 @@ D-086 pairs chat and form for creating. Does the same pairing hold for editing a
 ## Q-056..Q-061 · stage 5 (chat, design/chat-create.html) · assumed → D-087 unless the owner overrules
 Q-056 assumable: the start screen and the sidebar remember their last state; the first open is chat-first with the sidebar open. Q-057 assumable: a hand edit during a turn wins, the assistant skips that field and says so (alternative: lock fields while a turn runs). Q-058 assumable: assistant off or failing falls back to form-first at full width with the reason and RETRY; a failed turn changes nothing; an unset LLM_API_URL hides the toggle and the panel. Q-059 assumable: sky marks "the assistant just filled this" (reuses the scope hue; one DESIGN.md token if it reads as a target). Q-060 deferred: START FROM A SONG I HAVE / ONE TRACK in chat-first arrive with C3, with a FORM ▸ link until then. Q-061 deferred: does form-first's DESCRIBE IT text also go to the thread?
 
-## Q-062 · assumable · stage 5 (chat, D-089) · open
+## Q-062 · assumable · stage 5 (chat, D-089) · assumed → D-091; built as (a) D-171/D-180, (b) context and marking only, (c) bars (stage 6 C1)
 Always analyzing every version costs GPU time and has a side effect. (a) Analysis is a queued job (`analyze` kind) after each save, so it waits behind renders and never runs beside the planner or YuE2; until it finishes, the strip and marking show the previous analysis marked "updating". (b) A version ACE-Step made gets a *transcribed* score (yue-server transcriber), not YuE2's own: is such a song score-editable again (SCORE ops on the transcription, re-rendered by YuE2 as a cover, M3's `melody` path), or does the transcription only feed sections, context and marking? Default: context and marking only; score editing on transcriptions is M3/C3 scope. (c) The marked range snaps to bars (default) or to beats?
 
 ## Q-063..Q-070 · stage 5 (chat, design/chat-song.html) · assumed → D-091 unless the owner overrules
@@ -221,7 +222,7 @@ Q-073 a pending REWRITE LYRICS shows its diff twice: OLD | NEW on the proposal c
 ## Q-078 · assumable · stage 4 (chat C0) · assumed
 In C0 a request naming a section the song lacks ("the bridge" on a song without one) gets a `say` that lists the song's sections, not a proposal.
 
-## Q-079 · deferred · stage 5 (C3 design) · open
+## Q-079 · deferred · stage 5 (C3 design) · assumed → D-134 (stage 6, 2026-10-07; the owner may reword it on DT-C3)
 The reading card's wording on the rights of a reference song.
 
 ## Q-080 · assumable · stage 6 (chat C0, F-047) · assumed → D-109
@@ -229,3 +230,99 @@ When is a splice join "unresolved" so that the whole re-render is saved instead 
 
 ## Q-081 · assumable · stage 6 (chat C0a, D-104) · assumed → D-110
 C0a ships before the edit turn: what does a song thread answer to "give the chorus jazz chords" meanwhile? Default: a `say` pointing to SCORE in the Editor; a new-song description on a song thread gets a `say` suggesting NEW CHAT.
+
+## Q-082..Q-087 · stage 5 (DT-C0a, design/chat-turn.html) · answered → D-111 (owner signed off the defaults)
+Q-082 SEND is off while a turn is queued or thinking (alternative: queue a second turn). Q-083 an expired recipe card gets ASK AGAIN, which sends one visible message (changes scope.md's "no button" for expired cards). Q-084 with the assistant off, C0 has no CREATE SONG in the sidebar: RETRY and FORM ▸ (alternative: commit from the sidebar). Q-085 after CREATE SONG the sidebar becomes a read-only song panel (alternative: the draft stays editable). Q-086 the sidebar's ASSISTANT / YOURS / FILLING… field marks ship in C0 without UNDO TURN (D-098 had put the marks in C2; the sidebar needs them now). Q-087 deferred: a "jump to latest" chip when a reply lands while scrolled up.
+
+## Q-088 · assumable · stage 7 (C0a live, F-042) · open
+Vague describe prompts ("make me a song", "etwas Schönes", "something nice") got a full recipe in 3 of 3 live CP-C0a turns, not an `ask`. Tighten the prompt's ask rule, or accept it (a recipe is editable in the sidebar)? Default: accept for C0a, revisit with C1's prompt work.
+
+## Q-089 · assumable · stage 7 (C0a live) · open
+Minor live findings (c0a-live.md): (a) the saved song reads 70 BPM / Eb major against a 68 BPM / A major request, because bpm/key come from YuE2's own ABC; (b) "starts after 1 job" stays on the card while it already says RENDERING; (c) a cancelled earlier user message leaks into the next turn's reply. Default: fix (b) and (c) as one small fix PR before C0b, show (a) as YuE2's reading in C1.
+
+## Q-090 · blocking-later · stage 7 (C0a live) · open
+The owner saw a chat-made song still shown as running in the Library. Not reproduced by the verifier in 3 paths (c0a-live.md section 3); suspect paths: adopt() skips while a provisional jobId '' card is loading (generationStore.ts:100), pollJob keeps polling on non-404 errors. Need from the owner: which screen/row showed "running", whether a reload cleared it, and `curl http://127.0.0.1:3001/api/generate/active` at that moment.
+
+## Q-091 · assumable · stage 6 (chat C3, F-063/F-064) · assumed → D-128
+"Like this, but in German": a cover (the same melody, new words) or a new song in its style? Default: a cover when the reading is coverable, the assumption stated; "a song like this" / "with this vibe" is a new song. The person says "no, a new song" to switch.
+
+## Q-092 · assumable · stage 6 (chat C3) · assumed → D-129
+After a reading, does the assistant propose on its own (a follow-up turn queued by the server) or wait for the next message? Default: on its own.
+
+## Q-093 · assumable · stage 6 (chat C3) · assumed → D-130
+May a reference be attached to an existing song's thread in C3? Default: no, the draft thread only; a song made from a reference keeps it (RE-ANALYZE, A/B).
+
+## Q-094 · assumable · stage 6 (chat C3, R-028) · assumed → D-135
+The caption step needs ACE-Step running and may leave its models on the GPU before the next turn. Default: run it when ACE-Step answers, measure the planner's residency in CP-C3; drop the step if it slows turns.
+
+## Q-095 · deferred · stage 6 (chat C3, CP-C3 / CR-9)
+Will the owner give 3 recordings he has the rights to (one sung pop song, one instrumental, one not in English) for CP-C3 and the live run? Until then CP-C3 uploads ACE-Step library songs' audio as stand-ins, which are cleaner than real recordings, so the transcription numbers flatter real use.
+
+## Q-096 · deferred · stage 6 (chat C3)
+A reading whose score is longer than YuE2 plans in one take offers no cover (the reason, and a new-song option). Guided Create's COVER lets the person pick sections instead (PLAN.md "YuE2 Covers: Pick the Score's Sections"); the chat's equivalent is Later unless CP-C3 shows most real songs hit it.
+
+## Q-097 · assumable · stage 5 (DT-C3, design/chat-reference.html RF-5)
+How are fields borrowed from a reference marked? Default (option B): the sky "just filled" wash, then a neutral text-mid REFERENCE hairline tag until the person edits the field. Alternatives: sky only (A, the origin is forgotten), lilac (C, rejected: lilac means what the AI made before).
+
+## Q-098 · assumable · stage 5 (DT-C3, chat-reference.html 1c)
+Several references in one draft? Default: one chip at a time; a second attach replaces the unsent chip.
+
+## Q-099 · assumable · stage 5 (DT-C3, chat-reference.html 2a)
+READ's "uses the GPU about N s" needs calibrated constants (`readingEstimate`, CP-C3). Default: until calibrated the card says "a few minutes" and never an invented number; every number in the mockup is an example.
+
+## Q-100 · deferred · stage 5 (DT-C3, chat-reference.html 4a)
+REFERENCE ⇄ SONG plays at the same seconds: exact for a cover, loose for a borrowed song (different structure and timing). Default: the pill shows on both and says "same seconds"; a per-section jump is Later (Q-070).
+
+## Q-101 · assumable · stage 7 (C3 CR-6) · closed (CR-7b: messageView.wireBody already camel-cases the recipe; a test pins 4/4 on the card)
+The server's recipe body is the model's snake_case form (`time_signature`) while the client's ChatRecipe type says camelCase `timeSignature` (pre-C3). If the recipe card reads the meter from the recipe, it shows nothing. Default: check in CR-7b / the C3 live run and fix in the client mapping.
+
+## Q-102 · deferred · stage 7 (C3 CR-7b) · open
+A reference whose file is gone (deleted from disk) has no "FILE MISSING" state: ReferenceView carries no missing flag. Default: add a server-side `missing` flag (stat at thread load) with the reading card's rust line, after C3's live run.
+
+## Q-103 · assumable · stage 5 (DT-C0b, chat-edit.html 1a)
+The edit card's consequence line needs a time for render + grids + splice (44-92 s render, ~17 s per grid, 4 min budget). Default: "a few minutes" until CP-C0 calibrates; every number in the mockup is an example.
+
+## Q-104 · assumable · stage 5 (DT-C0b, chat-edit.html 3c, 3d)
+A splice that cannot be aligned (D-109), has no usable grid, or meets a truncated render saves the whole re-render as v2 without asking first. Default: saved with a rust-bordered label on the version card (a result, not an error); v1 is one click away. Reversal: ask before saving.
+
+## Q-105 · deferred · stage 5 (DT-C0b, chat-edit.html 1c, 3e)
+After an audio-only CUT or REPEAT "same seconds" in BACK TO v1 is wrong after the cut (Q-070). Default: the card says "bars after the cut are earlier"; A/B by bar is Later.
+
+## Q-106 · assumable · stage 5 (DT-C0b, chat-edit.html 3g, 4c)
+USE v1 after v2 exists. Default: v1 becomes active, v2 stays in the Editor's rail, a thread line says so; the next edit plans against v1, so an edit card made on v2 goes stale (STALE, ASK AGAIN).
+
+## Q-107 · assumable · stage 7 (C3 CP-C3) · open
+A library song named in words on a draft thread ("make a cover of Cariñito") with nothing attached gets a recipe, not a READ card (1 of 10 CP-C3 legs). Should naming a library title force `analyze` like an attachment? Default: no for C3 (ATTACH ▾ FROM LIBRARY… is the path; the model may still choose analyze), revisit with C1's prompt work.
+
+## Q-108 · deferred · stage 7 (C0b CB-4) · open
+House in der Halle: the REHARMONIZE plan fails the root check 3 times ("keeps the old root in 4 of 12 bars") and its CUT finds no groove at the joins (`not_aligned`). Both fall back correctly (no card / whole render, labelled). Look at its score and grid before C0b review closes: a planner prompt gap for dense house chords, or a grid-fit limit on four-on-the-floor without onsets between kicks?
+
+## Q-109 · assumable · stage 6 (chat C1) · assumed → D-172
+Analyze every song's new versions, or only songs with a chat thread? Default: only songs with a thread (made in the chat or opened with OPEN CHAT), so Editor-only work spends no GPU on readings nobody is shown. Alternative: every song (D-089's "every new version" read literally). Reversal: drop one condition in `shouldAnalyze`.
+
+## Q-110 · assumable · stage 6 (chat C1)
+A song with added layers plays a mix in the Editor, but the chat plays the base layer's active take (D-120). Default: the strip, the reading and the mark are the base take's; an add-layer save that leaves the base take unchanged starts no analysis. Alternative: analyze a bounced mix (needs a mixdown job). Revisit if the chat ever plays the mix.
+
+## Q-111 · assumable · stage 6 (chat C1) · assumed → D-175
+A message with a mark waits behind an APPLY whose new version moves the marked bars. Default: the turn fails before the planner loads ("your mark was on v3; v4 moved those bars · nothing changed · mark again"). Alternative: plan on the whole song and say so (risks an edit the person did not mean).
+
+## Q-112 · deferred · stage 6 (chat C1)
+Editor-first's selection as the mark (CS-10: unsnapped seconds, a partial flag) lands with C6, not C1; C1's `range` referent already carries seconds, so C6 adds a reader, not a rewrite.
+
+## Q-113 · assumable · stage 6 (chat C1) · assumed → D-182
+The Editor's auto word-timings read (`timings` job) and the analysis's WORDS step can both queue for one version. Default: WORDS skips a version whose `word_timings` is set and checks `timingsJobs`' pending map first; a double read at worst costs one lyrics-server pass. Alternative: route the Editor's auto-read through the analysis.
+
+## Q-114 · assumable · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
+Reading line on its own 16 px row under the waveform (B) or right-aligned in the player's top row (A). Default: B (room for a failure reason + RETRY; costs 19 px, thread about 431 px at 1366x768 in the worst case). Alternative: A. Owner may pick at sign-off.
+
+## Q-115 · deferred · stage 5 (DT-C1)
+The lyric-line lane under the waveform (chat-song CS-4d: click a lyric line to mark it) is in neither F-053 nor F-054 and is not drawn; it lands with C2's lyrics panel (21 px more player).
+
+## Q-116 · assumable · stage 5 (DT-C1) · assumed → D-185
+A click under 0.2 s on empty waveform both seeks and clears the mark; a drag marks; Esc and the chip's x clear. Alternative: seek only from the ruler.
+
+## Q-117 · assumable · stage 5 (DT-C1) · assumed → D-185
+A seconds-only mark snaps to bars when the reading lands: the chip turns solid and the reading line says so for 6 s. Alternative: it stays seconds-only until dragged again.
+
+## Q-118 · assumable · stage 5 (DT-C1) · assumed → D-185
+An Alt-freed edge reads in seconds plus the bars it touches ("BARS 25-35, 35 PART"); the server fits it. Alternative: no Alt in C1 (snap always).

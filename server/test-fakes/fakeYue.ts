@@ -9,6 +9,12 @@ import fs from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadSplice, spliceRoute, type SpliceName, type SpliceScript } from './fakeYueSplice.js';
+import {
+  loadGrid, loadTranscription, transcriptionRoute, type GridFixture, type GridName, type TranscriptionFixture, type TranscriptionName,
+} from './fakeYueTranscribe.js';
+
+export type { TranscriptionFixture };
 
 export const CONTRACT_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../yue-server/tests/data/contract');
 
@@ -39,11 +45,25 @@ export interface JobScript {
   score?: string | null;
 }
 
+/** A recorded transcription (CR-0's pytest): fakeYueTranscribe.ts replays it. */
+export const transcriptionContract = (name: TranscriptionName) => loadTranscription(CONTRACT_DIR, name);
+/** A recorded `/grid` reply of that transcription (CL-2's pytest). */
+export const gridContract = (name: GridName) => loadGrid(CONTRACT_DIR, name);
+
+/** A recorded splice (CB-1's pytest): the submit's spec, its reply, the record once settled. */
+export const spliceContract = (name: SpliceName) => loadSplice(CONTRACT_DIR, name);
+
 export interface FakeYue {
   url: string;
   requests: Array<{ method?: string; path: string; body: unknown }>;
   /** How the next render job plays out. */
   job: JobScript;
+  /** How a transcription plays out: one of CR-0's recorded fixtures (default: done with chords). */
+  transcription: TranscriptionFixture;
+  /** What its `/grid` answers (default: CL-2's ok grid). */
+  transcriptionGrid: GridFixture;
+  /** How a splice plays out: one of CB-1's recorded fixtures (default: ok) and what was sent. */
+  splice: SpliceScript;
   /** Bodies of every POST /v1/jobs, in order. */
   submits: () => unknown[];
   close: () => Promise<void>;
@@ -93,8 +113,13 @@ function same(a: unknown, b: unknown): boolean {
 
 export async function startFakeYue(fixtures: ContractFixture[] = allContracts()): Promise<FakeYue> {
   const polls = new Map<string, number>();
+  const cancelled = new Set<string>();
+  const keys = new Map<string, string>(); // Idempotency-Key -> the route it was first used on
   const fake: FakeYue = {
     url: '', requests: [], job: { states: [{ status: 'succeeded', stage: 'done' }] },
+    transcription: transcriptionContract('transcription-chords-done'),
+    transcriptionGrid: gridContract('transcription-grid-ok'),
+    splice: { fixture: spliceContract('splice-ok'), specs: [], cancelled: new Set() },
     submits: () => fake.requests.filter((r) => r.method === 'POST' && r.path === '/v1/jobs').map((r) => r.body),
     close: () => new Promise((resolve) => { server.closeAllConnections(); server.close(() => resolve()); }),
   };
@@ -102,10 +127,21 @@ export async function startFakeYue(fixtures: ContractFixture[] = allContracts())
     let raw = '';
     req.on('data', (c) => { raw += c; });
     req.on('end', () => {
-      const body = raw ? JSON.parse(raw) as unknown : null;
+      const json = /json/.test(req.headers['content-type'] ?? '') || /^\s*[{[]/.test(raw);
+      const body = raw && json ? JSON.parse(raw) as unknown : null;
       const route = (req.url ?? '').split('?')[0];
       fake.requests.push({ method: req.method, path: route, body });
+      // yue-server's JobStore keeps one Idempotency-Key map for songs, transcriptions and splices: a key reused
+      // on another kind is different input, 409 (jobs.py submit).
+      const key = req.headers['idempotency-key'];
+      if (req.method === 'POST' && typeof key === 'string' && /^\/v1\/(jobs|transcriptions|splices)$/.test(route)) {
+        const seen = keys.get(key);
+        if (seen && seen !== route) return send(res, 409, { detail: 'Idempotency-Key was already used with different input' });
+        keys.set(key, route);
+      }
       if (jobRoute(fake, polls, req, res, route)) return;
+      if (transcriptionRoute({ fixture: fake.transcription, grid: fake.transcriptionGrid, cancelled }, fake.requests, req, res, route, raw, send, same)) return;
+      if (spliceRoute(fake.splice, req, res, route, raw, send, same)) return;
       const hit = fixtures.find((f) => f.request.path === route && f.request.method === req.method && same(f.request.body, body));
       const reply = hit?.response ?? { status: 500, body: { detail: `fakeYue: no recorded reply for ${req.method} ${route}` } };
       send(res, reply.status, reply.body);

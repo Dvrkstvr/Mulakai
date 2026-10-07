@@ -71,7 +71,9 @@ uv pip install -r /mnt/e/repos/Mulakai/yue-server/requirements.txt
 ```
 
 `requirements.txt` installs `yue2-infer` from upstream at the pinned commit
-(0.1.6), plus FastAPI and uvicorn. YuE code is never copied into this repo.
+(0.1.6), plus FastAPI, uvicorn and scipy (the chat's splice). YuE code is
+never copied into this repo. An existing venv gets scipy with
+`~/yue2/.venv/bin/pip install scipy==1.18.0`.
 
 ## 3. `yue2 doctor` and the weights
 
@@ -223,17 +225,33 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   replay as `/v1/jobs`. A record has `kind: "transcription"`, where a
   song's has `kind: "song"`, and has no `seed`, `tokens` or `request_id`.
   Each route family 404s the other kind's ids.
-  - `POST /v1/transcriptions` takes a multipart `audio` field. It returns
-    **202** with the record and `Location`. 400 for empty audio, 413 over
-    `YUE_MAX_UPLOAD_MB`, 503 when transcription isn't available.
+  - `POST /v1/transcriptions` takes a multipart `audio` field and an
+    optional `chords` form field (`true`/`false`, default `false`; anything
+    else is 422). It returns **202** with the record and `Location`. 400 for
+    empty audio, 413 over `YUE_MAX_UPLOAD_MB`, 503 when transcription isn't
+    available. A replayed `Idempotency-Key` with another `chords` is 409.
+    - Default (Guided Create's COVER): `infer.py --melody-only
+      --render-audio`, a melody-only score with a piano preview.
+    - `chords: true` (a chat reading, D-131): neither flag, so SheetSage2
+      writes its chord labels as chord symbols in the `Vocal` voice and
+      renders no preview (`preview_url` null, no warning). A song where
+      SheetSage2 hears no chord gets none.
   - `GET /v1/transcriptions/{id}`: the record. `stage` is `transcribing`,
     and `progress` is the fraction of SheetSage2's windows.
   - `POST /v1/transcriptions/{id}/cancel` kills the SheetSage2 process.
-  - `GET /v1/transcriptions/{id}/score`: the melody-only score, in both
-    voices with no chords, as `text/plain`.
+  - `GET /v1/transcriptions/{id}/score`: the score in both voices, as
+    `text/plain`; chord symbols only when `chords` was true.
   - `GET /v1/transcriptions/{id}/preview`: SheetSage2's piano rendering of
-    it, as `audio/wav`. 404 when the render failed.
-  - `result` on success has `score_url`, `preview_url` (or null),
+    it, as `audio/wav`. 404 when the render failed or `chords` was true.
+  - `GET /v1/transcriptions/{id}/grid` (chat C1, D-174): a `chords: true`
+    run's downbeat grid from SheetSage2's `downbeat.lab` / `chord.lab`, in
+    the server's `grid_v: 1` sidecar shape `{grid_v, source: "tracked",
+    downbeats, chords: [[t0, t1, label]], duration}`, so one run gives a
+    version both its transcribed score and its bar grid. 409 until the job
+    has succeeded; 404 `detail.code: "no_grid"` for a melody-only run or
+    labs that do not make a valid grid.
+  - `result` on success has `score_url`, `chords` (as requested),
+    `preview_url` (or null),
     `warnings` (SheetSage2's own, plus a render failure), `measures`,
     `vocal_notes`, `instrumental_notes`, `duration_seconds`,
     `section_starts` and `timing`.
@@ -251,6 +269,53 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
 - `GET /v1/transcriptions/health` needs no auth. It returns 200
   `{"status": "ready"}`, else 503 with `status` `not_configured`,
   `missing_files` (with `detail`), or the worker's `loading` / `failed`.
+- **Splices** (chat C0b, D-107, docs/decisions/0005): keep the old take
+  outside an edit instead of keeping a whole re-render. SP-4's A3 method
+  (`pipeline/spikes/SP-4-keep-unchanged/RESULT.md`), with the owner's
+  listen applied (D-147, D-150, D-154). Same auth, queue, retention, upload
+  sweep and `Idempotency-Key` replay as transcriptions; `kind: "splice"`.
+  It runs on the worker thread, so never beside a YuE2 render. Needs
+  `scipy` in the venv (`requirements.txt`).
+  - `POST /v1/splices`, multipart: `audio` = the current version's audio
+    (WAV read directly, anything else through ffmpeg; 48 kHz float32
+    stereo inside), `spec` = JSON:
+    `{op, base_abc, render_job?, edited_abc?, base_grid?}`.
+    - `op` is the plan's one op. `REHARMONIZE` (`from_bar`, `to_bar`,
+      1-based) needs `render_job`, the id of this server's song job that
+      rendered the edited score; its audio never leaves the server.
+      `REPEAT` / `CUT` (`section`, `label`, as `/v1/scores/read` lists them)
+      use the base audio alone, no render. Any other op is a 422 (the
+      server renders the whole song for it).
+    - `edited_abc` defaults to the render job's score; `base_grid` is the
+      server's cached `grid_v: 1` grid, so SheetSage2 runs on the base only
+      when it is missing.
+    - 422 for a bad spec, an op outside the score or a section label that
+      does not match; 409 when `render_job` is not rendered yet.
+  - `GET /v1/splices/{id}`: `stage` is `decoding`, `tracking_base`,
+    `tracking_render` (SheetSage2 downbeats; `progress` its windows),
+    `splicing`, `checking`. `POST /v1/splices/{id}/cancel` stops it at the
+    next step and deletes its files.
+  - `result.verdict` is `ok` or `rerender`, with `reason` and `detail`:
+    `meter` (not 4/4 throughout), `no_grid`, `render_truncated` (the new
+    take ends inside the span), `not_aligned` (no groove to snap a join to,
+    D-109), `level_step` (a REPEAT whose copy seam steps more than 4 dB).
+    On `rerender` the server keeps its whole re-render (REHARMONIZE, D-101)
+    or renders the edited score (REPEAT, CUT).
+  - An `ok` result has `audio_url` (`GET .../audio`, a float32 WAV),
+    `bars` (1-based, inclusive), `joins_s`, `crossfade_s`, `snap` (per
+    join: `delta_ms`, `applied`, `corr`), `gain_db` (REHARMONIZE: `in`,
+    `out` and one value per bar, the level match held over the whole span),
+    `level_step_db` (REPEAT), `gap_shift_s` (CUT: the join moved into a gap
+    in the voice band), `seams` (LUFS step and its excess over the base's
+    own step), `null_test` (`samples`, `different`: always 0, else the job
+    fails `null_test_failed`), `length_diff_s`, `parts`, `base_points_s`,
+    `edges`.
+  - `grid_urls`: `GET .../grid/base`, `.../grid/render`, `.../grid/out`
+    (the spliced version's grid, its pieces' downbeats moved into place).
+  - `error` codes: `render_unavailable`, `audio_unreadable`,
+    `null_test_failed`, `splice_failed`.
+  - `python splice_check.py <base> <saved> <result.json>` re-checks a saved
+    library file (CP-C0): null test and the LUFS excess at each join.
 - `POST /v1/scores/measure` — body `{abc}` → `{budget, header, sections:
   [{name, tokens}]}`: a cover score's size in the planner's tokens, against
   the 4096-token budget a supplied score must fit. The score is prepared as
@@ -258,6 +323,16 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   everything before the first `% name` line, and each section is its block.
   The counts add up to the whole score's, so a client can sum any cut of
   whole sections. 503 until the worker is ready.
+- `POST /v1/scores/bars` (chat C1, D-174) — body `{abc, grid}` (a
+  `grid_v: 1` grid: a transcription's `/grid`, a splice's `grid_urls`, or the
+  server's cached sidecar) → `{offset, starts, end, agreement, bars}`: score
+  bar `i` (0-based) starts at `starts[i]` s, `end` is the song's end, `bars`
+  the score's bar count. It is the splice's own fit (`splice_grid.fit`: the
+  integer `offset` -4..4 whose chord roots best agree over every bar, a take
+  tracked at half bars thinned first), so the chat's strip and a splice
+  cannot disagree. `agreement` is that fit's root agreement, null when the
+  score has no chords. CPU only. 422 `detail.code` `bad_grid` or
+  `bad_score` (not a native two-voice score, or no bars).
 - `POST /v1/scores/apply` takes the op `WRITE_PHRASE` (F-026) as well as
   `SET_TEMPO`, `REHARMONIZE` and `EDIT_STYLE`:
   `{op: "WRITE_PHRASE", start_bar >= 1, instrument (1-40 chars), bars: [[{pitch,
