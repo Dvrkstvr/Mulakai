@@ -34,6 +34,8 @@ export function jobView(jobId: string): JobView | undefined {
   const { status, error, progressText, cancelled } = job;
   return { status, error, progressText, cancelled, ...(status === 'queued' ? { queuePosition: queuePosition(jobId) } : {}) };
 }
+/** A version card's A/B needs the version before it (F-048 edge: deleted in the Editor → no A/B). */
+const versionExists = (versionId: string): boolean => Boolean(db.prepare(`SELECT 1 FROM versions WHERE id = ?`).get(versionId));
 const isLive = (jobId: string | null) => ['queued', 'loading', 'running'].includes(jobId ? getJob(jobId)?.status ?? '' : '');
 
 /** A turn or a take of this thread is queued or running. */
@@ -50,7 +52,7 @@ export function threadView(thread: ChatThread, yueConfigured: boolean) {
   return {
     id: thread.id, songId: thread.songId, draft: wireDraft(thread.draft), draftNote: thread.draftNote,
     blockers: draftBlockers(thread, yueConfigured),
-    messages: messageViews(listMessages(thread.id), { job: jobView, proposal: proposalLife }),
+    messages: messageViews(listMessages(thread.id), { job: jobView, proposal: proposalLife, versionExists }),
     references: listReferences(thread.id).map(toView),
   };
 }
