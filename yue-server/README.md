@@ -326,13 +326,19 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
 - `POST /v1/scores/bars` (chat C1, D-174) — body `{abc, grid}` (a
   `grid_v: 1` grid: a transcription's `/grid`, a splice's `grid_urls`, or the
   server's cached sidecar) → `{offset, starts, end, agreement, bars}`: score
-  bar `i` (0-based) starts at `starts[i]` s, `end` is the song's end, `bars`
-  the score's bar count. It is the splice's own fit (`splice_grid.fit`: the
-  integer `offset` -4..4 whose chord roots best agree over every bar, a take
-  tracked at half bars thinned first), so the chat's strip and a splice
-  cannot disagree. `agreement` is that fit's root agreement, null when the
-  score has no chords. CPU only. 422 `detail.code` `bad_grid` or
-  `bad_score` (not a native two-voice score, or no bars).
+  bar `i` (0-based) starts at `starts[i]` s, `end` closes the last timed bar
+  (the song's end when the score reaches it), `bars` the score's bar count.
+  It is the splice's own fit (`splice_grid.fit`: the integer `offset` -4..4
+  whose chord roots best agree over every bar, a take tracked at half bars
+  thinned first), so the chat's strip and a splice cannot disagree.
+  `starts` strictly increase (Q-120, `score_bar_times`): a bar the fit puts
+  before the first downbeat starts a median bar back per bar, clamped at 0
+  (bars that still meet at 0 share the audio's first seconds evenly); bars
+  past the last downbeat are not in the audio and are left out, so `starts`
+  can be shorter than `bars`. `agreement` is that fit's root agreement, null
+  when the score has no chords. CPU only. 422 `detail.code` `bad_grid` (also
+  when no bar falls inside the audio) or `bad_score` (not a native
+  two-voice score, or no bars).
 - `POST /v1/scores/apply` takes the op `WRITE_PHRASE` (F-026) as well as
   `SET_TEMPO`, `REHARMONIZE` and `EDIT_STYLE`:
   `{op: "WRITE_PHRASE", start_bar >= 1, instrument (1-40 chars), bars: [[{pitch,
