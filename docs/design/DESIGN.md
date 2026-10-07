@@ -60,6 +60,15 @@ background), not lilac, because focus is scope/targeting, not a version/
 history marker. Create's ENGINE choice is sky for the same reason: picking
 an engine targets where the request goes, while GENERATE (acid) commits it.
 
+The Library's **playing** row is sky too — the playhead's job, "where is
+playback right now", applied to "which song". It stays quiet at rest (3px
+sky left edge, sky outline at 35%) so a selected row still reads first, and
+turns loud on hover (full sky outline, `sky-tint` wash, sky title, a soft
+sky glow) so the pause is easy to find. Its play button becomes a filled sky
+square with two drawn pause bars in `on-sky` — not acid, because pausing
+stops something rather than starting it. `selected` and `playing` are
+independent classes; a row can carry both.
+
 ### Lilac — "what did the AI make before?" (versions / history / AI markers)
 
 | Token         | Hex       | Use |

@@ -4272,6 +4272,53 @@ button.acid-outline:not(:disabled):hover {
   border-color: var(--rust);
 }
 
+/* The row the footer is playing: sky (the playhead's hue, DESIGN.md) — quiet at
+   rest (left edge + faint outline), loud on hover so the pause is easy to find.
+   The pause button stays a filled sky square in both states. */
+.library .row.playing:not(.selected) {
+  border-color: rgba(48, 188, 237, 0.35);
+}
+
+.library .row.playing:not(.generating) {
+  box-shadow: inset 3px 0 0 var(--sky);
+}
+
+.library .row.playing:not(.generating):hover {
+  border-color: var(--sky);
+  background: var(--sky-tint);
+  box-shadow: inset 5px 0 0 var(--sky), 0 0 18px -4px rgba(48, 188, 237, 0.6);
+}
+
+.library .row.playing:hover .song-title {
+  color: var(--sky);
+}
+
+.library .row.playing:hover .meta {
+  color: var(--text-hi);
+}
+
+.library .row.playing>button:first-child,
+.library .row.playing>button:first-child:hover {
+  display: grid;
+  place-items: center;
+  background: var(--sky);
+  border-color: var(--sky);
+  color: var(--on-sky);
+}
+
+.library .row.playing:hover>button:first-child {
+  box-shadow: 0 0 12px -2px rgba(48, 188, 237, 0.8);
+}
+
+/* Two drawn bars: the ⏸ character renders as a colour emoji and ignores `color`. */
+.pause-glyph {
+  width: 12px;
+  height: 14px;
+  background:
+    linear-gradient(var(--on-sky), var(--on-sky)) left / 4px 100% no-repeat,
+    linear-gradient(var(--on-sky), var(--on-sky)) right / 4px 100% no-repeat;
+}
+
 /* An unfilled favourite heart hints acid on hover (filled = already acid). */
 .fav:not(.on):hover {
   color: var(--acid);
