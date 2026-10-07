@@ -41,4 +41,9 @@ describe('chat rules (the system prompt = a snapshot of SP-5 v3.1 rules_for())',
     expect(REFERENCE_RULE).toContain('reference_use');
     expect(chatRules(['say'], { reference: true })).not.toContain(REFERENCE_RULE);
   });
+
+  it('CP-C3 fix: an unsure request is a borrow, never a cover by default', () => {
+    expect(REFERENCE_RULE).not.toContain('COVER: possible: cover');
+    expect(REFERENCE_RULE).toContain('Unsure: borrow, and say so in assumptions.');
+  });
 });

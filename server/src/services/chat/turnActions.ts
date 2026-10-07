@@ -25,11 +25,15 @@ export interface TurnState {
 }
 
 const FOLLOW_UP: TurnAction[] = ['ask', 'recipe', 'say'];
+/** CP-C3: a file attached on the draft thread and not read yet is read first (or asked about), at every rung. */
+const ATTACHED: TurnAction[] = ['ask', 'analyze', 'say'];
 
-/** Rung 0/1 (default): the whole set, as SP-5 measured it. Rung 2: nothing to edit or repaint
+/** A follow-up, or an unread attachment on the draft thread, narrows the set at every rung. Otherwise
+ * rung 0/1 (default): the whole set, as SP-5 measured it. Rung 2: nothing to edit or repaint
  * without a song, no edit without a readable score. */
 export function allowedActions(s: TurnState, rung = 0): TurnAction[] {
   if (s.followUp) return [...FOLLOW_UP];
+  if (s.attached && !s.hasSong && !s.referenceRead) return [...ATTACHED];
   if (rung < 2) return [...ACTIONS];
   if (!s.hasSong) return ['ask', 'recipe', 'analyze', 'say'];
   return s.scoreReadable ? [...ACTIONS] : ['ask', 'recipe', 'scalpel', 'analyze', 'say'];
