@@ -2,7 +2,8 @@
 a score for a YuE2 cover (PLAN.md, "YuE2 Melody Covers via SheetSage2" and
 "yue-server transcription decisions"). Same auth, queue, retention and
 Idempotency-Key replay as /v1/jobs; a `yue2-serve` backend has none of this,
-which the unauthenticated health route makes visible.
+which the unauthenticated health route makes visible. A chords run also
+answers its downbeat grid (chat C1, D-174), the splice's sidecar shape.
 """
 from __future__ import annotations
 
@@ -16,6 +17,7 @@ from fastapi import Depends, FastAPI, Form, Header, HTTPException, UploadFile
 from fastapi.responses import FileResponse, JSONResponse
 
 from jobs import IdempotencyConflict, QueueFull
+from splice_grid import read_grid
 
 SUFFIX = re.compile(r"^\.[a-z0-9]{1,8}$")
 CHUNK = 1024 * 1024
@@ -97,6 +99,18 @@ def add_transcription_routes(app: FastAPI, settings, store, worker, authorize) -
     @app.get("/v1/transcriptions/{job_id}/preview", dependencies=[Depends(authorize)])
     def preview(job_id: str):
         return artifact(job_id, "piano_mix.wav", "audio/wav")
+
+    @app.get("/v1/transcriptions/{job_id}/grid", dependencies=[Depends(authorize)])
+    def grid(job_id: str):
+        job = get_job(job_id)
+        if job["status"] != "succeeded":
+            raise HTTPException(409, "Artifact is not available for this job state")
+        if not (job.get("result") or {}).get("chords"):
+            raise HTTPException(404, {"code": "no_grid", "message": "a melody-only transcription keeps no chords"})
+        try:
+            return read_grid(store.artifact_dir(job_id))
+        except (OSError, ValueError, KeyError, IndexError) as error:  # GridError is a ValueError
+            raise HTTPException(404, {"code": "no_grid", "message": f"no usable downbeat grid: {error}"}) from None
 
 
 async def _read_limited(audio: UploadFile, limit: int) -> bytes:

@@ -243,6 +243,13 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
     `text/plain`; chord symbols only when `chords` was true.
   - `GET /v1/transcriptions/{id}/preview`: SheetSage2's piano rendering of
     it, as `audio/wav`. 404 when the render failed or `chords` was true.
+  - `GET /v1/transcriptions/{id}/grid` (chat C1, D-174): a `chords: true`
+    run's downbeat grid from SheetSage2's `downbeat.lab` / `chord.lab`, in
+    the server's `grid_v: 1` sidecar shape `{grid_v, source: "tracked",
+    downbeats, chords: [[t0, t1, label]], duration}`, so one run gives a
+    version both its transcribed score and its bar grid. 409 until the job
+    has succeeded; 404 `detail.code: "no_grid"` for a melody-only run or
+    labs that do not make a valid grid.
   - `result` on success has `score_url`, `chords` (as requested),
     `preview_url` (or null),
     `warnings` (SheetSage2's own, plus a render failure), `measures`,
@@ -316,6 +323,16 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   everything before the first `% name` line, and each section is its block.
   The counts add up to the whole score's, so a client can sum any cut of
   whole sections. 503 until the worker is ready.
+- `POST /v1/scores/bars` (chat C1, D-174) — body `{abc, grid}` (a
+  `grid_v: 1` grid: a transcription's `/grid`, a splice's `grid_urls`, or the
+  server's cached sidecar) → `{offset, starts, end, agreement, bars}`: score
+  bar `i` (0-based) starts at `starts[i]` s, `end` is the song's end, `bars`
+  the score's bar count. It is the splice's own fit (`splice_grid.fit`: the
+  integer `offset` -4..4 whose chord roots best agree over every bar, a take
+  tracked at half bars thinned first), so the chat's strip and a splice
+  cannot disagree. `agreement` is that fit's root agreement, null when the
+  score has no chords. CPU only. 422 `detail.code` `bad_grid` or
+  `bad_score` (not a native two-voice score, or no bars).
 - `POST /v1/scores/apply` takes the op `WRITE_PHRASE` (F-026) as well as
   `SET_TEMPO`, `REHARMONIZE` and `EDIT_STYLE`:
   `{op: "WRITE_PHRASE", start_bar >= 1, instrument (1-40 chars), bars: [[{pitch,
