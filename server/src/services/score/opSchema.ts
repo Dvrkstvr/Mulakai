@@ -29,13 +29,17 @@ const op = (name: string, props: Record<string, unknown>) => ({
   properties: { op: { const: name }, ...props },
 });
 
-/** The `ops` array of a reply: 1..MAX_OPS ops for a PLAN, 0..MAX_OPS in a REVISE's {drop, ops} (D-073). */
-export function opsArraySchema(facts: ScoreFacts, phraseBars = DEFAULT_PHRASE_BARS, minItems = 1): Record<string, unknown> {
+/** The `ops` array of a reply: 1..MAX_OPS ops for a PLAN, 0..MAX_OPS in a REVISE's {drop, ops} (D-073).
+ * `barRange` (C1, a chat mark, D-176): every bar-valued field is bounded to it (already clamped to the song). */
+export function opsArraySchema(facts: ScoreFacts, phraseBars = DEFAULT_PHRASE_BARS, minItems = 1, barRange?: [number, number]): Record<string, unknown> {
   const bars = facts.header.bars;
+  const [lo, hi] = barRange ?? [1, bars];
+  const phrase = phraseOpSchema(bars, phraseBars) as { properties: Record<string, unknown> };
+  if (barRange) phrase.properties.start_bar = int(lo, Math.max(lo, Math.min(hi, bars) - phraseBars + 1));
   const chord = {
     type: 'object', additionalProperties: false, required: ['bar', 'beat', 'root', 'quality'],
     properties: {
-      bar: int(1, bars), beat: int(1, beatsPerBar(facts)),
+      bar: int(lo, hi), beat: int(1, beatsPerBar(facts)),
       root: { enum: [...ROOTS] }, quality: { enum: [...QUALITIES] }, bass: { enum: [...ROOTS] },
     },
   };
@@ -44,11 +48,11 @@ export function opsArraySchema(facts: ScoreFacts, phraseBars = DEFAULT_PHRASE_BA
     items: { anyOf: [
       op('SET_TEMPO', { bpm: int(BPM.min, BPM.max) }),
       op('REHARMONIZE', {
-        from_bar: int(1, bars), to_bar: int(1, bars),
+        from_bar: int(lo, hi), to_bar: int(lo, hi),
         chords: { type: 'array', items: chord, minItems: 1, maxItems: CHORDS_MAX },
       }),
       op('EDIT_STYLE', { style: { type: 'string', minLength: 1, maxLength: STYLE_MAX } }),
-      phraseOpSchema(bars, phraseBars),
+      phrase,
       ...sectionOpSchemas(facts),
     ] },
   };
