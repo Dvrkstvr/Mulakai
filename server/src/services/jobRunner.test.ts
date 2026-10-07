@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -14,7 +14,9 @@ const finished = [{
 const queryResult = vi.fn(async (..._args: unknown[]) => finished);
 vi.mock('./acestep.js', () => ({ queryResult: (...args: unknown[]) => queryResult(...args) }));
 
-const { poll, ABORTED_AFTER_SAVE } = await import('./jobRunner.js');
+const { poll, queueJob, ABORTED_AFTER_SAVE } = await import('./jobRunner.js');
+const { onJobSettled } = await import('./jobEvents.js');
+const { cancelQueued, resetQueue } = await import('./genQueue.js');
 const { registerJob, abortJob, getJob } = await import('./jobRegistry.js');
 
 let n = 0;
@@ -88,5 +90,40 @@ describe('poll() and an abort', () => {
     await polling;
 
     expect(job.error).toBe('Aborted');
+  });
+});
+
+describe('queueJob emits jobSettled', () => {
+  type Settled = import('./jobEvents.js').JobSettled;
+  type Job = import('./jobRegistry.js').Job;
+  const fresh = (id: string, songId?: string) => ({ id, taskId: '', status: 'queued' as const, createdAt: Date.now(), songId });
+  let seen: Settled[] = [];
+  let off = () => {};
+  beforeEach(() => { resetQueue(); seen = []; off = onJobSettled((e) => seen.push(e)); });
+  afterEach(() => off());
+
+  it('once the body settles: done, failed, and the songId the body set', async () => {
+    const a = fresh('ev-a', 's1') as Job; // its body runs at once: the slot is free
+    queueJob({ kind: 'repaint', songId: 's1', label: 'repaint 0:10–0:20' }, a, async () => { a.status = 'done'; });
+    const b = queueJob({ kind: 'generate' }, fresh('ev-b'), async () => { b.songId = 'new-song'; b.status = 'done'; });
+    const c = queueJob({ kind: 'timings', songId: 's2' }, fresh('ev-c', 's2'), async () => { throw new Error('lyrics-server down'); });
+    await vi.waitFor(() => expect(seen).toHaveLength(3));
+    expect(seen).toEqual([
+      { jobId: 'ev-a', kind: 'repaint', status: 'done', songId: 's1', label: 'repaint 0:10–0:20' },
+      { jobId: 'ev-b', kind: 'generate', status: 'done', songId: 'new-song', label: undefined },
+      { jobId: 'ev-c', kind: 'timings', status: 'failed', songId: 's2', label: undefined },
+    ]);
+    expect(c.error).toBe('lyrics-server down');
+  });
+
+  it('a queued cancel emits once, failed; nothing is emitted before a job settles', async () => {
+    let release!: () => void;
+    queueJob({ kind: 'repaint', songId: 's1' }, fresh('ev-hold', 's1'), () => new Promise<void>((r) => { release = r; }));
+    queueJob({ kind: 'transcribe', songId: 's1', label: 'chat analysis' }, fresh('ev-q', 's1'), async () => {});
+    expect(seen).toEqual([]);
+    expect(cancelQueued('ev-q')).toBe(true);
+    expect(seen).toEqual([{ jobId: 'ev-q', kind: 'transcribe', status: 'failed', songId: 's1', label: 'chat analysis' }]);
+    release();
+    await vi.waitFor(() => expect(seen.map((e) => e.jobId)).toEqual(['ev-q', 'ev-hold']));
   });
 });

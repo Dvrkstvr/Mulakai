@@ -9,7 +9,7 @@ import crypto from 'node:crypto';
 import { config } from '../../config.js';
 import { fetchAudio, fetchScore, type EngineTarget } from '../engineClient.js';
 import { yue2Engine } from '../engines/yue2.js';
-import { getQueued, getRunning } from '../genQueue.js';
+import { getQueued, getRunning, type GenKind } from '../genQueue.js';
 import { ABORTED_AFTER_SAVE, queueJob } from '../jobRunner.js';
 import { wasAborted, type Job } from '../jobRegistry.js';
 import { songTitle } from '../queueGuards.js';
@@ -40,9 +40,13 @@ export function renderDeps(over: Partial<RenderDeps> = {}): RenderDeps {
 
 const message = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
-/** An edit on this song that is queued or running (SCORE's own jobs aside), by what it does. */
+/** The kinds that change a song's audio under a plan. Readings (timings, transcribe incl. the chat
+ * analysis, lyrics, analyze, lm) and SCORE's own jobs never stale one (Q-038 #4, D-173). */
+const EDIT_KINDS: ReadonlySet<GenKind> = new Set<GenKind>(['repaint', 'regenerate', 'retake', 'addLayer', 'split']);
+
+/** An edit on this song that is queued or running, by what it does. */
 function pendingEdit(songId: string): string | null {
-  const job = [getRunning(), ...getQueued()].find((j) => j?.songId === songId && j.kind !== 'plan' && j.kind !== 'scoreRender');
+  const job = [getRunning(), ...getQueued()].find((j) => j?.songId === songId && EDIT_KINDS.has(j.kind));
   return job ? job.label ?? job.kind : null;
 }
 

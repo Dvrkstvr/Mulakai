@@ -3,6 +3,7 @@ import { config } from '../config.js';
 import { queryResult, type TaskResult } from './acestep.js';
 import { markAborted, registerJob, settleCancelled, wasAborted, type Job } from './jobRegistry.js';
 import { enqueue, type QueueInfo } from './genQueue.js';
+import { emitJobSettled } from './jobEvents.js';
 
 /** Wrap an async job body so any thrown error marks the job failed. Exported for coverGenJobs.ts's cover-from-audio flow. */
 export async function run(job: Job, body: () => Promise<void>): Promise<void> {
@@ -19,18 +20,20 @@ export async function run(job: Job, body: () => Promise<void>): Promise<void> {
  * after the job flips to `startStatus`; whatever it throws fails the job, and its settling
  * frees the slot. A cancel while queued settles it failed with `cancelled`. `onAbort` runs after
  * ABORT marks the running job (a plan aborts its in-flight planner call, D-041); the slot still
- * waits for `body` to settle. Throws QueueFullError before registering anything.
+ * waits for `body` to settle. Each way out emits one `jobSettled` (jobEvents.ts). Throws
+ * QueueFullError before registering anything.
  */
 export function queueJob(
   info: Omit<QueueInfo, 'jobId'>, job: Job, body: () => Promise<void>, startStatus: 'loading' | 'running' = 'loading',
   onAbort?: () => void,
 ): Job {
   job.status = 'queued';
+  const settled = () => emitJobSettled({ jobId: job.id, kind: info.kind, status: job.status, songId: job.songId ?? info.songId, label: info.label });
   enqueue({ ...info, jobId: job.id }, () => {
-    if (wasAborted(job)) return undefined;
+    if (wasAborted(job)) return settled();
     job.status = startStatus;
-    return run(job, body);
-  }, (reason) => settleCancelled(job, reason), () => { markAborted(job); onAbort?.(); });
+    return run(job, body).finally(settled);
+  }, (reason) => { settleCancelled(job, reason); settled(); }, () => { markAborted(job); onAbort?.(); });
   registerJob(job);
   return job;
 }
