@@ -907,8 +907,13 @@ footer {
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  background: var(--carbon);
-  border-top: 1px solid var(--line);
+  /* Faceted glass (FacetGlass.tsx): a 30% carbon tint over the backdrop, cut into −10°
+     facets that each shift what's behind them, and a 1px lit top edge. The first
+     backdrop-filter is the fallback for browsers without SVG backdrop filters. */
+  background: rgba(28, 29, 33, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px) brightness(0.7);
+  backdrop-filter: url(#footer-facet-glass) brightness(0.85);
   z-index: 20;
 }
 
