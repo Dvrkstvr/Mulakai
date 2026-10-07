@@ -98,4 +98,11 @@ describe('turn prompt (SP-5 build_messages, v3.1)', () => {
     expect(msgs.reduce((n, m) => n + m.content.length, 0) / 3).toBeLessThan(6000);
     expect(msgs[1].content).toContain('\n1-8: - | V:rest | I:0\n9-16: - | V:sung | I:0\n');
   });
+
+  it('C1: the MARK lines come after the song state and before the REQUEST; none without a mark', () => {
+    const [, user] = turnMessages({ ...base, state: ['SONG: "X"'], mark: ['MARK (…): bars 47-58, 1:58-2:22.'] });
+    const at = ['SONG: "X"', 'MARK (…)', 'REQUEST: x'].map((s) => user.content.indexOf(s));
+    expect(at.every((n, i) => n >= 0 && (i === 0 || n > at[i - 1]))).toBe(true);
+    expect(turnMessages(base)[1].content).not.toContain('MARK');
+  });
 });
