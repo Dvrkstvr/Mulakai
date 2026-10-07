@@ -142,6 +142,7 @@ function same(a: unknown, b: unknown): boolean {
 export async function startFakeYue(fixtures: ContractFixture[] = allContracts()): Promise<FakeYue> {
   const polls = new Map<string, number>();
   const cancelled = new Set<string>();
+  const keys = new Map<string, string>(); // Idempotency-Key -> the route it was first used on
   const fake: FakeYue = {
     url: '', requests: [], job: { states: [{ status: 'succeeded', stage: 'done' }] },
     transcription: transcriptionContract('transcription-chords-done'),
@@ -157,6 +158,14 @@ export async function startFakeYue(fixtures: ContractFixture[] = allContracts())
       const body = raw && json ? JSON.parse(raw) as unknown : null;
       const route = (req.url ?? '').split('?')[0];
       fake.requests.push({ method: req.method, path: route, body });
+      // yue-server's JobStore keeps one Idempotency-Key map for songs, transcriptions and splices: a key reused
+      // on another kind is different input, 409 (jobs.py submit).
+      const key = req.headers['idempotency-key'];
+      if (req.method === 'POST' && typeof key === 'string' && /^\/v1\/(jobs|transcriptions|splices)$/.test(route)) {
+        const seen = keys.get(key);
+        if (seen && seen !== route) return send(res, 409, { detail: 'Idempotency-Key was already used with different input' });
+        keys.set(key, route);
+      }
       if (jobRoute(fake, polls, req, res, route)) return;
       if (transcriptionRoute(fake, cancelled, req, res, route, raw)) return;
       if (spliceRoute(fake.splice, req, res, route, raw, send, same)) return;

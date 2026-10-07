@@ -1,7 +1,7 @@
 /**
  * yue-server's `/v1/splices` (CB-1, D-107, docs/decisions/0005) through engineClient's helpers (bearer auth,
- * timeouts, FastAPI `detail`): submit (multipart: the base version's audio + the spec JSON, our job id as the
- * Idempotency-Key), status, the spliced float32 WAV, a grid, cancel. A refused submit (422 an op that is not
+ * timeouts, FastAPI `detail`): submit (multipart: the base version's audio + the spec JSON, `splice-<our job id>`
+ * as the Idempotency-Key), status, the spliced float32 WAV, a grid, cancel. A refused submit (422 an op that is not
  * spliced or a span outside the score, 409 a render that is not finished) throws `SpliceRefused`: the caller
  * saves the whole song instead (D-101). Shapes: yue-server/splice_spec.py and splice_result.py.
  */
@@ -48,7 +48,9 @@ export async function submitSplice(target: EngineTarget, audio: Buffer, filename
   const form = new FormData();
   form.append('spec', JSON.stringify(spec));
   form.append('audio', new Blob([new Uint8Array(audio)]), filename);
-  const res = await request(target, '/v1/splices', { method: 'POST', headers: headers(target, { 'Idempotency-Key': jobId }), body: form }, 'splice');
+  // yue-server keeps one key map for every kind: the same job's render already used `jobId` (409 otherwise).
+  const key = `splice-${jobId}`;
+  const res = await request(target, '/v1/splices', { method: 'POST', headers: headers(target, { 'Idempotency-Key': key }), body: form }, 'splice');
   if (res.status === 422 || res.status === 409) throw new SpliceRefused((await failure(target, 'splice', res)).message);
   if (!res.ok) throw await failure(target, 'splice', res);
   const job = (await res.json()) as { id?: unknown };
