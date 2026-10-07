@@ -21,6 +21,7 @@ import { scoreRenderRouter } from './routes/scoreRender.js';
 import { chatRouter } from './routes/chat.js';
 import { chatTurnsRouter } from './routes/chatTurns.js';
 import { chatReferencesRouter } from './routes/chatReferences.js';
+import { chatMarkRouter } from './routes/chatMark.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
 import { sweepOrphanStems } from './services/stemFiles.js';
@@ -51,6 +52,7 @@ app.use('/api/songs', scoreRenderRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/chat', chatTurnsRouter);
 app.use('/api/chat', chatReferencesRouter);
+app.use('/api/chat', chatMarkRouter);
 app.use('/audio', express.static(config.audioDir));
 
 sweepTrash(); // and the orphaned chat reference files (trashSweep.ts)
