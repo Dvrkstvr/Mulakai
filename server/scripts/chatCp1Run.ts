@@ -15,7 +15,7 @@ import { gpuAfter, gpuAt, json, now, sleep } from './scoreCp1Lib.js';
 
 export interface Ctx extends Cp3Ctx { dataDir: string }
 type Bars = [number, number];
-export interface Section { index: number; label: string; occurrence: number; bars: Bars; seconds: Bars | null }
+export interface Section { index: number; label: string; occurrence: number; bars: Bars; seconds: Bars | null; lines: number; partialLines: number }
 export interface View { versionId: string | null; number: number | null; state: { kind: string; jobId?: string }; shown: { mode: string; transcribed: boolean; bars: { starts: number[]; end: number } | null; sections: Section[]; notRead: Record<string, string | null> } | null }
 
 export const view = async (ctx: Ctx, songId: string) => (await json('GET', `${ctx.server}/api/chat/songs/${songId}/analysis`)).body as View;
@@ -58,7 +58,7 @@ export async function watchAnalysis(ctx: Ctx, a: Pick<AnalysisRecord, 'song' | '
     ...a, versionId: v.versionId, number: v.number, audioS: songSeconds(ctx, a.song), status: String(f.last?.status ?? 'gone'),
     error: f.last?.error ? String(f.last.error) : null, queuedMs: start - seen, runMs: f.endAt - start, steps: analysisSteps(progress, f.endAt),
     plan: raw ? JSON.parse(raw).plan ?? null : null, notRead: v.shown?.notRead ?? null,
-    sections: (v.shown?.sections ?? []).map((s) => ({ label: s.label, occurrence: s.occurrence, bars: s.bars, seconds: s.seconds })),
+    sections: (v.shown?.sections ?? []).map((s) => ({ label: s.label, occurrence: s.occurrence, bars: s.bars, seconds: s.seconds, lines: s.lines, partialLines: s.partialLines })),
     mibPeak: during.length ? Math.max(...during) : null, mibEnd: gpuAfter(ctx.gpu, f.endAt + 1000)?.mib ?? null, endAt: f.endAt,
   };
   ctx.log(`  analysis ${a.trigger} ${a.title} v${r.number}: ${r.status} ${r.error ?? ''} run ${((r.runMs ?? 0) / 1000).toFixed(1)} s (waited ${((r.queuedMs ?? 0) / 1000).toFixed(1)} s) steps ${JSON.stringify(r.steps)} plan ${JSON.stringify(r.plan)} sections ${r.sections.map((s) => s.label).join(' ')} VRAM peak ${r.mibPeak} end ${r.mibEnd}`);
@@ -125,13 +125,14 @@ export function buildMark(v: View, kind: MarkKind, pick: number): Sent['mark'] {
   if (!sh?.bars || !v.versionId) return null;
   const { starts, end } = sh.bars;
   const sec = (b: Bars): Bars => [starts[b[0] - 1], b[1] < starts.length ? starts[b[1]] : end];
-  const pool = sh.sections.filter((s) => s.bars[1] - s.bars[0] >= 3 && /verse|chorus|bridge|pre/i.test(s.label));
-  const list = pool.length ? pool : sh.sections;
+  const held = sh.sections.filter((s) => s.bars[1] <= starts.length); // a score longer than the audio: only the bars it holds
+  const pool = held.filter((s) => s.bars[1] - s.bars[0] >= 3 && /verse|chorus|bridge|pre/i.test(s.label));
+  const list = pool.length ? pool : held.length ? held : sh.sections;
   const s = list[pick % list.length];
   if (kind === 'one') return { kind: 'range', versionId: v.versionId, bars: s.bars, seconds: sec(s.bars) };
   if (kind === 'secs') { const [a, b] = sec(s.bars); return { kind: 'range', versionId: v.versionId, seconds: [Number((a + 0.4).toFixed(2)), Number((b - 0.4).toFixed(2))] }; }
-  const i = sh.sections.indexOf(s);
-  const next = sh.sections[i + 1] ?? s; const prev = sh.sections[i + 1] ? s : sh.sections[i - 1] ?? s;
+  const i = held.indexOf(s);
+  const next = held[i + 1] ?? s; const prev = held[i + 1] ? s : held[i - 1] ?? s;
   const bars: Bars = [Math.max(prev.bars[0], prev.bars[1] - 1), Math.min(next.bars[1], next.bars[0] + 3)];
   return { kind: 'range', versionId: v.versionId, bars, seconds: sec(bars) };
 }

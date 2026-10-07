@@ -73,6 +73,11 @@ describe('stopLines', () => {
     };
     expect(stopLines(summarize(bad)).map((l) => l.verdict)).toEqual(['STOP', 'STOP', 'STOP', 'STOP', 'STOP']);
   });
+  it('counts a mark refused at SEND apart, not as a marked turn', () => {
+    const s = summarize({ ...base, turns: [...base.turns, t({ id: 'r', role: 'marked', postStatus: 400, action: null, promptTokens: [] })] });
+    expect([s.marked, s.markRefused.length]).toEqual([10, 1]);
+    expect(stopLines(s)[3].text).toContain('0 of 10 (10 edit cards; 1 mark refused at SEND)');
+  });
   it('ignores the 90 s line for a version over 4 min', () => {
     expect(stopLines(summarize({ ...base, analyses: [a({ runMs: 120_000, audioS: 300 }), a({ runMs: 40_000 })] }))[1].verdict).toBe('PASS');
   });
