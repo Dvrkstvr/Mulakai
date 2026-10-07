@@ -1,0 +1,130 @@
+{
+ "id": "7c6be373e634413eb787661e43649fce",
+ "kind": "splice",
+ "idempotency_key": "splice-85985e06-4646-44fe-9a93-968181254ab3",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791336371.5945077,
+ "updated_at": 1791336400.4452372,
+ "started_at": 1791336371.5967772,
+ "finished_at": 1791336400.4452372,
+ "cancel_requested": false,
+ "result": {
+  "verdict": "ok",
+  "reason": null,
+  "detail": null,
+  "kind": "REHARMONIZE",
+  "bars": [
+   23,
+   30
+  ],
+  "audio_url": "/v1/splices/7c6be373e634413eb787661e43649fce/audio",
+  "audio_seconds": 161.0734,
+  "length_diff_s": -0.0053,
+  "joins_s": [
+   55.51,
+   75.7047
+  ],
+  "crossfade_s": [
+   0.631579,
+   0.631579
+  ],
+  "base_points_s": [
+   55.51,
+   75.71
+  ],
+  "parts": [
+   {
+    "source": "base",
+    "out_s": [
+     0,
+     55.51
+    ],
+    "src_s": [
+     0,
+     55.51
+    ]
+   },
+   {
+    "source": "render",
+    "out_s": [
+     55.51,
+     75.7046875
+    ],
+    "src_s": [
+     53.77,
+     73.9646875
+    ]
+   },
+   {
+    "source": "base",
+    "out_s": [
+     75.7046875,
+     161.0733542
+    ],
+    "src_s": [
+     75.71,
+     161.0786667
+    ]
+   }
+  ],
+  "edges": [],
+  "snap": [
+   {
+    "delta_ms": -7.869,
+    "applied": false,
+    "corr": 0.1077
+   },
+   {
+    "delta_ms": -15.306,
+    "applied": true,
+    "corr": 0.2485
+   }
+  ],
+  "gain_db": {
+   "in": -0.035,
+   "out": -0.015,
+   "bars": [
+    -0.035,
+    -0.408,
+    -0.027,
+    0.09,
+    -1.452,
+    -0.147,
+    -0.013,
+    -0.015
+   ]
+  },
+  "level_step_db": null,
+  "gap_shift_s": null,
+  "seams": [
+   {
+    "out_s": 55.51,
+    "lufs_step": 4.063,
+    "base_lufs_step": 3.858,
+    "lufs_step_excess": 0.205
+   },
+   {
+    "out_s": 75.7047,
+    "lufs_step": -2.722,
+    "base_lufs_step": -2.771,
+    "lufs_step_excess": 0.049
+   }
+  ],
+  "null_test": {
+   "samples": 6731858,
+   "different": 0
+  },
+  "grid_urls": {
+   "base": "/v1/splices/7c6be373e634413eb787661e43649fce/grid/base",
+   "render": "/v1/splices/7c6be373e634413eb787661e43649fce/grid/render",
+   "out": "/v1/splices/7c6be373e634413eb787661e43649fce/grid/out"
+  },
+  "timing": {
+   "total_seconds": 28.848
+  }
+ },
+ "error": null
+}
