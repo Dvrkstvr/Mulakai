@@ -2,6 +2,7 @@
  * SEND's gate and the attachment it carries, READ on an analyze card (the reading job, then the follow-up turn the
  * server queues) and RE-ANALYZE. Card states go only through `chatReading`; the store hands in its getters. */
 import { chatApi, type ChatAttach, type ChatThreadView } from './api/chat';
+import type { RangeMark } from './api/chatAnalysis';
 import { chatReferencesApi } from './api/chatReferences';
 import { attachBlocksSend, attachToSend, useChatAttachStore } from './chatAttachStore';
 import { readingHoldsSend, type ReadingEvent, type ReadingState } from './chatReading';
@@ -25,9 +26,11 @@ export function chatReferenceActions(d: ChatReferenceDeps) {
     /** What SEND carries: the composer's attached reference, else nothing. */
     attachToSend: () => attachToSend(attachment()),
 
-    /** POST the turn with `attach` when there is one; the chip clears once the server has the message. */
-    startTurn: async (threadId: string, text: string, clientKey: string, attach: ChatAttach | null) => {
-      const started = await chatApi.startChatTurn(threadId, text, clientKey, ...(attach ? [attach] : []));
+    /** POST the turn with `attach` (and C1's `mark`) when there is one; the chip clears once the server has the message. */
+    startTurn: async (threadId: string, text: string, clientKey: string, attach: ChatAttach | null, mark?: RangeMark | null) => {
+      const started = mark
+        ? await chatApi.startChatTurn(threadId, text, clientKey, attach, mark)
+        : await chatApi.startChatTurn(threadId, text, clientKey, ...(attach ? [attach] : []));
       if (attach) useChatAttachStore.getState().sent(threadId);
       return started;
     },
