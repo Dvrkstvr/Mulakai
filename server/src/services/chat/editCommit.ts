@@ -32,8 +32,10 @@ export function editCommitDeps(over: Partial<EditCommitDeps> = {}): EditCommitDe
 
 export type ApplyOutcome = { job: Job } | { reason: string; stale?: boolean };
 
-const applies = new Map<string, string>(); // threadId -> the running APPLY's job id
-const running = (jobId: string | undefined) => ['queued', 'loading', 'running'].includes(jobId ? getJob(jobId)?.status ?? '' : '');
+const CHECKING = ''; // the guard taken before the first await, so a second APPLY (another tab) is refused
+const applies = new Map<string, string>(); // threadId -> the running APPLY's job id, or CHECKING
+const running = (jobId: string | undefined) =>
+  jobId === CHECKING || ['queued', 'loading', 'running'].includes(jobId ? getJob(jobId)?.status ?? '' : '');
 
 /** The version card, after the edit card that made it. */
 function landed(threadId: string, jobId: string, saved: EditSaved): void {
@@ -44,13 +46,26 @@ function landed(threadId: string, jobId: string, saved: EditSaved): void {
 }
 
 export async function applyEdit(threadId: string, proposalId: string, deps: EditCommitDeps = editCommitDeps()): Promise<ApplyOutcome> {
+  if (running(applies.get(threadId))) return { reason: 'APPLY is already running for this song' };
+  applies.set(threadId, CHECKING);
+  try {
+    const out = await checkAndStart(threadId, proposalId, deps);
+    if ('job' in out) applies.set(threadId, out.job.id);
+    else applies.delete(threadId);
+    return out;
+  } catch (err) {
+    applies.delete(threadId);
+    throw err;
+  }
+}
+
+async function checkAndStart(threadId: string, proposalId: string, deps: EditCommitDeps): Promise<ApplyOutcome> {
   const thread = threadById(threadId);
   if (!thread) return { reason: 'this chat no longer exists' };
   const proposal = editById(proposalId);
   const life = proposal?.threadId === threadId ? proposalLife(proposalId) : null;
   if (!proposal || !life || !thread.songId) return { reason: 'this proposal expired: ask again' };
   if (life === 'superseded') return { reason: 'a newer plan replaced this one' };
-  if (running(applies.get(threadId))) return { reason: 'APPLY is already running for this song' };
   const card = messageById(proposal.messageId);
   const body = card?.body as EditBody | null;
   if (!card || !body?.splice) return { reason: 'this proposal expired: ask again' };
@@ -71,7 +86,6 @@ export async function applyEdit(threadId: string, proposalId: string, deps: Edit
     throw err;
   }
   jobId = job.id;
-  applies.set(threadId, job.id);
   updateMessage(card.id, { jobId: job.id });
   return { job };
 }

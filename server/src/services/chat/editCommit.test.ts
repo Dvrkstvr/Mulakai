@@ -152,4 +152,26 @@ describe('applyEdit', () => {
     expect(await applyEdit(threadId, proposalId, deps())).toEqual({ reason: 'APPLY is already running for this song' });
     yue.job = { states: [{ status: 'succeeded', stage: 'done' }] };
   });
+
+  it('two APPLYs at once (two tabs): one job starts, the other is refused, and the card reads done', async () => {
+    const { threadId, proposalId, cardId } = await seed();
+    const outs = await Promise.all([applyEdit(threadId, proposalId, deps()), applyEdit(threadId, proposalId, deps())]);
+    const started = outs.filter((o) => 'job' in o);
+    expect(started).toHaveLength(1);
+    expect(outs.filter((o) => !('job' in o))).toEqual([{ reason: 'APPLY is already running for this song' }]);
+    const jobId = (started[0] as { job: { id: string } }).job.id;
+    expect(listMessages(threadId).find((m) => m.id === cardId)?.jobId).toBe(jobId);
+    await settled(jobId);
+    expect(view(threadId)[0].state).toBe('done');
+  });
+
+  it('a refused APPLY releases the guard, so the next one can start', async () => {
+    const { threadId, proposalId } = await seed();
+    loaded = [{ name: 'qwen3:14b', contextLength: 16384 }];
+    expect('job' in await applyEdit(threadId, proposalId, deps())).toBe(false);
+    loaded = [];
+    const out = await applyEdit(threadId, proposalId, deps());
+    if (!('job' in out)) throw new Error(out.reason);
+    await settled(out.job.id);
+  });
 });
