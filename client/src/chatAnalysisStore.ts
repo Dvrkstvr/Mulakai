@@ -1,9 +1,11 @@
 /** The player's analysis (F-052, F-053): the open song's `AnalysisView`, its job followed through `jobStatus` (the
  * reading line's states), the view read again when the job ends or the playing version changes, RETRY. Every state
- * change goes through `chatAnalysis`; CL-8b's mark layer, chip and composer read the same state from here. */
+ * change goes through `chatAnalysis`; CL-8b's mark layer, chip and composer read the same state from here, and each
+ * view read reconciles the open thread's mark (`chatMarkStore.reconcile`: carried, snapped to landed bars, or stale). */
 import { create } from 'zustand';
 import { chatAnalysisApi } from './api/chatAnalysis';
 import { INITIAL_ANALYSIS, analysisJob, analysisSettled, chatAnalysis, type AnalysisEvent, type AnalysisState } from './chatAnalysis';
+import { useChatMarkStore } from './chatMarkStore';
 import { follow } from './chatPoll';
 
 /** A view with nothing queued for a version that is not read yet is read again this often, this many times: the save
@@ -13,9 +15,11 @@ export const UNREAD_RETRIES = 3;
 
 interface ChatAnalysisStore {
   songId: string | null;
+  /** The thread whose mark each view reconciles (the song's chat thread). */
+  threadId: string | null;
   analysis: AnalysisState;
   /** Show this song's analysis (null: none); the same song reads its view again (a version swapped in). */
-  open: (songId: string | null) => Promise<void>;
+  open: (songId: string | null, threadId?: string | null) => Promise<void>;
   event: (e: AnalysisEvent) => void;
   /** RETRY on a failed reading. */
   retry: () => Promise<void>;
@@ -46,6 +50,8 @@ export const useChatAnalysisStore = create<ChatAnalysisStore>((set, get) => {
     const view = await chatAnalysisApi.analysisView(songId).catch(() => null);
     if (!view || get().songId !== songId) return;
     event({ type: 'view', view });
+    const threadId = get().threadId;
+    if (threadId) useChatMarkStore.getState().reconcile(threadId, view);
     if (analysisJob(get().analysis)) return followJob(songId);
     const unread = view.versionId && view.state.kind === 'none' && view.shown?.versionId !== view.versionId;
     if (unread && retriesLeft > 0) unreadTimer = setTimeout(() => void read(songId, retriesLeft - 1), UNREAD_RETRY_MS);
@@ -53,9 +59,11 @@ export const useChatAnalysisStore = create<ChatAnalysisStore>((set, get) => {
 
   return {
     songId: null,
+    threadId: null,
     analysis: INITIAL_ANALYSIS,
-    open: async (songId) => {
+    open: async (songId, threadId = null) => {
       if (songId !== get().songId) set({ songId, analysis: INITIAL_ANALYSIS });
+      set({ threadId: songId ? threadId : null });
       if (songId) await read(songId);
       else if (unreadTimer) clearTimeout(unreadTimer);
     },

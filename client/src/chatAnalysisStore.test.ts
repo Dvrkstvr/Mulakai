@@ -98,4 +98,12 @@ describe('chatAnalysisStore', () => {
     expect(store().songId).toBe('s2');
     expect(store().analysis.view?.songId).toBe('s2');
   });
+
+  it('each view reconciles the thread’s mark: a version that moved the bars turns it stale (CL-8b)', async () => {
+    const { useChatMarkStore } = await import('./chatMarkStore');
+    useChatMarkStore.setState({ byThread: { t1: { mark: { kind: 'range', versionId: 'v4', bars: [7, 10], seconds: [13, 21] }, stale: null } } });
+    chatAnalysisApi.analysisView.mockResolvedValue(view({ versionId: 'v5', number: 5, shown: null, lineage: { fromVersionId: 'v4', moved: true, shift: { atBar: 3, delta: 2 } } }));
+    await store().open('s1', 't1');
+    expect(useChatMarkStore.getState().byThread.t1.stale).toEqual({ useBars: [9, 12] });
+  });
 });

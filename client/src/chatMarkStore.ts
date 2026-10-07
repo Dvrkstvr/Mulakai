@@ -2,8 +2,9 @@
  * reconcile with each new analysis view (carried, landed bars, or stale), USE BARS. A stale mark holds SEND and is
  * never sent; nothing is remapped without USE BARS. Geometry and `markStale` are `chatMark`'s. */
 import { create } from 'zustand';
-import type { AnalysisView, RangeMark, Shift } from './api/chatAnalysis';
+import type { AnalysisView, RangeMark, Shift, StripSection } from './api/chatAnalysis';
 import { landBars, markBars, markStale, shiftedBars } from './chatMark';
+import { markLabel } from './chatMarkLabel';
 
 export interface MarkEntry {
   mark: RangeMark;
@@ -74,10 +75,12 @@ export const useChatMarkStore = create<ChatMarkStore>((set, get) => {
   };
 });
 
-/** What SEND carries: the thread's mark, or nothing (no mark = the whole song, F-055 edge). */
-export const markToSend = (threadId: string | undefined): RangeMark | null => {
+/** What SEND carries: the thread's mark, or nothing (no mark = the whole song, F-055 edge). `sections`: the strip it
+ * was made on, so the frozen echo keeps the chip's label (`label`, display only; the server never trusts it). */
+export const markToSend = (threadId: string | undefined, sections?: StripSection[]): RangeMark | null => {
   const e = threadId ? useChatMarkStore.getState().byThread[threadId] : undefined;
-  return e && !e.stale ? e.mark : null;
+  if (!e || e.stale) return null;
+  return sections ? { ...e.mark, label: markLabel(e.mark, sections) } : e.mark;
 };
 /** A stale mark holds SEND until USE BARS or CLEAR MARK (CS-11). */
 export const markHoldsSend = (threadId: string | undefined): boolean =>

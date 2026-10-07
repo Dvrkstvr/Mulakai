@@ -69,3 +69,50 @@ export function staleLines(mark: RangeMark, was: number | null, now: number | nu
   const where = useBars ? `${v} moved them, so they are now ${barsText(useBars).toLowerCase()}` : `${v} moved those bars; mark again`;
   return `STALE MARK · you marked ${what}${of}. ${where}. Nothing was sent with the old bars.`;
 }
+
+/** The tag beside the snap pointer while an edge moves (MK-5, Q-118): where the edge lands and how long the mark is. */
+export function snapTag(mark: RangeMark, edge: 'start' | 'end', free: boolean, songEnd: number | null): string {
+  const t = mark.seconds[edge === 'start' ? 0 : 1];
+  const len = `${Math.round(mark.seconds[1] - mark.seconds[0])} s`;
+  if (edge === 'end' && songEnd !== null && t >= songEnd - 0.01) return `END OF SONG · ${clock(t)}`;
+  if (edge === 'start' && t <= 0.01) return `START OF SONG · ${clock(t)}`;
+  if (free) return `FREE · ${Math.floor(t / 60)}:${(t % 60).toFixed(1).padStart(4, '0')} · SNAP OFF (ALT)`;
+  if (!mark.bars) return `${clock(t)} · ${len}`;
+  const at = edge === 'start' ? `BAR ${mark.bars[0]}` : `END OF BAR ${mark.bars[1]}`;
+  return `SNAPS TO ${at} · ${clock(t)} · ${barCount(mark.bars[1] - mark.bars[0] + 1)} · ${len}`;
+}
+
+/** A seconds-only chip (no bars read yet, D-179): what its bars wait for. */
+export const chipTail = (waiting: boolean) => (waiting ? ' · BARS WHEN THE READING LANDS' : ' · NO BARS READ');
+export const WHAT_IT_SEES = 'WHAT IT SEES ▾';
+export const SEES_HEAD = 'WHAT THE ASSISTANT SEES';
+export const SEES_NOTE = 'this turn only · from the server';
+export const AS_SENT = 'AS SENT ▸';
+export const SEES_LOADING = 'Fetching what the turn would send…';
+export const seesFailed = (why: string) => `Couldn't fetch it: ${why}. The mark still goes with SEND.`;
+
+/** The composer's one line (MK-6): the mark's consequence, or why SEND is held. */
+export const markConsequence = (mark: RangeMark) =>
+  `plans on ${mark.bars ? 'these bars' : 'this time'} only · nothing runs until you press APPLY`;
+export const sendHeldLine = (useBars: [number, number] | null) =>
+  `SEND IS HELD · ${useBars ? 'press USE BARS or CLEAR MARK' : 'press CLEAR MARK, then mark again'}`;
+
+/** The frozen echo's note (MK-7): click re-marks, or why it cannot. */
+export const ECHO_REMARK = 'click to mark it again';
+export const echoMoved = (now: number | null) => `${now === null ? 'A NEWER VERSION' : `v${now}`} MOVED THESE BARS · text only`;
+
+/** A version's number by its id: the playing view's, else the thread's song and version cards'. */
+export function versionNumber(
+  id: string, cards: Array<{ versionId: string | null; body: unknown }>, view: { versionId: string | null; number: number | null } | null,
+): number | null {
+  if (view?.versionId === id) return view.number;
+  const n = (cards.find((c) => c.versionId === id)?.body as { number?: unknown } | null | undefined)?.number;
+  return typeof n === 'number' ? n : null;
+}
+
+/** The edit card's mark line (F-055 edge): what the plan was bounded to, then the server's notes (a whole-song op, a
+ * mark clamped to the score). */
+export function planMarkLine(mark: { bars: [number, number] | null; seconds: [number, number]; notes: string[] }): string {
+  const where = mark.bars ? `${barsText(mark.bars)} · ${secondsText(mark.seconds)}` : `${secondsText(mark.seconds)} · BARS NOT READ`;
+  return [`PLANNED ON THE MARK · ${where}`, ...mark.notes].join(' · ');
+}

@@ -6,11 +6,15 @@
  * same position and play state, and a lilac NOW PLAYING THE NEW VERSION lasts until the next play, scrub or send.
  * C1 (F-052, F-053; chat-mark.html MK-1..MK-3): under the transport row the section strip, bar ruler and waveform
  * (`ChatStrip`) and the reading line (`ChatReadingLine`), from `chatAnalysisStore`; read again when the take changes.
- * While A/B plays the reference or the version before, the strip is blank: its bars are the playable version's. */
+ * While A/B plays the reference or the version before, the strip is blank: its bars are the playable version's.
+ * CL-8b (F-054): the mark layer over the ruler and waveform (`ChatMarkLayer`), a section click marks that section. */
 import { useEffect, useRef, useState } from 'react';
 import { abReference } from './chatAb';
 import { readingLine, stripMode } from './chatAnalysis';
 import { useChatAnalysisStore } from './chatAnalysisStore';
+import { markSection } from './chatMark';
+import { ChatMarkLayer } from './ChatMarkLayer';
+import { useChatMarkStore } from './chatMarkStore';
 import { ChatReadingLine } from './ChatReadingLine';
 import { ChatStrip } from './ChatStrip';
 import { NOW_PLAYING_NEW, USE_FAILED, abListening, abOnLabel, backTo, labelForUse } from './chatEditCopy';
@@ -52,8 +56,10 @@ export function ChatPlayer({ file, title, number, label, previous = null, newest
   const engine = clearing(raw, () => { if (useChatAb.getState().note) setNote(null); });
   const [useError, setUseError] = useState<string | null>(null);
   const songId = useChatStore((s) => s.thread?.songId ?? null);
+  const threadId = useChatStore((s) => s.thread?.id ?? null);
   const analysis = useChatAnalysisStore((s) => s.analysis);
-  useEffect(() => { void useChatAnalysisStore.getState().open(songId); }, [songId, file]);
+  const mark = useChatMarkStore((s) => (threadId ? s.byThread[threadId] : undefined));
+  useEffect(() => { void useChatAnalysisStore.getState().open(songId, threadId); }, [songId, threadId, file]);
   useEffect(() => () => void useChatAnalysisStore.getState().open(null), []);
   useSpaceTransport(engine);
   useMainTransportGuard(engine);
@@ -72,6 +78,12 @@ export function ChatPlayer({ file, title, number, label, previous = null, newest
     await onUse(previous.versionId).catch((err: unknown) => setUseError(err instanceof Error ? err.message : String(err)));
   };
   const onSong = side === 'song';
+  const view = onSong ? analysis.view : null;
+  const markable = !!(view?.versionId && threadId && engine.duration > 0);
+  const onSection = view && threadId && !mark?.stale ? (sec: Parameters<typeof markSection>[1]) => {
+    const m = markSection(view, sec);
+    if (m) useChatMarkStore.getState().set(threadId, m);
+  } : undefined;
   return (
     <div className="chat-player has-strip">
       <div className="chat-player-row">
@@ -91,8 +103,10 @@ export function ChatPlayer({ file, title, number, label, previous = null, newest
         {useError && <span className="chat-hn chat-use-failed">{USE_FAILED} · {useError}</span>}
       </div>
       <ChatStrip
-        view={onSong ? analysis.view : null} mode={onSong ? stripMode(analysis) : 'none'} audioUrl={src}
-        duration={engine.duration} playhead={engine.currentTime} onSeek={engine.seek}
+        view={view} mode={onSong ? stripMode(analysis) : 'none'} audioUrl={src}
+        duration={engine.duration} playhead={engine.currentTime} onSeek={engine.seek} onSection={onSection}
+        marked={mark && !mark.stale ? mark.mark.bars ?? null : null}
+        overlay={markable ? <ChatMarkLayer threadId={threadId!} view={view!} duration={engine.duration} onSeek={engine.seek} /> : null}
       />
       <ChatReadingLine line={readingLine(analysis)} onRetry={() => void useChatAnalysisStore.getState().retry()} />
     </div>

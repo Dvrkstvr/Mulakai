@@ -2,7 +2,8 @@
  * score's (`StripSection[]`), placed on the waveform's time axis when the reading has bar times, else weighted by bars.
  * Live: names, clickable. Dim (an older reading whose edit moved no bars): the same at 50 %. Hatched (bars moved, the
  * reading failed, or no bar times): no names, the ruler counts seconds, marking works by time. None: nothing read yet.
- * `overlay` is the mark layer's slot (CL-8b), drawn over the ruler and waveform. Modes come from `chatAnalysis`. */
+ * `overlay` is the mark layer's slot (CL-8b), drawn over the ruler and waveform; `marked` (the mark's bars) fills the
+ * sections it covers in sky, whole, or sky-tint, in part (MK-4). Modes come from `chatAnalysis`. */
 import type { CSSProperties, ReactNode } from 'react';
 import type { AnalysisView, ShownBars, StripSection } from './api/chatAnalysis';
 import type { StripMode } from './chatAnalysis';
@@ -23,6 +24,7 @@ interface Props {
   /** Click a section (live or dim strip only); without it the names are not buttons. */
   onSection?: (s: StripSection) => void;
   overlay?: ReactNode;
+  marked?: [number, number] | null;
 }
 
 /** A bar number every this many bars on the ruler (1, 9, 17, …). */
@@ -36,7 +38,13 @@ function place(s: StripSection, duration: number): CSSProperties {
   return { left: pct(a, duration), width: `calc(${pct(b - a, duration)} - 3px)` };
 }
 
-function Sections({ view, mode, duration, onSection }: Pick<Props, 'view' | 'mode' | 'duration' | 'onSection'>) {
+/** `on`: the mark covers the whole section; `pt`: a part of it. */
+function cover(s: StripSection, m: [number, number] | null | undefined): string {
+  if (!m || s.bars[1] < m[0] || s.bars[0] > m[1]) return '';
+  return s.bars[0] >= m[0] && s.bars[1] <= m[1] ? ' on' : ' pt';
+}
+
+function Sections({ view, mode, duration, onSection, marked }: Pick<Props, 'view' | 'mode' | 'duration' | 'onSection' | 'marked'>) {
   const all = view?.shown?.sections ?? [];
   const named = mode === 'live' || mode === 'dim';
   if (!named || all.length === 0) {
@@ -55,9 +63,9 @@ function Sections({ view, mode, duration, onSection }: Pick<Props, 'view' | 'mod
         const title = `${name} · bars ${s.bars[0]}–${s.bars[1]}${s.seconds ? ` · ${clock(s.seconds[0])}–${clock(s.seconds[1])}` : ''}`;
         const style = place(s, positioned ? duration : 0);
         return onSection ? (
-          <button key={s.index} type="button" className="chat-sg-cell" style={style} title={title} onClick={() => onSection(s)}>{name}</button>
+          <button key={s.index} type="button" className={`chat-sg-cell${cover(s, marked)}`} style={style} title={title} onClick={() => onSection(s)}>{name}</button>
         ) : (
-          <i key={s.index} className="chat-sg-cell" style={style} title={title}>{name}</i>
+          <i key={s.index} className={`chat-sg-cell${cover(s, marked)}`} style={style} title={title}>{name}</i>
         );
       })}
     </div>
@@ -84,11 +92,11 @@ function Ruler({ bars, duration }: { bars: ShownBars | null; duration: number })
   );
 }
 
-export function ChatStrip({ view, mode, audioUrl, duration, playhead, onSeek, onSection, overlay }: Props) {
+export function ChatStrip({ view, mode, audioUrl, duration, playhead, onSeek, onSection, overlay, marked }: Props) {
   const bars = mode === 'live' || mode === 'dim' ? usableBars(view) : null;
   return (
     <div className={`chat-strip ${mode}`} data-mode={mode}>
-      <Sections view={view} mode={mode} duration={duration} onSection={onSection} />
+      <Sections view={view} mode={mode} duration={duration} onSection={onSection} marked={marked} />
       <div className="chat-stk">
         <Ruler bars={bars} duration={duration} />
         <PlayerWaveform audioUrl={audioUrl} duration={duration} playhead={playhead} onSeek={onSeek} height={36} showPlayhead={false} />
