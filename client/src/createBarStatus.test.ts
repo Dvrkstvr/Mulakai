@@ -1,64 +1,44 @@
 import { describe, expect, it } from 'vitest';
-import type { ActiveGeneration } from './api';
-import { runningRows } from './activityRunning';
-import { abortableGenKeys, draftChipText, genChips, isCreateBusy, thinkChip } from './createBarStatus';
+import { draftChipText, genCard, isCreateBusy, liveGenJobs, thinkChip } from './createBarStatus';
 import type { GenerationJob } from './generationStore';
 
 const job = (over: Partial<GenerationJob>): GenerationJob =>
   ({ key: 'k1', jobId: 'j1', title: 'Neon Harbor', caption: 'synthwave', stage: 'running', startedAt: 1, draft: {}, ...over });
-const active = (jobId: string): ActiveGeneration => ({ kind: 'generate', jobId, startedAt: 1, status: 'running' });
-const rows = (genJobs: GenerationJob[], lock: ActiveGeneration | null, queued: string[] = []) => runningRows({
-  genJobs, editorJobs: [], splitJob: null, transcribe: { stage: 'idle' }, readLyrics: { stage: 'idle' }, timings: {},
-  active: lock, queuedIds: new Set(queued),
-});
 
-describe('genChips', () => {
-  it('a running job: GENERATING, its title, progress, the shader veiled by it', () => {
-    const { chips } = genChips([job({ progress: 0.42 })], new Set());
-    expect(chips).toEqual([{ key: 'k1', jobId: 'j1', label: 'GENERATING', title: 'Neon Harbor', pct: '42%', veil: 0.42, ai: true, action: null }]);
+describe('genCard (the oldest generation in flight, as the Create card)', () => {
+  it('GENERATING, the title, elapsed and progress; the shader veiled by it', () => {
+    expect(genCard(job({ progress: 0.42 }), 65_000, 0))
+      .toEqual({ label: 'GENERATING', title: 'Neon Harbor', note: '1:05 elapsed · 42%', ai: true, failed: false, veil: 0.42 });
   });
 
-  it('falls back to the caption, and shows no percentage before progress is known', () => {
-    expect(genChips([job({ title: '' })], new Set()).chips[0]).toMatchObject({ title: 'synthwave', pct: null });
+  it('falls back to the caption; no percentage before progress is known', () => {
+    expect(genCard(job({ title: '' }), 0, 0)).toMatchObject({ title: 'synthwave', note: '0:00 elapsed' });
   });
 
-  it('a queued job: QUEUED · #n, plain, CANCEL', () => {
-    const [c] = genChips([job({ stage: 'loading', queuePosition: 2, progress: 0.1 })], new Set()).chips;
-    expect(c).toMatchObject({ label: 'QUEUED · #2', ai: false, pct: null, veil: undefined, action: 'cancel' });
+  it('LOADING MODEL before it runs', () => {
+    expect(genCard(job({ stage: 'loading' }), 0, 0).label).toBe('LOADING MODEL');
   });
 
-  it('no CANCEL before the submit answers with a job id', () => {
-    expect(genChips([job({ jobId: '', stage: 'loading', queuePosition: 1 })], new Set()).chips[0].action).toBeNull();
+  it('QUEUED · #n: plain, with its place in line', () => {
+    expect(genCard(job({ stage: 'loading', queuePosition: 2, progress: 0.1 }), 5_000, 0))
+      .toMatchObject({ label: 'QUEUED · #2', ai: false, veil: undefined, note: 'starts after 2 jobs' });
   });
 
-  it('an engine-stage share shows its percentage without a veil', () => {
-    expect(genChips([job({ progress: 0.4, progressStage: 'synthesis' })], new Set()).chips[0]).toMatchObject({ pct: '40%', veil: undefined });
+  it('an engine stage names the stage and its share, without a veil', () => {
+    const c = genCard(job({ progress: 0.4, progressStage: 'synthesis' }), 0, 0);
+    expect(c.veil).toBeUndefined();
+    expect(c.note).toMatch(/^0:00 elapsed · .+ 40%$/);
   });
 
-  it('two chips at most, the rest counted for +N; settled jobs are left out', () => {
-    const jobs = ['a', 'b', 'c', 'd'].map((k) => job({ key: k, jobId: k })).concat(job({ key: 'f', stage: 'failed' }));
-    const { chips, overflow } = genChips(jobs, new Set());
-    expect(chips.map((c) => c.key)).toEqual(['a', 'b']);
-    expect(overflow).toBe(2);
+  it('counts the other generations in flight', () => {
+    expect(genCard(job({}), 0, 2).note).toBe('0:00 elapsed · +2 more in Activity');
   });
 });
 
-describe('ABORT only on the lock holder (runningRows decides)', () => {
-  it('the running job that holds the lock gets ABORT; another running one does not', () => {
-    const jobs = [job({ key: 'a', jobId: 'ja' }), job({ key: 'b', jobId: 'jb' })];
-    const { chips } = genChips(jobs, abortableGenKeys(rows(jobs, active('jb'))));
-    expect(chips.map((c) => c.action)).toEqual([null, 'abort']);
-  });
-
-  it('no ABORT when the lock is held by another kind of job, or nothing runs', () => {
-    const jobs = [job({})];
-    expect(abortableGenKeys(rows(jobs, { ...active('x'), kind: 'repaint' })).size).toBe(0);
-    expect(abortableGenKeys(rows(jobs, null)).size).toBe(0);
-  });
-
-  it('a queued job never gets ABORT, even if it shares the lock id', () => {
-    const jobs = [job({ queuePosition: 1, stage: 'loading' })];
-    expect(genChips(jobs, abortableGenKeys(rows(jobs, active('j1'), ['j1']))).chips[0].action).toBe('cancel');
+describe('liveGenJobs', () => {
+  it('keeps loading and running, oldest first; failed ones stay on the grid', () => {
+    const jobs = [job({ key: 'a' }), job({ key: 'f', stage: 'failed' }), job({ key: 'b', stage: 'loading' }), job({ key: 'd', stage: 'done' })];
+    expect(liveGenJobs(jobs).map((j) => j.key)).toEqual(['a', 'b']);
   });
 });
 
@@ -94,13 +74,14 @@ describe('thinkChip (Quick Start, as Create shows it)', () => {
   });
 });
 
-describe('isCreateBusy (the bar hides FEELING LUCKY and the input, CREATE becomes TO CREATE)', () => {
+describe('isCreateBusy (the bar shows the Create card instead of FEELING LUCKY and the input)', () => {
   const think = { label: 'THINKING', title: 'q', note: '', ai: true, failed: false };
-  it('busy while a draft holds anything or an idea is being written', () => {
-    expect(isCreateBusy(false, null)).toBe(true);
-    expect(isCreateBusy(true, think)).toBe(true);
+  it('busy while a draft holds anything, an idea is being written, or a song generates', () => {
+    expect(isCreateBusy(false, null, false)).toBe(true);
+    expect(isCreateBusy(true, think, false)).toBe(true);
+    expect(isCreateBusy(true, null, true)).toBe(true);
   });
-  it('free with an empty draft and nothing thinking, songs generating or not', () => {
-    expect(isCreateBusy(true, null)).toBe(false);
+  it('free with an empty draft and nothing writing or generating', () => {
+    expect(isCreateBusy(true, null, false)).toBe(false);
   });
 });

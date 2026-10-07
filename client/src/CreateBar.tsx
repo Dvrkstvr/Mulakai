@@ -1,7 +1,6 @@
 import { Fragment, useState } from 'react';
 import { useLuckyRoll } from './lmJob';
 import type { CreateDraft } from './createDraft';
-import { CreateBarChips } from './CreateBarChips';
 import { CreateCard } from './CreateCard';
 import { useCreateBusy } from './useCreateBusy';
 
@@ -38,7 +37,6 @@ export function CreateBar({ onCreate, onResume }: Props) {
             {lucky.rolling ? 'ROLLING…' : 'FEELING LUCKY'}
           </button>
         )}
-        <CreateBarChips />
         {busy ? <CreateCard onOpen={onResume} /> : (
           <>
             <input

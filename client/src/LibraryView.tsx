@@ -103,7 +103,8 @@ export function LibraryView({
           </div>
         )}
         <section className="library">
-          {genJobs.map((job) => <GeneratingCard key={job.key} job={job} onRetry={() => retryGeneration(job)} />)}
+          {/* In-flight generations show in the create bar's Create card; a failed one stays here with RETRY. */}
+          {genJobs.filter((job) => job.stage === 'failed').map((job) => <GeneratingCard key={job.key} job={job} onRetry={() => retryGeneration(job)} />)}
           {visibleSongs.map((s, i) => (
             <motion.div
               key={s.id}

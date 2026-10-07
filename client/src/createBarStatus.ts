@@ -1,67 +1,21 @@
-/** Which status chips the Library's create bar shows, and what each one's quick action does
- * (PLAN.md "Create Bar Status Chips"). Pure, so the decisions are tested without a DOM. */
-import type { RunningRow } from './activityRunning';
+/** What the Library's create bar shows while Create is busy (PLAN.md "Create Bar Status Chips",
+ * "Create Bar Mirrors Create"): one card for what Create is doing. Pure, so the decisions are
+ * tested without a DOM. */
 import type { GenerationJob } from './generationStore';
-import { fmtProgress, isEngineStage } from './genProgress';
+import { fmtElapsed, fmtProgress, isEngineStage, stageDetail } from './genProgress';
 import { startsAfter } from './queueCopy';
 
-/** Generation chips shown before the rest fold into `+N`. */
-export const MAX_GEN_CHIPS = 2;
-
-/** CANCEL takes a queued job out of the queue; ABORT stops the job holding the server's lock. */
-export type GenAction = 'cancel' | 'abort';
-
-export interface GenChip {
-  key: string;
-  jobId: string;
+/** The card's two lines and look. */
+export interface CardState {
   label: string;
   title: string;
-  /** `42%`, when the job reports progress. */
-  pct: string | null;
-  /** The AI shader's veil; undefined for an engine-stage share (DESIGN.md "AI states"). */
-  veil?: number;
-  /** Running jobs wear the AI shader; queued ones stay plain, since nothing works on them yet. */
+  /** The second line as prose: what is happening, or what went wrong. */
+  note: string;
+  /** Working: the AI shader. Waiting in the queue or failed stays plain. */
   ai: boolean;
-  action: GenAction | null;
-}
-
-export interface ChipCopy {
-  consequence: string;
-  confirm: string;
-}
-
-export const CONFIRM_COPY: Record<GenAction, ChipCopy> = {
-  cancel: { consequence: 'Take it out of the queue? Nothing has been made yet, so nothing is lost.', confirm: 'CANCEL' },
-  abort: { consequence: 'Abort this generation? The take in progress is lost.', confirm: 'ABORT' },
-};
-
-/** The generation jobs Activity's RUNNING section marks as the lock's holder — the only ones
- * ABORT can stop (`runningRows` decides; this just reads its answer back per job key). */
-export function abortableGenKeys(rows: RunningRow[]): Set<string> {
-  const prefix = 'generate:';
-  return new Set(rows.filter((r) => r.abortable && r.key.startsWith(prefix)).map((r) => r.key.slice(prefix.length)));
-}
-
-function genChip(job: GenerationJob, abortable: ReadonlySet<string>): GenChip {
-  const queued = !!job.queuePosition;
-  const action: GenAction | null = queued ? (job.jobId ? 'cancel' : null) : abortable.has(job.key) ? 'abort' : null;
-  return {
-    key: job.key,
-    jobId: job.jobId,
-    label: queued ? `QUEUED · #${job.queuePosition}` : 'GENERATING',
-    title: job.title || job.caption || 'Untitled',
-    pct: queued ? null : fmtProgress(job.progress),
-    veil: queued || isEngineStage(job.progressStage) ? undefined : job.progress,
-    ai: !queued,
-    action,
-  };
-}
-
-/** One chip per song generation in flight, oldest first, the first `max` of them; `overflow`
- * counts the rest for the `+N` chip. Done and failed jobs keep their Library cards instead. */
-export function genChips(jobs: GenerationJob[], abortable: ReadonlySet<string>, max = MAX_GEN_CHIPS) {
-  const live = jobs.filter((j) => j.stage === 'loading' || j.stage === 'running');
-  return { chips: live.slice(0, max).map((j) => genChip(j, abortable)), overflow: Math.max(0, live.length - max) };
+  failed: boolean;
+  /** The shader's progress veil; undefined for none (DESIGN.md "AI states"). */
+  veil?: number;
 }
 
 interface DraftText {
@@ -71,21 +25,11 @@ interface DraftText {
   lyrics: string;
 }
 
-/** What the draft chip names: a typed title, else the prompt, else the lyrics' first line. */
+/** What a draft is called: a typed title, else the prompt, else the lyrics' first line. */
 export function draftChipText(d: DraftText): string {
   const title = d.titleSuggested ? '' : d.title.trim();
   const lyric = d.lyrics.split('\n').map((l) => l.trim()).find((l) => l && !l.startsWith('['));
   return title || d.prompt.trim() || lyric || 'New song';
-}
-
-export interface ThinkChip {
-  label: string;
-  title: string;
-  /** The card's second line: what Quick Start is doing, or what went wrong. */
-  note: string;
-  /** Thinking wears the AI shader; waiting in the queue or failed stays plain. */
-  ai: boolean;
-  failed: boolean;
 }
 
 interface ThinkState {
@@ -98,7 +42,7 @@ interface ThinkState {
 /** Quick Start writing a draft from an idea, as Create shows it: THINKING (or QUEUED while it
  * waits its turn), or COULDN'T WRITE once it failed and the idea is still waiting for a RETRY.
  * Stopping it is Activity's CANCEL / ABORT, like any queued job. */
-export function thinkChip(s: ThinkState, pendingQuery: string | undefined): ThinkChip | null {
+export function thinkChip(s: ThinkState, pendingQuery: string | undefined): CardState | null {
   if (s.phase !== 'idle') {
     return s.position
       ? { label: `QUEUED · #${s.position}`, title: s.query, note: `QUICK START waits its turn · ${startsAfter(s.position)}`, ai: false, failed: false }
@@ -110,9 +54,34 @@ export function thinkChip(s: ThinkState, pendingQuery: string | undefined): Thin
   return null;
 }
 
-/** Create is busy with an idea — thinking about one, or holding a draft — so the bar hides
- * FEELING LUCKY and the input (a new idea would clash) and CREATE becomes TO CREATE. Songs
- * generating don't count: a new idea can still queue behind them. */
-export function isCreateBusy(draftEmpty: boolean, think: ThinkChip | null): boolean {
-  return !draftEmpty || think !== null;
+/** Song generations in flight, oldest first. Failed ones keep their Library card (with RETRY). */
+export const liveGenJobs = (jobs: GenerationJob[]) => jobs.filter((j) => j.stage === 'loading' || j.stage === 'running');
+
+/** The oldest generation in flight as the card: GENERATING (or QUEUED · #n), its title, and a
+ * line with elapsed time, progress and stage — what the grid's GeneratingCard used to show.
+ * `more` other generations are counted on the same line. */
+export function genCard(job: GenerationJob, elapsedMs: number, more: number): CardState {
+  const queued = !!job.queuePosition;
+  const engine = isEngineStage(job.progressStage);
+  const pct = fmtProgress(job.progress);
+  const detail = stageDetail(job.progressStage);
+  const parts = queued
+    ? [startsAfter(job.queuePosition!)]
+    : [`${fmtElapsed(elapsedMs)} elapsed`, ...(engine ? [[detail, pct].filter(Boolean).join(' ')] : [pct, detail])];
+  if (more) parts.push(`+${more} more in Activity`);
+  return {
+    label: queued ? `QUEUED · #${job.queuePosition}` : job.stage === 'loading' ? 'LOADING MODEL' : 'GENERATING',
+    title: job.title || job.caption || 'Untitled',
+    note: parts.filter(Boolean).join(' · '),
+    ai: !queued,
+    failed: false,
+    // An engine's per-stage share would sweep the veil back at every stage, so engines get none.
+    veil: queued || engine ? undefined : job.progress,
+  };
+}
+
+/** Create is busy — writing a draft, generating a song, or holding a draft — so the bar hides
+ * FEELING LUCKY and the input and shows the Create card, TO CREATE at its end. */
+export function isCreateBusy(draftEmpty: boolean, think: CardState | null, generating: boolean): boolean {
+  return !draftEmpty || think !== null || generating;
 }
