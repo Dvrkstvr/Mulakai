@@ -10,6 +10,7 @@ import type { GenerationJob } from './generationStore';
 import { GeneratingCard } from './GeneratingCard';
 import { LibraryJobBadge } from './LibraryJobBadge';
 import { ContinueRow } from './ContinueRow';
+import { songRowState } from './songRowState';
 import type { PlaybackApi } from './mix/playerApi';
 import type { LibraryData } from './useLibraryData';
 
@@ -105,16 +106,16 @@ export function LibraryView({
         <section className="library">
           {/* In-flight generations show in the create bar's Create card; a failed one stays here with RETRY. */}
           {genJobs.filter((job) => job.stage === 'failed').map((job) => <GeneratingCard key={job.key} job={job} onRetry={() => retryGeneration(job)} />)}
-          {visibleSongs.map((s, i) => (
+          {visibleSongs.map((s, i) => { const row = songRowState(s.id, detailSongId, playing?.id, footerEngine.isPlaying); return (
             <motion.div
               key={s.id}
-              className={s.id === detailSongId ? 'row selected' : 'row'}
+              className={row.className}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.15, delay: Math.min(i * 0.05, 0.5) }}
             >
-              <button onClick={() => togglePlay(s)} aria-label={playing?.id === s.id && footerEngine.isPlaying ? 'Pause' : 'Play'}>
-                {playing?.id === s.id && footerEngine.isPlaying ? '⏸' : '▶'}
+              <button onClick={() => togglePlay(s)} aria-label={row.live ? 'Pause' : 'Play'}>
+                {row.live ? <span className="pause-glyph" aria-hidden /> : '▶'}
               </button>
               <div className="row-main">
                 <span className="song-title link" onClick={() => setDetailSongId(s.id)}>{s.title}</span>
@@ -127,7 +128,7 @@ export function LibraryView({
                 <button onClick={() => api.trash(s.id).then(() => { refresh(); refreshFolders(); })}>✕</button>
               </div>
             </motion.div>
-          ))}
+          ); })}
           {visibleSongs.length === 0 && genJobs.length === 0 && <div className="empty">No songs yet — generate your first one above.</div>}
         </section>
         </div>
