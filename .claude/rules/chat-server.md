@@ -47,5 +47,9 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
 - A reading part that fails or is unset is `not read: <why>`, never empty or
   guessed; borrowed fields come from `readingFacts` in code
   (`referenceRecipe`), never from the model's values (F-064).
+- Borrowed facts prefer the transcribed score; the caption only fills gaps; a
+  cover is score-only (D-165: ACE-Step's caption tempo drifts run to run).
+- Cover vs borrow routing is the REFERENCE rule's wording, not the key order
+  (D-162); measure any change to it with `chatCp3` before merging.
 - `Reading` (`reading_v`) and `own_json` (`own_v`) are read from the raw blob;
   reference files are removed only by `sweepFiles()` (orphans by id).

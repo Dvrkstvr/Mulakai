@@ -18,7 +18,8 @@ import { messageViews, wireDraft, type JobView } from '../services/chat/messageV
 import { dropProposals, proposalLife } from '../services/chat/proposalStore.js';
 import { createBlockers } from '../services/chat/recipeRules.js';
 import { coverBlockers } from '../services/chat/referenceRecipe.js';
-import { getReference, listReferences, sweepFiles, toView } from '../services/chat/referenceStore.js';
+import { getReference, listReferences, sweepFiles } from '../services/chat/referenceStore.js';
+import { referenceView } from '../services/chat/readTarget.js';
 import { draftThread, resetDraftThread, songThread, threadById, writeDraft } from '../services/chat/threadStore.js';
 import type { ChatThread } from '../services/chat/chatTypes.js';
 
@@ -53,7 +54,7 @@ export function threadView(thread: ChatThread, yueConfigured: boolean) {
     id: thread.id, songId: thread.songId, draft: wireDraft(thread.draft), draftNote: thread.draftNote,
     blockers: draftBlockers(thread, yueConfigured),
     messages: messageViews(listMessages(thread.id), { job: jobView, proposal: proposalLife, versionExists }),
-    references: listReferences(thread.id).map(toView),
+    references: listReferences(thread.id).map((r) => referenceView(r)),
   };
 }
 

@@ -110,7 +110,7 @@ export const missingNote = (key: ChatDraftKey) => `no ${NOUN[key] ?? key} found 
 
 /** The song panel's line under a reference's name (F-062): "3:12 · read 2026-10-07". */
 export function referenceMeta(seconds: number | null, readAt: string | null | undefined): string {
-  const parts = [seconds ? fmtTime(seconds) : null, readAt ? `read ${readAt.slice(0, 10)}` : 'not read yet'];
+  const parts = [lengthOf(seconds), readAt ? `read ${readAt.slice(0, 10)}` : 'not read yet'];
   return parts.filter(Boolean).join(' · ');
 }
 
@@ -142,10 +142,12 @@ export const SCORE_TOO_LONG = 'the score is longer than YuE2 plans in one take';
 /** What READ will do with a library song, on its ATTACH ▾ row (D-137): a YuE2 song has its own score. */
 export const libraryRowHint = (engine: string | null | undefined) =>
   engine === 'yue2' ? 'its own score and words, no GPU' : 'score transcribed on the GPU';
+/** A length to show, or none: a library song's stored duration can be text ("N/A"), never "NaN:NaN" (C3 live C). */
+const lengthOf = (s: unknown) => (typeof s === 'number' && Number.isFinite(s) && s > 0 ? fmtTime(s) : null);
 export const libraryRowMeta = (seconds: number | null, engine: string | null | undefined) =>
-  [seconds ? fmtTime(seconds) : null, engine === 'yue2' ? 'YUE2' : 'ACE-STEP'].filter(Boolean).join(' · ');
+  [lengthOf(seconds), engine === 'yue2' ? 'YUE2' : 'ACE-STEP'].filter(Boolean).join(' · ');
 export const analyzeMeta = (seconds: number | null, origin: 'upload' | 'library') =>
-  [seconds ? fmtTime(seconds) : null, origin === 'library' ? 'library' : 'uploaded'].filter(Boolean).join(' · ');
+  [lengthOf(seconds), origin === 'library' ? 'library' : 'uploaded'].filter(Boolean).join(' · ');
 export const analyzeDone = (name: string) => `${READ} · ${name} · THE READING IS BELOW`;
 export const readingHead = (name: string) => `READING · ${name}`;
 export const sentAttach = (name: string) => `◉ ${name}`;

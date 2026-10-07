@@ -1,6 +1,7 @@
 /** The song panel's references (F-062, RF-6; chat-reference.html 4a): name, length, read date and origin, the rights
  * line, RE-ANALYZE with its consequence line (a new reading card, no proposal, D-129) and A/B, which flips the same
- * switch as the player's pill (`useChatAb`). No invented GPU seconds until CP-C3 calibrates them (Q-099). */
+ * switch as the player's pill (`useChatAb`). No invented GPU seconds until CP-C3 calibrates them (Q-099); like the
+ * READ card, "uses no GPU" when the server's estimate is 0 (a YuE2 library song, D-151 a). */
 import { useState } from 'react';
 import type { ReferenceView } from './api/chatReferences';
 import type { AbSide } from './chatAb';
@@ -37,7 +38,7 @@ function Reference({ r, ab, pressed, onAb, onReanalyze }: { r: ReferenceView; ab
           <button type="button" className={`chat-ab${pressed ? ' on' : ''}`} aria-pressed={pressed} onClick={onAb}><span>A/B</span></button>
         )}
       </div>
-      <div className="chat-hn">{reanalyzeConsequence(null)}</div>
+      <div className="chat-hn">{reanalyzeConsequence(r.estimate?.total === 0 ? 0 : null)}</div>
       {refused && <div className="chat-er" role="alert"><div><b>{RE_ANALYZE} REFUSED</b> · {refused}</div></div>}
     </div>
   );

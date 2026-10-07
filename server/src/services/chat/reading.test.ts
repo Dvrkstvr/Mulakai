@@ -51,13 +51,25 @@ describe('readReading (raw blob in, versions-data.md)', () => {
   });
 });
 
-describe('readingFacts (D-135: ACE-Step first, then the score header)', () => {
-  it('tempo, key and meter from the caption, structure from the score, keys in draft spelling', () => {
+describe('readingFacts (C3 live D: the score header first, the caption fills what it lacks)', () => {
+  it('tempo, key and meter from the score when it was read, structure from the score, keys in draft spelling', () => {
     expect(readingFacts(reading())).toEqual({
-      bpm: 120, key: 'Dm', meter: '4/4', structure: ['verse', 'chorus', 'verse'],
+      bpm: 96, key: 'Am', meter: '4/4', structure: ['verse', 'chorus', 'verse'],
       instrumentation: 'driving synthwave, analog bass', instrumental: false,
-      sources: { bpm: 'caption', key: 'caption', meter: 'caption', structure: 'score' }, missing: [],
+      sources: { bpm: 'score', key: 'score', meter: 'score', structure: 'score' }, missing: [],
     });
+  });
+
+  it('the caption fills only what the score header lacks', () => {
+    const r = reading();
+    const score = r.score as Exclude<Reading['score'], { notRead: string }>;
+    const header = { ...FACTS.header, bpm: null as unknown as number, key: 'D dorian' };
+    const thin = { ...r, score: { ...score, facts: { ...FACTS, header } } };
+    expect(readingFacts(thin)).toMatchObject({ bpm: 120, key: 'Dm', meter: '4/4', sources: { bpm: 'caption', key: 'caption', meter: 'score' } });
+  });
+
+  it("prefer 'caption': ACE-Step's tempo, key and meter first (D-135)", () => {
+    expect(readingFacts(reading(), 'caption')).toMatchObject({ bpm: 120, key: 'Dm', sources: { bpm: 'caption', key: 'caption', meter: 'caption' } });
   });
 
   it('caption not read: everything from the score header', () => {
@@ -66,8 +78,12 @@ describe('readingFacts (D-135: ACE-Step first, then the score header)', () => {
     expect(f.sources).toEqual({ bpm: 'score', key: 'score', meter: 'score', structure: 'score' });
   });
 
-  it("prefer 'score' (a cover sings the score's own) ignores the caption's tempo and key", () => {
-    expect(readingFacts(reading(), 'score')).toMatchObject({ bpm: 96, key: 'Am', sources: { bpm: 'score', key: 'score' } });
+  it("prefer 'score only' (a cover sings the score's own) never takes the caption's, even for a value the score lacks", () => {
+    const r = reading();
+    const score = r.score as Exclude<Reading['score'], { notRead: string }>;
+    const header = { ...FACTS.header, bpm: null as unknown as number };
+    const thin = { ...r, score: { ...score, facts: { ...FACTS, header } } };
+    expect(readingFacts(thin, 'score only')).toMatchObject({ bpm: null, key: 'Am', sources: { bpm: null, key: 'score' }, missing: ['bpm'] });
   });
 
   it('nothing to read: every value missing, never guessed', () => {

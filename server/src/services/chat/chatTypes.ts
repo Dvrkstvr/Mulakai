@@ -187,4 +187,6 @@ export interface ReferenceView {
   readAt: string | null;
   readingNote: string | null;
   createdAt: string;
+  /** What reading it again would cost, priced like the READ card (RE-ANALYZE's line, C3 live B). */
+  estimate: ReadingEstimate;
 }
