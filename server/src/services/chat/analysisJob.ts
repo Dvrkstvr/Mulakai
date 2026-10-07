@@ -89,6 +89,7 @@ async function analyze(job: Job, songId: string, title: string, deps: AnalysisDe
     if (!db.prepare(`SELECT 1 FROM songs WHERE id = ? AND trashed_at IS NULL`).get(songId)) throw new Error('this song no longer exists');
     return; // no take to read yet
   }
+  targets.set(job.id, target.id);
   const stored = readVersionAnalysis(target.id);
   if (stored && !isFailed(stored)) return; // already read
   const fail = (reason: string) => {
@@ -123,12 +124,19 @@ async function analyze(job: Job, songId: string, title: string, deps: AnalysisDe
   if (parts.timings) db.prepare(`UPDATE versions SET word_timings = ? WHERE id = ?`).run(JSON.stringify(parts.timings), target.id);
 }
 
-/** Song id → its waiting analysis, and the one reading now. */
+/** Song id → its waiting analysis, and the one reading now; job id → the take it reads. */
 const waiting = new Map<string, Job>();
 const reading = new Map<string, Job>();
+const targets = new Map<string, string>();
 
 /** A waiting analysis for the song (a new save then starts nothing). */
 export const analysisWaiting = (songId: string): boolean => waiting.get(songId)?.status === 'queued';
+
+/** An analysis will read this take: one waits (it reads the newest take), or one is reading it now. */
+export function analysisPending(songId: string, versionId: string): boolean {
+  const r = reading.get(songId);
+  return analysisWaiting(songId) || (live(r) && targets.get(r.id) === versionId);
+}
 
 /** The song's analysis as the queue sees it, for the player's view: the waiting one first (it reads the newest take). */
 export function liveAnalysis(songId: string): LiveAnalysisJob | null {
@@ -153,6 +161,7 @@ export function startAnalysis(songId: string, deps: AnalysisDeps = analysisDeps(
       if (!wasAborted(job)) job.status = 'done';
     } finally {
       job.progressText = undefined;
+      targets.delete(job.id);
       if (reading.get(songId) === job) reading.delete(songId);
     }
   };

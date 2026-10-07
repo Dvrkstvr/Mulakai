@@ -19,7 +19,7 @@ const { enqueue, getRunning, cancelQueuedForSong, queuePosition } = await import
 const { yue2Engine } = await import('../engines/yue2.js');
 const { readVersionAnalysis } = await import('./analysisStore.js');
 const { readGrid } = await import('./gridCache.js');
-const { startAnalysis, cancelAnalysis, analysisDeps, analysisWaiting, liveAnalysis } = await import('./analysisJob.js');
+const { startAnalysis, cancelAnalysis, analysisDeps, analysisWaiting, analysisPending, liveAnalysis } = await import('./analysisJob.js');
 type AnalysisDeps = import('./analysisJob.js').AnalysisDeps;
 
 const BARS = contract('scores-bars-ok');
@@ -189,6 +189,8 @@ describe('startAnalysis', () => {
     const job = startAnalysis(songId, deps());
     await vi.waitFor(() => expect(liveAnalysis(songId)?.progressText).toMatch(/^SCORE/));
     expect(liveAnalysis(songId)).toMatchObject({ jobId: job.id, status: 'running' });
+    expect(analysisPending(songId, v)).toBe(true); // a second trigger for this take starts nothing
+    expect(analysisPending(songId, 'a-newer-take')).toBe(false);
     expect(cancelAnalysis(job.id)).toBe(true);
     await settled(job.id, 'failed');
     expect(readVersionAnalysis(v)).toBeNull();
