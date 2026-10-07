@@ -114,6 +114,27 @@ describe('POST /threads/:id/apply', () => {
     expect(db.prepare(`SELECT COUNT(*) AS n FROM versions WHERE layer_id = ?`).get(layerId)).toEqual({ n: 1 });
     expect(getPlan(songId)).toBeDefined();
     expect(states(threadId)).toEqual(['pending']);
+    // Nothing saved: the card dropped its job id, so after a restart it reads EXPIRED, not INTERRUPTED.
+    expect(listMessages(threadId)[0].jobId).toBeNull();
+    resetProposals();
+    expect(states(threadId)).toEqual(['expired']);
+  });
+
+  it('a restart mid-APPLY (proposal and job forgotten) reads INTERRUPTED; a queued APPLY cancelled clears its card (F-049 #3)', async () => {
+    const first = await seed();
+    const second = await seed();
+    yue.job = { states: [{ status: 'running', stage: 'semantic' }] };
+    const running = await post(`/threads/${first.threadId}/apply`, { proposalId: first.proposalId });
+    const queued = await post(`/threads/${second.threadId}/apply`, { proposalId: second.proposalId });
+    expect(getJob(queued.body.jobId)?.status).toBe('queued');
+    expect(await post(`/jobs/${queued.body.jobId}/cancel`)).toEqual({ status: 200, body: { ok: true, cancelled: true } });
+    expect(listMessages(second.threadId)[0].jobId).toBeNull();
+    resetProposals(); // the restart: proposals and the job registry are memory only
+    const restarted = (threadId: string) => messageViews(listMessages(threadId), { job: () => undefined, proposal: proposalLife }).map((m) => m.state);
+    expect(restarted(first.threadId)).toEqual(['interrupted']);
+    expect(restarted(second.threadId)).toEqual(['expired']);
+    expect(await post(`/jobs/${running.body.jobId}/cancel`)).toMatchObject({ status: 200 });
+    await vi.waitFor(() => expect(getRunning()).toBeNull(), { timeout: 5000 });
   });
 
   it('409 stale when the song changed since the proposal; no job starts (F-049 edge)', async () => {

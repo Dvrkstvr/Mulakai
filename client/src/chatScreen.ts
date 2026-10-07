@@ -12,7 +12,9 @@ export type CardView =
   | { kind: 'committing'; phase: CommitPhase | null }
   /** An edit card whose APPLY was refused because the song changed since the plan (ASK AGAIN). */
   | { kind: 'stale'; reason: string }
-  | { kind: 'superseded' } | { kind: 'expired' } | { kind: 'done' };
+  | { kind: 'superseded' } | { kind: 'expired' } | { kind: 'done' }
+  /** An edit card whose APPLY a server restart cut (F-049 #3): nothing saved, ASK AGAIN. */
+  | { kind: 'interrupted' };
 
 /** The server's state, with this tab's take over it while the server still has the card live: a failed take (or a
  * cancelled APPLY) puts the card back to pending saying so. A card the server says is done stays done. */
@@ -26,6 +28,7 @@ export function cardView(m: ChatMessageView, commit: CommitState | null): CardVi
   switch (m.state) {
     case 'superseded': return { kind: 'superseded' };
     case 'expired': return { kind: 'expired' };
+    case 'interrupted': return { kind: 'interrupted' };
     case 'done': return { kind: 'done' };
     case 'stale': return { kind: 'stale', reason: (m.body as { stale?: string } | null)?.stale ?? '' };
     case 'committing': return { kind: 'committing', phase: null };

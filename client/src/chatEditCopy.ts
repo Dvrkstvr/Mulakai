@@ -16,6 +16,8 @@ export const APPLY_FAILED = 'APPLY FAILED';
 export const STALE_TITLE = 'THIS SONG CHANGED SINCE THE PROPOSAL';
 export const EDIT_EXPIRED_TITLE = 'THIS EDIT EXPIRED';
 export const EDIT_EXPIRED_BODY = 'when the server restarted. Ask again for a new card.';
+/** A restart cut a running APPLY (F-049 #3): the plan went with the server, so the way on is a new card. */
+export const editInterruptedBody = (base: number) => `The server restarted while APPLY ran. Nothing was saved, v${base} is untouched; ask again for a new card.`;
 export const EDIT_SUPERSEDED_BODY = 'A newer edit card is below. This one cannot be applied.';
 export const NOW_PLAYING_NEW = 'NOW PLAYING THE NEW VERSION';
 export const VERSION_LABEL = 'VERSION';
@@ -25,7 +27,7 @@ const barsOf = (a: number, b: number) => (a === b ? `bar ${a}` : `bars ${a}-${b}
 const span = (s: { from_bar: number; to_bar: number }) => barsOf(s.from_bar, s.to_bar);
 
 export function editHeader(kind: string): string {
-  const state = { committing: 'APPLYING', superseded: 'SUPERSEDED', expired: 'EXPIRED', stale: 'STALE' }[kind];
+  const state = { committing: 'APPLYING', superseded: 'SUPERSEDED', expired: 'EXPIRED', interrupted: 'INTERRUPTED', stale: 'STALE' }[kind];
   return state ? `${EDIT_HEADER} · ${state}` : EDIT_HEADER;
 }
 export function editHint(kind: string, base: number, next: number): string {
@@ -77,8 +79,12 @@ export function applyJobLine(p: CommitPhase, s: ChatSplice, next: number): Apply
   return { title: `RENDERING${s.splice ? '' : ' · WHOLE SONG'} · YUE2${stage ? ` · ${stage}` : ''}`, tail, waiting: false, cancel: true };
 }
 
-export const cancelledLine = (during: string | null, next: number) =>
-  during ? `CANCELLED WHILE ${during.toUpperCase()} · the temporary render is deleted · no v${next} saved` : `CANCELLED · no v${next} saved`;
+/** A cancel while rendering drops YuE2's render job with its files; after a splice the render stays on yue-server
+ * until its retention sweep (CB-6), so only the rendering line says it is deleted. */
+export function cancelledLine(during: string | null, next: number): string {
+  if (!during) return `CANCELLED · no v${next} saved`;
+  return `CANCELLED WHILE ${during.toUpperCase()}${during === 'rendering' ? ' · the temporary render is deleted' : ''} · no v${next} saved`;
+}
 export const applyFailedBody = (error: string, base: number) => `${error}. Nothing was saved, v${base} is untouched.`;
 /** STALE's body: the re-check's detail after the server's "this song changed since the proposal". */
 export function staleBody(reason: string): string {

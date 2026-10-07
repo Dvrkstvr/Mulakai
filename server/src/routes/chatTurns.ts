@@ -13,7 +13,7 @@ import { db } from '../db/index.js';
 import { QueueFullError, queuePosition } from '../services/genQueue.js';
 import { abortJob, getJob } from '../services/jobRegistry.js';
 import { createDeps, createFromDraft, type CreateDeps } from '../services/chat/createFromDraft.js';
-import { applyEdit, editCommitDeps, type EditCommitDeps } from '../services/chat/editCommit.js';
+import { applyEdit, applyEnded, editCommitDeps, type EditCommitDeps } from '../services/chat/editCommit.js';
 import { appendMessage, listMessages, updateMessage } from '../services/chat/messageStore.js';
 import { cancelReading, readingOf } from '../services/chat/readingJob.js';
 import { getReference } from '../services/chat/referenceStore.js';
@@ -93,6 +93,7 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
       // An APPLY reads CANCELLED like a turn or a reading (nothing saved); a save already under way clears it again.
       const job = getJob(jobId);
       if (job && kinds.includes('edit')) job.cancelled = true;
+      if (queued && kinds.includes('edit')) applyEnded(jobId); // its body never runs, so it cannot clear the card
       return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
     }
     res.status(404).json({ error: 'this job is not running' });

@@ -5,7 +5,8 @@
  * message is queued / thinking while its turn job lives, then done / failed / cancelled from the reply
  * after it, or interrupted when the job vanished with no reply (a restart). A recipe card is pending,
  * superseded, expired (the server forgot it), committing (its CREATE SONG job runs) or done (a song
- * card from that job follows); an edit card likewise, with APPLY and a version card (C0b): while it commits, `phase`
+ * card from that job follows); an edit card likewise, with APPLY and a version card (C0b), and interrupted when a
+ * restart cut its APPLY (the job vanished with nothing saved): while it commits, `phase`
  * names the step (queued, rendering, splicing, saving); APPLY refused because the song changed reads stale; a
  * version card drops its A/B once the version before it is gone. Pure: the caller passes the lookups.
  */
@@ -86,7 +87,9 @@ function userState(messages: ChatMessage[], i: number, ctx: ViewContext): Messag
 function cardState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext, made: 'song' | 'version'): MessageState {
   if (m.jobId && messages.some((s) => s.kind === made && s.jobId === m.jobId)) return 'done';
   const life = m.proposalId ? ctx.proposal(m.proposalId) : null;
-  if (!life) return 'expired';
+  // An edit card keeps its job id only while its APPLY runs or after it saved (editCommit clears it when the APPLY
+  // ends with nothing saved); a job id the server no longer knows means a restart cut the APPLY (F-049 #3).
+  if (!life) return m.kind === 'edit' && m.jobId && !ctx.job(m.jobId) ? 'interrupted' : 'expired';
   if (life === 'superseded') return 'superseded';
   if (m.jobId && live(ctx.job(m.jobId))) return 'committing';
   return m.kind === 'edit' && (m.body as EditBody | null)?.stale ? 'stale' : 'pending';

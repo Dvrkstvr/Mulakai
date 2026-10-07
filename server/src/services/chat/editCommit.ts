@@ -5,7 +5,8 @@
  * GPU). A song changed since the plan is `stale`: no job starts and the card reads STALE (ASK AGAIN). Then
  * the chat edit job (spliceRenderJob) with the card's own splice verdict, made at plan time on the same
  * song (the fingerprint says it is unchanged). When the version is saved the version card follows, carrying
- * the job id, so the edit card reads done; the edit card keeps the job id, so a reload finds it committing.
+ * the job id, so the edit card reads done; the edit card keeps the job id, so a reload finds it committing. An
+ * APPLY that ends with nothing saved clears it, so after a restart a job id still there reads INTERRUPTED (F-049 #3).
  */
 import { db } from '../../db/index.js';
 import { QueueFullError } from '../genQueue.js';
@@ -45,6 +46,12 @@ function landed(threadId: string, jobId: string, saved: EditSaved): void {
   appendMessage(threadId, { role: 'assistant', kind: 'version', text: versionCardText(card), body: card, versionId: version.id, jobId });
 }
 
+/** An APPLY ended with nothing saved (failed, refused, cancelled running or queued): its edit card drops the job id,
+ * so only an APPLY a restart cut leaves a job id the server does not know (INTERRUPTED, F-049 #3). */
+export function applyEnded(jobId: string): void {
+  if (jobId) db.prepare(`UPDATE chat_messages SET job_id = NULL WHERE job_id = ? AND kind = 'edit'`).run(jobId);
+}
+
 export async function applyEdit(threadId: string, proposalId: string, deps: EditCommitDeps = editCommitDeps()): Promise<ApplyOutcome> {
   if (running(applies.get(threadId))) return { reason: 'APPLY is already running for this song' };
   applies.set(threadId, CHECKING);
@@ -80,7 +87,7 @@ async function checkAndStart(threadId: string, proposalId: string, deps: EditCom
   let jobId = '';
   let job: Job;
   try {
-    job = deps.start(songId, proposal.planId, body.splice, (saved) => landed(threadId, jobId, saved), deps.render);
+    job = deps.start(songId, proposal.planId, body.splice, (saved) => landed(threadId, jobId, saved), deps.render, () => applyEnded(jobId));
   } catch (err) {
     if (err instanceof QueueFullError) return { reason: err.message };
     throw err;

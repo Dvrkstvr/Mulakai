@@ -122,8 +122,9 @@ async function apply(job: Job, songId: string, run: RenderRun, planned: Splice, 
   await writeGrid(version.id, outGrid).catch(() => false);
 }
 
-/** Queues APPLY of `planId`; the caller ran checkRender at the click. Throws QueueFullError. */
-export function startEditRender(songId: string, planId: string, planned: Splice, onSaved: OnEditSaved, deps: RenderDeps): Job {
+/** Queues APPLY of `planId`; the caller ran checkRender at the click. Throws QueueFullError.
+ * `onUnsaved`: the job ended (failed, refused or cancelled) with no version saved. */
+export function startEditRender(songId: string, planId: string, planned: Splice, onSaved: OnEditSaved, deps: RenderDeps, onUnsaved?: () => void): Job {
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now(), songId };
   const run: RenderRun = { jobId: job.id, planId, refused: null, version: null };
   noteRender(songId, run);
@@ -132,6 +133,7 @@ export function startEditRender(songId: string, planId: string, planned: Splice,
     try {
       await apply(job, songId, run, planned, onSaved, deps, ids);
     } finally {
+      if (!run.version) onUnsaved?.();
       if (ids[0]) {
         await cancelSplice(deps.target, ids[0]);
         if (wasAborted(job)) await drainWhile(async () => (await spliceStatus(deps.target, ids[0])).state === 'running');
