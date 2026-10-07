@@ -1,25 +1,26 @@
 import { useEffect, useState } from 'react';
-import { DIM_WINDOW_MS } from './footerMode';
+import { DIM_WINDOW_MS, PAUSE_GRACE_MS } from './footerMode';
 
 /** The effect behind useMsSinceStopped: while stopped it stamps the moment playback stopped and
- * wakes once the dim window has passed; while playing it clears the stamp. Returns the cleanup. */
+ * wakes at each mark (the pause grace ending, then the dim window); while playing it clears the
+ * stamp. Returns the cleanup. */
 export function watchStop(
   isPlaying: boolean,
   onStamp: (stoppedAt: number | null) => void,
-  onExpire: () => void,
-  windowMs = DIM_WINDOW_MS,
+  onMark: () => void,
+  marks: number[] = [PAUSE_GRACE_MS, DIM_WINDOW_MS],
 ): () => void {
   if (isPlaying) {
     onStamp(null);
     return () => {};
   }
   onStamp(Date.now());
-  const timer = setTimeout(onExpire, windowMs);
-  return () => clearTimeout(timer);
+  const timers = marks.map((ms) => setTimeout(onMark, ms));
+  return () => timers.forEach(clearTimeout);
 }
 
 /** Milliseconds since the footer's song stopped playing (0 while it plays). Re-renders when the
- * dim window runs out, so the footer can slide away without any other state changing. A new
+ * pause grace and the dim window run out, so the footer can slide away without any other state changing. A new
  * song restarts the clock, even if it is not playing yet. */
 export function useMsSinceStopped(isPlaying: boolean, songKey: string | null): number {
   const [stoppedAt, setStoppedAt] = useState<number | null>(null);
