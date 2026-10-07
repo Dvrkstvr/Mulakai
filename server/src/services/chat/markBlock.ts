@@ -4,7 +4,8 @@
  * chip shows exactly what the turn sends. Sections come from the version's analysis (strip sections, partial
  * ones with the bars inside the mark); lyrics from the word timings inside the seconds, else the lyric blocks
  * those sections sing; key, tempo and meter from the analysis' score header. With no bar times the mark is a
- * time only: "bars not read", no bars sent (the plan is not bounded). Pure.
+ * time only: "bars not read", no bars sent, and the turn answers in words (D-194: no edit card until the reading
+ * lands); a seconds-only mark on a version whose bar times are read was snapped to bars before (markSnap). Pure.
  */
 import type { LyricsReading } from '../lyricsClient.js';
 import type { ScoreFacts } from '../score/planTypes.js';
@@ -77,7 +78,7 @@ export function markBlock({ mark, number, analysis, words }: MarkBlockInput): Ma
     `MARKED LYRICS: ${lyrics.join(' / ') || 'none read'}`,
     h ? `AT THE MARK: key ${h.key} · ${h.bpm} BPM · ${h.meter}` : 'AT THE MARK: key and tempo not read',
     bars ? `Plan bar ops only inside bars ${bars[0]}-${bars[1]}; a tempo, key or style op changes the whole song.`
-      : 'The bars of this version were not read: the mark is a time only; plan against the sections nearest it.',
+      : 'The bars of this version were not read yet: the mark is a time only, so no edit can be planned for it; answer in words (say) and tell the person to mark again once the reading lands.',
   ];
   const sectionRow = facts && bars ? sections.map((s) => `${s.label.toUpperCase()} ${s.occurrence} (${s.whole ? 'whole' : `bars ${s.bars[0]}-${s.bars[1]}`})`).join(', ') || 'none' : 'not read';
   const rows = [

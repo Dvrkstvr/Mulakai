@@ -23,6 +23,7 @@ import { playableVersion, readingChain, readVersionAnalysis, wordTimings } from 
 import { isFailed, type RangeMark, type RangeResolution } from './analysisTypes.js';
 import { markBlock, type MarkBlock } from './markBlock.js';
 import { markBars } from './markFit.js';
+import { snapMark } from './markSnap.js';
 import type { EditMark } from './turnDispatch.js';
 
 export interface SourceDeps { status: (songId: string) => Promise<ScoreStatus> }
@@ -55,7 +56,8 @@ export interface TurnRefs {
  * carried, resolved again here (it may have gone stale while the turn queued behind an APPLY, D-175). */
 export interface GatherOptions { attach?: string | null; followUp?: string | null; mark?: RangeMark | null }
 
-/** A mark resolved now against the playable version (D-175): pinned with its MARK block, or stale. */
+/** A mark resolved now against the playable version (D-175): pinned with its MARK block, or stale. A seconds-only
+ * mark is snapped to the bars it covers when the version's bar times are read (D-194), so SEND stores those bars. */
 export type MarkAt = { ok: true; mark: RangeMark; block: MarkBlock; outside: string | null }
   | { ok: false; stale: Extract<RangeResolution, { pinned: false }> };
 /** The turn's mark: stale, or its lines and bars clamped to the score the edit plans on, for the schema and card. */
@@ -71,8 +73,9 @@ export function markAt(songId: string, mark: RangeMark): MarkAt {
   const bars = done && isRead(done.bars) ? { starts: done.bars.starts, end: done.bars.end } : null;
   const r = resolveRange(mark, { playable, parent: parent && { ...parent, number: number(parent.versionId) }, bars });
   if (!r.pinned) return { ok: false, stale: r };
-  const block = markBlock({ mark: r.mark, number: playable.number, analysis: done, words: wordTimings(playable.id) });
-  return { ok: true, mark: r.mark, block, outside: rangeOutside(r.mark, bars) };
+  const pinned = snapMark(r.mark, bars); // D-194: a seconds-only mark gets the bars it covers when they are read
+  const block = markBlock({ mark: pinned, number: playable.number, analysis: done, words: wordTimings(playable.id) });
+  return { ok: true, mark: pinned, block, outside: rangeOutside(pinned, bars) };
 }
 
 function turnMark(songId: string, mark: RangeMark, facts: ScoreFacts | null): TurnMark {
@@ -161,5 +164,6 @@ export async function gatherTurnState(thread: ChatThread, deps: SourceDeps = sou
   const block = [...songStateLines({ library, song }), ...lines];
   const edit = editBase(thread.songId, status, facts) ?? { reason: (status ? unreadable(status) : reason) ?? 'its score could not be read' };
   const mark = opts.mark ? turnMark(thread.songId, opts.mark, facts) : null;
-  return { block, facts, draft: null, state: { hasSong: true, scoreReadable: Boolean(facts), ...c3 }, scoreReason: song.reason, refs, edit, mark };
+  const timeMark = mark && 'range' in mark && !mark.range ? { timeMark: true } : {}; // D-194: answer in words
+  return { block, facts, draft: null, state: { hasSong: true, scoreReadable: Boolean(facts), ...c3, ...timeMark }, scoreReason: song.reason, refs, edit, mark };
 }
