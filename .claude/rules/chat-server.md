@@ -40,7 +40,13 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
 - Proposals live in memory (`proposalStore`, `planStore`); threads, messages
   and the draft in SQLite with `draft_v` / `chat_v` (docs/decisions/0007).
 - A splice that cannot be aligned saves the whole render, labelled (D-101,
-  D-109); never a silent splice. Every exit cancels the yue splice job.
+  D-109); never a silent splice. Cancel stops a queued or running yue splice
+  job; a finished one's files stay until yue-server's 24 h sweep, so no copy
+  may claim they were deleted.
+- APPLY takes its per-thread guard before the first await (two tabs, #185).
+  An APPLY that ends unsaved clears the edit card's job id; after a restart a
+  card still holding an unknown id reads INTERRUPTED (ASK AGAIN, the plan is
+  gone), any other reads EXPIRED (D-169).
 - C3 references: one `transcribe`-kind reading job holds one slot through
   WORDS > SCORE > CAPTION (docs/decisions/0008); never a new queue kind. READ,
   CREATE SONG and CREATE COVER all pass `gpuGuard` (no planner loaded).

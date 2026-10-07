@@ -1,0 +1,98 @@
+{
+ "song": {
+  "id": "9bc2b62f-b868-43fe-bb5c-9ccd157d1e16",
+  "name": "Funky Jazz Groove",
+  "text": "reharmonize the first chorus with jazz chords, changing the root of the chords"
+ },
+ "v1": "edf5c7b7-7997-490f-9cbe-4b9164b499f3",
+ "v2": "9442fad7-f6d1-495a-8af9-b0724318b6aa",
+ "label": "score edit · REHARMONIZE 27–34 · bars 27–34 spliced",
+ "splice": {
+  "kind": "reharmonize",
+  "bars": [
+   27,
+   34
+  ],
+  "lengthDiffS": -0.0161
+ },
+ "whole": false,
+ "fallback": null,
+ "ops": [
+  {
+   "op": "REHARMONIZE",
+   "from_bar": 27,
+   "to_bar": 34,
+   "chords": [
+    {
+     "bar": 27,
+     "beat": 1,
+     "root": "C",
+     "quality": "m7"
+    },
+    {
+     "bar": 28,
+     "beat": 1,
+     "root": "F",
+     "quality": "7"
+    },
+    {
+     "bar": 28,
+     "beat": 2,
+     "root": "Bb",
+     "quality": "m7"
+    },
+    {
+     "bar": 29,
+     "beat": 1,
+     "root": "C",
+     "quality": "m7"
+    },
+    {
+     "bar": 30,
+     "beat": 1,
+     "root": "F",
+     "quality": "7"
+    },
+    {
+     "bar": 30,
+     "beat": 2,
+     "root": "Bb",
+     "quality": "m7"
+    },
+    {
+     "bar": 31,
+     "beat": 1,
+     "root": "C",
+     "quality": "m7"
+    },
+    {
+     "bar": 32,
+     "beat": 1,
+     "root": "F",
+     "quality": "7"
+    },
+    {
+     "bar": 32,
+     "beat": 2,
+     "root": "Bb",
+     "quality": "m7"
+    },
+    {
+     "bar": 33,
+     "beat": 1,
+     "root": "Eb",
+     "quality": "maj7"
+    },
+    {
+     "bar": 34,
+     "beat": 1,
+     "root": "Ab",
+     "quality": "m7"
+    }
+   ]
+  }
+ ],
+ "seconds": 159.30260416666667,
+ "duration": 159.30260416666667,
+ "editText": "reharmonize the first chorus with jazz chords, changing the root of the chords"
+}

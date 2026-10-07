@@ -559,8 +559,8 @@
         "Edge: a song that is not score-eligible (repaint or ACE-Step version, cover, instrumental, chord-free) gets the eligibility reason as a say and no APPLY; a request naming a section the song lacks gets a say listing its sections",
         "Edge: a plan failing its checks (3 attempts, over 360 s, no change) shows the rust lines with numbers, no APPLY, and stores nothing"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "CB-6 live (c0b-live.md): edit card with assumption, bars and bar strip; single REHARMONIZE -> only those bars, rewrite or 2/4 -> whole song with the reason; follow-up supersedes the old card; missing-section say, non-YuE2 say with no APPLY, failed-plan line. Covers are eligible on purpose (D-132/F-065, D-167). Not run live: instrumental, chord-free"
     },
     {
       "id": "F-047",
@@ -575,8 +575,8 @@
         "Edge: no usable grid, an unresolved join on both sides, or a render truncated before the span ends: the whole-song re-render is saved as the version, labelled as such, with a rust line, never a silent splice",
         "Edge: cancel or failure at any step deletes the temp render and leaves no version; OWED to the owner: 5 A/B pairs, join not found in 4 of 5"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "CB-6 live: null test 0 differing samples 4/4 songs, join LUFS excess <= 0.42 dB, params_json records bars/joins/gain, next turn reads v2. CB-4 CP-C0 edit leg 5/5 (D-166) covers the no-grid fallback"
     },
     {
       "id": "F-048",
@@ -588,8 +588,8 @@
         "BACK TO v1 plays the previous version at the same seconds without activating it; USE v1 activates it (song meta restored as the existing activate does) and the Editor's version rail agrees",
         "Edge: the previous version was deleted in the Editor: the card has no A/B; a position past the shorter version's end clamps to it"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "CB-6 live: version card, NOW PLAYING THE NEW VERSION, BACK TO v1 at the same position, USE v1 agrees with the Editor rail, no A/B once the previous version is deleted. Known: stale vN after an Editor delete (review nit 3)"
     },
     {
       "id": "F-049",
@@ -603,8 +603,8 @@
         "A message sent while a render or splice runs shows 'WAITING FOR v2' and is read after the version saves, so it sees the new version",
         "Edge: the song changed since the proposal (a repaint queued in the Editor): APPLY refuses 'this song changed since the proposal', starts no job and offers ASK AGAIN"
       ],
-      "passes": false,
-      "evidence": "Turn half only (C0a, c0a-live.md): CANCEL while thinking reads CANCELLED, resend gets 409, restart -> INTERRUPTED + RETRY and EXPIRED, reload mid-take restores RENDERING. Commit half is C0b"
+      "passes": true,
+      "evidence": "Turn half only (C0a, c0a-live.md): CANCEL while thinking reads CANCELLED, resend gets 409, restart -> INTERRUPTED + RETRY and EXPIRED, reload mid-take restores RENDERING. Commit half is C0b. Commit half (CB-6 live): CANCEL while queued/rendering/splicing saves nothing and returns the card to pending; WAITING FOR v2 then reads v2; reload mid-render restores the phase; stale APPLY refuses with ASK AGAIN. Restart mid-APPLY reads INTERRUPTED with ASK AGAIN, cancel-then-restart EXPIRED, v1 byte-identical (#186, browser-checked with real YuE2, pipeline/verify/C0b/fix/). Not run live: unload not confirmed in 10 s (Vitest)"
     },
     {
       "id": "F-050",
@@ -617,7 +617,7 @@
         "OWED to the owner (passes stays false until it is in): 5 A/B pairs of v1 against v2 from chat edits: join not found in 4 of 5, 'the rest sounds the same' yes, 'the chords changed' yes"
       ],
       "passes": false,
-      "evidence": "Create half (C0a): CP-C0a PASS 3/3 stop lines (pipeline/cp-c0/2026-10-06) and CA-7 live run (c0a-live.md). Edit leg + owner's A/B listen are C0b"
+      "evidence": "Create half (C0a): CP-C0a PASS 3/3 stop lines (pipeline/cp-c0/2026-10-06) and CA-7 live run (c0a-live.md). Edit leg + owner's A/B listen are C0b. #2 PASS (CB-6 live, two reloads: thread, v1, v2, Library survive). #3 OWED: listen pack E:/ai/tmp/c0b-live/listen (5 pairs, 4 test the join)"
     },
     {
       "id": "F-051",

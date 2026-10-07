@@ -1,0 +1,73 @@
+{
+ "song": {
+  "id": "3f44f508-c08d-4d1c-b299-63235dd61e29",
+  "name": "Romantica",
+  "text": "reharmonize the first chorus with jazz chords, changing the root of the chords"
+ },
+ "v1": "3820c535-b81f-4716-94c2-370f9272f4b7",
+ "v2": "dd44e1c7-69ad-4f56-8a6b-6e51e0d0741c",
+ "label": "score edit · REHARMONIZE 23–30",
+ "splice": null,
+ "whole": true,
+ "fallback": null,
+ "ops": [
+  {
+   "op": "REHARMONIZE",
+   "from_bar": 23,
+   "to_bar": 30,
+   "chords": [
+    {
+     "bar": 23,
+     "beat": 1,
+     "root": "C",
+     "quality": "m7"
+    },
+    {
+     "bar": 24,
+     "beat": 1,
+     "root": "D",
+     "quality": "7"
+    },
+    {
+     "bar": 25,
+     "beat": 1,
+     "root": "F",
+     "quality": "m7"
+    },
+    {
+     "bar": 26,
+     "beat": 1,
+     "root": "G",
+     "quality": "7"
+    },
+    {
+     "bar": 27,
+     "beat": 1,
+     "root": "Bb",
+     "quality": "m7"
+    },
+    {
+     "bar": 28,
+     "beat": 1,
+     "root": "C",
+     "quality": "7"
+    },
+    {
+     "bar": 29,
+     "beat": 1,
+     "root": "Eb",
+     "quality": "m7"
+    },
+    {
+     "bar": 30,
+     "beat": 1,
+     "root": "F",
+     "quality": "7"
+    }
+   ]
+  }
+ ],
+ "seconds": 158.67866666666666,
+ "duration": 158.67866666666666,
+ "editText": "reharmonize the first chorus with jazz chords, changing the root of the chords"
+}
