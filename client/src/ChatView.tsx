@@ -8,6 +8,9 @@ import {
 } from './chatCopy';
 import { filledCount, liveFields, useChatDraftStore } from './chatDraftStore';
 import { assistantOffCause } from './chatEntry';
+import { abPrevious } from './chatAb';
+import { usedLine, waitingFor } from './chatEditCopy';
+import { songVersions } from './chatEditView';
 import { committing, fillingKeys, fmtLength, latestSong, playerTake, sidebarFoot, sidebarMode } from './chatScreen';
 import { useChatStore } from './chatStore';
 import { ChatComposer } from './ChatComposer';
@@ -15,6 +18,7 @@ import { ChatDraftFields } from './ChatDraftFields';
 import { ChatPlayer } from './ChatPlayer';
 import { ChatSidebar } from './ChatSidebar';
 import { ChatThread } from './ChatThread';
+import { useChatAb } from './useChatPlayback';
 
 /** The thread's song, read again whenever a card lands (a new take, a new title). */
 function useChatSong(songId: string | null | undefined, cards: number): SongDetail | null {
@@ -42,9 +46,22 @@ export function ChatView({ onForm, onLibrary }: Props) {
   const pending = useChatDraftStore((s) => s.pending);
   const live = useMemo(() => liveFields({ draft, pending, filled: {}, assistantRev: {} }), [draft, pending]);
   const cards = thread?.messages.filter((m) => m.kind === 'song' || m.kind === 'version').length ?? 0;
-  const song = useChatSong(thread?.songId, cards);
+  const [reloads, setReloads] = useState(0);
+  const song = useChatSong(thread?.songId, cards + reloads);
   const latest = latestSong(thread);
   const take = playerTake(song);
+  // C0b (CB-5): the active version, the newest version card and its A/B against the version before (F-048).
+  const versions = songVersions(song);
+  const newestCard = thread?.messages.findLast((m) => m.kind === 'version') ?? null;
+  const previous = abPrevious(newestCard, song);
+  const number = versions.active ?? latest?.number ?? null;
+  /** USE vN: activate it as the Editor's revert does; the player stays on it and says the newer one is kept (Q-106). */
+  const useVersion = async (versionId: string) => {
+    const kept = previous?.current;
+    await api.activateVersion(versionId);
+    setReloads((n) => n + 1);
+    useChatAb.setState({ side: 'song', note: previous && kept ? usedLine(previous.number, kept) : null });
+  };
   const [confirmNew, setConfirmNew] = useState(false);
   const assistantOn = assistantOffCause(status) === null;
   const mode = sidebarMode(thread, commit);
@@ -60,7 +77,7 @@ export function ChatView({ onForm, onLibrary }: Props) {
     <div className="chat-view">
       <div className="chat-title-row">
         <h2 className="chat-title">{title}</h2>
-        <span className="chat-hn">{thread?.songId ? songSubtitle(latest?.number ?? null, fmtLength(song?.duration ?? latest?.seconds)) : DRAFT_SUBTITLE}</span>
+        <span className="chat-hn">{thread?.songId ? songSubtitle(number, fmtLength(song?.duration ?? latest?.seconds)) : DRAFT_SUBTITLE}</span>
         <span className="chat-title-gap" />
         <button type="button" className="chat-link" onClick={onForm}>{FORM_LINK}</button>
         {confirmNew ? (
@@ -76,16 +93,28 @@ export function ChatView({ onForm, onLibrary }: Props) {
       {chat.refusal && <div className="chat-er chat-refusal" role="alert"><div><b>{NEW_CHAT_REFUSED}</b> {chat.refusal}</div></div>}
       <div className="chat-body">
         <div className="chat-main">
-          <ChatThread songTitle={title} onForm={onForm} onLibrary={() => onLibrary(thread?.songId ?? null)} />
-          {song && take && <ChatPlayer key={take} file={take} title={song.title} number={latest?.number ?? null} label={latest?.label ?? null} />}
-          <ChatComposer turn={turn} assistantOn={assistantOn} committing={committing(thread, commit)} onType={chat.type} onSend={() => void chat.send()} />
+          <ChatThread
+            songTitle={title} onForm={onForm} onLibrary={() => onLibrary(thread?.songId ?? null)} versions={versions}
+            abCardId={previous ? newestCard?.id ?? null : null}
+          />
+          {song && take && (
+            <ChatPlayer
+              key={thread?.id} file={take} title={song.title} number={number} label={!newestCard && number === latest?.number ? latest?.label ?? null : null}
+              previous={previous} newest={newestCard?.id ?? null} onUse={useVersion}
+            />
+          )}
+          <ChatComposer
+            turn={turn} assistantOn={assistantOn} committing={committing(thread, commit)} onType={chat.type}
+            waitingLine={thread?.songId ? waitingFor(versions.next) : null}
+            onSend={() => { useChatAb.getState().setNote(null); void chat.send(); }}
+          />
         </div>
         <ChatSidebar
           head={mode === 'song' ? sidebarSongHead(title) : mode === 'locked' ? SIDEBAR_RENDERING : SIDEBAR_HEAD}
           foot={sidebarFoot(thread, commit, assistantOn)}
           filled={filledCount(live)}
           top={mode === 'song' && latest ? (
-            <div className="chat-fd"><div className="chat-fk">{VERSIONS}</div><div><span className="chat-vp"><span>v{latest.number} ●</span></span></div></div>
+            <div className="chat-fd"><div className="chat-fk">{VERSIONS}</div><div><span className="chat-vp"><span>v{number ?? latest.number} ●</span></span></div></div>
           ) : null}
         >
           <ChatDraftFields filling={fillingKeys(live, turn)} locked={mode !== 'draft'} />

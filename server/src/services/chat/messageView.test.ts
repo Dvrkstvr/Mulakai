@@ -56,6 +56,38 @@ describe('message view (the states the client shows)', () => {
     expect(estSeconds({})).toBeNull();
   });
 
+  it('an edit card (CB-2): pending, REPLACED by the next plan, expired when its plan is gone; committing and done follow its APPLY job', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'edit', { proposalId: 'e', ...over });
+    expect(states([card()], ctx({}, { e: 'live' }))).toEqual(['pending']);
+    expect(states([card()], ctx({}, { e: 'superseded' }))).toEqual(['superseded']);
+    expect(states([card()], ctx())).toEqual(['expired']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'running' } }, { e: 'live' }))).toEqual(['committing']);
+    expect(states([card({ jobId: 'r' }), msg('assistant', 'version', { jobId: 'r' })], ctx())).toEqual(['done', null]);
+  });
+
+  it('an edit card\'s APPLY (CB-3, F-049): the phase while committing, back to pending when it ended with no version, stale when refused', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'edit', { proposalId: 'e', jobId: 'r', ...over });
+    const phase = (job: JobView) => messageViews([card()], ctx({ r: job }, { e: 'live' }))[0].phase;
+    expect(phase({ status: 'queued', queuePosition: 2 })).toBe('queued');
+    expect(phase({ status: 'loading' })).toBe('queued');
+    expect(phase({ status: 'running', progressText: 'rendering' })).toBe('rendering');
+    expect(phase({ status: 'running', progressText: 'splicing' })).toBe('splicing');
+    expect(phase({ status: 'running', progressText: 'saving' })).toBe('saving');
+    expect(phase({ status: 'failed', error: 'YuE2 out of memory' })).toBeNull();
+    expect(states([card()], ctx({ r: { status: 'failed', error: 'Aborted' } }, { e: 'live' }))).toEqual(['pending']);
+    expect(messageViews([msg('assistant', 'recipe', { body: recipeBody as never })], ctx())[0].phase).toBeNull();
+    const stale = card({ jobId: null, body: { planId: 'p', stale: 'this song changed since the proposal' } as never });
+    expect(states([stale], ctx({}, { e: 'live' }))).toEqual(['stale']);
+    expect(states([stale], ctx({}, { e: 'superseded' }))).toEqual(['superseded']);
+  });
+
+  it('a version card offers A/B only while the version before it exists (F-048 edge)', () => {
+    const body = { seconds: 192, label: 'x', number: 2, truncated: false, whole: false, splice: null, fallback: null, previous: { versionId: 'v1', number: 1 } };
+    const v = msg('assistant', 'version', { body: body as never, versionId: 'v2' });
+    expect((messageViews([v], ctx())[0].body as typeof body).previous).toEqual({ versionId: 'v1', number: 1 });
+    expect((messageViews([v], { ...ctx(), versionExists: (id) => id !== 'v1' })[0].body as typeof body).previous).toBeNull();
+  });
+
   it('an analyze card: pending, superseded, expired; committing while its READ job runs, then done (C3)', () => {
     const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'analyze', { proposalId: 'a', ...over });
     expect(states([card()], ctx({}, { a: 'live' }))).toEqual(['pending']);

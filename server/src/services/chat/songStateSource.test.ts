@@ -11,6 +11,8 @@ const { db } = await import('../../db/index.js');
 const { readingFixture } = await import('../../../test-fakes/chatScripts.js');
 const { draftThread, resetDraftThread, songThread } = await import('./threadStore.js');
 const { analyzeFor, gatherTurnState } = await import('./songStateSource.js');
+const { contract } = await import('../../../test-fakes/fakeYue.js');
+type ScoreStatus = import('../score/scoreStatus.js').ScoreStatus;
 
 function addRef(threadId: string, name: string, over: { reading?: unknown; sourceSongId?: string; seconds?: number } = {}): string {
   const id = crypto.randomUUID();
@@ -98,3 +100,28 @@ describe('analyzeFor (the READ card)', () => {
     expect(analyzeFor('Bohemian Rhapsody', refs, plan)).toEqual({ reason: 'nothing called "Bohemian Rhapsody" is attached or in the library', attached: [] });
   });
 });
+
+describe('gatherTurnState: what an edit turn plans on (CB-2)', () => {
+  const facts = contract('read-ok').response.body.facts;
+  const status = (over: Partial<ScoreStatus> = {}): ScoreStatus => ({
+    eligibility: { state: 'eligible' },
+    source: { songId: 's', activeVersionId: 'v1', abc: 'X:1', style: 'pop', lyrics: '[Verse] aa', fingerprint: 'f1' } as ScoreStatus['source'],
+    read: { ok: true, error: null, messages: [], chordsPresent: false, bpm: 87, seconds: 179.3, tokens: 1832, facts },
+    ...over,
+  });
+
+  it('an eligible song: the base the plan is built on (source, facts, the chords verdict)', async () => {
+    const id = song('Rain');
+    const got = await gatherTurnState(songThread(id), { status: async () => status() });
+    expect(got.edit).toEqual({ songId: id, facts, chordsPresent: false, source: { abc: 'X:1', style: 'pop', lyrics: '[Verse] aa', activeVersionId: 'v1', fingerprint: 'f1' } });
+  });
+
+  it('not eligible: the eligibility reason, even when the score was read; the draft thread has none', async () => {
+    const id = song('Rain');
+    const reason = 'This song has a repaint version, so score editing ended when it was made.';
+    expect((await gatherTurnState(songThread(id), { status: async () => status({ eligibility: { state: 'ineligible', reason } }) })).edit).toEqual({ reason });
+    expect((await gatherTurnState(songThread(id), { status: async () => { throw new Error('yue-server down'); } })).edit).toEqual({ reason: 'yue-server down' });
+    expect((await gatherTurnState(draftThread(), noStatus)).edit).toBeNull();
+  });
+});
+

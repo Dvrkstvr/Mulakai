@@ -45,7 +45,7 @@ export type ChatMessageKind = 'text' | 'say' | 'ask' | 'recipe' | 'edit' | 'fail
  * `reading` (a reading card's job between its steps) is this client's assumption until CR-4's messageView lands. */
 export type ChatMessageState =
   | 'queued' | 'thinking' | 'pending' | 'superseded' | 'expired' | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted'
-  | 'reading';
+  | 'reading' | 'stale';
 
 /** A recipe as the turn proposed it (SP-5's shape, camel-cased like the draft). */
 export interface ChatRecipe extends Omit<ChatDraftFields, 'engine'> {
@@ -104,6 +104,8 @@ export interface ChatMessageView {
   createdAt: string;
   /** The message's job as the server last saw it (turn or take), for rehydration; absent on older servers. */
   job?: { status: 'queued' | 'loading' | 'running' | 'done' | 'failed'; queuePosition?: number; progressText?: string; cancelled?: boolean; error?: string } | null;
+  /** C0b: an edit card's APPLY step while it commits (`api/chatEdit.ts` ChatApplyPhase). */
+  phase?: 'queued' | 'rendering' | 'splicing' | 'saving' | null;
 }
 
 /** A thread with its draft: `songId` null = the one draft thread (no song yet). */

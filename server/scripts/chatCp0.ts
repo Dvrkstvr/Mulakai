@@ -12,12 +12,18 @@
  *
  *   npx tsx scripts/chatCp0.ts --server http://127.0.0.1:3201 --out <dir> [--ollama http://127.0.0.1:11434
  *     --proxy-port 11436] [--create 1] [--gpu] [--limit 10]
+ *
+ * `--leg edit` (CP-C0, CB-4): the edit leg on library songs (chatCp0Edit.ts; stop lines in chatCp0EditStats.ts):
+ *   npx tsx scripts/chatCp0.ts --leg edit --songs <id,id,id> --data-dir <the server's DATA_DIR> --server-log <its stdout>
+ *     --yue http://127.0.0.1:8004 --out <dir> [--listen <dir>] [--wsl-check] [--ollama ... --proxy-port ...] [--gpu]
  */
 import fs from 'node:fs';
 import path from 'node:path';
 import { json, sleep, startGpuSampler, startOllamaProxy, type GpuSample, type ProxyEvent } from './scoreCp1Lib.js';
 import { runCreate, runTurn, type Prompt, type RunCtx } from './chatCp0Run.js';
-import { stopLines, summarize, summaryMarkdown, type TurnResult } from './chatCp0Stats.js';
+import { stopLines, summarize, summaryMarkdown, type StopLine, type TurnResult } from './chatCp0Stats.js';
+import { runEditLeg } from './chatCp0Edit.js';
+import { editMarkdown, editStopLines, summarizeEdits, type EditResult } from './chatCp0EditStats.js';
 
 /** 10 descriptions: EN / DE / ES, 3 vague ones that should get an `ask` (architecture.md 8). */
 const PROMPTS: Prompt[] = [
@@ -56,21 +62,38 @@ async function main() {
   const proxy = ollama ? await startOllamaProxy(proxyPort, ollama.replace(/\/+$/, ''), events) : null;
   const sampler = flag('gpu') ? startGpuSampler(path.join(out, 'nvidia-smi.csv'), gpu) : null;
   const results: TurnResult[] = [];
+  const edits: EditResult[] = [];
+  const edit = arg('leg', 'create') === 'edit';
   const started = new Date().toISOString();
-  const save = () => {
-    const summary = summarize(results);
+  const save = (): StopLine[] => {
     const meta = { server, started, date: started.slice(0, 10), proxy: ollama ? `127.0.0.1:${proxyPort} -> ${ollama}` : null, create: createN, note: arg('note') };
-    fs.writeFileSync(path.join(out, 'results.json'), JSON.stringify({ meta, summary, stopLines: stopLines(summary), results, proxyEvents: events }, null, 1));
-    fs.writeFileSync(path.join(out, 'summary.md'), summaryMarkdown(summary, results, {
-      server, date: meta.date, note: `${ollama ? `Planner via the proxy to ${ollama}.` : 'No proxy: no prompt tokens or unload times.'} ${meta.note}`,
-    }));
-    return summary;
+    const note = `${ollama ? `Planner via the proxy to ${ollama}.` : 'No proxy: no prompt tokens or unload times.'} ${meta.note}`;
+    const write = (body: object, md: string) => {
+      fs.writeFileSync(path.join(out, 'results.json'), JSON.stringify({ ...body, proxyEvents: events }, null, 1));
+      fs.writeFileSync(path.join(out, 'summary.md'), md);
+    };
+    if (edit) {
+      const summary = summarizeEdits(edits);
+      write({ meta: { ...meta, leg: 'edit', songs: arg('songs') }, summary, stopLines: editStopLines(summary), edits }, editMarkdown(summary, edits, { server, date: meta.date, note }));
+      return editStopLines(summary);
+    }
+    const summary = summarize(results);
+    write({ meta, summary, stopLines: stopLines(summary), results }, summaryMarkdown(summary, results, { server, date: meta.date, note }));
+    return stopLines(summary);
   };
   try {
     if (sampler) await sleep(1500);
     const status = await json('GET', `${server}/api/chat/status`);
-    log(`CP-C0a start: ${server}, status ${JSON.stringify(status.body)}, ${prompts.length} prompts, create ${createN}`);
+    log(`CP-C0 ${edit ? 'edit' : 'create'} leg start: ${server}, status ${JSON.stringify(status.body)}`);
     if (status.status !== 200 || !(status.body as { configured?: boolean }).configured) throw new Error('the chat is not configured on this server (LLM_API_URL and YUE_API_URL)');
+    if (edit) {
+      const songs = arg('songs').split(',').filter(Boolean);
+      if (!songs.length || !arg('data-dir') || !arg('server-log')) throw new Error('--leg edit needs --songs, --data-dir and --server-log');
+      return await runEditLeg(ctx, {
+        songs, out, dataDir: arg('data-dir'), yue: arg('yue', 'http://127.0.0.1:8004').replace(/\/+$/, ''), serverLog: arg('server-log'),
+        listen: arg('listen'), wslCheck: flag('wsl-check'), applyTimeoutMs: Number(arg('apply-timeout', '900')) * 1000,
+      }, (r) => { edits.push(r); save(); });
+    }
     let created = 0;
     for (const [i, p] of prompts.entries()) {
       const { result, threadId, proposalId } = await runTurn(ctx, p, i);
@@ -84,9 +107,8 @@ async function main() {
       save();
     }
   } finally {
-    const summary = save();
+    const lines = save();
     sampler?.kill(); proxy?.close(); logFile.end();
-    const lines = stopLines(summary);
     for (const l of lines) console.log(`${l.verdict.padEnd(7)} ${l.text}`);
     if (lines.some((l) => l.verdict === 'STOP')) process.exitCode = 1;
   }

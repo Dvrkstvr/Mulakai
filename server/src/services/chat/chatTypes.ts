@@ -4,6 +4,7 @@
  * field needs no bump, a shape change bumps and the reader handles both (versions-data.md).
  */
 import type { Op } from '../score/planTypes.js';
+import type { EditBody } from './editTypes.js';
 import type { Reading } from './reading.js';
 
 /** One sung section of the lyrics: a closed-list tag and its lines (no tags inside lines). */
@@ -116,13 +117,7 @@ export interface ReadingEstimate { words: number; score: number; caption: number
 /** The reading card: the job is the message's `job_id`; `reading` is the snapshot once saved.
  * `followUp`: the server queues the follow-up turn when it saves (D-129); RE-ANALYZE does not. */
 export interface ReadingBody { referenceId: string; name: string; followUp: boolean; reading: Reading | null }
-export interface EditBody {
-  planId: string;
-  ops: Op[];
-  verdicts: unknown[];
-  checks: unknown;
-  splice: { from_bar: number; to_bar: number } | { reason: string };
-}
+export type { EditBase, EditBody } from './editTypes.js';
 /** A song / version card. `truncated`: the take hit the length cap; saved, but never DONE (D-025). */
 export interface CardBody { seconds: number | null; label: string; number: number; truncated?: boolean }
 export interface FailedBody { reasons: string[]; cause: string }
@@ -160,7 +155,9 @@ export type MessageState =
   | 'queued' | 'thinking' | 'pending' | 'superseded' | 'expired'
   | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted'
   /** C3: a reading card while its reading job runs (before the follow-up turn). */
-  | 'reading';
+  | 'reading'
+  /** C0b: an edit card whose APPLY was refused because the song changed since the plan (ASK AGAIN). */
+  | 'stale';
 export interface MessageView extends ChatMessage { state: MessageState | null }
 
 export interface ThreadView {

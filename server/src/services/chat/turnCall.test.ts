@@ -27,6 +27,8 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     const progress: string[] = [];
     const d = await decideReply(ctx, { ask, onAttempt: (n, r) => progress.push(`${n}${r ? ` · ${r}` : ''}`) });
     expect(d).toMatchObject({ ok: true, attempts: 3, calls: 3 });
+    // CB-2: the refused attempts travel with the reply, so an edit card says what a retry moved (D-060).
+    expect(d.ok && d.refusals).toEqual([['the reply is not valid JSON'], ['key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']]);
     expect(progress).toEqual(['1', '2 · the reply is not valid JSON', '3 · key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']);
     const last = ask.mock.calls[2][0] as Array<{ content: string }>;
     expect(last.at(-1)!.content).toContain('- key "Aminor" is not one of the 30 key names');

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ACTIONS, allowedActions, redirected } from './turnActions.js';
+import { ACTIONS, EDITS_ON, allowedActions, redirected } from './turnActions.js';
 
 describe('turn actions', () => {
   it('rung 0 and 1 offer SP-5\'s whole set whatever the state', () => {
@@ -27,9 +27,14 @@ describe('turn actions', () => {
     expect(allowedActions({ hasSong: true, scoreReadable: true, attached: true })).toEqual(ACTIONS);
   });
 
-  it('C3 answers analyze on the draft thread; scalpel and edit stay a say everywhere, analyze and a recipe on a song thread (D-098, D-110, D-130)', () => {
+  it('C3 answers analyze on the draft thread; scalpel stays a say everywhere, edit without a song or with edits off, analyze and a recipe on a song thread (D-098, D-110, D-130)', () => {
     expect(redirected({ hasSong: false, scoreReadable: false })).toEqual(['scalpel', 'edit']);
-    expect(redirected({ hasSong: true, scoreReadable: true })).toEqual(['scalpel', 'analyze', 'edit', 'recipe']);
-    expect(redirected({ hasSong: true, scoreReadable: true }, true)).toEqual(['scalpel', 'analyze', 'recipe']);
+    expect(redirected({ hasSong: true, scoreReadable: true }, false)).toEqual(['scalpel', 'analyze', 'edit', 'recipe']);
+  });
+
+  it('CB-2: an edit on a song with a readable score is a real plan; without a readable score it is a say with the reason (F-046 edge)', () => {
+    expect(EDITS_ON).toBe(true);
+    expect(redirected({ hasSong: true, scoreReadable: true })).toEqual(['scalpel', 'analyze', 'recipe']);
+    expect(redirected({ hasSong: true, scoreReadable: false })).toEqual(['scalpel', 'analyze', 'edit', 'recipe']);
   });
 });

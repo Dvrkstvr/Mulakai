@@ -57,7 +57,7 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   const ops = checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
   if (!ops.ok) return fail(...ops.reasons);
   if (!deps.apply) return { ok: true, reply: reply(ops.ops), applied: null };
-  const applied = withLimits(await deps.apply(ops.ops), { ops: ops.ops, sections: ctx.facts.sections });
+  const applied = withLimits(await deps.apply(ops.ops), { ops: ops.ops, sections: ctx.facts.sections, blocks: ctx.facts.lyric_blocks });
   if (!applied.ok) return fail(...applyReasons(applied));
   const language = deps.language ? await lyricLanguageReasons(applied, deps.language) : [];
   return language.length ? fail(...language) : { ok: true, reply: reply(ops.ops), applied };

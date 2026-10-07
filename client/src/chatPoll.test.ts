@@ -33,6 +33,20 @@ describe('chatPoll.follow', () => {
     expect(onLost).toHaveBeenCalledTimes(1);
   });
 
+  it('a reload during SPLICING restores the edit card as an APPLY in that step (CB-5, F-049 #3)', async () => {
+    const { chatPoll } = await import('./chatPoll');
+    const { chatCommit } = await import('./chatTurn');
+    let commit: import('./chatTurn').CommitState | null = null;
+    const p = chatPoll({
+      turnState: () => ({ phase: { kind: 'composing' } }) as never, commitState: () => commit, readingState: () => ({ cards: {} }) as never,
+      turn: () => undefined, commit: (e) => { commit = chatCommit(commit, e); }, reading: () => undefined, refetch: async () => undefined,
+    });
+    jobStatus.mockResolvedValue({ status: 'running' });
+    const card = { id: 'e', kind: 'edit', role: 'assistant', state: 'committing', jobId: 'r9', proposalId: 'e1', phase: 'splicing', job: { status: 'running', progressText: 'splicing' } };
+    p.rehydrate({ messages: [card] } as never);
+    expect(commit).toEqual({ proposalId: 'e1', jobId: 'r9', apply: true, phase: { kind: 'running', progressText: 'splicing', stage: null, progress: null } });
+  });
+
   it('a newer follow of the same job takes over; the old loop stops polling for itself', async () => {
     const first = vi.fn(async () => false);
     const second = vi.fn(async () => false);

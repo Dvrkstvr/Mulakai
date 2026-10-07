@@ -5,7 +5,7 @@ import { decideReply, type TurnContext } from './turnCall.js';
 import { checkReply } from './replyCheck.js';
 import { dispatchReply, REDIRECT } from './turnDispatch.js';
 import { ACTIONS } from './turnActions.js';
-import type { ScoreFacts } from '../score/planTypes.js';
+import type { ApplyResult, ScoreFacts } from '../score/planTypes.js';
 import type { Draft, TurnReply } from './chatTypes.js';
 
 /** Real qwen3:14b replies recorded by SP-5 on the v3.1 prompt (test-fakes/data/sp5-replies.json), every attempt verbatim. */
@@ -71,13 +71,18 @@ describe('SP-5 recorded replies replayed through decideReply / replyCheck / turn
     expect(sent[1]).toContain(`- ${t.attempts[0].reasons[0]}\n`);
   });
 
-  it('ED03: a SET_TEMPO edit passes checkOps; this version answers it by pointing to SCORE', async () => {
+  it('ED03: a SET_TEMPO edit passes checkOps and becomes an edit card that re-renders the whole song (CB-2)', async () => {
     const t = turn('ED03.t1');
     const { decision, facts } = await replay(t);
     if (!decision.ok) throw new Error('rejected');
     expect(decision.reply).toMatchObject({ action: 'edit', ops: [{ op: 'SET_TEMPO', bpm: 85 }] });
     const full = await checkReply(JSON.parse(t.attempts[0].content), { allowed: ACTIONS, shapeOnly: [], facts, phraseBars: 4, request: t.request }, {});
     expect(full.ok).toBe(true);
-    expect(dispatch(decision.reply, true)).toEqual({ kind: 'say', text: REDIRECT.edit, body: null });
+    const applied = contract('apply-set-tempo').response.body as ApplyResult;
+    const source = { abc: 'X:1', style: 'pop', lyrics: null, activeVersionId: 'v1', fingerprint: 'f1' };
+    const edit = { base: { songId: 's1', source, facts: facts!, chordsPresent: true }, applied, attempts: 1, refusals: [], planId: 'p1', createdAt: 0 };
+    const out = dispatchReply({ reply: decision.reply, hasSong: true, draft, sentRev: 0, scoreReason: null, edit, request: t.request });
+    expect(out).toMatchObject({ kind: 'edit', body: { planId: 'p1', splice: { splice: false } } });
+    expect(dispatch(decision.reply, true)).toEqual({ kind: 'say', text: REDIRECT.editRefused('its score could not be read'), body: null });
   });
 });

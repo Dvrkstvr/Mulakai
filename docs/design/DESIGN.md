@@ -1075,6 +1075,44 @@ requiring its own justification against a screen-count rule.
      version pill hides (the mockup's two pills and longer line overlapped
      DOWNLOAD at 1366). Past the reference's end the player waits there,
      paused.
+   - **The edit card** (added 2026-10-07, chat C0b; spec
+     `pipeline/design/chat-edit.html`, D-158 EC-1..EC-8) is the recipe
+     card's shape headed `EDIT · SCORE`: the assumption in `text-mid`, the
+     SCORE change list (`ScorePlanList`, the dock's rows and checks line),
+     then the **bar strip** (option B): a 16px `carbon-raised` bar with the
+     bars that change as an `on-sky` span on a sky hairline, or, when the
+     whole song re-renders, the full width hatched `on-sky`/`sky-tint`,
+     with `1 · BARS 25-32 CHANGE · THE OTHER 68 ARE v1 · 76` under it
+     (`ALL 76 BARS CHANGE`) and a grey `WHY THE WHOLE SONG:` line. The
+     consequence line names the clause ("re-sings bars 25-32, every other
+     bar stays v1's audio" or "the whole song is re-rendered: every bar
+     will sound different"; "a few minutes" until calibrated) left of
+     **APPLY**, the card's one acid; ASK AGAIN is neutral. While APPLY runs
+     the label stays and the button is off; inside the card a plain
+     RENDERING › SPLICING › SAVING strip of small parallelograms (two steps
+     for a whole song or an audio-only CUT/REPEAT) and one plain line, no
+     shader, with CANCEL until SAVING; the composer reads WAITING FOR v2.
+     Cancelled, failed, refused and STALE are one rust line in the card
+     ("nothing saved, v1 is untouched"); stale and expired drop APPLY for
+     ASK AGAIN, superseded dims to 45%; done folds to one header line.
+   - **The version card** follows a saved edit: `VERSION`, the lilac pill,
+     the label (the version's change list), the length and what changed
+     ("bar 43 changed · the rest is v1's audio · 0.03 s longer than v1",
+     or "the whole song was re-rendered"); a splice that fell back to the
+     whole render or a TRUNCATED render adds a rust line (not what the card
+     promised, D-101). Its foot holds ▶ PLAY (neutral) and the BACK TO v1
+     pill; no A/B once v1 was deleted in the Editor.
+   - **BACK TO v1** is the REFERENCE ⇄ SONG pill (one pill, replacing the
+     reference's while a version A/B exists): `BACK TO v1` unfilled,
+     `◂ v1 · BACK TO v2` filled lilac while v1 plays at the same seconds;
+     then a neutral **USE v1** and the status `v1 · NOT ACTIVE` (shorter
+     than the mockup's line, which overlapped DOWNLOAD at 1366), the
+     version pill hidden. USE activates v1 as the Editor's revert does and
+     the player says `v1 IS ACTIVE · v2 is kept in VERSIONS`. A new version
+     swaps in at the same position and play state with a lilac
+     `NOW PLAYING THE NEW VERSION` until the next play, scrub or send; the
+     player's pill shows only `v2` after a chat edit (the version label is
+     the card's).
 
 ### Side panels (Create + Editor)
 

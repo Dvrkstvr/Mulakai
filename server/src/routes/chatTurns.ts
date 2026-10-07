@@ -4,6 +4,8 @@
  * (409 `{reason}` when the re-check refuses). Job progress is the existing GET /api/generate/:jobId.
  * C3: SEND may carry `attach: {referenceId}` (one of the draft thread's references, D-130); a reading
  * that will queue the follow-up turn keeps SEND off like an open turn (D-129); CANCEL stops a reading too.
+ * C0b: APPLY on an edit card (editCommit); CANCEL stops it (rendering: the existing ABORT; splicing: the job ends
+ * the yue splice); a SEND during it queues behind it, so the turn reads the new version.
  */
 import { Router } from 'express';
 import { config } from '../config.js';
@@ -11,6 +13,7 @@ import { db } from '../db/index.js';
 import { QueueFullError, queuePosition } from '../services/genQueue.js';
 import { abortJob, getJob } from '../services/jobRegistry.js';
 import { createDeps, createFromDraft, type CreateDeps } from '../services/chat/createFromDraft.js';
+import { applyEdit, editCommitDeps, type EditCommitDeps } from '../services/chat/editCommit.js';
 import { appendMessage, listMessages, updateMessage } from '../services/chat/messageStore.js';
 import { cancelReading, readingOf } from '../services/chat/readingJob.js';
 import { getReference } from '../services/chat/referenceStore.js';
@@ -27,8 +30,12 @@ export interface TurnRouteDeps {
   turn: () => TurnDeps;
   create: () => CreateDeps;
   llmConfigured: () => boolean;
+  /** C0b: APPLY on an edit card. */
+  apply?: () => EditCommitDeps;
 }
-const defaults: TurnRouteDeps = { turn: () => turnDeps(), create: () => createDeps(), llmConfigured: () => Boolean(config.llmUrl) };
+const defaults: TurnRouteDeps = {
+  turn: () => turnDeps(), create: () => createDeps(), llmConfigured: () => Boolean(config.llmUrl), apply: () => editCommitDeps(),
+};
 
 const live = (jobId: string | null) => ['queued', 'loading', 'running'].includes(jobId ? getJob(jobId)?.status ?? '' : '');
 /** A turn is open until its body has settled: a cancelled one still unloads, then writes its reply. */
@@ -81,9 +88,12 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
       if (job) job.cancelled = true;
       return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
     }
-    const isChatJob = db.prepare(`SELECT 1 FROM chat_messages WHERE job_id = ?`).get(jobId);
-    if (isChatJob && live(jobId)) {
-      if (abortJob(jobId)) return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
+    const kinds = (db.prepare(`SELECT kind FROM chat_messages WHERE job_id = ?`).all(jobId) as Array<{ kind: string }>).map((m) => m.kind);
+    if (kinds.length && live(jobId) && abortJob(jobId)) {
+      // An APPLY reads CANCELLED like a turn or a reading (nothing saved); a save already under way clears it again.
+      const job = getJob(jobId);
+      if (job && kinds.includes('edit')) job.cancelled = true;
+      return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
     }
     res.status(404).json({ error: 'this job is not running' });
   });
@@ -95,6 +105,21 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
     try {
       const out = await createFromDraft(req.params.id, proposalId, deps.create());
       if ('reason' in out) return res.status(409).json({ reason: out.reason });
+      res.status(202).json({ jobId: out.job.id });
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  });
+
+  /** APPLY (C0b, F-047, F-049): 202 `{jobId}`, or 409 `{reason, stale}` when the re-check refuses (stale: the song
+   * changed since the plan, the card reads STALE and offers ASK AGAIN). CANCEL is the chat job cancel above. */
+  router.post('/threads/:id/apply', async (req, res) => {
+    const { proposalId } = (req.body ?? {}) as { proposalId?: unknown };
+    if (typeof proposalId !== 'string' || !proposalId) return res.status(400).json({ error: 'send {proposalId}' });
+    if (!threadById(req.params.id)) return res.status(404).json({ error: 'unknown chat' });
+    try {
+      const out = await applyEdit(req.params.id, proposalId, (deps.apply ?? defaults.apply!)());
+      if ('reason' in out) return res.status(409).json({ reason: out.reason, stale: out.stale === true });
       res.status(202).json({ jobId: out.job.id });
     } catch (err) {
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) });

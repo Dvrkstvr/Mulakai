@@ -13,7 +13,7 @@ const { db } = await import('../db/index.js');
 const { versionsRouter } = await import('../routes/versions.js');
 const { layersRouter } = await import('../routes/layers.js');
 const { emptyTrashNow } = await import('./trashSweep.js');
-const { removeVersionFiles, scoreSidecarName } = await import('./versionFiles.js');
+const { gridSidecarName, removeVersionFiles, scoreSidecarName, versionFileNames } = await import('./versionFiles.js');
 
 let server: Server;
 let baseUrl: string;
@@ -56,6 +56,14 @@ describe('version files', () => {
     expect(exists(scored.audio_file)).toBe(false);
     expect(exists(scoreSidecarName(scored.id))).toBe(false);
     expect(exists(plain.audio_file)).toBe(true);
+  });
+
+  it('a version owns its beat-grid sidecar too, deleted with it (chat C0b, grid_v 1)', async () => {
+    expect(versionFileNames({ id: 'v9', audio_file: 'v9.flac' })).toEqual(['v9.flac', 'v9.abc', 'v9.grid.json']);
+    const { scored } = seed('base');
+    fs.writeFileSync(path.join(config.audioDir, gridSidecarName(scored.id)), '{"grid_v":1}');
+    expect((await fetch(`${baseUrl}/versions/${scored.id}`, { method: 'DELETE' })).status).toBe(200);
+    expect(exists(gridSidecarName(scored.id))).toBe(false);
   });
 
   it('deleting a version with no sidecar is not an error', async () => {

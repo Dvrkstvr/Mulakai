@@ -1,9 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { RECIPE } from '../../../test-fakes/chatScripts.js';
-import { analyzeById, dropProposals, liveAnalyze, liveProposal, proposalById, proposalLife, propose, resetProposals } from './proposalStore.js';
+import { analyzeById, dropProposals, editById, liveAnalyze, liveEdit, liveProposal, proposalById, proposalLife, propose, resetProposals } from './proposalStore.js';
+import { dropPlan, setPlan } from '../score/planStore.js';
+import type { Plan } from '../score/planTypes.js';
 
 const p = (id: string, threadId = 't1') => ({ id, threadId, messageId: `m-${id}`, createdAt: 0, kind: 'recipe' as const, recipe: RECIPE });
 const a = (id: string, threadId = 't1') => ({ id, threadId, messageId: `m-${id}`, createdAt: 0, kind: 'analyze' as const, target: { referenceId: 'r1' } });
+
+const e = (id: string, planId: string, threadId = 't1') => ({ id, threadId, messageId: `m-${id}`, createdAt: 0, kind: 'edit' as const, planId });
 
 describe('proposal store', () => {
   beforeEach(resetProposals);
@@ -51,5 +55,27 @@ describe('proposal store', () => {
     dropProposals('t1');
     expect(proposalLife('read1')).toBeNull();
     expect(liveAnalyze('t1')).toBeUndefined();
+  });
+
+  it('CB-2: an edit card is live while its planStore plan is; the next edit card supersedes it (REPLACED, F-046 #3)', () => {
+    setPlan({ id: 'plan1', songId: 's1' } as Plan);
+    propose(p('recipe'));
+    propose(e('edit1', 'plan1'));
+    expect(proposalLife('edit1')).toBe('live');
+    expect(editById('edit1')?.planId).toBe('plan1');
+    expect(proposalById('edit1')).toBeUndefined();
+    setPlan({ id: 'plan2', songId: 's1' } as Plan);
+    propose(e('edit2', 'plan2'));
+    expect(proposalLife('edit1')).toBe('superseded');
+    expect(proposalLife('edit2')).toBe('live');
+    expect(proposalLife('recipe')).toBe('live');
+  });
+
+  it('CB-2: a live edit card whose plan the server dropped (a dock PLAN, a render, a trash) is expired', () => {
+    setPlan({ id: 'plan1', songId: 's1' } as Plan);
+    propose(e('edit1', 'plan1'));
+    dropPlan('s1');
+    expect(proposalLife('edit1')).toBeNull();
+    expect(liveEdit('t1')).toBeUndefined();
   });
 });

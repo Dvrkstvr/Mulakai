@@ -5,16 +5,25 @@
  * message is queued / thinking while its turn job lives, then done / failed / cancelled from the reply
  * after it, or interrupted when the job vanished with no reply (a restart). A recipe card is pending,
  * superseded, expired (the server forgot it), committing (its CREATE SONG job runs) or done (a song
- * card from that job follows). Pure: the caller passes the job and proposal lookups.
+ * card from that job follows); an edit card likewise, with APPLY and a version card (C0b): while it commits, `phase`
+ * names the step (queued, rendering, splicing, saving); APPLY refused because the song changed reads stale; a
+ * version card drops its A/B once the version before it is gone. Pure: the caller passes the lookups.
  */
 import { recipeFields } from './draftModel.js';
-import type { ChatMessage, Draft, DraftFields, FailedBody, MessageState, ReadingBody, RecipeBody } from './chatTypes.js';
+import type { ChatMessage, Draft, DraftFields, EditBody, FailedBody, MessageState, ReadingBody, RecipeBody } from './chatTypes.js';
+import { withPrevious, type VersionCardBody } from './versionCard.js';
 
 export interface JobView { status: 'queued' | 'loading' | 'running' | 'done' | 'failed'; error?: string; progressText?: string; queuePosition?: number; cancelled?: boolean }
 export interface ViewContext {
   job: (jobId: string) => JobView | undefined;
   proposal: (proposalId: string) => 'live' | 'superseded' | null;
+  /** C0b: whether a version still exists (a version card's A/B); absent = assume it does. */
+  versionExists?: (versionId: string) => boolean;
 }
+
+/** An edit card's APPLY phase while it commits (the thread line, F-049 #3): its job's `progressText`. */
+export type CommitPhase = 'queued' | 'rendering' | 'splicing' | 'saving';
+const PHASES = new Set<string>(['rendering', 'splicing', 'saving']);
 
 const live = (j: JobView | undefined) => Boolean(j && (j.status === 'queued' || j.status === 'loading' || j.status === 'running'));
 
@@ -42,8 +51,9 @@ export function estSeconds(f: DraftFields): number | null {
   return Math.min(360, Math.round(seconds));
 }
 
-function wireBody(m: ChatMessage): Record<string, unknown> | null {
+function wireBody(m: ChatMessage, ctx: ViewContext): Record<string, unknown> | null {
   if (!m.body) return null;
+  if (m.kind === 'version' && ctx.versionExists && 'previous' in m.body) return { chat_v: 1, ...withPrevious(m.body as VersionCardBody, ctx.versionExists) };
   if (m.kind !== 'recipe') return { chat_v: 1, ...m.body };
   const b = m.body as RecipeBody;
   const fields = recipeFields(b.recipe);
@@ -72,12 +82,20 @@ function userState(messages: ChatMessage[], i: number, ctx: ViewContext): Messag
   return job?.status === 'failed' ? 'failed' : 'interrupted';
 }
 
-function recipeState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext): MessageState {
-  if (m.jobId && messages.some((s) => s.kind === 'song' && s.jobId === m.jobId)) return 'done';
+/** A recipe card (its commit makes a song card) or, C0b, an edit card (its APPLY makes a version card). */
+function cardState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext, made: 'song' | 'version'): MessageState {
+  if (m.jobId && messages.some((s) => s.kind === made && s.jobId === m.jobId)) return 'done';
   const life = m.proposalId ? ctx.proposal(m.proposalId) : null;
   if (!life) return 'expired';
   if (life === 'superseded') return 'superseded';
-  return m.jobId && live(ctx.job(m.jobId)) ? 'committing' : 'pending';
+  if (m.jobId && live(ctx.job(m.jobId))) return 'committing';
+  return m.kind === 'edit' && (m.body as EditBody | null)?.stale ? 'stale' : 'pending';
+}
+
+function commitPhase(m: ChatMessage, state: MessageState | null, job: JobView | null): CommitPhase | null {
+  if (m.kind !== 'edit' || state !== 'committing' || !job) return null;
+  if (job.status === 'queued' || job.status === 'loading') return 'queued';
+  return job.progressText && PHASES.has(job.progressText) ? (job.progressText as CommitPhase) : null;
 }
 
 /** The reading card of an analyze card's READ whose reading ended with nothing saved (failed, cancelled, lost):
@@ -110,10 +128,11 @@ export function messageViews(messages: ChatMessage[], ctx: ViewContext) {
     let state: MessageState | null = null;
     if (m.role === 'user') state = userState(messages, i, ctx);
     else if (m.kind === 'failed') state = failedState(m);
-    else if (m.kind === 'recipe') state = recipeState(messages, m, ctx);
+    else if (m.kind === 'recipe') state = cardState(messages, m, ctx, 'song');
+    else if (m.kind === 'edit') state = cardState(messages, m, ctx, 'version');
     else if (m.kind === 'analyze') state = analyzeState(m, messages, ctx);
     else if (m.kind === 'reading') state = readingState(m, ctx);
     const job = m.jobId ? ctx.job(m.jobId) ?? null : null;
-    return { ...m, body: wireBody(m), state, job };
+    return { ...m, body: wireBody(m, ctx), state, job, phase: commitPhase(m, state, job) };
   });
 }
