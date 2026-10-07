@@ -9,14 +9,14 @@ import { plannerWindow, type CreateResult, type TurnResult } from './chatCp0Stat
 
 export interface Prompt { id: string; lang: string; expect: 'recipe' | 'ask'; text: string }
 export interface RunCtx { server: string; proxied: boolean; events: ProxyEvent[]; gpu: GpuSample[]; log: (m: string) => void; turnTimeoutMs: number; takeTimeoutMs: number }
-interface Msg { id: string; role: string; kind: string; text: string; body: Record<string, unknown> | null; proposalId: string | null; jobId: string | null }
-interface Thread { id: string; songId: string | null; messages: Msg[] }
+export interface Msg { id: string; role: string; kind: string; text: string; body: Record<string, unknown> | null; proposalId: string | null; jobId: string | null }
+export interface Thread { id: string; songId: string | null; messages: Msg[] }
 
 const LIVE = ['queued', 'loading', 'running'];
 export const attemptOf = (progressText: unknown) => Number(/attempt (\d+) of/.exec(String(progressText ?? ''))?.[1]) || null;
 
 /** Polls the job until it leaves queued / loading / running (a 404 = the registry forgot it). */
-async function follow(ctx: RunCtx, jobId: string, timeoutMs: number, onPoll: (j: Record<string, unknown>) => void = () => {}) {
+export async function follow(ctx: RunCtx, jobId: string, timeoutMs: number, onPoll: (j: Record<string, unknown>) => void = () => {}) {
   const t0 = now();
   let runningAt: number | null = null;
   let last: Record<string, unknown> | null = null;
@@ -33,7 +33,7 @@ async function follow(ctx: RunCtx, jobId: string, timeoutMs: number, onPoll: (j:
   return { last, runningAt, endAt: now(), timedOut: false };
 }
 
-const thread = async (ctx: RunCtx, id: string) => (await json('GET', `${ctx.server}/api/chat/threads/${id}`)).body as Thread;
+export const thread = async (ctx: RunCtx, id: string) => (await json('GET', `${ctx.server}/api/chat/threads/${id}`)).body as Thread;
 
 export async function runTurn(ctx: RunCtx, p: Prompt, index: number): Promise<{ result: TurnResult; threadId: string; proposalId: string | null }> {
   const reset = await json('POST', `${ctx.server}/api/chat/draft/reset`);
