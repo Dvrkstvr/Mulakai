@@ -44,6 +44,16 @@ describe('stripSections', () => {
     expect(s[3]).toMatchObject({ index: 4, bars: [7, 8], seconds: [12, 16], partialLines: 0 });
   });
 
+  it("CP-C1: yue-server's own tags ([Verse], [Verse 2], [Chorus]) pair by kind: the k-th section of a kind sings the k-th block of it (D-066 d)", () => {
+    const tagged = facts({ lyric_blocks: [
+      { index: 1, tag: '[Verse]', occurrence: 1, lines: 4, first_line: 'a' },
+      { index: 2, tag: '[Chorus]', occurrence: 1, lines: 3, first_line: 'b' },
+      { index: 3, tag: '[Verse 2]', occurrence: 2, lines: 5, first_line: 'c' },
+    ] });
+    const s = stripSections(tagged, { starts, end: 16 }, null);
+    expect(s.map((x) => [x.label, x.occurrence, x.lines])).toEqual([['verse', 1, 4], ['chorus', 1, 3], ['verse', 2, 5], ['chorus', 2, 0]]);
+  });
+
   it('no bar times: sections keep bars, no seconds', () => {
     expect(stripSections(facts(), null, null)[0]).toMatchObject({ bars: [1, 2], seconds: null });
   });

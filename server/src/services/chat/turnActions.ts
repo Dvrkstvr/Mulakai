@@ -23,6 +23,8 @@ export interface TurnState {
   referenceRead?: boolean;
   /** C3: the turn the server queued after a reading (D-129). */
   followUp?: boolean;
+  /** C1 (D-194): the turn's mark has no bars (its version's bar times are not read): no edit until they are. */
+  timeMark?: boolean;
 }
 
 const FOLLOW_UP: TurnAction[] = ['ask', 'recipe', 'say'];
@@ -33,6 +35,11 @@ const ATTACHED: TurnAction[] = ['ask', 'analyze', 'say'];
  * rung 0/1 (default): the whole set, as SP-5 measured it. Rung 2: nothing to edit or repaint
  * without a song, no edit without a readable score. */
 export function allowedActions(s: TurnState, rung = 0): TurnAction[] {
+  const out = offered(s, rung);
+  return s.timeMark ? out.filter((a) => a !== 'edit') : out;
+}
+
+function offered(s: TurnState, rung: number): TurnAction[] {
   if (s.followUp) return [...FOLLOW_UP];
   if (s.attached && !s.hasSong && !s.referenceRead) return [...ATTACHED];
   if (rung < 2) return [...ACTIONS];

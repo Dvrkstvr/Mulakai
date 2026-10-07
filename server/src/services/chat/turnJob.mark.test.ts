@@ -11,7 +11,7 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-chatmark-t
 
 const { db } = await import('../../db/index.js');
 const { startFakeOllama } = await import('../../../test-fakes/fakeOllama.js');
-const { markedEditReply, markAnalysis } = await import('../../../test-fakes/chatScripts.js');
+const { markedEditReply, markAnalysis, sayReply } = await import('../../../test-fakes/chatScripts.js');
 const { contract } = await import('../../../test-fakes/fakeYue.js');
 const { getRunning, resetQueue } = await import('../genQueue.js');
 const { getJob } = await import('../jobRegistry.js');
@@ -112,6 +112,34 @@ describe('a marked chat turn (CL-5)', () => {
     ollama = await startFakeOllama();
     ollama.chats.push(markedEditReply(49, 52));
     const { thread, send, ids } = setup([{ ops: [{ op: 'SET_TEMPO', bpm: 96 }] }]);
-    await settled(send('make this jazzier', { kind: 'range', versionId: ids[0], bars: [47, 58], seconds: [1, 2] }).id);    expect((listMessages(thread.id).at(-1)!.body as EditBody).mark).toMatchObject({ versionId: ids[1], bars: [47, 58] });
+    await settled(send('make this jazzier', { kind: 'range', versionId: ids[0], bars: [47, 58], seconds: [1, 2] }).id);
+    expect((listMessages(thread.id).at(-1)!.body as EditBody).mark).toMatchObject({ versionId: ids[1], bars: [47, 58] });
+  });
+
+  it('CP-C1 (D-194): a seconds-only mark on a version whose bars are read is bounded to the bars it covers', async () => {
+    ollama = await startFakeOllama();
+    ollama.chats.push(markedEditReply(49, 52));
+    const { thread, send, ids } = setup();
+    await settled(send('give this bit jazz chords', { kind: 'range', versionId: ids[0], seconds: [126.5, 159.5] }).id);
+    const first = chatCalls()[0].body as Call;
+    expect(first.messages[1].content).toContain('bars 47-58, 2:06-2:39.');
+    const edit = (first.response_format.json_schema.schema.anyOf as Array<Record<string, any>>).find((p) => p.properties.action.const === 'edit')!;
+    const rh = edit.properties.ops.items.anyOf.find((o: Record<string, any>) => o.properties.op.const === 'REHARMONIZE');
+    expect(rh.properties.from_bar).toMatchObject({ minimum: 47, maximum: 58 });
+    expect((listMessages(thread.id).at(-1)!.body as EditBody).mark).toMatchObject({ bars: [47, 58] });
+  });
+
+  it('D-194: a seconds-only mark with no bar times read is answered in words: the schema offers no edit', async () => {
+    ollama = await startFakeOllama();
+    ollama.chats.push(sayReply('Mark again once the reading lands.'));
+    const { thread, send, ids } = setup();
+    writeAnalysis({ ...markAnalysis(ids[0]), bars: { notRead: 'YUE2 bar times -> unreadable reply' } });
+    expect((await settled(send('give this bit jazz chords', { kind: 'range', versionId: ids[0], seconds: [126.5, 159.5] }).id)).status).toBe('done');
+    const first = chatCalls()[0].body as Call;
+    const actions = (first.response_format.json_schema.schema.anyOf as Array<Record<string, any>>).map((p) => p.properties.action.const);
+    expect(actions).not.toContain('edit');
+    expect(actions).toContain('say');
+    expect(first.messages[1].content).toContain('no edit can be planned for it');
+    expect(listMessages(thread.id).at(-1)!.kind).not.toBe('edit');
   });
 });

@@ -2,7 +2,8 @@
  * yue-server's `POST /v1/scores/bars` (chat C1, D-174): a score's bar start times on a take's downbeat grid, by
  * the splice's own fit, so the chat's strip and a splice cannot disagree (ABC stays on yue-server, decisions/0002).
  * A refusal (422 `bad_grid` / `bad_score`, dict detail `{code, message}`) or an unreadable reply is a reason, never
- * a guess; only transport errors throw.
+ * a guess; only transport errors throw. The check stays strict: yue-server guarantees strictly increasing starts
+ * that end before `end` (Q-120, score_bar_times.py), so a reply that breaks it is a bug, not a song.
  */
 import { errorMessage, headers, request, type EngineTarget } from '../engineClient.js';
 import type { BarTimes } from '../chat/analysisTypes.js';

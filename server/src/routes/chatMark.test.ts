@@ -74,6 +74,15 @@ describe('SEND with a mark (F-055)', () => {
     expect((user.body as UserBody).mark).toEqual(mark(ids[0]));
   });
 
+  it('D-194: a seconds-only mark is snapped to the bars it covers and frozen with them (the echo names the bars)', async () => {
+    const { thread, ids } = song();
+    const r = await post(`/threads/${thread.id}/turns`, { text: 'make this jazzier', clientKey: crypto.randomUUID(),
+      mark: { kind: 'range', versionId: ids[0], seconds: [126.5, 159.5], label: '2:07–2:40' } });
+    expect(r.status).toBe(202);
+    const user = listMessages(thread.id).find((m) => m.role === 'user')!;
+    expect((user.body as UserBody).mark).toEqual({ kind: 'range', versionId: ids[0], bars: [47, 58], seconds: [126.5, 159.5] });
+  });
+
   it('a stale mark is 409 MARK_STALE with the mark as sent and the shift, and nothing is written', async () => {
     const { thread, ids } = song({ ops: [{ op: 'CUT', section: 2, label: 'verse' }] });
     const r = await post(`/threads/${thread.id}/turns`, { text: 'make this jazzier', clientKey: crypto.randomUUID(), mark: mark(ids[0]) });
@@ -118,6 +127,13 @@ describe('WHAT IT SEES (D-177)', () => {
       { name: 'SECTIONS', value: 'CHORUS 1 (bars 47-58)' },
     ]);
     expect(r.body.sent).toMatchObject({ version: 1, versionId: ids[0], bars: [47, 58], key: 'Dm', bpm: 87 });
+  });
+
+  it('D-194: a seconds-only mark previews the bars it will be sent with', async () => {
+    const { thread, ids } = song();
+    const r = await post(`/threads/${thread.id}/mark/preview`, { mark: { kind: 'range', versionId: ids[0], seconds: [126.5, 159.5] } });
+    expect(r.body.rows[1]).toEqual({ name: 'BARS', value: '47-58' });
+    expect(r.body.sent).toMatchObject({ bars: [47, 58] });
   });
 
   it('a stale mark is 409 MARK_STALE; no mark is 400', async () => {
