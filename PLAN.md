@@ -9265,3 +9265,22 @@ playing the Library ended in a dead band. The footer now follows playback.
 - `client/src/index.css` — drop `.app-body`'s 76px and the now-dead
   `.app-editor .app-body` override; the edge zone; the docked padding.
 - DESIGN.md: the footer's three states and edge reveal, in its own commit.
+
+## Footer Faceted Glass (planned 2026-10-07)
+
+Builds on "Footer Player Shows, Dims and Hides With Playback": now that the
+footer overlays the list, it becomes a pane of faceted glass instead of an
+opaque carbon bar. Settled with the owner over rendered comparisons (frosted,
+liquid, ribbed and noise glass were tried and rejected as too soft for the
+shape grammar).
+
+- The backdrop is cut into −10° parallelogram facets (44px, two rows), each
+  shifting what is behind it by a fixed offset; 1px pre-blur; 30% carbon tint;
+  1px lit top edge (`inset 0 1px 0`). No glow.
+- `client/src/facetMap.ts` — the pure displacement map (tested).
+- `client/src/FacetGlass.tsx` — the SVG filter, its map redrawn at the
+  footer's size on resize.
+- `client/src/PlayerFooter.tsx`, `client/src/index.css` — wiring and the
+  footer's look; browsers without SVG backdrop filters fall back to tint +
+  blur.
+- DESIGN.md: the glass under "Footer player", in its own commit.
