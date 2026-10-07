@@ -199,6 +199,27 @@ requiring its own justification against a screen-count rule.
      too, and so is the Quick Start a typed idea starts in Create: while
      either waits, a `text-mid` line says so ("FEELING LUCKY waits its turn
      · starts after 1 job").
+     **Status chips** (2026-10-07, `CreateBarChips.tsx`) sit between
+     FEELING LUCKY and the input, which keeps its place and shrinks no
+     narrower than 180px. Neutral look: `carbon-raised`, a 1px `line-hi`
+     hairline, zero radius, the input's height; titles truncate with an
+     ellipsis at 180px. A **generation chip** per song generation in flight,
+     oldest first: `GENERATING` (or `QUEUED · #2`), the title (caption as a
+     fallback) and `42%` once progress is known. A running one wears the AI
+     shader with its progress veil (see AI states); a queued one stays plain
+     with a dashed hairline, as UP NEXT does. Two at most, then a `+N` chip.
+     A **draft chip** while Create's draft holds anything: `DRAFT`
+     (`text-mid`, tracked small caps), the typed title or else the prompt
+     (`text-hi`), RESUME (opens Create on the draft) and CLEAR. Each quick
+     action is confirmed in place: the chip becomes its consequence line on
+     `rust-tint` with a `rust` hairline, a filled rust confirm and a quiet
+     KEEP (focused, so Enter or Escape keeps). CLEAR: "Clear this draft? Its
+     prompt, lyrics, settings and reference audio are discarded." CANCEL on
+     a queued chip: "Take it out of the queue? Nothing has been made yet,
+     so nothing is lost." ABORT, only on the running chip that holds the
+     server's lock (the same row Activity gives ABORT): "Abort this
+     generation? The take in progress is lost." The buttons then read
+     CANCELLING… / ABORTING… as in Activity.
    - **Generating cards**: one full-width card pinned at the top of the
      grid per song generation in flight or failed, oldest first (2026-10-03,
      S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
@@ -1460,7 +1481,9 @@ CHAT screen's turn line while the planner thinks (still dashed and plain
 while queued, plain while cancelling) and its CREATE SONG take line under
 the recipe card, which follows the YuE2 rule; and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
-ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
+ANALYZE AUDIO, and the library create bar's generation chip (a full fill
+with its progress veil: the chip holds a label and a title like a small
+card, so it follows the bigger-element rule) — but only once it runs: a job still waiting in the queue
 (UP NEXT, the library card of a generation reading `QUEUED · STARTS
 AFTER 1 JOB`, or a dock job line reading `QUEUED`) stays plain, since
 nothing is working on it yet. TRANSCRIBE
