@@ -154,3 +154,4 @@ after run 4 · CL-6 CP-C1 (#209 merged): 4/5 stop lines; STOP on seconds-only ma
 
 ## Run 2026-10-08 (5) → C1 (owner: "keep going"; fresh 12-round budget)
 R1 stage 7 C1 · #210 CP-C1 fixes merged; CP-C1 mark re-run dispatched (live, scratch ports); #199 CL-8a and #203 CL-8b brought up to main: my rerun client build + vitest 1223 / 1230, server 1496, e2e 19 passed; pushed (still drafts until the mark stop line passes) · progress 7·CL-0..7 merged, 8a/8b drafts·37·0
+R2 stage 7 C1/CL-6 re-run · mark stop line PASS 0/12, prompt p95 5906 (thin); PR #211 auto-merge; #199 + #203 ready + auto-merge; D-197; dispatched: strip-past-audio fix, C1 code review · progress 7·CP-C1 5/5·37·0
