@@ -2,7 +2,8 @@
 one at a time through plan -> semantic -> synthesis -> decode. An
 instrumental's plan is converted first (instrumental.py). Transcription jobs
 (transcriber.py) run on the same thread, so they never share the GPU with a
-song.
+song. So do splice jobs (splice_job.py): CPU work plus, when no cached grid
+came with the request, SheetSage2 through `tracker`.
 
 `pipe` is the adapter in yue_pipeline.py (or a fake in tests). Cancel is
 checked at every stage boundary, and the pipeline also polls it inside its
@@ -19,16 +20,18 @@ import time
 
 from instrumental import arrange
 from jobs import JobStore
+from splice_job import run_splice
 from transcriber import run_transcription
 
 log = logging.getLogger("yue-server")
 
 
 class Worker:
-    def __init__(self, store: JobStore, pipeline_factory, transcriber=None):
+    def __init__(self, store: JobStore, pipeline_factory, transcriber=None, tracker=None):
         self.store = store
         self._factory = pipeline_factory
         self.transcriber = transcriber
+        self.tracker = tracker  # a splice's downbeat grids (splice_job.sheetsage_tracker)
         self.pipe = None
         self.state = "loading"  # loading | ready | failed
         self._thread: threading.Thread | None = None
@@ -71,6 +74,8 @@ class Worker:
             job_id, request = claimed
             if self.store.get(job_id, kind="transcription") is not None:
                 run_transcription(self.transcriber, self.store, job_id, request)
+            elif self.store.get(job_id, kind="splice") is not None:
+                run_splice(self.tracker, self.store, job_id, request)
             else:
                 run_job(self.pipe, self.store, job_id, request)
 

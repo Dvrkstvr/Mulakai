@@ -11,8 +11,9 @@ POST /v1/jobs/{id}/cancel, GET /v1/jobs/{id}/audio (FLAC), GET
 /v1/jobs/{id}/score (ABC), GET /health/ready. One job runs at a time.
 SheetSage2 transcription for covers adds /v1/transcriptions
 (transcribe_routes.py), POST /v1/scores/measure sizes a cover's score
-(score_routes.py), and POST /v1/scores/read and /apply serve the score agent
-(score_edit_routes.py).
+(score_routes.py), POST /v1/scores/read and /apply serve the score agent
+(score_edit_routes.py), and /v1/splices splices a chat edit into the current
+version (splice_routes.py).
 
 Run (inside WSL, in the yue2 venv): python main.py
 """
@@ -33,6 +34,8 @@ from scores import ScoreError, prepare_score
 from settings import Settings
 from score_edit_routes import add_score_edit_routes
 from score_routes import add_score_routes
+from splice_job import sheetsage_tracker
+from splice_routes import add_splice_routes
 from transcribe_routes import add_transcription_routes
 from transcriber import Transcriber
 from worker import Worker
@@ -40,7 +43,7 @@ from worker import Worker
 log = logging.getLogger("yue-server")
 
 
-def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastAPI:
+def create_app(settings: Settings | None = None, pipeline_factory=None, splice_tracker=None) -> FastAPI:
     settings = settings or Settings.from_env()
     store = JobStore(settings.data_dir, settings.max_pending, settings.retention_hours * 3600)
     if pipeline_factory is None:
@@ -48,7 +51,7 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
             from yue_pipeline import YuePipeline
             return YuePipeline(settings)
     transcriber = Transcriber(settings.sheetsage_python, settings.sheetsage_dir)
-    worker = Worker(store, pipeline_factory, transcriber)
+    worker = Worker(store, pipeline_factory, transcriber, splice_tracker or sheetsage_tracker(transcriber))
 
     @asynccontextmanager
     async def lifespan(_app):
@@ -141,6 +144,7 @@ def create_app(settings: Settings | None = None, pipeline_factory=None) -> FastA
     add_transcription_routes(app, settings, store, worker, authorize)
     add_score_routes(app, worker, authorize)
     add_score_edit_routes(app, worker, authorize)
+    add_splice_routes(app, settings, store, worker, authorize)
     return app
 
 
