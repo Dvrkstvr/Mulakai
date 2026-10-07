@@ -47,7 +47,8 @@ export function chatCommit(s: CommitState | null, e: CommitEvent): CommitState |
       const { job } = e;
       if (job.status === 'queued') return { ...s, phase: { kind: 'queued', ahead: job.queuePosition ?? 0 } };
       if (job.status === 'loading' || job.status === 'running') return { ...s, phase: running(s.apply, job) };
-      // The chat's CANCEL of a running APPLY aborts the job: it ends `failed` with the registry's 'Aborted' (markAborted).
+      // The chat's CANCEL of a running APPLY sets `cancelled`; 'Aborted' (markAborted) is only a fallback. A cancel that
+      // landed while saving reads ABORTED_AFTER_SAVE, not cancelled: the version card follows.
       if (s.apply && (job.cancelled || job.error === ABORTED)) {
         return { ...s, jobId: null, phase: { kind: 'cancelled', during: s.phase.kind === 'running' ? s.phase.progressText : null } };
       }

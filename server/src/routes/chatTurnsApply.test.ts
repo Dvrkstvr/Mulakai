@@ -108,6 +108,8 @@ describe('POST /threads/:id/apply', () => {
     expect(states(threadId)).toEqual(['committing']);
     await vi.waitFor(() => expect(getJob(out.body.jobId)?.status).toBe('running'));
     expect(await post(`/jobs/${out.body.jobId}/cancel`)).toEqual({ status: 200, body: { ok: true, aborted: true } });
+    // Cancelled, not a plain failure: the client reads `cancelled`, not the registry's 'Aborted' text.
+    expect(getJob(out.body.jobId)).toMatchObject({ status: 'failed', cancelled: true });
     await vi.waitFor(() => expect(getRunning()).toBeNull(), { timeout: 5000 });
     expect(db.prepare(`SELECT COUNT(*) AS n FROM versions WHERE layer_id = ?`).get(layerId)).toEqual({ n: 1 });
     expect(getPlan(songId)).toBeDefined();

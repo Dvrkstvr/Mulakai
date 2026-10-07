@@ -88,9 +88,12 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
       if (job) job.cancelled = true;
       return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
     }
-    const isChatJob = db.prepare(`SELECT 1 FROM chat_messages WHERE job_id = ?`).get(jobId);
-    if (isChatJob && live(jobId)) {
-      if (abortJob(jobId)) return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
+    const kinds = (db.prepare(`SELECT kind FROM chat_messages WHERE job_id = ?`).all(jobId) as Array<{ kind: string }>).map((m) => m.kind);
+    if (kinds.length && live(jobId) && abortJob(jobId)) {
+      // An APPLY reads CANCELLED like a turn or a reading (nothing saved); a save already under way clears it again.
+      const job = getJob(jobId);
+      if (job && kinds.includes('edit')) job.cancelled = true;
+      return res.json({ ok: true, ...(queued ? { cancelled: true } : { aborted: true }) });
     }
     res.status(404).json({ error: 'this job is not running' });
   });

@@ -170,6 +170,16 @@ describe('startEditRender', () => {
     expect(getPlan(songId)).toBeDefined();
   });
 
+  it('a CANCEL that lands while saving keeps the version: the job is not read as cancelled (nothing-saved)', async () => {
+    const { songId, layerId, planId } = await seed(REHARM);
+    yue.job = { states: [{ status: 'succeeded', stage: 'done' }], score: EDITED };
+    const job = startEditRender(songId, planId, SPLICE_REHARM, () => { abortJob(job.id); job.cancelled = true; }, deps());
+    const out = await settled(job.id);
+    expect(out).toMatchObject({ status: 'failed', error: expect.stringContaining('already finished') });
+    expect(out.cancelled).toBeFalsy();
+    expect(rows(layerId)).toHaveLength(2);
+  });
+
   it('CANCEL while rendering is the existing ABORT: no splice is sent, no version (F-049 #1)', async () => {
     const { songId, layerId, planId } = await seed(REHARM);
     yue.job = { states: [{ status: 'running', stage: 'semantic' }] };

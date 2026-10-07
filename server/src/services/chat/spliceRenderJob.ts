@@ -136,7 +136,10 @@ export function startEditRender(songId: string, planId: string, planned: Splice,
       }
     }
     if (!run.version) return; // aborted: the abort already settled the job, nothing saved
-    if (wasAborted(job)) job.error = ABORTED_AFTER_SAVE; // a save in progress cannot be taken back
+    if (wasAborted(job)) {
+      job.error = ABORTED_AFTER_SAVE; // a save in progress cannot be taken back
+      job.cancelled = false; // so it does not read as a cancel that saved nothing
+    }
     else job.status = 'done';
   });
 }
