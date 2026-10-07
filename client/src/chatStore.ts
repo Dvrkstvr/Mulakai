@@ -7,7 +7,9 @@ import { create } from 'zustand';
 import {
   chatApi, type ChatAttach, type ChatMessageView, type ChatRecipeBody, type ChatStatus, type ChatThreadView,
 } from './api/chat';
+import { MarkStaleError, type RangeMark } from './api/chatAnalysis';
 import { assistantOffCause } from './chatEntry';
+import { markHoldsSend, useChatMarkStore } from './chatMarkStore';
 import { useChatDraftStore } from './chatDraftStore';
 import { chatPoll } from './chatPoll';
 import { INITIAL_READING, chatReading, replyAfter, type ReadingEvent, type ReadingState } from './chatReading';
@@ -30,13 +32,16 @@ interface ChatStore {
   /** C3: the analyze and reading cards (`chatReading`); `lastAttach` = what the last SEND carried, for RETRY. */
   reading: ReadingState;
   lastAttach: ChatAttach | null;
+  /** C1: the mark the last SEND carried (RETRY resends it; a stale one is refused by the server, never remapped). */
+  lastMark: RangeMark | null;
   loadStatus: () => Promise<ChatStatus | null>;
   openDraft: () => Promise<void>;
   openSong: (songId: string) => Promise<void>;
   /** NEW CHAT: drops the draft thread and its messages (the consequence line said so). */
   newChat: () => Promise<void>;
   type: (text: string) => void;
-  send: () => Promise<void>;
+  /** `mark` (C1): the composer's mark, sent with the turn; a stale mark holds SEND (CS-11). */
+  send: (mark?: RangeMark | null) => Promise<void>;
   /** RETRY / SEND AGAIN after a failed, offline, cancelled or interrupted turn. */
   retry: () => Promise<void>;
   cancel: () => Promise<void>;
@@ -89,7 +94,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
   /** A thread opened: the turn and the take it left running carry on (a reload mid-turn, F-049). */
   async function open(load: () => Promise<ChatThreadView>): Promise<void> {
     await useChatDraftStore.getState().flush();
-    set({ turn: INITIAL_TURN, commit: null, reading: INITIAL_READING, lastAttach: null });
+    set({ turn: INITIAL_TURN, commit: null, reading: INITIAL_READING, lastAttach: null, lastMark: null });
     try {
       const thread = await load();
       show(thread);
@@ -106,17 +111,19 @@ export const useChatStore = create<ChatStore>((set, get) => {
     await draft.flush(); // the rev the server notes at SEND covers every hand edit (CH-6)
     draft.clearFilled();
     try {
-      const started = await refs.startTurn(thread.id, t.lastText, t.clientKey, get().lastAttach);
+      const started = await refs.startTurn(thread.id, t.lastText, t.clientKey, get().lastAttach, get().lastMark);
       turn({ type: 'accepted', ...started });
       await refetch();
       void followTurn(started.jobId);
     } catch (err) {
+      if (err instanceof MarkStaleError) useChatMarkStore.getState().refused(thread.id, err.shift); // nothing was written
       turn({ type: 'refused', error: message(err) });
     }
   }
 
   return {
-    status: null, thread: null, turn: INITIAL_TURN, commit: null, error: null, refusal: null, reading: INITIAL_READING, lastAttach: null,
+    status: null, thread: null, turn: INITIAL_TURN, commit: null, error: null, refusal: null, reading: INITIAL_READING,
+    lastAttach: null, lastMark: null,
 
     loadStatus: async () => {
       const status = await chatApi.chatStatus().catch(() => null);
@@ -131,14 +138,14 @@ export const useChatStore = create<ChatStore>((set, get) => {
     },
     type: (text) => turn({ type: 'type', text }),
 
-    send: async () => {
-      if (!canSend(get().turn, assistantOn()) || !refs.free()) return;
-      set({ lastAttach: refs.attachToSend() });
+    send: async (mark) => {
+      if (!canSend(get().turn, assistantOn()) || !refs.free() || markHoldsSend(get().thread?.id)) return;
+      set({ lastAttach: refs.attachToSend(), lastMark: mark ?? null });
       turn({ type: 'send', clientKey: newClientKey() });
       await post();
     },
     retry: async () => {
-      if (!canRetry(get().turn, assistantOn()) || !refs.free()) return;
+      if (!canRetry(get().turn, assistantOn()) || !refs.free() || markHoldsSend(get().thread?.id)) return;
       turn({ type: 'retry', clientKey: newClientKey() });
       await post();
     },

@@ -1,6 +1,7 @@
 /** Chat slice (C0a, F-041..F-045): the wire types and HTTP for `routes/chat.ts` and `routes/chatTurns.ts`.
  * Mirrored by hand from pipeline/architecture.md "Chat (C0)" (routes, "Data (chat)") and the server's
  * `chat/chatTypes.ts`; reconcile both when either moves. Job progress is the existing `jobStatus` poll. */
+import { conflictError, type RangeMark } from './chatAnalysis';
 import type { ReadingView, ReferenceView } from './chatReferences';
 import { ApiError, json } from './http';
 
@@ -55,8 +56,8 @@ export interface ChatRecipe extends Omit<ChatDraftFields, 'engine'> {
 }
 
 /** `body_json` per kind (`chat_v: 1`; an additive field needs no bump, readers treat it as absent). */
-/** `attach`: the reference SEND carried (C3). */
-export interface ChatUserBody { chat_v: 1; sentRev: number; attach?: ChatAttach }
+/** `attach`: the reference SEND carried (C3); `mark`: the range it carried, frozen (C1, the echo). */
+export interface ChatUserBody { chat_v: 1; sentRev: number; attach?: ChatAttach; mark?: RangeMark }
 export interface ChatAttach { referenceId: string }
 export interface ChatRecipeBody {
   chat_v: 1; recipe: ChatRecipe; assumptions: string[]; changed: ChatDraftKey[]; skipped: ChatDraftKey[];
@@ -167,13 +168,13 @@ export const chatApi = {
     return json<ChatDraftSaved>(res);
   },
 
-  /** `attach` (C3): the composer's attached reference rides on the user message. A 409 `TURN_OPEN` (a reading or
-   * its follow-up turn still runs) is an error carrying the server's reason. */
-  startChatTurn: async (threadId: string, text: string, clientKey: string, attach?: ChatAttach | null) => {
-    const res = await send(`/api/chat/threads/${threadId}/turns`, 'POST', attach ? { text, clientKey, attach } : { text, clientKey });
+  /** `attach` (C3) / `mark` (C1) ride on the user message. A 409 `TURN_OPEN` (a reading or its follow-up turn still
+   * runs) is an error carrying the server's reason; 409 `MARK_STALE` a `MarkStaleError` (nothing was written). */
+  startChatTurn: async (threadId: string, text: string, clientKey: string, attach?: ChatAttach | null, mark?: RangeMark | null) => {
+    const res = await send(`/api/chat/threads/${threadId}/turns`, 'POST', { text, clientKey, ...(attach ? { attach } : {}), ...(mark ? { mark } : {}) });
     if (res.status === 409) {
-      const reason = (await conflictBody(res)).reason;
-      if (typeof reason === 'string') throw new ApiError(reason, 409);
+      const err = conflictError(await conflictBody(res));
+      if (err) throw err;
     }
     return json<ChatTurnStart>(res);
   },

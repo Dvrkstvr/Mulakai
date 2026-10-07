@@ -3,7 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 import { PORTS, SCORE_PORTS } from './ports';
 import { DATA_ROOT } from './data-dir';
 
-const SCORE_SPEC = /score\.spec\.ts$/;
+/** The specs that need the SCORE stack (LLM_API_URL and YUE_API_URL set): SCORE (F-028) and the chat (F-051, D-178). */
+const SCORE_SPEC = /(score|chat)\.spec\.ts$/;
 const SCORE_MODEL = 'qwen3:14b';
 
 // Workers re-evaluate this file; the env guard makes every one of them reuse the main
@@ -34,7 +35,7 @@ export default defineConfig({
   },
   projects: [
     { name: 'chromium', testIgnore: SCORE_SPEC, use: { ...devices['Desktop Chrome'], viewport: { width: 1440, height: 900 } } },
-    // SCORE (F-028) runs against its own server + Vite, the only ones with LLM_API_URL set.
+    // SCORE (F-028) and the chat (F-051) run against their own server + Vite, the only ones with LLM_API_URL set.
     {
       name: 'score',
       testMatch: SCORE_SPEC,

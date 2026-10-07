@@ -6,11 +6,16 @@
  * yue-server's job records: running for a moment, then succeeded, with a canned tone as audio and,
  * as its score, the one it was sent (a render) or the recorded song's (a first take).
  *
- * GET /__fake/jobs is ours, not yue-server's: the bodies every submit carried, oldest first.
+ * `/v1/splices` (the chat's APPLY of a spliced edit) replays the recorded `splice-*.json` the same way
+ * (splices.ts): a spec nothing recorded gets a 500 naming the field.
+ *
+ * Ours, not yue-server's: GET /__fake/jobs, the bodies every submit carried, oldest first;
+ * POST /__fake/splice {fixture}, which recorded outcome the next splice replays (ok, failed, hold, rerender).
  */
 import http from 'node:http';
 import { toneWav } from '../fake-acestep/wav.js';
 import { allContracts, recordedSong, same } from './contracts.js';
+import { spliceRoute, spliceState } from './splices.js';
 
 /** How long a job reports "running" before it succeeds, so the dock's render line is exercised. */
 const PENDING_MS = Number(process.env.FAKE_YUE_PENDING_MS ?? 1500);
@@ -23,6 +28,7 @@ type Send = (status: number, body: unknown, type?: string) => void;
 export function startFakeYue(port: number): http.Server {
   const fixtures = allContracts();
   const jobs = new Map<string, FakeJob>();
+  const splices = spliceState();
 
   function jobRecord(job: FakeJob) {
     if (job.cancelled) return { id: job.id, status: 'cancelled', stage: 'cancelled', progress: null, error: null };
@@ -66,6 +72,7 @@ export function startFakeYue(port: number): http.Server {
       };
       const method = req.method ?? 'GET';
       const route = (req.url ?? '').split('?')[0];
+      if (spliceRoute(splices, method, route, raw, send)) return; // multipart, before the JSON parse
       let body: unknown = null;
       try {
         body = raw ? JSON.parse(raw) : null;

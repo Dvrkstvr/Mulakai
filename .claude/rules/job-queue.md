@@ -3,6 +3,7 @@ paths:
   - "server/src/services/genQueue.ts"
   - "server/src/services/jobRunner.ts"
   - "server/src/services/jobRegistry.ts"
+  - "server/src/services/jobEvents.ts"
   - "server/src/services/queueGuards.ts"
   - "server/src/services/*Jobs.ts"
   - "server/src/services/score/*Job.ts"
@@ -28,4 +29,9 @@ paths:
   Activity label maps, `RUNNING_LABEL` first. M0's `plan` kind missed it.
 - First takes and score renders share one engine poll loop (D-036).
 - Chat adds no kind: a turn is `plan` (label `chat turn`), an APPLY is
-  `scoreRender` (label `chat edit`) (docs/decisions/0006).
+  `scoreRender` (label `chat edit`) (docs/decisions/0006); READ and the
+  version analysis are `transcribe` (`chat reading`, `chat analysis`).
+- A read-only job never stales a commit: APPLY's `pendingEdit` names only
+  edit kinds (D-173). A job that only reads never goes on that list.
+- `jobEvents` listeners run after a job settles and must never throw into
+  `jobRunner` or delay the slot's release (C1, docs/decisions/0009).
