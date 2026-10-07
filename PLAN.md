@@ -9070,7 +9070,8 @@ with no accounts, and it stays on the LAN only, never port-forwarded.
 9. **A consequence line before waking.** A generative commit made while the
    GPU PC is asleep says so before the click: `WAKES THE GPU PC FIRST
    (ABOUT A MINUTE)`. The wording goes into DESIGN.md in a commit of its
-   own.
+   own. Every chat turn runs on the planner, so a chat SEND made while the
+   PC is asleep shows the same line.
 10. **Audio has its own path; the database stays local.** `AUDIO_DIR`
     overrides `config.audioDir`. `DATA_DIR` keeps `mulakai.db` and
     `lyricTags.json` on the LXC's own disk, because SQLite must never sit
@@ -9090,10 +9091,10 @@ with no accounts, and it stays on the LAN only, never port-forwarded.
 | `GenKind` | Services |
 |---|---|
 | `generate` (ACE-Step), `repaint`, `regenerate`, `retake`, `addLayer`, `remaster`, `analyze`, `lm` | `acestep` |
-| `generate` on YuE2, `transcribe` (SheetSage2), `scoreRender` | `yue2` |
+| `generate` on YuE2, `transcribe` (SheetSage2, and the chat's reading in `chat/readingJob.ts`), `scoreRender` | `yue2` |
 | `split` | the configured split backend: `demucs`/`uvr`, or `acestep` for EXTRACT |
 | `lyrics`, `timings` | `lyrics` |
-| `plan` | `ollama` |
+| `plan` (the score planner, and every chat turn in `chat/turnJob.ts`) | `ollama` |
 
 ### File-level plan
 
