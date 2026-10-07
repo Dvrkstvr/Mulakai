@@ -24,7 +24,8 @@ export interface TurnResult {
   index: number;
   id: string;
   lang: string;
-  expect: 'recipe' | 'ask';
+  /** The reply kind the prompt should get (the edit leg expects `edit`). */
+  expect: 'recipe' | 'ask' | 'edit';
   prompt: string;
   postStatus: number;
   /** The reply's message kind (recipe / ask / say / failed / edit), or null when none came. */
