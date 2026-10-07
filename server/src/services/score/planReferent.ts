@@ -162,10 +162,17 @@ function usableShift(mark: RangeMark, shift: Shift | null): Shift | null {
 }
 
 /** Same version: pinned as sent. The parent of a version whose edit moved no bars: carried (bars kept, seconds
- * re-timed). Anything else is stale, with the shift when the edit reported one (USE BARS): never remapped here. */
+ * re-timed). Across a tempo change (`retimed`) only a bars mark is carried, and only once the new version's bar
+ * times are read: until then its old seconds are different music (C1 code review should 2). Anything else is
+ * stale, with the shift when the edit reported one (USE BARS): never remapped here. */
 export function resolveRange(mark: RangeMark, f: RangeFacts): RangeResolution {
   if (mark.versionId === f.playable.id) return { pinned: true, mark, carried: false };
   const p = f.parent;
+  if (p && p.versionId === mark.versionId && !p.shift.moved && p.shift.retimed && !(mark.bars && f.bars)) {
+    const reason = mark.bars ? `v${f.playable.number} changed the tempo and its bars are not read yet; mark again once its reading lands`
+      : `your mark was a time; v${f.playable.number} changed the tempo, so that time is different music now`;
+    return { pinned: false, was: mark, shift: null, reason };
+  }
   if (p && p.versionId === mark.versionId && !p.shift.moved) {
     return { pinned: true, carried: true, mark: { ...mark, versionId: f.playable.id, seconds: retimed(mark, f.bars) } };
   }

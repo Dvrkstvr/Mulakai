@@ -100,6 +100,18 @@ describe('SEND with a mark (F-055)', () => {
     expect((user.body as UserBody).mark).toMatchObject({ versionId: ids[1], bars: [47, 58], seconds: [126.5, 159.5] });
   });
 
+  // C1 code review should 2: the turn right after APPLY runs before v2's analysis.
+  it("across a SET TEMPO before the new version's bars are read: a bars mark and a time mark are 409, nothing written", async () => {
+    const { thread, ids } = song({ ops: [{ op: 'SET_TEMPO', bpm: 120 }] });
+    db.prepare(`UPDATE versions SET analysis_json = NULL WHERE id = ?`).run(ids[1]);
+    const bars = await post(`/threads/${thread.id}/turns`, { text: 'make this jazzier', clientKey: crypto.randomUUID(), mark: mark(ids[0]) });
+    expect(bars).toMatchObject({ status: 409, body: { error: 'MARK_STALE', reason: 'v2 changed the tempo and its bars are not read yet; mark again once its reading lands' } });
+    const time = mark(ids[0], { bars: undefined, seconds: [30, 45] });
+    const secs = await post(`/threads/${thread.id}/turns`, { text: 'make this jazzier', clientKey: crypto.randomUUID(), mark: time });
+    expect(secs).toMatchObject({ status: 409, body: { error: 'MARK_STALE', reason: 'your mark was a time; v2 changed the tempo, so that time is different music now' } });
+    expect(listMessages(thread.id)).toEqual([]);
+  });
+
   it.each([
     ['reversed', (v: string) => mark(v, { seconds: [9, 2] }), 'mark must be'],
     ['past the song', (v: string) => mark(v, { bars: [60, 70] }), 'the mark reaches bar 70; the song has 65 bars'],

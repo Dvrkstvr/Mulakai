@@ -3,7 +3,8 @@
  * state (none, queued, running step, done, failed), the reading the strip shows and the playable version's
  * lineage for the client's `markStale`. The shown reading is the playable version's own (`current`, or
  * `hatched` when its bars were not read), else the latest older one: `dim` (clickable) when the edits since
- * moved no bars, `hatched` when they did or the current reading failed (mark by time: `bars` is null; the
+ * moved no bars and kept their seconds, `hatched` when they moved or re-timed them (a SET TEMPO) or the current
+ * reading failed (mark by time: `bars` is null; the
  * sections keep that older reading's seconds for drawing only). Strip sections are the score's, a section with
  * no lyric block included (F-053 #1); lines come from YuE2's lyric blocks, or for a transcribed score from the
  * word timings inside each section (lines crossing an edge count in both sections, as partial).
@@ -107,11 +108,11 @@ export function analysisView(input: ViewInput): AnalysisView {
   if (!playable) return { songId, versionId: null, number: null, state: { kind: 'none' }, shown: null, lineage: null };
   const failed = current !== null && isFailed(current);
   const view = current && !isFailed(current) ? shown(current, playable.number, input.currentWords, null)
-    : older ? shown(older.analysis, older.number, older.words, failed || input.olderShift.moved ? 'hatched' : 'dim')
+    : older ? shown(older.analysis, older.number, older.words, failed || input.olderShift.moved || input.olderShift.retimed ? 'hatched' : 'dim')
     : null;
   const p = input.parent;
   return {
     songId, versionId: playable.id, number: playable.number, state: state(current, input.job), shown: view,
-    lineage: p ? { fromVersionId: p.versionId, moved: p.shift.moved, shift: p.shift.moved ? p.shift.shift : null } : null,
+    lineage: p ? { fromVersionId: p.versionId, moved: p.shift.moved, shift: p.shift.moved ? p.shift.shift : null, retimed: !p.shift.moved && !!p.shift.retimed } : null,
   };
 }
