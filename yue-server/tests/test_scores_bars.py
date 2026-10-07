@@ -6,6 +6,7 @@ from pathlib import Path
 
 import pytest
 
+import contract_song
 from conftest import FakePipeline
 from contract import check_contract
 from splice_fixtures import grid, score
@@ -32,6 +33,16 @@ def test_contract_replies(name, body, make_client, record_contract):
     reply = make_client().post(PATH, json=body)
     assert reply.status_code == (422 if "bad" in name else 200)
     check_contract(record_contract, name, PATH, body, reply)
+
+
+def test_the_contract_songs_bars_on_its_grid(make_client, record_contract):
+    """The chat e2e's strip (CL-8b): the contract song's score on the grid its chords run answers
+    (transcription-grid-contract), one bar per downbeat."""
+    body = {"abc": contract_song.contract_abc(), "grid": contract_song.grid()}
+    reply = make_client().post(PATH, json=body)
+    assert reply.status_code == 200
+    assert reply.json()["bars"] == 65 and reply.json()["offset"] == 0 and reply.json()["agreement"] == 1.0
+    check_contract(record_contract, "scores-bars-contract", PATH, body, reply)
 
 
 def test_bar_starts_are_the_grids_downbeats_with_the_song_end(make_client):
