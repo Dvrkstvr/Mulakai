@@ -6,12 +6,12 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C3 DONE · C0b DONE 2026-10-07 (built #177 #181, reviewed #185, live-verified + fixed #186, curated); F-050 waits on the owner's listen
-- clarity: blocking 0 · latest Q-108 · decisions to D-169
+- clarity: blocking 0 · latest Q-108 · decisions to D-170
 - feasibility: amber · H-open 1 (R-024: SP-4 ear half owed) · R-025 repaint launcher unverified · R-027 edit tail · spiked 6
-- milestone: C0a + C3 + C0b done · features passing 37/81 (C0b: F-046..F-049; F-050 owed listen)
-- autopilot: stopped — C0b reached (run 3, 7/12 rounds); waiting on the owner's C0b listen
-- owed: C0b A/B listen (E:/ai/tmp/c0b-live/listen, F-050 #3), cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase
-- next: owner listen (5 pairs) → F-050; then pick the next milestone (C1 golden-path e2e, C2, or C4 per scope.md)
+- milestone: C0a + C3 + C0b done · features passing 37/81 (C0b: F-046..F-049; F-050 held by instrument drift, D-170)
+- autopilot: stopped — C0b reached (run 3, 7/12 rounds); listen in (D-170)
+- owed: cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase (C0b listen done: D-170)
+- next: SP-6 instrument hold (D-170: re-sung span drifts instruments) → F-050; then the next milestone
 
 ## Stages
 | # | Stage | State | Gate | Date |
