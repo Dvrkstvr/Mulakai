@@ -20,6 +20,8 @@ export interface AppCommandDeps {
   startCreate: (genType: GenType) => void;
   remake: (song: Song) => void;
   openSettings: (sectionId: string) => void;
+  /** Picks an .abc file and downloads it as MIDI (PLAN.md "Export a Score as MIDI"). */
+  convertAbcFile: () => void;
 }
 
 /** Create's three START FROM cards, by the names S2 gives them. */
@@ -31,6 +33,10 @@ const START_FROM: { genType: GenType; label: string; sub: string }[] = [
 
 export function appCommands(d: AppCommandDeps): Command[] {
   return [
+    {
+      id: 'midi:abc-file', group: 'DO', label: 'Convert an .abc file to MIDI',
+      sub: 'pick a YuE2 score, download it as .mid', run: d.convertAbcFile,
+    },
     ...d.songs.map((s): Command => ({
       id: `song:${s.id}`, group: 'OPEN', label: s.title, sub: 'song', run: () => d.openSong(s.id),
     })),

@@ -869,6 +869,18 @@ button.acid-outline {
   transform: skewX(-10deg);
 }
 
+/* The palette's .abc → MIDI failure (MidiNotice): it has no panel of its own, so it floats
+   just under the header row, right-aligned, until DISMISS. */
+.midi-notice {
+  position: fixed;
+  top: 56px;
+  right: 16px;
+  max-width: min(480px, calc(100vw - 32px));
+  background: var(--rust-tint);
+  font-size: 11px;
+  z-index: 50;
+}
+
 @keyframes toast-in {
   0% {
     opacity: 0;

@@ -35,6 +35,7 @@ const EXPORTS: { what: ExportWhat; label: string; sub: (title: string) => string
   { what: 'mix', label: 'Export mix', sub: (title) => `${title}.wav · what you hear` },
   { what: 'stems', label: 'Export stems', sub: () => "each layer's active take" },
   { what: 'remaster', label: 'Export remastered mix', sub: () => 'one ACE-Step pass over the mix' },
+  { what: 'midi', label: 'Export score as MIDI', sub: (title) => `${title}.mid · the score, not the audio` },
 ];
 
 /** Pure, for the hook below: the open song's DO items and its layers under OPEN. Every item
@@ -71,6 +72,7 @@ export function editorCommands(v: EditorVerbs & { song: SongDetail }): Command[]
     });
   }
   for (const e of EXPORTS) {
+    if (e.what === 'midi' && v.song.engine !== 'yue2') continue; // only YuE2 leaves a score
     items.push({
       id: `export:${e.what}`, group: 'DO', label: e.label, sub: e.sub(v.song.title), key: 'E',
       run: () => { v.setVerb('export'); useDockRequest.getState().pickExport(e.what); },
