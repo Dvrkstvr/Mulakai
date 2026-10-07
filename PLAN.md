@@ -8371,10 +8371,10 @@ sit between FEELING LUCKY and the input; the input stays and stays usable.
   `useApiStatusStore.abort` (the take in progress is lost).
 
 File-level plan (one PR, `feat/create-bar-chips`, client only):
-`createBarChips.ts` (+ test: which chips, labels, overflow, which action),
+`createBarStatus.ts` (+ test: which chips, labels, overflow, which action),
 `CreateBarChip.tsx` (hook-free chip and confirm views, + test),
-`CreateBarChips.tsx` (stores, confirm state, actions, + test of the API
-each confirm calls), `createBarChips.css`, `CreateBar.tsx` and
+`CreateBarChips.tsx` (stores and confirm state), `createBarActions.ts`
+(+ test of the API each confirm calls), `createBarChips.css`, `CreateBar.tsx` and
 `LibraryView.tsx` (the RESUME prop), DESIGN.md's create bar and AI states.
 
 ## Remove the HeartMuLa Engine (planned 2026-10-03)
