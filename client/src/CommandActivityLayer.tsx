@@ -3,6 +3,7 @@ import type { Folder, Song } from './api';
 import type { CreateDraft, GenType } from './createDraft';
 import { CommandPalette } from './CommandPalette';
 import { ActivityDrawer } from './ActivityDrawer';
+import { MidiNotice } from './MidiNotice';
 import { trackActivity } from './activityTracking';
 import { useAppCommands } from './useAppCommands';
 import { useCommandKey } from './useCommandKey';
@@ -31,6 +32,7 @@ export function CommandActivityLayer(p: Props) {
   return (
     <>
       <CommandPalette />
+      <MidiNotice />
       <ActivityDrawer openEditor={p.openEditor} openCreate={() => p.showCreate()} retryGeneration={p.loadCreate} />
     </>
   );

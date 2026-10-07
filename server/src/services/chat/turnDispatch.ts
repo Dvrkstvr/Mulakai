@@ -89,6 +89,7 @@ function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string
     splice: spliceEligibility(plan.ops, base), renderMode: plan.renderMode,
     assumptions: reply.assumptions, attempts: plan.attempts, refusals: plan.refusals,
     ...(mark ? { mark: { ...mark, notes: [...mark.notes, ...(mark.bars ? markFit(plan.ops, mark.bars, base.facts).notes : [])] } } : {}),
+    from: { bpm: base.facts.header.bpm, key: base.facts.header.key },
   };
   return { kind: 'edit', text: reply.message, body, plan };
 }

@@ -11,7 +11,7 @@ function deps(over: Partial<AppCommandDeps> = {}): AppCommandDeps {
     songs: [song('s1', 'Copper Sky'), song('s2', 'Night Drive')],
     folders: [folder('f1', 'Demos', 1)],
     settingsSections: [{ id: 'voices', label: 'Voices', sub: 'upload, rename, delete reference vocals' }],
-    openSong: vi.fn(), openFolder: vi.fn(), startCreate: vi.fn(), remake: vi.fn(), openSettings: vi.fn(),
+    openSong: vi.fn(), openFolder: vi.fn(), startCreate: vi.fn(), remake: vi.fn(), openSettings: vi.fn(), convertAbcFile: vi.fn(),
     ...over,
   };
 }
@@ -22,6 +22,7 @@ describe('appCommands', () => {
   it('indexes songs and folders under OPEN, start points and remakes under CREATE, sections under SETTINGS', () => {
     const items = appCommands(deps());
     const by = (g: string) => items.filter((c) => c.group === g).map((c) => c.label);
+    expect(by('DO')).toEqual(['Convert an .abc file to MIDI']);
     expect(by('OPEN')).toEqual(['Copper Sky', 'Night Drive', 'Demos']);
     expect(by('CREATE')).toEqual([
       'Start from an idea', 'Start from a song I have', 'Start from one track', 'Remake Copper Sky', 'Remake Night Drive',
@@ -39,11 +40,13 @@ describe('appCommands', () => {
     run('create:audio');
     run('remake:s1');
     run('settings:voices');
+    run('midi:abc-file');
     expect(d.openSong).toHaveBeenCalledWith('s2');
     expect(d.openFolder).toHaveBeenCalledWith('f1');
     expect(d.startCreate).toHaveBeenCalledWith('audio');
     expect(d.remake).toHaveBeenCalledWith(d.songs[0]);
     expect(d.openSettings).toHaveBeenCalledWith('voices');
+    expect(d.convertAbcFile).toHaveBeenCalledOnce();
   });
 });
 

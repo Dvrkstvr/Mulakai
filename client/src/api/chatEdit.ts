@@ -21,6 +21,8 @@ export interface ChatEditBody {
   attempts: number;
   refusals: string[][];
   stale?: string;
+  /** The tempo and key the plan was read at (the dock's "from": 87 → 88 BPM); absent on cards made before it. */
+  from?: { bpm: number; key: string };
 }
 
 /** A saved chat edit (message kind `version`; the message's `versionId` is the version). `previous` is null when there

@@ -464,7 +464,9 @@ requiring its own justification against a screen-count rule.
            shimmer stays on GENERATE / REPAINT. Beside it, **USE .ABC FILE**
            (a quiet outline) swaps in a score corrected elsewhere, which is
            the only way to fix its notes. Mulakai has no note editor; it can
-           only leave whole sections out (SECTIONS, below).
+           only leave whole sections out (SECTIONS, below). Once a score is
+           there, **DOWNLOAD MIDI** (same quiet outline) saves it as
+           `<source>.mid`; a failure shows in the step's rust error line.
          - The **score review** is a carbon panel. Its facts sit in the same
            label/value grid idiom as SONG DETAILS: tempo, key, meter, bars,
            length, and sung/played note counts. SheetSage2's warnings come
@@ -744,7 +746,11 @@ requiring its own justification against a screen-count rule.
          the song; no format choice), **STEMS** (each layer's active take,
          preview + DOWNLOAD), or **REMASTERED MIX** (one ACE-Step cover pass
          over the mix with the Settings › Playback & Export format/steps as
-         lilac badges; the result isn't kept).
+         lilac badges; the result isn't kept), or, only for a song YuE2 made,
+         **SCORE AS MIDI** (the active take's score as `<title>.mid`, consequence
+         line "Downloads <title>.mid · the score's Vocal and Ins melodies, not
+         the audio · chords left out", acid DOWNLOAD MIDI; a take with no
+         score says so in the rust error line).
        `TUNE ▸` is the verb's full settings collapsed to one `text-low`
        summary line ("turbo · steps auto · guidance n/a · seed random");
        open, it lays them out in a grid: DIT MODEL, STEPS + AUTO, GUIDANCE
@@ -1247,9 +1253,13 @@ acid button under its consequence line.
   (R) selects that range and opens REPAINT with its instruction field
   focused; one *Add layer · <track>* per TRACK option (L) opens ADD LAYER
   with that track picked; *Split <layer>* (S) focuses the layer and opens
-  SPLIT; *Export mix* / *stems* / *remastered mix* (E) opens EXPORT on that
-  WHAT. Each sets the verb and target and never starts a job — the commit
-  stays the dock's), **OPEN** (songs, the open
+  SPLIT; *Export mix* / *stems* / *remastered mix* / *score as MIDI* (E,
+  the last only for a YuE2 song) opens EXPORT on that WHAT. Each sets the
+  verb and target and never starts a job — the commit stays the dock's;
+  plus, app-wide, *Convert an .abc file to MIDI*, whose file picker is its
+  confirmation: it makes nothing in the library. Its failure has no panel,
+  so it shows as a rust toast under the header row, right-aligned, until
+  DISMISS), **OPEN** (songs, the open
   song's layers, folders), **CREATE** (the three start points, and "Remake
   <song>" = CREATE COVER FROM AUDIO), **SETTINGS** (each section; Forge only
   while enabled). Group labels are 9px `text-low`.

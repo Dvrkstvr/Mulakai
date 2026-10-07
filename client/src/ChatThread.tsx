@@ -17,7 +17,7 @@ import { sentAttach } from './chatReferenceCopy';
 import { assistantOffCause } from './chatEntry';
 import { ASK_AGAIN_TEXT, ASSISTANT_OFF, CANCELLED_LINE, EMPTY_THREAD, FIELD_LABEL, INTERRUPTED_LINE, OPEN_FAILED, changedLine, failedTitle, offBody, skippedLine, touchedSinceSend } from './chatCopy';
 import { liveFields, skipsAtReply, useChatDraftStore } from './chatDraftStore';
-import { cardView, latestSong } from './chatScreen';
+import { cardView, madeBy } from './chatScreen';
 import { useChatStore } from './chatStore';
 import { lastTurn, turnRunning } from './chatTurn';
 import { ChatRecipeCard } from './ChatRecipeCard';
@@ -58,8 +58,6 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
   const sentRev = (msgs.find((m) => m.id === turn.messageId)?.body as ChatUserBody | null)?.sentRev;
   const touched = turnRunning(turn) && sentRev !== undefined
     ? touchedSinceSend(KEYS.filter((k) => k !== 'engine' && skipsAtReply({ draft, pending, filled: {}, assistantRev: {} }, k, sentRev))) : null;
-  const done = latestSong(thread);
-  const doneNumber = done?.number ?? null;
   const retry = async () => { await chat.loadStatus(); await chat.retry(); };
   const askAgain = (text: string | null = ASK_AGAIN_TEXT) => { chat.type(text ?? ASK_AGAIN_TEXT); void chat.send(); };
   const abSide = useChatAb((s) => s.side);
@@ -97,6 +95,7 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
     }
     if (m.kind === 'recipe') {
       const b = m.body as ChatRecipeBody | null;
+      const done = madeBy(msgs, m);
       return (
         <Fragment key={m.id}>
           <div className="chat-am">
@@ -105,7 +104,7 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
             {b && skippedLine(b.skipped) && <div className="chat-hn">{skippedLine(b.skipped)}</div>}
           </div>
           <ChatRecipeCard
-            message={m} view={cardView(m, commit)} live={live} blockers={blockers} ahead={ahead} doneNumber={doneNumber} doneTruncated={Boolean(done?.truncated)}
+            message={m} view={cardView(m, commit)} live={live} blockers={blockers} ahead={ahead} doneNumber={done?.number ?? null} doneTruncated={Boolean(done?.truncated)}
             canAsk={!turnRunning(turn) && !offCause} onCreate={(id) => void chat.create(id)} onAskAgain={() => askAgain()}
             onCancelQueued={() => commit?.jobId && void api.cancelJob(commit.jobId).catch(() => undefined)}
           />

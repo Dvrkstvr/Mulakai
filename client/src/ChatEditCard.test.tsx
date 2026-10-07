@@ -34,6 +34,12 @@ describe('ChatEditCard', () => {
     expect(out).toMatch(/<button type="button" class="acid chat-create"><span>APPLY/);
   });
 
+  it('SET TEMPO names the tempo the plan was read at, like the SCORE dock (87 → 88); an older card without it reads ?', () => {
+    const tempo = { ops: [{ op: 'SET_TEMPO' as const, bpm: 88 }], verdicts: [{ index: 0, op: 'SET_TEMPO' as const, ok: true, reason: null }] };
+    expect(html(PENDING, body({ ...tempo, from: { bpm: 87, key: 'Am' } }))).toContain('87 → 88 BPM');
+    expect(html(PENDING, body(tempo))).toContain('? → 88 BPM');
+  });
+
   it('pending whole song: the full hatch, the reason, the whole-song clause', () => {
     const out = html(PENDING, body({ splice: { splice: false, reason: 'the plan makes 2 changes; only a single change can be spliced' } }));
     expect(out).toContain('chat-strip-bar all');
