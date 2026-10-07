@@ -3,6 +3,7 @@
 import type { RunningRow } from './activityRunning';
 import type { GenerationJob } from './generationStore';
 import { fmtProgress, isEngineStage } from './genProgress';
+import { startsAfter } from './queueCopy';
 
 /** Generation chips shown before the rest fold into `+N`. */
 export const MAX_GEN_CHIPS = 2;
@@ -29,9 +30,7 @@ export interface ChipCopy {
   confirm: string;
 }
 
-export const CONFIRM_COPY: Record<'clear' | 'stop' | GenAction, ChipCopy> = {
-  stop: { consequence: 'Stop writing this draft? Your idea is dropped.', confirm: 'STOP' },
-  clear: { consequence: 'Clear this draft? Its prompt, lyrics, settings and reference audio are discarded.', confirm: 'CLEAR' },
+export const CONFIRM_COPY: Record<GenAction, ChipCopy> = {
   cancel: { consequence: 'Take it out of the queue? Nothing has been made yet, so nothing is lost.', confirm: 'CANCEL' },
   abort: { consequence: 'Abort this generation? The take in progress is lost.', confirm: 'ABORT' },
 };
@@ -82,6 +81,8 @@ export function draftChipText(d: DraftText): string {
 export interface ThinkChip {
   label: string;
   title: string;
+  /** The card's second line: what Quick Start is doing, or what went wrong. */
+  note: string;
   /** Thinking wears the AI shader; waiting in the queue or failed stays plain. */
   ai: boolean;
   failed: boolean;
@@ -95,12 +96,17 @@ interface ThinkState {
 }
 
 /** Quick Start writing a draft from an idea, as Create shows it: THINKING (or QUEUED while it
- * waits its turn), or COULDN'T WRITE once it failed and the idea is still waiting for a RETRY. */
+ * waits its turn), or COULDN'T WRITE once it failed and the idea is still waiting for a RETRY.
+ * Stopping it is Activity's CANCEL / ABORT, like any queued job. */
 export function thinkChip(s: ThinkState, pendingQuery: string | undefined): ThinkChip | null {
   if (s.phase !== 'idle') {
-    return { label: s.position ? `QUEUED · #${s.position}` : 'THINKING', title: s.query, ai: !s.position, failed: false };
+    return s.position
+      ? { label: `QUEUED · #${s.position}`, title: s.query, note: `QUICK START waits its turn · ${startsAfter(s.position)}`, ai: false, failed: false }
+      : { label: 'THINKING', title: s.query, note: 'QUICK START is writing the prompt, lyrics and details…', ai: true, failed: false };
   }
-  if (s.error && pendingQuery) return { label: "COULDN'T WRITE", title: pendingQuery, ai: false, failed: true };
+  if (s.error && pendingQuery) {
+    return { label: "COULDN'T WRITE", title: pendingQuery, note: `${s.error} · RETRY in Create`, ai: false, failed: true };
+  }
   return null;
 }
 

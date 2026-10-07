@@ -1,11 +1,8 @@
-/** Each chip confirm goes to the API that owns it: CLEAR empties the draft, a queued job's CANCEL
- * goes to the queue route, a running job's ABORT to the lock's abort route. */
+/** Each chip confirm goes to the API that owns it: a queued job's CANCEL goes to the queue route,
+ * a running job's ABORT to the lock's abort route. */
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useApiStatusStore } from './apiStatusStore';
 import { confirmChip, targetKey } from './createBarActions';
-import { isDraftEmpty, useCreateDraftStore } from './createDraftStore';
-import { useVoiceStore } from './voiceStore';
-import { useQuickStartStore } from './quickStartStore';
 
 const calls = vi.hoisted(() => ({ cancel: [] as string[], abort: 0 }));
 vi.mock('./api', async (orig) => {
@@ -24,24 +21,6 @@ vi.mock('./api', async (orig) => {
 beforeEach(() => { calls.cancel = []; calls.abort = 0; });
 
 describe('confirmChip', () => {
-  it('stop: drops the Quick Start idea, touching no job routes directly', async () => {
-    useCreateDraftStore.getState().load({ genType: 'prompt', pendingQuery: 'lucky idea' });
-    useQuickStartStore.setState({ phase: 'thinking', query: 'lucky idea' });
-    await confirmChip({ kind: 'stop' });
-    expect(useQuickStartStore.getState().phase).toBe('idle');
-    expect(useCreateDraftStore.getState().pendingQuery).toBeUndefined();
-    expect(calls).toEqual({ cancel: [], abort: 0 });
-  });
-
-  it('draft: clears the draft and its reference audio, nothing else', async () => {
-    useCreateDraftStore.getState().patch({ prompt: 'lofi beat', title: 'Night Drive' });
-    useVoiceStore.setState({ refMode: 'upload' });
-    await confirmChip({ kind: 'draft' });
-    expect(isDraftEmpty(useCreateDraftStore.getState())).toBe(true);
-    expect(useVoiceStore.getState().refMode).toBe('none');
-    expect(calls).toEqual({ cancel: [], abort: 0 });
-  });
-
   it('a queued job: the queue cancel route with its id, never the abort', async () => {
     await confirmChip({ kind: 'cancel', jobId: 'q7' });
     expect(calls).toEqual({ cancel: ['q7'], abort: 0 });
@@ -54,7 +33,7 @@ describe('confirmChip', () => {
   });
 
   it('keys one confirm per chip', () => {
-    expect(targetKey({ kind: 'draft' })).toBe('draft');
+    expect(targetKey({ kind: 'abort', jobId: 'r1' })).toBe('abort:r1');
     expect(targetKey({ kind: 'cancel', jobId: 'q7' })).toBe('cancel:q7');
   });
 });

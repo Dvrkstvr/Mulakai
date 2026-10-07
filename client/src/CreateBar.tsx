@@ -2,6 +2,7 @@ import { Fragment, useState } from 'react';
 import { useLuckyRoll } from './lmJob';
 import type { CreateDraft } from './createDraft';
 import { CreateBarChips } from './CreateBarChips';
+import { CreateCard } from './CreateCard';
 import { useCreateBusy } from './useCreateBusy';
 
 interface Props {
@@ -38,16 +39,16 @@ export function CreateBar({ onCreate, onResume }: Props) {
           </button>
         )}
         <CreateBarChips />
-        {!busy && (
-          <input
-            placeholder="What do you want to make?"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-          />
+        {busy ? <CreateCard onOpen={onResume} /> : (
+          <>
+            <input
+              placeholder="What do you want to make?"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+            />
+            <button className="acid" onClick={create}>CREATE</button>
+          </>
         )}
-        {busy
-          ? <button className="acid" onClick={onResume}>TO CREATE</button>
-          : <button className="acid" onClick={create}>CREATE</button>}
       </div>
       {!busy && lucky.waitNote && <div className="hint">{lucky.waitNote}</div>}
       {!busy && lucky.error && <div className="error">{lucky.error} <button onClick={feelingLucky}>RETRY</button></div>}

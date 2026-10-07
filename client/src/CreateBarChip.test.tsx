@@ -4,7 +4,7 @@ import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { CONFIRM_COPY, type GenChip } from './createBarStatus';
-import { ChipConfirm, DraftChip, GenerationChip, ThinkingChip } from './CreateBarChip';
+import { ChipConfirm, GenerationChip } from './CreateBarChip';
 
 type Btn = ReactElement<{ onClick: () => void; disabled?: boolean; children: ReactElement<{ children: string }> }>;
 
@@ -25,36 +25,25 @@ const labels = (el: ReactNode) => buttons(el).map((b) => b.props.children.props.
 const chip = (over: Partial<GenChip>): GenChip =>
   ({ key: 'k', jobId: 'j', label: 'GENERATING', title: 'Neon Harbor', pct: '42%', veil: 0.42, ai: true, action: 'abort', ...over });
 
-describe('draft chip', () => {
-  it('DRAFT, the text and CLEAR, which only asks (TO CREATE opens it)', () => {
-    const onAskClear = vi.fn();
-    const el = DraftChip({ text: 'lofi beat', onAskClear });
-    expect(renderToStaticMarkup(el)).toContain('<span class="cb-chip-label">DRAFT</span><span class="cb-chip-title" title="lofi beat">lofi beat</span>');
-    expect(labels(el)).toEqual(['CLEAR']);
-    press(el, 'CLEAR');
-    expect(onAskClear).toHaveBeenCalledOnce();
-  });
-});
-
 describe('ChipConfirm', () => {
   const confirm = () => {
     const onConfirm = vi.fn(), onKeep = vi.fn();
-    return { el: ChipConfirm({ copy: CONFIRM_COPY.clear, onConfirm, onKeep }), onConfirm, onKeep };
+    return { el: ChipConfirm({ copy: CONFIRM_COPY.cancel, onConfirm, onKeep }), onConfirm, onKeep };
   };
 
-  it('states the consequence before a rust CLEAR and a quiet KEEP', () => {
+  it('states the consequence before a rust CANCEL and a quiet KEEP', () => {
     const html = renderToStaticMarkup(confirm().el);
-    expect(html).toContain('Clear this draft? Its prompt, lyrics, settings and reference audio are discarded.');
-    expect(html).toMatch(/class="cb-chip-btn danger"><span>CLEAR<\/span>.*class="cb-chip-btn" autofocus=""><span>KEEP/);
+    expect(html).toContain(CONFIRM_COPY.cancel.consequence);
+    expect(html).toMatch(/class="cb-chip-btn danger"><span>CANCEL<\/span>.*class="cb-chip-btn" autofocus=""><span>KEEP/);
   });
 
-  it('KEEP cancels without clearing; CLEAR confirms', () => {
+  it('KEEP backs out; CANCEL confirms', () => {
     const a = confirm();
     press(a.el, 'KEEP');
     expect(a.onKeep).toHaveBeenCalledOnce();
     expect(a.onConfirm).not.toHaveBeenCalled();
     const b = confirm();
-    press(b.el, 'CLEAR');
+    press(b.el, 'CANCEL');
     expect(b.onConfirm).toHaveBeenCalledOnce();
   });
 
@@ -93,22 +82,5 @@ describe('generation chip', () => {
 
   it('no action, no button (a running job that does not hold the lock)', () => {
     expect(labels(GenerationChip({ chip: chip({ action: null }), busy: false, onAsk: vi.fn() }))).toEqual([]);
-  });
-});
-
-describe('thinking chip', () => {
-  it('names the state and the idea; STOP only asks (TO CREATE opens it)', () => {
-    const onAskStop = vi.fn();
-    const el = ThinkingChip({ chip: { label: 'THINKING', title: 'lucky idea', ai: true, failed: false }, onAskStop });
-    const html = renderToStaticMarkup(el);
-    expect(html).toContain('THINKING');
-    expect(html).toContain('lucky idea');
-    expect(labels(el)).toEqual(['STOP']);
-    press(el, 'STOP');
-    expect(onAskStop).toHaveBeenCalledTimes(1);
-  });
-
-  it('STOP states its consequence before confirming', () => {
-    expect(CONFIRM_COPY.stop.consequence).toMatch(/idea is dropped/);
   });
 });

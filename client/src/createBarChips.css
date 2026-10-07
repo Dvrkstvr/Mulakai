@@ -4,15 +4,6 @@
   min-width: 180px; /* chips never squeeze the input out of use */
 }
 
-/* Busy (no input): the chips take the row, titles reading as far as they fit. */
-.create-bar.busy .cb-chip {
-  flex: 1;
-}
-
-.create-bar.busy .cb-chip > .cb-chip-title {
-  max-width: none;
-  flex: 1;
-}
 
 .cb-chip {
   position: relative;

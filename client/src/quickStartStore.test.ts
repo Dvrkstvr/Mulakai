@@ -20,8 +20,7 @@ const flush = () => new Promise((r) => setTimeout(r, 0));
 
 beforeEach(() => {
   follows.length = 0;
-  qs().stop();
-  useQuickStartStore.setState({ hosts: 0, error: '' });
+  useQuickStartStore.setState({ phase: 'idle', query: '', position: null, result: null, hosts: 0, error: '' });
   draft().clear();
   draft().load({ genType: 'prompt', pendingQuery: 'a lucky idea' });
 });
@@ -69,17 +68,6 @@ describe('quickStartStore', () => {
     release();
     expect(qs().phase).toBe('idle');
     expect(draft().prompt).toBe(result.caption);
-  });
-
-  it('STOP drops the idea and ignores a late result', async () => {
-    qs().start('a lucky idea');
-    qs().stop();
-    expect(follows[0].stillWanted()).toBe(false);
-    expect(qs().phase).toBe('idle');
-    expect(draft().pendingQuery).toBeUndefined();
-    follows[0].resolve(result);
-    await flush();
-    expect(draft().prompt).toBe('');
   });
 
   it('a failure keeps the idea for RETRY and says what happened', async () => {

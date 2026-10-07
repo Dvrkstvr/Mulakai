@@ -77,15 +77,15 @@ describe('thinkChip (Quick Start, as Create shows it)', () => {
 
   it('THINKING with the idea, on the AI shader', () => {
     expect(thinkChip({ ...idle, phase: 'thinking', query: 'lucky idea' }, 'lucky idea'))
-      .toEqual({ label: 'THINKING', title: 'lucky idea', ai: true, failed: false });
+      .toEqual({ label: 'THINKING', title: 'lucky idea', note: 'QUICK START is writing the prompt, lyrics and details…', ai: true, failed: false });
   });
 
   it('QUEUED · #n, plain, while it waits its turn', () => {
-    expect(thinkChip({ ...idle, phase: 'thinking', query: 'q', position: 2 }, 'q')).toMatchObject({ label: 'QUEUED · #2', ai: false });
+    expect(thinkChip({ ...idle, phase: 'thinking', query: 'q', position: 2 }, 'q')).toMatchObject({ label: 'QUEUED · #2', ai: false, note: 'QUICK START waits its turn · starts after 2 jobs' });
   });
 
   it("COULDN'T WRITE while a failed idea waits for RETRY", () => {
-    expect(thinkChip({ ...idle, error: 'the LM job failed' }, 'q')).toMatchObject({ label: "COULDN'T WRITE", failed: true, title: 'q' });
+    expect(thinkChip({ ...idle, error: 'the LM job failed' }, 'q')).toMatchObject({ label: "COULDN'T WRITE", failed: true, title: 'q', note: 'the LM job failed · RETRY in Create' });
   });
 
   it('nothing when idle, or once the failed idea is gone', () => {
@@ -95,7 +95,7 @@ describe('thinkChip (Quick Start, as Create shows it)', () => {
 });
 
 describe('isCreateBusy (the bar hides FEELING LUCKY and the input, CREATE becomes TO CREATE)', () => {
-  const think = { label: 'THINKING', title: 'q', ai: true, failed: false };
+  const think = { label: 'THINKING', title: 'q', note: '', ai: true, failed: false };
   it('busy while a draft holds anything or an idea is being written', () => {
     expect(isCreateBusy(false, null)).toBe(true);
     expect(isCreateBusy(true, think)).toBe(true);

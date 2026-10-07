@@ -23,8 +23,6 @@ interface QuickStartState {
   /** Mounted Create screens that will reveal a result (IdeaSteps). */
   hosts: number;
   start: (query: string) => void;
-  /** Drops the idea: a queued job leaves the queue, a running one runs out unread. */
-  stop: () => void;
   /** Create's reveal finished: the draft has the result. */
   finish: () => void;
   /** IdeaSteps is on screen; returns the release. */
@@ -71,12 +69,6 @@ export const useQuickStartStore = create<QuickStartState>()((set, get) => {
           else land(r);
         })
         .catch((err) => { if (current()) settle({ error: err instanceof Error ? err.message : String(err) }); });
-    },
-
-    stop: () => {
-      attempt++;
-      draft().clearPendingQuery();
-      settle({ error: '' });
     },
 
     finish: () => {

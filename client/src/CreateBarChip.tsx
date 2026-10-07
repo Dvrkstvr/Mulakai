@@ -2,7 +2,7 @@
  * chip is confirming, so these render (and are tested) from props alone. */
 import type { KeyboardEvent } from 'react';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
-import type { ChipCopy, GenChip, ThinkChip } from './createBarStatus';
+import type { ChipCopy, GenChip } from './createBarStatus';
 
 interface ConfirmProps {
   copy: ChipCopy;
@@ -20,22 +20,6 @@ export function ChipConfirm({ copy, onConfirm, onKeep }: ConfirmProps) {
       <button type="button" className="cb-chip-btn danger" onClick={onConfirm}><span>{copy.confirm}</span></button>
       {/* Focus lands on the safe choice, so Escape and Enter both keep. */}
       <button type="button" className="cb-chip-btn" onClick={onKeep} autoFocus><span>KEEP</span></button>
-    </div>
-  );
-}
-
-interface DraftProps {
-  text: string;
-  onAskClear: () => void;
-}
-
-/** Create's draft. Opening it is the bar's TO CREATE, so the chip only offers CLEAR. */
-export function DraftChip({ text, onAskClear }: DraftProps) {
-  return (
-    <div className="cb-chip">
-      <span className="cb-chip-label">DRAFT</span>
-      <span className="cb-chip-title" title={text}>{text}</span>
-      <button type="button" className="cb-chip-btn" onClick={onAskClear}><span>CLEAR</span></button>
     </div>
   );
 }
@@ -61,23 +45,6 @@ export function GenerationChip({ chip, busy, onAsk }: GenProps) {
           <span>{ACTION_LABEL[chip.action][busy ? 1 : 0]}</span>
         </button>
       )}
-    </div>
-  );
-}
-
-interface ThinkProps {
-  chip: ThinkChip;
-  onAskStop: () => void;
-}
-
-/** Quick Start writing the draft. TO CREATE shows it there (the reveal, or the error's RETRY). */
-export function ThinkingChip({ chip, onAskStop }: ThinkProps) {
-  return (
-    <div className={chip.ai ? 'cb-chip ai' : chip.failed ? 'cb-chip failed' : 'cb-chip queued'}>
-      {chip.ai && <AIGeneratingBackground />}
-      <span className="cb-chip-label">{chip.label}</span>
-      <span className="cb-chip-title" title={chip.title}>{chip.title}</span>
-      <button type="button" className="cb-chip-btn" onClick={onAskStop}><span>STOP</span></button>
     </div>
   );
 }
