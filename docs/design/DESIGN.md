@@ -220,6 +220,14 @@ requiring its own justification against a screen-count rule.
      server's lock (the same row Activity gives ABORT): "Abort this
      generation? The take in progress is lost." The buttons then read
      CANCELLING… / ABORTING… as in Activity.
+     A **thinking chip** (2026-10-07) mirrors Quick Start writing a draft
+     from an idea, which carries on when Create is closed: `THINKING` on the
+     AI shader (no veil — the LM reports no progress), or `QUEUED · #2` plain
+     and dashed while it waits; the idea as its title; OPEN (Create, where
+     the reveal plays) and STOP, confirmed as "Stop writing this draft? Your
+     idea is dropped." If the LM fails it reads `COULDN'T WRITE` in rust
+     (`rust-tint`, `rust` hairline, `rust-text` label) until RETRY in Create
+     or STOP. Once written, the draft chip takes its place.
    - **Generating cards**: one full-width card pinned at the top of the
      grid per song generation in flight or failed, oldest first (2026-10-03,
      S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
