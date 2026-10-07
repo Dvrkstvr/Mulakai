@@ -6,11 +6,11 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C0b done; C1 built through CL-8b (CL-0..5, 7 merged; CL-8a #199, CL-8b #203 drafts), CL-6 live running
-- clarity: blocking 0 · latest Q-108 · decisions to D-197
-- feasibility: amber · H-open 2 (R-024 SP-4 ear owed; R-030 SP-6 ear owed) · R-033 splice length gate · R-031/R-032 measured in CP-C1 · spiked 7
-- milestone: C0a + C3 + C0b done · features passing 37/81 (C0b: F-046..F-049; F-050 held by instrument drift, D-170)
+- clarity: blocking 0 · latest Q-108 · decisions to D-198
+- feasibility: amber · H-open 1 (R-024 SP-4 ear owed) · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7
+- milestone: C0a + C3 + C0 done (F-050 passes, D-198) · features passing 38/81 · C1 built, review fixes running
 - autopilot: C1 · round 3/12 (run 5) · progress 8·C1 review, fixes running·37·0 · stall 0
-- owed: SP-6 listen (arm F, :8079), cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase
+- owed: cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase
 - next: #210 (CP-C1 fixes) → re-run chatCp1 --merge --marks (mark stop line) → un-draft #199 + #203 → CL-9 live → C1 review → curate; owner: SP-6 listen (:8079)
 
 ## Stages
