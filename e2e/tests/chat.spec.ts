@@ -17,6 +17,8 @@ const RECIPE = sp5Turn('RC05.t1');
 const TITLE = String((RECIPE.reply.recipe as { title: string }).title); // "Abschied"
 const EDIT_REQUEST = 'a little faster, 88 BPM';
 const EDIT_REPLY = editReplyFor('apply-set-tempo', 'Up to 88 BPM; the whole song is re-rendered.');
+/** v1's tempo as yue-server's recorded read reports it: the edit card's SET TEMPO row starts from it. */
+const BASE_BPM = (contract('read-ok').response.body.facts as { header: { bpm: number } }).header.bpm;
 
 const thread = (page: import('@playwright/test').Page) => page.locator('.chat-thread');
 const editCards = (page: import('@playwright/test').Page) => page.getByLabel('Edit proposal');
@@ -95,6 +97,7 @@ test('an edit turn plans on v1, APPLY re-renders the whole song and v2 lands in 
   const card = editCards(page).last();
   await expect(card).toContainText('EDIT · SCORE', { timeout: 30_000 });
   await expect(card).toContainText('SET TEMPO');
+  await expect(card.locator('.score-op-detail').first()).toContainText(`${BASE_BPM} → 88 BPM`); // the base tempo, not "?"
   await expect(card).toContainText('the whole song is re-rendered');
   await expect(card).toContainText('saves v2, v1 is kept');
   expect((await chats(request)).at(-1)?.prompt).toContain(EDIT_REQUEST);
@@ -106,6 +109,10 @@ test('an edit turn plans on v1, APPLY re-renders the whole song and v2 lands in 
   const base = (await songByTitle(request, TITLE)).layers[0];
   expect(base.versions).toHaveLength(2);
   expect(activeVersion(base).label).toContain('SET TEMPO 88');
+  // The recipe card still names the version its own take saved, not the thread's newest one.
+  const recipe = thread(page).locator('.chat-card', { hasText: 'PROPOSAL · NEW SONG' }); // a done card drops its label
+  await expect(recipe).toContainText('DONE · v1 SAVED');
+  await expect(recipe).not.toContainText('v2 SAVED');
   expect((await yueJobs(request)).at(-1)!.body).toMatchObject({ abc: contract('apply-set-tempo').response.body.abc, cot: 'full' });
 });
 
