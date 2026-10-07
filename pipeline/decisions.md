@@ -731,3 +731,8 @@ DT-C1 is `pipeline/design/chat-mark.html` (the strip and mark on the real player
 
 ## D-182 · 2026-10-07 · stage 6 (chat C1) · by: assumed (architect)
 WORDS in the automatic analysis is skipped when `versions.word_timings` already holds a reading, and runs otherwise; `LYRICS_API_URL` unset skips it with "no word timings" (not a failure). If CP-C1 shows lyrics-server's model pushing the planner off the GPU (R-031), the automatic analysis drops WORDS and the Editor keeps reading timings on demand.
+
+## D-185 · 2026-10-07 · stage 5 (DT-C1, chat-mark.html) · by: assumed (ux-mocker), owner sign-off pending
+The defaults of design/chat-mark.html MK-1..MK-10: player above the composer at 134 px with no lyric lane; reading line on its own row (Q-114); neutral reading text, rust only on failure; strip live / dim / hatched; one sky mark, seconds-only dashed; click on empty waveform seeks and clears (Q-116); snap on landing (Q-117); Alt-free edge reads in seconds (Q-118); one composer line (consequence, analysis wait, stale) under the chip; SEND live during an analysis.
+- instead of: the options listed per decision in the page.
+- revisit if: the owner's sign-off or a 1366x768 browser check shows the thread under 400 px.

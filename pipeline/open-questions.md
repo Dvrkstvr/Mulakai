@@ -311,3 +311,18 @@ Editor-first's selection as the mark (CS-10: unsnapped seconds, a partial flag) 
 
 ## Q-113 · assumable · stage 6 (chat C1) · assumed → D-182
 The Editor's auto word-timings read (`timings` job) and the analysis's WORDS step can both queue for one version. Default: WORDS skips a version whose `word_timings` is set and checks `timingsJobs`' pending map first; a double read at worst costs one lyrics-server pass. Alternative: route the Editor's auto-read through the analysis.
+
+## Q-114 · assumable · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
+Reading line on its own 16 px row under the waveform (B) or right-aligned in the player's top row (A). Default: B (room for a failure reason + RETRY; costs 19 px, thread about 431 px at 1366x768 in the worst case). Alternative: A. Owner may pick at sign-off.
+
+## Q-115 · deferred · stage 5 (DT-C1)
+The lyric-line lane under the waveform (chat-song CS-4d: click a lyric line to mark it) is in neither F-053 nor F-054 and is not drawn; it lands with C2's lyrics panel (21 px more player).
+
+## Q-116 · assumable · stage 5 (DT-C1) · assumed → D-185
+A click under 0.2 s on empty waveform both seeks and clears the mark; a drag marks; Esc and the chip's x clear. Alternative: seek only from the ruler.
+
+## Q-117 · assumable · stage 5 (DT-C1) · assumed → D-185
+A seconds-only mark snaps to bars when the reading lands: the chip turns solid and the reading line says so for 6 s. Alternative: it stays seconds-only until dragged again.
+
+## Q-118 · assumable · stage 5 (DT-C1) · assumed → D-185
+An Alt-freed edge reads in seconds plus the bars it touches ("BARS 25-35, 35 PART"); the server fits it. Alternative: no Alt in C1 (snap always).
