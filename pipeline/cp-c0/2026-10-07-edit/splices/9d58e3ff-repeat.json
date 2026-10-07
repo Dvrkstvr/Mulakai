@@ -1,0 +1,53 @@
+{
+ "id": "4a30d7cd8177429e96e749b8925ecf1e",
+ "kind": "splice",
+ "idempotency_key": "splice-a50c1418-ba08-4742-ae04-bbda34adf896",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791336595.847913,
+ "updated_at": 1791336608.7529423,
+ "started_at": 1791336595.848149,
+ "finished_at": 1791336608.7529423,
+ "cancel_requested": false,
+ "result": {
+  "verdict": "rerender",
+  "reason": "level_step",
+  "detail": "the copy's seam steps +6.6 dB in loudness (more than 4 dB): the whole song is re-rendered",
+  "kind": "REPEAT",
+  "bars": [
+   18,
+   29
+  ],
+  "audio_url": null,
+  "audio_seconds": null,
+  "length_diff_s": null,
+  "joins_s": [],
+  "crossfade_s": [],
+  "base_points_s": [],
+  "parts": [],
+  "edges": [],
+  "snap": [
+   {
+    "delta_ms": 9.984,
+    "applied": true,
+    "corr": 0.1984
+   }
+  ],
+  "gain_db": null,
+  "level_step_db": 6.556,
+  "gap_shift_s": null,
+  "seams": [],
+  "null_test": null,
+  "grid_urls": {
+   "base": "/v1/splices/4a30d7cd8177429e96e749b8925ecf1e/grid/base",
+   "render": null,
+   "out": null
+  },
+  "timing": {
+   "total_seconds": 12.905
+  }
+ },
+ "error": null
+}

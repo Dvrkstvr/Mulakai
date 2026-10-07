@@ -292,3 +292,6 @@ USE v1 after v2 exists. Default: v1 becomes active, v2 stays in the Editor's rai
 
 ## Q-107 · assumable · stage 7 (C3 CP-C3) · open
 A library song named in words on a draft thread ("make a cover of Cariñito") with nothing attached gets a recipe, not a READ card (1 of 10 CP-C3 legs). Should naming a library title force `analyze` like an attachment? Default: no for C3 (ATTACH ▾ FROM LIBRARY… is the path; the model may still choose analyze), revisit with C1's prompt work.
+
+## Q-108 · deferred · stage 7 (C0b CB-4) · open
+House in der Halle: the REHARMONIZE plan fails the root check 3 times ("keeps the old root in 4 of 12 bars") and its CUT finds no groove at the joins (`not_aligned`). Both fall back correctly (no card / whole render, labelled). Look at its score and grid before C0b review closes: a planner prompt gap for dense house chords, or a grid-fit limit on four-on-the-floor without onsets between kicks?

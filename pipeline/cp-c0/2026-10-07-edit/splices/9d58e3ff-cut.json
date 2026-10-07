@@ -1,0 +1,53 @@
+{
+ "id": "142374bc5d8048debc656bff63ede98f",
+ "kind": "splice",
+ "idempotency_key": "splice-f73d848c-30d8-45fd-9282-a29a289555fd",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791336532.6762269,
+ "updated_at": 1791336544.3125064,
+ "started_at": 1791336532.676476,
+ "finished_at": 1791336544.3125064,
+ "cancel_requested": false,
+ "result": {
+  "verdict": "rerender",
+  "reason": "not_aligned",
+  "detail": "no groove to line the cut up on",
+  "kind": "CUT",
+  "bars": [
+   38,
+   49
+  ],
+  "audio_url": null,
+  "audio_seconds": null,
+  "length_diff_s": null,
+  "joins_s": [],
+  "crossfade_s": [],
+  "base_points_s": [],
+  "parts": [],
+  "edges": [],
+  "snap": [
+   {
+    "delta_ms": -19.638,
+    "applied": false,
+    "corr": 0.1207
+   }
+  ],
+  "gain_db": null,
+  "level_step_db": null,
+  "gap_shift_s": null,
+  "seams": [],
+  "null_test": null,
+  "grid_urls": {
+   "base": "/v1/splices/142374bc5d8048debc656bff63ede98f/grid/base",
+   "render": null,
+   "out": null
+  },
+  "timing": {
+   "total_seconds": 11.636
+  }
+ },
+ "error": null
+}
