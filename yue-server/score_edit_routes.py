@@ -6,10 +6,13 @@ the only worker call is the tokenizer (under its lock, D-042), and tokens
 are null until the worker has loaded. Tokens are counted with chord symbols
 kept, as a `cot: full` render sends the score (unlike /v1/scores/measure).
 WRITE_PHRASE's and TRANSPOSE's contracts (op shape, refusals) are in the
-README's API section.
+README's API section. POST /v1/scores/bars (chat C1, D-174) times a score's
+bars on a take's downbeat grid with the splice's own fit, so the chat's strip
+and the splice cannot disagree on where a bar starts.
 """
 from __future__ import annotations
 
+import math
 from typing import Annotated, Literal, Union
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -23,6 +26,7 @@ from score_plan import apply_plan, check_plan
 from score_section_models import Cut, Repeat, RewriteLyrics
 from score_sections import section_seconds
 from scores import parse_abc
+from splice_grid import GridError, fit, validate_grid
 
 Root = Literal[ROOTS]
 
@@ -104,6 +108,29 @@ class ApplyRequest(Strict):
     ops: list[Op] = Field(min_length=1, max_length=6)
 
 
+class BarsRequest(Strict):
+    abc: str = Field(min_length=1, max_length=65536)
+    grid: dict
+
+
+def bar_times(abc: str, grid: dict) -> dict:
+    """{offset, starts, end, agreement, bars}: score bar i (0-based) starts at starts[i]; end is the
+    song's end; agreement is the fit's chord-root agreement (null when no bar could be compared)."""
+    try:
+        validate_grid(grid)
+    except GridError as error:
+        raise HTTPException(422, {"code": "bad_grid", "message": str(error)}) from None
+    try:
+        f = fit(grid, abc)
+    except (ValueError, KeyError) as error:  # AbcError is a ValueError
+        raise HTTPException(422, {"code": "bad_score", "message": f"not a native two-voice score: {error}"}) from None
+    if f.bars == 0:
+        raise HTTPException(422, {"code": "bad_score", "message": "the score has no bars"})
+    return {"offset": f.offset, "starts": [round(f.t(i), 4) for i in range(f.bars)],
+            "end": round(f.t(f.bars), 4), "agreement": None if math.isnan(f.root) else round(f.root, 4),
+            "bars": f.bars}
+
+
 def _parsed(abc: str):
     try:
         return parse_abc(abc)
@@ -121,6 +148,10 @@ def add_score_edit_routes(app: FastAPI, worker, authorize) -> None:
                 "seconds": facts["header"]["seconds"] if facts else None,
                 "tokens": worker.count_tokens(request.abc) if facts else None,
                 "facts": facts}
+
+    @app.post("/v1/scores/bars", dependencies=[Depends(authorize)])
+    def bars(request: BarsRequest):
+        return bar_times(request.abc, request.grid)
 
     @app.post("/v1/scores/apply", dependencies=[Depends(authorize)])
     def apply(request: ApplyRequest):

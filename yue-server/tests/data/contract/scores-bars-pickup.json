@@ -1,0 +1,92 @@
+{
+ "name": "scores-bars-pickup",
+ "request": {
+  "method": "POST",
+  "path": "/v1/scores/bars",
+  "body": {
+   "abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=120\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:C\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% chorus\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n",
+   "grid": {
+    "grid_v": 1,
+    "source": "tracked",
+    "downbeats": [
+     0.3,
+     2.3,
+     4.3,
+     6.3,
+     8.3,
+     10.3,
+     12.3,
+     14.3,
+     16.3
+    ],
+    "chords": [
+     [
+      0.3,
+      2.3,
+      "N"
+     ],
+     [
+      2.3,
+      4.3,
+      "C:maj"
+     ],
+     [
+      4.3,
+      6.3,
+      "A:min"
+     ],
+     [
+      6.3,
+      8.3,
+      "F:maj"
+     ],
+     [
+      8.3,
+      10.3,
+      "G:maj"
+     ],
+     [
+      10.3,
+      12.3,
+      "C:maj"
+     ],
+     [
+      12.3,
+      14.3,
+      "A:min"
+     ],
+     [
+      14.3,
+      16.3,
+      "F:maj"
+     ],
+     [
+      16.3,
+      19.3,
+      "G:maj"
+     ]
+    ],
+    "duration": 19.3
+   }
+  }
+ },
+ "response": {
+  "status": 200,
+  "body": {
+   "offset": 1,
+   "starts": [
+    2.3,
+    4.3,
+    6.3,
+    8.3,
+    10.3,
+    12.3,
+    14.3,
+    16.3
+   ],
+   "end": 19.3,
+   "agreement": 1.0,
+   "bars": 8
+  }
+ }
+}
