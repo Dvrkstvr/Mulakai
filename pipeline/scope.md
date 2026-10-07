@@ -464,6 +464,12 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 - **A free-disk check before a commit** (Q-037): each edit now writes a temp render and a spliced file of 65-80 MB on top of the version; C0 deletes temps
   on every path and the C0 run logs the bytes; a check is added if the log shows pressure.
 
+- **Re-time a transcription (after C1, owner 2026-10-07, D-190)**: fix a transcribed score whose beat is wrong (half/double time, or a
+  BPM the owner names). Preferred: rebuild the ABC on yue-server from the transcription's saved model outputs (melody MIDI, beats, chords,
+  keys, structures) with a corrected beat list (every other beat dropped, midpoints added, or a regular grid at the named BPM anchored to the
+  detected downbeats) via SheetSage2's `generate_abc_from_data`: CPU only, seconds, no model re-run. Fallback when the outputs are swept: a
+  mechanical ABC rewrite (scale durations, re-bar). A BPM that is only a little off stays a SET TEMPO header change (exists today).
+
 ## Not doing (chat)
 
 - **LoRA / training ACE-Step toward YuE2's quality** (D-079): a dataset- and GPU-scale project, teaches style not overall quality; post-1.0.

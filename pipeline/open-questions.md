@@ -312,7 +312,7 @@ Editor-first's selection as the mark (CS-10: unsnapped seconds, a partial flag) 
 ## Q-113 · assumable · stage 6 (chat C1) · assumed → D-182
 The Editor's auto word-timings read (`timings` job) and the analysis's WORDS step can both queue for one version. Default: WORDS skips a version whose `word_timings` is set and checks `timingsJobs`' pending map first; a double read at worst costs one lyrics-server pass. Alternative: route the Editor's auto-read through the analysis.
 
-## Q-114 · assumable · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
+## Q-114 · answered B (owner, D-191) · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
 Reading line on its own 16 px row under the waveform (B) or right-aligned in the player's top row (A). Default: B (room for a failure reason + RETRY; costs 19 px, thread about 431 px at 1366x768 in the worst case). Alternative: A. Owner may pick at sign-off.
 
 ## Q-115 · deferred · stage 5 (DT-C1)

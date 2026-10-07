@@ -5,7 +5,7 @@ else SheetSage2), splice, write a float32 WAV, read it back and null-test the
 file. Cancel is checked between steps; a cancelled splice deletes its files.
 
 The result's `verdict` is `ok` (audio at `audio_url`) or `rerender` with a
-`reason` (meter, no_grid, render_truncated, not_aligned, level_step): for
+`reason` (meter, no_grid, render_truncated, not_aligned, level_step, length): for
 REHARMONIZE the server then keeps its whole re-render (D-101), for REPEAT and
 CUT it renders the edited score (D-154).
 """
