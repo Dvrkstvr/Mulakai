@@ -1,0 +1,104 @@
+/**
+ * yue-server's `/v1/splices` (CB-1, D-107, docs/decisions/0005) through engineClient's helpers (bearer auth,
+ * timeouts, FastAPI `detail`): submit (multipart: the base version's audio + the spec JSON, our job id as the
+ * Idempotency-Key), status, the spliced float32 WAV, a grid, cancel. A refused submit (422 an op that is not
+ * spliced or a span outside the score, 409 a render that is not finished) throws `SpliceRefused`: the caller
+ * saves the whole song instead (D-101). Shapes: yue-server/splice_spec.py and splice_result.py.
+ */
+import { errorMessage, failure, headers, request, type EngineTarget } from '../engineClient.js';
+import type { Op } from '../score/planTypes.js';
+import type { Grid } from './gridCache.js';
+
+export interface SpliceSpec {
+  op: Op;
+  base_abc: string;
+  /** REHARMONIZE only: the yue job id of the edited score's render. */
+  render_job?: string;
+  edited_abc?: string;
+  base_grid?: Grid;
+}
+
+/** The record's `result` once it succeeded: `ok` (audio spliced) or `rerender` (render the whole song). */
+export interface SpliceResult {
+  verdict: 'ok' | 'rerender';
+  reason: string | null;
+  detail: string | null;
+  kind: string;
+  bars: [number, number];
+  audio_seconds: number | null;
+  length_diff_s: number | null;
+  joins_s: number[];
+  crossfade_s: number[];
+  snap: Array<{ delta_ms: number; applied: boolean; corr: number | null }>;
+  gain_db: unknown;
+  null_test: { samples: number; different: number } | null;
+}
+
+export type SpliceState =
+  | { state: 'running'; stage?: string; progress?: number }
+  | { state: 'done'; result: SpliceResult }
+  | { state: 'failed'; error: string; cancelled?: boolean };
+
+/** yue-server would not take this splice: render the whole song instead. */
+export class SpliceRefused extends Error {}
+
+const at = (id: string, rest = '') => `/v1/splices/${encodeURIComponent(id)}${rest}`;
+
+export async function submitSplice(target: EngineTarget, audio: Buffer, filename: string, spec: SpliceSpec, jobId: string): Promise<string> {
+  const form = new FormData();
+  form.append('spec', JSON.stringify(spec));
+  form.append('audio', new Blob([new Uint8Array(audio)]), filename);
+  const res = await request(target, '/v1/splices', { method: 'POST', headers: headers(target, { 'Idempotency-Key': jobId }), body: form }, 'splice');
+  if (res.status === 422 || res.status === 409) throw new SpliceRefused((await failure(target, 'splice', res)).message);
+  if (!res.ok) throw await failure(target, 'splice', res);
+  const job = (await res.json()) as { id?: unknown };
+  if (typeof job.id !== 'string' || !job.id) throw new Error(`${target.label} splice -> no job id in reply`);
+  return job.id;
+}
+
+export async function spliceStatus(target: EngineTarget, id: string): Promise<SpliceState> {
+  const res = await request(target, at(id), { headers: headers(target) }, 'splice status');
+  if (!res.ok) throw await failure(target, 'splice status', res);
+  const job = (await res.json()) as { status?: unknown; stage?: unknown; progress?: unknown; error?: unknown; result?: unknown };
+  switch (job.status) {
+    case 'queued':
+    case 'running':
+      return { state: 'running', stage: typeof job.stage === 'string' ? job.stage : undefined, progress: typeof job.progress === 'number' ? job.progress : undefined };
+    case 'succeeded': {
+      const result = job.result as SpliceResult | null;
+      if (!result || (result.verdict !== 'ok' && result.verdict !== 'rerender')) return { state: 'failed', error: `${target.label} splice -> no verdict in its result` };
+      return { state: 'done', result };
+    }
+    case 'failed':
+      return { state: 'failed', error: errorMessage(job.error) ?? `${target.label} splice failed` };
+    case 'cancelled':
+      return { state: 'failed', error: `${target.label} cancelled the splice`, cancelled: true };
+    default:
+      return { state: 'failed', error: `${target.label} splice status -> unknown status ${JSON.stringify(job.status)}` };
+  }
+}
+
+export async function fetchSpliceAudio(target: EngineTarget, id: string): Promise<Buffer> {
+  const res = await request(target, at(id, '/audio'), { headers: headers(target) }, 'splice audio');
+  if (!res.ok) throw await failure(target, 'splice audio', res);
+  return Buffer.from(await res.arrayBuffer());
+}
+
+/** A grid the splice fitted (base, render or the output's), or null when yue-server has none. */
+export async function fetchSpliceGrid(target: EngineTarget, id: string, which: 'base' | 'render' | 'out'): Promise<unknown> {
+  try {
+    const res = await request(target, at(id, `/grid/${which}`), { headers: headers(target) }, 'splice grid');
+    return res.ok ? await res.json() : null;
+  } catch {
+    return null; // a grid is a cache: missing it costs one more tracking run next time, nothing else
+  }
+}
+
+/** Fire-and-forget, as the transcription cancel: our side is done with the job either way. */
+export async function cancelSplice(target: EngineTarget, id: string): Promise<void> {
+  try {
+    await request(target, at(id, '/cancel'), { method: 'POST', headers: headers(target) }, 'splice cancel');
+  } catch {
+    // unreachable yue-server: its retention sweep removes the files
+  }
+}
