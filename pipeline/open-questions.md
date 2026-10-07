@@ -312,7 +312,7 @@ Editor-first's selection as the mark (CS-10: unsnapped seconds, a partial flag) 
 ## Q-113 · assumable · stage 6 (chat C1) · assumed → D-182
 The Editor's auto word-timings read (`timings` job) and the analysis's WORDS step can both queue for one version. Default: WORDS skips a version whose `word_timings` is set and checks `timingsJobs`' pending map first; a double read at worst costs one lyrics-server pass. Alternative: route the Editor's auto-read through the analysis.
 
-## Q-114 · assumable · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
+## Q-114 · answered B (owner, D-191) · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
 Reading line on its own 16 px row under the waveform (B) or right-aligned in the player's top row (A). Default: B (room for a failure reason + RETRY; costs 19 px, thread about 431 px at 1366x768 in the worst case). Alternative: A. Owner may pick at sign-off.
 
 ## Q-115 · deferred · stage 5 (DT-C1)
@@ -326,3 +326,9 @@ A seconds-only mark snaps to bars when the reading lands: the chip turns solid a
 
 ## Q-118 · assumable · stage 5 (DT-C1) · assumed → D-185
 An Alt-freed edge reads in seconds plus the bars it touches ("BARS 25-35, 35 PART"); the server fits it. Alternative: no Alt in C1 (snap always).
+
+## Q-119 · answered (owner: snap to bars, D-194) · stage 7 (CL-6, CP-C1) · open
+CP-C1 stop line hit: 2 of 10 marked turns planned outside the mark, both the seconds-only marks (`pipeline/cp-c1/2026-10-07/notes.md` #1). `markBlock` sends no bars for a time-only mark (D-179), so the plan is unbounded and the planner fell back to "the first chorus" both times; the 8 bar marks all stayed inside. Q-117 makes the client snap such a mark once a reading lands, so the case left is a hatched strip (bars not read). Options: (a) the server snaps a seconds-only mark to bars whenever the version has bar times and bounds the plan; with none, (b) name the nearest sections from the score's own section timing in MARK, or (c) a time-only mark gets no edit plan ("mark again when the bars are read"). Owner / conductor picks before CL-8a.
+
+## Q-120 · assumable · stage 7 (CL-6, CP-C1) · assumed → D-196
+yue-server `/v1/scores/bars` returns non-increasing `starts` (bar 1 clamped to the audio start, bars past the audio's end all = end) and `yueScoreBars.ts` then drops the whole reply as "unreadable": the strip stays hatched and nothing can be marked (Acid Houzzzz, a YuE2 song, and eventide). Default: clamp or trim on yue-server (or accept non-decreasing starts with the bars past the end marked absent), tested with these two songs' grids, before CL-8a.

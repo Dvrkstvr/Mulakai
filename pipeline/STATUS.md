@@ -5,13 +5,13 @@
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
-- stage: 7 build — C3 DONE · C0b DONE 2026-10-07 (built #177 #181, reviewed #185, live-verified + fixed #186, curated); F-050 waits on the owner's listen
-- clarity: blocking 0 · latest Q-108 · decisions to D-170
-- feasibility: amber · H-open 1 (R-024: SP-4 ear half owed) · R-025 repaint launcher unverified · R-027 edit tail · spiked 6
+- stage: 7 build — C0b done; C1 built through CL-8b (CL-0..5, 7 merged; CL-8a #199, CL-8b #203 drafts), CL-6 live running
+- clarity: blocking 0 · latest Q-108 · decisions to D-196
+- feasibility: amber · H-open 2 (R-024 SP-4 ear owed; R-030 SP-6 ear owed) · R-033 splice length gate · R-031/R-032 measured in CP-C1 · spiked 7
 - milestone: C0a + C3 + C0b done · features passing 37/81 (C0b: F-046..F-049; F-050 held by instrument drift, D-170)
-- autopilot: stopped — C0b reached (run 3, 7/12 rounds); listen in (D-170)
-- owed: cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase (C0b listen done: D-170)
-- next: SP-6 instrument hold (D-170: re-sung span drifts instruments) → F-050; then the next milestone
+- autopilot: stopped — C1 run 4 budget 12/12; resume with /pipeline:auto C1 in a fresh session
+- owed: SP-6 listen (arm F, :8079), cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase
+- next: #210 (CP-C1 fixes) → re-run chatCp1 --merge --marks (mark stop line) → un-draft #199 + #203 → CL-9 live → C1 review → curate; owner: SP-6 listen (:8079)
 
 ## Stages
 | # | Stage | State | Gate | Date |

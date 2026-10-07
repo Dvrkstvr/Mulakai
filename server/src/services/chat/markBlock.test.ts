@@ -68,7 +68,7 @@ describe('markBlock', () => {
     const out = markBlock({ mark: { kind: 'range', versionId: 'v4', seconds: [30, 40] }, number: 4,
       analysis: analysis({ bars: { notRead: 'no grid' } }), words: null });
     expect(out.lines[0]).toBe('MARK (the person marked part of v4 on the player; "this", "here" and "it" in the REQUEST mean it): 0:30-0:40, bars not read.');
-    expect(out.lines.at(-1)).toBe('The bars of this version were not read: the mark is a time only; plan against the sections nearest it.');
+    expect(out.lines.at(-1)).toBe('The bars of this version were not read yet: the mark is a time only, so no edit can be planned for it; answer in words (say) and tell the person to mark again once the reading lands.');
     expect(out.bars).toBeNull();
     expect(out.preview.sent).toMatchObject({ bars: null, sections: [] });
     expect(out.preview.rows[1]).toEqual({ name: 'BARS', value: 'not read' });

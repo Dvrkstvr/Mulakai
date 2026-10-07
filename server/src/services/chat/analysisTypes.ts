@@ -19,7 +19,8 @@ export interface AnalysisPlanSources {
   sections: 'cached' | 'score' | 'track' | 'skip';
 }
 
-/** yue-server `POST /v1/scores/bars`: `starts[i]` is the audio time of score bar i + 1; `end` the song's end.
+/** yue-server `POST /v1/scores/bars`: `starts[i]` is the audio time of score bar i + 1, strictly increasing, only
+ * for the bars the audio holds (Q-120: shorter than the score when it runs past the audio); `end` closes the last.
  * `source`: the grid came from the cache, was tracked for this analysis, or was mapped by a splice. */
 export interface BarTimes {
   source: 'cached' | 'tracked' | 'mapped';

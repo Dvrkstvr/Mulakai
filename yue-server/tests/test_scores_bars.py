@@ -9,9 +9,10 @@ import pytest
 import contract_song
 from conftest import FakePipeline
 from contract import check_contract
-from splice_fixtures import grid, score
+from score_bar_times import audio_starts
+from splice_fixtures import CHORDS, grid, score
 from scores import strip_chords
-from splice_grid import fit, read_grid
+from splice_grid import Fit, fit, read_grid
 
 PATH = "/v1/scores/bars"
 SPLICE = Path(__file__).parent / "data" / "splice"
@@ -105,3 +106,41 @@ def test_bars_never_touches_the_gpu_path(make_client):
     pipe = FakePipeline()
     make_client(pipe).post(PATH, json={"abc": EIGHT, "grid": grid(8, 0.5)})
     assert pipe.requests == []
+
+
+# Q-120 (CP-C1, eventide and Acid Houzzzz): the fit's offset may put score bar 1 before the first downbeat, and a
+# score may have more bars than the audio. Recorded on eventide: offset -1, bars 1 and 2 both at 1.85 s, bars 43-80
+# all at the song's end (147.0), so the server rejected the whole reply. This grid has eventide's shape: 41 downbeats
+# from 1.85 s, every 3.45 s, under an 80-bar score, its chords one bar late (offset -1).
+EVENTIDE_SCORE = score(80, 120)
+EVENTIDE_GRID = grid(41, 3.45 / 4, lead=1.85, duration=147.0, chord_of=lambda i: CHORDS[(i + 1) % 4][1])
+
+
+def test_eventide_bar_starts_strictly_increase_and_stop_at_the_audio(make_client):
+    body = make_client().post(PATH, json={"abc": EVENTIDE_SCORE, "grid": EVENTIDE_GRID}).json()
+    starts = body["starts"]
+    assert body["offset"] == -1 and body["bars"] == 80 and body["end"] == 147.0
+    assert all(b > a for a, b in zip(starts, starts[1:])) and starts[-1] < body["end"]
+    # bar 1 is the audio's first seconds (a bar back from the first downbeat, clamped at 0); bar 2 the first downbeat
+    assert starts[:3] == [0.0, 1.85, 5.3]
+    # bars 43-80 lie past the last downbeat: not in the audio, so not timed (the splice puts them at the end too)
+    assert len(starts) == 42 and starts[-1] == EVENTIDE_GRID["downbeats"][-1]
+
+
+def test_bars_before_the_audio_share_its_first_seconds(make_client):
+    # offset -2 on a take whose first downbeat is at 1.0 s: bars 1 and 2 would both start before 0
+    g = grid(10, 0.5, lead=1.0, chord_of=lambda i: CHORDS[(i + 2) % 4][1])
+    body = make_client().post(PATH, json={"abc": score(8, 120), "grid": g}).json()
+    assert body["offset"] == -2
+    assert body["starts"][:3] == [0.0, 0.5, 1.0]
+    assert all(b > a for a, b in zip(body["starts"], body["starts"][1:]))
+
+
+def test_in_range_bar_starts_are_the_fits_own():
+    f = fit(EVENTIDE_GRID, EVENTIDE_SCORE)
+    starts, end = audio_starts(f)
+    assert starts[1:] == [round(f.t(i), 4) for i in range(1, 42)] and end == round(f.t(f.bars), 4)
+
+
+def test_no_bar_in_the_audio_times_nothing():
+    assert audio_starts(Fit([0.0, 2.0], 2.5, 4, False, float("nan"), 1, 0.5)) == ([], 2.5)
