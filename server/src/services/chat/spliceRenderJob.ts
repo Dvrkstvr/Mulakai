@@ -7,7 +7,9 @@
  * - anything else (spliceEligibility said so on the card): renders the whole song.
  * A splice verdict `rerender` or a refused splice saves the whole render instead, labelled with the reason (a
  * CUT / REPEAT renders it then), never a silent splice; a failed splice or a cancel saves nothing and keeps the
- * plan (the card returns to pending). Every exit ends the yue splice job, so its temp files go with it.
+ * plan (the card returns to pending). Every exit cancels the yue splice job: that stops a queued or running
+ * splice, but a finished one is untouched (cancel is a no-op), so its spliced WAV and grids stay on yue-server
+ * until its retention sweep removes them.
  * `job.progressText` is the phase the thread shows: rendering, splicing, saving.
  */
 import crypto from 'node:crypto';
