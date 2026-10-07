@@ -65,6 +65,13 @@ describe('message view (the states the client shows)', () => {
     expect(states([card({ jobId: 'r' }), msg('assistant', 'version', { jobId: 'r' })], ctx())).toEqual(['done', null]);
   });
 
+  it('an edit card whose APPLY a restart cut (its job id kept, the job unknown, no version) is interrupted, not expired (F-049 #3)', () => {
+    const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'edit', { proposalId: 'e', ...over });
+    expect(states([card({ jobId: 'r' })], ctx())).toEqual(['interrupted']);
+    expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'failed', error: 'x' } }))).toEqual(['expired']);
+    expect(states([msg('assistant', 'recipe', { proposalId: 'e', jobId: 'r', body: recipeBody as never })], ctx())).toEqual(['expired']);
+  });
+
   it('an edit card\'s APPLY (CB-3, F-049): the phase while committing, back to pending when it ended with no version, stale when refused', () => {
     const card = (over: Partial<ChatMessage> = {}) => msg('assistant', 'edit', { proposalId: 'e', jobId: 'r', ...over });
     const phase = (job: JobView) => messageViews([card()], ctx({ r: job }, { e: 'live' }))[0].phase;

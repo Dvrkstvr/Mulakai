@@ -57,7 +57,9 @@ describe('the edit card', () => {
   });
 
   it('every ending without a version says nothing was saved (EC-8)', () => {
-    expect(cancelledLine('splicing', 2)).toBe('CANCELLED WHILE SPLICING · the temporary render is deleted · no v2 saved');
+    // Only a cancel while rendering deletes YuE2's render; after a splice it stays until yue-server's sweep (CB-6).
+    expect(cancelledLine('rendering', 2)).toBe('CANCELLED WHILE RENDERING · the temporary render is deleted · no v2 saved');
+    expect(cancelledLine('splicing', 2)).toBe('CANCELLED WHILE SPLICING · no v2 saved');
     expect(cancelledLine(null, 2)).toBe('CANCELLED · no v2 saved');
     expect(applyFailedBody('YuE2 ran out of memory', 1)).toBe('YuE2 ran out of memory. Nothing was saved, v1 is untouched.');
     expect(staleBody('this song changed since the proposal: a repaint is queued')).toBe('a repaint is queued. Nothing started.');

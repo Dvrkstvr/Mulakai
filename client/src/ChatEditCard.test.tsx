@@ -77,6 +77,11 @@ describe('ChatEditCard', () => {
     expect(sup).toContain('REPLACED BY A NEWER PLAN');
     expect(sup).not.toContain('chat-create');
     expect(html({ kind: 'expired' })).toContain('THIS EDIT EXPIRED');
+    const cut = html({ kind: 'interrupted' }); // F-049 #3: a restart cut APPLY
+    expect(cut).toContain('EDIT · SCORE · INTERRUPTED');
+    expect(cut).toContain('The server restarted while APPLY ran. Nothing was saved, v1 is untouched');
+    expect(cut).toContain('ASK AGAIN');
+    expect(cut).not.toContain('chat-create');
     expect(html({ kind: 'done' })).toContain('DONE · BARS 25-32');
     expect(html({ kind: 'done' })).not.toContain('REHARMONIZE');
   });

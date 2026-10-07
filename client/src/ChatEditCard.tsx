@@ -2,13 +2,13 @@
  * SCORE change list (`ScorePlanList`), the sky bar strip (option B: the span, or the full hatch for a whole song), the
  * consequence line left of APPLY (the card's one acid; its label never turns into progress). While APPLY runs: the
  * RENDERING › SPLICING › SAVING steps and one plain line with CANCEL until SAVING. Every ending without a version is
- * one rust line; stale, superseded and expired drop APPLY; done folds to one header line. */
+ * one rust line; stale, superseded, expired and interrupted (a restart cut APPLY) drop APPLY; done folds to one header line. */
 import type { ChatMessageView } from './api/chat';
 import type { ChatEditBody, ChatSplice } from './api/chatEdit';
 import type { ScorePlan } from './api/score';
 import {
   APPLY, APPLY_FAILED, EDIT_EXPIRED_BODY, EDIT_EXPIRED_TITLE, EDIT_HEADER, EDIT_SUPERSEDED_BODY, STALE_TITLE, WHY_WHOLE,
-  applyFailedBody, applyJobLine, applySteps, cancelledLine, editConsequence, editDoneLine, editHeader, editHint, staleBody,
+  applyFailedBody, applyJobLine, editInterruptedBody, applySteps, cancelledLine, editConsequence, editDoneLine, editHeader, editHint, staleBody,
   stripLine,
 } from './chatEditCopy';
 import { stripTotal } from './chatEditView';
@@ -91,6 +91,7 @@ export function ChatEditCard({ message, view, base, next, ahead, canAsk, onApply
         </div>
       )}
       {view.kind === 'stale' && <ChatErrorLine title={STALE_TITLE} body={staleBody(view.reason)}>{askAgain}</ChatErrorLine>}
+      {view.kind === 'interrupted' && <ChatErrorLine title="INTERRUPTED" body={editInterruptedBody(base)}>{askAgain}</ChatErrorLine>}
       {view.kind === 'expired' && <ChatErrorLine title={EDIT_EXPIRED_TITLE} body={EDIT_EXPIRED_BODY}>{askAgain}</ChatErrorLine>}
       {view.kind === 'superseded' && <div className="chat-card-cm"><span className="chat-cs">{EDIT_SUPERSEDED_BODY}</span></div>}
       {view.kind === 'pending' && view.cancelled !== undefined && <ChatErrorLine title={cancelledLine(view.cancelled, next)} body="" />}
