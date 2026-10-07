@@ -35,6 +35,14 @@ describe('turn reply schema (SP-5 turn_schema)', () => {
     expect(recipe(true).required).toContain('reference_use');
   });
 
+  it('CP-C3 fix: reference_use is the first key of the recipe, decided before the model writes lyrics', () => {
+    const recipe = part(turnSchema({ facts: null, phraseBars: 4, allowed: ['recipe', 'say'], reference: true }), 'recipe').properties.recipe;
+    expect(Object.keys(recipe.properties)[0]).toBe('reference_use');
+    expect(recipe.required[0]).toBe('reference_use');
+    const plain = part(turnSchema({ facts: null, phraseBars: 4, allowed: ['recipe'] }), 'recipe').properties.recipe;
+    expect(Object.keys(plain.properties)[0]).toBe('title');
+  });
+
   it('edit ops are bounded by the song, and by dummy 300-bar bounds without one', () => {
     const bars = (s: Schema) => part(s, 'edit').properties.ops.items.anyOf.find((o: Schema) => o.properties.op.const === 'REHARMONIZE').properties.from_bar.maximum;
     expect(bars(turnSchema({ facts, phraseBars: 4, allowed: ['edit', 'say'] }))).toBe(facts.header.bars);

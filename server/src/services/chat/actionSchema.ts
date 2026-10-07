@@ -33,11 +33,11 @@ export const REFERENCE_USES = ['cover', 'borrow', 'none'];
 export function recipeSchema(reference = false): Schema {
   const section = obj({ tag: { enum: SUNG_TAGS }, lines: arr(str(1, RECIPE_LIMITS.line), LINES.min, LINES.max) });
   return obj({
+    ...(reference ? { reference_use: { enum: REFERENCE_USES } } : {}), // first: decided before the lyrics (CP-C3)
     title: str(1, RECIPE_LIMITS.title), style: str(3, RECIPE_LIMITS.style), bpm: int(BPM.min, BPM.max), key: { enum: KEYS },
     time_signature: { enum: TIME_SIGNATURES }, language: { enum: LANGUAGES }, engine: { enum: ENGINES },
     structure: arr({ enum: SECTION_TAGS }, RECIPE_LIMITS.structure.min, RECIPE_LIMITS.structure.max),
     lyrics: arr(section, 1, RECIPE_LIMITS.sections),
-    ...(reference ? { reference_use: { enum: REFERENCE_USES } } : {}),
   });
 }
 

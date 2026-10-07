@@ -41,4 +41,11 @@ describe('chat rules (the system prompt = a snapshot of SP-5 v3.1 rules_for())',
     expect(REFERENCE_RULE).toContain('reference_use');
     expect(chatRules(['say'], { reference: true })).not.toContain(REFERENCE_RULE);
   });
+
+  it('CP-C3 fix: cover only for this same song; a different song and an unsure request are a borrow', () => {
+    expect(REFERENCE_RULE).not.toContain('COVER: possible: cover');
+    expect(REFERENCE_RULE).toContain('cover = ONLY when the person asks for THIS SAME song again');
+    expect(REFERENCE_RULE).toContain('borrow = a different song in its style');
+    expect(REFERENCE_RULE).toContain('Unsure: borrow, and say so in assumptions.');
+  });
 });
