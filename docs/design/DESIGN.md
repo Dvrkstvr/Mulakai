@@ -210,7 +210,7 @@ requiring its own justification against a screen-count rule.
      with a dashed hairline, as UP NEXT does. Two at most, then a `+N` chip.
      A **draft chip** while Create's draft holds anything: `DRAFT`
      (`text-mid`, tracked small caps), the typed title or else the prompt
-     (`text-hi`), RESUME (opens Create on the draft) and CLEAR. Each quick
+     (`text-hi`) and CLEAR. Each quick
      action is confirmed in place: the chip becomes its consequence line on
      `rust-tint` with a `rust` hairline, a filled rust confirm and a quiet
      KEEP (focused, so Enter or Escape keeps). CLEAR: "Clear this draft? Its
@@ -223,11 +223,17 @@ requiring its own justification against a screen-count rule.
      A **thinking chip** (2026-10-07) mirrors Quick Start writing a draft
      from an idea, which carries on when Create is closed: `THINKING` on the
      AI shader (no veil — the LM reports no progress), or `QUEUED · #2` plain
-     and dashed while it waits; the idea as its title; OPEN (Create, where
-     the reveal plays) and STOP, confirmed as "Stop writing this draft? Your
+     and dashed while it waits; the idea as its title; STOP, confirmed as "Stop writing this draft? Your
      idea is dropped." If the LM fails it reads `COULDN'T WRITE` in rust
      (`rust-tint`, `rust` hairline, `rust-text` label) until RETRY in Create
      or STOP. Once written, the draft chip takes its place.
+     **Busy Create** (2026-10-07): while Create holds a draft or is writing
+     one (a draft or thinking chip shows), FEELING LUCKY and the input hide —
+     a new idea would clash with the one in Create — the chips stretch across
+     the row, titles no longer capped at 180px, and CREATE becomes TO CREATE
+     (same acid button), which opens Create on it; the chips therefore carry
+     no RESUME/OPEN of their own. Songs generating alone don't make Create
+     busy: the input stays so another idea can queue.
    - **Generating cards**: one full-width card pinned at the top of the
      grid per song generation in flight or failed, oldest first (2026-10-03,
      S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
