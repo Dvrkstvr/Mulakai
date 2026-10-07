@@ -104,3 +104,10 @@ R9 stage 7 C3/CR-2 · builder → reading job (WORDS>SCORE>CAPTION one slot, can
 R9+ SP-4 ear: D-146 short listen (10 riskiest pairs, 2 per kind); owner judged REHARMONIZE p1-p4 → D-147 A3 passes for reharm with a level-over-span fix; 8 pairs left on listen/short.html
 R10 stage 7 C3/CR-3 · builder → reference turn (analyze card, follow-up turn, cover/borrow recipe, code fills borrowed); my rerun after merging main: server tsc + vitest 1168; PR #167 auto-merge; #164 #165 #166 merged; D-148; next wave: CR-4 + CR-7a + CR-7b in parallel · progress 7·CR-0..3,5,6 done·29·0
 R11 stage 7 C3 · dispatched in parallel: CR-4 (read/re-analyze/cover routes, on CR-3), CR-7a (attach + reading UI, owns DESIGN.md), CR-7b (cover card, borrowed fields, panel, A/B; Q-101 check) · progress 7·CR-0..3,5,6 done·29·0
+R12 stage 7 C3/CR-4 · builder → READ/RE-ANALYZE routes, reading card → follow-up turn, CREATE COVER, gpuGuard in createFromDraft, refused[]; my rerun after merging main: server tsc + vitest 1190; PR auto-merge; #167 CR-3 merged; D-149; CR-7a/7b running · progress 7·server half done·29·0 · round budget 12/12
+after run · SP-4 ear: owner judged the 8 short pairs → D-150 proposed (reharm + cut + small-step repeat splice; lyrics + phrase whole re-render), owner to confirm
+after run · CR-7a → attach + reading UI, DESIGN.md C3 clauses; my rerun after merging main: client build + lint + vitest 1058; PR + auto-merge; D-151; CR-7b running
+after run · CR-7b → cover card, borrowed fields, reference panel, A/B; merged CR-7a in (copy conflict resolved), DESIGN.md deviations committed; my rerun client build + lint + vitest 1090; PR #171 auto-merge; D-152, Q-101 closed, Q-102 · all C3 packages built except CR-8 (needs owner recordings) and CR-9 (live run)
+
+## Run 2026-10-07 (2) → C3 then C0b (fresh 12-round budget; owner: "whole re-render is fine, keep going")
+R1 · D-150 confirmed, D-153 CP-C3 on library songs, D-154 C0b splice scope; dispatched in parallel: CR-8 (chatCp3 + live), reviewer C3 code lens, CB-1 yue splice, CB-2 edit turn · progress 7·C3 built·29·0

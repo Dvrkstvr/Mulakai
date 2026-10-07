@@ -165,3 +165,23 @@ export function coverBlock(r: ReadingView): string | null {
   if (m && m.header + m.sections.reduce((n, s) => n + s.tokens, 0) > m.budget) return SCORE_TOO_LONG;
   return null;
 }
+
+/* CR-7b: the cover and borrow cards, a missing field, A/B (chat-reference.html 3a, 3b, 4a; D-141). */
+export const COVER_HEADER = 'PROPOSAL · COVER';
+export const COVER_HINT = 'nothing runs yet';
+export const BORROW_HINT = 'borrows from the reference';
+export const AB_LISTENING = 'LISTENING · SAME SECONDS';
+const LABEL: Partial<Record<ChatDraftKey, string>> = { bpm: 'TEMPO', key: 'KEY', timeSignature: 'METER', structure: 'STRUCTURE', style: 'STYLE' };
+/** A blank field the reading had no value for (F-064 edge): "KEY · AUTO". */
+export const autoValue = (key: ChatDraftKey) => `${LABEL[key] ?? key.toUpperCase()} · AUTO`;
+export const missingTitle = (key: ChatDraftKey) => `NO ${(NOUN[key] ?? key).toUpperCase()} FOUND`;
+export const MISSING_BODY = 'in the reference · left blank, YuE2 decides when it renders';
+
+/** CREATE SONG's line on a borrow (F-064): what came from the reference, and that words and melody are new. */
+export function borrowConsequence(estSeconds: number | null | undefined, borrowed: ChatDraftKey[], ahead = 0): string {
+  const length = estSeconds ? `, about ${Math.max(1, Math.round(estSeconds / 60))} min` : '';
+  const nouns = (['bpm', 'key', 'timeSignature', 'structure'] as ChatDraftKey[]).filter((k) => borrowed.includes(k)).map((k) => NOUN[k]!);
+  const last = nouns.pop();
+  const from = last ? `${nouns.length ? `${nouns.join(', ')} and ` : ''}${last} from the reference, ` : '';
+  return `Renders a new song on YuE2${length} · ${from}words and melody are new · lands in Library${queueSuffix(ahead)}`;
+}
