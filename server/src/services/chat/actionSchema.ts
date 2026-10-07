@@ -41,14 +41,15 @@ export function recipeSchema(reference = false): Schema {
   });
 }
 
-export interface SchemaInput { facts: ScoreFacts | null; phraseBars: number; allowed: TurnAction[]; reference?: boolean }
+/** `barRange` (C1, D-176): a mark's bars, clamped to the song; an edit's bar-valued fields stay inside it. */
+export interface SchemaInput { facts: ScoreFacts | null; phraseBars: number; allowed: TurnAction[]; reference?: boolean; barRange?: [number, number] | null }
 
-export function turnSchema({ facts, phraseBars, allowed, reference = false }: SchemaInput): Schema {
+export function turnSchema({ facts, phraseBars, allowed, reference = false, barRange }: SchemaInput): Schema {
   const assumptions = arr(str(1, 160), 0, 4);
   const parts: Record<TurnAction, () => Schema> = {
     ask: () => action('ask', { message: str(1, MESSAGE_MAX), choices: arr(str(1, 80), 2, 4) }),
     recipe: () => action('recipe', { message: str(1, MESSAGE_MAX), assumptions, recipe: recipeSchema(reference) }),
-    edit: () => action('edit', { message: str(1, MESSAGE_MAX), assumptions, ops: opsArraySchema(facts ?? NO_SONG_FACTS, phraseBars) }),
+    edit: () => action('edit', { message: str(1, MESSAGE_MAX), assumptions, ops: opsArraySchema(facts ?? NO_SONG_FACTS, phraseBars, 1, barRange ?? undefined) }),
     scalpel: () => action('scalpel', { message: str(1, MESSAGE_MAX), kind: { enum: SCALPEL_KINDS }, target: str(1, 80), details: str(0, 300) }),
     analyze: () => action('analyze', { message: str(1, MESSAGE_MAX), reference: str(1, 120), plan: str(1, 300) }),
     say: () => action('say', { message: str(1, SAY_MAX) }),

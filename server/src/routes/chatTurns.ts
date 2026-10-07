@@ -6,6 +6,8 @@
  * that will queue the follow-up turn keeps SEND off like an open turn (D-129); CANCEL stops a reading too.
  * C0b: APPLY on an edit card (editCommit); CANCEL stops it (rendering: the existing ABORT; splicing: the job ends
  * the yue splice); a SEND during it queues behind it, so the turn reads the new version.
+ * C1: SEND may carry `mark` (a `range` referent, D-175): pinned → frozen in the user message (the echo); stale →
+ * 409 `{error: 'MARK_STALE', reason, was, shift}`, nothing written; past the song's end → 400.
  */
 import { Router } from 'express';
 import { config } from '../config.js';
@@ -20,11 +22,17 @@ import { getReference } from '../services/chat/referenceStore.js';
 import { threadById } from '../services/chat/threadStore.js';
 import { cancelTurn, startChatTurn, turnDeps, turnOf, type TurnDeps } from '../services/chat/turnJob.js';
 import type { ChatMessage, ReadingBody } from '../services/chat/chatTypes.js';
+import { MARK_STALE, parseRange } from '../services/score/planReferent.js';
+import { markAt } from '../services/chat/songStateSource.js';
+import type { RangeMark, RangeResolution } from '../services/chat/analysisTypes.js';
 
 export const TEXT_MAX = 4000;
 export const TURN_OPEN = 'the assistant is still answering in this chat: wait for it or CANCEL';
 export const NO_ASSISTANT = 'the assistant is not set up: set LLM_API_URL on the server';
 export const ATTACH_ON_SONG = 'a reference starts a new song: press NEW CHAT and attach it there';
+export const MARK_ON_DRAFT = 'a mark needs a song: there is nothing to mark on a new-song chat';
+/** The stale-mark refusal the client reads (CL-7): `was` the mark as sent, `shift` for USE BARS or null. */
+export const markStaleBody = (s: Extract<RangeResolution, { pinned: false }>) => ({ error: MARK_STALE, reason: s.reason, was: s.was, shift: s.shift });
 
 export interface TurnRouteDeps {
   turn: () => TurnDeps;
@@ -47,8 +55,10 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
   const router = Router();
 
   router.post('/threads/:id/turns', (req, res) => {
-    const { text, clientKey, attach } = (req.body ?? {}) as { text?: unknown; clientKey?: unknown; attach?: { referenceId?: unknown } };
+    const { text, clientKey, attach, mark } = (req.body ?? {}) as { text?: unknown; clientKey?: unknown; attach?: { referenceId?: unknown }; mark?: unknown };
     if (typeof text !== 'string' || !text.trim() || text.length > TEXT_MAX) return res.status(400).json({ error: `send text of 1-${TEXT_MAX} characters` });
+    const parsedMark = parseRange(mark);
+    if (!parsedMark.ok) return res.status(400).json({ error: parsedMark.error });
     const refId = attach === undefined || attach === null ? null : typeof attach === 'object' && typeof attach.referenceId === 'string' ? attach.referenceId : undefined;
     if (refId === undefined) return res.status(400).json({ error: 'attach must be {referenceId}' });
     const key = typeof clientKey === 'string' && clientKey ? clientKey.slice(0, 100) : null;
@@ -61,10 +71,19 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
     if (refId && thread.songId) return res.status(409).json({ error: ATTACH_ON_SONG, reason: ATTACH_ON_SONG });
     if (!deps.llmConfigured()) return res.status(409).json({ error: NO_ASSISTANT, reason: NO_ASSISTANT });
     if (messages.some(holdsSend)) return res.status(409).json({ error: TURN_OPEN, reason: TURN_OPEN });
+    let pinned: RangeMark | null = null;
+    if (parsedMark.mark) {
+      // C1 (D-175): resolved now against the playable version; stale → 409 MARK_STALE and nothing written.
+      if (!thread.songId) return res.status(400).json({ error: MARK_ON_DRAFT });
+      const at = markAt(thread.songId, parsedMark.mark);
+      if (!at.ok) return res.status(409).json(markStaleBody(at.stale));
+      if (at.outside) return res.status(400).json({ error: at.outside });
+      pinned = at.mark;
+    }
     try {
       // One transaction: a refused queue leaves no message behind, so the resend with the same key is one turn.
       const started = db.transaction(() => {
-        const { message } = appendMessage(thread.id, { role: 'user', kind: 'text', text: text.trim(), body: { sentRev: thread.draft.rev, ...(refId ? { attach: { referenceId: refId } } : {}) }, clientKey: key });
+        const { message } = appendMessage(thread.id, { role: 'user', kind: 'text', text: text.trim(), body: { sentRev: thread.draft.rev, ...(refId ? { attach: { referenceId: refId } } : {}), ...(pinned ? { mark: pinned } : {}) }, clientKey: key });
         const job = startChatTurn(thread.id, message, thread.songId, deps.turn());
         updateMessage(message.id, { jobId: job.id });
         return { job, message };

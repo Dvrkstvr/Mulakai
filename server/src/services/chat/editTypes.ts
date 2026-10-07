@@ -21,6 +21,9 @@ export interface EditBody {
   stale?: string;
   /** The tempo and key the plan was read at (the SCORE dock's "from" values: 87 → 88 BPM). Additive: older cards lack it. */
   from?: { bpm: number; key: string };
+  /** C1 (F-055, additive): the mark this plan was bounded to (null bars: a time only), and the card's notes: a
+   * whole-song op, a mark clamped to the score, a phrase longer than the mark (D-176). */
+  mark?: { versionId: string; bars: [number, number] | null; seconds: [number, number]; notes: string[] };
 }
 /** What an edit turn plans on (songStateSource): an eligible song's score as read and its source. */
 export interface EditBase {

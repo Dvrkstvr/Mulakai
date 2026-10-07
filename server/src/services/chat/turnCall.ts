@@ -41,6 +41,8 @@ export interface TurnContext {
   /** The draft thread's fields (the card with the person's hand edits); null on a song thread. */
   draft: DraftFields | null;
   history: ChatMessage[];
+  /** C1 (F-055): a pinned mark's prompt lines and its bars clamped to the score (null: a time only). */
+  mark?: { lines: string[]; range: [number, number] | null } | null;
 }
 
 export interface CallDeps {
@@ -57,10 +59,11 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
   const allowed = allowedActions(ctx.state, deps.rung ?? 0);
   const phraseBars = phraseBarsOf(ctx.request);
   const reference = Boolean(ctx.state.referenceRead); // C3: reference_use and its rule only with a reading (D-128)
-  const schema = turnSchema({ facts: ctx.facts, phraseBars, allowed, reference });
+  const markRange = ctx.mark?.range ?? null;
+  const schema = turnSchema({ facts: ctx.facts, phraseBars, allowed, reference, barRange: markRange });
   const pending = draftLines(ctx.draft, ctx.pending);
-  const messages = turnMessages({ rules: chatRules(allowed, { reference }), state: ctx.block, facts: ctx.facts, request: ctx.request, pending, history: ctx.history });
-  const checkCtx = { allowed, shapeOnly: redirected(ctx.state), facts: ctx.facts, phraseBars, request: ctx.request };
+  const messages = turnMessages({ rules: chatRules(allowed, { reference }), state: ctx.block, facts: ctx.facts, request: ctx.request, pending, history: ctx.history, mark: ctx.mark?.lines });
+  const checkCtx = { allowed, shapeOnly: redirected(ctx.state), facts: ctx.facts, phraseBars, request: ctx.request, markRange };
   const maxTokens = allowed.includes('edit') ? MAX_TOKENS.edit : MAX_TOKENS.other;
   let calls = 0;
   const outcome = await turnAttempts(messages, {
