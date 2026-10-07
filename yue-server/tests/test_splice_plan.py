@@ -120,3 +120,38 @@ def test_the_cp_c0_check_reads_the_saved_file_and_the_result(tmp_path, capsys):
     tampered[SR] += 0.01
     write_wav(tmp_path / "saved.wav", tampered)
     assert check_main(args) == 1
+
+
+def short_span_take(drop: float):
+    """R-033 (SP-6): a new take that plays the edited bars faster, so its span runs `drop` s
+    short of the base's; the bars around it are the base's own, every later one `drop` s earlier."""
+    base = groove(BARS, BEAT, lead=LEAD)
+    t_s, t_e = (int(round((LEAD + b * 4 * BEAT) * SR)) for b in (S, E))
+    fast = (E - S) * 4 * BEAT - drop
+    span = groove(E - S, fast / ((E - S) * 4), tail=0.0)[:int(round(fast * SR))]
+    new = np.concatenate([base[:t_s], span, base[t_e:]])
+    g_new = grid(BARS, BEAT, LEAD, len(new) / SR)
+    d = [round(t if i <= S else LEAD + S * 4 * BEAT + (i - S) * fast / (E - S) if i <= E else t - drop, 4)
+         for i, t in enumerate(g_new["downbeats"])]
+    g_new["downbeats"] = d
+    g_new["chords"] = [[t, d[i + 1] if i + 1 < BARS else len(new) / SR, row[2]] for i, (t, row) in enumerate(zip(d, g_new["chords"]))]
+    gb = fit(grid(BARS, BEAT, LEAD, len(base) / SR), ABC)
+    return base, new, gb, fit(g_new, ABC, range(0, S)), fit(g_new, ABC, range(E, BARS))
+
+
+def test_a_new_span_that_runs_short_is_not_spliced_but_rerendered():
+    # SP-6: verdict ok with the song 1.9-7.6 s short; F-047 allows under 0.25 s
+    base, new, gb, pre, post = short_span_take(2.0)
+    sp = splice_reharmonize(base, new, gb, pre, post, S, E)
+    assert (sp.verdict, sp.reason, sp.out) == ("rerender", "length", None)
+    diff = sp.facts["length_diff_s"]
+    assert diff == pytest.approx(-2.0, abs=2 * 0.08)  # each join's snap moves a cut by at most 80 ms
+    assert f"bars 9-16 run {-diff:.2f} s shorter" in sp.detail
+
+
+def test_a_span_within_a_quarter_second_of_the_base_is_still_spliced():
+    base, new, gb, pre, post = short_span_take(0.2)
+    sp = splice_reharmonize(base, new, gb, pre, post, S, E)
+    assert sp.verdict == "ok"
+    assert -0.25 < (len(sp.out) - len(base)) / SR < -0.1
+    assert check_null(sp, base)["different"] == 0
