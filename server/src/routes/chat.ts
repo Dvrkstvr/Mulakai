@@ -11,6 +11,7 @@ import { yue2Engine } from '../services/engines/yue2.js';
 import { queuePosition } from '../services/genQueue.js';
 import { getJob } from '../services/jobRegistry.js';
 import { chatStatus, type ChatStatus } from '../services/chat/chatStatus.js';
+import { ensureAnalysis } from '../services/chat/analysisTrigger.js';
 import { takeRunning } from '../services/chat/createFromDraft.js';
 import { handEdit } from '../services/chat/draftModel.js';
 import { listMessages } from '../services/chat/messageStore.js';
@@ -26,8 +27,10 @@ import type { ChatThread } from '../services/chat/chatTypes.js';
 export interface ChatRouteDeps {
   status: () => Promise<ChatStatus>;
   yueConfigured: () => boolean;
+  /** C1 (D-172): a song's thread GET queues its take's analysis if it has none; absent = none (route tests). */
+  ensureAnalysis?: (songId: string) => unknown;
 }
-const defaults: ChatRouteDeps = { status: () => chatStatus(), yueConfigured: () => Boolean(yue2Engine.url) };
+const defaults: ChatRouteDeps = { status: () => chatStatus(), yueConfigured: () => Boolean(yue2Engine.url), ensureAnalysis };
 
 export function jobView(jobId: string): JobView | undefined {
   const job = getJob(jobId);
@@ -84,7 +87,9 @@ export function makeChatRouter(deps: ChatRouteDeps = defaults): Router {
   router.get('/songs/:songId/thread', (req, res) => {
     const song = db.prepare(`SELECT id FROM songs WHERE id = ? AND trashed_at IS NULL`).get(req.params.songId);
     if (!song) return res.status(404).json({ error: 'unknown song' });
-    res.json(view(songThread(req.params.songId)));
+    const thread = songThread(req.params.songId);
+    deps.ensureAnalysis?.(req.params.songId); // never throws (analysisTrigger)
+    res.json(view(thread));
   });
 
   router.put('/threads/:id/draft', (req, res) => {
