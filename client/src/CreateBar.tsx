@@ -12,7 +12,7 @@ interface Props {
 /** Slim capture row — hands off to the Create takeover screen immediately rather than
  * generating inline. A typed idea is carried over as `pendingQuery`; CreateView expands
  * it into a full draft via the LM and plays the "AI thinking" reveal there
- * (useThinkingQuery.ts) so the library never blocks on the LM call. */
+ * (quickStartStore.ts) so the library never blocks on the LM call. */
 export function CreateBar({ onCreate, onResume }: Props) {
   const [draft, setDraft] = useState('');
   const lucky = useLuckyRoll();

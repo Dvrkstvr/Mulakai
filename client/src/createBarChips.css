@@ -33,6 +33,16 @@
   border-style: dashed;
 }
 
+/* Quick Start failed: rust says what's wrong; OPEN leads to Create's RETRY. */
+.cb-chip.failed {
+  border-color: var(--rust);
+  background: var(--rust-tint);
+}
+
+.cb-chip.failed .cb-chip-label {
+  color: var(--rust-text);
+}
+
 .cb-chip-label {
   font-size: 10px;
   font-weight: 700;

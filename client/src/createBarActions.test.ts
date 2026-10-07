@@ -5,6 +5,7 @@ import { useApiStatusStore } from './apiStatusStore';
 import { confirmChip, targetKey } from './createBarActions';
 import { isDraftEmpty, useCreateDraftStore } from './createDraftStore';
 import { useVoiceStore } from './voiceStore';
+import { useQuickStartStore } from './quickStartStore';
 
 const calls = vi.hoisted(() => ({ cancel: [] as string[], abort: 0 }));
 vi.mock('./api', async (orig) => {
@@ -23,6 +24,15 @@ vi.mock('./api', async (orig) => {
 beforeEach(() => { calls.cancel = []; calls.abort = 0; });
 
 describe('confirmChip', () => {
+  it('stop: drops the Quick Start idea, touching no job routes directly', async () => {
+    useCreateDraftStore.getState().load({ genType: 'prompt', pendingQuery: 'lucky idea' });
+    useQuickStartStore.setState({ phase: 'thinking', query: 'lucky idea' });
+    await confirmChip({ kind: 'stop' });
+    expect(useQuickStartStore.getState().phase).toBe('idle');
+    expect(useCreateDraftStore.getState().pendingQuery).toBeUndefined();
+    expect(calls).toEqual({ cancel: [], abort: 0 });
+  });
+
   it('draft: clears the draft and its reference audio, nothing else', async () => {
     useCreateDraftStore.getState().patch({ prompt: 'lofi beat', title: 'Night Drive' });
     useVoiceStore.setState({ refMode: 'upload' });

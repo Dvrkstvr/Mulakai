@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ActiveGeneration } from './api';
 import { runningRows } from './activityRunning';
-import { abortableGenKeys, draftChipText, genChips } from './createBarStatus';
+import { abortableGenKeys, draftChipText, genChips, thinkChip } from './createBarStatus';
 import type { GenerationJob } from './generationStore';
 
 const job = (over: Partial<GenerationJob>): GenerationJob =>
@@ -69,5 +69,27 @@ describe('draftChipText', () => {
     expect(draftChipText({ ...d, title: 'Folder name', titleSuggested: true, prompt: 'lofi beat' })).toBe('lofi beat');
     expect(draftChipText({ ...d, lyrics: '[verse]\n  city lights\nmore' })).toBe('city lights');
     expect(draftChipText({ ...d })).toBe('New song');
+  });
+});
+
+describe('thinkChip (Quick Start, as Create shows it)', () => {
+  const idle = { phase: 'idle' as const, query: '', position: null, error: '' };
+
+  it('THINKING with the idea, on the AI shader', () => {
+    expect(thinkChip({ ...idle, phase: 'thinking', query: 'lucky idea' }, 'lucky idea'))
+      .toEqual({ label: 'THINKING', title: 'lucky idea', ai: true, failed: false });
+  });
+
+  it('QUEUED · #n, plain, while it waits its turn', () => {
+    expect(thinkChip({ ...idle, phase: 'thinking', query: 'q', position: 2 }, 'q')).toMatchObject({ label: 'QUEUED · #2', ai: false });
+  });
+
+  it("COULDN'T WRITE while a failed idea waits for RETRY", () => {
+    expect(thinkChip({ ...idle, error: 'the LM job failed' }, 'q')).toMatchObject({ label: "COULDN'T WRITE", failed: true, title: 'q' });
+  });
+
+  it('nothing when idle, or once the failed idea is gone', () => {
+    expect(thinkChip(idle, undefined)).toBeNull();
+    expect(thinkChip({ ...idle, error: 'x' }, undefined)).toBeNull();
   });
 });

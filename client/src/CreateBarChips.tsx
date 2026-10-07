@@ -1,19 +1,21 @@
 import { Fragment, useState } from 'react';
 import { useApiStatusStore } from './apiStatusStore';
 import { confirmChip, targetKey, type ChipTarget } from './createBarActions';
-import { abortableGenKeys, CONFIRM_COPY, draftChipText, genChips, type GenChip } from './createBarStatus';
-import { ChipConfirm, DraftChip, GenerationChip, OverflowChip } from './CreateBarChip';
+import { abortableGenKeys, CONFIRM_COPY, draftChipText, genChips, thinkChip, type GenChip } from './createBarStatus';
+import { ChipConfirm, DraftChip, GenerationChip, OverflowChip, ThinkingChip } from './CreateBarChip';
 import { isDraftEmpty, useCreateDraftStore } from './createDraftStore';
 import { useGenerationStore } from './generationStore';
 import { useQueueStore } from './queueStore';
+import { useQuickStartStore } from './quickStartStore';
 import { useRunningRows } from './useRunningRows';
 import './createBarChips.css';
 
 type GenTarget = Extract<ChipTarget, { jobId: string }>;
 const genTarget = (c: GenChip): GenTarget | null => (c.action ? { kind: c.action, jobId: c.jobId } : null);
 
-/** Status chips between FEELING LUCKY and the input (PLAN.md "Create Bar Status Chips"): the song
- * generations in flight and Create's draft, each with one quick action confirmed in place. */
+/** Status chips between FEELING LUCKY and the input (PLAN.md "Create Bar Status Chips", "Create Bar
+ * Mirrors Create"): what Create is doing — Quick Start thinking, song generations in flight, the
+ * draft — each with a quick action confirmed in place. */
 export function CreateBarChips({ onResume }: { onResume: () => void }) {
   const [confirming, setConfirming] = useState<string | null>(null);
   const jobs = useGenerationStore((s) => s.jobs);
@@ -22,6 +24,8 @@ export function CreateBarChips({ onResume }: { onResume: () => void }) {
   const aborting = useApiStatusStore((s) => s.aborting);
   const draftEmpty = useCreateDraftStore(isDraftEmpty);
   const draftText = useCreateDraftStore((s) => draftChipText(s));
+  const pendingQuery = useCreateDraftStore((s) => s.pendingQuery);
+  const think = thinkChip(useQuickStartStore(), pendingQuery);
 
   const { chips, overflow } = genChips(jobs, abortableGenKeys(rows));
   const keep = () => setConfirming(null);
@@ -31,6 +35,9 @@ export function CreateBarChips({ onResume }: { onResume: () => void }) {
 
   return (
     <Fragment>
+      {think && (asking({ kind: 'stop' })
+        ? <ChipConfirm copy={CONFIRM_COPY.stop} onConfirm={() => confirm({ kind: 'stop' })} onKeep={keep} />
+        : <ThinkingChip chip={think} onOpen={onResume} onAskStop={() => setConfirming('stop')} />)}
       {chips.map((c) => {
         const t = genTarget(c);
         if (t && asking(t)) return <ChipConfirm key={c.key} copy={CONFIRM_COPY[t.kind]} onConfirm={() => confirm(t)} onKeep={keep} />;

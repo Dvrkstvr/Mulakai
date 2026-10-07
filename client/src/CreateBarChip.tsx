@@ -2,7 +2,7 @@
  * chip is confirming, so these render (and are tested) from props alone. */
 import type { KeyboardEvent } from 'react';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
-import type { ChipCopy, GenChip } from './createBarStatus';
+import type { ChipCopy, GenChip, ThinkChip } from './createBarStatus';
 
 interface ConfirmProps {
   copy: ChipCopy;
@@ -62,6 +62,25 @@ export function GenerationChip({ chip, busy, onAsk }: GenProps) {
           <span>{ACTION_LABEL[chip.action][busy ? 1 : 0]}</span>
         </button>
       )}
+    </div>
+  );
+}
+
+interface ThinkProps {
+  chip: ThinkChip;
+  onOpen: () => void;
+  onAskStop: () => void;
+}
+
+/** Quick Start writing the draft: OPEN shows it in Create (the reveal, or the error's RETRY). */
+export function ThinkingChip({ chip, onOpen, onAskStop }: ThinkProps) {
+  return (
+    <div className={chip.ai ? 'cb-chip ai' : chip.failed ? 'cb-chip failed' : 'cb-chip queued'}>
+      {chip.ai && <AIGeneratingBackground />}
+      <span className="cb-chip-label">{chip.label}</span>
+      <span className="cb-chip-title" title={chip.title}>{chip.title}</span>
+      <button type="button" className="cb-chip-btn" onClick={onOpen}><span>OPEN</span></button>
+      <button type="button" className="cb-chip-btn" onClick={onAskStop}><span>STOP</span></button>
     </div>
   );
 }

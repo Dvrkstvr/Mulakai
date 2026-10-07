@@ -4,7 +4,7 @@ import { isValidElement, type ReactElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
 import { CONFIRM_COPY, type GenChip } from './createBarStatus';
-import { ChipConfirm, DraftChip, GenerationChip } from './CreateBarChip';
+import { ChipConfirm, DraftChip, GenerationChip, ThinkingChip } from './CreateBarChip';
 
 type Btn = ReactElement<{ onClick: () => void; disabled?: boolean; children: ReactElement<{ children: string }> }>;
 
@@ -94,5 +94,25 @@ describe('generation chip', () => {
 
   it('no action, no button (a running job that does not hold the lock)', () => {
     expect(labels(GenerationChip({ chip: chip({ action: null }), busy: false, onAsk: vi.fn() }))).toEqual([]);
+  });
+});
+
+describe('thinking chip', () => {
+  it('names the state and the idea; OPEN opens Create, STOP only asks', () => {
+    const onOpen = vi.fn(), onAskStop = vi.fn();
+    const el = ThinkingChip({ chip: { label: 'THINKING', title: 'lucky idea', ai: true, failed: false }, onOpen, onAskStop });
+    const html = renderToStaticMarkup(el);
+    expect(html).toContain('THINKING');
+    expect(html).toContain('lucky idea');
+    expect(labels(el)).toEqual(['OPEN', 'STOP']);
+    press(el, 'STOP');
+    expect(onAskStop).toHaveBeenCalledTimes(1);
+    expect(onOpen).not.toHaveBeenCalled();
+    press(el, 'OPEN');
+    expect(onOpen).toHaveBeenCalledTimes(1);
+  });
+
+  it('STOP states its consequence before confirming', () => {
+    expect(CONFIRM_COPY.stop.consequence).toMatch(/idea is dropped/);
   });
 });
