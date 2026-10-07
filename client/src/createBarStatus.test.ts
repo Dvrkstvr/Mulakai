@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ActiveGeneration } from './api';
 import { runningRows } from './activityRunning';
-import { abortableGenKeys, draftChipText, genChips, thinkChip } from './createBarStatus';
+import { abortableGenKeys, draftChipText, genChips, isCreateBusy, thinkChip } from './createBarStatus';
 import type { GenerationJob } from './generationStore';
 
 const job = (over: Partial<GenerationJob>): GenerationJob =>
@@ -91,5 +91,16 @@ describe('thinkChip (Quick Start, as Create shows it)', () => {
   it('nothing when idle, or once the failed idea is gone', () => {
     expect(thinkChip(idle, undefined)).toBeNull();
     expect(thinkChip({ ...idle, error: 'x' }, undefined)).toBeNull();
+  });
+});
+
+describe('isCreateBusy (the bar hides FEELING LUCKY and the input, CREATE becomes TO CREATE)', () => {
+  const think = { label: 'THINKING', title: 'q', ai: true, failed: false };
+  it('busy while a draft holds anything or an idea is being written', () => {
+    expect(isCreateBusy(false, null)).toBe(true);
+    expect(isCreateBusy(true, think)).toBe(true);
+  });
+  it('free with an empty draft and nothing thinking, songs generating or not', () => {
+    expect(isCreateBusy(true, null)).toBe(false);
   });
 });

@@ -26,16 +26,15 @@ export function ChipConfirm({ copy, onConfirm, onKeep }: ConfirmProps) {
 
 interface DraftProps {
   text: string;
-  onResume: () => void;
   onAskClear: () => void;
 }
 
-export function DraftChip({ text, onResume, onAskClear }: DraftProps) {
+/** Create's draft. Opening it is the bar's TO CREATE, so the chip only offers CLEAR. */
+export function DraftChip({ text, onAskClear }: DraftProps) {
   return (
     <div className="cb-chip">
       <span className="cb-chip-label">DRAFT</span>
       <span className="cb-chip-title" title={text}>{text}</span>
-      <button type="button" className="cb-chip-btn" onClick={onResume}><span>RESUME</span></button>
       <button type="button" className="cb-chip-btn" onClick={onAskClear}><span>CLEAR</span></button>
     </div>
   );
@@ -68,18 +67,16 @@ export function GenerationChip({ chip, busy, onAsk }: GenProps) {
 
 interface ThinkProps {
   chip: ThinkChip;
-  onOpen: () => void;
   onAskStop: () => void;
 }
 
-/** Quick Start writing the draft: OPEN shows it in Create (the reveal, or the error's RETRY). */
-export function ThinkingChip({ chip, onOpen, onAskStop }: ThinkProps) {
+/** Quick Start writing the draft. TO CREATE shows it there (the reveal, or the error's RETRY). */
+export function ThinkingChip({ chip, onAskStop }: ThinkProps) {
   return (
     <div className={chip.ai ? 'cb-chip ai' : chip.failed ? 'cb-chip failed' : 'cb-chip queued'}>
       {chip.ai && <AIGeneratingBackground />}
       <span className="cb-chip-label">{chip.label}</span>
       <span className="cb-chip-title" title={chip.title}>{chip.title}</span>
-      <button type="button" className="cb-chip-btn" onClick={onOpen}><span>OPEN</span></button>
       <button type="button" className="cb-chip-btn" onClick={onAskStop}><span>STOP</span></button>
     </div>
   );

@@ -26,12 +26,11 @@ const chip = (over: Partial<GenChip>): GenChip =>
   ({ key: 'k', jobId: 'j', label: 'GENERATING', title: 'Neon Harbor', pct: '42%', veil: 0.42, ai: true, action: 'abort', ...over });
 
 describe('draft chip', () => {
-  it('DRAFT, the text, RESUME and CLEAR; RESUME opens Create, CLEAR only asks', () => {
-    const onResume = vi.fn(), onAskClear = vi.fn();
-    const el = DraftChip({ text: 'lofi beat', onResume, onAskClear });
+  it('DRAFT, the text and CLEAR, which only asks (TO CREATE opens it)', () => {
+    const onAskClear = vi.fn();
+    const el = DraftChip({ text: 'lofi beat', onAskClear });
     expect(renderToStaticMarkup(el)).toContain('<span class="cb-chip-label">DRAFT</span><span class="cb-chip-title" title="lofi beat">lofi beat</span>');
-    press(el, 'RESUME');
-    expect(onResume).toHaveBeenCalledOnce();
+    expect(labels(el)).toEqual(['CLEAR']);
     press(el, 'CLEAR');
     expect(onAskClear).toHaveBeenCalledOnce();
   });
@@ -98,18 +97,15 @@ describe('generation chip', () => {
 });
 
 describe('thinking chip', () => {
-  it('names the state and the idea; OPEN opens Create, STOP only asks', () => {
-    const onOpen = vi.fn(), onAskStop = vi.fn();
-    const el = ThinkingChip({ chip: { label: 'THINKING', title: 'lucky idea', ai: true, failed: false }, onOpen, onAskStop });
+  it('names the state and the idea; STOP only asks (TO CREATE opens it)', () => {
+    const onAskStop = vi.fn();
+    const el = ThinkingChip({ chip: { label: 'THINKING', title: 'lucky idea', ai: true, failed: false }, onAskStop });
     const html = renderToStaticMarkup(el);
     expect(html).toContain('THINKING');
     expect(html).toContain('lucky idea');
-    expect(labels(el)).toEqual(['OPEN', 'STOP']);
+    expect(labels(el)).toEqual(['STOP']);
     press(el, 'STOP');
     expect(onAskStop).toHaveBeenCalledTimes(1);
-    expect(onOpen).not.toHaveBeenCalled();
-    press(el, 'OPEN');
-    expect(onOpen).toHaveBeenCalledTimes(1);
   });
 
   it('STOP states its consequence before confirming', () => {

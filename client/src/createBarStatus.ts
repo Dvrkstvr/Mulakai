@@ -103,3 +103,10 @@ export function thinkChip(s: ThinkState, pendingQuery: string | undefined): Thin
   if (s.error && pendingQuery) return { label: "COULDN'T WRITE", title: pendingQuery, ai: false, failed: true };
   return null;
 }
+
+/** Create is busy with an idea — thinking about one, or holding a draft — so the bar hides
+ * FEELING LUCKY and the input (a new idea would clash) and CREATE becomes TO CREATE. Songs
+ * generating don't count: a new idea can still queue behind them. */
+export function isCreateBusy(draftEmpty: boolean, think: ThinkChip | null): boolean {
+  return !draftEmpty || think !== null;
+}
