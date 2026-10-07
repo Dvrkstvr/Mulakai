@@ -61,6 +61,15 @@ describe('gatherTurnState with references', () => {
     expect(got.state.followUp).toBe(true);
   });
 
+  it('no follow-up: the latest-read reference, not the newest row (RE-ANALYZE of an older one)', async () => {
+    const thread = draftThread();
+    const older = addRef(thread.id, 'a.mp3', { reading: readingFixture({ readAt: '2026-10-07T12:00:00.000Z' }) });
+    addRef(thread.id, 'b.mp3', { reading: readingFixture({ readAt: '2026-10-07T11:00:00.000Z' }) });
+    const got = await gatherTurnState(thread, noStatus);
+    expect(got.refs.reading?.id).toBe(older);
+    expect(got.block.join('\n')).toContain('REFERENCE: "a.mp3"');
+  });
+
   it('a song thread keeps the REFERENCE block for context but no reading for a recipe (D-130)', async () => {
     const songId = song('Done song');
     const thread = songThread(songId);

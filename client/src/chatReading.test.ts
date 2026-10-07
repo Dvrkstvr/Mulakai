@@ -37,6 +37,12 @@ describe('chatReading', () => {
     expect(readingHoldsSend(s)).toBe(true);
   });
 
+  it('a READ whose reading saved nothing: the server says pending again and READ can be pressed again', () => {
+    const s = run({ type: 'thread', messages: [analyze({ state: 'done', jobId: 'rj1' }), card({ state: 'cancelled' })] },
+      { type: 'thread', messages: [analyze({ state: 'pending', jobId: 'rj1' }), card({ state: 'cancelled' })] }, { type: 'read', messageId: 'a1' });
+    expect(phase(s, 'a1')).toEqual({ kind: 'starting' });
+  });
+
   it('READ refused names why and the card is live again (SEND back on)', () => {
     const s = run({ type: 'thread', messages: [analyze()] }, { type: 'read', messageId: 'a1' },
       { type: 'refused', messageId: 'a1', reason: 'a model is still loaded' });

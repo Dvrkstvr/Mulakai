@@ -76,6 +76,17 @@ describe('message view (the states the client shows)', () => {
     expect(states([card({ jobId: 'r' })], ctx())).toEqual(['done']);
   });
 
+  it('an analyze card whose reading ended with nothing saved is readable again while its proposal lives (C3 review 3)', () => {
+    const card = msg('assistant', 'analyze', { proposalId: 'a', jobId: 'r' });
+    const reading = (saved: unknown, jobId = 'r') => msg('assistant', 'reading', { jobId, body: { referenceId: 'ref', name: 'x', followUp: true, reading: saved } as never });
+    expect(states([card, reading(null)], ctx({ r: { status: 'failed', error: 'the file is gone' } }, { a: 'live' }))).toEqual(['pending', 'failed']);
+    expect(states([card, reading(null)], ctx({ r: { status: 'failed', cancelled: true } }, { a: 'live' }))).toEqual(['pending', 'cancelled']);
+    expect(states([card, reading(null)], ctx({ r: { status: 'failed' } }))).toEqual(['expired', 'failed']);
+    expect(states([card, reading(null)], ctx({ r: { status: 'running' } }, { a: 'live' }))[0]).toBe('committing');
+    expect(states([card, reading({ reading_v: 1 })], ctx({ r: { status: 'failed', error: 'still loaded' } }, { a: 'live' }))[0]).toBe('done');
+    expect(states([card, reading({ reading_v: 1 }, 't')], ctx({ r: { status: 'done' }, t: { status: 'done' } }, { a: 'live' }))[0]).toBe('done');
+  });
+
   it('a reading card: queued, reading, then the follow-up turn (queued / thinking), done; failed, cancelled, interrupted', () => {
     const body = (reading: unknown) => ({ referenceId: 'ref', name: 'take.wav', followUp: true, reading }) as never;
     const card = (reading: unknown, jobId = 'j') => msg('assistant', 'reading', { body: body(reading), jobId });

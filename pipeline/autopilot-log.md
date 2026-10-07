@@ -111,3 +111,6 @@ after run · CR-7b → cover card, borrowed fields, reference panel, A/B; merged
 
 ## Run 2026-10-07 (2) → C3 then C0b (fresh 12-round budget; owner: "whole re-render is fine, keep going")
 R1 · D-150 confirmed, D-153 CP-C3 on library songs, D-154 C0b splice scope; dispatched in parallel: CR-8 (chatCp3 + live), reviewer C3 code lens, CB-1 yue splice, CB-2 edit turn · progress 7·C3 built·29·0
+R2 stage 8 C3 · reviewer → C3-code.md: 1 blocking (reading CANCEL on the wrong route, confirmed), 2 should, 2 nit; D-155 fix all on fix/chat-c3-review; CR-8, CB-1, CB-2 running · progress 8·review 1/2·29·0
+R3 · C3 review fix → 4 commits (cancel route, BUSY finally, READ again with follow-up, latest reading); my rerun server 1195, client build+lint+1094; PR #174 auto-merge; stage 8 C3 gate 2/2 · CB-2 edit turn → my rerun server 1216; draft PR #173 (gated until CB-3+CB-5); D-156, D-157 · CR-8 + CB-1 running · progress 8·2/2·29·0
+R4 stage 5 C0b/DT-C0b · ux-mocker → design/chat-edit.html (24.6 KB, renders, no console errors): edit card splice vs whole-song, commit phases, version card, BACK TO v1 / USE, refused/failed/stale/superseded; Q-103..Q-106 assumable/deferred; D-158 defaults (1b option B: words + sky bar strip); owner shown · progress 8·2/2·29·0

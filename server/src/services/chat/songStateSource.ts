@@ -52,7 +52,8 @@ export const librarySongs = (): LibrarySong[] =>
 function referenceState(thread: ChatThread, library: LibrarySong[], opts: GatherOptions): { lines: string[]; refs: TurnRefs } {
   const references = listReferences(thread.id);
   const read = references.filter((r) => r.reading);
-  const pick = (opts.followUp ? read.find((r) => r.id === opts.followUp) : undefined) ?? read.at(-1);
+  const latest = read.reduce<Reference | undefined>((a, r) => (!a || r.reading!.readAt >= a.reading!.readAt ? r : a), undefined);
+  const pick = (opts.followUp ? read.find((r) => r.id === opts.followUp) : undefined) ?? latest;
   const lines = references.filter((r) => !r.reading).map(attachedLine);
   if (pick) lines.push(...referenceBlock(pick.name, pick.reading!));
   const reading = pick && !thread.songId ? { id: pick.id, reading: pick.reading! } : null;
