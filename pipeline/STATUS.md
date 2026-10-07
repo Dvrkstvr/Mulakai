@@ -10,7 +10,7 @@
 - feasibility: amber · H-open 1 (R-024: SP-4 ear half owed) · R-025 repaint launcher unverified · R-027 edit tail · spiked 6
 - milestone: C0a + C3 done · features passing 33/81 (F-041..F-045, F-061..F-064)
 - autopilot: C3 then C0b · round 12/12 (budget used) · progress 7·C3 done·33·0
-- owed: cover listen (C3), CB-4 before/after pairs (E:i	mp\cb4\listen), SP-5 lyric read, M2 pair 2, M1 phrase
+- owed: cover listen (C3), CB-4 before/after pairs (E:/ai/tmp/cb4/listen), SP-5 lyric read, M2 pair 2, M1 phrase
 - next: CB-4 result → merge #181 → CB-6 C0 live run + owner's listen → C0b review + curate
 
 ## Stages
