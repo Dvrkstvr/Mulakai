@@ -58,8 +58,9 @@ describe('stripSections', () => {
     expect(stripSections(facts(), null, null)[0]).toMatchObject({ bars: [1, 2], seconds: null });
   });
 
-  it('a section past the bar times has no seconds', () => {
-    expect(stripSections(facts(), { starts: [0, 2], end: 4 }, null)[2].seconds).toBeNull();
+  it('a score longer than its audio: sections past the bar times are dropped, one crossing them ends at the last bar (D-197)', () => {
+    const s = stripSections(facts(), { starts: [0, 2, 4], end: 6 }, null);
+    expect(s.map((x) => [x.label, x.bars, x.seconds])).toEqual([['verse', [1, 2], [0, 4]], ['chorus', [3, 3], [4, 6]]]);
   });
 
   it('a transcribed score counts the word segments inside each section, and those crossing its edges', () => {
@@ -137,6 +138,21 @@ describe('analysisView', () => {
     const v = analysisView(base({ current: analysis('v4', { score }), currentWords: words }));
     expect(v.shown).toMatchObject({ transcribed: true, lines: 2 });
     expect(v.shown?.sections[0]).toMatchObject({ lines: 1 });
+  });
+
+  it("CP-C1 eventide: an 80-bar transcribed score on 41 bars of audio shows only what plays, every section markable, 39 bars not shown (D-197)", () => {
+    const long = facts({ header: { ...facts().header, bars: 80 }, lyric_blocks: [], sections: [
+      { index: 1, label: 'intro', from_bar: 1, to_bar: 32 }, { index: 2, label: 'interlude', from_bar: 33, to_bar: 40 },
+      { index: 3, label: 'verse', from_bar: 41, to_bar: 56 }, { index: 4, label: 'interlude', from_bar: 57, to_bar: 72 },
+      { index: 5, label: 'outro', from_bar: 73, to_bar: 80 },
+    ] });
+    const starts41 = Array.from({ length: 41 }, (_, i) => i * 3.6);
+    const score = { abc: 'X:1', source: 'transcribed' as const, chords: true, facts: long, warnings: [], measure: null };
+    const v = analysisView(base({ current: analysis('v4', { score, bars: { source: 'tracked', offset: 0, starts: starts41, end: 147.6, agreement: 0.8 } }) }));
+    expect(v.shown?.sections.map((x) => [x.label, x.bars])).toEqual([['intro', [1, 32]], ['interlude', [33, 40]], ['verse', [41, 41]]]);
+    expect(v.shown?.sections.every((x) => x.seconds !== null && x.bars[1] <= 41)).toBe(true);
+    expect(v.shown?.barsNotShown).toBe(39);
+    expect(analysisView(base({ current: analysis('v4') })).shown?.barsNotShown).toBe(0);
   });
 
   it('a score not read: no sections, the reason, no WORDS lines lost', () => {
