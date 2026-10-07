@@ -289,3 +289,6 @@ After an audio-only CUT or REPEAT "same seconds" in BACK TO v1 is wrong after th
 
 ## Q-106 · assumable · stage 5 (DT-C0b, chat-edit.html 3g, 4c)
 USE v1 after v2 exists. Default: v1 becomes active, v2 stays in the Editor's rail, a thread line says so; the next edit plans against v1, so an edit card made on v2 goes stale (STALE, ASK AGAIN).
+
+## Q-107 · assumable · stage 7 (C3 CP-C3) · open
+A library song named in words on a draft thread ("make a cover of Cariñito") with nothing attached gets a recipe, not a READ card (1 of 10 CP-C3 legs). Should naming a library title force `analyze` like an attachment? Default: no for C3 (ATTACH ▾ FROM LIBRARY… is the path; the model may still choose analyze), revisit with C1's prompt work.
