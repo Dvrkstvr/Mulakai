@@ -62,6 +62,14 @@ export function latestSong(t: ChatThreadView | null): ChatSongBody | null {
   return (m?.body as ChatSongBody | null | undefined) ?? null;
 }
 
+/** The song or version card a recipe or edit card's own job saved (the server marks the card done by that same job
+ * id): a done card names its own version, never the thread's newest one. */
+export function madeBy(messages: ChatMessageView[], card: ChatMessageView): ChatSongBody | null {
+  if (!card.jobId) return null;
+  const m = messages.find((x) => (x.kind === 'song' || x.kind === 'version') && x.jobId === card.jobId);
+  return (m?.body as ChatSongBody | null | undefined) ?? null;
+}
+
 export const fmtLength = (s: number | null | undefined): string | null =>
   s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : null;
 

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ChatDraftFields, ChatMessageView, ChatThreadView } from './api/chat';
 import { SIDEBAR_FOOT, cardHeader, songSubtitle, thinkingTail, touchedSinceSend } from './chatCopy';
-import { cardView, editedSinceProposal, fillingKeys, fmtLength, latestSong, playerTake, sidebarFoot, sidebarMode } from './chatScreen';
+import { cardView, editedSinceProposal, fillingKeys, fmtLength, latestSong, madeBy, playerTake, sidebarFoot, sidebarMode } from './chatScreen';
 import { INITIAL_TURN, type CommitState } from './chatTurn';
 
 const msg = (over: Partial<ChatMessageView>): ChatMessageView => ({
@@ -64,6 +64,17 @@ describe('song and fields', () => {
     const song = msg({ kind: 'song', body: { chat_v: 1, seconds: 192, label: 'first take', number: 1 } });
     expect(latestSong(thread([msg({}), song]))?.number).toBe(1);
     expect(latestSong(thread([msg({})]))).toBeNull();
+  });
+  it('a done card names the version its own job saved, not the newest one (v1 stays v1 after v2)', () => {
+    const recipe = msg({ id: 'r', state: 'done', jobId: 'take' });
+    const song = msg({ id: 's', kind: 'song', jobId: 'take', body: { chat_v: 1, seconds: 192, label: 'first take', number: 1 } });
+    const edit = msg({ id: 'e', kind: 'edit', state: 'done', jobId: 'apply' });
+    const v2 = msg({ id: 'v', kind: 'version', jobId: 'apply', body: { chat_v: 1, seconds: 190, label: 'edit', number: 2 } });
+    const msgs = [recipe, song, edit, v2];
+    expect(madeBy(msgs, recipe)?.number).toBe(1);
+    expect(madeBy(msgs, edit)?.number).toBe(2);
+    expect(madeBy(msgs, msg({ jobId: null }))).toBeNull();
+    expect(madeBy(msgs, msg({ jobId: 'other' }))).toBeNull();
   });
   it('lengths read m:ss', () => {
     expect(fmtLength(192)).toBe('3:12');

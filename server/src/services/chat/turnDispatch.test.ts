@@ -64,7 +64,16 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
       planId: 'p1', ops: reharm, verdicts: applied.verdicts, checks: out.plan.checks,
       splice: { splice: true, kind: 'reharmonize', from_bar: 47, to_bar: 54 }, renderMode: { cot: 'full', reason: 'chords' },
       assumptions: ['assuming chorus 1, bars 47-54'], attempts: 2, refusals: [['bar 999 is outside the song']],
+      from: { bpm: facts.header.bpm, key: facts.header.key },
     });
+  });
+
+  it('the card carries the tempo and key the plan was read at, as the SCORE dock shows them (87 → 88, not ? → 88)', () => {
+    const tempo: Op[] = [{ op: 'SET_TEMPO', bpm: 88 }];
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(tempo), edit: planned(tempo) });
+    if (out.kind !== 'edit') throw new Error('not an edit card');
+    expect(typeof facts.header.bpm).toBe('number');
+    expect(out.body.from).toEqual({ bpm: facts.header.bpm, key: facts.header.key });
   });
 
   it('CB-2: any other plan says why the whole song is re-rendered; a chord-free REHARMONIZE takes the whole-song path (F-065 edge)', () => {
