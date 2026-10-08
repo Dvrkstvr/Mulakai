@@ -4,6 +4,7 @@
  * sidebar's hand edits with a rev check (a stale rev is 409 `{ok: false, current}`). C3: the view
  * lists the thread's references; NEW CHAT's dropped references lose their files (sweepFiles); a cover
  * draft's blockers add coverBlockers; a hand edit names the locked cover fields it refused (D-148 c).
+ * C2: UNDO TURN on a recipe reply (F-059, D-220): draft and the body's `undone` in one transaction.
  */
 import { Router } from 'express';
 import { db } from '../db/index.js';
@@ -14,7 +15,8 @@ import { chatStatus, type ChatStatus } from '../services/chat/chatStatus.js';
 import { ensureAnalysis } from '../services/chat/analysisTrigger.js';
 import { takeRunning } from '../services/chat/createFromDraft.js';
 import { handEdit } from '../services/chat/draftModel.js';
-import { listMessages } from '../services/chat/messageStore.js';
+import { draftUndo, undoneRecord } from '../services/chat/draftUndo.js';
+import { listMessages, messageById, updateMessage } from '../services/chat/messageStore.js';
 import { messageViews, wireDraft, type JobView } from '../services/chat/messageView.js';
 import { dropProposals, proposalLife } from '../services/chat/proposalStore.js';
 import { createBlockers } from '../services/chat/recipeRules.js';
@@ -22,7 +24,8 @@ import { coverBlockers } from '../services/chat/referenceRecipe.js';
 import { getReference, listReferences, sweepFiles } from '../services/chat/referenceStore.js';
 import { referenceView } from '../services/chat/readTarget.js';
 import { draftThread, resetDraftThread, songThread, threadById, writeDraft } from '../services/chat/threadStore.js';
-import type { ChatThread } from '../services/chat/chatTypes.js';
+import type { ChatThread, RecipeBody } from '../services/chat/chatTypes.js';
+import type { UndoResult } from '../services/chat/convergeTypes.js';
 
 export interface ChatRouteDeps {
   status: () => Promise<ChatStatus>;
@@ -56,10 +59,23 @@ export function threadView(thread: ChatThread, yueConfigured: boolean) {
   return {
     id: thread.id, songId: thread.songId, draft: wireDraft(thread.draft), draftNote: thread.draftNote,
     blockers: draftBlockers(thread, yueConfigured),
-    messages: messageViews(listMessages(thread.id), { job: jobView, proposal: proposalLife, versionExists }),
+    messages: messageViews(listMessages(thread.id), { job: jobView, proposal: proposalLife, versionExists, hasSong: thread.songId !== null }),
     references: listReferences(thread.id).map((r) => referenceView(r)),
   };
 }
+
+/** UNDO TURN, read and written in one transaction: a draft write that fails leaves the body without `undone`. */
+const undoTurn = db.transaction((threadId: string, messageId: string, busy: boolean): UndoResult | null => {
+  const thread = threadById(threadId);
+  const message = messageById(messageId);
+  if (!thread || !message || message.threadId !== threadId) return null;
+  const body = message.kind === 'recipe' ? (message.body as RecipeBody | null) : null;
+  const out = draftUndo(thread.draft, body, { hasSong: thread.songId !== null, busy });
+  if (!out.ok || !body) return out;
+  if (out.draft !== thread.draft && !writeDraft(threadId, thread.draft.rev, out.draft).ok) throw new Error('the draft changed during UNDO TURN');
+  updateMessage(messageId, { body: { ...body, undone: undoneRecord(out, Date.now()) } });
+  return out;
+});
 
 export function makeChatRouter(deps: ChatRouteDeps = defaults): Router {
   const router = Router();
@@ -105,6 +121,14 @@ export function makeChatRouter(deps: ChatRouteDeps = defaults): Router {
     const written = writeDraft(thread.id, thread.draft.rev, next);
     if (!written.ok) return res.status(409).json({ ok: false, current: wireDraft(written.current) });
     res.json({ draft: wireDraft(written.thread.draft), blockers: blockers(written.thread), draftNote: written.thread.draftNote, refused });
+  });
+
+  router.post('/threads/:id/messages/:messageId/undo', (req, res) => {
+    const out = undoTurn(req.params.id, req.params.messageId, threadBusy(req.params.id));
+    if (!out) return res.status(404).json({ error: 'unknown chat or message' });
+    if (!out.ok) return res.status(409).json({ error: out.error, reason: out.reason });
+    const thread = threadById(req.params.id)!;
+    res.json({ draft: wireDraft(thread.draft), blockers: draftBlockers(thread, deps.yueConfigured()), restored: out.restored, kept: out.kept });
   });
 
   return router;
