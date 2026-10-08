@@ -657,5 +657,13 @@
   "655": "Path",
   "656": "Path",
   "657": "Exception",
-  "658": "JobStore"
+  "658": "JobStore",
+  "659": "Text2music Reference Audio: Style Influence Only (planned + implemented 2026-09-30)",
+  "660": "YuE2: Align With Upstream's `yue2-music` Skill (planned 2026-09-30)",
+  "661": "E2E Fails on Uncaught Page Errors (planned 2026-10-02)",
+  "662": "The Model List Waits Out a Busy ACE-Step (planned 2026-10-02)",
+  "663": "Model Status Badge (planned 2026-10-02)",
+  "664": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)",
+  "665": "Footer Player Shows, Dims and Hides With Playback (planned 2026-10-07)",
+  "666": "Export a Score as MIDI (planned 2026-10-07)"
 }
