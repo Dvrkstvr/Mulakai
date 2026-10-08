@@ -77,7 +77,7 @@ export function markBlock({ mark, number, analysis, words }: MarkBlockInput): Ma
     `MARKED SECTIONS: ${facts && bars ? sections.map(sectionLine).join('; ') || 'none' : 'not read'}`,
     `MARKED LYRICS: ${lyrics.join(' / ') || 'none read'}`,
     h ? `AT THE MARK: key ${h.key} · ${h.bpm} BPM · ${h.meter}` : 'AT THE MARK: key and tempo not read',
-    bars ? `Plan bar ops only inside bars ${bars[0]}-${bars[1]}; a tempo, key or style op changes the whole song.`
+    bars ? `Plan ops only inside bars ${bars[0]}-${bars[1]}; a tempo, key or style op changes the whole song: use one only when the person asks for the whole song.`
       : 'The bars of this version were not read yet: the mark is a time only, so no edit can be planned for it; answer in words (say) and tell the person to mark again once the reading lands.',
   ];
   const sectionRow = facts && bars ? sections.map((s) => `${s.label.toUpperCase()} ${s.occurrence} (${s.whole ? 'whole' : `bars ${s.bars[0]}-${s.bars[1]}`})`).join(', ') || 'none' : 'not read';

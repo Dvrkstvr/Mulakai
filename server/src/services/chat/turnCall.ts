@@ -12,6 +12,7 @@ import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply, Score
 import { turnSchema } from './actionSchema.js';
 import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
+import { asksWholeSong } from './markFit.js';
 import { detectLanguage } from './lyricLanguage.js';
 import { draftLines } from './songState.js';
 import { allowedActions, redirected, type TurnState } from './turnActions.js';
@@ -60,10 +61,11 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
   const phraseBars = phraseBarsOf(ctx.request);
   const reference = Boolean(ctx.state.referenceRead); // C3: reference_use and its rule only with a reading (D-128)
   const markRange = ctx.mark?.range ?? null;
-  const schema = turnSchema({ facts: ctx.facts, phraseBars, allowed, reference, barRange: markRange });
+  const markWhole = markRange ? asksWholeSong(ctx.request) : false; // C1 live B2: a mark bounds whole-song ops too
+  const schema = turnSchema({ facts: ctx.facts, phraseBars, allowed, reference, barRange: markRange, wholeSong: markWhole });
   const pending = draftLines(ctx.draft, ctx.pending);
   const messages = turnMessages({ rules: chatRules(allowed, { reference }), state: ctx.block, facts: ctx.facts, request: ctx.request, pending, history: ctx.history, mark: ctx.mark?.lines });
-  const checkCtx = { allowed, shapeOnly: redirected(ctx.state), facts: ctx.facts, phraseBars, request: ctx.request, markRange };
+  const checkCtx = { allowed, shapeOnly: redirected(ctx.state), facts: ctx.facts, phraseBars, request: ctx.request, markRange, markWhole };
   const maxTokens = allowed.includes('edit') ? MAX_TOKENS.edit : MAX_TOKENS.other;
   let calls = 0;
   const outcome = await turnAttempts(messages, {

@@ -141,7 +141,7 @@ test('a mark: click CHORUS, drag its end two bars on; the marked turn’s prompt
   await page.getByRole('button', { name: 'WHAT IT SEES ▾' }).click();
 
   await scriptChat(request, { replies: [EDIT_REPLY] });
-  await sendMessage(page, 'make this jazzier');
+  await sendMessage(page, 'make the whole song faster'); // a whole-song op under a mark only when asked for (C1 live B2)
   const card = editCards(page).last();
   await expect(card).toContainText('PLANNED ON THE MARK · BARS 47–64', { timeout: 30_000 });
   await expect(card).toContainText('the whole song, not only the marked bars'); // SET TEMPO is a whole-song op (D-176)

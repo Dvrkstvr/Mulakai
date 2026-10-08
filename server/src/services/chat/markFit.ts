@@ -2,9 +2,10 @@
  * How a mark limits an edit plan (D-176, F-055): the schema bounds bar-valued fields to the mark
  * (opSchema `barRange`); this checks a reply against it, so a reply that ignored the schema is retried:
  * a bar or phrase start outside the mark, a REPEAT / CUT of a section outside it, a REWRITE_LYRICS of a
- * block sung outside it. A whole-song op (tempo, key, style) stays allowed and the card says so; a mark
- * past the score's end is clamped and a phrase longer than the mark runs past it, each named on the card.
- * Pure.
+ * block sung outside it. A whole-song op (tempo, key, style, any op with no bars) is refused too unless the
+ * person's words ask for the whole song (`asksWholeSong`, C1 live B2: "make this jazzier" on a chorus planned
+ * EDIT STYLE); when asked, it is allowed and the card says so. A mark past the score's end is clamped and a
+ * phrase longer than the mark runs past it, each named on the card. Pure.
  */
 import type { Op, ScoreFacts, ScoreSection } from '../score/planTypes.js';
 
@@ -12,6 +13,14 @@ export type BarRange = [number, number];
 export interface Fit { reasons: string[]; notes: string[] }
 
 const WHOLE_SONG: Record<string, string> = { SET_TEMPO: 'SET TEMPO', TRANSPOSE: 'TRANSPOSE', EDIT_STYLE: 'EDIT STYLE' };
+/** Ops a mark bounds by their bars or section; every other op changes the whole song. */
+const BOUNDED = ['REHARMONIZE', 'WRITE_PHRASE', 'REPEAT', 'CUT', 'REWRITE_LYRICS'];
+export const isWholeSongOp = (name: string): boolean => !BOUNDED.includes(name);
+const opName = (name: string) => WHOLE_SONG[name] ?? name.replace(/_/g, ' ');
+
+/** The person's words ask for a change to the whole song, not only the marked bars (assumed rule, C1 live B2). */
+const WHOLE_WORDS = /\b(whole|entire|every ?where|throughout|all over|all of (it|the song|the track)|every (section|part|bar)|all (the )?(sections|parts|bars))\b/i;
+export const asksWholeSong = (request: string): boolean => WHOLE_WORDS.test(request);
 const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
 const span = ([a, b]: BarRange) => `bars ${a}-${b}`;
 const disjoint = (s: ScoreSection, [a, b]: BarRange) => s.to_bar < a || s.from_bar > b;
@@ -56,13 +65,18 @@ function opFit(o: Record<string, unknown>, at: string, range: BarRange, facts: S
   return [];
 }
 
-export function markFit(ops: Op[], range: BarRange, facts: ScoreFacts): Fit {
+/** `wholeAsked`: the person asked for the whole song, so a whole-song op is allowed (with a note). */
+export function markFit(ops: Op[], range: BarRange, facts: ScoreFacts, wholeAsked = false): Fit {
   const notes: string[] = [];
   const reasons = ops.flatMap((op, i) => {
     const o = op as unknown as Record<string, unknown>;
-    return opFit(o, `op ${i + 1} (${String(o.op)})`, range, facts, notes);
+    const at = `op ${i + 1} (${String(o.op)})`;
+    if (!wholeAsked && isWholeSongOp(String(o.op))) {
+      return [`${at}: ${opName(String(o.op))} changes the whole song; the mark covers ${span(range)}, and a whole-song change needs the person to ask for it: plan only inside the mark`];
+    }
+    return opFit(o, at, range, facts, notes);
   });
-  const whole = [...new Set(ops.map((o) => WHOLE_SONG[(o as { op: string }).op]).filter(Boolean))];
+  const whole = [...new Set(ops.map((o) => (o as { op: string }).op).filter(isWholeSongOp).map(opName))];
   if (whole.length) notes.push(`${whole.join(', ')} ${whole.length > 1 ? 'change' : 'changes'} the whole song, not only the marked bars`);
   return { reasons, notes };
 }
