@@ -64,7 +64,7 @@ describe('chat turn job', () => {
     const { thread, job } = send('do a dance');
     expect((await settled(job.id)).status).toBe('failed');
     expect(events).toEqual(['ask', 'ask', 'ask', 'unload', 'empty']);
-    expect(reply(thread.id)).toMatchObject({ kind: 'failed', body: { cause: 'check', reasons: ['action "dance" is not one of ask, recipe, edit, scalpel, analyze, say'] } });
+    expect(reply(thread.id)).toMatchObject({ kind: 'failed', body: { cause: 'check', reasons: ['action "dance" is not one of ask, recipe, analyze, say'] } });
     expect(threadById(thread.id)!.draft.rev).toBe(0);
     expect(liveProposal(thread.id)).toBeUndefined();
   });

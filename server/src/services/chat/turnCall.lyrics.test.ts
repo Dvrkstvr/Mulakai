@@ -28,7 +28,7 @@ describe('decideReply: rung 3, lyrics as their own call (LD-2)', () => {
     const d = await decideReply(ctx, { ask, lyricsModel: modelFor });
     expect(d).toMatchObject({ ok: true, calls: 2, lyrics: { mode: 'write', attempts: 1, model: 'qwen3:14b' } });
     expect(d.ok && d.reply).toMatchObject({ action: 'recipe', recipe: RECIPE });
-    expect(ask.mock.calls[0][2]).toEqual({ maxTokens: MAX_TOKENS.edit });
+    expect(ask.mock.calls[0][2]).toEqual({ maxTokens: MAX_TOKENS.other }); // no edit on the draft thread (D-251)
     expect(ask.mock.calls[1][2]).toEqual({ maxTokens: MAX_TOKENS.lyrics, model: 'qwen3:14b' });
     expect(ask.mock.calls[1][0][0].content).toContain('Write ONLY in Spanish');
     expect(ask.mock.calls[1][1]).toMatchObject({ properties: { sections: { minItems: 5, maxItems: 5 } } });
