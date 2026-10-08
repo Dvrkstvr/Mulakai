@@ -53,6 +53,16 @@ describe('decideReply: rung 3, lyrics as their own call (LD-2)', () => {
     }
   });
 
+  it('F-095 live: a looped structure (Outro x7) costs a planner retry, not a lyrics call; the retry keeps (D-255)', async () => {
+    const looped = [...RECIPE.structure, ...Array(6).fill('Outro')];
+    const ask = scripted([recipeReply({ bpm: 96, structure: looped }), recipeReply({ bpm: 96 })]);
+    const d = await decideReply({ ...ctx, request: 'mach es etwas schneller', pending: true, draft: keepDraft }, { ask, lyricsModel: modelFor });
+    expect(d).toMatchObject({ ok: true, attempts: 2, calls: 2, lyrics: { mode: 'keep', attempts: 0 } });
+    expect(ask.mock.calls.every((c) => !c[0][0].content.startsWith('You write song lyrics'))).toBe(true);
+    expect(ask.mock.calls[1][0].at(-1)!.content).toContain('the structure repeats Outro 7 times at the end: an Outro appears once, last');
+    expect(d.ok && d.reply.action === 'recipe' && d.reply.recipe).toMatchObject({ bpm: 96, structure: RECIPE.structure, lyrics: RECIPE.lyrics });
+  });
+
   it('a follow-up about the words writes them anew: 2 calls', async () => {
     for (const request of ['schreib den Refrain neu', 'andere Strophen bitte', 'rewrite the chorus', 'cambia la letra']) {
       const ask = scripted([recipeReply()]);
