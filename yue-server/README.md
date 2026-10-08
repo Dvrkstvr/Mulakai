@@ -348,7 +348,9 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
 - `POST /v1/scores/retime` (F-090, SP-8) — body `{files, mode: half |
   double | bpm, bpm?, melody_only?, keep_like?}` → `{abc, measures, bpm, read_bpm,
   vocal_notes, ins_notes, notes, dropped_notes, stretched_notes,
-  left_out, warnings}`. `keep_like` (RT-4): keep only that score's `% name`
+  left_out, downbeats, warnings}`. `downbeats` (RT-5): the rewritten beat
+  list's bar starts in seconds, the grid a chat reading's re-timed bars are
+  timed on. `keep_like` (RT-4): keep only that score's `% name`
   sections, by name in order (`retime_keep.py`), so a cover that sings some
   sections is re-timed with the same ones; `left_out` names the others. The beat list is rewritten (`retime_beats.py`: every 2nd beat
   from the first downbeat, midpoints, or a regular grid from the first

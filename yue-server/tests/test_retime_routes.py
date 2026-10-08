@@ -44,6 +44,16 @@ def test_a_named_bpm_lays_a_grid_and_keeps_chords_when_asked(retime_client):
     assert out["bpm"] == 90 and '"Am"' in out["abc"]
 
 
+@pytest.mark.parametrize("body, downbeats", [
+    ({"mode": "half"}, [0.0, 4.0, 8.0, 12.0, 16.0]),
+    ({"mode": "double"}, [float(t) for t in range(17)]),
+    ({"mode": "bpm", "bpm": 60}, [0.0, 4.0, 8.0, 12.0, 16.0]),
+])
+def test_the_rebuild_names_the_new_downbeats_for_the_bar_times(retime_client, body, downbeats):
+    """RT-5 (F-092): a chat reading's bar times are fitted on these, the re-timed grid, not the tracker's."""
+    assert post(retime_client, **body).json()["downbeats"] == downbeats
+
+
 @pytest.mark.parametrize("body, code", [
     ({"mode": "bpm"}, "bad_request"),
     ({"mode": "bpm", "bpm": 300}, "out_of_range"),
