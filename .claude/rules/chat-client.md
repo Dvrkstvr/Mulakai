@@ -36,6 +36,8 @@ end to end"; modules in `pipeline/architecture.md` "Chat (C0)".
 - C1: the reading line and strip states go only through `chatAnalysis`, mark
   geometry and `markStale` through `chatMark`, mark copy in `chatMarkLabel`.
   WHAT IT SEES shows the server's preview, never a client-built prompt.
+- The strip shows only the bars the audio holds; the line count comes from
+  the server's `readingLines` (one source with the strip, D-197).
 - C2 (architecture.md "Chat (C2)"): lyrics-panel rows only through
   `chatLyricsPanel`, line marks through `chatLyricsMark` (C1's `chatMark`
   snaps); YuE2 line times only from `alignLyrics`; the bar map draws the

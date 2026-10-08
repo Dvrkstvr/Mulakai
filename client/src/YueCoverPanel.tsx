@@ -120,7 +120,8 @@ export function YueCoverPanel({ songs, onBack, noCoverModel, inventory }: {
           {read.notes}
           {(error || tr.error) && <div className="error">{error || tr.error}</div>}
           {reuse && !score && <span className="meta">loading the earlier cover&apos;s score…</span>}
-          {score && <YueScoreReview engine={engine} score={score} />}
+          {score && <YueScoreReview engine={engine} score={score} busy={running}
+            onChange={(next) => patchAudio({ yueScore: next })} onTranscribeAgain={() => void transcribe()} />}
         </CreateStep>
         <CreateStep n={2} title="WHAT CHANGES?">
           <AutoTextarea placeholder="Describe the cover — style, mood, instruments, voice. The melody comes from the score."

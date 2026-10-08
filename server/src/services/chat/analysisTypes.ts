@@ -6,6 +6,7 @@
  * `WordsPart` / `ScorePart` are C3's (reading.ts): a transcribed score is context and marking only (Q-062 b).
  */
 import type { NotRead, ScorePart, WordsPart } from './reading.js';
+import type { LyricsPanel } from './convergeTypes.js';
 
 export const ANALYSIS_V = 1;
 export type { NotRead, ScorePart, WordsPart };
@@ -116,7 +117,11 @@ export interface ShownReading {
   /** "TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY". */
   transcribed: boolean;
   notRead: { words: string | null; score: string | null; bars: string | null };
+  /** The lyrics panel (C2, F-056, D-217): computed at read time from this reading and its version's stored text. */
+  lyrics: LyricsPanel | null;
 }
+/** A version's `params_json.request.lyrics` and `.style` (`versionLyrics`), what the panel's blocks are split from. */
+export interface VersionText { lyrics: string | null; style: string | null }
 /** `GET /api/chat/songs/:songId/analysis`. `lineage`: the playable version against its parent, for markStale. */
 export interface AnalysisView {
   songId: string;

@@ -92,7 +92,7 @@ export const useTranscribeStore = create<TranscribeState>((set, get) => ({
       if (coverSourceKey(draft.audio) === sourceKey) {
         const t = s.transcription;
         const analyzed = draft.lyrics === get().analyzedLyrics;
-        draft.patchAudio({ yueScore: { abc: t.score, source: t.sourceLabel, transcription: t, previewJobId: jobId } });
+        draft.patchAudio({ yueScore: { abc: t.score, source: t.sourceLabel, transcription: t, previewJobId: jobId, notationId: t.notationId ?? null } });
         if (!draft.lyrics.trim()) draft.patch({ lyrics: fitLyricsToSections(seedLyrics, t.score) });
         else if (analyzed) draft.patch({ lyrics: fitLyricsToSections(draft.lyrics, t.score) });
         open = analyzed || !hasWords(useCreateDraftStore.getState().lyrics);

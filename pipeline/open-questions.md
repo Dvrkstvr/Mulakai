@@ -367,6 +367,9 @@ The refusal for a gone saved reading says "gone" with no date. Alternative: say 
 
 ## Q-132 · assumable · stage 5 (RT, F-093/F-094, design/retime.html) · open
 A RE-TIME stands alone in a plan: the planner drops other ops (bars change under them) and says so. Alternative: allow RE-TIME first in a list with later ops on the new bars.
+
+## Q-137 · assumable · stage 7 (C1 p95 re-measure) · open
+On Gertar, 3 of 3 "jazz chords" turns kept planning a WRITE_PHRASE on sung bars and failed after 3 attempts (pipeline/cp-c1/2026-10-08-p95). A chords-only request should plan REHARMONIZE only. Prompt-side look (turnPrompt planner rules) in C2 or a small fix; not blocking C1.
 ## Q-136 · assumable · stage 6 (chat C2, F-058; renumbered from Q-133) · assumed → D-227
 How a chat REVISE starts. Default: the server revises whenever a live, unchanged edit card exists (the model drops everything to start over). Alternatives: a REVISE button on the card; a flag the model sets in its reply.
 

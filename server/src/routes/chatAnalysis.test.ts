@@ -78,6 +78,21 @@ describe('GET /songs/:songId/analysis', () => {
     expect(body.shown.sections.map((s: { label: string; seconds: number[] }) => [s.label, s.seconds])).toEqual([['verse', [0, 8]], ['chorus', [8, 16]]]);
   });
 
+  it("C2: shown.lyrics from the take's stored lyrics (params_json.request), paired with the strip's sections", async () => {
+    const { songId, v } = song();
+    const lyrics = '[Verse]\nHey there\nsecond line\n\n[Chorus]\nla la';
+    db.prepare(`UPDATE versions SET params_json = ? WHERE id = ?`).run(JSON.stringify({ engine: 'yue2', request: { style: 'indie', lyrics } }), v);
+    const blocks = [{ index: 1, tag: '[Verse]', occurrence: 1, lines: 2, first_line: 'Hey there' }, { index: 2, tag: '[Chorus]', occurrence: 1, lines: 1, first_line: 'la la' }];
+    const r = read(v);
+    writeAnalysis({ ...r, score: { ...r.score, facts: { ...FACTS, lyric_blocks: blocks } } });
+    const { body } = await call('GET', `/songs/${songId}/analysis`);
+    expect(body.shown.lyrics).toMatchObject({ source: 'blocks', note: null, text: lyrics, facts: { bpm: 120, key: 'C', meter: '4/4', style: 'indie' } });
+    expect(body.shown.lyrics.sections).toEqual([
+      { strip: 1, label: 'verse', occurrence: 1, bars: [1, 4], seconds: [0, 8], block: 1, lines: [{ n: 1, text: 'Hey there', at: { textLine: 1 } }, { n: 2, text: 'second line', at: { textLine: 2 } }] },
+      { strip: 2, label: 'chorus', occurrence: 1, bars: [5, 8], seconds: [8, 16], block: 2, lines: [{ n: 1, text: 'la la', at: { textLine: 5 } }] },
+    ]);
+  });
+
   it('a waiting analysis reads queued with the jobs ahead; a failed one reads failed with the reason', async () => {
     let release = () => {};
     enqueue({ kind: 'plan', jobId: `hold-${crypto.randomUUID()}` }, () => new Promise<void>((r) => { release = r; }));

@@ -528,6 +528,29 @@ requiring its own justification against a screen-count rule.
            length, and sung/played note counts. SheetSage2's warnings come
            as a `.warn-note`, then the piano preview (inline `AudioPreview`),
            then the ABC behind a collapsed SHOW SCORE disclosure.
+         - **READ AS** (added 2026-10-08, RE-TIME, F-091;
+           pipeline/design/retime.html, D-211/D-212) sits under the facts on a
+           transcribed score: a carbon row with a `line-hi` hairline, the
+           label, what SheetSage2 read in bold (`93 BPM · 2/4 · 71 BARS`),
+           then **HALF · DOUBLE · BPM…** as sky choice chips (`dock-chip`). A
+           chip that would leave 40–240 BPM is disabled, and a `text-low` hint
+           names why. **BPM…** turns into its own text input in the chip's
+           place, focused, with a sky edge and only an enter icon (↵); a click
+           outside (or Esc) turns it back with no BPM set; Enter or ↵ locks it
+           into a sky `92 BPM` chip; a refused value turns the field rust with
+           the reason. Picking a mode rebuilds at once (no GPU), so before the
+           press the consequence line names the new tempo, the bar count, and
+           how many notes the slower grid leaves out (a rust `.warn-note`
+           above 10 %); **RE-TIME AT n BPM** is an acid *outline* (GENERATE
+           COVER stays the one filled acid CTA) beside a quiet CANCEL. A
+           BPM within 8 % of the reading is a `text-low` hint pointing at SET
+           TEMPO, with no press. Once applied, the facts show the rebuilt
+           score, the row adds `· RE-TIMED TO n BPM`, a lilac **RE-TIMED** tag
+           states the change, and UNDO (quiet) returns to the reading; the
+           chips always start from the reading, never from a re-time. The
+           piano preview dims with a rust `STALE · n BPM` tag. When the kept
+           reading is gone, a rust-tint box says so and offers **TRANSCRIBE
+           AGAIN** (acid outline), and the chips are disabled.
          - **SECTIONS** (added 2026-10-01) sits under the facts: the score's
            `% name` sections as the Editor's **section strip**
            (clip-path parallelograms, 3px gaps), flex-weighted by each
