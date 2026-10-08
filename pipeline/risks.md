@@ -276,7 +276,7 @@ yuey.cpp (2 stars, validated on an RTX 5070 laptop and a DGX Spark only) may not
 - check: SP-7 (F-089).
 - fallback: WSL stays; F-089 dropped and recorded.
 
-### R-038 · impact H · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
+### R-038 · impact H · fix chosen (two German drafts, D-232; build owed) · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
 German lyrics from qwen3:14b are not usable as a first take (0/3 A, 0/3 B: unnatural wording, poor singability), and the owner writes in German. Check: SP-7 (lyrics step on gemma4 26B-A4B, gemma3:12b, mistral-small3.2:24b vs qwen3:14b; owner reads 6 German sets blind; bar ≥ 5/6). Fallback: German lyrics shown as a draft to edit before rendering.
 
 ### R-039 · impact H · evidence seen running, partly proven (SP-8, 2026-10-08)
