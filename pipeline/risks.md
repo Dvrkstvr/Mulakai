@@ -275,7 +275,7 @@ yuey.cpp (2 stars, validated on an RTX 5070 laptop and a DGX Spark only) may not
 - check: SP-7 (F-089).
 - fallback: WSL stays; F-089 dropped and recorded.
 
-### R-038 · impact H · evidence hypothesis (RT, 2026-10-08)
+### R-038 · impact H · evidence seen running, partly proven (SP-8, 2026-10-08)
 SheetSage2's rebuild from a corrected beat list (half, double, a named-BPM grid anchored on the downbeats) may refuse the grid (meter inference, pickup bar), drop notes at the edges, or lose chords/sections — then RT's whole method falls. F-090 depends on it.
-- check: SP-8 (pipeline/spikes/SP-8-retime-rebuild) on 2 real outputs, melody-only and chords.
+- check: SP-8 (pipeline/spikes/SP-8-retime-rebuild) on 2 real outputs, melody-only and chords. **Done: [RESULT.md](spikes/SP-8-retime-rebuild/RESULT.md)**: rebuild takes ~15 ms from a 24 KB bundle; double is clean; half and slower BPM grids drop 5-26% of short notes (fixed 4-subbeat grid) unless a MIDI repair pass runs, and the count must be shown.
 - fallback: reshape the score on yue-server from the parsed ABC (decision 0002) for half/double only; a named BPM goes back to the owner.

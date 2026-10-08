@@ -889,8 +889,10 @@ Feature track: normal (stored data, a yue-server route, new UI). Order: RT-1 →
   BPM is out of range.
 - RT-2: the server fetches the bundle when a transcription finishes and keeps it (see "Stored data" below); `POST /api/retime` rebuilds
   from a kept bundle by its id.
-- Acceptance: half/double/BPM rebuild on 2 real outputs in under 10 s with measures ≈ ½ / × 2 / × ratio and the melody's note count
-  kept within 5 %; chords and section labels survive; a bundle survives a yue-server restart; a missing bundle answers `no_bundle`.
+- Acceptance: half/double/BPM rebuild on 2 real outputs in under 10 s with measures ≈ ½ / × 2 / × ratio; double and a BPM at or above
+  the read tempo keep the melody's notes (≤ 3 % lost); half and slower grids snap notes onto SheetSage2's fixed 4-subbeat grid
+  (`fit_midi`) and report `dropped_notes`, never claimed lossless (SP-8: 9-26 % on correctly-read songs, D-209); chords and section labels
+  survive; a bundle survives a yue-server restart; a missing bundle answers `no_bundle`.
 - Non-goals: re-running any model; beat-level editing; re-timing a score that no transcription made.
 
 ### F-091 · RE-TIME on the cover's transcribed score (RT-3, `YueCoverPanel.tsx`)

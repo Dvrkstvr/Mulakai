@@ -1110,7 +1110,7 @@
       "milestone": "RT",
       "behaviour": "A transcription's saved SheetSage2 outputs are kept by the server and rebuild its score at half time, double time or a named BPM in seconds, CPU only",
       "acceptance": [
-        "Half/double/BPM rebuild on 2 real outputs in under 10 s; measures about 1/2, x2, x ratio; melody note count within 5 %; chords and sections survive",
+        "Half/double/BPM rebuild on 2 real outputs in under 10 s; measures about 1/2, x2, x ratio; double and BPM at or above the read tempo lose at most 3 % of notes; half and slower grids report dropped_notes; chords and sections survive",
         "A bundle survives a yue-server restart; a missing bundle answers no_bundle",
         "Edge: BPM outside 40-240 or a failed rebuild is a 422 with the reason (R-038)"
       ],
