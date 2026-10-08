@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { RECIPE, badKeyRecipe, notJson, outOfSet, recipeReply, sayReply } from '../../../test-fakes/chatScripts.js';
+import { RECIPE, autoLyrics, badKeyRecipe, notJson, outOfSet, recipeReply, sayReply } from '../../../test-fakes/chatScripts.js';
 import { recipeFields } from './draftModel.js';
 import { MAX_TOKENS, decideReply, ladderRung, type TurnContext } from './turnCall.js';
 import { turnAttempts } from './turnAttempts.js';
@@ -14,19 +14,21 @@ import type { RevisePending } from './convergeTypes.js';
 import type { Op, Plan } from '../score/planTypes.js';
 
 const ctx: TurnContext = { state: { hasSong: false, scoreReadable: false }, block: ['SONG: none yet'], facts: null, request: 'a sad song', pending: false, draft: {}, history: [] };
+/** A lyrics call (LD) is answered by autoLyrics; the turn's calls from `replies`. */
 const scripted = (...replies: ChatScript[]) => {
-  const ask = vi.fn(async (_m: unknown, _s?: unknown, _o?: { maxTokens: number }) => {
-    const r = replies.length > 1 ? replies.shift()! : replies[0];
+  const ask = vi.fn(async (m: unknown, _s?: unknown, _o?: { maxTokens: number; model?: string }) => {
+    const msgs = m as Array<{ content: string }>;
+    const r = msgs[0]?.content?.startsWith('You write song lyrics') ? autoLyrics(msgs) : replies.length > 1 ? replies.shift()! : replies[0];
     return { content: r.content ?? '', promptTokens: r.promptTokens ?? null };
   });
   return ask;
 };
 
 describe('decideReply (rung 0: one call, the full schema)', () => {
-  it('a valid recipe on the first try is one call', async () => {
+  it('a valid recipe on the first try is one call, plus its lyrics call (LD)', async () => {
     const ask = scripted(recipeReply());
     const d = await decideReply(ctx, { ask });
-    expect(d).toMatchObject({ ok: true, attempts: 1, calls: 1, promptTokens: [2000] });
+    expect(d).toMatchObject({ ok: true, attempts: 1, calls: 2, promptTokens: [2000] });
     expect(ask.mock.calls[0][1]).toHaveProperty('anyOf');
   });
 
@@ -34,7 +36,7 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     const ask = scripted(notJson(), badKeyRecipe(), recipeReply());
     const progress: string[] = [];
     const d = await decideReply(ctx, { ask, onAttempt: (n, r) => progress.push(`${n}${r ? ` · ${r}` : ''}`) });
-    expect(d).toMatchObject({ ok: true, attempts: 3, calls: 3 });
+    expect(d).toMatchObject({ ok: true, attempts: 3, calls: 4 });
     // CB-2: the refused attempts travel with the reply, so an edit card says what a retry moved (D-060).
     expect(d.ok && d.refusals).toEqual([['the reply is not valid JSON'], ['key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']]);
     expect(progress).toEqual(['1', '2 · the reply is not valid JSON', '3 · key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']);
@@ -65,7 +67,7 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     await decideReply(ctx, { ask });
     await decideReply(ctx, { ask, rung: 2 });
     expect(ask.mock.calls.map((c) => c[2])).toEqual([{ maxTokens: MAX_TOKENS.edit }, { maxTokens: MAX_TOKENS.other }]);
-    expect(MAX_TOKENS).toEqual({ edit: 4000, other: 2000 });
+    expect(MAX_TOKENS).toEqual({ edit: 4000, other: 2000, lyrics: 4000 });
   });
 
   it('a live card goes in as the PENDING PROPOSAL with the draft fields; no live card, the sidebar', async () => {
@@ -84,7 +86,7 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(schema.anyOf[1].properties.recipe!.properties).toHaveProperty('reference_use');
     expect(d.messages[0].content).toContain('reference_use');
     await decideReply(ctx, { ask });
-    expect(ask.mock.calls[1][0][0].content).not.toContain('reference_use');
+    expect(ask.mock.calls[2][0][0].content).not.toContain('reference_use'); // calls 0-1: the first turn's recipe and lyrics
   });
 
   it('CHAT_LADDER picks a built rung; anything else is rung 0', () => {

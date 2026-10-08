@@ -1,7 +1,7 @@
 # CP-C2 r4 RESULT (2026-10-08): stop lines PASS; start over 3 of 3, fewer 3 of 3
 
 Code: `fix/chat-revise-additive` 6f2c648 (rebased on origin/main 4950876, CV-1 merged) = r3's code + the start-over guard
-(`chat/reviseKeep.ts`, D-245). That guard applies when the words start over ("forget all that", "start over", ...) and
+(`chat/reviseKeep.ts`, D-250). That guard applies when the words start over ("forget all that", "start over", ...) and
 the reply keeps a pending op it neither drops nor replaces. The reply then goes back once with "this request starts over:
 drop every pending op"; a second keep would stand. Same songs, turn script and machine rules as runs 1 to 3. The stack:
 server :3241 on this code, `DATA_DIR` a fresh copy under `E:\ai\tmp\cp-c2-r4` (deleted), Ollama :11565 via the proxy

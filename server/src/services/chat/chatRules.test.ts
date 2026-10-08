@@ -1,17 +1,27 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { CHAT_RULES, ENGINE_ADAPTATION, REFERENCE_RULE, REVISE_ADAPTATION, chatRules } from './chatRules.js';
+import { CHAT_RULES, ENGINE_ADAPTATION, LYRICS_ADAPTATION, REFERENCE_RULE, REVISE_ADAPTATION, chatRules } from './chatRules.js';
 import { PLANNER_RULES } from '../score/plannerRules.js';
 
 /** SP-5 prompt.py rules_for() with V3 and V31 on (= v3.1, the prompt that passed every bar), written by the spike's own code. */
 const V31 = readFileSync(new URL('../../../test-fakes/data/sp5-rules-v31.txt', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 
 describe('chat rules (the system prompt = a snapshot of SP-5 v3.1 rules_for())', () => {
-  it('is the spike\'s v3.1 text, with two adaptations: YuE2 is the only engine (D-112 e); a follow-up edit revises (C2, D-227)', () => {
+  it('is the spike\'s v3.1 text, with three adaptations: YuE2 only (D-112 e); a follow-up edit revises (C2, D-227); lyrics write / keep (LD, D-234)', () => {
     expect(V31).toContain(ENGINE_ADAPTATION.spike);
     expect(V31).toContain(REVISE_ADAPTATION.spike);
-    expect(CHAT_RULES).toBe(V31.replace(ENGINE_ADAPTATION.spike, ENGINE_ADAPTATION.c0).replace(REVISE_ADAPTATION.spike, REVISE_ADAPTATION.c2));
+    expect(V31).toContain(LYRICS_ADAPTATION.spike);
+    expect(CHAT_RULES).toBe(V31.replace(ENGINE_ADAPTATION.spike, ENGINE_ADAPTATION.c0).replace(REVISE_ADAPTATION.spike, REVISE_ADAPTATION.c2)
+      .replace(LYRICS_ADAPTATION.spike, LYRICS_ADAPTATION.ld));
     expect(CHAT_RULES).not.toContain('send the complete op list');
+  });
+
+  it('LD: the planner writes no lines; it says keep for a change not about the words while the draft has lyrics, else write', () => {
+    expect(CHAT_RULES).not.toContain('lyrics: one entry per SUNG section');
+    expect(LYRICS_ADAPTATION.ld).toContain('lyrics: "write" or "keep"');
+    expect(LYRICS_ADAPTATION.ld).toContain('do not write them');
+    expect(LYRICS_ADAPTATION.ld).toMatch(/"keep" only when .* not about the words .* already has lyrics/);
+    expect(CHAT_RULES).toContain('LANGUAGE OF THE REQUEST'); // the language field still follows the request
   });
 
   it('carries the planner\'s op reference verbatim, not its "answer with {ops}" opening', () => {

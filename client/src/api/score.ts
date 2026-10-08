@@ -20,6 +20,8 @@ export interface ScoreStatusView {
   /** The score's sections and lyric blocks as read, for a pick (F-032); absent from a server that does not send them. */
   sections?: ScoreSection[];
   blocks?: ScoreLyricBlock[];
+  /** RE-TIME (RT-4, D-240): offered with the tempo SheetSage2 read, refused with why, or none (not a cover). */
+  retime?: { state: 'none' } | { state: 'refused'; reason: string } | { state: 'offered'; readBpm: number };
 }
 
 export interface ScoreChord { bar: number; beat: number; root: string; quality: string; bass?: string }
@@ -37,7 +39,9 @@ export type ScoreOp =
   /** M2 (F-030): `section` is the read's S<n>, `label` its score label ("chorus") as a cross-check. */
   | { op: 'REPEAT' | 'CUT'; section: number; label: string }
   /** M2 (F-031): `block` is the lyric block's number, `tag` + `occurrence` ("[Chorus]", 2) the cross-check. */
-  | { op: 'REWRITE_LYRICS'; block: number; tag: string; occurrence: number; lines: string[] };
+  | { op: 'REWRITE_LYRICS'; block: number; tag: string; occurrence: number; lines: string[] }
+  /** RE-TIME (RT-4): the score rebuilt from the kept reading; `from_bpm` is what SheetSage2 read. */
+  | { op: 'RETIME'; mode: 'half' | 'double' | 'bpm'; bpm: number; from_bpm: number; dropped_notes: number; notes: number };
 
 /** REWRITE_LYRICS's verdict detail: the block it changed and its lines before and after (F-031 #1). */
 export interface ScoreLyricDiff { block: number; tag: string; occurrence: number; old: string[]; new: string[] }
@@ -144,6 +148,10 @@ export const scoreApi = {
     post(`/api/songs/${songId}/score/plan/cancel`).then((r) => json(r)),
 
   /** APPLY & RENDER. A 409 the re-check made is `{refused}`; any other refusal throws (queue full, in flight). */
+  /** RE-TIME (RT-4): a plan made at once from the kept reading, no planner; a refusal throws with its reason. */
+  startScoreRetime: async (songId: string, mode: 'half' | 'double' | 'bpm', bpm: number | null): Promise<ScorePlan> =>
+    (await json<{ plan: ScorePlan }>(await post(`/api/songs/${songId}/score/retime`, { mode, ...(bpm !== null ? { bpm } : {}) }))).plan,
+
   startScoreRender: async (songId: string, planId: string): Promise<ScoreRenderStart> => {
     const res = await post(`/api/songs/${songId}/score/render`, { planId });
     if (res.status === 409) {

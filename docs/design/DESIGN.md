@@ -872,6 +872,19 @@ requiring its own justification against a screen-count rule.
        - **Chip**: `BASE · WHOLE SCORE`, sky, like SPLIT's. The version the
          plan was made against sits in the checks and stale lines, not the
          chip.
+       - **RE-TIME** (added 2026-10-08, RT-4, F-093, D-240): on a cover that
+         is still its transcription, a row under the reading line in the
+         Create panel's READ AS idiom: the tempo SheetSage2 read, `wrong
+         beat?` in `text-low`, then HALF · DOUBLE · BPM… as sky choice chips
+         (BPM… is its own input, D-211). A pick makes the plan at once, with
+         no planner and a `text-low` "RE-TIMING… · a few seconds · no GPU" line
+         while it is made. The plan then reviews like any plan: one RE-TIME
+         row tagged `follows` ("HALF TIME · 87 → 44 BPM · from the saved
+         reading · 17 of 293 notes left out"), a checks line with no attempt
+         count, and a consequence line saying the score is rebuilt and its
+         bars renumbered. The chip of the plan under review stays sky. On any
+         other take of a cover, one `text-low` line says why RE-TIME is off.
+         A song that is not a cover shows nothing.
        - **Body**: a `text-low` reading line (bars, duration, tempo, key),
          the request field ("Describe the change, e.g. jazz chords in the
          chorus, 88 BPM"), then, once planned, the change list (one row per
@@ -1181,6 +1194,39 @@ requiring its own justification against a screen-count rule.
      Cancelled, failed, refused and STALE are one rust line in the card
      ("nothing saved, v1 is untouched"); stale and expired drop APPLY for
      ASK AGAIN, superseded dims to 45%; done folds to one header line.
+   - **The revised card and the bar map** (added 2026-10-08, chat C2; spec
+     `pipeline/design/chat-converge.html` 3-4, signed off in D-229,
+     CX-2/CX-3). A card that carries a bar map is headed by its plan
+     title while pending (`PLAN · 1 CHANGE · AGAINST BASE v4`; revised: `PLAN 2 ·
+     REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v4`), with `EDIT · SCORE ·
+     nothing runs yet` as the grey hint; other states keep the C0b state
+     header. A follow-up revises the pending card: `SINCE PLAN 1 · 1 NEW ·
+     1 SAME · 0 REMOVED` (REMOVED always counted), a mono NEW / CHANGED /
+     SAME mark per row (SAME in `text-low`) and one low `REMOVED (1) · WRITE
+     PHRASE bars 41–44 · …` line, never silent; the SCORE dock keeps its
+     own wording. The card it revised stays in full at 45%, headed `PLAN 1
+     · REVISED BELOW` (hint `EDIT · SCORE · superseded`), with no APPLY;
+     while a revise runs the pending card's APPLY is off (back on if it
+     fails or is cancelled), and a failed or refused revise is the turn's
+     rust line under the message, the card kept. The **bar map** replaces
+     the bar strip whenever the card carries one (older cards keep the
+     strip): the song's sections as the section strip's parallelograms at
+     18px (`carbon-raised`, 9px mono names in full, else short `C2`, else
+     none under 20px), a 14px `carbon-raised` track with the edited bars
+     `sky-tint` on sky hairlines (2px at least), a whole-song op (SET
+     TEMPO, TRANSPOSE, EDIT STYLE) hatched `sky-tint`/`line` over the
+     track, a CUT section's band hatched grey with a dashed `line-hi` edge,
+     a 9px ruler every 8 bars (every 10 over 50 bars, every 20 over 100;
+     doubled only where a narrow map would make numbers touch), and a 10px
+     mono caption: `8 OF 80 BARS CHANGE · THE OTHER 72 ARE v4`, `ALL 80
+     BARS CHANGE (TEMPO) · BARS 49–56 ARE THE NEW HARMONY`, `WORDS CHANGE IN
+     BARS 41–48 · THE WHOLE SONG RE-RENDERS`, `OUTRO S9 CUT · 8 BARS REMOVED
+     · SEAM UN-TIED`; a plan that renders the whole song never says the
+     other bars stay. One row up to 200 bars (3.65px a bar in the 760px
+     column). A change-list row lights its op's bars solid sky (a hovered
+     whole-song op lights the hatch) on hover and keyboard focus, the row
+     washed `on-sky` with a sky edge, the caption reading `BARS 49–56 ·
+     REHARMONIZE · LIT`; the map itself takes no input. No new hue.
    - **The version card** follows a saved edit: `VERSION`, the lilac pill,
      the label (the version's change list), the length and what changed
      ("bar 43 changed · the rest is v1's audio · 0.03 s longer than v1",
@@ -1222,6 +1268,27 @@ requiring its own justification against a screen-count rule.
      CONTEXT AND MARKING ONLY` after it in `text-low`, and rust only for a
      failed reading (`COULDN'T READ v5 · <reason>`) with a small acid
      outline **RETRY**. No spinner and no shader: reading is not a commit.
+     **READ AS** (added 2026-10-08, RE-TIME on the reading, F-092;
+     `pipeline/design/retime.html` B1-B5): under the reading line of the
+     playing version's own *transcribed* reading (never a YuE2 song's own
+     score), the cover panel's READ AS row at the chat's size (11px, 4px
+     padding): what SheetSage2 read in bold (`87 BPM · 65 BARS`), then
+     HALF · DOUBLE · BPM… as sky choice chips. A pick rebuilds at once (no
+     GPU); the `text-low` consequence line says the new tempo, the bars
+     (`65 bars → 33, every bar number changes`), the notes left out, that a
+     mark on this version goes stale, and that nothing is saved to the
+     library, beside an acid outline **RE-TIME AT n BPM** and a quiet
+     CANCEL. While it runs, `RE-TIMING v1 · SCORE · a few seconds`. Once
+     applied, the strip and ruler redraw at the same seconds, the row adds
+     `· RE-TIMED TO n BPM`, a lilac **RE-TIMED** tag line says `from 87 BPM
+     · 65 bars → 33 · same seconds, bars renumbered`, and a quiet UNDO
+     returns to the reading. A mark made on the old bars turns stale at
+     once (the rust card says the reading was re-timed; the chip names only
+     its bars, since the old numbers now name other sections) and UNDO
+     clears it again. With no kept reading, the chips are off and the
+     cover panel's rust-tint GONE box offers **TRANSCRIBE AGAIN** (acid
+     outline), saying it reads the version again on the GPU and replaces
+     the reading.
    - **The mark** (added 2026-10-07, chat C1; spec `pipeline/design/chat-mark.html`
      MK-4..MK-10, Q-068's clause). One sky for every mark, no second hue for
      time: over the ruler and waveform a `sky-tint` wash (70%, so the

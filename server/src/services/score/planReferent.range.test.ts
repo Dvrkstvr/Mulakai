@@ -103,6 +103,30 @@ describe('resolveRange', () => {
   it('the code name the route answers with', () => expect(MARK_STALE).toBe('MARK_STALE'));
 });
 
+describe('resolveRange after a re-time of the reading (RT-5, F-092)', () => {
+  const READ = '2026-10-08T01:00:00.000Z';
+  const RETIMED = '2026-10-08T02:00:00.000Z';
+  it('a bars mark counted on the reading before the re-time is stale, even where the bars still fit (RT-7)', () => {
+    const r = resolveRange(mark({ readAt: READ }), facts({ readAt: RETIMED }));
+    expect(r).toMatchObject({ pinned: false, shift: null, reason: "v3's reading was re-timed after you marked it, so every bar number changed; mark again" });
+  });
+  it('fits again once UNDO restores that reading', () => {
+    expect(resolveRange(mark({ readAt: READ }), facts({ readAt: READ }))).toMatchObject({ pinned: true, carried: false });
+  });
+  it('a seconds-only mark and a mark from before marks carried a reading stay pinned: the audio did not change', () => {
+    expect(resolveRange(mark({ bars: undefined }), facts({ readAt: RETIMED })).pinned).toBe(true);
+    expect(resolveRange(mark(), facts({ readAt: RETIMED })).pinned).toBe(true);
+  });
+  it("a carried mark is counted on the new version's reading", () => {
+    const r = resolveRange(mark({ versionId: 'v2', readAt: READ }), facts({ readAt: RETIMED }));
+    expect(r).toMatchObject({ pinned: true, carried: true, mark: { versionId: 'v3', readAt: RETIMED } });
+  });
+  it('parseRange keeps readAt only on a bars mark', () => {
+    expect(parseRange({ kind: 'range', versionId: 'v3', bars: [5, 8], seconds: [8, 16], readAt: READ })).toMatchObject({ mark: { readAt: READ } });
+    expect(parseRange({ kind: 'range', versionId: 'v3', seconds: [8, 16], readAt: READ })).toEqual({ ok: true, mark: { kind: 'range', versionId: 'v3', seconds: [8, 16] } });
+  });
+});
+
 describe('rangeOutside', () => {
   it('inside the song: nothing', () => expect(rangeOutside(mark(), { starts, end: 40 })).toBeNull());
   it('bars past the last bar', () => expect(rangeOutside(mark({ bars: [18, 22] }), { starts, end: 40 })).toBe('the mark reaches bar 22; the song has 20 bars'));

@@ -16,6 +16,7 @@ const { planDeps } = await import('../services/score/planJob.js');
 const { resetPlans } = await import('../services/score/planStore.js');
 const { probePlanner } = await import('../services/score/ollamaControl.js');
 const { makeScoreRouter } = await import('./score.js');
+import type { RetimeOffer } from '../services/score/retimeOffer.js';
 const { makeScorePlanRouter, NOTHING_TO_CANCEL } = await import('./scorePlan.js');
 type ScoreStatus = import('../services/score/scoreStatus.js').ScoreStatus;
 
@@ -29,13 +30,14 @@ const eligible = (): ScoreStatus => ({
 let current: ScoreStatus = eligible();
 const ollama = await startFakeOllama();
 let planner = { url: ollama.url, model: 'qwen3:14b' };
+let offer: RetimeOffer = { state: 'none' };
 let server: Server;
 let base: string;
 
 beforeAll(async () => {
   const app = express();
   app.use(express.json());
-  app.use('/api/songs', makeScoreRouter(() => ({ status: async () => current, probe: () => probePlanner(planner) })));
+  app.use('/api/songs', makeScoreRouter(() => ({ status: async () => current, probe: () => probePlanner(planner), retime: async () => offer })));
   app.use('/api/songs', makeScorePlanRouter(() => planDeps({ planner, status: async () => current, apply: async () => { throw new Error('unused'); } })));
   await new Promise<void>((resolve) => { server = app.listen(0, resolve); });
   const address = server.address();
@@ -51,10 +53,18 @@ const post = (p: string, body?: unknown) => fetch(`${base}/s1/score/${p}`, {
 });
 
 describe('GET /api/songs/:id/score', () => {
+  it('says whether RE-TIME is offered (RT-4): the tempo read, or why not; never the kept id', async () => {
+    offer = { state: 'offered', notationId: 'a'.repeat(64), readBpm: 93.7 };
+    expect((await get()).retime).toEqual({ state: 'offered', readBpm: 93.7 });
+    offer = { state: 'refused', reason: 'edited since' };
+    expect((await get()).retime).toEqual({ state: 'refused', reason: 'edited since' });
+    offer = { state: 'none' };
+  });
+
   it('eligible: the reading, the active base version number and the stored style', async () => {
     expect(await get()).toEqual({
       state: 'eligible', reading: { bars: 65, seconds: 179.3, bpm: 87, key: expect.any(String), meter: '4/4', tokens: 1832 },
-      baseVersion: 2, versions: 2, style: 'dark pop, 87 bpm',
+      baseVersion: 2, versions: 2, style: 'dark pop, 87 bpm', retime: { state: 'none' },
       sections: [
         { index: 1, label: 'intro', occurrence: 1, from_bar: 1, to_bar: 10 }, { index: 2, label: 'verse', occurrence: 1, from_bar: 11, to_bar: 46 },
         { index: 3, label: 'chorus', occurrence: 1, from_bar: 47, to_bar: 62 }, { index: 4, label: 'outro', occurrence: 1, from_bar: 63, to_bar: 65 },

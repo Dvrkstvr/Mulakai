@@ -115,6 +115,8 @@ export interface RangeFacts {
   playable: { id: string; number: number };
   parent: { versionId: string; number: number | null; shift: BarShift } | null;
   bars: BarTimesNow | null;
+  /** The playable version's reading (`readAt`), null when it has none. */
+  readAt?: string | null;
 }
 
 const isSecond = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
@@ -134,7 +136,8 @@ export function parseRange(v: unknown): ParsedRange {
   }
   const label = typeof o.label === 'string' && o.label.trim() ? o.label.trim().slice(0, MARK_LABEL_MAX) : undefined;
   const bars = b ? { bars: [b[0], b[1]] as [number, number] } : {};
-  return { ok: true, mark: { kind: 'range', versionId: o.versionId, ...bars, seconds: [s[0], s[1]], ...(label ? { label } : {}) } };
+  const readAt = b && typeof o.readAt === 'string' && o.readAt.length <= 40 ? { readAt: o.readAt } : {};
+  return { ok: true, mark: { kind: 'range', versionId: o.versionId, ...bars, seconds: [s[0], s[1]], ...(label ? { label } : {}), ...readAt } };
 }
 
 /** A pinned mark's bars or seconds past the playable version's end (400), else null. */
@@ -165,6 +168,9 @@ function usableShift(mark: RangeMark, shift: Shift | null): Shift | null {
  * times are read: until then its old seconds are different music (C1 code review should 2). Anything else is
  * stale, with the shift when the edit reported one (USE BARS): never remapped here. */
 export function resolveRange(mark: RangeMark, f: RangeFacts): RangeResolution {
+  if (mark.versionId === f.playable.id && mark.bars && mark.readAt && f.readAt && mark.readAt !== f.readAt) {
+    return { pinned: false, was: mark, shift: null, reason: `v${f.playable.number}'s reading was re-timed after you marked it, so every bar number changed; mark again` };
+  }
   if (mark.versionId === f.playable.id) return { pinned: true, mark, carried: false };
   const p = f.parent;
   if (p && p.versionId === mark.versionId && !p.shift.moved && p.shift.retimed && !(mark.bars && f.bars)) {
@@ -173,7 +179,8 @@ export function resolveRange(mark: RangeMark, f: RangeFacts): RangeResolution {
     return { pinned: false, was: mark, shift: null, reason };
   }
   if (p && p.versionId === mark.versionId && !p.shift.moved) {
-    return { pinned: true, carried: true, mark: { ...mark, versionId: f.playable.id, seconds: retimed(mark, f.bars) } };
+    const { readAt: _was, ...kept } = mark; // its bars are counted on the new version's reading now
+    return { pinned: true, carried: true, mark: { ...kept, versionId: f.playable.id, seconds: retimed(mark, f.bars), ...(f.readAt ? { readAt: f.readAt } : {}) } };
   }
   const now = `v${f.playable.number}`;
   if (p && p.versionId === mark.versionId) {

@@ -5,6 +5,8 @@ for the Mulakai server to keep (D-207); yue-server forgets jobs after 24 h.
 POST /v1/scores/retime: those files plus HALF, DOUBLE or a BPM -> the rebuilt
 score, checked as POST /v1/jobs checks a supplied score. CPU only (retimer.py).
 Notes the slower grid cannot hold are counted in `dropped_notes` (D-210).
+`downbeats` are the corrected beat list's bar starts (the same pure transform the
+rebuild runs), so a chat reading times its re-timed bars on them (RT-5, F-092).
 """
 from __future__ import annotations
 
@@ -16,7 +18,8 @@ from typing import Literal
 from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
-from retime_beats import BeatError, read_bpm, read_rows
+from retime_beats import BeatError, read_bpm, read_rows, transform
+from retime_keep import KeepError, keep_sections_like
 from retimer import FILES, RetimeError
 from scores import ScoreError, parse_abc, prepare_score
 
@@ -29,6 +32,8 @@ class RetimeRequest(BaseModel):
     mode: Literal["half", "double", "bpm"]
     bpm: float | None = None
     melody_only: bool = True
+    keep_like: str | None = Field(default=None, max_length=65536,
+                                  description="keep only this score's sections, by name in order (RT-4)")
 
 
 def _fail(status: int, code: str, message: str):
@@ -94,10 +99,19 @@ def add_retime_routes(app: FastAPI, store, retimer, authorize) -> None:
         except (BeatError, UnicodeDecodeError, ValueError) as error:
             _fail(422, "bad_bundle", f"the beat list cannot be read: {error}")
         target = _target_bpm(read, request.mode, request.bpm)
+        bpm = target if request.mode == "bpm" else None
+        downbeats = [round(row[0], 4) for row in transform(read_rows(files["song_beats.txt"].decode("utf-8")),
+                                                          request.mode, bpm) if row[1] == 1]
         try:
-            out = retimer.run(files, request.mode, target if request.mode == "bpm" else None, request.melody_only)
+            out = retimer.run(files, request.mode, bpm, request.melody_only)
         except RetimeError as error:
             _fail(502 if error.code == "retime_failed" else 422, error.code, str(error))
+        left_out: list[str] = []
+        if request.keep_like:
+            try:
+                out["abc"], left_out = keep_sections_like(out["abc"], request.keep_like)
+            except KeepError as error:
+                _fail(422, "retime_refused", str(error))
         try:
             prepare_score(out["abc"], "melody")
             facts = _facts(out["abc"])
@@ -105,4 +119,4 @@ def add_retime_routes(app: FastAPI, store, retimer, authorize) -> None:
             _fail(422, "retime_refused", f"the rebuilt score does not parse: {error}")
         return {"abc": out["abc"], **facts, "read_bpm": round(read, 1), "notes": out["notes"],
                 "dropped_notes": out["dropped"], "stretched_notes": out["stretched"],
-                "warnings": out.get("diagnostics", [])}
+                "left_out": left_out, "downbeats": downbeats, "warnings": out.get("diagnostics", [])}
