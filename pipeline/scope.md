@@ -1008,3 +1008,65 @@ reading) with the same consequence copy.
 - A mechanical ABC rewrite (scale durations, re-bar) as a fallback (D-207: TRANSCRIBE AGAIN instead).
 - Tempo maps or rubato (one tempo per re-time; the BPM grid anchors to detected downbeats).
 
+
+## LD — Lyrics as their own call, two German drafts (F-095 .. F-097; D-205, D-232 .. D-237)
+
+The lyrics step becomes SP-5's rung 3 for every language: the planner's recipe call no longer writes lyrics, a separate lyrics
+call does (SP-5 `ladder.py lyrics_call`: system rules per language, `{sections: [{lines}]}` with exactly one entry per sung section,
+≤ 3 attempts with the reasons fed back). English and Spanish use one lyrics model, the planner's `qwen3:14b` (no reload). German
+writes **two drafts**, DRAFT A with `gemma3:12b` and DRAFT B with `gemma4:26b-a4b-it-q4_K_M` (owner, D-232: each 4/6 usable, on
+different requests, together 6/6), and the person picks one on the recipe card before CREATE SONG. Every extra model loads inside the
+turn's one `plan` slot and the turn unloads every model it touched, with `/api/ps` empty, before the slot is released (CLAUDE.md
+invariant; docs/decisions/0006 amended by D-233).
+
+Feature track: **normal** (a turn protocol change, an additive draft field, a changed card). SP-7 measured the loads and calls; no
+new spike. Order: LD-1 → LD-2 (after C2's CV-1, #238, merges: it owns `turnCall`/`turnJob`/`actionSchema`/`turnDispatch`) → DT-LD
+(mockup, parallel from the start) → LD-3 (after C2's CV-8 merges: it owns `ChatRecipeCard`/`ChatDraftFields`/`chatDraftStore`) →
+LD-4 live run.
+
+### F-095 · Lyrics as their own call, every language (LD-1 pure, LD-2 wiring)
+The recipe reply carries `lyrics: "write" | "keep"` instead of the lines (D-234); code forces `write` when the draft has no lyrics or
+its sung sections no longer follow the new structure. `write` runs the lyrics call after the recipe passes its checks, in the same slot;
+the card is written only when the lyrics pass too. The lyrics model per language comes from env `LYRICS_MODELS_<LANG>` (comma list; two
+entries = two drafts), defaults `de = gemma3:12b,gemma4:26b-a4b-it-q4_K_M`, every other language = `LLM_MODEL` (D-235). The progress
+line names the step (`writing lyrics · draft B · gemma4`).
+- Checks per draft, each a reason fed back to the next attempt: the schema; no bracket tag in a line; language-ID of the whole text =
+  the recipe's language (`lyricLanguage`, ≥ 40 chars); no line with an embedded newline or under 6 characters (SP-7: gemma3 DE08);
+  **no prompt-only word** — a word that appears in the lyrics call's system prompt but in neither the request, the title nor the style
+  (stop-list `Mulakai` at least; SP-7: gemma4 RC09's outro) (D-236).
+- A model that is not pulled fails its draft with `run 'ollama pull <model>'`; one German draft failing still writes the card with the
+  other and says which failed and why; all drafts failing fails the turn (nothing changes, F-049).
+- Acceptance (fakes): an English recipe makes 2 calls on one model and one release; a German recipe makes 3 calls on 3 models with the
+  planner unloaded before the first lyrics model loads and every model unloaded, `/api/ps` empty, before the slot is released — on
+  success, a failed check, a cancel during each call, and an unload that times out (the turn fails `unload`, the slot is still
+  released only after the bound); a "make it faster" follow-up keeps the draft's lyrics and makes one call; a lyric containing
+  "Mulakai" is refused and retried; CP-C1's prompt p95 stop still holds.
+- Non-goals: a lyrics model per genre; retrying a draft that failed after the card is written; any other language with two drafts
+  (settable by env, not shipped); English quality changes (rung 3 is SP-5's own measured path, D-205).
+
+### F-096 · DRAFT A / DRAFT B on the recipe card (LD-3; mockup DT-LD first)
+A German recipe card shows two lyric drafts, labelled DRAFT A and DRAFT B (models named small, not as the label), each foldable, with
+PICK on each. Until one is picked the sidebar's LYRICS reads `pick a draft on the card` and CREATE SONG is blocked with that reason
+(`createBlockers`, never an instrumental take from empty lyrics). PICK copies that draft's sections into the draft's LYRICS (a person's
+edit: YOURS, kept by UNDO TURN); the other draft stays on the card, dimmed, and can still be picked instead. A hand edit of LYRICS also
+counts as a pick. A failed draft shows its reason in place of its lines and no PICK.
+- Acceptance: on a German card, CREATE SONG is disabled with the pick reason until PICK; after PICK B the sidebar shows B's lines,
+  CREATE sends them; PICK A then replaces them; after a server restart the card is EXPIRED but the sidebar still offers the pick
+  (the drafts live on the draft, D-234); English cards look as today.
+- Non-goals: mixing sections from both drafts (edit the LYRICS by hand); a third draft; regenerating one draft.
+
+### F-097 · Live run on the real machine (LD-4, verifier)
+On the owner's GPU, with the stack: one German, one English and one Spanish chat song through recipe → (pick) → CREATE SONG. Record
+per turn: calls, models, seconds per step, `/api/ps` after the slot, VRAM peak; and that a YuE2 take queued behind a German turn
+starts only after the slot is released. Bar: German turn ≤ 60 s on a warm disk cache; no model listed after any turn.
+
+### Stored data (before code, F-095/F-096)
+- `draft_json` (`draft_v: 1`, additive): optional `lyricsDrafts: {label: 'A' | 'B', model, lyrics: LyricSection[] | null, error?}[]`
+  and `lyricsPick: 'A' | 'B' | null`. Absent = today's single-lyrics draft. The recipe message body gets the same `lyricsDrafts` (the
+  card renders from it after the draft moves on). No migration, no backfill. `readDraft` reads known keys only, so LD-2 adds their
+  reader beside `readMarks`; a rolled-back server drops them on read (the draft's LYRICS stay empty until the person asks again).
+- Reversal: setting `LYRICS_MODELS_DE=qwen3:14b` gives one German draft and no pick; the fields stay unread.
+
+### Not doing (LD)
+- Promising Deutschrap or Liedermacher lyrics in German (SP-7: no model was good at them).
+- Shrinking gemma4's context for the lyrics call (SP-7: not tried; a later measure if F-097 is slow).

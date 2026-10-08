@@ -276,7 +276,7 @@ yuey.cpp (2 stars, validated on an RTX 5070 laptop and a DGX Spark only) may not
 - check: SP-7 (F-089).
 - fallback: WSL stays; F-089 dropped and recorded.
 
-### R-038 · impact H · fix chosen (two German drafts, D-232; build owed) · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
+### R-038 · impact H · fix chosen (two German drafts, D-232; build owed: scope.md LD, F-095..F-097) · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
 German lyrics from qwen3:14b are not usable as a first take (0/3 A, 0/3 B: unnatural wording, poor singability), and the owner writes in German. Check: SP-7 (lyrics step on gemma4 26B-A4B, gemma3:12b, mistral-small3.2:24b vs qwen3:14b; owner reads 6 German sets blind; bar ≥ 5/6). Fallback: German lyrics shown as a draft to edit before rendering.
 
 ### R-039 · impact H · evidence seen running, partly proven (SP-8, 2026-10-08)
@@ -292,3 +292,8 @@ A chat REVISE adds the PENDING PLAN block (up to 6 ops; a 40-bar REHARMONIZE's c
 A YuE2 lyric line's time comes from aligning Whisper's heard words to the stored lyrics (`alignLyrics`, the Editor's); on repeated choruses or ad-libs a line can align to the wrong repeat, so a line click marks the wrong bars. The chip shows the bars, so it is visible, not silent.
 - check: CV-9 live: line marks on 2 YuE2 songs with repeated choruses, the chip's bars against the line heard.
 - fallback: a line click marks its section (D-218's untimed rule) when the alignment's `matched` share is low.
+
+### R-042 · impact M · evidence measured (SP-7 numbers), unproven in the app
+A German recipe turn holds the GPU slot for the planner call + two lyrics loads and calls (~3.5 s + ~7 s gemma3, ~19 s + ~9 s gemma4, partly on CPU at 16k) + three unloads: about 45 s, and a YuE2 take queued behind it waits that long. A slow disk cache or the owner's other stack on the GPU may push gemma4 further onto the CPU.
+- check: F-097 live run (bar ≤ 60 s warm, `/api/ps` empty after).
+- fallback: `LYRICS_MODELS_DE` to one model; a smaller context for the lyrics call (SP-7 "not tried").
