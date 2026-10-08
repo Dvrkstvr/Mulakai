@@ -21,6 +21,11 @@ const opName = (name: string) => WHOLE_SONG[name] ?? name.replace(/_/g, ' ');
 /** The person's words ask for a change to the whole song, not only the marked bars (assumed rule, C1 live B2). */
 const WHOLE_WORDS = /\b(whole|entire|every ?where|throughout|all over|all of (it|the song|the track)|every (section|part|bar)|all (the )?(sections|parts|bars))\b/i;
 export const asksWholeSong = (request: string): boolean => WHOLE_WORDS.test(request);
+
+/** An assumption that names a place in the song ("assuming the first chorus, bars 15-22"). */
+const PLACE_WORDS = /\b(bars?\s*\d+|intro|verse|pre-?chorus|chorus|bridge|outro|hook|breakdown|section|whole song)\b/i;
+/** The card's assumptions under a mark (C1 live B3): the mark says where, so an assumed place is dropped. */
+export const assumptionsUnderMark = (list: string[]): string[] => list.filter((a) => !PLACE_WORDS.test(a));
 const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
 const span = ([a, b]: BarRange) => `bars ${a}-${b}`;
 const disjoint = (s: ScoreSection, [a, b]: BarRange) => s.to_bar < a || s.from_bar > b;

@@ -13,7 +13,7 @@ import { buildPlan } from '../score/planBuild.js';
 import type { ApplyResult, Plan } from '../score/planTypes.js';
 import { applyRecipe } from './draftModel.js';
 import { spliceEligibility } from './spliceEligibility.js';
-import { asksWholeSong, markFit } from './markFit.js';
+import { asksWholeSong, assumptionsUnderMark, markFit } from './markFit.js';
 import { referenceRecipe } from './referenceRecipe.js';
 import type { Reading } from './reading.js';
 import type { AnalyzeBody, AskBody, Draft, EditBase, EditBody, RecipeBody, ScalpelKind, TurnReply } from './chatTypes.js';
@@ -87,7 +87,7 @@ function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string
   const body: EditBody = {
     planId: plan.id, ops: plan.ops, verdicts: plan.verdicts, checks: plan.checks,
     splice: spliceEligibility(plan.ops, base), renderMode: plan.renderMode,
-    assumptions: reply.assumptions, attempts: plan.attempts, refusals: plan.refusals,
+    assumptions: mark?.bars ? assumptionsUnderMark(reply.assumptions) : reply.assumptions, attempts: plan.attempts, refusals: plan.refusals,
     ...(mark ? { mark: { ...mark, notes: [...mark.notes, ...(mark.bars ? markFit(plan.ops, mark.bars, base.facts, asksWholeSong(request)).notes : [])] } } : {}),
     from: { bpm: base.facts.header.bpm, key: base.facts.header.key },
   };

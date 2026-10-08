@@ -96,6 +96,15 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(plain.kind === 'edit' && 'mark' in plain.body).toBe(false);
   });
 
+  it('C1 live B3: under a mark the card drops an assumed place that contradicts it; unmarked keeps it', () => {
+    const mark = { versionId: 'v1', bars: [30, 36] as [number, number], seconds: [70, 85] as [number, number], notes: [] };
+    const reply = { ...edit(reharm), assumptions: ['assuming the first chorus, bars 15-22', 'jazz means seventh chords'] };
+    const marked = dispatchReply({ ...base, hasSong: true, reply, edit: planned(reharm), mark });
+    expect(marked.kind === 'edit' && marked.body.assumptions).toEqual(['jazz means seventh chords']);
+    const plain = dispatchReply({ ...base, hasSong: true, reply, edit: planned(reharm) });
+    expect(plain.kind === 'edit' && plain.body.assumptions).toEqual(reply.assumptions);
+  });
+
   it('F-046 edge: a song that is not score-eligible gets the reason as a say, no card', () => {
     const reason = 'This song has a repaint version, so score editing ended when it was made.';
     const out = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: { reason } });
