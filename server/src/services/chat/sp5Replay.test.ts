@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
+import { rung3 } from '../../../test-fakes/chatScripts.js';
 import { decideReply, type TurnContext } from './turnCall.js';
 import { checkReply } from './replyCheck.js';
 import { dispatchReply, REDIRECT } from './turnDispatch.js';
@@ -8,7 +9,10 @@ import { ACTIONS } from './turnActions.js';
 import type { ApplyResult, ScoreFacts } from '../score/planTypes.js';
 import type { Draft, TurnReply } from './chatTypes.js';
 
-/** Real qwen3:14b replies recorded by SP-5 on the v3.1 prompt (test-fakes/data/sp5-replies.json), every attempt verbatim. */
+/** Real qwen3:14b replies recorded by SP-5 on the v3.1 prompt (test-fakes/data/sp5-replies.json), every attempt verbatim.
+ * LD (rung 3): a recorded recipe is replayed split in two (chatScripts.rung3): the recipe call's reply with
+ * `lyrics: "write"`, and its recorded lines as the lyrics call's answer. The recipe prompt now differs from v3.1's
+ * (no lines, chatRules LYRICS_ADAPTATION), so this replays what the model said, not what it would say now. */
 interface Recorded { turn: string; request: string; song_key: string | null; attempts: Array<{ content: string; reasons: string[] }> }
 const data = JSON.parse(readFileSync(new URL('../../../test-fakes/data/sp5-replies.json', import.meta.url), 'utf8')) as { turns: Recorded[] };
 const turn = (id: string) => data.turns.find((t) => t.turn === id)!;
@@ -24,10 +28,16 @@ async function replay(t: Recorded) {
     state: { hasSong: Boolean(facts), scoreReadable: Boolean(facts) }, block: [facts ? 'SONG: "Romantica"' : 'SONG: none yet'],
     facts, request: t.request, pending: false, draft: facts ? null : {}, history: [],
   };
-  const replies = t.attempts.map((a) => a.content);
+  const split = t.attempts.map((a) => rung3(a.content));
+  const replies = t.attempts.map((a, i) => split[i]?.recipe ?? a.content);
+  const lyrics = split.flatMap((r) => (r ? [r.lyrics] : []));
   const sent: string[] = [];
   const decision = await decideReply(ctx, {
-    ask: async (msgs) => { sent.push(msgs.at(-1)!.content); return { content: replies.shift() ?? '', promptTokens: 3000 }; },
+    ask: async (msgs) => {
+      if (msgs[0].content.startsWith('You write song lyrics')) return { content: lyrics.shift() ?? '', promptTokens: 600 };
+      sent.push(msgs.at(-1)!.content);
+      return { content: replies.shift() ?? '', promptTokens: 3000 };
+    },
   });
   return { decision, sent, facts };
 }
@@ -35,9 +45,9 @@ async function replay(t: Recorded) {
 const dispatch = (reply: TurnReply, hasSong: boolean) => dispatchReply({ reply, hasSong, draft, sentRev: 0, scoreReason: null });
 
 describe('SP-5 recorded replies replayed through decideReply / replyCheck / turnDispatch', () => {
-  it('RC05: a German recipe passes on the first try and becomes a card built from its fields', async () => {
+  it('RC05: a German recipe passes on the first try, its recorded lines pass the lyrics checks, and it becomes a card', async () => {
     const { decision } = await replay(turn('RC05.t1'));
-    expect(decision).toMatchObject({ ok: true, attempts: 1 });
+    expect(decision).toMatchObject({ ok: true, attempts: 1, calls: 2, lyrics: { mode: 'write', attempts: 1 } });
     if (!decision.ok || decision.reply.action !== 'recipe') throw new Error('not a recipe');
     const recorded = JSON.parse(turn('RC05.t1').attempts[0].content);
     const out = dispatch(decision.reply, false);

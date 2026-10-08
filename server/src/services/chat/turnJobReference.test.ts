@@ -9,7 +9,7 @@ import path from 'node:path';
 
 process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-chatturn-ref-test-'));
 
-const { startFakeOllama } = await import('../../../test-fakes/fakeOllama.js');
+const { isLyricsCall, startFakeOllama } = await import('../../../test-fakes/fakeOllama.js');
 const { analyzeReply, borrowReply, coverReply, readingFixture } = await import('../../../test-fakes/chatScripts.js');
 const { getRunning, resetQueue } = await import('../genQueue.js');
 const { getJob } = await import('../jobRegistry.js');
@@ -41,7 +41,7 @@ const settled = async (id: string) => {
   await vi.waitFor(() => expect(getRunning()).toBeNull());
   return getJob(id)!;
 };
-const lastChat = () => ollama.requests.filter((r) => r.path === '/v1/chat/completions').at(-1)!.body as { messages: Array<{ content: string }>; response_format: { json_schema: { schema: { anyOf: Array<{ properties: { action: { const: string } } }> } } } };
+const lastChat = () => ollama.requests.filter((r) => r.path === '/v1/chat/completions' && !isLyricsCall(r.body)).at(-1)!.body as { messages: Array<{ content: string }>; response_format: { json_schema: { schema: { anyOf: Array<{ properties: { action: { const: string } } }> } } } };
 
 describe('chat turn with a reference', () => {
   it('an analyze reply on an attached file: a READ card with a live analyze proposal; the prompt named the file', async () => {

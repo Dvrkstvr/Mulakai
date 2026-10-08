@@ -13,14 +13,14 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
 `pipeline/architecture.md` "Chat (C0)" and "Chat (C3)" (reference songs). Mockups:
 `pipeline/design/chat-*.html`.
 
-- A turn is one `plan`-kind job (`turnJob`): one load, ≤ 3 attempts, and
-  `releasePlanner` in `finally` on every path before the slot is released
-  (D-011, docs/decisions/0006). Never add a second load or unload per turn.
+- A turn is one `plan`-kind job (`turnJob`): one load per model it needs
+  (planner, then a lyrics model), each unloaded before the next, all + `/api/ps`
+  empty in `finally` before the slot is released (D-233, ADR 0006).
 - How many model calls a turn makes (SP-5's ladder) lives only in
   `turnCall.ts` (+ `turnActions.ts` for state-allowed actions).
 - Deciding logic stays pure: `draftModel`, `recipeRules`, `draftFields`,
   `songState`, `turnPrompt`, `turnActions`, `actionSchema`, `replyCheck`,
-  `turnAttempts`, `turnCall`, `turnDispatch`, `messageView`,
+  `turnAttempts`, `turnCall`, `turnLyrics`, `turnDispatch`, `messageView`,
   `spliceEligibility`, `versionCard`. Tests first; break each once.
 - Reuse, never copy, the score agent: `opsArraySchema`, `checkOps`,
   `applyOps`, `withLimits`, `applyReasons`, `retryMessages`, `phraseLines`,

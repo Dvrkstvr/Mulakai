@@ -2,7 +2,8 @@
  * The chat turn's system prompt: a snapshot of SP-5 prompt.py `rules_for()` with V3 and V31 on (the
  * v3.1 prompt that passed every bar, D-117), pinned by chatRules.test.ts against the spike's own
  * output. One C0 adaptation: YuE2 is the only engine (D-112 e), so the engine clause does not offer
- * ACE-Step. The op reference is the SCORE planner's, reused verbatim (plannerRules). C3 adds one rule,
+ * ACE-Step. LD (D-234): the lyrics clause becomes write / keep, a second call writes the lines (SP-5 rung 3).
+ * The op reference is the SCORE planner's, reused verbatim (plannerRules). C3 adds one rule,
  * only on a turn whose state has a reading (D-128), so every other turn keeps v3.1's measured text. Pure.
  */
 import { PLANNER_RULES } from '../score/plannerRules.js';
@@ -61,14 +62,23 @@ export const ENGINE_ADAPTATION = {
   c0: 'engine: "yue2";',
 };
 
+/** LD (D-234, SP-5 rung 3): the recipe carries no lines, a second call writes them; the planner says write or keep. */
+export const LYRICS_ADAPTATION = {
+  spike: 'lyrics: one entry per SUNG section, in song order, with its tag (Verse, Pre-Chorus, Chorus, Bridge or Outro; an Intro is '
+    + `instrumental and has no lyrics) and ${LINES.min} to ${LINES.max} lines. Write real singable lines in the LANGUAGE OF THE REQUEST (a `
+    + 'German request gets German lyrics, "a Spanish ballad" Spanish lyrics; when the person names a language for the words, that one), '
+    + 'matching title and style; no tags or brackets inside lines; every verse has its own new lines, no verse shares a line with a '
+    + 'chorus, and a chorus repeats its own idea (not a line more than twice). ',
+  ld: 'language is the LANGUAGE OF THE REQUEST (a German request gets German lyrics, "a Spanish ballad" Spanish lyrics; when the person '
+    + 'names a language for the words, that one). lyrics: "write" or "keep"; the lines are written in a second step, do not write them. '
+    + '"keep" only when the person asks for a change that is not about the words (faster, another key, another style) and the PENDING '
+    + 'PROPOSAL or SIDEBAR already has lyrics; "write" for a new song, a new topic, language or structure, or when new words are asked for. ',
+};
+
 const RECIPE_FIELDS = 'RECIPE FIELDS: title (short); style: comma-separated genre, instruments, mood and voice (no tempo or key: they '
   + `have their own fields); bpm ${BPM.min}-${BPM.max}; key from the list; time_signature; language: the language the lyrics are sung `
   + `in; ${ENGINE_ADAPTATION.c0} structure: the ordered section tags, only from ${SECTION_TAGS.join(', ')} (a typical song: Intro, `
-  + 'Verse, Chorus, Verse, Chorus, Bridge, Chorus, Outro); lyrics: one entry per SUNG section, in song order, with its tag (Verse, '
-  + `Pre-Chorus, Chorus, Bridge or Outro; an Intro is instrumental and has no lyrics) and ${LINES.min} to ${LINES.max} lines. Write `
-  + 'real singable lines in the LANGUAGE OF THE REQUEST (a German request gets German lyrics, "a Spanish ballad" Spanish lyrics; when '
-  + 'the person names a language for the words, that one), matching title and style; no tags or brackets inside lines; every verse '
-  + 'has its own new lines, no verse shares a line with a chorus, and a chorus repeats its own idea (not a line more than twice). '
+  + `Verse, Chorus, Verse, Chorus, Bridge, Chorus, Outro); ${LYRICS_ADAPTATION.ld}`
   + 'key: a minor key (a name ending in m) for a sad or dark song, a major key otherwise, and it must match what you say in assumptions.';
 
 /** C3 (D-128): cover vs borrow, said once, only when a REFERENCE block is in the state. */

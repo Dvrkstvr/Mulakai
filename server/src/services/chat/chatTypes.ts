@@ -66,6 +66,10 @@ export interface Recipe {
   reference_use?: ReferenceUse;
 }
 
+/** LD (D-234): the planner's recipe has no lines; it says whether the draft's lyrics are kept or written by the lyrics call. */
+export type LyricsMode = 'write' | 'keep';
+export type PlannedRecipe = Omit<Recipe, 'lyrics'> & { lyrics: LyricsMode };
+
 export type ScalpelKind = 'repaint' | 'add_layer' | 'split' | 'export';
 
 /** One checked turn reply: one action from the closed set (SP-5). */
