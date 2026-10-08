@@ -135,7 +135,7 @@ describe('WHAT IT SEES (D-177)', () => {
     const r = await post(`/threads/${thread.id}/mark/preview`, { mark: mark(ids[0]) });
     expect(r.status).toBe(200);
     expect(r.body.rows.slice(0, 4)).toEqual([
-      { name: 'VERSION', value: 'v1' }, { name: 'BARS', value: '47-58' }, { name: 'TIME', value: '2:06-2:39' },
+      { name: 'VERSION', value: 'v1' }, { name: 'BARS', value: '47-58' }, { name: 'TIME', value: '2:07-2:40' }, // rounded as the chip (C1 live B5)
       { name: 'SECTIONS', value: 'CHORUS 1 (bars 47-58)' },
     ]);
     expect(r.body.sent).toMatchObject({ version: 1, versionId: ids[0], bars: [47, 58], key: 'Dm', bpm: 87 });

@@ -122,7 +122,7 @@ describe('a marked chat turn (CL-5)', () => {
     const { thread, send, ids } = setup();
     await settled(send('give this bit jazz chords', { kind: 'range', versionId: ids[0], seconds: [126.5, 159.5] }).id);
     const first = chatCalls()[0].body as Call;
-    expect(first.messages[1].content).toContain('bars 47-58, 2:06-2:39.');
+    expect(first.messages[1].content).toContain('bars 47-58, 2:07-2:40.');
     const edit = (first.response_format.json_schema.schema.anyOf as Array<Record<string, any>>).find((p) => p.properties.action.const === 'edit')!;
     const rh = edit.properties.ops.items.anyOf.find((o: Record<string, any>) => o.properties.op.const === 'REHARMONIZE');
     expect(rh.properties.from_bar).toMatchObject({ minimum: 47, maximum: 58 });

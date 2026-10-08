@@ -30,7 +30,8 @@ export interface MarkBlock { lines: string[]; preview: MarkPreview; bars: [numbe
 
 const LYRICS_MAX = 12;
 const MEANS = '"this", "here" and "it" in the REQUEST mean it';
-const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+/** Rounded to the second, as the chip's clock (C1 live B5: WHAT IT SEES read 0:55 under a 0:56 chip). */
+const clock = (t: number) => { const s = Math.max(0, Math.round(t)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const time = ([a, b]: [number, number]) => `${clock(a)}-${clock(b)}`;
 const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
 
