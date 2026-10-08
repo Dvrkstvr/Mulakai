@@ -35,11 +35,10 @@ beforeAll(async () => {
     load: async (id) => (id === 'kept' ? { files: { a: 'b' }, chords: true } : null),
     retime: async (_b, mode) => {
       if (mode === 'bpm') throw new (await import('../services/score/yueRetime.js')).RetimeRefused('out_of_range', '300 BPM is outside 40-240');
-      return { abc: 'X:1 half', measures: 4, bpm: 60, readBpm: 120, vocalNotes: 1, insNotes: 0, notes: 8, droppedNotes: 2, leftOut: [], downbeats: [0, 4, 8, 12], warnings: [] };
+      return { abc: 'X:1 half', measures: 4, bpm: 60, readBpm: 120, vocalNotes: 1, insNotes: 0, notes: 8, droppedNotes: 2, leftOut: [], downbeats: [0, 4, 8, 12, 16], warnings: [] };
     },
     readScore: async () => ({ ok: true, error: null, messages: [], chordsPresent: true, tokens: 1, facts: facts(60, 4) }),
     measure: async () => null,
-    bars: async () => ({ ok: true, bars: { source: 'cached', offset: 0, starts: [0, 4, 8, 12], end: 16, agreement: 1 } }),
     readGrid: async () => ({ grid_v: 1, source: 'tracked', downbeats: starts(8, 2), chords: [], duration: 16 }),
     now: () => new Date('2026-10-08T02:00:00.000Z'),
     start: (id) => start(id),

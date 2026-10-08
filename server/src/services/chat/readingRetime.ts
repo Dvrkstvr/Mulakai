@@ -1,16 +1,15 @@
 /**
  * RE-TIME a chat reading (RT-5, F-092, D-231): the playable version's transcribed score is rebuilt from its kept
  * notation bundle at half time, double time or a named BPM (yue-server, CPU, no queue slot), read and measured like
- * the SCORE step reads one, and its bars are timed by `/v1/scores/bars` on the version's cached grid with the
- * downbeats swapped for the re-timed beat list's (the tracker's chord rows and duration stay: the audio did not
- * change, only how its beat is counted). The re-timed reading replaces the stored one with a new `readAt`, so a
+ * the SCORE step reads one, and its bar i starts at the re-timed beat list's downbeat i: SheetSage2 builds the score
+ * from that very list, so there is nothing to fit (a chord-agreement fit on half-time bars picked a +4 bar offset on
+ * a real song, 17 s late). Bars past the audio (the cached grid's duration) are not timed. The re-timed reading replaces the stored one with a new `readAt`, so a
  * mark made on the old bars no longer fits (`resolveRange`); UNDO restores the reading as read, `readAt` included.
  * Every refusal changes nothing. Over injected clients; the route writes the result.
  */
 import type { ScoreSize } from '../engineTranscribeClient.js';
 import type { NotationBundle, RetimeMode, RetimeResult } from '../score/yueRetime.js';
 import { RetimeRefused } from '../score/yueRetime.js';
-import type { BarsResult } from '../score/yueScoreBars.js';
 import type { ScoreRead } from '../score/yueScoreRead.js';
 import { isFailed, type BarTimes, type StoredAnalysis, type VersionAnalysis } from './analysisTypes.js';
 import type { Grid } from './gridCache.js';
@@ -22,7 +21,6 @@ export interface ReadingRetimeDeps {
   retime: (bundle: NotationBundle, mode: RetimeMode, bpm: number | null) => Promise<RetimeResult>;
   readScore: (abc: string) => Promise<ScoreRead>;
   measure: (abc: string) => Promise<ScoreSize | null>;
-  bars: (abc: string, grid: unknown, source: BarTimes['source']) => Promise<BarsResult>;
   readGrid: (versionId: string) => Promise<Grid | null>;
   now: () => Date;
 }
@@ -42,15 +40,15 @@ function retimable(a: StoredAnalysis | null): { a: VersionAnalysis; score: Score
   return { a, score: a.score };
 }
 
-/** The rebuilt score's bar times on the re-timed grid (the cached grid's chord rows and duration). */
-async function timeBars(abc: string, versionId: string, downbeats: number[], deps: ReadingRetimeDeps): Promise<BarTimes | string> {
+/** Score bar i on downbeat i, for the bars the audio holds; the last timed bar ends at the next downbeat or the audio's
+ * end. The audio's length is the cached grid's (the tracker read it), else the reading's own last bar end. */
+async function timeBars(versionId: string, downbeats: number[], bars: number, before: BarTimes, deps: ReadingRetimeDeps): Promise<BarTimes | string> {
   const grid = await deps.readGrid(versionId);
-  if (!grid) return 'the beat grid of this version is gone: read it again to re-time it';
-  const duration = typeof grid.duration === 'number' ? grid.duration : Infinity;
-  const kept = downbeats.filter((t) => t <= duration);
-  if (kept.length < 2) return 'the re-timed beat list has fewer than 2 bars inside the audio';
-  const out = await deps.bars(abc, { ...grid, downbeats: kept }, 'cached');
-  return out.ok ? out.bars : `the re-timed bars could not be timed: ${out.reason}`;
+  const duration = typeof grid?.duration === 'number' ? grid.duration : before.end;
+  const starts = downbeats.filter((t, i) => t < duration && (i === 0 || t > downbeats[i - 1])).slice(0, bars);
+  if (!starts.length) return 'none of the re-timed bars falls inside the audio';
+  const next = downbeats[downbeats.indexOf(starts[starts.length - 1]) + 1];
+  return { source: 'cached', offset: 0, starts, end: next !== undefined && next <= duration ? next : duration, agreement: null };
 }
 
 export async function retimeReading(stored: StoredAnalysis | null, choice: RetimeChoice, deps: ReadingRetimeDeps): Promise<RetimeOutcome> {
@@ -67,7 +65,7 @@ export async function retimeReading(stored: StoredAnalysis | null, choice: Retim
   }
   const read = await deps.readScore(out.abc).catch((err: unknown) => ({ ok: false, error: why(err) }) as ScoreRead);
   if (!read.ok || !read.facts) return refuse(422, 'retime_refused', `the re-timed score does not read: ${read.error ?? 'no facts'}`);
-  const bars = await timeBars(out.abc, a.versionId, out.downbeats, deps).catch((err: unknown) => why(err));
+  const bars = await timeBars(a.versionId, out.downbeats, read.facts.header.bars, a.bars as BarTimes, deps).catch((err: unknown) => why(err));
   if (typeof bars === 'string') return refuse(422, 'bars', bars);
   const measure = await deps.measure(out.abc).catch(() => null);
   const asRead = a.retime?.previous ?? { readAt: a.readAt, score, bars: a.bars };

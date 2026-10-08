@@ -16,7 +16,6 @@ import { QueueFullError } from '../services/genQueue.js';
 import type { Job } from '../services/jobRegistry.js';
 import { loadNotation } from '../services/notationStore.js';
 import { retimeScore, type RetimeMode } from '../services/score/yueRetime.js';
-import { scoreBars } from '../services/score/yueScoreBars.js';
 import { readScore } from '../services/score/yueScoreRead.js';
 import { analysisPending, startAnalysis } from '../services/chat/analysisJob.js';
 import { playableVersion, readVersionAnalysis, writeAnalysis } from '../services/chat/analysisStore.js';
@@ -32,7 +31,6 @@ const defaults = (): ChatRetimeDeps => ({
   retime: (bundle, mode, bpm) => retimeScore(bundle, mode, bpm),
   readScore: (abc) => readScore(abc, null, yue2Engine),
   measure: (abc) => measureScore(yue2Engine, abc),
-  bars: (abc, grid, source) => scoreBars(yue2Engine, abc, grid, source),
   readGrid,
   now: () => new Date(),
   start: (songId) => startAnalysis(songId),

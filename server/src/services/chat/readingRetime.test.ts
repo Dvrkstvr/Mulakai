@@ -31,10 +31,6 @@ function deps(over: Partial<ReadingRetimeDeps> = {}): ReadingRetimeDeps & { call
     retime: async (...a) => { calls.push(['retime', ...a]); return RESULT; },
     readScore: async () => ({ ok: true, error: null, messages: ['m'], chordsPresent: true, tokens: 1, facts: facts(70, 4) }) as ScoreRead,
     measure: async () => null,
-    bars: async (abc, grid) => {
-      calls.push(['bars', abc, grid]);
-      return { ok: true, bars: { source: 'cached', offset: 0, starts: starts(4, 3.4), end: 13.6, agreement: 0.9 } };
-    },
     readGrid: async () => ({ grid_v: 1, source: 'tracked', downbeats: starts(8, 1.7), chords: [[0, 13.6, 'A:min']], duration: 14 }),
     now: () => new Date('2026-10-08T02:00:00.000Z'),
     ...over,
@@ -42,15 +38,14 @@ function deps(over: Partial<ReadingRetimeDeps> = {}): ReadingRetimeDeps & { call
 }
 
 describe('retimeReading', () => {
-  it('HALF: half the bars at the same seconds, timed on the re-timed downbeats, kept with the reading as read', async () => {
+  it('HALF: half the bars at the same seconds, bar i on re-timed downbeat i, kept with the reading as read', async () => {
     const d = deps();
     const out = await retimeReading(READ, { mode: 'half', bpm: null }, d);
     if (!out.ok) throw new Error(out.reason);
     const a = out.analysis;
     expect(d.calls[0]).toEqual(['retime', { files: { a: 'b' }, chords: true }, 'half', null]);
-    // The cached grid's chord rows and duration stay; its downbeats become the re-timed ones inside the audio.
-    expect(d.calls[1]).toEqual(['bars', 'X:1 half', { grid_v: 1, source: 'tracked', downbeats: [0, 3.4, 6.8, 10.2, 13.6], chords: [[0, 13.6, 'A:min']], duration: 14 }]);
-    expect(a.bars).toMatchObject({ starts: [0, 3.4, 6.8, 10.2], end: 13.6 });
+    // SheetSage2 built the score from this beat list: no fit, so no offset (a fit put a real song's bar 1 17 s late).
+    expect(a.bars).toEqual({ source: 'cached', offset: 0, starts: [0, 3.4, 6.8, 10.2], end: 13.6, agreement: null });
     expect(a.score).toMatchObject({ abc: 'X:1 half', source: 'transcribed', notationId: 'n1', warnings: ['w', 'm'] });
     expect(a.readAt).toBe('2026-10-08T02:00:00.000Z'); // a new reading: a mark on the old bars no longer fits
     expect(a.retime).toMatchObject({ mode: 'half', bpm: 70, fromBpm: 140, fromBars: 8, toBars: 4, droppedNotes: 6, notes: 40 });
@@ -89,15 +84,21 @@ describe('retimeReading', () => {
     expect(out).toMatchObject({ ok: false, status, code });
   });
 
-  it("passes yue-server's refusal, a down engine, a lost grid and a failed bar fit through", async () => {
+  it("times only the bars the audio holds: the grid's duration, else the reading's own end", async () => {
+    const long = deps({ readScore: async () => ({ ok: true, error: null, messages: [], chordsPresent: true, tokens: 1, facts: facts(70, 6) }) as ScoreRead });
+    const out = await retimeReading(READ, { mode: 'half', bpm: null }, long);
+    expect(out.ok && out.analysis.bars).toMatchObject({ starts: [0, 3.4, 6.8, 10.2, 13.6], end: 14 }); // bar 6 (at 99 s) is past the audio
+    const lost = await retimeReading(READ, { mode: 'half', bpm: null }, deps({ readGrid: async () => null }));
+    expect(lost.ok && lost.analysis.bars).toMatchObject({ starts: [0, 3.4, 6.8, 10.2], end: 13.6 });
+  });
+
+  it("passes yue-server's refusal, a down engine and an empty beat list through", async () => {
     const refused = deps({ retime: async () => { throw new RetimeRefused('out_of_range', '300 BPM is outside 40-240'); } });
     expect(await retimeReading(READ, { mode: 'bpm', bpm: 300 }, refused)).toMatchObject({ status: 422, code: 'out_of_range' });
     const down = deps({ retime: async () => { throw new Error('fetch failed'); } });
     expect(await retimeReading(READ, { mode: 'half', bpm: null }, down)).toMatchObject({ status: 502 });
-    expect(await retimeReading(READ, { mode: 'half', bpm: null }, deps({ readGrid: async () => null })))
-      .toMatchObject({ status: 422, code: 'bars', reason: expect.stringMatching(/grid .* is gone/) });
-    const unfit = deps({ bars: async () => ({ ok: false, reason: 'none of the bars falls inside the audio' }) });
-    expect(await retimeReading(READ, { mode: 'half', bpm: null }, unfit)).toMatchObject({ status: 422, code: 'bars' });
+    const none = deps({ retime: async () => ({ ...RESULT, downbeats: [] }) });
+    expect(await retimeReading(READ, { mode: 'half', bpm: null }, none)).toMatchObject({ status: 422, code: 'bars' });
   });
 });
 
