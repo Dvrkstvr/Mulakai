@@ -27,6 +27,8 @@ export interface GenerationJob {
   progress?: number;
   progressStage?: string;
   progressText?: string;
+  /** `chat`: a take the chat started; the chat plays it, the Library's player does not (useAppSync). */
+  origin?: 'chat';
 }
 
 /** The server's running job when it isn't a song generation (repaint, regenerate, retake, add

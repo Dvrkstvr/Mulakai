@@ -87,6 +87,9 @@ test('recipe → CREATE SONG: the take renders the draft as edited and lands as 
 
   await expect(thread(page).getByText('Saved as v1 in your Library.')).toBeVisible({ timeout: 30_000 });
   await expect(thread(page)).toContainText('DONE · v1 SAVED');
+  // The take plays in the chat's own player; the Library's footer player stays empty (owner, 2026-10-08).
+  await expect(page.locator('.chat-player').getByRole('button', { name: 'Pause' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('footer')).toHaveCount(0);
   const take = (await yueJobs(request)).at(-1)!.body;
   expect(take).toMatchObject({ style: recordedSong().style, lyrics: recordedSong().lyrics });
   expect((await draftThread(request)).songId).toBeNull(); // the thread went to the song; a fresh draft took its place
@@ -180,6 +183,9 @@ test('an edit turn plans on v1, APPLY re-renders the whole song and v2 lands in 
   const version = page.locator('.chat-version-card').last();
   await expect(version).toContainText('v2', { timeout: 30_000 });
   await expect(version).toContainText('ACTIVE NOW');
+  // v2 plays at once in the chat's player (paused before APPLY: the thread was just opened); not in the Library's.
+  await expect(page.locator('.chat-player').getByRole('button', { name: 'Pause' })).toBeVisible({ timeout: 15_000 });
+  await expect(page.locator('footer')).toHaveCount(0);
   const base = (await songByTitle(request, TITLE)).layers[0];
   expect(base.versions).toHaveLength(2);
   expect(activeVersion(base).label).toContain('SET TEMPO 88');

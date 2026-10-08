@@ -18,10 +18,18 @@ export function adoptLock(active: ActiveGeneration): GenerationJob {
   return {
     key: newGenKey(),
     jobId: active.jobId, title: active.title ?? 'Untitled', caption: active.caption ?? '',
-    stage: active.status, error: active.error, startedAt: active.startedAt,
+    stage: active.status, error: active.error, startedAt: active.startedAt, ...(active.origin ? { origin: active.origin } : {}),
     draft: {
       genType: taskToGenType(active.task), prompt: active.caption,
       ...(active.engine ? { [active.task === 'cover' ? 'coverEngine' : 'engine']: active.engine as EngineId } : {}),
     },
   };
+}
+
+/** The songs whose take landed since `seen` (the Library refreshes for them) and the one its footer player loads: the
+ * newest Create take. A chat take never loads there: the chat's own player plays it (owner, 2026-10-08). */
+export function landedTakes(jobs: GenerationJob[], seen: ReadonlySet<string>): { fresh: string[]; play: string | null } {
+  const done = jobs.filter((j) => j.stage === 'done' && j.songId && !seen.has(j.songId));
+  const library = done.filter((j) => j.origin !== 'chat');
+  return { fresh: done.map((j) => j.songId as string), play: library.at(-1)?.songId ?? null };
 }

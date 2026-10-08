@@ -172,6 +172,24 @@ describe('startEngineGeneration lock and polling', () => {
     await settle(second.id, 'done');
   });
 
+  it('a chat take says so on its slot (origin chat), so the Library does not play it; a Create take has no origin', async () => {
+    let release!: () => void;
+    client.status.mockImplementationOnce(() => new Promise((r) => { release = () => r(DONE); }));
+    const job = startEngineGeneration(engine, fields, 'Chat Song', null, undefined, undefined, 'chat');
+    await vi.waitFor(() => expect(client.status).toHaveBeenCalled());
+    expect(getRunning()).toMatchObject({ kind: 'generate', jobId: job.id, origin: 'chat' });
+    release();
+    await settle(job.id, 'done');
+    let again!: () => void;
+    client.status.mockImplementationOnce(() => new Promise((r) => { again = () => r(DONE); }));
+    const plain = startEngineGeneration(engine, fields, 'Create Song');
+    await vi.waitFor(() => expect(again).toBeTypeOf('function'));
+    expect(getRunning()).toMatchObject({ jobId: plain.id });
+    expect(getRunning()?.origin).toBeUndefined();
+    again();
+    await settle(plain.id, 'done');
+  });
+
   it('copies progress and stage while the wrapper is running', async () => {
     let finish = false;
     client.status.mockImplementation(async () => (finish ? DONE : { ...RUNNING, progress: 0.25, stage: 'semantic' }));

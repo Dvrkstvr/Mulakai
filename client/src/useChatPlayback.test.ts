@@ -1,6 +1,6 @@
 /** The A/B side the player and the song panel share (F-062): one switch, reset when the player goes. */
 import { afterEach, describe, expect, it } from 'vitest';
-import { useChatAb } from './useChatPlayback';
+import { arrivalPlay, useChatAb } from './useChatPlayback';
 
 afterEach(() => useChatAb.getState().reset());
 
@@ -39,5 +39,29 @@ describe('useChatAb', () => {
     useChatAb.getState().toggle();
     useChatAb.getState().reset();
     expect(useChatAb.getState().side).toBe('song');
+  });
+  it('a take landing in the chat (v1 or an APPLY) asks the chat player to play it; reset drops the ask', () => {
+    useChatAb.getState().toggle('previous');
+    useChatAb.getState().arrive();
+    const first = useChatAb.getState().arrived;
+    expect(first).not.toBeNull();
+    expect(useChatAb.getState().side).toBe('song');
+    useChatAb.getState().arrive();
+    expect(useChatAb.getState().arrived).not.toBe(first);
+    useChatAb.getState().reset();
+    expect(useChatAb.getState().arrived).toBeNull();
+  });
+});
+
+describe('arrivalPlay: when the chat player starts a take that just landed', () => {
+  it('v1: the player mounts on the new take (no old file to wait out) and plays once it knows its length', () => {
+    expect(arrivalPlay(null, '/audio/v1.mp3', 0, false)).toBe('wait');
+    expect(arrivalPlay(null, '/audio/v1.mp3', 92, false)).toBe('play');
+  });
+  it('an APPLY: waits while the old version is still loaded, then plays the new one (via the swap when it carries)', () => {
+    expect(arrivalPlay('/audio/v1.mp3', '/audio/v1.mp3', 92, false)).toBe('wait');
+    expect(arrivalPlay('/audio/v1.mp3', '/audio/v2.mp3', 92, true)).toBe('carry');
+    expect(arrivalPlay('/audio/v1.mp3', '/audio/v2.mp3', 0, false)).toBe('wait');
+    expect(arrivalPlay('/audio/v1.mp3', '/audio/v2.mp3', 95, false)).toBe('play');
   });
 });

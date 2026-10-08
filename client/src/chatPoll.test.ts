@@ -47,6 +47,37 @@ describe('chatPoll.follow', () => {
     expect(commit).toEqual({ proposalId: 'e1', jobId: 'r9', apply: true, phase: { kind: 'running', progressText: 'splicing', stage: null, progress: null } });
   });
 
+  it('a take this tab followed lands (CREATE SONG v1 or an APPLY): after the refetch the chat is told, so it plays there', async () => {
+    const { chatPoll } = await import('./chatPoll');
+    const { chatCommit } = await import('./chatTurn');
+    const order: string[] = [];
+    let commit: import('./chatTurn').CommitState | null = { proposalId: 'p1', jobId: 'take1', phase: { kind: 'queued', ahead: 0 } };
+    const p = chatPoll({
+      turnState: () => ({ phase: { kind: 'composing' } }) as never, commitState: () => commit, readingState: () => ({ cards: {} }) as never,
+      turn: () => undefined, commit: (e) => { commit = chatCommit(commit, e); }, reading: () => undefined,
+      refetch: async () => { order.push('refetch'); }, landed: () => { order.push('landed'); },
+    });
+    jobStatus.mockResolvedValueOnce({ status: 'done' });
+    void p.followCommit('take1');
+    await tick(2);
+    expect(order).toEqual(['refetch', 'landed']);
+  });
+
+  it('a failed take is not a landing: nothing plays', async () => {
+    const { chatPoll } = await import('./chatPoll');
+    const { chatCommit } = await import('./chatTurn');
+    const landed = vi.fn();
+    let commit: import('./chatTurn').CommitState | null = { proposalId: 'p1', jobId: 'take2', phase: { kind: 'queued', ahead: 0 } };
+    const p = chatPoll({
+      turnState: () => ({ phase: { kind: 'composing' } }) as never, commitState: () => commit, readingState: () => ({ cards: {} }) as never,
+      turn: () => undefined, commit: (e) => { commit = chatCommit(commit, e); }, reading: () => undefined, refetch: async () => undefined, landed,
+    });
+    jobStatus.mockResolvedValueOnce({ status: 'failed', error: 'oom' } as never);
+    void p.followCommit('take2');
+    await tick(2);
+    expect(landed).not.toHaveBeenCalled();
+  });
+
   it('a newer follow of the same job takes over; the old loop stops polling for itself', async () => {
     const first = vi.fn(async () => false);
     const second = vi.fn(async () => false);

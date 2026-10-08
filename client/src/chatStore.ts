@@ -12,6 +12,7 @@ import { assistantOffCause } from './chatEntry';
 import { markHoldsSend, useChatMarkStore } from './chatMarkStore';
 import { useChatDraftStore } from './chatDraftStore';
 import { chatPoll } from './chatPoll';
+import { useChatAb } from './useChatPlayback';
 import { INITIAL_READING, chatReading, replyAfter, type ReadingEvent, type ReadingState } from './chatReading';
 import { chatEditActions } from './chatEditActions';
 import { chatReferenceActions } from './chatReferenceActions';
@@ -85,6 +86,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
 
   const { followTurn, followCommit, followCards, rehydrate } = chatPoll({
     turnState: () => get().turn, commitState: () => get().commit, readingState: () => get().reading, turn, commit, reading, refetch,
+    landed: () => useChatAb.getState().arrive(),
   });
   const edits = chatEditActions({ thread: () => get().thread, commitState: () => get().commit, commit, refetch: () => refetch(), followCommit });
   const refs = chatReferenceActions({
@@ -95,6 +97,7 @@ export const useChatStore = create<ChatStore>((set, get) => {
   async function open(load: () => Promise<ChatThreadView>): Promise<void> {
     await useChatDraftStore.getState().flush();
     set({ turn: INITIAL_TURN, commit: null, reading: INITIAL_READING, lastAttach: null, lastMark: null });
+    useChatAb.setState({ arrived: null }); // a take that landed on the thread left behind does not play on this one
     try {
       const thread = await load();
       show(thread);

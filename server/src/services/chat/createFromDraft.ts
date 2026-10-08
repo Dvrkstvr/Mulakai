@@ -96,7 +96,7 @@ export async function createFromDraft(threadId: string, proposalId: string, deps
   let job: Job;
   try {
     job = deps.start(deps.engine, withLanguage(fields, thread.draft.fields.language), title, undefined, cover,
-      (songId) => landed(threadId, songId, jobId));
+      (songId) => landed(threadId, songId, jobId), 'chat');
   } catch (err) {
     if (err instanceof QueueFullError) return { reason: err.message };
     throw err;
