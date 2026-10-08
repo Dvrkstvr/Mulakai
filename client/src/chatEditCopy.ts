@@ -27,7 +27,7 @@ const barsOf = (a: number, b: number) => (a === b ? `bar ${a}` : `bars ${a}-${b}
 const span = (s: { from_bar: number; to_bar: number }) => barsOf(s.from_bar, s.to_bar);
 
 export function editHeader(kind: string): string {
-  const state = { committing: 'APPLYING', superseded: 'SUPERSEDED', expired: 'EXPIRED', interrupted: 'INTERRUPTED', stale: 'STALE' }[kind];
+  const state = { committing: 'APPLYING', superseded: 'SUPERSEDED', scrapped: 'SCRAPPED', expired: 'EXPIRED', interrupted: 'INTERRUPTED', stale: 'STALE' }[kind];
   return state ? `${EDIT_HEADER} · ${state}` : EDIT_HEADER;
 }
 export function editHint(kind: string, base: number, next: number): string {

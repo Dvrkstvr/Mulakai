@@ -13,6 +13,8 @@ export type CardView =
   /** An edit card whose APPLY was refused because the song changed since the plan (ASK AGAIN). */
   | { kind: 'stale'; reason: string }
   | { kind: 'superseded' } | { kind: 'expired' } | { kind: 'done' }
+  /** D-258: an edit card a start over scrapped (nothing planned after it); no APPLY. */
+  | { kind: 'scrapped' }
   /** An edit card whose APPLY a server restart cut (F-049 #3): nothing saved, ASK AGAIN. */
   | { kind: 'interrupted' };
 
@@ -28,6 +30,7 @@ export function cardView(m: ChatMessageView, commit: CommitState | null): CardVi
   switch (m.state) {
     case 'superseded': return { kind: 'superseded' };
     case 'expired': return { kind: 'expired' };
+    case 'scrapped': return { kind: 'scrapped' };
     case 'interrupted': return { kind: 'interrupted' };
     case 'done': return { kind: 'done' };
     case 'stale': return { kind: 'stale', reason: (m.body as { stale?: string } | null)?.stale ?? '' };

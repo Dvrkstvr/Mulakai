@@ -2,7 +2,7 @@
  * SCORE change list (`ScorePlanList`), the sky bar strip (option B: the span, or the full hatch for a whole song), the
  * consequence line left of APPLY (the card's one acid; its label never turns into progress). While APPLY runs: the
  * RENDERING › SPLICING › SAVING steps and one plain line with CANCEL until SAVING. Every ending without a version is
- * one rust line; stale, superseded, expired and interrupted (a restart cut APPLY) drop APPLY; done folds to one header line.
+ * one rust line; stale, superseded, scrapped (D-258), expired and interrupted (a restart cut APPLY) drop APPLY; done folds to one header line.
  * C1 (F-055): a plan bounded to a mark names it and the server's notes on it (clamped, whole-song op). C2 (F-058, F-060;
  * chat-converge.html 3a-3e, 4a-4d, D-229): the plan title heads the card (PLAN 2 · REVISED FROM PLAN 1 · …) over the
  * change list's NEW / CHANGED / SAME and REMOVED (n); the card it revised stays dimmed in full, REVISED BELOW, no APPLY (Q-140 A); APPLY is off while a
@@ -12,7 +12,7 @@ import { useState } from 'react';
 import type { ChatMessageView } from './api/chat';
 import type { ChatEditBody, ChatSplice } from './api/chatEdit';
 import { ChatBarMap } from './ChatEditMap';
-import { supersededBody, UNDO_OFF } from './chatConvergeCopy';
+import { SCRAPPED_BODY, supersededBody, UNDO_OFF } from './chatConvergeCopy';
 import { cardTitle, mapCaption, SUPERSEDED_HINT } from './chatReviseCopy';
 import type { ScorePlan } from './api/score';
 import {
@@ -95,7 +95,7 @@ export function ChatEditCard({ message, view, base, next, ahead, canAsk, onApply
   const applyOff = view.kind === 'committing' || turnOpen;
   const askAgain = <button type="button" className="chat-q" disabled={!canAsk} onClick={onAskAgain}><span>{ASK_AGAIN}</span></button>;
   return (
-    <div className={`chat-card chat-edit${sup ? ' sup' : ''}`} aria-label="Edit proposal">
+    <div className={`chat-card chat-edit${sup || view.kind === 'scrapped' ? ' sup' : ''}`} aria-label="Edit proposal">
       <div className="chat-card-hd">
         <span className="chat-lb">{titled ? cardTitle(body.revision, body.ops.length, base, sup) : editHeader(view.kind)}</span>
         <span className="chat-hn">{titled ? `${EDIT_HEADER} · ${sup ? SUPERSEDED_HINT : editHint(view.kind, base, next)}` : editHint(view.kind, base, next)}</span>
@@ -127,6 +127,7 @@ export function ChatEditCard({ message, view, base, next, ahead, canAsk, onApply
       {view.kind === 'interrupted' && <ChatErrorLine title="INTERRUPTED" body={editInterruptedBody(base)}>{askAgain}</ChatErrorLine>}
       {view.kind === 'expired' && <ChatErrorLine title={EDIT_EXPIRED_TITLE} body={EDIT_EXPIRED_BODY}>{askAgain}</ChatErrorLine>}
       {sup && <div className="chat-card-cm"><span className="chat-cs">{supersededBody(revisedBelow)}</span></div>}
+      {view.kind === 'scrapped' && <div className="chat-card-cm"><span className="chat-cs">{SCRAPPED_BODY}</span></div>}
       {view.kind === 'pending' && view.cancelled !== undefined && <ChatErrorLine title={cancelledLine(view.cancelled, next)} body="" />}
       {view.kind === 'pending' && view.error && (
         <ChatErrorLine title={APPLY_FAILED} body={applyFailedBody(view.error, base)}><RetryButton onClick={apply} /></ChatErrorLine>

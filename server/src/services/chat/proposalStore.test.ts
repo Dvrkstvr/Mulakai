@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { RECIPE } from '../../../test-fakes/chatScripts.js';
-import { analyzeById, dropProposals, editById, liveAnalyze, liveEdit, liveProposal, proposalById, proposalLife, propose, resetProposals } from './proposalStore.js';
+import { analyzeById, dropProposals, editById, liveAnalyze, liveEdit, liveProposal, proposalById, proposalLife, propose, resetProposals, retireEdit } from './proposalStore.js';
 import { dropPlan, setPlan } from '../score/planStore.js';
 import type { Plan } from '../score/planTypes.js';
 
@@ -77,5 +77,19 @@ describe('proposal store', () => {
     dropPlan('s1');
     expect(proposalLife('edit1')).toBeNull();
     expect(liveEdit('t1')).toBeUndefined();
+  });
+
+  it('D-258: a start over that planned nothing retires the edit card as scrapped, not superseded, and a later card leaves it so', () => {
+    setPlan({ id: 'plan1', songId: 's1' } as Plan);
+    propose(e('edit1', 'plan1'));
+    retireEdit('t1');
+    expect(proposalLife('edit1')).toBe('scrapped');
+    expect(liveEdit('t1')).toBeUndefined();
+    setPlan({ id: 'plan2', songId: 's1' } as Plan);
+    propose(e('edit2', 'plan2'));
+    expect(proposalLife('edit1')).toBe('scrapped');
+    expect(proposalLife('edit2')).toBe('live');
+    dropProposals('t1');
+    expect(proposalLife('edit1')).toBeNull();
   });
 });

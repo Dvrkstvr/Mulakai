@@ -13,11 +13,12 @@
 import { recipeFields } from './draftModel.js';
 import type { ChatMessage, Draft, DraftFields, EditBody, FailedBody, MessageState, ReadingBody, RecipeBody } from './chatTypes.js';
 import { withPrevious, type VersionCardBody } from './versionCard.js';
+import type { ProposalLife } from './proposalStore.js';
 
 export interface JobView { status: 'queued' | 'loading' | 'running' | 'done' | 'failed'; error?: string; progressText?: string; queuePosition?: number; cancelled?: boolean }
 export interface ViewContext {
   job: (jobId: string) => JobView | undefined;
-  proposal: (proposalId: string) => 'live' | 'superseded' | null;
+  proposal: (proposalId: string) => ProposalLife | null;
   /** C0b: whether a version still exists (a version card's A/B); absent = assume it does. */
   versionExists?: (versionId: string) => boolean;
   /** C2: the thread has a song (UNDO TURN is not offered); absent = no song. */
@@ -92,7 +93,7 @@ function cardState(messages: ChatMessage[], m: ChatMessage, ctx: ViewContext, ma
   // An edit card keeps its job id only while its APPLY runs or after it saved (editCommit clears it when the APPLY
   // ends with nothing saved); a job id the server no longer knows means a restart cut the APPLY (F-049 #3).
   if (!life) return m.kind === 'edit' && m.jobId && !ctx.job(m.jobId) ? 'interrupted' : 'expired';
-  if (life === 'superseded') return 'superseded';
+  if (life === 'superseded' || life === 'scrapped') return life; // D-258: scrapped = a start over retired an edit card
   if (m.jobId && live(ctx.job(m.jobId))) return 'committing';
   return m.kind === 'edit' && (m.body as EditBody | null)?.stale ? 'stale' : 'pending';
 }

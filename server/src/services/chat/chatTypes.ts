@@ -165,7 +165,9 @@ export type MessageState =
   /** C3: a reading card while its reading job runs (before the follow-up turn). */
   | 'reading'
   /** C0b: an edit card whose APPLY was refused because the song changed since the plan (ASK AGAIN). */
-  | 'stale';
+  | 'stale'
+  /** D-258: an edit card a start over scrapped with nothing planned after it. */
+  | 'scrapped';
 export interface MessageView extends ChatMessage { state: MessageState | null }
 
 export interface ThreadView {

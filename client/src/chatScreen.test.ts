@@ -17,6 +17,7 @@ describe('cardView', () => {
     expect(cardView(msg({ state: 'pending' }), null)).toEqual({ kind: 'pending', error: null });
     expect(cardView(msg({ state: 'superseded' }), null).kind).toBe('superseded');
     expect(cardView(msg({ state: 'expired' }), null).kind).toBe('expired');
+    expect(cardView(msg({ state: 'scrapped' }), null).kind).toBe('scrapped'); // D-258: a start over scrapped an edit card
     expect(cardView(msg({ state: 'interrupted' }), null).kind).toBe('interrupted'); // an edit card's APPLY a restart cut (F-049 #3)
     expect(cardView(msg({ state: 'done' }), null).kind).toBe('done');
     expect(cardView(msg({ state: 'committing' }), null)).toEqual({ kind: 'committing', phase: null });

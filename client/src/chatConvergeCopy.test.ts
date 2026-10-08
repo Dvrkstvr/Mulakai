@@ -2,7 +2,7 @@
  * revised card's header, the bar map's words and UNDO TURN's after-line. */
 import { describe, it, expect } from 'vitest';
 import {
-  failedLine, linesText, moreLine, panelAside, panelName, panelTitle, partHeader, revisedHeader, supersededBody, undoneLine,
+  failedLine, linesText, moreLine, panelAside, panelName, panelTitle, partHeader, revisedHeader, supersededBody, undoneLine, SCRAPPED_BODY,
   undoRefusedLine, NO_LYRICS, PROPOSED, UNDO_TURN, UNTIMED_LINE,
 } from './chatConvergeCopy';
 import type { PanelSection } from './api/chatConverge';
@@ -73,6 +73,10 @@ describe('the revised card', () => {
   it('a card revised below says so; one replaced by a fresh plan keeps C0b’s line', () => {
     expect(supersededBody(true)).toMatch(/^Revised below/);
     expect(supersededBody(false)).toBe('A newer edit card is below. This one cannot be applied.');
+  });
+
+  it('D-258: a card a start over scrapped names that, not a newer card', () => {
+    expect(SCRAPPED_BODY).toBe('You scrapped this plan. It cannot be applied.');
   });
 });
 
