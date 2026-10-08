@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
 import { NO_SONG_FACTS, turnSchema } from './actionSchema.js';
-import { KEYS, SUNG_TAGS } from './recipeRules.js';
+import { KEYS } from './recipeRules.js';
 import type { ScoreFacts } from '../score/planTypes.js';
 
 const facts = contract('read-ok').response.body.facts as ScoreFacts;
@@ -23,8 +23,7 @@ describe('turn reply schema (SP-5 turn_schema)', () => {
     const recipe = part(turnSchema({ facts: null, phraseBars: 4, allowed: ['recipe'] }), 'recipe').properties.recipe;
     expect(recipe.properties.key.enum).toEqual(KEYS);
     expect(recipe.properties.engine.enum).toEqual(['yue2']);
-    expect(recipe.properties.lyrics.items.properties.tag.enum).toEqual(SUNG_TAGS);
-    expect(recipe.properties.lyrics.items.properties.lines).toMatchObject({ minItems: 4, maxItems: 8 });
+    expect(recipe.properties.lyrics).toEqual({ enum: ['write', 'keep'] }); // LD (D-234): no lines in the recipe call
   });
 
   it('C3: reference_use (cover / borrow / none) is in the recipe only when the thread has a reading (D-128)', () => {

@@ -22,7 +22,7 @@ const reply = (page: Page) => page.locator('.chat-thread .chat-am .chat-changed'
 test('a recipe fills the draft; a hand edit reads YOURS; UNDO TURN keeps it and restores the rest, also after a reload', async ({ page, request }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
   expect((await request.post('/api/chat/draft/reset')).ok()).toBe(true);
-  await scriptChat(request, { down: false, hold: false, replies: RECIPE.replies });
+  await scriptChat(request, { down: false, hold: false, replies: RECIPE.replies, lyrics: RECIPE.lyrics });
   await openChat(page);
   await sendMessage(page, RECIPE.request);
   const card = page.getByLabel('Proposal');

@@ -1008,3 +1008,44 @@ reading) with the same consequence copy.
 - A mechanical ABC rewrite (scale durations, re-bar) as a fallback (D-207: TRANSCRIBE AGAIN instead).
 - Tempo maps or rubato (one tempo per re-time; the BPM grid anchors to detected downbeats).
 
+
+## LD — Lyrics as their own call; German lyrics on gemma4 (F-095, F-096; D-205, D-232, D-233 .. D-237)
+
+The lyrics step becomes SP-5's rung 3 for every language: the planner's recipe call no longer writes lyrics, a separate lyrics
+call does (SP-5 `ladder.py lyrics_call`: system rules per language, `{sections: [{lines}]}` with exactly one entry per sung section,
+≤ 3 attempts with the reasons fed back). English and Spanish use the planner's `qwen3:14b` (no reload); German uses
+`gemma4:26b-a4b-it-q4_K_M` (owner, D-237: one model, not D-232's two drafts). The extra model loads inside the turn's one `plan`
+slot and the turn unloads every model it touched, with `/api/ps` empty, before the slot is released (CLAUDE.md invariant;
+docs/decisions/0006 amended by D-233). The recipe card does not change shape.
+
+Feature track: **normal** (a turn protocol change). SP-7 measured the loads and calls; no new spike, no mockup (no new UI). Order:
+LD-1 (pure modules, new files) → LD-2 wiring (after C2's CV-1, #238, merges: it owns `turnCall`/`turnJob`/`actionSchema`/
+`turnDispatch`) → LD-3 live run.
+
+### F-095 · Lyrics as their own call, every language (LD-1 pure, LD-2 wiring)
+The recipe reply says `lyrics: "write" | "keep"` instead of carrying the lines (D-234); code forces `write` when the draft has no
+lyrics or its sung sections no longer follow the new structure. `write` runs the lyrics call after the recipe passes its checks, in
+the same slot; the card is written only when the lyrics pass too. The lyrics model per language comes from env `LYRICS_MODEL_<LANG>`,
+default `de = gemma4:26b-a4b-it-q4_K_M`, every other language = `LLM_MODEL` (D-235). The progress line names the step
+(`writing lyrics · gemma4`); the German turn-cost copy says ~35 s, not ~10 s.
+- Checks, each a reason fed back to the next attempt: the schema; no bracket tag in a line; language-ID of the whole text = the
+  recipe's language (`lyricLanguage`, ≥ 40 chars); no line with an embedded newline or under 6 characters (SP-7); **no prompt-only
+  word**: a word from the lyrics call's system prompt that is in neither the request, the title nor the style (stop-list `Mulakai`
+  always; SP-7: gemma4 RC09's outro) (D-236).
+- A lyrics model that is not pulled fails the turn with `run 'ollama pull <model>'` (nothing changes, F-049).
+- Acceptance (fakes): an English recipe makes 2 calls on one model and one release; a German recipe makes 2 calls on 2 models with
+  the planner unloaded and `/api/ps` empty before gemma4 loads, and every model unloaded, `/api/ps` empty, before the slot is released,
+  on success, a failed check, a cancel during each call, and an unload that times out (the turn fails `unload`); a "make it faster"
+  follow-up keeps the draft's lyrics and makes one call; a lyric containing "Mulakai" is refused and retried; CP-C1's prompt p95 stop
+  still holds.
+- Non-goals: a lyrics model per genre; two drafts (D-237); English quality changes (rung 3 is SP-5's own measured path, D-205).
+
+### F-096 · Live run on the real machine (LD-3, verifier)
+On the owner's GPU, with the stack: one German, one English and one Spanish chat song through recipe → CREATE SONG. Record per turn:
+calls, models, seconds per step, `/api/ps` after the slot, VRAM peak; and that a YuE2 take queued behind a German turn starts only
+after the slot is released. Bar: German turn ≤ 60 s on a warm disk cache; no model listed after any turn; the owner reads the German
+lyrics as usable.
+
+### Not doing (LD)
+- Two German drafts with a pick (D-232's plan, replaced by D-237); promising Deutschrap or Liedermacher lyrics in German (SP-7).
+- Shrinking gemma4's context for the lyrics call (SP-7: not tried; a later measure if F-096 is slow).

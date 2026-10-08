@@ -4,6 +4,8 @@
  * from server/), so the e2e answers a turn the way the real model did. An edit reply is SP-5's recorded edit
  * envelope carrying a contract fixture's ops instead of its own: yue-server recorded `/v1/scores/apply` only
  * for the contract song's ops (`apply-*.json`), and the fake yue-server answers nothing else.
+ * LD (rung 3, D-234): a recorded recipe carried its lines; now the recipe call says `lyrics: "write"` and a lyrics
+ * call writes them, so `sp5Turn` splits a recorded recipe into both (server: test-fakes/chatScripts.ts `rung3`).
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -21,11 +23,22 @@ function recordedTurn(id: string): Recorded {
   return turn;
 }
 
-/** A recorded turn: what the person asked and every attempt the model answered, verbatim. */
-export function sp5Turn(id: 'RC05.t1' | 'AK02.t1' | 'ED03.t1'): { request: string; replies: string[]; reply: Record<string, unknown> } {
+/** A recorded recipe reply split for rung 3: the recipe call's answer and the lyrics call's `{sections}`. */
+function rung3(content: string): { recipe: string; lyrics: string } | null {
+  const json = JSON.parse(content) as { action?: string; recipe?: { lyrics?: Array<{ lines: string[] }> } };
+  if (json.action !== 'recipe' || !Array.isArray(json.recipe?.lyrics)) return null;
+  const lyrics = JSON.stringify({ sections: json.recipe.lyrics.map((s) => ({ lines: s.lines })) });
+  return { recipe: JSON.stringify({ ...json, recipe: { ...json.recipe, lyrics: 'write' } }), lyrics };
+}
+
+/** A recorded turn: what the person asked and every attempt the model answered, verbatim (a recipe split for
+ * rung 3: `replies` for the recipe call, `lyrics` for the lyrics call); `reply` is the last one as recorded. */
+export function sp5Turn(id: 'RC05.t1' | 'AK02.t1' | 'ED03.t1'): { request: string; replies: string[]; lyrics: string[]; reply: Record<string, unknown> } {
   const t = recordedTurn(id);
-  const replies = t.attempts.map((a) => a.content);
-  return { request: t.request, replies, reply: JSON.parse(replies.at(-1)!) as Record<string, unknown> };
+  const split = t.attempts.map((a) => rung3(a.content));
+  const replies = t.attempts.map((a, i) => split[i]?.recipe ?? a.content);
+  const lyrics = split.flatMap((r) => (r ? [r.lyrics] : []));
+  return { request: t.request, replies, lyrics, reply: JSON.parse(t.attempts.at(-1)!.content) as Record<string, unknown> };
 }
 
 /** ED03's recorded edit envelope with the ops of `fixture`, and a message that says what those ops do. */

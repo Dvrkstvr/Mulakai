@@ -97,6 +97,7 @@ describe('screen copy', () => {
     expect(thinkingTail(2, 'bar 5 had 31/32 units')).toBe('· attempt 1 refused: bar 5 had 31/32 units');
     expect(thinkingTail(1, 'unloading')).toBe('· unloading');
     expect(thinkingTail(2, 'unloading the planner')).toBe('· unloading the planner'); // the server's progressText, not a refusal
+    expect(thinkingTail(2, 'writing lyrics · gemma4')).toBe('· writing lyrics · gemma4'); // LD: the lyrics call after a retried recipe
     expect(thinkingTail(1, null)).toBeNull();
   });
   it('a field touched since SEND is named (frame 6)', () => {

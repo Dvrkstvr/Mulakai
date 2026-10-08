@@ -54,7 +54,7 @@ test('ASSISTANT OFF: the composer is off and says why; RETRY brings it back and 
 });
 
 test('CANCEL while thinking unloads the planner, keeps nothing, and RETRY asks again', async ({ page, request }) => {
-  await scriptChat(request, { hold: true, replies: RECIPE.replies });
+  await scriptChat(request, { hold: true, replies: RECIPE.replies, lyrics: RECIPE.lyrics });
   await openChat(page);
   await sendMessage(page, RECIPE.request);
   await expect(jobLine(page)).toContainText('THINKING… attempt 1 of 3', { timeout: 30_000 });

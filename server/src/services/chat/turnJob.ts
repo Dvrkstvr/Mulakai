@@ -1,8 +1,10 @@
 /**
  * A chat turn (F-042, F-049; docs/decisions/0006): one `plan`-kind job, label `chat turn`. At its
  * turn: the song state (songStateSource) -> probe -> decideReply (each call context-checked before
- * and after, contextGuard) -> `finally` releasePlanner (keep_alive 0, then `/api/ps` empty, D-011):
- * the slot is released only when the body settles, whatever the action or the number of calls. Then
+ * and after against the asked model's context, contextGuard) -> `finally` every model the turn touched
+ * unloaded, then `/api/ps` empty (D-011, D-233): the slot is released only when the body settles, whatever
+ * the action or the number of calls. LD: a recipe's lyrics call may run on another model (gemma4 for
+ * German); turnModels unloads the planner and reads `/api/ps` empty before that model loads. Then
  * the reply, the draft merge and the proposal are written in one transaction. A failed or cancelled
  * turn writes one `failed` message ({reasons, cause}) and changes nothing else. C3: an `analyze` reply
  * is a READ card with its proposal; `followUp` (D-129) re-runs the origin's request after a reading,
@@ -22,7 +24,7 @@ import { contextPostflight, contextPreflight } from '../score/contextGuard.js';
 import { askPlanner } from '../score/plannerClient.js';
 import { promptChars } from '../score/plannerPrompt.js';
 import { MAX_ATTEMPTS } from '../score/planAttempts.js';
-import { loadedModels, probePlanner, releasePlanner, type LoadedModel, type PlannerTarget } from '../score/ollamaControl.js';
+import { loadedModels, probePlanner, releaseModels, type LoadedModel, type PlannerTarget } from '../score/ollamaControl.js';
 import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply } from '../score/planTypes.js';
 import { applyOps, type ApplyBase } from '../score/yueScoreApply.js';
 import { lastTurns } from './messageStore.js';
@@ -32,6 +34,8 @@ import { analyzeFor, gatherTurnState, sourceDeps, type SourceDeps } from './song
 import { threadById } from './threadStore.js';
 import { pendingFor } from './turnRevise.js';
 import { decideReply, ladderRung } from './turnCall.js';
+import { lyricsModelFor } from './lyricsModels.js';
+import { modelSession, shortModel } from './turnModels.js';
 import type { EditResolved } from './turnDispatch.js';
 import { causeOf, commitReply, TurnError, writeFailed } from './turnOutcome.js';
 import type { ReadingPlanSources } from './reading.js';
@@ -43,10 +47,14 @@ export { TurnError, type TurnCause } from './turnOutcome.js';
 export interface TurnDeps {
   planner: PlannerTarget;
   source: SourceDeps;
-  probe: () => Promise<string | null>;
-  ask: (messages: PromptMessage[], schema: Record<string, unknown>, signal?: AbortSignal, maxTokens?: number) => Promise<PlannerReply>;
+  /** `model` absent = the planner's. */
+  probe: (model?: string) => Promise<string | null>;
+  ask: (messages: PromptMessage[], schema: Record<string, unknown>, signal?: AbortSignal, maxTokens?: number, model?: string) => Promise<PlannerReply>;
   loaded: () => Promise<LoadedModel[]>;
-  release: () => Promise<unknown>;
+  /** Unload `models` (absent = the planner), then wait for `/api/ps` empty. */
+  release: (models?: string[]) => Promise<unknown>;
+  /** LD (D-235): the lyrics model for a recipe's language. */
+  lyricsModel: (language: string) => string;
   rung: number;
   /** C3: where each reading step would run, for the READ card's estimate (readTarget.planFor over CR-2's readingPlan). */
   plan: (target: AnalyzeTarget) => ReadingPlanSources;
@@ -58,10 +66,12 @@ export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
   const planner = over.planner ?? { url: config.llmUrl, model: config.llmModel };
   return {
     planner, source: sourceDeps(), rung: ladderRung(),
-    probe: () => probePlanner(planner),
-    ask: (messages, schema, signal, maxTokens) => askPlanner(planner, messages, schema, { timeoutMs: config.llmTimeoutMs, signal, maxTokens }),
+    probe: (model = planner.model) => probePlanner({ url: planner.url, model }),
+    ask: (messages, schema, signal, maxTokens, model = planner.model) =>
+      askPlanner({ url: planner.url, model }, messages, schema, { timeoutMs: config.llmTimeoutMs, signal, maxTokens }),
     loaded: () => loadedModels(planner),
-    release: () => releasePlanner(planner),
+    release: (models = [planner.model]) => releaseModels(planner.url, models),
+    lyricsModel: (language) => lyricsModelFor(language, process.env, planner.model),
     plan: (target) => planFor(target),
     applyEdit: (base, ops) => applyOps(base, ops),
     ...over,
@@ -84,7 +94,8 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   if (gathered.mark && 'stale' in gathered.mark) throw new TurnError('stale', `${gathered.mark.stale} · nothing changed · mark again`);
   const unsupported = await deps.probe();
   if (unsupported) throw new TurnError('offline', unsupported);
-  const contextOf = async () => (await deps.loaded()).find((m) => m.name === deps.planner.model)?.contextLength ?? null;
+  const models = modelSession({ probe: (m) => deps.probe(m), loaded: deps.loaded, release: (m) => deps.release(m) }, deps.planner.model);
+  const aborted = () => { if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted'); };
   const history = lastTurns(threadId, HISTORY_TURNS + 1).filter((m) => m.seq < user.seq);
   const base = isBase(gathered.edit) ? gathered.edit : null;
   const revise = base ? pendingFor(threadId, base.songId, base.source.fingerprint) : null;
@@ -97,20 +108,28 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
       rung: deps.rung,
       apply: base ? (ops) => deps.applyEdit({ abc: base.source.abc, style: base.source.style, lyrics: base.source.lyrics }, ops) : undefined,
       onAttempt: (n, reason) => { job.progressText = `attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}`; },
-      ask: async (msgs, schema, { maxTokens }) => {
-        if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted');
+      lyricsModel: deps.lyricsModel,
+      onLyrics: (model, n, reason) => {
+        job.progressText = `writing lyrics · ${shortModel(model ?? deps.planner.model)}${n > 1 ? ` · attempt ${n} of ${MAX_ATTEMPTS}${reason ? ` · ${reason}` : ''}` : ''}`;
+      },
+      ask: async (msgs, schema, { maxTokens, model = deps.planner.model }) => {
+        aborted();
+        const shown = job.progressText;
+        await models.use(model, () => { job.progressText = 'unloading the planner'; });
+        job.progressText = shown;
+        aborted();
         const chars = promptChars(msgs);
-        const pre = contextPreflight({ promptChars: chars, contextLength: await contextOf() });
+        const pre = contextPreflight({ promptChars: chars, contextLength: await models.contextOf(model) });
         if (pre) throw new TurnError('context', pre);
-        const reply = await deps.ask(msgs, schema, signal, maxTokens);
-        const cut = contextPostflight({ promptTokens: reply.promptTokens, promptChars: chars, contextLength: await contextOf() });
+        const reply = await deps.ask(msgs, schema, signal, maxTokens, model);
+        const cut = contextPostflight({ promptTokens: reply.promptTokens, promptChars: chars, contextLength: await models.contextOf(model) });
         if (cut) throw new TurnError('context', cut);
         return reply;
       },
     });
   } finally {
-    job.progressText = 'unloading the planner';
-    await deps.release();
+    job.progressText = 'unloading the models';
+    await models.releaseAll();
   }
   if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted');
   if (!decision.ok) throw new TurnError('check', `no answer in ${decision.attempts} attempts: ${decision.reasons[0] ?? ''}`, decision.reasons);

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
-import { RECIPE } from '../../../test-fakes/chatScripts.js';
+import { PLANNED, RECIPE } from '../../../test-fakes/chatScripts.js';
 import { checkReply, type CheckContext } from './replyCheck.js';
 import { ACTIONS } from './turnActions.js';
 import type { ApplyResult, ScoreFacts } from '../score/planTypes.js';
@@ -8,7 +8,7 @@ import type { ApplyResult, ScoreFacts } from '../score/planTypes.js';
 const facts = contract('read-ok').response.body.facts as ScoreFacts;
 const draft: CheckContext = { allowed: ACTIONS, shapeOnly: ['scalpel', 'analyze', 'edit'], facts: null, phraseBars: 4, request: 'a song' };
 const song: CheckContext = { allowed: ACTIONS, shapeOnly: ['scalpel', 'analyze'], facts, phraseBars: 4, request: 'make it slower' };
-const recipe = (over: Record<string, unknown> = {}) => ({ action: 'recipe', message: 'ok', assumptions: [], recipe: { ...RECIPE, ...over } });
+const recipe = (over: Record<string, unknown> = {}) => ({ action: 'recipe', message: 'ok', assumptions: [], recipe: { ...PLANNED, ...over } });
 const reasons = async (json: unknown, ctx = draft, deps = {}) => {
   const r = await checkReply(json, ctx, deps);
   return r.ok ? [] : r.reasons;
@@ -22,9 +22,10 @@ describe('reply check', () => {
     expect(dropped.ok && dropped.reply.action === 'recipe' && 'reference_use' in dropped.reply.recipe).toBe(false);
   });
 
-  it('passes a valid recipe and keeps only the known fields', async () => {
+  it('passes a valid recipe and keeps only the known fields; LD: no lines yet, `lyrics` write / keep goes to turnCall', async () => {
     const r = await checkReply({ ...recipe(), extra: 1 }, draft, {});
-    expect(r).toEqual({ ok: true, reply: { action: 'recipe', message: 'ok', assumptions: [], recipe: RECIPE }, applied: null });
+    expect(r).toEqual({ ok: true, reply: { action: 'recipe', message: 'ok', assumptions: [], recipe: { ...RECIPE, lyrics: [] } }, applied: null, lyrics: 'write' });
+    expect(await checkReply(recipe({ lyrics: 'keep' }), draft, {})).toMatchObject({ ok: true, lyrics: 'keep' });
   });
 
   it('refuses an action outside the set, or outside what this turn allows', async () => {
@@ -36,7 +37,8 @@ describe('reply check', () => {
 
   it('holds a recipe to recipeRules (a bad key is a retry reason)', async () => {
     expect(await reasons(recipe({ key: 'Aminor' }))).toEqual(['key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']);
-    expect(await reasons(recipe({ lyrics: [{ tag: 'Verse', lines: ['[Chorus] la'] }] }))).toContain('section 1 (Verse) has 1 lines; write 4-8');
+    // LD (D-234): lines are the lyrics call's; a recipe that still writes them is refused with the new shape.
+    expect(await reasons(recipe({ lyrics: RECIPE.lyrics }))).toEqual(['recipe lyrics must be "write" or "keep": the lines are written in a second step']);
   });
 
   it('checks shape only for an action this version answers as a say', async () => {

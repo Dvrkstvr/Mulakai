@@ -896,6 +896,24 @@ The owner signed off pipeline/design/chat-converge.html (D-226's gate for CV-6..
 ## D-232 · 2026-10-08 · stage 3 (SP-7 owner read, R-038) · by: owner
 Owner's blind read (spikes/SP-7-german-lyrics/owner-read.json): German usable gemma3:12b 4/6, gemma4 26B-A4B 4/6, mistral-small3.2 0/6, qwen3:14b 0/6; no single model reaches 5/6, but the two gemmas fail on different requests and together cover 6/6. Owner: German lyrics get two drafts, one from gemma3:12b and one from gemma4, and the person picks one on the card; English and Spanish stay on qwen3:14b (Spanish 3/3 by the assistant's read). Cost: an extra model load per German song (~4 s gemma3, ~19 s gemma4, partly CPU-offloaded at 16k). gemma4 leaked "Mulakai" from the system prompt into one lyric — the build needs a guard. Built as a feature after this (its own session; touches the chat recipe/lyrics step). R-038 moves to "check chosen, build owed".
 
+## D-233 · 2026-10-08 · feature LD (F-095, D-232) · by: assumed (conductor)
+A chat turn may load more than one model: the planner, then the lyrics model the recipe's language names, one at a time, all inside the turn's one `plan` slot. Before a different model loads, the one before is unloaded and `/api/ps` read empty; the turn's `finally` unloads every model it touched and waits for `/api/ps` empty before the slot is released (the CLAUDE.md invariant is unchanged: the planner family and YuE2 never share the GPU). docs/decisions/0006's "never a second load or unload per turn" becomes "one load per model the turn needs, each unloaded before the next and all before release"; `releasePlanner` alone would leave gemma4 loaded, so the release names every touched model.
+- instead of: a second queue job for the lyrics (a YuE2 take could slip in between and find the planner's answer half written).
+
+## D-234 · 2026-10-08 · feature LD (F-095) · by: assumed (conductor)
+The recipe reply says `lyrics: "write" | "keep"` instead of carrying lines; code forces `write` when the draft has no lyrics or its sung sections no longer follow the structure, so "make it faster" does not rewrite (and, in German, reload a model for) words the person already has. No stored-data change.
+- instead of: always rewriting lyrics on every recipe turn (SP-5's spike ran only first recipes).
+
+## D-235 · 2026-10-08 · feature LD (F-095) · by: assumed (conductor), default by owner (D-237)
+The lyrics model per language from env `LYRICS_MODEL_<LANG>` (ISO code upper case): `LYRICS_MODEL_DE` defaults to `gemma4:26b-a4b-it-q4_K_M`; unset for any other language = `LLM_MODEL`.
+- instead of: a settings screen (single-user local app; env is how LLM_MODEL is set).
+
+## D-236 · 2026-10-08 · feature LD (F-095, SP-7 caveats) · by: assumed (conductor)
+Lyric checks the schema cannot give, each a retry reason: no prompt-only word (a word of 4+ letters from the lyrics system prompt that is in neither the request, title nor style; stop-list always includes `Mulakai`), no line with an embedded newline or under 6 characters, language-ID as today. No word-count bar (SP-7's "over ~12 words" was qwen3's German, now not used).
+- instead of: rejecting the reply without a retry (SP-7 saw one leak in 18 gemma4 sets; a retry is cheap).
+
+## D-237 · 2026-10-08 · feature LD (F-095, D-232) · by: owner
+German lyrics use one model, `gemma4:26b-a4b-it-q4_K_M`, not two drafts with a pick (replaces D-232's two-draft plan; the DRAFT A / B mockup was dropped unmerged). Trade-off accepted: gemma4 alone read 4/6 usable in SP-7, where the two drafts together covered 6/6; the recipe card stays as it is and a German turn loads one extra model, not two.
 
 ## D-240 · 2026-10-08 · stage 7 (RT, F-091 verify; RT-4 scope) · by: owner + assumed (conductor)
 Owner: RE-TIME in the SCORE dock (RT-4, F-093) is offered only while a cover's score is still its transcription, or an earlier re-time of it. Sections left out in Create stay left out, matched by name. After any other SCORE edit it is hidden, with a line saying why. Assumed (conductor): the GONE box's TRANSCRIBE AGAIN says it uses the GPU but gives no minutes. No calibrated TRANSCRIBE figure exists, and Q-099/D-157 keep invented GPU seconds out of the copy. F-091's acceptance line 2 is amended to match, and the minutes come once CP-C3 calibrates them. The verifier's two stale-state finds (a pending preview after UNDO, a pick carried to another score) are fixed by remounting the row per score (`retimeRowKey`).
@@ -918,3 +936,15 @@ While a mark is shown, the lyrics panel keeps the section just before and just a
 ## D-244 · 2026-10-08 · stage 7 (chat C2, CV-5, R-040) · by: conductor
 CP-C2 (pipeline/cp-c2/2026-10-08): prompt p95 5,403 tokens, 0 context refusals, 0 silent losses, 2/21 failures — but STOP on additive drops, 5 of 11 (qwen3:14b fills `drop` with the ops a reply "replaces" even when the request only adds; every drop showed under REMOVED). Also a dropped-and-returned-identical op showed NEW + REMOVED. Fix before CV-7: SAME for an identical re-return, a prompt line that an addition keeps every pending op, re-run; if still over 3/10, a no-removal-words guard that retries once with a named reason (like D-201), never a silent override.
 - instead of: building CV-7 on a revise that loses ops on additions; overriding the model's `drop` silently.
+
+## D-245 · 2026-10-08 · stage 7 (LD-2, F-095) · by: assumed (builder)
+`keep` keeps the draft's lyrics only when they are exactly one section per sung section of the new structure, in order (recipeRules `lyricsFit`: same count + `followsStructure`); otherwise the turn writes. Kept lyrics are the person's (maybe hand-edited) words and are not re-checked for line counts; written lyrics must pass the whole `recipeProblems` (structure order, LYRICS_MAX as a "shorten" retry reason).
+- instead of: `followsStructure` alone (a subsequence: "add a bridge" would keep lyrics with no Bridge section); re-checking kept lyrics (a hand-edited 3-line verse would be rewritten by "make it faster").
+
+## D-246 · 2026-10-08 · stage 7 (LD-2, F-095, F-049) · by: assumed (builder)
+A lyrics model that is not pulled fails the turn with cause `check` (a failed line with RETRY, reason `model <m> is not on the planner: run 'ollama pull <m>'`), not `offline`: the planner answered, so ASSISTANT OFF (composer disabled) would be wrong for every other language. Progress lines: `writing lyrics · <model before ':'>`, `unloading the planner` between models, `unloading the models` in the finally.
+- instead of: `offline` (the planner's own probe failure keeps it).
+
+## D-247 · 2026-10-08 · stage 7 (LD-2, F-095) · by: assumed (builder)
+Left as they were: the REFERENCE rule still says the model writes a cover's lyrics (its routing words are measured by chatCp3; the strict schema now only accepts write / keep, and referenceRecipe lays the written sections onto the reference's structure), and the client's turn cost (~10 s) is not language-aware (the cost line shows before the planner picks the language; `TURN_COST` is unused, `QUEUED_TAIL` is generic). Owed: chatCp3 re-run with the LD prompt; a German cost line if F-096 shows it is needed.
+- instead of: editing the REFERENCE rule without a chatCp3 run; guessing the language client-side.

@@ -7,8 +7,9 @@ import { viewButton } from './scoreFakes';
 const YUE = `http://127.0.0.1:${SCORE_PORTS.yue}`;
 const OLLAMA = `http://127.0.0.1:${SCORE_PORTS.ollama}`;
 
-/** Scripts the fake Ollama (fake-score/ollama.ts): its next answers, offline (`down`), or answers held (`hold`). */
-export async function scriptChat(request: APIRequestContext, script: { replies?: Array<string | { hang: true }>; down?: boolean; hold?: boolean }) {
+/** Scripts the fake Ollama (fake-score/ollama.ts): its next answers, its lyrics calls' answers (LD), offline (`down`),
+ * or answers held (`hold`). */
+export async function scriptChat(request: APIRequestContext, script: { replies?: Array<string | { hang: true }>; lyrics?: string[]; down?: boolean; hold?: boolean }) {
   const res = await request.post(`${OLLAMA}/__fake/planner`, { data: script });
   expect(res.ok()).toBe(true);
 }

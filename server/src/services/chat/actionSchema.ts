@@ -7,8 +7,8 @@
 import { opsArraySchema } from '../score/opSchema.js';
 import { dropSchema } from '../score/reviseReply.js';
 import type { ScoreFacts } from '../score/planTypes.js';
-import { BPM, ENGINES, KEYS, LANGUAGES, LINES, RECIPE_LIMITS, SECTION_TAGS, SUNG_TAGS, TIME_SIGNATURES } from './recipeRules.js';
-import type { ScalpelKind, TurnAction } from './chatTypes.js';
+import { BPM, ENGINES, KEYS, LANGUAGES, RECIPE_LIMITS, SECTION_TAGS, TIME_SIGNATURES } from './recipeRules.js';
+import type { LyricsMode, ScalpelKind, TurnAction } from './chatTypes.js';
 import { isWholeSongOp } from './markFit.js';
 
 type Schema = Record<string, unknown>;
@@ -31,15 +31,17 @@ export const NO_SONG_FACTS: ScoreFacts = {
 /** C3 (D-128): how a recipe uses the read reference. */
 export const REFERENCE_USES = ['cover', 'borrow', 'none'];
 
+/** LD (D-234): the recipe carries no lines; it says whether the draft's lyrics are written anew or kept. */
+export const LYRICS_MODES: LyricsMode[] = ['write', 'keep'];
+
 /** `reference`: the thread has a reading, so the recipe also says how it uses it. */
 export function recipeSchema(reference = false): Schema {
-  const section = obj({ tag: { enum: SUNG_TAGS }, lines: arr(str(1, RECIPE_LIMITS.line), LINES.min, LINES.max) });
   return obj({
     ...(reference ? { reference_use: { enum: REFERENCE_USES } } : {}), // first: decided before the lyrics (CP-C3)
     title: str(1, RECIPE_LIMITS.title), style: str(3, RECIPE_LIMITS.style), bpm: int(BPM.min, BPM.max), key: { enum: KEYS },
     time_signature: { enum: TIME_SIGNATURES }, language: { enum: LANGUAGES }, engine: { enum: ENGINES },
     structure: arr({ enum: SECTION_TAGS }, RECIPE_LIMITS.structure.min, RECIPE_LIMITS.structure.max),
-    lyrics: arr(section, 1, RECIPE_LIMITS.sections),
+    lyrics: { enum: LYRICS_MODES },
   });
 }
 
