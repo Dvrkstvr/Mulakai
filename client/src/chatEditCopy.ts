@@ -2,7 +2,9 @@
  * chat's copy for edits lives only here (chatCopy.ts is at its cap). "a few minutes" until CP-C0 calibrates the
  * render + grid + splice (Q-103). Pure. */
 import type { ChatSplice, ChatVersionBody } from './api/chatEdit';
-import type { ScoreRenderMode } from './api/score';
+import type { BarMap } from './api/chatConverge';
+import type { ScoreOp, ScoreRenderMode } from './api/score';
+import { barsText } from './chatMarkLabel';
 import type { CommitPhase } from './chatTurn';
 import { fmtLength } from './chatScreen';
 import { queueSuffix, startsAfter } from './queueCopy';
@@ -92,6 +94,26 @@ export function staleBody(reason: string): string {
   const detail = reason.replace(/^this song changed since the proposal:?\s*/, '');
   return `${detail || 'a repaint was queued in the Editor, or another version was chosen'}. Nothing started.`;
 }
+/** The bar map's caption (F-060, chat-converge.html 3a, 4a-4d): the bars that change against the ones that stay, or,
+ * with a change-list row hovered or focused, that row's bars and op. Bars two ops share count once. */
+export const opName = (op: ScoreOp) => op.op.replace(/_/g, ' ');
+export function mapCaption(map: BarMap, ops: ScoreOp[], hover: number | null, s: ChatSplice, base: number): string {
+  const spans = (i: number) => map.ops[i].spans.map((b) => barsText(b)).join(', ') || 'NO BARS IN THE READ';
+  const lit = hover === null ? undefined : map.ops[hover];
+  if (lit && ops[hover!]) return `${lit.whole ? 'WHOLE SONG' : spans(hover!)} · ${opName(ops[hover!])} · LIT`;
+  const n = map.bars;
+  const whole = map.ops.flatMap((o, i) => (o.whole && ops[i] ? [opName(ops[i])] : []));
+  const edited = map.ops.flatMap((o, i) => (!o.whole && o.spans.length && ops[i] ? [`${spans(i)} ${opName(ops[i])}`] : []));
+  if (whole.length) return [`ALL ${n} BARS CHANGE (${whole.join(', ')})`, ...edited].join(' · ');
+  const bars = new Set(map.ops.flatMap((o) => o.spans.flatMap(([a, b]) => Array.from({ length: Math.max(0, b - a + 1) }, (_, k) => a + k))));
+  const k = bars.size;
+  if (k >= n) return `ALL ${n} BARS CHANGE`;
+  const cut = ops.length > 0 && ops.every((op) => op.op === 'CUT');
+  return `${k} OF ${n} BARS ${cut ? 'ARE CUT' : 'CHANGE'} · ${s.splice ? `THE OTHER ${n - k} ARE v${base}` : 'THE WHOLE SONG RE-RENDERS'}`;
+}
+/** A superseded card's hint: revised by the card below it (D-229, Q-140 A), or replaced by a fresh plan (C0b). */
+export const REVISED_BELOW = 'REVISED BELOW';
+
 export const editDoneLine = (s: ChatSplice) => `DONE · ${s.splice ? span(s).toUpperCase() : 'WHOLE SONG'}`;
 export const waitingFor = (n: number) => `WAITING FOR v${n} · a message sent now is read after v${n} is saved`;
 

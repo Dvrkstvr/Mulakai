@@ -17,8 +17,8 @@ const body = (over: Partial<ChatEditBody> = {}): ChatEditBody => ({
 const msg = (b: ChatEditBody = body()): ChatMessageView => ({
   id: 'e', seq: 3, role: 'assistant', kind: 'edit', text: 'Re-harmonizing…', body: b as never, proposalId: 'e1', jobId: null, versionId: null, state: 'pending', createdAt: '',
 });
-const html = (view: CardView, b?: ChatEditBody, ahead = 0) => renderToStaticMarkup(
-  <ChatEditCard message={msg(b)} view={view} base={1} next={2} ahead={ahead} canAsk onApply={vi.fn()} onCancel={vi.fn()} onAskAgain={vi.fn()} />,
+const html = (view: CardView, b?: ChatEditBody, ahead = 0, known: { revising?: boolean; revisedBelow?: boolean } = {}) => renderToStaticMarkup(
+  <ChatEditCard message={msg(b)} view={view} base={1} next={2} ahead={ahead} canAsk onApply={vi.fn()} onCancel={vi.fn()} onAskAgain={vi.fn()} {...known} />,
 );
 const PENDING: CardView = { kind: 'pending', error: null };
 
@@ -90,5 +90,52 @@ describe('ChatEditCard', () => {
     expect(cut).not.toContain('chat-create');
     expect(html({ kind: 'done' })).toContain('DONE · BARS 25-32');
     expect(html({ kind: 'done' })).not.toContain('REHARMONIZE');
+  });
+});
+
+describe('ChatEditCard, C2: revised, superseded by a revise, the bar map (F-058, F-060, D-229)', () => {
+  const REHARM = body().ops[0];
+  const TEMPO = { op: 'SET_TEMPO' as const, bpm: 92 };
+  const map = { bars: 80, sections: [{ label: 'chorus', occurrence: 1, from: 41, to: 56 }], ops: [{ spans: [[49, 56]] as Array<[number, number]>, whole: false }, { spans: [], whole: true }] };
+  const plan2 = body({
+    planId: 'plan2', revision: 2, ops: [REHARM, TEMPO],
+    verdicts: [{ index: 0, op: 'REHARMONIZE', ok: true, reason: null }, { index: 1, op: 'SET_TEMPO', ok: true, reason: null }],
+    since: { planId: 'plan1', marks: [{ mark: 'SAME', was: REHARM }, { mark: 'NEW', was: null }], removed: [{ op: 'WRITE_PHRASE', start_bar: 41, instrument: 'lead', bars: [] }] },
+    splice: { splice: false, reason: 'the plan makes 2 changes' }, map,
+  });
+
+  it('a revised card: REVISED · PLAN 2, the SINCE line, NEW / SAME marks, REMOVED, the bar map instead of the strip', () => {
+    const out = html(PENDING, plan2);
+    expect(out).toContain('EDIT · SCORE · REVISED · PLAN 2');
+    expect(out).toContain('PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES');
+    expect(out).toContain('SINCE PLAN 1 · 1 NEW · 1 SAME · 1 REMOVED');
+    expect(out).toMatch(/score-op-mark">SAME<.*score-op-mark hi">NEW</);
+    expect(out).toContain('REMOVED SINCE PLAN 1 · WRITE PHRASE');
+    expect(out).toContain('aria-label="Bar map"');
+    expect(out).not.toContain('chat-strip-bar');
+    expect(out).toContain('ALL 80 BARS CHANGE (SET TEMPO) · BARS 49–56 REHARMONIZE');
+    expect(out).toMatch(/class="score-op" tabindex="0"/); // a row is focusable: it lights its bars (Q-143)
+    expect(out).toMatch(/class="acid chat-create"><span>APPLY/);
+  });
+
+  it('the card a revise superseded stays in full, dimmed: REVISED BELOW, its map, no APPLY (Q-140 A)', () => {
+    const out = html({ kind: 'superseded' }, body({ map: { bars: 80, sections: [], ops: [{ spans: [[25, 32]], whole: false }] } }), 0, { revisedBelow: true });
+    expect(out).toContain('chat-card chat-edit sup');
+    expect(out).toContain('REVISED BELOW');
+    expect(out).toContain('Revised below. This one cannot be applied.');
+    expect(out).toContain('aria-label="Bar map"');
+    expect(out).not.toContain('chat-create');
+    expect(html({ kind: 'superseded' })).toContain('A newer edit card is below.'); // a fresh plan, not a revise
+  });
+
+  it('APPLY is off while a turn (a revise) runs, back on when it ends (Q-144)', () => {
+    expect(html(PENDING, undefined, 0, { revising: true })).toMatch(/class="acid chat-create" disabled="" title="off while a reply is open"><span>APPLY/);
+    expect(html(PENDING, undefined, 0, { revising: false })).toMatch(/class="acid chat-create"><span>APPLY/);
+  });
+
+  it('a card from before C2 (no map) keeps the strip, and its rows are not focusable', () => {
+    const out = html(PENDING);
+    expect(out).toContain('chat-strip-bar');
+    expect(out).not.toContain('tabindex');
   });
 });
