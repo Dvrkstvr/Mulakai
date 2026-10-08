@@ -11,6 +11,7 @@ import type { LyricsReading } from '../lyricsClient.js';
 import type { ScoreFacts } from '../score/planTypes.js';
 import { isRead } from './reading.js';
 import { stripSections } from './analysisView.js';
+import { blockOf } from '../score/lyricPairing.js';
 import type { MarkPreview, RangeMark, StripSection, VersionAnalysis } from './analysisTypes.js';
 
 export interface MarkBlockInput { mark: RangeMark; number: number; analysis: VersionAnalysis | null; words: LyricsReading | null }
@@ -33,7 +34,6 @@ const MEANS = '"this", "here" and "it" in the REQUEST mean it';
 /** Rounded to the second, as the chip's clock (C1 live B5: WHAT IT SEES read 0:55 under a 0:56 chip). */
 const clock = (t: number) => { const s = Math.max(0, Math.round(t)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const time = ([a, b]: [number, number]) => `${clock(a)}-${clock(b)}`;
-const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
 
 function marked(sections: StripSection[], [a, b]: [number, number]): MarkedSection[] {
   return sections.filter((s) => s.bars[1] >= a && s.bars[0] <= b).map((s) => {
@@ -45,9 +45,7 @@ function marked(sections: StripSection[], [a, b]: [number, number]): MarkedSecti
 /** The lyric blocks the marked sections sing: the k-th section of a kind sings the k-th block of it (D-066 d). */
 function blockLyrics(facts: ScoreFacts, sections: MarkedSection[]): string[] {
   return sections.flatMap((m) => {
-    const kind = kindOf(m.label);
-    const k = facts.sections.filter((s) => kindOf(s.label) === kind).findIndex((s) => s.index === m.section);
-    const b = facts.lyric_blocks.filter((x) => kindOf(x.tag) === kind)[k];
+    const b = blockOf(facts, m.section);
     return b ? [`${b.tag} #${b.occurrence}, ${b.lines} lines${b.first_line ? `, first line: ${b.first_line}` : ''}`] : [];
   });
 }

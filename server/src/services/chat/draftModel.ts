@@ -126,8 +126,8 @@ export function recipeFields(r: Recipe): DraftFields {
 /** Merge a checked recipe into the draft. `sentRev` is the draft's rev when the person sent the
  * message: a field touched by hand after it keeps the hand edit and is named in `skipped`. With a
  * `reference` (referenceRecipe), its missing fields are cleared and the marks set; without one, the
- * marks of an earlier card go. */
-export function applyRecipe(draft: Draft, recipe: Recipe, sentRev: number, reference?: RecipeReference | null): { draft: Draft; changed: DraftField[]; skipped: DraftField[] } {
+ * marks of an earlier card go. `before` (C2, UNDO TURN): each changed field's previous value, absent = was empty. */
+export function applyRecipe(draft: Draft, recipe: Recipe, sentRev: number, reference?: RecipeReference | null): { draft: Draft; changed: DraftField[]; skipped: DraftField[]; before: Partial<DraftFields> } {
   const wanted = recipeFields(recipe) as Record<string, unknown>;
   const clear = reference?.missing ?? [];
   const skipped: DraftField[] = [];
@@ -138,11 +138,12 @@ export function applyRecipe(draft: Draft, recipe: Recipe, sentRev: number, refer
     else names.push(name);
   }
   const { fields, changed } = merge(draft.fields, wanted, names);
+  const before = Object.fromEntries(changed.filter((f) => draft.fields[f] !== undefined).map((f) => [f, draft.fields[f]])) as Partial<DraftFields>;
   const { reference: _r, borrowed: _b, missing: _m, ...rest } = draft;
   const marked: Draft = reference
     ? { ...rest, reference: { referenceId: reference.referenceId, use: reference.use }, borrowed: without(reference.borrowed, skipped), missing: without(reference.missing, skipped) }
     : rest;
   const marksSame = same([draft.reference, draft.borrowed, draft.missing], [marked.reference, marked.borrowed, marked.missing]);
-  if (changed.length === 0 && marksSame) return { draft, changed, skipped };
-  return { draft: { ...marked, rev: draft.rev + 1, fields }, changed, skipped };
+  if (changed.length === 0 && marksSame) return { draft, changed, skipped, before };
+  return { draft: { ...marked, rev: draft.rev + 1, fields }, changed, skipped, before };
 }
