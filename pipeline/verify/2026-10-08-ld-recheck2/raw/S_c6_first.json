@@ -1,0 +1,164 @@
+{
+ "tag": "c6_first",
+ "text": "ein sehnsüchtiges Lied über Heimweh nach dem Meer",
+ "secs": 30.3,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've crafted a longing song about homesickness for the sea. It's in the key of A minor, with a tempo of 68 BPM, and features a melancholic mood with acoustic guitar and soft vocals.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791481425.24,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481435.87,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481436.01,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481455.02,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481455.02,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15740,
+ "bpm_before": null,
+ "bpm_after": 68,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Wind weht kalt durch leere Straßen",
+    "Die Stadt ist laut und viel zu schwer",
+    "Ich sehe nur die grauen Schatten",
+    "Und fühle mich so unendlich leer"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh, ich sehne mich nach dem blauen Meer",
+    "Nach dem Rauschen und dem fernen Licht",
+    "Das Herz ist schwer und die Seele leer",
+    "Ich vermisse nur das Wellengedicht"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Sand unter meinen nackten Füßen",
+    "Der Salzgeschmack auf meiner Haut",
+    "Ich will den Horizont nur noch begrüßen",
+    "Und dem Sturm in der Ferne vertraut"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh, ich sehne mich nach dem blauen Meer",
+    "Nach dem Rauschen und dem fernen Licht",
+    "Das Herz ist schwer und die Seele leer",
+    "Ich vermisse nur das Wellengedicht"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Nur die Brandung kann mich wieder heilen",
+    "Nur die Flut nimmt meine Sorgen mit",
+    "Ich will wieder an der Küste weilen",
+    "Und finden mein verlorenes Lied"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh, ich sehne mich nach dem blauen Meer",
+    "Nach dem Rauschen und dem fernen Licht",
+    "Das Herz ist schwer und die Seele leer",
+    "Ich vermisse nur das Wellengedicht"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur das Meer",
+    "Nur das tiefe Blau",
+    "Ich komme heim",
+    "Zu dir"
+   ]
+  }
+ ],
+ "style_after": "acoustic, melancholic, sea, longing",
+ "struct_before": [],
+ "struct_after": [
+  "Intro",
+  "Verse",
+  "Chorus",
+  "Verse",
+  "Chorus",
+  "Bridge",
+  "Chorus",
+  "Outro"
+ ],
+ "fields_keys": [
+  "bpm",
+  "engine",
+  "key",
+  "language",
+  "lyrics",
+  "structure",
+  "style",
+  "timeSignature",
+  "title"
+ ]
+}

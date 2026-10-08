@@ -1,0 +1,143 @@
+{
+ "tag": "c10_first",
+ "text": "an upbeat indie road trip song",
+ "secs": 24.2,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've crafted an upbeat indie road trip song with a carefree and adventurous mood. Let me know if you'd like to refine any details!",
+ "n_calls": 3,
+ "calls_detail": [
+  {
+   "t": 1791482069.94,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791482080.17,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791482093.75,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "qwen3:14b"
+ ],
+ "ps_models_seen": [
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 10769,
+ "bpm_before": null,
+ "bpm_after": 120,
+ "lyrics_same": false,
+ "lang": "en",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "We're chasing the sun, wheels spin like a dream",
+    "Dusty highways, no maps to keep us on track",
+    "Laughter echoes through the open air",
+    "Every mile feels like a brand new start"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, we're alive and we're free",
+    "With the wind in our hair and the stars in our eyes",
+    "We're chasing the horizon, never looking back",
+    "Open road, we're alive and we're free"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Coffee cups cold, but the fire's still burning",
+    "Stories in the rearview, the future's on the turn",
+    "We're dancing in the dark with the radio loud",
+    "Every twist and turn is a chance to be proud"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, we're alive and we're free",
+    "With the wind in our hair and the stars in our eyes",
+    "We're chasing the horizon, never looking back",
+    "Open road, we're alive and we're free"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "We don't need a destination, we're just here to ride",
+    "The world is a canvas, and we're painting the sky",
+    "With every mile we're breaking the chains of the past",
+    "We're writing our future on the open road at last"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, we're alive and we're free",
+    "With the wind in our hair and the stars in our eyes",
+    "We're chasing the horizon, never looking back",
+    "Open road, we're alive and we're free"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "So let the road take us where it may",
+    "We're young, we're wild, we're free to play",
+    "With the open road, we'll always be",
+    "Alive and free, on the open road"
+   ]
+  }
+ ],
+ "style_after": "indie, acoustic guitar, electric guitar, upbeat, adventurous",
+ "struct_before": [],
+ "struct_after": [
+  "Intro",
+  "Verse",
+  "Chorus",
+  "Verse",
+  "Chorus",
+  "Bridge",
+  "Chorus",
+  "Outro"
+ ],
+ "fields_keys": [
+  "bpm",
+  "engine",
+  "key",
+  "language",
+  "lyrics",
+  "structure",
+  "style",
+  "timeSignature",
+  "title"
+ ]
+}

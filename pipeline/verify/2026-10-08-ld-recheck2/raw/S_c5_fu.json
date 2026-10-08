@@ -1,0 +1,164 @@
+{
+ "tag": "c5_fu",
+ "text": "mach es etwas schneller",
+ "secs": 57.2,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "The song is now faster, with a melancholic mood and autumn rain theme.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791481365.86,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481402.33,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481402.45,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481422.29,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481422.3,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15773,
+ "bpm_before": null,
+ "bpm_after": 90,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Graue Wolken ziehen auf",
+    "Der Wind weht durch das leere Haus",
+    "Die Blätter fallen auf den Stein",
+    "Ich bleibe hier ganz allein"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Herbstregen fällt auf mein Gesicht",
+    "Verdeckt das fahle Mondlicht",
+    "Herbstregen wäscht die Zeit",
+    "Und macht die Welt so voller Leid"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Garten ist nun kahl und leer",
+    "Das Sommerlicht ist nicht mehr hier",
+    "Ein kalter Hauch zieht durch das Tor",
+    "Ich finde keine Ruhe mehr im Ohr"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Herbstregen fällt auf mein Gesicht",
+    "Verdeckt das fahle Mondlicht",
+    "Herbstregen wäscht die Zeit",
+    "Und macht die Welt so voller Leid"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Alles verblasst in diesem Grau",
+    "Die Welt wird still und unheimlich schlau",
+    "Nur das Trommeln auf dem Dach",
+    "Macht meine Einsamkeit noch wach"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Herbstregen fällt auf mein Gesicht",
+    "Verdeckt das fahle Mondlicht",
+    "Herbstregen wäscht die Zeit",
+    "Und macht die Welt so voller Leid"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch Tropfen auf dem Glas",
+    "Die Welt wird langsam blass",
+    "Alles wird still",
+    "Wie ich es will"
+   ]
+  }
+ ],
+ "style_after": "melancholic, piano, strings, vocal",
+ "struct_before": [],
+ "struct_after": [
+  "Intro",
+  "Verse",
+  "Chorus",
+  "Verse",
+  "Chorus",
+  "Bridge",
+  "Chorus",
+  "Outro"
+ ],
+ "fields_keys": [
+  "bpm",
+  "engine",
+  "key",
+  "language",
+  "lyrics",
+  "structure",
+  "style",
+  "timeSignature",
+  "title"
+ ]
+}

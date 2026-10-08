@@ -1,0 +1,164 @@
+{
+ "tag": "c3_fu",
+ "text": "mach es etwas schneller",
+ "secs": 205.3,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "Die ruhige Ballade wird etwas schneller, jetzt im Tempo von 75 BPM.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791480508.94,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791480626.14,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791480626.3,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791480713.85,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791480713.87,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15799,
+ "bpm_before": null,
+ "bpm_after": 75,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Welt wird leise und ganz grau",
+    "Der Himmel trägt ein schweres Kleid",
+    "Ein kalter Wind weht durch das Au",
+    "Und bringt die Einsamkeit mit sich"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der erste Schnee fällt sacht herab",
+    "Verdeckt die Spuren auf dem Pfad",
+    "Ein weißes Wunder, das nicht sprach",
+    "Und alles hält die Atem an"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Fenster frostig, weiß und klar",
+    "Das Licht der Lampe flackert sacht",
+    "Was gestern noch so wunderbar",
+    "Ist nun in tiefer Ruh' erwacht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der erste Schnee fällt sacht herab",
+    "Verdeckt die Spuren auf dem Pfad",
+    "Ein weißes Wunder, das nicht sprach",
+    "Und alles hält die Atem an"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Zeit scheint stillzustehen hier",
+    "Im weißen Schleier, tief und weit",
+    "Ich suche nur das warme Licht",
+    "In dieser kalten Winterzeit"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der erste Schnee fällt sacht herab",
+    "Verdeckt die Spuren auf dem Pfad",
+    "Ein weißes Wunder, das nicht sprach",
+    "Und alles hält die Atem an"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur das Akkordeon spielt leise",
+    "Im weißen Schweigen der Natur",
+    "Auf eine ganz besond're Weise",
+    "Verliert sich jede Lebensspur"
+   ]
+  }
+ ],
+ "style_after": "Ballade, Akkordeon, sanft, Tenor",
+ "struct_before": [],
+ "struct_after": [
+  "Intro",
+  "Verse",
+  "Chorus",
+  "Verse",
+  "Chorus",
+  "Bridge",
+  "Chorus",
+  "Outro"
+ ],
+ "fields_keys": [
+  "bpm",
+  "engine",
+  "key",
+  "language",
+  "lyrics",
+  "structure",
+  "style",
+  "timeSignature",
+  "title"
+ ]
+}

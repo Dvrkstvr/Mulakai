@@ -1,0 +1,164 @@
+{
+ "tag": "c8_fu",
+ "text": "etwas schneller bitte, Text unverändert",
+ "secs": 150.8,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "Der fröhliche Rocksong über eine Sommerreise ans Meer wird etwas schneller, der Text bleibt unverändert.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791481733.37,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481820.85,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481821.78,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481881.69,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481881.71,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15873,
+ "bpm_before": null,
+ "bpm_after": 120,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Asphalt glüht unter den Reifen,",
+    "Wir lassen den Alltag weit hinter uns.",
+    "Die Fenster unten, der Wind im Gesicht,",
+    "Ein heller Tag, der niemals bricht."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, dem Horizont entgegen,",
+    "Spüren die Freiheit, das goldene Leben.",
+    "Die Wellen rufen, der Sand ist so nah,",
+    "Endlich wieder da, endlich wieder da."
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Playlist dröhnt aus den Lautsprechern laut,",
+    "Auf die weite Straße haben wir vertraut.",
+    "Die Küste erscheint wie ein blaues Band,",
+    "Wir ziehen gemeinsam durch das weite Land."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, dem Horizont entgegen,",
+    "Spüren die Freiheit, das goldene Leben.",
+    "Die Wellen rufen, der Sand ist so nah,",
+    "Endlich wieder da, endlich wieder da."
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Keine Termine und keine Sorgen,",
+    "Nur wir zwei und die warmen Morgen.",
+    "Die Gitarre spielt einen wilden Song,",
+    "Das Abenteuer hält uns ewig in Schwung."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, dem Horizont entgegen,",
+    "Spüren die Freiheit, das goldene Leben.",
+    "Die Wellen rufen, der Sand ist so nah,",
+    "Endlich wieder da, endlich wieder da."
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur das Meer und wir,",
+    "Alles ist frei.",
+    "Sommerreise,",
+    "Ewig dabei."
+   ]
+  }
+ ],
+ "style_after": "Rock, Electric Guitar, Drums, Happy",
+ "struct_before": [],
+ "struct_after": [
+  "Intro",
+  "Verse",
+  "Chorus",
+  "Verse",
+  "Chorus",
+  "Bridge",
+  "Chorus",
+  "Outro"
+ ],
+ "fields_keys": [
+  "bpm",
+  "engine",
+  "key",
+  "language",
+  "lyrics",
+  "structure",
+  "style",
+  "timeSignature",
+  "title"
+ ]
+}
