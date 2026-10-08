@@ -29,7 +29,7 @@
 | 9 | Release | n/a (local single-user app) | — | — |
 
 ## Notes
-- 2026-10-08 RT (re-time a transcription, D-190, D-205..D-212, D-231): RT-1 #227 + RT-2 #231 merged, F-090 passes (verifier); RT-3 cover panel (F-091) in review; next RT-4 SCORE dock op (`feat/retime-dock`); RT-5 after C1, RT-6 after C2.
+- 2026-10-08 RT (re-time a transcription, D-190, D-205..D-212, D-231, D-240): RT-1 #227 + RT-2 #231 merged, F-090 passes (verifier); RT-3 #236 merged, F-091 passes (verifier; fix/retime-cover-review); next RT-4 SCORE dock op (`feat/retime-dock`); RT-5 after C1, RT-6 after C2.
 - 2026-10-04 storage: DONE. Ollama models E:\ai\ollama\models (OLLAMA_MODELS), WSL Ubuntu-24.04 at E:\ai\wsl\Ubuntu-24.04, caches E:\ai\cache\{uv,pip,npm}; C: 0.5 -> 138 GB free. Big temp data goes on E:.
 - 2026-10-03: D-014/D-015 make SCORE the primary edit path for new songs; PLAN.md "YuE2 Is the Default First-Take Engine" → "With the score agent" records the link (branch docs/engine-lineup).
 - The 2026-10-02 mockup (canvas "Score Agent Mockup") predates the redesign; superseded by D-007 for placement, still valid for the workflow, ops list and checks.
