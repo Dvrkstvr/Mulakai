@@ -1197,8 +1197,8 @@ requiring its own justification against a screen-count rule.
    - **The revised card and the bar map** (added 2026-10-08, chat C2; spec
      `pipeline/design/chat-converge.html` 3-4, signed off in D-229,
      CX-2/CX-3). A card that carries a bar map is headed by its plan
-     title while pending (`PLAN · 1 CHANGE · AGAINST v4`; revised: `PLAN 2 ·
-     REVISED FROM PLAN 1 · 2 CHANGES · AGAINST v4`), with `EDIT · SCORE ·
+     title while pending (`PLAN · 1 CHANGE · AGAINST BASE v4`; revised: `PLAN 2 ·
+     REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v4`), with `EDIT · SCORE ·
      nothing runs yet` as the grey hint; other states keep the C0b state
      header. A follow-up revises the pending card: `SINCE PLAN 1 · 1 NEW ·
      1 SAME · 0 REMOVED` (REMOVED always counted), a mono NEW / CHANGED /
