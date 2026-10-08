@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>SP-7 German lyrics read</title>
+<style>
+:root{--bg:#1c1d21;--fg:#ececec;--mut:#9a9aa3;--line:#33343b;--card:#16171a;--acc:#7b4b94;--ok:#6fbf8a;--no:#d9806a}
+@media (prefers-color-scheme:light){:root{--bg:#f6f5f2;--fg:#1d1d20;--mut:#66666e;--line:#d6d4cf;--card:#ffffff;--acc:#6b3f84;--ok:#2d7a4f;--no:#b24a32}}
+body{background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,sans-serif;margin:24px auto;max-width:1100px;padding:0 16px}
+h1{font-size:20px;margin:0 0 6px} h2{font-size:15px;margin:0;letter-spacing:.5px} h3{font-size:14px;margin:0 0 6px} .note{color:var(--mut);font-size:13px}
+.set{border:1px solid var(--line);background:var(--card);padding:14px;margin:18px 0}
+.sec{margin:28px 0 8px;padding-top:6px;border-top:2px solid var(--line)}
+.meta{color:var(--mut);font-size:13px;margin:4px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:8px}
+.arm{border:1px solid var(--line);padding:10px;background:var(--bg)}
+.arm .real{color:var(--acc);font-size:12px;display:none}.revealed .arm .real{display:block}
+pre{white-space:pre-wrap;font:13px/1.45 ui-monospace,Consolas,monospace;margin:6px 0 10px}.tag{color:var(--acc);font-weight:600}
+.warn{color:var(--no)} .good{color:var(--ok)}
+button{background:transparent;color:var(--fg);border:1px solid var(--mut);padding:4px 10px;cursor:pointer;margin:2px 4px 2px 0;font:inherit;font-size:13px}
+button.on.yes{border-color:var(--ok);color:var(--ok)}button.on.no{border-color:var(--no);color:var(--no)}
+#tally{position:sticky;top:0;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);z-index:2}
+input[type=text]{background:var(--card);color:var(--fg);border:1px solid var(--line);padding:4px;font:inherit;font-size:13px;width:90%}
+</style></head><body>
+<h1>SP-7 · read the German lyrics: which models write usable first takes?</h1>
+<p class="note">Four local models each wrote the lyrics for the same song idea (same prompt, same sections, one run, nothing picked or fixed). For every request the four sets are shuffled and
+labelled X1..X4, so you do not know which model wrote which until you press reveal. Mark each set <b>usable</b> (you would press CREATE SONG on it and edit from there: natural German, lines that
+sing, rhymes that do not feel forced) or <b>not usable</b>, with an optional note. Pass bar for a model: <b>5 of 6 German sets usable</b>. The names are hidden in the page's data too; reveal after you have voted.
+Your marks stay in this browser (localStorage); copy the summary at the bottom to send it back.</p>
+<div id="tally" class="note"></div>
+<div id="root"></div>
+<div class="sec"><h2>Your summary</h2></div><pre id="out"></pre><button id="copy">copy summary</button> <button id="revealall">reveal all</button>
+<script>
+const DE=/*DE*/[], ES=/*ES*/[], NAMES=/*NAMES*/{};
+let votes={};try{votes=JSON.parse(localStorage.getItem('sp7read')||'{}')}catch(e){}
+let shown={};
+const save=()=>{try{localStorage.setItem('sp7read',JSON.stringify(votes))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const root=document.getElementById('root');
+function section(title,sub,sets,prefix){
+  const h=document.createElement('div');h.className='sec';h.innerHTML=`<h2>${title}</h2><div class="note">${sub}</div>`;root.appendChild(h);
+  sets.forEach((s,i)=>{
+    const d=document.createElement('div');d.className='set';d.id=s.id;
+    const arms=s.arms.map(a=>{
+      const key=s.id+'|'+a.x;
+      const lyr=a.lyrics.map(x=>`<span class="tag">[${esc(x.tag)}]</span>\n${x.lines.map(esc).join('\n')}`).join('\n\n');
+      return `<div class="arm"><h3>${a.x}</h3><div class="real" data-k="${a.k}"></div><pre>${lyr}</pre>
+      <button class="yes" data-key="${key}" data-v="usable">usable</button><button class="no" data-key="${key}" data-v="not usable">not usable</button>
+      <input type="text" data-note="${key}" placeholder="note (optional)"></div>`;}).join('');
+    d.innerHTML=`<h2>${prefix}${i+1}. ${esc(s.request)}</h2><div class="meta">${s.id} · title "${esc(s.title)}" · ${esc(s.style)} · ${s.bpm} bpm · ${s.structure.map(esc).join(' / ')}</div>
+      <button data-reveal="${s.id}">reveal which model is which</button><div class="grid">${arms}</div>`;
+    root.appendChild(d);
+  });
+}
+section('German (the 6 sets that decide)','RC05-RC07 are the requests you read in SP-5; the other three are new (indie-pop, Deutschrap, Liedermacher).',DE,'D');
+section('Spanish: optional (assistant reads these)','The assistant reads the Spanish sets itself (RESULT.md). Vote here only if you want to; they do not count for the bar.',ES,'S');
+function reveal(id){shown[id]=1;paint();}
+function paint(){
+  document.querySelectorAll('button[data-v]').forEach(b=>{const v=votes[b.dataset.key];b.classList.toggle('on',!!v&&v.v===b.dataset.v);});
+  document.querySelectorAll('input[data-note]').forEach(t=>{if(document.activeElement!==t)t.value=(votes[t.dataset.note]||{}).note||'';});
+  document.querySelectorAll('.set').forEach(d=>{const on=!!shown[d.id];d.classList.toggle('revealed',on);
+    d.querySelectorAll('.real').forEach(r=>{r.textContent=on?NAMES[r.dataset.k]:'';});});
+  const all=[...DE,...ES];
+  const mark=(sets)=>sets.reduce((n,s)=>n+s.arms.filter(a=>(votes[s.id+'|'+a.x]||{}).v).length,0);
+  const deRead=DE.filter(s=>s.arms.every(a=>(votes[s.id+'|'+a.x]||{}).v)).length;
+  document.getElementById('tally').textContent=`German: ${deRead} of ${DE.length} requests fully marked (${mark(DE)} of ${DE.length*4} sets) · Spanish (optional): ${mark(ES)} of ${ES.length*4}`;
+  let rows=[];
+  const fmt=(sets)=>sets.forEach(s=>{rows.push(`${s.id}: `+s.arms.map(a=>{const v=votes[s.id+'|'+a.x]||{};return `${a.x}=${v.v||'-'}${v.note?' ('+v.note+')':''}`}).join(' | '));});
+  rows.push('GERMAN');fmt(DE);rows.push('SPANISH (optional)');fmt(ES);
+  const done=DE.every(s=>shown[s.id]);
+  let tally='';
+  if(done){const t={};DE.forEach(s=>s.arms.forEach(a=>{const n=NAMES[a.k];t[n]=t[n]||{u:0,r:0};const v=(votes[s.id+'|'+a.x]||{}).v;if(v){t[n].r++;if(v==='usable')t[n].u++;}}));
+    tally='\nPER MODEL (German, bar 5 of 6):\n'+Object.keys(t).map(n=>`${n}: ${t[n].u} usable of ${t[n].r} read`).join('\n');}
+  const key=btoa(unescape(encodeURIComponent(all.map(s=>s.id+':'+s.arms.map(a=>a.x+'='+a.k).join(',')).join(';'))));
+  document.getElementById('out').textContent='SP-7 German lyrics read\n'+rows.join('\n')+tally+'\nkey: '+key;
+}
+document.addEventListener('click',e=>{
+  const b=e.target.closest('button[data-v]');
+  if(b){const k=b.dataset.key;votes[k]=Object.assign(votes[k]||{},{v:b.dataset.v});save();paint();return;}
+  const r=e.target.closest('button[data-reveal]');if(r){reveal(r.dataset.reveal);}
+});
+document.addEventListener('input',e=>{const t=e.target.closest('input[data-note]');if(!t)return;const k=t.dataset.note;votes[k]=Object.assign(votes[k]||{},{note:t.value});save();paint();});
+document.getElementById('revealall').onclick=()=>{[...DE,...ES].forEach(s=>shown[s.id]=1);paint();};
+document.getElementById('copy').onclick=()=>{const t=document.getElementById('out').textContent;(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).catch(()=>{});};
+paint();
+</script></body></html>
