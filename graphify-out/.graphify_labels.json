@@ -599,5 +599,14 @@
   "597": "peek.sh",
   "598": "run.sh",
   "599": "setup.sh",
-  "600": "summ.py"
+  "600": "summ.py",
+  "601": "analyze.mjs",
+  "602": "7. Get Random Sample",
+  "603": "analyze2.py",
+  "604": "analysisView.test.ts",
+  "605": "api.py",
+  "606": "lib.py",
+  "607": "A Settled Split Blocks Nothing (planned 2026-10-01)",
+  "608": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)",
+  "609": "Footer Player Shows, Dims and Hides With Playback (planned 2026-10-07)"
 }

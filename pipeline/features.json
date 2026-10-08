@@ -1114,8 +1114,8 @@
         "A bundle survives a yue-server restart; a missing bundle answers no_bundle",
         "Edge: BPM outside 40-240 or a failed rebuild is a 422 with the reason (R-039)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "2026-10-08 verifier (independent): live, worktree yue-server in WSL with the real SheetSage2 + server on spare ports, 4 real SP-8 bundles via POST /api/scores/retime: 0.25-0.6 s per rebuild; measures purple 65->33/129/81, B_d 71->36/140/89, ellies 44->88/55, eventide 81->160/101 (half, double, 1.25x); double and BPM >= read dropped 0 notes; half reports dropped_notes (purple 17/293, B_d 112/488); chord symbols kept on a chords bundle, % section labels kept in every mode; bundles survived killing and restarting both yue and the server; unknown id -> 404 no_bundle; BPM 300/39/241 -> 422 out_of_range, 40/240 -> 200; corrupt melody -> 422 retime_refused. pytest 552, server vitest 1557. PRs #227, #231."
     },
     {
       "id": "F-091",

@@ -435,8 +435,8 @@
     "semantic_hash": ""
   },
   "server/src/index.ts": {
-    "mtime": 1791423487.307913,
-    "ast_hash": "70022381cfbc9a836120054c85864bb3",
+    "mtime": 1791425893.2437072,
+    "ast_hash": "bc87a1a0feda09c58dac112f0b0a5193",
     "semantic_hash": ""
   },
   "server/src/routes/generate.test.ts": {
@@ -660,8 +660,8 @@
     "semantic_hash": "bcd52b776204597f4001e6a6366d54aa"
   },
   "PLAN.md": {
-    "mtime": 1791425037.0890021,
-    "ast_hash": "1aab5498e70cd01bb17dab9d3f8f38db",
+    "mtime": 1791426158.3774948,
+    "ast_hash": "0f5fda890005ea6271368bb8e58d77ea",
     "semantic_hash": ""
   },
   "client/README.md": {
@@ -1265,13 +1265,13 @@
     "semantic_hash": ""
   },
   "server/src/services/engineGenJobs.test.ts": {
-    "mtime": 1791423487.3734066,
-    "ast_hash": "36443ce6918e55247980de013bdf3e2f",
+    "mtime": 1791426058.506674,
+    "ast_hash": "b6d1cff61f2eeabd095990ac531df69b",
     "semantic_hash": ""
   },
   "server/src/services/engineGenJobs.ts": {
-    "mtime": 1791423487.3734066,
-    "ast_hash": "3da1cc04b36db760180bbfb9b141df99",
+    "mtime": 1791426030.0057127,
+    "ast_hash": "acbe2e4ba7483ecec0a1dbe957c9dacf",
     "semantic_hash": ""
   },
   "server/src/services/engines/abcMeta.test.ts": {
@@ -1385,8 +1385,8 @@
     "semantic_hash": ""
   },
   "yue-server/main.py": {
-    "mtime": 1791425198.5689692,
-    "ast_hash": "33675dc0c196a806524a9ff2e050cd56",
+    "mtime": 1791426091.9810517,
+    "ast_hash": "9ff6b451b171d4c023aacfb9645ade19",
     "semantic_hash": ""
   },
   "yue-server/request_model.py": {
@@ -1470,13 +1470,13 @@
     "semantic_hash": ""
   },
   "yue-server/README.md": {
-    "mtime": 1791425501.4156165,
+    "mtime": 1791426091.9805527,
     "ast_hash": "6970abca362ae112bddb7bde3d180d2c",
     "semantic_hash": ""
   },
   "yue-server/requirements-test.txt": {
-    "mtime": 1791425255.4235406,
-    "ast_hash": "a0dec387ac844eebcadcda8424671010",
+    "mtime": 1791426091.9810517,
+    "ast_hash": "834b108bbb1cbcf2c16eab7fb6088b04",
     "semantic_hash": ""
   },
   "yue-server/requirements.txt": {
@@ -1605,13 +1605,13 @@
     "semantic_hash": ""
   },
   "server/src/routes/engineCovers.test.ts": {
-    "mtime": 1791423487.313915,
-    "ast_hash": "3d439de6679a4f30a97adec0a2793d4f",
+    "mtime": 1791426037.4876072,
+    "ast_hash": "01281281c06dd578ecded9c0f9d79488",
     "semantic_hash": ""
   },
   "server/src/routes/engineCovers.ts": {
-    "mtime": 1791423487.3144166,
-    "ast_hash": "c250227975132f5a30e55f326592b76d",
+    "mtime": 1791426030.0067143,
+    "ast_hash": "0770ae9117ec9a93a40269d27ee82ff9",
     "semantic_hash": ""
   },
   "server/src/services/engineTranscribeClient.test.ts": {
@@ -1625,13 +1625,13 @@
     "semantic_hash": ""
   },
   "server/src/services/transcribeJobs.test.ts": {
-    "mtime": 1791423487.4103334,
-    "ast_hash": "a27a9a62e0a4240c0b5d10790d9f782a",
+    "mtime": 1791425989.5475564,
+    "ast_hash": "ddea50f42073d3f971f7a9686fdb09c9",
     "semantic_hash": ""
   },
   "server/src/services/transcribeJobs.ts": {
-    "mtime": 1791423487.4108336,
-    "ast_hash": "71d4a01fa721bed1f7737f569114ad6e",
+    "mtime": 1791425851.402156,
+    "ast_hash": "79b3bd0dd4bf7584a54922a1161384e3",
     "semantic_hash": ""
   },
   "yue-server/instrumental.py": {
@@ -1650,7 +1650,7 @@
     "semantic_hash": ""
   },
   "yue-server/tests/fake_infer.py": {
-    "mtime": 1791425285.356003,
+    "mtime": 1791426091.9825532,
     "ast_hash": "1a7cbb02f32f2beac71f9a638b1d4e2b",
     "semantic_hash": ""
   },
@@ -3325,8 +3325,8 @@
     "semantic_hash": ""
   },
   "pipeline/features.json": {
-    "mtime": 1791425037.091501,
-    "ast_hash": "ce1db6c5786a1ac1cc6ca48f89692dc9",
+    "mtime": 1791425750.4762967,
+    "ast_hash": "bb62356c2c9e45406b49356e7e86260c",
     "semantic_hash": ""
   },
   "pipeline/spikes/SP-1-vram-handoff/build_near_budget.py": {
@@ -5405,8 +5405,8 @@
     "semantic_hash": ""
   },
   "pipeline/STATUS.md": {
-    "mtime": 1791425037.0895019,
-    "ast_hash": "37fac693bf25d3d33d70a3c9e03c4bb8",
+    "mtime": 1791425750.4747984,
+    "ast_hash": "244520b465d36bd2a01c0d3e43573672",
     "semantic_hash": ""
   },
   "pipeline/architecture.md": {
@@ -5435,8 +5435,8 @@
     "semantic_hash": ""
   },
   "pipeline/decisions.md": {
-    "mtime": 1791425037.091002,
-    "ast_hash": "f390efbefc8f58ac6e04a214d406be6c",
+    "mtime": 1791425750.4752977,
+    "ast_hash": "6a63b0eec47dfc4fa9f33c1affb89910",
     "semantic_hash": ""
   },
   "pipeline/design/chat-create.html": {
@@ -5465,8 +5465,8 @@
     "semantic_hash": ""
   },
   "pipeline/open-questions.md": {
-    "mtime": 1791425037.092002,
-    "ast_hash": "40a1f421d04aae3256fb35f5668b0cb9",
+    "mtime": 1791425750.4767954,
+    "ast_hash": "d44439a8d2e19296aff3f0c9145cbb28",
     "semantic_hash": ""
   },
   "pipeline/playbook.md": {
@@ -5490,13 +5490,13 @@
     "semantic_hash": ""
   },
   "pipeline/risks.md": {
-    "mtime": 1791425037.0925014,
-    "ast_hash": "a2be92760d17e6d582c52d13c39724ed",
+    "mtime": 1791425750.477297,
+    "ast_hash": "7293b49f1ccdad918c7953eef228a7d4",
     "semantic_hash": ""
   },
   "pipeline/scope.md": {
-    "mtime": 1791425037.093502,
-    "ast_hash": "80243d73f733b988228e514436e044ef",
+    "mtime": 1791425750.4782975,
+    "ast_hash": "80831c79835b13459f890657649c4949",
     "semantic_hash": ""
   },
   "pipeline/spikes/SP-1-vram-handoff/RESULT.md": {
@@ -6080,13 +6080,13 @@
     "semantic_hash": ""
   },
   "client/src/chatEditCopy.test.ts": {
-    "mtime": 1791423486.4105854,
-    "ast_hash": "0630a830e8afa2111e1aca3f8b7ce578",
+    "mtime": 1791425750.4447558,
+    "ast_hash": "f7158b585e40c9d32eb0082cf2e35308",
     "semantic_hash": ""
   },
   "client/src/chatEditCopy.ts": {
-    "mtime": 1791423486.411087,
-    "ast_hash": "1f45051b14019490f31dc0c7e44e3eb9",
+    "mtime": 1791425750.4452567,
+    "ast_hash": "43e7109f3a89a79ba946fe345e0d5294",
     "semantic_hash": ""
   },
   "client/src/chatEditView.test.ts": {
@@ -7185,13 +7185,13 @@
     "semantic_hash": ""
   },
   "server/src/services/chat/markFit.test.ts": {
-    "mtime": 1791423487.3448553,
-    "ast_hash": "fbf59d7c6f518962ab5ffebefbf00422",
+    "mtime": 1791425750.4817972,
+    "ast_hash": "07a47f261ee1a9f3e15866eaf8db01db",
     "semantic_hash": ""
   },
   "server/src/services/chat/markFit.ts": {
-    "mtime": 1791423487.3453553,
-    "ast_hash": "fe5a38007f66f5d500a6e8efa884658f",
+    "mtime": 1791425750.4822948,
+    "ast_hash": "0fa0c0bcfd9a3329de6119ffb250cbf3",
     "semantic_hash": ""
   },
   "server/src/services/chat/markSnap.test.ts": {
@@ -7260,8 +7260,8 @@
     "semantic_hash": ""
   },
   "server/src/services/chat/reading.ts": {
-    "mtime": 1791423487.350365,
-    "ast_hash": "7dc76360c41d8090a8e4027df59c163b",
+    "mtime": 1791425851.402156,
+    "ast_hash": "b234e8f562fb7581ea9d6889e87e6071",
     "semantic_hash": ""
   },
   "server/src/services/chat/readingJob.test.ts": {
@@ -7300,13 +7300,13 @@
     "semantic_hash": ""
   },
   "server/src/services/chat/readingSteps.test.ts": {
-    "mtime": 1791423487.3533647,
-    "ast_hash": "240aa1b083f7fa778bf6bdbfd2628271",
+    "mtime": 1791426008.5545743,
+    "ast_hash": "b1e454712ca06752132bd5864229e230",
     "semantic_hash": ""
   },
   "server/src/services/chat/readingSteps.ts": {
-    "mtime": 1791423487.3538647,
-    "ast_hash": "e3a77dd80db46ebb32e041efdeb73953",
+    "mtime": 1791425851.402156,
+    "ast_hash": "c6db70a2bd602424a51dd533725420e4",
     "semantic_hash": ""
   },
   "server/src/services/chat/recipeRules.test.ts": {
@@ -7465,18 +7465,18 @@
     "semantic_hash": ""
   },
   "server/src/services/chat/turnAttempts.ts": {
-    "mtime": 1791423487.3648963,
-    "ast_hash": "f0ad74798f862b226c4de8c97d117287",
+    "mtime": 1791425750.4822948,
+    "ast_hash": "dfb0024beccf75874053f6604c0cd24b",
     "semantic_hash": ""
   },
   "server/src/services/chat/turnCall.test.ts": {
-    "mtime": 1791423487.365396,
-    "ast_hash": "e332f30e79619adee9b69b9fc54817c8",
+    "mtime": 1791425750.4827945,
+    "ast_hash": "516e0595af5e78d9bd76a7d24d681a1b",
     "semantic_hash": ""
   },
   "server/src/services/chat/turnCall.ts": {
-    "mtime": 1791423487.3658967,
-    "ast_hash": "dea1b750ed593ffe06870f0b7db1c5d8",
+    "mtime": 1791425750.4827945,
+    "ast_hash": "ba4d25edf6389024b2f3a61794a39edd",
     "semantic_hash": ""
   },
   "server/src/services/chat/turnDispatch.test.ts": {
@@ -7520,13 +7520,13 @@
     "semantic_hash": ""
   },
   "server/src/services/chat/turnPrompt.test.ts": {
-    "mtime": 1791423487.3694053,
-    "ast_hash": "a2cbccfa00dfec819219e535b8b1f0c4",
+    "mtime": 1791425750.4832945,
+    "ast_hash": "459f46f1030a19cb7bb6ab2105f91527",
     "semantic_hash": ""
   },
   "server/src/services/chat/turnPrompt.ts": {
-    "mtime": 1791423487.3699055,
-    "ast_hash": "8f8b6fa10c208fa878caeb65aeac622f",
+    "mtime": 1791425750.483795,
+    "ast_hash": "3a91379d318a924b1a70de73bf76f107",
     "semantic_hash": ""
   },
   "server/src/services/chat/versionCard.test.ts": {
@@ -7635,28 +7635,28 @@
     "semantic_hash": ""
   },
   "yue-server/retime_beats.py": {
-    "mtime": 1791425123.0800068,
-    "ast_hash": "3a5e5b70381bc3e9502d68d2ca9a4fbb",
+    "mtime": 1791426091.9815516,
+    "ast_hash": "0a715844dbfcf94a61decdea725c4602",
     "semantic_hash": ""
   },
   "yue-server/retime_cli.py": {
-    "mtime": 1791425153.5256395,
-    "ast_hash": "1eac344dca80485e4893f3780c283f56",
+    "mtime": 1791426091.9815516,
+    "ast_hash": "fbf6d8c30294785882c12b252f2f57cb",
     "semantic_hash": ""
   },
   "yue-server/retime_fit.py": {
-    "mtime": 1791425137.0777256,
-    "ast_hash": "087ab8b91a5292a15f90e719be8f5b9f",
+    "mtime": 1791426091.982051,
+    "ast_hash": "c35f5f8131d994b09e62ae989bf22a13",
     "semantic_hash": ""
   },
   "yue-server/retime_routes.py": {
-    "mtime": 1791425189.4973874,
-    "ast_hash": "ee20c928ce07b34569451354fb964c29",
+    "mtime": 1791426091.982051,
+    "ast_hash": "cd57ed9d434ce49ef8b5ce745802b106",
     "semantic_hash": ""
   },
   "yue-server/retimer.py": {
-    "mtime": 1791425164.7496424,
-    "ast_hash": "f3dc0a827837241720e76c701c69ae4f",
+    "mtime": 1791426091.9825532,
+    "ast_hash": "341da72d8bb3c7d124d8ffc997d51a90",
     "semantic_hash": ""
   },
   "yue-server/score_bar_times.py": {
@@ -7840,8 +7840,8 @@
     "semantic_hash": ""
   },
   "yue-server/tests/retime_fixtures.py": {
-    "mtime": 1791425322.2095828,
-    "ast_hash": "5e871539876ae9dc43e2569399bf0930",
+    "mtime": 1791426091.9830503,
+    "ast_hash": "f7228c51077bad52973345ef4531b140",
     "semantic_hash": ""
   },
   "yue-server/tests/splice_fixtures.py": {
@@ -7855,13 +7855,13 @@
     "semantic_hash": ""
   },
   "yue-server/tests/test_retime_beats.py": {
-    "mtime": 1791425231.2078853,
-    "ast_hash": "24e099d657a76c1e9754854c77e9ed4e",
+    "mtime": 1791426091.9830503,
+    "ast_hash": "8b2e84f19e9ca4fc5edcc940bfe3e6b6",
     "semantic_hash": ""
   },
   "yue-server/tests/test_retime_routes.py": {
-    "mtime": 1791425255.3499975,
-    "ast_hash": "1a22dc7b128d08cec38e64a7a84900e0",
+    "mtime": 1791426091.9835498,
+    "ast_hash": "580fbc3cec3936910b1e7a2dee17aa59",
     "semantic_hash": ""
   },
   "yue-server/tests/test_score_chordfree.py": {
@@ -8657,6 +8657,81 @@
   "pipeline/verify/C3/live/61-long-read.png": {
     "mtime": 1791423487.2386572,
     "ast_hash": "9ca4f5bd568f60655d1febf3fe791e03",
+    "semantic_hash": ""
+  },
+  "pipeline/spikes/SP-8-retime-rebuild/chk.sh": {
+    "mtime": 1791425750.4787984,
+    "ast_hash": "b405c784889ca9cedfca6f9be722b209",
+    "semantic_hash": ""
+  },
+  "pipeline/spikes/SP-8-retime-rebuild/peek.sh": {
+    "mtime": 1791425750.4802947,
+    "ast_hash": "98fc1bd1a677750452ce0a16556555c0",
+    "semantic_hash": ""
+  },
+  "pipeline/spikes/SP-8-retime-rebuild/retime.py": {
+    "mtime": 1791425750.4807947,
+    "ast_hash": "ab6417a665e59027ff818becd2ac19f3",
+    "semantic_hash": ""
+  },
+  "pipeline/spikes/SP-8-retime-rebuild/run.sh": {
+    "mtime": 1791425750.4807947,
+    "ast_hash": "57ce9c94c27a9c4906a2e4e3e3160e61",
+    "semantic_hash": ""
+  },
+  "pipeline/spikes/SP-8-retime-rebuild/setup.sh": {
+    "mtime": 1791425750.4812946,
+    "ast_hash": "799def47aad1b07d6434c94612619d0a",
+    "semantic_hash": ""
+  },
+  "pipeline/spikes/SP-8-retime-rebuild/summ.py": {
+    "mtime": 1791425750.4812946,
+    "ast_hash": "6cdb34280db895f8f8d1c5c1acd18d2b",
+    "semantic_hash": ""
+  },
+  "server/src/routes/scoreRetime.test.ts": {
+    "mtime": 1791425952.103577,
+    "ast_hash": "87fb02d344b5608ae32911686f43b660",
+    "semantic_hash": ""
+  },
+  "server/src/routes/scoreRetime.ts": {
+    "mtime": 1791425876.517269,
+    "ast_hash": "3257ecab81611885c47d5788e9351d45",
+    "semantic_hash": ""
+  },
+  "server/src/services/notationStore.test.ts": {
+    "mtime": 1791425952.0463862,
+    "ast_hash": "0d047217b5b4e17586bf0e5bbfb73ee6",
+    "semantic_hash": ""
+  },
+  "server/src/services/notationStore.ts": {
+    "mtime": 1791425899.040942,
+    "ast_hash": "f246afd9f55c45c4bc299e6c51d5f957",
+    "semantic_hash": ""
+  },
+  "server/src/services/score/yueRetime.test.ts": {
+    "mtime": 1791425952.0699508,
+    "ast_hash": "5418f337e569cc2ce5f3add1b12912ff",
+    "semantic_hash": ""
+  },
+  "server/src/services/score/yueRetime.ts": {
+    "mtime": 1791425804.2534275,
+    "ast_hash": "b4315988698f3b2b32c68e67f8d349e4",
+    "semantic_hash": ""
+  },
+  "pipeline/design/retime.html": {
+    "mtime": 1791425750.475797,
+    "ast_hash": "fa54bce2208c6164e71b19de381b46b4",
+    "semantic_hash": ""
+  },
+  "pipeline/spikes/SP-8-retime-rebuild/RESULT.md": {
+    "mtime": 1791425750.4787984,
+    "ast_hash": "ba1cd8b6653359deef8aa3ca3a4ea024",
+    "semantic_hash": ""
+  },
+  "pipeline/spikes/SP-8-retime-rebuild/out_all.txt": {
+    "mtime": 1791425750.4792953,
+    "ast_hash": "8cff470566e919451029b300bdb4a89b",
     "semantic_hash": ""
   }
 }
