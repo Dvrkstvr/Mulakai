@@ -1272,11 +1272,13 @@ requiring its own justification against a screen-count rule.
      · 0:28`; a header click marks the section), its lines in a 34px bar
      column and the words, a marked line in `sky-tint` with a 2px sky edge,
      a dashed `line-hi` break between sections, and `1 MORE LINE IN CHORUS
-     IS NOT MARKED` in `text-low`; the aside `◂ ALL SECTIONS` clears the
-     mark. Click marks a line, shift-click extends the mark to the line
-     clicked (the panel only: the strip still does not use shift); double-
-     click is to play from the line (its seconds, else the section start)
-     once the player takes a seek from the sidebar. Nothing follows playback (no current line,
+     IS NOT MARKED` in `text-low`; the sections just before and after the
+     marked part stay as one `text-low` context row each (header and the
+     line next to the mark), so the mark can grow across a boundary; the
+     aside `◂ ALL SECTIONS` clears the mark. Click marks a line, shift-click
+     extends the mark to the line or header clicked (the panel only: the
+     strip still does not use shift), double-click plays the song from the
+     line (its seconds, else the section start). Nothing follows playback (no current line,
      no auto-scroll) and the panel never edits words. A pending REWRITE
      LYRICS shows its old words struck in `text-low` above the new ones at
      `text-hi` with `~` in the bar column, and a rewritten section outside
