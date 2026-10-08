@@ -259,6 +259,24 @@ requiring its own justification against a screen-count rule.
      themselves never stretch. Favorites card row pinned top and rust trash
      strip docked bottom are future work, same anatomy as list cards.
      Global error toasts (rust) appear in the header row.
+   - **Footer player** (states added 2026-10-07): the full `Player`,
+     docked to the window's bottom edge **over** the content — it reserves
+     no strip. It follows playback, sliding with the 0.3 s easeOut
+     (instant under `prefers-reduced-motion`):
+     - **Shown** (fully up, opacity 1) — a song is loaded and playing, or
+       paused/ended less than 4 s ago (the play button stays where the
+       pointer left it).
+     - **Dimmed** (slid half down, opacity 0.5) — paused or ended 4–60 s
+       ago; hovering it shows it fully while hovered.
+     - **Hidden** (slid fully away) — 60 s without playing, a song
+       generation in flight, or any view but the Library. Hiding never
+       pauses audio.
+     - **Edge reveal**: a 12px hot zone along the bottom edge (Library, a
+       song loaded) brings it fully up as an overlay while the pointer stays
+       on the zone or the footer — also during a generation.
+     While shown or dimmed (not when only revealed) the list's scroll area
+     pads its end so the last row scrolls clear of the footer, and the
+     Activity drawer stops above it; hidden, both use the full height.
    - **Song detail rail**: clicking a card's title (not `EDIT`) selects that
      song — sky border + `sky-tint` background on the card, same idiom as
      the Editor's focused layer — and opens a persistent right-hand rail

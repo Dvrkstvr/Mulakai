@@ -78,14 +78,18 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-bottom: 76px;
 }
 
-/* Editor/Create hide the docked Player footer (it slides to y:100%), so
-   the space reserved for it in .app-body would otherwise sit dead below
-   the settings/rail panels. */
-.app-editor .app-body {
-  padding-bottom: 0;
+/* The footer player overlays the app (it reserves no strip). While it is
+   docked — shown or dimmed, not merely revealed from the bottom edge — the
+   Library's scroll area pads its end so the last row scrolls clear of it,
+   and the scroll chevron sits above it. */
+.footer-docked .library-layout {
+  padding-bottom: 88px;
+}
+
+.footer-docked .scroll-area:has(> .library-layout) > .scroll-hint-down {
+  bottom: 92px;
 }
 
 .view-fill {
@@ -910,6 +914,18 @@ footer {
 
 footer .player {
   flex: 1;
+}
+
+/* Bottom-edge hot zone (PlayerFooter.tsx): pointing at it reveals the
+   footer while it is dimmed or slid away. Sits under the footer, which
+   covers it whenever it is up. */
+.footer-reveal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12px;
+  z-index: 19;
 }
 
 /* custom transport per DESIGN.md: hexagon play, square stop, sky scrub, neutral volume/download */

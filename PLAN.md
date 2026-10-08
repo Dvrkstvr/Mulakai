@@ -9284,3 +9284,44 @@ directly (the file picker is the confirmation).
   `useEditorCommands.ts`, `commandIndex.ts` / `useAppCommands.ts` (the
   file item), `YueCoverPanel.tsx` (+ tests for the palette items).
 - DESIGN.md: EXPORT's fourth WHAT, in its own commit.
+
+## Footer Player Shows, Dims and Hides With Playback (planned 2026-10-07)
+
+The Library's docked footer player (`PlayerFooter.tsx`) used to reserve a
+76px strip at the bottom of `.app-body` at all times, so with nothing
+playing the Library ended in a dead band. The footer now follows playback.
+
+### Decisions (the owner's)
+
+- **Three states**, from one pure function `footerMode()`:
+  - **Shown** (y 0, opacity 1) — a song is loaded and playing.
+  - **Dimmed** (slid half down, opacity 0.5) — loaded but paused or ended
+    less than 60 s ago. Hovering it shows it fully while hovered.
+  - **Hidden** (slid fully away) — not playing for 60 s or more, a song
+    generation in flight (a job `loading` or `running`), or any view but the
+    Library (CHAT, Create, Settings, Forge, the Editor). Hiding is visual
+    only; it never pauses audio. The existing stop on opening the Editor or
+    a takeover view stays.
+- **Bottom-edge reveal**: a 12px hot zone along the window's bottom edge,
+  on the Library with a song loaded, reveals the footer fully as an overlay
+  while the pointer stays on the zone or the footer — also while hidden by a
+  generation.
+- **No reserved strip**: the footer overlays content. The Library's scroll
+  area gets bottom padding (so its last row scrolls clear) only while the
+  computed state is shown or dimmed — the edge reveal never adds it.
+- Transitions keep the footer's existing framer-motion 0.3 s easeOut; with
+  `prefers-reduced-motion` they are instant.
+
+### File-level plan (one PR, `feat/footer-player-visibility`)
+
+- `client/src/footerMode.ts` (+ test) — the pure state function.
+- `client/src/stoppedClock.ts` (+ test, fake timers) — tracks when playback
+  stopped and re-renders at the 60 s mark (`useMsSinceStopped`).
+- `client/src/useFooterMode.ts` — combines playback, generation, view and
+  the hover/edge peek into the mode.
+- `client/src/PlayerFooter.tsx` — animates per mode, renders the edge zone.
+- `client/src/App.tsx` — feeds the hook; the `footer-docked` class drives
+  the Library's bottom padding.
+- `client/src/index.css` — drop `.app-body`'s 76px and the now-dead
+  `.app-editor .app-body` override; the edge zone; the docked padding.
+- DESIGN.md: the footer's three states and edge reveal, in its own commit.
