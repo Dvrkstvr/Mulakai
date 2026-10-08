@@ -20,6 +20,7 @@ import { useLibraryData } from './useLibraryData';
 import { useAppSync } from './useAppSync';
 import { LibraryView } from './LibraryView';
 import { PlayerFooter } from './PlayerFooter';
+import { useFooterMode } from './useFooterMode';
 import { CommandActivityLayer } from './CommandActivityLayer';
 import { scrollToSettingsSection } from './settingsSections';
 import { ChatView } from './ChatView';
@@ -74,6 +75,9 @@ export default function App() {
   const hydrateGenJob = useGenerationStore((s) => s.hydrate);
 
   useAppSync({ library, genJobs, hydrateGenJob, setPlaying });
+  const footer = useFooterMode({
+    songKey: playing?.audio_file ? playing.id : null, isPlaying: footerEngine.isPlaying, onLibrary: !openSongId && view === 'library',
+  });
 
   /** Every route into Create goes through here. A draft that actually asks for something
    * (a create-bar query, REUSE PROMPT, CREATE COVER FROM AUDIO, RETRY) replaces whatever was
@@ -113,7 +117,7 @@ export default function App() {
   }, [openSongId, view]);
 
   return (
-    <div className={openSongId || isTakeover ? 'app app-editor' : 'app'}>
+    <div className={footer.docked ? 'app footer-docked' : 'app'}>
       <NavigationContext.Provider value={navValue}>
       <HeaderSlotContext.Provider value={setHeaderSlot}>
       <Header
@@ -169,7 +173,7 @@ export default function App() {
       </AnimatePresence>
       </div>
 
-      <PlayerFooter playing={playing} engine={footerEngine} hidden={!!openSongId || isTakeover} />
+      <PlayerFooter playing={playing} engine={footerEngine} state={footer} />
       <CommandActivityLayer
         folders={library.folders} openEditor={openEditor} openFolder={openFolder} showCreate={showCreate}
         loadCreate={loadCreate} remake={remake} openSettings={openSettings}

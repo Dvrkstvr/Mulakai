@@ -8,11 +8,10 @@ kept, as a `cot: full` render sends the score (unlike /v1/scores/measure).
 WRITE_PHRASE's and TRANSPOSE's contracts (op shape, refusals) are in the
 README's API section. POST /v1/scores/bars (chat C1, D-174) times a score's
 bars on a take's downbeat grid with the splice's own fit, so the chat's strip
-and the splice cannot disagree on where a bar starts.
+and the splice cannot disagree on where a bar starts (score_bar_times).
 """
 from __future__ import annotations
 
-import math
 from typing import Annotated, Literal, Union
 
 from fastapi import Depends, FastAPI, HTTPException
@@ -25,8 +24,8 @@ from score_phrase import BEATS, MAX_BARS, MAX_NOTES, PITCH
 from score_plan import apply_plan, check_plan
 from score_section_models import Cut, Repeat, RewriteLyrics
 from score_sections import section_seconds
+from score_bar_times import bar_times
 from scores import parse_abc
-from splice_grid import GridError, fit, validate_grid
 
 Root = Literal[ROOTS]
 
@@ -111,24 +110,6 @@ class ApplyRequest(Strict):
 class BarsRequest(Strict):
     abc: str = Field(min_length=1, max_length=65536)
     grid: dict
-
-
-def bar_times(abc: str, grid: dict) -> dict:
-    """{offset, starts, end, agreement, bars}: score bar i (0-based) starts at starts[i]; end is the
-    song's end; agreement is the fit's chord-root agreement (null when no bar could be compared)."""
-    try:
-        validate_grid(grid)
-    except GridError as error:
-        raise HTTPException(422, {"code": "bad_grid", "message": str(error)}) from None
-    try:
-        f = fit(grid, abc)
-    except (ValueError, KeyError) as error:  # AbcError is a ValueError
-        raise HTTPException(422, {"code": "bad_score", "message": f"not a native two-voice score: {error}"}) from None
-    if f.bars == 0:
-        raise HTTPException(422, {"code": "bad_score", "message": "the score has no bars"})
-    return {"offset": f.offset, "starts": [round(f.t(i), 4) for i in range(f.bars)],
-            "end": round(f.t(f.bars), 4), "agreement": None if math.isnan(f.root) else round(f.root, 4),
-            "bars": f.bars}
 
 
 def _parsed(abc: str):

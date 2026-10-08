@@ -236,6 +236,82 @@ shown as OLD | NEW twice, REVISE as a follow-up turn (the existing merge, D-073/
 bar map inside the edit card (was F-036; PLAN: M4's bar map goes into the edit card). Mostly existing machinery behind new cards, so lower
 risk than C1; value high once C1 exists because the mark makes lyric rows pickable.
 
+**Work packages (stage 6, 2026-10-08; modules, data and tests in architecture.md "Chat (C2)"; D-214..D-227).**
+What the person can do when C2 is done: on a song's thread, the sidebar shows VERSIONS, STYLE, TEMPO · KEY and the
+lyrics panel; with no mark it lists the sections, a click marks CHORUS 2 and the panel shows only its lines; shift-click
+a verse line to stretch the mark; "make this jazzier" gives an edit card with a bar map whose bars 49-56 light when the
+REHARMONIZE row is hovered; "and slow it down a bit" gives PLAN 2 below it (REHARMONIZE SAME, SET TEMPO NEW, nothing
+REMOVED) and the first card greys; "rewrite the second chorus" shows OLD | NEW on the card and the old lines struck
+above the new in the panel (PROPOSED if chorus 2 is not marked); on a new-song draft, UNDO TURN puts back what the
+last reply filled and keeps the field typed by hand.
+
+The thin path (each reversible): REVISE is decided by the server, not a button (a live, unchanged edit card makes the
+turn's edit a `{drop, ops}` revise merged by the score agent's `mergeRevise`, D-227, docs/decisions/0010); the
+lyrics panel rides in C1's analysis view, no new route (D-217); line times come from the Editor's `alignLyrics` (D-218);
+the bar map is built on the server and replaces the edit card's strip (D-215); UNDO is a server record written with
+the merge (D-220). No new queue kind, no migration, no yue-server transcription file (the "Re-time a transcription"
+session's files, D-190).
+
+Each package is one PR from `origin/main`, owning the files named so builder batches stay disjoint; "after" = waits for
+that one to merge.
+- **CV-0 · the shared contract: types, one pairing, the bar map, the undo record** (F-056/F-059/F-060 data), first,
+  needs nothing: `server/src/services/chat/convergeTypes.ts`; `server/src/services/score/lyricPairing.ts` + the switch
+  of `chat/{analysisView,markBlock,markFit}.ts` and `score/planReferent.ts` to it (own refactor commit; a cross-test
+  against `yue-server/tests/data/contract/read-sections.json`); `chat/barMap.ts`; `chat/draftModel.ts` (`before`),
+  `chat/editTypes.ts` (`revision?`, `since?`, `map?`), `chat/chatTypes.ts` (`RecipeBody.undo?`, `undone?`),
+  `chat/turnDispatch.ts` (the recipe body's `undo`, the edit card's `map`) + tests. 1.5 days.
+- **CV-1 · REVISE as a follow-up turn** (F-058 server), after CV-0: `chat/{turnRevise,actionSchema,turnCall,turnPrompt,
+  replyCheck,turnJob,turnDispatch}.ts` (`revision` / `since`), `score/reviseReply.ts` (export the `drop` part),
+  `server/test-fakes/chatScripts.ts` + tests (architecture.md "Test strategy (C2)" #1). 2 days.
+- **CV-2 · the lyrics panel's data** (F-056 server), after CV-0: `chat/{lyricsSplit,lyricsPanel}.ts`,
+  `chat/{analysisView,analysisTypes,analysisStore}.ts` (`shown.lyrics`, `versionLyrics`), `routes/chatAnalysis.ts` +
+  tests. 1.5 days.
+- **CV-3 · UNDO TURN on the server** (F-059 server), after CV-0: `chat/draftUndo.ts`, `routes/chat.ts` (the undo
+  route), `chat/messageView.ts` (`undo` offer) + tests (#2). 1 day.
+- **CV-4 · client state and wire** (F-056..F-060 logic), parallel from the start (the wire contract is in
+  architecture.md): `client/src/api/chatConverge.ts`, `client/src/api/{chatEdit,chatAnalysis}.ts` (additive fields),
+  `client/src/{chatLyricsPanel,chatLyricsMark,chatBarMap,chatUndo,chatConvergeCopy}.ts` + tests. 2 days.
+- **DT-C2 · design** (stage 5), parallel from the start, before CV-6..CV-8: `pipeline/design/chat-converge.html` at
+  1366×768 with C1's real player above the composer: the song sidebar (VERSIONS, STYLE, TEMPO · KEY, the panel) in
+  LY-3's states with a line mark and shift-click; LY-4's struck / new and PROPOSED with the card beside it; the
+  revised edit card (REVISED · PLAN 2, NEW / CHANGED / SAME, REMOVED, the superseded card above, a failed revision
+  under a live card, the over-6 refusal line); the bar map in the card at 32, 120 and 200 bars (a cover), a whole-song
+  op, a CUT, hover; UNDO TURN on the reply line, after undo ("restored TITLE, STYLE · kept LYRICS: you changed it"),
+  and no UNDO once the song exists. Tokens from DESIGN.md, sky for marks and just-filled, no new hue; **the owner
+  signs it off** (D-226).
+- **CV-5 · CP-C2, headless checkpoint** (F-058 on the real machine, R-040), after CV-1: `server/scripts/chatCp2.ts`;
+  evidence in `pipeline/cp-c2/<date>/`. Stop lines (architecture.md "Test strategy (C2)" #7): any context refusal or
+  prompt p95 over 8,000 tokens; any pending op missing from both the merged plan and REMOVED; an additive revision
+  dropping a pending op in more than 3 of 10; more than 2 of 12 revise turns failing → stop and raise before CV-7.
+  0.5-1 day.
+- **CV-6 · the song sidebar and the lyrics panel** (F-056, F-057 panel half), after CV-2, CV-4 and DT-C2:
+  `client/src/{ChatSongPanel,ChatLyricsPanel,ChatView}.tsx`, `client/src/chatLyrics.css`,
+  `e2e/tests/lyricsPanel.chat.spec.ts`; `docs/design/DESIGN.md` (the panel's clause, own commit). Browser check at
+  1366×768. 2 days.
+- **CV-7 · the edit card: REVISED, the bar map, hover** (F-058 client, F-060, F-057 card check), after CV-1, CV-4,
+  DT-C2, CV-5's stop lines and CV-6 (DESIGN.md): `client/src/{ChatEditCard,ChatBarMap,ScorePlanList}.tsx`
+  (`onHoverRow?`, additive for the dock), `client/src/chatEditCopy.ts`, `client/src/chatEdit.css`,
+  `e2e/tests/revise.chat.spec.ts`; `docs/design/DESIGN.md` (the bar map, own commit). 1.5 days.
+- **CV-8 · UNDO TURN and reload-proof marks** (F-059 client), after CV-3, CV-4 and DT-C2:
+  `client/src/{ChatUndoLine,ChatRecipeCard,ChatDraftFields}.tsx`, `client/src/chatDraftStore.ts`,
+  `e2e/tests/undoTurn.chat.spec.ts`. No DESIGN.md change (the ASSISTANT tag and YOURS are in it since C0a); if DT-C2's
+  sign-off adds one, after CV-6. 1.5 days.
+- **CV-9 · C2 live run** (verifier), after CV-6, CV-7, CV-8: on the real machine, a YuE2 song and an ACE-Step song:
+  the panel lists, marks a section, a line (aligned times, R-041: the chip's bars match the line heard), shift-click
+  across two sections; the panel dims while a new version is read, RETRY after a failed read, "no words" with
+  `LYRICS_API_URL` unset; a revise chain of 3 (additive, fewer chords, replace) with REMOVED read on screen; a lyric
+  rewrite in the panel and PROPOSED; the bar map on a 200-bar cover at 1366×768; UNDO TURN after a hand edit, then
+  reload.
+
+Parallel waves: (1) CV-0, CV-4, DT-C2 · (2) CV-1, CV-2, CV-3 · (3) CV-5, CV-6, CV-8 · (4) CV-7 · (5) CV-9.
+Honest size: about 15 working days of package work; the critical path CV-0 → CV-1 → CV-5 → CV-7 → CV-9 is about 7
+days, with DT-C2's sign-off needed by wave 3.
+Split point: **C2a** (the converging card) = CV-0, CV-1, CV-4 (bar map half), CV-5, CV-7; **C2b** = CV-2, CV-3, CV-4
+(panel and undo halves), CV-6, CV-8. If the owner wants it sooner, cut in this order: reload-proof just-filled marks
+(the session marks stay, D-221), UNDO TURN on older turns (only the latest offers it), shift-click extend and
+double-click play in the panel (click and header marks stay), PROPOSED outside the mark (the card's diff stays the
+one view, LY-4's alternative).
+
 ## C3 — Reference songs (F-061 .. F-065)
 
 The other half of the amended core promise: drop an audio file or pick a library song, `analyze` it (words, score with melody and chords,
@@ -463,6 +539,8 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
   little to co-reside, D-011); **plans surviving a server restart** (D-020 / decisions/0004); **queue pause while a backend is down** (Q-009).
 - **A free-disk check before a commit** (Q-037): each edit now writes a temp render and a spliced file of 65-80 MB on top of the version; C0 deletes temps
   on every path and the C0 run logs the bytes; a check is added if the log shows pressure.
+
+- **Re-time a transcription** (D-190): planned 2026-10-08 as milestone RT below (F-090 .. F-094, D-206 .. D-208).
 
 ## Not doing (chat)
 
@@ -743,3 +821,190 @@ must not hold the GPU.
 - **Thinking-mode planners** — `reasoning_effort: "none"` is part of the contract (SP-1: 1,500 tokens of reasoning, empty content, 71 s otherwise).
 - **Per-note / piano-roll editing, tuplets, repeat signs, `w:` lyric lines in the score** — the native dialect rejects them; AGENTS.md rules out a MIDI editor.
 - **SCORE on HeartMuLa, ACE-Step, import or other-engine songs** — no score exists (D-014, D-015, R-017).
+# Scope — Engine pairing (ACE-Step 1.5 × YuE2)
+
+Framed 2026-10-08 from an audit of both upstreams (feature pass step 1, not yet sized by the owner). Sources: YuE `main` @ `1647252`
+(docs/, README, `src/yue2/`, `skills/yue2-music/`); ACE-Step-1.5 `main` @ `ca1e85f` (docs/en/, `acestep/api/http/`, `constants.py`,
+`inference.py`, GitHub issues to #1350); `ace-step/awesome-ace-step` (README, 2026-05-28) and the projects it lists, chiefly
+gary4juce v5 (YuE2 + ACE-Step in one plugin, AGPL: patterns only, no code), Ace-Step-Wrangler and yuey.cpp. Local ACE-Step:
+`S:\AI Gen\ACE-Step-1.5` @ `64ffc2f` (`local/analyze-audio`, upstream base `6d467e4`, 15 commits behind, five local commits).
+
+The split stays as it is (D-015, AGENTS.md): YuE2 writes the song and owns the score; ACE-Step does every audio edit. YuE2 has the better
+first take (upstream SongBench 6.73 vs 6.01) and a score, but sings en/zh only, has no stems, no local edit and stops at 360 s. ACE-Step
+cannot plan structure, but repaints locally, adds and extracts layers, sings 51 languages and can outpaint past the end. Each feature
+below hands one engine's strength to the other. Each gets its dated PLAN.md section with its build PR (CLAUDE.md, 3+ files).
+
+## Preconditions (fixes, not features; before E1)
+
+- **P1 — ACE-Step fork sync (R-034, Q-121) — rebased 2026-10-08 (D-203); live once ACE-Step restarts on branch `mulakai`.** The local fork lacks upstream #1287 (lego/complete skip the 5Hz LM so `src_audio` is
+  honoured; locally `inference.py:646` skips it only for cover/repaint/extract and `use_cot_caption`/`use_cot_language` default true),
+  #1273/#1282 (DCW off for base/sft over REST; locally `dcw_enabled` defaults true with no REST field: distortion on Base) and #1284 (a
+  requested model loads instead of silently falling back). F-082, F-086 and F-088 run lego/complete on Base, so they wait for P1.
+- **P2 — Stem extract wiring (R-035).** `stemRunners.ts:53-58, 89-94` sends a free-form `instruction` (used verbatim; the model was
+  trained on "Extract the VOCALS track from the audio:", built from `track_name`) and no `model` (runs on the last-loaded model, often
+  Turbo, which has no extract). Send `track_name` and a Base model; "other" has no ACE-Step track name.
+- **P3 — TAKES waste.** text2music `batch_size` AUTO is 2 and `poll()` keeps one (`jobRunner.ts:95`): force 1, or keep the extra take.
+- **P4 — Doc fix — done with D-203.** CLAUDE.md:76 names `uv run acestep … --enable-api`, whose API is text2music-only (no `src_audio`, R-025);
+  `start-all.bat` correctly runs `acestep-api`.
+
+## E1 — Quick wins (F-082, F-084, F-088)
+
+### F-082 · The song's facts in every ACE-Step edit (small; needs P1 for lego)
+Repaint, Add Layer and complete on a song send what the song already knows instead of the bare instruction: `bpm`, `key_scale`,
+`time_signature` from the song row (a YuE2 song's come from its score header via `abcMeta.ts`; an ACE-Step song's from its result
+metas), and for lego the song's caption as `global_caption` (upstream's song-level caption for stem lego). The user's instruction stays the
+local prompt. ACE-Step's tutorial calls the caption the most important input; repaint and Add Layer send none today.
+- Acceptance: unit tests on the built request for a YuE2 song, an ACE-Step song and a song with no metadata (sends none, never invents);
+  owner listen, 3 Add Layer drum takes on 2 YuE2 songs with and without, at fixed seeds; kept if the owner hears a tighter fit in at least
+  2 of 3, else reverted and recorded.
+- Non-goals: no caption field in the UI, no LM rewriting of the instruction, no change to cover/remaster (they already send the row).
+- Open: Q-123 (repaint's prompt: instruction only, or instruction plus caption).
+
+### F-084 · Route a song's first take by its language (normal; owner default Q-122)
+YuE2 sings en/zh (model card; Cantonese poor, issue #184); German/Spanish/French/Italian/Portuguese recipes reach it today with only a
+language word in the style (D-112, `withLanguage`). ACE-Step lists 51 languages. A new song whose vocal language is neither en nor zh
+defaults its first take to ACE-Step, with the reason and "no SCORE editing" in the consequence line; the person can switch back to YuE2.
+- Precondition: an owner listen, 2 German and 2 Spanish songs on both engines, confirms YuE2 is worse; if not, F-084 is dropped.
+- Acceptance: Create picks ACE-STEP for a `de` song with the reason shown and an override; en, zh and instrumental songs unchanged;
+  in chat the recipe may only name `acestep` once C7 lands (D-112 (e), R-025), until then the reply names the risk.
+- Non-goals: automatic language detection beyond the existing lyric-language guard; translating lyrics.
+
+### F-088 · Wordless vocal, then words (small; needs P1)
+gary4juce's "gibberish to lyrics": on a song with no vocal, ADD LAYER vocals with no lyrics (lego on Base) gives a wordless vocal idea;
+a second step covers that layer with the person's lyrics, keeping its melody. Gives vocal ideas over a YuE2 instrumental, which YuE2
+itself cannot add without re-rendering the whole song.
+- Acceptance: both steps run on 2 instrumentals; the second step's words read back by lyrics-server at WER ≤ 30 %; the vocal stays in
+  the same bars (onset map within 1 beat); each step is its own version with a consequence line.
+- Non-goals: harmony/backing-vocal stacks, per-line timing control.
+
+## E2 — Pairing verbs (F-083, F-085, F-086, F-087)
+
+### F-083 · Bar-true regions from the score (normal)
+YuE2 lands within 0.1 % of the score's tempo (R-013), so a scored song's bar and section times are exact; chat C1 already reads them
+(`/v1/scores/bars`, `yueScoreBars.ts`, D-194, Q-120). The Editor does not: a YuE2 song has `lyricTimestamps` null and shows no section
+strip until a lyrics-server reading lands. Use the bar map in the Editor: the section strip draws from the score's `% section` timing
+at once, and REPAINT / Add Layer regions snap to bar edges (Alt frees, as in the chat).
+- Acceptance: a YuE2 song with no lyrics reading shows its sections; a drag snaps to bar times (within one 40 ms latent frame); after an
+  ACE-Step repaint the bars stay (D-006, `barShift.ts`), after an edit that moves them the strip falls back to the reading.
+- Non-goals: beat-level snapping (chat "Not doing"); bar maps for songs without a score.
+
+### F-085 · EXTEND past the end (normal; R-036)
+YuE2 stops at 360 s and has no continuation. ACE-Step repaint pads the source with silence when `repainting_end` passes its end
+(`padding_utils.py:38-70`), so a repaint over the last few seconds plus N new seconds continues the song; chaining extends further
+(tutorial: 3-90 s per step). The new version carries F-082's song facts.
+- Acceptance: a version N s longer (±0.1 s) for N in 10..90; the kept part matches the source after gain matching (ACE-Step
+  peak-normalises, SP-4); two chained extends work; a result over 600 s (ACE-Step's ceiling) is refused before the job; on a YuE2 song the
+  consequence line says SCORE editing ends (D-006).
+- Non-goals: extending at the start, extending a single layer of a layered song.
+
+### F-086 · Replace one part of a single-mix song (normal; needs P1)
+YuE2 gives one stereo mix. REPLACE <part>: split the song (Demucs/UVR, not ACE extract), keep the stems as layers, mute the chosen one,
+and regenerate it with lego on Base (`track_name`, F-082's facts) or complete with `track_classes`. gary4juce reports lego is strong for
+vocals and backing vocals and generic for other parts, and loops a source under about 1 minute up to about 2 minutes, then trims.
+- Acceptance: drums and vocals replaced on 2 YuE2 songs; the original stem stays as a muted layer (nothing destroyed); the consequence
+  line names the split and the part; a source under 60 s is looped and trimmed back to its length.
+- Non-goals: replacing a part over a region only (Add Layer is whole-song, PLAN.md); stems beyond the separator's four.
+- Stored data: a song gains layers from its own split; the migration note goes in the PLAN.md section before code if the split-to-layers
+  path does not exist yet.
+
+### F-087 · A closer-to-source REMASTER (small; owner A/B decides)
+REMASTER runs `cover` (FSQ: the source passes through 5 Hz codes) on xl-sft at 100 steps. Upstream's `cover-nofsq` feeds raw latents
+and stays closer to the source; gary4juce uses it at `cover_noise_strength` 0.2 and reports a pass makes a YuE2 take "shinier". Issue
+#1329: noise strength above 0 gives near-silence on XL SFT, so this tries 2B SFT and xl-turbo.
+- Acceptance: duration unchanged; words kept (lyrics-server WER change ≤ 5 points); owner A/B on 3 YuE2 songs, kept only if preferred in
+  at least 2 of 3 (Q-124: REMASTER's path changes, no new verb).
+- Later: loudness/EQ matching to a reference track (Matchering, GPLv3: only as a separate process).
+
+## E3 — Native runtimes (F-089, spike first)
+
+### F-089 · YuE2 and ACE-Step without WSL (risky; SP-7, R-037)
+yuey.cpp (MIT, C++/GGML YuE2, prebuilt Windows CUDA; BF16 6.8 GiB, Q8 3.6 GiB, Q4_K_M 2.4 GiB; plan-only and score output; SheetSage2
+built in) and acestep.cpp (MIT, loads models on first request) may run both engines natively on the 16 GB card, possibly side by side.
+Windows Python YuE2 falls back to slow attention (#209), which is why yue-server lives in WSL.
+- SP-7 measures on the RTX 4080: render quality against Python YuE2 at the same score and seed (owner blind A/B, 4 songs), RTF, VRAM
+  peak, both resident at once, and whether yuey.cpp covers yue-server's contract (external `abc`, `cot` modes, plan-only, token counts
+  for the 4,096 budget, `truncated`). Pass: a PLAN.md migration section; fail: WSL stays, recorded.
+- Non-goals: dropping the Python path before SP-7 passes; GGUF quantisations below Q8 for the shipped default.
+
+## Later (engine pairing)
+
+- **Plan-only YuE2 jobs** (upstream `--stage plan`, about 18 s vs about 95 s): draft the score, edit it, then pay for audio.
+- **A fast chord scaffold instead of the YuE2 planner** (gary4juce): code writes the ABC from tempo, key, meter and bar counts using stock
+  progressions; their finding is that chord changes per bar hold YuE2 to tempo.
+- **MIDI melody/chord import into a score** with gary4juce's rules (monophonic, straight grid, root-position triads, no partial bars).
+- **Syllable fit for REWRITE_LYRICS** (`score_lyrics.py:109` checks only the line count; upstream says match syllables to the melody).
+- **CPU forced alignment for word timings** (torchaudio MMS_FA, as Ace-Step-Wrangler): timings for YuE2 songs without GPU time.
+- **`repaint_mode` / `repaint_strength`** as REPAINT's one strength control; **`full_analysis_only`** as the upstream replacement for the
+  fork's `/v1/analyze_audio`.
+- **Community YuE2 adapters** (Mothersuperior instrumental AR LoRA; real-audio tokenizer + NAR LoRA for continuation from audio):
+  CC BY-NC like the weights; only after SP-7 decides the runtime.
+
+## Not doing (engine pairing)
+
+- **ACE-Step `extract` as the default SPLIT** — Demucs/UVR stay the default (gary4juce hid ACE extract for the same reason); P2 only
+  makes the option correct.
+- **YuE v1** (`YuE-v1` branch: stems and audio-prompt ICL): a third engine, ruled out in PLAN.md; nothing in the audit changes that.
+- **Splice seams healed by ACE-Step repaint** (SP-4 B, D-080), unchanged.
+- **Copying code from gary4juce, DEMON or ACE-Step-DAW** (AGPL): patterns only.
+
+## RT — Re-time a transcription (F-090 .. F-094; D-190, D-206 .. D-208)
+
+A SheetSage2 score sometimes reads the beat wrong: half time, double time, or a tempo the owner can name. SheetSage2 builds the ABC from
+saved model outputs (`notation/song_melody.mid`, `_beats.txt`, `_chords.txt`, `_keys.txt`, `_structures.txt`) and snaps the melody onto
+the beat list, so the fix is a corrected beat list and a rebuild: CPU only, seconds, no model re-run (SP-8, R-039). A tempo only slightly
+off stays SET TEMPO (exists). Both consumers and every surface (owner, D-206): the C3 cover's TRANSCRIBE score, the C1 chat reading's
+score, the SCORE dock and a chat verb. The outputs are kept on the Mulakai server with the transcription, so re-time still works after
+yue-server's 24 h sweep or a restart; with no saved outputs the person is offered TRANSCRIBE AGAIN (owner, D-207).
+
+Feature track: normal (stored data, a yue-server route, new UI). Order: RT-1 → RT-2 → RT-3 → RT-4; RT-5 after C1 is merged; RT-6 after C2.
+
+### F-090 · The rebuild and the kept outputs (RT-1 yue-server, RT-2 server)
+- RT-1: yue-server `POST /v1/scores/retime` `{bundle, mode: half | double | bpm, bpm?, melody_only}` → `{abc, measures, bpm, warnings}`,
+  the beat transform in Python (only yue-server reads/writes ABC, decision 0002), the rebuild in SheetSage2's venv as a CPU subprocess;
+  a transcription job also returns its bundle (`GET /v1/transcriptions/{id}/notation`). 422 with the reason when the rebuild fails or the
+  BPM is out of range.
+- RT-2: the server fetches the bundle when a transcription finishes and keeps it (see "Stored data" below); `POST /api/retime` rebuilds
+  from a kept bundle by its id.
+- Acceptance: half/double/BPM rebuild on 2 real outputs in under 10 s with measures ≈ ½ / × 2 / × ratio; double and a BPM at or above
+  the read tempo keep the melody's notes (≤ 3 % lost); half and slower grids snap notes onto SheetSage2's fixed 4-subbeat grid
+  (`fit_midi`) and report `dropped_notes`, never claimed lossless (SP-8: 9-26 % on correctly-read songs, D-210); chords and section labels
+  survive; a bundle survives a yue-server restart; a missing bundle answers `no_bundle`.
+- Non-goals: re-running any model; beat-level editing; re-timing a score that no transcription made.
+
+### F-091 · RE-TIME on the cover's transcribed score (RT-3, `YueCoverPanel.tsx`)
+The cover panel shows what was read (`READ AS 140 BPM · 4/4 · 96 BARS`) with HALF · DOUBLE · BPM…; the consequence line names the new
+tempo and bar count before the rebuild. The rebuilt score replaces the panel's score; UNDO returns the one before.
+- Acceptance: a 140-read score becomes 70 BPM with half the bars and the cover renders from it; BPM… refuses outside 40–240; a cover whose
+  bundle is gone shows TRANSCRIBE AGAIN with its GPU time.
+- Non-goals: re-rendering the piano preview if SP-8 shows it is not cheap (then the preview is marked stale).
+
+### F-092 · Re-time a chat reading (RT-5, after C1 is merged)
+The reading's SCORE part (a transcribed song, not a YuE2 one) can be re-timed from the reading line; the consequence says the bar numbers
+change and a mark on this version goes stale. The re-timed reading replaces the stored one (bars, sections, bar times) and is kept as the
+version's reading.
+- Acceptance: after HALF the strip shows half the bars at the same seconds; an existing mark on the version shows the stale card.
+- Non-goals: re-timing a YuE2 song's own score (its beat is what YuE2 rendered: SET TEMPO / SCORE are the tools).
+
+### F-093 · RE-TIME as a SCORE dock op (RT-4)
+For a cover whose score came from a transcription and whose bundle is kept, the dock offers RE-TIME beside SET TEMPO; it is generative
+(YuE2 re-renders), so it has a consequence line with the render time, like every SCORE op.
+- Acceptance: RE-TIME HALF on a cover song plans, shows the consequence and renders a new version at half the bars.
+- Non-goals: offering it on a YuE2 original or on a cover with no bundle (Q-126).
+
+### F-094 · A chat verb (RT-6, after C2)
+"it's half time" / "it's really 92 BPM" makes the planner propose a RE-TIME op card (F-093's op, or F-092's when the turn is about the
+reading) with the same consequence copy.
+- Acceptance: 3 phrasings each give a RE-TIME card with the right mode; a slight BPM change gives SET TEMPO instead (Q-125).
+
+### Stored data (before code, F-090)
+- New: a notation bundle per finished transcription, stored by the server as one JSON file (the five files, base64, tens of KB) under
+  `DATA_DIR/notation/<sha256>.json`, content-addressed so the same source shares one. Referenced by id from the cover job's result and the
+  cover song's base version `params_json.notationId`, and from the reading's score part in `versions.analysis_json` (`notationId`).
+- No change to existing rows and no backfill: a score or reading without `notationId` offers TRANSCRIBE AGAIN. Deleting a version or song
+  does not delete a bundle another row may share; an unreferenced bundle older than 30 days is swept at server start.
+- Reversal: the files and the optional field can be ignored; nothing else reads them.
+
+### Not doing (RT)
+- A mechanical ABC rewrite (scale durations, re-bar) as a fallback (D-207: TRANSCRIBE AGAIN instead).
+- Tempo maps or rubato (one tempo per re-time; the BPM grid anchors to detected downbeats).
+

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { beatsPerBar, buildOpSchema, checkOps } from './opSchema.js';
+import { beatsPerBar, buildOpSchema, checkOps, opsArraySchema } from './opSchema.js';
 import type { ScoreFacts } from './planTypes.js';
 
 const facts = (over: Partial<ScoreFacts['header']> = {}, barMap: string[] = []): ScoreFacts => ({
@@ -107,5 +107,24 @@ describe('checkOps', () => {
     ]);
     expect(checkOps('nope', facts())).toEqual({ ok: false, reasons: ['the reply is not a JSON object {"ops":[...]}'] });
     expect(checkOps({ ops: [] }, facts())).toEqual({ ok: false, reasons: ['the reply has 0 ops; send 1 to 6'] });
+  });
+});
+
+describe('opsArraySchema with a bar range (C1 mark, D-176)', () => {
+  type Arr = { items: { anyOf: Array<Record<string, any>> } };
+  const op = (s: unknown, name: string) => (s as Arr).items.anyOf.find((o) => o.properties.op.const === name)!;
+  it('bounds every bar-valued field to the range', () => {
+    const s = opsArraySchema(facts(), 4, 1, [47, 58]);
+    const rh = op(s, 'REHARMONIZE');
+    expect(rh.properties.from_bar).toMatchObject({ minimum: 47, maximum: 58 });
+    expect(rh.properties.to_bar).toMatchObject({ minimum: 47, maximum: 58 });
+    expect(rh.properties.chords.items.properties.bar).toMatchObject({ minimum: 47, maximum: 58 });
+    expect(op(s, 'WRITE_PHRASE').properties.start_bar).toMatchObject({ minimum: 47, maximum: 55 });
+  });
+  it('a phrase longer than the range starts at its first bar', () => {
+    expect(op(opsArraySchema(facts(), 8, 1, [47, 50]), 'WRITE_PHRASE').properties.start_bar).toMatchObject({ minimum: 47, maximum: 47 });
+  });
+  it('without a range the song bounds stay', () => {
+    expect(op(opsArraySchema(facts(), 4), 'WRITE_PHRASE').properties.start_bar).toMatchObject({ minimum: 1, maximum: 62 });
   });
 });

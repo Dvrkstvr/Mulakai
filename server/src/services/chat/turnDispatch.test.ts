@@ -24,6 +24,23 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(out.body.changed).toContain('title');
   });
 
+  it('C2 (F-059, D-220): a recipe that fills fields stores its undo record: the rev it wrote, the old values, the fields', () => {
+    const typed = handEdit(emptyDraft(), { title: 'Draft title' }).draft; // rev 1
+    const out = dispatchReply({ ...base, draft: typed, sentRev: 1, reply: recipe });
+    if (out.kind !== 'recipe') throw new Error('not a recipe');
+    expect(out.body.undo).toEqual({ rev: out.draft.rev, before: { title: 'Draft title' }, fields: out.body.changed });
+    expect(out.body.undo?.fields).toContain('title');
+  });
+
+  it('C2 (F-059 edge): a recipe that filled nothing has no undo record', () => {
+    const filled = dispatchReply({ ...base, reply: recipe });
+    if (filled.kind !== 'recipe') throw new Error('not a recipe');
+    const again = dispatchReply({ ...base, draft: filled.draft, sentRev: filled.draft.rev, reply: recipe });
+    if (again.kind !== 'recipe') throw new Error('not a recipe');
+    expect(again.body.changed).toEqual([]);
+    expect(again.body).not.toHaveProperty('undo');
+  });
+
   it('a field touched by hand after SEND is skipped and named (CH-6)', () => {
     const typed = handEdit(emptyDraft(), { title: 'Mine' }).draft; // rev 1, after sentRev 0
     const out = dispatchReply({ ...base, draft: typed, reply: recipe });
@@ -64,7 +81,26 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
       planId: 'p1', ops: reharm, verdicts: applied.verdicts, checks: out.plan.checks,
       splice: { splice: true, kind: 'reharmonize', from_bar: 47, to_bar: 54 }, renderMode: { cot: 'full', reason: 'chords' },
       assumptions: ['assuming chorus 1, bars 47-54'], attempts: 2, refusals: [['bar 999 is outside the song']],
+      from: { bpm: facts.header.bpm, key: facts.header.key },
+      map: expect.objectContaining({ ops: [{ spans: [[47, 54]], whole: false }] }),
     });
+  });
+
+  it('C2 (F-060, D-215): the edit card carries the bar map built from the facts the planner saw', () => {
+    const two: Op[] = [...reharm, { op: 'SET_TEMPO', bpm: 90 }];
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(two), edit: planned(two) });
+    if (out.kind !== 'edit') throw new Error('not an edit card');
+    expect(out.body.map?.bars).toBe(Math.max(facts.header.bars, ...facts.sections.map((s) => s.to_bar)));
+    expect(out.body.map?.sections.map((s) => [s.from, s.to])).toEqual(facts.sections.map((s) => [s.from_bar, s.to_bar]));
+    expect(out.body.map?.ops).toEqual([{ spans: [[47, 54]], whole: false }, { spans: [], whole: true }]);
+  });
+
+  it('the card carries the tempo and key the plan was read at, as the SCORE dock shows them (87 → 88, not ? → 88)', () => {
+    const tempo: Op[] = [{ op: 'SET_TEMPO', bpm: 88 }];
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(tempo), edit: planned(tempo) });
+    if (out.kind !== 'edit') throw new Error('not an edit card');
+    expect(typeof facts.header.bpm).toBe('number');
+    expect(out.body.from).toEqual({ bpm: facts.header.bpm, key: facts.header.key });
   });
 
   it('CB-2: any other plan says why the whole song is re-rendered; a chord-free REHARMONIZE takes the whole-song path (F-065 edge)', () => {
@@ -75,6 +111,25 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     if (free.kind !== 'edit') throw new Error('not an edit card');
     expect(free.body.splice).toEqual({ splice: false, reason: 'the song has no chords: adding them renders the whole song with chords' });
     expect(free.body.renderMode).toEqual({ cot: 'full', reason: 'reharmonize' });
+  });
+
+  it('C1: a marked edit card carries the mark and its notes: a clamp and a whole-song op (D-176, F-055 edge)', () => {
+    const two: Op[] = [...reharm, { op: 'SET_TEMPO', bpm: 90 }];
+    const mark = { versionId: 'v1', bars: [47, 65] as [number, number], seconds: [100, 179] as [number, number], notes: ['the mark reaches bar 70 but the score ends at bar 65: planned on bars 47-65'] };
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(two), edit: planned(two), mark });
+    if (out.kind !== 'edit') throw new Error('not an edit card');
+    expect(out.body.mark).toEqual({ ...mark, notes: [mark.notes[0], 'SET TEMPO changes the whole song, not only the marked bars'] });
+    const plain = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: planned(reharm) });
+    expect(plain.kind === 'edit' && 'mark' in plain.body).toBe(false);
+  });
+
+  it('C1 live B3: under a mark the card drops an assumed place that contradicts it; unmarked keeps it', () => {
+    const mark = { versionId: 'v1', bars: [30, 36] as [number, number], seconds: [70, 85] as [number, number], notes: [] };
+    const reply = { ...edit(reharm), assumptions: ['assuming the first chorus, bars 15-22', 'jazz means seventh chords'] };
+    const marked = dispatchReply({ ...base, hasSong: true, reply, edit: planned(reharm), mark });
+    expect(marked.kind === 'edit' && marked.body.assumptions).toEqual(['jazz means seventh chords']);
+    const plain = dispatchReply({ ...base, hasSong: true, reply, edit: planned(reharm) });
+    expect(plain.kind === 'edit' && plain.body.assumptions).toEqual(reply.assumptions);
   });
 
   it('F-046 edge: a song that is not score-eligible gets the reason as a say, no card', () => {

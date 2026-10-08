@@ -326,13 +326,40 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
 - `POST /v1/scores/bars` (chat C1, D-174) — body `{abc, grid}` (a
   `grid_v: 1` grid: a transcription's `/grid`, a splice's `grid_urls`, or the
   server's cached sidecar) → `{offset, starts, end, agreement, bars}`: score
-  bar `i` (0-based) starts at `starts[i]` s, `end` is the song's end, `bars`
-  the score's bar count. It is the splice's own fit (`splice_grid.fit`: the
-  integer `offset` -4..4 whose chord roots best agree over every bar, a take
-  tracked at half bars thinned first), so the chat's strip and a splice
-  cannot disagree. `agreement` is that fit's root agreement, null when the
-  score has no chords. CPU only. 422 `detail.code` `bad_grid` or
-  `bad_score` (not a native two-voice score, or no bars).
+  bar `i` (0-based) starts at `starts[i]` s, `end` closes the last timed bar
+  (the song's end when the score reaches it), `bars` the score's bar count.
+  It is the splice's own fit (`splice_grid.fit`: the integer `offset` -4..4
+  whose chord roots best agree over every bar, a take tracked at half bars
+  thinned first), so the chat's strip and a splice cannot disagree.
+  `starts` strictly increase (Q-120, `score_bar_times`): a bar the fit puts
+  before the first downbeat starts a median bar back per bar, clamped at 0
+  (bars that still meet at 0 share the audio's first seconds evenly); bars
+  past the last downbeat are not in the audio and are left out, so `starts`
+  can be shorter than `bars`. `agreement` is that fit's root agreement, null
+  when the score has no chords. CPU only. 422 `detail.code` `bad_grid` (also
+  when no bar falls inside the audio) or `bad_score` (not a native
+  two-voice score, or no bars).
+- `GET /v1/transcriptions/{id}/notation` (re-time, F-090) → `{files,
+  chords}`: the five saved files a rebuild needs (`song_melody.mid`,
+  `song_beats.txt`, `song_chords.txt`, `song_keys.txt`,
+  `song_structures.txt`; about 24 KB), base64 by name, for the Mulakai
+  server to keep (jobs are forgotten after the retention window or a
+  restart). 409 unless succeeded, 404 `detail.code` `no_bundle` when none.
+- `POST /v1/scores/retime` (F-090, SP-8) — body `{files, mode: half |
+  double | bpm, bpm?, melody_only?}` → `{abc, measures, bpm, read_bpm,
+  vocal_notes, ins_notes, notes, dropped_notes, stretched_notes,
+  warnings}`. The beat list is rewritten (`retime_beats.py`: every 2nd beat
+  from the first downbeat, midpoints, or a regular grid from the first
+  downbeat; a pickup stub in another meter is kept), the melody MIDI is
+  snapped onto SheetSage2's 4-per-beat grid (`retime_fit.py`; a note the
+  slower grid cannot hold is dropped and counted in `dropped_notes`), and
+  SheetSage2's own `generate_abc_from_exports` rebuilds the score in
+  SheetSage2's venv (`retime_cli.py`, about 0.5 s). The result is checked
+  as `POST /v1/jobs` checks a supplied score. CPU only. 422 `detail.code`
+  `out_of_range` (the new tempo outside 40-240), `bad_request` (bpm mode
+  without `bpm`), `no_bundle` (a file missing), `bad_bundle`,
+  `retime_refused` (SheetSage2 refused the grid, or the result does not
+  parse); 502 `retime_failed`; 503 when SheetSage2 is not configured.
 - `POST /v1/scores/apply` takes the op `WRITE_PHRASE` (F-026) as well as
   `SET_TEMPO`, `REHARMONIZE` and `EDIT_STYLE`:
   `{op: "WRITE_PHRASE", start_bar >= 1, instrument (1-40 chars), bars: [[{pitch,

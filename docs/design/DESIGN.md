@@ -60,6 +60,15 @@ background), not lilac, because focus is scope/targeting, not a version/
 history marker. Create's ENGINE choice is sky for the same reason: picking
 an engine targets where the request goes, while GENERATE (acid) commits it.
 
+The Library's **playing** row is sky too — the playhead's job, "where is
+playback right now", applied to "which song". It stays quiet at rest (3px
+sky left edge, sky outline at 35%) so a selected row still reads first, and
+turns loud on hover (full sky outline, `sky-tint` wash, sky title, a soft
+sky glow) so the pause is easy to find. Its play button becomes a filled sky
+square with two drawn pause bars in `on-sky` — not acid, because pausing
+stops something rather than starting it. `selected` and `playing` are
+independent classes; a row can carry both.
+
 ### Lilac — "what did the AI make before?" (versions / history / AI markers)
 
 | Token         | Hex       | Use |
@@ -194,15 +203,37 @@ requiring its own justification against a screen-count rule.
    - **Create bar**: one slim row below the header — a single "what do you
      want to make?" prompt input + acid CREATE button (parallelogram) that
      navigates to the Create takeover (see below). This replaces the old
-     inline create form that used to live in Library. It stays live while
-     songs generate (a new one queues). Its FEELING LUCKY is a queued job
-     too, and so is the Quick Start a typed idea starts in Create: while
-     either waits, a `text-mid` line says so ("FEELING LUCKY waits its turn
-     · starts after 1 job").
+     inline create form that used to live in Library. Its FEELING LUCKY is a
+     queued job too, and so is the Quick Start a typed idea starts in
+     Create: while either waits, a `text-mid` line says so ("FEELING LUCKY
+     waits its turn · starts after 1 job").
+     **Create card** (2026-10-07, `CreateCard.tsx`): while Create is busy —
+     Quick Start writing a draft from an idea (which carries on when Create
+     is closed), a song generating, or a draft held — FEELING LUCKY, the
+     input and CREATE give way to one 58px card filling the row (owner's
+     call: a new idea starts in Create then). It shows the first of these,
+     in that order. Line 1: the state (`text-mid`, tracked small caps) and
+     the title (`text-hi`, 700). Line 2:
+     - **THINKING**: the AI shader (no veil — the LM reports no progress)
+       and "QUICK START is writing the prompt, lyrics and details…";
+       `QUEUED · #2` plain while it waits; `COULDN'T WRITE` in rust
+       (`rust-tint`, `rust` hairline) with the error and "RETRY in Create".
+     - **GENERATING** (or `LOADING MODEL`, or `QUEUED · #2` plain): the
+       oldest generation in flight, the AI shader veiled by its progress
+       (none for an engine's per-stage share), and "1:05 elapsed · 42% ·
+       stage", plus "+1 more in Activity" for the others. This replaces the
+       grid's in-flight cards.
+     - **DRAFT**: outlined `line` hairline tags of only what it sets
+       (`143 BPM · A MINOR · 4/4 · 3:40 · POLISH VOCALS · LYRICS · 50 LINES
+       · ACE-STEP`).
+     Its right end is TO CREATE: a 150px acid fill, left edge cut at the
+     parallelogram angle, opening Create. The card has no clear, stop or
+     abort: Create's CLEAR DRAFT and Activity's CANCEL / ABORT do that, away
+     from the button that opens it.
    - **Generating cards**: one full-width card pinned at the top of the
-     grid per song generation in flight or failed, oldest first (2026-10-03,
-     S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
-     the shader; a failed one keeps its RETRY until pressed.
+     grid per **failed** song generation, keeping its error and RETRY until
+     pressed (2026-10-03, S4 part b). Generations in flight show in the
+     create bar's Create card instead (2026-10-07).
    - **CONTINUE** (added 2026-10-03): a row above the song grid with up to
      three cards, the songs edited most recently (by their newest version —
      songs have no `updated_at`, and versions are the edits), from
@@ -228,6 +259,31 @@ requiring its own justification against a screen-count rule.
      themselves never stretch. Favorites card row pinned top and rust trash
      strip docked bottom are future work, same anatomy as list cards.
      Global error toasts (rust) appear in the header row.
+   - **Footer player** (states added 2026-10-07): the full `Player`,
+     docked to the window's bottom edge **over** the content — it reserves
+     no strip. It follows playback, sliding with the 0.3 s easeOut
+     (instant under `prefers-reduced-motion`):
+     - **Shown** (fully up, opacity 1) — a song is loaded and playing, or
+       paused/ended less than 4 s ago (the play button stays where the
+       pointer left it).
+     - **Dimmed** (slid half down, opacity 0.5) — paused or ended 4–60 s
+       ago; hovering it shows it fully while hovered.
+     - **Hidden** (slid fully away) — 60 s without playing, a song
+       generation in flight, or any view but the Library. Hiding never
+       pauses audio.
+     - **Edge reveal**: a 12px hot zone along the bottom edge (Library, a
+       song loaded) brings it fully up as an overlay while the pointer stays
+       on the zone or the footer — also during a generation.
+     While shown or dimmed (not when only revealed) the list's scroll area
+     pads its end so the last row scrolls clear of the footer, and the
+     Activity drawer stops above it; hidden, both use the full height.
+     **Faceted glass** (2026-10-07): the footer is a pane, not a bar — a
+     30% carbon tint over the backdrop, cut into −10° parallelogram facets
+     (the shape of choices, here as cut crystal; 44px wide, two rows) that
+     each shift what is behind them by a fixed offset, after a 1px blur. Its
+     only edge is a 1px lit top line (`inset 0 1px 0 rgba(255,255,255,.22)`)
+     — no glow, no hairline border. Browsers without SVG backdrop filters
+     get the tint with a plain blur.
    - **Song detail rail**: clicking a card's title (not `EDIT`) selects that
      song — sky border + `sky-tint` background on the card, same idiom as
      the Editor's focused layer — and opens a persistent right-hand rail
@@ -464,12 +520,37 @@ requiring its own justification against a screen-count rule.
            shimmer stays on GENERATE / REPAINT. Beside it, **USE .ABC FILE**
            (a quiet outline) swaps in a score corrected elsewhere, which is
            the only way to fix its notes. Mulakai has no note editor; it can
-           only leave whole sections out (SECTIONS, below).
+           only leave whole sections out (SECTIONS, below). Once a score is
+           there, **DOWNLOAD MIDI** (same quiet outline) saves it as
+           `<source>.mid`; a failure shows in the step's rust error line.
          - The **score review** is a carbon panel. Its facts sit in the same
            label/value grid idiom as SONG DETAILS: tempo, key, meter, bars,
            length, and sung/played note counts. SheetSage2's warnings come
            as a `.warn-note`, then the piano preview (inline `AudioPreview`),
            then the ABC behind a collapsed SHOW SCORE disclosure.
+         - **READ AS** (added 2026-10-08, RE-TIME, F-091;
+           pipeline/design/retime.html, D-211/D-212) sits under the facts on a
+           transcribed score: a carbon row with a `line-hi` hairline, the
+           label, what SheetSage2 read in bold (`93 BPM · 2/4 · 71 BARS`),
+           then **HALF · DOUBLE · BPM…** as sky choice chips (`dock-chip`). A
+           chip that would leave 40–240 BPM is disabled, and a `text-low` hint
+           names why. **BPM…** turns into its own text input in the chip's
+           place, focused, with a sky edge and only an enter icon (↵); a click
+           outside (or Esc) turns it back with no BPM set; Enter or ↵ locks it
+           into a sky `92 BPM` chip; a refused value turns the field rust with
+           the reason. Picking a mode rebuilds at once (no GPU), so before the
+           press the consequence line names the new tempo, the bar count, and
+           how many notes the slower grid leaves out (a rust `.warn-note`
+           above 10 %); **RE-TIME AT n BPM** is an acid *outline* (GENERATE
+           COVER stays the one filled acid CTA) beside a quiet CANCEL. A
+           BPM within 8 % of the reading is a `text-low` hint pointing at SET
+           TEMPO, with no press. Once applied, the facts show the rebuilt
+           score, the row adds `· RE-TIMED TO n BPM`, a lilac **RE-TIMED** tag
+           states the change, and UNDO (quiet) returns to the reading; the
+           chips always start from the reading, never from a re-time. The
+           piano preview dims with a rust `STALE · n BPM` tag. When the kept
+           reading is gone, a rust-tint box says so and offers **TRANSCRIBE
+           AGAIN** (acid outline), and the chips are disabled.
          - **SECTIONS** (added 2026-10-01) sits under the facts: the score's
            `% name` sections as the Editor's **section strip**
            (clip-path parallelograms, 3px gaps), flex-weighted by each
@@ -744,7 +825,11 @@ requiring its own justification against a screen-count rule.
          the song; no format choice), **STEMS** (each layer's active take,
          preview + DOWNLOAD), or **REMASTERED MIX** (one ACE-Step cover pass
          over the mix with the Settings › Playback & Export format/steps as
-         lilac badges; the result isn't kept).
+         lilac badges; the result isn't kept), or, only for a song YuE2 made,
+         **SCORE AS MIDI** (the active take's score as `<title>.mid`, consequence
+         line "Downloads <title>.mid · the score's Vocal and Ins melodies, not
+         the audio · chords left out", acid DOWNLOAD MIDI; a take with no
+         score says so in the rust error line).
        `TUNE ▸` is the verb's full settings collapsed to one `text-low`
        summary line ("turbo · steps auto · guidance n/a · seed random");
        open, it lays them out in a grid: DIT MODEL, STEPS + AUTO, GUIDANCE
@@ -1084,9 +1169,10 @@ requiring its own justification against a screen-count rule.
      whole song re-renders, the full width hatched `on-sky`/`sky-tint`,
      with `1 · BARS 25-32 CHANGE · THE OTHER 68 ARE v1 · 76` under it
      (`ALL 76 BARS CHANGE`) and a grey `WHY THE WHOLE SONG:` line. The
-     consequence line names the clause ("re-sings bars 25-32, every other
-     bar stays v1's audio" or "the whole song is re-rendered: every bar
-     will sound different"; "a few minutes" until calibrated) left of
+     consequence line names the clause ("re-sings bars 25-32, instruments
+     there may change, every other bar stays v1's audio" or "the whole
+     song is re-rendered: every bar will sound different … instruments
+     may change"; "a few minutes" until calibrated) left of
      **APPLY**, the card's one acid; ASK AGAIN is neutral. While APPLY runs
      the label stays and the button is off; inside the card a plain
      RENDERING › SPLICING › SAVING strip of small parallelograms (two steps
@@ -1113,6 +1199,64 @@ requiring its own justification against a screen-count rule.
      `NOW PLAYING THE NEW VERSION` until the next play, scrub or send; the
      player's pill shows only `v2` after a chat edit (the version label is
      the card's).
+   - **The strip, ruler and reading line** (added 2026-10-07, chat C1; spec
+     `pipeline/design/chat-mark.html` MK-1..MK-3, Q-114 option B). The
+     player above the composer grows to about 134px and has no lyric lane:
+     the transport row (play, time, volume, DOWNLOAD, the lilac pill), then
+     the **section strip** (the Section strip recipe, 20px, names in
+     `text-mid` 9px mono, placed on the waveform's time axis when the
+     reading has bar times, else weighted by bars), a 13px **bar ruler**
+     (a `line` tick per bar, a `line-hi` hairline and the bar number every
+     8 bars), the 36px waveform, and a 2px sky playhead through ruler and
+     waveform. Three strip states: **live** (the playable version's
+     reading, names clickable), **dim** (an older reading whose edit moved
+     no bars, 50%, still clickable), **hatched** (bars moved, the reading
+     failed, or no bar times: `carbon-raised`/`line` 135° hatching, no
+     names, and the ruler counts seconds instead of bars, since marking
+     works by time). While A/B plays the reference or the version before,
+     the strip is blank (its bars are the playable version's). Under the
+     waveform, the **reading line** sits on its own 16px row: 10px mono in
+     `text-mid` for every state (`READING v5 · QUEUED · STARTS AFTER 1
+     JOB`, `READING v5 · SCORE · 2 OF 3`, `READ v4 · 9 SECTIONS · 22 LINES`,
+     `· NO WORD TIMINGS` when words were skipped), `TRANSCRIBED SCORE ·
+     CONTEXT AND MARKING ONLY` after it in `text-low`, and rust only for a
+     failed reading (`COULDN'T READ v5 · <reason>`) with a small acid
+     outline **RETRY**. No spinner and no shader: reading is not a commit.
+   - **The mark** (added 2026-10-07, chat C1; spec `pipeline/design/chat-mark.html`
+     MK-4..MK-10, Q-068's clause). One sky for every mark, no second hue for
+     time: over the ruler and waveform a `sky-tint` wash (70%, so the
+     waveform still reads) between 1px sky edge lines, with a 7×13px sky
+     **grip** on each edge at the ruler's height; the strip's sections under
+     it fill sky with `on-sky` names when whole and `sky-tint` with sky
+     names when the mark covers part of them (the **partial fill**). A
+     seconds-only mark (a hatched strip) is the same sky with dashed edges.
+     Click a section to mark it; drag an edge's grip, the body, or empty
+     waveform (no modal mark mode); a click under 0.2 s on empty waveform
+     seeks and clears; Esc and ✕ clear. While an edge moves, a 1px dashed
+     `text-hi` pointer line and a sky tag with `on-sky` 9px mono text say
+     where it lands (`SNAPS TO END OF BAR 34 · 1:22 · 10 BARS · 24 s`,
+     `FREE · 1:22.6 · SNAP OFF (ALT)`, `END OF SONG · 3:12`); the tag flips
+     to the pointer's left in the strip's last 30%. Shift-click is not used.
+     The **chip** sits above the composer's field: a sky parallelogram
+     (`THIS: CHORUS 1 + 2 BARS · BARS 25-34 · 0:58-1:22`), dashed sky for a
+     seconds-only mark (`· BARS WHEN THE READING LANDS`), ✕, and the
+     underlined `WHAT IT SEES ▾` at the right, which opens a 540px popover
+     above it with a sky hairline: the server's rows and `AS SENT ▸` with the
+     JSON. Under the chip **one** 10px mono composer line in `text-mid`: the
+     consequence ("plans on these bars only · nothing runs until you press
+     APPLY"), giving way to the analysis wait while a reading runs (SEND stays
+     live and queues) and to the stale line. A sent message keeps a frozen
+     **echo**: a `sky-tint` chip with sky text and `on v1 · click to mark it
+     again`; once a version moved its bars it is dashed at 45% and text only.
+     **Stale** is rust: the chip `· STALE` in `rust-tint`/`rust-text`, the
+     old place as a dashed rust outline on the waveform (no grips, new marks
+     held), a rust card at the thread's end with **USE BARS n-m** (acid
+     outline, only when the edit reported the shift, off until the new
+     version's bars are read) and **CLEAR MARK**, the composer line in
+     `rust-text` saying which to press, and SEND off with "Send is held until
+     the mark is fixed" as the placeholder. An edit card planned on a mark
+     names it in `text-low` (`PLANNED ON THE MARK · BARS 47-64 · 2:07-2:57`)
+     with the server's notes (a whole-song op, a mark clamped to the score).
 
 ### Side panels (Create + Editor)
 
@@ -1247,9 +1391,13 @@ acid button under its consequence line.
   (R) selects that range and opens REPAINT with its instruction field
   focused; one *Add layer · <track>* per TRACK option (L) opens ADD LAYER
   with that track picked; *Split <layer>* (S) focuses the layer and opens
-  SPLIT; *Export mix* / *stems* / *remastered mix* (E) opens EXPORT on that
-  WHAT. Each sets the verb and target and never starts a job — the commit
-  stays the dock's), **OPEN** (songs, the open
+  SPLIT; *Export mix* / *stems* / *remastered mix* / *score as MIDI* (E,
+  the last only for a YuE2 song) opens EXPORT on that WHAT. Each sets the
+  verb and target and never starts a job — the commit stays the dock's;
+  plus, app-wide, *Convert an .abc file to MIDI*, whose file picker is its
+  confirmation: it makes nothing in the library. Its failure has no panel,
+  so it shows as a rust toast under the header row, right-aligned, until
+  DISMISS), **OPEN** (songs, the open
   song's layers, folders), **CREATE** (the three start points, and "Remake
   <song>" = CREATE COVER FROM AUDIO), **SETTINGS** (each section; Forge only
   while enabled). Group labels are 9px `text-low`.
@@ -1450,7 +1598,9 @@ CHAT screen's turn line while the planner thinks (still dashed and plain
 while queued, plain while cancelling) and its CREATE SONG take line under
 the recipe card, which follows the YuE2 rule; and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
-ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
+ANALYZE AUDIO, and the library create bar's generation chip (a full fill
+with its progress veil: the chip holds a label and a title like a small
+card, so it follows the bigger-element rule) — but only once it runs: a job still waiting in the queue
 (UP NEXT, the library card of a generation reading `QUEUED · STARTS
 AFTER 1 JOB`, or a dock job line reading `QUEUED`) stays plain, since
 nothing is working on it yet. TRANSCRIBE

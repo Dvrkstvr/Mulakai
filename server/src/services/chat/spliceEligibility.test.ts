@@ -19,6 +19,15 @@ describe('splice eligibility (pure)', () => {
     expect(spliceEligibility([{ op: 'REPEAT', section: 2, label: 'verse' }], song)).toEqual({ splice: true, kind: 'repeat', from_bar: 11, to_bar: 46 });
   });
 
+  it('C1 N1: a REPEAT of the last section re-renders whole, saying so on the card (its last bar is the song\'s ending, D-213)', () => {
+    expect(spliceEligibility([{ op: 'REPEAT', section: 4, label: 'outro' }], song)).toEqual({
+      splice: false,
+      reason: 'the outro ends the song: its last bar is the ending, so the old audio has nothing to play the copy after',
+    });
+    // a CUT of the last section still splices (the song now ends at the bar before it, faded)
+    expect(spliceEligibility([{ op: 'CUT', section: 4, label: 'outro' }], song)).toEqual({ splice: true, kind: 'cut', from_bar: 63, to_bar: 65 });
+  });
+
   it('the other kinds are re-rendered whole, with the reason (D-150: REWRITE LYRICS and WRITE PHRASE are heard)', () => {
     for (const op of [
       { op: 'REWRITE_LYRICS', block: 1, tag: '[Verse]', occurrence: 1, lines: ['a'] },

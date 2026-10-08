@@ -10,7 +10,7 @@
 ## Stack
 - client: React + TypeScript (strict) + Vite, Zustand, Web Audio playback (`client/src/mix/`), oxlint
 - server: Express + SQLite (migrations in `server/src/db/`), tsx watch
-- external processes (never modified): ACE-Step 1.5 (`ACESTEP_API_URL`), heartmula-server (`HEARTMULA_API_URL`, marked for removal, D-014), demucs/uvr (`DEMUCS_API_URL`)
+- external processes: ACE-Step 1.5 (`ACESTEP_API_URL`; Mulakai's fork, branch `mulakai`, D-203), heartmula-server (`HEARTMULA_API_URL`, marked for removal, D-014), demucs/uvr (`DEMUCS_API_URL`)
 - yue-server (ours, Python/FastAPI, runs in WSL2 Ubuntu-24.04 in `~/yue2/.venv`): `YUE_API_URL=http://127.0.0.1:8004`, default first-take engine (D-015); the score agent adds CPU-only score routes to it (D-019)
 - score planner (M0): Ollama 0.32.15 on Windows (seen running 2026-10-03, `/api/version`), model `qwen3:14b` Q4_K_M (pulled; `gemma4:26b-a4b-it-q4_K_M` also pulled, untested profile, D-024); `LLM_API_URL` (empty = SCORE hidden), `LLM_MODEL` (default `qwen3:14b`)
 - tests: Vitest 4 (client, server), pytest (yue-server, fake pipeline, no GPU), Playwright golden path against a fake ACE-Step (`e2e/`)
@@ -42,6 +42,9 @@ warning only), lint (the same 1 warning), client 117 files / 974 tests, server t
 Run again at stage 6 (chat C1), 2026-10-07, on `docs/chat-c1` (code = `origin/main` d964d0b; all exit 0, fresh `npm ci` in a worktree):
 client build (chunk-size warning only), lint (the same 1 warning), client 140 files / 1150 tests, server tsc clean, server 152 files /
 1282 tests. yue-server pytest and e2e were not run (task scope: client and server checks; no code changed).
+Run again at stage 6 (chat C2), 2026-10-08, on `docs/chat-c2` (code = `origin/main` 72e18a2; all exit 0, `npm ci` in the worktree):
+client build (chunk-size warning only), lint (the same 1 warning), client 158 files / 1288 tests, server tsc clean, server 174 files /
+1531 tests. yue-server pytest and e2e not run (no code changed).
 From CB-1 on, yue-server's pytest needs numpy and scipy: `pip install -r requirements-test.txt` again once.
 CI runs e2e (`.github/workflows/e2e.yml`) and the unit suites, typechecks, lint and pytest (`.github/workflows/checks.yml`, Python 3.12).
 
@@ -101,6 +104,15 @@ CI runs e2e (`.github/workflows/e2e.yml`) and the unit suites, typechecks, lint 
   "Test strategy (C3)" item 6.
 - **Agent eyes:** the `server-chat` launch entry (+ `LYRICS_API_URL`) and the client; drop a file with the browser pane's file
   input (read the ATTACH control with `find`), then READ, the reading card, the cover card; 1366×768 and 1920×1080.
+
+### Chat: run & verify (C2, converging turns)
+- **Environment:** as C1; C2 adds no variable, no route of its own except UNDO, no queue kind.
+- **CP-C2 (after CV-1, before CV-7, headless):** copy `server/data` to a throwaway folder on E:; start the server with
+  `PORT=3201`, `DATA_DIR=<copy>`, `YUE_API_URL`, `LLM_API_URL` (16k context); then `cd server && npx tsx scripts/chatCp2.ts
+  --server http://127.0.0.1:3201 --songs <3 YuE2 song ids>`. Evidence in `pipeline/cp-c2/<date>/` (log.json). Stop lines:
+  architecture.md "Test strategy (C2)" item 7.
+- **Agent eyes:** `server-chat` + client in the browser pane at 1366×768; read the sidebar's panel with `read_page` (the
+  `aria-label="Lyrics"` region CV-6 adds), hover a change-list row and check the bar map's lit cells before a screenshot.
 
 ## Quality bar (track: standard)
 - Vitest test for every behavior change (AGENTS.md); one Playwright golden path per phase

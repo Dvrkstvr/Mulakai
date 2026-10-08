@@ -3,8 +3,11 @@
  * that no longer matches (a render moved or removed it) is stale and is never planned against: it names where
  * the same label + occurrence lives now, for USE BARS (Q-043, M2-4), counted from the end when the pick says
  * how many there were. A line means its block and the section that sings it (Q-045), by yue-server's rule:
- * the k-th section of a kind sings the k-th block of that kind (D-066 d; kind = the tag's first word). Pure. */
+ * the k-th section of a kind sings the k-th block of that kind (D-066 d; kind = the tag's first word).
+ * C1 (D-175): the chat's mark is a third kind, `range` on a version (parseRange / resolveRange). Pure. */
 import type { LyricBlock, Referent, ReferentInput, ScoreFacts, ScoreSection, StaleReferent } from './planTypes.js';
+import type { BarShift, RangeMark, RangeResolution, Shift } from '../chat/analysisTypes.js';
+import { kindOf, sectionOf } from './lyricPairing.js';
 
 const TEXT_MAX = 200;
 const LABEL_MAX = 60;
@@ -15,8 +18,6 @@ export type ResolvedReferent = { ok: true; referent: Referent } | { ok: false; s
 
 const isPos = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 1;
 const isName = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= LABEL_MAX;
-/** yue-server's tag_word: `[Verse 2]` and `verse` are both a verse. */
-const kindOf = (tagOrLabel: string) => tagOrLabel.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
 
 /** The request body's `referent`: absent or null = the whole song. */
 export function parseReferent(v: unknown): ParsedReferent {
@@ -55,7 +56,7 @@ function sectionPin(facts: ScoreFacts, s: ScoreSection): Referent {
 }
 
 function linePin(facts: ScoreFacts, b: LyricBlock, line: number, text: string | null): Referent {
-  const s = facts.sections.filter((x) => kindOf(x.label) === kindOf(b.tag))[b.occurrence - 1];
+  const s = sectionOf(facts, b.index);
   return { kind: 'line', block: b.index, tag: b.tag, occurrence: b.occurrence, of: sameKind(facts, b.tag).length, line, text,
     section: s?.index ?? null, label: s?.label ?? null, bars: s ? [s.from_bar, s.to_bar] : null };
 }
@@ -99,4 +100,85 @@ export function referentLines(r: Referent | null): string[] {
   return [r.bars
     ? `${head}, sung in ${r.label} S${r.section}, bars ${r.bars[0]}-${r.bars[1]}. ${MEANS} this line's block and those bars.`
     : `${head}, sung in no section of the score. ${MEANS} this line's block.`];
+}
+
+/* ---- The mark (C1, F-055, D-175): `range {versionId, bars?, seconds}` on a version. ---- */
+
+export const MARK_STALE = 'MARK_STALE';
+const MARK_LABEL_MAX = 120;
+const RANGE = 'mark must be {kind: "range", versionId, bars?: [from, to], seconds: [start, end]}';
+export type ParsedRange = { ok: true; mark: RangeMark | null } | { ok: false; error: string };
+type BarTimesNow = { starts: number[]; end: number };
+/** What a mark resolves against: the playable version, its parent and how its edit moved the bars (barShift),
+ * and the playable version's bar times (null when not read). */
+export interface RangeFacts {
+  playable: { id: string; number: number };
+  parent: { versionId: string; number: number | null; shift: BarShift } | null;
+  bars: BarTimesNow | null;
+}
+
+const isSecond = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && v >= 0;
+const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+/** The request body's `mark`: absent or null = the whole song. The label is display only, kept for the echo. */
+export function parseRange(v: unknown): ParsedRange {
+  if (v === undefined || v === null) return { ok: true, mark: null };
+  if (typeof v !== 'object' || Array.isArray(v)) return { ok: false, error: RANGE };
+  const o = v as Record<string, unknown>;
+  const s = o.seconds;
+  if (o.kind !== 'range' || typeof o.versionId !== 'string' || !o.versionId || o.versionId.length > 100
+    || !Array.isArray(s) || s.length !== 2 || !isSecond(s[0]) || !isSecond(s[1]) || s[1] <= s[0]) return { ok: false, error: RANGE };
+  const b = o.bars;
+  if (b !== undefined && (!Array.isArray(b) || b.length !== 2 || !isPos(b[0]) || !isPos(b[1]) || b[1] < b[0])) {
+    return { ok: false, error: 'mark.bars must be [from, to], bar numbers from 1, from â‰¤ to' };
+  }
+  const label = typeof o.label === 'string' && o.label.trim() ? o.label.trim().slice(0, MARK_LABEL_MAX) : undefined;
+  const bars = b ? { bars: [b[0], b[1]] as [number, number] } : {};
+  return { ok: true, mark: { kind: 'range', versionId: o.versionId, ...bars, seconds: [s[0], s[1]], ...(label ? { label } : {}) } };
+}
+
+/** A pinned mark's bars or seconds past the playable version's end (400), else null. */
+export function rangeOutside(mark: RangeMark, bars: BarTimesNow | null): string | null {
+  if (!bars) return null;
+  if (mark.bars && mark.bars[1] > bars.starts.length) return `the mark reaches bar ${mark.bars[1]}; the song has ${bars.starts.length} bars`;
+  return mark.seconds[1] > bars.end + 0.5 ? `the mark ends at ${clock(mark.seconds[1])}; the song ends at ${clock(bars.end)}` : null;
+}
+
+function retimed(mark: RangeMark, bars: BarTimesNow | null): [number, number] {
+  if (!mark.bars || !bars || mark.bars[1] > bars.starts.length) return mark.seconds;
+  const [from, to] = mark.bars;
+  return [bars.starts[from - 1], to < bars.starts.length ? bars.starts[to] : bars.end];
+}
+
+/** The shift USE BARS may apply: none for a seconds-only mark, a mark that holds a bar a CUT removed, or a mark
+ * the change splits (it starts before `atBar` and ends at or after it). */
+function usableShift(mark: RangeMark, shift: Shift | null): Shift | null {
+  if (!shift || !mark.bars) return null;
+  const [from, to] = mark.bars;
+  const removedFrom = shift.atBar + Math.min(0, shift.delta);
+  if (from < shift.atBar && to >= removedFrom) return null;
+  return shift;
+}
+
+/** Same version: pinned as sent. The parent of a version whose edit moved no bars: carried (bars kept, seconds
+ * re-timed). Across a tempo change (`retimed`) only a bars mark is carried, and only once the new version's bar
+ * times are read: until then its old seconds are different music (C1 code review should 2). Anything else is
+ * stale, with the shift when the edit reported one (USE BARS): never remapped here. */
+export function resolveRange(mark: RangeMark, f: RangeFacts): RangeResolution {
+  if (mark.versionId === f.playable.id) return { pinned: true, mark, carried: false };
+  const p = f.parent;
+  if (p && p.versionId === mark.versionId && !p.shift.moved && p.shift.retimed && !(mark.bars && f.bars)) {
+    const reason = mark.bars ? `v${f.playable.number} changed the tempo and its bars are not read yet; mark again once its reading lands`
+      : `your mark was a time; v${f.playable.number} changed the tempo, so that time is different music now`;
+    return { pinned: false, was: mark, shift: null, reason };
+  }
+  if (p && p.versionId === mark.versionId && !p.shift.moved) {
+    return { pinned: true, carried: true, mark: { ...mark, versionId: f.playable.id, seconds: retimed(mark, f.bars) } };
+  }
+  const now = `v${f.playable.number}`;
+  if (p && p.versionId === mark.versionId) {
+    const was = p.number ? `v${p.number}` : 'the version before';
+    return { pinned: false, was: mark, shift: p.shift.moved ? usableShift(mark, p.shift.shift) : null, reason: `your mark was on ${was}; ${now} moved those bars` };
+  }
+  return { pinned: false, was: mark, shift: null, reason: `your mark was on an older version; ${now} is playing now` };
 }

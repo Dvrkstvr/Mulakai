@@ -223,8 +223,8 @@
   overflow-y: auto;
 }
 
-/* Library's footer player stays reachable under the drawer. */
-.app:not(.app-editor) .activity-drawer {
+/* Library's footer player stays reachable under the drawer while it is docked. */
+.app.footer-docked .activity-drawer {
   bottom: 92px;
 }
 

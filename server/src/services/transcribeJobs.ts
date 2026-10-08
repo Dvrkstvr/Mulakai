@@ -12,10 +12,16 @@ import {
   type TranscriptionFacts, type TranscriptionState,
 } from './engineTranscribeClient.js';
 import type { SongEngine } from './engines/types.js';
+import { fetchNotation } from './score/yueRetime.js';
+import { saveNotation } from './notationStore.js';
 
 export interface TranscriptionOutcome extends TranscriptionFacts {
   score: string;
   sourceLabel: string;
+  /** yue-server's transcription id: a chords run's `/grid` is read by it (chat C1, D-174). */
+  yueJobId: string;
+  /** The kept notation files a re-time rebuilds from (notationStore, D-207); null when yue-server kept none. */
+  notationId: string | null;
 }
 
 export interface TranscribeSource {
@@ -72,7 +78,20 @@ export async function runTranscription(
   const finished = await poll(job, engine, onProgress);
   if (!finished?.facts) return undefined;
   const score = await fetchTranscriptionScore(engine, job.taskId);
-  return { ...finished.facts, score, sourceLabel: source.label };
+  const notationId = await keepNotation(engine, job.taskId);
+  return { ...finished.facts, score, sourceLabel: source.label, yueJobId: job.taskId, notationId };
+}
+
+/** Fetch and keep the files a re-time needs (F-090). Never fails the transcription: without them the
+ * score is still good, RE-TIME just offers TRANSCRIBE AGAIN (D-207). */
+async function keepNotation(engine: SongEngine, yueJobId: string): Promise<string | null> {
+  try {
+    const bundle = await fetchNotation(engine, yueJobId);
+    return bundle ? await saveNotation(bundle) : null;
+  } catch (err) {
+    console.warn(`Transcription ${yueJobId}: notation files not kept (${err instanceof Error ? err.message : String(err)})`);
+    return null;
+  }
 }
 
 /** Throws QueueFullError synchronously when the queue is full. */

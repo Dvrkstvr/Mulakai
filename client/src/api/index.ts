@@ -10,6 +10,8 @@
  *   lyrics.ts      READ LYRICS: the words sung in a cover's source
  *   queue.ts       the GPU job queue: what runs, what waits, CANCEL
  *   score.ts       the SCORE verb: status, PLAN, the plan run, CANCEL
+ *   midi.ts        a score as a MIDI file
+ *   retime.ts      re-time a transcribed score from its kept reading
  * The slices spread into one flat `api` object, so method names must stay unique
  * across slices (TypeScript won't flag a collision — the last spread would win).
  */
@@ -21,6 +23,8 @@ export type { RecentSong } from './library';
 export type { LyricSegment, LyricWord, LyricsReading, WordTimings } from './lyrics';
 export type { QueueEntry, QueueRunning, QueueSnapshot } from './queue';
 export type * from './score';
+export type { RetimeMode, RetimeResult } from './retime';
+export { RetimeError } from './retime';
 
 import { libraryApi } from './library';
 import { generationApi } from './generation';
@@ -30,6 +34,8 @@ import { coversApi } from './covers';
 import { lyricsApi } from './lyrics';
 import { queueApi } from './queue';
 import { scoreApi } from './score';
+import { midiApi } from './midi';
+import { retimeApi } from './retime';
 
 export const api = {
   ...libraryApi,
@@ -40,4 +46,6 @@ export const api = {
   ...lyricsApi,
   ...queueApi,
   ...scoreApi,
+  ...midiApi,
+  ...retimeApi,
 };

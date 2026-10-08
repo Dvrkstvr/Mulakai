@@ -1,0 +1,61 @@
+/* The mark (C1, F-054/F-055; pipeline/design/chat-mark.html MK-4..MK-8, DESIGN.md "Chat"): one sky for every mark (the
+   wash, the edge lines, the 7 px grips, the strip's marked sections, the chip); a seconds-only mark is the same sky,
+   dashed; stale is rust (the chip, a dashed outline of the old place, the thread card). Tokens only, zero radius. */
+
+/* Over the ruler and waveform (ChatStrip's overlay slot). */
+.chat-mk-layer { position: absolute; inset: 0; z-index: 3; cursor: crosshair; touch-action: none; user-select: none; }
+.chat-mk {
+  position: absolute; top: 0; bottom: 0; cursor: grab;
+  background: color-mix(in srgb, var(--sky-tint) 70%, transparent); border: solid var(--sky); border-width: 0 1px;
+}
+.chat-mk:active { cursor: grabbing; }
+.chat-mk.secs { border-style: dashed; }
+.chat-mk.stale {
+  cursor: crosshair; border-style: dashed; border-color: var(--rust);
+  background: color-mix(in srgb, var(--rust-tint) 70%, transparent);
+}
+.chat-mk-grip { position: absolute; top: 0; width: 7px; height: 13px; background: var(--sky); cursor: ew-resize; }
+.chat-mk-grip.start { left: -4px; }
+.chat-mk-grip.end { right: -4px; }
+.chat-mk-snap { position: absolute; top: 0; bottom: 0; border-left: 1px dashed var(--text-hi); z-index: 5; pointer-events: none; }
+.chat-mk-tag {
+  position: absolute; top: 16px; margin-left: 6px; padding: 0 6px; z-index: 5; pointer-events: none; white-space: nowrap;
+  background: var(--sky); color: var(--on-sky); font: 9px/16px ui-monospace, monospace; letter-spacing: 1px;
+}
+.chat-mk-tag.left { transform: translateX(-100%); margin-left: -6px; }
+
+/* The strip's sections under a mark: whole = sky fill, part = sky-tint (CS-6). */
+.chat-strip .chat-sg-cell.on { background: var(--sky); color: var(--on-sky); }
+.chat-strip .chat-sg-cell.pt { background: var(--sky-tint); color: var(--sky); }
+
+/* The composer's chip row and its one line (MK-6). */
+.chat-mk-row { position: relative; display: flex; align-items: center; gap: 8px; height: 26px; min-width: 0; }
+.chat-mk-chip {
+  display: inline-block; max-width: 100%; min-width: 0; padding: 4px 11px; transform: skewX(-10deg);
+  border: 1px solid var(--sky); background: var(--sky); color: var(--on-sky);
+  font: 700 10px/14px ui-monospace, monospace; letter-spacing: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chat-mk-chip > span { display: inline-block; transform: skewX(10deg); }
+.chat-mk-chip.secs { background: none; color: var(--sky); border-style: dashed; }
+.chat-mk-chip.stale { background: var(--rust-tint); color: var(--rust-text); border-color: var(--rust); }
+.chat-mk-x { flex: none; border: 0; background: none; padding: 0 4px; color: var(--text-low); cursor: pointer; }
+.chat-mk-x:hover { color: var(--text-hi); }
+.chat-mk-see { flex: none; margin-left: auto; }
+.chat-cxl { height: 14px; font: 10px/14px ui-monospace, monospace; letter-spacing: 1px; color: var(--text-mid); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chat-cxl.bad { color: var(--rust-text); }
+
+/* WHAT IT SEES: a popover above the chip, the server's rows and AS SENT JSON (D-177). */
+.chat-mk-sees { position: absolute; left: 0; bottom: calc(100% + 8px); width: 540px; z-index: 6; border: 1px solid var(--sky); background: var(--panel); }
+.chat-mk-sees .chat-fd { display: grid; grid-template-columns: 90px 1fr; gap: 8px; padding: 6px 14px; border-bottom: 1px solid var(--line); font-size: 12px; }
+.chat-mk-sees-note { padding: 8px 14px; font-size: 11px; color: var(--text-mid); }
+.chat-mk-sees-note.bad { color: var(--rust-text); }
+.chat-mk-sent {
+  margin: 0; max-height: 180px; overflow: auto; padding: 8px 14px; border-top: 1px solid var(--line);
+  font: 10px/1.4 ui-monospace, monospace; color: var(--text-mid); white-space: pre-wrap;
+}
+
+/* The frozen echo on a sent message (MK-7): sky-tint, clickable; dashed at 45 % once a version moved its bars. */
+.chat-mk-echo { margin-top: 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; white-space: normal; }
+.chat-mk-chip.frozen { background: var(--sky-tint); color: var(--sky); cursor: pointer; }
+.chat-mk-chip.frozen:hover { color: var(--text-hi); } /* hover brightens the text, never fills sky (DESIGN.md) */
+.chat-mk-chip.frozen.moved { opacity: 0.45; border-style: dashed; cursor: default; background: var(--sky-tint); color: var(--sky); }

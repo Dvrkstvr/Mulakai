@@ -18,16 +18,16 @@ export function assertSongLive(songId: string): void {
   if (row.trashed_at) throw new Error(SONG_TRASHED);
 }
 
-/** The layer's active audio and song, for an edit that reads it. `missing` is the error when
- * there is none: 'unknown layer' when validating a request, LAYER_DELETED once queued. */
-export function activeLayerSource(layerId: string, missing = LAYER_DELETED): { audio_file: string; song_id: string } {
+/** The layer's active version (its id is the edit's `basedOn`), audio and song, for an edit that reads it.
+ * `missing` is the error when there is none: 'unknown layer' when validating a request, LAYER_DELETED once queued. */
+export function activeLayerSource(layerId: string, missing = LAYER_DELETED): { id: string; audio_file: string; song_id: string } {
   const row = db
     .prepare(
-      `SELECT v.audio_file, l.song_id FROM versions v
+      `SELECT v.id, v.audio_file, l.song_id FROM versions v
        JOIN layers l ON v.layer_id = l.id
        WHERE l.id = ? AND v.active = 1`,
     )
-    .get(layerId) as { audio_file: string; song_id: string } | undefined;
+    .get(layerId) as { id: string; audio_file: string; song_id: string } | undefined;
   if (!row) throw new Error(missing);
   assertSongLive(row.song_id);
   return row;

@@ -1,7 +1,7 @@
 /** readAnalysis from raw blobs (architecture.md "Test strategy (C1)" #3): v1, the failed record, an unknown
  * version and garbage; a broken part alone reads as not read (versions-data.md's rule). */
 import { describe, it, expect } from 'vitest';
-import { ANALYSIS_V, isFailed, readAnalysis, type VersionAnalysis } from './analysisTypes.js';
+import { ANALYSIS_V, isComplete, isFailed, readAnalysis, readingGap, type VersionAnalysis } from './analysisTypes.js';
 
 const v1: VersionAnalysis = {
   analysis_v: 1, versionId: 'v4', readAt: '2026-10-07T10:00:00.000Z',
@@ -52,5 +52,29 @@ describe('readAnalysis', () => {
     expect(readAnalysis(JSON.stringify({ ...v1, versionId: 7 }))).toBeNull();
     expect(readAnalysis(JSON.stringify({ ...v1, plan: { words: 'own', score: 'own', sections: 'cached' } }))).toBeNull();
     expect(readAnalysis(JSON.stringify({ analysis_v: 1, versionId: 'v4', failed: 5, at: 'x' }))).toBeNull();
+  });
+});
+
+describe('readingGap (C1 live B1)', () => {
+  it('a step that ran and read nothing is a gap, named by step; the first one wins', () => {
+    const down = { ...v1, plan: { ...v1.plan, score: 'service' as const }, score: { notRead: 'YUE2 transcribe -> fetch failed' }, bars: { notRead: 'no score' } };
+    expect(readingGap(down)).toBe('SCORE · YUE2 transcribe -> fetch failed');
+    expect(readingGap({ ...v1, words: { notRead: 'lyrics-server -> fetch failed' } })).toBe('WORDS · lyrics-server -> fetch failed');
+    expect(isComplete(down)).toBe(false);
+  });
+
+  it('an unset service (skip) and an answered refusal are no gap; a failed record is not complete', () => {
+    const unset = { ...v1, plan: { ...v1.plan, words: 'skip' as const }, words: { notRead: 'LYRICS_API_URL is not set' } };
+    expect(readingGap(unset)).toBeNull();
+    const refused = { ...v1, bars: { notRead: 'YUE2 could not time the bars: bad grid', answered: true as const } };
+    expect(readingGap(refused)).toBeNull();
+    expect(isComplete(refused)).toBe(true);
+    expect(isComplete({ analysis_v: 1, versionId: 'v4', failed: 'x', at: 't' })).toBe(false);
+    expect(isComplete(null)).toBe(false);
+  });
+
+  it('answered survives the store round trip', () => {
+    const blob = { ...v1, bars: { notRead: 'refused', answered: true } };
+    expect((readAnalysis(JSON.stringify(blob)) as VersionAnalysis).bars).toEqual({ notRead: 'refused', answered: true });
   });
 });

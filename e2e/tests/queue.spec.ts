@@ -46,36 +46,34 @@ test('a job submitted while another runs waits in UP NEXT, then runs', async ({ 
   await expect(page.getByRole('complementary', { name: 'Activity' }).locator('.activity-job.queued')).toHaveCount(0);
 });
 
-test('FEELING LUCKY waits its turn behind a running job, then fills the create bar', async ({ page, request }) => {
+test("FEELING LUCKY waits its turn behind a running job, then fills Create's draft", async ({ page, request }) => {
   await holdFake(request, true);
   try {
     const res = await request.post('/api/generate', { data: { title: `E2E Lucky ${Date.now().toString(36)}`, prompt: 'lofi piano' } });
     expect(res.status()).toBe(202);
     await page.goto('/');
+    // A song generating turns the create bar into its progress card; Create keeps FEELING LUCKY.
+    await page.getByRole('button', { name: 'TO CREATE ▸' }).click();
     await page.getByRole('button', { name: 'FEELING LUCKY' }).click();
     await expect(page.getByText('FEELING LUCKY waits its turn · starts after 1 job')).toBeVisible();
-    await expect(page.getByPlaceholder('What do you want to make?')).toHaveValue('');
+    await expect(page.getByPlaceholder('Describe it — style, mood, instruments')).toHaveValue('');
   } finally {
     await holdFake(request, false);
   }
-  await expect(page.getByPlaceholder('What do you want to make?')).toHaveValue('fake caption', { timeout: 30_000 });
-  await expect(page.getByRole('button', { name: 'FEELING LUCKY' })).toBeEnabled();
+  await expect(page.getByPlaceholder('Describe it — style, mood, instruments')).toHaveValue('fake caption', { timeout: 30_000 });
 });
 
-test('Quick Start waits its turn behind a running job, then fills the draft', async ({ page, request }) => {
-  await holdFake(request, true);
-  try {
-    const res = await request.post('/api/generate', { data: { title: `E2E Quick ${Date.now().toString(36)}`, prompt: 'lofi piano' } });
-    expect(res.status()).toBe(202);
-    await page.goto('/');
-    await page.getByPlaceholder('What do you want to make?').fill('rainy synthwave');
-    await page.getByRole('button', { name: 'CREATE', exact: true }).click();
-    await expect(page.getByText('QUICK START waits its turn · starts after 1 job')).toBeVisible();
-  } finally {
-    await holdFake(request, false);
-  }
-  // The fake writes the query back as the caption.
-  await expect(page.getByPlaceholder('Describe it — style, mood, instruments')).toHaveValue('rainy synthwave', { timeout: 30_000 });
+test("Quick Start outlives Create: leaving at once still lands the draft in the create bar", async ({ page }) => {
+  await page.goto('/');
+  await page.getByPlaceholder('What do you want to make?').fill('rainy synthwave');
+  await page.getByRole('button', { name: 'CREATE', exact: true }).click();
+  await page.getByRole('button', { name: '← LIBRARY' }).click();
+  // The fake writes the query back as the caption, which becomes the draft's prompt.
+  const card = page.locator('.create-bar .cc');
+  await expect(card).toContainText('DRAFT', { timeout: 30_000 });
+  await expect(card).toContainText('rainy synthwave');
+  await card.getByRole('button', { name: 'TO CREATE ▸' }).click();
+  await expect(page.getByPlaceholder('Describe it — style, mood, instruments')).toHaveValue('rainy synthwave');
 });
 
 test("Create's GENERATE stays live while a song generates, says when it starts, and queues", async ({ page, request }) => {
@@ -88,7 +86,7 @@ test("Create's GENERATE stays live while a song generates, says when it starts, 
     expect(res.status()).toBe(202);
 
     await page.goto('/');
-    await page.getByRole('button', { name: 'CREATE', exact: true }).click();
+    await page.getByRole('button', { name: 'TO CREATE ▸' }).click();
     await page.getByPlaceholder('New song').fill(SECOND);
     await page.getByPlaceholder('Describe it — style, mood, instruments').fill('dusty boom bap');
     const commit = page.getByRole('button', { name: 'GENERATE', exact: true });
@@ -96,11 +94,13 @@ test("Create's GENERATE stays live while a song generates, says when it starts, 
     await expect(page.locator('.recipe-commit .queue-note')).toHaveText('waits its turn · starts after 1 job');
     await commit.click();
 
-    // Back in the Library: one card per generation, the second waiting its turn.
-    const cards = page.locator('.library .row.generating');
-    await expect(cards).toHaveCount(2);
-    await expect(cards.filter({ hasText: SECOND })).toContainText('QUEUED · STARTS AFTER 1 JOB');
-    await expect(cards.filter({ hasText: FIRST })).toContainText('GENERATING');
+    // Back in the Library: the create bar's card shows the oldest generation and counts the
+    // other; the grid keeps no in-flight cards.
+    const card = page.locator('.create-bar .cc');
+    await expect(card).toContainText('GENERATING');
+    await expect(card).toContainText(FIRST);
+    await expect(card).toContainText('+1 more in Activity');
+    await expect(page.locator('.library .row.generating')).toHaveCount(0);
   } finally {
     await holdFake(request, false);
   }

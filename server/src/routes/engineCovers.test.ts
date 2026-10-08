@@ -166,6 +166,14 @@ describe('POST /api/engines/:id/cover', () => {
       yue, { prompt: 'folk', lyrics: 'la', seed: 7 }, 'Folk Ellies', 'f1', { abc: 'X:1\n', source: 'Ellies City 2' });
   });
 
+  it("carries the transcription's kept notation id, so the cover can be re-timed later (F-093)", async () => {
+    const id = 'ab'.repeat(32);
+    await cover('yue2', { prompt: 'p', abc: 'X:1\n', source: 's', notationId: id });
+    expect(startEngineGeneration).toHaveBeenLastCalledWith(yue, { prompt: 'p' }, 'Untitled', undefined, { abc: 'X:1\n', source: 's', notationId: id });
+    await cover('yue2', { prompt: 'p', abc: 'X:1\n', source: 's', notationId: '../x' });
+    expect(startEngineGeneration).toHaveBeenLastCalledWith(yue, { prompt: 'p' }, 'Untitled', undefined, { abc: 'X:1\n', source: 's' });
+  });
+
   it('needs a non-blank score within 64 KB, on an engine that can cover', async () => {
     expect((await cover('yue2', { prompt: 'p' })).status).toBe(400);
     expect((await cover('yue2', { prompt: 'p', abc: '  ' })).status).toBe(400);

@@ -1,0 +1,3 @@
+{"date":"2026-10-08","blind":true,"german_usable":{"gemma3":["RC05 (best so far)","RC06","RC07","DE10"],"gemma4":["RC05","RC06","DE08 (borderline)","DE09 (could be a full song)"],"mistral":[],"qwen3":[]},
+"totals":{"gemma3":"4/6","gemma4":"4/6","mistral":"0/6","qwen3":"0/6"},"union_gemma3_gemma4":"6/6",
+"spanish":"not read by the owner; assistant's read in RESULT.md: qwen3 3/3, gemma4 3/3, gemma3 1-2/3, mistral 2/3"}

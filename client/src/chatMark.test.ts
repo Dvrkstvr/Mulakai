@@ -4,6 +4,7 @@ import { describe, it, expect } from 'vitest';
 import {
   barAt, dragEdge, landBars, markBars, markSeconds, markSection, markStale, moveBody, shiftedBars, snapTime, usableBars,
 } from './chatMark';
+import type { ShownReading } from './api/chatAnalysis';
 import { DURATION, READING, SECTIONS, v5, view } from './chatMarkFixture';
 
 const BARS = READING.bars!;
@@ -114,6 +115,20 @@ describe('markStale', () => {
   it('stale when the mark is not on the playable version or its base', () => {
     expect(markStale({ ...mark, versionId: 'v2' }, v5(false))).toEqual({ kind: 'stale', useBars: null });
     expect(markStale(mark, view({ versionId: 'v9', lineage: null }))).toEqual({ kind: 'stale', useBars: null });
+  });
+
+  // C1 code review should 2: v5 is v4 at a new tempo (SET TEMPO), shown hatched until its own reading lands.
+  it('across a tempo change: a bars mark carries only with v5 read; before, stale with USE BARS = the same bars', () => {
+    const tempo = (shown: ShownReading | null) => view({ versionId: 'v5', number: 5, shown, lineage: { fromVersionId: 'v4', moved: false, shift: null, retimed: true } });
+    expect(markStale(mark, tempo({ ...READING, mode: 'hatched', bars: null }))).toEqual({ kind: 'stale', useBars: [7, 10], tempo: true });
+    expect(markStale(mark, tempo(null))).toEqual({ kind: 'stale', useBars: [7, 10], tempo: true });
+    const own = { ...READING, versionId: 'v5', number: 5, bars: { starts: READING.bars!.starts.map((s) => s * 0.8), end: 26.4 } };
+    expect(markStale(mark, tempo(own))).toMatchObject({ kind: 'carried', mark: { versionId: 'v5', bars: [7, 10], seconds: [10.4, 16.8] } });
+  });
+
+  it('across a tempo change a seconds-only mark (0:30-0:45) never carries, even with v5 read', () => {
+    const tempo = view({ versionId: 'v5', number: 5, shown: { ...READING, versionId: 'v5', number: 5 }, lineage: { fromVersionId: 'v4', moved: false, shift: null, retimed: true } });
+    expect(markStale({ kind: 'range', versionId: 'v4', seconds: [30, 45] }, tempo)).toEqual({ kind: 'stale', useBars: null, tempo: true });
   });
 
   it('a seconds-only mark moved bars: stale, no USE BARS', () => {

@@ -35,7 +35,7 @@ def _base(splice, kind: str, spec: dict, steps) -> dict:
     return {
         "verdict": splice.verdict, "reason": splice.reason, "detail": splice.detail,
         "kind": kind, "bars": [s + 1, e],
-        "audio_url": None, "audio_seconds": None, "length_diff_s": None,
+        "audio_url": None, "audio_seconds": None, "length_diff_s": facts.get("length_diff_s"),
         "joins_s": [], "crossfade_s": [], "base_points_s": [], "parts": [], "edges": [],
         "snap": facts.get("snap", []), "gain_db": facts.get("gain_db"),
         "level_step_db": facts.get("level_step_db"), "gap_shift_s": facts.get("gap_shift_s"),

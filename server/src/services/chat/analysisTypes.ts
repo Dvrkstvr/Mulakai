@@ -6,6 +6,7 @@
  * `WordsPart` / `ScorePart` are C3's (reading.ts): a transcribed score is context and marking only (Q-062 b).
  */
 import type { NotRead, ScorePart, WordsPart } from './reading.js';
+import type { LyricsPanel } from './convergeTypes.js';
 
 export const ANALYSIS_V = 1;
 export type { NotRead, ScorePart, WordsPart };
@@ -19,7 +20,8 @@ export interface AnalysisPlanSources {
   sections: 'cached' | 'score' | 'track' | 'skip';
 }
 
-/** yue-server `POST /v1/scores/bars`: `starts[i]` is the audio time of score bar i + 1; `end` the song's end.
+/** yue-server `POST /v1/scores/bars`: `starts[i]` is the audio time of score bar i + 1, strictly increasing, only
+ * for the bars the audio holds (Q-120: shorter than the score when it runs past the audio); `end` closes the last.
  * `source`: the grid came from the cache, was tracked for this analysis, or was mapped by a splice. */
 export interface BarTimes {
   source: 'cached' | 'tracked' | 'mapped';
@@ -45,10 +47,26 @@ export type StoredAnalysis = VersionAnalysis | FailedAnalysis;
 
 export const isFailed = (a: StoredAnalysis): a is FailedAnalysis => 'failed' in a;
 
+const GAP_STEPS = [['words', 'words', 'WORDS'], ['score', 'score', 'SCORE'], ['bars', 'sections', 'SECTIONS']] as const;
+/** The first step that ran and read nothing because a service failed (`SCORE · <why>`), or null. A part yue-server
+ * answered it cannot read (`answered`: the bar fit refused, no grid) is no gap: reading again gives the same. Such a reading is
+ * not done: the line says why with RETRY, and RETRY reads it again (C1 live B1). An unset service (`skip`) is no gap. */
+export function readingGap(a: VersionAnalysis): string | null {
+  for (const [part, plan, step] of GAP_STEPS) {
+    const p = a[part];
+    if (a.plan[plan] !== 'skip' && 'notRead' in p && !p.answered) return `${step} · ${p.notRead}`;
+  }
+  return null;
+}
+/** Read for good: a done reading with no gap. A failed or gapped one is read again only by RETRY (D-188). */
+export const isComplete = (a: StoredAnalysis | null): boolean => a !== null && !isFailed(a) && readingGap(a) === null;
+
 /** A version's bars against its base (barShift, D-180): bars at or after `atBar` moved by `delta` (a CUT's
- * negative delta: bars `atBar + delta` .. `atBar - 1` are gone). `shift: null` = moved, by an unknown amount. */
+ * negative delta: bars `atBar + delta` .. `atBar - 1` are gone). `shift: null` = moved, by an unknown amount.
+ * `retimed`: the bars were kept but their seconds changed (a SET TEMPO): only the new reading's bar times say
+ * where they are now, so no seconds are carried across it (C1 code review should 2). */
 export interface Shift { atBar: number; delta: number }
-export type BarShift = { moved: false } | { moved: true; shift: Shift | null };
+export type BarShift = { moved: false; retimed?: true } | { moved: true; shift: Shift | null };
 
 /** The mark (D-175): bars when the strip had them (1-based, inclusive), seconds always. `label` is the chip's
  * text, frozen in the user message's body (the echo); the server never trusts it. */
@@ -90,11 +108,20 @@ export interface ShownReading {
   readAt: string;
   bars: { starts: number[]; end: number } | null;
   sections: StripSection[];
+  /** Score bars past the last bar the audio holds, left off the strip (D-197); 0 when the score fits. */
+  barsNotShown: number;
+  /** Lines in the shown sections, by the strip's own pairing (`readingLines`, C1 live B4). */
   lines: number;
+  /** Lines that pair with no shown section ("n LINES OUTSIDE THE SECTIONS" when > 0). */
+  linesOutside: number;
   /** "TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY". */
   transcribed: boolean;
   notRead: { words: string | null; score: string | null; bars: string | null };
+  /** The lyrics panel (C2, F-056, D-217): computed at read time from this reading and its version's stored text. */
+  lyrics: LyricsPanel | null;
 }
+/** A version's `params_json.request.lyrics` and `.style` (`versionLyrics`), what the panel's blocks are split from. */
+export interface VersionText { lyrics: string | null; style: string | null }
 /** `GET /api/chat/songs/:songId/analysis`. `lineage`: the playable version against its parent, for markStale. */
 export interface AnalysisView {
   songId: string;
@@ -102,7 +129,8 @@ export interface AnalysisView {
   number: number | null;
   state: AnalysisState;
   shown: ShownReading | null;
-  lineage: { fromVersionId: string; moved: boolean; shift: Shift | null } | null;
+  /** `retimed`: the bars were kept at a new tempo, so a mark's seconds hold only once this version's bars are read. */
+  lineage: { fromVersionId: string; moved: boolean; shift: Shift | null; retimed: boolean } | null;
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -120,7 +148,7 @@ const PART_OK: Record<'words' | 'score' | 'bars', (v: Record<string, unknown>) =
 };
 
 function readPart(name: keyof typeof PART_OK, v: unknown): object {
-  if (isObject(v) && typeof v.notRead === 'string') return { notRead: v.notRead };
+  if (isObject(v) && typeof v.notRead === 'string') return v.answered === true ? { notRead: v.notRead, answered: true } : { notRead: v.notRead };
   if (isObject(v) && PART_OK[name](v)) return v;
   return { notRead: `the stored ${name} ${name === 'score' ? 'is' : 'are'} not readable: read again` };
 }

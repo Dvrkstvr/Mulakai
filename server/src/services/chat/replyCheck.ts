@@ -11,6 +11,7 @@ import { checkOps } from '../score/opSchema.js';
 import { withLimits } from '../score/scoreLimits.js';
 import type { ApplyResult, Op, ScoreFacts } from '../score/planTypes.js';
 import { SCALPEL_KINDS } from './actionSchema.js';
+import { markFit } from './markFit.js';
 import { recipeProblems } from './recipeRules.js';
 import { lyricLanguageReasons, missingSectionReasons, sayKeyReasons, type DetectLanguage } from './replyGuards.js';
 import type { LyricSection, Recipe, ScalpelKind, TurnAction, TurnReply } from './chatTypes.js';
@@ -23,6 +24,10 @@ export interface CheckContext {
   phraseBars: number;
   /** The person's request (the missing-section guard reads it). */
   request: string;
+  /** C1 (D-176): the mark's bars; an edit outside them is retried (markFit). */
+  markRange?: [number, number] | null;
+  /** The person asked for the whole song (asksWholeSong): a whole-song op under a mark is allowed (C1 live B2). */
+  markWhole?: boolean;
 }
 export interface CheckDeps { apply?: (ops: Op[]) => Promise<ApplyResult>; language?: DetectLanguage }
 export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null } | { ok: false; reasons: string[] };
@@ -56,6 +61,8 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   if (!ctx.facts) return fail('there is no song to edit yet: propose a recipe for a new song instead');
   const ops = checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
   if (!ops.ok) return fail(...ops.reasons);
+  const outside = ctx.markRange ? markFit(ops.ops, ctx.markRange, ctx.facts, ctx.markWhole).reasons : [];
+  if (outside.length) return fail(...outside);
   if (!deps.apply) return { ok: true, reply: reply(ops.ops), applied: null };
   const applied = withLimits(await deps.apply(ops.ops), { ops: ops.ops, sections: ctx.facts.sections, blocks: ctx.facts.lyric_blocks });
   if (!applied.ok) return fail(...applyReasons(applied));

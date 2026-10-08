@@ -18,6 +18,7 @@ import { AutoTextarea } from './AutoTextarea';
 import { CarriedPromptNote } from './CarriedPromptNote';
 import type { Lookup } from './lookup';
 import { CreateStep } from './CreateStep';
+import { ScoreMidiButton } from './ScoreMidiButton';
 import { RecipeCard } from './RecipeCard';
 import { GenTune } from './GenTune';
 
@@ -108,16 +109,19 @@ export function YueCoverPanel({ songs, onBack, noCoverModel, inventory }: {
             </button>
             <input ref={fileRef} type="file" accept=".abc,.txt,text/plain" hidden
               onChange={(e) => { void loadScoreFile(e.target.files?.[0]); e.target.value = ''; }} />
+            {score && <ScoreMidiButton abc={score.abc} name={score.source} disabled={running} onError={setError} />}
           </div>
           <div className="hint">
             TRANSCRIBE reads the source&apos;s melody into a score
             {autoRead && ' · then READ LYRICS reads its words into LYRICS, unless they hold yours'}
             {' '}· nothing is saved to your library · USE .ABC FILE swaps in a score you corrected elsewhere
+            {score && ' · DOWNLOAD MIDI saves this score as a .mid'}
           </div>
           {read.notes}
           {(error || tr.error) && <div className="error">{error || tr.error}</div>}
           {reuse && !score && <span className="meta">loading the earlier cover&apos;s score…</span>}
-          {score && <YueScoreReview engine={engine} score={score} />}
+          {score && <YueScoreReview engine={engine} score={score} busy={running}
+            onChange={(next) => patchAudio({ yueScore: next })} onTranscribeAgain={() => void transcribe()} />}
         </CreateStep>
         <CreateStep n={2} title="WHAT CHANGES?">
           <AutoTextarea placeholder="Describe the cover — style, mood, instruments, voice. The melody comes from the score."

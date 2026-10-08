@@ -12,8 +12,8 @@ import { repaintLabel, persistVersion } from './repaintVersion.js';
 export { startRegenerate, startSimilarTake } from './replayJobs.js';
 
 /** Queue a repaint of a region of a layer's active version; the result becomes the layer's
- * new active version. The source is read when the job starts, so a repaint queued behind
- * another on the same layer works on that one's result. */
+ * new active version, `basedOn` the version it repainted. The source is read when the job
+ * starts, so a repaint queued behind another on the same layer works on that one's result. */
 export async function startRepaint(layerId: string, params: ReleaseTaskParams): Promise<Job> {
   const { song_id: songId } = activeLayerSource(layerId, 'unknown layer');
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', songId, createdAt: Date.now() };
@@ -31,6 +31,6 @@ export async function startRepaint(layerId: string, params: ReleaseTaskParams): 
 
     job.taskId = task_id;
     job.status = 'running';
-    await poll(job, (result) => persistVersion(layerId, result.file, fullParams, result, repaintLabel('repaint', params)));
+    await poll(job, (result) => persistVersion(layerId, result.file, fullParams, result, repaintLabel('repaint', params), true, row.id));
   });
 }

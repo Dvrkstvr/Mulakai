@@ -78,14 +78,18 @@ body {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-bottom: 76px;
 }
 
-/* Editor/Create hide the docked Player footer (it slides to y:100%), so
-   the space reserved for it in .app-body would otherwise sit dead below
-   the settings/rail panels. */
-.app-editor .app-body {
-  padding-bottom: 0;
+/* The footer player overlays the app (it reserves no strip). While it is
+   docked — shown or dimmed, not merely revealed from the bottom edge — the
+   Library's scroll area pads its end so the last row scrolls clear of it,
+   and the scroll chevron sits above it. */
+.footer-docked .library-layout {
+  padding-bottom: 88px;
+}
+
+.footer-docked .scroll-area:has(> .library-layout) > .scroll-hint-down {
+  bottom: 92px;
 }
 
 .view-fill {
@@ -869,6 +873,18 @@ button.acid-outline {
   transform: skewX(-10deg);
 }
 
+/* The palette's .abc → MIDI failure (MidiNotice): it has no panel of its own, so it floats
+   just under the header row, right-aligned, until DISMISS. */
+.midi-notice {
+  position: fixed;
+  top: 56px;
+  right: 16px;
+  max-width: min(480px, calc(100vw - 32px));
+  background: var(--rust-tint);
+  font-size: 11px;
+  z-index: 50;
+}
+
 @keyframes toast-in {
   0% {
     opacity: 0;
@@ -891,13 +907,30 @@ footer {
   align-items: center;
   gap: 16px;
   padding: 16px 20px;
-  background: var(--carbon);
-  border-top: 1px solid var(--line);
+  /* Faceted glass (FacetGlass.tsx): a 30% carbon tint over the backdrop, cut into −10°
+     facets that each shift what's behind them, and a 1px lit top edge. The first
+     backdrop-filter is the fallback for browsers without SVG backdrop filters. */
+  background: rgba(28, 29, 33, 0.3);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px) brightness(0.7);
+  backdrop-filter: url(#footer-facet-glass) brightness(0.85);
   z-index: 20;
 }
 
 footer .player {
   flex: 1;
+}
+
+/* Bottom-edge hot zone (PlayerFooter.tsx): pointing at it reveals the
+   footer while it is dimmed or slid away. Sits under the footer, which
+   covers it whenever it is up. */
+.footer-reveal {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12px;
+  z-index: 19;
 }
 
 /* custom transport per DESIGN.md: hexagon play, square stop, sky scrub, neutral volume/download */
@@ -4260,6 +4293,53 @@ button.acid-outline:not(:disabled):hover {
   border-color: var(--rust);
 }
 
+/* The row the footer is playing: sky (the playhead's hue, DESIGN.md) — quiet at
+   rest (left edge + faint outline), loud on hover so the pause is easy to find.
+   The pause button stays a filled sky square in both states. */
+.library .row.playing:not(.selected) {
+  border-color: rgba(48, 188, 237, 0.35);
+}
+
+.library .row.playing:not(.generating) {
+  box-shadow: inset 3px 0 0 var(--sky);
+}
+
+.library .row.playing:not(.generating):hover {
+  border-color: var(--sky);
+  background: var(--sky-tint);
+  box-shadow: inset 5px 0 0 var(--sky), 0 0 18px -4px rgba(48, 188, 237, 0.6);
+}
+
+.library .row.playing:hover .song-title {
+  color: var(--sky);
+}
+
+.library .row.playing:hover .meta {
+  color: var(--text-hi);
+}
+
+.library .row.playing>button:first-child,
+.library .row.playing>button:first-child:hover {
+  display: grid;
+  place-items: center;
+  background: var(--sky);
+  border-color: var(--sky);
+  color: var(--on-sky);
+}
+
+.library .row.playing:hover>button:first-child {
+  box-shadow: 0 0 12px -2px rgba(48, 188, 237, 0.8);
+}
+
+/* Two drawn bars: the ⏸ character renders as a colour emoji and ignores `color`. */
+.pause-glyph {
+  width: 12px;
+  height: 14px;
+  background:
+    linear-gradient(var(--on-sky), var(--on-sky)) left / 4px 100% no-repeat,
+    linear-gradient(var(--on-sky), var(--on-sky)) right / 4px 100% no-repeat;
+}
+
 /* An unfilled favourite heart hints acid on hover (filled = already acid). */
 .fav:not(.on):hover {
   color: var(--acid);
@@ -4312,6 +4392,118 @@ button.acid-outline:not(:disabled):hover {
 .score-actions .tag-guide-btn:disabled {
   opacity: 0.4;
   cursor: default;
+}
+
+/* RE-TIME on a transcribed score (F-091, design/retime.html): the reading, then sky choices. */
+.retime {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 8px 0;
+}
+
+.retime-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  border: 1px solid var(--line-hi);
+  background: var(--carbon);
+  padding: 6px 10px;
+}
+
+.retime-row > b {
+  font-size: 12px;
+  letter-spacing: 1px;
+}
+
+/* BPM… as its own input (D-211): the chip's parallelogram, sky edge, an enter icon only. */
+.bpm-field {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--sky);
+  outline: 1px solid var(--sky);
+  outline-offset: 1px;
+  background: var(--carbon);
+  transform: skewX(-10deg);
+}
+
+.bpm-field > * {
+  transform: skewX(10deg);
+}
+
+.bpm-field input {
+  width: 56px;
+  background: none;
+  border: 0;
+  outline: 0;
+  color: var(--text-hi);
+  font: 11px ui-monospace, Consolas, monospace;
+  padding: 5px 4px 5px 12px;
+}
+
+.bpm-enter {
+  background: none;
+  border: 0;
+  border-left: 1px solid var(--sky-tint);
+  color: var(--sky);
+  font-size: 13px;
+  padding: 2px 10px;
+  cursor: pointer;
+}
+
+.bpm-field.bad {
+  border-color: var(--rust);
+  outline-color: var(--rust);
+}
+
+.bpm-field.bad .bpm-enter {
+  color: var(--rust-text);
+}
+
+.retime-commit,
+.retime-done,
+.retime-gone {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.retime-commit .hint,
+.retime-done .hint,
+.retime-gone > span {
+  flex: 1;
+}
+
+.retime-gone {
+  border: 1px solid var(--rust);
+  background: var(--rust-tint);
+  color: var(--rust-body);
+  font-size: 11px;
+  padding: 8px 10px;
+}
+
+.tag-retimed,
+.tag-stale {
+  font: 9px ui-monospace, Consolas, monospace;
+  letter-spacing: 1px;
+  padding: 0 5px;
+  border: 1px solid;
+}
+
+.tag-retimed {
+  color: var(--lilac-text);
+  border-color: var(--lilac);
+  background: var(--lilac-tint);
+}
+
+.tag-stale {
+  color: var(--rust-text);
+  border-color: var(--rust);
+}
+
+.retime-stale {
+  opacity: 0.55;
 }
 
 .score-review {

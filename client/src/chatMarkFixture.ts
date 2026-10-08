@@ -12,7 +12,7 @@ export const SECTIONS: StripSection[] = [
 export const READING: ShownReading = {
   versionId: 'v4', number: 4, mode: 'current', readAt: '2026-10-07T12:00:00Z',
   bars: { starts: Array.from({ length: 16 }, (_, i) => 1 + i * 2), end: 33 },
-  sections: SECTIONS, lines: 8, transcribed: false, notRead: { words: null, score: null, bars: null },
+  sections: SECTIONS, barsNotShown: 0, lines: 8, linesOutside: 0, transcribed: false, notRead: { words: null, score: null, bars: null },
 };
 export const view = (over: Partial<AnalysisView> = {}): AnalysisView => ({
   songId: 's1', versionId: 'v4', number: 4, state: { kind: 'done' }, shown: READING, lineage: null, ...over,

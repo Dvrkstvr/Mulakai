@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
-import type { ThinkingPhase } from './useThinkingQuery';
+import type { ThinkingPhase } from './quickStartStore';
 
 interface Props {
   phase: ThinkingPhase;

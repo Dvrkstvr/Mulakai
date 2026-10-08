@@ -23,6 +23,19 @@ describe('readingLine', () => {
       .toBe('READ v4 · 5 SECTIONS · 8 LINES · NO WORD TIMINGS');
   });
 
+  it('a score longer than its audio says how many bars the strip leaves out (D-197)', () => {
+    expect(readingLine(withView(view({ shown: { ...READING, transcribed: true, barsNotShown: 39 } })))!.text)
+      .toBe('READ v4 · 5 SECTIONS · 8 LINES · SCORE LONGER THAN THE AUDIO · 39 BARS NOT SHOWN');
+    expect(readingLine(withView(view({ shown: { ...READING, barsNotShown: 1 } })))!.text).toMatch(/· 1 BAR NOT SHOWN$/);
+  });
+
+  it('C1 live B4: the lines are the strip\'s; lines that pair with no shown section are named, only when there are some', () => {
+    expect(readingLine(withView(view({ shown: { ...READING, linesOutside: 10 } })))!.text)
+      .toBe('READ v4 · 5 SECTIONS · 8 LINES · 10 LINES OUTSIDE THE SECTIONS');
+    expect(readingLine(withView(view({ shown: { ...READING, linesOutside: 1 } })))!.text).toMatch(/· 1 LINE OUTSIDE THE SECTIONS$/);
+    expect(readingLine(withView(view()))!.text).not.toMatch(/OUTSIDE/);
+  });
+
   it('a transcribed score gets its second line', () => {
     expect(readingLine(withView(view({ shown: { ...READING, transcribed: true } })))!.transcribed).toBe(TRANSCRIBED_LINE);
   });
@@ -61,6 +74,13 @@ describe('readingLine', () => {
     const failed = withView({ ...f.view!, state: { kind: 'failed', reason: 'lyrics-server did not answer in 60 s', at: '' } });
     expect(readingLine(failed)).toEqual({ text: 'COULDN\'T READ v5 · lyrics-server did not answer in 60 s', tone: 'failed', retry: true, transcribed: null });
     expect(stripMode(failed)).toBe('hatched');
+  });
+
+  it('C1 live B1: a reading whose service failed shows the step, why and RETRY; what it read still draws the strip', () => {
+    const gap = withView(view({ state: { kind: 'failed', reason: 'WORDS · lyrics-server -> fetch failed', at: '' } }));
+    expect(readingLine(gap)).toEqual({ text: "COULDN'T READ v4 · WORDS · lyrics-server -> fetch failed", tone: 'failed', retry: true, transcribed: null });
+    expect(stripMode(gap)).toBe('live');
+    expect(chatAnalysis(gap, { type: 'retry' }).retry).toEqual({ kind: 'posting' });
   });
 
   it('a poll that failed reads as failed before the view refetches', () => {

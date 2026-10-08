@@ -24,6 +24,15 @@ describe('message view (the states the client shows)', () => {
     expect(states([u, msg('assistant', 'failed', { body: { reasons: ['x'], cause: 'cancelled' } })], ctx())).toEqual(['cancelled', 'cancelled']);
   });
 
+  it('C1: a sent mark (the frozen echo) is on the wire; a stale-mark turn reads failed (F-055)', () => {
+    const mark = { kind: 'range' as const, versionId: 'v4', bars: [49, 58] as [number, number], seconds: [118, 142] as [number, number], label: 'CHORUS 2 + 2 BARS' };
+    const u = msg('user', 'text', { body: { sentRev: 0, mark } });
+    const failed = msg('assistant', 'failed', { body: { reasons: ['your mark was on v3; v4 moved those bars · nothing changed · mark again'], cause: 'stale' } });
+    const [view] = messageViews([u, failed], ctx());
+    expect(view.body).toEqual({ chat_v: 1, sentRev: 0, mark });
+    expect(states([u, failed], ctx())).toEqual(['failed', 'failed']);
+  });
+
   it('a job that vanished with no reply (a restart) is interrupted; a trashed-song cancel reads cancelled', () => {
     expect(states([msg('user', 'text', { jobId: 'gone' })], ctx())).toEqual(['interrupted']);
     expect(states([msg('user', 'text', { jobId: 'j' })], ctx({ j: { status: 'failed', cancelled: true } }))).toEqual(['cancelled']);
@@ -132,5 +141,19 @@ describe('message view (the states the client shows)', () => {
     expect(states([card(read, 't')], ctx({ t: { status: 'done' } }))).toEqual(['done']);
     expect(states([card(read, 't')], ctx({ t: { status: 'failed', error: 'x' } }))).toEqual(['done']);
     expect(states([card(read, 't')], ctx())).toEqual(['done']);
+  });
+
+  it('C2 (F-059): UNDO TURN is offered on a recipe with an undo record, done once undone, absent otherwise', () => {
+    const undo = { rev: 1, before: {}, fields: ['title' as const] };
+    const recipe = (body: object, over: Partial<ChatMessage> = {}) => msg('assistant', 'recipe', { proposalId: 'p', body: { ...recipeBody, ...body }, ...over });
+    const offers = (messages: ChatMessage[], c: ViewContext) => messageViews(messages, c).map((m) => m.undo);
+    expect(offers([recipe({ undo })], ctx({}, { p: 'live' }))).toEqual(['offer']);
+    expect(offers([recipe({ undo })], ctx())).toEqual(['offer']); // expired after a restart: the record still undoes
+    expect(offers([recipe({ undo, undone: { at: 1, restored: ['title'], kept: [] } })], ctx())).toEqual(['done']);
+    expect(offers([recipe({})], ctx())).toEqual([null]); // filled nothing, or a pre-C2 message
+    expect(offers([recipe({ undo })], { ...ctx(), hasSong: true })).toEqual([null]);
+    const made = recipe({ undo }, { jobId: 'take' });
+    expect(offers([made, msg('assistant', 'song', { jobId: 'take' })], ctx())).toEqual([null, null]);
+    expect(offers([msg('assistant', 'say')], ctx())).toEqual([null]);
   });
 });

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type ExportWhat = 'mix' | 'stems' | 'remaster';
+export type ExportWhat = 'mix' | 'stems' | 'remaster' | 'midi';
 
 /**
  * A pick for a dock verb's body made from outside it (the Ctrl K palette's "Add layer ·

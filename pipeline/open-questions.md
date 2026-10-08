@@ -312,10 +312,10 @@ Editor-first's selection as the mark (CS-10: unsnapped seconds, a partial flag) 
 ## Q-113 · assumable · stage 6 (chat C1) · assumed → D-182
 The Editor's auto word-timings read (`timings` job) and the analysis's WORDS step can both queue for one version. Default: WORDS skips a version whose `word_timings` is set and checks `timingsJobs`' pending map first; a double read at worst costs one lyrics-server pass. Alternative: route the Editor's auto-read through the analysis.
 
-## Q-114 · assumable · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
+## Q-114 · answered B (owner, D-191) · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
 Reading line on its own 16 px row under the waveform (B) or right-aligned in the player's top row (A). Default: B (room for a failure reason + RETRY; costs 19 px, thread about 431 px at 1366x768 in the worst case). Alternative: A. Owner may pick at sign-off.
 
-## Q-115 · deferred · stage 5 (DT-C1)
+## Q-115 · deferred · stage 5 (DT-C1) · closed → D-225 (D-093: no lyric lane)
 The lyric-line lane under the waveform (chat-song CS-4d: click a lyric line to mark it) is in neither F-053 nor F-054 and is not drawn; it lands with C2's lyrics panel (21 px more player).
 
 ## Q-116 · assumable · stage 5 (DT-C1) · assumed → D-185
@@ -326,3 +326,70 @@ A seconds-only mark snaps to bars when the reading lands: the chip turns solid a
 
 ## Q-118 · assumable · stage 5 (DT-C1) · assumed → D-185
 An Alt-freed edge reads in seconds plus the bars it touches ("BARS 25-35, 35 PART"); the server fits it. Alternative: no Alt in C1 (snap always).
+
+## Q-119 · answered (owner: snap to bars, D-194) · stage 7 (CL-6, CP-C1) · open
+CP-C1 stop line hit: 2 of 10 marked turns planned outside the mark, both the seconds-only marks (`pipeline/cp-c1/2026-10-07/notes.md` #1). `markBlock` sends no bars for a time-only mark (D-179), so the plan is unbounded and the planner fell back to "the first chorus" both times; the 8 bar marks all stayed inside. Q-117 makes the client snap such a mark once a reading lands, so the case left is a hatched strip (bars not read). Options: (a) the server snaps a seconds-only mark to bars whenever the version has bar times and bounds the plan; with none, (b) name the nearest sections from the score's own section timing in MARK, or (c) a time-only mark gets no edit plan ("mark again when the bars are read"). Owner / conductor picks before CL-8a.
+
+## Q-120 · assumable · stage 7 (CL-6, CP-C1) · assumed → D-196
+yue-server `/v1/scores/bars` returns non-increasing `starts` (bar 1 clamped to the audio start, bars past the audio's end all = end) and `yueScoreBars.ts` then drops the whole reply as "unreadable": the strip stays hatched and nothing can be marked (Acid Houzzzz, a YuE2 song, and eventide). Default: clamp or trim on yue-server (or accept non-decreasing starts with the bars past the end marked absent), tested with these two songs' grids, before CL-8a.
+## Q-121 · blocking · stage 4 (engine pairing, P1) · answered → D-203
+The local ACE-Step is a fork (`local/analyze-audio`: `/lyric_timestamp` and `/v1/analyze_audio`, which Mulakai calls), against CLAUDE.md/AGENTS.md "never modify ACE-Step-1.5", and 15 commits behind upstream with fixes Mulakai needs (R-034). Options: (a) rebase the fork onto upstream `main`, keep the two endpoints as a documented patch, and amend the rule to "only the documented patch" (conflicts expected in `api_server.py`, `inference.py`, `docs/en/API.md`); (b) offer both endpoints upstream as PRs and track `main` once merged, with (a) meanwhile; (c) drop the fork: upstream `full_analysis_only` for analysis, lyric timings from lyrics-server or CPU alignment. Default: (b) with (a) meanwhile. Owner picks: it changes a project rule.
+
+## Q-122 · assumable · stage 4 (engine pairing, F-084) · open
+Default first-take engine for a non-en/zh vocal song. Default: ACE-Step, with the reason and an override, if the owner's listen confirms YuE2 sings German/Spanish worse. Alternative: keep YuE2 and only warn.
+
+## Q-123 · assumable · stage 4 (engine pairing, F-082) · open
+REPAINT's prompt on a song with a caption. Default: the instruction only (as today), with bpm/key/meter added. Alternative: the instruction plus the song caption, which may pull the repaint toward the whole song's style.
+
+## Q-124 · assumable · stage 4 (engine pairing, F-087) · open
+`cover-nofsq` as REMASTER's path or a new POLISH verb. Default: REMASTER's path, decided by the A/B (no new verb on the dock).
+
+## Q-125 · assumable · stage 4 (RT, F-091/F-094) · open
+When is a BPM "only slightly off" and so SET TEMPO, not RE-TIME? Default: a named BPM within ±8 % of the read tempo is SET TEMPO; RE-TIME is offered for anything else, HALF/DOUBLE always. Alternative: always RE-TIME for a transcription (SET TEMPO only on YuE2 songs).
+
+## Q-126 · assumable · stage 4 (RT, F-093) · open
+The SCORE dock's RE-TIME on a song with no kept bundle (a YuE2 original, or a cover made before RT). Default: not offered; a cover without one says "no saved reading · TRANSCRIBE the source again in Create". Alternative: re-transcribe the cover's own audio.
+
+## Q-127 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+Is the cover panel's piano preview cheap to redraw after a re-time? Unverified (yue-server renders `piano_mix.wav` inside the transcription, `transcriber.py`). Default: not redrawn; the old preview stays, dimmed and tagged STALE with its tempo, until the next TRANSCRIBE. Alternative: redraw it in the same step if SP-8 shows under ~5 s.
+
+## Q-128 · assumable · stage 5 (RT, design/retime.html) · open
+The working time in RE-TIME's lines. Default: "a few seconds" until SP-8 measures it, then "about N s" from a constant (F-090 accepts under 10 s). The TRANSCRIBE AGAIN GPU time uses the calibrated figure (Q-099).
+
+## Q-129 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+BPM… range. Default: whole numbers 40–240; HALF or DOUBLE landing outside it is a disabled chip with the reason. Alternative: 30–300.
+
+## Q-130 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+A slightly-off tempo on the cover panel. Default: no SET TEMPO there; the hint points to the SCORE dock once the cover exists. Alternative: a tempo nudge field in the cover panel.
+
+## Q-131 · assumable · stage 5 (RT, D-207, design/retime.html) · open
+The refusal for a gone saved reading says "gone" with no date. Alternative: say when it was cleared (30-day sweep).
+
+## Q-132 · assumable · stage 5 (RT, F-093/F-094, design/retime.html) · open
+A RE-TIME stands alone in a plan: the planner drops other ops (bars change under them) and says so. Alternative: allow RE-TIME first in a list with later ops on the new bars.
+
+## Q-137 · assumable · stage 7 (C1 p95 re-measure) · open
+On Gertar, 3 of 3 "jazz chords" turns kept planning a WRITE_PHRASE on sung bars and failed after 3 attempts (pipeline/cp-c1/2026-10-08-p95). A chords-only request should plan REHARMONIZE only. Prompt-side look (turnPrompt planner rules) in C2 or a small fix; not blocking C1.
+## Q-136 · assumable · stage 6 (chat C2, F-058; renumbered from Q-133) · assumed → D-227
+How a chat REVISE starts. Default: the server revises whenever a live, unchanged edit card exists (the model drops everything to start over). Alternatives: a REVISE button on the card; a flag the model sets in its reply.
+
+## Q-134 · assumable · stage 6 (chat C2, F-059) · assumed → D-220
+What UNDO TURN does to that turn's pending recipe card. Default: the card stays live and mirrors the restored draft (TU-7), so CREATE SONG sends what the sidebar shows. Alternative: the card reads UNDONE and loses CREATE SONG until the next reply.
+
+## Q-135 · deferred · stage 6 (chat C2, LY-1)
+LY-1 lists a fourth song row, "dock". C2 builds versions, style, tempo and key and the panel only (D-219); the dock row waits for the chat's scalpel (C7) or the Editor-first mirror (C6).
+
+## Q-140 · assumable · stage 5 (chat C2, DT-C2, F-058) · answered → D-229 (owner, defaults kept)
+The superseded edit card above a revised one. Default: dimmed to 45 % in full with its header "REVISED BELOW", no APPLY (option A, as a superseded recipe card). Alternative: folds to one header line with SHOW (B): gives back the card's height, costs a click to compare plans.
+
+## Q-141 · assumable · stage 5 (chat C2, DT-C2, F-060) · answered → D-229 (owner, defaults kept)
+The bar map at 200 bars (a cover). Default: one row in the card's 730 px, 3.65 px a bar, labels thinned to fit (A). Alternative: two rows of 100 bars, 7.3 px a bar, about 45 px taller (B).
+
+## Q-142 · assumable · stage 5 (chat C2, DT-C2, F-059) · answered → D-229 (owner, defaults kept)
+UNDO TURN on an older turn. Default: still offered, and every field it keeps names its reason ("you changed it", "a later reply changed it"). Alternative: only the latest turn offers it (scope.md C2's cut-order item). Not drawn in the page beyond the "you changed it" case.
+
+## Q-143 · assumable · stage 5 (chat C2, DT-C2, F-060) · answered → D-229 (owner, defaults kept)
+Bar-map hover. Default: a change-list row lights its bars (solid sky) on hover and on keyboard focus; the map itself is not interactive. Alternative: hovering the map also names the op.
+
+## Q-144 · assumable · stage 5 (chat C2, DT-C2, F-058) · answered → D-229 (owner, defaults kept)
+APPLY on the pending card while a revise runs. Default: off (plan 1 is about to be superseded), on again if the revise fails or is cancelled. Alternative: left on (a race: APPLY of plan 1 while plan 2 is being written).
