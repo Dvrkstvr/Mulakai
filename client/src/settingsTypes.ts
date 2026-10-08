@@ -78,8 +78,10 @@ export interface ExportSettings {
   bitDepth: BitDepth;
   /** mp3 only; ignored by wav/flac. */
   mp3Bitrate: Mp3Bitrate;
-  /** Remaster diffusion steps, 1-200 (ACE-Step's documented Base-model ceiling). */
+  /** Remaster diffusion steps, 0-200; 0 = RECOMMENDED, the model's own count (remasterChoice.ts). */
   steps: number;
+  /** REMASTERED MIX's DIT MODEL; '' = not picked yet (xl-sft, else the first cover-capable model). */
+  remasterModel: string;
   /** Default playback volume (0-1) applied once when a Player first mounts. */
   volume: number;
 }

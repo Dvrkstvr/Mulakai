@@ -37,3 +37,17 @@ export function migrateExportSettings(e: ExportSettings): ExportSettings {
   }
   return { ...e, bitDepth: clampDepth(e.audioFormat, e.bitDepth) };
 }
+
+/** The fixed remaster count before REMASTERED MIX had a STEPS slider (persist version 0). */
+const OLD_REMASTER_STEPS = 100;
+
+/**
+ * Zustand persist's version migration, run before mergeSettings. Version 1: a blob still on
+ * the old fixed 100 remaster steps moves to 0 = RECOMMENDED (PLAN.md "Remaster TUNE"). It runs
+ * once, so a count of 100 set by hand afterwards stays.
+ */
+export function migrateSettings(persisted: unknown, version: number): unknown {
+  const p = persisted as { exportSettings?: { steps?: number } } | undefined;
+  if (version >= 1 || p?.exportSettings?.steps !== OLD_REMASTER_STEPS) return persisted;
+  return { ...p, exportSettings: { ...p.exportSettings, steps: 0 } };
+}

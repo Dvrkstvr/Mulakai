@@ -20,5 +20,9 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "pipeline@calkoh": true,
+    "superpowers@claude-plugins-official": true
   }
 }
