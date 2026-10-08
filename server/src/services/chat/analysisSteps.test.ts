@@ -115,7 +115,7 @@ describe('analyzeSteps', () => {
     const plan = analysisPlan({ ownScore: false, wordTimings: false, cachedGrid: false }, { lyrics: false, yue: false, acestep: false });
     const d = deps();
     const out = await analyzeSteps(input({}, [], { plan }), d, noop);
-    expect(out).toEqual({ words: { notRead: 'LYRICS_API_URL is not set' }, timings: null, score: { notRead: 'YUE_API_URL is not set' }, bars: { notRead: 'YUE_API_URL is not set' } });
+    expect(out).toEqual({ words: { notRead: 'word timings are off on this machine' }, timings: null, score: { notRead: 'score reading is off on this machine' }, bars: { notRead: 'score reading is off on this machine' } });
     expect(d.lyrics).not.toHaveBeenCalled();
     expect(d.transcribe).not.toHaveBeenCalled();
   });

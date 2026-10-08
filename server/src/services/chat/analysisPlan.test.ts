@@ -31,14 +31,14 @@ describe('analysisPlan', () => {
   });
 
   it('LYRICS_API_URL unset skips WORDS with the reason, not a failure (F-052 #4)', () => {
-    expect(analysisPlan(yue2, { ...all, lyrics: false }).words).toEqual({ source: 'skip', why: 'LYRICS_API_URL is not set' });
+    expect(analysisPlan(yue2, { ...all, lyrics: false }).words).toEqual({ source: 'skip', why: 'word timings are off on this machine' });
   });
 
   it('no yue-server: no transcription and no bar times', () => {
     const plan = analysisPlan(ace, { ...all, yue: false });
-    expect(plan.score).toEqual({ source: 'skip', why: 'YUE_API_URL is not set' });
-    expect(plan.sections).toEqual({ source: 'skip', why: 'YUE_API_URL is not set' });
+    expect(plan.score).toEqual({ source: 'skip', why: 'score reading is off on this machine' });
+    expect(plan.sections).toEqual({ source: 'skip', why: 'score reading is off on this machine' });
     expect(analysisPlan({ ...yue2, cachedGrid: true }, { ...all, yue: false }).sections)
-      .toEqual({ source: 'skip', why: 'YUE_API_URL is not set' });
+      .toEqual({ source: 'skip', why: 'score reading is off on this machine' });
   });
 });

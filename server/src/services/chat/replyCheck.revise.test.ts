@@ -54,6 +54,12 @@ describe('a revise turn\'s edit check (F-058, D-227)', () => {
       .toEqual({ ops: [UP], marks: ['NEW'], removed: [TEMPO, HARM] });
   });
 
+  it('C2 live B2: a start over drops every pending op whatever the reply\'s drop says; the scrapped ops are REMOVED', async () => {
+    const over = ctx([TEMPO, HARM], { request: 'scrap that, instead transpose it down a tone' });
+    expect(accepted(await checkReply(edit([], [UP]), over, {}), [TEMPO, HARM])).toEqual({ ops: [UP], marks: ['NEW'], removed: [TEMPO, HARM] });
+    expect(accepted(await checkReply(edit([1], [UP]), over, {}), [TEMPO, HARM])).toEqual({ ops: [UP], marks: ['NEW'], removed: [TEMPO, HARM] });
+  });
+
   it('an echo of the pending plan is all SAME, not refused (D-076 e)', async () => {
     expect(accepted(await checkReply(edit([], [TEMPO, HARM]), ctx([TEMPO, HARM]), {}), [TEMPO, HARM]))
       .toEqual({ ops: [TEMPO, HARM], marks: ['SAME', 'SAME'], removed: [] });
