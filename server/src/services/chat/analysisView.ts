@@ -14,7 +14,7 @@ import type { ScoreFacts } from '../score/planTypes.js';
 import type { LyricsReading } from '../lyricsClient.js';
 import { isRead } from './reading.js';
 import {
-  isFailed, type AnalysisState, type AnalysisStep, type AnalysisView, type BarShift, type LiveAnalysisJob,
+  isFailed, readingGap, type AnalysisState, type AnalysisStep, type AnalysisView, type BarShift, type LiveAnalysisJob,
   type ShownReading, type StoredAnalysis, type StripSection, type VersionAnalysis,
 } from './analysisTypes.js';
 
@@ -112,7 +112,10 @@ function state(current: StoredAnalysis | null, job: LiveAnalysisJob | null): Ana
     return { kind: 'running', jobId: job.jobId, step: word && STEPS.includes(word) ? word : null, progress: job.progressText };
   }
   if (!current) return { kind: 'none' };
-  return isFailed(current) ? { kind: 'failed', reason: current.failed, at: current.at } : { kind: 'done' };
+  if (isFailed(current)) return { kind: 'failed', reason: current.failed, at: current.at };
+  // C1 live B1: a step whose service failed is not done; its parts read are still shown (the strip, the mark).
+  const gap = readingGap(current);
+  return gap ? { kind: 'failed', reason: gap, at: current.readAt } : { kind: 'done' };
 }
 
 export function analysisView(input: ViewInput): AnalysisView {

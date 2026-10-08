@@ -98,11 +98,13 @@ describe('analyzeSteps', () => {
     expect(score.bars).toEqual({ notRead: 'the score step ran no transcription to take the beat from' });
     expect(score.words).toMatchObject({ lines: ['Hey you'] });
 
-    const bars = await analyzeSteps(input({ ownScore: true, cachedGrid: true }), deps({ bars: vi.fn(async () => ({ ok: false as const, reason: 'YUE2 could not time the bars: the score has no bars' })) }), noop);
-    expect(bars).toMatchObject({ score: { source: 'own' }, bars: { notRead: 'YUE2 could not time the bars: the score has no bars' } });
+    const bars = await analyzeSteps(input({ ownScore: true, cachedGrid: true }), deps({ bars: vi.fn(async () => ({ ok: false as const, reason: 'YUE2 could not time the bars: the score has no bars', answered: true as const })) }), noop);
+    expect(bars).toMatchObject({ score: { source: 'own' }, bars: { notRead: 'YUE2 could not time the bars: the score has no bars', answered: true } });
+    const http500 = await analyzeSteps(input({ ownScore: true, cachedGrid: true }), deps({ bars: vi.fn(async () => ({ ok: false as const, reason: 'YUE2 could not time the bars: HTTP 500' })) }), noop);
+    expect(http500.bars).toEqual({ notRead: 'YUE2 could not time the bars: HTTP 500' }); // not answered: RETRY may read it (B1)
 
     const noGrid = await analyzeSteps(input({}), deps({ grid: vi.fn(async () => null) }), noop);
-    expect(noGrid.bars).toEqual({ notRead: 'the transcription kept no downbeat grid' });
+    expect(noGrid.bars).toEqual({ notRead: 'the transcription kept no downbeat grid', answered: true });
     const gone = await analyzeSteps(input({ ownScore: true, cachedGrid: true }), deps({ readGrid: vi.fn(async () => null) }), noop);
     expect(gone.bars).toEqual({ notRead: 'the cached grid is gone' });
     const thrown = await analyzeSteps(input({ ownScore: true, cachedGrid: true }), deps({ bars: vi.fn(async () => { throw new Error('YUE2 bar times -> ECONNREFUSED'); }) }), noop);

@@ -30,7 +30,8 @@ export interface MarkBlock { lines: string[]; preview: MarkPreview; bars: [numbe
 
 const LYRICS_MAX = 12;
 const MEANS = '"this", "here" and "it" in the REQUEST mean it';
-const clock = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+/** Rounded to the second, as the chip's clock (C1 live B5: WHAT IT SEES read 0:55 under a 0:56 chip). */
+const clock = (t: number) => { const s = Math.max(0, Math.round(t)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; };
 const time = ([a, b]: [number, number]) => `${clock(a)}-${clock(b)}`;
 const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
 
@@ -77,7 +78,7 @@ export function markBlock({ mark, number, analysis, words }: MarkBlockInput): Ma
     `MARKED SECTIONS: ${facts && bars ? sections.map(sectionLine).join('; ') || 'none' : 'not read'}`,
     `MARKED LYRICS: ${lyrics.join(' / ') || 'none read'}`,
     h ? `AT THE MARK: key ${h.key} · ${h.bpm} BPM · ${h.meter}` : 'AT THE MARK: key and tempo not read',
-    bars ? `Plan bar ops only inside bars ${bars[0]}-${bars[1]}; a tempo, key or style op changes the whole song.`
+    bars ? `Plan ops only inside bars ${bars[0]}-${bars[1]}; a tempo, key or style op changes the whole song: use one only when the person asks for the whole song.`
       : 'The bars of this version were not read yet: the mark is a time only, so no edit can be planned for it; answer in words (say) and tell the person to mark again once the reading lands.',
   ];
   const sectionRow = facts && bars ? sections.map((s) => `${s.label.toUpperCase()} ${s.occurrence} (${s.whole ? 'whole' : `bars ${s.bars[0]}-${s.bars[1]}`})`).join(', ') || 'none' : 'not read';

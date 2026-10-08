@@ -58,6 +58,9 @@ describe('chip, echo, stale', () => {
     expect(staleLines(m(25, 34), 4, 5, null)).toBe(
       'STALE MARK · you marked bars 25–34 of v4. v5 moved those bars; mark again. Nothing was sent with the old bars.');
     expect(USE_BARS([33, 42])).toBe('USE BARS 33–42');
+    // C1 live B6: unchanged numbers are not "now" anywhere else
+    expect(staleLines(m(15, 22), 5, 6, [15, 22])).toBe(
+      'STALE MARK · you marked bars 15–22 of v5. v6 moved other bars; these are still bars 15–22. Nothing was sent with the old bars.');
   });
 
   it('after a tempo change: the same bars at new times, or mark again for a time-only mark', () => {

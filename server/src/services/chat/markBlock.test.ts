@@ -39,7 +39,7 @@ describe('markBlock', () => {
       'MARKED SECTIONS: S4 chorus #2 bars 13-16 (whole)',
       'MARKED LYRICS: [Chorus] #2, 2 lines, first line: hold on tight',
       'AT THE MARK: key Am · 96 BPM · 4/4',
-      'Plan bar ops only inside bars 13-16; a tempo, key or style op changes the whole song.',
+      'Plan ops only inside bars 13-16; a tempo, key or style op changes the whole song: use one only when the person asks for the whole song.',
     ]);
     expect(out.preview.rows).toEqual([
       { name: 'VERSION', value: 'v4' }, { name: 'BARS', value: '13-16' }, { name: 'TIME', value: '0:30-0:40' },

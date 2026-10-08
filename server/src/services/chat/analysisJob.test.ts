@@ -151,6 +151,19 @@ describe('startAnalysis', () => {
     expect(d.steps.lyrics).not.toHaveBeenCalled();
   });
 
+  it('C1 live B1: a reading whose service failed is stored with the gap and read again; then it is done', async () => {
+    const { songId, layerId } = song();
+    const v = take(layerId, { own: true, grid: true });
+    const down = startAnalysis(songId, deps({ steps: { lyrics: vi.fn(async () => { throw new Error('lyrics-server -> fetch failed'); }) } }));
+    await settled(down.id, 'done');
+    expect(readVersionAnalysis(v)).toMatchObject({ words: { notRead: 'lyrics-server -> fetch failed' }, bars: { source: 'cached' } });
+    const d = deps();
+    const again = startAnalysis(songId, d);
+    await settled(again.id, 'done');
+    expect(d.steps.lyrics).toHaveBeenCalledTimes(1);
+    expect(readVersionAnalysis(v)).toMatchObject({ words: { lines: ['Hey you'] } });
+  });
+
   it('one waiting job per song; it reads the newest take when it starts', async () => {
     const release = hold();
     const { songId, layerId } = song();

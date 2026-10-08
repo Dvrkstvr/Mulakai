@@ -26,7 +26,7 @@ import { scoreSidecarName } from '../versionFiles.js';
 import { analysisPlan, analysisSources } from './analysisPlan.js';
 import { analyzeSteps, type AnalysisStepDeps } from './analysisSteps.js';
 import { playableVersion, readVersionAnalysis, wordTimings, writeAnalysis } from './analysisStore.js';
-import { ANALYSIS_V, isFailed, type LiveAnalysisJob } from './analysisTypes.js';
+import { ANALYSIS_V, isComplete, type LiveAnalysisJob } from './analysisTypes.js';
 import { gpuGuard } from './gpuGuard.js';
 import { readGrid, writeGrid } from './gridCache.js';
 import type { Services } from './readingPlan.js';
@@ -91,7 +91,7 @@ async function analyze(job: Job, songId: string, title: string, deps: AnalysisDe
   }
   targets.set(job.id, target.id);
   const stored = readVersionAnalysis(target.id);
-  if (stored && !isFailed(stored)) return; // already read
+  if (isComplete(stored)) return; // already read (a failed or gapped reading is read again: RETRY, B1)
   const fail = (reason: string) => {
     writeAnalysis({ analysis_v: ANALYSIS_V, versionId: target.id, failed: reason, at: deps.now().toISOString() });
     return new Error(reason);

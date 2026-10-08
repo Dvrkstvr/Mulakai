@@ -4,6 +4,8 @@ import { recipeFields } from './draftModel.js';
 import { MAX_TOKENS, decideReply, ladderRung, type TurnContext } from './turnCall.js';
 import { turnAttempts } from './turnAttempts.js';
 import type { ChatScript } from '../../../test-fakes/fakeOllama.js';
+import { contract } from '../../../test-fakes/fakeYue.js';
+import type { ScoreFacts } from '../score/planTypes.js';
 
 const ctx: TurnContext = { state: { hasSong: false, scoreReadable: false }, block: ['SONG: none yet'], facts: null, request: 'a sad song', pending: false, draft: {}, history: [] };
 const scripted = (...replies: ChatScript[]) => {
@@ -89,5 +91,21 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
   it('turnAttempts stops after maxAttempts', async () => {
     const out = await turnAttempts([], { ask: async () => ({ content: '{}', promptTokens: 1 }), check: async () => ({ ok: false, reasons: ['no'] }) }, 2);
     expect(out).toEqual({ ok: false, reasons: ['no'], attempts: 2, promptTokens: [1, 1] });
+  });
+
+  it('C1 live B2: "make this jazzier" on a chorus mark: EDIT STYLE is left out and retried with the mark’s bars; the replan stays inside', async () => {
+    const facts = contract('read-ok').response.body.facts as ScoreFacts;
+    const marked: TurnContext = { ...ctx, state: { hasSong: true, scoreReadable: true }, facts, request: 'make this jazzier', mark: { lines: ['MARK: bars 23-30'], range: [23, 30] } };
+    const reharm = { op: 'REHARMONIZE', from_bar: 23, to_bar: 24, chords: [{ bar: 23, beat: 1, root: 'C', quality: 'maj7' }] };
+    const edit = (ops: unknown[]) => ({ content: JSON.stringify({ action: 'edit', message: 'jazzier', assumptions: [], ops }), promptTokens: 1 });
+    const ask = scripted(edit([{ op: 'EDIT_STYLE', style: 'jazz' }, reharm]), edit([reharm]));
+    const d = await decideReply(marked, { ask });
+    expect(d).toMatchObject({ ok: true, attempts: 2 });
+    expect(d.ok && d.reply).toMatchObject({ action: 'edit', ops: [reharm] });
+    expect(d.ok && d.refusals[0][0]).toContain('the mark covers bars 23-30, and a whole-song change needs the person to ask for it');
+    expect(JSON.stringify(ask.mock.calls[0][1])).not.toContain('EDIT_STYLE');
+    const whole = scripted(edit([{ op: 'EDIT_STYLE', style: 'jazz' }]));
+    expect(await decideReply({ ...marked, request: 'make the whole song jazzier' }, { ask: whole })).toMatchObject({ ok: true, attempts: 1 });
+    expect(JSON.stringify(whole.mock.calls[0][1])).toContain('EDIT_STYLE');
   });
 });
