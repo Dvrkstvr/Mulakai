@@ -68,4 +68,14 @@ describe('turn reply schema (SP-5 turn_schema)', () => {
     expect(names([47, 58], true)).toEqual(expect.arrayContaining(['SET_TEMPO', 'EDIT_STYLE', 'TRANSPOSE']));
     expect(names()).toEqual(expect.arrayContaining(['SET_TEMPO', 'EDIT_STYLE', 'TRANSPOSE']));
   });
+
+  it('C2 (F-058): with a pending plan the edit gains `drop` (pending op numbers, each once) and its ops may be empty', () => {
+    const edit = part(turnSchema({ facts, phraseBars: 4, allowed: ['edit', 'say'], pendingCount: 3 }), 'edit');
+    expect(edit.required).toEqual(['action', 'message', 'assumptions', 'drop', 'ops']);
+    expect(edit.properties.drop).toEqual({ type: 'array', items: { type: 'integer', minimum: 1, maximum: 3 }, uniqueItems: true, maxItems: 3 });
+    expect(edit.properties.ops.minItems).toBe(0);
+    const fresh = part(turnSchema({ facts, phraseBars: 4, allowed: ['edit'] }), 'edit');
+    expect(fresh.properties.drop).toBeUndefined();
+    expect(fresh.properties.ops.minItems).toBe(1);
+  });
 });
