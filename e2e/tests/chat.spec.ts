@@ -100,7 +100,8 @@ test('the player reads v1: the reading line, the strip and the ruler; the thread
   // YuE2's own; a chords run tracks the beat and yue-server times the bars (both replayed from yue-server's recordings
   // of the contract song: transcription-grid-contract, scores-bars-contract), so the strip is live with its names.
   const line = player.getByRole('status', { name: 'Reading' });
-  await expect(line).toHaveText(/^READ v1 · 4 SECTIONS · \d+ LINES? · NO WORD TIMINGS$/, { timeout: 30_000 });
+  // C1 live B4: LINES are the strip's own pairing; lyric blocks with no section of their kind left are named apart.
+  await expect(line).toHaveText(/^READ v1 · 4 SECTIONS · \d+ LINES?(?: · \d+ LINES? OUTSIDE THE SECTIONS)? · NO WORD TIMINGS$/, { timeout: 30_000 });
   await expect(line).not.toHaveClass(/failed/);
   await expect(line.getByRole('button', { name: 'RETRY' })).toHaveCount(0);
   const strip = player.locator('.chat-strip');

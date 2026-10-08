@@ -29,6 +29,13 @@ describe('readingLine', () => {
     expect(readingLine(withView(view({ shown: { ...READING, barsNotShown: 1 } })))!.text).toMatch(/· 1 BAR NOT SHOWN$/);
   });
 
+  it('C1 live B4: the lines are the strip\'s; lines that pair with no shown section are named, only when there are some', () => {
+    expect(readingLine(withView(view({ shown: { ...READING, linesOutside: 10 } })))!.text)
+      .toBe('READ v4 · 5 SECTIONS · 8 LINES · 10 LINES OUTSIDE THE SECTIONS');
+    expect(readingLine(withView(view({ shown: { ...READING, linesOutside: 1 } })))!.text).toMatch(/· 1 LINE OUTSIDE THE SECTIONS$/);
+    expect(readingLine(withView(view()))!.text).not.toMatch(/OUTSIDE/);
+  });
+
   it('a transcribed score gets its second line', () => {
     expect(readingLine(withView(view({ shown: { ...READING, transcribed: true } })))!.transcribed).toBe(TRANSCRIBED_LINE);
   });

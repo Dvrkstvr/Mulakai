@@ -103,6 +103,7 @@ export function readingLine(s: AnalysisState): ReadingLine | null {
   }
   if (!r) return { text: `${v(view.number)} · NOT READ YET`, tone: 'quiet', retry: false, transcribed: null };
   const parts = [`READ ${v(r.number)}`, count(r.sections.length, 'SECTION'), count(r.lines, 'LINE')];
+  if (r.linesOutside > 0) parts.push(`${count(r.linesOutside, 'LINE')} OUTSIDE THE SECTIONS`);
   if (r.notRead.words !== null) parts.push('NO WORD TIMINGS');
   if (r.barsNotShown > 0) parts.push('SCORE LONGER THAN THE AUDIO', `${count(r.barsNotShown, 'BAR')} NOT SHOWN`);
   return { text: parts.join(' · '), tone: 'quiet', retry: false, transcribed };

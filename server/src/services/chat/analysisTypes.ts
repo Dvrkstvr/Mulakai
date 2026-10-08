@@ -109,7 +109,10 @@ export interface ShownReading {
   sections: StripSection[];
   /** Score bars past the last bar the audio holds, left off the strip (D-197); 0 when the score fits. */
   barsNotShown: number;
+  /** Lines in the shown sections, by the strip's own pairing (`readingLines`, C1 live B4). */
   lines: number;
+  /** Lines that pair with no shown section ("n LINES OUTSIDE THE SECTIONS" when > 0). */
+  linesOutside: number;
   /** "TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY". */
   transcribed: boolean;
   notRead: { words: string | null; score: string | null; bars: string | null };
