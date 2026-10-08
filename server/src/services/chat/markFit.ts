@@ -5,7 +5,8 @@
  * block sung outside it. A whole-song op (tempo, key, style, any op with no bars) is refused too unless the
  * person's words ask for the whole song (`asksWholeSong`, C1 live B2: "make this jazzier" on a chorus planned
  * EDIT STYLE); when asked, it is allowed and the card says so. A mark past the score's end is clamped and a
- * phrase longer than the mark runs past it, each named on the card. Pure.
+ * phrase longer than the mark runs past it, each named on the card. A replan that dropped a refused whole-song op
+ * but whose message still describes it gets a message from its own ops (`replanMessage`, C1 re-check N2). Pure.
  */
 import type { Op, ScoreFacts, ScoreSection } from '../score/planTypes.js';
 
@@ -84,4 +85,34 @@ export function markFit(ops: Op[], range: BarRange, facts: ScoreFacts, wholeAske
   const whole = [...new Set(ops.map((o) => (o as { op: string }).op).filter(isWholeSongOp).map(opName))];
   if (whole.length) notes.push(`${whole.join(', ')} ${whole.length > 1 ? 'change' : 'changes'} the whole song, not only the marked bars`);
   return { reasons, notes };
+}
+
+/** What a message says when it describes a whole-song op (N2: "I will increase the tempo of the whole song"). */
+const SAYS: Record<string, RegExp> = {
+  SET_TEMPO: /\b(tempo|bpm|faster|slower|speed (it )?up|slow (it )?down)\b/i,
+  TRANSPOSE: /\b(transpos\w*|semitones?|key change|change the key|new key)\b/i,
+  EDIT_STYLE: /\b(style|genre)\b/i,
+};
+const REFUSED_WHOLE = /^op \d+ \((SET_TEMPO|TRANSPOSE|EDIT_STYLE)\): .* changes the whole song/;
+
+function opWords(op: Op): string {
+  switch (op.op) {
+    case 'REHARMONIZE': return `new chords in ${span([op.from_bar, op.to_bar])}`;
+    case 'WRITE_PHRASE': return `a ${op.instrument} phrase from bar ${op.start_bar}`;
+    case 'REPEAT': case 'CUT': return `${op.op === 'REPEAT' ? 'repeat' : 'cut'} S${op.section} ${op.label}`;
+    case 'REWRITE_LYRICS': return `new lyrics for ${op.tag} #${op.occurrence}`;
+    default: return opName(op.op).toLowerCase();
+  }
+}
+
+/** The replan's message: as the model wrote it, unless an earlier attempt's whole-song op was refused under the mark,
+ * the accepted ops leave it out and the message still describes it; then one sentence from the accepted ops. */
+export function replanMessage(message: string, ops: Op[], refusals: string[][]): string {
+  const kept = new Set(ops.map((o) => o.op as string));
+  const refused = [...new Set(refusals.flat().map((r) => REFUSED_WHOLE.exec(r)?.[1]).filter((n): n is string => Boolean(n)))]
+    .filter((n) => !kept.has(n));
+  const stale = refused.filter((n) => SAYS[n].test(message));
+  if (!stale.length) return message;
+  const names = stale.map(opName).join(', ');
+  return `Planned inside the mark: ${ops.map(opWords).join('; ')}. ${names} would change the whole song, so it is not in this plan; ask for the whole song to get it.`;
 }

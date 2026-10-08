@@ -123,4 +123,17 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(tokens[2]).toBeLessThanOrEqual(tokens[0] + 1000); // 2434, 2529, 2623 (re-sending the reply: 2434, 4062, 5689)
     expect(JSON.stringify(ask.mock.calls[2][0])).not.toContain('m'.repeat(300));
   });
+
+  it('C1 re-check N2: "make it faster" on a mark: SET TEMPO refused, the REHARMONIZE replan does not keep the tempo sentence', async () => {
+    const facts = contract('read-ok').response.body.facts as ScoreFacts;
+    const marked: TurnContext = { ...ctx, state: { hasSong: true, scoreReadable: true }, facts, request: 'make it faster', mark: { lines: ['MARK: bars 23-30'], range: [23, 30] } };
+    const said = 'I will increase the tempo of the whole song to 120 bpm.';
+    const reharm = { op: 'REHARMONIZE', from_bar: 23, to_bar: 24, chords: [{ bar: 23, beat: 1, root: 'C', quality: 'maj7' }] };
+    const edit = (ops: unknown[]) => ({ content: JSON.stringify({ action: 'edit', message: said, assumptions: [], ops }), promptTokens: 1 });
+    const ask = scripted(edit([{ op: 'SET_TEMPO', bpm: 120 }]), edit([reharm]));
+    const d = await decideReply(marked, { ask });
+    expect(d).toMatchObject({ ok: true, attempts: 2, reply: { action: 'edit', ops: [reharm] } });
+    expect(d.ok && d.reply.message).toBe('Planned inside the mark: new chords in bars 23-24. SET TEMPO would change the whole song, so it is not in this plan; ask for the whole song to get it.');
+    expect(JSON.stringify(ask.mock.calls[1][0])).not.toContain(said);
+  });
 });
