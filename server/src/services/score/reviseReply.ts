@@ -11,13 +11,20 @@ import type { Op, Plan, ScoreFacts, Since } from './planTypes.js';
 
 export const REVISE_REPLY = 'Reply with the JSON {"drop":[...],"ops":[...]} only.';
 export const REVISE_RETRY = 'Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN\'s op numbers: only what changes.';
+/** The opening of `mergeLegend`: a retry keeps it whole (the chat cuts other reasons). */
+export const LEGEND_HEAD = 'Your reply made this plan:';
 const SHAPE = 'the reply is not a JSON object {"drop":[...],"ops":[...]}';
+
+/** `drop`'s part of the schema: pending op numbers 1..P, each at most once (the chat's edit action reuses it, F-058). */
+export function dropSchema(pendingCount: number): Record<string, unknown> {
+  return { type: 'array', items: int(1, pendingCount), uniqueItems: true, maxItems: pendingCount };
+}
 
 export function buildReviseSchema(facts: ScoreFacts, pendingCount: number, phraseBars = DEFAULT_PHRASE_BARS): Record<string, unknown> {
   return {
     type: 'object', additionalProperties: false, required: ['drop', 'ops'],
     properties: {
-      drop: { type: 'array', items: int(1, pendingCount), uniqueItems: true, maxItems: pendingCount },
+      drop: dropSchema(pendingCount),
       ops: opsArraySchema(facts, phraseBars, 0),
     },
   };
@@ -33,7 +40,7 @@ export function mergeLegend(m: Merged, drop: number[], pendingCount: number): st
     : `your op ${f.reply} (${f.pending === undefined ? 'new' : `replaces pending op ${f.pending}`})`}`);
   const kept = new Set(m.from.flatMap((f) => f.pending ?? []));
   const covered = Array.from({ length: pendingCount }, (_, k) => k + 1).filter((n) => !kept.has(n) && !drop.includes(n));
-  return `Your reply made this plan: ${ops.join(', ')}${list('dropped', [...drop].sort((a, b) => a - b))}${list('replaced by an op on its target', covered)}.`;
+  return `${LEGEND_HEAD} ${ops.join(', ')}${list('dropped', drop.filter((n) => !kept.has(n)).sort((a, b) => a - b))}${list('replaced by an op on its target', covered)}.`;
 }
 
 export type RevisedReading = (Reading & { ok: false }) | { ok: true; ops: Op[]; legend: string; merged: Merged };
@@ -52,10 +59,17 @@ export function readRevise(reply: unknown, pending: Op[], facts: ScoreFacts, phr
   if (!dropped.length && !reply.ops.length) return { ok: false, reasons: [NOTHING_REVISED] };
   const merged = mergeRevise(pending, dropped, shape.ok ? shape.ops : []);
   if (!merged.ops.length) return { ok: false, reasons: ['the revision drops every op: keep a pending op or return one'] };
-  if (merged.ops.length > MAX_OPS) {
-    return { ok: false, reasons: [`the revised plan has ${merged.ops.length} ops; at most ${MAX_OPS}: drop pending ops or return fewer`] };
-  }
+  if (merged.ops.length > MAX_OPS) return { ok: false, reasons: [`the revised plan has ${merged.ops.length} ops; at most ${MAX_OPS}: drop pending ops or return fewer`] };
   return { ok: true, ops: merged.ops, legend: mergeLegend(merged, dropped, p), merged };
+}
+
+const OVER = /^the revised plan has (\d+) ops; at most (\d+): drop pending ops or return fewer$/;
+/** A revise reason as the chat shows it (C2 live B6): the merge legend is for the planner only (null), the over-6
+ * refusal in the person's words, any other as it is. The planner's retry still gets the reasons as written. */
+export function shownReviseReason(reason: string): string | null {
+  if (reason.startsWith(LEGEND_HEAD)) return null;
+  const over = OVER.exec(reason);
+  return over ? `too many changes: that makes ${over[1]}, and a plan holds at most ${over[2]}; ask to drop one first` : reason;
 }
 
 /** What planJob needs for a REVISE press: the schema, the reply and retry lines, a reader for planAttempts,

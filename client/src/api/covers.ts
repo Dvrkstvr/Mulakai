@@ -17,6 +17,8 @@ export interface Transcription {
   /** Where each score section starts in the source, from its downbeats; null when the engine
    * sent none (READ LYRICS then falls back to the score's tempo grid). */
   sectionStarts: { label: string; bar: number; seconds: number }[] | null;
+  /** The kept notation files a re-time rebuilds from (D-207); null when none were kept, absent from an older server. */
+  notationId?: string | null;
 }
 
 /** A cover score's planner tokens: the header and each `% name` section, which add up to the

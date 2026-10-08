@@ -1,0 +1,173 @@
+{
+ "tag": "r6_fu",
+ "text": "mach es etwas schneller",
+ "secs": 10.6,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "The song has been updated to a faster tempo. It is now in the key of A minor, with a tempo of 80 BPM, and features a melancholic mood with piano and strings. The structure includes an intro, verse, ch",
+ "n_calls": 2,
+ "calls_detail": [
+  {
+   "t": 1791465112.52,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791465122.65,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b"
+ ],
+ "ps_models_seen": [
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 11126,
+ "bpm_before": 60,
+ "bpm_after": 80,
+ "lyrics_same": true,
+ "lang": "de",
+ "lyrics_before": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Blätter fallen lautlos auf den grauen Stein",
+    "Die Welt zieht sich in ihre kalte Stille ein",
+    "Ein leises Zittern geht durch das weite Land",
+    "Und alles Gold verliert seinen Glanz im Sand"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh Herbstregen, was nimmst du mir mit?",
+    "Tränen aus Glas, die mein Herz zerbricht",
+    "Du wäschst die Spuren der Sonne fort",
+    "Und hinterlässt nur einen einsamen Ort"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Ich sehe durch das Fenster, die Sicht wird ganz trüb",
+    "Die Zeit scheint wie in einem Käfig zu verblieb",
+    "Der Wind flüstert Namen, die ich längst vergessen hab",
+    "Und die Kälte kriecht tief in mein Herz und mein Grab"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh Herbstregen, was nimmst du mir mit?",
+    "Tränen aus Glas, die mein Herz zerbricht",
+    "Du wäschst die Spuren der Sonne fort",
+    "Und hinterlässt nur einen einsamen Ort"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Kein Lichtstrahl bricht durch die schwere Decke",
+    "Nur die Melancholie, die mich leise bedecke",
+    "Alles wird schwer und alles wird grau",
+    "Im kalten, unendlichen Nebelblau"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh Herbstregen, was nimmst du mir mit?",
+    "Tränen aus Glas, die mein Herz zerbricht",
+    "Du wäschst die Spuren der Sonne fort",
+    "Und hinterlässt nur einen einsamen Ort"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur der Regen bleibt",
+    "Nur die Einsamkeit",
+    "In der grauen Zeit",
+    "Nur der Regen"
+   ]
+  }
+ ],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Blätter fallen lautlos auf den grauen Stein",
+    "Die Welt zieht sich in ihre kalte Stille ein",
+    "Ein leises Zittern geht durch das weite Land",
+    "Und alles Gold verliert seinen Glanz im Sand"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh Herbstregen, was nimmst du mir mit?",
+    "Tränen aus Glas, die mein Herz zerbricht",
+    "Du wäschst die Spuren der Sonne fort",
+    "Und hinterlässt nur einen einsamen Ort"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Ich sehe durch das Fenster, die Sicht wird ganz trüb",
+    "Die Zeit scheint wie in einem Käfig zu verblieb",
+    "Der Wind flüstert Namen, die ich längst vergessen hab",
+    "Und die Kälte kriecht tief in mein Herz und mein Grab"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh Herbstregen, was nimmst du mir mit?",
+    "Tränen aus Glas, die mein Herz zerbricht",
+    "Du wäschst die Spuren der Sonne fort",
+    "Und hinterlässt nur einen einsamen Ort"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Kein Lichtstrahl bricht durch die schwere Decke",
+    "Nur die Melancholie, die mich leise bedecke",
+    "Alles wird schwer und alles wird grau",
+    "Im kalten, unendlichen Nebelblau"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Oh Herbstregen, was nimmst du mir mit?",
+    "Tränen aus Glas, die mein Herz zerbricht",
+    "Du wäschst die Spuren der Sonne fort",
+    "Und hinterlässt nur einen einsamen Ort"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur der Regen bleibt",
+    "Nur die Einsamkeit",
+    "In der grauen Zeit",
+    "Nur der Regen"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, strings, melancholic, female voice"
+}

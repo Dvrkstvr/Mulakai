@@ -45,7 +45,7 @@ export function YueCoverCommit({ onBack, blocked }: { onBack: () => void; blocke
     };
     return startCover(engine, coverParams(
       { title: title || 'Untitled', prompt, lyrics, vocalLanguage, folderId }, caps, gen,
-      { ...AUTO_CONTROLS, ...controls }, outputParams(), { abc: sungScore(score), source: score.source },
+      { ...AUTO_CONTROLS, ...controls }, outputParams(), { abc: sungScore(score), source: score.source, notationId: score.notationId },
     ) as { title: string; prompt: string }, retry);
   };
 

@@ -1,0 +1,74 @@
+[
+ {
+  "t": 0.0,
+  "vram": 1091,
+  "ps": [],
+  "run": "plan",
+  "queued": [],
+  "job_c41e18": [
+   "running",
+   "attempt 1 of 3"
+  ]
+ },
+ {
+  "t": 1.1,
+  "vram": 4434,
+  "ps": [],
+  "run": "plan",
+  "queued": [],
+  "job_c41e18": [
+   "running",
+   "attempt 1 of 3"
+  ]
+ },
+ {
+  "t": 1.7,
+  "vram": 9722,
+  "ps": [],
+  "run": "plan",
+  "queued": [],
+  "job_c41e18": [
+   "running",
+   "attempt 1 of 3"
+  ]
+ },
+ {
+  "t": 2.8,
+  "vram": 12494,
+  "ps": [
+   "qwen3:14b"
+  ],
+  "run": "plan",
+  "queued": [],
+  "job_c41e18": [
+   "running",
+   "attempt 1 of 3"
+  ]
+ },
+ {
+  "t": 3.4,
+  "vram": 12494,
+  "ps": [
+   "qwen3:14b"
+  ],
+  "run": "plan",
+  "queued": [
+   "generate"
+  ],
+  "job_c41e18": [
+   "running",
+   "attempt 1 of 3"
+  ]
+ },
+ {
+  "t": 4.5,
+  "vram": 1091,
+  "ps": [],
+  "run": "generate",
+  "queued": [],
+  "job_c41e18": [
+   "done",
+   null
+  ]
+ }
+]

@@ -1,0 +1,137 @@
+{
+ "tag": "r3_first",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "secs": 47.4,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've created a slow pop song about saying goodbye at the train station. The song will have a melancholic mood with a gentle melody.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791464761.01,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464770.64,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  },
+  {
+   "t": 1791464770.83,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464807.65,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  },
+  {
+   "t": 1791464807.67,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15787,
+ "bpm_before": null,
+ "bpm_after": 60,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Regen fällt auf das kalte Glas",
+    "Ich sehe nur die leeren Gleise",
+    "Ein letzter Blick, ein schwerer Schritt",
+    "Und die Zeit bleibt einfach stehen"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt fort und nimmt dich mit",
+    "Nur die Stille bleibt bei mir",
+    "Ein Abschied am Bahnhof, so schwer",
+    "Und mein Herz wird langsam leer"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Lichter flimmern im Nebellicht",
+    "Dein Gesicht verblasst im Wind",
+    "Ich halte fest an dem, was war",
+    "Während die Welt um mich herum zerbricht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt fort und nimmt dich mit",
+    "Nur die Stille bleibt bei mir",
+    "Ein Abschied am Bahnhof, so schwer",
+    "Und mein Herz wird langsam leer"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Kein Wort wird mehr gesagt",
+    "Nur der ferne Pfiff der Schienen",
+    "Die Einsamkeit ist nun erwacht",
+    "Und lässt mich ganz allein zurück"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt fort und nimmt dich mit",
+    "Nur die Stille bleibt bei mir",
+    "Ein Abschied am Bahnhof, so schwer",
+    "Und mein Herz wird langsam leer"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur die Stille bleibt",
+    "Nur die Stille",
+    "Am Bahnhof bleibt nur die Leere",
+    "Und der Regen"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, strings, melancholic, female voice"
+}

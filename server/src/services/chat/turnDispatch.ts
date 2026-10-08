@@ -7,11 +7,14 @@
  * with spliceEligibility's verdict (D-154); a song that cannot be edited gets the reason as a say
  * (F-046 edge). C3: an analyze on the draft thread is a READ card (or a say with why it cannot be read);
  * a recipe on a reading goes through referenceRecipe first, so code fills the borrowed fields (D-128).
+ * C2: an edit card carries its bar map (barMap, D-215); a recipe that filled a field stores its undo record (D-220);
+ * a revise turn's card is plan n+1 with `revision` and `since` (NEW / CHANGED / SAME, REMOVED; F-058, D-227).
  * Pure: turnJob resolves the analyze target and the edit's base, and stores the plan.
  */
 import { buildPlan } from '../score/planBuild.js';
-import type { ApplyResult, Plan } from '../score/planTypes.js';
+import type { ApplyResult, Plan, Since } from '../score/planTypes.js';
 import { applyRecipe } from './draftModel.js';
+import { barMap } from './barMap.js';
 import { spliceEligibility } from './spliceEligibility.js';
 import { asksWholeSong, assumptionsUnderMark, markFit } from './markFit.js';
 import { referenceRecipe } from './referenceRecipe.js';
@@ -31,9 +34,10 @@ export const REDIRECT = {
   recipeOnSong: 'That sounds like a new song: press NEW CHAT to start one. This chat stays with this song.',
 };
 
-/** An edit reply resolved by turnJob: the checked apply on an eligible song, or why it cannot be edited. */
+/** An edit reply resolved by turnJob: the checked apply on an eligible song, or why it cannot be edited.
+ * `revision` / `since`: a revise of the pending plan (absent = a fresh plan, revision 1). */
 export type EditResolved = { reason: string }
-  | { base: EditBase; applied: ApplyResult; attempts: number; refusals: string[][]; planId: string; createdAt: number };
+  | { base: EditBase; applied: ApplyResult; attempts: number; refusals: string[][]; planId: string; createdAt: number; revision?: number; since?: Since };
 
 /** The analyze reply resolved by turnJob: the READ card, or why nothing can be read. */
 export type AnalyzeResolved = { body: AnalyzeBody } | { reason: string; attached: string[] };
@@ -83,6 +87,7 @@ function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string
   const plan = buildPlan({
     id: edit.planId, createdAt: edit.createdAt, songId: base.songId, source: base.source, request, facts: base.facts,
     chordsPresent: base.chordsPresent, ops: reply.ops, applied, attempts: edit.attempts, refusals: edit.refusals,
+    revision: edit.since ? edit.revision : undefined, since: edit.since ?? null,
   });
   const body: EditBody = {
     planId: plan.id, ops: plan.ops, verdicts: plan.verdicts, checks: plan.checks,
@@ -90,6 +95,8 @@ function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string
     assumptions: mark?.bars ? assumptionsUnderMark(reply.assumptions) : reply.assumptions, attempts: plan.attempts, refusals: plan.refusals,
     ...(mark ? { mark: { ...mark, notes: [...mark.notes, ...(mark.bars ? markFit(plan.ops, mark.bars, base.facts, asksWholeSong(request)).notes : [])] } } : {}),
     from: { bpm: base.facts.header.bpm, key: base.facts.header.key },
+    map: barMap(base.facts, plan.ops),
+    ...(plan.since ? { revision: plan.revision, since: plan.since } : {}),
   };
   return { kind: 'edit', text: reply.message, body, plan };
 }
@@ -112,6 +119,7 @@ export function dispatchReply({ reply, hasSong, draft, sentRev, scoreReason, ref
         body: {
           recipe: built.recipe, assumptions: reply.assumptions, changed: merged.changed, skipped: merged.skipped,
           ...(built.reference ? { reference: built.reference } : {}),
+          ...(merged.changed.length ? { undo: { rev: merged.draft.rev, before: merged.before, fields: merged.changed } } : {}),
         },
       };
     }

@@ -1,0 +1,137 @@
+{
+ "tag": "r2_first",
+ "text": "ein fröhlicher Rocksong über eine Sommerreise ans Meer",
+ "secs": 51.0,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've created a cheerful rock song about a summer trip to the sea. It has an upbeat tempo and a bright mood.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791464635.68,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464644.75,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  },
+  {
+   "t": 1791464644.89,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464686.21,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  },
+  {
+   "t": 1791464686.21,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15798,
+ "bpm_before": null,
+ "bpm_after": 120,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Motor brummt und die Sonne lacht",
+    "Wir haben die Freiheit mitgebracht",
+    "Der Asphalt glüht unter uns im Licht",
+    "Ein neues Abenteuer im Gesicht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir fahren ans Meer, der Wind weht so frei",
+    "Die Zeit bleibt für einen Moment einfach vorbei"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Fenster unten, die Musik ist laut",
+    "Auf die Küste haben wir heute gebaut",
+    "Der Sand wartet schon an dem weiten Strand",
+    "Wir ziehen gemeinsam durch das warme Land"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir fahren ans Meer, der Wind weht so frei",
+    "Die Zeit bleibt für einen Moment einfach vorbei"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Kein Stress und kein Plan, nur der Rhythmus der Nacht",
+    "Bis die Sonne am Horizont wieder erwacht",
+    "Nur wir und der Beat und das Salz auf der Haut",
+    "Dem Sommer sind wir heute vollkommen vertraut"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir fahren ans Meer, der Wind weht so frei",
+    "Die Zeit bleibt für einen Moment einfach vorbei"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "An das Meer, an das Meer",
+    "Die Reise ist nie zu schwer",
+    "Nur der Sommer und wir",
+    "Und das Glück ist jetzt hier"
+   ]
+  }
+ ],
+ "style_after": "Rock, electric guitar, drums, upbeat, vocals"
+}

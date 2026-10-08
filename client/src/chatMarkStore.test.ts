@@ -38,7 +38,7 @@ describe('chatMarkStore', () => {
   it('a seconds-only mark snaps to bars when the reading lands', () => {
     store().set('t1', { kind: 'range', versionId: 'v4', seconds: [5.3, 12.6] });
     store().reconcile('t1', view());
-    expect(entry().mark).toEqual({ kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5, 13] });
+    expect(entry().mark).toEqual({ kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5, 13], readAt: READING.readAt });
   });
 
   it('stale: SEND held and the mark never sent; USE BARS only once v5 has bars, then valid', () => {
@@ -54,7 +54,7 @@ describe('chatMarkStore', () => {
     store().reconcile('t1', read); // stays stale: never remapped by a reconcile
     expect(entry().stale).not.toBeNull();
     expect(store().useBars('t1', read)).toBe(true);
-    expect(entry()).toEqual({ mark: { kind: 'range', versionId: 'v5', bars: [9, 12], seconds: [17, 25] }, stale: null });
+    expect(entry()).toEqual({ mark: { kind: 'range', versionId: 'v5', bars: [9, 12], seconds: [17, 25], readAt: READING.readAt }, stale: null });
     expect(markHoldsSend('t1')).toBe(false);
   });
 
@@ -67,7 +67,16 @@ describe('chatMarkStore', () => {
     expect(markToSend('t1')).toBeNull();
     const read = tempo({ ...READING, versionId: 'v5', number: 5, bars: { starts: READING.bars!.starts.map((s) => s * 0.8), end: 26.4 } });
     expect(store().useBars('t1', read)).toBe(true);
-    expect(entry()).toEqual({ mark: { kind: 'range', versionId: 'v5', bars: [7, 10], seconds: [10.4, 16.8] }, stale: null });
+    expect(entry()).toEqual({ mark: { kind: 'range', versionId: 'v5', bars: [7, 10], seconds: [10.4, 16.8], readAt: READING.readAt }, stale: null });
+  });
+
+  it('a re-time of the reading turns the mark stale at once; UNDO clears it (design/retime.html B4)', () => {
+    store().set('t1', { ...CHORUS, readAt: READING.readAt });
+    store().reconcile('t1', view({ shown: { ...READING, readAt: '2026-10-08T02:00:00Z' } }));
+    expect(entry().stale).toEqual({ useBars: null, reading: true });
+    expect(markToSend('t1')).toBeNull();
+    store().reconcile('t1', view());
+    expect(entry()).toEqual({ mark: { ...CHORUS, readAt: READING.readAt }, stale: null });
   });
 
   it('stale with no shift: CLEAR MARK is the way out', () => {

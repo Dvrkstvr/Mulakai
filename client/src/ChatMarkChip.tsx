@@ -60,7 +60,8 @@ export function ChatMarkChip({ threadId, sections, reading }: ChipProps) {
   if (!entry) return null;
   const { mark, stale } = entry;
   const clear = () => useChatMarkStore.getState().clear(threadId);
-  const text = stale ? staleChipText(mark, sections) : `${chipText(mark, sections)}${mark.bars ? '' : chipTail(reading)}`;
+  // RT-5: after a re-time the old bar numbers name other sections; the stale chip then names only the bars.
+  const text = stale ? staleChipText(mark, stale.reading ? [] : sections) : `${chipText(mark, sections)}${mark.bars ? '' : chipTail(reading)}`;
   return (
     <div className="chat-mk-row">
       <span className={`chat-mk-chip${stale ? ' stale' : mark.bars ? '' : ' secs'}`} aria-label="Marked"><span>{text}</span></span>
@@ -85,8 +86,8 @@ interface StaleProps {
 export function ChatMarkStale({ threadId, view, was, now }: StaleProps) {
   const entry = useChatMarkStore((s) => s.byThread[threadId]);
   if (!entry?.stale) return null;
-  const { useBars, tempo } = entry.stale;
-  const [head, ...rest] = staleLines(entry.mark, was, now, useBars, !!tempo).split(' · ');
+  const { useBars, tempo, reading } = entry.stale;
+  const [head, ...rest] = staleLines(entry.mark, was, now, useBars, !!tempo, !!reading).split(' · ');
   return (
     <div className="chat-er chat-mk-stale" role="alert">
       <div><b>{head}</b> · {rest.join(' · ')}</div>

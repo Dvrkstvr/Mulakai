@@ -27,7 +27,7 @@ function deps(over: Parameters<typeof turnDeps>[0] = {}) {
   const d = turnDeps({ planner: { url: ollama.url, model: 'qwen3:14b' }, rung: 0, ...over });
   const { ask, release } = d;
   return { ...d, ask: async (...a: Parameters<typeof ask>) => { events.push('ask'); return ask(...a); },
-    release: async () => { events.push('unload'); const r = await release(); events.push('empty'); return r; } };
+    release: async (...a: Parameters<typeof release>) => { events.push('unload'); const r = await release(...a); events.push('empty'); return r; } };
 }
 
 function send(text: string, over: Parameters<typeof turnDeps>[0] = {}) {
@@ -43,7 +43,7 @@ const settled = async (id: string) => {
 const reply = (threadId: string) => listMessages(threadId).at(-1)!;
 
 describe('chat turn job', () => {
-  it('a recipe: one plan slot through the attempts and the unload; a repaint queued meanwhile waits; card, draft and proposal written', async () => {
+  it('a recipe: one plan slot through the attempts, the lyrics call and the unload; a repaint queued meanwhile waits; card, draft and proposal written', async () => {
     ollama = await startFakeOllama({ listedPolls: 2 });
     ollama.chats.push(outOfSet(), recipeReply());
     const { thread, job } = send('a slow Spanish ballad about the sea');
@@ -51,7 +51,7 @@ describe('chat turn job', () => {
     enqueue({ kind: 'repaint', jobId: crypto.randomUUID() }, () => { events.push(`repaint (loaded: ${ollama.loaded})`); });
     expect((await settled(job.id)).status).toBe('done');
     await vi.waitFor(() => expect(events.at(-1)).toMatch(/^repaint/));
-    expect(events).toEqual(['ask', 'ask', 'unload', 'empty', 'repaint (loaded: null)']);
+    expect(events).toEqual(['ask', 'ask', 'ask', 'unload', 'empty', 'repaint (loaded: null)']); // 2 recipe attempts + the lyrics call (LD)
     const card = reply(thread.id);
     expect(card).toMatchObject({ role: 'assistant', kind: 'recipe', body: { recipe: RECIPE, skipped: [] } });
     expect(proposalLife(card.proposalId!)).toBe('live');
@@ -64,7 +64,7 @@ describe('chat turn job', () => {
     const { thread, job } = send('do a dance');
     expect((await settled(job.id)).status).toBe('failed');
     expect(events).toEqual(['ask', 'ask', 'ask', 'unload', 'empty']);
-    expect(reply(thread.id)).toMatchObject({ kind: 'failed', body: { cause: 'check', reasons: ['action "dance" is not one of ask, recipe, edit, scalpel, analyze, say'] } });
+    expect(reply(thread.id)).toMatchObject({ kind: 'failed', body: { cause: 'check', reasons: ['action "dance" is not one of ask, recipe, analyze, say'] } });
     expect(threadById(thread.id)!.draft.rev).toBe(0);
     expect(liveProposal(thread.id)).toBeUndefined();
   });

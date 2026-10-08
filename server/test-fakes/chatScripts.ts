@@ -6,7 +6,7 @@
 import type { ChatScript } from './fakeOllama.js';
 import { contract } from './fakeYue.js';
 import type { ScoreFacts } from '../src/services/score/planTypes.js';
-import type { Recipe, ReferenceUse } from '../src/services/chat/chatTypes.js';
+import type { LyricSection, PlannedRecipe, Recipe, ReferenceUse } from '../src/services/chat/chatTypes.js';
 import type { Reading } from '../src/services/chat/reading.js';
 import type { VersionAnalysis } from '../src/services/chat/analysisTypes.js';
 
@@ -31,8 +31,53 @@ export const RECIPE: Recipe = {
 
 export const reply = (o: unknown, promptTokens = 2000): ChatScript => ({ content: JSON.stringify(o), promptTokens });
 
-export const recipeReply = (over: Partial<Recipe> = {}, message = 'Assuming 4/4 and A minor, lyrics in Spanish.', assumptions = ['assuming 4/4 and A minor']) =>
-  reply({ action: 'recipe', message, assumptions, recipe: { ...RECIPE, ...over } });
+/** LD (D-234, D-252): the planner's recipe has no `lyrics`; code keeps the draft's or the lyrics call writes them. */
+export const PLANNED: PlannedRecipe = (({ lyrics: _, ...rest }) => rest)(RECIPE);
+export const recipeReply = (over: Partial<PlannedRecipe> = {}, message = 'Assuming 4/4 and A minor, lyrics in Spanish.', assumptions = ['assuming 4/4 and A minor']) =>
+  reply({ action: 'recipe', message, assumptions, recipe: { ...PLANNED, ...over } });
+/** The lyrics call's answer: `{sections: [{lines}]}`, one entry per sung section (RECIPE's by default). */
+export const lyricsReply = (sections: LyricSection[] = RECIPE.lyrics, promptTokens = 600): ChatScript =>
+  reply({ sections: sections.map((s) => ({ lines: s.lines })) }, promptTokens);
+
+/** SP-5's recorded recipe replies (v3.1) carry their lines; LD splits one into what rung 3 sends: the planner's
+ * reply without `lyrics` and the lyrics call's `{sections}` holding the recorded lines. Not a recipe = null. */
+export function rung3(content: string): { recipe: string; lyrics: string } | null {
+  const json = JSON.parse(content) as { action?: string; recipe?: { lyrics?: LyricSection[] } };
+  if (json.action !== 'recipe' || !Array.isArray(json.recipe?.lyrics)) return null;
+  const { lyrics, ...recipe } = json.recipe;
+  return { recipe: JSON.stringify({ ...json, recipe }), lyrics: lyricsReply(lyrics).content! };
+}
+
+/** Sung sections per language, by tag (a tag without its own lines sings the Verse's). */
+const POOLS: Record<string, Partial<Record<string, string[][]>>> = {
+  Spanish: Object.fromEntries(['Verse', 'Chorus', 'Outro'].map((t) => [t, RECIPE.lyrics.filter((s) => s.tag === t).map((s) => s.lines)])),
+  English: {
+    Verse: [['The harbor lights are fading slow', 'the tide is pulling at my feet', 'I hear the gulls above the boats', 'and every wave is bittersweet']],
+    Chorus: [['Carry me home across the water', 'carry me home before the dawn', 'hold me close like summer weather', 'carry me home when I am gone']],
+    Outro: [['Across the water, far away', 'the lights go out along the bay', 'I will remember how you stay', 'across the water, far away']],
+  },
+  German: {
+    Verse: [['Der Tag ist still, das Licht so schwach', 'ich gehe langsam durch die Stadt', 'die Straßen schlafen, niemand wach', 'und alles, was ich bei mir hab']],
+    Chorus: [['Bleib noch ein wenig hier bei mir', 'bevor die Nacht den Morgen nimmt', 'ich halte fest, was von uns bleibt', 'solange noch ein Licht hier brennt']],
+    Outro: [['Bleib noch ein wenig, bleib bei mir', 'die Nacht ist lang und kalt und leer', 'ich warte hier vor deiner Tür', 'bleib noch ein wenig, bitte sehr']],
+  },
+};
+
+/** fakeOllama's default answer to a lyrics call: the asked sections (its user message) in the asked language
+ * (its system prompt), the k-th section of a tag sung from that tag's pool. Spanish over RECIPE's structure = RECIPE.lyrics. */
+export function autoLyrics(messages: Array<{ content?: string }>, _format?: unknown): ChatScript {
+  const language = /Write ONLY in (\w+)/.exec(String(messages[0]?.content ?? ''))?.[1] ?? 'English';
+  const pool = POOLS[language] ?? POOLS.English;
+  const tags = [...String(messages[1]?.content ?? '').matchAll(/^\d+\. (.+)$/gm)].map((m) => m[1]);
+  const seen: Record<string, number> = {};
+  const sections = tags.map((tag) => {
+    const own = pool[tag] ?? pool.Verse!;
+    const k = seen[tag] ?? 0;
+    seen[tag] = k + 1;
+    return { tag, lines: own[Math.min(k, own.length - 1)] };
+  });
+  return lyricsReply(sections);
+}
 export const askReply = (message = 'What kind of song?', choices = ['a ballad', 'a dance track']) => reply({ action: 'ask', message, choices });
 export const sayReply = (message = 'It is in A minor at 68 BPM.') => reply({ action: 'say', message });
 export const editReply = (ops: unknown[] = [{ op: 'SET_TEMPO', bpm: 88 }], message = 'Faster.') =>
@@ -42,10 +87,10 @@ export const scalpelReply = (kind = 'repaint', target = 'chorus 1') =>
 export const analyzeReply = (reference = 'the attached file') =>
   reply({ action: 'analyze', message: 'I will read it first.', reference, plan: 'a recipe like it' });
 /** C3 (D-128): a recipe on a read reference. The model's tempo / key are deliberately off: code replaces them. */
-export const referenceReply = (use: ReferenceUse, over: Partial<Recipe> = {}) =>
+export const referenceReply = (use: ReferenceUse, over: Partial<PlannedRecipe> = {}) =>
   recipeReply({ bpm: 140, key: 'E', reference_use: use, ...over }, use === 'cover' ? 'The same song, sung in Spanish.' : 'A new song in its style.');
-export const coverReply = (over: Partial<Recipe> = {}) => referenceReply('cover', over);
-export const borrowReply = (over: Partial<Recipe> = {}) => referenceReply('borrow', over);
+export const coverReply = (over: Partial<PlannedRecipe> = {}) => referenceReply('cover', over);
+export const borrowReply = (over: Partial<PlannedRecipe> = {}) => referenceReply('borrow', over);
 
 /** Broken replies. */
 export const notJson = (): ChatScript => ({ content: 'Sure! Here is a song: ...', promptTokens: 2000 });
@@ -97,3 +142,20 @@ export function readingFixture(over: Partial<Reading> = {}): Reading {
     ...over,
   };
 }
+
+/** C2 (F-058): a revise turn's edit, `{drop, ops}` on the pending plan's op numbers (1-based). The PENDING PLAN block
+ * makes read-ok's prompt about 13k characters, so the fake reports 4.5k prompt tokens (the context guard's floor is 1 per 6). */
+export const reviseEdit = (drop: number[], ops: unknown[], message = 'Revised.') => reply({ action: 'edit', message, assumptions: [], drop, ops }, 4500);
+/** apply-compound's ops: SET_TEMPO 88 (plan 1, `apply-set-tempo`), REHARMONIZE 47-50 and EDIT_STYLE (the additive revise, D-224). */
+export const COMPOUND_OPS = contract('apply-compound').request.body.ops as unknown[];
+export const REVISE = {
+  /** "and jazz chords in bars 47-50, as a jazz trio" on plan 1 = SET_TEMPO 88: merges to apply-compound's ops in order. */
+  additive: () => reviseEdit([], COMPOUND_OPS.slice(1), 'And jazz chords in bars 47-50, as a jazz trio.'),
+  /** "fewer chords": drops these pending ops. */
+  drop: (...n: number[]) => reviseEdit(n, [], 'Fewer chords: dropped the new chords.'),
+  /** "forget that, transpose it down a tone": every pending op dropped, one new. */
+  replace: (pending: number) => reviseEdit(Array.from({ length: pending }, (_, i) => i + 1), [{ op: 'TRANSPOSE', semitones: -2 }], 'Down a tone instead.'),
+  /** Six new ops on a pending plan: the merge is over MAX_OPS (6), a named refusal. */
+  overSix: () => reviseEdit([], [{ op: 'TRANSPOSE', semitones: -2 }, { op: 'EDIT_STYLE', style: 'jazz' }, COMPOUND_OPS[1],
+    { op: 'REPEAT', section: 3, label: 'chorus' }, { op: 'CUT', section: 4, label: 'outro' }, { op: 'REPEAT', section: 2, label: 'verse' }]),
+};

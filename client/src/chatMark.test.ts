@@ -34,11 +34,11 @@ describe('snap and bars', () => {
 
 describe('gestures', () => {
   it('click a section: its bars and seconds', () => {
-    expect(markSection(view(), SECTIONS[2])).toEqual({ kind: 'range', versionId: 'v4', bars: [7, 10], seconds: [13, 21] });
+    expect(markSection(view(), SECTIONS[2])).toEqual({ kind: 'range', versionId: 'v4', bars: [7, 10], seconds: [13, 21], readAt: READING.readAt });
   });
 
   it('a drag on the waveform snaps both edges to bar lines; reversed drags read the same', () => {
-    const m = { kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5, 13] };
+    const m = { kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5, 13], readAt: READING.readAt };
     expect(markSeconds(view(), 5.3, 12.6)).toEqual(m);
     expect(markSeconds(view(), 12.6, 5.3)).toEqual(m);
   });
@@ -48,15 +48,20 @@ describe('gestures', () => {
     expect(markSeconds(view(), 6, 6.1)).toBeNull();
   });
 
+  it('a short drag across a bar line marks the bar holding its middle, not the one it starts in (R-041)', () => {
+    expect(markSeconds(view(), 6.8, 7.6)?.bars).toEqual([4, 4]);
+    expect(markSeconds(view(), 6.4, 7.4)?.bars).toEqual([3, 3]);
+  });
+
   it('Alt frees the edges: exact seconds, the bars it touches', () => {
-    expect(markSeconds(view(), 5.5, 12.5, true)).toEqual({ kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5.5, 12.5] });
+    expect(markSeconds(view(), 5.5, 12.5, true)).toEqual({ kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5.5, 12.5], readAt: READING.readAt });
   });
 
   it('a mark cannot pass the song’s ends', () => {
-    expect(markSeconds(view(), -4, 3)).toEqual({ kind: 'range', versionId: 'v4', bars: [1, 1], seconds: [1, 3] });
-    expect(markSeconds(view(), 29, 60)).toEqual({ kind: 'range', versionId: 'v4', bars: [15, 16], seconds: [29, 33] });
+    expect(markSeconds(view(), -4, 3)).toEqual({ kind: 'range', versionId: 'v4', bars: [1, 1], seconds: [1, 3], readAt: READING.readAt });
+    expect(markSeconds(view(), 29, 60)).toEqual({ kind: 'range', versionId: 'v4', bars: [15, 16], seconds: [29, 33], readAt: READING.readAt });
     expect(markSeconds(view({ shown: null }), 30, 60, false, DURATION)).toEqual({ kind: 'range', versionId: 'v4', seconds: [30, 34] });
-    expect(markBars(view(), 0, 40)).toEqual({ kind: 'range', versionId: 'v4', bars: [1, 16], seconds: [1, 33] });
+    expect(markBars(view(), 0, 40)).toEqual({ kind: 'range', versionId: 'v4', bars: [1, 16], seconds: [1, 33], readAt: READING.readAt });
   });
 
   it('drag an edge: extends, and crossing the other edge swaps them', () => {
@@ -84,8 +89,25 @@ describe('gestures', () => {
   it('a seconds-only mark snaps to bars when the reading lands', () => {
     const m = markSeconds(view({ shown: null }), 5.3, 12.6)!;
     expect(m.bars).toBeUndefined();
-    expect(landBars(view(), m)).toEqual({ kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5, 13] });
+    expect(landBars(view(), m)).toEqual({ kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5, 13], readAt: READING.readAt });
     expect(landBars(view({ shown: null }), m)).toBe(m);
+  });
+});
+
+describe('markStale after a re-time of the reading (RT-5, F-092)', () => {
+  const RETIMED = { ...READING, readAt: '2026-10-08T02:00:00Z', bars: { starts: READING.bars!.starts.filter((_, i) => i % 2 === 0), end: 33 } };
+
+  it('a bars mark counted on the old reading is stale even where its bars still fit (RT-7); UNDO makes it valid again', () => {
+    const m = markBars(view(), 3, 4)!;
+    expect(m.readAt).toBe(READING.readAt);
+    expect(markStale(m, view({ shown: RETIMED }))).toEqual({ kind: 'stale', useBars: null, reading: true });
+    expect(markStale(m, view())).toEqual({ kind: 'valid' });
+  });
+
+  it('a seconds-only mark, a mark from before marks were stamped, and a dimmed reading are not counted', () => {
+    expect(markStale({ kind: 'range', versionId: 'v4', seconds: [5, 9] }, view({ shown: RETIMED })).kind).toBe('valid');
+    expect(markStale({ kind: 'range', versionId: 'v4', bars: [3, 4], seconds: [5, 9] }, view({ shown: RETIMED })).kind).toBe('valid');
+    expect(markBars(v5(false, null, { ...READING, mode: 'dim' }), 3, 4)?.readAt).toBeUndefined();
   });
 });
 
@@ -98,7 +120,7 @@ describe('markStale', () => {
 
   it('carried onto a version whose edit moved no bars: same bars, seconds from its own reading', () => {
     const own = { ...READING, versionId: 'v5', number: 5, bars: { starts: READING.bars!.starts.map((s) => s + 0.5), end: 33.5 } };
-    expect(markStale(mark, v5(false, null, own))).toEqual({ kind: 'carried', mark: { ...mark, versionId: 'v5', seconds: [13.5, 21.5] } });
+    expect(markStale(mark, v5(false, null, own))).toEqual({ kind: 'carried', mark: { ...mark, versionId: 'v5', seconds: [13.5, 21.5], readAt: READING.readAt } });
     expect(markStale(mark, v5(false, null, { ...READING, mode: 'dim' }))).toEqual({ kind: 'carried', mark: { ...mark, versionId: 'v5' } });
   });
 

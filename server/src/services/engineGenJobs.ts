@@ -20,6 +20,8 @@ export interface EngineCover {
   abc: string;
   /** What the score was transcribed from, e.g. a library song's title or a file name. */
   source: string;
+  /** The transcription's kept notation files (notationStore, D-207), so the cover can be re-timed later (F-093). */
+  notationId?: string;
 }
 
 async function persistEngineSong(
@@ -34,7 +36,8 @@ async function persistEngineSong(
   // wire body under `request` — see PLAN.md "Framework decisions". A cover's `request.abc`
   // is the supplied score REUSE PROMPT reopens; the sidecar is what the engine sang.
   const task: GenTask = cover ? 'cover' : 'text2music';
-  const params = { ...fields, engine: engine.id, task_type: task, request, ...(cover ? { source: cover.source } : {}) };
+  const params = { ...fields, engine: engine.id, task_type: task, request, ...(cover ? { source: cover.source } : {}),
+    ...(cover?.notationId ? { notationId: cover.notationId } : {}) };
   return insertGeneratedSong({
     audio,
     meta: {

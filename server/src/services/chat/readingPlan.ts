@@ -13,9 +13,11 @@ export type ReadingPlan = Record<Part, PlanStep>;
 /** lyrics-server and yue-server configured; ACE-Step's health answering (D-135). */
 export interface Services { lyrics: boolean; yue: boolean; acestep: boolean }
 
+/** Shown to the person (the lyrics panel's note, the reading card), so no setting names (C2 live B6). The settings
+ * are LYRICS_API_URL (words) and YUE_API_URL (score). */
 export const SKIP: Record<Part, string> = {
-  words: 'LYRICS_API_URL is not set',
-  score: 'YUE_API_URL is not set',
+  words: 'word timings are off on this machine',
+  score: 'score reading is off on this machine',
   caption: 'ACE-Step is not running',
 };
 

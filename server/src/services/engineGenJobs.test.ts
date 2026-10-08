@@ -263,6 +263,14 @@ describe('startEngineGeneration cover', () => {
     const { song, params } = songOf(job.id);
     expect(song).toMatchObject({ engine: 'yue2', gen_task: 'cover' });
     expect(params).toMatchObject({ task_type: 'cover', source: 'Ellies City 2', request });
+    expect(params).not.toHaveProperty('notationId');
+  });
+
+  it("stores the transcription's notation id on the cover version, for a later re-time (F-093)", async () => {
+    const notationId = 'cd'.repeat(32);
+    const job = startEngineGeneration(coverEngine, fields, 'Cover Song', null, { abc: ABC, source: 's', notationId });
+    await settle(job.id, 'done');
+    expect(songOf(job.id).params).toMatchObject({ task_type: 'cover', notationId });
   });
 
   it('refuses a cover on an engine that cannot cover, before taking the lock', () => {

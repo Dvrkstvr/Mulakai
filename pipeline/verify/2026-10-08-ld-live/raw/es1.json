@@ -1,0 +1,503 @@
+{
+ "tag": "es1",
+ "text": "una balada sobre el mar",
+ "turn_seconds": 13.660887241363525,
+ "job": {
+  "status": "done"
+ },
+ "ps_after": {
+  "models": []
+ },
+ "timeline": [
+  {
+   "t": 0.0,
+   "vram": 1140,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.1,
+   "vram": 4546,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.7,
+   "vram": 9765,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 2.2,
+   "vram": 9763,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 2.8,
+   "vram": 12550,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 3.3,
+   "vram": 12553,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 3.9,
+   "vram": 12548,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 4.4,
+   "vram": 12528,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 5.6,
+   "vram": 12546,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 6.7,
+   "vram": 12547,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 7.2,
+   "vram": 12548,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 7.8,
+   "vram": 12570,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 10.0,
+   "vram": 12560,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 10.6,
+   "vram": 12551,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 11.7,
+   "vram": 12552,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 12.3,
+   "vram": 12531,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 12.8,
+   "vram": 12500,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_f09cf0": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 13.9,
+   "vram": 1112,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_f09cf0": [
+    "done",
+    null
+   ]
+  },
+  {
+   "t": 14.5,
+   "vram": 1091,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_f09cf0": [
+    "done",
+    null
+   ]
+  }
+ ],
+ "vram_peak": 12570,
+ "thread": {
+  "id": "7a33208f-155f-4a9c-a166-ebd3ad9a92ca",
+  "songId": null,
+  "draft": {
+   "draft_v": 1,
+   "rev": 1,
+   "fields": {
+    "title": "Balada del Mar",
+    "style": "ballad, acoustic guitar, strings, melancholic, female voice",
+    "bpm": 60,
+    "key": "Am",
+    "timeSignature": "4/4",
+    "language": "es",
+    "structure": [
+     "Intro",
+     "Verse",
+     "Chorus",
+     "Verse",
+     "Chorus",
+     "Bridge",
+     "Chorus",
+     "Outro"
+    ],
+    "lyrics": [
+     {
+      "tag": "Verse",
+      "lines": [
+       "En la orilla del tiempo, donde el viento susurra",
+       "El mar me canta historias que no puedo olvidar",
+       "Con sus olas suaves, como un beso de despedida",
+       "Lleva mi alma lejos, hacia un horizonte frío"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Balada del mar, tu voz me llama en la noche",
+       "Con cada latido, me haces sentir la nostalgia",
+       "Balada del mar, en tus aguas me he perdido",
+       "Y en tus brazos, encuentro un amor que no es mío"
+      ]
+     },
+     {
+      "tag": "Verse",
+      "lines": [
+       "Las estrellas brillan sobre el agua plateada",
+       "Como recuerdos que no puedo alcanzar",
+       "El barco se aleja, con su bandera en alto",
+       "Y en mi corazón, queda un eco de su canto"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Balada del mar, tu voz me llama en la noche",
+       "Con cada latido, me haces sentir la nostalgia",
+       "Balada del mar, en tus aguas me he perdido",
+       "Y en tus brazos, encuentro un amor que no es mío"
+      ]
+     },
+     {
+      "tag": "Bridge",
+      "lines": [
+       "A veces pienso que el mar es un gran poeta",
+       "Que escribe versos con cada ola que rompe",
+       "Y en sus profundidades, hay secretos que guardo",
+       "Que solo el viento y la luna pueden entender"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Balada del mar, tu voz me llama en la noche",
+       "Con cada latido, me haces sentir la nostalgia",
+       "Balada del mar, en tus aguas me he perdido",
+       "Y en tus brazos, encuentro un amor que no es mío"
+      ]
+     },
+     {
+      "tag": "Outro",
+      "lines": [
+       "El mar sigue cantando, aunque ya no esté aquí",
+       "Y en mi alma, su canción nunca se irá",
+       "Balada del mar, en tu voz me quedo atrapado",
+       "Hasta que el tiempo me lleve a tu abrazo"
+      ]
+     }
+    ],
+    "engine": "yue2"
+   },
+   "touched": {}
+  },
+  "draftNote": null,
+  "blockers": [],
+  "messages": [
+   {
+    "id": "6ef16508-d8b4-49b2-84c1-630c717310be",
+    "threadId": "7a33208f-155f-4a9c-a166-ebd3ad9a92ca",
+    "seq": 1,
+    "role": "user",
+    "kind": "text",
+    "text": "una balada sobre el mar",
+    "body": {
+     "chat_v": 1,
+     "sentRev": 0
+    },
+    "proposalId": null,
+    "jobId": "f09cf092-fb5c-4ada-a2a8-371b1df30704",
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:17:17",
+    "state": "done",
+    "job": {
+     "status": "done"
+    },
+    "phase": null,
+    "undo": null
+   },
+   {
+    "id": "60d5c73f-fc68-4234-b6e0-9d6113b50684",
+    "threadId": "7a33208f-155f-4a9c-a166-ebd3ad9a92ca",
+    "seq": 2,
+    "role": "assistant",
+    "kind": "recipe",
+    "text": "Proposing a Spanish ballad about the sea. Let me know if you'd like to refine it.",
+    "body": {
+     "chat_v": 1,
+     "recipe": {
+      "title": "Balada del Mar",
+      "style": "ballad, acoustic guitar, strings, melancholic, female voice",
+      "bpm": 60,
+      "key": "Am",
+      "timeSignature": "4/4",
+      "language": "es",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Bridge",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "En la orilla del tiempo, donde el viento susurra",
+         "El mar me canta historias que no puedo olvidar",
+         "Con sus olas suaves, como un beso de despedida",
+         "Lleva mi alma lejos, hacia un horizonte frío"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Balada del mar, tu voz me llama en la noche",
+         "Con cada latido, me haces sentir la nostalgia",
+         "Balada del mar, en tus aguas me he perdido",
+         "Y en tus brazos, encuentro un amor que no es mío"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Las estrellas brillan sobre el agua plateada",
+         "Como recuerdos que no puedo alcanzar",
+         "El barco se aleja, con su bandera en alto",
+         "Y en mi corazón, queda un eco de su canto"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Balada del mar, tu voz me llama en la noche",
+         "Con cada latido, me haces sentir la nostalgia",
+         "Balada del mar, en tus aguas me he perdido",
+         "Y en tus brazos, encuentro un amor que no es mío"
+        ]
+       },
+       {
+        "tag": "Bridge",
+        "lines": [
+         "A veces pienso que el mar es un gran poeta",
+         "Que escribe versos con cada ola que rompe",
+         "Y en sus profundidades, hay secretos que guardo",
+         "Que solo el viento y la luna pueden entender"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Balada del mar, tu voz me llama en la noche",
+         "Con cada latido, me haces sentir la nostalgia",
+         "Balada del mar, en tus aguas me he perdido",
+         "Y en tus brazos, encuentro un amor que no es mío"
+        ]
+       },
+       {
+        "tag": "Outro",
+        "lines": [
+         "El mar sigue cantando, aunque ya no esté aquí",
+         "Y en mi alma, su canción nunca se irá",
+         "Balada del mar, en tu voz me quedo atrapado",
+         "Hasta que el tiempo me lleve a tu abrazo"
+        ]
+       }
+      ],
+      "engine": "yue2"
+     },
+     "assumptions": [],
+     "changed": [
+      "title",
+      "style",
+      "bpm",
+      "key",
+      "timeSignature",
+      "language",
+      "structure",
+      "lyrics",
+      "engine"
+     ],
+     "skipped": [],
+     "undo": {
+      "rev": 1,
+      "before": {},
+      "fields": [
+       "title",
+       "style",
+       "bpm",
+       "key",
+       "timeSignature",
+       "language",
+       "structure",
+       "lyrics",
+       "engine"
+      ]
+     },
+     "estSeconds": 256
+    },
+    "proposalId": "46666b2c-baf3-4c18-9bfd-0d048a0819d5",
+    "jobId": null,
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:17:31",
+    "state": "pending",
+    "job": null,
+    "phase": null,
+    "undo": "offer"
+   }
+  ],
+  "references": []
+ }
+}

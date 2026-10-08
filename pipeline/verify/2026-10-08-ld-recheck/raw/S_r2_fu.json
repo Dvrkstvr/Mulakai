@@ -1,0 +1,255 @@
+{
+ "tag": "r2_fu",
+ "text": "mach es etwas schneller",
+ "secs": 69.5,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "The song has been updated to a faster tempo while keeping its cheerful and upbeat character.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791464688.92,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464698.2,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  },
+  {
+   "t": 1791464698.37,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464758.03,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  },
+  {
+   "t": 1791464758.06,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15824,
+ "bpm_before": 120,
+ "bpm_after": 140,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Motor brummt und die Sonne lacht",
+    "Wir haben die Freiheit mitgebracht",
+    "Der Asphalt glüht unter uns im Licht",
+    "Ein neues Abenteuer im Gesicht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir fahren ans Meer, der Wind weht so frei",
+    "Die Zeit bleibt für einen Moment einfach vorbei"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Fenster unten, die Musik ist laut",
+    "Auf die Küste haben wir heute gebaut",
+    "Der Sand wartet schon an dem weiten Strand",
+    "Wir ziehen gemeinsam durch das warme Land"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir fahren ans Meer, der Wind weht so frei",
+    "Die Zeit bleibt für einen Moment einfach vorbei"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Kein Stress und kein Plan, nur der Rhythmus der Nacht",
+    "Bis die Sonne am Horizont wieder erwacht",
+    "Nur wir und der Beat und das Salz auf der Haut",
+    "Dem Sommer sind wir heute vollkommen vertraut"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir fahren ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir fahren ans Meer, der Wind weht so frei",
+    "Die Zeit bleibt für einen Moment einfach vorbei"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "An das Meer, an das Meer",
+    "Die Reise ist nie zu schwer",
+    "Nur der Sommer und wir",
+    "Und das Glück ist jetzt hier"
+   ]
+  }
+ ],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Motor heult und der Asphalt glüht",
+    "Wir lassen alles hinter uns weit",
+    "Der Wind im Haar und die Sonne lacht",
+    "Wir haben die Freiheit heute bereit"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Sommerreise ans weite Meer",
+    "Die Wellen rufen uns so sehr",
+    "Sommerreise ans weite Meer",
+    "Wir geben die Sorgen nicht mehr her"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Playlist läuft auf voller Lautstärke",
+    "Der Highway zieht uns einfach mit",
+    "Kein Blick zurück nur der Horizont",
+    "Wir nehmen das Schicksal jetzt mit"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Sommerreise ans weite Meer",
+    "Die Wellen rufen uns so sehr",
+    "Sommerreise ans weite Meer",
+    "Wir geben die Sorgen nicht mehr her"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Keine Termine und keine Pflicht",
+    "Nur das Salz auf unserer Haut",
+    "Die Nacht wird lang und das Licht ist hell",
+    "Wir sind der Freiheit vertraut"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Sommerreise ans weite Meer",
+    "Die Wellen rufen uns so sehr",
+    "Sommerreise ans weite Meer",
+    "Wir geben die Sorgen nicht mehr her"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur wir und das blaue Licht",
+    "Die Sonne sinkt ins Gesicht",
+    "Nur wir und das blaue Licht",
+    "Die Sonne sinkt ins Gesicht"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "An das weite Meer",
+    "An das weite Meer",
+    "An das weite Meer",
+    "An das weite Meer"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Wir fahren weiter",
+    "Wir fahren weiter",
+    "Wir fahren weiter",
+    "Wir fahren weiter"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Sommerwind",
+    "Sommerwind",
+    "Sommerwind",
+    "Sommerwind"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Einfach nur frei",
+    "Einfach nur frei",
+    "Einfach nur frei",
+    "Einfach nur frei"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Das Meer ruft uns",
+    "Das Meer ruft uns",
+    "Das Meer ruft uns",
+    "Das Meer ruft uns"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Endstation Strand",
+    "Endstation Strand",
+    "Endstation Strand",
+    "Endstation Strand"
+   ]
+  }
+ ],
+ "style_after": "Rock, electric guitar, drums, upbeat, vocals"
+}

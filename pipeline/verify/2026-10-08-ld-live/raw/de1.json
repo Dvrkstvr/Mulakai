@@ -1,0 +1,814 @@
+{
+ "tag": "de1",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "turn_seconds": 35.348734855651855,
+ "job": {
+  "status": "done"
+ },
+ "ps_after": {
+  "models": []
+ },
+ "timeline": [
+  {
+   "t": 0.0,
+   "vram": 1394,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    null
+   ]
+  },
+  {
+   "t": 0.6,
+   "vram": 1399,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.2,
+   "vram": 1553,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.7,
+   "vram": 9978,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 2.3,
+   "vram": 9976,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 2.9,
+   "vram": 10004,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 3.5,
+   "vram": 10000,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 4.6,
+   "vram": 9972,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 5.1,
+   "vram": 9968,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 5.7,
+   "vram": 9953,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 6.2,
+   "vram": 12749,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 6.7,
+   "vram": 12789,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 7.3,
+   "vram": 12785,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 7.9,
+   "vram": 12769,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 8.4,
+   "vram": 12752,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 9.0,
+   "vram": 12741,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 9.6,
+   "vram": 12493,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 10.1,
+   "vram": 12485,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 10.6,
+   "vram": 1087,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 11.2,
+   "vram": 1278,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 11.8,
+   "vram": 1232,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 12.3,
+   "vram": 1266,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 12.9,
+   "vram": 1262,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 13.5,
+   "vram": 1266,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 14.0,
+   "vram": 1261,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 14.5,
+   "vram": 1259,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 15.1,
+   "vram": 1256,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 15.6,
+   "vram": 1252,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 16.8,
+   "vram": 1255,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 18.4,
+   "vram": 6242,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 19.0,
+   "vram": 13129,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 19.5,
+   "vram": 13120,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 21.8,
+   "vram": 13129,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 22.9,
+   "vram": 13145,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 23.4,
+   "vram": 13188,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 25.1,
+   "vram": 13176,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 25.6,
+   "vram": 13178,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 26.2,
+   "vram": 13194,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 26.8,
+   "vram": 13440,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 27.3,
+   "vram": 13439,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 27.9,
+   "vram": 15559,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 29.0,
+   "vram": 15717,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 29.6,
+   "vram": 15733,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 30.7,
+   "vram": 15732,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 31.3,
+   "vram": 15743,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 31.9,
+   "vram": 15750,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_908ae3": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 34.8,
+   "vram": 1376,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_908ae3": [
+    "done",
+    null
+   ]
+  }
+ ],
+ "vram_peak": 15750,
+ "thread": {
+  "id": "3a77bc1d-9e99-4e33-b9d6-0b9654d72378",
+  "songId": null,
+  "draft": {
+   "draft_v": 1,
+   "rev": 1,
+   "fields": {
+    "title": "Abschied am Bahnhof",
+    "style": "pop, piano, strings, melancholic, female voice",
+    "bpm": 60,
+    "key": "A",
+    "timeSignature": "4/4",
+    "language": "de",
+    "structure": [
+     "Intro",
+     "Verse",
+     "Chorus",
+     "Verse",
+     "Chorus",
+     "Bridge",
+     "Chorus",
+     "Outro"
+    ],
+    "lyrics": [
+     {
+      "tag": "Verse",
+      "lines": [
+       "Der Regen fällt auf das kalte Glas",
+       "Ich seh dein Gesicht im Nebel ganz blass",
+       "Der Bahnsteig ist leer und die Welt steht still",
+       "Nur das Echo der Schritte, das ich noch will"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Und der Zug fährt langsam davon",
+       "Verliert uns im fahlen Mondschein-Lohn",
+       "Ein letzter Gruß, ein letzter Blick",
+       "Es gibt kein Halten, kein Zurück"
+      ]
+     },
+     {
+      "tag": "Verse",
+      "lines": [
+       "Dein Koffer steht schwer auf dem grauen Stein",
+       "Ich fühl mich so einsam und so allein",
+       "Die Anzeigetafel zeigt die Zeit an",
+       "Ein Ende beginnt, das niemand begann"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Und der Zug fährt langsam davon",
+       "Verliert uns im fahlen Mondschein-Lohn",
+       "Ein letzter Gruß, ein letzter Blick",
+       "Es gibt kein Halten, kein Zurück"
+      ]
+     },
+     {
+      "tag": "Bridge",
+      "lines": [
+       "Die Schienen führen weit in die Nacht",
+       "Ich hab an das Morgen nicht mehr gedacht",
+       "Nur die Stille bleibt hier bei mir zurück",
+       "Ein zerbrochenes, leises Glück"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Und der Zug fährt langsam davon",
+       "Verliert uns im fahlen Mondschein-Lohn",
+       "Ein letzter Gruß, ein letzter Blick",
+       "Es gibt kein Halten, kein Zurück"
+      ]
+     },
+     {
+      "tag": "Outro",
+      "lines": [
+       "Nur noch der Regen am Fensterglas",
+       "Alles wird leise, alles wird blass",
+       "Nur noch der Regen",
+       "Nur noch die Nacht"
+      ]
+     }
+    ],
+    "engine": "yue2"
+   },
+   "touched": {}
+  },
+  "draftNote": null,
+  "blockers": [],
+  "messages": [
+   {
+    "id": "d26a0501-7a78-45a9-94db-5d10ed0393a6",
+    "threadId": "3a77bc1d-9e99-4e33-b9d6-0b9654d72378",
+    "seq": 1,
+    "role": "user",
+    "kind": "text",
+    "text": "ein langsamer Popsong über Abschied am Bahnhof",
+    "body": {
+     "chat_v": 1,
+     "sentRev": 0
+    },
+    "proposalId": null,
+    "jobId": "908ae373-4b3c-46a8-81b9-07cc9a9790b0",
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:11:06",
+    "state": "done",
+    "job": {
+     "status": "done"
+    },
+    "phase": null,
+    "undo": null
+   },
+   {
+    "id": "7dc8b795-b650-42aa-8899-6bce9c76b339",
+    "threadId": "3a77bc1d-9e99-4e33-b9d6-0b9654d72378",
+    "seq": 2,
+    "role": "assistant",
+    "kind": "recipe",
+    "text": "Ein langsamer Popsong über Abschied am Bahnhof wird erstellt. Die Lyrics werden in deutscher Sprache geschrieben.",
+    "body": {
+     "chat_v": 1,
+     "recipe": {
+      "title": "Abschied am Bahnhof",
+      "style": "pop, piano, strings, melancholic, female voice",
+      "bpm": 60,
+      "key": "A",
+      "timeSignature": "4/4",
+      "language": "de",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Bridge",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "Der Regen fällt auf das kalte Glas",
+         "Ich seh dein Gesicht im Nebel ganz blass",
+         "Der Bahnsteig ist leer und die Welt steht still",
+         "Nur das Echo der Schritte, das ich noch will"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Und der Zug fährt langsam davon",
+         "Verliert uns im fahlen Mondschein-Lohn",
+         "Ein letzter Gruß, ein letzter Blick",
+         "Es gibt kein Halten, kein Zurück"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Dein Koffer steht schwer auf dem grauen Stein",
+         "Ich fühl mich so einsam und so allein",
+         "Die Anzeigetafel zeigt die Zeit an",
+         "Ein Ende beginnt, das niemand begann"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Und der Zug fährt langsam davon",
+         "Verliert uns im fahlen Mondschein-Lohn",
+         "Ein letzter Gruß, ein letzter Blick",
+         "Es gibt kein Halten, kein Zurück"
+        ]
+       },
+       {
+        "tag": "Bridge",
+        "lines": [
+         "Die Schienen führen weit in die Nacht",
+         "Ich hab an das Morgen nicht mehr gedacht",
+         "Nur die Stille bleibt hier bei mir zurück",
+         "Ein zerbrochenes, leises Glück"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Und der Zug fährt langsam davon",
+         "Verliert uns im fahlen Mondschein-Lohn",
+         "Ein letzter Gruß, ein letzter Blick",
+         "Es gibt kein Halten, kein Zurück"
+        ]
+       },
+       {
+        "tag": "Outro",
+        "lines": [
+         "Nur noch der Regen am Fensterglas",
+         "Alles wird leise, alles wird blass",
+         "Nur noch der Regen",
+         "Nur noch die Nacht"
+        ]
+       }
+      ],
+      "engine": "yue2"
+     },
+     "assumptions": [
+      "key: A minor",
+      "bpm: 60",
+      "time_signature: 4/4",
+      "style: pop, piano, strings, melancholic, female voice"
+     ],
+     "changed": [
+      "title",
+      "style",
+      "bpm",
+      "key",
+      "timeSignature",
+      "language",
+      "structure",
+      "lyrics",
+      "engine"
+     ],
+     "skipped": [],
+     "undo": {
+      "rev": 1,
+      "before": {},
+      "fields": [
+       "title",
+       "style",
+       "bpm",
+       "key",
+       "timeSignature",
+       "language",
+       "structure",
+       "lyrics",
+       "engine"
+      ]
+     },
+     "estSeconds": 256
+    },
+    "proposalId": "3c0223ef-d181-42b8-aa00-5f708bba374b",
+    "jobId": null,
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:11:41",
+    "state": "pending",
+    "job": null,
+    "phase": null,
+    "undo": "offer"
+   }
+  ],
+  "references": []
+ }
+}

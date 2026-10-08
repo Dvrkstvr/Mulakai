@@ -11,7 +11,7 @@ process.env.DATA_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'mulakai-chatedit-t
 
 const { db } = await import('../../db/index.js');
 const { startFakeOllama } = await import('../../../test-fakes/fakeOllama.js');
-const { editReply, reply, sayReply } = await import('../../../test-fakes/chatScripts.js');
+const { editReply, reply, reviseEdit, sayReply } = await import('../../../test-fakes/chatScripts.js');
 const { contract } = await import('../../../test-fakes/fakeYue.js');
 const { getRunning, resetQueue } = await import('../genQueue.js');
 const { getJob } = await import('../jobRegistry.js');
@@ -77,9 +77,9 @@ describe('chat edit turn (CB-2)', () => {
     expect(editById(card.proposalId!)?.planId).toBe(body.planId);
   });
 
-  it('a follow-up edit while the card is pending makes a new plan; the old card reads REPLACED (F-046 #3)', async () => {
+  it('a follow-up edit while the card is pending revises it (C2, F-058): a new plan, the old card reads REPLACED (F-046 #3)', async () => {
     ollama = await startFakeOllama();
-    ollama.chats.push(editReply(REHARM), editReply([{ op: 'SET_TEMPO', bpm: 96 }]));
+    ollama.chats.push(editReply(REHARM), reviseEdit([1], [{ op: 'SET_TEMPO', bpm: 96 }]));
     const { songId, thread, send } = setup(status(), async () => contract('apply-set-tempo').response.body as ApplyResult);
     await settled(send('jazz chords on bar 43').id);
     const first = last(thread.id);
@@ -89,6 +89,7 @@ describe('chat edit turn (CB-2)', () => {
     expect(proposalLife(second.proposalId!)).toBe('live');
     expect(getPlan(songId)?.id).toBe((second.body as EditBody).planId);
     expect((second.body as EditBody).splice).toMatchObject({ splice: false });
+    expect(second.body).toMatchObject({ revision: 2, ops: [{ op: 'SET_TEMPO', bpm: 96 }], since: { removed: REHARM } });
   });
 
   it('F-065 edge: REHARMONIZE on a chord-free score takes the whole-song path and renders with chords', async () => {

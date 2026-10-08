@@ -24,6 +24,23 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(out.body.changed).toContain('title');
   });
 
+  it('C2 (F-059, D-220): a recipe that fills fields stores its undo record: the rev it wrote, the old values, the fields', () => {
+    const typed = handEdit(emptyDraft(), { title: 'Draft title' }).draft; // rev 1
+    const out = dispatchReply({ ...base, draft: typed, sentRev: 1, reply: recipe });
+    if (out.kind !== 'recipe') throw new Error('not a recipe');
+    expect(out.body.undo).toEqual({ rev: out.draft.rev, before: { title: 'Draft title' }, fields: out.body.changed });
+    expect(out.body.undo?.fields).toContain('title');
+  });
+
+  it('C2 (F-059 edge): a recipe that filled nothing has no undo record', () => {
+    const filled = dispatchReply({ ...base, reply: recipe });
+    if (filled.kind !== 'recipe') throw new Error('not a recipe');
+    const again = dispatchReply({ ...base, draft: filled.draft, sentRev: filled.draft.rev, reply: recipe });
+    if (again.kind !== 'recipe') throw new Error('not a recipe');
+    expect(again.body.changed).toEqual([]);
+    expect(again.body).not.toHaveProperty('undo');
+  });
+
   it('a field touched by hand after SEND is skipped and named (CH-6)', () => {
     const typed = handEdit(emptyDraft(), { title: 'Mine' }).draft; // rev 1, after sentRev 0
     const out = dispatchReply({ ...base, draft: typed, reply: recipe });
@@ -65,7 +82,17 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
       splice: { splice: true, kind: 'reharmonize', from_bar: 47, to_bar: 54 }, renderMode: { cot: 'full', reason: 'chords' },
       assumptions: ['assuming chorus 1, bars 47-54'], attempts: 2, refusals: [['bar 999 is outside the song']],
       from: { bpm: facts.header.bpm, key: facts.header.key },
+      map: expect.objectContaining({ ops: [{ spans: [[47, 54]], whole: false }] }),
     });
+  });
+
+  it('C2 (F-060, D-215): the edit card carries the bar map built from the facts the planner saw', () => {
+    const two: Op[] = [...reharm, { op: 'SET_TEMPO', bpm: 90 }];
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(two), edit: planned(two) });
+    if (out.kind !== 'edit') throw new Error('not an edit card');
+    expect(out.body.map?.bars).toBe(Math.max(facts.header.bars, ...facts.sections.map((s) => s.to_bar)));
+    expect(out.body.map?.sections.map((s) => [s.from, s.to])).toEqual(facts.sections.map((s) => [s.from_bar, s.to_bar]));
+    expect(out.body.map?.ops).toEqual([{ spans: [[47, 54]], whole: false }, { spans: [], whole: true }]);
   });
 
   it('the card carries the tempo and key the plan was read at, as the SCORE dock shows them (87 → 88, not ? → 88)', () => {
@@ -103,6 +130,18 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(marked.kind === 'edit' && marked.body.assumptions).toEqual(['jazz means seventh chords']);
     const plain = dispatchReply({ ...base, hasSong: true, reply, edit: planned(reharm) });
     expect(plain.kind === 'edit' && plain.body.assumptions).toEqual(reply.assumptions);
+  });
+
+  it('C2 (F-058, D-227): a revised edit is plan n+1 with its since on the plan and the card; a fresh one has neither on the card', () => {
+    const since = { planId: 'p0', marks: [{ mark: 'NEW' as const, was: null }], removed: [{ op: 'SET_TEMPO', bpm: 88 } as Op] };
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: { ...planned(reharm), revision: 3, since } });
+    if (out.kind !== 'edit') throw new Error('not an edit card');
+    expect(out.plan).toMatchObject({ revision: 3, since });
+    expect(out.body).toMatchObject({ revision: 3, since, ops: reharm, map: expect.objectContaining({ ops: [{ spans: [[47, 54]], whole: false }] }) });
+    const fresh = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: planned(reharm) });
+    if (fresh.kind !== 'edit') throw new Error('not an edit card');
+    expect(fresh.plan).toMatchObject({ revision: 1, since: null });
+    expect('revision' in fresh.body || 'since' in fresh.body).toBe(false);
   });
 
   it('F-046 edge: a song that is not score-eligible gets the reason as a say, no card', () => {

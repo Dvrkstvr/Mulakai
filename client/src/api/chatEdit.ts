@@ -1,7 +1,8 @@
 /** Chat C0b (CB-5): the edit card's and version card's wire bodies and APPLY. Mirrored by hand from the server's
  * `chat/editTypes.ts` (EditBody), `chat/versionCard.ts` (VersionCardBody) and `routes/chatTurns.ts` (APPLY); reconcile
  * both when either moves. CANCEL is `chatApi.cancelChatJob`; the job polls through `jobStatus`. */
-import type { ScoreOp, ScoreOpVerdict, ScorePlan, ScoreRenderMode } from './score';
+import type { ScoreOp, ScoreOpVerdict, ScorePlan, ScoreRenderMode, ScoreSince } from './score';
+import type { BarMap } from './chatConverge';
 import { ApiError, json } from './http';
 
 export type ChatSpliceKind = 'reharmonize' | 'cut' | 'repeat';
@@ -26,6 +27,12 @@ export interface ChatEditBody {
   /** C1 (F-055): the mark the plan was bounded to (null bars: a time only) and the server's notes on it (a whole-song op,
    * a mark clamped to the score, D-176). Mirrors the server's `EditBody.mark`. */
   mark?: { versionId: string; bars: [number, number] | null; seconds: [number, number]; notes: string[] };
+  /** C2 (F-058, D-227): 1 for a first plan, +1 per revise turn; `since` = the marks against the card it revised (NEW /
+   * CHANGED / SAME, REMOVED; the score agent's `Since`). Absent on cards from before C2. */
+  revision?: number;
+  since?: ScoreSince | null;
+  /** C2 (F-060, D-215): the bar map built on the server; absent = draw C0b's strip from `splice`. */
+  map?: BarMap;
 }
 
 /** A saved chat edit (message kind `version`; the message's `versionId` is the version). `previous` is null when there

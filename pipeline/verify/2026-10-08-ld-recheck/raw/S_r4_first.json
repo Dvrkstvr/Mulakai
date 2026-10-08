@@ -1,0 +1,137 @@
+{
+ "tag": "r4_first",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "secs": 53.9,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've created a slow pop song about saying goodbye at the train station. The song is in a melancholic mood with a soft and emotional vocal style.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791464891.82,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464901.03,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  },
+  {
+   "t": 1791464901.22,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464945.05,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  },
+  {
+   "t": 1791464945.06,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15802,
+ "bpm_before": null,
+ "bpm_after": 60,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Regen fällt auf das kalte Dach",
+    "Ein letzter Blick, ein leiser Hauch",
+    "Die Gleise glänzen im fahlen Licht",
+    "Ich sehe dein Gesicht noch im Gesicht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und nimmt das Glück, das ich so sehr geschätzt hat",
+    "Nur die Stille bleibt hier bei mir",
+    "Ich lass dich jetzt ziehen, ich bin nicht mehr bei dir"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Türen schließen mit schwerem Klang",
+    "Ein Abschiedsschmerz, ein langer Gang",
+    "Die Menschenmassen ziehen vorbei",
+    "Doch in meinem Herzen herrscht Einsamkeit"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und nimmt das Glück, das ich so sehr geschätzt hat",
+    "Nur die Stille bleibt hier bei mir",
+    "Ich lass dich jetzt ziehen, ich bin nicht mehr bei dir"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Zeit steht still am Bahnsteigrand",
+    "Ich halte nur noch deine Hand",
+    "Ein letztes Mal, ein letzter Gruß",
+    "Bevor die Ferne mich verlassen muss"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und nimmt das Glück, das ich so sehr geschätzt hat",
+    "Nur die Stille bleibt hier bei mir",
+    "Ich lass dich jetzt ziehen, ich bin nicht mehr bei dir"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch die Stille bleibt hier",
+    "Ich bin nicht mehr bei dir",
+    "Nur noch der Regen",
+    "Nur noch die Leere"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, strings, melancholic, soft vocal"
+}

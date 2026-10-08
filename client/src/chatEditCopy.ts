@@ -52,7 +52,8 @@ export function editConsequence(s: ChatSplice, mode: ScoreRenderMode, base: numb
   }
   if (s.splice) {
     const [verb, after] = s.kind === 'cut' ? ['Cuts', 'bars after the cut are earlier'] : ['Repeats', 'bars after the copy are later'];
-    return `${verb} ${span(s)} in v${base}'s audio, every other bar stays v${base}'s audio · ${after}, so BACK TO v${base} will not line up there · ${saves}${queueSuffix(ahead)}`;
+    // D-154: a join that cannot be aligned (or a REPEAT seam that steps over 4 dB) saves the whole re-render (C1 N1).
+    return `${verb} ${span(s)} in v${base}'s audio, every other bar stays v${base}'s audio · ${after}, so BACK TO v${base} will not line up there · if the join cannot be aligned, the whole song is re-rendered instead · ${saves}${queueSuffix(ahead)}`;
   }
   const clause = renderModeClause(mode);
   return `Uses the GPU, a few minutes · the whole song is re-rendered: every bar will sound different, not only the listed ones · instruments may change${clause ? ` · ${clause}` : ''} · ${saves}${queueSuffix(ahead)}`;

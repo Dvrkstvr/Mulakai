@@ -1,0 +1,154 @@
+{
+ "tag": "de2_fu",
+ "text": "mach es etwas schneller",
+ "secs": 9.6,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "The song has been updated to a faster tempo while keeping its cheerful and bright mood.",
+ "n_calls": 1,
+ "call_models": [
+  "qwen3:14b"
+ ],
+ "ps_models_seen": [
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 11200,
+ "bpm_before": 120,
+ "bpm_after": 140,
+ "lyrics_same": true,
+ "lang": "de",
+ "lyrics_before": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Motor dröhnt und die Sonne brennt",
+    "Wir fahren los, wo man die Freiheit kennt",
+    "Der Asphalt glüht unter dem Reifen Rad",
+    "Wir lassen hinter uns die graue Stadt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Fenster unten, der Wind im Gesicht",
+    "Ein neues Abenteuer, ein helles Licht",
+    "Die Playlist laut, der Rhythmus ist wild",
+    "Wir sind heute alle ein bisschen ein Kind"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Sand unter den Füßen und Salz auf der Haut",
+    "Auf die Sonne und die Freiheit haben wir vertraut",
+    "Keine Sorgen mehr, nur der Rhythmus der Nacht",
+    "Bis der Morgen uns wieder zum Leben erwacht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur das Meer und wir",
+    "Die Reise geht weiter",
+    "An der Küste im Licht",
+    "Vergiss die Zeit nicht"
+   ]
+  }
+ ],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Motor dröhnt und die Sonne brennt",
+    "Wir fahren los, wo man die Freiheit kennt",
+    "Der Asphalt glüht unter dem Reifen Rad",
+    "Wir lassen hinter uns die graue Stadt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Fenster unten, der Wind im Gesicht",
+    "Ein neues Abenteuer, ein helles Licht",
+    "Die Playlist laut, der Rhythmus ist wild",
+    "Wir sind heute alle ein bisschen ein Kind"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Sand unter den Füßen und Salz auf der Haut",
+    "Auf die Sonne und die Freiheit haben wir vertraut",
+    "Keine Sorgen mehr, nur der Rhythmus der Nacht",
+    "Bis der Morgen uns wieder zum Leben erwacht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur das Meer und wir",
+    "Die Reise geht weiter",
+    "An der Küste im Licht",
+    "Vergiss die Zeit nicht"
+   ]
+  }
+ ],
+ "style_after": "Rock, electric guitar, drums, cheerful"
+}

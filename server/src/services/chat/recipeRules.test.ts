@@ -8,7 +8,7 @@ import { YUE2_CAPABILITIES, buildYue2Request } from '../engines/yue2.js';
 import { parseMeter } from '../engines/abcMeta.js';
 import {
   BPM, KEYS, LANGUAGES, LINES, LYRICS_MAX, SECTION_TAGS, STYLE_MAX, SUNG_TAGS, TIME_SIGNATURES,
-  createBlockers, fieldProblems, recipeProblems,
+  createBlockers, fieldProblems, lyricsFit, plannedProblems, recipeProblems,
 } from './recipeRules.js';
 import type { DraftFields, Recipe } from './chatTypes.js';
 
@@ -95,6 +95,50 @@ describe('recipeProblems: the reasons a retry sends back', () => {
   it('the lyric sections follow the structure in order, skipping only instrumental ones', () => {
     const r = { ...RECIPE, structure: ['Intro', 'Verse', 'Chorus', 'Outro'], lyrics: [RECIPE.lyrics[1], RECIPE.lyrics[0]] };
     expect(recipeProblems(r).join(' | ')).toMatch(/must follow the structure/);
+  });
+
+  it('LD: over YuE2\'s LYRICS_MAX is a "shorten" reason (the lyrics call retries on it)', () => {
+    const long = RECIPE.lyrics.map((s) => ({ ...s, lines: lines(8, 'x'.repeat(600)) }));
+    expect(recipeProblems({ ...RECIPE, lyrics: long }).join(' | ')).toMatch(new RegExp(`YuE2 takes ${LYRICS_MAX}: shorten them`));
+  });
+
+  it('LD: the planner\'s recipe is checked without lines; lyricsFit = one section per sung section, in order (keep)', () => {
+    const { lyrics: _, ...planned } = RECIPE;
+    expect(plannedProblems(planned)).toEqual([]);
+    expect(plannedProblems({ ...planned, key: 'Aminor' })).toEqual(['key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']);
+    const sung = [...RECIPE.lyrics, { tag: 'Outro', lines: lines(4) }];
+    expect(lyricsFit(RECIPE.structure, sung)).toBe(true);
+    expect(lyricsFit(RECIPE.structure, RECIPE.lyrics)).toBe(false); // the Outro has no lines: write
+    expect(lyricsFit([...RECIPE.structure, 'Bridge'], sung)).toBe(false); // a new section: write
+    expect(lyricsFit(RECIPE.structure, [sung[1], sung[0], ...sung.slice(2)])).toBe(false);
+    expect(lyricsFit(RECIPE.structure, undefined)).toBe(false);
+  });
+});
+
+describe('F-095 live: a structure that loops a section is refused with the reason (D-255)', () => {
+  const { lyrics: _, ...planned } = RECIPE;
+  const DRAFT = ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus', 'Outro'];
+
+  it('the live loop (qwen3:14b, "mach es etwas schneller": the draft plus 6 more Outros) is refused, once, with the fix', () => {
+    const looped = [...DRAFT, ...Array(6).fill('Outro')];
+    expect(plannedProblems({ ...planned, structure: looped })).toEqual(['the structure repeats Outro 7 times at the end: an Outro appears once, last']);
+  });
+
+  it('a second Intro or Outro anywhere, or a section 3 times in a row, is refused', () => {
+    expect(plannedProblems({ ...planned, structure: ['Intro', 'Verse', 'Intro', 'Chorus', 'Outro'] })).toEqual(['the structure has 2 Intros: an Intro appears once, first']);
+    expect(plannedProblems({ ...planned, structure: ['Intro', 'Verse', 'Outro', 'Chorus', 'Outro'] })).toEqual(['the structure has 2 Outros: an Outro appears once, last']);
+    expect(plannedProblems({ ...planned, structure: ['Intro', 'Verse', 'Chorus', 'Chorus', 'Chorus', 'Outro'] }))
+      .toEqual(['the structure repeats Chorus 3 times in a row: write a section at most twice in a row']);
+  });
+
+  it('what SP-5 and the fixtures write passes: the live draft, two Choruses in a row at the end, no Intro or Outro', () => {
+    for (const structure of [DRAFT, ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus', 'Chorus', 'Outro'], ['Verse', 'Chorus', 'Verse', 'Chorus', 'Chorus'], ['Verse', 'Verse', 'Chorus', 'Pre-Chorus', 'Chorus']]) {
+      expect(plannedProblems({ ...planned, structure }), structure.join(',')).toEqual([]);
+    }
+  });
+
+  it('CREATE SONG does not block on it: a person may hand-edit any structure', () => {
+    expect(createBlockers({ ...READY, structure: ['Outro', 'Outro', 'Outro'] }, ON)).toEqual([]);
   });
 });
 

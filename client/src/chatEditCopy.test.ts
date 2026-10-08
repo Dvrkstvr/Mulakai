@@ -36,6 +36,11 @@ describe('the edit card', () => {
     expect(editConsequence(CUT, CHORDS, 1, 2, 0)).toContain('bars after the cut are earlier');
   });
 
+  it('C1 N1: a REPEAT / CUT splice says the whole song may be re-rendered if the join cannot be aligned (D-154)', () => {
+    const repeat: ChatSplice = { splice: true, kind: 'repeat', from_bar: 56, to_bar: 64 };
+    for (const s of [repeat, CUT]) expect(editConsequence(s, CHORDS, 1, 2, 0)).toContain('if the join cannot be aligned, the whole song is re-rendered instead · saves v2, v1 is kept');
+  });
+
   it('the strip line: the span, or all bars', () => {
     expect(stripLine(REHARM, 76, 1)).toBe('BARS 25-32 CHANGE · THE OTHER 68 ARE v1');
     expect(stripLine(CUT, 76, 1)).toBe('BARS 57-64 ARE CUT · THE OTHER 68 ARE v1');

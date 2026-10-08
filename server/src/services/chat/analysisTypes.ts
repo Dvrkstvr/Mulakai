@@ -6,6 +6,8 @@
  * `WordsPart` / `ScorePart` are C3's (reading.ts): a transcribed score is context and marking only (Q-062 b).
  */
 import type { NotRead, ScorePart, WordsPart } from './reading.js';
+import type { LyricsPanel } from './convergeTypes.js';
+import { readRetime, type ReadingRetime, type RetimeOffer } from './retimeRecord.js';
 
 export const ANALYSIS_V = 1;
 export type { NotRead, ScorePart, WordsPart };
@@ -39,6 +41,8 @@ export interface VersionAnalysis {
   words: WordsPart | NotRead;
   score: ScorePart | NotRead;
   bars: BarTimes | NotRead;
+  /** RT-5 (F-092): the score and bars above were re-timed from the kept reading; UNDO restores `previous`. */
+  retime?: ReadingRetime;
 }
 /** The audio could not be read or the GPU guard refused (D-179): stored so FAILED + RETRY survive a reload. */
 export interface FailedAnalysis { analysis_v: 1; versionId: string; failed: string; at: string }
@@ -68,8 +72,9 @@ export interface Shift { atBar: number; delta: number }
 export type BarShift = { moved: false; retimed?: true } | { moved: true; shift: Shift | null };
 
 /** The mark (D-175): bars when the strip had them (1-based, inclusive), seconds always. `label` is the chip's
- * text, frozen in the user message's body (the echo); the server never trusts it. */
-export interface RangeMark { kind: 'range'; versionId: string; bars?: [number, number]; seconds: [number, number]; label?: string }
+ * text, frozen in the user message's body (the echo); the server never trusts it. `readAt`: the reading its bars
+ * were counted on (RT-5): a re-time renumbers the bars on the same version, so then it is stale. */
+export interface RangeMark { kind: 'range'; versionId: string; bars?: [number, number]; seconds: [number, number]; label?: string; readAt?: string }
 /** `resolveRange` (planReferent): pinned on the playable version (`carried` from a parent whose edit moved no
  * bars, seconds re-timed), or stale, never remapped (409 MARK_STALE; USE BARS only with a known shift). */
 export type RangeResolution =
@@ -116,7 +121,13 @@ export interface ShownReading {
   /** "TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY". */
   transcribed: boolean;
   notRead: { words: string | null; score: string | null; bars: string | null };
+  /** The lyrics panel (C2, F-056, D-217): computed at read time from this reading and its version's stored text. */
+  lyrics: LyricsPanel | null;
+  /** RT-5: the READ AS row (HALF · DOUBLE · BPM…) on the playable version's own transcribed reading; else null. */
+  retime: RetimeOffer | null;
 }
+/** A version's `params_json.request.lyrics` and `.style` (`versionLyrics`), what the panel's blocks are split from. */
+export interface VersionText { lyrics: string | null; style: string | null }
 /** `GET /api/chat/songs/:songId/analysis`. `lineage`: the playable version against its parent, for markStale. */
 export interface AnalysisView {
   songId: string;
@@ -175,5 +186,6 @@ export function readAnalysis(raw: string | null | undefined): StoredAnalysis | n
     words: readPart('words', b.words) as VersionAnalysis['words'],
     score: readPart('score', b.score) as VersionAnalysis['score'],
     bars: readPart('bars', b.bars) as VersionAnalysis['bars'],
+    ...(b.retime !== undefined ? { retime: readRetime(b.retime, readPart) } : {}),
   };
 }

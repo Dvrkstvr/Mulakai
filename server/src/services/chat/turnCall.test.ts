@@ -1,34 +1,51 @@
 import { describe, it, expect, vi } from 'vitest';
-import { RECIPE, badKeyRecipe, notJson, outOfSet, recipeReply, sayReply } from '../../../test-fakes/chatScripts.js';
+import { RECIPE, autoLyrics, badKeyRecipe, notJson, outOfSet, recipeReply, sayReply } from '../../../test-fakes/chatScripts.js';
 import { recipeFields } from './draftModel.js';
 import { MAX_TOKENS, decideReply, ladderRung, type TurnContext } from './turnCall.js';
 import { turnAttempts } from './turnAttempts.js';
 import type { ChatScript } from '../../../test-fakes/fakeOllama.js';
 import { contract } from '../../../test-fakes/fakeYue.js';
-import type { ScoreFacts } from '../score/planTypes.js';
+import type { ChatMessage as PromptMessage, ScoreFacts } from '../score/planTypes.js';
+import { promptChars } from '../score/plannerPrompt.js';
+import { NOTHING_REVISED } from '../score/planRevise.js';
+import { chatPendingLines } from './turnRevise.js';
+import { KEEP_REASON, START_REASON } from './reviseKeep.js';
+import type { RevisePending } from './convergeTypes.js';
+import type { Op, Plan } from '../score/planTypes.js';
 
 const ctx: TurnContext = { state: { hasSong: false, scoreReadable: false }, block: ['SONG: none yet'], facts: null, request: 'a sad song', pending: false, draft: {}, history: [] };
+/** A lyrics call (LD) is answered by autoLyrics; the turn's calls from `replies`. */
 const scripted = (...replies: ChatScript[]) => {
-  const ask = vi.fn(async (_m: unknown, _s?: unknown, _o?: { maxTokens: number }) => {
-    const r = replies.length > 1 ? replies.shift()! : replies[0];
+  const ask = vi.fn(async (m: unknown, _s?: unknown, _o?: { maxTokens: number; model?: string }) => {
+    const msgs = m as Array<{ content: string }>;
+    const r = msgs[0]?.content?.startsWith('You write song lyrics') ? autoLyrics(msgs) : replies.length > 1 ? replies.shift()! : replies[0];
     return { content: r.content ?? '', promptTokens: r.promptTokens ?? null };
   });
   return ask;
 };
 
 describe('decideReply (rung 0: one call, the full schema)', () => {
-  it('a valid recipe on the first try is one call', async () => {
+  it('a valid recipe on the first try is one call, plus its lyrics call (LD)', async () => {
     const ask = scripted(recipeReply());
     const d = await decideReply(ctx, { ask });
-    expect(d).toMatchObject({ ok: true, attempts: 1, calls: 1, promptTokens: [2000] });
+    expect(d).toMatchObject({ ok: true, attempts: 1, calls: 2, promptTokens: [2000] });
     expect(ask.mock.calls[0][1]).toHaveProperty('anyOf');
+  });
+
+  it('a draft thread\'s follow-up offers no edit: no edit in the schema, no edit text or OPS REFERENCE in the rules (LD live)', async () => {
+    const ask = scripted(sayReply());
+    const d = await decideReply({ ...ctx, request: 'mach es etwas schneller', pending: true, draft: recipeFields(RECIPE) }, { ask });
+    const actions = (ask.mock.calls[0][1] as { anyOf: Array<{ properties: { action: { const: string } } }> }).anyOf.map((s) => s.properties.action.const);
+    expect(actions).toEqual(['ask', 'recipe', 'analyze', 'say']);
+    expect(d.messages[0].content).not.toMatch(/- edit:|OPS REFERENCE|- scalpel:/);
+    expect(ask.mock.calls[0][2]).toMatchObject({ maxTokens: MAX_TOKENS.other });
   });
 
   it('feeds the reasons back and reports progress "attempt n of 3 · reason"', async () => {
     const ask = scripted(notJson(), badKeyRecipe(), recipeReply());
     const progress: string[] = [];
     const d = await decideReply(ctx, { ask, onAttempt: (n, r) => progress.push(`${n}${r ? ` · ${r}` : ''}`) });
-    expect(d).toMatchObject({ ok: true, attempts: 3, calls: 3 });
+    expect(d).toMatchObject({ ok: true, attempts: 3, calls: 4 });
     // CB-2: the refused attempts travel with the reply, so an edit card says what a retry moved (D-060).
     expect(d.ok && d.refusals).toEqual([['the reply is not valid JSON'], ['key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']]);
     expect(progress).toEqual(['1', '2 · the reply is not valid JSON', '3 · key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']);
@@ -38,7 +55,7 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
 
   it('three replies outside the set end with the reason, no reply', async () => {
     const d = await decideReply(ctx, { ask: scripted(outOfSet()) });
-    expect(d).toMatchObject({ ok: false, attempts: 3, calls: 3, reasons: ['action "dance" is not one of ask, recipe, edit, scalpel, analyze, say'] });
+    expect(d).toMatchObject({ ok: false, attempts: 3, calls: 3, reasons: ['action "dance" is not one of ask, recipe, analyze, say'] });
   });
 
   it('a thrown call ends the turn at once', async () => {
@@ -54,12 +71,13 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(schema.anyOf.map((p) => p.properties.action.const)).toEqual(['ask', 'recipe', 'analyze', 'say']);
   });
 
-  it('asks 4000 completion tokens when the reply may be an edit, 2000 when it cannot (rung 2, no song)', async () => {
-    const ask = scripted(sayReply());
-    await decideReply(ctx, { ask });
-    await decideReply(ctx, { ask, rung: 2 });
-    expect(ask.mock.calls.map((c) => c[2])).toEqual([{ maxTokens: MAX_TOKENS.edit }, { maxTokens: MAX_TOKENS.other }]);
-    expect(MAX_TOKENS).toEqual({ edit: 4000, other: 2000 });
+  it('asks 4000 completion tokens when the reply may be an edit (a song thread), 2000 when it cannot (no song, D-251)', async () => {
+    const onSong = scripted(sayReply());
+    const onDraft = scripted(sayReply());
+    await decideReply({ ...ctx, state: { hasSong: true, scoreReadable: true }, facts: contract('read-ok').response.body.facts as ScoreFacts }, { ask: onSong });
+    await decideReply(ctx, { ask: onDraft });
+    expect([onSong.mock.calls[0][2], onDraft.mock.calls[0][2]]).toEqual([{ maxTokens: MAX_TOKENS.edit }, { maxTokens: MAX_TOKENS.other }]);
+    expect(MAX_TOKENS).toEqual({ edit: 4000, other: 2000, lyrics: 4000 });
   });
 
   it('a live card goes in as the PENDING PROPOSAL with the draft fields; no live card, the sidebar', async () => {
@@ -78,7 +96,7 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(schema.anyOf[1].properties.recipe!.properties).toHaveProperty('reference_use');
     expect(d.messages[0].content).toContain('reference_use');
     await decideReply(ctx, { ask });
-    expect(ask.mock.calls[1][0][0].content).not.toContain('reference_use');
+    expect(ask.mock.calls[2][0][0].content).not.toContain('reference_use'); // calls 0-1: the first turn's recipe and lyrics
   });
 
   it('CHAT_LADDER picks a built rung; anything else is rung 0', () => {
@@ -107,5 +125,130 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     const whole = scripted(edit([{ op: 'EDIT_STYLE', style: 'jazz' }]));
     expect(await decideReply({ ...marked, request: 'make the whole song jazzier' }, { ask: whole })).toMatchObject({ ok: true, attempts: 1 });
     expect(JSON.stringify(whole.mock.calls[0][1])).toContain('EDIT_STYLE');
+  });
+  it('C1 re-check N4: a marked turn refused twice keeps attempt 3 within 1k tokens (chars / 4) of attempt 1', async () => {
+    const facts = contract('read-ok').response.body.facts as ScoreFacts;
+    const marked: TurnContext = { ...ctx, state: { hasSong: true, scoreReadable: true }, facts, request: 'make it jazzier', mark: { lines: ['MARK: bars 23-30'], range: [23, 30] } };
+    // The live failure's shape: a whole-song REHARMONIZE (2 chords a bar) and a long message, refused for leaving the mark.
+    const chords = Array.from({ length: 128 }, (_, i) => ({ bar: 1 + (i >> 1), beat: 1 + 2 * (i % 2), root: 'A', quality: 'm7' }));
+    const big = JSON.stringify({ action: 'edit', message: 'm'.repeat(300), assumptions: ['a'], ops: [{ op: 'REHARMONIZE', from_bar: 1, to_bar: 64, chords }] });
+    const ask = scripted({ content: big, promptTokens: null });
+    const d = await decideReply(marked, { ask });
+    expect(d).toMatchObject({ ok: false, attempts: 3 });
+    const tokens = ask.mock.calls.map((c) => Math.round(promptChars(c[0] as PromptMessage[]) / 4));
+    expect(big.length / 4).toBeGreaterThan(1500);
+    expect(tokens[2]).toBeLessThanOrEqual(tokens[0] + 1000); // 2434, 2529, 2623 (re-sending the reply: 2434, 4062, 5689)
+    expect(JSON.stringify(ask.mock.calls[2][0])).not.toContain('m'.repeat(300));
+  });
+
+  it('C1 re-check N2: "make it faster" on a mark: SET TEMPO refused, the REHARMONIZE replan does not keep the tempo sentence', async () => {
+    const facts = contract('read-ok').response.body.facts as ScoreFacts;
+    const marked: TurnContext = { ...ctx, state: { hasSong: true, scoreReadable: true }, facts, request: 'make it faster', mark: { lines: ['MARK: bars 23-30'], range: [23, 30] } };
+    const said = 'I will increase the tempo of the whole song to 120 bpm.';
+    const reharm = { op: 'REHARMONIZE', from_bar: 23, to_bar: 24, chords: [{ bar: 23, beat: 1, root: 'C', quality: 'maj7' }] };
+    const edit = (ops: unknown[]) => ({ content: JSON.stringify({ action: 'edit', message: said, assumptions: [], ops }), promptTokens: 1 });
+    const ask = scripted(edit([{ op: 'SET_TEMPO', bpm: 120 }]), edit([reharm]));
+    const d = await decideReply(marked, { ask });
+    expect(d).toMatchObject({ ok: true, attempts: 2, reply: { action: 'edit', ops: [reharm] } });
+    expect(d.ok && d.reply.message).toBe('Planned inside the mark: new chords in bars 23-24. SET TEMPO would change the whole song, so it is not in this plan; ask for the whole song to get it.');
+    expect(JSON.stringify(ask.mock.calls[1][0])).not.toContain(said);
+  });
+});
+
+describe('decideReply with a pending plan (C2, F-058: REVISE as a follow-up turn)', () => {
+  const facts = contract('read-ok').response.body.facts as ScoreFacts;
+  const [TEMPO, HARM] = contract('apply-compound').request.body.ops as Op[];
+  const plan = { id: 'p1', request: 'faster', ops: [TEMPO], verdicts: [{ index: 1, op: 'SET_TEMPO', ok: true, reason: null }], revision: 1 } as unknown as Plan;
+  const revise: RevisePending = { plan, lines: chatPendingLines(plan), count: 1 };
+  const onSong: TurnContext = { ...ctx, state: { hasSong: true, scoreReadable: true }, facts, draft: null, request: 'and jazz chords in bars 47-50', revise };
+  const edit = (drop: number[], ops: unknown[]) => ({ content: JSON.stringify({ action: 'edit', message: 'ok', assumptions: [], drop, ops }), promptTokens: 1 });
+
+  it('the edit schema gains drop, the PENDING PLAN is in the prompt, and the merge comes back as the card\'s since', async () => {
+    const ask = scripted(edit([], [HARM]));
+    const d = await decideReply(onSong, { ask });
+    expect(d).toMatchObject({ ok: true, attempts: 1, reply: { action: 'edit', ops: [TEMPO, HARM] } });
+    expect(d.since).toEqual({ planId: 'p1', marks: [{ mark: 'SAME', was: TEMPO }, { mark: 'NEW', was: null }], removed: [] });
+    expect(JSON.stringify(ask.mock.calls[0][1])).toContain('"drop"');
+    expect((ask.mock.calls[0][0] as PromptMessage[])[1].content).toContain('PENDING PLAN (plan 1, made for: "faster"):\nop 1 SET_TEMPO {"bpm":88}: applied');
+  });
+
+  it('an empty revise is retried with NOTHING_REVISED; a say leaves no since (the card stays pending)', async () => {
+    const ask = scripted(edit([], []), edit([1], [{ op: 'SET_TEMPO', bpm: 80 }]));
+    const d = await decideReply(onSong, { ask });
+    expect(d.ok && d.refusals).toEqual([[NOTHING_REVISED]]);
+    expect(d.since?.marks.map((m) => m.mark)).toEqual(['NEW']);
+    expect(d.since?.removed).toEqual([TEMPO]);
+    const said = await decideReply(onSong, { ask: scripted(sayReply('It is in D minor.')) });
+    expect(said).toMatchObject({ ok: true, reply: { action: 'say' }, since: null });
+  });
+
+  it('CP-C2 r2: an addition that drops a pending op goes back once with the named reason; a second drop stands', async () => {
+    const UP: Op = { op: 'TRANSPOSE', semitones: 1 };
+    const ask0 = scripted(edit([1], [HARM]), edit([], [HARM]));
+    const kept = await decideReply(onSong, { ask: ask0 });
+    expect(JSON.stringify(ask0.mock.calls[1][0])).toContain(`${KEEP_REASON} (your drop removed pending op 1 SET_TEMPO)`);
+    expect(kept.ok && kept.refusals).toEqual([['the reply dropped SET TEMPO though you only added']]); // C2 live B6: the card's words
+    expect(kept.since?.removed).toEqual([]);
+    const ask = scripted(edit([1], [UP]), edit([1], [UP]), edit([], [UP]));
+    const twice = await decideReply({ ...onSong, request: 'and also transpose it up a semitone' }, { ask });
+    expect(twice).toMatchObject({ ok: true, attempts: 2, reply: { ops: [UP] } });
+    expect(twice.since?.removed).toEqual([TEMPO]);
+    const asked = await decideReply({ ...onSong, request: 'forget the tempo, transpose it up a semitone' }, { ask: scripted(edit([1], [UP])) });
+    expect(asked).toMatchObject({ ok: true, attempts: 1 });
+  });
+
+  it('CP-C2 r3 / C2 live B2: "forget all that" drops every pending op in code; one the reply returns unchanged goes back once, then stands', async () => {
+    const DOWN: Op = { op: 'TRANSPOSE', semitones: -2 };
+    const over = { ...onSong, request: 'forget all that, just transpose it down a tone' };
+    const dropped = await decideReply(over, { ask: scripted(edit([], [DOWN])) });
+    expect(dropped).toMatchObject({ ok: true, attempts: 1, reply: { ops: [DOWN] } });
+    expect(dropped.since?.removed).toEqual([TEMPO]);
+    const kept = await decideReply(over, { ask: scripted(edit([], [TEMPO, DOWN]), edit([], [TEMPO, DOWN]), edit([], [DOWN])) });
+    expect(kept).toMatchObject({ ok: true, attempts: 2, reply: { ops: [TEMPO, DOWN] } });
+    expect(kept.ok && kept.refusals).toEqual([['the reply kept SET TEMPO though you asked to start over']]);
+    expect(kept.since?.marks.map((m) => m.mark)).toEqual(['SAME', 'NEW']);
+  });
+
+  it('C2 live B2 (b): "scrap that, instead reharmonize chorus 1 with jazz chords" on a pending SET TEMPO: the tempo is REMOVED, not kept SAME', async () => {
+    const d = await decideReply({ ...onSong, request: 'scrap that, instead reharmonize chorus 1 with jazz chords' }, { ask: scripted(edit([], [HARM])) });
+    expect(d).toMatchObject({ ok: true, attempts: 1, reply: { ops: [HARM] } });
+    expect(d.since).toEqual({ planId: 'p1', marks: [{ mark: 'NEW', was: null }], removed: [TEMPO] });
+  });
+
+  it('C2 live B2 (a): "start over: instead just change the tempo to 80 BPM" under a chorus mark: the kept chords go back once; the reply cannot claim the tempo', async () => {
+    const harm = { op: 'REHARMONIZE', from_bar: 23, to_bar: 24, chords: [{ bar: 23, beat: 1, root: 'C', quality: 'maj7' }] } as Op;
+    const p3 = { id: 'p3', request: 'jazz chords', ops: [harm], verdicts: [{ index: 1, op: 'REHARMONIZE', ok: true, reason: null }], revision: 3 } as unknown as Plan;
+    const marked: TurnContext = { ...onSong, request: 'scrap that, start over: instead just change the tempo to 80 BPM',
+      mark: { lines: ['MARK: bars 23-30'], range: [23, 30] }, revise: { plan: p3, lines: chatPendingLines(p3), count: 1 } };
+    const said = "I've adjusted the tempo of the chorus section to 80 BPM.";
+    const ask = scripted({ content: JSON.stringify({ action: 'edit', message: said, assumptions: [], drop: [], ops: [harm] }), promptTokens: 1 });
+    const d = await decideReply(marked, { ask });
+    expect(JSON.stringify(ask.mock.calls[0][1])).not.toContain('SET_TEMPO');
+    expect((ask.mock.calls[1][0] as PromptMessage[]).at(-1)!.content).toContain(`${START_REASON} (your reply keeps pending op 1 REHARMONIZE)`);
+    expect(d).toMatchObject({ ok: true, attempts: 2, reply: { ops: [harm] } });
+    expect(d.ok && d.reply.message).toBe('Planned inside the mark: new chords in bars 23-24. SET TEMPO would change the whole song, so it is not in this plan; ask for the whole song to get it.');
+    expect(d.ok && d.refusals).toEqual([['the reply kept REHARMONIZE though you asked to start over']]);
+  });
+
+  it('C2 live B6: the card and a failed turn read person words: no merge legend, no "return fewer", no pending op numbers', async () => {
+    const six: Op[] = [TEMPO, HARM, { op: 'EDIT_STYLE', style: 'jazz' }, { op: 'TRANSPOSE', semitones: 1 }, { op: 'REPEAT', section: 3, label: 'chorus' }, { op: 'CUT', section: 4, label: 'outro' }];
+    const p = { ...plan, ops: six } as Plan;
+    const full: TurnContext = { ...onSong, revise: { plan: p, lines: chatPendingLines(p), count: 6 } };
+    const over = await decideReply(full, { ask: scripted(edit([], [{ op: 'REPEAT', section: 2, label: 'verse' }])) });
+    expect(over).toMatchObject({ ok: false, reasons: ['too many changes: that makes 7, and a plan holds at most 6; ask to drop one first'] });
+    const refused = async (ops: Op[]) => ({ ...contract('apply-compound').response.body, ok: false, ops,
+      verdicts: [{ index: 1, op: 'SET_TEMPO', ok: true, reason: null }, { index: 2, op: 'REHARMONIZE', ok: false, reason: 'bar 47 has no beat 5' }] }) as never;
+    const ask = scripted(edit([], [HARM]), edit([], [HARM]), edit([], [{ op: 'TRANSPOSE', semitones: 1 }]));
+    const d = await decideReply(onSong, { ask, apply: async (ops) => (ops.some((o) => o.op === 'REHARMONIZE') ? refused(ops) : { ...contract('apply-compound').response.body, ops } as never) });
+    expect(d.ok && d.refusals.flat().join(' ')).not.toMatch(/your op|pending op|Your reply made/);
+    expect(d.ok && d.refusals[0]).toEqual(['op 2 (REHARMONIZE): bar 47 has no beat 5']);
+    expect((ask.mock.calls[1][0] as PromptMessage[]).at(-1)!.content).toContain('Your reply made this plan: op 1 = pending op 1, op 2 = your op 1 (new).');
+  });
+
+  it('no pending plan: no drop in the schema and no since', async () => {
+    const ask = scripted(edit([], [TEMPO]));
+    const d = await decideReply({ ...onSong, revise: null }, { ask });
+    expect(JSON.stringify(ask.mock.calls[0][1])).not.toContain('"drop"');
+    expect(d.since).toBeNull();
   });
 });

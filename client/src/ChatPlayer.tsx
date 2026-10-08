@@ -7,7 +7,8 @@
  * C1 (F-052, F-053; chat-mark.html MK-1..MK-3): under the transport row the section strip, bar ruler and waveform
  * (`ChatStrip`) and the reading line (`ChatReadingLine`), from `chatAnalysisStore`; read again when the take changes.
  * While A/B plays the reference or the version before, the strip is blank: its bars are the playable version's.
- * CL-8b (F-054): the mark layer over the ruler and waveform (`ChatMarkLayer`), a section click marks that section. */
+ * CL-8b (F-054): the mark layer over the ruler and waveform (`ChatMarkLayer`), a section click marks that section.
+ * RT-5 (F-092): a done, transcribed reading of the playing version gets the READ AS row under its line (`ChatRetimeRow`). */
 import { useEffect, useRef, useState } from 'react';
 import { abReference } from './chatAb';
 import { readingLine, stripMode } from './chatAnalysis';
@@ -16,6 +17,7 @@ import { markSection } from './chatMark';
 import { ChatMarkLayer } from './ChatMarkLayer';
 import { useChatMarkStore } from './chatMarkStore';
 import { ChatReadingLine } from './ChatReadingLine';
+import { ChatRetimeRow } from './ChatRetimeRow';
 import { ChatStrip } from './ChatStrip';
 import { NOW_PLAYING_NEW, USE_FAILED, abListening, abOnLabel, backTo, labelForUse } from './chatEditCopy';
 import { AB_LISTENING, AB_PILL } from './chatReferenceCopy';
@@ -109,6 +111,11 @@ export function ChatPlayer({ file, title, number, label, previous = null, newest
         overlay={markable ? <ChatMarkLayer threadId={threadId!} view={view!} duration={engine.duration} onSeek={engine.seek} /> : null}
       />
       <ChatReadingLine line={readingLine(analysis)} onRetry={() => void useChatAnalysisStore.getState().retry()} />
+      {view?.shown?.retime && view.shown.mode === 'current' && view.state.kind === 'done' && (
+        <ChatRetimeRow key={view.versionId} offer={view.shown.retime} number={view.number}
+          onRetime={(c) => useChatAnalysisStore.getState().retime(c.mode, c.mode === 'bpm' ? c.bpm : null)}
+          onUndo={() => useChatAnalysisStore.getState().undoRetime()} onAgain={() => useChatAnalysisStore.getState().transcribeAgain()} />
+      )}
     </div>
   );
 }

@@ -3,7 +3,8 @@
  * change goes through `chatAnalysis`; CL-8b's mark layer, chip and composer read the same state from here, and each
  * view read reconciles the open thread's mark (`chatMarkStore.reconcile`: carried, snapped to landed bars, or stale). */
 import { create } from 'zustand';
-import { chatAnalysisApi } from './api/chatAnalysis';
+import { chatAnalysisApi, type AnalysisView } from './api/chatAnalysis';
+import { chatRetimeApi } from './api/chatRetime';
 import { INITIAL_ANALYSIS, analysisJob, analysisSettled, chatAnalysis, type AnalysisEvent, type AnalysisState } from './chatAnalysis';
 import { useChatMarkStore } from './chatMarkStore';
 import { follow } from './chatPoll';
@@ -23,6 +24,10 @@ interface ChatAnalysisStore {
   event: (e: AnalysisEvent) => void;
   /** RETRY on a failed reading. */
   retry: () => Promise<void>;
+  /** RT-5: RE-TIME the playable version's reading, UNDO it, or TRANSCRIBE it AGAIN; a refusal throws (`RetimeError`). */
+  retime: (mode: 'half' | 'double' | 'bpm', bpm: number | null) => Promise<void>;
+  undoRetime: () => Promise<void>;
+  transcribeAgain: () => Promise<void>;
 }
 
 const why = (err: unknown) => (err instanceof Error ? err.message : String(err));
@@ -44,14 +49,27 @@ export const useChatAnalysisStore = create<ChatAnalysisStore>((set, get) => {
     }, () => read(songId));
   };
 
+  /** A new view: shown, and the open thread's mark reconciled with it. */
+  function land(view: AnalysisView) {
+    event({ type: 'view', view });
+    const threadId = get().threadId;
+    if (threadId) useChatMarkStore.getState().reconcile(threadId, view);
+  }
+
+  /** The playable version the row acts on, or nothing (no song, no version). */
+  const playing = () => {
+    const { songId, analysis } = get();
+    const versionId = analysis.view?.versionId;
+    return songId && versionId ? { songId, versionId } : null;
+  };
+  const landed = (songId: string) => (view: AnalysisView) => { if (get().songId === songId) land(view); };
+
   async function read(songId: string, retriesLeft = UNREAD_RETRIES): Promise<void> {
     if (unreadTimer) clearTimeout(unreadTimer);
     unreadTimer = null;
     const view = await chatAnalysisApi.analysisView(songId).catch(() => null);
     if (!view || get().songId !== songId) return;
-    event({ type: 'view', view });
-    const threadId = get().threadId;
-    if (threadId) useChatMarkStore.getState().reconcile(threadId, view);
+    land(view);
     if (analysisJob(get().analysis)) return followJob(songId);
     const unread = view.versionId && view.state.kind === 'none' && view.shown?.versionId !== view.versionId;
     if (unread && retriesLeft > 0) unreadTimer = setTimeout(() => void read(songId, retriesLeft - 1), UNREAD_RETRY_MS);
@@ -82,6 +100,20 @@ export const useChatAnalysisStore = create<ChatAnalysisStore>((set, get) => {
       } catch (err) {
         if (get().songId === songId) event({ type: 'retryRefused', reason: why(err) });
       }
+    },
+    retime: async (mode, bpm) => {
+      const p = playing();
+      if (p) await chatRetimeApi.retime(p.songId, p.versionId, mode, bpm).then(landed(p.songId));
+    },
+    undoRetime: async () => {
+      const p = playing();
+      if (p) await chatRetimeApi.undo(p.songId, p.versionId).then(landed(p.songId));
+    },
+    transcribeAgain: async () => {
+      const p = playing();
+      if (!p) return;
+      await chatRetimeApi.again(p.songId, p.versionId);
+      if (get().songId === p.songId) await read(p.songId);
     },
   };
 });

@@ -13,14 +13,14 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
 `pipeline/architecture.md` "Chat (C0)" and "Chat (C3)" (reference songs). Mockups:
 `pipeline/design/chat-*.html`.
 
-- A turn is one `plan`-kind job (`turnJob`): one load, ≤ 3 attempts, and
-  `releasePlanner` in `finally` on every path before the slot is released
-  (D-011, docs/decisions/0006). Never add a second load or unload per turn.
+- A turn is one `plan`-kind job (`turnJob`): one load per model it needs
+  (planner, then a lyrics model), each unloaded before the next, all + `/api/ps`
+  empty in `finally` before the slot is released (D-233, ADR 0006).
 - How many model calls a turn makes (SP-5's ladder) lives only in
   `turnCall.ts` (+ `turnActions.ts` for state-allowed actions).
 - Deciding logic stays pure: `draftModel`, `recipeRules`, `draftFields`,
   `songState`, `turnPrompt`, `turnActions`, `actionSchema`, `replyCheck`,
-  `turnAttempts`, `turnCall`, `turnDispatch`, `messageView`,
+  `turnAttempts`, `turnCall`, `turnLyrics`, `turnDispatch`, `messageView`,
   `spliceEligibility`, `versionCard`. Tests first; break each once.
 - Reuse, never copy, the score agent: `opsArraySchema`, `checkOps`,
   `applyOps`, `withLimits`, `applyReasons`, `retryMessages`, `phraseLines`,
@@ -64,3 +64,17 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
   blob. One rule (`barShift`) says whether bars moved; the mark is a
   `planReferent` `range`, resolved at SEND and at the turn's start, never
   remapped (stale → 409 or a failed line before the planner loads).
+- An analysis never stales or refuses a commit: `pendingEdit` counts only
+  `EDIT_KINDS` (D-173). A reading step that ran and read nothing is
+  `failed` with its reason and RETRY, never `done` (D-200).
+- Bars move only by what `basedOn` proves; a version without it moved by an
+  unknown amount (D-199). Across a SET TEMPO a mark is stale until the new
+  bar times are read.
+- A seconds-only mark is snapped to bars at SEND (`markSnap`, D-195); with a
+  mark, whole-song ops are refused unless the words ask for the whole song
+  (`asksWholeSong`, D-201).
+- Planner retries are built on attempt 1's messages with the refused reply
+  shortened (#225); CP-C1's prompt p95 stop is 6000 — re-run `chatCp1
+  --marks` after any prompt or MARK-block change.
+- C2 (ADR 0010): revise only via `turnRevise` → `readRevise`/`mergeRevise`, never a full restatement; block pairing only in `score/lyricPairing.ts`; UNDO TURN restores only untouched fields.
+- RT-5 (D-248): RE-TIME replaces the stored reading in place (new `readAt`, `retime.previous` for UNDO), bars on the re-timed downbeats, never re-fitted; a bars mark whose `readAt` differs from the playable reading's is stale.

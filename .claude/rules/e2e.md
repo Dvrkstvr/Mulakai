@@ -30,3 +30,5 @@ paths:
 - chat.spec.ts runs on the `score` stack, no new ports (D-178): the fake
   Ollama answers with SP-5's recorded replies (`fake-score/chatReplies.ts`)
   and the chat song is the contract song, so its score fixtures answer.
+- C2 adds specs named `*.chat.spec.ts` (picked up by the same pattern, D-224);
+  each keeps its own helpers, `chat.spec.ts` and `chatFakes.ts` stay C1's.

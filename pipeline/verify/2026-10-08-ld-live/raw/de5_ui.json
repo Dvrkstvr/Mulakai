@@ -1,0 +1,261 @@
+{
+ "thread": {
+  "id": "5ec1cd2b-72c4-4492-b9b2-119bc6943c6e",
+  "songId": null,
+  "draft": {
+   "draft_v": 1,
+   "rev": 1,
+   "fields": {
+    "title": "Abschied am Bahnhof",
+    "style": "pop, piano, strings, melancholic, female voice",
+    "bpm": 60,
+    "key": "Cm",
+    "timeSignature": "4/4",
+    "language": "de",
+    "structure": [
+     "Intro",
+     "Verse",
+     "Chorus",
+     "Verse",
+     "Chorus",
+     "Bridge",
+     "Chorus",
+     "Outro"
+    ],
+    "lyrics": [
+     {
+      "tag": "Verse",
+      "lines": [
+       "Der Regen klopft leise an das Glas",
+       "Die Zeit steht für einen Moment ganz still",
+       "Ich sehe dein Gesicht im fahlen Licht",
+       "Und weiß nicht, was ich heute sagen soll"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam aus der Stadt hinaus",
+       "Und lässt uns in der Einsamkeit zurück",
+       "Nur der kalte Wind weht durch das leere Gleis",
+       "Ein letzter Abschied am Bahnhof"
+      ]
+     },
+     {
+      "tag": "Verse",
+      "lines": [
+       "Dein Mantel weht im Wind der schweren Nacht",
+       "Ein letzter Blick, der tief in mir verweilt",
+       "Die Schienen führen weit in die Ferne",
+       "Wo kein Weg mehr zu uns zurückführt"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam aus der Stadt hinaus",
+       "Und lässt uns in der Einsamkeit zurück",
+       "Nur der kalte Wind weht durch das leere Gleis",
+       "Ein letzter Abschied am Bahnhof"
+      ]
+     },
+     {
+      "tag": "Bridge",
+      "lines": [
+       "Die Lichter der Stadt werden ganz klein",
+       "Ich bleibe hier im Schatten stehen",
+       "Die Stille drückt so schwer auf meine Brust",
+       "Während die Welt sich weiterdreht"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam aus der Stadt hinaus",
+       "Und lässt uns in der Einsamkeit zurück",
+       "Nur der kalte Wind weht durch das leere Gleis",
+       "Ein letzter Abschied am Bahnhof"
+      ]
+     },
+     {
+      "tag": "Outro",
+      "lines": [
+       "Nur noch das Echo der Schritte bleibt",
+       "Ein leises Weinen im Regen",
+       "Abschied am Bahnhof",
+       "Alles ist vorbei"
+      ]
+     }
+    ],
+    "engine": "yue2"
+   },
+   "touched": {}
+  },
+  "draftNote": null,
+  "blockers": [],
+  "messages": [
+   {
+    "id": "8bdfe619-1260-401c-b22b-194c8e1f5e8f",
+    "threadId": "5ec1cd2b-72c4-4492-b9b2-119bc6943c6e",
+    "seq": 1,
+    "role": "user",
+    "kind": "text",
+    "text": "ein langsamer Popsong über Abschied am Bahnhof",
+    "body": {
+     "chat_v": 1,
+     "sentRev": 0
+    },
+    "proposalId": null,
+    "jobId": "026e74e9-93aa-4ecd-80ab-f6337aac7cbe",
+    "versionId": null,
+    "clientKey": "655116c6-1a47-434a-bfbe-66ed543a9e4d",
+    "createdAt": "2026-10-08 11:20:59",
+    "state": "done",
+    "job": {
+     "status": "done"
+    },
+    "phase": null,
+    "undo": null
+   },
+   {
+    "id": "0236cfe4-4883-40ee-a52b-d2416a7654e0",
+    "threadId": "5ec1cd2b-72c4-4492-b9b2-119bc6943c6e",
+    "seq": 2,
+    "role": "assistant",
+    "kind": "recipe",
+    "text": "I will create a slow pop song about saying goodbye at the train station. Let me know if you'd like to refine any details.",
+    "body": {
+     "chat_v": 1,
+     "recipe": {
+      "title": "Abschied am Bahnhof",
+      "style": "pop, piano, strings, melancholic, female voice",
+      "bpm": 60,
+      "key": "Cm",
+      "timeSignature": "4/4",
+      "language": "de",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Bridge",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "Der Regen klopft leise an das Glas",
+         "Die Zeit steht für einen Moment ganz still",
+         "Ich sehe dein Gesicht im fahlen Licht",
+         "Und weiß nicht, was ich heute sagen soll"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam aus der Stadt hinaus",
+         "Und lässt uns in der Einsamkeit zurück",
+         "Nur der kalte Wind weht durch das leere Gleis",
+         "Ein letzter Abschied am Bahnhof"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Dein Mantel weht im Wind der schweren Nacht",
+         "Ein letzter Blick, der tief in mir verweilt",
+         "Die Schienen führen weit in die Ferne",
+         "Wo kein Weg mehr zu uns zurückführt"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam aus der Stadt hinaus",
+         "Und lässt uns in der Einsamkeit zurück",
+         "Nur der kalte Wind weht durch das leere Gleis",
+         "Ein letzter Abschied am Bahnhof"
+        ]
+       },
+       {
+        "tag": "Bridge",
+        "lines": [
+         "Die Lichter der Stadt werden ganz klein",
+         "Ich bleibe hier im Schatten stehen",
+         "Die Stille drückt so schwer auf meine Brust",
+         "Während die Welt sich weiterdreht"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam aus der Stadt hinaus",
+         "Und lässt uns in der Einsamkeit zurück",
+         "Nur der kalte Wind weht durch das leere Gleis",
+         "Ein letzter Abschied am Bahnhof"
+        ]
+       },
+       {
+        "tag": "Outro",
+        "lines": [
+         "Nur noch das Echo der Schritte bleibt",
+         "Ein leises Weinen im Regen",
+         "Abschied am Bahnhof",
+         "Alles ist vorbei"
+        ]
+       }
+      ],
+      "engine": "yue2"
+     },
+     "assumptions": [
+      "key: C minor",
+      "bpm: 60",
+      "time_signature: 4/4",
+      "language: German"
+     ],
+     "changed": [
+      "title",
+      "style",
+      "bpm",
+      "key",
+      "timeSignature",
+      "language",
+      "structure",
+      "lyrics",
+      "engine"
+     ],
+     "skipped": [],
+     "undo": {
+      "rev": 1,
+      "before": {},
+      "fields": [
+       "title",
+       "style",
+       "bpm",
+       "key",
+       "timeSignature",
+       "language",
+       "structure",
+       "lyrics",
+       "engine"
+      ]
+     },
+     "estSeconds": 256
+    },
+    "proposalId": "c3f09f48-2776-4f48-a6ce-a46d60e4c7ea",
+    "jobId": null,
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:21:29",
+    "state": "pending",
+    "job": null,
+    "phase": null,
+    "undo": "offer"
+   }
+  ],
+  "references": []
+ }
+}

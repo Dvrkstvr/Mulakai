@@ -1,0 +1,5 @@
+/* UNDO TURN on a recipe reply's CHANGED line (F-059, chat-converge.html 5a-5c, CX-4). Tokens only: the link is the
+   chat's plain text link after the sky CHANGED words; off (a reply is open) it dims and says why in the low grey. */
+.chat-undo { margin-left: 14px; color: var(--text-mid); }
+.chat-undo:disabled { opacity: 0.4; cursor: default; }
+.chat-undo-off { color: var(--text-low); }

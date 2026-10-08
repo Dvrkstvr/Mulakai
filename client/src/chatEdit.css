@@ -19,3 +19,37 @@
 .chat-ab-note { color: var(--lilac-text); white-space: nowrap; flex: none; }
 .chat-player .chat-q { flex: none; }
 .chat-use-failed { color: var(--rust-text); white-space: nowrap; flex: none; }
+
+/* C2 (CV-7; chat-converge.html 4a-4d, CX-3, D-229): the bar map replaces the strip. Bands are the section strip's
+   parallelograms at 18 px with 9 px names (thinned to fit, none under 20 px); the track is carbon-raised with the edited
+   bars sky-tint on sky hairlines, the hovered row's bars solid sky, a whole-song op hatched sky-tint/line, a CUT
+   section's band hatched grey with a dashed edge. One row to 200 bars, 2 px at least a bar. The map takes no input. */
+.chat-bm { position: relative; min-width: 0; }
+.chat-bm-bands, .chat-bm-track, .chat-bm-ruler { position: relative; }
+.chat-bm-bands { height: 18px; }
+.chat-bm-bands > i {
+  position: absolute; top: 0; height: 18px; line-height: 18px; overflow: hidden; white-space: nowrap; text-align: center;
+  font: 9px ui-monospace, monospace; font-style: normal; color: var(--text-mid); background: var(--carbon-raised);
+  clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+}
+.chat-bm-bands > i.nc { clip-path: none; }
+.chat-bm-bands > i.cu {
+  background: repeating-linear-gradient(135deg, var(--carbon-raised) 0 4px, var(--line) 4px 5px);
+  color: var(--text-low); outline: 1px dashed var(--line-hi); outline-offset: -1px;
+}
+.chat-bm-track { height: 14px; margin-top: 2px; background: var(--carbon-raised); overflow: hidden; }
+.chat-bm-track > b { position: absolute; top: 0; bottom: 0; }
+.chat-bm-track > .e { min-width: 2px; background: var(--sky-tint); border: solid var(--sky); border-width: 0 1px; }
+.chat-bm-track > .e.lit { background: var(--sky); }
+.chat-bm-track > .wh { inset: 0; background: repeating-linear-gradient(135deg, var(--sky-tint) 0 4px, var(--line) 4px 5px); }
+.chat-bm-track > .wh.lit { background: repeating-linear-gradient(135deg, var(--sky) 0 4px, var(--sky-tint) 4px 6px); }
+.chat-bm-ruler { height: 13px; }
+.chat-bm-ruler > em {
+  position: absolute; top: 0; padding-left: 2px; border-left: 1px solid var(--line-hi);
+  font: 9px/13px ui-monospace, monospace; font-style: normal; color: var(--text-low);
+}
+.chat-bm-cap { font: 10px ui-monospace, monospace; color: var(--text-mid); margin-top: 2px; }
+
+/* A change-list row in the card lights its bars on hover and keyboard focus (Q-143). */
+.chat-edit .score-op[tabindex] { cursor: default; outline: none; }
+.chat-edit .score-op[tabindex]:hover, .chat-edit .score-op[tabindex]:focus-visible { background: var(--on-sky); box-shadow: inset 3px 0 var(--sky); }

@@ -8,7 +8,7 @@
  * card from that job follows); an edit card likewise, with APPLY and a version card (C0b), and interrupted when a
  * restart cut its APPLY (the job vanished with nothing saved): while it commits, `phase`
  * names the step (queued, rendering, splicing, saving); APPLY refused because the song changed reads stale; a
- * version card drops its A/B once the version before it is gone. Pure: the caller passes the lookups.
+ * version card drops its A/B once the version before it is gone. C2: a recipe offers UNDO TURN (`undo`, F-059). Pure.
  */
 import { recipeFields } from './draftModel.js';
 import type { ChatMessage, Draft, DraftFields, EditBody, FailedBody, MessageState, ReadingBody, RecipeBody } from './chatTypes.js';
@@ -20,6 +20,8 @@ export interface ViewContext {
   proposal: (proposalId: string) => 'live' | 'superseded' | null;
   /** C0b: whether a version still exists (a version card's A/B); absent = assume it does. */
   versionExists?: (versionId: string) => boolean;
+  /** C2: the thread has a song (UNDO TURN is not offered); absent = no song. */
+  hasSong?: boolean;
 }
 
 /** An edit card's APPLY phase while it commits (the thread line, F-049 #3): its job's `progressText`. */
@@ -126,6 +128,14 @@ function readingState(m: ChatMessage, ctx: ViewContext): MessageState {
   return job ? 'failed' : 'interrupted';
 }
 
+/** UNDO TURN (F-059, D-220): offered on a recipe whose turn filled a field, until undone or once a song exists. */
+function undoOffer(m: ChatMessage, state: MessageState | null, ctx: ViewContext): 'offer' | 'done' | null {
+  const b = m.kind === 'recipe' ? (m.body as RecipeBody | null) : null;
+  if (!b?.undo?.fields?.length) return null;
+  if (b.undone) return 'done';
+  return ctx.hasSong || state === 'done' ? null : 'offer';
+}
+
 export function messageViews(messages: ChatMessage[], ctx: ViewContext) {
   return messages.map((m, i) => {
     let state: MessageState | null = null;
@@ -136,6 +146,6 @@ export function messageViews(messages: ChatMessage[], ctx: ViewContext) {
     else if (m.kind === 'analyze') state = analyzeState(m, messages, ctx);
     else if (m.kind === 'reading') state = readingState(m, ctx);
     const job = m.jobId ? ctx.job(m.jobId) ?? null : null;
-    return { ...m, body: wireBody(m, ctx), state, job, phase: commitPhase(m, state, job) };
+    return { ...m, body: wireBody(m, ctx), state, job, phase: commitPhase(m, state, job), undo: undoOffer(m, state, ctx) };
   });
 }

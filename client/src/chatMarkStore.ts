@@ -10,7 +10,7 @@ export interface MarkEntry {
   mark: RangeMark;
   /** Set when a version moved the marked bars: `useBars` only when the edit reported the shift (CS-11); `tempo` when
    * it changed the tempo instead (the same bars, at new times). */
-  stale: { useBars: [number, number] | null; tempo?: true } | null;
+  stale: { useBars: [number, number] | null; tempo?: true; reading?: true } | null;
 }
 
 interface ChatMarkStore {
@@ -45,9 +45,13 @@ export const useChatMarkStore = create<ChatMarkStore>((set, get) => {
 
     reconcile: (threadId, view) => {
       const entry = get().byThread[threadId];
-      if (!entry || entry.stale) return;
+      if (!entry) return;
       const fit = markStale(entry.mark, view);
-      if (fit.kind === 'stale') return put(threadId, { mark: entry.mark, stale: { useBars: fit.useBars, ...(fit.tempo ? { tempo: true } : {}) } });
+      // RT-5: UNDO of a re-time restores the reading the mark was counted on, so it fits again; any other stays stale.
+      if (entry.stale) return entry.stale.reading && fit.kind === 'valid' ? put(threadId, { mark: entry.mark, stale: null }) : undefined;
+      if (fit.kind === 'stale') {
+        return put(threadId, { mark: entry.mark, stale: { useBars: fit.useBars, ...(fit.tempo ? { tempo: true } : {}), ...(fit.reading ? { reading: true } : {}) } });
+      }
       const mark = landBars(view, fit.kind === 'carried' ? fit.mark : entry.mark);
       if (mark !== entry.mark) put(threadId, { mark, stale: null });
     },
@@ -69,8 +73,8 @@ export const useChatMarkStore = create<ChatMarkStore>((set, get) => {
     remark: (threadId, sent, view) => {
       const fit = markStale(sent, view);
       if (fit.kind === 'stale') return false;
-      const { kind, versionId, bars, seconds } = fit.kind === 'carried' ? fit.mark : sent;
-      put(threadId, { mark: { kind, versionId, seconds, ...(bars ? { bars } : {}) }, stale: null });
+      const { kind, versionId, bars, seconds, readAt } = fit.kind === 'carried' ? fit.mark : sent;
+      put(threadId, { mark: { kind, versionId, seconds, ...(bars ? { bars } : {}), ...(bars && readAt ? { readAt } : {}) }, stale: null });
       return true;
     },
   };
