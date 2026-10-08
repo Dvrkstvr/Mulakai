@@ -14,6 +14,7 @@ li{max-width:1100px}.hn,.mo{font-family:ui-monospace,monospace}.hn{font-size:10p
 .fx{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.fx div{border:1px solid var(--l);padding:4px 8px}.fx b{display:block;font-size:13px}
 .rd{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--h);background:var(--c)}.rd.sl{border-color:var(--l)}.rd>b{font-size:12px;letter-spacing:1px}
 .in{border:1px solid var(--s);background:var(--c);padding:4px 8px;width:96px;font:12px ui-monospace,monospace}
+.bi{display:inline-flex;align-items:center;transform:skewX(-10deg);border:1px solid var(--s);background:var(--c);outline:1px solid var(--s);outline-offset:1px}.bi>*{transform:skewX(10deg)}.bi input,.bi .v{width:64px;background:none;border:0;color:var(--t);font:11px ui-monospace,monospace;padding:5px 4px 5px 12px;outline:0}.bi .v.ph{color:var(--w)}.bi .ent{font:9px ui-monospace,monospace;letter-spacing:1px;color:var(--s);border-left:1px solid var(--st);padding:5px 10px;cursor:pointer;white-space:nowrap}.bi.bad{border-color:var(--ru);outline-color:var(--ru)}.bi.bad .ent{color:var(--rt)}.ch{cursor:default}#live .ch[data-b]{cursor:pointer}
 .cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}.cs u{text-decoration:none;color:var(--rb)}
 .er,.wn{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.wn{border-width:0 0 0 2px}.er div,.wn div{flex:1}.er b,.wn b{color:var(--rt);letter-spacing:1px}
 .hint{font-size:11px;color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 10px}
@@ -38,6 +39,8 @@ li{max-width:1100px}.hn,.mo{font-family:ui-monospace,monospace}.hn{font-size:10p
 </ul>
 
 <h2>A · THE COVER PANEL · beside the transcribed score (F-091)</h2><div class="g" id="a"></div>
+<h2>A′ · BPM… BECOMES ITS OWN INPUT (owner 2026-10-08, D-210) · same control in A, B, C and the dock</h2><div class="g" id="bp"></div>
+<div class="o" id="live" style="margin-top:16px"></div>
 <h2>B · THE CHAT READING · the SCORE part of a READING card (F-092)</h2><div class="g" id="b"></div>
 <h2>C · THE SCORE DOCK · RE-TIME beside SET TEMPO, generative (F-093)</h2><div class="g" id="c"></div>
 <h2>D · A CHAT VERB · "it's half time" (F-094)</h2><div class="g" id="e"></div>
@@ -72,8 +75,9 @@ const O=(h,f,n,w)=>`<div class="o" style="--w:${w||800}px"><h4>${h}</h4>${f}${n?
 const D=(t,x,b,cm)=>`<div class="d"><div class="hd"><span class="lb">${t}</span><span class="hn">${x||""}</span></div><div class="bd">${b}</div>${cm||""}</div>`;
 const CM=(t,b)=>`<div class="cm"><span class="cs">${t}</span>${b}</div>`;
 const ER=(t,b)=>`<div class="er"><div>${t}</div>${b||""}</div>`;
-const CHS=(h,d,b)=>[["HALF","h"],["DOUBLE","d"],["BPM…","b"]].map(([n,k])=>P("ch"+(k==h?" on":"")+(k==d?" no":""),n)).join(" ")+(b||"");
-const RD=(rd,h,d,x)=>`<div class="rd"><span class="lb">${rd[0]}</span><b>${rd[1]}</b>${CHS(h,d)}${x||""}</div>`;
+const BI=(v,bad)=>`<span class="bi${bad?" bad":""}"><span class="v${v?"":" ph"}">${v||"BPM"}</span><span class="ent">↵ ENTER</span></span>`;
+const CHS=(h,d,b)=>[["HALF","h"],["DOUBLE","d"],["BPM…","b"]].map(([n,k])=>k=="b"&&b?b:P("ch"+(k==h?" on":"")+(k==d?" no":""),n)).join(" ");
+const RD=(rd,h,d,x)=>`<div class="rd"><span class="lb">${rd[0]}</span><b>${rd[1]}</b>${h=="b"&&x?CHS(h,d,x):CHS(h,d)+(x||"")}</div>`;
 const STR=(n,t)=>`<div class="sg${t?" st":""}">${[["INTRO",3],["VERSE",6],["CHORUS",6],["VERSE",6],["CHORUS",6],["BRIDGE",4],["CHORUS",6],["OUTRO",3]].map(s=>`<i style="flex:${s[1]}">${s[0]}</i>`).join("")}</div><div class="hn">${n}</div>`;
 const FX=(bpm,bars,len)=>`<div class="fx">${[["TEMPO",bpm+" BPM"],["KEY","A MINOR"],["METER","4/4"],["BARS",bars],["LENGTH",len]].map(a=>`<div><span class="hn">${a[0]}</span><b>${a[1]}</b></div>`).join("")}</div>`;
 const PV=s=>`<div class="pv ${s?"sy":""}"><span class="hx"></span><div class="wv"></div><span class="hn">0:00 / 3:12</span>${s?'<span class="tg s">STALE · '+s+'</span>':""}</div>`;
@@ -86,11 +90,26 @@ const COVER=(rd,body,x,cm)=>D("SCORE · slow_dance_demo.mp3 · TRANSCRIBED","YUE
 $("a").innerHTML=
 O("<b>A1 · OFFERED</b>",COVER(["140","96","3:12"],RD(R140)+STR("8 SECTIONS · all kept")+PV(),'<div class="hint">Half or double time? Pick one, or type the BPM you hear. The notes stay; the beat they sit on changes.</div>'))+
 O("<b>A2 · ARMED</b> HALF picked",COVER(["140","96","3:12"],RD(R140,"h")+STR("8 SECTIONS · all kept")+PV(),"",CM(CONS,P("ao","RE-TIME AT 70 BPM")+" "+P("q","CANCEL"))),"Sky = the mode picked. Nothing rebuilt yet; GENERATE COVER stays the one filled acid CTA.")+
-O("<b>A3 · BPM…</b> typed 144: only slightly off",COVER(["140","96","3:12"],RD(R140,"b",0,'<span class="in">144</span>')+'<div class="hint">144 is within 8 % of the 140 read: the beat is right, the tempo is just a little off. RE-TIME is for a wrong beat. SET TEMPO in the SCORE dock nudges it once the cover exists.</div>'+STR("8 SECTIONS · all kept")+PV(),"",CM("No RE-TIME offered",P("ao off","RE-TIME AT 144 BPM"))),"A typed 276 (near ×2) or 92 arms RE-TIME instead. Q-125.")+
+O("<b>A3 · BPM…</b> typed 144: only slightly off",COVER(["140","96","3:12"],RD(R140,"b",0,P("ch on","144 BPM"))+'<div class="hint">144 is within 8 % of the 140 read: the beat is right, the tempo is just a little off. RE-TIME is for a wrong beat. SET TEMPO in the SCORE dock nudges it once the cover exists.</div>'+STR("8 SECTIONS · all kept")+PV(),"",CM("No RE-TIME offered",P("ao off","RE-TIME AT 144 BPM"))),"A typed 276 (near ×2) or 92 arms RE-TIME instead. Q-125.")+
 O("<b>A4 · WORKING</b>",COVER(["140","96","3:12"],RD(R140,"h")+'<div class="j"><span>RE-TIMING… <em>· a few seconds · no GPU</em></span></div>'+STR("8 SECTIONS · all kept")+PV(),"",CM(CONS,P("ao off","RE-TIME AT 70 BPM"))),"Plain line, no shader: CPU work, not generation. SOURCE and ENGINE hold still, as for TRANSCRIBE.")+
 O("<b>A5 · DONE</b> undo = back to the previous reading",COVER(["70","48","3:12"],RD(R70)+'<div class="hint"><span class="tg l">RE-TIMED</span> from 140 BPM · 96 bars → 48 · UNDO goes back to the previous reading. GENERATE COVER renders from this one.</div>'+STR("8 SECTIONS · all kept")+PV("140 BPM"),'<div style="padding:0 14px 10px;display:flex;gap:8px">'+P("q","UNDO")+P("q","DOWNLOAD MIDI")+'</div>'),"The preview is dimmed and tagged STALE with the tempo it plays (Q-127). UNDO is one step; a second RE-TIME from here undoes to 70, not 140.")+
 O("<b>A6 · REFUSED</b> saved reading gone",COVER(["140","96","3:12"],RD(R140,0,0)+GONE(2)+STR("8 SECTIONS · all kept")+PV()),"Chips stay drawn, off. TRANSCRIBE AGAIN is the panel's TRANSCRIBE; the GPU time is the calibrated figure (Q-099). Q-126.")+
-O("<b>A7 · EDGE</b> DOUBLE would pass 240; BPM… out of range",COVER(["140","96","3:12"],RD(R140,"b","d",'<span class="in" style="border-color:var(--ru)">300</span>')+ER("<b>300 BPM IS OUTSIDE 40–240</b> · DOUBLE is off: 280 BPM is over the limit.")+STR("8 SECTIONS · all kept")+PV(),"",CM("No RE-TIME offered",P("ao off","RE-TIME AT 300 BPM"))),"Q-129. A failed rebuild (the beat grid cannot be built) shows the same rust line with the reason from yue-server (R-038), nothing changed.");
+O("<b>A7 · EDGE</b> DOUBLE would pass 240; BPM… out of range",COVER(["140","96","3:12"],RD(R140,"b","d",BI("300",1))+ER("<b>300 BPM IS OUTSIDE 40–240</b> · DOUBLE is off: 280 BPM is over the limit.")+STR("8 SECTIONS · all kept")+PV(),"",CM("No RE-TIME offered",P("ao off","RE-TIME AT 300 BPM"))),"Q-129. A failed rebuild (the beat grid cannot be built) shows the same rust line with the reason from yue-server (R-038), nothing changed.");
+
+/* A′ the BPM input (D-210) */
+$("bp").innerHTML=
+O("<b>A′1 · CHIP</b> nothing typed yet",RD(R140),"BPM… is a choice chip like HALF and DOUBLE.",520)+
+O("<b>A′2 · OPEN</b> click BPM…: the chip becomes the input, focused",RD(R140,"b",0,BI("")),"Same slot, same skew, sky focus ring; the caret is in the field. The ↵ ENTER prompt sits inside it. No consequence line yet: nothing is set.",520)+
+O("<b>A′3 · TYPED</b> 92",RD(R140,"b",0,BI("92")),"Enter, or a click on the field's ↵ ENTER part (the chip's own place), locks 92. A click anywhere else turns it back into BPM… and sets no BPM; Esc does the same.",520)+
+O("<b>A′4 · LOCKED</b> 92 is the picked mode",RD(R140,"b",0,P("ch on","92 BPM")),"Now the consequence line and RE-TIME AT 92 BPM appear (A2's confirm). Clicking 92 BPM opens the input again with 92 in it; clicking away from that reverts to BPM… with no BPM set. Picking HALF/DOUBLE drops the lock.",520)+
+O("<b>A′5 · REFUSED ON ENTER</b> out of range",RD(R140,"b",0,BI("300",1))+ER("<b>300 BPM IS OUTSIDE 40–240</b> · type another, or click away to cancel."),"Enter on an out-of-range or empty value does not lock: the field stays open in rust with the reason. A slightly-off value (A3) does lock and shows the SET TEMPO hint.",520);
+(()=>{const L=$("live");let lock=null;
+const chip=()=>`<span class="p ch${lock?" on":""}" data-b><span>${lock?lock+" BPM":"BPM…"}</span></span>`;
+let busy=0;const draw=(open,val)=>{busy=1;L.innerHTML=`<h4><b>TRY IT</b> · click BPM…, type, then Enter / ↵ ENTER / click away</h4><div class="rd" style="width:640px;flex-wrap:nowrap"><span class="lb">READ AS</span><b>140 BPM · 4/4 · 96 BARS</b>${P("ch","HALF")} ${P("ch","DOUBLE")} ${open?`<span class="bi" id="lb"><input id="li" inputmode="numeric" placeholder="BPM" value="${val||""}"><span class="ent" id="le">↵ ENTER</span></span>`:chip()}</div><div class="nt" id="lm">${lock?"Locked "+lock+" BPM: the consequence line and RE-TIME AT "+lock+" BPM show now.":"No BPM set."}</div>`;
+if(open){const i=$("li"),e=$("le"),ok=()=>{const v=+i.value;if(i.value&&v>=40&&v<=240&&Number.isInteger(v)){lock=v;draw(false)}else{$("lb").classList.add("bad");$("lm").innerHTML='<span style="color:var(--rt)">'+(i.value?i.value+" BPM is outside 40–240":"type a BPM")+"</span> · nothing set"}};
+busy=0;i.focus();i.onkeydown=k=>{if(k.key=="Enter")ok();if(k.key=="Escape"){lock=null;draw(false)}};
+e.onmousedown=k=>k.preventDefault();e.onclick=ok;i.onblur=()=>{if(!busy){lock=null;draw(false)}}}
+else L.querySelector("[data-b]").onclick=()=>draw(true,lock);busy=0};draw(false)})();
 
 /* B */
 const BRD=(bpm,bars,x)=>`<div class="rd sl" style="flex-wrap:wrap"><span class="lb">SCORE</span><span>${bars} bars · 4/4 · A MINOR · ${bpm} BPM · chords read</span>${x||""}</div>`;
