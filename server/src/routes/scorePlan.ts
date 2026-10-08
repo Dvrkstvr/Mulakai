@@ -6,7 +6,7 @@
  *        revise: the pending plan's id (F-033): REVISE it; refused unless it is still the song's
  *        pending plan, made on the score as it is.
  *   GET  /api/songs/:id/score/plan            → {run, plan}
- *   POST /api/songs/:id/score/retime {mode: half | double | bpm, bpm?} → 200 {plan}: RE-TIME (RT-4, D-233), a plan
+ *   POST /api/songs/:id/score/retime {mode: half | double | bpm, bpm?} → 200 {plan}: RE-TIME (RT-4, D-240), a plan
  *        made at once from the kept reading, no planner; 409 with the reason when it is not offered
  *   POST /api/songs/:id/score/plan/cancel     → CANCEL: a queued plan leaves the line; a running
  *        one aborts its planner call and still unloads before the slot frees (F-024 #2, D-041)

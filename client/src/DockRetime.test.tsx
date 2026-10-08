@@ -1,4 +1,4 @@
-/** RE-TIME in the SCORE dock (RT-4, F-093, D-233): offered, refused with why, or nothing. */
+/** RE-TIME in the SCORE dock (RT-4, F-093, D-240): offered, refused with why, or nothing. */
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it } from 'vitest';
 import { DockRetime } from './DockRetime';

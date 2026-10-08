@@ -872,7 +872,7 @@ requiring its own justification against a screen-count rule.
        - **Chip**: `BASE · WHOLE SCORE`, sky, like SPLIT's. The version the
          plan was made against sits in the checks and stale lines, not the
          chip.
-       - **RE-TIME** (added 2026-10-08, RT-4, F-093, D-233): on a cover that
+       - **RE-TIME** (added 2026-10-08, RT-4, F-093, D-240): on a cover that
          is still its transcription, a row under the reading line in the
          Create panel's READ AS idiom: the tempo SheetSage2 read, `wrong
          beat?` in `text-low`, then HALF · DOUBLE · BPM… as sky choice chips

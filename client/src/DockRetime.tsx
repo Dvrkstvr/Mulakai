@@ -9,7 +9,7 @@ import type { ScoreVerbState } from './scoreVerbTypes';
 
 type Mode = 'half' | 'double' | 'bpm';
 
-/** RE-TIME in the SCORE dock (RT-4, F-093; design/retime.html C1-C4; D-233): on a cover that is still its
+/** RE-TIME in the SCORE dock (RT-4, F-093; design/retime.html C1-C4; D-240): on a cover that is still its
  * transcription, the tempo SheetSage2 read and HALF · DOUBLE · BPM… (sky choices, BPM… per D-211). A pick makes
  * the plan at once from the kept reading, no planner; the plan list, consequence line and APPLY & RENDER are
  * the dock's own. Elsewhere it says why not, in one quiet line; on a song that is not a cover, nothing. */

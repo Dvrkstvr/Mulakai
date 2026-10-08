@@ -1,4 +1,4 @@
-/** POST /api/songs/:id/score/retime: RE-TIME's planner-free plan (RT-4, F-093, D-233). */
+/** POST /api/songs/:id/score/retime: RE-TIME's planner-free plan (RT-4, F-093, D-240). */
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 import express from 'express';
 import type { Server } from 'node:http';

@@ -1,4 +1,4 @@
-"""Keep a re-timed score's sections like the score it replaces (RT-4, D-233): a cover may sing only some of its
+"""Keep a re-timed score's sections like the score it replaces (RT-4, D-240): a cover may sing only some of its
 transcription's sections (Create's SECTIONS left the rest out), and a re-time from the kept reading brings every
 section back. The rebuilt score keeps a section when it is the next of the old score's sections by name, in order,
 so the cover sings the same sections at the new tempo. Section blocks are cut whole, as Create's cut is."""

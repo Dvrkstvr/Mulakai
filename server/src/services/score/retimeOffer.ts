@@ -1,5 +1,5 @@
 /**
- * Is RE-TIME offered on this song's score (RT-4, F-093, D-233)? Only while the active base version is still the
+ * Is RE-TIME offered on this song's score (RT-4, F-093, D-240)? Only while the active base version is still the
  * transcription a cover was made from: the cover's own take (`task_type: 'cover'` with a kept `notationId`), or a
  * score version that only re-timed it (its params carry `retime.notationId`). After any other SCORE edit a
  * re-time from the kept reading would undo it, so the dock says why instead. The reading's tempo comes from the

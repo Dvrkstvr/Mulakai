@@ -1,4 +1,4 @@
-/** Is RE-TIME offered on a song's score (RT-4, D-233): only while it is still the transcription. */
+/** Is RE-TIME offered on a song's score (RT-4, D-240): only while it is still the transcription. */
 import { describe, it, expect } from 'vitest';
 import { decideRetime, EDITED_SINCE, READING_GONE, readBpmOf } from './retimeOffer.js';
 

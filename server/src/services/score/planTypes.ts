@@ -101,7 +101,7 @@ export interface Plan {
   since?: Since | null;
   /** The render's cot and why (renderMode, F-065/D-132): the review names it, the render sends it. */
   renderMode: RenderMode;
-  /** A RE-TIME plan's kept reading, saved on the new version so it can be re-timed again (D-233). */
+  /** A RE-TIME plan's kept reading, saved on the new version so it can be re-timed again (D-240). */
   retime?: { notationId: string; readBpm: number } | null;
 }
 

@@ -1,5 +1,5 @@
 /**
- * RE-TIME in the SCORE dock (RT-4, F-093, D-233): a plan made without the planner. The score is rebuilt from the
+ * RE-TIME in the SCORE dock (RT-4, F-093, D-240): a plan made without the planner. The score is rebuilt from the
  * transcription's kept reading at HALF, DOUBLE or a BPM (yue-server, decision 0002), keeping the sections the
  * cover sings (`keep_like`), then sized by yue-server's apply exactly as a planned score is (a SET TEMPO at the
  * new tempo changes nothing but answers the checks). The result is an ordinary planStore plan with one RETIME op,

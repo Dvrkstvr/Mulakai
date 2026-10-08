@@ -20,7 +20,7 @@ export interface ScoreStatusView {
   /** The score's sections and lyric blocks as read, for a pick (F-032); absent from a server that does not send them. */
   sections?: ScoreSection[];
   blocks?: ScoreLyricBlock[];
-  /** RE-TIME (RT-4, D-233): offered with the tempo SheetSage2 read, refused with why, or none (not a cover). */
+  /** RE-TIME (RT-4, D-240): offered with the tempo SheetSage2 read, refused with why, or none (not a cover). */
   retime?: { state: 'none' } | { state: 'refused'; reason: string } | { state: 'offered'; readBpm: number };
 }
 

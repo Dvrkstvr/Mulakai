@@ -130,7 +130,7 @@ describe('persistScoreVersion', () => {
   });
 });
 
-describe('a RE-TIME version (RT-4, D-233)', () => {
+describe('a RE-TIME version (RT-4, D-240)', () => {
   it('keeps the kept reading on the new version, so the dock can re-time it again', async () => {
     const { songId, layerId, versionId, source } = await seedSong();
     const retime = { notationId: 'd'.repeat(64), readBpm: 93.7 };
