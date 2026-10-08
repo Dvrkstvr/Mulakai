@@ -1,5 +1,7 @@
+import { useRef } from 'react';
 import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import type { Song } from './api';
+import { FacetGlass } from './FacetGlass';
 import { Player } from './Player';
 import type { PlaybackApi } from './mix/playerApi';
 import type { FooterMode } from './footerMode';
@@ -25,6 +27,7 @@ const POSE: Record<FooterMode, { y: string | number; opacity: number }> = {
 export function PlayerFooter({ playing, engine, state }: Props) {
   const reduceMotion = useReducedMotion();
   const { mode, canReveal, setEdge, setHover } = state;
+  const footerRef = useRef<HTMLElement>(null);
   return (
     <>
       {canReveal && (
@@ -34,6 +37,7 @@ export function PlayerFooter({ playing, engine, state }: Props) {
         {playing?.audio_file && (
           <motion.footer
             key="footer"
+            ref={footerRef}
             initial={{ y: '100%' }}
             animate={POSE[mode]}
             exit={{ y: '100%' }}
@@ -41,6 +45,7 @@ export function PlayerFooter({ playing, engine, state }: Props) {
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
           >
+            <FacetGlass target={footerRef} />
             <Player
               engine={engine}
               downloadSrc={`/audio/${playing.audio_file}`}

@@ -277,6 +277,13 @@ requiring its own justification against a screen-count rule.
      While shown or dimmed (not when only revealed) the list's scroll area
      pads its end so the last row scrolls clear of the footer, and the
      Activity drawer stops above it; hidden, both use the full height.
+     **Faceted glass** (2026-10-07): the footer is a pane, not a bar — a
+     30% carbon tint over the backdrop, cut into −10° parallelogram facets
+     (the shape of choices, here as cut crystal; 44px wide, two rows) that
+     each shift what is behind them by a fixed offset, after a 1px blur. Its
+     only edge is a 1px lit top line (`inset 0 1px 0 rgba(255,255,255,.22)`)
+     — no glow, no hairline border. Browsers without SVG backdrop filters
+     get the tint with a plain blur.
    - **Song detail rail**: clicking a card's title (not `EDIT`) selects that
      song — sky border + `sky-tint` background on the card, same idiom as
      the Editor's focused layer — and opens a persistent right-hand rail
