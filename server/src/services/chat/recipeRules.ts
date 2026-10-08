@@ -75,6 +75,30 @@ export function lyricsFit(structure: string[], sections: LyricSection[] | undefi
   return sections.length === structure.filter((t) => SUNG_TAGS.includes(t)).length && followsStructure(structure, sections);
 }
 
+/** Where the one Intro / Outro goes, as the retry says it. */
+const ONCE: Record<string, string> = { Intro: 'an Intro appears once, first', Outro: 'an Outro appears once, last' };
+/** F-095 live (D-255): a structure that loops a section (qwen3:14b wrote Outro x7) is refused, never trimmed:
+ * Intro / Outro at most once, any tag at most twice in a row (two Choruses to close are common). */
+export function loopProblems(structure: string[]): string[] {
+  const out: string[] = [];
+  const said = new Set<string>();
+  for (let i = 0; i < structure.length;) {
+    const tag = structure[i];
+    let n = 1;
+    while (structure[i + n] === tag) n++;
+    if (n > 2 || (n > 1 && ONCE[tag])) {
+      said.add(tag);
+      out.push(`the structure repeats ${tag} ${n} times ${i + n === structure.length ? 'at the end' : 'in a row'}: ${ONCE[tag] ?? 'write a section at most twice in a row'}`);
+    }
+    i += n;
+  }
+  for (const tag of Object.keys(ONCE)) {
+    const n = structure.filter((t) => t === tag).length;
+    if (n > 1 && !said.has(tag)) out.push(`the structure has ${n} ${tag}s: ${ONCE[tag]}`);
+  }
+  return out;
+}
+
 /** The planner's recipe before its lines (LD, rung 3): every field but the lyrics. Empty = ok. */
 export function plannedProblems(r: Omit<Recipe, 'lyrics'>): string[] {
   const out: string[] = [];
@@ -85,6 +109,7 @@ export function plannedProblems(r: Omit<Recipe, 'lyrics'>): string[] {
   if (!ENGINES.includes(r.engine)) out.push(`engine ${q(r.engine)}: this chat creates on YuE2 only`);
   const { min, max } = RECIPE_LIMITS.structure;
   if (r.structure.length < min || r.structure.length > max) out.push(`structure has ${r.structure.length} sections; write ${min}-${max}`);
+  out.push(...loopProblems(r.structure));
   return out;
 }
 
