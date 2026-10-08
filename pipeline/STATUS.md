@@ -7,10 +7,10 @@
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C0b done; C1 built through CL-8b (CL-0..5, 7 merged; CL-8a #199, CL-8b #203 drafts), CL-6 live running
 - clarity: blocking 0 · latest Q-108 · decisions to D-199
-- feasibility: amber · H-open 0 (R-024 closed, D-204) · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7
+- feasibility: amber · H-open 1 (R-038 German lyrics, SP-7 running) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7
 - milestone: C0a + C3 + C0 done (F-050 passes, D-198) · features passing 38/81 · C1 built, review fixes running
 - autopilot: C1 · round 4/12 (run 5) · progress 8·C1 review 2/2, CL-9 live·37·0 · stall 0
-- owed: cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase
+- owed: SP-7 German read (when ready), cover listen (C3), M2 pair 2, M1 phrase
 - next: #210 (CP-C1 fixes) → re-run chatCp1 --merge --marks (mark stop line) → un-draft #199 + #203 → CL-9 live → C1 review → curate; owner: SP-6 listen (:8079)
 
 ## Stages
