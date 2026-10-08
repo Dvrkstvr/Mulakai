@@ -62,7 +62,7 @@ export const ENGINE_ADAPTATION = {
   c0: 'engine: "yue2";',
 };
 
-/** LD (D-234, SP-5 rung 3): the recipe carries no lines, a second call writes them; the planner says write or keep. */
+/** LD (D-234, D-250, SP-5 rung 3): the recipe carries no lines; code keeps the draft's or a second call writes them. */
 export const LYRICS_ADAPTATION = {
   spike: 'lyrics: one entry per SUNG section, in song order, with its tag (Verse, Pre-Chorus, Chorus, Bridge or Outro; an Intro is '
     + `instrumental and has no lyrics) and ${LINES.min} to ${LINES.max} lines. Write real singable lines in the LANGUAGE OF THE REQUEST (a `
@@ -70,9 +70,7 @@ export const LYRICS_ADAPTATION = {
     + 'matching title and style; no tags or brackets inside lines; every verse has its own new lines, no verse shares a line with a '
     + 'chorus, and a chorus repeats its own idea (not a line more than twice). ',
   ld: 'language is the LANGUAGE OF THE REQUEST (a German request gets German lyrics, "a Spanish ballad" Spanish lyrics; when the person '
-    + 'names a language for the words, that one). lyrics: "write" or "keep"; the lines are written in a second step, do not write them. '
-    + '"keep" only when the person asks for a change that is not about the words (faster, another key, another style) and the PENDING '
-    + 'PROPOSAL or SIDEBAR already has lyrics; "write" for a new song, a new topic, language or structure, or when new words are asked for. ',
+    + 'names a language for the words, that one); the lyrics are written in a second step. ',
 };
 
 const RECIPE_FIELDS = 'RECIPE FIELDS: title (short); style: comma-separated genre, instruments, mood and voice (no tempo or key: they '

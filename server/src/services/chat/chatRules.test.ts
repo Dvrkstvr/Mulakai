@@ -16,11 +16,10 @@ describe('chat rules (the system prompt = a snapshot of SP-5 v3.1 rules_for())',
     expect(CHAT_RULES).not.toContain('send the complete op list');
   });
 
-  it('LD: the planner writes no lines; it says keep for a change not about the words while the draft has lyrics, else write', () => {
+  it('LD: the planner writes no lines and says nothing about keeping them: code decides (D-250)', () => {
     expect(CHAT_RULES).not.toContain('lyrics: one entry per SUNG section');
-    expect(LYRICS_ADAPTATION.ld).toContain('lyrics: "write" or "keep"');
-    expect(LYRICS_ADAPTATION.ld).toContain('do not write them');
-    expect(LYRICS_ADAPTATION.ld).toMatch(/"keep" only when .* not about the words .* already has lyrics/);
+    expect(LYRICS_ADAPTATION.ld).toContain('the lyrics are written in a second step');
+    expect(CHAT_RULES).not.toMatch(/"keep"|"write"/);
     expect(CHAT_RULES).toContain('LANGUAGE OF THE REQUEST'); // the language field still follows the request
   });
 

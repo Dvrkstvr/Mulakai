@@ -1,7 +1,7 @@
 /**
  * One parsed turn reply -> a checked TurnReply or the reasons a retry sends back. Shape per action;
  * a recipe against recipeRules' planner fields (LD: its lines come after, from the lyrics call, so the
- * recipe comes back with no lines and `lyrics`, write or keep, for turnCall); an edit through the SCORE
+ * recipe comes back with no lines for turnCall); an edit through the SCORE
  * planner's own checkOps, then (when `apply` is given) yue-server's apply and withLimits, reasons by applyReasons (all reused from score/).
  * Actions this version answers as a plain say are checked for shape only. SP-5's three guards
  * (replyGuards): an edit of a section the song lacks, a say naming another key than the HEADER's,
@@ -20,7 +20,7 @@ import { markFit } from './markFit.js';
 import { plannedProblems } from './recipeRules.js';
 import { reviseGuard } from './reviseKeep.js';
 import { lyricLanguageReasons, missingSectionReasons, sayKeyReasons, type DetectLanguage } from './replyGuards.js';
-import type { LyricsMode, Recipe, ScalpelKind, TurnAction, TurnReply } from './chatTypes.js';
+import type { Recipe, ScalpelKind, TurnAction, TurnReply } from './chatTypes.js';
 
 export interface CheckContext {
   allowed: TurnAction[];
@@ -42,8 +42,8 @@ export interface CheckContext {
 export interface CheckDeps { apply?: (ops: Op[]) => Promise<ApplyResult>; language?: DetectLanguage }
 /** `revised`: a revise's NEW / CHANGED / SAME per merged op and the REMOVED pending ops (the card's `since`). */
 export type Revised = Omit<Since, 'planId'>;
-/** `lyrics` (LD): a recipe's write / keep; its `recipe.lyrics` is empty until turnCall fills it. */
-export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null; revised?: Revised; lyrics?: LyricsMode } | { ok: false; reasons: string[] };
+/** A recipe's `recipe.lyrics` is empty until turnCall fills it (LD). */
+export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null; revised?: Revised } | { ok: false; reasons: string[] };
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -51,17 +51,15 @@ const isStr = (v: unknown): v is string => typeof v === 'string';
 const strs = (v: unknown): v is string[] => Array.isArray(v) && v.every(isStr);
 const fail = (...reasons: string[]): Checked => ({ ok: false, reasons });
 
-function recipeOf(v: unknown): { recipe: Recipe; lyrics: LyricsMode } | string {
+function recipeOf(v: unknown): Recipe | string {
   if (!isObj(v)) return 'recipe is missing';
   const bad = ['title', 'style', 'key', 'time_signature', 'language', 'engine'].filter((k) => !isStr(v[k]));
   if (typeof v.bpm !== 'number') bad.push('bpm');
   if (!strs(v.structure)) bad.push('structure');
   if (bad.length) return `recipe fields missing or mistyped: ${bad.join(', ')}`;
-  if (v.lyrics !== 'write' && v.lyrics !== 'keep') return 'recipe lyrics must be "write" or "keep": the lines are written in a second step';
   const { title, style, bpm, key, time_signature, language, engine, structure } = v as unknown as Recipe;
   const use = (['cover', 'borrow', 'none'] as const).find((u) => u === v.reference_use); // C3 (D-128): kept when valid
-  const recipe = { title, style, bpm, key, time_signature, language, engine, structure: [...structure], lyrics: [], ...(use ? { reference_use: use } : {}) };
-  return { recipe, lyrics: v.lyrics };
+  return { title, style, bpm, key, time_signature, language, engine, structure: [...structure], lyrics: [], ...(use ? { reference_use: use } : {}) };
 }
 
 async function checkEdit(json: Obj, message: string, assumptions: string[], ctx: CheckContext, deps: CheckDeps): Promise<Checked> {
@@ -107,8 +105,8 @@ export async function checkReply(json: unknown, ctx: CheckContext, deps: CheckDe
     case 'recipe': {
       const read = recipeOf(json.recipe);
       if (isStr(read)) return fail(read);
-      const problems = shapeOnly ? [] : plannedProblems(read.recipe);
-      return problems.length ? fail(...problems) : { ok: true, reply: { action, message, assumptions, recipe: read.recipe }, applied: null, lyrics: read.lyrics };
+      const problems = shapeOnly ? [] : plannedProblems(read);
+      return problems.length ? fail(...problems) : { ok: true, reply: { action, message, assumptions, recipe: read }, applied: null };
     }
     case 'edit': return checkEdit(json, message, assumptions, ctx, deps);
     case 'scalpel': {
