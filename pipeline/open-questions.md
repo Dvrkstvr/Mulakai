@@ -315,7 +315,7 @@ The Editor's auto word-timings read (`timings` job) and the analysis's WORDS ste
 ## Q-114 · answered B (owner, D-191) · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
 Reading line on its own 16 px row under the waveform (B) or right-aligned in the player's top row (A). Default: B (room for a failure reason + RETRY; costs 19 px, thread about 431 px at 1366x768 in the worst case). Alternative: A. Owner may pick at sign-off.
 
-## Q-115 · deferred · stage 5 (DT-C1)
+## Q-115 · deferred · stage 5 (DT-C1) · closed → D-225 (D-093: no lyric lane)
 The lyric-line lane under the waveform (chat-song CS-4d: click a lyric line to mark it) is in neither F-053 nor F-054 and is not drawn; it lands with C2's lyrics panel (21 px more player).
 
 ## Q-116 · assumable · stage 5 (DT-C1) · assumed → D-185
@@ -343,3 +343,12 @@ REPAINT's prompt on a song with a caption. Default: the instruction only (as tod
 
 ## Q-124 · assumable · stage 4 (engine pairing, F-087) · open
 `cover-nofsq` as REMASTER's path or a new POLISH verb. Default: REMASTER's path, decided by the A/B (no new verb on the dock).
+
+## Q-133 · assumable · stage 6 (chat C2, F-058) · assumed → D-213
+How a chat REVISE starts. Default: the server revises whenever a live, unchanged edit card exists (the model drops everything to start over). Alternatives: a REVISE button on the card; a flag the model sets in its reply.
+
+## Q-134 · assumable · stage 6 (chat C2, F-059) · assumed → D-220
+What UNDO TURN does to that turn's pending recipe card. Default: the card stays live and mirrors the restored draft (TU-7), so CREATE SONG sends what the sidebar shows. Alternative: the card reads UNDONE and loses CREATE SONG until the next reply.
+
+## Q-135 · deferred · stage 6 (chat C2, LY-1)
+LY-1 lists a fourth song row, "dock". C2 builds versions, style, tempo and key and the panel only (D-219); the dock row waits for the chat's scalpel (C7) or the Editor-first mirror (C6).

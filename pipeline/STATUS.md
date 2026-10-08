@@ -10,6 +10,7 @@
 - feasibility: amber · H-open 1 (R-038 German lyrics, SP-7 running) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7
 - milestone: C0a + C3 + C0 done (F-050 passes, D-198) · features passing 38/81 · C1 built, review fixes running
 - autopilot: C1 · round 4/12 (run 5) · progress 8·C1 review 2/2, CL-9 live·37·0 · stall 0
+- autopilot C2: round 1/12 (run 6) · stage 6 C2 arch
 - owed: SP-7 German read (when ready), cover listen (C3), M2 pair 2, M1 phrase
 - next: #210 (CP-C1 fixes) → re-run chatCp1 --merge --marks (mark stop line) → un-draft #199 + #203 → CL-9 live → C1 review → curate; owner: SP-6 listen (:8079)
 
