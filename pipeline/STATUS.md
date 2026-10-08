@@ -10,6 +10,7 @@
 - feasibility: amber · H-open 1 (R-038 German lyrics, SP-7 read owed) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7
 - milestone: C0 + C1 + C3 done · features passing 43/81 · C2 (own session) · Re-time a transcription (own session)
 - autopilot: stopped — C1 reached (run 5, 6/12 rounds)
+- autopilot C2: round 4/12 (run 6) · wave 3 (CV-6, CV-8 building; CV-1 #238; CP-C2 next) · stall 0
 - owed: SP-7 German read (:8757), cover listen (C3), M2 pair 2, M1 phrase
 - next: owner's SP-7 German read (:8757) → lyrics step model; C2 and the BPM fix run in their own sessions; REPEAT-last-section task card
 
