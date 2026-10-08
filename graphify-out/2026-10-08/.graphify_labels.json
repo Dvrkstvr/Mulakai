@@ -608,5 +608,9 @@
   "606": "lib.py",
   "607": "A Settled Split Blocks Nothing (planned 2026-10-01)",
   "608": "Universal Advanced Settings (Repaint + Add Layer) (implemented 2026-07-08)",
-  "609": "Footer Player Shows, Dims and Hides With Playback (planned 2026-10-07)"
+  "609": "Footer Player Shows, Dims and Hides With Playback (planned 2026-10-07)",
+  "610": "extra.py",
+  "611": "show.py",
+  "612": "show1.py",
+  "613": "start_ollama.ps1"
 }
