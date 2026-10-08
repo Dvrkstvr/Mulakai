@@ -594,5 +594,10 @@
   "592": "Fraction",
   "593": "ndarray",
   "594": "start_ollama.ps1",
-  "595": "messageStore.test.ts"
+  "595": "messageStore.test.ts",
+  "596": "chk.sh",
+  "597": "peek.sh",
+  "598": "run.sh",
+  "599": "setup.sh",
+  "600": "summ.py"
 }
