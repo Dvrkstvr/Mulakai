@@ -1,0 +1,173 @@
+{
+ "tag": "r5_fu",
+ "text": "make it faster",
+ "secs": 9.0,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've increased the tempo to make the song faster while keeping the same carefree and adventurous mood. Let me know if you'd like any other changes!",
+ "n_calls": 2,
+ "calls_detail": [
+  {
+   "t": 1791465031.98,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791465040.81,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b"
+ ],
+ "ps_models_seen": [
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 11278,
+ "bpm_before": 120,
+ "bpm_after": 140,
+ "lyrics_same": true,
+ "lang": "en",
+ "lyrics_before": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "We're chasing sunsets on a winding trail,",
+    "Backroads humming with a country tale.",
+    "The radio's playing songs we know by heart,",
+    "With the windows down and the stars on our part."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road dreams, we're living them tonight,",
+    "No maps, no plans, just the sky and light.",
+    "We're young and wild, with nothing to lose,",
+    "The world's our canvas, and we're painting it too."
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "We're dancing in the rain on a forgotten highway,",
+    "Laughter echoing through the night.",
+    "The miles are long, but the joy is free,",
+    "Every mile we take is a memory."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road dreams, we're living them tonight,",
+    "No maps, no plans, just the sky and light.",
+    "We're young and wild, with nothing to lose,",
+    "The world's our canvas, and we're painting it too."
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "We'll follow the rhythm of the wind's desire,",
+    "Let the music guide us to the fire.",
+    "No turning back, just forward we go,",
+    "With the open road and the places we know."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road dreams, we're living them tonight,",
+    "No maps, no plans, just the sky and light.",
+    "We're young and wild, with nothing to lose,",
+    "The world's our canvas, and we're painting it too."
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "So keep your eyes on the horizon's glow,",
+    "Let the open road show you what you know.",
+    "With every mile, we're finding our way,",
+    "Open road dreams, and we're here to stay."
+   ]
+  }
+ ],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "We're chasing sunsets on a winding trail,",
+    "Backroads humming with a country tale.",
+    "The radio's playing songs we know by heart,",
+    "With the windows down and the stars on our part."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road dreams, we're living them tonight,",
+    "No maps, no plans, just the sky and light.",
+    "We're young and wild, with nothing to lose,",
+    "The world's our canvas, and we're painting it too."
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "We're dancing in the rain on a forgotten highway,",
+    "Laughter echoing through the night.",
+    "The miles are long, but the joy is free,",
+    "Every mile we take is a memory."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road dreams, we're living them tonight,",
+    "No maps, no plans, just the sky and light.",
+    "We're young and wild, with nothing to lose,",
+    "The world's our canvas, and we're painting it too."
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "We'll follow the rhythm of the wind's desire,",
+    "Let the music guide us to the fire.",
+    "No turning back, just forward we go,",
+    "With the open road and the places we know."
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road dreams, we're living them tonight,",
+    "No maps, no plans, just the sky and light.",
+    "We're young and wild, with nothing to lose,",
+    "The world's our canvas, and we're painting it too."
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "So keep your eyes on the horizon's glow,",
+    "Let the open road show you what you know.",
+    "With every mile, we're finding our way,",
+    "Open road dreams, and we're here to stay."
+   ]
+  }
+ ],
+ "style_after": "indie, acoustic guitar, electric guitar, upbeat, carefree"
+}
