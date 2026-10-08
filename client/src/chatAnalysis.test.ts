@@ -69,6 +69,13 @@ describe('readingLine', () => {
     expect(stripMode(failed)).toBe('hatched');
   });
 
+  it('C1 live B1: a reading whose service failed shows the step, why and RETRY; what it read still draws the strip', () => {
+    const gap = withView(view({ state: { kind: 'failed', reason: 'WORDS · lyrics-server -> fetch failed', at: '' } }));
+    expect(readingLine(gap)).toEqual({ text: "COULDN'T READ v4 · WORDS · lyrics-server -> fetch failed", tone: 'failed', retry: true, transcribed: null });
+    expect(stripMode(gap)).toBe('live');
+    expect(chatAnalysis(gap, { type: 'retry' }).retry).toEqual({ kind: 'posting' });
+  });
+
   it('a poll that failed reads as failed before the view refetches', () => {
     const r = withView(view({ state: { kind: 'running', jobId: 'a1', step: 'SCORE', progress: null } }));
     const p = chatAnalysis(r, { type: 'poll', jobId: 'a1', job: { status: 'failed', error: 'audio unreadable' } });

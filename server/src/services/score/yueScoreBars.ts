@@ -11,7 +11,8 @@ import type { BarTimes } from '../chat/analysisTypes.js';
 /** CPU only, as /v1/scores/read. */
 const BARS_TIMEOUT_MS = 30_000;
 
-export type BarsResult = { ok: true; bars: BarTimes } | { ok: false; reason: string };
+/** `answered`: a 4xx refusal (the score or grid cannot be timed: reading again gives the same); a 5xx is not. */
+export type BarsResult = { ok: true; bars: BarTimes } | { ok: false; reason: string; answered?: true };
 
 const isNum = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v);
 
@@ -23,7 +24,8 @@ export async function scoreBars(target: EngineTarget, abc: string, grid: unknown
   const body = (await res.json().catch(() => null)) as Record<string, unknown> | null;
   if (!res.ok) {
     const why = errorMessage((body as { detail?: unknown } | null)?.detail);
-    return { ok: false, reason: `${target.label} could not time the bars: ${why ?? `HTTP ${res.status}`}` };
+    const reason = `${target.label} could not time the bars: ${why ?? `HTTP ${res.status}`}`;
+    return res.status < 500 ? { ok: false, reason, answered: true } : { ok: false, reason };
   }
   const starts = body?.starts;
   if (!body || !isNum(body.offset) || !isNum(body.end) || !Array.isArray(starts) || !starts.length || !starts.every(isNum)

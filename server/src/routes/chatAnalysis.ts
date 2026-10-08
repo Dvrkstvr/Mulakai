@@ -2,7 +2,7 @@
  * The chat player's analysis (F-052, F-053, D-179; architecture.md "Chat (C1)"): `GET /songs/:songId/analysis`
  * → `AnalysisView` (the playable take's state, the reading the strip shows, its lineage for the mark), and
  * `POST /songs/:songId/analysis/retry` → 202 `{jobId}` (a waiting analysis is returned, not doubled) or 409
- * `{reason}` (no take, already read, the queue is full). C1b adds the mark preview here.
+ * `{reason}` (no take, already read, the queue is full; a reading whose service failed is not "read", C1 live B1). C1b adds the mark preview here.
  */
 import { Router } from 'express';
 import { db } from '../db/index.js';
@@ -10,7 +10,7 @@ import { QueueFullError } from '../services/genQueue.js';
 import type { Job } from '../services/jobRegistry.js';
 import { liveAnalysis, startAnalysis } from '../services/chat/analysisJob.js';
 import { playableVersion, readingChain, readVersionAnalysis, wordTimings } from '../services/chat/analysisStore.js';
-import { isFailed, type AnalysisView } from '../services/chat/analysisTypes.js';
+import { isComplete, type AnalysisView } from '../services/chat/analysisTypes.js';
 import { analysisView } from '../services/chat/analysisView.js';
 
 export interface ChatAnalysisDeps {
@@ -46,7 +46,7 @@ export function makeChatAnalysisRouter(deps: ChatAnalysisDeps = defaults): Route
     const take = playableVersion(songId);
     if (!take) return res.status(409).json({ reason: 'this song has no take to read' });
     const stored = readVersionAnalysis(take.id);
-    if (stored && !isFailed(stored)) return res.status(409).json({ reason: `v${take.number} is already read` });
+    if (isComplete(stored)) return res.status(409).json({ reason: `v${take.number} is already read` });
     try {
       res.status(202).json({ jobId: deps.start(songId).id });
     } catch (err) {

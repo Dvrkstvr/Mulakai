@@ -31,9 +31,10 @@ describe('scoreBars', () => {
       const out = await scoreBars(target(), abc, grid, 'cached');
       expect(out.ok).toBe(false);
       expect(!out.ok && out.reason).toContain(`YUE2 could not time the bars: ${words}`);
+      expect(!out.ok && out.answered).toBe(true); // a 4xx: reading again gives the same (C1 live B1)
     });
 
-  it('a string detail is a reason too; an unreachable server throws', async () => {
+  it('a string detail is a reason too (a 5xx is not answered: RETRY may read it); an unreachable server throws', async () => {
     const out = await scoreBars(target(), 'X:1\nnot recorded\n', { grid_v: 1 }, 'cached');
     expect(out).toEqual({ ok: false, reason: 'YUE2 could not time the bars: fakeYue: no recorded reply for POST /v1/scores/bars' });
     await expect(scoreBars({ label: 'YUE2', url: 'http://127.0.0.1:9', apiKey: '' }, 'X', {}, 'cached')).rejects.toThrow('YUE2 bar times');
