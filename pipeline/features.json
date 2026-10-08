@@ -696,8 +696,8 @@
         "Nothing follows playback (no current line, no auto-scroll); click marks a line, shift-click extends, double-click plays from it; the panel never edits words",
         "Edge: while a new version is read the panel dims; a failed read shows RETRY; a song with no words says how to get them"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "C2 live + re-check (pipeline/c2-live.md, 2026-10-08): list, section/line marks, shift-click across sections, double-click plays, dims while read, RETRY, no words; line chips 0/21 under 50 % coverage after #257 (was 4/21); owner listen owed (R-041)"
     },
     {
       "id": "F-057",

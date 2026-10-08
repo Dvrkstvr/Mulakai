@@ -6,11 +6,11 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C1 DONE 2026-10-08 (built #190-#212, reviewed #215, CP-C1 5/5, live-verified #217 #224, fixes #219 #220 #225, curated); C2 runs in its own session
-- clarity: blocking 0 · latest Q-144 · decisions to D-249
+- clarity: blocking 0 · latest Q-144 · decisions to D-256
 - feasibility: amber · H-open 1 (R-038 German lyrics: gemma4 chosen D-237, build = LD) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7 · R-042 LD turn time
 - milestone: C0 + C1 + C3 done · features passing 43/83 · C2 (own session) · Re-time a transcription (own session)
 - autopilot: stopped — C1 reached (run 5, 6/12 rounds)
-- autopilot C2: round 4/12 (run 6) · wave 3 (CV-6, CV-8 building; CV-1 #238; CP-C2 next) · stall 0
+- autopilot C2: stopped — round budget 12/12 (run 6); C2 built + reviewed; F-056/057/059/060 pass, F-058 waits on N1 (start over under a mark); #256 CI
 - LD (lyrics own call; German on gemma4): built #242 #246, fixes #252 (D-251 draft offers no edit) #253 (D-252 code keeps lyrics) #260 (D-255 looped structure refused) · re-check 2026-10-08: redirect 0/18, keep 8/11 (misses = Outro loop, #260) · owed: live keep re-check after #260, chatCp3 (owner songs), owner reads German lyrics
 - owed: cover listen (C3), M2 pair 2, M1 phrase
 - next: LD-1 PR → LD-2 once #238 merges; C2 and the BPM fix run in their own sessions; REPEAT-last-section task card
