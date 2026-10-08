@@ -62,11 +62,14 @@ export const CLEAR_MARK = 'CLEAR MARK';
 export const SEND_HELD = 'Send is held until the mark is fixed';
 
 /** The stale warning (CS-11): what was marked, where it went if the edit said, and that nothing was sent. `tempo`: the
- * edit changed the tempo, so the old times are other music (the bars stay, re-timed once the new bars are read). */
-export function staleLines(mark: RangeMark, was: number | null, now: number | null, useBars: [number, number] | null, tempo = false): string {
+ * edit changed the tempo, so the old times are other music (the bars stay, re-timed once the new bars are read).
+ * `reading`: the version's reading was re-timed, so its bars were renumbered (RT-5). */
+export function staleLines(mark: RangeMark, was: number | null, now: number | null, useBars: [number, number] | null, tempo = false, reading = false): string {
   const of = was === null ? '' : ` of v${was}`;
   const v = now === null ? 'the new version' : `v${now}`;
   const what = mark.bars ? barsText(mark.bars).toLowerCase() : secondsText(mark.seconds);
+  // RT-5 (design/retime.html B4): the same version, its reading re-timed (or the re-time undone) since the mark.
+  if (reading) return `STALE MARK · you marked ${what}${of} on its earlier reading. The reading was re-timed, so every bar number changed; mark again on the new bars. Nothing was sent with the old bars.`;
   if (tempo) {
     const next = useBars ? 'the bars are the same; use them once its bars are read' : 'mark again';
     return `STALE MARK · you marked ${what}${of}. ${v} changed the tempo, so the old times are other music; ${next}. Nothing was sent with the old times.`;

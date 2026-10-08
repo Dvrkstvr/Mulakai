@@ -795,3 +795,163 @@ The stale copy says "they are now bars X-Y" only when the numbers changed; equal
 
 ## D-203 · 2026-10-08 · stage 4 (engine pairing, Q-121, P1) · by: owner
 The "never modify ACE-Step-1.5" rule is dropped (owner: "if the fork is necessary, rebase; throw away the no-edit rule"). The fork is necessary: Mulakai calls `/lyric_timestamp`, which upstream has no REST equivalent for (`/v1/analyze_audio` could move to upstream's `full_analysis_only` later). Done: the five local commits (`64ffc2f`, tagged `backup/local-analyze-audio-2026-10-08`) were replayed onto upstream `ca1e85f` as branch `mulakai` (`1a9ae64`: four commits, the merge commit dropped; conflicts in `route_setup.py`, `api_server.py`, `docs/en/API.md` resolved as the old merge did). The rebased tree runs 235 API unit tests with 17 errors, the same 17 pure upstream `ca1e85f` errors on (stale upstream tests, one Windows path); all 13 of ours pass. The existing `.venv` already meets the new requirements (torchao 0.16.0, python-multipart 0.0.22). The live checkout stays on `local/analyze-audio` until ACE-Step is next stopped, then `git checkout mulakai`. Rule now (CLAUDE.md, AGENTS.md): ACE-Step-1.5 is Mulakai's fork, edited when Mulakai needs to, kept as commits on top of upstream `main` and rebased when upstream moves. CLAUDE.md's launch line is fixed in the same change (P4: `acestep-api`, not `acestep --enable-api`).
+
+## D-204 · 2026-10-08 · stage 3 (SP-4 ear half, R-024) · by: owner
+The owner will not judge SP-4's remaining 10 listen pairs. R-024's ear half is closed on the evidence already in: the 10 riskiest short pairs (D-147, D-150) settled which edit kinds splice and which re-render the whole song; the C0b listen of 5 real chat edits found no join (D-170); SP-6 settled what changes inside the edited bars (D-198). The full pack stays at pipeline/spikes/SP-4-keep-unchanged/listen/index.html if a doubt comes up.
+
+## D-205 · 2026-10-08 · stage 3 (SP-5 lyric read, R-027) · by: owner
+Owner's read of SP-5's lyric sets (lyrics.html): English 4/4 usable; German 0/3 ("unnatural wording, the lines don't sing well"); Spanish not read (owner doesn't speak it) — the assistant's read: A 1 usable / 1 borderline / 1 not (RC09 reads as a ballad, not reggaeton), B 2 usable / 1 borderline. German B (separate lyrics call) is no better (assistant's read: grammar slips, lines that mean the opposite, weak rhyme). Below SP-5's bar (8/10), so the lyrics step moves to rung 3 (a separate lyrics call) — it helps Spanish but not German; the German gap is the planner model's German. Owner: spike other local models for the lyrics step (SP-7, R-038); downloads of gemma3:12b and mistral-small3.2:24b approved. Rung 3 is wired together with SP-7's model choice.
+
+## D-206 · 2026-10-08 · scope (RT, D-190) · by: owner
+"Re-time a transcription" fixes both consumers — the C3 cover's TRANSCRIBE score and the C1 chat reading's score — and surfaces in all three places offered: the cover panel, the SCORE dock (a RE-TIME op beside SET TEMPO) and a chat verb; the reading is re-timed from the chat (verb and reading line). Planned as milestone RT, F-090..F-094 (scope.md "RT").
+
+## D-207 · 2026-10-08 · scope (RT, D-190) · by: owner
+The transcription's SheetSage2 outputs are kept (yue-server sweeps its jobs after 24 h and keeps them in memory only), so re-time rebuilds from them at any time; a score or reading with no kept outputs offers TRANSCRIBE AGAIN. No mechanical ABC rewrite fallback.
+
+## D-208 · 2026-10-08 · scope (RT) · by: assumed (conductor)
+Feature track normal (stored data, a yue-server route, new UI). The bundle is kept by the Mulakai server as one content-addressed JSON file under `DATA_DIR/notation/` (the five `notation/song_*` files), referenced by `notationId` from the cover's base version `params_json` and the reading in `analysis_json`; no backfill, an unreferenced bundle older than 30 days is swept at start. Order RT-1 yue-server rebuild → RT-2 keep + server route → RT-3 cover panel → RT-4 SCORE dock op; RT-5 reading after C1 merges, RT-6 chat verb after C2. Reversal: ignore the field and files.
+
+## D-209 · 2026-10-08 · stage 5 (DT-RT, design/retime.html) · by: assumed (ux-mocker), owner sign-off pending
+RT-1..RT-8 of the mockup: one READ AS row (reading in words, then HALF · DOUBLE · BPM… sky chips) on the cover panel, the chat reading card and the dock; press then confirm, with a consequence line before the press (beat: apply at once + UNDO); acid outline for the free no-GPU re-time (cover panel, reading), filled acid APPLY & RENDER where YuE2 re-renders (dock, a turn); "slightly off" (±8 % of the read, not near ×2/×½) shows a hint or a SET TEMPO proposal, never RE-TIME; the stale piano preview is dimmed and tagged, not hidden (Q-127); a re-time in a reading says bar numbers change and a mark goes stale; RE-TIME stands alone in a plan (Q-132). Open: Q-127..Q-132, with Q-125/Q-126.
+
+## D-210 · 2026-10-08 · stage 3 (SP-8, R-039) · by: assumed (conductor)
+SP-8 (pipeline/spikes/SP-8-retime-rebuild/RESULT.md): the rebuild works from the kept `notation/` bundle (24 KB) in 7-25 ms on CPU; an unchanged rebuild is byte-identical to the saved score; chords and `% section` labels survive every variant; DOUBLE loses no notes; HALF and grids slower than the read tempo drop 5-26 % of notes because SheetSage2's grid is fixed at 4 subbeats per beat (8 breaks its ABC unit length). Measured on songs read correctly, so a real double-time misread should lose less. So: yue-server runs SP-8's `fit_midi` pass before `generate_abc_from_exports`, the route returns `dropped_notes`, the consequence line names it and warns above 10 %; HALF/DOUBLE come first, a typed BPM second; the BPM grid is anchored once at the first downbeat. Revisit if: owner listens find the dropped notes matter, then a finer SheetSage2 grid (fork change) is the next step.
+
+## D-211 · 2026-10-08 · stage 5 (DT-RT, design/retime.html) · by: owner
+BPM… is a chip that turns into its own text input in place, focused. A click outside reverts it to the BPM… chip with no BPM set (Esc too). Enter locks the BPM, and the field shows only an enter icon (↵, no text; owner) that does the same when clicked (the chip's own place, so "clicking the BPM button again" locks). A locked BPM is the picked mode (sky chip "92 BPM") and only then does the consequence line and RE-TIME appear. Assumed: clicking a locked chip reopens the input with its value, and clicking away again clears it (the owner's literal rule); Enter on an empty or out-of-range value does not lock but turns the field rust with the reason. Same control in the cover panel, the chat reading and the SCORE dock. Drawn as A′1-A′5 plus a live TRY IT row.
+
+## D-212 · 2026-10-08 · stage 5 (DT-RT) · by: owner
+Owner signed off pipeline/design/retime.html with press then confirm (Option 1): a mode is picked (HALF, DOUBLE, or a locked BPM per D-211), the consequence line shows, and RE-TIME AT n BPM (or APPLY & RENDER where YuE2 re-renders) runs it. D-209's RT-1..RT-8 and the Q-125..Q-132 defaults stand. RT-1 (`feat/retime-yue`) starts.
+
+## D-228 · 2026-10-08 · stage 7 (C1 done) · by: conductor
+C1 closes: F-051..F-055 pass (CL-9 live + re-check, pipeline/c1-live.md, #217/#224); CP-C1's 5 stop lines pass (pipeline/cp-c1/2026-10-07, -08, -08-p95: 0 commits refused by an analysis, slowest analysis 30 s, planner fully on the GPU, 0 of 14 marked turns outside the mark, prompt p95 5339 after #225); code review 0 blocking, 2 should fixed (#215). Curated into chat-server.md / chat-client.md. Left open: Q-137 (WRITE_PHRASE on chords-only requests), REPEAT of a song's last section (separate task), B5's 1 s card time.
+## D-213 · 2026-10-08 · stage 7 (C1 N1) · by: agent
+A REPEAT of the song's last section is not spliced (amends D-154): `spliceEligibility` answers whole-song re-render up front, and the card says why before APPLY ("the outro ends the song: its last bar is the ending, so the old audio has nothing to play the copy after"). Measured on Cariñito v1 (SheetSage2 grid, outro bars 56-64): the last bar is the ending (-17 to -70 LUFS in 2.0 s of a 2.52 s bar), so the copy's seam at the audio's end snaps at corr 0.139 (< 0.15, `not_aligned`), which is N1. A seam one bar earlier aligns (0.43), but a splice there repeats 8 of 9 bars and the edited score has all 9 twice, so no bar-exact audio exists; estimating the end bar past a ring-out tail does not help a song whose ending is its last bar. CUT of the last section keeps its edge-fade splice.
+
+## D-231 · 2026-10-08 · stage 7 (RT-3, F-091) · by: assumed (conductor)
+RE-TIME in the cover panel (RetimeRow, BpmChip, bpmField, retimeRules, useRetimePreview). HALF, DOUBLE and BPM… always start from what SheetSage2 read, never from an earlier re-time, so a lossy half time is never halved again. The row keeps "READ AS <the reading>" and adds "· RE-TIMED TO n BPM", where the mockup's A5 redrew the row at the new tempo. Picking a mode runs the rebuild at once (CPU, under a second), so the consequence line names the real bars and dropped notes before the press (D-210, D-212); RE-TIME AT n BPM only applies that result. UNDO is one step back to the reading. A score that has a transcription but no kept reading (null notationId, or a 404) shows the rust GONE box with TRANSCRIBE AGAIN, which re-runs the panel's own TRANSCRIBE. GENERATE COVER sends notationId (F-093 later). The piano preview is not redrawn: it dims with STALE · n BPM (Q-127 default). The slightly-off rule is ±8 % (Q-125); the cover panel's hint points at the dock's SET TEMPO (Q-130). DESIGN.md "READ AS" records the look.
+## D-227 · 2026-10-08 · stage 6 (chat C2, F-058, Q-136; renumbered from D-213, which C1 N1 took on main) · by: assumed (architect)
+REVISE in the chat is decided by the server, not a button: when a turn starts on a song thread whose live edit card holds the song's pending plan (`planStore` id) and the song's fingerprint is unchanged, every edit reply of that turn is a revise `{action: 'edit', drop, ops}` merged by `mergeRevise` (D-073, D-076) and applied to the base as read; the new card is plan n+1 with `since`, the old one reads superseded ("revised below"). Dropping every pending op and returning new ones is a replacement, shown as all REMOVED + NEW. A `say` / `ask` / failed turn leaves the card pending. No pending card, or the song changed → a fresh plan, as today. docs/decisions/0010.
+- instead of: a REVISE button on the card (a second commit-like control); a `revise: true` flag the model sets (a choice SP-5 never measured); the card updated in place (the thread is append-only).
+
+## D-214 · 2026-10-08 · stage 6 (chat C2, F-058 × F-055) · by: assumed (architect)
+Under a mark, a revise bounds only the returned ops to the mark (`markFit`, D-176, D-201); kept pending ops stay SAME even when they lie outside it; the card's mark line names the turn's mark.
+- instead of: refusing a revise whose pending plan reaches outside the new mark.
+
+## D-215 · 2026-10-08 · stage 6 (chat C2, F-060) · by: assumed (architect)
+The bar map replaces C0b's span strip in the edit card (one map, EC-2's place). It is built on the server (`chat/barMap.ts`, pure) from the facts the planner saw: the sections, the bar count and each op's bars (REWRITE LYRICS → the section its block pairs with; SET TEMPO / TRANSPOSE / EDIT STYLE → whole, hatched), stored as `EditBody.map` (additive). A card from before C2 keeps the strip from `splice`.
+- instead of: building the map on the client (it has no facts and would need a fourth pairing copy); a map beside the strip.
+
+## D-216 · 2026-10-08 · stage 6 (chat C2, Q-052 #3 server half) · by: assumed (architect)
+One server pairing rule, `score/lyricPairing.ts` (`kindOf`, the k-th section of a kind sings the k-th block, D-066 d), replaces the copies in `analysisView`, `markBlock`, `markFit` and `planReferent`, cross-tested against yue-server's `read-sections.json`. The client's `lyricsBlocks.matchSectionBlocks` (the Editor's) is left as is, so Q-052 #3 stays open for the client half.
+- instead of: a fifth copy in the lyrics panel.
+
+## D-217 · 2026-10-08 · stage 6 (chat C2, F-056) · by: assumed (architect)
+The lyrics panel's data rides in C1's analysis view as `shown.lyrics`, computed at read time by pure `chat/lyricsPanel.ts` from the shown reading (current, or the older dim one) and the version's stored lyrics (`params_json.request.lyrics`): a YuE2 version's tagged blocks, checked against `facts.lyric_blocks` (tag, line count, first line, as D-072) and paired with the strip's sections; a transcribed version's heard lines (word-timing segments) with their seconds. A mismatch shows a note and no lines, never a guess. No new route, nothing stored.
+- instead of: a separate lyrics route (a second poll and a second "which reading is shown" rule); building it on the client from SongDetail (a client pairing copy).
+
+## D-218 · 2026-10-08 · stage 6 (chat C2, F-056, LY-5) · by: assumed (architect)
+A YuE2 line's time comes from the client's existing `alignLyrics` (the Editor's word-timestamp alignment) over the version's word timings, indexed by the server's `textLine`; a heard line carries its seconds. A line with no time (no word timings, or not aligned): click marks its section, double-click plays from the section start; a section partly inside a mark with untimed lines lists all its lines with "lines not timed".
+- instead of: a server port of `alignLyrics` (two implementations); line bars from the ABC on yue-server (a read-contract change that re-records every read fixture).
+
+## D-219 · 2026-10-08 · stage 6 (chat C2, F-056, LY-1) · by: assumed (architect)
+On a song thread the sidebar is the song panel: VERSIONS, STYLE (the version's), TEMPO · KEY (the shown reading's header), then the lyrics panel; the locked draft fields are no longer shown there. LY-1's fourth row (the dock) is not built in C2 (Q-135): the chat's scalpel verbs are C7.
+- instead of: keeping the locked draft fields above the panel (the draft is the first take's, not the playable version's).
+
+## D-220 · 2026-10-08 · stage 6 (chat C2, F-059, Q-134) · by: assumed (architect)
+UNDO TURN is a server record: a recipe reply's body stores `undo: {rev, before, fields}` (the values it replaced; absent = was empty), written in the merge's transaction. `POST …/messages/:messageId/undo` restores a field only when it still holds that turn's value and has no hand edit after `rev`; others are kept and named; one undo per turn; refused on a song thread, while a turn is open, without a record, or when already undone. The recipe card stays live and mirrors the draft (TU-7). Messages from before C2 offer no UNDO.
+- instead of: a client-only undo from the session's `filled` marks (lost on reload, blind to a hand edit in another tab); dropping the recipe card on undo.
+
+## D-221 · 2026-10-08 · stage 6 (chat C2, F-059, CH-4) · by: assumed (architect)
+The just-filled marks are derived from the latest recipe message's `undo` record while no later user message exists, so they survive a reload; a hand edit turns that field YOURS (`fieldMark`, as today). Older messages keep the session-only marks.
+- instead of: session-only marks (today, C0a).
+
+## D-222 · 2026-10-08 · stage 6 (chat C2, F-057, Q-073/Q-074) · by: assumed (architect)
+A pending REWRITE LYRICS shows in the panel (old struck above new, or the section appended in song order tagged PROPOSED when it is outside the mark) only while its edit card is `pending`; "until APPLY or dismiss" reads as until the card is done, superseded, stale or expired (there is no dismiss control). The card's OLD | NEW already exists (code: `ScorePlanList` → `ScoreLyricDiff`).
+- instead of: a DISMISS control on the edit card.
+
+## D-223 · 2026-10-08 · stage 6 (chat C2, R-040) · by: assumed (architect)
+CP-C2 (CV-5), a headless checkpoint on the real machine after CV-1 and before the revised card's UI (CV-7): 12+ revise turns on 3 YuE2 songs; stop lines in architecture.md "Test strategy (C2)" #7 (prompt p95 over 8,000 tokens or any context refusal; any silent op loss; additive losses over 3 of 10; over 2 of 12 failing). The lyrics panel and UNDO have no GPU risk and need no checkpoint; CV-9 checks the line alignment live (R-041).
+- instead of: going straight to the UI on fakes (Q-050's losses were found live, not in tests).
+
+## D-224 · 2026-10-08 · stage 6 (chat C2, e2e) · by: assumed (architect)
+One e2e spec per user-visible package, named `*.chat.spec.ts` so the score project's `(score|chat)\.spec\.ts$` runs them with no `playwright.config.ts` change: `lyricsPanel.chat.spec.ts`, `revise.chat.spec.ts`, `undoTurn.chat.spec.ts`; C1's `chat.spec.ts` and `chatFakes.ts` unchanged. The revise step reuses recorded fixtures: plan 1 `apply-set-tempo`, its revise adding REHARMONIZE 47-50 merges to `apply-compound`'s ops in order; the panel's diff uses `apply-rewrite-lyrics`.
+- instead of: growing `chat.spec.ts` (245 lines, owned by C1's re-check).
+
+## D-225 · 2026-10-08 · stage 6 (chat C2, Q-115) · by: assumed (architect)
+Q-115 is closed by D-093 (owner): no lyric lane under the waveform; marking a lyric line happens in the sidebar panel (LY-5), so the player keeps its C1 height.
+- instead of: the 21 px lane CS-4d sketched.
+
+## D-226 · 2026-10-08 · stage 6 (chat C2, DT-C2) · by: assumed (architect), owner sign-off owed
+C2 needs a design task before its UI packages: `pipeline/design/chat-converge.html` (scope.md "C2" DT-C2): the song sidebar and panel at 1366×768 with C1's player above the composer, the revised edit card, the bar map at 32 / 120 / 200 bars, UNDO TURN's states. chat-lyrics.html drew the panel with the player at the top (before D-095) and no mockup drew a chat REVISE card, a bar map (F-036's edge named a stage 5 task) or UNDO's after-state. The owner signs it off before CV-6..CV-8 merge.
+- instead of: building from chat-lyrics.html and score-m2.html as drawn.
+
+## D-230 · 2026-10-08 · stage 5 (chat C2, DT-C2, Q-140..Q-144) · by: assumed (ux-mocker), owner sign-off owed
+`pipeline/design/chat-converge.html` (CX-1..CX-4) draws C2's UI. Defaults used: the song sidebar is VERSIONS, STYLE, TEMPO · KEY, then the panel, with C1's player above the composer; a pending rewrite shows old struck above new, a PROPOSED section outside the mark; the superseded edit card dims in full (Q-140); a revised card keeps the dock's PLAN n / SINCE / NEW · CHANGED · SAME / REMOVED vocabulary and failures are rust lines under the message with the live card kept; the bar map is one row to 200 bars at 2 px minimum a bar (Q-141), the hovered row lights its bars solid sky (Q-143), whole-song ops are hatched, a CUT is hatched grey; UNDO TURN is a link on the CHANGED line, replaced by UNDONE · restored … · kept …: reason (Q-142); APPLY on the old card is off while a revise runs (Q-144). DESIGN.md gets the panel's clause in CV-6 and the bar map's in CV-7; UNDO needs none. No new token or hue.
+- instead of: a REVISE button, a folded superseded card, a two-row 200-bar map, a toast for UNDO (each drawn or named in the page's Options and Decisions).
+
+## D-229 · 2026-10-08 · stage 5 (DT-C2, design/chat-converge.html) · by: owner
+The owner signed off pipeline/design/chat-converge.html (D-226's gate for CV-6..CV-8) and took every default in D-230: Q-140 A (the superseded card stays dimmed in full, REVISED BELOW, no APPLY), Q-141 A (a 200-bar map in one row, 3.65 px a bar, labels thinned), Q-142 (UNDO TURN stays on older turns and names each kept field's reason), Q-143 (a change-list row lights its bars on hover and keyboard focus), Q-144 (APPLY on the pending card is off while a revise runs, back on if it fails or is cancelled).
+
+## D-232 · 2026-10-08 · stage 3 (SP-7 owner read, R-038) · by: owner
+Owner's blind read (spikes/SP-7-german-lyrics/owner-read.json): German usable gemma3:12b 4/6, gemma4 26B-A4B 4/6, mistral-small3.2 0/6, qwen3:14b 0/6; no single model reaches 5/6, but the two gemmas fail on different requests and together cover 6/6. Owner: German lyrics get two drafts, one from gemma3:12b and one from gemma4, and the person picks one on the card; English and Spanish stay on qwen3:14b (Spanish 3/3 by the assistant's read). Cost: an extra model load per German song (~4 s gemma3, ~19 s gemma4, partly CPU-offloaded at 16k). gemma4 leaked "Mulakai" from the system prompt into one lyric — the build needs a guard. Built as a feature after this (its own session; touches the chat recipe/lyrics step). R-038 moves to "check chosen, build owed".
+
+## D-233 · 2026-10-08 · feature LD (F-095, D-232) · by: assumed (conductor)
+A chat turn may load more than one model: the planner, then the lyrics model the recipe's language names, one at a time, all inside the turn's one `plan` slot. Before a different model loads, the one before is unloaded and `/api/ps` read empty; the turn's `finally` unloads every model it touched and waits for `/api/ps` empty before the slot is released (the CLAUDE.md invariant is unchanged: the planner family and YuE2 never share the GPU). docs/decisions/0006's "never a second load or unload per turn" becomes "one load per model the turn needs, each unloaded before the next and all before release"; `releasePlanner` alone would leave gemma4 loaded, so the release names every touched model.
+- instead of: a second queue job for the lyrics (a YuE2 take could slip in between and find the planner's answer half written).
+
+## D-234 · 2026-10-08 · feature LD (F-095) · by: assumed (conductor)
+The recipe reply says `lyrics: "write" | "keep"` instead of carrying lines; code forces `write` when the draft has no lyrics or its sung sections no longer follow the structure, so "make it faster" does not rewrite (and, in German, reload a model for) words the person already has. No stored-data change.
+- instead of: always rewriting lyrics on every recipe turn (SP-5's spike ran only first recipes).
+
+## D-235 · 2026-10-08 · feature LD (F-095) · by: assumed (conductor), default by owner (D-237)
+The lyrics model per language from env `LYRICS_MODEL_<LANG>` (ISO code upper case): `LYRICS_MODEL_DE` defaults to `gemma4:26b-a4b-it-q4_K_M`; unset for any other language = `LLM_MODEL`.
+- instead of: a settings screen (single-user local app; env is how LLM_MODEL is set).
+
+## D-236 · 2026-10-08 · feature LD (F-095, SP-7 caveats) · by: assumed (conductor)
+Lyric checks the schema cannot give, each a retry reason: no prompt-only word (a word of 4+ letters from the lyrics system prompt that is in neither the request, title nor style; stop-list always includes `Mulakai`), no line with an embedded newline or under 6 characters, language-ID as today. No word-count bar (SP-7's "over ~12 words" was qwen3's German, now not used).
+- instead of: rejecting the reply without a retry (SP-7 saw one leak in 18 gemma4 sets; a retry is cheap).
+
+## D-237 · 2026-10-08 · feature LD (F-095, D-232) · by: owner
+German lyrics use one model, `gemma4:26b-a4b-it-q4_K_M`, not two drafts with a pick (replaces D-232's two-draft plan; the DRAFT A / B mockup was dropped unmerged). Trade-off accepted: gemma4 alone read 4/6 usable in SP-7, where the two drafts together covered 6/6; the recipe card stays as it is and a German turn loads one extra model, not two.
+
+## D-240 · 2026-10-08 · stage 7 (RT, F-091 verify; RT-4 scope) · by: owner + assumed (conductor)
+Owner: RE-TIME in the SCORE dock (RT-4, F-093) is offered only while a cover's score is still its transcription, or an earlier re-time of it. Sections left out in Create stay left out, matched by name. After any other SCORE edit it is hidden, with a line saying why. Assumed (conductor): the GONE box's TRANSCRIBE AGAIN says it uses the GPU but gives no minutes. No calibrated TRANSCRIBE figure exists, and Q-099/D-157 keep invented GPU seconds out of the copy. F-091's acceptance line 2 is amended to match, and the minutes come once CP-C3 calibrates them. The verifier's two stale-state finds (a pending preview after UNDO, a pick carried to another score) are fixed by remounting the row per score (`retimeRowKey`).
+
+## D-239 · 2026-10-08 · stage 7 (RT-4, F-093) · by: assumed (conductor)
+RE-TIME in the SCORE dock is a planStore plan that no planner made, built by `POST /api/songs/:id/score/retime`. The steps: rebuild the score from the kept reading; yue-server keeps the cover's sections by name (`keep_like`, so sections left out in Create stay out, D-240); then size it through `/v1/scores/apply` with a SET TEMPO at the new tempo, which changes nothing but returns the usual checks. So APPLY & RENDER, its re-checks, the version label ("score edit · RE-TIME n") and the chat's shared path need nothing new. The plan carries one RETIME op `{mode, bpm, from_bpm, dropped_notes, notes}`, `attempts: 0` (the checks line then shows no attempt count), and `retime: {notationId, readBpm}`. The saved version keeps that `retime`, so a re-time of a re-time stays offered, and every re-time starts from the reading (D-231). Any other op on the active take turns it off, with the reason. The reading's tempo comes from the kept beat list (TS median of `song_beats.txt`, not ABC: decision 0002). The planner prompt and opSchema do not know RETIME (the chat verb is RT-6). RE-TIME needs no planner, but it is shown only when SCORE is eligible (planner reachable), because APPLY & RENDER's `/api/ps` check needs Ollama anyway.
+
+## D-241 · 2026-10-08 · stage 7 (chat C2, CV-0, F-060) · by: assumed (builder)
+The bar map's `bars` is max(the header's bars, the last section's end), so a header that undercounts hides no section; an op whose section or block is not in the read gets `spans: []`, `whole: false` (never a guessed span); spans clamp to 1..bars. A recipe that changed nothing carries no `undo` key (#230).
+- instead of: trusting the header's bar count; guessing a span for an unknown section.
+
+## D-242 · 2026-10-08 · stage 7 (chat C2, CV-3, F-059) · by: assumed (builder)
+A repeated UNDO TURN is refused 409 "already undone" and changes nothing (architecture.md said replay 200); an undo is not a hand edit (`touched` unchanged, rev moves only when a field was put back); a non-recipe message answers 409 UNDO_REFUSED (#233).
+- instead of: replaying the first undo's 200; 404 for a non-recipe message.
+
+## D-243 · 2026-10-08 · stage 7 (chat C2, CV-6, F-056) · by: assumed (builder), deviates from chat-converge.html
+While a mark is shown, the lyrics panel keeps the section just before and just after the mark as one dim context row each (header + the line next to the mark), so shift-click can carry a mark across a section boundary; frame 2b drew a two-section mark with no way to reach the second section. DESIGN.md says so (#244).
+- instead of: keeping the full section list under a mark; shift-click only within the shown part.
+
+## D-244 · 2026-10-08 · stage 7 (chat C2, CV-5, R-040) · by: conductor
+CP-C2 (pipeline/cp-c2/2026-10-08): prompt p95 5,403 tokens, 0 context refusals, 0 silent losses, 2/21 failures — but STOP on additive drops, 5 of 11 (qwen3:14b fills `drop` with the ops a reply "replaces" even when the request only adds; every drop showed under REMOVED). Also a dropped-and-returned-identical op showed NEW + REMOVED. Fix before CV-7: SAME for an identical re-return, a prompt line that an addition keeps every pending op, re-run; if still over 3/10, a no-removal-words guard that retries once with a named reason (like D-201), never a silent override.
+- instead of: building CV-7 on a revise that loses ops on additions; overriding the model's `drop` silently.
+
+## D-245 · 2026-10-08 · stage 7 (LD-2, F-095) · by: assumed (builder)
+`keep` keeps the draft's lyrics only when they are exactly one section per sung section of the new structure, in order (recipeRules `lyricsFit`: same count + `followsStructure`); otherwise the turn writes. Kept lyrics are the person's (maybe hand-edited) words and are not re-checked for line counts; written lyrics must pass the whole `recipeProblems` (structure order, LYRICS_MAX as a "shorten" retry reason).
+- instead of: `followsStructure` alone (a subsequence: "add a bridge" would keep lyrics with no Bridge section); re-checking kept lyrics (a hand-edited 3-line verse would be rewritten by "make it faster").
+
+## D-246 · 2026-10-08 · stage 7 (LD-2, F-095, F-049) · by: assumed (builder)
+A lyrics model that is not pulled fails the turn with cause `check` (a failed line with RETRY, reason `model <m> is not on the planner: run 'ollama pull <m>'`), not `offline`: the planner answered, so ASSISTANT OFF (composer disabled) would be wrong for every other language. Progress lines: `writing lyrics · <model before ':'>`, `unloading the planner` between models, `unloading the models` in the finally.
+- instead of: `offline` (the planner's own probe failure keeps it).
+
+## D-247 · 2026-10-08 · stage 7 (LD-2, F-095) · by: assumed (builder)
+Left as they were: the REFERENCE rule still says the model writes a cover's lyrics (its routing words are measured by chatCp3; the strict schema now only accepts write / keep, and referenceRecipe lays the written sections onto the reference's structure), and the client's turn cost (~10 s) is not language-aware (the cost line shows before the planner picks the language; `TURN_COST` is unused, `QUEUED_TAIL` is generic). Owed: chatCp3 re-run with the LD prompt; a German cost line if F-096 shows it is needed.
+- instead of: editing the REFERENCE rule without a chatCp3 run; guessing the language client-side.
+
+## D-248 · 2026-10-08 · stage 7 (RT-5, F-092) · by: assumed (conductor)
+RE-TIME on the chat reading (`routes/chatRetime.ts`, `chat/readingRetime.ts`) re-times the stored reading in place. No version is made, so `barShift` is untouched; `markSnap` and the strip use the re-timed bar times. The steps: the playable version's own transcribed reading is rebuilt from its kept bundle, read and measured as the SCORE step reads one, and stored in `versions.analysis_json` with a new `readAt`. A `retime` record keeps the reading as SheetSage2 read it, so UNDO is one step back to it, `readAt` included (D-231). Bar i of the re-timed score starts at downbeat i of the re-timed beat list; yue-server's retime reply now returns `downbeats`. SheetSage2 builds the score from that list, so nothing is fitted. The browser check on SP-8's purple showed why: `/v1/scores/bars`' chord fit put HALF's bar 1 at 16.8 s (offset +4) where the reading starts at 0.01 s. Bars past the cached grid's duration are not timed. A bars mark carries the `readAt` of the reading it was counted on. On the same version with another `readAt` it is stale: `resolveRange` answers 409 MARK_STALE, and the client turns it stale at once (`markStale` `reading`; the card says the reading was re-timed, and the chip names only the bars). UNDO makes it fit again and clears the card (B4). A seconds-only mark, or one sent before marks were stamped, stays pinned: the audio did not change. TRANSCRIBE AGAIN (B5) is `POST .../analysis/again`, allowed only when the kept bundle is gone. It clears the stored reading and queues the version's analysis (GPU, no minutes: D-240). The row is offered only on a done, current, bar-timed transcribed reading, and never while an analysis reads the version.
+- instead of: re-fitting the re-timed score on the tracker's grid (wrong offset on half-time bars); a second stored reading beside the first; remapping a mark onto the new bar numbers.
+
+## D-249 · 2026-10-08 · stage 7 (RT-4, F-093 verify) · by: conductor
+F-093 passes: an independent verifier ran on `feat/retime-dock` a7179d0 (pipeline/evidence/F-093-2026-10-08). RE-TIME HALF on a seeded cover of SP-8's purple planned with no planner. The consequence said about 3 min on YuE2, with bars renumbered. APPLY & RENDER saved v2 "score edit · RE-TIME 44", taking 65 bars to 33. Covers with no bundle, and originals, show no chips and get 409 with the reason. After a SET TEMPO edit the chips hide and a line says why (D-240). Caveats: the YuE2 render ran on the fake pipeline, and the cover's base score was the bundle rebuilt at its read tempo, not a live TRANSCRIBE. #243 had gone DIRTY on a `decisions.md` append conflict after its session died; the conductor merged main into `feat/retime-dock`, keeping both sides.

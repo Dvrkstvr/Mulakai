@@ -11,13 +11,20 @@ import type { Op, Plan, ScoreFacts, Since } from './planTypes.js';
 
 export const REVISE_REPLY = 'Reply with the JSON {"drop":[...],"ops":[...]} only.';
 export const REVISE_RETRY = 'Return a corrected {"drop":[...],"ops":[...]} as JSON only, on the PENDING PLAN\'s op numbers: only what changes.';
+/** The opening of `mergeLegend`: a retry keeps it whole (the chat cuts other reasons). */
+export const LEGEND_HEAD = 'Your reply made this plan:';
 const SHAPE = 'the reply is not a JSON object {"drop":[...],"ops":[...]}';
+
+/** `drop`'s part of the schema: pending op numbers 1..P, each at most once (the chat's edit action reuses it, F-058). */
+export function dropSchema(pendingCount: number): Record<string, unknown> {
+  return { type: 'array', items: int(1, pendingCount), uniqueItems: true, maxItems: pendingCount };
+}
 
 export function buildReviseSchema(facts: ScoreFacts, pendingCount: number, phraseBars = DEFAULT_PHRASE_BARS): Record<string, unknown> {
   return {
     type: 'object', additionalProperties: false, required: ['drop', 'ops'],
     properties: {
-      drop: { type: 'array', items: int(1, pendingCount), uniqueItems: true, maxItems: pendingCount },
+      drop: dropSchema(pendingCount),
       ops: opsArraySchema(facts, phraseBars, 0),
     },
   };
@@ -33,7 +40,7 @@ export function mergeLegend(m: Merged, drop: number[], pendingCount: number): st
     : `your op ${f.reply} (${f.pending === undefined ? 'new' : `replaces pending op ${f.pending}`})`}`);
   const kept = new Set(m.from.flatMap((f) => f.pending ?? []));
   const covered = Array.from({ length: pendingCount }, (_, k) => k + 1).filter((n) => !kept.has(n) && !drop.includes(n));
-  return `Your reply made this plan: ${ops.join(', ')}${list('dropped', [...drop].sort((a, b) => a - b))}${list('replaced by an op on its target', covered)}.`;
+  return `${LEGEND_HEAD} ${ops.join(', ')}${list('dropped', [...drop].sort((a, b) => a - b))}${list('replaced by an op on its target', covered)}.`;
 }
 
 export type RevisedReading = (Reading & { ok: false }) | { ok: true; ops: Op[]; legend: string; merged: Merged };

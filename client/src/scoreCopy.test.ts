@@ -144,3 +144,26 @@ describe('reading, job and offline lines', () => {
     expect(offlineLines({ kind: 'offline', source: 'checker', reason: 'Score checker unreachable: x. Start yue-server, then RECHECK.' }).title).toBe('SCORE CHECKER OFFLINE');
   });
 });
+
+describe('RE-TIME in the plan (RT-4)', () => {
+  const RT: ScoreOp = { op: 'RETIME', mode: 'half', bpm: 47, from_bpm: 93.7, dropped_notes: 112, notes: 488 };
+  it('the row names the mode, both tempos, the saved reading and what the slower grid left out', () => {
+    expect(opRows(plan([RT]), 'pop', 94)[0]).toMatchObject({
+      name: 'RE-TIME', detail: 'HALF TIME · 93.7 → 47 BPM · from the saved reading · 112 of 488 notes left out', tag: 'follows',
+    });
+    expect(opRows(plan([{ ...RT, mode: 'bpm', bpm: 80, dropped_notes: 0 } as ScoreOp]), 'pop', 94)[0].detail).toBe('BPM · 93.7 → 80 BPM · from the saved reading');
+  });
+  it('the consequence line says the score is rebuilt and renumbered before APPLY & RENDER', () => {
+    expect(consequenceLine(plan([RT]), versions, 0)).toBe('Saves base v3 · re-renders the whole song on YuE2, about 3 min · every bar will sound different'
+      + ' · the score is rebuilt from the saved reading at 47 BPM, its bars renumbered · v2 stays in VERSIONS');
+  });
+});
+
+describe('the checks line of a plan no planner made (RT-4)', () => {
+  it('says no attempt count', async () => {
+    const { checksSegments } = await import('./scoreAttemptCopy');
+    const c = plan([TEMPO]).checks;
+    expect(checksSegments(c, 0).map((s) => s.text)).not.toContain('attempt 0 of 3');
+    expect(checksSegments(c, 1).map((s) => s.text)).toContain('attempt 1 of 3');
+  });
+});

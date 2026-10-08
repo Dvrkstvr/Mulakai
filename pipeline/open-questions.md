@@ -315,7 +315,7 @@ The Editor's auto word-timings read (`timings` job) and the analysis's WORDS ste
 ## Q-114 · answered B (owner, D-191) · stage 5 (DT-C1, chat-mark.html options) · assumed → D-185
 Reading line on its own 16 px row under the waveform (B) or right-aligned in the player's top row (A). Default: B (room for a failure reason + RETRY; costs 19 px, thread about 431 px at 1366x768 in the worst case). Alternative: A. Owner may pick at sign-off.
 
-## Q-115 · deferred · stage 5 (DT-C1)
+## Q-115 · deferred · stage 5 (DT-C1) · closed → D-225 (D-093: no lyric lane)
 The lyric-line lane under the waveform (chat-song CS-4d: click a lyric line to mark it) is in neither F-053 nor F-054 and is not drawn; it lands with C2's lyrics panel (21 px more player).
 
 ## Q-116 · assumable · stage 5 (DT-C1) · assumed → D-185
@@ -343,3 +343,53 @@ REPAINT's prompt on a song with a caption. Default: the instruction only (as tod
 
 ## Q-124 · assumable · stage 4 (engine pairing, F-087) · open
 `cover-nofsq` as REMASTER's path or a new POLISH verb. Default: REMASTER's path, decided by the A/B (no new verb on the dock).
+
+## Q-125 · assumable · stage 4 (RT, F-091/F-094) · open
+When is a BPM "only slightly off" and so SET TEMPO, not RE-TIME? Default: a named BPM within ±8 % of the read tempo is SET TEMPO; RE-TIME is offered for anything else, HALF/DOUBLE always. Alternative: always RE-TIME for a transcription (SET TEMPO only on YuE2 songs).
+
+## Q-126 · assumable · stage 4 (RT, F-093) · open
+The SCORE dock's RE-TIME on a song with no kept bundle (a YuE2 original, or a cover made before RT). Default: not offered; a cover without one says "no saved reading · TRANSCRIBE the source again in Create". Alternative: re-transcribe the cover's own audio.
+
+## Q-127 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+Is the cover panel's piano preview cheap to redraw after a re-time? Unverified (yue-server renders `piano_mix.wav` inside the transcription, `transcriber.py`). Default: not redrawn; the old preview stays, dimmed and tagged STALE with its tempo, until the next TRANSCRIBE. Alternative: redraw it in the same step if SP-8 shows under ~5 s.
+
+## Q-128 · assumable · stage 5 (RT, design/retime.html) · open
+The working time in RE-TIME's lines. Default: "a few seconds" until SP-8 measures it, then "about N s" from a constant (F-090 accepts under 10 s). The TRANSCRIBE AGAIN GPU time uses the calibrated figure (Q-099).
+
+## Q-129 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+BPM… range. Default: whole numbers 40–240; HALF or DOUBLE landing outside it is a disabled chip with the reason. Alternative: 30–300.
+
+## Q-130 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+A slightly-off tempo on the cover panel. Default: no SET TEMPO there; the hint points to the SCORE dock once the cover exists. Alternative: a tempo nudge field in the cover panel.
+
+## Q-131 · assumable · stage 5 (RT, D-207, design/retime.html) · open
+The refusal for a gone saved reading says "gone" with no date. Alternative: say when it was cleared (30-day sweep).
+
+## Q-132 · assumable · stage 5 (RT, F-093/F-094, design/retime.html) · open
+A RE-TIME stands alone in a plan: the planner drops other ops (bars change under them) and says so. Alternative: allow RE-TIME first in a list with later ops on the new bars.
+
+## Q-137 · assumable · stage 7 (C1 p95 re-measure) · open
+On Gertar, 3 of 3 "jazz chords" turns kept planning a WRITE_PHRASE on sung bars and failed after 3 attempts (pipeline/cp-c1/2026-10-08-p95). A chords-only request should plan REHARMONIZE only. Prompt-side look (turnPrompt planner rules) in C2 or a small fix; not blocking C1.
+## Q-136 · assumable · stage 6 (chat C2, F-058; renumbered from Q-133) · assumed → D-227
+How a chat REVISE starts. Default: the server revises whenever a live, unchanged edit card exists (the model drops everything to start over). Alternatives: a REVISE button on the card; a flag the model sets in its reply.
+
+## Q-134 · assumable · stage 6 (chat C2, F-059) · assumed → D-220
+What UNDO TURN does to that turn's pending recipe card. Default: the card stays live and mirrors the restored draft (TU-7), so CREATE SONG sends what the sidebar shows. Alternative: the card reads UNDONE and loses CREATE SONG until the next reply.
+
+## Q-135 · deferred · stage 6 (chat C2, LY-1)
+LY-1 lists a fourth song row, "dock". C2 builds versions, style, tempo and key and the panel only (D-219); the dock row waits for the chat's scalpel (C7) or the Editor-first mirror (C6).
+
+## Q-140 · assumable · stage 5 (chat C2, DT-C2, F-058) · answered → D-229 (owner, defaults kept)
+The superseded edit card above a revised one. Default: dimmed to 45 % in full with its header "REVISED BELOW", no APPLY (option A, as a superseded recipe card). Alternative: folds to one header line with SHOW (B): gives back the card's height, costs a click to compare plans.
+
+## Q-141 · assumable · stage 5 (chat C2, DT-C2, F-060) · answered → D-229 (owner, defaults kept)
+The bar map at 200 bars (a cover). Default: one row in the card's 730 px, 3.65 px a bar, labels thinned to fit (A). Alternative: two rows of 100 bars, 7.3 px a bar, about 45 px taller (B).
+
+## Q-142 · assumable · stage 5 (chat C2, DT-C2, F-059) · answered → D-229 (owner, defaults kept)
+UNDO TURN on an older turn. Default: still offered, and every field it keeps names its reason ("you changed it", "a later reply changed it"). Alternative: only the latest turn offers it (scope.md C2's cut-order item). Not drawn in the page beyond the "you changed it" case.
+
+## Q-143 · assumable · stage 5 (chat C2, DT-C2, F-060) · answered → D-229 (owner, defaults kept)
+Bar-map hover. Default: a change-list row lights its bars (solid sky) on hover and on keyboard focus; the map itself is not interactive. Alternative: hovering the map also names the op.
+
+## Q-144 · assumable · stage 5 (chat C2, DT-C2, F-058) · answered → D-229 (owner, defaults kept)
+APPLY on the pending card while a revise runs. Default: off (plan 1 is about to be superseded), on again if the revise fails or is cancelled. Alternative: left on (a race: APPLY of plan 1 while plan 2 is being written).

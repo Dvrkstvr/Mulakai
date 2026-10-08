@@ -1,0 +1,122 @@
+{
+ "RC05": {
+  "title": "Abschied",
+  "style": "pop, piano, melancholic, soft female voice",
+  "bpm": 60,
+  "key": "A",
+  "time_signature": "4/4",
+  "language": "de",
+  "engine": "yue2",
+  "structure": [
+   "Intro",
+   "Verse",
+   "Chorus",
+   "Verse",
+   "Chorus",
+   "Bridge",
+   "Chorus",
+   "Outro"
+  ],
+  "request": "Schreib mir einen langsamen deutschen Popsong über den Abschied, mit Klavier und weicher Frauenstimme"
+ },
+ "RC06": {
+  "title": "Sommer am See",
+  "style": "Schlager, cheerful, upbeat, acoustic guitar, accordion, vocal",
+  "bpm": 120,
+  "key": "C",
+  "time_signature": "4/4",
+  "language": "de",
+  "engine": "yue2",
+  "structure": [
+   "Intro",
+   "Verse",
+   "Chorus",
+   "Verse",
+   "Chorus",
+   "Bridge",
+   "Chorus",
+   "Outro"
+  ],
+  "request": "Ein fröhlicher Schlager über den Sommer am See"
+ },
+ "RC07": {
+  "title": "Sanfte Schlaflied",
+  "style": "acoustic guitar, soft vocals, gentle mood",
+  "bpm": 60,
+  "key": "A",
+  "time_signature": "4/4",
+  "language": "de",
+  "engine": "yue2",
+  "structure": [
+   "Intro",
+   "Verse",
+   "Chorus",
+   "Verse",
+   "Chorus",
+   "Outro"
+  ],
+  "request": "irgendwas Ruhiges zum Einschlafen"
+ },
+ "RC08": {
+  "title": "Mar de Sueños",
+  "style": "ballad, nylon guitar, soft female voice, melancholic mood",
+  "bpm": 60,
+  "key": "A",
+  "time_signature": "4/4",
+  "language": "es",
+  "engine": "yue2",
+  "structure": [
+   "Intro",
+   "Verse",
+   "Chorus",
+   "Verse",
+   "Chorus",
+   "Bridge",
+   "Chorus",
+   "Outro"
+  ],
+  "request": "una balada lenta sobre el mar, guitarra de nailon y una voz femenina suave"
+ },
+ "RC09": {
+  "title": "Noche de Verano",
+  "style": "reggaeton, electronic, upbeat, party, Spanish",
+  "bpm": 130,
+  "key": "C",
+  "time_signature": "4/4",
+  "language": "es",
+  "engine": "yue2",
+  "structure": [
+   "Intro",
+   "Verse",
+   "Pre-Chorus",
+   "Chorus",
+   "Verse",
+   "Pre-Chorus",
+   "Chorus",
+   "Bridge",
+   "Chorus",
+   "Outro"
+  ],
+  "request": "A fast reggaeton party song in Spanish about a summer night out"
+ },
+ "RC10": {
+  "title": "Para Mi Novia",
+  "style": "soft, emotional, acoustic guitar, piano, warm mood, female voice",
+  "bpm": 72,
+  "key": "C",
+  "time_signature": "4/4",
+  "language": "es",
+  "engine": "yue2",
+  "structure": [
+   "Intro",
+   "Verse",
+   "Chorus",
+   "Verse",
+   "Chorus",
+   "Bridge",
+   "Chorus",
+   "Outro"
+  ],
+  "request": "algo romántico para mi novia"
+ }
+}

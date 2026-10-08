@@ -7,6 +7,7 @@ import type { Op } from '../score/planTypes.js';
 import type { EditBody } from './editTypes.js';
 import type { Reading } from './reading.js';
 import type { RangeMark } from './analysisTypes.js';
+import type { RecipeUndo, RecipeUndone } from './convergeTypes.js';
 
 /** One sung section of the lyrics: a closed-list tag and its lines (no tags inside lines). */
 export interface LyricSection { tag: string; lines: string[] }
@@ -65,6 +66,10 @@ export interface Recipe {
   reference_use?: ReferenceUse;
 }
 
+/** LD (D-234): the planner's recipe has no lines; it says whether the draft's lyrics are kept or written by the lyrics call. */
+export type LyricsMode = 'write' | 'keep';
+export type PlannedRecipe = Omit<Recipe, 'lyrics'> & { lyrics: LyricsMode };
+
 export type ScalpelKind = 'repaint' | 'add_layer' | 'split' | 'export';
 
 /** One checked turn reply: one action from the closed set (SP-5). */
@@ -102,7 +107,8 @@ export interface RecipeReference {
   /** Why a cover became a borrow, or another word for the card; null when none. */
   note: string | null;
 }
-export interface RecipeBody { recipe: Recipe; assumptions: string[]; changed: DraftField[]; skipped: DraftField[]; reference?: RecipeReference }
+/** C2 (F-059, D-220, additive): `undo` what the turn replaced (only when it filled a field); `undone` once undone. */
+export interface RecipeBody { recipe: Recipe; assumptions: string[]; changed: DraftField[]; skipped: DraftField[]; reference?: RecipeReference; undo?: RecipeUndo; undone?: RecipeUndone }
 /** The READ card (proposal kind `analyze`): what will be read and its GPU estimate (referenceRules). */
 export interface AnalyzeBody {
   target: AnalyzeTarget;

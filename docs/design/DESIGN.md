@@ -528,6 +528,29 @@ requiring its own justification against a screen-count rule.
            length, and sung/played note counts. SheetSage2's warnings come
            as a `.warn-note`, then the piano preview (inline `AudioPreview`),
            then the ABC behind a collapsed SHOW SCORE disclosure.
+         - **READ AS** (added 2026-10-08, RE-TIME, F-091;
+           pipeline/design/retime.html, D-211/D-212) sits under the facts on a
+           transcribed score: a carbon row with a `line-hi` hairline, the
+           label, what SheetSage2 read in bold (`93 BPM · 2/4 · 71 BARS`),
+           then **HALF · DOUBLE · BPM…** as sky choice chips (`dock-chip`). A
+           chip that would leave 40–240 BPM is disabled, and a `text-low` hint
+           names why. **BPM…** turns into its own text input in the chip's
+           place, focused, with a sky edge and only an enter icon (↵); a click
+           outside (or Esc) turns it back with no BPM set; Enter or ↵ locks it
+           into a sky `92 BPM` chip; a refused value turns the field rust with
+           the reason. Picking a mode rebuilds at once (no GPU), so before the
+           press the consequence line names the new tempo, the bar count, and
+           how many notes the slower grid leaves out (a rust `.warn-note`
+           above 10 %); **RE-TIME AT n BPM** is an acid *outline* (GENERATE
+           COVER stays the one filled acid CTA) beside a quiet CANCEL. A
+           BPM within 8 % of the reading is a `text-low` hint pointing at SET
+           TEMPO, with no press. Once applied, the facts show the rebuilt
+           score, the row adds `· RE-TIMED TO n BPM`, a lilac **RE-TIMED** tag
+           states the change, and UNDO (quiet) returns to the reading; the
+           chips always start from the reading, never from a re-time. The
+           piano preview dims with a rust `STALE · n BPM` tag. When the kept
+           reading is gone, a rust-tint box says so and offers **TRANSCRIBE
+           AGAIN** (acid outline), and the chips are disabled.
          - **SECTIONS** (added 2026-10-01) sits under the facts: the score's
            `% name` sections as the Editor's **section strip**
            (clip-path parallelograms, 3px gaps), flex-weighted by each
@@ -849,6 +872,19 @@ requiring its own justification against a screen-count rule.
        - **Chip**: `BASE · WHOLE SCORE`, sky, like SPLIT's. The version the
          plan was made against sits in the checks and stale lines, not the
          chip.
+       - **RE-TIME** (added 2026-10-08, RT-4, F-093, D-240): on a cover that
+         is still its transcription, a row under the reading line in the
+         Create panel's READ AS idiom: the tempo SheetSage2 read, `wrong
+         beat?` in `text-low`, then HALF · DOUBLE · BPM… as sky choice chips
+         (BPM… is its own input, D-211). A pick makes the plan at once, with
+         no planner and a `text-low` "RE-TIMING… · a few seconds · no GPU" line
+         while it is made. The plan then reviews like any plan: one RE-TIME
+         row tagged `follows` ("HALF TIME · 87 → 44 BPM · from the saved
+         reading · 17 of 293 notes left out"), a checks line with no attempt
+         count, and a consequence line saying the score is rebuilt and its
+         bars renumbered. The chip of the plan under review stays sky. On any
+         other take of a cover, one `text-low` line says why RE-TIME is off.
+         A song that is not a cover shows nothing.
        - **Body**: a `text-low` reading line (bars, duration, tempo, key),
          the request field ("Describe the change, e.g. jazz chords in the
          chorus, 88 BPM"), then, once planned, the change list (one row per
@@ -1076,8 +1112,8 @@ requiring its own justification against a screen-count rule.
      a new hue; a field the person touched reads YOURS in `text-mid`; while
      the assistant thinks, the empty fields are outlined in dashed sky with
      FILLING…. A take rendering locks the fields (55% opacity) and the foot
-     says so; on a song's thread the sidebar is a read-only song panel with a
-     VERSIONS row. Collapsed, it is a 38px rail counting the filled fields;
+     says so; on a song's thread the sidebar is the song panel instead (see
+     "The song panel" below). Collapsed, it is a 38px rail counting the filled fields;
      the open/closed state is remembered per browser. The sidebar never
      commits: its foot points at the card.
    - **Reference songs** (added 2026-10-07, chat C3; spec
@@ -1158,6 +1194,39 @@ requiring its own justification against a screen-count rule.
      Cancelled, failed, refused and STALE are one rust line in the card
      ("nothing saved, v1 is untouched"); stale and expired drop APPLY for
      ASK AGAIN, superseded dims to 45%; done folds to one header line.
+   - **The revised card and the bar map** (added 2026-10-08, chat C2; spec
+     `pipeline/design/chat-converge.html` 3-4, signed off in D-229,
+     CX-2/CX-3). A card that carries a bar map is headed by its plan
+     title while pending (`PLAN · 1 CHANGE · AGAINST BASE v4`; revised: `PLAN 2 ·
+     REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v4`), with `EDIT · SCORE ·
+     nothing runs yet` as the grey hint; other states keep the C0b state
+     header. A follow-up revises the pending card: `SINCE PLAN 1 · 1 NEW ·
+     1 SAME · 0 REMOVED` (REMOVED always counted), a mono NEW / CHANGED /
+     SAME mark per row (SAME in `text-low`) and one low `REMOVED (1) · WRITE
+     PHRASE bars 41–44 · …` line, never silent; the SCORE dock keeps its
+     own wording. The card it revised stays in full at 45%, headed `PLAN 1
+     · REVISED BELOW` (hint `EDIT · SCORE · superseded`), with no APPLY;
+     while a revise runs the pending card's APPLY is off (back on if it
+     fails or is cancelled), and a failed or refused revise is the turn's
+     rust line under the message, the card kept. The **bar map** replaces
+     the bar strip whenever the card carries one (older cards keep the
+     strip): the song's sections as the section strip's parallelograms at
+     18px (`carbon-raised`, 9px mono names in full, else short `C2`, else
+     none under 20px), a 14px `carbon-raised` track with the edited bars
+     `sky-tint` on sky hairlines (2px at least), a whole-song op (SET
+     TEMPO, TRANSPOSE, EDIT STYLE) hatched `sky-tint`/`line` over the
+     track, a CUT section's band hatched grey with a dashed `line-hi` edge,
+     a 9px ruler every 8 bars (every 10 over 50 bars, every 20 over 100;
+     doubled only where a narrow map would make numbers touch), and a 10px
+     mono caption: `8 OF 80 BARS CHANGE · THE OTHER 72 ARE v4`, `ALL 80
+     BARS CHANGE (TEMPO) · BARS 49–56 ARE THE NEW HARMONY`, `WORDS CHANGE IN
+     BARS 41–48 · THE WHOLE SONG RE-RENDERS`, `OUTRO S9 CUT · 8 BARS REMOVED
+     · SEAM UN-TIED`; a plan that renders the whole song never says the
+     other bars stay. One row up to 200 bars (3.65px a bar in the 760px
+     column). A change-list row lights its op's bars solid sky (a hovered
+     whole-song op lights the hatch) on hover and keyboard focus, the row
+     washed `on-sky` with a sky edge, the caption reading `BARS 49–56 ·
+     REHARMONIZE · LIT`; the map itself takes no input. No new hue.
    - **The version card** follows a saved edit: `VERSION`, the lilac pill,
      the label (the version's change list), the length and what changed
      ("bar 43 changed · the rest is v1's audio · 0.03 s longer than v1",
@@ -1199,6 +1268,27 @@ requiring its own justification against a screen-count rule.
      CONTEXT AND MARKING ONLY` after it in `text-low`, and rust only for a
      failed reading (`COULDN'T READ v5 · <reason>`) with a small acid
      outline **RETRY**. No spinner and no shader: reading is not a commit.
+     **READ AS** (added 2026-10-08, RE-TIME on the reading, F-092;
+     `pipeline/design/retime.html` B1-B5): under the reading line of the
+     playing version's own *transcribed* reading (never a YuE2 song's own
+     score), the cover panel's READ AS row at the chat's size (11px, 4px
+     padding): what SheetSage2 read in bold (`87 BPM · 65 BARS`), then
+     HALF · DOUBLE · BPM… as sky choice chips. A pick rebuilds at once (no
+     GPU); the `text-low` consequence line says the new tempo, the bars
+     (`65 bars → 33, every bar number changes`), the notes left out, that a
+     mark on this version goes stale, and that nothing is saved to the
+     library, beside an acid outline **RE-TIME AT n BPM** and a quiet
+     CANCEL. While it runs, `RE-TIMING v1 · SCORE · a few seconds`. Once
+     applied, the strip and ruler redraw at the same seconds, the row adds
+     `· RE-TIMED TO n BPM`, a lilac **RE-TIMED** tag line says `from 87 BPM
+     · 65 bars → 33 · same seconds, bars renumbered`, and a quiet UNDO
+     returns to the reading. A mark made on the old bars turns stale at
+     once (the rust card says the reading was re-timed; the chip names only
+     its bars, since the old numbers now name other sections) and UNDO
+     clears it again. With no kept reading, the chips are off and the
+     cover panel's rust-tint GONE box offers **TRANSCRIBE AGAIN** (acid
+     outline), saying it reads the version again on the GPU and replaces
+     the reading.
    - **The mark** (added 2026-10-07, chat C1; spec `pipeline/design/chat-mark.html`
      MK-4..MK-10, Q-068's clause). One sky for every mark, no second hue for
      time: over the ruler and waveform a `sky-tint` wash (70%, so the
@@ -1234,6 +1324,38 @@ requiring its own justification against a screen-count rule.
      the mark is fixed" as the placeholder. An edit card planned on a mark
      names it in `text-low` (`PLANNED ON THE MARK · BARS 47-64 · 2:07-2:57`)
      with the server's notes (a whole-song op, a mark clamped to the score).
+   - **The song panel** (added 2026-10-08, chat C2; spec
+     `pipeline/design/chat-converge.html` section 2, CX-1, D-219). On a
+     song's thread the sidebar drops the draft fields for VERSIONS (`v1 v2`
+     in `text-low` mono, the active one the lilac pill `v3 ●`), STYLE (the
+     version's), TEMPO · KEY (the shown reading's header, `87 BPM · D MINOR
+     · 4/4`), the song's references, then the **lyrics panel**: a title row
+     (`LYRICS · 3 LINES` and a `text-low` aside) over plain rows, carbon
+     structure and `line` hairlines, no card. With no mark it lists the
+     sections (name, bars, line count, first line in `text-low`; a section
+     with no words at 50% reading NONE); the row under the pointer takes the
+     sky selection wash and a click marks it. With a mark it shows only the
+     marked part: each section under a sky mono header (`VERSE · BARS 11–46
+     · 0:28`; a header click marks the section), its lines in a 34px bar
+     column and the words, a marked line in `sky-tint` with a 2px sky edge,
+     a dashed `line-hi` break between sections, and `1 MORE LINE IN CHORUS
+     IS NOT MARKED` in `text-low`; the sections just before and after the
+     marked part stay as one `text-low` context row each (header and the
+     line next to the mark), so the mark can grow across a boundary; the
+     aside `◂ ALL SECTIONS` clears the mark. Click marks a line, shift-click
+     extends the mark to the line or header clicked (the panel only: the
+     strip still does not use shift), double-click plays the song from the
+     line (its seconds, else the section start). Nothing follows playback (no current line,
+     no auto-scroll) and the panel never edits words. A pending REWRITE
+     LYRICS shows its old words struck in `text-low` above the new ones at
+     `text-hi` with `~` in the bar column, and a rewritten section outside
+     the mark is appended in song order with a sky `PROPOSED` tag, the mark
+     untouched; both last while the edit card is pending (D-222). While a
+     new version is read the old panel stays at 55% (`LYRICS · READING
+     v5…`, `MARKS BY BARS`); a failed read is the rust box (`COULDN'T READ
+     v5 · reason`) with a plain RETRY; a version with no words says `NO
+     LYRICS IN THIS VERSION` and offers ASK THE CHAT (it focuses the
+     composer). No spinner, no shader, no new hue.
 
 ### Side panels (Create + Editor)
 

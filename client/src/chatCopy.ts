@@ -125,9 +125,9 @@ export const EMPTY_THREAD = 'Describe a song: a mood, a style, a language, what 
 export const QUEUED_TAIL = '· uses the GPU, about 10 s once it starts · nothing else changes';
 export const CANCELLING = 'CANCELLING…';
 export const CANCELLING_TAIL ='· unloading the planner so the GPU is free · nothing changes';
-/** Under THINKING: the refused attempt's reason in the server's words, or the unload. */
+/** Under THINKING: the refused attempt's reason in the server's words, or the step (the unload; LD: the lyrics call). */
 export const thinkingTail = (attempt: number, note: string | null) =>
-  note ? (attempt > 1 && !/^unloading\b/.test(note) ? `· attempt ${attempt - 1} refused: ${note}` : `· ${note}`) : null;
+  note ? (attempt > 1 && !/^(unloading|writing lyrics)\b/.test(note) ? `· attempt ${attempt - 1} refused: ${note}` : `· ${note}`) : null;
 export const SEND_WAITS = 'SEND waits until the assistant answers · your text stays';
 export const WAITING_FOR_V1 = 'WAITING FOR v1 · a message sent now is read after it saves';
 export const WAITING_PLACEHOLDER = 'Waiting for the assistant…';

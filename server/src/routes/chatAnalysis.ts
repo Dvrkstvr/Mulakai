@@ -3,13 +3,14 @@
  * → `AnalysisView` (the playable take's state, the reading the strip shows, its lineage for the mark), and
  * `POST /songs/:songId/analysis/retry` → 202 `{jobId}` (a waiting analysis is returned, not doubled) or 409
  * `{reason}` (no take, already read, the queue is full; a reading whose service failed is not "read", C1 live B1). C1b adds the mark preview here.
+ * C2: the view carries `shown.lyrics`, from the shown version's stored lyrics (`versionLyrics`, D-217).
  */
 import { Router } from 'express';
 import { db } from '../db/index.js';
 import { QueueFullError } from '../services/genQueue.js';
 import type { Job } from '../services/jobRegistry.js';
 import { liveAnalysis, startAnalysis } from '../services/chat/analysisJob.js';
-import { playableVersion, readingChain, readVersionAnalysis, wordTimings } from '../services/chat/analysisStore.js';
+import { playableVersion, readingChain, readVersionAnalysis, versionLyrics, wordTimings } from '../services/chat/analysisStore.js';
 import { isComplete, type AnalysisView } from '../services/chat/analysisTypes.js';
 import { analysisView } from '../services/chat/analysisView.js';
 
@@ -27,6 +28,7 @@ export function songAnalysisView(songId: string): AnalysisView {
     songId, playable,
     current: playable ? readVersionAnalysis(playable.id) : null,
     currentWords: playable ? wordTimings(playable.id) : null,
+    currentText: playable ? versionLyrics(playable.id) : null,
     older: chain.older, olderShift: chain.olderShift, parent: chain.parent,
     job: liveAnalysis(songId),
   });

@@ -83,6 +83,9 @@ export function scoreVerb(s: ScoreVerbState, e: ScoreEvent): ScoreVerbState {
     }
     case 'planRefused':
       return { ...s, error: e.error };
+    case 'retimed': // no request text: PLAN stays off until the person types one
+      if (!is(s, CAN_PLAN)) return s;
+      return { ...s, phase: { kind: 'ready' }, plan: e.plan, request: '', pick: null, stale: null, error: null, previous: null, revising: false, reviseFailed: null };
     case 'planStale':
       return { ...s, stale: e.stale, error: null };
     case 'pick':

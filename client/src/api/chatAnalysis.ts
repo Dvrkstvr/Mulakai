@@ -3,6 +3,7 @@
  * (`AnalysisView`, `ShownReading`, `StripSection`, `RangeMark`, `MarkPreview`); reconcile both when either moves. The
  * analysis job polls through `jobStatus` like every other job. Bars are 1-based and inclusive; seconds are on the
  * version's timeline. */
+import type { LyricsPanel } from './chatConverge';
 import { ApiError, json } from './http';
 
 export type AnalysisStep = 'WORDS' | 'SCORE' | 'SECTIONS';
@@ -51,6 +52,18 @@ export interface ShownReading {
   transcribed: boolean;
   /** Each part's "not read" reason, null when read (`words` set = no word timings, F-052 #4). */
   notRead: { words: string | null; score: string | null; bars: string | null };
+  /** C2 (F-056, D-217): the lyrics panel for this reading, computed by the server at read time; absent on older servers. */
+  lyrics?: LyricsPanel | null;
+  /** RT-5 (F-092): the READ AS row on the playable version's own transcribed reading; absent or null = not offered. */
+  retime?: ReadingRetimeOffer | null;
+}
+
+/** What the READ AS row shows: the reading as SheetSage2 read it, its kept bundle (null: TRANSCRIBE AGAIN), and the
+ * re-time in place. Mirrors the server's `retimeRecord.RetimeOffer`. */
+export interface ReadingRetimeOffer {
+  notationId: string | null;
+  read: { bpm: number; bars: number };
+  retimed: { mode: 'half' | 'double' | 'bpm'; bpm: number; fromBpm: number; fromBars: number; toBars: number; droppedNotes: number; notes: number } | null;
 }
 
 /** `barShift` of a version against its base (D-180): bars at or after `atBar` moved by `delta` (a CUT's negative
@@ -71,8 +84,9 @@ export interface AnalysisView {
 }
 
 /** The mark (a `planReferent` kind, D-175): no `bars` = a seconds-only mark (no reading of the bars, D-179). `label`:
- * the chip's text, frozen in the user message's body (the echo); the server never trusts it. */
-export interface RangeMark { kind: 'range'; versionId: string; bars?: [number, number]; seconds: [number, number]; label?: string }
+ * the chip's text, frozen in the user message's body (the echo); the server never trusts it. `readAt`: the reading its
+ * bars were counted on (RT-5): a re-time renumbers the bars of the same version, so the mark is then stale. */
+export interface RangeMark { kind: 'range'; versionId: string; bars?: [number, number]; seconds: [number, number]; label?: string; readAt?: string }
 
 /** 409 `MARK_STALE` at SEND or on the preview: the old place, the shift when known; nothing was written. */
 export interface MarkStaleBody { error: 'MARK_STALE'; reason: string; was: RangeMark; shift: Shift | null }

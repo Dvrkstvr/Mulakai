@@ -8,7 +8,7 @@ import { YUE2_CAPABILITIES, buildYue2Request } from '../engines/yue2.js';
 import { parseMeter } from '../engines/abcMeta.js';
 import {
   BPM, KEYS, LANGUAGES, LINES, LYRICS_MAX, SECTION_TAGS, STYLE_MAX, SUNG_TAGS, TIME_SIGNATURES,
-  createBlockers, fieldProblems, recipeProblems,
+  createBlockers, fieldProblems, lyricsFit, plannedProblems, recipeProblems,
 } from './recipeRules.js';
 import type { DraftFields, Recipe } from './chatTypes.js';
 
@@ -95,6 +95,23 @@ describe('recipeProblems: the reasons a retry sends back', () => {
   it('the lyric sections follow the structure in order, skipping only instrumental ones', () => {
     const r = { ...RECIPE, structure: ['Intro', 'Verse', 'Chorus', 'Outro'], lyrics: [RECIPE.lyrics[1], RECIPE.lyrics[0]] };
     expect(recipeProblems(r).join(' | ')).toMatch(/must follow the structure/);
+  });
+
+  it('LD: over YuE2\'s LYRICS_MAX is a "shorten" reason (the lyrics call retries on it)', () => {
+    const long = RECIPE.lyrics.map((s) => ({ ...s, lines: lines(8, 'x'.repeat(600)) }));
+    expect(recipeProblems({ ...RECIPE, lyrics: long }).join(' | ')).toMatch(new RegExp(`YuE2 takes ${LYRICS_MAX}: shorten them`));
+  });
+
+  it('LD: the planner\'s recipe is checked without lines; lyricsFit = one section per sung section, in order (keep)', () => {
+    const { lyrics: _, ...planned } = RECIPE;
+    expect(plannedProblems(planned)).toEqual([]);
+    expect(plannedProblems({ ...planned, key: 'Aminor' })).toEqual(['key "Aminor" is not one of the 30 key names (C, Am, F#m ...)']);
+    const sung = [...RECIPE.lyrics, { tag: 'Outro', lines: lines(4) }];
+    expect(lyricsFit(RECIPE.structure, sung)).toBe(true);
+    expect(lyricsFit(RECIPE.structure, RECIPE.lyrics)).toBe(false); // the Outro has no lines: write
+    expect(lyricsFit([...RECIPE.structure, 'Bridge'], sung)).toBe(false); // a new section: write
+    expect(lyricsFit(RECIPE.structure, [sung[1], sung[0], ...sung.slice(2)])).toBe(false);
+    expect(lyricsFit(RECIPE.structure, undefined)).toBe(false);
   });
 });
 

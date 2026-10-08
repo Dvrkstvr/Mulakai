@@ -47,6 +47,10 @@ export function clampSeconds(a: number, b: number, length: number | null): [numb
 
 const songLength = (view: AnalysisView | null, duration?: number | null) => duration ?? view?.shown?.bars?.end ?? null;
 
+/** The reading a bars mark is counted on (RT-5): only the playable version's own; a dimmed older one is not stamped. */
+const counted = (view: AnalysisView): { readAt?: string } =>
+  (view.shown && view.shown.versionId === view.versionId ? { readAt: view.shown.readAt } : {});
+
 /** A mark over seconds `[a, b]` of the playable version: snapped to bar lines and carrying the bars it covers when the
  * strip has bars; free (Alt) keeps the exact seconds and carries the bars it touches. Null: too short, or no version. */
 export function markSeconds(view: AnalysisView | null, a: number, b: number, free = false, duration?: number | null): RangeMark | null {
@@ -63,7 +67,7 @@ export function markSeconds(view: AnalysisView | null, a: number, b: number, fre
   }
   [s, e] = [Math.max(s, bars.starts[0]), Math.min(e, bars.end)];
   if (e - s < MIN_MARK_SECONDS) return null;
-  return { kind: 'range', versionId: view.versionId, bars: [barAt(bars, s), barAt(bars, Math.max(s, e - 1e-6))], seconds: [s, e] };
+  return { kind: 'range', versionId: view.versionId, bars: [barAt(bars, s), barAt(bars, Math.max(s, e - 1e-6))], seconds: [s, e], ...counted(view) };
 }
 
 /** A mark over whole bars `from..to` of the playable version's reading. */
@@ -72,7 +76,7 @@ export function markBars(view: AnalysisView, from: number, to: number): RangeMar
   if (!view.versionId || !bars) return null;
   const n = bars.starts.length;
   const [f, t] = [Math.max(1, Math.min(from, to, n)), Math.min(n, Math.max(from, to, 1))];
-  return { kind: 'range', versionId: view.versionId, bars: [f, t], seconds: [lineAt(bars, f), lineAt(bars, t + 1)] };
+  return { kind: 'range', versionId: view.versionId, bars: [f, t], seconds: [lineAt(bars, f), lineAt(bars, t + 1)], ...counted(view) };
 }
 
 /** Click a strip section: it is the mark. */
@@ -129,15 +133,22 @@ export type MarkFit =
   | { kind: 'carried'; mark: RangeMark }
   /** USE BARS only when the edit reported the shift and the mark maps through it. `tempo`: the edit changed the tempo
    * and kept the bars (USE BARS = the same bars, once the new version's bars are read). */
-  | { kind: 'stale'; useBars: [number, number] | null; tempo?: true };
+  | { kind: 'stale'; useBars: [number, number] | null; tempo?: true; reading?: true };
 
-/** Does the mark still fit what plays? (CS-11, D-175) */
+/** A bars mark counted on another reading of the same version: the reading was re-timed (or undone) since (RT-5). */
+const recounted = (mark: RangeMark, view: AnalysisView) =>
+  !!(mark.bars && mark.readAt && mark.versionId === view.versionId && view.shown?.versionId === view.versionId && view.shown.readAt !== mark.readAt);
+
+/** Does the mark still fit what plays? (CS-11, D-175) `reading`: the same version's reading was re-timed, so every bar
+ * number changed (RT-5, RT-7): stale even where the bars would fit by chance; mark again. */
 export function markStale(mark: RangeMark, view: AnalysisView | null): MarkFit {
+  if (view?.versionId && recounted(mark, view)) return { kind: 'stale', useBars: null, reading: true };
   if (!view?.versionId || mark.versionId === view.versionId) return { kind: 'valid' };
   const lin = view.lineage;
   if (!lin || lin.fromVersionId !== mark.versionId) return { kind: 'stale', useBars: null };
   if (!lin.moved) {
-    const moved: RangeMark = { ...mark, versionId: view.versionId };
+    const { readAt: _was, ...kept } = mark; // counted on the old version's reading: not this one's
+    const moved: RangeMark = { ...kept, versionId: view.versionId };
     const retimed = mark.bars && view.shown?.versionId === view.versionId ? markBars(view, mark.bars[0], mark.bars[1]) : null;
     // A tempo change: the old seconds are other music, so carry only bars re-timed from the new version's own reading.
     if (lin.retimed && !retimed) return { kind: 'stale', useBars: mark.bars ?? null, tempo: true };

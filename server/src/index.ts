@@ -18,12 +18,15 @@ import { lyricsRouter } from './routes/lyrics.js';
 import { scorePlanRouter } from './routes/scorePlan.js';
 import { scoreRouter } from './routes/score.js';
 import { scoreMidiRouter } from './routes/scoreMidi.js';
+import { referencedNotationIds, sweepNotation } from './services/notationStore.js';
+import { scoreRetimeRouter } from './routes/scoreRetime.js';
 import { scoreRenderRouter } from './routes/scoreRender.js';
 import { chatRouter } from './routes/chat.js';
 import { chatTurnsRouter } from './routes/chatTurns.js';
 import { chatReferencesRouter } from './routes/chatReferences.js';
 import { chatMarkRouter } from './routes/chatMark.js';
 import { chatAnalysisRouter } from './routes/chatAnalysis.js';
+import { chatRetimeRouter } from './routes/chatRetime.js';
 import { startAnalysisTrigger } from './services/chat/analysisTrigger.js';
 import { probeFfmpeg } from './services/transcode.js';
 import { sweepTrash } from './services/trashSweep.js';
@@ -53,16 +56,22 @@ app.use('/api/songs', scorePlanRouter);
 app.use('/api/songs', scoreRouter);
 app.use('/api/songs', scoreRenderRouter);
 app.use('/api', scoreMidiRouter);
+app.use('/api', scoreRetimeRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/chat', chatTurnsRouter);
 app.use('/api/chat', chatReferencesRouter);
 app.use('/api/chat', chatMarkRouter);
 app.use('/api/chat', chatAnalysisRouter);
+app.use('/api/chat', chatRetimeRouter);
 app.use('/audio', express.static(config.audioDir));
 
 startAnalysisTrigger(); // a save on a chat song queues its version analysis (F-052, D-172)
 sweepTrash(); // and the orphaned chat reference files (trashSweep.ts)
 setInterval(sweepTrash, 60 * 60 * 1000);
+// Kept transcription notation files no version points at, once 30 days old (re-time, D-207).
+void Promise.resolve().then(() => sweepNotation(referencedNotationIds()))
+  .then((n) => { if (n) console.log(`Removed ${n} unreferenced transcription notation file(s)`); })
+  .catch((err) => console.error('Notation sweep failed:', err));
 // Jobs live only in memory: a restart strands the files they own, and a closed tab
 // never cancels or discards its job.
 void sweepOrphanStems(isLiveSplit)

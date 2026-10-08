@@ -1,0 +1,949 @@
+{
+ "model": "gemma4:26b-a4b-it-q4_K_M",
+ "tag": "gemma4",
+ "load_s": 19.25,
+ "vram_baseline_mb": 2940,
+ "vram_loaded_mb": 15502,
+ "ps": [
+  {
+   "size": 18236005414,
+   "size_vram": 13258603887,
+   "context_length": 16384
+  }
+ ],
+ "cases": {
+  "RC05": {
+   "request": "Schreib mir einen langsamen deutschen Popsong über den Abschied, mit Klavier und weicher Frauenstimme",
+   "lang": "de",
+   "title": "Abschied",
+   "style": "pop, piano, melancholic, soft female voice",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 8.97,
+   "prompt_tokens": 243,
+   "completion_tokens": 286,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Der Regen klopft leise an das Glas\", \"Die Zeit steht für einen Moment still\", \"Ich sehe dein Gesicht im fahlen Licht\", \"Und weiß nicht, was ich heute fühlen will\"]}, {\"lines\": [\"Jetzt müssen wir uns endlich gehen\", \"Die Welt dreht sich ohne uns weiter\", \"Nur die leeren Räume bleiben stehen\", \"Und die Stille wird immer schwerer\"]}, {\"lines\": [\"Dein Schlüssel liegt einsam auf dem Tisch\", \"Ein letztes Zeichen von unserer Zeit\", \"Ich versuche die Tränen zu verbergen\", \"Doch die Einsamkeit ist jetzt bereit\"]}, {\"lines\": [\"Jetzt müssen wir uns endlich gehen\", \"Die Welt dreht sich ohne uns weiter\", \"Nur die leeren Räume bleiben stehen\", \"Und die Stille wird immer schwerer\"]}, {\"lines\": [\"Vielleicht begegnen wir uns irgendwo\", \"An einem Ort, den wir nicht kennen\", \"Doch heute bleibt nur der tiefe Schmerz\", \"Und das Ende unserer gemeinsamen Jahren\"]}, {\"lines\": [\"Jetzt müssen wir uns endlich gehen\", \"Die Welt dreht sich ohne uns weiter\", \"Nur die leeren Räume bleiben stehen\", \"Und die Stille wird immer schwerer\"]}, {\"lines\": [\"Nur noch die Stille\", \"Nur noch der Regen\", \"Abschied nehmen\", \"Ganz leise\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Regen klopft leise an das Glas",
+      "Die Zeit steht für einen Moment still",
+      "Ich sehe dein Gesicht im fahlen Licht",
+      "Und weiß nicht, was ich heute fühlen will"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Jetzt müssen wir uns endlich gehen",
+      "Die Welt dreht sich ohne uns weiter",
+      "Nur die leeren Räume bleiben stehen",
+      "Und die Stille wird immer schwerer"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Dein Schlüssel liegt einsam auf dem Tisch",
+      "Ein letztes Zeichen von unserer Zeit",
+      "Ich versuche die Tränen zu verbergen",
+      "Doch die Einsamkeit ist jetzt bereit"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Jetzt müssen wir uns endlich gehen",
+      "Die Welt dreht sich ohne uns weiter",
+      "Nur die leeren Räume bleiben stehen",
+      "Und die Stille wird immer schwerer"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Vielleicht begegnen wir uns irgendwo",
+      "An einem Ort, den wir nicht kennen",
+      "Doch heute bleibt nur der tiefe Schmerz",
+      "Und das Ende unserer gemeinsamen Jahren"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Jetzt müssen wir uns endlich gehen",
+      "Die Welt dreht sich ohne uns weiter",
+      "Nur die leeren Räume bleiben stehen",
+      "Und die Stille wird immer schwerer"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Nur noch die Stille",
+      "Nur noch der Regen",
+      "Abschied nehmen",
+      "Ganz leise"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC06": {
+   "request": "Ein fröhlicher Schlager über den Sommer am See",
+   "lang": "de",
+   "title": "Sommer am See",
+   "style": "Schlager, cheerful, upbeat, acoustic guitar, accordion, vocal",
+   "bpm": 120,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 8.89,
+   "prompt_tokens": 237,
+   "completion_tokens": 289,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Die Sonne lacht am blauen Himmel\", \"Der Wind weht sanft durchs grüne Gras\", \"Wir lassen alle Sorgen spielen\", \"Und haben heute riesigen Spaß\"]}, {\"lines\": [\"Oh, Sommer am See, wie wunderbar\", \"Die Zeit mit dir ist einfach klar\", \"Wir tanzen im Licht, wir fühlen uns frei\", \"Der Sommer am See ist mit dabei\"]}, {\"lines\": [\"Das Wasser glitzert hell und klar\", \"Ein Picknick liegt am Ufer bereit\", \"Wir sind heute ganz wunderbar\", \"Und vergessen jede Einsamkeit\"]}, {\"lines\": [\"Oh, Sommer am See, wie wunderbar\", \"Die Zeit mit dir ist einfach klar\", \"Wir tanzen im Licht, wir fühlen uns frei\", \"Der Sommer am See ist mit dabei\"]}, {\"lines\": [\"Das Akkordeon spielt eine Melodie\", \"Die pure Freude, die spüren wir\", \"Kein Regen und kein grauer Tag\", \"Weil jeder diesen Moment so mag\"]}, {\"lines\": [\"Oh, Sommer am See, wie wunderbar\", \"Die Zeit mit dir ist einfach klar\", \"Wir tanzen im Licht, wir fühlen uns frei\", \"Der Sommer am See ist mit dabei\"]}, {\"lines\": [\"Sommer am See\", \"Einfach nur wir zwei\", \"Sommer am See\", \"Die Sorgen sind vorbei\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Sonne lacht am blauen Himmel",
+      "Der Wind weht sanft durchs grüne Gras",
+      "Wir lassen alle Sorgen spielen",
+      "Und haben heute riesigen Spaß"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Oh, Sommer am See, wie wunderbar",
+      "Die Zeit mit dir ist einfach klar",
+      "Wir tanzen im Licht, wir fühlen uns frei",
+      "Der Sommer am See ist mit dabei"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Das Wasser glitzert hell und klar",
+      "Ein Picknick liegt am Ufer bereit",
+      "Wir sind heute ganz wunderbar",
+      "Und vergessen jede Einsamkeit"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Oh, Sommer am See, wie wunderbar",
+      "Die Zeit mit dir ist einfach klar",
+      "Wir tanzen im Licht, wir fühlen uns frei",
+      "Der Sommer am See ist mit dabei"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Das Akkordeon spielt eine Melodie",
+      "Die pure Freude, die spüren wir",
+      "Kein Regen und kein grauer Tag",
+      "Weil jeder diesen Moment so mag"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Oh, Sommer am See, wie wunderbar",
+      "Die Zeit mit dir ist einfach klar",
+      "Wir tanzen im Licht, wir fühlen uns frei",
+      "Der Sommer am See ist mit dabei"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Sommer am See",
+      "Einfach nur wir zwei",
+      "Sommer am See",
+      "Die Sorgen sind vorbei"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC07": {
+   "request": "irgendwas Ruhiges zum Einschlafen",
+   "lang": "de",
+   "title": "Sanfte Schlaflied",
+   "style": "acoustic guitar, soft vocals, gentle mood",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 6.64,
+   "prompt_tokens": 222,
+   "completion_tokens": 213,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Der Tag verblasst im fahlen Licht\", \"Ein leises Flüstern durch die Nacht\", \"Die Welt wird still und ganz sanft\", \"Bis die Dunkelheit erwacht\"]}, {\"lines\": [\"Schlaf nun ein und find die Ruh'\", \"Schließ deine Augen, träum ganz ruhig\", \"Lass alle Sorgen einfach ziehn\", \"In der Stille darfst du sein\"]}, {\"lines\": [\"Der Mond wacht über deinem Bett\", \"Ein silberner Schein auf deinem Gesicht\", \"Die Sterne funkeln ganz fern und weit\", \"Im sanften Glanz des Mondlichts\"]}, {\"lines\": [\"Schlaf nun ein und find die Ruh'\", \"Schließ deine Augen, träum ganz ruhig\", \"Lass alle Sorgen einfach ziehn\", \"In der Stille darfst du sein\"]}, {\"lines\": [\"Ganz leise sinkt die Nacht\", \"Ganz leise wird die Welt\", \"Schlaf nun ein\", \"Schlaf nun ein\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Tag verblasst im fahlen Licht",
+      "Ein leises Flüstern durch die Nacht",
+      "Die Welt wird still und ganz sanft",
+      "Bis die Dunkelheit erwacht"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Schlaf nun ein und find die Ruh'",
+      "Schließ deine Augen, träum ganz ruhig",
+      "Lass alle Sorgen einfach ziehn",
+      "In der Stille darfst du sein"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Mond wacht über deinem Bett",
+      "Ein silberner Schein auf deinem Gesicht",
+      "Die Sterne funkeln ganz fern und weit",
+      "Im sanften Glanz des Mondlichts"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Schlaf nun ein und find die Ruh'",
+      "Schließ deine Augen, träum ganz ruhig",
+      "Lass alle Sorgen einfach ziehn",
+      "In der Stille darfst du sein"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Ganz leise sinkt die Nacht",
+      "Ganz leise wird die Welt",
+      "Schlaf nun ein",
+      "Schlaf nun ein"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE08": {
+   "request": "Ein Indie-Pop-Song über den Herbst in der Großstadt, ein bisschen wehmütig",
+   "lang": "de",
+   "title": "Herbst in der Stadt",
+   "style": "indie pop, dreamy synths, clean electric guitar, male vocal, wistful",
+   "bpm": 104,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 8.03,
+   "prompt_tokens": 250,
+   "completion_tokens": 253,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Der Wind weht durch die Gassen\", \"Die Blätter tanzen auf dem Asphalt\", \"Alles wird langsam blasser\", \"Und die Straßen wirken so kalt\"]}, {\"lines\": [\"Herbst in der Stadt\", \"Ein goldener Abschied im Licht\", \"Herbst in der Stadt\", \"Ich vergesse dein Gesicht\"]}, {\"lines\": [\"Die Cafés sind nun leerer\", \"Der Nebel legt sich auf das Dach\", \"Die Tage werden kürzer\", \"Und die Welt wird wieder wach\"]}, {\"lines\": [\"Herbst in der Stadt\", \"Ein goldener Abschied im Licht\", \"Herbst in der Stadt\", \"Ich vergesse dein Gesicht\"]}, {\"lines\": [\"Die Lichter der Ampeln\", \"Spiegeln sich im Regen auf dem Boden\", \"Ich suche nach alten Wegen\", \"Und finde nur die leeren Stunden\"]}, {\"lines\": [\"Herbst in der Stadt\", \"Ein goldener Abschied im Licht\", \"Herbst in der Stadt\", \"Ich vergesse dein Gesicht\"]}, {\"lines\": [\"Nur noch Schatten im Park\", \"Alles wird leise und weit\", \"Ein letzter warmer Moment\", \"In dieser grauen Zeit\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Wind weht durch die Gassen",
+      "Die Blätter tanzen auf dem Asphalt",
+      "Alles wird langsam blasser",
+      "Und die Straßen wirken so kalt"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt",
+      "Ein goldener Abschied im Licht",
+      "Herbst in der Stadt",
+      "Ich vergesse dein Gesicht"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Cafés sind nun leerer",
+      "Der Nebel legt sich auf das Dach",
+      "Die Tage werden kürzer",
+      "Und die Welt wird wieder wach"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt",
+      "Ein goldener Abschied im Licht",
+      "Herbst in der Stadt",
+      "Ich vergesse dein Gesicht"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Die Lichter der Ampeln",
+      "Spiegeln sich im Regen auf dem Boden",
+      "Ich suche nach alten Wegen",
+      "Und finde nur die leeren Stunden"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt",
+      "Ein goldener Abschied im Licht",
+      "Herbst in der Stadt",
+      "Ich vergesse dein Gesicht"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Nur noch Schatten im Park",
+      "Alles wird leise und weit",
+      "Ein letzter warmer Moment",
+      "In dieser grauen Zeit"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE09": {
+   "request": "Deutschrap über das Aufwachsen im Viertel, ehrlich und roh",
+   "lang": "de",
+   "title": "Mein Viertel",
+   "style": "german hip hop, boom bap, dark piano loop, rap vocal, gritty",
+   "bpm": 92,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 14.99,
+   "prompt_tokens": 241,
+   "completion_tokens": 473,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Der Asphalt ist kalt und die Schatten sind lang\", \"Jeder Tag hier ist ein Kampf, ein ständiger Zwang\", \"Betonwände grau, die Fenster sind blind\", \"Wir jagen den Traum, doch wir verlieren den Sinn\", \"Nur der Beat im Kopf hält die Dunkelheit fern\", \"Zwischen Dreck und dem Schmerz, im harten Kern\"]}, {\"lines\": [\"Mein Viertel, mein Stolz und mein tiefster Schmerz\", \"Ein Labyrinth aus Beton, ein einsames Herz\", \"Hier lernt man das Überleben, hier lernt man den Preis\", \"In den Gassen der Stadt, im ewigen Eis\"]}, {\"lines\": [\"Die Sirenen singen Lieder in der tiefsten Nacht\", \"Haben nie gelernt, was man Freiheit eigentlich macht\", \"Alte Freunde sind weg, hinter Gittern oder im Staub\", \"Nur die Erinnerung bleibt, bitter und raub\", \"Jeder Schritt auf dem Pflaster ist ein Risiko pur\", \"In dieser Welt voller Schatten und tiefer Natur\"]}, {\"lines\": [\"Mein Viertel, mein Stolz und mein tiefster Schmerz\", \"Ein Labyrinth aus Beton, ein einsames Herz\", \"Hier lernt man das Überleben, hier lernt man den Preis\", \"In den Gassen der Stadt, im ewigen Eis\"]}, {\"lines\": [\"Kein Gold an der Kette, nur Narben auf der Haut\", \"Haben uns durch den Regen und den Wind durchgehau't\", \"Die Straßen sind rau, doch sie formen den Geist\", \"Auch wenn man die Hoffnung im Dreck hier verstreicht\", \"Wir bleiben hier stehen, trotz allem Verfall\", \"Ein Echo der Straße, ein unendlicher Schall\"]}, {\"lines\": [\"Mein Viertel, mein Stolz und mein tiefster Schmerz\", \"Ein Labyrinth aus Beton, ein einsames Herz\", \"Hier lernt man das Überleben, hier lernt man den Preis\", \"In den Gassen der Stadt, im ewigen Eis\"]}, {\"lines\": [\"Nur der Beat und der Beton\", \"Kein Entkommen, kein Phantom\", \"Mein Viertel bleibt für immer mein Zuhause\", \"In der Dunkelheit, ganz ohne Glaube\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Asphalt ist kalt und die Schatten sind lang",
+      "Jeder Tag hier ist ein Kampf, ein ständiger Zwang",
+      "Betonwände grau, die Fenster sind blind",
+      "Wir jagen den Traum, doch wir verlieren den Sinn",
+      "Nur der Beat im Kopf hält die Dunkelheit fern",
+      "Zwischen Dreck und dem Schmerz, im harten Kern"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, mein Stolz und mein tiefster Schmerz",
+      "Ein Labyrinth aus Beton, ein einsames Herz",
+      "Hier lernt man das Überleben, hier lernt man den Preis",
+      "In den Gassen der Stadt, im ewigen Eis"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Sirenen singen Lieder in der tiefsten Nacht",
+      "Haben nie gelernt, was man Freiheit eigentlich macht",
+      "Alte Freunde sind weg, hinter Gittern oder im Staub",
+      "Nur die Erinnerung bleibt, bitter und raub",
+      "Jeder Schritt auf dem Pflaster ist ein Risiko pur",
+      "In dieser Welt voller Schatten und tiefer Natur"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, mein Stolz und mein tiefster Schmerz",
+      "Ein Labyrinth aus Beton, ein einsames Herz",
+      "Hier lernt man das Überleben, hier lernt man den Preis",
+      "In den Gassen der Stadt, im ewigen Eis"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Kein Gold an der Kette, nur Narben auf der Haut",
+      "Haben uns durch den Regen und den Wind durchgehau't",
+      "Die Straßen sind rau, doch sie formen den Geist",
+      "Auch wenn man die Hoffnung im Dreck hier verstreicht",
+      "Wir bleiben hier stehen, trotz allem Verfall",
+      "Ein Echo der Straße, ein unendlicher Schall"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, mein Stolz und mein tiefster Schmerz",
+      "Ein Labyrinth aus Beton, ein einsames Herz",
+      "Hier lernt man das Überleben, hier lernt man den Preis",
+      "In den Gassen der Stadt, im ewigen Eis"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Nur der Beat und der Beton",
+      "Kein Entkommen, kein Phantom",
+      "Mein Viertel bleibt für immer mein Zuhause",
+      "In der Dunkelheit, ganz ohne Glaube"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE10": {
+   "request": "Ein Liedermacher-Lied über Heimweh, nur Gitarre und Stimme",
+   "lang": "de",
+   "title": "Heimweh",
+   "style": "singer-songwriter, folk, acoustic guitar, warm male vocal, intimate",
+   "bpm": 76,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 9.82,
+   "prompt_tokens": 237,
+   "completion_tokens": 305,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Der Wind weht kalt durch die leere Gasse\", \"Die Straßenlichter werfen lange Schatten\", \"Ich sitze hier an einem fremden Tasse\", \"Und versuche, die Stille zu ertragen\"]}, {\"lines\": [\"Die Gesichter hier sind mir so fremd\", \"Kein Name, den ich seit Jahren kenne\", \"Ich hab mich in der Ferne selbst verrennt\", \"Und spüre nur die Sehnsucht in den Händen\"]}, {\"lines\": [\"Oh, das Heimweh brennt wie ein kleines Feuer\", \"Es zieht mich zurück in die vertraute Zeit\", \"In meiner Brust wird es immer schwerer\", \"Ich bin bereit für die Heimkehr, weit und breit\"]}, {\"lines\": [\"Ich sehe den Wald und den alten Bach\", \"Wie sie im Mondlicht leise flüstern\", \"Ich höre noch immer den vertrauten Krach\", \"Wenn die Kinder im Garten laut herumtölpeln\"]}, {\"lines\": [\"Oh, das Heimweh brennt wie ein kleines Feuer\", \"Es zieht mich zurück in die vertraute Zeit\", \"In meiner Brust wird es immer schwerer\", \"Ich bin bereit für die Heimkehr, weit und breit\"]}, {\"lines\": [\"Nur die Gitarre und mein leiser Gesang\", \"Tragen die Sehnsucht durch die Nacht\", \"Ein langer, einsamer Wandergang\", \"Bis die Heimat mich wieder umarmt\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Wind weht kalt durch die leere Gasse",
+      "Die Straßenlichter werfen lange Schatten",
+      "Ich sitze hier an einem fremden Tasse",
+      "Und versuche, die Stille zu ertragen"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Gesichter hier sind mir so fremd",
+      "Kein Name, den ich seit Jahren kenne",
+      "Ich hab mich in der Ferne selbst verrennt",
+      "Und spüre nur die Sehnsucht in den Händen"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Oh, das Heimweh brennt wie ein kleines Feuer",
+      "Es zieht mich zurück in die vertraute Zeit",
+      "In meiner Brust wird es immer schwerer",
+      "Ich bin bereit für die Heimkehr, weit und breit"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Ich sehe den Wald und den alten Bach",
+      "Wie sie im Mondlicht leise flüstern",
+      "Ich höre noch immer den vertrauten Krach",
+      "Wenn die Kinder im Garten laut herumtölpeln"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Oh, das Heimweh brennt wie ein kleines Feuer",
+      "Es zieht mich zurück in die vertraute Zeit",
+      "In meiner Brust wird es immer schwerer",
+      "Ich bin bereit für die Heimkehr, weit und breit"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Nur die Gitarre und mein leiser Gesang",
+      "Tragen die Sehnsucht durch die Nacht",
+      "Ein langer, einsamer Wandergang",
+      "Bis die Heimat mich wieder umarmt"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC08": {
+   "request": "una balada lenta sobre el mar, guitarra de nailon y una voz femenina suave",
+   "lang": "es",
+   "title": "Mar de Sueños",
+   "style": "ballad, nylon guitar, soft female voice, melancholic mood",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 7.67,
+   "prompt_tokens": 248,
+   "completion_tokens": 243,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"La luna se asoma en la orilla\", \"el viento susurra tu nombre\", \"la arena guarda una huella\", \"que el tiempo no logra borrar\"]}, {\"lines\": [\"Eres mi mar de sueños\", \"un horizonte sin final\", \"donde me pierdo en tus olas\", \"en este silencio de sal\"]}, {\"lines\": [\"Las olas golpean la roca\", \"con un ritmo de soledad\", \"buscando la calma perdida\", \"en la inmensidad de la mar\"]}, {\"lines\": [\"Eres mi mar de sueños\", \"un horizonte sin final\", \"donde me pierdo en tus olas\", \"en este silencio de sal\"]}, {\"lines\": [\"Si la marea se aleja\", \"me quedo con tu mirar\", \"esperando que el agua\", \"me traiga tu dulce volver\"]}, {\"lines\": [\"Eres mi mar de sueños\", \"un horizonte sin final\", \"donde me pierdo en tus olas\", \"en este silencio de sal\"]}, {\"lines\": [\"Solo queda el eco\", \"de un suspiro en el mar\", \"solo queda el eco\", \"de tu eterno caminar\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "La luna se asoma en la orilla",
+      "el viento susurra tu nombre",
+      "la arena guarda una huella",
+      "que el tiempo no logra borrar"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Eres mi mar de sueños",
+      "un horizonte sin final",
+      "donde me pierdo en tus olas",
+      "en este silencio de sal"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Las olas golpean la roca",
+      "con un ritmo de soledad",
+      "buscando la calma perdida",
+      "en la inmensidad de la mar"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Eres mi mar de sueños",
+      "un horizonte sin final",
+      "donde me pierdo en tus olas",
+      "en este silencio de sal"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Si la marea se aleja",
+      "me quedo con tu mirar",
+      "esperando que el agua",
+      "me traiga tu dulce volver"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Eres mi mar de sueños",
+      "un horizonte sin final",
+      "donde me pierdo en tus olas",
+      "en este silencio de sal"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Solo queda el eco",
+      "de un suspiro en el mar",
+      "solo queda el eco",
+      "de tu eterno caminar"
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC09": {
+   "request": "A fast reggaeton party song in Spanish about a summer night out",
+   "lang": "es",
+   "title": "Noche de Verano",
+   "style": "reggaeton, electronic, upbeat, party, Spanish",
+   "bpm": 130,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Pre-Chorus",
+    "Chorus",
+    "Verse",
+    "Pre-Chorus",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 12.12,
+   "prompt_tokens": 258,
+   "completion_tokens": 369,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"La luna brilla sobre la ciudad\", \"Siento el calor de la libertad\", \"Las luces prenden todo el callejón\", \"Ya se siente la vibra de la situación\"]}, {\"lines\": [\"Sube el volumen que esto va a empezar\", \"Nadie en la pista se quiere parar\", \"El ritmo sube y me pone a sudar\", \"Esta noche nadie nos va a frenar\"]}, {\"lines\": [\"Baila bajo la noche de verano\", \"Siente el movimiento, toma mi mano\", \"Baila bajo la noche de verano\", \"Todo lo malo se queda lejano\"]}, {\"lines\": [\"Zapatillas listas para el movimiento\", \"Bebiendo algo frío en este momento\", \"La música retumba en el corazón\", \"Perdiendo el control con esta canción\"]}, {\"lines\": [\"Sube el volumen que esto va a empezar\", \"Nadie en la pista se quiere parar\", \"El ritmo sube y me pone a sudar\", \"Esta noche nadie nos va a frenar\"]}, {\"lines\": [\"Baila bajo la noche de verano\", \"Siente el movimiento, toma mi mano\", \"Baila bajo la noche de verano\", \"Todo lo malo se queda lejano\"]}, {\"lines\": [\"No queremos que el sol nos encuentre\", \"Que la fiesta en la mente se mantenga\", \"Solo luces, ritmo y mucha energía\", \"Viviendo la magia de este gran día\"]}, {\"lines\": [\"Baila bajo la noche de verano\", \"Siente el movimiento, toma mi mano\", \"Baila bajo la noche de verano\", \"Todo lo malo se queda lejano\"]}, {\"lines\": [\"Solo verano\", \"No paremos el ritmo\", \"Toda la noche\", \"Mulakai en el control\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "La luna brilla sobre la ciudad",
+      "Siento el calor de la libertad",
+      "Las luces prenden todo el callejón",
+      "Ya se siente la vibra de la situación"
+     ]
+    },
+    {
+     "tag": "Pre-Chorus",
+     "lines": [
+      "Sube el volumen que esto va a empezar",
+      "Nadie en la pista se quiere parar",
+      "El ritmo sube y me pone a sudar",
+      "Esta noche nadie nos va a frenar"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Baila bajo la noche de verano",
+      "Siente el movimiento, toma mi mano",
+      "Baila bajo la noche de verano",
+      "Todo lo malo se queda lejano"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Zapatillas listas para el movimiento",
+      "Bebiendo algo frío en este momento",
+      "La música retumba en el corazón",
+      "Perdiendo el control con esta canción"
+     ]
+    },
+    {
+     "tag": "Pre-Chorus",
+     "lines": [
+      "Sube el volumen que esto va a empezar",
+      "Nadie en la pista se quiere parar",
+      "El ritmo sube y me pone a sudar",
+      "Esta noche nadie nos va a frenar"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Baila bajo la noche de verano",
+      "Siente el movimiento, toma mi mano",
+      "Baila bajo la noche de verano",
+      "Todo lo malo se queda lejano"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "No queremos que el sol nos encuentre",
+      "Que la fiesta en la mente se mantenga",
+      "Solo luces, ritmo y mucha energía",
+      "Viviendo la magia de este gran día"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Baila bajo la noche de verano",
+      "Siente el movimiento, toma mi mano",
+      "Baila bajo la noche de verano",
+      "Todo lo malo se queda lejano"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Solo verano",
+      "No paremos el ritmo",
+      "Toda la noche",
+      "Mulakai en el control"
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC10": {
+   "request": "algo romántico para mi novia",
+   "lang": "es",
+   "title": "Para Mi Novia",
+   "style": "soft, emotional, acoustic guitar, piano, warm mood, female voice",
+   "bpm": 72,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 8.28,
+   "prompt_tokens": 239,
+   "completion_tokens": 260,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Tu mirada es mi refugio seguro\", \"el silencio que calma mi ansiedad\", \"en tus ojos encuentro el futuro\", \"y una dulce y eterna verdad\"]}, {\"lines\": [\"Eres la luz que ilumina mi vida\", \"el latido que marca mi andar\", \"la melodía más dulce y querida\", \"que nunca dejaré de cantar\"]}, {\"lines\": [\"Caminamos descalzos por la luna\", \"dibujando promesas en la piel\", \"no existe en el mundo fortuna\", \"más grande que serte siempre fiel\"]}, {\"lines\": [\"Eres la luz que ilumina mi vida\", \"el latido que marca mi andar\", \"la melodía más dulce y querida\", \"que nunca dejaré de cantar\"]}, {\"lines\": [\"Si el tiempo decidiera detenerse\", \"yo elegiría quedarme junto a ti\", \"para que el universo pueda verte\", \"y saber que siempre te elegí\"]}, {\"lines\": [\"Eres la luz que ilumina mi vida\", \"el latido que marca mi andar\", \"la melodía más dulce y querida\", \"que nunca dejaré de cantar\"]}, {\"lines\": [\"Simplemente tú\", \"siempre tú\", \"mi amor eterno\", \"mi luz\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Tu mirada es mi refugio seguro",
+      "el silencio que calma mi ansiedad",
+      "en tus ojos encuentro el futuro",
+      "y una dulce y eterna verdad"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Eres la luz que ilumina mi vida",
+      "el latido que marca mi andar",
+      "la melodía más dulce y querida",
+      "que nunca dejaré de cantar"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Caminamos descalzos por la luna",
+      "dibujando promesas en la piel",
+      "no existe en el mundo fortuna",
+      "más grande que serte siempre fiel"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Eres la luz que ilumina mi vida",
+      "el latido que marca mi andar",
+      "la melodía más dulce y querida",
+      "que nunca dejaré de cantar"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Si el tiempo decidiera detenerse",
+      "yo elegiría quedarme junto a ti",
+      "para que el universo pueda verte",
+      "y saber que siempre te elegí"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Eres la luz que ilumina mi vida",
+      "el latido que marca mi andar",
+      "la melodía más dulce y querida",
+      "que nunca dejaré de cantar"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Simplemente tú",
+      "siempre tú",
+      "mi amor eterno",
+      "mi luz"
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  }
+ },
+ "ps_after": [
+  {
+   "size": 18236005414,
+   "size_vram": 13258603887
+  }
+ ],
+ "vram_peak_after_mb": 15568,
+ "release": [
+  0.66,
+  true
+ ]
+}

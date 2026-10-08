@@ -2,7 +2,8 @@
  * The chat turn's system prompt: a snapshot of SP-5 prompt.py `rules_for()` with V3 and V31 on (the
  * v3.1 prompt that passed every bar, D-117), pinned by chatRules.test.ts against the spike's own
  * output. One C0 adaptation: YuE2 is the only engine (D-112 e), so the engine clause does not offer
- * ACE-Step. The op reference is the SCORE planner's, reused verbatim (plannerRules). C3 adds one rule,
+ * ACE-Step. LD (D-234): the lyrics clause becomes write / keep, a second call writes the lines (SP-5 rung 3).
+ * The op reference is the SCORE planner's, reused verbatim (plannerRules). C3 adds one rule,
  * only on a turn whose state has a reading (D-128), so every other turn keeps v3.1's measured text. Pure.
  */
 import { PLANNER_RULES } from '../score/plannerRules.js';
@@ -13,6 +14,13 @@ import type { TurnAction } from './chatTypes.js';
 const INTRO = 'You are the assistant of Mulakai, a local song studio. The person talks a song into being. You propose, code checks your '
   + 'proposal, and nothing runs until the person presses the card\'s button, so propose boldly. Every turn you answer with ONE JSON '
   + 'object {"action": ...} and nothing else, in the person\'s language for message and assumptions.';
+
+/** C2 (F-058, D-227): a follow-up edit to a live card revises it (turnRevise's PENDING PLAN), so SP-5's "send the
+ * complete op list" (Q-050: a restated plan loses ops) becomes drop + only what changes. */
+export const REVISE_ADAPTATION = {
+  spike: 'A follow-up edit while an edit card is pending replaces that card: send the complete op list.',
+  c2: 'A follow-up edit to a pending card revises it: drop what goes, send only new or changed ops.',
+};
 
 const ACTION_TEXT: Record<TurnAction, string> = {
   recipe: '- recipe: the person describes a NEW song, or refines or changes the new-song proposal that is still pending. Fill EVERY '
@@ -29,8 +37,8 @@ const ACTION_TEXT: Record<TurnAction, string> = {
     + 'and say so in assumptions; they will say "the second one" if they meant another. Answer with ops, as the OPS REFERENCE below '
     + 'says. State the place you assumed in assumptions ("assuming the first chorus, bars 25-32"). A REWRITE_LYRICS keeps the '
     + 'language of the song\'s own lyrics (the block\'s first line shows it), whatever language the request is written in. When the '
-    + 'person says "this" and a MARK is given, the mark is the place. A follow-up edit while an edit card is pending replaces that '
-    + 'card: send the complete op list. REHARMONIZE needs NEW ROOTS, not new colours: Dm7 over a Dm does not count; in every 2 bars '
+    + `person says "this" and a MARK is given, the mark is the place. ${REVISE_ADAPTATION.c2} `
+    + 'REHARMONIZE needs NEW ROOTS, not new colours: Dm7 over a Dm does not count; in every 2 bars '
     + 'at least one chord must have a different root than the old chord at that bar in the BAR MAP (old Dm: use Gm7, Bb maj7 or A7; '
     + 'old Bb: use Eb7 or Gm7).',
   scalpel: '- scalpel: a precise job for a dedicated tool, not a score edit. A request that says repaint (even "with new words") is '
@@ -54,14 +62,23 @@ export const ENGINE_ADAPTATION = {
   c0: 'engine: "yue2";',
 };
 
+/** LD (D-234, SP-5 rung 3): the recipe carries no lines, a second call writes them; the planner says write or keep. */
+export const LYRICS_ADAPTATION = {
+  spike: 'lyrics: one entry per SUNG section, in song order, with its tag (Verse, Pre-Chorus, Chorus, Bridge or Outro; an Intro is '
+    + `instrumental and has no lyrics) and ${LINES.min} to ${LINES.max} lines. Write real singable lines in the LANGUAGE OF THE REQUEST (a `
+    + 'German request gets German lyrics, "a Spanish ballad" Spanish lyrics; when the person names a language for the words, that one), '
+    + 'matching title and style; no tags or brackets inside lines; every verse has its own new lines, no verse shares a line with a '
+    + 'chorus, and a chorus repeats its own idea (not a line more than twice). ',
+  ld: 'language is the LANGUAGE OF THE REQUEST (a German request gets German lyrics, "a Spanish ballad" Spanish lyrics; when the person '
+    + 'names a language for the words, that one). lyrics: "write" or "keep"; the lines are written in a second step, do not write them. '
+    + '"keep" only when the person asks for a change that is not about the words (faster, another key, another style) and the PENDING '
+    + 'PROPOSAL or SIDEBAR already has lyrics; "write" for a new song, a new topic, language or structure, or when new words are asked for. ',
+};
+
 const RECIPE_FIELDS = 'RECIPE FIELDS: title (short); style: comma-separated genre, instruments, mood and voice (no tempo or key: they '
   + `have their own fields); bpm ${BPM.min}-${BPM.max}; key from the list; time_signature; language: the language the lyrics are sung `
   + `in; ${ENGINE_ADAPTATION.c0} structure: the ordered section tags, only from ${SECTION_TAGS.join(', ')} (a typical song: Intro, `
-  + 'Verse, Chorus, Verse, Chorus, Bridge, Chorus, Outro); lyrics: one entry per SUNG section, in song order, with its tag (Verse, '
-  + `Pre-Chorus, Chorus, Bridge or Outro; an Intro is instrumental and has no lyrics) and ${LINES.min} to ${LINES.max} lines. Write `
-  + 'real singable lines in the LANGUAGE OF THE REQUEST (a German request gets German lyrics, "a Spanish ballad" Spanish lyrics; when '
-  + 'the person names a language for the words, that one), matching title and style; no tags or brackets inside lines; every verse '
-  + 'has its own new lines, no verse shares a line with a chorus, and a chorus repeats its own idea (not a line more than twice). '
+  + `Verse, Chorus, Verse, Chorus, Bridge, Chorus, Outro); ${LYRICS_ADAPTATION.ld}`
   + 'key: a minor key (a name ending in m) for a sad or dark song, a major key otherwise, and it must match what you say in assumptions.';
 
 /** C3 (D-128): cover vs borrow, said once, only when a REFERENCE block is in the state. */

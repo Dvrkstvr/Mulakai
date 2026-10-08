@@ -9345,6 +9345,58 @@ shape grammar).
   blur.
 - DESIGN.md: the glass under "Footer player", in its own commit.
 
+## Re-time a Transcription (planned 2026-10-08)
+
+**Decision (project owner, 2026-10-07/08; D-190, D-206, D-207):** a
+SheetSage2 score that read the beat wrong (half time, double time, or a
+tempo the person names) is rebuilt with a corrected beat list. It works for
+both transcriptions: the cover's TRANSCRIBE score and a chat reading's
+score. It is offered in the cover panel, the SCORE dock (RE-TIME beside SET
+TEMPO), the chat reading and a chat verb. A tempo only slightly off stays
+SET TEMPO (Q-125). The full spec is pipeline/scope.md "RT" (F-090..F-094),
+and the mockup is pipeline/design/retime.html (D-209, owner sign-off
+pending).
+
+**Method (SP-8, D-210).** SheetSage2 builds the ABC from saved outputs
+(`notation/song_melody.mid`, `_beats.txt`, `_chords.txt`, `_keys.txt`,
+`_structures.txt`; 24 KB). yue-server rewrites the beat list:
+- HALF keeps every 2nd beat from the first downbeat.
+- DOUBLE inserts midpoints.
+- BPM lays a regular grid anchored once at the first downbeat.
+- Every mode renumbers beat-in-bar per meter and leaves a lead-in stub row.
+
+yue-server then snaps the melody MIDI onto the new grid (`fit_midi`) and
+calls SheetSage2's own `generate_abc_from_exports`. That runs as a CPU
+subprocess in SheetSage2's venv, in milliseconds, with no model and no
+worker slot. DOUBLE keeps every note. HALF and slower grids drop the notes
+SheetSage2's fixed 4-subbeat grid cannot hold, and the route reports
+`dropped_notes`, which the consequence line shows. Only yue-server reads or
+writes ABC (decision 0002).
+
+**Kept outputs (D-207, D-208).** yue-server forgets jobs after 24 h or on
+a restart, so the Mulakai server fetches each finished transcription's
+bundle and keeps it as `DATA_DIR/notation/<sha256>.json`. The cover's base
+version (`params_json.notationId`) and the reading (`analysis_json`)
+reference it. There is no backfill: a score without a bundle offers
+TRANSCRIBE AGAIN. An unreferenced bundle older than 30 days is swept at
+start.
+
+### File-level plan (one PR each, in order)
+
+1. `feat/retime-yue` — yue-server: `retime_beats.py` (pure transforms + `fit_midi`, from SP-8's `retime.py`), `retime_cli.py`
+   (run by `YUE_SHEETSAGE_PYTHON` in `YUE_SHEETSAGE_DIR`), `retime_routes.py`: `POST /v1/scores/retime`
+   `{bundle, mode, bpm?, melody_only}` → `{abc, measures, bpm, vocal_notes, ins_notes, dropped_notes, warnings}`, 422 with the reason;
+   `GET /v1/transcriptions/{id}/notation` (the bundle). Tests with a fake rebuild (pytest, no SheetSage2).
+2. `feat/retime-keep` — server: `services/notationStore.ts` (content-addressed bundles, sweep), fetch on finish in `transcribeJobs.ts`
+   (cover and reading), `services/score/yueRetime.ts`, `routes/scoreRetime.ts`: `GET /api/scores/notation/:id` (still kept?)
+   and `POST /api/scores/retime {notationId, mode, bpm?}`; `POST /api/engines/:id/cover` takes `notationId` and stores it in the
+   cover's `params_json` (+ tests).
+3. `feat/retime-cover` — client: the READ AS row in `YueScoreReview.tsx` / `YueCoverPanel.tsx`, `api/`, UNDO (+ tests; browser check).
+4. `feat/retime-dock` — RE-TIME op in the SCORE dock (`scoreCopy.ts`, the op schema both sides) for a cover with a kept bundle.
+5. `feat/retime-reading` — after C1 merges: the reading line's RE-TIME, the stored reading replaced, marks on the version stale.
+6. `feat/retime-chat` — after C2: the planner's RE-TIME op card.
+- DESIGN.md: the READ AS row and RE-TIME, in its own commit with PR 3.
+
 ## Remaster TUNE: Pick the Model and Steps (planned 2026-10-08)
 
 Reverses point 2 of "Export & Remaster — Phase 9 Design" (fixed settings, no

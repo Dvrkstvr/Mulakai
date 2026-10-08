@@ -19,7 +19,7 @@ export function checksSegments(c: ScorePlan['checks'], attempts: number, mode?: 
   if (c.tokens !== null) out.push({ text: `${n(c.tokens)} of ${n(TOKEN_LIMIT)} tokens`, warn: c.tokens > TOKEN_LIMIT });
   if (c.chordsPresent === false && mode?.cot === 'melody') out.push({ text: 'no chords · melody render', warn: false });
   else if (c.chordsPresent !== null) out.push({ text: c.chordsPresent ? 'chords valid' : 'chords invalid', warn: !c.chordsPresent });
-  out.push({ text: `attempt ${attempts} of ${MAX_ATTEMPTS}`, warn: false });
+  if (attempts > 0) out.push({ text: `attempt ${attempts} of ${MAX_ATTEMPTS}`, warn: false }); // 0: no planner ran (RE-TIME)
   return out;
 }
 

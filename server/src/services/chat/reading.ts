@@ -27,6 +27,8 @@ export interface ScorePart {
   warnings: string[];
   /** `/v1/scores/measure`; null when the backend cannot say. */
   measure: ScoreSize | null;
+  /** A transcribed score's kept notation files (re-time, F-090/F-092); absent on an own score and older readings. */
+  notationId?: string | null;
 }
 export interface CaptionPart { caption: string; bpm: number | null; key: string | null; meter: string | null }
 

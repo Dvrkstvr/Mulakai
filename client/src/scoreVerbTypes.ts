@@ -63,6 +63,8 @@ export type ScoreEvent =
   | { type: 'run'; run: ScorePlanRun; plan: ScorePlan | null }
   /** SCORE opened again (reload, another song and back): pick up a run in flight or a stored plan. */
   | { type: 'restore'; run: ScorePlanRun | null; plan: ScorePlan | null }
+  /** RE-TIME made a plan at once (RT-4): it is under review like a PLAN's. */
+  | { type: 'retimed'; plan: ScorePlan }
   | { type: 'cancel' }
   | { type: 'renderSubmitted'; ahead: number }
   | { type: 'renderRefused'; reason: string }

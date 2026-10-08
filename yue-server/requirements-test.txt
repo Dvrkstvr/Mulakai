@@ -7,3 +7,5 @@ python-multipart==0.0.32
 # The splice's signal code (splice_dsp.py) and its WAV IO.
 numpy==2.4.4
 scipy==1.18.0
+# Re-time (retime_fit.py) snaps the melody MIDI as SheetSage2 does; its venv pins this version.
+pretty_midi==0.2.10

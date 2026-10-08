@@ -8,7 +8,7 @@
 import { test, expect } from './fixtures';
 import { activeVersion, songByTitle } from './helpers';
 import { contract, recordedSong } from '../fake-score/contracts';
-import { contractSongDraft, editReplyFor, sp5Turn } from '../fake-score/chatReplies';
+import { contractSongDraft, editReplyFor, reviseReplyFor, sp5Turn } from '../fake-score/chatReplies';
 import { plannerLog, yueJobs } from './scoreFakes';
 import { composer, draftThread, editDraft, jobLine, openChat, scriptChat, sendMessage } from './chatFakes';
 import { BAR_SECONDS, SONG_SECONDS, barClock, drag, markChip, markLine } from './chatMarkFakes';
@@ -19,6 +19,7 @@ const RECIPE = sp5Turn('RC05.t1');
 const TITLE = String((RECIPE.reply.recipe as { title: string }).title); // "Abschied"
 const EDIT_REQUEST = 'a little faster, 88 BPM';
 const EDIT_REPLY = editReplyFor('apply-set-tempo', 'Up to 88 BPM; the whole song is re-rendered.');
+const REVISE_REPLY = reviseReplyFor('apply-set-tempo', 'Up to 88 BPM; the whole song is re-rendered.');
 /** v1's tempo as yue-server's recorded read reports it: the edit card's SET TEMPO row starts from it. */
 const BASE_BPM = (contract('read-ok').response.body.facts as { header: { bpm: number } }).header.bpm;
 
@@ -53,7 +54,7 @@ test('ASSISTANT OFF: the composer is off and says why; RETRY brings it back and 
 });
 
 test('CANCEL while thinking unloads the planner, keeps nothing, and RETRY asks again', async ({ page, request }) => {
-  await scriptChat(request, { hold: true, replies: RECIPE.replies });
+  await scriptChat(request, { hold: true, replies: RECIPE.replies, lyrics: RECIPE.lyrics });
   await openChat(page);
   await sendMessage(page, RECIPE.request);
   await expect(jobLine(page)).toContainText('THINKING… attempt 1 of 3', { timeout: 30_000 });
@@ -162,7 +163,7 @@ test('a mark: click CHORUS, drag its end two bars on; the marked turn’s prompt
 });
 
 test('an edit turn plans on v1, APPLY re-renders the whole song and v2 lands in the thread', async ({ page, request }) => {
-  await scriptChat(request, { replies: [EDIT_REPLY] });
+  await scriptChat(request, { replies: [REVISE_REPLY] }); // the marked turn's card is live, so this turn revises it (D-227)
   await openSongThread(page);
   const before = await editCards(page).count(); // the marked turn's card is superseded by this one, not applied
   await sendMessage(page, EDIT_REQUEST);

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
 import { NO_SONG_FACTS, turnSchema } from './actionSchema.js';
-import { KEYS, SUNG_TAGS } from './recipeRules.js';
+import { KEYS } from './recipeRules.js';
 import type { ScoreFacts } from '../score/planTypes.js';
 
 const facts = contract('read-ok').response.body.facts as ScoreFacts;
@@ -23,8 +23,7 @@ describe('turn reply schema (SP-5 turn_schema)', () => {
     const recipe = part(turnSchema({ facts: null, phraseBars: 4, allowed: ['recipe'] }), 'recipe').properties.recipe;
     expect(recipe.properties.key.enum).toEqual(KEYS);
     expect(recipe.properties.engine.enum).toEqual(['yue2']);
-    expect(recipe.properties.lyrics.items.properties.tag.enum).toEqual(SUNG_TAGS);
-    expect(recipe.properties.lyrics.items.properties.lines).toMatchObject({ minItems: 4, maxItems: 8 });
+    expect(recipe.properties.lyrics).toEqual({ enum: ['write', 'keep'] }); // LD (D-234): no lines in the recipe call
   });
 
   it('C3: reference_use (cover / borrow / none) is in the recipe only when the thread has a reading (D-128)', () => {
@@ -67,5 +66,15 @@ describe('turn reply schema (SP-5 turn_schema)', () => {
     expect(names([47, 58])).toEqual(['REHARMONIZE', 'WRITE_PHRASE', 'REPEAT', 'CUT', 'REWRITE_LYRICS']);
     expect(names([47, 58], true)).toEqual(expect.arrayContaining(['SET_TEMPO', 'EDIT_STYLE', 'TRANSPOSE']));
     expect(names()).toEqual(expect.arrayContaining(['SET_TEMPO', 'EDIT_STYLE', 'TRANSPOSE']));
+  });
+
+  it('C2 (F-058): with a pending plan the edit gains `drop` (pending op numbers, each once) and its ops may be empty', () => {
+    const edit = part(turnSchema({ facts, phraseBars: 4, allowed: ['edit', 'say'], pendingCount: 3 }), 'edit');
+    expect(edit.required).toEqual(['action', 'message', 'assumptions', 'drop', 'ops']);
+    expect(edit.properties.drop).toEqual({ type: 'array', items: { type: 'integer', minimum: 1, maximum: 3 }, uniqueItems: true, maxItems: 3 });
+    expect(edit.properties.ops.minItems).toBe(0);
+    const fresh = part(turnSchema({ facts, phraseBars: 4, allowed: ['edit'] }), 'edit');
+    expect(fresh.properties.drop).toBeUndefined();
+    expect(fresh.properties.ops.minItems).toBe(1);
   });
 });
