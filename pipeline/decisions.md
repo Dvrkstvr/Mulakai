@@ -912,6 +912,10 @@ Lyrics models per language from env `LYRICS_MODELS_<LANG>` (ISO code upper case,
 Lyric checks the schema cannot give, each a retry reason: no prompt-only word (a word of 4+ letters from the lyrics system prompt that is in neither the request, title nor style; stop-list always includes `Mulakai`), no line with an embedded newline or under 6 characters, language-ID as today. No word-count bar (SP-7's "over ~12 words" was qwen3's German, now not used).
 - instead of: rejecting the reply without a retry (SP-7 saw one leak in 18 gemma4 sets; a retry is cheap).
 
-## D-237 · 2026-10-08 · feature LD (F-096) · by: assumed (conductor), owner may overrule at the mockup
+## D-237 · 2026-10-08 · feature LD (F-096, Q-145) · by: owner (chat-lyrics-drafts.html LD-1a)
 Neither German draft is preselected: the sidebar's LYRICS waits for PICK and CREATE SONG is blocked until then. PICK writes the lyrics as the person's edit (YOURS). Reason: the SP-7 read had each model fail on different requests, so a default would send the weaker draft on a quick CREATE half the time.
 - instead of: DRAFT A preselected with B one click away.
+
+## D-238 · 2026-10-08 · feature LD (F-096, Q-146, Q-147, DT-LD) · by: assumed (conductor, mockup defaults)
+chat-lyrics-drafts.html as drawn: PICK is a quiet `q` outline, the picked draft sky (edge, tint, PICKED tag; DESIGN.md "Sky" gets one sentence in LD-3's PR as its own commit); the other draft dims and keeps "PICK A instead". Once the card is expired or superseded, the sidebar LYRICS field carries one quiet PICK per draft, only while no live card holds them (Q-146). PICK over hand-edited LYRICS replaces them with no confirm; the card says "PICK replaces your edited LYRICS" beforehand (Q-147). The turn line's text steps through recipe → draft A → draft B → unloading; the German card's turn-cost copy says ~45 s, not ~10 s.
+- instead of: sidebar pick buttons always shown; a confirm step before replacing edited lyrics.

@@ -393,3 +393,12 @@ Bar-map hover. Default: a change-list row lights its bars (solid sky) on hover a
 
 ## Q-144 · assumable · stage 5 (chat C2, DT-C2, F-058) · answered → D-229 (owner, defaults kept)
 APPLY on the pending card while a revise runs. Default: off (plan 1 is about to be superseded), on again if the revise fails or is cancelled. Alternative: left on (a race: APPLY of plan 1 while plan 2 is being written).
+
+## Q-145 · answered (D-237, owner) · stage 5 (chat LD, DT-LD, F-096, D-237)
+German lyric drafts: forced pick or DRAFT A preselected. Default (D-237): forced, CREATE SONG blocked with "pick DRAFT A or DRAFT B" (chat-lyrics-drafts.html LD-1a). Alternative: A preselected, B one click away (LD-1b): one click fewer, but a quick CREATE sends the weaker draft about half the time (SP-7). The owner picks.
+
+## Q-146 · assumed (D-238) · stage 5 (chat LD, DT-LD, F-096)
+Where the pick lives once the card is expired or superseded. Default: the sidebar LYRICS field shows one quiet PICK button per draft (LD-4), only when no live card holds the drafts. Alternative: the sidebar always carries them.
+
+## Q-147 · assumed (D-238) · stage 5 (chat LD, DT-LD, F-096)
+PICK over LYRICS the person edited by hand. Default: replaces them with no confirm, the card's line says "PICK replaces your edited LYRICS" beforehand. Alternative: a confirm step.
