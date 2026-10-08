@@ -3,8 +3,7 @@ paths:
   - "client/src/Chat*.tsx"
   - "client/src/chat*.ts"
   - "client/src/useChat*.ts"
-  - "client/src/api/chat.ts"
-  - "client/src/api/chatEdit.ts"
+  - "client/src/api/chat*.ts"
 ---
 
 # Chat — client
@@ -37,3 +36,7 @@ end to end"; modules in `pipeline/architecture.md` "Chat (C0)".
 - C1: the reading line and strip states go only through `chatAnalysis`, mark
   geometry and `markStale` through `chatMark`, mark copy in `chatMarkLabel`.
   WHAT IT SEES shows the server's preview, never a client-built prompt.
+- C2 (architecture.md "Chat (C2)"): lyrics-panel rows only through
+  `chatLyricsPanel`, line marks through `chatLyricsMark` (C1's `chatMark`
+  snaps); YuE2 line times only from `alignLyrics`; the bar map draws the
+  server's `map`, never bars computed here; C2 copy in `chatConvergeCopy.ts`.

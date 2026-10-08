@@ -236,6 +236,82 @@ shown as OLD | NEW twice, REVISE as a follow-up turn (the existing merge, D-073/
 bar map inside the edit card (was F-036; PLAN: M4's bar map goes into the edit card). Mostly existing machinery behind new cards, so lower
 risk than C1; value high once C1 exists because the mark makes lyric rows pickable.
 
+**Work packages (stage 6, 2026-10-08; modules, data and tests in architecture.md "Chat (C2)"; D-213..D-226).**
+What the person can do when C2 is done: on a song's thread, the sidebar shows VERSIONS, STYLE, TEMPO · KEY and the
+lyrics panel; with no mark it lists the sections, a click marks CHORUS 2 and the panel shows only its lines; shift-click
+a verse line to stretch the mark; "make this jazzier" gives an edit card with a bar map whose bars 49-56 light when the
+REHARMONIZE row is hovered; "and slow it down a bit" gives PLAN 2 below it (REHARMONIZE SAME, SET TEMPO NEW, nothing
+REMOVED) and the first card greys; "rewrite the second chorus" shows OLD | NEW on the card and the old lines struck
+above the new in the panel (PROPOSED if chorus 2 is not marked); on a new-song draft, UNDO TURN puts back what the
+last reply filled and keeps the field typed by hand.
+
+The thin path (each reversible): REVISE is decided by the server, not a button (a live, unchanged edit card makes the
+turn's edit a `{drop, ops}` revise merged by the score agent's `mergeRevise`, D-213, docs/decisions/0010); the
+lyrics panel rides in C1's analysis view, no new route (D-217); line times come from the Editor's `alignLyrics` (D-218);
+the bar map is built on the server and replaces the edit card's strip (D-215); UNDO is a server record written with
+the merge (D-220). No new queue kind, no migration, no yue-server transcription file (the "Re-time a transcription"
+session's files, D-190).
+
+Each package is one PR from `origin/main`, owning the files named so builder batches stay disjoint; "after" = waits for
+that one to merge.
+- **CV-0 · the shared contract: types, one pairing, the bar map, the undo record** (F-056/F-059/F-060 data), first,
+  needs nothing: `server/src/services/chat/convergeTypes.ts`; `server/src/services/score/lyricPairing.ts` + the switch
+  of `chat/{analysisView,markBlock,markFit}.ts` and `score/planReferent.ts` to it (own refactor commit; a cross-test
+  against `yue-server/tests/data/contract/read-sections.json`); `chat/barMap.ts`; `chat/draftModel.ts` (`before`),
+  `chat/editTypes.ts` (`revision?`, `since?`, `map?`), `chat/chatTypes.ts` (`RecipeBody.undo?`, `undone?`),
+  `chat/turnDispatch.ts` (the recipe body's `undo`, the edit card's `map`) + tests. 1.5 days.
+- **CV-1 · REVISE as a follow-up turn** (F-058 server), after CV-0: `chat/{turnRevise,actionSchema,turnCall,turnPrompt,
+  replyCheck,turnJob,turnDispatch}.ts` (`revision` / `since`), `score/reviseReply.ts` (export the `drop` part),
+  `server/test-fakes/chatScripts.ts` + tests (architecture.md "Test strategy (C2)" #1). 2 days.
+- **CV-2 · the lyrics panel's data** (F-056 server), after CV-0: `chat/{lyricsSplit,lyricsPanel}.ts`,
+  `chat/{analysisView,analysisTypes,analysisStore}.ts` (`shown.lyrics`, `versionLyrics`), `routes/chatAnalysis.ts` +
+  tests. 1.5 days.
+- **CV-3 · UNDO TURN on the server** (F-059 server), after CV-0: `chat/draftUndo.ts`, `routes/chat.ts` (the undo
+  route), `chat/messageView.ts` (`undo` offer) + tests (#2). 1 day.
+- **CV-4 · client state and wire** (F-056..F-060 logic), parallel from the start (the wire contract is in
+  architecture.md): `client/src/api/chatConverge.ts`, `client/src/api/{chatEdit,chatAnalysis}.ts` (additive fields),
+  `client/src/{chatLyricsPanel,chatLyricsMark,chatBarMap,chatUndo,chatConvergeCopy}.ts` + tests. 2 days.
+- **DT-C2 · design** (stage 5), parallel from the start, before CV-6..CV-8: `pipeline/design/chat-converge.html` at
+  1366×768 with C1's real player above the composer: the song sidebar (VERSIONS, STYLE, TEMPO · KEY, the panel) in
+  LY-3's states with a line mark and shift-click; LY-4's struck / new and PROPOSED with the card beside it; the
+  revised edit card (REVISED · PLAN 2, NEW / CHANGED / SAME, REMOVED, the superseded card above, a failed revision
+  under a live card, the over-6 refusal line); the bar map in the card at 32, 120 and 200 bars (a cover), a whole-song
+  op, a CUT, hover; UNDO TURN on the reply line, after undo ("restored TITLE, STYLE · kept LYRICS: you changed it"),
+  and no UNDO once the song exists. Tokens from DESIGN.md, sky for marks and just-filled, no new hue; **the owner
+  signs it off** (D-226).
+- **CV-5 · CP-C2, headless checkpoint** (F-058 on the real machine, R-040), after CV-1: `server/scripts/chatCp2.ts`;
+  evidence in `pipeline/cp-c2/<date>/`. Stop lines (architecture.md "Test strategy (C2)" #7): any context refusal or
+  prompt p95 over 8,000 tokens; any pending op missing from both the merged plan and REMOVED; an additive revision
+  dropping a pending op in more than 3 of 10; more than 2 of 12 revise turns failing → stop and raise before CV-7.
+  0.5-1 day.
+- **CV-6 · the song sidebar and the lyrics panel** (F-056, F-057 panel half), after CV-2, CV-4 and DT-C2:
+  `client/src/{ChatSongPanel,ChatLyricsPanel,ChatView}.tsx`, `client/src/chatLyrics.css`,
+  `e2e/tests/lyricsPanel.chat.spec.ts`; `docs/design/DESIGN.md` (the panel's clause, own commit). Browser check at
+  1366×768. 2 days.
+- **CV-7 · the edit card: REVISED, the bar map, hover** (F-058 client, F-060, F-057 card check), after CV-1, CV-4,
+  DT-C2, CV-5's stop lines and CV-6 (DESIGN.md): `client/src/{ChatEditCard,ChatBarMap,ScorePlanList}.tsx`
+  (`onHoverRow?`, additive for the dock), `client/src/chatEditCopy.ts`, `client/src/chatEdit.css`,
+  `e2e/tests/revise.chat.spec.ts`; `docs/design/DESIGN.md` (the bar map, own commit). 1.5 days.
+- **CV-8 · UNDO TURN and reload-proof marks** (F-059 client), after CV-3, CV-4 and DT-C2:
+  `client/src/{ChatUndoLine,ChatRecipeCard,ChatDraftFields}.tsx`, `client/src/chatDraftStore.ts`,
+  `e2e/tests/undoTurn.chat.spec.ts`. No DESIGN.md change (the ASSISTANT tag and YOURS are in it since C0a); if DT-C2's
+  sign-off adds one, after CV-6. 1.5 days.
+- **CV-9 · C2 live run** (verifier), after CV-6, CV-7, CV-8: on the real machine, a YuE2 song and an ACE-Step song:
+  the panel lists, marks a section, a line (aligned times, R-041: the chip's bars match the line heard), shift-click
+  across two sections; the panel dims while a new version is read, RETRY after a failed read, "no words" with
+  `LYRICS_API_URL` unset; a revise chain of 3 (additive, fewer chords, replace) with REMOVED read on screen; a lyric
+  rewrite in the panel and PROPOSED; the bar map on a 200-bar cover at 1366×768; UNDO TURN after a hand edit, then
+  reload.
+
+Parallel waves: (1) CV-0, CV-4, DT-C2 · (2) CV-1, CV-2, CV-3 · (3) CV-5, CV-6, CV-8 · (4) CV-7 · (5) CV-9.
+Honest size: about 15 working days of package work; the critical path CV-0 → CV-1 → CV-5 → CV-7 → CV-9 is about 7
+days, with DT-C2's sign-off needed by wave 3.
+Split point: **C2a** (the converging card) = CV-0, CV-1, CV-4 (bar map half), CV-5, CV-7; **C2b** = CV-2, CV-3, CV-4
+(panel and undo halves), CV-6, CV-8. If the owner wants it sooner, cut in this order: reload-proof just-filled marks
+(the session marks stay, D-221), UNDO TURN on older turns (only the latest offers it), shift-click extend and
+double-click play in the panel (click and header marks stay), PROPOSED outside the mark (the card's diff stays the
+one view, LY-4's alternative).
+
 ## C3 — Reference songs (F-061 .. F-065)
 
 The other half of the amended core promise: drop an audio file or pick a library song, `analyze` it (words, score with melody and chords,

@@ -946,3 +946,207 @@ as fact" → `resolveRange` + `barShift` tables and the chat e2e's stale steps; 
    version of 4 min or less over 90 s; the planner not fully on the GPU after an analysis, or the next turn p50 over
    15 s; an op outside the mark on more than 1 of 10; prompt p95 over 6k tokens → stop and raise before CL-8a.
 10. Regression net: every suite green on every PR; the golden path and the score spec unchanged.
+
+# Chat (C2) — converging turns: lyrics panel, REVISE, UNDO TURN, the bar map
+
+<!-- Stage 6, 2026-10-08. Scope: C2 = F-056..F-060 (scope.md "C2"); specs design/chat-lyrics.html LY-1..LY-6,
+     chat-create.html CH-4/CH-5, chat-edit.html EC-2 (the strip the bar map replaces), score-m2.html M2-6/M2-8 (the
+     dock's REVISE marks and OLD | NEW, reused); DT-C2 draws what none of them drew. Builds on main 72e18a2 (C1 merged;
+     its live re-check and curate run elsewhere). Evidence labels: (code) seen in code on main, (run) seen running,
+     (doc) documented, (inf) inferred. LOC are estimates; target 150, cap 200. Decisions D-213..D-226, questions
+     Q-133..Q-135, risks R-040/R-041; docs/decisions/0010. Owns no yue-server transcription file (the "Re-time a
+     transcription" session works there, D-190). -->
+
+## Shape in one paragraph
+
+No new process, no new queue kind, no new table. C2 is mostly the score agent's own machinery behind chat cards.
+**REVISE** is not a button: when a turn starts on a song thread whose live edit card still holds the song's
+pending plan and the song is unchanged since (`planStore` plan id + `fingerprint`, code), the turn's edit action
+becomes the dock's revise contract: the planner sees the PENDING PLAN block (`planRevise.pendingLines`, code),
+answers `{action: 'edit', drop, ops}`, and `reviseReply.readRevise` / `mergeRevise` (D-073, D-076, code) merge it
+into the pending plan, which is applied to the base as read, checked by `withLimits` and stored as plan n+1 with
+`since` (NEW / CHANGED / SAME, REMOVED). A new card supersedes the old one; `ScorePlanList` already draws the marks
+(code). The **bar map** replaces C0b's span strip in the edit card: built on the server (`barMap.ts`, pure) from the
+facts the planner saw (sections, bar count) and each op's bars, stored on the card body; hovering a change-list row
+lights its bars. The **lyrics panel** rides in the analysis view C1 already polls: the shown reading gains
+`lyrics` (pure `lyricsPanel.ts`): a YuE2 version's stored words split into tagged blocks and paired with the strip's
+sections by the one pairing rule (`score/lyricPairing.ts`, which replaces four copies of `kindOf`), or a transcribed
+version's heard lines with their seconds. Line times on YuE2 lines come from the client's existing `alignLyrics`
+(the Editor's) over the version's word timings, so marking a line is C1's mark with snapped bars. A pending
+REWRITE LYRICS shows its diff on the card (exists, M2-8) and inline in the panel. **UNDO TURN**: a recipe turn's
+body stores what it replaced (`undo: {rev, before}`), written in the same transaction as the merge; a route restores
+exactly the fields that turn filled that nobody touched since. The just-filled marks are derived from that record,
+so they survive a reload.
+
+## The flow, end to end
+
+1. **Lyrics panel (F-056).** The song sidebar on a song thread shows VERSIONS, STYLE, TEMPO · KEY and the panel
+   (LY-1; the locked draft fields leave the song thread, D-219). `GET /api/chat/songs/:songId/analysis` (C1) now
+   carries `shown.lyrics`. The client's pure `chatLyricsPanel` turns it, the mark and the version's word timings
+   (`alignLyrics`, reused) into rows: no mark → the section list (name, bars, line count, first line; click marks
+   it); a mark → only the marked part, a section partly inside lists its marked lines and "n more lines not marked",
+   two sections under their headers with a dashed break (LY-3). The panel never follows playback (LY-2) and never
+   edits words (Q-075). States come from the analysis view as they are: running → the old panel dimmed; failed →
+   the reason + RETRY (the C1 retry route); no words → how to get them (LY-6).
+2. **Marking from the panel.** Click a line → its seconds (aligned or heard) snapped to bars by `chatMark` (C1) →
+   the C1 mark store; shift-click extends to the line clicked; a header marks its section; double-click plays from
+   the line (or the section start). A line with no time marks its section (D-218). The chip, WHAT IT SEES, stale
+   handling and SEND are C1's, unchanged.
+3. **A pending lyric rewrite (F-057).** The edit card's REWRITE LYRICS row already shows OLD | NEW (code:
+   `ScorePlanList` → `ScoreLyricDiff` from the verdict's `diff`), and the consequence line already says the whole
+   song re-renders (code: `editConsequence`). The panel finds the live edit card's diffs by block index: the
+   marked section shows its old lines struck above the new; a rewritten section outside the mark is appended in
+   song order tagged PROPOSED, and the mark is untouched (Q-074). Both last while the card is `pending` (D-222).
+4. **REVISE (F-058).** SEND on a song thread with a live edit card. At the turn's start `turnRevise.pendingFor`
+   finds the card's plan; if it is still the song's plan and the fingerprint matches, the turn revises: PENDING
+   PLAN lines in the prompt (after the state and the MARK block, where the draft thread puts its draft lines), the
+   edit schema gains `drop` (pending op numbers) and its `ops` may be empty, `replyCheck` reads the edit through
+   `readRevise` (shape, numbers, NOTHING_REVISED, MAX_OPS 6 as a named refusal), bounds only the returned ops to
+   the mark (`markFit`, D-214), then applies the merged plan once (`applyOps` + `withLimits`, as today) with the
+   merge legend in any retry. The card is plan n+1 with `revision`, `since` and a fresh bar map; `setPlan` replaces
+   the song's plan (D-028) and the old card reads superseded ("revised below"). A failed, cancelled or offline turn
+   writes its failed line and leaves the card and plan alive (code: a failed turn writes nothing else). A `say` or
+   `ask` reply leaves the card pending too. A song changed since the card → no revise, a fresh plan, as today.
+   Dropping every pending op and returning new ones is a replacement (all REMOVED + NEW), never silent (D-213).
+5. **The bar map (F-060).** `barMap(facts, ops)` at dispatch → `body.map = {bars, sections, ops: [{spans, whole}]}`:
+   REHARMONIZE its bars, WRITE_PHRASE start + length, REPEAT / CUT its section, REWRITE LYRICS the section its block
+   pairs with (`lyricPairing`), SET TEMPO / TRANSPOSE / EDIT STYLE the whole song (`whole`, hatched). The card draws
+   the map (sections as bands, edited bars sky, whole-song ops hatched), `ScorePlanList` reports the hovered row,
+   the map lights that op's spans. Cards from before C2 have no `map` and keep the C0b strip from `splice` (D-215).
+   Legibility at 200 bars in the card's width is DT-C2's (F-060 edge).
+6. **UNDO TURN (F-059).** A recipe reply's merge (`draftModel.applyRecipe`) also returns `before` (each changed
+   field's previous value, absent = was empty); `turnDispatch` stores `undo: {rev, before, fields}` in the recipe
+   body. `POST /api/chat/threads/:id/messages/:messageId/undo` (pure `draftUndo` inside one transaction): refused 409
+   when the thread has a song, a turn is open, the message has no record or was undone; else each field the turn
+   filled is restored when it still holds the turn's value and `touched[field]` is not after `rev`, else kept and
+   named ("kept STYLE: you changed it"); the draft gets a new rev; the message body gets `undone`. The recipe card
+   stays live and mirrors the draft (TU-7, D-220). `messageView` exposes `undo: 'offer' | 'done' | null`. The
+   marks: the latest recipe message with no later user message gives the ASSISTANT fields and their struck old
+   values (from `before`, D-221); a hand edit turns that field YOURS (code: `fieldMark`).
+
+## Modules — server
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| **chat/convergeTypes.ts** | all C2 server types: `BarMap`, `LyricsPanel`, `PanelSection`, `PanelLine`, `RecipeUndo`, `UndoResult`, `RevisePending` (CV-1..CV-3 and CV-4's wire types build on one contract) | types | 70 | tsc |
+| **score/lyricPairing.ts** | `kindOf(tag)` and `pairBlocks(sections, blocks)` (the k-th section of a kind sings the k-th block, D-066 d), the one server rule; `analysisView`, `markBlock`, `markFit`, `planReferent` switch to it (own refactor commit, D-216) | yes | 40 | Vitest + a cross-test against yue-server's `read-sections.json` |
+| **chat/barMap.ts** | facts + ops → `BarMap` (sections, bars, each op's spans or whole) | yes | 70 | Vitest table: every op kind, a REWRITE LYRICS of the 2nd chorus, a 200-bar song |
+| chat/draftModel.ts (changed, 148) | `applyRecipe` also returns `before` for the changed fields | yes | +6 | existing tests + case |
+| chat/editTypes.ts, chatTypes.ts (changed, 34 / 194) | `EditBody.revision?`, `since?`, `map?` (+3); `RecipeBody.undo?: RecipeUndo`, `undone?` (+2) | types | +5 | tsc |
+| chat/turnDispatch.ts (changed, 119) | the recipe body's `undo`; the edit card's `map` (CV-0), and with a revise its `revision` / `since` (CV-1; `buildPlan` takes both, code) | yes | +10 | Vitest |
+| **chat/turnRevise.ts** | `pendingFor(threadId, songId, fingerprint)` → `RevisePending {plan, lines, count}` or null (liveEdit + getPlan + fingerprint); the PENDING lines are `planRevise.pendingLines` | no (stores) | 50 | Vitest: live card, superseded, plan replaced by the dock, song changed |
+| score/reviseReply.ts (changed, 76) | exports the `drop` schema part for the chat's edit action | yes | +4 | existing |
+| chat/actionSchema.ts, turnCall.ts, turnPrompt.ts (changed) | edit gains `drop` and `ops` minItems 0 with a pending plan; the pending block in the prompt; the check context carries it | yes | +8 / +8 / +4 | existing tests + cases |
+| chat/replyCheck.ts (changed, 105) | an edit with a pending plan: `readRevise` → markFit on the returned ops → apply the merged ops → `withLimits` | yes | +15 | Vitest: additive, drop, replace, over 6, nothing revised, under a mark |
+| chat/turnJob.ts (changed, 165) | resolves `pendingFor` at the start; passes it to `decideReply` and the merge result to dispatch | no | +8 | existing + a revise case with fakeOllama |
+| **chat/lyricsSplit.ts** | stored lyrics text → tagged blocks with each line's index in the text; `checkBlocks(blocks, facts.lyric_blocks)` (tag, line count, first line, as D-072) | yes | 60 | Vitest: the contract song, a mismatch, an untagged lead-in |
+| **chat/lyricsPanel.ts** | shown reading + lyrics text → `LyricsPanel` (source `blocks` / `heard` / `none` with the reason; per strip section its block, its lines with a text-line index or seconds; header bpm, key, meter, style) | yes | 120 | Vitest table: YuE2 blocks, transcribed heard lines, a third chorus with no block, mismatch, no words |
+| chat/analysisView.ts, analysisTypes.ts, analysisStore.ts, routes/chatAnalysis.ts (changed) | `shown.lyrics` from `lyricsPanel`; `versionLyrics(versionId)` (`params_json.request.lyrics`, code); the route passes it | — | +4 / +2 / +10 / +3 | existing + cases |
+| **chat/draftUndo.ts** | draft + recipe message → `{draft, restored, kept}` or a refusal reason | yes | 70 | Vitest: untouched, hand-edited, later turn overwrote, cleared field, already undone, song thread |
+| routes/chat.ts (changed, 113), chat/messageView.ts (141) | the undo route (one transaction: draft write + body `undone` through `updateMessage`, code); the `undo` offer in the view | — | +20 / +6 | route tests |
+| server/test-fakes/chatScripts.ts | revise replies (additive, drop, replace, over 6) | — | +15 | — |
+| **server/scripts/chatCp2.ts** | CP-C2 driver over the HTTP API (reuses `chatCp1`'s helpers) | no | 150 | it is the check |
+
+## Modules — client (`client/src/`, flat)
+
+| Module | Its one job | Pure? | ~LOC | Tested by |
+|---|---|---|---|---|
+| **api/chatConverge.ts** | the undo call; wire types `LyricsPanel`, `PanelSection`, `PanelLine`, `BarMap`, `RecipeUndo` | no | 50 | — |
+| api/chatEdit.ts, api/chatAnalysis.ts (changed) | `ChatEditBody.revision?`, `since?`, `map?`; `shown.lyrics?` | — | +4 / +2 | tsc |
+| **chatLyricsPanel.ts** | panel view + mark + word timings (`alignLyrics`, reused) + live edit diffs → rows: section list, marked part, dashed breaks, "n more lines not marked", PROPOSED, struck old / new, dim / failed / none | yes | 140 | Vitest per LY-3/LY-4/LY-6 case |
+| **chatLyricsMark.ts** | line click / shift-click / header click → a C1 `RangeMark` through `chatMark`'s snap and clamp | yes | 60 | Vitest |
+| **chatBarMap.ts** | `BarMap` + width → bands, cells, labels thinned to fit, ruler ticks, an op's lit spans | yes | 90 | Vitest: 32, 120, 200 bars |
+| **chatUndo.ts** | which recipe message offers UNDO TURN; the just-filled marks from its `undo` record (ASSISTANT, old value) | yes | 60 | Vitest |
+| **chatConvergeCopy.ts** | C2's copy (`chatCopy.ts` is at 183) | yes | 70 | Vitest |
+| **ChatSongPanel.tsx**, **ChatLyricsPanel.tsx**, chatLyrics.css | the song sidebar rows and the panel | no | 70 / 140 | browser pane at 1366×768 |
+| **ChatBarMap.tsx**, ChatEditCard.tsx (changed, 112), ScorePlanList.tsx (changed, 61: `onHoverRow?`, additive for the dock) | the map in the card, the REVISED header, hover | no | 80 / +15 / +4 | browser pane |
+| **ChatUndoLine.tsx**, ChatRecipeCard.tsx (136), ChatDraftFields.tsx (118), chatDraftStore.ts (128) | CHANGED · … UNDO TURN under the reply; marks hydrated from the record; the store's `undo` action | no | 40 / +4 / +6 / +12 | browser pane; store tests |
+| ChatView.tsx (changed, 127) | the song panel replaces the locked draft fields on a song thread | — | +6 | browser pane |
+
+`ChatThread.tsx` (197) and `api/chat.ts` (197) are at the cap: C2 changes neither.
+
+### Feature → modules
+
+| Feature | Modules |
+|---|---|
+| F-056 lyrics panel | lyricPairing, lyricsSplit, lyricsPanel, analysisView / analysisStore / routes/chatAnalysis; chatLyricsPanel, chatLyricsMark, ChatSongPanel, ChatLyricsPanel, ChatView |
+| F-057 OLD / NEW twice | ScorePlanList + ScoreLyricDiff (exist); chatLyricsPanel (struck / new, PROPOSED), ChatLyricsPanel |
+| F-058 REVISE | turnRevise, reviseReply (`drop`), actionSchema, turnCall, turnPrompt, replyCheck, turnJob, turnDispatch, editTypes; planRevise / mergeRevise / planBuild (reused); ChatEditCard (`since`, REVISED), chatScripts |
+| F-059 UNDO TURN, just filled | draftModel (`before`), turnDispatch (`undo`), draftUndo, routes/chat (undo), messageView; chatUndo, ChatUndoLine, ChatRecipeCard, ChatDraftFields, chatDraftStore |
+| F-060 bar map | barMap, lyricPairing, turnDispatch; chatBarMap, ChatBarMap, ChatEditCard, ScorePlanList (`onHoverRow`) |
+
+## Data (C2)
+
+- **No new column, no migration.** Every addition is additive JSON under the existing version keys (versions-data.md):
+  - edit message body (`chat_v: 1`): `revision?: number`, `since?: {planId, marks: [{mark, was}], removed: Op[]}`
+    (the score agent's `Since`, code), `map?: {bars, sections: [{label, occurrence, from, to}], ops: [{spans:
+    [[from, to]], whole}]}`. A card without `map` draws C0b's strip.
+  - recipe message body: `undo?: {rev, before: Partial<DraftFields>, fields: DraftField[]}`, `undone?: {at,
+    restored: DraftField[], kept: Array<{field, reason}>}`. Messages from before C2 have no record: no UNDO TURN,
+    and their marks stay session-only as today.
+  - `versions.analysis_json` unchanged: `shown.lyrics` is computed at read time from the stored analysis and the
+    version's `params_json.request.lyrics`, never stored, so nothing needs re-reading.
+- **Plans stay in memory** (`planStore`, decisions/0004): a revised plan replaces the song's plan; a restart expires
+  the card as today (EXPIRED, ASK AGAIN).
+- Lifecycle: all with the message and the thread (D-102). Nothing leaves the machine.
+
+## Wire contract (client ↔ server)
+
+- `GET /api/chat/songs/:songId/analysis` → `AnalysisView` (C1) with `shown.lyrics: LyricsPanel | null`:
+  `{source: 'blocks' | 'heard' | 'none', note: string | null, text: string | null, facts: {bpm, key, meter, style}
+  | null, sections: [{strip: number, label, occurrence, bars: [a, b], seconds: [a, b] | null, block: number | null,
+  lines: [{n, text, at: {textLine: number} | {seconds: [a, b]} | null}]}]}`. `text` is the stored lyrics the
+  `textLine` indexes point into (null for `heard`); `note` says why words are missing or unmatched.
+- `GET /api/chat/threads/:id` (unchanged route): edit bodies carry `revision`, `since`, `map`; recipe bodies `undo`,
+  `undone`; each recipe message view gains `undo: 'offer' | 'done' | null`.
+- `POST /api/chat/threads/:id/messages/:messageId/undo` → 200 `{draft, blockers, restored: DraftField[], kept:
+  [{field, reason}]}` or 409 `{error: 'UNDO_REFUSED' | 'TURN_OPEN', reason}`; 404 for an unknown thread or message.
+- `POST …/turns` unchanged: the revise is decided on the server; the client sends no flag.
+
+## Seams and fakes (C2)
+
+| Seam | Real | Fake |
+|---|---|---|
+| chat model, revise replies | Ollama strict schema with `drop` | `fakeOllama` + `chatScripts` (server); `e2e/fake-score/ollama.ts` scripted per test (`scriptChat`) |
+| yue apply of a merged plan | `/v1/scores/apply` | recorded contract fixtures: plan 1 `apply-set-tempo` (SET_TEMPO 88); a revise adding REHARMONIZE 47-50 merges to exactly `apply-compound`'s ops in order (kept first, added after); `apply-rewrite-lyrics` (block 5, chorus 2) for the panel's diff. A new merge needs a fixture recorded by `yue-server/tests/test_score_edit_routes.py` (score code, not transcription) |
+| word timings | lyrics-server via C1's WORDS | unset in e2e: YuE2 lines have no time (a line click marks its section, D-218); `alignLyrics` has its own tests |
+| plan / proposal stores | `planStore`, `proposalStore` | the real modules, reset between tests |
+| client ↔ server | `api/chatConverge.ts`, `api/chatAnalysis.ts` | `vi.mock` in store tests; pure modules need none |
+| CI | — | three specs named `*.chat.spec.ts`, so the `score` project's pattern `(score|chat)\.spec\.ts$` picks them up with no config change (D-224) |
+
+Risk seams: R-040 (revise prompt size, Q-050's losses in the chat's prompt) → CP-C2 on the real machine; R-041 (YuE2
+line times from Whisper alignment) → CV-9 live on real songs; UNDO losing a hand edit → `draftUndo` tables.
+
+## Test strategy (C2, by risk)
+
+1. **A revise never loses an op silently** (the named risk, Q-050): `replyCheck` + `mergeRevise` tables through the
+   chat path: additive (`drop: []`, one NEW), changed target (CHANGED), drop (REMOVED), drop all + new
+   (replacement), an echo (all SAME, not refused, D-076 e), empty (NOTHING_REVISED retry), 7 merged (named refusal),
+   a bad drop number; every case asserts card ops = merged ops applied, and pending ops = kept ∪ REMOVED; a failed,
+   offline and cancelled revise leave the card live and `getPlan(songId)` unchanged; a song changed since the card →
+   a fresh plan; a dock PLAN that replaced the chat plan → no revise.
+2. **UNDO never touches a hand edit** (data the person typed): `draftUndo` table (untouched → restored; touched after
+   `rev` → kept and named; overwritten by a later turn → kept; was empty → cleared; a song thread, an open turn, no
+   record, already undone → refused); the route writes draft and body in one transaction (a failed draft write
+   leaves the body without `undone`).
+3. **Outside input**: stored lyrics that do not match the score's blocks → `note`, no lines (never mispaired); a
+   revise reply's shape (`drop` duplicates, out of range, missing ops); old bodies without `map` / `undo` / `since`.
+4. **One pairing**: `lyricPairing` cross-tested against yue-server's `read-sections.json`; the four switched users'
+   existing tests pass unchanged; the bar map of a REWRITE LYRICS and the panel's block agree on one fixture.
+5. **Client reducers**: one test per panel state (LY-3, LY-4, LY-6), each line-mark gesture, the bar map at 32 /
+   120 / 200 bars (no label overlap, every edited bar at least 2 px), the undo offer rules. Each pure module broken
+   once on purpose.
+6. **E2E** (one spec per user-visible package, each green in CI on its PR): `lyricsPanel.chat.spec.ts` (section
+   list → click marks → only that part; a pending REWRITE LYRICS struck / new, and PROPOSED outside the mark);
+   `revise.chat.spec.ts` (plan SET_TEMPO → "and jazz chords in bars 47-50" → plan 2 SAME + NEW, the old card
+   superseded, the bar map lights 47-50 on hover, APPLY saves v2); `undoTurn.chat.spec.ts` (recipe fills fields →
+   ASSISTANT marks → a hand edit of one → UNDO TURN restores the others and keeps the hand edit → reload keeps it).
+7. **On the real machine, headless (CP-C2, after CV-1, before CV-7)**: `chatCp2.ts --server http://127.0.0.1:3201`
+   on a `DATA_DIR` copy with the real Ollama (16k) and yue-server; 3 YuE2 songs; per song a first plan and at least
+   4 revisions: additive ("and also slow it down to 80 BPM"), subtractive ("fewer chords"), replacing ("forget that,
+   transpose it down a tone"), under a mark ("do the same here" on chorus 2), plus one lyric rewrite revised; 12+
+   revise turns in all. Logged per turn: the merged ops vs the card, REMOVED, attempts, prompt tokens, context
+   length, wall time. **Stop lines:** any context refusal or prompt p95 over 8,000 tokens; any pending op missing
+   from both the merged plan and REMOVED (0 tolerance); an additive revision dropping a pending op in more than 3 of
+   10; more than 2 of 12 revise turns failing → stop and raise before CV-7.
+8. Regression net: every suite green on every PR; the golden path, the score spec and C1's `chat.spec.ts` unchanged.

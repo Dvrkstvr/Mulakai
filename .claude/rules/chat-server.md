@@ -64,3 +64,8 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
   blob. One rule (`barShift`) says whether bars moved; the mark is a
   `planReferent` `range`, resolved at SEND and at the turn's start, never
   remapped (stale → 409 or a failed line before the planner loads).
+- C2 (docs/decisions/0010): a revise is the score agent's `readRevise` /
+  `mergeRevise` through the chat turn, decided by `turnRevise` (live card +
+  same fingerprint); never a complete-plan restatement. Section-to-block
+  pairing only via `score/lyricPairing.ts`. UNDO TURN restores only fields
+  still holding that turn's value with no hand edit after it.
