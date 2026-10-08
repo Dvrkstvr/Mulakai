@@ -51,6 +51,15 @@ describe('writeLyrics', () => {
     expect(ask).toHaveBeenCalledTimes(3);
   });
 
+  it('the caller\'s own check (LD-2: the whole recipe, LYRICS_MAX) is a retry reason too', async () => {
+    const ask = answers(GOOD, GOOD);
+    const more = vi.fn().mockReturnValueOnce(['the lyrics are 17000 characters; YuE2 takes 16000: shorten them']).mockReturnValue([]);
+    const out = await writeLyrics(INPUT, { ask, detect, more });
+    expect(out.ok && out.attempts).toBe(2);
+    expect(more.mock.calls[0][0][0]).toMatchObject({ tag: expect.any(String), lines: expect.any(Array) });
+    expect((ask.mock.calls[1][0] as Array<{ content: string }>).at(-1)!.content).toContain('- the lyrics are 17000 characters');
+  });
+
   it('a thrown error (HTTP, cancel) ends it at once', async () => {
     const ask = vi.fn(async () => { throw new Error('cancelled'); });
     await expect(writeLyrics(INPUT, { ask, detect })).rejects.toThrow('cancelled');

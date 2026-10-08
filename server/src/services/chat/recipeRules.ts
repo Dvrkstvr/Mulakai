@@ -69,8 +69,14 @@ function followsStructure(structure: string[], sections: LyricSection[]): boolea
   });
 }
 
-/** Why a model's recipe is not acceptable yet, as the retry tells the model. Empty = ok. */
-export function recipeProblems(r: Recipe): string[] {
+/** LD (D-234): lyrics a `keep` may keep: one section per sung section of `structure`, in order. */
+export function lyricsFit(structure: string[], sections: LyricSection[] | undefined): sections is LyricSection[] {
+  if (!sections?.length) return false;
+  return sections.length === structure.filter((t) => SUNG_TAGS.includes(t)).length && followsStructure(structure, sections);
+}
+
+/** The planner's recipe before its lines (LD, rung 3): every field but the lyrics. Empty = ok. */
+export function plannedProblems(r: Omit<Recipe, 'lyrics'>): string[] {
   const out: string[] = [];
   if (blank(r.title)) out.push('title is missing');
   if (blank(r.style)) out.push('style is missing');
@@ -79,6 +85,12 @@ export function recipeProblems(r: Recipe): string[] {
   if (!ENGINES.includes(r.engine)) out.push(`engine ${q(r.engine)}: this chat creates on YuE2 only`);
   const { min, max } = RECIPE_LIMITS.structure;
   if (r.structure.length < min || r.structure.length > max) out.push(`structure has ${r.structure.length} sections; write ${min}-${max}`);
+  return out;
+}
+
+/** Why a whole recipe (its lines in) is not acceptable yet, as the retry tells the model. Empty = ok. */
+export function recipeProblems(r: Recipe): string[] {
+  const out = plannedProblems(r);
   if (r.lyrics.length === 0) return [...out, 'no lyrics: write the sung sections'];
   out.push(...sectionProblems(r.lyrics, SUNG_TAGS));
   r.lyrics.forEach((s, i) => {
@@ -87,6 +99,8 @@ export function recipeProblems(r: Recipe): string[] {
   if (!followsStructure(r.structure, r.lyrics)) {
     out.push(`the lyrics sections (${r.lyrics.map((s) => s.tag).join(', ')}) must follow the structure (${r.structure.join(', ')}) in order, skipping only instrumental sections`);
   }
+  const chars = lyricsText(r.structure, r.lyrics).length;
+  if (chars > LYRICS_MAX) out.push(`the lyrics are ${chars} characters; YuE2 takes ${LYRICS_MAX}: shorten them`);
   return out;
 }
 

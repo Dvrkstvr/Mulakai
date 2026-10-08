@@ -20,6 +20,8 @@ const RETRY = { heading: 'Your lyrics were rejected:', closing: 'Return correcte
 export interface LyricsDeps {
   ask: (messages: ChatMessage[], schema: Record<string, unknown>) => Promise<PlannerReply>;
   detect: DetectLanguage;
+  /** The caller's own checks on the tagged sections (turnCall: the whole recipe's, recipeRules), each a retry reason. */
+  more?: (lyrics: LyricSection[]) => string[];
   /** Attempt n starts; `reason` is the first thing wrong with the previous one. */
   onAttempt?: (n: number, reason?: string) => void;
 }
@@ -47,10 +49,9 @@ export async function writeLyrics(input: LyricsRequest, deps: LyricsDeps, maxAtt
     const reply = await deps.ask(msgs, schema);
     const json = parse(reply.content);
     reasons = json === undefined ? ['the reply is not valid JSON'] : await lyricsProblems(json, input, deps.detect);
-    if (!reasons.length) {
-      const sections = (json as { sections: Array<{ lines: string[] }> }).sections;
-      return { ok: true, lyrics: sections.map((s, i) => ({ tag: tags[i], lines: s.lines })), attempts: n };
-    }
+    const lyrics = reasons.length ? [] : (json as { sections: Array<{ lines: string[] }> }).sections.map((s, i) => ({ tag: tags[i], lines: s.lines }));
+    if (!reasons.length) reasons = deps.more?.(lyrics) ?? [];
+    if (!reasons.length) return { ok: true, lyrics, attempts: n };
     reasons = reasons.slice(0, MAX_REASONS);
     msgs = retryMessages(msgs, reply.content, reasons, RETRY);
   }
