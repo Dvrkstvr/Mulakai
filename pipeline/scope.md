@@ -749,3 +749,128 @@ must not hold the GPU.
 - **Thinking-mode planners** — `reasoning_effort: "none"` is part of the contract (SP-1: 1,500 tokens of reasoning, empty content, 71 s otherwise).
 - **Per-note / piano-roll editing, tuplets, repeat signs, `w:` lyric lines in the score** — the native dialect rejects them; AGENTS.md rules out a MIDI editor.
 - **SCORE on HeartMuLa, ACE-Step, import or other-engine songs** — no score exists (D-014, D-015, R-017).
+# Scope — Engine pairing (ACE-Step 1.5 × YuE2)
+
+Framed 2026-10-08 from an audit of both upstreams (feature pass step 1, not yet sized by the owner). Sources: YuE `main` @ `1647252`
+(docs/, README, `src/yue2/`, `skills/yue2-music/`); ACE-Step-1.5 `main` @ `ca1e85f` (docs/en/, `acestep/api/http/`, `constants.py`,
+`inference.py`, GitHub issues to #1350); `ace-step/awesome-ace-step` (README, 2026-05-28) and the projects it lists, chiefly
+gary4juce v5 (YuE2 + ACE-Step in one plugin, AGPL: patterns only, no code), Ace-Step-Wrangler and yuey.cpp. Local ACE-Step:
+`S:\AI Gen\ACE-Step-1.5` @ `64ffc2f` (`local/analyze-audio`, upstream base `6d467e4`, 15 commits behind, five local commits).
+
+The split stays as it is (D-015, AGENTS.md): YuE2 writes the song and owns the score; ACE-Step does every audio edit. YuE2 has the better
+first take (upstream SongBench 6.73 vs 6.01) and a score, but sings en/zh only, has no stems, no local edit and stops at 360 s. ACE-Step
+cannot plan structure, but repaints locally, adds and extracts layers, sings 51 languages and can outpaint past the end. Each feature
+below hands one engine's strength to the other. Each gets its dated PLAN.md section with its build PR (CLAUDE.md, 3+ files).
+
+## Preconditions (fixes, not features; before E1)
+
+- **P1 — ACE-Step fork sync (R-034, Q-121) — rebased 2026-10-08 (D-203); live once ACE-Step restarts on branch `mulakai`.** The local fork lacks upstream #1287 (lego/complete skip the 5Hz LM so `src_audio` is
+  honoured; locally `inference.py:646` skips it only for cover/repaint/extract and `use_cot_caption`/`use_cot_language` default true),
+  #1273/#1282 (DCW off for base/sft over REST; locally `dcw_enabled` defaults true with no REST field: distortion on Base) and #1284 (a
+  requested model loads instead of silently falling back). F-082, F-086 and F-088 run lego/complete on Base, so they wait for P1.
+- **P2 — Stem extract wiring (R-035).** `stemRunners.ts:53-58, 89-94` sends a free-form `instruction` (used verbatim; the model was
+  trained on "Extract the VOCALS track from the audio:", built from `track_name`) and no `model` (runs on the last-loaded model, often
+  Turbo, which has no extract). Send `track_name` and a Base model; "other" has no ACE-Step track name.
+- **P3 — TAKES waste.** text2music `batch_size` AUTO is 2 and `poll()` keeps one (`jobRunner.ts:95`): force 1, or keep the extra take.
+- **P4 — Doc fix — done with D-203.** CLAUDE.md:76 names `uv run acestep … --enable-api`, whose API is text2music-only (no `src_audio`, R-025);
+  `start-all.bat` correctly runs `acestep-api`.
+
+## E1 — Quick wins (F-082, F-084, F-088)
+
+### F-082 · The song's facts in every ACE-Step edit (small; needs P1 for lego)
+Repaint, Add Layer and complete on a song send what the song already knows instead of the bare instruction: `bpm`, `key_scale`,
+`time_signature` from the song row (a YuE2 song's come from its score header via `abcMeta.ts`; an ACE-Step song's from its result
+metas), and for lego the song's caption as `global_caption` (upstream's song-level caption for stem lego). The user's instruction stays the
+local prompt. ACE-Step's tutorial calls the caption the most important input; repaint and Add Layer send none today.
+- Acceptance: unit tests on the built request for a YuE2 song, an ACE-Step song and a song with no metadata (sends none, never invents);
+  owner listen, 3 Add Layer drum takes on 2 YuE2 songs with and without, at fixed seeds; kept if the owner hears a tighter fit in at least
+  2 of 3, else reverted and recorded.
+- Non-goals: no caption field in the UI, no LM rewriting of the instruction, no change to cover/remaster (they already send the row).
+- Open: Q-123 (repaint's prompt: instruction only, or instruction plus caption).
+
+### F-084 · Route a song's first take by its language (normal; owner default Q-122)
+YuE2 sings en/zh (model card; Cantonese poor, issue #184); German/Spanish/French/Italian/Portuguese recipes reach it today with only a
+language word in the style (D-112, `withLanguage`). ACE-Step lists 51 languages. A new song whose vocal language is neither en nor zh
+defaults its first take to ACE-Step, with the reason and "no SCORE editing" in the consequence line; the person can switch back to YuE2.
+- Precondition: an owner listen, 2 German and 2 Spanish songs on both engines, confirms YuE2 is worse; if not, F-084 is dropped.
+- Acceptance: Create picks ACE-STEP for a `de` song with the reason shown and an override; en, zh and instrumental songs unchanged;
+  in chat the recipe may only name `acestep` once C7 lands (D-112 (e), R-025), until then the reply names the risk.
+- Non-goals: automatic language detection beyond the existing lyric-language guard; translating lyrics.
+
+### F-088 · Wordless vocal, then words (small; needs P1)
+gary4juce's "gibberish to lyrics": on a song with no vocal, ADD LAYER vocals with no lyrics (lego on Base) gives a wordless vocal idea;
+a second step covers that layer with the person's lyrics, keeping its melody. Gives vocal ideas over a YuE2 instrumental, which YuE2
+itself cannot add without re-rendering the whole song.
+- Acceptance: both steps run on 2 instrumentals; the second step's words read back by lyrics-server at WER ≤ 30 %; the vocal stays in
+  the same bars (onset map within 1 beat); each step is its own version with a consequence line.
+- Non-goals: harmony/backing-vocal stacks, per-line timing control.
+
+## E2 — Pairing verbs (F-083, F-085, F-086, F-087)
+
+### F-083 · Bar-true regions from the score (normal)
+YuE2 lands within 0.1 % of the score's tempo (R-013), so a scored song's bar and section times are exact; chat C1 already reads them
+(`/v1/scores/bars`, `yueScoreBars.ts`, D-194, Q-120). The Editor does not: a YuE2 song has `lyricTimestamps` null and shows no section
+strip until a lyrics-server reading lands. Use the bar map in the Editor: the section strip draws from the score's `% section` timing
+at once, and REPAINT / Add Layer regions snap to bar edges (Alt frees, as in the chat).
+- Acceptance: a YuE2 song with no lyrics reading shows its sections; a drag snaps to bar times (within one 40 ms latent frame); after an
+  ACE-Step repaint the bars stay (D-006, `barShift.ts`), after an edit that moves them the strip falls back to the reading.
+- Non-goals: beat-level snapping (chat "Not doing"); bar maps for songs without a score.
+
+### F-085 · EXTEND past the end (normal; R-036)
+YuE2 stops at 360 s and has no continuation. ACE-Step repaint pads the source with silence when `repainting_end` passes its end
+(`padding_utils.py:38-70`), so a repaint over the last few seconds plus N new seconds continues the song; chaining extends further
+(tutorial: 3-90 s per step). The new version carries F-082's song facts.
+- Acceptance: a version N s longer (±0.1 s) for N in 10..90; the kept part matches the source after gain matching (ACE-Step
+  peak-normalises, SP-4); two chained extends work; a result over 600 s (ACE-Step's ceiling) is refused before the job; on a YuE2 song the
+  consequence line says SCORE editing ends (D-006).
+- Non-goals: extending at the start, extending a single layer of a layered song.
+
+### F-086 · Replace one part of a single-mix song (normal; needs P1)
+YuE2 gives one stereo mix. REPLACE <part>: split the song (Demucs/UVR, not ACE extract), keep the stems as layers, mute the chosen one,
+and regenerate it with lego on Base (`track_name`, F-082's facts) or complete with `track_classes`. gary4juce reports lego is strong for
+vocals and backing vocals and generic for other parts, and loops a source under about 1 minute up to about 2 minutes, then trims.
+- Acceptance: drums and vocals replaced on 2 YuE2 songs; the original stem stays as a muted layer (nothing destroyed); the consequence
+  line names the split and the part; a source under 60 s is looped and trimmed back to its length.
+- Non-goals: replacing a part over a region only (Add Layer is whole-song, PLAN.md); stems beyond the separator's four.
+- Stored data: a song gains layers from its own split; the migration note goes in the PLAN.md section before code if the split-to-layers
+  path does not exist yet.
+
+### F-087 · A closer-to-source REMASTER (small; owner A/B decides)
+REMASTER runs `cover` (FSQ: the source passes through 5 Hz codes) on xl-sft at 100 steps. Upstream's `cover-nofsq` feeds raw latents
+and stays closer to the source; gary4juce uses it at `cover_noise_strength` 0.2 and reports a pass makes a YuE2 take "shinier". Issue
+#1329: noise strength above 0 gives near-silence on XL SFT, so this tries 2B SFT and xl-turbo.
+- Acceptance: duration unchanged; words kept (lyrics-server WER change ≤ 5 points); owner A/B on 3 YuE2 songs, kept only if preferred in
+  at least 2 of 3 (Q-124: REMASTER's path changes, no new verb).
+- Later: loudness/EQ matching to a reference track (Matchering, GPLv3: only as a separate process).
+
+## E3 — Native runtimes (F-089, spike first)
+
+### F-089 · YuE2 and ACE-Step without WSL (risky; SP-7, R-037)
+yuey.cpp (MIT, C++/GGML YuE2, prebuilt Windows CUDA; BF16 6.8 GiB, Q8 3.6 GiB, Q4_K_M 2.4 GiB; plan-only and score output; SheetSage2
+built in) and acestep.cpp (MIT, loads models on first request) may run both engines natively on the 16 GB card, possibly side by side.
+Windows Python YuE2 falls back to slow attention (#209), which is why yue-server lives in WSL.
+- SP-7 measures on the RTX 4080: render quality against Python YuE2 at the same score and seed (owner blind A/B, 4 songs), RTF, VRAM
+  peak, both resident at once, and whether yuey.cpp covers yue-server's contract (external `abc`, `cot` modes, plan-only, token counts
+  for the 4,096 budget, `truncated`). Pass: a PLAN.md migration section; fail: WSL stays, recorded.
+- Non-goals: dropping the Python path before SP-7 passes; GGUF quantisations below Q8 for the shipped default.
+
+## Later (engine pairing)
+
+- **Plan-only YuE2 jobs** (upstream `--stage plan`, about 18 s vs about 95 s): draft the score, edit it, then pay for audio.
+- **A fast chord scaffold instead of the YuE2 planner** (gary4juce): code writes the ABC from tempo, key, meter and bar counts using stock
+  progressions; their finding is that chord changes per bar hold YuE2 to tempo.
+- **MIDI melody/chord import into a score** with gary4juce's rules (monophonic, straight grid, root-position triads, no partial bars).
+- **Syllable fit for REWRITE_LYRICS** (`score_lyrics.py:109` checks only the line count; upstream says match syllables to the melody).
+- **CPU forced alignment for word timings** (torchaudio MMS_FA, as Ace-Step-Wrangler): timings for YuE2 songs without GPU time.
+- **`repaint_mode` / `repaint_strength`** as REPAINT's one strength control; **`full_analysis_only`** as the upstream replacement for the
+  fork's `/v1/analyze_audio`.
+- **Community YuE2 adapters** (Mothersuperior instrumental AR LoRA; real-audio tokenizer + NAR LoRA for continuation from audio):
+  CC BY-NC like the weights; only after SP-7 decides the runtime.
+
+## Not doing (engine pairing)
+
+- **ACE-Step `extract` as the default SPLIT** — Demucs/UVR stay the default (gary4juce hid ACE extract for the same reason); P2 only
+  makes the option correct.
+- **YuE v1** (`YuE-v1` branch: stems and audio-prompt ICL): a third engine, ruled out in PLAN.md; nothing in the audit changes that.
+- **Splice seams healed by ACE-Step repaint** (SP-4 B, D-080), unchanged.
+- **Copying code from gary4juce, DEMON or ACE-Step-DAW** (AGPL): patterns only.

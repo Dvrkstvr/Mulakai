@@ -10,7 +10,7 @@
 ## Stack
 - client: React + TypeScript (strict) + Vite, Zustand, Web Audio playback (`client/src/mix/`), oxlint
 - server: Express + SQLite (migrations in `server/src/db/`), tsx watch
-- external processes (never modified): ACE-Step 1.5 (`ACESTEP_API_URL`), heartmula-server (`HEARTMULA_API_URL`, marked for removal, D-014), demucs/uvr (`DEMUCS_API_URL`)
+- external processes: ACE-Step 1.5 (`ACESTEP_API_URL`; Mulakai's fork, branch `mulakai`, D-203), heartmula-server (`HEARTMULA_API_URL`, marked for removal, D-014), demucs/uvr (`DEMUCS_API_URL`)
 - yue-server (ours, Python/FastAPI, runs in WSL2 Ubuntu-24.04 in `~/yue2/.venv`): `YUE_API_URL=http://127.0.0.1:8004`, default first-take engine (D-015); the score agent adds CPU-only score routes to it (D-019)
 - score planner (M0): Ollama 0.32.15 on Windows (seen running 2026-10-03, `/api/version`), model `qwen3:14b` Q4_K_M (pulled; `gemma4:26b-a4b-it-q4_K_M` also pulled, untested profile, D-024); `LLM_API_URL` (empty = SCORE hidden), `LLM_MODEL` (default `qwen3:14b`)
 - tests: Vitest 4 (client, server), pytest (yue-server, fake pipeline, no GPU), Playwright golden path against a fake ACE-Step (`e2e/`)

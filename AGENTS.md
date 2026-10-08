@@ -91,5 +91,6 @@ the spec log; there is no separate proposal tool or `openspec/` directory.
 - Never merge without tests passing.
 - Never add DAW features outside the locked scope in `PLAN.md` without
   raising it as a scope question first.
-- Never modify `ACE-Step-1.5` — it's an external dependency, reached only via
-  `ACESTEP_API_URL`.
+- `ACE-Step-1.5` is Mulakai's fork (branch `mulakai` in `S:\AI Gen\ACE-Step-1.5`),
+  reached via `ACESTEP_API_URL`. Changes there are allowed: keep them as commits
+  on top of upstream `main` and rebase when upstream moves (D-203).

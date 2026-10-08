@@ -45,7 +45,7 @@ Source: a prior mockup-only design session; nothing in code or PLAN.md (seen: no
 - Desktop-only layout.
 
 ## Constraints
-- Windows 11 host; ACE-Step 1.5 external Gradio/HTTP process (never modified); YuE2 Linux-only, runs in WSL2 behind `yue-server/` (PLAN.md; documented); HeartMuLa behind `heartmula-server/` (marked for removal, D-014).
+- Windows 11 host; ACE-Step 1.5 external HTTP process (Mulakai's fork since D-203); YuE2 Linux-only, runs in WSL2 behind `yue-server/` (PLAN.md; documented); HeartMuLa behind `heartmula-server/` (marked for removal, D-014).
 - 16 GB VRAM single GPU shared by ACE-Step, YuE2, HeartMuLa, Demucs/UVR (inferred from PLAN.md); one GPU job at a time via `genLock.ts` today.
 - Design system is a hard rule (DESIGN.md: zero radius, one hue per job, acid commit only, consequence line before every generative commit).
 - Local-only, localhost bind, no auth (documented, docs/AUDIT.md).
