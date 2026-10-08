@@ -16,6 +16,7 @@ import { isRead } from './reading.js';
 import { readingLines } from './readingLines.js';
 import { pairBlocks } from '../score/lyricPairing.js';
 import { lyricsPanel } from './lyricsPanel.js';
+import { retimeOffer } from './retimeRecord.js';
 import {
   isFailed, readingGap, type AnalysisState, type AnalysisStep, type AnalysisView, type BarShift, type LiveAnalysisJob,
   type ShownReading, type StoredAnalysis, type StripSection, type VersionAnalysis, type VersionText,
@@ -108,6 +109,7 @@ function shown(a: VersionAnalysis, number: number, words: LyricsReading | null, 
       bars: isRead(a.bars) ? null : a.bars.notRead,
     },
     lyrics: lyricsPanel({ analysis: a, sections, words, lyrics: text?.lyrics ?? null, style: text?.style ?? null }),
+    retime: mode === 'current' ? retimeOffer(a.score, a.retime) : null,
   };
 }
 

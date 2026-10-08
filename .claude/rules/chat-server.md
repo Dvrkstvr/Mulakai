@@ -77,3 +77,4 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
   shortened (#225); CP-C1's prompt p95 stop is 6000 — re-run `chatCp1
   --marks` after any prompt or MARK-block change.
 - C2 (ADR 0010): revise only via `turnRevise` → `readRevise`/`mergeRevise`, never a full restatement; block pairing only in `score/lyricPairing.ts`; UNDO TURN restores only untouched fields.
+- RT-5 (D-248): RE-TIME replaces the stored reading in place (new `readAt`, `retime.previous` for UNDO), bars on the re-timed downbeats, never re-fitted; a bars mark whose `readAt` differs from the playable reading's is stale.

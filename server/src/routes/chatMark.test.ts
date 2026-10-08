@@ -80,7 +80,7 @@ describe('SEND with a mark (F-055)', () => {
       mark: { kind: 'range', versionId: ids[0], seconds: [126.5, 159.5], label: '2:07–2:40' } });
     expect(r.status).toBe(202);
     const user = listMessages(thread.id).find((m) => m.role === 'user')!;
-    expect((user.body as UserBody).mark).toEqual({ kind: 'range', versionId: ids[0], bars: [47, 58], seconds: [126.5, 159.5] });
+    expect((user.body as UserBody).mark).toEqual({ kind: 'range', versionId: ids[0], bars: [47, 58], seconds: [126.5, 159.5], readAt: '2026-10-07T10:00:00.000Z' }); // counted on that reading (RT-5)
   });
 
   it('a stale mark is 409 MARK_STALE with the mark as sent and the shift, and nothing is written', async () => {

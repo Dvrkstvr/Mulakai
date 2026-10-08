@@ -1235,6 +1235,27 @@ requiring its own justification against a screen-count rule.
      CONTEXT AND MARKING ONLY` after it in `text-low`, and rust only for a
      failed reading (`COULDN'T READ v5 · <reason>`) with a small acid
      outline **RETRY**. No spinner and no shader: reading is not a commit.
+     **READ AS** (added 2026-10-08, RE-TIME on the reading, F-092;
+     `pipeline/design/retime.html` B1-B5): under the reading line of the
+     playing version's own *transcribed* reading (never a YuE2 song's own
+     score), the cover panel's READ AS row at the chat's size (11px, 4px
+     padding): what SheetSage2 read in bold (`87 BPM · 65 BARS`), then
+     HALF · DOUBLE · BPM… as sky choice chips. A pick rebuilds at once (no
+     GPU); the `text-low` consequence line says the new tempo, the bars
+     (`65 bars → 33, every bar number changes`), the notes left out, that a
+     mark on this version goes stale, and that nothing is saved to the
+     library, beside an acid outline **RE-TIME AT n BPM** and a quiet
+     CANCEL. While it runs, `RE-TIMING v1 · SCORE · a few seconds`. Once
+     applied, the strip and ruler redraw at the same seconds, the row adds
+     `· RE-TIMED TO n BPM`, a lilac **RE-TIMED** tag line says `from 87 BPM
+     · 65 bars → 33 · same seconds, bars renumbered`, and a quiet UNDO
+     returns to the reading. A mark made on the old bars turns stale at
+     once (the rust card says the reading was re-timed; the chip names only
+     its bars, since the old numbers now name other sections) and UNDO
+     clears it again. With no kept reading, the chips are off and the
+     cover panel's rust-tint GONE box offers **TRANSCRIBE AGAIN** (acid
+     outline), saying it reads the version again on the GPU and replaces
+     the reading.
    - **The mark** (added 2026-10-07, chat C1; spec `pipeline/design/chat-mark.html`
      MK-4..MK-10, Q-068's clause). One sky for every mark, no second hue for
      time: over the ruler and waveform a `sky-tint` wash (70%, so the
