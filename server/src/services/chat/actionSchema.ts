@@ -37,7 +37,7 @@ export function recipeSchema(reference = false): Schema {
     ...(reference ? { reference_use: { enum: REFERENCE_USES } } : {}), // first: decided before the lyrics (CP-C3)
     title: str(1, RECIPE_LIMITS.title), style: str(3, RECIPE_LIMITS.style), bpm: int(BPM.min, BPM.max), key: { enum: KEYS },
     time_signature: { enum: TIME_SIGNATURES }, language: { enum: LANGUAGES }, engine: { enum: ENGINES },
-    structure: arr({ enum: SECTION_TAGS }, RECIPE_LIMITS.structure.min, RECIPE_LIMITS.structure.max), // LD: no lyrics (D-234, D-250)
+    structure: arr({ enum: SECTION_TAGS }, RECIPE_LIMITS.structure.min, RECIPE_LIMITS.structure.max), // LD: no lyrics (D-234, D-251)
   });
 }
 

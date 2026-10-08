@@ -1,10 +1,10 @@
 /**
- * Does a request ask about the words? (LD fix, F-095, D-250): code decides a follow-up's keep vs write, not the
+ * Does a request ask about the words? (LD fix, F-095, D-251): code decides a follow-up's keep vs write, not the
  * planner (live, qwen3:14b said "write" to "mach es etwas schneller" 3 of 3). A word-list test in en / de / es,
  * case-insensitive, whole words, per clause (split at punctuation and but / and / aber / und / pero / y):
  * a clause asks when it has a rewrite verb, or names the words (lyrics, Text, letra, ...) while it says to change
  * them or does not say to keep them ("Text unverändert", "same lyrics", "sin cambiar la letra" keep). It does not
- * detect a new topic (D-250): such a follow-up usually names the words. Pure.
+ * detect a new topic (D-251): such a follow-up usually names the words. Pure.
  */
 const WORDS = new Set([
   'lyric', 'lyrics', 'word', 'words', 'verse', 'verses', 'chorus', 'choruses', 'line', 'lines', 'text',

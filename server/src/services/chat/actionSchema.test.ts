@@ -23,7 +23,7 @@ describe('turn reply schema (SP-5 turn_schema)', () => {
     const recipe = part(turnSchema({ facts: null, phraseBars: 4, allowed: ['recipe'] }), 'recipe').properties.recipe;
     expect(recipe.properties.key.enum).toEqual(KEYS);
     expect(recipe.properties.engine.enum).toEqual(['yue2']);
-    expect(recipe.properties).not.toHaveProperty('lyrics'); // LD (D-234, D-250): no lines and no write / keep in the recipe call
+    expect(recipe.properties).not.toHaveProperty('lyrics'); // LD (D-234, D-251): no lines and no write / keep in the recipe call
   });
 
   it('C3: reference_use (cover / borrow / none) is in the recipe only when the thread has a reading (D-128)', () => {

@@ -31,7 +31,7 @@ export const RECIPE: Recipe = {
 
 export const reply = (o: unknown, promptTokens = 2000): ChatScript => ({ content: JSON.stringify(o), promptTokens });
 
-/** LD (D-234, D-250): the planner's recipe has no `lyrics`; code keeps the draft's or the lyrics call writes them. */
+/** LD (D-234, D-251): the planner's recipe has no `lyrics`; code keeps the draft's or the lyrics call writes them. */
 export const PLANNED: PlannedRecipe = (({ lyrics: _, ...rest }) => rest)(RECIPE);
 export const recipeReply = (over: Partial<PlannedRecipe> = {}, message = 'Assuming 4/4 and A minor, lyrics in Spanish.', assumptions = ['assuming 4/4 and A minor']) =>
   reply({ action: 'recipe', message, assumptions, recipe: { ...PLANNED, ...over } });

@@ -1,8 +1,8 @@
-/** LD fix (F-095, D-250): code, not the planner, decides whether a follow-up is about the words. */
+/** LD fix (F-095, D-251): code, not the planner, decides whether a follow-up is about the words. */
 import { describe, it, expect } from 'vitest';
 import { asksForLyrics } from './asksForLyrics.js';
 
-describe('asksForLyrics (D-250)', () => {
+describe('asksForLyrics (D-251)', () => {
   it('a change that is not about the words: no (the live phrasings, F-095 live run)', () => {
     for (const r of ['mach es etwas schneller', 'etwas schneller bitte, Text unverändert', 'setz das Tempo auf 80 bpm, den Text lässt du unverändert',
       'make it faster', 'más lento', 'in D minor please', 'a warmer texture, more strings', 'make another version, slower',

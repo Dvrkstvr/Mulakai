@@ -62,7 +62,7 @@ export const ENGINE_ADAPTATION = {
   c0: 'engine: "yue2";',
 };
 
-/** LD (D-234, D-250, SP-5 rung 3): the recipe carries no lines; code keeps the draft's or a second call writes them. */
+/** LD (D-234, D-251, SP-5 rung 3): the recipe carries no lines; code keeps the draft's or a second call writes them. */
 export const LYRICS_ADAPTATION = {
   spike: 'lyrics: one entry per SUNG section, in song order, with its tag (Verse, Pre-Chorus, Chorus, Bridge or Outro; an Intro is '
     + `instrumental and has no lyrics) and ${LINES.min} to ${LINES.max} lines. Write real singable lines in the LANGUAGE OF THE REQUEST (a `
