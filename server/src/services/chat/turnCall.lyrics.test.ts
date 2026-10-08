@@ -1,4 +1,4 @@
-/** LD-2 (F-095, D-234, D-251): rung 3 always on for recipes. Code decides keep vs write; a write is a lyrics call on the
+/** LD-2 (F-095, D-234, D-252): rung 3 always on for recipes. Code decides keep vs write; a write is a lyrics call on the
  * language's model (2 calls), a keep is none (1 call); lyrics that fail their checks fail the turn. */
 import { describe, it, expect, vi } from 'vitest';
 import { RECIPE, autoLyrics, lyricsReply, recipeReply } from '../../../test-fakes/chatScripts.js';
@@ -44,7 +44,7 @@ describe('decideReply: rung 3, lyrics as their own call (LD-2)', () => {
     expect(d.ok && d.reply.action === 'recipe' && d.reply.recipe.lyrics[0].lines[0]).toBe('Der Tag ist still, das Licht so schwach');
   });
 
-  it('a follow-up not about the words keeps the draft\'s lyrics in one call, whatever the planner thinks (D-251, live phrasings)', async () => {
+  it('a follow-up not about the words keeps the draft\'s lyrics in one call, whatever the planner thinks (D-252, live phrasings)', async () => {
     for (const request of ['mach es etwas schneller', 'etwas schneller bitte, Text unverändert', 'make it faster', 'más lento']) {
       const ask = scripted([recipeReply({ bpm: 96 })]);
       const d = await decideReply({ ...ctx, request, pending: true, draft: keepDraft }, { ask, lyricsModel: modelFor });

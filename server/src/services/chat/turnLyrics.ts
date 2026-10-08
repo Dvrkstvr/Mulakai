@@ -1,5 +1,5 @@
 /**
- * A passed recipe's lines (LD, F-095, D-234, D-251; SP-5 rung 3). Code decides keep vs write, not the planner (live,
+ * A passed recipe's lines (LD, F-095, D-234, D-252; SP-5 rung 3). Code decides keep vs write, not the planner (live,
  * qwen3:14b answered "write" to a tempo tweak 3 of 3): keep takes the draft's lyrics, no call, when they still fit the
  * recipe's structure (recipeRules.lyricsFit), the recipe's language is the draft's and the request is not about the
  * words (asksForLyrics); otherwise the lyrics call writes them (lyricsAttempts), each attempt held to the whole

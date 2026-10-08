@@ -16,7 +16,7 @@ describe('chat rules (the system prompt = a snapshot of SP-5 v3.1 rules_for())',
     expect(CHAT_RULES).not.toContain('send the complete op list');
   });
 
-  it('LD: the planner writes no lines and says nothing about keeping them: code decides (D-251)', () => {
+  it('LD: the planner writes no lines and says nothing about keeping them: code decides (D-252)', () => {
     expect(CHAT_RULES).not.toContain('lyrics: one entry per SUNG section');
     expect(LYRICS_ADAPTATION.ld).toContain('the lyrics are written in a second step');
     expect(CHAT_RULES).not.toMatch(/"keep"|"write"/);

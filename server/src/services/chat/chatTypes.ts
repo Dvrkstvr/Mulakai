@@ -66,7 +66,7 @@ export interface Recipe {
   reference_use?: ReferenceUse;
 }
 
-/** LD (D-234, D-251): the planner's recipe has no lines; code keeps the draft's or the lyrics call writes them. */
+/** LD (D-234, D-252): the planner's recipe has no lines; code keeps the draft's or the lyrics call writes them. */
 export type LyricsMode = 'write' | 'keep';
 export type PlannedRecipe = Omit<Recipe, 'lyrics'>;
 

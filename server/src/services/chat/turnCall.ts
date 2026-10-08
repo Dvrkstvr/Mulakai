@@ -5,7 +5,7 @@
  * same call offering only what the state allows (turnActions). Rung 1 (router + per-action call) is
  * not built and runs as rung 0; `CHAT_LADDER` picks 0 or 2 for the actions. Rung 3 (LD, F-095, D-234)
  * is built and always on for recipes: the recipe call writes no lines; a passed recipe then gets them
- * (turnLyrics, code decides keep vs write, D-251): the draft's when kept, else a lyrics call on the
+ * (turnLyrics, code decides keep vs write, D-252): the draft's when kept, else a lyrics call on the
  * language's model (`lyricsModel`, lyricsModels.ts), up to 3 attempts; lyrics that fail fail the turn.
  * SP-5's call settings: max_tokens 4000 when the reply may be an edit (2000 cut a 40-bar REHARMONIZE
  * three times; a recipe needs under 800) and for the lyrics (SP-5/SP-7), temperature 0.3, reasoning off

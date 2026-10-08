@@ -22,10 +22,10 @@ describe('reply check', () => {
     expect(dropped.ok && dropped.reply.action === 'recipe' && 'reference_use' in dropped.reply.recipe).toBe(false);
   });
 
-  it('passes a valid recipe and keeps only the known fields; LD: no lines yet, turnCall fills them (D-251)', async () => {
+  it('passes a valid recipe and keeps only the known fields; LD: no lines yet, turnCall fills them (D-252)', async () => {
     const r = await checkReply({ ...recipe(), extra: 1 }, draft, {});
     expect(r).toEqual({ ok: true, reply: { action: 'recipe', message: 'ok', assumptions: [], recipe: { ...RECIPE, lyrics: [] } }, applied: null });
-    // a planner that still sends lines or the old write / keep: ignored, code decides (D-251)
+    // a planner that still sends lines or the old write / keep: ignored, code decides (D-252)
     for (const lyrics of [RECIPE.lyrics, 'keep']) expect(await checkReply(recipe({ lyrics }), draft, {})).toEqual(r);
   });
 
