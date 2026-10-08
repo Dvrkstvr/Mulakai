@@ -77,6 +77,10 @@ export const WHOLE_SONG = 'WHOLE SONG';
 export const mapTitle = (bars: number) => `BAR MAP · ${plural(bars, 'BAR')}`;
 
 export const UNDO_TURN = 'UNDO TURN';
+/** After UNDO TURN the CHANGED line reads `UNDONE · restored …` (5b). */
+export const UNDONE = 'UNDONE';
+/** The link's reason while a reply is open (5c). */
+export const UNDO_OFF = 'off while a reply is open';
 const label = (k: ChatDraftKey) => FIELD_LABEL[k];
 
 /** After UNDO TURN: `restored TITLE, STYLE · kept LYRICS: you changed it`. */

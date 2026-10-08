@@ -77,14 +77,11 @@ const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b)
 
 /** The rev each field was last filled at by a recipe reply still standing (its undo record), so a touch before that
  * reply reads plain after a reload too. */
-function recordRevs(messages: ChatMessageViewC2[]): Partial<Record<ChatDraftKey, number>> {
-  const out: Partial<Record<ChatDraftKey, number>> = {};
-  for (const m of messages) {
-    const u = m.kind === 'recipe' ? (m.body as ChatRecipeBodyC2 | null)?.undo : undefined;
-    if (u && !(m.body as ChatRecipeBodyC2).undone) for (const k of u.fields) out[k] = Math.max(out[k] ?? -1, u.rev);
-  }
+const recordRevs = (messages: ChatMessageViewC2[]) => messages.reduce<Partial<Record<ChatDraftKey, number>>>((out, m) => {
+  const u = m.kind === 'recipe' && !(m.body as ChatRecipeBodyC2 | null)?.undone ? (m.body as ChatRecipeBodyC2 | null)?.undo : undefined;
+  for (const k of u?.fields ?? []) out[k] = Math.max(out[k] ?? -1, u!.rev);
   return out;
-}
+}, {});
 
 export const useChatDraftStore = create<ChatDraftStore>((set, get) => {
   async function save(): Promise<void> {
@@ -149,11 +146,9 @@ export const useChatDraftStore = create<ChatDraftStore>((set, get) => {
       if (!threadId) return { refused: 'no draft is open', code: 'UNDO_REFUSED' };
       const res = await chatConvergeApi.undoTurn(threadId, messageId);
       if ('refused' in res || get().threadId !== threadId) return res;
-      set((s) => {
-        const assistantRev = { ...s.assistantRev };
-        for (const k of res.restored) delete assistantRev[k]; // a restored value is whoever's it was before the turn
-        return { draft: res.draft, blockers: res.blockers, filled: {}, assistantRev, error: null };
-      });
+      // A restored value is whoever's it was before the turn: its assistant rev goes.
+      const assistantRev = Object.fromEntries(Object.entries(get().assistantRev).filter(([k]) => !res.restored.includes(k as ChatDraftKey)));
+      set({ draft: res.draft, blockers: res.blockers, filled: {}, assistantRev, error: null });
       return res;
     },
 

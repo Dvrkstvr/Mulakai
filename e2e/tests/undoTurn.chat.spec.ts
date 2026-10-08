@@ -16,7 +16,8 @@ const TITLE = String((RECIPE.reply.recipe as { title: string }).title); // "Absc
 const MINE = 'dark piano ballad, my words';
 
 const field = (page: Page, label: string) => page.locator('.chat-fd').filter({ has: page.locator('.chat-fk', { hasText: new RegExp(`^${label}$`) }) });
-const reply = (page: Page) => page.locator('.chat-thread .chat-undo');
+/** The recipe reply's CHANGED line, which carries UNDO TURN and turns into UNDONE (5a, 5b). */
+const reply = (page: Page) => page.locator('.chat-thread .chat-am .chat-changed');
 
 test('a recipe fills the draft; a hand edit reads YOURS; UNDO TURN keeps it and restores the rest, also after a reload', async ({ page, request }) => {
   await page.setViewportSize({ width: 1366, height: 768 });
@@ -27,7 +28,8 @@ test('a recipe fills the draft; a hand edit reads YOURS; UNDO TURN keeps it and 
   const card = page.getByLabel('Proposal');
   await expect(card.locator('.chat-card-title')).toHaveText(TITLE, { timeout: 30_000 });
 
-  // 5a: the fields the reply filled read sky with ASSISTANT; UNDO TURN sits on the reply.
+  // 5a: the fields the reply filled read sky with ASSISTANT; UNDO TURN sits on the CHANGED line.
+  await expect(reply(page)).toContainText(/^CHANGED · TITLE, STYLE, .*UNDO TURN$/);
   await expect(field(page, 'TITLE')).toHaveClass(/assistant/);
   await expect(field(page, 'TITLE')).toContainText('ASSISTANT');
   await expect(field(page, 'STYLE')).toHaveClass(/assistant/);
@@ -46,7 +48,8 @@ test('a recipe fills the draft; a hand edit reads YOURS; UNDO TURN keeps it and 
 
   // 5b: UNDO TURN restores what the turn filled and nobody touched; STYLE is kept with its reason.
   await reply(page).getByRole('button', { name: 'UNDO TURN' }).click();
-  await expect(reply(page)).toContainText(/^UNDONE · restored TITLE, .* · kept STYLE: you changed it$/);
+  await expect(reply(page)).toHaveText(/^UNDONE · restored TITLE, .* · kept STYLE: you changed it$/); // replaces CHANGED
+  await expect(reply(page)).toHaveCount(1);
   await expect(page.getByRole('textbox', { name: 'Title' })).toHaveValue('');
   await expect(page.getByRole('textbox', { name: 'Style' })).toHaveValue(MINE);
   await expect(field(page, 'TITLE')).not.toHaveClass(/assistant/);
