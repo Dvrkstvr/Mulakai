@@ -1,0 +1,527 @@
+{
+ "tag": "de3",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "turn_seconds": 25.64808988571167,
+ "job": {
+  "status": "done"
+ },
+ "ps_after": {
+  "models": []
+ },
+ "timeline": [
+  {
+   "t": 0.0,
+   "vram": 1354,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.1,
+   "vram": 1562,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.7,
+   "vram": 9986,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 2.8,
+   "vram": 12759,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 3.4,
+   "vram": 12798,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 5.1,
+   "vram": 12790,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 5.7,
+   "vram": 12786,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 7.4,
+   "vram": 1382,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 7.9,
+   "vram": 1364,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 9.6,
+   "vram": 1356,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 10.1,
+   "vram": 2863,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 10.7,
+   "vram": 1563,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 14.0,
+   "vram": 1571,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 16.8,
+   "vram": 5795,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 17.4,
+   "vram": 13441,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 19.1,
+   "vram": 13442,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 19.7,
+   "vram": 14417,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 20.3,
+   "vram": 15557,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 20.8,
+   "vram": 15727,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 21.4,
+   "vram": 15729,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 24.2,
+   "vram": 15737,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_fb4727": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 25.3,
+   "vram": 1364,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_fb4727": [
+    "done",
+    null
+   ]
+  }
+ ],
+ "vram_peak": 15737,
+ "thread": {
+  "id": "0a41eded-eecd-4d4b-b9fd-d371adbbf1de",
+  "songId": null,
+  "draft": {
+   "draft_v": 1,
+   "rev": 1,
+   "fields": {
+    "title": "Abschied am Bahnhof",
+    "style": "Pop, piano, melancholic, female voice",
+    "bpm": 60,
+    "key": "Cm",
+    "timeSignature": "4/4",
+    "language": "de",
+    "structure": [
+     "Intro",
+     "Verse",
+     "Chorus",
+     "Verse",
+     "Chorus",
+     "Bridge",
+     "Chorus",
+     "Outro"
+    ],
+    "lyrics": [
+     {
+      "tag": "Verse",
+      "lines": [
+       "Der Nebel liegt schwer auf dem Gleis",
+       "Die Welt wird ganz leise und still",
+       "Ich sehe dein Gesicht im kalten Licht",
+       "Und weiß nicht, was ich jetzt fühlen will"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist wie ein tiefer Ton",
+       "Ein letzter, trauriger Augenblick"
+      ]
+     },
+     {
+      "tag": "Verse",
+      "lines": [
+       "Die Türen schließen mit einem harten Klang",
+       "Die Menschen strömen geschäftig vorbei",
+       "Ich halte nur noch die Erinnerung fest",
+       "Und fühle mich so unendlich einsam und frei"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist wie ein tiefer Ton",
+       "Ein letzter, trauriger Augenblick"
+      ]
+     },
+     {
+      "tag": "Bridge",
+      "lines": [
+       "Die Schienen führen in die Ferne",
+       "Wohin dein Weg dich auch mag tragen",
+       "Ich bleibe hier im Regen stehen",
+       "Und suche nach neuen Tagen"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist wie ein tiefer Ton",
+       "Ein letzter, trauriger Augenblick"
+      ]
+     },
+     {
+      "tag": "Outro",
+      "lines": [
+       "Nur noch der Wind weht durch die Nacht",
+       "Die Lichter am Bahnsteig verblassen",
+       "Alles ist nun vorbei",
+       "Und ich muss dich loslassen"
+      ]
+     }
+    ],
+    "engine": "yue2"
+   },
+   "touched": {}
+  },
+  "draftNote": null,
+  "blockers": [],
+  "messages": [
+   {
+    "id": "141461e4-32f4-4469-a3fe-724b4b5a99e1",
+    "threadId": "0a41eded-eecd-4d4b-b9fd-d371adbbf1de",
+    "seq": 1,
+    "role": "user",
+    "kind": "text",
+    "text": "ein langsamer Popsong über Abschied am Bahnhof",
+    "body": {
+     "chat_v": 1,
+     "sentRev": 0
+    },
+    "proposalId": null,
+    "jobId": "fb4727b6-5eae-40d3-9e94-1a1e4cf296c5",
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:13:46",
+    "state": "done",
+    "job": {
+     "status": "done"
+    },
+    "phase": null,
+    "undo": null
+   },
+   {
+    "id": "dbde214b-f35c-4e6e-a03e-3861ebb91f53",
+    "threadId": "0a41eded-eecd-4d4b-b9fd-d371adbbf1de",
+    "seq": 2,
+    "role": "assistant",
+    "kind": "recipe",
+    "text": "Ein langsamer Popsong über Abschied am Bahnhof wird erstellt. Die Liedtexte werden auf Deutsch geschrieben.",
+    "body": {
+     "chat_v": 1,
+     "recipe": {
+      "title": "Abschied am Bahnhof",
+      "style": "Pop, piano, melancholic, female voice",
+      "bpm": 60,
+      "key": "Cm",
+      "timeSignature": "4/4",
+      "language": "de",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Bridge",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "Der Nebel liegt schwer auf dem Gleis",
+         "Die Welt wird ganz leise und still",
+         "Ich sehe dein Gesicht im kalten Licht",
+         "Und weiß nicht, was ich jetzt fühlen will"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist wie ein tiefer Ton",
+         "Ein letzter, trauriger Augenblick"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Die Türen schließen mit einem harten Klang",
+         "Die Menschen strömen geschäftig vorbei",
+         "Ich halte nur noch die Erinnerung fest",
+         "Und fühle mich so unendlich einsam und frei"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist wie ein tiefer Ton",
+         "Ein letzter, trauriger Augenblick"
+        ]
+       },
+       {
+        "tag": "Bridge",
+        "lines": [
+         "Die Schienen führen in die Ferne",
+         "Wohin dein Weg dich auch mag tragen",
+         "Ich bleibe hier im Regen stehen",
+         "Und suche nach neuen Tagen"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist wie ein tiefer Ton",
+         "Ein letzter, trauriger Augenblick"
+        ]
+       },
+       {
+        "tag": "Outro",
+        "lines": [
+         "Nur noch der Wind weht durch die Nacht",
+         "Die Lichter am Bahnsteig verblassen",
+         "Alles ist nun vorbei",
+         "Und ich muss dich loslassen"
+        ]
+       }
+      ],
+      "engine": "yue2"
+     },
+     "assumptions": [
+      "key: C minor",
+      "bpm: 60",
+      "time_signature: 4/4",
+      "language: German"
+     ],
+     "changed": [
+      "title",
+      "style",
+      "bpm",
+      "key",
+      "timeSignature",
+      "language",
+      "structure",
+      "lyrics",
+      "engine"
+     ],
+     "skipped": [],
+     "undo": {
+      "rev": 1,
+      "before": {},
+      "fields": [
+       "title",
+       "style",
+       "bpm",
+       "key",
+       "timeSignature",
+       "language",
+       "structure",
+       "lyrics",
+       "engine"
+      ]
+     },
+     "estSeconds": 256
+    },
+    "proposalId": "92b76fbc-3824-42be-9d87-f2a9370e5c4a",
+    "jobId": null,
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:14:12",
+    "state": "pending",
+    "job": null,
+    "phase": null,
+    "undo": "offer"
+   }
+  ],
+  "references": []
+ }
+}
