@@ -61,14 +61,14 @@ describe('turnRevise.pendingFor (F-058, D-227)', () => {
     const lines = chatPendingLines(plan());
     expect(lines).not.toContain(REVISE_LINES[0]);
     expect(lines.slice(-2)).toEqual([CHAT_REVISE_LINE, CHAT_KEEP_LINE]);
-    expect(CHAT_REVISE_LINE).toMatch(/"drop"/);
+    expect(CHAT_KEEP_LINE).toMatch(/"drop"/);
     expect(CHAT_REVISE_LINE).toMatch(/not the complete op list/);
   });
 
-  it('CP-C2: drop is only for what the request removes, and the block ends on an addition keeping every pending op', () => {
-    expect(CHAT_REVISE_LINE).toContain('"drop" lists only pending ops the request asks to remove');
+  it('CP-C2: the block ends on drop for what the request takes away (all of it on "forget all that") and drop [] on an addition', () => {
     expect(CHAT_REVISE_LINE).toContain('same target (');
-    expect(CHAT_KEEP_LINE).toMatch(/^A request that adds .* keeps every pending op: drop \[\]/);
+    expect(CHAT_KEEP_LINE).toMatch(/^"drop" lists the pending ops the request takes away: .*"forget all that" drops every pending op\./);
+    expect(CHAT_KEEP_LINE).toMatch(/A request that only adds .* keeps every pending op: drop \[\]\./);
     expect(CHAT_KEEP_LINE).toMatch(/not as the pending plan would leave it\.$/);
     expect(chatPendingLines(plan()).at(-1)).toBe(CHAT_KEEP_LINE);
   });

@@ -13,13 +13,14 @@ import { liveEdit } from './proposalStore.js';
 import type { RevisePending } from './convergeTypes.js';
 
 export const CHAT_REVISE_LINE = 'An edit reply changes this pending plan, so answer with only what changes, not the complete op list: '
-  + '"ops" holds each new op, and each pending op the request changes, in full. An op in ops replaces the pending op on the same '
+  + '"ops" holds each new op, and each pending op the request changes, in full; an op in ops replaces the pending op on the same '
   + 'target (SET_TEMPO, EDIT_STYLE, TRANSPOSE: the same kind; REHARMONIZE: overlapping bars; WRITE_PHRASE: the same start_bar; '
-  + 'REPEAT or CUT: the same section; REWRITE_LYRICS: the same block) without a drop; any other op is added. "drop" lists only '
-  + 'pending ops the request asks to remove; to start over, drop every pending op and return the new ones.';
-/** CP-C2 (R-040): qwen3:14b filled drop with "the ops this reply replaces" on 5 of 11 additions; the block now ends on the default. */
-export const CHAT_KEEP_LINE = 'A request that adds ("also", "and", "do the same here") keeps every pending op: drop [], and leave them '
-  + 'out of ops. All numbers still mean the song as read above, not as the pending plan would leave it.';
+  + 'REPEAT or CUT: the same section; REWRITE_LYRICS: the same block), any other op is added.';
+/** CP-C2 (R-040): qwen3:14b filled drop with "the ops this reply replaces" on 5 of 11 additions (run 1); a closing line
+ * naming only the addition then kept every op on "forget all that" (r2). The block ends on both cases. */
+export const CHAT_KEEP_LINE = '"drop" lists the pending ops the request takes away: "forget" or "remove" the X drops X (do not restate '
+  + 'its old state); "forget all that" drops every pending op. A request that only adds ("also", "and", "do the same here") '
+  + 'keeps every pending op: drop []. All numbers still mean the song as read above, not as the pending plan would leave it.';
 
 /** The PENDING PLAN block of a chat turn: the dock's header and numbered ops, then the chat's reply lines (the last one
  * the dock's closing line with an addition's drop [] in front). */
