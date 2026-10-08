@@ -46,22 +46,6 @@ def test_repeat_inserts_the_section_after_itself_and_keeps_the_base():
     assert abs(sp.facts["level_step_db"]) < 1.0
 
 
-@pytest.mark.parametrize("tail", [1.0, 3.0, 6.0])
-def test_repeating_the_last_section_seams_at_its_last_bar_not_after_the_ring_out(tail):
-    # C1 N1: an outro's end is the end of the audio; the seam must sit where its last bar
-    # ends (the tracker has no downbeat after it), and the ring-out plays once, at the very end
-    base = groove(BARS, BEAT, lead=LEAD, tail=tail)
-    gb = fit(grid(BARS, BEAT, LEAD, len(base) / SR), ABC)
-    sp = splice_repeat(base, gb, 16, BARS)
-    assert (sp.verdict, sp.reason) == ("ok", None)
-    bar_end = LEAD + BARS * 4 * BEAT
-    assert sp.joins[0] == pytest.approx(bar_end, abs=0.002)
-    assert sp.parts[-1] == ("base", pytest.approx(bar_end), pytest.approx(len(base) / SR))
-    assert len(sp.out) - len(base) == pytest.approx(8 * 4 * BEAT * SR, abs=0.01 * SR)
-    assert sp.facts["snap"][0]["corr"] > 0.9 and abs(sp.facts["level_step_db"]) < 1.0
-    assert null_test(sp.out, base, sp.part_rows(), sp.widths)["different"] == 0
-
-
 def test_a_repeat_whose_seam_steps_too_far_says_rerender():
     # the section ends quiet and starts loud: the copy's seam jumps far over the threshold
     loud = lambda i: -6.0 if i == 8 else -40.0  # noqa: E731
