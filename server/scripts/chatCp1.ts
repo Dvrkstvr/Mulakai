@@ -27,7 +27,7 @@ const EDIT1 = 'give the first chorus jazz chords';
 const EDIT2 = 'now make the last chorus calmer, with softer chords';
 const MARKS: MarkKind[][] = [['one', 'one', 'cross', 'secs'], ['one', 'one', 'cross', 'secs'], ['one', 'cross']];
 const TEXT: Record<MarkKind, string[]> = {
-  one: ['give this part jazz chords', 'make this part darker, with minor chords', 'rewrite the lyrics of this part about the sea', 'repeat this part once more', 'make this calmer, with softer chords'],
+  one: ['give this part jazz chords', 'make this part darker, with minor chords', 'rewrite the lyrics of this part about the sea', 'repeat this part once more', 'make this calmer, with softer chords', 'make this jazzier'],
   cross: ['give this passage jazz chords', 'make this stretch brighter', 'rewrite these lines about rain'],
   secs: ['give this bit jazz chords', 'make this sadder'],
 };

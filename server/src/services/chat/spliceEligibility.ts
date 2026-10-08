@@ -4,7 +4,9 @@
  * on a 4/4 song with no meter change in the bar map (SP-4 tested 4/4 only), on a score with chords
  * (a chord-free REHARMONIZE changes the render mode for the whole song, D-132; the join is fitted on
  * the score's chords), and a span inside the song as read. Everything else renders the whole song,
- * and the reason says why. REPEAT's level-step fallback is decided at render time (CB-3), not here.
+ * and the reason says why. REPEAT's level-step fallback is decided at render time (CB-3), not here;
+ * a REPEAT of the last section is not spliced at all: its last bar is the song's ending, so the copy
+ * has no groove to join after (C1 N1, D-213).
  * Pure. Every number is the song as read (D-066).
  */
 import type { Op, ScoreFacts } from '../score/planTypes.js';
@@ -44,5 +46,8 @@ export function spliceEligibility(ops: Op[], { facts, chordsPresent }: SpliceInp
     return no(s.kind === 'reharmonize' ? 'the song has no chords: adding them renders the whole song with chords' : 'the song has no chords to align the join on');
   }
   if (s.from < 1 || s.to > facts.header.bars || s.from > s.to) return no(`bars ${s.from}-${s.to} are not inside the song's ${facts.header.bars} bars`);
+  if (s.kind === 'repeat' && s.to === facts.header.bars && op.op === 'REPEAT') {
+    return no(`the ${op.label} ends the song: its last bar is the ending, so the old audio has nothing to play the copy after`);
+  }
   return { splice: true, kind: s.kind, from_bar: s.from, to_bar: s.to };
 }

@@ -822,3 +822,6 @@ BPM… is a chip that turns into its own text input in place, focused. A click o
 
 ## D-212 · 2026-10-08 · stage 5 (DT-RT) · by: owner
 Owner signed off pipeline/design/retime.html with press then confirm (Option 1): a mode is picked (HALF, DOUBLE, or a locked BPM per D-211), the consequence line shows, and RE-TIME AT n BPM (or APPLY & RENDER where YuE2 re-renders) runs it. D-209's RT-1..RT-8 and the Q-125..Q-132 defaults stand. RT-1 (`feat/retime-yue`) starts.
+
+## D-213 · 2026-10-08 · stage 7 (C1 N1) · by: agent
+A REPEAT of the song's last section is not spliced (amends D-154): `spliceEligibility` answers whole-song re-render up front, and the card says why before APPLY ("the outro ends the song: its last bar is the ending, so the old audio has nothing to play the copy after"). Measured on Cariñito v1 (SheetSage2 grid, outro bars 56-64): the last bar is the ending (-17 to -70 LUFS in 2.0 s of a 2.52 s bar), so the copy's seam at the audio's end snaps at corr 0.139 (< 0.15, `not_aligned`), which is N1. A seam one bar earlier aligns (0.43), but a splice there repeats 8 of 9 bars and the edited score has all 9 twice, so no bar-exact audio exists; estimating the end bar past a ring-out tail does not help a song whose ending is its last bar. CUT of the last section keeps its edge-fade splice.
