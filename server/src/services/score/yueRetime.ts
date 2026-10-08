@@ -29,6 +29,8 @@ export interface RetimeResult {
   notes: number;
   /** Notes the slower grid cannot hold (SP-8, D-210): said before the person commits. */
   droppedNotes: number;
+  /** Sections of the reading left out to match `keepLike` (RT-4). */
+  leftOut: string[];
   warnings: string[];
 }
 
@@ -56,13 +58,14 @@ export async function fetchNotation(target: EngineTarget, yueJobId: string): Pro
 }
 
 export async function retimeScore(
-  bundle: NotationBundle, mode: RetimeMode, bpm: number | null, target: EngineTarget = yue2Engine,
+  bundle: NotationBundle, mode: RetimeMode, bpm: number | null, target: EngineTarget = yue2Engine, keepLike?: string,
 ): Promise<RetimeResult> {
   if (!target.url) throw new Error(`${target.label} is not set up (YUE_API_URL)`);
   const res = await request(target, '/v1/scores/retime', {
     method: 'POST',
     headers: headers(target, { 'Content-Type': 'application/json' }),
-    body: JSON.stringify({ files: bundle.files, mode, ...(bpm !== null ? { bpm } : {}), melody_only: !bundle.chords }),
+    body: JSON.stringify({ files: bundle.files, mode, ...(bpm !== null ? { bpm } : {}), melody_only: !bundle.chords,
+      ...(keepLike ? { keep_like: keepLike } : {}) }),
   }, 'score retime', RETIME_TIMEOUT_MS);
   if (res.status === 422) {
     const body = (await res.json().catch(() => ({}))) as { detail?: unknown };
@@ -76,6 +79,7 @@ export async function retimeScore(
   return {
     abc: r.abc, measures: num(r.measures), bpm: typeof r.bpm === 'number' ? r.bpm : null, readBpm: num(r.read_bpm),
     vocalNotes: num(r.vocal_notes), insNotes: num(r.ins_notes), notes: num(r.notes), droppedNotes: num(r.dropped_notes),
+    leftOut: Array.isArray(r.left_out) ? r.left_out.map(String) : [],
     warnings: Array.isArray(r.warnings) ? r.warnings.map(String) : [],
   };
 }

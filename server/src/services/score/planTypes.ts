@@ -24,7 +24,10 @@ export type Op =
   /** `section` is the read's S<n> (facts.sections[].index), `label` its label as a cross-check. */
   | { op: 'REPEAT' | 'CUT'; section: number; label: string }
   /** `block` is facts.lyric_blocks[].index; `tag` + `occurrence` the cross-check; same line count, no tags. */
-  | { op: 'REWRITE_LYRICS'; block: number; tag: string; occurrence: number; lines: string[] };
+  | { op: 'REWRITE_LYRICS'; block: number; tag: string; occurrence: number; lines: string[] }
+  /** RE-TIME (RT-4, F-093): the score rebuilt from the kept reading, never planned by the model nor sent to
+   * /v1/scores/apply; `from_bpm` is what SheetSage2 read, `dropped_notes` of `notes` did not fit the grid. */
+  | { op: 'RETIME'; mode: 'half' | 'double' | 'bpm'; bpm: number; from_bpm: number; dropped_notes: number; notes: number };
 
 export interface ScoreSection { index: number; label: string; from_bar: number; to_bar: number }
 
@@ -98,6 +101,8 @@ export interface Plan {
   since?: Since | null;
   /** The render's cot and why (renderMode, F-065/D-132): the review names it, the render sends it. */
   renderMode: RenderMode;
+  /** A RE-TIME plan's kept reading, saved on the new version so it can be re-timed again (D-233). */
+  retime?: { notationId: string; readBpm: number } | null;
 }
 
 /** A pick sent with PLAN (F-032): a strip section (S<n> of the read, its label, which occurrence of that

@@ -74,6 +74,7 @@ describe('scoreEditLabel', () => {
   it('names the ops, and a truncated render says so', () => {
     expect(scoreEditLabel(plan('s', 'v').ops, false)).toBe('score edit · SET TEMPO 88 · REHARMONIZE 17–24');
     expect(scoreEditLabel([{ op: 'EDIT_STYLE', style: 'x' }], true)).toBe('score edit · EDIT STYLE (truncated)');
+    expect(scoreEditLabel([{ op: 'RETIME', mode: 'half', bpm: 47, from_bpm: 93.7, dropped_notes: 0, notes: 1 }], false)).toBe('score edit · RE-TIME 47');
     const bar = [{ pitch: 'D', beats: 4 }];
     expect(scoreEditLabel([{ op: 'WRITE_PHRASE', start_bar: 57, instrument: 'tenor saxophone', bars: [bar, bar, bar, bar] }], false))
       .toBe('score edit · WRITE PHRASE tenor saxophone 57–60');
@@ -126,6 +127,18 @@ describe('persistScoreVersion', () => {
     expect(JSON.parse(fresh.params_json)).toMatchObject({ truncated: true });
     // No score came back: the sidecar is the score that was sent.
     expect(fs.readFileSync(path.join(config.audioDir, `${saved.id}.abc`), 'utf8')).toBe(EDITED);
+  });
+});
+
+describe('a RE-TIME version (RT-4, D-233)', () => {
+  it('keeps the kept reading on the new version, so the dock can re-time it again', async () => {
+    const { songId, layerId, versionId, source } = await seedSong();
+    const retime = { notationId: 'd'.repeat(64), readBpm: 93.7 };
+    const p: Plan = { ...plan(songId, versionId), ops: [{ op: 'RETIME', mode: 'half', bpm: 47, from_bpm: 93.7, dropped_notes: 2, notes: 9 }], retime };
+    const saved = await persistScoreVersion({ songId, plan: p, source, request, audio, score: EDITED, truncated: false });
+    const fresh = rows(layerId)[1];
+    expect(fresh).toMatchObject({ id: saved.id, label: 'score edit · RE-TIME 47' });
+    expect(JSON.parse(fresh.params_json)).toMatchObject({ task_type: 'score', ops: p.ops, retime });
   });
 });
 

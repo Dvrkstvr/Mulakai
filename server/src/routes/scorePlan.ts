@@ -6,6 +6,8 @@
  *        revise: the pending plan's id (F-033): REVISE it; refused unless it is still the song's
  *        pending plan, made on the score as it is.
  *   GET  /api/songs/:id/score/plan            → {run, plan}
+ *   POST /api/songs/:id/score/retime {mode: half | double | bpm, bpm?} → 200 {plan}: RE-TIME (RT-4, D-233), a plan
+ *        made at once from the kept reading, no planner; 409 with the reason when it is not offered
  *   POST /api/songs/:id/score/plan/cancel     → CANCEL: a queued plan leaves the line; a running
  *        one aborts its planner call and still unloads before the slot frees (F-024 #2, D-041)
  * The plan itself stays on the server (planStore, D-035); its edited score is not sent.
@@ -18,6 +20,8 @@ import { planDeps, startPlan, type PlanDeps } from '../services/score/planJob.js
 import { getPlan, lastRun } from '../services/score/planStore.js';
 import { parseReferent, resolveReferent, staleMessage } from '../services/score/planReferent.js';
 import { reviseRefusal } from '../services/score/planRevise.js';
+import { makeRetimePlan, retimePlanDeps, RetimePlanRefused, type RetimePlanDeps } from '../services/score/retimePlan.js';
+import { RetimeRefused, type RetimeMode } from '../services/score/yueRetime.js';
 import type { Plan, ScoreFacts } from '../services/score/planTypes.js';
 export type { OpMark, Referent, ReferentInput, Since, StaleReferent } from '../services/score/planTypes.js';
 
@@ -32,8 +36,32 @@ export const NOTHING_TO_CANCEL = 'no plan is queued or running for this song';
 export type PlanView = Omit<Plan, 'abc' | 'fingerprint' | 'lyrics'>;
 const planView = ({ abc: _abc, fingerprint: _fp, lyrics: _lyrics, ...plan }: Plan): PlanView => plan;
 
-export function makeScorePlanRouter(deps: () => PlanDeps = () => planDeps()): Router {
+const MODES = new Set<RetimeMode>(['half', 'double', 'bpm']);
+
+const planRunning = (songId: string) => {
+  const prior = lastRun(songId);
+  const job = prior && getJob(prior.jobId);
+  return job && (job.status === 'queued' || job.status === 'running') ? job : null;
+};
+
+export function makeScorePlanRouter(deps: () => PlanDeps = () => planDeps(), retimeDeps: () => RetimePlanDeps = retimePlanDeps): Router {
   const router = Router();
+
+  router.post('/:id/score/retime', async (req, res) => {
+    const mode = req.body?.mode as RetimeMode;
+    const bpm = typeof req.body?.bpm === 'number' && Number.isFinite(req.body.bpm) ? Math.round(req.body.bpm) : null;
+    if (!MODES.has(mode)) return res.status(400).json({ error: 'mode must be half, double or bpm' });
+    if (mode === 'bpm' && bpm === null) return res.status(400).json({ error: 'mode bpm needs a bpm' });
+    const running = planRunning(req.params.id);
+    if (running) return res.status(409).json({ error: ALREADY_PLANNING, jobId: running.id });
+    try {
+      res.json({ plan: planView(await makeRetimePlan(req.params.id, mode, bpm, retimeDeps())) });
+    } catch (err) {
+      if (err instanceof RetimePlanRefused) return res.status(err.status).json({ error: err.message, ...(err.code ? { code: err.code } : {}) });
+      if (err instanceof RetimeRefused) return res.status(422).json({ error: err.message, code: err.code });
+      res.status(502).json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  });
 
   router.post('/:id/score/plan', async (req, res) => {
     const songId = req.params.id;
@@ -45,11 +73,8 @@ export function makeScorePlanRouter(deps: () => PlanDeps = () => planDeps()): Ro
     const revise = req.body?.revise ?? null;
     if (revise !== null && (typeof revise !== 'string' || !revise || revise.length > 100)) return res.status(400).json({ error: 'revise must be a plan id' });
     if (!config.llmUrl) return res.status(409).json({ error: NOT_SET_UP });
-    const prior = lastRun(songId);
-    const priorJob = prior && getJob(prior.jobId);
-    if (priorJob && (priorJob.status === 'queued' || priorJob.status === 'running')) {
-      return res.status(409).json({ error: ALREADY_PLANNING, jobId: priorJob.id });
-    }
+    const priorJob = planRunning(songId);
+    if (priorJob) return res.status(409).json({ error: ALREADY_PLANNING, jobId: priorJob.id });
     const d = deps();
     try {
       const status = await d.status(songId);

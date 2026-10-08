@@ -8,23 +8,30 @@
  *               number and its stored style, for the dock's reading and consequence lines; and the
  *               score's `sections` and lyric `blocks` as yue-server read them (facts.sections /
  *               facts.lyric_blocks, the numbering planReferent checks a pick against), for the
- *               dock's pick (F-032). Absent when yue-server returned no facts.
+ *               dock's pick (F-032). Absent when yue-server returned no facts. And `retime`: whether RE-TIME
+ *               is offered (RT-4, D-233): `offered` with the reading's tempo, `refused` with why, or `none`.
  * The planner is probed only for an eligible song, so a hidden song costs no Ollama call.
  */
 import { Router } from 'express';
 import { config } from '../config.js';
 import { probePlanner } from '../services/score/ollamaControl.js';
 import { scoreStatus, type ScoreStatus } from '../services/score/scoreStatus.js';
+import { retimeOffer, type RetimeOffer } from '../services/score/retimeOffer.js';
 
 export interface ScoreRouteDeps {
   status: (songId: string) => Promise<ScoreStatus>;
   probe: () => Promise<string | null>;
+  retime: (songId: string) => Promise<RetimeOffer>;
 }
 
 const defaults = (): ScoreRouteDeps => ({
   status: (songId) => scoreStatus(songId),
   probe: () => probePlanner({ url: config.llmUrl, model: config.llmModel }),
+  retime: (songId) => retimeOffer(songId),
 });
+
+/** The offer without the kept id: the dock only needs whether, why not, and the tempo read. */
+const retimeView = (o: RetimeOffer) => (o.state === 'offered' ? { state: o.state, readBpm: o.readBpm } : o);
 
 type Facts = NonNullable<NonNullable<ScoreStatus['read']>['facts']>;
 
@@ -68,7 +75,8 @@ export function makeScoreRouter(deps: () => ScoreRouteDeps = defaults): Router {
       if (e.state === 'offline') return res.json({ state: 'offline', offline: 'checker', reason: e.reason });
       const problem = await d.probe();
       if (problem) return res.json({ state: 'offline', offline: 'planner', reason: problem, ...reading(status) });
-      res.json({ state: 'eligible', ...reading(status) });
+      const retime = retimeView(await d.retime(req.params.id).catch(() => ({ state: 'none' as const })));
+      res.json({ state: 'eligible', ...reading(status), retime });
     } catch (err) {
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
     }
