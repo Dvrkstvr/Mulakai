@@ -67,6 +67,13 @@ describe('SCORE', () => {
     expect(notes).toContain('SCORE · transcribing 41%');
     expect(notes.every((n) => n.startsWith('SCORE'))).toBe(true);
   });
+  it('a transcribed score keeps its notation id for a re-time (F-092); an own score has none', async () => {
+    const kept = deps({ transcribe: vi.fn(async () => ({ ...OUTCOME, notationId: 'n-1' })) });
+    expect(await runStep('score', input({ source: 'service' }), kept)).toMatchObject({ notationId: 'n-1' });
+    const gone = deps({ transcribe: vi.fn(async () => ({ ...OUTCOME, notationId: null })) });
+    expect(await runStep('score', input({ source: 'service' }), gone)).toMatchObject({ notationId: null });
+    expect(await runStep('score', input({ source: 'own' }), deps())).not.toHaveProperty('notationId');
+  });
   it('reads a library song\'s own score with its words, no transcription', async () => {
     const d = deps();
     const part = await runStep('score', input({ source: 'own' }), d);
