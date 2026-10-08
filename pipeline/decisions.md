@@ -899,3 +899,19 @@ Owner's blind read (spikes/SP-7-german-lyrics/owner-read.json): German usable ge
 
 ## D-240 · 2026-10-08 · stage 7 (RT, F-091 verify; RT-4 scope) · by: owner + assumed (conductor)
 Owner: RE-TIME in the SCORE dock (RT-4, F-093) is offered only while a cover's score is still its transcription, or an earlier re-time of it. Sections left out in Create stay left out, matched by name. After any other SCORE edit it is hidden, with a line saying why. Assumed (conductor): the GONE box's TRANSCRIBE AGAIN says it uses the GPU but gives no minutes. No calibrated TRANSCRIBE figure exists, and Q-099/D-157 keep invented GPU seconds out of the copy. F-091's acceptance line 2 is amended to match, and the minutes come once CP-C3 calibrates them. The verifier's two stale-state finds (a pending preview after UNDO, a pick carried to another score) are fixed by remounting the row per score (`retimeRowKey`).
+
+## D-241 · 2026-10-08 · stage 7 (chat C2, CV-0, F-060) · by: assumed (builder)
+The bar map's `bars` is max(the header's bars, the last section's end), so a header that undercounts hides no section; an op whose section or block is not in the read gets `spans: []`, `whole: false` (never a guessed span); spans clamp to 1..bars. A recipe that changed nothing carries no `undo` key (#230).
+- instead of: trusting the header's bar count; guessing a span for an unknown section.
+
+## D-242 · 2026-10-08 · stage 7 (chat C2, CV-3, F-059) · by: assumed (builder)
+A repeated UNDO TURN is refused 409 "already undone" and changes nothing (architecture.md said replay 200); an undo is not a hand edit (`touched` unchanged, rev moves only when a field was put back); a non-recipe message answers 409 UNDO_REFUSED (#233).
+- instead of: replaying the first undo's 200; 404 for a non-recipe message.
+
+## D-243 · 2026-10-08 · stage 7 (chat C2, CV-6, F-056) · by: assumed (builder), deviates from chat-converge.html
+While a mark is shown, the lyrics panel keeps the section just before and just after the mark as one dim context row each (header + the line next to the mark), so shift-click can carry a mark across a section boundary; frame 2b drew a two-section mark with no way to reach the second section. DESIGN.md says so (#244).
+- instead of: keeping the full section list under a mark; shift-click only within the shown part.
+
+## D-244 · 2026-10-08 · stage 7 (chat C2, CV-5, R-040) · by: conductor
+CP-C2 (pipeline/cp-c2/2026-10-08): prompt p95 5,403 tokens, 0 context refusals, 0 silent losses, 2/21 failures — but STOP on additive drops, 5 of 11 (qwen3:14b fills `drop` with the ops a reply "replaces" even when the request only adds; every drop showed under REMOVED). Also a dropped-and-returned-identical op showed NEW + REMOVED. Fix before CV-7: SAME for an identical re-return, a prompt line that an addition keeps every pending op, re-run; if still over 3/10, a no-removal-words guard that retries once with a named reason (like D-201), never a silent override.
+- instead of: building CV-7 on a revise that loses ops on additions; overriding the model's `drop` silently.
