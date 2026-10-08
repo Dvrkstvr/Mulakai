@@ -276,7 +276,7 @@ yuey.cpp (2 stars, validated on an RTX 5070 laptop and a DGX Spark only) may not
 - check: SP-7 (F-089).
 - fallback: WSL stays; F-089 dropped and recorded.
 
-### R-038 · impact H · fix chosen (two German drafts, D-232; build owed: scope.md LD, F-095..F-097) · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
+### R-038 · impact H · fix chosen (German lyrics on gemma4, D-237; build owed: scope.md LD, F-095, F-096) · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
 German lyrics from qwen3:14b are not usable as a first take (0/3 A, 0/3 B: unnatural wording, poor singability), and the owner writes in German. Check: SP-7 (lyrics step on gemma4 26B-A4B, gemma3:12b, mistral-small3.2:24b vs qwen3:14b; owner reads 6 German sets blind; bar ≥ 5/6). Fallback: German lyrics shown as a draft to edit before rendering.
 
 ### R-039 · impact H · evidence seen running, partly proven (SP-8, 2026-10-08)
@@ -294,6 +294,6 @@ A YuE2 lyric line's time comes from aligning Whisper's heard words to the stored
 - fallback: a line click marks its section (D-218's untimed rule) when the alignment's `matched` share is low.
 
 ### R-042 · impact M · evidence measured (SP-7 numbers), unproven in the app
-A German recipe turn holds the GPU slot for the planner call + two lyrics loads and calls (~3.5 s + ~7 s gemma3, ~19 s + ~9 s gemma4, partly on CPU at 16k) + three unloads: about 45 s, and a YuE2 take queued behind it waits that long. A slow disk cache or the owner's other stack on the GPU may push gemma4 further onto the CPU.
-- check: F-097 live run (bar ≤ 60 s warm, `/api/ps` empty after).
-- fallback: `LYRICS_MODELS_DE` to one model; a smaller context for the lyrics call (SP-7 "not tried").
+A German recipe turn holds the GPU slot for the planner call + gemma4's load (~19 s, partly on CPU at 16k) and call (~9 s) + two unloads: about 35 s, and a YuE2 take queued behind it waits that long. A slow disk cache or the owner's other stack on the GPU may push gemma4 further onto the CPU.
+- check: F-096 live run (bar ≤ 60 s warm, `/api/ps` empty after).
+- fallback: a smaller context for the lyrics call (SP-7 "not tried"); `LYRICS_MODEL_DE=gemma3:12b` (fits the GPU, 3.5 s load).

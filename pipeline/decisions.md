@@ -897,25 +897,20 @@ The owner signed off pipeline/design/chat-converge.html (D-226's gate for CV-6..
 Owner's blind read (spikes/SP-7-german-lyrics/owner-read.json): German usable gemma3:12b 4/6, gemma4 26B-A4B 4/6, mistral-small3.2 0/6, qwen3:14b 0/6; no single model reaches 5/6, but the two gemmas fail on different requests and together cover 6/6. Owner: German lyrics get two drafts, one from gemma3:12b and one from gemma4, and the person picks one on the card; English and Spanish stay on qwen3:14b (Spanish 3/3 by the assistant's read). Cost: an extra model load per German song (~4 s gemma3, ~19 s gemma4, partly CPU-offloaded at 16k). gemma4 leaked "Mulakai" from the system prompt into one lyric — the build needs a guard. Built as a feature after this (its own session; touches the chat recipe/lyrics step). R-038 moves to "check chosen, build owed".
 
 ## D-233 · 2026-10-08 · feature LD (F-095, D-232) · by: assumed (conductor)
-A chat turn may load more than one model: the planner, then each lyrics model the recipe's language names, one at a time, all inside the turn's one `plan` slot. Before a different model loads, the one before is unloaded and `/api/ps` read empty; the turn's `finally` unloads every model it touched and waits for `/api/ps` empty before the slot is released (the CLAUDE.md invariant is unchanged: the planner family and YuE2 never share the GPU). docs/decisions/0006's "never a second load or unload per turn" becomes "one load per model the turn needs, each unloaded before the next and all before release"; `releasePlanner` alone would leave gemma4 loaded, so the release names every touched model.
+A chat turn may load more than one model: the planner, then the lyrics model the recipe's language names, one at a time, all inside the turn's one `plan` slot. Before a different model loads, the one before is unloaded and `/api/ps` read empty; the turn's `finally` unloads every model it touched and waits for `/api/ps` empty before the slot is released (the CLAUDE.md invariant is unchanged: the planner family and YuE2 never share the GPU). docs/decisions/0006's "never a second load or unload per turn" becomes "one load per model the turn needs, each unloaded before the next and all before release"; `releasePlanner` alone would leave gemma4 loaded, so the release names every touched model.
 - instead of: a second queue job for the lyrics (a YuE2 take could slip in between and find the planner's answer half written).
 
-## D-234 · 2026-10-08 · feature LD (F-095, F-096) · by: assumed (conductor)
-The recipe reply says `lyrics: "write" | "keep"` instead of carrying lines; code forces `write` when the draft has no lyrics or its sung sections no longer follow the structure, so "make it faster" does not rewrite (and, in German, re-draft) words the person already has. Two German drafts live on the draft (`lyricsDrafts`, `lyricsPick`, additive under `draft_v: 1`) and in the recipe body, so an expired card's pick still works from the sidebar.
+## D-234 · 2026-10-08 · feature LD (F-095) · by: assumed (conductor)
+The recipe reply says `lyrics: "write" | "keep"` instead of carrying lines; code forces `write` when the draft has no lyrics or its sung sections no longer follow the structure, so "make it faster" does not rewrite (and, in German, reload a model for) words the person already has. No stored-data change.
 - instead of: always rewriting lyrics on every recipe turn (SP-5's spike ran only first recipes).
 
-## D-235 · 2026-10-08 · feature LD (F-095) · by: assumed (conductor), defaults by owner (D-232)
-Lyrics models per language from env `LYRICS_MODELS_<LANG>` (ISO code upper case, comma list, order = DRAFT A, B): `LYRICS_MODELS_DE` defaults to `gemma3:12b,gemma4:26b-a4b-it-q4_K_M`; unset for any other language = `LLM_MODEL`. At most two entries are used. Unset `LLM_API_URL` hides the planner as today.
+## D-235 · 2026-10-08 · feature LD (F-095) · by: assumed (conductor), default by owner (D-237)
+The lyrics model per language from env `LYRICS_MODEL_<LANG>` (ISO code upper case): `LYRICS_MODEL_DE` defaults to `gemma4:26b-a4b-it-q4_K_M`; unset for any other language = `LLM_MODEL`.
 - instead of: a settings screen (single-user local app; env is how LLM_MODEL is set).
 
 ## D-236 · 2026-10-08 · feature LD (F-095, SP-7 caveats) · by: assumed (conductor)
 Lyric checks the schema cannot give, each a retry reason: no prompt-only word (a word of 4+ letters from the lyrics system prompt that is in neither the request, title nor style; stop-list always includes `Mulakai`), no line with an embedded newline or under 6 characters, language-ID as today. No word-count bar (SP-7's "over ~12 words" was qwen3's German, now not used).
 - instead of: rejecting the reply without a retry (SP-7 saw one leak in 18 gemma4 sets; a retry is cheap).
 
-## D-237 · 2026-10-08 · feature LD (F-096, Q-145) · by: owner (chat-lyrics-drafts.html LD-1a)
-Neither German draft is preselected: the sidebar's LYRICS waits for PICK and CREATE SONG is blocked until then. PICK writes the lyrics as the person's edit (YOURS). Reason: the SP-7 read had each model fail on different requests, so a default would send the weaker draft on a quick CREATE half the time.
-- instead of: DRAFT A preselected with B one click away.
-
-## D-238 · 2026-10-08 · feature LD (F-096, Q-146, Q-147, DT-LD) · by: assumed (conductor, mockup defaults)
-chat-lyrics-drafts.html as drawn: PICK is a quiet `q` outline, the picked draft sky (edge, tint, PICKED tag; DESIGN.md "Sky" gets one sentence in LD-3's PR as its own commit); the other draft dims and keeps "PICK A instead". Once the card is expired or superseded, the sidebar LYRICS field carries one quiet PICK per draft, only while no live card holds them (Q-146). PICK over hand-edited LYRICS replaces them with no confirm; the card says "PICK replaces your edited LYRICS" beforehand (Q-147). The turn line's text steps through recipe → draft A → draft B → unloading; the German card's turn-cost copy says ~45 s, not ~10 s.
-- instead of: sidebar pick buttons always shown; a confirm step before replacing edited lyrics.
+## D-237 · 2026-10-08 · feature LD (F-095, D-232) · by: owner
+German lyrics use one model, `gemma4:26b-a4b-it-q4_K_M`, not two drafts with a pick (replaces D-232's two-draft plan; the DRAFT A / B mockup was dropped unmerged). Trade-off accepted: gemma4 alone read 4/6 usable in SP-7, where the two drafts together covered 6/6; the recipe card stays as it is and a German turn loads one extra model, not two.
