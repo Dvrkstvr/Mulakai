@@ -46,6 +46,17 @@ export function retimeConsequence(fromBars: number, r: RetimeResult): string {
     + ' · the piano preview is not redrawn · UNDO returns to the reading';
 }
 
+/** The consequence line on a chat reading (RT-5, design/retime.html B2): the bars renumber and a mark goes stale. */
+export function readingRetimeConsequence(fromBars: number, r: RetimeResult): string {
+  const lost = r.droppedNotes > 0 ? ` · ${r.droppedNotes} of ${r.notes} notes are left out of the score` : '';
+  return `Re-times the reading at ${n(r.bpm ?? 0)} BPM: ${fromBars} bars → ${r.measures}, every bar number changes · from the saved`
+    + ` reading, no GPU, a few seconds${lost} · a mark on this version goes stale: mark again · nothing is saved to your library`;
+}
+
+/** The slightly-off hint on a chat reading: the beat is right; nothing in the chat nudges a reading's tempo. */
+export const readingSlightHint = (read: number, bpm: number) =>
+  `${bpm} is within ${n(SLIGHT * 100)} % of the ${n(read)} read: the beat is right, the tempo is just a little off. RE-TIME is for a wrong beat.`;
+
 export const dropsMany = (r: RetimeResult) => r.notes > 0 && r.droppedNotes / r.notes > DROP_WARN;
 
 /** The slightly-off hint (A3): the cover panel has no SET TEMPO (Q-130). */

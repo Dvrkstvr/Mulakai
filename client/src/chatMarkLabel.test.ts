@@ -58,6 +58,9 @@ describe('chip, echo, stale', () => {
     expect(staleLines(m(25, 34), 4, 5, null)).toBe(
       'STALE MARK · you marked bars 25–34 of v4. v5 moved those bars; mark again. Nothing was sent with the old bars.');
     expect(USE_BARS([33, 42])).toBe('USE BARS 33–42');
+    // RT-5 (retime.html B4): the same version, its reading re-timed
+    expect(staleLines(m(17, 24), 4, 4, null, false, true)).toBe('STALE MARK · you marked bars 17–24 of v4 on its earlier reading.'
+      + ' The reading was re-timed, so every bar number changed; mark again on the new bars. Nothing was sent with the old bars.');
     // C1 live B6: unchanged numbers are not "now" anywhere else
     expect(staleLines(m(15, 22), 5, 6, [15, 22])).toBe(
       'STALE MARK · you marked bars 15–22 of v5. v6 moved other bars; these are still bars 15–22. Nothing was sent with the old bars.');

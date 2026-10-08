@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import type { RetimeResult } from './api';
 import { BPM_CHIP, bpmField, type BpmField } from './bpmField';
 import {
-  chipBlocked, dropsMany, readTypedBpm, retimeConsequence, retimeRefusal, slightHint, slightlyOff, targetBpm,
+  chipBlocked, dropsMany, readTypedBpm, readingRetimeConsequence, readingSlightHint, retimeConsequence, retimeRefusal, slightHint,
+  slightlyOff, targetBpm,
 } from './retimeRules';
 
 const result = (over: Partial<RetimeResult> = {}): RetimeResult => ({
@@ -44,6 +45,13 @@ describe('retimeRules', () => {
       'Rebuilds the score at 70 BPM: 96 bars → 48 · from the saved reading, no GPU · every note kept'
       + ' · the piano preview is not redrawn · UNDO returns to the reading');
     expect(retimeConsequence(96, result({ droppedNotes: 16 }))).toContain('16 of 183 notes are too short for the slower grid');
+  });
+
+  it('on a chat reading the line says every bar number changes and a mark goes stale (RT-5, B2)', () => {
+    expect(readingRetimeConsequence(96, result())).toBe('Re-times the reading at 70 BPM: 96 bars → 48, every bar number changes'
+      + ' · from the saved reading, no GPU, a few seconds · a mark on this version goes stale: mark again · nothing is saved to your library');
+    expect(readingRetimeConsequence(96, result({ droppedNotes: 16 }))).toContain(' · 16 of 183 notes are left out of the score · ');
+    expect(readingSlightHint(140, 145)).not.toContain('SCORE dock');
   });
 
   it('warns when more than 10 % of the notes are left out (D-210)', () => {

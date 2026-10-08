@@ -38,3 +38,11 @@ button.chat-sg-cell:hover { background: var(--line); color: var(--text-hi); }
 .chat-rl-tr { color: var(--text-low); flex: none; }
 .chat-rl.failed { color: var(--rust-text); }
 .chat-rl .chat-rl-retry { flex: none; padding: 0 8px; font-size: 9px; line-height: 14px; }
+
+/* RE-TIME under the reading line (RT-5, design/retime.html B1-B5): the cover panel's READ AS row, chat-sized. */
+.chat-rt { margin: 4px 0 0; gap: 4px; font-size: 11px; }
+.chat-rt .retime-row { padding: 4px 8px; gap: 8px; }
+.chat-rt .retime-row > b { font-size: 11px; }
+.chat-rt .retime-commit, .chat-rt .retime-done, .chat-rt .retime-gone { gap: 10px; }
+.chat-rt .retime-commit .chat-hn, .chat-rt .retime-done .chat-hn { flex: 1; }
+.chat-rt-bad { color: var(--rust-text); }
