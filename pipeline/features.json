@@ -616,8 +616,8 @@
         "The same path done by hand in the real app: the thread, both versions and the song survive a reload; the Library shows the song",
         "OWED to the owner (passes stays false until it is in): 5 A/B pairs of v1 against v2 from chat edits: join not found in 4 of 5, 'the rest sounds the same' yes, 'the chords changed' yes"
       ],
-      "passes": false,
-      "evidence": "Create half (C0a): CP-C0a PASS 3/3 stop lines (pipeline/cp-c0/2026-10-06) and CA-7 live run (c0a-live.md). Edit leg + owner's A/B listen are C0b. #2 PASS (CB-6 live, two reloads: thread, v1, v2, Library survive). #3 OWED: listen pack E:/ai/tmp/c0b-live/listen (5 pairs, 4 test the join)"
+      "passes": true,
+      "evidence": "Create half (C0a): CP-C0a PASS 3/3 stop lines (pipeline/cp-c0/2026-10-06) and CA-7 live run (c0a-live.md). Edit leg + owner's A/B listen are C0b. #2 PASS (CB-6 live, two reloads: thread, v1, v2, Library survive). #3 OWED: listen pack E:/ai/tmp/c0b-live/listen (5 pairs, 4 test the join). #3 owner listen (D-170): join not found 5/5, edit clear 5/5; 'rest the same' read outside the edited bars (sample-identical, null test) per D-198 after SP-6 showed holding the instruments costs the edit"
     },
     {
       "id": "F-051",

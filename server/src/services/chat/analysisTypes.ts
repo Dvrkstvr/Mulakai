@@ -19,7 +19,8 @@ export interface AnalysisPlanSources {
   sections: 'cached' | 'score' | 'track' | 'skip';
 }
 
-/** yue-server `POST /v1/scores/bars`: `starts[i]` is the audio time of score bar i + 1; `end` the song's end.
+/** yue-server `POST /v1/scores/bars`: `starts[i]` is the audio time of score bar i + 1, strictly increasing, only
+ * for the bars the audio holds (Q-120: shorter than the score when it runs past the audio); `end` closes the last.
  * `source`: the grid came from the cache, was tracked for this analysis, or was mapped by a splice. */
 export interface BarTimes {
   source: 'cached' | 'tracked' | 'mapped';
@@ -46,9 +47,11 @@ export type StoredAnalysis = VersionAnalysis | FailedAnalysis;
 export const isFailed = (a: StoredAnalysis): a is FailedAnalysis => 'failed' in a;
 
 /** A version's bars against its base (barShift, D-180): bars at or after `atBar` moved by `delta` (a CUT's
- * negative delta: bars `atBar + delta` .. `atBar - 1` are gone). `shift: null` = moved, by an unknown amount. */
+ * negative delta: bars `atBar + delta` .. `atBar - 1` are gone). `shift: null` = moved, by an unknown amount.
+ * `retimed`: the bars were kept but their seconds changed (a SET TEMPO): only the new reading's bar times say
+ * where they are now, so no seconds are carried across it (C1 code review should 2). */
 export interface Shift { atBar: number; delta: number }
-export type BarShift = { moved: false } | { moved: true; shift: Shift | null };
+export type BarShift = { moved: false; retimed?: true } | { moved: true; shift: Shift | null };
 
 /** The mark (D-175): bars when the strip had them (1-based, inclusive), seconds always. `label` is the chip's
  * text, frozen in the user message's body (the echo); the server never trusts it. */
@@ -90,6 +93,8 @@ export interface ShownReading {
   readAt: string;
   bars: { starts: number[]; end: number } | null;
   sections: StripSection[];
+  /** Score bars past the last bar the audio holds, left off the strip (D-197); 0 when the score fits. */
+  barsNotShown: number;
   lines: number;
   /** "TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY". */
   transcribed: boolean;
@@ -102,7 +107,8 @@ export interface AnalysisView {
   number: number | null;
   state: AnalysisState;
   shown: ShownReading | null;
-  lineage: { fromVersionId: string; moved: boolean; shift: Shift | null } | null;
+  /** `retimed`: the bars were kept at a new tempo, so a mark's seconds hold only once this version's bars are read. */
+  lineage: { fromVersionId: string; moved: boolean; shift: Shift | null; retimed: boolean } | null;
 }
 
 const isObject = (v: unknown): v is Record<string, unknown> => typeof v === 'object' && v !== null && !Array.isArray(v);

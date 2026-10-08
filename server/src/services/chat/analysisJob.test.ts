@@ -14,12 +14,12 @@ process.env.LLM_API_URL = '';
 
 const { config } = await import('../../config.js');
 const { db } = await import('../../db/index.js');
-const { getJob } = await import('../jobRegistry.js');
-const { enqueue, getRunning, cancelQueuedForSong, queuePosition } = await import('../genQueue.js');
+const { getJob, abortJob } = await import('../jobRegistry.js');
+const { enqueue, getRunning, cancelQueued, cancelQueuedForSong, queuePosition } = await import('../genQueue.js');
 const { yue2Engine } = await import('../engines/yue2.js');
 const { readVersionAnalysis } = await import('./analysisStore.js');
 const { readGrid } = await import('./gridCache.js');
-const { startAnalysis, cancelAnalysis, analysisDeps, analysisWaiting, analysisPending, liveAnalysis } = await import('./analysisJob.js');
+const { startAnalysis, analysisDeps, analysisWaiting, analysisPending, liveAnalysis } = await import('./analysisJob.js');
 type AnalysisDeps = import('./analysisJob.js').AnalysisDeps;
 
 const BARS = contract('scores-bars-ok');
@@ -177,11 +177,12 @@ describe('startAnalysis', () => {
     expect(analysisWaiting(songId)).toBe(false);
     const next = startAnalysis(songId, deps());
     expect(next).not.toBe(job);
-    expect(cancelAnalysis(next.id)).toBe(true);
+    expect(cancelQueued(next.id)).toBe(true);
     release();
     await vi.waitFor(() => expect(getRunning()).toBeNull());
   });
 
+  // Activity's CANCEL (a waiting job: cancelQueued) and ABORT (the running one: abortJob) are its only cancel.
   it('a cancel while transcribing stops the run and saves nothing', async () => {
     fake.transcription = transcriptionContract('transcription-hold');
     const { songId, layerId } = song();
@@ -191,11 +192,10 @@ describe('startAnalysis', () => {
     expect(liveAnalysis(songId)).toMatchObject({ jobId: job.id, status: 'running' });
     expect(analysisPending(songId, v)).toBe(true); // a second trigger for this take starts nothing
     expect(analysisPending(songId, 'a-newer-take')).toBe(false);
-    expect(cancelAnalysis(job.id)).toBe(true);
+    expect(abortJob(job.id)).toBe(true);
     await settled(job.id, 'failed');
     expect(readVersionAnalysis(v)).toBeNull();
     expect(fake.requests.some((r) => r.path.endsWith('/cancel'))).toBe(true);
-    expect(cancelAnalysis(job.id)).toBe(false);
   });
 
   it('a trashed song fails a job that was already past the line', async () => {

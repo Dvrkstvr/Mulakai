@@ -35,6 +35,26 @@ describe('parseRange', () => {
   });
 });
 
+describe('resolveRange across a SET TEMPO (C1 code review should 2)', () => {
+  const tempo = (over: Partial<RangeFacts> = {}) => facts({ parent: { versionId: 'v2', number: 2, shift: { moved: false, retimed: true } }, ...over });
+  it('a seconds-only mark (0:30-0:45 on v2) is never carried: stale, read or not', () => {
+    const m = mark({ versionId: 'v2', bars: undefined, seconds: [30, 45] });
+    for (const f of [tempo({ bars: null }), tempo()]) {
+      expect(resolveRange(m, f)).toEqual({ pinned: false, was: m, shift: null,
+        reason: 'your mark was a time; v3 changed the tempo, so that time is different music now' });
+    }
+  });
+  it("a bars mark before v3's bars are read is stale: its old seconds (0:10-0:20) are never sent", () => {
+    const m = mark({ versionId: 'v2', bars: [5, 8], seconds: [10, 20] });
+    expect(resolveRange(m, tempo({ bars: null }))).toEqual({ pinned: false, was: m, shift: null,
+      reason: 'v3 changed the tempo and its bars are not read yet; mark again once its reading lands' });
+  });
+  it("a bars mark once v3's bars are read is carried, its seconds re-timed from them", () => {
+    const r = resolveRange(mark({ versionId: 'v2', bars: [5, 8], seconds: [10, 20] }), tempo());
+    expect(r).toEqual({ pinned: true, carried: true, mark: mark({ bars: [5, 8], seconds: [8, 16] }) });
+  });
+});
+
 describe('resolveRange', () => {
   it('a mark on the playable version is pinned as sent', () => {
     expect(resolveRange(mark(), facts())).toEqual({ pinned: true, mark: mark(), carried: false });

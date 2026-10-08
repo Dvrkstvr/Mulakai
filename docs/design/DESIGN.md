@@ -60,6 +60,15 @@ background), not lilac, because focus is scope/targeting, not a version/
 history marker. Create's ENGINE choice is sky for the same reason: picking
 an engine targets where the request goes, while GENERATE (acid) commits it.
 
+The Library's **playing** row is sky too — the playhead's job, "where is
+playback right now", applied to "which song". It stays quiet at rest (3px
+sky left edge, sky outline at 35%) so a selected row still reads first, and
+turns loud on hover (full sky outline, `sky-tint` wash, sky title, a soft
+sky glow) so the pause is easy to find. Its play button becomes a filled sky
+square with two drawn pause bars in `on-sky` — not acid, because pausing
+stops something rather than starting it. `selected` and `playing` are
+independent classes; a row can carry both.
+
 ### Lilac — "what did the AI make before?" (versions / history / AI markers)
 
 | Token         | Hex       | Use |
@@ -194,15 +203,37 @@ requiring its own justification against a screen-count rule.
    - **Create bar**: one slim row below the header — a single "what do you
      want to make?" prompt input + acid CREATE button (parallelogram) that
      navigates to the Create takeover (see below). This replaces the old
-     inline create form that used to live in Library. It stays live while
-     songs generate (a new one queues). Its FEELING LUCKY is a queued job
-     too, and so is the Quick Start a typed idea starts in Create: while
-     either waits, a `text-mid` line says so ("FEELING LUCKY waits its turn
-     · starts after 1 job").
+     inline create form that used to live in Library. Its FEELING LUCKY is a
+     queued job too, and so is the Quick Start a typed idea starts in
+     Create: while either waits, a `text-mid` line says so ("FEELING LUCKY
+     waits its turn · starts after 1 job").
+     **Create card** (2026-10-07, `CreateCard.tsx`): while Create is busy —
+     Quick Start writing a draft from an idea (which carries on when Create
+     is closed), a song generating, or a draft held — FEELING LUCKY, the
+     input and CREATE give way to one 58px card filling the row (owner's
+     call: a new idea starts in Create then). It shows the first of these,
+     in that order. Line 1: the state (`text-mid`, tracked small caps) and
+     the title (`text-hi`, 700). Line 2:
+     - **THINKING**: the AI shader (no veil — the LM reports no progress)
+       and "QUICK START is writing the prompt, lyrics and details…";
+       `QUEUED · #2` plain while it waits; `COULDN'T WRITE` in rust
+       (`rust-tint`, `rust` hairline) with the error and "RETRY in Create".
+     - **GENERATING** (or `LOADING MODEL`, or `QUEUED · #2` plain): the
+       oldest generation in flight, the AI shader veiled by its progress
+       (none for an engine's per-stage share), and "1:05 elapsed · 42% ·
+       stage", plus "+1 more in Activity" for the others. This replaces the
+       grid's in-flight cards.
+     - **DRAFT**: outlined `line` hairline tags of only what it sets
+       (`143 BPM · A MINOR · 4/4 · 3:40 · POLISH VOCALS · LYRICS · 50 LINES
+       · ACE-STEP`).
+     Its right end is TO CREATE: a 150px acid fill, left edge cut at the
+     parallelogram angle, opening Create. The card has no clear, stop or
+     abort: Create's CLEAR DRAFT and Activity's CANCEL / ABORT do that, away
+     from the button that opens it.
    - **Generating cards**: one full-width card pinned at the top of the
-     grid per song generation in flight or failed, oldest first (2026-10-03,
-     S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
-     the shader; a failed one keeps its RETRY until pressed.
+     grid per **failed** song generation, keeping its error and RETRY until
+     pressed (2026-10-03, S4 part b). Generations in flight show in the
+     create bar's Create card instead (2026-10-07).
    - **CONTINUE** (added 2026-10-03): a row above the song grid with up to
      three cards, the songs edited most recently (by their newest version —
      songs have no `updated_at`, and versions are the edits), from
@@ -1115,9 +1146,10 @@ requiring its own justification against a screen-count rule.
      whole song re-renders, the full width hatched `on-sky`/`sky-tint`,
      with `1 · BARS 25-32 CHANGE · THE OTHER 68 ARE v1 · 76` under it
      (`ALL 76 BARS CHANGE`) and a grey `WHY THE WHOLE SONG:` line. The
-     consequence line names the clause ("re-sings bars 25-32, every other
-     bar stays v1's audio" or "the whole song is re-rendered: every bar
-     will sound different"; "a few minutes" until calibrated) left of
+     consequence line names the clause ("re-sings bars 25-32, instruments
+     there may change, every other bar stays v1's audio" or "the whole
+     song is re-rendered: every bar will sound different … instruments
+     may change"; "a few minutes" until calibrated) left of
      **APPLY**, the card's one acid; ASK AGAIN is neutral. While APPLY runs
      the label stays and the button is off; inside the card a plain
      RENDERING › SPLICING › SAVING strip of small parallelograms (two steps
@@ -1144,6 +1176,64 @@ requiring its own justification against a screen-count rule.
      `NOW PLAYING THE NEW VERSION` until the next play, scrub or send; the
      player's pill shows only `v2` after a chat edit (the version label is
      the card's).
+   - **The strip, ruler and reading line** (added 2026-10-07, chat C1; spec
+     `pipeline/design/chat-mark.html` MK-1..MK-3, Q-114 option B). The
+     player above the composer grows to about 134px and has no lyric lane:
+     the transport row (play, time, volume, DOWNLOAD, the lilac pill), then
+     the **section strip** (the Section strip recipe, 20px, names in
+     `text-mid` 9px mono, placed on the waveform's time axis when the
+     reading has bar times, else weighted by bars), a 13px **bar ruler**
+     (a `line` tick per bar, a `line-hi` hairline and the bar number every
+     8 bars), the 36px waveform, and a 2px sky playhead through ruler and
+     waveform. Three strip states: **live** (the playable version's
+     reading, names clickable), **dim** (an older reading whose edit moved
+     no bars, 50%, still clickable), **hatched** (bars moved, the reading
+     failed, or no bar times: `carbon-raised`/`line` 135° hatching, no
+     names, and the ruler counts seconds instead of bars, since marking
+     works by time). While A/B plays the reference or the version before,
+     the strip is blank (its bars are the playable version's). Under the
+     waveform, the **reading line** sits on its own 16px row: 10px mono in
+     `text-mid` for every state (`READING v5 · QUEUED · STARTS AFTER 1
+     JOB`, `READING v5 · SCORE · 2 OF 3`, `READ v4 · 9 SECTIONS · 22 LINES`,
+     `· NO WORD TIMINGS` when words were skipped), `TRANSCRIBED SCORE ·
+     CONTEXT AND MARKING ONLY` after it in `text-low`, and rust only for a
+     failed reading (`COULDN'T READ v5 · <reason>`) with a small acid
+     outline **RETRY**. No spinner and no shader: reading is not a commit.
+   - **The mark** (added 2026-10-07, chat C1; spec `pipeline/design/chat-mark.html`
+     MK-4..MK-10, Q-068's clause). One sky for every mark, no second hue for
+     time: over the ruler and waveform a `sky-tint` wash (70%, so the
+     waveform still reads) between 1px sky edge lines, with a 7×13px sky
+     **grip** on each edge at the ruler's height; the strip's sections under
+     it fill sky with `on-sky` names when whole and `sky-tint` with sky
+     names when the mark covers part of them (the **partial fill**). A
+     seconds-only mark (a hatched strip) is the same sky with dashed edges.
+     Click a section to mark it; drag an edge's grip, the body, or empty
+     waveform (no modal mark mode); a click under 0.2 s on empty waveform
+     seeks and clears; Esc and ✕ clear. While an edge moves, a 1px dashed
+     `text-hi` pointer line and a sky tag with `on-sky` 9px mono text say
+     where it lands (`SNAPS TO END OF BAR 34 · 1:22 · 10 BARS · 24 s`,
+     `FREE · 1:22.6 · SNAP OFF (ALT)`, `END OF SONG · 3:12`); the tag flips
+     to the pointer's left in the strip's last 30%. Shift-click is not used.
+     The **chip** sits above the composer's field: a sky parallelogram
+     (`THIS: CHORUS 1 + 2 BARS · BARS 25-34 · 0:58-1:22`), dashed sky for a
+     seconds-only mark (`· BARS WHEN THE READING LANDS`), ✕, and the
+     underlined `WHAT IT SEES ▾` at the right, which opens a 540px popover
+     above it with a sky hairline: the server's rows and `AS SENT ▸` with the
+     JSON. Under the chip **one** 10px mono composer line in `text-mid`: the
+     consequence ("plans on these bars only · nothing runs until you press
+     APPLY"), giving way to the analysis wait while a reading runs (SEND stays
+     live and queues) and to the stale line. A sent message keeps a frozen
+     **echo**: a `sky-tint` chip with sky text and `on v1 · click to mark it
+     again`; once a version moved its bars it is dashed at 45% and text only.
+     **Stale** is rust: the chip `· STALE` in `rust-tint`/`rust-text`, the
+     old place as a dashed rust outline on the waveform (no grips, new marks
+     held), a rust card at the thread's end with **USE BARS n-m** (acid
+     outline, only when the edit reported the shift, off until the new
+     version's bars are read) and **CLEAR MARK**, the composer line in
+     `rust-text` saying which to press, and SEND off with "Send is held until
+     the mark is fixed" as the placeholder. An edit card planned on a mark
+     names it in `text-low` (`PLANNED ON THE MARK · BARS 47-64 · 2:07-2:57`)
+     with the server's notes (a whole-song op, a mark clamped to the score).
 
 ### Side panels (Create + Editor)
 
@@ -1485,7 +1575,9 @@ CHAT screen's turn line while the planner thinks (still dashed and plain
 while queued, plain while cancelling) and its CREATE SONG take line under
 the recipe card, which follows the YuE2 rule; and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
-ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
+ANALYZE AUDIO, and the library create bar's generation chip (a full fill
+with its progress veil: the chip holds a label and a title like a small
+card, so it follows the bigger-element rule) — but only once it runs: a job still waiting in the queue
 (UP NEXT, the library card of a generation reading `QUEUED · STARTS
 AFTER 1 JOB`, or a dock job line reading `QUEUED`) stays plain, since
 nothing is working on it yet. TRANSCRIBE

@@ -19,7 +19,7 @@ describe('the edit card', () => {
   it('a splice says only those bars change and the rest is the old take (F-046 #2)', () => {
     const line = editConsequence(REHARM, CHORDS, 1, 2, 0);
     expect(line).toContain('bars 25-32');
-    expect(line).toContain("every other bar stays v1's audio");
+    expect(line).toContain("re-sings bars 25-32, instruments there may change, every other bar stays v1's audio");
     expect(line).toContain('saves v2, v1 is kept');
     expect(line).not.toContain('whole song');
   });
@@ -27,7 +27,7 @@ describe('the edit card', () => {
   it('any other plan says the whole song is re-rendered and every bar will sound different; a busy GPU queues', () => {
     const line = editConsequence(WHOLE, CHORDS, 1, 2, 2);
     expect(line).toContain('the whole song is re-rendered');
-    expect(line).toContain('every bar will sound different');
+    expect(line).toContain('every bar will sound different, not only the listed ones · instruments may change');
     expect(line).toMatch(/starts after 2 jobs$/);
     expect(editConsequence(WHOLE, { cot: 'melody', reason: 'melody' }, 1, 2, 0)).toContain('renders the melody only');
   });

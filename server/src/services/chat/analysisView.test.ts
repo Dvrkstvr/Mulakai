@@ -44,12 +44,23 @@ describe('stripSections', () => {
     expect(s[3]).toMatchObject({ index: 4, bars: [7, 8], seconds: [12, 16], partialLines: 0 });
   });
 
+  it("CP-C1: yue-server's own tags ([Verse], [Verse 2], [Chorus]) pair by kind: the k-th section of a kind sings the k-th block of it (D-066 d)", () => {
+    const tagged = facts({ lyric_blocks: [
+      { index: 1, tag: '[Verse]', occurrence: 1, lines: 4, first_line: 'a' },
+      { index: 2, tag: '[Chorus]', occurrence: 1, lines: 3, first_line: 'b' },
+      { index: 3, tag: '[Verse 2]', occurrence: 2, lines: 5, first_line: 'c' },
+    ] });
+    const s = stripSections(tagged, { starts, end: 16 }, null);
+    expect(s.map((x) => [x.label, x.occurrence, x.lines])).toEqual([['verse', 1, 4], ['chorus', 1, 3], ['verse', 2, 5], ['chorus', 2, 0]]);
+  });
+
   it('no bar times: sections keep bars, no seconds', () => {
     expect(stripSections(facts(), null, null)[0]).toMatchObject({ bars: [1, 2], seconds: null });
   });
 
-  it('a section past the bar times has no seconds', () => {
-    expect(stripSections(facts(), { starts: [0, 2], end: 4 }, null)[2].seconds).toBeNull();
+  it('a score longer than its audio: sections past the bar times are dropped, one crossing them ends at the last bar (D-197)', () => {
+    const s = stripSections(facts(), { starts: [0, 2, 4], end: 6 }, null);
+    expect(s.map((x) => [x.label, x.bars, x.seconds])).toEqual([['verse', [1, 2], [0, 4]], ['chorus', [3, 3], [4, 6]]]);
   });
 
   it('a transcribed score counts the word segments inside each section, and those crossing its edges', () => {
@@ -90,14 +101,21 @@ describe('analysisView', () => {
       parent: { versionId: 'v3', shift: { moved: false } }, job: { jobId: 'j', status: 'running', ahead: 0, progressText: 'WORDS' },
     }));
     expect(v.shown).toMatchObject({ versionId: 'v3', number: 3, mode: 'dim', bars: { starts, end: 16 } });
-    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: false, shift: null });
+    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: false, shift: null, retimed: false });
+  });
+
+  it("a SET TEMPO since the older reading hatches it (its seconds are not the new version's); lineage says retimed", () => {
+    const retimed = { moved: false as const, retimed: true as const };
+    const v = analysisView(base({ older: { versionId: 'v3', number: 3, analysis: analysis('v3'), words: null }, olderShift: retimed, parent: { versionId: 'v3', shift: retimed } }));
+    expect(v.shown).toMatchObject({ mode: 'hatched', bars: null });
+    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: false, shift: null, retimed: true });
   });
 
   it('an edit that moved bars hatches the older reading: no bars, mark by time', () => {
     const shift = { moved: true as const, shift: { atBar: 5, delta: -2 } };
     const v = analysisView(base({ older: { versionId: 'v3', number: 3, analysis: analysis('v3'), words: null }, olderShift: shift, parent: { versionId: 'v3', shift } }));
     expect(v.shown).toMatchObject({ mode: 'hatched', bars: null });
-    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: true, shift: { atBar: 5, delta: -2 } });
+    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: true, shift: { atBar: 5, delta: -2 }, retimed: false });
   });
 
   it('a failed reading is stored, says why, and hatches the strip (D-179)', () => {
@@ -127,6 +145,21 @@ describe('analysisView', () => {
     const v = analysisView(base({ current: analysis('v4', { score }), currentWords: words }));
     expect(v.shown).toMatchObject({ transcribed: true, lines: 2 });
     expect(v.shown?.sections[0]).toMatchObject({ lines: 1 });
+  });
+
+  it("CP-C1 eventide: an 80-bar transcribed score on 41 bars of audio shows only what plays, every section markable, 39 bars not shown (D-197)", () => {
+    const long = facts({ header: { ...facts().header, bars: 80 }, lyric_blocks: [], sections: [
+      { index: 1, label: 'intro', from_bar: 1, to_bar: 32 }, { index: 2, label: 'interlude', from_bar: 33, to_bar: 40 },
+      { index: 3, label: 'verse', from_bar: 41, to_bar: 56 }, { index: 4, label: 'interlude', from_bar: 57, to_bar: 72 },
+      { index: 5, label: 'outro', from_bar: 73, to_bar: 80 },
+    ] });
+    const starts41 = Array.from({ length: 41 }, (_, i) => i * 3.6);
+    const score = { abc: 'X:1', source: 'transcribed' as const, chords: true, facts: long, warnings: [], measure: null };
+    const v = analysisView(base({ current: analysis('v4', { score, bars: { source: 'tracked', offset: 0, starts: starts41, end: 147.6, agreement: 0.8 } }) }));
+    expect(v.shown?.sections.map((x) => [x.label, x.bars])).toEqual([['intro', [1, 32]], ['interlude', [33, 40]], ['verse', [41, 41]]]);
+    expect(v.shown?.sections.every((x) => x.seconds !== null && x.bars[1] <= 41)).toBe(true);
+    expect(v.shown?.barsNotShown).toBe(39);
+    expect(analysisView(base({ current: analysis('v4') })).shown?.barsNotShown).toBe(0);
   });
 
   it('a score not read: no sections, the reason, no WORDS lines lost', () => {

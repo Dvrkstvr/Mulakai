@@ -3,12 +3,17 @@
 const SAMPLE_RATE = 48_000;
 const CHANNELS = 2;
 
+/** A long take's format: the chat's fake YuE2 song lasts as long as the recorded score (about 3 min), kept small. */
+export interface WavFormat { sampleRate: number; channels: number }
+
+const DEFAULT: WavFormat = { sampleRate: SAMPLE_RATE, channels: CHANNELS };
+
 /**
  * `seconds` of a sine at `freqHz`, with a slow tremolo so the waveform has visible shape.
  * Each task gets its own frequency (see server.ts), so every version decodes differently and a
  * test can tell a repaint or a revert from the take it replaced.
  */
-export function toneWav(seconds: number, freqHz: number): Buffer {
+export function toneWav(seconds: number, freqHz: number, { sampleRate: SAMPLE_RATE, channels: CHANNELS }: WavFormat = DEFAULT): Buffer {
   const frames = Math.round(seconds * SAMPLE_RATE);
   const dataBytes = frames * CHANNELS * 2;
   const buf = Buffer.alloc(44 + dataBytes);

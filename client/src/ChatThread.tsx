@@ -2,20 +2,25 @@
  * the message it belongs to; a recipe reply with its CHANGED line and its card; song cards. A failed reply of
  * the open turn is drawn by its turn line (with RETRY); older ones stay as plain rust lines. C3 (F-061): the column
  * is the drop target on the draft thread, a message that carried a reference keeps its ◉ mark, and the analyze
- * (READ) and reading cards. C0b (CB-5): the edit card (APPLY) and the version card (PLAY, BACK TO vN). */
+ * (READ) and reading cards. C0b (CB-5): the edit card (APPLY) and the version card (PLAY, BACK TO vN). C1 (F-055): a
+ * sent message's frozen mark echo (`ChatUserMessage`), and the stale-mark card last (`ChatMarkStale`). */
 import { Fragment, useEffect, useMemo, useRef } from 'react';
 import type { ChatAskBody, ChatDraftKey, ChatFailedBody, ChatMessageView, ChatReadingBody, ChatRecipeBody, ChatUserBody } from './api/chat';
 import { chatApi } from './api/chat';
 import { ChatAnalyzeCard } from './ChatAnalyzeCard';
+import { useChatAnalysisStore } from './chatAnalysisStore';
+import { ChatMarkStale } from './ChatMarkChip';
+import { versionNumber } from './chatMarkLabel';
+import { markToSend, useChatMarkStore } from './chatMarkStore';
+import { ChatUserMessage } from './ChatUserMessage';
 import { ChatDropZone } from './ChatAttach';
 import { ChatEditCard } from './ChatEditCard';
 import { askAgainText } from './chatEditView';
 import { ChatVersionCard } from './ChatVersionCard';
 import { ChatReadingCard } from './ChatReadingCard';
 import type { CardState } from './chatReading';
-import { sentAttach } from './chatReferenceCopy';
 import { assistantOffCause } from './chatEntry';
-import { ASK_AGAIN_TEXT, ASSISTANT_OFF, CANCELLED_LINE, EMPTY_THREAD, FIELD_LABEL, INTERRUPTED_LINE, OPEN_FAILED, changedLine, failedTitle, offBody, skippedLine, touchedSinceSend } from './chatCopy';
+import { ASK_AGAIN_TEXT, ASSISTANT_OFF, EMPTY_THREAD, FIELD_LABEL, OPEN_FAILED, changedLine, failedTitle, offBody, skippedLine, touchedSinceSend } from './chatCopy';
 import { liveFields, skipsAtReply, useChatDraftStore } from './chatDraftStore';
 import { cardView, madeBy } from './chatScreen';
 import { useChatStore } from './chatStore';
@@ -48,10 +53,11 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
   const ahead = useJobsAhead();
   const msgs = useMemo(() => thread?.messages ?? [], [thread]);
   const scroller = useRef<HTMLDivElement>(null);
+  const staleMark = useChatMarkStore((s) => (thread ? s.byThread[thread.id]?.stale && s.byThread[thread.id].mark : null));
   useEffect(() => {
     const el = scroller.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [msgs.length, turn.phase.kind, commit?.phase.kind]);
+  }, [msgs.length, turn.phase.kind, commit?.phase.kind, staleMark]);
 
   const offCause = assistantOffCause(status);
   const failedReply = turn.phase.kind === 'failed' || turn.phase.kind === 'offline' ? lastTurn(msgs, turn.messageId)?.reply?.id : null;
@@ -59,7 +65,8 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
   const touched = turnRunning(turn) && sentRev !== undefined
     ? touchedSinceSend(KEYS.filter((k) => k !== 'engine' && skipsAtReply({ draft, pending, filled: {}, assistantRev: {} }, k, sentRev))) : null;
   const retry = async () => { await chat.loadStatus(); await chat.retry(); };
-  const askAgain = (text: string | null = ASK_AGAIN_TEXT) => { chat.type(text ?? ASK_AGAIN_TEXT); void chat.send(); };
+  const view = useChatAnalysisStore((s) => s.analysis.view);
+  const askAgain = (text: string | null = ASK_AGAIN_TEXT) => { chat.type(text ?? ASK_AGAIN_TEXT); void chat.send(markToSend(thread?.id, view?.shown?.sections ?? [])); };
   const abSide = useChatAb((s) => s.side);
   const refOf = (id: string | undefined) => thread?.references?.find((r) => r.id === id);
   /** A reading card's CANCEL, the reading or its follow-up turn: always the chat's route (it stops a running
@@ -70,20 +77,9 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
 
   const item = (m: ChatMessageView) => {
     if (m.role === 'user') {
-      return (
-        <Fragment key={m.id}>
-          <div className="chat-um">
-            {m.text}
-            {(m.body as ChatUserBody | null)?.attach && (
-              <div className="chat-hn chat-um-attach">{sentAttach(refOf((m.body as ChatUserBody).attach?.referenceId)?.name ?? 'a reference')}</div>
-            )}
-          </div>
-          {m.id === turn.messageId && turn.phase.kind !== 'sending'
-            ? <ChatTurnLine turn={turn} touchedLine={touched} onCancel={() => void chat.cancel()} onRetry={() => void retry()} onForm={onForm} />
-            : m.state === 'cancelled' ? <div className="chat-hn">{CANCELLED_LINE}</div>
-              : m.state === 'interrupted' ? <ChatErrorLine title="INTERRUPTED" body={INTERRUPTED_LINE} /> : null}
-        </Fragment>
-      );
+      const line = m.id === turn.messageId && turn.phase.kind !== 'sending'
+        ? <ChatTurnLine turn={turn} touchedLine={touched} onCancel={() => void chat.cancel()} onRetry={() => void retry()} onForm={onForm} /> : null;
+      return <ChatUserMessage key={m.id} m={m} threadId={thread!.id} messages={msgs} references={thread?.references} turnLine={line} />;
     }
     if (m.kind === 'failed') {
       const b = m.body as ChatFailedBody | null;
@@ -185,6 +181,9 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
               <div className="chat-um">{turn.lastText}</div>
               <ChatTurnLine turn={turn} onCancel={() => undefined} onRetry={() => undefined} onForm={onForm} />
             </>
+          )}
+          {staleMark && thread && (
+            <ChatMarkStale threadId={thread.id} view={view} was={versionNumber(staleMark.versionId, msgs, view)} now={view?.number ?? null} />
           )}
           {offCause && turn.phase.kind !== 'offline' && (
             <ChatErrorLine title={ASSISTANT_OFF} body={offBody(offCause)}>

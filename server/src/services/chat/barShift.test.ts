@@ -10,11 +10,11 @@ const sections: ScoreSection[] = [
 ];
 const score = (ops: unknown[], extra: Record<string, unknown> = {}) => ({ score_v: 1, engine: 'yue2', task_type: 'score', ops, basedOn: 'v1', ...extra });
 const KEEP = { moved: false };
+const RETIMED = { moved: false, retimed: true };
 
 describe('barShift', () => {
   it.each([
     ['REHARMONIZE', { op: 'REHARMONIZE', from_bar: 9, to_bar: 16, chords: [] }],
-    ['SET TEMPO', { op: 'SET_TEMPO', bpm: 88 }],
     ['TRANSPOSE', { op: 'TRANSPOSE', semitones: 2 }],
     ['EDIT STYLE', { op: 'EDIT_STYLE', style: 'jazz' }],
     ['REWRITE LYRICS', { op: 'REWRITE_LYRICS', block: 1, tag: 'verse', occurrence: 1, lines: ['a'] }],
@@ -23,8 +23,13 @@ describe('barShift', () => {
     expect(barShift({ params: score([op]) })).toEqual(KEEP);
   });
 
-  it('several bar-keeping ops keep the bars', () => {
-    expect(barShift({ params: score([{ op: 'SET_TEMPO', bpm: 90 }, { op: 'TRANSPOSE', semitones: -1 }]) })).toEqual(KEEP);
+  it('SET TEMPO keeps the bars but moves their seconds (retimed), alone or with other bar-keeping ops', () => {
+    expect(barShift({ params: score([{ op: 'SET_TEMPO', bpm: 88 }]) })).toEqual(RETIMED);
+    expect(barShift({ params: score([{ op: 'SET_TEMPO', bpm: 90 }, { op: 'TRANSPOSE', semitones: -1 }]) })).toEqual(RETIMED);
+  });
+
+  it('several bar-keeping ops with no tempo change keep the bars and their seconds', () => {
+    expect(barShift({ params: score([{ op: 'EDIT_STYLE', style: 'jazz' }, { op: 'TRANSPOSE', semitones: -1 }]) })).toEqual(KEEP);
   });
 
   it('a spliced REHARMONIZE keeps the bars', () => {
@@ -66,8 +71,14 @@ describe('barShift', () => {
     expect(barShift({ params: score('nope' as unknown as unknown[]) })).toEqual({ moved: true, shift: null });
   });
 
-  it('a repaint keeps the timeline', () => {
-    expect(barShift({ params: { task_type: 'repaint', repainting_start: 10, repainting_end: 20 } })).toEqual(KEEP);
+  it('a repaint keeps the timeline of the version it names (basedOn)', () => {
+    expect(barShift({ params: { task_type: 'repaint', repainting_start: 10, repainting_end: 20, basedOn: 'v1' } })).toEqual(KEEP);
+  });
+
+  it('a repaint or score edit that names no basedOn proves no parent: moved with no shift', () => {
+    expect(barShift({ params: { task_type: 'repaint', repainting_start: 10, repainting_end: 20 } })).toEqual({ moved: true, shift: null });
+    const { basedOn: _b, ...unnamed } = score([{ op: 'TRANSPOSE', semitones: 2 }]);
+    expect(barShift({ params: unnamed })).toEqual({ moved: true, shift: null });
   });
 
   it.each([
@@ -87,6 +98,9 @@ describe('composeShifts', () => {
   it('nothing moved over the chain keeps the bars', () => {
     expect(composeShifts([])).toEqual(KEEP);
     expect(composeShifts([KEEP, KEEP])).toEqual(KEEP);
+  });
+  it('a tempo change anywhere in a chain that kept the bars re-times them', () => {
+    expect(composeShifts([RETIMED, KEEP])).toEqual(RETIMED);
   });
   it('one known move among keeps is that move', () => {
     expect(composeShifts([KEEP, cut, KEEP])).toEqual(cut);

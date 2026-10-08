@@ -12,6 +12,8 @@ import { abPrevious } from './chatAb';
 import { usedLine, waitingFor } from './chatEditCopy';
 import { songVersions } from './chatEditView';
 import { committing, fillingKeys, fmtLength, latestSong, playerTake, sidebarFoot, sidebarMode } from './chatScreen';
+import { useChatAnalysisStore } from './chatAnalysisStore';
+import { markToSend } from './chatMarkStore';
 import { useChatStore } from './chatStore';
 import { ChatComposer } from './ChatComposer';
 import { ChatDraftFields } from './ChatDraftFields';
@@ -106,7 +108,7 @@ export function ChatView({ onForm, onLibrary }: Props) {
           <ChatComposer
             turn={turn} assistantOn={assistantOn} committing={committing(thread, commit)} onType={chat.type}
             waitingLine={thread?.songId ? waitingFor(versions.next) : null}
-            onSend={() => { useChatAb.getState().setNote(null); void chat.send(); }}
+            onSend={() => { useChatAb.getState().setNote(null); void chat.send(markToSend(thread?.id, useChatAnalysisStore.getState().analysis.view?.shown?.sections ?? [])); }}
           />
         </div>
         <ChatSidebar
