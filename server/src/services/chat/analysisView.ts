@@ -14,12 +14,18 @@ import type { ScoreFacts } from '../score/planTypes.js';
 import type { LyricsReading } from '../lyricsClient.js';
 import { isRead } from './reading.js';
 import { readingLines } from './readingLines.js';
+import { pairBlocks } from '../score/lyricPairing.js';
+import { lyricsPanel } from './lyricsPanel.js';
 import {
   isFailed, readingGap, type AnalysisState, type AnalysisStep, type AnalysisView, type BarShift, type LiveAnalysisJob,
-  type ShownReading, type StoredAnalysis, type StripSection, type VersionAnalysis,
+  type ShownReading, type StoredAnalysis, type StripSection, type VersionAnalysis, type VersionText,
 } from './analysisTypes.js';
 
-export interface OlderReading { versionId: string; number: number; analysis: VersionAnalysis; words: LyricsReading | null }
+export interface OlderReading {
+  versionId: string; number: number; analysis: VersionAnalysis; words: LyricsReading | null;
+  /** Its stored lyrics and style, for the lyrics panel (C2); absent = none stored. */
+  text?: VersionText | null;
+}
 export interface ViewInput {
   songId: string;
   /** The base layer's active take (D-120) and its number; null when the song has none. */
@@ -27,6 +33,8 @@ export interface ViewInput {
   current: StoredAnalysis | null;
   /** The playable version's `word_timings`. */
   currentWords: LyricsReading | null;
+  /** The playable version's stored lyrics and style (`versionLyrics`), for `shown.lyrics` (C2). */
+  currentText?: VersionText | null;
   /** The latest analyzed ancestor (analysisStore walks the lineage), and the bars' movement since it. */
   older: OlderReading | null;
   olderShift: BarShift;
@@ -44,9 +52,6 @@ function secondsOf(from: number, to: number, bars: Bars | null): [number, number
   return end === null ? null : [bars.starts[from - 1], end];
 }
 
-/** A label's or tag's kind: `[Verse 2]` and `verse` are a verse (yue-server's `tag_word`). */
-const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
-
 /** Bars of the score past the last bar the audio holds (D-197: a transcribed score can outlast its audio). */
 export function barsPastAudio(facts: ScoreFacts, bars: Bars | null): number {
   const last = Math.max(0, ...facts.sections.map((s) => s.to_bar));
@@ -56,14 +61,11 @@ export function barsPastAudio(facts: ScoreFacts, bars: Bars | null): number {
 /** D-197: with bar times, a section past the audio's last bar is dropped and one crossing it ends there. */
 export function stripSections(facts: ScoreFacts, bars: Bars | null, words: LyricsReading | null): StripSection[] {
   const seen = new Map<string, number>();
-  const kinds = new Map<string, number>();
+  const sung = pairBlocks(facts.sections, facts.lyric_blocks);
   const held = bars ? bars.starts.length : Infinity;
   return facts.sections.flatMap((s) => {
     const occurrence = (seen.get(s.label) ?? 0) + 1;
     seen.set(s.label, occurrence);
-    const kind = kindOf(s.label);
-    const nth = (kinds.get(kind) ?? 0) + 1;
-    kinds.set(kind, nth);
     if (s.from_bar > held) return [];
     const to = Math.min(s.to_bar, held);
     const seconds = secondsOf(s.from_bar, to, bars);
@@ -78,13 +80,13 @@ export function stripSections(facts: ScoreFacts, bars: Bars | null, words: Lyric
       }
     } else {
       // D-066 d: the k-th section of a kind sings the k-th block of it (tags are `[Verse]`, labels `verse`; CP-C1)
-      lines = facts.lyric_blocks.filter((l) => kindOf(l.tag) === kind)[nth - 1]?.lines ?? 0;
+      lines = facts.lyric_blocks.find((l) => l.index === sung.get(s.index))?.lines ?? 0;
     }
     return [{ index: s.index, label: s.label, occurrence, bars: [s.from_bar, to], seconds, lines, partialLines }];
   });
 }
 
-function shown(a: VersionAnalysis, number: number, words: LyricsReading | null, dimOrHatched: 'dim' | 'hatched' | null): ShownReading {
+function shown(a: VersionAnalysis, number: number, words: LyricsReading | null, text: VersionText | null | undefined, dimOrHatched: 'dim' | 'hatched' | null): ShownReading {
   const bars = isRead(a.bars) ? { starts: a.bars.starts, end: a.bars.end } : null;
   const facts = isRead(a.score) ? a.score.facts : null;
   const transcribed = isRead(a.score) && a.score.source === 'transcribed';
@@ -105,6 +107,7 @@ function shown(a: VersionAnalysis, number: number, words: LyricsReading | null, 
       score: isRead(a.score) ? null : a.score.notRead,
       bars: isRead(a.bars) ? null : a.bars.notRead,
     },
+    lyrics: lyricsPanel({ analysis: a, sections, words, lyrics: text?.lyrics ?? null, style: text?.style ?? null }),
   };
 }
 
@@ -125,8 +128,8 @@ export function analysisView(input: ViewInput): AnalysisView {
   const { songId, playable, current, older } = input;
   if (!playable) return { songId, versionId: null, number: null, state: { kind: 'none' }, shown: null, lineage: null };
   const failed = current !== null && isFailed(current);
-  const view = current && !isFailed(current) ? shown(current, playable.number, input.currentWords, null)
-    : older ? shown(older.analysis, older.number, older.words, failed || input.olderShift.moved || input.olderShift.retimed ? 'hatched' : 'dim')
+  const view = current && !isFailed(current) ? shown(current, playable.number, input.currentWords, input.currentText, null)
+    : older ? shown(older.analysis, older.number, older.words, older.text, failed || input.olderShift.moved || input.olderShift.retimed ? 'hatched' : 'dim')
     : null;
   const p = input.parent;
   return {

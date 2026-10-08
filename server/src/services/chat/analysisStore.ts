@@ -11,7 +11,7 @@ import type { LyricsReading } from '../lyricsClient.js';
 import type { ScoreSection } from '../score/planTypes.js';
 import { isRead } from './reading.js';
 import { barShift, composeShifts } from './barShift.js';
-import { isFailed, readAnalysis, type BarShift, type StoredAnalysis, type VersionAnalysis } from './analysisTypes.js';
+import { isFailed, readAnalysis, type BarShift, type StoredAnalysis, type VersionAnalysis, type VersionText } from './analysisTypes.js';
 import type { OlderReading } from './analysisView.js';
 
 /** How far the chain is walked: further back than this, the strip waits for the new reading. */
@@ -76,6 +76,14 @@ export function wordTimings(versionId: string): LyricsReading | null {
   return w && typeof w.language === 'string' && Array.isArray(w.segments) ? (w as LyricsReading) : null;
 }
 
+/** `params_json.request.lyrics` and `.style` (a YuE2 take's or score version's request): the lyrics panel's text (C2). */
+export function versionLyrics(versionId: string): VersionText {
+  const row = db.prepare(`SELECT params_json FROM versions WHERE id = ?`).get(versionId) as { params_json: string } | undefined;
+  const r = (parse(row?.params_json) as { request?: { lyrics?: unknown; style?: unknown } } | null)?.request;
+  const str = (v: unknown) => (typeof v === 'string' ? v : null);
+  return { lyrics: str(r?.lyrics), style: str(r?.style) };
+}
+
 const done = (a: StoredAnalysis | null): VersionAnalysis | null => (a && !isFailed(a) ? a : null);
 const sectionsOf = (a: VersionAnalysis | null): ScoreSection[] | null => (a && isRead(a.score) ? a.score.facts?.sections ?? null : null);
 
@@ -98,7 +106,7 @@ export function readingChain(versionId: string): ReadingChain {
     parent ??= { versionId: from, shift };
     if (analysis) {
       const number = versionNumber(from) ?? 0;
-      return { older: { versionId: from, number, analysis, words: wordTimings(from) }, olderShift: composeShifts(shifts), parent };
+      return { older: { versionId: from, number, analysis, words: wordTimings(from), text: versionLyrics(from) }, olderShift: composeShifts(shifts), parent };
     }
     seen.add(from);
     cur = from;

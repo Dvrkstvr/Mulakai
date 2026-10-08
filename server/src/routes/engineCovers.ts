@@ -128,7 +128,8 @@ coversRouter.post('/:id/cover', (req, res) => {
   const title = typeof body.title === 'string' && body.title ? body.title : 'Untitled';
   const folderId = typeof body.folder_id === 'string' && body.folder_id ? body.folder_id : undefined;
   try {
-    const job = startEngineGeneration(engine, pickCreateFields(body), title, folderId, { abc, source });
+    const notationId = typeof body.notationId === 'string' && /^[0-9a-f]{64}$/.test(body.notationId) ? body.notationId : undefined;
+    const job = startEngineGeneration(engine, pickCreateFields(body), title, folderId, { abc, source, ...(notationId ? { notationId } : {}) });
     res.status(202).json({ jobId: job.id });
   } catch (err) {
     lockOrServerError(res, err);

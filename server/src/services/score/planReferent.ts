@@ -7,6 +7,7 @@
  * C1 (D-175): the chat's mark is a third kind, `range` on a version (parseRange / resolveRange). Pure. */
 import type { LyricBlock, Referent, ReferentInput, ScoreFacts, ScoreSection, StaleReferent } from './planTypes.js';
 import type { BarShift, RangeMark, RangeResolution, Shift } from '../chat/analysisTypes.js';
+import { kindOf, sectionOf } from './lyricPairing.js';
 
 const TEXT_MAX = 200;
 const LABEL_MAX = 60;
@@ -17,8 +18,6 @@ export type ResolvedReferent = { ok: true; referent: Referent } | { ok: false; s
 
 const isPos = (v: unknown): v is number => typeof v === 'number' && Number.isInteger(v) && v >= 1;
 const isName = (v: unknown): v is string => typeof v === 'string' && v.trim().length > 0 && v.length <= LABEL_MAX;
-/** yue-server's tag_word: `[Verse 2]` and `verse` are both a verse. */
-const kindOf = (tagOrLabel: string) => tagOrLabel.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
 
 /** The request body's `referent`: absent or null = the whole song. */
 export function parseReferent(v: unknown): ParsedReferent {
@@ -57,7 +56,7 @@ function sectionPin(facts: ScoreFacts, s: ScoreSection): Referent {
 }
 
 function linePin(facts: ScoreFacts, b: LyricBlock, line: number, text: string | null): Referent {
-  const s = facts.sections.filter((x) => kindOf(x.label) === kindOf(b.tag))[b.occurrence - 1];
+  const s = sectionOf(facts, b.index);
   return { kind: 'line', block: b.index, tag: b.tag, occurrence: b.occurrence, of: sameKind(facts, b.tag).length, line, text,
     section: s?.index ?? null, label: s?.label ?? null, bars: s ? [s.from_bar, s.to_bar] : null };
 }

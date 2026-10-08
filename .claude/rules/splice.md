@@ -23,7 +23,8 @@ should copy"; placement: docs/decisions/0005.
 - 48 kHz float32 stereo throughout; the server transcodes the result.
 - Spliced (D-154, `spliceEligibility`): REHARMONIZE (render + splice), CUT
   and REPEAT (audio only, no render) on 4/4 songs with chords. REPEAT with a
-  seam step over 4.0 dB, and every `not_aligned`, answers `rerender`. REWRITE
-  LYRICS, WRITE PHRASE and everything else re-render the whole song (D-150:
-  the new take's voice is heard).
+  seam step over 4.0 dB, and every `not_aligned`, answers `rerender`; a
+  REPEAT of the last section is never spliced (its last bar is the ending,
+  D-213). REWRITE LYRICS, WRITE PHRASE and everything else re-render the
+  whole song (D-150: the new take's voice is heard).
 - Tests: synthetic audio + SP-4's recorded lab rows; never real model calls.

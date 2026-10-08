@@ -642,8 +642,8 @@
         "A queued or running analyze job never makes APPLY or CREATE refuse (Q-038 #4 fixed): the commit goes behind it in the queue; analyze never runs beside the planner or YuE2",
         "Edge: LYRICS_API_URL unset skips the words step with 'no word timings' and is not a failure; the transcription's section names are checked on 3 non-YuE2 songs (Q-070) and the result recorded; a failed analysis leaves marking by time working"
       ],
-      "passes": false,
-      "evidence": "Live: states queued/running/done seen, reload mid-read ok, APPLY queued behind analysis ok, no word timings ok; FAIL: service outage stores a done-but-partial reading, no reason/RETRY (retry 409 \"already read\"). pipeline/c1-live.md B1"
+      "passes": true,
+      "evidence": "Re-check 2026-10-08 (pipeline/c1-live.md): Polski Polka with yue-server and lyrics-server stopped read 'COULDN'T READ v1 · WORDS · lyrics-server transcribe -> fetch failed' + RETRY (verify/C1/recheck/01); services restarted, RETRY gave 202 and the reading reached done (9 sections, 34 lines, no notRead, 02); LYRICS_API_URL unset: Purple Shinings 'READ v1 · ... · NO WORD TIMINGS', strip live, not a failure (10). Earlier C1 live passes unchanged."
     },
     {
       "id": "F-053",
@@ -656,8 +656,8 @@
         "Edge: an ACE-Step version shows its transcribed score the same way with the line 'TRANSCRIBED SCORE · CONTEXT AND MARKING ONLY'",
         "Check at 1366x768 with the player above the composer: the thread keeps at least 400 px"
       ],
-      "passes": false,
-      "evidence": "Live: strip, line, BARS NOT SHOWN, transcribed line, hatched, thread 400 px pass; dim state not observed, line total vs strip sums differ (B4). pipeline/c1-live.md"
+      "passes": true,
+      "evidence": "Re-check 2026-10-08: reading-line lines = strip sections + 'n LINES OUTSIDE THE SECTIONS': Carinito 34 + 10 (was 44 vs 34), Ellies City 2 21 (strip 24 with 3 crossing lines counted once), Polski Polka 34 + 14 (verify/C1/recheck/02-04); dim state seen: Carinito v3 'chat-strip dim', 'READING v3 · QUEUED · STARTS AFTER 2 JOBS', old strip clickable (09); hatched after a REPEAT (08)."
     },
     {
       "id": "F-054",
@@ -683,8 +683,8 @@
         "A message sent while an analyze job runs queues behind it and the composer says so (Q-069)",
         "Edge: with no mark the whole song is the scope and no chip shows; a mark reaching outside a plan's allowed range is clamped with the reason on the card"
       ],
-      "passes": false,
-      "evidence": "Live: MARK in turn, WHAT IT SEES/AS SENT, echo re-mark, stale+USE BARS gating, queue note pass; FAIL: \"make this jazzier\" plans EDIT STYLE (whole song) beside the bounded op (B2). pipeline/c1-live.md"
+      "passes": true,
+      "evidence": "Re-check 2026-10-08: 'make this jazzier' on chorus 1 -> REHARMONIZE 23-30 only, 'BARS 23-30 CHANGE · THE OTHER 56 ARE v1', no EDIT STYLE (06; the first two tries were NO ANSWER / unload timeout, no card outside the mark, 05); 'make the whole song faster' on the mark -> SET TEMPO allowed, 'changes the whole song, not only the marked bars' (07); 'make it faster' -> bounded REHARMONIZE 23-30 (assistant text still says whole-song tempo); B3: verse 2 marked + 'make the chorus jazzier' -> card on bar 47 only, no 'assuming the chorus' line; B6 copy 'v2 moved other bars; these are still bars 23-30' (08). pipeline/c1-live.md Re-check section."
     },
     {
       "id": "F-056",
@@ -1100,6 +1100,69 @@
         "SP-7: owner blind A/B against Python YuE2 at the same score and seed (4 songs), RTF, VRAM peak, both resident at once",
         "yue-server's contract holds: external abc, cot modes, plan-only, token counts for the 4,096 budget, truncated",
         "Edge: fail keeps WSL and is recorded (R-037)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-090",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "A transcription's saved SheetSage2 outputs are kept by the server and rebuild its score at half time, double time or a named BPM in seconds, CPU only",
+      "acceptance": [
+        "Half/double/BPM rebuild on 2 real outputs in under 10 s; measures about 1/2, x2, x ratio; double and BPM at or above the read tempo lose at most 3 % of notes; half and slower grids report dropped_notes; chords and sections survive",
+        "A bundle survives a yue-server restart; a missing bundle answers no_bundle",
+        "Edge: BPM outside 40-240 or a failed rebuild is a 422 with the reason (R-039)"
+      ],
+      "passes": true,
+      "evidence": "2026-10-08 verifier (independent): live, worktree yue-server in WSL with the real SheetSage2 + server on spare ports, 4 real SP-8 bundles via POST /api/scores/retime: 0.25-0.6 s per rebuild; measures purple 65->33/129/81, B_d 71->36/140/89, ellies 44->88/55, eventide 81->160/101 (half, double, 1.25x); double and BPM >= read dropped 0 notes; half reports dropped_notes (purple 17/293, B_d 112/488); chord symbols kept on a chords bundle, % section labels kept in every mode; bundles survived killing and restarting both yue and the server; unknown id -> 404 no_bundle; BPM 300/39/241 -> 422 out_of_range, 40/240 -> 200; corrupt melody -> 422 retime_refused. pytest 552, server vitest 1557. PRs #227, #231."
+    },
+    {
+      "id": "F-091",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "The cover panel shows the tempo the transcription read and offers HALF, DOUBLE and BPM... with a consequence line; UNDO returns the previous score",
+      "acceptance": [
+        "A 140-read score becomes 70 BPM with half the bars and the cover renders from it",
+        "A cover with no kept bundle shows TRANSCRIBE AGAIN with its GPU time",
+        "Edge: a BPM only slightly off points to SET TEMPO (Q-125)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-092",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "A chat reading's transcribed score can be re-timed; bars, sections and bar times are replaced and a mark on the version goes stale",
+      "acceptance": [
+        "After HALF the strip shows half the bars at the same seconds",
+        "An existing mark on the version shows the stale card",
+        "Edge: not offered on a YuE2 song's own score"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-093",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "RE-TIME is a SCORE dock op for a cover whose score came from a kept transcription; YuE2 re-renders it",
+      "acceptance": [
+        "RE-TIME HALF on a cover song plans, shows the consequence with render time, and renders a new version at half the bars",
+        "Edge: not offered without a kept bundle (Q-126)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-094",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "Saying the beat is wrong in chat ('it's half time', 'it's really 92 BPM') gets a RE-TIME op card",
+      "acceptance": [
+        "3 phrasings each give a RE-TIME card with the right mode",
+        "Edge: a slight BPM change gives SET TEMPO instead (Q-125)"
       ],
       "passes": false,
       "evidence": null

@@ -275,3 +275,20 @@ ACE-Step outpaint (repaint past the end, F-085) and lego/complete on YuE2 mixes 
 yuey.cpp (2 stars, validated on an RTX 5070 laptop and a DGX Spark only) may not match Python YuE2's quality or carry yue-server's contract (external `abc`, `cot`, plan-only, token counts, `truncated`). F-089 depends on it.
 - check: SP-7 (F-089).
 - fallback: WSL stays; F-089 dropped and recorded.
+
+### R-038 · impact H · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
+German lyrics from qwen3:14b are not usable as a first take (0/3 A, 0/3 B: unnatural wording, poor singability), and the owner writes in German. Check: SP-7 (lyrics step on gemma4 26B-A4B, gemma3:12b, mistral-small3.2:24b vs qwen3:14b; owner reads 6 German sets blind; bar ≥ 5/6). Fallback: German lyrics shown as a draft to edit before rendering.
+
+### R-039 · impact H · evidence seen running, partly proven (SP-8, 2026-10-08)
+SheetSage2's rebuild from a corrected beat list (half, double, a named-BPM grid anchored on the downbeats) may refuse the grid (meter inference, pickup bar), drop notes at the edges, or lose chords/sections — then RT's whole method falls. F-090 depends on it.
+- check: SP-8 (pipeline/spikes/SP-8-retime-rebuild) on 2 real outputs, melody-only and chords. **Done: [RESULT.md](spikes/SP-8-retime-rebuild/RESULT.md)**: rebuild takes ~15 ms from a 24 KB bundle; double is clean; half and slower BPM grids drop 5-26% of short notes (fixed 4-subbeat grid) unless a MIDI repair pass runs, and the count must be shown.
+- fallback: reshape the score on yue-server from the parsed ABC (decision 0002) for half/double only; a named BPM goes back to the owner.
+### R-040 · impact M · evidence hypothesis (stage 6, chat C2, 2026-10-08)
+A chat REVISE adds the PENDING PLAN block (up to 6 ops; a 40-bar REHARMONIZE's chord list is long) to an edit prompt that already measured p95 5,906 tokens with the MARK block (CP-C1, D-197), and the chat's prompt and strict schema differ from the dock's, where Q-050 saw additive revisions drop pending ops (fixed for 2+ op plans by D-073, never measured in the chat).
+- check: CP-C2 (CV-5): prompt tokens per revise turn, context refusals, merged ops vs pending ops; stop lines in architecture.md "Test strategy (C2)" #7.
+- fallback: shorten the PENDING lines (op name + target only for kept ops, full fields only for the ops the request names), or drop the MARK block's lyric lines on a revise.
+
+### R-041 · impact L · evidence hypothesis (stage 6, chat C2, 2026-10-08)
+A YuE2 lyric line's time comes from aligning Whisper's heard words to the stored lyrics (`alignLyrics`, the Editor's); on repeated choruses or ad-libs a line can align to the wrong repeat, so a line click marks the wrong bars. The chip shows the bars, so it is visible, not silent.
+- check: CV-9 live: line marks on 2 YuE2 songs with repeated choruses, the chip's bars against the line heard.
+- fallback: a line click marks its section (D-218's untimed rule) when the alignment's `matched` share is low.

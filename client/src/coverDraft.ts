@@ -1,8 +1,21 @@
 /** COVER's engine-cover slice of the Create draft (PLAN.md "Client cover decisions"), kept out
  * of createDraftStore.ts, which is near the module cap. */
 import type { Source } from './createDraft';
-import type { Transcription } from './api';
+import type { RetimeResult, Transcription } from './api';
 import { coverSourceKey } from './coverSource';
+import { splitScore } from './scoreCut';
+
+/** A score rebuilt at another tempo (RE-TIME, F-091): what it came from, for UNDO and the READ AS row. */
+export interface CoverRetime {
+  /** The transcription's own score, before any re-time: chips always start from it. */
+  original: string;
+  originalDropped?: number[];
+  bpm: number;
+  fromBars: number;
+  toBars: number;
+  droppedNotes: number;
+  notes: number;
+}
 
 /** The score an engine cover sings (PLAN.md "Client cover decisions"): from a TRANSCRIBE, a
  * USE .ABC FILE, or a reused cover. Only a transcribed one belongs to the source it came from. */
@@ -18,6 +31,30 @@ export interface CoverScore {
    * planner can still be covered; `sungScore` builds what is sent (PLAN.md "YuE2 Covers: Pick
    * the Score's Sections"). */
   dropped?: number[];
+  /** The transcription's kept notation files (D-207): RE-TIME needs them; null or absent, it offers TRANSCRIBE AGAIN. */
+  notationId?: string | null;
+  retime?: CoverRetime;
+}
+
+/** The score as SheetSage2 read it: the one RE-TIME starts from. */
+export const readingAbc = (s: CoverScore) => s.retime?.original ?? s.abc;
+
+/** The score rebuilt by a re-time; section picks carry over when the sections did. */
+export function withRetime(s: CoverScore, r: RetimeResult, fromBars: number): CoverScore {
+  const original = readingAbc(s);
+  const originalDropped = s.retime ? s.retime.originalDropped : s.dropped;
+  const same = splitScore(r.abc).sections.length === splitScore(original).sections.length;
+  return {
+    ...s, abc: r.abc, dropped: same ? originalDropped : undefined,
+    retime: { original, originalDropped, bpm: Math.round(r.bpm ?? 0), fromBars, toBars: r.measures, droppedNotes: r.droppedNotes, notes: r.notes },
+  };
+}
+
+/** UNDO: back to the score as read. */
+export function withoutRetime(s: CoverScore): CoverScore {
+  if (!s.retime) return s;
+  const { retime, ...rest } = s;
+  return { ...rest, abc: retime.original, dropped: retime.originalDropped };
 }
 
 /** The part of COVER's draft slice a source change touches. */

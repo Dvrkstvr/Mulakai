@@ -101,4 +101,10 @@ describe('coverParams', () => {
       abc: 'X:1\n', source: 'Ellies City 2',
     });
   });
+
+  it("carries the transcription's kept notation id when there is one (re-time later, F-093)", () => {
+    const d = { title: 'T', prompt: 'p', lyrics: '', vocalLanguage: 'en' };
+    expect(coverParams(d, YUE2, SEED, AUTO_CONTROLS, {}, { abc: 'X:1\n', source: 's', notationId: 'n1' })).toMatchObject({ notationId: 'n1' });
+    expect(coverParams(d, YUE2, SEED, AUTO_CONTROLS, {}, { abc: 'X:1\n', source: 's', notationId: null })).not.toHaveProperty('notationId');
+  });
 });
