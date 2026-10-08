@@ -15,7 +15,6 @@
 - Modules: target ≤150 LOC, hard cap 200. Split by responsibility first.
 - A Vitest test with every behaviour change; run the suites before every
   commit; browser-check UI changes on the dev server.
-- Never modify `ACE-Step-1.5`; it is reached only via `ACESTEP_API_URL`.
 - UI follows `docs/design/DESIGN.md`: zero radius, one hue per job, a
   consequence line before every generative or destructive commit. A UI
   change that deviates updates DESIGN.md in the same PR, as its own commit.
@@ -72,8 +71,9 @@ python -m pytest
 npx playwright install chromium   # once
 npm run test:e2e     # golden path against a fake ACE-Step
 
-# ACE-Step 1.5 (separate process, see its own AGENTS.md)
-uv run acestep --port 8001 --enable-api --backend pt --server-name 127.0.0.1
+# ACE-Step 1.5 (separate process, our fork; see its own AGENTS.md). Not
+# `acestep --enable-api`: that API is text2music-only (R-025).
+uv run acestep-api --port 8001
 ```
 
 `test:e2e` starts its own stack on 127.0.0.1 (fake ACE-Step 8101, server
@@ -101,11 +101,16 @@ typechecks, lint and pytest (`.github/workflows/checks.yml`).
   `heartmula-server/` (marked for removal) — local Python services;
   `e2e/` — Playwright golden path + fake ACE-Step.
 
+## ACE-Step fork
+
+`S:\AI Gen\ACE-Step-1.5` is the AI backend, reached via `ACESTEP_API_URL`.
+It is Mulakai's fork: branch `mulakai` = upstream `main` plus our commits
+(`/lyric_timestamp`, `/v1/analyze_audio`). Edit it when Mulakai needs to;
+rebase onto upstream when it moves (D-203).
+
 ## Reference Projects (do not modify)
 
 - `S:\AI Gen\ace-step-ui-main` — base this project adapts from (generation
   UI, library, player, stems, audio editor).
 - `S:\AI Gen\ACE-Step-DAW-main` — reference only, for arrangement/mixing
   engine patterns. Do not port its plugin/MIDI/synth/collaboration layers.
-- `S:\AI Gen\ACE-Step-1.5` — external AI backend, reached via
-  `ACESTEP_API_URL`; never modified from this project.

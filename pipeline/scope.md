@@ -764,7 +764,7 @@ below hands one engine's strength to the other. Each gets its dated PLAN.md sect
 
 ## Preconditions (fixes, not features; before E1)
 
-- **P1 — ACE-Step fork sync (R-034, Q-121).** The local fork lacks upstream #1287 (lego/complete skip the 5Hz LM so `src_audio` is
+- **P1 — ACE-Step fork sync (R-034, Q-121) — rebased 2026-10-08 (D-203); live once ACE-Step restarts on branch `mulakai`.** The local fork lacks upstream #1287 (lego/complete skip the 5Hz LM so `src_audio` is
   honoured; locally `inference.py:646` skips it only for cover/repaint/extract and `use_cot_caption`/`use_cot_language` default true),
   #1273/#1282 (DCW off for base/sft over REST; locally `dcw_enabled` defaults true with no REST field: distortion on Base) and #1284 (a
   requested model loads instead of silently falling back). F-082, F-086 and F-088 run lego/complete on Base, so they wait for P1.
@@ -772,7 +772,7 @@ below hands one engine's strength to the other. Each gets its dated PLAN.md sect
   trained on "Extract the VOCALS track from the audio:", built from `track_name`) and no `model` (runs on the last-loaded model, often
   Turbo, which has no extract). Send `track_name` and a Base model; "other" has no ACE-Step track name.
 - **P3 — TAKES waste.** text2music `batch_size` AUTO is 2 and `poll()` keeps one (`jobRunner.ts:95`): force 1, or keep the extra take.
-- **P4 — Doc fix.** CLAUDE.md:76 names `uv run acestep … --enable-api`, whose API is text2music-only (no `src_audio`, R-025);
+- **P4 — Doc fix — done with D-203.** CLAUDE.md:76 names `uv run acestep … --enable-api`, whose API is text2music-only (no `src_audio`, R-025);
   `start-all.bat` correctly runs `acestep-api`.
 
 ## E1 — Quick wins (F-082, F-084, F-088)
