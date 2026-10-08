@@ -8,7 +8,9 @@
  * is a READ card with its proposal; `followUp` (D-129) re-runs the origin's request after a reading,
  * writing no user message, with the REFERENCE block in the state and ask / recipe / say allowed.
  * C0b (CB-2): on an eligible song an edit's ops are applied on yue-server inside the same slot
- * (replyCheck), and the card's plan goes to planStore only after the card is written.
+ * (replyCheck), and the card's plan goes to planStore only after the card is written. C2 (F-058, D-227): a
+ * live edit card over the song's unchanged pending plan (turnRevise.pendingFor, at the turn's start) makes the
+ * turn's edit a revise; the card is plan n+1 with `since`. A failed turn leaves the card and the plan as they are.
  */
 import crypto from 'node:crypto';
 import { config } from '../../config.js';
@@ -28,6 +30,7 @@ import { liveProposal } from './proposalStore.js';
 import { planFor } from './readTarget.js';
 import { analyzeFor, gatherTurnState, sourceDeps, type SourceDeps } from './songStateSource.js';
 import { threadById } from './threadStore.js';
+import { pendingFor } from './turnRevise.js';
 import { decideReply, ladderRung } from './turnCall.js';
 import type { EditResolved } from './turnDispatch.js';
 import { causeOf, commitReply, TurnError, writeFailed } from './turnOutcome.js';
@@ -84,11 +87,12 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   const contextOf = async () => (await deps.loaded()).find((m) => m.name === deps.planner.model)?.contextLength ?? null;
   const history = lastTurns(threadId, HISTORY_TURNS + 1).filter((m) => m.seq < user.seq);
   const base = isBase(gathered.edit) ? gathered.edit : null;
+  const revise = base ? pendingFor(threadId, base.songId, base.source.fingerprint) : null;
   let decision: Awaited<ReturnType<typeof decideReply>>;
   try {
     decision = await decideReply({
       state: gathered.state, block: gathered.block, facts: gathered.facts, draft: gathered.draft, request: user.text,
-      pending: !thread.songId && Boolean(liveProposal(threadId)), history, mark,
+      pending: !thread.songId && Boolean(liveProposal(threadId)), history, mark, revise,
     }, {
       rung: deps.rung,
       apply: base ? (ops) => deps.applyEdit({ abc: base.source.abc, style: base.source.style, lyrics: base.source.lyrics }, ops) : undefined,
@@ -115,7 +119,8 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   const analyze = r.action === 'analyze' && !thread.songId ? analyzeFor(r.reference, gathered.refs, deps.plan) : null;
   const edit: EditResolved | null = r.action !== 'edit' || !gathered.edit ? null
     : !base || !decision.applied ? { reason: 'reason' in gathered.edit ? gathered.edit.reason : 'the edit was not checked against the score' }
-      : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now() };
+      : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now(),
+        ...(decision.since && revise ? { revision: (revise.plan.revision ?? 1) + 1, since: decision.since } : {}) };
   commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text, mark: mark?.edit ?? null });
   job.progressText = undefined;
   job.status = 'done';

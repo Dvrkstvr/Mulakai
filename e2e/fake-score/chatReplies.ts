@@ -34,6 +34,13 @@ export function editReplyFor(fixture: string, message: string): string {
   return JSON.stringify({ ...ed03, message, assumptions: ['assuming the whole song'], ops: contract(fixture).request.body.ops });
 }
 
+/** C2 (F-058, D-227): a follow-up edit while an edit card is live is a revise, `{drop, ops}` on the pending plan's
+ * op numbers. `drop` [] with the pending ops echoed merges to the same plan, all SAME (D-076 e); a turn with no live
+ * card reads only `ops`, so the reply works either way. */
+export function reviseReplyFor(fixture: string, message: string, drop: number[] = []): string {
+  return JSON.stringify({ ...JSON.parse(editReplyFor(fixture, message)), drop });
+}
+
 /**
  * The person's hand edit that makes the draft render the contract song: its style as the STYLE, its words
  * as the LYRICS, and TEMPO, KEY, METER, LANGUAGE and STRUCTURE cleared (each would add a style hint or a
