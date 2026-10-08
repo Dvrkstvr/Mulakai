@@ -1,0 +1,163 @@
+{
+ "tag": "de6_fu",
+ "text": "mach es etwas schneller",
+ "secs": 8.6,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've updated the song to be a bit faster while keeping the same emotional tone and structure.",
+ "n_calls": 1,
+ "calls_detail": [
+  {
+   "t": 1791464556.88,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true
+  }
+ ],
+ "call_models": [
+  "qwen3:14b"
+ ],
+ "ps_models_seen": [
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 11203,
+ "bpm_before": 60,
+ "bpm_after": 70,
+ "lyrics_same": true,
+ "lang": "de",
+ "lyrics_before": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Die Welt wird ganz leise und still",
+    "Ich such nach dem letzten Beweis",
+    "Dass ich dich noch immer so will"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Türen schließen sich fest",
+    "Ein metallisches, kaltes Geräusch",
+    "Du verlässt nun mein Nest",
+    "Und machst mein Herz plötzlich taub"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Schienen führen weit in die Nacht",
+    "Wo kein Licht mehr den Weg uns zeigt",
+    "Ich hab an uns niemals gedacht",
+    "Dass die Zeit uns so grausam besiegt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch der Wind weht am Bahnsteig",
+    "Und die Stille bleibt bei mir",
+    "Ein letzter, trauriger Sieg",
+    "Ich verliere dich hier"
+   ]
+  }
+ ],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Die Welt wird ganz leise und still",
+    "Ich such nach dem letzten Beweis",
+    "Dass ich dich noch immer so will"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Türen schließen sich fest",
+    "Ein metallisches, kaltes Geräusch",
+    "Du verlässt nun mein Nest",
+    "Und machst mein Herz plötzlich taub"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Schienen führen weit in die Nacht",
+    "Wo kein Licht mehr den Weg uns zeigt",
+    "Ich hab an uns niemals gedacht",
+    "Dass die Zeit uns so grausam besiegt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch der Wind weht am Bahnsteig",
+    "Und die Stille bleibt bei mir",
+    "Ein letzter, trauriger Sieg",
+    "Ich verliere dich hier"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, melancholic, female voice"
+}

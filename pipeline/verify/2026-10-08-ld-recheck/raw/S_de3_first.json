@@ -1,0 +1,93 @@
+{
+ "tag": "de3_first",
+ "text": "eine ruhige Ballade über den ersten Schnee im Winter",
+ "secs": 77.8,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've crafted a gentle winter ballad about the first snowfall. It features a soft piano melody, warm strings, and a soothing vocal tone.",
+ "n_calls": 3,
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15795,
+ "bpm_before": null,
+ "bpm_after": 60,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Welt hält leise ihren Atem an",
+    "Ein grauer Schleier liegt auf dem Land",
+    "Die Kälte kriecht durch jede Wand",
+    "Und alles wird ganz still und sacht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der erste Schnee fällt auf die Welt",
+    "Ein weißes Kleid, das alles hält",
+    "Die Zeit bleibt stehen, ganz ohne Hast",
+    "In dieser winterlichen Last"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die kahlen Bäume stehen einsam da",
+    "Die Farben sind nun alle fern und nah",
+    "Ein Hauch von Frost auf jedem Blatt",
+    "Das die Natur nun schlafen legt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der erste Schnee fällt auf die Welt",
+    "Ein weißes Kleid, das alles hält",
+    "Die Zeit bleibt stehen, ganz ohne Hast",
+    "In dieser winterlichen Last"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Ein leises Flüstern im Wind",
+    "Das uns die Stille bringt",
+    "Vergessen ist der laute Tag",
+    "Nur die weiße Pracht ist jetzt da"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der erste Schnee fällt auf die Welt",
+    "Ein weißes Kleid, das alles hält",
+    "Die Zeit bleibt stehen, ganz ohne Hast",
+    "In dieser winterlichen Last"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Ganz leise fällt er nieder",
+    "Die Welt wird weiß und wieder",
+    "Nur die Stille bleibt zurück",
+    "Ein winterliches Augenblick"
+   ]
+  }
+ ],
+ "style_after": "piano, strings, melancholic, female voice"
+}

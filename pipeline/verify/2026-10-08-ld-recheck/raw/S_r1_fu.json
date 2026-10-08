@@ -1,0 +1,173 @@
+{
+ "tag": "r1_fu",
+ "text": "mach es etwas schneller",
+ "secs": 9.6,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've updated the song to be a bit faster while keeping its emotional depth and structure. The new tempo is 75 bpm.",
+ "n_calls": 2,
+ "calls_detail": [
+  {
+   "t": 1791464623.58,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null
+  },
+  {
+   "t": 1791464632.47,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b"
+ ],
+ "ps_models_seen": [
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 11128,
+ "bpm_before": 60,
+ "bpm_after": 75,
+ "lyrics_same": true,
+ "lang": "de",
+ "lyrics_before": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Ein letzter Blick in dein Gesicht",
+    "Die Welt wird plötzlich still und leise",
+    "Und ich verliere dich aus der Sicht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein Abschied, den man nicht geplant hat",
+    "Wird nun für immer Teil von mir sein"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Deine Hand entgleitet meiner Hand",
+    "Ein kalter Wind weht durch das Licht",
+    "Ich stehe hier am Bahnsteigrand",
+    "Und sehe nur noch dein Gesicht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein Abschied, den man nicht geplant hat",
+    "Wird nun für immer Teil von mir sein"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Schienen führen weit in die Ferne",
+    "Wo kein Echo mehr von uns verhallt",
+    "Nur die Stille bleibt als Erbe",
+    "In dieser einsamen Gestalt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein Abschied, den man nicht geplant hat",
+    "Wird nun für immer Teil von mir sein"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch leere Gleise",
+    "Nur noch kalter Wind",
+    "Alles geht vorbei",
+    "Alles wird geschwind"
+   ]
+  }
+ ],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Ein letzter Blick in dein Gesicht",
+    "Die Welt wird plötzlich still und leise",
+    "Und ich verliere dich aus der Sicht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein Abschied, den man nicht geplant hat",
+    "Wird nun für immer Teil von mir sein"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Deine Hand entgleitet meiner Hand",
+    "Ein kalter Wind weht durch das Licht",
+    "Ich stehe hier am Bahnsteigrand",
+    "Und sehe nur noch dein Gesicht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein Abschied, den man nicht geplant hat",
+    "Wird nun für immer Teil von mir sein"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Schienen führen weit in die Ferne",
+    "Wo kein Echo mehr von uns verhallt",
+    "Nur die Stille bleibt als Erbe",
+    "In dieser einsamen Gestalt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein Abschied, den man nicht geplant hat",
+    "Wird nun für immer Teil von mir sein"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch leere Gleise",
+    "Nur noch kalter Wind",
+    "Alles geht vorbei",
+    "Alles wird geschwind"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, melancholic, soft vocal"
+}
