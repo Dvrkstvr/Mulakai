@@ -872,6 +872,19 @@ requiring its own justification against a screen-count rule.
        - **Chip**: `BASE · WHOLE SCORE`, sky, like SPLIT's. The version the
          plan was made against sits in the checks and stale lines, not the
          chip.
+       - **RE-TIME** (added 2026-10-08, RT-4, F-093, D-240): on a cover that
+         is still its transcription, a row under the reading line in the
+         Create panel's READ AS idiom: the tempo SheetSage2 read, `wrong
+         beat?` in `text-low`, then HALF · DOUBLE · BPM… as sky choice chips
+         (BPM… is its own input, D-211). A pick makes the plan at once, with
+         no planner and a `text-low` "RE-TIMING… · a few seconds · no GPU" line
+         while it is made. The plan then reviews like any plan: one RE-TIME
+         row tagged `follows` ("HALF TIME · 87 → 44 BPM · from the saved
+         reading · 17 of 293 notes left out"), a checks line with no attempt
+         count, and a consequence line saying the score is rebuilt and its
+         bars renumbered. The chip of the plan under review stays sky. On any
+         other take of a cover, one `text-low` line says why RE-TIME is off.
+         A song that is not a cover shows nothing.
        - **Body**: a `text-low` reading line (bars, duration, tempo, key),
          the request field ("Describe the change, e.g. jazz chords in the
          chorus, 88 BPM"), then, once planned, the change list (one row per

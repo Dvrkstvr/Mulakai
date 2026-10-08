@@ -346,9 +346,11 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
   server to keep (jobs are forgotten after the retention window or a
   restart). 409 unless succeeded, 404 `detail.code` `no_bundle` when none.
 - `POST /v1/scores/retime` (F-090, SP-8) — body `{files, mode: half |
-  double | bpm, bpm?, melody_only?}` → `{abc, measures, bpm, read_bpm,
+  double | bpm, bpm?, melody_only?, keep_like?}` → `{abc, measures, bpm, read_bpm,
   vocal_notes, ins_notes, notes, dropped_notes, stretched_notes,
-  warnings}`. The beat list is rewritten (`retime_beats.py`: every 2nd beat
+  left_out, warnings}`. `keep_like` (RT-4): keep only that score's `% name`
+  sections, by name in order (`retime_keep.py`), so a cover that sings some
+  sections is re-timed with the same ones; `left_out` names the others. The beat list is rewritten (`retime_beats.py`: every 2nd beat
   from the first downbeat, midpoints, or a regular grid from the first
   downbeat; a pickup stub in another meter is kept), the melody MIDI is
   snapped onto SheetSage2's 4-per-beat grid (`retime_fit.py`; a note the

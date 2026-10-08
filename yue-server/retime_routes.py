@@ -17,6 +17,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from pydantic import BaseModel, Field
 
 from retime_beats import BeatError, read_bpm, read_rows
+from retime_keep import KeepError, keep_sections_like
 from retimer import FILES, RetimeError
 from scores import ScoreError, parse_abc, prepare_score
 
@@ -29,6 +30,8 @@ class RetimeRequest(BaseModel):
     mode: Literal["half", "double", "bpm"]
     bpm: float | None = None
     melody_only: bool = True
+    keep_like: str | None = Field(default=None, max_length=65536,
+                                  description="keep only this score's sections, by name in order (RT-4)")
 
 
 def _fail(status: int, code: str, message: str):
@@ -98,6 +101,12 @@ def add_retime_routes(app: FastAPI, store, retimer, authorize) -> None:
             out = retimer.run(files, request.mode, target if request.mode == "bpm" else None, request.melody_only)
         except RetimeError as error:
             _fail(502 if error.code == "retime_failed" else 422, error.code, str(error))
+        left_out: list[str] = []
+        if request.keep_like:
+            try:
+                out["abc"], left_out = keep_sections_like(out["abc"], request.keep_like)
+            except KeepError as error:
+                _fail(422, "retime_refused", str(error))
         try:
             prepare_score(out["abc"], "melody")
             facts = _facts(out["abc"])
@@ -105,4 +114,4 @@ def add_retime_routes(app: FastAPI, store, retimer, authorize) -> None:
             _fail(422, "retime_refused", f"the rebuilt score does not parse: {error}")
         return {"abc": out["abc"], **facts, "read_bpm": round(read, 1), "notes": out["notes"],
                 "dropped_notes": out["dropped"], "stretched_notes": out["stretched"],
-                "warnings": out.get("diagnostics", [])}
+                "left_out": left_out, "warnings": out.get("diagnostics", [])}

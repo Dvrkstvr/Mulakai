@@ -65,6 +65,7 @@ const OP_NAME: Record<Op['op'], (op: never) => string> = {
   REPEAT: (op: Extract<Op, { section: number }>) => `REPEAT ${op.label} S${op.section}`,
   CUT: (op: Extract<Op, { section: number }>) => `CUT ${op.label} S${op.section}`,
   REWRITE_LYRICS: (op: Extract<Op, { op: 'REWRITE_LYRICS' }>) => `REWRITE LYRICS ${op.tag} #${op.occurrence}`,
+  RETIME: (op: Extract<Op, { op: 'RETIME' }>) => `RE-TIME ${op.bpm}`,
 };
 
 /** "score edit · SET TEMPO 88 · REHARMONIZE 17–24", plus " (truncated)". */
@@ -106,7 +107,7 @@ export async function persistScoreVersion(
     score_v: 1, engine: 'yue2', task_type: 'score', ...(output === undefined ? {} : { output }),
     request: { style: request.style, lyrics: request.lyrics, seed: request.seed, cot: request.cot }, lyrics: request.lyrics,
     ops: plan.ops, planRequest: plan.request, meta: { ...meta, ...(seconds === null ? {} : { duration: seconds }) },
-    basedOn: plan.baseVersionId, ...(r.truncated ? { truncated: true } : {}), ...(r.splice ? { splice: r.splice } : {}),
+    basedOn: plan.baseVersionId, ...(plan.retime ? { retime: plan.retime } : {}), ...(r.truncated ? { truncated: true } : {}), ...(r.splice ? { splice: r.splice } : {}),
   };
   const label = scoreEditLabel(plan.ops, r.truncated) + (r.splice ? spliceSuffix(r.splice) : '');
   const layerId = source.baseLayerId;

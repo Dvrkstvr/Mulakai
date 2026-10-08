@@ -90,3 +90,16 @@ def test_fit_stretches_or_drops_what_a_slower_grid_cannot_hold(tmp_path):
     for instrument in written.instruments:
         assert all(n.end > n.start for n in instrument.notes)
         assert all(a.end <= b.start + 1e-9 for a, b in zip(instrument.notes, instrument.notes[1:]))
+
+
+def test_keep_like_keeps_only_the_old_scores_sections(retime_client):
+    from retime_keep import KeepError, keep_sections_like
+    abc = "X:1\nK:C\n% intro\nA|\n% verse\nB|\n% chorus\nC|\n% verse\nD|\n"
+    assert keep_sections_like(abc, "X:1\n% verse\nb|\n% verse\nd|\n") == ("X:1\nK:C\n% verse\nB|\n% verse\nD|\n", ["intro", "chorus"])
+    assert keep_sections_like(abc, "X:1\nK:C\nA|\n") == (abc, [])
+    with pytest.raises(KeepError):
+        keep_sections_like(abc, "X:1\n% bridge\nA|\n")
+    out = post(retime_client, mode="half", keep_like="X:1\n% verse\nz|\n").json()
+    assert out["left_out"] == [] and "% verse" in out["abc"]
+    refused = post(retime_client, mode="half", keep_like="X:1\n% bridge\nz|\n")
+    assert refused.status_code == 422 and refused.json()["detail"]["code"] == "retime_refused"

@@ -62,9 +62,11 @@ describe('retimeScore', () => {
     const out = await retimeScore(bundle, 'half', null, target);
     expect(out).toEqual({
       abc: 'X:1\nQ:1/4=60\n', measures: 22, bpm: 60, readBpm: 120, vocalNotes: 152, insNotes: 15,
-      notes: 183, droppedNotes: 16, warnings: ['measure 21: padded'],
+      notes: 183, droppedNotes: 16, leftOut: [], warnings: ['measure 21: padded'],
     });
     expect(posted.at(-1)).toEqual({ files: FILES, mode: 'half', melody_only: true, auth: 'Bearer k' });
+    await retimeScore(bundle, 'half', null, target, 'X:1 sung');
+    expect(posted.at(-1)).toMatchObject({ keep_like: 'X:1 sung' }); // RT-4: keep the cover's sections
     await retimeScore({ ...bundle, chords: true }, 'bpm', 92, target);
     expect(posted.at(-1)).toMatchObject({ mode: 'bpm', bpm: 92, melody_only: false });
   });
