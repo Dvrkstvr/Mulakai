@@ -1,0 +1,981 @@
+{
+ "model": "mistral-small3.2:24b",
+ "tag": "mistral",
+ "load_s": 14.16,
+ "vram_baseline_mb": 3122,
+ "vram_loaded_mb": 15440,
+ "ps": [
+  {
+   "size": 17465260112,
+   "size_vram": 13732707041,
+   "context_length": 16384
+  }
+ ],
+ "cases": {
+  "RC05": {
+   "request": "Schreib mir einen langsamen deutschen Popsong über den Abschied, mit Klavier und weicher Frauenstimme",
+   "lang": "de",
+   "title": "Abschied",
+   "style": "pop, piano, melancholic, soft female voice",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 40.74,
+   "prompt_tokens": 238,
+   "completion_tokens": 441,
+   "finish": "stop",
+   "content": "{\"sections\": [\n  {\"lines\": [\n    \"Die Zeit steht still, ich seh' dich an\",\n    \"Ein letzter Blick, ein zartes 'Danke'\",\n    \"Die Welt um uns, sie wird so klein\",\n    \"Doch unser Herz, es schlägt allein\"\n  ]},\n  {\"lines\": [\n    \"Es fällt mir schwer, dich gehen zu lassen\",\n    \"Doch ich weiß, es ist Zeit, sich zu trennen\",\n    \"Ein letzter Kuss, ein sanftes 'Lebwohl'\",\n    \"Ich halt' dich fest, doch du bist schon fort\"\n  ]},\n  {\"lines\": [\n    \"Die Erinnerungen, sie bleiben hier\",\n    \"Wie Tränen, die im Regen fließen\",\n    \"Ich such' nach Worten, doch ich find' sie nicht\",\n    \"Die Stille schreit, die Welt steht still\"\n  ]},\n  {\"lines\": [\n    \"Es fällt mir schwer, dich gehen zu lassen\",\n    \"Doch ich weiß, es ist Zeit, sich zu trennen\",\n    \"Ein letzter Kuss, ein sanftes 'Lebwohl'\",\n    \"Ich halt' dich fest, doch du bist schon fort\"\n  ]},\n  {\"lines\": [\n    \"Die Nacht ist lang, die Stunden schwer\",\n    \"Ich zähl' die Minuten, bis der Morgen graut\",\n    \"Doch ohne dich, ist alles leer\",\n    \"Ein leises Lied, ein letzter Traum\"\n  ]},\n  {\"lines\": [\n    \"Es fällt mir schwer, dich gehen zu lassen\",\n    \"Doch ich weiß, es ist Zeit, sich zu trennen\",\n    \"Ein letzter Kuss, ein sanftes 'Lebwohl'\",\n    \"Ich halt' dich fest, doch du bist schon fort\"\n  ]},\n  {\"lines\": [\n    \"Die Sonne scheint, doch ich seh' sie nicht\",\n    \"Die Welt dreht sich, doch ich steh' still\",\n    \"Ein letzter Blick, ein zartes 'Danke'\",\n    \"Dann geh' ich fort, in meine Welt\"\n  ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Zeit steht still, ich seh' dich an",
+      "Ein letzter Blick, ein zartes 'Danke'",
+      "Die Welt um uns, sie wird so klein",
+      "Doch unser Herz, es schlägt allein"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Es fällt mir schwer, dich gehen zu lassen",
+      "Doch ich weiß, es ist Zeit, sich zu trennen",
+      "Ein letzter Kuss, ein sanftes 'Lebwohl'",
+      "Ich halt' dich fest, doch du bist schon fort"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Erinnerungen, sie bleiben hier",
+      "Wie Tränen, die im Regen fließen",
+      "Ich such' nach Worten, doch ich find' sie nicht",
+      "Die Stille schreit, die Welt steht still"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Es fällt mir schwer, dich gehen zu lassen",
+      "Doch ich weiß, es ist Zeit, sich zu trennen",
+      "Ein letzter Kuss, ein sanftes 'Lebwohl'",
+      "Ich halt' dich fest, doch du bist schon fort"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Die Nacht ist lang, die Stunden schwer",
+      "Ich zähl' die Minuten, bis der Morgen graut",
+      "Doch ohne dich, ist alles leer",
+      "Ein leises Lied, ein letzter Traum"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Es fällt mir schwer, dich gehen zu lassen",
+      "Doch ich weiß, es ist Zeit, sich zu trennen",
+      "Ein letzter Kuss, ein sanftes 'Lebwohl'",
+      "Ich halt' dich fest, doch du bist schon fort"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Die Sonne scheint, doch ich seh' sie nicht",
+      "Die Welt dreht sich, doch ich steh' still",
+      "Ein letzter Blick, ein zartes 'Danke'",
+      "Dann geh' ich fort, in meine Welt"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC06": {
+   "request": "Ein fröhlicher Schlager über den Sommer am See",
+   "lang": "de",
+   "title": "Sommer am See",
+   "style": "Schlager, cheerful, upbeat, acoustic guitar, accordion, vocal",
+   "bpm": 120,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 37.47,
+   "prompt_tokens": 231,
+   "completion_tokens": 465,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Die Sonne lacht vom Himmel klar,\", \"der See so blau und wunderbar,\", \"die Vögel singen im Takt,\", \"es ist so schön, hier zu sein, am See,\", \"die Wellen plätschern sacht und leis,\", \"die Luft so warm und voller Freude,\", \"ich spür' die Sonne auf der Haut,\", \"es ist der Sommer, der uns lacht an.\"]}, {\"lines\": [\"Sommer am See,\", \"die Welt steht still,\", \"Sommer am See,\", \"so glücklich sind wir hier.\"]}, {\"lines\": [\"Die Kinder lachen, springen ins Wasser,\", \"die Boote tanzen auf den Wellen,\", \"die Luft so klar, der Himmel weit,\", \"es ist so schön, hier zu sein, am See,\", \"die Musik spielt, die Herzen schlagen,\", \"wir tanzen barfuß im Sand,\", \"die Welt ist voller Sonnenschein,\", \"es ist der Sommer, der uns lacht an.\"]}, {\"lines\": [\"Sommer am See,\", \"die Welt steht still,\", \"Sommer am See,\", \"so glücklich sind wir hier.\"]}, {\"lines\": [\"Die Abendsonne malt den Himmel rot,\", \"die Sterne blinken schon so hell,\", \"die Grillen zirpen ihr Lied,\", \"es ist so schön, hier zu sein, am See,\", \"die Nacht ist klar, die Luft so süß,\", \"wir sitzen am Feuer und träumen,\", \"die Welt ist voller Harmonie,\", \"es ist der Sommer, der uns lacht an.\"]}, {\"lines\": [\"Sommer am See,\", \"die Welt steht still,\", \"Sommer am See,\", \"so glücklich sind wir hier.\"]}, {\"lines\": [\"Die Sonne geht, der Tag vergeht,\", \"doch in unseren Herzen bleibt,\", \"die Freude, die wir hier empfunden,\", \"am See, im Sommer, so wunderbar,\", \"die Welt ist voller Sonnenschein,\", \"es ist der Sommer, der uns lacht an.\"]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Sonne lacht vom Himmel klar,",
+      "der See so blau und wunderbar,",
+      "die Vögel singen im Takt,",
+      "es ist so schön, hier zu sein, am See,",
+      "die Wellen plätschern sacht und leis,",
+      "die Luft so warm und voller Freude,",
+      "ich spür' die Sonne auf der Haut,",
+      "es ist der Sommer, der uns lacht an."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Sommer am See,",
+      "die Welt steht still,",
+      "Sommer am See,",
+      "so glücklich sind wir hier."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Kinder lachen, springen ins Wasser,",
+      "die Boote tanzen auf den Wellen,",
+      "die Luft so klar, der Himmel weit,",
+      "es ist so schön, hier zu sein, am See,",
+      "die Musik spielt, die Herzen schlagen,",
+      "wir tanzen barfuß im Sand,",
+      "die Welt ist voller Sonnenschein,",
+      "es ist der Sommer, der uns lacht an."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Sommer am See,",
+      "die Welt steht still,",
+      "Sommer am See,",
+      "so glücklich sind wir hier."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Die Abendsonne malt den Himmel rot,",
+      "die Sterne blinken schon so hell,",
+      "die Grillen zirpen ihr Lied,",
+      "es ist so schön, hier zu sein, am See,",
+      "die Nacht ist klar, die Luft so süß,",
+      "wir sitzen am Feuer und träumen,",
+      "die Welt ist voller Harmonie,",
+      "es ist der Sommer, der uns lacht an."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Sommer am See,",
+      "die Welt steht still,",
+      "Sommer am See,",
+      "so glücklich sind wir hier."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Die Sonne geht, der Tag vergeht,",
+      "doch in unseren Herzen bleibt,",
+      "die Freude, die wir hier empfunden,",
+      "am See, im Sommer, so wunderbar,",
+      "die Welt ist voller Sonnenschein,",
+      "es ist der Sommer, der uns lacht an."
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC07": {
+   "request": "irgendwas Ruhiges zum Einschlafen",
+   "lang": "de",
+   "title": "Sanfte Schlaflied",
+   "style": "acoustic guitar, soft vocals, gentle mood",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 25.76,
+   "prompt_tokens": 212,
+   "completion_tokens": 310,
+   "finish": "stop",
+   "content": "{\"sections\": [\n  {\"lines\": [\n    \"Die Nacht ist still, der Mond scheint klar,\",\n    \"Die Welt schläft ein, es wird ganz wahr,\",\n    \"Die Sterne flüstern leise Lieder,\",\n    \"Sie wiegen dich in sanften Frieden wieder,\"\n  ]},\n  {\"lines\": [\n    \"Schließ die Augen, atme tief,\",\n    \"Lass die Sorgen alle flieh'n,\",\n    \"In meinem Arm, bist du geborgen,\",\n    \"Schlaf nun ein, mein Herz, mein Morgen,\"\n  ]},\n  {\"lines\": [\n    \"Die Bäume rauschen, ein sanftes Wiegen,\",\n    \"Der Wind erzählt von fernen Trägen,\",\n    \"Die Welt hält an, es wird ganz stumm,\",\n    \"Nur dein Atem, ein leiser Rhythmus,\"\n  ]},\n  {\"lines\": [\n    \"Schließ die Augen, atme tief,\",\n    \"Lass die Sorgen alle flieh'n,\",\n    \"In meinem Arm, bist du geborgen,\",\n    \"Schlaf nun ein, mein Herz, mein Morgen,\"\n  ]},\n  {\"lines\": [\n    \"Die Nacht ist lang, doch ich bin hier,\",\n    \"Bis der Morgen dich wieder führt,\",\n    \"Schlaf nun ein, mein Liebling, mein,\",\n    \"Träum von Frieden, träum von mir,\"\n  ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Nacht ist still, der Mond scheint klar,",
+      "Die Welt schläft ein, es wird ganz wahr,",
+      "Die Sterne flüstern leise Lieder,",
+      "Sie wiegen dich in sanften Frieden wieder,"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Schließ die Augen, atme tief,",
+      "Lass die Sorgen alle flieh'n,",
+      "In meinem Arm, bist du geborgen,",
+      "Schlaf nun ein, mein Herz, mein Morgen,"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Bäume rauschen, ein sanftes Wiegen,",
+      "Der Wind erzählt von fernen Trägen,",
+      "Die Welt hält an, es wird ganz stumm,",
+      "Nur dein Atem, ein leiser Rhythmus,"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Schließ die Augen, atme tief,",
+      "Lass die Sorgen alle flieh'n,",
+      "In meinem Arm, bist du geborgen,",
+      "Schlaf nun ein, mein Herz, mein Morgen,"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Die Nacht ist lang, doch ich bin hier,",
+      "Bis der Morgen dich wieder führt,",
+      "Schlaf nun ein, mein Liebling, mein,",
+      "Träum von Frieden, träum von mir,"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE08": {
+   "request": "Ein Indie-Pop-Song über den Herbst in der Großstadt, ein bisschen wehmütig",
+   "lang": "de",
+   "title": "Herbst in der Stadt",
+   "style": "indie pop, dreamy synths, clean electric guitar, male vocal, wistful",
+   "bpm": 104,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 43.08,
+   "prompt_tokens": 243,
+   "completion_tokens": 491,
+   "finish": "stop",
+   "content": "{\"sections\": [\n  {\"lines\": [\n    \"Die Blätter fallen leise auf das Pflasterstein\",\n    \"Der Wind erzählt Geschichten, die ich nicht versteh\",\n    \"Die Lichter der Stadt glühen warm und hell\",\n    \"Doch in mir fühlt sich alles so kalt an, so fern\"\n  ]},\n  {\"lines\": [\n    \"Herbst in der Stadt, die Luft ist schwer und süß\",\n    \"Ich geh' durch die Straßen, doch ich fühl' mich einsam hier\",\n    \"Herbst in der Stadt, die Zeit bleibt stehen still\",\n    \"Ich such' nach Antworten, doch ich find' sie nicht\"\n  ]},\n  {\"lines\": [\n    \"Die Cafés sind voll von Lachen und von Gesprächen\",\n    \"Doch ich sitze allein, mein Blick verloren in der Ferne\",\n    \"Die Uhren ticken weiter, der Tag wird langsam Nacht\",\n    \"Ich frag' mich, wo die Zeit geblieben ist, die ich so lieb' gehabt\"\n  ]},\n  {\"lines\": [\n    \"Herbst in der Stadt, die Luft ist schwer und süß\",\n    \"Ich geh' durch die Straßen, doch ich fühl' mich einsam hier\",\n    \"Herbst in der Stadt, die Zeit bleibt stehen still\",\n    \"Ich such' nach Antworten, doch ich find' sie nicht\"\n  ]},\n  {\"lines\": [\n    \"Die Erinnerungen tanzen im goldenen Licht\",\n    \"Ich seh' die Gesichter, die ich einst gekannt\",\n    \"Die Stadt verändert sich, doch ich bleib' immer gleich\",\n    \"Gefangen in Momenten, die nie wiederkehr'n\"\n  ]},\n  {\"lines\": [\n    \"Herbst in der Stadt, die Luft ist schwer und süß\",\n    \"Ich geh' durch die Straßen, doch ich fühl' mich einsam hier\",\n    \"Herbst in der Stadt, die Zeit bleibt stehen still\",\n    \"Ich such' nach Antworten, doch ich find' sie nicht\"\n  ]},\n  {\"lines\": [\n    \"Die Sonne geht unter, der Himmel wird grau\",\n    \"Ich steh' am Fenster und seh' die Stadt verschwimm'n\",\n    \"Der Herbst kommt und geht, wie alles im Leben\",\n    \"Doch in meinem Herzen bleibt dieser bittersüße Schmerz\"\n  ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Blätter fallen leise auf das Pflasterstein",
+      "Der Wind erzählt Geschichten, die ich nicht versteh",
+      "Die Lichter der Stadt glühen warm und hell",
+      "Doch in mir fühlt sich alles so kalt an, so fern"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt, die Luft ist schwer und süß",
+      "Ich geh' durch die Straßen, doch ich fühl' mich einsam hier",
+      "Herbst in der Stadt, die Zeit bleibt stehen still",
+      "Ich such' nach Antworten, doch ich find' sie nicht"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Cafés sind voll von Lachen und von Gesprächen",
+      "Doch ich sitze allein, mein Blick verloren in der Ferne",
+      "Die Uhren ticken weiter, der Tag wird langsam Nacht",
+      "Ich frag' mich, wo die Zeit geblieben ist, die ich so lieb' gehabt"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt, die Luft ist schwer und süß",
+      "Ich geh' durch die Straßen, doch ich fühl' mich einsam hier",
+      "Herbst in der Stadt, die Zeit bleibt stehen still",
+      "Ich such' nach Antworten, doch ich find' sie nicht"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Die Erinnerungen tanzen im goldenen Licht",
+      "Ich seh' die Gesichter, die ich einst gekannt",
+      "Die Stadt verändert sich, doch ich bleib' immer gleich",
+      "Gefangen in Momenten, die nie wiederkehr'n"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt, die Luft ist schwer und süß",
+      "Ich geh' durch die Straßen, doch ich fühl' mich einsam hier",
+      "Herbst in der Stadt, die Zeit bleibt stehen still",
+      "Ich such' nach Antworten, doch ich find' sie nicht"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Die Sonne geht unter, der Himmel wird grau",
+      "Ich steh' am Fenster und seh' die Stadt verschwimm'n",
+      "Der Herbst kommt und geht, wie alles im Leben",
+      "Doch in meinem Herzen bleibt dieser bittersüße Schmerz"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE09": {
+   "request": "Deutschrap über das Aufwachsen im Viertel, ehrlich und roh",
+   "lang": "de",
+   "title": "Mein Viertel",
+   "style": "german hip hop, boom bap, dark piano loop, rap vocal, gritty",
+   "bpm": 92,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 50.25,
+   "prompt_tokens": 235,
+   "completion_tokens": 636,
+   "finish": "stop",
+   "content": "{\"sections\": [\n  {\"lines\": [\n    \"Geboren im Beton, wo die Straßen kalt sind,\",\n    \"Jeder Tag ein Kampf, doch wir lachen nur drüber hin.\",\n    \"Mama arbeitet hart, Papa war nie da,\",\n    \"Doch wir halten zusammen, das ist unser Gesetz hier.\",\n    \"Die Lichter der Stadt, sie blenden uns nicht,\",\n    \"Wir sehen die Wahrheit, auch wenn sie wehtut.\",\n    \"Die Wände flüstern Geschichten, die niemand hört,\",\n    \"Doch wir leben sie, Tag für Tag, das ist unser Viertel.\"\n  ]},\n  {\"lines\": [\n    \"Mein Viertel, hart und ehrlich,\",\n    \"Hier kennt jeder jeden, hier bleibt niemand fremd.\",\n    \"Mein Viertel, kalt und rau,\",\n    \"Doch wir lieben es, das ist unser Leben, unser Mut.\"\n  ]},\n  {\"lines\": [\n    \"Die Nächte sind lang, die Straßen leer,\",\n    \"Doch wir finden unseren Weg, auch ohne Licht.\",\n    \"Die Träume der Jugend, sie verblassen schnell,\",\n    \"Doch wir halten sie fest, mit aller Kraft.\",\n    \"Die Polizei patrouilliert, doch sie versteht nicht,\",\n    \"Was in uns brennt, was uns antreibt.\",\n    \"Die Graffiti an den Wänden, sie erzählen unsere Geschichte,\",\n    \"Von Schmerz, von Liebe, von dem, was uns ausmacht.\"\n  ]},\n  {\"lines\": [\n    \"Mein Viertel, hart und ehrlich,\",\n    \"Hier kennt jeder jeden, hier bleibt niemand fremd.\",\n    \"Mein Viertel, kalt und rau,\",\n    \"Doch wir lieben es, das ist unser Leben, unser Mut.\"\n  ]},\n  {\"lines\": [\n    \"Die Jahre vergehen, doch nichts ändert sich,\",\n    \"Die gleichen Gesichter, die gleichen Lügen.\",\n    \"Die Kinder von heute, sie werden wie wir,\",\n    \"Gebrochen, aber stark, das ist unser Schicksal.\",\n    \"Doch manchmal, in stillen Momenten,\",\n    \"Hören wir die Hoffnung, die in uns schlummert.\",\n    \"Ein Funke Licht, in der Dunkelheit,\",\n    \"Der uns erinnert, dass wir mehr sind, als nur Beton und Stein.\"\n  ]},\n  {\"lines\": [\n    \"Mein Viertel, hart und ehrlich,\",\n    \"Hier kennt jeder jeden, hier bleibt niemand fremd.\",\n    \"Mein Viertel, kalt und rau,\",\n    \"Doch wir lieben es, das ist unser Leben, unser Mut.\"\n  ]},\n  {\"lines\": [\n    \"Und wenn die Zeit kommt, und wir gehen,\",\n    \"Wird unser Viertel weiterleben, in den Herzen derer, die es kannten.\",\n    \"Die Straßen werden leiser, die Lichter schwächer,\",\n    \"Doch die Erinnerungen, sie bleiben ewig, in unserem Blut, in unseren Adern.\"\n  ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Geboren im Beton, wo die Straßen kalt sind,",
+      "Jeder Tag ein Kampf, doch wir lachen nur drüber hin.",
+      "Mama arbeitet hart, Papa war nie da,",
+      "Doch wir halten zusammen, das ist unser Gesetz hier.",
+      "Die Lichter der Stadt, sie blenden uns nicht,",
+      "Wir sehen die Wahrheit, auch wenn sie wehtut.",
+      "Die Wände flüstern Geschichten, die niemand hört,",
+      "Doch wir leben sie, Tag für Tag, das ist unser Viertel."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, hart und ehrlich,",
+      "Hier kennt jeder jeden, hier bleibt niemand fremd.",
+      "Mein Viertel, kalt und rau,",
+      "Doch wir lieben es, das ist unser Leben, unser Mut."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Nächte sind lang, die Straßen leer,",
+      "Doch wir finden unseren Weg, auch ohne Licht.",
+      "Die Träume der Jugend, sie verblassen schnell,",
+      "Doch wir halten sie fest, mit aller Kraft.",
+      "Die Polizei patrouilliert, doch sie versteht nicht,",
+      "Was in uns brennt, was uns antreibt.",
+      "Die Graffiti an den Wänden, sie erzählen unsere Geschichte,",
+      "Von Schmerz, von Liebe, von dem, was uns ausmacht."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, hart und ehrlich,",
+      "Hier kennt jeder jeden, hier bleibt niemand fremd.",
+      "Mein Viertel, kalt und rau,",
+      "Doch wir lieben es, das ist unser Leben, unser Mut."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Jahre vergehen, doch nichts ändert sich,",
+      "Die gleichen Gesichter, die gleichen Lügen.",
+      "Die Kinder von heute, sie werden wie wir,",
+      "Gebrochen, aber stark, das ist unser Schicksal.",
+      "Doch manchmal, in stillen Momenten,",
+      "Hören wir die Hoffnung, die in uns schlummert.",
+      "Ein Funke Licht, in der Dunkelheit,",
+      "Der uns erinnert, dass wir mehr sind, als nur Beton und Stein."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, hart und ehrlich,",
+      "Hier kennt jeder jeden, hier bleibt niemand fremd.",
+      "Mein Viertel, kalt und rau,",
+      "Doch wir lieben es, das ist unser Leben, unser Mut."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Und wenn die Zeit kommt, und wir gehen,",
+      "Wird unser Viertel weiterleben, in den Herzen derer, die es kannten.",
+      "Die Straßen werden leiser, die Lichter schwächer,",
+      "Doch die Erinnerungen, sie bleiben ewig, in unserem Blut, in unseren Adern."
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE10": {
+   "request": "Ein Liedermacher-Lied über Heimweh, nur Gitarre und Stimme",
+   "lang": "de",
+   "title": "Heimweh",
+   "style": "singer-songwriter, folk, acoustic guitar, warm male vocal, intimate",
+   "bpm": 76,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 33.72,
+   "prompt_tokens": 229,
+   "completion_tokens": 405,
+   "finish": "stop",
+   "content": "{\"sections\": [\n  {\"lines\": [\n    \"Die Straßen sind fremd, die Luft ist so schwer,\",\n    \"Ich sehne mich nach dem Ort, der mir vertraut.\",\n    \"Die Stimmen im Wind, sie flüstern mir zu,\",\n    \"Es zieht mich zurück, wo mein Herz zuhaus ist.\"\n  ]},\n  {\"lines\": [\n    \"Die Tage sind lang, die Nächte noch länger,\",\n    \"Ich zähl die Stunden, bis ich wiederkehr.\",\n    \"Die Erinnerungen, sie halten mich fest,\",\n    \"In einem Land, das ich liebe, das mich liebt.\"\n  ]},\n  {\"lines\": [\n    \"Oh Heimweh, du brennst in meiner Brust,\",\n    \"Du bringst mich zurück, wo ich hingehör.\",\n    \"Oh Heimweh, du singst in jedem Lied,\",\n    \"Du führst mich heim, zu dem, was ich vermiss.\"\n  ]},\n  {\"lines\": [\n    \"Die Sonne scheint anders, der Himmel so weit,\",\n    \"Doch nichts kann ersetzen, was ich zurückließ.\",\n    \"Die Menschen, die Lachen, die kleinen Dinge,\",\n    \"Sie warten auf mich, in meinem Zuhaus.\"\n  ]},\n  {\"lines\": [\n    \"Oh Heimweh, du brennst in meiner Brust,\",\n    \"Du bringst mich zurück, wo ich hingehör.\",\n    \"Oh Heimweh, du singst in jedem Lied,\",\n    \"Du führst mich heim, zu dem, was ich vermiss.\"\n  ]},\n  {\"lines\": [\n    \"Ich schließ die Augen, ich seh den Weg,\",\n    \"Der mich zurückbringt, zu dem, was ich liebe.\",\n    \"Die Gitarre spielt leise, mein Herz schlägt im Takt,\",\n    \"Bis ich wieder daheim bin, in meinen Armen.\"\n  ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Straßen sind fremd, die Luft ist so schwer,",
+      "Ich sehne mich nach dem Ort, der mir vertraut.",
+      "Die Stimmen im Wind, sie flüstern mir zu,",
+      "Es zieht mich zurück, wo mein Herz zuhaus ist."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Tage sind lang, die Nächte noch länger,",
+      "Ich zähl die Stunden, bis ich wiederkehr.",
+      "Die Erinnerungen, sie halten mich fest,",
+      "In einem Land, das ich liebe, das mich liebt."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Oh Heimweh, du brennst in meiner Brust,",
+      "Du bringst mich zurück, wo ich hingehör.",
+      "Oh Heimweh, du singst in jedem Lied,",
+      "Du führst mich heim, zu dem, was ich vermiss."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Sonne scheint anders, der Himmel so weit,",
+      "Doch nichts kann ersetzen, was ich zurückließ.",
+      "Die Menschen, die Lachen, die kleinen Dinge,",
+      "Sie warten auf mich, in meinem Zuhaus."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Oh Heimweh, du brennst in meiner Brust,",
+      "Du bringst mich zurück, wo ich hingehör.",
+      "Oh Heimweh, du singst in jedem Lied,",
+      "Du führst mich heim, zu dem, was ich vermiss."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Ich schließ die Augen, ich seh den Weg,",
+      "Der mich zurückbringt, zu dem, was ich liebe.",
+      "Die Gitarre spielt leise, mein Herz schlägt im Takt,",
+      "Bis ich wieder daheim bin, in meinen Armen."
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC08": {
+   "request": "una balada lenta sobre el mar, guitarra de nailon y una voz femenina suave",
+   "lang": "es",
+   "title": "Mar de Sueños",
+   "style": "ballad, nylon guitar, soft female voice, melancholic mood",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 36.35,
+   "prompt_tokens": 242,
+   "completion_tokens": 449,
+   "finish": "stop",
+   "content": "{\"sections\": [\n  {\"lines\": [\n    \"En la orilla del mar, donde el viento susurra,\",\n    \"Mis sueños se van, con la marea oscura.\",\n    \"El agua besa mis pies, con su frío contacto,\",\n    \"Mientras el corazón, late desconsolado.\"\n  ]},\n  {\"lines\": [\n    \"Mar de sueños, llevas mi dolor,\",\n    \"En tus olas, mi alma se pierde,\",\n    \"Mar de sueños, no me dejes aquí,\",\n    \"Con tu marea, mi vida se va.\"\n  ]},\n  {\"lines\": [\n    \"Las gaviotas gritan, mi soledad cantan,\",\n    \"El sol se oculta, tras el horizonte lejano.\",\n    \"El eco del mar, repite mi nombre,\",\n    \"Pero en su voz, no hay consuelo alguno.\"\n  ]},\n  {\"lines\": [\n    \"Mar de sueños, llevas mi dolor,\",\n    \"En tus olas, mi alma se pierde,\",\n    \"Mar de sueños, no me dejes aquí,\",\n    \"Con tu marea, mi vida se va.\"\n  ]},\n  {\"lines\": [\n    \"Si el mar fuera un camino, yo caminaría,\",\n    \"Hacia donde el horizonte, no tiene fin.\",\n    \"Pero el mar es un sueño, que nunca se alcanza,\",\n    \"Y en su profundidad, mi alma se ahoga.\"\n  ]},\n  {\"lines\": [\n    \"Mar de sueños, llevas mi dolor,\",\n    \"En tus olas, mi alma se pierde,\",\n    \"Mar de sueños, no me dejes aquí,\",\n    \"Con tu marea, mi vida se va.\"\n  ]},\n  {\"lines\": [\n    \"Y así, en la orilla, quedaré para siempre,\",\n    \"Un susurro del mar, un sueño que nunca se cumple.\",\n    \"El viento llevará, mi voz hasta el horizonte,\",\n    \"Donde el mar de sueños, mi alma encontrará.\"\n  ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "En la orilla del mar, donde el viento susurra,",
+      "Mis sueños se van, con la marea oscura.",
+      "El agua besa mis pies, con su frío contacto,",
+      "Mientras el corazón, late desconsolado."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mar de sueños, llevas mi dolor,",
+      "En tus olas, mi alma se pierde,",
+      "Mar de sueños, no me dejes aquí,",
+      "Con tu marea, mi vida se va."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Las gaviotas gritan, mi soledad cantan,",
+      "El sol se oculta, tras el horizonte lejano.",
+      "El eco del mar, repite mi nombre,",
+      "Pero en su voz, no hay consuelo alguno."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mar de sueños, llevas mi dolor,",
+      "En tus olas, mi alma se pierde,",
+      "Mar de sueños, no me dejes aquí,",
+      "Con tu marea, mi vida se va."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Si el mar fuera un camino, yo caminaría,",
+      "Hacia donde el horizonte, no tiene fin.",
+      "Pero el mar es un sueño, que nunca se alcanza,",
+      "Y en su profundidad, mi alma se ahoga."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mar de sueños, llevas mi dolor,",
+      "En tus olas, mi alma se pierde,",
+      "Mar de sueños, no me dejes aquí,",
+      "Con tu marea, mi vida se va."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Y así, en la orilla, quedaré para siempre,",
+      "Un susurro del mar, un sueño que nunca se cumple.",
+      "El viento llevará, mi voz hasta el horizonte,",
+      "Donde el mar de sueños, mi alma encontrará."
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC09": {
+   "request": "A fast reggaeton party song in Spanish about a summer night out",
+   "lang": "es",
+   "title": "Noche de Verano",
+   "style": "reggaeton, electronic, upbeat, party, Spanish",
+   "bpm": 130,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Pre-Chorus",
+    "Chorus",
+    "Verse",
+    "Pre-Chorus",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 42.5,
+   "prompt_tokens": 251,
+   "completion_tokens": 523,
+   "finish": "stop",
+   "content": "{\"sections\": [\n    {\"lines\": [\n        \"El sol se va, la luna brilla\",\n        \"La ciudad despierta, la fiesta empieza\",\n        \"Ritmo en el aire, no podemos parar\",\n        \"Bailamos juntos hasta el amanecer\"\n    ]},\n    {\"lines\": [\n        \"Siente el calor, el ritmo en tu piel\",\n        \"No hay nada mejor que esta noche de verano\",\n        \"El DJ sube la música, el volumen al máximo\",\n        \"Estamos listos para el show\"\n    ]},\n    {\"lines\": [\n        \"Noche de verano, bajo las estrellas\",\n        \"Noche de verano, bailamos sin parar\",\n        \"Noche de verano, el ritmo no se detiene\",\n        \"Noche de verano, hasta el amanecer\"\n    ]},\n    {\"lines\": [\n        \"Las luces brillan, el ambiente es eléctrico\",\n        \"Todos juntos, somos uno solo\",\n        \"El alcohol fluye, la energía es pura\",\n        \"Esta noche es nuestra, no hay quien nos pare\"\n    ]},\n    {\"lines\": [\n        \"Siente el calor, el ritmo en tu piel\",\n        \"No hay nada mejor que esta noche de verano\",\n        \"El DJ sube la música, el volumen al máximo\",\n        \"Estamos listos para el show\"\n    ]},\n    {\"lines\": [\n        \"Noche de verano, bajo las estrellas\",\n        \"Noche de verano, bailamos sin parar\",\n        \"Noche de verano, el ritmo no se detiene\",\n        \"Noche de verano, hasta el amanecer\"\n    ]},\n    {\"lines\": [\n        \"El cielo se ilumina con fuegos artificiales\",\n        \"El amor está en el aire, lo podemos sentir\",\n        \"Esta noche es mágica, no queremos que termine\",\n        \"Pero sabemos que volverá a ocurrir\"\n    ]},\n    {\"lines\": [\n        \"Noche de verano, bajo las estrellas\",\n        \"Noche de verano, bailamos sin parar\",\n        \"Noche de verano, el ritmo no se detiene\",\n        \"Noche de verano, hasta el amanecer\"\n    ]},\n    {\"lines\": [\n        \"El sol comienza a salir, la fiesta termina\",\n        \"Pero en nuestros corazones, la música sigue sonando\",\n        \"Hasta la próxima noche de verano, seguiremos bailando\",\n        \"Porque esta es nuestra vida, nuestra pasión\"\n    ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "El sol se va, la luna brilla",
+      "La ciudad despierta, la fiesta empieza",
+      "Ritmo en el aire, no podemos parar",
+      "Bailamos juntos hasta el amanecer"
+     ]
+    },
+    {
+     "tag": "Pre-Chorus",
+     "lines": [
+      "Siente el calor, el ritmo en tu piel",
+      "No hay nada mejor que esta noche de verano",
+      "El DJ sube la música, el volumen al máximo",
+      "Estamos listos para el show"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Noche de verano, bajo las estrellas",
+      "Noche de verano, bailamos sin parar",
+      "Noche de verano, el ritmo no se detiene",
+      "Noche de verano, hasta el amanecer"
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Las luces brillan, el ambiente es eléctrico",
+      "Todos juntos, somos uno solo",
+      "El alcohol fluye, la energía es pura",
+      "Esta noche es nuestra, no hay quien nos pare"
+     ]
+    },
+    {
+     "tag": "Pre-Chorus",
+     "lines": [
+      "Siente el calor, el ritmo en tu piel",
+      "No hay nada mejor que esta noche de verano",
+      "El DJ sube la música, el volumen al máximo",
+      "Estamos listos para el show"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Noche de verano, bajo las estrellas",
+      "Noche de verano, bailamos sin parar",
+      "Noche de verano, el ritmo no se detiene",
+      "Noche de verano, hasta el amanecer"
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "El cielo se ilumina con fuegos artificiales",
+      "El amor está en el aire, lo podemos sentir",
+      "Esta noche es mágica, no queremos que termine",
+      "Pero sabemos que volverá a ocurrir"
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Noche de verano, bajo las estrellas",
+      "Noche de verano, bailamos sin parar",
+      "Noche de verano, el ritmo no se detiene",
+      "Noche de verano, hasta el amanecer"
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "El sol comienza a salir, la fiesta termina",
+      "Pero en nuestros corazones, la música sigue sonando",
+      "Hasta la próxima noche de verano, seguiremos bailando",
+      "Porque esta es nuestra vida, nuestra pasión"
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC10": {
+   "request": "algo romántico para mi novia",
+   "lang": "es",
+   "title": "Para Mi Novia",
+   "style": "soft, emotional, acoustic guitar, piano, warm mood, female voice",
+   "bpm": 72,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 34.31,
+   "prompt_tokens": 231,
+   "completion_tokens": 431,
+   "finish": "stop",
+   "content": "{\"sections\": [\n  {\"lines\": [\n    \"Bajo el cielo de la noche,\",\n    \"Las estrellas nos alumbran,\",\n    \"Contigo a mi lado,\",\n    \"Todo es más hermoso,\",\n    \"Tu mirada es mi guía,\",\n    \"En este camino,\",\n    \"Juntos somos más fuertes,\",\n    \"Mi amor por ti es eterno.\"\n  ]},\n  {\"lines\": [\n    \"Para mi novia,\",\n    \"Eres mi sol, mi luna,\",\n    \"Para mi novia,\",\n    \"Eres mi vida entera.\"\n  ]},\n  {\"lines\": [\n    \"En tus brazos encuentro paz,\",\n    \"Tu amor es mi refugio,\",\n    \"Cada día a tu lado,\",\n    \"Es un sueño hecho realidad,\",\n    \"Tu sonrisa ilumina mi camino,\",\n    \"En la oscuridad,\",\n    \"Eres mi faro, mi amor,\",\n    \"Mi corazón late por ti.\"\n  ]},\n  {\"lines\": [\n    \"Para mi novia,\",\n    \"Eres mi sol, mi luna,\",\n    \"Para mi novia,\",\n    \"Eres mi vida entera.\"\n  ]},\n  {\"lines\": [\n    \"Prometo amarte siempre,\",\n    \"En los buenos y malos tiempos,\",\n    \"Juntos superaremos cualquier obstáculo,\",\n    \"Porque nuestro amor es verdadero,\",\n    \"Eres mi todo, mi vida,\",\n    \"Mi corazón late por ti,\",\n    \"Prometo amarte siempre,\",\n    \"En los buenos y malos tiempos.\"\n  ]},\n  {\"lines\": [\n    \"Para mi novia,\",\n    \"Eres mi sol, mi luna,\",\n    \"Para mi novia,\",\n    \"Eres mi vida entera.\"\n  ]},\n  {\"lines\": [\n    \"Bajo el cielo de la noche,\",\n    \"Las estrellas nos alumbran,\",\n    \"Contigo a mi lado,\",\n    \"Todo es más hermoso.\"\n  ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Bajo el cielo de la noche,",
+      "Las estrellas nos alumbran,",
+      "Contigo a mi lado,",
+      "Todo es más hermoso,",
+      "Tu mirada es mi guía,",
+      "En este camino,",
+      "Juntos somos más fuertes,",
+      "Mi amor por ti es eterno."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Para mi novia,",
+      "Eres mi sol, mi luna,",
+      "Para mi novia,",
+      "Eres mi vida entera."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "En tus brazos encuentro paz,",
+      "Tu amor es mi refugio,",
+      "Cada día a tu lado,",
+      "Es un sueño hecho realidad,",
+      "Tu sonrisa ilumina mi camino,",
+      "En la oscuridad,",
+      "Eres mi faro, mi amor,",
+      "Mi corazón late por ti."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Para mi novia,",
+      "Eres mi sol, mi luna,",
+      "Para mi novia,",
+      "Eres mi vida entera."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Prometo amarte siempre,",
+      "En los buenos y malos tiempos,",
+      "Juntos superaremos cualquier obstáculo,",
+      "Porque nuestro amor es verdadero,",
+      "Eres mi todo, mi vida,",
+      "Mi corazón late por ti,",
+      "Prometo amarte siempre,",
+      "En los buenos y malos tiempos."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Para mi novia,",
+      "Eres mi sol, mi luna,",
+      "Para mi novia,",
+      "Eres mi vida entera."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Bajo el cielo de la noche,",
+      "Las estrellas nos alumbran,",
+      "Contigo a mi lado,",
+      "Todo es más hermoso."
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  }
+ },
+ "ps_after": [
+  {
+   "size": 17465260112,
+   "size_vram": 13732707041
+  }
+ ],
+ "vram_peak_after_mb": 15161,
+ "release": [
+  0.47,
+  true
+ ]
+}
