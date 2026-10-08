@@ -12,7 +12,7 @@ import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply, Score
 import { turnSchema } from './actionSchema.js';
 import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
-import { asksWholeSong } from './markFit.js';
+import { asksWholeSong, replanMessage } from './markFit.js';
 import { detectLanguage } from './lyricLanguage.js';
 import { draftLines } from './songState.js';
 import { allowedActions, redirected, type TurnState } from './turnActions.js';
@@ -73,5 +73,8 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
     check: (json) => checkReply(json, checkCtx, { apply: deps.apply, language: detectLanguage }),
     onAttempt: deps.onAttempt,
   });
+  if (outcome.ok && outcome.reply.action === 'edit' && markRange) { // C1 re-check N2: the card and its sentence agree
+    outcome.reply = { ...outcome.reply, message: replanMessage(outcome.reply.message, outcome.reply.ops, outcome.refusals) };
+  }
   return { ...outcome, calls, messages };
 }

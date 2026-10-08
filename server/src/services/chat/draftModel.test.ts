@@ -100,6 +100,31 @@ describe('applyRecipe: a recipe merges into the draft (CH-6, Q-057)', () => {
     expect(draft).toBe(typed);
   });
 
+  it('C2 (F-059, D-220): `before` holds each changed field\'s previous value; a field that was empty is absent', () => {
+    const typed = handEdit(emptyDraft(), { title: 'Draft title', bpm: 70 }).draft; // rev 1
+    const { before, changed } = applyRecipe(typed, { ...RECIPE, bpm: 70 }, 1);
+    expect(changed).toContain('title');
+    expect(changed).not.toContain('bpm');
+    expect(before).toEqual({ title: 'Draft title' }); // bpm unchanged; style, key ... were empty
+  });
+
+  it('C2: `before` is empty when nothing changed, and leaves out a skipped field', () => {
+    const sent = applyRecipe(emptyDraft(), RECIPE, 0).draft;
+    const typed = handEdit(sent, { title: 'Mine' }).draft;
+    expect(applyRecipe(typed, RECIPE, 1).before).toEqual({});
+    const { before, skipped } = applyRecipe(typed, { ...RECIPE, title: 'Other', bpm: 60 }, 1);
+    expect(skipped).toEqual(['title']);
+    expect(before).toEqual({ bpm: RECIPE.bpm });
+  });
+
+  it('C2: a reference recipe that clears a missing field records the old value', () => {
+    const typed = handEdit(emptyDraft(), { key: 'Dm' }).draft;
+    const { before, changed } = applyRecipe(typed, { ...RECIPE, key: undefined } as unknown as Recipe, 1,
+      { referenceId: 'r1', use: 'borrow', borrowed: [], missing: ['key'], note: null });
+    expect(changed).toContain('key');
+    expect(before.key).toBe('Dm');
+  });
+
   it('an engine other than yue2 is not taken into the draft (C0 creates on YuE2 only)', () => {
     expect(recipeFields({ ...RECIPE, engine: 'acestep' }).engine).toBeUndefined();
   });

@@ -14,6 +14,7 @@ import type { ScoreFacts } from '../score/planTypes.js';
 import type { LyricsReading } from '../lyricsClient.js';
 import { isRead } from './reading.js';
 import { readingLines } from './readingLines.js';
+import { pairBlocks } from '../score/lyricPairing.js';
 import {
   isFailed, readingGap, type AnalysisState, type AnalysisStep, type AnalysisView, type BarShift, type LiveAnalysisJob,
   type ShownReading, type StoredAnalysis, type StripSection, type VersionAnalysis,
@@ -44,9 +45,6 @@ function secondsOf(from: number, to: number, bars: Bars | null): [number, number
   return end === null ? null : [bars.starts[from - 1], end];
 }
 
-/** A label's or tag's kind: `[Verse 2]` and `verse` are a verse (yue-server's `tag_word`). */
-const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
-
 /** Bars of the score past the last bar the audio holds (D-197: a transcribed score can outlast its audio). */
 export function barsPastAudio(facts: ScoreFacts, bars: Bars | null): number {
   const last = Math.max(0, ...facts.sections.map((s) => s.to_bar));
@@ -56,14 +54,11 @@ export function barsPastAudio(facts: ScoreFacts, bars: Bars | null): number {
 /** D-197: with bar times, a section past the audio's last bar is dropped and one crossing it ends there. */
 export function stripSections(facts: ScoreFacts, bars: Bars | null, words: LyricsReading | null): StripSection[] {
   const seen = new Map<string, number>();
-  const kinds = new Map<string, number>();
+  const sung = pairBlocks(facts.sections, facts.lyric_blocks);
   const held = bars ? bars.starts.length : Infinity;
   return facts.sections.flatMap((s) => {
     const occurrence = (seen.get(s.label) ?? 0) + 1;
     seen.set(s.label, occurrence);
-    const kind = kindOf(s.label);
-    const nth = (kinds.get(kind) ?? 0) + 1;
-    kinds.set(kind, nth);
     if (s.from_bar > held) return [];
     const to = Math.min(s.to_bar, held);
     const seconds = secondsOf(s.from_bar, to, bars);
@@ -78,7 +73,7 @@ export function stripSections(facts: ScoreFacts, bars: Bars | null, words: Lyric
       }
     } else {
       // D-066 d: the k-th section of a kind sings the k-th block of it (tags are `[Verse]`, labels `verse`; CP-C1)
-      lines = facts.lyric_blocks.filter((l) => kindOf(l.tag) === kind)[nth - 1]?.lines ?? 0;
+      lines = facts.lyric_blocks.find((l) => l.index === sung.get(s.index))?.lines ?? 0;
     }
     return [{ index: s.index, label: s.label, occurrence, bars: [s.from_bar, to], seconds, lines, partialLines }];
   });

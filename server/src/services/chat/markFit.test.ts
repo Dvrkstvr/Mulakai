@@ -1,7 +1,7 @@
 /** A mark limits the plan (D-176, F-055 #1 and edge): bar ops inside it, a section op outside it is a retry
  * reason, a whole-song op is allowed with a note, a mark past the song or shorter than a phrase is clamped. */
 import { describe, it, expect } from 'vitest';
-import { asksWholeSong, assumptionsUnderMark, markBars, markFit } from './markFit.js';
+import { asksWholeSong, assumptionsUnderMark, markBars, markFit, replanMessage } from './markFit.js';
 import type { Op, ScoreFacts } from '../score/planTypes.js';
 
 const facts: ScoreFacts = {
@@ -80,5 +80,19 @@ describe('markBars', () => {
   });
   it('a mark wholly past the score has no range', () => {
     expect(markBars([70, 72], 65)).toEqual({ range: null, notes: ['the mark (bars 70-72) is past the end of the score (bar 65)'] });
+  });
+});
+
+describe('replanMessage (C1 re-check N2)', () => {
+  const reharm: Op = { op: 'REHARMONIZE', from_bar: 23, to_bar: 30, chords: [] };
+  const tempoRefused = [['op 1 (SET_TEMPO): SET TEMPO changes the whole song; the mark covers bars 23-30, and a whole-song change needs the person to ask for it: plan only inside the mark']];
+  it('a replan that dropped the refused SET TEMPO but still talks tempo gets its message from its own ops', () => {
+    expect(replanMessage('I will increase the tempo of the whole song.', [reharm], tempoRefused))
+      .toBe('Planned inside the mark: new chords in bars 23-30. SET TEMPO would change the whole song, so it is not in this plan; ask for the whole song to get it.');
+  });
+  it('keeps the model\'s message when it describes the replan, nothing whole-song was refused, or the op was kept', () => {
+    expect(replanMessage('New jazzy chords on the chorus.', [reharm], tempoRefused)).toBe('New jazzy chords on the chorus.');
+    expect(replanMessage('Faster chords.', [reharm], [['op 1 (REHARMONIZE): bar 40 is outside the mark (bars 23-30); plan only inside it']])).toBe('Faster chords.');
+    expect(replanMessage('Tempo up.', [{ op: 'SET_TEMPO', bpm: 120 }], tempoRefused)).toBe('Tempo up.');
   });
 });

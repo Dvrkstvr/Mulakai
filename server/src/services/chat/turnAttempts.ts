@@ -1,6 +1,7 @@
 /**
  * A turn's retry loop (SP-5's, the planner's shape): ask, parse, check the reply (replyCheck, injected),
- * and on a rejection send the reply back with its reasons (turnRetry); at most MAX_ATTEMPTS asks. A
+ * and on a rejection send the reply back, shortened, with its reasons (turnRetry, built on the first
+ * attempt's messages so attempt 3 stays near attempt 1's size, C1 re-check N4); at most MAX_ATTEMPTS asks. A
  * thrown error (HTTP, timeout, context refusal, cancel) ends it at once. Progress "attempt n of 3 ·
  * reason" goes through onAttempt. Pure (I/O injected).
  */
@@ -36,6 +37,7 @@ function parse(content: string): unknown {
 
 export async function turnAttempts(messages: PromptMessage[], deps: TurnAttemptDeps, maxAttempts = MAX_ATTEMPTS): Promise<TurnOutcome> {
   let msgs = messages;
+  const refused: Array<{ reply: string; reasons: string[] }> = [];
   let reasons: string[] = [];
   const promptTokens: Array<number | null> = [];
   const refusals: string[][] = [];
@@ -48,7 +50,8 @@ export async function turnAttempts(messages: PromptMessage[], deps: TurnAttemptD
     if (checked.ok) return { ok: true, reply: checked.reply, applied: checked.applied, attempts: n, promptTokens, refusals };
     reasons = checked.reasons.slice(0, MAX_REASONS);
     refusals.push(reasons);
-    msgs = turnRetry(msgs, answer.content, reasons);
+    refused.push({ reply: answer.content, reasons });
+    msgs = turnRetry(messages, refused);
   }
   return { ok: false, reasons, attempts: maxAttempts, promptTokens };
 }

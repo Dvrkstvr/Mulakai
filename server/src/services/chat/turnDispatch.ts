@@ -7,11 +7,13 @@
  * with spliceEligibility's verdict (D-154); a song that cannot be edited gets the reason as a say
  * (F-046 edge). C3: an analyze on the draft thread is a READ card (or a say with why it cannot be read);
  * a recipe on a reading goes through referenceRecipe first, so code fills the borrowed fields (D-128).
+ * C2: an edit card carries its bar map (barMap, D-215); a recipe that filled a field stores its undo record (D-220).
  * Pure: turnJob resolves the analyze target and the edit's base, and stores the plan.
  */
 import { buildPlan } from '../score/planBuild.js';
 import type { ApplyResult, Plan } from '../score/planTypes.js';
 import { applyRecipe } from './draftModel.js';
+import { barMap } from './barMap.js';
 import { spliceEligibility } from './spliceEligibility.js';
 import { asksWholeSong, assumptionsUnderMark, markFit } from './markFit.js';
 import { referenceRecipe } from './referenceRecipe.js';
@@ -90,6 +92,7 @@ function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string
     assumptions: mark?.bars ? assumptionsUnderMark(reply.assumptions) : reply.assumptions, attempts: plan.attempts, refusals: plan.refusals,
     ...(mark ? { mark: { ...mark, notes: [...mark.notes, ...(mark.bars ? markFit(plan.ops, mark.bars, base.facts, asksWholeSong(request)).notes : [])] } } : {}),
     from: { bpm: base.facts.header.bpm, key: base.facts.header.key },
+    map: barMap(base.facts, plan.ops),
   };
   return { kind: 'edit', text: reply.message, body, plan };
 }
@@ -112,6 +115,7 @@ export function dispatchReply({ reply, hasSong, draft, sentRev, scoreReason, ref
         body: {
           recipe: built.recipe, assumptions: reply.assumptions, changed: merged.changed, skipped: merged.skipped,
           ...(built.reference ? { reference: built.reference } : {}),
+          ...(merged.changed.length ? { undo: { rev: merged.draft.rev, before: merged.before, fields: merged.changed } } : {}),
         },
       };
     }

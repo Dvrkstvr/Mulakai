@@ -25,7 +25,12 @@ vi.mock('./engineTranscribeClient.js', () => ({
   cancelTranscription: (...a: unknown[]) => client.cancelTranscription(...a),
 }));
 
+const NOTATION = { files: { 'song_beats.txt': 'MC4w' }, chords: false };
+const notation = { fetchNotation: vi.fn(async (..._a: unknown[]): Promise<typeof NOTATION | null> => NOTATION) };
+vi.mock('./score/yueRetime.js', () => ({ fetchNotation: (...a: unknown[]) => notation.fetchNotation(...a) }));
+
 const { getJob, abortJob } = await import('./jobs.js');
+const { loadNotation } = await import('./notationStore.js');
 const { enqueue, getRunning } = await import('./genQueue.js');
 const { startTranscription, runTranscription } = await import('./transcribeJobs.js');
 
@@ -39,6 +44,8 @@ async function settle(jobId: string, status: 'done' | 'failed') {
 
 beforeEach(() => {
   for (const fn of Object.values(client)) fn.mockClear();
+  notation.fetchNotation.mockClear();
+  notation.fetchNotation.mockImplementation(async () => NOTATION);
   client.transcriptionStatus.mockImplementation(async () => ({ state: 'done', facts: FACTS }));
 });
 
@@ -55,8 +62,22 @@ describe('startTranscription', () => {
 
     expect(client.transcribe).toHaveBeenCalledWith(engine, source.data, 'ellies.wav', job.id);
     expect(client.fetchTranscriptionScore).toHaveBeenCalledWith(engine, 'remote-1');
-    expect(getJob(job.id)?.transcription).toEqual({ ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2', yueJobId: 'remote-1' });
+    const kept = getJob(job.id)?.transcription;
+    expect(kept).toEqual({
+      ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2', yueJobId: 'remote-1', notationId: expect.stringMatching(/^[0-9a-f]{64}$/),
+    });
+    expect(notation.fetchNotation).toHaveBeenCalledWith(engine, 'remote-1');
+    expect(await loadNotation(kept!.notationId!)).toEqual(NOTATION); // kept past yue-server's sweep (D-207)
     expect(getJob(job.id)?.songId).toBeUndefined(); // nothing reaches the library
+  });
+
+  it('keeps the score when the notation files are missing or cannot be fetched (RE-TIME then offers TRANSCRIBE AGAIN)', async () => {
+    for (const fail of [async () => null, async () => { throw new Error('YUE2 transcription notation -> HTTP 500'); }]) {
+      notation.fetchNotation.mockImplementation(fail);
+      const job = startTranscription(engine, source);
+      await settle(job.id, 'done');
+      expect(getJob(job.id)?.transcription).toMatchObject({ score: 'X:1\nK:Fm\n', notationId: null });
+    }
   });
 
   it('fails the job with the engine\'s message and frees the lock', async () => {
@@ -99,7 +120,7 @@ describe('runTranscription (a chat reading inside its own slot, CR-2)', () => {
     const job = held();
     const out = await runTranscription(job, engine, source, { chords: true });
     expect(client.transcribe).toHaveBeenCalledWith(engine, source.data, 'ellies.wav', 'reading-1', { chords: true });
-    expect(out).toEqual({ ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2', yueJobId: 'remote-1' });
+    expect(out).toEqual({ ...FACTS, score: 'X:1\nK:Fm\n', sourceLabel: 'Ellies City 2', yueJobId: 'remote-1', notationId: expect.any(String) });
     expect(getRunning()).toBeNull();
     expect(job.status).toBe('running'); // the caller settles its own job
   });

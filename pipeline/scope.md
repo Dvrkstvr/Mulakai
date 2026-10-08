@@ -540,11 +540,7 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 - **A free-disk check before a commit** (Q-037): each edit now writes a temp render and a spliced file of 65-80 MB on top of the version; C0 deletes temps
   on every path and the C0 run logs the bytes; a check is added if the log shows pressure.
 
-- **Re-time a transcription (after C1, owner 2026-10-07, D-190)**: fix a transcribed score whose beat is wrong (half/double time, or a
-  BPM the owner names). Preferred: rebuild the ABC on yue-server from the transcription's saved model outputs (melody MIDI, beats, chords,
-  keys, structures) with a corrected beat list (every other beat dropped, midpoints added, or a regular grid at the named BPM anchored to the
-  detected downbeats) via SheetSage2's `generate_abc_from_data`: CPU only, seconds, no model re-run. Fallback when the outputs are swept: a
-  mechanical ABC rewrite (scale durations, re-bar). A BPM that is only a little off stays a SET TEMPO header change (exists today).
+- **Re-time a transcription** (D-190): planned 2026-10-08 as milestone RT below (F-090 .. F-094, D-206 .. D-208).
 
 ## Not doing (chat)
 
@@ -950,3 +946,65 @@ Windows Python YuE2 falls back to slow attention (#209), which is why yue-server
 - **YuE v1** (`YuE-v1` branch: stems and audio-prompt ICL): a third engine, ruled out in PLAN.md; nothing in the audit changes that.
 - **Splice seams healed by ACE-Step repaint** (SP-4 B, D-080), unchanged.
 - **Copying code from gary4juce, DEMON or ACE-Step-DAW** (AGPL): patterns only.
+
+## RT — Re-time a transcription (F-090 .. F-094; D-190, D-206 .. D-208)
+
+A SheetSage2 score sometimes reads the beat wrong: half time, double time, or a tempo the owner can name. SheetSage2 builds the ABC from
+saved model outputs (`notation/song_melody.mid`, `_beats.txt`, `_chords.txt`, `_keys.txt`, `_structures.txt`) and snaps the melody onto
+the beat list, so the fix is a corrected beat list and a rebuild: CPU only, seconds, no model re-run (SP-8, R-039). A tempo only slightly
+off stays SET TEMPO (exists). Both consumers and every surface (owner, D-206): the C3 cover's TRANSCRIBE score, the C1 chat reading's
+score, the SCORE dock and a chat verb. The outputs are kept on the Mulakai server with the transcription, so re-time still works after
+yue-server's 24 h sweep or a restart; with no saved outputs the person is offered TRANSCRIBE AGAIN (owner, D-207).
+
+Feature track: normal (stored data, a yue-server route, new UI). Order: RT-1 → RT-2 → RT-3 → RT-4; RT-5 after C1 is merged; RT-6 after C2.
+
+### F-090 · The rebuild and the kept outputs (RT-1 yue-server, RT-2 server)
+- RT-1: yue-server `POST /v1/scores/retime` `{bundle, mode: half | double | bpm, bpm?, melody_only}` → `{abc, measures, bpm, warnings}`,
+  the beat transform in Python (only yue-server reads/writes ABC, decision 0002), the rebuild in SheetSage2's venv as a CPU subprocess;
+  a transcription job also returns its bundle (`GET /v1/transcriptions/{id}/notation`). 422 with the reason when the rebuild fails or the
+  BPM is out of range.
+- RT-2: the server fetches the bundle when a transcription finishes and keeps it (see "Stored data" below); `POST /api/retime` rebuilds
+  from a kept bundle by its id.
+- Acceptance: half/double/BPM rebuild on 2 real outputs in under 10 s with measures ≈ ½ / × 2 / × ratio; double and a BPM at or above
+  the read tempo keep the melody's notes (≤ 3 % lost); half and slower grids snap notes onto SheetSage2's fixed 4-subbeat grid
+  (`fit_midi`) and report `dropped_notes`, never claimed lossless (SP-8: 9-26 % on correctly-read songs, D-210); chords and section labels
+  survive; a bundle survives a yue-server restart; a missing bundle answers `no_bundle`.
+- Non-goals: re-running any model; beat-level editing; re-timing a score that no transcription made.
+
+### F-091 · RE-TIME on the cover's transcribed score (RT-3, `YueCoverPanel.tsx`)
+The cover panel shows what was read (`READ AS 140 BPM · 4/4 · 96 BARS`) with HALF · DOUBLE · BPM…; the consequence line names the new
+tempo and bar count before the rebuild. The rebuilt score replaces the panel's score; UNDO returns the one before.
+- Acceptance: a 140-read score becomes 70 BPM with half the bars and the cover renders from it; BPM… refuses outside 40–240; a cover whose
+  bundle is gone shows TRANSCRIBE AGAIN with its GPU time.
+- Non-goals: re-rendering the piano preview if SP-8 shows it is not cheap (then the preview is marked stale).
+
+### F-092 · Re-time a chat reading (RT-5, after C1 is merged)
+The reading's SCORE part (a transcribed song, not a YuE2 one) can be re-timed from the reading line; the consequence says the bar numbers
+change and a mark on this version goes stale. The re-timed reading replaces the stored one (bars, sections, bar times) and is kept as the
+version's reading.
+- Acceptance: after HALF the strip shows half the bars at the same seconds; an existing mark on the version shows the stale card.
+- Non-goals: re-timing a YuE2 song's own score (its beat is what YuE2 rendered: SET TEMPO / SCORE are the tools).
+
+### F-093 · RE-TIME as a SCORE dock op (RT-4)
+For a cover whose score came from a transcription and whose bundle is kept, the dock offers RE-TIME beside SET TEMPO; it is generative
+(YuE2 re-renders), so it has a consequence line with the render time, like every SCORE op.
+- Acceptance: RE-TIME HALF on a cover song plans, shows the consequence and renders a new version at half the bars.
+- Non-goals: offering it on a YuE2 original or on a cover with no bundle (Q-126).
+
+### F-094 · A chat verb (RT-6, after C2)
+"it's half time" / "it's really 92 BPM" makes the planner propose a RE-TIME op card (F-093's op, or F-092's when the turn is about the
+reading) with the same consequence copy.
+- Acceptance: 3 phrasings each give a RE-TIME card with the right mode; a slight BPM change gives SET TEMPO instead (Q-125).
+
+### Stored data (before code, F-090)
+- New: a notation bundle per finished transcription, stored by the server as one JSON file (the five files, base64, tens of KB) under
+  `DATA_DIR/notation/<sha256>.json`, content-addressed so the same source shares one. Referenced by id from the cover job's result and the
+  cover song's base version `params_json.notationId`, and from the reading's score part in `versions.analysis_json` (`notationId`).
+- No change to existing rows and no backfill: a score or reading without `notationId` offers TRANSCRIBE AGAIN. Deleting a version or song
+  does not delete a bundle another row may share; an unreferenced bundle older than 30 days is swept at server start.
+- Reversal: the files and the optional field can be ignored; nothing else reads them.
+
+### Not doing (RT)
+- A mechanical ABC rewrite (scale durations, re-bar) as a fallback (D-207: TRANSCRIBE AGAIN instead).
+- Tempo maps or rubato (one tempo per re-time; the BPM grid anchors to detected downbeats).
+

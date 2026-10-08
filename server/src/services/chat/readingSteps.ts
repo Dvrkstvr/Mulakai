@@ -59,6 +59,7 @@ async function words(input: StepInput, deps: StepDeps): Promise<WordsPart | NotR
 
 async function score(input: StepInput, deps: StepDeps): Promise<ScorePart | NotRead> {
   let abc: string;
+  let notationId: string | null | undefined;
   const warnings: string[] = [];
   if (input.step.source === 'own') {
     abc = input.own?.abc ?? '';
@@ -68,6 +69,7 @@ async function score(input: StepInput, deps: StepDeps): Promise<ScorePart | NotR
       (p) => input.progress(p === undefined ? 'transcribing' : `transcribing ${Math.round(p * 100)}%`));
     if (!out) return { notRead: 'cancelled' };
     abc = out.score;
+    notationId = out.notationId;
     warnings.push(...out.warnings);
   }
   input.progress('checking the score');
@@ -88,7 +90,8 @@ async function score(input: StepInput, deps: StepDeps): Promise<ScorePart | NotR
   } catch (err) {
     warnings.push(`the score was not measured: ${why(err)}`);
   }
-  return { abc, source: input.step.source === 'own' ? 'own' : 'transcribed', chords, facts, warnings, measure };
+  return { abc, source: input.step.source === 'own' ? 'own' : 'transcribed', chords, facts, warnings, measure,
+    ...(notationId !== undefined ? { notationId } : {}) };
 }
 
 async function caption(input: StepInput, deps: StepDeps): Promise<CaptionPart | NotRead> {

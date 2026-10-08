@@ -278,6 +278,10 @@ yuey.cpp (2 stars, validated on an RTX 5070 laptop and a DGX Spark only) may not
 ### R-038 · impact H · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
 German lyrics from qwen3:14b are not usable as a first take (0/3 A, 0/3 B: unnatural wording, poor singability), and the owner writes in German. Check: SP-7 (lyrics step on gemma4 26B-A4B, gemma3:12b, mistral-small3.2:24b vs qwen3:14b; owner reads 6 German sets blind; bar ≥ 5/6). Fallback: German lyrics shown as a draft to edit before rendering.
 
+### R-039 · impact H · evidence seen running, partly proven (SP-8, 2026-10-08)
+SheetSage2's rebuild from a corrected beat list (half, double, a named-BPM grid anchored on the downbeats) may refuse the grid (meter inference, pickup bar), drop notes at the edges, or lose chords/sections — then RT's whole method falls. F-090 depends on it.
+- check: SP-8 (pipeline/spikes/SP-8-retime-rebuild) on 2 real outputs, melody-only and chords. **Done: [RESULT.md](spikes/SP-8-retime-rebuild/RESULT.md)**: rebuild takes ~15 ms from a 24 KB bundle; double is clean; half and slower BPM grids drop 5-26% of short notes (fixed 4-subbeat grid) unless a MIDI repair pass runs, and the count must be shown.
+- fallback: reshape the score on yue-server from the parsed ABC (decision 0002) for half/double only; a named BPM goes back to the owner.
 ### R-040 · impact M · evidence hypothesis (stage 6, chat C2, 2026-10-08)
 A chat REVISE adds the PENDING PLAN block (up to 6 ops; a 40-bar REHARMONIZE's chord list is long) to an edit prompt that already measured p95 5,906 tokens with the MARK block (CP-C1, D-197), and the chat's prompt and strict schema differ from the dock's, where Q-050 saw additive revisions drop pending ops (fixed for 2+ op plans by D-073, never measured in the chat).
 - check: CP-C2 (CV-5): prompt tokens per revise turn, context refusals, merged ops vs pending ops; stop lines in architecture.md "Test strategy (C2)" #7.
