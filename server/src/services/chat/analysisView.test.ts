@@ -152,12 +152,21 @@ describe('analysisView', () => {
     expect(v.shown?.sections[0].seconds).toBeNull();
   });
 
-  it('an ACE-Step version shows its transcribed score; lines are the words read (F-053 edge)', () => {
-    const words: LyricsReading = { language: 'en', segments: [{ text: 'a', start: 0.5, end: 1, words: [] }] };
+  it('an ACE-Step version shows its transcribed score; its lines are the timed lines the strip counts, once each (F-053 edge, C1 live B4)', () => {
+    const words: LyricsReading = { language: 'en', segments: [
+      { text: 'a', start: 0.5, end: 1, words: [] }, { text: 'b', start: 3.5, end: 4.5, words: [] }, { text: 'c', start: 17, end: 18, words: [] },
+    ] };
     const score = { abc: 'X:1', source: 'transcribed' as const, chords: true, facts: facts({ lyric_blocks: [] }), warnings: [], measure: null };
     const v = analysisView(base({ current: analysis('v4', { score }), currentWords: words }));
-    expect(v.shown).toMatchObject({ transcribed: true, lines: 2 });
-    expect(v.shown?.sections[0]).toMatchObject({ lines: 1 });
+    expect(v.shown).toMatchObject({ transcribed: true, lines: 2, linesOutside: 1 });
+    expect(v.shown?.sections.slice(0, 2).map((s) => [s.lines, s.partialLines])).toEqual([[2, 1], [1, 1]]);
+  });
+
+  it("C1 live B4: YuE2's own score with more blocks than sections: the line counts the strip's pairing, the rest is outside", () => {
+    const extra = facts({ lyric_blocks: [...facts().lyric_blocks, { index: 4, tag: 'chorus', occurrence: 2, lines: 3, first_line: 'd' }, { index: 5, tag: 'chorus', occurrence: 3, lines: 3, first_line: 'e' }] });
+    const v = analysisView(base({ current: analysis('v4', { score: { abc: 'X:1', source: 'own', chords: true, facts: extra, warnings: [], measure: null } }) }));
+    expect(v.shown).toMatchObject({ lines: 14, linesOutside: 3 });
+    expect(v.shown?.sections.reduce((n, s) => n + s.lines, 0)).toBe(14);
   });
 
   it("CP-C1 eventide: an 80-bar transcribed score on 41 bars of audio shows only what plays, every section markable, 39 bars not shown (D-197)", () => {

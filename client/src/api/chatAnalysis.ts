@@ -43,7 +43,10 @@ export interface ShownReading {
   sections: StripSection[];
   /** Score bars past the last bar the audio holds; the server leaves them off `sections` (D-197). 0 when it fits. */
   barsNotShown: number;
+  /** Lines in the shown sections, by the strip's own pairing (C1 live B4): the line and the strip agree. */
   lines: number;
+  /** Lines that pair with no shown section; the line names them when > 0. */
+  linesOutside: number;
   /** A transcribed score (not YuE2's own): context and marking only, SCORE stays off (Q-062 b). */
   transcribed: boolean;
   /** Each part's "not read" reason, null when read (`words` set = no word timings, F-052 #4). */

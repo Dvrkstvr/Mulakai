@@ -8,11 +8,12 @@
  * sections keep that older reading's seconds for drawing only). Strip sections are the score's, a section with
  * no lyric block included (F-053 #1), cut to the bars the audio holds (D-197); lines come from YuE2's lyric
  * blocks, or for a transcribed score from the word timings inside each section (lines crossing an edge count in
- * both sections, as partial).
+ * both sections, as partial). The reading line's total comes from the same pairing (`readingLines`, C1 live B4).
  */
 import type { ScoreFacts } from '../score/planTypes.js';
 import type { LyricsReading } from '../lyricsClient.js';
 import { isRead } from './reading.js';
+import { readingLines } from './readingLines.js';
 import {
   isFailed, readingGap, type AnalysisState, type AnalysisStep, type AnalysisView, type BarShift, type LiveAnalysisJob,
   type ShownReading, type StoredAnalysis, type StripSection, type VersionAnalysis,
@@ -87,15 +88,17 @@ function shown(a: VersionAnalysis, number: number, words: LyricsReading | null, 
   const bars = isRead(a.bars) ? { starts: a.bars.starts, end: a.bars.end } : null;
   const facts = isRead(a.score) ? a.score.facts : null;
   const transcribed = isRead(a.score) && a.score.source === 'transcribed';
-  const own = facts !== null && !transcribed;
   const mode = !bars ? 'hatched' : dimOrHatched ?? 'current';
+  const timings = transcribed ? words : null;
+  const sections = facts ? stripSections(facts, bars, timings) : [];
+  const heard = isRead(a.words) ? a.words.lines.length : words?.segments.length ?? 0;
+  const { lines, outside } = readingLines(facts, sections, timings, bars !== null, heard);
   return {
     versionId: a.versionId, number, mode, readAt: a.readAt,
     bars: mode === 'hatched' ? null : bars,
-    sections: facts ? stripSections(facts, bars, transcribed ? words : null) : [],
+    sections,
     barsNotShown: facts ? barsPastAudio(facts, bars) : 0,
-    lines: own ? facts.lyric_blocks.reduce((n, b) => n + b.lines, 0)
-      : isRead(a.words) ? a.words.lines.length : words?.segments.length ?? 0,
+    lines, linesOutside: outside,
     transcribed,
     notRead: {
       words: isRead(a.words) ? null : a.words.notRead,
