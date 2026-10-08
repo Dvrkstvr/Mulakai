@@ -3,6 +3,7 @@
  * (`AnalysisView`, `ShownReading`, `StripSection`, `RangeMark`, `MarkPreview`); reconcile both when either moves. The
  * analysis job polls through `jobStatus` like every other job. Bars are 1-based and inclusive; seconds are on the
  * version's timeline. */
+import type { LyricsPanel } from './chatConverge';
 import { ApiError, json } from './http';
 
 export type AnalysisStep = 'WORDS' | 'SCORE' | 'SECTIONS';
@@ -51,6 +52,8 @@ export interface ShownReading {
   transcribed: boolean;
   /** Each part's "not read" reason, null when read (`words` set = no word timings, F-052 #4). */
   notRead: { words: string | null; score: string | null; bars: string | null };
+  /** C2 (F-056, D-217): the lyrics panel for this reading, computed by the server at read time; absent on older servers. */
+  lyrics?: LyricsPanel | null;
 }
 
 /** `barShift` of a version against its base (D-180): bars at or after `atBar` moved by `delta` (a CUT's negative
