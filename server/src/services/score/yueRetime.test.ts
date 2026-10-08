@@ -29,7 +29,7 @@ beforeAll(async () => {
       if (body.mode === 'double' && (body.files as Record<string, string>)['song_beats.txt'] === 'BOOM') return reply(res, 502, { detail: 'down' });
       reply(res, 200, {
         abc: 'X:1\nQ:1/4=60\n', measures: 22, bpm: 60, read_bpm: 120, vocal_notes: 152, ins_notes: 15,
-        notes: 183, dropped_notes: 16, stretched_notes: 16, warnings: ['measure 21: padded'],
+        notes: 183, dropped_notes: 16, stretched_notes: 16, downbeats: [0.5, 4.5, 'x', 8.5], warnings: ['measure 21: padded'],
       });
     });
   });
@@ -62,7 +62,7 @@ describe('retimeScore', () => {
     const out = await retimeScore(bundle, 'half', null, target);
     expect(out).toEqual({
       abc: 'X:1\nQ:1/4=60\n', measures: 22, bpm: 60, readBpm: 120, vocalNotes: 152, insNotes: 15,
-      notes: 183, droppedNotes: 16, leftOut: [], warnings: ['measure 21: padded'],
+      notes: 183, droppedNotes: 16, leftOut: [], downbeats: [0.5, 4.5, 8.5], warnings: ['measure 21: padded'],
     });
     expect(posted.at(-1)).toEqual({ files: FILES, mode: 'half', melody_only: true, auth: 'Bearer k' });
     await retimeScore(bundle, 'half', null, target, 'X:1 sung');

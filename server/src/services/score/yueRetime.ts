@@ -31,6 +31,8 @@ export interface RetimeResult {
   droppedNotes: number;
   /** Sections of the reading left out to match `keepLike` (RT-4). */
   leftOut: string[];
+  /** The corrected beat list's bar starts, seconds (RT-5): a chat reading's re-timed bars are timed on them. */
+  downbeats: number[];
   warnings: string[];
 }
 
@@ -80,6 +82,7 @@ export async function retimeScore(
     abc: r.abc, measures: num(r.measures), bpm: typeof r.bpm === 'number' ? r.bpm : null, readBpm: num(r.read_bpm),
     vocalNotes: num(r.vocal_notes), insNotes: num(r.ins_notes), notes: num(r.notes), droppedNotes: num(r.dropped_notes),
     leftOut: Array.isArray(r.left_out) ? r.left_out.map(String) : [],
+    downbeats: Array.isArray(r.downbeats) ? r.downbeats.filter((t): t is number => typeof t === 'number' && Number.isFinite(t)) : [],
     warnings: Array.isArray(r.warnings) ? r.warnings.map(String) : [],
   };
 }

@@ -71,9 +71,10 @@ export function markAt(songId: string, mark: RangeMark): MarkAt {
   const parent = readingChain(playable.id).parent;
   const number = (id: string) => baseVersions(songId).find((v) => v.id === id)?.number ?? null;
   const bars = done && isRead(done.bars) ? { starts: done.bars.starts, end: done.bars.end } : null;
-  const r = resolveRange(mark, { playable, parent: parent && { ...parent, number: number(parent.versionId) }, bars });
+  const r = resolveRange(mark, { playable, parent: parent && { ...parent, number: number(parent.versionId) }, bars, readAt: done?.readAt ?? null });
   if (!r.pinned) return { ok: false, stale: r };
-  const pinned = snapMark(r.mark, bars); // D-194: a seconds-only mark gets the bars it covers when they are read
+  const snapped = snapMark(r.mark, bars); // D-194: a seconds-only mark gets the bars it covers when they are read
+  const pinned = snapped !== r.mark && done ? { ...snapped, readAt: done.readAt } : snapped; // counted on this reading (RT-5)
   const block = markBlock({ mark: pinned, number: playable.number, analysis: done, words: wordTimings(playable.id) });
   return { ok: true, mark: pinned, block, outside: rangeOutside(pinned, bars) };
 }
