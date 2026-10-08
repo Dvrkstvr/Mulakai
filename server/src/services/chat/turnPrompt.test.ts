@@ -145,7 +145,7 @@ Return a corrected, complete reply; write its message anew, about the corrected 
     ] as unknown as Op[];
     const plan = { request: 'make the chorus jazzier and slower', ops, revision: 1, verdicts: ops.map((o, i) => ({ index: i + 1, op: o.op, ok: true, reason: null })) } as unknown as Plan;
     const pending = chatPendingLines(plan);
-    expect(pending.join('\n').length).toBeLessThan(3000); // 2,863 measured
+    expect(pending.join('\n').length).toBeLessThan(3000); // 2,922 measured (CP-C2 r2 lines)
     const f = facts206();
     const song = { title: 'Long Song', style: 'rock', versions: [{ number: 1, label: 'first generation', active: true }], facts: f, reason: null };
     const history = Array.from({ length: 4 }, () => [msg('user', 'text', 'x'.repeat(300)), msg('assistant', 'say', 'y'.repeat(300))]).flat();
