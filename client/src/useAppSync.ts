@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { Song } from './api';
+import { landedTakes } from './generationJob';
 import { useGenerationStore, type GenerationJob } from './generationStore';
 import { useModelStatusStore } from './modelStatusStore';
 import type { LibraryData } from './useLibraryData';
@@ -51,18 +52,17 @@ export function useAppSync({ library, genJobs, hydrateGenJob, setPlaying }: Opti
   // Each generating card's store drops it a moment after it flips to 'done' (see
   // generationPoll.ts's DONE_LINGER_MS) — refresh the library right as one does so the real
   // song row is already in `songs` by the time the placeholder unmounts, then load the
-  // freshly generated song into the footer player so it's ready to hit play immediately.
-  const landed = genJobs.filter((j) => j.stage === 'done' && j.songId).map((j) => j.songId as string);
+  // freshly generated song into the footer player so it's ready to hit play immediately. A chat
+  // take lands in the Library too, but plays in the chat's own player, not here (landedTakes).
+  const landedKey = genJobs.filter((j) => j.stage === 'done' && j.songId).map((j) => j.songId).join(',');
   const seen = useRef(new Set<string>());
-  const landedKey = landed.join(',');
   useEffect(() => {
-    const fresh = landed.filter((id) => !seen.current.has(id));
+    const { fresh, play } = landedTakes(genJobs, seen.current);
     if (fresh.length === 0) return;
     fresh.forEach((id) => seen.current.add(id));
-    const newSongId = fresh[fresh.length - 1];
     refreshFolders();
     void refresh().then((list) => {
-      const newSong = list?.find((s) => s.id === newSongId);
+      const newSong = play ? list?.find((s) => s.id === play) : undefined;
       if (newSong) setPlaying(newSong);
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps

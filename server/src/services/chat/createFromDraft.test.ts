@@ -46,6 +46,14 @@ describe('CREATE SONG re-check (F-044, F-049 #2)', () => {
     expect(await createFromDraft(threadId, proposalId, deps({ loaded, planRunning: () => true }))).toHaveProperty('job');
   });
 
+  it('starts the take as a chat take (origin chat): it plays in the chat, not in the Library', async () => {
+    const { threadId, proposalId } = pendingCard();
+    start.mockClear();
+    expect(await createFromDraft(threadId, proposalId, deps())).toHaveProperty('job');
+    expect(start.mock.calls[0]).toHaveLength(7);
+    expect((start.mock.calls[0] as unknown[])[6]).toBe('chat');
+  });
+
   it('a card of another thread is expired here', async () => {
     const { proposalId } = pendingCard();
     expect(await createFromDraft('other', proposalId, deps())).toEqual({ reason: 'this chat no longer exists' });

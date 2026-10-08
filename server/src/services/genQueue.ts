@@ -41,6 +41,8 @@ export interface QueueInfo {
   layer?: string;
   /** What the job does, in a few words ("repaint 1:32–2:07"), for the same row. */
   label?: string;
+  /** `chat` for a take the chat started (CREATE SONG): it plays in the chat's player, never the Library's. */
+  origin?: 'chat';
 }
 
 export interface RunningInfo extends QueueInfo {

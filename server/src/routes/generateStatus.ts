@@ -21,6 +21,7 @@ generateStatusRouter.get('/active', (_req, res) => {
       caption: lock.caption,
       task: lock.task,
       engine: lock.engine,
+      origin: lock.origin,
       startedAt: lock.startedAt,
       status: job?.status ?? 'running',
       error: job?.error,

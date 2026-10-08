@@ -60,15 +60,16 @@ async function persistEngineSong(
 /** Queue a new-song generation on an extra engine and persist the result as a new song
  * with a base layer. Throws QueueFullError synchronously when the queue is full; throws
  * before queueing if `cover` is given to an engine that can't cover. `onSaved` runs right after the
- * song is saved (the chat attaches its thread, chat/createFromDraft.ts); its failure never fails the take. */
+ * song is saved (the chat attaches its thread, chat/createFromDraft.ts); its failure never fails the take.
+ * `origin` 'chat' marks the chat's own take on its queue slot: the Library does not play it when it lands. */
 export function startEngineGeneration(
   engine: SongEngine, fields: CreateFields, title: string, folderId?: string | null, cover?: EngineCover,
-  onSaved?: (songId: string) => void | Promise<void>,
+  onSaved?: (songId: string) => void | Promise<void>, origin?: 'chat',
 ): Job {
   if (cover && !engine.toCoverRequest) throw new Error(`${engine.label} cannot cover a score`);
   const job: Job = { id: crypto.randomUUID(), taskId: '', status: 'queued', createdAt: Date.now() };
   const task: GenTask = cover ? 'cover' : 'text2music';
-  return queueJob({ kind: 'generate', title, caption: fields.prompt, task, engine: engine.id }, job, async () => {
+  return queueJob({ kind: 'generate', title, caption: fields.prompt, task, engine: engine.id, ...(origin ? { origin } : {}) }, job, async () => {
     const request = cover ? engine.toCoverRequest!(fields, cover.abc) : engine.toRequest(fields);
     const taskId = await submit(engine, request, job.id);
     job.taskId = taskId;

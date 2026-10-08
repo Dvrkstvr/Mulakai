@@ -13,6 +13,10 @@ interface ChatAb {
   side: AbSide; note: string | null; playNonce: number;
   /** C2 (F-056): a lyrics-panel double-click asking the player to play the song from `at` seconds; `n` tells asks apart. */
   playAtAsk: { at: number; n: number } | null;
+  /** A take this tab followed just landed (CREATE SONG's v1, an APPLY's version; owner, 2026-10-08): the player plays it
+   * once the new file is in, even if it mounts only now (v1). A new nonce per landing; null once played or dropped. */
+  arrived: number | null;
+  arrive: () => void;
   toggle: (other?: Exclude<AbSide, 'song'>) => void;
   playSong: () => void;
   playAt: (at: number) => void;
@@ -21,13 +25,23 @@ interface ChatAb {
 }
 
 export const useChatAb = create<ChatAb>((set) => ({
-  side: 'song', note: null, playNonce: 0, playAtAsk: null,
+  side: 'song', note: null, playNonce: 0, playAtAsk: null, arrived: null,
+  arrive: () => set((s) => ({ side: 'song', arrived: (s.arrived ?? 0) + 1 })),
   toggle: (other) => set((s) => ({ side: abToggle(s.side, other) })),
   playSong: () => set((s) => ({ side: 'song', playNonce: s.playNonce + 1 })),
   playAt: (at) => set((s) => ({ side: 'song', note: null, playAtAsk: { at, n: (s.playAtAsk?.n ?? 0) + 1 } })),
   setNote: (note) => set({ note }),
-  reset: () => set({ side: 'song', note: null }),
+  reset: () => set({ side: 'song', note: null, arrived: null }),
 }));
+
+/** A landed take's play, given the file loaded when it landed (`from`; null = the player mounted on the new take): wait
+ * while the old file is still in or the new one has no length yet; `carry` = the version swap is under way, play on
+ * through it at the same seconds; else play. Pure. */
+export function arrivalPlay(from: string | null, src: string, duration: number, carrying: boolean): 'wait' | 'carry' | 'play' {
+  if (from !== null && src === from) return 'wait';
+  if (carrying) return 'carry';
+  return duration > 0 ? 'play' : 'wait';
+}
 
 export interface ChatPlayback { engine: PlaybackApi; side: AbSide; src: string }
 
@@ -45,6 +59,21 @@ export function useChatPlayback(sources: AbSources): ChatPlayback {
     carry.current = { at: currentTime, play: isPlaying };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [src]);
+
+  // A take that landed: armed with the file loaded at the time (a landing before mount waits for none), played once in.
+  const arrived = useChatAb((s) => s.arrived);
+  const armed = useRef<{ n: number; from: string | null } | null>(arrived ? { n: arrived, from: null } : null);
+  useEffect(() => {
+    if (arrived && armed.current?.n !== arrived) armed.current = { n: arrived, from: src };
+    const a = armed.current;
+    const act = a ? arrivalPlay(a.from, src, duration, !!carry.current) : 'wait';
+    if (act === 'wait') return;
+    armed.current = null;
+    useChatAb.setState({ arrived: null });
+    if (act === 'carry') carry.current!.play = true;
+    else engine.play();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [arrived, src, duration]);
 
   // A version card's PLAY: play the song now, or once the swap back to it has resumed.
   const playNonce = useChatAb((s) => s.playNonce);

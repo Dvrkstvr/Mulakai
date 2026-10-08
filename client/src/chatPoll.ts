@@ -27,6 +27,8 @@ export interface ChatPollDeps {
   /** Read the open thread again; `settling` = the turn ended; `afterCard` = a reading card's job ended (its
    * follow-up reply's fields get their marks). */
   refetch: (settling?: boolean, afterCard?: string) => Promise<void>;
+  /** A take this tab followed was saved (CREATE SONG's v1, an APPLY's version): the chat's player plays it. */
+  landed?: () => void;
 }
 
 const sleep = () => new Promise((r) => setTimeout(r, POLL_MS));
@@ -73,6 +75,7 @@ export function chatPoll(d: ChatPollDeps) {
     d.commit({ type: 'poll', job });
     if (job.status !== 'done' && job.status !== 'failed') return false;
     await d.refetch(); // the song card, and the draft thread is now the song's
+    if (job.status === 'done') d.landed?.();
     return true;
   }, async () => { d.commit({ type: 'poll', job: { status: 'failed', error: 'the server lost the take: look in the Library' } }); });
 

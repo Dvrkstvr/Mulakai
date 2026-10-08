@@ -181,8 +181,8 @@ export interface ActiveGeneration {
   /** Only present for `generate` — which of the three song-creating tasks is running,
    * so a retry after a page refresh reopens Create on the right tab. */
   task?: string;
-  /** Present for `generate` on an extra engine, and for `transcribe`. */
-  engine?: string;
+  engine?: string; // `generate` on an extra engine, and `transcribe`
+  origin?: 'chat'; // the chat's own take (CREATE SONG): it plays in the chat's player, not the Library's
   startedAt: number;
   status: 'loading' | 'running' | 'done' | 'failed';
   error?: string;
