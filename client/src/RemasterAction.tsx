@@ -10,6 +10,8 @@ import { queueSuffix } from './queueCopy';
 import { useJobsAhead } from './queueStore';
 import { useLookup, modelsFor, checkingModels } from './lookup';
 import { DockCommit } from './DockCommit';
+import { RemasterTune } from './RemasterTune';
+import { pickRemasterModel, remasterSteps, remasterConsequence } from './remasterChoice';
 
 interface Props {
   songId: string;
@@ -19,15 +21,14 @@ interface Props {
 /**
  * EXPORT › REMASTERED MIX: a one-click ACE-Step `cover` pass over the currently audible mix
  * (the same mute/solo-aware bounce Add Layer uses) at the highest quality ACE-Step can
- * produce for this song. No settings form — model is gated to `cover`-capable options
- * (defaulting to xl-sft), steps and format come from Settings, and cover strength/CFG stay
- * at ACE-Step's own defaults (closest to source, auto guidance). The result is never saved
+ * produce for this song. TUNE picks the `cover`-capable model (remembered; xl-sft first time)
+ * and steps (RECOMMENDED by default, PLAN.md "Remaster TUNE"); format comes from Settings, and
+ * cover strength/CFG stay at ACE-Step's own defaults (closest to source, auto guidance). The result is never saved
  * to the song's history; it only exists long enough to download — editorJobStore.ts fires
  * that download itself once the job settles, even if this component isn't mounted anymore.
  */
 export function RemasterAction({ songId, layers }: Props) {
   const exportSettings = useSettings((s) => s.exportSettings);
-  const [model, setModel] = useState('');
   const [mixError, setMixError] = useState('');
   const editorJobs = useEditorJobStore((s) => s.editorJobs);
   const remasterResult = useRemasterResult((s) => s.result);
@@ -38,10 +39,9 @@ export function RemasterAction({ songId, layers }: Props) {
   const { inFlight, failed } = jobView(myEditorJobs(editorJobs, 'remaster', { songId }));
   const error = mixError || (failed ? (failed.error ?? 'remaster failed') : '');
 
-  const coverModels = useLookup(() => modelsFor('cover').then((names) => {
-    setModel(names.find((n) => n.includes('xl-sft')) ?? names[0] ?? '');
-    return names;
-  }));
+  const coverModels = useLookup(() => modelsFor('cover'));
+  const model = pickRemasterModel(coverModels.data ?? [], exportSettings.remasterModel);
+  const steps = remasterSteps(exportSettings.steps, model);
 
   const gated = !coverModels.data?.length;
 
@@ -53,7 +53,7 @@ export function RemasterAction({ songId, layers }: Props) {
       if (failed) dismiss(failed.key);
       void startRemaster(songId, mixAudio, model, {
         audioFormat: exportSettings.audioFormat,
-        steps: exportSettings.steps,
+        steps,
       });
     } catch (err) {
       setMixError(err instanceof Error ? err.message : String(err));
@@ -79,12 +79,11 @@ export function RemasterAction({ songId, layers }: Props) {
         ) : (
           <>
             <div className="remaster-badges" aria-label="Format">
-              <span className="remaster-badge">{model.toUpperCase()}</span>
-              <span className="remaster-badge">{exportSettings.steps} STEPS</span>
               <span className="remaster-badge">{exportSettings.audioFormat.toUpperCase()}</span>
               <span className="remaster-badge">CLOSEST TO SOURCE</span>
             </div>
-            <div className="hint">format and steps come from Settings › Playback &amp; Export</div>
+            <div className="hint">format comes from Settings › Playback &amp; Export</div>
+            <RemasterTune coverModels={coverModels.data ?? []} model={model} />
             {held && <AudioPreview src={held.url} label="remaster result" height={24} />}
           </>
         )}
@@ -98,7 +97,7 @@ export function RemasterAction({ songId, layers }: Props) {
         />
       ) : (
         <DockCommit
-          consequence={`runs one ACE-Step pass over the mix first, about 90 s, and isn't kept${queueSuffix(ahead)}`}
+          consequence={`${remasterConsequence(model, steps)}${queueSuffix(ahead)}`}
           label="REMASTER MIX"
           onCommit={() => void submit()}
           jobs={inFlight}

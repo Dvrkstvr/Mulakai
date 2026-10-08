@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { SettingsState } from './settingsTypes';
-import { mergeSettings } from './settingsPersist';
+import { mergeSettings, migrateSettings } from './settingsPersist';
 
 export const useSettings = create<SettingsState>()(
   persist(
@@ -61,7 +61,8 @@ export const useSettings = create<SettingsState>()(
         sampleRate: 48000,
         bitDepth: 24, // FLAC's ceiling; switching to WAV re-clamps up to 32-bit float
         mp3Bitrate: 320,
-        steps: 100,
+        steps: 0, // 0 = RECOMMENDED for the picked model
+        remasterModel: '',
         volume: 1,
       },
       forgeEnabled: false,
@@ -73,6 +74,8 @@ export const useSettings = create<SettingsState>()(
     }),
     {
       name: 'mulakai-settings',
+      version: 1,
+      migrate: (persisted, version) => migrateSettings(persisted, version) as SettingsState,
       merge: (persisted, current) => mergeSettings(current, persisted),
     },
   ),
