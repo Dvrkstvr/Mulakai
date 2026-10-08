@@ -4,7 +4,7 @@
  * order, bars and seconds). A YuE2 version (`own` score) sings its stored lyrics: split into blocks
  * (`lyricsSplit`), checked against the read's `lyric_blocks` (D-072) and paired with the sections by the one rule
  * (`lyricPairing`); each line carries its index in `text` for the client's `alignLyrics`. A transcribed version
- * lists the heard lines (word-timing segments) inside each section's seconds, a line across an edge in both
+ * lists the heard lines (word-timing segments, empty ones skipped) inside each section's seconds, a line across an edge in both
  * (as the strip counts it). No words or a mismatch: source `none`, a note saying why, the sections without lines.
  */
 import type { LyricsReading } from '../lyricsClient.js';
@@ -44,7 +44,7 @@ function blockLines(input: PanelInput, facts: ScoreFacts, sung: Map<number, numb
 
 function heardLines(sections: StripSection[], words: LyricsReading): PanelSection[] {
   return sections.map((s) => {
-    const inside = s.seconds ? words.segments.filter((w) => w.start < s.seconds![1] && w.end > s.seconds![0]) : [];
+    const inside = s.seconds ? words.segments.filter((w) => w.text.trim() && w.start < s.seconds![1] && w.end > s.seconds![0]) : [];
     return section(s, null, inside.map((w, i) => ({ n: i + 1, text: w.text.trim(), at: { seconds: [w.start, w.end] } })));
   });
 }

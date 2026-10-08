@@ -9396,3 +9396,31 @@ start.
 5. `feat/retime-reading` — after C1 merges: the reading line's RE-TIME, the stored reading replaced, marks on the version stale.
 6. `feat/retime-chat` — after C2: the planner's RE-TIME op card.
 - DESIGN.md: the READ AS row and RE-TIME, in its own commit with PR 3.
+
+## Remaster TUNE: Pick the Model and Steps (planned 2026-10-08)
+
+Reverses point 2 of "Export & Remaster — Phase 9 Design" (fixed settings, no
+dial-turning) at the owner's request, after a remaster on the 16 GB 4080 ran
+for many minutes: xl-sft at a fixed 100 steps, twice ACE-Step's recommended
+50 (docs/ace-step-1.5/GUIDE.md), with the XL weights spilling into shared GPU
+memory.
+
+- REMASTERED MIX gains a `TUNE ▸` disclosure (same as ADD LAYER's): a DIT MODEL
+  select over the cover-capable models, each with its `ditModelDescription`
+  line, and a STEPS slider (0-200). The model choice is remembered in
+  `exportSettings.remasterModel`; first run still defaults to xl-sft.
+- STEPS 0 = RECOMMENDED: the client sends the model's own count
+  (`autoSteps()`: 50 for SFT, 32 for Base). The hint line says what is
+  recommended and how a hand-set count compares ("100 steps ≈ 2× the time of
+  the recommended 50"); USE RECOMMENDED puts the slider back at 0. The slider
+  shares `exportSettings.steps` with Settings › Playback & Export's DEFAULT
+  REMASTER STEPS, so the two never disagree.
+- The default becomes RECOMMENDED. A saved blob still on the old default of
+  100 migrates to RECOMMENDED once (persist version 1); a count set later stays.
+- The commit's consequence line names the model and steps, and says an XL
+  model takes several minutes, instead of the old flat "about 90 s".
+- Server unchanged: the client always sends an explicit count.
+
+Files: `client/src/RemasterAction.tsx`, `RemasterTune.tsx` (new),
+`remasterChoice.ts` (new, pure helpers + tests), `settingsTypes.ts`,
+`settingsStore.ts`, `settingsPersist.ts`, `PlaybackExportSection.tsx`.

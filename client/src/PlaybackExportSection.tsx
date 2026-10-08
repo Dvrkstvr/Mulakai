@@ -97,10 +97,11 @@ export function PlaybackExportSection() {
       <Slider
         label="DEFAULT REMASTER STEPS"
         value={exportSettings.steps}
-        min={1}
+        min={0}
         max={200}
         step={1}
-        info="Diffusion steps for the one-shot Remaster export pass — ACE-Step's documented Base-model ceiling is 200."
+        readout={exportSettings.steps === 0 ? 'RECOMMENDED' : undefined}
+        info="Diffusion steps for the one-shot Remaster export pass. 0 = RECOMMENDED: the picked model's own count (50 for SFT, 32 for Base). More steps take proportionally longer."
         onChange={(v) => setExportSettings({ steps: v })}
       />
     </div>
