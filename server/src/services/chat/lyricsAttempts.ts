@@ -3,7 +3,7 @@
  * schema, parse, check (lyricsCheck), and on a rejection send the reply back with its reasons through the
  * score planner's `retryMessages`; at most MAX_ATTEMPTS asks. A thrown error (HTTP, timeout, a model not
  * pulled, cancel) ends it at once. The sections' tags come from the structure, never from the model.
- * One call per draft: the caller loads the draft's model and runs this. Pure (I/O injected).
+ * One run per lyrics model: the caller loads that model and runs this. Pure (I/O injected).
  */
 import { MAX_ATTEMPTS } from '../score/planAttempts.js';
 import { retryMessages } from '../score/plannerPrompt.js';
