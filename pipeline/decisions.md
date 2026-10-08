@@ -902,3 +902,19 @@ Owner: RE-TIME in the SCORE dock (RT-4, F-093) is offered only while a cover's s
 
 ## D-239 · 2026-10-08 · stage 7 (RT-4, F-093) · by: assumed (conductor)
 RE-TIME in the SCORE dock is a planStore plan that no planner made, built by `POST /api/songs/:id/score/retime`. The steps: rebuild the score from the kept reading; yue-server keeps the cover's sections by name (`keep_like`, so sections left out in Create stay out, D-240); then size it through `/v1/scores/apply` with a SET TEMPO at the new tempo, which changes nothing but returns the usual checks. So APPLY & RENDER, its re-checks, the version label ("score edit · RE-TIME n") and the chat's shared path need nothing new. The plan carries one RETIME op `{mode, bpm, from_bpm, dropped_notes, notes}`, `attempts: 0` (the checks line then shows no attempt count), and `retime: {notationId, readBpm}`. The saved version keeps that `retime`, so a re-time of a re-time stays offered, and every re-time starts from the reading (D-231). Any other op on the active take turns it off, with the reason. The reading's tempo comes from the kept beat list (TS median of `song_beats.txt`, not ABC: decision 0002). The planner prompt and opSchema do not know RETIME (the chat verb is RT-6). RE-TIME needs no planner, but it is shown only when SCORE is eligible (planner reachable), because APPLY & RENDER's `/api/ps` check needs Ollama anyway.
+
+## D-241 · 2026-10-08 · stage 7 (chat C2, CV-0, F-060) · by: assumed (builder)
+The bar map's `bars` is max(the header's bars, the last section's end), so a header that undercounts hides no section; an op whose section or block is not in the read gets `spans: []`, `whole: false` (never a guessed span); spans clamp to 1..bars. A recipe that changed nothing carries no `undo` key (#230).
+- instead of: trusting the header's bar count; guessing a span for an unknown section.
+
+## D-242 · 2026-10-08 · stage 7 (chat C2, CV-3, F-059) · by: assumed (builder)
+A repeated UNDO TURN is refused 409 "already undone" and changes nothing (architecture.md said replay 200); an undo is not a hand edit (`touched` unchanged, rev moves only when a field was put back); a non-recipe message answers 409 UNDO_REFUSED (#233).
+- instead of: replaying the first undo's 200; 404 for a non-recipe message.
+
+## D-243 · 2026-10-08 · stage 7 (chat C2, CV-6, F-056) · by: assumed (builder), deviates from chat-converge.html
+While a mark is shown, the lyrics panel keeps the section just before and just after the mark as one dim context row each (header + the line next to the mark), so shift-click can carry a mark across a section boundary; frame 2b drew a two-section mark with no way to reach the second section. DESIGN.md says so (#244).
+- instead of: keeping the full section list under a mark; shift-click only within the shown part.
+
+## D-244 · 2026-10-08 · stage 7 (chat C2, CV-5, R-040) · by: conductor
+CP-C2 (pipeline/cp-c2/2026-10-08): prompt p95 5,403 tokens, 0 context refusals, 0 silent losses, 2/21 failures — but STOP on additive drops, 5 of 11 (qwen3:14b fills `drop` with the ops a reply "replaces" even when the request only adds; every drop showed under REMOVED). Also a dropped-and-returned-identical op showed NEW + REMOVED. Fix before CV-7: SAME for an identical re-return, a prompt line that an addition keeps every pending op, re-run; if still over 3/10, a no-removal-words guard that retries once with a named reason (like D-201), never a silent override.
+- instead of: building CV-7 on a revise that loses ops on additions; overriding the model's `drop` silently.

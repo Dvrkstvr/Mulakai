@@ -79,7 +79,7 @@ describe('ChatView', () => {
     expect(out).toContain('CANCEL it first');
     expect(out).toContain('a slow Spanish ballad');
   });
-  it("the song's thread: the card folded, the song card, the sidebar a read-only song panel", () => {
+  it("the song's thread: the card folded, the song card, the sidebar the song panel, no draft fields", () => {
     const song = msg({ id: 'm3', seq: 3, role: 'assistant', kind: 'song', text: 'Saved as v1.', state: null, body: { chat_v: 1, seconds: 192, label: 'first take', number: 1 } });
     setup([msg({}), { ...RECIPE, state: 'done' }, song], FULL, 's1');
     const out = view();
@@ -88,7 +88,9 @@ describe('ChatView', () => {
     expect(out).toContain('3:12 · YUE2 · IN LIBRARY');
     expect(out).toContain('fields as rendered · read-only');
     expect(out).toContain('VERSIONS');
-    expect(out).toMatch(/aria-label="Title" disabled=""/);
+    // C2 (D-219): the song panel (VERSIONS, STYLE, TEMPO · KEY, the lyrics panel) replaces the locked draft fields.
+    expect(out).toContain('TEMPO · KEY');
+    expect(out).not.toMatch(/aria-label="Title"/);
   });
   it('a take cut at the length cap: TRUNCATED in the folded card and a rust line on the song card, never DONE', () => {
     // The server marks a recipe card done by the song card sharing its take's job id (messageView cardState).
