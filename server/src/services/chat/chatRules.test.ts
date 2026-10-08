@@ -1,15 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { describe, it, expect } from 'vitest';
-import { CHAT_RULES, ENGINE_ADAPTATION, REFERENCE_RULE, chatRules } from './chatRules.js';
+import { CHAT_RULES, ENGINE_ADAPTATION, REFERENCE_RULE, REVISE_ADAPTATION, chatRules } from './chatRules.js';
 import { PLANNER_RULES } from '../score/plannerRules.js';
 
 /** SP-5 prompt.py rules_for() with V3 and V31 on (= v3.1, the prompt that passed every bar), written by the spike's own code. */
 const V31 = readFileSync(new URL('../../../test-fakes/data/sp5-rules-v31.txt', import.meta.url), 'utf8').replace(/\r\n/g, '\n');
 
 describe('chat rules (the system prompt = a snapshot of SP-5 v3.1 rules_for())', () => {
-  it('is the spike\'s v3.1 text, with one C0 adaptation: YuE2 is the only engine (D-112 e)', () => {
+  it('is the spike\'s v3.1 text, with two adaptations: YuE2 is the only engine (D-112 e); a follow-up edit revises (C2, D-227)', () => {
     expect(V31).toContain(ENGINE_ADAPTATION.spike);
-    expect(CHAT_RULES).toBe(V31.replace(ENGINE_ADAPTATION.spike, ENGINE_ADAPTATION.c0));
+    expect(V31).toContain(REVISE_ADAPTATION.spike);
+    expect(CHAT_RULES).toBe(V31.replace(ENGINE_ADAPTATION.spike, ENGINE_ADAPTATION.c0).replace(REVISE_ADAPTATION.spike, REVISE_ADAPTATION.c2));
+    expect(CHAT_RULES).not.toContain('send the complete op list');
   });
 
   it('carries the planner\'s op reference verbatim, not its "answer with {ops}" opening', () => {

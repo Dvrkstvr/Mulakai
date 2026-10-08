@@ -4,12 +4,15 @@
  * is given) yue-server's apply and withLimits, reasons by applyReasons (all reused from score/).
  * Actions this version answers as a plain say are checked for shape only. SP-5's three guards
  * (replyGuards): an edit of a section the song lacks, a say naming another key than the HEADER's,
- * a rewritten lyric block in another language (only after an apply). Pure (I/O injected).
+ * a rewritten lyric block in another language (only after an apply). C2 (F-058, D-227): with a pending plan an
+ * edit is a revise, `{drop, ops}` read and merged by reviseReply.readRevise; a mark bounds only the returned ops
+ * (D-214); the merged plan is applied once, and a refused apply goes back with the merge legend first. Pure (I/O injected).
  */
 import { applyReasons } from '../score/planAttempts.js';
 import { checkOps } from '../score/opSchema.js';
+import { readRevise } from '../score/reviseReply.js';
 import { withLimits } from '../score/scoreLimits.js';
-import type { ApplyResult, Op, ScoreFacts } from '../score/planTypes.js';
+import type { ApplyResult, Op, ScoreFacts, Since } from '../score/planTypes.js';
 import { SCALPEL_KINDS } from './actionSchema.js';
 import { markFit } from './markFit.js';
 import { recipeProblems } from './recipeRules.js';
@@ -28,9 +31,13 @@ export interface CheckContext {
   markRange?: [number, number] | null;
   /** The person asked for the whole song (asksWholeSong): a whole-song op under a mark is allowed (C1 live B2). */
   markWhole?: boolean;
+  /** C2 (F-058): the pending plan's ops this turn revises; absent = a fresh plan. */
+  pending?: Op[];
 }
 export interface CheckDeps { apply?: (ops: Op[]) => Promise<ApplyResult>; language?: DetectLanguage }
-export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null } | { ok: false; reasons: string[] };
+/** `revised`: a revise's NEW / CHANGED / SAME per merged op and the REMOVED pending ops (the card's `since`). */
+export type Revised = Omit<Since, 'planId'>;
+export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null; revised?: Revised } | { ok: false; reasons: string[] };
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -59,15 +66,19 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   if (missing.length) return fail(...missing);
   if (ctx.shapeOnly.includes('edit')) return { ok: true, reply: reply(json.ops as Op[]), applied: null };
   if (!ctx.facts) return fail('there is no song to edit yet: propose a recipe for a new song instead');
-  const ops = checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
-  if (!ops.ok) return fail(...ops.reasons);
-  const outside = ctx.markRange ? markFit(ops.ops, ctx.markRange, ctx.facts, ctx.markWhole).reasons : [];
+  const revised = ctx.pending ? readRevise(json, ctx.pending, ctx.facts, ctx.phraseBars) : null;
+  const read = revised ?? checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
+  if (!read.ok) return fail(...read.reasons);
+  const returned = ctx.pending ? checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars, 0) : read; // a mark bounds these only (D-214)
+  const outside = ctx.markRange && returned.ok ? markFit(returned.ops, ctx.markRange, ctx.facts, ctx.markWhole).reasons : [];
   if (outside.length) return fail(...outside);
-  if (!deps.apply) return { ok: true, reply: reply(ops.ops), applied: null };
-  const applied = withLimits(await deps.apply(ops.ops), { ops: ops.ops, sections: ctx.facts.sections, blocks: ctx.facts.lyric_blocks });
-  if (!applied.ok) return fail(...applyReasons(applied));
+  const revise = revised?.ok ? { legend: [revised.legend], revised: { marks: revised.merged.marks, removed: revised.merged.removed } } : null;
+  const done = (applied: ApplyResult | null): Checked => ({ ok: true, reply: reply(read.ops), applied, ...(revise ? { revised: revise.revised } : {}) });
+  if (!deps.apply) return done(null);
+  const applied = withLimits(await deps.apply(read.ops), { ops: read.ops, sections: ctx.facts.sections, blocks: ctx.facts.lyric_blocks });
+  if (!applied.ok) return fail(...(revise?.legend ?? []), ...applyReasons(applied));
   const language = deps.language ? await lyricLanguageReasons(applied, deps.language) : [];
-  return language.length ? fail(...language) : { ok: true, reply: reply(ops.ops), applied };
+  return language.length ? fail(...language) : done(applied);
 }
 
 export async function checkReply(json: unknown, ctx: CheckContext, deps: CheckDeps): Promise<Checked> {

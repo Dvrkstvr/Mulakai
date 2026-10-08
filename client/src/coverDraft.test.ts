@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { aceCoverLocks, engineLockedBy, readingAbc, sourceLockedBy, withRetime, withSourceChange, withoutRetime, type CoverScore } from './coverDraft';
+import { aceCoverLocks, engineLockedBy, readingAbc, retimeRowKey, sourceLockedBy, withRetime, withSourceChange, withoutRetime, type CoverScore } from './coverDraft';
 import type { Source } from './createDraft';
 
 const transcribed: CoverScore = {
@@ -104,5 +104,23 @@ describe('withRetime / withoutRetime (RE-TIME, F-091)', () => {
   it('drops the section picks when the rebuilt score has other sections', () => {
     expect(withRetime(score, result('X:1\nQ:1/4=70\nK:C\n% intro\nV: Vocal\nC16|\n'), 96).dropped).toBeUndefined();
     expect(withoutRetime(fromFile)).toBe(fromFile);
+  });
+});
+
+describe('retimeRowKey (F-091 verify: a pick never outlives its score)', () => {
+  const READ = 'X:1\nQ:1/4=140\nK:C\n% verse\nV: Vocal\nC8|\n';
+  const s: CoverScore = { ...transcribed, abc: READ, notationId: 'n1' };
+  const half = { abc: READ.replace('140', '70'), measures: 1, bpm: 70, readBpm: 140, vocalNotes: 1, insNotes: 0, notes: 1, droppedNotes: 0, warnings: [] };
+
+  it('changes when the re-time is applied or undone, the reading changes, or the bundle changes', () => {
+    const re = withRetime(s, half, 2);
+    expect(retimeRowKey(re)).not.toBe(retimeRowKey(s));
+    expect(retimeRowKey(withoutRetime(re))).toBe(retimeRowKey(s));
+    expect(retimeRowKey({ ...s, abc: READ.replace('C8', 'D8') })).not.toBe(retimeRowKey(s));
+    expect(retimeRowKey({ ...s, notationId: 'n2' })).not.toBe(retimeRowKey(s));
+  });
+
+  it('stays put while a section is left out', () => {
+    expect(retimeRowKey({ ...s, dropped: [0] })).toBe(retimeRowKey(s));
   });
 });

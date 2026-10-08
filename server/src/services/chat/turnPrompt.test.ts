@@ -1,11 +1,13 @@
 import { describe, it, expect } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
-import { CHAT_RULES } from './chatRules.js';
+import { CHAT_RULES, chatRules } from './chatRules.js';
+import { chatPendingLines } from './turnRevise.js';
+import { LEGEND_HEAD } from '../score/reviseReply.js';
 import { HISTORY_MAX, REPLY_LINE, historyLines, refusedReply, turnMessages, turnRetry } from './turnPrompt.js';
 import { songStateLines } from './songState.js';
 import { RECIPE, facts206, readingFixture } from '../../../test-fakes/chatScripts.js';
 import type { ChatMessage } from './chatTypes.js';
-import type { ScoreFacts } from '../score/planTypes.js';
+import type { Op, Plan, ScoreFacts } from '../score/planTypes.js';
 
 const facts = contract('read-ok').response.body.facts as ScoreFacts;
 let seq = 0;
@@ -123,5 +125,33 @@ Return a corrected, complete reply; write its message anew, about the corrected 
     const at = ['SONG: "X"', 'MARK (…)', 'REQUEST: x'].map((s) => user.content.indexOf(s));
     expect(at.every((n, i) => n >= 0 && (i === 0 || n > at[i - 1]))).toBe(true);
     expect(turnMessages(base)[1].content).not.toContain('MARK');
+  });
+
+  it('C2 (F-058): a refused revise goes back with its drop; the merge legend is never cut, other reasons are', () => {
+    expect(refusedReply(JSON.stringify({ action: 'edit', message: 'm', drop: [2, 3], ops: [{ op: 'SET_TEMPO', bpm: 80 }] })))
+      .toBe('(your refused reply, shortened: action edit; drop: 2, 3; ops: 1 SET_TEMPO bpm=80)');
+    const legend = `${LEGEND_HEAD} ${'op 1 = your op 1 (replaces pending op 1), '.repeat(10)}`;
+    const next = turnRetry(turnMessages(base), [{ reply: '{}', reasons: [legend, 'c'.repeat(500)] }]);
+    expect(next[3].content).toContain(`- ${legend}\n`);
+    expect(next[3].content).toContain(`- ${'c'.repeat(300)}…`);
+  });
+
+  it('R-040: the PENDING PLAN block of a heavy 6-op plan stays under 3k characters, and the revise prompt on the chorded 206-bar song under 8k tokens', () => {
+    const chords = Array.from({ length: 32 }, (_, i) => ({ bar: 47 + (i >> 1), beat: 1 + 2 * (i % 2), root: 'A', quality: 'm7' }));
+    const ops = [
+      { op: 'SET_TEMPO', bpm: 88 }, { op: 'TRANSPOSE', semitones: -2 }, { op: 'EDIT_STYLE', style: 'jazz trio, brushed drums, upright bass, warm vintage' },
+      { op: 'REHARMONIZE', from_bar: 47, to_bar: 62, chords }, { op: 'REWRITE_LYRICS', block: 2, tag: '[Chorus]', occurrence: 1, lines: Array(8).fill('a line of new words here ok') },
+      { op: 'REPEAT', section: 3, label: 'chorus' },
+    ] as unknown as Op[];
+    const plan = { request: 'make the chorus jazzier and slower', ops, revision: 1, verdicts: ops.map((o, i) => ({ index: i + 1, op: o.op, ok: true, reason: null })) } as unknown as Plan;
+    const pending = chatPendingLines(plan);
+    expect(pending.join('\n').length).toBeLessThan(3000); // 2,863 measured
+    const f = facts206();
+    const song = { title: 'Long Song', style: 'rock', versions: [{ number: 1, label: 'first generation', active: true }], facts: f, reason: null };
+    const history = Array.from({ length: 4 }, () => [msg('user', 'text', 'x'.repeat(300)), msg('assistant', 'say', 'y'.repeat(300))]).flat();
+    const rules = chatRules(['ask', 'edit', 'scalpel', 'say']);
+    const msgs = turnMessages({ rules, state: songStateLines({ library: Array(50).fill('A library song title'), song }), facts: f, request: 'and slow it down a bit', pending, history });
+    expect(msgs.reduce((n, m) => n + m.content.length, 0) / 3).toBeLessThan(8000); // 19,019 characters measured: 6.3k at 3 a token
+    expect(msgs[1].content.indexOf('PENDING PLAN (plan 1')).toBeLessThan(msgs[1].content.indexOf('REQUEST: and slow it down a bit'));
   });
 });

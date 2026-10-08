@@ -5,6 +5,7 @@
  * (docs/decisions/0002). Pure.
  */
 import { opsArraySchema } from '../score/opSchema.js';
+import { dropSchema } from '../score/reviseReply.js';
 import type { ScoreFacts } from '../score/planTypes.js';
 import { BPM, ENGINES, KEYS, LANGUAGES, LINES, RECIPE_LIMITS, SECTION_TAGS, SUNG_TAGS, TIME_SIGNATURES } from './recipeRules.js';
 import type { ScalpelKind, TurnAction } from './chatTypes.js';
@@ -46,22 +47,25 @@ export function recipeSchema(reference = false): Schema {
  * whole-song op (tempo, key, style) is left out unless `wholeSong`: the person asked for the whole song (C1 live B2). */
 export interface SchemaInput {
   facts: ScoreFacts | null; phraseBars: number; allowed: TurnAction[]; reference?: boolean; barRange?: [number, number] | null; wholeSong?: boolean;
+  /** C2 (F-058, D-227): the pending plan's op count; an edit then revises it: `drop` + only what changes (ops may be empty). */
+  pendingCount?: number;
 }
 
-function editOps(facts: ScoreFacts | null, phraseBars: number, barRange: [number, number] | null | undefined, wholeSong: boolean): Schema {
-  const ops = opsArraySchema(facts ?? NO_SONG_FACTS, phraseBars, 1, barRange ?? undefined) as { items: { anyOf: Schema[] } };
+function editOps(facts: ScoreFacts | null, phraseBars: number, barRange: [number, number] | null | undefined, wholeSong: boolean, minItems: number): Schema {
+  const ops = opsArraySchema(facts ?? NO_SONG_FACTS, phraseBars, minItems, barRange ?? undefined) as { items: { anyOf: Schema[] } };
   if (!barRange || wholeSong) return ops;
   const names = (o: Schema) => { const p = (o as { properties: { op: { const?: string; enum?: string[] } } }).properties.op; return p.enum ?? [p.const ?? '']; };
   const bounded = ops.items.anyOf.filter((o) => !names(o).every(isWholeSongOp));
   return { ...ops, items: { anyOf: bounded } };
 }
 
-export function turnSchema({ facts, phraseBars, allowed, reference = false, barRange, wholeSong = false }: SchemaInput): Schema {
+export function turnSchema({ facts, phraseBars, allowed, reference = false, barRange, wholeSong = false, pendingCount }: SchemaInput): Schema {
   const assumptions = arr(str(1, 160), 0, 4);
+  const drop: Record<string, Schema> = pendingCount ? { drop: dropSchema(pendingCount) } : {};
   const parts: Record<TurnAction, () => Schema> = {
     ask: () => action('ask', { message: str(1, MESSAGE_MAX), choices: arr(str(1, 80), 2, 4) }),
     recipe: () => action('recipe', { message: str(1, MESSAGE_MAX), assumptions, recipe: recipeSchema(reference) }),
-    edit: () => action('edit', { message: str(1, MESSAGE_MAX), assumptions, ops: editOps(facts, phraseBars, barRange, wholeSong) }),
+    edit: () => action('edit', { message: str(1, MESSAGE_MAX), assumptions, ...drop, ops: editOps(facts, phraseBars, barRange, wholeSong, pendingCount ? 0 : 1) }),
     scalpel: () => action('scalpel', { message: str(1, MESSAGE_MAX), kind: { enum: SCALPEL_KINDS }, target: str(1, 80), details: str(0, 300) }),
     analyze: () => action('analyze', { message: str(1, MESSAGE_MAX), reference: str(1, 120), plan: str(1, 300) }),
     say: () => action('say', { message: str(1, SAY_MAX) }),
