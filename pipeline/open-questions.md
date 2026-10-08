@@ -343,3 +343,27 @@ REPAINT's prompt on a song with a caption. Default: the instruction only (as tod
 
 ## Q-124 · assumable · stage 4 (engine pairing, F-087) · open
 `cover-nofsq` as REMASTER's path or a new POLISH verb. Default: REMASTER's path, decided by the A/B (no new verb on the dock).
+
+## Q-125 · assumable · stage 4 (RT, F-091/F-094) · open
+When is a BPM "only slightly off" and so SET TEMPO, not RE-TIME? Default: a named BPM within ±8 % of the read tempo is SET TEMPO; RE-TIME is offered for anything else, HALF/DOUBLE always. Alternative: always RE-TIME for a transcription (SET TEMPO only on YuE2 songs).
+
+## Q-126 · assumable · stage 4 (RT, F-093) · open
+The SCORE dock's RE-TIME on a song with no kept bundle (a YuE2 original, or a cover made before RT). Default: not offered; a cover without one says "no saved reading · TRANSCRIBE the source again in Create". Alternative: re-transcribe the cover's own audio.
+
+## Q-127 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+Is the cover panel's piano preview cheap to redraw after a re-time? Unverified (yue-server renders `piano_mix.wav` inside the transcription, `transcriber.py`). Default: not redrawn; the old preview stays, dimmed and tagged STALE with its tempo, until the next TRANSCRIBE. Alternative: redraw it in the same step if SP-8 shows under ~5 s.
+
+## Q-128 · assumable · stage 5 (RT, design/retime.html) · open
+The working time in RE-TIME's lines. Default: "a few seconds" until SP-8 measures it, then "about N s" from a constant (F-090 accepts under 10 s). The TRANSCRIBE AGAIN GPU time uses the calibrated figure (Q-099).
+
+## Q-129 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+BPM… range. Default: whole numbers 40–240; HALF or DOUBLE landing outside it is a disabled chip with the reason. Alternative: 30–300.
+
+## Q-130 · assumable · stage 5 (RT, F-091, design/retime.html) · open
+A slightly-off tempo on the cover panel. Default: no SET TEMPO there; the hint points to the SCORE dock once the cover exists. Alternative: a tempo nudge field in the cover panel.
+
+## Q-131 · assumable · stage 5 (RT, D-207, design/retime.html) · open
+The refusal for a gone saved reading says "gone" with no date. Alternative: say when it was cleared (30-day sweep).
+
+## Q-132 · assumable · stage 5 (RT, F-093/F-094, design/retime.html) · open
+A RE-TIME stands alone in a plan: the planner drops other ops (bars change under them) and says so. Alternative: allow RE-TIME first in a list with later ops on the new bars.
