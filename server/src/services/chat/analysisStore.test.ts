@@ -102,6 +102,22 @@ describe('analysisStore', () => {
     expect(store.wordTimings(v)).toBeNull();
   });
 
+  it("versionLyrics: params_json.request's lyrics and style (C2, D-217); absent, wrong-typed or garbage is null", () => {
+    const { ids: [v, w] } = song([{ params: { engine: 'yue2', request: { style: 'dark pop', lyrics: '[Verse]\nhey' } } }, { params: { request: { lyrics: 3 } } }]);
+    expect(store.versionLyrics(v)).toEqual({ lyrics: '[Verse]\nhey', style: 'dark pop' });
+    expect(store.versionLyrics(w)).toEqual({ lyrics: null, style: null });
+    db.prepare(`UPDATE versions SET params_json = '{x' WHERE id = ?`).run(w);
+    expect(store.versionLyrics(w)).toEqual({ lyrics: null, style: null });
+    expect(store.versionLyrics('nope')).toEqual({ lyrics: null, style: null });
+  });
+
+  it("the reading chain's older reading carries that version's own stored text", () => {
+    const a = crypto.randomUUID();
+    const { ids } = song([{ id: a, params: { request: { style: 'old', lyrics: 'old words' } } }, { params: scoreEdit(a, [], { request: { lyrics: 'new' } }) }]);
+    store.writeAnalysis(analysis(a));
+    expect(store.readingChain(ids[1]).older?.text).toEqual({ lyrics: 'old words', style: 'old' });
+  });
+
   it('the reading chain: the latest analyzed ancestor and the bars moved since (a CUT by its section)', () => {
     const a = crypto.randomUUID();
     const b = crypto.randomUUID();
