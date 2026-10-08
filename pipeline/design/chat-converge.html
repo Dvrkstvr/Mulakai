@@ -1,0 +1,166 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>CHAT CONVERGE</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--li:#7B4B94;--lt:#A97FC1;--ln:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712;--bl:1px solid var(--l);--bh:1px solid var(--h)}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:var(--bl);padding:6px 0;margin:26px 0 12px}
+li{max-width:1100px}.hn,.tm,.sg i,.fk,.rl,.cxl,.sx,.ls i,.tg,.ft,.mk2,.sn2,.bc,.bi,.bu em,.sr span,.rm,.df,.rr{font-family:ui-monospace,monospace}.hn{font-size:10px;color:var(--w)}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.nt{max-width:760px;margin-top:6px;font-size:12px;color:var(--m)}
+.fr{--z:.6;width:820px;height:461px;overflow:hidden;border:var(--bh);cursor:zoom-in}.fr.big{width:1368px;height:770px;cursor:zoom-out}.fr.big .sc{transform:none}
+.sc{width:1366px;height:768px;background:var(--c);transform:scale(var(--z));transform-origin:0 0;position:relative;overflow:hidden;font-size:12px}
+.hdr{height:40px;padding:12px 20px;border-bottom:var(--bl);background:var(--p);font-size:10px;letter-spacing:2px;color:var(--t)}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}.p>span{display:inline-block;transform:skewX(10deg)}
+.ch{background:var(--s);color:var(--sk);padding:4px 11px;font-size:10px}.ch.fz{background:var(--st);color:var(--s);border:1px solid var(--s)}
+.ac,.q{font-size:11px;border:var(--bh);color:var(--m);padding:6px 12px}.ac{background:var(--a);border-color:var(--a);color:var(--c);padding:7px 18px}.off{opacity:.35}
+.ttl{height:49px;display:flex;align-items:center;gap:14px;padding:0 24px;border-bottom:var(--bl)}.ttl h3{margin:0;font-size:20px;letter-spacing:3px}
+.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.bd{position:absolute;top:89px;bottom:0;left:0;right:0;display:flex}
+.mn{flex:1;min-width:0;display:flex;flex-direction:column}.th{flex:1;min-height:0;overflow:hidden;padding:12px 0;display:flex;flex-direction:column;gap:10px;align-items:center;justify-content:flex-end}.th>*{width:min(760px,94%);flex:none}
+.um{margin-left:auto;max-width:560px;background:var(--r);padding:9px 12px}.am{color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}.am b{color:var(--t);font-weight:400}
+.cp{flex:none;border-top:var(--bl);background:var(--p);padding:8px 0 12px;display:flex;flex-direction:column;gap:7px}.cp>*{width:min(760px,94%);margin:0 auto}.cl,.cr2{display:flex;gap:12px;align-items:center}.cl .in{flex:1}.cr2{height:26px}
+.cxl{height:14px;font-size:10px;line-height:14px;color:var(--m)}.in{border:var(--bh);background:var(--c);padding:9px 11px;color:var(--w);height:40px}
+.snd{padding:7px 12px;border:1px solid var(--a);color:var(--a);font-weight:700;font-size:11px}
+.sb{width:360px;flex:none;border-left:var(--bl);background:var(--p);overflow:hidden}.sbh{display:flex;justify-content:space-between;padding:8px 14px;border-bottom:var(--bl)}
+.fd{display:grid;grid-template-columns:90px 1fr;gap:8px;padding:6px 14px;border-bottom:var(--bl);align-items:center}.fk{font-weight:700;font-size:10px;color:var(--w)}.fa{background:var(--sk);box-shadow:inset 3px 0 var(--s)}
+.tg{font-size:9px;letter-spacing:1px;color:var(--s);margin-left:6px;font-style:normal}.tg.y{color:var(--m)}.ib{display:inline-block;border:var(--bh);background:var(--c);padding:2px 8px;margin:0 6px 2px 0}
+.cd{border:var(--bh);background:var(--p)}.cd.sup{opacity:.45}.hd{display:flex;gap:10px;padding:8px 14px;border-bottom:var(--bl)}.hd .hn{margin-left:auto}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:var(--bl)}.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}
+.wn{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.wn div{flex:1}.wn b{color:var(--rt)}
+.j{padding:7px 10px;border:1px dashed var(--s);font-size:10px;letter-spacing:1px;color:var(--s);display:flex;justify-content:space-between;align-items:center}.j em{font-style:normal;letter-spacing:0;color:var(--m)}
+.vp{border:1px solid var(--li);background:var(--ln);color:var(--lt);padding:3px 10px;font-size:11px}
+.pl{flex:none;padding:5px 24px;background:var(--p);border-bottom:var(--bl)}.pr{display:flex;align-items:center;gap:10px;height:32px}.tm{font-size:11px;color:var(--m)}.rl{height:16px;margin-top:3px;font-size:10px;color:var(--m)}
+.sg{display:flex;gap:3px}.sg i,.bi{font-size:9px;font-style:normal;color:var(--m);background:var(--r);text-align:center;overflow:hidden;white-space:nowrap;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}.sg i{padding:4px 0;height:20px}.sg i.on{background:var(--s);color:var(--sk)}.sg i.pt{background:var(--st);color:var(--s)}
+.stk{position:relative;margin-top:3px}.rr{position:relative;height:13px;font-size:9px;line-height:13px;color:var(--w)}.rr span{position:absolute;top:0;padding-left:2px;border-left:var(--bh)}
+.wf{height:36px;background:repeating-linear-gradient(90deg,var(--h) 0 2px,transparent 2px 4px)}.mk{position:absolute;top:0;bottom:0;background:var(--st);border:solid var(--s);border-width:0 1px}.ph{position:absolute;top:0;bottom:0;width:2px;background:var(--s)}
+.sx{display:flex;justify-content:space-between;padding:5px 14px 2px;font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}.sx.m,.sx.pp{color:var(--s)}.sx.d{margin-top:6px;border-top:1px dashed var(--h);padding-top:8px}
+.ls{display:grid;grid-template-columns:34px 1fr;height:19px;line-height:19px;color:var(--m);white-space:nowrap;padding-right:14px}.ls>:last-child{overflow:hidden;text-overflow:ellipsis}.ls i{font-size:9px;font-style:normal;color:var(--w);text-align:right;padding-right:10px}
+.ls.m{background:var(--st);box-shadow:inset 2px 0 var(--s);color:var(--t)}.ls.w{color:var(--t)}.ls.o{height:15px;line-height:15px;font-size:11px}s{color:var(--w)}.ft,.rm{padding:4px 14px;font-size:10px;color:var(--w)}.ft.i{padding-left:48px}
+.sr{display:grid;grid-template-columns:76px 46px 56px 1fr;gap:8px;padding:5px 14px;border-bottom:var(--bl);font-size:11px;color:var(--m)}.sr b{color:var(--t);font-weight:400}.sr em{font-style:normal;overflow:hidden;white-space:nowrap;color:var(--w)}
+.fm{width:360px;min-height:250px;border:var(--bh);background:var(--p)}.nb{margin:10px 14px;color:var(--m);font-size:11px}.nb b{color:var(--t)}
+.sn2{padding:6px 14px 0;font-size:10px;color:var(--w)}.mpw{padding:8px 14px 4px}.ro{display:grid;grid-template-columns:62px 130px 1fr;gap:8px;padding:5px 14px;border-top:var(--bl);font-size:11px;color:var(--m)}.ro b{color:var(--t);font-weight:400}.ro .mk2{font-size:9px;letter-spacing:1px}.ro .lw{color:var(--w)}.ro.hv{background:var(--sk);box-shadow:inset 3px 0 var(--s)}
+.df{display:grid;grid-template-columns:20px 1fr 1fr;gap:1px 12px;padding:2px 14px 6px 76px;font-size:11px;line-height:16px;color:var(--w)}.df b{font-weight:400;color:var(--t)}
+.bb,.bt,.bu,.bm{position:relative}.bb{height:18px}.bi{position:absolute;top:0;height:18px;line-height:18px}.bi.nc{clip-path:none}
+.bi.cu{background:repeating-linear-gradient(135deg,var(--r) 0 4px,var(--l) 4px 5px);color:var(--w);outline:1px dashed var(--h);outline-offset:-1px}
+.bt{height:14px;margin-top:2px;background:var(--r)}.e{position:absolute;top:0;bottom:0;min-width:2px;background:var(--st);border:solid var(--s);border-width:0 1px}.e.lit{background:var(--s)}
+.wh{position:absolute;inset:0;background:repeating-linear-gradient(135deg,var(--st) 0 4px,var(--l) 4px 5px)}.bu{height:13px}.bu em{position:absolute;top:0;font-style:normal;font-size:9px;line-height:13px;color:var(--w);padding-left:2px;border-left:var(--bh)}.bc{font-size:10px;color:var(--m);margin-top:2px}
+.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:8px 0;max-width:1100px}.w7{width:760px}.w3{width:370px}
+</style></head><body>
+<h1>CHAT CONVERGE · panel, revised card, bar map, UNDO TURN</h1>
+<div class="hn">stage 5 · DT-C2 · F-056..F-060 · D-213..D-226 · tokens: DESIGN.md · frames 1366×768 at 60 %, click to zoom</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li>What no mockup drew: the song sidebar and lyrics panel beside <b>C1's player above the composer</b>; the <b>revised edit card</b>; the <b>bar map</b> at 32, 120 and 200 bars; <b>UNDO TURN</b> offered, done, not offered.</li>
+<li>Evidence: scope.md C2, architecture.md, DESIGN.md (<i>documented</i>); heights measured in this page's DOM (<i>inferred</i> for the app). No new hue.</li>
+</ul>
+
+<h2>1 · THE FRAME · real size, thread measured</h2><div class="g" id="fm"></div>
+<h2>2 · THE SIDEBAR PANEL · states (real width)</h2><div class="g" id="pn"></div>
+<h2>3 · THE EDIT CARD, REVISED · card column 760 px</h2><div class="g" id="rv"></div>
+<h2>4 · THE BAR MAP</h2><div class="g" id="bmz"></div>
+<h2>5 · UNDO TURN · new-song draft thread</h2><div class="g" id="un"></div><div class="g" id="uc" style="margin-top:14px"></div>
+<h2>OPTIONS · A (recommended) is drawn above</h2><div class="g" id="op"></div>
+<h2>DECISIONS (assumed until the owner signs off, D-226)</h2><div id="dec"></div>
+
+<h2>OPEN QUESTIONS (also in pipeline/open-questions.md)</h2>
+<ul>
+<li><b>Q-140</b> assumable: the superseded card dims in full (A, frame 1a). Alternative: folds to one line (B).</li>
+<li><b>Q-141</b> assumable: a 200-bar map is one row, 3.65 px a bar (A, 4b). Alternative: two rows of 100 (B).</li>
+<li><b>Q-142</b> assumable (not drawn): UNDO TURN stays on older turns and names why it kept a field. Alternative: latest turn only.</li>
+<li><b>Q-143</b> assumable: a row lights its bars on hover and keyboard focus; the map is not interactive.</li>
+<li><b>Q-144</b> assumable: APPLY on the old card is off while a revise runs (3c). Alternative: left on.</li>
+<li>Blocking: none. Needs the owner's sign-off before CV-6..CV-8 merge (D-226).</li>
+</ul>
+
+<h2>CHECK ON A REAL DEVICE (desktop, 1366×768)</h2>
+<ul>
+<li>Thread still 400 px with the browser toolbar? 9 px band labels legible at 200 bars? Sky tint, solid sky and hatch apart? Struck 11 px line readable?</li>
+</ul>
+
+<script>
+const $=i=>document.getElementById(i);
+const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
+const SEC=[["INTRO",8],["VERSE 1",8],["VERSE 2",8],["CHORUS 1",8],["VERSE 3",8],["CHORUS 2",8],["BRIDGE",8],["CHORUS 3",16],["OUTRO",8]];
+const SG=m=>{let c=1;return`<div class="sg">`+SEC.map(([k,l])=>{const b=c+l-1,o=m?Math.max(0,Math.min(b,m[1])-Math.max(c,m[0])+1)/l:0;c+=l;return`<i style="flex:${l}" class="${o>=1?"on":o>0?"pt":""}">${k}</i>`}).join("")+"</div>"};
+const PL=m=>`<div class="pl"><div class="pr"><span class="tm">❚❚ 1:41 / 3:12</span>${P("vp","v4 · quieter bridge")}</div>${SG(m)}<div class="stk">${m?`<div class="mk" style="left:${(m[0]-1)/.8}%;width:${(m[1]-m[0]+1)/.8}%"></div>`:""}<div class="rr">${Array.from({length:10},(_,i)=>`<span style="left:${i*10}%">${i*8+1}</span>`).join("")}</div><div class="wf"></div><div class="ph" style="left:52.6%"></div></div><div class="rl">READ v4 · 9 SECTIONS · 22 LINES · 100 BPM</div></div>`;
+const FR=i=>`<div class="fr" onclick="this.classList.toggle('big')"><div class="sc"><div class="hdr">MULAKAI</div>${i}</div></div>`;
+const O=(h,fr,n)=>`<div class="o"><h4>${h}<span class="mz"></span></h4>${fr}${n?`<div class="nt">${n}</div>`:""}</div>`;
+const TTL=t=>`<div class="ttl"><h3>${t}</h3><span class="hn">CHAT | ${t=="NEW SONG"?"FORM":"EDITOR"}</span></div>`;
+const um=(t,x)=>`<div class="um">${t}${x||""}</div>`,am=t=>`<div class="am">${t}</div>`;
+const CP=o=>`<div class="cp">${o.ch?`<div class="cr2">${P("ch",o.ch)}<span class="hn" style="margin-left:auto"><u>WHAT IT SEES ▾</u></span></div>`:""}${o.cx?`<div class="cxl">${o.cx}</div>`:""}<div class="cl"><div class="in">${o.ph||"Say what to change, or click a section to talk about it…"}</div><div class="snd">SEND ↵</div></div></div>`;
+const FD=(k,v,s,old)=>`<div class="fd ${s=="a"?"fa":""}"><div class="fk">${k}</div><div>${old?`<s>${old}</s> `:""}${v}${s=="a"?'<em class="tg">ASSISTANT</em>':s=="y"?'<em class="tg y">YOURS</em>':""}</div></div>`;
+const SB=x=>`<div class="sb"><div class="sbh"><span class="lb">SONG · LONG WAY DOWN</span><span class="hn">HIDE ▸</span></div>${FD("VERSIONS","v1 v2 v3 "+P("vp","v4 ●"))}${FD("STYLE","indie pop, male voice")}${FD("TEMPO · KEY","100 BPM · A MINOR · 4/4")}${x}</div>`;
+const CO=["Ich nehm den langen Weg zu dir","Das Licht im Flur brennt noch für mich","Und alles, was ich zurücklass,","bleibt wie ein Schatten hinter mir"],CN=["Ich nehm den langen Weg zu dir","Das Licht im Flur brennt wieder hell","Und alles, was ich zurücklass,","wird leise Morgenlicht in mir"],V3=["Die Straße glänzt im Regen,","ich zähl die Schritte bis zum Tor,","kein Wort, das mich noch halten kann,","und niemand steht davor."];
+const PH=(t,r)=>`<div class="sbh"><span class="lb">${t}</span><span class="hn">${r||""}</span></div>`;
+const SX=(n,r,c)=>`<div class="sx ${c||""}"><span>${n}</span><span>${r}</span></div>`;
+const L=(b,t,c)=>`<div class="ls ${c||""}"><i>${b}</i><span>${t}</span></div>`;
+const C2L=(m,pd)=>CO.map((t,i)=>{const k=m.includes(i)?"m":"",ch=pd&&CN[i]!=t;return(ch?L("",`<s>${t}</s>`,"o "+k):"")+L(ch?"~":41+2*i,ch?CN[i]:t,k+(ch?" w":""))}).join("");
+const FT=(t,c)=>`<div class="ft ${c||""}">${t}</div>`,MO=t=>FT(t,"i");
+const LIST=PH("LYRICS · 32 LINES · DE","CLICK TO MARK")+SEC.map(([n,l],i)=>{const b=1+SEC.slice(0,i).reduce((a,s)=>a+s[1],0),c=i%8?l>8?8:4:0;return`<div class="sr" style="opacity:${c?1:.5}"><b>${n}</b><span>${b}–${b+l-1}</span><span>${c?c+" LINES":"NONE"}</span><em>${c?[CO,V3][i%2][0]:""}</em></div>`}).join("");
+const PEND=PH("LYRICS · CHORUS 2","◂ ALL SECTIONS")+SX("CHORUS 2 · REWRITE PENDING","BARS 41–48 · 1:36","m")+C2L([],1)+FT("old struck, new under it, until APPLY or the card is replaced");
+const FM=(h,b,n)=>O(h,`<div class="fm">${b}</div>`,n);
+$("pn").innerHTML=
+FM("<b>a · ONE LINE</b> · section list: frame 1a",PH("LYRICS · CHORUS 2","1 OF 4 LINES")+SX("CHORUS 2","BARS 41–48 · 1:36")+C2L([1])+FT("shift-click extends · header marks the section · double-click plays"))+
+FM("<b>b · SHIFT-CLICK ACROSS</b> · bars 37–44",PH("LYRICS · 2 SECTIONS · 4 LINES","◂ ALL SECTIONS")+SX("VERSE 3","BARS 37–40 · 2 OF 8","m")+MO("2 MORE LINES NOT MARKED")+L(37,V3[2],"m")+L(39,V3[3],"m")+SX("CHORUS 2","BARS 41–44","d")+L(41,CO[0],"m")+L(43,CO[1],"m")+MO("2 MORE LINES NOT MARKED"))+
+FM("<b>c · READING v5</b>",PH("LYRICS · READING v5…","MARKS BY BARS")+`<div style="opacity:.55">${SX("CHORUS 2","BARS 41–48","m")+C2L([])}</div>`,"Old panel dimmed; marks still work by bars.")+
+FM("<b>d · READ FAILED</b>",PH("LYRICS · NOT READ")+`<div class="wn" style="margin:10px 14px"><div><b>COULDN'T READ v5</b> · lyrics-server did not answer in 60 s</div>${P("q","RETRY")}</div>`)+
+FM("<b>e · NO WORDS</b>",PH("LYRICS · NONE","INSTRUMENTAL")+`<div class="nb"><b>NO LYRICS IN THIS VERSION</b><br>Ask the chat for some: it answers with a proposal.<div style="margin-top:10px">${P("q","ASK THE CHAT")}</div></div>`)+
+FM("<b>f · PROPOSED</b> · rewrite outside the mark",PH("LYRICS · VERSE 3","◂ ALL SECTIONS")+SX("VERSE 3","BARS 33–40 · 1:17","m")+V3.map((t,i)=>L(33+2*i,t)).join("")+SX(`CHORUS 2 <em class="tg">PROPOSED</em>`,"BARS 41–48","d pp")+C2L([],1)+FT("the mark stays on VERSE 3"),"F-057 edge. A marked section: frame 1b.");
+const BM=o=>{const a=o.a||1,b=o.b||o.n,n=b-a+1,W=o.W||730,u=W/n,x=k=>(k-a)*u,bars=new Set();let c=1;
+const bd=o.S.map(([k,l])=>{const s=c,e=c+l-1;c+=l;if(e<a||s>b)return"";const w=(Math.min(e,b)-Math.max(s,a)+1)*u,t=w>=k.length*6+12?k:w>=14?(k.includes(" ")?k.split(" ").pop():k.slice(0,2)):"";return`<i class="bi${k==o.cut?" cu":""}${w<20?" nc":""}" style="left:${x(Math.max(s,a))}px;width:${w-2}px">${t}</i>`}).join("");
+const sp=o.ops.map((p,i)=>{const h=o.hv===i?" lit":"";if(p.w){for(let k=a;k<=b;k++)bars.add(k);return`<b class="wh${h}"></b>`}return p.s.map(([f,t])=>{f=Math.max(f,a);t=Math.min(t,b);for(let k=f;k<=t;k++)bars.add(k);return t<f?"":`<b class="e${h}" style="left:${x(f)}px;width:${(t-f+1)*u}px"></b>`}).join("")}).join("");
+let tk="";for(let k=a,s=n>100?20:n>50?10:8;k<=b;k++)if((k-1)%s==0)tk+=`<em style="left:${x(k)}px">${k}</em>`;
+return`<div class="bm" style="width:${W}px"><div class="bb">${bd}</div><div class="bt">${sp}</div><div class="bu">${tk}</div></div><div class="bc">${o.cap||(bars.size==n?`ALL ${n} BARS CHANGE`:`${bars.size} OF ${n} BARS CHANGE · THE OTHER ${n-bars.size} ARE v1`)}</div>`};
+const MB=(ops,cap,hv)=>BM({n:80,S:SEC,ops,cap,hv});
+const RO=(m,n,d,h)=>`<div class="ro${h?" hv":""}"><b class="mk2 ${m=="SAME"?"lw":""}">${m}</b><b>${n}</b><span>${d}</span></div>`;
+const CD=o=>`<div class="cd${o.sup?" sup":""}"><div class="hd"><span class="lb">${o.t}</span><span class="hn">${o.h||"nothing runs yet"}</span></div>${o.s?`<div class="sn2">${o.s}</div>`:""}<div class="mpw">${o.m}</div>${o.r}${o.x||""}<div class="cm"><span class="cs">${o.c}</span>${o.sup||o.off?'<span class="ac off">APPLY</span>':P("ac","APPLY")}</div></div>`;
+const HM="bars 49–56 · BRIDGE · Am F C G → Am7 Fmaj7 Cmaj7 G7",ST=RO("NEW","SET TEMPO","100 → 92 BPM · whole song");
+const S1=[{s:[[49,56]]}],S2=[{s:[[49,56]]},{w:1}];
+const K1="Renders bars 49–56 on YuE2, about 40 s · makes <b>v5</b> · <b>only bars 49–56 change</b>",K2="Renders the whole song again on YuE2, about 3 min · makes <b>v5</b> · <b>all 80 bars change</b>";
+const P1=x=>CD({t:"PLAN 1 · 1 CHANGE · AGAINST v4",m:MB(S1),r:RO("","REHARMONIZE",HM),c:K1,...x});
+const P2=x=>CD({t:"PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST v4",s:"SINCE PLAN 1 · 1 NEW · 1 SAME · 0 REMOVED",m:MB(S2,"ALL 80 BARS CHANGE (TEMPO) · BARS 49–56 ARE THE NEW HARMONY"),r:RO("SAME","REHARMONIZE",HM)+ST,c:K2,...x});
+const OLD=P1({t:"PLAN 1 · REVISED BELOW",h:"superseded",sup:1});
+const REW=CD({t:"PLAN · 1 CHANGE · AGAINST v4",m:MB([{s:[[41,48]]}],"WORDS CHANGE IN BARS 41–48 · THE WHOLE SONG RE-RENDERS"),r:RO("","REWRITE LYRICS","[Chorus] #2 of 3 · bars 41–48 · 4 lines")+`<div class="df"><span></span><span>OLD · v4</span><span>NEW</span>${CO.map((x,i)=>x==CN[i]?`<span></span><span>${x}</span><span>${x}</span>`:`<span>~</span><span>${x}</span><b>${CN[i]}</b>`).join("")}</div>`,c:K2});
+const T1=um("make this jazzier")+OLD+um("and slow it down a bit")+am("Added <b>a tempo change</b>: 100 → 92 BPM. The bridge's chords stay.")+P2();
+const T2=um("rewrite the second chorus",`<div style="margin-top:6px">${P("ch fz","MARKED · CHORUS 2 · BARS 41–48 · 1:36–1:55")}</div>`)+am("Assuming <b>chorus 2, bars 41–48</b>: 2 of 4 lines reworded. Check OLD | NEW, then APPLY.")+REW;
+const FF=(th,pl,o,pn)=>FR(TTL("LONG WAY DOWN")+`<div class="bd"><div class="mn"><div class="th">${th}</div>${pl}${CP(o)}</div>${SB(pn)}</div>`);
+$("fm").innerHTML=
+O("<b>1a · NO MARK</b> · PLAN 2 below PLAN 1",FF(T1,PL(),{},LIST),"Plan 2 keeps APPLY above the composer; plan 1 greys and scrolls away.")+
+O("<b>1b · WORST CASE</b> · chorus 2 marked, rewrite pending",FF(T2,PL([41,48]),{ch:"THIS: CHORUS 2 · BARS 41–48 · 1:36–1:55",cx:"plans on these bars only · nothing runs until you press APPLY"},PEND),"The tightest the thread gets. Card and panel show the same lines.");
+const R=(h,x,n)=>O(h,`<div class="w7" style="display:flex;flex-direction:column;gap:10px">${x}</div>`,n);
+const WN=(t,b)=>`<div class="wn"><div>${t}</div>${P("q",b)}</div>`;
+$("rv").innerHTML=
+R("<b>3a · NEW + SAME</b>",P2())+
+R("<b>3b · CHANGED + REMOVED</b> · \"fewer chords\"",P2({s:"SINCE PLAN 1 · 1 CHANGED · 1 SAME · 1 REMOVED",r:RO("CHANGED","REHARMONIZE","bars 49–56 · Am7 Fmaj7 Cmaj7 G7 → Am7 Cmaj7")+RO("SAME","SET TEMPO","100 → 92 BPM"),x:`<div class="rm">REMOVED (1) · WRITE PHRASE bars 41–44 · lead line in the chorus</div>`}),"A known loss (Q-050), never silent.")+
+R("<b>3c · REVISING</b>",P1({off:1})+um("and make it waltz time")+`<div class="j"><span>REVISING PLAN 1 · attempt 1 of 3 <em>· uses the GPU, ~10 s · plan 1 is kept if it fails</em></span>${P("q","CANCEL")}</div>`,"Q-144: APPLY on plan 1 is off meanwhile.")+
+R("<b>3d · A FAILED REVISION</b>",P1()+um("and make it waltz time")+WN("<b>NO ANSWER IN 3 ATTEMPTS</b> · plan 1 is kept and APPLY still works. Nothing changed.","SEND AGAIN"))+
+R("<b>3e · OVER 6 CHANGES</b>",P1()+um("add a lead line, a key change and a drum fill")+WN("<b>TOO MANY CHANGES</b> · merging that makes 7; a plan holds 6. Plan 1 is kept. Drop one, or APPLY plan 1 and ask again.","SEND AGAIN"));
+const S32=[["INTRO",4],["VERSE",8],["CHORUS",8],["VERSE",4],["CHORUS",4],["OUTRO",4]],S120=[["INTRO",8],["VERSE 1",16],["CHORUS 1",16],["VERSE 2",16],["CHORUS 2",16],["BRIDGE",8],["CHORUS 3",24],["OUTRO",8],["CODA",8]];
+const S200=[8,16,12,16,16,8,16,16,8,16,16,16,16,16,4].map((l,i)=>[i?i<14?"PART "+i:"OUTRO":"INTRO",l]);
+const BC=(h,m,n,rows)=>O(h,`<div class="cd w7 mm"><div class="hd"><span class="lb">BAR MAP</span><span class="hn">${n}</span></div><div class="mpw">${m}</div>${rows||""}</div>`);
+$("bmz").innerHTML=
+BC("<b>4a · 32 BARS</b> (22.8 px a bar) <b>AND 120</b> (6.1)",BM({n:32,S:S32,ops:[{s:[[13,16]]}]})+'<div style="height:10px"></div>'+BM({n:120,S:S120,ops:[{s:[[49,60]]},{s:[[89,96]]}]}),"")+
+BC("<b>4b · 200 BARS</b> · a cover",BM({n:200,S:S200,ops:[{s:[[97,100]]},{s:[[141,156]]},{s:[[185,200]]}]}),"3.65 px a bar, labels thinned")+
+BC("<b>4c · A CUT</b>",BM({n:80,S:SEC,ops:[{s:[[73,80]]}],cut:"OUTRO",cap:"OUTRO S9 CUT · 8 BARS REMOVED · SEAM UN-TIED"}),"Whole-song ops are hatched sky (3a).")+
+BC("<b>4d · HOVER</b> · REHARMONIZE",MB(S2,"BARS 49–56 · REHARMONIZE · LIT",0),"plan 2",RO("SAME","REHARMONIZE",HM,1)+ST);
+const DF=a=>FD("TITLE",a?`<span class="ib">Luz sobre el mar</span>`:`<span class="ib" style="color:var(--w)">untitled</span>`,a?"a":"")+FD("STYLE",`<span class="ib">${a?"slow Spanish ballad, nylon guitar":"indie pop"}</span>`,a?"a":"",a?"indie pop":"")+FD("TEMPO · KEY",'<span class="ib">68 BPM</span><span class="ib">A MINOR</span>')+FD("LYRICS",'<span class="ib">[Verse 1] La sal en tu piel… ▸ 14 lines</span>',"y");
+const DC=a=>`<div class="cd"><div class="cm"><span class="cs">${a?"Luz sobre el mar · slow Spanish ballad":"untitled · indie pop · LYRICS: YOUR EDIT"}<br>Renders a new song on YuE2, about 3 min · <b>nothing else changes</b></span>${P("ac","CREATE SONG")}</div></div>`;
+const CY=t=>`<span style="color:var(--s)">${t}</span>`;
+const CHG=(w,u,t)=>`<div class="hn" style="margin-top:4px">${CY(w)}${t||""}${u?" &nbsp; <u>UNDO TURN</u>":""}</div>`;
+const DT=a=>FR(TTL("NEW SONG")+`<div class="bd"><div class="mn"><div class="th">${um("a slow Spanish ballad about the sea")+am("Filled <b>a title, the style and 14 lines of lyrics</b>. Change any of it.")+(a?CHG("CHANGED · TITLE, STYLE, LYRICS",1):CHG("UNDONE",0," · restored TITLE, STYLE · kept LYRICS: you changed it"))+DC(a)}</div>${CP({ph:"Say what to change, or describe another song…"})}</div><div class="sb"><div class="sbh"><span class="lb">FORM · THE DRAFT</span><span class="hn">HIDE ▸</span></div>${DF(a)}</div></div>`);
+$("un").innerHTML=
+O("<b>5a · JUST FILLED</b> · LYRICS typed by hand since",DT(1),"TITLE, STYLE: sky wash, ASSISTANT, old STYLE struck. LYRICS: grey YOURS. UNDO TURN on the reply line.")+
+O("<b>5b · AFTER UNDO TURN</b>",DT(0),"TITLE, STYLE restored; LYRICS kept, with its reason. The card stays live (D-220). After a reload 5a's marks remain (D-221).");
+const CL=(h,x,n)=>O(h,`<div class="w3">${x}</div>`,n),AM=am("Set the style.");
+$("uc").innerHTML=
+CL("<b>5c · NOT OFFERED</b>",am("Answered; no field changed.")+`<div class="cd" style="margin:8px 0"><div class="hd"><span class="lb">CREATED · v1 SAVED</span></div></div>`+AM+CHG("CHANGED · STYLE"),"Nothing filled, or the card made a song: no UNDO TURN. While a reply is open it is off, with its reason.");
+$("op").innerHTML=
+O("<b>B · SUPERSEDED CARD FOLDED</b> (Q-140)",`<div class="cd w7 mm"><div class="hd" style="opacity:.6"><span class="lb">PLAN 1 · REVISED BELOW</span><span class="hn">REHARMONIZE bars 49–56 · ▾ SHOW</span></div></div>`,"Gives the height back; costs a click to compare.")+
+O("<b>B · 200 BARS IN TWO ROWS OF 100</b> (Q-141)",`<div class="cd w7 mm"><div class="mpw">${BM({n:200,a:1,b:100,S:S200,ops:[{s:[[97,100]]}],cap:"BARS 1–100"})}<div style="height:8px"></div>${BM({n:200,a:101,b:200,S:S200,ops:[{s:[[141,156]]}],cap:"BARS 101–200"})}</div></div>`,"7.3 px a bar; costs about 45 px.");
+const D=[
+["CX-1 · Sidebar: VERSIONS, STYLE, TEMPO · KEY, then the panel; no dock row (Q-135). A pending rewrite: old struck above new; outside the mark a PROPOSED section; the mark never moves.","draft fields on a song thread (D-219); the card only."],
+["CX-2 · Revised card: PLAN n header, SINCE line, mono NEW / CHANGED / SAME, REMOVED in one low line; the old card dims, no button; failures are rust lines under the message, the live card kept.","a REVISE button; editing in place."],
+["CX-3 · Bar map replaces the span strip: edited bars sky-tint, the hovered row's bars solid sky, whole-song hatched, CUT hatched grey; one row to 200 bars, 2 px minimum a bar. DESIGN.md clause in CV-7.","a per-bar grid."],
+["CX-4 · UNDO TURN is a link on the CHANGED line; then UNDONE · restored … · kept …: reason, no button; absent when nothing was filled or the song exists.","a toast; a card button."]];
+$("dec").innerHTML=D.map(d=>`<div class="dc"><b>${d[0]}</b> <i>Beat:</i> ${d[1]}</div>`).join("");
+document.querySelectorAll(".o").forEach(o=>{const t=o.querySelector(".th"),z=o.querySelector(".mz"),m=o.querySelector(".mm");if(t&&z)z.textContent="  ·  THREAD "+t.offsetHeight+" px";else if(m&&z)z.textContent="  ·  "+m.offsetHeight+" px"});
+</script></body></html>

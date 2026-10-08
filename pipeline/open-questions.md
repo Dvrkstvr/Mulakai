@@ -352,3 +352,18 @@ What UNDO TURN does to that turn's pending recipe card. Default: the card stays 
 
 ## Q-135 · deferred · stage 6 (chat C2, LY-1)
 LY-1 lists a fourth song row, "dock". C2 builds versions, style, tempo and key and the panel only (D-219); the dock row waits for the chat's scalpel (C7) or the Editor-first mirror (C6).
+
+## Q-140 · assumable · stage 5 (chat C2, DT-C2, F-058) · assumed → D-230
+The superseded edit card above a revised one. Default: dimmed to 45 % in full with its header "REVISED BELOW", no APPLY (option A, as a superseded recipe card). Alternative: folds to one header line with SHOW (B): gives back the card's height, costs a click to compare plans.
+
+## Q-141 · assumable · stage 5 (chat C2, DT-C2, F-060) · assumed → D-230
+The bar map at 200 bars (a cover). Default: one row in the card's 730 px, 3.65 px a bar, labels thinned to fit (A). Alternative: two rows of 100 bars, 7.3 px a bar, about 45 px taller (B).
+
+## Q-142 · assumable · stage 5 (chat C2, DT-C2, F-059) · assumed → D-230
+UNDO TURN on an older turn. Default: still offered, and every field it keeps names its reason ("you changed it", "a later reply changed it"). Alternative: only the latest turn offers it (scope.md C2's cut-order item). Not drawn in the page beyond the "you changed it" case.
+
+## Q-143 · assumable · stage 5 (chat C2, DT-C2, F-060) · assumed → D-230
+Bar-map hover. Default: a change-list row lights its bars (solid sky) on hover and on keyboard focus; the map itself is not interactive. Alternative: hovering the map also names the op.
+
+## Q-144 · assumable · stage 5 (chat C2, DT-C2, F-058) · assumed → D-230
+APPLY on the pending card while a revise runs. Default: off (plan 1 is about to be superseded), on again if the revise fails or is cancelled. Alternative: left on (a race: APPLY of plan 1 while plan 2 is being written).
