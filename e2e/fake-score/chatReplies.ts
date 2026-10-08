@@ -4,7 +4,7 @@
  * from server/), so the e2e answers a turn the way the real model did. An edit reply is SP-5's recorded edit
  * envelope carrying a contract fixture's ops instead of its own: yue-server recorded `/v1/scores/apply` only
  * for the contract song's ops (`apply-*.json`), and the fake yue-server answers nothing else.
- * LD (rung 3, D-234): a recorded recipe carried its lines; now the recipe call says `lyrics: "write"` and a lyrics
+ * LD (rung 3, D-234): a recorded recipe carried its lines; now the recipe call has no `lyrics` and a lyrics
  * call writes them, so `sp5Turn` splits a recorded recipe into both (server: test-fakes/chatScripts.ts `rung3`).
  */
 import fs from 'node:fs';
@@ -27,8 +27,9 @@ function recordedTurn(id: string): Recorded {
 function rung3(content: string): { recipe: string; lyrics: string } | null {
   const json = JSON.parse(content) as { action?: string; recipe?: { lyrics?: Array<{ lines: string[] }> } };
   if (json.action !== 'recipe' || !Array.isArray(json.recipe?.lyrics)) return null;
-  const lyrics = JSON.stringify({ sections: json.recipe.lyrics.map((s) => ({ lines: s.lines })) });
-  return { recipe: JSON.stringify({ ...json, recipe: { ...json.recipe, lyrics: 'write' } }), lyrics };
+  const { lyrics: lines, ...recipe } = json.recipe;
+  const lyrics = JSON.stringify({ sections: lines.map((s) => ({ lines: s.lines })) });
+  return { recipe: JSON.stringify({ ...json, recipe }), lyrics };
 }
 
 /** A recorded turn: what the person asked and every attempt the model answered, verbatim (a recipe split for

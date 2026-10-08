@@ -131,8 +131,8 @@ describe('chat turn: the lyrics call inside the slot (LD-2, D-233)', () => {
     const lyrics = threadById(first.thread.id)!.draft.fields.lyrics;
     ollama.requests.length = 0;
     ollama.chats.length = 0;
-    ollama.chats.push(recipeReply({ ...GERMAN, bpm: 96, lyrics: 'keep' }));
-    const { thread, job } = send('mach es schneller');
+    ollama.chats.push(recipeReply({ ...GERMAN, bpm: 96 }));
+    const { thread, job } = send('mach es etwas schneller');
     expect((await settled(job.id)).status).toBe('done');
     expect(log().filter((s) => !s.startsWith('ps'))).toEqual([`chat ${QWEN}`, `unload ${QWEN}`]);
     expect(threadById(thread.id)!.draft.fields).toMatchObject({ bpm: 96, lyrics });

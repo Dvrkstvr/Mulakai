@@ -1,5 +1,5 @@
-/** LD-2 (F-095, D-234): rung 3 always on for recipes. The recipe call says write / keep; a write is a lyrics call on the
- * language's model (2 calls), a keep that fits is none (1 call); lyrics that fail their checks fail the turn. */
+/** LD-2 (F-095, D-234, D-252): rung 3 always on for recipes. Code decides keep vs write; a write is a lyrics call on the
+ * language's model (2 calls), a keep is none (1 call); lyrics that fail their checks fail the turn. */
 import { describe, it, expect, vi } from 'vitest';
 import { RECIPE, autoLyrics, lyricsReply, recipeReply } from '../../../test-fakes/chatScripts.js';
 import type { ChatScript } from '../../../test-fakes/fakeOllama.js';
@@ -44,17 +44,33 @@ describe('decideReply: rung 3, lyrics as their own call (LD-2)', () => {
     expect(d.ok && d.reply.action === 'recipe' && d.reply.recipe.lyrics[0].lines[0]).toBe('Der Tag ist still, das Licht so schwach');
   });
 
-  it('"make it faster" with lyrics that fit: keep = the draft\'s lyrics, one call', async () => {
-    const ask = scripted([recipeReply({ bpm: 96, lyrics: 'keep' })]);
-    const d = await decideReply({ ...ctx, request: 'make it faster', pending: true, draft: keepDraft }, { ask, lyricsModel: modelFor });
-    expect(d).toMatchObject({ ok: true, calls: 1, lyrics: { mode: 'keep', attempts: 0 } });
-    expect(d.ok && d.reply.action === 'recipe' && d.reply.recipe).toMatchObject({ bpm: 96, lyrics: RECIPE.lyrics });
+  it('a follow-up not about the words keeps the draft\'s lyrics in one call, whatever the planner thinks (D-252, live phrasings)', async () => {
+    for (const request of ['mach es etwas schneller', 'etwas schneller bitte, Text unverändert', 'make it faster', 'más lento']) {
+      const ask = scripted([recipeReply({ bpm: 96 })]);
+      const d = await decideReply({ ...ctx, request, pending: true, draft: keepDraft }, { ask, lyricsModel: modelFor });
+      expect(d, request).toMatchObject({ ok: true, calls: 1, lyrics: { mode: 'keep', attempts: 0 } });
+      expect(d.ok && d.reply.action === 'recipe' && d.reply.recipe).toMatchObject({ bpm: 96, lyrics: RECIPE.lyrics });
+    }
   });
 
-  it('keep is forced to write when the draft has no lyrics or they no longer follow the structure', async () => {
+  it('a follow-up about the words writes them anew: 2 calls', async () => {
+    for (const request of ['schreib den Refrain neu', 'andere Strophen bitte', 'rewrite the chorus', 'cambia la letra']) {
+      const ask = scripted([recipeReply()]);
+      const d = await decideReply({ ...ctx, request, pending: true, draft: keepDraft }, { ask, lyricsModel: modelFor });
+      expect(d, request).toMatchObject({ ok: true, calls: 2, lyrics: { mode: 'write', attempts: 1 } });
+    }
+  });
+
+  it('a recipe in another language than the draft\'s writes, even for "make it faster"', async () => {
+    const ask = scripted([recipeReply({ language: 'en', title: 'Light on the sea', style: 'slow ballad, nylon guitar' })]);
+    const d = await decideReply({ ...ctx, request: 'make it faster', pending: true, draft: keepDraft }, { ask, lyricsModel: modelFor });
+    expect(d).toMatchObject({ ok: true, calls: 2, lyrics: { mode: 'write' } });
+  });
+
+  it('no lyrics, or lyrics that no longer follow the structure, write', async () => {
     for (const draft of [{}, { ...keepDraft, lyrics: [] }, keepDraft]) {
-      const ask = scripted([recipeReply({ lyrics: 'keep', structure: [...RECIPE.structure.slice(0, 5), 'Bridge', 'Chorus', 'Outro'] })]);
-      const d = await decideReply({ ...ctx, pending: true, draft }, { ask, lyricsModel: modelFor });
+      const ask = scripted([recipeReply({ structure: [...RECIPE.structure.slice(0, 5), 'Bridge', 'Chorus', 'Outro'] })]);
+      const d = await decideReply({ ...ctx, request: 'make it faster', pending: true, draft }, { ask, lyricsModel: modelFor });
       expect(d).toMatchObject({ ok: true, calls: 2, lyrics: { mode: 'write' } });
       expect(d.ok && d.reply.action === 'recipe' && d.reply.recipe.lyrics.map((s) => s.tag)).toEqual(['Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus', 'Outro']);
     }

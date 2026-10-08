@@ -31,8 +31,8 @@ export const RECIPE: Recipe = {
 
 export const reply = (o: unknown, promptTokens = 2000): ChatScript => ({ content: JSON.stringify(o), promptTokens });
 
-/** LD (D-234): the planner's recipe says `lyrics: "write" | "keep"`; the lines come from the lyrics call. */
-export const PLANNED: PlannedRecipe = { ...RECIPE, lyrics: 'write' };
+/** LD (D-234, D-252): the planner's recipe has no `lyrics`; code keeps the draft's or the lyrics call writes them. */
+export const PLANNED: PlannedRecipe = (({ lyrics: _, ...rest }) => rest)(RECIPE);
 export const recipeReply = (over: Partial<PlannedRecipe> = {}, message = 'Assuming 4/4 and A minor, lyrics in Spanish.', assumptions = ['assuming 4/4 and A minor']) =>
   reply({ action: 'recipe', message, assumptions, recipe: { ...PLANNED, ...over } });
 /** The lyrics call's answer: `{sections: [{lines}]}`, one entry per sung section (RECIPE's by default). */
@@ -40,11 +40,12 @@ export const lyricsReply = (sections: LyricSection[] = RECIPE.lyrics, promptToke
   reply({ sections: sections.map((s) => ({ lines: s.lines })) }, promptTokens);
 
 /** SP-5's recorded recipe replies (v3.1) carry their lines; LD splits one into what rung 3 sends: the planner's
- * reply with `lyrics: "write"` and the lyrics call's `{sections}` holding the recorded lines. Not a recipe = null. */
+ * reply without `lyrics` and the lyrics call's `{sections}` holding the recorded lines. Not a recipe = null. */
 export function rung3(content: string): { recipe: string; lyrics: string } | null {
   const json = JSON.parse(content) as { action?: string; recipe?: { lyrics?: LyricSection[] } };
   if (json.action !== 'recipe' || !Array.isArray(json.recipe?.lyrics)) return null;
-  return { recipe: JSON.stringify({ ...json, recipe: { ...json.recipe, lyrics: 'write' } }), lyrics: lyricsReply(json.recipe.lyrics).content! };
+  const { lyrics, ...recipe } = json.recipe;
+  return { recipe: JSON.stringify({ ...json, recipe }), lyrics: lyricsReply(lyrics).content! };
 }
 
 /** Sung sections per language, by tag (a tag without its own lines sings the Verse's). */
