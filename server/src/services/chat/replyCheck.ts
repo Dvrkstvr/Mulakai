@@ -9,11 +9,13 @@
  * edit is a revise, `{drop, ops}` read and merged by reviseReply.readRevise; a mark bounds only the returned ops
  * (D-214); the merged plan is applied once, and a refused apply goes back with the merge legend first. A drop that loses
  * pending ops on an addition, or a start over that returns one unchanged, goes back once (reviseKeep, CP-C2); a start over
- * drops every pending op in code (C2 live B2). Pure (I/O injected).
+ * drops every pending op in code (C2 live B2), one returned unchanged too, and if nothing is left plans nothing (D-257).
+ * Pure (I/O injected).
  */
 import { applyReasons } from '../score/planAttempts.js';
 import { checkOps } from '../score/opSchema.js';
 import { readRevise } from '../score/reviseReply.js';
+import { sameOp } from '../score/planRevise.js';
 import { withLimits } from '../score/scoreLimits.js';
 import type { ApplyResult, Op, ScoreFacts, Since } from '../score/planTypes.js';
 import { SCALPEL_KINDS } from './actionSchema.js';
@@ -44,7 +46,8 @@ export interface CheckDeps { apply?: (ops: Op[]) => Promise<ApplyResult>; langua
 /** `revised`: a revise's NEW / CHANGED / SAME per merged op and the REMOVED pending ops (the card's `since`). */
 export type Revised = Omit<Since, 'planId'>;
 /** A recipe's `recipe.lyrics` is empty until turnCall fills it (LD). */
-export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null; revised?: Revised } | { ok: false; reasons: string[] };
+/** `scrapped` (D-257): a start over left nothing to plan; the reply is a say and the pending plan goes. */
+export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null; revised?: Revised; scrapped?: true } | { ok: false; reasons: string[] };
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -70,8 +73,16 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   if (missing.length) return fail(...missing);
   if (ctx.shapeOnly.includes('edit')) return { ok: true, reply: reply(json.ops as Op[]), applied: null };
   if (!ctx.facts) return fail('there is no song to edit yet: propose a recipe for a new song instead');
-  // C2 live B2: a start over drops every pending op, whatever the reply's drop says; what it returns is the plan (REMOVED shown)
-  const asked = ctx.pending && startsOver(ctx.request) ? { ...json, drop: ctx.pending.map((_, k) => k + 1) } : json;
+  // C2 live B2: a start over drops every pending op, whatever the reply's drop says; what it returns is the plan (REMOVED shown).
+  // D-257 (N1): a pending op it returns unchanged is scrapped too, once the start-over guard has sent it back; nothing left = a say
+  const over = ctx.pending && startsOver(ctx.request) ? ctx.pending : null;
+  const all = over?.map((_, k) => k + 1) ?? [];
+  const fresh = over ? json.ops.filter((o) => !over.some((p) => sameOp(p, o as Op))) : json.ops;
+  if (over && !fresh.length) {
+    const guard = ctx.guards?.length ? reviseGuard(ctx.request, over, all, json.ops as Op[], ctx.guards) : null;
+    return guard ? fail(guard) : { ok: true, reply: { action: 'say', message }, applied: null, scrapped: true };
+  }
+  const asked = over ? { ...json, drop: all, ops: fresh } : json;
   const revised = ctx.pending ? readRevise(asked, ctx.pending, ctx.facts, ctx.phraseBars) : null;
   const read = revised ?? checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
   if (!read.ok) return fail(...read.reasons);

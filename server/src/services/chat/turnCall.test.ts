@@ -197,16 +197,17 @@ describe('decideReply with a pending plan (C2, F-058: REVISE as a follow-up turn
     expect(asked).toMatchObject({ ok: true, attempts: 1 });
   });
 
-  it('CP-C2 r3 / C2 live B2: "forget all that" drops every pending op in code; one the reply returns unchanged goes back once, then stands', async () => {
+  it('CP-C2 r3 / C2 live B2 / D-257: "forget all that" drops every pending op in code; one the reply returns unchanged goes back once, then is dropped', async () => {
     const DOWN: Op = { op: 'TRANSPOSE', semitones: -2 };
     const over = { ...onSong, request: 'forget all that, just transpose it down a tone' };
     const dropped = await decideReply(over, { ask: scripted(edit([], [DOWN])) });
     expect(dropped).toMatchObject({ ok: true, attempts: 1, reply: { ops: [DOWN] } });
     expect(dropped.since?.removed).toEqual([TEMPO]);
     const kept = await decideReply(over, { ask: scripted(edit([], [TEMPO, DOWN]), edit([], [TEMPO, DOWN]), edit([], [DOWN])) });
-    expect(kept).toMatchObject({ ok: true, attempts: 2, reply: { ops: [TEMPO, DOWN] } });
+    expect(kept).toMatchObject({ ok: true, attempts: 2, reply: { ops: [DOWN] } });
     expect(kept.ok && kept.refusals).toEqual([['the reply kept SET TEMPO though you asked to start over']]);
-    expect(kept.since?.marks.map((m) => m.mark)).toEqual(['SAME', 'NEW']);
+    expect(kept.since).toEqual({ planId: 'p1', marks: [{ mark: 'NEW', was: null }], removed: [TEMPO] });
+    expect(kept.scrapped).toBe(false);
   });
 
   it('C2 live B2 (b): "scrap that, instead reharmonize chorus 1 with jazz chords" on a pending SET TEMPO: the tempo is REMOVED, not kept SAME', async () => {
@@ -215,7 +216,7 @@ describe('decideReply with a pending plan (C2, F-058: REVISE as a follow-up turn
     expect(d.since).toEqual({ planId: 'p1', marks: [{ mark: 'NEW', was: null }], removed: [TEMPO] });
   });
 
-  it('C2 live B2 (a): "start over: instead just change the tempo to 80 BPM" under a chorus mark: the kept chords go back once; the reply cannot claim the tempo', async () => {
+  it('C2 live B2 (a) / N1, D-257: "start over: instead just change the tempo to 80 BPM" under a chorus mark: the kept chords go back once, then are dropped: nothing planned, clear the mark', async () => {
     const harm = { op: 'REHARMONIZE', from_bar: 23, to_bar: 24, chords: [{ bar: 23, beat: 1, root: 'C', quality: 'maj7' }] } as Op;
     const p3 = { id: 'p3', request: 'jazz chords', ops: [harm], verdicts: [{ index: 1, op: 'REHARMONIZE', ok: true, reason: null }], revision: 3 } as unknown as Plan;
     const marked: TurnContext = { ...onSong, request: 'scrap that, start over: instead just change the tempo to 80 BPM',
@@ -225,9 +226,13 @@ describe('decideReply with a pending plan (C2, F-058: REVISE as a follow-up turn
     const d = await decideReply(marked, { ask });
     expect(JSON.stringify(ask.mock.calls[0][1])).not.toContain('SET_TEMPO');
     expect((ask.mock.calls[1][0] as PromptMessage[]).at(-1)!.content).toContain(`${START_REASON} (your reply keeps pending op 1 REHARMONIZE)`);
-    expect(d).toMatchObject({ ok: true, attempts: 2, reply: { ops: [harm] } });
-    expect(d.ok && d.reply.message).toBe('Planned inside the mark: new chords in bars 23-24. SET TEMPO would change the whole song, so it is not in this plan; ask for the whole song to get it.');
+    expect(d).toMatchObject({ ok: true, attempts: 2, scrapped: true, since: null, applied: null,
+      reply: { action: 'say', message: 'Nothing planned: the earlier plan is scrapped. SET TEMPO changes the whole song; clear the mark to ask for it.' } });
     expect(d.ok && d.refusals).toEqual([['the reply kept REHARMONIZE though you asked to start over']]);
+    const empty = await decideReply(marked, { ask: scripted(edit([1], [])) }); // nothing returned at all: also nothing planned
+    expect(empty).toMatchObject({ ok: true, attempts: 1, scrapped: true, reply: { action: 'say' } });
+    const fresh = await decideReply({ ...marked, request: 'scrap that, start over: jazz chords in bars 25-26' }, { ask: scripted(edit([], [harm]), edit([], [harm])) });
+    expect(fresh.ok && fresh.reply.message).toBe('Nothing planned: the earlier plan is scrapped.');
   });
 
   it('C2 live B6: the card and a failed turn read person words: no merge legend, no "return fewer", no pending op numbers', async () => {

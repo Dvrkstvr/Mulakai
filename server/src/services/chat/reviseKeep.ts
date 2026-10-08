@@ -6,7 +6,7 @@
  * the words start over and the reply keeps a pending op it neither drops nor replaces, or returns one unchanged. Each
  * sends the reply back once with a named reason; a second answer is the planner's and stands (the card shows it). Since
  * C2 live B2 a start over drops every pending op in code whatever `drop` says (replyCheck), so its guard is left with
- * the ops returned unchanged; one returned twice stands as SAME. Pure.
+ * the ops returned unchanged; one returned twice is dropped too (D-257, C2 live N1; replyCheck). Pure.
  */
 import { sameOp, sameTarget } from '../score/planRevise.js';
 import type { Op } from '../score/planTypes.js';
