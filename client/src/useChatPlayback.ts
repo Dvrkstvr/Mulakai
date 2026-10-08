@@ -11,16 +11,20 @@ import { useSingleAudioPlayback } from './useSingleAudioPlayback';
  * send; `playNonce` is a version card's PLAY asking the player to play the song. */
 interface ChatAb {
   side: AbSide; note: string | null; playNonce: number;
+  /** C2 (F-056): a lyrics-panel double-click asking the player to play the song from `at` seconds; `n` tells asks apart. */
+  playAtAsk: { at: number; n: number } | null;
   toggle: (other?: Exclude<AbSide, 'song'>) => void;
   playSong: () => void;
+  playAt: (at: number) => void;
   setNote: (note: string | null) => void;
   reset: () => void;
 }
 
 export const useChatAb = create<ChatAb>((set) => ({
-  side: 'song', note: null, playNonce: 0,
+  side: 'song', note: null, playNonce: 0, playAtAsk: null,
   toggle: (other) => set((s) => ({ side: abToggle(s.side, other) })),
   playSong: () => set((s) => ({ side: 'song', playNonce: s.playNonce + 1 })),
+  playAt: (at) => set((s) => ({ side: 'song', note: null, playAtAsk: { at, n: (s.playAtAsk?.n ?? 0) + 1 } })),
   setNote: (note) => set({ note }),
   reset: () => set({ side: 'song', note: null }),
 }));
@@ -52,6 +56,17 @@ export function useChatPlayback(sources: AbSources): ChatPlayback {
     else engine.play();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [playNonce]);
+
+  // A lyrics-panel double-click: play the song from those seconds now, or once the swap back to it has loaded.
+  const playAtAsk = useChatAb((s) => s.playAtAsk);
+  const asked = useRef(playAtAsk);
+  useEffect(() => {
+    if (!playAtAsk || asked.current === playAtAsk) return;
+    asked.current = playAtAsk;
+    if (carry.current) carry.current = { at: playAtAsk.at, play: true };
+    else { engine.seek(playAtAsk.at); engine.play(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playAtAsk]);
 
   // The new file knows its length: seek to the same seconds (clamped) and play on if it was playing.
   useEffect(() => {
