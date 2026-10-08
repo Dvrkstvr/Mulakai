@@ -8,7 +8,7 @@ let seq = 0;
 const msg = (role: 'user' | 'assistant', kind: ChatMessage['kind'], over: Partial<ChatMessage> = {}): ChatMessage => ({
   id: `m${++seq}`, threadId: 't', seq, role, kind, text: '', body: null, proposalId: null, jobId: null, versionId: null, clientKey: null, createdAt: '', ...over,
 });
-const ctx = (jobs: Record<string, JobView> = {}, proposals: Record<string, 'live' | 'superseded'> = {}): ViewContext => ({
+const ctx = (jobs: Record<string, JobView> = {}, proposals: Record<string, 'live' | 'superseded' | 'scrapped'> = {}): ViewContext => ({
   job: (id) => jobs[id], proposal: (id) => proposals[id] ?? null,
 });
 const states = (messages: ChatMessage[], c: ViewContext) => messageViews(messages, c).map((m) => m.state);
@@ -70,6 +70,7 @@ describe('message view (the states the client shows)', () => {
     expect(states([card()], ctx({}, { e: 'live' }))).toEqual(['pending']);
     expect(states([card()], ctx({}, { e: 'superseded' }))).toEqual(['superseded']);
     expect(states([card()], ctx())).toEqual(['expired']);
+    expect(states([card()], ctx({}, { e: 'scrapped' }))).toEqual(['scrapped']); // D-258: a start over that planned nothing
     expect(states([card({ jobId: 'r' })], ctx({ r: { status: 'running' } }, { e: 'live' }))).toEqual(['committing']);
     expect(states([card({ jobId: 'r' }), msg('assistant', 'version', { jobId: 'r' })], ctx())).toEqual(['done', null]);
   });

@@ -46,7 +46,9 @@ export type ChatMessageKind = 'text' | 'say' | 'ask' | 'recipe' | 'edit' | 'fail
  * `reading` (a reading card's job between its steps) is this client's assumption until CR-4's messageView lands. */
 export type ChatMessageState =
   | 'queued' | 'thinking' | 'pending' | 'superseded' | 'expired' | 'committing' | 'done' | 'failed' | 'cancelled' | 'interrupted'
-  | 'reading' | 'stale';
+  | 'reading' | 'stale'
+  /** D-258: an edit card a start over scrapped with nothing planned after it. */
+  | 'scrapped';
 
 /** A recipe as the turn proposed it (SP-5's shape, camel-cased like the draft). */
 export interface ChatRecipe extends Omit<ChatDraftFields, 'engine'> {

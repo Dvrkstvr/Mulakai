@@ -91,6 +91,17 @@ describe('ChatEditCard', () => {
     expect(html({ kind: 'done' })).toContain('DONE · BARS 25-32');
     expect(html({ kind: 'done' })).not.toContain('REHARMONIZE');
   });
+
+  it('D-258: a card a start over scrapped dims, says so (not "a newer card is below"), with no APPLY, map or not', () => {
+    for (const b of [body(), body({ map: { bars: 80, sections: [], ops: [{ spans: [[25, 32]], whole: false }] } })]) {
+      const out = html({ kind: 'scrapped' }, b);
+      expect(out).toContain('chat-card chat-edit sup');
+      expect(out).toContain('EDIT · SCORE · SCRAPPED');
+      expect(out).toContain('You scrapped this plan. It cannot be applied.');
+      expect(out).not.toContain('newer');
+      expect(out).not.toContain('chat-create');
+    }
+  });
 });
 
 describe('ChatEditCard, C2: revised, superseded by a revise, the bar map (F-058, F-060, D-229)', () => {

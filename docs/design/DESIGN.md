@@ -1193,7 +1193,10 @@ requiring its own justification against a screen-count rule.
      shader, with CANCEL until SAVING; the composer reads WAITING FOR v2.
      Cancelled, failed, refused and STALE are one rust line in the card
      ("nothing saved, v1 is untouched"); stale and expired drop APPLY for
-     ASK AGAIN, superseded dims to 45%; done folds to one header line.
+     ASK AGAIN, superseded dims to 45%; a card a start over scrapped with
+     nothing planned after it (D-258) dims the same, headed `EDIT · SCORE ·
+     SCRAPPED`, one grey line `You scrapped this plan. It cannot be
+     applied.`, no APPLY; done folds to one header line.
    - **The revised card and the bar map** (added 2026-10-08, chat C2; spec
      `pipeline/design/chat-converge.html` 3-4, signed off in D-229,
      CX-2/CX-3). A card that carries a bar map is headed by its plan

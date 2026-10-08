@@ -72,6 +72,8 @@ export const failedLine = (version: number | null, reason: string) => `COULDN'T 
 export const revisedHeader = (revision: number | undefined) => (revision && revision > 1 ? `REVISED · PLAN ${revision}` : null);
 /** A superseded card: revised by the card below it (D-227), or replaced by a fresh plan (C0b). */
 export const supersededBody = (revised: boolean) => (revised ? 'Revised below. This one cannot be applied.' : EDIT_SUPERSEDED_BODY);
+/** D-258: a start over scrapped the plan and planned nothing; the line below the card is a say, not a newer card. */
+export const SCRAPPED_BODY = 'You scrapped this plan. It cannot be applied.';
 /** The bar map's hatched row for SET TEMPO, TRANSPOSE, EDIT STYLE (F-060). */
 export const WHOLE_SONG = 'WHOLE SONG';
 export const mapTitle = (bars: number) => `BAR MAP · ${plural(bars, 'BAR')}`;

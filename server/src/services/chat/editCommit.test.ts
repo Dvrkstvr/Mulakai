@@ -27,7 +27,7 @@ const { scoreStatus } = await import('../score/scoreStatus.js');
 const { renderDeps } = await import('../score/scoreRenderJob.js');
 const { appendMessage, listMessages } = await import('./messageStore.js');
 const { messageViews } = await import('./messageView.js');
-const { propose, resetProposals } = await import('./proposalStore.js');
+const { propose, resetProposals, retireEdit } = await import('./proposalStore.js');
 const { songThread } = await import('./threadStore.js');
 const { applyEdit, editCommitDeps, STALE } = await import('./editCommit.js');
 type FakeYue = Awaited<ReturnType<typeof startFakeYue>>;
@@ -151,6 +151,12 @@ describe('applyEdit', () => {
     expect('job' in first).toBe(true);
     expect(await applyEdit(threadId, proposalId, deps())).toEqual({ reason: 'APPLY is already running for this song' });
     yue.job = { states: [{ status: 'succeeded', stage: 'done' }] };
+  });
+
+  it('D-258: a card a start over scrapped starts nothing and says so', async () => {
+    const { threadId, proposalId } = await seed();
+    retireEdit(threadId);
+    expect(await applyEdit(threadId, proposalId, deps())).toEqual({ reason: 'you scrapped this plan: ask again' });
   });
 
   it('two APPLYs at once (two tabs): one job starts, the other is refused, and the card reads done', async () => {

@@ -3,7 +3,8 @@
  * newer one supersedes the older of its kind; a restart forgets them all, so their cards read EXPIRED.
  * Kinds: a recipe card (CREATE SONG / CREATE COVER), C3 an analyze card (READ) and C0b an edit card
  * (APPLY), which never supersede each other. An edit card holds only its plan's id: the plan lives in
- * planStore, and a card whose plan the server dropped (a dock PLAN, a render, a trash) reads EXPIRED.
+ * planStore, and a card whose plan the server dropped (a dock PLAN, a render, a trash) reads EXPIRED. D-258: an edit card
+ * a start over scrapped (nothing planned after it) reads SCRAPPED, for as long as the server runs.
  */
 import { getPlanById } from '../score/planStore.js';
 import type { Proposal } from './chatTypes.js';
@@ -12,10 +13,11 @@ export type RecipeProposal = Extract<Proposal, { kind: 'recipe' }>;
 export type AnalyzeProposal = Extract<Proposal, { kind: 'analyze' }>;
 export type EditProposal = Extract<Proposal, { kind: 'edit' }>;
 type Stored = RecipeProposal | AnalyzeProposal | EditProposal;
-export type ProposalLife = 'live' | 'superseded';
+export type ProposalLife = 'live' | 'superseded' | 'scrapped';
 
 const live = new Map<string, Stored>(); // `${kind}:${threadId}` -> the live one
 const known = new Map<string, Stored>(); // proposalId -> every one since start
+const scrapped = new Set<string>(); // D-258: edit proposal ids a start over retired
 const slot = (kind: Stored['kind'], threadId: string) => `${kind}:${threadId}`;
 
 /** Make `p` its thread's live proposal of its kind; the previous one of that kind is superseded. */
@@ -32,10 +34,11 @@ export const liveEdit = (threadId: string): EditProposal | undefined => {
   return planAlive(p) ? p : undefined;
 };
 
-/** `live`, `superseded`, or null when this server never saw it (a restart): EXPIRED. */
+/** `live`, `superseded`, `scrapped` (D-258), or null when this server never saw it (a restart): EXPIRED. */
 export function proposalLife(id: string): ProposalLife | null {
   const p = known.get(id);
   if (!p) return null;
+  if (scrapped.has(id)) return 'scrapped';
   if (live.get(slot(p.kind, p.threadId))?.id !== id) return 'superseded';
   return planAlive(p) ? 'live' : null;
 }
@@ -49,8 +52,10 @@ export const proposalById = (id: string): RecipeProposal | undefined => ofKind(i
 export const analyzeById = (id: string): AnalyzeProposal | undefined => ofKind(id, 'analyze');
 export const editById = (id: string): EditProposal | undefined => ofKind(id, 'edit');
 
-/** D-257: a start over scrapped the thread's edit plan and planned nothing: its card reads superseded, not EXPIRED. */
+/** D-257, D-258: a start over scrapped the thread's edit plan and planned nothing: its card reads SCRAPPED. */
 export function retireEdit(threadId: string): void {
+  const p = live.get(slot('edit', threadId));
+  if (p) scrapped.add(p.id);
   live.delete(slot('edit', threadId));
 }
 
@@ -59,10 +64,11 @@ export function dropProposals(threadId: string): void {
   live.delete(slot('recipe', threadId));
   live.delete(slot('analyze', threadId));
   live.delete(slot('edit', threadId));
-  for (const [id, p] of known) if (p.threadId === threadId) known.delete(id);
+  for (const [id, p] of known) if (p.threadId === threadId) { known.delete(id); scrapped.delete(id); }
 }
 
 export function resetProposals(): void {
   live.clear();
   known.clear();
+  scrapped.clear();
 }

@@ -73,6 +73,7 @@ async function checkAndStart(threadId: string, proposalId: string, deps: EditCom
   const life = proposal?.threadId === threadId ? proposalLife(proposalId) : null;
   if (!proposal || !life || !thread.songId) return { reason: 'this proposal expired: ask again' };
   if (life === 'superseded') return { reason: 'a newer plan replaced this one' };
+  if (life === 'scrapped') return { reason: 'you scrapped this plan: ask again' };
   const card = messageById(proposal.messageId);
   const body = card?.body as EditBody | null;
   if (!card || !body?.splice) return { reason: 'this proposal expired: ask again' };
