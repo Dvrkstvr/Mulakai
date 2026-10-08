@@ -1,0 +1,506 @@
+{
+ "tag": "en1",
+ "text": "an upbeat indie song about a road trip",
+ "turn_seconds": 15.631933689117432,
+ "job": {
+  "status": "done"
+ },
+ "ps_after": {
+  "models": []
+ },
+ "timeline": [
+  {
+   "t": 0.0,
+   "vram": 1079,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.1,
+   "vram": 3590,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.7,
+   "vram": 9710,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 2.8,
+   "vram": 12521,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 4.9,
+   "vram": 12513,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 7.2,
+   "vram": 12513,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 7.8,
+   "vram": 12483,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 10.0,
+   "vram": 12497,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 10.6,
+   "vram": 12488,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 12.3,
+   "vram": 12484,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 13.9,
+   "vram": 12492,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 14.5,
+   "vram": 12500,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_9f92f3": [
+    "running",
+    "writing lyrics · qwen3"
+   ]
+  },
+  {
+   "t": 15.0,
+   "vram": 12528,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_9f92f3": [
+    "done",
+    null
+   ]
+  },
+  {
+   "t": 15.7,
+   "vram": 1135,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_9f92f3": [
+    "done",
+    null
+   ]
+  },
+  {
+   "t": 16.3,
+   "vram": 1124,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_9f92f3": [
+    "done",
+    null
+   ]
+  },
+  {
+   "t": 16.9,
+   "vram": 1117,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_9f92f3": [
+    "done",
+    null
+   ]
+  }
+ ],
+ "vram_peak": 12528,
+ "thread": {
+  "id": "70b250d8-793e-47c1-aa7e-75fa8a752c53",
+  "songId": null,
+  "draft": {
+   "draft_v": 1,
+   "rev": 1,
+   "fields": {
+    "title": "Open Road",
+    "style": "indie, acoustic guitar, electric guitar, drums, upbeat mood, vocals",
+    "bpm": 120,
+    "key": "C",
+    "timeSignature": "4/4",
+    "language": "en",
+    "structure": [
+     "Intro",
+     "Verse",
+     "Pre-Chorus",
+     "Chorus",
+     "Verse",
+     "Pre-Chorus",
+     "Chorus",
+     "Bridge",
+     "Chorus",
+     "Outro"
+    ],
+    "lyrics": [
+     {
+      "tag": "Verse",
+      "lines": [
+       "We packed our bags and left the city lights behind",
+       "The highway stretched like a promise in the night",
+       "Windows down and the radio loud",
+       "We're chasing freedom, no looking back, no doubt"
+      ]
+     },
+     {
+      "tag": "Pre-Chorus",
+      "lines": [
+       "Every mile we drive, the world feels new",
+       "The wind in our hair, it's just us and the blue",
+       "We're dancing on the edge of something real",
+       "And every turn is a story we're going to tell"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Open road, we're flying low",
+       "With the stars above and the sky below",
+       "Open road, we're burning bright",
+       "With the fire of the night and the light of the right"
+      ]
+     },
+     {
+      "tag": "Verse",
+      "lines": [
+       "We stopped at a diner where the coffee was strong",
+       "The map on the table, we're lost but we're young",
+       "Laughter echoes in the backseat",
+       "We're writing our own lives, not following the beat"
+      ]
+     },
+     {
+      "tag": "Pre-Chorus",
+      "lines": [
+       "Every mile we drive, the world feels new",
+       "The wind in our hair, it's just us and the blue",
+       "We're dancing on the edge of something real",
+       "And every turn is a story we're going to tell"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Open road, we're flying low",
+       "With the stars above and the sky below",
+       "Open road, we're burning bright",
+       "With the fire of the night and the light of the right"
+      ]
+     },
+     {
+      "tag": "Bridge",
+      "lines": [
+       "We'll keep going until the sun meets the sea",
+       "No ending, no beginning, just the journey we're free",
+       "The road is calling, and we're answering loud",
+       "With every heartbeat, we're breaking the ground"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Open road, we're flying low",
+       "With the stars above and the sky below",
+       "Open road, we're burning bright",
+       "With the fire of the night and the light of the right"
+      ]
+     },
+     {
+      "tag": "Outro",
+      "lines": [
+       "Open road, we're flying low",
+       "With the stars above and the sky below",
+       "Open road, we're burning bright",
+       "With the fire of the night and the light of the right"
+      ]
+     }
+    ],
+    "engine": "yue2"
+   },
+   "touched": {}
+  },
+  "draftNote": null,
+  "blockers": [],
+  "messages": [
+   {
+    "id": "e383c2ac-53e9-4fe1-86bd-9d29a56cc4ae",
+    "threadId": "70b250d8-793e-47c1-aa7e-75fa8a752c53",
+    "seq": 1,
+    "role": "user",
+    "kind": "text",
+    "text": "an upbeat indie song about a road trip",
+    "body": {
+     "chat_v": 1,
+     "sentRev": 0
+    },
+    "proposalId": null,
+    "jobId": "9f92f383-3fd2-4160-aa58-ab650cba4020",
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:16:59",
+    "state": "done",
+    "job": {
+     "status": "done"
+    },
+    "phase": null,
+    "undo": null
+   },
+   {
+    "id": "868aa039-6828-419d-b712-b919412b6acc",
+    "threadId": "70b250d8-793e-47c1-aa7e-75fa8a752c53",
+    "seq": 2,
+    "role": "assistant",
+    "kind": "recipe",
+    "text": "I'll create an upbeat indie song about a road trip. Let me know if you'd like to adjust any details.",
+    "body": {
+     "chat_v": 1,
+     "recipe": {
+      "title": "Open Road",
+      "style": "indie, acoustic guitar, electric guitar, drums, upbeat mood, vocals",
+      "bpm": 120,
+      "key": "C",
+      "timeSignature": "4/4",
+      "language": "en",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Pre-Chorus",
+       "Chorus",
+       "Verse",
+       "Pre-Chorus",
+       "Chorus",
+       "Bridge",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "We packed our bags and left the city lights behind",
+         "The highway stretched like a promise in the night",
+         "Windows down and the radio loud",
+         "We're chasing freedom, no looking back, no doubt"
+        ]
+       },
+       {
+        "tag": "Pre-Chorus",
+        "lines": [
+         "Every mile we drive, the world feels new",
+         "The wind in our hair, it's just us and the blue",
+         "We're dancing on the edge of something real",
+         "And every turn is a story we're going to tell"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Open road, we're flying low",
+         "With the stars above and the sky below",
+         "Open road, we're burning bright",
+         "With the fire of the night and the light of the right"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "We stopped at a diner where the coffee was strong",
+         "The map on the table, we're lost but we're young",
+         "Laughter echoes in the backseat",
+         "We're writing our own lives, not following the beat"
+        ]
+       },
+       {
+        "tag": "Pre-Chorus",
+        "lines": [
+         "Every mile we drive, the world feels new",
+         "The wind in our hair, it's just us and the blue",
+         "We're dancing on the edge of something real",
+         "And every turn is a story we're going to tell"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Open road, we're flying low",
+         "With the stars above and the sky below",
+         "Open road, we're burning bright",
+         "With the fire of the night and the light of the right"
+        ]
+       },
+       {
+        "tag": "Bridge",
+        "lines": [
+         "We'll keep going until the sun meets the sea",
+         "No ending, no beginning, just the journey we're free",
+         "The road is calling, and we're answering loud",
+         "With every heartbeat, we're breaking the ground"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Open road, we're flying low",
+         "With the stars above and the sky below",
+         "Open road, we're burning bright",
+         "With the fire of the night and the light of the right"
+        ]
+       },
+       {
+        "tag": "Outro",
+        "lines": [
+         "Open road, we're flying low",
+         "With the stars above and the sky below",
+         "Open road, we're burning bright",
+         "With the fire of the night and the light of the right"
+        ]
+       }
+      ],
+      "engine": "yue2"
+     },
+     "assumptions": [
+      "assuming a major key for an upbeat mood",
+      "assuming a typical song structure with intro, verse, chorus, etc.",
+      "assuming English lyrics for an indie song"
+     ],
+     "changed": [
+      "title",
+      "style",
+      "bpm",
+      "key",
+      "timeSignature",
+      "language",
+      "structure",
+      "lyrics",
+      "engine"
+     ],
+     "skipped": [],
+     "undo": {
+      "rev": 1,
+      "before": {},
+      "fields": [
+       "title",
+       "style",
+       "bpm",
+       "key",
+       "timeSignature",
+       "language",
+       "structure",
+       "lyrics",
+       "engine"
+      ]
+     },
+     "estSeconds": 160
+    },
+    "proposalId": "85ff107b-f70e-4e4e-a1fb-021bc8488cc8",
+    "jobId": null,
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:17:14",
+    "state": "pending",
+    "job": null,
+    "phase": null,
+    "undo": "offer"
+   }
+  ],
+  "references": []
+ }
+}

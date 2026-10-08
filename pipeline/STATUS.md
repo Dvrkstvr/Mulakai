@@ -11,7 +11,7 @@
 - milestone: C0 + C1 + C3 done · features passing 43/83 · C2 (own session) · Re-time a transcription (own session)
 - autopilot: stopped — C1 reached (run 5, 6/12 rounds)
 - autopilot C2: round 4/12 (run 6) · wave 3 (CV-6, CV-8 building; CV-1 #238; CP-C2 next) · stall 0
-- LD (lyrics own call; German on gemma4, F-095, F-096): framed #241 · LD-1 building · LD-2 after #238 · LD-3 live
+- LD (lyrics own call; German on gemma4): built #242 #246 · live 2026-10-08 (pipeline/verify/2026-10-08-ld-live): German 22-35 s, /api/ps empty 15/15, take after release · open: keep-lyrics follow-up never keeps (qwen3 says write 3/3), first draft follow-up redirected · owner reads German lyrics
 - owed: cover listen (C3), M2 pair 2, M1 phrase
 - next: LD-1 PR → LD-2 once #238 merges; C2 and the BPM fix run in their own sessions; REPEAT-last-section task card
 

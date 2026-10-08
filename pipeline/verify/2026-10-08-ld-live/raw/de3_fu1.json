@@ -1,0 +1,406 @@
+{
+ "tag": "de3_fu1",
+ "text": "mach es etwas schneller",
+ "turn_seconds": 5.523795127868652,
+ "job": {
+  "status": "done"
+ },
+ "ps_after": {
+  "models": []
+ },
+ "timeline": [
+  {
+   "t": 0.0,
+   "vram": 1364,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_51a4c3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.1,
+   "vram": 3803,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_51a4c3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.7,
+   "vram": 9987,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_51a4c3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 2.8,
+   "vram": 12733,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_51a4c3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 3.4,
+   "vram": 12759,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_51a4c3": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 5.0,
+   "vram": 12759,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_51a4c3": [
+    "running",
+    "unloading the models"
+   ]
+  },
+  {
+   "t": 5.6,
+   "vram": 1521,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_51a4c3": [
+    "done",
+    null
+   ]
+  },
+  {
+   "t": 6.2,
+   "vram": 1368,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_51a4c3": [
+    "done",
+    null
+   ]
+  }
+ ],
+ "vram_peak": 12759,
+ "thread": {
+  "id": "0a41eded-eecd-4d4b-b9fd-d371adbbf1de",
+  "songId": null,
+  "draft": {
+   "draft_v": 1,
+   "rev": 1,
+   "fields": {
+    "title": "Abschied am Bahnhof",
+    "style": "Pop, piano, melancholic, female voice",
+    "bpm": 60,
+    "key": "Cm",
+    "timeSignature": "4/4",
+    "language": "de",
+    "structure": [
+     "Intro",
+     "Verse",
+     "Chorus",
+     "Verse",
+     "Chorus",
+     "Bridge",
+     "Chorus",
+     "Outro"
+    ],
+    "lyrics": [
+     {
+      "tag": "Verse",
+      "lines": [
+       "Der Nebel liegt schwer auf dem Gleis",
+       "Die Welt wird ganz leise und still",
+       "Ich sehe dein Gesicht im kalten Licht",
+       "Und weiß nicht, was ich jetzt fühlen will"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist wie ein tiefer Ton",
+       "Ein letzter, trauriger Augenblick"
+      ]
+     },
+     {
+      "tag": "Verse",
+      "lines": [
+       "Die Türen schließen mit einem harten Klang",
+       "Die Menschen strömen geschäftig vorbei",
+       "Ich halte nur noch die Erinnerung fest",
+       "Und fühle mich so unendlich einsam und frei"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist wie ein tiefer Ton",
+       "Ein letzter, trauriger Augenblick"
+      ]
+     },
+     {
+      "tag": "Bridge",
+      "lines": [
+       "Die Schienen führen in die Ferne",
+       "Wohin dein Weg dich auch mag tragen",
+       "Ich bleibe hier im Regen stehen",
+       "Und suche nach neuen Tagen"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist wie ein tiefer Ton",
+       "Ein letzter, trauriger Augenblick"
+      ]
+     },
+     {
+      "tag": "Outro",
+      "lines": [
+       "Nur noch der Wind weht durch die Nacht",
+       "Die Lichter am Bahnsteig verblassen",
+       "Alles ist nun vorbei",
+       "Und ich muss dich loslassen"
+      ]
+     }
+    ],
+    "engine": "yue2"
+   },
+   "touched": {}
+  },
+  "draftNote": null,
+  "blockers": [],
+  "messages": [
+   {
+    "id": "141461e4-32f4-4469-a3fe-724b4b5a99e1",
+    "threadId": "0a41eded-eecd-4d4b-b9fd-d371adbbf1de",
+    "seq": 1,
+    "role": "user",
+    "kind": "text",
+    "text": "ein langsamer Popsong über Abschied am Bahnhof",
+    "body": {
+     "chat_v": 1,
+     "sentRev": 0
+    },
+    "proposalId": null,
+    "jobId": "fb4727b6-5eae-40d3-9e94-1a1e4cf296c5",
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:13:46",
+    "state": "done",
+    "job": {
+     "status": "done"
+    },
+    "phase": null,
+    "undo": null
+   },
+   {
+    "id": "dbde214b-f35c-4e6e-a03e-3861ebb91f53",
+    "threadId": "0a41eded-eecd-4d4b-b9fd-d371adbbf1de",
+    "seq": 2,
+    "role": "assistant",
+    "kind": "recipe",
+    "text": "Ein langsamer Popsong über Abschied am Bahnhof wird erstellt. Die Liedtexte werden auf Deutsch geschrieben.",
+    "body": {
+     "chat_v": 1,
+     "recipe": {
+      "title": "Abschied am Bahnhof",
+      "style": "Pop, piano, melancholic, female voice",
+      "bpm": 60,
+      "key": "Cm",
+      "timeSignature": "4/4",
+      "language": "de",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Bridge",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "Der Nebel liegt schwer auf dem Gleis",
+         "Die Welt wird ganz leise und still",
+         "Ich sehe dein Gesicht im kalten Licht",
+         "Und weiß nicht, was ich jetzt fühlen will"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist wie ein tiefer Ton",
+         "Ein letzter, trauriger Augenblick"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Die Türen schließen mit einem harten Klang",
+         "Die Menschen strömen geschäftig vorbei",
+         "Ich halte nur noch die Erinnerung fest",
+         "Und fühle mich so unendlich einsam und frei"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist wie ein tiefer Ton",
+         "Ein letzter, trauriger Augenblick"
+        ]
+       },
+       {
+        "tag": "Bridge",
+        "lines": [
+         "Die Schienen führen in die Ferne",
+         "Wohin dein Weg dich auch mag tragen",
+         "Ich bleibe hier im Regen stehen",
+         "Und suche nach neuen Tagen"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist wie ein tiefer Ton",
+         "Ein letzter, trauriger Augenblick"
+        ]
+       },
+       {
+        "tag": "Outro",
+        "lines": [
+         "Nur noch der Wind weht durch die Nacht",
+         "Die Lichter am Bahnsteig verblassen",
+         "Alles ist nun vorbei",
+         "Und ich muss dich loslassen"
+        ]
+       }
+      ],
+      "engine": "yue2"
+     },
+     "assumptions": [
+      "key: C minor",
+      "bpm: 60",
+      "time_signature: 4/4",
+      "language: German"
+     ],
+     "changed": [
+      "title",
+      "style",
+      "bpm",
+      "key",
+      "timeSignature",
+      "language",
+      "structure",
+      "lyrics",
+      "engine"
+     ],
+     "skipped": [],
+     "undo": {
+      "rev": 1,
+      "before": {},
+      "fields": [
+       "title",
+       "style",
+       "bpm",
+       "key",
+       "timeSignature",
+       "language",
+       "structure",
+       "lyrics",
+       "engine"
+      ]
+     },
+     "estSeconds": 256
+    },
+    "proposalId": "92b76fbc-3824-42be-9d87-f2a9370e5c4a",
+    "jobId": null,
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:14:12",
+    "state": "pending",
+    "job": null,
+    "phase": null,
+    "undo": "offer"
+   },
+   {
+    "id": "9ffee2e3-1585-4932-a527-c79753d76244",
+    "threadId": "0a41eded-eecd-4d4b-b9fd-d371adbbf1de",
+    "seq": 3,
+    "role": "user",
+    "kind": "text",
+    "text": "mach es etwas schneller",
+    "body": {
+     "chat_v": 1,
+     "sentRev": 1
+    },
+    "proposalId": null,
+    "jobId": "51a4c3dd-eb23-4722-9322-4a853bc370a6",
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:14:14",
+    "state": "done",
+    "job": {
+     "status": "done"
+    },
+    "phase": null,
+    "undo": null
+   },
+   {
+    "id": "42d5e776-8870-4752-93fb-71774d579b84",
+    "threadId": "0a41eded-eecd-4d4b-b9fd-d371adbbf1de",
+    "seq": 4,
+    "role": "assistant",
+    "kind": "say",
+    "text": "There is no song to change yet: describe the song you want and I will propose one.",
+    "body": null,
+    "proposalId": null,
+    "jobId": null,
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:14:19",
+    "state": null,
+    "job": null,
+    "phase": null,
+    "undo": null
+   }
+  ],
+  "references": []
+ }
+}

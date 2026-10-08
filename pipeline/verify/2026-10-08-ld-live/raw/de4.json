@@ -1,0 +1,465 @@
+{
+ "tag": "de4",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "turn_seconds": 22.22409415245056,
+ "job": {
+  "status": "done"
+ },
+ "ps_after": {
+  "models": []
+ },
+ "timeline": [
+  {
+   "t": 0.0,
+   "vram": 1090,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.1,
+   "vram": 7313,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 1.7,
+   "vram": 9721,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 2.8,
+   "vram": 12500,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 5.0,
+   "vram": 12496,
+   "ps": [
+    "qwen3:14b"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "attempt 1 of 3"
+   ]
+  },
+  {
+   "t": 6.7,
+   "vram": 10918,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 7.4,
+   "vram": 1093,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 8.0,
+   "vram": 1300,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 10.7,
+   "vram": 1304,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 11.9,
+   "vram": 1300,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 13.6,
+   "vram": 13178,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 14.1,
+   "vram": 13170,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 15.8,
+   "vram": 14152,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 16.4,
+   "vram": 15444,
+   "ps": [],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 17.0,
+   "vram": 15464,
+   "ps": [
+    "gemma4:26b-a4b-it-q4_K_M"
+   ],
+   "run": "plan",
+   "queued": [],
+   "job_3479f0": [
+    "running",
+    "writing lyrics · gemma4"
+   ]
+  },
+  {
+   "t": 22.1,
+   "vram": 1091,
+   "ps": [],
+   "run": null,
+   "queued": [],
+   "job_3479f0": [
+    "done",
+    null
+   ]
+  }
+ ],
+ "vram_peak": 15464,
+ "thread": {
+  "id": "7b212205-2099-4bfe-828a-002ad1a43aa0",
+  "songId": null,
+  "draft": {
+   "draft_v": 1,
+   "rev": 1,
+   "fields": {
+    "title": "Abschied am Bahnhof",
+    "style": "Pop, emotional, piano, strings, melancholic",
+    "bpm": 60,
+    "key": "A",
+    "timeSignature": "4/4",
+    "language": "de",
+    "structure": [
+     "Intro",
+     "Verse",
+     "Chorus",
+     "Verse",
+     "Chorus",
+     "Bridge",
+     "Chorus",
+     "Outro"
+    ],
+    "lyrics": [
+     {
+      "tag": "Verse",
+      "lines": [
+       "Der Nebel liegt schwer auf dem Gleis",
+       "Die Welt wird so leise und still",
+       "Ich sehe dein Gesicht im fahlen Licht",
+       "Und weiß nicht, was ich jetzt sagen will",
+       "Nur der kalte Wind weht durch die Nacht"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist ein schwerer Ton",
+       "Ein letzter, trauriger Augenblick",
+       "In meinem Herzen bleibt nur die Leere"
+      ]
+     },
+     {
+      "tag": "Verse",
+      "lines": [
+       "Die Schienen führen weit in die Ferne",
+       "Wo du nun dein neues Leben beginnst",
+       "Ich halte noch fest an der Erinnerung",
+       "Während die Zeit so unerbittlich rinnt",
+       "Und die Lichter der Stadt langsam verblassen"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist ein schwerer Ton",
+       "Ein letzter, trauriger Augenblick",
+       "In meinem Herzen bleibt nur die Leere"
+      ]
+     },
+     {
+      "tag": "Bridge",
+      "lines": [
+       "Ich wollte die Zeit einfach anhalten",
+       "Dich noch einmal ganz fest halten",
+       "Doch das Schicksal hat seinen eigenen Plan",
+       "Und lässt uns nicht mehr zusammen sein"
+      ]
+     },
+     {
+      "tag": "Chorus",
+      "lines": [
+       "Der Zug fährt langsam davon",
+       "Und lässt mich hier einsam zurück",
+       "Dein Abschied ist ein schwerer Ton",
+       "Ein letzter, trauriger Augenblick",
+       "In meinem Herzen bleibt nur die Leere"
+      ]
+     },
+     {
+      "tag": "Outro",
+      "lines": [
+       "Nur noch die Stille am Bahnsteig",
+       "Nur noch der Regen auf dem Stein",
+       "Du bist fort, und ich bleibe hier",
+       "Ganz allein"
+      ]
+     }
+    ],
+    "engine": "yue2"
+   },
+   "touched": {}
+  },
+  "draftNote": null,
+  "blockers": [],
+  "messages": [
+   {
+    "id": "f21b4132-979b-44a8-8af0-1839ad1df384",
+    "threadId": "7b212205-2099-4bfe-828a-002ad1a43aa0",
+    "seq": 1,
+    "role": "user",
+    "kind": "text",
+    "text": "ein langsamer Popsong über Abschied am Bahnhof",
+    "body": {
+     "chat_v": 1,
+     "sentRev": 0
+    },
+    "proposalId": null,
+    "jobId": "3479f0ec-933d-411e-8fe7-ab51fb58fd55",
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:17:39",
+    "state": "done",
+    "job": {
+     "status": "done"
+    },
+    "phase": null,
+    "undo": null
+   },
+   {
+    "id": "80a56d73-058b-4ab9-b6dd-71ce781d474a",
+    "threadId": "7b212205-2099-4bfe-828a-002ad1a43aa0",
+    "seq": 2,
+    "role": "assistant",
+    "kind": "recipe",
+    "text": "Ein langsamer Popsong über Abschied am Bahnhof wird erstellt. Die Melodie ist emotional und trägt die Stimmung des Abschieds.",
+    "body": {
+     "chat_v": 1,
+     "recipe": {
+      "title": "Abschied am Bahnhof",
+      "style": "Pop, emotional, piano, strings, melancholic",
+      "bpm": 60,
+      "key": "A",
+      "timeSignature": "4/4",
+      "language": "de",
+      "structure": [
+       "Intro",
+       "Verse",
+       "Chorus",
+       "Verse",
+       "Chorus",
+       "Bridge",
+       "Chorus",
+       "Outro"
+      ],
+      "lyrics": [
+       {
+        "tag": "Verse",
+        "lines": [
+         "Der Nebel liegt schwer auf dem Gleis",
+         "Die Welt wird so leise und still",
+         "Ich sehe dein Gesicht im fahlen Licht",
+         "Und weiß nicht, was ich jetzt sagen will",
+         "Nur der kalte Wind weht durch die Nacht"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist ein schwerer Ton",
+         "Ein letzter, trauriger Augenblick",
+         "In meinem Herzen bleibt nur die Leere"
+        ]
+       },
+       {
+        "tag": "Verse",
+        "lines": [
+         "Die Schienen führen weit in die Ferne",
+         "Wo du nun dein neues Leben beginnst",
+         "Ich halte noch fest an der Erinnerung",
+         "Während die Zeit so unerbittlich rinnt",
+         "Und die Lichter der Stadt langsam verblassen"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist ein schwerer Ton",
+         "Ein letzter, trauriger Augenblick",
+         "In meinem Herzen bleibt nur die Leere"
+        ]
+       },
+       {
+        "tag": "Bridge",
+        "lines": [
+         "Ich wollte die Zeit einfach anhalten",
+         "Dich noch einmal ganz fest halten",
+         "Doch das Schicksal hat seinen eigenen Plan",
+         "Und lässt uns nicht mehr zusammen sein"
+        ]
+       },
+       {
+        "tag": "Chorus",
+        "lines": [
+         "Der Zug fährt langsam davon",
+         "Und lässt mich hier einsam zurück",
+         "Dein Abschied ist ein schwerer Ton",
+         "Ein letzter, trauriger Augenblick",
+         "In meinem Herzen bleibt nur die Leere"
+        ]
+       },
+       {
+        "tag": "Outro",
+        "lines": [
+         "Nur noch die Stille am Bahnsteig",
+         "Nur noch der Regen auf dem Stein",
+         "Du bist fort, und ich bleibe hier",
+         "Ganz allein"
+        ]
+       }
+      ],
+      "engine": "yue2"
+     },
+     "assumptions": [
+      "key: A minor",
+      "bpm: 60",
+      "time_signature: 4/4",
+      "language: German"
+     ],
+     "changed": [
+      "title",
+      "style",
+      "bpm",
+      "key",
+      "timeSignature",
+      "language",
+      "structure",
+      "lyrics",
+      "engine"
+     ],
+     "skipped": [],
+     "undo": {
+      "rev": 1,
+      "before": {},
+      "fields": [
+       "title",
+       "style",
+       "bpm",
+       "key",
+       "timeSignature",
+       "language",
+       "structure",
+       "lyrics",
+       "engine"
+      ]
+     },
+     "estSeconds": 296
+    },
+    "proposalId": "bf201827-64b4-404c-9614-692c782e3637",
+    "jobId": null,
+    "versionId": null,
+    "clientKey": null,
+    "createdAt": "2026-10-08 11:18:01",
+    "state": "pending",
+    "job": null,
+    "phase": null,
+    "undo": "offer"
+   }
+  ],
+  "references": []
+ }
+}
