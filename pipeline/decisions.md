@@ -915,3 +915,15 @@ While a mark is shown, the lyrics panel keeps the section just before and just a
 ## D-244 · 2026-10-08 · stage 7 (chat C2, CV-5, R-040) · by: conductor
 CP-C2 (pipeline/cp-c2/2026-10-08): prompt p95 5,403 tokens, 0 context refusals, 0 silent losses, 2/21 failures — but STOP on additive drops, 5 of 11 (qwen3:14b fills `drop` with the ops a reply "replaces" even when the request only adds; every drop showed under REMOVED). Also a dropped-and-returned-identical op showed NEW + REMOVED. Fix before CV-7: SAME for an identical re-return, a prompt line that an addition keeps every pending op, re-run; if still over 3/10, a no-removal-words guard that retries once with a named reason (like D-201), never a silent override.
 - instead of: building CV-7 on a revise that loses ops on additions; overriding the model's `drop` silently.
+
+## D-245 · 2026-10-08 · stage 7 (LD-2, F-095) · by: assumed (builder)
+`keep` keeps the draft's lyrics only when they are exactly one section per sung section of the new structure, in order (recipeRules `lyricsFit`: same count + `followsStructure`); otherwise the turn writes. Kept lyrics are the person's (maybe hand-edited) words and are not re-checked for line counts; written lyrics must pass the whole `recipeProblems` (structure order, LYRICS_MAX as a "shorten" retry reason).
+- instead of: `followsStructure` alone (a subsequence: "add a bridge" would keep lyrics with no Bridge section); re-checking kept lyrics (a hand-edited 3-line verse would be rewritten by "make it faster").
+
+## D-246 · 2026-10-08 · stage 7 (LD-2, F-095, F-049) · by: assumed (builder)
+A lyrics model that is not pulled fails the turn with cause `check` (a failed line with RETRY, reason `model <m> is not on the planner: run 'ollama pull <m>'`), not `offline`: the planner answered, so ASSISTANT OFF (composer disabled) would be wrong for every other language. Progress lines: `writing lyrics · <model before ':'>`, `unloading the planner` between models, `unloading the models` in the finally.
+- instead of: `offline` (the planner's own probe failure keeps it).
+
+## D-247 · 2026-10-08 · stage 7 (LD-2, F-095) · by: assumed (builder)
+Left as they were: the REFERENCE rule still says the model writes a cover's lyrics (its routing words are measured by chatCp3; the strict schema now only accepts write / keep, and referenceRecipe lays the written sections onto the reference's structure), and the client's turn cost (~10 s) is not language-aware (the cost line shows before the planner picks the language; `TURN_COST` is unused, `QUEUED_TAIL` is generic). Owed: chatCp3 re-run with the LD prompt; a German cost line if F-096 shows it is needed.
+- instead of: editing the REFERENCE rule without a chatCp3 run; guessing the language client-side.
