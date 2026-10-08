@@ -628,8 +628,8 @@
         "An e2e spec runs recipe -> CREATE -> edit -> APPLY -> new version in the thread against fakes in e2e/ whose yue-server replies are recorded from pytest contract fixtures (D-039)",
         "Edge steps: assistant offline, a cancel while thinking, a stale proposal; the existing golden path is unchanged and sets no LLM_API_URL; CI runs green on a PR"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "CI: E2E + Checks success on main 86392e4 (run 37702123175); e2e/tests/chat.spec.ts covers assistant off, cancel while thinking, CREATE, mark, edit+APPLY, stale. Not re-run locally. pipeline/c1-live.md"
     },
     {
       "id": "F-052",
@@ -643,7 +643,7 @@
         "Edge: LYRICS_API_URL unset skips the words step with 'no word timings' and is not a failure; the transcription's section names are checked on 3 non-YuE2 songs (Q-070) and the result recorded; a failed analysis leaves marking by time working"
       ],
       "passes": false,
-      "evidence": null
+      "evidence": "Live: states queued/running/done seen, reload mid-read ok, APPLY queued behind analysis ok, no word timings ok; FAIL: service outage stores a done-but-partial reading, no reason/RETRY (retry 409 \"already read\"). pipeline/c1-live.md B1"
     },
     {
       "id": "F-053",
@@ -657,7 +657,7 @@
         "Check at 1366x768 with the player above the composer: the thread keeps at least 400 px"
       ],
       "passes": false,
-      "evidence": null
+      "evidence": "Live: strip, line, BARS NOT SHOWN, transcribed line, hatched, thread 400 px pass; dim state not observed, line total vs strip sums differ (B4). pipeline/c1-live.md"
     },
     {
       "id": "F-054",
@@ -669,8 +669,8 @@
         "The mark stays until cleared (empty click, ✕ or Esc); a mark across two sections reads 'VERSE 3 - CHORUS 2'",
         "Edge: a mark cannot pass the song's ends; a drag during a hatched strip marks by time and snaps to bars when the reading lands"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "Live in browser pane 1366x768: click, edge drag (+2 bars), body drag, new drag, two-section label, end clamp, Esc, hatched time mark snaps on landing; Alt and pointer tag not exercised. pipeline/verify/C1/, pipeline/c1-live.md"
     },
     {
       "id": "F-055",
@@ -684,7 +684,7 @@
         "Edge: with no mark the whole song is the scope and no chip shows; a mark reaching outside a plan's allowed range is clamped with the reason on the card"
       ],
       "passes": false,
-      "evidence": null
+      "evidence": "Live: MARK in turn, WHAT IT SEES/AS SENT, echo re-mark, stale+USE BARS gating, queue note pass; FAIL: \"make this jazzier\" plans EDIT STYLE (whole song) beside the bounded op (B2). pipeline/c1-live.md"
     },
     {
       "id": "F-056",
