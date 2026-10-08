@@ -12,6 +12,22 @@ import {
 } from './chatConvergeCopy';
 import { extendMark, lineMark, playFrom, sectionMark, type LineTimes } from './chatLyricsMark';
 import type { LineRow, PanelRows, PartRow } from './chatLyricsPanel';
+
+type Shown = PartRow & { ctx?: true };
+/** Shift-click across a boundary (chat-converge.html 2b): the sections just before and after the marked part stay as
+ * one dim context row each (the line next to the mark), so a click or shift-click can reach them. */
+function withNeighbours(parts: PartRow[], sections: PanelSection[]): Shown[] {
+  const held = parts.filter((x) => !x.proposed);
+  const at = held.map((x) => sections.findIndex((s) => s.strip === x.section.strip)).filter((i) => i >= 0);
+  if (!at.length) return parts;
+  const ctx = (s: PanelSection | undefined, edge: 'first' | 'last'): Shown[] => {
+    if (!s || parts.some((x) => x.section.strip === s.strip)) return [];
+    const line = edge === 'first' ? s.lines[0] : s.lines.at(-1);
+    const lines = line ? [{ n: line.n, text: line.text, old: null, seconds: null, bar: null, marked: false }] : [];
+    return [{ section: s, whole: false, markedBars: null, lines, more: 0, untimed: false, proposed: false, ctx: true }];
+  };
+  return [...ctx(sections[Math.min(...at) - 1], 'last'), ...held, ...ctx(sections[Math.max(...at) + 1], 'first'), ...parts.filter((x) => x.proposed)];
+}
 import './chatLyrics.css';
 
 interface Props {
@@ -87,7 +103,7 @@ export function ChatLyricsPanel(p: Props) {
             <b>{panelName(r.section, sections)}{r.proposed && <em className="chat-tag">{PROPOSED}</em>}</b>
             <span>{r.section.bars[0]}–{r.section.bars[1]}</span><span>{linesText(r.count)}</span><em>{r.first ?? ''}</em>
           </button>
-        )) : rows.parts.map((x, i) => <Part key={x.section.strip} part={x} brk={i > 0} sections={sections} {...p} onHeader={header} onLine={mark} />)}
+        )) : withNeighbours(rows.parts, sections).map((x, i) => <Part key={x.section.strip} part={x} brk={i > 0} sections={sections} {...p} onHeader={header} onLine={mark} />)}
         {rows.note && <div className="chat-lp-ft">{rows.note}</div>}
         {rows.kind === 'marked' && !reading && <div className="chat-lp-ft">{LINE_HINT}</div>}
       </div>
@@ -96,7 +112,7 @@ export function ChatLyricsPanel(p: Props) {
 }
 
 interface PartProps extends Props {
-  part: PartRow; brk: boolean; sections: PanelSection[];
+  part: Shown; brk: boolean; sections: PanelSection[];
   onHeader: (e: MouseEvent, s: PanelSection) => void;
   onLine: (e: MouseEvent, target: RangeMark | null) => void;
 }
@@ -115,7 +131,7 @@ function Part({ part, brk, sections, view, times, duration, markable, onHeader, 
     if (at !== null) onPlay?.(at);
   };
   return (
-    <div className={`chat-lp-part${brk ? ' brk' : ''}${part.proposed ? ' proposed' : ''}`}>
+    <div className={`chat-lp-part${brk ? ' brk' : ''}${part.proposed ? ' proposed' : ''}${part.ctx ? ' ctx' : ''}`}>
       <button type="button" className="chat-lp-sx" disabled={!markable} onClick={(e) => onHeader(e, s)} onDoubleClick={() => play(null)}>
         <span>{name}{part.proposed && <em className="chat-tag">{PROPOSED}</em>}</span><span>{rest.join(' · ')}</span>
       </button>

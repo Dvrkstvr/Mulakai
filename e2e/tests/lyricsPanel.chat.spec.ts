@@ -68,10 +68,20 @@ test('the sidebar is the song panel; the section list, a click marks one, only t
   await expect(page.locator('.chat-player .chat-strip').getByRole('button', { name: 'VERSE' })).toHaveClass(/\bon\b/);
   await expect(panel(page)).toContainText('LYRICS · VERSE');
   await expect(panel(page)).toContainText('into the rain');
-  await expect(panel(page)).not.toContainText('hold on');
-  // No word timings (LYRICS_API_URL unset): a line click marks its section (D-218).
-  await panel(page).getByRole('button', { name: /walking out/ }).click();
+  // The next section stays as one dim context row (its first line), for shift-click across the boundary (2b).
+  const ctx = panel(page).locator('.chat-lp-part.ctx');
+  await expect(ctx.filter({ hasText: 'CHORUS' })).toContainText('hold on');
+  await expect(panel(page).locator('.chat-lp-part:not(.ctx)')).not.toContainText('hold on');
+  // No word timings (LYRICS_API_URL unset): a line click marks its section (D-218), a double-click plays from it.
+  const clock = page.locator('.chat-player').getByText(/^\d+:\d\d \/ /);
+  await expect(clock).toHaveText(/^0:00 \//);
+  await panel(page).getByRole('button', { name: /walking out/ }).dblclick();
+  await expect(clock).not.toHaveText(/^0:0\d \//);
   await expect(markChip(page)).toHaveText(/^THIS: VERSE · BARS 11–46 · /);
+  // Shift-click the context row's line: the mark stretches over both sections.
+  await ctx.getByRole('button', { name: /hold on/ }).click({ modifiers: ['Shift'] });
+  await expect(markChip(page)).toHaveText(/^THIS: .*BARS 11–62 · /);
+  await expect(panel(page)).toContainText('LYRICS · 2 SECTIONS');
   // The panel never follows playback and never edits words: no text field in it.
   await expect(panel(page).getByRole('textbox')).toHaveCount(0);
 

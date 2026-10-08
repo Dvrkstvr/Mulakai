@@ -10,6 +10,7 @@ import { lineTimes } from './chatLyricsMark';
 import { liveDiffs, panelRows } from './chatLyricsPanel';
 import { useChatMarkStore } from './chatMarkStore';
 import { useChatStore } from './chatStore';
+import { useChatAb } from './useChatPlayback';
 // The extension is load-bearing: on a case-blind disk './ChatLyricsPanel' resolves to the pure chatLyricsPanel.ts.
 import { ChatLyricsPanel } from './ChatLyricsPanel.tsx';
 
@@ -63,6 +64,7 @@ export function ChatSongLyrics({ song }: { song: SongDetail | null }) {
       onClear={() => useChatMarkStore.getState().clear(threadId)}
       onRetry={() => void useChatAnalysisStore.getState().retry()}
       onAsk={focusComposer}
+      onPlay={(at) => useChatAb.getState().playAt(at)}
     />
   );
 }

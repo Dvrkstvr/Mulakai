@@ -52,6 +52,10 @@
 .chat-lp-ft { padding: 4px 14px; font: 10px ui-monospace, monospace; color: var(--text-low); }
 .chat-lp-ft.in { padding-left: 48px; }
 
+/* The sections next to the mark (2b): one dim row each, header and the line by the mark, to click or shift-click. */
+.chat-lp .chat-lp-part.ctx .chat-lp-sx { color: var(--text-low); }
+.chat-lp-part.ctx .chat-lp-ln { color: var(--text-low); }
+
 /* A new version being read: the old panel at 55%, still marking by bars. */
 .chat-lp-dim { opacity: 0.55; }
 .chat-lp .chat-lp-box { margin: 10px 14px; }

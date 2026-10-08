@@ -52,6 +52,13 @@ describe('ChatLyricsPanel', () => {
     expect(out).toContain('1 OF 2 LINES');
     expect(out).toMatch(/class="chat-lp-ln m"><i>5<\/i><span>v1 b<\/span>/);
   });
+  it('the sections next to the mark stay as one dim row each, the line by the mark, so shift-click can cross (2b)', () => {
+    const out = draw(V, mark(7, 10));
+    expect(out).toMatch(/chat-lp-part ctx"><button[^>]*><span>VERSE 1<\/span>.*<span>v1 b<\/span>/);
+    expect(out).toMatch(/chat-lp-part brk ctx"><button[^>]*><span>VERSE 2<\/span>.*<span>v2 a<\/span>/);
+    expect(out).not.toContain('v1 a');
+    expect(out).toContain('LYRICS · CHORUS 1'); // the title counts only the marked part
+  });
   it('two sections: both headers, a dashed break, the unmarked lines counted', () => {
     const out = draw(V, mark(9, 12));
     expect(out).toContain('LYRICS · 2 SECTIONS · 2 LINES');
