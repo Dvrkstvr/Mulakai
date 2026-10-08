@@ -7,10 +7,11 @@
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C1 DONE 2026-10-08 (built #190-#212, reviewed #215, CP-C1 5/5, live-verified #217 #224, fixes #219 #220 #225, curated); C2 runs in its own session
 - clarity: blocking 0 · latest Q-147 · decisions to D-238
-- feasibility: amber · H-open 1 (R-038 German lyrics: two-draft fix chosen D-232, build owed) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7
-- milestone: C0 + C1 + C3 done · features passing 43/81 · C2 (own session) · Re-time a transcription (own session)
+- feasibility: amber · H-open 1 (R-038 German lyrics: two-draft fix chosen D-232, build owed) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7 · R-042 LD turn time
+- milestone: C0 + C1 + C3 done · features passing 43/84 · C2 (own session) · Re-time a transcription (own session)
 - autopilot: stopped — C1 reached (run 5, 6/12 rounds)
 - autopilot C2: round 4/12 (run 6) · wave 3 (CV-6, CV-8 building; CV-1 #238; CP-C2 next) · stall 0
+- LD (two German lyric drafts, F-095..F-097): framed, mockup signed (D-237) #241 · LD-1 building · LD-2 after #238 · LD-3 after CV-8 · LD-4 live
 - owed: cover listen (C3), M2 pair 2, M1 phrase
 - next: LD-1 PR → LD-2 once #238 merges; C2 and the BPM fix run in their own sessions; REPEAT-last-section task card
 
