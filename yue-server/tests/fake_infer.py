@@ -28,6 +28,12 @@ else:
     (out / "score.abc").write_text(f"X:1\nK:C\n% verse\nV: Vocal\n{chord}C8|\n",
                                    encoding="utf-8", newline="\n")  # fixtures stay byte-stable on Windows
     (out / "downbeat.lab").write_text("0.5\n2.5\n", encoding="utf-8")
+    notation = out / "notation"  # what /notation hands out for a re-time (F-090)
+    notation.mkdir(exist_ok=True)
+    (notation / "song_beats.txt").write_text("0.500\t1\t4\t4\n1.000\t2\t4\t4\n", encoding="utf-8")
+    for name in ("song_chords.txt", "song_keys.txt", "song_structures.txt"):
+        (notation / name).write_text("0.5\t2.5\tx\n", encoding="utf-8")
+    (notation / "song_melody.mid").write_bytes(b"MThd-fake")
 if render and mode == "render_fail":
     report["render_error"] = "Could not start the renderer"
 elif render and mode != "no_score":

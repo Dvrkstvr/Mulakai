@@ -13,7 +13,8 @@ SheetSage2 transcription for covers adds /v1/transcriptions
 (transcribe_routes.py), POST /v1/scores/measure sizes a cover's score
 (score_routes.py), POST /v1/scores/read and /apply serve the score agent
 (score_edit_routes.py), and /v1/splices splices a chat edit into the current
-version (splice_routes.py).
+version (splice_routes.py). /v1/scores/retime rebuilds a transcription at half
+time, double time or a named BPM from its saved notation files (retime_routes.py).
 
 Run (inside WSL, in the yue2 venv): python main.py
 """
@@ -33,6 +34,8 @@ from request_model import GenerateRequest
 from scores import ScoreError, prepare_score
 from settings import Settings
 from score_edit_routes import add_score_edit_routes
+from retime_routes import add_retime_routes
+from retimer import Retimer
 from score_routes import add_score_routes
 from splice_job import sheetsage_tracker
 from splice_routes import add_splice_routes
@@ -145,6 +148,7 @@ def create_app(settings: Settings | None = None, pipeline_factory=None, splice_t
     add_score_routes(app, worker, authorize)
     add_score_edit_routes(app, worker, authorize)
     add_splice_routes(app, settings, store, worker, authorize)
+    add_retime_routes(app, store, Retimer(settings.sheetsage_python, settings.sheetsage_dir), authorize)
     return app
 
 
