@@ -922,4 +922,9 @@ fixed list of removal or replacement words (English plus the commonest German an
 only, just, no, not, without, fewer, cut, vergiss, entfern-, ohne, quita, sin, ...) and the reply drops a pending op that
 no returned op replaces on its target, the reply goes back once with "this request adds; keep every pending op: drop []";
 a second drop stands and the card lists it REMOVED (never overridden silently). A dropped op returned unchanged is merged
-back in its place as SAME (planRevise.mergeRevise). The id may need renumbering on merge (origin/main was at D-244).
+back in its place as SAME (planRevise.mergeRevise). The mirror start-over guard (same file, after CP-C2 r2/r3 kept every
+op on "forget all that" 0 of 3 twice): when the words start over ("forget all that", "start over", "from scratch", "scrap
+that,", "instead of all that", "never mind all that", "vergiss das alles", "olvida todo"; "that"/"this"/"it" only as the
+whole object, so "scrap that chorus" is not) and the reply keeps a pending op it neither drops nor replaces on its target,
+the reply goes back once with "this request starts over: drop every pending op"; a second keep stands. Each guard is
+spent on its first refusal.
