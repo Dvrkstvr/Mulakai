@@ -367,7 +367,7 @@ The refusal for a gone saved reading says "gone" with no date. Alternative: say 
 
 ## Q-132 · assumable · stage 5 (RT, F-093/F-094, design/retime.html) · open
 A RE-TIME stands alone in a plan: the planner drops other ops (bars change under them) and says so. Alternative: allow RE-TIME first in a list with later ops on the new bars.
-## Q-133 · assumable · stage 6 (chat C2, F-058) · assumed → D-213
+## Q-136 · assumable · stage 6 (chat C2, F-058; renumbered from Q-133) · assumed → D-227
 How a chat REVISE starts. Default: the server revises whenever a live, unchanged edit card exists (the model drops everything to start over). Alternatives: a REVISE button on the card; a flag the model sets in its reply.
 
 ## Q-134 · assumable · stage 6 (chat C2, F-059) · assumed → D-220

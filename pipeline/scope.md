@@ -236,7 +236,7 @@ shown as OLD | NEW twice, REVISE as a follow-up turn (the existing merge, D-073/
 bar map inside the edit card (was F-036; PLAN: M4's bar map goes into the edit card). Mostly existing machinery behind new cards, so lower
 risk than C1; value high once C1 exists because the mark makes lyric rows pickable.
 
-**Work packages (stage 6, 2026-10-08; modules, data and tests in architecture.md "Chat (C2)"; D-213..D-226).**
+**Work packages (stage 6, 2026-10-08; modules, data and tests in architecture.md "Chat (C2)"; D-214..D-227).**
 What the person can do when C2 is done: on a song's thread, the sidebar shows VERSIONS, STYLE, TEMPO · KEY and the
 lyrics panel; with no mark it lists the sections, a click marks CHORUS 2 and the panel shows only its lines; shift-click
 a verse line to stretch the mark; "make this jazzier" gives an edit card with a bar map whose bars 49-56 light when the
@@ -246,7 +246,7 @@ above the new in the panel (PROPOSED if chorus 2 is not marked); on a new-song d
 last reply filled and keeps the field typed by hand.
 
 The thin path (each reversible): REVISE is decided by the server, not a button (a live, unchanged edit card makes the
-turn's edit a `{drop, ops}` revise merged by the score agent's `mergeRevise`, D-213, docs/decisions/0010); the
+turn's edit a `{drop, ops}` revise merged by the score agent's `mergeRevise`, D-227, docs/decisions/0010); the
 lyrics panel rides in C1's analysis view, no new route (D-217); line times come from the Editor's `alignLyrics` (D-218);
 the bar map is built on the server and replaces the edit card's strip (D-215); UNDO is a server record written with
 the merge (D-220). No new queue kind, no migration, no yue-server transcription file (the "Re-time a transcription"

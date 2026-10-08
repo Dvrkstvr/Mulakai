@@ -1,6 +1,6 @@
 # 0010 · A follow-up message revises the pending edit card; the server decides
 
-Date: 2026-10-08 · Status: accepted (assumed by the architect, D-213..D-215) · Source: F-058, F-060, D-073, D-076
+Date: 2026-10-08 · Status: accepted (assumed by the architect, D-227, D-214, D-215) · Source: F-058, F-060, D-073, D-076
 
 ## Context
 

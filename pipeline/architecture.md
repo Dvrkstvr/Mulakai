@@ -953,8 +953,8 @@ as fact" → `resolveRange` + `barShift` tables and the chat e2e's stale steps; 
      chat-create.html CH-4/CH-5, chat-edit.html EC-2 (the strip the bar map replaces), score-m2.html M2-6/M2-8 (the
      dock's REVISE marks and OLD | NEW, reused); DT-C2 draws what none of them drew. Builds on main 72e18a2 (C1 merged;
      its live re-check and curate run elsewhere). Evidence labels: (code) seen in code on main, (run) seen running,
-     (doc) documented, (inf) inferred. LOC are estimates; target 150, cap 200. Decisions D-213..D-226, questions
-     Q-133..Q-135, risks R-040/R-041; docs/decisions/0010. Owns no yue-server transcription file (the "Re-time a
+     (doc) documented, (inf) inferred. LOC are estimates; target 150, cap 200. Decisions D-214..D-227 (D-227 was D-213), questions
+     Q-134..Q-136 (Q-136 was Q-133), risks R-040/R-041; docs/decisions/0010. Owns no yue-server transcription file (the "Re-time a
      transcription" session works there, D-190). -->
 
 ## Shape in one paragraph
@@ -1007,7 +1007,7 @@ so they survive a reload.
    the song's plan (D-028) and the old card reads superseded ("revised below"). A failed, cancelled or offline turn
    writes its failed line and leaves the card and plan alive (code: a failed turn writes nothing else). A `say` or
    `ask` reply leaves the card pending too. A song changed since the card → no revise, a fresh plan, as today.
-   Dropping every pending op and returning new ones is a replacement (all REMOVED + NEW), never silent (D-213).
+   Dropping every pending op and returning new ones is a replacement (all REMOVED + NEW), never silent (D-227).
 5. **The bar map (F-060).** `barMap(facts, ops)` at dispatch → `body.map = {bars, sections, ops: [{spans, whole}]}`:
    REHARMONIZE its bars, WRITE_PHRASE start + length, REPEAT / CUT its section, REWRITE LYRICS the section its block
    pairs with (`lyricPairing`), SET TEMPO / TRANSPOSE / EDIT STYLE the whole song (`whole`, hatched). The card draws

@@ -70,7 +70,7 @@ export const failedLine = (version: number | null, reason: string) => `COULDN'T 
 
 /** The revised edit card's header tag (F-058): from plan 2 on. */
 export const revisedHeader = (revision: number | undefined) => (revision && revision > 1 ? `REVISED · PLAN ${revision}` : null);
-/** A superseded card: revised by the card below it (D-213), or replaced by a fresh plan (C0b). */
+/** A superseded card: revised by the card below it (D-227), or replaced by a fresh plan (C0b). */
 export const supersededBody = (revised: boolean) => (revised ? 'Revised below. This one cannot be applied.' : EDIT_SUPERSEDED_BODY);
 /** The bar map's hatched row for SET TEMPO, TRANSPOSE, EDIT STYLE (F-060). */
 export const WHOLE_SONG = 'WHOLE SONG';
