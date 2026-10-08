@@ -19,6 +19,16 @@ describe('useChatAb', () => {
     useChatAb.getState().playSong();
     expect(useChatAb.getState()).toMatchObject({ side: 'song', playNonce: nonce + 1 });
   });
+  it('a lyrics-panel double-click asks to play the song from its seconds (F-056): back to the song, each ask new', () => {
+    useChatAb.getState().toggle('previous');
+    useChatAb.getState().setNote('NOW PLAYING THE NEW VERSION');
+    useChatAb.getState().playAt(12.5);
+    const first = useChatAb.getState().playAtAsk;
+    expect(useChatAb.getState()).toMatchObject({ side: 'song', note: null, playAtAsk: { at: 12.5 } });
+    useChatAb.getState().playAt(12.5);
+    expect(useChatAb.getState().playAtAsk).not.toBe(first);
+    expect(useChatAb.getState().playAtAsk!.n).toBe(first!.n + 1);
+  });
   it('the lilac note (NOW PLAYING THE NEW VERSION) lasts until cleared; reset clears it', () => {
     useChatAb.getState().setNote('NOW PLAYING THE NEW VERSION');
     expect(useChatAb.getState().note).toBe('NOW PLAYING THE NEW VERSION');

@@ -1112,8 +1112,8 @@ requiring its own justification against a screen-count rule.
      a new hue; a field the person touched reads YOURS in `text-mid`; while
      the assistant thinks, the empty fields are outlined in dashed sky with
      FILLING…. A take rendering locks the fields (55% opacity) and the foot
-     says so; on a song's thread the sidebar is a read-only song panel with a
-     VERSIONS row. Collapsed, it is a 38px rail counting the filled fields;
+     says so; on a song's thread the sidebar is the song panel instead (see
+     "The song panel" below). Collapsed, it is a 38px rail counting the filled fields;
      the open/closed state is remembered per browser. The sidebar never
      commits: its foot points at the card.
    - **Reference songs** (added 2026-10-07, chat C3; spec
@@ -1270,6 +1270,38 @@ requiring its own justification against a screen-count rule.
      the mark is fixed" as the placeholder. An edit card planned on a mark
      names it in `text-low` (`PLANNED ON THE MARK · BARS 47-64 · 2:07-2:57`)
      with the server's notes (a whole-song op, a mark clamped to the score).
+   - **The song panel** (added 2026-10-08, chat C2; spec
+     `pipeline/design/chat-converge.html` section 2, CX-1, D-219). On a
+     song's thread the sidebar drops the draft fields for VERSIONS (`v1 v2`
+     in `text-low` mono, the active one the lilac pill `v3 ●`), STYLE (the
+     version's), TEMPO · KEY (the shown reading's header, `87 BPM · D MINOR
+     · 4/4`), the song's references, then the **lyrics panel**: a title row
+     (`LYRICS · 3 LINES` and a `text-low` aside) over plain rows, carbon
+     structure and `line` hairlines, no card. With no mark it lists the
+     sections (name, bars, line count, first line in `text-low`; a section
+     with no words at 50% reading NONE); the row under the pointer takes the
+     sky selection wash and a click marks it. With a mark it shows only the
+     marked part: each section under a sky mono header (`VERSE · BARS 11–46
+     · 0:28`; a header click marks the section), its lines in a 34px bar
+     column and the words, a marked line in `sky-tint` with a 2px sky edge,
+     a dashed `line-hi` break between sections, and `1 MORE LINE IN CHORUS
+     IS NOT MARKED` in `text-low`; the sections just before and after the
+     marked part stay as one `text-low` context row each (header and the
+     line next to the mark), so the mark can grow across a boundary; the
+     aside `◂ ALL SECTIONS` clears the mark. Click marks a line, shift-click
+     extends the mark to the line or header clicked (the panel only: the
+     strip still does not use shift), double-click plays the song from the
+     line (its seconds, else the section start). Nothing follows playback (no current line,
+     no auto-scroll) and the panel never edits words. A pending REWRITE
+     LYRICS shows its old words struck in `text-low` above the new ones at
+     `text-hi` with `~` in the bar column, and a rewritten section outside
+     the mark is appended in song order with a sky `PROPOSED` tag, the mark
+     untouched; both last while the edit card is pending (D-222). While a
+     new version is read the old panel stays at 55% (`LYRICS · READING
+     v5…`, `MARKS BY BARS`); a failed read is the rust box (`COULDN'T READ
+     v5 · reason`) with a plain RETRY; a version with no words says `NO
+     LYRICS IN THIS VERSION` and offers ASK THE CHAT (it focuses the
+     composer). No spinner, no shader, no new hue.
 
 ### Side panels (Create + Editor)
 
