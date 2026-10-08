@@ -6,7 +6,7 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C1 DONE 2026-10-08 (built #190-#212, reviewed #215, CP-C1 5/5, live-verified #217 #224, fixes #219 #220 #225, curated); C2 runs in its own session
-- clarity: blocking 0 · latest Q-144 · decisions to D-249
+- clarity: blocking 0 · latest Q-144 · decisions to D-256
 - feasibility: amber · H-open 1 (R-038 German lyrics: gemma4 chosen D-237, build = LD) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7 · R-042 LD turn time
 - milestone: C0 + C1 + C3 done · features passing 43/83 · C2 (own session) · Re-time a transcription (own session)
 - autopilot: stopped — C1 reached (run 5, 6/12 rounds)
