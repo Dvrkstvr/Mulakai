@@ -9,6 +9,7 @@
  * but whose message still describes it gets a message from its own ops (`replanMessage`, C1 re-check N2). Pure.
  */
 import type { Op, ScoreFacts, ScoreSection } from '../score/planTypes.js';
+import { sectionOf } from '../score/lyricPairing.js';
 
 export type BarRange = [number, number];
 export interface Fit { reasons: string[]; notes: string[] }
@@ -27,7 +28,6 @@ export const asksWholeSong = (request: string): boolean => WHOLE_WORDS.test(requ
 const PLACE_WORDS = /\b(bars?\s*\d+|intro|verse|pre-?chorus|chorus|bridge|outro|hook|breakdown|section|whole song)\b/i;
 /** The card's assumptions under a mark (C1 live B3): the mark says where, so an assumed place is dropped. */
 export const assumptionsUnderMark = (list: string[]): string[] => list.filter((a) => !PLACE_WORDS.test(a));
-const kindOf = (tag: string) => tag.toLowerCase().split(' ')[0].replace(/^[[\]:]+|[[\]:]+$/g, '');
 const span = ([a, b]: BarRange) => `bars ${a}-${b}`;
 const disjoint = (s: ScoreSection, [a, b]: BarRange) => s.to_bar < a || s.from_bar > b;
 const named = (s: ScoreSection) => `S${s.index} ${s.label} (bars ${s.from_bar}-${s.to_bar})`;
@@ -49,8 +49,7 @@ function barsOf(o: Record<string, unknown>): number[] {
 
 /** The section that sings a lyric block: the k-th section of the block's kind (yue-server's rule, D-066 d). */
 function singer(o: Record<string, unknown>, facts: ScoreFacts): ScoreSection | undefined {
-  const block = facts.lyric_blocks.find((b) => b.index === o.block);
-  return block && facts.sections.filter((s) => kindOf(s.label) === kindOf(block.tag))[block.occurrence - 1];
+  return typeof o.block === 'number' ? sectionOf(facts, o.block) : undefined;
 }
 
 function opFit(o: Record<string, unknown>, at: string, range: BarRange, facts: ScoreFacts, notes: string[]): string[] {
