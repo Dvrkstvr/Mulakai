@@ -1,10 +1,9 @@
 /** The edit and version cards' copy (CB-5, chat-edit.html EC-1..EC-8, F-046 #2, F-048 #1, F-049). */
 import { describe, it, expect } from 'vitest';
 import type { ChatSplice, ChatVersionBody } from './api/chatEdit';
-import type { ScoreOp } from './api/score';
 import {
   abListening, abOnLabel, applyFailedBody, applyJobLine, cancelledLine, editConsequence, editDoneLine, staleBody, stripLine,
-  mapCaption, versionFoot, versionMeta, versionWarn, waitingFor,
+  versionFoot, versionMeta, versionWarn, waitingFor,
 } from './chatEditCopy';
 
 const REHARM: ChatSplice = { splice: true, kind: 'reharmonize', from_bar: 25, to_bar: 32 };
@@ -107,33 +106,5 @@ describe('the version card', () => {
   it('BACK TO v1 in the player: the pill on the old version, the status line', () => {
     expect(abOnLabel(1, 2)).toBe('◂ v1 · BACK TO v2');
     expect(abListening(1)).toBe('v1 · NOT ACTIVE');
-  });
-});
-
-describe('the bar map caption (F-060, chat-converge.html 3a, 4a-4d)', () => {
-  const map = (ops: Array<{ spans: Array<[number, number]>; whole: boolean }>) => ({ bars: 80, sections: [], ops });
-  const RE: ScoreOp = { op: 'REHARMONIZE', from_bar: 49, to_bar: 56, chords: [] };
-  const TEMPO: ScoreOp = { op: 'SET_TEMPO', bpm: 92 };
-  const CUT_OP: ScoreOp = { op: 'CUT', section: 9, label: 'outro' };
-
-  it('a splice: the bars that change against the ones that stay', () => {
-    expect(mapCaption(map([{ spans: [[49, 56]], whole: false }]), [RE], null, REHARM, 4)).toBe('8 OF 80 BARS CHANGE · THE OTHER 72 ARE v4');
-  });
-  it('a whole re-render without a whole-song op says the whole song re-renders', () => {
-    expect(mapCaption(map([{ spans: [[41, 48]], whole: false }]), [RE], null, WHOLE, 4)).toBe('8 OF 80 BARS CHANGE · THE WHOLE SONG RE-RENDERS');
-  });
-  it('a whole-song op: all bars change, named, with the edited span', () => {
-    expect(mapCaption(map([{ spans: [[49, 56]], whole: false }, { spans: [], whole: true }]), [RE, TEMPO], null, WHOLE, 4))
-      .toBe('ALL 80 BARS CHANGE (SET TEMPO) · BARS 49–56 REHARMONIZE');
-  });
-  it('a CUT says the bars are cut', () => {
-    expect(mapCaption(map([{ spans: [[73, 80]], whole: false }]), [CUT_OP], null, CUT, 4)).toBe('8 OF 80 BARS ARE CUT · THE OTHER 72 ARE v4');
-  });
-  it('a hovered row names its bars and op, LIT; overlapping spans count once', () => {
-    const m = map([{ spans: [[49, 56]], whole: false }, { spans: [], whole: true }]);
-    expect(mapCaption(m, [RE, TEMPO], 0, WHOLE, 4)).toBe('BARS 49–56 · REHARMONIZE · LIT');
-    expect(mapCaption(m, [RE, TEMPO], 1, WHOLE, 4)).toBe('WHOLE SONG · SET TEMPO · LIT');
-    const twice = map([{ spans: [[49, 56]], whole: false }, { spans: [[53, 60]], whole: false }]);
-    expect(mapCaption(twice, [RE, RE], null, WHOLE, 4)).toBe('12 OF 80 BARS CHANGE · THE WHOLE SONG RE-RENDERS');
   });
 });

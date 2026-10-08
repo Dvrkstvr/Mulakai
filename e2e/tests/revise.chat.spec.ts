@@ -54,7 +54,7 @@ test('a follow-up revises the card: plan 2 NEW + SAME, plan 1 REVISED BELOW, the
   await sendMessage(page, 'a little faster, 88 BPM');
   const plan1 = cards(page).last();
   await expect(plan1).toContainText('PLAN · 1 CHANGE', { timeout: 30_000 });
-  await expect(plan1.getByLabel('Bar map')).toContainText(/ALL \d+ BARS CHANGE \(SET TEMPO\)/);
+  await expect(plan1.getByLabel('Bar map')).toContainText(/ALL \d+ BARS CHANGE \(TEMPO\)/);
   const before = await cards(page).count();
 
   // While the revise runs, plan 1's APPLY is off (Q-144); it is still the live card.
@@ -65,16 +65,16 @@ test('a follow-up revises the card: plan 2 NEW + SAME, plan 1 REVISED BELOW, the
 
   await expect(cards(page)).toHaveCount(before + 1, { timeout: 30_000 });
   const plan2 = cards(page).last();
-  await expect(plan2).toContainText('EDIT · SCORE · REVISED · PLAN 2');
-  await expect(plan2).toContainText('PLAN 2 · REVISED FROM PLAN 1 · 3 CHANGES');
-  await expect(plan2).toContainText('SINCE PLAN 1 · 2 NEW · 1 SAME');
+  await expect(plan2.locator('.chat-lb')).toHaveText('PLAN 2 · REVISED FROM PLAN 1 · 3 CHANGES · AGAINST v1'); // the header (D-229)
+  await expect(plan2.locator('.chat-card-hd .chat-hn')).toHaveText('EDIT · SCORE · nothing runs yet');
+  await expect(plan2).toContainText('SINCE PLAN 1 · 2 NEW · 1 SAME · 0 REMOVED');
   await expect(plan2.locator('.score-op', { hasText: 'SET TEMPO' }).locator('.score-op-mark')).toHaveText('SAME');
   await expect(plan2.locator('.score-op', { hasText: 'REHARMONIZE' }).locator('.score-op-mark')).toHaveText('NEW');
 
   // Plan 1 stays in full, dimmed, REVISED BELOW, no APPLY (Q-140 A).
   const old = cards(page).nth(before - 1);
   await expect(old).toHaveClass(/\bsup\b/);
-  await expect(old).toContainText('REVISED BELOW');
+  await expect(old.locator('.chat-lb')).toHaveText('PLAN 1 · REVISED BELOW');
   await expect(old).toContainText('Revised below. This one cannot be applied.');
   await expect(old.getByRole('button', { name: 'APPLY' })).toHaveCount(0);
 

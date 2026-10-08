@@ -4,20 +4,21 @@
  * RENDERING › SPLICING › SAVING steps and one plain line with CANCEL until SAVING. Every ending without a version is
  * one rust line; stale, superseded, expired and interrupted (a restart cut APPLY) drop APPLY; done folds to one header line.
  * C1 (F-055): a plan bounded to a mark names it and the server's notes on it (clamped, whole-song op). C2 (F-058, F-060;
- * chat-converge.html 3a-3e, 4a-4d, D-229): a revised card reads REVISED · PLAN n with the change list's NEW / CHANGED /
- * SAME and REMOVED; the card it revised stays dimmed in full, REVISED BELOW, no APPLY (Q-140 A); APPLY is off while a
+ * chat-converge.html 3a-3e, 4a-4d, D-229): the plan title heads the card (PLAN 2 · REVISED FROM PLAN 1 · …) over the
+ * change list's NEW / CHANGED / SAME and REMOVED (n); the card it revised stays dimmed in full, REVISED BELOW, no APPLY (Q-140 A); APPLY is off while a
  * turn (a revise) runs and back when it ends (Q-144); the bar map replaces the strip when the body has one (D-215), and
  * a change-list row on hover or focus lights its bars (Q-143). */
 import { useState } from 'react';
 import type { ChatMessageView } from './api/chat';
 import type { ChatEditBody, ChatSplice } from './api/chatEdit';
 import { ChatBarMap } from './ChatEditMap';
-import { revisedHeader, supersededBody, UNDO_OFF } from './chatConvergeCopy';
+import { supersededBody, UNDO_OFF } from './chatConvergeCopy';
+import { cardTitle, mapCaption, SUPERSEDED_HINT } from './chatReviseCopy';
 import type { ScorePlan } from './api/score';
 import {
-  APPLY, APPLY_FAILED, EDIT_EXPIRED_BODY, EDIT_EXPIRED_TITLE, EDIT_HEADER, REVISED_BELOW, STALE_TITLE, WHY_WHOLE,
+  APPLY, APPLY_FAILED, EDIT_EXPIRED_BODY, EDIT_EXPIRED_TITLE, EDIT_HEADER, STALE_TITLE, WHY_WHOLE,
   applyFailedBody, applyJobLine, editInterruptedBody, applySteps, cancelledLine, editConsequence, editDoneLine, editHeader, editHint, staleBody,
-  mapCaption, stripLine,
+  stripLine,
 } from './chatEditCopy';
 import { stripTotal } from './chatEditView';
 import { planMarkLine } from './chatMarkLabel';
@@ -87,21 +88,24 @@ export function ChatEditCard({ message, view, base, next, ahead, canAsk, onApply
   const step = phase?.kind === 'running' ? phase.progressText : null;
   const steps = applySteps(body.splice);
   const sup = view.kind === 'superseded';
+  // D-229: a C2 card (it carries a map) is headed by its plan title while pending, or superseded by a revise; EDIT · SCORE
+  // moves to the hint. Every other state keeps C0b's state header.
+  const titled = !!body.map && (view.kind === 'pending' || (sup && revisedBelow));
   const cuts = body.map ? body.map.ops.flatMap((o, i) => (body.ops[i]?.op === 'CUT' ? o.spans : [])) : [];
   const applyOff = view.kind === 'committing' || turnOpen;
   const askAgain = <button type="button" className="chat-q" disabled={!canAsk} onClick={onAskAgain}><span>{ASK_AGAIN}</span></button>;
   return (
     <div className={`chat-card chat-edit${sup ? ' sup' : ''}`} aria-label="Edit proposal">
       <div className="chat-card-hd">
-        <span className="chat-lb">{[editHeader(view.kind), revisedHeader(body.revision)].filter(Boolean).join(' · ')}</span>
-        <span className="chat-hn">{sup && revisedBelow ? REVISED_BELOW : editHint(view.kind, base, next)}</span>
+        <span className="chat-lb">{titled ? cardTitle(body.revision, body.ops.length, base, sup) : editHeader(view.kind)}</span>
+        <span className="chat-hn">{titled ? `${EDIT_HEADER} · ${sup ? SUPERSEDED_HINT : editHint(view.kind, base, next)}` : editHint(view.kind, base, next)}</span>
       </div>
       <div className="chat-edit-body">
         {body.assumptions.length > 0 && <div className="chat-card-style">{body.assumptions.join(' · ')}</div>}
         {body.mark && <div className="chat-hn chat-edit-mark">{planMarkLine(body.mark)}</div>}
         <ScorePlanList
           plan={asPlan(body)} baseStyle={null} fromBpm={body.from?.bpm ?? null} fromKey={body.from?.key ?? null} baseVersion={base}
-          onHoverRow={body.map ? setHover : undefined}
+          onHoverRow={body.map ? setHover : undefined} chat={body.map ? { untitled: titled } : undefined}
         />
         {body.map
           ? <ChatBarMap map={body.map} hover={hover} cuts={cuts} caption={mapCaption(body.map, body.ops, hover, body.splice, base)} />

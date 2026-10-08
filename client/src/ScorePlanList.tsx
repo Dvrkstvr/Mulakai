@@ -1,4 +1,5 @@
 import type { ScorePlan } from './api';
+import { chatRemovedLine, chatSinceLine } from './chatReviseCopy';
 import { ScoreLyricDiff } from './ScoreLyricDiff';
 import { checksSegments, keptLabel, markOf, opRows, planTitle, PREVIOUS_PLAN, refusedLines, removedLine, rowDetail, sinceLine } from './scoreCopy';
 
@@ -16,17 +17,21 @@ interface Props {
   /** The chat's edit card (F-060, Q-143): a row reports its index on hover and keyboard focus, null on leave, so the
    * bar map lights that op's bars. Absent (the dock): rows are plain, not focusable. */
   onHoverRow?: (index: number | null) => void;
+  /** The chat's edit card (D-229): its own SINCE and `REMOVED (n)` lines; `untitled` = the card's header carries the plan
+   * title. The dock leaves both unset and keeps its wording. */
+  chat?: { untitled: boolean };
 }
 
 /** SCORE's change list (one row per op, its verdict, a REVISE's NEW / CHANGED / SAME mark and its tag; under a
  * REPEAT / CUT its lyric note, under a REWRITE LYRICS its OLD / NEW diff, F-030 #3, F-031 #1), the ops a REVISE
  * removed (M2-6), the one checks line, and a rust line per earlier refused attempt (D-060). */
-export function ScorePlanList({ plan, baseStyle, fromBpm, fromKey = null, baseVersion, dimmed, onHoverRow }: Props) {
-  const since = dimmed ? null : sinceLine(plan);
+export function ScorePlanList({ plan, baseStyle, fromBpm, fromKey = null, baseVersion, dimmed, onHoverRow, chat }: Props) {
+  const since = dimmed ? null : chat && plan.since ? chatSinceLine(plan.since, plan.revision) : sinceLine(plan);
   const hover = (i: number) => (onHoverRow ? {
     tabIndex: 0, onMouseEnter: () => onHoverRow(i), onMouseLeave: () => onHoverRow(null), onFocus: () => onHoverRow(i), onBlur: () => onHoverRow(null),
   } : {});
-  const removed = dimmed ? null : removedLine(plan, opRows({ ...plan, ops: plan.since?.removed ?? [], verdicts: [] }, baseStyle, fromBpm, fromKey));
+  const removedRows = opRows({ ...plan, ops: plan.since?.removed ?? [], verdicts: [] }, baseStyle, fromBpm, fromKey);
+  const removed = dimmed ? null : chat ? chatRemovedLine(removedRows) : removedLine(plan, removedRows);
   const list = (
     <div className="score-ops">
       {opRows(plan, baseStyle, fromBpm, fromKey).map((row, i) => (
@@ -52,7 +57,7 @@ export function ScorePlanList({ plan, baseStyle, fromBpm, fromKey = null, baseVe
   }
   return (
     <>
-      <div className="dock-row-label score-plan-label">{planTitle(plan, baseVersion)}</div>
+      {!chat?.untitled && <div className="dock-row-label score-plan-label">{planTitle(plan, baseVersion)}</div>}
       {since && <div className="score-since">{since}</div>}
       {list}
       {removed && <div className="score-since">{removed}</div>}

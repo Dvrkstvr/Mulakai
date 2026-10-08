@@ -104,16 +104,16 @@ describe('ChatEditCard, C2: revised, superseded by a revise, the bar map (F-058,
     splice: { splice: false, reason: 'the plan makes 2 changes' }, map,
   });
 
-  it('a revised card: REVISED · PLAN 2, the SINCE line, NEW / SAME marks, REMOVED, the bar map instead of the strip', () => {
+  it('a revised card: the plan title as its header, the SINCE line, NEW / SAME marks, REMOVED (n), the bar map instead of the strip', () => {
     const out = html(PENDING, plan2);
-    expect(out).toContain('EDIT · SCORE · REVISED · PLAN 2');
-    expect(out).toContain('PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES');
+    expect(out).toContain('<span class="chat-lb">PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST v1</span><span class="chat-hn">EDIT · SCORE · nothing runs yet</span>');
+    expect(out).not.toContain('score-plan-label'); // the title is the header, not repeated in the list
     expect(out).toContain('SINCE PLAN 1 · 1 NEW · 1 SAME · 1 REMOVED');
     expect(out).toMatch(/score-op-mark">SAME<.*score-op-mark hi">NEW</);
-    expect(out).toContain('REMOVED SINCE PLAN 1 · WRITE PHRASE');
+    expect(out).toContain('REMOVED (1) · WRITE PHRASE');
     expect(out).toContain('aria-label="Bar map"');
     expect(out).not.toContain('chat-strip-bar');
-    expect(out).toContain('ALL 80 BARS CHANGE (SET TEMPO) · BARS 49–56 REHARMONIZE');
+    expect(out).toContain('ALL 80 BARS CHANGE (TEMPO) · BARS 49–56 ARE THE NEW HARMONY');
     expect(out).toMatch(/class="score-op" tabindex="0"/); // a row is focusable: it lights its bars (Q-143)
     expect(out).toMatch(/class="acid chat-create"><span>APPLY/);
   });
@@ -121,7 +121,7 @@ describe('ChatEditCard, C2: revised, superseded by a revise, the bar map (F-058,
   it('the card a revise superseded stays in full, dimmed: REVISED BELOW, its map, no APPLY (Q-140 A)', () => {
     const out = html({ kind: 'superseded' }, body({ map: { bars: 80, sections: [], ops: [{ spans: [[25, 32]], whole: false }] } }), 0, { revisedBelow: true });
     expect(out).toContain('chat-card chat-edit sup');
-    expect(out).toContain('REVISED BELOW');
+    expect(out).toContain('<span class="chat-lb">PLAN 1 · REVISED BELOW</span><span class="chat-hn">EDIT · SCORE · superseded</span>');
     expect(out).toContain('Revised below. This one cannot be applied.');
     expect(out).toContain('aria-label="Bar map"');
     expect(out).not.toContain('chat-create');
