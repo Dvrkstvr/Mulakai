@@ -9347,17 +9347,17 @@ shape grammar).
 
 ## Re-time a Transcription (planned 2026-10-08)
 
-**Decision (project owner, 2026-10-07/08; D-190, D-205, D-206):** a
+**Decision (project owner, 2026-10-07/08; D-190, D-206, D-207):** a
 SheetSage2 score that read the beat wrong (half time, double time, or a
 tempo the person names) is rebuilt with a corrected beat list. It works for
 both transcriptions: the cover's TRANSCRIBE score and a chat reading's
 score. It is offered in the cover panel, the SCORE dock (RE-TIME beside SET
 TEMPO), the chat reading and a chat verb. A tempo only slightly off stays
 SET TEMPO (Q-125). The full spec is pipeline/scope.md "RT" (F-090..F-094),
-and the mockup is pipeline/design/retime.html (D-208, owner sign-off
+and the mockup is pipeline/design/retime.html (D-209, owner sign-off
 pending).
 
-**Method (SP-8, D-209).** SheetSage2 builds the ABC from saved outputs
+**Method (SP-8, D-210).** SheetSage2 builds the ABC from saved outputs
 (`notation/song_melody.mid`, `_beats.txt`, `_chords.txt`, `_keys.txt`,
 `_structures.txt`; 24 KB). yue-server rewrites the beat list:
 - HALF keeps every 2nd beat from the first downbeat.
@@ -9373,7 +9373,7 @@ SheetSage2's fixed 4-subbeat grid cannot hold, and the route reports
 `dropped_notes`, which the consequence line shows. Only yue-server reads or
 writes ABC (decision 0002).
 
-**Kept outputs (D-206, D-207).** yue-server forgets jobs after 24 h or on
+**Kept outputs (D-207, D-208).** yue-server forgets jobs after 24 h or on
 a restart, so the Mulakai server fetches each finished transcription's
 bundle and keeps it as `DATA_DIR/notation/<sha256>.json`. The cover's base
 version (`params_json.notationId`) and the reading (`analysis_json`)

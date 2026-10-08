@@ -362,7 +362,7 @@ BPM… range. Default: whole numbers 40–240; HALF or DOUBLE landing outside it
 ## Q-130 · assumable · stage 5 (RT, F-091, design/retime.html) · open
 A slightly-off tempo on the cover panel. Default: no SET TEMPO there; the hint points to the SCORE dock once the cover exists. Alternative: a tempo nudge field in the cover panel.
 
-## Q-131 · assumable · stage 5 (RT, D-206, design/retime.html) · open
+## Q-131 · assumable · stage 5 (RT, D-207, design/retime.html) · open
 The refusal for a gone saved reading says "gone" with no date. Alternative: say when it was cleared (30-day sweep).
 
 ## Q-132 · assumable · stage 5 (RT, F-093/F-094, design/retime.html) · open

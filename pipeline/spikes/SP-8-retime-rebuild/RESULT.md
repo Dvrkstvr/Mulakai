@@ -1,4 +1,4 @@
-# SP-8 · Re-time a transcription by correcting saved beats and rebuilding (R-038)
+# SP-8 · Re-time a transcription by correcting saved beats and rebuilding (R-039)
 
 **Question.** Can a transcription with a wrong beat (half/double time, wrong BPM) be fixed by correcting SheetSage2's saved
 beat list and rebuilding the ABC from the same saved outputs, CPU only, in seconds, no model re-run?
@@ -15,7 +15,7 @@ tempo; chords and `% section` labels survive; wall time well under 10 s.
 | HALF (keep every 2nd beat) | **partly** | builds and validates 4/4, bars exactly /2, but the builder's fixed 4-subbeats-per-beat grid drops 9% (ellies), 13% (purple), 26% (B_d), 19% (eventide Ins) of notes shorter than one coarse subbeat. Needs a MIDI repair pass (below) and the dropped count surfaced |
 | BPM grid (named BPM) | **partly** | builds, validates, Q and bar ratio exact. A grid at or above detected tempo loses 0-3% of notes; a slower one (x2/3) loses 5-24%, same cause as half. Single first-downbeat anchor is enough; re-anchoring at structure boundaries is worse (below) |
 
-R-038 overall: **partly proven**. The method works with no model re-run, in ~15 ms from a 24 KB bundle; the one real
+R-039 overall: **partly proven**. The method works with no model re-run, in ~15 ms from a 24 KB bundle; the one real
 defect is note loss on slower grids, fixable in our own pre-pass. Not disproven; feasibility stays green.
 
 ## Evidence (all *seen running*: SheetSage2 venv python 3.11, WSL Ubuntu-24.04, real outputs, no GPU, no yue-server)

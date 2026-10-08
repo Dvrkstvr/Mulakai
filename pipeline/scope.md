@@ -464,7 +464,7 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 - **A free-disk check before a commit** (Q-037): each edit now writes a temp render and a spliced file of 65-80 MB on top of the version; C0 deletes temps
   on every path and the C0 run logs the bytes; a check is added if the log shows pressure.
 
-- **Re-time a transcription** (D-190): planned 2026-10-08 as milestone RT below (F-090 .. F-094, D-205 .. D-207).
+- **Re-time a transcription** (D-190): planned 2026-10-08 as milestone RT below (F-090 .. F-094, D-206 .. D-208).
 
 ## Not doing (chat)
 
@@ -871,14 +871,14 @@ Windows Python YuE2 falls back to slow attention (#209), which is why yue-server
 - **Splice seams healed by ACE-Step repaint** (SP-4 B, D-080), unchanged.
 - **Copying code from gary4juce, DEMON or ACE-Step-DAW** (AGPL): patterns only.
 
-## RT — Re-time a transcription (F-090 .. F-094; D-190, D-205 .. D-207)
+## RT — Re-time a transcription (F-090 .. F-094; D-190, D-206 .. D-208)
 
 A SheetSage2 score sometimes reads the beat wrong: half time, double time, or a tempo the owner can name. SheetSage2 builds the ABC from
 saved model outputs (`notation/song_melody.mid`, `_beats.txt`, `_chords.txt`, `_keys.txt`, `_structures.txt`) and snaps the melody onto
-the beat list, so the fix is a corrected beat list and a rebuild: CPU only, seconds, no model re-run (SP-8, R-038). A tempo only slightly
-off stays SET TEMPO (exists). Both consumers and every surface (owner, D-205): the C3 cover's TRANSCRIBE score, the C1 chat reading's
+the beat list, so the fix is a corrected beat list and a rebuild: CPU only, seconds, no model re-run (SP-8, R-039). A tempo only slightly
+off stays SET TEMPO (exists). Both consumers and every surface (owner, D-206): the C3 cover's TRANSCRIBE score, the C1 chat reading's
 score, the SCORE dock and a chat verb. The outputs are kept on the Mulakai server with the transcription, so re-time still works after
-yue-server's 24 h sweep or a restart; with no saved outputs the person is offered TRANSCRIBE AGAIN (owner, D-206).
+yue-server's 24 h sweep or a restart; with no saved outputs the person is offered TRANSCRIBE AGAIN (owner, D-207).
 
 Feature track: normal (stored data, a yue-server route, new UI). Order: RT-1 → RT-2 → RT-3 → RT-4; RT-5 after C1 is merged; RT-6 after C2.
 
@@ -891,7 +891,7 @@ Feature track: normal (stored data, a yue-server route, new UI). Order: RT-1 →
   from a kept bundle by its id.
 - Acceptance: half/double/BPM rebuild on 2 real outputs in under 10 s with measures ≈ ½ / × 2 / × ratio; double and a BPM at or above
   the read tempo keep the melody's notes (≤ 3 % lost); half and slower grids snap notes onto SheetSage2's fixed 4-subbeat grid
-  (`fit_midi`) and report `dropped_notes`, never claimed lossless (SP-8: 9-26 % on correctly-read songs, D-209); chords and section labels
+  (`fit_midi`) and report `dropped_notes`, never claimed lossless (SP-8: 9-26 % on correctly-read songs, D-210); chords and section labels
   survive; a bundle survives a yue-server restart; a missing bundle answers `no_bundle`.
 - Non-goals: re-running any model; beat-level editing; re-timing a score that no transcription made.
 
@@ -929,6 +929,6 @@ reading) with the same consequence copy.
 - Reversal: the files and the optional field can be ignored; nothing else reads them.
 
 ### Not doing (RT)
-- A mechanical ABC rewrite (scale durations, re-bar) as a fallback (D-206: TRANSCRIBE AGAIN instead).
+- A mechanical ABC rewrite (scale durations, re-bar) as a fallback (D-207: TRANSCRIBE AGAIN instead).
 - Tempo maps or rubato (one tempo per re-time; the BPM grid anchors to detected downbeats).
 

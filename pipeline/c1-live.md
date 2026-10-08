@@ -51,3 +51,28 @@ Checks (playbook): client 1239 tests pass, lint 0 errors (1 warning), tsc ok; se
 
 ## Cleanup
 Stopped Vite, server, lyrics-server, yue-server, Ollama :11535 (by PID/port), no process of mine left; owner's six ports unchanged; deleted `E:\ai\tmp\c1-live` and WSL `~/yue-data-c1live`. Old `E:\ai\tmp\c0b-live` (4.5 GB, not mine) left alone.
+
+## Re-check 2026-10-08
+
+Code: origin/main bade396 (#219 B1/B2/B3/B5/B6 and #220 B4 merged) plus a local merge of `origin/docs/c1-live` (#217 was still open, CI golden-path failing, after ~35 min of polling; only this report was missing). Labels: *seen running*. Stack (mine, scratch ports): server :3421 (DATA_DIR copy `E:\ai\tmp\c1live2`, DB by SQLite backup; ACESTEP_API_URL pointed at a dead port after the first hour, the first run used the default :8001 but never called it), Vite :5423, Ollama :11635 (qwen3:14b, ctx 16384) behind a recording proxy :11636, yue-server :8324 in WSL with SheetSage2, lyrics-server :8335. Owner's :3001 :5173 :8001 :8005 :11434 untouched. Browser pane at 1366x768 (re-applied after each pane resize). Screenshots: `pipeline/verify/C1/recheck/`. The GPU was shared with the owner's models (11.7 GB in use before I started; 97 % busy), so planner calls ran 5-45 s, one 288 s.
+
+| Item | Verdict | Seen |
+|---|---|---|
+| B1 failure reason + RETRY | PASS | Polski Polka, both services stopped: `COULDN'T READ v1 · WORDS · lyrics-server transcribe -> fetch failed` + RETRY (01); API state `failed`, notRead words and bars. Services restarted: RETRY `POST .../analysis/retry` 202, reading went running -> done in ~150 s: `READ v1 · 9 SECTIONS · 34 LINES · 14 LINES OUTSIDE THE SECTIONS`, notRead all null (02) |
+| B1 unset service | PASS | server restarted without LYRICS_API_URL, Purple Shinings: `READ v1 · 4 SECTIONS · 21 LINES · 14 LINES OUTSIDE THE SECTIONS · NO WORD TIMINGS`, strip live, state done (10) |
+| B2 "make this jazzier" on chorus 1 | PASS | 1st try NO ANSWER in 3 attempts (planner kept writing phrases where the vocal sings; no card) (05); 2nd try failed on the planner-unload guard (GPU shared); 3rd: `PLANNED ON THE MARK · BARS 23-30`, REHARMONIZE 23-30 only, `BARS 23-30 CHANGE · THE OTHER 56 ARE v1`, no EDIT STYLE (06) |
+| B2 / D-201 "make the whole song faster" | PASS | SET TEMPO 95 -> 120 allowed on the mark: header `SET TEMPO changes the whole song, not only the marked bars`, `ALL 64 BARS CHANGE` (07) |
+| B2 / D-201 "make it faster" | bounded | REHARMONIZE 23-30 only (the planner's own words said "increase the tempo of the whole song", the card does not: a copy mismatch, N2) |
+| B3 | PASS | verse 2 marked (bars 31-47) + "make the chorus jazzier": card on bar 47 only, header `PLANNED ON THE MARK`, assumption line `a request`, no "assuming the first chorus" |
+| B4 line = strip | PASS | Carinito: line `34 LINES · 10 LINES OUTSIDE THE SECTIONS` = strip sections 0+5+8+13+8+0 = 34 (was 44) (04); Ellies City 2 (transcribed): 21 = strip 1+5+5+5+6+2 = 24 minus 3 crossing lines counted once, no outside row (03); Polski Polka 34 + 14 |
+| B4 dim | PASS | Carinito v2 -> APPLY REHARMONIZE with two other readings queued behind the render: v3 reading `QUEUED · STARTS AFTER 2 JOBS`, strip class `dim` (v2's reading), chip kept `THIS: CHORUS 1 · BARS 23-30`, strip click re-marked Verse 2 (09). After the REPEAT (v2) the strip went `hatched`, not dim, as specified for bar-moving edits (08) |
+| B6 copy | PASS | unmarked "repeat the outro once" APPLY after marking chorus 1 (bars 23-30): `STALE MARK · you marked bars 23-30. v2 moved other bars; these are still bars 23-30.` (08) |
+| Prompt p95 | FAIL on the line | 13 marked attempts: p95 9144, max 9144; the one 3-attempt failed turn made 4518, 6831, 9144 (each retry adds ~2.3k of refusals). The other 10 marked attempts: 4532-5467 (p95 5467). First attempts of 6 turns: 4518-4983. |
+
+New findings
+- N1 (medium, one sighting) the REPEAT of the outro (S6, bars 56-64, plan `73 bars`, card text "Repeats bars 56-64 in v1's audio") saved v2 as `whole song re-rendered: the join could not be aligned` (3:03, `Every bar sounds different from v1`), not the in-place splice the card promised. Steps: Cariñito v1, no mark, "repeat the outro once", APPLY. Not investigated; may be the repeat-at-end case.
+- N2 (low) "make it faster" with a mark: the chat sentence says it will change the whole song's tempo while the card is a REHARMONIZE on the marked bars.
+- N3 (low, environment) the planner unload guard `qwen3:14b is still loaded after 10 s` failed one turn while another process shared the GPU (turn failed, RETRY worked).
+- N4 (medium) retries carry the refused ops back into the prompt: a failed marked turn reaches 9144 tokens at attempt 3, over the 6000 stop line (CP-C1 saw a max of 6180). Not a regression of #219/#220 as far as I can tell (the first attempt is 4.5k) but it breaks the 6000 line the moment a turn fails twice.
+
+Not re-checked: B5 (rounding) beyond the chip/`WHAT IT SEES` reading, Alt and pointer tag. Cleanup: all services stopped, `E:\ai\tmp\c1live2` and WSL `~/yue-data-c1live2` deleted.

@@ -7,10 +7,10 @@
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C0b done; C1 built through CL-8b (CL-0..5, 7 merged; CL-8a #199, CL-8b #203 drafts), CL-6 live running
 - clarity: blocking 0 · latest Q-108 · decisions to D-199
-- feasibility: amber · H-open 1 (R-024 SP-4 ear owed) · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7
+- feasibility: amber · H-open 1 (R-038 German lyrics, SP-7 running) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7
 - milestone: C0a + C3 + C0 done (F-050 passes, D-198) · features passing 38/81 · C1 built, review fixes running
 - autopilot: C1 · round 4/12 (run 5) · progress 8·C1 review 2/2, CL-9 live·37·0 · stall 0
-- owed: cover listen (C3), SP-5 lyric read, M2 pair 2, M1 phrase
+- owed: SP-7 German read (when ready), cover listen (C3), M2 pair 2, M1 phrase
 - next: #210 (CP-C1 fixes) → re-run chatCp1 --merge --marks (mark stop line) → un-draft #199 + #203 → CL-9 live → C1 review → curate; owner: SP-6 listen (:8079)
 
 ## Stages
@@ -28,7 +28,7 @@
 | 9 | Release | n/a (local single-user app) | — | — |
 
 ## Notes
-- 2026-10-08 RT (re-time a transcription, D-190): framed F-090..F-094 (D-205..D-209), SP-8 partly proven (R-038), mockup design/retime.html awaits owner sign-off; next RT-1 `feat/retime-yue` (PLAN.md "Re-time a Transcription").
+- 2026-10-08 RT (re-time a transcription, D-190): framed F-090..F-094 (D-206..D-211), SP-8 partly proven (R-039), mockup design/retime.html (BPM input D-211) awaits owner sign-off; next RT-1 `feat/retime-yue` (PLAN.md "Re-time a Transcription").
 - 2026-10-04 storage: DONE. Ollama models E:\ai\ollama\models (OLLAMA_MODELS), WSL Ubuntu-24.04 at E:\ai\wsl\Ubuntu-24.04, caches E:\ai\cache\{uv,pip,npm}; C: 0.5 -> 138 GB free. Big temp data goes on E:.
 - 2026-10-03: D-014/D-015 make SCORE the primary edit path for new songs; PLAN.md "YuE2 Is the Default First-Take Engine" → "With the score agent" records the link (branch docs/engine-lineup).
 - The 2026-10-02 mockup (canvas "Score Agent Mockup") predates the redesign; superseded by D-007 for placement, still valid for the workflow, ops list and checks.

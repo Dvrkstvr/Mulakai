@@ -29,7 +29,7 @@ li{max-width:1100px}.hn,.mo{font-family:ui-monospace,monospace}.hn{font-size:10p
 .sc{width:760px}.cd{border:1px solid var(--h);background:var(--p)}.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:8px 0;max-width:1100px}
 </style></head><body>
 <h1>RE-TIME · fix a score that read the beat wrong</h1>
-<div class="hn">stage 5 · DT-RT · F-091..F-094 · D-190 D-205 D-206 · Q-125 Q-126 · tokens: DESIGN.md, none added · panels drawn 1:1 at their real column width inside a 1366×768 screen (cover panel 800, chat thread 760, dock 880), not the whole window</div>
+<div class="hn">stage 5 · DT-RT · F-091..F-094 · D-190 D-206 D-207 · Q-125 Q-126 · tokens: DESIGN.md, none added · panels drawn 1:1 at their real column width inside a 1366×768 screen (cover panel 800, chat thread 760, dock 880), not the whole window</div>
 
 <h2>WHAT THIS SETTLES</h2>
 <ul>
@@ -39,14 +39,14 @@ li{max-width:1100px}.hn,.mo{font-family:ui-monospace,monospace}.hn{font-size:10p
 </ul>
 
 <h2>A · THE COVER PANEL · beside the transcribed score (F-091)</h2><div class="g" id="a"></div>
-<h2>A′ · BPM… BECOMES ITS OWN INPUT (owner 2026-10-08, D-210) · same control in A, B, C and the dock</h2><div class="g" id="bp"></div>
+<h2>A′ · BPM… BECOMES ITS OWN INPUT (owner 2026-10-08, D-211) · same control in A, B, C and the dock</h2><div class="g" id="bp"></div>
 <div class="o" id="live" style="margin-top:16px"></div>
 <h2>B · THE CHAT READING · the SCORE part of a READING card (F-092)</h2><div class="g" id="b"></div>
 <h2>C · THE SCORE DOCK · RE-TIME beside SET TEMPO, generative (F-093)</h2><div class="g" id="c"></div>
 <h2>D · A CHAT VERB · "it's half time" (F-094)</h2><div class="g" id="e"></div>
 <h2>OPTIONS · the one real choice: press then confirm, or apply at once</h2><div class="g" id="op"></div>
 
-<h2>DECISIONS (RT-n provisional; recorded as one assumed entry, D-208)</h2><div id="dec"></div>
+<h2>DECISIONS (RT-n provisional; recorded as one assumed entry, D-209)</h2><div id="dec"></div>
 
 <h2>OPEN QUESTIONS (added to open-questions.md; Q-125 and Q-126 are already there)</h2>
 <ul>
@@ -94,9 +94,9 @@ O("<b>A3 · BPM…</b> typed 144: only slightly off",COVER(["140","96","3:12"],R
 O("<b>A4 · WORKING</b>",COVER(["140","96","3:12"],RD(R140,"h")+'<div class="j"><span>RE-TIMING… <em>· a few seconds · no GPU</em></span></div>'+STR("8 SECTIONS · all kept")+PV(),"",CM(CONS,P("ao off","RE-TIME AT 70 BPM"))),"Plain line, no shader: CPU work, not generation. SOURCE and ENGINE hold still, as for TRANSCRIBE.")+
 O("<b>A5 · DONE</b> undo = back to the previous reading",COVER(["70","48","3:12"],RD(R70)+'<div class="hint"><span class="tg l">RE-TIMED</span> from 140 BPM · 96 bars → 48 · UNDO goes back to the previous reading. GENERATE COVER renders from this one.</div>'+STR("8 SECTIONS · all kept")+PV("140 BPM"),'<div style="padding:0 14px 10px;display:flex;gap:8px">'+P("q","UNDO")+P("q","DOWNLOAD MIDI")+'</div>'),"The preview is dimmed and tagged STALE with the tempo it plays (Q-127). UNDO is one step; a second RE-TIME from here undoes to 70, not 140.")+
 O("<b>A6 · REFUSED</b> saved reading gone",COVER(["140","96","3:12"],RD(R140,0,0)+GONE(2)+STR("8 SECTIONS · all kept")+PV()),"Chips stay drawn, off. TRANSCRIBE AGAIN is the panel's TRANSCRIBE; the GPU time is the calibrated figure (Q-099). Q-126.")+
-O("<b>A7 · EDGE</b> DOUBLE would pass 240; BPM… out of range",COVER(["140","96","3:12"],RD(R140,"b","d",BI("300",1))+ER("<b>300 BPM IS OUTSIDE 40–240</b> · DOUBLE is off: 280 BPM is over the limit.")+STR("8 SECTIONS · all kept")+PV(),"",CM("No RE-TIME offered",P("ao off","RE-TIME AT 300 BPM"))),"Q-129. A failed rebuild (the beat grid cannot be built) shows the same rust line with the reason from yue-server (R-038), nothing changed.");
+O("<b>A7 · EDGE</b> DOUBLE would pass 240; BPM… out of range",COVER(["140","96","3:12"],RD(R140,"b","d",BI("300",1))+ER("<b>300 BPM IS OUTSIDE 40–240</b> · DOUBLE is off: 280 BPM is over the limit.")+STR("8 SECTIONS · all kept")+PV(),"",CM("No RE-TIME offered",P("ao off","RE-TIME AT 300 BPM"))),"Q-129. A failed rebuild (the beat grid cannot be built) shows the same rust line with the reason from yue-server (R-039), nothing changed.");
 
-/* A′ the BPM input (D-210) */
+/* A′ the BPM input (D-211) */
 $("bp").innerHTML=
 O("<b>A′1 · CHIP</b> nothing typed yet",RD(R140),"BPM… is a choice chip like HALF and DOUBLE.",520)+
 O("<b>A′2 · OPEN</b> click BPM…: the chip becomes the input, focused",RD(R140,"b",0,BI("")),"Same slot, same skew, sky focus ring; the caret is in the field. The ↵ icon sits inside it. No consequence line yet: nothing is set.",520)+
@@ -158,7 +158,7 @@ $("dec").innerHTML=[
 ["RT-3","'Slightly off' is not RE-TIME: a typed BPM within 8 % of the read and not near ×2 or ×½ shows a hint and no button (A3); in chat the planner answers with SET TEMPO (D3). Beat: always RE-TIME.","an 8 % band is a heuristic; a song 9 % off gets a re-timed grid it did not need"],
 ["RT-4","Done = the reading is replaced and UNDO restores the previous one (one step). In the dock/turn the result is a new version v3 and v2 stays, so undo is VERSIONS / UNDO TURN, not a button on the row.","cover-panel UNDO is not stacked past one step"],
 ["RT-5","The piano preview is not redrawn in this mockup: it is dimmed with STALE · 140 BPM until the next TRANSCRIBE (Q-127). Beat: hiding it, which loses the thing the person listens to when judging the beat.","a stale preview still plays the old beat; the tag has to be read"],
-["RT-6","A refusal for no kept reading names the fix and its GPU cost in the same box: THE SAVED READING IS GONE · TRANSCRIBE AGAIN (about N min of GPU), an acid outline. No ABC rewrite fallback (D-206).","the person pays GPU time for the same notes again"],
+["RT-6","A refusal for no kept reading names the fix and its GPU cost in the same box: THE SAVED READING IS GONE · TRANSCRIBE AGAIN (about N min of GPU), an acid outline. No ABC rewrite fallback (D-207).","the person pays GPU time for the same notes again"],
 ["RT-7","In a chat reading, a re-time says the bar numbers change and a mark on this version goes stale (mark again), and the stale card from C1 appears at once (B4). Beat: silently dropping the mark.","MARK STALE shows even when the mark would have fitted by chance"],
 ["RT-8","The dock chips and the verb both create the same RE-TIME op; RE-TIME stands alone in a plan (Q-132). Beat: planning it with other ops, which would put harmony in bars that no longer exist.","a two-part request costs two applies"]
 ].map(d=>`<div class="dc"><b>${d[0]}</b> · ${d[1]}<br><span class="hn">COST · ${d[2]}</span></div>`).join("");
