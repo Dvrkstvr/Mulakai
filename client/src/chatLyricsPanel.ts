@@ -9,7 +9,7 @@ import type { AnalysisView, RangeMark } from './api/chatAnalysis';
 import type { PanelSection } from './api/chatConverge';
 import type { ChatEditBody } from './api/chatEdit';
 import type { ScoreLyricDiff } from './api/score';
-import { barAt, usableBars } from './chatMark';
+import { lineBars, usableBars } from './chatMark';
 import { lineSeconds, type LineTimes } from './chatLyricsMark';
 
 /** `text` null: the rewrite drops the line; `old` set: the line's words before the pending rewrite (struck). */
@@ -59,7 +59,8 @@ function lineRows(input: PanelInput, s: PanelSection, mark: RangeMark | null, di
     const seconds = lineSeconds(l, input.times);
     const mid = seconds ? (seconds[0] + seconds[1]) / 2 : null;
     const marked = !!mark && mid !== null && mid >= mark.seconds[0] - EPS && mid <= mark.seconds[1] + EPS;
-    return { n: l.n, text: l.text, old: null, seconds, bar: bars && seconds ? barAt(bars, seconds[0]) : null, marked };
+    // The number beside the line is its chip's first bar (C2 live B5): one rule, `lineBars`.
+    return { n: l.n, text: l.text, old: null, seconds, bar: bars && seconds ? lineBars(bars, seconds)[0] : null, marked };
   });
   if (!diff) return rows;
   const n = Math.max(diff.old.length, diff.new.length, rows.length);
@@ -82,7 +83,8 @@ export function panelRows(input: PanelInput): PanelRows {
   const sections = lyrics.sections;
   if (!mark) {
     const rows = sections.map((s) => ({ section: s, count: s.lines.length, first: s.lines[0]?.text ?? null, proposed: !!diffOf(s) }));
-    return { ...shown, kind: 'list', rows, lines: rows.reduce((n, r) => n + r.count, 0) };
+    // The total is the reading line's (D-197, C2 live B4): a line across a section edge sits in both rows, counted once.
+    return { ...shown, kind: 'list', rows, lines: view.shown.lines };
   }
   const met = sections.flatMap((s) => { const m = meet(s, mark); return m ? [{ s, ...m }] : []; });
   const single = met.length === 1;

@@ -38,6 +38,20 @@ export function snapTime(t: number, bars: ShownBars | null, free = false): { t: 
   return { t: all[best], line: best + 1 };
 }
 
+/** The bars a sung span is in (R-041; the server's `markSnap` rule, D-195): every bar it covers at least half of,
+ * else the bar holding its middle. One source for a line's chip and the bar number beside it. */
+export function lineBars(b: ShownBars, [s, e]: [number, number]): [number, number] {
+  const all = lines(b);
+  const held: number[] = [];
+  for (let i = 0; i + 1 < all.length; i++) {
+    const len = all[i + 1] - all[i];
+    if (len > 0 && Math.min(e, all[i + 1]) - Math.max(s, all[i]) >= len / 2) held.push(i + 1);
+  }
+  if (held.length) return [held[0], held[held.length - 1]];
+  const mid = barAt(b, (s + e) / 2);
+  return [mid, mid];
+}
+
 /** Keep `[a, b]` inside the song (`length` null: only above 0). */
 export function clampSeconds(a: number, b: number, length: number | null): [number, number] {
   const hi = length ?? Infinity;
@@ -62,7 +76,8 @@ export function markSeconds(view: AnalysisView | null, a: number, b: number, fre
   if (!free) {
     const from = snapTime(s, bars).line!;
     const to = snapTime(e, bars).line! - 1;
-    if (to < from) return markBars(view, barAt(bars, s), barAt(bars, s)); // a drag inside one bar marks that bar
+    // Both edges snapped to one line: a short drag marks the bar holding its middle (R-041: not the one it starts in).
+    if (to < from) return markBars(view, barAt(bars, (s + e) / 2), barAt(bars, (s + e) / 2));
     return markBars(view, from, to);
   }
   [s, e] = [Math.max(s, bars.starts[0]), Math.min(e, bars.end)];

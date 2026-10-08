@@ -162,6 +162,17 @@ describe('analysisView', () => {
     expect(v.shown?.sections.slice(0, 2).map((s) => [s.lines, s.partialLines])).toEqual([[2, 1], [1, 1]]);
   });
 
+  it('C2 live B4: an empty word segment is no line, in the strip or the reading line (the panel skips it too)', () => {
+    const words: LyricsReading = { language: 'en', segments: [
+      { text: 'a', start: 0.5, end: 1, words: [] }, { text: ' ', start: 1.5, end: 2, words: [] }, { text: 'b', start: 3.5, end: 4.5, words: [] },
+    ] };
+    const score = { abc: 'X:1', source: 'transcribed' as const, chords: true, facts: facts({ lyric_blocks: [] }), warnings: [], measure: null };
+    const v = analysisView(base({ current: analysis('v4', { score }), currentWords: words }));
+    expect(v.shown).toMatchObject({ lines: 2, linesOutside: 0 });
+    expect(v.shown?.sections[0].lines).toBe(2);
+    expect(v.shown?.lyrics?.sections.flatMap((s) => s.lines).length).toBe(3); // b crosses into section 2: listed in both
+  });
+
   it("C1 live B4: YuE2's own score with more blocks than sections: the line counts the strip's pairing, the rest is outside", () => {
     const extra = facts({ lyric_blocks: [...facts().lyric_blocks, { index: 4, tag: 'chorus', occurrence: 2, lines: 3, first_line: 'd' }, { index: 5, tag: 'chorus', occurrence: 3, lines: 3, first_line: 'e' }] });
     const v = analysisView(base({ current: analysis('v4', { score: { abc: 'X:1', source: 'own', chords: true, facts: extra, warnings: [], measure: null } }) }));
