@@ -206,7 +206,7 @@ CI runs only the Playwright golden path: no unit tests, typecheck, lint or yue-s
 - check: `checks.yml` in W0 (D-033).
 - fallback: the playbook's local check commands before every commit.
 
-### R-024 · impact H · evidence measured, machine half (SP-4, 2026-10-06; ear half owed)
+### R-024 · impact H · closed (owner, 2026-10-08, D-204): machine half SP-4; ear half from the short listen (D-147, D-150), the C0b chat-edit listen (D-170) and SP-6 (D-198)
 An edit changes parts of the song nobody asked to change: every SCORE apply re-renders the whole song on YuE2 and the rest drifts (melody F1 0.92-0.98 on an unchanged score, SP-3; the M2 listen heard mood shift and an audible repeat seam, D-077). For the chat-first direction (D-079) each turn would re-roll the song, so iteration may not converge. YuE2 has no inpainting (upstream editing-workflows.md:3); ACE-Step repaint keeps the rest sample-exact but does not read the score.
 - check: SP-4 (pipeline/spikes/SP-4-keep-unchanged/SPIKE.md): bar-aligned splice, splice + repaint healing, audio-only REPEAT/CUT, YuE2 forced-prefix continuation; pass bar there.
 - fallback: the chat says every turn re-renders the whole song and offers an explicit "keep the old take for these bars" splice.
