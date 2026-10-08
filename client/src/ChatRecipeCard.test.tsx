@@ -134,4 +134,12 @@ describe('ChatRecipeCard with a reference (F-063, F-064; chat-reference.html 3a,
     const out = card({ ...body, reference: ref('borrow', { note: 'no cover: the score is longer than YuE2 plans in one take' }) });
     expect(out).toContain('no cover: the score is longer than YuE2 plans in one take');
   });
+  it('F-059: UNDO TURN on the reply while pending; not once the card made the song', () => {
+    const m = { ...M, body: { ...body, undo: { rev: 2, before: {}, fields: ['title'] } }, undo: 'offer' } as ChatMessageView;
+    const at = (view: CardView) => renderToStaticMarkup(
+      <ChatRecipeCard message={m} view={view} live={RECIPE} blockers={[]} ahead={0} doneNumber={1} canAsk onCreate={vi.fn()} onAskAgain={vi.fn()} onCancelQueued={vi.fn()} />,
+    );
+    expect(at(PENDING)).toContain('UNDO TURN');
+    expect(at({ kind: 'done' })).not.toContain('UNDO TURN');
+  });
 });

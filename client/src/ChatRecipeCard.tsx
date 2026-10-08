@@ -17,7 +17,9 @@ import {
 } from './chatReferenceCopy';
 import { editedSinceProposal, takeCancellable, type CardView } from './chatScreen';
 import { useChatStore } from './chatStore';
+import { turnRunning } from './chatTurn';
 import { ChatErrorLine, ChatJobLine, RetryButton } from './ChatTurnLine';
+import { ChatUndoLine } from './ChatUndoLine';
 
 interface Props {
   message: ChatMessageView;
@@ -53,6 +55,8 @@ export function ChatRecipeCard({ message, view, live, blockers, ahead, doneNumbe
   const body = message.body as ChatRecipeBody | null;
   const ref = body?.reference;
   const scoreSource = useScoreSource(ref?.referenceId);
+  const songId = useChatStore((s) => s.thread?.songId ?? null); // F-059: UNDO TURN, on the reply above the card
+  const turnOpen = useChatStore((s) => turnRunning(s.turn));
   if (!body) return null;
   const cover = ref?.use === 'cover';
   const mirrors = view.kind === 'pending' || view.kind === 'committing';
@@ -63,11 +67,12 @@ export function ChatRecipeCard({ message, view, live, blockers, ahead, doneNumbe
   const missing = (ref?.missing ?? []).filter((k: ChatDraftKey) => blank(f[k]));
   const summary = missing.includes('key') ? recipeSummary(f).replace(/^(\d+ BPM · )?/, (m) => `${m}${autoValue('key')} · `) : recipeSummary(f);
 
+  const undo = <ChatUndoLine message={message} songId={songId ?? (view.kind === 'done' ? message.id : null)} turnOpen={turnOpen} />;
   if (view.kind === 'done') {
     return (
-      <div className="chat-card">
+      <>{undo}<div className="chat-card">
         <div className="chat-card-hd"><span className="chat-lb">{header(cardHeader('done', f.title))}</span><span className={doneTruncated ? 'chat-hn truncated' : 'chat-hn'}>{doneLine(doneNumber, doneTruncated)}</span></div>
-      </div>
+      </div></>
     );
   }
   const phase = view.kind === 'committing' ? view.phase : null;
@@ -78,6 +83,7 @@ export function ChatRecipeCard({ message, view, live, blockers, ahead, doneNumbe
   const hint = view.kind === 'committing' ? COMMITTING_HINT : !mirrors ? '' : cover ? COVER_HINT : ref ? BORROW_HINT : RECIPE_HINT;
   return (
     <>
+      {undo}
       <div className={`chat-card${view.kind === 'superseded' ? ' sup' : ''}`} aria-label="Proposal">
         <div className="chat-card-hd">
           <span className="chat-lb">{header(cardHeader(view.kind))}</span>

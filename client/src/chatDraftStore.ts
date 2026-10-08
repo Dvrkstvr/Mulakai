@@ -6,6 +6,8 @@
  */
 import { create } from 'zustand';
 import { chatApi, type ChatDraft, type ChatDraftFields, type ChatDraftKey, type ChatDraftSaved } from './api/chat';
+import { chatConvergeApi, type ChatMessageViewC2, type ChatRecipeBodyC2, type UndoResult } from './api/chatConverge';
+import { justFilled } from './chatUndo';
 
 export const DRAFT_SAVE_MS = 600;
 const MAX_REBASES = 3;
@@ -28,8 +30,11 @@ interface ChatDraftStore {
   /** The draft `rev` at which a reply last wrote each field (this session), so an older touch no longer reads YOURS. */
   assistantRev: Partial<Record<ChatDraftKey, number>>;
   error: string | null;
-  /** A thread (re)loaded or a reply landed: `changed` = the fields that reply filled (its recipe card's list). */
-  hydrate: (threadId: string, view: ChatDraftSaved, changed?: ChatDraftKey[]) => void;
+  /** A thread (re)loaded or a reply landed: `changed` = the fields that reply filled (its recipe card's list). With the
+   * thread's `messages`, the marks come from the latest recipe's undo record (D-221), so a reload keeps them. */
+  hydrate: (threadId: string, view: ChatDraftSaved & { messages?: ChatMessageViewC2[] }, changed?: ChatDraftKey[]) => void;
+  /** UNDO TURN (F-059): saves the hand edits first, then the server restores what it may; the marks clear. */
+  undo: (messageId: string) => Promise<UndoResult>;
   /** `''` is sent as `null`: the server clears the field. */
   edit: <K extends ChatDraftKey>(key: K, value: ChatDraftFields[K]) => void;
   /** Save the pending edits now (before SEND, so the server's `rev` at SEND covers them). */
@@ -70,6 +75,17 @@ export function filledCount(f: ChatDraftFields | null): number {
 
 const same = (a: unknown, b: unknown) => JSON.stringify(a) === JSON.stringify(b);
 
+/** The rev each field was last filled at by a recipe reply still standing (its undo record), so a touch before that
+ * reply reads plain after a reload too. */
+function recordRevs(messages: ChatMessageViewC2[]): Partial<Record<ChatDraftKey, number>> {
+  const out: Partial<Record<ChatDraftKey, number>> = {};
+  for (const m of messages) {
+    const u = m.kind === 'recipe' ? (m.body as ChatRecipeBodyC2 | null)?.undo : undefined;
+    if (u && !(m.body as ChatRecipeBodyC2).undone) for (const k of u.fields) out[k] = Math.max(out[k] ?? -1, u.rev);
+  }
+  return out;
+}
+
 export const useChatDraftStore = create<ChatDraftStore>((set, get) => {
   async function save(): Promise<void> {
     for (let i = 0; i < MAX_REBASES; i++) {
@@ -93,16 +109,21 @@ export const useChatDraftStore = create<ChatDraftStore>((set, get) => {
   return {
     threadId: null, draft: null, pending: {}, blockers: [], draftNote: null, filled: {}, assistantRev: {}, error: null,
 
-    hydrate: (threadId, { draft, blockers, draftNote }, changed = []) => set((s) => {
+    hydrate: (threadId, { draft, blockers, draftNote, messages }, changed = []) => set((s) => {
       const kept = s.threadId === threadId;
       const before = kept ? liveFields(s) : null;
-      const filled: Filled = {};
-      const assistantRev = kept ? { ...s.assistantRev } : {};
+      const pending = kept ? s.pending : {};
+      const session: Filled = {};
+      const assistantRev = { ...(kept ? s.assistantRev : {}), ...(messages ? recordRevs(messages) : {}) };
       for (const k of changed) {
-        if (before) filled[k] = { old: before[k] };
-        assistantRev[k] = draft.rev;
+        if (before) session[k] = { old: before[k] };
+        assistantRev[k] = Math.max(assistantRev[k] ?? -1, draft.rev);
       }
-      return { threadId, draft, blockers, draftNote: draftNote ?? null, pending: kept ? s.pending : {}, filled: changed.length ? filled : kept ? s.filled : {}, assistantRev };
+      // The server's record wins when it has one (reload-proof, D-221); older replies keep the session's marks.
+      const recorded = messages ? justFilled(messages, draft) : {};
+      const filled = { ...(Object.keys(recorded).length ? recorded : changed.length ? session : kept ? s.filled : {}) };
+      for (const k of Object.keys(pending)) delete filled[k as ChatDraftKey]; // an unsaved hand edit reads YOURS
+      return { threadId, draft, blockers, draftNote: draftNote ?? null, pending, filled, assistantRev };
     }),
 
     edit: (key, value) => {
@@ -120,6 +141,20 @@ export const useChatDraftStore = create<ChatDraftStore>((set, get) => {
       while (inflight) await inflight;
       inflight = save().finally(() => { inflight = null; });
       await inflight;
+    },
+
+    undo: async (messageId) => {
+      await get().flush();
+      const threadId = get().threadId;
+      if (!threadId) return { refused: 'no draft is open', code: 'UNDO_REFUSED' };
+      const res = await chatConvergeApi.undoTurn(threadId, messageId);
+      if ('refused' in res || get().threadId !== threadId) return res;
+      set((s) => {
+        const assistantRev = { ...s.assistantRev };
+        for (const k of res.restored) delete assistantRev[k]; // a restored value is whoever's it was before the turn
+        return { draft: res.draft, blockers: res.blockers, filled: {}, assistantRev, error: null };
+      });
+      return res;
     },
 
     clearFilled: () => set({ filled: {} }),
