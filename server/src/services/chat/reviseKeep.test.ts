@@ -61,6 +61,16 @@ describe('startsOver / the start-over guard (CP-C2 r3)', () => {
     expect(startOverReason('and also transpose it down a tone', [TEMPO, UP_1], [], [DOWN])).toBeNull();
   });
 
+  it('a start-over without removal words is not bounced by the keep guard; the start guard still fires when it keeps ops (C2 review)', () => {
+    const SLOW: Op = { op: 'SET_TEMPO', bpm: 90 };
+    for (const t of ['never mind that, set the tempo to 90', 'start again with a slower tempo', 'von vorne, bitte 90 bpm', 'desde cero, a 90 bpm']) {
+      expect(startsOver(t), t).toBe(true);
+      expect(keepReason(t, [HARM, UP_1], [1, 2], [SLOW]), t).toBeNull();
+      expect(reviseGuard(t, [HARM, UP_1], [1, 2], [SLOW], [KEEP_REASON, START_REASON]), t).toBeNull();
+      expect(reviseGuard(t, [HARM, UP_1], [], [SLOW], [KEEP_REASON, START_REASON]), t).toMatch(/^this request starts over/);
+    }
+  });
+
   it('reviseGuard checks only the unspent guards', () => {
     expect(reviseGuard('and also transpose it up a semitone', [TEMPO], [1], [UP_1], [KEEP_REASON, START_REASON])).toMatch(/^this request adds/);
     expect(reviseGuard('and also transpose it up a semitone', [TEMPO], [1], [UP_1], [START_REASON])).toBeNull();

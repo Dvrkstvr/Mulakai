@@ -40,9 +40,9 @@ export function lostDrops(pending: Op[], drop: number[], ops: Op[]): number[] {
   return [...new Set(drop)].filter((n) => pending[n - 1] && !replaced(pending[n - 1], ops)).sort((a, b) => a - b);
 }
 
-/** The keep guard's reason, or null: only when the request does not ask to remove and a drop loses ops. */
+/** The keep guard's reason, or null: only when the request neither removes nor starts over and a drop loses ops. */
 export function keepReason(request: string, pending: Op[], drop: number[], ops: Op[]): string | null {
-  if (asksToRemove(request)) return null;
+  if (asksToRemove(request) || startsOver(request)) return null;
   const lost = lostDrops(pending, drop, ops);
   return lost.length ? `${KEEP_REASON} (your drop removed ${named(pending, lost)})` : null;
 }

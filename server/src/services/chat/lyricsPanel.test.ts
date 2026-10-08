@@ -94,6 +94,12 @@ describe('lyricsPanel · a transcribed version (source heard)', () => {
     expect(p.sections.every((s) => s.block === null)).toBe(true);
   });
 
+  it('a segment empty after trimming is skipped; the numbering stays contiguous (C2 review)', () => {
+    const gappy: LyricsReading = { language: 'en', segments: [seg('one', 1, 3), seg('', 4, 5), seg('  ', 5, 6), seg('two', 7, 9)] };
+    const p = lyricsPanel(input(analysis(facts, 'transcribed'), { words: gappy, lyrics: null }));
+    expect(p.sections[0].lines).toEqual([{ n: 1, text: 'one', at: { seconds: [1, 3] } }, { n: 2, text: 'two', at: { seconds: [7, 9] } }]);
+  });
+
   it('no word timings: a note naming why, no lines', () => {
     const a = analysis(facts, 'transcribed', { words: { notRead: 'lyrics-server is not set' } });
     expect(lyricsPanel(input(a, { lyrics: null }))).toMatchObject({ source: 'none', note: expect.stringMatching(/lyrics-server is not set/) });
