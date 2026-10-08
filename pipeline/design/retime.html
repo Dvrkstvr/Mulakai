@@ -1,0 +1,146 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><title>RE-TIME - DT-RT decision mockup</title>
+<style>
+:root{--c:#1C1D21;--p:#202127;--r:#26272D;--l:#33343B;--h:#4E4F58;--t:#ECECEC;--m:#9A9AA3;--w:#6E6E78;--a:#D4FF00;--s:#30BCED;--sk:#0C2530;--st:#153543;--li:#7B4B94;--lt:#A97FC1;--ln:#2A2133;--ru:#CC3F0C;--rt:#E8703F;--rb:#C9906F;--rw:#2A1712}
+*{box-sizing:border-box;border-radius:0}
+body{margin:0;padding:24px;background:var(--c);color:var(--t);font:13px/1.5 system-ui,sans-serif}
+h1{font-size:20px;letter-spacing:3px;margin:0}h2{font-size:11px;letter-spacing:3px;color:var(--m);border-bottom:1px solid var(--l);padding:6px 0;margin:28px 0 12px}
+li{max-width:1100px}.hn,.mo{font-family:ui-monospace,monospace}.hn{font-size:10px;letter-spacing:1px;color:var(--w)}
+.g{display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start}.o>h4{margin:0 0 6px;font-size:10px;letter-spacing:2px;color:var(--w)}.o>h4 b{color:var(--t)}.nt{margin:6px 0 0;font-size:12px;color:var(--m)}
+.p{display:inline-block;transform:skewX(-10deg);font-weight:700;letter-spacing:1px;white-space:nowrap}.p>span{display:inline-block;transform:skewX(10deg)}
+.ac,.ao,.q,.ch{font-size:11px;padding:10px 20px;border:1px solid}.ac{background:var(--a);border-color:var(--a);color:var(--c)}.ao{color:var(--a);border-color:var(--a)}.q{color:var(--m);border-color:var(--h);padding:6px 12px;font-size:10px}
+.ch{padding:5px 12px;font-size:10px;color:var(--m);border-color:var(--h)}.ch.on{background:var(--s);border-color:var(--s);color:var(--sk)}.ch.no{color:var(--w);border-style:dashed;opacity:.6}.off{opacity:.4}
+.d{width:var(--w);border:1px solid var(--l);background:var(--p)}.hd{display:flex;gap:10px;align-items:center;padding:9px 14px;border-bottom:1px solid var(--l)}.lb{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--w)}
+.bd{padding:12px 14px;display:flex;flex-direction:column;gap:8px}.k{color:var(--t);font-weight:400}
+.fx{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}.fx div{border:1px solid var(--l);padding:4px 8px}.fx b{display:block;font-size:13px}
+.rd{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--h);background:var(--c)}.rd.sl{border-color:var(--l)}.rd>b{font-size:12px;letter-spacing:1px}
+.in{border:1px solid var(--s);background:var(--c);padding:4px 8px;width:96px;font:12px ui-monospace,monospace}
+.cm{display:flex;align-items:center;gap:14px;padding:10px 14px;border-top:1px solid var(--l)}.cs{flex:1;font-size:11px;color:var(--m)}.cs b{color:var(--t);font-weight:400}.cs u{text-decoration:none;color:var(--rb)}
+.er,.wn{padding:8px 10px;color:var(--rb);font-size:11px;display:flex;gap:10px;align-items:center;border:1px solid var(--ru);background:var(--rw)}.wn{border-width:0 0 0 2px}.er div,.wn div{flex:1}.er b,.wn b{color:var(--rt);letter-spacing:1px}
+.hint{font-size:11px;color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 10px}
+.j{padding:7px 10px;border:1px solid var(--h);font-size:10px;letter-spacing:1px;display:flex;justify-content:space-between;align-items:center}.j em{font-style:normal;letter-spacing:0;color:var(--m)}.j.w{border-style:dashed;color:var(--m)}
+.sg{display:flex;gap:3px}.sg i{font:9px ui-monospace,monospace;color:var(--m);background:var(--r);padding:4px 0;text-align:center;overflow:hidden;clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%)}.sg i.x{text-decoration:line-through;color:var(--w)}
+.sg.st i{background:var(--li);color:var(--t)}
+.pv{display:flex;gap:10px;align-items:center;border:1px solid var(--l);padding:5px 8px}.pv.sy{opacity:.55}.hx{width:20px;height:18px;background:var(--a);clip-path:polygon(25% 0,75% 0,100% 50%,75% 100%,25% 100%,0 50%)}.wv{flex:1;height:18px;background:repeating-linear-gradient(90deg,var(--h) 0 2px,transparent 2px 4px)}
+.tg{font:9px ui-monospace,monospace;letter-spacing:1px;border:1px solid var(--h);padding:0 5px;color:var(--m)}.tg.s{color:var(--rt);border-color:var(--ru)}.tg.l{color:var(--lt);border-color:var(--li);background:var(--ln)}
+.ls{border:1px solid var(--l)}.ls>div{display:flex;gap:12px;align-items:center;padding:6px 10px;border-bottom:1px solid var(--l)}.ls>div:last-child{border:0}.on_{font-size:11px;font-weight:700;letter-spacing:1px;width:92px}.dt{flex:1;color:var(--m)}
+.in2{border:1px solid var(--h);background:var(--c);padding:7px 10px}
+.um{margin-left:auto;max-width:520px;background:var(--r);padding:8px 12px}.am{color:var(--m);border-left:2px solid var(--h);padding:2px 0 2px 12px}.am b{color:var(--t);font-weight:400}
+.sc{width:760px}.cd{border:1px solid var(--h);background:var(--p)}.dc{border-left:2px solid var(--h);padding:2px 0 2px 12px;margin:8px 0;max-width:1100px}
+</style></head><body>
+<h1>RE-TIME · fix a score that read the beat wrong</h1>
+<div class="hn">stage 5 · DT-RT · F-091..F-094 · D-190 D-205 D-206 · Q-125 Q-126 · tokens: DESIGN.md, none added · panels drawn 1:1 at their real column width inside a 1366×768 screen (cover panel 800, chat thread 760, dock 880), not the whole window</div>
+
+<h2>WHAT THIS SETTLES</h2>
+<ul>
+<li>How a person says "the beat is wrong" in four places (cover panel A, chat reading B, SCORE dock C, chat verb D), what each state says (offered, armed, working, done, refused, slightly off), and the consequence line before every press.</li>
+<li>One hue per job: <b>sky</b> the picked mode (HALF / DOUBLE / BPM…), <b>acid outline</b> the RE-TIME press on the cover panel (GENERATE COVER stays the one filled acid CTA) and the filled acid APPLY &amp; RENDER where it re-renders; <b>lilac</b> the version badge; <b>rust</b> only a refusal. Zero radius.</li>
+<li>Evidence: dock, reading card and cover-score layout <i>seen in</i> YueScoreReview.tsx / ChatReadingLine.tsx / score-verb.html; the piano preview is rendered by yue-server's transcriber (<i>seen in</i> transcriber.py:100) but its re-render cost is <i>unverified</i> (Q-127). Every duration is an example (Q-128).</li>
+</ul>
+
+<h2>A · THE COVER PANEL · beside the transcribed score (F-091)</h2><div class="g" id="a"></div>
+<h2>B · THE CHAT READING · the SCORE part of a READING card (F-092)</h2><div class="g" id="b"></div>
+<h2>C · THE SCORE DOCK · RE-TIME beside SET TEMPO, generative (F-093)</h2><div class="g" id="c"></div>
+<h2>D · A CHAT VERB · "it's half time" (F-094)</h2><div class="g" id="e"></div>
+<h2>OPTIONS · the one real choice: press then confirm, or apply at once</h2><div class="g" id="op"></div>
+
+<h2>DECISIONS (RT-n provisional; recorded as one assumed entry, D-208)</h2><div id="dec"></div>
+
+<h2>OPEN QUESTIONS (added to open-questions.md; Q-125 and Q-126 are already there)</h2>
+<ul>
+<li><b>Q-125</b> assumable (exists): "slightly off" = a typed BPM within ±8 % of the read tempo. This mockup adds: and not within ±8 % of ×2 or ×½ of it. HALF / DOUBLE are never "slight". Default as drawn in A3, B and D3.</li>
+<li><b>Q-126</b> assumable (exists): no kept bundle, no RE-TIME; copy in A6, B5, C4.</li>
+<li><b>Q-127</b> assumable: is the piano preview cheap to redraw? Unverified. Default: not redrawn; the old one stays dimmed, tagged STALE, until the next TRANSCRIBE. Alternative: redraw it if SP-8 shows under ~5 s.</li>
+<li><b>Q-128</b> assumable: "about 5 s" comes from a measured constant after SP-8; until then "a few seconds" (F-090 accepts under 10 s).</li>
+<li><b>Q-129</b> assumable: BPM… takes whole numbers 40–240; a HALF/DOUBLE outside it is a disabled chip with the reason (A7). Alternative: 30–300.</li>
+<li><b>Q-130</b> assumable: the cover panel has no SET TEMPO for a slightly-off tempo (it lives in the dock once the cover exists); the hint says so. Alternative: a nudge field in the panel.</li>
+<li><b>Q-131</b> assumable: the refusal says "gone" with no date. Alternative: say when it was cleared.</li>
+<li><b>Q-132</b> assumable: RE-TIME stands alone in a plan (bars change under other ops); the planner drops the rest and says so. Alternative: allow it first in a list.</li>
+<li><b>Blocking: none.</b></li>
+</ul>
+
+<h2>CHECK ON A REAL DEVICE (desktop, 1366×768)</h2>
+<ul>
+<li>The READ AS row with BPM… open fits one line at 800 px; a disabled DOUBLE reads as unavailable, not broken.</li>
+<li>A2's consequence line wraps to three lines without pushing RE-TIME out of view.</li>
+<li>After B4 the stale card and strip fit with the thread at least 400 px tall.</li>
+</ul>
+
+<script>
+const $=i=>document.getElementById(i);
+const P=(c,t)=>`<span class="p ${c}"><span>${t}</span></span>`;
+const O=(h,f,n,w)=>`<div class="o" style="--w:${w||800}px"><h4>${h}</h4>${f}${n?`<div class="nt" style="max-width:${w||800}px">${n}</div>`:""}</div>`;
+const D=(t,x,b,cm)=>`<div class="d"><div class="hd"><span class="lb">${t}</span><span class="hn">${x||""}</span></div><div class="bd">${b}</div>${cm||""}</div>`;
+const CM=(t,b)=>`<div class="cm"><span class="cs">${t}</span>${b}</div>`;
+const ER=(t,b)=>`<div class="er"><div>${t}</div>${b||""}</div>`;
+const CHS=(h,d,b)=>[["HALF","h"],["DOUBLE","d"],["BPM…","b"]].map(([n,k])=>P("ch"+(k==h?" on":"")+(k==d?" no":""),n)).join(" ")+(b||"");
+const RD=(rd,h,d,x)=>`<div class="rd"><span class="lb">${rd[0]}</span><b>${rd[1]}</b>${CHS(h,d)}${x||""}</div>`;
+const STR=(n,t)=>`<div class="sg${t?" st":""}">${[["INTRO",3],["VERSE",6],["CHORUS",6],["VERSE",6],["CHORUS",6],["BRIDGE",4],["CHORUS",6],["OUTRO",3]].map(s=>`<i style="flex:${s[1]}">${s[0]}</i>`).join("")}</div><div class="hn">${n}</div>`;
+const FX=(bpm,bars,len)=>`<div class="fx">${[["TEMPO",bpm+" BPM"],["KEY","A MINOR"],["METER","4/4"],["BARS",bars],["LENGTH",len]].map(a=>`<div><span class="hn">${a[0]}</span><b>${a[1]}</b></div>`).join("")}</div>`;
+const PV=s=>`<div class="pv ${s?"sy":""}"><span class="hx"></span><div class="wv"></div><span class="hn">0:00 / 3:12</span>${s?'<span class="tg s">STALE · '+s+'</span>':""}</div>`;
+const R140=["READ AS","140 BPM · 4/4 · 96 BARS"],R70=["READ AS","70 BPM · 4/4 · 48 BARS"];
+const CONS="Rebuilds the score at <b>70 BPM</b>: 96 bars → 48 · from the saved reading, <b>no GPU</b>, about 5 s · the piano preview is not redrawn · sections kept by name, LYRICS READ LYRICS wrote follow the new bars · UNDO returns to 140 BPM";
+const GONE=n=>ER(`<b>THE SAVED READING IS GONE</b> · RE-TIME rebuilds from the transcription's saved outputs and these were cleared. Nothing changed.<br>TRANSCRIBE AGAIN reads the source from scratch · uses the GPU about <b>${n} min</b>.`,P("ao","TRANSCRIBE AGAIN"));
+const COVER=(rd,body,x,cm)=>D("SCORE · slow_dance_demo.mp3 · TRANSCRIBED","YUE2 COVER",FX(...rd)+body+(x||""),cm);
+
+/* A */
+$("a").innerHTML=
+O("<b>A1 · OFFERED</b>",COVER(["140","96","3:12"],RD(R140)+STR("8 SECTIONS · all kept")+PV(),'<div class="hint">Half or double time? Pick one, or type the BPM you hear. The notes stay; the beat they sit on changes.</div>'))+
+O("<b>A2 · ARMED</b> HALF picked",COVER(["140","96","3:12"],RD(R140,"h")+STR("8 SECTIONS · all kept")+PV(),"",CM(CONS,P("ao","RE-TIME AT 70 BPM")+" "+P("q","CANCEL"))),"Sky = the mode picked. Nothing rebuilt yet; GENERATE COVER stays the one filled acid CTA.")+
+O("<b>A3 · BPM…</b> typed 144: only slightly off",COVER(["140","96","3:12"],RD(R140,"b",0,'<span class="in">144</span>')+'<div class="hint">144 is within 8 % of the 140 read: the beat is right, the tempo is just a little off. RE-TIME is for a wrong beat. SET TEMPO in the SCORE dock nudges it once the cover exists.</div>'+STR("8 SECTIONS · all kept")+PV(),"",CM("No RE-TIME offered",P("ao off","RE-TIME AT 144 BPM"))),"A typed 276 (near ×2) or 92 arms RE-TIME instead. Q-125.")+
+O("<b>A4 · WORKING</b>",COVER(["140","96","3:12"],RD(R140,"h")+'<div class="j"><span>RE-TIMING… <em>· a few seconds · no GPU</em></span></div>'+STR("8 SECTIONS · all kept")+PV(),"",CM(CONS,P("ao off","RE-TIME AT 70 BPM"))),"Plain line, no shader: CPU work, not generation. SOURCE and ENGINE hold still, as for TRANSCRIBE.")+
+O("<b>A5 · DONE</b> undo = back to the previous reading",COVER(["70","48","3:12"],RD(R70)+'<div class="hint"><span class="tg l">RE-TIMED</span> from 140 BPM · 96 bars → 48 · UNDO goes back to the previous reading. GENERATE COVER renders from this one.</div>'+STR("8 SECTIONS · all kept")+PV("140 BPM"),'<div style="padding:0 14px 10px;display:flex;gap:8px">'+P("q","UNDO")+P("q","DOWNLOAD MIDI")+'</div>'),"The preview is dimmed and tagged STALE with the tempo it plays (Q-127). UNDO is one step; a second RE-TIME from here undoes to 70, not 140.")+
+O("<b>A6 · REFUSED</b> saved reading gone",COVER(["140","96","3:12"],RD(R140,0,0)+GONE(2)+STR("8 SECTIONS · all kept")+PV()),"Chips stay drawn, off. TRANSCRIBE AGAIN is the panel's TRANSCRIBE; the GPU time is the calibrated figure (Q-099). Q-126.")+
+O("<b>A7 · EDGE</b> DOUBLE would pass 240; BPM… out of range",COVER(["140","96","3:12"],RD(R140,"b","d",'<span class="in" style="border-color:var(--ru)">300</span>')+ER("<b>300 BPM IS OUTSIDE 40–240</b> · DOUBLE is off: 280 BPM is over the limit.")+STR("8 SECTIONS · all kept")+PV(),"",CM("No RE-TIME offered",P("ao off","RE-TIME AT 300 BPM"))),"Q-129. A failed rebuild (the beat grid cannot be built) shows the same rust line with the reason from yue-server (R-038), nothing changed.");
+
+/* B */
+const BRD=(bpm,bars,x)=>`<div class="rd sl" style="flex-wrap:wrap"><span class="lb">SCORE</span><span>${bars} bars · 4/4 · A MINOR · ${bpm} BPM · chords read</span>${x||""}</div>`;
+const BSEL=(h,d)=>`<div class="rd" style="border-color:var(--h)"><span class="lb">READ AS</span><b>${h}</b>${d}</div>`;
+const BCARD=(sc,more,cm)=>D("READING · slow_dance_demo.mp3","v1 · SCORE 2 OF 3",'<div><span class="lb">WORDS</span> &nbsp; 38 lines · German</div>'+sc+more,cm);
+const BS="66 bars",bStale=`<div class="wn" style="margin-top:2px"><div><b>MARK STALE</b> · your mark on bars 17–24 was made against the 140 BPM reading. <u style="color:var(--t)">MARK AGAIN</u> on the new bars.</div></div>`;
+$("b").innerHTML=
+O("<b>B1 · OFFERED</b> reading line: READ v1 · SCORE",BCARD(BRD(140,"96")+BSEL("140 BPM · 96 BARS",CHS()),STR("8 SECTIONS"))+'<div class="hn" style="margin-top:6px;width:760px">READING v1 · SCORE · 2 OF 3 · HALF · DOUBLE · BPM… sit on the SCORE part only</div>',"Shown for a transcribed score (not a YuE2 song's own: F-092 non-goal).",760)+
+O("<b>B2 · ARMED</b> HALF",BCARD(BRD(140,"96")+BSEL("140 BPM · 96 BARS",CHS("h")),STR("8 SECTIONS"),CM("Re-times the reading at <b>70 BPM</b>: 96 bars → 48, <b>every bar number changes</b> · from the saved reading, no GPU, about 5 s · a mark on this version goes <b>stale</b>: mark again · nothing is saved to your library",P("ao","RE-TIME AT 70 BPM")+" "+P("q","CANCEL"))),"",760)+
+O("<b>B3 · WORKING</b> and the reading line",BCARD(BRD(140,"96")+BSEL("140 BPM · 96 BARS",CHS("h")),'<div class="j"><span>RE-TIMING v1 · SCORE <em>· a few seconds</em></span></div>'+STR("8 SECTIONS"))+"",
+"The strip stays drawn at the old bars until the new ones land (no flicker to hatched).",760)+
+O("<b>B4 · DONE</b> strip redrawn, mark stale",BCARD(BRD(70,"48",'<span class="tg l">RE-TIMED</span>')+BSEL("70 BPM · 48 BARS",CHS()+" "+P("q","UNDO")),STR("8 SECTIONS · same seconds, bars halved")+bStale),"The re-timed reading replaces the stored one. UNDO restores the 140 BPM reading and, with it, the old mark's bars; the stale card clears.",760)+
+O("<b>B5 · REFUSED</b> no saved reading",BCARD(BRD(140,"96")+BSEL("140 BPM · 96 BARS",CHS()),GONE(2)),"",760);
+
+/* C */
+const CK=t=>`<div class="hn">${t}</div>`;
+const DH=(x)=>`<div class="hd"><span class="lb">SCORE</span><span class="p" style="background:var(--s);color:var(--sk);padding:3px 10px;font-size:10px"><span>BASE · WHOLE SCORE</span></span><span class="hn">${x||""}</span></div>`;
+const DK=(b,cm)=>`<div class="d" style="width:880px">${DH("cover · score transcribed from the source")}<div class="bd">${b}</div>${cm||""}</div>`;
+const CRL=P("ch","HALF")+" "+P("ch","DOUBLE")+" "+P("ch","BPM…");
+const DCM="Saves base <b>v3</b> · re-times the score from the saved reading at <b>70 BPM</b> (96 bars → 48) and <b>re-renders the whole song</b> on YuE2, about <b>4 min</b> · v2 stays in VERSIONS · starts after 1 job";
+$("c").innerHTML=
+O("<b>C1 · ASKING</b> eligible cover",DK('<div class="in2" style="color:var(--w)">Describe the change, e.g. jazz chords in the chorus, 88 BPM</div><div class="rd sl"><span class="lb">READ AS</span><b>140 BPM · 4/4 · 96 BARS</b><span class="hn">wrong beat?</span>'+CRL+"</div>",CM("Pick a mode or describe a change",P("ao off","PLAN")+" "+P("ac off","APPLY &amp; RENDER"))),"The same chips as A, adding a RE-TIME row to the plan with no planner call; typing \"it's half time\" gets there through the planner (D). Hidden on a song with no kept reading (C4).",880)+
+O("<b>C2 · PLAN READY</b> RE-TIME beside SET TEMPO",DK('<div class="in2">it\'s half time, and make it 88 BPM after that</div><div class="lb">PLAN · 1 CHANGE · AGAINST BASE v2</div><div class="ls"><div><span class="on_">RE-TIME</span><span class="dt">HALF · 140 → 70 BPM · 96 → 48 bars · from the saved reading</span><span class="tg">a rebuild</span></div></div><div class="wn"><div><b>SET TEMPO DROPPED</b> · it would change the bars RE-TIME rebuilds. Apply this, then ask for 88 BPM.</div></div>'+CK("48 bars · est 183 s of 360 s · 1,520 of 4,096 tokens"),CM(DCM,P("ao","PLAN")+" "+P("ac","APPLY &amp; RENDER"))),"Generative, so the one filled acid control and a render time, like every SCORE op. Q-132: RE-TIME stands alone in a plan.",880)+
+O("<b>C3 · WORKING</b> two steps",DK('<div class="ls"><div><span>✓</span><span class="on_">RE-TIME</span><span class="dt">70 BPM · 48 bars · 4 s</span></div></div><div class="j" style="background:linear-gradient(110deg,#2A2133,#153543 45%,#44510F)"><span style="color:var(--a)">RENDERING base v3… <em>0:42 · 38 %</em></span>'+P("q","CANCEL")+"</div>"),"Step 1 is seconds on CPU; step 2 is the usual YuE2 render job. A cancel after step 1 leaves v2 as the base and the new reading is dropped.",880)+
+O("<b>C4 · REFUSED</b> no saved reading (also: YuE2 original)",DK('<div class="in2" style="opacity:.6">it\'s half time</div>'+GONE(2).replace("TRANSCRIBE AGAIN reads the source from scratch","TRANSCRIBE the source again in Create: it reads the source from scratch")+'<div class="hint">A song YuE2 wrote from scratch has no transcription: its own beat is what it rendered. Use SET TEMPO.</div>'),"Q-126: dock chips hidden for an original; for a cover without a bundle this line replaces them.",880);
+
+/* D */
+const UM=t=>`<div class="um">${t}</div>`,AM=t=>`<div class="am">${t}</div>`;
+const OPC=(h,rows,cs,btn)=>`<div class="cd"><div class="hd"><span class="lb">${h}</span><span class="hn">nothing runs yet</span></div><div class="bd"><div class="ls">${rows}</div></div>${CM(cs,btn)}</div>`;
+const RW=(o,d,t)=>`<div><span class="on_">${o}</span><span class="dt">${d}</span><span class="tg">${t||"a rebuild"}</span></div>`;
+$("e").innerHTML=
+O("<b>D1 · \"it's half time\"</b> proposal",`<div class="sc" style="display:flex;flex-direction:column;gap:10px">${UM("it's half time")}${AM("It reads 140 BPM. <b>Half time</b> is 70 BPM, 48 bars instead of 96. The notes stay.")}${OPC("PROPOSAL · RE-TIME · base v2",RW("RE-TIME","HALF · 140 → 70 BPM · 96 → 48 bars"),DCM,P("ac","APPLY &amp; RENDER"))}</div>`,"The same op and consequence copy as C2. Mode is HALF, not a typed BPM; the assumption (\"it reads 140\") is said in the reply.",760)+
+O("<b>D2 · \"it's really 92 BPM\"</b>",`<div class="sc" style="display:flex;flex-direction:column;gap:10px">${UM("it's really 92 BPM")}${AM("Re-timing to <b>92 BPM</b>: that is not near the 140 read, so it needs a new beat, not a tempo nudge. 96 bars → 63.")}${OPC("PROPOSAL · RE-TIME · base v2",RW("RE-TIME","BPM 92 · 140 → 92 · 96 → 63 bars"),DCM.replace("<b>70 BPM</b> (96 bars → 48)","<b>92 BPM</b> (96 bars → 63)"),P("ac","APPLY &amp; RENDER"))}</div>`,"",760)+
+O("<b>D3 · SLIGHTLY OFF</b> goes to SET TEMPO",`<div class="sc" style="display:flex;flex-direction:column;gap:10px">${UM("it's really 143 BPM")}${AM("143 is within 8 % of the 140 read, so the beat is right: this is a <b>tempo change</b>, not a re-time.")}${OPC("PROPOSAL · SET TEMPO",RW("SET TEMPO","140 → 143 BPM · whole song","follows"),"Saves base <b>v3</b> · re-renders the whole song · about <b>4 min</b> · v2 stays",P("ac","APPLY &amp; RENDER"))}</div>`,"Q-125. The reply says which op and why, so a wrong guess is one sentence to correct.",760)+
+O("<b>D4 · DONE</b> and D5 · REFUSED",`<div class="sc" style="display:flex;flex-direction:column;gap:10px">${UM("it's half time")}${AM("Done: <b>base v3</b>, 70 BPM, 48 bars. <span class='hn'>CHANGED · SCORE, TEMPO, BARS &nbsp; <u>UNDO TURN</u></span>")}${UM("it's half time")}${ER("<b>THE SAVED READING IS GONE</b> · nothing changed. TRANSCRIBE AGAIN in Create (about 2 min of GPU), then ask again.")}</div>`,"UNDO TURN restores base v2 as the active version, as for any edit turn. In a reading thread (no song yet) the verb opens B's armed state instead of a card.",760);
+
+/* options */
+$("op").innerHTML=
+O("<b>Option 1 · press, then confirm</b> (recommended; A2, B2)",D("READ AS","",RD(R140,"h"),CM("Rebuilds at <b>70 BPM</b>: 96 → 48 bars · no GPU",P("ao","RE-TIME AT 70 BPM"))),"Costs one more click. Wins: the consequence line before the press (DESIGN.md), the BPM… field is an input that needs an Enter anyway, and a re-time resets what the cover's section toggles and lyrics sit on.",560)+
+O("<b>Option 2 · applies at once, UNDO after</b>",D("READ AS","",RD(R70)+'<div class="hint"><span class="tg l">RE-TIMED</span> 140 → 70 BPM · 96 bars → 48 &nbsp; '+P("q","UNDO")+"</div>"),"Fewer clicks, and cheap to reverse. Loses: the consequence is read after the fact, a mis-click on DOUBLE next to HALF rebuilds, and in chat (B) it stales a mark with no warning.",560);
+
+/* decisions */
+$("dec").innerHTML=[
+["RT-1","One READ AS row everywhere a transcribed score is shown (A, B, C chips): the reading in words, then HALF · DOUBLE · BPM… as sky choice chips. Beat: a bare RE-TIME button, which would hide the reading it corrects.","costs a row of height (about 40 px) in the cover panel and the reading card"],
+["RT-2","Press, then confirm (Option 1). The press is an acid outline on the cover panel and chat reading (no GPU), the filled acid APPLY &amp; RENDER in the dock and a turn (YuE2 re-renders). Beat: Option 2, apply and UNDO.","one extra click on the free, no-GPU places"],
+["RT-3","'Slightly off' is not RE-TIME: a typed BPM within 8 % of the read and not near ×2 or ×½ shows a hint and no button (A3); in chat the planner answers with SET TEMPO (D3). Beat: always RE-TIME.","an 8 % band is a heuristic; a song 9 % off gets a re-timed grid it did not need"],
+["RT-4","Done = the reading is replaced and UNDO restores the previous one (one step). In the dock/turn the result is a new version v3 and v2 stays, so undo is VERSIONS / UNDO TURN, not a button on the row.","cover-panel UNDO is not stacked past one step"],
+["RT-5","The piano preview is not redrawn in this mockup: it is dimmed with STALE · 140 BPM until the next TRANSCRIBE (Q-127). Beat: hiding it, which loses the thing the person listens to when judging the beat.","a stale preview still plays the old beat; the tag has to be read"],
+["RT-6","A refusal for no kept reading names the fix and its GPU cost in the same box: THE SAVED READING IS GONE · TRANSCRIBE AGAIN (about N min of GPU), an acid outline. No ABC rewrite fallback (D-206).","the person pays GPU time for the same notes again"],
+["RT-7","In a chat reading, a re-time says the bar numbers change and a mark on this version goes stale (mark again), and the stale card from C1 appears at once (B4). Beat: silently dropping the mark.","MARK STALE shows even when the mark would have fitted by chance"],
+["RT-8","The dock chips and the verb both create the same RE-TIME op; RE-TIME stands alone in a plan (Q-132). Beat: planning it with other ops, which would put harmony in bars that no longer exist.","a two-part request costs two applies"]
+].map(d=>`<div class="dc"><b>${d[0]}</b> · ${d[1]}<br><span class="hn">COST · ${d[2]}</span></div>`).join("");
+</script></body></html>
