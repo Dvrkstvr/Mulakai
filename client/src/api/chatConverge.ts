@@ -39,7 +39,7 @@ export interface BarMap { bars: number; sections: BarMapSection[]; ops: BarMapOp
 /** The recipe body's undo record (D-220): the draft `rev` the reply wrote, each changed field's previous value (absent =
  * was empty) and the fields it filled. */
 export interface RecipeUndo { rev: number; before: Partial<ChatDraftFields>; fields: ChatDraftKey[] }
-export interface RecipeUndone { at: string; restored: ChatDraftKey[]; kept: Array<{ field: ChatDraftKey; reason: string }> }
+export interface RecipeUndone { at: number; restored: ChatDraftKey[]; kept: Array<{ field: ChatDraftKey; reason: string }> }
 export interface ChatRecipeBodyC2 extends ChatRecipeBody { undo?: RecipeUndo; undone?: RecipeUndone }
 
 /** The message view's undo offer (`messageView`, CV-3): absent on older servers. */

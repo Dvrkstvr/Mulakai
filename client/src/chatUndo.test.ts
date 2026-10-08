@@ -24,7 +24,7 @@ describe('undoLine', () => {
   });
 
   it('an undone one says what it restored and kept', () => {
-    const undone = { at: 'x', restored: ['title' as const], kept: [{ field: 'bpm' as const, reason: 'you changed it' }] };
+    const undone = { at: 1, restored: ['title' as const], kept: [{ field: 'bpm' as const, reason: 'you changed it' }] };
     expect(undoLine(recipe('r1', { undone }, 'done'), null, false)).toEqual({ kind: 'done', undone });
     expect(undoLine(recipe('r1', {}, 'done'), null, false)).toEqual({ kind: 'done', undone: null });
   });
@@ -51,7 +51,7 @@ describe('justFilled', () => {
 
   it('cleared by the next message, by an undo, or with no record', () => {
     expect(justFilled([recipe('r1'), user('u2')], draft())).toEqual({});
-    expect(justFilled([recipe('r1', { undone: { at: 'x', restored: [], kept: [] } }, 'done')], draft())).toEqual({});
+    expect(justFilled([recipe('r1', { undone: { at: 1, restored: [], kept: [] } }, 'done')], draft())).toEqual({});
     expect(justFilled([recipe('r1', { undo: undefined })], draft())).toEqual({});
     expect(justFilled([], draft())).toEqual({});
   });
