@@ -66,7 +66,7 @@ describe('transcribeStore', () => {
     expect(transcribe).toHaveBeenCalledWith('yue2', src, 'Ellies City 2');
     expect(useTranscribeStore.getState().stage).toBe('idle');
     const draft = useCreateDraftStore.getState();
-    expect(draft.audio.yueScore).toEqual({ abc: SCORE, source: 'Ellies City 2', transcription: T, previewJobId: 'tr-1' });
+    expect(draft.audio.yueScore).toEqual({ abc: SCORE, source: 'Ellies City 2', transcription: T, previewJobId: 'tr-1', notationId: null });
     expect(draft.lyrics).toBe('[Intro]\n\n[Verse]\nMidnight city');
   });
 

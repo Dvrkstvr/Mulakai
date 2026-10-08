@@ -54,8 +54,11 @@ export function coverParams(
   seed: { randomSeed: boolean; seed: number },
   controls: EngineControlValues,
   output: unknown,
-  score: { abc: string; source: string },
+  score: { abc: string; source: string; notationId?: string | null },
 ): Record<string, unknown> {
   const intent: PromptIntent = { ...d, bpm: 0, keyScale: '', timeSignature: '', duration: 0 };
-  return { ...enginePromptParams(intent, caps, seed, { ...controls, cot: '' }, output), abc: score.abc, source: score.source };
+  return {
+    ...enginePromptParams(intent, caps, seed, { ...controls, cot: '' }, output), abc: score.abc, source: score.source,
+    ...(score.notationId ? { notationId: score.notationId } : {}), // so the cover can be re-timed later (F-093)
+  };
 }
