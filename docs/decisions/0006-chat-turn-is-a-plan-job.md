@@ -41,4 +41,4 @@ produce a valid SCORE plan.
 
 - Activity shows a chat turn as PLANNING until F-080 (C8) gives it its own label.
 - A chat edit replaces a pending SCORE plan on the same song and vice versa (one plan per song, D-028).
-- A German recipe turn holds the slot for two loads (SP-7: about 35 s warm); a "keep" follow-up makes one call (D-234).
+- A German recipe turn holds the slot for two loads (SP-7: about 35 s warm); a "keep" follow-up makes one call (D-234; code decides keep, D-250).
