@@ -106,7 +106,7 @@ describe('ChatEditCard, C2: revised, superseded by a revise, the bar map (F-058,
 
   it('a revised card: the plan title as its header, the SINCE line, NEW / SAME marks, REMOVED (n), the bar map instead of the strip', () => {
     const out = html(PENDING, plan2);
-    expect(out).toContain('<span class="chat-lb">PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST v1</span><span class="chat-hn">EDIT · SCORE · nothing runs yet</span>');
+    expect(out).toContain('<span class="chat-lb">PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v1</span><span class="chat-hn">EDIT · SCORE · nothing runs yet</span>');
     expect(out).not.toContain('score-plan-label'); // the title is the header, not repeated in the list
     expect(out).toContain('SINCE PLAN 1 · 1 NEW · 1 SAME · 1 REMOVED');
     expect(out).toMatch(/score-op-mark">SAME<.*score-op-mark hi">NEW</);

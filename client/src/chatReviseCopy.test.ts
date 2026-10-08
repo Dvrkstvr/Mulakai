@@ -16,8 +16,8 @@ const map = (ops: Array<{ spans: Array<[number, number]>; whole: boolean }>) => 
 
 describe('header, SINCE and REMOVED (3a, 3b)', () => {
   it('the plan title is the header; the superseded card says REVISED BELOW', () => {
-    expect(cardTitle(undefined, 1, 4)).toBe('PLAN · 1 CHANGE · AGAINST v4');
-    expect(cardTitle(2, 2, 4)).toBe('PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST v4');
+    expect(cardTitle(undefined, 1, 4)).toBe('PLAN · 1 CHANGE · AGAINST BASE v4');
+    expect(cardTitle(2, 2, 4)).toBe('PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v4');
     expect(cardTitle(1, 1, 4, true)).toBe('PLAN 1 · REVISED BELOW');
   });
   it('SINCE leaves zero marks out and always says REMOVED; REMOVED (n) lists the ops', () => {

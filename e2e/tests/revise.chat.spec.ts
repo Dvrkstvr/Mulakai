@@ -38,7 +38,7 @@ test.beforeAll(async ({ request }) => {
 });
 
 test('a song from the contract words: recipe, hand edit, CREATE SONG, v1 saved', async ({ page, request }) => {
-  await scriptChat(request, { replies: RECIPE.replies });
+  await scriptChat(request, { replies: RECIPE.replies, lyrics: RECIPE.lyrics });
   await openChat(page);
   await sendMessage(page, RECIPE.request);
   await expect(page.getByLabel('Proposal').last()).toContainText('PROPOSAL · NEW SONG', { timeout: 30_000 });
@@ -65,7 +65,7 @@ test('a follow-up revises the card: plan 2 NEW + SAME, plan 1 REVISED BELOW, the
 
   await expect(cards(page)).toHaveCount(before + 1, { timeout: 30_000 });
   const plan2 = cards(page).last();
-  await expect(plan2.locator('.chat-lb')).toHaveText('PLAN 2 · REVISED FROM PLAN 1 · 3 CHANGES · AGAINST v1'); // the header (D-229)
+  await expect(plan2.locator('.chat-lb')).toHaveText('PLAN 2 · REVISED FROM PLAN 1 · 3 CHANGES · AGAINST BASE v1'); // the header (D-229)
   await expect(plan2.locator('.chat-card-hd .chat-hn')).toHaveText('EDIT · SCORE · nothing runs yet');
   await expect(plan2).toContainText('SINCE PLAN 1 · 2 NEW · 1 SAME · 0 REMOVED');
   await expect(plan2.locator('.score-op', { hasText: 'SET TEMPO' }).locator('.score-op-mark')).toHaveText('SAME');

@@ -8,12 +8,12 @@ import { barsText } from './chatMarkLabel';
 
 const changes = (n: number) => `${n} CHANGE${n === 1 ? '' : 'S'}`;
 
-/** The header: `PLAN · 1 CHANGE · AGAINST v4`, `PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST v4`; the card a
- * revise superseded: `PLAN 1 · REVISED BELOW`. */
+/** The header: `PLAN · 1 CHANGE · AGAINST BASE v4`, `PLAN 2 · REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v4` (the
+ * dock's BASE kept, as the C0b chat spec reads it); the card a revise superseded: `PLAN 1 · REVISED BELOW`. */
 export function cardTitle(revision: number | undefined, ops: number, base: number, revisedBelow = false): string {
   const rev = revision ?? 1;
   if (revisedBelow) return `PLAN ${rev} · REVISED BELOW`;
-  return `${rev > 1 ? `PLAN ${rev} · REVISED FROM PLAN ${rev - 1}` : 'PLAN'} · ${changes(ops)} · AGAINST v${base}`;
+  return `${rev > 1 ? `PLAN ${rev} · REVISED FROM PLAN ${rev - 1}` : 'PLAN'} · ${changes(ops)} · AGAINST BASE v${base}`;
 }
 /** The superseded card's hint (3a's plan 1). */
 export const SUPERSEDED_HINT = 'superseded';
