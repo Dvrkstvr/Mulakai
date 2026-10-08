@@ -10,7 +10,7 @@
 - feasibility: amber · H-open 1 (R-038 German lyrics: gemma4 chosen D-237, build = LD) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7 · R-042 LD turn time
 - milestone: C0 + C1 + C3 done · features passing 43/83 · C2 (own session) · Re-time a transcription (own session)
 - autopilot: stopped — C1 reached (run 5, 6/12 rounds)
-- autopilot: C2 · round 4/12 (run 7) · progress 7·F-056/057/059/060 pass·41·0 · stall 0 · left: F-058 live, curate
+- autopilot: C2 · round 5/12 (run 7) · progress 7·F-056/057/059/060 pass·41·0 · stall 0 · left: F-058 live
 - LD (lyrics own call; German on gemma4): built #242 #246, fixes #252 (D-251 draft offers no edit) #253 (D-252 code keeps lyrics) #260 (D-255 looped structure refused) · re-check 2026-10-08: redirect 0/18, keep 8/11 (misses = Outro loop, #260) · owed: live keep re-check after #260, chatCp3 (owner songs), owner reads German lyrics
 - owed: cover listen (C3), M2 pair 2, M1 phrase
 - next: LD-1 PR → LD-2 once #238 merges; C2 and the BPM fix run in their own sessions; REPEAT-last-section task card
