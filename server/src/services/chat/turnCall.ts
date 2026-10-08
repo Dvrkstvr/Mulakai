@@ -8,12 +8,14 @@
  * 4000 when the reply may be an edit (2000 cut a 40-bar REHARMONIZE three times; a recipe needs
  * under 800), temperature 0.3, reasoning off and the strict schema (plannerClient). C2 (F-058, D-227): with a
  * pending plan (`revise`) an edit is that plan's revise: `drop` in the schema, the PENDING PLAN lines in the
- * prompt, the merge checked by replyCheck; the accepted merge comes back as `since`. Pure (I/O injected).
+ * prompt, the merge checked by replyCheck; the accepted merge comes back as `since`. An additive drop is sent back
+ * once (reviseKeep's guard, spent here on its first refusal). Pure (I/O injected).
  */
 import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply, ScoreFacts, Since } from '../score/planTypes.js';
 import { turnSchema } from './actionSchema.js';
 import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
+import { KEEP_REASON } from './reviseKeep.js';
 import { asksWholeSong, replanMessage } from './markFit.js';
 import { detectLanguage } from './lyricLanguage.js';
 import { draftLines } from './songState.js';
@@ -76,10 +78,12 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
   const maxTokens = allowed.includes('edit') ? MAX_TOKENS.edit : MAX_TOKENS.other;
   let calls = 0;
   let since: Since | null = null; // the last accepted check's merge: turnAttempts returns on it
+  let keepGuard = Boolean(revise); // CP-C2 r2: an additive drop goes back once, then the planner's drop stands
   const outcome = await turnAttempts(messages, {
     ask: (msgs) => { calls += 1; return deps.ask(msgs, schema, { maxTokens }); },
     check: async (json) => {
-      const c = await checkReply(json, checkCtx, { apply: deps.apply, language: detectLanguage });
+      const c = await checkReply(json, { ...checkCtx, keepGuard }, { apply: deps.apply, language: detectLanguage });
+      if (!c.ok && c.reasons.some((r) => r.startsWith(KEEP_REASON))) keepGuard = false;
       since = c.ok && c.revised && revise ? { planId: revise.plan.id, ...c.revised } : null;
       return c;
     },

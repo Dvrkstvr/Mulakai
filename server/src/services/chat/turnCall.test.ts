@@ -9,6 +9,7 @@ import type { ChatMessage as PromptMessage, ScoreFacts } from '../score/planType
 import { promptChars } from '../score/plannerPrompt.js';
 import { NOTHING_REVISED } from '../score/planRevise.js';
 import { chatPendingLines } from './turnRevise.js';
+import { KEEP_REASON } from './reviseKeep.js';
 import type { RevisePending } from './convergeTypes.js';
 import type { Op, Plan } from '../score/planTypes.js';
 
@@ -167,6 +168,19 @@ describe('decideReply with a pending plan (C2, F-058: REVISE as a follow-up turn
     expect(d.since?.removed).toEqual([TEMPO]);
     const said = await decideReply(onSong, { ask: scripted(sayReply('It is in D minor.')) });
     expect(said).toMatchObject({ ok: true, reply: { action: 'say' }, since: null });
+  });
+
+  it('CP-C2 r2: an addition that drops a pending op goes back once with the named reason; a second drop stands', async () => {
+    const UP: Op = { op: 'TRANSPOSE', semitones: 1 };
+    const kept = await decideReply(onSong, { ask: scripted(edit([1], [HARM]), edit([], [HARM])) });
+    expect(kept.ok && kept.refusals).toEqual([[`${KEEP_REASON} (your drop removed pending op 1 SET_TEMPO)`]]);
+    expect(kept.since?.removed).toEqual([]);
+    const ask = scripted(edit([1], [UP]), edit([1], [UP]), edit([], [UP]));
+    const twice = await decideReply({ ...onSong, request: 'and also transpose it up a semitone' }, { ask });
+    expect(twice).toMatchObject({ ok: true, attempts: 2, reply: { ops: [UP] } });
+    expect(twice.since?.removed).toEqual([TEMPO]);
+    const asked = await decideReply({ ...onSong, request: 'forget the tempo, transpose it up a semitone' }, { ask: scripted(edit([1], [UP])) });
+    expect(asked).toMatchObject({ ok: true, attempts: 1 });
   });
 
   it('no pending plan: no drop in the schema and no since', async () => {
