@@ -63,6 +63,15 @@ describe('mergeRevise (D-073, F-033 #1, M2-6)', () => {
     expect(m.removed).toEqual([TEMPO]);
   });
 
+  it('CP-C2: a dropped op returned unchanged stays in its place as SAME, not NEW and REMOVED', () => {
+    const DOWN_2: Op = { op: 'TRANSPOSE', semitones: -2 };
+    const m = mergeRevise([DOWN_2, STYLE], [1], [{ op: 'SET_TEMPO', bpm: 80 }, { semitones: -2, op: 'TRANSPOSE' } as Op]);
+    expect(m.ops).toEqual([{ semitones: -2, op: 'TRANSPOSE' }, STYLE, { op: 'SET_TEMPO', bpm: 80 }]);
+    expect(m.marks).toEqual([{ mark: 'SAME', was: DOWN_2 }, { mark: 'SAME', was: STYLE }, { mark: 'NEW', was: null }]);
+    expect(m.removed).toEqual([]);
+    expect(m.from).toEqual([{ pending: 1, reply: 2 }, { pending: 2 }, { reply: 1 }]);
+  });
+
   it('replaces a pending op once: a second op on its target is added; one REHARMONIZE over two pending ones removes the second', () => {
     expect(mergeRevise([TEMPO], [], [{ op: 'SET_TEMPO', bpm: 90 }, { op: 'SET_TEMPO', bpm: 95 }]).ops)
       .toEqual([{ op: 'SET_TEMPO', bpm: 90 }, { op: 'SET_TEMPO', bpm: 95 }]);

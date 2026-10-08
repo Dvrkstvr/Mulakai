@@ -40,7 +40,7 @@ export function mergeLegend(m: Merged, drop: number[], pendingCount: number): st
     : `your op ${f.reply} (${f.pending === undefined ? 'new' : `replaces pending op ${f.pending}`})`}`);
   const kept = new Set(m.from.flatMap((f) => f.pending ?? []));
   const covered = Array.from({ length: pendingCount }, (_, k) => k + 1).filter((n) => !kept.has(n) && !drop.includes(n));
-  return `${LEGEND_HEAD} ${ops.join(', ')}${list('dropped', [...drop].sort((a, b) => a - b))}${list('replaced by an op on its target', covered)}.`;
+  return `${LEGEND_HEAD} ${ops.join(', ')}${list('dropped', drop.filter((n) => !kept.has(n)).sort((a, b) => a - b))}${list('replaced by an op on its target', covered)}.`;
 }
 
 export type RevisedReading = (Reading & { ok: false }) | { ok: true; ops: Op[]; legend: string; merged: Merged };

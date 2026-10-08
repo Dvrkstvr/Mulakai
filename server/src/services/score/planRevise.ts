@@ -51,13 +51,16 @@ export interface Merged extends Omit<Since, 'planId'> { ops: Op[]; from: Origin[
 interface Slot { op: Op; mark: OpMark; was: Op | null; from: Origin }
 
 /** The pending plan's ops without the dropped ones (1-based numbers), each returned op in place of the first
- * kept pending op on its target (any further kept ones on it are removed), the rest of the returned ops after. */
+ * kept pending op on its target (any further kept ones on it are removed), the rest of the returned ops after.
+ * A dropped op returned unchanged is back in its place as SAME, not NEW and removed (CP-C2). */
 export function mergeRevise(pending: Op[], drop: number[], reply: Op[]): Merged {
   const slots: Array<Slot | null> = pending.map((op, k) => (drop.includes(k + 1) ? null
     : { op, mark: 'SAME', was: op, from: { pending: k + 1 } }));
   const added: Slot[] = [];
   reply.forEach((op, i) => {
     const hits = slots.flatMap((s, k) => (s && s.from.reply === undefined && sameTarget(op, pending[k]) ? [k] : []));
+    const back = hits.length ? -1 : pending.findIndex((p, k) => slots[k] === null && drop.includes(k + 1) && canonical(p) === canonical(op));
+    if (back >= 0) { slots[back] = { op, mark: 'SAME', was: pending[back], from: { pending: back + 1, reply: i + 1 } }; return; }
     if (!hits.length) { added.push({ op, mark: 'NEW', was: null, from: { reply: i + 1 } }); return; }
     const [k, ...superseded] = hits;
     slots[k] = { op, mark: canonical(op) === canonical(pending[k]) ? 'SAME' : 'CHANGED', was: pending[k], from: { pending: k + 1, reply: i + 1 } };
