@@ -915,3 +915,11 @@ While a mark is shown, the lyrics panel keeps the section just before and just a
 ## D-244 · 2026-10-08 · stage 7 (chat C2, CV-5, R-040) · by: conductor
 CP-C2 (pipeline/cp-c2/2026-10-08): prompt p95 5,403 tokens, 0 context refusals, 0 silent losses, 2/21 failures — but STOP on additive drops, 5 of 11 (qwen3:14b fills `drop` with the ops a reply "replaces" even when the request only adds; every drop showed under REMOVED). Also a dropped-and-returned-identical op showed NEW + REMOVED. Fix before CV-7: SAME for an identical re-return, a prompt line that an addition keeps every pending op, re-run; if still over 3/10, a no-removal-words guard that retries once with a named reason (like D-201), never a silent override.
 - instead of: building CV-7 on a revise that loses ops on additions; overriding the model's `drop` silently.
+
+## D-245 · 2026-10-08 · stage 7 (CP-C2 fix, R-040) · by: assumed (builder)
+A revise turn's additive-drop guard (`chat/reviseKeep.ts`, in the spirit of D-201): when the person's words carry none of a
+fixed list of removal or replacement words (English plus the commonest German and Spanish: forget, remove, undo, instead,
+only, just, no, not, without, fewer, cut, vergiss, entfern-, ohne, quita, sin, ...) and the reply drops a pending op that
+no returned op replaces on its target, the reply goes back once with "this request adds; keep every pending op: drop []";
+a second drop stands and the card lists it REMOVED (never overridden silently). A dropped op returned unchanged is merged
+back in its place as SAME (planRevise.mergeRevise). The id may need renumbering on merge (origin/main was at D-244).
