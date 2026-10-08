@@ -1,0 +1,93 @@
+{
+ "tag": "de2_first",
+ "text": "ein fröhlicher Rocksong über eine Sommerreise ans Meer",
+ "secs": 146.2,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've created a cheerful rock song about a summer trip to the sea. It has an upbeat tempo and a bright mood.",
+ "n_calls": 3,
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15766,
+ "bpm_before": null,
+ "bpm_after": 120,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Motor dröhnt und die Sonne brennt",
+    "Wir fahren los, wo man die Freiheit kennt",
+    "Der Asphalt glüht unter dem Reifen Rad",
+    "Wir lassen hinter uns die graue Stadt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Fenster unten, der Wind im Gesicht",
+    "Ein neues Abenteuer, ein helles Licht",
+    "Die Playlist laut, der Rhythmus ist wild",
+    "Wir sind heute alle ein bisschen ein Kind"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Sand unter den Füßen und Salz auf der Haut",
+    "Auf die Sonne und die Freiheit haben wir vertraut",
+    "Keine Sorgen mehr, nur der Rhythmus der Nacht",
+    "Bis der Morgen uns wieder zum Leben erwacht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Wir reisen ans Meer, die Wellen so blau",
+    "Der Sommer ist da, wir wissen es genau",
+    "Wir reisen ans Meer, die Freiheit ist nah",
+    "Alles ist hell und die Welt ist wunderbar"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur das Meer und wir",
+    "Die Reise geht weiter",
+    "An der Küste im Licht",
+    "Vergiss die Zeit nicht"
+   ]
+  }
+ ],
+ "style_after": "Rock, electric guitar, drums, cheerful"
+}

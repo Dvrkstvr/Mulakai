@@ -1,0 +1,101 @@
+{
+ "tag": "de4_first",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "secs": 34.8,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've created a slow pop song about saying goodbye at the train station. The song will have a melancholic mood with a gentle melody.",
+ "n_calls": 3,
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15751,
+ "bpm_before": null,
+ "bpm_after": 60,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Die Welt wird plötzlich so still",
+    "Ich sehe dein Gesicht im kalten Licht",
+    "Und weiß nicht, was ich sagen soll",
+    "Nur der Wind weht durch mein Haar",
+    "Und die Zeit bleibt einfach stehn"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein letzter Blick, ein letztes Wort",
+    "Bevor die Ferne uns trennt",
+    "Der Abschied am Bahnhof brennt so tief"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Deine Hand entgleitet meiner Hand",
+    "Ein leises Klacken auf dem Stein",
+    "Die Türen schließen sich mit einem Schlag",
+    "Und die Schienen führen dich fort",
+    "Ich bleibe hier im Regen stehen",
+    "Und starre nur dem Licht hinterher"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein letzter Blick, ein letztes Wort",
+    "Bevor die Ferne uns trennt",
+    "Der Abschied am Bahnhof brennt so tief"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Lichter der Wagen werden klein",
+    "Ein Punkt am Horizont, so weit",
+    "Ich halte fest an dem, was war",
+    "Doch die Leere ist jetzt mein Begleiter",
+    "Alles wird eins mit der Nacht"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Stadt",
+    "Und lässt uns beide ganz allein",
+    "Ein letzter Blick, ein letztes Wort",
+    "Bevor die Ferne uns trennt",
+    "Der Abschied am Bahnhof brennt so tief"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch das Echo der Schienen",
+    "Ein leises Weinen im Wind",
+    "Der Bahnhof ist nun leer",
+    "Und ich bin ganz allein"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, melancholic, female voice"
+}

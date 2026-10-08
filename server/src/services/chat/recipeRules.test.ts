@@ -115,6 +115,33 @@ describe('recipeProblems: the reasons a retry sends back', () => {
   });
 });
 
+describe('F-095 live: a structure that loops a section is refused with the reason (D-255)', () => {
+  const { lyrics: _, ...planned } = RECIPE;
+  const DRAFT = ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus', 'Outro'];
+
+  it('the live loop (qwen3:14b, "mach es etwas schneller": the draft plus 6 more Outros) is refused, once, with the fix', () => {
+    const looped = [...DRAFT, ...Array(6).fill('Outro')];
+    expect(plannedProblems({ ...planned, structure: looped })).toEqual(['the structure repeats Outro 7 times at the end: an Outro appears once, last']);
+  });
+
+  it('a second Intro or Outro anywhere, or a section 3 times in a row, is refused', () => {
+    expect(plannedProblems({ ...planned, structure: ['Intro', 'Verse', 'Intro', 'Chorus', 'Outro'] })).toEqual(['the structure has 2 Intros: an Intro appears once, first']);
+    expect(plannedProblems({ ...planned, structure: ['Intro', 'Verse', 'Outro', 'Chorus', 'Outro'] })).toEqual(['the structure has 2 Outros: an Outro appears once, last']);
+    expect(plannedProblems({ ...planned, structure: ['Intro', 'Verse', 'Chorus', 'Chorus', 'Chorus', 'Outro'] }))
+      .toEqual(['the structure repeats Chorus 3 times in a row: write a section at most twice in a row']);
+  });
+
+  it('what SP-5 and the fixtures write passes: the live draft, two Choruses in a row at the end, no Intro or Outro', () => {
+    for (const structure of [DRAFT, ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Bridge', 'Chorus', 'Chorus', 'Outro'], ['Verse', 'Chorus', 'Verse', 'Chorus', 'Chorus'], ['Verse', 'Verse', 'Chorus', 'Pre-Chorus', 'Chorus']]) {
+      expect(plannedProblems({ ...planned, structure }), structure.join(',')).toEqual([]);
+    }
+  });
+
+  it('CREATE SONG does not block on it: a person may hand-edit any structure', () => {
+    expect(createBlockers({ ...READY, structure: ['Outro', 'Outro', 'Outro'] }, ON)).toEqual([]);
+  });
+});
+
 describe('createBlockers: why CREATE SONG is disabled (F-044 edge)', () => {
   it('a draft with a style on a configured YuE2 can be created', () => {
     expect(createBlockers(READY, ON)).toEqual([]);

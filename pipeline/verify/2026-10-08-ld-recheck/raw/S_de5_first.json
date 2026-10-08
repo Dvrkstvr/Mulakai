@@ -1,0 +1,99 @@
+{
+ "tag": "de5_first",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "secs": 48.4,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've created a slow pop song about saying goodbye at the train station. It has a melancholic mood with a soft piano and strings accompaniment.",
+ "n_calls": 3,
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15768,
+ "bpm_before": null,
+ "bpm_after": 60,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Die Welt wird plötzlich ganz still",
+    "Ich sehe nur noch dein Gesicht",
+    "Und weiß nicht, was ich jetzt will",
+    "Der kalte Wind weht durch mein Haar",
+    "Alles fühlt sich so leer aus"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Ein letzter Blick, ein letztes Wort",
+    "Der Zug fährt langsam von hier fort",
+    "Nur die Schienen bleiben zurück",
+    "In diesem Moment gibt es kein Glück",
+    "Nur die Leere und die Nacht"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Anzeigetafel blinkt ganz matt",
+    "Die Zeit scheint für uns nicht mehr zu gelten",
+    "Ich halte fest, was ich noch hab",
+    "Und spüre, wie die Tränen rollen",
+    "Dein Abschiedsgruß verhallt im Wind"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Ein letzter Blick, ein letztes Wort",
+    "Der Zug fährt langsam von hier fort",
+    "Nur die Schienen bleiben zurück",
+    "In diesem Moment gibt es kein Glück",
+    "Nur die Leere und die Nacht"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Räder rollen auf dem harten Stahl",
+    "Die Ferne ruft mit lautem Schrei",
+    "Ich bleibe hier am Bahnsteig stehen",
+    "Und fühle mich so einsam und frei"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Ein letzter Blick, ein letztes Wort",
+    "Der Zug fährt langsam von hier fort",
+    "Nur die Schienen bleiben zurück",
+    "In diesem Moment gibt es kein Glück",
+    "Nur die Leere und die Nacht"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur die Leere bleibt",
+    "Nur die Nacht bleibt hier",
+    "Der Zug ist längst fort",
+    "Und ich bin allein"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, strings, melancholic, female voice"
+}

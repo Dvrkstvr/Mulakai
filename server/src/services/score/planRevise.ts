@@ -29,6 +29,9 @@ function canonical(v: unknown): string {
   return JSON.stringify(v);
 }
 
+/** The same op, field for field (key order aside). */
+export const sameOp = (a: Op, b: Op): boolean => canonical(a) === canonical(b);
+
 type Of<K extends Op['op']> = Extract<Op, { op: K }>;
 
 /** D-070 d's target: whole-song ops by kind, REHARMONIZE by overlapping bars, WRITE_PHRASE by start bar,

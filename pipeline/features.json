@@ -708,8 +708,8 @@
         "The edit card shows OLD | NEW for the rewritten block and the panel shows the old words struck above the new until APPLY or dismiss; the consequence line says the whole song re-renders (or, after F-068, which bars change)",
         "Edge: a proposal for a section that is not marked shows that section in the panel tagged PROPOSED and leaves the mark alone"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "C2 live (pipeline/c2-live.md, 2026-10-08): OLD|NEW card, struck-above-new in the panel, PROPOSED outside the mark"
     },
     {
       "id": "F-058",
@@ -732,8 +732,8 @@
         "A filled field shows a sky wash, an ASSISTANT tag and the old value struck; UNDO TURN restores exactly the fields that turn filled and leaves hand-edited ones alone; the marks clear on the next message or a hand edit (then a grey YOURS)",
         "Edge: undoing a turn whose recipe card already created a song is not offered; a turn that filled nothing has no UNDO TURN"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "C2 live (pipeline/c2-live.md, 2026-10-08): ASSISTANT/YOURS, \"kept TITLE: you changed it\", marks + UNDONE survive reload, no UNDO once the song exists"
     },
     {
       "id": "F-060",
@@ -744,8 +744,8 @@
         "Edited bars are marked on a bar map built from the data the planner saw; hovering a change-list row highlights its bars",
         "Edge: on a 200-bar cover the map stays one screen high and legible at 1366x768"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "C2 live (pipeline/c2-live.md, 2026-10-08): hover lights the row's bars; 206-bar cover map one row, 61 px, card 358 px, thread 454 px"
     },
     {
       "id": "F-061",

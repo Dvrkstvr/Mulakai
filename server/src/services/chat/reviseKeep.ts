@@ -3,10 +3,12 @@
  * default for `drop`: run 1 dropped pending ops on additions ("and also transpose it up"), r2 and r3 kept every pending
  * op on "forget all that, just transpose it down a tone". The keep guard: the person's words carry no removal or
  * replacement intent and the reply drops a pending op that no returned op replaces on its target. The start-over guard:
- * the words start over and the reply keeps a pending op it neither drops nor replaces. Each sends the reply back once
- * with a named reason; a second answer is the planner's and stands (the card shows it), never overridden silently. Pure.
+ * the words start over and the reply keeps a pending op it neither drops nor replaces, or returns one unchanged. Each
+ * sends the reply back once with a named reason; a second answer is the planner's and stands (the card shows it). Since
+ * C2 live B2 a start over drops every pending op in code whatever `drop` says (replyCheck), so its guard is left with
+ * the ops returned unchanged; one returned twice stands as SAME. Pure.
  */
-import { sameTarget } from '../score/planRevise.js';
+import { sameOp, sameTarget } from '../score/planRevise.js';
 import type { Op } from '../score/planTypes.js';
 
 /** Words that ask to take something away or swap it (assumed list, English plus the commonest German and Spanish). */
@@ -47,11 +49,21 @@ export function keepReason(request: string, pending: Op[], drop: number[], ops: 
   return lost.length ? `${KEEP_REASON} (your drop removed ${named(pending, lost)})` : null;
 }
 
-/** The start-over guard's reason, or null: only when the request starts over and a pending op is kept as it was. */
+/** The start-over guard's reason, or null: only when the request starts over and a pending op is kept as it was:
+ * neither dropped nor replaced, or returned unchanged (C2 live B2 (a): "start over: instead just change the tempo"
+ * under a mark came back as the pending REHARMONIZE, unchanged, which counts as on its target). */
 export function startOverReason(request: string, pending: Op[], drop: number[], ops: Op[]): string | null {
   if (!startsOver(request)) return null;
-  const kept = pending.flatMap((op, k) => (drop.includes(k + 1) || replaced(op, ops) ? [] : [k + 1]));
+  const kept = pending.flatMap((op, k) => (ops.some((o) => sameOp(o, op)) || !(drop.includes(k + 1) || replaced(op, ops)) ? [k + 1] : []));
   return kept.length ? `${START_REASON} (your reply keeps ${named(pending, kept)})` : null;
+}
+
+/** A guard's reason in the person's words, for the card's refusal line (C2 live B6); null: not a guard's. */
+export function guardWords(reason: string): string | null {
+  const ops = [...reason.matchAll(/pending op \d+ ([A-Z_]+)/g)].map((m) => m[1].replace(/_/g, ' ')).join(', ');
+  if (reason.startsWith(START_REASON)) return `the reply kept ${ops || 'pending changes'} though you asked to start over`;
+  if (reason.startsWith(KEEP_REASON)) return `the reply dropped ${ops || 'pending changes'} though you only added`;
+  return null;
 }
 
 /** The first reason among the unspent guards (`unspent`: their reason heads), or null. */

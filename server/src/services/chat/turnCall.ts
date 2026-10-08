@@ -4,8 +4,8 @@
  * the number of calls. Rung 0 (default, SP-5's base): one call with the full schema. Rung 2: the
  * same call offering only what the state allows (turnActions). Rung 1 (router + per-action call) is
  * not built and runs as rung 0; `CHAT_LADDER` picks 0 or 2 for the actions. Rung 3 (LD, F-095, D-234)
- * is built and always on for recipes: the recipe call writes no lines, it says `lyrics` write or keep;
- * a passed recipe then gets its lines (turnLyrics): the draft's when kept, else a lyrics call on the
+ * is built and always on for recipes: the recipe call writes no lines; a passed recipe then gets them
+ * (turnLyrics, code decides keep vs write, D-252): the draft's when kept, else a lyrics call on the
  * language's model (`lyricsModel`, lyricsModels.ts), up to 3 attempts; lyrics that fail fail the turn.
  * SP-5's call settings: max_tokens 4000 when the reply may be an edit (2000 cut a 40-bar REHARMONIZE
  * three times; a recipe needs under 800) and for the lyrics (SP-5/SP-7), temperature 0.3, reasoning off
@@ -18,7 +18,8 @@ import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply, Score
 import { turnSchema } from './actionSchema.js';
 import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
-import { KEEP_REASON, START_REASON } from './reviseKeep.js';
+import { guardWords, KEEP_REASON, START_REASON } from './reviseKeep.js';
+import { shownReviseReason } from '../score/reviseReply.js';
 import { asksWholeSong, replanMessage } from './markFit.js';
 import { detectLanguage } from './lyricLanguage.js';
 import { draftLines } from './songState.js';
@@ -31,6 +32,12 @@ import type { ChatMessage, DraftFields, LyricsMode } from './chatTypes.js';
 import type { RevisePending } from './convergeTypes.js';
 
 export const BUILT_RUNGS = [0, 2];
+
+/** The reasons as the person reads them (the card's refusal lines, a failed turn's line); the planner got them as written. */
+function shownReasons(reasons: string[]): string[] {
+  const shown = reasons.flatMap((r) => { const w = guardWords(r) ?? shownReviseReason(r); return w === null ? [] : [w]; });
+  return shown.length ? shown : reasons;
+}
 /** Completion tokens per call (SP-5): an edit-capable call needs room for 6 ops of chords; a lyrics call had 4000 in SP-5 / SP-7. */
 export const MAX_TOKENS = { edit: 4000, other: 2000, lyrics: 4000 };
 
@@ -90,25 +97,25 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
   let calls = 0;
   let since: Since | null = null; // the last accepted check's merge: turnAttempts returns on it
   let guards = revise ? [KEEP_REASON, START_REASON] : []; // CP-C2: each drop guard sends a reply back once, then it stands
-  let asked: LyricsMode = 'write'; // the last accepted recipe's write / keep
   const outcome = await turnAttempts(messages, {
     ask: (msgs) => { calls += 1; return deps.ask(msgs, schema, { maxTokens }); },
     check: async (json) => {
       const c = await checkReply(json, { ...checkCtx, guards }, { apply: deps.apply, language: detectLanguage });
       if (!c.ok) guards = guards.filter((g) => !c.reasons.some((r) => r.startsWith(g)));
       since = c.ok && c.revised && revise ? { planId: revise.plan.id, ...c.revised } : null;
-      asked = c.ok && c.lyrics ? c.lyrics : 'write';
       return c;
     },
     onAttempt: deps.onAttempt,
   });
-  if (outcome.ok && outcome.reply.action === 'edit' && markRange) { // C1 re-check N2: the card and its sentence agree
-    outcome.reply = { ...outcome.reply, message: replanMessage(outcome.reply.message, outcome.reply.ops, outcome.refusals) };
+  if (outcome.ok && outcome.reply.action === 'edit' && markRange) { // C1 re-check N2 / C2 live B2 (a): the card and its sentence agree
+    outcome.reply = { ...outcome.reply, message: replanMessage(outcome.reply.message, outcome.reply.ops, outcome.refusals, markWhole ? '' : ctx.request) };
   }
+  if (outcome.ok) outcome.refusals = outcome.refusals.map(shownReasons); // C2 live B6: the card and the failed line read person words
+  else outcome.reasons = shownReasons(outcome.reasons);
   const done = { calls, messages, since: outcome.ok ? since : null };
   if (!outcome.ok || outcome.reply.action !== 'recipe' || checkCtx.shapeOnly.includes('recipe')) return { ...outcome, ...done };
   const model = deps.lyricsModel?.(outcome.reply.recipe.language);
-  const step = await recipeLyrics(outcome.reply.recipe, asked, { request: ctx.request, draft: ctx.draft }, {
+  const step = await recipeLyrics(outcome.reply.recipe, { request: ctx.request, draft: ctx.draft }, {
     ask: (msgs, lyricsSchema) => { done.calls += 1; return deps.ask(msgs, lyricsSchema, { maxTokens: MAX_TOKENS.lyrics, model }); },
     detect: detectLanguage,
     onAttempt: (n, reason) => deps.onLyrics?.(model, n, reason),

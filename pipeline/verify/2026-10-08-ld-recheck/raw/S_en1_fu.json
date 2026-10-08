@@ -1,0 +1,154 @@
+{
+ "tag": "en1_fu",
+ "text": "make it faster",
+ "secs": 9.1,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've updated the song to be faster with a more energetic tempo. Let me know if you'd like any other changes!",
+ "n_calls": 1,
+ "call_models": [
+  "qwen3:14b"
+ ],
+ "ps_models_seen": [
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 11030,
+ "bpm_before": 120,
+ "bpm_after": 140,
+ "lyrics_same": true,
+ "lang": "en",
+ "lyrics_before": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Dusty boots on the pavement, heart full of unknown",
+    "Sunrise paints the horizon, chasing down the dawn",
+    "Backpack on my shoulder, freedom in my veins",
+    "Every mile is a story, every turn is a chance"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, take me where the sky meets the sea",
+    "Open road, let me feel the world set me free",
+    "With the wind in my hair and the rhythm in my soul",
+    "I'm alive, I'm alive, I'm alive on this road"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Maps are just suggestions, the journey's the key",
+    "Laughter in the backseat, dreams in the front seat",
+    "Strangers become friends on the highways we ride",
+    "Every mile is a memory, every mile is a guide"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, take me where the sky meets the sea",
+    "Open road, let me feel the world set me free",
+    "With the wind in my hair and the rhythm in my soul",
+    "I'm alive, I'm alive, I'm alive on this road"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "No destination, just the feeling of the ride",
+    "Stars in the sky, fire in the heart, no need to hide",
+    "The road is calling, and I'm ready to go",
+    "With every mile, I'm becoming who I want to be"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, take me where the sky meets the sea",
+    "Open road, let me feel the world set me free",
+    "With the wind in my hair and the rhythm in my soul",
+    "I'm alive, I'm alive, I'm alive on this road"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Open road, take me where the sky meets the sea",
+    "Open road, let me feel the world set me free",
+    "With the wind in my hair and the rhythm in my soul",
+    "I'm alive, I'm alive, I'm alive on this road"
+   ]
+  }
+ ],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Dusty boots on the pavement, heart full of unknown",
+    "Sunrise paints the horizon, chasing down the dawn",
+    "Backpack on my shoulder, freedom in my veins",
+    "Every mile is a story, every turn is a chance"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, take me where the sky meets the sea",
+    "Open road, let me feel the world set me free",
+    "With the wind in my hair and the rhythm in my soul",
+    "I'm alive, I'm alive, I'm alive on this road"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Maps are just suggestions, the journey's the key",
+    "Laughter in the backseat, dreams in the front seat",
+    "Strangers become friends on the highways we ride",
+    "Every mile is a memory, every mile is a guide"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, take me where the sky meets the sea",
+    "Open road, let me feel the world set me free",
+    "With the wind in my hair and the rhythm in my soul",
+    "I'm alive, I'm alive, I'm alive on this road"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "No destination, just the feeling of the ride",
+    "Stars in the sky, fire in the heart, no need to hide",
+    "The road is calling, and I'm ready to go",
+    "With every mile, I'm becoming who I want to be"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Open road, take me where the sky meets the sea",
+    "Open road, let me feel the world set me free",
+    "With the wind in my hair and the rhythm in my soul",
+    "I'm alive, I'm alive, I'm alive on this road"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Open road, take me where the sky meets the sea",
+    "Open road, let me feel the world set me free",
+    "With the wind in my hair and the rhythm in my soul",
+    "I'm alive, I'm alive, I'm alive on this road"
+   ]
+  }
+ ],
+ "style_after": "indie, acoustic guitar, electric guitar, upbeat, optimistic"
+}

@@ -1,0 +1,164 @@
+{
+ "tag": "de1_fu",
+ "text": "mach es etwas schneller",
+ "secs": 9.6,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "The song has been updated to a slightly faster tempo while keeping its emotional depth and structure.",
+ "n_calls": 1,
+ "call_models": [
+  "qwen3:14b"
+ ],
+ "ps_models_seen": [
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 11195,
+ "bpm_before": 60,
+ "bpm_after": 70,
+ "lyrics_same": true,
+ "lang": "de",
+ "lyrics_before": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Die Welt wird ganz leise und still",
+    "Ich sehe dein Gesicht im kalten Licht",
+    "Und weiß nicht, was ich heute noch will",
+    "Nur der Wind weht durch mein Haar"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein tiefer Schmerz",
+    "Ein letzter Blick, ein letztes Glück",
+    "Alles bleibt in dieser Nacht stumm"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Türen schließen mit einem lauten Knall",
+    "Die Zeit scheint für einen Moment stillzustehen",
+    "Ich halte dein Bild noch fest in meiner Hand",
+    "Während die Lichter der Stadt langsam verglühen",
+    "Und die Schienen in der Ferne verschwinden"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein tiefer Schmerz",
+    "Ein letzter Blick, ein letztes Glück",
+    "Alles bleibt in dieser Nacht stumm"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Was bleibt von uns, wenn du gehst?",
+    "Nur die Leere, die im Herzen weht",
+    "Ein Echo deiner Stimme im Wind",
+    "Das mich an unsere gemeinsame Zeit erinnert"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein tiefer Schmerz",
+    "Ein letzter Blick, ein letztes Glück",
+    "Alles bleibt in dieser Nacht stumm"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch die Stille am Bahnsteig",
+    "Nur noch der Regen auf dem Stein",
+    "Ein leises Weinen im Dunkeln",
+    "Du bist fort, und ich bin allein"
+   ]
+  }
+ ],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Die Welt wird ganz leise und still",
+    "Ich sehe dein Gesicht im kalten Licht",
+    "Und weiß nicht, was ich heute noch will",
+    "Nur der Wind weht durch mein Haar"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein tiefer Schmerz",
+    "Ein letzter Blick, ein letztes Glück",
+    "Alles bleibt in dieser Nacht stumm"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Türen schließen mit einem lauten Knall",
+    "Die Zeit scheint für einen Moment stillzustehen",
+    "Ich halte dein Bild noch fest in meiner Hand",
+    "Während die Lichter der Stadt langsam verglühen",
+    "Und die Schienen in der Ferne verschwinden"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein tiefer Schmerz",
+    "Ein letzter Blick, ein letztes Glück",
+    "Alles bleibt in dieser Nacht stumm"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Was bleibt von uns, wenn du gehst?",
+    "Nur die Leere, die im Herzen weht",
+    "Ein Echo deiner Stimme im Wind",
+    "Das mich an unsere gemeinsame Zeit erinnert"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein tiefer Schmerz",
+    "Ein letzter Blick, ein letztes Glück",
+    "Alles bleibt in dieser Nacht stumm"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch die Stille am Bahnsteig",
+    "Nur noch der Regen auf dem Stein",
+    "Ein leises Weinen im Dunkeln",
+    "Du bist fort, und ich bin allein"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, melancholic, soft vocal"
+}

@@ -11,7 +11,7 @@ import type { Draft, TurnReply } from './chatTypes.js';
 
 /** Real qwen3:14b replies recorded by SP-5 on the v3.1 prompt (test-fakes/data/sp5-replies.json), every attempt verbatim.
  * LD (rung 3): a recorded recipe is replayed split in two (chatScripts.rung3): the recipe call's reply with
- * `lyrics: "write"`, and its recorded lines as the lyrics call's answer. The recipe prompt now differs from v3.1's
+ * no `lyrics`, and its recorded lines as the lyrics call's answer. The recipe prompt now differs from v3.1's
  * (no lines, chatRules LYRICS_ADAPTATION), so this replays what the model said, not what it would say now. */
 interface Recorded { turn: string; request: string; song_key: string | null; attempts: Array<{ content: string; reasons: string[] }> }
 const data = JSON.parse(readFileSync(new URL('../../../test-fakes/data/sp5-replies.json', import.meta.url), 'utf8')) as { turns: Recorded[] };

@@ -5,7 +5,7 @@
 import type { AnalysisView, RangeMark } from './api/chatAnalysis';
 import type { LyricsPanel, PanelLine, PanelSection } from './api/chatConverge';
 import type { WordTimings } from './api/lyrics';
-import { barAt, markBars, markSeconds, usableBars } from './chatMark';
+import { lineBars, markBars, markSeconds, usableBars } from './chatMark';
 import { alignLyrics, type LineSpan } from './lyricAlign';
 
 /** Per line of `LyricsPanel.text` (split on '\n'): its sung span, or null. */
@@ -32,15 +32,14 @@ export function sectionMark(view: AnalysisView, s: PanelSection, duration?: numb
   return markBars(view, s.bars[0], s.bars[1]) ?? (s.seconds ? markSeconds(view, s.seconds[0], s.seconds[1], false, duration) : null);
 }
 
-/** A line click: its seconds snapped to bar lines; shorter than a click, the bar it starts in; untimed, its section. */
+/** A line click: the bars it is sung in (`lineBars`, R-041); on a strip without bars its seconds; untimed or shorter
+ * than a click there, its section. */
 export function lineMark(view: AnalysisView, s: PanelSection, line: PanelLine, times: LineTimes | null, duration?: number | null): RangeMark | null {
   const sec = lineSeconds(line, times);
   if (!sec) return sectionMark(view, s, duration);
-  const m = markSeconds(view, sec[0], sec[1], false, duration);
-  if (m) return m;
   const bars = usableBars(view);
-  if (bars) return markBars(view, barAt(bars, sec[0]), barAt(bars, sec[0]));
-  return sectionMark(view, s, duration);
+  if (bars) return markBars(view, ...lineBars(bars, sec));
+  return markSeconds(view, sec[0], sec[1], false, duration) ?? sectionMark(view, s, duration);
 }
 
 /** Shift-click: the mark stretched to cover `target` too; with no mark (or one on another version) it is `target`. */

@@ -1,0 +1,116 @@
+{
+ "tag": "de6_first",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "secs": 46.9,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've created a slow pop song about saying goodbye at the train station. The song will have a melancholic mood with a gentle melody.",
+ "n_calls": 3,
+ "calls_detail": [
+  {
+   "t": 1791464508.86,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true
+  },
+  {
+   "t": 1791464545.81,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true
+  },
+  {
+   "t": 1791464545.82,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15753,
+ "bpm_before": null,
+ "bpm_after": 60,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Nebel liegt schwer auf dem Gleis",
+    "Die Welt wird ganz leise und still",
+    "Ich such nach dem letzten Beweis",
+    "Dass ich dich noch immer so will"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Die Türen schließen sich fest",
+    "Ein metallisches, kaltes Geräusch",
+    "Du verlässt nun mein Nest",
+    "Und machst mein Herz plötzlich taub"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Schienen führen weit in die Nacht",
+    "Wo kein Licht mehr den Weg uns zeigt",
+    "Ich hab an uns niemals gedacht",
+    "Dass die Zeit uns so grausam besiegt"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam davon",
+    "Und lässt mich hier einsam zurück",
+    "Dein Abschied ist wie ein Hohn",
+    "Ein letzter, unendlicher Augenblick"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur noch der Wind weht am Bahnsteig",
+    "Und die Stille bleibt bei mir",
+    "Ein letzter, trauriger Sieg",
+    "Ich verliere dich hier"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, melancholic, female voice"
+}

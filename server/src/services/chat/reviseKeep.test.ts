@@ -71,6 +71,13 @@ describe('startsOver / the start-over guard (CP-C2 r3)', () => {
     }
   });
 
+  it('C2 live B2 (a): a pending op returned unchanged is kept, not replaced; one returned changed on its target is replaced', () => {
+    const req = 'scrap that, start over: instead just change the tempo to 80 BPM';
+    expect(startOverReason(req, [HARM], [], [HARM])).toBe(`${START_REASON} (your reply keeps pending op 1 REHARMONIZE)`);
+    expect(startOverReason(req, [HARM], [1], [HARM])).toBe(`${START_REASON} (your reply keeps pending op 1 REHARMONIZE)`);
+    expect(startOverReason(req, [HARM], [1], [{ ...HARM, chords: [{ bar: 23, beat: 1, root: 'C', quality: 'maj7' }] }])).toBeNull();
+  });
+
   it('reviseGuard checks only the unspent guards', () => {
     expect(reviseGuard('and also transpose it up a semitone', [TEMPO], [1], [UP_1], [KEEP_REASON, START_REASON])).toMatch(/^this request adds/);
     expect(reviseGuard('and also transpose it up a semitone', [TEMPO], [1], [UP_1], [START_REASON])).toBeNull();

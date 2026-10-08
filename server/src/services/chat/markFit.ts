@@ -104,11 +104,13 @@ function opWords(op: Op): string {
   }
 }
 
-/** The replan's message: as the model wrote it, unless an earlier attempt's whole-song op was refused under the mark,
- * the accepted ops leave it out and the message still describes it; then one sentence from the accepted ops. */
-export function replanMessage(message: string, ops: Op[], refusals: string[][]): string {
+/** The replan's message: as the model wrote it, unless a whole-song op was refused under the mark (by an earlier
+ * attempt's check, or, `asked`: the request names it and the mark left it out of the schema, C2 live B2 (a)), the
+ * accepted ops leave it out and the message still describes it; then one sentence from the accepted ops. */
+export function replanMessage(message: string, ops: Op[], refusals: string[][], asked = ''): string {
   const kept = new Set(ops.map((o) => o.op as string));
-  const refused = [...new Set(refusals.flat().map((r) => REFUSED_WHOLE.exec(r)?.[1]).filter((n): n is string => Boolean(n)))]
+  const named = Object.keys(SAYS).filter((n) => SAYS[n].test(asked));
+  const refused = [...new Set([...refusals.flat().map((r) => REFUSED_WHOLE.exec(r)?.[1]).filter((n): n is string => Boolean(n)), ...named])]
     .filter((n) => !kept.has(n));
   const stale = refused.filter((n) => SAYS[n].test(message));
   if (!stale.length) return message;
