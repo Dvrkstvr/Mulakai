@@ -1,7 +1,7 @@
 /** The edit card's bar map layout (F-060, D-215): sections as bands with labels thinned to fit, edited bars at least
  * 2 px, ruler ticks that never collide, whole-song ops hatched, and a hovered row's bars lit; at 32, 120 and 200 bars. */
 import { describe, it, expect } from 'vitest';
-import { barMapLayout, labelWidth, type MapLayout } from './chatBarMap';
+import { barMapLayout, labelWidth, rulerStep, type MapLayout } from './chatBarMap';
 import type { BarMap, BarMapSection } from './api/chatConverge';
 
 /** A song of `n` sections of `len` bars, cycling Verse / Chorus after an Intro. */
@@ -53,6 +53,20 @@ describe('bands, cells and ticks', () => {
   it('merges overlapping and touching spans, clamps them to the song', () => {
     const l = barMapLayout(map(32, 8, [{ spans: [[3, 6], [7, 8]], whole: false }, { spans: [[5, 40]], whole: false }, { spans: [[0, 1]], whole: false }]), 320);
     expect(l.cells.map((c) => [c.from, c.to])).toEqual([[1, 1], [3, 32]]);
+  });
+});
+
+describe('the ruler steps as drawn (chat-converge.html 4a-4b): 8, 10 over 50 bars, 20 over 100', () => {
+  const bars = (n: number, width = 730) => barMapLayout(map(n, 8, []), width).ticks.map((t) => t.bar);
+  it('32 bars: every 8', () => expect(bars(32)).toEqual([1, 9, 17, 25]));
+  it('65 bars: every 10', () => expect(bars(65)).toEqual([1, 11, 21, 31, 41, 51, 61]));
+  it('120 bars: every 20', () => expect(bars(120)).toEqual([1, 21, 41, 61, 81, 101]));
+  it('200 bars: every 20', () => expect(bars(200)).toEqual([1, 21, 41, 61, 81, 101, 121, 141, 161, 181]));
+  it('a map too narrow for the drawn step doubles it rather than let labels touch', () => {
+    expect(rulerStep(200)).toBe(20);
+    const l = barMapLayout(map(200, 8, []), 120);
+    expect(l.ticks[1].bar - l.ticks[0].bar).toBeGreaterThan(20);
+    noOverlap(l);
   });
 });
 

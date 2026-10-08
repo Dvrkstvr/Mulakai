@@ -1194,6 +1194,39 @@ requiring its own justification against a screen-count rule.
      Cancelled, failed, refused and STALE are one rust line in the card
      ("nothing saved, v1 is untouched"); stale and expired drop APPLY for
      ASK AGAIN, superseded dims to 45%; done folds to one header line.
+   - **The revised card and the bar map** (added 2026-10-08, chat C2; spec
+     `pipeline/design/chat-converge.html` 3-4, signed off in D-229,
+     CX-2/CX-3). A card that carries a bar map is headed by its plan
+     title while pending (`PLAN · 1 CHANGE · AGAINST BASE v4`; revised: `PLAN 2 ·
+     REVISED FROM PLAN 1 · 2 CHANGES · AGAINST BASE v4`), with `EDIT · SCORE ·
+     nothing runs yet` as the grey hint; other states keep the C0b state
+     header. A follow-up revises the pending card: `SINCE PLAN 1 · 1 NEW ·
+     1 SAME · 0 REMOVED` (REMOVED always counted), a mono NEW / CHANGED /
+     SAME mark per row (SAME in `text-low`) and one low `REMOVED (1) · WRITE
+     PHRASE bars 41–44 · …` line, never silent; the SCORE dock keeps its
+     own wording. The card it revised stays in full at 45%, headed `PLAN 1
+     · REVISED BELOW` (hint `EDIT · SCORE · superseded`), with no APPLY;
+     while a revise runs the pending card's APPLY is off (back on if it
+     fails or is cancelled), and a failed or refused revise is the turn's
+     rust line under the message, the card kept. The **bar map** replaces
+     the bar strip whenever the card carries one (older cards keep the
+     strip): the song's sections as the section strip's parallelograms at
+     18px (`carbon-raised`, 9px mono names in full, else short `C2`, else
+     none under 20px), a 14px `carbon-raised` track with the edited bars
+     `sky-tint` on sky hairlines (2px at least), a whole-song op (SET
+     TEMPO, TRANSPOSE, EDIT STYLE) hatched `sky-tint`/`line` over the
+     track, a CUT section's band hatched grey with a dashed `line-hi` edge,
+     a 9px ruler every 8 bars (every 10 over 50 bars, every 20 over 100;
+     doubled only where a narrow map would make numbers touch), and a 10px
+     mono caption: `8 OF 80 BARS CHANGE · THE OTHER 72 ARE v4`, `ALL 80
+     BARS CHANGE (TEMPO) · BARS 49–56 ARE THE NEW HARMONY`, `WORDS CHANGE IN
+     BARS 41–48 · THE WHOLE SONG RE-RENDERS`, `OUTRO S9 CUT · 8 BARS REMOVED
+     · SEAM UN-TIED`; a plan that renders the whole song never says the
+     other bars stay. One row up to 200 bars (3.65px a bar in the 760px
+     column). A change-list row lights its op's bars solid sky (a hovered
+     whole-song op lights the hatch) on hover and keyboard focus, the row
+     washed `on-sky` with a sky edge, the caption reading `BARS 49–56 ·
+     REHARMONIZE · LIT`; the map itself takes no input. No new hue.
    - **The version card** follows a saved edit: `VERSION`, the lilac pill,
      the label (the version's change list), the length and what changed
      ("bar 43 changed · the rest is v1's audio · 0.03 s longer than v1",
