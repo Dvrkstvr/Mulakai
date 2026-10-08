@@ -1,0 +1,164 @@
+{
+ "tag": "c7_first",
+ "text": "ein langsamer Popsong über Abschied am Bahnhof",
+ "secs": 30.8,
+ "job_status": "done",
+ "reply_kind": "recipe",
+ "reply_text": "I've created a slow pop song about saying goodbye at the train station. The song is in a melancholic mood with a soft and emotional vocal style.",
+ "n_calls": 5,
+ "calls_detail": [
+  {
+   "t": 1791481475.66,
+   "path": "/v1/chat/completions",
+   "model": "qwen3:14b",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481486.02,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481486.2,
+   "path": "/v1/chat/completions",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": null,
+   "empty": false,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481505.97,
+   "path": "/api/generate",
+   "model": "qwen3:14b",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  },
+  {
+   "t": 1791481505.98,
+   "path": "/api/generate",
+   "model": "gemma4:26b-a4b-it-q4_K_M",
+   "keep_alive": 0,
+   "empty": true,
+   "think": null,
+   "loop_reason": false
+  }
+ ],
+ "call_models": [
+  "qwen3:14b",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b",
+  "gemma4:26b-a4b-it-q4_K_M"
+ ],
+ "ps_models_seen": [
+  "gemma4:26b-a4b-it-q4_K_M",
+  "qwen3:14b"
+ ],
+ "ps_after": {
+  "models": []
+ },
+ "vram_peak": 15679,
+ "bpm_before": null,
+ "bpm_after": 60,
+ "lyrics_same": false,
+ "lang": "de",
+ "lyrics_before": [],
+ "lyrics_after": [
+  {
+   "tag": "Verse",
+   "lines": [
+    "Der Regen fällt auf das kalte Glas",
+    "Ich seh dein Gesicht im Nebel ganz blass",
+    "Der Wind weht durch die leere Halle",
+    "Und die Zeit bleibt für uns beide stille"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Sicht",
+    "Ein letztes Mal dein helles Licht",
+    "Nur die Schienen bleiben zurück",
+    "Ein Abschied ohne Glück"
+   ]
+  },
+  {
+   "tag": "Verse",
+   "lines": [
+    "Dein Koffer steht schwer auf dem Boden",
+    "Wir sind in der Einsamkeit geboten",
+    "Ein kurzer Blick, ein letzter Gruß",
+    "Bevor der Zug uns trennen muss"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Sicht",
+    "Ein letztes Mal dein helles Licht",
+    "Nur die Schienen bleiben zurück",
+    "Ein Abschied ohne Glück"
+   ]
+  },
+  {
+   "tag": "Bridge",
+   "lines": [
+    "Die Lichter der Stadt werden fern",
+    "Ich verliere dich, mein letzter Stern",
+    "Das Echo der Schritte verhallt im Raum",
+    "Nur die Stille bleibt als einziger Traum"
+   ]
+  },
+  {
+   "tag": "Chorus",
+   "lines": [
+    "Der Zug fährt langsam aus der Sicht",
+    "Ein letztes Mal dein helles Licht",
+    "Nur die Schienen bleiben zurück",
+    "Ein Abschied ohne Glück"
+   ]
+  },
+  {
+   "tag": "Outro",
+   "lines": [
+    "Nur die Schienen bleiben zurück",
+    "Ein Abschied ohne Glück",
+    "Nur die Stille bleibt",
+    "Alles ist vorbei"
+   ]
+  }
+ ],
+ "style_after": "pop, piano, strings, melancholic, soft vocal",
+ "struct_before": [],
+ "struct_after": [
+  "Intro",
+  "Verse",
+  "Chorus",
+  "Verse",
+  "Chorus",
+  "Bridge",
+  "Chorus",
+  "Outro"
+ ],
+ "fields_keys": [
+  "bpm",
+  "engine",
+  "key",
+  "language",
+  "lyrics",
+  "structure",
+  "style",
+  "timeSignature",
+  "title"
+ ]
+}
