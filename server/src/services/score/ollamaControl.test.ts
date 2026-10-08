@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { startFakeOllama, type FakeOllama } from '../../../test-fakes/fakeOllama.js';
-import { loadedModels, probePlanner, releasePlanner, waitUnloaded, UNLOAD_BOUND_MS, UNLOAD_POLL_MS } from './ollamaControl.js';
+import { loadedModels, probePlanner, releaseModels, releasePlanner, waitUnloaded, UNLOAD_BOUND_MS, UNLOAD_POLL_MS } from './ollamaControl.js';
 
 let fake: FakeOllama;
 afterEach(async () => { await fake?.close(); });
@@ -41,6 +41,18 @@ describe('releasePlanner (F-020 #1)', () => {
     expect(UNLOAD_BOUND_MS).toBe(10_000);
     expect(clock.now()).toBe(10_000);
     expect(fake.psPolls()).toHaveLength(41);
+  });
+
+  it('releaseModels (D-233): unloads every named model, then waits for /api/ps empty', async () => {
+    fake = await startFakeOllama({ models: ['qwen3:14b', 'gemma4:26b-a4b-it-q4_K_M'] });
+    for (const model of ['qwen3:14b', 'gemma4:26b-a4b-it-q4_K_M']) {
+      fake.chats.push({ content: '{}' });
+      await fetch(`${fake.url}/v1/chat/completions`, { method: 'POST', body: JSON.stringify({ model, messages: [] }) });
+    }
+    expect(fake.resident()).toHaveLength(2);
+    await releaseModels(fake.url, ['qwen3:14b', 'gemma4:26b-a4b-it-q4_K_M', 'qwen3:14b'], fakeClock());
+    expect(fake.requests.filter((r) => r.path === '/api/generate').map((r) => (r.body as { model: string }).model)).toEqual(['qwen3:14b', 'gemma4:26b-a4b-it-q4_K_M']);
+    expect(fake.resident()).toEqual([]);
   });
 
   it('returns at once when nothing is loaded', async () => {

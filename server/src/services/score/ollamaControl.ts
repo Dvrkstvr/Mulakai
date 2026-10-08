@@ -89,6 +89,12 @@ export async function waitUnloaded(t: PlannerTarget, o: WaitOptions = {}): Promi
 
 /** The hand-off: unload, then confirm. The unload call failing does not skip the confirmation. */
 export async function releasePlanner(t: PlannerTarget, o: WaitOptions = {}): Promise<{ polls: number; ms: number }> {
-  await unloadPlanner(t).catch(() => undefined);
-  return waitUnloaded(t, o);
+  return releaseModels(t.url, [t.model], o);
+}
+
+/** The hand-off for every model a job touched (D-233: a chat turn may load the planner and a lyrics model):
+ * unload each, then confirm `/api/ps` is empty. A failed unload call does not skip the others or the confirmation. */
+export async function releaseModels(url: string, models: string[], o: WaitOptions = {}): Promise<{ polls: number; ms: number }> {
+  for (const model of new Set(models)) await unloadPlanner({ url, model }).catch(() => undefined);
+  return waitUnloaded({ url, model: models[0] ?? '' }, o);
 }
