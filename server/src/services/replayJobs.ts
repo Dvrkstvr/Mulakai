@@ -26,9 +26,11 @@ function queueReplay(
   return queueJob({ kind, songId, layer: layerName(version.layer_id), label }, job, async () => {
     assertVersionLive(version.id);
     let srcAudio: { data: Buffer; filename: string } | undefined;
+    let basedOn: string | undefined; // a repaint replay edits the active version's audio: that is its parent
     if (taskType === 'repaint') {
       const active = activeLayerSource(version.layer_id);
       srcAudio = { data: await fs.readFile(path.join(config.audioDir, active.audio_file)), filename: active.audio_file };
+      basedOn = active.id;
     }
     // Force batch_size 1 (see addLayerJobs.ts) — poll() only ever keeps one result,
     // and only the PROMPT tab's TAKES slider should decide batch_size.
@@ -41,7 +43,7 @@ function queueReplay(
 
     job.taskId = task_id;
     job.status = 'running';
-    await poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false));
+    await poll(job, (result) => persistVersion(version.layer_id, result.file, fullParams, result, label, false, basedOn));
   });
 }
 
@@ -50,7 +52,8 @@ function readVersion(versionId: string): StoredVersion & { id: string; stored: R
     .prepare(`SELECT layer_id, params_json, label, seed FROM versions WHERE id = ?`)
     .get(versionId) as StoredVersion | undefined;
   if (!version) throw new Error('unknown version');
-  const stored = JSON.parse(version.params_json) as ReleaseTaskParams;
+  // `basedOn` is ours (persistVersion), never replayed to ACE-Step.
+  const { basedOn: _basedOn, ...stored } = JSON.parse(version.params_json) as ReleaseTaskParams & { basedOn?: unknown };
   assertReplayable(stored);
   return { ...version, id: versionId, stored };
 }

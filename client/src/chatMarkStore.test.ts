@@ -58,6 +58,18 @@ describe('chatMarkStore', () => {
     expect(markHoldsSend('t1')).toBe(false);
   });
 
+  it('across a SET TEMPO before v5 is read: stale (tempo), never sent with the old seconds; USE BARS re-times them once read', () => {
+    store().set('t1', CHORUS);
+    const tempo = (shown: typeof READING | null) =>
+      view({ versionId: 'v5', number: 5, shown, lineage: { fromVersionId: 'v4', moved: false, shift: null, retimed: true } });
+    store().reconcile('t1', tempo(null));
+    expect(entry().stale).toEqual({ useBars: [7, 10], tempo: true });
+    expect(markToSend('t1')).toBeNull();
+    const read = tempo({ ...READING, versionId: 'v5', number: 5, bars: { starts: READING.bars!.starts.map((s) => s * 0.8), end: 26.4 } });
+    expect(store().useBars('t1', read)).toBe(true);
+    expect(entry()).toEqual({ mark: { kind: 'range', versionId: 'v5', bars: [7, 10], seconds: [10.4, 16.8] }, stale: null });
+  });
+
   it('stale with no shift: CLEAR MARK is the way out', () => {
     store().set('t1', CHORUS);
     store().reconcile('t1', v5(true));

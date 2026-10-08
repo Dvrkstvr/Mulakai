@@ -85,8 +85,8 @@ interface StaleProps {
 export function ChatMarkStale({ threadId, view, was, now }: StaleProps) {
   const entry = useChatMarkStore((s) => s.byThread[threadId]);
   if (!entry?.stale) return null;
-  const { useBars } = entry.stale;
-  const [head, ...rest] = staleLines(entry.mark, was, now, useBars).split(' · ');
+  const { useBars, tempo } = entry.stale;
+  const [head, ...rest] = staleLines(entry.mark, was, now, useBars, !!tempo).split(' · ');
   return (
     <div className="chat-er chat-mk-stale" role="alert">
       <div><b>{head}</b> · {rest.join(' · ')}</div>

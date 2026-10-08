@@ -1,10 +1,10 @@
 /**
  * A version's analysis on its row (`versions.analysis_json`, F-052, docs/decisions/0009) and the facts the view
  * and the mark need around it: the chat's playable version (the base layer's active take, D-120, numbered as
- * the song state numbers it), a version's lineage (`params_json.basedOn`, written by score versions and the
- * splice; else the take made just before it on the same layer, which a repaint or retake has no field for:
- * inferred), its word timings, and the reading chain: the latest analyzed ancestor and how the bars moved
- * since it (barShift along the chain, D-180). Every blob is read loosely: garbage is "not there", never a crash.
+ * the song state numbers it), a version's lineage (`params_json.basedOn`, written by score versions, the splice,
+ * a repaint and a repaint replay; else the take made just before it on the same layer: inferred, so its bars
+ * moved by an unknown amount), its word timings, and the reading chain: the latest analyzed ancestor and how the
+ * bars moved since it (barShift along the chain, D-180). Every blob is read loosely: garbage is "not there", never a crash.
  */
 import { db } from '../../db/index.js';
 import type { LyricsReading } from '../lyricsClient.js';
@@ -16,6 +16,7 @@ import type { OlderReading } from './analysisView.js';
 
 /** How far the chain is walked: further back than this, the strip waits for the new reading. */
 const CHAIN_MAX = 20;
+const UNPROVEN: BarShift = { moved: true, shift: null };
 
 export function readVersionAnalysis(versionId: string): StoredAnalysis | null {
   const row = db.prepare(`SELECT analysis_json FROM versions WHERE id = ?`).get(versionId) as { analysis_json: string | null } | undefined;
@@ -91,7 +92,8 @@ export function readingChain(versionId: string): ReadingChain {
     if (!lin?.fromVersionId || seen.has(lin.fromVersionId)) break;
     const from = lin.fromVersionId;
     const analysis = done(readVersionAnalysis(from));
-    const shift = barShift({ params: lin.params, baseSections: sectionsOf(analysis) });
+    // An inferred parent proves nothing (a repaint of an older active take is not a child of the newest one).
+    const shift = lin.from === 'basedOn' ? barShift({ params: lin.params, baseSections: sectionsOf(analysis) }) : UNPROVEN;
     shifts.unshift(shift);
     parent ??= { versionId: from, shift };
     if (analysis) {

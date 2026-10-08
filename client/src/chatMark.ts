@@ -1,7 +1,8 @@
 /** The mark's geometry (F-054, F-055; CS-5, CS-11): a section click, an edge drag, a body move, a new drag on the
  * waveform; edges snap to bar lines (Alt frees them), the mark stays inside the song; with no usable bars (a hatched
  * strip) it is seconds only and snaps once a reading lands. `markStale` says whether a mark still fits the playable
- * version: valid, carried (its edit moved no bars) or stale (with USE BARS only when the edit reported the shift).
+ * version: valid, carried (its edit moved no bars; across a tempo change only once its bars are read) or stale (with
+ * USE BARS only when the edit reported the shift, or kept the bars at a new tempo).
  * Never remaps silently. Pure. Bars are 1-based and inclusive. `duration`: the playing audio's length (the view has
  * none); without it the reading's end bounds the mark. */
 import type { AnalysisView, RangeMark, Shift, ShownBars, StripSection } from './api/chatAnalysis';
@@ -126,8 +127,9 @@ export type MarkFit =
   | { kind: 'valid' }
   /** The playable version's edit moved no bars: the same bars on it, seconds re-timed from its reading when it has one. */
   | { kind: 'carried'; mark: RangeMark }
-  /** USE BARS only when the edit reported the shift and the mark maps through it. */
-  | { kind: 'stale'; useBars: [number, number] | null };
+  /** USE BARS only when the edit reported the shift and the mark maps through it. `tempo`: the edit changed the tempo
+   * and kept the bars (USE BARS = the same bars, once the new version's bars are read). */
+  | { kind: 'stale'; useBars: [number, number] | null; tempo?: true };
 
 /** Does the mark still fit what plays? (CS-11, D-175) */
 export function markStale(mark: RangeMark, view: AnalysisView | null): MarkFit {
@@ -137,6 +139,8 @@ export function markStale(mark: RangeMark, view: AnalysisView | null): MarkFit {
   if (!lin.moved) {
     const moved: RangeMark = { ...mark, versionId: view.versionId };
     const retimed = mark.bars && view.shown?.versionId === view.versionId ? markBars(view, mark.bars[0], mark.bars[1]) : null;
+    // A tempo change: the old seconds are other music, so carry only bars re-timed from the new version's own reading.
+    if (lin.retimed && !retimed) return { kind: 'stale', useBars: mark.bars ?? null, tempo: true };
     return { kind: 'carried', mark: retimed ?? moved };
   }
   return { kind: 'stale', useBars: mark.bars && lin.shift ? shiftedBars(mark.bars, lin.shift) : null };

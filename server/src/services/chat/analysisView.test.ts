@@ -101,14 +101,21 @@ describe('analysisView', () => {
       parent: { versionId: 'v3', shift: { moved: false } }, job: { jobId: 'j', status: 'running', ahead: 0, progressText: 'WORDS' },
     }));
     expect(v.shown).toMatchObject({ versionId: 'v3', number: 3, mode: 'dim', bars: { starts, end: 16 } });
-    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: false, shift: null });
+    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: false, shift: null, retimed: false });
+  });
+
+  it("a SET TEMPO since the older reading hatches it (its seconds are not the new version's); lineage says retimed", () => {
+    const retimed = { moved: false as const, retimed: true as const };
+    const v = analysisView(base({ older: { versionId: 'v3', number: 3, analysis: analysis('v3'), words: null }, olderShift: retimed, parent: { versionId: 'v3', shift: retimed } }));
+    expect(v.shown).toMatchObject({ mode: 'hatched', bars: null });
+    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: false, shift: null, retimed: true });
   });
 
   it('an edit that moved bars hatches the older reading: no bars, mark by time', () => {
     const shift = { moved: true as const, shift: { atBar: 5, delta: -2 } };
     const v = analysisView(base({ older: { versionId: 'v3', number: 3, analysis: analysis('v3'), words: null }, olderShift: shift, parent: { versionId: 'v3', shift } }));
     expect(v.shown).toMatchObject({ mode: 'hatched', bars: null });
-    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: true, shift: { atBar: 5, delta: -2 } });
+    expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: true, shift: { atBar: 5, delta: -2 }, retimed: false });
   });
 
   it('a failed reading is stored, says why, and hatches the strip (D-179)', () => {

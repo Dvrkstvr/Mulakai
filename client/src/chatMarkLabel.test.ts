@@ -59,4 +59,11 @@ describe('chip, echo, stale', () => {
       'STALE MARK · you marked bars 25–34 of v4. v5 moved those bars; mark again. Nothing was sent with the old bars.');
     expect(USE_BARS([33, 42])).toBe('USE BARS 33–42');
   });
+
+  it('after a tempo change: the same bars at new times, or mark again for a time-only mark', () => {
+    expect(staleLines(m(25, 34), 4, 5, [25, 34], true)).toBe('STALE MARK · you marked bars 25–34 of v4. v5 changed the tempo, '
+      + 'so the old times are other music; the bars are the same; use them once its bars are read. Nothing was sent with the old times.');
+    expect(staleLines({ kind: 'range', versionId: 'v4', seconds: [30, 45] }, 4, 5, null, true)).toBe('STALE MARK · you marked 0:30–0:45 '
+      + 'of v4. v5 changed the tempo, so the old times are other music; mark again. Nothing was sent with the old times.');
+  });
 });

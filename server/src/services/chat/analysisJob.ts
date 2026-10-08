@@ -15,9 +15,9 @@ import { db } from '../../db/index.js';
 import { measureScore, transcriptionGrid } from '../engineTranscribeClient.js';
 import { yue2Engine } from '../engines/yue2.js';
 import type { SongEngine } from '../engines/types.js';
-import { cancelQueued, queuePosition } from '../genQueue.js';
+import { queuePosition } from '../genQueue.js';
 import { queueJob } from '../jobRunner.js';
-import { abortJob, wasAborted, type Job } from '../jobRegistry.js';
+import { wasAborted, type Job } from '../jobRegistry.js';
 import { transcribeLyrics } from '../lyricsClient.js';
 import { scoreBars } from '../score/yueScoreBars.js';
 import { readScore } from '../score/yueScoreRead.js';
@@ -172,11 +172,4 @@ export function startAnalysis(songId: string, deps: AnalysisDeps = analysisDeps(
     if (waiting.get(songId) === job) waiting.delete(songId);
     throw err;
   }
-}
-
-/** CANCEL: a waiting analysis leaves the line; a running one stops at its next step. False when not a live analysis. */
-export function cancelAnalysis(jobId: string): boolean {
-  const ours = [...waiting.values(), ...reading.values()].some((j) => j.id === jobId && live(j));
-  if (!ours) return false;
-  return cancelQueued(jobId) || abortJob(jobId);
 }

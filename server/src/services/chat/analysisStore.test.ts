@@ -120,10 +120,35 @@ describe('analysisStore', () => {
 
   it('a failed ancestor is skipped; a first take has no chain', () => {
     const a = crypto.randomUUID();
-    const { ids } = song([{ id: a }, { params: { task_type: 'repaint' } }]);
+    const { ids } = song([{ id: a }, { params: { task_type: 'repaint', basedOn: a } }]);
     store.writeAnalysis({ analysis_v: 1, versionId: a, failed: 'x', at: 't' });
     expect(store.readingChain(ids[1])).toEqual({ older: null, olderShift: { moved: false }, parent: { versionId: a, shift: { moved: false } } });
     expect(store.readingChain(a)).toEqual({ older: null, olderShift: { moved: false }, parent: null });
+  });
+
+  // C1 code review should 1: v1 -> v2 (CUT) -> v1 made active -> repaint -> v3, which repainted v1.
+  it('a repaint of an older active take: its parent is the version it names, not the newest take', () => {
+    const [v1, v2] = [crypto.randomUUID(), crypto.randomUUID()];
+    const { ids } = song([{ id: v1 }, { id: v2, params: scoreEdit(v1, [{ op: 'CUT', section: 1, label: 'verse' }]) },
+      { params: { task_type: 'repaint', repainting_start: 2, repainting_end: 4, basedOn: v1 } }]);
+    store.writeAnalysis(analysis(v1));
+    store.writeAnalysis(analysis(v2));
+    expect(store.readingChain(ids[2])).toMatchObject({ parent: { versionId: v1, shift: { moved: false } }, older: { versionId: v1 }, olderShift: { moved: false } });
+  });
+
+  it('a repaint that names no basedOn (made before the fix): an unknown shift from the take before it, never "not moved"', () => {
+    const [v1, v2] = [crypto.randomUUID(), crypto.randomUUID()];
+    const { ids } = song([{ id: v1 }, { id: v2, params: scoreEdit(v1, [{ op: 'CUT', section: 1, label: 'verse' }]) },
+      { params: { task_type: 'repaint', repainting_start: 2, repainting_end: 4 } }]);
+    store.writeAnalysis(analysis(v2));
+    expect(store.readingChain(ids[2])).toEqual(expect.objectContaining({
+      parent: { versionId: v2, shift: { moved: true, shift: null } }, olderShift: { moved: true, shift: null } }));
+  });
+
+  it('a basedOn naming a deleted version falls back to the take before it, and proves nothing', () => {
+    const v1 = crypto.randomUUID();
+    const { ids } = song([{ id: v1 }, { params: { task_type: 'repaint', basedOn: 'gone' } }]);
+    expect(store.readingChain(ids[1]).parent).toEqual({ versionId: v1, shift: { moved: true, shift: null } });
   });
 
   it('a lineage loop ends instead of spinning', () => {

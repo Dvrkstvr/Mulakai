@@ -8,8 +8,9 @@ import { markLabel } from './chatMarkLabel';
 
 export interface MarkEntry {
   mark: RangeMark;
-  /** Set when a version moved the marked bars: `useBars` only when the edit reported the shift (CS-11). */
-  stale: { useBars: [number, number] | null } | null;
+  /** Set when a version moved the marked bars: `useBars` only when the edit reported the shift (CS-11); `tempo` when
+   * it changed the tempo instead (the same bars, at new times). */
+  stale: { useBars: [number, number] | null; tempo?: true } | null;
 }
 
 interface ChatMarkStore {
@@ -46,7 +47,7 @@ export const useChatMarkStore = create<ChatMarkStore>((set, get) => {
       const entry = get().byThread[threadId];
       if (!entry || entry.stale) return;
       const fit = markStale(entry.mark, view);
-      if (fit.kind === 'stale') return put(threadId, { mark: entry.mark, stale: { useBars: fit.useBars } });
+      if (fit.kind === 'stale') return put(threadId, { mark: entry.mark, stale: { useBars: fit.useBars, ...(fit.tempo ? { tempo: true } : {}) } });
       const mark = landBars(view, fit.kind === 'carried' ? fit.mark : entry.mark);
       if (mark !== entry.mark) put(threadId, { mark, stale: null });
     },
