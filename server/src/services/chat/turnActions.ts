@@ -28,12 +28,15 @@ export interface TurnState {
 }
 
 const FOLLOW_UP: TurnAction[] = ['ask', 'recipe', 'say'];
+/** The draft thread: nothing to edit or repaint without a song (D-251). */
+const DRAFT: TurnAction[] = ['ask', 'recipe', 'analyze', 'say'];
 /** CP-C3: a file attached on the draft thread and not read yet is read first (or asked about), at every rung. */
 const ATTACHED: TurnAction[] = ['ask', 'analyze', 'say'];
 
-/** A follow-up, or an unread attachment on the draft thread, narrows the set at every rung. Otherwise
- * rung 0/1 (default): the whole set, as SP-5 measured it. Rung 2: nothing to edit or repaint
- * without a song, no edit without a readable score. */
+/** A follow-up, or an unread attachment on the draft thread, narrows the set at every rung. The draft
+ * thread never offers edit or scalpel (D-251: at rung 0 the edit text's "tempo is always edit" made a
+ * card refinement an edit, redirected to "no song yet", 3 of 3 live). Otherwise rung 0/1 (default): the
+ * whole set, as SP-5 measured it. Rung 2: no edit without a readable score. */
 export function allowedActions(s: TurnState, rung = 0): TurnAction[] {
   const out = offered(s, rung);
   return s.timeMark ? out.filter((a) => a !== 'edit') : out;
@@ -42,8 +45,8 @@ export function allowedActions(s: TurnState, rung = 0): TurnAction[] {
 function offered(s: TurnState, rung: number): TurnAction[] {
   if (s.followUp) return [...FOLLOW_UP];
   if (s.attached && !s.hasSong && !s.referenceRead) return [...ATTACHED];
+  if (!s.hasSong) return [...DRAFT];
   if (rung < 2) return [...ACTIONS];
-  if (!s.hasSong) return ['ask', 'recipe', 'analyze', 'say'];
   return s.scoreReadable ? [...ACTIONS] : ['ask', 'recipe', 'scalpel', 'analyze', 'say'];
 }
 

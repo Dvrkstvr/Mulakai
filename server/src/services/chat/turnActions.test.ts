@@ -2,9 +2,14 @@ import { describe, it, expect } from 'vitest';
 import { ACTIONS, EDITS_ON, allowedActions, redirected } from './turnActions.js';
 
 describe('turn actions', () => {
-  it('rung 0 and 1 offer SP-5\'s whole set whatever the state', () => {
-    expect(allowedActions({ hasSong: false, scoreReadable: false })).toEqual(ACTIONS);
+  it('rung 0 and 1 offer SP-5\'s whole set on a song thread', () => {
+    expect(allowedActions({ hasSong: true, scoreReadable: true })).toEqual(ACTIONS);
+    expect(allowedActions({ hasSong: true, scoreReadable: false })).toEqual(ACTIONS);
     expect(allowedActions({ hasSong: true, scoreReadable: true }, 1)).toEqual(ACTIONS);
+  });
+
+  it('D-251: a draft thread never offers edit or scalpel, at every rung (LD live: "mach es etwas schneller" picked edit 3 of 3)', () => {
+    for (const rung of [0, 1, 2]) expect(allowedActions({ hasSong: false, scoreReadable: false }, rung)).toEqual(['ask', 'recipe', 'analyze', 'say']);
   });
 
   it('rung 2 offers only what the state allows', () => {
@@ -22,7 +27,7 @@ describe('turn actions', () => {
     const s = { hasSong: false, scoreReadable: false, attached: true };
     expect(allowedActions(s)).toEqual(['ask', 'analyze', 'say']);
     expect(allowedActions(s, 2)).toEqual(['ask', 'analyze', 'say']);
-    expect(allowedActions({ ...s, referenceRead: true })).toEqual(ACTIONS);
+    expect(allowedActions({ ...s, referenceRead: true })).toEqual(['ask', 'recipe', 'analyze', 'say']);
     expect(allowedActions({ ...s, followUp: true, referenceRead: true })).toEqual(['ask', 'recipe', 'say']);
     expect(allowedActions({ hasSong: true, scoreReadable: true, attached: true })).toEqual(ACTIONS);
   });

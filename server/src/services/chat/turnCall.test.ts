@@ -32,6 +32,15 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(ask.mock.calls[0][1]).toHaveProperty('anyOf');
   });
 
+  it('a draft thread\'s follow-up offers no edit: no edit in the schema, no edit text or OPS REFERENCE in the rules (LD live)', async () => {
+    const ask = scripted(sayReply());
+    const d = await decideReply({ ...ctx, request: 'mach es etwas schneller', pending: true, draft: recipeFields(RECIPE) }, { ask });
+    const actions = (ask.mock.calls[0][1] as { anyOf: Array<{ properties: { action: { const: string } } }> }).anyOf.map((s) => s.properties.action.const);
+    expect(actions).toEqual(['ask', 'recipe', 'analyze', 'say']);
+    expect(d.messages[0].content).not.toMatch(/- edit:|OPS REFERENCE|- scalpel:/);
+    expect(ask.mock.calls[0][2]).toMatchObject({ maxTokens: MAX_TOKENS.other });
+  });
+
   it('feeds the reasons back and reports progress "attempt n of 3 · reason"', async () => {
     const ask = scripted(notJson(), badKeyRecipe(), recipeReply());
     const progress: string[] = [];
@@ -46,7 +55,7 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
 
   it('three replies outside the set end with the reason, no reply', async () => {
     const d = await decideReply(ctx, { ask: scripted(outOfSet()) });
-    expect(d).toMatchObject({ ok: false, attempts: 3, calls: 3, reasons: ['action "dance" is not one of ask, recipe, edit, scalpel, analyze, say'] });
+    expect(d).toMatchObject({ ok: false, attempts: 3, calls: 3, reasons: ['action "dance" is not one of ask, recipe, analyze, say'] });
   });
 
   it('a thrown call ends the turn at once', async () => {
@@ -62,11 +71,12 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(schema.anyOf.map((p) => p.properties.action.const)).toEqual(['ask', 'recipe', 'analyze', 'say']);
   });
 
-  it('asks 4000 completion tokens when the reply may be an edit, 2000 when it cannot (rung 2, no song)', async () => {
-    const ask = scripted(sayReply());
-    await decideReply(ctx, { ask });
-    await decideReply(ctx, { ask, rung: 2 });
-    expect(ask.mock.calls.map((c) => c[2])).toEqual([{ maxTokens: MAX_TOKENS.edit }, { maxTokens: MAX_TOKENS.other }]);
+  it('asks 4000 completion tokens when the reply may be an edit (a song thread), 2000 when it cannot (no song, D-251)', async () => {
+    const onSong = scripted(sayReply());
+    const onDraft = scripted(sayReply());
+    await decideReply({ ...ctx, state: { hasSong: true, scoreReadable: true }, facts: contract('read-ok').response.body.facts as ScoreFacts }, { ask: onSong });
+    await decideReply(ctx, { ask: onDraft });
+    expect([onSong.mock.calls[0][2], onDraft.mock.calls[0][2]]).toEqual([{ maxTokens: MAX_TOKENS.edit }, { maxTokens: MAX_TOKENS.other }]);
     expect(MAX_TOKENS).toEqual({ edit: 4000, other: 2000, lyrics: 4000 });
   });
 
