@@ -71,7 +71,11 @@ export function staleLines(mark: RangeMark, was: number | null, now: number | nu
     const next = useBars ? 'the bars are the same; use them once its bars are read' : 'mark again';
     return `STALE MARK · you marked ${what}${of}. ${v} changed the tempo, so the old times are other music; ${next}. Nothing was sent with the old times.`;
   }
-  const where = useBars ? `${v} moved them, so they are now ${barsText(useBars).toLowerCase()}` : `${v} moved those bars; mark again`;
+  // C1 live B6: "they are now" only when the numbers changed (a REPEAT after the mark leaves them where they were).
+  const same = useBars && mark.bars && useBars[0] === mark.bars[0] && useBars[1] === mark.bars[1];
+  const where = !useBars ? `${v} moved those bars; mark again`
+    : same ? `${v} moved other bars; these are still ${barsText(useBars).toLowerCase()}`
+    : `${v} moved them, so they are now ${barsText(useBars).toLowerCase()}`;
   return `STALE MARK · you marked ${what}${of}. ${where}. Nothing was sent with the old bars.`;
 }
 

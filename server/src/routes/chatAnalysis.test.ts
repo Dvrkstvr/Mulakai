@@ -100,6 +100,13 @@ describe('POST /songs/:songId/analysis/retry', () => {
     expect(start).toHaveBeenLastCalledWith(songId);
   });
 
+  it('C1 live B1: 202 for a reading whose SCORE service failed (stored done, but not read)', async () => {
+    const { songId, v } = song();
+    const r = read(v);
+    writeAnalysis({ ...r, plan: { ...r.plan, score: 'service' }, score: { notRead: 'YUE2 transcribe -> fetch failed' } });
+    expect(await call('POST', `/songs/${songId}/analysis/retry`)).toEqual({ status: 202, body: { jobId: 'retry-job' } });
+  });
+
   it('409 with a reason: no take, already read, the queue is full; 404 for an unknown song', async () => {
     expect(await call('POST', `/songs/${song(false).songId}/analysis/retry`)).toEqual({ status: 409, body: { reason: 'this song has no take to read' } });
     const { songId, v } = song();

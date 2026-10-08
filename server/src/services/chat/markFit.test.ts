@@ -1,7 +1,7 @@
 /** A mark limits the plan (D-176, F-055 #1 and edge): bar ops inside it, a section op outside it is a retry
  * reason, a whole-song op is allowed with a note, a mark past the song or shorter than a phrase is clamped. */
 import { describe, it, expect } from 'vitest';
-import { markBars, markFit } from './markFit.js';
+import { asksWholeSong, assumptionsUnderMark, markBars, markFit } from './markFit.js';
 import type { Op, ScoreFacts } from '../score/planTypes.js';
 
 const facts: ScoreFacts = {
@@ -47,9 +47,29 @@ describe('markFit', () => {
     const ops = [{ op: 'WRITE_PHRASE', start_bar: 47, instrument: 'sax', bars: [[], [], [], []] }] as unknown as Op[];
     expect(markFit(ops, [47, 48], facts)).toEqual({ reasons: [], notes: ['the phrase is 4 bars, longer than the mark (2 bars): it starts at bar 47 and runs to bar 50'] });
   });
-  it('a whole-song op is allowed and the card says so', () => {
+  it('a whole-song op the person asked for is allowed and the card says so', () => {
     const ops = [{ op: 'SET_TEMPO', bpm: 90 }, { op: 'TRANSPOSE', semitones: 2 }] as Op[];
-    expect(markFit(ops, range, facts)).toEqual({ reasons: [], notes: ['SET TEMPO, TRANSPOSE change the whole song, not only the marked bars'] });
+    expect(markFit(ops, range, facts, true)).toEqual({ reasons: [], notes: ['SET TEMPO, TRANSPOSE change the whole song, not only the marked bars'] });
+  });
+  it('C1 live B2: "make this jazzier" on a chorus mark: EDIT STYLE is refused with the retry feedback, the REHARMONIZE in the mark passes', () => {
+    expect(asksWholeSong('make this jazzier')).toBe(false);
+    const ops = [{ op: 'EDIT_STYLE', style: 'jazz, swing' }, { op: 'REHARMONIZE', from_bar: 47, to_bar: 54, chords: [chord(47)] }] as Op[];
+    expect(markFit(ops, range, facts, asksWholeSong('make this jazzier')).reasons).toEqual([
+      'op 1 (EDIT_STYLE): EDIT STYLE changes the whole song; the mark covers bars 47-58, and a whole-song change needs the person to ask for it: plan only inside the mark',
+    ]);
+    expect(markFit([{ op: 'SET_TEMPO', bpm: 90 }] as Op[], range, facts).reasons[0]).toContain('op 1 (SET_TEMPO): SET TEMPO changes the whole song');
+    expect(markFit([{ op: 'TRANSPOSE', semitones: 2 }] as Op[], range, facts).reasons).toHaveLength(1);
+  });
+  it('asksWholeSong: the person’s words name the whole song', () => {
+    for (const yes of ['make the whole song jazzier', 'jazz it up throughout', 'slow the entire track down', 'change it everywhere', 'all of it in G']) expect(asksWholeSong(yes)).toBe(true);
+    for (const no of ['make this jazzier', 'give this part jazz chords', 'a fuller sound here', 'slower']) expect(asksWholeSong(no)).toBe(false);
+  });
+});
+
+describe('assumptionsUnderMark (C1 live B3)', () => {
+  it('drops an assumed place (the mark says where); keeps the rest', () => {
+    expect(assumptionsUnderMark(['assuming the first chorus, bars 15-22', 'jazz means seventh chords', 'assuming the whole song', 'Verse 2 only']))
+      .toEqual(['jazz means seventh chords']);
   });
 });
 

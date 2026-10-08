@@ -11,7 +11,8 @@ import { BPM, KEYS, TIME_SIGNATURES } from './recipeRules.js';
 
 export const READING_V = 1;
 
-export interface NotRead { notRead: string }
+/** `answered` (C1 analysis only): the service answered that the part cannot be read, so reading again gives the same. */
+export interface NotRead { notRead: string; answered?: true }
 /** Where a step ran: the library song's own data, a local service, or skipped (`notRead` says why). */
 export type PartSource = 'own' | 'service' | 'skip';
 export interface ReadingPlanSources { words: PartSource; score: PartSource; caption: PartSource }

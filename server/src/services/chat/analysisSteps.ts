@@ -108,7 +108,7 @@ async function grid(input: AnalysisInput, deps: AnalysisStepDeps, run: Transcrip
   }
   if (!run) return { notRead: 'the score step ran no transcription to take the beat from' };
   const tracked = await deps.grid(run.yueJobId);
-  if (!tracked) return { notRead: 'the transcription kept no downbeat grid' };
+  if (!tracked) return { notRead: 'the transcription kept no downbeat grid', answered: true };
   await deps.writeGrid(input.versionId, tracked).catch(() => false); // the next splice tracks again: no harm
   return { grid: tracked, source: 'tracked' };
 }
@@ -121,7 +121,8 @@ async function bars(input: AnalysisInput, deps: AnalysisStepDeps, s: ScorePart |
     if (!isRead(s)) return { notRead: `no score to count the bars on: ${s.notRead}` };
     input.progress(sections('timing the bars'));
     const out = await deps.bars(s.abc, g.grid, g.source);
-    return out.ok ? out.bars : { notRead: out.reason };
+    if (out.ok) return out.bars;
+    return out.answered ? { notRead: out.reason, answered: true } : { notRead: out.reason };
   } catch (err) {
     return { notRead: why(err) };
   }

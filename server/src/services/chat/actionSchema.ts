@@ -8,6 +8,7 @@ import { opsArraySchema } from '../score/opSchema.js';
 import type { ScoreFacts } from '../score/planTypes.js';
 import { BPM, ENGINES, KEYS, LANGUAGES, LINES, RECIPE_LIMITS, SECTION_TAGS, SUNG_TAGS, TIME_SIGNATURES } from './recipeRules.js';
 import type { ScalpelKind, TurnAction } from './chatTypes.js';
+import { isWholeSongOp } from './markFit.js';
 
 type Schema = Record<string, unknown>;
 const str = (minLength: number, maxLength: number): Schema => ({ type: 'string', minLength, maxLength });
@@ -41,15 +42,26 @@ export function recipeSchema(reference = false): Schema {
   });
 }
 
-/** `barRange` (C1, D-176): a mark's bars, clamped to the song; an edit's bar-valued fields stay inside it. */
-export interface SchemaInput { facts: ScoreFacts | null; phraseBars: number; allowed: TurnAction[]; reference?: boolean; barRange?: [number, number] | null }
+/** `barRange` (C1, D-176): a mark's bars, clamped to the song; an edit's bar-valued fields stay inside it, and a
+ * whole-song op (tempo, key, style) is left out unless `wholeSong`: the person asked for the whole song (C1 live B2). */
+export interface SchemaInput {
+  facts: ScoreFacts | null; phraseBars: number; allowed: TurnAction[]; reference?: boolean; barRange?: [number, number] | null; wholeSong?: boolean;
+}
 
-export function turnSchema({ facts, phraseBars, allowed, reference = false, barRange }: SchemaInput): Schema {
+function editOps(facts: ScoreFacts | null, phraseBars: number, barRange: [number, number] | null | undefined, wholeSong: boolean): Schema {
+  const ops = opsArraySchema(facts ?? NO_SONG_FACTS, phraseBars, 1, barRange ?? undefined) as { items: { anyOf: Schema[] } };
+  if (!barRange || wholeSong) return ops;
+  const names = (o: Schema) => { const p = (o as { properties: { op: { const?: string; enum?: string[] } } }).properties.op; return p.enum ?? [p.const ?? '']; };
+  const bounded = ops.items.anyOf.filter((o) => !names(o).every(isWholeSongOp));
+  return { ...ops, items: { anyOf: bounded } };
+}
+
+export function turnSchema({ facts, phraseBars, allowed, reference = false, barRange, wholeSong = false }: SchemaInput): Schema {
   const assumptions = arr(str(1, 160), 0, 4);
   const parts: Record<TurnAction, () => Schema> = {
     ask: () => action('ask', { message: str(1, MESSAGE_MAX), choices: arr(str(1, 80), 2, 4) }),
     recipe: () => action('recipe', { message: str(1, MESSAGE_MAX), assumptions, recipe: recipeSchema(reference) }),
-    edit: () => action('edit', { message: str(1, MESSAGE_MAX), assumptions, ops: opsArraySchema(facts ?? NO_SONG_FACTS, phraseBars, 1, barRange ?? undefined) }),
+    edit: () => action('edit', { message: str(1, MESSAGE_MAX), assumptions, ops: editOps(facts, phraseBars, barRange, wholeSong) }),
     scalpel: () => action('scalpel', { message: str(1, MESSAGE_MAX), kind: { enum: SCALPEL_KINDS }, target: str(1, 80), details: str(0, 300) }),
     analyze: () => action('analyze', { message: str(1, MESSAGE_MAX), reference: str(1, 120), plan: str(1, 300) }),
     say: () => action('say', { message: str(1, SAY_MAX) }),

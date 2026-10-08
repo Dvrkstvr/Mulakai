@@ -26,6 +26,8 @@ export interface CheckContext {
   request: string;
   /** C1 (D-176): the mark's bars; an edit outside them is retried (markFit). */
   markRange?: [number, number] | null;
+  /** The person asked for the whole song (asksWholeSong): a whole-song op under a mark is allowed (C1 live B2). */
+  markWhole?: boolean;
 }
 export interface CheckDeps { apply?: (ops: Op[]) => Promise<ApplyResult>; language?: DetectLanguage }
 export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null } | { ok: false; reasons: string[] };
@@ -59,7 +61,7 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   if (!ctx.facts) return fail('there is no song to edit yet: propose a recipe for a new song instead');
   const ops = checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
   if (!ops.ok) return fail(...ops.reasons);
-  const outside = ctx.markRange ? markFit(ops.ops, ctx.markRange, ctx.facts).reasons : [];
+  const outside = ctx.markRange ? markFit(ops.ops, ctx.markRange, ctx.facts, ctx.markWhole).reasons : [];
   if (outside.length) return fail(...outside);
   if (!deps.apply) return { ok: true, reply: reply(ops.ops), applied: null };
   const applied = withLimits(await deps.apply(ops.ops), { ops: ops.ops, sections: ctx.facts.sections, blocks: ctx.facts.lyric_blocks });

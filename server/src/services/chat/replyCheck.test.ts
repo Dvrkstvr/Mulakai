@@ -98,4 +98,12 @@ describe('reply check', () => {
     expect(apply).not.toHaveBeenCalled();
     expect((await checkReply(reharm(47), marked, {})).ok).toBe(true);
   });
+
+  it('C1 live B2: under a mark, a whole-song op is retried unless the person asked for the whole song', async () => {
+    const jazzier = { action: 'edit', message: 'jazz', assumptions: [], ops: [{ op: 'EDIT_STYLE', style: 'jazz' },
+      { op: 'REHARMONIZE', from_bar: 47, to_bar: 48, chords: [{ bar: 47, beat: 1, root: 'C', quality: 'maj7' }] }] };
+    const marked = { ...song, request: 'make this jazzier', markRange: [47, 58] as [number, number] };
+    expect((await reasons(jazzier, marked, {}))[0]).toContain('a whole-song change needs the person to ask for it');
+    expect((await checkReply(jazzier, { ...marked, markWhole: true }, {})).ok).toBe(true);
+  });
 });

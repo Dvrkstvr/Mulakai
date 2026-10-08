@@ -118,6 +118,19 @@ describe('analysisView', () => {
     expect(v.lineage).toEqual({ fromVersionId: 'v3', moved: true, shift: { atBar: 5, delta: -2 }, retimed: false });
   });
 
+  it('C1 live B1: a step whose service failed is FAILED with the step and why (RETRY); the parts read still show', () => {
+    const down = analysis('v4', { plan: { words: 'service', score: 'service', sections: 'score' },
+      score: { notRead: 'YUE2 transcribe -> fetch failed' }, bars: { notRead: 'YUE2 transcribe -> fetch failed' } });
+    const v = analysisView(base({ current: down }));
+    expect(v.state).toEqual({ kind: 'failed', reason: 'SCORE · YUE2 transcribe -> fetch failed', at: down.readAt });
+    expect(v.shown).toMatchObject({ mode: 'hatched', lines: 2 });
+    const wordsDown = analysisView(base({ current: analysis('v4', { words: { notRead: 'lyrics-server -> fetch failed' } }) }));
+    expect(wordsDown.state).toMatchObject({ kind: 'failed', reason: 'WORDS · lyrics-server -> fetch failed' });
+    expect(wordsDown.shown?.mode).toBe('current');
+    const unset = analysisView(base({ current: analysis('v4', { plan: { words: 'skip', score: 'own', sections: 'cached' }, words: { notRead: 'LYRICS_API_URL is not set' } }) }));
+    expect(unset.state).toEqual({ kind: 'done' }); // NO WORD TIMINGS, not an error (F-052 #4)
+  });
+
   it('a failed reading is stored, says why, and hatches the strip (D-179)', () => {
     const v = analysisView(base({
       current: { analysis_v: 1, versionId: 'v4', failed: 'the planner is loaded', at: 't' },

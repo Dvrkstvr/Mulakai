@@ -60,4 +60,12 @@ describe('turn reply schema (SP-5 turn_schema)', () => {
     expect(rh(ops([47, 58])).properties.from_bar).toMatchObject({ minimum: 47, maximum: 58 });
     expect(rh(ops()).properties.from_bar).toMatchObject({ minimum: 1, maximum: 65 });
   });
+
+  it('C1 live B2: a mark leaves the whole-song ops out of the schema unless the person asked for the whole song', () => {
+    const names = (barRange?: [number, number], wholeSong?: boolean) =>
+      part(turnSchema({ facts, phraseBars: 4, allowed: ['edit'], barRange, wholeSong }), 'edit').properties.ops.items.anyOf.flatMap((p: Schema) => p.properties.op.enum ?? [p.properties.op.const]);
+    expect(names([47, 58])).toEqual(['REHARMONIZE', 'WRITE_PHRASE', 'REPEAT', 'CUT', 'REWRITE_LYRICS']);
+    expect(names([47, 58], true)).toEqual(expect.arrayContaining(['SET_TEMPO', 'EDIT_STYLE', 'TRANSPOSE']));
+    expect(names()).toEqual(expect.arrayContaining(['SET_TEMPO', 'EDIT_STYLE', 'TRANSPOSE']));
+  });
 });
