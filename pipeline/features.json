@@ -1166,6 +1166,34 @@
       ],
       "passes": false,
       "evidence": null
+    },
+    {
+      "id": "F-095",
+      "scope": "chat",
+      "milestone": "LD",
+      "behaviour": "A recipe's lyrics are written by their own call (SP-5 rung 3); German lyrics on gemma4, loaded and unloaded inside the turn's one plan slot",
+      "acceptance": [
+        "English recipe: 2 calls, one model, one release",
+        "German recipe: 2 calls on 2 models; planner unloaded before gemma4 loads; /api/ps empty before the slot is released on success, check failure, cancel and unload timeout",
+        "A follow-up that keeps the lyrics makes one call",
+        "A lyric with a prompt-only word (Mulakai) is refused and retried"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-096",
+      "scope": "chat",
+      "milestone": "LD",
+      "behaviour": "Live run: German, English, Spanish chat songs on the real machine, models and GPU hand-off recorded",
+      "acceptance": [
+        "German turn <= 60 s warm",
+        "No model in /api/ps after any turn",
+        "A queued YuE2 take starts only after the slot is released",
+        "Owner reads the German lyrics as usable"
+      ],
+      "passes": false,
+      "evidence": null
     }
   ]
 }
