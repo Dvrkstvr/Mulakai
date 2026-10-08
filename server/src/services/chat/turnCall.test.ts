@@ -5,7 +5,8 @@ import { MAX_TOKENS, decideReply, ladderRung, type TurnContext } from './turnCal
 import { turnAttempts } from './turnAttempts.js';
 import type { ChatScript } from '../../../test-fakes/fakeOllama.js';
 import { contract } from '../../../test-fakes/fakeYue.js';
-import type { ScoreFacts } from '../score/planTypes.js';
+import type { ChatMessage as PromptMessage, ScoreFacts } from '../score/planTypes.js';
+import { promptChars } from '../score/plannerPrompt.js';
 
 const ctx: TurnContext = { state: { hasSong: false, scoreReadable: false }, block: ['SONG: none yet'], facts: null, request: 'a sad song', pending: false, draft: {}, history: [] };
 const scripted = (...replies: ChatScript[]) => {
@@ -107,5 +108,19 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     const whole = scripted(edit([{ op: 'EDIT_STYLE', style: 'jazz' }]));
     expect(await decideReply({ ...marked, request: 'make the whole song jazzier' }, { ask: whole })).toMatchObject({ ok: true, attempts: 1 });
     expect(JSON.stringify(whole.mock.calls[0][1])).toContain('EDIT_STYLE');
+  });
+  it('C1 re-check N4: a marked turn refused twice keeps attempt 3 within 1k tokens (chars / 4) of attempt 1', async () => {
+    const facts = contract('read-ok').response.body.facts as ScoreFacts;
+    const marked: TurnContext = { ...ctx, state: { hasSong: true, scoreReadable: true }, facts, request: 'make it jazzier', mark: { lines: ['MARK: bars 23-30'], range: [23, 30] } };
+    // The live failure's shape: a whole-song REHARMONIZE (2 chords a bar) and a long message, refused for leaving the mark.
+    const chords = Array.from({ length: 128 }, (_, i) => ({ bar: 1 + (i >> 1), beat: 1 + 2 * (i % 2), root: 'A', quality: 'm7' }));
+    const big = JSON.stringify({ action: 'edit', message: 'm'.repeat(300), assumptions: ['a'], ops: [{ op: 'REHARMONIZE', from_bar: 1, to_bar: 64, chords }] });
+    const ask = scripted({ content: big, promptTokens: null });
+    const d = await decideReply(marked, { ask });
+    expect(d).toMatchObject({ ok: false, attempts: 3 });
+    const tokens = ask.mock.calls.map((c) => Math.round(promptChars(c[0] as PromptMessage[]) / 4));
+    expect(big.length / 4).toBeGreaterThan(1500);
+    expect(tokens[2]).toBeLessThanOrEqual(tokens[0] + 1000); // 2434, 2529, 2623 (re-sending the reply: 2434, 4062, 5689)
+    expect(JSON.stringify(ask.mock.calls[2][0])).not.toContain('m'.repeat(300));
   });
 });

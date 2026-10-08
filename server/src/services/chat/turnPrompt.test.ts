@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { contract } from '../../../test-fakes/fakeYue.js';
 import { CHAT_RULES } from './chatRules.js';
-import { HISTORY_MAX, REPLY_LINE, historyLines, turnMessages, turnRetry } from './turnPrompt.js';
+import { HISTORY_MAX, REPLY_LINE, historyLines, refusedReply, turnMessages, turnRetry } from './turnPrompt.js';
 import { songStateLines } from './songState.js';
 import { RECIPE, facts206, readingFixture } from '../../../test-fakes/chatScripts.js';
 import type { ChatMessage } from './chatTypes.js';
@@ -81,10 +81,29 @@ describe('turn prompt (SP-5 build_messages, v3.1)', () => {
 
   it('a retry appends the reply and the reasons with chat wording and the reply line, not "Your op list"', () => {
     const msgs = turnMessages(base);
-    const next = turnRetry(msgs, '{"action":"x"}', ['action "x" is not one of ask, say']);
+    const next = turnRetry(msgs, [{ reply: '{"action":"x"}', reasons: ['action "x" is not one of ask, say'] }]);
     expect(next).toHaveLength(4);
     expect(next[2]).toEqual({ role: 'assistant', content: '{"action":"x"}' });
-    expect(next[3].content).toBe(`Your reply was rejected:\n- action "x" is not one of ask, say\nReturn a corrected, complete reply. ${REPLY_LINE}`);
+    expect(next[3].content).toBe(`Your reply was rejected:
+- action "x" is not one of ask, say
+Return a corrected, complete reply; write its message anew, about the corrected reply only. ${REPLY_LINE}`);
+  });
+
+  it('N4/N2: a refused edit goes back as its op kinds and bars, without its chords or its message', () => {
+    const chords = Array.from({ length: 16 }, (_, i) => ({ bar: 23 + (i >> 1), beat: 1 + 2 * (i % 2), root: 'C', quality: 'maj7' }));
+    const reply = JSON.stringify({ action: 'edit', message: 'I will raise the tempo of the whole song.', assumptions: [], ops: [{ op: 'SET_TEMPO', bpm: 120 }, { op: 'REHARMONIZE', from_bar: 23, to_bar: 30, chords }] });
+    expect(refusedReply(reply)).toBe('(your refused reply, shortened: action edit; ops: 1 SET_TEMPO bpm=120 | 2 REHARMONIZE from_bar=23 to_bar=30 chords: 16)');
+    expect(refusedReply('{"action":"say","message":"hi"}')).toBe('{"action":"say"}');
+    expect(refusedReply('not json')).toBe('(not valid JSON: not json)');
+  });
+
+  it('N4: each retry is built on the first attempt, one shortened pair per refusal, reasons cut at 300 characters', () => {
+    const msgs = turnMessages(base);
+    const next = turnRetry(msgs, [{ reply: '{}', reasons: ['a'] }, { reply: '{}', reasons: ['b'.repeat(500)] }]);
+    expect(next.slice(0, 2)).toEqual(msgs);
+    expect(next.map((m) => m.role)).toEqual(['system', 'user', 'assistant', 'user', 'assistant', 'user']);
+    expect(next[5].content).toContain(`- ${'b'.repeat(300)}…
+`);
   });
 
   it('the whole prompt on a chord-free 206-bar song (the library cover F-042 #2 names) with a full history stays under 6k tokens at 3 characters a token', () => {
