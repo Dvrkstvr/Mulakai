@@ -92,7 +92,8 @@ function shown(a: VersionAnalysis, number: number, words: LyricsReading | null, 
   const facts = isRead(a.score) ? a.score.facts : null;
   const transcribed = isRead(a.score) && a.score.source === 'transcribed';
   const mode = !bars ? 'hatched' : dimOrHatched ?? 'current';
-  const timings = transcribed ? words : null;
+  // An empty segment is no line: the strip and the reading line skip it as the panel does (C2 live B4).
+  const timings = transcribed && words ? { ...words, segments: words.segments.filter((w) => w.text.trim()) } : null;
   const sections = facts ? stripSections(facts, bars, timings) : [];
   const heard = isRead(a.words) ? a.words.lines.length : words?.segments.length ?? 0;
   const { lines, outside } = readingLines(facts, sections, timings, bars !== null, heard);

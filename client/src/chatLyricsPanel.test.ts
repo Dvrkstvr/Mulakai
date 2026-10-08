@@ -23,6 +23,11 @@ describe('no mark: the section list (LY-3 a)', () => {
       ['Intro', 0, null, false], ['Verse', 2, 'v1 a', false], ['Chorus', 2, 'c1 a', false], ['Verse', 2, 'v2 a', false], ['Chorus', 2, 'c2 a', false],
     ]);
   });
+
+  it('the total is the reading line\'s count, a line across a section edge once (C2 live B4, D-197)', () => {
+    const r = panelRows({ view: panelView({ shown: { ...READING, lines: 7, lyrics: PANEL } }), mark: null, times: TIMES, diffs: [] });
+    expect(r).toMatchObject({ kind: 'list', lines: 7 });
+  });
 });
 
 describe('a mark: only the marked part (LY-3 b, c, d)', () => {

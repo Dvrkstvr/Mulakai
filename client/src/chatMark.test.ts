@@ -48,6 +48,11 @@ describe('gestures', () => {
     expect(markSeconds(view(), 6, 6.1)).toBeNull();
   });
 
+  it('a short drag across a bar line marks the bar holding its middle, not the one it starts in (R-041)', () => {
+    expect(markSeconds(view(), 6.8, 7.6)?.bars).toEqual([4, 4]);
+    expect(markSeconds(view(), 6.4, 7.4)?.bars).toEqual([3, 3]);
+  });
+
   it('Alt frees the edges: exact seconds, the bars it touches', () => {
     expect(markSeconds(view(), 5.5, 12.5, true)).toEqual({ kind: 'range', versionId: 'v4', bars: [3, 6], seconds: [5.5, 12.5], readAt: READING.readAt });
   });
