@@ -42,10 +42,23 @@ def repeat_verdict(step_db: float) -> tuple[str, str | None]:
     return "ok", None
 
 
+def section_end(gb, e: int) -> float:
+    """Where bar e starts. The grid's time for the bar after the song is the end of the audio,
+    the outro's ring-out, not a downbeat (C1 N1: a seam there has no groove to snap to), so
+    with no downbeat for bar e the last bar's end is its downbeat plus the bar before it."""
+    j = e + gb.offset
+    if 0 <= j < len(gb.downbeats):
+        return gb.downbeats[j]
+    last, before = gb.t(e - 1), gb.t(e - 2) if e >= 2 else None
+    bar = last - before if before is not None and 0 < last - before else 4 * gb.beat
+    return min(last + bar, gb.duration) if last < gb.duration else gb.duration
+
+
 def splice_repeat(base, gb, s: int, e: int):
-    """Bars [s, e) (0-based) played again right after themselves."""
+    """Bars [s, e) (0-based) played again right after themselves; after the last section the
+    song's ring-out plays once, at the end."""
     beat, end = gb.beat, len(base) / SR
-    tb_s, tb_e = gb.t(s), gb.t(e)
+    tb_s, tb_e = gb.t(s), min(section_end(gb, e), len(base) / SR)
     shift, row = snap(base, tb_e, base, tb_s, beat, "next")
     if row["corr"] < CORR_MIN:
         return rerender("not_aligned", "no groove to line the copy's seam up on", snap=[row])
