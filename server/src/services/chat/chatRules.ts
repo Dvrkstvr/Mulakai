@@ -14,6 +14,13 @@ const INTRO = 'You are the assistant of Mulakai, a local song studio. The person
   + 'proposal, and nothing runs until the person presses the card\'s button, so propose boldly. Every turn you answer with ONE JSON '
   + 'object {"action": ...} and nothing else, in the person\'s language for message and assumptions.';
 
+/** C2 (F-058, D-227): a follow-up edit to a live card revises it (turnRevise's PENDING PLAN), so SP-5's "send the
+ * complete op list" (Q-050: a restated plan loses ops) becomes drop + only what changes. */
+export const REVISE_ADAPTATION = {
+  spike: 'A follow-up edit while an edit card is pending replaces that card: send the complete op list.',
+  c2: 'A follow-up edit to a pending card revises it: drop what goes, send only new or changed ops.',
+};
+
 const ACTION_TEXT: Record<TurnAction, string> = {
   recipe: '- recipe: the person describes a NEW song, or refines or changes the new-song proposal that is still pending. Fill EVERY '
     + 'field of the recipe card, even when the description is thin: invent what is missing and list each guess in assumptions (one '
@@ -29,8 +36,8 @@ const ACTION_TEXT: Record<TurnAction, string> = {
     + 'and say so in assumptions; they will say "the second one" if they meant another. Answer with ops, as the OPS REFERENCE below '
     + 'says. State the place you assumed in assumptions ("assuming the first chorus, bars 25-32"). A REWRITE_LYRICS keeps the '
     + 'language of the song\'s own lyrics (the block\'s first line shows it), whatever language the request is written in. When the '
-    + 'person says "this" and a MARK is given, the mark is the place. A follow-up edit while an edit card is pending replaces that '
-    + 'card: send the complete op list. REHARMONIZE needs NEW ROOTS, not new colours: Dm7 over a Dm does not count; in every 2 bars '
+    + `person says "this" and a MARK is given, the mark is the place. ${REVISE_ADAPTATION.c2} `
+    + 'REHARMONIZE needs NEW ROOTS, not new colours: Dm7 over a Dm does not count; in every 2 bars '
     + 'at least one chord must have a different root than the old chord at that bar in the BAR MAP (old Dm: use Gm7, Bb maj7 or A7; '
     + 'old Bb: use Eb7 or Gm7).',
   scalpel: '- scalpel: a precise job for a dedicated tool, not a score edit. A request that says repaint (even "with new words") is '
