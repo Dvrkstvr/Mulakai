@@ -142,4 +142,18 @@ describe('message view (the states the client shows)', () => {
     expect(states([card(read, 't')], ctx({ t: { status: 'failed', error: 'x' } }))).toEqual(['done']);
     expect(states([card(read, 't')], ctx())).toEqual(['done']);
   });
+
+  it('C2 (F-059): UNDO TURN is offered on a recipe with an undo record, done once undone, absent otherwise', () => {
+    const undo = { rev: 1, before: {}, fields: ['title' as const] };
+    const recipe = (body: object, over: Partial<ChatMessage> = {}) => msg('assistant', 'recipe', { proposalId: 'p', body: { ...recipeBody, ...body }, ...over });
+    const offers = (messages: ChatMessage[], c: ViewContext) => messageViews(messages, c).map((m) => m.undo);
+    expect(offers([recipe({ undo })], ctx({}, { p: 'live' }))).toEqual(['offer']);
+    expect(offers([recipe({ undo })], ctx())).toEqual(['offer']); // expired after a restart: the record still undoes
+    expect(offers([recipe({ undo, undone: { at: 1, restored: ['title'], kept: [] } })], ctx())).toEqual(['done']);
+    expect(offers([recipe({})], ctx())).toEqual([null]); // filled nothing, or a pre-C2 message
+    expect(offers([recipe({ undo })], { ...ctx(), hasSong: true })).toEqual([null]);
+    const made = recipe({ undo }, { jobId: 'take' });
+    expect(offers([made, msg('assistant', 'song', { jobId: 'take' })], ctx())).toEqual([null, null]);
+    expect(offers([msg('assistant', 'say')], ctx())).toEqual([null]);
+  });
 });
