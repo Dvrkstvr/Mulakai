@@ -66,12 +66,13 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   if (missing.length) return fail(...missing);
   if (ctx.shapeOnly.includes('edit')) return { ok: true, reply: reply(json.ops as Op[]), applied: null };
   if (!ctx.facts) return fail('there is no song to edit yet: propose a recipe for a new song instead');
-  const read = ctx.pending ? readRevise(json, ctx.pending, ctx.facts, ctx.phraseBars) : checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
+  const revised = ctx.pending ? readRevise(json, ctx.pending, ctx.facts, ctx.phraseBars) : null;
+  const read = revised ?? checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
   if (!read.ok) return fail(...read.reasons);
   const returned = ctx.pending ? checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars, 0) : read; // a mark bounds these only (D-214)
   const outside = ctx.markRange && returned.ok ? markFit(returned.ops, ctx.markRange, ctx.facts, ctx.markWhole).reasons : [];
   if (outside.length) return fail(...outside);
-  const revise = 'merged' in read ? { legend: [read.legend], revised: { marks: read.merged.marks, removed: read.merged.removed } } : null;
+  const revise = revised?.ok ? { legend: [revised.legend], revised: { marks: revised.merged.marks, removed: revised.merged.removed } } : null;
   const done = (applied: ApplyResult | null): Checked => ({ ok: true, reply: reply(read.ops), applied, ...(revise ? { revised: revise.revised } : {}) });
   if (!deps.apply) return done(null);
   const applied = withLimits(await deps.apply(read.ops), { ops: read.ops, sections: ctx.facts.sections, blocks: ctx.facts.lyric_blocks });

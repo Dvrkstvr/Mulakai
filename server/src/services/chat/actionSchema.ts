@@ -61,7 +61,7 @@ function editOps(facts: ScoreFacts | null, phraseBars: number, barRange: [number
 
 export function turnSchema({ facts, phraseBars, allowed, reference = false, barRange, wholeSong = false, pendingCount }: SchemaInput): Schema {
   const assumptions = arr(str(1, 160), 0, 4);
-  const drop = pendingCount ? { drop: dropSchema(pendingCount) } : {};
+  const drop: Record<string, Schema> = pendingCount ? { drop: dropSchema(pendingCount) } : {};
   const parts: Record<TurnAction, () => Schema> = {
     ask: () => action('ask', { message: str(1, MESSAGE_MAX), choices: arr(str(1, 80), 2, 4) }),
     recipe: () => action('recipe', { message: str(1, MESSAGE_MAX), assumptions, recipe: recipeSchema(reference) }),
