@@ -73,6 +73,7 @@ export function LibraryView({
     <>
       <CreateBar
         onCreate={(draft) => openCreate(activeFolder ? { ...draft, folderId: activeFolder.id, folderName: activeFolder.name } : draft)}
+        onResume={() => openCreate({})}
       />
 
       <LibraryToolbar
@@ -103,7 +104,8 @@ export function LibraryView({
           </div>
         )}
         <section className="library">
-          {genJobs.map((job) => <GeneratingCard key={job.key} job={job} onRetry={() => retryGeneration(job)} />)}
+          {/* In-flight generations show in the create bar's Create card; a failed one stays here with RETRY. */}
+          {genJobs.filter((job) => job.stage === 'failed').map((job) => <GeneratingCard key={job.key} job={job} onRetry={() => retryGeneration(job)} />)}
           {visibleSongs.map((s, i) => { const row = songRowState(s.id, detailSongId, playing?.id, footerEngine.isPlaying); return (
             <motion.div
               key={s.id}

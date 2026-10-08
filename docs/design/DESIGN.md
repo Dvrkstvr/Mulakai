@@ -203,15 +203,37 @@ requiring its own justification against a screen-count rule.
    - **Create bar**: one slim row below the header — a single "what do you
      want to make?" prompt input + acid CREATE button (parallelogram) that
      navigates to the Create takeover (see below). This replaces the old
-     inline create form that used to live in Library. It stays live while
-     songs generate (a new one queues). Its FEELING LUCKY is a queued job
-     too, and so is the Quick Start a typed idea starts in Create: while
-     either waits, a `text-mid` line says so ("FEELING LUCKY waits its turn
-     · starts after 1 job").
+     inline create form that used to live in Library. Its FEELING LUCKY is a
+     queued job too, and so is the Quick Start a typed idea starts in
+     Create: while either waits, a `text-mid` line says so ("FEELING LUCKY
+     waits its turn · starts after 1 job").
+     **Create card** (2026-10-07, `CreateCard.tsx`): while Create is busy —
+     Quick Start writing a draft from an idea (which carries on when Create
+     is closed), a song generating, or a draft held — FEELING LUCKY, the
+     input and CREATE give way to one 58px card filling the row (owner's
+     call: a new idea starts in Create then). It shows the first of these,
+     in that order. Line 1: the state (`text-mid`, tracked small caps) and
+     the title (`text-hi`, 700). Line 2:
+     - **THINKING**: the AI shader (no veil — the LM reports no progress)
+       and "QUICK START is writing the prompt, lyrics and details…";
+       `QUEUED · #2` plain while it waits; `COULDN'T WRITE` in rust
+       (`rust-tint`, `rust` hairline) with the error and "RETRY in Create".
+     - **GENERATING** (or `LOADING MODEL`, or `QUEUED · #2` plain): the
+       oldest generation in flight, the AI shader veiled by its progress
+       (none for an engine's per-stage share), and "1:05 elapsed · 42% ·
+       stage", plus "+1 more in Activity" for the others. This replaces the
+       grid's in-flight cards.
+     - **DRAFT**: outlined `line` hairline tags of only what it sets
+       (`143 BPM · A MINOR · 4/4 · 3:40 · POLISH VOCALS · LYRICS · 50 LINES
+       · ACE-STEP`).
+     Its right end is TO CREATE: a 150px acid fill, left edge cut at the
+     parallelogram angle, opening Create. The card has no clear, stop or
+     abort: Create's CLEAR DRAFT and Activity's CANCEL / ABORT do that, away
+     from the button that opens it.
    - **Generating cards**: one full-width card pinned at the top of the
-     grid per song generation in flight or failed, oldest first (2026-10-03,
-     S4 part b). A waiting one reads `QUEUED · STARTS AFTER 1 JOB` without
-     the shader; a failed one keeps its RETRY until pressed.
+     grid per **failed** song generation, keeping its error and RETRY until
+     pressed (2026-10-03, S4 part b). Generations in flight show in the
+     create bar's Create card instead (2026-10-07).
    - **CONTINUE** (added 2026-10-03): a row above the song grid with up to
      three cards, the songs edited most recently (by their newest version —
      songs have no `updated_at`, and versions are the edits), from
@@ -1528,7 +1550,9 @@ CHAT screen's turn line while the planner thinks (still dashed and plain
 while queued, plain while cancelling) and its CREATE SONG take line under
 the recipe card, which follows the YuE2 rule; and Activity's RUNNING row for a song
 generation, a repaint/alt/similar take, an add layer, a remaster or an
-ANALYZE AUDIO — but only once it runs: a job still waiting in the queue
+ANALYZE AUDIO, and the library create bar's generation chip (a full fill
+with its progress veil: the chip holds a label and a title like a small
+card, so it follows the bigger-element rule) — but only once it runs: a job still waiting in the queue
 (UP NEXT, the library card of a generation reading `QUEUED · STARTS
 AFTER 1 JOB`, or a dock job line reading `QUEUED`) stays plain, since
 nothing is working on it yet. TRANSCRIBE

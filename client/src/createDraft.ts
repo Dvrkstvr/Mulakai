@@ -19,7 +19,7 @@ export interface CreateDraft {
   duration?: number;
   /** A short idea typed into the library's create bar, not yet expanded by the LM —
    * CreateView runs the expansion itself and plays the "AI thinking" reveal
-   * (useThinkingQuery.ts / ThinkingWipe.tsx) instead of blocking the library. */
+   * (quickStartStore.ts / ThinkingWipe.tsx) instead of blocking the library. */
   pendingQuery?: string;
   /** Carried over from whichever folder was active in the Library when Create was opened —
    * the new song is filed there on generation, and its name informs the Title default

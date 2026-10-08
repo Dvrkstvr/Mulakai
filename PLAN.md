@@ -8348,6 +8348,66 @@ Rules for every stage:
 4. Destination folder in the recipe stays read-only; a folder select
    there is a separate scope question.
 
+## Create Bar Status Chips (planned 2026-10-07)
+
+The Library's create bar shows what is already under way, so the owner sees
+it without opening Activity (owner-approved live mock, 2026-10-07). Chips
+sit between FEELING LUCKY and the input; the input stays and stays usable.
+
+- **Generation chip**, one per song generation in flight
+  (`useGenerationStore`): `GENERATING` or `QUEUED · #n`, the title (caption
+  as fallback, truncated), progress `42%` when known. A running one wears
+  the AI shader with its progress veil (`AIGeneratingBackground`); a queued
+  one stays plain, as Activity's UP NEXT does. Two at most, then `+N`.
+- **Draft chip** while Create's draft holds anything (`isDraftEmpty`):
+  `DRAFT`, the title or else the prompt, RESUME (opens Create on the
+  draft, like CONTINUE's RESUME) and CLEAR.
+- **Quick actions, each confirmed inline** with a consequence line, a rust
+  confirm and a quiet KEEP (Escape also keeps): CLEAR on the draft
+  (`createDraftStore.clear` plus the reference audio, as CLEAR DRAFT does);
+  CANCEL on a queued generation (`useQueueStore.cancel`, nothing is lost);
+  ABORT on the running generation, offered only on the row Activity marks
+  as the lock's holder (`runningRows`' `abortable`), via
+  `useApiStatusStore.abort` (the take in progress is lost).
+
+File-level plan (one PR, `feat/create-bar-chips`, client only):
+`createBarStatus.ts` (+ test: which chips, labels, overflow, which action),
+`CreateBarChip.tsx` (hook-free chip and confirm views, + test),
+`CreateBarChips.tsx` (stores and confirm state), `createBarActions.ts`
+(+ test of the API each confirm calls), `createBarChips.css`, `CreateBar.tsx` and
+`LibraryView.tsx` (the RESUME prop), DESIGN.md's create bar and AI states.
+
+## Create Bar Mirrors Create (planned 2026-10-07)
+
+Follow-up to "Create Bar Status Chips", from the owner's live check: FEELING
+LUCKY, CREATE, then back to the Library showed no chip — Quick Start's
+expansion lived in Create's component and stopped when Create closed, so the
+idea was dropped and the draft stayed empty. The bar must mirror what Create
+is doing: thinking, drafting, generating.
+
+- `client/src/quickStartStore.ts` — Quick Start's LM job moves out of
+  Create into a store that outlives it (replaces `useThinkingQuery.ts`). With
+  Create open the result plays its reveal; closed, it lands in the draft at
+  once; leaving mid-reveal lands it whole. STOP drops the idea; a failure
+  keeps it for RETRY.
+- `client/src/IdeaSteps.tsx`, `ThinkingWipe.tsx` — read the store.
+- The create bar shows Create's work as one **Create card** (owner's call,
+  2026-10-08, settled on a live mock): while Create holds a draft or Quick
+  Start is writing one, FEELING LUCKY, the input and CREATE give way to a
+  two-line card — state and title, then the draft's fact tags or Quick
+  Start's note (THINKING / QUEUED / COULDN'T WRITE) — with TO CREATE as its
+  acid end. No clear or stop on it: Create's CLEAR DRAFT and Activity's
+  CANCEL / ABORT cover that (`CreateCard.tsx`, `draftFacts.ts`,
+  `createBarStatus.ts`, `useCreateBusy.ts`).
+- A generating song shows in that card too (owner's call, 2026-10-08):
+  GENERATING / LOADING MODEL / QUEUED with elapsed, progress and stage, in
+  place of the draft and of the grid's in-flight cards (a failed one stays on
+  the grid with RETRY). Generating makes Create busy, so the bar is the card
+  only; the small generation chips and their CANCEL/ABORT are retired
+  (Activity has them). e2e `queue.spec.ts` follows: FEELING LUCKY's wait from
+  Create's button, and Quick Start outliving Create.
+- DESIGN.md: the Create card, in its own commit.
+
 ## Remove the HeartMuLa Engine (planned 2026-10-03)
 
 **Decision (project owner, 2026-10-03): HeartMuLa is marked for removal.**

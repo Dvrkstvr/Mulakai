@@ -1,8 +1,9 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import type { ModelInventory, RefineResult } from './api';
+import { useEffect, type ReactNode } from 'react';
+import type { ModelInventory } from './api';
 import { useSettings } from './settings';
 import { AutoTextarea } from './AutoTextarea';
-import { useThinkingQuery } from './useThinkingQuery';
+import { sampleToDraft, useQuickStartStore } from './quickStartStore';
+import { lmWaitNote } from './lmJob';
 import { ThinkingWipe } from './ThinkingWipe';
 import { typewrite } from './typewriter';
 import { AiEnhanceBadge } from './Toggle';
@@ -34,7 +35,6 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
   const gen = useSettings((s) => s.gen);
   const { prompt, lyrics, formatted, pendingQuery } = useCreateDraftStore();
   const patch = useCreateDraftStore((s) => s.patch);
-  const clearPendingQuery = useCreateDraftStore((s) => s.clearPendingQuery);
   const { info: engine } = useEngineCaps();
   const caps = engine?.capabilities ?? null;
   // AI ENHANCE is ACE-Step's LM rewriting the request; an engine without LM tools gets the text as typed.
@@ -43,30 +43,30 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
   const modelUnknownWhy = inventory.error ? "couldn't load the model list (RETRY in TUNE)"
     : !inventory.data ? 'the model list is still loading' : 'ACE-Step names no default model, so pick a DIT MODEL in TUNE';
 
-  const [pendingResult, setPendingResult] = useState<RefineResult | null>(null);
-  const { phase: thinkPhase, error: thinkError, waitNote: thinkWait, retry: retryThink, finish: finishThink } =
-    useThinkingQuery(pendingQuery, setPendingResult);
+  // The expansion itself lives in quickStartStore, so leaving Create doesn't drop it; this
+  // screen only starts it, shows it, and plays the reveal while it is open.
+  const { phase: thinkPhase, error: thinkError, position: thinkPosition, result: pendingResult } = useQuickStartStore();
   const thinking = thinkPhase !== 'idle';
+  const thinkWait = thinkPhase === 'thinking' ? lmWaitNote('QUICK START', thinkPosition) : null;
+  const startThink = () => { if (pendingQuery) useQuickStartStore.getState().start(pendingQuery); };
+
+  useEffect(() => {
+    const release = useQuickStartStore.getState().host();
+    if (!useQuickStartStore.getState().error) startThink();
+    return release;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (thinkPhase !== 'revealing' || !pendingResult) return;
-    patch({
-      formatted: true,
-      ...(pendingResult.bpm ? { bpm: pendingResult.bpm } : {}),
-      ...(pendingResult.key_scale ? { keyScale: pendingResult.key_scale } : {}),
-      ...(pendingResult.time_signature ? { timeSignature: pendingResult.time_signature } : {}),
-      ...(pendingResult.vocal_language ? { vocalLanguage: pendingResult.vocal_language } : {}),
-      ...(pendingResult.duration ? { duration: pendingResult.duration } : {}),
-    });
+    patch(sampleToDraft(pendingResult, false));
     const stopPrompt = typewrite(pendingResult.caption, (v) => patch({ prompt: v }), 700);
     const stopLyrics = typewrite(pendingResult.lyrics, (v) => patch({ lyrics: v }), 900);
     return () => { stopPrompt(); stopLyrics(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [thinkPhase, pendingResult]);
 
-  // Retiring the query once its reveal has landed keeps a card switch (or leaving and
-  // re-entering Create) from re-running the same expansion on this component's next mount.
-  const finishReveal = () => { finishThink(); clearPendingQuery(); };
+  const finishReveal = () => useQuickStartStore.getState().finish();
   const instrumentalNext = toggleInstrumental(lyrics);
   const instrumentalNa = unsupported('instrumental', caps);
 
@@ -110,7 +110,7 @@ export function IdeaSteps({ refining, onRefine, onBack, rail, inventory }: {
           <ThinkingWipe phase={thinkPhase} onSwept={finishReveal} />
         </div>
         {thinkWait && <div className="hint">{thinkWait}</div>}
-        {thinkError && <div className="error">{thinkError} <button onClick={retryThink}>RETRY</button></div>}
+        {thinkError && <div className="error">{thinkError} <button onClick={startThink}>RETRY</button></div>}
         <CreateStep n={3} optional title="DETAILS" sub="optional · AUTO lets the planner decide">
           <IdeaDetails />
         </CreateStep>
