@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, type SongDetail } from './api';
 import {
-  DRAFT_SUBTITLE, DROP_DRAFT, FORM_LINK, KEEP, NEW_CHAT, NEW_CHAT_REFUSED, NEW_SONG, SIDEBAR_HEAD, SIDEBAR_RENDERING, VERSIONS,
+  DRAFT_SUBTITLE, DROP_DRAFT, FORM_LINK, KEEP, NEW_CHAT, NEW_CHAT_REFUSED, NEW_SONG, SIDEBAR_HEAD, SIDEBAR_RENDERING,
   newChatConsequence, sidebarSongHead, songSubtitle,
 } from './chatCopy';
 import { filledCount, liveFields, useChatDraftStore } from './chatDraftStore';
@@ -19,6 +19,7 @@ import { ChatComposer } from './ChatComposer';
 import { ChatDraftFields } from './ChatDraftFields';
 import { ChatPlayer } from './ChatPlayer';
 import { ChatSidebar } from './ChatSidebar';
+import { ChatSongLyrics, ChatSongRows } from './ChatSongPanel';
 import { ChatThread } from './ChatThread';
 import { useChatAb } from './useChatPlayback';
 
@@ -115,11 +116,10 @@ export function ChatView({ onForm, onLibrary }: Props) {
           head={mode === 'song' ? sidebarSongHead(title) : mode === 'locked' ? SIDEBAR_RENDERING : SIDEBAR_HEAD}
           foot={sidebarFoot(thread, commit, assistantOn)}
           filled={filledCount(live)}
-          top={mode === 'song' && latest ? (
-            <div className="chat-fd"><div className="chat-fk">{VERSIONS}</div><div><span className="chat-vp"><span>v{number ?? latest.number} ●</span></span></div></div>
-          ) : null}
+          top={mode === 'song' ? <ChatSongRows song={song} /> : null}
         >
-          <ChatDraftFields filling={fillingKeys(live, turn)} locked={mode !== 'draft'} />
+          {/* C2 (D-219): on a song's thread the song panel replaces the locked draft fields. */}
+          {mode === 'song' ? <ChatSongLyrics song={song} /> : <ChatDraftFields filling={fillingKeys(live, turn)} locked={mode !== 'draft'} />}
         </ChatSidebar>
       </div>
     </div>
