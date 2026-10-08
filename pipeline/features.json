@@ -1,5 +1,5 @@
 {
-  "_note": "Adopt audit 2026-10-03. passes=true only where I ran the check and it passed. Run: client `npm test` (75 files / 585 tests pass), server `npm test` (58 files / 493 tests pass), client `npm run build` ok, `npm run lint` 1 warning, e2e `npm run test:e2e` 1 passed (golden-path.spec.ts, 14.8 s, fake ACE-Step). Nothing was run against real ACE-Step, YuE2, HeartMuLa, Demucs or UVR. Stage 4 (2026-10-03) appended the score agent as F-016..F-039 (M0..M4, all passes false, evidence null); F-001..F-015 unchanged except F-015's evidence note. Stage 4 (2026-10-06) appended the chat scope as F-040..F-081 (milestones C-pre, C0..C8, field \"scope\": \"chat\", all passes false, evidence null); F-034..F-039 (score-agent M3/M4, unbuilt) stay as written and are folded into the chat: F-034 -> F-078, F-035 -> F-065, F-036 -> F-060, F-037 -> F-079, F-038 -> F-080, F-039 -> F-081; when the chat feature passes the conductor sets the old entry the same way. Local main is 3 commits behind origin/main (#116 merged); I tested the local checkout (2eacef5).",
+  "_note": "Adopt audit 2026-10-03. passes=true only where I ran the check and it passed. Run: client `npm test` (75 files / 585 tests pass), server `npm test` (58 files / 493 tests pass), client `npm run build` ok, `npm run lint` 1 warning, e2e `npm run test:e2e` 1 passed (golden-path.spec.ts, 14.8 s, fake ACE-Step). Nothing was run against real ACE-Step, YuE2, HeartMuLa, Demucs or UVR. Stage 4 (2026-10-03) appended the score agent as F-016..F-039 (M0..M4, all passes false, evidence null); F-001..F-015 unchanged except F-015's evidence note. Stage 4 (2026-10-06) appended the chat scope as F-040..F-081 (milestones C-pre, C0..C8, field \"scope\": \"chat\", all passes false, evidence null); F-034..F-039 (score-agent M3/M4, unbuilt) stay as written and are folded into the chat: F-034 -> F-078, F-035 -> F-065, F-036 -> F-060, F-037 -> F-079, F-038 -> F-080, F-039 -> F-081; when the chat feature passes the conductor sets the old entry the same way. Local main is 3 commits behind origin/main (#116 merged); I tested the local checkout (2eacef5). Engine pairing (2026-10-08) appended F-082..F-089 (E1..E3, scope 'engines'; preconditions P1..P4 in scope.md are fixes, not features).",
   "features": [
     {
       "id": "F-001",
@@ -996,6 +996,110 @@
       "acceptance": [
         "The palette item fills the composer and never sends (the palette's rule)",
         "Edge: absent in the Library with no song open and when the assistant is off; it replaces the old 'Edit score' item"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-082",
+      "scope": "engines",
+      "milestone": "E1",
+      "behaviour": "Repaint, Add Layer and complete send the song's bpm, key and meter (a YuE2 song's from its score header) and, for lego, the song caption as global_caption",
+      "acceptance": [
+        "Unit tests on the built request for a YuE2 song, an ACE-Step song and a song with no metadata (sends none)",
+        "Owner listen: 3 Add Layer drum takes on 2 YuE2 songs with and without, fixed seeds; kept if a tighter fit is heard in at least 2 of 3",
+        "Edge: needs P1 (R-034) for lego; the user's instruction stays the local prompt (Q-123)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-083",
+      "scope": "engines",
+      "milestone": "E2",
+      "behaviour": "The Editor's section strip and REPAINT / Add Layer regions use a scored song's bar map at once, without a lyrics reading",
+      "acceptance": [
+        "A YuE2 song with no lyrics reading shows its sections from the score",
+        "A drag snaps to bar times within one 40 ms latent frame; Alt frees it, as in the chat",
+        "Edge: after an ACE-Step repaint the bars stay; after an edit that moves them the strip falls back to the reading"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-084",
+      "scope": "engines",
+      "milestone": "E1",
+      "behaviour": "A new song whose vocal language is neither en nor zh defaults its first take to ACE-Step, with the reason and an override",
+      "acceptance": [
+        "Precondition: owner listen, 2 German and 2 Spanish songs on both engines, confirms YuE2 is worse; else dropped",
+        "Create picks ACE-STEP for a de song with the reason, 'no SCORE editing' and an override; en, zh and instrumental unchanged",
+        "Edge: in chat the recipe names acestep only after C7 (R-025); until then the reply names the risk"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-085",
+      "scope": "engines",
+      "milestone": "E2",
+      "behaviour": "EXTEND continues a song past its end with ACE-Step repaint outpainting, 10-90 s per step, chainable",
+      "acceptance": [
+        "The version is N s longer (within 0.1 s); the kept part matches the source after gain matching",
+        "Two chained extends work; a result over 600 s is refused before the job",
+        "Edge: on a YuE2 song the consequence line says SCORE editing ends (D-006)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-086",
+      "scope": "engines",
+      "milestone": "E2",
+      "behaviour": "REPLACE <part> splits a single-mix song into layers and regenerates one part with lego on Base, the original kept muted",
+      "acceptance": [
+        "Drums and vocals replaced on 2 YuE2 songs; the original stem stays as a muted layer",
+        "A source under 60 s is looped for the job and trimmed back to its length",
+        "Edge: needs P1 (R-034); split runs on Demucs/UVR, not ACE extract"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-087",
+      "scope": "engines",
+      "milestone": "E2",
+      "behaviour": "REMASTER can run cover-nofsq at low noise strength, closer to the source than the FSQ cover",
+      "acceptance": [
+        "Duration unchanged; lyrics-server WER change at most 5 points",
+        "Owner A/B on 3 YuE2 songs; kept only if preferred in at least 2 of 3 (Q-124)",
+        "Edge: not on XL SFT with noise strength above 0 (upstream #1329)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-088",
+      "scope": "engines",
+      "milestone": "E1",
+      "behaviour": "On a song with no vocal, a wordless Add Layer vocal can be given words by a second cover step that keeps its melody",
+      "acceptance": [
+        "Both steps run on 2 instrumentals, each its own version with a consequence line",
+        "The words read back at WER at most 30 %; the vocal stays in the same bars (onsets within 1 beat)",
+        "Edge: needs P1 (R-034)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-089",
+      "scope": "engines",
+      "milestone": "E3",
+      "behaviour": "YuE2 (yuey.cpp) and ACE-Step (acestep.cpp) run natively on Windows, if SP-7 passes",
+      "acceptance": [
+        "SP-7: owner blind A/B against Python YuE2 at the same score and seed (4 songs), RTF, VRAM peak, both resident at once",
+        "yue-server's contract holds: external abc, cot modes, plan-only, token counts for the 4,096 budget, truncated",
+        "Edge: fail keeps WSL and is recorded (R-037)"
       ],
       "passes": false,
       "evidence": null

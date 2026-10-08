@@ -255,3 +255,22 @@ A chat edit's re-sung span changes the instruments (Acid Houzzzz: TB-303 bass 鈫
 The splice has no length gate: `splice_reharmonize` takes the new take's own bar span, so a render whose chorus runs short or long changes the saved song's length and shifts every later bar, with verdict `ok` and a passing null test. 4 of 25 SP-6 outputs came back 1.9-7.6 s shorter (Acid unedited render, Acid forced-prefix render, Funky instruments-first render, Acid plain-pipeline render); the 4 C0b songs were within 0.02 s. F-047's "length may differ by under 0.25 s" is only reported (`length_diff_s`), not enforced.
 - check: a REHARMONIZE splice with |length_diff_s| > 0.25 answers `rerender` (whole re-render, labelled) and a test with a take 4 s short.
 - fallback: show `length_diff_s` on the version card and block USE when it exceeds 0.25 s.
+### R-034 路 impact H 路 evidence seen in code (engine pairing, 2026-10-08)
+The local ACE-Step fork (`64ffc2f`, 15 commits behind upstream `ca1e85f`) lacks #1287, #1273/#1282 and #1284. (1) lego/complete: `inference.py:646` skips the 5Hz LM only for cover/repaint/extract and `/release_task` defaults `use_cot_caption`/`use_cot_language` to true, so with the LM loaded the LM writes codes from text and the DiT never sees `src_audio` (upstream #1286); `addLayerJobs.ts` sends neither flag. (2) `GenerationParams.dcw_enabled` defaults true with no REST field, so Base/SFT run with DCW on (upstream #1259: distorted, garbled audio); Add Layer, complete and extract run on Base. (3) a requested model can silently fall back to the primary. How often (1) and (2) hit real Add Layer takes is not measured.
+- check: one Add Layer on the fork with the LM loaded and not loaded, and one Base text2music with DCW on and off (synced build), at fixed seeds.
+- fallback: until Q-121 is answered, send `use_cot_caption: false`, `use_cot_language: false` for lego/complete; DCW needs the sync (no REST field locally).
+
+### R-035 路 impact M 路 evidence seen in code (engine pairing, 2026-10-08)
+ACE-Step stem extract is miswired (`stemRunners.ts:53-58, 89-94`): a custom `instruction` is used verbatim (`job_generation_setup.py` `_resolve_instruction`) instead of the trained "Extract the {TRACK_NAME} track from the audio:", and no `model` is sent, so extract runs on the last-loaded model (Turbo has no extract). Demucs/UVR are unaffected.
+- check: extract vocals from one song with the current request and with `track_name: "vocals"` on a Base model; compare by ear and by residual energy.
+- fallback: hide ACE extract in SPLIT until fixed (P2).
+
+### R-036 路 impact M 路 evidence hypothesis (engine pairing, 2026-10-08)
+ACE-Step outpaint (repaint past the end, F-085) and lego/complete on YuE2 mixes (F-086, F-088) are unmeasured on YuE2 audio: 48 kHz stereo, one mix, no stems. Separately, upstream #1338 reports the REST server crashing after about 8-9 generations with CPU offload on, which Mulakai always enables when YuE2 is configured (`start-all.bat:112-123`).
+- check: F-085's first build runs 5 extends of 30 s on 2 YuE2 songs and logs the joins; a 12-job ACE-Step run with offload on, watching for the crash.
+- fallback: F-085 limited to one step per job with an owner listen; a crash restarts `acestep-api` from start-all's watchdog (if none exists, filed).
+
+### R-037 路 impact M 路 evidence hypothesis (engine pairing, 2026-10-08)
+yuey.cpp (2 stars, validated on an RTX 5070 laptop and a DGX Spark only) may not match Python YuE2's quality or carry yue-server's contract (external `abc`, `cot`, plan-only, token counts, `truncated`). F-089 depends on it.
+- check: SP-7 (F-089).
+- fallback: WSL stays; F-089 dropped and recorded.

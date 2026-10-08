@@ -332,3 +332,14 @@ CP-C1 stop line hit: 2 of 10 marked turns planned outside the mark, both the sec
 
 ## Q-120 · assumable · stage 7 (CL-6, CP-C1) · assumed → D-196
 yue-server `/v1/scores/bars` returns non-increasing `starts` (bar 1 clamped to the audio start, bars past the audio's end all = end) and `yueScoreBars.ts` then drops the whole reply as "unreadable": the strip stays hatched and nothing can be marked (Acid Houzzzz, a YuE2 song, and eventide). Default: clamp or trim on yue-server (or accept non-decreasing starts with the bars past the end marked absent), tested with these two songs' grids, before CL-8a.
+## Q-121 · blocking · stage 4 (engine pairing, P1) · open
+The local ACE-Step is a fork (`local/analyze-audio`: `/lyric_timestamp` and `/v1/analyze_audio`, which Mulakai calls), against CLAUDE.md/AGENTS.md "never modify ACE-Step-1.5", and 15 commits behind upstream with fixes Mulakai needs (R-034). Options: (a) rebase the fork onto upstream `main`, keep the two endpoints as a documented patch, and amend the rule to "only the documented patch" (conflicts expected in `api_server.py`, `inference.py`, `docs/en/API.md`); (b) offer both endpoints upstream as PRs and track `main` once merged, with (a) meanwhile; (c) drop the fork: upstream `full_analysis_only` for analysis, lyric timings from lyrics-server or CPU alignment. Default: (b) with (a) meanwhile. Owner picks: it changes a project rule.
+
+## Q-122 · assumable · stage 4 (engine pairing, F-084) · open
+Default first-take engine for a non-en/zh vocal song. Default: ACE-Step, with the reason and an override, if the owner's listen confirms YuE2 sings German/Spanish worse. Alternative: keep YuE2 and only warn.
+
+## Q-123 · assumable · stage 4 (engine pairing, F-082) · open
+REPAINT's prompt on a song with a caption. Default: the instruction only (as today), with bpm/key/meter added. Alternative: the instruction plus the song caption, which may pull the repaint toward the whole song's style.
+
+## Q-124 · assumable · stage 4 (engine pairing, F-087) · open
+`cover-nofsq` as REMASTER's path or a new POLISH verb. Default: REMASTER's path, decided by the A/B (no new verb on the dock).
