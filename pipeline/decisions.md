@@ -819,3 +819,6 @@ SP-8 (pipeline/spikes/SP-8-retime-rebuild/RESULT.md): the rebuild works from the
 
 ## D-211 · 2026-10-08 · stage 5 (DT-RT, design/retime.html) · by: owner
 BPM… is a chip that turns into its own text input in place, focused. A click outside reverts it to the BPM… chip with no BPM set (Esc too). Enter locks the BPM, and the field shows only an enter icon (↵, no text; owner) that does the same when clicked (the chip's own place, so "clicking the BPM button again" locks). A locked BPM is the picked mode (sky chip "92 BPM") and only then does the consequence line and RE-TIME appear. Assumed: clicking a locked chip reopens the input with its value, and clicking away again clears it (the owner's literal rule); Enter on an empty or out-of-range value does not lock but turns the field rust with the reason. Same control in the cover panel, the chat reading and the SCORE dock. Drawn as A′1-A′5 plus a live TRY IT row.
+
+## D-212 · 2026-10-08 · stage 5 (DT-RT) · by: owner
+Owner signed off pipeline/design/retime.html with press then confirm (Option 1): a mode is picked (HALF, DOUBLE, or a locked BPM per D-211), the consequence line shows, and RE-TIME AT n BPM (or APPLY & RENDER where YuE2 re-renders) runs it. D-209's RT-1..RT-8 and the Q-125..Q-132 defaults stand. RT-1 (`feat/retime-yue`) starts.
