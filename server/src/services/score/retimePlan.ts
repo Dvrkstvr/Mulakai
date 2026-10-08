@@ -58,12 +58,11 @@ export async function makeRetimePlan(songId: string, mode: RetimeMode, bpm: numb
   const sized = await deps.apply({ abc: rebuilt.abc, style, lyrics: source.lyrics }, [{ op: 'SET_TEMPO', bpm: tempo }]);
   if (!sized.ok) throw new RetimePlanRefused(422, `the re-timed score does not check: ${[...sized.checks.problems, ...sized.verdicts.flatMap((v) => v.reason ?? [])].join('; ')}`, 'retime_refused');
   const op: Op = { op: 'RETIME', mode, bpm: tempo, from_bpm: offer.readBpm, dropped_notes: rebuilt.droppedNotes, notes: rebuilt.notes };
-  const note = rebuilt.droppedNotes ? `${rebuilt.droppedNotes} of ${rebuilt.notes} notes are too short for the slower grid and are left out` : null;
   const plan: Plan = {
     ...buildPlan({
       id: crypto.randomUUID(), createdAt: Date.now(), songId, source: { activeVersionId: source.activeVersionId, fingerprint: source.fingerprint },
       request: `RE-TIME ${MODE_NAME[mode]} · ${offer.readBpm} → ${tempo} BPM`, facts: read.facts as ScoreFacts, chordsPresent: read.chordsPresent,
-      ops: [op], applied: { ...sized, verdicts: [{ index: 0, op: 'RETIME', ok: true, reason: null, note }] }, attempts: 1, refusals: [],
+      ops: [op], applied: { ...sized, verdicts: [{ index: 0, op: 'RETIME', ok: true, reason: null }] }, attempts: 0, refusals: [], // 0: no planner ran
     }),
     retime: { notationId: offer.notationId, readBpm: offer.readBpm },
   };

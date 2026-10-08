@@ -24,6 +24,8 @@ interface ScoreStore {
   recheck: (songId: string) => Promise<void>;
   /** PLAN from the song, with the pick pinned (F-032, M2-3). */
   plan: (songId: string) => Promise<void>;
+  /** RE-TIME (RT-4): a plan from the kept reading, under review at once; a refusal is the dock's error line. */
+  retime: (songId: string, mode: 'half' | 'double' | 'bpm', bpm: number | null) => Promise<void>;
   /** REVISE the plan under review (F-033): its referent goes again unless the pick changed (D-070 c). */
   revise: (songId: string) => Promise<void>;
   cancel: (songId: string) => Promise<void>;
@@ -114,6 +116,14 @@ export const useScoreStore = create<ScoreStore>((set, get) => {
     },
 
     recheck: async (songId) => { await status(songId); },
+
+    retime: async (songId, mode, bpm) => {
+      try {
+        get().dispatch(songId, { type: 'retimed', plan: await api.startScoreRetime(songId, mode, bpm) });
+      } catch (err) {
+        get().dispatch(songId, { type: 'planRefused', error: message(err) });
+      }
+    },
 
     plan: async (songId) => {
       const s = state(songId);

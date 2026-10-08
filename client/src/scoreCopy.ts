@@ -64,6 +64,22 @@ type Phrase = Extract<ScoreOp, { op: 'WRITE_PHRASE' }>;
 const phraseBars = (op: Phrase) => bars(op.start_bar, op.start_bar + op.bars.length - 1);
 const names = (style: string | null, what: string) => (style ?? '').toLowerCase().includes(what.toLowerCase());
 
+/** RE-TIME's lines in the dock (RT-4, design/retime.html C1-C4). */
+export const RETIME_ASK = 'wrong beat?';
+export const RETIMING = 'RE-TIMING… · a few seconds · no GPU';
+export const retimeOffLine = (reason: string) => `RE-TIME · ${reason}`;
+/** A BPM within 8 % of the reading (Q-125): the beat is right, so it is a SET TEMPO request, typed above. */
+export const retimeSlightDock = (read: number, bpm: number) =>
+  `${bpm} is within 8 % of the ${Math.round(read)} read: the beat is right, the tempo is just a little off. Ask for it above: "set the tempo to ${bpm} BPM".`;
+
+const RETIME_MODE = { half: 'HALF TIME', double: 'DOUBLE TIME', bpm: 'BPM' } as const;
+
+/** "HALF TIME · 93.7 → 47 BPM · from the saved reading · 112 of 488 notes left out" (RT-4). */
+export function retimeDetail(op: Extract<ScoreOp, { op: 'RETIME' }>): string {
+  const lost = op.dropped_notes ? ` · ${op.dropped_notes} of ${op.notes} notes left out` : '';
+  return `${RETIME_MODE[op.mode]} · ${op.from_bpm} → ${op.bpm} BPM · from the saved reading${lost}`;
+}
+
 /** "sax · bars 57–60 · 4 bars · style + sax": yue-server appends the instrument once, after the ops, to `before`. */
 function phraseDetail(op: Phrase, before: string | null, after: string): string {
   const added = !names(before, op.instrument) && names(after, op.instrument) ? ` · style + ${op.instrument}` : '';
@@ -73,6 +89,7 @@ function phraseDetail(op: Phrase, before: string | null, after: string): string 
 function opRow(op: ScoreOp, i: number, plan: ScorePlan, baseStyle: string | null, fromBpm: number | null, key: string | null): Row {
   if (isSectionOp(op)) return sectionRow(op, plan, i, key);
   if (op.op === 'SET_TEMPO') return { name: 'SET TEMPO', detail: `${fromBpm ?? '?'} → ${op.bpm} BPM · whole song`, tag: 'follows' };
+  if (op.op === 'RETIME') return { name: 'RE-TIME', detail: retimeDetail(op), tag: 'follows' };
   if (op.op === 'REHARMONIZE') {
     return { name: 'REHARMONIZE', detail: `${bars(op.from_bar, op.to_bar)} · ${op.chords.map(chordName).join(' ')}`, tag: 'a request' };
   }
@@ -112,6 +129,7 @@ export function consequenceLine(
   const requests: string[] = [], phrases: string[] = [];
   for (const op of plan.ops) {
     if (op.op === 'SET_TEMPO') parts.push(`tempo follows ${op.bpm} BPM`);
+    if (op.op === 'RETIME') parts.push(`the score is rebuilt from the saved reading at ${op.bpm} BPM, its bars renumbered`);
     if (op.op === 'REHARMONIZE') requests.push(`harmony in ${bars(op.from_bar, op.to_bar)}`);
     if (op.op === 'EDIT_STYLE' && !requests.includes('the style change')) requests.push('the style change');
     if (op.op === 'WRITE_PHRASE') phrases.push(`the ${op.instrument} phrase replaces the instrument part in ${phraseBars(op)} and is ${REQUEST}`);

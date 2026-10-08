@@ -1,5 +1,6 @@
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { DockCommit } from './DockCommit';
+import { DockRetime } from './DockRetime';
 import { useElapsedMs } from './genProgress';
 import { useJobsAhead } from './queueStore';
 import { ScoreFailure } from './ScoreFailure';
@@ -61,6 +62,7 @@ export function DockScore({ songId, state }: Props) {
           onKeyDown={(e) => { if (e.key === 'Enter') { if (canRevise(state)) onRevise(); else if (canPlan(state)) onPlan(); } }}
         />
         {status?.reading && !waiting && <div className="score-reading">{readingLine(status.reading)}</div>}
+        <DockRetime songId={songId} state={state} />
         {shownPlan && state.plan && <ScorePlanList plan={state.plan} {...listProps} dimmed={phase.kind === 'stale' ? 'stale' : undefined} />}
         {moved && <div className="score-since">{moved}</div>}
         {waiting && state.previous && <ScorePlanList plan={state.previous} {...listProps} dimmed={state.revising ? 'kept' : 'replacing'} />}

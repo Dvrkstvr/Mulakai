@@ -14,7 +14,7 @@ export type RetimeOffer =
   | { state: 'refused'; reason: string }
   | { state: 'offered'; notationId: string; readBpm: number };
 
-export const EDITED_SINCE = 'RE-TIME rebuilds the score as transcribed, and this take was edited since: re-timing would undo those edits. Use SET TEMPO, or cover the source again';
+export const EDITED_SINCE = 'it rebuilds the score as transcribed, and this take was edited since: re-timing would undo those edits · use SET TEMPO, or cover the source again';
 export const READING_GONE = 'the saved reading of the source is gone: TRANSCRIBE it again in Create to re-time it';
 
 interface Params { task_type?: unknown; notationId?: unknown; ops?: unknown; retime?: { notationId?: unknown } }

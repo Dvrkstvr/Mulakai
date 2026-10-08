@@ -47,7 +47,7 @@ describe('makeRetimePlan', () => {
     expect(plan).toMatchObject({
       songId: 's1', baseVersionId: 'v1', fingerprint: 'fp', abc: 'X:1 rebuilt', request: 'RE-TIME HALF TIME · 93.7 → 47 BPM',
       ops: [{ op: 'RETIME', mode: 'half', bpm: 47, from_bpm: 93.7, dropped_notes: 112, notes: 488 }],
-      verdicts: [{ index: 0, op: 'RETIME', ok: true, note: '112 of 488 notes are too short for the slower grid and are left out' }],
+      verdicts: [{ index: 0, op: 'RETIME', ok: true, reason: null }], attempts: 0,
       checks: { seconds: 182, tokens: 1300 }, retime: { notationId: N, readBpm: 93.7 },
     });
     expect(getPlan('s1')?.id).toBe(plan.id);

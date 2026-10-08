@@ -191,3 +191,18 @@ describe('scoreVerb guards (M2)', () => {
     expect(canRender(plan1)).toBe(true);
   });
 });
+
+describe('RE-TIME (RT-4): a plan made at once, under review like a PLAN\'s', () => {
+  const RT: ScorePlan = { ...plan('rt', 'RE-TIME HALF TIME · 93.7 → 47 BPM'), ops: [{ op: 'RETIME', mode: 'half', bpm: 47, from_bpm: 93.7, dropped_notes: 0, notes: 9 }] };
+  it('lands as ready with no request text, so PLAN stays off and APPLY & RENDER is on', () => {
+    const s = scoreVerb(asking, { type: 'retimed', plan: RT });
+    expect(s).toMatchObject({ phase: { kind: 'ready' }, plan: RT, request: '', pick: null, error: null });
+    expect(canRender(s)).toBe(true);
+    expect(canPlan(s)).toBe(false);
+    expect(scoreVerb(ready, { type: 'retimed', plan: RT }).plan).toBe(RT); // replaces a plan under review
+  });
+  it('is ignored while a plan or a render is in flight', () => {
+    expect(scoreVerb(planning, { type: 'retimed', plan: RT })).toBe(planning);
+    expect(scoreVerb(rendering, { type: 'retimed', plan: RT })).toBe(rendering);
+  });
+});
