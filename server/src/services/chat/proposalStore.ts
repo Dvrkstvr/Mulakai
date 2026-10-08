@@ -49,6 +49,11 @@ export const proposalById = (id: string): RecipeProposal | undefined => ofKind(i
 export const analyzeById = (id: string): AnalyzeProposal | undefined => ofKind(id, 'analyze');
 export const editById = (id: string): EditProposal | undefined => ofKind(id, 'edit');
 
+/** D-257: a start over scrapped the thread's edit plan and planned nothing: its card reads superseded, not EXPIRED. */
+export function retireEdit(threadId: string): void {
+  live.delete(slot('edit', threadId));
+}
+
 /** NEW CHAT dropped the thread: its proposals go with it. */
 export function dropProposals(threadId: string): void {
   live.delete(slot('recipe', threadId));

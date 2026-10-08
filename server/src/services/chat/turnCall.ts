@@ -12,7 +12,8 @@
  * and the strict schema (plannerClient). C2 (F-058, D-227): with a pending plan (`revise`) an edit is that
  * plan's revise: `drop` in the schema, the PENDING PLAN lines in the prompt, the merge checked by
  * replyCheck; the accepted merge comes back as `since`. An additive drop, or a start over that keeps
- * pending ops, goes back once (reviseKeep's guards, each spent on its first refusal). Pure (I/O injected).
+ * pending ops, goes back once (reviseKeep's guards, each spent on its first refusal); a start over left with nothing is
+ * a say, `scrapped` (D-257). Pure (I/O injected).
  */
 import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply, ScoreFacts, Since } from '../score/planTypes.js';
 import { turnSchema } from './actionSchema.js';
@@ -20,7 +21,7 @@ import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
 import { guardWords, KEEP_REASON, START_REASON } from './reviseKeep.js';
 import { shownReviseReason } from '../score/reviseReply.js';
-import { asksWholeSong, replanMessage } from './markFit.js';
+import { asksWholeSong, nothingPlanned, replanMessage } from './markFit.js';
 import { detectLanguage } from './lyricLanguage.js';
 import { draftLines } from './songState.js';
 import { allowedActions, redirected, type TurnState } from './turnActions.js';
@@ -78,8 +79,9 @@ export interface CallDeps {
 }
 
 /** `since`: an accepted revise's merge against the pending plan (NEW / CHANGED / SAME, REMOVED); null otherwise.
+ * `scrapped` (D-257): a start over left nothing to plan; the reply is a say naming why, and the pending plan goes.
  * `lyrics`: a recipe's lyrics step (LD): kept or written, on which model, in how many attempts. */
-export type Decision = TurnOutcome & { calls: number; messages: PromptMessage[]; since: Since | null;
+export type Decision = TurnOutcome & { calls: number; messages: PromptMessage[]; since: Since | null; scrapped?: boolean;
   lyrics?: { mode: LyricsMode; model?: string; attempts: number } };
 
 export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Decision> {
@@ -96,6 +98,7 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
   const maxTokens = allowed.includes('edit') ? MAX_TOKENS.edit : MAX_TOKENS.other;
   let calls = 0;
   let since: Since | null = null; // the last accepted check's merge: turnAttempts returns on it
+  let scrapped = false; // D-257: the last accepted check was a start over that left nothing
   let guards = revise ? [KEEP_REASON, START_REASON] : []; // CP-C2: each drop guard sends a reply back once, then it stands
   const outcome = await turnAttempts(messages, {
     ask: (msgs) => { calls += 1; return deps.ask(msgs, schema, { maxTokens }); },
@@ -103,6 +106,7 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
       const c = await checkReply(json, { ...checkCtx, guards }, { apply: deps.apply, language: detectLanguage });
       if (!c.ok) guards = guards.filter((g) => !c.reasons.some((r) => r.startsWith(g)));
       since = c.ok && c.revised && revise ? { planId: revise.plan.id, ...c.revised } : null;
+      scrapped = Boolean(c.ok && c.scrapped);
       return c;
     },
     onAttempt: deps.onAttempt,
@@ -110,9 +114,10 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
   if (outcome.ok && outcome.reply.action === 'edit' && markRange) { // C1 re-check N2 / C2 live B2 (a): the card and its sentence agree
     outcome.reply = { ...outcome.reply, message: replanMessage(outcome.reply.message, outcome.reply.ops, outcome.refusals, markWhole ? '' : ctx.request) };
   }
+  if (outcome.ok && scrapped) outcome.reply = { action: 'say', message: nothingPlanned(outcome.refusals, markRange && !markWhole ? ctx.request : '') };
   if (outcome.ok) outcome.refusals = outcome.refusals.map(shownReasons); // C2 live B6: the card and the failed line read person words
   else outcome.reasons = shownReasons(outcome.reasons);
-  const done = { calls, messages, since: outcome.ok ? since : null };
+  const done = { calls, messages, since: outcome.ok ? since : null, scrapped: outcome.ok && scrapped };
   if (!outcome.ok || outcome.reply.action !== 'recipe' || checkCtx.shapeOnly.includes('recipe')) return { ...outcome, ...done };
   const model = deps.lyricsModel?.(outcome.reply.recipe.language);
   const step = await recipeLyrics(outcome.reply.recipe, { request: ctx.request, draft: ctx.draft }, {

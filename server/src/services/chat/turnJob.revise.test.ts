@@ -116,6 +116,19 @@ describe('REVISE as a follow-up turn (F-058)', () => {
     expect(four).toMatchObject({ revision: 4, ops: [{ op: 'TRANSPOSE', semitones: -2 }], since: { marks: [{ mark: 'NEW', was: null }], removed: [TEMPO] } });
   });
 
+  it('D-257 (C2 live N1): a start over answered twice with the scrapped op unchanged plans nothing: a say, the plan dropped, the old card expired', async () => {
+    ollama = await startFakeOllama();
+    ollama.chats.push(editReply([TEMPO]), REVISE.unchanged(TEMPO), REVISE.unchanged(TEMPO));
+    const s = setup();
+    const one = await planOne(s);
+    expect((await settled(s.send('scrap that, start over').id)).status).toBe('done');
+    expect(last(s.thread.id)).toMatchObject({ kind: 'say', text: 'Nothing planned: the earlier plan is scrapped.' });
+    expect(chats()).toHaveLength(3);
+    expect(getPlan(s.songId)).toBeUndefined();
+    expect(liveEdit(s.thread.id)).toBeUndefined();
+    expect(proposalLife(one.card.proposalId!)).toBe('superseded');
+  });
+
   it('a revise failing 3 times (a merge over 6 ops, named) leaves the card live and the song\'s plan unchanged', async () => {
     ollama = await startFakeOllama();
     ollama.chats.push(editReply([TEMPO]), REVISE.overSix());

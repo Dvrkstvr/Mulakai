@@ -2,14 +2,14 @@
  * What a chat turn writes when it ends (turnJob's outcome, split out so a turn can end before the planner
  * loads): a failed turn's one `failed` message ({reasons, cause}), or the reply, the draft merge and the
  * proposal in one transaction, then the proposal (and an edit card's planStore plan) stored once the card
- * is written. A failed write stores nothing.
+ * is written. A failed write stores nothing. A start over that left nothing (D-257) drops the plan it revised.
  */
 import crypto from 'node:crypto';
 import { db } from '../../db/index.js';
 import { wasAborted, type Job } from '../jobRegistry.js';
-import { setPlan } from '../score/planStore.js';
+import { dropPlan, getPlan, setPlan } from '../score/planStore.js';
 import { appendMessage } from './messageStore.js';
-import { propose } from './proposalStore.js';
+import { propose, retireEdit } from './proposalStore.js';
 import { threadById, writeDraft } from './threadStore.js';
 import { dispatchReply, type AnalyzeResolved, type EditMark, type EditResolved } from './turnDispatch.js';
 import type { TurnRefs } from './songStateSource.js';
@@ -29,7 +29,9 @@ export function writeFailed(threadId: string, reasons: string[], cause: TurnCaus
   } catch { /* the thread is gone (NEW CHAT): nothing to write to */ }
 }
 
-export type Resolved = { analyze: AnalyzeResolved | null; edit: EditResolved | null; request: string; mark?: EditMark | null };
+/** `scrap` (D-257): a start over left nothing to plan; the plan it revised goes once the reply is written. */
+export type Resolved = { analyze: AnalyzeResolved | null; edit: EditResolved | null; request: string; mark?: EditMark | null;
+  scrap?: { songId: string; planId: string } | null };
 
 /** The reply, the draft merge and the proposal: all or nothing. */
 const writeReply = db.transaction((threadId: string, reply: TurnReply, sentRev: number, scoreReason: string | null, refs: TurnRefs, r: Resolved) => {
@@ -51,6 +53,7 @@ export function commitReply(threadId: string, reply: TurnReply, sentRev: number,
   if (proposalId && out.kind === 'recipe') propose({ id: proposalId, ...at, kind: 'recipe', recipe: out.body.recipe });
   if (proposalId && out.kind === 'analyze') propose({ id: proposalId, ...at, kind: 'analyze', target: out.body.target });
   if (proposalId && out.kind === 'edit') { setPlan(out.plan); propose({ id: proposalId, ...at, kind: 'edit', planId: out.plan.id }); }
+  if (r.scrap && getPlan(r.scrap.songId)?.id === r.scrap.planId) { dropPlan(r.scrap.songId); retireEdit(threadId); } // the dock clears
 }
 
 export function causeOf(job: Job, err: unknown): TurnCause {

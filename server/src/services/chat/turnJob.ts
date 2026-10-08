@@ -140,7 +140,8 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
     : !base || !decision.applied ? { reason: 'reason' in gathered.edit ? gathered.edit.reason : 'the edit was not checked against the score' }
       : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now(),
         ...(decision.since && revise ? { revision: (revise.plan.revision ?? 1) + 1, since: decision.since } : {}) };
-  commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text, mark: mark?.edit ?? null });
+  const scrap = decision.scrapped && base && revise ? { songId: base.songId, planId: revise.plan.id } : null; // D-257
+  commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text, mark: mark?.edit ?? null, scrap });
   job.progressText = undefined;
   job.status = 'done';
 }

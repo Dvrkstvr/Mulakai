@@ -6,7 +6,8 @@
  * person's words ask for the whole song (`asksWholeSong`, C1 live B2: "make this jazzier" on a chorus planned
  * EDIT STYLE); when asked, it is allowed and the card says so. A mark past the score's end is clamped and a
  * phrase longer than the mark runs past it, each named on the card. A replan that dropped a refused whole-song op
- * but whose message still describes it gets a message from its own ops (`replanMessage`, C1 re-check N2). Pure.
+ * but whose message still describes it gets a message from its own ops (`replanMessage`, C1 re-check N2); a start over that
+ * left nothing says so and names it (`nothingPlanned`, D-257). Pure.
  */
 import type { Op, ScoreFacts, ScoreSection } from '../score/planTypes.js';
 import { sectionOf } from '../score/lyricPairing.js';
@@ -104,15 +105,28 @@ function opWords(op: Op): string {
   }
 }
 
+/** The whole-song ops a mark kept out: refused by an earlier attempt's check, or named by `asked` (the request),
+ * and not among the accepted `ops`. */
+function refusedWhole(ops: Op[], refusals: string[][], asked: string): string[] {
+  const kept = new Set(ops.map((o) => o.op as string));
+  const named = Object.keys(SAYS).filter((n) => SAYS[n].test(asked));
+  return [...new Set([...refusals.flat().map((r) => REFUSED_WHOLE.exec(r)?.[1]).filter((n): n is string => Boolean(n)), ...named])]
+    .filter((n) => !kept.has(n));
+}
+
+/** A start over that left nothing to plan (D-257, C2 live N1): says so, and under a mark (`asked`: the request, '' when
+ * the person asked for the whole song or there is no mark) names the whole-song op the mark kept out. */
+export function nothingPlanned(refusals: string[][], asked: string): string {
+  const names = refusedWhole([], refusals, asked).map(opName);
+  const whole = names.length ? ` ${names.join(', ')} ${names.length > 1 ? 'change' : 'changes'} the whole song; clear the mark to ask for it.` : '';
+  return `Nothing planned: the earlier plan is scrapped.${whole}`;
+}
+
 /** The replan's message: as the model wrote it, unless a whole-song op was refused under the mark (by an earlier
  * attempt's check, or, `asked`: the request names it and the mark left it out of the schema, C2 live B2 (a)), the
  * accepted ops leave it out and the message still describes it; then one sentence from the accepted ops. */
 export function replanMessage(message: string, ops: Op[], refusals: string[][], asked = ''): string {
-  const kept = new Set(ops.map((o) => o.op as string));
-  const named = Object.keys(SAYS).filter((n) => SAYS[n].test(asked));
-  const refused = [...new Set([...refusals.flat().map((r) => REFUSED_WHOLE.exec(r)?.[1]).filter((n): n is string => Boolean(n)), ...named])]
-    .filter((n) => !kept.has(n));
-  const stale = refused.filter((n) => SAYS[n].test(message));
+  const stale = refusedWhole(ops, refusals, asked).filter((n) => SAYS[n].test(message));
   if (!stale.length) return message;
   const names = stale.map(opName).join(', ');
   return `Planned inside the mark: ${ops.map(opWords).join('; ')}. ${names} would change the whole song, so it is not in this plan; ask for the whole song to get it.`;

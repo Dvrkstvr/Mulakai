@@ -155,6 +155,8 @@ export const REVISE = {
   drop: (...n: number[]) => reviseEdit(n, [], 'Fewer chords: dropped the new chords.'),
   /** "forget that, transpose it down a tone": every pending op dropped, one new. */
   replace: (pending: number) => reviseEdit(Array.from({ length: pending }, (_, i) => i + 1), [{ op: 'TRANSPOSE', semitones: -2 }], 'Down a tone instead.'),
+  /** C2 live N1: a start over answered with the scrapped pending ops returned unchanged (drop []). */
+  unchanged: (...ops: unknown[]) => reviseEdit([], ops, 'Kept as it was.'),
   /** Six new ops on a pending plan: the merge is over MAX_OPS (6), a named refusal. */
   overSix: () => reviseEdit([], [{ op: 'TRANSPOSE', semitones: -2 }, { op: 'EDIT_STYLE', style: 'jazz' }, COMPOUND_OPS[1],
     { op: 'REPEAT', section: 3, label: 'chorus' }, { op: 'CUT', section: 4, label: 'outro' }, { op: 'REPEAT', section: 2, label: 'verse' }]),
