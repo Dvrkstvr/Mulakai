@@ -9388,7 +9388,9 @@ start.
    `{bundle, mode, bpm?, melody_only}` → `{abc, measures, bpm, vocal_notes, ins_notes, dropped_notes, warnings}`, 422 with the reason;
    `GET /v1/transcriptions/{id}/notation` (the bundle). Tests with a fake rebuild (pytest, no SheetSage2).
 2. `feat/retime-keep` — server: `services/notationStore.ts` (content-addressed bundles, sweep), fetch on finish in `transcribeJobs.ts`
-   (cover and reading), `services/score/yueRetime.ts`, `routes/retime.ts`: `POST /api/retime {notationId, mode, bpm?}` (+ tests).
+   (cover and reading), `services/score/yueRetime.ts`, `routes/scoreRetime.ts`: `GET /api/scores/notation/:id` (still kept?)
+   and `POST /api/scores/retime {notationId, mode, bpm?}`; `POST /api/engines/:id/cover` takes `notationId` and stores it in the
+   cover's `params_json` (+ tests).
 3. `feat/retime-cover` — client: the READ AS row in `YueScoreReview.tsx` / `YueCoverPanel.tsx`, `api/`, UNDO (+ tests; browser check).
 4. `feat/retime-dock` — RE-TIME op in the SCORE dock (`scoreCopy.ts`, the op schema both sides) for a cover with a kept bundle.
 5. `feat/retime-reading` — after C1 merges: the reading line's RE-TIME, the stored reading replaced, marks on the version stale.
