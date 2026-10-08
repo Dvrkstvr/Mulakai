@@ -8,7 +8,8 @@
  * a rewritten lyric block in another language (only after an apply). C2 (F-058, D-227): with a pending plan an
  * edit is a revise, `{drop, ops}` read and merged by reviseReply.readRevise; a mark bounds only the returned ops
  * (D-214); the merged plan is applied once, and a refused apply goes back with the merge legend first. A drop that loses
- * pending ops on an addition, or a start over that keeps some, goes back once (reviseKeep, CP-C2). Pure (I/O injected).
+ * pending ops on an addition, or a start over that returns one unchanged, goes back once (reviseKeep, CP-C2); a start over
+ * drops every pending op in code (C2 live B2). Pure (I/O injected).
  */
 import { applyReasons } from '../score/planAttempts.js';
 import { checkOps } from '../score/opSchema.js';
@@ -18,7 +19,7 @@ import type { ApplyResult, Op, ScoreFacts, Since } from '../score/planTypes.js';
 import { SCALPEL_KINDS } from './actionSchema.js';
 import { markFit } from './markFit.js';
 import { plannedProblems } from './recipeRules.js';
-import { reviseGuard } from './reviseKeep.js';
+import { reviseGuard, startsOver } from './reviseKeep.js';
 import { lyricLanguageReasons, missingSectionReasons, sayKeyReasons, type DetectLanguage } from './replyGuards.js';
 import type { Recipe, ScalpelKind, TurnAction, TurnReply } from './chatTypes.js';
 
@@ -69,13 +70,15 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   if (missing.length) return fail(...missing);
   if (ctx.shapeOnly.includes('edit')) return { ok: true, reply: reply(json.ops as Op[]), applied: null };
   if (!ctx.facts) return fail('there is no song to edit yet: propose a recipe for a new song instead');
-  const revised = ctx.pending ? readRevise(json, ctx.pending, ctx.facts, ctx.phraseBars) : null;
+  // C2 live B2: a start over drops every pending op, whatever the reply's drop says; what it returns is the plan (REMOVED shown)
+  const asked = ctx.pending && startsOver(ctx.request) ? { ...json, drop: ctx.pending.map((_, k) => k + 1) } : json;
+  const revised = ctx.pending ? readRevise(asked, ctx.pending, ctx.facts, ctx.phraseBars) : null;
   const read = revised ?? checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars);
   if (!read.ok) return fail(...read.reasons);
   const returned = ctx.pending ? checkOps({ ops: json.ops }, ctx.facts, ctx.phraseBars, 0) : read; // a mark bounds these only (D-214)
   const outside = ctx.markRange && returned.ok ? markFit(returned.ops, ctx.markRange, ctx.facts, ctx.markWhole).reasons : [];
   if (outside.length) return fail(...outside);
-  const keep = ctx.guards?.length && ctx.pending && revised?.ok && returned.ok ? reviseGuard(ctx.request, ctx.pending, json.drop as number[], returned.ops, ctx.guards) : null;
+  const keep = ctx.guards?.length && ctx.pending && revised?.ok && returned.ok ? reviseGuard(ctx.request, ctx.pending, asked.drop as number[], returned.ops, ctx.guards) : null;
   if (keep) return fail(keep);
   const revise = revised?.ok ? { legend: [revised.legend], revised: { marks: revised.merged.marks, removed: revised.merged.removed } } : null;
   const done = (applied: ApplyResult | null): Checked => ({ ok: true, reply: reply(read.ops), applied, ...(revise ? { revised: revise.revised } : {}) });

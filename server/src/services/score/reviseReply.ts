@@ -59,10 +59,17 @@ export function readRevise(reply: unknown, pending: Op[], facts: ScoreFacts, phr
   if (!dropped.length && !reply.ops.length) return { ok: false, reasons: [NOTHING_REVISED] };
   const merged = mergeRevise(pending, dropped, shape.ok ? shape.ops : []);
   if (!merged.ops.length) return { ok: false, reasons: ['the revision drops every op: keep a pending op or return one'] };
-  if (merged.ops.length > MAX_OPS) {
-    return { ok: false, reasons: [`the revised plan has ${merged.ops.length} ops; at most ${MAX_OPS}: drop pending ops or return fewer`] };
-  }
+  if (merged.ops.length > MAX_OPS) return { ok: false, reasons: [`the revised plan has ${merged.ops.length} ops; at most ${MAX_OPS}: drop pending ops or return fewer`] };
   return { ok: true, ops: merged.ops, legend: mergeLegend(merged, dropped, p), merged };
+}
+
+const OVER = /^the revised plan has (\d+) ops; at most (\d+): drop pending ops or return fewer$/;
+/** A revise reason as the chat shows it (C2 live B6): the merge legend is for the planner only (null), the over-6
+ * refusal in the person's words, any other as it is. The planner's retry still gets the reasons as written. */
+export function shownReviseReason(reason: string): string | null {
+  if (reason.startsWith(LEGEND_HEAD)) return null;
+  const over = OVER.exec(reason);
+  return over ? `too many changes: that makes ${over[1]}, and a plan holds at most ${over[2]}; ask to drop one first` : reason;
 }
 
 /** What planJob needs for a REVISE press: the schema, the reply and retry lines, a reader for planAttempts,

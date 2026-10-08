@@ -184,8 +184,10 @@ describe('decideReply with a pending plan (C2, F-058: REVISE as a follow-up turn
 
   it('CP-C2 r2: an addition that drops a pending op goes back once with the named reason; a second drop stands', async () => {
     const UP: Op = { op: 'TRANSPOSE', semitones: 1 };
-    const kept = await decideReply(onSong, { ask: scripted(edit([1], [HARM]), edit([], [HARM])) });
-    expect(kept.ok && kept.refusals).toEqual([[`${KEEP_REASON} (your drop removed pending op 1 SET_TEMPO)`]]);
+    const ask0 = scripted(edit([1], [HARM]), edit([], [HARM]));
+    const kept = await decideReply(onSong, { ask: ask0 });
+    expect(JSON.stringify(ask0.mock.calls[1][0])).toContain(`${KEEP_REASON} (your drop removed pending op 1 SET_TEMPO)`);
+    expect(kept.ok && kept.refusals).toEqual([['the reply dropped SET TEMPO though you only added']]); // C2 live B6: the card's words
     expect(kept.since?.removed).toEqual([]);
     const ask = scripted(edit([1], [UP]), edit([1], [UP]), edit([], [UP]));
     const twice = await decideReply({ ...onSong, request: 'and also transpose it up a semitone' }, { ask });
@@ -195,14 +197,52 @@ describe('decideReply with a pending plan (C2, F-058: REVISE as a follow-up turn
     expect(asked).toMatchObject({ ok: true, attempts: 1 });
   });
 
-  it('CP-C2 r3: "forget all that" that keeps a pending op goes back once with the named reason; a second keep stands', async () => {
+  it('CP-C2 r3 / C2 live B2: "forget all that" drops every pending op in code; one the reply returns unchanged goes back once, then stands', async () => {
     const DOWN: Op = { op: 'TRANSPOSE', semitones: -2 };
     const over = { ...onSong, request: 'forget all that, just transpose it down a tone' };
-    const dropped = await decideReply(over, { ask: scripted(edit([], [DOWN]), edit([1], [DOWN])) });
-    expect(dropped.ok && dropped.refusals).toEqual([[`${START_REASON} (your reply keeps pending op 1 SET_TEMPO)`]]);
+    const dropped = await decideReply(over, { ask: scripted(edit([], [DOWN])) });
+    expect(dropped).toMatchObject({ ok: true, attempts: 1, reply: { ops: [DOWN] } });
     expect(dropped.since?.removed).toEqual([TEMPO]);
-    const kept = await decideReply(over, { ask: scripted(edit([], [DOWN]), edit([], [DOWN]), edit([1], [DOWN])) });
+    const kept = await decideReply(over, { ask: scripted(edit([], [TEMPO, DOWN]), edit([], [TEMPO, DOWN]), edit([], [DOWN])) });
     expect(kept).toMatchObject({ ok: true, attempts: 2, reply: { ops: [TEMPO, DOWN] } });
+    expect(kept.ok && kept.refusals).toEqual([['the reply kept SET TEMPO though you asked to start over']]);
+    expect(kept.since?.marks.map((m) => m.mark)).toEqual(['SAME', 'NEW']);
+  });
+
+  it('C2 live B2 (b): "scrap that, instead reharmonize chorus 1 with jazz chords" on a pending SET TEMPO: the tempo is REMOVED, not kept SAME', async () => {
+    const d = await decideReply({ ...onSong, request: 'scrap that, instead reharmonize chorus 1 with jazz chords' }, { ask: scripted(edit([], [HARM])) });
+    expect(d).toMatchObject({ ok: true, attempts: 1, reply: { ops: [HARM] } });
+    expect(d.since).toEqual({ planId: 'p1', marks: [{ mark: 'NEW', was: null }], removed: [TEMPO] });
+  });
+
+  it('C2 live B2 (a): "start over: instead just change the tempo to 80 BPM" under a chorus mark: the kept chords go back once; the reply cannot claim the tempo', async () => {
+    const harm = { op: 'REHARMONIZE', from_bar: 23, to_bar: 24, chords: [{ bar: 23, beat: 1, root: 'C', quality: 'maj7' }] } as Op;
+    const p3 = { id: 'p3', request: 'jazz chords', ops: [harm], verdicts: [{ index: 1, op: 'REHARMONIZE', ok: true, reason: null }], revision: 3 } as unknown as Plan;
+    const marked: TurnContext = { ...onSong, request: 'scrap that, start over: instead just change the tempo to 80 BPM',
+      mark: { lines: ['MARK: bars 23-30'], range: [23, 30] }, revise: { plan: p3, lines: chatPendingLines(p3), count: 1 } };
+    const said = "I've adjusted the tempo of the chorus section to 80 BPM.";
+    const ask = scripted({ content: JSON.stringify({ action: 'edit', message: said, assumptions: [], drop: [], ops: [harm] }), promptTokens: 1 });
+    const d = await decideReply(marked, { ask });
+    expect(JSON.stringify(ask.mock.calls[0][1])).not.toContain('SET_TEMPO');
+    expect((ask.mock.calls[1][0] as PromptMessage[]).at(-1)!.content).toContain(`${START_REASON} (your reply keeps pending op 1 REHARMONIZE)`);
+    expect(d).toMatchObject({ ok: true, attempts: 2, reply: { ops: [harm] } });
+    expect(d.ok && d.reply.message).toBe('Planned inside the mark: new chords in bars 23-24. SET TEMPO would change the whole song, so it is not in this plan; ask for the whole song to get it.');
+    expect(d.ok && d.refusals).toEqual([['the reply kept REHARMONIZE though you asked to start over']]);
+  });
+
+  it('C2 live B6: the card and a failed turn read person words: no merge legend, no "return fewer", no pending op numbers', async () => {
+    const six: Op[] = [TEMPO, HARM, { op: 'EDIT_STYLE', style: 'jazz' }, { op: 'TRANSPOSE', semitones: 1 }, { op: 'REPEAT', section: 3, label: 'chorus' }, { op: 'CUT', section: 4, label: 'outro' }];
+    const p = { ...plan, ops: six } as Plan;
+    const full: TurnContext = { ...onSong, revise: { plan: p, lines: chatPendingLines(p), count: 6 } };
+    const over = await decideReply(full, { ask: scripted(edit([], [{ op: 'REPEAT', section: 2, label: 'verse' }])) });
+    expect(over).toMatchObject({ ok: false, reasons: ['too many changes: that makes 7, and a plan holds at most 6; ask to drop one first'] });
+    const refused = async (ops: Op[]) => ({ ...contract('apply-compound').response.body, ok: false, ops,
+      verdicts: [{ index: 1, op: 'SET_TEMPO', ok: true, reason: null }, { index: 2, op: 'REHARMONIZE', ok: false, reason: 'bar 47 has no beat 5' }] }) as never;
+    const ask = scripted(edit([], [HARM]), edit([], [HARM]), edit([], [{ op: 'TRANSPOSE', semitones: 1 }]));
+    const d = await decideReply(onSong, { ask, apply: async (ops) => (ops.some((o) => o.op === 'REHARMONIZE') ? refused(ops) : { ...contract('apply-compound').response.body, ops } as never) });
+    expect(d.ok && d.refusals.flat().join(' ')).not.toMatch(/your op|pending op|Your reply made/);
+    expect(d.ok && d.refusals[0]).toEqual(['op 2 (REHARMONIZE): bar 47 has no beat 5']);
+    expect((ask.mock.calls[1][0] as PromptMessage[]).at(-1)!.content).toContain('Your reply made this plan: op 1 = pending op 1, op 2 = your op 1 (new).');
   });
 
   it('no pending plan: no drop in the schema and no since', async () => {

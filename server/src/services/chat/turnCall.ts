@@ -18,7 +18,8 @@ import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply, Score
 import { turnSchema } from './actionSchema.js';
 import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
-import { KEEP_REASON, START_REASON } from './reviseKeep.js';
+import { guardWords, KEEP_REASON, START_REASON } from './reviseKeep.js';
+import { shownReviseReason } from '../score/reviseReply.js';
 import { asksWholeSong, replanMessage } from './markFit.js';
 import { detectLanguage } from './lyricLanguage.js';
 import { draftLines } from './songState.js';
@@ -31,6 +32,12 @@ import type { ChatMessage, DraftFields, LyricsMode } from './chatTypes.js';
 import type { RevisePending } from './convergeTypes.js';
 
 export const BUILT_RUNGS = [0, 2];
+
+/** The reasons as the person reads them (the card's refusal lines, a failed turn's line); the planner got them as written. */
+function shownReasons(reasons: string[]): string[] {
+  const shown = reasons.flatMap((r) => { const w = guardWords(r) ?? shownReviseReason(r); return w === null ? [] : [w]; });
+  return shown.length ? shown : reasons;
+}
 /** Completion tokens per call (SP-5): an edit-capable call needs room for 6 ops of chords; a lyrics call had 4000 in SP-5 / SP-7. */
 export const MAX_TOKENS = { edit: 4000, other: 2000, lyrics: 4000 };
 
@@ -100,9 +107,11 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
     },
     onAttempt: deps.onAttempt,
   });
-  if (outcome.ok && outcome.reply.action === 'edit' && markRange) { // C1 re-check N2: the card and its sentence agree
-    outcome.reply = { ...outcome.reply, message: replanMessage(outcome.reply.message, outcome.reply.ops, outcome.refusals) };
+  if (outcome.ok && outcome.reply.action === 'edit' && markRange) { // C1 re-check N2 / C2 live B2 (a): the card and its sentence agree
+    outcome.reply = { ...outcome.reply, message: replanMessage(outcome.reply.message, outcome.reply.ops, outcome.refusals, markWhole ? '' : ctx.request) };
   }
+  if (outcome.ok) outcome.refusals = outcome.refusals.map(shownReasons); // C2 live B6: the card and the failed line read person words
+  else outcome.reasons = shownReasons(outcome.reasons);
   const done = { calls, messages, since: outcome.ok ? since : null };
   if (!outcome.ok || outcome.reply.action !== 'recipe' || checkCtx.shapeOnly.includes('recipe')) return { ...outcome, ...done };
   const model = deps.lyricsModel?.(outcome.reply.recipe.language);

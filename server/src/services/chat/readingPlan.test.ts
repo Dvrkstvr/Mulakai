@@ -33,7 +33,8 @@ describe('readingPlan', () => {
     expect(plan.words).toEqual({ source: 'skip', why: SKIP.words });
     expect(plan.score).toEqual({ source: 'skip', why: SKIP.score });
     expect(plan.caption).toEqual({ source: 'skip', why: SKIP.caption });
-    expect(SKIP.words).toBe('LYRICS_API_URL is not set');
+    expect(SKIP.words).toBe('word timings are off on this machine'); // C2 live B6: shown in the panel, no env var names
+    expect(SKIP.score).toBe('score reading is off on this machine');
     expect(SKIP.caption).toBe('ACE-Step is not running');
   });
 });

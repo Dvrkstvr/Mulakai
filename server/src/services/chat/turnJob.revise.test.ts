@@ -123,7 +123,7 @@ describe('REVISE as a follow-up turn (F-058)', () => {
     const one = await planOne(s);
     expect((await settled(s.send('add everything').id)).status).toBe('failed');
     expect(last(s.thread.id)).toMatchObject({ kind: 'failed', body: { cause: 'check' } });
-    expect(last(s.thread.id).text).toContain('the revised plan has 7 ops; at most 6');
+    expect(last(s.thread.id).text).toContain('too many changes: that makes 7, and a plan holds at most 6');
     expect(getPlan(s.songId)?.id).toBe(one.planId);
     expect(liveEdit(s.thread.id)?.planId).toBe(one.planId);
     expect(proposalLife(one.card.proposalId!)).toBe('live');
