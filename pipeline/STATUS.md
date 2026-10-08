@@ -30,7 +30,7 @@
 | 9 | Release | n/a (local single-user app) | — | — |
 
 ## Notes
-- 2026-10-08 RT (re-time a transcription, D-190, D-205..D-212, D-231, D-240, D-248): RT-1..RT-3 merged, F-090 + F-091 pass; RT-4 #243 (F-093 passes, D-249); RT-5 `feat/retime-reading` (F-092: built, browser-checked, verifier running); RT-6 (chat verb) after C2.
+- 2026-10-08 RT (re-time a transcription, D-190, D-205..D-212, D-231, D-240, D-248): RT-1..RT-3 merged, F-090 + F-091 pass; RT-4 #243 (F-093 passes, D-249); RT-5 #247 (F-092 passes, verifier); RT-6 (chat verb) after C2.
 - 2026-10-04 storage: DONE. Ollama models E:\ai\ollama\models (OLLAMA_MODELS), WSL Ubuntu-24.04 at E:\ai\wsl\Ubuntu-24.04, caches E:\ai\cache\{uv,pip,npm}; C: 0.5 -> 138 GB free. Big temp data goes on E:.
 - 2026-10-03: D-014/D-015 make SCORE the primary edit path for new songs; PLAN.md "YuE2 Is the Default First-Take Engine" → "With the score agent" records the link (branch docs/engine-lineup).
 - The 2026-10-02 mockup (canvas "Score Agent Mockup") predates the redesign; superseded by D-007 for placement, still valid for the workflow, ops list and checks.

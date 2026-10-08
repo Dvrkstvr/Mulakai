@@ -1140,8 +1140,8 @@
         "An existing mark on the version shows the stale card",
         "Edge: not offered on a YuE2 song's own score"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "2026-10-08 verifier (independent): feat/retime-reading 08a5f32 on spare ports, FakePipeline yue-server + real SheetSage2, real reading of SP-8 purple (87 BPM, 65 bars, 0.01-176.6 s): HALF -> 33 bars, first 0.01 s, end 176.6 s, every new start one of the old; a VERSE bars 11-42 mark turned stale at once (B4 card, SEND held); UNDO restored the reading byte-identical and cleared the card; an own (YuE2) score: no row, 409. B1-B5 met; READ AS keeps the as-read label + RE-TIMED TO n BPM (D-231, as the cover panel, where B4 redraws it). Server 1729, client 1402, pytest 556. pipeline/evidence/F-092-2026-10-08; D-248."
     },
     {
       "id": "F-093",
