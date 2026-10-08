@@ -343,3 +343,9 @@ REPAINT's prompt on a song with a caption. Default: the instruction only (as tod
 
 ## Q-124 · assumable · stage 4 (engine pairing, F-087) · open
 `cover-nofsq` as REMASTER's path or a new POLISH verb. Default: REMASTER's path, decided by the A/B (no new verb on the dock).
+
+## Q-125 · assumable · stage 4 (RT, F-091/F-094) · open
+When is a BPM "only slightly off" and so SET TEMPO, not RE-TIME? Default: a named BPM within ±8 % of the read tempo is SET TEMPO; RE-TIME is offered for anything else, HALF/DOUBLE always. Alternative: always RE-TIME for a transcription (SET TEMPO only on YuE2 songs).
+
+## Q-126 · assumable · stage 4 (RT, F-093) · open
+The SCORE dock's RE-TIME on a song with no kept bundle (a YuE2 original, or a cover made before RT). Default: not offered; a cover without one says "no saved reading · TRANSCRIBE the source again in Create". Alternative: re-transcribe the cover's own audio.

@@ -1103,6 +1103,69 @@
       ],
       "passes": false,
       "evidence": null
+    },
+    {
+      "id": "F-090",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "A transcription's saved SheetSage2 outputs are kept by the server and rebuild its score at half time, double time or a named BPM in seconds, CPU only",
+      "acceptance": [
+        "Half/double/BPM rebuild on 2 real outputs in under 10 s; measures about 1/2, x2, x ratio; melody note count within 5 %; chords and sections survive",
+        "A bundle survives a yue-server restart; a missing bundle answers no_bundle",
+        "Edge: BPM outside 40-240 or a failed rebuild is a 422 with the reason (R-038)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-091",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "The cover panel shows the tempo the transcription read and offers HALF, DOUBLE and BPM... with a consequence line; UNDO returns the previous score",
+      "acceptance": [
+        "A 140-read score becomes 70 BPM with half the bars and the cover renders from it",
+        "A cover with no kept bundle shows TRANSCRIBE AGAIN with its GPU time",
+        "Edge: a BPM only slightly off points to SET TEMPO (Q-125)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-092",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "A chat reading's transcribed score can be re-timed; bars, sections and bar times are replaced and a mark on the version goes stale",
+      "acceptance": [
+        "After HALF the strip shows half the bars at the same seconds",
+        "An existing mark on the version shows the stale card",
+        "Edge: not offered on a YuE2 song's own score"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-093",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "RE-TIME is a SCORE dock op for a cover whose score came from a kept transcription; YuE2 re-renders it",
+      "acceptance": [
+        "RE-TIME HALF on a cover song plans, shows the consequence with render time, and renders a new version at half the bars",
+        "Edge: not offered without a kept bundle (Q-126)"
+      ],
+      "passes": false,
+      "evidence": null
+    },
+    {
+      "id": "F-094",
+      "scope": "retime",
+      "milestone": "RT",
+      "behaviour": "Saying the beat is wrong in chat ('it's half time', 'it's really 92 BPM') gets a RE-TIME op card",
+      "acceptance": [
+        "3 phrasings each give a RE-TIME card with the right mode",
+        "Edge: a slight BPM change gives SET TEMPO instead (Q-125)"
+      ],
+      "passes": false,
+      "evidence": null
     }
   ]
 }
