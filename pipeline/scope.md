@@ -995,6 +995,12 @@ For a cover whose score came from a transcription and whose bundle is kept, the 
 "it's half time" / "it's really 92 BPM" makes the planner propose a RE-TIME op card (F-093's op, or F-092's when the turn is about the
 reading) with the same consequence copy.
 - Acceptance: 3 phrasings each give a RE-TIME card with the right mode; a slight BPM change gives SET TEMPO instead (Q-125).
+- Prep done 2026-10-08 (owner: wait for C2 before the prompt): `chat/retimeVerb.ts` `routeRetime` decides, in code, where a
+  RE-TIME request goes: the dock's plan (`makeRetimePlan`) for a cover still on its transcription; the reading re-time
+  (`readingRetime`, no render) for a song that is not a cover or a turn about the reading; SET TEMPO when the BPM is within 8 %
+  of the read; else refused with the reason (D5, D-240, Q-129). Left for RT-6, after C2: RETIME `{mode, bpm?}` in the reply
+  schema and the planner prompt (alone in a plan, Q-132), dispatch through `routeRetime`, the reading route's card (D4: UNDO
+  TURN = the reading's UNDO), then `chatCp1 --marks` and CP-C2 for the prompt budget.
 
 ### Stored data (before code, F-090)
 - New: a notation bundle per finished transcription, stored by the server as one JSON file (the five files, base64, tens of KB) under
