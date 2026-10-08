@@ -10,7 +10,7 @@ paths:
 # Chat — server
 
 Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
-`pipeline/architecture.md` "Chat (C0)" and "Chat (C3)" (reference songs). Mockups:
+`pipeline/architecture.md` "Chat (C0)", "Chat (C3)"; C1/C2/RT in `chat-marks.md`. Mockups:
 `pipeline/design/chat-*.html`.
 
 - A turn is one `plan`-kind job (`turnJob`): one load per model it needs
@@ -59,22 +59,3 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
   (D-162); measure any change to it with `chatCp3` before merging.
 - `Reading` (`reading_v`) and `own_json` (`own_v`) are read from the raw blob;
   reference files are removed only by `sweepFiles()` (orphans by id).
-- C1 (architecture.md "Chat (C1)", docs/decisions/0009): a version analysis
-  reuses `readingSteps`; `analysis_json` (`analysis_v`) is read from the raw
-  blob. One rule (`barShift`) says whether bars moved; the mark is a
-  `planReferent` `range`, resolved at SEND and at the turn's start, never
-  remapped (stale → 409 or a failed line before the planner loads).
-- An analysis never stales or refuses a commit: `pendingEdit` counts only
-  `EDIT_KINDS` (D-173). A reading step that ran and read nothing is
-  `failed` with its reason and RETRY, never `done` (D-200).
-- Bars move only by what `basedOn` proves; a version without it moved by an
-  unknown amount (D-199). Across a SET TEMPO a mark is stale until the new
-  bar times are read.
-- A seconds-only mark is snapped to bars at SEND (`markSnap`, D-195); with a
-  mark, whole-song ops are refused unless the words ask for the whole song
-  (`asksWholeSong`, D-201).
-- Planner retries are built on attempt 1's messages with the refused reply
-  shortened (#225); CP-C1's prompt p95 stop is 6000 — re-run `chatCp1
-  --marks` after any prompt or MARK-block change.
-- C2 (ADR 0010): revise only via `turnRevise` → `readRevise`/`mergeRevise`, never a full restatement; block pairing only in `score/lyricPairing.ts`; UNDO TURN restores only untouched fields.
-- RT-5 (D-248): RE-TIME replaces the stored reading in place (new `readAt`, `retime.previous` for UNDO), bars on the re-timed downbeats, never re-fitted; a bars mark whose `readAt` differs from the playable reading's is stale.
