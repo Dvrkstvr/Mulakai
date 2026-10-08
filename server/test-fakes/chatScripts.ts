@@ -97,3 +97,20 @@ export function readingFixture(over: Partial<Reading> = {}): Reading {
     ...over,
   };
 }
+
+/** C2 (F-058): a revise turn's edit, `{drop, ops}` on the pending plan's op numbers (1-based). The PENDING PLAN block
+ * makes read-ok's prompt about 13k characters, so the fake reports 4.5k prompt tokens (the context guard's floor is 1 per 6). */
+export const reviseEdit = (drop: number[], ops: unknown[], message = 'Revised.') => reply({ action: 'edit', message, assumptions: [], drop, ops }, 4500);
+/** apply-compound's ops: SET_TEMPO 88 (plan 1, `apply-set-tempo`), REHARMONIZE 47-50 and EDIT_STYLE (the additive revise, D-224). */
+export const COMPOUND_OPS = contract('apply-compound').request.body.ops as unknown[];
+export const REVISE = {
+  /** "and jazz chords in bars 47-50, as a jazz trio" on plan 1 = SET_TEMPO 88: merges to apply-compound's ops in order. */
+  additive: () => reviseEdit([], COMPOUND_OPS.slice(1), 'And jazz chords in bars 47-50, as a jazz trio.'),
+  /** "fewer chords": drops these pending ops. */
+  drop: (...n: number[]) => reviseEdit(n, [], 'Fewer chords: dropped the new chords.'),
+  /** "forget that, transpose it down a tone": every pending op dropped, one new. */
+  replace: (pending: number) => reviseEdit(Array.from({ length: pending }, (_, i) => i + 1), [{ op: 'TRANSPOSE', semitones: -2 }], 'Down a tone instead.'),
+  /** Six new ops on a pending plan: the merge is over MAX_OPS (6), a named refusal. */
+  overSix: () => reviseEdit([], [{ op: 'TRANSPOSE', semitones: -2 }, { op: 'EDIT_STYLE', style: 'jazz' }, COMPOUND_OPS[1],
+    { op: 'REPEAT', section: 3, label: 'chorus' }, { op: 'CUT', section: 4, label: 'outro' }, { op: 'REPEAT', section: 2, label: 'verse' }]),
+};

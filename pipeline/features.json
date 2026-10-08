@@ -1124,11 +1124,11 @@
       "behaviour": "The cover panel shows the tempo the transcription read and offers HALF, DOUBLE and BPM... with a consequence line; UNDO returns the previous score",
       "acceptance": [
         "A 140-read score becomes 70 BPM with half the bars and the cover renders from it",
-        "A cover with no kept bundle shows TRANSCRIBE AGAIN with its GPU time",
+        "A cover with no kept bundle shows TRANSCRIBE AGAIN, said to use the GPU (no invented minutes until calibrated, Q-099, D-240)",
         "Edge: a BPM only slightly off points to SET TEMPO (Q-125)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "2026-10-08 verifier: private stack (worktree yue-server + real SheetSage2 rebuild, server, vite, 1366 px), real bundles purple 87 / B_d 93 / ellies 75: purple HALF -> 'Rebuilds the score at 44 BPM: 65 bars -> 33 ... 17 of 293 notes left out', RE-TIME -> TEMPO 44 BARS 33, GENERATE COVER body Q:1/4=44, 33 bars, notationId; DOUBLE 174 BPM 129 bars every note kept; a second re-time rebuilds from the reading; UNDO restores the original byte for byte; null or unknown notationId -> rust GONE box + TRANSCRIBE AGAIN, chips off; 90 vs 87 read -> SET TEMPO hint, no rebuild call; D-211 rules all pass; tokens/hues per DESIGN.md, zero radius. Its two stale-state finds fixed in fix/retime-cover-review and re-checked in the browser. PR #236."
     },
     {
       "id": "F-092",

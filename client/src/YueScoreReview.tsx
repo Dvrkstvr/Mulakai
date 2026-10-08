@@ -1,7 +1,7 @@
 import { api, type EngineId } from './api';
 import { abcFacts } from './abcFacts';
 import { AudioPreview } from './AudioPreview';
-import type { CoverScore } from './coverDraft';
+import { retimeRowKey, type CoverScore } from './coverDraft';
 import { sungScore } from './scoreCut';
 import { useScoreSize } from './useScoreSize';
 import { ScoreSectionStrip } from './ScoreSectionStrip';
@@ -44,7 +44,7 @@ export function YueScoreReview({ engine, score, onChange, onTranscribeAgain, bus
         <Fact label="LENGTH" value={facts.seconds ? clock(facts.seconds) : '—'} />
         {t && <Fact label="MELODY NOTES" value={`${t.vocalNotes ?? 0} sung · ${t.instrumentalNotes ?? 0} played`} />}
       </div>
-      <RetimeRow score={score} onChange={onChange} onTranscribeAgain={onTranscribeAgain} disabled={busy} />
+      <RetimeRow key={retimeRowKey(score)} score={score} onChange={onChange} onTranscribeAgain={onTranscribeAgain} disabled={busy} />
       <ScoreSectionStrip score={score} size={size} />
       {error && <div className="hint">couldn&apos;t size the score against YuE2&apos;s planner: {error}</div>}
       {t && t.warnings.length > 0 && <div className="warn-note">SheetSage2: {t.warnings.join(' · ')}</div>}

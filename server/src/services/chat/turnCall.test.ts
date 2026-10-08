@@ -7,6 +7,10 @@ import type { ChatScript } from '../../../test-fakes/fakeOllama.js';
 import { contract } from '../../../test-fakes/fakeYue.js';
 import type { ChatMessage as PromptMessage, ScoreFacts } from '../score/planTypes.js';
 import { promptChars } from '../score/plannerPrompt.js';
+import { NOTHING_REVISED } from '../score/planRevise.js';
+import { chatPendingLines } from './turnRevise.js';
+import type { RevisePending } from './convergeTypes.js';
+import type { Op, Plan } from '../score/planTypes.js';
 
 const ctx: TurnContext = { state: { hasSong: false, scoreReadable: false }, block: ['SONG: none yet'], facts: null, request: 'a sad song', pending: false, draft: {}, history: [] };
 const scripted = (...replies: ChatScript[]) => {
@@ -135,5 +139,40 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     expect(d).toMatchObject({ ok: true, attempts: 2, reply: { action: 'edit', ops: [reharm] } });
     expect(d.ok && d.reply.message).toBe('Planned inside the mark: new chords in bars 23-24. SET TEMPO would change the whole song, so it is not in this plan; ask for the whole song to get it.');
     expect(JSON.stringify(ask.mock.calls[1][0])).not.toContain(said);
+  });
+});
+
+describe('decideReply with a pending plan (C2, F-058: REVISE as a follow-up turn)', () => {
+  const facts = contract('read-ok').response.body.facts as ScoreFacts;
+  const [TEMPO, HARM] = contract('apply-compound').request.body.ops as Op[];
+  const plan = { id: 'p1', request: 'faster', ops: [TEMPO], verdicts: [{ index: 1, op: 'SET_TEMPO', ok: true, reason: null }], revision: 1 } as unknown as Plan;
+  const revise: RevisePending = { plan, lines: chatPendingLines(plan), count: 1 };
+  const onSong: TurnContext = { ...ctx, state: { hasSong: true, scoreReadable: true }, facts, draft: null, request: 'and jazz chords in bars 47-50', revise };
+  const edit = (drop: number[], ops: unknown[]) => ({ content: JSON.stringify({ action: 'edit', message: 'ok', assumptions: [], drop, ops }), promptTokens: 1 });
+
+  it('the edit schema gains drop, the PENDING PLAN is in the prompt, and the merge comes back as the card\'s since', async () => {
+    const ask = scripted(edit([], [HARM]));
+    const d = await decideReply(onSong, { ask });
+    expect(d).toMatchObject({ ok: true, attempts: 1, reply: { action: 'edit', ops: [TEMPO, HARM] } });
+    expect(d.since).toEqual({ planId: 'p1', marks: [{ mark: 'SAME', was: TEMPO }, { mark: 'NEW', was: null }], removed: [] });
+    expect(JSON.stringify(ask.mock.calls[0][1])).toContain('"drop"');
+    expect((ask.mock.calls[0][0] as PromptMessage[])[1].content).toContain('PENDING PLAN (plan 1, made for: "faster"):\nop 1 SET_TEMPO {"bpm":88}: applied');
+  });
+
+  it('an empty revise is retried with NOTHING_REVISED; a say leaves no since (the card stays pending)', async () => {
+    const ask = scripted(edit([], []), edit([1], [{ op: 'SET_TEMPO', bpm: 80 }]));
+    const d = await decideReply(onSong, { ask });
+    expect(d.ok && d.refusals).toEqual([[NOTHING_REVISED]]);
+    expect(d.since?.marks.map((m) => m.mark)).toEqual(['NEW']);
+    expect(d.since?.removed).toEqual([TEMPO]);
+    const said = await decideReply(onSong, { ask: scripted(sayReply('It is in D minor.')) });
+    expect(said).toMatchObject({ ok: true, reply: { action: 'say' }, since: null });
+  });
+
+  it('no pending plan: no drop in the schema and no since', async () => {
+    const ask = scripted(edit([], [TEMPO]));
+    const d = await decideReply({ ...onSong, revise: null }, { ask });
+    expect(JSON.stringify(ask.mock.calls[0][1])).not.toContain('"drop"');
+    expect(d.since).toBeNull();
   });
 });

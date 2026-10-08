@@ -132,6 +132,18 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(plain.kind === 'edit' && plain.body.assumptions).toEqual(reply.assumptions);
   });
 
+  it('C2 (F-058, D-227): a revised edit is plan n+1 with its since on the plan and the card; a fresh one has neither on the card', () => {
+    const since = { planId: 'p0', marks: [{ mark: 'NEW' as const, was: null }], removed: [{ op: 'SET_TEMPO', bpm: 88 } as Op] };
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: { ...planned(reharm), revision: 3, since } });
+    if (out.kind !== 'edit') throw new Error('not an edit card');
+    expect(out.plan).toMatchObject({ revision: 3, since });
+    expect(out.body).toMatchObject({ revision: 3, since, ops: reharm, map: expect.objectContaining({ ops: [{ spans: [[47, 54]], whole: false }] }) });
+    const fresh = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: planned(reharm) });
+    if (fresh.kind !== 'edit') throw new Error('not an edit card');
+    expect(fresh.plan).toMatchObject({ revision: 1, since: null });
+    expect('revision' in fresh.body || 'since' in fresh.body).toBe(false);
+  });
+
   it('F-046 edge: a song that is not score-eligible gets the reason as a say, no card', () => {
     const reason = 'This song has a repaint version, so score editing ended when it was made.';
     const out = dispatchReply({ ...base, hasSong: true, reply: edit(reharm), edit: { reason } });

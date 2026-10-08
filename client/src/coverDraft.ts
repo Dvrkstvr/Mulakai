@@ -39,6 +39,15 @@ export interface CoverScore {
 /** The score as SheetSage2 read it: the one RE-TIME starts from. */
 export const readingAbc = (s: CoverScore) => s.retime?.original ?? s.abc;
 
+/** Which score RE-TIME's row is about: a new reading, a new kept bundle, or a re-time applied or undone starts
+ * the row afresh, so a pick made for one score never shows on another (F-091 verify). */
+export function retimeRowKey(s: CoverScore): string {
+  const text = readingAbc(s);
+  let h = 5381;
+  for (let i = 0; i < text.length; i++) h = ((h * 33) ^ text.charCodeAt(i)) >>> 0;
+  return `${s.notationId ?? '-'}:${h.toString(36)}:${s.retime?.bpm ?? '-'}`;
+}
+
 /** The score rebuilt by a re-time; section picks carry over when the sections did. */
 export function withRetime(s: CoverScore, r: RetimeResult, fromBars: number): CoverScore {
   const original = readingAbc(s);

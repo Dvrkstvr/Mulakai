@@ -1,0 +1,64 @@
+/* The song sidebar and its lyrics panel (C2, F-056/F-057; pipeline/design/chat-converge.html section 2, DESIGN.md "Chat"
+   → "The song panel"): carbon structure, sky for what the mark holds and for the panel's own marks (marked line, marked
+   and PROPOSED headers), struck old words in text-low, no new hue. Tokens only, zero radius. */
+
+.chat-song-fd { grid-template-columns: 90px 1fr; }
+.chat-song-v { margin: 0 6px 2px 0; }
+.chat-song-val { color: var(--text-hi); font-size: 12px; }
+.chat-song-val.mono { font: 11px ui-monospace, monospace; letter-spacing: 1px; }
+
+.chat-lp { border-bottom: 1px solid var(--line); padding-bottom: 4px; }
+.chat-lp-hd { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 14px; border-bottom: 1px solid var(--line); }
+.chat-lp-hd .chat-hn, .chat-lp-aside { font-size: 10px; color: var(--text-low); white-space: nowrap; }
+.chat-lp-aside:hover { color: var(--sky); }
+
+.chat-lp button { background: none; border: 0; padding: 0; margin: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.chat-lp button:disabled { cursor: default; }
+
+/* No mark: the section list, one row a section (LY-3 a). */
+.chat-lp .chat-lp-sr {
+  display: grid; grid-template-columns: 76px 46px 56px 1fr; gap: 8px; width: 100%; padding: 5px 14px;
+  border-bottom: 1px solid var(--line); font-size: 11px; color: var(--text-mid);
+}
+.chat-lp-sr > span { font: 10px/16px ui-monospace, monospace; }
+.chat-lp-sr b { color: var(--text-hi); font-weight: 400; white-space: nowrap; }
+.chat-lp-sr em { font-style: normal; color: var(--text-low); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.chat-lp-sr.none { opacity: 0.5; }
+.chat-lp .chat-lp-sr:not(:disabled):hover { background: var(--on-sky); }
+
+/* A mark: the marked part, each section under its header; a dashed break between sections (LY-3 b-d). */
+.chat-lp-part.brk { margin-top: 6px; border-top: 1px dashed var(--line-hi); padding-top: 4px; }
+.chat-lp .chat-lp-sx {
+  display: flex; justify-content: space-between; gap: 8px; width: 100%; padding: 5px 14px 2px;
+  font: 700 10px ui-monospace, monospace; letter-spacing: 2px; color: var(--sky);
+}
+.chat-lp-sx > span:last-child { letter-spacing: 1px; font-weight: 400; color: var(--text-low); white-space: nowrap; }
+.chat-lp-sx .chat-tag { letter-spacing: 1px; }
+.chat-lp .chat-lp-sx:not(:disabled):hover > span:first-child { text-decoration: underline; }
+
+.chat-lp .chat-lp-ln {
+  display: grid; grid-template-columns: 34px 1fr; width: 100%; height: 19px; line-height: 19px; padding-right: 14px;
+  color: var(--text-mid); font-size: 12px; white-space: nowrap;
+}
+.chat-lp-ln > :last-child { overflow: hidden; text-overflow: ellipsis; }
+.chat-lp-ln i { font: normal 9px/19px ui-monospace, monospace; color: var(--text-low); text-align: right; padding-right: 10px; }
+.chat-lp .chat-lp-ln:not(:disabled):hover { color: var(--text-hi); }
+.chat-lp-ln.m { background: var(--sky-tint); box-shadow: inset 2px 0 var(--sky); color: var(--text-hi); }
+/* A pending rewrite (LY-4): the old words struck in text-low above the new ones at text-hi, `~` in the bar column. */
+.chat-lp-ln.new { color: var(--text-hi); }
+.chat-lp-ln.old { height: 15px; line-height: 15px; font-size: 11px; }
+.chat-lp-ln.old s { color: var(--text-low); }
+
+.chat-lp-ft { padding: 4px 14px; font: 10px ui-monospace, monospace; color: var(--text-low); }
+.chat-lp-ft.in { padding-left: 48px; }
+
+/* The sections next to the mark (2b): one dim row each, header and the line by the mark, to click or shift-click. */
+.chat-lp .chat-lp-part.ctx .chat-lp-sx { color: var(--text-low); }
+.chat-lp-part.ctx .chat-lp-ln { color: var(--text-low); }
+
+/* A new version being read: the old panel at 55%, still marking by bars. */
+.chat-lp-dim { opacity: 0.55; }
+.chat-lp .chat-lp-box { margin: 10px 14px; }
+.chat-lp-none { margin: 10px 14px; color: var(--text-mid); font-size: 11px; }
+.chat-lp-none b { color: var(--text-hi); font-weight: 700; }
+.chat-lp-none > div { margin-top: 10px; }

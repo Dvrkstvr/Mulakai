@@ -7,10 +7,13 @@
  * a READ card and a reading card are one history line each. A retry reuses the planner's
  * retryMessages with the chat's own wording (D-114 i), built on the first attempt's messages with each
  * refused reply shortened (C1 re-check N4: the whole reply re-sent made attempt 3 9.1k tokens; its message
- * is left out too, so a replan does not repeat what was refused, N2). Budgets: SP-5 RESULT item 5. Pure.
+ * is left out too, so a replan does not repeat what was refused, N2). C2 (F-058): a revise turn's PENDING PLAN block
+ * (turnRevise) comes in `pending`, where the draft thread puts its draft lines; a refused revise goes back with
+ * its drop, and the merge legend is never cut. Budgets: SP-5 RESULT item 5. Pure.
  */
 import { phraseBarsOf, phraseLines } from '../score/phraseRequest.js';
 import { retryMessages } from '../score/plannerPrompt.js';
+import { LEGEND_HEAD } from '../score/reviseReply.js';
 import type { ChatMessage as PromptMessage, ScoreFacts } from '../score/planTypes.js';
 import type { AnalyzeBody, AskBody, ChatMessage, ReadingBody, RecipeBody } from './chatTypes.js';
 
@@ -71,7 +74,7 @@ export interface PromptInput {
   state: string[];
   facts: ScoreFacts | null;
   request: string;
-  /** songState.draftLines: the pending card or the sidebar; empty when there is none. */
+  /** songState.draftLines: the pending card or the sidebar; a revise turn's PENDING PLAN; empty when there is none. */
   pending: string[];
   /** The last turns before this request. */
   history: ChatMessage[];
@@ -113,11 +116,12 @@ export function refusedReply(content: string): string {
   const { message: _message, ops, ...rest } = json as Record<string, unknown>;
   if (!Array.isArray(ops)) return cut(JSON.stringify(rest), REFUSED_MAX);
   const head = typeof rest.action === 'string' ? `action ${rest.action}` : 'no action';
-  return `(your refused reply, shortened: ${head}; ops: ${ops.map(opLine).join(' | ') || 'none'})`;
+  const drop = Array.isArray(rest.drop) ? `; drop: ${cut(rest.drop.map(String).join(', '), 40) || 'none'}` : '';
+  return `(your refused reply, shortened: ${head}${drop}; ops: ${ops.map(opLine).join(' | ') || 'none'})`;
 }
 
 /** Attempt n's messages: the first attempt's, then each refused reply (shortened) and its reasons. */
 export function turnRetry(first: PromptMessage[], refused: Array<{ reply: string; reasons: string[] }>): PromptMessage[] {
-  return refused.reduce((msgs, r) => retryMessages(msgs, refusedReply(r.reply), r.reasons.map((x) => cut(x, REASON_MAX)),
+  return refused.reduce((msgs, r) => retryMessages(msgs, refusedReply(r.reply), r.reasons.map((x) => (x.startsWith(LEGEND_HEAD) ? x : cut(x, REASON_MAX))),
     { heading: RETRY_HEADING, closing: RETRY_CLOSING }), first);
 }
