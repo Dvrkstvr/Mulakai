@@ -1,7 +1,8 @@
 /** The chat's edit types (C0b, CB-2; architecture.md "Data (chat)": the edit card's body). Types only. */
-import type { Op, OpVerdict, Plan, ScoreFacts } from '../score/planTypes.js';
+import type { Op, OpVerdict, Plan, ScoreFacts, Since } from '../score/planTypes.js';
 import type { RenderMode } from '../score/renderMode.js';
 import type { Splice } from './spliceEligibility.js';
+import type { BarMap } from './convergeTypes.js';
 
 /** The edit card (C0b, F-046): a planStore plan's snapshot. `splice` says whether APPLY splices the bars
  * (spliceEligibility) or re-renders the whole song, and why; `renderMode` names the render's cot (F-065). */
@@ -24,6 +25,11 @@ export interface EditBody {
   mark?: { versionId: string; bars: [number, number] | null; seconds: [number, number]; notes: string[] };
   /** The tempo and key the plan was read at (the SCORE dock's "from" values: 87 → 88 BPM). Additive: older cards lack it. */
   from?: { bpm: number; key: string };
+  /** C2 (additive): a revised plan's number (REVISED · PLAN n) and its NEW / CHANGED / SAME + REMOVED (D-213); the
+   * bar map that replaces the strip (D-215; a card without it draws the strip from `splice`). */
+  revision?: number;
+  since?: Since;
+  map?: BarMap;
 }
 /** What an edit turn plans on (songStateSource): an eligible song's score as read and its source. */
 export interface EditBase {
