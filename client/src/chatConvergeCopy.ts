@@ -70,13 +70,17 @@ export const failedLine = (version: number | null, reason: string) => `COULDN'T 
 
 /** The revised edit card's header tag (F-058): from plan 2 on. */
 export const revisedHeader = (revision: number | undefined) => (revision && revision > 1 ? `REVISED · PLAN ${revision}` : null);
-/** A superseded card: revised by the card below it (D-213), or replaced by a fresh plan (C0b). */
+/** A superseded card: revised by the card below it (D-227), or replaced by a fresh plan (C0b). */
 export const supersededBody = (revised: boolean) => (revised ? 'Revised below. This one cannot be applied.' : EDIT_SUPERSEDED_BODY);
 /** The bar map's hatched row for SET TEMPO, TRANSPOSE, EDIT STYLE (F-060). */
 export const WHOLE_SONG = 'WHOLE SONG';
 export const mapTitle = (bars: number) => `BAR MAP · ${plural(bars, 'BAR')}`;
 
 export const UNDO_TURN = 'UNDO TURN';
+/** After UNDO TURN the CHANGED line reads `UNDONE · restored …` (5b). */
+export const UNDONE = 'UNDONE';
+/** The link's reason while a reply is open (5c). */
+export const UNDO_OFF = 'off while a reply is open';
 const label = (k: ChatDraftKey) => FIELD_LABEL[k];
 
 /** After UNDO TURN: `restored TITLE, STYLE · kept LYRICS: you changed it`. */

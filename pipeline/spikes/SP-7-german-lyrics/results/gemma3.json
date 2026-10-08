@@ -1,0 +1,983 @@
+{
+ "model": "gemma3:12b",
+ "tag": "gemma3",
+ "load_s": 3.5,
+ "vram_baseline_mb": 2936,
+ "vram_loaded_mb": 12716,
+ "ps": [
+  {
+   "size": 8057352355,
+   "size_vram": 8057352355,
+   "context_length": 16384
+  }
+ ],
+ "cases": {
+  "RC05": {
+   "request": "Schreib mir einen langsamen deutschen Popsong über den Abschied, mit Klavier und weicher Frauenstimme",
+   "lang": "de",
+   "title": "Abschied",
+   "style": "pop, piano, melancholic, soft female voice",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 5.34,
+   "prompt_tokens": 241,
+   "completion_tokens": 325,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Der Regen fällt so still heut' Nacht,\",\"Ein letzter Blick, bevor es kracht.\",\"Die Stille schreit, ein leises Lied,\",\"Ein Abschied, der so schwer wiegt.\"]}, {\"lines\": [\"Abschied, ein Wort so kalt und leer,\",\"Ein Echo, das bleibt immer mehr.\",\"Die Zeit verging, viel zu schnell,\",\"Ein Traum zerbricht, ein trauriger Quell.\"]}, {\"lines\": [\"Ich suchte Zeichen, einen Plan,\",\"Doch fand nur Fragen, die mich bangen.\",\"Die Erinnerung, ein zarter Schein,\",\"Verblasst im Nebel, ganz allein.\"]}, {\"lines\": [\"Abschied, ein Wort so kalt und leer,\",\"Ein Echo, das bleibt immer mehr.\",\"Die Zeit verging, viel zu schnell,\",\"Ein Traum zerbricht, ein trauriger Quell.\"]}, {\"lines\": [\"Vielleicht ein Lächeln, irgendwann,\",\"Wenn neue Wege dann beginnen.\",\"Die Narben bleiben, tief und rein,\",\"Ein stiller Schmerz, der ewig scheint.\"]}, {\"lines\": [\"Abschied, ein Wort so kalt und leer,\",\"Ein Echo, das bleibt immer mehr.\",\"Die Zeit verging, viel zu schnell,\",\"Ein Traum zerbricht, ein trauriger Quell.\"]}, {\"lines\": [\"Ein letzter Atem, leise fließt,\",\"Die Hoffnung stirbt, doch nicht vergisst.\",\"Abschied... Abschied...\",\"Die Stille bleibt.\" ]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Regen fällt so still heut' Nacht,",
+      "Ein letzter Blick, bevor es kracht.",
+      "Die Stille schreit, ein leises Lied,",
+      "Ein Abschied, der so schwer wiegt."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Abschied, ein Wort so kalt und leer,",
+      "Ein Echo, das bleibt immer mehr.",
+      "Die Zeit verging, viel zu schnell,",
+      "Ein Traum zerbricht, ein trauriger Quell."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Ich suchte Zeichen, einen Plan,",
+      "Doch fand nur Fragen, die mich bangen.",
+      "Die Erinnerung, ein zarter Schein,",
+      "Verblasst im Nebel, ganz allein."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Abschied, ein Wort so kalt und leer,",
+      "Ein Echo, das bleibt immer mehr.",
+      "Die Zeit verging, viel zu schnell,",
+      "Ein Traum zerbricht, ein trauriger Quell."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Vielleicht ein Lächeln, irgendwann,",
+      "Wenn neue Wege dann beginnen.",
+      "Die Narben bleiben, tief und rein,",
+      "Ein stiller Schmerz, der ewig scheint."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Abschied, ein Wort so kalt und leer,",
+      "Ein Echo, das bleibt immer mehr.",
+      "Die Zeit verging, viel zu schnell,",
+      "Ein Traum zerbricht, ein trauriger Quell."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Ein letzter Atem, leise fließt,",
+      "Die Hoffnung stirbt, doch nicht vergisst.",
+      "Abschied... Abschied...",
+      "Die Stille bleibt."
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC06": {
+   "request": "Ein fröhlicher Schlager über den Sommer am See",
+   "lang": "de",
+   "title": "Sommer am See",
+   "style": "Schlager, cheerful, upbeat, acoustic guitar, accordion, vocal",
+   "bpm": 120,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 7.74,
+   "prompt_tokens": 235,
+   "completion_tokens": 487,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Die Sonne lacht, der Himmel blau,\",\n\"Ein Sommertag, so wunderschön genau.\",\n\"Der See glitzert, ein sanfter Schein,\",\n\"Vergiss die Sorgen, lass los, sei rein.\",\n\"Ein kühles Bad, ein frischer Duft,\",\n\"Die Zeit vergisst man, voller Zuversicht.\",\n\"Das Leben tanzt, ein leichter Traum,\",\n\"Am Ufer sitzen, im Sommerglanz kaum.\"]},\n{\"lines\": [\"Sommer am See, so wunderbar,\",\n\"Ein Lächeln schenkt er, ganz ohne Frage.\",\n\"Sommer am See, ein Traum so echt,\",\n\"Die Seele baumelt, ganz sanft und schlecht.\"]},\n{\"lines\": [\"Die Möwen schreien, ein freier Klang,\",\n\"Ein Eis in der Hand, ein süßer Gesang.\",\n\"Die Kinder lachen, spielen im Sand,\",\n\"Ein Paradies, so nah am Land.\",\n\"Der Abend naht, die Sonne sinkt leis,\",\n\"Ein Feuer knistert, ein warmer Kreis.\",\n\"Die Sterne funkeln, hell und klar,\",\n\"Ein Sommertag, so wunderbar.\"]},\n{\"lines\": [\"Sommer am See, so wunderbar,\",\n\"Ein Lächeln schenkt er, ganz ohne Frage.\",\"Sommer am See, ein Traum so echt,\",\n\"Die Seele baumelt, ganz sanft und schlecht.\"]},\n{\"lines\": [\"Die Wellen rauschen, ein leises Lied,\",\n\"Erinnerungen bleiben, die tief verwurzelt sind.\",\n\"Ein Augenblick, so kostbar und rein,\",\n\"Ein Sommertraum, der ewig scheint.\"]},\n{\"lines\": [\"Sommer am See, so wunderbar,\",\n\"Ein Lächeln schenkt er, ganz ohne Frage.\",\"Sommer am See, ein Traum so echt,\",\n\"Die Seele baumelt, ganz sanft und schlecht.\"]},\n{\"lines\": [\"Sommer, See, ein gold'ner Schein,\",\n\"Bis zum nächsten Jahr, dann wieder rein.\",\n\"Ein Abschiedskuss, ein leiser Blick,\",\n\"Der Sommer bleibt, ein süßes Glück.\" ]}]\n}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Sonne lacht, der Himmel blau,",
+      "Ein Sommertag, so wunderschön genau.",
+      "Der See glitzert, ein sanfter Schein,",
+      "Vergiss die Sorgen, lass los, sei rein.",
+      "Ein kühles Bad, ein frischer Duft,",
+      "Die Zeit vergisst man, voller Zuversicht.",
+      "Das Leben tanzt, ein leichter Traum,",
+      "Am Ufer sitzen, im Sommerglanz kaum."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Sommer am See, so wunderbar,",
+      "Ein Lächeln schenkt er, ganz ohne Frage.",
+      "Sommer am See, ein Traum so echt,",
+      "Die Seele baumelt, ganz sanft und schlecht."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Möwen schreien, ein freier Klang,",
+      "Ein Eis in der Hand, ein süßer Gesang.",
+      "Die Kinder lachen, spielen im Sand,",
+      "Ein Paradies, so nah am Land.",
+      "Der Abend naht, die Sonne sinkt leis,",
+      "Ein Feuer knistert, ein warmer Kreis.",
+      "Die Sterne funkeln, hell und klar,",
+      "Ein Sommertag, so wunderbar."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Sommer am See, so wunderbar,",
+      "Ein Lächeln schenkt er, ganz ohne Frage.",
+      "Sommer am See, ein Traum so echt,",
+      "Die Seele baumelt, ganz sanft und schlecht."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Die Wellen rauschen, ein leises Lied,",
+      "Erinnerungen bleiben, die tief verwurzelt sind.",
+      "Ein Augenblick, so kostbar und rein,",
+      "Ein Sommertraum, der ewig scheint."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Sommer am See, so wunderbar,",
+      "Ein Lächeln schenkt er, ganz ohne Frage.",
+      "Sommer am See, ein Traum so echt,",
+      "Die Seele baumelt, ganz sanft und schlecht."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Sommer, See, ein gold'ner Schein,",
+      "Bis zum nächsten Jahr, dann wieder rein.",
+      "Ein Abschiedskuss, ein leiser Blick,",
+      "Der Sommer bleibt, ein süßes Glück."
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC07": {
+   "request": "irgendwas Ruhiges zum Einschlafen",
+   "lang": "de",
+   "title": "Sanfte Schlaflied",
+   "style": "acoustic guitar, soft vocals, gentle mood",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 3.93,
+   "prompt_tokens": 220,
+   "completion_tokens": 246,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Der Tag ist müde, langsam leis',\",\"Die Sterne funkeln, voller Preis.\",\"Die Welt wird still, ein sanfter Schein\",\"Und Träume warten, ganz allein.\"]}, {\"lines\": [\"Sanfte Schlaflied, wiegt dich ein\",\"In tiefen Schlaf, so rein und fein.\",\"Vergiss die Sorgen, lass sie ruh'n\",\"Und finde Frieden, im Mondenschein.\"]}, {\"lines\": [\"Die Blätter flüstern, sacht und lind\",\"Ein leises Lied, für dich bestimmt.\",\"Die Nachtigall, ihr Liedchen singt\",\"Und sanft die Dunkelheit dich wiegt.\"]}, {\"lines\": [\"Sanfte Schlaflied, wiegt dich ein\",\"In tiefen Schlaf, so rein und fein.\",\"Vergiss die Sorgen, lass sie ruh'n\",\"Und finde Frieden, im Mondenschein.\"]}, {\"lines\": [\"Schlaf nun, mein Lieb, die Nacht ist klar\",\"Ein süßer Traum, ist dir ganz nah.\",\"Die Welt da draußen, schläft schon ein\",\"Bis Morgen früh, in Sonnenschein.\" ]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Tag ist müde, langsam leis',",
+      "Die Sterne funkeln, voller Preis.",
+      "Die Welt wird still, ein sanfter Schein",
+      "Und Träume warten, ganz allein."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Sanfte Schlaflied, wiegt dich ein",
+      "In tiefen Schlaf, so rein und fein.",
+      "Vergiss die Sorgen, lass sie ruh'n",
+      "Und finde Frieden, im Mondenschein."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Blätter flüstern, sacht und lind",
+      "Ein leises Lied, für dich bestimmt.",
+      "Die Nachtigall, ihr Liedchen singt",
+      "Und sanft die Dunkelheit dich wiegt."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Sanfte Schlaflied, wiegt dich ein",
+      "In tiefen Schlaf, so rein und fein.",
+      "Vergiss die Sorgen, lass sie ruh'n",
+      "Und finde Frieden, im Mondenschein."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Schlaf nun, mein Lieb, die Nacht ist klar",
+      "Ein süßer Traum, ist dir ganz nah.",
+      "Die Welt da draußen, schläft schon ein",
+      "Bis Morgen früh, in Sonnenschein."
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE08": {
+   "request": "Ein Indie-Pop-Song über den Herbst in der Großstadt, ein bisschen wehmütig",
+   "lang": "de",
+   "title": "Herbst in der Stadt",
+   "style": "indie pop, dreamy synths, clean electric guitar, male vocal, wistful",
+   "bpm": 104,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 10.7,
+   "prompt_tokens": 248,
+   "completion_tokens": 638,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Die Blätter fallen leise hier,\\nEin goldner Schleier, bittersüß.\\nDie Straßen sind voll, doch ich bin allein,\\nEin Echo von\", \"Was war, was sein soll, wer weiß.\\nDas Licht wird schmaler, der Tag vergeht,\\nEin Abschied liegt in der Luft, so sacht.\\nEr\", \"Erinnerungen tanzen im Wind, so klar.\",\"Die Stadt atmet langsam aus.\"]}, {\"lines\": [\"Herbst in der Stadt, ein melancholischer Traum,\\nVerlorene Stunden, ein leiser Klang.\\nHerbst in der Stadt, die Farben zie\", \"Ein Hauch von Wehmut, ein stiller Schrei.\",\"Die Zeit verrinnt, so schnell und rein,\\nEin Flüstern der Blätter, ganz allein.\",\"Die Sehnsucht wächst, ein zarter Schein.\"]}, {\"lines\": [\"Die Neonlichter spiegeln sich im Regen,\\nEin Schleier aus Tränen, sanft und still.\\nIch suche dein Lächeln in der Menge,\\nE\", \"Ein Versprechen, das niemals erfüllt.\\nDie Häuser ragen hoch, so kalt und grau,\\nEin Labyrinth aus Schatten, tief und weit\",\"Ich finde dich nicht, wo soll ich nur sein?\", \"Die Nacht wird länger, der Tag ist klein.\"]}, {\"lines\": [\"Herbst in der Stadt, ein melancholischer Traum,\\nVerlorene Stunden, ein leiser Klang.\\nHerbst in der Stadt, die Farben zie\", \"Ein Hauch von Wehmut, ein stiller Schrei.\",\"Die Zeit verrinnt, so schnell und rein,\\nEin Flüstern der Blätter, ganz allein.\",\"Die Sehnsucht wächst, ein zarter Schein.\"]}, {\"lines\": [\"Die Lichter flackern, ein schwaches Beben,\\nEin Versprechen der Hoffnung, fern und klar.\\nIch schließe die Augen, lass die\",\"Die Vergangenheit löst sich auf, so leicht.\\nEin neuer Morgen, ein neuer Tag,\\nEin Hoffnungsschimmer, der leise spricht.\",\"Die Stille umarmt mich, warm und rein.\",\"Ein neuer Anfang, ganz allein.\"]}, {\"lines\": [\"Herbst in der Stadt, ein melancholischer Traum,\\nVerlorene Stunden, ein leiser Klang.\\nHerbst in der Stadt, die Farben zie\", \"Ein Hauch von Wehmut, ein stiller Schrei.\",\"Die Zeit verrinnt, so schnell und rein,\\nEin Flüstern der Blätter, ganz allein.\",\"Die Sehnsucht wächst, ein zarter Schein.\"]}, {\"lines\": [\"Herbst in der Stadt…\\nDie Blätter fallen…\\nEin leiser Klang…\\nHerbst….\",\"Die Farben…\\nVerloren…\\nDie Stadt…\\nSo weit…\",\"Ein Hauch…\\nEin Traum…\\nDie Zeit…\",\"Ganz allein…\"]}]\n}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Blätter fallen leise hier,\nEin goldner Schleier, bittersüß.\nDie Straßen sind voll, doch ich bin allein,\nEin Echo von",
+      "Was war, was sein soll, wer weiß.\nDas Licht wird schmaler, der Tag vergeht,\nEin Abschied liegt in der Luft, so sacht.\nEr",
+      "Erinnerungen tanzen im Wind, so klar.",
+      "Die Stadt atmet langsam aus."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt, ein melancholischer Traum,\nVerlorene Stunden, ein leiser Klang.\nHerbst in der Stadt, die Farben zie",
+      "Ein Hauch von Wehmut, ein stiller Schrei.",
+      "Die Zeit verrinnt, so schnell und rein,\nEin Flüstern der Blätter, ganz allein.",
+      "Die Sehnsucht wächst, ein zarter Schein."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Neonlichter spiegeln sich im Regen,\nEin Schleier aus Tränen, sanft und still.\nIch suche dein Lächeln in der Menge,\nE",
+      "Ein Versprechen, das niemals erfüllt.\nDie Häuser ragen hoch, so kalt und grau,\nEin Labyrinth aus Schatten, tief und weit",
+      "Ich finde dich nicht, wo soll ich nur sein?",
+      "Die Nacht wird länger, der Tag ist klein."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt, ein melancholischer Traum,\nVerlorene Stunden, ein leiser Klang.\nHerbst in der Stadt, die Farben zie",
+      "Ein Hauch von Wehmut, ein stiller Schrei.",
+      "Die Zeit verrinnt, so schnell und rein,\nEin Flüstern der Blätter, ganz allein.",
+      "Die Sehnsucht wächst, ein zarter Schein."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Die Lichter flackern, ein schwaches Beben,\nEin Versprechen der Hoffnung, fern und klar.\nIch schließe die Augen, lass die",
+      "Die Vergangenheit löst sich auf, so leicht.\nEin neuer Morgen, ein neuer Tag,\nEin Hoffnungsschimmer, der leise spricht.",
+      "Die Stille umarmt mich, warm und rein.",
+      "Ein neuer Anfang, ganz allein."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Herbst in der Stadt, ein melancholischer Traum,\nVerlorene Stunden, ein leiser Klang.\nHerbst in der Stadt, die Farben zie",
+      "Ein Hauch von Wehmut, ein stiller Schrei.",
+      "Die Zeit verrinnt, so schnell und rein,\nEin Flüstern der Blätter, ganz allein.",
+      "Die Sehnsucht wächst, ein zarter Schein."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Herbst in der Stadt…\nDie Blätter fallen…\nEin leiser Klang…\nHerbst….",
+      "Die Farben…\nVerloren…\nDie Stadt…\nSo weit…",
+      "Ein Hauch…\nEin Traum…\nDie Zeit…",
+      "Ganz allein…"
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE09": {
+   "request": "Deutschrap über das Aufwachsen im Viertel, ehrlich und roh",
+   "lang": "de",
+   "title": "Mein Viertel",
+   "style": "german hip hop, boom bap, dark piano loop, rap vocal, gritty",
+   "bpm": 92,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 8.04,
+   "prompt_tokens": 239,
+   "completion_tokens": 505,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Betonwände, grauer Himmel, jeden Tag das gleiche Bild, \",\"Kindheitsträume, klein und schmal, die Hoffnung wurde still.\", \"Asphaltfieber, Herzschlag laut, der Lärm der Nachbarschaft,\", \"Jeder Blick ein Abwägen, wer ist Freund, wer ist Gefahr, ganz klar.\"]}, {\"lines\": [\"Mein Viertel, mein Zuhause, wo die Wahrheit bitter schmeckt,\", \"Wo Tränen fließen, wo die Seele leise schreckt.\", \"Mein Viertel, mein Spiegel, zeigt die Narben der Zeit,\", \"Ein Kampf ums Überleben, in Ewigkeit.\"]}, {\"lines\": [\"Erste Joints, erste Fehler, die Schule war ein Spielplatz nicht,\", \"Der Druck der Straße, immer stärker, ein Teufelskreis, ganz dicht.\", \"Die Eltern müde, voller Sorgen, die Zukunft ungewiss und fern,\", \"Ein Ausweg gesucht, in dunklen Nächten, ein falsches Stern.\"]}, {\"lines\": [\"Mein Viertel, mein Zuhause, wo die Wahrheit bitter schmeckt,\", \"Wo Tränen fließen, wo die Seele leise schreckt.\",\"Mein Viertel, mein Spiegel, zeigt die Narben der Zeit,\", \"Ein Kampf ums Überleben, in Ewigkeit.\"]}, {\"lines\": [\"Die Jungs auf Kicks, die Mädels traurig, die Zeit verrinnt so schnell,\", \"Ein Versprechen gebrochen, ein Herz gebrochen, ein bitteres Gefell.\", \"Der Dealer winkt, das Geld verglüht, die Illusionen sterben schnell,\", \"Ein Kreislauf der Hoffnungslosigkeit, ein endloser, dunkler Quell.\"]}, {\"lines\": [\"Mein Viertel, mein Zuhause, wo die Wahrheit bitter schmeckt,\", \"Wo Tränen fließen, wo die Seele leise schreckt.\", \"Mein Viertel, mein Spiegel, zeigt die Narben der Zeit,\", \"Ein Kampf ums Überleben, in Ewigkeit.\"]}, {\"lines\": [\"Nur Erinnerungen bleiben, verstaubt im Kopf, ein Echo der Vergangenheit,\", \"Die Straßen leer, die Lichter schwach, die Zukunft ungewandt.\", \"Ein Viertel, ein Leben, ein Kampf, ein Traum, der nie ganz stirbt,\", \"Mein Viertel, für immer in meinem Herzen, tief verwurzelt, ungestirbt.\" ]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Betonwände, grauer Himmel, jeden Tag das gleiche Bild, ",
+      "Kindheitsträume, klein und schmal, die Hoffnung wurde still.",
+      "Asphaltfieber, Herzschlag laut, der Lärm der Nachbarschaft,",
+      "Jeder Blick ein Abwägen, wer ist Freund, wer ist Gefahr, ganz klar."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, mein Zuhause, wo die Wahrheit bitter schmeckt,",
+      "Wo Tränen fließen, wo die Seele leise schreckt.",
+      "Mein Viertel, mein Spiegel, zeigt die Narben der Zeit,",
+      "Ein Kampf ums Überleben, in Ewigkeit."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Erste Joints, erste Fehler, die Schule war ein Spielplatz nicht,",
+      "Der Druck der Straße, immer stärker, ein Teufelskreis, ganz dicht.",
+      "Die Eltern müde, voller Sorgen, die Zukunft ungewiss und fern,",
+      "Ein Ausweg gesucht, in dunklen Nächten, ein falsches Stern."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, mein Zuhause, wo die Wahrheit bitter schmeckt,",
+      "Wo Tränen fließen, wo die Seele leise schreckt.",
+      "Mein Viertel, mein Spiegel, zeigt die Narben der Zeit,",
+      "Ein Kampf ums Überleben, in Ewigkeit."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Jungs auf Kicks, die Mädels traurig, die Zeit verrinnt so schnell,",
+      "Ein Versprechen gebrochen, ein Herz gebrochen, ein bitteres Gefell.",
+      "Der Dealer winkt, das Geld verglüht, die Illusionen sterben schnell,",
+      "Ein Kreislauf der Hoffnungslosigkeit, ein endloser, dunkler Quell."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mein Viertel, mein Zuhause, wo die Wahrheit bitter schmeckt,",
+      "Wo Tränen fließen, wo die Seele leise schreckt.",
+      "Mein Viertel, mein Spiegel, zeigt die Narben der Zeit,",
+      "Ein Kampf ums Überleben, in Ewigkeit."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Nur Erinnerungen bleiben, verstaubt im Kopf, ein Echo der Vergangenheit,",
+      "Die Straßen leer, die Lichter schwach, die Zukunft ungewandt.",
+      "Ein Viertel, ein Leben, ein Kampf, ein Traum, der nie ganz stirbt,",
+      "Mein Viertel, für immer in meinem Herzen, tief verwurzelt, ungestirbt."
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "DE10": {
+   "request": "Ein Liedermacher-Lied über Heimweh, nur Gitarre und Stimme",
+   "lang": "de",
+   "title": "Heimweh",
+   "style": "singer-songwriter, folk, acoustic guitar, warm male vocal, intimate",
+   "bpm": 76,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 6.81,
+   "prompt_tokens": 235,
+   "completion_tokens": 435,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Der Regen fällt so still aufs Dach,\",\"Ein grauer Schleier, sanft und schwach.\",\"Die Stadt erwacht, ein leises Summen,\",\"Doch hier drinnen, nur leere Räume.\",\"Ein Foto liegt auf meinem Tisch,\",\"Ein Lächeln, das ich einst vermischt.\",\"Mit Sonnenlicht und warmer Luft,\",\"Ein Ort, den meine Seele ruft.\"]}, {\"lines\": [\"Die Straßen sind voll fremder Gesicht'\",\"Kein vertrauter Blick, kein warmes Licht.\",\"Ich suche nach 'nem Anker, fest und rein,\",\"Doch finde nur den kalten Stein.\",\"Die Worte, die ich einst so leicht sprach,\",\"Verfangen sich, ein müder Schach.\",\"Die Melodie, die in mir klingt,\",\"Erinnert mich, was meine Seele bringt.\"]}, {\"lines\": [\"Heimweh, ein Flüstern in der Nacht,\",\"Ein Sehnen, das die Tränen lacht.\",\"Nach Wurzeln tief, nach vertrautem Grund,\",\"Wo meine Herzen heimgekehrt sind, gesund.\"]}, {\"lines\": [\"Ich schließe meine Augen, ganz genau,\",\"Und sehe wieder Wiesen, grün und blau.\",\"Den Duft von frisch gemähtem Gras,\",\"Ein Lächeln, das mich niemals verlässt, was.\",\"Die Zeit vergeht, ein schneller Fluss,\",\"Doch meine Sehnsucht, die ist ein Kuss.\",\"Ein Versprechen, leise und klar,\",\"Ich komme wieder, irgendwann, ganz nah.\"]}, {\"lines\": [\"Heimweh, ein Flüstern in der Nacht,\",\"Ein Sehnen, das die Tränen lacht.\",\"Nach Wurzeln tief, nach vertrautem Grund,\",\"Wo meine Herzen heimgekehrt sind, gesund.\"]}, {\"lines\": [\"Der Wind trägt fort die letzte Spur,\",\"Ein Abschiedskuss, so rein und pur.\",\"Die Gitarre verstummt, leise und sacht,\",\"Heimweh bleibt, in dunkler Nacht.\" ]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Der Regen fällt so still aufs Dach,",
+      "Ein grauer Schleier, sanft und schwach.",
+      "Die Stadt erwacht, ein leises Summen,",
+      "Doch hier drinnen, nur leere Räume.",
+      "Ein Foto liegt auf meinem Tisch,",
+      "Ein Lächeln, das ich einst vermischt.",
+      "Mit Sonnenlicht und warmer Luft,",
+      "Ein Ort, den meine Seele ruft."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Die Straßen sind voll fremder Gesicht'",
+      "Kein vertrauter Blick, kein warmes Licht.",
+      "Ich suche nach 'nem Anker, fest und rein,",
+      "Doch finde nur den kalten Stein.",
+      "Die Worte, die ich einst so leicht sprach,",
+      "Verfangen sich, ein müder Schach.",
+      "Die Melodie, die in mir klingt,",
+      "Erinnert mich, was meine Seele bringt."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Heimweh, ein Flüstern in der Nacht,",
+      "Ein Sehnen, das die Tränen lacht.",
+      "Nach Wurzeln tief, nach vertrautem Grund,",
+      "Wo meine Herzen heimgekehrt sind, gesund."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Ich schließe meine Augen, ganz genau,",
+      "Und sehe wieder Wiesen, grün und blau.",
+      "Den Duft von frisch gemähtem Gras,",
+      "Ein Lächeln, das mich niemals verlässt, was.",
+      "Die Zeit vergeht, ein schneller Fluss,",
+      "Doch meine Sehnsucht, die ist ein Kuss.",
+      "Ein Versprechen, leise und klar,",
+      "Ich komme wieder, irgendwann, ganz nah."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Heimweh, ein Flüstern in der Nacht,",
+      "Ein Sehnen, das die Tränen lacht.",
+      "Nach Wurzeln tief, nach vertrautem Grund,",
+      "Wo meine Herzen heimgekehrt sind, gesund."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Der Wind trägt fort die letzte Spur,",
+      "Ein Abschiedskuss, so rein und pur.",
+      "Die Gitarre verstummt, leise und sacht,",
+      "Heimweh bleibt, in dunkler Nacht."
+     ]
+    }
+   ],
+   "lingua": "de",
+   "langdetect": "de",
+   "per_section": [
+    "de",
+    "de",
+    "de",
+    "de",
+    "de",
+    "de"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC08": {
+   "request": "una balada lenta sobre el mar, guitarra de nailon y una voz femenina suave",
+   "lang": "es",
+   "title": "Mar de Sueños",
+   "style": "ballad, nylon guitar, soft female voice, melancholic mood",
+   "bpm": 60,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 7.3,
+   "prompt_tokens": 246,
+   "completion_tokens": 478,
+   "finish": "stop",
+   "content": "{\"sections\": [\n    {\"lines\": [\n        \"La arena fría bajo mis pies,\",\n        \"un eco antiguo de promesas.\",\n        \"El sol se hunde, lento y fiel,\",\n        \"pintando el cielo de ames.\",\n        \"Recuerdo un beso, salado y breve,\",\n        \"un instante eterno en la marea.\"\n    ]},\n    {\"lines\": [\n        \"Mar de sueños, olas de cristal,\",\n        \"llevas mi voz, un canto fatal.\",\n        \"Mar de sueños, donde me perdí,\",\n        \"buscando un faro, que no encontré aquí.\"\n    ]},\n    {\"lines\": [\n        \"Las gaviotas gritan su dolor,\",\n        \"un lamento triste, sin color.\",\n        \"Dibujas en la arena un retrato,\",\n        \"de un amor que nunca fue mi acto.\",\n        \"La luna asciende, pálida y fría,\",\n        \"reflejo roto de una alegría.\"\n    ]},\n    {\"lines\": [\n        \"Mar de sueños, olas de cristal,\",\n        \"llevas mi voz, un canto fatal.\",\n        \"Mar de sueños, donde me perdí,\",\n        \"buscando un faro, que no encontré aquí.\"\n    ]},\n    {\"lines\": [\n        \"En la distancia, una luz parpadea,\",\n        \"¿será esperanza o una quimera?\",\n        \"El mar susurra secretos al viento,\",\n        \"de un tiempo ido, un dulce lamento.\",\n        \"Quisiera ahogar mi pena en tu azul,\",\n        \"y olvidar el rumbo, sin rumbo, sin tú.\"\n    ]},\n    {\"lines\": [\n        \"Mar de sueños, olas de cristal,\",\n        \"llevas mi voz, un canto fatal.\",\n        \"Mar de sueños, donde me perdí,\",\n        \"buscando un faro, que no encontré aquí.\"\n    ]},\n    {\"lines\": [\n        \"Mar... sueños...\",\n        \"Olas... cristal... \",\n        \"Se desvanece la luz...\",\n        \"En el mar...\"\n    ]}\n]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "La arena fría bajo mis pies,",
+      "un eco antiguo de promesas.",
+      "El sol se hunde, lento y fiel,",
+      "pintando el cielo de ames.",
+      "Recuerdo un beso, salado y breve,",
+      "un instante eterno en la marea."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mar de sueños, olas de cristal,",
+      "llevas mi voz, un canto fatal.",
+      "Mar de sueños, donde me perdí,",
+      "buscando un faro, que no encontré aquí."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Las gaviotas gritan su dolor,",
+      "un lamento triste, sin color.",
+      "Dibujas en la arena un retrato,",
+      "de un amor que nunca fue mi acto.",
+      "La luna asciende, pálida y fría,",
+      "reflejo roto de una alegría."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mar de sueños, olas de cristal,",
+      "llevas mi voz, un canto fatal.",
+      "Mar de sueños, donde me perdí,",
+      "buscando un faro, que no encontré aquí."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "En la distancia, una luz parpadea,",
+      "¿será esperanza o una quimera?",
+      "El mar susurra secretos al viento,",
+      "de un tiempo ido, un dulce lamento.",
+      "Quisiera ahogar mi pena en tu azul,",
+      "y olvidar el rumbo, sin rumbo, sin tú."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Mar de sueños, olas de cristal,",
+      "llevas mi voz, un canto fatal.",
+      "Mar de sueños, donde me perdí,",
+      "buscando un faro, que no encontré aquí."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Mar... sueños...",
+      "Olas... cristal... ",
+      "Se desvanece la luz...",
+      "En el mar..."
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC09": {
+   "request": "A fast reggaeton party song in Spanish about a summer night out",
+   "lang": "es",
+   "title": "Noche de Verano",
+   "style": "reggaeton, electronic, upbeat, party, Spanish",
+   "bpm": 130,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Pre-Chorus",
+    "Chorus",
+    "Verse",
+    "Pre-Chorus",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 8.38,
+   "prompt_tokens": 256,
+   "completion_tokens": 526,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"La brisa salada, un ritmo en el aire,\",\n\"Luces de neón, la noche a bailar.\",\n\"El calor nos llama, la pista está encendida,\",\n\"Noche de verano, la energía es sentida.\",\n\"Botellas brillando, sonrisas al sol,\",\n\"Olvidamos penas, dejamos el control.\"]},\n{\"lines\": [\"Subiendo el volumen, la música nos guía,\",\n\"Siento la adrenalina, pura fantasía.\",\n\"El corazón late fuerte, un fuego interior,\",\n\"Esta noche es nuestra, sin ningún temor.\"]},\n{\"lines\": [\"Noche de verano, el cielo nos mira,\",\n\"Bailando sin parar, la llama se inspira.\",\"Noche de verano, el cielo nos mira,\",\n\"Bailando sin parar, la llama se inspira.\"]},\n{\"lines\": [\"Más cerca, más fuerte, la noche se expande,\",\n\"Un mar de cuerpos, donde el ritmo comanda.\",\n\"El sudor en la piel, un brillo especial,\",\n\"Esta noche es mágica, un sueño real.\",\n\"Recuerdos vibrantes, que nunca se van,\",\n\"En cada movimiento, la pasión está.\"]},\n{\"lines\": [\"La música te atrapa, te lleva a volar,\",\n\"Siente la vibración, déjate llevar.\",\n\"El pulso se acelera, la noche es un juego,\",\n\"Baila sin pensar, sin ningún fuego.\"]},\n{\"lines\": [\"Noche de verano, el cielo nos mira,\",\n\"Bailando sin parar, la llama se inspira.\",\"Noche de verano, el cielo nos mira,\",\n\"Bailando sin parar, la llama se inspira.\"]},\n{\"lines\": [\"Un torbellino de luces, un ritmo sin fin,\",\n\"La noche nos abraza, nos hace sentir.\",\n\"Con cada latido, la magia se crea,\",\n\"Una noche eterna, que nunca se vea.\"]},\n{\"lines\": [\"Noche de verano, el cielo nos mira,\",\n\"Bailando sin parar, la llama se inspira.\",\"Noche de verano, el cielo nos mira,\",\n\"Bailando sin parar, la llama se inspira.\"]},\n{\"lines\": [\"Yeah, la noche sigue,\",\n\"Bailando, latiendo,\",\n\"Verano, verano,\",\n\"Hasta el amanecer.\" ]}]\n}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "La brisa salada, un ritmo en el aire,",
+      "Luces de neón, la noche a bailar.",
+      "El calor nos llama, la pista está encendida,",
+      "Noche de verano, la energía es sentida.",
+      "Botellas brillando, sonrisas al sol,",
+      "Olvidamos penas, dejamos el control."
+     ]
+    },
+    {
+     "tag": "Pre-Chorus",
+     "lines": [
+      "Subiendo el volumen, la música nos guía,",
+      "Siento la adrenalina, pura fantasía.",
+      "El corazón late fuerte, un fuego interior,",
+      "Esta noche es nuestra, sin ningún temor."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Noche de verano, el cielo nos mira,",
+      "Bailando sin parar, la llama se inspira.",
+      "Noche de verano, el cielo nos mira,",
+      "Bailando sin parar, la llama se inspira."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Más cerca, más fuerte, la noche se expande,",
+      "Un mar de cuerpos, donde el ritmo comanda.",
+      "El sudor en la piel, un brillo especial,",
+      "Esta noche es mágica, un sueño real.",
+      "Recuerdos vibrantes, que nunca se van,",
+      "En cada movimiento, la pasión está."
+     ]
+    },
+    {
+     "tag": "Pre-Chorus",
+     "lines": [
+      "La música te atrapa, te lleva a volar,",
+      "Siente la vibración, déjate llevar.",
+      "El pulso se acelera, la noche es un juego,",
+      "Baila sin pensar, sin ningún fuego."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Noche de verano, el cielo nos mira,",
+      "Bailando sin parar, la llama se inspira.",
+      "Noche de verano, el cielo nos mira,",
+      "Bailando sin parar, la llama se inspira."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "Un torbellino de luces, un ritmo sin fin,",
+      "La noche nos abraza, nos hace sentir.",
+      "Con cada latido, la magia se crea,",
+      "Una noche eterna, que nunca se vea."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Noche de verano, el cielo nos mira,",
+      "Bailando sin parar, la llama se inspira.",
+      "Noche de verano, el cielo nos mira,",
+      "Bailando sin parar, la llama se inspira."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Yeah, la noche sigue,",
+      "Bailando, latiendo,",
+      "Verano, verano,",
+      "Hasta el amanecer."
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  },
+  "RC10": {
+   "request": "algo romántico para mi novia",
+   "lang": "es",
+   "title": "Para Mi Novia",
+   "style": "soft, emotional, acoustic guitar, piano, warm mood, female voice",
+   "bpm": 72,
+   "structure": [
+    "Intro",
+    "Verse",
+    "Chorus",
+    "Verse",
+    "Chorus",
+    "Bridge",
+    "Chorus",
+    "Outro"
+   ],
+   "wall": 6.31,
+   "prompt_tokens": 237,
+   "completion_tokens": 405,
+   "finish": "stop",
+   "content": "{\"sections\": [{\"lines\": [\"Recuerdo el día que te conocí, \",\"un instante eterno, solo para ti.\",\"La luz del sol danzaba en tu pelo,\",\"y el mundo entero se quedó en silencio.\",\"Tu risa clara, melodía sutil,\",\"un universo nuevo, dulce y gentil.\",\"En tus ojos encontré mi verdad,\",\"un refugio seguro, mi felicidad.\"]}, {\"lines\": [\"Para mi novia, mi eterno amor,\",\"un regalo del cielo, un dulce favor.\",\"Eres la calma en mi tempestad,\",\"la estrella brillante en la oscuridad.\"]}, {\"lines\": [\"Caminamos juntos por senderos nuevos,\",\"compartiendo sueños, secretos y ruegos.\",\"Cada paso es una promesa fiel,\",\"un lazo invisible, más allá del cielo.\",\"He visto el mundo, pero tú eres mi hogar,\",\"donde encuentro paz, donde quiero estar.\",\"En cada verso, en cada canción,\",\"te encuentro a ti, mi inspiración.\"]}, {\"lines\": [\"Para mi novia, mi eterno amor,\",\"un regalo del cielo, un dulce favor.\",\"Eres la calma en mi tempestad,\",\"la estrella brillante en la oscuridad.\"]}, {\"lines\": [\"A veces la vida nos pone a prueba,\",\"pero nuestro amor es más fuerte que el relieve.\",\"Superaremos juntos cualquier dolor,\",\"con la fuerza del alma, con el puro amor.\",\"Eres mi confidente, mi mejor amiga,\",\"la dueña de mi alma, mi eterna guía.\"]}, {\"lines\": [\"Para mi novia, mi eterno amor,\",\"un regalo del cielo, un dulce favor.\",\"Eres la calma en mi tempestad,\",\"la estrella brillante en la oscuridad.\"]}, {\"lines\": [\"Y mientras el tiempo siga su andar,\",\"mi amor por ti nunca dejará de brillar.\",\"Para siempre a tu lado, mi dulce canción,\",\"mi novia, mi vida, mi eterna razón.\" ]}]}",
+   "schema_ok": true,
+   "lyrics": [
+    {
+     "tag": "Verse",
+     "lines": [
+      "Recuerdo el día que te conocí, ",
+      "un instante eterno, solo para ti.",
+      "La luz del sol danzaba en tu pelo,",
+      "y el mundo entero se quedó en silencio.",
+      "Tu risa clara, melodía sutil,",
+      "un universo nuevo, dulce y gentil.",
+      "En tus ojos encontré mi verdad,",
+      "un refugio seguro, mi felicidad."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Para mi novia, mi eterno amor,",
+      "un regalo del cielo, un dulce favor.",
+      "Eres la calma en mi tempestad,",
+      "la estrella brillante en la oscuridad."
+     ]
+    },
+    {
+     "tag": "Verse",
+     "lines": [
+      "Caminamos juntos por senderos nuevos,",
+      "compartiendo sueños, secretos y ruegos.",
+      "Cada paso es una promesa fiel,",
+      "un lazo invisible, más allá del cielo.",
+      "He visto el mundo, pero tú eres mi hogar,",
+      "donde encuentro paz, donde quiero estar.",
+      "En cada verso, en cada canción,",
+      "te encuentro a ti, mi inspiración."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Para mi novia, mi eterno amor,",
+      "un regalo del cielo, un dulce favor.",
+      "Eres la calma en mi tempestad,",
+      "la estrella brillante en la oscuridad."
+     ]
+    },
+    {
+     "tag": "Bridge",
+     "lines": [
+      "A veces la vida nos pone a prueba,",
+      "pero nuestro amor es más fuerte que el relieve.",
+      "Superaremos juntos cualquier dolor,",
+      "con la fuerza del alma, con el puro amor.",
+      "Eres mi confidente, mi mejor amiga,",
+      "la dueña de mi alma, mi eterna guía."
+     ]
+    },
+    {
+     "tag": "Chorus",
+     "lines": [
+      "Para mi novia, mi eterno amor,",
+      "un regalo del cielo, un dulce favor.",
+      "Eres la calma en mi tempestad,",
+      "la estrella brillante en la oscuridad."
+     ]
+    },
+    {
+     "tag": "Outro",
+     "lines": [
+      "Y mientras el tiempo siga su andar,",
+      "mi amor por ti nunca dejará de brillar.",
+      "Para siempre a tu lado, mi dulce canción,",
+      "mi novia, mi vida, mi eterna razón."
+     ]
+    }
+   ],
+   "lingua": "es",
+   "langdetect": "es",
+   "per_section": [
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es",
+    "es"
+   ],
+   "shape_ok": true,
+   "lang_ok": true,
+   "sections_all_lang": true,
+   "reasons": []
+  }
+ },
+ "ps_after": [
+  {
+   "size": 8057352355,
+   "size_vram": 8057352355
+  }
+ ],
+ "vram_peak_after_mb": 12696,
+ "release": [
+  0.36,
+  true
+ ]
+}

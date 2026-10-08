@@ -1124,7 +1124,7 @@
       "behaviour": "The cover panel shows the tempo the transcription read and offers HALF, DOUBLE and BPM... with a consequence line; UNDO returns the previous score",
       "acceptance": [
         "A 140-read score becomes 70 BPM with half the bars and the cover renders from it",
-        "A cover with no kept bundle shows TRANSCRIBE AGAIN, said to use the GPU (no invented minutes until calibrated, Q-099, D-233)",
+        "A cover with no kept bundle shows TRANSCRIBE AGAIN, said to use the GPU (no invented minutes until calibrated, Q-099, D-240)",
         "Edge: a BPM only slightly off points to SET TEMPO (Q-125)"
       ],
       "passes": true,

@@ -25,7 +25,7 @@ export interface EditBody {
   mark?: { versionId: string; bars: [number, number] | null; seconds: [number, number]; notes: string[] };
   /** The tempo and key the plan was read at (the SCORE dock's "from" values: 87 → 88 BPM). Additive: older cards lack it. */
   from?: { bpm: number; key: string };
-  /** C2 (additive): a revised plan's number (REVISED · PLAN n) and its NEW / CHANGED / SAME + REMOVED (D-213); the
+  /** C2 (additive): a revised plan's number (REVISED · PLAN n) and its NEW / CHANGED / SAME + REMOVED (D-227); the
    * bar map that replaces the strip (D-215; a card without it draws the strip from `splice`). */
   revision?: number;
   since?: Since;

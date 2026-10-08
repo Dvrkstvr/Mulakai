@@ -27,7 +27,7 @@ export interface ChatEditBody {
   /** C1 (F-055): the mark the plan was bounded to (null bars: a time only) and the server's notes on it (a whole-song op,
    * a mark clamped to the score, D-176). Mirrors the server's `EditBody.mark`. */
   mark?: { versionId: string; bars: [number, number] | null; seconds: [number, number]; notes: string[] };
-  /** C2 (F-058, D-213): 1 for a first plan, +1 per revise turn; `since` = the marks against the card it revised (NEW /
+  /** C2 (F-058, D-227): 1 for a first plan, +1 per revise turn; `since` = the marks against the card it revised (NEW /
    * CHANGED / SAME, REMOVED; the score agent's `Since`). Absent on cards from before C2. */
   revision?: number;
   since?: ScoreSince | null;

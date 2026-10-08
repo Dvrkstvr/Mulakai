@@ -76,3 +76,4 @@ Spec: scope.md "Scope — Chat" (C0 = F-041..F-050); modules, data and seams:
 - Planner retries are built on attempt 1's messages with the refused reply
   shortened (#225); CP-C1's prompt p95 stop is 6000 — re-run `chatCp1
   --marks` after any prompt or MARK-block change.
+- C2 (ADR 0010): revise only via `turnRevise` → `readRevise`/`mergeRevise`, never a full restatement; block pairing only in `score/lyricPairing.ts`; UNDO TURN restores only untouched fields.

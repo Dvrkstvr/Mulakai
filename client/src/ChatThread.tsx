@@ -27,6 +27,7 @@ import { useChatStore } from './chatStore';
 import { lastTurn, turnRunning } from './chatTurn';
 import { ChatRecipeCard } from './ChatRecipeCard';
 import { ChatSongCard } from './ChatSongCard';
+import { ChatUndoLine } from './ChatUndoLine';
 import { ChatErrorLine, ChatTurnLine, FormButton, RetryButton } from './ChatTurnLine';
 import { api } from './api';
 import { useJobsAhead } from './queueStore';
@@ -96,7 +97,7 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
         <Fragment key={m.id}>
           <div className="chat-am">
             {m.text}
-            {b && changedLine(b.changed) && <div className="chat-hn chat-changed">{changedLine(b.changed)}</div>}
+            {b && <ChatUndoLine message={m} changed={changedLine(b.changed)} songId={thread?.songId ?? (done ? m.id : null)} turnOpen={turnRunning(turn)} />}
             {b && skippedLine(b.skipped) && <div className="chat-hn">{skippedLine(b.skipped)}</div>}
           </div>
           <ChatRecipeCard

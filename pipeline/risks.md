@@ -225,6 +225,7 @@ SHIFT/STRETCH (D-085): pitch-shifting a YuE2 take by up to ±2-3 semitones and t
 The chat turn (D-079, D-097) needs one local call of `qwen3:14b` (16k, reasoning off, strict schema) to pick the right action from the closed set, write recipes and lyrics in the request's language, ask only when stuck, and produce SCORE ops that pass the existing validators, in 15 s p50 / 30 s p95 and 6k tokens on the 206-bar song.
 - SP-5 (`pipeline/spikes/SP-5-chat-planner/RESULT.md`): bars (a)..(g) all pass on the final prompt (action 97.2% on the 36 scripted single turns and 90.0% on 20 fresh hold-out turns, `ask` on 0 of 12 must-propose, recipes 100% valid with the right language on 32/32, edit plans valid within 3 attempts 31/32, p50 8 s / p95 27 s, unload and empty `/api/ps` every turn, prompt p95 5.3k and 5.4k on the 206-bar song). The first prompt missed three bars; the fixes are prompt, state-block and loop-guard changes (RESULT.md "What C0's turn job should copy"), not the ladder.
 - still open: (1) the owner's read of 10 lyric sets (`lyrics.html`; below 8 usable, lyrics move to their own call, built and measured); (2) the tail: a REHARMONIZE of a 40-bar section takes 82-143 s (the root-change rule fails on the first try in 8 of 10 cases and the model cannot write fewer than a chord per bar); (3) unseen wording routes about 90%, not 97%; (4) the card must be built from the fields, not from the model's `message`; (5) the model's GPU residency depends on the owner's other stack staying under about 4 GB.
+- SP-7 (`pipeline/spikes/SP-7-german-lyrics/RESULT.md`, 2026-10-08, the owner chose to try other local models for the lyrics step after reading German 0/3): rung-3 lyrics call on qwen3:14b, gemma4 26B-A4B, gemma3:12b, mistral-small3.2:24b, 9 requests each (6 German, 3 Spanish): shape and language 36/36, so only a read separates them. Median s per call 7.2 / 8.9 / 7.3 / 37.5; only qwen3 and gemma3 fully on the GPU (gemma4 73%, mistral 79% at 16k); a different lyrics model costs a load in the slot (3.5-19 s). The assistant's read: qwen3 0/6 German, gemma4 4/6, gemma3 0-1/6, mistral 3-4/6, none at the 5-of-6 bar. **Owed: the owner's blind read of `read.html`** (bar: an arm with >= 5 of 6 German usable).
 - fallback: the ladder (router + per-action call: prompt p95 3.8k, no accuracy gain; state-allowed actions; lyrics as their own call) and, last, form-first only (D-086).
 
 ### R-028 · impact M · evidence hypothesis (stage 6, chat C3, 2026-10-07)
@@ -275,10 +276,19 @@ yuey.cpp (2 stars, validated on an RTX 5070 laptop and a DGX Spark only) may not
 - check: SP-7 (F-089).
 - fallback: WSL stays; F-089 dropped and recorded.
 
-### R-038 · impact H · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
+### R-038 · impact H · fix chosen (two German drafts, D-232; build owed) · evidence measured (owner's SP-5 read, 2026-10-08, D-205)
 German lyrics from qwen3:14b are not usable as a first take (0/3 A, 0/3 B: unnatural wording, poor singability), and the owner writes in German. Check: SP-7 (lyrics step on gemma4 26B-A4B, gemma3:12b, mistral-small3.2:24b vs qwen3:14b; owner reads 6 German sets blind; bar ≥ 5/6). Fallback: German lyrics shown as a draft to edit before rendering.
 
 ### R-039 · impact H · evidence seen running, partly proven (SP-8, 2026-10-08)
 SheetSage2's rebuild from a corrected beat list (half, double, a named-BPM grid anchored on the downbeats) may refuse the grid (meter inference, pickup bar), drop notes at the edges, or lose chords/sections — then RT's whole method falls. F-090 depends on it.
 - check: SP-8 (pipeline/spikes/SP-8-retime-rebuild) on 2 real outputs, melody-only and chords. **Done: [RESULT.md](spikes/SP-8-retime-rebuild/RESULT.md)**: rebuild takes ~15 ms from a 24 KB bundle; double is clean; half and slower BPM grids drop 5-26% of short notes (fixed 4-subbeat grid) unless a MIDI repair pass runs, and the count must be shown.
 - fallback: reshape the score on yue-server from the parsed ABC (decision 0002) for half/double only; a named BPM goes back to the owner.
+### R-040 · impact M · evidence hypothesis (stage 6, chat C2, 2026-10-08)
+A chat REVISE adds the PENDING PLAN block (up to 6 ops; a 40-bar REHARMONIZE's chord list is long) to an edit prompt that already measured p95 5,906 tokens with the MARK block (CP-C1, D-197), and the chat's prompt and strict schema differ from the dock's, where Q-050 saw additive revisions drop pending ops (fixed for 2+ op plans by D-073, never measured in the chat).
+- check: CP-C2 (CV-5): prompt tokens per revise turn, context refusals, merged ops vs pending ops; stop lines in architecture.md "Test strategy (C2)" #7.
+- fallback: shorten the PENDING lines (op name + target only for kept ops, full fields only for the ops the request names), or drop the MARK block's lyric lines on a revise.
+
+### R-041 · impact L · evidence hypothesis (stage 6, chat C2, 2026-10-08)
+A YuE2 lyric line's time comes from aligning Whisper's heard words to the stored lyrics (`alignLyrics`, the Editor's); on repeated choruses or ad-libs a line can align to the wrong repeat, so a line click marks the wrong bars. The chip shows the bars, so it is visible, not silent.
+- check: CV-9 live: line marks on 2 YuE2 songs with repeated choruses, the chip's bars against the line heard.
+- fallback: a line click marks its section (D-218's untimed rule) when the alignment's `matched` share is low.

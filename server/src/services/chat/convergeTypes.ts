@@ -54,7 +54,7 @@ export type UndoResult =
   | { ok: true; draft: Draft; restored: DraftField[]; kept: UndoKept[] }
   | { ok: false; error: 'UNDO_REFUSED' | 'TURN_OPEN'; reason: string };
 
-/* ---- REVISE (F-058, D-213): the live edit card's plan a turn revises. ---- */
+/* ---- REVISE (F-058, D-227): the live edit card's plan a turn revises. ---- */
 
 /** `lines`: the PENDING PLAN block (`planRevise.pendingLines`); `count`: the pending op count `drop` numbers into. */
 export interface RevisePending { plan: Plan; lines: string[]; count: number }
