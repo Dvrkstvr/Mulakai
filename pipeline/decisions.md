@@ -955,3 +955,16 @@ RE-TIME on the chat reading (`routes/chatRetime.ts`, `chat/readingRetime.ts`) re
 
 ## D-249 · 2026-10-08 · stage 7 (RT-4, F-093 verify) · by: conductor
 F-093 passes: an independent verifier ran on `feat/retime-dock` a7179d0 (pipeline/evidence/F-093-2026-10-08). RE-TIME HALF on a seeded cover of SP-8's purple planned with no planner. The consequence said about 3 min on YuE2, with bars renumbered. APPLY & RENDER saved v2 "score edit · RE-TIME 44", taking 65 bars to 33. Covers with no bundle, and originals, show no chips and get 409 with the reason. After a SET TEMPO edit the chips hide and a line says why (D-240). Caveats: the YuE2 render ran on the fake pipeline, and the cover's base score was the bundle rebuilt at its read tempo, not a live TRANSCRIBE. #243 had gone DIRTY on a `decisions.md` append conflict after its session died; the conductor merged main into `feat/retime-dock`, keeping both sides.
+
+## D-250 · 2026-10-08 · stage 7 (CP-C2 fix, R-040) · by: assumed (builder)
+A revise turn's additive-drop guard (`chat/reviseKeep.ts`, in the spirit of D-201): when the person's words carry none of a
+fixed list of removal or replacement words (English plus the commonest German and Spanish: forget, remove, undo, instead,
+only, just, no, not, without, fewer, cut, vergiss, entfern-, ohne, quita, sin, ...) and the reply drops a pending op that
+no returned op replaces on its target, the reply goes back once with "this request adds; keep every pending op: drop []";
+a second drop stands and the card lists it REMOVED (never overridden silently). A dropped op returned unchanged is merged
+back in its place as SAME (planRevise.mergeRevise). The mirror start-over guard (same file, after CP-C2 r2/r3 kept every
+op on "forget all that" 0 of 3 twice): when the words start over ("forget all that", "start over", "from scratch", "scrap
+that,", "instead of all that", "never mind all that", "vergiss das alles", "olvida todo"; "that"/"this"/"it" only as the
+whole object, so "scrap that chorus" is not) and the reply keeps a pending op it neither drops nor replaces on its target,
+the reply goes back once with "this request starts over: drop every pending op"; a second keep stands. Each guard is
+spent on its first refusal.

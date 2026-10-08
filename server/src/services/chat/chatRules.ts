@@ -19,7 +19,7 @@ const INTRO = 'You are the assistant of Mulakai, a local song studio. The person
  * complete op list" (Q-050: a restated plan loses ops) becomes drop + only what changes. */
 export const REVISE_ADAPTATION = {
   spike: 'A follow-up edit while an edit card is pending replaces that card: send the complete op list.',
-  c2: 'A follow-up edit to a pending card revises it: drop what goes, send only new or changed ops.',
+  c2: 'A follow-up edit to a pending card revises it: send only new or changed ops; drop what the request takes away, and nothing when it only adds.',
 };
 
 const ACTION_TEXT: Record<TurnAction, string> = {

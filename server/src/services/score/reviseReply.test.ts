@@ -34,6 +34,13 @@ describe('readRevise (D-073)', () => {
       + 'op 3 = pending op 4, op 4 = your op 2 (new); dropped: pending op 2.');
   });
 
+  it('CP-C2: a dropped op returned unchanged is kept in place, and the legend does not call it dropped', () => {
+    const r = readRevise({ drop: [2], ops: [{ op: 'SET_TEMPO', bpm: 80 }, UP_2] }, [STYLE, UP_2], facts);
+    expect(r).toMatchObject({ ok: true, ops: [STYLE, UP_2, { op: 'SET_TEMPO', bpm: 80 }] });
+    expect(r.ok && r.merged.removed).toEqual([]);
+    expect(r.ok && r.legend).toBe('Your reply made this plan: op 1 = pending op 1, op 2 = your op 2 (replaces pending op 2), op 3 = your op 1 (new).');
+  });
+
   it('refuses a drop outside 1..P, a repeated or a non-integer one', () => {
     expect(readRevise({ drop: [7, 0], ops: [] }, PENDING, facts)).toEqual({ ok: false,
       reasons: ['drop 7 is not a pending op number (1-4)', 'drop 0 is not a pending op number (1-4)'] });

@@ -11,12 +11,14 @@
  * three times; a recipe needs under 800) and for the lyrics (SP-5/SP-7), temperature 0.3, reasoning off
  * and the strict schema (plannerClient). C2 (F-058, D-227): with a pending plan (`revise`) an edit is that
  * plan's revise: `drop` in the schema, the PENDING PLAN lines in the prompt, the merge checked by
- * replyCheck; the accepted merge comes back as `since`. Pure (I/O injected).
+ * replyCheck; the accepted merge comes back as `since`. An additive drop, or a start over that keeps
+ * pending ops, goes back once (reviseKeep's guards, each spent on its first refusal). Pure (I/O injected).
  */
 import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply, ScoreFacts, Since } from '../score/planTypes.js';
 import { turnSchema } from './actionSchema.js';
 import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
+import { KEEP_REASON, START_REASON } from './reviseKeep.js';
 import { asksWholeSong, replanMessage } from './markFit.js';
 import { detectLanguage } from './lyricLanguage.js';
 import { draftLines } from './songState.js';
@@ -87,11 +89,13 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
   const maxTokens = allowed.includes('edit') ? MAX_TOKENS.edit : MAX_TOKENS.other;
   let calls = 0;
   let since: Since | null = null; // the last accepted check's merge: turnAttempts returns on it
+  let guards = revise ? [KEEP_REASON, START_REASON] : []; // CP-C2: each drop guard sends a reply back once, then it stands
   let asked: LyricsMode = 'write'; // the last accepted recipe's write / keep
   const outcome = await turnAttempts(messages, {
     ask: (msgs) => { calls += 1; return deps.ask(msgs, schema, { maxTokens }); },
     check: async (json) => {
-      const c = await checkReply(json, checkCtx, { apply: deps.apply, language: detectLanguage });
+      const c = await checkReply(json, { ...checkCtx, guards }, { apply: deps.apply, language: detectLanguage });
+      if (!c.ok) guards = guards.filter((g) => !c.reasons.some((r) => r.startsWith(g)));
       since = c.ok && c.revised && revise ? { planId: revise.plan.id, ...c.revised } : null;
       asked = c.ok && c.lyrics ? c.lyrics : 'write';
       return c;

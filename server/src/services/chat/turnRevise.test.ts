@@ -3,7 +3,7 @@ import { getPlan, resetPlans, setPlan } from '../score/planStore.js';
 import { REVISE_LINES } from '../score/planRevise.js';
 import type { Op, Plan } from '../score/planTypes.js';
 import { propose, resetProposals } from './proposalStore.js';
-import { CHAT_REVISE_LINE, chatPendingLines, pendingFor } from './turnRevise.js';
+import { CHAT_KEEP_LINE, CHAT_REVISE_LINE, chatPendingLines, pendingFor } from './turnRevise.js';
 
 const TEMPO: Op = { op: 'SET_TEMPO', bpm: 88 };
 const HARM: Op = { op: 'REHARMONIZE', from_bar: 47, to_bar: 50, chords: [47, 48, 49, 50].map((bar) => ({ bar, beat: 1, root: 'D', quality: 'm7' as const })) };
@@ -60,8 +60,16 @@ describe('turnRevise.pendingFor (F-058, D-227)', () => {
   it('the chat\'s lines replace the dock\'s reply lines: the reply is an edit action with drop, and the rule\'s "complete op list" is overridden', () => {
     const lines = chatPendingLines(plan());
     expect(lines).not.toContain(REVISE_LINES[0]);
-    expect(lines.slice(-2)).toEqual([CHAT_REVISE_LINE, REVISE_LINES[1]]);
-    expect(CHAT_REVISE_LINE).toMatch(/"drop"/);
+    expect(lines.slice(-2)).toEqual([CHAT_REVISE_LINE, CHAT_KEEP_LINE]);
+    expect(CHAT_KEEP_LINE).toMatch(/"drop"/);
     expect(CHAT_REVISE_LINE).toMatch(/not the complete op list/);
+  });
+
+  it('CP-C2: the block ends on drop for what the request takes away (all of it on "forget all that") and drop [] on an addition', () => {
+    expect(CHAT_REVISE_LINE).toContain('same target (');
+    expect(CHAT_KEEP_LINE).toMatch(/^"drop" lists the pending ops the request takes away: .*"forget all that" drops every pending op\./);
+    expect(CHAT_KEEP_LINE).toMatch(/A request that only adds .* keeps every pending op: drop \[\]\./);
+    expect(CHAT_KEEP_LINE).toMatch(/not as the pending plan would leave it\.$/);
+    expect(chatPendingLines(plan()).at(-1)).toBe(CHAT_KEEP_LINE);
   });
 });
