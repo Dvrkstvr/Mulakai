@@ -720,6 +720,7 @@ button.acid-outline {
   padding: 10px;
   border: 1px solid var(--line);
   background: var(--panel);
+  cursor: pointer;
 }
 
 /* sky = selection/scope per DESIGN.md, same idiom as the Editor's focused layer */
