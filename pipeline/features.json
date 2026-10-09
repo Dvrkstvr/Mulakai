@@ -819,8 +819,8 @@
         "After an audio-only REPEAT, a later whole-song re-render over 360 s refuses with the existing line",
         "The version card of a spliced version has RE-RENDER WHOLE SONG; it opens a whole-song edit card (consequence line, APPLY) that re-renders the active version's own score with no model call (D-268; build package CK-6, absent in client/src on 2026-10-09)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/reviews/c4-live.md (2026-10-09, live, own yue-server on the C4 code): CUT/REPEAT card \"No GPU · no render…\", CUT saved in 4 s with 0 of 8.14M samples differing; RE-RENDER WHOLE SONG → whole-song card → v3; last-section REPEAT says why before APPLY; RENDERING · WHOLE SONG on fallback. Unit/engine evidence accepted for: 4 dB fallback wording (yue pytest), cut-leaves-no-section refusal (engine, c4-f066-verify.md), >360 s after REPEAT (planJob.afterRepeat.test.ts), 4:00 (chatScreen.test.ts). Earlier report c4-f066-verify.md."
     },
     {
       "id": "F-067",
@@ -863,8 +863,8 @@
         "Edge: CANCEL at any step (rendering, any splice step, before saving) deletes the temp files and saves nothing; the card returns to pending",
         "Checkpoint CP-C4 before any UI: 3 library songs x 2 multi-op plans (REHARMONIZE + REHARMONIZE; REHARMONIZE + CUT or REPEAT), headless, logged in pipeline/cp-c4/<date>/, stop lines in scope.md C4"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "pipeline/reviews/c4-live.md (2026-10-09, live): A Gertar 2×REHARMONIZE, B Cariñito REPEAT+REHARMONIZE, G Polka 3 ops→2 spans each saved ONE version naming every span; null test 0 differing on all saved files; max join excess 0.46 dB; touching REPEAT+REHARMONIZE whole-song with reason before APPLY; APPLY-time fallback saved one whole render; cancel during render and splicing saved nothing. CP-C4 GO (pipeline/cp-c4/2026-10-09/summary.md, 5/5 stop lines). Review C4-code.md 0 blocking."
     },
     {
       "id": "F-070",

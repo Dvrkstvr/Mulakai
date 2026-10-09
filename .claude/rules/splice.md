@@ -31,4 +31,10 @@ should copy"; placement: docs/decisions/0005.
   decides the steps (merge, 2-4 limit, last bar first); yue-server validates
   and maps bars (`splice_chain.py`), never re-plans. One job, one render at
   most; any step not `ok` = `rerender` for the whole plan, never a partial file.
+  REHARMONIZE ops that merge into one span splice as one single span.
+- Side fits (`splice_fit.py`, D-284/D-285): pre and post offsets disagree →
+  refit on every bar outside the span(s); a side keeps its own offset only
+  with a 2-bar lead, and a side with under 2 bars to judge answers `rerender`
+  (a short tail must not hide a real bar of drift). The stored chain
+  `null_test` sums the steps; the true check is `splice_check.py --chain`.
 - Tests: synthetic audio + SP-4's recorded lab rows; never real model calls.

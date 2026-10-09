@@ -5,17 +5,13 @@
 ## Now
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
-- stage: 7 build — C2 DONE 2026-10-09 (built #230-#249, reviewed C2-code.md + #251, live c2-live.md, fixes #256-#258 #265 #266, F-056..F-060 pass, curated); C1 done 2026-10-08
+- stage: 7 build — C4 DONE 2026-10-09 (one version from several local ops: built #275-#287, CP-C4 GO, reviewed C4-code.md 0 blocking + #285, live c4-live.md, F-066 + F-069 pass, F-067/F-068 not doing D-262, curated); C2 done 2026-10-09
 - clarity: blocking 0 · latest Q-152 · decisions to D-289
 - feasibility: amber · H-open 1 (R-038 German lyrics: gemma4 chosen D-237, build = LD) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7 · R-042 LD turn time
-- milestone: C0 + C1 + C2 + C3 done · RT done (F-090..F-094; F-094 #274 #286 #289) · features passing 54/97 with #283 · C4 (own session)
-<<<<<<< HEAD
-- autopilot: stopped — F-094 reached (run 8, 10/12 rounds)
-=======
-- autopilot: C4 · round 8/12 · progress 8·C4 review 1/1·52·0 · stall 0
->>>>>>> origin/main
+- milestone: C0 + C1 + C2 + C3 + C4 done · RT done (F-090..F-094; F-094 #274 #286 #289, flag in #283) · features passing 56/97
+- autopilot: stopped — C4 reached (run 9, 9/12 rounds); RT-6 run 8 stopped at F-094 (10/12)
 - LD (lyrics own call; German on gemma4): built #242 #246 · fixes #252 (D-251) #253 (D-252 keep) #260 (D-255 loop refused) #270 (D-259 lyrics cap 1200, cut call waited out) · live: redirect 0/18, loop retries resolve in-turn; 7/10 German firsts hit the 180 s timeout before #270 · owner tests #270 in use and reports (no re-check run) · owed: chatCp3 (owner songs), owner reads German lyrics
-- owed: cover listen (C3), M2 pair 2, M1 phrase
+- owed: cover listen (C3), M2 pair 2, M1 phrase · C4 (optional): seam listen at c4-live.md times, one real run watching SPLICING · k OF N · restart yue-server/WSL (forwarding died 20:08, owner yue predates the chain code)
 - next: LD-1 PR → LD-2 once #238 merges; BPM fix in its own session; REPEAT-last-section task card
 
 ## Stages
@@ -28,8 +24,8 @@
 | 4 | Scope | done | 5/5 must; user signed off (D-026) | 2026-10-03 |
 | 5 | Design | done | 3/3 must; mockup signed off (D-032) | 2026-10-03 |
 | 6 | Architecture | done | 3/4 + context budget lands in W0 (D-046) | 2026-10-03 |
-| 7 | Build | active (C2 done 2026-10-09: F-056..F-060 pass, live re-checks, curated) | C2 gate met | 2026-10-09 |
-| 8 | Review | C2 code: 0 blocking, 1 should fixed (#251); C1 0 blocking (#215) | 2/2 must | 2026-10-08 |
+| 7 | Build | active (C4 done 2026-10-09: F-066 + F-069 pass, CP-C4 GO, live c4-live.md, curated) | C4 gate met | 2026-10-09 |
+| 8 | Review | C4 code: 0 blocking, 1 should fixed (#285); C2 0 blocking (#251) | 2/2 must | 2026-10-09 |
 | 9 | Release | n/a (local single-user app) | — | — |
 
 ## Notes
