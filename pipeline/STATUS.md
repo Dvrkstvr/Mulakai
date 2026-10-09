@@ -9,7 +9,7 @@
 - clarity: blocking 0 · latest Q-144 · decisions to D-259
 - feasibility: amber · H-open 1 (R-038 German lyrics: gemma4 chosen D-237, build = LD) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7 · R-042 LD turn time
 - milestone: C0 + C1 + C2 + C3 done · features passing 52/96 · Re-time a transcription (own session)
-- autopilot: F-094 · round 2/12 (run 8) · progress 7·F-094 built, live check·52·0 · stall 0
+- autopilot: F-094 · round 3/12 (run 8) · progress 8·F-094 review fixes + live check·52·0 · stall 0
 - LD (lyrics own call; German on gemma4): built #242 #246 · fixes #252 (D-251) #253 (D-252 keep) #260 (D-255 loop refused) #270 (D-259 lyrics cap 1200, cut call waited out) · live: redirect 0/18, loop retries resolve in-turn; 7/10 German firsts hit the 180 s timeout before #270 · owner tests #270 in use and reports (no re-check run) · owed: chatCp3 (owner songs), owner reads German lyrics
 - owed: cover listen (C3), M2 pair 2, M1 phrase
 - next: LD-1 PR → LD-2 once #238 merges; RT-6 (chat RE-TIME verb) now unblocked by C2; BPM fix in its own session; REPEAT-last-section task card
