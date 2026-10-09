@@ -34,9 +34,9 @@ describe('routeRetime', () => {
     });
   });
 
-  it('asked about the reading on a cover, the reading is re-timed when it has one', () => {
+  it('asked about the reading on a cover, the reading is re-timed when it has one; with none, the dock (D-280)', () => {
     expect(routeRetime({ mode: 'half' }, { ...COVER, reading: READING.reading }, 'reading')).toMatchObject({ kind: 'reading', readBpm: 87 });
-    expect(routeRetime({ mode: 'half' }, COVER, 'reading')).toMatchObject({ kind: 'refused' });
+    expect(routeRetime({ mode: 'half' }, COVER, 'reading')).toMatchObject({ kind: 'dock' });
   });
 
   it.each([
