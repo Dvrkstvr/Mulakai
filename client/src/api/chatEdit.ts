@@ -1,5 +1,5 @@
 /** Chat C0b (CB-5): the edit card's and version card's wire bodies and APPLY. Mirrored by hand from the server's
- * `chat/editTypes.ts` (EditBody), `chat/versionCard.ts` (VersionCardBody) and `routes/chatTurns.ts` (APPLY); reconcile
+ * `chat/editTypes.ts` (EditBody), `chat/versionCard.ts` (VersionCardBody) and `routes/chatTurns.ts` (APPLY, C4 RE-RENDER WHOLE SONG); reconcile
  * both when either moves. CANCEL is `chatApi.cancelChatJob`; the job polls through `jobStatus`. */
 import type { ScoreOp, ScoreOpVerdict, ScorePlan, ScoreRenderMode, ScoreSince } from './score';
 import type { BarMap } from './chatConverge';
@@ -56,6 +56,9 @@ export type ChatApplyPhase = 'queued' | 'rendering' | 'splicing' | 'saving';
 /** 202 with the job, or the click re-check's reason; `stale` = the song changed since the plan (ASK AGAIN). */
 export type ChatApplyStart = { jobId: string } | { refused: string; stale: boolean };
 
+/** 201 with the edit card it appended, or why not (a turn or APPLY runs, not the active spliced version, a limit). */
+export type ChatRerenderStart = { messageId: string; proposalId: string } | { refused: string };
+
 export const chatEditApi = {
   applyChatEdit: async (threadId: string, proposalId: string): Promise<ChatApplyStart> => {
     const res = await fetch(`/api/chat/threads/${threadId}/apply`, {
@@ -67,5 +70,16 @@ export const chatEditApi = {
       throw new ApiError('HTTP 409', 409);
     }
     return json<{ jobId: string }>(res);
+  },
+
+  /** RE-RENDER WHOLE SONG (D-268): the server appends a whole-song edit card on the active spliced version; 409 = why not. */
+  rerenderWhole: async (threadId: string, versionId: string): Promise<ChatRerenderStart> => {
+    const res = await fetch(`/api/chat/threads/${threadId}/versions/${versionId}/rerender`, { method: 'POST' });
+    if (res.status === 409 || res.status === 404) {
+      const body = (await res.clone().json().catch(() => ({}))) as { reason?: unknown; error?: unknown };
+      const reason = body.reason ?? body.error;
+      if (typeof reason === 'string') return { refused: reason };
+    }
+    return json<{ messageId: string; proposalId: string }>(res);
   },
 };
