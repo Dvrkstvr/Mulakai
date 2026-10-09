@@ -3039,41 +3039,82 @@ footer .player {
   margin-bottom: 7px;
 }
 
-/* Pushes SPLIT (and the delete button right after it) all the way to the
-   lane's right edge — auto margin absorbs the flex row's remaining space,
-   rather than the two trailing behind MUTE/SOLO with unused width past them. */
-.split-btn {
+/* A lane's ⋯ menu (LaneMenu.tsx), pushed to the lane's right edge: RENAME, SPLIT INTO STEMS, DELETE LAYER… in a
+   panel under the button; delete is rust and asks once, naming what goes. */
+.lane-menu {
   margin-left: auto;
+  position: relative;
 }
 
-.lane-delete-btn {
-  margin-left: 10px;
+.lane-menu-btn {
   transform: skewX(-10deg);
-  padding: 5px 10px;
-  min-width: 24px;
-  color: var(--rust-text);
-  border: 1px solid var(--rust);
-  background: transparent;
-  cursor: pointer;
-  transition: min-width 0.2s ease-out, background-color 0.2s ease-out, color 0.2s ease-out;
+  padding: 3px 12px;
+  font-size: 14px;
+  line-height: 1;
+  color: var(--text-mid);
 }
 
-.lane-delete-btn span {
+.lane-menu-btn span {
   display: inline-block;
   transform: skewX(10deg);
 }
 
-.lane-delete-btn.confirm-delete {
-  min-width: 74px;
-  background: var(--rust);
-  color: var(--on-rust);
+.lane-menu-btn[aria-expanded="true"] {
+  border-color: var(--sky);
+  color: var(--sky);
 }
 
-.lane-delete-btn:disabled {
-  opacity: 0.35;
-  cursor: default;
-  border-color: var(--line-hi);
+.lane-menu-list {
+  position: fixed;
+  z-index: 60;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-hi);
+  background: var(--panel);
+}
+
+.lane-menu-it {
+  border: 0;
+  border-bottom: 1px solid var(--line);
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 11px;
+  letter-spacing: 1px;
+  background: none;
+}
+
+.lane-menu-it:last-child {
+  border-bottom: 0;
+}
+
+.lane-menu-it:hover:not(:disabled),
+.lane-menu-it:focus-visible {
+  background: var(--sky-tint);
+  box-shadow: inset 3px 0 var(--sky);
+  outline: none;
+}
+
+.lane-menu-it.danger {
+  color: var(--rust-text);
+}
+
+.lane-menu-it.danger:hover:not(:disabled) {
+  background: var(--rust-tint);
+  box-shadow: inset 3px 0 var(--rust);
+}
+
+.lane-menu-it:disabled {
   color: var(--text-low);
+  cursor: default;
+}
+
+.lane-menu-note {
+  padding: 8px 12px;
+  font-size: 11px;
+  color: var(--rust-body);
+  background: var(--rust-tint);
+  border-bottom: 1px solid var(--line);
 }
 
 .versions .version {

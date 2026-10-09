@@ -751,8 +751,16 @@ requiring its own justification against a screen-count rule.
        both the control bar and waveform of the focused lane (same concept
        as `.version.current`'s lilac accent, but sky — see the Sky section
        below). Focusing re-targets the shared transport, the action dock's
-       REPAINT and SPLIT, and the VERSIONS rail to that layer. A lane's
-       SPLIT button focuses it and opens the dock on SPLIT.
+       REPAINT and SPLIT, and the VERSIONS rail to that layer.
+     - A lane's **⋯ menu** (revised 2026-10-10, PLAN.md "Editor Redesign",
+       PR 3) at the control bar's right edge replaces the SPLIT button and
+       the bare X: RENAME, SPLIT INTO STEMS (focuses the lane and opens the
+       dock on SPLIT), DELETE LAYER… in rust, which asks once in the panel
+       ("Deletes DRUMS and its 3 takes · this can't be undone", then DELETE
+       DRUMS / CANCEL); off on the base layer. The panel is fixed to the
+       viewport under the button (the lane list's scroll box never clips
+       it); outside click, Escape or a scroll closes it. SOLO's tooltip
+       names click (only this layer) and shift-click (add to the solo).
      - The timeline itself (`Timeline.tsx`) is a ruler, not just start/end
        labels: ticks + `mm:ss` labels at a "nice" interval (5/10/15/30/60…
        seconds, auto-picked so ~5–10 ticks span any song length) run along
