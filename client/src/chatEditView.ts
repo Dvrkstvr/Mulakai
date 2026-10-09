@@ -5,12 +5,12 @@ import type { ChatMessageView } from './api/chat';
 import type { ChatEditBody } from './api/chatEdit';
 
 /** The song as read, in bars (D-066): `checks.bars` is the edited score, so a CUT adds its span back and a REPEAT
- * takes its copy out. */
+ * takes its copy out (every one of a chain's, C4). */
 export function stripTotal(b: Pick<ChatEditBody, 'splice' | 'checks'>): number {
   const s = b.splice;
-  if (!s.splice || s.kind === 'reharmonize') return b.checks.bars;
-  const n = s.to_bar - s.from_bar + 1;
-  return s.kind === 'cut' ? b.checks.bars + n : b.checks.bars - n;
+  if (!s.splice) return b.checks.bars;
+  const spans = s.kind === 'several' ? s.steps : [s];
+  return spans.reduce((n, x) => n + (x.kind === 'cut' ? 1 : x.kind === 'repeat' ? -1 : 0) * (x.to_bar - x.from_bar + 1), b.checks.bars);
 }
 
 /** ASK AGAIN on a stale or expired card: the person's message the card answered; null when there is none. */

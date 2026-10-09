@@ -2,7 +2,7 @@
  * bar count, ASK AGAIN's text, the song's version numbers and the A/B against the version before (F-048). */
 import { describe, expect, it } from 'vitest';
 import type { ChatMessageView, ChatThreadView } from './api/chat';
-import type { ChatEditBody } from './api/chatEdit';
+import type { ChatEditBody, ChatSpliceStep } from './api/chatEdit';
 import type { SongDetail } from './api';
 import { abPrevious } from './chatAb';
 import { askAgainText, songVersions, stripTotal } from './chatEditView';
@@ -41,6 +41,10 @@ describe('the edit card helpers', () => {
     expect(stripTotal(edit({ splice: true, kind: 'cut', from_bar: 57, to_bar: 64 }, 68))).toBe(76);
     expect(stripTotal(edit({ splice: true, kind: 'repeat', from_bar: 17, to_bar: 24 }, 84))).toBe(76);
     expect(stripTotal(edit({ splice: false, reason: 'x' }))).toBe(76);
+    // C4: a chain adds back every cut and takes out every copy; re-sung spans keep their length.
+    const steps: ChatSpliceStep[] = [{ kind: 'repeat', from_bar: 49, to_bar: 56, ops: [2] }, { kind: 'cut', from_bar: 17, to_bar: 24, ops: [1] }, { kind: 'reharmonize', from_bar: 3, to_bar: 6, ops: [0] }];
+    expect(stripTotal(edit({ splice: true, kind: 'several', from_bar: 3, to_bar: 56, steps }, 76))).toBe(76);
+    expect(stripTotal(edit({ splice: true, kind: 'several', from_bar: 3, to_bar: 24, steps: steps.slice(1) }, 68))).toBe(76);
   });
   it('ASK AGAIN re-asks the message the card answered', () => {
     const msgs = [msg({ id: 'u1', role: 'user', kind: 'text', text: 'jazz chords' }), msg({ id: 'e' }), msg({ id: 'u2', role: 'user', kind: 'text', text: 'later' })];

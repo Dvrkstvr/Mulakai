@@ -25,16 +25,14 @@ export interface SpliceInput {
   facts: Pick<ScoreFacts, 'header' | 'sections' | 'bar_map'>;
   /** The read's verdict on the base score (null = unknown, treated as none, as renderMode does). */
   chordsPresent: boolean | null;
-  /** C4 feature gate (off until the chain ships end to end): off, 2+ ops answer main's single-change reason. */
-  chain?: boolean;
 }
 
 const METER = '4/4';
 const METER_LINE = /^\(meter M:(\d+\/\d+) from here/;
 const no = (reason: string): Splice => ({ splice: false, reason });
 
-export function spliceEligibility(ops: Op[], { facts, chordsPresent, chain = false }: SpliceInput): Splice {
-  if (ops.length === 0 || (ops.length > 1 && !chain)) return no(`the plan makes ${ops.length} changes; only a single change can be spliced into the old take`);
+export function spliceEligibility(ops: Op[], { facts, chordsPresent }: SpliceInput): Splice {
+  if (ops.length === 0) return no('the plan makes 0 changes; only a single change can be spliced into the old take');
   const spans = [];
   for (const op of ops) {
     const s = opSpan(op, facts.sections);

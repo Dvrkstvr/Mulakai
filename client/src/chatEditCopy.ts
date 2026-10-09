@@ -7,6 +7,7 @@ import type { CommitPhase } from './chatTurn';
 import { fmtLength } from './chatScreen';
 import { queueSuffix, startsAfter } from './queueCopy';
 import { renderModeClause, renderStage } from './scoreCopy';
+import * as several from './chatSpliceCopy';
 
 export const EDIT_HEADER = 'EDIT · SCORE';
 export const APPLY = 'APPLY';
@@ -39,6 +40,7 @@ export function editHint(kind: string, base: number, next: number): string {
 /** The bar strip's words (EC-2): the span against the bars that stay, or all of them. `total` = the song as read. */
 export function stripLine(s: ChatSplice, total: number, base: number): string {
   if (!s.splice) return `ALL ${total} BARS CHANGE`;
+  if (s.kind === 'several') return several.severalStripLine(s, total, base);
   const one = s.from_bar === s.to_bar;
   const did = (one ? { reharmonize: 'CHANGES', cut: 'IS CUT', repeat: 'PLAYS TWICE' } : { reharmonize: 'CHANGE', cut: 'ARE CUT', repeat: 'PLAY TWICE' })[s.kind];
   return `${span(s).toUpperCase()} ${did} · THE OTHER ${total - (s.to_bar - s.from_bar + 1)} ARE v${base}`;
@@ -47,26 +49,24 @@ export function stripLine(s: ChatSplice, total: number, base: number): string {
 /** The consequence line left of APPLY (EC-1, EC-3; F-046 #2): only the span changes, or the whole song re-renders. */
 export function editConsequence(s: ChatSplice, mode: ScoreRenderMode, base: number, next: number, ahead: number): string {
   const saves = `saves v${next}, v${base} is kept`;
+  if (several.isSeveral(s)) return `${several.severalConsequence(s, base, next)}${queueSuffix(ahead)}`;
   if (s.splice && s.kind === 'reharmonize') {
     return `Uses the GPU, a few minutes · re-sings ${span(s)}, instruments there may change, every other bar stays v${base}'s audio · length may differ by under 0.25 s · ${saves}${queueSuffix(ahead)}`;
   }
   if (s.splice) {
     const [verb, after] = s.kind === 'cut' ? ['Cuts', 'bars after the cut are earlier'] : ['Repeats', 'bars after the copy are later'];
     // D-154: a join that cannot be aligned (or a REPEAT seam that steps over 4 dB) saves the whole re-render (C1 N1).
-    return `${NO_RENDER} · ${verb} ${span(s)} in v${base}'s audio, every other bar stays v${base}'s audio · ${after}, so BACK TO v${base} will not line up there · if the join cannot be aligned, the whole song is re-rendered instead · ${saves}${queueSuffix(ahead)}`;
+    return `${several.NO_RENDER} · ${verb} ${span(s)} in v${base}'s audio, every other bar stays v${base}'s audio · ${after}, so BACK TO v${base} will not line up there · if the join cannot be aligned, the whole song is re-rendered instead · ${saves}${queueSuffix(ahead)}`;
   }
   const clause = renderModeClause(mode);
   return `Uses the GPU, a few minutes · the whole song is re-rendered: every bar will sound different, not only the listed ones · instruments may change${clause ? ` · ${clause}` : ''} · ${saves}${queueSuffix(ahead)}`;
 }
 
-/** F-066: a CUT / REPEAT splice copies or removes audio; only its fallback renders. */
-const NO_RENDER = 'No GPU · no render: the audio is copied or removed at the section edges';
-
 export type ApplyStep = 'rendering' | 'splicing' | 'saving';
 /** The commit's steps (EC-4): a splice renders then splices, a CUT / REPEAT only splices, a whole song only renders. */
 export function applySteps(s: ChatSplice): ApplyStep[] {
   if (!s.splice) return ['rendering', 'saving'];
-  return s.kind === 'reharmonize' ? ['rendering', 'splicing', 'saving'] : ['splicing', 'saving'];
+  return (s.kind === 'several' ? several.severalRenders(s) : s.kind === 'reharmonize') ? ['rendering', 'splicing', 'saving'] : ['splicing', 'saving'];
 }
 
 export interface ApplyLine { title: string; tail: string | null; waiting: boolean; cancel: boolean }
@@ -79,7 +79,7 @@ export function applyJobLine(p: CommitPhase, s: ChatSplice, next: number): Apply
   if (p.kind !== 'running' || step < 0) return { title: `${APPLY} · STARTING…`, tail: null, waiting: true, cancel: p.kind !== 'starting' };
   const tail = `step ${step + 1} of ${steps.length}`;
   if (p.progressText === 'saving') return { title: `SAVING · writing v${next} and its score`, tail, waiting: false, cancel: false };
-  if (p.progressText === 'splicing') return { title: `SPLICING · ${s.splice ? span(s) : 'the bars'} into the old take`, tail, waiting: false, cancel: true };
+  if (p.progressText === 'splicing') return { title: several.isSeveral(s) ? several.severalSplicingTitle(s, p.stage) : `SPLICING · ${s.splice ? span(s) : 'the bars'} into the old take`, tail, waiting: false, cancel: true };
   const stage = renderStage(p.stage ?? undefined, p.progress ?? undefined);
   return { title: `RENDERING${s.splice ? '' : ' · WHOLE SONG'} · YUE2${stage ? ` · ${stage}` : ''}`, tail, waiting: false, cancel: true };
 }
@@ -102,7 +102,7 @@ export function staleBody(reason: string): string {
   const detail = reason.replace(/^this song changed since the proposal:?\s*/, '');
   return `${detail || 'a repaint was queued in the Editor, or another version was chosen'}. Nothing started.`;
 }
-export const editDoneLine = (s: ChatSplice) => `DONE · ${s.splice ? span(s).toUpperCase() : 'WHOLE SONG'}`;
+export const editDoneLine = (s: ChatSplice) => (several.isSeveral(s) ? several.severalDoneLine(s) : `DONE · ${s.splice ? span(s).toUpperCase() : 'WHOLE SONG'}`);
 export const waitingFor = (n: number) => `WAITING FOR v${n} · a message sent now is read after v${n} is saved`;
 
 // The version card (EC-5, EC-6) and BACK TO in the player (EC-7).
@@ -116,6 +116,7 @@ export const versionHint = (v: ChatVersionBody) => (v.whole && (v.fallback || v.
 export function versionMeta(v: ChatVersionBody): string {
   const length = fmtLength(v.seconds);
   if (v.truncated) return [length, 'TRUNCATED'].filter(Boolean).join(' · ');
+  if (v.splice?.kind === 'several') return [length, ...several.severalVersionParts(v.splice, was(v), lengthDiff(v.splice.lengthDiffS, v))].filter(Boolean).join(' · ');
   if (v.splice) {
     const [a, b] = v.splice.bars;
     const did = { reharmonize: `${barsOf(a, b)} changed · the rest is ${v.previous ? `${was(v)}'s` : "the old take's"} audio`, cut: `${barsOf(a, b)} removed`, repeat: `${barsOf(a, b)} repeated` }[v.splice.kind];
@@ -138,9 +139,8 @@ export function versionFoot(v: ChatVersionBody, active: boolean): string {
   const p = v.previous.number;
   if (v.truncated) return `v${p} is kept and is the full-length take.`;
   if (v.fallback) return `Not what the card promised: BACK TO v${p} and USE v${p} if you prefer.`;
-  // A CUT shifts everything from its first bar; a REPEAT's copy follows its last bar (yue-server splice_repeat).
-  if (v.splice?.kind === 'cut') return `BACK TO v${p} plays the same seconds, which no longer line up from bar ${v.splice.bars[0]}.`;
-  if (v.splice?.kind === 'repeat') return `BACK TO v${p} plays the same seconds, which no longer line up after bar ${v.splice.bars[1]}.`;
+  const moved = v.splice ? several.shiftFoot(v.splice.kind === 'several' ? v.splice.steps : [v.splice], p) : null;
+  if (moved) return moved;
   return active ? `v${v.number} is the active version. v${p} is kept.` : `v${v.number} is kept in VERSIONS.`;
 }
 

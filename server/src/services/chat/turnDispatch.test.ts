@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { RECIPE, readingFixture } from '../../../test-fakes/chatScripts.js';
 import { emptyDraft, handEdit } from './draftModel.js';
 import { REDIRECT, dispatchReply } from './turnDispatch.js';
@@ -113,15 +113,11 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(free.body.renderMode).toEqual({ cot: 'full', reason: 'reharmonize' });
   });
 
-  it('C4 gate: CHAT_SPLICE_CHAIN=1 turns a 2-op local plan into a several-span splice; unset keeps the single-change reason', () => {
+  it('C4 (CK-5): a 2-op local plan is a several-span splice, no gate', () => {
     const local: Op[] = [{ op: 'REHARMONIZE', from_bar: 11, to_bar: 14, chords: [] }, { op: 'CUT', section: 3, label: 'chorus' }];
-    const card = () => { const o = dispatchReply({ ...base, hasSong: true, reply: edit(local), edit: planned(local) }); return o.kind === 'edit' ? o.body.splice : null; };
-    vi.stubEnv('CHAT_SPLICE_CHAIN', '');
-    expect(card()).toEqual({ splice: false, reason: 'the plan makes 2 changes; only a single change can be spliced into the old take' });
-    vi.stubEnv('CHAT_SPLICE_CHAIN', '1');
-    expect(card()).toMatchObject({ splice: true, kind: 'several', from_bar: 11, to_bar: 62, steps: [{ kind: 'cut', ops: [1] }, { kind: 'reharmonize', ops: [0] }] });
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(local), edit: planned(local) });
+    expect(out.kind === 'edit' && out.body.splice).toMatchObject({ splice: true, kind: 'several', from_bar: 11, to_bar: 62, steps: [{ kind: 'cut', ops: [1] }, { kind: 'reharmonize', ops: [0] }] });
   });
-  afterEach(() => { vi.unstubAllEnvs(); });
 
   it('C1: a marked edit card carries the mark and its notes: a clamp and a whole-song op (D-176, F-055 edge)', () => {
     const two: Op[] = [...reharm, { op: 'SET_TEMPO', bpm: 90 }];

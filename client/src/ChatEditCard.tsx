@@ -48,13 +48,16 @@ interface Props {
   revisedBelow?: boolean;
 }
 
-/** The bars that change, on the song as read (EC-2): a sky span, or the full hatch when the whole song re-renders. */
+/** The bars that change, on the song as read (EC-2): a sky span (one per span of a chain, C4), or the full hatch when
+ * the whole song re-renders. */
 function BarStrip({ splice, total, base }: { splice: ChatSplice; total: number; base: number }) {
-  const span = splice.splice && total > 0
-    ? { left: `${((splice.from_bar - 1) / total) * 100}%`, width: `${((splice.to_bar - splice.from_bar + 1) / total) * 100}%` } : null;
+  const spans = splice.splice && total > 0 ? (splice.kind === 'several' ? [...splice.steps].reverse() : [splice]) : [];
+  const at = (s: { from_bar: number; to_bar: number }) => ({ left: `${((s.from_bar - 1) / total) * 100}%`, width: `${((s.to_bar - s.from_bar + 1) / total) * 100}%` });
   return (
     <div className="chat-strip">
-      <div className={span ? 'chat-strip-bar' : 'chat-strip-bar all'}><i style={span ?? undefined} /></div>
+      <div className={spans.length ? 'chat-strip-bar' : 'chat-strip-bar all'}>
+        {spans.length ? spans.map((s) => <i key={s.from_bar} style={at(s)} />) : <i />}
+      </div>
       <div className="chat-strip-nums"><span>1</span><span>{stripLine(splice, total, base)}</span><span>{total}</span></div>
     </div>
   );
