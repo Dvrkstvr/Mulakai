@@ -8,12 +8,19 @@ before it is queued so a bad one is a 422 rather than a failed job.
      "edited_abc": "<the plan's edited score>",                        (optional; else the render's score)
      "base_grid": {"grid_v": 1, ...}}                                  (optional; the server's cached grid)
 
+Spec v2, a chain (F-069): `steps` = [{"op": {...}}, ...] in place of `op`
+(never both), 2-4 of them, last bar first, no two sharing a bar
+(splice_chain.validate); `render_job` is needed when any step is a
+REHARMONIZE, and `edited_abc` is then the full edited score (every step's op
+applied), which the chain maps REHARMONIZE spans into.
+
 Only these three ops are spliced (D-154): REWRITE LYRICS, WRITE PHRASE and
 every other edit render the whole song on the server's existing path.
 """
 from __future__ import annotations
 
 from score_model import Doc
+from splice_chain import ChainError, validate
 from splice_grid import GridError, score_bars, validate_grid
 
 SPLICED = ("REHARMONIZE", "REPEAT", "CUT")
@@ -59,21 +66,51 @@ def span(op: dict, doc: Doc) -> tuple[int, int]:
     raise SpecError(f"section {number} does not exist")
 
 
+def _op(op) -> dict:
+    if not isinstance(op, dict) or op.get("op") not in SPLICED:
+        name = op.get("op") if isinstance(op, dict) else op
+        raise SpecError(f"{name} is not spliced; the server renders the whole song for it")
+    return op
+
+
+def _steps(spec: dict, base: Doc) -> list[dict]:
+    """Spec v2: `steps` = [{"op": {...}}, ...], last bar first (F-069, D-263)."""
+    if not isinstance(spec["steps"], list) or not all(isinstance(st, dict) for st in spec["steps"]):
+        raise SpecError("steps must be a list of {op}")
+    steps = []
+    for k, st in enumerate(spec["steps"], 1):
+        op = _op(st.get("op"))
+        try:
+            steps.append({"op": op, "span": list(span(op, base))})
+        except SpecError as error:
+            raise SpecError(f"step {k}: {error}") from None
+    try:
+        validate(steps)
+    except ChainError as error:
+        raise SpecError(str(error)) from None
+    return steps
+
+
 def check_spec(spec, store) -> dict:
-    if not isinstance(spec, dict) or not isinstance(spec.get("op"), dict):
-        raise SpecError("spec must be a JSON object with an op")
-    op = spec["op"]
-    if op.get("op") not in SPLICED:
-        raise SpecError(f"{op.get('op')} is not spliced; the server renders the whole song for it")
+    if not isinstance(spec, dict) or ("op" in spec) == ("steps" in spec) or (
+            "op" in spec and not isinstance(spec["op"], dict)):
+        raise SpecError("spec must be a JSON object with an op or with steps (never both)")
     base = _score(spec.get("base_abc"), "base_abc")
-    start, end = span(op, base)
-    checked = {"op": op, "base_abc": spec["base_abc"], "span": [start, end]}
+    checked = {"base_abc": spec["base_abc"]}
+    if "steps" in spec:
+        checked["steps"] = _steps(spec, base)
+        kinds = {st["op"]["op"] for st in checked["steps"]}
+    else:
+        op = _op(spec["op"])
+        start, end = span(op, base)
+        checked.update(op=op, span=[start, end])
+        kinds = {op["op"]}
     if spec.get("base_grid") is not None:
         try:
             checked["base_grid"] = validate_grid(spec["base_grid"])
         except GridError as error:
             raise SpecError(f"base_grid: {error}") from None
-    if op["op"] == "REHARMONIZE":
+    if "REHARMONIZE" in kinds:
         job_id = spec.get("render_job")
         job = store.get(job_id, kind="song") if isinstance(job_id, str) else None
         if job is None:

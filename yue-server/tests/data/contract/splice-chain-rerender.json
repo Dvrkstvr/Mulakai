@@ -1,0 +1,317 @@
+{
+ "name": "splice-chain-rerender",
+ "request": {
+  "method": "POST",
+  "path": "/v1/splices",
+  "form": {
+   "spec": {
+    "steps": [
+     {
+      "op": {
+       "op": "CUT",
+       "section": 3,
+       "label": "verse"
+      }
+     },
+     {
+      "op": {
+       "op": "REPEAT",
+       "section": 1,
+       "label": "verse"
+      }
+     }
+    ],
+    "base_abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=120\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:C\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% chorus\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n",
+    "base_grid": {
+     "grid_v": 1,
+     "source": "tracked",
+     "downbeats": [
+      0.2,
+      2.2,
+      4.2,
+      6.2,
+      8.2,
+      10.2,
+      12.2,
+      14.2,
+      16.2,
+      18.2,
+      20.2,
+      22.2,
+      24.2,
+      26.2,
+      28.2,
+      30.2,
+      32.2,
+      34.2,
+      36.2,
+      38.2,
+      40.2,
+      42.2,
+      44.2,
+      46.2
+     ],
+     "chords": [
+      [
+       0.2,
+       2.2,
+       "C:maj"
+      ],
+      [
+       2.2,
+       4.2,
+       "A:min"
+      ],
+      [
+       4.2,
+       6.2,
+       "F:maj"
+      ],
+      [
+       6.2,
+       8.2,
+       "G:maj"
+      ],
+      [
+       8.2,
+       10.2,
+       "C:maj"
+      ],
+      [
+       10.2,
+       12.2,
+       "A:min"
+      ],
+      [
+       12.2,
+       14.2,
+       "F:maj"
+      ],
+      [
+       14.2,
+       16.2,
+       "G:maj"
+      ],
+      [
+       16.2,
+       18.2,
+       "C:maj"
+      ],
+      [
+       18.2,
+       20.2,
+       "A:min"
+      ],
+      [
+       20.2,
+       22.2,
+       "F:maj"
+      ],
+      [
+       22.2,
+       24.2,
+       "G:maj"
+      ],
+      [
+       24.2,
+       26.2,
+       "C:maj"
+      ],
+      [
+       26.2,
+       28.2,
+       "A:min"
+      ],
+      [
+       28.2,
+       30.2,
+       "F:maj"
+      ],
+      [
+       30.2,
+       32.2,
+       "G:maj"
+      ],
+      [
+       32.2,
+       34.2,
+       "C:maj"
+      ],
+      [
+       34.2,
+       36.2,
+       "A:min"
+      ],
+      [
+       36.2,
+       38.2,
+       "F:maj"
+      ],
+      [
+       38.2,
+       40.2,
+       "G:maj"
+      ],
+      [
+       40.2,
+       42.2,
+       "C:maj"
+      ],
+      [
+       42.2,
+       44.2,
+       "A:min"
+      ],
+      [
+       44.2,
+       46.2,
+       "F:maj"
+      ],
+      [
+       46.2,
+       49.2,
+       "G:maj"
+      ]
+     ],
+     "duration": 49.2
+    }
+   }
+  },
+  "file": "audio"
+ },
+ "response": {
+  "status": 202,
+  "body": {
+   "id": "sp-0001",
+   "kind": "splice",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "queued",
+   "stage": "queued",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": null,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ },
+ "final": {
+  "status": 200,
+  "body": {
+   "id": "sp-0001",
+   "kind": "splice",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "succeeded",
+   "stage": "finished",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": 1.0,
+   "finished_at": 1.0,
+   "cancel_requested": false,
+   "result": {
+    "kind": "several",
+    "bars": [
+     1,
+     24
+    ],
+    "steps": [
+     {
+      "verdict": "ok",
+      "reason": null,
+      "detail": null,
+      "kind": "CUT",
+      "bars": [
+       17,
+       24
+      ],
+      "audio_seconds": 32.8,
+      "length_diff_s": -16.5,
+      "joins_s": [],
+      "crossfade_s": [],
+      "base_points_s": [],
+      "parts": [
+       {
+        "source": "base",
+        "out_s": [
+         0.0,
+         32.8
+        ],
+        "src_s": [
+         0.0,
+         32.8
+        ]
+       }
+      ],
+      "edges": [
+       [
+        32.2,
+        32.8
+       ]
+      ],
+      "snap": [],
+      "gain_db": null,
+      "level_step_db": null,
+      "gap_shift_s": 0.0,
+      "seams": [],
+      "null_test": {
+       "samples": 1550000,
+       "different": 0
+      }
+     },
+     {
+      "verdict": "rerender",
+      "reason": "level_step",
+      "detail": "the copy's seam steps +10.4 dB in loudness (more than 4 dB): the whole song is re-rendered",
+      "kind": "REPEAT",
+      "bars": [
+       1,
+       8
+      ],
+      "audio_seconds": null,
+      "length_diff_s": null,
+      "joins_s": [],
+      "crossfade_s": [],
+      "base_points_s": [],
+      "parts": [],
+      "edges": [],
+      "snap": [
+       {
+        "delta_ms": -0.4,
+        "applied": true,
+        "corr": 0.9
+       }
+      ],
+      "gain_db": null,
+      "level_step_db": 10.4,
+      "gap_shift_s": null,
+      "seams": [],
+      "null_test": null
+     }
+    ],
+    "grid_urls": {
+     "base": "/v1/splices/sp-0001/grid/base",
+     "render": null,
+     "out": null
+    },
+    "verdict": "rerender",
+    "reason": "level_step",
+    "detail": "the copy's seam steps +10.4 dB in loudness (more than 4 dB): the whole song is re-rendered",
+    "step": 2,
+    "audio_url": null,
+    "audio_seconds": null,
+    "length_diff_s": null,
+    "joins_s": [],
+    "null_test": null,
+    "timing": {
+     "total_seconds": 1.0
+    }
+   },
+   "error": null
+  }
+ }
+}
