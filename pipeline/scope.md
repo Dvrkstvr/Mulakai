@@ -1015,7 +1015,7 @@ reading) with the same consequence copy.
 - Tempo maps or rubato (one tempo per re-time; the BPM grid anchors to detected downbeats).
 
 
-## LD — Lyrics as their own call; German lyrics on gemma4 (F-095, F-096; D-205, D-232, D-233 .. D-237)
+## LD — Lyrics as their own call; German lyrics on gemma4 (F-095, F-096, F-097; D-205, D-232, D-233 .. D-237, D-260, D-261)
 
 The lyrics step becomes SP-5's rung 3 for every language: the planner's recipe call no longer writes lyrics, a separate lyrics
 call does (SP-5 `ladder.py lyrics_call`: system rules per language, `{sections: [{lines}]}` with exactly one entry per sung section,
@@ -1051,6 +1051,24 @@ On the owner's GPU, with the stack: one German, one English and one Spanish chat
 calls, models, seconds per step, `/api/ps` after the slot, VRAM peak; and that a YuE2 take queued behind a German turn starts only
 after the slot is released. Bar: German turn ≤ 60 s on a warm disk cache; no model listed after any turn; the owner reads the German
 lyrics as usable.
+
+### F-097 · An instrumental new song from chat (small feature track; D-260)
+Owner report 2026-10-09: on a new-song chat, "remove the lyrics" / "make the song an instrumental" was not complied with (the recipe
+had to carry a sung section, and "remove the lyrics" named the words without a keep word, so the lyrics call wrote fresh ones).
+- The planner's recipe says `vocals: "sung" | "instrumental"` (one rule sentence: instrumental when the person asks for no vocals,
+  no lyrics, no singing or an instrumental, in any language; a follow-up keeps the PROPOSAL / SIDEBAR's). An instrumental recipe
+  gets no lyrics call and no lines; the draft keeps `vocals` (additive under `draft_v: 1`). The draft's vocals change only on a
+  request that names the words or the voice (`namesVocals`), so "etwas schneller" on an instrumental stays one call and instrumental.
+- CREATE SONG of an instrumental draft sends YuE2 its structure as a tags-only skeleton and an `Instrumental, …, no vocals` style
+  (buildYue2Request treats tags-only lyrics as instrumental). A sung draft with no lyrics blocks CREATE SONG with
+  `LYRICS are empty: write the words, or ask for an instrumental` (never a silent instrumental).
+- Client: the card says `INSTRUMENTAL · no vocals` where the LYRICS toggle goes; the sidebar's LYRICS row reads
+  `instrumental · no vocals` and stays editable: typed lyrics make the draft sung (server, handEdit).
+- Acceptance (fakes): "mach es instrumental" / "remove the lyrics" / "ohne Gesang" / "keine Lyrics" / "sin letra" on a German draft
+  with lyrics → recipe instrumental, 1 call, no gemma4, lyrics []; "etwas schneller" on an instrumental stays instrumental in 1 call
+  even if the planner flips; "doch mit Text bitte" → sung, 2 calls; CREATE SONG sends the skeleton + instrumental style; an
+  empty-lyrics sung draft blocks; the card and sidebar render INSTRUMENTAL.
+- Non-goal: removing the vocals from a finished song (a song thread's edit; a stem split is the scalpel for that).
 
 ### Not doing (LD)
 - Two German drafts with a pick (D-232's plan, replaced by D-237); promising Deutschrap or Liedermacher lyrics in German (SP-7).
