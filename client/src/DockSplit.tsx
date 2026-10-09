@@ -6,6 +6,7 @@ import { queueSuffix, startsAfter } from './queueCopy';
 import { useJobsAhead } from './queueStore';
 import { previewPlayback } from './previewPlayback';
 import { SplitStemRow } from './SplitStemRow';
+import { SplitStemsBar } from './SplitStemsBar';
 import { useLookup } from './lookup';
 import { SplitBackendTabs } from './SplitBackendTabs';
 import { DockCommit } from './DockCommit';
@@ -20,7 +21,7 @@ interface Props {
 
 /**
  * SPLIT — pick a backend, extract stems from the focused layer, then per-stem
- * preview/replace/add-layer/re-extract. The extraction session itself lives in editorJobStore.ts's `splitJob` slot, not
+ * preview/download/replace/add-layer/re-extract, plus DOWNLOAD ALL and SPLIT ALL AGAIN (SplitStemsBar). The extraction session itself lives in editorJobStore.ts's `splitJob` slot, not
  * local state, so navigating to the Library and back (or to a different layer
  * and back) reconnects to the same stems instead of losing them. Once settled it
  * blocks nothing else; only a new split elsewhere replaces it. Stem playback goes
@@ -30,6 +31,7 @@ export function DockSplit({ songId, layer, onChanged, scoreOpen }: Props) {
   const [model, setModel] = useState<'acestep' | 'demucs' | null>(null);
   const [error, setError] = useState('');
   const [busyKind, setBusyKind] = useState<StemKind | null>(null);
+  const [busyAll, setBusyAll] = useState(false);
   const ahead = useJobsAhead();
   const splitJob = useEditorJobStore((s) => s.splitJob);
   const startSplit = useEditorJobStore((s) => s.startSplit);
@@ -98,6 +100,20 @@ export function DockSplit({ songId, layer, onChanged, scoreOpen }: Props) {
     }
   };
 
+  const splitAgain = async () => {
+    if (!mine) return;
+    setBusyAll(true);
+    setError('');
+    try {
+      const { stems: again } = await api.reextractAllStems(mine.splitJobId);
+      again.forEach(patchSplitStem);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setBusyAll(false);
+    }
+  };
+
   const nextVersion = layer.versions.length + 1;
 
   return (
@@ -111,13 +127,14 @@ export function DockSplit({ songId, layer, onChanged, scoreOpen }: Props) {
             {extracting && (
               <div className="hint">{mine?.queuePosition ? `queued · ${startsAfter(mine.queuePosition)}` : `${fmtElapsed(elapsedMs)} elapsed`}</div>
             )}
+            <SplitStemsBar stems={stems} layerName={layer.name} busy={busyAll || busyKind !== null} ahead={ahead} onSplitAgain={() => void splitAgain()} />
             {stems.map((stem) => (
               <SplitStemRow
                 key={stem.kind}
                 stem={stem}
                 layerName={layer.name}
                 nextVersion={nextVersion}
-                busy={busyKind === stem.kind}
+                busy={busyAll || busyKind === stem.kind}
                 scoreOpen={scoreOpen}
                 onClaim={(action) => claim(stem.kind, action)}
                 onReextract={() => reextract(stem.kind)}

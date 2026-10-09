@@ -42,7 +42,8 @@ const { startCompleteGeneration } = await import('./completeGenJobs.js');
 const { startRepaint, startRegenerate, startSimilarTake } = await import('./repaintJobs.js');
 const { startAddLayer } = await import('./addLayerJobs.js');
 const { startRemaster } = await import('./remasterJobs.js');
-const { startSplit, getSplitJob, reextractStem } = await import('./stemSplit.js');
+const { startSplit, getSplitJob } = await import('./stemSplit.js');
+const { reextractStem } = await import('./stemReextract.js');
 const { startScratchSplit, getScratchSplitJob } = await import('./scratchSplitJobs.js');
 const { LAYER_DELETED, SONG_TRASHED } = await import('./queueGuards.js');
 

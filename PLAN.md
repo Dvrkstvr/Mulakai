@@ -9424,3 +9424,36 @@ memory.
 Files: `client/src/RemasterAction.tsx`, `RemasterTune.tsx` (new),
 `remasterChoice.ts` (new, pure helpers + tests), `settingsTypes.ts`,
 `settingsStore.ts`, `settingsPersist.ts`, `PlaybackExportSection.tsx`.
+
+## Split Stems: Download and Split All Again (planned 2026-10-10)
+
+The owner's ask: in the Editor's SPLIT dock, a download on each extracted
+stem, a DOWNLOAD ALL, and a SPLIT ALL AGAIN.
+
+### Decisions
+
+- **DOWNLOAD** on each stem row once its take is done and unclaimed, named
+  `<LAYER> - <Stem>.<ext>` (the take's own extension). A claimed stem is a
+  layer version by then, downloaded from the layer.
+- **DOWNLOAD ALL** starts one browser download per ready stem, staggered;
+  no zip (no archive dependency for four files).
+- **SPLIT ALL AGAIN** re-extracts every unclaimed stem that is not running,
+  as **one** queue job: Demucs separates all four in a single pass, so four
+  single RE-EXTRACTs would run it four times. ACE-Step runs the stems' extract
+  calls together, as the first split does. Claimed stems are left alone. A
+  consequence line names the count and that the current takes are replaced.
+- RE-EXTRACT of one stem keeps its behaviour; it becomes the one-stem case.
+
+### File-level plan (one PR, `feat/split-download-all`)
+
+- `server/src/services/stemReextract.ts` (new) — `reextractStems`,
+  `reextractStem`, `reextractAll`, moved out of `stemSplit.ts` (at its cap).
+- `server/src/routes/split.ts` — `POST /:jobId/reextract` (all).
+- `client/src/api/editor.ts` — `reextractAllStems`.
+- `client/src/splitDownloads.ts` (new, + test) — names, the ready list, the
+  staggered download.
+- `client/src/SplitStemsBar.tsx` (new) — DOWNLOAD ALL, SPLIT ALL AGAIN and
+  its consequence line; `DockSplit.tsx` mounts it; `SplitStemRow.tsx` gets
+  DOWNLOAD.
+- DESIGN.md: the SPLIT dock's new controls, in its own commit, if it
+  deviates.

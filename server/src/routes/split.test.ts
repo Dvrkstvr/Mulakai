@@ -11,8 +11,11 @@ vi.mock('../services/acestep.js', () => ({
 vi.mock('../services/stemSplit.js', () => ({
   getSplitJob: vi.fn(),
   claimStem: vi.fn(),
-  reextractStem: vi.fn(),
   cancelSplit: vi.fn(),
+}));
+vi.mock('../services/stemReextract.js', () => ({
+  reextractStem: vi.fn(),
+  reextractAll: vi.fn(() => [{ kind: 'drums', status: 'running' }]),
 }));
 vi.mock('../services/scratchSplitJobs.js', () => ({
   startScratchSplit: vi.fn(async () => ({ id: 'scratch-job-1' })),
@@ -207,5 +210,13 @@ describe('GET /health', () => {
       demucsReason: null,
       demucsBackend: 'uvr',
     });
+  });
+});
+
+describe('POST /api/split/:jobId/reextract', () => {
+  it('re-extracts every unclaimed stem and returns them', async () => {
+    const res = await fetch(`${baseUrl}/job-1/reextract`, { method: 'POST' });
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ stems: [{ kind: 'drums', status: 'running' }] });
   });
 });

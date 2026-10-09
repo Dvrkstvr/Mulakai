@@ -2837,6 +2837,13 @@ footer .player {
   gap: 8px;
 }
 
+/* SPLIT dock: DOWNLOAD ALL / SPLIT ALL AGAIN above the stem rows, the consequence line under them. */
+.split-stems-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .stem-name {
   font-weight: 700;
   font-size: 11px;

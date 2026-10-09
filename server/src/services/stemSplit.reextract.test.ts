@@ -36,7 +36,8 @@ const { config } = await import('../config.js');
 const { db } = await import('../db/index.js');
 const acestep = await import('./acestep.js');
 const { getRunning } = await import('./genQueue.js');
-const { startSplit, claimStem, getSplitJob, reextractStem, cancelSplit } = await import('./stemSplit.js');
+const { startSplit, claimStem, getSplitJob, cancelSplit } = await import('./stemSplit.js');
+const { reextractAll, reextractStem } = await import('./stemReextract.js');
 type StemKind = 'vocals' | 'drums' | 'bass' | 'other';
 
 /** Fake Demucs/UVR service: each /split pass serves stems whose bytes name the pass. */
@@ -136,6 +137,44 @@ describe('stemSplit RE-EXTRACT (Demucs/UVR)', () => {
     const job = await settledSplit(layerId, 'demucs');
     claimStem(job.id, 'other', 'add-layer');
     expect(() => reextractStem(job.id, 'other')).toThrow('stem already claimed');
+  });
+});
+
+describe('stemSplit SPLIT ALL AGAIN', () => {
+  it('Demucs: one pass re-takes every unclaimed stem and leaves the claimed one alone', async () => {
+    const { layerId } = seedSong();
+    const job = await settledSplit(layerId, 'demucs');
+    claimStem(job.id, 'vocals', 'add-layer');
+    const before = Object.fromEntries(job.stems.map((s) => [s.kind, s.audioFile!]));
+
+    expect(reextractAll(job.id).map((s) => s.kind)).toEqual(['drums', 'bass', 'other']);
+    await vi.waitFor(() => expect(['drums', 'bass', 'other'].every((k) => !exists(before[k]))).toBe(true));
+    await idle();
+
+    expect(pass).toBe(2); // the first split, then a single pass for all three
+    for (const kind of ['drums', 'bass', 'other'] as const) expect(bytes(stemOf(job.id, kind).audioFile!)).toBe(`pass2-${kind}`);
+    expect(stemOf(job.id, 'vocals').audioFile).toBe(before.vocals);
+    expect(bytes(before.vocals)).toBe('pass1-vocals');
+  });
+
+  it('ACE-Step: one extract call per unclaimed stem', async () => {
+    const { layerId } = seedSong();
+    const job = await settledSplit(layerId, 'acestep');
+    claimStem(job.id, 'bass', 'replace');
+    vi.mocked(acestep.releaseTask).mockClear();
+
+    reextractAll(job.id);
+    await vi.waitFor(() => expect(job.stems.every((s) => s.status === 'done')).toBe(true));
+    await idle();
+
+    expect(acestep.releaseTask).toHaveBeenCalledTimes(3);
+  });
+
+  it('refuses when every stem is claimed', async () => {
+    const { layerId } = seedSong();
+    const job = await settledSplit(layerId, 'demucs');
+    for (const kind of ['vocals', 'drums', 'bass', 'other'] as const) claimStem(job.id, kind, 'add-layer');
+    expect(() => reextractAll(job.id)).toThrow('no stems to re-extract');
   });
 });
 

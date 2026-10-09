@@ -828,8 +828,11 @@ requiring its own justification against a screen-count rule.
          picker, lyrics (USE SONG LYRICS) only for VOCALS and BACKING
          VOCALS, `TUNE ▸` with the Base-only DIT MODEL. A picked track names
          the lane; under AUTO the description's first words do.
-       - SPLIT: the backend picker, then once extracted CANCEL SPLIT and one
-         row per stem (preview, REPLACE, ADD LAYER, RE-EXTRACT).
+       - SPLIT: the backend picker, then once extracted CANCEL SPLIT, a
+         DOWNLOAD ALL · SPLIT ALL AGAIN pair over a consequence line (SPLIT
+         ALL AGAIN re-extracts every unclaimed stem as one job and replaces
+         their takes; added 2026-10-10), and one row per stem (preview,
+         DOWNLOAD, REPLACE, ADD LAYER, RE-EXTRACT).
        - EXPORT: WHAT = **MIX** (a client-side bounce of what you hear —
          mute/solo, layer volumes — to an untagged 16-bit WAV named after
          the song; no format choice), **STEMS** (each layer's active take,

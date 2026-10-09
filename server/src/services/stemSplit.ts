@@ -1,7 +1,7 @@
 /**
  * The layer-bound SPLIT job: separate a layer's active audio into 4 stems, then
  * claim each one as a new version (REPLACE) or a new layer (ADD LAYER), or
- * RE-EXTRACT it. The per-stem runners live in stemRunners.ts, shared with the
+ * RE-EXTRACT it (stemReextract.ts). The per-stem runners live in stemRunners.ts, shared with the
  * upload-based scratch split.
  */
 import crypto from 'node:crypto';
@@ -54,7 +54,8 @@ export function isLiveSplit(id: string): boolean {
   return jobs.has(id);
 }
 
-function readSource(file: string): Promise<SourceAudio> {
+/** The split's source audio, read from the audio dir. */
+export function readSource(file: string): Promise<SourceAudio> {
   return fs.readFile(path.join(config.audioDir, file)).then((data) => ({ data, filename: file }));
 }
 
@@ -99,47 +100,6 @@ export async function startSplit(layerId: string, model: SplitModel, output?: un
     throw err;
   }
   return job;
-}
-
-/**
- * Queue a re-run of a single stem (fresh seed for ACE-Step) from the split's original source.
- * Rejected once the stem is claimed. Demucs has no single-stem endpoint, so it re-runs
- * the full pass and keeps only this stem's output. The new audio lands under a new
- * filename; the superseded one (never claimed) is deleted once it's replaced.
- */
-export function reextractStem(jobId: string, kind: StemKind): StemResult {
-  const job = getSplitJob(jobId);
-  if (!job) throw new Error('unknown split job');
-  const stem = job.stems.find((s) => s.kind === kind);
-  if (!stem) throw new Error('unknown stem');
-  if (stem.claimed) throw new Error('stem already claimed');
-  if (stem.status === 'running') throw new Error('stem is still running');
-  const previous = stem.audioFile;
-  // ABORT on a running re-extract drops only this stem's new take; the session stays open.
-  let aborted = false;
-  const isActive = () => jobs.has(job.id) && !aborted;
-  const info = { kind: 'split' as const, jobId: crypto.randomUUID(), songId: job.songId, layer: layerName(job.layerId), label: `re-extract ${kind}` };
-  const prior = { status: stem.status, error: stem.error };
-  stem.status = 'running';
-  stem.error = undefined;
-  try {
-    enqueue(info, () => {
-      if (!isActive()) return undefined;
-      return readSource(job.sourceFile)
-        .then((src) => (job.model === 'acestep'
-          ? runAcestepStem(job, kind, src, config.audioDir, isActive)
-          : runDemucs(job, src, config.audioDir, isActive, [kind])))
-        .then(() => (stem.audioFile !== previous ? discardUnclaimedFile(previous) : undefined))
-        .catch((err) => failRunning([stem], err));
-    }, (reason) => failRunning([stem], new Error(reason)), () => {
-      aborted = true;
-      Object.assign(stem, prior); // back to its last result
-    });
-  } catch (err) {
-    Object.assign(stem, prior); // the queue was full: the stem keeps its last result
-    throw err;
-  }
-  return stem;
 }
 
 /** Replace the layer's audio (new revertible version) or add the stem as a brand-new layer. */

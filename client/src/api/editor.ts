@@ -101,6 +101,10 @@ export const editorApi = {
   reextractStem: (jobId: string, kind: StemKind): Promise<StemResult> =>
     fetch(`/api/split/${jobId}/stems/${kind}/reextract`, { method: 'POST' }).then((r) => json(r)),
 
+  /** SPLIT ALL AGAIN: every unclaimed stem that is not running, as one queue job. */
+  reextractAllStems: (jobId: string): Promise<{ stems: StemResult[] }> =>
+    fetch(`/api/split/${jobId}/reextract`, { method: 'POST' }).then((r) => json(r)),
+
   cancelSplit: (jobId: string): Promise<void> =>
     fetch(`/api/split/${jobId}/cancel`, { method: 'POST' }).then(() => undefined),
 

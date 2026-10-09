@@ -2,7 +2,8 @@ import path from 'node:path';
 import { Router } from 'express';
 import multer from 'multer';
 import { splitHealth } from '../services/splitHealth.js';
-import { getSplitJob, claimStem, reextractStem, cancelSplit, type StemKind, type SplitModel } from '../services/stemSplit.js';
+import { getSplitJob, claimStem, cancelSplit, type StemKind, type SplitModel } from '../services/stemSplit.js';
+import { reextractAll, reextractStem } from '../services/stemReextract.js';
 import { startScratchSplit, getScratchSplitJob, discardScratchSplit, scratchStemPath } from '../services/scratchSplitJobs.js';
 import { QueueFullError, queuePosition } from '../services/genQueue.js';
 
@@ -106,6 +107,16 @@ splitRouter.post('/:jobId/stems/:kind/reextract', (req, res) => {
   if (!isStemKind(req.params.kind)) return res.status(400).json({ error: 'unknown stem kind' });
   try {
     res.json(reextractStem(req.params.jobId, req.params.kind));
+  } catch (err) {
+    if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
+    res.status(400).json({ error: err instanceof Error ? err.message : 're-extract failed' });
+  }
+});
+
+/** SPLIT ALL AGAIN: re-extract every unclaimed stem that is not running, as one queue job. */
+splitRouter.post('/:jobId/reextract', (req, res) => {
+  try {
+    res.json({ stems: reextractAll(req.params.jobId) });
   } catch (err) {
     if (err instanceof QueueFullError) return res.status(409).json({ error: err.message });
     res.status(400).json({ error: err instanceof Error ? err.message : 're-extract failed' });
