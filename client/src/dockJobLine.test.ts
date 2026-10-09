@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import type { SingleEditorJob } from './editorJob';
-import { dockJobLine, songBadgeJob } from './dockJobLine';
+import { dockJobLine, jobFocus, songBadgeJob } from './dockJobLine';
 import { landedEdits } from './useLandedReload';
 
 const repaint = (over: Partial<SingleEditorJob>): SingleEditorJob =>
@@ -41,5 +41,16 @@ describe("a Library row's job badge", () => {
     expect(songBadgeJob([failed, waiting], null, 's1')?.key).toBe('w');
     expect(songBadgeJob([failed], null, 's1')?.key).toBe('f');
     expect(songBadgeJob([working], null, 's2')).toBeNull();
+  });
+});
+
+describe('jobFocus', () => {
+  it('opens the verb that shows the job, on its layer when it has one', () => {
+    expect(jobFocus(repaint({}))).toEqual({ verb: 'repaint', layerId: 'l1' });
+    expect(jobFocus(repaint({ kind: 'retake', versionId: 'v1' } as Partial<SingleEditorJob>))).toEqual({ verb: 'repaint', layerId: 'l1' });
+    expect(jobFocus(repaint({ kind: 'addLayer' } as Partial<SingleEditorJob>))).toEqual({ verb: 'addLayer', layerId: null });
+    expect(jobFocus(repaint({ kind: 'remaster' } as Partial<SingleEditorJob>))).toEqual({ verb: 'export', layerId: null });
+    expect(jobFocus({ kind: 'split', key: 'k', jobId: 'j', songId: 's1', layerId: 'l2', splitJobId: 'x', stems: [], startedAt: 1, stage: 'running' }))
+      .toEqual({ verb: 'split', layerId: 'l2' });
   });
 });

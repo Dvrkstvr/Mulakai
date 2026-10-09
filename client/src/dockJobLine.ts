@@ -1,5 +1,6 @@
 /** What the Editor says about its own jobs in flight (PLAN.md "UI Redesign", S4.7). Pure. */
 import type { EditorJob, SingleEditorJob, SplitJobState } from './editorJob';
+import type { DockVerb } from './dockTarget';
 import { EDITOR_STAGE_LABEL, fmtElapsed, fmtProgress, stageDetail } from './genProgress';
 import { startsAfter } from './queueCopy';
 
@@ -20,4 +21,15 @@ export function songBadgeJob(jobs: SingleEditorJob[], split: SplitJobState | nul
   const mine = jobs.filter((j) => j.songId === songId);
   return mine.find((j) => j.stage === 'running' && !j.queuePosition) ?? mine.find((j) => j.stage !== 'failed')
     ?? mine.find((j) => j.stage === 'failed') ?? (split?.songId === songId ? split : null);
+}
+
+/** Where the Editor opens for a job (the Library badge's click, or the song reloading mid-job): the dock verb that
+ * shows it and, for a job on one layer, that layer. */
+export function jobFocus(job: EditorJob): { verb: DockVerb; layerId: string | null } {
+  switch (job.kind) {
+    case 'addLayer': return { verb: 'addLayer', layerId: null };
+    case 'remaster': return { verb: 'export', layerId: null };
+    case 'split': return { verb: 'split', layerId: job.layerId };
+    default: return { verb: 'repaint', layerId: job.layerId };
+  }
 }

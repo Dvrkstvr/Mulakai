@@ -860,6 +860,18 @@ button.acid-outline {
   padding: 2px 8px;
 }
 
+button.library-job-badge:hover,
+button.library-job-badge:focus-visible {
+  background: var(--acid);
+  color: var(--carbon);
+}
+
+button.library-job-badge.failed:hover,
+button.library-job-badge.failed:focus-visible {
+  background: var(--rust);
+  color: var(--text-hi);
+}
+
 .library-job-badge.failed {
   color: var(--rust-text);
   border-color: var(--rust);
