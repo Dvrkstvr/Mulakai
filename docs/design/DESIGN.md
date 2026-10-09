@@ -1272,7 +1272,10 @@ requiring its own justification against a screen-count rule.
      no bars, 50%, still clickable), **hatched** (bars moved, the reading
      failed, or no bar times: `carbon-raised`/`line` 135° hatching, no
      names, and the ruler counts seconds instead of bars, since marking
-     works by time). While A/B plays the reference or the version before,
+     works by time). A click on a name marks that section once the 250 ms
+     double-click window passes; a double-click moves the playhead to the
+     section's start and marks nothing, as the Editor's strip (added
+     2026-10-10). While A/B plays the reference or the version before,
      the strip is blank (its bars are the playable version's). Under the
      waveform, the **reading line** sits on its own 16px row: 10px mono in
      `text-mid` for every state (`READING v5 · QUEUED · STARTS AFTER 1
