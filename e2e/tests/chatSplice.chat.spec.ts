@@ -76,7 +76,7 @@ test('two local ops: the card names both spans and one render; APPLY sends one c
   const version = page.locator('.chat-version-card').last();
   await expect(version).toContainText('v2', { timeout: 30_000 });
   await expect(version).toContainText('ACTIVE NOW');
-  await expect(version.locator('.chat-card-title')).toContainText('bars 43–43 spliced · bars 47–62 cut');
+  await expect(version.locator('.chat-card-title')).toContainText('bar 43 spliced · bars 47–62 cut');
   await expect(version.locator('.chat-version-meta')).toContainText("bar 43 changed, bars 47-62 removed · the rest is v1's audio");
   await expect(version.locator('.chat-version-meta')).toContainText('bars after the cut are earlier');
   await expect(version).toContainText('BACK TO v1 plays the same seconds, which no longer line up from bar 47.');

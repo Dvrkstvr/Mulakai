@@ -21,7 +21,7 @@ from pathlib import Path
 from splice_audio import AudioError, read_audio, write_wav
 from splice_check import null_test, seams
 from splice_dsp import SR
-from splice_fit import side_fits
+from splice_fit import ShortSide, side_fits
 from splice_grid import GridError, fit, score_bars, track
 from splice_plan import rerender, splice_reharmonize
 from splice_result import mapped_grid, ok_result, rerender_result
@@ -107,7 +107,10 @@ def _splice(steps: _Steps, store, request: dict) -> dict:
         if new_grid is None:
             return rerender_result(rerender("no_grid", "no downbeat grid for the new take"), kind, spec, steps)
         n = len(score_bars(edited).chords)
-        fits["render"], post = side_fits(new_grid, edited, range(0, s), range(e, n))
+        try:
+            fits["render"], post = side_fits(new_grid, edited, range(0, s), range(e, n))
+        except ShortSide as short:
+            return rerender_result(rerender("length", str(short)), kind, spec, steps)
         steps.enter("splicing")
         splice = splice_reharmonize(base, new, gb, fits["render"], post, s, e)
     else:

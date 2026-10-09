@@ -53,11 +53,17 @@ const SPLICED_WORD = { reharmonize: 'spliced', cut: 'cut', repeat: 'repeated' } 
 /** " · bars 25–32 spliced", a chain's " · bars 9–16, 41–48 spliced · bars 25–32 cut" (reading order, one group per
  * kind), " · whole song re-rendered: <reason>", or "" for a `splice_v` this build does not know. */
 export function spliceSuffix(s: SpliceRecord): string {
-  if (s.splice_v === 1) return 'fallback' in s ? ` · whole song re-rendered: ${s.fallback}` : ` · bars ${s.bars[0]}–${s.bars[1]} ${SPLICED_WORD[s.kind]}`;
+  if (s.splice_v === 1) return 'fallback' in s ? ` · whole song re-rendered: ${s.fallback}` : ` · ${barsOf([s.bars])} ${SPLICED_WORD[s.kind]}`;
   if (s.splice_v !== 2 || !Array.isArray(s.steps)) return '';
   const rows = [...s.steps].sort((a, b) => a.bars[0] - b.bars[0]);
   return (['reharmonize', 'cut', 'repeat'] as const).filter((k) => rows.some((r) => r.kind === k))
-    .map((k) => ` · bars ${rows.filter((r) => r.kind === k).map((r) => `${r.bars[0]}–${r.bars[1]}`).join(', ')} ${SPLICED_WORD[k]}`).join('');
+    .map((k) => ` · ${barsOf(rows.filter((r) => r.kind === k).map((r) => r.bars))} ${SPLICED_WORD[k]}`).join('');
+}
+
+/** `bar 43`, `bars 9–16`, `bars 9–16, 43` (a one-bar span is its bar). */
+function barsOf(spans: Array<[number, number]>): string {
+  const one = spans.length === 1 && spans[0][0] === spans[0][1];
+  return `${one ? 'bar' : 'bars'} ${spans.map(([a, b]) => (a === b ? `${a}` : `${a}–${b}`)).join(', ')}`;
 }
 
 export interface SavedScoreVersion {

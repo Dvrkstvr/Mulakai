@@ -190,6 +190,8 @@ describe('a chained splice record (C4, F-069, D-266: splice_v 2)', () => {
     expect(spliceSuffix({ ...chain, steps: [row('repeat', [17, 24]), row('cut', [1, 8])] })).toBe(' · bars 1–8 cut · bars 17–24 repeated');
     expect(spliceSuffix({ splice_v: 1, ...row('cut', [57, 64]) })).toBe(' · bars 57–64 cut');
     expect(spliceSuffix({ splice_v: 1, fallback: 'x' })).toBe(' · whole song re-rendered: x');
+    expect(spliceSuffix({ splice_v: 1, ...row('reharmonize', [43, 43]) })).toBe(' · bar 43 spliced');
+    expect(spliceSuffix({ ...chain, steps: [row('reharmonize', [43, 43]), row('reharmonize', [9, 16])] })).toBe(' · bars 9–16, 43 spliced');
     expect(spliceSuffix({ splice_v: 3, kind: 'later' } as never)).toBe('');
   });
 
