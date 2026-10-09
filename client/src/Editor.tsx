@@ -25,6 +25,7 @@ import { EditorTitleRow } from './EditorTitleRow';
 import { EditorRail } from './EditorRail';
 import { useEditorCommands } from './useEditorCommands';
 import { pickRange, shownRange } from './editorSelection';
+import { ScrollArea } from './ScrollArea';
 
 interface Props {
   songId: string;
@@ -82,65 +83,67 @@ export function Editor({ songId, onBack }: Props) {
 
   return (
     <div className="editor-shell">
-      <div className="with-panel editor-layout" style={{ gridTemplateColumns }}>
-        <div className="editor-main">
-          {loadError && <div className="error">couldn't refresh this song — {loadError} {retryLoad}</div>}
-          <EditorTitleRow song={song} duration={duration} />
+      <ScrollArea className="editor-scroll">
+        <div className="with-panel editor-layout" style={{ gridTemplateColumns }}>
+          <div className="editor-main">
+            {loadError && <div className="error">couldn't refresh this song — {loadError} {retryLoad}</div>}
+            <EditorTitleRow song={song} duration={duration} />
 
-          <SectionStrip sections={sections} activeIndex={verb === 'repaint' ? activeSectionIndex : scorePick?.stripIndex ?? -1}
-            onSelect={scorePick?.onStrip ?? selectRegion} onSeek={seek} />
+            <SectionStrip sections={sections} activeIndex={verb === 'repaint' ? activeSectionIndex : scorePick?.stripIndex ?? -1}
+              onSelect={scorePick?.onStrip ?? selectRegion} onSeek={seek} />
 
-          <LayerStack
-            songId={songId}
-            layers={song.layers}
-            focusedLayerId={focusedLayerId}
-            onFocus={setFocusedLayerId}
-            onChanged={reload}
-            duration={duration}
-            playhead={playhead}
-            selection={shownSelection}
-            onSelect={selectRegion}
-            onSeek={seek}
-            processing={!!repaintJob.running}
-            onSplit={(layerId) => { setFocusedLayerId(layerId); setVerb('split'); }}
-            lyrics={{ draft: lyricsDraft, timings: timing.timings, timing, onLine: scorePick?.onLine, picked: scorePick?.lineIndex }}
-          />
+            <LayerStack
+              songId={songId}
+              layers={song.layers}
+              focusedLayerId={focusedLayerId}
+              onFocus={setFocusedLayerId}
+              onChanged={reload}
+              duration={duration}
+              playhead={playhead}
+              selection={shownSelection}
+              onSelect={selectRegion}
+              onSeek={seek}
+              processing={!!repaintJob.running}
+              onSplit={(layerId) => { setFocusedLayerId(layerId); setVerb('split'); }}
+              lyrics={{ draft: lyricsDraft, timings: timing.timings, timing, onLine: scorePick?.onLine, picked: scorePick?.lineIndex }}
+            />
 
-          <ActionDock
-            verb={verb}
-            verbs={verbs}
-            score={score}
-            scorePickable={scorePick?.pickable ?? false}
-            onVerb={setVerb}
-            song={song}
-            focusedLayer={focusedLayer}
-            selection={selection}
-            onClearSelection={() => setSelection(null)}
-            sections={sections}
-            repaint={{
-              prompt, onPromptChange: setPrompt, job: repaintJob, onRepaint: repaint,
-              lyrics: { unlocked: lyricsUnlocked, draft: lyricsDraft, onDraftChange: setLyricsDraft, activeBlock: activeLyricsBlock },
-            }}
-            onChanged={reload}
-          />
+            <ActionDock
+              verb={verb}
+              verbs={verbs}
+              score={score}
+              scorePickable={scorePick?.pickable ?? false}
+              onVerb={setVerb}
+              song={song}
+              focusedLayer={focusedLayer}
+              selection={selection}
+              onClearSelection={() => setSelection(null)}
+              sections={sections}
+              repaint={{
+                prompt, onPromptChange: setPrompt, job: repaintJob, onRepaint: repaint,
+                lyrics: { unlocked: lyricsUnlocked, draft: lyricsDraft, onDraftChange: setLyricsDraft, activeBlock: activeLyricsBlock },
+              }}
+              onChanged={reload}
+            />
 
-          {activeVersion && (
-            <div className="canvas" style={{ marginTop: 12 }}>
-              <Player engine={engine} downloadSrc={`/audio/${activeVersion.audio_file}`} downloadName={`${song.title}.wav`} minimal />
-            </div>
+            {activeVersion && (
+              <div className="canvas" style={{ marginTop: 12 }}>
+                <Player engine={engine} downloadSrc={`/audio/${activeVersion.audio_file}`} downloadName={`${song.title}.wav`} minimal />
+              </div>
+            )}
+          </div>
+          {focusedLayer && (
+            <EditorRail
+              songId={songId}
+              focusedLayer={focusedLayer}
+              onSelectRegion={selectRegion}
+              onLoadPrompt={(p) => { setPrompt(p); setVerb('repaint'); }}
+              onChanged={reload}
+              onResizePointerDown={railWidth.onPointerDown}
+            />
           )}
         </div>
-        {focusedLayer && (
-          <EditorRail
-            songId={songId}
-            focusedLayer={focusedLayer}
-            onSelectRegion={selectRegion}
-            onLoadPrompt={(p) => { setPrompt(p); setVerb('repaint'); }}
-            onChanged={reload}
-            onResizePointerDown={railWidth.onPointerDown}
-          />
-        )}
-      </div>
+      </ScrollArea>
     </div>
   );
 }
