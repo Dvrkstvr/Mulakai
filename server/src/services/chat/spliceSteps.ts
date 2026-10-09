@@ -3,7 +3,9 @@
  * why the whole song renders instead. Every op must be a REHARMONIZE, CUT or REPEAT with a span (a section op's span is
  * its section as read). REHARMONIZE spans merge when they overlap or their gap is under 2 bars or under 3.0 s (SP-4's
  * level window; a 4/4 bar is 4 × 60 / bpm s): the gap bars are re-sung from the render. A CUT or REPEAT within that gap
- * of any other op's span is not chained (unequal-length merges are new DSP, Q-149). 2-4 steps after merging (Q-152).
+ * of any other op's span is not chained (unequal-length merges are new DSP, Q-149). 2-4 steps after merging (Q-152); a
+ * plan whose REHARMONIZE ops all merge into one span answers that one step, which spliceEligibility splices as one
+ * single-span REHARMONIZE (D-271 b revised; yue's chain wants 2-4 steps).
  * Steps run last bar first, so every step's bars stay numbered as read (D-066); each lists the plan op indexes it covers.
  * Pure; the per-op song checks (meter, chords, inside the song, last-section REPEAT) are spliceEligibility's.
  */
@@ -64,7 +66,8 @@ export function spliceSteps(ops: Op[], { header, sections }: StepFacts): SpliceS
     } else merged.push({ ...s, ops: [...s.ops] });
   }
   if (merged.length > MAX_STEPS) return { reason: `the plan changes ${merged.length} separate spans; at most ${MAX_STEPS} can be spliced into the old take` };
-  if (merged.length < MIN_STEPS) {
+  // One merged span can only be REHARMONIZE ops: a CUT or REPEAT close to another span was refused above.
+  if (merged.length === 0 || (merged.length < MIN_STEPS && merged[0].kind !== 'reharmonize')) {
     return { reason: `the changes merge into one span, ${bars(merged[0] ?? { from: 0, to: 0 })}; a chained splice needs ${MIN_STEPS} to ${MAX_STEPS} separate spans` };
   }
   const steps = merged.reverse().map((s) => ({ kind: s.kind, from_bar: s.from, to_bar: s.to, ops: s.ops }));

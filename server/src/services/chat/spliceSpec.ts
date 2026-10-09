@@ -4,7 +4,8 @@
  * the one YuE2 render first (a REHARMONIZE anywhere in it), the version record (`splice_v` 1 for one span, 2 for a
  * chain) and the fallback's words when yue-server answers `rerender`. A step that merged several REHARMONIZE ops
  * (spliceSteps) is sent as one synthetic REHARMONIZE over the step's bars with every merged op's chords; yue-server reads
- * its bars only, the chords are the render's.
+ * its bars only, the chords are the render's. A one-span card merged from several REHARMONIZE ops (D-271 b revised) is
+ * sent in the v1 spec the same way: one synthetic op over the card's bars.
  */
 import type { Op, Plan } from '../score/planTypes.js';
 import type { SpliceRecord, SpliceRow } from '../score/scoreVersion.js';
@@ -29,7 +30,9 @@ export function needsRender(s: Splice): boolean {
 }
 
 export function spliceSpec(s: Spliced, plan: Pick<Plan, 'ops' | 'abc'>, baseAbc: string, renderJob: string | null, grid: Grid | null): SpliceSpec {
-  const what = s.kind === 'several' ? { steps: s.steps.map((st) => ({ op: stepOp(st, plan.ops) })) } : { op: plan.ops[0] };
+  const what = s.kind === 'several'
+    ? { steps: s.steps.map((st) => ({ op: stepOp(st, plan.ops) })) }
+    : { op: stepOp({ kind: s.kind, from_bar: s.from_bar, to_bar: s.to_bar, ops: plan.ops.map((_, i) => i) }, plan.ops) };
   return { ...what, base_abc: baseAbc, ...(renderJob ? { render_job: renderJob } : {}), edited_abc: plan.abc, ...(grid ? { base_grid: grid } : {}) };
 }
 

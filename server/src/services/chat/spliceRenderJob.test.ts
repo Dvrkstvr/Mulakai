@@ -124,6 +124,19 @@ describe('startEditRender', () => {
     expect(posted('/v1/splices/sp-0001/cancel')).toBe(1); // every exit ends the yue splice job and its temp files
   });
 
+  it('two REHARMONIZE ops merged into one span (D-271 b revised): one render, a v1 splice of the merged bars with the synthetic op, one version', async () => {
+    const halves: Op[] = [{ ...REHARM, to_bar: 12 } as Op, { ...REHARM, from_bar: 13 } as Op];
+    const { songId, layerId, planId } = await seed(halves);
+    yue.job = { states: [{ status: 'succeeded', stage: 'done' }], score: EDITED };
+    const { job } = start(songId, planId, SPLICE_REHARM);
+    expect((await settled(job.id)).status).toBe('done');
+    expect(posted('/v1/jobs')).toBe(1);
+    expect(yue.splice.specs).toEqual([{ op: REHARM, base_abc: BASE_ABC, render_job: expect.any(String), edited_abc: EDITED }]);
+    const [, fresh] = rows(layerId);
+    expect(JSON.parse(fresh.params_json).splice).toMatchObject({ splice_v: 1, kind: 'reharmonize', bars: [9, 16] });
+    expect(rows(layerId)).toHaveLength(2);
+  });
+
   it('a cached base grid rides along; REPEAT splices with no render; a rerender verdict renders the whole song and labels it (D-154, D-101)', async () => {
     const { songId, layerId, versionId, planId } = await seed(REPEAT);
     await writeGrid(versionId, GRID);
