@@ -63,7 +63,8 @@ function recipeOf(v: unknown): Recipe | string {
   if (bad.length) return `recipe fields missing or mistyped: ${bad.join(', ')}`;
   const { title, style, bpm, key, time_signature, language, engine, structure } = v as unknown as Recipe;
   const use = (['cover', 'borrow', 'none'] as const).find((u) => u === v.reference_use); // C3 (D-128): kept when valid
-  return { title, style, bpm, key, time_signature, language, engine, structure: [...structure], lyrics: [], ...(use ? { reference_use: use } : {}) };
+  const vocals = (['sung', 'instrumental'] as const).find((x) => x === v.vocals); // F-097: kept when valid; turnLyrics settles it
+  return { title, style, bpm, key, time_signature, language, engine, structure: [...structure], lyrics: [], ...(vocals ? { vocals } : {}), ...(use ? { reference_use: use } : {}) };
 }
 
 async function checkEdit(json: Obj, message: string, assumptions: string[], ctx: CheckContext, deps: CheckDeps): Promise<Checked> {

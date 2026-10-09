@@ -21,7 +21,7 @@ export const CREATE_FAILED = 'CREATE FAILED';
 
 export const FIELD_LABEL: Record<ChatDraftKey, string> = {
   title: 'TITLE', style: 'STYLE', bpm: 'TEMPO', key: 'KEY', timeSignature: 'METER', language: 'LANGUAGE',
-  structure: 'STRUCTURE', lyrics: 'LYRICS', engine: 'ENGINE',
+  structure: 'STRUCTURE', lyrics: 'LYRICS', engine: 'ENGINE', vocals: 'VOCALS',
 };
 const ORDER = Object.keys(FIELD_LABEL) as ChatDraftKey[];
 const labels = (keys: ChatDraftKey[]) => ORDER.filter((k) => keys.includes(k)).map((k) => FIELD_LABEL[k]);
@@ -161,6 +161,10 @@ export const cardHeader = (kind: string, title?: string | null) =>
     : kind === 'done' && title ? `${RECIPE_HEADER} · ${title.toUpperCase()}` : RECIPE_HEADER;
 export const EXPIRED_TITLE = 'THIS PROPOSAL EXPIRED';
 export const LYRICS_TOGGLE = 'LYRICS';
+/** F-097 (D-260): an instrumental draft, on the card (where the LYRICS toggle goes) and in the sidebar's LYRICS row. */
+export const INSTRUMENTAL_LINE = 'INSTRUMENTAL · no vocals';
+export const INSTRUMENTAL_FIELD = 'instrumental · no vocals';
+export const INSTRUMENTAL_HINT = 'type lyrics to make it sung';
 export const SUPERSEDED_BODY ='A newer proposal is below and its fields are in the sidebar. This one cannot be created.';
 export const EXPIRED_BODY = 'when the server restarted. Your fields are still in the sidebar; ask again for a new card.';
 export const ASK_AGAIN = 'ASK AGAIN';

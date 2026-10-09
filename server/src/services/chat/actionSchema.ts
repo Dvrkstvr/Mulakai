@@ -7,7 +7,7 @@
 import { opsArraySchema } from '../score/opSchema.js';
 import { dropSchema } from '../score/reviseReply.js';
 import type { ScoreFacts } from '../score/planTypes.js';
-import { BPM, ENGINES, KEYS, LANGUAGES, RECIPE_LIMITS, SECTION_TAGS, TIME_SIGNATURES } from './recipeRules.js';
+import { BPM, ENGINES, KEYS, LANGUAGES, RECIPE_LIMITS, SECTION_TAGS, TIME_SIGNATURES, VOCALS } from './recipeRules.js';
 import type { ScalpelKind, TurnAction } from './chatTypes.js';
 import { isWholeSongOp } from './markFit.js';
 
@@ -36,7 +36,7 @@ export function recipeSchema(reference = false): Schema {
   return obj({
     ...(reference ? { reference_use: { enum: REFERENCE_USES } } : {}), // first: decided before the lyrics (CP-C3)
     title: str(1, RECIPE_LIMITS.title), style: str(3, RECIPE_LIMITS.style), bpm: int(BPM.min, BPM.max), key: { enum: KEYS },
-    time_signature: { enum: TIME_SIGNATURES }, language: { enum: LANGUAGES }, engine: { enum: ENGINES },
+    time_signature: { enum: TIME_SIGNATURES }, language: { enum: LANGUAGES }, vocals: { enum: VOCALS }, engine: { enum: ENGINES }, // F-097
     structure: arr({ enum: SECTION_TAGS }, RECIPE_LIMITS.structure.min, RECIPE_LIMITS.structure.max), // LD: no lyrics (D-234, D-252)
   });
 }

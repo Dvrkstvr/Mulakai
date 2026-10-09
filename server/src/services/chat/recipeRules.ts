@@ -12,7 +12,7 @@
  */
 import { YUE2_CAPABILITIES } from '../engines/yue2.js';
 import { lyricsText } from './draftFields.js';
-import type { DraftFields, LyricSection, Recipe } from './chatTypes.js';
+import type { DraftFields, LyricSection, Recipe, Vocals } from './chatTypes.js';
 
 export const KEYS = [
   'Cb', 'Gb', 'Db', 'Ab', 'Eb', 'Bb', 'F', 'C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#',
@@ -26,6 +26,8 @@ export const TIME_SIGNATURES = ['2/4', '3/4', '4/4', '6/8'];
 export const LANGUAGES = ['en', 'de', 'es', 'fr', 'it', 'pt'];
 /** C0 creates on YuE2 only (scope "Scope — Chat"); ACE-Step first takes are C7. */
 export const ENGINES = ['yue2'];
+/** F-097 (D-260): an instrumental recipe carries no lines; CREATE SONG sends YuE2 a tags-only skeleton. */
+export const VOCALS: Vocals[] = ['sung', 'instrumental'];
 export const BPM = { min: 40, max: 240 };
 export const STYLE_MAX = 2000;
 export const LYRICS_MAX = 16000;
@@ -116,6 +118,7 @@ export function plannedProblems(r: Omit<Recipe, 'lyrics'>): string[] {
 /** Why a whole recipe (its lines in) is not acceptable yet, as the retry tells the model. Empty = ok. */
 export function recipeProblems(r: Recipe): string[] {
   const out = plannedProblems(r);
+  if (r.vocals === 'instrumental') return r.lyrics.length ? [...out, 'an instrumental has no lyrics'] : out;
   if (r.lyrics.length === 0) return [...out, 'no lyrics: write the sung sections'];
   out.push(...sectionProblems(r.lyrics, SUNG_TAGS));
   r.lyrics.forEach((s, i) => {
@@ -129,6 +132,8 @@ export function recipeProblems(r: Recipe): string[] {
   return out;
 }
 
+export const NO_LYRICS = 'LYRICS are empty: write the words, or ask for an instrumental';
+
 /** Why CREATE SONG is disabled for this draft, in the person's terms. Empty = it can run.
  * `yueConfigured` is whether YUE_API_URL is set (the caller reads config; this stays pure). */
 export function createBlockers(f: DraftFields, env: { yueConfigured: boolean }): string[] {
@@ -138,5 +143,6 @@ export function createBlockers(f: DraftFields, env: { yueConfigured: boolean }):
   else if (f.style!.length > STYLE_MAX) out.push(`STYLE is ${f.style!.length} characters; YuE2 takes ${STYLE_MAX}, shorten it`);
   const lyrics = lyricsText(f.structure, f.lyrics);
   if (lyrics.length > LYRICS_MAX) out.push(`LYRICS are ${lyrics.length} characters; YuE2 takes ${LYRICS_MAX}, shorten them`);
+  if (!lyrics && f.vocals !== 'instrumental') out.push(NO_LYRICS); // F-097: never a silent instrumental
   return [...out, ...fieldProblems(f)];
 }

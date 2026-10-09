@@ -64,12 +64,12 @@ export function fieldMark(s: DraftView, key: ChatDraftKey): FieldMark {
 export const skipsAtReply = (s: DraftView, key: ChatDraftKey, sentRev: number): boolean =>
   key in s.pending || (s.draft?.touched[key] ?? -1) > sentRev;
 
-/** The collapsed rail's count (CH-3): fields with a value; ENGINE is fixed (YuE2), so it does not count. */
+/** The collapsed rail's count (CH-3): fields with a value; ENGINE is fixed (YuE2), so it does not count, nor VOCALS (always set). */
 export function filledCount(f: ChatDraftFields | null): number {
   if (!f) return 0;
   return (Object.keys(f) as ChatDraftKey[]).filter((k) => {
     const v = f[k];
-    return k !== 'engine' && v !== null && v !== '' && !(Array.isArray(v) && v.length === 0);
+    return k !== 'engine' && k !== 'vocals' && v !== null && v !== '' && !(Array.isArray(v) && v.length === 0);
   }).length;
 }
 

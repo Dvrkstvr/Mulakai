@@ -27,7 +27,10 @@ export interface DraftFields {
   structure?: string[];
   lyrics?: LyricSection[];
   engine?: 'yue2';
+  /** F-097 (D-260): additive under draft_v 1; absent = sung. An instrumental's lyrics are empty. */
+  vocals?: Vocals;
 }
+export type Vocals = 'sung' | 'instrumental';
 export type DraftField = keyof DraftFields;
 
 /** How a recipe uses the thread's read reference (D-128): the same song (cover), its tempo / key /
@@ -53,21 +56,16 @@ export interface Draft {
 
 /** A recipe as the model writes it (SP-5's schema; snake_case `time_signature`). */
 export interface Recipe {
-  title: string;
-  style: string;
-  bpm: number;
-  key: string;
-  time_signature: string;
-  language: string;
-  engine: string;
-  structure: string[];
-  lyrics: LyricSection[];
+  title: string; style: string; bpm: number; key: string; time_signature: string; language: string; engine: string;
+  structure: string[]; lyrics: LyricSection[];
+  /** F-097 (D-260): absent = sung (a recipe stored before it); an instrumental carries no lines. */
+  vocals?: Vocals;
   /** C3: present only when the thread has a reading (actionSchema). */
   reference_use?: ReferenceUse;
 }
 
 /** LD (D-234, D-252): the planner's recipe has no lines; code keeps the draft's or the lyrics call writes them. */
-export type LyricsMode = 'write' | 'keep';
+export type LyricsMode = 'write' | 'keep' | 'instrumental';
 export type PlannedRecipe = Omit<Recipe, 'lyrics'>;
 
 export type ScalpelKind = 'repaint' | 'add_layer' | 'split' | 'export';

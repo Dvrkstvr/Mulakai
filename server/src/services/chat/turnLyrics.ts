@@ -4,12 +4,14 @@
  * recipe's structure (recipeRules.lyricsFit), the recipe's language is the draft's and the request is not about the
  * words (asksForLyrics); otherwise the lyrics call writes them (lyricsAttempts), each attempt held to the whole
  * recipe's check too (recipeRules: structure order, LYRICS_MAX). Which model asks is the caller's (turnCall binds it).
- * Pure (I/O injected).
+ * F-097 (D-260): an instrumental recipe gets no lines and no call, whatever the request says about the lyrics ("remove the
+ * lyrics" is not a write). The draft's vocals hold unless the request names the words or the voice (namesVocals): a
+ * planner that flips "etwas schneller" to sung does not bring lyrics back. Pure (I/O injected).
  */
 import { lyricsFit, recipeProblems } from './recipeRules.js';
-import { asksForLyrics } from './asksForLyrics.js';
+import { asksForLyrics, namesVocals } from './asksForLyrics.js';
 import { writeLyrics, type LyricsDeps } from './lyricsAttempts.js';
-import type { DraftFields, LyricsMode, Recipe } from './chatTypes.js';
+import type { DraftFields, LyricsMode, Recipe, Vocals } from './chatTypes.js';
 
 export type LyricsStep =
   | { ok: true; recipe: Recipe; mode: LyricsMode; attempts: number }
@@ -23,7 +25,17 @@ export function lyricsMode(recipe: Pick<Recipe, 'structure' | 'language'>, { req
   return keep ? 'keep' : 'write';
 }
 
-export async function recipeLyrics(recipe: Recipe, input: LyricsInput, deps: Omit<LyricsDeps, 'more'>): Promise<LyricsStep> {
+/** The recipe's vocals: the planner's (absent = sung), unless the draft has others and the request names neither words nor voice. */
+export function vocalsOf(recipe: Pick<Recipe, 'vocals'>, { request, draft }: LyricsInput): Vocals {
+  const said = recipe.vocals ?? 'sung';
+  const was = draft?.vocals;
+  return !was || was === said || namesVocals(request) ? said : was;
+}
+
+export async function recipeLyrics(planned: Recipe, input: LyricsInput, deps: Omit<LyricsDeps, 'more'>): Promise<LyricsStep> {
+  const vocals = vocalsOf(planned, input);
+  const recipe: Recipe = { ...planned, vocals };
+  if (vocals === 'instrumental') return { ok: true, recipe: { ...recipe, lyrics: [] }, mode: 'instrumental', attempts: 0 };
   if (lyricsMode(recipe, input) === 'keep') {
     const lyrics = input.draft!.lyrics!.map((s) => ({ tag: s.tag, lines: [...s.lines] }));
     return { ok: true, recipe: { ...recipe, lyrics }, mode: 'keep', attempts: 0 };

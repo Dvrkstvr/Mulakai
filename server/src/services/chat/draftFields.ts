@@ -29,11 +29,15 @@ export function lyricsText(structure: string[] = [], sections: LyricSection[] = 
   return `${blocks.join('\n\n')}\n`;
 }
 
+/** F-097 (D-260): an instrumental draft's structure as YuE2's tags-only skeleton; '' without one (yue2.ts sends its own). */
+export const skeleton = (structure: string[] = []): string => (structure.length ? `${structure.map((t) => block(t)).join('\n\n')}\n` : '');
+
 /** `4/4` -> `4`, the way Guided Create stores a meter; anything else as written. */
 const meterValue = (m: string): string => (/^(\d+)\/\d+$/.exec(m.trim())?.[1] ?? m.trim());
 
 export function draftFields(f: DraftFields): { title: string; fields: CreateFields } {
-  const fields: CreateFields = { prompt: f.style?.trim() ?? '', lyrics: lyricsText(f.structure, f.lyrics) };
+  const lyrics = f.vocals === 'instrumental' ? skeleton(f.structure) : lyricsText(f.structure, f.lyrics);
+  const fields: CreateFields = { prompt: f.style?.trim() ?? '', lyrics };
   if (f.bpm !== undefined && f.bpm > 0) fields.bpm = f.bpm;
   const key = parseKey(f.key);
   if (key) fields.key_scale = key;

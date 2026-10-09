@@ -8,7 +8,7 @@
 import type { Draft, DraftField, DraftFields, DraftReference, LyricSection, Recipe, RecipeReference } from './chatTypes.js';
 
 export const DRAFT_V = 1;
-export const DRAFT_FIELDS: DraftField[] = ['title', 'style', 'bpm', 'key', 'timeSignature', 'language', 'structure', 'lyrics', 'engine'];
+export const DRAFT_FIELDS: DraftField[] = ['title', 'style', 'bpm', 'key', 'timeSignature', 'language', 'structure', 'lyrics', 'engine', 'vocals'];
 
 export const emptyDraft = (): Draft => ({ draft_v: DRAFT_V, rev: 0, fields: {}, touched: {} });
 
@@ -23,6 +23,7 @@ function fieldValue(name: DraftField, v: unknown): unknown {
   if (name === 'bpm') return typeof v === 'number' && Number.isFinite(v) ? v : undefined;
   if (name === 'structure') return isStrings(v) ? [...v] : undefined;
   if (name === 'lyrics') return Array.isArray(v) && v.every(isSection) ? v.map((s) => ({ tag: s.tag, lines: [...s.lines] })) : undefined;
+  if (name === 'vocals') return v === 'sung' || v === 'instrumental' ? v : undefined; // F-097 (D-260), additive under draft_v 1
   return v === 'yue2' ? v : undefined; // engine: C0 creates on YuE2 only
 }
 
@@ -88,6 +89,10 @@ export const COVER_LOCKED = 'this is a cover: tempo, key, meter and structure co
 const locked = (draft: Draft, name: DraftField) => draft.reference?.use === 'cover' && (draft.borrowed ?? []).includes(name);
 const without = (list: DraftField[] | undefined, names: DraftField[]) => list && list.filter((f) => !names.includes(f));
 
+/** F-097 (D-260): lyrics typed into an instrumental draft make it sung (clearing them leaves it instrumental). */
+const typedWords = (draft: Draft, next: Partial<Record<DraftField, unknown>>) => draft.fields.vocals === 'instrumental'
+  && Array.isArray(next.lyrics) && (next.lyrics as LyricSection[]).some((s) => s.lines.some((l) => l.trim()));
+
 /** A sidebar edit. `patch` comes from the client: a key absent or undefined is unchanged, null
  * clears it, a mistyped value is ignored. Rev grows once when anything changed. A cover's locked
  * field is refused with the reason; an edited borrowed or missing field loses its mark. */
@@ -106,6 +111,7 @@ export function handEdit(draft: Draft, patch: Record<string, unknown>): { draft:
     next[name] = v;
     names.push(name);
   }
+  if (typedWords(draft, next) && !names.includes('vocals')) { next.vocals = 'sung'; names.push('vocals'); }
   const { fields, changed } = merge(draft.fields, next, names);
   if (changed.length === 0) return { draft, touched: [], refused };
   const rev = draft.rev + 1;
@@ -119,7 +125,7 @@ export function handEdit(draft: Draft, patch: Record<string, unknown>): { draft:
 export function recipeFields(r: Recipe): DraftFields {
   return readFields({
     title: r.title, style: r.style, bpm: r.bpm, key: r.key, timeSignature: r.time_signature,
-    language: r.language, structure: r.structure, lyrics: r.lyrics, engine: r.engine,
+    language: r.language, structure: r.structure, lyrics: r.lyrics, engine: r.engine, vocals: r.vocals ?? 'sung',
   });
 }
 
