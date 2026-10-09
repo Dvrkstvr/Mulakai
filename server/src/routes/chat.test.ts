@@ -99,7 +99,7 @@ describe('chat routes', () => {
     const { body: t } = await call('GET', '/draft');
     const ok = await call('PUT', `/threads/${t.id}/draft`, { fields: { style: 'dream pop', bpm: 92 }, rev: 0 });
     expect(ok.status).toBe(200);
-    expect(ok.body).toMatchObject({ draft: { rev: 1, fields: { style: 'dream pop', bpm: 92 }, touched: { style: 1, bpm: 1 } }, blockers: [] });
+    expect(ok.body).toMatchObject({ draft: { rev: 1, fields: { style: 'dream pop', bpm: 92 }, touched: { style: 1, bpm: 1 } }, blockers: ['LYRICS are empty: write the words, or ask for an instrumental'] }); // F-097
     const stale = await call('PUT', `/threads/${t.id}/draft`, { fields: { bpm: 100 }, rev: 0 });
     expect(stale.status).toBe(409);
     expect(stale.body).toMatchObject({ ok: false, current: { rev: 1, fields: { bpm: 92 } } });

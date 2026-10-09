@@ -21,7 +21,7 @@ const RECIPE: Recipe = {
   language: 'en', engine: 'yue2', structure: ['Intro', 'Verse', 'Chorus', 'Verse', 'Chorus', 'Outro'],
   lyrics: [{ tag: 'Verse', lines: lines(4) }, { tag: 'Chorus', lines: lines(4) }, { tag: 'Verse', lines: lines(6) }, { tag: 'Chorus', lines: lines(4) }],
 };
-const READY: DraftFields = { title: 'T', style: 'lofi piano', engine: 'yue2' };
+const READY: DraftFields = { title: 'T', style: 'lofi piano', engine: 'yue2', lyrics: [{ tag: 'Verse', lines: ['the night is long and slow'] }] };
 const ON = { yueConfigured: true };
 
 describe('the rules are the downstream ones, not a copy that can drift', () => {
