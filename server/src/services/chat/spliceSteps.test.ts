@@ -87,9 +87,9 @@ describe('spliceSteps (pure)', () => {
     expect(spliceSteps([reharm(9, 12), reharm(16, 18)], song(180))).toMatchObject({ steps: [step('reharmonize', 16, 18, [1]), {}] });
   });
 
-  it('two changes that merge into one span render the whole song (a chain needs 2-4 separate spans)', () => {
-    expect(spliceSteps([reharm(9, 12), reharm(13, 16)], song()))
-      .toEqual({ reason: 'the changes merge into one span, bars 9-16; a chained splice needs 2 to 4 separate spans' });
+  it('REHARMONIZE changes that merge into one span answer that one step (spliceEligibility splices it as one span, D-271 b revised)', () => {
+    expect(spliceSteps([reharm(9, 12), reharm(13, 16)], song())).toEqual({ steps: [step('reharmonize', 9, 16, [0, 1])], needsRender: true });
+    expect(spliceSteps([reharm(14, 16), reharm(9, 12)], song())).toEqual({ steps: [step('reharmonize', 9, 16, [0, 1])], needsRender: true });
   });
 
   it('a CUT or REPEAT that overlaps, touches or comes within the gap of another span is not chained (D-265, Q-149)', () => {
