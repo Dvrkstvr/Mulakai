@@ -43,7 +43,7 @@ describe('splice eligibility (pure)', () => {
   it('a plan with an op that cannot be spliced re-renders the whole song, naming that op', () => {
     expect(spliceEligibility([reharm(47, 54), { op: 'SET_TEMPO', bpm: 90 }], song))
       .toEqual({ splice: false, reason: 'SET TEMPO changes the whole take, so it cannot be spliced into the old one' });
-    expect(spliceEligibility([], song)).toEqual({ splice: false, reason: 'the plan makes 0 changes; only a single change can be spliced into the old take' });
+    expect(spliceEligibility([], song)).toEqual({ splice: false, reason: 'the plan makes no changes to splice' });
   });
 
   it('C4 (F-069): 2-4 spliceable ops on separate spans answer kind several with the steps, last bar first', () => {
