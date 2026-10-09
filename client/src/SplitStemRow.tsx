@@ -1,14 +1,8 @@
-import type { StemKind, StemResult } from './api';
+import type { StemResult } from './api';
 import { AudioPreview } from './AudioPreview';
 import { ScoreEndsClause } from './ScoreEndsClause';
+import { STEM_LABELS, stemDownload } from './splitDownloads';
 import { stemClaimLine } from './splitStemCopy';
-
-const STEM_LABELS: Record<StemKind, string> = {
-  vocals: 'Vocals',
-  drums: 'Drums',
-  bass: 'Bass',
-  other: 'Other',
-};
 
 interface Props {
   stem: StemResult;
@@ -21,17 +15,19 @@ interface Props {
   onReextract: () => void;
 }
 
-/** One stem's row in the dock's SPLIT — preview, status, and REPLACE/ADD LAYER/RE-EXTRACT. */
+/** One stem's row in the dock's SPLIT — preview, DOWNLOAD, status, and REPLACE/ADD LAYER/RE-EXTRACT. */
 export function SplitStemRow({ stem, layerName, nextVersion, busy, scoreOpen, onClaim, onReextract }: Props) {
   const locked = !!stem.claimed;
   const ready = stem.status === 'done' && !locked && !busy;
   const claimLine = stemClaimLine(nextVersion, scoreOpen);
   const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy;
+  const download = stemDownload(stem, layerName);
 
   return (
     <div className="stem-row">
       <div className="stem-row-head">
         <span className="stem-name">{STEM_LABELS[stem.kind]}</span>
+        {download && <a className="link-btn" href={download.href} download={download.name}><span>DOWNLOAD</span></a>}
       </div>
       {stem.status === 'done' && !locked && stem.audioFile && (
         <AudioPreview src={`/audio/${stem.audioFile}`} label={STEM_LABELS[stem.kind]} />
