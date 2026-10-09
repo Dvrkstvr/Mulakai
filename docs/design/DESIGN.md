@@ -653,7 +653,7 @@ requiring its own justification against a screen-count rule.
        trio as AN IDEA's DETAILS.
 3. **Editor** (the heart) — layout (revised 2026-10-03, PLAN.md "UI
      Redesign", S1): **two columns**, a fluid main column (title row,
-     section strip, layer stack with its LYRICS lane, action dock, minimal
+     section strip, layer stack with its LYRICS lane, action dock, compact
      transport) and a fixed-width **right VERSIONS rail**. There is no left
      column: lyric editing lives in REPAINT (the only verb it feeds), lyric
      reading in the LYRICS lane (the full text stays in the Library's detail
@@ -772,14 +772,15 @@ requiring its own justification against a screen-count rule.
        line — the outer box edge comes from `.stack-scrub`'s own border.
      - While ADD LAYER runs (not while it waits in the queue), a **ghost lane** (`NEW LAYER · generating…`
        over the AI shader) trails the stack until the real layer lands.
-   - **Shared transport**: `Player.tsx` sits below the lane stack in its
-     **minimal** mode — play/pause hexagon + stop only, no time/volume/
-     download — driving/reflecting whichever layer is focused. Time already
-     lives in the stack-scrub timeline above, and downloads live under the
-     dock's EXPORT (see below), so the transport itself stays
-     down to the two controls that are genuinely transport, not duplicated
-     elsewhere. The Library footer player keeps the full control set (time,
-     volume, download) — `minimal` is Editor-only.
+   - **Shared transport** (revised 2026-10-10, PLAN.md "Editor Redesign",
+     PR 2): `EditorTransport.tsx` puts `Player.tsx` below the dock in its
+     **compact** mode — play/pause hexagon, stop, the time readout
+     (`1:21 / 3:28`), **LOOP SELECTION** (a sky choice chip, filled while
+     on; disabled with no selection; playback that crosses the selection's
+     end returns to its start, and turning it on mid-play jumps in), then
+     master volume at the right edge. No title, waveform or download: the
+     stack-scrub timeline owns seeking and downloads live under EXPORT. The
+     Library footer player keeps the full control set.
    - Section strip: parallelogram segments (Intro/Verse/…) derived from
      lyric-aligned timestamps, flex-weighted by section length; click = select
      that section as the region; active (selected) = sky. Double-click also

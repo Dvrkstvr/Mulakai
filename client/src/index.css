@@ -1029,6 +1029,35 @@ footer .player {
   min-width: 80px;
 }
 
+.player-spacer {
+  flex: 1;
+}
+
+/* The Editor transport's LOOP SELECTION: a sky choice (selection/scope), filled while on. */
+.loop-toggle {
+  transform: skewX(-10deg);
+  padding: 4px 12px;
+  font-size: 10px;
+  color: var(--sky);
+  border-color: var(--sky);
+}
+
+.loop-toggle span {
+  display: inline-block;
+  transform: skewX(10deg);
+}
+
+.loop-toggle.on {
+  background: var(--sky);
+  color: var(--on-sky);
+}
+
+.loop-toggle:disabled {
+  color: var(--text-low);
+  border-color: var(--line);
+  cursor: default;
+}
+
 .player-volume {
   display: flex;
   align-items: center;
