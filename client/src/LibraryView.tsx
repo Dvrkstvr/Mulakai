@@ -11,7 +11,7 @@ import type { GenerationJob } from './generationStore';
 import { GeneratingCard } from './GeneratingCard';
 import { LibraryJobBadge } from './LibraryJobBadge';
 import { ContinueRow } from './ContinueRow';
-import { songRowState } from './songRowState';
+import { rowClickOpensDetail, songRowState } from './songRowState';
 import type { PlaybackApi } from './mix/playerApi';
 import type { LibraryData } from './useLibraryData';
 
@@ -116,12 +116,13 @@ export function LibraryView({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.15, delay: Math.min(i * 0.05, 0.5) }}
+              onClick={(e) => { if (rowClickOpensDetail(e.target as Element)) setDetailSongId(s.id); }}
             >
               <button onClick={() => togglePlay(s)} aria-label={row.live ? 'Pause' : 'Play'}>
                 {row.live ? <span className="pause-glyph" aria-hidden /> : '▶'}
               </button>
               <div className="row-main">
-                <span className="song-title link" onClick={() => setDetailSongId(s.id)}>{s.title}</span>
+                <span className="song-title link">{s.title}</span>
                 <span className="meta">{s.caption}</span>
                 <LibraryJobBadge songId={s.id} />
               </div>

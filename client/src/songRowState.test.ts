@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { songRowState } from './songRowState';
+import { rowClickOpensDetail, songRowState } from './songRowState';
 
 describe('songRowState', () => {
   it('marks the row the footer is playing', () => {
@@ -17,5 +17,17 @@ describe('songRowState', () => {
   it('keeps selected and playing independent', () => {
     expect(songRowState('a', 'a', 'a', true).className).toBe('row selected playing');
     expect(songRowState('a', 'a', undefined, false).className).toBe('row selected');
+  });
+});
+
+describe('rowClickOpensDetail', () => {
+  const at = (inControl: boolean) => ({ closest: () => (inControl ? {} : null) });
+
+  it('a click anywhere on the card opens the detail rail', () => {
+    expect(rowClickOpensDetail(at(false))).toBe(true);
+  });
+
+  it("a click on one of the row's buttons keeps that button's action", () => {
+    expect(rowClickOpensDetail(at(true))).toBe(false);
   });
 });
