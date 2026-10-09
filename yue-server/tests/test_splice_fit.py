@@ -88,7 +88,7 @@ def test_a_chained_reharmonize_before_a_looped_tail_splices(splicer, tracker, mo
     assert [r["verdict"] for r in result["steps"]] == ["ok", "ok"]
 
 
-# D-278: the reviewer's case. A span that leaves one bar after it, and a take that sang the span
+# D-285: the reviewer's case. A span that leaves one bar after it, and a take that sang the span
 # a bar long: the 1-bar tail cannot outvote the whole fit, so it must not adopt it either.
 LONG_SPAN = range(12, BARS - 1)  # 0-based; bars 13..23 of 24, the tail is bar 24 alone
 

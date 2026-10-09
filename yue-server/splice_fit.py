@@ -16,7 +16,7 @@ dropped in the span leaves the side's own offset ahead on most of its bars.
 
 A side with bars but fewer than MIN_LEAD of them to judge on can never lead by
 MIN_LEAD, so a real drift there (a 1-bar tail after a span sung a bar long)
-would be outvoted unseen and the span cut short (D-278). When such a side
+would be outvoted unseen and the span cut short (D-285). When such a side
 disagrees with the whole fit, side_fits raises ShortSide: the splice renders
 the whole song (reason `length`) instead of guessing. A side with no bars has
 no join to check and takes the whole fit.
@@ -55,7 +55,7 @@ def _side(own: Fit, whole: Fit, intended: list, idx, where: str) -> Fit:
 
 def side_fits(grid: dict, abc: str, pre_idx, post_idx) -> tuple[Fit, Fit]:
     """The render's fits on the edited bars `pre_idx` (before the span) and `post_idx` (after it).
-    Raises ShortSide (D-278)."""
+    Raises ShortSide (D-285)."""
     pre_idx, post_idx = list(pre_idx), list(post_idx)
     pre, post = fit(grid, abc, pre_idx), fit(grid, abc, post_idx)
     if (pre.offset, pre.thinned) == (post.offset, post.thinned):
