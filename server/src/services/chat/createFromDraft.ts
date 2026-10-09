@@ -95,7 +95,8 @@ export async function createFromDraft(threadId: string, proposalId: string, deps
   let jobId = '';
   let job: Job;
   try {
-    job = deps.start(deps.engine, withLanguage(fields, thread.draft.fields.language), title, undefined, cover,
+    const sung = thread.draft.fields.vocals !== 'instrumental'; // F-097: an instrumental's style names no language
+    job = deps.start(deps.engine, sung ? withLanguage(fields, thread.draft.fields.language) : fields, title, undefined, cover,
       (songId) => landed(threadId, songId, jobId), 'chat');
   } catch (err) {
     if (err instanceof QueueFullError) return { reason: err.message };

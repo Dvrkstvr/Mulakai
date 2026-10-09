@@ -25,7 +25,10 @@ export interface ChatDraftFields {
   structure: ChatSectionTag[];
   lyrics: ChatLyricSection[];
   engine: 'yue2';
+  /** F-097 (D-260): an instrumental has no lyrics; absent = sung (the server sends it on every draft and card). */
+  vocals?: ChatVocals;
 }
+export type ChatVocals = 'sung' | 'instrumental';
 export type ChatDraftKey = keyof ChatDraftFields;
 
 /** How a recipe uses the thread's reading (D-128): a cover sings the score; a borrow takes tempo, key, meter, structure. */

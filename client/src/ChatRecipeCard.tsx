@@ -7,7 +7,7 @@ import { useState } from 'react';
 import type { ChatDraftFields, ChatDraftKey, ChatMessageView, ChatReadingBody, ChatRecipeBody } from './api/chat';
 import { isNotRead } from './api/chatReferences';
 import {
-  ASK_AGAIN, COMMITTING_HINT, CREATE_FAILED, CREATE_SONG, EXPIRED_BODY, EXPIRED_TITLE, LYRICS_TOGGLE, RECIPE_HEADER, RECIPE_HINT,
+  ASK_AGAIN, COMMITTING_HINT, CREATE_FAILED, CREATE_SONG, EXPIRED_BODY, EXPIRED_TITLE, INSTRUMENTAL_LINE, LYRICS_TOGGLE, RECIPE_HEADER, RECIPE_HINT,
   SUPERSEDED_BODY, YOUR_EDIT, blockersLine, cardHeader, createFailedLine, createJobLine, doneLine, recipeConsequence, recipeSummary,
 } from './chatCopy';
 import { sectionsToText, structureText } from './chatLyricsText';
@@ -92,6 +92,7 @@ export function ChatRecipeCard({ message, view, live, blockers, ahead, doneNumbe
             {edited.length > 0 && <em className="chat-tag yours">{YOUR_EDIT}</em>}
           </div>
           {f.structure.length > 0 && <div className="chat-hn">{structureText(f.structure)}</div>}
+          {f.vocals === 'instrumental' && <div className="chat-hn">{INSTRUMENTAL_LINE}</div>}
           {f.lyrics.length > 0 && (
             <button type="button" className="chat-link" aria-expanded={lyricsOpen} onClick={() => setLyricsOpen(!lyricsOpen)}>
               {LYRICS_TOGGLE} {lyricsOpen ? '▾' : '▸'}

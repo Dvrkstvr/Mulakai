@@ -4,7 +4,7 @@
  * song (TU-8, TU-10). Edits go through the one draft store; the server's blockers judge them. */
 import { useMemo, useState } from 'react';
 import type { ChatDraftFields as Fields, ChatDraftKey } from './api/chat';
-import { ASSISTANT_TAG, ENGINE_FIXED, FILLING_TAG, FOLD, LYRICS_HINT, YOURS_TAG } from './chatCopy';
+import { ASSISTANT_TAG, ENGINE_FIXED, FILLING_TAG, FOLD, INSTRUMENTAL_FIELD, INSTRUMENTAL_HINT, LYRICS_HINT, YOURS_TAG } from './chatCopy';
 import { fieldMark, liveFields, useChatDraftStore } from './chatDraftStore';
 import { lyricsPreview, parseStructure, sectionsToText, structureText, textToSections } from './chatLyricsText';
 import { LOCKED_HINT, SCORE_MARK, autoValue, fieldMark as referenceMark, missingNote } from './chatReferenceCopy';
@@ -82,6 +82,7 @@ export function ChatDraftFields({ filling, locked }: { filling: ChatDraftKey[]; 
     />
   );
   const preview = lyricsPreview(f.lyrics);
+  const instrumental = f.vocals === 'instrumental' && !preview; // F-097: typed lyrics make it sung (server, D-260)
 
   return (
     <div className="chat-fields">
@@ -103,9 +104,10 @@ export function ChatDraftFields({ filling, locked }: { filling: ChatDraftKey[]; 
       ))}
       {row('LYRICS', ['lyrics'], lyricsOpen || !preview ? (
         <span className="chat-fd-col">
+          {instrumental && <span className="chat-ib">{INSTRUMENTAL_FIELD}</span>}
           <ParsedText text={sectionsToText(f.lyrics)} rows={preview ? 10 : 3} disabled={locked} label="Lyrics"
             onCommit={(t) => { const r = textToSections(t); if (!r.problems.length) edit('lyrics', r.sections); return r.problems; }} />
-          <span className="chat-hn">{LYRICS_HINT}{preview && <button type="button" className="chat-link" onClick={() => setLyricsOpen(false)}> {FOLD}</button>}</span>
+          <span className="chat-hn">{instrumental ? INSTRUMENTAL_HINT : LYRICS_HINT}{preview && <button type="button" className="chat-link" onClick={() => setLyricsOpen(false)}> {FOLD}</button>}</span>
         </span>
       ) : (
         <button type="button" className="chat-ly-preview" onClick={() => setLyricsOpen(true)}>

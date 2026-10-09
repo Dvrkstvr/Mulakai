@@ -4,7 +4,8 @@
  * case-insensitive, whole words, per clause (split at punctuation and but / and / aber / und / pero / y):
  * a clause asks when it has a rewrite verb, or names the words (lyrics, Text, letra, ...) while it says to change
  * them or does not say to keep them ("Text unverändert", "same lyrics", "sin cambiar la letra" keep). It does not
- * detect a new topic (D-252): such a follow-up usually names the words. Pure.
+ * detect a new topic (D-252): such a follow-up usually names the words. `namesVocals` (F-097, D-260) is the looser
+ * test a draft's vocals (sung / instrumental) change on. Pure.
  */
 const WORDS = new Set([
   'lyric', 'lyrics', 'word', 'words', 'verse', 'verses', 'chorus', 'choruses', 'line', 'lines', 'text',
@@ -37,4 +38,13 @@ function clauseAsks(clause: string): boolean {
 
 export function asksForLyrics(request: string): boolean {
   return request.toLowerCase().normalize('NFC').split(CLAUSE).some((c) => c && clauseAsks(c));
+}
+
+/** F-097: words for the voice itself (en / de / es); `instrumental*` matches as a stem. */
+const VOICE = new Set(['vocal', 'vocals', 'voice', 'voices', 'sing', 'sings', 'singing', 'sung', 'singer', 'acapella', 'gesang', 'singen',
+  'gesungen', 'singt', 'stimme', 'stimmen', 'sänger', 'sängerin', 'voz', 'voces', 'vocales', 'cantar', 'canto', 'cantado', 'cantada', 'cantante']);
+
+/** Does a request name the words or the voice at all? A draft's vocals change only on such a request (turnLyrics). */
+export function namesVocals(request: string): boolean {
+  return tokens(request.toLowerCase().normalize('NFC')).some((w) => WORDS.has(w) || VOICE.has(w) || w.startsWith('instrumental'));
 }

@@ -35,6 +35,7 @@ export function fieldLines(f: DraftFields): string[] {
     f.language ? `language ${f.language}` : '', f.engine ? `engine ${f.engine}` : ''].filter(Boolean);
   if (meta.length) out.push(meta.join(' · '));
   if (f.structure?.length) out.push(`structure: ${f.structure.join(', ')}`);
+  if (f.vocals === 'instrumental') out.push('vocals: instrumental (no lyrics)'); // F-097: sung is the default, unsaid
   if (f.lyrics?.length) out.push('lyrics:', ...f.lyrics.map((s) => `[${s.tag}] ${s.lines.join(' / ')}`));
   return out;
 }

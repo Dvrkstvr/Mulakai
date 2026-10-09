@@ -35,7 +35,7 @@ const live = (j: JobView | undefined) => Boolean(j && (j.status === 'queued' || 
 export function wireFields(f: DraftFields) {
   return {
     title: f.title ?? null, style: f.style ?? null, bpm: f.bpm ?? null, key: f.key ?? null, timeSignature: f.timeSignature ?? null,
-    language: f.language ?? null, structure: f.structure ?? [], lyrics: f.lyrics ?? [], engine: f.engine ?? 'yue2',
+    language: f.language ?? null, structure: f.structure ?? [], lyrics: f.lyrics ?? [], engine: f.engine ?? 'yue2', vocals: f.vocals ?? 'sung',
   };
 }
 export const wireDraft = (d: Draft) => ({ ...d, fields: wireFields(d.fields) });

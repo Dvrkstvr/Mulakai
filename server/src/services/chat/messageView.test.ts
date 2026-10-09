@@ -56,7 +56,7 @@ describe('message view (the states the client shows)', () => {
   it('wire shapes: a recipe card camel-cased with its estimate, bodies with chat_v, draft fields filled', () => {
     const [view] = messageViews([msg('assistant', 'recipe', { proposalId: 'p', body: recipeBody })], ctx({}, { p: 'live' }));
     expect(view.body).toMatchObject({ chat_v: 1, recipe: { timeSignature: '4/4', title: RECIPE.title }, estSeconds: estSeconds(recipeFields(RECIPE)) });
-    expect(wireDraft(emptyDraft()).fields).toEqual({ title: null, style: null, bpm: null, key: null, timeSignature: null, language: null, structure: [], lyrics: [], engine: 'yue2' });
+    expect(wireDraft(emptyDraft()).fields).toEqual({ title: null, style: null, bpm: null, key: null, timeSignature: null, language: null, structure: [], lyrics: [], engine: 'yue2', vocals: 'sung' });
   });
 
   it('the estimate: 2 bars a sung line, 8 a section without lines', () => {

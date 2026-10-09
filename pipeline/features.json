@@ -1192,6 +1192,22 @@
         "A queued YuE2 take starts only after the slot is released",
         "Owner reads the German lyrics as usable"
       ],
+      "passes": true,
+      "evidence": "pipeline/verify/2026-10-08-ld-live (bars) + owner read 2026-10-09: German lyrics fine"
+    },
+    {
+      "id": "F-097",
+      "scope": "chat",
+      "milestone": "LD",
+      "behaviour": "An instrumental new song from chat: the recipe says vocals sung | instrumental; an instrumental has no lyrics call or lines and CREATE SONG sends YuE2 a tags-only skeleton with an instrumental style",
+      "acceptance": [
+        "\"mach es instrumental\" / \"remove the lyrics\" / \"ohne Gesang\" on a German draft with lyrics: recipe instrumental, 1 call, no gemma4, lyrics []",
+        "A follow-up not naming the words or the voice (\"etwas schneller\") on an instrumental draft stays instrumental in 1 call",
+        "\"doch mit Text bitte\" on an instrumental draft: sung, 2 calls",
+        "CREATE SONG of an instrumental draft sends the structure as a tags-only skeleton and an instrumental, no-vocals style",
+        "A sung draft with empty lyrics blocks CREATE SONG (never a silent instrumental)",
+        "The recipe card shows INSTRUMENTAL · no vocals; the sidebar LYRICS row reads instrumental · no vocals and typed lyrics make it sung"
+      ],
       "passes": false,
       "evidence": null
     }

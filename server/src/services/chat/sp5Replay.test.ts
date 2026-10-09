@@ -53,7 +53,7 @@ describe('SP-5 recorded replies replayed through decideReply / replyCheck / turn
     const out = dispatch(decision.reply, false);
     expect(out.kind).toBe('recipe');
     if (out.kind !== 'recipe') return;
-    expect(out.body.recipe).toEqual(recorded.recipe);
+    expect(out.body.recipe).toEqual({ ...recorded.recipe, vocals: 'sung' }); // F-097: code settles the vocals
     expect(out.body.recipe).toMatchObject({ title: 'Abschied', language: 'de', key: 'A' });
     expect(out.draft.fields).toMatchObject({ title: 'Abschied', language: 'de', bpm: 60, timeSignature: '4/4' });
     expect(out.body.recipe.lyrics[0].lines[0]).toBe('Der Tag ist still, das Licht so schwach,');

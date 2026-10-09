@@ -68,7 +68,7 @@ describe('applyRecipe: a recipe merges into the draft (CH-6, Q-057)', () => {
 
   it('fills an empty draft: every field changed, rev bumped once, nothing touched by hand', () => {
     const { draft, changed, skipped } = applyRecipe(emptyDraft(), RECIPE, 0);
-    expect(changed).toEqual(['title', 'style', 'bpm', 'key', 'timeSignature', 'language', 'structure', 'lyrics', 'engine']);
+    expect(changed).toEqual(['title', 'style', 'bpm', 'key', 'timeSignature', 'language', 'structure', 'lyrics', 'engine', 'vocals']);
     expect(skipped).toEqual([]);
     expect(draft.rev).toBe(1);
     expect(draft.touched).toEqual({});

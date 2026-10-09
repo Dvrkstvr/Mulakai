@@ -20,7 +20,7 @@ export const YUE2_CAPABILITIES: EngineCapabilities = {
   lmTools: false,
   advanced: false,
   takes: false,
-  instrumental: true, // blank LYRICS: a tags-only skeleton plus instrumental style (buildYue2Request)
+  instrumental: true, // blank or tags-only LYRICS: a tags-only skeleton plus instrumental style (buildYue2Request)
   // CFG is YuE2's own control, not ACE-Step's GUIDANCE: YuE2's neutral value is 1.0,
   // so a persisted GUIDANCE of ~7 would silently apply heavy CFG (PLAN.md, yue-engine).
   extraControls: ['cfg', 'cot'],
@@ -60,7 +60,13 @@ function styleHints(fields: CreateFields): string[] {
   return hints;
 }
 
-function instrumentalStyle(prompt: string, hints: string[]): string[] {
+/** D-261: a style part naming a voice (en / de / es, whole word or stem) contradicts "no vocals" in an instrumental. */
+const VOICE_PART = /(?<!\p{L})(?:voices?|vocal\p{L}*|singers?|singing|sung|choirs?|choral|rap|rapp\p{L}*|stimmen?|gesang\p{L}*|sänger\p{L}*|chor|chöre|voz|voces|cantante\p{L}*|coros?)(?!\p{L})/iu;
+const keepPart = (p: string) => /^no\b/i.test(p) || /instrumental/i.test(p) || !VOICE_PART.test(p);
+const withoutVoice = (prompt: string) => prompt.split(',').map((p) => p.trim()).filter((p) => p && keepPart(p)).join(', ');
+
+function instrumentalStyle(raw: string, hints: string[]): string[] {
+  const prompt = withoutVoice(raw);
   const conditions = INSTRUMENTAL_CONDITIONS.filter((c) => !prompt.toLowerCase().includes(c));
   return [/^instrumental\b/i.test(prompt) ? '' : 'Instrumental', prompt, ...hints, ...conditions];
 }
@@ -70,8 +76,11 @@ function chooseSeed(fields: CreateFields, random: () => number): number {
   return fixed ? Math.min(Math.floor(fields.seed!), Number.MAX_SAFE_INTEGER) : random();
 }
 
+/** No sung line: blank, or section tags only (a chat instrumental sends its structure this way, F-097). */
+const tagsOnly = (lyrics: string): boolean => lyrics.split('\n').every((l) => !l.trim() || /^\[[^\]]*\]$/.test(l.trim()));
+
 export function buildYue2Request(fields: CreateFields, random: () => number = randomSeed): Record<string, unknown> {
-  const instrumental = !fields.lyrics?.trim();
+  const instrumental = tagsOnly(fields.lyrics ?? '');
   const prompt = fields.prompt?.trim() ?? '';
   const style = (instrumental ? instrumentalStyle(prompt, styleHints(fields))
     : [LANGUAGE_NAMES[fields.vocal_language ?? ''], prompt, ...styleHints(fields)])
@@ -80,7 +89,7 @@ export function buildYue2Request(fields: CreateFields, random: () => number = ra
   if (!style) throw new Error('YUE2 needs a PROMPT: it has no default style');
   const request: Record<string, unknown> = {
     style,
-    lyrics: instrumental ? INSTRUMENTAL_LYRICS : fields.lyrics,
+    lyrics: fields.lyrics?.trim() ? fields.lyrics : INSTRUMENTAL_LYRICS,
     seed: chooseSeed(fields, random),
   };
   if (fields.cfg !== undefined) request.cfg_scale = Math.min(20, Math.max(0, fields.cfg));
