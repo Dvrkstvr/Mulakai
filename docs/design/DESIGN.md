@@ -21,7 +21,7 @@ meaning — if a sixth concept appears, add a color instead.
 
 | Token             | Hex       | Use |
 |-------------------|-----------|-----|
-| `carbon-canvas`   | `#1C1D21` | App background |
+| `carbon-canvas`   | `#1C1D21` | App background — under large Voronoi cells (2026-10-09, `cellBackdrop.ts`): ~200px cells, each at most ±2 of 255 off carbon, one seeded 960px tile that wraps seamlessly. Barely there by design; plain carbon until painted. The header band stays plain carbon |
 | `carbon-panel`    | `#202127` | Lifted panels (rails, cards, input surfaces) |
 | `carbon-raised`   | `#26272D` | Second lift (inactive section-strip segments, chips) |
 | `carbon-line`     | `#33343B` | Default 1px hairline |
@@ -250,6 +250,16 @@ requiring its own justification against a screen-count rule.
      favorites), and filter chips (ALL/FAVORITES — acid-outlined
      parallelograms, active = acid-filled) — grouped together directly above
      the list, not in the header, since they act on the list.
+   - **Glass head** (2026-10-09, `GlassHead.tsx`): the create bar and the
+     browse toolbar are one pane of the footer's **faceted glass** (same
+     −10° facets, 30% carbon tint, its own filter id), and the list scrolls
+     up *under* it — the glass needs something behind it to break. Its only
+     edge is a 1px lit line at the bottom (it hangs from the top), which
+     replaces the toolbar's old hairline. The list's scroll area tucks up
+     behind the pane and pads its start by the pane's height.
+   - **Folder rail**: docked like the glass head — it stays put (sticky)
+     16px below the pane while the list scrolls beside it. No fill (the cell
+     backdrop shows through) and only its left and right hairlines.
    - Flat song list (title · lilac version badge · duration · heart ·
      dislike — no per-card waveform: the footer player is the Library's one
      song-playback surface, see the audio preview module's exclusivity
@@ -1461,7 +1471,9 @@ progress states (see "AI states" below), which are allowed to feel alive.
 ### Persistent header
 
 The header (brand, palette trigger, ACTIVITY, model status) is a single
-persistent element, not re-mounted per view — it never fades with the rest
+persistent element, not re-mounted per view; it is a solid `carbon-canvas`
+band edge to edge over the cell backdrop (2026-10-09), its bottom hairline
+the line where the pattern starts — it never fades with the rest
 of the screen. The
 `MULAKAI` wordmark uses a shared `layoutId` so it glides (not cuts) between
 its Library position (left, standalone) and its Editor/Create position

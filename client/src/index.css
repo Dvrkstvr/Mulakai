@@ -50,7 +50,8 @@ body,
 body {
   margin: 0;
   overflow: hidden;
-  background: var(--carbon);
+  /* Voronoi cells a shade or two off carbon (cellBackdrop.ts); plain carbon until painted. */
+  background: var(--carbon) var(--cell-backdrop, none);
   color: var(--text-hi);
   font-family: system-ui, sans-serif;
   font-size: 13px;
@@ -228,7 +229,11 @@ header {
   display: flex;
   align-items: center;
   gap: 14px;
-  padding-bottom: 12px;
+  /* Solid carbon over the cell backdrop, bleeding out over .app's 16px padding so the band
+     runs edge to edge. */
+  margin: -16px -16px 0;
+  padding: 16px 16px 12px;
+  background: var(--carbon);
   border-bottom: 1px solid var(--line);
 }
 
@@ -4699,3 +4704,43 @@ textarea.chat-fd-in { font: 11px/1.45 ui-monospace, monospace; resize: vertical;
 .chat-fd-problem { color: var(--rust-text); font-size: 10px; }
 .chat-old { color: var(--text-low); font-size: 11px; }
 .chat-ib { display: inline-block; border: 1px solid var(--line-hi); background: var(--carbon); padding: 3px 9px; font-size: 12px; }
+
+/* Library head as faceted glass (GlassHead.tsx): the create bar + toolbar float over the list,
+   which scrolls up behind them — same cut, tint and lit edge as the footer, lit edge at the
+   bottom since the pane hangs from the top. */
+.glass-head {
+  position: relative;
+  z-index: 10;
+  padding: 0 10px;
+  background: rgba(28, 29, 33, 0.3);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(6px) brightness(0.7);
+  backdrop-filter: url(#head-facet-glass) brightness(0.85);
+}
+
+.glass-head .library-toolbar {
+  border-bottom: 0;
+}
+
+.glass-head + .scroll-area {
+  margin-top: calc(-1 * var(--glass-head-h, 0px));
+}
+
+.glass-head + .scroll-area > .scroll-area-viewport {
+  padding-top: var(--glass-head-h, 0px);
+}
+
+.glass-head + .scroll-area > .scroll-hint-up {
+  top: var(--glass-head-h, 0px);
+}
+
+/* Folder rail docked beside the glass head: it stays put while the list scrolls, a little
+   below the pane, with no fill and only its side edges drawn. */
+.glass-head + .scroll-area .folder-rail {
+  position: sticky;
+  top: 16px; /* sticky insets count from inside the viewport's padding, i.e. below the pane */
+  margin-top: 16px;
+  background: transparent;
+  border-top: 0;
+  border-bottom: 0;
+}

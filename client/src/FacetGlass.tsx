@@ -34,12 +34,12 @@ function useFacetMap(target: RefObject<HTMLElement | null>): FacetMap | null {
 
 /** The SVG filter the footer's `backdrop-filter: url(#footer-facet-glass)` points at. Browsers
  * without SVG backdrop filters keep the plain tint + blur fallback from index.css. */
-export function FacetGlass({ target }: { target: RefObject<HTMLElement | null> }) {
+export function FacetGlass({ target, id = FACET_GLASS_ID }: { target: RefObject<HTMLElement | null>; id?: string }) {
   const map = useFacetMap(target);
   if (!map) return null;
   return (
     <svg width="0" height="0" style={{ position: 'absolute' }} aria-hidden="true">
-      <filter id={FACET_GLASS_ID} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
+      <filter id={id} x="0" y="0" width="100%" height="100%" colorInterpolationFilters="sRGB">
         <feImage href={map.href} x="0" y="0" width={map.width} height={map.height} preserveAspectRatio="none" result="map" />
         <feGaussianBlur in="SourceGraphic" stdDeviation={FACET.blur} result="soft" />
         <feDisplacementMap in="soft" in2="map" scale={FACET.scale} xChannelSelector="R" yChannelSelector="G" />

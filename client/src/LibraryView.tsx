@@ -6,6 +6,7 @@ import { SongDetailRail } from './SongDetailRail';
 import { reusePromptDraft, createCoverDraft, type CreateDraft } from './createDraft';
 import { LibraryToolbar } from './LibraryToolbar';
 import { ScrollArea } from './ScrollArea';
+import { GlassHead } from './GlassHead';
 import type { GenerationJob } from './generationStore';
 import { GeneratingCard } from './GeneratingCard';
 import { LibraryJobBadge } from './LibraryJobBadge';
@@ -71,6 +72,7 @@ export function LibraryView({
 
   return (
     <>
+      <GlassHead>
       <CreateBar
         onCreate={(draft) => openCreate(activeFolder ? { ...draft, folderId: activeFolder.id, folderName: activeFolder.name } : draft)}
         onResume={() => openCreate({})}
@@ -85,6 +87,7 @@ export function LibraryView({
         onFilter={setFilter}
         onSettings={onSettings}
       />
+      </GlassHead>
 
       <ScrollArea className="library-layout">
         <FolderRail
