@@ -385,11 +385,70 @@ If the owner wants it sooner, cut in this order: the caption step (borrowed inst
 removes R-028's ACE-Step half), FROM LIBRARY's list (a library song by title in words still works), the A/B pill (RE-ANALYZE stays),
 the automatic follow-up turn (the person types the next message).
 
-## C4 — Structure edits and the rest of the splice (F-066 .. F-069), needs the owner's SP-4 listen
+## C4 — one version from several local ops (F-066, F-069; F-067/F-068 not doing)
 
-REPEAT/CUT as audio-only edits (SP-4's C: no YuE2 render, about 0.2 s), the splice for WRITE PHRASE and REWRITE LYRICS, and one version from several
-local ops. Built only as far as the owner's listen accepts: a rejected seam keeps that kind on the whole-song path. Q-053 (REPEAT's second
-seam audible) is judged here.
+<!-- Rewritten by stage 6 (architecture), 2026-10-09, from the re-scope proposal (rescope-2026-10-09.md, C4 table) and the owner's
+     answers there: F-067/F-068 → Not doing (D-262). The listen gate is gone (D-204). Old title: "C4 — Structure edits and the rest of
+     the splice (F-066 .. F-069), needs the owner's SP-4 listen". Modules: architecture.md "Chat (C4)". Decisions D-262..D-270,
+     questions Q-149..Q-152, risk R-043. -->
+
+What the person can do when C4 is done: ask "jazz chords on verse 1 and on the last chorus, and cut the bridge" and get ONE new version in
+which only those places changed: each span is spliced into the old take, the rest is the old audio sample for sample. Today any plan with
+more than one op re-renders the whole song (*code*: `spliceEligibility.ts`, "the plan makes N changes"), and chat plans are routinely multi-op
+(c2-live B3), so this is the core promise's weak spot. C4 also closes REPEAT/CUT audio-only (F-066), which C0b already built.
+
+- **F-066 · REPEAT/CUT audio-only — ALREADY BUILT in C0b** (D-154, D-156, D-160, D-161; CP-C0 5/5, D-166; owner closed SP-4's ear half,
+  D-204). Verify only, against the criteria rewritten to what shipped:
+  1. The edit card says the audio is copied or removed at the section edges with no render; outside the 1-beat crossfades the saved version
+     equals the base (null test: CP-C0 measured 0 differing samples).
+  2. A REPEAT whose seam steps more than 4.0 dB in loudness renders the whole song instead, labelled with the reason (D-160); a REPEAT of the
+     last section is a whole-song render and the card says why before APPLY (D-213).
+  3. A CUT that would leave no section is refused; a CUT of the last section keeps its edge fade.
+  4. After an audio-only REPEAT, a later whole-song re-render over 360 s refuses with the existing line.
+  5. **The one build item:** a RE-RENDER WHOLE SONG button on the version card of a spliced version, for when a seam is heard. It does not
+     exist (*code*: no such string in `client/src`, 2026-10-09). It opens a normal edit card (whole-song consequence line, APPLY) that
+     re-renders the active version's own score; no model call (D-268).
+  Q-053 (REPEAT's second seam audible) closes by D-160/D-204/D-213 (D-269).
+- **F-069 · several local ops, one version — the build.** Criteria:
+  1. A plan of 2-4 ops, each a REHARMONIZE, CUT or REPEAT on non-overlapping spans, saves ONE version, made by applying the single-span
+     splice once per span from the last bar back to the first (earlier bar numbers stay valid). The card names every span (bar map, D-270).
+  2. Outside every span the saved file equals the base (null test, 0 differing samples); each join is within 1 dB of the base's own step at
+     that point.
+  3. Overlapping or adjacent REHARMONIZE spans (gap under 2 bars or under 3 s) merge into one span before counting. A CUT or REPEAT that
+     overlaps or touches another op's span is not chained: the whole plan renders, with the reason (D-265, Q-149).
+  4. Any op that is not spliceable (WRITE PHRASE, REWRITE LYRICS, tempo, key, style, a REPEAT of the last section), more than 4 spans after
+     merging, a join `not_aligned`, a REPEAT seam over 4.0 dB, or any failing step sends the whole plan to the whole-song render, labelled
+     with the reason. Never a partial save (no version with some spans spliced and others not).
+  5. CANCEL at any step (rendering, any splice step, before saving) deletes the temp files and saves nothing; the card returns to pending.
+  6. **Checkpoint CP-C4 before any UI:** 3 library songs (4/4, with chords) × 2 multi-op plans each (one REHARMONIZE + REHARMONIZE, one
+     REHARMONIZE + CUT or REPEAT), headless, logged in `pipeline/cp-c4/<date>/` (D-166's rhythm). Stop lines below.
+- **F-067 / F-068 → Not doing** (owner, 2026-10-09, D-262): see "Not doing (chat)".
+
+**Work packages** (each one PR from `origin/main`; files owned so batches stay disjoint; modules and tests in architecture.md "Chat (C4)").
+
+| id | what | files it touches | after | size |
+|---|---|---|---|---|
+| CK-0 | F-066 verify (verifier, no code): criteria 1-4 against the merged code, c0b-live.md and CP-C0; set F-066's evidence (passes stays false until CK-6 lands) | `pipeline/features.json` only | — | XS |
+| CK-1 | the chain planner, pure: plan ops + facts → ordered steps (last bar first), merge, step limit, reasons; `spliceEligibility` calls it for 2+ ops; the `several` splice shape | **`server/src/services/chat/spliceSteps.ts`** + test, `server/src/services/chat/spliceEligibility.ts` + test, `server/src/services/chat/editTypes.ts` (doc comment only) | — | S (1 d) |
+| CK-2 | yue-server chained splice: spec `steps`, base → edited bar mapping across section ops, step loop with per-step verdict and null test, one result with per-step rows, mapped out grid; `splice_check.py --chain` on the saved file | **`yue-server/splice_chain.py`**, **`yue-server/splice_chain_job.py`**, `yue-server/splice_spec.py`, `yue-server/splice_job.py` (dispatch), `yue-server/splice_result.py`, `yue-server/splice_check.py`, `yue-server/README.md` (splice section), **`yue-server/tests/test_splice_chain.py`**, `yue-server/tests/test_splice_job.py`, **`yue-server/tests/data/contract/splice-chain-{ok,rerender,hold}.json`** | — | M (2 d) |
+| CK-6 | RE-RENDER WHOLE SONG (F-066 #5): a no-op plan on the active spliced version → a whole-song edit card in the thread | **`server/src/services/chat/rerenderWhole.ts`** + test, `server/src/routes/chatTurns.ts` (`POST /threads/:id/versions/:versionId/rerender`), `client/src/ChatVersionCard.tsx` (+test), `client/src/api/chat.ts` | — | S (1 d) |
+| CK-3 | server wiring: spec with steps, render only when a step needs it, the v2 splice record, fallbacks and cancel for the chain | `server/src/services/chat/spliceRenderJob.ts`, **`server/src/services/chat/spliceSpec.ts`** + test (spec and record builders, pure; keeps the job under 200 LOC), `server/src/services/chat/yueSpliceClient.ts` (+test), `server/src/services/chat/versionCard.ts` (+test), `server/src/services/score/scoreVersion.ts` (+test), `server/test-fakes/fakeYueSplice.ts`, `server/src/services/chat/spliceRenderJob.test.ts` | CK-1, CK-2 | M (1.5 d) |
+| CK-4 | CP-C4, headless checkpoint on the real machine | **`server/scripts/chatCp4.ts`**, **`server/scripts/chatCp4Stats.ts`** + test; evidence `pipeline/cp-c4/<date>/` | CK-3 | S (0.5-1 d) |
+| CK-5 | the cards: consequence line, phase line (`SPLICING · 2 OF 3`), done line and version card for several spans; strip fallback for cards without a bar map; one e2e spec | `client/src/api/chatEdit.ts`, **`client/src/chatSpliceCopy.ts`** + test (the several-span words; keeps `chatEditCopy.ts` under 150), `client/src/chatEditCopy.ts` (+test), `client/src/ChatEditCard.tsx` (+test), **`e2e/tests/chatSplice.chat.spec.ts`**, `e2e/fake-score/splices.ts` | CK-4 (its stop lines pass) | M (1.5 d) |
+| CK-7 | C4 live run (verifier): one multi-op chat edit in the real app, A/B, reload; sets F-069 (and F-066 after CK-6) | `pipeline/c4-live.md`, `pipeline/features.json` | CK-5, CK-6 | S |
+
+**Waves** (disjoint files inside a wave): **W0** CK-0 · **W1** CK-1 ∥ CK-2 ∥ CK-6 · **W2** CK-3 · **W3** CK-4 (stop or go) · **W4** CK-5 ·
+**W5** CK-7. Honest size about 6-7 working days; CP-C4 is where to re-plan.
+
+**CP-C4 stop lines** (any one → stop and raise before CK-5): a null test with any differing sample outside the spans on a saved file; any
+partial save; join LUFS excess over 1 dB at any join on 2 of 3 songs; a multi-op edit's wall time over 5 min (render + base grid cached +
+render grid + 2-4 steps); more than 3 of the 6 plans falling back to the whole song for a reason other than the stated rules (then the
+feature does nothing). Logged per plan: steps, per-step verdict, snaps, gains, joins, null test, wall time, temp bytes and their removal.
+
+**Design:** no new design task (D-270). The edit card's bar map already names every span, one row per op, lit on hover (chat-converge.html
+frame 4, 4a-4d; CX-3; `mapCaption` words several spans today). What changes is copy (consequence, phase and version lines), written in
+CK-5 in the existing card; RE-RENDER WHOLE SONG is a secondary button in the version card's existing button style and its commit uses the
+existing whole-song edit card (chat-edit.html frames 1-2). DESIGN.md does not change; if CK-5 needs a new element, it is a design question first.
 
 ## C5 — Tempo and key, both ways (F-070), needs SP-6
 
@@ -519,7 +578,7 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 | the mark ("this") | C1 | needs the strip; words plus a stated assumption carry C0 |
 | lyrics panel, UNDO TURN, "just filled", REVISE-merge, bar map | C2 | convergence polish; each has a fallback in C0 |
 | reference songs, cover vs fresh | C3 | the other entry to the promise, not the one the thin path needs |
-| REPEAT/CUT audio-only, splice of phrase and lyrics, multi-span | C4 | gated by the owner's listen and its ears-only items |
+| REPEAT/CUT audio-only, multi-span (phrase and lyrics splices: not doing, D-262) | C4 | REPEAT/CUT shipped in C0b after all (D-154); multi-span is C4's build |
 | tempo/key SHIFT/STRETCH | C5 | gated by SP-6; RE-RENDER works from C0 |
 | form-first, shared-draft toggle, Editor-first mirror | C6 | one draft store exists from C0; the second view is UI |
 | scalpel actions, Editor edits in the thread, ACE-Step first takes, new song from this score | C7 | R-025, and ineligible songs get a plain reason in C0 |
@@ -556,6 +615,9 @@ clauses for the player, the sky mark, the ASSISTANT tag and the lyrics panel, ea
 - **Reference songs from a URL or a streaming service**: local files and library songs only; rights stay the person's (D-084).
 - **A larger or cloud chat model** (no room at 16k on 16 GB; local-only): the MoE stays an env value.
 - **SHIFT/STRETCH if SP-6 fails** (R-026): RE-RENDER stays the only tempo/key path, D-085's reversal is recorded.
+- **WRITE PHRASE spliced (F-067) and REWRITE LYRICS spliced (F-068)** (owner, 2026-10-09, D-262): the owner heard both splices and rejected
+  them (D-150: "the voice changed", "song changed completely") and said a whole re-render is fine; both kinds stay whole-song (D-101, D-154).
+  Revisit only if YuE2 forced-prefix continuation (SP-4 candidate D, in Later) is ever spiked. Q-137 is separate and stays open.
 
 ## Re-check of deferred questions
 
