@@ -56,6 +56,19 @@ describe('checkRetime', () => {
     expect(refusedLine('x')).toBe('Cannot re-time: x · nothing changed.');
   });
 
+  it('RT-6 re-check 3: a refused HALF / DOUBLE says the other mode when it fits, on the dock and on the reading', () => {
+    expect(checkRetime([{ op: 'RETIME', mode: 'double' }], { ...COVER, dock: { state: 'offered', notationId: 'n1', readBpm: 146.3 } },
+      'the transcription read it twice as fast as it is')).toEqual({ say: 'Cannot re-time: DOUBLE is off: 293 BPM is over the limit'
+      + ' · nothing changed. Did you mean half time (146 → 73 BPM)? Say "half time".' });
+    expect(checkRetime([half], { ...SONG, reading: { ...SONG.reading!, read: { bpm: 65, bars: 80 } } }, 'that reads as double time'))
+      .toEqual({ say: 'Cannot re-time: HALF is off: 33 BPM is under the limit · nothing changed. Did you mean double time'
+      + ' (65 → 130 BPM)? Say "double time".' });
+    expect(checkRetime([{ op: 'RETIME', mode: 'double' }], { ...COVER, dock: { state: 'offered', notationId: 'n1', readBpm: 500 } }, 'x'))
+      .toEqual({ say: 'Cannot re-time: DOUBLE is off: 1000 BPM is over the limit · nothing changed.' });
+    expect(checkRetime([{ op: 'RETIME', mode: 'bpm', bpm: 300 }], COVER, "it's really 300 BPM"))
+      .toEqual({ say: 'Cannot re-time: 300 BPM is outside 40-240 · nothing changed.' });
+  });
+
   it('a malformed RETIME goes back', () => {
     expect(checkRetime([{ op: 'RETIME', mode: 'bpm' }], COVER, 'x')).toMatchObject({ fail: expect.stringMatching(/RETIME needs/) });
   });
