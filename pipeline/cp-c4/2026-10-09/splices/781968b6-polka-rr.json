@@ -1,0 +1,261 @@
+{
+ "id": "c0deb29253b146bfb120821ce8640e3b",
+ "kind": "splice",
+ "idempotency_key": "splice-36bceebe-10f1-4e6d-b3d7-7d789723f39f",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791564573.5375931,
+ "updated_at": 1791564599.478086,
+ "started_at": 1791564573.5406475,
+ "finished_at": 1791564599.478086,
+ "cancel_requested": false,
+ "result": {
+  "kind": "several",
+  "bars": [
+   33,
+   113
+  ],
+  "steps": [
+   {
+    "verdict": "ok",
+    "reason": null,
+    "detail": null,
+    "kind": "REHARMONIZE",
+    "bars": [
+     106,
+     113
+    ],
+    "audio_seconds": 212.7336,
+    "length_diff_s": -0.0251,
+    "joins_s": [
+     181.41,
+     195.2849
+    ],
+    "crossfade_s": [
+     0.434783,
+     0.434783
+    ],
+    "base_points_s": [
+     181.41,
+     195.31
+    ],
+    "parts": [
+     {
+      "source": "base",
+      "out_s": [
+       0,
+       181.41
+      ],
+      "src_s": [
+       0,
+       181.41
+      ]
+     },
+     {
+      "source": "render",
+      "out_s": [
+       181.41,
+       195.2849167
+      ],
+      "src_s": [
+       180.1496875,
+       194.0246042
+      ]
+     },
+     {
+      "source": "base",
+      "out_s": [
+       195.2849167,
+       212.7335833
+      ],
+      "src_s": [
+       195.31,
+       212.7586667
+      ]
+     }
+    ],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": -10.312,
+      "applied": true,
+      "corr": 0.3677
+     },
+     {
+      "delta_ms": -15.393,
+      "applied": true,
+      "corr": 0.3695
+     }
+    ],
+    "gain_db": {
+     "in": 2.924,
+     "out": 1.842,
+     "bars": [
+      2.924,
+      2.536,
+      2.465,
+      2.51,
+      3.767,
+      3.708,
+      2.627,
+      1.842
+     ]
+    },
+    "level_step_db": null,
+    "gap_shift_s": null,
+    "seams": [
+     {
+      "out_s": 181.41,
+      "lufs_step": 2.71,
+      "base_lufs_step": 2.429,
+      "lufs_step_excess": 0.281
+     },
+     {
+      "out_s": 195.2849,
+      "lufs_step": -0.147,
+      "base_lufs_step": 0.123,
+      "lufs_step_excess": -0.27
+     }
+    ],
+    "null_test": {
+     "samples": 9524344,
+     "different": 0
+    }
+   },
+   {
+    "verdict": "ok",
+    "reason": null,
+    "detail": null,
+    "kind": "REHARMONIZE",
+    "bars": [
+     33,
+     40
+    ],
+    "audio_seconds": 212.7244,
+    "length_diff_s": -0.0092,
+    "joins_s": [
+     54.45,
+     68.3608
+    ],
+    "crossfade_s": [
+     0.434783,
+     0.434783
+    ],
+    "base_points_s": [
+     54.45,
+     68.37
+    ],
+    "parts": [
+     {
+      "source": "base",
+      "out_s": [
+       0,
+       54.45
+      ],
+      "src_s": [
+       0,
+       54.45
+      ]
+     },
+     {
+      "source": "render",
+      "out_s": [
+       54.45,
+       68.3607708
+      ],
+      "src_s": [
+       53.3902917,
+       67.3010625
+      ]
+     },
+     {
+      "source": "base",
+      "out_s": [
+       68.3607708,
+       212.7243542
+      ],
+      "src_s": [
+       68.37,
+       212.7335833
+      ]
+     }
+    ],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": -19.703,
+      "applied": true,
+      "corr": 0.2888
+     },
+     {
+      "delta_ms": -8.933,
+      "applied": true,
+      "corr": 0.3598
+     }
+    ],
+    "gain_db": {
+     "in": 0.15,
+     "out": 0.336,
+     "bars": [
+      0.15,
+      0.219,
+      1.426,
+      1.244,
+      2.649,
+      1.435,
+      1.699,
+      0.336
+     ]
+    },
+    "level_step_db": null,
+    "gap_shift_s": null,
+    "seams": [
+     {
+      "out_s": 54.45,
+      "lufs_step": -1.116,
+      "base_lufs_step": -1.194,
+      "lufs_step_excess": 0.078
+     },
+     {
+      "out_s": 68.3608,
+      "lufs_step": -0.214,
+      "base_lufs_step": 0.005,
+      "lufs_step_excess": -0.219
+     }
+    ],
+    "null_test": {
+     "samples": 9522180,
+     "different": 0
+    }
+   }
+  ],
+  "grid_urls": {
+   "base": "/v1/splices/c0deb29253b146bfb120821ce8640e3b/grid/base",
+   "render": "/v1/splices/c0deb29253b146bfb120821ce8640e3b/grid/render",
+   "out": "/v1/splices/c0deb29253b146bfb120821ce8640e3b/grid/out"
+  },
+  "verdict": "ok",
+  "reason": null,
+  "detail": null,
+  "step": null,
+  "audio_url": "/v1/splices/c0deb29253b146bfb120821ce8640e3b/audio",
+  "audio_seconds": 212.7244,
+  "length_diff_s": -0.0343,
+  "joins_s": [
+   181.4008,
+   195.2757,
+   54.45,
+   68.3608
+  ],
+  "null_test": {
+   "samples": 19046524,
+   "different": 0
+  },
+  "timing": {
+   "total_seconds": 25.937
+  }
+ },
+ "error": null
+}

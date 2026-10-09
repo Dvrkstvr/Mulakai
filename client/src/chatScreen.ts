@@ -73,8 +73,12 @@ export function madeBy(messages: ChatMessageView[], card: ChatMessageView): Chat
   return (m?.body as ChatSongBody | null | undefined) ?? null;
 }
 
-export const fmtLength = (s: number | null | undefined): string | null =>
-  s ? `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}` : null;
+/** Rounds to whole seconds before splitting, so 239.6 s reads 4:00, not 3:60. */
+export function fmtLength(s: number | null | undefined): string | null {
+  if (!s) return null;
+  const whole = Math.round(s);
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, '0')}`;
+}
 
 const empty = (v: unknown) => v === null || v === '' || (Array.isArray(v) && v.length === 0);
 

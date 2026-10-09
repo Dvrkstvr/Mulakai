@@ -113,6 +113,12 @@ describe('turn dispatch (a checked reply -> what the turn writes)', () => {
     expect(free.body.renderMode).toEqual({ cot: 'full', reason: 'reharmonize' });
   });
 
+  it('C4 (CK-5): a 2-op local plan is a several-span splice, no gate', () => {
+    const local: Op[] = [{ op: 'REHARMONIZE', from_bar: 11, to_bar: 14, chords: [] }, { op: 'CUT', section: 3, label: 'chorus' }];
+    const out = dispatchReply({ ...base, hasSong: true, reply: edit(local), edit: planned(local) });
+    expect(out.kind === 'edit' && out.body.splice).toMatchObject({ splice: true, kind: 'several', from_bar: 11, to_bar: 62, steps: [{ kind: 'cut', ops: [1] }, { kind: 'reharmonize', ops: [0] }] });
+  });
+
   it('C1: a marked edit card carries the mark and its notes: a clamp and a whole-song op (D-176, F-055 edge)', () => {
     const two: Op[] = [...reharm, { op: 'SET_TEMPO', bpm: 90 }];
     const mark = { versionId: 'v1', bars: [47, 65] as [number, number], seconds: [100, 179] as [number, number], notes: ['the mark reaches bar 70 but the score ends at bar 65: planned on bars 47-65'] };

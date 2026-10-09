@@ -1,0 +1,1665 @@
+{
+ "meta": {
+  "server": "http://127.0.0.1:3501",
+  "started": "2026-10-09T16:44:02.198Z",
+  "date": "2026-10-09",
+  "note": "CK-4 run 1 + run 2 (--append): server feat/chat-c4-cp4 (main + CK-3 444ce03), CHAT_SPLICE_CHAIN=1, own yue-server from the worktree on :8504 (the owner's :8004 predates CK-2), Ollama :11434 shared with another session's Ollama :11735 on the same GPU. Run 2 replaced House in der Halle (trashed in the library today, chat 404) with Polski Polka; run 2 proxy events only."
+ },
+ "summary": {
+  "plans": 6,
+  "songs": [
+   "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+   "ecf8eb5a-734f-4b5f-a0ab-040b6645e75e",
+   "781968b6-ada5-427a-b333-d4d96b9af7fd"
+  ],
+  "outcomes": {
+   "chain": 4,
+   "rule": 0,
+   "fallback": 2,
+   "unsaved": 0,
+   "no-plan": 0
+  },
+  "nullFails": [],
+  "unchecked": [],
+  "partial": [],
+  "excessSongs": [],
+  "editMaxS": 219.6,
+  "ruleFallbacks": 0,
+  "otherFallbacks": 2
+ },
+ "stopLines": [
+  {
+   "verdict": "PASS",
+   "text": "null test on the saved files: 0 failing, 4 chains, 0 unchecked (stop on any differing sample)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "partial saves: none (stop on any)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "join LUFS excess over 1 dB on 0 of 3 songs (stop on 2 of 3)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "slowest multi-op edit (APPLY -> saved) 219.6 s (stop over 5 min)"
+  },
+  {
+   "verdict": "PASS",
+   "text": "whole-song fallbacks at APPLY 2 of 6 (stop over 3); plan-time rule fallbacks 0, unsaved 0, no multi-op plan 0"
+  }
+ ],
+ "results": [
+  {
+   "song": "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+   "title": "Gertar",
+   "plan": "gertar-rr",
+   "mix": "reharmonize+reharmonize",
+   "texts": [
+    "give the first chorus and the bridge jazz chords"
+   ],
+   "turn": {
+    "index": 0,
+    "id": "gertar-rr-0",
+    "lang": "en",
+    "expect": "edit",
+    "prompt": "give the first chorus and the bridge jazz chords",
+    "postStatus": 202,
+    "action": "edit",
+    "cause": null,
+    "reasons": [],
+    "attempts": 2,
+    "calls": 2,
+    "turnMs": 51296,
+    "queuedMs": 8,
+    "promptTokens": [
+     4586,
+     4868
+    ],
+    "unloadMs": 398,
+    "vram": {
+     "beforeMiB": 9291,
+     "peakMiB": 15772,
+     "atEmptyMiB": 656
+    }
+   },
+   "ops": 2,
+   "card": {
+    "splice": true,
+    "kind": "several",
+    "from_bar": 15,
+    "to_bar": 52,
+    "steps": [
+     {
+      "kind": "reharmonize",
+      "from_bar": 44,
+      "to_bar": 52,
+      "ops": [
+       1
+      ]
+     },
+     {
+      "kind": "reharmonize",
+      "from_bar": 15,
+      "to_bar": 22,
+      "ops": [
+       0
+      ]
+     }
+    ]
+   },
+   "apply": {
+    "outcome": "saved",
+    "editMs": 193099,
+    "handoffMs": 19,
+    "versionsBefore": 1,
+    "versionsAfter": 2,
+    "versionId": "e7506eed-108c-4ce6-a7f2-107d98ec0850",
+    "label": "score edit · REHARMONIZE 15–22 · REHARMONIZE 44–52 · bars 15–22, 44–52 spliced",
+    "record": {
+     "splice_v": 2,
+     "kind": "several",
+     "bars": [
+      15,
+      52
+     ],
+     "joins_s": [
+      118.9488,
+      144.2712,
+      37.16,
+      59.6688
+     ],
+     "length_diff_s": -0.1688,
+     "null_test": {
+      "samples": 18248540,
+      "different": 0
+     },
+     "steps": [
+      {
+       "kind": "reharmonize",
+       "bars": [
+        44,
+        52
+       ],
+       "joins_s": [
+        119.03,
+        144.3524
+       ],
+       "crossfade_s": [
+        0.705882,
+        0.705882
+       ],
+       "gain_db": {
+        "in": -0.239,
+        "out": 2.673,
+        "bars": [
+         -0.239,
+         -0.491,
+         -0.344,
+         2.332,
+         -0.454,
+         1.807,
+         0.958,
+         2.178,
+         2.673
+        ]
+       },
+       "snap_ms": [
+        -22.419,
+        4.115
+       ],
+       "length_diff_s": -0.0876,
+       "null_test": {
+        "samples": 9058692,
+        "different": 0
+       }
+      },
+      {
+       "kind": "reharmonize",
+       "bars": [
+        15,
+        22
+       ],
+       "joins_s": [
+        37.16,
+        59.6688
+       ],
+       "crossfade_s": [
+        0.705882,
+        0.705882
+       ],
+       "gain_db": {
+        "in": 0.616,
+        "out": -1.229,
+        "bars": [
+         0.616,
+         1.559,
+         0.226,
+         0.214,
+         -0.738,
+         2.22,
+         1.152,
+         -1.229
+        ]
+       },
+       "snap_ms": [
+        26.884,
+        5.67
+       ],
+       "length_diff_s": -0.0812,
+       "null_test": {
+        "samples": 9189848,
+        "different": 0
+       }
+      }
+     ]
+    },
+    "fallback": null,
+    "spliceId": "531466fcbde04df79fc796fa61c2b45b",
+    "verdict": "ok",
+    "step": null,
+    "verdictReason": null,
+    "steps": [
+     {
+      "kind": "REHARMONIZE",
+      "bars": [
+       44,
+       52
+      ],
+      "verdict": "ok",
+      "reason": null,
+      "snap_ms": [
+       -22.419,
+       4.115
+      ],
+      "gain_db": {
+       "in": -0.239,
+       "out": 2.673,
+       "bars": [
+        -0.239,
+        -0.491,
+        -0.344,
+        2.332,
+        -0.454,
+        1.807,
+        0.958,
+        2.178,
+        2.673
+       ]
+      },
+      "joins_s": [
+       119.03,
+       144.3524
+      ],
+      "length_diff_s": -0.0876,
+      "null_test": {
+       "samples": 9058692,
+       "different": 0
+      }
+     },
+     {
+      "kind": "REHARMONIZE",
+      "bars": [
+       15,
+       22
+      ],
+      "verdict": "ok",
+      "reason": null,
+      "snap_ms": [
+       26.884,
+       5.67
+      ],
+      "gain_db": {
+       "in": 0.616,
+       "out": -1.229,
+       "bars": [
+        0.616,
+        1.559,
+        0.226,
+        0.214,
+        -0.738,
+        2.22,
+        1.152,
+        -1.229
+       ]
+      },
+      "joins_s": [
+       37.16,
+       59.6688
+      ],
+      "length_diff_s": -0.0812,
+      "null_test": {
+       "samples": 9189848,
+       "different": 0
+      }
+     }
+    ],
+    "nullTest": {
+     "samples": 18248540,
+     "different": 0
+    },
+    "timing": {
+     "total_seconds": 18.878
+    },
+    "tempBytes": 83050619,
+    "audioLeft": true,
+    "check": {
+     "null_test": {
+      "samples": 7940488,
+      "different": 0,
+      "max_abs_diff": 0
+     },
+     "seams": [
+      {
+       "out_s": 118.9488,
+       "lufs_step": 2.193,
+       "base_lufs_step": 2.18,
+       "lufs_step_excess": 0.013
+      },
+      {
+       "out_s": 144.2712,
+       "lufs_step": -0.562,
+       "base_lufs_step": -0.832,
+       "lufs_step_excess": 0.27
+      },
+      {
+       "out_s": 37.16,
+       "lufs_step": 1.043,
+       "base_lufs_step": 1.193,
+       "lufs_step_excess": -0.15
+      },
+      {
+       "out_s": 59.6688,
+       "lufs_step": 1.744,
+       "base_lufs_step": 1.986,
+       "lufs_step_excess": -0.242
+      }
+     ],
+     "length_diff_s": -0.1688
+    }
+   }
+  },
+  {
+   "song": "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+   "title": "Gertar",
+   "plan": "gertar-rc",
+   "mix": "reharmonize+cut",
+   "texts": [
+    "give the first chorus jazz chords and cut the second interlude"
+   ],
+   "turn": {
+    "index": 10,
+    "id": "gertar-rc-0",
+    "lang": "en",
+    "expect": "edit",
+    "prompt": "give the first chorus jazz chords and cut the second interlude",
+    "postStatus": 202,
+    "action": "edit",
+    "cause": null,
+    "reasons": [],
+    "attempts": 2,
+    "calls": 2,
+    "turnMs": 17049,
+    "queuedMs": 4,
+    "promptTokens": [
+     4716,
+     4898
+    ],
+    "unloadMs": 145,
+    "vram": {
+     "beforeMiB": 1100,
+     "peakMiB": 12517,
+     "atEmptyMiB": 1098
+    }
+   },
+   "ops": 2,
+   "card": {
+    "splice": true,
+    "kind": "several",
+    "from_bar": 15,
+    "to_bar": 68,
+    "steps": [
+     {
+      "kind": "cut",
+      "from_bar": 61,
+      "to_bar": 68,
+      "ops": [
+       1
+      ]
+     },
+     {
+      "kind": "reharmonize",
+      "from_bar": 15,
+      "to_bar": 22,
+      "ops": [
+       0
+      ]
+     }
+    ]
+   },
+   "apply": {
+    "outcome": "saved",
+    "editMs": 133722,
+    "handoffMs": 17,
+    "versionsBefore": 2,
+    "versionsAfter": 3,
+    "versionId": "22cda833-d18c-4772-a7aa-a66e356293d5",
+    "label": "score edit · REHARMONIZE 15–22 · CUT interlude S9 · whole song re-rendered: the join could not be aligned (step 1, bars 61–68)",
+    "record": {
+     "splice_v": 1,
+     "fallback": "the join could not be aligned (step 1, bars 61–68)"
+    },
+    "fallback": "the join could not be aligned (step 1, bars 61–68)",
+    "spliceId": "a4c76ad3f91c4560b7942e0094e89cde",
+    "verdict": "rerender",
+    "step": 1,
+    "verdictReason": "not_aligned: no groove to line the cut up on",
+    "steps": [
+     {
+      "kind": "CUT",
+      "bars": [
+       61,
+       68
+      ],
+      "verdict": "rerender",
+      "reason": "not_aligned: no groove to line the cut up on",
+      "snap_ms": [
+       21.689
+      ],
+      "gain_db": null,
+      "joins_s": [],
+      "length_diff_s": null,
+      "null_test": null
+     }
+    ],
+    "nullTest": null,
+    "timing": {
+     "total_seconds": 15.683
+    },
+    "tempBytes": 562457,
+    "audioLeft": false,
+    "check": null
+   }
+  },
+  {
+   "song": "ecf8eb5a-734f-4b5f-a0ab-040b6645e75e",
+   "title": "Cariñito",
+   "plan": "carinito-rr",
+   "mix": "reharmonize+reharmonize",
+   "texts": [
+    "give both choruses jazz chords"
+   ],
+   "turn": {
+    "index": 20,
+    "id": "carinito-rr-0",
+    "lang": "en",
+    "expect": "edit",
+    "prompt": "give both choruses jazz chords",
+    "postStatus": 202,
+    "action": "edit",
+    "cause": null,
+    "reasons": [],
+    "attempts": 2,
+    "calls": 2,
+    "turnMs": 23576,
+    "queuedMs": 5,
+    "promptTokens": [
+     4260,
+     4510
+    ],
+    "unloadMs": 122,
+    "vram": {
+     "beforeMiB": 978,
+     "peakMiB": 12386,
+     "atEmptyMiB": 971
+    }
+   },
+   "ops": 2,
+   "card": {
+    "splice": true,
+    "kind": "several",
+    "from_bar": 23,
+    "to_bar": 55,
+    "steps": [
+     {
+      "kind": "reharmonize",
+      "from_bar": 48,
+      "to_bar": 55,
+      "ops": [
+       1
+      ]
+     },
+     {
+      "kind": "reharmonize",
+      "from_bar": 23,
+      "to_bar": 30,
+      "ops": [
+       0
+      ]
+     }
+    ]
+   },
+   "apply": {
+    "outcome": "saved",
+    "editMs": 166243,
+    "handoffMs": 17,
+    "versionsBefore": 1,
+    "versionsAfter": 2,
+    "versionId": "6263ef64-1725-4852-accd-32f769bbe39b",
+    "label": "score edit · REHARMONIZE 23–30 · REHARMONIZE 48–55 · bars 23–30, 48–55 spliced",
+    "record": {
+     "splice_v": 2,
+     "kind": "several",
+     "bars": [
+      23,
+      55
+     ],
+     "joins_s": [
+      118.66,
+      138.8764,
+      55.51,
+      75.72
+     ],
+     "length_diff_s": 0.0064,
+     "null_test": {
+      "samples": 13462585,
+      "different": 0
+     },
+     "steps": [
+      {
+       "kind": "reharmonize",
+       "bars": [
+        48,
+        55
+       ],
+       "joins_s": [
+        118.65,
+        138.8664
+       ],
+       "crossfade_s": [
+        0.631579,
+        0.631579
+       ],
+       "gain_db": {
+        "in": -1.473,
+        "out": 0.737,
+        "bars": [
+         -1.473,
+         0.793,
+         0.788,
+         0.826,
+         -0.865,
+         0.619,
+         0.775,
+         0.737
+        ]
+       },
+       "snap_ms": [
+        -39.855,
+        6.441
+       ],
+       "length_diff_s": -0.0036,
+       "null_test": {
+        "samples": 6730898,
+        "different": 0
+       }
+      },
+      {
+       "kind": "reharmonize",
+       "bars": [
+        23,
+        30
+       ],
+       "joins_s": [
+        55.51,
+        75.72
+       ],
+       "crossfade_s": [
+        0.631579,
+        0.631579
+       ],
+       "gain_db": {
+        "in": -0.095,
+        "out": 0.495,
+        "bars": [
+         -0.095,
+         -0.31,
+         0.325,
+         0.264,
+         -1.099,
+         0.197,
+         0.345,
+         0.495
+        ]
+       },
+       "snap_ms": [
+        -9.463,
+        141.03
+       ],
+       "length_diff_s": 0.01,
+       "null_test": {
+        "samples": 6731687,
+        "different": 0
+       }
+      }
+     ]
+    },
+    "fallback": null,
+    "spliceId": "edde6f60dec94d0fa2bf202d1d3cb913",
+    "verdict": "ok",
+    "step": null,
+    "verdictReason": null,
+    "steps": [
+     {
+      "kind": "REHARMONIZE",
+      "bars": [
+       48,
+       55
+      ],
+      "verdict": "ok",
+      "reason": null,
+      "snap_ms": [
+       -39.855,
+       6.441
+      ],
+      "gain_db": {
+       "in": -1.473,
+       "out": 0.737,
+       "bars": [
+        -1.473,
+        0.793,
+        0.788,
+        0.826,
+        -0.865,
+        0.619,
+        0.775,
+        0.737
+       ]
+      },
+      "joins_s": [
+       118.65,
+       138.8664
+      ],
+      "length_diff_s": -0.0036,
+      "null_test": {
+       "samples": 6730898,
+       "different": 0
+      }
+     },
+     {
+      "kind": "REHARMONIZE",
+      "bars": [
+       23,
+       30
+      ],
+      "verdict": "ok",
+      "reason": null,
+      "snap_ms": [
+       -9.463,
+       141.03
+      ],
+      "gain_db": {
+       "in": -0.095,
+       "out": 0.495,
+       "bars": [
+        -0.095,
+        -0.31,
+        0.325,
+        0.264,
+        -1.099,
+        0.197,
+        0.345,
+        0.495
+       ]
+      },
+      "joins_s": [
+       55.51,
+       75.72
+      ],
+      "length_diff_s": 0.01,
+      "null_test": {
+       "samples": 6731687,
+       "different": 0
+      }
+     }
+    ],
+    "nullTest": {
+     "samples": 13462585,
+     "different": 0
+    },
+    "timing": {
+     "total_seconds": 15.003
+    },
+    "tempBytes": 62409710,
+    "audioLeft": true,
+    "check": {
+     "null_test": {
+      "samples": 5730980,
+      "different": 0,
+      "max_abs_diff": 0
+     },
+     "seams": [
+      {
+       "out_s": 118.66,
+       "lufs_step": 4.247,
+       "base_lufs_step": 4.138,
+       "lufs_step_excess": 0.109
+      },
+      {
+       "out_s": 138.8764,
+       "lufs_step": -0.091,
+       "base_lufs_step": 0.147,
+       "lufs_step_excess": -0.238
+      },
+      {
+       "out_s": 55.51,
+       "lufs_step": 3.757,
+       "base_lufs_step": 3.858,
+       "lufs_step_excess": -0.101
+      },
+      {
+       "out_s": 75.72,
+       "lufs_step": -2.553,
+       "base_lufs_step": -2.771,
+       "lufs_step_excess": 0.218
+      }
+     ],
+     "length_diff_s": 0.0064
+    }
+   }
+  },
+  {
+   "song": "ecf8eb5a-734f-4b5f-a0ab-040b6645e75e",
+   "title": "Cariñito",
+   "plan": "carinito-rp",
+   "mix": "reharmonize+repeat",
+   "texts": [
+    "repeat the first chorus and give the last chorus jazz chords"
+   ],
+   "turn": {
+    "index": 30,
+    "id": "carinito-rp-0",
+    "lang": "en",
+    "expect": "edit",
+    "prompt": "repeat the first chorus and give the last chorus jazz chords",
+    "postStatus": 202,
+    "action": "edit",
+    "cause": null,
+    "reasons": [],
+    "attempts": 1,
+    "calls": 1,
+    "turnMs": 87502,
+    "queuedMs": 4,
+    "promptTokens": [
+     4398
+    ],
+    "unloadMs": 586,
+    "vram": {
+     "beforeMiB": 1425,
+     "peakMiB": 15597,
+     "atEmptyMiB": 690
+    }
+   },
+   "ops": 2,
+   "card": {
+    "splice": true,
+    "kind": "several",
+    "from_bar": 23,
+    "to_bar": 55,
+    "steps": [
+     {
+      "kind": "reharmonize",
+      "from_bar": 48,
+      "to_bar": 55,
+      "ops": [
+       1
+      ]
+     },
+     {
+      "kind": "repeat",
+      "from_bar": 23,
+      "to_bar": 30,
+      "ops": [
+       0
+      ]
+     }
+    ]
+   },
+   "apply": {
+    "outcome": "saved",
+    "editMs": 219597,
+    "handoffMs": 17,
+    "versionsBefore": 2,
+    "versionsAfter": 3,
+    "versionId": "8003a123-4e3c-480a-a70d-f5cd8a6fa5d4",
+    "label": "score edit · REPEAT chorus S3 · REHARMONIZE 48–55 · bars 48–55 spliced · bars 23–30 repeated",
+    "record": {
+     "splice_v": 2,
+     "kind": "several",
+     "bars": [
+      23,
+      55
+     ],
+     "joins_s": [
+      138.8578,
+      159.0747,
+      75.71,
+      95.9178
+     ],
+     "length_diff_s": 20.2046,
+     "null_test": {
+      "samples": 14447363,
+      "different": 0
+     },
+     "steps": [
+      {
+       "kind": "reharmonize",
+       "bars": [
+        48,
+        55
+       ],
+       "joins_s": [
+        118.65,
+        138.8669
+       ],
+       "crossfade_s": [
+        0.631579,
+        0.631579
+       ],
+       "gain_db": {
+        "in": 1.508,
+        "out": 5.73,
+        "bars": [
+         1.508,
+         4.975,
+         4.9,
+         2.399,
+         1.619,
+         4.201,
+         5.113,
+         5.73
+        ]
+       },
+       "snap_ms": [
+        -2.536,
+        4.302
+       ],
+       "length_diff_s": -0.0031,
+       "null_test": {
+        "samples": 6730898,
+        "different": 0
+       }
+      },
+      {
+       "kind": "repeat",
+       "bars": [
+        23,
+        30
+       ],
+       "joins_s": [
+        75.71,
+        95.9178
+       ],
+       "crossfade_s": [
+        0.631579,
+        0
+       ],
+       "gain_db": null,
+       "snap_ms": [
+        -7.801
+       ],
+       "length_diff_s": 20.2078,
+       "null_test": {
+        "samples": 7716465,
+        "different": 0
+       }
+      }
+     ]
+    },
+    "fallback": null,
+    "spliceId": "358f63a048604ff9aeec6f0a24836161",
+    "verdict": "ok",
+    "step": null,
+    "verdictReason": null,
+    "steps": [
+     {
+      "kind": "REHARMONIZE",
+      "bars": [
+       48,
+       55
+      ],
+      "verdict": "ok",
+      "reason": null,
+      "snap_ms": [
+       -2.536,
+       4.302
+      ],
+      "gain_db": {
+       "in": 1.508,
+       "out": 5.73,
+       "bars": [
+        1.508,
+        4.975,
+        4.9,
+        2.399,
+        1.619,
+        4.201,
+        5.113,
+        5.73
+       ]
+      },
+      "joins_s": [
+       118.65,
+       138.8669
+      ],
+      "length_diff_s": -0.0031,
+      "null_test": {
+       "samples": 6730898,
+       "different": 0
+      }
+     },
+     {
+      "kind": "REPEAT",
+      "bars": [
+       23,
+       30
+      ],
+      "verdict": "ok",
+      "reason": null,
+      "snap_ms": [
+       -7.801
+      ],
+      "gain_db": null,
+      "joins_s": [
+       75.71,
+       95.9178
+      ],
+      "length_diff_s": 20.2078,
+      "null_test": {
+       "samples": 7716465,
+       "different": 0
+      }
+     }
+    ],
+    "nullTest": {
+     "samples": 14447363,
+     "different": 0
+    },
+    "timing": {
+     "total_seconds": 35.936
+    },
+    "tempBytes": 70253286,
+    "audioLeft": true,
+    "check": {
+     "null_test": {
+      "samples": 6715738,
+      "different": 0,
+      "max_abs_diff": 0
+     },
+     "seams": [
+      {
+       "out_s": 138.8578,
+       "lufs_step": 4.313,
+       "base_lufs_step": 4.138,
+       "lufs_step_excess": 0.175
+      },
+      {
+       "out_s": 159.0747,
+       "lufs_step": 0.155,
+       "base_lufs_step": 0.147,
+       "lufs_step_excess": 0.008
+      },
+      {
+       "out_s": 75.71,
+       "lufs_step": -0.259,
+       "base_lufs_step": null,
+       "lufs_step_excess": null
+      },
+      {
+       "out_s": 95.9178,
+       "lufs_step": -2.771,
+       "base_lufs_step": null,
+       "lufs_step_excess": null
+      }
+     ],
+     "length_diff_s": 20.2046
+    }
+   }
+  },
+  {
+   "song": "781968b6-ada5-427a-b333-d4d96b9af7fd",
+   "title": "Polski Polka",
+   "plan": "polka-rr",
+   "mix": "reharmonize+reharmonize",
+   "texts": [
+    "give the first and the last chorus jazz chords"
+   ],
+   "turn": {
+    "index": 0,
+    "id": "polka-rr-0",
+    "lang": "en",
+    "expect": "edit",
+    "prompt": "give the first and the last chorus jazz chords",
+    "postStatus": 202,
+    "action": "edit",
+    "cause": null,
+    "reasons": [],
+    "attempts": 1,
+    "calls": 1,
+    "turnMs": 38178,
+    "queuedMs": 8,
+    "promptTokens": [
+     5385
+    ],
+    "unloadMs": 1110,
+    "vram": {
+     "beforeMiB": 737,
+     "peakMiB": 15716,
+     "atEmptyMiB": 10457
+    }
+   },
+   "ops": 2,
+   "card": {
+    "splice": true,
+    "kind": "several",
+    "from_bar": 33,
+    "to_bar": 113,
+    "steps": [
+     {
+      "kind": "reharmonize",
+      "from_bar": 106,
+      "to_bar": 113,
+      "ops": [
+       1
+      ]
+     },
+     {
+      "kind": "reharmonize",
+      "from_bar": 33,
+      "to_bar": 40,
+      "ops": [
+       0
+      ]
+     }
+    ]
+   },
+   "apply": {
+    "outcome": "saved",
+    "editMs": 216398,
+    "handoffMs": 25,
+    "versionsBefore": 1,
+    "versionsAfter": 2,
+    "versionId": "3a63c5e1-9e68-4ee3-98b1-23c28c38082a",
+    "label": "score edit · REHARMONIZE 33–40 · REHARMONIZE 106–113 · bars 33–40, 106–113 spliced",
+    "record": {
+     "splice_v": 2,
+     "kind": "several",
+     "bars": [
+      33,
+      113
+     ],
+     "joins_s": [
+      181.4008,
+      195.2757,
+      54.45,
+      68.3608
+     ],
+     "length_diff_s": -0.0343,
+     "null_test": {
+      "samples": 19046524,
+      "different": 0
+     },
+     "steps": [
+      {
+       "kind": "reharmonize",
+       "bars": [
+        106,
+        113
+       ],
+       "joins_s": [
+        181.41,
+        195.2849
+       ],
+       "crossfade_s": [
+        0.434783,
+        0.434783
+       ],
+       "gain_db": {
+        "in": 2.924,
+        "out": 1.842,
+        "bars": [
+         2.924,
+         2.536,
+         2.465,
+         2.51,
+         3.767,
+         3.708,
+         2.627,
+         1.842
+        ]
+       },
+       "snap_ms": [
+        -10.312,
+        -15.393
+       ],
+       "length_diff_s": -0.0251,
+       "null_test": {
+        "samples": 9524344,
+        "different": 0
+       }
+      },
+      {
+       "kind": "reharmonize",
+       "bars": [
+        33,
+        40
+       ],
+       "joins_s": [
+        54.45,
+        68.3608
+       ],
+       "crossfade_s": [
+        0.434783,
+        0.434783
+       ],
+       "gain_db": {
+        "in": 0.15,
+        "out": 0.336,
+        "bars": [
+         0.15,
+         0.219,
+         1.426,
+         1.244,
+         2.649,
+         1.435,
+         1.699,
+         0.336
+        ]
+       },
+       "snap_ms": [
+        -19.703,
+        -8.933
+       ],
+       "length_diff_s": -0.0092,
+       "null_test": {
+        "samples": 9522180,
+        "different": 0
+       }
+      }
+     ]
+    },
+    "fallback": null,
+    "spliceId": "c0deb29253b146bfb120821ce8640e3b",
+    "verdict": "ok",
+    "step": null,
+    "verdictReason": null,
+    "steps": [
+     {
+      "kind": "REHARMONIZE",
+      "bars": [
+       106,
+       113
+      ],
+      "verdict": "ok",
+      "reason": null,
+      "snap_ms": [
+       -10.312,
+       -15.393
+      ],
+      "gain_db": {
+       "in": 2.924,
+       "out": 1.842,
+       "bars": [
+        2.924,
+        2.536,
+        2.465,
+        2.51,
+        3.767,
+        3.708,
+        2.627,
+        1.842
+       ]
+      },
+      "joins_s": [
+       181.41,
+       195.2849
+      ],
+      "length_diff_s": -0.0251,
+      "null_test": {
+       "samples": 9524344,
+       "different": 0
+      }
+     },
+     {
+      "kind": "REHARMONIZE",
+      "bars": [
+       33,
+       40
+      ],
+      "verdict": "ok",
+      "reason": null,
+      "snap_ms": [
+       -19.703,
+       -8.933
+      ],
+      "gain_db": {
+       "in": 0.15,
+       "out": 0.336,
+       "bars": [
+        0.15,
+        0.219,
+        1.426,
+        1.244,
+        2.649,
+        1.435,
+        1.699,
+        0.336
+       ]
+      },
+      "joins_s": [
+       54.45,
+       68.3608
+      ],
+      "length_diff_s": -0.0092,
+      "null_test": {
+       "samples": 9522180,
+       "different": 0
+      }
+     }
+    ],
+    "nullTest": {
+     "samples": 19046524,
+     "different": 0
+    },
+    "timing": {
+     "total_seconds": 25.937
+    },
+    "tempBytes": 82664347,
+    "audioLeft": true,
+    "check": {
+     "null_test": {
+      "samples": 8835312,
+      "different": 0,
+      "max_abs_diff": 0
+     },
+     "seams": [
+      {
+       "out_s": 181.4008,
+       "lufs_step": 2.71,
+       "base_lufs_step": 2.429,
+       "lufs_step_excess": 0.281
+      },
+      {
+       "out_s": 195.2757,
+       "lufs_step": -0.147,
+       "base_lufs_step": 0.123,
+       "lufs_step_excess": -0.27
+      },
+      {
+       "out_s": 54.45,
+       "lufs_step": -1.116,
+       "base_lufs_step": -1.194,
+       "lufs_step_excess": 0.078
+      },
+      {
+       "out_s": 68.3608,
+       "lufs_step": -0.214,
+       "base_lufs_step": 0.005,
+       "lufs_step_excess": -0.219
+      }
+     ],
+     "length_diff_s": -0.0343
+    }
+   }
+  },
+  {
+   "song": "781968b6-ada5-427a-b333-d4d96b9af7fd",
+   "title": "Polski Polka",
+   "plan": "polka-rc",
+   "mix": "reharmonize+cut",
+   "texts": [
+    "cut the second verse and give the last chorus jazz chords"
+   ],
+   "turn": {
+    "index": 10,
+    "id": "polka-rc-0",
+    "lang": "en",
+    "expect": "edit",
+    "prompt": "cut the second verse and give the last chorus jazz chords",
+    "postStatus": 202,
+    "action": "edit",
+    "cause": null,
+    "reasons": [],
+    "attempts": 1,
+    "calls": 1,
+    "turnMs": 87157,
+    "queuedMs": 5,
+    "promptTokens": [
+     5517
+    ],
+    "unloadMs": 579,
+    "vram": {
+     "beforeMiB": 1586,
+     "peakMiB": 15702,
+     "atEmptyMiB": 692
+    }
+   },
+   "ops": 2,
+   "card": {
+    "splice": true,
+    "kind": "several",
+    "from_bar": 49,
+    "to_bar": 113,
+    "steps": [
+     {
+      "kind": "reharmonize",
+      "from_bar": 106,
+      "to_bar": 113,
+      "ops": [
+       1
+      ]
+     },
+     {
+      "kind": "cut",
+      "from_bar": 49,
+      "to_bar": 69,
+      "ops": [
+       0
+      ]
+     }
+    ]
+   },
+   "apply": {
+    "outcome": "saved",
+    "editMs": 98271,
+    "handoffMs": 24,
+    "versionsBefore": 2,
+    "versionsAfter": 3,
+    "versionId": "d1ee4eab-1448-4b04-9c71-0727c4211ab8",
+    "label": "score edit · CUT verse S5 · REHARMONIZE 106–113 · whole song re-rendered: the new take's bars 106-113 run 6.96 s longer than the current version's (a splice keeps the length within 0.25 s) (step 1, bars 106–113)",
+    "record": {
+     "splice_v": 1,
+     "fallback": "the new take's bars 106-113 run 6.96 s longer than the current version's (a splice keeps the length within 0.25 s) (step 1, bars 106–113)"
+    },
+    "fallback": "the new take's bars 106-113 run 6.96 s longer than the current version's (a splice keeps the length within 0.25 s) (step 1, bars 106–113)",
+    "spliceId": "9a33ea826d964c4a8a32a6c7b58923e6",
+    "verdict": "rerender",
+    "step": 1,
+    "verdictReason": "length: the new take's bars 106-113 run 6.96 s longer than the current version's (a splice keeps the length within 0.25 s)",
+    "steps": [
+     {
+      "kind": "REHARMONIZE",
+      "bars": [
+       106,
+       113
+      ],
+      "verdict": "rerender",
+      "reason": "length: the new take's bars 106-113 run 6.96 s longer than the current version's (a splice keeps the length within 0.25 s)",
+      "snap_ms": [
+       8.84,
+       -3.63
+      ],
+      "gain_db": {
+       "in": 0.915,
+       "out": 0.39,
+       "bars": [
+        0.915,
+        1.521,
+        0.404,
+        0.808,
+        -1.204,
+        0.276,
+        1.382,
+        0.39
+       ]
+      },
+      "joins_s": [],
+      "length_diff_s": 6.9575,
+      "null_test": null
+     }
+    ],
+    "nullTest": null,
+    "timing": {
+     "total_seconds": 24
+    },
+    "tempBytes": 827643,
+    "audioLeft": false,
+    "check": null
+   }
+  }
+ ],
+ "proxyEvents": [
+  {
+   "t0": 1791564242209,
+   "t1": 1791564242215,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564242217,
+   "t1": 1791564242218,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791564242221,
+   "t1": 1791564242223,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564337876,
+   "t1": 1791564337878,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564337878,
+   "t1": 1791564337879,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791564337881,
+   "t1": 1791564337882,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564337883,
+   "t1": 1791564374869,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 15474,
+    "usage": {
+     "prompt_tokens": 5385,
+     "completion_tokens": 974,
+     "total_tokens": 6359
+    },
+    "content": "{\"action\": \"edit\", \"message\": \"I've updated the first and last chorus with jazz chords.\", \"assumptions\": [\"assuming the first chorus, bars 33-40\", \"assuming the last chorus, bars 106-113\"], \"ops\": [{\"op\": \"REHARMONIZE\", \"from_bar\": 33, \"to_bar\": 40, \"chords\": [{\"bar\": 33, \"beat\": 1, \"root\": \"D\", \"quality\": \"m7\"}, {\"bar\": 33, \"beat\": 3, \"root\": \"A\", \"quality\": \"maj7\"}, {\"bar\": 34, \"beat\": 1, \"root\": \"E\", \"quality\": \"m7\"}, {\"bar\": 34, \"beat\": 3, \"root\": \"B\", \"quality\": \"maj7\"}, {\"bar\": 35, \"beat\": 1, \"root\": \"F#\", \"quality\": \"m7\"}, {\"bar\": 35, \"beat\": 3, \"root\": \"C#\", \"quality\": \"maj7\"}, {\"bar\": 36, \"beat\": 1, \"root\": \"G\", \"quality\": \"m7\"}, {\"bar\": 36, \"beat\": 3, \"root\": \"D\", \"quality\": \"maj7\"}, {\"bar\": 37, \"beat\": 1, \"root\": \"A\", \"quality\": \"m7\"}, {\"bar\": 37, \"beat\": 3, \"root\": \"E\", \"quality\": \"maj7\"}, {\"bar\": 38, \"beat\": 1, \"root\": \"B\", \"quality\": \"m7\"}, {\"bar\": 38, \"beat\": 3, \"root\": \"F#\", \"quality\": \"maj7\"}, {\"bar\": 39, \"beat\": 1, \"root\": \"C#\", \"quality\": \"m7\"}, {\"bar\": 39, \"beat\": 3, \"root\": \"G\", \"quality\": \"maj7\"}, {\"bar\": 40, \"beat\": 1, \"root\": \"D\", \"quality\": \"m7\"}, {\"bar\": 40, \"beat\": 3, \"root\": \"A\", \"quality\": \"maj7\"}]}, {\"op\": \"REHARMONIZE\", \"from_bar\": 106, \"to_bar\": 113, \"chords\": [{\"bar\": 106, \"beat\": 1, \"root\": \"D\", \"quality\": \"m7\"}, {\"bar\": 106, \"beat\": 3, \"root\": \"A\", \"quality\": \"maj7\"}, {\"bar\": 107, \"beat\": 1, \"root\": \"E\", \"quality\": \"m7\"}, {\"bar\": 107, \"beat\": 3, \"root\": \"B\", \"quality\": \"maj7\"}, {\"bar\": 108, \"beat\": 1, \"root\": \"F#\", \"quality\": \"m7\"}, {\"bar\": 108, \"beat\": 3, \"root\": \"C#\", \"quality\": \"maj7\"}, {\"bar\": 109, \"beat\": 1, \"root\": \"G\", \"quality\": \"m7\"}, {\"bar\": 109, \"beat\": 3, \"root\": \"D\", \"quality\": \"maj7\"}, {\"bar\": 110, \"beat\": 1, \"root\": \"A\", \"quality\": \"m7\"}, {\"bar\": 110, \"beat\": 3, \"root\": \"E\", \"quality\": \"maj7\"}, {\"bar\": 111, \"beat\": 1, \"root\": \"B\", \"quality\": \"m7\"}, {\"bar\": 111, \"beat\": 3, \"root\": \"F#\", \"quality\": \"maj7\"}, {\"bar\": 112, \"beat\": 1, \"root\": \"C#\", \"quality\": \"m7\"}, {\"bar\": 112, \"beat\": 3, \"root\": \"G\", \"quality\": \"maj7\"}, {\"bar\": 113, \"beat\": 1, \"root\": \"D\", \"quality\": \"m7\"}, {\"bar\": 113, \"beat\": 3, \"root\": \"A\", \"quality\": \"maj7\"}]}]}"
+   }
+  },
+  {
+   "t0": 1791564374871,
+   "t1": 1791564374872,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791564374915,
+   "t1": 1791564374917,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-09T16:46:14.9169376Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791564374917,
+   "t1": 1791564375979,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564384766,
+   "t1": 1791564384767,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564384786,
+   "t1": 1791564384787,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564601039,
+   "t1": 1791564601040,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564608062,
+   "t1": 1791564608063,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564608064,
+   "t1": 1791564608065,
+   "method": "GET",
+   "path": "/api/tags",
+   "status": 200,
+   "info": {}
+  },
+  {
+   "t0": 1791564608067,
+   "t1": 1791564608067,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564608068,
+   "t1": 1791564694564,
+   "method": "POST",
+   "path": "/v1/chat/completions",
+   "status": 200,
+   "info": {
+    "messages": 2,
+    "promptChars": 15847,
+    "usage": {
+     "prompt_tokens": 5517,
+     "completion_tokens": 525,
+     "total_tokens": 6042
+    },
+    "content": "{\"action\": \"edit\", \"message\": \"I've cut the second verse and updated the last chorus with jazz chords.\", \"assumptions\": [\"assuming the second verse, bars 49-69\"], \"ops\": [{\"op\": \"CUT\", \"section\": 5, \"label\": \"verse\"}, {\"op\": \"REHARMONIZE\", \"from_bar\": 106, \"to_bar\": 113, \"chords\": [{\"bar\": 106, \"beat\": 1, \"root\": \"C\", \"quality\": \"7\"}, {\"bar\": 106, \"beat\": 3, \"root\": \"E\", \"quality\": \"m7\"}, {\"bar\": 107, \"beat\": 1, \"root\": \"D\", \"quality\": \"7\"}, {\"bar\": 107, \"beat\": 3, \"root\": \"A\", \"quality\": \"m7\"}, {\"bar\": 108, \"beat\": 1, \"root\": \"G\", \"quality\": \"7\"}, {\"bar\": 108, \"beat\": 3, \"root\": \"C\", \"quality\": \"m7\"}, {\"bar\": 109, \"beat\": 1, \"root\": \"E\", \"quality\": \"7\"}, {\"bar\": 109, \"beat\": 3, \"root\": \"A\", \"quality\": \"m7\"}, {\"bar\": 110, \"beat\": 1, \"root\": \"C\", \"quality\": \"7\"}, {\"bar\": 110, \"beat\": 3, \"root\": \"E\", \"quality\": \"m7\"}, {\"bar\": 111, \"beat\": 1, \"root\": \"D\", \"quality\": \"7\"}, {\"bar\": 111, \"beat\": 3, \"root\": \"A\", \"quality\": \"m7\"}, {\"bar\": 112, \"beat\": 1, \"root\": \"G\", \"quality\": \"7\"}, {\"bar\": 112, \"beat\": 3, \"root\": \"C\", \"quality\": \"m7\"}, {\"bar\": 113, \"beat\": 1, \"root\": \"E\", \"quality\": \"7\"}, {\"bar\": 113, \"beat\": 3, \"root\": \"A\", \"quality\": \"m7\"}]}]}"
+   }
+  },
+  {
+   "t0": 1791564694565,
+   "t1": 1791564694566,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": [
+     {
+      "name": "qwen3:14b",
+      "ctx": 16384,
+      "size_vram": 11672202771,
+      "size": 11672202771
+     }
+    ]
+   }
+  },
+  {
+   "t0": 1791564694623,
+   "t1": 1791564694625,
+   "method": "POST",
+   "path": "/api/generate",
+   "status": 200,
+   "info": {
+    "req": {
+     "model": "qwen3:14b",
+     "keep_alive": 0
+    },
+    "res": {
+     "model": "qwen3:14b",
+     "created_at": "2026-10-09T16:51:34.6248366Z",
+     "response": "",
+     "done": true,
+     "done_reason": "unload"
+    }
+   }
+  },
+  {
+   "t0": 1791564694625,
+   "t1": 1791564695143,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564700670,
+   "t1": 1791564700671,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564700689,
+   "t1": 1791564700690,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  },
+  {
+   "t0": 1791564798821,
+   "t1": 1791564798822,
+   "method": "GET",
+   "path": "/api/ps",
+   "status": 200,
+   "info": {
+    "models": []
+   }
+  }
+ ]
+}

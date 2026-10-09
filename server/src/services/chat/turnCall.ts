@@ -31,6 +31,8 @@ import { recipeLyrics } from './turnLyrics.js';
 import { phraseBarsOf } from '../score/phraseRequest.js';
 import type { ChatMessage, DraftFields, LyricsMode } from './chatTypes.js';
 import type { RevisePending } from './convergeTypes.js';
+import { offersRetime, type RetimeRoute } from './retimeReply.js';
+import type { VerbFacts } from './retimeVerb.js';
 
 export const BUILT_RUNGS = [0, 2];
 
@@ -64,6 +66,8 @@ export interface TurnContext {
   mark?: { lines: string[]; range: [number, number] | null } | null;
   /** C2 (F-058): the live edit card's plan this turn revises (turnRevise.pendingFor); null = a fresh plan. */
   revise?: RevisePending | null;
+  /** RT-6 (F-094): what the song offers a RETIME (turnRetime.verbFacts); absent or null = no RETIME op this turn. */
+  retime?: VerbFacts | null;
 }
 
 export interface CallDeps {
@@ -81,8 +85,9 @@ export interface CallDeps {
 
 /** `since`: an accepted revise's merge against the pending plan (NEW / CHANGED / SAME, REMOVED); null otherwise.
  * `scrapped` (D-257): a start over left nothing to plan; the reply is a say naming why, and the pending plan goes.
- * `lyrics`: a recipe's lyrics step (LD): kept or written, on which model, in how many attempts. */
-export type Decision = TurnOutcome & { calls: number; messages: PromptMessage[]; since: Since | null; scrapped?: boolean;
+ * `lyrics`: a recipe's lyrics step (LD): kept or written, on which model, in how many attempts.
+ * `retime` (RT-6): the accepted RETIME's route; turnJob resolves it after the unload. */
+export type Decision = TurnOutcome & { calls: number; messages: PromptMessage[]; since: Since | null; scrapped?: boolean; retime?: RetimeRoute | null;
   lyrics?: { mode: LyricsMode; model?: string; attempts: number } };
 
 export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Decision> {
@@ -92,14 +97,16 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
   const markRange = ctx.mark?.range ?? null;
   const markWhole = markRange ? asksWholeSong(ctx.request) : false; // C1 live B2: a mark bounds whole-song ops too
   const revise = ctx.facts ? ctx.revise ?? null : null;
-  const schema = turnSchema({ facts: ctx.facts, phraseBars, allowed, reference, barRange: markRange, wholeSong: markWhole, pendingCount: revise?.count });
+  const retime = offersRetime(ctx.retime);
+  const schema = turnSchema({ facts: ctx.facts, phraseBars, allowed, reference, barRange: markRange, wholeSong: markWhole, pendingCount: revise?.count, retime });
   const pending = revise ? revise.lines : draftLines(ctx.draft, ctx.pending);
-  const messages = turnMessages({ rules: chatRules(allowed, { reference }), state: ctx.block, facts: ctx.facts, request: ctx.request, pending, history: ctx.history, mark: ctx.mark?.lines });
-  const checkCtx = { allowed, shapeOnly: redirected(ctx.state), facts: ctx.facts, phraseBars, request: ctx.request, markRange, markWhole, pending: revise?.plan.ops };
+  const messages = turnMessages({ rules: chatRules(allowed, { reference, retime }), state: ctx.block, facts: ctx.facts, request: ctx.request, pending, history: ctx.history, mark: ctx.mark?.lines });
+  const checkCtx = { allowed, shapeOnly: redirected(ctx.state), facts: ctx.facts, phraseBars, request: ctx.request, markRange, markWhole, pending: revise?.plan.ops, retime: retime ? ctx.retime : null };
   const maxTokens = allowed.includes('edit') ? MAX_TOKENS.edit : MAX_TOKENS.other;
   let calls = 0;
   let since: Since | null = null; // the last accepted check's merge: turnAttempts returns on it
   let scrapped = false; // D-257: the last accepted check was a start over that left nothing
+  let route: RetimeRoute | null = null; // RT-6: the last accepted check's RETIME route
   let guards = revise ? [KEEP_REASON, START_REASON] : []; // CP-C2: each drop guard sends a reply back once, then it stands
   const outcome = await turnAttempts(messages, {
     ask: (msgs) => { calls += 1; return deps.ask(msgs, schema, { maxTokens }); },
@@ -108,17 +115,18 @@ export async function decideReply(ctx: TurnContext, deps: CallDeps): Promise<Dec
       if (!c.ok) guards = guards.filter((g) => !c.reasons.some((r) => r.startsWith(g)));
       since = c.ok && c.revised && revise ? { planId: revise.plan.id, ...c.revised } : null;
       scrapped = Boolean(c.ok && c.scrapped);
+      route = c.ok ? c.retime ?? null : null;
       return c;
     },
     onAttempt: deps.onAttempt,
   });
-  if (outcome.ok && outcome.reply.action === 'edit' && markRange) { // C1 re-check N2 / C2 live B2 (a): the card and its sentence agree
+  if (outcome.ok && outcome.reply.action === 'edit' && markRange && !route) { // C1 re-check N2 / C2 live B2 (a): the card and its sentence agree
     outcome.reply = { ...outcome.reply, message: replanMessage(outcome.reply.message, outcome.reply.ops, outcome.refusals, markWhole ? '' : ctx.request) };
   }
   if (outcome.ok && scrapped) outcome.reply = { action: 'say', message: nothingPlanned(outcome.refusals, markRange && !markWhole ? ctx.request : '') };
   if (outcome.ok) outcome.refusals = outcome.refusals.map(shownReasons); // C2 live B6: the card and the failed line read person words
   else outcome.reasons = shownReasons(outcome.reasons);
-  const done = { calls, messages, since: outcome.ok ? since : null, scrapped: outcome.ok && scrapped };
+  const done = { calls, messages, since: outcome.ok ? since : null, scrapped: outcome.ok && scrapped, retime: outcome.ok ? route : null };
   if (!outcome.ok || outcome.reply.action !== 'recipe' || checkCtx.shapeOnly.includes('recipe')) return { ...outcome, ...done };
   const model = deps.lyricsModel?.(outcome.reply.recipe.language);
   const step = await recipeLyrics(outcome.reply.recipe, { request: ctx.request, draft: ctx.draft }, {

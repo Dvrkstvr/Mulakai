@@ -13,6 +13,7 @@
  * (replyCheck), and the card's plan goes to planStore only after the card is written. C2 (F-058, D-227): a
  * live edit card over the song's unchanged pending plan (turnRevise.pendingFor, at the turn's start) makes the
  * turn's edit a revise; the card is plan n+1 with `since`. A failed turn leaves the card and the plan as they are.
+ * RT-6 (F-094): a RETIME's facts are read before the planner loads, its route resolved after the unload (turnRetime).
  */
 import crypto from 'node:crypto';
 import { config } from '../../config.js';
@@ -38,6 +39,7 @@ import { lyricsModelFor } from './lyricsModels.js';
 import { modelSession, shortModel } from './turnModels.js';
 import type { EditResolved } from './turnDispatch.js';
 import { causeOf, commitReply, TurnError, writeFailed } from './turnOutcome.js';
+import { resolveRetime, retimeDeps, retimeFailed, undoneRetimes, type RetimeDeps } from './turnRetime.js';
 import type { ReadingPlanSources } from './reading.js';
 import type { AnalyzeTarget, ChatMessage, EditBase, UserBody } from './chatTypes.js';
 
@@ -60,6 +62,7 @@ export interface TurnDeps {
   plan: (target: AnalyzeTarget) => ReadingPlanSources;
   /** C0b: yue-server's apply of an edit's ops to the song's score (the score agent's own). */
   applyEdit: (base: ApplyBase, ops: Op[]) => Promise<ApplyResult>;
+  retime: RetimeDeps; // RT-6: RE-TIME's facts, the dock's plan and the reading's clients
 }
 
 export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
@@ -73,7 +76,7 @@ export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
     release: (models = [planner.model], cut) => releaseModels(planner.url, models, { cut }),
     lyricsModel: (language) => lyricsModelFor(language, process.env, planner.model),
     plan: (target) => planFor(target),
-    applyEdit: (base, ops) => applyOps(base, ops),
+    applyEdit: (base, ops) => applyOps(base, ops), retime: retimeDeps(),
     ...over,
   };
 }
@@ -96,14 +99,15 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   if (unsupported) throw new TurnError('offline', unsupported);
   const models = modelSession({ probe: (m) => deps.probe(m), loaded: deps.loaded, release: (m, cut) => deps.release(m, cut) }, deps.planner.model);
   const aborted = () => { if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted'); };
-  const history = lastTurns(threadId, HISTORY_TURNS + 1).filter((m) => m.seq < user.seq);
+  const history = undoneRetimes(lastTurns(threadId, HISTORY_TURNS + 1).filter((m) => m.seq < user.seq)); // RT-6 re-check 2
   const base = isBase(gathered.edit) ? gathered.edit : null;
   const revise = base ? pendingFor(threadId, base.songId, base.source.fingerprint) : null;
+  const retime = thread.songId ? await deps.retime.facts(thread.songId).catch(() => null) : null;
   let decision: Awaited<ReturnType<typeof decideReply>>;
   try {
     decision = await decideReply({
       state: gathered.state, block: gathered.block, facts: gathered.facts, draft: gathered.draft, request: user.text,
-      pending: !thread.songId && Boolean(liveProposal(threadId)), history, mark, revise,
+      pending: !thread.songId && Boolean(liveProposal(threadId)), history, mark, revise, retime,
     }, {
       rung: deps.rung,
       apply: base ? (ops) => deps.applyEdit({ abc: base.source.abc, style: base.source.style, lyrics: base.source.lyrics }, ops) : undefined,
@@ -141,7 +145,11 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
       : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now(),
         ...(decision.since && revise ? { revision: (revise.plan.revision ?? 1) + 1, since: decision.since } : {}) };
   const scrap = decision.scrapped && base && revise ? { songId: base.songId, planId: revise.plan.id } : null; // D-257
-  commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text, mark: mark?.edit ?? null, scrap });
+  const tried = { ...decision, revision: revise ? (revise.plan.revision ?? 1) + 1 : undefined }; // D-278: a start over's since
+  const retimed = decision.retime && thread.songId ? await resolveRetime(decision.retime, thread.songId, gathered.edit, tried, deps.retime)
+    .catch((err: unknown) => { throw new TurnError('check', retimeFailed(err)); }) : null;
+  aborted(); // RT-6 review 1: a stop during the re-time writes nothing (the re-timed reading is written with the reply)
+  commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text, mark: mark?.edit ?? null, scrap, retime: retimed });
   job.progressText = undefined;
   job.status = 'done';
 }

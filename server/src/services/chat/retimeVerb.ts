@@ -36,11 +36,12 @@ function limits(ask: RetimeAsk, read: number): string | null {
 
 export function routeRetime(ask: RetimeAsk, facts: VerbFacts, about?: 'reading'): VerbRoute {
   const { dock, reading } = facts;
-  const onReading = about === 'reading' || dock.state === 'none';
+  // D-280: words about the reading pick the reading only when there is one; a cover with none means its transcription.
+  const onReading = dock.state === 'none' || (about === 'reading' && reading !== null);
   if (!onReading) {
     if (dock.state === 'refused') return refused(dock.reason);
   } else if (!reading) {
-    return refused(dock.state === 'none' ? OWN_SCORE : 'this version has no transcribed reading to re-time');
+    return refused(OWN_SCORE);
   } else if (!reading.notationId) {
     return refused(READING_GONE_CHAT);
   }

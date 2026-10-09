@@ -7,7 +7,8 @@ file. Cancel is checked between steps; a cancelled splice deletes its files.
 The result's `verdict` is `ok` (audio at `audio_url`) or `rerender` with a
 `reason` (meter, no_grid, render_truncated, not_aligned, level_step, length): for
 REHARMONIZE the server then keeps its whole re-render (D-101), for REPEAT and
-CUT it renders the edited score (D-154).
+CUT it renders the edited score (D-154). A spec with `steps` (a chain, F-069)
+runs splice_chain_job.run instead, in the same job wrapper.
 """
 from __future__ import annotations
 
@@ -20,6 +21,7 @@ from pathlib import Path
 from splice_audio import AudioError, read_audio, write_wav
 from splice_check import null_test, seams
 from splice_dsp import SR
+from splice_fit import ShortSide, side_fits
 from splice_grid import GridError, fit, score_bars, track
 from splice_plan import rerender, splice_reharmonize
 from splice_result import mapped_grid, ok_result, rerender_result
@@ -105,8 +107,10 @@ def _splice(steps: _Steps, store, request: dict) -> dict:
         if new_grid is None:
             return rerender_result(rerender("no_grid", "no downbeat grid for the new take"), kind, spec, steps)
         n = len(score_bars(edited).chords)
-        fits["render"] = fit(new_grid, edited, range(0, s))
-        post = fit(new_grid, edited, range(e, n))
+        try:
+            fits["render"], post = side_fits(new_grid, edited, range(0, s), range(e, n))
+        except ShortSide as short:
+            return rerender_result(rerender("length", str(short)), kind, spec, steps)
         steps.enter("splicing")
         splice = splice_reharmonize(base, new, gb, fits["render"], post, s, e)
     else:
@@ -129,9 +133,13 @@ def run_splice(tracker, store, job_id: str, request: dict) -> None:
     started = time.monotonic()
     steps = _Steps(store, job_id, tracker)
     steps.dir.mkdir(parents=True, exist_ok=True)
-    log.info("splice %s started (%s)", job_id, request["spec"]["op"]["op"])
+    spec = request["spec"]
+    log.info("splice %s started (%s)", job_id, spec["op"]["op"] if "op" in spec else f"{len(spec['steps'])} steps")
+    body = _splice
+    if "steps" in spec:  # a chain (F-069); its module imports this one's helpers
+        from splice_chain_job import run as body
     try:
-        result = _splice(steps, store, request)
+        result = body(steps, store, request)
         result["timing"] = {"total_seconds": round(time.monotonic() - started, 3)}
         outcome = ("succeeded", result, None)
     except InterruptedError:

@@ -5,7 +5,10 @@ import type { Splice } from './spliceEligibility.js';
 import type { BarMap } from './convergeTypes.js';
 
 /** The edit card (C0b, F-046): a planStore plan's snapshot. `splice` says whether APPLY splices the bars
- * (spliceEligibility) or re-renders the whole song, and why; `renderMode` names the render's cot (F-065). */
+ * (spliceEligibility) or re-renders the whole song, and why; `renderMode` names the render's cot (F-065).
+ * C4 (D-266, additive): `splice.kind: 'several'` is a chain of 2-4 spans, `splice.steps` last bar first, each
+ * `{ kind, from_bar, to_bar, ops }` (`ops`: the plan op indexes it covers); `from_bar`/`to_bar` stay first/last bar
+ * touched. Cards stored before C4 never hold `several` and read as before. */
 export interface EditBody {
   planId: string;
   ops: Op[];
@@ -30,6 +33,13 @@ export interface EditBody {
   revision?: number;
   since?: Since;
   map?: BarMap;
+}
+/** RT-6 (F-094, retime.html D4): a say that re-timed the playable version's reading in place; the thread's UNDO TURN
+ * on it is the reading's UNDO (no version was made). `readAt`: the re-timed reading's stamp (UNDO TURN is offered only while
+ * the playing reading has it); `asReadAt`: the reading as read, which UNDO restores (RT-6 review 3). */
+export interface RetimeDoneBody {
+  retime: { songId: string; versionId: string; number: number; mode: 'half' | 'double' | 'bpm'; bpm: number; fromBpm: number;
+    fromBars: number; toBars: number; droppedNotes: number; notes: number; readAt: string; asReadAt: string };
 }
 /** What an edit turn plans on (songStateSource): an eligible song's score as read and its source. */
 export interface EditBase {

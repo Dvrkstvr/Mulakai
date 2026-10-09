@@ -27,4 +27,8 @@ should copy"; placement: docs/decisions/0005.
   REPEAT of the last section is never spliced (its last bar is the ending,
   D-213). REWRITE LYRICS, WRITE PHRASE and everything else re-render the
   whole song (D-150: the new take's voice is heard).
+- Several spans (C4, D-263..D-267): the server's pure `spliceSteps.ts` alone
+  decides the steps (merge, 2-4 limit, last bar first); yue-server validates
+  and maps bars (`splice_chain.py`), never re-plans. One job, one render at
+  most; any step not `ok` = `rerender` for the whole plan, never a partial file.
 - Tests: synthetic audio + SP-4's recorded lab rows; never real model calls.

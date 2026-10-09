@@ -28,6 +28,7 @@ import { lastTurn, turnRunning } from './chatTurn';
 import { ChatRecipeCard } from './ChatRecipeCard';
 import { ChatSongCard } from './ChatSongCard';
 import { ChatUndoLine } from './ChatUndoLine';
+import { ChatRetimeUndo } from './ChatRetimeUndo';
 import { ChatErrorLine, ChatTurnLine, FormButton, RetryButton } from './ChatTurnLine';
 import { api } from './api';
 import { useJobsAhead } from './queueStore';
@@ -161,6 +162,7 @@ export function ChatThread({ songTitle, onForm, onLibrary, versions, abCardId = 
     return (
       <div key={m.id} className="chat-am">
         {m.text}
+        {m.kind === 'say' && <ChatRetimeUndo message={m} view={view} turnOpen={turnRunning(turn)} />}
         {choices.length > 0 && (
           <div className="chat-choices">
             {choices.map((c) => <button key={c} type="button" className="chat-q" onClick={() => chat.type(c)}><span>{c}</span></button>)}

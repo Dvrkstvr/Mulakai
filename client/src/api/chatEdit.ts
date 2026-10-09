@@ -1,13 +1,24 @@
 /** Chat C0b (CB-5): the edit card's and version card's wire bodies and APPLY. Mirrored by hand from the server's
- * `chat/editTypes.ts` (EditBody), `chat/versionCard.ts` (VersionCardBody) and `routes/chatTurns.ts` (APPLY); reconcile
+ * `chat/editTypes.ts` (EditBody), `chat/versionCard.ts` (VersionCardBody) and `routes/chatTurns.ts` (APPLY, C4 RE-RENDER WHOLE SONG); reconcile
  * both when either moves. CANCEL is `chatApi.cancelChatJob`; the job polls through `jobStatus`. */
 import type { ScoreOp, ScoreOpVerdict, ScorePlan, ScoreRenderMode, ScoreSince } from './score';
 import type { BarMap } from './chatConverge';
 import { ApiError, json } from './http';
 
 export type ChatSpliceKind = 'reharmonize' | 'cut' | 'repeat';
-/** spliceEligibility's verdict: APPLY splices bars `from_bar`..`to_bar` (the song as read), or renders the whole song. */
-export type ChatSplice = { splice: true; kind: ChatSpliceKind; from_bar: number; to_bar: number } | { splice: false; reason: string };
+/** C4 (F-069, D-266): one span of a chain; `ops` = the plan op indexes it covers (merged REHARMONIZE spans list several). */
+export interface ChatSpliceStep { kind: ChatSpliceKind; from_bar: number; to_bar: number; ops: number[] }
+/** spliceEligibility's verdict: APPLY splices bars `from_bar`..`to_bar` (the song as read), or renders the whole song.
+ * `several` (C4) is a chain of 2-4 spans, `steps` last bar first (the order yue-server splices them); from/to = first and
+ * last bar touched. */
+export type ChatSplice =
+  | { splice: true; kind: ChatSpliceKind; from_bar: number; to_bar: number }
+  | { splice: true; kind: 'several'; from_bar: number; to_bar: number; steps: ChatSpliceStep[] }
+  | { splice: false; reason: string };
+/** The version card's splice: one span, or a chain (`steps` in reading order). */
+export type ChatVersionSplice =
+  | { kind: ChatSpliceKind; bars: [number, number]; lengthDiffS: number | null }
+  | { kind: 'several'; bars: [number, number]; lengthDiffS: number | null; steps: Array<{ kind: ChatSpliceKind; bars: [number, number] }> };
 
 /** An edit card (message kind `edit`): a planStore plan's snapshot. `stale` = APPLY refused, the song changed (STALE). */
 export interface ChatEditBody {
@@ -44,7 +55,7 @@ export interface ChatVersionBody {
   number: number;
   truncated: boolean;
   whole: boolean;
-  splice: { kind: ChatSpliceKind; bars: [number, number]; lengthDiffS: number | null } | null;
+  splice: ChatVersionSplice | null;
   /** Why a planned splice was saved as the whole re-render (D-101); null otherwise. */
   fallback: string | null;
   previous: { versionId: string; number: number } | null;
@@ -55,6 +66,9 @@ export type ChatApplyPhase = 'queued' | 'rendering' | 'splicing' | 'saving';
 
 /** 202 with the job, or the click re-check's reason; `stale` = the song changed since the plan (ASK AGAIN). */
 export type ChatApplyStart = { jobId: string } | { refused: string; stale: boolean };
+
+/** 201 with the edit card it appended, or why not (a turn or APPLY runs, not the active spliced version, a limit). */
+export type ChatRerenderStart = { messageId: string; proposalId: string } | { refused: string };
 
 export const chatEditApi = {
   applyChatEdit: async (threadId: string, proposalId: string): Promise<ChatApplyStart> => {
@@ -67,5 +81,16 @@ export const chatEditApi = {
       throw new ApiError('HTTP 409', 409);
     }
     return json<{ jobId: string }>(res);
+  },
+
+  /** RE-RENDER WHOLE SONG (D-268): the server appends a whole-song edit card on the active spliced version; 409 = why not. */
+  rerenderWhole: async (threadId: string, versionId: string): Promise<ChatRerenderStart> => {
+    const res = await fetch(`/api/chat/threads/${threadId}/versions/${versionId}/rerender`, { method: 'POST' });
+    if (res.status === 409 || res.status === 404) {
+      const body = (await res.clone().json().catch(() => ({}))) as { reason?: unknown; error?: unknown };
+      const reason = body.reason ?? body.error;
+      if (typeof reason === 'string') return { refused: reason };
+    }
+    return json<{ messageId: string; proposalId: string }>(res);
   },
 };

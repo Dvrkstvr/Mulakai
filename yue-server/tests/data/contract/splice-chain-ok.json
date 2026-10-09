@@ -1,0 +1,272 @@
+{
+ "name": "splice-chain-ok",
+ "request": {
+  "method": "POST",
+  "path": "/v1/splices",
+  "form": {
+   "spec": {
+    "steps": [
+     {
+      "op": {
+       "op": "REHARMONIZE",
+       "from_bar": 19,
+       "to_bar": 22,
+       "chords": []
+      }
+     },
+     {
+      "op": {
+       "op": "CUT",
+       "section": 2,
+       "label": "chorus"
+      }
+     }
+    ],
+    "base_abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=120\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:C\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% chorus\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n",
+    "render_job": "job-0001",
+    "edited_abc": "X:1\nT:\nM:4/4\nL:1/32\nQ:1/4=120\nV: Vocal clef=treble name=\"Vocal Melody\" snm=\"Vocal\"\nV: Ins clef=treble name=\"Ins Melody\" snm=\"Inst.\"\nK:C\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"C\"z32|\"Am\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n% verse\nV: Vocal\n\"C\"z32|\"Am\"z32|\"Dm\"z32|\"Dm\"z32|\nV: Ins\nz32|z32|z32|z32|\nV: Vocal\n\"Dm\"z32|\"Dm\"z32|\"F\"z32|\"G\"z32|\nV: Ins\nz32|z32|z32|z32|\n"
+   }
+  },
+  "file": "audio"
+ },
+ "response": {
+  "status": 202,
+  "body": {
+   "id": "sp-0001",
+   "kind": "splice",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "queued",
+   "stage": "queued",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": null,
+   "finished_at": null,
+   "cancel_requested": false,
+   "result": null,
+   "error": null
+  }
+ },
+ "final": {
+  "status": 200,
+  "body": {
+   "id": "sp-0001",
+   "kind": "splice",
+   "idempotency_key": null,
+   "admission_id": null,
+   "status": "succeeded",
+   "stage": "finished",
+   "progress": null,
+   "created_at": 1.0,
+   "updated_at": 1.0,
+   "started_at": 1.0,
+   "finished_at": 1.0,
+   "cancel_requested": false,
+   "result": {
+    "kind": "several",
+    "bars": [
+     9,
+     22
+    ],
+    "steps": [
+     {
+      "verdict": "ok",
+      "reason": null,
+      "detail": null,
+      "kind": "REHARMONIZE",
+      "bars": [
+       19,
+       22
+      ],
+      "audio_seconds": 49.2,
+      "length_diff_s": 0.0,
+      "joins_s": [
+       36.2,
+       44.2
+      ],
+      "crossfade_s": [
+       0.5,
+       0.5
+      ],
+      "base_points_s": [
+       36.2,
+       44.2
+      ],
+      "parts": [
+       {
+        "source": "base",
+        "out_s": [
+         0.0,
+         36.2
+        ],
+        "src_s": [
+         0.0,
+         36.2
+        ]
+       },
+       {
+        "source": "render",
+        "out_s": [
+         36.2,
+         44.2
+        ],
+        "src_s": [
+         20.3,
+         28.3
+        ]
+       },
+       {
+        "source": "base",
+        "out_s": [
+         44.2,
+         49.2
+        ],
+        "src_s": [
+         44.2,
+         49.2
+        ]
+       }
+      ],
+      "edges": [],
+      "snap": [
+       {
+        "delta_ms": 30.0,
+        "applied": true,
+        "corr": 1.0
+       },
+       {
+        "delta_ms": 30.0,
+        "applied": true,
+        "corr": 1.0
+       }
+      ],
+      "gain_db": {
+       "in": -0.0,
+       "out": -0.0,
+       "bars": [
+        -0.0,
+        -0.0,
+        -0.0,
+        -0.0
+       ]
+      },
+      "level_step_db": null,
+      "gap_shift_s": null,
+      "seams": [
+       {
+        "out_s": 36.2,
+        "lufs_step": 0.5,
+        "base_lufs_step": 0.2,
+        "lufs_step_excess": 0.2
+       },
+       {
+        "out_s": 44.2,
+        "lufs_step": 0.5,
+        "base_lufs_step": 0.2,
+        "lufs_step_excess": 0.2
+       }
+      ],
+      "null_test": {
+       "samples": 1960000,
+       "different": 0
+      }
+     },
+     {
+      "verdict": "ok",
+      "reason": null,
+      "detail": null,
+      "kind": "CUT",
+      "bars": [
+       9,
+       16
+      ],
+      "audio_seconds": 33.2,
+      "length_diff_s": -16.0,
+      "joins_s": [
+       16.2
+      ],
+      "crossfade_s": [
+       0.5
+      ],
+      "base_points_s": [
+       null
+      ],
+      "parts": [
+       {
+        "source": "base",
+        "out_s": [
+         0.0,
+         16.2
+        ],
+        "src_s": [
+         0.0,
+         16.2
+        ]
+       },
+       {
+        "source": "base",
+        "out_s": [
+         16.2,
+         33.2
+        ],
+        "src_s": [
+         32.2,
+         49.2
+        ]
+       }
+      ],
+      "edges": [],
+      "snap": [
+       {
+        "delta_ms": 0.0,
+        "applied": true,
+        "corr": 1.0
+       }
+      ],
+      "gain_db": null,
+      "level_step_db": null,
+      "gap_shift_s": 0.0,
+      "seams": [
+       {
+        "out_s": 16.2,
+        "lufs_step": 0.5,
+        "base_lufs_step": null,
+        "lufs_step_excess": null
+       }
+      ],
+      "null_test": {
+       "samples": 1570000,
+       "different": 0
+      }
+     }
+    ],
+    "grid_urls": {
+     "base": "/v1/splices/sp-0001/grid/base",
+     "render": "/v1/splices/sp-0001/grid/render",
+     "out": "/v1/splices/sp-0001/grid/out"
+    },
+    "verdict": "ok",
+    "reason": null,
+    "detail": null,
+    "step": null,
+    "audio_url": "/v1/splices/sp-0001/audio",
+    "audio_seconds": 33.2,
+    "length_diff_s": -16.0,
+    "joins_s": [
+     20.2,
+     28.2,
+     16.2
+    ],
+    "null_test": {
+     "samples": 3530000,
+     "different": 0
+    },
+    "timing": {
+     "total_seconds": 1.0
+    }
+   },
+   "error": null
+  }
+ }
+}

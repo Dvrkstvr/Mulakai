@@ -1,9 +1,11 @@
-/** The version card (chat-edit.html 3a-3e; EC-5..EC-7; F-048 #1, edge). */
+/** The version card (chat-edit.html 3a-3e; EC-5..EC-7; F-048 #1, edge; C4 RE-RENDER WHOLE SONG, F-066 #5). */
 import { renderToStaticMarkup } from 'react-dom/server';
-import { describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ChatMessageView } from './api/chat';
-import type { ChatVersionBody } from './api/chatEdit';
+import { chatEditApi, type ChatVersionBody } from './api/chatEdit';
+import { useChatStore } from './chatStore';
 import { ChatVersionCard } from './ChatVersionCard';
+import { RERENDER, RERENDER_HINT, askRerender } from './chatRerender';
 
 const body = (over: Partial<ChatVersionBody> = {}): ChatVersionBody => ({
   chat_v: 1, seconds: 192, label: 'Jazz chords in chorus 1', number: 2, truncated: false, whole: false,
@@ -40,7 +42,7 @@ describe('ChatVersionCard', () => {
 
   it('the version before it was deleted: no A/B (F-048 edge)', () => {
     const out = html(body({ previous: null }), { ab: false });
-    expect(out).not.toContain('chat-ab');
+    expect(out).not.toContain('aria-pressed'); // no A/B pill (RE-RENDER WHOLE SONG shares its style)
     expect(out).toContain('no A/B');
   });
 
@@ -48,5 +50,39 @@ describe('ChatVersionCard', () => {
     const out = html(body(), { active: false, ab: false });
     expect(out).not.toContain('▶ PLAY');
     expect(out).not.toContain('BACK TO');
+  });
+});
+
+describe('RE-RENDER WHOLE SONG (D-268, D-270)', () => {
+  afterEach(() => { vi.restoreAllMocks(); });
+
+  it('on the active spliced version: a lilac text button in BACK TO style, saying nothing renders until APPLY', () => {
+    const out = html(body());
+    expect(out).toContain(`<button type="button" class="chat-ab" title="${RERENDER_HINT}"><span>${RERENDER}</span></button>`);
+  });
+
+  it('not on an older version, a whole render, or a splice that fell back to the whole render', () => {
+    expect(html(body(), { active: false, ab: false })).not.toContain(RERENDER);
+    expect(html(body({ whole: true, splice: null }))).not.toContain(RERENDER);
+    expect(html(body({ whole: true, splice: null, fallback: 'the join could not be aligned' }))).not.toContain(RERENDER);
+  });
+
+  it('the click asks the server for the card, then reads the thread again to show it', async () => {
+    const ask = vi.spyOn(chatEditApi, 'rerenderWhole').mockResolvedValue({ messageId: 'm9', proposalId: 'p9' });
+    const openSong = vi.fn(async () => {});
+    useChatStore.setState({ openSong });
+    expect(await askRerender('t1', 's1', 'v2')).toBeNull();
+    expect(ask).toHaveBeenCalledWith('t1', 'v2');
+    expect(openSong).toHaveBeenCalledWith('s1');
+  });
+
+  it('a refusal or an error is the line the card shows; the thread is not reloaded', async () => {
+    const openSong = vi.fn(async () => {});
+    useChatStore.setState({ openSong });
+    vi.spyOn(chatEditApi, 'rerenderWhole').mockResolvedValueOnce({ refused: 'APPLY is already running for this song' });
+    expect(await askRerender('t1', 's1', 'v2')).toBe('APPLY is already running for this song');
+    vi.spyOn(chatEditApi, 'rerenderWhole').mockRejectedValueOnce(new Error('offline'));
+    expect(await askRerender('t1', 's1', 'v2')).toBe('offline');
+    expect(openSong).not.toHaveBeenCalled();
   });
 });
