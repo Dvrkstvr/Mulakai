@@ -9473,3 +9473,71 @@ REPAINTING, …) opens the page that shows that job.
 
 Files: `client/src/LibraryJobBadge.tsx`, `LibraryView.tsx`,
 `dockJobLine.ts` (+ test), `useEditorFocus.ts`, `index.css`.
+
+## Editor Redesign: Point, Then Act (planned 2026-10-10)
+
+The owner's ask: an overhaul of the Editor's UI so every feature is easier
+and more seamless, plus a helper that writes prompts and lyrics with you.
+The audit and the approved proposal (mockups A-E, a before/after step count
+per feature) are the artifact "Mulakai Editor Redesign"
+(https://claude.ai/artifact/Gy86uFGJWPyZ3rL9LUtxEe). The owner approved it
+and its recommended answers (2026-10-10).
+
+### Decisions (the owner's, from the proposal)
+
+- **Point, then act.** Dragging on any lane, a section click or a lyric line
+  click sets the target and focuses that layer in one move. A section click
+  selects on the focused layer. The action bar under the lanes names the
+  target in words and offers only the actions that apply to it.
+- **A selection survives** every action and is cleared only by its ✕.
+  Nothing opens on entry, so the Editor never opens in a rust state.
+- **Lyrics are a surface**: the right rail gets LYRICS / TAKES / LAYER tabs;
+  LYRICS shows the whole song, editable per section. A sung action (repaint
+  with new words, add vocals) starts with exactly the lines the selection
+  covers.
+- **Takes live on the lane**: lilac take chips on every lane header; a click
+  uses that take (undo = click the old one); alt-click listens to it at the
+  same position (A/B). Take verbs in plain words: USE, COMPARE, MORE LIKE
+  THIS (was SIMILAR), REROLL (was ALT).
+- **Results appear where they land**: a running repaint or reroll is a
+  running take chip; a new layer a ghost lane; stems a tray under their lane
+  (KEEP AS LAYER, USE AS BASE TAKE); a remaster in the header EXPORT menu.
+- **Settings per action**: REPAINT and ADD LAYER each keep their own TUNE,
+  summarised on one line; inherited settings are named in the consequence
+  line.
+- **EXPORT** moves to a header menu. **SCORE** stays an action, shown only
+  for score songs.
+- **Bridges**: ASK CHAT ABOUT THIS opens the song's chat with the selection
+  as its mark; chat version cards get OPEN IN EDITOR.
+- **Helper**: a ✦ HELP button on the action bar's text fields (layer
+  description, repaint prompt, words) opens a box anchored to the field:
+  two or three suggestions (USE / EDIT), one-tap refinements, a free line,
+  and "continue in chat". It knows the song, the selection, the layers and
+  the track. It runs on the configured local LLM (`LLM_API_URL`,
+  `LLM_MODEL`) through the GPU queue (a waiting help says "starts after n
+  jobs"), German lyrics on gemma4 as the chat does, and is hidden when no
+  LLM is configured. Lyrics rewrites keep `[Section]` tags and each line's
+  syllable count close to the original.
+- **Rollout**: one small PR per step, each a finished improvement to the
+  current Editor, so no feature flag is needed (amends the proposal's
+  "behind one flag"). DESIGN.md changes ride each PR as their own commit.
+
+### PR order
+
+1. Add Layer lyrics draft is per song (the audit's leak).
+2. Transport: time readout, master volume, LOOP SELECTION.
+3. Lane ⋯ menu (rename, split, delete with confirm) replaces the bare X.
+4. Targeting: drag on any lane focuses and selects; the selection shows and
+   survives under every verb; no forced switch to REPAINT; no rust on entry.
+5. Action bar: the THIS chip and action buttons replace the verb tabs.
+6. Rail tabs LYRICS / TAKES / LAYER; the lyrics panel selects sections.
+7. Editable words per section with a saved draft; words trimmed to the
+   selection for repaint and for add vocals.
+8. Take chips on lanes, A/B in place, plain take verbs, running jobs as
+   takes.
+9. Inline split tray.
+10. EXPORT in the header.
+11. Per-action TUNE and named inherited settings.
+12. ASK CHAT ⇄ OPEN IN EDITOR.
+13. Helper: server endpoint (queue + LLM), then the anchored help box for
+    prompts, then lyrics rewrite.
