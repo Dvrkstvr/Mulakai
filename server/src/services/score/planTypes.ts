@@ -72,7 +72,8 @@ export interface ApplyResult {
 export interface ChatMessage { role: 'system' | 'user' | 'assistant'; content: string }
 
 /** One planner reply: the JSON text and how many prompt tokens the server says it read. */
-export interface PlannerReply { content: string; promptTokens: number | null }
+/** `cutAt`: the reply stopped at this max_tokens (finish_reason `length`, F-095), so its content is cut short. */
+export interface PlannerReply { content: string; promptTokens: number | null; cutAt?: number }
 
 /** A plan waiting for review (planStore, D-035): never persisted. */
 export interface Plan {

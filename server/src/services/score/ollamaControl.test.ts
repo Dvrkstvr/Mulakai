@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { startFakeOllama, type FakeOllama } from '../../../test-fakes/fakeOllama.js';
-import { loadedModels, probePlanner, releaseModels, releasePlanner, waitUnloaded, UNLOAD_BOUND_MS, UNLOAD_POLL_MS } from './ollamaControl.js';
+import { loadedModels, probePlanner, releaseModels, releasePlanner, waitUnloaded, CUT_UNLOAD_BOUND_MS, UNLOAD_BOUND_MS, UNLOAD_POLL_MS } from './ollamaControl.js';
 
 let fake: FakeOllama;
 afterEach(async () => { await fake?.close(); });
@@ -53,6 +53,27 @@ describe('releasePlanner (F-020 #1)', () => {
     await releaseModels(fake.url, ['qwen3:14b', 'gemma4:26b-a4b-it-q4_K_M', 'qwen3:14b'], fakeClock());
     expect(fake.requests.filter((r) => r.path === '/api/generate').map((r) => (r.body as { model: string }).model)).toEqual(['qwen3:14b', 'gemma4:26b-a4b-it-q4_K_M']);
     expect(fake.resident()).toEqual([]);
+  });
+
+  const GEMMA = 'gemma4:26b-a4b-it-q4_K_M';
+  const cut = { model: GEMMA, why: 'timed out after 180 s' };
+  it('F-095: after a cut call it waits up to 60 s for the abandoned generation, and returns when /api/ps empties (25 s)', async () => {
+    fake = await startFakeOllama({ models: [GEMMA], listedPolls: 100 }); // 100 polls x 250 ms = 25 s
+    fake.chats.push({ content: '{}' });
+    await fetch(`${fake.url}/v1/chat/completions`, { method: 'POST', body: JSON.stringify({ model: GEMMA, messages: [] }) });
+    const clock = fakeClock();
+    expect(await releaseModels(fake.url, [GEMMA], { ...clock, cut })).toEqual({ polls: 101, ms: 25_000 });
+    expect(CUT_UNLOAD_BOUND_MS).toBe(60_000);
+  });
+
+  it('F-095: a cut generation that never leaves fails after 60 s saying what happened', async () => {
+    fake = await startFakeOllama({ models: [GEMMA], neverUnloads: true });
+    fake.chats.push({ content: '{}' });
+    await fetch(`${fake.url}/v1/chat/completions`, { method: 'POST', body: JSON.stringify({ model: GEMMA, messages: [] }) });
+    const clock = fakeClock();
+    await expect(releaseModels(fake.url, [GEMMA], { ...clock, cut })).rejects.toThrow(
+      `gemma4 was still generating a reply the turn had given up on (timed out after 180 s); it did not leave the GPU within 60 s: run 'ollama stop ${GEMMA}'`);
+    expect(clock.now()).toBe(60_000);
   });
 
   it('returns at once when nothing is loaded', async () => {

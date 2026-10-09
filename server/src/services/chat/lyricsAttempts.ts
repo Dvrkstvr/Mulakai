@@ -1,6 +1,6 @@
 /**
  * The lyrics call's retry loop (SP-5 ladder.py `lyrics_call`, the planner's shape): ask with the strict
- * schema, parse, check (lyricsCheck), and on a rejection send the reply back with its reasons through the
+ * schema, parse, check (lyricsCheck; a reply cut at max_tokens is a reason too, F-095), and on a rejection send the reply back with its reasons through the
  * score planner's `retryMessages`; at most MAX_ATTEMPTS asks. A thrown error (HTTP, timeout, a model not
  * pulled, cancel) ends it at once. The sections' tags come from the structure, never from the model.
  * One run per lyrics model: the caller loads that model and runs this. Pure (I/O injected).
@@ -16,6 +16,8 @@ import type { DetectLanguage } from './replyGuards.js';
 /** Reasons sent back per attempt; more only buries the first ones. */
 const MAX_REASONS = 8;
 const RETRY = { heading: 'Your lyrics were rejected:', closing: 'Return corrected, complete lyrics as JSON only: {"sections": [{"lines": [...]}, ...]}.' };
+
+export const cutReason = (tokens: number) => `your answer was cut at ${tokens} tokens: shorter lines, exactly the listed sections`;
 
 export interface LyricsDeps {
   ask: (messages: ChatMessage[], schema: Record<string, unknown>) => Promise<PlannerReply>;
@@ -47,8 +49,9 @@ export async function writeLyrics(input: LyricsRequest, deps: LyricsDeps, maxAtt
   for (let n = 1; n <= maxAttempts; n++) {
     deps.onAttempt?.(n, reasons[0]);
     const reply = await deps.ask(msgs, schema);
-    const json = parse(reply.content);
-    reasons = json === undefined ? ['the reply is not valid JSON'] : await lyricsProblems(json, input, deps.detect);
+    const json = reply.cutAt ? undefined : parse(reply.content);
+    reasons = reply.cutAt ? [cutReason(reply.cutAt)] // F-095: a cut reply is retried shorter, not a failed turn
+      : json === undefined ? ['the reply is not valid JSON'] : await lyricsProblems(json, input, deps.detect);
     const lyrics = reasons.length ? [] : (json as { sections: Array<{ lines: string[] }> }).sections.map((s, i) => ({ tag: tags[i], lines: s.lines }));
     if (!reasons.length) reasons = deps.more?.(lyrics) ?? [];
     if (!reasons.length) return { ok: true, lyrics, attempts: n };

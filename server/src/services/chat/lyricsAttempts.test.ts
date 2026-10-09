@@ -60,6 +60,17 @@ describe('writeLyrics', () => {
     expect((ask.mock.calls[1][0] as Array<{ content: string }>).at(-1)!.content).toContain('- the lyrics are 17000 characters');
   });
 
+  it('F-095: a reply cut at the token cap is a retry reason naming the cap, and the turn goes on', async () => {
+    const queue: PlannerReply[] = [{ content: '{"sections": [{"lines": ["Der Wind', promptTokens: 100, cutAt: 1200 }, { content: GOOD, promptTokens: 100 }];
+    const ask = vi.fn(async (_m: ChatMessage[], _s: Record<string, unknown>) => queue.shift()!);
+    const onAttempt = vi.fn();
+    const out = await writeLyrics(INPUT, { ask, detect, onAttempt });
+    expect(out.ok && out.attempts).toBe(2);
+    const reason = 'your answer was cut at 1200 tokens: shorter lines, exactly the listed sections';
+    expect(onAttempt.mock.calls[1]).toEqual([2, reason]);
+    expect((ask.mock.calls[1][0] as Array<{ content: string }>).at(-1)!.content).toContain(`- ${reason}`);
+  });
+
   it('a thrown error (HTTP, cancel) ends it at once', async () => {
     const ask = vi.fn(async () => { throw new Error('cancelled'); });
     await expect(writeLyrics(INPUT, { ask, detect })).rejects.toThrow('cancelled');
