@@ -90,4 +90,7 @@ export function undoneLine(restored: ChatDraftKey[], kept: Array<{ field: ChatDr
   const head = `restored ${restored.length ? restored.map(label).join(', ') : 'nothing'}`;
   return kept.length ? `${head} · kept ${kept.map((k) => `${label(k.field)}: ${k.reason}`).join('; ')}` : head;
 }
+/** RT-6 (retime.html D4): a turn that re-timed the reading; UNDO TURN is the reading's UNDO. */
+export const RETIME_CHANGED = 'CHANGED · READING · TEMPO, BARS';
+export const RETIME_UNDONE = 'the reading is back as read';
 export const undoRefusedLine = (reason: string) => `Couldn't undo: ${reason}. Nothing changed.`;

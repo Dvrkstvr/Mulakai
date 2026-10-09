@@ -40,7 +40,8 @@ export class RetimePlanRefused extends Error {
 
 const MODE_NAME: Record<RetimeMode, string> = { half: 'HALF TIME', double: 'DOUBLE TIME', bpm: 'BPM' };
 
-export async function makeRetimePlan(songId: string, mode: RetimeMode, bpm: number | null, deps: RetimePlanDeps = retimePlanDeps()): Promise<Plan> {
+/** The plan, not stored: the chat's RE-TIME card (RT-6) stores it only once the card is written. */
+export async function buildRetimePlan(songId: string, mode: RetimeMode, bpm: number | null, deps: RetimePlanDeps = retimePlanDeps()): Promise<Plan> {
   const status = await deps.status(songId);
   const { source, read } = status;
   if (!source) throw new RetimePlanRefused(404, 'unknown song');
@@ -66,6 +67,11 @@ export async function makeRetimePlan(songId: string, mode: RetimeMode, bpm: numb
     }),
     retime: { notationId: offer.notationId, readBpm: offer.readBpm },
   };
+  return plan;
+}
+
+export async function makeRetimePlan(songId: string, mode: RetimeMode, bpm: number | null, deps: RetimePlanDeps = retimePlanDeps()): Promise<Plan> {
+  const plan = await buildRetimePlan(songId, mode, bpm, deps);
   setPlan(plan);
   return plan;
 }

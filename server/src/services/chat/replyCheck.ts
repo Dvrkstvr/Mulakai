@@ -24,6 +24,8 @@ import { plannedProblems } from './recipeRules.js';
 import { reviseGuard, startsOver } from './reviseKeep.js';
 import { lyricLanguageReasons, missingSectionReasons, sayKeyReasons, type DetectLanguage } from './replyGuards.js';
 import type { Recipe, ScalpelKind, TurnAction, TurnReply } from './chatTypes.js';
+import { checkRetime, routedOp, type RetimeRoute } from './retimeReply.js';
+import type { VerbFacts } from './retimeVerb.js';
 
 export interface CheckContext {
   allowed: TurnAction[];
@@ -41,13 +43,17 @@ export interface CheckContext {
   pending?: Op[];
   /** CP-C2: the reason heads of the unspent drop guards (reviseKeep; turnCall spends each on its first refusal). */
   guards?: string[];
+  /** RT-6 (F-094): what the song offers a RETIME (null: none read); absent = no song. */
+  retime?: VerbFacts | null;
 }
 export interface CheckDeps { apply?: (ops: Op[]) => Promise<ApplyResult>; language?: DetectLanguage }
 /** `revised`: a revise's NEW / CHANGED / SAME per merged op and the REMOVED pending ops (the card's `since`). */
 export type Revised = Omit<Since, 'planId'>;
 /** A recipe's `recipe.lyrics` is empty until turnCall fills it (LD). */
-/** `scrapped` (D-257): a start over left nothing to plan; the reply is a say and the pending plan goes. */
-export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null; revised?: Revised; scrapped?: true } | { ok: false; reasons: string[] };
+/** `scrapped` (D-257): a start over left nothing to plan; the reply is a say and the pending plan goes.
+ * `retime` (RT-6): a RETIME routed to the dock's plan or the reading, resolved after the unload (turnRetime). */
+export type Checked = { ok: true; reply: TurnReply; applied: ApplyResult | null; revised?: Revised; scrapped?: true; retime?: RetimeRoute }
+  | { ok: false; reasons: string[] };
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -70,6 +76,12 @@ function recipeOf(v: unknown): Recipe | string {
 async function checkEdit(json: Obj, message: string, assumptions: string[], ctx: CheckContext, deps: CheckDeps): Promise<Checked> {
   if (!Array.isArray(json.ops)) return fail('edit needs an ops list');
   const reply = (ops: Op[]): TurnReply => ({ action: 'edit', message, assumptions, ops });
+  // RT-6 (F-094): a RETIME is routed in code before anything reads the score; a slight one is planned as SET TEMPO, fresh.
+  const rt = checkRetime(json.ops, ctx.retime, ctx.request);
+  if (rt && 'fail' in rt) return fail(rt.fail);
+  if (rt && 'say' in rt) return { ok: true, reply: { action: 'say', message: rt.say }, applied: null };
+  if (rt && 'route' in rt) return { ok: true, reply: reply([routedOp(rt.route)]), applied: null, retime: rt.route };
+  if (rt) return checkEdit({ ops: [rt.tempo] }, rt.message, assumptions, { ...ctx, pending: undefined, guards: [], retime: null }, deps);
   const missing = ctx.facts ? missingSectionReasons(ctx.request, ctx.facts) : [];
   if (missing.length) return fail(...missing);
   if (ctx.shapeOnly.includes('edit')) return { ok: true, reply: reply(json.ops as Op[]), applied: null };

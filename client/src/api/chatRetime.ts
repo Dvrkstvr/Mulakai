@@ -4,6 +4,12 @@
 import type { AnalysisView } from './chatAnalysis';
 import { RetimeError } from './retime';
 
+/** RT-6 (F-094): the body of a say whose turn re-timed the playable version's reading (the server's `RetimeDoneBody`). */
+export interface ChatRetimeDoneBody {
+  retime: { songId: string; versionId: string; number: number; mode: 'half' | 'double' | 'bpm'; bpm: number; fromBpm: number;
+    fromBars: number; toBars: number; droppedNotes: number; notes: number };
+}
+
 const post = (url: string, body: unknown) =>
   fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
 
