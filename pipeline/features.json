@@ -1,5 +1,5 @@
 {
-  "_note": "Adopt audit 2026-10-03. passes=true only where I ran the check and it passed. Run: client `npm test` (75 files / 585 tests pass), server `npm test` (58 files / 493 tests pass), client `npm run build` ok, `npm run lint` 1 warning, e2e `npm run test:e2e` 1 passed (golden-path.spec.ts, 14.8 s, fake ACE-Step). Nothing was run against real ACE-Step, YuE2, HeartMuLa, Demucs or UVR. Stage 4 (2026-10-03) appended the score agent as F-016..F-039 (M0..M4, all passes false, evidence null); F-001..F-015 unchanged except F-015's evidence note. Stage 4 (2026-10-06) appended the chat scope as F-040..F-081 (milestones C-pre, C0..C8, field \"scope\": \"chat\", all passes false, evidence null); F-034..F-039 (score-agent M3/M4, unbuilt) stay as written and are folded into the chat: F-034 -> F-078, F-035 -> F-065, F-036 -> F-060, F-037 -> F-079, F-038 -> F-080, F-039 -> F-081; when the chat feature passes the conductor sets the old entry the same way. Local main is 3 commits behind origin/main (#116 merged); I tested the local checkout (2eacef5). Engine pairing (2026-10-08) appended F-082..F-089 (E1..E3, scope 'engines'; preconditions P1..P4 in scope.md are fixes, not features).",
+  "_note": "Adopt audit 2026-10-03. passes=true only where I ran the check and it passed. Run: client `npm test` (75 files / 585 tests pass), server `npm test` (58 files / 493 tests pass), client `npm run build` ok, `npm run lint` 1 warning, e2e `npm run test:e2e` 1 passed (golden-path.spec.ts, 14.8 s, fake ACE-Step). Nothing was run against real ACE-Step, YuE2, HeartMuLa, Demucs or UVR. Stage 4 (2026-10-03) appended the score agent as F-016..F-039 (M0..M4, all passes false, evidence null); F-001..F-015 unchanged except F-015's evidence note. Stage 4 (2026-10-06) appended the chat scope as F-040..F-081 (milestones C-pre, C0..C8, field \"scope\": \"chat\", all passes false, evidence null); F-034..F-039 (score-agent M3/M4, unbuilt) stay as written and are folded into the chat: F-034 -> F-078, F-035 -> F-065, F-036 -> F-060, F-037 -> F-079, F-038 -> F-080, F-039 -> F-081; when the chat feature passes the conductor sets the old entry the same way. Local main is 3 commits behind origin/main (#116 merged); I tested the local checkout (2eacef5). Engine pairing (2026-10-08) appended F-082..F-089 (E1..E3, scope 'engines'; preconditions P1..P4 in scope.md are fixes, not features). Stage 6 C4 (2026-10-09): F-067/F-068 carry \"status\": \"not-doing\" and a \"reason\" (first not-doing entries; no earlier precedent), passes stays false; F-066 and F-069 acceptance rewritten to scope.md C4.",
   "features": [
     {
       "id": "F-001",
@@ -811,11 +811,13 @@
       "id": "F-066",
       "scope": "chat",
       "milestone": "C4",
-      "behaviour": "REPEAT and CUT a section as an audio-only edit with no render",
+      "behaviour": "REPEAT and CUT a section as an audio-only edit with no render (built in C0b; verify), plus a RE-RENDER WHOLE SONG button for a heard seam",
       "acceptance": [
-        "The card says 'no render: the audio is copied or removed at the section edges, bars after the cut come earlier'; the saved version's audio outside the 1-beat crossfades equals the base (null test); the score and lyrics edit are saved as the record; it takes seconds, not a render",
-        "A RE-RENDER WHOLE SONG button sits next to it for when the seam is heard",
-        "Edge: after an audio-only REPEAT a later whole-song re-render of the longer score refuses over 360 s with the existing line and the card says so; a cut leaving no section is refused; the owner's listen decides whether this ships or the kind stays whole-song (OWED, Q-053)"
+        "The edit card says the audio is copied or removed at the section edges with no render; outside the 1-beat crossfades the saved version equals the base (null test, 0 differing samples as at CP-C0)",
+        "A REPEAT whose seam steps more than 4.0 dB in loudness renders the whole song instead, labelled with the reason (D-160); a REPEAT of the last section is a whole-song render and the card says why before APPLY (D-213)",
+        "A CUT that would leave no section is refused; a CUT of the last section keeps its edge fade",
+        "After an audio-only REPEAT, a later whole-song re-render over 360 s refuses with the existing line",
+        "The version card of a spliced version has RE-RENDER WHOLE SONG; it opens a whole-song edit card (consequence line, APPLY) that re-renders the active version's own score with no model call (D-268; build package CK-6, absent in client/src on 2026-10-09)"
       ],
       "passes": false,
       "evidence": null
@@ -830,7 +832,9 @@
         "Edge: a join more than 1 dB beyond the base's step (SP-4 song A, 1.3 dB) is reported on the card, not hidden; where the listen rejects it the kind stays whole-song"
       ],
       "passes": false,
-      "evidence": null
+      "evidence": null,
+      "status": "not-doing",
+      "reason": "Owner, 2026-10-09 (re-scope answers, D-262): the owner heard this splice and rejected it (D-150: 'the voice changed' / 'song changed completely') and said a whole re-render is fine; the kind stays whole-song (D-101, D-154). Revisit only if YuE2 forced-prefix continuation (SP-4 candidate D) is spiked."
     },
     {
       "id": "F-068",
@@ -842,7 +846,9 @@
         "Edge: a song whose words cannot be read by the checker (SP-4 song A) is reported 'not machine-checked' and left to the owner's ear; a cut point inside a held word is flagged on the card"
       ],
       "passes": false,
-      "evidence": null
+      "evidence": null,
+      "status": "not-doing",
+      "reason": "Owner, 2026-10-09 (re-scope answers, D-262): the owner heard this splice and rejected it (D-150: 'the voice changed' / 'song changed completely') and said a whole re-render is fine; the kind stays whole-song (D-101, D-154). Revisit only if YuE2 forced-prefix continuation (SP-4 candidate D) is spiked."
     },
     {
       "id": "F-069",
@@ -850,8 +856,12 @@
       "milestone": "C4",
       "behaviour": "Several local edits in one plan become one version with each span spliced",
       "acceptance": [
-        "A plan of two REHARMONIZE or phrase ops on separate bar spans yields one version with both spans changed and the rest the old take; the card names every span",
-        "Edge: overlapping or adjacent spans merge into one; if any join cannot be aligned the whole plan falls back to the whole-song re-render with the reason"
+        "A plan of 2-4 ops, each a REHARMONIZE, CUT or REPEAT on non-overlapping spans, saves ONE version made by applying the single-span splice once per span from the last bar back to the first; the card names every span (bar map)",
+        "Outside every span the saved file equals the base (null test, 0 differing samples); each join is within 1 dB of the base's own step at that point",
+        "Overlapping or adjacent REHARMONIZE spans (gap under 2 bars or under 3 s) merge into one span before counting; a CUT or REPEAT that overlaps or touches another op's span is not chained and the whole plan renders, with the reason (D-265)",
+        "Edge: any op not spliceable, more than 4 spans after merging, a join not_aligned, a REPEAT seam over 4.0 dB, or any failing step sends the whole plan to the whole-song render with the reason; never a partial save",
+        "Edge: CANCEL at any step (rendering, any splice step, before saving) deletes the temp files and saves nothing; the card returns to pending",
+        "Checkpoint CP-C4 before any UI: 3 library songs x 2 multi-op plans (REHARMONIZE + REHARMONIZE; REHARMONIZE + CUT or REPEAT), headless, logged in pipeline/cp-c4/<date>/, stop lines in scope.md C4"
       ],
       "passes": false,
       "evidence": null

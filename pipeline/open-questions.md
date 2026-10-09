@@ -192,7 +192,7 @@ F-032's section strip exists on a YuE2 song only after the lyrics read has produ
 ## Q-052 · deferred · stage 8 (M2 code review) · open
 Two nits from pipeline/reviews/M2-code.md (D-075): #1 a line pick survives a REWRITE LYRICS render with its old words in the chip and the planner prompt (planReferent.ts:159-163, `text` never re-checked); #3 the section-to-block pairing rule and `kindOf` exist in yue-server, server and client with no cross-test (no drift today). Decide with Q-038/Q-041 in W10.
 
-## Q-053 · deferred · stage 7 (M2 listen) · open
+## Q-053 · deferred · stage 7 (M2 listen) · answered → D-269 (assumed, by D-160/D-204/D-213)
 The user heard REPEAT's second seam (the copy into the next section) as audible on Gertar (D-077; seam 1 smooth). One pair only; p2 unjudged. Options: leave it (YuE2 re-renders the whole song, seams are its call); try un-tying only into the copy (D-066 c alternative) and A/B; a REPEAT note in the review that the seam after the copy may be audible. Revisit with more listens.
 
 ## Q-054 · blocking (for the chat feature, not for M2) · stage 1/4 · answered → D-081..D-086, D-096 (signed off)
@@ -393,3 +393,15 @@ Bar-map hover. Default: a change-list row lights its bars (solid sky) on hover a
 
 ## Q-144 · assumable · stage 5 (chat C2, DT-C2, F-058) · answered → D-229 (owner, defaults kept)
 APPLY on the pending card while a revise runs. Default: off (plan 1 is about to be superseded), on again if the revise fails or is cancelled. Alternative: left on (a race: APPLY of plan 1 while plan 2 is being written).
+
+## Q-149 · assumable · stage 6 (chat C4, F-069) · default used → D-265
+A plan that reharmonizes a section and also repeats or cuts it, or an adjacent one ("jazz chords on the chorus and repeat it"). Default: not chained; the whole song renders with the reason (a merged render-splice of unequal length is new DSP, never measured). Alternative: build the unequal-length render-splice (bar gains and post-fit across a length change), after CP-C4.
+
+## Q-150 · assumable · stage 6 (chat C4, F-069) · default used → D-265
+When are two spans "adjacent"? Default: a gap under 2 bars or under 3.0 s (SP-4's level window) merges REHARMONIZE spans (the gap bars are re-sung and shown changed) and stops a CUT/REPEAT from chaining. Alternative: touching spans only (gap 0), accepting joins whose level windows overlap.
+
+## Q-151 · assumable · stage 6 (chat C4, F-066 #5) · default used → D-268
+RE-RENDER WHOLE SONG: where and how. Default: on the active spliced version's card only; it puts a whole-song edit card in the thread (no model call), and APPLY re-renders that version's own score. Alternative: on every spliced version card, re-rendering from the splice's base with the same ops (needs the base to still be active, else STALE).
+
+## Q-152 · assumable · stage 6 (chat C4, F-069) · default used → D-265
+The step limit. Default: 2-4 spans after merging (the proposal's number); 5-6 spliceable ops render the whole song with the reason. Alternative: up to MAX_OPS (6).

@@ -1,4 +1,4 @@
-# Architecture — Mulakai score agent (M0 on top of the existing app); the chat (C0) follows below
+# Architecture — Mulakai score agent (M0 on top of the existing app); the chat (C0, C3, C1, C2, C4) follows below
 
 <!-- Stage 6, 2026-10-03. Scope: M0 = F-016..F-025 (scope.md, signed off D-026; dock spec design/score-verb.html, D-032).
      Evidence labels: (code) seen in code today, (run) seen running today, (doc) documented, (inf) inferred.
@@ -1150,3 +1150,139 @@ line times from Whisper alignment) → CV-9 live on real songs; UNDO losing a ha
    from both the merged plan and REMOVED (0 tolerance); an additive revision dropping a pending op in more than 3 of
    10; more than 2 of 12 revise turns failing → stop and raise before CV-7.
 8. Regression net: every suite green on every PR; the golden path, the score spec and C1's `chat.spec.ts` unchanged.
+
+---
+
+# Chat (C4) — one version from several local ops
+
+<!-- Stage 6, 2026-10-09. Scope: scope.md "C4 — one version from several local ops" (F-066 verify + RE-RENDER WHOLE SONG,
+     F-069; F-067/F-068 not doing, D-262). Builds on C0b's splice as merged (main b5312e4). Evidence labels: (code) seen in
+     code on main, (run) seen running, (doc) documented, (inf) inferred. LOC are estimates; target 150, cap 200.
+     Decisions D-262..D-270, questions Q-149..Q-152, risk R-043. -->
+
+## Shape in one paragraph
+
+Nothing new in kind. A multi-op plan whose ops are all REHARMONIZE / CUT / REPEAT on separate spans becomes an ordered list
+of **steps** (last bar first), decided by a pure planner on the server from the facts it already has (bars, sections, bpm,
+meter). APPLY then runs the existing `scoreRender` slot: at most **one** YuE2 render of the plan's edited score (only when a
+step is a REHARMONIZE), then **one** yue-server `splice` job that applies the proven single-span splice once per step to the
+base audio in memory, checks each step, and returns one file or one `rerender` verdict for the whole plan (D-263). The server
+saves one version, or the whole render labelled, never a partial one. Today (code): `spliceEligibility.ts` refuses 2+ ops
+("the plan makes N changes"); `spliceRenderJob.ts` sends one `op`; `splice_job.py` splices one span.
+
+## Where the chaining lives (and why not elsewhere)
+
+| Concern | Lives in | Why |
+|---|---|---|
+| which ops chain, merge of REHARMONIZE spans, the 2-4 step limit, the order, the reason when not | server, `chat/spliceSteps.ts` (pure) | the card must show it at plan time, before APPLY; it needs only facts (`sections`, `header.bars`, `header.bpm`), no ABC. One implementation: yue-server validates, never re-plans |
+| base bar → edited-score bar mapping for a REHARMONIZE step when the plan also cuts/repeats a section | yue-server, `splice_chain.py` (pure) | it reads both scores' section ranges (ABC stays on yue-server: decisions/0002, the CLAUDE.md invariant) |
+| the step loop, per-step verdicts, null test, mapped grid, temp files, cancel | yue-server, `splice_chain_job.py` | the base audio and the render's audio already live there (decisions/0005); one job = one cancel and one temp dir, so "nothing saved" is one `rmtree` |
+| fallbacks, saving, labels, the version card | server, `spliceRenderJob.ts` + `spliceSpec.ts` | unchanged ownership |
+
+Rejected (D-263): N separate `/v1/splices` jobs driven by the server (N uploads of 30-80 MB, intermediate audio on two
+hosts, a partial state between jobs); one multi-part assemble in a new DSP path (it would not be "the single-span splice
+applied per span", so SP-4 and CP-C0 would say nothing about it).
+
+## Modules — server (`server/src/services/chat/`, `score/`)
+
+| Module | Its one job | Pure? | ~LOC | Tested by | Package |
+|---|---|---|---|---|---|
+| **chat/spliceSteps.ts** | `Op[]` + facts → `{ steps: SpliceStep[], needsRender }` or `{ reason }`: every op REHARMONIZE/CUT/REPEAT with a span (section → bars); REHARMONIZE spans merged when they overlap or the gap is < 2 bars or < 3.0 s (bar seconds = 4 × 60 / bpm); a CUT/REPEAT that overlaps or touches any other span → reason; 2-4 steps after merging; sorted by `from_bar` descending; each step lists the plan op indexes it covers | yes | 90 | Vitest tables (test strategy 1) | CK-1 |
+| chat/spliceEligibility.ts (changed) | 1 op: as today; 2+ ops: the shared checks (4/4, no meter change, chords present, last-section REPEAT per op) then `spliceSteps`; answers `{splice: true, kind: 'several', from_bar, to_bar, steps}` (from/to = first/last bar touched, for old readers) | yes | +25 | Vitest | CK-1 |
+| **chat/spliceSpec.ts** | the job's pure builders, moved out of `spliceRenderJob.ts` (149 LOC today): spec v1 (`op`) or v2 (`steps`, descending, each `{op}`; a merged REHARMONIZE step is a synthetic `{op: 'REHARMONIZE', from_bar, to_bar}`), `needsRender(splice)`, the `SpliceRecord` from a result (v1 or v2) | yes | 70 | Vitest | CK-3 |
+| chat/spliceRenderJob.ts (changed) | `planned.kind === 'reharmonize'` becomes `needsRender(planned)`; sends the v2 spec; the progress stage names the step (`splicing 2/3`); fallbacks and cancel keep their shape (a `rerender` at any step = the whole render, labelled with that step's reason) | no | ±0 (builders move out) | Vitest with fakeYueSplice: chain ok, rerender at step 2, failed, cancel while rendering / at step 2 → no version, no partial record | CK-3 |
+| chat/yueSpliceClient.ts (changed) | `SpliceResult` gains optional `steps: StepResult[]` | no | +10 | Vitest on the recorded chain fixtures | CK-3 |
+| score/scoreVersion.ts (changed) | `SpliceRecord` adds `{splice_v: 2, kind: 'several', bars, steps: [v1 rows without splice_v], length_diff_s, null_test}`; `spliceSuffix` → `· bars 9–16, 41–48 spliced · S5 cut` | — | +15 | scoreVersion.test (v1, v2, unknown) | CK-3 |
+| chat/versionCard.ts (changed) | card `splice.steps` for several spans; `versionCardText` names each span | yes | +15 | Vitest | CK-3 |
+| **chat/rerenderWhole.ts** | RE-RENDER WHOLE SONG: the version must be the song's active version and spliced (`params.splice` not a fallback), no APPLY running; builds a no-op plan on it (its own score and style, `ops: []`, `splice: {splice: false, reason: 'you asked for the whole song re-rendered'}`) via `planBuild`/`setPlan`, appends a pending edit card; no model call, no GPU slot (D-268) | no | 70 | Vitest: not active / a fallback version / APPLY running → refused with the reason; card appended | CK-6 |
+| routes/chatTurns.ts (changed) | `POST /api/chat/threads/:id/versions/:versionId/rerender` → `rerenderWhole` | no | +15 | route test | CK-6 |
+| server/test-fakes/fakeYueSplice.ts (changed) | replays `splice-chain-*.json` | — | +15 | — | CK-3 |
+| **server/scripts/chatCp4.ts**, **chatCp4Stats.ts** | CP-C4 driver (as `chatCp0Edit.ts`: a scripted multi-op edit turn → APPLY → wait → fetch) and its pure stats (stop lines) | stats yes | 120 + 80 | Vitest on stats | CK-4 |
+
+## Modules — yue-server (Python, beside the splice code; ABC only here)
+
+| Module | Its one job | Pure? | ~LOC | Tested by | Package |
+|---|---|---|---|---|---|
+| **yue-server/splice_chain.py** | validate `steps` (2-4, strictly descending, disjoint, each span inside the base score, section labels as `span()` checks them); map each REHARMONIZE step's base bars to the edited score's bars (shifted by the CUT/REPEAT sections before it, read from both scores' `section_ranges`, cross-checked against the edited score's bar count); the bars outside every mapped span (for the render's grid fit) | yes | 110 | pytest: mapping with a CUT before / after / both, a REPEAT before; bad order / overlap → SpecError | CK-2 |
+| **yue-server/splice_chain_job.py** | the step loop on the worker thread: decode the base once, base grid once (cached or tracked), the render and its grid once when a step needs it; per step (last first): `splice_reharmonize` / `splice_repeat` / `splice_cut` on the current audio with the base fit (valid before the step's end, since later bars were done first), verdict, in-memory null test against that step's input; the first non-`ok` step ends the job `rerender` with `step` and reason; at the end write the WAV, read it back, compare with the in-memory output (bitwise), compose the out grid step by step; cancel between steps removes the job dir | no | 140 | pytest with `FakeTracker` and synthetic audio: 2 and 3 steps ok; step 2 not aligned → rerender and no audio file; cancel at step 2 → dir gone | CK-2 |
+| splice_spec.py (changed) | accept `op` (v1) or `steps` (v2), never both; `steps` checked by `splice_chain.validate` | yes | +20 | pytest | CK-2 |
+| splice_job.py (changed) | dispatch: `steps` → `splice_chain_job.run`, else as today (150 LOC now; the chain gets its own file to stay under the cap) | no | +6 | existing pytest | CK-2 |
+| splice_result.py (changed) | v2 result: top-level verdict, `bars` [first, last], `steps: [...]` (each the v1 row), `null_test` summed, `length_diff_s` total | yes | +25 | pytest; recorded as contract fixtures for the TS fakes (D-039) | CK-2 |
+| splice_check.py (changed) | `--chain <result.json>`: null test of the saved library file against the original base with the composed part map, LUFS excess at every join (CP-C4) | no | +30 | run by hand in WSL at CP-C4 | CK-2 |
+
+## Modules — client (`client/src/`, flat)
+
+| Module | Its one job | Pure? | ~LOC | Tested by | Package |
+|---|---|---|---|---|---|
+| api/chatEdit.ts (changed) | `ChatSplice` gains `kind: 'several'` + `steps`; `ChatVersionBody.splice.steps` | — | +8 | — | CK-5 |
+| **chatSpliceCopy.ts** | the several-span words: consequence (`re-sings bars 9–16 and 41–48, cuts S5 · every other bar stays v3's audio · if a join cannot be aligned, the whole song is re-rendered instead`), strip line, phase title `SPLICING · 2 OF 3 · BARS 9–16`, done line, version line | yes | 80 | Vitest (each kind mix; 2 and 4 steps) | CK-5 |
+| chatEditCopy.ts (changed) | delegates `kind: 'several'` to `chatSpliceCopy` (stays under 150 LOC) | yes | +8 | existing tests | CK-5 |
+| ChatEditCard.tsx (changed) | the strip fallback (cards without `map`) draws every step's span; the C2 bar map already lights every op | no | +10 | RTL test | CK-5 |
+| ChatVersionCard.tsx (changed) | RE-RENDER WHOLE SONG text button (BACK TO's style) on the active spliced version; the reply's edit card does the rest | no | +15 | RTL test | CK-6 |
+| api/chat.ts (changed) | `rerenderWhole(threadId, versionId)` | — | +8 | — | CK-6 |
+
+### Feature → modules
+
+| Feature | Modules |
+|---|---|
+| F-066 #1-#4 (verify) | existing: `spliceEligibility.ts`, `splice_sections.py`, `spliceRenderJob.ts`, `chatEditCopy.ts`; no change |
+| F-066 #5 | `rerenderWhole.ts`, `routes/chatTurns.ts`, `ChatVersionCard.tsx`, `api/chat.ts` |
+| F-069 | `spliceSteps.ts`, `spliceEligibility.ts`, `splice_chain.py`, `splice_chain_job.py`, `splice_spec.py`, `splice_result.py`, `spliceSpec.ts`, `spliceRenderJob.ts`, `scoreVersion.ts`, `versionCard.ts`, `chatSpliceCopy.ts`, `ChatEditCard.tsx`; CP-C4: `chatCp4*.ts`, `splice_check.py --chain` |
+| F-067, F-068 | none (not doing, D-262) |
+
+## Data (C4): no new column, no migration (D-266)
+
+- **Edit card body** (`chat_messages.body`, `EditBody.splice`): new value `kind: 'several'` with `steps: [{kind, from_bar,
+  to_bar, ops: number[]}]`; `from_bar`/`to_bar` kept as first/last. Additive: no stored card has `several`, so old cards read
+  as before; no version bump (lessons/general: additive fields need none).
+- **Version record** (`versions.params_json.splice`, under `score_v: 1`): `splice_v: 2` for a chain (`kind: 'several'`,
+  `bars`, `steps` = v1 rows, `length_diff_s`, `null_test`); `splice_v: 1` unchanged for one span and for every fallback
+  (`{splice_v: 1, fallback}`). Readers (`scoreVersion.spliceSuffix`, `versionCard`) switch on `splice_v`; an unknown
+  `splice_v` reads as "no splice details" (label only). Stored v1 rows are never rewritten (migration rule: none needed;
+  a future v3 adds a reader branch, never rewrites rows).
+- **Grid sidecar** (`${versionId}.grid.json`, `grid_v: 1`): unchanged; the chain's out grid is mapped step by step, so the
+  next edit of the new version needs no SheetSage2 run.
+- **yue-server**: the splice job dir holds `audio.wav`, `base.grid.json`, `render.grid.json`, `out.grid.json`; steps run in
+  memory, no per-step files. Retention as today.
+
+## The commit path (APPLY of a chain)
+
+`editCommit` (unchanged) → `startEditRender(planned = several)` → `checkRender` → if `needsRender`: `runScoreRender(plan.abc)`
+(one render of the full edited score) → `submitSplice(spec v2)` → poll (`splicing 1/3` …) → `ok`: fetch audio + grids, save
+one version with the v2 record; `rerender` at any step, or refused: save the whole render labelled with that step's reason,
+rendering it now if no step needed one (CUT/REPEAT-only chains); failed: nothing saved, card back to pending; cancel: the yue
+job is cancelled (its dir removed), nothing saved. Wall-time budget 5 min (render 44-92 s, render grid ~17 s, steps ~0.2 s
+each, base grid cached; D-166, SP-4).
+
+## Seams and fakes (C4)
+
+| Seam | Real | Fake |
+|---|---|---|
+| yue splice (chain) | `/v1/splices` with `steps` | `server/test-fakes/fakeYueSplice.ts` replays `yue-server/tests/data/contract/splice-chain-{ok,rerender,hold}.json` recorded by CK-2's pytest; `e2e/fake-score/splices.ts` serves the same fixture to `chatSplice.chat.spec.ts` |
+| SheetSage2 tracker | `infer.py` subprocess | pytest `FakeTracker` (SP-4's recorded rows) |
+| YuE2 render | `/v1/jobs` | `fakeYue.ts` jobs (existing) |
+| Chat model | Ollama | `chatScripts.ts` scripted multi-op `edit` replies; CP-C4 uses the real model with fixed requests |
+| GPU queue, storage, clock | as C0b | as C0b |
+
+Risk seam: R-043 (chained splices unmeasured) → CK-2 pytest goldens + CP-C4 on the real machine before any UI.
+
+## Test strategy (C4, by risk)
+
+1. **The chain planner, pure, first** (CK-1; it decides what the card promises): tables for 2, 3, 4 and 5 ops; two
+   REHARMONIZE spans overlapping, touching, 1 bar apart (merge), 2 bars apart at 60 BPM (3 s rule) and at 140 BPM; a CUT
+   touching a REHARMONIZE (reason); REPEAT of the last section inside a chain (reason); a WRITE PHRASE among them (reason);
+   order always descending; every op index covered exactly once. Broken once on purpose.
+2. **Bar mapping on yue-server, pure** (CK-2): REHARMONIZE after a CUT, before a REPEAT, between both; the mapped span's
+   chords equal the edited score's chords for those bars (cross-checked from the scores themselves).
+3. **Nothing partial, nothing left** (silent and costly): pytest — a step-2 `not_aligned` leaves no `audio.wav`; a cancel at
+   step 2 removes the dir. Vitest — every non-ok path saves the whole render labelled or nothing; a cancel saves nothing.
+4. **The null test per step and on the file** (synthetic audio, a known lag, 2-3 steps): outside every span the output
+   equals the base exactly; the written file equals the in-memory output.
+5. **Stored data**: `scoreVersion` reads v1, v2 and an unknown `splice_v`; old edit cards (no `steps`) render unchanged.
+6. **Client copy**: one test per kind mix; the phase line per step; no claim that the other bars stay on a fallback.
+7. **E2E** (CK-5, CI): `chatSplice.chat.spec.ts` — a scripted two-op edit → the card names both spans → APPLY →
+   `SPLICING · 1 OF 2` → the version card names both spans; the golden path and the existing chat specs unchanged.
+8. **On the real machine, headless (CP-C4, before CK-5)**: `chatCp4.ts --server http://127.0.0.1:3201` on a `DATA_DIR` copy
+   (D-040), real Ollama and yue-server, 3 library songs (4/4, chords) × 2 plans; then `splice_check.py --chain` in WSL on
+   each saved file. Stop lines in scope.md C4.
+9. Regression net: every suite green on every PR; single-span behaviour unchanged (existing splice tests pass as they are).
