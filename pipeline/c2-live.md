@@ -101,3 +101,22 @@ Cariñito, YuE2 score, pending plans as in the first run; every reply read from 
 1. R-041: Ellies City 2, CHORUS 1, click "Anonymous and free" and play: do the bar-16 chip's 0:48-0:51 cover the line you hear (whisper says 48.0-49.3 s)? One Cariñito chorus line too ("Para que quedes conmigo?", `BAR 28`, 1:08-1:11).
 2. The two takes I made on my scratch data: Lighthouse Keeper v1 and v2 (v2 = 90 BPM re-render): do they play in the chat without the Library footer waking, as you wanted? I only saw the DOM.
 3. ACE-Step was offline: no APPLY on an ACE-Step song, as in the first run; its panel and marks (Ellies City 2) work from the stored reading.
+
+## N1 re-check (2026-10-09, run 7)
+
+Code: git worktree detached at bacc49c (#266 head = main + #265 D-257 + #266 D-258), run as in the re-check above: server :3521 on a copy of the data, Vite :5523, Ollama :11735 (qwen3:14b), yue-server :8424 (WSL), lyrics-server :8435; Playwright chromium on my Vite; the owner's and other sessions' ports untouched. Cariñito (YuE2 score), DB reset to the same pristine copy before every case. Labels: *seen running* unless marked. Screenshots: `pipeline/c2-live/22-*.jpg` .. `25-*.jpg`. Driver and per-step page text are scratch (`E:\ai\tmp\c2n1\pw`).
+
+| Case | Runs | Result |
+|---|---|---|
+| (a) CHORUS 1 marked, pending REHARMONIZE 23-30, "scrap that, start over: instead just change the tempo to 80 BPM" | 3 clean (c3, a7, a8) | PASS |
+| (b) pending SET TEMPO, no mark, "scrap that, instead reharmonize chorus 1 with jazz chords" | 2 clean (e3, e5) | PASS |
+| (c) additive: pending SET TEMPO, "and also reharmonize chorus 1 with jazz chords" | 2 (f3, f4) | PASS |
+| (d) failed / no-plan revise keeps the pending card | c1, c2 (planner timeout), d2, d3 | PASS (over-cap not re-provoked, see below) |
+
+- (a) The new message gives no plan 2 at all: reply `Nothing planned: the earlier plan is scrapped. SET TEMPO changes the whole song; clear the mark to ask for it.` No pending REHARMONIZE card remains: the old card is headed `EDIT · SCORE · SCRAPPED`, shows `You scrapped this plan. It cannot be applied.`, and has no APPLY button (the only `APPLY` in the page text is the composer hint "nothing runs until you press APPLY"). After a page reload the same: SCRAPPED header, the cannot-be-applied line, the nothing-planned sentence, no APPLY button (`22-n1-startover-scrapped.jpg`, `23-n1-scrapped-after-reload.jpg`). In a8 the scrapped card still shows its own `attempt 1 refused: ...` line; that is its history, not a regression. N1 is fixed.
+- (b) Plan 2 `REVISED FROM PLAN 1`, `SINCE PLAN 1 · 1 NEW · 1 REMOVED`, `REHARMONIZE NEW bars 23-30`, `REMOVED (1) · SET TEMPO 95 → 80 BPM · whole song`; the old card reads `PLAN 1 · REVISED BELOW`, `superseded`, `Revised below. This one cannot be applied.` The scrapped op is never SAME and survives reload (`24-n1-setTempo-removed.jpg`).
+- (c) Plan 2 `SINCE PLAN 1 · 1 NEW · 1 SAME · 0 REMOVED`, SET TEMPO SAME + REHARMONIZE NEW, `ALL 64 BARS CHANGE (TEMPO) · BARS 23–30 ARE THE NEW HARMONY` (`25-revise-same-new.jpg`).
+- (d) Planner gave no answer in 180 s (`ASSISTANT OFF planner -> no answer within 180s ... RETRY`, c1 step 2): the pending REHARMONIZE card stayed, with its APPLY, also after reload. A revise message the planner answered with a say only (d2/d3: pending SET TEMPO, a seven-part request; reply "The song currently has an intro, verse, chorus, and outro, but no bridge ..."): no new plan, the pending card kept with APPLY, also after reload. The over-6 refusal (`too many changes: that makes 8 ...`) was not provoked again; it is the 2026-10-08 re-check result on code this fix does not touch (seen running there, not re-run here).
+- Environment note (not a product bug): with another session using the GPU (nvidia-smi 60-98 % before my runs), the first planner call after the model unloaded often ran into the 180 s limit (5 of ~12 step-1 calls). Warming the model with one tiny Ollama request before each run removed it (steps then 8-55 s). Cases whose step 1 timed out were discarded, except as (d) evidence above.
+- Regressions: none seen in F-056 (marks, bar chips), F-057 (cards, plan header, bars-change line) or F-059 in passing. Not re-run: APPLY (GPU left to others), line chips.
+- New bugs: none. Low note: after the planner timeout the user sees `ASSISTANT OFF` for a model that is only slow, as before.
