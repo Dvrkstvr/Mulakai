@@ -49,6 +49,32 @@ describe('versionCard', () => {
   });
 });
 
+describe('versionCard for a chain (C4, F-069, D-266)', () => {
+  const row = (kind: 'reharmonize' | 'cut' | 'repeat', bars: [number, number]) => ({ ...spliced, kind, bars });
+  const chain = {
+    splice_v: 2 as const, kind: 'several' as const, bars: [9, 48] as [number, number], joins_s: [16.2, 24.2, 80.2], length_diff_s: -16,
+    null_test: { samples: 30, different: 0 }, steps: [row('reharmonize', [41, 48]), row('cut', [25, 32]), row('reharmonize', [9, 16])],
+  };
+
+  it('names every span in reading order, with what each did; the rest is the version before it', () => {
+    const card = versionCard({ ...saved, splice: chain }, v1);
+    expect(card).toMatchObject({ whole: false, fallback: null, splice: { kind: 'several', bars: [9, 48], lengthDiffS: -16,
+      steps: [{ kind: 'reharmonize', bars: [9, 16] }, { kind: 'cut', bars: [25, 32] }, { kind: 'reharmonize', bars: [41, 48] }] } });
+    expect(versionCardText(card)).toBe("Saved as v2: bars 9-16 changed, bars 25-32 removed, bars 41-48 changed, the rest is v1's audio. Bars after the cut are earlier.");
+  });
+
+  it('a cut and a copy both say their bars move', () => {
+    const card = versionCard({ ...saved, splice: { ...chain, steps: [row('repeat', [17, 24]), row('cut', [1, 8])] } }, null);
+    expect(versionCardText(card)).toBe('Saved as v2: bars 1-8 removed, bars 17-24 repeated, the rest is the old audio. Bars after the cut are earlier. Bars after the copy are later.');
+  });
+
+  it('an unknown splice_v reads as the label only: no splice details, no claim of a whole render', () => {
+    const card = versionCard({ ...saved, splice: { splice_v: 3, kind: 'later' } as never }, v1);
+    expect(card).toMatchObject({ whole: false, splice: null, fallback: null });
+    expect(versionCardText(card)).toBe('Saved as v2.');
+  });
+});
+
 describe('fallbackReason', () => {
   it('not aligned reads as the label D-101 names; other reasons are yue-server\'s own words', () => {
     expect(fallbackReason({ reason: 'not_aligned', detail: 'no usable groove at either join' })).toBe('the join could not be aligned');

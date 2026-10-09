@@ -1,7 +1,8 @@
 /**
  * fakeYue's `/v1/splices` (CB-1's contract, D-039): replays one of the fixtures yue-server's pytest recorded
- * (`yue-server/tests/data/contract/splice-*.json`: ok, rerender, failed, hold). A submit whose spec differs
- * from the recording gets a 500 naming that, never an invented reply: `op`, `base_abc` and a recorded
+ * (`yue-server/tests/data/contract/splice-*.json`: ok, rerender, failed, hold; C4's chain: splice-chain-ok, -rerender,
+ * -hold, whose spec has `steps` instead of `op`, compared the same way). A submit whose spec differs
+ * from the recording gets a 500 naming that, never an invented reply: `op` (or `steps`), `base_abc` and a recorded
  * `base_grid` must be equal; `render_job` is a placeholder in the recording (`job-0001`), so only its presence
  * is matched; the optional `edited_abc` / `base_grid` the recording lacks may ride along. A cancel makes the
  * record `cancelled`; `/audio` and `/grid/{which}` answer only for a succeeded splice.
@@ -10,7 +11,8 @@ import fs from 'node:fs';
 import type http from 'node:http';
 import path from 'node:path';
 
-export type SpliceName = 'splice-ok' | 'splice-rerender' | 'splice-failed' | 'splice-hold';
+export type SpliceName = 'splice-ok' | 'splice-rerender' | 'splice-failed' | 'splice-hold'
+  | 'splice-chain-ok' | 'splice-chain-rerender' | 'splice-chain-hold';
 export interface SpliceFixture {
   name: string;
   request: { method: string; path: string; form: { spec: Record<string, unknown> }; file: string };
