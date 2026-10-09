@@ -32,7 +32,7 @@ const METER_LINE = /^\(meter M:(\d+\/\d+) from here/;
 const no = (reason: string): Splice => ({ splice: false, reason });
 
 export function spliceEligibility(ops: Op[], { facts, chordsPresent }: SpliceInput): Splice {
-  if (ops.length === 0) return no('the plan makes 0 changes; only a single change can be spliced into the old take');
+  if (ops.length === 0) return no('the plan makes no changes to splice');
   const spans = [];
   for (const op of ops) {
     const s = opSpan(op, facts.sections);

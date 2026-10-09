@@ -8,7 +8,7 @@ import pytest
 import splice_harness
 from conftest import wait_for
 from splice_dsp import SR
-from splice_fit import side_fits
+from splice_fit import ShortSide, side_fits
 from splice_fixtures import CHORDS, grid, score, wav_bytes
 from splice_grid import fit
 from splice_harness import BARS, BASE_ABC, BEAT, LEAD, NEW, done, splice, splicer, tracker  # noqa: F401
@@ -86,3 +86,47 @@ def test_a_chained_reharmonize_before_a_looped_tail_splices(splicer, tracker, mo
     result = done(client, splice(client, spec).json()["id"])["result"]
     assert (result["verdict"], result.get("reason"), result["step"]) == ("ok", None, None)
     assert [r["verdict"] for r in result["steps"]] == ["ok", "ok"]
+
+
+# D-285: the reviewer's case. A span that leaves one bar after it, and a take that sang the span
+# a bar long: the 1-bar tail cannot outvote the whole fit, so it must not adopt it either.
+LONG_SPAN = range(12, BARS - 1)  # 0-based; bars 13..23 of 24, the tail is bar 24 alone
+
+
+def long_take_grid(bars: int = BARS, span=LONG_SPAN) -> dict:
+    """The render's grid: the edited chords with the span sung one bar long."""
+    labels = [CHORDS[i % 4][1] for i in range(span.start)] + ["D:min"] * (len(span) + 1) \
+        + [CHORDS[i % 4][1] for i in range(span.stop, bars)]
+    return grid(bars + 1, BEAT, LEAD, chord_of=lambda j: labels[j])
+
+
+def long_score(bars: int = BARS, span=LONG_SPAN, **kw) -> str:
+    return score(bars, 120, chord_of=lambda i: "Dm" if i in span else CHORDS[i % 4][0], **kw)
+
+
+def test_a_one_bar_tail_that_disagrees_cannot_be_judged():
+    abc, g = long_score(), long_take_grid()
+    assert fit(g, abc, [BARS - 1]).offset == 1  # the tail alone sees the bar the take added
+    with pytest.raises(ShortSide, match="1 bar after"):
+        side_fits(g, abc, range(0, 12), [BARS - 1])
+
+
+def test_a_reharmonize_with_a_one_bar_tail_sung_long_renders_the_whole_song(splicer, tracker, monkeypatch):
+    client = splicer(tracker)
+    abc = long_score(sections=splice_harness.SECTIONS)
+    job = render(monkeypatch, client, tracker, abc, long_take_grid())
+    spec = {"op": reharm(13, BARS - 1), "base_abc": BASE_ABC, "render_job": job, "edited_abc": abc}
+    result = done(client, splice(client, spec).json()["id"])["result"]
+    assert (result["verdict"], result["reason"]) == ("rerender", "length")
+    assert "1 bar after" in result["detail"]
+
+
+def test_a_chained_reharmonize_with_a_one_bar_tail_sung_long_renders_the_whole_song(splicer, tracker, monkeypatch):
+    client = splicer(tracker)
+    span = range(4, 15)  # CUT bars 1-8: the edited score is base bars 9-24, the span is its bars 5-15
+    abc = long_score(16, span, sections=[("chorus", 0), ("verse", 8)])
+    job = render(monkeypatch, client, tracker, abc, long_take_grid(16, span))
+    steps = [{"op": reharm(13, BARS - 1)}, {"op": {"op": "CUT", "section": 1, "label": "verse"}}]
+    spec = {"steps": steps, "base_abc": BASE_ABC, "render_job": job, "edited_abc": abc}
+    result = done(client, splice(client, spec).json()["id"])["result"]
+    assert (result["verdict"], result["reason"], result["step"]) == ("rerender", "length", 1)
