@@ -365,7 +365,7 @@ A slightly-off tempo on the cover panel. Default: no SET TEMPO there; the hint p
 ## Q-131 · assumable · stage 5 (RT, D-207, design/retime.html) · open
 The refusal for a gone saved reading says "gone" with no date. Alternative: say when it was cleared (30-day sweep).
 
-## Q-132 · assumable · stage 5 (RT, F-093/F-094, design/retime.html) · open
+## Q-132 · assumable · stage 5 (RT, F-093/F-094, design/retime.html) · assumed → D-262
 A RE-TIME stands alone in a plan: the planner drops other ops (bars change under them) and says so. Alternative: allow RE-TIME first in a list with later ops on the new bars.
 
 ## Q-137 · assumable · stage 7 (C1 p95 re-measure) · open
