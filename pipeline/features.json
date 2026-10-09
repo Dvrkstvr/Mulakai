@@ -813,7 +813,7 @@
       "milestone": "C4",
       "behaviour": "REPEAT and CUT a section as an audio-only edit with no render (built in C0b; verify), plus a RE-RENDER WHOLE SONG button for a heard seam",
       "acceptance": [
-        "The edit card says the audio is copied or removed at the section edges with no render; outside the 1-beat crossfades the saved version equals the base (null test, 0 differing samples as at CP-C0)",
+        "The edit card says the audio is copied or removed at the section edges with no render; outside the crossfade windows (at most 1 beat; a quarter beat when a word crosses the downbeat) the saved version equals the base (null test, 0 differing samples as at CP-C0)",
         "A REPEAT whose seam steps more than 4.0 dB in loudness renders the whole song instead, labelled with the reason (D-160); a REPEAT of the last section is a whole-song render and the card says why before APPLY (D-213)",
         "A CUT that would leave no section is refused; a CUT of the last section keeps its edge fade",
         "After an audio-only REPEAT, a later whole-song re-render over 360 s refuses with the existing line",
