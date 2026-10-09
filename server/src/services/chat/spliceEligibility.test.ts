@@ -5,7 +5,7 @@ import { spliceEligibility, type SpliceInput } from './spliceEligibility.js';
 import type { Op, ScoreFacts } from '../score/planTypes.js';
 
 const facts = contract('read-ok').response.body.facts as ScoreFacts; // 65 bars of 4/4: intro 1-10, verse 11-46, chorus 47-62, outro 63-65
-const song: SpliceInput = { facts, chordsPresent: true, chain: true };
+const song: SpliceInput = { facts, chordsPresent: true };
 const reharm = (from_bar: number, to_bar: number): Op =>
   ({ op: 'REHARMONIZE', from_bar, to_bar, chords: [{ bar: from_bar, beat: 1, root: 'G', quality: 'm7' }] });
 
@@ -54,13 +54,9 @@ describe('splice eligibility (pure)', () => {
     });
   });
 
-  it('C4 gate off (the default, CHAT_SPLICE_CHAIN unset): 2+ ops answer the single-change reason, byte for byte', () => {
-    const off = { facts, chordsPresent: true };
-    expect(spliceEligibility([reharm(11, 14), { op: 'CUT', section: 3, label: 'chorus' }], off))
-      .toEqual({ splice: false, reason: 'the plan makes 2 changes; only a single change can be spliced into the old take' });
-    expect(spliceEligibility([reharm(47, 54), { op: 'SET_TEMPO', bpm: 90 }], { ...off, chain: false }))
-      .toEqual({ splice: false, reason: 'the plan makes 2 changes; only a single change can be spliced into the old take' });
-    expect(spliceEligibility([reharm(47, 54)], off)).toEqual({ splice: true, kind: 'reharmonize', from_bar: 47, to_bar: 54 });
+  it('C4 (CK-5, D-271 d): the chain needs no gate (CHAT_SPLICE_CHAIN is gone)', () => {
+    expect(spliceEligibility([reharm(11, 14), { op: 'CUT', section: 3, label: 'chorus' }], { facts, chordsPresent: true }))
+      .toMatchObject({ splice: true, kind: 'several' });
   });
 
   it('C4: a chain the planner refuses re-renders the whole song with its reason (D-265)', () => {
@@ -76,11 +72,11 @@ describe('splice eligibility (pure)', () => {
     });
     expect(spliceEligibility([reharm(11, 14), reharm(60, 70)], song)).toEqual({ splice: false, reason: "bars 60-70 are not inside the song's 65 bars" });
     const waltz = { ...facts, header: { ...facts.header, meter: '3/4' } };
-    expect(spliceEligibility([reharm(11, 14), reharm(47, 50)], { facts: waltz, chordsPresent: true, chain: true }))
+    expect(spliceEligibility([reharm(11, 14), reharm(47, 50)], { facts: waltz, chordsPresent: true }))
       .toEqual({ splice: false, reason: 'the song is in 3/4; splicing is tested on 4/4 only' });
-    expect(spliceEligibility([{ op: 'CUT', section: 1, label: 'intro' }, reharm(47, 50)], { facts, chordsPresent: false, chain: true }))
+    expect(spliceEligibility([{ op: 'CUT', section: 1, label: 'intro' }, reharm(47, 50)], { facts, chordsPresent: false }))
       .toEqual({ splice: false, reason: 'the song has no chords: adding them renders the whole song with chords' });
-    expect(spliceEligibility([{ op: 'CUT', section: 1, label: 'intro' }, { op: 'CUT', section: 3, label: 'chorus' }], { facts, chordsPresent: null, chain: true }))
+    expect(spliceEligibility([{ op: 'CUT', section: 1, label: 'intro' }, { op: 'CUT', section: 3, label: 'chorus' }], { facts, chordsPresent: null }))
       .toEqual({ splice: false, reason: 'the song has no chords to align the join on' });
   });
 
