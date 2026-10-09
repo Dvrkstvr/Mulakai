@@ -50,6 +50,9 @@ export function DockAddLayer({ songId, layers, songLyrics, scoreOpen }: Props) {
     return names;
   }));
 
+  // The lyrics draft is this song's: another song's words never carry over.
+  useEffect(() => { useAddLayerDraft.getState().openSong(songId); }, [songId]);
+
   // A track picked from outside the dock (the palette's "Add layer · strings").
   const trackPick = useDockRequest((s) => s.track);
   useEffect(() => {
