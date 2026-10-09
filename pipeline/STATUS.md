@@ -6,13 +6,13 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C4 DONE 2026-10-09 (one version from several local ops: built #275-#287, CP-C4 GO, reviewed C4-code.md 0 blocking + #285, live c4-live.md, F-066 + F-069 pass, F-067/F-068 not doing D-262, curated); C2 done 2026-10-09
-- clarity: blocking 0 · latest Q-152 · decisions to D-288
+- clarity: blocking 0 · latest Q-152 · decisions to D-289
 - feasibility: amber · H-open 1 (R-038 German lyrics: gemma4 chosen D-237, build = LD) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7 · R-042 LD turn time
-- milestone: C0 + C1 + C2 + C3 + C4 done · features passing 55/97 · Re-time a transcription (own session)
-- autopilot: stopped — C4 reached (run 9, 9/12 rounds)
+- milestone: C0 + C1 + C2 + C3 + C4 done · RT done (F-090..F-094; F-094 #274 #286 #289, flag in #283) · features passing 56/97
+- autopilot: stopped — C4 reached (run 9, 9/12 rounds); RT-6 run 8 stopped at F-094 (10/12)
 - LD (lyrics own call; German on gemma4): built #242 #246 · fixes #252 (D-251) #253 (D-252 keep) #260 (D-255 loop refused) #270 (D-259 lyrics cap 1200, cut call waited out) · live: redirect 0/18, loop retries resolve in-turn; 7/10 German firsts hit the 180 s timeout before #270 · owner tests #270 in use and reports (no re-check run) · owed: chatCp3 (owner songs), owner reads German lyrics
 - owed: cover listen (C3), M2 pair 2, M1 phrase · C4 (optional): seam listen at c4-live.md times, one real run watching SPLICING · k OF N · restart yue-server/WSL (forwarding died 20:08, owner yue predates the chain code)
-- next: LD-1 PR → LD-2 once #238 merges; RT-6 (chat RE-TIME verb) now unblocked by C2; BPM fix in its own session; REPEAT-last-section task card
+- next: LD-1 PR → LD-2 once #238 merges; BPM fix in its own session; REPEAT-last-section task card
 
 ## Stages
 | # | Stage | State | Gate | Date |

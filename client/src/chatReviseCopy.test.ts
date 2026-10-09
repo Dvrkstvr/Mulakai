@@ -48,6 +48,12 @@ describe('the bar map caption (4a-4d)', () => {
     expect(mapCaption(map([{ spans: [[41, 45]], whole: false }, { spans: [[47, 52]], whole: false }, { spans: [[73, 80]], whole: false }]), [RE, re2, CUT_OP], null, merged, 4))
       .toBe('20 OF 80 BARS CHANGE · THE OTHER 60 ARE v4');
   });
+  it('one REHARMONIZE span merged from 2 ops (D-271 b revised): the gap bar between them counts as changed, as the strip says', () => {
+    const one: ChatSplice = { splice: true, kind: 'reharmonize', from_bar: 41, to_bar: 52 };
+    const re2: ScoreOp = { op: 'REHARMONIZE', from_bar: 47, to_bar: 52, chords: [] };
+    expect(mapCaption(map([{ spans: [[41, 45]], whole: false }, { spans: [[47, 52]], whole: false }]), [RE, re2], null, one, 4))
+      .toBe('12 OF 80 BARS CHANGE · THE OTHER 68 ARE v4');
+  });
   it('several ops rendering the whole song never claim the other bars stay; shared bars count once', () => {
     expect(mapCaption(map([{ spans: [[49, 56]], whole: false }, { spans: [[53, 60]], whole: false }]), [RE, RE], null, WHOLE, 4))
       .toBe('12 OF 80 BARS CHANGE · THE WHOLE SONG RE-RENDERS');

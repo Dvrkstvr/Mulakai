@@ -43,7 +43,7 @@ describe('splice eligibility (pure)', () => {
   it('a plan with an op that cannot be spliced re-renders the whole song, naming that op', () => {
     expect(spliceEligibility([reharm(47, 54), { op: 'SET_TEMPO', bpm: 90 }], song))
       .toEqual({ splice: false, reason: 'SET TEMPO changes the whole take, so it cannot be spliced into the old one' });
-    expect(spliceEligibility([], song)).toEqual({ splice: false, reason: 'the plan makes 0 changes; only a single change can be spliced into the old take' });
+    expect(spliceEligibility([], song)).toEqual({ splice: false, reason: 'the plan makes no changes to splice' });
   });
 
   it('C4 (F-069): 2-4 spliceable ops on separate spans answer kind several with the steps, last bar first', () => {
@@ -63,6 +63,20 @@ describe('splice eligibility (pure)', () => {
     expect(spliceEligibility([reharm(43, 46), { op: 'REPEAT', section: 3, label: 'chorus' }], song)).toEqual({
       splice: false, reason: 'the repeat of the chorus (bars 47-62) is under 2 bars or 3 s from bars 43-46, so the two cannot be spliced one after the other',
     });
+  });
+
+  it('C4 (D-271 b revised): REHARMONIZE ops that merge into one span splice as one single-span REHARMONIZE over the merged bars', () => {
+    expect(spliceEligibility([reharm(15, 22), reharm(23, 26)], song)).toEqual({ splice: true, kind: 'reharmonize', from_bar: 15, to_bar: 26 });
+    expect(spliceEligibility([reharm(23, 26), reharm(15, 22)], song)).toEqual({ splice: true, kind: 'reharmonize', from_bar: 15, to_bar: 26 });
+    // every single-span check still holds: a span outside the song, no chords
+    expect(spliceEligibility([reharm(60, 64), reharm(65, 66)], song)).toEqual({ splice: false, reason: "bars 65-66 are not inside the song's 65 bars" });
+    expect(spliceEligibility([reharm(15, 22), reharm(23, 26)], { ...song, chordsPresent: false }))
+      .toEqual({ splice: false, reason: 'the song has no chords: adding them renders the whole song with chords' });
+  });
+
+  it('C4 (D-265): the same merged span with a CUT touching it still renders the whole song', () => {
+    const out = spliceEligibility([reharm(39, 42), reharm(43, 46), { op: 'CUT', section: 3, label: 'chorus' }], song);
+    expect(out).toEqual({ splice: false, reason: 'the cut of the chorus (bars 47-62) is under 2 bars or 3 s from bars 43-46, so the two cannot be spliced one after the other' });
   });
 
   it('C4: the single-op rules hold per op inside a chain', () => {

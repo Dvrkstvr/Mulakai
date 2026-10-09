@@ -27,11 +27,19 @@ export const OWN_SCORE = "this song's score is what YuE2 rendered, so its beat i
 const r = Math.round;
 const refused = (reason: string): VerbRoute => ({ kind: 'refused', reason });
 
+const target = (mode: 'half' | 'double', read: number) => r(mode === 'half' ? read / 2 : read * 2);
+const fits = (bpm: number) => bpm >= MIN_BPM && bpm <= MAX_BPM;
+
+/** RT-6 re-check 3 (D-289): the planner's direction is unreliable for wrong-way words, so a HALF / DOUBLE off the
+ * limits names the other mode when that one fits, in code. Never flipped: the person says it. */
 function limits(ask: RetimeAsk, read: number): string | null {
   if (ask.mode === 'bpm') return r(ask.bpm) < MIN_BPM || r(ask.bpm) > MAX_BPM ? `${r(ask.bpm)} BPM is outside ${MIN_BPM}-${MAX_BPM}` : null;
-  const bpm = r(ask.mode === 'half' ? read / 2 : read * 2);
-  if (bpm >= MIN_BPM && bpm <= MAX_BPM) return null;
-  return `${ask.mode === 'half' ? 'HALF' : 'DOUBLE'} is off: ${bpm} BPM is ${bpm < MIN_BPM ? 'under' : 'over'} the limit`;
+  const bpm = target(ask.mode, read);
+  if (fits(bpm)) return null;
+  const off = `${ask.mode === 'half' ? 'HALF' : 'DOUBLE'} is off: ${bpm} BPM is ${bpm < MIN_BPM ? 'under' : 'over'} the limit`;
+  const other = ask.mode === 'half' ? 'double' : 'half';
+  if (!fits(target(other, read))) return off;
+  return `${off} · nothing changed. Did you mean ${other} time (${r(read)} → ${target(other, read)} BPM)? Say "${other} time"`;
 }
 
 export function routeRetime(ask: RetimeAsk, facts: VerbFacts, about?: 'reading'): VerbRoute {

@@ -34,3 +34,4 @@ general chat-server rules are in `chat-server.md`.
   stands as SAME (D-254) except on a start over, where it is dropped and an
   empty plan retires the card as `scrapped` (D-257, D-258, `replyCheck`).
 - RT-5 (D-248): RE-TIME replaces the stored reading in place (new `readAt`, `retime.previous` for UNDO), bars on the re-timed downbeats, never re-fitted; a bars mark whose `readAt` differs from the playable reading's is stale.
+- RT-6 (D-275, D-280): a chat RETIME is an edit op, alone in a plan, offered only when there is something to re-time; where it goes is decided only by `routeRetime` (dock vs reading vs SET TEMPO within 8 %). The planner's HALF/DOUBLE direction is unreliable for wrong-way words: fix in code (D-289 refusal names the other mode), not more prompt rules. An undone re-time stays in the history as `[UNDONE …]` (D-287); UNDO TURN identity is `readAt`/`asReadAt` (D-279).

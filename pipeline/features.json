@@ -1174,8 +1174,8 @@
         "3 phrasings each give a RE-TIME card with the right mode",
         "Edge: a slight BPM change gives SET TEMPO instead (Q-125)"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "2026-10-09 verifier (independent) on PR #274 feat/retime-chat-verb cd49f2f, spare ports, real Ollama qwen3:14b + real SheetSage2, browser-driven: cover (seeded from a real transcription): \"it's half time\" -> RE-TIME HALF 146.3 -> 73 BPM (4 runs), \"it's really 92 BPM\" -> RE-TIME BPM 92 (2), \"it's half time, the beat was read double\" -> RE-TIME HALF (2); \"it's really 150 BPM\" (2.5 % off) -> SET TEMPO 145 -> 150 (2); reading: \"that reads as double time\" -> reading re-timed DOUBLE 65 -> 130 (3), \"it's really 130 BPM\" -> BPM; UNDO TURN after reload restores 65 BPM, also after reopening; YuE2 original \"it's half time\" -> SET TEMPO 95 -> 47 card. CP-C1 marks p95 5883 max 5944 (stop 6000; baseline 5733/5788), CP-C2 p95 5470 max 5496. Open bugs (medium): word transcription misroutes a cover to the reading route and is refused; live view after a reading re-time shows UNDONE and no UNDO TURN until reload. See pipeline/verify/2026-10-09-rt6-live.md"
     },
     {
       "id": "F-095",

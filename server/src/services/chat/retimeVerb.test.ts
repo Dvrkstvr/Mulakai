@@ -52,7 +52,24 @@ describe('routeRetime', () => {
 
   it('a target outside 40-240 is refused with the limit, before anything runs (Q-129)', () => {
     expect(routeRetime({ mode: 'half' }, { ...COVER, dock: { state: 'offered', notationId: 'n1', readBpm: 70 } }))
-      .toEqual({ kind: 'refused', reason: 'HALF is off: 35 BPM is under the limit' });
+      .toEqual({ kind: 'refused', reason: 'HALF is off: 35 BPM is under the limit · nothing changed. Did you mean double time (70 → 140 BPM)? Say "double time"' });
     expect(routeRetime({ mode: 'bpm', bpm: 300 }, COVER)).toEqual({ kind: 'refused', reason: '300 BPM is outside 40-240' });
+  });
+
+  it('RT-6 re-check 3: a HALF or DOUBLE off the limits names the other mode when it fits, in code; never flips it', () => {
+    const cover = { ...COVER, dock: { state: 'offered', notationId: 'n1', readBpm: 146.3 } } as VerbFacts;
+    expect(routeRetime({ mode: 'double' }, cover)).toEqual({ kind: 'refused',
+      reason: 'DOUBLE is off: 293 BPM is over the limit · nothing changed. Did you mean half time (146 → 73 BPM)? Say "half time"' });
+    const eventide = { ...READING, reading: { ...READING.reading!, read: { bpm: 65, bars: 80 } } } as VerbFacts;
+    expect(routeRetime({ mode: 'half' }, eventide)).toEqual({ kind: 'refused',
+      reason: 'HALF is off: 33 BPM is under the limit · nothing changed. Did you mean double time (65 → 130 BPM)? Say "double time"' });
+  });
+
+  it('no suggestion when the other mode is off too, or for a named BPM', () => {
+    const fast = { ...COVER, dock: { state: 'offered', notationId: 'n1', readBpm: 500 } } as VerbFacts;
+    expect(routeRetime({ mode: 'double' }, fast)).toEqual({ kind: 'refused', reason: 'DOUBLE is off: 1000 BPM is over the limit' });
+    const slow = { ...READING, reading: { ...READING.reading!, read: { bpm: 15, bars: 8 } } } as VerbFacts;
+    expect(routeRetime({ mode: 'half' }, slow)).toEqual({ kind: 'refused', reason: 'HALF is off: 8 BPM is under the limit' });
+    expect(routeRetime({ mode: 'bpm', bpm: 20 }, READING)).toEqual({ kind: 'refused', reason: '20 BPM is outside 40-240' });
   });
 });

@@ -50,6 +50,13 @@ describe('spliceSpec', () => {
     expect(spliceSpec(one, { ops: [REH_A], abc: 'X:e' }, 'X:b', 'yue-1', null)).toEqual({ op: REH_A, base_abc: 'X:b', render_job: 'yue-1', edited_abc: 'X:e' });
     expect(spliceSpec(one, { ops: [REH_A], abc: 'X:e' }, 'X:b', null, { grid_v: 1 })).toEqual({ op: REH_A, base_abc: 'X:b', edited_abc: 'X:e', base_grid: { grid_v: 1 } });
   });
+  it('one span merged from several REHARMONIZE ops (D-271 b revised): spec v1 with one synthetic op over the span, every op\'s chords in plan-op order', () => {
+    const merged: Splice = { splice: true, kind: 'reharmonize', from_bar: 9, to_bar: 12 };
+    expect(spliceSpec(merged, { ops: [REH_A, REH_B], abc: 'X:e' }, 'X:b', 'yue-1', null)).toEqual({
+      op: { op: 'REHARMONIZE', from_bar: 9, to_bar: 12, chords: [C(9), C(11), C(12)] }, base_abc: 'X:b', render_job: 'yue-1', edited_abc: 'X:e',
+    });
+    expect(spliceSpec(merged, { ops: [REH_B, REH_A], abc: 'X:e' }, 'X:b', null, null).op).toEqual({ op: 'REHARMONIZE', from_bar: 9, to_bar: 12, chords: [C(11), C(12), C(9)] });
+  });
   it('a chain: spec v2, the steps in the card\'s order (last bar first), never an op', () => {
     const spec = spliceSpec(several, plan, 'X:b', 'yue-1', null);
     expect(spec).toEqual({ steps: [{ op: CUT }, { op: stepOp(several.steps[1], ops) }], base_abc: 'X:b', render_job: 'yue-1', edited_abc: 'X:edited' });

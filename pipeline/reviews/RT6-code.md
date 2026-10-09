@@ -1,0 +1,16 @@
+# RT-6 (F-094) code review, PR #274 (feat/retime-chat-verb)
+
+Verified (seen in code): RETIME + another op -> `RETIME_ALONE` fail (retimeReply.ts:45); the planner is unloaded (`finally releaseAll`) before `resolveRetime`, and facts are file/DB reads only, so no GPU/yue job overlaps the planner; reading write + reply are one `db.transaction` with a readAt stamp check (turnOutcome.ts:572); within-8 % on a dock-offered song becomes a fresh SET_TEMPO edit; refusals use "nothing changed" truthfully (nothing is written before commit). chatTypes.ts and ChatThread.tsx are exactly 200 lines (at the cap, not over).
+
+## should
+1. should - turnJob.ts:148-149 - no abort check between `resolveRetime` (yue-server retime + read + measure, tens of seconds) and `commitReply`. Input: person presses stop during "re-timing"; the job is marked aborted but the reading is still re-timed and written, and a normal reply is committed. Every other stage calls `aborted()`/`wasAborted`. Fix: `if (wasAborted(job)) throw new TurnError('cancelled','Aborted')` after the await (before commitReply), so nothing is written.
+2. should - replyCheck.ts:81-84 - RETIME returns before `readRevise`/`reviseGuard`. Input: a live edit card with 3 pending ops, person says "also it's really half time": the dock route returns one RETIME, `setPlan(out.plan)` replaces the song's plan and `propose` supersedes the card; the 3 pending ops vanish with no REMOVED/since line (D-262 only says "old card superseded"). Fix: refuse a RETIME while a pending plan exists unless the words start over (reuse `startsOver`), or say in the card that the pending ops were dropped.
+3. should - client/src/chatRetimeTurn.ts:11-15 - the "is this still my turn's re-time" test is mode + bpm only. (a) Turn A HALF, UNDO via the READ AS row, turn B HALF again: A's line offers UNDO TURN again instead of "UNDONE" (undoes B's re-time from A's message). (b) `!offer.retimed` shows "UNDONE · the reading is back as read" also when the reading was re-read (TRANSCRIBE AGAIN / new analysis cleared `retime`) rather than undone. Fix: compare the `readAt` the turn produced (add it to `RetimeDoneBody.retime`, compare to `view.shown.readAt`); treat a differing `readAt` with no `retimed` as `changed`.
+
+## nit
+4. nit - actionSchema.ts / markFit: under a bars mark without whole-song words, RETIME (not in BOUNDED) is filtered out of the schema, so "it's half time" with a pinned mark cannot re-time; the model falls back to something else. Acceptable if intended; add it to the whole-song words path or document it in D-262.
+5. nit - ChatRetimeUndo.tsx:21-24 - every old re-time say in a reloaded thread whose version is the shown one calls `store.open` once on mount (N messages -> N reads). Fix: guard on the store already holding `r.versionId`.
+6. nit - turnRetime.ts:70-73 - `loadNotation` throwing (not returning null) inside `retimeReading` is uncaught; the turn then fails with a generic cause ("offline") that names the planner. Wrap `resolveRetime` and say the re-time failed.
+
+## Outcome (conductor, run 8)
+- Fixed in #274 before merge: 1 (abort after the re-time), 2 (D-278), 3 (D-279), 6 (re-time failure named). Deferred: 4 (RETIME off under a bars mark), 5 (store.open per old say).
