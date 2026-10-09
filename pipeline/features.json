@@ -720,8 +720,8 @@
         "With an edit card pending, 'and slow it down a bit' returns a merged plan marked NEW / CHANGED / SAME with removed ops listed, applied to the base as read (D-073, D-076)",
         "Edge: a failed or refused revision keeps the pending card; the known losses of Q-050 (an additive request on a one-op plan, 'fewer chords') show under REMOVED and are never silent; a merge over 6 ops is a named refusal"
       ],
-      "passes": false,
-      "evidence": null
+      "passes": true,
+      "evidence": "c2-live.md N1 re-check (run 7, #266 head bacc49c, seen running): scrap-and-start-over under a mark -> nothing-planned sentence, old card SCRAPPED with no APPLY, also after reload (3 runs); pending SET TEMPO + scrap -> REMOVED, never SAME (2); additive -> SAME + NEW (2); planner timeout and say-only replies keep the pending card (4); over-6 refusal from the 2026-10-08 re-check. Screenshots pipeline/c2-live/22-25-*.jpg"
     },
     {
       "id": "F-059",
