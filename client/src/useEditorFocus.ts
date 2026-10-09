@@ -2,6 +2,7 @@ import { useEffect, type Dispatch, type SetStateAction } from 'react';
 import type { SongDetail } from './api';
 import { useEditorJobStore } from './editorJobStore';
 import type { DockVerb } from './dockTarget';
+import { jobFocus, songBadgeJob } from './dockJobLine';
 
 /** Picks the Editor's focused layer and dock verb when a song (re)loads. */
 export function useEditorFocus(
@@ -18,14 +19,18 @@ export function useEditorFocus(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song, focusedLayerId]);
 
-  // If this song already has a remaster running or a split open (e.g. the user left mid-job and
-  // came back), open the verb that shows it instead of defaulting to REPAINT — otherwise the job
-  // is invisibly still there behind a verb the user isn't looking at. Runs once per song load,
-  // not on every job tick (hence getState), so switching verbs afterward sticks.
+  // If this song has a job in flight or a split open (the user left mid-job and came back, or clicked
+  // the Library row's badge), open the verb and layer that show it — the same job the badge names —
+  // instead of defaulting to REPAINT on the base, where the job would sit invisibly. Runs once per
+  // song load, not on every job tick (hence getState), so switching verbs afterward sticks.
   useEffect(() => {
+    if (!song) return;
     const { editorJobs, splitJob } = useEditorJobStore.getState();
-    if (song && editorJobs.some((j) => j.songId === song.id && j.kind === 'remaster')) setVerb('export');
-    else if (song && splitJob?.songId === song.id) { setVerb('split'); setFocusedLayerId(splitJob.layerId); }
+    const job = songBadgeJob(editorJobs, splitJob, song.id);
+    if (!job) return;
+    const focus = jobFocus(job);
+    setVerb(focus.verb);
+    if (focus.layerId && song.layers.some((l) => l.id === focus.layerId)) setFocusedLayerId(focus.layerId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [song?.id]);
 }

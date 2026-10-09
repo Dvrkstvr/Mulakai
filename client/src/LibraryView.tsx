@@ -124,7 +124,7 @@ export function LibraryView({
               <div className="row-main">
                 <span className="song-title link">{s.title}</span>
                 <span className="meta">{s.caption}</span>
-                <LibraryJobBadge songId={s.id} />
+                <LibraryJobBadge songId={s.id} onOpen={() => openEditor(s.id)} />
               </div>
               <div className="row-actions">
                 <button className="edit-btn" onClick={() => openEditor(s.id)}><span>EDIT</span></button>
