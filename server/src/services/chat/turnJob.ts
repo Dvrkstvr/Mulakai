@@ -39,7 +39,7 @@ import { lyricsModelFor } from './lyricsModels.js';
 import { modelSession, shortModel } from './turnModels.js';
 import type { EditResolved } from './turnDispatch.js';
 import { causeOf, commitReply, TurnError, writeFailed } from './turnOutcome.js';
-import { resolveRetime, retimeDeps, retimeFailed, type RetimeDeps } from './turnRetime.js';
+import { resolveRetime, retimeDeps, retimeFailed, undoneRetimes, type RetimeDeps } from './turnRetime.js';
 import type { ReadingPlanSources } from './reading.js';
 import type { AnalyzeTarget, ChatMessage, EditBase, UserBody } from './chatTypes.js';
 
@@ -99,7 +99,7 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   if (unsupported) throw new TurnError('offline', unsupported);
   const models = modelSession({ probe: (m) => deps.probe(m), loaded: deps.loaded, release: (m, cut) => deps.release(m, cut) }, deps.planner.model);
   const aborted = () => { if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted'); };
-  const history = lastTurns(threadId, HISTORY_TURNS + 1).filter((m) => m.seq < user.seq);
+  const history = undoneRetimes(lastTurns(threadId, HISTORY_TURNS + 1).filter((m) => m.seq < user.seq)); // RT-6 re-check 2
   const base = isBase(gathered.edit) ? gathered.edit : null;
   const revise = base ? pendingFor(threadId, base.songId, base.source.fingerprint) : null;
   const retime = thread.songId ? await deps.retime.facts(thread.songId).catch(() => null) : null;

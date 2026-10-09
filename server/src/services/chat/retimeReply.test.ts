@@ -1,6 +1,6 @@
 /** RE-TIME as a chat op (RT-6, F-094; retime.html D1-D5, Q-125, Q-132): the planner's RETIME checked and routed in code. */
 import { describe, it, expect } from 'vitest';
-import { checkRetime, offersRetime, RETIME_ALONE, RETIME_PENDING, RETIME_RULE, refusedLine } from './retimeReply.js';
+import { checkRetime, offersRetime, RETIME_ALONE, RETIME_PENDING, RETIME_RULE, refusedLine, undoneLine } from './retimeReply.js';
 import { turnSchema } from './actionSchema.js';
 import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
@@ -75,6 +75,26 @@ describe('RETIME in the reply schema and the prompt', () => {
     expect(ops(on)).toContain('"const":"RETIME"');
     expect(chatRules(['edit', 'say'])).not.toContain(RETIME_RULE);
     expect(chatRules(['edit', 'say'], { retime: true })).toContain(RETIME_RULE);
+  });
+
+  // RT-6 re-check finding 1: "read it twice as fast as it is" was DOUBLE 3 of 3 live; the mode corrects the reading.
+  it('says which way the wrong-way words go: read too fast is half', () => {
+    expect(RETIME_RULE).toContain('"read too fast / twice as fast" = half');
+  });
+});
+
+// RT-6 re-check finding 2: an undone re-time's history line says so (turnRetime.undoneRetimes reads the stored reading).
+describe('undoneLine', () => {
+  const done = { songId: 's', versionId: 'v', number: 1, mode: 'double' as const, bpm: 130, fromBpm: 65, fromBars: 80, toBars: 160,
+    droppedNotes: 0, notes: 400, readAt: 'T2', asReadAt: 'T1' };
+  it('the reading back as read (UNDO restored its stamp, no re-time): the undo line', () => {
+    expect(undoneLine(done, { readAt: 'T1', retimed: false })).toBe("[UNDONE: the person undid this turn's re-time of the reading of v1]");
+  });
+  it('the re-time still in place, re-timed again, read again or not read: null (the line stays)', () => {
+    expect(undoneLine(done, { readAt: 'T2', retimed: true })).toBeNull();
+    expect(undoneLine(done, { readAt: 'T3', retimed: true })).toBeNull();
+    expect(undoneLine(done, { readAt: 'T3', retimed: false })).toBeNull();
+    expect(undoneLine(done, null)).toBeNull();
   });
 });
 
