@@ -6,7 +6,7 @@ import type { AnalysisView } from './api/chatAnalysis';
 import type { ChatMessageView } from './api/chat';
 import type { ChatRetimeDoneBody } from './api/chatRetime';
 import { ChatRetimeUndo } from './ChatRetimeUndo';
-import { retimeTurnLine } from './chatRetimeTurn';
+import { retimeNeedsRead, retimeTurnLine } from './chatRetimeTurn';
 
 const done: ChatRetimeDoneBody['retime'] = {
   songId: 's1', versionId: 'v1', number: 1, mode: 'half', bpm: 70, fromBpm: 140, fromBars: 96, toBars: 48, droppedNotes: 0, notes: 100,
@@ -40,6 +40,19 @@ describe('retimeTurnLine', () => {
     expect(retimeTurnLine(done, view(null, 'v1', '2026-10-09T12:00:00.000Z'), false)).toEqual({ kind: 'since' });
     expect(retimeTurnLine({ ...done, readAt: undefined } as never, view({ mode: 'half', bpm: 70 }), false)).toEqual({ kind: 'changed' });
   });
+  it('live bug 2 (D-281): a view read before the turn (older than its re-time) is loading, not UNDONE, until it is read again', () => {
+    const asRead = view(null); // the store's view from before the turn: the reading as read
+    expect(retimeTurnLine(done, asRead, false, false)).toEqual({ kind: 'changed' });
+    expect(retimeNeedsRead(done, asRead)).toBe(true);
+    // read again: the turn's re-time shows, UNDO TURN is offered; no further read
+    const reread = view({ mode: 'half', bpm: 70 });
+    expect(retimeTurnLine(done, reread, false, true)).toEqual({ kind: 'offer', disabled: false });
+    expect(retimeNeedsRead(done, reread)).toBe(false);
+    // a fresh view back as read (UNDO pressed) is UNDONE; a newer stamp needs no read
+    expect(retimeTurnLine(done, asRead, false, true)).toEqual({ kind: 'done' });
+    expect(retimeNeedsRead(done, view(null, 'v1', '2026-10-09T12:00:00.000Z'))).toBe(false);
+    expect(retimeNeedsRead(done, null)).toBe(false);
+  });
 });
 
 describe('ChatRetimeUndo', () => {
@@ -49,8 +62,9 @@ describe('ChatRetimeUndo', () => {
     expect(html(say({ retime: done }), view({ mode: 'half', bpm: 70 })))
       .toBe('<div class="chat-hn chat-changed">CHANGED · READING · TEMPO, BARS<button type="button" class="chat-link chat-undo">UNDO TURN</button></div>');
   });
-  it('UNDONE after the reading went back; nothing for a plain say', () => {
-    expect(html(say({ retime: done }), view(null))).toBe('<div class="chat-hn chat-changed">UNDONE · the reading is back as read</div>');
+  it('live bug 2: the reply lands on a view read before the turn: the CHANGED line alone while it is read again, never UNDONE', () => {
+    // the first render's view is the one the reply landed on; UNDONE needs a view read since (retimeTurnLine fresh, above)
+    expect(html(say({ retime: done }), view(null))).toBe('<div class="chat-hn chat-changed">CHANGED · READING · TEMPO, BARS</div>');
     expect(html(say(null), view(null))).toBe('');
   });
   it('the reading changed since (re-read or re-timed again): the CHANGED line says so, no UNDO TURN', () => {

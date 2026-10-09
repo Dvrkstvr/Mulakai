@@ -9,9 +9,23 @@ import type { ChatRetimeDoneBody } from './api/chatRetime';
  * read yet: the CHANGED line alone. */
 export type RetimeTurnLine = { kind: 'offer'; disabled: boolean } | { kind: 'done' } | { kind: 'since' } | { kind: 'changed' };
 
-export function retimeTurnLine(r: ChatRetimeDoneBody['retime'], view: AnalysisView | null, turnOpen: boolean): RetimeTurnLine {
-  const shown = view?.versionId === r.versionId && view.shown?.versionId === r.versionId ? view.shown : null;
+const shownOf = (r: ChatRetimeDoneBody['retime'], view: AnalysisView | null) =>
+  (view?.versionId === r.versionId && view.shown?.versionId === r.versionId ? view.shown : null);
+
+/** `fresh`: the view was read after the reply appeared. A view that may predate the turn and shows a reading older than
+ * the turn's re-time is loading (the CHANGED line alone), never UNDONE: UNDO restores that same older stamp (D-281). */
+export function retimeTurnLine(r: ChatRetimeDoneBody['retime'], view: AnalysisView | null, turnOpen: boolean, fresh = true): RetimeTurnLine {
+  const shown = shownOf(r, view);
   if (!shown?.retime || !r.readAt) return { kind: 'changed' };
   if (shown.readAt === r.readAt && shown.retime.retimed) return { kind: 'offer', disabled: turnOpen };
+  if (!fresh && (shown.readAt ?? '') < r.readAt) return { kind: 'changed' };
   return shown.readAt === r.asReadAt && !shown.retime.retimed ? { kind: 'done' } : { kind: 'since' };
+}
+
+/** The reply's view must be read again (once): it plays the turn's version but not yet its re-time, or shows a reading
+ * older than it (a view read before the turn: the READ AS and tempo rows still the old values). */
+export function retimeNeedsRead(r: ChatRetimeDoneBody['retime'], view: AnalysisView | null): boolean {
+  if (view?.versionId !== r.versionId) return false;
+  const shown = shownOf(r, view);
+  return !shown?.retime || !r.readAt || (shown.readAt ?? '') < r.readAt;
 }
