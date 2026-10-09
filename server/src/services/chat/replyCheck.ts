@@ -24,7 +24,7 @@ import { plannedProblems } from './recipeRules.js';
 import { reviseGuard, startsOver } from './reviseKeep.js';
 import { lyricLanguageReasons, missingSectionReasons, sayKeyReasons, type DetectLanguage } from './replyGuards.js';
 import type { Recipe, ScalpelKind, TurnAction, TurnReply } from './chatTypes.js';
-import { checkRetime, routedOp, type RetimeRoute } from './retimeReply.js';
+import { checkRetime, refusedLine, RETIME_PENDING, routedOp, type RetimeRoute } from './retimeReply.js';
 import type { VerbFacts } from './retimeVerb.js';
 
 export interface CheckContext {
@@ -80,8 +80,15 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   const rt = checkRetime(json.ops, ctx.retime, ctx.request);
   if (rt && 'fail' in rt) return fail(rt.fail);
   if (rt && 'say' in rt) return { ok: true, reply: { action: 'say', message: rt.say }, applied: null };
-  if (rt && 'route' in rt) return { ok: true, reply: reply([routedOp(rt.route)]), applied: null, retime: rt.route };
-  if (rt) return checkEdit({ ops: [rt.tempo] }, rt.message, assumptions, { ...ctx, pending: undefined, guards: [], retime: null }, deps);
+  // D-265: a dock RE-TIME or its SET TEMPO replaces a pending plan: refused, or on a start over its ops listed REMOVED (D-257)
+  const replaces = rt && ('tempo' in rt || rt.route.kind === 'dock') && ctx.pending?.length ? ctx.pending : null;
+  if (replaces && !startsOver(ctx.request)) return { ok: true, reply: { action: 'say', message: refusedLine(RETIME_PENDING) }, applied: null };
+  const removed = replaces ? { revised: { marks: [{ mark: 'NEW' as const, was: null }], removed: [...replaces] } } : {};
+  if (rt && 'route' in rt) return { ok: true, reply: reply([routedOp(rt.route)]), applied: null, retime: rt.route, ...removed };
+  if (rt) {
+    const c = await checkEdit({ ops: [rt.tempo] }, rt.message, assumptions, { ...ctx, pending: undefined, guards: [], retime: null }, deps);
+    return c.ok ? { ...c, ...removed } : c;
+  }
   const missing = ctx.facts ? missingSectionReasons(ctx.request, ctx.facts) : [];
   if (missing.length) return fail(...missing);
   if (ctx.shapeOnly.includes('edit')) return { ok: true, reply: reply(json.ops as Op[]), applied: null };

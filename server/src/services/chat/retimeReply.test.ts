@@ -1,6 +1,6 @@
 /** RE-TIME as a chat op (RT-6, F-094; retime.html D1-D5, Q-125, Q-132): the planner's RETIME checked and routed in code. */
 import { describe, it, expect } from 'vitest';
-import { checkRetime, offersRetime, RETIME_ALONE, RETIME_RULE, refusedLine } from './retimeReply.js';
+import { checkRetime, offersRetime, RETIME_ALONE, RETIME_PENDING, RETIME_RULE, refusedLine } from './retimeReply.js';
 import { turnSchema } from './actionSchema.js';
 import { chatRules } from './chatRules.js';
 import { checkReply } from './replyCheck.js';
@@ -83,5 +83,26 @@ describe('checkReply with RETIME', () => {
       .toMatchObject({ ok: true, reply: { action: 'say', message: refusedLine(OWN_SCORE) } });
     expect(await checkReply(edit([half, { op: 'SET_TEMPO', bpm: 70 }]), { ...ctx, allowed: [...ctx.allowed], retime: COVER }, {}))
       .toEqual({ ok: false, reasons: [RETIME_ALONE] });
+  });
+
+  // RT-6 review 2 (D-265): a dock RE-TIME replaces the song's plan, so pending ops never vanish silently.
+  const pending = [{ op: 'SET_TEMPO', bpm: 90 }, { op: 'SET_KEY', key: 'D major' }] as never[];
+  it('with an edit plan pending, a dock RE-TIME (or a slight one, SET TEMPO) is refused with the reason', async () => {
+    const at = { ...ctx, allowed: [...ctx.allowed], retime: COVER, pending };
+    expect(await checkReply(edit([half]), at, {})).toMatchObject({ ok: true, reply: { action: 'say', message: refusedLine(RETIME_PENDING) } });
+    expect(await checkReply(edit([{ op: 'RETIME', mode: 'bpm', bpm: 143 }]), { ...at, request: "it's really 143 BPM" }, {}))
+      .toMatchObject({ ok: true, reply: { action: 'say', message: refusedLine(RETIME_PENDING) } });
+    expect(refusedLine(RETIME_PENDING)).toBe('Cannot re-time: an edit plan is pending; apply or scrap it first, or say start over · nothing changed.');
+  });
+
+  it('with an edit plan pending, a start over re-times on the dock and lists every pending op as REMOVED (D-257)', async () => {
+    const c = await checkReply(edit([half]), { ...ctx, allowed: [...ctx.allowed], retime: COVER, pending, request: "start over, it's half time" }, {});
+    expect(c).toMatchObject({ ok: true, retime: { kind: 'dock', mode: 'half' }, revised: { marks: [{ mark: 'NEW', was: null }], removed: pending } });
+  });
+
+  it('a reading RE-TIME leaves a pending plan alone: not refused, nothing listed', async () => {
+    const c = await checkReply(edit([half]), { ...ctx, allowed: [...ctx.allowed], shapeOnly: ['edit'], retime: SONG, pending }, {});
+    expect(c).toMatchObject({ ok: true, retime: { kind: 'reading' } });
+    expect(c).not.toHaveProperty('revised');
   });
 });
