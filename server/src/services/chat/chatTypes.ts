@@ -4,7 +4,7 @@
  * field needs no bump, a shape change bumps and the reader handles both (versions-data.md).
  */
 import type { Op } from '../score/planTypes.js';
-import type { EditBody } from './editTypes.js';
+import type { EditBody, RetimeDoneBody } from './editTypes.js';
 import type { Reading } from './reading.js';
 import type { RangeMark } from './analysisTypes.js';
 import type { RecipeUndo, RecipeUndone } from './convergeTypes.js';
@@ -127,7 +127,7 @@ export type { EditBase, EditBody } from './editTypes.js';
 /** A song / version card. `truncated`: the take hit the length cap; saved, but never DONE (D-025). */
 export interface CardBody { seconds: number | null; label: string; number: number; truncated?: boolean }
 export interface FailedBody { reasons: string[]; cause: string }
-export type MessageBody = UserBody | AskBody | RecipeBody | EditBody | CardBody | FailedBody | AnalyzeBody | ReadingBody;
+export type MessageBody = UserBody | AskBody | RecipeBody | EditBody | CardBody | FailedBody | AnalyzeBody | ReadingBody | RetimeDoneBody;
 
 /** One chat_messages row, decoded. `body` is null when absent or of an unknown `chat_v`. */
 export interface ChatMessage {
