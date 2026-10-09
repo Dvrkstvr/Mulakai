@@ -20,7 +20,8 @@ import type { EditBase, RetimeDoneBody } from './editTypes.js';
 import { readGrid } from './gridCache.js';
 import { retimeReading, type ReadingRetimeDeps } from './readingRetime.js';
 import { retimeOffer as readingOffer } from './retimeRecord.js';
-import type { RetimeRoute } from './retimeReply.js';
+import { undoneLine, type RetimeRoute } from './retimeReply.js';
+import type { ChatMessage } from './chatTypes.js';
 import type { VerbFacts } from './retimeVerb.js';
 
 export interface RetimeDeps {
@@ -51,6 +52,14 @@ export async function verbFacts(songId: string): Promise<VerbFacts> {
   const a = take ? readVersionAnalysis(take.id) : null;
   return { dock: await dockOffer(songId), reading: a && !isFailed(a) ? readingOffer(a.score, a.retime) : null };
 }
+
+/** RT-6 re-check 2: a turn's history with each undone reading re-time said as undone (`undoneLine`), from the stored reading. */
+export const undoneRetimes = (messages: ChatMessage[]): ChatMessage[] => messages.map((m) => {
+  const r = m.role === 'assistant' ? (m.body as Partial<RetimeDoneBody> | null)?.retime : undefined;
+  const a = r?.versionId ? readVersionAnalysis(r.versionId) : null;
+  const text = r && a && !isFailed(a) ? undoneLine(r, { readAt: a.readAt, retimed: Boolean(a.retime) }) : null;
+  return text ? { ...m, text } : m;
+});
 
 export const retimeDeps = (): RetimeDeps => ({ facts: verbFacts, plan: (songId, mode, bpm) => buildRetimePlan(songId, mode, bpm), reading: readingRetimeDeps() });
 

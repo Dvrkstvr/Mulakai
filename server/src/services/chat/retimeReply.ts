@@ -13,9 +13,11 @@ type Schema = Record<string, unknown>;
 export type RetimeRoute = Extract<VerbRoute, { kind: 'dock' | 'reading' }>;
 export type RetimeChecked = { fail: string } | { say: string } | { tempo: Op; message: string } | { route: RetimeRoute };
 
-/** The one prompt line (in the OPS block, only on a song thread). */
+/** The one prompt line (in the OPS block, only on a song thread). RT-6 re-check 1: "read it twice as fast as it is" was
+ * DOUBLE 3 of 3 live, so the wrong-way words say the mode corrects the reading (HALF 3 of 3 with the clause). */
 export const RETIME_RULE = 'RETIME {mode: half | double | bpm, bpm}: ONLY when the person says the tempo was READ wrong ("it\'s half '
-  + 'time", "it\'s really 92 BPM"): half or double the tempo read, or the bpm they name. Alone in ops; a tempo change is SET_TEMPO.';
+  + 'time", "it\'s really 92 BPM"): half or double the tempo read, or the bpm they name; "read too fast / twice as fast" = half. '
+  + 'Alone in ops; a tempo change is SET_TEMPO.';
 export const RETIME_ALONE = 'RETIME stands alone: send only the RETIME op (every bar moves under the other ops); offer the rest after it';
 /** D-278: a dock RE-TIME (or its slight SET TEMPO) replaces the song's plan, so over a pending one it needs a start over. */
 export const RETIME_PENDING = 'an edit plan is pending; apply or scrap it first, or say start over';
@@ -60,6 +62,15 @@ export function retimeDoneLine(r: RetimeDoneBody['retime']): string {
   const lost = r.droppedNotes ? ` ${r.droppedNotes} of ${r.notes} notes are left out of the score.` : '';
   return `Re-timed the reading of v${r.number}: ${MODE[r.mode]} · ${r.fromBpm} → ${r.bpm} BPM · ${r.fromBars} → ${r.toBars} bars, `
     + `same seconds. Bar numbers changed, so a mark on v${r.number} is stale.${lost}`;
+}
+
+/** RT-6 re-check 2: the history line of a reading re-time that was undone (`now`: the stored reading back as read, at the
+ * stamp UNDO restores, nothing re-timed), else null. Its own text kept "65 → 130 BPM" in the prompt as if still true, and
+ * the same words again became a new song (NEW CHAT), 9 of 9 live; with this line, no new song in 30 and RETIME in 26 (a
+ * line naming the BPMs again drew SET_TEMPO or a new song). */
+export function undoneLine(r: RetimeDoneBody['retime'], now: { readAt: string; retimed: boolean } | null): string | null {
+  if (!now || now.retimed || now.readAt !== r.asReadAt) return null;
+  return `[UNDONE: the person undid this turn's re-time of the reading of v${r.number}]`;
 }
 
 /** The reply's op for a routed RETIME, until the dock's plan replaces it (the reading route writes no op). */
