@@ -6,8 +6,19 @@ import type { BarMap } from './chatConverge';
 import { ApiError, json } from './http';
 
 export type ChatSpliceKind = 'reharmonize' | 'cut' | 'repeat';
-/** spliceEligibility's verdict: APPLY splices bars `from_bar`..`to_bar` (the song as read), or renders the whole song. */
-export type ChatSplice = { splice: true; kind: ChatSpliceKind; from_bar: number; to_bar: number } | { splice: false; reason: string };
+/** C4 (F-069, D-266): one span of a chain; `ops` = the plan op indexes it covers (merged REHARMONIZE spans list several). */
+export interface ChatSpliceStep { kind: ChatSpliceKind; from_bar: number; to_bar: number; ops: number[] }
+/** spliceEligibility's verdict: APPLY splices bars `from_bar`..`to_bar` (the song as read), or renders the whole song.
+ * `several` (C4) is a chain of 2-4 spans, `steps` last bar first (the order yue-server splices them); from/to = first and
+ * last bar touched. */
+export type ChatSplice =
+  | { splice: true; kind: ChatSpliceKind; from_bar: number; to_bar: number }
+  | { splice: true; kind: 'several'; from_bar: number; to_bar: number; steps: ChatSpliceStep[] }
+  | { splice: false; reason: string };
+/** The version card's splice: one span, or a chain (`steps` in reading order). */
+export type ChatVersionSplice =
+  | { kind: ChatSpliceKind; bars: [number, number]; lengthDiffS: number | null }
+  | { kind: 'several'; bars: [number, number]; lengthDiffS: number | null; steps: Array<{ kind: ChatSpliceKind; bars: [number, number] }> };
 
 /** An edit card (message kind `edit`): a planStore plan's snapshot. `stale` = APPLY refused, the song changed (STALE). */
 export interface ChatEditBody {
@@ -44,7 +55,7 @@ export interface ChatVersionBody {
   number: number;
   truncated: boolean;
   whole: boolean;
-  splice: { kind: ChatSpliceKind; bars: [number, number]; lengthDiffS: number | null } | null;
+  splice: ChatVersionSplice | null;
   /** Why a planned splice was saved as the whole re-render (D-101); null otherwise. */
   fallback: string | null;
   previous: { versionId: string; number: number } | null;
