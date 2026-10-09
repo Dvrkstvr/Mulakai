@@ -93,4 +93,6 @@ export function undoneLine(restored: ChatDraftKey[], kept: Array<{ field: ChatDr
 /** RT-6 (retime.html D4): a turn that re-timed the reading; UNDO TURN is the reading's UNDO. */
 export const RETIME_CHANGED = 'CHANGED · READING · TEMPO, BARS';
 export const RETIME_UNDONE = 'the reading is back as read';
+/** Re-timed again or read again after this turn: its UNDO TURN is gone (RT-6 review 3). */
+export const RETIME_SINCE = 'the reading changed since';
 export const undoRefusedLine = (reason: string) => `Couldn't undo: ${reason}. Nothing changed.`;

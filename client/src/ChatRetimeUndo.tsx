@@ -6,7 +6,7 @@ import type { AnalysisView } from './api/chatAnalysis';
 import type { ChatMessageView } from './api/chat';
 import type { ChatRetimeDoneBody } from './api/chatRetime';
 import { useChatAnalysisStore } from './chatAnalysisStore';
-import { RETIME_CHANGED, RETIME_UNDONE, UNDONE, UNDO_OFF, UNDO_TURN, undoRefusedLine } from './chatConvergeCopy';
+import { RETIME_CHANGED, RETIME_SINCE, RETIME_UNDONE, UNDONE, UNDO_OFF, UNDO_TURN, undoRefusedLine } from './chatConvergeCopy';
 import { retimeTurnLine } from './chatRetimeTurn';
 import './chatUndo.css';
 
@@ -38,6 +38,7 @@ export function ChatRetimeUndo({ message, view, turnOpen }: { message: ChatMessa
   return (
     <div className="chat-hn chat-changed">
       {RETIME_CHANGED}
+      {line.kind === 'since' && ` · ${RETIME_SINCE}`}
       {line.kind === 'offer' && (
         <>
           <button type="button" className="chat-link chat-undo" disabled={line.disabled || busy} onClick={() => void undo()}>{UNDO_TURN}</button>

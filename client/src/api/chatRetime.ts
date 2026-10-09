@@ -4,10 +4,11 @@
 import type { AnalysisView } from './chatAnalysis';
 import { RetimeError } from './retime';
 
-/** RT-6 (F-094): the body of a say whose turn re-timed the playable version's reading (the server's `RetimeDoneBody`). */
+/** RT-6 (F-094): the body of a say whose turn re-timed the playable version's reading (the server's `RetimeDoneBody`).
+ * `readAt`: the re-timed reading's stamp; `asReadAt`: the reading as read, which UNDO restores. */
 export interface ChatRetimeDoneBody {
   retime: { songId: string; versionId: string; number: number; mode: 'half' | 'double' | 'bpm'; bpm: number; fromBpm: number;
-    fromBars: number; toBars: number; droppedNotes: number; notes: number };
+    fromBars: number; toBars: number; droppedNotes: number; notes: number; readAt: string; asReadAt: string };
 }
 
 const post = (url: string, body: unknown) =>
