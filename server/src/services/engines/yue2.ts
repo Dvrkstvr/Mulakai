@@ -60,7 +60,13 @@ function styleHints(fields: CreateFields): string[] {
   return hints;
 }
 
-function instrumentalStyle(prompt: string, hints: string[]): string[] {
+/** D-261: a style part naming a voice (en / de / es, whole word or stem) contradicts "no vocals" in an instrumental. */
+const VOICE_PART = /(?<!\p{L})(?:voices?|vocal\p{L}*|singers?|singing|sung|choirs?|choral|rap|rapp\p{L}*|stimmen?|gesang\p{L}*|sänger\p{L}*|chor|chöre|voz|voces|cantante\p{L}*|coros?)(?!\p{L})/iu;
+const keepPart = (p: string) => /^no\b/i.test(p) || /instrumental/i.test(p) || !VOICE_PART.test(p);
+const withoutVoice = (prompt: string) => prompt.split(',').map((p) => p.trim()).filter((p) => p && keepPart(p)).join(', ');
+
+function instrumentalStyle(raw: string, hints: string[]): string[] {
+  const prompt = withoutVoice(raw);
   const conditions = INSTRUMENTAL_CONDITIONS.filter((c) => !prompt.toLowerCase().includes(c));
   return [/^instrumental\b/i.test(prompt) ? '' : 'Instrumental', prompt, ...hints, ...conditions];
 }

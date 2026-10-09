@@ -67,6 +67,18 @@ describe('CREATE SONG of an instrumental draft', () => {
     expect(String(buildYue2Request({ prompt: 'lofi', lyrics: '[Verse]\n\n[Chorus]\n' }, () => 1).style)).toContain('no vocals');
     expect(String(buildYue2Request({ prompt: 'lofi', lyrics: '[Verse]\nla la la\n' }, () => 1).style)).not.toContain('no vocals');
   });
+
+  it('an instrumental style drops the parts that name a voice; a sung style is sent as written (D-261)', () => {
+    const style = (prompt: string, lyrics: string) => String(buildYue2Request({ prompt, lyrics }, () => 1).style);
+    expect(style('pop, piano, soft female voice', '')).toBe('Instrumental, pop, piano, no vocals, no singing, no choir, no spoken words');
+    expect(style('pop, piano, soft female voice', '[Verse]\n\n[Chorus]\n')).toBe('Instrumental, pop, piano, no vocals, no singing, no choir, no spoken words');
+    expect(style('Ballade, Klavier, warme Stimme, Chor, Sängerin, Gesang, rap verses, voz suave, coro, male vocals, singer', ''))
+      .toBe('Instrumental, Ballade, Klavier, no vocals, no singing, no choir, no spoken words');
+    expect(style('instrumental, lofi, no vocals', '')).toBe('instrumental, lofi, no vocals, no singing, no choir, no spoken words');
+    expect(style('pop, piano, soft female voice', '[Verse]\nla la la\n')).toBe('pop, piano, soft female voice');
+    const { fields } = draftFields({ ...recipeFields(instrumental), style: 'pop, piano, soft female voice' });
+    expect(fields.prompt).toBe('pop, piano, soft female voice'); // the draft's style is the person's; only the request is cleaned
+  });
 });
 
 describe('namesVocals: a request that names the words or the voice', () => {
