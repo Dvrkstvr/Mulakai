@@ -316,6 +316,28 @@ The shared engine contract (`PLAN.md`, design point 3): YuE2-Turbo's
     `null_test_failed`, `splice_failed`.
   - `python splice_check.py <base> <saved> <result.json>` re-checks a saved
     library file (CP-C0): null test and the LUFS excess at each join.
+  - **A chain** (chat C4, F-069, D-263/D-264): `steps` in place of `op`
+    (never both): `[{"op": {...}}, ...]`, 2-4 of them, last bar first, no
+    two sharing a bar (422 otherwise; the server's planner decides them,
+    yue-server never re-plans). `render_job` is needed when any step is a
+    REHARMONIZE; `edited_abc` is then the full edited score (every op
+    applied), and each REHARMONIZE span is mapped into its bars across the
+    CUT/REPEAT sections before it (`splice_chain.py`; an edited score of
+    the wrong length answers `rerender` / `bar_map`). One job splices every
+    step in memory (`stage` `splicing 2/3`), null-tests each against its
+    own input, writes one WAV and checks the read-back bitwise.
+  - A chain's `result`: `kind: "several"`, `verdict`, `reason`, `detail`,
+    `step` (1-based, the step that said `rerender`; null when it was the
+    song, e.g. `meter`, or `ok`), `bars` [first, last] in the current
+    version's bars, `audio_url`, `audio_seconds`, `length_diff_s` (total),
+    `joins_s` (every step's joins in the final file), `null_test` (summed
+    over the steps), `grid_urls` (`out` mapped through every step) and
+    `steps`: one single-span row per step run (the fields above minus
+    `audio_url` and `grid_urls`; times in that step's own output). Any
+    step that is not `ok` ends the job `rerender` with no audio.
+  - `python splice_check.py --chain <base> <saved> <result.json>` (CP-C4):
+    the saved file against the ORIGINAL base with the steps' part maps
+    composed, and the LUFS excess at every join.
 - `POST /v1/scores/measure` — body `{abc}` → `{budget, header, sections:
   [{name, tokens}]}`: a cover score's size in the planner's tokens, against
   the 4096-token budget a supplied score must fit. The score is prepared as

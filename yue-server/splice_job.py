@@ -7,7 +7,8 @@ file. Cancel is checked between steps; a cancelled splice deletes its files.
 The result's `verdict` is `ok` (audio at `audio_url`) or `rerender` with a
 `reason` (meter, no_grid, render_truncated, not_aligned, level_step, length): for
 REHARMONIZE the server then keeps its whole re-render (D-101), for REPEAT and
-CUT it renders the edited score (D-154).
+CUT it renders the edited score (D-154). A spec with `steps` (a chain, F-069)
+runs splice_chain_job.run instead, in the same job wrapper.
 """
 from __future__ import annotations
 
@@ -129,9 +130,13 @@ def run_splice(tracker, store, job_id: str, request: dict) -> None:
     started = time.monotonic()
     steps = _Steps(store, job_id, tracker)
     steps.dir.mkdir(parents=True, exist_ok=True)
-    log.info("splice %s started (%s)", job_id, request["spec"]["op"]["op"])
+    spec = request["spec"]
+    log.info("splice %s started (%s)", job_id, spec["op"]["op"] if "op" in spec else f"{len(spec['steps'])} steps")
+    body = _splice
+    if "steps" in spec:  # a chain (F-069); its module imports this one's helpers
+        from splice_chain_job import run as body
     try:
-        result = _splice(steps, store, request)
+        result = body(steps, store, request)
         result["timing"] = {"total_seconds": round(time.monotonic() - started, 3)}
         outcome = ("succeeded", result, None)
     except InterruptedError:
