@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { addLayerCommitLabel, addLayerConsequence, addLayerLine, addLayerName, sungTrack } from './addLayerCopy';
+import { addLayerCommitLabel, addLayerConsequence, addLayerLine, addLayerName, lyricsPrefill, sungTrack } from './addLayerCopy';
 import { SCORE_ENDS } from './scoreCopy';
 
 describe('add layer copy', () => {
@@ -45,5 +45,19 @@ describe('addLayerLine (F-027)', () => {
       line: 'Adds a STRINGS lane as strings v1, conditioned on the current mix · nothing else changes',
       scoreEnds: null,
     });
+  });
+});
+
+describe('lyricsPrefill', () => {
+  it("a sung track with an empty field starts with the song's lyrics", () => {
+    expect(lyricsPrefill('vocals', '', '[Verse]\nla la')).toBe('[Verse]\nla la');
+    expect(lyricsPrefill('backing_vocals', '  ', 'oh oh')).toBe('oh oh');
+  });
+
+  it('leaves typed lyrics, unsung tracks and songs without lyrics alone', () => {
+    expect(lyricsPrefill('vocals', 'my words', 'song words')).toBeNull();
+    expect(lyricsPrefill('drums', '', 'song words')).toBeNull();
+    expect(lyricsPrefill('', '', 'song words')).toBeNull();
+    expect(lyricsPrefill('vocals', '', '  ')).toBeNull();
   });
 });

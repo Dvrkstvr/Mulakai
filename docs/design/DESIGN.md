@@ -825,8 +825,8 @@ requiring its own justification against a screen-count rule.
          are sent as conditioning and become the song's lyrics on success
          (reverting a version restores its own); `TUNE ▸`.
        - ADD LAYER: TRACK chips (AUTO first), the description, the voice
-         picker, lyrics (USE SONG LYRICS) only for VOCALS and BACKING
-         VOCALS, `TUNE ▸` with the Base-only DIT MODEL. A picked track names
+         picker, lyrics only for VOCALS and BACKING VOCALS (an empty
+         field starts as the song's lyrics; USE SONG LYRICS restores them), `TUNE ▸` with the Base-only DIT MODEL. A picked track names
          the lane; under AUTO the description's first words do.
        - SPLIT: the backend picker, then once extracted CANCEL SPLIT, a
          DOWNLOAD ALL · SPLIT ALL AGAIN pair over a consequence line (SPLIT

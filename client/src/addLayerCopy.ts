@@ -32,3 +32,9 @@ export function addLayerConsequence(layerName: string): string {
  * editing ends while SCORE is open. */
 export const addLayerLine = (layerName: string, ahead: number, scoreOpen: boolean): EditConsequence =>
   editConsequence(addLayerConsequence(layerName) + queueSuffix(ahead), scoreOpen);
+
+/** The lyrics a sung track starts with: the song's, when its field is still empty. Null = leave the field as it is
+ * (not a sung track, already typed into, or the song has no lyrics). */
+export function lyricsPrefill(trackName: string, draft: string, songLyrics: string): string | null {
+  return sungTrack(trackName) && !draft.trim() && songLyrics.trim() ? songLyrics : null;
+}
