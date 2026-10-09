@@ -39,7 +39,7 @@ import { lyricsModelFor } from './lyricsModels.js';
 import { modelSession, shortModel } from './turnModels.js';
 import type { EditResolved } from './turnDispatch.js';
 import { causeOf, commitReply, TurnError, writeFailed } from './turnOutcome.js';
-import { resolveRetime, retimeDeps, type RetimeDeps } from './turnRetime.js';
+import { resolveRetime, retimeDeps, retimeFailed, type RetimeDeps } from './turnRetime.js';
 import type { ReadingPlanSources } from './reading.js';
 import type { AnalyzeTarget, ChatMessage, EditBase, UserBody } from './chatTypes.js';
 
@@ -145,7 +145,10 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
       : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now(),
         ...(decision.since && revise ? { revision: (revise.plan.revision ?? 1) + 1, since: decision.since } : {}) };
   const scrap = decision.scrapped && base && revise ? { songId: base.songId, planId: revise.plan.id } : null; // D-257
-  const retimed = decision.retime && thread.songId ? await resolveRetime(decision.retime, thread.songId, gathered.edit, decision, deps.retime) : null;
+  const tried = { ...decision, revision: revise ? (revise.plan.revision ?? 1) + 1 : undefined }; // D-265: a start over's since
+  const retimed = decision.retime && thread.songId ? await resolveRetime(decision.retime, thread.songId, gathered.edit, tried, deps.retime)
+    .catch((err: unknown) => { throw new TurnError('check', retimeFailed(err)); }) : null;
+  aborted(); // RT-6 review 1: a stop during the re-time writes nothing (the re-timed reading is written with the reply)
   commitReply(threadId, r, sentRev, gathered.scoreReason, gathered.refs, { analyze, edit, request: user.text, mark: mark?.edit ?? null, scrap, retime: retimed });
   job.progressText = undefined;
   job.status = 'done';

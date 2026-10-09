@@ -24,7 +24,7 @@ const { buildPlan } = await import('../score/planBuild.js');
 const { readVersionAnalysis, writeAnalysis } = await import('./analysisStore.js');
 const { refusedLine, RETIME_ALONE } = await import('./retimeReply.js');
 const { EDITED_SINCE } = await import('../score/retimeOffer.js');
-const { startChatTurn, turnDeps } = await import('./turnJob.js');
+const { cancelTurn, startChatTurn, turnDeps } = await import('./turnJob.js');
 type FakeOllama = Awaited<ReturnType<typeof startFakeOllama>>;
 type ScoreStatus = import('../score/scoreStatus.js').ScoreStatus;
 type ApplyResult = import('../score/planTypes.js').ApplyResult;
@@ -32,6 +32,7 @@ type Plan = import('../score/planTypes.js').Plan;
 type EditBody = import('./chatTypes.js').EditBody;
 type VerbFacts = import('./retimeVerb.js').VerbFacts;
 type VersionAnalysis = import('./analysisTypes.js').VersionAnalysis;
+type ReadingRetimeDeps = import('./readingRetime.js').ReadingRetimeDeps;
 
 const facts = contract('read-ok').response.body.facts;
 const tempo = contract('apply-set-tempo').response.body as ApplyResult;
@@ -56,7 +57,7 @@ const dockPlan = (songId: string, mode: 'half' | 'double' | 'bpm', bpm: number):
 });
 
 /** A song whose playable version has a transcribed reading of read-ok's 65 bars (kept bundle `n1`). */
-function setup(verb: VerbFacts) {
+function setup(verb: VerbFacts, over: Partial<ReadingRetimeDeps> = {}) {
   const songId = crypto.randomUUID();
   const layer = crypto.randomUUID();
   const versionId = crypto.randomUUID();
@@ -81,6 +82,7 @@ function setup(verb: VerbFacts) {
       measure: async () => null,
       readGrid: async () => null,
       now: () => new Date('2026-10-09T10:00:00.000Z'),
+      ...over,
     },
   };
   const deps = turnDeps({ planner: { url: ollama.url, model: 'qwen3:14b' }, rung: 0, source: { status: async () => status() }, applyEdit, retime });
@@ -130,7 +132,8 @@ describe('chat RE-TIME turn (RT-6, F-094)', () => {
     await settled(send("that's double time").id);
     expect(plan).not.toHaveBeenCalled();
     const m = last(thread.id);
-    expect(m).toMatchObject({ kind: 'say', proposalId: null, body: { retime: { songId, versionId, number: 1, mode: 'double', bpm: 174, fromBpm: 87, fromBars: 65, toBars: 130 } } });
+    expect(m).toMatchObject({ kind: 'say', proposalId: null, body: { retime: { songId, versionId, number: 1, mode: 'double', bpm: 174, fromBpm: 87, fromBars: 65, toBars: 130,
+      readAt: '2026-10-09T10:00:00.000Z', asReadAt: '2026-10-07T10:00:00.000Z' } } }); // review 3: UNDO TURN's identity
     expect(m.text).toMatch(/double time · 87 → 174 BPM · 65 → 130 bars/i);
     expect(readVersionAnalysis(versionId)).toMatchObject({ readAt: '2026-10-09T10:00:00.000Z', retime: { mode: 'double', bpm: 174 } });
   });
@@ -164,5 +167,31 @@ describe('chat RE-TIME turn (RT-6, F-094)', () => {
     const body = last(thread.id).body as EditBody;
     expect(body.ops).toHaveLength(1);
     expect(body.refusals).toEqual([[RETIME_ALONE]]);
+  });
+
+  it('review 1: a stop while the reading is re-timed writes nothing; the turn reads cancelled', async () => {
+    ollama = await startFakeOllama();
+    ollama.chats.push(retimeReply('double'));
+    let go = () => {};
+    const waiting = new Promise<void>((resolve) => { go = resolve; });
+    let started = false;
+    const { versionId, thread, send } = setup(SONG, { load: async () => { started = true; await waiting; return { files: { a: 'b' }, chords: true } as never; } });
+    const job = send("that's double time");
+    await vi.waitFor(() => expect(started).toBe(true), { timeout: 5000 });
+    expect(cancelTurn(job.id)).toEqual({ aborted: true });
+    go();
+    await vi.waitFor(() => expect(last(thread.id).kind).toBe('failed'), { timeout: 5000 });
+    expect(last(thread.id).body).toMatchObject({ cause: 'cancelled' });
+    expect(readVersionAnalysis(versionId)).not.toHaveProperty('retime');
+  });
+
+  it('review 6: the saved reading failing to load is a failed turn naming the re-time, not the planner', async () => {
+    ollama = await startFakeOllama();
+    ollama.chats.push(retimeReply('double'));
+    const { versionId, thread, send } = setup(SONG, { load: async () => { throw new Error('ENOENT n1.json'); } });
+    await settled(send("that's double time").id);
+    const m = last(thread.id);
+    expect(m).toMatchObject({ kind: 'failed', text: 'the re-time failed: ENOENT n1.json · nothing changed', body: { cause: 'check' } });
+    expect(readVersionAnalysis(versionId)).not.toHaveProperty('retime');
   });
 });

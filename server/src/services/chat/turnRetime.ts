@@ -8,7 +8,7 @@
 import { measureScore } from '../engineTranscribeClient.js';
 import { yue2Engine } from '../engines/yue2.js';
 import { loadNotation } from '../notationStore.js';
-import type { Plan } from '../score/planTypes.js';
+import type { Plan, Since } from '../score/planTypes.js';
 import { retimeOffer as dockOffer } from '../score/retimeOffer.js';
 import { buildRetimePlan } from '../score/retimePlan.js';
 import { retimeScore, type RetimeMode } from '../score/yueRetime.js';
@@ -57,14 +57,19 @@ export const retimeDeps = (): RetimeDeps => ({ facts: verbFacts, plan: (songId, 
 const refused = (reason: string): RetimeResolved => ({ kind: 'refused', reason });
 const why = (err: unknown) => (err instanceof Error ? err.message : String(err));
 
+/** A re-time that threw (the saved reading unreadable, ...): the failed turn's line names it, not the planner (review 6). */
+export const retimeFailed = (err: unknown) => `the re-time failed: ${why(err)} · nothing changed`;
+
 /** `base`: the song's edit base (the dock card's splice and bar map), or why it cannot be edited. `tried`: the planner's
- * attempts and refused replies, shown on the card as on any edit card. */
+ * attempts and refused replies, shown on the card as on any edit card; `since` / `revision`: a start over of a pending
+ * plan (D-265), its ops REMOVED on the card as any revise's. */
 export async function resolveRetime(route: RetimeRoute, songId: string, base: EditBase | { reason: string } | null,
-  tried: { attempts: number; refusals: string[][] }, deps: RetimeDeps): Promise<RetimeResolved> {
+  tried: { attempts: number; refusals: string[][]; since?: Since | null; revision?: number }, deps: RetimeDeps): Promise<RetimeResolved> {
   if (route.kind === 'dock') {
     if (!base || 'reason' in base) return refused(base?.reason ?? 'its score could not be read');
     const plan = await deps.plan(songId, route.mode, route.bpm).catch((err: unknown) => why(err));
-    return typeof plan === 'string' ? refused(plan) : { kind: 'dock', plan: { ...plan, attempts: tried.attempts, refusals: tried.refusals }, base };
+    const since = tried.since ? { since: tried.since, revision: tried.revision } : {};
+    return typeof plan === 'string' ? refused(plan) : { kind: 'dock', plan: { ...plan, attempts: tried.attempts, refusals: tried.refusals, ...since }, base };
   }
   const take = playableVersion(songId);
   if (!take) return refused('this song has no version to re-time');
@@ -74,7 +79,7 @@ export async function resolveRetime(route: RetimeRoute, songId: string, base: Ed
   if (!out.ok) return refused(out.reason);
   const r = out.analysis.retime!;
   const done = { songId, versionId: take.id, number: take.number, mode: r.mode, bpm: r.bpm, fromBpm: r.fromBpm, fromBars: r.fromBars,
-    toBars: r.toBars, droppedNotes: r.droppedNotes, notes: r.notes };
+    toBars: r.toBars, droppedNotes: r.droppedNotes, notes: r.notes, readAt: out.analysis.readAt, asReadAt: r.previous.readAt };
   return { kind: 'reading', done, analysis: out.analysis, stamp: stampOf(stored) };
 }
 

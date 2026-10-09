@@ -32,10 +32,11 @@ export interface EditBody {
   map?: BarMap;
 }
 /** RT-6 (F-094, retime.html D4): a say that re-timed the playable version's reading in place; the thread's UNDO TURN
- * on it is the reading's UNDO (no version was made). */
+ * on it is the reading's UNDO (no version was made). `readAt`: the re-timed reading's stamp (UNDO TURN is offered only while
+ * the playing reading has it); `asReadAt`: the reading as read, which UNDO restores (RT-6 review 3). */
 export interface RetimeDoneBody {
   retime: { songId: string; versionId: string; number: number; mode: 'half' | 'double' | 'bpm'; bpm: number; fromBpm: number;
-    fromBars: number; toBars: number; droppedNotes: number; notes: number };
+    fromBars: number; toBars: number; droppedNotes: number; notes: number; readAt: string; asReadAt: string };
 }
 /** What an edit turn plans on (songStateSource): an eligible song's score as read and its source. */
 export interface EditBase {
