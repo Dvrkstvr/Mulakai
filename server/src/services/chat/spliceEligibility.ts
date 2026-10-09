@@ -25,14 +25,16 @@ export interface SpliceInput {
   facts: Pick<ScoreFacts, 'header' | 'sections' | 'bar_map'>;
   /** The read's verdict on the base score (null = unknown, treated as none, as renderMode does). */
   chordsPresent: boolean | null;
+  /** C4 feature gate (off until the chain ships end to end): off, 2+ ops answer main's single-change reason. */
+  chain?: boolean;
 }
 
 const METER = '4/4';
 const METER_LINE = /^\(meter M:(\d+\/\d+) from here/;
 const no = (reason: string): Splice => ({ splice: false, reason });
 
-export function spliceEligibility(ops: Op[], { facts, chordsPresent }: SpliceInput): Splice {
-  if (ops.length === 0) return no('the plan makes no changes to splice');
+export function spliceEligibility(ops: Op[], { facts, chordsPresent, chain = false }: SpliceInput): Splice {
+  if (ops.length === 0 || (ops.length > 1 && !chain)) return no(`the plan makes ${ops.length} changes; only a single change can be spliced into the old take`);
   const spans = [];
   for (const op of ops) {
     const s = opSpan(op, facts.sections);
@@ -53,8 +55,8 @@ export function spliceEligibility(ops: Op[], { facts, chordsPresent }: SpliceInp
     }
   }
   if (spans.length === 1) return { splice: true, kind: spans[0].kind, from_bar: spans[0].from, to_bar: spans[0].to };
-  const chain = spliceSteps(ops, facts);
-  if ('reason' in chain) return no(chain.reason);
-  const { steps } = chain;
+  const planned = spliceSteps(ops, facts);
+  if ('reason' in planned) return no(planned.reason);
+  const { steps } = planned;
   return { splice: true, kind: 'several', from_bar: steps.at(-1)!.from_bar, to_bar: steps[0].to_bar, steps };
 }
