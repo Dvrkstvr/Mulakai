@@ -3,7 +3,7 @@
  * checked and routed in code (`routeRetime`), never by the model. Alone in a plan (Q-132), or the reply goes back with
  * the reason. HALF, DOUBLE or a BPM far from the read → the dock's plan or the reading's re-time, resolved after the
  * unload (turnRetime); a BPM within 8 % of the read → a SET TEMPO edit that says why (Q-125); refused → a say with the
- * reason. A turn whose words name the reading re-times the reading (`ABOUT_READING`). Pure.
+ * reason. A turn whose words name the reading re-times the reading when there is one (`ABOUT_READING`, D-280). Pure.
  */
 import type { Op } from '../score/planTypes.js';
 import type { RetimeDoneBody } from './editTypes.js';

@@ -29,6 +29,15 @@ describe('checkRetime', () => {
     expect(checkRetime([half], { ...COVER, reading: SONG.reading }, "it's half time")).toMatchObject({ route: { kind: 'dock' } });
   });
 
+  it('D-280: words about the reading on a cover with no reading re-time its transcription in the dock', () => {
+    // RT-6 live bug 1: "transcription" matched ABOUT_READING and answered "no transcribed reading", though the dock plan works.
+    expect(checkRetime([half], COVER, 'the transcription read it twice as fast as it is'))
+      .toEqual({ route: { kind: 'dock', mode: 'half', bpm: null, readBpm: 140 } });
+    expect(checkRetime([half], { dock: { state: 'refused', reason: 'it was edited' }, reading: null }, 'the reading is half time'))
+      .toEqual({ say: refusedLine('it was edited') });
+    expect(checkRetime([half], ORIGINAL, 'the reading is half time')).toEqual({ say: refusedLine(OWN_SCORE) });
+  });
+
   it('Q-125: a BPM within 8 % of the read is a SET TEMPO, said why', () => {
     expect(checkRetime([{ op: 'RETIME', mode: 'bpm', bpm: 143 }], COVER, "it's really 143 BPM")).toEqual({
       tempo: { op: 'SET_TEMPO', bpm: 143 },
