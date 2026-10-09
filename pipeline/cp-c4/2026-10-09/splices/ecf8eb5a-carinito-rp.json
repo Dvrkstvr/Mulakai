@@ -1,0 +1,243 @@
+{
+ "id": "358f63a048604ff9aeec6f0a24836161",
+ "kind": "splice",
+ "idempotency_key": "splice-64cbc8bf-e58b-4c23-aa96-9aaa9d9cad2c",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791564154.2331,
+ "updated_at": 1791564190.169759,
+ "started_at": 1791564154.233343,
+ "finished_at": 1791564190.169759,
+ "cancel_requested": false,
+ "result": {
+  "kind": "several",
+  "bars": [
+   23,
+   55
+  ],
+  "steps": [
+   {
+    "verdict": "ok",
+    "reason": null,
+    "detail": null,
+    "kind": "REHARMONIZE",
+    "bars": [
+     48,
+     55
+    ],
+    "audio_seconds": 161.0755,
+    "length_diff_s": -0.0031,
+    "joins_s": [
+     118.65,
+     138.8669
+    ],
+    "crossfade_s": [
+     0.631579,
+     0.631579
+    ],
+    "base_points_s": [
+     118.65,
+     138.87
+    ],
+    "parts": [
+     {
+      "source": "base",
+      "out_s": [
+       0,
+       118.65
+      ],
+      "src_s": [
+       0,
+       118.65
+      ]
+     },
+     {
+      "source": "render",
+      "out_s": [
+       118.65,
+       138.8668542
+      ],
+      "src_s": [
+       139.1474583,
+       159.3643125
+      ]
+     },
+     {
+      "source": "base",
+      "out_s": [
+       138.8668542,
+       161.0755208
+      ],
+      "src_s": [
+       138.87,
+       161.0786667
+      ]
+     }
+    ],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": -2.536,
+      "applied": true,
+      "corr": 0.1514
+     },
+     {
+      "delta_ms": 4.302,
+      "applied": true,
+      "corr": 0.1622
+     }
+    ],
+    "gain_db": {
+     "in": 1.508,
+     "out": 5.73,
+     "bars": [
+      1.508,
+      4.975,
+      4.9,
+      2.399,
+      1.619,
+      4.201,
+      5.113,
+      5.73
+     ]
+    },
+    "level_step_db": null,
+    "gap_shift_s": null,
+    "seams": [
+     {
+      "out_s": 118.65,
+      "lufs_step": 4.313,
+      "base_lufs_step": 4.138,
+      "lufs_step_excess": 0.175
+     },
+     {
+      "out_s": 138.8669,
+      "lufs_step": 0.155,
+      "base_lufs_step": 0.147,
+      "lufs_step_excess": 0.008
+     }
+    ],
+    "null_test": {
+     "samples": 6730898,
+     "different": 0
+    }
+   },
+   {
+    "verdict": "ok",
+    "reason": null,
+    "detail": null,
+    "kind": "REPEAT",
+    "bars": [
+     23,
+     30
+    ],
+    "audio_seconds": 181.2833,
+    "length_diff_s": 20.2078,
+    "joins_s": [
+     75.71,
+     95.9178
+    ],
+    "crossfade_s": [
+     0.631579,
+     0
+    ],
+    "base_points_s": [
+     null,
+     null
+    ],
+    "parts": [
+     {
+      "source": "base",
+      "out_s": [
+       0,
+       75.71
+      ],
+      "src_s": [
+       0,
+       75.71
+      ]
+     },
+     {
+      "source": "copy",
+      "out_s": [
+       75.71,
+       95.9177917
+      ],
+      "src_s": [
+       55.5022083,
+       75.71
+      ]
+     },
+     {
+      "source": "base",
+      "out_s": [
+       95.9177917,
+       181.2833125
+      ],
+      "src_s": [
+       75.71,
+       161.0755208
+      ]
+     }
+    ],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": -7.801,
+      "applied": true,
+      "corr": 0.7383
+     }
+    ],
+    "gain_db": null,
+    "level_step_db": -0.259,
+    "gap_shift_s": null,
+    "seams": [
+     {
+      "out_s": 75.71,
+      "lufs_step": -0.259,
+      "base_lufs_step": null,
+      "lufs_step_excess": null
+     },
+     {
+      "out_s": 95.9178,
+      "lufs_step": -2.771,
+      "base_lufs_step": null,
+      "lufs_step_excess": null
+     }
+    ],
+    "null_test": {
+     "samples": 7716465,
+     "different": 0
+    }
+   }
+  ],
+  "grid_urls": {
+   "base": "/v1/splices/358f63a048604ff9aeec6f0a24836161/grid/base",
+   "render": "/v1/splices/358f63a048604ff9aeec6f0a24836161/grid/render",
+   "out": "/v1/splices/358f63a048604ff9aeec6f0a24836161/grid/out"
+  },
+  "verdict": "ok",
+  "reason": null,
+  "detail": null,
+  "step": null,
+  "audio_url": "/v1/splices/358f63a048604ff9aeec6f0a24836161/audio",
+  "audio_seconds": 181.2833,
+  "length_diff_s": 20.2046,
+  "joins_s": [
+   138.8578,
+   159.0747,
+   75.71,
+   95.9178
+  ],
+  "null_test": {
+   "samples": 14447363,
+   "different": 0
+  },
+  "timing": {
+   "total_seconds": 35.936
+  }
+ },
+ "error": null
+}
