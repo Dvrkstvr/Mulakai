@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useSongDetail } from './useSongDetail';
 import type { Region } from './Waveform';
-import { Player } from './Player';
+import { EditorTransport } from './EditorTransport';
 import { LayerStack } from './LayerStack';
 import { SectionStrip } from './SectionStrip';
 import { ActionDock } from './ActionDock';
@@ -128,7 +128,7 @@ export function Editor({ songId, onBack }: Props) {
 
             {activeVersion && (
               <div className="canvas" style={{ marginTop: 12 }}>
-                <Player engine={engine} downloadSrc={`/audio/${activeVersion.audio_file}`} downloadName={`${song.title}.wav`} minimal />
+                <EditorTransport engine={engine} selection={selection} />
               </div>
             )}
           </div>
