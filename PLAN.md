@@ -9457,3 +9457,19 @@ stem, a DOWNLOAD ALL, and a SPLIT ALL AGAIN.
   DOWNLOAD.
 - DESIGN.md: the SPLIT dock's new controls, in its own commit, if it
   deviates.
+
+## Library Job Badge Opens Its Job (planned 2026-10-10)
+
+The owner's ask: clicking a song row's job badge (EXTRACTING STEMS,
+REPAINTING, …) opens the page that shows that job.
+
+- The badge is a button; it opens the Editor on that song (not the detail
+  rail the rest of the row opens).
+- The Editor lands on the verb and layer of the job the badge names
+  (`jobFocus` in `dockJobLine.ts`): REPAINT on the layer for repaint,
+  regenerate and retake; ADD LAYER; SPLIT on the split's layer; EXPORT for
+  a remaster. `useEditorFocus` already did this for remaster and split; it
+  now uses the badge's own pick (`songBadgeJob`) for every kind.
+
+Files: `client/src/LibraryJobBadge.tsx`, `LibraryView.tsx`,
+`dockJobLine.ts` (+ test), `useEditorFocus.ts`, `index.css`.
