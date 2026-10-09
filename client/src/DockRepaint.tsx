@@ -87,7 +87,7 @@ export function DockRepaint({ target, layerName, nextVersion, activeVersion, sel
         consequence={consequence.line}
         scoreEnds={consequence.scoreEnds}
         label={repaintCommitLabel(layerName, selection, target.section)}
-        disabled={target.warn}
+        disabled={target.warn || !!target.idle}
         onCommit={onRepaint}
         jobs={inFlight}
       />

@@ -24,7 +24,7 @@ import { useEditorColumns } from './useEditorColumns';
 import { EditorTitleRow } from './EditorTitleRow';
 import { EditorRail } from './EditorRail';
 import { useEditorCommands } from './useEditorCommands';
-import { pickRange, shownRange } from './editorSelection';
+import { pickRange } from './editorSelection';
 import { ScrollArea } from './ScrollArea';
 
 interface Props {
@@ -68,8 +68,7 @@ export function Editor({ songId, onBack }: Props) {
   });
 
   const seek = (seconds: number) => engine.seek(seconds);
-  const selectRegion = (region: Region | null) => pickRange(region, setSelection, setVerb, verb);
-  const shownSelection = shownRange(verb, selection);
+  const selectRegion = (region: Region | null) => pickRange(region, setSelection);
 
   useLibraryBackButton(onBack);
   const { railWidth, gridTemplateColumns } = useEditorColumns();
@@ -100,7 +99,7 @@ export function Editor({ songId, onBack }: Props) {
               onChanged={reload}
               duration={duration}
               playhead={playhead}
-              selection={shownSelection}
+              selection={selection}
               onSelect={selectRegion}
               onSeek={seek}
               processing={!!repaintJob.running}

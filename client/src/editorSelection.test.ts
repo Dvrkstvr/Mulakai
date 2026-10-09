@@ -1,38 +1,36 @@
 import { describe, it, expect, vi } from 'vitest';
-import { pickRange, shownRange } from './editorSelection';
+import { laneSelect, pickRange } from './editorSelection';
 
 describe('pickRange', () => {
-  it('sets the range and switches the dock to REPAINT', () => {
+  it('sets the range and leaves the verb alone', () => {
     const setSelection = vi.fn();
-    const setVerb = vi.fn();
-    pickRange({ start: 2, end: 8 }, setSelection, setVerb);
+    pickRange({ start: 2, end: 8 }, setSelection);
     expect(setSelection).toHaveBeenCalledWith({ start: 2, end: 8 });
-    expect(setVerb).toHaveBeenCalledWith('repaint');
-  });
-
-  it('clears the range without changing the verb', () => {
-    const setSelection = vi.fn();
-    const setVerb = vi.fn();
-    pickRange(null, setSelection, setVerb);
-    expect(setSelection).toHaveBeenCalledWith(null);
-    expect(setVerb).not.toHaveBeenCalled();
-  });
-
-  it('under SCORE keeps the range for REPAINT but stays on SCORE (M2-2)', () => {
-    const setSelection = vi.fn();
-    const setVerb = vi.fn();
-    pickRange({ start: 2, end: 8 }, setSelection, setVerb, 'score');
-    expect(setSelection).toHaveBeenCalledWith({ start: 2, end: 8 });
-    expect(setVerb).not.toHaveBeenCalled();
+    pickRange(null, setSelection);
+    expect(setSelection).toHaveBeenLastCalledWith(null);
   });
 });
 
-describe('shownRange', () => {
-  it('paints the kept range only under REPAINT', () => {
-    const range = { start: 2, end: 8 };
-    expect(shownRange('repaint', range)).toBe(range);
-    expect(shownRange('addLayer', range)).toBeNull();
-    expect(shownRange('split', range)).toBeNull();
-    expect(shownRange('export', range)).toBeNull();
+describe('laneSelect', () => {
+  it('a drag on a lane that is not focused focuses it and selects there', () => {
+    const onFocus = vi.fn(); const onSelect = vi.fn();
+    laneSelect(false, { start: 4, end: 9 }, onFocus, onSelect);
+    expect(onFocus).toHaveBeenCalled();
+    expect(onSelect).toHaveBeenCalledWith({ start: 4, end: 9 });
+  });
+
+  it("a plain click there (the waveform's clear) keeps the selection", () => {
+    const onFocus = vi.fn(); const onSelect = vi.fn();
+    laneSelect(false, null, onFocus, onSelect);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it('on the focused lane a drag selects and a plain click keeps the selection', () => {
+    const onFocus = vi.fn(); const onSelect = vi.fn();
+    laneSelect(true, { start: 1, end: 5 }, onFocus, onSelect);
+    expect(onSelect).toHaveBeenCalledWith({ start: 1, end: 5 });
+    laneSelect(true, null, onFocus, onSelect);
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    expect(onFocus).not.toHaveBeenCalled();
   });
 });
