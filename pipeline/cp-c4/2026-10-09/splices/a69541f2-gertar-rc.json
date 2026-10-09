@@ -1,0 +1,70 @@
+{
+ "id": "a4c76ad3f91c4560b7942e0094e89cde",
+ "kind": "splice",
+ "idempotency_key": "splice-393393aa-dcde-4cf3-9888-194729fc072b",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791563612.9228647,
+ "updated_at": 1791563628.6091275,
+ "started_at": 1791563612.9258895,
+ "finished_at": 1791563628.6091275,
+ "cancel_requested": false,
+ "result": {
+  "kind": "several",
+  "bars": [
+   15,
+   68
+  ],
+  "steps": [
+   {
+    "verdict": "rerender",
+    "reason": "not_aligned",
+    "detail": "no groove to line the cut up on",
+    "kind": "CUT",
+    "bars": [
+     61,
+     68
+    ],
+    "audio_seconds": null,
+    "length_diff_s": null,
+    "joins_s": [],
+    "crossfade_s": [],
+    "base_points_s": [],
+    "parts": [],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": 21.689,
+      "applied": false,
+      "corr": 0.0827
+     }
+    ],
+    "gain_db": null,
+    "level_step_db": null,
+    "gap_shift_s": null,
+    "seams": [],
+    "null_test": null
+   }
+  ],
+  "grid_urls": {
+   "base": "/v1/splices/a4c76ad3f91c4560b7942e0094e89cde/grid/base",
+   "render": "/v1/splices/a4c76ad3f91c4560b7942e0094e89cde/grid/render",
+   "out": null
+  },
+  "verdict": "rerender",
+  "reason": "not_aligned",
+  "detail": "no groove to line the cut up on",
+  "step": 1,
+  "audio_url": null,
+  "audio_seconds": null,
+  "length_diff_s": null,
+  "joins_s": [],
+  "null_test": null,
+  "timing": {
+   "total_seconds": 15.683
+  }
+ },
+ "error": null
+}

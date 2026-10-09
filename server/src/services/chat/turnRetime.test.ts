@@ -1,5 +1,5 @@
 /** resolveRetime's dock route (RT-6, F-094): the dock's plan carries the planner's tries, and on a start over over a
- * pending plan (D-274) the revise's `since` (every pending op REMOVED) and revision n+1, as any revise card. */
+ * pending plan (D-278) the revise's `since` (every pending op REMOVED) and revision n+1, as any revise card. */
 import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import os from 'node:os';

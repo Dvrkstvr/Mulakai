@@ -145,7 +145,7 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
       : { base, applied: decision.applied, attempts: decision.attempts, refusals: decision.refusals, planId: crypto.randomUUID(), createdAt: Date.now(),
         ...(decision.since && revise ? { revision: (revise.plan.revision ?? 1) + 1, since: decision.since } : {}) };
   const scrap = decision.scrapped && base && revise ? { songId: base.songId, planId: revise.plan.id } : null; // D-257
-  const tried = { ...decision, revision: revise ? (revise.plan.revision ?? 1) + 1 : undefined }; // D-274: a start over's since
+  const tried = { ...decision, revision: revise ? (revise.plan.revision ?? 1) + 1 : undefined }; // D-278: a start over's since
   const retimed = decision.retime && thread.songId ? await resolveRetime(decision.retime, thread.songId, gathered.edit, tried, deps.retime)
     .catch((err: unknown) => { throw new TurnError('check', retimeFailed(err)); }) : null;
   aborted(); // RT-6 review 1: a stop during the re-time writes nothing (the re-timed reading is written with the reply)

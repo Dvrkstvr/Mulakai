@@ -62,7 +62,7 @@ export const retimeFailed = (err: unknown) => `the re-time failed: ${why(err)} Â
 
 /** `base`: the song's edit base (the dock card's splice and bar map), or why it cannot be edited. `tried`: the planner's
  * attempts and refused replies, shown on the card as on any edit card; `since` / `revision`: a start over of a pending
- * plan (D-274), its ops REMOVED on the card as any revise's. */
+ * plan (D-278), its ops REMOVED on the card as any revise's. */
 export async function resolveRetime(route: RetimeRoute, songId: string, base: EditBase | { reason: string } | null,
   tried: { attempts: number; refusals: string[][]; since?: Since | null; revision?: number }, deps: RetimeDeps): Promise<RetimeResolved> {
   if (route.kind === 'dock') {

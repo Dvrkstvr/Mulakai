@@ -104,7 +104,7 @@ function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string
 function editBody(plan: Plan, base: EditBase, assumptions: string[], request: string, mark?: EditMark | null): EditBody {
   return {
     planId: plan.id, ops: plan.ops, verdicts: plan.verdicts, checks: plan.checks,
-    splice: spliceEligibility(plan.ops, base), renderMode: plan.renderMode,
+    splice: spliceEligibility(plan.ops, { ...base, chain: process.env.CHAT_SPLICE_CHAIN === '1' }), renderMode: plan.renderMode,
     assumptions: mark?.bars ? assumptionsUnderMark(assumptions) : assumptions, attempts: plan.attempts, refusals: plan.refusals,
     ...(mark ? { mark: { ...mark, notes: [...mark.notes, ...(mark.bars ? markFit(plan.ops, mark.bars, base.facts, asksWholeSong(request)).notes : [])] } } : {}),
     from: { bpm: base.facts.header.bpm, key: base.facts.header.key },

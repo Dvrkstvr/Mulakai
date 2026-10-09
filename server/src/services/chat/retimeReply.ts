@@ -17,7 +17,7 @@ export type RetimeChecked = { fail: string } | { say: string } | { tempo: Op; me
 export const RETIME_RULE = 'RETIME {mode: half | double | bpm, bpm}: ONLY when the person says the tempo was READ wrong ("it\'s half '
   + 'time", "it\'s really 92 BPM"): half or double the tempo read, or the bpm they name. Alone in ops; a tempo change is SET_TEMPO.';
 export const RETIME_ALONE = 'RETIME stands alone: send only the RETIME op (every bar moves under the other ops); offer the rest after it';
-/** D-274: a dock RE-TIME (or its slight SET TEMPO) replaces the song's plan, so over a pending one it needs a start over. */
+/** D-278: a dock RE-TIME (or its slight SET TEMPO) replaces the song's plan, so over a pending one it needs a start over. */
 export const RETIME_PENDING = 'an edit plan is pending; apply or scrap it first, or say start over';
 export const ABOUT_READING =/\b(reading|read as|transcri\w*)\b/i;
 

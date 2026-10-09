@@ -5,7 +5,10 @@ import type { Splice } from './spliceEligibility.js';
 import type { BarMap } from './convergeTypes.js';
 
 /** The edit card (C0b, F-046): a planStore plan's snapshot. `splice` says whether APPLY splices the bars
- * (spliceEligibility) or re-renders the whole song, and why; `renderMode` names the render's cot (F-065). */
+ * (spliceEligibility) or re-renders the whole song, and why; `renderMode` names the render's cot (F-065).
+ * C4 (D-266, additive): `splice.kind: 'several'` is a chain of 2-4 spans, `splice.steps` last bar first, each
+ * `{ kind, from_bar, to_bar, ops }` (`ops`: the plan op indexes it covers); `from_bar`/`to_bar` stay first/last bar
+ * touched. Cards stored before C4 never hold `several` and read as before. */
 export interface EditBody {
   planId: string;
   ops: Op[];

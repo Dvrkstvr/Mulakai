@@ -41,6 +41,14 @@ const EDITED = BASE_ABC.replace('"C"z32|"Am"z32|"F"z32|"G"z32|\nV: Ins\nz32|z32|
 const read = { ok: true, error: null, messages: [], chordsPresent: true, bpm: 120, seconds: 48, tokens: 900, facts: null };
 const SPLICE_REHARM: Splice = { splice: true, kind: 'reharmonize', from_bar: 9, to_bar: 16 };
 const SPLICE_REPEAT: Splice = { splice: true, kind: 'repeat', from_bar: 9, to_bar: 16 };
+// C4 (F-069): CK-2's recorded chains. chain-ok: REHARMONIZE 19-22 then CUT S2 (9-16); chain-rerender: CUT S3 then REPEAT S1.
+const CHAIN = spliceContract('splice-chain-ok').request.form.spec as { steps: Array<{ op: Op }>; edited_abc: string };
+const CHAIN_OPS = [CHAIN.steps[1].op, CHAIN.steps[0].op];
+const SEVERAL: Splice = { splice: true, kind: 'several', from_bar: 9, to_bar: 22, steps: [
+  { kind: 'reharmonize', from_bar: 19, to_bar: 22, ops: [1] }, { kind: 'cut', from_bar: 9, to_bar: 16, ops: [0] }] };
+const AUDIO_CHAIN = (spliceContract('splice-chain-rerender').request.form.spec as { steps: Array<{ op: Op }> }).steps.map((st) => st.op);
+const SEVERAL_AUDIO: Splice = { splice: true, kind: 'several', from_bar: 1, to_bar: 24, steps: [
+  { kind: 'cut', from_bar: 17, to_bar: 24, ops: [0] }, { kind: 'repeat', from_bar: 1, to_bar: 8, ops: [1] }] };
 
 let yue: FakeYue;
 beforeAll(async () => { yue = await startFakeYue([]); });
@@ -57,7 +65,7 @@ const deps = () => renderDeps({
   loaded: async () => [],
 });
 
-async function seed(op: Op) {
+async function seed(op: Op | Op[], abc = EDITED) {
   const songId = crypto.randomUUID();
   const layerId = crypto.randomUUID();
   const versionId = crypto.randomUUID();
@@ -70,7 +78,7 @@ async function seed(op: Op) {
   const source = (await loadScoreSource(songId))!;
   const planId = `plan-${songId}`;
   setPlan({
-    id: planId, songId, baseVersionId: versionId, fingerprint: source.fingerprint, request: 'jazz chords', ops: [op], verdicts: [], abc: EDITED, style: 'pop',
+    id: planId, songId, baseVersionId: versionId, fingerprint: source.fingerprint, request: 'jazz chords', ops: Array.isArray(op) ? op : [op], verdicts: [], abc, style: 'pop',
     checks: { bars: 24, seconds: 48, tokens: 900, chordsPresent: true, changed: { abc: true, style: false } }, attempts: 1, refusals: [], createdAt: 0,
     renderMode: { cot: 'full', reason: 'chords' },
   });
@@ -199,5 +207,86 @@ describe('startEditRender', () => {
     expect((await settled(job.id)).status).toBe('failed');
     expect(yue.submits()).toEqual([]);
     expect(yue.splice.specs).toEqual([]);
+  });
+});
+
+describe('startEditRender, a chain (C4, F-069, D-263)', () => {
+  it('renders the edited score once, sends every step in one splice job, saves one version with the splice_v 2 record', async () => {
+    const { songId, layerId, versionId, planId } = await seed(CHAIN_OPS, CHAIN.edited_abc);
+    yue.splice.fixture = spliceContract('splice-chain-ok');
+    yue.splice.grids = { base: GRID, out: { ...GRID, source: 'mapped' } };
+    const { job, saved } = start(songId, planId, SEVERAL);
+    expect((await settled(job.id)).status).toBe('done');
+    expect(yue.submits()).toHaveLength(1);
+    expect(yue.splice.specs).toEqual([{ steps: CHAIN.steps, base_abc: BASE_ABC, render_job: expect.stringMatching(/^yue-/), edited_abc: CHAIN.edited_abc }]);
+    const fresh = rows(layerId)[1];
+    expect(fresh).toMatchObject({ active: 1, label: 'score edit · CUT chorus S2 · REHARMONIZE 19–22 · bars 19–22 spliced · bars 9–16 cut' });
+    const rec = JSON.parse(fresh.params_json).splice;
+    expect(rec).toMatchObject({ splice_v: 2, kind: 'several', bars: [9, 22], joins_s: [20.2, 28.2, 16.2], length_diff_s: -16, null_test: { samples: 3530000, different: 0 },
+      steps: [{ kind: 'reharmonize', bars: [19, 22], snap_ms: [30, 30] }, { kind: 'cut', bars: [9, 16], snap_ms: [0] }] });
+    expect(saved[0]).toMatchObject({ splice: rec, previous: { versionId, number: 1 } });
+    expect(await readGrid(fresh.id)).toMatchObject({ source: 'mapped' });
+    expect(getPlan(songId)).toBeUndefined();
+    expect(posted('/v1/splices/sp-0001/cancel')).toBe(1);
+  });
+
+  it('a CUT/REPEAT chain needs no render first; a rerender at step 2 renders the whole song then, labelled with that step (never a partial save)', async () => {
+    const { songId, layerId, versionId, planId } = await seed(AUDIO_CHAIN);
+    await writeGrid(versionId, GRID);
+    yue.splice.fixture = spliceContract('splice-chain-rerender');
+    const { job, saved } = start(songId, planId, SEVERAL_AUDIO);
+    expect(await settled(job.id)).toMatchObject({ status: 'done' });
+    expect(yue.splice.specs).toEqual([{ steps: AUDIO_CHAIN.map((op) => ({ op })), base_abc: BASE_ABC, edited_abc: EDITED, base_grid: GRID }]);
+    expect(yue.submits()).toHaveLength(1);
+    expect(rows(layerId)).toHaveLength(2);
+    const fallback = JSON.parse(rows(layerId)[1].params_json).splice;
+    expect(fallback).toEqual({ splice_v: 1, fallback: expect.stringMatching(/^the copy's seam steps \+10\.4 dB.* \(step 2, bars 1–8\)$/) });
+    expect(rows(layerId)[1].label).toContain('whole song re-rendered: the copy');
+    expect(saved[0].splice).toEqual(fallback);
+  });
+
+  it('a chain yue-server refuses (422) saves the render it already made, labelled', async () => {
+    const { songId, layerId, planId } = await seed(CHAIN_OPS, CHAIN.edited_abc);
+    yue.splice.submit = { status: 422, detail: 'step 2: section 2 is verse, not chorus' };
+    const { job } = start(songId, planId, SEVERAL);
+    expect((await settled(job.id)).status).toBe('done');
+    expect(yue.submits()).toHaveLength(1);
+    expect(rows(layerId)[1].label).toContain('whole song re-rendered: yue-server would not splice it: YUE2 splice -> HTTP 422: step 2: section 2 is verse, not chorus');
+  });
+
+  it('a failed chain saves nothing and keeps the plan', async () => {
+    const { songId, layerId, planId } = await seed(CHAIN_OPS, CHAIN.edited_abc);
+    yue.splice.fixture = { ...spliceContract('splice-chain-ok'), final: spliceContract('splice-failed').final };
+    const { job, saved } = start(songId, planId, SEVERAL);
+    expect(await settled(job.id)).toMatchObject({ status: 'failed', error: expect.stringContaining('the splice failed') });
+    expect(rows(layerId)).toHaveLength(1);
+    expect(saved).toEqual([]);
+    expect(getPlan(songId)).toBeDefined();
+  });
+
+  it('CANCEL at step 2 (the phase reads yue-server splicing 2/2) ends the yue job and saves nothing', async () => {
+    const { songId, layerId, planId } = await seed(CHAIN_OPS, CHAIN.edited_abc);
+    const hold = spliceContract('splice-chain-hold');
+    yue.splice.fixture = { ...hold, final: { ...hold.final, body: { ...hold.final.body, stage: 'splicing 2/2' } } };
+    const { job, saved } = start(songId, planId, SEVERAL);
+    await vi.waitFor(() => expect(job.progressStage).toBe('splicing 2/2'), { timeout: 5000 });
+    expect(job.progressText).toBe('splicing');
+    expect(abortJob(job.id)).toBe(true);
+    expect((await settled(job.id)).status).toBe('failed');
+    expect(posted('/v1/splices/sp-0001/cancel')).toBeGreaterThanOrEqual(1);
+    expect(rows(layerId)).toHaveLength(1);
+    expect(saved).toEqual([]);
+    expect(getPlan(songId)).toBeDefined();
+  });
+
+  it('CANCEL while rendering the one render of a chain: no splice is sent, nothing saved', async () => {
+    const { songId, layerId, planId } = await seed(CHAIN_OPS, CHAIN.edited_abc);
+    yue.job = { states: [{ status: 'running', stage: 'semantic' }] };
+    const { job } = start(songId, planId, SEVERAL);
+    await vi.waitFor(() => expect(job.progressText).toBe('rendering'), { timeout: 5000 });
+    abortJob(job.id);
+    expect((await settled(job.id)).status).toBe('failed');
+    expect(yue.splice.specs).toEqual([]);
+    expect(rows(layerId)).toHaveLength(1);
   });
 });

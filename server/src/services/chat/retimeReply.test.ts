@@ -85,7 +85,7 @@ describe('checkReply with RETIME', () => {
       .toEqual({ ok: false, reasons: [RETIME_ALONE] });
   });
 
-  // RT-6 review 2 (D-274): a dock RE-TIME replaces the song's plan, so pending ops never vanish silently.
+  // RT-6 review 2 (D-278): a dock RE-TIME replaces the song's plan, so pending ops never vanish silently.
   const pending = [{ op: 'SET_TEMPO', bpm: 90 }, { op: 'SET_KEY', key: 'D major' }] as never[];
   it('with an edit plan pending, a dock RE-TIME (or a slight one, SET TEMPO) is refused with the reason', async () => {
     const at = { ...ctx, allowed: [...ctx.allowed], retime: COVER, pending };

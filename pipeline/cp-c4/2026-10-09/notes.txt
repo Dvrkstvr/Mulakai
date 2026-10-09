@@ -1,0 +1,32 @@
+CP-C4 (CK-4, F-069 #6, R-043), 2026-10-09. Verdict: GO (all five stop lines PASS; summary.md).
+
+Environment
+- Server: worktree E:/ai/tmp/ck4, branch feat/chat-c4-cp4 = origin/main 406300d + CK-3 (origin/feat/chat-c4-splice-wire 444ce03, fast-forward),
+  PORT=3501, DATA_DIR=E:/ai/tmp/ck4-data (sqlite backup of the live library + audio copy), CHAT_SPLICE_CHAIN=1,
+  ACESTEP_API_URL on a dead port, LLM_API_URL = the script's recording proxy :11537 -> the owner's Ollama :11434 (qwen3:14b).
+- yue-server: its OWN process from the worktree (CK-2 code) on :8504, YUE_DATA_DIR=/mnt/e/ai/tmp/ck4-yue-data, same SheetSage2.
+  The owner's yue-server :8004 runs from E:/repos/Mulakai (b5312e4, started 16:08) and has no splice_chain*.py; not touched.
+- GPU shared: another session ran its own Ollama (:11735, qwen3:14b, ~11 GB) on and off during the run. The driver waited
+  (--gpu-free-mib 3000) before every turn and every APPLY; a smoke attempt before run 1 had one turn time out at 180 s while
+  both models were on the card (the driver now resends a failed turn with the same words). Renders took ~130-170 s of each
+  edit (SP-4 measured 44-92 s); likely the shared card, not measured.
+- House in der Halle (CP-C0's third song) was trashed in the live library today (chat 404), so run 2 used Polski Polka
+  (781968b6, yue2, 4/4, 138 BPM, 123 bars, chords present). run.log holds run 1 then run 2 (--append); nvidia-smi.csv and
+  proxyEvents in results.json are run 2's only.
+
+Findings
+- 4 of 6 plans saved one spliced version (splice_v 2, steps in step order, last bar first); splice_check.py --chain on each
+  saved file against the song's v1: 0 differing samples; join excess max 0.281 dB (12 joins with a base counterpart).
+- gertar-rc fell back at step 1 (the CUT of the instrumental interlude S9, bars 61-68): not_aligned, "no groove to line the
+  cut up on"; whole render saved, labelled with the step. Same rule as a single-span CUT.
+- polka-rc fell back at step 1 (REHARMONIZE 106-113, after a CUT of 49-69): length, 6.96 s longer (= 4 bars at 138 BPM).
+  Diagnosed offline (yue-server splice_grid.fit on the job's own grids and the saved edited score): the render's post fit
+  uses only the 10 outro bars after the span (a 4-bar repeating Am-Dm-Am-C loop) and picks offset +3, the pre fit -1 (and
+  the fit on every bar outside the spans also -1). The bar map itself was right (102 edited bars = 123 - 21). The single-span
+  job fits pre/post the same way (splice_job.py range(e, n)), so this is not chain-specific; the 0.25 s length rule caught it.
+- No partial save: every plan added exactly one version to the base layer; rerender jobs left no audio.wav on yue-server.
+- Temp bytes: an ok chain's yue job dir holds 62-83 MB (audio.wav + grids) until yue-server's 24 h retention sweep (the
+  server's cancel is a no-op on a finished job, as documented); a rerender job dir 0.6-0.8 MB, no audio.
+
+Audio (not in git): saved versions in E:/ai/tmp/ck4-data/audio/<versionId>.wav (ids in results.json), bases = each song's v1;
+yue job dirs in E:/ai/tmp/ck4-yue-data/<spliceId>/.

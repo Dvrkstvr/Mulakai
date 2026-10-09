@@ -80,7 +80,7 @@ async function checkEdit(json: Obj, message: string, assumptions: string[], ctx:
   const rt = checkRetime(json.ops, ctx.retime, ctx.request);
   if (rt && 'fail' in rt) return fail(rt.fail);
   if (rt && 'say' in rt) return { ok: true, reply: { action: 'say', message: rt.say }, applied: null };
-  // D-274: a dock RE-TIME or its SET TEMPO replaces a pending plan: refused, or on a start over its ops listed REMOVED (D-257)
+  // D-278: a dock RE-TIME or its SET TEMPO replaces a pending plan: refused, or on a start over its ops listed REMOVED (D-257)
   const replaces = rt && ('tempo' in rt || rt.route.kind === 'dock') && ctx.pending?.length ? ctx.pending : null;
   if (replaces && !startsOver(ctx.request)) return { ok: true, reply: { action: 'say', message: refusedLine(RETIME_PENDING) }, applied: null };
   const removed = replaces ? { revised: { marks: [{ mark: 'NEW' as const, was: null }], removed: [...replaces] } } : {};

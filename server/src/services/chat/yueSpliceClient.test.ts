@@ -2,7 +2,7 @@
 import { describe, it, expect, beforeAll, afterAll, afterEach } from 'vitest';
 
 const { spliceContract, startFakeYue } = await import('../../../test-fakes/fakeYue.js');
-const { cancelSplice, fetchSpliceAudio, fetchSpliceGrid, spliceStatus, submitSplice, SpliceRefused } = await import('./yueSpliceClient.js');
+const { cancelSplice, fetchSpliceAudio, fetchSpliceGrid, isChain, spliceStatus, submitSplice, SpliceRefused } = await import('./yueSpliceClient.js');
 type FakeYue = Awaited<ReturnType<typeof startFakeYue>>;
 type SpliceSpec = import('./yueSpliceClient.js').SpliceSpec;
 
@@ -53,5 +53,22 @@ describe('yueSpliceClient', () => {
     yue.splice.grids = { base: { grid_v: 1, downbeats: [0.2] } };
     expect(await fetchSpliceGrid(target(), id, 'base')).toEqual({ grid_v: 1, downbeats: [0.2] });
     expect(await fetchSpliceGrid(target(), id, 'out')).toBeNull();
+  });
+
+  it('a chain (C4, spec v2): steps in, one verdict out with every step row; a rerender names the failing step', async () => {
+    yue.splice.fixture = spliceContract('splice-chain-ok');
+    const spec = { ...recorded('splice-chain-ok'), render_job: 'yue-7' };
+    const id = await submitSplice(target(), Buffer.from('a'), 'a.flac', spec, 'job-7');
+    expect(yue.splice.specs).toEqual([spec]);
+    const done = await spliceStatus(target(), id);
+    expect(done).toMatchObject({ state: 'done', result: { verdict: 'ok', kind: 'several', step: null, bars: [9, 22], joins_s: [20.2, 28.2, 16.2],
+      steps: [{ kind: 'REHARMONIZE', bars: [19, 22] }, { kind: 'CUT', bars: [9, 16] }] } });
+    expect(done.state === 'done' && isChain(done.result)).toBe(true);
+    yue.splice.fixture = spliceContract('splice-chain-rerender');
+    const re = await submitSplice(target(), Buffer.from('a'), 'a.flac', recorded('splice-chain-rerender'), 'job-8');
+    expect(await spliceStatus(target(), re)).toMatchObject({ state: 'done', result: { verdict: 'rerender', reason: 'level_step', step: 2, steps: [{ verdict: 'ok' }, { verdict: 'rerender' }] } });
+    yue.splice.fixture = spliceContract('splice-chain-hold');
+    const held = await submitSplice(target(), Buffer.from('a'), 'a.flac', { ...recorded('splice-chain-hold'), render_job: 'yue-9' }, 'job-9');
+    expect(await spliceStatus(target(), held)).toMatchObject({ state: 'running', stage: 'tracking_base' });
   });
 });
