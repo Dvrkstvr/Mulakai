@@ -1,7 +1,8 @@
+import { useEffect } from 'react';
 import { useAddLayerDraft } from './addLayerStore';
 import { AutoTextarea } from './AutoTextarea';
 import { TRACK_NAMES } from './trackNames';
-import { sungTrack } from './addLayerCopy';
+import { lyricsPrefill, sungTrack } from './addLayerCopy';
 
 interface Props {
   trackName: string;
@@ -11,10 +12,17 @@ interface Props {
   songLyrics: string;
 }
 
-/** ADD LAYER's TRACK chips (AUTO first), description, and — for a sung track only — lyrics. */
+/** ADD LAYER's TRACK chips (AUTO first), description, and — for a sung track only — lyrics, which start as the song's
+ * when the field is empty (a field cleared on purpose stays clear until the track changes). */
 export function DockAddLayerFields({ trackName, onTrackName, prompt, onPrompt, songLyrics }: Props) {
   const lyrics = useAddLayerDraft((s) => s.lyrics);
   const setLyrics = useAddLayerDraft((s) => s.setLyrics);
+  useEffect(() => {
+    const prefill = lyricsPrefill(trackName, useAddLayerDraft.getState().lyrics, songLyrics);
+    if (prefill !== null) setLyrics(prefill);
+    // Only on a track pick: re-running on every keystroke would refill a field the user cleared.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trackName]);
   return (
     <>
       <div className="dock-chips" role="radiogroup" aria-label="Track">
