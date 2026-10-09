@@ -1,0 +1,56 @@
+[
+ {
+  "song": "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+  "plan": "gertar-rr",
+  "mix": "reharmonize+reharmonize",
+  "texts": [
+   "give the first chorus and the bridge jazz chords",
+   "two changes: jazz chords in the first chorus (bars 15-22) and jazz chords in the bridge (bars 44-52)"
+  ]
+ },
+ {
+  "song": "a69541f2-1904-4ac6-bc3e-56afaa94e89f",
+  "plan": "gertar-rc",
+  "mix": "reharmonize+cut",
+  "texts": [
+   "give the first chorus jazz chords and cut the second interlude",
+   "two changes: jazz chords in the first chorus (bars 15-22), and cut the interlude at bars 61-68"
+  ]
+ },
+ {
+  "song": "ecf8eb5a-734f-4b5f-a0ab-040b6645e75e",
+  "plan": "carinito-rr",
+  "mix": "reharmonize+reharmonize",
+  "texts": [
+   "give both choruses jazz chords",
+   "two changes: jazz chords in the first chorus (bars 23-30) and jazz chords in the last chorus (bars 48-55)"
+  ]
+ },
+ {
+  "song": "ecf8eb5a-734f-4b5f-a0ab-040b6645e75e",
+  "plan": "carinito-rp",
+  "mix": "reharmonize+repeat",
+  "texts": [
+   "repeat the first chorus and give the last chorus jazz chords",
+   "two changes: repeat the first chorus (bars 23-30) once, and jazz chords in the last chorus (bars 48-55)"
+  ]
+ },
+ {
+  "song": "781968b6-ada5-427a-b333-d4d96b9af7fd",
+  "plan": "polka-rr",
+  "mix": "reharmonize+reharmonize",
+  "texts": [
+   "give the first and the last chorus jazz chords",
+   "two changes: jazz chords in the first chorus (bars 33-40) and jazz chords in the last chorus (bars 106-113)"
+  ]
+ },
+ {
+  "song": "781968b6-ada5-427a-b333-d4d96b9af7fd",
+  "plan": "polka-rc",
+  "mix": "reharmonize+cut",
+  "texts": [
+   "cut the second verse and give the last chorus jazz chords",
+   "two changes: cut the second verse (bars 49-69), and jazz chords in the last chorus (bars 106-113)"
+  ]
+ }
+]
