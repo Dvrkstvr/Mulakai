@@ -10,6 +10,7 @@ import { PLANNER_RULES } from '../score/plannerRules.js';
 import { ACTIONS } from './turnActions.js';
 import { BPM, LINES, SECTION_TAGS } from './recipeRules.js';
 import type { TurnAction } from './chatTypes.js';
+import { RETIME_RULE } from './retimeReply.js';
 
 const INTRO = 'You are the assistant of Mulakai, a local song studio. The person talks a song into being. You propose, code checks your '
   + 'proposal, and nothing runs until the person presses the card\'s button, so propose boldly. Every turn you answer with ONE JSON '
@@ -95,12 +96,13 @@ const OPS_BLOCK = 'OPS REFERENCE (for action edit; the ops go in the reply\'s "o
   + PLANNER_RULES.slice(PLANNER_RULES.indexOf('Ops (bars are numbered'));
 
 /** The system prompt for the allowed actions: only an allowed recipe brings the fields (and with a reading, the
- * REFERENCE rule), only an edit the op reference. */
-export function chatRules(allowed: TurnAction[] = ACTIONS, opts: { reference?: boolean } = {}): string {
+ * REFERENCE rule), only an edit the op reference; RT-6 (F-094): on a song thread the op reference ends with RETIME. */
+export function chatRules(allowed: TurnAction[] = ACTIONS, opts: { reference?: boolean; retime?: boolean } = {}): string {
   const parts = [INTRO, `ACTIONS (exactly one per turn):\n${TEXT_ORDER.filter((a) => allowed.includes(a)).map((a) => ACTION_TEXT[a]).join('\n')}`];
   if (allowed.includes('recipe')) parts.push(RECIPE_FIELDS);
   if (allowed.includes('recipe') && opts.reference) parts.push(REFERENCE_RULE);
-  if (allowed.includes('edit')) parts.push(OPS_BLOCK);
+  if (allowed.includes('edit')) parts.push(opts.retime ? `${OPS_BLOCK}
+${RETIME_RULE}` : OPS_BLOCK);
   return parts.join('\n\n');
 }
 
