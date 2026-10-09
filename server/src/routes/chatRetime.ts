@@ -10,31 +10,19 @@
  */
 import { Router } from 'express';
 import { db } from '../db/index.js';
-import { measureScore } from '../services/engineTranscribeClient.js';
-import { yue2Engine } from '../services/engines/yue2.js';
 import { QueueFullError } from '../services/genQueue.js';
 import type { Job } from '../services/jobRegistry.js';
-import { loadNotation } from '../services/notationStore.js';
-import { retimeScore, type RetimeMode } from '../services/score/yueRetime.js';
-import { readScore } from '../services/score/yueScoreRead.js';
+import type { RetimeMode } from '../services/score/yueRetime.js';
 import { analysisPending, startAnalysis } from '../services/chat/analysisJob.js';
 import { playableVersion, readVersionAnalysis, writeAnalysis } from '../services/chat/analysisStore.js';
 import { isFailed, type StoredAnalysis } from '../services/chat/analysisTypes.js';
-import { readGrid } from '../services/chat/gridCache.js';
 import { retimeReading, undoReadingRetime, type ReadingRetimeDeps } from '../services/chat/readingRetime.js';
 import { retimeOffer } from '../services/chat/retimeRecord.js';
+import { readingRetimeDeps } from '../services/chat/turnRetime.js';
 import { songAnalysisView } from './chatAnalysis.js';
 
 export interface ChatRetimeDeps extends ReadingRetimeDeps { start: (songId: string) => Job }
-const defaults = (): ChatRetimeDeps => ({
-  load: loadNotation,
-  retime: (bundle, mode, bpm) => retimeScore(bundle, mode, bpm),
-  readScore: (abc) => readScore(abc, null, yue2Engine),
-  measure: (abc) => measureScore(yue2Engine, abc),
-  readGrid,
-  now: () => new Date(),
-  start: (songId) => startAnalysis(songId),
-});
+const defaults = (): ChatRetimeDeps => ({ ...readingRetimeDeps(), start: (songId) => startAnalysis(songId) });
 
 const MODES = new Set(['half', 'double', 'bpm']);
 const stamp = (a: StoredAnalysis | null) => (a && !isFailed(a) ? a.readAt : null);

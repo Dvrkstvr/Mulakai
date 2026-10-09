@@ -20,7 +20,7 @@ const { db } = await import('../../db/index.js');
 const { config } = await import('../../config.js');
 const { writeScoreSidecar } = await import('../versionFiles.js');
 const { loadScoreSource } = await import('./scoreSource.js');
-const { persistScoreVersion, scoreEditLabel } = await import('./scoreVersion.js');
+const { persistScoreVersion, scoreEditLabel, spliceSuffix } = await import('./scoreVersion.js');
 const { versionsRouter } = await import('../../routes/versions.js');
 type Plan = import('./planTypes.js').Plan;
 
@@ -173,6 +173,35 @@ describe('a chat edit\'s splice record (C0b, F-047 #1, D-101)', () => {
     const cut = { ...plan(songId, versionId), ops: [{ op: 'CUT' as const, section: 4, label: 'bridge' }] };
     await persistScoreVersion({ songId, plan: cut, source, request, audio, score: EDITED, truncated: false, splice: { ...spliced, kind: 'cut', bars: [57, 64] } });
     expect(rows(layerId)[1].label).toBe('score edit · CUT bridge S4 · bars 57–64 cut');
+  });
+});
+
+describe('a chained splice record (C4, F-069, D-266: splice_v 2)', () => {
+  const row = (kind: 'reharmonize' | 'cut' | 'repeat', bars: [number, number]) => ({
+    kind, bars, joins_s: [1], crossfade_s: [0.5], gain_db: null, snap_ms: [0], length_diff_s: 0, null_test: { samples: 1, different: 0 },
+  });
+  const chain = {
+    splice_v: 2 as const, kind: 'several' as const, bars: [9, 48] as [number, number], joins_s: [16.2, 24.2, 80.2], length_diff_s: -16,
+    null_test: { samples: 30, different: 0 }, steps: [row('reharmonize', [41, 48]), row('cut', [25, 32]), row('reharmonize', [9, 16])],
+  };
+
+  it('names every span in reading order, one group per kind; v1 and the fallback as before; an unknown splice_v adds nothing', () => {
+    expect(spliceSuffix(chain)).toBe(' · bars 9–16, 41–48 spliced · bars 25–32 cut');
+    expect(spliceSuffix({ ...chain, steps: [row('repeat', [17, 24]), row('cut', [1, 8])] })).toBe(' · bars 1–8 cut · bars 17–24 repeated');
+    expect(spliceSuffix({ splice_v: 1, ...row('cut', [57, 64]) })).toBe(' · bars 57–64 cut');
+    expect(spliceSuffix({ splice_v: 1, fallback: 'x' })).toBe(' · whole song re-rendered: x');
+    expect(spliceSuffix({ splice_v: 1, ...row('reharmonize', [43, 43]) })).toBe(' · bar 43 spliced');
+    expect(spliceSuffix({ ...chain, steps: [row('reharmonize', [43, 43]), row('reharmonize', [9, 16])] })).toBe(' · bars 9–16, 43 spliced');
+    expect(spliceSuffix({ splice_v: 3, kind: 'later' } as never)).toBe('');
+  });
+
+  it('is stored as it is under params_json.splice, and the label names the spans', async () => {
+    const { songId, layerId, versionId, source } = await seedSong();
+    const ops = [{ op: 'REHARMONIZE' as const, from_bar: 9, to_bar: 16, chords: [] }, { op: 'CUT' as const, section: 4, label: 'bridge' }];
+    await persistScoreVersion({ songId, plan: { ...plan(songId, versionId), ops }, source, request, audio, score: EDITED, truncated: false, splice: chain });
+    const fresh = rows(layerId)[1];
+    expect(fresh.label).toBe('score edit · REHARMONIZE 9–16 · CUT bridge S4 · bars 9–16, 41–48 spliced · bars 25–32 cut');
+    expect(JSON.parse(fresh.params_json).splice).toEqual(chain);
   });
 });
 

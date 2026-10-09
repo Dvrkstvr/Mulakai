@@ -1,0 +1,88 @@
+{
+ "id": "9a33ea826d964c4a8a32a6c7b58923e6",
+ "kind": "splice",
+ "idempotency_key": "splice-f3c8a39a-8cee-458f-ab41-7e1fc29c65f7",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791564773.9379547,
+ "updated_at": 1791564797.9408722,
+ "started_at": 1791564773.9410632,
+ "finished_at": 1791564797.9408722,
+ "cancel_requested": false,
+ "result": {
+  "kind": "several",
+  "bars": [
+   49,
+   113
+  ],
+  "steps": [
+   {
+    "verdict": "rerender",
+    "reason": "length",
+    "detail": "the new take's bars 106-113 run 6.96 s longer than the current version's (a splice keeps the length within 0.25 s)",
+    "kind": "REHARMONIZE",
+    "bars": [
+     106,
+     113
+    ],
+    "audio_seconds": null,
+    "length_diff_s": 6.9575,
+    "joins_s": [],
+    "crossfade_s": [],
+    "base_points_s": [],
+    "parts": [],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": 8.84,
+      "applied": true,
+      "corr": 0.2325
+     },
+     {
+      "delta_ms": -3.63,
+      "applied": true,
+      "corr": 0.7321
+     }
+    ],
+    "gain_db": {
+     "in": 0.915,
+     "out": 0.39,
+     "bars": [
+      0.915,
+      1.521,
+      0.404,
+      0.808,
+      -1.204,
+      0.276,
+      1.382,
+      0.39
+     ]
+    },
+    "level_step_db": null,
+    "gap_shift_s": null,
+    "seams": [],
+    "null_test": null
+   }
+  ],
+  "grid_urls": {
+   "base": "/v1/splices/9a33ea826d964c4a8a32a6c7b58923e6/grid/base",
+   "render": "/v1/splices/9a33ea826d964c4a8a32a6c7b58923e6/grid/render",
+   "out": null
+  },
+  "verdict": "rerender",
+  "reason": "length",
+  "detail": "the new take's bars 106-113 run 6.96 s longer than the current version's (a splice keeps the length within 0.25 s)",
+  "step": 1,
+  "audio_url": null,
+  "audio_seconds": null,
+  "length_diff_s": null,
+  "joins_s": [],
+  "null_test": null,
+  "timing": {
+   "total_seconds": 24
+  }
+ },
+ "error": null
+}

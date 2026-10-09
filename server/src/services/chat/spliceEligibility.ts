@@ -5,7 +5,8 @@
  * (a chord-free REHARMONIZE changes the render mode for the whole song, D-132; the join is fitted on
  * the score's chords), and each span inside the song as read. One op splices its span; 2+ ops (C4,
  * F-069) chain when spliceSteps says so and answer `kind: 'several'` with the steps (from/to = first and
- * last bar touched, for readers that predate C4). Everything else renders the whole song, and the
+ * last bar touched, for readers that predate C4); 2+ REHARMONIZE ops that merge into one span splice as that one span
+ * (D-271 b revised), the spec carrying one synthetic op (spliceSpec). Everything else renders the whole song, and the
  * reason says why. REPEAT's level-step fallback is decided at render time (CB-3), not here; a REPEAT of
  * the last section is not spliced at all: its last bar is the song's ending, so the copy has no groove
  * to join after (C1 N1, D-213).
@@ -25,16 +26,14 @@ export interface SpliceInput {
   facts: Pick<ScoreFacts, 'header' | 'sections' | 'bar_map'>;
   /** The read's verdict on the base score (null = unknown, treated as none, as renderMode does). */
   chordsPresent: boolean | null;
-  /** C4 feature gate (off until the chain ships end to end): off, 2+ ops answer main's single-change reason. */
-  chain?: boolean;
 }
 
 const METER = '4/4';
 const METER_LINE = /^\(meter M:(\d+\/\d+) from here/;
 const no = (reason: string): Splice => ({ splice: false, reason });
 
-export function spliceEligibility(ops: Op[], { facts, chordsPresent, chain = false }: SpliceInput): Splice {
-  if (ops.length === 0 || (ops.length > 1 && !chain)) return no(`the plan makes ${ops.length} changes; only a single change can be spliced into the old take`);
+export function spliceEligibility(ops: Op[], { facts, chordsPresent }: SpliceInput): Splice {
+  if (ops.length === 0) return no('the plan makes no changes to splice');
   const spans = [];
   for (const op of ops) {
     const s = opSpan(op, facts.sections);
@@ -58,5 +57,6 @@ export function spliceEligibility(ops: Op[], { facts, chordsPresent, chain = fal
   const planned = spliceSteps(ops, facts);
   if ('reason' in planned) return no(planned.reason);
   const { steps } = planned;
+  if (steps.length === 1) return { splice: true, kind: steps[0].kind, from_bar: steps[0].from_bar, to_bar: steps[0].to_bar };
   return { splice: true, kind: 'several', from_bar: steps.at(-1)!.from_bar, to_bar: steps[0].to_bar, steps };
 }

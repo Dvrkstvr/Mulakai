@@ -82,6 +82,10 @@ export const askReply = (message = 'What kind of song?', choices = ['a ballad', 
 export const sayReply = (message = 'It is in A minor at 68 BPM.') => reply({ action: 'say', message });
 export const editReply = (ops: unknown[] = [{ op: 'SET_TEMPO', bpm: 88 }], message = 'Faster.') =>
   reply({ action: 'edit', message, assumptions: [], ops });
+/** RT-6 (F-094): "it's half time" / "it's really 92 BPM" as the planner answers it: one RETIME op in an edit (`more`: other
+ * ops beside it, Q-132). The song thread's prompt with a reading is about 40k characters, so the fake reports 7k tokens. */
+export const retimeReply = (mode: 'half' | 'double' | 'bpm', bpm?: number, message = mode === 'half' ? 'Half time.' : 'Re-timed.', more: unknown[] = []) =>
+  reply({ action: 'edit', message, assumptions: [], ops: [{ op: 'RETIME', mode, ...(bpm !== undefined ? { bpm } : {}) }, ...more] }, 7000);
 export const scalpelReply = (kind = 'repaint', target = 'chorus 1') =>
   reply({ action: 'scalpel', message: 'I will repaint it.', kind, target, details: 'new words' });
 export const analyzeReply = (reference = 'the attached file') =>

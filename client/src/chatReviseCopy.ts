@@ -47,7 +47,11 @@ export function mapCaption(map: BarMap, ops: ScoreOp[], hover: number | null, s:
   const whole = live.filter((x) => x.o.whole).map((x) => WHOLE_WORD[x.op.op] ?? opName(x.op));
   const spanned = live.filter((x) => !x.o.whole && x.o.spans.length);
   if (whole.length) return [`ALL ${n} BARS CHANGE (${whole.join(', ')})`, ...spanned.map((x) => `${spans(x.i)} ${SPAN_WORDS[x.op.op] ?? opName(x.op)}`)].join(' · ');
-  const k = new Set(map.ops.flatMap((o) => o.spans.flatMap(([a, b]) => Array.from({ length: Math.max(0, b - a + 1) }, (_, j) => a + j)))).size;
+  // A merged REHARMONIZE span re-sings the gap bars between its ops too (D-265), so they count as changed: a chain's
+  // step, or a one-span card merged from several ops (D-271 b revised; a one-op span is its op's bars anyway).
+  const resung = !s.splice ? [] : s.kind === 'several' ? s.steps.filter((x) => x.kind === 'reharmonize') : s.kind === 'reharmonize' ? [s] : [];
+  const merged = resung.map((x): [number, number] => [x.from_bar, x.to_bar]);
+  const k = new Set([...map.ops.flatMap((o) => o.spans), ...merged].flatMap(([a, b]) => Array.from({ length: Math.max(0, b - a + 1) }, (_, j) => a + j))).size;
   if (k >= n) return `ALL ${n} BARS CHANGE`;
   const tail = s.splice ? `THE OTHER ${n - k} ARE v${base}` : 'THE WHOLE SONG RE-RENDERS';
   const only = live.length === 1 ? live[0] : null;

@@ -1,0 +1,262 @@
+{
+ "id": "531466fcbde04df79fc796fa61c2b45b",
+ "kind": "splice",
+ "idempotency_key": "splice-fbd0055a-0d10-4e82-a40d-60c37b7b42dd",
+ "admission_id": null,
+ "status": "succeeded",
+ "stage": "finished",
+ "progress": null,
+ "created_at": 1791563434.6811159,
+ "updated_at": 1791563453.5627544,
+ "started_at": 1791563434.6849751,
+ "finished_at": 1791563453.5627544,
+ "cancel_requested": false,
+ "result": {
+  "kind": "several",
+  "bars": [
+   15,
+   52
+  ],
+  "steps": [
+   {
+    "verdict": "ok",
+    "reason": null,
+    "detail": null,
+    "kind": "REHARMONIZE",
+    "bars": [
+     44,
+     52
+    ],
+    "audio_seconds": 214.7511,
+    "length_diff_s": -0.0876,
+    "joins_s": [
+     119.03,
+     144.3524
+    ],
+    "crossfade_s": [
+     0.705882,
+     0.705882
+    ],
+    "base_points_s": [
+     119.03,
+     144.44
+    ],
+    "parts": [
+     {
+      "source": "base",
+      "out_s": [
+       0,
+       119.03
+      ],
+      "src_s": [
+       0,
+       119.03
+      ]
+     },
+     {
+      "source": "render",
+      "out_s": [
+       119.03,
+       144.3524167
+      ],
+      "src_s": [
+       118.6075833,
+       143.93
+      ]
+     },
+     {
+      "source": "base",
+      "out_s": [
+       144.3524167,
+       214.7510833
+      ],
+      "src_s": [
+       144.44,
+       214.8386667
+      ]
+     }
+    ],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": -22.419,
+      "applied": true,
+      "corr": 0.2451
+     },
+     {
+      "delta_ms": 4.115,
+      "applied": false,
+      "corr": 0.1073
+     }
+    ],
+    "gain_db": {
+     "in": -0.239,
+     "out": 2.673,
+     "bars": [
+      -0.239,
+      -0.491,
+      -0.344,
+      2.332,
+      -0.454,
+      1.807,
+      0.958,
+      2.178,
+      2.673
+     ]
+    },
+    "level_step_db": null,
+    "gap_shift_s": null,
+    "seams": [
+     {
+      "out_s": 119.03,
+      "lufs_step": 2.193,
+      "base_lufs_step": 2.18,
+      "lufs_step_excess": 0.013
+     },
+     {
+      "out_s": 144.3524,
+      "lufs_step": -0.562,
+      "base_lufs_step": -0.832,
+      "lufs_step_excess": 0.27
+     }
+    ],
+    "null_test": {
+     "samples": 9058692,
+     "different": 0
+    }
+   },
+   {
+    "verdict": "ok",
+    "reason": null,
+    "detail": null,
+    "kind": "REHARMONIZE",
+    "bars": [
+     15,
+     22
+    ],
+    "audio_seconds": 214.6699,
+    "length_diff_s": -0.0812,
+    "joins_s": [
+     37.16,
+     59.6688
+    ],
+    "crossfade_s": [
+     0.705882,
+     0.705882
+    ],
+    "base_points_s": [
+     37.16,
+     59.75
+    ],
+    "parts": [
+     {
+      "source": "base",
+      "out_s": [
+       0,
+       37.16
+      ],
+      "src_s": [
+       0,
+       37.16
+      ]
+     },
+     {
+      "source": "render",
+      "out_s": [
+       37.16,
+       59.6687917
+      ],
+      "src_s": [
+       37.066875,
+       59.5756667
+      ]
+     },
+     {
+      "source": "base",
+      "out_s": [
+       59.6687917,
+       214.669875
+      ],
+      "src_s": [
+       59.75,
+       214.7510833
+      ]
+     }
+    ],
+    "edges": [],
+    "snap": [
+     {
+      "delta_ms": 26.884,
+      "applied": true,
+      "corr": 0.2052
+     },
+     {
+      "delta_ms": 5.67,
+      "applied": true,
+      "corr": 0.2952
+     }
+    ],
+    "gain_db": {
+     "in": 0.616,
+     "out": -1.229,
+     "bars": [
+      0.616,
+      1.559,
+      0.226,
+      0.214,
+      -0.738,
+      2.22,
+      1.152,
+      -1.229
+     ]
+    },
+    "level_step_db": null,
+    "gap_shift_s": null,
+    "seams": [
+     {
+      "out_s": 37.16,
+      "lufs_step": 1.043,
+      "base_lufs_step": 1.193,
+      "lufs_step_excess": -0.15
+     },
+     {
+      "out_s": 59.6688,
+      "lufs_step": 1.744,
+      "base_lufs_step": 1.986,
+      "lufs_step_excess": -0.242
+     }
+    ],
+    "null_test": {
+     "samples": 9189848,
+     "different": 0
+    }
+   }
+  ],
+  "grid_urls": {
+   "base": "/v1/splices/531466fcbde04df79fc796fa61c2b45b/grid/base",
+   "render": "/v1/splices/531466fcbde04df79fc796fa61c2b45b/grid/render",
+   "out": "/v1/splices/531466fcbde04df79fc796fa61c2b45b/grid/out"
+  },
+  "verdict": "ok",
+  "reason": null,
+  "detail": null,
+  "step": null,
+  "audio_url": "/v1/splices/531466fcbde04df79fc796fa61c2b45b/audio",
+  "audio_seconds": 214.6699,
+  "length_diff_s": -0.1688,
+  "joins_s": [
+   118.9488,
+   144.2712,
+   37.16,
+   59.6688
+  ],
+  "null_test": {
+   "samples": 18248540,
+   "different": 0
+  },
+  "timing": {
+   "total_seconds": 18.878
+  }
+ },
+ "error": null
+}

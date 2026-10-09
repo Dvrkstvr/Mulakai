@@ -26,6 +26,7 @@ from splice_audio import read_audio, write_wav
 from splice_chain import ChainError, fit_bars, map_spans
 from splice_check import final_joins, null_test, seams
 from splice_dsp import SR
+from splice_fit import ShortSide, side_fits
 from splice_grid import fit, score_bars
 from splice_job import SpliceFailure, _render
 from splice_plan import Splice, rerender, splice_reharmonize
@@ -58,7 +59,10 @@ def _step(current, gb, k: int, st: dict, render):
     ms = render.mapped[k][0]
     pre, post = fit_bars(render.mapped, k, render.n)
     # the render's fits, moved so their bar s is the render's bar ms (its span's start in the edited score)
-    g_pre, g_post = (fit(render.grid, render.abc, idx) for idx in (pre, post))
+    try:
+        g_pre, g_post = side_fits(render.grid, render.abc, pre, post)  # R-044: one loop off on a short side
+    except ShortSide as short:
+        return rerender("length", str(short)), {}
     g_pre, g_post = replace(g_pre, offset=g_pre.offset + ms - s), replace(g_post, offset=g_post.offset + ms - s)
     return splice_reharmonize(current, render.audio, gb, g_pre, g_post, s, e), {"render": g_pre}
 

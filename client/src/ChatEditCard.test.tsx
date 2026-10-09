@@ -144,6 +144,23 @@ describe('ChatEditCard, C2: revised, superseded by a revise, the bar map (F-058,
     expect(html(PENDING, undefined, 0, { revising: false })).toMatch(/class="acid chat-create"><span>APPLY/);
   });
 
+  it('C4: a chain of two spans without a map draws both on the strip and says GPU once; APPLY names the step', () => {
+    const several = body({
+      ops: [{ op: 'REHARMONIZE', from_bar: 9, to_bar: 16, chords: [] }, { op: 'CUT', section: 5, label: 'chorus' }],
+      splice: { splice: true, kind: 'several', from_bar: 9, to_bar: 48, steps: [{ kind: 'cut', from_bar: 41, to_bar: 48, ops: [1] }, { kind: 'reharmonize', from_bar: 9, to_bar: 16, ops: [0] }] },
+      checks: { bars: 68, seconds: 180, tokens: 9000, chordsPresent: true, changed: { abc: true, style: false } },
+    });
+    const out = html(PENDING, several);
+    expect(out).toMatch(/class="chat-strip-bar"><i style="left:10\.5\d*%;width:10\.5\d*%"><\/i><i style="left:52\.6\d*%;width:10\.5\d*%"/);
+    expect(out).toContain('BARS 9-16 CHANGE · BARS 41-48 ARE CUT · THE OTHER 60 ARE v1');
+    expect(out).toContain('Uses the GPU, one render, a few minutes · re-sings bars 9-16, cuts bars 41-48');
+    expect(out).not.toContain('undefined');
+    const run = html({ kind: 'committing', phase: { kind: 'running', progressText: 'splicing', stage: 'splicing 1/2', progress: null } }, several);
+    expect(run).toContain('SPLICING · 1 OF 2 · BARS 41-48');
+    expect(run).toMatch(/<i class="dn">RENDERING<\/i><i class="on">SPLICING<\/i>/);
+    expect(html({ kind: 'done' }, several)).toContain('DONE · BARS 9-16, BARS 41-48');
+  });
+
   it('a card from before C2 (no map) keeps the strip, and its rows are not focusable', () => {
     const out = html(PENDING);
     expect(out).toContain('chat-strip-bar');

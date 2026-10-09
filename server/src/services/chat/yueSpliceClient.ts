@@ -3,23 +3,25 @@
  * timeouts, FastAPI `detail`): submit (multipart: the base version's audio + the spec JSON, `splice-<our job id>`
  * as the Idempotency-Key), status, the spliced float32 WAV, a grid, cancel. A refused submit (422 an op that is not
  * spliced or a span outside the score, 409 a render that is not finished) throws `SpliceRefused`: the caller
- * saves the whole song instead (D-101). Shapes: yue-server/splice_spec.py and splice_result.py.
+ * saves the whole song instead (D-101). A chain (C4) is one job: `steps` in, one verdict out. Shapes: yue-server/splice_spec.py and splice_result.py.
  */
 import { errorMessage, failure, headers, request, type EngineTarget } from '../engineClient.js';
 import type { Op } from '../score/planTypes.js';
 import type { Grid } from './gridCache.js';
 
+/** v1 sends one `op`; v2 (C4, D-263) sends `steps`, last bar first; never both. */
 export interface SpliceSpec {
-  op: Op;
+  op?: Op;
+  steps?: Array<{ op: Op }>;
   base_abc: string;
-  /** REHARMONIZE only: the yue job id of the edited score's render. */
+  /** Needed when an op (or a step) is a REHARMONIZE: the yue job id of the edited score's render. */
   render_job?: string;
   edited_abc?: string;
   base_grid?: Grid;
 }
 
-/** The record's `result` once it succeeded: `ok` (audio spliced) or `rerender` (render the whole song). */
-export interface SpliceResult {
+/** One span's verdict: a v1 result, or one row of a chain's `steps`. */
+export interface SpliceStepResult {
   verdict: 'ok' | 'rerender';
   reason: string | null;
   detail: string | null;
@@ -33,6 +35,26 @@ export interface SpliceResult {
   gain_db: unknown;
   null_test: { samples: number; different: number } | null;
 }
+
+/** A chain's result (v2): `step` is the 1-based failing step (null when ok), `steps` the rows run so far, `joins_s`
+ * the saved file's times; on `rerender` there is no audio. */
+export interface SpliceChainResult {
+  verdict: 'ok' | 'rerender';
+  reason: string | null;
+  detail: string | null;
+  kind: 'several';
+  step: number | null;
+  bars: [number, number];
+  audio_seconds: number | null;
+  length_diff_s: number | null;
+  joins_s: number[];
+  null_test: { samples: number; different: number } | null;
+  steps: SpliceStepResult[];
+}
+
+/** The record's `result` once it succeeded: `ok` (audio spliced) or `rerender` (render the whole song). */
+export type SpliceResult = SpliceStepResult | SpliceChainResult;
+export const isChain = (r: SpliceResult): r is SpliceChainResult => 'steps' in r;
 
 export type SpliceState =
   | { state: 'running'; stage?: string; progress?: number }
@@ -68,7 +90,8 @@ export async function spliceStatus(target: EngineTarget, id: string): Promise<Sp
       return { state: 'running', stage: typeof job.stage === 'string' ? job.stage : undefined, progress: typeof job.progress === 'number' ? job.progress : undefined };
     case 'succeeded': {
       const result = job.result as SpliceResult | null;
-      if (!result || (result.verdict !== 'ok' && result.verdict !== 'rerender')) return { state: 'failed', error: `${target.label} splice -> no verdict in its result` };
+      const shaped = result && (result.kind !== 'several' || Array.isArray((result as SpliceChainResult).steps));
+      if (!result || !shaped || (result.verdict !== 'ok' && result.verdict !== 'rerender')) return { state: 'failed', error: `${target.label} splice -> no verdict in its result` };
       return { state: 'done', result };
     }
     case 'failed':

@@ -4,9 +4,11 @@
  * - REHARMONIZE: renders the edited score (scoreRenderRun), then splices the span of that render into the base
  *   on yue-server (`/v1/splices`, the render job's audio stays there);
  * - CUT / REPEAT: splices the base's own audio, with no render;
+ * - a chain (C4, `kind: 'several'`, D-263): one render of the edited score when a step is a REHARMONIZE, then ONE splice
+ *   job with every step (spec v2, last bar first); yue-server's stage names the step (`splicing 2/3`);
  * - anything else (spliceEligibility said so on the card): renders the whole song.
- * A splice verdict `rerender` or a refused splice saves the whole render instead, labelled with the reason (a
- * CUT / REPEAT renders it then), never a silent splice; a failed splice or a cancel saves nothing and keeps the
+ * A splice verdict `rerender` (for a chain: at any step) or a refused splice saves the whole render instead, labelled
+ * with the reason (a CUT / REPEAT-only plan renders it then), never a silent or partial splice; a failed splice or a cancel saves nothing and keeps the
  * plan (the card returns to pending). Every exit cancels the yue splice job: that stops a queued or running
  * splice, but a finished one is untouched (cancel is a no-op), so its spliced WAV and grids stay on yue-server
  * until its retention sweep removes them.
@@ -28,8 +30,8 @@ import { runScoreRender, scoreRequest, type RenderedTake } from '../score/scoreR
 import type { ScoreSource } from '../score/scoreSource.js';
 import { persistScoreVersion, type SavedScoreVersion, type SpliceRecord } from '../score/scoreVersion.js';
 import { readGrid, writeGrid } from './gridCache.js';
-import type { Splice, SpliceKind } from './spliceEligibility.js';
-import { fallbackReason } from './versionCard.js';
+import type { Splice } from './spliceEligibility.js';
+import { needsRender, spliceFallback, spliceRecord, spliceSpec } from './spliceSpec.js';
 import { cancelSplice, fetchSpliceAudio, fetchSpliceGrid, spliceStatus, submitSplice, SpliceRefused, type SpliceResult } from './yueSpliceClient.js';
 
 export interface EditSaved { version: SavedScoreVersion; splice?: SpliceRecord; previous: { versionId: string; number: number } | null }
@@ -45,20 +47,15 @@ function baseFile(plan: Plan): { file: string; number: number } | null {
   return { file: row.audio_file, number: ids.indexOf(plan.baseVersionId) + 1 };
 }
 
-const record = (r: SpliceResult, kind: SpliceKind): SpliceRecord => ({
-  splice_v: 1, kind, bars: r.bars, joins_s: r.joins_s, crossfade_s: r.crossfade_s, gain_db: r.gain_db,
-  snap_ms: r.snap.map((s) => s.delta_ms), length_diff_s: r.length_diff_s, null_test: r.null_test,
-});
-
 /** Splice on yue-server and wait for its verdict; null once our job was aborted. `ids` collects the yue job id. */
-async function splice(job: Job, deps: RenderDeps, plan: Plan, source: ScoreSource, take: RenderedTake | null, ids: string[]): Promise<Spliced | null> {
+async function splice(job: Job, deps: RenderDeps, plan: Plan, source: ScoreSource, planned: Extract<Splice, { splice: true }>, take: RenderedTake | null, ids: string[]): Promise<Spliced | null> {
   job.progressText = 'splicing';
   job.status = 'running';
   const base = baseFile(plan);
   if (!base) throw new Error('the version this edit was planned on is gone');
   const audio = await fs.readFile(path.join(config.audioDir, base.file));
   const grid = await readGrid(plan.baseVersionId);
-  const spec = { op: plan.ops[0], base_abc: source.abc ?? '', ...(take ? { render_job: take.taskId } : {}), edited_abc: plan.abc, ...(grid ? { base_grid: grid } : {}) };
+  const spec = spliceSpec(planned, plan, source.abc ?? '', take?.taskId ?? null, grid);
   try {
     ids.push(await submitSplice(deps.target, audio, base.file, spec, job.id));
   } catch (err) {
@@ -102,25 +99,21 @@ async function apply(job: Job, songId: string, run: RenderRun, planned: Splice, 
   const saveTake = async (take: RenderedTake, rec?: SpliceRecord) =>
     save(await fetchAudio(deps.target, take.taskId), await fetchScore(deps.target, take.taskId).catch(() => null), take.request, take.truncated, rec);
 
-  if (planned.splice && planned.kind === 'several') { // C4 interim: CK-3 sends the chain (spec v2); never splice one span of it
-    const whole = await render();
-    return void (whole && (await saveTake(whole, { splice_v: 1, fallback: 'several spans are not spliced one after another yet' })));
-  }
   let take: RenderedTake | null = null;
-  if (!planned.splice || planned.kind === 'reharmonize') {
+  if (!planned.splice || needsRender(planned)) {
     take = await render();
     if (!take || !planned.splice) return void (take && (await saveTake(take)));
   }
-  const out = await splice(job, deps, plan, source, take, ids);
+  const out = await splice(job, deps, plan, source, planned, take, ids);
   if (!out) return;
   if ('refused' in out || out.result.verdict === 'rerender') {
-    const fallback = { splice_v: 1 as const, fallback: 'refused' in out ? out.refused : fallbackReason(out.result) };
+    const fallback = { splice_v: 1 as const, fallback: 'refused' in out ? out.refused : spliceFallback(out.result) };
     take = take ?? (await render());
     return void (take && (await saveTake(take, fallback)));
   }
   const audio = await fetchSpliceAudio(deps.target, out.spliceId);
   const [baseGrid, outGrid] = await Promise.all(['base', 'out'].map((w) => fetchSpliceGrid(deps.target, out.spliceId, w as 'base' | 'out')));
-  const version = await save(audio, plan.abc, take?.request ?? scoreRequest(plan, source), false, record(out.result, planned.kind));
+  const version = await save(audio, plan.abc, take?.request ?? scoreRequest(plan, source), false, spliceRecord(out.result, planned));
   if (!version) return;
   if (!(await readGrid(plan.baseVersionId))) await writeGrid(plan.baseVersionId, baseGrid).catch(() => false);
   await writeGrid(version.id, outGrid).catch(() => false);

@@ -9,7 +9,9 @@
  * a recipe on a reading goes through referenceRecipe first, so code fills the borrowed fields (D-128).
  * C2: an edit card carries its bar map (barMap, D-215); a recipe that filled a field stores its undo record (D-220);
  * a revise turn's card is plan n+1 with `revision` and `since` (NEW / CHANGED / SAME, REMOVED; F-058, D-227).
- * Pure: turnJob resolves the analyze target and the edit's base, and stores the plan.
+ * RT-6 (F-094): a routed RE-TIME is the dock's plan as an edit card, or the re-timed reading as a say whose body
+ * carries UNDO TURN's facts, or the refusal as a say.
+ * Pure: turnJob resolves the analyze target, the edit's base and a RE-TIME, and stores the plan.
  */
 import { buildPlan } from '../score/planBuild.js';
 import type { ApplyResult, Plan, Since } from '../score/planTypes.js';
@@ -19,7 +21,10 @@ import { spliceEligibility } from './spliceEligibility.js';
 import { asksWholeSong, assumptionsUnderMark, markFit } from './markFit.js';
 import { referenceRecipe } from './referenceRecipe.js';
 import type { Reading } from './reading.js';
+import { refusedLine, retimeDoneLine } from './retimeReply.js';
+import type { RetimeResolved } from './turnRetime.js';
 import type { AnalyzeBody, AskBody, Draft, EditBase, EditBody, RecipeBody, ScalpelKind, TurnReply } from './chatTypes.js';
+import type { RetimeDoneBody } from './editTypes.js';
 
 const VERB: Record<ScalpelKind, string> = { repaint: 'REPAINT', add_layer: 'ADD LAYER', split: 'SPLIT', export: 'EXPORT' };
 const ATTACH = 'Attach the song with ATTACH ▾ (FILE… or FROM LIBRARY…) and send again.';
@@ -61,11 +66,14 @@ export interface DispatchInput {
   request?: string;
   /** C1 (F-055): the turn's pinned mark (bars clamped to the score, null = a time only) and the clamp's notes. */
   mark?: EditMark | null;
+  /** RT-6: an accepted RETIME, resolved after the unload. */
+  retime?: RetimeResolved | null;
 }
 export type EditMark = NonNullable<EditBody['mark']>;
 
 export type Dispatch =
   | { kind: 'say'; text: string; body: null }
+  | { kind: 'say'; text: string; body: RetimeDoneBody }
   | { kind: 'ask'; text: string; body: AskBody }
   | { kind: 'recipe'; text: string; body: RecipeBody; draft: Draft }
   | { kind: 'analyze'; text: string; body: AnalyzeBody }
@@ -89,19 +97,31 @@ function editCard(reply: Extract<TurnReply, { action: 'edit' }>, request: string
     chordsPresent: base.chordsPresent, ops: reply.ops, applied, attempts: edit.attempts, refusals: edit.refusals,
     revision: edit.since ? edit.revision : undefined, since: edit.since ?? null,
   });
-  const body: EditBody = {
+  return { kind: 'edit', text: reply.message, body: editBody(plan, base, reply.assumptions, request, mark), plan };
+}
+
+/** The edit card's body over a plan (an edit turn's, or the dock's RE-TIME plan). */
+function editBody(plan: Plan, base: EditBase, assumptions: string[], request: string, mark?: EditMark | null): EditBody {
+  return {
     planId: plan.id, ops: plan.ops, verdicts: plan.verdicts, checks: plan.checks,
-    splice: spliceEligibility(plan.ops, { ...base, chain: process.env.CHAT_SPLICE_CHAIN === '1' }), renderMode: plan.renderMode,
-    assumptions: mark?.bars ? assumptionsUnderMark(reply.assumptions) : reply.assumptions, attempts: plan.attempts, refusals: plan.refusals,
+    splice: spliceEligibility(plan.ops, base), renderMode: plan.renderMode,
+    assumptions: mark?.bars ? assumptionsUnderMark(assumptions) : assumptions, attempts: plan.attempts, refusals: plan.refusals,
     ...(mark ? { mark: { ...mark, notes: [...mark.notes, ...(mark.bars ? markFit(plan.ops, mark.bars, base.facts, asksWholeSong(request)).notes : [])] } } : {}),
     from: { bpm: base.facts.header.bpm, key: base.facts.header.key },
     map: barMap(base.facts, plan.ops),
     ...(plan.since ? { revision: plan.revision, since: plan.since } : {}),
   };
-  return { kind: 'edit', text: reply.message, body, plan };
 }
 
-export function dispatchReply({ reply, hasSong, draft, sentRev, scoreReason, reference, analyze, edit, request = '', mark }: DispatchInput): Dispatch {
+function retimeCard(reply: TurnReply, r: RetimeResolved, request: string): Dispatch {
+  if (r.kind === 'refused') return say(refusedLine(r.reason));
+  if (r.kind === 'reading') return { kind: 'say', text: retimeDoneLine(r.done), body: { retime: r.done } };
+  const assumptions = reply.action === 'edit' ? reply.assumptions : [];
+  return { kind: 'edit', text: reply.message, body: editBody(r.plan, r.base, assumptions, request), plan: r.plan };
+}
+
+export function dispatchReply({ reply, hasSong, draft, sentRev, scoreReason, reference, analyze, edit, request = '', mark, retime }: DispatchInput): Dispatch {
+  if (retime && hasSong) return retimeCard(reply, retime, request);
   switch (reply.action) {
     case 'say': return say(reply.message);
     case 'ask': return { kind: 'ask', text: reply.message, body: { choices: reply.choices } };

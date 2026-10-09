@@ -9,7 +9,11 @@
 import { toneWav } from '../fake-acestep/wav.js';
 import { contract, same } from './contracts.js';
 
-export type SpliceName = 'splice-ok' | 'splice-rerender' | 'splice-failed' | 'splice-hold';
+/** C4 (F-069): `splice-chain-song` is the chain recorded on the contract song (REHARMONIZE bar 43 + CUT the chorus,
+ * `yue-server/tests/test_splice_chain_song.py`), the one chain spec an e2e plan sends; the other chain recordings are
+ * on yue-server's own synthetic score. */
+export type SpliceName = 'splice-ok' | 'splice-rerender' | 'splice-failed' | 'splice-hold'
+  | 'splice-chain-song' | 'splice-chain-ok' | 'splice-chain-rerender' | 'splice-chain-hold';
 
 interface SpliceFixture {
   request: { form: { spec: Record<string, unknown> } };
