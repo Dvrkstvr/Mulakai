@@ -28,7 +28,7 @@ import { runScoreRender, scoreRequest, type RenderedTake } from '../score/scoreR
 import type { ScoreSource } from '../score/scoreSource.js';
 import { persistScoreVersion, type SavedScoreVersion, type SpliceRecord } from '../score/scoreVersion.js';
 import { readGrid, writeGrid } from './gridCache.js';
-import type { Splice } from './spliceEligibility.js';
+import type { Splice, SpliceKind } from './spliceEligibility.js';
 import { fallbackReason } from './versionCard.js';
 import { cancelSplice, fetchSpliceAudio, fetchSpliceGrid, spliceStatus, submitSplice, SpliceRefused, type SpliceResult } from './yueSpliceClient.js';
 
@@ -45,7 +45,7 @@ function baseFile(plan: Plan): { file: string; number: number } | null {
   return { file: row.audio_file, number: ids.indexOf(plan.baseVersionId) + 1 };
 }
 
-const record = (r: SpliceResult, kind: Extract<Splice, { splice: true }>['kind']): SpliceRecord => ({
+const record = (r: SpliceResult, kind: SpliceKind): SpliceRecord => ({
   splice_v: 1, kind, bars: r.bars, joins_s: r.joins_s, crossfade_s: r.crossfade_s, gain_db: r.gain_db,
   snap_ms: r.snap.map((s) => s.delta_ms), length_diff_s: r.length_diff_s, null_test: r.null_test,
 });
@@ -102,6 +102,10 @@ async function apply(job: Job, songId: string, run: RenderRun, planned: Splice, 
   const saveTake = async (take: RenderedTake, rec?: SpliceRecord) =>
     save(await fetchAudio(deps.target, take.taskId), await fetchScore(deps.target, take.taskId).catch(() => null), take.request, take.truncated, rec);
 
+  if (planned.splice && planned.kind === 'several') { // C4 interim: CK-3 sends the chain (spec v2); never splice one span of it
+    const whole = await render();
+    return void (whole && (await saveTake(whole, { splice_v: 1, fallback: 'several spans are not spliced one after another yet' })));
+  }
   let take: RenderedTake | null = null;
   if (!planned.splice || planned.kind === 'reharmonize') {
     take = await render();

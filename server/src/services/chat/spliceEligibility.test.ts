@@ -5,7 +5,7 @@ import { spliceEligibility, type SpliceInput } from './spliceEligibility.js';
 import type { Op, ScoreFacts } from '../score/planTypes.js';
 
 const facts = contract('read-ok').response.body.facts as ScoreFacts; // 65 bars of 4/4: intro 1-10, verse 11-46, chorus 47-62, outro 63-65
-const song: SpliceInput = { facts, chordsPresent: true };
+const song: SpliceInput = { facts, chordsPresent: true, chain: true };
 const reharm = (from_bar: number, to_bar: number): Op =>
   ({ op: 'REHARMONIZE', from_bar, to_bar, chords: [{ bar: from_bar, beat: 1, root: 'G', quality: 'm7' }] });
 
@@ -40,10 +40,48 @@ describe('splice eligibility (pure)', () => {
     }
   });
 
-  it('more than one change re-renders the whole song', () => {
+  it('a plan with an op that cannot be spliced re-renders the whole song, naming that op', () => {
     expect(spliceEligibility([reharm(47, 54), { op: 'SET_TEMPO', bpm: 90 }], song))
+      .toEqual({ splice: false, reason: 'SET TEMPO changes the whole take, so it cannot be spliced into the old one' });
+    expect(spliceEligibility([], song)).toEqual({ splice: false, reason: 'the plan makes 0 changes; only a single change can be spliced into the old take' });
+  });
+
+  it('C4 (F-069): 2-4 spliceable ops on separate spans answer kind several with the steps, last bar first', () => {
+    const out = spliceEligibility([reharm(11, 14), { op: 'CUT', section: 3, label: 'chorus' }], song);
+    expect(out).toEqual({
+      splice: true, kind: 'several', from_bar: 11, to_bar: 62,
+      steps: [{ kind: 'cut', from_bar: 47, to_bar: 62, ops: [1] }, { kind: 'reharmonize', from_bar: 11, to_bar: 14, ops: [0] }],
+    });
+  });
+
+  it('C4 gate off (the default, CHAT_SPLICE_CHAIN unset): 2+ ops answer the single-change reason, byte for byte', () => {
+    const off = { facts, chordsPresent: true };
+    expect(spliceEligibility([reharm(11, 14), { op: 'CUT', section: 3, label: 'chorus' }], off))
       .toEqual({ splice: false, reason: 'the plan makes 2 changes; only a single change can be spliced into the old take' });
-    expect(spliceEligibility([], song).splice).toBe(false);
+    expect(spliceEligibility([reharm(47, 54), { op: 'SET_TEMPO', bpm: 90 }], { ...off, chain: false }))
+      .toEqual({ splice: false, reason: 'the plan makes 2 changes; only a single change can be spliced into the old take' });
+    expect(spliceEligibility([reharm(47, 54)], off)).toEqual({ splice: true, kind: 'reharmonize', from_bar: 47, to_bar: 54 });
+  });
+
+  it('C4: a chain the planner refuses re-renders the whole song with its reason (D-265)', () => {
+    expect(spliceEligibility([reharm(43, 46), { op: 'REPEAT', section: 3, label: 'chorus' }], song)).toEqual({
+      splice: false, reason: 'the repeat of the chorus (bars 47-62) is under 2 bars or 3 s from bars 43-46, so the two cannot be spliced one after the other',
+    });
+  });
+
+  it('C4: the single-op rules hold per op inside a chain', () => {
+    const outro: Op = { op: 'REPEAT', section: 4, label: 'outro' };
+    expect(spliceEligibility([reharm(11, 14), outro], song)).toEqual({
+      splice: false, reason: 'the outro ends the song: its last bar is the ending, so the old audio has nothing to play the copy after',
+    });
+    expect(spliceEligibility([reharm(11, 14), reharm(60, 70)], song)).toEqual({ splice: false, reason: "bars 60-70 are not inside the song's 65 bars" });
+    const waltz = { ...facts, header: { ...facts.header, meter: '3/4' } };
+    expect(spliceEligibility([reharm(11, 14), reharm(47, 50)], { facts: waltz, chordsPresent: true, chain: true }))
+      .toEqual({ splice: false, reason: 'the song is in 3/4; splicing is tested on 4/4 only' });
+    expect(spliceEligibility([{ op: 'CUT', section: 1, label: 'intro' }, reharm(47, 50)], { facts, chordsPresent: false, chain: true }))
+      .toEqual({ splice: false, reason: 'the song has no chords: adding them renders the whole song with chords' });
+    expect(spliceEligibility([{ op: 'CUT', section: 1, label: 'intro' }, { op: 'CUT', section: 3, label: 'chorus' }], { facts, chordsPresent: null, chain: true }))
+      .toEqual({ splice: false, reason: 'the song has no chords to align the join on' });
   });
 
   it('F-047 edge: a 3/4 song, or a meter change inside the song, re-renders whole (SP-4 tested 4/4 only)', () => {
