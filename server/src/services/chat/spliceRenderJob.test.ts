@@ -148,6 +148,18 @@ describe('startEditRender', () => {
     expect(saved[0]).toMatchObject({ splice: undefined });
   });
 
+  it('C4 interim (until CK-3 sends the chain): a several-span plan renders the whole song, labelled, never one span of it', async () => {
+    const { songId, layerId, planId } = await seed(REPEAT);
+    const several: Splice = { splice: true, kind: 'several', from_bar: 1, to_bar: 16, steps: [
+      { kind: 'repeat', from_bar: 9, to_bar: 16, ops: [1] }, { kind: 'cut', from_bar: 1, to_bar: 4, ops: [0] }] };
+    const { job, saved } = start(songId, planId, several);
+    expect((await settled(job.id)).status).toBe('done');
+    expect(yue.splice.specs).toEqual([]);
+    expect(yue.submits()).toHaveLength(1);
+    expect(saved[0].splice).toEqual({ splice_v: 1, fallback: 'several spans are not spliced one after another yet' });
+    expect(rows(layerId)[1].label).toContain('whole song re-rendered: several spans are not spliced one after another yet');
+  });
+
   it('a failed splice saves nothing: the job fails with the reason and the yue job is ended (F-047 edge)', async () => {
     const { songId, layerId, planId } = await seed(REHARM);
     yue.splice.fixture = spliceContract('splice-failed');
