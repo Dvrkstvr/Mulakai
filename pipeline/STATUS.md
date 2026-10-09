@@ -6,11 +6,11 @@
 - track: standard · approach: spec-first (+ design-first: dock verb UI, prototype-first: planner/VRAM)
 - focus: chat-first (C0..C8, D-096/D-103); score agent M0-M2 done; existing app adopted at stage 7
 - stage: 7 build — C2 DONE 2026-10-09 (built #230-#249, reviewed C2-code.md + #251, live c2-live.md, fixes #256-#258 #265 #266, F-056..F-060 pass, curated); C1 done 2026-10-08
-- clarity: blocking 0 · latest Q-144 · decisions to D-258
+- clarity: blocking 0 · latest Q-144 · decisions to D-259
 - feasibility: amber · H-open 1 (R-038 German lyrics: gemma4 chosen D-237, build = LD) · R-024 closed · R-030 accepted (D-198) · R-033 fixed #201 · R-031 not seen, R-032 measured (CP-C1) · spiked 7 · R-042 LD turn time
 - milestone: C0 + C1 + C2 + C3 done · features passing 52/96 · Re-time a transcription (own session)
 - autopilot: stopped — C2 reached (run 7, 6/12 rounds)
-- LD (lyrics own call; German on gemma4): built #242 #246, fixes #252 (D-251 draft offers no edit) #253 (D-252 code keeps lyrics) #260 (D-255 looped structure refused) · re-check 2026-10-08: redirect 0/18, keep 8/11 (misses = Outro loop, #260) · owed: live keep re-check after #260, chatCp3 (owner songs), owner reads German lyrics
+- LD (lyrics own call; German on gemma4): built #242 #246 · fixes #252 (D-251) #253 (D-252 keep) #260 (D-255 loop refused) #270 (D-259 lyrics cap 1200, cut call waited out) · live: redirect 0/18, loop retries resolve in-turn; 7/10 German firsts hit the 180 s timeout before #270 · owner tests #270 in use and reports (no re-check run) · owed: chatCp3 (owner songs), owner reads German lyrics
 - owed: cover listen (C3), M2 pair 2, M1 phrase
 - next: LD-1 PR → LD-2 once #238 merges; RT-6 (chat RE-TIME verb) now unblocked by C2; BPM fix in its own session; REPEAT-last-section task card
 
