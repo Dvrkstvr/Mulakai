@@ -24,7 +24,7 @@ import { contextPostflight, contextPreflight } from '../score/contextGuard.js';
 import { askPlanner } from '../score/plannerClient.js';
 import { promptChars } from '../score/plannerPrompt.js';
 import { MAX_ATTEMPTS } from '../score/planAttempts.js';
-import { loadedModels, probePlanner, releaseModels, type LoadedModel, type PlannerTarget } from '../score/ollamaControl.js';
+import { loadedModels, probePlanner, releaseModels, type CutCall, type LoadedModel, type PlannerTarget } from '../score/ollamaControl.js';
 import type { ApplyResult, ChatMessage as PromptMessage, Op, PlannerReply } from '../score/planTypes.js';
 import { applyOps, type ApplyBase } from '../score/yueScoreApply.js';
 import { lastTurns } from './messageStore.js';
@@ -51,8 +51,8 @@ export interface TurnDeps {
   probe: (model?: string) => Promise<string | null>;
   ask: (messages: PromptMessage[], schema: Record<string, unknown>, signal?: AbortSignal, maxTokens?: number, model?: string) => Promise<PlannerReply>;
   loaded: () => Promise<LoadedModel[]>;
-  /** Unload `models` (absent = the planner), then wait for `/api/ps` empty. */
-  release: (models?: string[]) => Promise<unknown>;
+  /** Unload `models` (absent = the planner), then wait for `/api/ps` empty; `cut`: the longer bound (F-095). */
+  release: (models?: string[], cut?: CutCall) => Promise<unknown>;
   /** LD (D-235): the lyrics model for a recipe's language. */
   lyricsModel: (language: string) => string;
   rung: number;
@@ -70,7 +70,7 @@ export function turnDeps(over: Partial<TurnDeps> = {}): TurnDeps {
     ask: (messages, schema, signal, maxTokens, model = planner.model) =>
       askPlanner({ url: planner.url, model }, messages, schema, { timeoutMs: config.llmTimeoutMs, signal, maxTokens }),
     loaded: () => loadedModels(planner),
-    release: (models = [planner.model]) => releaseModels(planner.url, models),
+    release: (models = [planner.model], cut) => releaseModels(planner.url, models, { cut }),
     lyricsModel: (language) => lyricsModelFor(language, process.env, planner.model),
     plan: (target) => planFor(target),
     applyEdit: (base, ops) => applyOps(base, ops),
@@ -94,7 +94,7 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
   if (gathered.mark && 'stale' in gathered.mark) throw new TurnError('stale', `${gathered.mark.stale} · nothing changed · mark again`);
   const unsupported = await deps.probe();
   if (unsupported) throw new TurnError('offline', unsupported);
-  const models = modelSession({ probe: (m) => deps.probe(m), loaded: deps.loaded, release: (m) => deps.release(m) }, deps.planner.model);
+  const models = modelSession({ probe: (m) => deps.probe(m), loaded: deps.loaded, release: (m, cut) => deps.release(m, cut) }, deps.planner.model);
   const aborted = () => { if (wasAborted(job)) throw new TurnError('cancelled', 'Aborted'); };
   const history = lastTurns(threadId, HISTORY_TURNS + 1).filter((m) => m.seq < user.seq);
   const base = isBase(gathered.edit) ? gathered.edit : null;
@@ -121,7 +121,7 @@ async function runTurn(job: Job, threadId: string, user: ChatMessage, deps: Turn
         const chars = promptChars(msgs);
         const pre = contextPreflight({ promptChars: chars, contextLength: await models.contextOf(model) });
         if (pre) throw new TurnError('context', pre);
-        const reply = await deps.ask(msgs, schema, signal, maxTokens, model);
+        const reply = await models.call(model, () => deps.ask(msgs, schema, signal, maxTokens, model));
         const cut = contextPostflight({ promptTokens: reply.promptTokens, promptChars: chars, contextLength: await models.contextOf(model) });
         if (cut) throw new TurnError('context', cut);
         return reply;

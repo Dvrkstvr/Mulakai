@@ -8,7 +8,7 @@
  * (turnLyrics, code decides keep vs write, D-252): the draft's when kept, else a lyrics call on the
  * language's model (`lyricsModel`, lyricsModels.ts), up to 3 attempts; lyrics that fail fail the turn.
  * SP-5's call settings: max_tokens 4000 when the reply may be an edit (2000 cut a 40-bar REHARMONIZE
- * three times; a recipe needs under 800) and for the lyrics (SP-5/SP-7), temperature 0.3, reasoning off
+ * three times; a recipe needs under 800), 1200 for the lyrics (D-259), temperature 0.3, reasoning off
  * and the strict schema (plannerClient). C2 (F-058, D-227): with a pending plan (`revise`) an edit is that
  * plan's revise: `drop` in the schema, the PENDING PLAN lines in the prompt, the merge checked by
  * replyCheck; the accepted merge comes back as `since`. An additive drop, or a start over that keeps
@@ -39,8 +39,9 @@ function shownReasons(reasons: string[]): string[] {
   const shown = reasons.flatMap((r) => { const w = guardWords(r) ?? shownReviseReason(r); return w === null ? [] : [w]; });
   return shown.length ? shown : reasons;
 }
-/** Completion tokens per call (SP-5): an edit-capable call needs room for 6 ops of chords; a lyrics call had 4000 in SP-5 / SP-7. */
-export const MAX_TOKENS = { edit: 4000, other: 2000, lyrics: 4000 };
+/** Completion tokens per call (SP-5): an edit-capable call needs room for 6 ops of chords. Lyrics (F-095, D-259): SP-7's
+ * longest reply was 638 tokens (gemma4 median 286); 1200 is ~2x that, and a reply cut there is retried (lyricsAttempts). */
+export const MAX_TOKENS = { edit: 4000, other: 2000, lyrics: 1200 };
 
 /** The rung from `CHAT_LADDER`; unset, unknown or not built = 0. */
 export function ladderRung(raw: string | undefined = process.env.CHAT_LADDER): number {

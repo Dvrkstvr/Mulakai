@@ -29,6 +29,8 @@ export interface ChatScript {
   status?: number;
   /** Never answer (for timeouts / aborts). */
   hang?: boolean;
+  /** `length`: the reply was cut at max_tokens (F-095); absent = `stop`. */
+  finishReason?: string;
 }
 
 export interface FakeOllamaOptions {
@@ -110,7 +112,7 @@ export async function startFakeOllama(opts: FakeOllamaOptions = {}): Promise<Fak
         if (script.status) return send(res, script.status, { error: { message: 'scripted failure' } });
         resident.set(model, -1);
         const usage = script.promptTokens === null ? undefined : { prompt_tokens: script.promptTokens ?? 2000, completion_tokens: 40 };
-        return send(res, 200, { choices: [{ index: 0, message: { role: 'assistant', content: script.content ?? '' } }], ...(usage ? { usage } : {}) });
+        return send(res, 200, { choices: [{ index: 0, message: { role: 'assistant', content: script.content ?? '' }, finish_reason: script.finishReason ?? 'stop' }], ...(usage ? { usage } : {}) });
       }
       send(res, 404, { error: 'not found' });
     });

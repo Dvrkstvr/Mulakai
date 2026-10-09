@@ -77,7 +77,7 @@ describe('decideReply (rung 0: one call, the full schema)', () => {
     await decideReply({ ...ctx, state: { hasSong: true, scoreReadable: true }, facts: contract('read-ok').response.body.facts as ScoreFacts }, { ask: onSong });
     await decideReply(ctx, { ask: onDraft });
     expect([onSong.mock.calls[0][2], onDraft.mock.calls[0][2]]).toEqual([{ maxTokens: MAX_TOKENS.edit }, { maxTokens: MAX_TOKENS.other }]);
-    expect(MAX_TOKENS).toEqual({ edit: 4000, other: 2000, lyrics: 4000 });
+    expect(MAX_TOKENS).toEqual({ edit: 4000, other: 2000, lyrics: 1200 }); // F-095: SP-7's longest lyrics reply was 638 tokens
   });
 
   it('a live card goes in as the PENDING PROPOSAL with the draft fields; no live card, the sidebar', async () => {

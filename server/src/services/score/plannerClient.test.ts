@@ -1,6 +1,6 @@
 import { describe, it, expect, afterEach } from 'vitest';
 import { startFakeOllama, type FakeOllama } from '../../../test-fakes/fakeOllama.js';
-import { askPlanner } from './plannerClient.js';
+import { askPlanner, CallCut } from './plannerClient.js';
 import { buildOpSchema } from './opSchema.js';
 import type { ScoreFacts } from './planTypes.js';
 
@@ -55,5 +55,21 @@ describe('askPlanner (F-019 #1)', () => {
     const cancel = new AbortController();
     setTimeout(() => cancel.abort(), 20);
     await expect(askPlanner(t, messages, {}, { timeoutMs: 5000, signal: cancel.signal })).rejects.toThrow('planner call cancelled');
+  });
+
+  it('F-095: a timeout or a cancel is a CallCut (the model may still be generating); a reply cut at max_tokens carries cutAt', async () => {
+    fake = await startFakeOllama();
+    const t = { url: fake.url, model: 'qwen3:14b' };
+    fake.chats.push({ hang: true });
+    const timedOut = await askPlanner(t, messages, {}, { timeoutMs: 50 }).catch((e: unknown) => e);
+    expect(timedOut).toBeInstanceOf(CallCut);
+    expect(timedOut).toMatchObject({ model: 'qwen3:14b', why: 'timed out after 0 s' });
+    const cancel = new AbortController();
+    setTimeout(() => cancel.abort(), 20);
+    expect(await askPlanner(t, messages, {}, { timeoutMs: 5000, signal: cancel.signal }).catch((e: unknown) => e)).toMatchObject({ why: 'cancelled' });
+    fake.chats[0] = { content: '{"sections": [', finishReason: 'length' };
+    expect(await askPlanner(t, messages, {}, { timeoutMs: 5000, maxTokens: 1200 })).toMatchObject({ content: '{"sections": [', cutAt: 1200 });
+    fake.chats[0] = { content: '{}' };
+    expect(await askPlanner(t, messages, {}, { timeoutMs: 5000 })).not.toHaveProperty('cutAt');
   });
 });

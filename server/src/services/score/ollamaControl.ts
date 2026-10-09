@@ -11,6 +11,11 @@ export interface LoadedModel { name: string; contextLength: number | null }
 /** Poll interval and bound for the unload (F-020 #1, #4). */
 export const UNLOAD_POLL_MS = 250;
 export const UNLOAD_BOUND_MS = 10_000;
+/** After a call the client gave up on (F-095, D-259): Ollama may still be generating it, and a model in use is not
+ * unloaded until that generation ends (seen live: gemma4 still listed 10 s after a 180 s timeout). Ollama cancels a
+ * generation when its client disconnects (llm/llama_server.go), but not at once and not through every proxy; a
+ * lyrics reply is capped at 1200 tokens, so 60 s covers what is left of one. Still listed after it: the turn fails. */
+export const CUT_UNLOAD_BOUND_MS = 60_000;
 const CONTROL_TIMEOUT_MS = 5_000;
 
 async function call(t: PlannerTarget, route: string, init?: RequestInit): Promise<Response> {
@@ -65,7 +70,16 @@ export const stillLoaded = (names: string[], boundMs: number) => {
     + ' and wait for it to leave the GPU before rendering';
 };
 
+/** A call the job gave up on: `model` may still be generating; `why` as the person reads it ("timed out after 180 s"). */
+export interface CutCall { model: string; why: string }
+
+export const stillGenerating = (cut: CutCall, boundMs: number) =>
+  `${cut.model.split(':')[0]} was still generating a reply the turn had given up on (${cut.why}); it did not leave the GPU`
+  + ` within ${Math.round(boundMs / 1000)} s: run 'ollama stop ${cut.model}' and wait for it to leave the GPU before rendering`;
+
 export interface WaitOptions {
+  /** Set after a cut call: the bound defaults to CUT_UNLOAD_BOUND_MS and the failure says what happened. */
+  cut?: CutCall;
   intervalMs?: number;
   boundMs?: number;
   sleep?: (ms: number) => Promise<void>;
@@ -75,14 +89,17 @@ export interface WaitOptions {
 /** Polls `/api/ps` until no model is listed; throws naming the model after the bound. */
 export async function waitUnloaded(t: PlannerTarget, o: WaitOptions = {}): Promise<{ polls: number; ms: number }> {
   const interval = o.intervalMs ?? UNLOAD_POLL_MS;
-  const bound = o.boundMs ?? UNLOAD_BOUND_MS;
+  const bound = o.boundMs ?? (o.cut ? CUT_UNLOAD_BOUND_MS : UNLOAD_BOUND_MS);
   const sleep = o.sleep ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
   const now = o.now ?? Date.now;
   const started = now();
   for (let polls = 1; ; polls++) {
     const models = await loadedModels(t);
     if (models.length === 0) return { polls, ms: now() - started };
-    if (now() - started >= bound) throw new Error(stillLoaded(models.map((m) => m.name), bound));
+    if (now() - started >= bound) {
+      const names = models.map((m) => m.name);
+      throw new Error(o.cut && names.includes(o.cut.model) ? stillGenerating(o.cut, bound) : stillLoaded(names, bound));
+    }
     await sleep(interval);
   }
 }
