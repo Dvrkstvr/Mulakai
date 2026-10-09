@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { PlayerWaveform } from './PlayerWaveform';
 import { VolumeSlider } from './VolumeSlider';
 import type { PlaybackApi } from './mix/playerApi';
@@ -11,15 +11,17 @@ interface Props {
   title?: string;
   downloadName?: string;
   showProgress?: boolean;
-  /** Play/pause + stop only — no time, volume, or download. Used in the Editor, where the stack-scrub
-      timeline already owns time/seeking and stems are downloaded from the Export rail instead. */
-  minimal?: boolean;
+  /** The Editor's transport: play/stop, time and volume, no title, waveform or download (the stack-scrub timeline
+      owns seeking; downloads live under EXPORT). */
+  compact?: boolean;
+  /** Controls after the time readout (the Editor's LOOP SELECTION). */
+  extra?: ReactNode;
 }
 
 const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
 /** Custom transport per docs/design/DESIGN.md — hexagon play, square stop, sky scrub, neutral volume/download. Driven by a shared PlaybackEngine, not a native <audio> element. */
-export function Player({ engine, downloadSrc, title, downloadName, showProgress = true, minimal = false }: Props) {
+export function Player({ engine, downloadSrc, title, downloadName, showProgress = true, compact = false, extra }: Props) {
   const defaultVolume = useSettings((s) => s.exportSettings.volume);
   const [volume, setVolume] = useState(defaultVolume);
   const { isPlaying, currentTime, duration } = engine;
@@ -45,29 +47,29 @@ export function Player({ engine, downloadSrc, title, downloadName, showProgress 
       <button className="player-btn stop" onClick={engine.stop} aria-label="Stop to start">
         <svg viewBox="0 0 10 10"><rect x="1" y="1" width="8" height="8" /></svg>
       </button>
-      {!minimal && title && <span className="player-title">{title}</span>}
-      {!minimal && <span className="player-time">{fmt(currentTime)} / {fmt(duration)}</span>}
-      {!minimal && showProgress && (
+      {!compact && title && <span className="player-title">{title}</span>}
+      <span className="player-time">{fmt(currentTime)} / {fmt(duration)}</span>
+      {extra}
+      {compact && <span className="player-spacer" />}
+      {!compact && showProgress && (
         <div className="player-waveform-wrap">
           <PlayerWaveform audioUrl={downloadSrc} duration={duration} playhead={currentTime} onSeek={engine.seek} height={36} />
         </div>
       )}
-      {!minimal && (
-        <div className="player-volume">
-          <svg className="vol-icon" viewBox="0 0 16 16" fill="none">
-            <path d="M1 6h3l4-3v10l-4-3H1z" />
-            <path d="M11 5.5c1 1 1 4 0 5M13 4c2 2 2 6 0 8" stroke="currentColor" strokeWidth="1.3" fill="none" />
-          </svg>
-          <VolumeSlider
-            value={volume}
-            onChange={(v) => {
-              setVolume(v);
-              engine.setVolume(v);
-            }}
-          />
-        </div>
-      )}
-      {!minimal && (
+      <div className="player-volume">
+        <svg className="vol-icon" viewBox="0 0 16 16" fill="none">
+          <path d="M1 6h3l4-3v10l-4-3H1z" />
+          <path d="M11 5.5c1 1 1 4 0 5M13 4c2 2 2 6 0 8" stroke="currentColor" strokeWidth="1.3" fill="none" />
+        </svg>
+        <VolumeSlider
+          value={volume}
+          onChange={(v) => {
+            setVolume(v);
+            engine.setVolume(v);
+          }}
+        />
+      </div>
+      {!compact && (
         <a className="player-btn download" href={downloadSrc} download={downloadName} aria-label="Download">
           <svg viewBox="0 0 10 10"><path d="M5 1v6M2 4l3 3 3-3" /><path d="M1.5 9h7" /></svg>
           <span>DOWNLOAD</span>

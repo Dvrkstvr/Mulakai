@@ -6,6 +6,7 @@ import { Waveform, type Region } from './Waveform';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { VolumeSlider } from './VolumeSlider';
 import { laneSelect } from './editorSelection';
+import { LaneMenu } from './LaneMenu';
 
 export const LANE_HEIGHT = 60;
 
@@ -38,7 +39,6 @@ interface Props {
 export function LayerLane({ layer, layers, focused, duration, selection, onSelect, onFocus, onChanged, onSeek, processing, onSplit }: Props) {
   const [name, setName] = useState(layer.name);
   const [editingName, setEditingName] = useState(false);
-  const [confirmDelete, setConfirmDelete] = useState(false);
   const [error, setError] = useState('');
   const [volumeDraft, setVolumeDraft] = useState<number | null>(null);
   const activeVersion = layer.versions.find((v) => v.active);
@@ -64,14 +64,10 @@ export function LayerLane({ layer, layers, focused, duration, selection, onSelec
     void sendVolume(volume).finally(() => setVolumeDraft(null));
   };
 
-  const del = () => {
-    if (!confirmDelete) { setConfirmDelete(true); return; }
-    setConfirmDelete(false);
-    void attempt("couldn't delete layer", async () => {
-      await api.deleteLayer(layer.id);
-      await onChanged();
-    }, setError);
-  };
+  const del = () => void attempt("couldn't delete layer", async () => {
+    await api.deleteLayer(layer.id);
+    await onChanged();
+  }, setError);
 
   /**
    * Plain click: exclusive solo — this layer becomes the only one soloed
@@ -130,22 +126,13 @@ export function LayerLane({ layer, layers, focused, duration, selection, onSelec
           <button
             className={`toggle layer-toggle${layer.solo ? ' on' : ''}`}
             onClick={handleSolo}
+            title="click: hear only this layer · shift-click: add it to the soloed layers"
           >
             <span>SOLO</span>
           </button>
         </span>
-        <button className="tab split-btn" onClick={(e) => { e.stopPropagation(); onSplit(); }} title="split into stems">
-          <span>SPLIT</span>
-        </button>
-        <button
-          className={`lane-delete-btn ${confirmDelete ? 'confirm-delete' : 'delete'}`}
-          disabled={isBase}
-          onClick={(e) => { e.stopPropagation(); del(); }}
-          onBlur={() => setConfirmDelete(false)}
-          title={isBase ? "the base layer can't be deleted" : confirmDelete ? 'confirm delete' : 'delete this layer'}
-        >
-          <span>{confirmDelete ? 'CONFIRM?' : 'X'}</span>
-        </button>
+        <LaneMenu name={layer.name} isBase={isBase} takes={layer.versions.length}
+          onRename={() => setEditingName(true)} onSplit={onSplit} onDelete={del} />
       </div>
       {error && <div className="error">{error}</div>}
       <div className="lane-waveform" onClick={focused ? undefined : onFocus}>
