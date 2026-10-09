@@ -79,6 +79,9 @@ describe('song and fields', () => {
   });
   it('lengths read m:ss', () => {
     expect(fmtLength(192)).toBe('3:12');
+    expect(fmtLength(239.6)).toBe('4:00');
+    expect(fmtLength(59.5)).toBe('1:00');
+    expect(fmtLength(61.4)).toBe('1:01');
     expect(fmtLength(null)).toBeNull();
   });
   it('FILLING… marks the empty fields only while thinking, not the engine', () => {

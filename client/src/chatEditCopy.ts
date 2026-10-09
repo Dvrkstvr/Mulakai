@@ -53,11 +53,14 @@ export function editConsequence(s: ChatSplice, mode: ScoreRenderMode, base: numb
   if (s.splice) {
     const [verb, after] = s.kind === 'cut' ? ['Cuts', 'bars after the cut are earlier'] : ['Repeats', 'bars after the copy are later'];
     // D-154: a join that cannot be aligned (or a REPEAT seam that steps over 4 dB) saves the whole re-render (C1 N1).
-    return `${verb} ${span(s)} in v${base}'s audio, every other bar stays v${base}'s audio · ${after}, so BACK TO v${base} will not line up there · if the join cannot be aligned, the whole song is re-rendered instead · ${saves}${queueSuffix(ahead)}`;
+    return `${NO_RENDER} · ${verb} ${span(s)} in v${base}'s audio, every other bar stays v${base}'s audio · ${after}, so BACK TO v${base} will not line up there · if the join cannot be aligned, the whole song is re-rendered instead · ${saves}${queueSuffix(ahead)}`;
   }
   const clause = renderModeClause(mode);
   return `Uses the GPU, a few minutes · the whole song is re-rendered: every bar will sound different, not only the listed ones · instruments may change${clause ? ` · ${clause}` : ''} · ${saves}${queueSuffix(ahead)}`;
 }
+
+/** F-066: a CUT / REPEAT splice copies or removes audio; only its fallback renders. */
+const NO_RENDER = 'No GPU · no render: the audio is copied or removed at the section edges';
 
 export type ApplyStep = 'rendering' | 'splicing' | 'saving';
 /** The commit's steps (EC-4): a splice renders then splices, a CUT / REPEAT only splices, a whole song only renders. */
@@ -71,6 +74,7 @@ export interface ApplyLine { title: string; tail: string | null; waiting: boolea
 export function applyJobLine(p: CommitPhase, s: ChatSplice, next: number): ApplyLine {
   const steps = applySteps(s);
   const step = p.kind === 'running' ? steps.indexOf(p.progressText as ApplyStep) : -1;
+  if (step < 0 && !steps.includes('rendering')) { const fb = fallbackLine(p); if (fb) return fb; }
   if (p.kind === 'queued' && p.ahead > 0) return { title: `${APPLY} · QUEUED · ${startsAfter(p.ahead).toUpperCase()}`, tail: null, waiting: true, cancel: true };
   if (p.kind !== 'running' || step < 0) return { title: `${APPLY} · STARTING…`, tail: null, waiting: true, cancel: p.kind !== 'starting' };
   const tail = `step ${step + 1} of ${steps.length}`;
@@ -78,6 +82,12 @@ export function applyJobLine(p: CommitPhase, s: ChatSplice, next: number): Apply
   if (p.progressText === 'splicing') return { title: `SPLICING · ${s.splice ? span(s) : 'the bars'} into the old take`, tail, waiting: false, cancel: true };
   const stage = renderStage(p.stage ?? undefined, p.progress ?? undefined);
   return { title: `RENDERING${s.splice ? '' : ' · WHOLE SONG'} · YUE2${stage ? ` · ${stage}` : ''}`, tail, waiting: false, cancel: true };
+}
+/** A CUT / REPEAT whose join could not be aligned renders the whole song (D-154): not one of its planned steps, so no count. */
+function fallbackLine(p: CommitPhase): ApplyLine | null {
+  if (p.kind !== 'running' || p.progressText !== 'rendering') return null;
+  const stage = renderStage(p.stage ?? undefined, p.progress ?? undefined);
+  return { title: `RENDERING · WHOLE SONG · YUE2${stage ? ` · ${stage}` : ''}`, tail: null, waiting: false, cancel: true };
 }
 
 /** A cancel while rendering drops YuE2's render job with its files; after a splice the render stays on yue-server
@@ -128,7 +138,9 @@ export function versionFoot(v: ChatVersionBody, active: boolean): string {
   const p = v.previous.number;
   if (v.truncated) return `v${p} is kept and is the full-length take.`;
   if (v.fallback) return `Not what the card promised: BACK TO v${p} and USE v${p} if you prefer.`;
-  if (v.splice && v.splice.kind !== 'reharmonize') return `BACK TO v${p} plays the same seconds, which no longer line up after bar ${v.splice.bars[0] - 1}.`;
+  // A CUT shifts everything from its first bar; a REPEAT's copy follows its last bar (yue-server splice_repeat).
+  if (v.splice?.kind === 'cut') return `BACK TO v${p} plays the same seconds, which no longer line up from bar ${v.splice.bars[0]}.`;
+  if (v.splice?.kind === 'repeat') return `BACK TO v${p} plays the same seconds, which no longer line up after bar ${v.splice.bars[1]}.`;
   return active ? `v${v.number} is the active version. v${p} is kept.` : `v${v.number} is kept in VERSIONS.`;
 }
 
