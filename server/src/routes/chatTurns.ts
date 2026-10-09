@@ -8,6 +8,7 @@
  * the yue splice); a SEND during it queues behind it, so the turn reads the new version.
  * C1: SEND may carry `mark` (a `range` referent, D-175): pinned → frozen in the user message (the echo); stale →
  * 409 `{error: 'MARK_STALE', reason, was, shift}`, nothing written; past the song's end → 400.
+ * C4 (D-268): RE-RENDER WHOLE SONG on the active spliced version's card appends a whole-song edit card (rerenderWhole).
  */
 import { Router } from 'express';
 import { config } from '../config.js';
@@ -20,6 +21,7 @@ import { appendMessage, listMessages, updateMessage } from '../services/chat/mes
 import { cancelReading, readingOf } from '../services/chat/readingJob.js';
 import { getReference } from '../services/chat/referenceStore.js';
 import { threadById } from '../services/chat/threadStore.js';
+import { rerenderDeps, rerenderWhole, type RerenderDeps } from '../services/chat/rerenderWhole.js';
 import { cancelTurn, startChatTurn, turnDeps, turnOf, type TurnDeps } from '../services/chat/turnJob.js';
 import type { ChatMessage, ReadingBody } from '../services/chat/chatTypes.js';
 import { MARK_STALE, parseRange } from '../services/score/planReferent.js';
@@ -40,9 +42,11 @@ export interface TurnRouteDeps {
   llmConfigured: () => boolean;
   /** C0b: APPLY on an edit card. */
   apply?: () => EditCommitDeps;
+  /** C4: RE-RENDER WHOLE SONG. */
+  rerender?: () => RerenderDeps;
 }
 const defaults: TurnRouteDeps = {
-  turn: () => turnDeps(), create: () => createDeps(), llmConfigured: () => Boolean(config.llmUrl), apply: () => editCommitDeps(),
+  turn: () => turnDeps(), create: () => createDeps(), llmConfigured: () => Boolean(config.llmUrl), apply: () => editCommitDeps(), rerender: () => rerenderDeps(),
 };
 
 const live = (jobId: string | null) => ['queued', 'loading', 'running'].includes(jobId ? getJob(jobId)?.status ?? '' : '');
@@ -141,6 +145,21 @@ export function makeChatTurnsRouter(deps: TurnRouteDeps = defaults): Router {
       const out = await applyEdit(req.params.id, proposalId, (deps.apply ?? defaults.apply!)());
       if ('reason' in out) return res.status(409).json({ reason: out.reason, stale: out.stale === true });
       res.status(202).json({ jobId: out.job.id });
+    } catch (err) {
+      res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
+    }
+  });
+
+  /** RE-RENDER WHOLE SONG (F-066 #5, D-268): 201 `{messageId, proposalId}`, the pending edit card it appended; 409
+   * `{reason}` (a turn or an APPLY runs, not the active version, not spliced, over a limit); 404 no such card here. */
+  router.post('/threads/:id/versions/:versionId/rerender', async (req, res) => {
+    const thread = threadById(req.params.id);
+    if (!thread) return res.status(404).json({ error: 'unknown chat' });
+    if (listMessages(thread.id).some(holdsSend)) return res.status(409).json({ error: TURN_OPEN, reason: TURN_OPEN });
+    try {
+      const out = await rerenderWhole(thread.id, req.params.versionId, (deps.rerender ?? defaults.rerender!)());
+      if ('reason' in out) return res.status(out.missing ? 404 : 409).json({ error: out.reason, reason: out.reason });
+      res.status(201).json(out);
     } catch (err) {
       res.status(500).json({ error: err instanceof Error ? err.message : String(err) });
     }
