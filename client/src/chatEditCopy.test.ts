@@ -41,6 +41,16 @@ describe('the edit card', () => {
     for (const s of [repeat, CUT]) expect(editConsequence(s, CHORDS, 1, 2, 0)).toContain('if the join cannot be aligned, the whole song is re-rendered instead · saves v2, v1 is kept');
   });
 
+  it('F-066: a CUT / REPEAT splice says no GPU and no render, the audio is copied or removed at the section edges', () => {
+    const repeat: ChatSplice = { splice: true, kind: 'repeat', from_bar: 1, to_bar: 17 };
+    for (const s of [repeat, CUT]) {
+      const line = editConsequence(s, CHORDS, 1, 2, 0);
+      expect(line).toMatch(/^No GPU · no render: the audio is copied or removed at the section edges · /);
+      expect(line).not.toContain('Uses the GPU');
+    }
+    expect(editConsequence(REHARM, CHORDS, 1, 2, 0)).not.toContain('no render');
+  });
+
   it('the strip line: the span, or all bars', () => {
     expect(stripLine(REHARM, 76, 1)).toBe('BARS 25-32 CHANGE · THE OTHER 68 ARE v1');
     expect(stripLine(CUT, 76, 1)).toBe('BARS 57-64 ARE CUT · THE OTHER 68 ARE v1');
@@ -59,6 +69,14 @@ describe('the edit card', () => {
     expect(applyJobLine({ kind: 'running', progressText: 'saving' }, REHARM, 2)).toMatchObject({ title: 'SAVING · writing v2 and its score', tail: 'step 3 of 3', cancel: false });
     expect(applyJobLine({ kind: 'queued', ahead: 2 }, REHARM, 2)).toMatchObject({ title: 'APPLY · QUEUED · STARTS AFTER 2 JOBS', waiting: true, cancel: true });
     expect(applyJobLine({ kind: 'starting' }, REHARM, 2)).toMatchObject({ title: 'APPLY · STARTING…', waiting: true });
+  });
+
+  it('F-066: a CUT / REPEAT whose join falls back to a whole render says so while it renders', () => {
+    const repeat: ChatSplice = { splice: true, kind: 'repeat', from_bar: 1, to_bar: 17 };
+    for (const s of [repeat, CUT]) {
+      expect(applyJobLine({ kind: 'running', progressText: 'rendering', stage: null, progress: null }, s, 2))
+        .toMatchObject({ title: 'RENDERING · WHOLE SONG · YUE2', tail: null, waiting: false, cancel: true });
+    }
   });
 
   it('every ending without a version says nothing was saved (EC-8)', () => {
@@ -85,6 +103,15 @@ describe('the version card', () => {
   it('a CUT: removed, shorter, bars after it earlier', () => {
     const cut = version({ seconds: 172, splice: { kind: 'cut', bars: [57, 64], lengthDiffS: -20 } });
     expect(versionMeta(cut)).toBe('2:52 · bars 57-64 removed · 0:20 shorter · bars after the cut are earlier');
+  });
+
+  it('BACK TO says where the old take stops lining up: from the cut, after the copy (never bar 0)', () => {
+    const repeat = version({ splice: { kind: 'repeat', bars: [1, 17], lengthDiffS: 20 } });
+    expect(versionFoot(repeat, true)).toBe('BACK TO v1 plays the same seconds, which no longer line up after bar 17.');
+    const cutFirst = version({ splice: { kind: 'cut', bars: [1, 8], lengthDiffS: -20 } });
+    expect(versionFoot(cutFirst, true)).toBe('BACK TO v1 plays the same seconds, which no longer line up from bar 1.');
+    const cut = version({ splice: { kind: 'cut', bars: [57, 64], lengthDiffS: -20 } });
+    expect(versionFoot(cut, true)).toBe('BACK TO v1 plays the same seconds, which no longer line up from bar 57.');
   });
 
   it('the whole song as planned; the join could not be aligned (rust, EC-5); TRUNCATED', () => {
