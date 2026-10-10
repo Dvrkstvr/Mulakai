@@ -4,6 +4,7 @@ import type { Region } from './Waveform';
 import { findActiveSectionIndex } from './lyricSections';
 import { useLyricTiming } from './useLyricTiming';
 import { splitLyricsBlocks, matchSectionBlocks } from './lyricsBlocks';
+import { coveredSections, wordsSpan } from './sectionWords';
 
 /** The song's sections, the one the selection sits in, and the lyrics block it maps to. */
 export function useSectionLyrics(
@@ -27,10 +28,14 @@ export function useSectionLyrics(
   // earlier one doesn't drift out of sync with the shifted text.
   const lyricsBlocks = useMemo(() => splitLyricsBlocks(lyricsDraft), [lyricsDraft]);
   const matchedBlocks = useMemo(() => matchSectionBlocks(sections, lyricsBlocks), [sections, lyricsBlocks]);
-  const activeLyricsBlock = activeSectionIndex !== -1 ? matchedBlocks[activeSectionIndex] : null;
+  // The words the selection covers (PR 7): any range that takes in a heard section, not only an exact one.
+  const words = useMemo(
+    () => wordsSpan(lyricsDraft, matchedBlocks, coveredSections(sections, selection)),
+    [lyricsDraft, matchedBlocks, sections, selection],
+  );
   // Lyrics live on the song, not the layer — editing only makes sense (and
   // only gets sent as repaint conditioning) while repainting the base layer.
   const canEditLyrics = focusedLayer?.kind === 'base';
-  const lyricsUnlocked = canEditLyrics && activeSectionIndex !== -1;
-  return { timing, sections, activeSectionIndex, lyricsBlocks, matchedBlocks, activeLyricsBlock, lyricsUnlocked };
+  const lyricsUnlocked = canEditLyrics && words !== null;
+  return { timing, sections, activeSectionIndex, lyricsBlocks, matchedBlocks, words, lyricsUnlocked };
 }

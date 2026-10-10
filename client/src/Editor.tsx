@@ -45,7 +45,7 @@ export function Editor({ songId, onBack }: Props) {
   const repaintJob = useEditorRepaintJob(focusedLayerId);
   useLandedReload(songId, reload);
 
-  useLyricsDraftSync(song, setLyricsDraft);
+  useLyricsDraftSync(song, lyricsDraft, setLyricsDraft);
   const engine = usePlaybackEngine(song?.layers ?? []);
   useMainTransportGuard(engine);
   const playhead = engine.currentTime;
@@ -58,7 +58,7 @@ export function Editor({ songId, onBack }: Props) {
   const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
   const activeVersion = focusedLayer?.versions.find((v) => v.active);
   const duration = song?.duration ?? 0;
-  const { timing, sections, activeSectionIndex, lyricsBlocks, matchedBlocks, activeLyricsBlock, lyricsUnlocked } =
+  const { timing, sections, activeSectionIndex, lyricsBlocks, matchedBlocks, words, lyricsUnlocked } =
     useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer, reload);
   useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
   const scorePick = useScorePick(songId, verb, sections, lyricsDraft, score, timing.timings);
@@ -121,7 +121,7 @@ export function Editor({ songId, onBack }: Props) {
               sections={sections}
               repaint={{
                 prompt, onPromptChange: setPrompt, job: repaintJob, onRepaint: repaint,
-                lyrics: { unlocked: lyricsUnlocked, draft: lyricsDraft, onDraftChange: setLyricsDraft, activeBlock: activeLyricsBlock },
+                lyrics: { unlocked: lyricsUnlocked, draft: lyricsDraft, onDraftChange: setLyricsDraft, words, songLyrics: song.lyrics ?? '' },
               }}
               onChanged={reload}
             />

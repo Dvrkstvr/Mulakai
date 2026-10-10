@@ -851,11 +851,19 @@ requiring its own justification against a screen-count rule.
        picked, quiet hairline outlines otherwise:
        - REPAINT: the instruction field; VARIANCE (its own risk-colored
          fader) and CROSSFADE (clamped to half the region, off with no
-         range) on one row; when the range is exactly one whole section on
-         the base layer, an `EDIT VERSE 2 LYRICS ▸` disclosure opening a
-         mono textarea with that section's block selected — edited lyrics
-         are sent as conditioning and become the song's lyrics on success
-         (reverting a version restores its own); `TUNE ▸`.
+         range) on one row; **WORDS FOR VERSE 2 · 4 LINES** (revised
+         2026-10-10, PLAN.md "Editor Redesign", PR 7) whenever the range on
+         BASE takes in heard sections (a section at least half inside it,
+         or the one a smaller range sits in): an always-open mono textarea
+         holding only those lines (`CHORUS – VERSE 2` across several, inner
+         tags kept), edited in place in the song's text, with RESET TO SONG
+         once anything differs and the line "sent with this repaint · they
+         become the song's lyrics if you keep the take" (reverting a
+         version restores its own). Off BASE the box is one `text-low`
+         line: "words belong to the BASE layer · select on BASE to change
+         VERSE 2's words". The draft is kept per song in this browser until
+         a repaint keeps it, and dropped if the song's words change
+         meanwhile; `TUNE ▸`.
        - ADD LAYER: TRACK chips (AUTO first), the description, the voice
          picker, lyrics only for VOCALS and BACKING VOCALS (an empty
          field starts as the song's lyrics; USE SONG LYRICS restores them), `TUNE ▸` with the Base-only DIT MODEL. A picked track names
