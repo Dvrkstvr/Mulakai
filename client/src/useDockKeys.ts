@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { DockVerb } from './dockTarget';
-import { BASE_VERBS, verbOfKey, type VerbSpec } from './dockVerbs';
+import { BASE_VERBS, EXPORT_VERB, verbOfKey, type VerbSpec } from './dockVerbs';
 
 const NON_TEXT_INPUTS = new Set(['range', 'checkbox', 'radio', 'button', 'submit', 'reset', 'color', 'file']);
 
@@ -20,7 +20,7 @@ export function verbForKey(
 ): DockVerb | null {
   if (e.ctrlKey || e.metaKey || e.altKey || e.repeat) return null;
   if (isTypingTarget(e.target)) return null;
-  return verbOfKey(verbs, e.key);
+  return verbOfKey([...verbs, EXPORT_VERB], e.key); // E opens the header's EXPORT menu
 }
 
 /** Escape outside a text field, a dialog or a menu that took it (preventDefault) closes the open action. */

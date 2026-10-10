@@ -3951,6 +3951,41 @@ button.lane-take:hover {
    Under the layer stack: TARGET chip + verb tabs, the verb's body,
    then consequence + the one filled acid commit in the dock.
    ============================================================ */
+/* EXPORT, the Editor header's menu (ExportPanel.tsx, PLAN.md "Editor Redesign", PR 10): a panel fixed under the
+   header's right edge, over the Editor; the header button reads EXPORT ▾ (sky outline while open). */
+.export-panel {
+  position: fixed;
+  top: 58px;
+  right: 16px;
+  z-index: 50;
+  width: min(560px, calc(100vw - 32px));
+  max-height: calc(100vh - 90px);
+  overflow-y: auto;
+  border: 1px solid var(--line-hi);
+  background: var(--panel);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.export-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.export-panel-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--text-mid);
+}
+
+.tab.header-export.on {
+  border-color: var(--sky);
+  color: var(--sky);
+}
+
 .action-dock {
   margin-top: 12px;
   border: 1px solid var(--line);

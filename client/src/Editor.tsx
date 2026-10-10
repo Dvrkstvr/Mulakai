@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useSongDetail } from './useSongDetail';
 import type { Region } from './Waveform';
 import { EditorTransport } from './EditorTransport';
@@ -23,6 +23,8 @@ import { useSectionLyrics } from './useSectionLyrics';
 import { useRepaintSubmit } from './useRepaintSubmit';
 import { useLyricsDraftSync } from './useLyricsDraftSync';
 import { useLibraryBackButton } from './useLibraryBackButton';
+import { ExportButton, ExportPanel } from './ExportPanel';
+import { useEditorJobStore } from './editorJobStore';
 import { useEditorColumns } from './useEditorColumns';
 import { EditorTitleRow } from './EditorTitleRow';
 import { EditorRail } from './EditorRail';
@@ -45,6 +47,13 @@ export function Editor({ songId, onBack }: Props) {
   const [lyricsDraft, setLyricsDraft] = useState('');
   // Per-session UI state, deliberately not persisted: every visit opens on REPAINT.
   const [verb, setVerb] = useState<DockVerb | null>(null);
+  // EXPORT is the header's menu, not an action (PR 10): anything that opens 'export' opens it.
+  const [exportOpen, setExportOpen] = useState(false);
+  const openVerb = useCallback((v: DockVerb | null) => (v === 'export' ? setExportOpen(true) : setVerb(v)), []);
+  const closeExport = useCallback(() => setExportOpen(false), []);
+  const remastering = useEditorJobStore((s) => s.editorJobs.some((j) => j.kind === 'remaster' && j.songId === songId && j.stage === 'running'));
+  const exportButton = useMemo(() => <ExportButton open={exportOpen} remastering={remastering} onToggle={() => setExportOpen((o) => !o)} />,
+    [exportOpen, remastering]);
   const repaintJob = useEditorRepaintJob(focusedLayerId);
   useLandedReload(songId, reload);
 
@@ -56,15 +65,15 @@ export function Editor({ songId, onBack }: Props) {
   useSpaceTransport(engine);
   const score = useScoreVerb(songId, scoreSongKey(song), reload);
   const verbs = dockVerbs(score.phase.kind !== 'hidden');
-  useDockKeys(setVerb, verbs);
-  useEditorFocus(song, focusedLayerId, setFocusedLayerId, setVerb);
+  useDockKeys(openVerb, verbs);
+  useEditorFocus(song, focusedLayerId, setFocusedLayerId, openVerb);
 
   const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
   const activeVersion = focusedLayer?.versions.find((v) => v.active);
   const duration = song?.duration ?? 0;
   const { timing, sections, activeSectionIndex, lyricsBlocks, matchedBlocks, words, lyricsUnlocked } =
     useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer, reload);
-  useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
+  useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb: openVerb });
   const scorePick = useScorePick(songId, verb, sections, lyricsDraft, score, timing.timings);
 
   const repaint = useRepaintSubmit({
@@ -75,7 +84,7 @@ export function Editor({ songId, onBack }: Props) {
   const seek = (seconds: number) => engine.seek(seconds);
   const selectRegion = (region: Region | null) => pickRange(region, setSelection);
 
-  useLibraryBackButton(onBack);
+  useLibraryBackButton(onBack, exportButton);
   const { railWidth, gridTemplateColumns } = useEditorColumns();
 
   const retryLoad = <button onClick={() => void reload()}>RETRY</button>;
@@ -87,6 +96,7 @@ export function Editor({ songId, onBack }: Props) {
 
   return (
     <div className="editor-shell">
+      <ExportPanel song={song} open={exportOpen} onClose={closeExport} />
       <ScrollArea className="editor-scroll">
         <div className="with-panel editor-layout" style={{ gridTemplateColumns }}>
           <div className="editor-main">
@@ -119,7 +129,7 @@ export function Editor({ songId, onBack }: Props) {
               verbs={verbs}
               score={score}
               scorePickable={scorePick?.pickable ?? false}
-              onVerb={setVerb}
+              onVerb={openVerb}
               song={song}
               focusedLayer={focusedLayer}
               selection={selection}

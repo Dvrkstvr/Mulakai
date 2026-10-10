@@ -109,10 +109,11 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
   });
 
   await test.step('export: the mix, stems, then a remaster of the mix', async () => {
-    const dock = page.getByRole('region', { name: 'Action dock' });
+    // EXPORT is the header's menu (PLAN.md "Editor Redesign", PR 10); E opens it.
     await page.keyboard.press('e');
-    const exportPanel = dock.getByRole('tabpanel', { name: 'EXPORT' });
-    await expect(dock.getByRole('tab', { name: 'EXPORT' })).toHaveAttribute('aria-selected', 'true');
+    const exportPanel = page.getByRole('region', { name: 'Export' });
+    await expect(exportPanel).toBeVisible();
+    await expect(page.getByRole('button', { name: /^EXPORT/ })).toHaveAttribute('aria-expanded', 'true');
 
     // MIX is a client-side bounce of what you hear: a WAV named after the song.
     const [mix] = await Promise.all([

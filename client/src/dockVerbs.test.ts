@@ -3,11 +3,11 @@ import { actionLabel, BASE_VERBS, dockVerbs, verbOfKey } from './dockVerbs';
 
 describe('dockVerbs (F-021 #1, #5)', () => {
   it('shows four tabs as today when SCORE is hidden (ACE-Step song, no LLM_API_URL)', () => {
-    expect(dockVerbs(false).map((v) => v.label)).toEqual(['REPAINT', 'ADD LAYER', 'SPLIT', 'EXPORT']);
+    expect(dockVerbs(false).map((v) => v.label)).toEqual(['REPAINT', 'ADD LAYER', 'SPLIT']);
   });
 
   it('appends SCORE last with key C for a YuE2 song', () => {
-    expect(dockVerbs(true).map((v) => `${v.label}:${v.key}`)).toEqual(['REPAINT:R', 'ADD LAYER:L', 'SPLIT:S', 'EXPORT:E', 'SCORE:C']);
+    expect(dockVerbs(true).map((v) => `${v.label}:${v.key}`)).toEqual(['REPAINT:R', 'ADD LAYER:L', 'SPLIT:S', 'SCORE:C']);
   });
 
   it('no two verbs share a key', () => {
@@ -19,7 +19,7 @@ describe('dockVerbs (F-021 #1, #5)', () => {
     expect(verbOfKey(dockVerbs(true), 'c')).toBe('score');
     expect(verbOfKey(dockVerbs(false), 'c')).toBeNull();
     expect(verbOfKey(BASE_VERBS, 'R')).toBe('repaint');
-    expect(verbOfKey(dockVerbs(true), 'e')).toBe('export');
+    expect(verbOfKey(dockVerbs(true), 'e')).toBeNull(); // EXPORT is the header's menu, not a tab (useDockKeys maps E)
   });
 });
 
