@@ -23,14 +23,20 @@ export function verbForKey(
   return verbOfKey(verbs, e.key);
 }
 
-/** The verb keys switch the dock's verb (Space stays the transport's, see useSpaceTransport). */
-export function useDockKeys(setVerb: (verb: DockVerb) => void, verbs: readonly VerbSpec[] = BASE_VERBS) {
+/** Escape outside a text field, a dialog or a menu that took it (preventDefault) closes the open action. */
+export function closesAction(e: Pick<KeyboardEvent, 'key' | 'target' | 'defaultPrevented'>): boolean {
+  return e.key === 'Escape' && !e.defaultPrevented && !isTypingTarget(e.target);
+}
+
+/** The verb keys open an action, Escape closes it (Space stays the transport's, see useSpaceTransport). */
+export function useDockKeys(setVerb: (verb: DockVerb | null) => void, verbs: readonly VerbSpec[] = BASE_VERBS) {
   const setRef = useRef(setVerb);
   setRef.current = setVerb;
   const verbsRef = useRef(verbs);
   verbsRef.current = verbs;
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      if (closesAction(e)) { setRef.current(null); return; }
       const verb = verbForKey(e, verbsRef.current);
       if (!verb) return;
       e.preventDefault();

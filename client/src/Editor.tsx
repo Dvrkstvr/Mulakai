@@ -40,7 +40,7 @@ export function Editor({ songId, onBack }: Props) {
   const [prompt, setPrompt] = useState('');
   const [lyricsDraft, setLyricsDraft] = useState('');
   // Per-session UI state, deliberately not persisted: every visit opens on REPAINT.
-  const [verb, setVerb] = useState<DockVerb>('repaint');
+  const [verb, setVerb] = useState<DockVerb | null>(null);
   const repaintJob = useEditorRepaintJob(focusedLayerId);
   useLandedReload(songId, reload);
 
@@ -88,7 +88,7 @@ export function Editor({ songId, onBack }: Props) {
             {loadError && <div className="error">couldn't refresh this song — {loadError} {retryLoad}</div>}
             <EditorTitleRow song={song} duration={duration} />
 
-            <SectionStrip sections={sections} activeIndex={verb === 'repaint' ? activeSectionIndex : scorePick?.stripIndex ?? -1}
+            <SectionStrip sections={sections} activeIndex={verb !== 'score' ? activeSectionIndex : scorePick?.stripIndex ?? -1}
               onSelect={scorePick?.onStrip ?? selectRegion} onSeek={seek} />
 
             <LayerStack

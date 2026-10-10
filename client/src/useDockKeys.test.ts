@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { isTypingTarget, verbForKey } from './useDockKeys';
+import { closesAction, isTypingTarget, verbForKey } from './useDockKeys';
 import { dockVerbs } from './dockVerbs';
 
 /** Enough of an element for the guard: no DOM in this test environment. */
@@ -67,5 +67,17 @@ describe('verbForKey with SCORE (F-021 #5)', () => {
   it('C types into the request field instead of switching', () => {
     expect(press('c', true, el('INPUT'))).toBeNull();
     expect(press('c', true, el('BUTTON', { inDialog: true }))).toBeNull();
+  });
+});
+
+describe('closesAction', () => {
+  it('Escape outside a text field closes the open action', () => {
+    expect(closesAction({ key: 'Escape', target: el('BODY'), defaultPrevented: false } as never)).toBe(true);
+  });
+
+  it('not while typing, nor when a menu or dialog already took the Escape', () => {
+    expect(closesAction({ key: 'Escape', target: el('TEXTAREA'), defaultPrevented: false } as never)).toBe(false);
+    expect(closesAction({ key: 'Escape', target: el('BODY'), defaultPrevented: true } as never)).toBe(false);
+    expect(closesAction({ key: 'r', target: el('BODY'), defaultPrevented: false } as never)).toBe(false);
   });
 });

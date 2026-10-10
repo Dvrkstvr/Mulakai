@@ -40,7 +40,7 @@ export interface ScorePickInputs {
 /** Under SCORE: a strip section or a lyric line becomes the pick, the verb stays; null under any other verb, or when
  * SCORE cannot take a pick (ineligible, checker offline: no sections read), so the click falls through. */
 export function useScorePick(
-  songId: string, verb: DockVerb, strip: Section[], draft: string, score: ScoreVerbState, timings: WordTimings | null,
+  songId: string, verb: DockVerb | null, strip: Section[], draft: string, score: ScoreVerbState, timings: WordTimings | null,
 ): ScorePickInputs | null {
   const dispatch = useScoreStore((s) => s.dispatch);
   const pickable = useMemo(() => canPick(strip, draft, timings), [strip, draft, timings]);

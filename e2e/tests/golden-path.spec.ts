@@ -58,6 +58,7 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
     await dragRegion(page, '.layer-lane >> nth=0 >> .lane-waveform canvas', DURATION, 2.5, 8.5);
     const dock = page.getByRole('region', { name: 'Action dock' });
     await expect(dock.locator('.dock-target')).toHaveText('BASE · 0:02–0:08');
+    await dock.getByRole('tab', { name: 'REPAINT' }).click(); // nothing is open on entry
     await expect(dock.getByText('Saves base v2 over 0:02–0:08')).toBeVisible();
     await dock.getByPlaceholder('Describe what should change in the selected region').fill('add a bright synth lead');
     await dock.getByRole('button', { name: 'REPAINT 0:02–0:08' }).click();
