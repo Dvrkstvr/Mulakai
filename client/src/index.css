@@ -3971,17 +3971,18 @@ button.rail-lyr-head:hover span {
   margin-right: 8px;
 }
 
-.dock-lyrics {
+/* REPAINT's words for the selected part (DockWords.tsx, PLAN.md "Editor Redesign", PR 7). */
+.dock-words {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
   gap: 6px;
 }
 
-.dock-lyrics .lyrics-textarea {
+.dock-words .lyrics-textarea {
   width: 100%;
-  min-height: 160px;
-  max-height: 160px;
+  min-height: 0;
+  max-height: none;
+  font-family: monospace;
 }
 
 .dock-commit {

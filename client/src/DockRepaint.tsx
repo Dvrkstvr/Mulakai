@@ -1,5 +1,5 @@
 import type { Region } from './Waveform';
-import type { LyricsBlock } from './lyricsBlocks';
+import type { WordsSpan } from './sectionWords';
 import type { DockTarget } from './dockTarget';
 import { repaintCommitLabel, repaintLine } from './dockTarget';
 import { maxCrossfadeSec, clampCrossfade } from './repaintLimits';
@@ -8,7 +8,7 @@ import { useSettings } from './settings';
 import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { VarianceSlider } from './VarianceSlider';
 import { RepaintTune } from './RepaintTune';
-import { DockSectionLyrics } from './DockSectionLyrics';
+import { DockWords } from './DockWords';
 import { DockCommit } from './DockCommit';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
 
@@ -16,7 +16,9 @@ export interface SectionLyrics {
   unlocked: boolean;
   draft: string;
   onDraftChange: (text: string) => void;
-  activeBlock: LyricsBlock | null;
+  /** The words the selection covers (sectionWords), whatever layer is focused; null = none. */
+  words: WordsSpan | null;
+  songLyrics: string;
 }
 
 interface Props {
@@ -38,7 +40,7 @@ interface Props {
   scoreOpen: boolean;
 }
 
-/** REPAINT: instruction, VARIANCE + CROSSFADE inline, the one-section lyrics editor, TUNE, commit. */
+/** REPAINT: instruction, VARIANCE + CROSSFADE inline, the words for the selected part (on BASE), TUNE, commit. */
 export function DockRepaint({ target, layerName, nextVersion, activeVersion, selection, duration, prompt, onPromptChange, job, onRepaint, lyrics, scoreOpen }: Props) {
   const { inFlight, failed, error } = job;
   const ahead = useJobsAhead();
@@ -77,10 +79,12 @@ export function DockRepaint({ target, layerName, nextVersion, activeVersion, sel
             <span className="crossfade-unit">s</span>
           </div>
         </div>
-        {target.section && lyrics.unlocked && (
-          <DockSectionLyrics section={target.section} draft={lyrics.draft} onDraftChange={lyrics.onDraftChange} activeBlock={lyrics.activeBlock} />
+        {lyrics.unlocked && lyrics.words && (
+          <DockWords span={lyrics.words} draft={lyrics.draft} songLyrics={lyrics.songLyrics} onDraftChange={lyrics.onDraftChange} />
         )}
-        {target.section && !lyrics.unlocked && <div className="lyrics-hint">focus BASE to edit {target.section} lyrics</div>}
+        {!lyrics.unlocked && lyrics.words && (
+          <div className="lyrics-hint">words belong to the BASE layer · select on BASE to change {lyrics.words.label}&apos;s words</div>
+        )}
         <RepaintTune />
       </div>
       <DockCommit
