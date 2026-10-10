@@ -2656,6 +2656,81 @@ footer .player {
   flex-direction: column;
 }
 
+/* The Editor rail's tabs (EditorRail.tsx, PLAN.md "Editor Redesign", PR 6): LYRICS / TAKES · <LAYER>, sky = the open
+   one (it is what the rail is pointing at). */
+.rail-tabs {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.rail-tab.active {
+  border-color: var(--sky);
+  color: var(--sky);
+}
+
+/* LYRICS: section blocks; a heard section's name selects it; the one the selection sits in is lit sky. */
+.rail-lyrics {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.rail-lyr {
+  border-left: 2px solid var(--line);
+  padding: 2px 0 4px 8px;
+}
+
+.rail-lyr.on {
+  border-left-color: var(--sky);
+  background: var(--sky-tint);
+}
+
+.rail-lyr-head {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  border: 0;
+  padding: 0;
+  margin-bottom: 2px;
+  background: none;
+  font: 700 10px monospace;
+  letter-spacing: 1px;
+  color: var(--lilac-text);
+  text-align: left;
+}
+
+button.rail-lyr-head:hover span {
+  color: var(--sky);
+  text-decoration: underline;
+}
+
+.rail-lyr-head em {
+  font-style: normal;
+  font-weight: 400;
+  color: var(--text-low);
+}
+
+.rail-lyr-head.off {
+  color: var(--text-low);
+}
+
+.rail-lyr-line {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-mid);
+}
+
+.rail-lyr.on .rail-lyr-line {
+  color: var(--text-hi);
+}
+
 .refine-rail-panel {
   border: 1px solid var(--line-hi);
   background: var(--panel);
