@@ -907,10 +907,10 @@ requiring its own justification against a screen-count rule.
        progress veil once the GPU works on it, or a plain dashed line,
        `REPAINTING · QUEUED · STARTS AFTER 1 JOB`, while it waits. A refused
        submit (the queue is full, at 10 waiting) is a rust error line under
-       the commit with the server's reason and RETRY. ALT and SIMILAR in
-       VERSIONS work the same way: always pressable, their tooltip names the
-       version they save, and a row's button reads `ALT · QUEUED` /
-       `ALT… 0:12` while its job is in flight. SPLIT is the one exception:
+       the commit with the server's reason and RETRY. REROLL and MORE LIKE
+       THIS in TAKES work the same way: always pressable, their tooltip
+       names the version they save, and a row's button reads `REROLL ·
+       QUEUED` / `REROLL… 0:12` while its job is in flight. SPLIT is the one exception:
        one split session is open at a time, so while another layer's stems
        are still extracting SPLIT is off and its consequence line says why
        (CANCEL SPLIT there first, or wait).
@@ -1052,9 +1052,17 @@ requiring its own justification against a screen-count rule.
      lilac text. Persistent, beside the main column rather than under it,
      so it stays on screen while repainting even on shorter (1080p)
      displays, where vertical space is the tighter resource. The current
-     version gets a lilac-tint card + lilac border; every entry gets SEL
-     (revert to that version and select its region), ALT (regenerate as an
-     untracked alternate), SIMILAR, and X (two-step rust delete-confirm).
+     version gets a lilac-tint card + lilac border; every entry gets USE
+     (use that take and select its region; was SEL), REROLL (regenerate as
+     an untracked alternate; was ALT), MORE LIKE THIS (was SIMILAR), and X
+     (two-step rust delete-confirm) — plain verbs since 2026-10-10 (PLAN.md
+     "Editor Redesign", PR 8). The same takes sit on every **lane header**
+     as lilac mono chips `v1 v2 v3` (oldest first, the newest six plus the
+     one in use, a `+n` chip for older ones): filled = in use; a click uses
+     that take; **alt-click hears it in place** at the same position (sky
+     outline) with a lilac line over the transport, `HEARING BASE v2 · same
+     position · nothing saved`, BACK TO v3 and USE v2; a repaint, reroll or
+     more-like-this still being made is a dashed chip `v4…`.
      A whole-layer repaint has no range, so it shows its label
      ("repaint 0:00–end") instead of a time. Each entry's actions render as
      one connected button group (see "Connected button groups" under Side

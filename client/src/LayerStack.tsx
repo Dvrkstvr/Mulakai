@@ -8,6 +8,7 @@ import { ScrollArea } from './ScrollArea';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { LyricsLane, type LyricsLaneProps } from './LyricsLane';
 import { useEditorJobStore, myEditorJobs } from './editorJobStore';
+import { laneTakes } from './laneTakeChips';
 
 interface Props {
   songId: string;
@@ -22,6 +23,8 @@ interface Props {
   onSeek: (seconds: number) => void;
   processing?: boolean;
   onSplit: (layerId: string) => void;
+  /** Take chips: the take heard in place, and what a chip click does (useAudition). */
+  takes: { hearing: string | null; onUse: (versionId: string) => void; onHear: (layerId: string, versionId: string) => void };
   lyrics: Pick<LyricsLaneProps, 'draft' | 'timings' | 'timing' | 'onLine' | 'picked'>;
 }
 
@@ -32,7 +35,8 @@ interface Props {
  * collapsing unfocused rows to a summary line), stacked vertically. A single playhead line
  * spans from the timeline through every lane, since all share the same x-axis.
  */
-export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit, lyrics }: Props) {
+export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit, lyrics, takes }: Props) {
+  const editorJobs = useEditorJobStore((s) => s.editorJobs);
   const playheadPct = duration > 0 ? Math.min(100, Math.max(0, (playhead / duration) * 100)) : 0;
   // The ghost lane is for a layer the GPU is making now, not one still waiting in the queue.
   const addingLayer = useEditorJobStore((s) => myEditorJobs(s.editorJobs, 'addLayer', { songId }).some((j) => j.stage === 'running' && !j.queuePosition));
@@ -59,6 +63,7 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
                 onSeek={onSeek}
                 processing={processing}
                 onSplit={() => onSplit(layer.id)}
+                takes={{ chips: laneTakes(layer, editorJobs), hearing: takes.hearing, onUse: takes.onUse, onHear: (v) => takes.onHear(layer.id, v) }}
               />
             ))}
             {/* Ghost lane — appears the instant ADD LAYER is submitted, before the
