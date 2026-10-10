@@ -31,14 +31,20 @@ if not exist "%ACESTEP_PATH%" (
     exit /b 1
 )
 
+REM Engines bind to ENGINE_HOST: 127.0.0.1 by default, or 0.0.0.0 so the home server can
+REM reach them too (deploy/home-lan/README.md "Engines"; gpu-pc-lan.ps1 sets it for you).
+REM 0.0.0.0 still answers on 127.0.0.1. Only the Windows Firewall rule keeps the rest of
+REM the LAN out, because Ollama, Demucs and lyrics-server have no key.
+if "%ENGINE_HOST%"=="" set "ENGINE_HOST=127.0.0.1"
+
 REM Detect ACE-Step installation type (native FastAPI server, NOT Gradio)
 set API_COMMAND=
 if exist "%ACESTEP_PATH%\python_embeded\python.exe" (
     echo [+] Detected Windows Portable Package
-    set API_COMMAND=python_embeded\python acestep\api_server.py --port 8001
+    set API_COMMAND=python_embeded\python acestep\api_server.py --host %ENGINE_HOST% --port 8001
 ) else (
     echo [+] Detected Standard Installation
-    set API_COMMAND=uv run acestep-api --port 8001
+    set API_COMMAND=uv run acestep-api --host %ENGINE_HOST% --port 8001
 )
 
 REM Demucs (stem separation) is optional — detect it before starting the
@@ -107,7 +113,7 @@ if defined OLLAMA_EXE if not defined OLLAMA_RUNNING set "OLLAMA_READY=1"
 if defined OLLAMA_EXE set "LLM_API_URL=http://127.0.0.1:11434"
 if defined OLLAMA_READY if not defined OLLAMA_MODELS if exist "E:\ai\ollama\models" set "OLLAMA_MODELS=E:\ai\ollama\models"
 if defined OLLAMA_READY set "OLLAMA_CONTEXT_LENGTH=16384"
-if defined OLLAMA_READY set "OLLAMA_HOST=127.0.0.1:11434"
+if defined OLLAMA_READY set "OLLAMA_HOST=%ENGINE_HOST%:11434"
 
 REM Only one model fits in VRAM at a time. With any extra engine configured, ACE-Step
 REM must hand its GPU memory back when idle (PLAN.md, "Multiple Song-Creation Engines",
@@ -126,6 +132,7 @@ echo.
 echo [1/8] Starting the chat planner (Ollama)...
 if defined OLLAMA_READY start "Ollama (chat, 16k)" cmd /k ""%OLLAMA_EXE%" serve"
 if defined OLLAMA_RUNNING echo   Using the Ollama already running on :11434 (fine if it was started with OLLAMA_CONTEXT_LENGTH=16384, as this script does; the chat says so if its context is too short)
+if defined OLLAMA_RUNNING if not "%ENGINE_HOST%"=="127.0.0.1" echo   It keeps its own bind address: quit it (tray icon) and rerun this script so the home server can reach it too
 if not defined OLLAMA_EXE if defined LLM_API_URL echo   Not started - using LLM_API_URL=%LLM_API_URL%
 if not defined LLM_API_URL echo   Skipped - no Ollama installed, so CHAT and SCORE stay hidden. See PLAN.md "Score Agent".
 
@@ -142,9 +149,9 @@ timeout /t 3 /nobreak >nul
 
 echo [4/8] Starting stem-separation service...
 if defined UVR_READY (
-    start "UVR Server" cmd /k "cd /d "%~dp0uvr-server" && venv\Scripts\python.exe -m uvicorn main:app --port 8002"
+    start "UVR Server" cmd /k "cd /d "%~dp0uvr-server" && venv\Scripts\python.exe -m uvicorn main:app --host %ENGINE_HOST% --port 8002"
 ) else if defined DEMUCS_READY (
-    start "Demucs Server" cmd /k "cd /d "%~dp0demucs-server" && venv\Scripts\activate && uvicorn main:app --port 8002"
+    start "Demucs Server" cmd /k "cd /d "%~dp0demucs-server" && venv\Scripts\activate && uvicorn main:app --host %ENGINE_HOST% --port 8002"
 ) else (
     echo   Skipped - neither uvr-server\venv nor demucs-server\venv found. See their README.md files.
 )
@@ -152,7 +159,7 @@ if defined UVR_READY (
 timeout /t 2 /nobreak >nul
 
 echo [5/8] Starting lyrics reader...
-if defined LYRICS_READY start "Lyrics Server" cmd /k "cd /d "%~dp0lyrics-server" && venv\Scripts\python.exe -m uvicorn main:app --port 8005"
+if defined LYRICS_READY start "Lyrics Server" cmd /k "cd /d "%~dp0lyrics-server" && venv\Scripts\python.exe -m uvicorn main:app --host %ENGINE_HOST% --port 8005"
 if not defined LYRICS_READY echo   Skipped - no lyrics-server\venv. See lyrics-server\README.md.
 
 echo [6/8] Starting HeartMuLa engine...
@@ -164,8 +171,9 @@ if not defined HEARTMULA_API_URL echo   Skipped - no heartlib venv and weights u
 
 echo [7/8] Starting YuE2 engine...
 REM Launched through wsl.exe: WSL does not start on its own, and this process keeps the
-REM distro running. 127.0.0.1 inside WSL is reachable from Windows.
-if defined YUE_READY start "YuE2 Server" cmd /k wsl.exe -d %YUE_DISTRO% --cd "%~dp0yue-server" --exec bash -lc "if [ -x %YUE_SHEETSAGE_HOME%/.venv/bin/python ]; then export YUE_SHEETSAGE_PYTHON=%YUE_SHEETSAGE_HOME%/.venv/bin/python YUE_SHEETSAGE_DIR=%YUE_SHEETSAGE_HOME%/SheetSage2; fi; YUE_DATA_DIR=~/yue-data %YUE_VENV%/bin/python main.py"
+REM distro running. 127.0.0.1 inside WSL is reachable from Windows; the LAN reaches
+REM it only with WSL's mirrored networking (gpu-pc-lan.ps1).
+if defined YUE_READY start "YuE2 Server" cmd /k wsl.exe -d %YUE_DISTRO% --cd "%~dp0yue-server" --exec bash -lc "if [ -x %YUE_SHEETSAGE_HOME%/.venv/bin/python ]; then export YUE_SHEETSAGE_PYTHON=%YUE_SHEETSAGE_HOME%/.venv/bin/python YUE_SHEETSAGE_DIR=%YUE_SHEETSAGE_HOME%/SheetSage2; fi; YUE_HOST=%ENGINE_HOST% YUE_DATA_DIR=~/yue-data %YUE_VENV%/bin/python main.py"
 if not defined YUE_READY if defined YUE_API_URL echo   Not started - using YUE_API_URL=%YUE_API_URL%
 if not defined YUE_API_URL echo   Skipped - no YuE2 venv at %YUE_VENV% in WSL distro %YUE_DISTRO%. See yue-server\README.md.
 
@@ -179,6 +187,7 @@ echo ==================================
 echo   All services running
 echo ==================================
 echo.
+if not "%ENGINE_HOST%"=="127.0.0.1" echo   Engines listen on %ENGINE_HOST% (this PC and the home server)
 echo   ACE-Step API: http://localhost:8001
 echo   Server:       http://localhost:3001
 echo   Client:       http://localhost:5173
