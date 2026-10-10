@@ -1,5 +1,6 @@
-/** The dock's verb tabs and their keys (DESIGN.md "Action dock"; D-027, D-032): SCORE is
- * appended last, key C, only when the server says SCORE is not hidden for this song. Pure. */
+/** The action bar's actions and their keys (DESIGN.md "Action dock"; D-027, D-032): SCORE is
+ * appended last, key C, only when the server says SCORE is not hidden for this song. EXPORT is no
+ * action-bar tab (PLAN.md "Editor Redesign", PR 10): its key E opens the header's EXPORT menu. Pure. */
 import type { DockVerb } from './dockTarget';
 
 export interface VerbSpec { id: DockVerb; label: string; key: string }
@@ -8,8 +9,10 @@ export const BASE_VERBS: readonly VerbSpec[] = [
   { id: 'repaint', label: 'REPAINT', key: 'R' },
   { id: 'addLayer', label: 'ADD LAYER', key: 'L' },
   { id: 'split', label: 'SPLIT', key: 'S' },
-  { id: 'export', label: 'EXPORT', key: 'E' },
 ];
+
+/** EXPORT's key: it opens the header's EXPORT menu, not a tab. */
+export const EXPORT_VERB: VerbSpec = { id: 'export', label: 'EXPORT', key: 'E' };
 
 export const SCORE_VERB: VerbSpec = { id: 'score', label: 'SCORE', key: 'C' };
 
