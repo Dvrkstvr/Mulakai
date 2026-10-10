@@ -879,7 +879,13 @@ requiring its own justification against a screen-count rule.
          REPLACE), RE-EXTRACT; a kept stem reads `kept as a layer` / `now
          Base's take`). The dock's SPLIT body then only points at the
          tray.
-       - EXPORT: WHAT = **MIX** (a client-side bounce of what you hear —
+       - EXPORT (moved 2026-10-10, PLAN.md "Editor Redesign", PR 10): no
+         longer an action-bar tab but the header's **EXPORT ▾** button
+         (right slot; sky outline while open; `EXPORT · REMASTERING ▾`
+         while a remaster runs), opening a panel fixed under the header's
+         right edge, headed `EXPORT · <TITLE>` with ✕ CLOSE (`ESC`); `E`,
+         the palette's Export items and a running remaster open it. Its
+         body, unchanged: WHAT = **MIX** (a client-side bounce of what you hear —
          mute/solo, layer volumes — to an untagged 16-bit WAV named after
          the song; no format choice), **STEMS** (each layer's active take,
          preview + DOWNLOAD), or **REMASTERED MIX** (one ACE-Step cover pass
