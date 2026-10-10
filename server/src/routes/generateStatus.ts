@@ -80,5 +80,7 @@ generateStatusRouter.get('/:jobId', (req, res) => {
     ...(job.analysis ? { analysis: job.analysis } : {}),
     // Only a finished LM job carries this: FEELING LUCKY's, Quick Start's or WRITE FOR ME's text.
     ...(job.sample ? { sample: job.sample } : {}),
+    // Only a finished ✦ HELP carries this: the suggestions for its field.
+    ...(job.assist ? { assist: job.assist } : {}),
   });
 });

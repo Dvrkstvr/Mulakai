@@ -32,6 +32,8 @@ export interface Job {
   analysis?: import('./acestep.js').FormatInputResult;
   /** Set by lmJobs.ts on success: what the LM wrote (FEELING LUCKY, Quick Start, WRITE FOR ME). */
   sample?: import('./acestep.js').SampleResult;
+  /** Set by assist/assistJob.ts on success: ✦ HELP's suggestions for one field. */
+  assist?: { suggestions: import('./assist/assistPrompt.js').Suggestion[] };
 }
 
 /** Readers stop once a job settles (a remaster is downloaded right then), so an hour
