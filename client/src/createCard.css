@@ -113,3 +113,17 @@
 .cc-go:hover {
   filter: brightness(1.08);
 }
+
+/* LANDED: a Create take landed. The label in lilac (a new version), and an end of plain skewed buttons that
+   navigate (acid is for commits): OPEN IN EDITOR, OPEN CHAT, ✕. */
+.cc.landed .cc-label {
+  color: var(--lilac-text);
+}
+
+.cc-acts {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 12px;
+}

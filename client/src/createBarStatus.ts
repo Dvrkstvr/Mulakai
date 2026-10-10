@@ -2,6 +2,7 @@
  * "Create Bar Mirrors Create"): one card for what Create is doing. Pure, so the decisions are
  * tested without a DOM. */
 import type { GenerationJob } from './generationStore';
+import type { Landed } from './landedStore';
 import { fmtElapsed, fmtProgress, isEngineStage, stageDetail } from './genProgress';
 import { startsAfter } from './queueCopy';
 
@@ -80,8 +81,22 @@ export function genCard(job: GenerationJob, elapsedMs: number, more: number): Ca
   };
 }
 
-/** Create is busy — writing a draft, generating a song, or holding a draft — so the bar hides
- * FEELING LUCKY and the input and shows the Create card, TO CREATE at its end. */
-export function isCreateBusy(draftEmpty: boolean, think: CardState | null, generating: boolean): boolean {
-  return !draftEmpty || think !== null || generating;
+/** A Create take that landed (PLAN.md "The other screens"): LANDED, its title, and where it can go next. Its end
+ * offers OPEN IN EDITOR, OPEN CHAT and ✕ instead of TO CREATE. */
+export function landedCard(l: Landed): CardState {
+  return { label: 'LANDED', title: l.title || 'Untitled', note: 'the first take is in the Library · open it to edit, or talk it over', ai: false, failed: false };
+}
+
+/** Which card the bar shows: Quick Start writing, then a generation in flight, then a take that landed, then the
+ * held draft. */
+export function createCardKind(think: CardState | null, generating: boolean, landed: boolean): 'think' | 'gen' | 'landed' | 'draft' {
+  if (think) return 'think';
+  if (generating) return 'gen';
+  return landed ? 'landed' : 'draft';
+}
+
+/** Create is busy — writing a draft, generating a song, holding a draft, or showing a take that landed — so the bar
+ * hides FEELING LUCKY and the input and shows the Create card. */
+export function isCreateBusy(draftEmpty: boolean, think: CardState | null, generating: boolean, landed = false): boolean {
+  return !draftEmpty || think !== null || generating || landed;
 }

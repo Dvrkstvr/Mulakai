@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { draftChipText, genCard, isCreateBusy, liveGenJobs, thinkChip } from './createBarStatus';
+import { createCardKind, draftChipText, genCard, isCreateBusy, landedCard, liveGenJobs, thinkChip } from './createBarStatus';
 import type { GenerationJob } from './generationStore';
 
 const job = (over: Partial<GenerationJob>): GenerationJob =>
@@ -83,5 +83,24 @@ describe('isCreateBusy (the bar shows the Create card instead of FEELING LUCKY a
   });
   it('free with an empty draft and nothing writing or generating', () => {
     expect(isCreateBusy(true, null, false)).toBe(false);
+  });
+  it('a take that landed holds the card until it is used or dismissed', () => {
+    expect(isCreateBusy(true, null, false, true)).toBe(true);
+  });
+});
+
+describe('the LANDED card (a Create take landed: open it in the Editor or the chat)', () => {
+  const think = { label: 'THINKING', title: 'q', note: '', ai: true, failed: false };
+  it('names the song and says where its first take is, plain', () => {
+    expect(landedCard({ songId: 's1', title: 'Neon Harbor' })).toEqual({
+      label: 'LANDED', title: 'Neon Harbor', note: 'the first take is in the Library · open it to edit, or talk it over', ai: false, failed: false,
+    });
+    expect(landedCard({ songId: 's1', title: '' }).title).toBe('Untitled');
+  });
+  it('ranks after writing and generating, before the held draft', () => {
+    expect(createCardKind(think, true, true)).toBe('think');
+    expect(createCardKind(null, true, true)).toBe('gen');
+    expect(createCardKind(null, false, true)).toBe('landed');
+    expect(createCardKind(null, false, false)).toBe('draft');
   });
 });
