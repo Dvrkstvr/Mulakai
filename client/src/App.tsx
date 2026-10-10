@@ -146,7 +146,7 @@ export default function App() {
         ) : view === 'settings' ? (
           <motion.div className="view-fill" key="settings" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
             <MaterializeSweep />
-            <SettingsView online={online} onBack={() => setView('library')} />
+            <SettingsView online={online} onBack={() => { showLibrary(); refreshFolders(); }} />
           </motion.div>
         ) : view === 'forge' ? (
           <motion.div className="view-fill" key="forge" initial={{ opacity: 0, x: 20, scale: 0.985 }} animate={{ opacity: 1, x: 0, scale: 1 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.22, ease: 'easeOut' }}>
