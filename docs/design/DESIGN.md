@@ -1150,7 +1150,9 @@ requiring its own justification against a screen-count rule.
    The app always opens on the Library (D-119); CHAT is one click away. The header carries
    **CHAT | LIBRARY** (outlined parallelograms, the open one in acid outline,
    like an active toolbar tab) while either is up; the Library's song detail
-   rail gets a plain **OPEN CHAT** (the song's thread). Layout, top to bottom:
+   rail gets a plain **OPEN CHAT** (the song's thread), after a plain **OPEN IN
+   EDITOR** (added 2026-10-10, PLAN.md "Editor Redesign"), so either way into
+   the song is one click from the panel. Layout, top to bottom:
    a title row (NEW SONG or the song's title, its `text-low` subline, `FORM ▸`
    to Guided Create, NEW CHAT), then the thread column beside a 360px draft
    sidebar. The column is the thread (messages capped at 760px, newest by the
