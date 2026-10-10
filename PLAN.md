@@ -9541,3 +9541,26 @@ and its recommended answers (2026-10-10).
 12. ASK CHAT ⇄ OPEN IN EDITOR.
 13. Helper: server endpoint (queue + LLM), then the anchored help box for
     prompts, then lyrics rewrite.
+
+### The other screens (2026-10-10)
+
+Two items from the proposal's "The other screens", built after the Editor
+PRs:
+
+- **Create's LANDED card.** When a Create take lands (not a chat take, the
+  same rule as the footer player), the create bar's card says LANDED with
+  the song's title and offers OPEN IN EDITOR, OPEN CHAT (only while the
+  chat is configured) and ✕. It ranks after THINKING and GENERATING and
+  before DRAFT, so a held draft comes back on ✕. It stays until one of its
+  buttons is pressed or a newer take lands; it is not kept across a page
+  reload. Files: `landedStore.ts` (new), `createBarStatus.ts`,
+  `useCreateBusy.ts`, `CreateCard.tsx`, `useAppSync.ts`, `createCard.css`,
+  DESIGN.md "Create card".
+- **CONTINUE cards say what you were doing.** Besides the last edit in
+  words, a card names work still open on the song: a job running or
+  queued for it ("repainting 1:02–1:31 · BASE", "adding a layer") and a
+  split with stems not yet kept ("3 stems unkept"). Running jobs come from
+  the queue the client already polls; an open split from
+  `editorJobStore`'s split slot (this tab until a reload, like the tray
+  itself). RESUME already reopens the
+  Editor, where the tray and running takes show.
