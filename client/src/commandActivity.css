@@ -482,3 +482,13 @@
   padding: 4px 10px;
   font-size: 10px;
 }
+
+/* What is still open on the song: a job running or queued for it, stems not kept (continueActivity.ts). */
+.continue-doing {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-hi);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
