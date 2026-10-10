@@ -53,6 +53,9 @@ main() {
   if [ "$force" != --force ]; then
     [ "$new" = "$cur" ] && exit 0
     [ "$(cat "$STATE/failed" 2>/dev/null)" = "$new" ] && exit 0
+    # Only move forward: a running commit that main does not contain (a branch, a
+    # force-push) is left alone until main catches up with it.
+    as_app git merge-base --is-ancestor "$cur" "$new" || exit 0
     ci=$(ci_state "$new") || { log "could not read CI for ${new:0:7}"; exit 0; }
     case "$ci" in
       green) ;;

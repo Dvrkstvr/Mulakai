@@ -22,7 +22,7 @@ has moved and **every CI check on that commit succeeded**, it:
 2. builds the client beside the live one and swaps it in;
 3. restarts `mulakai`, then waits until the server answers.
 
-A pending CI run is retried on the next tick. A red one is skipped. A failed
+It only moves forward (main must contain the running commit). A pending CI run is retried on the next tick. A red one is skipped. A failed
 build rolls back to the running commit, and that commit is never retried. A
 restart drops jobs that are still running, because jobs live only in memory.
 
