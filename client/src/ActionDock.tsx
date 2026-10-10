@@ -39,7 +39,6 @@ interface Props {
   onClearSelection: () => void;
   sections: Section[];
   repaint: DockRepaintInputs;
-  onChanged: () => Promise<void>;
 }
 
 /** Ordinal of a layer's active version in its history (versions arrive newest first). */
@@ -55,7 +54,7 @@ function activeNumber(layer: Layer | undefined): number | null {
  * Escape closes it. A body stays mounted (hidden) once opened, so its fields survive a switch; ADD LAYER is always
  * mounted, so its fields start over once its layers land even while another action shows.
  */
-export function ActionDock({ verb: picked, verbs, score, scorePickable = false, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint, onChanged }: Props) {
+export function ActionDock({ verb: picked, verbs, score, scorePickable = false, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint }: Props) {
   const verb = picked && verbs.some((v) => v.id === picked) ? picked : null; // SCORE went away (another song)
   const [opened, setOpened] = useState<Set<DockVerb>>(() => new Set(['repaint', 'addLayer']));
   if (verb && !opened.has(verb)) setOpened(new Set([...opened, verb]));
@@ -75,7 +74,7 @@ export function ActionDock({ verb: picked, verbs, score, scorePickable = false, 
         activeVersion={activeNumber(focusedLayer)} selection={selection} duration={duration} scoreOpen={endsScore} {...repaint} />;
     }
     if (v === 'addLayer') return <DockAddLayer songId={song.id} layers={song.layers} songLyrics={song.lyrics} scoreOpen={endsScore} />;
-    if (v === 'split') return focusedLayer ? <DockSplit songId={song.id} layer={focusedLayer} onChanged={onChanged} scoreOpen={endsScore} /> : null;
+    if (v === 'split') return focusedLayer ? <DockSplit songId={song.id} layer={focusedLayer} /> : null;
     if (v === 'score') return <DockScore songId={song.id} state={score} />;
     return <DockExport song={song} />;
   };

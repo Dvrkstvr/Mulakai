@@ -24,7 +24,7 @@ describe('the score clause in a consequence line (F-027, D-030)', () => {
     const row = (scoreOpen: boolean) => renderToStaticMarkup(
       <SplitStemRow stem={stem} layerName="base" nextVersion={2} busy={false} scoreOpen={scoreOpen} onClaim={() => {}} onReextract={() => {}} />,
     );
-    expect(row(true)).toContain(`replace will save as v2 · add will create a new layer · ${CLAUSE}`);
-    expect(row(false)).toContain('replace will save as v2 · add will create a new layer</div>');
+    expect(row(true)).toContain(`keep adds a lane · use saves base v2 · ${CLAUSE}`);
+    expect(row(false)).toContain('keep adds a lane · use saves base v2</div>');
   });
 });

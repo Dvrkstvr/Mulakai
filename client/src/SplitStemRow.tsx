@@ -15,11 +15,11 @@ interface Props {
   onReextract: () => void;
 }
 
-/** One stem's row in the dock's SPLIT — preview, DOWNLOAD, status, and REPLACE/ADD LAYER/RE-EXTRACT. */
+/** One stem's row in a lane's split tray — preview, DOWNLOAD, status, and KEEP AS LAYER / USE AS <LAYER> TAKE / RE-EXTRACT. */
 export function SplitStemRow({ stem, layerName, nextVersion, busy, scoreOpen, onClaim, onReextract }: Props) {
   const locked = !!stem.claimed;
   const ready = stem.status === 'done' && !locked && !busy;
-  const claimLine = stemClaimLine(nextVersion, scoreOpen);
+  const claimLine = stemClaimLine(layerName, nextVersion, scoreOpen);
   const reextractable = (stem.status === 'done' || stem.status === 'failed') && !locked && !busy;
   const download = stemDownload(stem, layerName);
 
@@ -33,7 +33,7 @@ export function SplitStemRow({ stem, layerName, nextVersion, busy, scoreOpen, on
         <AudioPreview src={`/audio/${stem.audioFile}`} label={STEM_LABELS[stem.kind]} />
       )}
       {locked ? (
-        <div className="hint">{stem.claimed === 'replaced' ? `replaced ${layerName}` : 'added as new layer'}</div>
+        <div className="hint">{stem.claimed === 'replaced' ? `now ${layerName}'s take` : 'kept as a layer'}</div>
       ) : stem.status === 'running' ? (
         <div className="hint">extracting…</div>
       ) : stem.status === 'failed' ? (
@@ -42,8 +42,8 @@ export function SplitStemRow({ stem, layerName, nextVersion, busy, scoreOpen, on
         <div className="hint">{claimLine.line}<ScoreEndsClause clause={claimLine.scoreEnds} /></div>
       )}
       <span className="btn-row">
-        <button disabled={!ready} onClick={() => onClaim('replace')}><span>REPLACE</span></button>
-        <button disabled={!ready} onClick={() => onClaim('add-layer')}><span>ADD LAYER</span></button>
+        <button disabled={!ready} onClick={() => onClaim('add-layer')}><span>KEEP AS LAYER</span></button>
+        <button disabled={!ready} onClick={() => onClaim('replace')}><span>USE AS {layerName.toUpperCase()} TAKE</span></button>
         <button disabled={!reextractable} onClick={onReextract}><span>{busy ? '…' : 'RE-EXTRACT'}</span></button>
       </span>
     </div>
