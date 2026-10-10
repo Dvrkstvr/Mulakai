@@ -1,8 +1,11 @@
 import { useEffect, useState } from 'react';
 import { api, type RecentSong } from './api';
+import { songActivity } from './continueActivity';
 import { isDraftEmpty, useCreateDraftStore } from './createDraftStore';
 import { START_FROM } from './createDraft';
+import { useEditorJobStore } from './editorJobStore';
 import { PlayerWaveform } from './PlayerWaveform';
+import { useQueueStore } from './queueStore';
 import { lastAction } from './recentSongs';
 
 const MAX_ITEMS = 3;
@@ -15,13 +18,17 @@ interface Props {
 }
 
 /** CONTINUE (PLAN.md "UI Redesign", S3.6): the songs edited last, newest first, with a draft in
- * Create ahead of them. Hidden on an empty library. */
+ * Create ahead of them, each naming what is still open on it (PLAN.md "The other screens"). Hidden
+ * on an empty library. */
 export function ContinueRow({ refreshKey, openEditor, resumeCreate }: Props) {
   const [recent, setRecent] = useState<RecentSong[]>([]);
   const draftEmpty = useCreateDraftStore(isDraftEmpty);
   const draftTitle = useCreateDraftStore((s) => (s.titleSuggested ? '' : s.title));
   const draftType = useCreateDraftStore((s) => s.genType);
   const draftPrompt = useCreateDraftStore((s) => s.prompt);
+  const running = useQueueStore((s) => s.running);
+  const queued = useQueueStore((s) => s.queued);
+  const split = useEditorJobStore((s) => s.splitJob);
 
   useEffect(() => {
     let live = true;
@@ -60,6 +67,9 @@ export function ContinueRow({ refreshKey, openEditor, resumeCreate }: Props) {
                 showPlayhead={false} onClickOverride={() => openEditor(r.id)}
               />
             )}
+            {songActivity(r.id, running, queued, split).map((doing) => (
+              <div key={doing} className="continue-doing">{doing}</div>
+            ))}
             <div className="continue-card-foot">
               <span className="continue-meta">{lastAction(r)}</span>
               <button type="button" className="continue-resume" onClick={() => openEditor(r.id)}>
