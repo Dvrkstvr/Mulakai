@@ -45,26 +45,34 @@ export interface AdvancedSettings {
   lmRepetitionPenalty: number;
 }
 
-export interface RepaintSettings extends AdvancedSettings {
-  model: string; // '' = server default.
-  repaintStrength: number; // VARIANCE 0-1; inverse of audio_cover_strength
+/** An action's TUNE: steps, guidance, seed and the advanced knobs. REPAINT and ADD LAYER each keep their own
+ * (PLAN.md "Editor Redesign", PR 11): changing one no longer changes the other. */
+export interface TuneSettings extends AdvancedSettings {
   inferenceSteps: number;
   guidanceScale: number;
   randomSeed: boolean;
   seed: number;
+}
+
+export const TUNE_KEYS: readonly (keyof TuneSettings)[] = [
+  'inferenceSteps', 'guidanceScale', 'randomSeed', 'seed', 'shift', 'inferMethod', 'timesteps', 'useAdg',
+  'cfgIntervalStart', 'cfgIntervalEnd', 'lmTemperature', 'lmCfgScale', 'lmNegativePrompt', 'lmTopK', 'lmTopP',
+  'lmRepetitionPenalty',
+];
+
+export interface RepaintSettings extends TuneSettings {
+  model: string; // '' = server default.
+  repaintStrength: number; // VARIANCE 0-1; inverse of audio_cover_strength
   /** Waveform-level splice crossfade at the repaint region boundary, seconds. 0 = hard cut (ACE-Step's own default). */
   crossfadeSec: number;
   // NB: the advanced DiT knobs (shift/adg/cfg-interval) are Base-model only and
   // the LM knobs only apply to Add Layer (repaint skips the LM,
   // docs/ace-step-1.5/API.md#4.2) — repaintParams therefore emits only the DiT
-  // subset, addLayerParams emits both. The values live here once, shared.
+  // subset, addLayerParams emits both.
 }
 
-export interface AddLayerSettings {
+export interface AddLayerSettings extends TuneSettings {
   model: string; // '' = server default. Must be lego-capable (Base model) — client filters options.
-  // Steps/guidance/seed and all advanced knobs are shared with RepaintSettings
-  // (see addLayerParams) rather than duplicated — Add Layer is another ACE-Step
-  // conditioning op on the same song. Only `model` is Add-Layer-specific.
 }
 
 export type { AudioFormat, SampleRate, BitDepth, Mp3Bitrate } from './formatCaps';

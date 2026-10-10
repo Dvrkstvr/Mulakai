@@ -7,7 +7,7 @@ import { RepaintKnobs } from './RepaintKnobs';
 import { TuneDisclosure } from './TuneDisclosure';
 import { tuneSummary } from './tuneSummary';
 
-/** REPAINT's TUNE: DIT MODEL plus the shared knobs (VARIANCE sits inline in the dock body). */
+/** REPAINT's TUNE: DIT MODEL plus its own knobs (VARIANCE sits inline in the dock body). */
 export function RepaintTune() {
   const repaint = useSettings((s) => s.repaint);
   const setRepaint = useSettings((s) => s.setRepaint);
@@ -27,7 +27,7 @@ export function RepaintTune() {
         options={[{ label: 'AUTO', value: '', description: ditModelDescription('') },
           ...models.map((m) => ({ label: m, value: m, description: ditModelDescription(m) }))]}
       />
-      <RepaintKnobs gatingModel={repaint.model} />
+      <RepaintKnobs gatingModel={repaint.model} knobs={repaint} set={setRepaint} />
     </TuneDisclosure>
   );
 }

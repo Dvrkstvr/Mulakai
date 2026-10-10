@@ -1,15 +1,15 @@
-import { useSettings } from './settings';
+import type { TuneSettings } from './settingsTypes';
 import { Slider } from './Slider';
 import { Seed } from './Seed';
 import { AdvancedGenSettings } from './AdvancedGenSettings';
 import { stepsMax, guidanceEffective } from './modelInfo';
 import { STEPS_INFO, GUIDANCE_INFO, autoStepsLabel } from './knobInfo';
 
-/** STEPS, GUIDANCE, SEED and ADVANCED — the repaint knobs REPAINT and ADD LAYER share,
- * gated on whichever model the verb runs on. */
-export function RepaintKnobs({ gatingModel }: { gatingModel: string }) {
-  const repaint = useSettings((s) => s.repaint);
-  const setRepaint = useSettings((s) => s.setRepaint);
+/** STEPS, GUIDANCE, SEED and ADVANCED for one action's own TUNE (REPAINT's or ADD LAYER's, PR 11), gated on the model
+ * that action runs on. */
+export function RepaintKnobs({ gatingModel, knobs: repaint, set: setRepaint }: {
+  gatingModel: string; knobs: TuneSettings; set: (patch: Partial<TuneSettings>) => void;
+}) {
   return (
     <>
       <Slider label="STEPS" value={repaint.inferenceSteps} min={0} max={stepsMax(gatingModel)} step={1}

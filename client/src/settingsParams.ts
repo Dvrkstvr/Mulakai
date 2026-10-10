@@ -129,21 +129,19 @@ export function repaintParams(r: RepaintSettings) {
 }
 
 /**
- * Map Add Layer settings to ACE-Step request params. `model` is Add-Layer-specific
- * (lego needs a Base model); steps/guidance/seed and all advanced knobs are shared
- * with repaint — both verbs' TUNE edit the same knobs. `lego` runs the LM, so unlike
- * repaint this also emits the LM knobs.
+ * Map Add Layer settings to ACE-Step request params: its own model (lego needs a Base model) and its own TUNE
+ * (PLAN.md "Editor Redesign", PR 11). `lego` runs the LM, so unlike repaint this also emits the LM knobs.
  */
-export function addLayerParams(a: AddLayerSettings, r: RepaintSettings) {
+export function addLayerParams(a: AddLayerSettings) {
   return {
     audio_format: MASTER_AUDIO_FORMAT,
     output: outputParams(),
     ...(a.model ? { model: a.model } : {}),
-    ...(r.inferenceSteps > 0 ? { inference_steps: r.inferenceSteps } : {}),
-    ...(r.guidanceScale > 0 ? { guidance_scale: r.guidanceScale } : {}),
-    use_random_seed: r.randomSeed,
-    ...(r.randomSeed ? {} : { seed: r.seed }),
-    ...ditAdvancedParams(r),
-    ...lmAdvancedParams(r),
+    ...(a.inferenceSteps > 0 ? { inference_steps: a.inferenceSteps } : {}),
+    ...(a.guidanceScale > 0 ? { guidance_scale: a.guidanceScale } : {}),
+    use_random_seed: a.randomSeed,
+    ...(a.randomSeed ? {} : { seed: a.seed }),
+    ...ditAdvancedParams(a),
+    ...lmAdvancedParams(a),
   };
 }

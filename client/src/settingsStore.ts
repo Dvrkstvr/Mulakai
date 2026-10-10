@@ -53,6 +53,22 @@ export const useSettings = create<SettingsState>()(
       },
       addLayer: {
         model: '', // '' = AUTO — but AUTO isn't guaranteed lego-capable; UI requires an explicit pick.
+        inferenceSteps: 0, // 0 = AUTO
+        guidanceScale: 0, // 0 = AUTO
+        randomSeed: true,
+        seed: 0,
+        shift: 0, // 0 = AUTO
+        inferMethod: '',
+        timesteps: '',
+        useAdg: false,
+        cfgIntervalStart: 0,
+        cfgIntervalEnd: 1,
+        lmTemperature: 0.85,
+        lmCfgScale: 2.5,
+        lmNegativePrompt: '',
+        lmTopK: 0,
+        lmTopP: 0.9,
+        lmRepetitionPenalty: 1,
       },
       exportSettings: {
         // Lossless by default, at each container's highest depth — FLAC is

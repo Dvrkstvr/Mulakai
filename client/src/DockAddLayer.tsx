@@ -31,7 +31,7 @@ interface Props {
  * under the commit.
  */
 export function DockAddLayer({ songId, layers, songLyrics, scoreOpen }: Props) {
-  const { addLayer, setAddLayer, repaint } = useSettings();
+  const { addLayer, setAddLayer } = useSettings();
   const voice = useVoiceStore();
   const resetDraft = useAddLayerDraft((s) => s.reset);
   const [prompt, setPrompt] = useState('');
@@ -74,7 +74,8 @@ export function DockAddLayer({ songId, layers, songLyrics, scoreOpen }: Props) {
 
   const canSubmit = !!legoModels.data?.length && prompt.trim().length > 0;
   const layerName = addLayerName(prompt, trackName);
-  const consequence = addLayerLine(layerName, ahead, scoreOpen);
+  const voiceName = voice.selectedVoiceId ? voice.voices.find((v) => v.id === voice.selectedVoiceId)?.name ?? null : null;
+  const consequence = addLayerLine(layerName, ahead, scoreOpen, voiceName);
 
   const submit = async () => {
     if (!canSubmit) return;
@@ -88,7 +89,7 @@ export function DockAddLayer({ songId, layers, songLyrics, scoreOpen }: Props) {
         layerName,
         ...(lyrics ? { lyrics } : {}),
         ...(trackName ? { track_name: trackName } : {}),
-        ...addLayerParams(addLayer, repaint),
+        ...addLayerParams(addLayer),
         ...voiceParams(voice),
       });
     } catch (err) {
