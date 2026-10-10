@@ -49,6 +49,8 @@ export const ASSIST_SCHEMA = {
 } as const;
 
 const TAG = /^\s*\[[^\]]+\]\s*$/;
+/** A label the model sometimes puts before a prompt ("tags: deeper bass, …"); the field must hold the prompt only. */
+const LEAD_LABEL = /^\s*(?:tags?|instructions?|descriptions?|prompt|caption)\s*:\s*/i;
 
 const VOWELS = /[aeiouyäöüàâéèêëîïôûùœæ]+/g;
 
@@ -75,7 +77,8 @@ const TASK: Record<AssistKind, (r: AssistRequest) => string> = {
     + '(its "lego" task): instrument or voice, playing style, sound and mood, as comma-separated tags and short phrases, '
     + 'at most 25 words, fitting the song. No lyrics.',
   repaint: (r) => `Write an instruction for repainting ${r.part || 'the whole song'} of the ${r.layer || 'base'} layer with ACE-Step: `
-    + 'what should change in the sound (arrangement, instruments, energy, mood), at most 25 words, as tags and short phrases.',
+    + 'what should change in the sound (arrangement, instruments, energy, mood), at most 25 words, as comma-separated tags '
+    + 'and short phrases, with no label in front.',
   lyrics: (r) => `Rewrite the words of ${r.part || 'this part'} below${r.language ? ` (language: ${r.language}; keep it)` : ''}. `
     + 'Keep every [Tag] line as it is and the same number of sung lines; keep each line close to the syllable count '
     + 'given after it, so the new words fit the same melody. Return the whole part, lines separated by newlines.',
@@ -107,7 +110,8 @@ export function keepSuggestions(r: AssistRequest, raw: unknown): Suggestion[] {
   const tags = r.current.split('\n').filter((l) => TAG.test(l)).map((l) => l.trim());
   const seen = new Set<string>();
   return list.flatMap((s) => {
-    const text: string = typeof s?.text === 'string' ? s.text.trim() : '';
+    const said: string = typeof s?.text === 'string' ? s.text.trim() : '';
+    const text = r.kind === 'lyrics' ? said : said.replace(LEAD_LABEL, '').trim();
     const why: string = typeof s?.why === 'string' ? s.why.trim() : '';
     if (!text || seen.has(text) || text === r.current.trim()) return [];
     if (r.kind === 'lyrics' && want > 0) {

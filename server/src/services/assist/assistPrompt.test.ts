@@ -52,6 +52,17 @@ describe('keepSuggestions', () => {
     expect(keepSuggestions(lyrics, raw)).toEqual([{ text: ok, why: 'rhymes' }]);
   });
 
+  it('a prompt comes without a label in front ("tags: …"), so USE puts only the prompt in the field', () => {
+    const raw = { suggestions: [{ text: 'tags: deeper bass, darker mood', why: '' }, { text: 'Instruction: half-time drums', why: '' }] };
+    expect(keepSuggestions({ ...base, kind: 'repaint' }, raw).map((s) => s.text)).toEqual(['deeper bass, darker mood', 'half-time drums']);
+    expect(keepSuggestions(base, { suggestions: [{ text: 'Tags: airy pads', why: '' }] })[0].text).toBe('airy pads');
+  });
+
+  it('a lyric line is never stripped', () => {
+    const words = { ...base, kind: 'lyrics' as const, current: 'Prompt: we rise' };
+    expect(keepSuggestions(words, { suggestions: [{ text: 'Tags: we fall', why: '' }] })[0].text).toBe('Tags: we fall');
+  });
+
   it('a reply that is not the asked shape keeps nothing', () => {
     expect(keepSuggestions(base, null)).toEqual([]);
     expect(keepSuggestions(base, { suggestions: 'x' })).toEqual([]);
