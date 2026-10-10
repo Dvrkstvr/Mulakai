@@ -9,6 +9,7 @@ import type { DockVerb } from './dockTarget';
 import { useSettings } from './settings';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
 import { useAudition } from './useAudition';
+import { scoreOpen } from './scoreEnds';
 import { AuditionNote } from './AuditionNote';
 import { useMainTransportGuard } from './previewPlayback';
 import { useEditorRepaintJob } from './useEditorRepaintJob';
@@ -109,6 +110,7 @@ export function Editor({ songId, onBack }: Props) {
               processing={!!repaintJob.running}
               onSplit={(layerId) => { setFocusedLayerId(layerId); setVerb('split'); }}
               takes={{ hearing: audition.hearing, onUse: audition.use, onHear: audition.hear }}
+              scoreOpen={scoreOpen(score)}
               lyrics={{ draft: lyricsDraft, timings: timing.timings, timing, onLine: scorePick?.onLine, picked: scorePick?.lineIndex }}
             />
 
@@ -127,7 +129,6 @@ export function Editor({ songId, onBack }: Props) {
                 prompt, onPromptChange: setPrompt, job: repaintJob, onRepaint: repaint,
                 lyrics: { unlocked: lyricsUnlocked, draft: lyricsDraft, onDraftChange: setLyricsDraft, words, songLyrics: song.lyrics ?? '' },
               }}
-              onChanged={reload}
             />
 
             {activeVersion && (

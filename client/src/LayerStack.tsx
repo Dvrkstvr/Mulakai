@@ -1,4 +1,4 @@
-import type { CSSProperties } from 'react';
+import { Fragment, type CSSProperties } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Layer } from './api';
 import type { Region } from './Waveform';
@@ -9,6 +9,7 @@ import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { LyricsLane, type LyricsLaneProps } from './LyricsLane';
 import { useEditorJobStore, myEditorJobs } from './editorJobStore';
 import { laneTakes } from './laneTakeChips';
+import { SplitTray } from './SplitTray';
 
 interface Props {
   songId: string;
@@ -25,6 +26,8 @@ interface Props {
   onSplit: (layerId: string) => void;
   /** Take chips: the take heard in place, and what a chip click does (useAudition). */
   takes: { hearing: string | null; onUse: (versionId: string) => void; onHear: (layerId: string, versionId: string) => void };
+  /** SCORE is still open for the song: a stem's claim line says it ends score editing (F-027). */
+  scoreOpen: boolean;
   lyrics: Pick<LyricsLaneProps, 'draft' | 'timings' | 'timing' | 'onLine' | 'picked'>;
 }
 
@@ -35,7 +38,7 @@ interface Props {
  * collapsing unfocused rows to a summary line), stacked vertically. A single playhead line
  * spans from the timeline through every lane, since all share the same x-axis.
  */
-export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit, lyrics, takes }: Props) {
+export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged, duration, playhead, selection, onSelect, onSeek, processing, onSplit, lyrics, takes, scoreOpen }: Props) {
   const editorJobs = useEditorJobStore((s) => s.editorJobs);
   const playheadPct = duration > 0 ? Math.min(100, Math.max(0, (playhead / duration) * 100)) : 0;
   // The ghost lane is for a layer the GPU is making now, not one still waiting in the queue.
@@ -50,8 +53,8 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
           <LyricsLane {...lyrics} duration={duration} selection={selection} onSelect={onSelect} onSeek={onSeek} />
           <div className="lane-grid">
             {layers.map((layer) => (
+              <Fragment key={layer.id}>
               <LayerLane
-                key={layer.id}
                 layer={layer}
                 layers={layers}
                 focused={layer.id === focusedLayerId}
@@ -65,6 +68,8 @@ export function LayerStack({ songId, layers, focusedLayerId, onFocus, onChanged,
                 onSplit={() => onSplit(layer.id)}
                 takes={{ chips: laneTakes(layer, editorJobs), hearing: takes.hearing, onUse: takes.onUse, onHear: (v) => takes.onHear(layer.id, v) }}
               />
+              <SplitTray layer={layer} onChanged={onChanged} scoreOpen={scoreOpen} />
+              </Fragment>
             ))}
             {/* Ghost lane — appears the instant ADD LAYER is submitted, before the
                 real layer exists server-side, so the "something is happening"

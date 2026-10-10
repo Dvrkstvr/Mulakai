@@ -1612,6 +1612,42 @@ footer .player {
   flex-direction: column;
 }
 
+/* A layer's stems, under its own lane once SPLIT starts (SplitTray.tsx, PLAN.md "Editor Redesign", PR 9): a sky
+   frame hanging off the lane, the stem rows side by side. */
+.split-tray {
+  border: 1px solid var(--sky);
+  border-top: 0;
+  background: var(--carbon);
+  padding: 8px 10px 10px;
+  margin-bottom: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.split-tray-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.split-tray-title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--sky);
+}
+
+.split-tray-close {
+  margin-left: auto;
+}
+
+.split-tray-rows {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 6px;
+}
+
 .layer-lane {
   display: flex;
   flex-direction: column;
