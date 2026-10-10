@@ -58,8 +58,27 @@ http://mulakai.lan {
 ## Engines
 
 The website and the library work without the GPU PC. Generating needs the
-engines in `/etc/mulakai.env` to be reachable from `192.168.2.13`. Each one
-must listen on the LAN rather than only on `127.0.0.1`, and Windows Firewall
-must let that port in from `192.168.2.13` only. After changing the env file,
-run `systemctl restart mulakai`. Waking the GPU PC on demand is PLAN.md
-"Studio Network", PRs 2–5.
+engines in `/etc/mulakai.env` to be reachable from `192.168.2.13`. The GPU PC
+serves this server and its own local stack at the same time.
+
+On the GPU PC, run this once in an elevated PowerShell:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File deploy\home-lan\gpu-pc-lan.ps1
+```
+
+It sets three things:
+- **Windows Firewall** lets TCP 8001, 8002, 8004, 8005 and 11434 in from
+  `192.168.2.13` only. Ollama, Demucs and lyrics-server have no key, so this
+  rule is what keeps the rest of the LAN out.
+- **WSL** switches to mirrored networking, so YuE2 answers on the PC's LAN
+  address. A Hyper-V firewall rule lets port 8004 in from the server only.
+- **`ENGINE_HOST=0.0.0.0`** for your user. `start-all.bat` then binds every
+  engine to `0.0.0.0`, which answers on `127.0.0.1` as well. Without the
+  variable, the engines stay on `127.0.0.1` as before.
+
+Then run `wsl --shutdown`, quit Ollama from the tray, close the engine
+windows, and run `start-all.bat` again. Give the PC a DHCP reservation in the
+router so it keeps `192.168.2.42`.
+
+Waking the GPU PC on demand is PLAN.md "Studio Network", PRs 2–5.
