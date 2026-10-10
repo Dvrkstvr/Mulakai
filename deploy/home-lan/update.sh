@@ -16,6 +16,14 @@ PORT=$(sed -n 's/^PORT=//p' /etc/mulakai.env 2>/dev/null); PORT=${PORT:-3001}
 as_app() { runuser -u mulakai -- "$@"; }
 log() { echo "mulakai-update: $*"; }
 
+# idle when no job runs or waits. Jobs live only in the server's memory, so a restart
+# while one runs loses it. A server that does not answer counts as idle: nothing to lose.
+queue_idle() {
+  local q
+  q=$(curl -fsS -m 5 "http://127.0.0.1:$PORT/api/generate/queue") || return 0
+  [ "$(jq -r '(.running == null) and ((.queued // []) | length == 0)' <<<"$q")" = true ]
+}
+
 ci_state() {
   curl -fsS -H 'Accept: application/vnd.github+json' \
     "https://api.github.com/repos/$GH_REPO/commits/$1/check-runs?per_page=100" |
@@ -64,6 +72,8 @@ main() {
     esac
   fi
 
+  # Start only while idle, so the build does not race a job someone is about to start.
+  queue_idle || { log "${new:0:7}: waiting for the job queue to empty"; exit 0; }
   log "deploying ${cur:0:7} -> ${new:0:7}"
   if ! deploy "$cur" "$new"; then
     log "${new:0:7}: build failed, rolling back to ${cur:0:7}"
@@ -71,7 +81,9 @@ main() {
     deploy "$new" "$cur" || log "rollback build failed too"
     exit 1
   fi
-  # A restart drops jobs still running: they live only in memory.
+  # A job may have started during the build. The new code is checked out, so wait here
+  # (the timer does not start another run meanwhile) rather than restart under it.
+  until queue_idle; do sleep 15; done
   systemctl restart mulakai
   for _ in $(seq 60); do
     curl -fsS -o /dev/null "http://127.0.0.1:$PORT/" && { log "live at ${new:0:7}"; exit 0; }
