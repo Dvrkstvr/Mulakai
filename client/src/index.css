@@ -3116,6 +3116,75 @@ button.rail-lyr-head:hover span {
 
 /* A lane's ⋯ menu (LaneMenu.tsx), pushed to the lane's right edge: RENAME, SPLIT INTO STEMS, DELETE LAYER… in a
    panel under the button; delete is rust and asks once, naming what goes. */
+/* A lane's takes (LaneTakes.tsx, PLAN.md "Editor Redesign", PR 8): lilac = takes. Filled = in use; a sky outline =
+   heard in place; dashed = still being made. */
+.lane-takes {
+  display: inline-flex;
+  gap: 3px;
+  margin-left: 8px;
+}
+
+.lane-take {
+  transform: skewX(-10deg);
+  padding: 1px 6px;
+  font: 700 10px monospace;
+  letter-spacing: 0;
+  color: var(--text-low);
+  border: 1px solid var(--line-hi);
+  background: transparent;
+}
+
+button.lane-take:hover {
+  color: var(--lilac-text);
+  border-color: var(--lilac);
+}
+
+.lane-take.active {
+  background: var(--lilac);
+  border-color: var(--lilac);
+  color: #fff;
+  cursor: default;
+}
+
+.lane-take.hearing {
+  border-color: var(--sky);
+  color: var(--sky);
+}
+
+.lane-take.running {
+  border-style: dashed;
+  border-color: var(--lilac);
+  color: var(--lilac-text);
+}
+
+.lane-take.more {
+  border-color: var(--line);
+}
+
+/* While a take is heard in place: one lilac line over the transport. */
+.audition-note {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--lilac);
+  background: var(--lilac-tint);
+}
+
+.audition-what {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--lilac-text);
+}
+
+.tab.audition-use {
+  border-color: var(--lilac);
+  color: var(--lilac-text);
+}
+
 .lane-menu {
   margin-left: auto;
   position: relative;

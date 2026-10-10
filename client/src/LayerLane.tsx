@@ -7,6 +7,8 @@ import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { VolumeSlider } from './VolumeSlider';
 import { laneSelect } from './editorSelection';
 import { LaneMenu } from './LaneMenu';
+import { LaneTakes } from './LaneTakes';
+import type { TakeChip } from './laneTakeChips';
 
 export const LANE_HEIGHT = 60;
 
@@ -26,6 +28,8 @@ interface Props {
   /** True while a repaint job targeting this (focused) lane is in flight — shows the AI shimmer overlay. */
   processing?: boolean;
   onSplit: () => void;
+  /** The lane's take chips (laneTakes), the take heard in place if it is this lane's, and what a chip click does. */
+  takes: { chips: TakeChip[]; hearing: string | null; onUse: (versionId: string) => void; onHear: (versionId: string) => void };
 }
 
 /**
@@ -36,7 +40,7 @@ interface Props {
  * per-lane playhead is drawn — a single shared overlay line spans all lanes
  * (see LayerStack.tsx).
  */
-export function LayerLane({ layer, layers, focused, duration, selection, onSelect, onFocus, onChanged, onSeek, processing, onSplit }: Props) {
+export function LayerLane({ layer, layers, focused, duration, selection, onSelect, onFocus, onChanged, onSeek, processing, onSplit, takes }: Props) {
   const [name, setName] = useState(layer.name);
   const [editingName, setEditingName] = useState(false);
   const [error, setError] = useState('');
@@ -113,6 +117,7 @@ export function LayerLane({ layer, layers, focused, duration, selection, onSelec
             {layer.name.toUpperCase()}
           </span>
         )}
+        <LaneTakes {...takes} />
         <span onClick={(e) => e.stopPropagation()}>
           <VolumeSlider value={volumeDraft ?? layer.volume} onChange={changeVolume} />
         </span>

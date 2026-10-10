@@ -8,6 +8,8 @@ import { ActionDock } from './ActionDock';
 import type { DockVerb } from './dockTarget';
 import { useSettings } from './settings';
 import { usePlaybackEngine } from './mix/usePlaybackEngine';
+import { useAudition } from './useAudition';
+import { AuditionNote } from './AuditionNote';
 import { useMainTransportGuard } from './previewPlayback';
 import { useEditorRepaintJob } from './useEditorRepaintJob';
 import { useLandedReload } from './useLandedReload';
@@ -46,7 +48,8 @@ export function Editor({ songId, onBack }: Props) {
   useLandedReload(songId, reload);
 
   useLyricsDraftSync(song, lyricsDraft, setLyricsDraft);
-  const engine = usePlaybackEngine(song?.layers ?? []);
+  const audition = useAudition(song, reload);
+  const engine = usePlaybackEngine(audition.layers);
   useMainTransportGuard(engine);
   const playhead = engine.currentTime;
   useSpaceTransport(engine);
@@ -105,6 +108,7 @@ export function Editor({ songId, onBack }: Props) {
               onSeek={seek}
               processing={!!repaintJob.running}
               onSplit={(layerId) => { setFocusedLayerId(layerId); setVerb('split'); }}
+              takes={{ hearing: audition.hearing, onUse: audition.use, onHear: audition.hear }}
               lyrics={{ draft: lyricsDraft, timings: timing.timings, timing, onLine: scorePick?.onLine, picked: scorePick?.lineIndex }}
             />
 
@@ -128,6 +132,8 @@ export function Editor({ songId, onBack }: Props) {
 
             {activeVersion && (
               <div className="canvas" style={{ marginTop: 12 }}>
+                {audition.note && <AuditionNote note={audition.note} onBack={audition.back} onUse={audition.use} />}
+                {audition.error && <div className="error">{audition.error}</div>}
                 <EditorTransport engine={engine} selection={selection} />
               </div>
             )}

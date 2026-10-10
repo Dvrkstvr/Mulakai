@@ -44,7 +44,7 @@ export function VersionHistory({ songId, layerId, layerName, versions, onSelectR
     (j.kind === 'regenerate' || j.kind === 'retake') && j.layerId === layerId));
   const elapsedMs = useElapsedMs(!!running, running?.startedAt ?? null);
   const progressSuffix = `${fmtProgress(running?.progress) ? ` · ${fmtProgress(running?.progress)}` : ''}${stageDetail(running?.progressStage) ? ` · ${stageDetail(running?.progressStage)}` : ''}`;
-  /** A version row's ALT or SIMILAR label while a job it started is in flight. */
+  /** A version row's REROLL or MORE LIKE THIS label while a job it started is in flight. */
   const jobLabel = (versionId: string, kind: 'regenerate' | 'retake', idle: string) => {
     const job = inFlight.find((j) => 'versionId' in j && j.versionId === versionId && j.kind === kind);
     if (!job) return idle;
@@ -130,18 +130,18 @@ export function VersionHistory({ songId, layerId, layerName, versions, onSelectR
                 ) : (
                   <button onClick={() => void attempt("couldn't revert", () => onRevert(v.id), setError).then((ok) => {
                     if (ok && hasRegion) onSelectRegion({ start: v.region_start as number, end: v.region_end as number });
-                  })} title="revert to this version and select its region">
-                    <span>SEL</span>
+                  })} title="use this take and select its region">
+                    <span>USE</span>
                   </button>
                 )}
                 {replayable && (
                   <>
                     <button onClick={() => regenerate(v.id)} title={`regenerate as an alternate version, ${saves}`}>
-                      <span>{jobLabel(v.id, 'regenerate', 'ALT')}</span>
+                      <span>{jobLabel(v.id, 'regenerate', 'REROLL')}</span>
                     </button>
                     <button onClick={() => retake(v.id)}
                       title={`generate a similar take from this version's seed, ${saves}`}>
-                      <span>{jobLabel(v.id, 'retake', 'SIMILAR')}</span>
+                      <span>{jobLabel(v.id, 'retake', 'MORE LIKE THIS')}</span>
                     </button>
                   </>
                 )}

@@ -88,14 +88,14 @@ test('generate → repaint → add layer → revert → export', async ({ page, 
   });
 
   await test.step('revert the base layer to its first take', async () => {
-    // Focus the base lane (the new layer may have taken focus), then SEL its first take.
+    // Focus the base lane (the new layer may have taken focus), then USE its first take.
     await page.locator('.layer-lane >> nth=0 >> .lane-controls').click();
     const firstTake = page.locator('.versions .version', { hasText: 'first generation' });
     // `version-enter` stays on every row (it only plays the glow), and toHaveClass retries, so a
     // miss here means the revert itself went wrong: say which part — no request, a failed one,
     // or a UI that didn't show what the server saved.
     const activate = page.waitForRequest((r) => r.method() === 'PATCH' && r.url().endsWith('/activate'));
-    await firstTake.getByRole('button', { name: 'SEL' }).click();
+    await firstTake.getByRole('button', { name: 'USE' }).click();
     const sent = await activate;
     const answered = await sent.response();
     expect(answered?.status(), `activate failed: ${sent.failure()?.errorText ?? 'no response'}`).toBe(200);
