@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import type { AssistKind } from './api/assist';
 import { FIELD_NAME, REFINEMENTS, assistStatusLine } from './assistCopy';
 import { useAssistSong, type AssistSong } from './assistContext';
+import { useEscapeLayer } from './escapeStack';
 import { useAssist } from './useAssist';
 
 interface Props {
@@ -40,11 +41,9 @@ function HelpPanel({ kind, layer, current, onUse, song, onClose }: Props & { son
   // The first suggestions come as the box opens; Escape closes it.
   useEffect(() => {
     run('');
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape' && !e.defaultPrevented) { e.preventDefault(); onClose(); } };
-    document.addEventListener('keydown', esc);
-    return () => document.removeEventListener('keydown', esc);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+  useEscapeLayer(true, onClose);
 
   const busy = phase.kind === 'waiting' || phase.kind === 'thinking';
   return (

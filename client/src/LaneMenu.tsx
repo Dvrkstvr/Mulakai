@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
+import { useEscapeLayer } from './escapeStack';
 import { BASE_UNDELETABLE, deleteLayerLine } from './laneMenuCopy';
 
 interface Props {
@@ -23,20 +24,18 @@ export function LaneMenu({ name, isBase, takes, onRename, onSplit, onDelete }: P
   useEffect(() => {
     if (!open) return;
     const away = (e: MouseEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false); };
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); setOpen(false); } };
     const close = () => setOpen(false);
     document.addEventListener('mousedown', away);
-    document.addEventListener('keydown', esc);
     window.addEventListener('scroll', close, true);
     window.addEventListener('resize', close);
     return () => {
       document.removeEventListener('mousedown', away);
-      document.removeEventListener('keydown', esc);
       window.removeEventListener('scroll', close, true);
       window.removeEventListener('resize', close);
     };
   }, [open]);
   useEffect(() => { if (!open) setConfirming(false); }, [open]);
+  useEscapeLayer(open, () => setOpen(false));
 
   const pick = (run: () => void) => () => { setOpen(false); run(); };
   const toggle = () => {

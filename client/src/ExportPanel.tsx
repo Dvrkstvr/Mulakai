@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import type { SongDetail } from './api';
 import { DockExport } from './DockExport';
+import { useEscapeLayer } from './escapeStack';
 
 interface Props {
   song: SongDetail;
@@ -15,12 +16,7 @@ export function ExportPanel({ song, open, onClose }: Props) {
   const [opened, setOpened] = useState(open);
   if (open && !opened) setOpened(true);
 
-  useEffect(() => {
-    if (!open) return;
-    const esc = (e: KeyboardEvent) => { if (e.key === 'Escape' && !e.defaultPrevented) { e.preventDefault(); onClose(); } };
-    document.addEventListener('keydown', esc);
-    return () => document.removeEventListener('keydown', esc);
-  }, [open, onClose]);
+  useEscapeLayer(open, onClose);
 
   if (!opened) return null;
   return (
