@@ -802,7 +802,17 @@ requiring its own justification against a screen-count rule.
    - **Action dock** (`ActionDock.tsx`, added 2026-10-03): the Editor's one
      place to act, a carbon-panel card under the layer stack and above the
      transport. Top to bottom:
-     - **TARGET** row: the sky scope chip, the verb's hint in `text-low`
+     - **Action bar** (revised 2026-10-10, PLAN.md "Editor Redesign",
+       PR 5): the dock head is the action bar, and **nothing is open on
+       entry**. Its label reads **THIS**; with no action open the chip names
+       the selection (`BASE · VERSE 2 · 1:32–2:07`, rust when outside the
+       repaint limits) or `BASE · WHOLE SONG`, with the hint "pick an
+       action · drag a lane, click a section or a lyric line to choose a
+       part". The tabs are actions with their keys; SPLIT names its layer
+       (`SPLIT BASE`). Clicking the open action again, **✕ CLOSE** (`ESC`
+       keycap) or Escape outside a field closes it; the selection stays.
+       An open action's chip reads as below.
+     - **TARGET** row (the label now reads THIS): the sky scope chip, the verb's hint in `text-low`
        ("drag a waveform, click a section or a lyric line"), and the verb
        tabs at the right. The chip reads per verb (`dockTarget.ts`): REPAINT
        `VOCALS · VERSE 2 · 1:32–2:07` (the section only when the range is

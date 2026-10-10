@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { dockTarget, repaintCommitLabel, repaintConsequence, repaintLine, repaintWarnLine } from './dockTarget';
+import { dockTarget, idleTarget, repaintCommitLabel, repaintConsequence, repaintLine, repaintWarnLine } from './dockTarget';
 import { SCORE_ENDS } from './scoreCopy';
 
 const SECTIONS = [
@@ -110,5 +110,12 @@ describe('repaintLine (F-027)', () => {
     const off = dockTarget('repaint', 'base', tooShort, [], 192);
     expect(repaintLine(off, { ...input, selection: tooShort, scoreOpen: true }))
       .toEqual({ line: 'pick a region of 3–90 s', scoreEnds: null });
+  });
+});
+
+describe('idleTarget', () => {
+  it('with no action open names the selection, or the layer and the whole song', () => {
+    expect(idleTarget('base', { start: 92, end: 127 }, SECTIONS, 192)).toMatchObject({ label: 'BASE · VERSE 2 · 1:32–2:07', warn: false });
+    expect(idleTarget('base', null, SECTIONS, 192)).toMatchObject({ label: 'BASE · WHOLE SONG', warn: false, idle: false });
   });
 });

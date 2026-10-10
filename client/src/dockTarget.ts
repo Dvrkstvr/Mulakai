@@ -59,6 +59,15 @@ export function dockTarget(verb: DockVerb, layerName: string, selection: Region 
   };
 }
 
+const IDLE_HINT = 'pick an action · drag a lane, click a section or a lyric line to choose a part';
+
+/** The THIS chip with no action open: what is selected, as REPAINT would read it (rust when the range is outside the
+ * repaint limits), else the focused layer and the whole song. */
+export function idleTarget(layerName: string, selection: Region | null, sections: Section[], duration: number): DockTarget {
+  const t = dockTarget('repaint', layerName, selection, sections, duration);
+  return { ...t, idle: false, hint: IDLE_HINT, label: selection ? t.label : `${layerName.toUpperCase()} · WHOLE SONG` };
+}
+
 /** Why REPAINT's commit is off, for its consequence line (the chip is rust meanwhile). */
 export function repaintWarnLine(selection: Region | null, duration: number): string {
   const range = `${REPAINT_MIN_SECONDS}–${REPAINT_MAX_SECONDS} s`;

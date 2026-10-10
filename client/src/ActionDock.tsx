@@ -2,13 +2,13 @@ import { useState } from 'react';
 import type { Layer, SongDetail } from './api';
 import type { Region } from './Waveform';
 import type { Section } from './lyricSections';
-import { dockTarget, type DockVerb } from './dockTarget';
+import { dockTarget, idleTarget, type DockVerb } from './dockTarget';
 import { DockRepaint, type SectionLyrics } from './DockRepaint';
 import { DockAddLayer } from './DockAddLayer';
 import { DockSplit } from './DockSplit';
 import { DockExport } from './DockExport';
 import { DockScore } from './DockScore';
-import type { VerbSpec } from './dockVerbs';
+import { actionLabel, type VerbSpec } from './dockVerbs';
 import type { ScoreVerbState } from './scoreVerbTypes';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
 import { useNextVersion } from './useLayerQueue';
@@ -25,13 +25,14 @@ export interface DockRepaintInputs {
 }
 
 interface Props {
-  verb: DockVerb;
+  /** The open action, or null: nothing opens on entry (PLAN.md "Editor Redesign", PR 5). */
+  verb: DockVerb | null;
   /** The tabs on show (dockVerbs): SCORE only for a song the server says it applies to. */
   verbs: readonly VerbSpec[];
   score: ScoreVerbState;
   /** SCORE has a strip section or a timed lyric line to pick (D-074): only then the chip hints at picking. */
   scorePickable?: boolean;
-  onVerb: (verb: DockVerb) => void;
+  onVerb: (verb: DockVerb | null) => void;
   song: SongDetail;
   focusedLayer: Layer | undefined;
   selection: Region | null;
@@ -48,19 +49,21 @@ function activeNumber(layer: Layer | undefined): number | null {
 }
 
 /**
- * The Editor's one place to act (PLAN.md "UI Redesign", S1): TARGET chip → verb tabs → the
- * verb's body → consequence + commit. A verb's body stays mounted (hidden) once opened, so its
- * fields survive a switch; ADD LAYER is always mounted, as its row used to be, so its fields
- * start over once its layers land even while another verb shows.
+ * The Editor's action bar (PLAN.md "Editor Redesign", PR 5; was the dock of "UI Redesign", S1): THIS chip → the
+ * actions → the open action's body → consequence + commit. Nothing is open on entry: with no action open the chip names
+ * what is selected; an open action's chip names what that action acts on. Clicking the open action again, ✕ CLOSE or
+ * Escape closes it. A body stays mounted (hidden) once opened, so its fields survive a switch; ADD LAYER is always
+ * mounted, so its fields start over once its layers land even while another action shows.
  */
 export function ActionDock({ verb: picked, verbs, score, scorePickable = false, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint, onChanged }: Props) {
-  const verb = verbs.some((v) => v.id === picked) ? picked : 'repaint'; // SCORE went away (another song)
+  const verb = picked && verbs.some((v) => v.id === picked) ? picked : null; // SCORE went away (another song)
   const [opened, setOpened] = useState<Set<DockVerb>>(() => new Set(['repaint', 'addLayer']));
-  if (!opened.has(verb)) setOpened(new Set([...opened, verb]));
+  if (verb && !opened.has(verb)) setOpened(new Set([...opened, verb]));
   const layerName = focusedLayer?.name ?? 'base';
   const duration = song.duration ?? 0;
   // SCORE's chip names the pick ("this", F-032, M2-1); ✕ clears the pick, not the range REPAINT keeps.
-  const target = verb === 'score' ? scoreTarget(score, selection, scorePickable) : dockTarget(verb, layerName, selection, sections, duration);
+  const target = verb === 'score' ? scoreTarget(score, selection, scorePickable)
+    : verb ? dockTarget(verb, layerName, selection, sections, duration) : idleTarget(layerName, selection, sections, duration);
   const clearPick = () => useScoreStore.getState().dispatch(song.id, { type: 'pick', pick: null });
   const repaintTarget = verb === 'repaint' ? target : dockTarget('repaint', layerName, selection, sections, duration);
   const nextVersion = useNextVersion(focusedLayer, song.id);
@@ -80,7 +83,7 @@ export function ActionDock({ verb: picked, verbs, score, scorePickable = false, 
   return (
     <section className="action-dock" aria-label="Action dock">
       <div className="dock-head">
-        <span className="dock-row-label">TARGET</span>
+        <span className="dock-row-label">THIS</span>
         <span className={`scope-chip dock-target${target.warn ? ' warn' : ''}`}>{target.label}</span>
         {target.clearable && (
           <button type="button" className="tab dock-quiet" onClick={verb === 'score' ? clearPick : onClearSelection}>
@@ -91,10 +94,15 @@ export function ActionDock({ verb: picked, verbs, score, scorePickable = false, 
         <div className="dock-verbs" role="tablist" aria-label="Verb">
           {verbs.map((v) => (
             <button key={v.id} type="button" role="tab" aria-selected={v.id === verb} aria-keyshortcuts={v.key}
-              className={`tab dock-verb${v.id === verb ? ' active' : ''}`} onClick={() => onVerb(v.id)}>
-              <span>{v.label}</span><span className="kbd" aria-hidden="true">{v.key}</span>
+              className={`tab dock-verb${v.id === verb ? ' active' : ''}`} onClick={() => onVerb(v.id === verb ? null : v.id)}>
+              <span>{actionLabel(v, layerName)}</span><span className="kbd" aria-hidden="true">{v.key}</span>
             </button>
           ))}
+          {verb && (
+            <button type="button" className="tab dock-quiet" aria-keyshortcuts="Escape" onClick={() => onVerb(null)}>
+              <span>✕ CLOSE</span><span className="kbd" aria-hidden="true">ESC</span>
+            </button>
+          )}
         </div>
       </div>
       {verbs.filter((v) => opened.has(v.id)).map((v) => (

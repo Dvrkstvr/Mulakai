@@ -17,6 +17,11 @@ export function dockVerbs(scoreShown: boolean): readonly VerbSpec[] {
   return scoreShown ? [...BASE_VERBS, SCORE_VERB] : BASE_VERBS;
 }
 
+/** An action button's words: SPLIT names the layer it acts on (`SPLIT BASE`); the others are their verb. */
+export function actionLabel(v: VerbSpec, layerName: string): string {
+  return v.id === 'split' ? `SPLIT ${layerName.toUpperCase()}` : v.label;
+}
+
 /** The verb a bare key picks among those on show, or null. */
 export function verbOfKey(verbs: readonly VerbSpec[], key: string): DockVerb | null {
   return verbs.find((v) => v.key.toLowerCase() === key.toLowerCase())?.id ?? null;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { BASE_VERBS, dockVerbs, verbOfKey } from './dockVerbs';
+import { actionLabel, BASE_VERBS, dockVerbs, verbOfKey } from './dockVerbs';
 
 describe('dockVerbs (F-021 #1, #5)', () => {
   it('shows four tabs as today when SCORE is hidden (ACE-Step song, no LLM_API_URL)', () => {
@@ -20,5 +20,13 @@ describe('dockVerbs (F-021 #1, #5)', () => {
     expect(verbOfKey(dockVerbs(false), 'c')).toBeNull();
     expect(verbOfKey(BASE_VERBS, 'R')).toBe('repaint');
     expect(verbOfKey(dockVerbs(true), 'e')).toBe('export');
+  });
+});
+
+describe('actionLabel', () => {
+  it('SPLIT names the layer it acts on; the others are their verb', () => {
+    const [repaint, , split] = BASE_VERBS;
+    expect(actionLabel(split, 'Backing vocals')).toBe('SPLIT BACKING VOCALS');
+    expect(actionLabel(repaint, 'base')).toBe('REPAINT');
   });
 });
