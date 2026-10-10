@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import type { Song } from './api';
 import { landedTakes } from './generationJob';
 import { useGenerationStore, type GenerationJob } from './generationStore';
+import { useLandedStore } from './landedStore';
 import { useModelStatusStore } from './modelStatusStore';
 import type { LibraryData } from './useLibraryData';
 
@@ -64,6 +65,8 @@ export function useAppSync({ library, genJobs, hydrateGenJob, setPlaying }: Opti
     void refresh().then((list) => {
       const newSong = play ? list?.find((s) => s.id === play) : undefined;
       if (newSong) setPlaying(newSong);
+      // The create bar's LANDED card offers the Editor and the chat for it (PLAN.md "The other screens").
+      if (newSong) useLandedStore.getState().land({ songId: newSong.id, title: newSong.title });
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [landedKey]);
