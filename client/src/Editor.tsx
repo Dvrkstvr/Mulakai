@@ -23,6 +23,7 @@ import { useLibraryBackButton } from './useLibraryBackButton';
 import { useEditorColumns } from './useEditorColumns';
 import { EditorTitleRow } from './EditorTitleRow';
 import { EditorRail } from './EditorRail';
+import { railLyricsRows } from './railLyricsRows';
 import { useEditorCommands } from './useEditorCommands';
 import { pickRange } from './editorSelection';
 import { ScrollArea } from './ScrollArea';
@@ -57,7 +58,7 @@ export function Editor({ songId, onBack }: Props) {
   const focusedLayer = song?.layers.find((l) => l.id === focusedLayerId);
   const activeVersion = focusedLayer?.versions.find((v) => v.active);
   const duration = song?.duration ?? 0;
-  const { timing, sections, activeSectionIndex, activeLyricsBlock, lyricsUnlocked } =
+  const { timing, sections, activeSectionIndex, lyricsBlocks, matchedBlocks, activeLyricsBlock, lyricsUnlocked } =
     useSectionLyrics(song, duration, selection, lyricsDraft, focusedLayer, reload);
   useEditorCommands({ song, focusedLayer, sections, selection, setSelection, setFocusedLayerId, setVerb });
   const scorePick = useScorePick(songId, verb, sections, lyricsDraft, score, timing.timings);
@@ -139,6 +140,7 @@ export function Editor({ songId, onBack }: Props) {
               onLoadPrompt={(p) => { setPrompt(p); setVerb('repaint'); }}
               onChanged={reload}
               onResizePointerDown={railWidth.onPointerDown}
+              lyrics={railLyricsRows(lyricsBlocks, sections, matchedBlocks, activeSectionIndex)}
             />
           )}
         </div>

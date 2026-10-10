@@ -782,6 +782,16 @@ requiring its own justification against a screen-count rule.
        line — the outer box edge comes from `.stack-scrub`'s own border.
      - While ADD LAYER runs (not while it waits in the queue), a **ghost lane** (`NEW LAYER · generating…`
        over the AI shader) trails the stack until the real layer lands.
+   - **Right rail tabs** (revised 2026-10-10, PLAN.md "Editor Redesign",
+     PR 6): **LYRICS** / **TAKES · <LAYER>** quiet tabs (sky outline = the
+     open one) over the rail; it opens on TAKES, where a landed edit shows.
+     LYRICS lists the song's words block by block on the carbon panel: the
+     `[Section]` name in lilac mono with its heard time at the right (a
+     button that selects that section), its lines in `text-mid`, a 2px
+     `line` edge on the left; the block the selection sits in is lit
+     (sky edge, `sky-tint`, lines at `text-hi`). A block not heard yet
+     reads `not timed` in `text-low` and can't be clicked. A song with no
+     words says so. TAKES is the VERSIONS list below.
    - **Shared transport** (revised 2026-10-10, PLAN.md "Editor Redesign",
      PR 2): `EditorTransport.tsx` puts `Player.tsx` below the dock in its
      **compact** mode — play/pause hexagon, stop, the time readout

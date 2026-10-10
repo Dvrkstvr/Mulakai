@@ -32,5 +32,5 @@ export function useSectionLyrics(
   // only gets sent as repaint conditioning) while repainting the base layer.
   const canEditLyrics = focusedLayer?.kind === 'base';
   const lyricsUnlocked = canEditLyrics && activeSectionIndex !== -1;
-  return { timing, sections, activeSectionIndex, lyricsBlocks, activeLyricsBlock, lyricsUnlocked };
+  return { timing, sections, activeSectionIndex, lyricsBlocks, matchedBlocks, activeLyricsBlock, lyricsUnlocked };
 }
