@@ -38,7 +38,8 @@ describe('dockTarget', () => {
   });
 
   it('holds the whole song to the repaint limit by the song length', () => {
-    expect(dockTarget('repaint', 'vocals', null, SECTIONS, 192)).toMatchObject({ label: 'VOCALS · WHOLE SONG · MAX 90s', warn: true, clearable: false });
+    // Too long to repaint whole: nothing to act on yet, never rust (the Editor opens here).
+    expect(dockTarget('repaint', 'vocals', null, SECTIONS, 192)).toMatchObject({ label: 'VOCALS · SELECT A PART', warn: false, idle: true, clearable: false });
     expect(dockTarget('repaint', 'vocals', null, SECTIONS, 0)).toMatchObject({ label: 'VOCALS · WHOLE SONG · LENGTH UNKNOWN', warn: true });
     expect(dockTarget('repaint', 'vocals', null, SECTIONS, 90).warn).toBe(false);
     // A song too long to repaint whole still takes a region.
@@ -75,7 +76,7 @@ describe('repaint commit copy', () => {
 
 describe('repaintWarnLine', () => {
   it('says why the whole layer is off, and asks for a region', () => {
-    expect(repaintWarnLine(null, 192)).toBe('the whole layer is 3:12, over the 90 s repaint limit — select a region of 3–90 s');
+    expect(repaintWarnLine(null, 192)).toBe('select a part to repaint: click a section or a lyric line, or drag on a lane (3–90 s)');
     expect(repaintWarnLine(null, 0)).toMatch(/length isn't known/);
   });
 

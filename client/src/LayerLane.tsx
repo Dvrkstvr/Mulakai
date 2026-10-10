@@ -5,6 +5,7 @@ import { latestOnly } from './latestOnly';
 import { Waveform, type Region } from './Waveform';
 import { AIGeneratingBackground } from './AIGeneratingBackground';
 import { VolumeSlider } from './VolumeSlider';
+import { laneSelect } from './editorSelection';
 import { LaneMenu } from './LaneMenu';
 
 export const LANE_HEIGHT = 60;
@@ -29,10 +30,9 @@ interface Props {
 
 /**
  * One DAW-style lane: a slim control bar (name/volume/mute/solo) above the
- * waveform. Only the focused lane is interactive (drag-to-select,
- * double-click-seek); other lanes render the same `Waveform` component in
- * non-interactive mode so `audioUrl` never changes on focus swap (that's
- * what keeps the reveal animation from re-firing — see Waveform.tsx). No
+ * waveform. Every lane takes a drag (select) and a double-click (seek); a
+ * drag or a click on a lane that isn't focused focuses it too, the range
+ * moving with the focus (`laneSelect`, PLAN.md "Editor Redesign", PR 4). No
  * per-lane playhead is drawn — a single shared overlay line spans all lanes
  * (see LayerStack.tsx).
  */
@@ -135,16 +135,14 @@ export function LayerLane({ layer, layers, focused, duration, selection, onSelec
           onRename={() => setEditingName(true)} onSplit={onSplit} onDelete={del} />
       </div>
       {error && <div className="error">{error}</div>}
-      <div className="lane-waveform">
+      <div className="lane-waveform" onClick={focused ? undefined : onFocus}>
         {activeVersion && (
           <Waveform
             audioUrl={`/audio/${activeVersion.audio_file}`}
             duration={duration}
             selection={selection}
-            onSelect={onSelect}
+            onSelect={(r) => laneSelect(focused, r, onFocus, onSelect)}
             height={LANE_HEIGHT}
-            interactive={focused}
-            onFocus={onFocus}
             onSeek={onSeek}
           />
         )}

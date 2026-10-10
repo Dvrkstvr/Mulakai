@@ -742,11 +742,13 @@ requiring its own justification against a screen-count rule.
        rust-text/rust-border) directly above its waveform.
      - **Every lane renders its full waveform, focused or not** — the stack
        is deliberately a dense wall of tooling rather than collapsing
-       unfocused layers to a one-line summary. Only the **focused** lane is
-       interactive (drag-to-select a region, double-click-seek); other
-       lanes render the same `Waveform.tsx` component in its non-interactive
-       mode (idle-grey bars only, no selection wash, click/double-click
-       focuses instead of seeking or selecting).
+       unfocused layers to a one-line summary. **Every lane takes a drag and
+       a double-click** (revised 2026-10-10, PLAN.md "Editor Redesign",
+       PR 4): a drag selects a region, and on a lane that isn't focused it
+       focuses that layer in the same move; a plain click on another lane
+       focuses it and the range moves with the focus; a double-click seeks.
+       A plain click never clears the selection; only its ✕ does. The sky
+       wash paints on the focused lane only (the range is that layer's).
      - Focus uses the sky idiom: left-border accent + sky-tint background on
        both the control bar and waveform of the focused lane (same concept
        as `.version.current`'s lilac accent, but sky — see the Sky section
@@ -805,16 +807,17 @@ requiring its own justification against a screen-count rule.
        tabs at the right. The chip reads per verb (`dockTarget.ts`): REPAINT
        `VOCALS · VERSE 2 · 1:32–2:07` (the section only when the range is
        exactly one), or `VOCALS · WHOLE SONG` with no selection (held to the
-       same 3–90 s limit by the song's length: a longer song reads `VOCALS ·
-       WHOLE SONG · MAX 90s` in rust, with the commit off and the
-       consequence line asking for a region), with a quiet
+       same 3–90 s limit by the song's length: a song over 90 s reads
+       `VOCALS · SELECT A PART` in sky, never rust, with the commit off and
+       the consequence line saying how to pick one, so the Editor never
+       opens in an error), with a quiet
        `✕ WHOLE SONG` that clears the range; a region under 3 s or over 90 s
        turns the chip rust (`· MIN 3s` / `· MAX 90s`) and holds the commit.
        ADD LAYER and EXPORT read `WHOLE SONG`, SPLIT `BASE · WHOLE LAYER`.
-       The selection survives a verb switch, but its sky wash, the active
-       section and the lyric echo paint only under REPAINT, so a kept range
-       never reads as another verb's target; picking a range (drag, section,
-       lyric line, a version's region) opens REPAINT.
+       The selection survives every verb switch and stays painted (sky
+       wash, active section, lyric echo) under every verb; picking a range
+       (drag, section, lyric line, a version's region) never switches the
+       verb (PR 4). Verbs that ignore it say so in their chip.
      - **Verb tabs** REPAINT / ADD LAYER / SPLIT / EXPORT, each with its key
        (`R` `L` `S` `E`, a mono hairline keycap; SCORE `C`, see below).
        The keys are ignored while

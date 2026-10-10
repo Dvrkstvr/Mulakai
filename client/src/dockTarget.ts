@@ -10,6 +10,9 @@ export interface DockTarget {
   label: string;
   /** Too short / too long for a repaint: the chip turns rust (`.warn`) and the commit stays off. */
   warn: boolean;
+  /** Nothing to act on yet (REPAINT on a song too long to repaint whole, with no range): the chip stays sky, the
+   * commit stays off and its line says how to pick a part. Never rust: the Editor must not open in an error. */
+  idle?: boolean;
   /** Whether `✕ WHOLE SONG` is offered, i.e. there is a range to clear. */
   clearable: boolean;
   hint: string;
@@ -38,7 +41,8 @@ export function dockTarget(verb: DockVerb, layerName: string, selection: Region 
   if (verb !== 'repaint') return { ...base, label: 'WHOLE SONG' };
   if (!selection) {
     if (repaintRangeValid(null, duration)) return { ...base, label: `${layer} · WHOLE SONG` };
-    const limit = !duration ? 'LENGTH UNKNOWN' : duration < REPAINT_MIN_SECONDS ? `MIN ${REPAINT_MIN_SECONDS}s` : `MAX ${REPAINT_MAX_SECONDS}s`;
+    if (duration > REPAINT_MAX_SECONDS) return { ...base, idle: true, label: `${layer} · SELECT A PART` };
+    const limit = !duration ? 'LENGTH UNKNOWN' : `MIN ${REPAINT_MIN_SECONDS}s`;
     return { ...base, warn: true, label: `${layer} · WHOLE SONG · ${limit}` };
   }
 
@@ -63,9 +67,9 @@ export function repaintWarnLine(selection: Region | null, duration: number): str
       ? `pick a region of ${range}, or ✕ WHOLE SONG to repaint the whole layer`
       : `pick a region of ${range}`;
   }
+  if (duration > REPAINT_MAX_SECONDS) return `select a part to repaint: click a section or a lyric line, or drag on a lane (${range})`;
   if (!duration) return `this song's length isn't known, so the whole layer can't be repainted — select a region of ${range}`;
-  if (duration < REPAINT_MIN_SECONDS) return `the whole layer is under ${REPAINT_MIN_SECONDS} s, too short to repaint`;
-  return `the whole layer is ${fmtTime(duration)}, over the ${REPAINT_MAX_SECONDS} s repaint limit — select a region of ${range}`;
+  return `the whole layer is under ${REPAINT_MIN_SECONDS} s, too short to repaint`;
 }
 
 /** `REPAINT VERSE 2` / `REPAINT 1:32–2:07` / `REPAINT VOCALS` (no range = the whole layer). */
@@ -91,7 +95,7 @@ export interface RepaintLineInput {
 /** REPAINT's whole consequence line: why the commit is off, or what it saves, when it starts and
  * (F-027) that score editing ends while SCORE is open. An off commit runs nothing, so no clause. */
 export function repaintLine(target: DockTarget, i: RepaintLineInput): EditConsequence {
-  if (target.warn) return { line: repaintWarnLine(i.selection, i.duration), scoreEnds: null };
+  if (target.warn || target.idle) return { line: repaintWarnLine(i.selection, i.duration), scoreEnds: null };
   const line = repaintConsequence(i.layerName, i.nextVersion, i.activeVersion, i.selection, target.section) + queueSuffix(i.ahead);
   return editConsequence(line, i.scoreOpen);
 }
