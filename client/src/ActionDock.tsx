@@ -37,6 +37,8 @@ interface Props {
   focusedLayer: Layer | undefined;
   selection: Region | null;
   onClearSelection: () => void;
+  /** ASK CHAT ABOUT THIS: hand the selection to the song's chat (PR 12); absent when the chat is off. */
+  onAskChat?: () => void;
   sections: Section[];
   repaint: DockRepaintInputs;
 }
@@ -54,7 +56,7 @@ function activeNumber(layer: Layer | undefined): number | null {
  * Escape closes it. A body stays mounted (hidden) once opened, so its fields survive a switch; ADD LAYER is always
  * mounted, so its fields start over once its layers land even while another action shows.
  */
-export function ActionDock({ verb: picked, verbs, score, scorePickable = false, onVerb, song, focusedLayer, selection, onClearSelection, sections, repaint }: Props) {
+export function ActionDock({ verb: picked, verbs, score, scorePickable = false, onVerb, song, focusedLayer, selection, onClearSelection, onAskChat, sections, repaint }: Props) {
   const verb = picked && verbs.some((v) => v.id === picked) ? picked : null; // SCORE went away (another song)
   const [opened, setOpened] = useState<Set<DockVerb>>(() => new Set(['repaint', 'addLayer']));
   if (verb && !opened.has(verb)) setOpened(new Set([...opened, verb]));
@@ -88,6 +90,10 @@ export function ActionDock({ verb: picked, verbs, score, scorePickable = false, 
           <button type="button" className="tab dock-quiet" onClick={verb === 'score' ? clearPick : onClearSelection}>
             <span>{verb === 'score' ? CLEAR_PICK : '✕ WHOLE SONG'}</span>
           </button>
+        )}
+        {selection && onAskChat && verb !== 'score' && (
+          <button type="button" className="tab dock-quiet dock-ask-chat" onClick={onAskChat}
+            title="opens this song's chat with this part marked"><span>ASK CHAT ABOUT THIS</span></button>
         )}
         <span className="dock-hint">{target.hint}</span>
         <div className="dock-verbs" role="tablist" aria-label="Verb">

@@ -3986,6 +3986,12 @@ button.lane-take:hover {
   color: var(--sky);
 }
 
+/* ASK CHAT ABOUT THIS (PR 12): a sky choice beside the THIS chip, only with a selection and the chat on. */
+.tab.dock-ask-chat {
+  border-color: var(--sky);
+  color: var(--sky);
+}
+
 .action-dock {
   margin-top: 12px;
   border: 1px solid var(--line);

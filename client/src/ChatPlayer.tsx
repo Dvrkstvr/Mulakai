@@ -13,7 +13,8 @@ import { useEffect, useRef, useState } from 'react';
 import { abReference } from './chatAb';
 import { readingLine, stripMode } from './chatAnalysis';
 import { useChatAnalysisStore } from './chatAnalysisStore';
-import { markSection } from './chatMark';
+import { markSection, markSeconds } from './chatMark';
+import { useBridgeStore } from './bridgeStore';
 import { ChatMarkLayer } from './ChatMarkLayer';
 import { useChatMarkStore } from './chatMarkStore';
 import { ChatReadingLine } from './ChatReadingLine';
@@ -82,6 +83,14 @@ export function ChatPlayer({ file, title, number, label, previous = null, newest
   const onSong = side === 'song';
   const view = onSong ? analysis.view : null;
   const markable = !!(view?.versionId && threadId && engine.duration > 0);
+  // A part handed over by the Editor's ASK CHAT ABOUT THIS becomes the mark once the reading and the length are known.
+  useEffect(() => {
+    if (!markable || !songId) return;
+    const s = useBridgeStore.getState().takeForChat(songId);
+    const m = s ? markSeconds(view, s[0], s[1], false, engine.duration) : null;
+    if (m) useChatMarkStore.getState().set(threadId!, m);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [markable, songId]);
   const onSection = view && threadId && !mark?.stale ? (sec: Parameters<typeof markSection>[1]) => {
     const m = markSection(view, sec);
     if (m) useChatMarkStore.getState().set(threadId, m);
