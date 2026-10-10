@@ -9,6 +9,7 @@ import { ActiveAdapterNote } from './ActiveAdapterNote';
 import { VarianceSlider } from './VarianceSlider';
 import { RepaintTune } from './RepaintTune';
 import { DockWords } from './DockWords';
+import { HelpBox } from './HelpBox';
 import { DockCommit } from './DockCommit';
 import type { useEditorRepaintJob } from './useEditorRepaintJob';
 
@@ -54,12 +55,15 @@ export function DockRepaint({ target, layerName, nextVersion, activeVersion, sel
   return (
     <>
       <div className="dock-body">
-        <input
-          className="dock-prompt"
-          placeholder="Describe what should change in the selected region"
-          value={prompt}
-          onChange={(e) => onPromptChange(e.target.value)}
-        />
+        <div className="help-field">
+          <input
+            className="dock-prompt"
+            placeholder="Describe what should change in the selected region"
+            value={prompt}
+            onChange={(e) => onPromptChange(e.target.value)}
+          />
+          <HelpBox kind="repaint" layer={layerName} current={prompt} onUse={onPromptChange} />
+        </div>
         <div className="dock-row">
           <div className="dock-variance">
             <VarianceSlider value={Math.round(repaint.repaintStrength * 100)} onChange={(v) => setRepaint({ repaintStrength: v / 100 })} />

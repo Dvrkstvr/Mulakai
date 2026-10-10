@@ -1,5 +1,6 @@
 import { AutoTextarea } from './AutoTextarea';
 import { spanText, spliceWords, type WordsSpan } from './sectionWords';
+import { HelpBox } from './HelpBox';
 
 interface Props {
   span: WordsSpan;
@@ -19,6 +20,7 @@ export function DockWords({ span, draft, songLyrics, onDraftChange }: Props) {
       <div className="setting-head">
         <span>WORDS FOR {span.label} · {lines} {lines === 1 ? 'LINE' : 'LINES'}</span>
         {changed && <button type="button" className="linkish" onClick={() => onDraftChange(songLyrics)}>RESET TO SONG</button>}
+        <HelpBox kind="lyrics" layer="Base" current={text} onUse={(t) => onDraftChange(spliceWords(draft, span, t))} />
       </div>
       <AutoTextarea className="lyrics-textarea" value={text} onChange={(v) => onDraftChange(spliceWords(draft, span, v))} />
       <div className="lyrics-hint">

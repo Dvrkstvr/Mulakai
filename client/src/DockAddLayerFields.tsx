@@ -3,6 +3,7 @@ import { useAddLayerDraft } from './addLayerStore';
 import { AutoTextarea } from './AutoTextarea';
 import { TRACK_NAMES } from './trackNames';
 import { lyricsPrefill, sungTrack } from './addLayerCopy';
+import { HelpBox } from './HelpBox';
 
 interface Props {
   trackName: string;
@@ -40,12 +41,15 @@ export function DockAddLayerFields({ trackName, onTrackName, prompt, onPrompt, s
           </button>
         ))}
       </div>
-      <input
-        className="dock-prompt"
-        placeholder="Describe what to add (e.g. punchy drums and a walking bassline)"
-        value={prompt}
-        onChange={(e) => onPrompt(e.target.value)}
-      />
+      <div className="help-field">
+        <input
+          className="dock-prompt"
+          placeholder="Describe what to add (e.g. punchy drums and a walking bassline)"
+          value={prompt}
+          onChange={(e) => onPrompt(e.target.value)}
+        />
+        <HelpBox kind="layer" layer={TRACK_NAMES.find((t) => t.value === trackName && t.value)?.label ?? ''} current={prompt} onUse={onPrompt} />
+      </div>
       {sungTrack(trackName) && (
         <div className="setting">
           <div className="setting-head">

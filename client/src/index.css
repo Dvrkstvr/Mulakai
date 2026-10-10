@@ -3992,6 +3992,122 @@ button.lane-take:hover {
   color: var(--sky);
 }
 
+/* ✦ HELP beside an action-bar field (HelpBox.tsx, PLAN.md "Editor Redesign", the field helper). Lilac = what the AI
+   made: the button, the box's edge and the suggestions. The box hangs under the field; nothing changes until USE. */
+.help-field {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.help-field > .dock-prompt {
+  flex: 1;
+}
+
+.help {
+  position: relative;
+  flex: none;
+}
+
+.tab.help-btn {
+  border-color: var(--lilac);
+  color: var(--lilac-text);
+  white-space: nowrap;
+}
+
+.tab.help-btn.on {
+  background: var(--lilac-tint);
+}
+
+.help-box {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 40;
+  width: 440px;
+  max-height: 520px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--lilac);
+  background: var(--panel);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+}
+
+.help-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--lilac-text);
+}
+
+.help-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.help-free {
+  display: flex;
+  gap: 6px;
+}
+
+.help-free input {
+  flex: 1;
+  min-width: 0;
+}
+
+.help-status {
+  font-size: 11px;
+  color: var(--text-low);
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.help-status.failed {
+  color: var(--rust-text);
+}
+
+.help-suggestion {
+  border-left: 2px solid var(--lilac);
+  background: var(--lilac-tint);
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+}
+
+.help-text {
+  font-size: 12px;
+  color: var(--text-hi);
+}
+
+.help-text.words {
+  font-family: monospace;
+  white-space: pre-wrap;
+}
+
+.help-why {
+  font-size: 11px;
+  color: var(--text-mid);
+}
+
+.tab.help-use {
+  border-color: var(--lilac);
+  color: var(--lilac-text);
+}
+
+.help-chat {
+  align-self: flex-start;
+}
+
 .action-dock {
   margin-top: 12px;
   border: 1px solid var(--line);

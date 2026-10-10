@@ -822,6 +822,21 @@ requiring its own justification against a screen-count rule.
        (`SPLIT BASE`). Clicking the open action again, **✕ CLOSE** (`ESC`
        keycap) or Escape outside a field closes it; the selection stays.
        An open action's chip reads as below.
+     - **✦ HELP** (added 2026-10-10, PLAN.md "Editor Redesign", the
+       field helper): a lilac `✦ HELP` choice beside ADD LAYER's
+       description, REPAINT's instruction and the WORDS box, only when a
+       local LLM is configured. It opens a box hanging under the field
+       (lilac edge, the panel surface), `✦ HELP WITH THE NEW LAYER` /
+       `THE REPAINT` / `THE WORDS` with ✕, one-tap refinement chips
+       (`MORE SPECIFIC`, `RHYME BETTER`, `SAME SYLLABLES, NEW IMAGE`,
+       `TRANSLATE TO GERMAN`, …), a free line with ASK, the status line
+       (`waiting for the GPU · starts after 1 job`, `writing suggestions…
+       7 s`, rust with RETRY when it failed), then up to three
+       suggestions on `lilac-tint` with a 2px lilac edge — the text (mono
+       for words), its one-line reason in `text-mid`, and USE, which puts
+       it in the field and closes the box — and `CONTINUE IN CHAT ▸`. The
+       first suggestions are asked for as it opens; nothing changes until
+       USE. The model already knows the song, its lanes and the part.
      - **Bridges to the chat** (added 2026-10-10, PLAN.md "Editor
        Redesign", PR 12): with a selection and the chat on, a sky **ASK
        CHAT ABOUT THIS** sits after the chip and opens the song's chat with
