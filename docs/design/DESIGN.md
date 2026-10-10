@@ -246,6 +246,11 @@ requiring its own justification against a screen-count rule.
      draft that holds anything is prepended as "Draft in Create · AN IDEA"
      with its description, RESUME reopening Create as it was left. Hidden on
      an empty library.
+     Above that line (2026-10-10, PLAN.md "The other screens"), one
+     `text-hi` 11px 600 line per thing still open on the song: its job
+     running ("repainting 1:02–1:31 · BASE", "adding strings"), each one
+     queued ("… · queued"), and a settled split with stems not kept ("3
+     stems unkept"). ✦ HELP and word timings are not listed.
    - **Browse toolbar**: search input, SORT select (newest/oldest/title/
      favorites), and filter chips (ALL/FAVORITES — acid-outlined
      parallelograms, active = acid-filled) — grouped together directly above
