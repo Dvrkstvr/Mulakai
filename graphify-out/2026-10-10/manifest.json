@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "client/src/Editor.tsx": {
-    "mtime": 1791591497.2531617,
-    "ast_hash": "fb14de8d088c29feefbf843db9b963bd",
+    "mtime": 1791590988.7717102,
+    "ast_hash": "0715aac83fa8f46e46af15ffd105c1fd",
     "semantic_hash": ""
   },
   "client/src/ForgeSection.tsx": {
@@ -695,8 +695,8 @@
     "semantic_hash": ""
   },
   "docs/design/DESIGN.md": {
-    "mtime": 1791591497.2563417,
-    "ast_hash": "4ab607956092c5e2ddd4bb1f7c183db6",
+    "mtime": 1791590988.7757528,
+    "ast_hash": "ea85f471bc008cdc47501d59d00396ac",
     "semantic_hash": ""
   },
   "client/public/favicon.svg": {
@@ -2340,8 +2340,8 @@
     "semantic_hash": ""
   },
   "client/src/EditorRail.tsx": {
-    "mtime": 1791591497.2531617,
-    "ast_hash": "df5dd9cbc2cc895eda96836d81ff2bd7",
+    "mtime": 1791020260.8636281,
+    "ast_hash": "a39947a7877ce163b45e0565413d80f5",
     "semantic_hash": ""
   },
   "client/src/EditorTitleRow.tsx": {
@@ -2395,8 +2395,8 @@
     "semantic_hash": ""
   },
   "client/src/useSectionLyrics.ts": {
-    "mtime": 1791591497.2553434,
-    "ast_hash": "1e7767b93a19528ae6f6f8325685b341",
+    "mtime": 1790943795.4889512,
+    "ast_hash": "ed7e2d0c1a7d1697e74d8d242ee8c46e",
     "semantic_hash": ""
   },
   "client/src/useSpaceTransport.ts": {
@@ -11147,21 +11147,6 @@
   "client/src/laneMenuCopy.ts": {
     "mtime": 1791590301.3686745,
     "ast_hash": "c3c99bac324f242bd3358e34bb5e2887",
-    "semantic_hash": ""
-  },
-  "client/src/RailLyrics.tsx": {
-    "mtime": 1791591497.2531617,
-    "ast_hash": "ec6f17966b00ffbe86ab4d143e1354d3",
-    "semantic_hash": ""
-  },
-  "client/src/railLyricsRows.test.ts": {
-    "mtime": 1791591497.2553434,
-    "ast_hash": "1d329d937dd5ed74ac3ec1afbb3d6377",
-    "semantic_hash": ""
-  },
-  "client/src/railLyricsRows.ts": {
-    "mtime": 1791591497.2553434,
-    "ast_hash": "7fff1f111b9dbd4097f967881153bd0f",
     "semantic_hash": ""
   }
 }
