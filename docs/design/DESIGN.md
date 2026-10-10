@@ -868,11 +868,17 @@ requiring its own justification against a screen-count rule.
          picker, lyrics only for VOCALS and BACKING VOCALS (an empty
          field starts as the song's lyrics; USE SONG LYRICS restores them), `TUNE ▸` with the Base-only DIT MODEL. A picked track names
          the lane; under AUTO the description's first words do.
-       - SPLIT: the backend picker, then once extracted CANCEL SPLIT, a
-         DOWNLOAD ALL · SPLIT ALL AGAIN pair over a consequence line (SPLIT
-         ALL AGAIN re-extracts every unclaimed stem as one job and replaces
-         their takes; added 2026-10-10), and one row per stem (preview,
-         DOWNLOAD, REPLACE, ADD LAYER, RE-EXTRACT).
+       - SPLIT: the backend picker and `SPLIT BASE` (revised 2026-10-10,
+         PLAN.md "Editor Redesign", PR 9). Once it starts, the stems open
+         in a **tray under that layer's lane**: a sky frame hanging off the
+         lane, headed `STEMS OF BASE` with the elapsed time or queue
+         place, DOWNLOAD ALL · SPLIT ALL AGAIN over SPLIT ALL AGAIN's
+         consequence line, `CLOSE · DISCARD 3 UNKEPT` at the right (it
+         names what it discards), and the stem rows side by side (preview,
+         DOWNLOAD, KEEP AS LAYER (was ADD LAYER), USE AS BASE TAKE (was
+         REPLACE), RE-EXTRACT; a kept stem reads `kept as a layer` / `now
+         Base's take`). The dock's SPLIT body then only points at the
+         tray.
        - EXPORT: WHAT = **MIX** (a client-side bounce of what you hear —
          mute/solo, layer volumes — to an untagged 16-bit WAV named after
          the song; no format choice), **STEMS** (each layer's active take,
