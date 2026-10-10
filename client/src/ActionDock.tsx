@@ -1,4 +1,7 @@
 import { useState } from 'react';
+import { assistApi } from './api/assist';
+import { AssistContext } from './assistContext';
+import { useLookup } from './lookup';
 import type { Layer, SongDetail } from './api';
 import type { Region } from './Waveform';
 import type { Section } from './lyricSections';
@@ -81,7 +84,18 @@ export function ActionDock({ verb: picked, verbs, score, scorePickable = false, 
     return <DockExport song={song} />;
   };
 
+  // ✦ HELP (the field helper) knows the song, its lanes and the part; it is on when a local LLM is configured.
+  const helpOn = useLookup(assistApi.health).data?.available ?? false;
+  const assistSong = helpOn ? {
+    base: {
+      songId: song.id, caption: song.caption ?? '', bpm: song.bpm ?? null, key: song.key_scale || null,
+      layers: song.layers.map((l) => l.name), part: selection ? idleTarget(layerName, selection, sections, duration).label : '',
+    },
+    onContinueInChat: onAskChat,
+  } : null;
+
   return (
+    <AssistContext.Provider value={assistSong}>
     <section className="action-dock" aria-label="Action dock">
       <div className="dock-head">
         <span className="dock-row-label">THIS</span>
@@ -116,5 +130,6 @@ export function ActionDock({ verb: picked, verbs, score, scorePickable = false, 
         </div>
       ))}
     </section>
+    </AssistContext.Provider>
   );
 }
