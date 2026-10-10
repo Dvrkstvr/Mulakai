@@ -1,0 +1,16 @@
+# Mulakai server + built client (PLAN.md "Studio Network"). Installed by install.sh.
+[Unit]
+Description=Mulakai
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=mulakai
+WorkingDirectory=/opt/mulakai/server
+EnvironmentFile=/etc/mulakai.env
+ExecStart=/opt/mulakai/server/node_modules/.bin/tsx src/index.ts
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

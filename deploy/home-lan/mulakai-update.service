@@ -1,0 +1,8 @@
+# Pulls main and redeploys when it moved and its CI is green (update.sh).
+[Unit]
+Description=Mulakai auto-update
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/opt/mulakai/deploy/home-lan/update.sh
