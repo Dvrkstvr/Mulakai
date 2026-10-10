@@ -226,7 +226,15 @@ requiring its own justification against a screen-count rule.
      - **DRAFT**: outlined `line` hairline tags of only what it sets
        (`143 BPM · A MINOR · 4/4 · 3:40 · POLISH VOCALS · LYRICS · 50 LINES
        · ACE-STEP`).
-     Its right end is TO CREATE: a 150px acid fill, left edge cut at the
+     - **LANDED** (2026-10-10, PLAN.md "The other screens"): a Create
+       take just landed. Plain card, the label in `lilac-text` (a new
+       version), the song's title, and "the first take is in the Library ·
+       open it to edit, or talk it over". It ranks after GENERATING and
+       before DRAFT. Its end is not TO CREATE but three plain skewed
+       buttons that navigate: OPEN IN EDITOR, OPEN CHAT (only while the chat
+       is configured) and ✕. Each clears it, so a held draft shows again. A
+       chat take never shows it.
+     Its right end (but LANDED's) is TO CREATE: a 150px acid fill, left edge cut at the
      parallelogram angle, opening Create. The card has no clear, stop or
      abort: Create's CLEAR DRAFT and Activity's CANCEL / ABORT do that, away
      from the button that opens it.
