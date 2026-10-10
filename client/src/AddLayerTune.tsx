@@ -5,20 +5,19 @@ import { RepaintKnobs } from './RepaintKnobs';
 import { TuneDisclosure } from './TuneDisclosure';
 import { tuneSummary } from './tuneSummary';
 
-/** ADD LAYER's TUNE: the lego-capable DIT MODEL (Base only) plus the knobs it shares with REPAINT. */
+/** ADD LAYER's TUNE: the lego-capable DIT MODEL (Base only) plus its own steps, guidance, seed and advanced knobs. */
 export function AddLayerTune({ legoModels }: { legoModels: string[] }) {
-  const repaint = useSettings((s) => s.repaint);
   const addLayer = useSettings((s) => s.addLayer);
   const setAddLayer = useSettings((s) => s.setAddLayer);
   return (
-    <TuneDisclosure summary={tuneSummary(addLayer.model, repaint)}>
+    <TuneDisclosure summary={tuneSummary(addLayer.model, addLayer)}>
       <CustomSelect
         label="DIT MODEL"
         value={addLayer.model}
         onChange={(v) => setAddLayer({ model: v })}
         options={legoModels.map((m) => ({ label: m, value: m, description: ditModelDescription(m) }))}
       />
-      <RepaintKnobs gatingModel={addLayer.model} />
+      <RepaintKnobs gatingModel={addLayer.model} knobs={addLayer} set={setAddLayer} />
     </TuneDisclosure>
   );
 }

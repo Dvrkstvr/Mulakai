@@ -23,15 +23,17 @@ export function addLayerCommitLabel(trackName: string): string {
 }
 
 /** "Adds a STRINGS lane as strings v1, conditioned on the current mix · nothing else changes". */
-export function addLayerConsequence(layerName: string): string {
+export function addLayerConsequence(layerName: string, voiceName: string | null = null): string {
   const lane = layerName ? `a ${layerName.toUpperCase()} lane as ${layerName.toLowerCase()} v1` : 'a lane named from its description';
-  return `Adds ${lane}, conditioned on the current mix · nothing else changes`;
+  // The voice is one choice shared with Create (voiceStore): say so, so it never conditions a layer unseen (PR 11).
+  const voice = voiceName ? ` · with the voice ${voiceName.toUpperCase()} (the same pick as Create's)` : '';
+  return `Adds ${lane}, conditioned on the current mix${voice} · nothing else changes`;
 }
 
 /** ADD LAYER's whole consequence line: the lane, when the job starts, and (F-027) that score
  * editing ends while SCORE is open. */
-export const addLayerLine = (layerName: string, ahead: number, scoreOpen: boolean): EditConsequence =>
-  editConsequence(addLayerConsequence(layerName) + queueSuffix(ahead), scoreOpen);
+export const addLayerLine = (layerName: string, ahead: number, scoreOpen: boolean, voiceName: string | null = null): EditConsequence =>
+  editConsequence(addLayerConsequence(layerName, voiceName) + queueSuffix(ahead), scoreOpen);
 
 /** The lyrics a sung track starts with: the song's, when its field is still empty. Null = leave the field as it is
  * (not a sung track, already typed into, or the song has no lyrics). */

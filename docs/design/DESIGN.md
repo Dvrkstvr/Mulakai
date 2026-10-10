@@ -1465,7 +1465,11 @@ width (see the layout notes above).
   waveform-level splice crossfade at the region boundary, 0 = hard cut,
   clamped to half the selected region, plain numeric input) sit in
   REPAINT's body; DIT MODEL, STEPS + GUIDANCE, RANDOM SEED + seed field and
-  ADVANCED sit under TUNE, shared by both verbs. No LM MODEL here: ACE-Step
+  ADVANCED sit under TUNE — each verb's own since 2026-10-10 (PLAN.md
+  "Editor Redesign", PR 11; ADD LAYER's started from REPAINT's values), so
+  changing one never changes the other. ADD LAYER's consequence line names
+  a picked voice and that it is the same pick as Create's
+  (`· with the voice ELLY (the same pick as Create's)`). No LM MODEL here: ACE-Step
   skips the LM planner for repaint entirely (docs/ace-step-1.5/API.md#4.2).
 - Controls: `Slider.tsx` parallelogram faders (see "Parallelogram fader"
   under Shape grammar) for STEPS/GUIDANCE/VARIANCE, acid-when-on toggles

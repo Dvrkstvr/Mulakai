@@ -1,5 +1,5 @@
 import { clampDepth, maxDepth, type BitDepth } from './formatCaps';
-import type { ExportSettings, SettingsState } from './settingsTypes';
+import { TUNE_KEYS, type ExportSettings, type SettingsState, type TuneSettings } from './settingsTypes';
 import { migrateQuality } from './qualitySteps';
 
 /**
@@ -16,9 +16,16 @@ export function mergeSettings(current: SettingsState, persisted: unknown): Setti
     ...p,
     gen: { ...current.gen, ...p.gen, quality: p.gen ? migrateQuality(p.gen) : current.gen.quality },
     repaint: { ...current.repaint, ...p.repaint },
-    addLayer: { ...current.addLayer, ...p.addLayer },
+    // ADD LAYER's own TUNE (PR 11) starts from the REPAINT knobs it used to share, so nobody's tuning changes.
+    addLayer: { ...current.addLayer, ...tuneOf(p.repaint), ...p.addLayer },
     exportSettings: migrateExportSettings({ ...current.exportSettings, ...p.exportSettings }),
   };
+}
+
+/** The TUNE knobs of a persisted slice, only those it has. */
+function tuneOf(slice: Partial<TuneSettings> | undefined): Partial<TuneSettings> {
+  if (!slice) return {};
+  return Object.fromEntries(TUNE_KEYS.filter((k) => k in slice).map((k) => [k, slice[k]])) as Partial<TuneSettings>;
 }
 
 /**

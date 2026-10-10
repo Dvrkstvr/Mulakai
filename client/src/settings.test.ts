@@ -62,7 +62,7 @@ describe('genParams', () => {
   });
 });
 
-describe('shared advanced settings (repaint + add layer)', () => {
+describe("each action's own TUNE (repaint, add layer)", () => {
   it('repaintParams emits the DiT advanced knobs but no LM knobs', () => {
     const p = repaintParams({ ...baseRepaint(), useAdg: true, cfgIntervalStart: 0.2, shift: 2 });
     expect(p.use_adg).toBe(true);
@@ -77,20 +77,37 @@ describe('shared advanced settings (repaint + add layer)', () => {
     expect(repaintParams({ ...baseRepaint(), crossfadeSec: 1.5 }).repaint_wav_crossfade_sec).toBe(1.5);
   });
 
-  it('addLayerParams takes steps/seed from the shared repaint slice and emits DiT + LM knobs', () => {
-    const r = { ...baseRepaint(), inferenceSteps: 40, randomSeed: false, seed: 7, useAdg: true, lmTopK: 30 };
-    const p = addLayerParams({ ...baseAddLayer(), model: 'acestep-v15-xl-base' }, r);
+  it('addLayerParams takes steps/seed from its own TUNE and emits DiT + LM knobs', () => {
+    const a = { ...baseAddLayer(), model: 'acestep-v15-xl-base', inferenceSteps: 40, randomSeed: false, seed: 7, useAdg: true, lmTopK: 30 };
+    const p = addLayerParams(a);
     expect(p.model).toBe('acestep-v15-xl-base');
     expect(p.inference_steps).toBe(40);
     expect(p.use_random_seed).toBe(false);
     expect(p.seed).toBe(7);
-    expect(p.use_adg).toBe(true);       // DiT advanced shared from repaint
+    expect(p.use_adg).toBe(true);
     expect(p.lm_temperature).toBe(0.85); // LM knobs emitted (lego runs the LM)
     expect(p.lm_top_k).toBe(30);
+  });
+
+  it("changing REPAINT's TUNE leaves ADD LAYER's alone", () => {
+    useSettings.getState().setRepaint({ inferenceSteps: 12 });
+    expect(useSettings.getState().addLayer.inferenceSteps).toBe(0);
+    useSettings.getState().setRepaint({ inferenceSteps: 0 });
   });
 });
 
 describe('mergeSettings', () => {
+  it("a blob from when ADD LAYER shared REPAINT's TUNE: ADD LAYER starts from those knobs, its model kept", () => {
+    const old = { repaint: { inferenceSteps: 40, randomSeed: false, seed: 7 }, addLayer: { model: 'acestep-v15-xl-base' } };
+    const merged = mergeSettings(useSettings.getState(), old);
+    expect(merged.addLayer).toMatchObject({ model: 'acestep-v15-xl-base', inferenceSteps: 40, randomSeed: false, seed: 7, lmTopP: 0.9 });
+  });
+
+  it("a blob with ADD LAYER's own TUNE keeps it", () => {
+    const merged = mergeSettings(useSettings.getState(), { repaint: { inferenceSteps: 40 }, addLayer: { model: 'm', inferenceSteps: 20 } });
+    expect(merged.addLayer.inferenceSteps).toBe(20);
+  });
+
   it('backfills fields missing from a stale persisted blob with fresh defaults, instead of leaving them undefined', () => {
     // Simulates a localStorage entry saved before cfgIntervalStart/lmNegativePrompt/etc. existed —
     // zustand persist's default shallow merge would otherwise replace `gen` wholesale and leave

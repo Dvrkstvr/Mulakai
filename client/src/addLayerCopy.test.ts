@@ -61,3 +61,10 @@ describe('lyricsPrefill', () => {
     expect(lyricsPrefill('vocals', '', '  ')).toBeNull();
   });
 });
+
+describe('addLayerConsequence with a voice', () => {
+  it("names the voice and that it is the same pick as Create's", () => {
+    expect(addLayerConsequence('vocals', 'Elly')).toBe(
+      "Adds a VOCALS lane as vocals v1, conditioned on the current mix · with the voice ELLY (the same pick as Create's) · nothing else changes");
+  });
+});
