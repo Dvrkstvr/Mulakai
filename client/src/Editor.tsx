@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSongDetail } from './useSongDetail';
 import type { Region } from './Waveform';
 import { EditorTransport } from './EditorTransport';
@@ -24,6 +24,10 @@ import { useRepaintSubmit } from './useRepaintSubmit';
 import { useLyricsDraftSync } from './useLyricsDraftSync';
 import { useLibraryBackButton } from './useLibraryBackButton';
 import { ExportButton, ExportPanel } from './ExportPanel';
+import { useBridgeStore } from './bridgeStore';
+import { chatShown } from './chatEntry';
+import { useChatStore } from './chatStore';
+import { useNavigation } from './Navigation';
 import { useEditorJobStore } from './editorJobStore';
 import { useEditorColumns } from './useEditorColumns';
 import { EditorTitleRow } from './EditorTitleRow';
@@ -47,6 +51,18 @@ export function Editor({ songId, onBack }: Props) {
   const [lyricsDraft, setLyricsDraft] = useState('');
   // Per-session UI state, deliberately not persisted: every visit opens on REPAINT.
   const [verb, setVerb] = useState<DockVerb | null>(null);
+  // Bridges (PR 12): a part handed over from the chat lands as the selection; ASK CHAT hands the selection over.
+  const nav = useNavigation();
+  const chatOn = chatShown(useChatStore((s) => s.status)) && !!nav.openChat;
+  useEffect(() => {
+    const s = song ? useBridgeStore.getState().takeForEditor(song.id) : null;
+    if (s) setSelection({ start: s[0], end: s[1] });
+  }, [song]);
+  const askChat = () => {
+    if (!selection || !nav.openChat) return;
+    useBridgeStore.getState().sendToChat({ songId, seconds: [selection.start, selection.end] });
+    nav.openChat(songId);
+  };
   // EXPORT is the header's menu, not an action (PR 10): anything that opens 'export' opens it.
   const [exportOpen, setExportOpen] = useState(false);
   const openVerb = useCallback((v: DockVerb | null) => (v === 'export' ? setExportOpen(true) : setVerb(v)), []);
@@ -134,6 +150,7 @@ export function Editor({ songId, onBack }: Props) {
               focusedLayer={focusedLayer}
               selection={selection}
               onClearSelection={() => setSelection(null)}
+              onAskChat={chatOn ? askChat : undefined}
               sections={sections}
               repaint={{
                 prompt, onPromptChange: setPrompt, job: repaintJob, onRepaint: repaint,

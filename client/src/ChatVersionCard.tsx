@@ -10,6 +10,9 @@ import type { ChatVersionBody } from './api/chatEdit';
 import { PLAY, VERSION_LABEL, abOnLabel, backTo, versionFoot, versionHint, versionMeta, versionWarn } from './chatEditCopy';
 import { RERENDER, RERENDER_HINT, RERENDER_REFUSED, askRerender, canRerender } from './chatRerender';
 import { useChatStore } from './chatStore';
+import { useChatMarkStore } from './chatMarkStore';
+import { useBridgeStore } from './bridgeStore';
+import { useNavigation } from './Navigation';
 import { turnRunning } from './chatTurn';
 import { ChatErrorLine } from './ChatTurnLine';
 import './chatEdit.css';
@@ -33,7 +36,15 @@ export function ChatVersionCard({ message, active, ab, onPrevious, onPlay, onBac
   const turnOpen = useChatStore((s) => turnRunning(s.turn));
   const [asking, setAsking] = useState(false);
   const [refused, setRefused] = useState<string | null>(null);
+  const nav = useNavigation();
+  const mark = useChatMarkStore((s) => (thread ? s.byThread[thread.id] : undefined));
   if (!v) return null;
+  /** OPEN IN EDITOR (PR 12): the song in the Editor, the chat's mark as its selection. */
+  const openInEditor = () => {
+    if (!thread?.songId) return;
+    useBridgeStore.getState().sendToEditor(mark && !mark.stale ? { songId: thread.songId, seconds: mark.mark.seconds } : null);
+    nav.openEditor(thread.songId);
+  };
   const warn = versionWarn(v);
   const rerender = async () => {
     if (!thread?.songId || !message.versionId) return;
@@ -61,6 +72,11 @@ export function ChatVersionCard({ message, active, ab, onPrevious, onPlay, onBac
         {ab && v.previous && (
           <button type="button" className={`chat-ab${onPrevious ? ' on' : ''}`} aria-pressed={onPrevious} onClick={onBack}>
             <span>{onPrevious ? abOnLabel(v.previous.number, v.number) : backTo(v.previous.number)}</span>
+          </button>
+        )}
+        {active && thread?.songId && (
+          <button type="button" className="chat-q" title="the song in the Editor, this chat's mark as its selection" onClick={openInEditor}>
+            <span>OPEN IN EDITOR</span>
           </button>
         )}
         {canRerender(v, active) && (

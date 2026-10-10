@@ -822,6 +822,12 @@ requiring its own justification against a screen-count rule.
        (`SPLIT BASE`). Clicking the open action again, **✕ CLOSE** (`ESC`
        keycap) or Escape outside a field closes it; the selection stays.
        An open action's chip reads as below.
+     - **Bridges to the chat** (added 2026-10-10, PLAN.md "Editor
+       Redesign", PR 12): with a selection and the chat on, a sky **ASK
+       CHAT ABOUT THIS** sits after the chip and opens the song's chat with
+       that part as its mark (snapped to bars when the chat has a reading).
+       The active version's chat card has **OPEN IN EDITOR** (quiet, next
+       to PLAY), landing on the song with the chat's mark as the selection.
      - **TARGET** row (the label now reads THIS): the sky scope chip, the verb's hint in `text-low`
        ("drag a waveform, click a section or a lyric line"), and the verb
        tabs at the right. The chip reads per verb (`dockTarget.ts`): REPAINT
