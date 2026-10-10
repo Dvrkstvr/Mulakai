@@ -1,11 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 
-// Layer id -> buffer duration (seconds) for the next loadLayers().
+// Layer id (the URL is `/audio/<id>`) -> buffer duration (seconds) for the next loadLayers().
 const durations = new Map<string, number>();
+// Every URL fetched + decoded, in order; a URL in `gates` decodes only once its gate is opened.
+let decodes: string[] = [];
+const gates = new Map<string, Promise<void>>();
 vi.mock('./decodeLayers', () => ({
-  decodeLayers: async (inputs: { id: string; volume: number }[]) =>
-    inputs.map((i) => ({ id: i.id, volume: i.volume, buffer: { duration: durations.get(i.id) ?? 0 } })),
+  decodeUrl: async (url: string) => {
+    decodes.push(url);
+    await gates.get(url);
+    return { duration: durations.get(url.replace('/audio/', '')) ?? 0 };
+  },
 }));
+function gate(url: string) {
+  let open!: () => void;
+  gates.set(url, new Promise<void>((res) => { open = res; }));
+  return () => { gates.delete(url); open(); };
+}
+const input = (id: string) => ({ id, audioUrl: `/audio/${id}`, volume: 1 });
 
 /** Minimal AudioBufferSourceNode stand-in — vitest runs in node, no Web Audio. */
 class FakeSource {
@@ -54,7 +66,7 @@ async function loaded(layers: Record<string, number>) {
 /** The live source playing the given layer's buffer (the most recently created one). */
 const sourceFor = (duration: number) => ctxNow().sources.filter((s) => s.buffer?.duration === duration).at(-1)!;
 
-beforeEach(() => { pendingEnded = []; });
+beforeEach(() => { pendingEnded = []; decodes = []; gates.clear(); });
 
 describe('PlaybackEngine end of song', () => {
   it('stops itself when the longest layer ends, clamping time to the duration', async () => {
@@ -117,5 +129,55 @@ describe('PlaybackEngine end of song', () => {
     first.onended!();
     expect(engine.isPlaying).toBe(true);
     expect(engine.currentTime()).toBe(5);
+  });
+});
+
+describe('PlaybackEngine take switches (A/B)', () => {
+  it('only the layer whose take changed is fetched and decoded', async () => {
+    const engine = await loaded({ base: 10, drums: 10, v2: 10 });
+    decodes = [];
+    await engine.loadLayers([input('v2'), input('drums')]);
+    await engine.loadLayers([input('base'), input('drums')]);
+    expect(decodes).toEqual([]);
+  });
+
+  it('a take two loads back is decoded again', async () => {
+    const engine = await loaded({ base: 10, v2: 10, v3: 10 });
+    await engine.loadLayers([input('v2')]);
+    await engine.loadLayers([input('v3')]);
+    decodes = [];
+    await engine.loadLayers([input('base')]);
+    expect(decodes).toEqual(['/audio/base']);
+  });
+
+  it('the old mix keeps playing while the new take decodes, then swaps in at the same position', async () => {
+    const engine = await loaded({ base: 10 });
+    durations.set('v2', 9);
+    await engine.play();
+    ctxNow().currentTime = 4;
+    const open = gate('/audio/v2');
+    const loading = engine.loadLayers([input('v2')]);
+    await Promise.resolve();
+    expect(sourceFor(10).stopped).toBe(false);
+    expect(engine.isPlaying).toBe(true);
+    ctxNow().currentTime = 5;
+    open();
+    await loading;
+    expect(sourceFor(10).stopped).toBe(true);
+    expect(engine.isPlaying).toBe(true);
+    expect(engine.duration).toBe(9);
+    expect(engine.currentTime()).toBe(5);
+  });
+
+  it('of two overlapping loads, the newest wins even if the older finishes last', async () => {
+    const engine = await loaded({ base: 10 });
+    durations.set('slow', 7);
+    durations.set('fast', 8);
+    const open = gate('/audio/slow');
+    const slow = engine.loadLayers([input('slow')]);
+    await engine.loadLayers([input('fast')]);
+    open();
+    await slow;
+    expect(engine.duration).toBe(8);
   });
 });

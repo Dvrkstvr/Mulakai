@@ -1,4 +1,5 @@
-import { decodeLayers, type DecodedLayer, type LayerAudioInput } from './decodeLayers';
+import { BufferCache } from './bufferCache';
+import { decodeUrl, type DecodedLayer, type LayerAudioInput } from './decodeLayers';
 
 export interface EngineLayerState {
   id: string;
@@ -25,11 +26,14 @@ export class PlaybackEngine {
   // (pause/seek/restart/reload), so an end handler only counts if its start's
   // generation is still current.
   private generation = 0;
+  private buffers: BufferCache;
+  private loads = 0; // bumped per loadLayers(): only the newest one swaps its layers in
 
   constructor() {
     this.ctx = new AudioContext();
     this.masterGain = this.ctx.createGain();
     this.masterGain.connect(this.ctx.destination);
+    this.buffers = new BufferCache((url) => decodeUrl(url, this.ctx));
   }
 
   get duration(): number {
@@ -58,23 +62,30 @@ export class PlaybackEngine {
   }
 
   /**
-   * Redecode the given layers. Called when the set of audible layers changes
+   * Load the given layers. Called when the set of audible layers changes
    * (mute/solo/volume affecting which layers should play) or a layer's
    * active version changes — NOT on a plain focus change, which never
-   * touches this. Preserves playback position/state across the swap.
+   * touches this. The current mix keeps playing until the new buffers are
+   * ready (unchanged layers and the previous load come from the cache), then
+   * swaps in at the same position, so an A/B switch has no gap.
    */
   async loadLayers(inputs: LayerAudioInput[]): Promise<void> {
-    const wasPlaying = this.playing;
-    const resumeAt = this.currentTime();
-    this.stopSources();
+    const load = ++this.loads;
+    let next: DecodedLayer[];
     try {
-      this.decoded = inputs.length ? await decodeLayers(inputs, this.ctx) : [];
+      next = await Promise.all(inputs.map(async (i) => ({ id: i.id, volume: i.volume, buffer: await this.buffers.get(i.audioUrl) })));
     } catch (err) {
       // Swallowing this previously left `decoded` silently empty forever —
       // no sound, no error, no way to tell playback wasn't actually loaded.
       console.error('PlaybackEngine: failed to decode layer audio', err);
-      this.decoded = [];
+      next = [];
     }
+    if (load !== this.loads) return; // a newer load owns the swap
+    this.buffers.retain(inputs.map((i) => i.audioUrl));
+    const wasPlaying = this.playing;
+    const resumeAt = this.currentTime();
+    this.stopSources();
+    this.decoded = next;
     this.positionSeconds = resumeAt;
     if (wasPlaying) void this.play(resumeAt);
   }
