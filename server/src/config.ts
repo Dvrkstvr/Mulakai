@@ -35,9 +35,13 @@ export const config = {
   get dbPath() {
     return path.join(this.dataDir, 'mulakai.db');
   },
+  /** AUDIO_DIR overrides it, so the audio can sit on a bind mount while the database stays
+   * on local disk (SQLite must never be on a network filesystem). */
   get audioDir() {
-    return path.join(this.dataDir, 'audio');
+    return process.env.AUDIO_DIR || path.join(this.dataDir, 'audio');
   },
+  /** The built client to serve (clientStatic.ts). Empty = API only; Vite serves it in dev. */
+  clientDist: process.env.CLIENT_DIST ?? '',
   /** How often the job orchestrator polls query_result (ms). */
   pollIntervalMs: Number(process.env.POLL_INTERVAL_MS ?? 2000),
   /** Per-request ceiling on ACE-Step HTTP calls (ms). Without one, a hung socket

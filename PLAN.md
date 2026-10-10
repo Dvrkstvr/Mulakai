@@ -9146,6 +9146,22 @@ with no accounts, and it stays on the LAN only, never port-forwarded.
     `127.0.0.1`, and leaves the engines to the agent (otherwise both would
     try to bind the same ports). Without the agent, it behaves as today.
 
+### Addendum: `mulakai.lan` and auto-deploy (2026-10-10)
+
+The owner asked for PR 1 first, reached at `http://mulakai.lan`, and for the
+server to pick up `main` by itself.
+
+- **Name.** The LAN already routes every `*.lan` name to a Caddy proxy CT
+  (AdGuard rewrite). `mulakai.lan` is one more Caddy block, pointing at a new
+  `mulakai` LXC on port 3001. The server keeps no TLS and no port 80 of its own.
+- **Auto-deploy is a pull, not a push.** A systemd timer in the LXC
+  (`deploy/home-lan/update.sh`, every 2 min) fetches `main`. It redeploys only
+  when every GitHub check run on the new commit is green. Nothing on GitHub
+  reaches into the LAN, and the public repo needs no self-hosted runner, which
+  fork PRs could abuse. The build goes beside the live client and is swapped
+  in. A failed build rolls back, and that commit is not retried.
+- PRs 2–5 (agent, wake, lease, UI) are unchanged and still to come.
+
 ### What each job kind starts
 
 | `GenKind` | Services |
