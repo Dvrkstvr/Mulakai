@@ -8,7 +8,8 @@ never port-forward it.
 | Piece | Where |
 |---|---|
 | LXC `mulakai` (CT 108) | `192.168.2.13`, Debian 13, repo at `/opt/mulakai` |
-| Database and audio | `/var/lib/mulakai` (`DATA_DIR`), on the LXC's own disk |
+| Database | `/var/lib/mulakai` (`DATA_DIR`), on the LXC's own disk; SQLite never goes on a share |
+| Audio | host `/mnt/pve/disk-storage/mulakai/audio`, bind-mounted at `/srv/mulakai-audio` (`AUDIO_DIR`) |
 | Service | `mulakai.service`, port 3001, config in `/etc/mulakai.env` |
 | Name | AdGuard rewrites `*.lan` to the proxy CT, and Caddy has a `mulakai.lan` block |
 | Engines | the GPU PC, by URL (`mulakai.env.example`) |
@@ -48,6 +49,18 @@ pct start 108
 pct exec 108 -- bash -c "apt-get update && apt-get install -y curl git"
 pct exec 108 -- bash -c "curl -fsSL https://raw.githubusercontent.com/Dvrkstvr/Mulakai/main/deploy/home-lan/install.sh | bash"
 ```
+
+Give the audio its own folder on the data disk. CT 108 is unprivileged, so
+its `mulakai` user (uid 999, gid 991) is 100999:100991 on the host:
+
+```bash
+mkdir -p /mnt/pve/disk-storage/mulakai/audio
+chown -R 100999:100991 /mnt/pve/disk-storage/mulakai
+pct set 108 -mp0 /mnt/pve/disk-storage/mulakai/audio,mp=/srv/mulakai-audio
+pct reboot 108
+```
+
+Then set `AUDIO_DIR=/srv/mulakai-audio` in `/etc/mulakai.env`.
 
 Then add this to `/etc/caddy/Caddyfile` on the proxy CT (106), above the
 catch-all block, and run `systemctl reload caddy`:
