@@ -65,7 +65,7 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
   const inputRef = useRef<HTMLInputElement>(null);
   // OPEN CHAT (D-099): only while the chat is configured, like the header's CHAT.
   const chatOn = chatShown(useChatStore((s) => s.status));
-  const { openChat } = useNavigation();
+  const { openChat, openEditor } = useNavigation();
 
   useEffect(() => setTitle(song.title), [song.title]);
   useEffect(() => setComment(song.comment), [song.comment]);
@@ -102,6 +102,8 @@ export function SongDetailRail({ song, folders, onClose, onReusePrompt, onCreate
       <div className="song-detail-panel">
         <div className="field-label-row">
           <span className="section-header">SONG DETAIL</span>
+          {/* Either way into the song is one click from the side panel (PLAN.md "Editor Redesign", other screens). */}
+          <button type="button" className="detail-open-chat detail-open-editor" onClick={() => openEditor(song.id)}>OPEN IN EDITOR</button>
           {chatOn && openChat && <button type="button" className="detail-open-chat" onClick={() => openChat(song.id)}>OPEN CHAT</button>}
           <button className="rail-close" onClick={onClose}>&times;</button>
         </div>
